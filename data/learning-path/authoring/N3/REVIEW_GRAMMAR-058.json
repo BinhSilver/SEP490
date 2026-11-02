@@ -1,0 +1,413 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「どうして食べないの？」「だって、まずいんだもん。」“",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sao không ăn thế?””Thì vì dở quá mà”"
+     },
+     {
+      "ja": "今日の試験、できなかった・・・。勉強しなかったんだもん、仕方がない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kỳ thi hôm nay tôi không thể làm được…thì là vì không học nên đâu còn cách nào khác"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「どうして食べないの？」「だって、まずいんだもん。」“",
+     "FURIGANA_MISSING: 今日の試験、できなかった・・・。勉強しなかったんだもん、仕方がない。"
+    ],
+    "formation": "だって + V / Aい / Aな(な)・N(な) + んだもん",
+    "locked_fields": [],
+    "meaning_vi": "Thì là vì….",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜だってまずいんだもん",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để giải thích lý do kèm theo tâm trạng không vui vẻ, khó chịu, thất vọng Thường dùng trong văn nói thân mật, thông dụng"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a87828568a"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "できるまで、やるしかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ còn cách luyện tập cho đến khi làm được"
+     },
+     {
+      "ja": "直せないから、新しいのを買うしかなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì không thể sửa được nên chỉ còn cách mua cái mới"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 直せないから、新しいのを買うしかなかった。"
+    ],
+    "formation": "V-る + しかない",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ còn cách, chẳng còn cách nào khác ngoài",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜やるしかない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi muốn nhấn mạnh vào tình huống khó khăn và chỉ còn một cách giải quyết"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f5e5fd761c"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "国へ帰るのは、来週だ（った）っけ？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trở về nước là tuần sua phải không?"
+     },
+     {
+      "ja": "明日のパーテイーのこと、話し（まし）たっけ？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã nói về vụ bữa tiệc ngày mai đúng không?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 国へ帰るのは、来週だ（った）っけ？",
+     "FURIGANA_MISSING: 明日のパーテイーのこと、話し（まし）たっけ？"
+    ],
+    "formation": "N / Aな + だっけ / だったっけ / V-た・Aい(かった) + っけ",
+    "locked_fields": [],
+    "meaning_vi": "Phải vậy không?",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜来週だっけ?",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để xác nhận lại lần nữa sự việc, sự vật, đặc điểm Thường dùng trong thể nói thông dụng, thân mật"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9288bcac32"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「田中さん、結婚してるんだって。」「へー、知らなかった。」“",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tanaka, nghe nói đã kết hôn rồi” “Hả, tôi không biết đấy”"
+     },
+     {
+      "ja": "「試験の範囲は、教科書の最初から50ページまでだって。」“",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phạm vi của kỳ thi nghe nói là từ đầu sách giáo khoa đến trang 50 đấy.””"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「田中さん、結婚してるんだって。」「へー、知らなかった。」“",
+     "FURIGANA_MISSING: 「試験の範囲は、教科書の最初から50ページまでだって。」“"
+    ],
+    "formation": "V / Aい / Aな(な)・N(な) + んだって",
+    "locked_fields": [],
+    "meaning_vi": "Nghe nói là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜結婚結婚してるんだって",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi muốn tường thuật lại sự việc nghe được Thường dùng trong thể văn nói thân mật, thông dụng. Nữ thường dùng “でして”"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f5ffbdcc44"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "1日も休まないで学校に通った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã đến trường mà không nghỉ một ngày nào."
+     },
+     {
+      "ja": "この写真、誰にも見せないでくださいよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đừng cho ai xem bức ảnh này nhé."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 1日も休まないで学校に通った。",
+     "FURIGANA_MISSING: この写真、誰にも見せないでくださいよ。"
+    ],
+    "formation": "1 + Lượng từ + も + V-ない",
+    "locked_fields": [],
+    "meaning_vi": "Phủ định mạnh mẽ rằng hoàn toàn không ~.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "「全く〜ない」と強く否定する",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Phủ định mạnh mẽ rằng hoàn toàn không ~. Ví dụ: 1. 1日も休まないで学校に通った。 Đã đến trường mà không nghỉ một ngày nào. 2. 財布は空っぽだ。1円も残っていない。 Ví thì trống rỗng. Không còn 1円 nào. 3. この写真、誰にも見せないでくださいよ。 Đừng cho ai xem bức ảnh này nhé. 極端な例をだして、ほかも同じだと示す。 Chỉ ra những yếu tố khác cũng như vậy bằng cách đưa ra ví dụ cực đoan. Ví dụ: 1. 足が痛くて立つこともできない。 Chân đau đến nỗi không thể đứng được. 2. この子はもう難しい漢字も書ける。 Đứa bé này đã có thể viết cả những chữ Hán khó. 3. こんなに高い山の上にも店がある。 Trên đỉnh một ngọn núi cao như thế này cũng có cửa hàng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5aeb6e8e26"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "名前ぐらいは書けます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ít nhất tôi có thể viết tên mình. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 名前ぐらいは書けます。"
+    ],
+    "formation": "N + ぐらい(は) / くらい(は)",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị mức độ nhẹ/ mức độ tối thiểu.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "ぐらい/くらい",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "軽い程度・最低限を示す Biểu thị mức độ nhẹ/ mức độ tối thiểu. Ví dụ: 1. 簡単な挨拶ぐらいなら日本語で言える。 Nếu chỉ là những lời chào đơn giản thì tôi có thể nói bằng tiếng Nhật. 2. 今日は少しぐらいお酒を飲んでもいいね。 Hôm nay uống một chút rượu cũng được nhỉ. 3. 日曜日ぐらい休ませてくださいよ。 Ít nhất cho tôi được nghỉ vào Chủ nhật đi. 同じ程度の例を示す Đưa ra ví dụ cùng mức độ. Ví dụ: 1. 卵ぐらいの大きさのパンを作った Đã làm một chiếc bánh mì có kích thước khoảng bằng quả trứng. 2. うちの娘ぐらいの女の子が泣いていた。 Một cô bé khoảng bằng con gái tôi đang khóc. 3. この車は私にも買えるくらいの値段だ。 Chiếc xe này có giá mà ngay cả tôi cũng có thể mua được."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-03a752fb19"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "隣の駅で事故があったらしい。そのために電車が遅れている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe nói có tai nạn ở nhà ga gần đây. Vì thế mà xe điện đang bị trễ."
+     },
+     {
+      "ja": "留学するつもりだ。そのために、バイトしてお金をためている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi định đi du học. Vì thế tôi đi làm thêm và đang để dành tiền"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 隣の駅で事故があったらしい。そのために電車が遅れている。",
+     "FURIGANA_MISSING: 留学するつもりだ。そのために、バイトしてお金をためている。"
+    ],
+    "formation": "Câu 1。+ そのため(に)、+ Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Vì thế, Do đó",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜事故があった。そのため(に)遅れている",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng làm từ nối tiếp diễn với lý do, mục tiêu được nêu ra trước đó để tiếp nối đến kết quả"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-82589ac9e5"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "父は、人の何倍も努力した。その結果、仕事で成功した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ba tôi đã nỗ lực gấp mấy lần của một người. Kết quả là đã thành công trong công việc"
+     },
+     {
+      "ja": "3ヶ月ダイエットを続けた。その結果、5キロやせた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã liên tục ăn kiêng trong 3 tháng. Kết quả là đã giảm 5 kí lô"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 父は、人の何倍も努力した。その結果、仕事で成功した。",
+     "FURIGANA_MISSING: 3ヶ月ダイエットを続けた。その結果、5キロやせた。"
+    ],
+    "formation": "Câu 1。+ その結果、+ Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Kết quả là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜努力した。その結果成功した",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp một sự việc đã xảy ra trong quá khứ là lý do dẫn đến hậu quả của sự việc tiếp theo. Dùng làm từ nối 2 câu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c5c4f63ce8"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "来週、国に帰る予定です。なぜなら（ば）、親友の結婚式に出席するからです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tuần sau dự định về nước. Nếu hỏi tại sao thì là vì tôi sẽ tham dự đám cưới của bạn thân"
+     },
+     {
+      "ja": "学校を変えた。なぜかというと、ぼくのレベルのクラスがなかったからだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã chuyển trường. Nếu nói là tại sao thì là do không có lớp ở trình độ của tôi"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 来週、国に帰る予定です。なぜなら（ば）、親友の結婚式に出席するからです。",
+     "FURIGANA_MISSING: 学校を変えた。なぜかというと、ぼくのレベルのクラスがなかったからだ。"
+    ],
+    "formation": "Câu 1。+ なぜなら(ば)、+ Câu 2 + からだ",
+    "locked_fields": [],
+    "meaning_vi": "Nếu nói tại sao thì là vì…, Nếu hỏi sao thì là do,…, Vì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜帰国する。なぜなら結婚式に出席するからだ。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nêu lý do, nguyên nhân của một kết luận được nêu trước đó"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-be7110b733"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "父の兄、つまり私の伯父は、医者をしている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh của ba tôi, tức là bác tôi, đang làm bác sĩ"
+     },
+     {
+      "ja": "田中さんは、携帯もパソコンも持っていない。つまり、メールで連絡はできないのだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tanaka không có cả di động cả máy tính. Tức là, không thể liên lạc qua mail được"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 父の兄、つまり私の伯父は、医者をしている。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 父の兄、つまり私の伯父は、医者をしている。 → 伯",
+     "FURIGANA_MISSING: 田中さんは、携帯もパソコンも持っていない。つまり、メールで連絡はできないのだ。"
+    ],
+    "formation": "N1、+ つまり + N2",
+    "locked_fields": [],
+    "meaning_vi": "Tức là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜父の兄、つまり伯父",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để lặp lại một sự vật, sự việc với một cách nói, cách gọi khác tương đương"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-efbf4715e4"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-058"
+}

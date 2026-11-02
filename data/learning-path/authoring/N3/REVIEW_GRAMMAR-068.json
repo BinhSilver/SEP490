@@ -1,0 +1,420 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "明日の集合時間、何時だっけ？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giờ tập trung ngày mai là mấy giờ nhỉ?"
+     },
+     {
+      "ja": "あの店、定休日は火曜だったっけ？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quán đó nghỉ cố định vào thứ Ba phải không nhỉ?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 明日の集合時間、何時だっけ？",
+     "FURIGANA_MISSING: あの店、定休日は火曜だったっけ？"
+    ],
+    "formation": "V-た / Aい(かった) / Aな・N(だ / だった) + っけ",
+    "locked_fields": [],
+    "meaning_vi": "Ý nghĩa: Tiểu từ cuối câu biểu thị người nói đang cố nhớ lại thông tin mơ hồ, mong người nghe xác nhận/nhắc. Sắc thái: Rất khẩu ngữ, thân mật; có thể độc thoại (tự hỏi bản thân) hoặc hỏi người khác. Mức lịch sự: でしたっけ／ましたっけ thêm lịch sự nhưng vẫn mang cảm giác thân mật, không dùng trong văn bản trang trọng.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "...nhỉ?, xác nhận lại",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi người nói không chắc chắn/nhớ mang máng, mong xác nhận. Thường đi cùng câu hỏi có từ nghi vấn: 何、どこ、いつ、誰＋～だっけ？ Có thể độc thoại: 電気消したっけ？ (Mình đã tắt điện chưa nhỉ?) [6. Ghi chú mở rộng] Ở Kansai có khi dùng 「っけ」 ít hơn, thay bằng 「け」 trong một số khẩu ngữ địa phương, nhưng chuẩn Tokyo là っけ. 「～でしたっけ」/「～ましたっけ」 tăng lịch sự, hợp khi hỏi người lạ nhưng vẫn khá thân mật. Trong chat/mạng xã hội, だっけ thường viết kèm dấu “…” để thể hiện lưỡng lự: 何時だっけ…？ [7. Biến thể & cụm cố định] ～んだっけ？ (nhấn giải thích/thông tin nền) でしたっけ／ましたっけ？ (lịch sự nhẹ) ～だったっけ？ (quá khứ của だ) [8. Lỗi thường gặp & bẫy JLPT] Dùng trong văn trang trọng/thi cử: × 何時でしょうかっけ → sai; chọn でしょうか hoặc でしたっけ tùy ngữ cảnh. Kết hợp thời sai: × 高いだったっけ → với Aい dùng 高かったっけ／高いっけ. Nhầm mục đích: ～っけ là “nhớ lại”, không phải câu hỏi thông tin trung lập. JLPT nghe hiểu dễ đánh lừa giữa ですか và でしたっけ; hãy chú ý sắc thái nhớ lại."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2494e90bb6"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "犬に手を噛まれた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi bị chó cắn vào tay."
+     },
+     {
+      "ja": "先生に褒められた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi được thầy khen."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 犬に手を噛まれた。",
+     "FURIGANA_MISSING: 先生に褒められた。"
+    ],
+    "formation": "N1 + は + N2 + に (+ N3 を) + V(thể bị động: 〜れる / 〜られる)",
+    "locked_fields": [],
+    "meaning_vi": "Bị động quá khứ: Hành động đã xảy ra, chủ ngữ là người/vật bị tác động. Ví dụ: 先生に注意された。 Khả năng quá khứ (nhóm II/来る): Diễn đạt “đã có thể …” (ngủ được, nhìn được). Ví dụ: よく見られた（=見える/見られるの過去）. Kính ngữ bị động: Tôn kính người thực hiện hành động. Ví dụ: 部長はもうお帰りになられた／帰られた。 Thụ động bất lợi: Diễn đạt sự khó chịu do hành vi/hiện tượng. Ví dụ: 隣で大声で歌われた。",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Bị, được",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Bị động: trung lập hoặc mang sắc thái bất lợi/phiền toái tùy bối cảnh. Khả năng quá khứ: chỉ áp dụng tự nhiên với động từ nhóm II và 来る（来られた）; nhóm I dùng ～えた (書けた, 行けた), không dùng ～られた. Kính ngữ bị động: trang trọng, dùng cho cấp trên/khách hàng. Cân nhắc dùng các dạng tôn kính đặc thù: 召し上がった, いらっしゃった. [6. Ghi chú mở rộng] Tác nhân trong bị động thường dùng に; khi nhấn mạnh phương tiện/nguyên nhân, dùng によって/で: 風に吹かれた／台風によって家が壊された。 “見られた” có thể là “bị nhìn thấy” (bị động) hoặc “đã có thể nhìn” (khả năng của 一段). Cần ngữ cảnh phân biệt. Thụ động bất lợi có thể dùng với hiện tượng tự nhiên: 雪に降られた, 風に吹かれた. [7. Biến thể & cụm cố định] NにV-られた（bị … làm gì） NによってV-られた（bị … bởi/ do …） V-させられた（bị bắt phải …） （尊敬）いらっしゃった／召し上がった／ご覧になった（kính ngữ đặc biệt, thay cho ～られた） [8. Lỗi thường gặp & bẫy JLPT] Nhầm khả năng nhóm I: ×行られた → ○行けた. Thiếu tác nhân に trong bị động: ×先生を叱られた → ○先生に叱られた. Nhầm với kính ngữ: “来られた” có thể là kính ngữ, không phải bị động. Dựa vào chủ ngữ để phân biệt. 先生に褒められた là dạng cơ bản; 先生から褒められた cũng có thể dùng với các động từ như 褒める／教える／頼む khi から nhấn nguồn xuất phát của hành động. Không nên đổi máy móc thành によって."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e8a3734a9a"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "もしかすると明日は雪になるかもしれない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Biết đâu ngày mai trời sẽ có tuyết."
+     },
+     {
+      "ja": "彼はもう出発したかもしれない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có lẽ anh ấy đã xuất phát rồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: もしかすると明日は雪になるかもしれない。",
+     "FURIGANA_MISSING: 彼はもう出発したかもしれない。"
+    ],
+    "formation": "もしかすると / もしかしたら + 〜かもしれない",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả khả năng xảy ra (thường thấp đến trung bình), người nói không chắc chắn: “có lẽ, biết đâu”. “もしかすると/もしかしたら” tăng sắc thái suy đoán mơ hồ hoặc bất ngờ. Mức độ chắc chắn: に違いない/はずだ > だろう/でしょう > かもしれない (yếu nhất). Dùng được với hiện tại, quá khứ, tương lai: 来るかもしれない／来たかもしれない.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có lẽ, không chừng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] “もしかして” thường xuất hiện trong câu hỏi tạo cảm giác kiểm chứng phỏng đoán. Đặt ở đầu câu để cảnh báo/đệm thái độ thận trọng: もしかすると誤解があるかもしれない. Tránh kết hợp với phó từ xác suất mạnh như 絶対に/必ず (mâu thuẫn sắc thái). Trong văn viết, có thể dùng 可能性がある để trung lập/hàn lâm hơn. [6. Ghi chú mở rộng] “もしかすると” có tính nhấn mạnh, đặt đầu câu thuận tai hơn giữa câu. Khẩu ngữ rút gọn: ～のかも／～かもね／～かもな (theo giới, vùng). Cấu trúc tránh mơ hồ kép: × たぶんもしかすると… → chọn một phó từ. Với N/な-adj, “だ” trước かもしれない thường lược: 彼は学生かもしれない (tự nhiên hơn 彼は学生だかもしれない). [7. Biến thể & cụm cố định] もしかすると／もしかしたら／もしかして + ～かもしれない. もしかして～？ (hỏi xác nhận): もしかして、初めてですか？ ～のかもしれない (nhẹ nhàng hơn, giải thích): 彼は疲れているのかもしれない. [8. Lỗi thường gặp & bẫy JLPT] Sai hình thức với N/な-adj: × 先生だかもしれない → ✓ 先生かもしれない. Kết hợp phó từ mâu thuẫn: × 絶対にかもしれない → mâu thuẫn xác suất. Nhầm mức độ với だろう/はずだ/に違いない. JLPT hay kiểm tra lựa chọn theo ngữ cảnh bằng chứng. Lạm dụng もしかして trong khẳng định; もしかして phù hợp hơn trong câu hỏi/kiểm chứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-455639c6b7"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は来ないらしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe nói là anh ấy không đến."
+     },
+     {
+      "ja": "明日は寒くなるらしいよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe bảo ngày mai sẽ lạnh đấy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は来ないらしい。",
+     "FURIGANA_MISSING: 明日は寒くなるらしいよ。"
+    ],
+    "formation": "V / Aい / Aな・N + らしい",
+    "locked_fields": [],
+    "meaning_vi": "Ý nghĩa 1 (hearsay): Dựa trên thông tin nghe được/nguồn gián tiếp → “hình như/ nghe nói là …”. Mức độ chắc chắn vừa phải, mang tính phỏng đoán từ nguồn. Ý nghĩa 2 (tính điển hình): Diễn tả sự “đúng chất/ra dáng” của một danh từ theo khuôn mẫu/đặc trưng xã hội. N/Na trước らしい: không dùng だ. Ví dụ: 便利らしい（không nói 便利だらしい）.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có vẻ như, nghe nói",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Hearsay “らしい” thể hiện phỏng đoán dựa trên nguồn (tin đồn/ai đó nói), người nói không khẳng định chắc. “～そうだ” (truyền văn) mang sắc thái báo lại lời người khác trực tiếp; “らしい” gián tiếp, mềm hơn, cho thấy người nói tổng hợp nguồn. Với nghĩa “đúng chất”, “～らしい” là tính từ đuôi い, có thể biến đổi như らしく, らしさ. [6. Ghi chú mở rộng] “らしい” sau Na/N: lược “だ”. Ví dụ: 静からしい部屋 (nghe nói phòng yên tĩnh). Dạng “静かだらしい” thường tránh. “らしくない” hay dùng để phê bình nhẹ nhàng: それは君らしくないよ。 Khi muốn khách quan, báo tin tức, ưu tiên “～という”/“～とのことだ” thay cho “らしい”. [7. Biến thể & cụm cố định] ～らしく（trạng từ）：日本らしくもてなす ～らしさ（danh từ）：東京らしさ／季節らしさ ～らしくない（phủ định điển hình）：大人らしくない行動 [8. Lỗi thường gặp & bẫy JLPT] Thêm “だ” trước らしい: ×便利だらしい → ○便利らしい。 Nhầm “らしい” (hearsay) với “そうだ（様態）” mang nghĩa “trông có vẻ”: 雨が降りそうだ ≠ 雨が降るらしい. Nhầm “子どもらしい”（đúng chất trẻ con, tích cực) với “子どもっぽい”（trẻ con, có thể mang sắc thái chê)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3de3157db4"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は今、資料を読んでいる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy đang đọc tài liệu."
+     },
+     {
+      "ja": "私は田中さんを知っている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi biết anh Tanaka."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は今、資料を読んでいる。",
+     "FURIGANA_MISSING: 私は田中さんを知っている。"
+    ],
+    "formation": "V-て + いる",
+    "locked_fields": [],
+    "meaning_vi": "Tiếp diễn: Hành động đang diễn ra. 例：今、昼ご飯を食べている。 Trạng thái kết quả (động từ khoảnh khắc): 結婚している（đã kết hôn, đang trong trạng thái kết hôn）, 知っている（biết）. Thói quen/lặp lại: 毎朝走っている（tôi hay chạy mỗi sáng）. Trạng thái hiện hữu/vị trí: 東京に住んでいる, 電車に乗っている. Với tự động từ chỉ biến đổi: ドアが開いている（cửa đang mở) → trạng thái sau khi mở.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đang, đã (trạng thái)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Không dùng “今、行っている” để nói “tôi đang đi ngay bây giờ”; tự nhiên hơn: 今、向かっています／今、行くところです. Với động từ khoảnh khắc (壊れる, 死ぬ, 終わる…), “～ている” diễn tả trạng thái sau khi sự việc đã xảy ra: もう終わっている, 彼はもう亡くなっている. “～ている” có thể là hiện tại tiếp diễn hoặc thói quen — dựa vào ngữ cảnh thời gian (今/毎日…). [6. Ghi chú mở rộng] “行っている/来ている” có hai nghĩa: trạng thái ở đó (đã đi và đang ở đó) hoặc thói quen. Ví dụ: その店によく行っている（thói quen）／田中さんは今、出張に行っている（hiện đang ở chuyến công tác）. Khẩu ngữ rút gọn: している → してる, していない → してない. Trong văn trang trọng, tránh rút gọn. Kết hợp tiến triển: ～てきている（đang dần …）, ～ていく／～てくる với sắc thái hướng thời gian/điểm nhìn. [7. Biến thể & cụm cố định] ～ているところ（đúng lúc đang …） ～ている最中（ngay giữa lúc …） ～てばかりいる（suốt ngày chỉ …） ～てしまっている（đang trong trạng thái lỡ …） ～てきている／～ていっている（xu hướng đang diễn ra） [8. Lỗi thường gặp & bẫy JLPT] Dùng ている cho hành động tức thời di chuyển: ×今、行っている → ○今、向かっている／今、行くところ. Nhầm “様態そうだ” với ている: 雨が降りそうだ（sắp mưa）≠ 雨が降っている（đang mưa）. Không nhận ra “động từ khoảnh khắc + ている” là trạng thái sau đó: ×結婚している＝đang làm lễ → ○đã kết hôn (trạng thái)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-24a95492e8"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "忘れないように、カレンダーに予定を書いておく。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Để không quên, tôi ghi lịch vào lịch."
+     },
+     {
+      "ja": "皆に聞こえるように、もう少し大きな声で話してください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Làm sao cho mọi người nghe được, xin hãy nói to hơn một chút."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 忘れないように、カレンダーに予定を書いておく。",
+     "FURIGANA_MISSING: 皆に聞こえるように、もう少し大きな声で話してください。"
+    ],
+    "formation": "V-る / V-ない + ように",
+    "locked_fields": [],
+    "meaning_vi": "“Để/sao cho ...”: hướng tới đạt một trạng thái/khả năng (nghe được, nhìn thấy, có thể làm được...). Thường đi với động từ khả năng hoặc kết quả không hoàn toàn do ý chí trực tiếp điều khiển (聞こえる・見える・できる・間違えない...). “Như/giống như ...”: dùng với danh từ/“ような/ように” để tạo so sánh ẩn dụ. Cấu trúc cầu chúc “～ますように”: bày tỏ mong ước lịch sự. Trong lời nhắn/ra lệnh gián tiếp: ～ように言う／頼む diễn đạt “hãy/đừng” theo cách gián tiếp, lịch sự.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Để, nhằm, theo như",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Vế trước “ように” biểu thị mục tiêu trạng thái/khả năng; vế sau là hành động/biện pháp để đạt mục tiêu. Với yêu cầu gián tiếp: dùng “～ように言う/頼む/注意する” để lịch sự, giảm trực diện. “～ますように” mang sắc thái khiêm nhường/lịch sự, thường dùng trong viết/email, cầu nguyện. “N のように/ような” tạo ví von, tránh nhầm với “ようだ” (phán đoán/giống như có vẻ). [6. Ghi chú mở rộng] Khi mục tiêu là khả năng/được phép: 聞こえる・見える・できる・分かる đi kèm “ように”. Hai cách dùng lớn của “ように” (mục đích và so sánh) thường được kiểm tra đối chiếu với “ために” và “ようだ/みたい”. Trong hướng dẫn an toàn/biển báo: 火の取り扱いに注意するように（hãy chú ý khi dùng lửa）. [7. Biến thể & cụm cố định] ～ように言う／頼む／注意する（yêu cầu/nhắc nhở gián tiếp） ～ますように（cầu chúc）／～ように祈る（cầu nguyện） N のように／ような N（so sánh trực tiếp） ～ようにしてください（văn bản hướng dẫn, lịch sự) [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～ために: mục đích do ý chí trực tiếp → dùng ために; khả năng/kết quả → dùng ように. Dùng “ように” với động từ mục tiêu mang ý chí trực tiếp mà không có dạng khả năng: 日本に行くように勉強する（tự nhiên hơn: 行けるように/合格するために）. Nhầm “ように” (so sánh) với “ようだ” (suy đoán): 子どものように（như trẻ con）≠ 子どものようだ（trông có vẻ như trẻ con). Quên Vない形 cho mục tiêu phủ định: 遅れないように（để không muộn), không phải 遅れるように."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7255089570"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "知っているくせに、教えてくれなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù biết rồi thế mà lại không chịu nói."
+     },
+     {
+      "ja": "学生のくせに、授業に全然来ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Là sinh viên mà chẳng đến lớp gì cả."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 知っているくせに、教えてくれなかった。",
+     "FURIGANA_MISSING: 学生のくせに、授業に全然来ない。"
+    ],
+    "formation": "V / Aい / Aな(な) / N(の) + くせに",
+    "locked_fields": [],
+    "meaning_vi": "～くせに: “Mặc dù/Thế mà … (lại) …” với sắc thái trách móc, chê bai, mỉa mai. Thường chỉ mâu thuẫn giữa thực tế A và hành vi/lời nói B, kèm thái độ tiêu cực của người nói. Chủ ngữ hai mệnh đề thường là cùng một người/đối tượng (đặc biệt khi trách móc người nghe/người thứ ba). Sắc thái mạnh hơn 〜のに; tránh dùng với người trên hoặc trong văn trang trọng. Có thể tự trách bản thân: 分かっているくせに、また同じ失敗をした。",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Mặc dù, thế mà",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Giọng trách móc rõ rệt; cân nhắc lịch sự trong môi trường công sở. Thường đi với các từ gợi mâu thuẫn: のに・くせに・わりに; くせに là mạnh nhất về chê trách. Phù hợp văn nói; trong văn viết trang trọng, thay bằng 〜にもかかわらず (trung tính) hoặc 〜のに (mềm hơn). Gắn với nhóm từ có định kiến (〜のくせに về giới/tuổi) có thể gây xúc phạm; nên tránh. [6. Ghi chú mở rộng] Nhịp điệu khẩu ngữ: 〜くせして／〜くせにさ／〜くせにね tạo sắc thái cảm xúc. Đặt sau cụm danh từ đánh giá vai trò: 社長のくせに／親のくせに nhấn mạnh “không làm tròn vai”. Tránh dùng trong email công việc; chuyển sang biểu đạt trung tính để lịch sự. [7. Biến thể & cụm cố định] 〜くせして（khẩu ngữ mạnh） N + の + くせに（学生のくせに／プロのくせに） 分かっているくせに／知っているくせに（rất thường gặp） 偉そうにするくせに／文句ばかり言うくせに（cụm phê phán điển hình） [8. Lỗi thường gặp & bẫy JLPT] Chủ ngữ khác nhau gây khiên cưỡng: “雨が降っているくせに、出かける” → không tự nhiên. くせに phù hợp khi cùng một đối tượng bị phê phán. Dùng với cấp trên/người lạ → thô lỗ. Chọn 〜のに/〜にもかかわらず. Nhầm với 〜わりに(は): くせに mang trách móc; わりに(は) là so sánh tương đối. JLPT: nhận diện sắc thái cảm xúc tiêu cực để chọn くせに thay vì のに/にもかかわらず."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9eb47f862e"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "最近、仕事が忙しくて食事を抜きがちだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gần đây bận nên hay bỏ bữa."
+     },
+     {
+      "ja": "彼は約束の時間に遅れがちだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy hay đến muộn giờ hẹn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 最近、仕事が忙しくて食事を抜きがちだ。",
+     "FURIGANA_MISSING: 彼は約束の時間に遅れがちだ。"
+    ],
+    "formation": "V(bỏ ます) + がちだ / N + がちだ",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị khuynh hướng “thường hay …, có xu hướng …”, đa phần mang sắc thái tiêu cực/không mong muốn. Áp dụng cho thói quen, tình trạng lặp lại, xu hướng tạm thời trong giai đoạn nào đó. Không dùng cho sự kiện đơn lẻ đặc thù; cần tính lặp lại hoặc khuynh hướng. So với ～やすい: ～がち nhấn mạnh “kết quả thường xảy ra” hơn là “dễ xảy ra do tính chất”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Thường hay, dễ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái hơi tiêu cực/không mong muốn; tránh dùng trực tiếp cho người nghe nếu dễ gây khó chịu. Dùng được cho người, sự việc, thời tiết, sức khỏe. Không dùng cho quá trình đang diễn ra ngay lúc nói (đó là ～ている); ～がち nói về khuynh hướng chung. Đi kèm phó từ tần suất để tăng cường: どうしても、つい、最近は…. [6. Ghi chú mở rộng] Về ngữ pháp, ～がち gốc là hậu tố gắn sau danh từ/ren’youkei (Vます) tạo tính từ nghĩa “có xu hướng”. Trong miêu tả thời tiết/kinh tế, ～がち dùng để nêu khuynh hướng ngắn hạn: 雨がち、値下がりがち. Dùng lịch sự hơn khi nói về người khác: ～がちですね thay vì phán xét nặng nề. [7. Biến thể & cụm cố định] 忘れがち、遅れがち、病気がち、留守がち、雨がち、曇りがち ～がちだ／～がちなN／～がちになる 偏りがち（có xu hướng lệch), 閉じこもりがち [8. Lỗi thường gặp & bẫy JLPT] Dùng cho sự kiện đơn lẻ: Sai. ～がち cần tính lặp lại/xu hướng. Nhầm với ～やすい: ～がち là “thường hay xảy ra”, không phải “dễ làm”. Quên chuyển động từ về Vます trước ～がち (×忘れるがち → ○忘れがち). Dùng với sắc thái khen ngợi: thường không phù hợp vì ～がち đa phần tiêu cực."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4f3b9562f7"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "子供っぽい態度はやめなさい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đừng cư xử kiểu trẻ con nữa."
+     },
+     {
+      "ja": "このコートは黒っぽいから、汚れが目立たない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Áo khoác này hơi đen nên vết bẩn không nổi rõ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 子供っぽい態度はやめなさい。",
+     "FURIGANA_MISSING: このコートは黒っぽいから、汚れが目立たない。"
+    ],
+    "formation": "N + っぽい",
+    "locked_fields": [],
+    "meaning_vi": "Giống/na ná N: Diễn tả vẻ ngoài, phong cách hay ấn tượng “mang chất” của N. Ví dụ: 子供っぽい (trẻ con), 大人っぽい (người lớn), 春っぽい (mang hơi hướng mùa xuân). Xu hướng/dễ V: Khi gắn với động từ, diễn tả khuynh hướng hành vi, thường mang sắc thái chê nhẹ. Ví dụ: 忘れっぽい (dễ quên), 飽きっぽい (cả thèm chóng chán), 怒りっぽい (dễ cáu). Tính “nhiều/chứa/đậm”: Với từ chỉ màu/chất, nghĩa “hơi thiên về/đậm chất đó”. Ví dụ: 水っぽい (loãng, nhiều nước), 油っぽい (ngấy dầu), 黒っぽい (hơi đen). Sắc thái: Thường khẩu ngữ, có thể mang sắc thái đánh giá, đôi khi tiêu cực (đặc biệt với xu hướng xấu: 忘れっぽい, 飽きっぽい).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tràn đầy, nhiều, đậm chất",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] ～っぽい là tính từ đuôi い: chia được như い-Adj (～っぽくない, ～っぽかった, ～っぽく, ～っぽさ). Với động từ, chỉ một số gốc thường dùng cố định (忘れる→忘れっぽい, 飽きる→飽きっぽい, 怒る→怒りっぽい). Không gắn tùy tiện với mọi động từ. Thường mang sắc thái khẩu ngữ/casual; trong văn viết trang trọng cân nhắc dùng ～ようだ, ～らしい, ～みたい. Với màu/chất: nghĩa thiên về “hơi/na ná”, không phải màu thuần khiết: 茶色っぽい = hơi nâu. Với N mang chuẩn mực (子供/大人/女/男/春…): hàm ý “đậm chất/ra dáng/na ná”. Với 子供っぽい có thể mang nghĩa chê. [6. Ghi chú mở rộng] Độ “na ná” của ～っぽい mạnh hơn ～みたい khi gắn với màu/chất, nhưng yếu hơn tính chất “điển hình” của ～らしい. Với thói quen xấu, ～っぽい gợi tính bẩm sinh/khuynh hướng cá nhân, còn ～がち nghiêng về tần suất khách quan. Danh từ trừu tượng vẫn dùng được: ミスっぽい, 田舎っぽいデザイン. [7. Biến thể & cụm cố định] 子供っぽい／大人っぽい／男っぽい／女っぽい 忘れっぽい／飽きっぽい／怒りっぽい 水っぽい／油っぽい／粉っぽい／黒っぽい／茶色っぽい 春っぽい／秋っぽい雰囲気 [8. Lỗi thường gặp & bẫy JLPT] Dùng với mọi động từ: sai. Chỉ một số gốc V tự nhiên với ～っぽい (忘れる, 飽きる, 怒る...). Nhầm với ～らしい: 子供らしい (đúng chất trẻ con, có thể khen) ≠ 子供っぽい (trẻ con theo nghĩa “con nít”, dễ chê). Dùng trong văn viết trang trọng: nên thay bằng ～ようだ／～らしい để phù hợp văn phong. っぽい có thể xuất hiện trong một số từ gắn với tính từ, như 安っぽい／白っぽい. Tuy nhiên không thể gắn tự do vào mọi tính từ; 悲しいっぽい thường tránh và nên dùng 悲しそう／悲しげ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-dacf95320f"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "毎日練習して、ピアノが弾けるようになった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tập mỗi ngày nên tôi đã có thể chơi piano."
+     },
+     {
+      "ja": "年を取って、早起きするようになった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Càng lớn tuổi tôi đã bắt đầu dậy sớm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 毎日練習して、ピアノが弾けるようになった。",
+     "FURIGANA_MISSING: 年を取って、早起きするようになった。"
+    ],
+    "formation": "V(thể khả năng) / V-る / V-ない + ようになる",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị “thay đổi trạng thái” theo thời gian: từ không làm → bắt đầu làm; từ không thể → có thể. Nhấn kết quả đạt được sau một quá trình, thường do hoàn cảnh/tập luyện/tác động bên ngoài. Dạng phủ định: “Vないようになった” = đã thôi/không còn làm nữa (thay đổi thói quen). “～ようになっている” mô tả cơ chế/thiết kế dẫn đến kết quả nào đó.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Trở nên, đã bắt đầu",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Tự nhiên, khách quan hơn “～ようにする” (hành động chủ ý). Nhấn kết quả thay đổi đã xảy ra. Dùng để báo cáo quá trình trưởng thành, tiến bộ, thay đổi thói quen. Với hiện tượng tự nhiên/thiết kế, dùng “～ようになっている” thay vì “～ようになった”. [6. Ghi chú mở rộng] Khả năng: 走れる/話せる/見られる + ようになった diễn tả “đã có thể …” sau luyện tập. Với thiết bị/quy trình: ～ように（自動で）なる/なっている để nêu cơ chế mong muốn/thiết kế. Tránh gắn trực tiếp với tính từ để nói “trở nên …ようになった”: dùng ～く/～になってきた/なった. Ví dụ: ×暑いようになった → ○暑くなってきた。 [7. Biến thể & cụm cố định] ～ようになってきた（dần dần trở nên） ～ようになっている（được thiết kế/đã ở trạng thái như vậy） ～ようにならない（mãi không thể/không thành） ～できるようになった／～られるようになった（đạt năng lực） [8. Lỗi thường gặp & bẫy JLPT] Nhầm với “～ようにする”: cái này là nỗ lực; “～ようになった” là kết quả thay đổi. Dùng cho hiện tượng tự nhiên vô ý thức: ưu tiên ～なくなった thay vì ～ないようになった khi không có yếu tố điều khiển. Không ghép trực tiếp với tính từ: ×きれいようになった → ○きれいになった。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4844972d7d"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-068"
+}

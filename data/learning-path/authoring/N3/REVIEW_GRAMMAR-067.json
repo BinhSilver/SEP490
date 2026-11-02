@@ -1,0 +1,421 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "明日、新しい企画についての会議が行われることになっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngày mai buổi họp về kế hoạch mới được quyết định tổ chức"
+     },
+     {
+      "ja": "今度、大阪に転勤することになりました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lần này đã được chuyển công tác về Osaka"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 明日、新しい企画についての会議が行われることになっている。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 明日、新しい企画についての会議が行われることになっている。 → 企画",
+     "FURIGANA_MISSING: 今度、大阪に転勤することになりました。"
+    ],
+    "formation": "V-る / V-ない + ことになっている",
+    "locked_fields": [],
+    "meaning_vi": "Bị/ được/ quy định làm gì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜行われることになっている",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi muốn nhấn mạnh sự việc không phải do bản thân chủ thể quyết định mà do người khác hoặc nhân tố khác tác động, quy định, ra lệnh"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-82af7b54ca"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "鶏肉は、食べないことはないですが、あまり好きではありません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thịt gà thì không phải là không ăn mà không thích lắm"
+     },
+     {
+      "ja": "「走れば間に合わないことはないよ。急ごう！」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu chạy nhanh thì không có chuyện không kịp đâu. Hãy nhanh lên!"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 鶏肉は、食べないことはないですが、あまり好きではありません。",
+     "FURIGANA_MISSING: 「走れば間に合わないことはないよ。急ごう！」"
+    ],
+    "formation": "V-ない / Aい(くない) + ことはない(が)",
+    "locked_fields": [],
+    "meaning_vi": "không phải là không ….",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜食べないことはない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp muốn nói rằng không phải bản thân phủ định sự việc, sự vật mà muốn bày tỏ lý do/ mức độ thấp hơn so với phủ định"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-81cc57772f"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "もう少しで遅刻するところだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ suýt chút nữa là trễ rồi"
+     },
+     {
+      "ja": "あと少しで合格するところだったのに・・・。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ suýt chút nữa là đậu rồi thế mà"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: もう少しで遅刻するところだった。",
+     "FURIGANA_MISSING: あと少しで合格するところだったのに・・・。"
+    ],
+    "formation": "もう少しで + V-る + ところだった",
+    "locked_fields": [],
+    "meaning_vi": "Suýt chút nữa thì….",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜もう少しで遅刻するところだった",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng cho trường hợp muốn bày tỏ cảm xúc đối với sự việc suýt chút nữa là đã xảy ra, đáng lẽ là đã xảy ra (cảm xúc thất vọng, tức giận, buồn bã, nhẹ nhõm….)"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-220d7edd1f"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "明るいうちに帰ってきなさい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hãy về nhà trong lúc trời còn sáng"
+     },
+     {
+      "ja": "何度も聞いているうちに歌詞を覚えた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã nhớ được ca từ trong lúc nghe nhiều lần"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 明るいうちに帰ってきなさい。",
+     "FURIGANA_MISSING: 何度も聞いているうちに歌詞を覚えた。"
+    ],
+    "formation": "V-る / V-ている / V-ない / Aい / Aな(な) / N(の) + うちに",
+    "locked_fields": [],
+    "meaning_vi": "Trong lúc, trong khi",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜明るいうちに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp thực hiện một hành động nào đó trong một khoảng thời gian không xác định. Khoảng thời gian không xác định này là khoảng thời gian mà một sự việc, tình trạng nào đó vẫn còn tiếp diễn"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-72d32fcf67"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "先生に注意されてはじめて、漢字の間違いに気が付いた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "chỉ sau khi được thầy nhắc nhở mới nhận ra lỗi sai Hán tự"
+     },
+     {
+      "ja": "歌舞伎を見てはじめて、日本文化に興味を持った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ sau khi xem Kabuki mới bắt đầu quan tâm đến văn hóa Nhật với văn hóa Nhật Bản"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 先生に注意されてはじめて、漢字の間違いに気が付いた。",
+     "FURIGANA_MISSING: 歌舞伎を見てはじめて、日本文化に興味を持った。"
+    ],
+    "formation": "V-て + はじめて",
+    "locked_fields": [],
+    "meaning_vi": "Làm gì đó thì bắt đầu",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜注意されてはじめて",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Thường dùng trong trường hợp sau khi thực hiện hành động nào đó thì mới bắt đầu nhận thức được, hiểu được một vấn đề nào đó"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-443412ccfd"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "先生に今度のテストの範囲を聞いたところ、10課までだと言われた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi thử hỏi thầy giáo phạm vi bài kiểm tra lần này thì đã được nói là đến bài 10"
+     },
+     {
+      "ja": "歯が痛いので歯医者さんに行ったところ、ひどい虫歯になっていると言われた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì răng đau nên sau khi thử đến nha sĩ thì đã bị nói là đã trở nên sâu nghiêm trọng rồi"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 先生に今度のテストの範囲を聞いたところ、10課までだと言われた。",
+     "FURIGANA_MISSING: 歯が痛いので歯医者さんに行ったところ、ひどい虫歯になっていると言われた。"
+    ],
+    "formation": "V-た + ところ、〜",
+    "locked_fields": [],
+    "meaning_vi": "Sau khi thử làm gì…..",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜聞いたところ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp muốn nói đến sự ngạc nhiên, mức độ trầm trọng của vấn đề sau khi thử làm gì đó"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-82eb4583d9"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "きらいなわけではないが、肉はあまり食べない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không phải là ghét mà là tôi ít ăn thịt"
+     },
+     {
+      "ja": "テレビは見ないわけではないが、音楽を聴いているほうが多い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không phải là không xem tivi mà thường nghe nhạc hơn"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: きらいなわけではないが、肉はあまり食べない。",
+     "FURIGANA_MISSING: テレビは見ないわけではないが、音楽を聴いているほうが多い。"
+    ],
+    "formation": "V / Aい / Aな(な) + わけではない",
+    "locked_fields": [],
+    "meaning_vi": "Không phải là, không hẳn là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜きらいなわけではない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi giải thích về sự việc không ở mức độ cao, trầm trọng như đối phương suy nghĩ, suy luận ra."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-39f1c06cf4"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "大事な会議があるから、休むわけにはいかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì có cuộc họp quan trọng nên không thể nghỉ được"
+     },
+     {
+      "ja": "社長の命令だから、従わないわけにはいかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì là lệnh của giám đốc nên phải tuân lệnh thôi"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 大事な会議があるから、休むわけにはいかない。",
+     "FURIGANA_MISSING: 社長の命令だから、従わないわけにはいかない。"
+    ],
+    "formation": "V-る / V-ない + わけにはいかない",
+    "locked_fields": [],
+    "meaning_vi": "Bắt buộc phải, đành phải, không thể không",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜休むわけにはいかない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp muốn biểu lộ cảm xúc bị buộc phải làm một hành động nào đó (dù không muốn) do tình thế bắt buộc"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-33ecd31dd7"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あの強い相手に勝てるわけがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không lý nào mà thắng được đối thủ mạnh thế kia"
+     },
+     {
+      "ja": "「このパン、古くない？」「古いわけないよ。昨日買ったんだから。」“",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bánh mì này, chẳng phải cũ rồi sao?””Không lý nào mà cũ. Mới mua hôm qua mà.”"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あの強い相手に勝てるわけがない。",
+     "FURIGANA_MISSING: 「このパン、古くない？」「古いわけないよ。昨日買ったんだから。」“"
+    ],
+    "formation": "V-る + わけがない",
+    "locked_fields": [],
+    "meaning_vi": "Không lý nào, không thể nào có khả năng, chắc chắn",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜勝てるわけがない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Thường dùng trong trường hợp khẳng định một sự việc nào đó không thể nào xảy ra được (dựa trên căn cứ của bản thân)"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b41046f5fd"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "暑いわけだ。気温が36度もある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đương nhiên là nóng rồi. Nhiệt độ đến 36 cơ mà"
+     },
+     {
+      "ja": "「田中さん、彼女にふられたらしいよ。」「なるほど、それで、元気がないわけだ。」“",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tanaka, dường như bị bạn gái bỏ rồi đấy” “Chả trách, hèn chi không có sinh khí gì cả”"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 暑いわけだ。気温が36度もある。",
+     "FURIGANA_MISSING: 「田中さん、彼女にふられたらしいよ。」「なるほど、それで、元気がないわけだ。」“"
+    ],
+    "formation": "V / Aい / Aな(な) + わけだ",
+    "locked_fields": [],
+    "meaning_vi": "Hèn chi, chẳng trách là, đương nhiên là,",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜暑いわけだ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi nói đến sự tất nhiên của kết quả (với giải thích nguyên nhân ở câu trước/sau)"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-61f71eee5a"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-067"
+}

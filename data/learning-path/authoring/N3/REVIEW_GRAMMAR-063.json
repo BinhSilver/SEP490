@@ -1,0 +1,416 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "日本史や地理などを勉強した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã học những môn như Lịch sử Nhật, Địa lý, v.v."
+     },
+     {
+      "ja": "私などはまだまだ未熟です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi thì còn non kém lắm (khiêm nhường)."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 日本史や地理などを勉強した。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 日本史や地理などを勉強した。 → 日本史",
+     "FURIGANA_MISSING: 私などはまだまだ未熟です。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 私などはまだまだ未熟です。 → 未熟"
+    ],
+    "formation": "N1 + や + N2 + など",
+    "locked_fields": [],
+    "meaning_vi": "Liệt kê ví dụ tiêu biểu: \"như là…, v.v.\" Thường đi với や／とか để liệt kê mềm. Sắc thái hạ thấp/khinh thị hoặc khiêm nhường: khi gắn sau từ chỉ bản thân (私など), hoặc khi phủ định điều gì đó là tầm thường/không đáng. Trong văn viết, など có thể theo sau mệnh đề (V辞書形など) để đánh giá hành vi/khả năng, thường đi kèm ない. Độ trang trọng: trung lập→trang trọng; lịch sự hơn なんか／なんて.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Như là, chẳng hạn",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Khiêm nhường bản thân: 私など／私などは… thể hiện hạ mình. Miệt thị/giảm giá trị: あいつなど…（gã đó thì…） mang sắc thái coi thường, cẩn trọng khi dùng. Phủ định mạnh: ～などない／ありえない nhấn \"không đời nào\". Trong liệt kê: AやBなど biểu thị \"v.v.\" mang tính ví dụ, không liệt kê hết. Trang trọng hơn なんか／なんて; phù hợp văn viết, tài liệu, bài thi. [6. Ghi chú mở rộng] Trong nghiên cứu/viết học thuật, など thường dùng để chỉ danh sách không đầy đủ: 例：温度、湿度、気圧など。 Với số lượng/ước lượng: 10人など（khoảng 10 người） ít gặp hơn ほど/くらい nhưng vẫn có. Chuỗi cố định mang đánh giá: ～するなどもってのほか（không thể chấp nhận）. [7. Biến thể & cụm cố định] ～などは／～なども: nhấn đề tài/bao hàm. ～などという／～などと: dẫn xuất/định danh với sắc thái nghi vấn/coi nhẹ. ～などない／～などありえない: phủ định mạnh. AやBなど: liệt kê \"v.v.\" tiêu biểu. [8. Lỗi thường gặp & bẫy JLPT] Dùng など với thái độ coi thường người nghe/người bậc trên → bất lịch sự. Tránh: あなたなど… Nhầm など là liệt kê đầy đủ. Thực tế là ví dụ tiêu biểu, không toàn bộ. Kết hợp sai với động từ: Vます＋など là không tự nhiên; dùng V辞書形＋など／～するなど. Trong câu phủ định, quên ない làm mất sắc thái \"không đời nào\"."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-11373f61a4"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "週末はカフェなんか行かない？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuối tuần đi quán cà phê hay gì đó không?"
+     },
+     {
+      "ja": "私なんかまだまだ勉強不足です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi thì còn thiếu sót lắm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 週末はカフェなんか行かない？",
+     "FURIGANA_MISSING: 私なんかまだまだ勉強不足です。"
+    ],
+    "formation": "N + なんか / なんて",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị ví dụ/đề xuất mang tính gợi ý, thân mật: \"như là…, kiểu…\". Sắc thái giảm nhẹ/khinh thường: đặt sau danh từ để hạ thấp tầm quan trọng (tự khiêm/miệt thị). Dùng trong phủ định/cảm thán để nhấn mạnh cự tuyệt: ～なんか…ない／できるわけがない。 Rất khẩu ngữ; tránh dùng trong văn bản trang trọng hay với cấp trên (dễ thất lễ).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Như là, kiểu như",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đề xuất mềm: Nなんかどう？／行かない？ mang tính gợi ý, không áp đặt. Khiêm nhường: 私なんか… để hạ mình; lịch sự hơn dùng 私など trong văn viết. Miệt thị: 人なんか／あいつなんか thể hiện coi thường; thận trọng ngữ cảnh. Phủ định nhấn mạnh: ～なんか…ない／できるわけない, thể hiện cảm xúc mạnh. Từ đệm: なんか＋mệnh đề, giảm sắc thái khẳng định, mang tính nói xuôi miệng. [6. Ghi chú mở rộng] Trong marketing/hội thoại bán hàng, tránh なんか vì nghe thiếu chuyên nghiệp; ưu tiên など／などの. Liên tiếp nhiều なんか trong một câu có thể gây cảm giác do dự; dùng vừa phải để giữ mạch rõ ràng. Vị trí trước tính từ cũng có trong khẩu ngữ: なんか嬉しい（có vẻ vui vui） mang sắc thái mơ hồ. [7. Biến thể & cụm cố định] AなんかBなんか: liệt kê ví dụ tùy ý. ～なんか…ない／あるわけない: phủ định mạnh. 私なんか／僕なんか: mẫu khiêm nhường bản thân. Filler: なんかさ／なんかね＋ câu (rất khẩu ngữ). [8. Lỗi thường gặp & bẫy JLPT] Dùng なんか trong bài viết JLPT → giảm điểm trang trọng. Ưu tiên など／とか. Gắn なんか vào người nghe/cấp trên → nghe bất lịch sự/khinh thường. Nhầm なんか chỉ liệt kê thuần túy. Thực tế còn mang sắc thái cảm xúc (hạ thấp, phủ định). Chuỗi AなんかBなんか quá dài làm câu rối; nên giới hạn 1–2 ví dụ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6c699cb9b7"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "本校においては、携帯電話の使用を禁止します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tại trường chúng tôi, cấm sử dụng điện thoại di động."
+     },
+     {
+      "ja": "IT分野において人材不足が深刻だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong lĩnh vực IT, thiếu nhân lực trầm trọng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 本校においては、携帯電話の使用を禁止します。",
+     "FURIGANA_MISSING: IT分野において人材不足が深刻だ。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: IT分野において人材不足が深刻だ。 → 人材"
+    ],
+    "formation": "N + において(は) / における + N",
+    "locked_fields": [],
+    "meaning_vi": "Xác lập bối cảnh (địa điểm/thời gian/lĩnh vực) để nêu thông tin chính. Phong cách văn viết/học thuật; dùng trong báo cáo, thông cáo, luận văn. における dùng làm định ngữ giúp câu gọn và trang trọng. Khác で: phạm vi khái quát hơn, ít dùng trong hội thoại thường ngày.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tại, trong, ở",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng mở đoạn/đặt bối cảnh: N + において(は)、〜。 Trong email lễ nghi, ưu tiên におきまして để tăng lịch sự. Khi nói về chủ đề trừu tượng (歴史/社会/教育…), において tự nhiên hơn で. において vẫn đúng ngữ pháp với địa điểm/hành động đời thường, nhưng thường nghe quá trang trọng. Trong giao tiếp bình thường, で tự nhiên hơn. [6. Ghi chú mở rộng] Kết hợp は/も để đối chiếu/bao quát: N + においては/も. “NにおいてのN” tồn tại nhưng kém trang trọng hơn “NにおけるN”. Không tự nhiên với tên người khi nghĩa “tại/ở người đó” (trừ khi nói về “lập trường/vai trò”). [7. Biến thể & cụm cố định] 研究/教育/医療/政治/経済/歴史/国際社会 + において 会議/試験/イベント + において における・においては・においても・におきまして（敬語） [8. Lỗi thường gặp & bẫy JLPT] コンビニにおいて弁当を買った không sai cấu trúc, nhưng không phù hợp văn phong đời thường; thường nói コンビニで弁当を買った. Nhầm nghĩa “liên quan đến”: × 料金において → ○ 料金に関して. Bỏ “における” khi cần định ngữ: × 研究において成果 → ○ 研究における成果. JLPT: Chọn において cho văn bản hành chính/báo cáo thay vì で."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ef7ae5094a"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今日はコーヒーのかわりにお茶を飲みます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay tôi uống trà thay cho cà phê."
+     },
+     {
+      "ja": "外食するかわりに、家で料理して節約している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thay vì ăn ngoài, tôi nấu ở nhà để tiết kiệm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今日はコーヒーのかわりにお茶を飲みます。",
+     "FURIGANA_MISSING: 外食するかわりに、家で料理して節約している。"
+    ],
+    "formation": "N1 + の + かわりに + N2 / V-る + かわりに",
+    "locked_fields": [],
+    "meaning_vi": "Thay thế/thay vì: Chọn A かわりに B = thay vì A thì B; hoặc dùng B thay cho A. Đổi lại/bù lại: A かわりに B = A có ưu/nhược điểm, và bù lại có B (tính chất đối ứng). Thay mặt/đại diện: N のかわりに V = làm việc gì đó thay cho N (do N bận/vắng). Sắc thái: nhấn mạnh quan hệ trao đổi/đối ứng (trade-off), thường dùng trong văn nói và viết trang trọng đều được. Chính tả: かわりに thường viết 代わりに; cả hai đều dùng được.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Thay vì, bù lại",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] N のかわりに: sử dụng khi thay thế vật/người/việc cụ thể, hoặc thay mặt ai đó. Vる/Vない + かわりに: nhấn mạnh sự lựa chọn phương án thay thế trong hành động. Aい/Aな + かわりに: nêu đặc điểm trái ngược để cân bằng ưu/nhược, mang sắc thái “bù trừ”. Khi mang nghĩa “đổi lại”, vế trước và sau thường có quan hệ tương phản tương đương về mức độ. Không dùng かわりに khi chỉ liệt kê hai đặc điểm không hề có quan hệ bù trừ. [6. Ghi chú mở rộng] “AかわりにB” đôi khi hiểu là “đổi lấy B” (nghĩa giao dịch), nhất là khi đi với てあげる/てもらう. Văn viết thường ưa dùng 代わりに; hội thoại dùng cả hai, かわりに mềm hơn. Không dùng かわりに để thay cho 「～の代理で」 khi cần cực kỳ trang trọng (văn bản pháp lý dùng 代理/代行). [7. Biến thể & cụm cố định] ～の代わりに（＝～のかわりに） 代理で／代表して（gần nghĩa “thay mặt” với sắc thái công việc） Aい/Aな + かわりに（bù lại） Vる/Vない + かわりに（thay vì） [8. Lỗi thường gặp & bẫy JLPT] Nhầm “tương phản” thành “bù trừ”: Không phải mọi cặp trái nghĩa đều dùng được かわりに nếu không có quan hệ trao đổi tương đương. Bỏ 「の」 trước かわりに khi đi với danh từ: phải là N のかわりに, không phải N かわりに. Nhầm với ために: かわりに không nêu mục đích. Câu như ×健康のかわりに運動する là sai. JLPT: hay kiểm tra phân biệt “AかわりにB” (bù lại) với “A一方B” (mặt khác)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-51b1363ae4"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "週末は映画とかカフェとかに行きたい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuối tuần muốn đi xem phim hay quán cà phê chẳng hạn."
+     },
+     {
+      "ja": "北海道では雪祭りが有名とか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe nói lễ hội tuyết ở Hokkaidō nổi tiếng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 週末は映画とかカフェとかに行きたい。",
+     "FURIGANA_MISSING: 北海道では雪祭りが有名とか。"
+    ],
+    "formation": "N1 + とか + N2 (とか)",
+    "locked_fields": [],
+    "meaning_vi": "- Liệt kê: Đưa ra vài ví dụ tiêu biểu, không bao quát toàn bộ; mang tính gợi ý, tùy tiện, thân mật. - Truyền văn: “とか” ở cuối câu diễn đạt nguồn tin mơ hồ, người nói không khẳng định chắc (nghe đâu, hình như). - Khi đi với “とかで”: chỉ nguyên nhân mơ hồ, người nói không biết chính xác (kiểu “do gì đó như là…”). - Mức độ lịch sự: khá khẩu ngữ; tránh dùng trong văn bản trang trọng khi cần độ chính xác cao.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Ví dụ như, như là",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Liệt kê không dứt khoát, ngụ ý “còn nhiều cái khác nữa”. Truyền văn bằng “とか” cuối câu: giảm trách nhiệm phát ngôn, thể hiện không chắc chắn. Trong hội thoại, “とかさ/とかって” có thể xuất hiện thêm để nhấn khẩu ngữ. Không nên dùng quá nhiều “とか” liên tiếp trong văn viết vì gây cảm giác rườm rà/thiếu rõ ràng. [6. Ghi chú mở rộng] - Trong bài nói, “AとかBとか” đôi khi chỉ nêu một mục “Aとか…” cũng hiểu là “A chẳng hạn (và những thứ tương tự)”. - “とか” truyền văn có thể kết câu: 「明日は休みとか。」 → diễn cảm giác “nghe đâu thế”. Thêm 「だ」 trước とか thường không cần thiết, trừ khi nhấn mạnh danh từ/tính từ đuôi な: 休みだとか。 [7. Biến thể & cụm cố định] AとかBとか: liệt kê ví dụ tiêu biểu ～とか（言っていた／聞いた）: nghe nói (gắn động từ nói/nghe) ～とかで: vì lý do nào đó như là… ～るとか～ないとか: tin đồn trái chiều/không rõ [8. Lỗi thường gặp & bẫy JLPT] Trong báo cáo/luận văn, lặp とか thường làm câu thiếu chính xác nên hay thay bằng や／など／～によると. Đây là lựa chọn văn phong; とか vẫn có thể xuất hiện trong trích dẫn hoặc văn viết thân mật. Nhầm “とか” (liệt kê) với “とかで” (lý do). “とかで” cần theo sau động từ chỉ kết quả: 中止になった/遅れた. Truyền văn bằng “とか” nhưng lại khẳng định mạnh → mâu thuẫn sắc thái. Nếu chắc chắn, dùng ～と聞いた/～そうだ. Lạm dụng “とか” liên tiếp khiến câu rời rạc; nên chọn 1–2 mục tiêu biểu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8f0a9e2eb1"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "私は教師として、学生の成長を第一に考えています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Là giáo viên, tôi đặt sự trưởng thành của học sinh lên hàng đầu."
+     },
+     {
+      "ja": "専門家としての意見を聞かせてください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xin cho biết ý kiến với tư cách chuyên gia."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 私は教師として、学生の成長を第一に考えています。",
+     "FURIGANA_MISSING: 専門家としての意見を聞かせてください。"
+    ],
+    "formation": "N + として",
+    "locked_fields": [],
+    "meaning_vi": "Xác định vai trò/tư cách: Nêu địa vị, chức danh, thân phận để từ đó phát ngôn/hành động. Bổ nghĩa tính chất với としての + N: nhấn mạnh đặc điểm, trách nhiệm gắn với vai trò. Góc nhìn/đánh giá với としては: “xét trên cương vị… thì…”. Giả định nhượng bộ với としても: “kể cả là… thì cũng…”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Với tư cách, như là",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng trung tính, dùng được trong cả văn nói và văn viết. Thường xuất hiện trong bối cảnh nghề nghiệp, địa vị xã hội, tư cách pháp lý, vai trò trong nhóm. としては nhấn mạnh lập trường; としての gắn kết danh từ sau với vai trò. Không dùng với tính từ trực tiếp; phải qua danh từ hóa hoặc chọn cấu trúc khác. [6. Ghi chú mở rộng] Danh từ trước として nên là danh từ chỉ vai trò rõ ràng (教師, 専門家, 親, 市民...). Các danh từ trừu tượng có thể cần danh từ hóa thêm. Khi chủ ngữ không hiển thị, ngữ cảnh thường ám chỉ “tư cách của chủ ngữ câu”. Trong văn xin việc/PR: 〜としての強み/経験/実績 là cụm xuất hiện thường xuyên. [7. Biến thể & cụm cố định] N として活動する (hoạt động với tư cách N) N として認められる (được công nhận với tư cách N) N としての責任／役割／立場 (trách nhiệm/vai trò/lập trường với tư cách N) N としては／としても (góc độ/nhượng bộ) [8. Lỗi thường gặp & bẫy JLPT] Nhầm として với にとって: cái trước là “vai trò”, cái sau “đối với (quan điểm)”. Bỏ sót の trong としての + N khi bổ nghĩa danh từ. Dùng として với tính từ trực tiếp: sai; cần danh từ/khái niệm vai trò."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8bb1fc30e7"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "たとえ反対されても留学します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giả sử có bị phản đối đi chăng nữa thì tôi cũng sẽ đi du học"
+     },
+     {
+      "ja": "たとえ元気じゃなくても、家族への手紙には元気だと書きます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giả dụ có không khỏe thì trong thư viết cho gia đình cũng sẽ viết là khỏe"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: たとえ反対されても留学します。",
+     "FURIGANA_MISSING: たとえ元気じゃなくても、家族への手紙には元気だと書きます。"
+    ],
+    "formation": "たとえ + V-ても / Aい(くても) / Aな・N + でも",
+    "locked_fields": [],
+    "meaning_vi": "Giả sử là…đi nữa thì…./ Thậm chí là….thì cũng…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜たとえ反対されても",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi muốn nhấn mạnh ý khẳng định một sự việc, hành động nào đó bất chấp có điều kiện khác xảy ra"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-eab503b0d9"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "合格した！まるで夢のようだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đậu rồi! Cứ như là mơ ấy"
+     },
+     {
+      "ja": "彼の日本語はまるで日本人が話しているみたいに聞こえる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tiếng Nhật của anh ấy nghe cứ như là người Nhật đang nói chuyện ấy"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 合格した！まるで夢のようだ。",
+     "FURIGANA_MISSING: 彼の日本語はまるで日本人が話しているみたいに聞こえる。"
+    ],
+    "formation": "まるで + N + のようだ / V・A + ようだ",
+    "locked_fields": [],
+    "meaning_vi": "(Hoàn toàn) Cứ như là, giống như là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜まるで夢のよう",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp muốn so sánh một sự việc, hành động ở mức cao, tương đương với điều mà người khác không thể hình dung ra nổi, khó tin."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8c5ae16c47"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "もしかすると彼の話はうそかもしれない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có khả năng câu chuyện của anh ấy là nói dối"
+     },
+     {
+      "ja": "もしかしたら、明日行けないかもしれません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có lẽ ngày mai sẽ không thể đến được"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: もしかすると彼の話はうそかもしれない。",
+     "FURIGANA_MISSING: もしかしたら、明日行けないかもしれません。"
+    ],
+    "formation": "もしかすると / もしかしたら + 〜かもしれない",
+    "locked_fields": [],
+    "meaning_vi": "Có lẽ là, có khả năng là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜もしかするとうそかもしれない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi miêu tả suy đoán của người nói, thường dựa trên cảm tính"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8fe3f021e7"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "高い物が必ずしも便利とは限りません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đồ đắt tiền chưa chắc đã tiện lợi. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 高い物が必ずしも便利とは限りません。"
+    ],
+    "formation": "必ずしも + 〜とは限らない",
+    "locked_fields": [],
+    "meaning_vi": "Không chắc chắn là/ không nhất thiết là/ Không giới hạn là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜必ずしもいいとは限らない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Thường dùng trong trường hợp phủ định một mệnh đề, tình huống nào đó không phải áp dụng cho toàn bộ, không phải dùng cho tất cả các trường hợp"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cf997affc4"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-063"
+}

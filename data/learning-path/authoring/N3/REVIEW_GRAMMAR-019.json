@@ -1,0 +1,2227 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "かもしれない nêu khả năng chưa chắc. つもりだ/ことにする/ようにする là ý chí của người, không dùng cho mưa.",
+      "options": [
+       "ことにする",
+       "つもりだ",
+       "かもしれない",
+       "ようにする"
+      ],
+      "prompt_ja": "雲が多いので、午後は雨が降る（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "閉まったかもしれない = có lẽ đã đóng (khả năng, không chắc).",
+      "options": [
+       "閉まったかもしれない。",
+       "はずがない",
+       "ことはない",
+       "ようにする"
+      ],
+      "prompt_ja": "その店はもう（　　）",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "降るかもしれない = có thể mưa → mua ô. Thứ tự đúng: 明日は雨が降るかもしれないから、新しい傘を買った。 ★ = 新しい。",
+      "options": [
+       "かもしれないから、",
+       "明日は雨が降る",
+       "傘を買った",
+       "新しい"
+      ],
+      "prompt_ja": "天気予報を見て、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "遅れるかもしれない = tàu có thể trễ → ra khỏi nhà sớm. Thứ tự đúng: 電車が遅れるかもしれないので、早めに家を出た。 ★ = 早めに。",
+      "options": [
+       "電車が遅れる",
+       "早めに",
+       "かもしれないので、",
+       "家を出た"
+      ],
+      "prompt_ja": "その日は、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "かもしれない nêu khả năng chưa chắc chắn.",
+      "options": [
+       "Tôi muốn xem phim đó. Nhưng hôm nay không có thời gian.",
+       "Tôi rửa tay rồi mới ăn cơm.",
+       "Sau khi ăn sáng tôi đánh răng.",
+       "Trời nhiều mây nên chiều nay có thể sẽ mưa."
+      ],
+      "prompt_ja": "雲が多いので、午後は雨が降るかもしれない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "閉まったかもしれない = có lẽ đã đóng cửa rồi.",
+      "options": [
+       "Tôi rửa tay rồi mới ăn cơm.",
+       "Cửa hàng ấy có lẽ đã đóng rồi.",
+       "Sau khi ăn sáng tôi đánh răng.",
+       "Tôi muốn xem phim đó. Nhưng hôm nay không có thời gian."
+      ],
+      "prompt_ja": "その店はもう閉まったかもしれない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Danh từ nối trực tiếp, bỏ だ: 雨かもしれない.",
+      "options": [
+       "雲が多いので、午後は雨が降るかもしれない。",
+       "明日は雨だかもしれない。",
+       "その店はもう閉まったかもしれない。",
+       "彼は今日来ないかもしれない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Tính từ な bỏ な: 静かかもしれない.",
+      "options": [
+       "あの人は先生かもしれない。",
+       "図書館は今日休みかもしれない。",
+       "この町は夜は静かなかもしれない。",
+       "電車が遅れるかもしれない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Giữ nguyên だ sau danh từ hoặc tính từ đuôi な trước かもしれない (sai: 静かだかもしれない; đúng: 静かかもしれない).",
+    "examples": [
+     {
+      "ja": "午後から雨が降るかもしれません。",
+      "ja_furigana": "午後(ごご)から雨(あめ)が降(ふ)るかもしれません。",
+      "source": "BOOK",
+      "vi": "Từ buổi chiều có lẽ trời sẽ mưa."
+     },
+     {
+      "ja": "道が混んでいるから少し遅れるかもしれません。",
+      "ja_furigana": "道(みち)が混(こ)んでいるから少(すこ)し遅(おく)れるかもしれません。",
+      "source": "AI",
+      "vi": "Vì đường đang đông nên có thể tôi sẽ đến muộn một chút."
+     },
+     {
+      "ja": "この服は妹には少し大きいかもしれない。",
+      "ja_furigana": "この服(ふく)は妹(いもうと)には少(すこ)し大(おお)きいかもしれない。",
+      "source": "AI",
+      "vi": "Bộ quần áo này có lẽ hơi rộng đối với em gái tôi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "降るかもしれないから = vì có thể mưa.",
+      "options": [
+       "はずがない",
+       "ようにする",
+       "ことはない",
+       "かもしれないから、"
+      ],
+      "prompt_ja": "天気予報を見て、明日は雨が降る（　　）新しい傘を買った。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "遅れるかもしれないので = vì tàu có thể trễ.",
+      "options": [
+       "はずがない",
+       "かもしれないので、",
+       "ことはない",
+       "ようにする"
+      ],
+      "prompt_ja": "その日は、電車が遅れる（　　）早めに家を出た。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Động từ dùng thể thường: 降るかもしれない, không dùng dạng bỏ ます (降り).",
+      "options": [
+       "午後は雨が降りかもしれない。",
+       "彼は今日来ないかもしれない。",
+       "あの人は先生かもしれない。",
+       "その店はもう閉まったかもしれない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "かもしれません"
+      ],
+      "answer": "かもしれない",
+      "sentence_ja": "雲が多いので、午後は雨が降る＿＿。",
+      "translation_vi": "Trời nhiều mây nên chiều nay có thể sẽ mưa."
+     },
+     {
+      "accept": [
+       "閉まったかもしれない",
+       "閉まったかもしれません"
+      ],
+      "answer": "閉まったかもしれない。",
+      "sentence_ja": "その店はもう＿＿",
+      "translation_vi": "Cửa hàng ấy có lẽ đã đóng rồi."
+     }
+    ],
+    "findings": [],
+    "formation": "V / Aい / Aな(bỏ だ) / N(bỏ だ) + かもしれない",
+    "locked_fields": [],
+    "meaning_vi": "Có thể là — Nêu một khả năng, mức độ chắc chắn thấp hơn はずだ và でしょう nhiều.",
+    "nuance_vi": "Đưa ra phỏng đoán với xác suất khoảng 50% hoặc cảnh báo một khả năng có thể xảy ra; đôi khi dùng để nói giảm nói tránh khi góp ý.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "もう",
+       "閉まったかもしれない。",
+       "その店は"
+      ],
+      "translation_vi": "Cửa hàng ấy có lẽ đã đóng rồi."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "かもしれない。",
+       "雲が多いので、",
+       "午後は雨が降る"
+      ],
+      "translation_vi": "Trời nhiều mây nên chiều nay có thể sẽ mưa."
+     }
+    ],
+    "pattern": "Thể thường + かもしれない",
+    "pattern_variants": [],
+    "unit_no": 12,
+    "unit_title_vi": "Phủ định, suy đoán và khẳng định",
+    "usage_vi": "Văn nói rút gọn thành かも. Khác với に違いない (gần như chắc chắn) và はずだ (có căn cứ rõ)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-312db2e1d2"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "壊された diễn đạt Bị, được. 壊させた và 壊せた không phù hợp với cấu trúc hoặc ý câu này.",
+      "options": [
+       "壊された",
+       "壊していた",
+       "壊させた",
+       "壊せた"
+      ],
+      "prompt_ja": "私の自転車は弟に（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "思い出される là bị động mang nghĩa tự phát: tự nhiên nhớ lại. 思い出する sai, させる cần người bị sai khiến.",
+      "options": [
+       "させる",
+       "する",
+       "される",
+       "している"
+      ],
+      "prompt_ja": "昔の写真を見ると、子どものころが思い出（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "名前を呼ばれた = bị/được gọi tên (bị động), nên trả lời to. Thứ tự đúng: 先生に名前を呼ばれたので、大きな声で返事した。 ★ = 大きな。",
+      "options": [
+       "大きな",
+       "声で返事した",
+       "呼ばれたので、",
+       "先生に名前を"
+      ],
+      "prompt_ja": "授業の始めに、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "足を踏まれた = bị giẫm chân (bị động chịu thiệt), người làm đánh dấu bằng に. Thứ tự đúng: 隣の人に足を踏まれて、とても痛かった。 ★ = とても。",
+      "options": [
+       "痛かった",
+       "隣の人に足を",
+       "とても",
+       "踏まれて、"
+      ],
+      "prompt_ja": "電車の中で、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "壊された = bị (em trai) làm hỏng; người gây ra hành động đi với に.",
+      "options": [
+       "Xe đạp của tôi bị em trai làm hỏng.",
+       "Tôi rửa tay rồi mới ăn cơm.",
+       "Sau khi ăn sáng tôi đánh răng.",
+       "Tôi muốn xem phim đó. Nhưng hôm nay không có thời gian."
+      ],
+      "prompt_ja": "私の自転車は弟に壊された。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "思い出される = tự nhiên nhớ lại (bị động tự phát).",
+      "options": [
+       "Tôi rửa tay rồi mới ăn cơm.",
+       "Sau khi ăn sáng tôi đánh răng.",
+       "Nhìn ảnh cũ, tôi bất giác nhớ thời thơ ấu.",
+       "Tôi muốn xem phim đó. Nhưng hôm nay không có thời gian."
+      ],
+      "prompt_ja": "昔の写真を見ると、子どものころが思い出される。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Người thực hiện hành động trong câu bị động đánh dấu bằng に: 私は先生にほめられた.",
+      "options": [
+       "私の自転車は弟に壊された。",
+       "私は先生がほめられた。",
+       "駅で知らない人に足を踏まれた。",
+       "この本は多くの人に読まれている。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "叱る (nhóm 1) → 叱られる: 母に叱られた.",
+      "options": [
+       "雨に降られて、服がぬれた。",
+       "先生に名前を呼ばれた。",
+       "弟にケーキを食べられた。",
+       "母に叱りられた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Đánh dấu sai trợ từ chỉ tác nhân gây ra hành động (phải dùng に hoặc によって chứ không dùng を).",
+    "examples": [
+     {
+      "ja": "先生に名前を呼ばれました。",
+      "ja_furigana": "先生(せんせい)に名前(なまえ)を呼(よ)ばれました。",
+      "source": "BOOK",
+      "vi": "Tôi được thầy giáo gọi tên."
+     },
+     {
+      "ja": "帰り道で急に雨に降られて困りました。",
+      "ja_furigana": "帰(かえ)り道(みち)で急(きゅう)に雨(あめ)に降(ふ)られて困(こま)りました。",
+      "source": "AI",
+      "vi": "Trên đường về tôi bị dính mưa bất chợt nên rất khốn đốn."
+     },
+     {
+      "ja": "この古いお寺は五百年前に建てられました。",
+      "ja_furigana": "この古(ふる)いお寺(てら)は五百年前(ごひゃくねんまえ)に建(た)てられました。",
+      "source": "AI",
+      "vi": "Ngôi chùa cổ này đã được xây dựng từ 500 năm trước."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "呼ぶ (nhóm 1) → 呼ばれる: 呼ばれたので.",
+      "options": [
+       "呼ばられたので、",
+       "呼ばれたので、",
+       "呼びれたので、",
+       "呼べられたので、"
+      ],
+      "prompt_ja": "授業の始めに、先生に名前を（　　）大きな声で返事した。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "踏む (nhóm 1) → 踏まれる: 踏まれて.",
+      "options": [
+       "踏まられて、",
+       "踏みれて、",
+       "踏められて、",
+       "踏まれて、"
+      ],
+      "prompt_ja": "電車の中で、隣の人に足を（　　）とても痛かった。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "歌う (nhóm 1) → 歌われる: 歌われている.",
+      "options": [
+       "この歌は多くの人に歌いられている。",
+       "私は先生にほめられた。",
+       "母に叱られた。",
+       "駅で知らない人に足を踏まれた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "壊された",
+      "sentence_ja": "私の自転車は弟に＿＿。",
+      "translation_vi": "Xe đạp của tôi bị em trai làm hỏng."
+     },
+     {
+      "answer": "される",
+      "sentence_ja": "昔の写真を見ると、子どものころが思い出＿＿。",
+      "translation_vi": "Nhìn ảnh cũ, tôi bất giác nhớ thời thơ ấu."
+     }
+    ],
+    "findings": [],
+    "formation": "V nhóm I: cột う → cột あ + れる / V nhóm II: る → られる / する → される / 来る → こられる",
+    "locked_fields": [],
+    "meaning_vi": "Bị, được — Chủ ngữ chịu tác động từ người hoặc vật khác.",
+    "nuance_vi": "Ngoài bị động trực tiếp và bị động gián tiếp (chịu ảnh hưởng bất lợi như 雨に降られる), còn dùng trong văn viết khi không cần nêu chủ thể thực hiện.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "足を",
+       "踏まれた。",
+       "駅で知らない人に"
+      ],
+      "translation_vi": "Ở ga tôi bị người lạ giẫm lên chân."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "子どものころのことが",
+       "思い出される。",
+       "昔の友達と会うと"
+      ],
+      "translation_vi": "Gặp bạn cũ khiến tôi nhớ lại những chuyện thời thơ ấu."
+     }
+    ],
+    "pattern": "V thể bị động (〜れる / 〜られる)",
+    "pattern_variants": [
+     "〜れる/られる"
+    ],
+    "unit_no": 6,
+    "unit_title_vi": "Lời khuyên, nghĩa vụ và đề xuất",
+    "usage_vi": "Nhóm 1: う→あ + れる (書かれる). Nhóm 2: る→られる (食べられる). Bị động gián tiếp diễn tả sự phiền toái: 雨に降られた (bị mưa)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-89cea7e6bf"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "N の＋ように見える = trông như. Các dạng còn lại nối sai.",
+      "options": [
+       "ようで見える",
+       "ようだ見える",
+       "ように見て",
+       "ように見える"
+      ],
+      "prompt_ja": "あの人は先生の（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "小さいように見える = trông có vẻ nhỏ (Aい nối trực tiếp).",
+      "options": [
+       "ようにする",
+       "小さいように見える。",
+       "ようになる",
+       "ように言う"
+      ],
+      "prompt_ja": "この店は外から見ると（　　）",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Nhìn thì như có tuyết phủ nhưng thật ra là hoa trắng nở. Thứ tự đúng: 雪が積もったように見えるが、白い花が咲いている。 ★ = 白い。",
+      "options": [
+       "花が咲いている",
+       "白い",
+       "ように見えるが、",
+       "雪が積もった"
+      ],
+      "prompt_ja": "朝の山は、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "ように見えたが = trông như (chim bay) nhưng thực tế khác. Thứ tự đúng: 鳥が飛んでいるように見えたが、ただの紙だった。 ★ = ただの。",
+      "options": [
+       "鳥が飛んでいる",
+       "ように見えたが、",
+       "紙だった",
+       "ただの"
+      ],
+      "prompt_ja": "空の白いものは、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "ように見える nêu ấn tượng về vẻ ngoài.",
+      "options": [
+       "Tôi rửa tay rồi mới ăn cơm.",
+       "Người kia trông giống giáo viên.",
+       "Sau khi ăn sáng tôi đánh răng.",
+       "Tôi muốn xem phim đó. Nhưng hôm nay không có thời gian."
+      ],
+      "prompt_ja": "あの人は先生のように見える。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "小さいように見える = nhìn bề ngoài trông có vẻ nhỏ.",
+      "options": [
+       "Tôi rửa tay rồi mới ăn cơm.",
+       "Tôi muốn xem phim đó. Nhưng hôm nay không có thời gian.",
+       "Sau khi ăn sáng tôi đánh răng.",
+       "Nhìn từ bên ngoài, cửa hàng này trông có vẻ nhỏ."
+      ],
+      "prompt_ja": "この店は外から見ると小さいように見える。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Danh từ cần の: 先生のように見える.",
+      "options": [
+       "あの人は先生のように見える。",
+       "彼は元気なように見える。",
+       "あの人は先生ように見える。",
+       "この店は外から見ると小さいように見える。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Tính từ な giữ な: 元気なように見える, không dùng だ.",
+      "options": [
+       "彼は疲れているように見える。",
+       "山は雪が積もったように見える。",
+       "彼女は元気だように見える。",
+       "あの人は先生のように見える。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Nhầm cách chia với 〜そうに見える (với ように見える phải giữ nguyên い của tính từ đuôi い và thêm の sau danh từ).",
+    "examples": [
+     {
+      "ja": "彼は元気そうに見える。",
+      "ja_furigana": "彼(かれ)は元気(げんき)そうに見(み)える。",
+      "source": "BOOK",
+      "vi": "Anh ấy trông có vẻ khỏe mạnh."
+     },
+     {
+      "ja": "彼女はいつも若くて学生のように見えます。",
+      "ja_furigana": "彼女(かのじょ)はいつも若(わか)くて学生(がくせい)のように見(み)えます。",
+      "source": "AI",
+      "vi": "Cô ấy lúc nào cũng trẻ trung, trông cứ như sinh viên vậy."
+     },
+     {
+      "ja": "遠くから見るとあの雲は山のように見える。",
+      "ja_furigana": "遠(とお)くから見(み)るとあの雲(くも)は山(やま)のように見(み)える。",
+      "source": "AI",
+      "vi": "Nhìn từ xa thì đám mây kia trông giống như ngọn núi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "積もったように見えるが = trông như có tuyết phủ, nhưng...",
+      "options": [
+       "ようにする",
+       "ようになる",
+       "ように見えるが、",
+       "ように言う"
+      ],
+      "prompt_ja": "朝の山は、 雪が積もった（　　）白い花が咲いている。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "ように見えたが = trông như nhưng thực tế là tờ giấy.",
+      "options": [
+       "ように見えたが、",
+       "ようになる",
+       "ようにする",
+       "ように言う"
+      ],
+      "prompt_ja": "空の白いものは、鳥が飛んでいる（　　）ただの紙だった。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Tính từ な cần な: 簡単なように見える.",
+      "options": [
+       "この問題は簡単ように見える。",
+       "彼は疲れているように見える。",
+       "彼は元気なように見える。",
+       "この店は外から見ると小さいように見える。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "ように見えます"
+      ],
+      "answer": "ように見える",
+      "sentence_ja": "あの人は先生の＿＿。",
+      "translation_vi": "Người kia trông giống giáo viên."
+     },
+     {
+      "accept": [
+       "小さいように見える",
+       "小さいように見えます"
+      ],
+      "answer": "小さいように見える。",
+      "sentence_ja": "この店は外から見ると＿＿",
+      "translation_vi": "Nhìn từ bên ngoài, cửa hàng này trông có vẻ nhỏ."
+     }
+    ],
+    "findings": [],
+    "formation": "V / Aい / Aな + な / N + の + ように見える",
+    "locked_fields": [],
+    "meaning_vi": "Trông có vẻ — Đánh giá qua vẻ bề ngoài nhìn thấy được.",
+    "nuance_vi": "Diễn tả ấn tượng thị giác của người nói khi quan sát bề ngoài (có thể khác với thực tế bên trong).",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "外から見ると",
+       "小さいように見える。",
+       "この店は"
+      ],
+      "translation_vi": "Nhìn từ bên ngoài, cửa hàng này trông có vẻ nhỏ."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "ように見える。",
+       "あの人は",
+       "先生の"
+      ],
+      "translation_vi": "Người kia trông giống giáo viên."
+     }
+    ],
+    "pattern": "V từ điển / A / N の + ように見える",
+    "pattern_variants": [],
+    "unit_no": 2,
+    "unit_title_vi": "Cảm xúc, giác quan và trạng thái",
+    "usage_vi": "Khác với そうに見える ở chỗ ように見える mang tính so sánh hoặc suy luận rõ hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9bdbdb0cb8"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "V辞書形＋ようにしている = cố gắng duy trì thói quen (đi bộ mỗi ngày). Các lựa chọn còn lại nối sai.",
+      "options": [
+       "ようにしている",
+       "ようにしてある",
+       "ように聞く",
+       "ようでしている"
+      ],
+      "prompt_ja": "健康のために毎日歩く（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "手を洗うようにしている = chủ động tạo thói quen rửa tay. ようにある/ようでいる/ようをしている sai dạng.",
+      "options": [
+       "ようにある",
+       "ようでいる",
+       "ようにしている",
+       "ようをしている"
+      ],
+      "prompt_ja": "風邪をひかないように、外から帰ったら手を洗う（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Vì cố gắng ăn rau mỗi ngày nên cơ thể khỏe. Thứ tự đúng: 毎日野菜を食べるようにしているので、体が元気だ。 ★ = 体が。",
+      "options": [
+       "体が",
+       "ようにしているので、",
+       "元気だ",
+       "毎日野菜を食べる"
+      ],
+      "prompt_ja": "健康のため、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "V-ない＋ようにしている = cố gắng tránh (ăn khuya). Thứ tự đúng: 夜遅く食べないようにしているから、朝の体調がいい。 ★ = 朝の。",
+      "options": [
+       "ようにしているから、",
+       "体調がいい",
+       "朝の",
+       "夜遅く食べない"
+      ],
+      "prompt_ja": "最近、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "毎日歩くようにしている = cố gắng duy trì thói quen đi bộ mỗi ngày.",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi ghi lịch để khỏi quên.",
+       "Giữa giờ học, bên ngoài có tiếng động lớn."
+      ],
+      "prompt_ja": "健康のために毎日歩くようにしている。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "V-ない＋ようにしている = chủ động cố gắng tránh. \"Không còn ăn nữa\" là 食べなくなった; \"định\" là つもりだ.",
+      "options": [
+       "Tôi đã không còn ăn khuya nữa (tự nhiên thay đổi).",
+       "Tôi bị cấm ăn khuya.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi định từ mai sẽ không ăn khuya."
+      ],
+      "prompt_ja": "夜遅く食べないようにしている。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "ようにする dùng cho việc người làm chủ động kiểm soát được; thời tiết (雨が降る) không kiểm soát được.",
+      "options": [
+       "明日は雨が降らないようにしている。",
+       "健康のために毎日歩くようにしている。",
+       "夜遅く食べないようにしている。",
+       "毎日野菜を食べるようにしている。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thể ない nối trực tiếp: 遅れないようにしている, không phải 「遅れなく」.",
+      "options": [
+       "甘い物を食べすぎないようにしている。",
+       "毎日日本語で日記を書くようにしている。",
+       "授業に遅れなくようにしている。",
+       "夜遅く食べないようにしている。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Ghép ようにする với động từ không có ý chí hoặc động từ khả năng (động từ trước ようにする phải là hành động chủ động kiểm soát được).",
+    "examples": [
+     {
+      "ja": "毎日野菜を食べるようにしています。",
+      "ja_furigana": "毎日(まいにち)野菜(やさい)を食(た)べるようにしています。",
+      "source": "BOOK",
+      "vi": "Tôi luôn cố gắng ăn rau mỗi ngày."
+     },
+     {
+      "ja": "健康のために毎日一万歩歩くようにしています。",
+      "ja_furigana": "健康(けんこう)のために毎日(まいにち)一万歩(いちまんぽ)歩(ある)くようにしています。",
+      "source": "AI",
+      "vi": "Vì sức khỏe nên tôi luôn cố gắng đi bộ một vạn bước mỗi ngày."
+     },
+     {
+      "ja": "夜遅くにコーヒーを飲まないようにしている。",
+      "ja_furigana": "夜遅(よるおそ)くにコーヒーを飲(の)まないようにしている。",
+      "source": "AI",
+      "vi": "Tôi cố gắng không uống cà phê vào lúc đêm muộn."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "食べるようにしているので = vì cố gắng ăn (rau) mỗi ngày.",
+      "options": [
+       "ように見える",
+       "ようにしているので、",
+       "ように聞く",
+       "ようになっている"
+      ],
+      "prompt_ja": "健康のため、 毎日野菜を食べる（　　）体が元気だ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "食べないようにしているから = vì cố gắng không ăn khuya.",
+      "options": [
+       "ように見える",
+       "ように聞く",
+       "ようになっている",
+       "ようにしているから、"
+      ],
+      "prompt_ja": "最近、夜遅く食べない（　　）朝の体調がいい。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Dùng thể từ điển trước ようにする: 歩くようにしている, không dùng dạng bỏ ます (歩き).",
+      "options": [
+       "夜遅く食べないようにしている。",
+       "毎日一時間歩きようにしている。",
+       "甘い物を食べすぎないようにしている。",
+       "健康のために毎日歩くようにしている。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "ようにしています"
+      ],
+      "answer": "ようにしている",
+      "sentence_ja": "健康のために毎日歩く＿＿。",
+      "translation_vi": "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày."
+     },
+     {
+      "accept": [
+       "ようにしています"
+      ],
+      "answer": "ようにしている",
+      "sentence_ja": "夜遅く食べない＿＿。",
+      "translation_vi": "Tôi cố gắng không ăn khuya."
+     }
+    ],
+    "findings": [],
+    "formation": "V-る / V-ない + ようにする",
+    "locked_fields": [],
+    "meaning_vi": "Cố gắng để, chú ý để — Chủ động nỗ lực duy trì một thói quen hoặc tránh một việc gì.",
+    "nuance_vi": "Diễn tả sự nỗ lực có ý thức của người nói nhằm đạt tới một hành vi hoặc tránh một thói quen xấu.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "夜遅く食べないように",
+       "している。",
+       "私は"
+      ],
+      "translation_vi": "Tôi cố gắng không ăn khuya."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "ようにしている。",
+       "毎日",
+       "日本語で日記を書く"
+      ],
+      "translation_vi": "Tôi cố gắng mỗi ngày viết nhật ký bằng tiếng Nhật."
+     }
+    ],
+    "pattern": "V từ điển / V-ない + ようにする",
+    "pattern_variants": [
+     "〜ようにする A"
+    ],
+    "unit_no": 3,
+    "unit_title_vi": "Điều kiện, quyết tâm và thói quen",
+    "usage_vi": "ようにする là do mình cố gắng; ようになる là kết quả tự thay đổi. Dạng ようにしている nhấn mạnh đang duy trì thói quen."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-af5fd290f6"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "N の＋最中に = đúng lúc đang học thì có việc xen vào. おかげで/ついでに/かわりに không hợp nghĩa.",
+      "options": [
+       "かわりに",
+       "おかげで",
+       "ついでに",
+       "さいちゅうに"
+      ],
+      "prompt_ja": "授業の（　　）、外で大きな音がした。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "食事の最中に = đang giữa bữa ăn thì điện thoại đến.",
+      "options": [
+       "ついでに",
+       "さいちゅうに",
+       "おかげで",
+       "かわりに"
+      ],
+      "prompt_ja": "食事の（　　）、友だちから電話が来た。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đang giữa giờ học thì bên ngoài cửa sổ có tiếng động. Thứ tự đúng: 授業の最中に、窓の外で音がした。 ★ = 窓の。",
+      "options": [
+       "外で音がした",
+       "窓の",
+       "最中に、",
+       "授業の"
+      ],
+      "prompt_ja": "教室で、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "V-ている＋最中に = đang ăn thì chuông cửa reo. Thứ tự đúng: 夕食を食べている最中に、玄関のベルが鳴った。 ★ = 玄関の。",
+      "options": [
+       "最中に、",
+       "夕食を食べている",
+       "ベルが鳴った",
+       "玄関の"
+      ],
+      "prompt_ja": "昨日の夜、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "さいちゅうに chỉ lúc hoạt động đang tiếp diễn.",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Giữa giờ học, bên ngoài có tiếng động lớn.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "prompt_ja": "授業のさいちゅうに、外で大きな音がした。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "さいちゅうに chỉ việc xảy ra giữa bữa ăn.",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi nói chậm để dễ nghe.",
+       "Tôi cố gắng không ăn khuya.",
+       "Giữa bữa ăn, bạn tôi gọi điện."
+      ],
+      "prompt_ja": "食事のさいちゅうに、友だちから電話が来た。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Động từ phải ở dạng V-ている: 食べている最中に.",
+      "options": [
+       "授業のさいちゅうに、外で大きな音がした。",
+       "話している最中に、先生が部屋に入った。",
+       "会議の最中に、電気が消えた。",
+       "ご飯を食べる最中に、電話が鳴った。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "V-ている nối trực tiếp với 最中に; chỉ danh từ mới cần の (会議の最中に).",
+      "options": [
+       "試合の最中に、雨が降り出した。",
+       "会議の最中に、電気が消えた。",
+       "食事のさいちゅうに、友だちから電話が来た。",
+       "電話しているの最中に、ドアのベルが鳴った。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Đặt hành động có chủ đích của chính mình ở vế sau (vế sau 最中に phải là sự việc khách quan xảy ra bất ngờ ngoài dự tính).",
+    "examples": [
+     {
+      "ja": "会議の最中に携帯が鳴ってしまった。",
+      "ja_furigana": "会議(かいぎ)の最中(さいちゅう)に携帯(けいたい)が鳴(な)ってしまった。",
+      "source": "BOOK",
+      "vi": "Đang giữa cuộc họp thì điện thoại di động lại đổ chuông."
+     },
+     {
+      "ja": "大事な話をしている最中に電気が消えた。",
+      "ja_furigana": "大事(だいじ)な話(はなし)をしている最中(さいちゅう)に電気(でんき)が消(き)えた。",
+      "source": "AI",
+      "vi": "Đang giữa lúc nói chuyện quan trọng thì đèn vụt tắt."
+     },
+     {
+      "ja": "試験の最中に急にお腹が痛くなりました。",
+      "ja_furigana": "試験(しけん)の最中(さいちゅう)に急(きゅう)にお腹(なか)が痛(いた)くなりました。",
+      "source": "AI",
+      "vi": "Đang giữa giờ thi thì bụng tôi bỗng nhiên đau dữ dội."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "授業の最中に = đang giữa giờ học.",
+      "options": [
+       "おかげで",
+       "ついでに",
+       "最中に、",
+       "かわりに"
+      ],
+      "prompt_ja": "教室で、授業の（　　）窓の外で音がした。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "食べている最中に = đang ăn thì chuông reo.",
+      "options": [
+       "最中に、",
+       "ついでに",
+       "おかげで",
+       "かわりに"
+      ],
+      "prompt_ja": "昨日の夜、夕食を食べている（　　）玄関のベルが鳴った。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "最中に dùng khi có việc bất ngờ xen vào giữa lúc đang làm; hành động song song thường ngày dùng ながら (勉強しながら).",
+      "options": [
+       "会議の最中に、電気が消えた。",
+       "勉強している最中に、いつも音楽を聞いている。",
+       "試合の最中に、雨が降り出した。",
+       "話している最中に、先生が部屋に入った。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "最中に"
+      ],
+      "answer": "さいちゅうに",
+      "sentence_ja": "授業の＿＿、外で大きな音がした。",
+      "translation_vi": "Giữa giờ học, bên ngoài có tiếng động lớn."
+     },
+     {
+      "accept": [
+       "最中に"
+      ],
+      "answer": "さいちゅうに",
+      "sentence_ja": "食事の＿＿、友だちから電話が来た。",
+      "translation_vi": "Giữa bữa ăn, bạn tôi gọi điện."
+     }
+    ],
+    "findings": [],
+    "formation": "V-ている + 最中に / N + の + 最中に",
+    "locked_fields": [],
+    "meaning_vi": "Đang giữa lúc — Đúng lúc việc gì đang diễn ra sôi nổi nhất thì việc khác xen vào.",
+    "nuance_vi": "Nhấn mạnh thời điểm hành động đang ở cao trào thì một sự việc bất ngờ, thường là gây cản trở, ập đến.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       1,
+       0
+      ],
+      "pieces": [
+       "友だちが来た。",
+       "さいちゅうに、",
+       "食べている"
+      ],
+      "translation_vi": "Đang ăn thì bạn tôi đến."
+     },
+     {
+      "answer_order": [
+       2,
+       1,
+       0
+      ],
+      "pieces": [
+       "先生が部屋に入った。",
+       "さいちゅうに、",
+       "話している"
+      ],
+      "translation_vi": "Đang nói chuyện thì giáo viên vào phòng."
+     }
+    ],
+    "pattern": "V-ている / N の + 最中に",
+    "pattern_variants": [
+     "〜最中(に)"
+    ],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "Mạnh hơn 間に, hàm ý bị ngắt quãng. Không dùng cho trạng thái kéo dài bình thường."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c2f03a71b6"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "において chỉ địa điểm theo cách trang trọng.",
+      "options": [
+       "にとって",
+       "において",
+       "に比べて",
+       "に加えて"
+      ],
+      "prompt_ja": "来月の試験は、この教室（　　）行われます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "において = tại (trang trọng), chỉ nơi diễn ra cuộc họp.",
+      "options": [
+       "にとって",
+       "に加えて",
+       "に比べて",
+       "二階の部屋において"
+      ],
+      "prompt_ja": "会議は（　　）開かれる。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo thông báo, kỳ thi tuần sau tổ chức tại lớp này. Thứ tự đúng: この教室において、来週の試験が行われる。 ★ = 来週の。",
+      "options": [
+       "試験が行われる",
+       "において、",
+       "この教室",
+       "来週の"
+      ],
+      "prompt_ja": "学校からの案内では、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "において = tại (trang trọng), đi với sự kiện được tổ chức (会議が開かれる). Thứ tự đúng: 二階の会議室において、社員の会議が開かれる。 ★ = 社員の。",
+      "options": [
+       "会議が開かれる",
+       "社員の",
+       "において、",
+       "二階の会議室"
+      ],
+      "prompt_ja": "来週、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "において chỉ địa điểm theo cách trang trọng.",
+      "options": [
+       "Tôi nói chậm để dễ nghe.",
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi cố gắng không ăn khuya.",
+       "Kỳ thi tháng tới được tổ chức tại lớp học này."
+      ],
+      "prompt_ja": "来月の試験は、この教室において行われます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "二階の部屋において = tại phòng tầng hai (văn trang trọng của で).",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Cuộc họp được tổ chức tại phòng tầng hai.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "prompt_ja": "会議は二階の部屋において開かれる。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "において mang tính trang trọng, dùng cho nơi diễn ra sự kiện; việc thường ngày như dắt chó đi dạo dùng で.",
+      "options": [
+       "来月の試験は、この教室において行われます。",
+       "会議は二階の部屋において開かれる。",
+       "私は毎朝、近くの公園において犬と散歩する。",
+       "入学式は体育館において行われた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Trợ từ đúng là に: ホールにおいて.",
+      "options": [
+       "卒業式はホールをおいて行われた。",
+       "入学式は体育館において行われた。",
+       "会議は二階の部屋において開かれる。",
+       "日本における外国人の生活について調べた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng において cho sinh hoạt đời thường nhỏ nhặt như 台所において料理する (khi đó chỉ dùng で).",
+    "examples": [
+     {
+      "ja": "近代工業はヨーロッパにおいて誕生した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nền công nghiệp cận đại ra đời ở Châu Âu."
+     },
+     {
+      "ja": "災害時においては、冷静になることが何よりも大切だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong thảm họa, điều quan trọng nhất là phải giữ bình tĩnh."
+     },
+     {
+      "ja": "来月の国際会議は東京において開かれます。",
+      "ja_furigana": "来月(らいげつ)の国際会議(こくさいかいぎ)は東京(とうきょう)において開(ひら)かれます。",
+      "source": "AI",
+      "vi": "Hội nghị quốc tế tháng sau sẽ được tổ chức tại Tokyo."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "この教室において = tại lớp học này (trang trọng).",
+      "options": [
+       "において、",
+       "にとって",
+       "に比べて",
+       "に加えて"
+      ],
+      "prompt_ja": "学校からの案内では、 この教室（　　）来週の試験が行われる。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "会議室において = tại phòng họp.",
+      "options": [
+       "にとって",
+       "に比べて",
+       "において、",
+       "に加えて"
+      ],
+      "prompt_ja": "来週、二階の会議室（　　）社員の会議が開かれる。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Việc cá nhân thường ngày (đợi bạn) dùng で: 駅で友達を待っている; において dùng cho sự kiện trang trọng.",
+      "options": [
+       "会議は二階の部屋において開かれる。",
+       "私は今、駅において友達を待っている。",
+       "入学式は体育館において行われた。",
+       "来月の試験は、この教室において行われます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "で"
+      ],
+      "answer": "において",
+      "sentence_ja": "来月の試験は、この教室＿＿行われます。",
+      "translation_vi": "Kỳ thi tháng tới được tổ chức tại lớp học này."
+     },
+     {
+      "accept": [
+       "二階の部屋で"
+      ],
+      "answer": "二階の部屋において",
+      "sentence_ja": "会議は＿＿開かれる。",
+      "translation_vi": "Cuộc họp được tổ chức tại phòng tầng hai."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 近代工業はヨーロッパにおいて誕生した。",
+     "FURIGANA_MISSING: 災害時においては、冷静になることが何よりも大切だ。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 災害時においては、冷静になることが何よりも大切だ。 → 災害"
+    ],
+    "formation": "N + において / N + においては / N1 + における + N2",
+    "locked_fields": [],
+    "meaning_vi": "Tại…; ở…",
+    "nuance_vi": "Cách diễn đạt trang trọng trong văn viết, thông báo và bài phát biểu thay cho で hoặc に để chỉ địa điểm, thời đại hoặc lĩnh vực.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "二階の部屋において",
+       "開かれる。",
+       "会議は"
+      ],
+      "translation_vi": "Cuộc họp được tổ chức tại phòng tầng hai."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "行われます。",
+       "来月の試験は、この教室",
+       "において"
+      ],
+      "translation_vi": "Kỳ thi tháng tới được tổ chức tại lớp học này."
+     }
+    ],
+    "pattern": "〜において",
+    "pattern_variants": [],
+    "unit_no": 19,
+    "unit_title_vi": "Quan hệ, lập trường và phạm vi",
+    "usage_vi": "Dùng để chỉ nơi chốn hoặc thời điểm: “tại…, ở…”. Thường gặp trong văn viết, thông báo, ngữ cảnh trang trọng. 1) Dễ nhầm với ～で (tại/ở). → ～において trang trọng hơn, hay dùng trong văn viết, tin tức, thông báo. 2) Dùng cho bối cảnh “tại…, trong…, ở phương diện…”. → Không chỉ nơi chốn mà còn có thể là “trong lĩnh vực/sự kiện”. 3) Không hợp văn nói thân mật. → Hội thoại thường dùng ～で tự nhiên hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ee9a313bc0"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "にとって diễn đạt Đối với… thì…. に加えて và に比べて không phù hợp với cấu trúc hoặc ý câu này.",
+      "options": [
+       "に関して",
+       "に比べて",
+       "にとって",
+       "に加えて"
+      ],
+      "prompt_ja": "この仕事は私（　　）難しい。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "子どもにとって = đối với trẻ em (lập trường đánh giá \"quan trọng\").",
+      "options": [
+       "子どもにとって",
+       "に比べて",
+       "に関して",
+       "に加えて"
+      ],
+      "prompt_ja": "（　　）遊ぶ時間は大切だ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đối với tôi, công việc đầu tiên thật khó. Thứ tự đúng: 私にとって、初めての仕事は難しい。 ★ = 初めての。",
+      "options": [
+       "仕事は難しい",
+       "にとって、",
+       "初めての",
+       "私"
+      ],
+      "prompt_ja": "働き始めて、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Đối với trẻ em, thời gian chơi ngoài trời là quan trọng. Thứ tự đúng: 子どもにとって、外で遊ぶ時間が大切だ。 ★ = 外で遊ぶ。",
+      "options": [
+       "外で遊ぶ",
+       "子ども",
+       "にとって、",
+       "時間が大切だ"
+      ],
+      "prompt_ja": "学校の考えでは、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "にとって diễn đạt Đối với… thì…. Câu này nghĩa là: \"Đối với tôi, công việc này khó.\"",
+      "options": [
+       "Tôi cố gắng không ăn khuya.",
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Đối với tôi, công việc này khó.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "prompt_ja": "この仕事は私にとって難しい。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "にとって + đánh giá (大切だ): đứng ở lập trường của trẻ em.",
+      "options": [
+       "Đối với trẻ em, thời gian vui chơi quan trọng.",
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "prompt_ja": "子どもにとって遊ぶ時間は大切だ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "にとって nêu lập trường đánh giá; thái độ hướng tới ai dùng に対して: 学生に対して親切だ.",
+      "options": [
+       "この仕事は私にとって難しい。",
+       "私にとって、家族は一番大切だ。",
+       "子どもにとって遊ぶ時間は大切だ。",
+       "先生は学生にとってとても親切だ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Trợ từ đúng là に: 私にとって.",
+      "options": [
+       "私をとって、この仕事は難しい。",
+       "この写真は私にとって宝物だ。",
+       "子どもにとって遊ぶ時間は大切だ。",
+       "留学生にとって、漢字は難しい。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng にとって thay cho に với động từ trao nhận hoặc hành động hướng tới đối tượng (sai: 彼にとってプレゼントをあげる).",
+    "examples": [
+     {
+      "ja": "この本はしょしんしゃにとってよみやすいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quyển sách này dễ đọc đối với người mới bắt đầu. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "ja": "家族の健康は私にとって何より大切です。",
+      "ja_furigana": "家族(かぞく)の健康(けんこう)は私(わたし)にとって何(なに)より大切(たいせつ)です。",
+      "source": "AI",
+      "vi": "Đối với tôi, sức khỏe của gia đình quan trọng hơn bất cứ thứ gì."
+     },
+     {
+      "ja": "外国人にとって漢字を覚えるのは難しい。",
+      "ja_furigana": "外国人(がいこくじん)にとって漢字(かんじ)を覚(おぼ)えるのは難(むずか)しい。",
+      "source": "AI",
+      "vi": "Đối với người nước ngoài thì việc nhớ chữ Hán rất khó."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "私にとって = đối với tôi.",
+      "options": [
+       "に比べて",
+       "に加えて",
+       "に関して",
+       "にとって、"
+      ],
+      "prompt_ja": "働き始めて、 私（　　）初めての仕事は難しい。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "子どもにとって = đối với trẻ em.",
+      "options": [
+       "に比べて",
+       "にとって、",
+       "に関して",
+       "に加えて"
+      ],
+      "prompt_ja": "学校の考えでは、 子ども（　　）外で遊ぶ時間が大切だ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "にとって đi với vị ngữ đánh giá (khó, quan trọng...), không đi với hành động/ý kiến của chính người đó; nói 私はその意見に賛成です.",
+      "options": [
+       "留学生にとって、漢字は難しい。",
+       "私にとって、家族は一番大切だ。",
+       "私にとって、その意見に賛成です。",
+       "この仕事は私にとって難しい。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "にとって",
+      "sentence_ja": "この仕事は私＿＿難しい。",
+      "translation_vi": "Đối với tôi, công việc này khó."
+     },
+     {
+      "answer": "子どもにとって",
+      "sentence_ja": "＿＿遊ぶ時間は大切だ。",
+      "translation_vi": "Đối với trẻ em, thời gian vui chơi quan trọng."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: この本はしょしんしゃにとってよみやすいです。"
+    ],
+    "formation": "N + にとって(は / も) / N1 + にとっての + N2",
+    "locked_fields": [],
+    "meaning_vi": "Đối với… thì…",
+    "nuance_vi": "Đứng từ lập trường, góc nhìn của N để đưa ra đánh giá, nhận xét (quan trọng, khó, cần thiết...); vế sau phải là từ mang tính đánh giá.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "遊ぶ時間は",
+       "大切だ。",
+       "子どもにとって"
+      ],
+      "translation_vi": "Đối với trẻ em, thời gian vui chơi quan trọng."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "難しい。",
+       "この仕事は私",
+       "にとって"
+      ],
+      "translation_vi": "Đối với tôi, công việc này khó."
+     }
+    ],
+    "pattern": "〜にとって",
+    "pattern_variants": [
+     "にとって"
+    ],
+    "unit_no": 19,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả đánh giá/nhận xét từ lập trường của ai đó: “đối với A thì…”. Không phải so sánh, mà là quan điểm. 1) Dễ nhầm với ～には. → ～にとって là “đối với (lập trường của N)”, dùng để đánh giá/nhận xét từ góc nhìn N. 2) Sau mẫu này thường là nhận định. → Ví dụ: 大切だ, 難しい, 便利だ… (đánh giá). 3) Không dùng để nói đối tượng tác động trực tiếp. → Nếu là “đối với ai đó làm gì” (hành động hướng tới) thì cân nhắc ～に対して."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8433f18c7d"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "にわたって diễn đạt Trải qua…; trên toàn phạm vi…. にとって và に比べて không phù hợp với cấu trúc hoặc ý câu này.",
+      "options": [
+       "にわたって",
+       "に関して",
+       "にとって",
+       "に比べて"
+      ],
+      "prompt_ja": "祭りは三日間（　　）開かれた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "「にわたって」 diễn đạt Biểu thị thời gian dài, phạm vi rộng. Các lựa chọn 「に反して」 và 「にかわって」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "options": [
+       "に反して",
+       "にかわって",
+       "にわたって",
+       "にとって"
+      ],
+      "prompt_ja": "会議は三日間（　　）行われた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Năm nay lễ hội của thị trấn kéo dài suốt ba ngày. Thứ tự đúng: 三日間にわたって、町の祭りが続いた。 ★ = 町の。",
+      "options": [
+       "祭りが続いた",
+       "町の",
+       "にわたって、",
+       "三日間"
+      ],
+      "prompt_ja": "今年は、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Tuần trước mưa to suốt hai ngày. Thứ tự đúng: 二日間にわたって、強い雨が降った。 ★ = 強い。",
+      "options": [
+       "雨が降った",
+       "二日間",
+       "にわたって、",
+       "強い"
+      ],
+      "prompt_ja": "先週は、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "にわたって diễn đạt Trải qua…; trên toàn phạm vi…. Câu này nghĩa là: \"Lễ hội diễn ra suốt ba ngày.\"",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Lễ hội diễn ra suốt ba ngày.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "prompt_ja": "祭りは三日間にわたって開かれた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "「にわたって」 diễn đạt Biểu thị thời gian dài, phạm vi rộng. Câu này nghĩa là: \"Cuộc họp được tổ chức trong ba ngày.\"",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi nói chậm để dễ nghe.",
+       "Tôi cố gắng không ăn khuya.",
+       "Cuộc họp được tổ chức trong ba ngày."
+      ],
+      "prompt_ja": "会議は三日間にわたって行われた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "にわたって dùng cho khoảng thời gian/phạm vi lớn; \"một phút\" quá ngắn.",
+      "options": [
+       "祭りは三日間にわたって開かれた。",
+       "工事は半年にわたって続いた。",
+       "電車が一分にわたって止まった。",
+       "会議は三日間にわたって行われた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Trợ từ đúng là に: 三日間にわたって.",
+      "options": [
+       "会議は三日間をわたって行われた。",
+       "工事は半年にわたって続いた。",
+       "雨は二日間にわたって降り続いた。",
+       "台風は広い地域にわたって被害を出した。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng にわたって cho hành động chỉ xảy ra tại một điểm thời gian ngắn hoặc phạm vi hẹp.",
+    "examples": [
+     {
+      "ja": "祭りは三日間にわたって行われます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lễ hội được tổ chức trong suốt ba ngày. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "ja": "会議は五時間にわたって続けられました。",
+      "ja_furigana": "会議(かいぎ)は五時間(ごじかん)にわたって続(つづ)けられました。",
+      "source": "AI",
+      "vi": "Cuộc họp đã kéo dài suốt 5 tiếng đồng hồ."
+     },
+     {
+      "ja": "台風で広い地域にわたる停電が起きた。",
+      "ja_furigana": "台風(たいふう)で広(ひろ)い地域(ちいき)にわたる停電(ていでん)が起(お)きた。",
+      "source": "AI",
+      "vi": "Do bão nên đã xảy ra mất điện trên diện rộng."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "三日間にわたって = suốt ba ngày.",
+      "options": [
+       "に関して",
+       "にわたって、",
+       "にとって",
+       "に比べて"
+      ],
+      "prompt_ja": "今年は、 三日間（　　）町の祭りが続いた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "二日間にわたって = suốt hai ngày.",
+      "options": [
+       "に関して",
+       "にとって",
+       "に比べて",
+       "にわたって、"
+      ],
+      "prompt_ja": "先週は、 二日間（　　）強い雨が降った。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Trợ từ đúng là に: 広い地域にわたって.",
+      "options": [
+       "雨は二日間にわたって降り続いた。",
+       "祭りは三日間にわたって開かれた。",
+       "工事は半年にわたって続いた。",
+       "雨は広い地域でわたって降った。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "にわたって",
+      "sentence_ja": "祭りは三日間＿＿開かれた。",
+      "translation_vi": "Lễ hội diễn ra suốt ba ngày."
+     },
+     {
+      "answer": "にわたって",
+      "sentence_ja": "会議は三日間＿＿行われた。",
+      "translation_vi": "Cuộc họp được tổ chức trong ba ngày."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 祭りは三日間にわたって行われます。"
+    ],
+    "formation": "N + にわたって / にわたり / N1 + にわたる + N2",
+    "locked_fields": [],
+    "meaning_vi": "Trải qua…; trên toàn phạm vi…",
+    "nuance_vi": "Nhấn mạnh quy mô lớn của toàn bộ khoảng thời gian dài hoặc phạm vi không gian rộng lớn mà sự việc bao phủ.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "二日間にわたって",
+       "降り続いた。",
+       "雨は"
+      ],
+      "translation_vi": "Mưa kéo dài suốt hai ngày."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "広い地域にわたって",
+       "降った。",
+       "この雨は"
+      ],
+      "translation_vi": "Trận mưa này đã rơi trên vùng rộng."
+     }
+    ],
+    "pattern": "〜にわたって/わたり",
+    "pattern_variants": [
+     "〜にわたって"
+    ],
+    "unit_no": 19,
+    "unit_title_vi": "Quan hệ, lập trường và phạm vi",
+    "usage_vi": "Diễn tả phạm vi trải rộng trong toàn bộ thời gian/địa điểm/số lượng: “trải qua…, suốt…, trên khắp…”. Nhấn mạnh tính bao phủ. 1) Dễ nhầm với ～間／～中. → ～にわたって nhấn mạnh phạm vi trải dài và liên tục (thời gian/địa điểm/hoạt động), thường mang sắc thái quy mô. 2) Hay đi với khoảng dài hoặc nhiều điểm. → Ví dụ: 数年間, 全国, 全域… (trải rộng). 3) Không dùng cho khoảng rất ngắn, đơn lẻ. → Nếu chỉ “trong 1 giờ” kiểu bình thường, thường dùng ～間."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b9676d34b4"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Căn cứ \"đèn đã tắt\" → suy đoán chắc chắn: いないに違いない. つもりだ/ことにする/ようにする chỉ ý chí.",
+      "options": [
+       "ようにする",
+       "つもりだ",
+       "ことにする",
+       "に違いない"
+      ],
+      "prompt_ja": "電気が消えている。もう誰もいない（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sống lâu ở đây (căn cứ) → chắc chắn biết đường: 知っているに違いない.",
+      "options": [
+       "ことにする",
+       "に違いない",
+       "つもりだ",
+       "ようにする"
+      ],
+      "prompt_ja": "彼はこの町に長く住んでいる。道をよく知っている（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "に違いない = chắc chắn (thắng), ので nêu lý do chuẩn bị cờ cổ vũ. Thứ tự đúng: 彼は試合に勝つに違いないので、応援の旗を用意した。 ★ = 応援の。",
+      "options": [
+       "応援の",
+       "に違いないので、",
+       "旗を用意した",
+       "彼は試合に勝つ"
+      ],
+      "prompt_ja": "彼は毎日練習している。 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "降るに違いない = chắc chắn sắp mưa → mang ô. Thứ tự đúng: もうすぐ雨が降るに違いないから、傘を持って出かけた。 ★ = 傘を。",
+      "options": [
+       "もうすぐ雨が降る",
+       "持って出かけた",
+       "傘を",
+       "に違いないから、"
+      ],
+      "prompt_ja": "雲が黒い。 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "に違いない diễn đạt Nhất định là…, Chắc chắn là…. Câu này nghĩa là: \"Đèn đã tắt. Chắc chắn không còn ai ở đó.\"",
+      "options": [
+       "Đèn đã tắt. Chắc chắn không còn ai ở đó.",
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "prompt_ja": "電気が消えている。もう誰もいないに違いない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "に違いない thể hiện suy đoán có căn cứ mạnh.",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi cố gắng không ăn khuya.",
+       "Anh ấy sống ở thị trấn này lâu rồi; chắc chắn biết đường rất rõ.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "prompt_ja": "彼はこの町に長く住んでいる。道をよく知っているに違いない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Danh từ nối trực tiếp, bỏ だ: 先生に違いない.",
+      "options": [
+       "電気が消えている。もう誰もいないに違いない。",
+       "あの人は先生だに違いない。",
+       "机に本がない。彼が持っていったに違いない。",
+       "彼はこの町に長く住んでいる。道をよく知っているに違いない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Tính từ な bỏ な: 静かに違いない.",
+      "options": [
+       "この部屋は静かなに違いない。",
+       "これは母の字に違いない。",
+       "彼は試合に勝つに違いない。",
+       "あの店はいつも人が多い。おいしいに違いない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Thêm だ hoặc の trước に違いない (sai: 本当だに違いない; đúng: 本当に違いない).",
+    "examples": [
+     {
+      "ja": "夜になっても電気がつかない。きっと出かけているに違いない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trời tối rồi mà điện không bật. Chắc chắn họ ra ngoài rồi."
+     },
+     {
+      "ja": "犯人はAに違いない。強い動機があって、しかもアリバイがないのだから。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thủ phạm chỉ có thể là A. Hắn có động cơ lớn và thêm vào đó không có chứng cớ ngoại phạm."
+     },
+     {
+      "ja": "あんなに練習したから彼は合格するに違いない。",
+      "ja_furigana": "あんなに練習(れんしゅう)したから彼(かれ)は合格(ごうかく)するに違(ちが)いない。",
+      "source": "AI",
+      "vi": "Đã luyện tập nhiều đến thế nên chắc chắn anh ấy sẽ đỗ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "勝つに違いないので = vì chắc chắn sẽ thắng.",
+      "options": [
+       "はずがない",
+       "ことはない",
+       "に違いないので、",
+       "かもしれない"
+      ],
+      "prompt_ja": "彼は毎日練習している。彼は試合に勝つ（　　）応援の旗を用意した。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "降るに違いないから = vì chắc chắn sắp mưa.",
+      "options": [
+       "に違いないから、",
+       "ことはない",
+       "はずがない",
+       "かもしれない"
+      ],
+      "prompt_ja": "雲が黒い。もうすぐ雨が降る（　　）傘を持って出かけた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Động từ dùng thể thường: 降るに違いない, không dùng dạng bỏ ます.",
+      "options": [
+       "これは母の字に違いない。",
+       "あの店はいつも人が多い。おいしいに違いない。",
+       "もうすぐ雨が降りに違いない。",
+       "机に本がない。彼が持っていったに違いない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "に違いない",
+      "sentence_ja": "電気が消えている。もう誰もいない＿＿。",
+      "translation_vi": "Đèn đã tắt. Chắc chắn không còn ai ở đó."
+     },
+     {
+      "answer": "に違いない",
+      "sentence_ja": "彼はこの町に長く住んでいる。道をよく知っている＿＿。",
+      "translation_vi": "Anh ấy sống ở thị trấn này lâu rồi; chắc chắn biết đường rất rõ."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 夜になっても電気がつかない。きっと出かけているに違いない。",
+     "FURIGANA_MISSING: 犯人はAに違いない。強い動機があって、しかもアリバイがないのだから。"
+    ],
+    "formation": "V / Aい / Aな(bỏ だ) / N(bỏ だ) + に違いない",
+    "locked_fields": [],
+    "meaning_vi": "Nhất định là…, Chắc chắn là…",
+    "nuance_vi": "Khẳng định chắc nịch theo niềm tin chủ quan của người nói ('chắc chắn không sai được'); mạnh và thiên về trực giác cá nhân hơn はずだ.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "毎日練習したから、",
+       "上手になったに違いない。",
+       "彼は"
+      ],
+      "translation_vi": "Anh ấy luyện tập mỗi ngày nên chắc chắn đã tiến bộ."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "彼が",
+       "持っていったに違いない。",
+       "机に本がない。"
+      ],
+      "translation_vi": "Trên bàn không có sách. Chắc chắn anh ấy đã mang đi."
+     }
+    ],
+    "pattern": "〜に違いない",
+    "pattern_variants": [
+     "Thể thường + に違いない"
+    ],
+    "unit_no": 12,
+    "unit_title_vi": "Phủ định, suy đoán và khẳng định",
+    "usage_vi": "Khẳng định mạnh suy đoán của người nói dựa trên căn cứ: “chắc chắn là…”. Người nói tin gần như chắc đúng. 1) Dễ nhầm với ～はずだ／～に決まっている. → ～に違いない là “chắc chắn” theo suy luận có căn cứ, nhưng vẫn là suy đoán của người nói. 2) Không dùng cho suy đoán yếu. → Nếu chỉ “có lẽ” thì dùng ～かもしれない／～だろう. 3) Hay đi với dấu hiệu/căn cứ. → Thường có thông tin trước đó làm cơ sở để kết luận."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e6683f641c"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "をはじめ nêu đại diện tiêu biểu (trẻ em) trong nhóm nhiều người. をこめて/にとって/に比べて không hợp.",
+      "options": [
+       "をこめて",
+       "をはじめ",
+       "にとって",
+       "に比べて"
+      ],
+      "prompt_ja": "この祭りには子ども（　　）、多くの人が参加する。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "町長をはじめ = đứng đầu là thị trưởng, cùng nhiều người khác.",
+      "options": [
+       "を中心に",
+       "に比べて",
+       "にとって",
+       "町長をはじめ、"
+      ],
+      "prompt_ja": "（　　）多くの人が式に出席した。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "をはじめ nêu ví dụ tiêu biểu (Tokyo), vế sau là nhóm lớn (nhiều thành phố). Thứ tự đúng: 東京をはじめ、多くの町で祭りが開かれる。 ★ = 多くの。",
+      "options": [
+       "をはじめ、",
+       "町で祭りが開かれる",
+       "多くの",
+       "東京"
+      ],
+      "prompt_ja": "今年の夏は、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "校長先生をはじめ = đứng đầu là thầy hiệu trưởng, cùng các nhân viên. Thứ tự đúng: 校長先生をはじめ、学校の職員が集まった。 ★ = 学校の。",
+      "options": [
+       "学校の",
+       "職員が集まった",
+       "をはじめ、",
+       "校長先生"
+      ],
+      "prompt_ja": "会議には、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "をはじめ diễn đạt Trước tiên phải kể đến…, trước tiên là…. Câu này nghĩa là: \"Lễ hội có nhiều người tham gia, trước hết là trẻ em.\"",
+      "options": [
+       "Tôi cố gắng không ăn khuya.",
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Lễ hội có nhiều người tham gia, trước hết là trẻ em.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "prompt_ja": "この祭りには子どもをはじめ、多くの人が参加する。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "をはじめ: nêu người tiêu biểu (thị trưởng) rồi đến nhóm lớn (nhiều người).",
+      "options": [
+       "Nhiều người, đứng đầu là thị trưởng, đã dự lễ.",
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "prompt_ja": "町長をはじめ、多くの人が式に出席した。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mẫu là をはじめ (として); 「はじめて」 nghĩa là \"lần đầu\" nên sai.",
+      "options": [
+       "町長をはじめ、多くの人が式に出席した。",
+       "町長をはじめて、多くの人が式に出席した。",
+       "日本には富士山をはじめ、有名な山がたくさんある。",
+       "この祭りには子どもをはじめ、多くの人が参加する。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Trợ từ đúng là を: 校長先生をはじめ.",
+      "options": [
+       "東京をはじめ、多くの町で祭りが開かれる。",
+       "会議には、校長先生をはじめ、学校の職員が集まった。",
+       "日本には富士山をはじめ、有名な山がたくさんある。",
+       "校長先生がはじめ、多くの先生が来た。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Chỉ nêu một sự vật duy nhất mà không có nhóm các sự vật cùng loại đi kèm phía sau.",
+    "examples": [
+     {
+      "ja": "りんごをはじめ、果物をいくつか買いました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi mua một số loại quả, bắt đầu với táo. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "ja": "社長をはじめ社員全員が式に出席しました。",
+      "ja_furigana": "社長(しゃちょう)をはじめ社員全員(しゃいんぜんいん)が式(しき)に出席(しゅっせき)しました。",
+      "source": "AI",
+      "vi": "Toàn thể nhân viên, trước hết là giám đốc, đều đã tham dự buổi lễ."
+     },
+     {
+      "ja": "京都をはじめ日本には古い町がたくさんある。",
+      "ja_furigana": "京都(きょうと)をはじめ日本(にほん)には古(ふる)い町(まち)がたくさんある。",
+      "source": "AI",
+      "vi": "Ở Nhật Bản có rất nhiều thành phố cổ, tiêu biểu là Kyoto."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "東京をはじめ = tiêu biểu là Tokyo, cùng nhiều thành phố.",
+      "options": [
+       "をはじめ、",
+       "をこめて",
+       "にとって",
+       "に比べて"
+      ],
+      "prompt_ja": "今年の夏は、東京（　　）多くの町で祭りが開かれる。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "校長先生をはじめ = đứng đầu là thầy hiệu trưởng.",
+      "options": [
+       "をこめて",
+       "にとって",
+       "をはじめ、",
+       "に比べて"
+      ],
+      "prompt_ja": "会議には、校長先生（　　）学校の職員が集まった。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "をはじめ nêu ví dụ tiêu biểu trong một nhóm nhiều thứ; vế sau \"chỉ có một cửa hàng\" mâu thuẫn.",
+      "options": [
+       "この祭りには子どもをはじめ、多くの人が参加する。",
+       "町長をはじめ、多くの人が式に出席した。",
+       "東京をはじめ、多くの町で祭りが開かれる。",
+       "この町には、スーパーをはじめ、店が一軒しかない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "をはじめ",
+      "sentence_ja": "この祭りには子ども＿＿、多くの人が参加する。",
+      "translation_vi": "Lễ hội có nhiều người tham gia, trước hết là trẻ em."
+     },
+     {
+      "answer": "町長をはじめ、",
+      "sentence_ja": "＿＿多くの人が式に出席した。",
+      "translation_vi": "Nhiều người, đứng đầu là thị trưởng, đã dự lễ."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: りんごをはじめ、果物をいくつか買いました。"
+    ],
+    "formation": "N + をはじめ(として)",
+    "locked_fields": [],
+    "meaning_vi": "Trước tiên phải kể đến…, trước tiên là…",
+    "nuance_vi": "Đưa ra một đại diện tiêu biểu, nổi bật nhất ở đầu rồi liệt kê hoặc khái quát cả nhóm cùng loại ở phía sau.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "多くの人が",
+       "式に出席した。",
+       "町長をはじめ、"
+      ],
+      "translation_vi": "Nhiều người, đứng đầu là thị trưởng, đã dự lễ."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "多くの人が参加する。",
+       "この祭りには子ども",
+       "をはじめ、"
+      ],
+      "translation_vi": "Lễ hội có nhiều người tham gia, trước hết là trẻ em."
+     }
+    ],
+    "pattern": "〜をはじめ",
+    "pattern_variants": [],
+    "unit_no": 19,
+    "unit_title_vi": "Quan hệ, lập trường và phạm vi",
+    "usage_vi": "Dùng để nêu ví dụ tiêu biểu/đại diện: “trước hết phải kể đến…”. Thường liệt kê từ cái nổi bật nhất rồi mở rộng ra các ví dụ khác. 1) Dễ nhầm với ～など. → ～をはじめ dùng để nêu ví dụ tiêu biểu đứng đầu danh sách, hàm ý “còn nhiều nữa”. 2) Sau ～をはじめ thường có các ví dụ khác. → Thường đi với など／を含め／を中心に… để mở rộng. 3) Không dùng khi chỉ liệt kê đủ. → Nếu danh sách là đầy đủ/khép kín, mẫu này không tự nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ea6e89c331"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-019"
+}

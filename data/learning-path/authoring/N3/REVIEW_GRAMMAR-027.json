@@ -1,0 +1,2244 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「なければならない」. 「Vない bỏ い ＋ ければならない」 (= 〜なければならない): phải làm vì nghĩa vụ, quy định. Thể ない 出さない bỏ い → 出さな + ければならない; ba dạng còn lại chia sai. Câu đầy đủ: レポートの締め切りは明日なので、今夜中に出さなければならない。 (Hạn nộp báo cáo là ngày mai nên tối nay tôi phải nộp).",
+      "options": [
+       "なければならない",
+       "なくければならない",
+       "ないければならない",
+       "ずければならない"
+      ],
+      "prompt_ja": "レポートの締め切りは明日なので、今夜中に出さ（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「なければならない」. 「Vない bỏ い ＋ ければならない」 (= 〜なければならない): phải làm vì nghĩa vụ, quy định. Thể ない 出さない bỏ い → 出さな + ければならない; ba dạng còn lại chia sai. Câu đầy đủ: 学生は授業の時間を守らなければならない。 (Học sinh phải đúng giờ học).",
+      "options": [
+       "なくければならない",
+       "なければならない",
+       "ないければならない",
+       "ずければならない"
+      ],
+      "prompt_ja": "学生は授業の時間を守ら（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 今夜は遅くまで勉強し → なければならないので、 → 友達の → 誘いを断った. Câu: 明日は試験です。今夜は遅くまで勉強しなければならないので、友達の誘いを断った。 (Ngày mai thi. Tối nay phải học đến khuya nên tôi đã từ chối lời rủ của bạn.). ★ = 「友達の」.",
+      "options": [
+       "誘いを断った",
+       "なければならないので、",
+       "友達の",
+       "今夜は遅くまで勉強し"
+      ],
+      "prompt_ja": "明日は試験です。＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 九時までに駅に着か → なければならないから、 → 早めの → 電車に乗った. Câu: 今日は大事な約束がある。九時までに駅に着かなければならないから、早めの電車に乗った。 (Hôm nay có hẹn quan trọng. Phải đến ga trước 9 giờ nên tôi lên chuyến tàu sớm.). ★ = 「早めの」.",
+      "options": [
+       "電車に乗った",
+       "九時までに駅に着か",
+       "なければならないから、",
+       "早めの"
+      ],
+      "prompt_ja": "今日は大事な約束がある。＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「Vない bỏ い ＋ ければならない」 (= 〜なければならない): phải làm vì nghĩa vụ, quy định. Câu này nghĩa là: “Hạn nộp báo cáo là ngày mai nên tối nay tôi phải nộp.”. Phương án “Hạn nộp báo cáo là ngày mai nên tối nay tôi chưa cần nộp.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Hạn nộp báo cáo là ngày mai nên tối nay tôi phải nộp.",
+       "Hạn nộp báo cáo là ngày mai nên tối nay tôi chưa cần nộp.",
+       "Nếu bị cảm thì nên đi ngủ sớm.",
+       "Xin lỗi, tôi không đọc được chữ Hán này, anh/chị có thể chỉ giúp tôi cách đọc được không ạ?"
+      ],
+      "prompt_ja": "レポートの締め切りは明日なので、今夜中に出さなければならない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「Vない bỏ い ＋ ければならない」 (= 〜なければならない): phải làm vì nghĩa vụ, quy định. Câu này nghĩa là: “Học sinh phải đúng giờ học.”. Phương án “Học sinh không cần đúng giờ học.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Mỗi lần tôi gặp bà, bà lại kể chuyện ngày xưa.",
+       "Học sinh phải đúng giờ học.",
+       "Học sinh không cần đúng giờ học.",
+       "Trời bỗng đổ mưa."
+      ],
+      "prompt_ja": "学生は授業の時間を守らなければならない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「明日は試験です。今夜は遅くまで勉強しないければならないので、友達の誘いを断った。」 — Phải bỏ い của 〜ない: 「勉強しなければならない」, không nói 「しないければ」. Ba câu còn lại dùng đúng mẫu Vなければならない.",
+      "options": [
+       "レポートの締め切りは明日なので、今夜中に出さなければならない。",
+       "学生は授業の時間を守らなければならない。",
+       "明日は試験です。今夜は遅くまで勉強しないければならないので、友達の誘いを断った。",
+       "今日は大事な約束がある。九時までに駅に着かなければならないから、早めの電車に乗った。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「今日は大事な約束がある。九時までに駅に着きなければならないから、早めの電車に乗った。」 — ければならない nối với thể ない: 着かない → 「着かなければならない」, không dùng 「着き」. Ba câu còn lại dùng đúng mẫu Vなければならない.",
+      "options": [
+       "レポートの締め切りは明日なので、今夜中に出さなければならない。",
+       "学生は授業の時間を守らなければならない。",
+       "明日は試験です。今夜は遅くまで勉強しなければならないので、友達の誘いを断った。",
+       "今日は大事な約束がある。九時までに駅に着きなければならないから、早めの電車に乗った。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Nhầm với べきだ (べきだ là lời khuyên theo đạo lý, còn なければならない là việc bắt buộc phải làm).",
+    "examples": [
+     {
+      "ja": "明日までにレポートを出さなければなりません。",
+      "ja_furigana": "明日(あした)までにレポートを出(だ)さなければなりません。",
+      "source": "BOOK",
+      "vi": "Tôi phải nộp báo cáo trước ngày mai."
+     },
+     {
+      "ja": "明日は早いので今夜は早く寝なければなりません。",
+      "ja_furigana": "明日(あした)は早(はや)いので今夜(こんや)は早(はや)く寝(ね)なければなりません。",
+      "source": "AI",
+      "vi": "Vì ngày mai phải đi sớm nên tối nay tôi phải đi ngủ sớm."
+     },
+     {
+      "ja": "図書館の本は二週間以内に返さなければならない。",
+      "ja_furigana": "図書館(としょかん)の本(ほん)は二週間以内(にしゅうかんいない)に返(かえ)さなければならない。",
+      "source": "AI",
+      "vi": "Sách thư viện bắt buộc phải trả trong vòng 2 tuần."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「なければならない」. 「Vない bỏ い ＋ ければならない」 (= 〜なければならない): phải làm vì nghĩa vụ, quy định. Thể ない 出さない bỏ い → 出さな + ければならない; ba dạng còn lại chia sai. Câu đầy đủ: 明日は試験です。今夜は遅くまで勉強しなければならないので、友達の誘いを断った。 (Ngày mai thi. Tối nay phải học đến khuya nên tôi đã từ chối lời rủ của bạn).",
+      "options": [
+       "なくければならない",
+       "なければならない",
+       "ないければならない",
+       "ずければならない"
+      ],
+      "prompt_ja": "明日は試験です。今夜は遅くまで勉強し（　　）ので、友達の誘いを断った。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「なければならない」. 「Vない bỏ い ＋ ければならない」 (= 〜なければならない): phải làm vì nghĩa vụ, quy định. Thể ない 出さない bỏ い → 出さな + ければならない; ba dạng còn lại chia sai. Câu đầy đủ: 今日は大事な約束がある。九時までに駅に着かなければならないから、早めの電車に乗った。 (Hôm nay có hẹn quan trọng. Phải đến ga trước 9 giờ nên tôi lên chuyến tàu sớm).",
+      "options": [
+       "なくければならない",
+       "ないければならない",
+       "なければならない",
+       "ずければならない"
+      ],
+      "prompt_ja": "今日は大事な約束がある。九時までに駅に着か（　　）から、早めの電車に乗った。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「レポートの締め切りは明日なので、今夜中に出すなければならない。」 — Phải chia thể ない: 出さない → 「出さなければならない」. Ba câu còn lại dùng đúng mẫu Vなければならない.",
+      "options": [
+       "レポートの締め切りは明日なので、今夜中に出すなければならない。",
+       "学生は授業の時間を守らなければならない。",
+       "明日は試験です。今夜は遅くまで勉強しなければならないので、友達の誘いを断った。",
+       "今日は大事な約束がある。九時までに駅に着かなければならないから、早めの電車に乗った。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "なくてはならない",
+       "なくてはいけない",
+       "なければいけない",
+       "ないといけない"
+      ],
+      "answer": "なければならない",
+      "sentence_ja": "レポートの締め切りは明日なので、今夜中に出さ＿＿。",
+      "translation_vi": "Hạn nộp báo cáo là ngày mai nên tối nay tôi phải nộp."
+     },
+     {
+      "accept": [
+       "なくてはならない",
+       "なくてはいけない",
+       "なければいけない",
+       "ないといけない"
+      ],
+      "answer": "なければならない",
+      "sentence_ja": "学生は授業の時間を守ら＿＿。",
+      "translation_vi": "Học sinh phải đúng giờ học."
+     }
+    ],
+    "findings": [],
+    "formation": "V(bỏ ない) + なければならない / なくてはいけない / ないといけない",
+    "locked_fields": [],
+    "meaning_vi": "Phải, bắt buộc — Nghĩa vụ hoặc quy định bắt buộc, không làm không được.",
+    "nuance_vi": "なければならない dùng rộng rãi cả văn viết và văn nói cho nghĩa vụ, quy định; ないといけない và なきゃ / なくちゃ thiên về hội thoại.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "授業の時間を守ら",
+       "なければならない。",
+       "学生は"
+      ],
+      "translation_vi": "Học sinh phải đúng giờ học."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "なければならない。",
+       "今夜中に",
+       "レポートを出さ"
+      ],
+      "translation_vi": "Tôi phải nộp báo cáo trong tối nay."
+     }
+    ],
+    "pattern": "V-ない bỏ い + ければならない",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": "Lời khuyên, nghĩa vụ và đề xuất",
+    "usage_vi": "Văn nói rút gọn: なきゃ, なくちゃ. Dạng なくてもいい là phủ định của nó: không cần phải."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3ac1afde14"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「からといって」. 「Thể thường ＋ からといって」: chỉ vì A mà kết luận B là không đúng; vế sau thường là 〜とは限らない／〜わけではない. 「に反して」「をもとに」 đi sau danh từ, 「たびに」 chỉ sự lặp lại; chỉ 「からといって」 nối với thể thường và đi với 〜とは限らない／〜わけではない. Câu đầy đủ: 安いからといって、品質が悪いとは限らない。 (Không phải cứ rẻ là chất lượng kém).",
+      "options": [
+       "からといって",
+       "に反して",
+       "をもとに",
+       "たびに"
+      ],
+      "prompt_ja": "安い（　　）、品質が悪いとは限らない。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「からといって」. 「Thể thường ＋ からといって」: chỉ vì A mà kết luận B là không đúng; vế sau thường là 〜とは限らない／〜わけではない. 「に反して」「をもとに」 đi sau danh từ, 「たびに」 chỉ sự lặp lại; chỉ 「からといって」 nối với thể thường và đi với 〜とは限らない／〜わけではない. Câu đầy đủ: 有名だからといって、必ずおいしいわけではない。 (Nổi tiếng không có nghĩa là chắc chắn ngon).",
+      "options": [
+       "に反して",
+       "からといって",
+       "をもとに",
+       "たびに"
+      ],
+      "prompt_ja": "有名だ（　　）、必ずおいしいわけではない。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 毎日長い時間勉強した → からといって、 → 成績が → 上がるとは限らないそうだ. Câu: 先生によると、毎日長い時間勉強したからといって、成績が上がるとは限らないそうだ。 (Theo thầy, không phải cứ học nhiều giờ mỗi ngày là điểm sẽ tăng.). ★ = 「成績が」.",
+      "options": [
+       "上がるとは限らないそうだ",
+       "からといって、",
+       "成績が",
+       "毎日長い時間勉強した"
+      ],
+      "prompt_ja": "先生によると、＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 熱が下がった → からといって、 → 病気が → 治ったわけではない. Câu: 医者の話では、熱が下がったからといって、病気が治ったわけではない。 (Theo lời bác sĩ, hạ sốt không có nghĩa là đã khỏi bệnh.). ★ = 「病気が」.",
+      "options": [
+       "治ったわけではない",
+       "熱が下がった",
+       "からといって、",
+       "病気が"
+      ],
+      "prompt_ja": "医者の話では、＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「Thể thường ＋ からといって」: chỉ vì A mà kết luận B là không đúng; vế sau thường là 〜とは限らない／〜わけではない. Câu này nghĩa là: “Không phải cứ rẻ là chất lượng kém.”. Phương án “Vì rẻ nên chắc chắn chất lượng kém.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Không phải cứ rẻ là chất lượng kém.",
+       "Vì rẻ nên chắc chắn chất lượng kém.",
+       "Thưa thầy, thầy có thể xem lại giúp em bài văn một lần nữa được không ạ?",
+       "Mỗi lần xem bức ảnh này, tôi lại nhớ đến gia đình."
+      ],
+      "prompt_ja": "安いからといって、品質が悪いとは限らない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「Thể thường ＋ からといって」: chỉ vì A mà kết luận B là không đúng; vế sau thường là 〜とは限らない／〜わけではない. Câu này nghĩa là: “Nổi tiếng không có nghĩa là chắc chắn ngon.”. Phương án “Vì nổi tiếng nên chắc chắn ngon.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Đứa trẻ bỗng bắt đầu khóc.",
+       "Nổi tiếng không có nghĩa là chắc chắn ngon.",
+       "Vì nổi tiếng nên chắc chắn ngon.",
+       "Hãy đọc kỹ phần hướng dẫn rồi mới ghi tên vào đơn đăng ký."
+      ],
+      "prompt_ja": "有名だからといって、必ずおいしいわけではない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「先生によると、毎日長い時間勉強したからといって、成績が必ず上がるそうだ。」 — からといって phải đi với vế phủ định như 〜とは限らない／〜わけではない; vế sau khẳng định 'chắc chắn tăng' là sai. Ba câu còn lại dùng đúng mẫu 〜からといって.",
+      "options": [
+       "安いからといって、品質が悪いとは限らない。",
+       "有名だからといって、必ずおいしいわけではない。",
+       "先生によると、毎日長い時間勉強したからといって、成績が必ず上がるそうだ。",
+       "医者の話では、熱が下がったからといって、病気が治ったわけではない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「医者の話では、熱が下がりからといって、病気が治ったわけではない。」 — からといって đi sau thể thường: 「下がったからといって」. Ba câu còn lại dùng đúng mẫu 〜からといって.",
+      "options": [
+       "安いからといって、品質が悪いとは限らない。",
+       "有名だからといって、必ずおいしいわけではない。",
+       "先生によると、毎日長い時間勉強したからといって、成績が上がるとは限らないそうだ。",
+       "医者の話では、熱が下がりからといって、病気が治ったわけではない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Đặt câu khẳng định bình thường ở vế sau からといって.",
+    "examples": [
+     {
+      "ja": "やせているからといって、体が弱いとは限らない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không phải cứ gầy là thể lực yếu."
+     },
+     {
+      "ja": "日本人だからといって、だれもが日本語を教えられるわけではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Là người Nhật nhưng không phải ai cũng dạy được tiếng Nhật."
+     },
+     {
+      "ja": "安いからといって買いすぎるのはよくない。",
+      "ja_furigana": "安(やす)いからといって買(か)いすぎるのはよくない。",
+      "source": "AI",
+      "vi": "Không nên chỉ vì rẻ mà lại mua quá nhiều."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「からといって」. 「Thể thường ＋ からといって」: chỉ vì A mà kết luận B là không đúng; vế sau thường là 〜とは限らない／〜わけではない. 「に反して」「をもとに」 đi sau danh từ, 「たびに」 chỉ sự lặp lại; chỉ 「からといって」 nối với thể thường và đi với 〜とは限らない／〜わけではない. Câu đầy đủ: 先生によると、毎日長い時間勉強したからといって、成績が上がるとは限らないそうだ。 (Theo thầy, không phải cứ học nhiều giờ mỗi ngày là điểm sẽ tăng).",
+      "options": [
+       "に反して",
+       "からといって",
+       "をもとに",
+       "たびに"
+      ],
+      "prompt_ja": "先生によると、毎日長い時間勉強した（　　）、成績が上がるとは限らないそうだ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「からといって」. 「Thể thường ＋ からといって」: chỉ vì A mà kết luận B là không đúng; vế sau thường là 〜とは限らない／〜わけではない. 「に反して」「をもとに」 đi sau danh từ, 「たびに」 chỉ sự lặp lại; chỉ 「からといって」 nối với thể thường và đi với 〜とは限らない／〜わけではない. Câu đầy đủ: 医者の話では、熱が下がったからといって、病気が治ったわけではない。 (Theo lời bác sĩ, hạ sốt không có nghĩa là đã khỏi bệnh).",
+      "options": [
+       "に反して",
+       "をもとに",
+       "からといって",
+       "たびに"
+      ],
+      "prompt_ja": "医者の話では、熱が下がった（　　）、病気が治ったわけではない。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「安いだからといって、品質が悪いとは限らない。」 — Tính từ い nối trực tiếp: 「安いからといって」, không thêm だ. Ba câu còn lại dùng đúng mẫu 〜からといって.",
+      "options": [
+       "安いだからといって、品質が悪いとは限らない。",
+       "有名だからといって、必ずおいしいわけではない。",
+       "先生によると、毎日長い時間勉強したからといって、成績が上がるとは限らないそうだ。",
+       "医者の話では、熱が下がったからといって、病気が治ったわけではない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "からって"
+      ],
+      "answer": "からといって",
+      "sentence_ja": "安い＿＿、品質が悪いとは限らない。",
+      "translation_vi": "Không phải cứ rẻ là chất lượng kém."
+     },
+     {
+      "accept": [
+       "からって"
+      ],
+      "answer": "からといって",
+      "sentence_ja": "有名だ＿＿、必ずおいしいわけではない。",
+      "translation_vi": "Nổi tiếng không có nghĩa là chắc chắn ngon."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: やせているからといって、体が弱いとは限らない。",
+     "FURIGANA_MISSING: 日本人だからといって、だれもが日本語を教えられるわけではない。"
+    ],
+    "formation": "V / Aい / Aな + だ / N + だ (thể thông thường) + からといって",
+    "locked_fields": [],
+    "meaning_vi": "Tuy là … nhưng chưa chắc đã…",
+    "nuance_vi": "Thừa nhận lý do ở vế trước nhưng bác bỏ kết luận vội vàng ở vế sau ('chỉ vì lý do A mà suy ra B thì không đúng'); vế sau luôn là phủ định như とは限らない, わけではない, 〜てはいけない.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "からといって、",
+       "おいしいとは限らない。",
+       "有名だ"
+      ],
+      "translation_vi": "Nổi tiếng không có nghĩa là chắc chắn ngon."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "品質が悪いとは限らない。",
+       "安い",
+       "からといって、"
+      ],
+      "translation_vi": "Không phải cứ rẻ là chất lượng kém."
+     }
+    ],
+    "pattern": "〜からといって",
+    "pattern_variants": [
+     "からといって"
+    ],
+    "unit_no": 14,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để phủ định suy luận vội vàng: “tuy là A nhưng chưa chắc đã B”. Dùng để nói “vì A nhưng không thể kết luận hay hành động như vậy”, thường kèm lời khuyên. 1) Dễ nhầm với ～から. → ～からといって là “chỉ vì… mà không thể kết luận/hành động như vậy”, phủ định suy luận đơn giản. 2) Vế sau thường là phủ định hoặc lời nhắc/khuyên. → Hay gặp dạng: ～からといって、…とは限らない／…わけではない. 3) Không dùng để nêu lý do trực tiếp. → Nếu chỉ nêu nguyên nhân bình thường, dùng ～から／～ので."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b8218e5643"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「に反して」. 「N ＋ に反して」: kết quả trái với dự đoán, kỳ vọng, mong muốn (予想・期待・希望…). 「を通じて」 = thông qua, 「にかわって」 = thay cho, 「をこめて」 = gửi gắm tình cảm — không nói được 'trái với dự đoán'. Câu đầy đủ: 予想に反して、試験はとても易しかった。 (Trái với dự đoán, bài thi rất dễ).",
+      "options": [
+       "に反して",
+       "を通じて",
+       "にかわって",
+       "をこめて"
+      ],
+      "prompt_ja": "予想（　　）、試験はとても易しかった。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「に反して」. 「N ＋ に反して」: kết quả trái với dự đoán, kỳ vọng, mong muốn (予想・期待・希望…). 「を通じて／にかわって／に比べて」 không diễn tả kết quả trái với kỳ vọng. Câu đầy đủ: 親の期待に反して、兄は大学をやめてしまった。 (Trái với kỳ vọng của bố mẹ, anh tôi đã bỏ đại học).",
+      "options": [
+       "を通じて",
+       "に反して",
+       "にかわって",
+       "に比べて"
+      ],
+      "prompt_ja": "親の期待（　　）、兄は大学をやめてしまった。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 天気予報 → に反して、 → 涼しい → 日が続いた. Câu: 今年の夏は、天気予報に反して、涼しい日が続いた。 (Mùa hè năm nay, trái với dự báo thời tiết, những ngày mát mẻ kéo dài.). ★ = 「涼しい」.",
+      "options": [
+       "日が続いた",
+       "に反して、",
+       "涼しい",
+       "天気予報"
+      ],
+      "prompt_ja": "今年の夏は、＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: みんなの予想 → に反して、 → 一番弱い → チームが優勝した. Câu: 試合では、みんなの予想に反して、一番弱いチームが優勝した。 (Trong giải đấu, trái với dự đoán của mọi người, đội yếu nhất đã vô địch.). ★ = 「一番弱い」.",
+      "options": [
+       "チームが優勝した",
+       "みんなの予想",
+       "に反して、",
+       "一番弱い"
+      ],
+      "prompt_ja": "試合では、＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「N ＋ に反して」: kết quả trái với dự đoán, kỳ vọng, mong muốn (予想・期待・希望…). Câu này nghĩa là: “Trái với dự đoán, bài thi rất dễ.”. Phương án “Đúng như dự đoán, bài thi rất dễ.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Trái với dự đoán, bài thi rất dễ.",
+       "Đúng như dự đoán, bài thi rất dễ.",
+       "Trời bỗng đổ mưa.",
+       "Tôi sẽ kiểm tra lịch rồi mới quyết định có tham gia hay không."
+      ],
+      "prompt_ja": "予想に反して、試験はとても易しかった。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「N ＋ に反して」: kết quả trái với dự đoán, kỳ vọng, mong muốn (予想・期待・希望…). Câu này nghĩa là: “Trái với kỳ vọng của bố mẹ, anh tôi đã bỏ đại học.”. Phương án “Đúng như kỳ vọng của bố mẹ, anh tôi đã tốt nghiệp đại học.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Hạn nộp báo cáo là ngày mai nên tối nay tôi phải nộp.",
+       "Trái với kỳ vọng của bố mẹ, anh tôi đã bỏ đại học.",
+       "Đúng như kỳ vọng của bố mẹ, anh tôi đã tốt nghiệp đại học.",
+       "Không phải cứ rẻ là chất lượng kém."
+      ],
+      "prompt_ja": "親の期待に反して、兄は大学をやめてしまった。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「今年の夏は、天気予報を反して、涼しい日が続いた。」 — Mẫu dùng trợ từ に: 「天気予報に反して」, không phải 「を反して」. Ba câu còn lại dùng đúng mẫu Nに反して.",
+      "options": [
+       "予想に反して、試験はとても易しかった。",
+       "親の期待に反して、兄は大学をやめてしまった。",
+       "今年の夏は、天気予報を反して、涼しい日が続いた。",
+       "試合では、みんなの予想に反して、一番弱いチームが優勝した。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「試合では、みんなの予想に反って、一番弱いチームが優勝した。」 — Thể て của 反する là 「反して」: 「予想に反して」. Ba câu còn lại dùng đúng mẫu Nに反して.",
+      "options": [
+       "予想に反して、試験はとても易しかった。",
+       "親の期待に反して、兄は大学をやめてしまった。",
+       "今年の夏は、天気予報に反して、涼しい日が続いた。",
+       "試合では、みんなの予想に反って、一番弱いチームが優勝した。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Ghép trực tiếp động từ hoặc tính từ với に反して (trước に反して phải là danh từ như 予想, 期待, 親の希望).",
+    "examples": [
+     {
+      "ja": "Aチームが勝つだろうという予想に反してBチームが勝った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trái với dự đoán là đội A sẽ thắng, đội B đã thắng."
+     },
+     {
+      "ja": "応募者数は当初の見込みに反し、非常に多かった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trái với dự đoán ban đầu, có quá nhiều người xin việc."
+     },
+     {
+      "ja": "みんなの期待に反して彼は試合に出なかった。",
+      "ja_furigana": "みんなの期待(きたい)に反(はん)して彼(かれ)は試合(しあい)に出(で)なかった。",
+      "source": "AI",
+      "vi": "Trái với kỳ vọng của mọi người, anh ấy đã không ra sân thi đấu."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「に反して」. 「N ＋ に反して」: kết quả trái với dự đoán, kỳ vọng, mong muốn (予想・期待・希望…). 「を通じて」 = thông qua, 「にかわって」 = thay cho, 「をこめて」 = gửi gắm tình cảm — không nói được 'trái với dự đoán'. Câu đầy đủ: 今年の夏は、天気予報に反して、涼しい日が続いた。 (Mùa hè năm nay, trái với dự báo thời tiết, những ngày mát mẻ kéo dài).",
+      "options": [
+       "を通じて",
+       "に反して",
+       "にかわって",
+       "をこめて"
+      ],
+      "prompt_ja": "今年の夏は、天気予報（　　）、涼しい日が続いた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「に反して」. 「N ＋ に反して」: kết quả trái với dự đoán, kỳ vọng, mong muốn (予想・期待・希望…). 「を通じて」 = thông qua, 「にかわって」 = thay cho, 「をこめて」 = gửi gắm tình cảm — không nói được 'trái với dự đoán'. Câu đầy đủ: 試合では、みんなの予想に反して、一番弱いチームが優勝した。 (Trong giải đấu, trái với dự đoán của mọi người, đội yếu nhất đã vô địch).",
+      "options": [
+       "を通じて",
+       "にかわって",
+       "に反して",
+       "をこめて"
+      ],
+      "prompt_ja": "試合では、みんなの予想（　　）、一番弱いチームが優勝した。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「予想の反して、試験はとても易しかった。」 — Danh từ nối bằng に: 「予想に反して」. Ba câu còn lại dùng đúng mẫu Nに反して.",
+      "options": [
+       "予想の反して、試験はとても易しかった。",
+       "親の期待に反して、兄は大学をやめてしまった。",
+       "今年の夏は、天気予報に反して、涼しい日が続いた。",
+       "試合では、みんなの予想に反して、一番弱いチームが優勝した。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "に反し"
+      ],
+      "answer": "に反して",
+      "sentence_ja": "予想＿＿、試験はとても易しかった。",
+      "translation_vi": "Trái với dự đoán, bài thi rất dễ."
+     },
+     {
+      "accept": [
+       "に反し"
+      ],
+      "answer": "に反して",
+      "sentence_ja": "親の期待＿＿、兄は大学をやめてしまった。",
+      "translation_vi": "Trái với kỳ vọng của bố mẹ, anh tôi đã bỏ đại học."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: Aチームが勝つだろうという予想に反してBチームが勝った。",
+     "FURIGANA_MISSING: 応募者数は当初の見込みに反し、非常に多かった。"
+    ],
+    "formation": "N + に反して / に反し / N1 + に反する + N2",
+    "locked_fields": [],
+    "meaning_vi": "Trái với …",
+    "nuance_vi": "Văn phong trang trọng, diễn tả kết quả thực tế diễn ra trái ngược hoàn toàn với dự đoán, kỳ vọng, mong đợi hoặc quy tắc.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "に反して、",
+       "兄は大学をやめた。",
+       "親の期待"
+      ],
+      "translation_vi": "Trái với kỳ vọng của bố mẹ, anh tôi đã bỏ đại học."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "試験は易しかった。",
+       "予想",
+       "に反して、"
+      ],
+      "translation_vi": "Trái với dự đoán, bài thi dễ."
+     }
+    ],
+    "pattern": "〜に反し(て)",
+    "pattern_variants": [],
+    "unit_no": 14,
+    "unit_title_vi": "Lý do, đối lập và giải thích",
+    "usage_vi": "Diễn tả kết quả trái với dự đoán, mong đợi hoặc quy tắc. 1) Dễ nhầm với ～のに. → ～に反して là “trái với” kỳ vọng, dự đoán, kế hoạch, quy tắc… và thường dùng văn viết. 2) Hay đi với các danh từ như 予想／期待／計画. → Nhấn mạnh sự trái ngược rõ ràng. 3) Không dùng cho đối lập đơn giản A/B. → Nếu chỉ so sánh đối lập, thường dùng ～一方…／～のに…"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-738a3a2eba"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「からこそ」. 「Thể thường ＋ からこそ」 nhấn mạnh 'chính vì lý do này' (không phải lý do khác); thường dùng cho lý do tích cực. 「くせに」 (trách móc), 「せいで」 (nguyên nhân xấu), 「わりに」 (so với) đều không nối với 〜だ ở đây và không mang nghĩa nhấn mạnh lý do. Câu đầy đủ: 大切な友達だからこそ、本当のことを話す。 (Chính vì là bạn quan trọng nên tôi mới nói thật).",
+      "options": [
+       "からこそ",
+       "くせに",
+       "せいで",
+       "わりに"
+      ],
+      "prompt_ja": "大切な友達だ（　　）、本当のことを話す。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「からこそ」. 「Thể thường ＋ からこそ」 nhấn mạnh 'chính vì lý do này' (không phải lý do khác); thường dùng cho lý do tích cực. 「くせに」 (trách móc), 「せいで」 (nguyên nhân xấu), 「わりに」 (so với) đều không nối với 〜だ ở đây và không mang nghĩa nhấn mạnh lý do. Câu đầy đủ: 好きだからこそ、毎日練習を続けられる。 (Chính vì thích nên tôi mới có thể luyện tập mỗi ngày).",
+      "options": [
+       "くせに",
+       "からこそ",
+       "せいで",
+       "わりに"
+      ],
+      "prompt_ja": "好きだ（　　）、毎日練習を続けられる。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 毎日続けた → からこそ、 → 大会で → 優勝できたのだ. Câu: 厳しい練習を毎日続けたからこそ、大会で優勝できたのだ。 (Chính vì ngày nào cũng luyện tập vất vả nên mới vô địch được giải đấu). ★ = 「大会で」.",
+      "options": [
+       "優勝できたのだ",
+       "からこそ、",
+       "大会で",
+       "毎日続けた"
+      ],
+      "prompt_ja": "厳しい練習を＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 母が支えてくれた → からこそ、 → N3の → 試験に合格できた. Câu: 私は、母が支えてくれたからこそ、N3の試験に合格できた。 (Chính nhờ có mẹ hỗ trợ nên tôi mới đỗ được kỳ thi N3). ★ = 「N3の」.",
+      "options": [
+       "試験に合格できた",
+       "母が支えてくれた",
+       "からこそ、",
+       "N3の"
+      ],
+      "prompt_ja": "私は、＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「Thể thường ＋ からこそ」 nhấn mạnh 'chính vì lý do này' (không phải lý do khác); thường dùng cho lý do tích cực. Câu này nghĩa là: “Chính vì là bạn quan trọng nên tôi mới nói thật.”. Phương án “Dù là bạn quan trọng nhưng tôi không nói thật.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Chính vì là bạn quan trọng nên tôi mới nói thật.",
+       "Dù là bạn quan trọng nhưng tôi không nói thật.",
+       "Ăn cơm xong thì đánh răng đi.",
+       "Từ lần gặp anh trai năm ngoái, tôi chưa liên lạc lần nào."
+      ],
+      "prompt_ja": "大切な友達だからこそ、本当のことを話す。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「Thể thường ＋ からこそ」 nhấn mạnh 'chính vì lý do này' (không phải lý do khác); thường dùng cho lý do tích cực. Câu này nghĩa là: “Chính vì thích nên tôi mới có thể luyện tập mỗi ngày.”. Phương án “Dù không thích nhưng tôi vẫn luyện tập mỗi ngày.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Giấy tờ này hôm nay chưa cần nộp đâu.",
+       "Chính vì thích nên tôi mới có thể luyện tập mỗi ngày.",
+       "Dù không thích nhưng tôi vẫn luyện tập mỗi ngày.",
+       "Anh trai biết rõ vậy mà chẳng chỉ cho tôi gì cả."
+      ],
+      "prompt_ja": "好きだからこそ、毎日練習を続けられる。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「厳しい練習を毎日続けてからこそ、大会で優勝できたのだ。」 — からこそ đi sau thể thường (続けた), không đi sau thể て. Ba câu còn lại dùng đúng mẫu 〜からこそ.",
+      "options": [
+       "大切な友達だからこそ、本当のことを話す。",
+       "好きだからこそ、毎日練習を続けられる。",
+       "厳しい練習を毎日続けてからこそ、大会で優勝できたのだ。",
+       "私は、母が支えてくれたからこそ、N3の試験に合格できた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「私は、母が支えてくれただからこそ、N3の試験に合格できた。」 — Động từ nối trực tiếp: 「支えてくれたからこそ」, không thêm だ. Ba câu còn lại dùng đúng mẫu 〜からこそ.",
+      "options": [
+       "大切な友達だからこそ、本当のことを話す。",
+       "好きだからこそ、毎日練習を続けられる。",
+       "厳しい練習を毎日続けたからこそ、大会で優勝できたのだ。",
+       "私は、母が支えてくれただからこそ、N3の試験に合格できた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng からこそ cho những nguyên nhân tiêu cực tầm thường hoặc đổ lỗi.",
+    "examples": [
+     {
+      "ja": "あなただからこそ話すのです。",
+      "ja_furigana": "あなただからこそ話(はな)すのです。",
+      "source": "BOOK",
+      "vi": "Chính vì là bạn nên tôi mới nói chuyện này."
+     },
+     {
+      "ja": "子供の将来を思うからこそ厳しく叱るのです。",
+      "ja_furigana": "子供(こども)の将来(しょうらい)を思(おも)うからこそ厳(きび)しく叱(しか)るのです。",
+      "source": "AI",
+      "vi": "Chính vì nghĩ cho tương lai của con cái nên tôi mới nghiêm khắc mắng."
+     },
+     {
+      "ja": "大変だったからこそ合格したときの喜びが大きい。",
+      "ja_furigana": "大変(たいへん)だったからこそ合格(ごうかく)したときの喜(よろこ)びが大(おお)きい。",
+      "source": "AI",
+      "vi": "Chính vì đã vất vả nên niềm vui khi thi đỗ mới lớn đến vậy."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「からこそ」. 「Thể thường ＋ からこそ」 nhấn mạnh 'chính vì lý do này' (không phải lý do khác); thường dùng cho lý do tích cực. Kết quả tốt (優勝できた) nên không dùng 「せいで」; 「くせに」 là trách móc, 「わりに」 là 'so với'; chỉ 「からこそ」 nhấn mạnh lý do. Câu đầy đủ: 厳しい練習を毎日続けたからこそ、大会で優勝できたのだ。 (Chính vì ngày nào cũng luyện tập vất vả nên mới vô địch được giải đấu).",
+      "options": [
+       "くせに",
+       "からこそ",
+       "せいで",
+       "わりに"
+      ],
+      "prompt_ja": "厳しい練習を毎日続けた（　　）、大会で優勝できたのだ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「からこそ」. 「Thể thường ＋ からこそ」 nhấn mạnh 'chính vì lý do này' (không phải lý do khác); thường dùng cho lý do tích cực. Kết quả tốt nên không dùng 「せいで」; 「くせに／わりに」 không hợp nghĩa; chỉ 「からこそ」 nhấn mạnh 'chính nhờ mẹ'. Câu đầy đủ: 私は、母が支えてくれたからこそ、N3の試験に合格できた。 (Chính nhờ có mẹ hỗ trợ nên tôi mới đỗ được kỳ thi N3).",
+      "options": [
+       "くせに",
+       "せいで",
+       "からこそ",
+       "わりに"
+      ],
+      "prompt_ja": "私は、母が支えてくれた（　　）、N3の試験に合格できた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「大切な友達からこそ、本当のことを話す。」 — Danh từ phải có だ: 「友達だからこそ」. Ba câu còn lại dùng đúng mẫu 〜からこそ.",
+      "options": [
+       "大切な友達からこそ、本当のことを話す。",
+       "好きだからこそ、毎日練習を続けられる。",
+       "厳しい練習を毎日続けたからこそ、大会で優勝できたのだ。",
+       "私は、母が支えてくれたからこそ、N3の試験に合格できた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "からこそ",
+      "sentence_ja": "大切な友達だ＿＿、本当のことを話す。",
+      "translation_vi": "Chính vì là bạn quan trọng nên tôi mới nói thật."
+     },
+     {
+      "answer": "からこそ",
+      "sentence_ja": "好きだ＿＿、毎日練習を続けられる。",
+      "translation_vi": "Chính vì thích nên tôi mới có thể luyện tập mỗi ngày."
+     }
+    ],
+    "findings": [],
+    "formation": "V / Aい / Aな + だ / N + だ + からこそ",
+    "locked_fields": [],
+    "meaning_vi": "Chính vì mà — Nhấn mạnh lý do, khẳng định đó mới là nguyên nhân thật.",
+    "nuance_vi": "Nhấn mạnh đặc biệt vào nguyên nhân duy nhất và chính đáng nhất ('chính bởi vì... chứ không phải lý do nào khác').",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "からこそ、",
+       "毎日練習を続けられる。",
+       "好きだ"
+      ],
+      "translation_vi": "Chính vì thích nên tôi mới có thể luyện tập mỗi ngày."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "本当のことを話す。",
+       "大切な友達だ",
+       "からこそ、"
+      ],
+      "translation_vi": "Chính vì là bạn quan trọng nên tôi mới nói thật."
+     }
+    ],
+    "pattern": "Thể thường + からこそ",
+    "pattern_variants": [],
+    "unit_no": 10,
+    "unit_title_vi": "Nguyên nhân, mục đích và kết quả",
+    "usage_vi": "Mạnh hơn から. Vế sau thường có のだ để nhấn thêm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1efcf1c8fb"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「続けた」. 「Vます＋続ける」: tiếp tục làm; 「Vます＋終わる」: làm xong, hoàn tất hành động. 最後まで (đến cuối cùng) đi với 続ける; 出した／始めた là bắt đầu, かけた là làm dở — không hợp nghĩa. Câu đầy đủ: 彼は最後まで走り続けた。 (Anh ấy đã chạy liên tục đến cuối cùng).",
+      "options": [
+       "続けた",
+       "出した",
+       "かけた",
+       "始めた"
+      ],
+      "prompt_ja": "彼は最後まで走り（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「終わった」. 「Vます＋続ける」: tiếp tục làm; 「Vます＋終わる」: làm xong, hoàn tất hành động. Đánh răng sau khi ăn xong → 食べ終わったら; 出した／始めた (bắt đầu) và かけた (làm dở) không hợp nghĩa. Câu đầy đủ: ご飯を食べ終わったら、歯をみがきなさい。 (Ăn cơm xong thì đánh răng đi).",
+      "options": [
+       "出した",
+       "終わった",
+       "かけた",
+       "始めた"
+      ],
+      "prompt_ja": "ご飯を食べ（　　）ら、歯をみがきなさい。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 一晩中読み → 続けたので、 → 次の日の → 朝は眠かった. Câu: その小説がおもしろくて、一晩中読み続けたので、次の日の朝は眠かった。 (Cuốn tiểu thuyết hay quá nên tôi đọc liền cả đêm, sáng hôm sau buồn ngủ). ★ = 「次の日の」.",
+      "options": [
+       "朝は眠かった",
+       "続けたので、",
+       "次の日の",
+       "一晩中読み"
+      ],
+      "prompt_ja": "その小説がおもしろくて、＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 全部書き → 終わったから、 → 近所の → 友達と遊んだ. Câu: 宿題を全部書き終わったから、近所の友達と遊んだ。 (Viết xong hết bài tập nên tôi chơi với bạn hàng xóm). ★ = 「近所の」.",
+      "options": [
+       "友達と遊んだ",
+       "全部書き",
+       "終わったから、",
+       "近所の"
+      ],
+      "prompt_ja": "宿題を＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「Vます＋続ける」: tiếp tục làm; 「Vます＋終わる」: làm xong, hoàn tất hành động. Câu này nghĩa là: “Anh ấy đã chạy liên tục đến cuối cùng.”. Phương án “Anh ấy chạy được nửa đường thì dừng lại.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Anh ấy đã chạy liên tục đến cuối cùng.",
+       "Anh ấy chạy được nửa đường thì dừng lại.",
+       "Hôm nay được nghỉ nên không cần dậy sớm.",
+       "Chính cậu cũng đến muộn vậy mà còn trách người khác à."
+      ],
+      "prompt_ja": "彼は最後まで走り続けた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「Vます＋続ける」: tiếp tục làm; 「Vます＋終わる」: làm xong, hoàn tất hành động. Câu này nghĩa là: “Ăn cơm xong thì đánh răng đi.”. Phương án “Đang ăn cơm thì đánh răng đi.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Anh ấy nói trước mọi người rằng năm sau nhất định sẽ đỗ cho mà xem.",
+       "Ăn cơm xong thì đánh răng đi.",
+       "Đang ăn cơm thì đánh răng đi.",
+       "Giả sử tuần sau được nghỉ thì bạn muốn đi đâu?"
+      ],
+      "prompt_ja": "ご飯を食べ終わったら、歯をみがきなさい。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「その小説がおもしろくて、一晩中読む続けたので、次の日の朝は眠かった。」 — 続ける nối với thể ます bỏ ます: 「読み続けた」. Ba câu còn lại dùng đúng mẫu Vます＋続ける／終わる.",
+      "options": [
+       "彼は最後まで走り続けた。",
+       "ご飯を食べ終わったら、歯をみがきなさい。",
+       "その小説がおもしろくて、一晩中読む続けたので、次の日の朝は眠かった。",
+       "宿題を全部書き終わったから、近所の友達と遊んだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「宿題を全部書いて終わったから、近所の友達と遊んだ。」 — Không dùng thể て; đúng là 「書き終わった」. Ba câu còn lại dùng đúng mẫu Vます＋続ける／終わる.",
+      "options": [
+       "彼は最後まで走り続けた。",
+       "ご飯を食べ終わったら、歯をみがきなさい。",
+       "その小説がおもしろくて、一晩中読み続けたので、次の日の朝は眠かった。",
+       "宿題を全部書いて終わったから、近所の友達と遊んだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Ghép 続ける hoặc 終わる với động từ khoảnh khắc như 起き続ける hay 死に終わる.",
+    "examples": [
+     {
+      "ja": "三時間も歩き続けた。",
+      "ja_furigana": "三時間(さんじかん)も歩(ある)き続(つづ)けた。",
+      "source": "BOOK",
+      "vi": "Tôi đã đi bộ liên tục suốt 3 tiếng đồng hồ."
+     },
+     {
+      "ja": "借りた本をやっと最後まで読み終わりました。",
+      "ja_furigana": "借(か)りた本(ほん)をやっと最後(さいご)まで読(よ)み終(お)わりました。",
+      "source": "AI",
+      "vi": "Cuối cùng tôi cũng đã đọc xong cuốn sách mượn đến trang cuối."
+     },
+     {
+      "ja": "雨が朝から晩まで一日中降り続けた。",
+      "ja_furigana": "雨(あめ)が朝(あさ)から晩(ばん)まで一日中(いちにちじゅう)降(ふ)り続(つづ)けた。",
+      "source": "AI",
+      "vi": "Mưa cứ rơi suốt cả ngày từ sáng đến tối."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「続けた」. 「Vます＋続ける」: tiếp tục làm; 「Vます＋終わる」: làm xong, hoàn tất hành động. 最後まで (đến cuối cùng) đi với 続ける; 出した／始めた là bắt đầu, かけた là làm dở — không hợp nghĩa. Câu đầy đủ: その小説がおもしろくて、一晩中読み続けたので、次の日の朝は眠かった。 (Cuốn tiểu thuyết hay quá nên tôi đọc liền cả đêm, sáng hôm sau buồn ngủ).",
+      "options": [
+       "出した",
+       "続けた",
+       "かけた",
+       "始めた"
+      ],
+      "prompt_ja": "その小説がおもしろくて、一晩中読み（　　）ので、次の日の朝は眠かった。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「終わった」. 「Vます＋続ける」: tiếp tục làm; 「Vます＋終わる」: làm xong, hoàn tất hành động. 全部 (hết tất cả) + làm xong → 書き終わった; các phương án bắt đầu/làm dở không hợp với 全部. Câu đầy đủ: 宿題を全部書き終わったから、近所の友達と遊んだ。 (Viết xong hết bài tập nên tôi chơi với bạn hàng xóm).",
+      "options": [
+       "出した",
+       "かけた",
+       "終わった",
+       "始めた"
+      ],
+      "prompt_ja": "宿題を全部書き（　　）から、近所の友達と遊んだ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「彼は最後まで走る続けた。」 — 続ける nối với thể ます bỏ ます: 「走り続けた」. Ba câu còn lại dùng đúng mẫu Vます＋続ける／終わる.",
+      "options": [
+       "彼は最後まで走る続けた。",
+       "ご飯を食べ終わったら、歯をみがきなさい。",
+       "その小説がおもしろくて、一晩中読み続けたので、次の日の朝は眠かった。",
+       "宿題を全部書き終わったから、近所の友達と遊んだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "続けた",
+      "sentence_ja": "彼は最後まで走り＿＿。",
+      "translation_vi": "Anh ấy đã chạy liên tục đến cuối cùng."
+     },
+     {
+      "accept": [
+       "終えた"
+      ],
+      "answer": "終わった",
+      "sentence_ja": "ご飯を食べ＿＿ら、歯をみがきなさい。",
+      "translation_vi": "Ăn cơm xong thì đánh răng đi."
+     }
+    ],
+    "findings": [],
+    "formation": "V(bỏ ます) + 続ける(つづける) / V(bỏ ます) + 終わる(おわる)",
+    "locked_fields": [],
+    "meaning_vi": "Tiếp tục, làm xong — Nêu việc kéo dài hoặc kết thúc của hành động.",
+    "nuance_vi": "続ける biểu thị hành động kéo dài liên tục hoặc duy trì đều đặn; 終わる biểu thị một hành động có khối lượng xác định đã hoàn tất.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "食べ",
+       "終わった。",
+       "弟はケーキを"
+      ],
+      "translation_vi": "Em trai đã ăn xong bánh."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "続けた。",
+       "彼は最後まで",
+       "走り"
+      ],
+      "translation_vi": "Anh ấy đã chạy liên tục đến cuối cùng."
+     }
+    ],
+    "pattern": "V thể ます (bỏ ます) + 続ける / 終わる",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "続ける là chủ động tiếp tục; 続く là tự nó kéo dài. Đừng dùng lẫn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-83fe589cbd"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「きり」. 「Vた＋きり」: làm A rồi thôi, sau đó không có diễn biến tiếp theo như mong đợi (vế sau thường phủ định). 「たび」「最中」「ついで」 không nối trực tiếp với thể た để nói 'rồi thôi, không… nữa'. Câu đầy đủ: 友達は朝出かけたきり、まだ帰ってこない。 (Bạn tôi đi ra ngoài từ sáng rồi đến giờ vẫn chưa về).",
+      "options": [
+       "きり",
+       "たび",
+       "最中",
+       "ついで"
+      ],
+      "prompt_ja": "友達は朝出かけた（　　）、まだ帰ってこない。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「きり」. 「Vた＋きり」: làm A rồi thôi, sau đó không có diễn biến tiếp theo như mong đợi (vế sau thường phủ định). 「たび」「最中」「ついで」 không nối trực tiếp với thể た để nói 'rồi thôi, không… nữa'. Câu đầy đủ: 兄とは去年会ったきり、一度も連絡していない。 (Từ lần gặp anh trai năm ngoái, tôi chưa liên lạc lần nào).",
+      "options": [
+       "たび",
+       "きり",
+       "最中",
+       "ついで"
+      ],
+      "prompt_ja": "兄とは去年会った（　　）、一度も連絡していない。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 一度読んだ → きり、 → 机の → 引き出しにしまってある. Câu: その手紙は一度読んだきり、机の引き出しにしまってある。 (Lá thư đó tôi chỉ đọc một lần rồi cất trong ngăn bàn đến giờ). ★ = 「机の」.",
+      "options": [
+       "引き出しにしまってある",
+       "きり、",
+       "机の",
+       "一度読んだ"
+      ],
+      "prompt_ja": "その手紙は＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 朝早く出かけた → きり、 → 夜の → 十時まで戻らなかった. Câu: 父は朝早く出かけたきり、夜の十時まで戻らなかった。 (Bố đi từ sáng sớm rồi đến 10 giờ đêm mới về). ★ = 「夜の」.",
+      "options": [
+       "十時まで戻らなかった",
+       "朝早く出かけた",
+       "きり、",
+       "夜の"
+      ],
+      "prompt_ja": "父は＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「Vた＋きり」: làm A rồi thôi, sau đó không có diễn biến tiếp theo như mong đợi (vế sau thường phủ định). Câu này nghĩa là: “Bạn tôi đi ra ngoài từ sáng rồi đến giờ vẫn chưa về.”. Phương án “Bạn tôi đi ra ngoài từ sáng và đã về nhà rồi.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Bạn tôi đi ra ngoài từ sáng rồi đến giờ vẫn chưa về.",
+       "Bạn tôi đi ra ngoài từ sáng và đã về nhà rồi.",
+       "Anh trai biết rõ vậy mà chẳng chỉ cho tôi gì cả.",
+       "Trận sau tôi nhất định sẽ thắng cho mà xem."
+      ],
+      "prompt_ja": "友達は朝出かけたきり、まだ帰ってこない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「Vた＋きり」: làm A rồi thôi, sau đó không có diễn biến tiếp theo như mong đợi (vế sau thường phủ định). Câu này nghĩa là: “Từ lần gặp anh trai năm ngoái, tôi chưa liên lạc lần nào.”. Phương án “Năm ngoái gặp anh trai xong, tôi liên lạc thường xuyên.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Giả sử được nhận một triệu yên thì bạn sẽ dùng vào việc gì?",
+       "Từ lần gặp anh trai năm ngoái, tôi chưa liên lạc lần nào.",
+       "Năm ngoái gặp anh trai xong, tôi liên lạc thường xuyên.",
+       "Quán này không chỉ rẻ mà món ăn cũng ngon."
+      ],
+      "prompt_ja": "兄とは去年会ったきり、一度も連絡していない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「その手紙は一度読むきり、机の引き出しにしまってある。」 — Nghĩa 'làm rồi thôi' dùng thể た: 「読んだきり」. Ba câu còn lại dùng đúng mẫu Vた＋きり.",
+      "options": [
+       "友達は朝出かけたきり、まだ帰ってこない。",
+       "兄とは去年会ったきり、一度も連絡していない。",
+       "その手紙は一度読むきり、机の引き出しにしまってある。",
+       "父は朝早く出かけたきり、夜の十時まで戻らなかった。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「父は朝早く出かけてきり、夜の十時まで戻らなかった。」 — きり không đi sau thể て; đúng là 「出かけたきり」. Ba câu còn lại dùng đúng mẫu Vた＋きり.",
+      "options": [
+       "友達は朝出かけたきり、まだ帰ってこない。",
+       "兄とは去年会ったきり、一度も連絡していない。",
+       "その手紙は一度読んだきり、机の引き出しにしまってある。",
+       "父は朝早く出かけてきり、夜の十時まで戻らなかった。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Nhầm với 〜て以来: 〜て以来 dùng được với cả câu khẳng định ở vế sau, còn V-たきり hầu như luôn đi với phủ định ở vế sau.",
+    "examples": [
+     {
+      "ja": "彼は出て行ったきり、帰ってこない。",
+      "ja_furigana": "彼(かれ)は出(で)て行(い)ったきり、帰(かえ)ってこない。",
+      "source": "BOOK",
+      "vi": "Anh ấy bỏ đi khỏi nhà từ lúc đó đến giờ vẫn chưa về."
+     },
+     {
+      "ja": "あの本は友達に貸したきりまだ返ってこない。",
+      "ja_furigana": "あの本(ほん)は友達(ともだち)に貸(か)したきりまだ返(かえ)ってこない。",
+      "source": "AI",
+      "vi": "Cuốn sách đó từ lúc cho bạn mượn đến giờ vẫn chưa thấy trả lại."
+     },
+     {
+      "ja": "朝早く出かけたきり一度も連絡がありません。",
+      "ja_furigana": "朝早(あさはや)く出(で)かけたきり一度(いちど)も連絡(れんらく)がありません。",
+      "source": "AI",
+      "vi": "Từ lúc đi ra ngoài sáng sớm đến giờ chưa thấy liên lạc lần nào."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「きり」. 「Vた＋きり」: làm A rồi thôi, sau đó không có diễn biến tiếp theo như mong đợi (vế sau thường phủ định). 「たび」「最中」「ついで」 không nối trực tiếp với thể た để nói 'rồi thôi, không… nữa'. Câu đầy đủ: その手紙は一度読んだきり、机の引き出しにしまってある。 (Lá thư đó tôi chỉ đọc một lần rồi cất trong ngăn bàn đến giờ).",
+      "options": [
+       "たび",
+       "きり",
+       "最中",
+       "ついで"
+      ],
+      "prompt_ja": "その手紙は一度読んだ（　　）、机の引き出しにしまってある。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「きり」. 「Vた＋きり」: làm A rồi thôi, sau đó không có diễn biến tiếp theo như mong đợi (vế sau thường phủ định). 「たび」「最中」「ついで」 không nối trực tiếp với thể た để nói 'rồi thôi, không… nữa'. Câu đầy đủ: 父は朝早く出かけたきり、夜の十時まで戻らなかった。 (Bố đi từ sáng sớm rồi đến 10 giờ đêm mới về).",
+      "options": [
+       "たび",
+       "最中",
+       "きり",
+       "ついで"
+      ],
+      "prompt_ja": "父は朝早く出かけた（　　）、夜の十時まで戻らなかった。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「友達は朝出かけたきり、すぐに帰ってきた。」 — Vたきり diễn tả 'rồi không… nữa', không đi với vế 'về ngay'. Ba câu còn lại dùng đúng mẫu Vた＋きり.",
+      "options": [
+       "友達は朝出かけたきり、すぐに帰ってきた。",
+       "兄とは去年会ったきり、一度も連絡していない。",
+       "その手紙は一度読んだきり、机の引き出しにしまってある。",
+       "父は朝早く出かけたきり、夜の十時まで戻らなかった。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "まま"
+      ],
+      "answer": "きり",
+      "sentence_ja": "友達は朝出かけた＿＿、まだ帰ってこない。",
+      "translation_vi": "Bạn tôi đi ra ngoài từ sáng rồi đến giờ vẫn chưa về."
+     },
+     {
+      "answer": "きり",
+      "sentence_ja": "兄とは去年会った＿＿、一度も連絡していない。",
+      "translation_vi": "Từ lần gặp anh trai năm ngoái, tôi chưa liên lạc lần nào."
+     }
+    ],
+    "findings": [],
+    "formation": "V-た + きり / N + きり",
+    "locked_fields": [],
+    "meaning_vi": "Kể từ đó rồi thôi — Sau việc đó thì không có diễn biến tiếp theo như lẽ thường.",
+    "nuance_vi": "Nhấn mạnh rằng sau lần cuối cùng hành động V-た xảy ra thì trạng thái tiếp theo cứ gián đoạn mãi (không quay lại, không gặp lại, không trả lại).",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "出たきり、",
+       "まだ戻っていない。",
+       "父は朝"
+      ],
+      "translation_vi": "Bố ra ngoài từ sáng đến giờ vẫn chưa về."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "帰ってこない。",
+       "友達は出かけた",
+       "きり、"
+      ],
+      "translation_vi": "Bạn tôi đi ra ngoài rồi không về nữa."
+     }
+    ],
+    "pattern": "V-た + きり",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "Hầu như luôn đi với phủ định ở vế sau, mang ý nuối tiếc hoặc lo lắng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f55a2a48dd"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「なくてもいい」. 「Vない bỏ い ＋ くてもいい」 (= 〜なくてもいい): không cần phải làm, không bắt buộc. Thể ない bỏ い + くてもいい: 起きない → 起きなくてもいい; ba dạng còn lại chia sai. Câu đầy đủ: 今日は休みだから、早く起きなくてもいい。 (Hôm nay được nghỉ nên không cần dậy sớm).",
+      "options": [
+       "なくてもいい",
+       "ないてもいい",
+       "なくてはいい",
+       "なくでもいい"
+      ],
+      "prompt_ja": "今日は休みだから、早く起き（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「なくてもいい」. 「Vない bỏ い ＋ くてもいい」 (= 〜なくてもいい): không cần phải làm, không bắt buộc. Thể ない bỏ い + くてもいい: 起きない → 起きなくてもいい; ba dạng còn lại chia sai. Câu đầy đủ: この書類は今日出さなくてもいいですよ。 (Giấy tờ này hôm nay chưa cần nộp đâu).",
+      "options": [
+       "ないてもいい",
+       "なくてもいい",
+       "なくてはいい",
+       "なくでもいい"
+      ],
+      "prompt_ja": "この書類は今日出さ（　　）ですよ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: そんなに急が → なくてもいいから、 → 温かい → お茶を飲んでください. Câu: まだ時間があります。そんなに急がなくてもいいから、温かいお茶を飲んでください。 (Vẫn còn thời gian. Không cần vội như thế đâu, hãy uống trà nóng đi). ★ = 「温かい」.",
+      "options": [
+       "お茶を飲んでください",
+       "なくてもいいから、",
+       "温かい",
+       "そんなに急が"
+      ],
+      "prompt_ja": "まだ時間があります。＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 今すぐ決め → なくてもいいので、 → 商品の → 説明をゆっくり読んでください. Câu: この店では、今すぐ決めなくてもいいので、商品の説明をゆっくり読んでください。 (Ở cửa hàng này không cần quyết định ngay, hãy đọc kỹ phần giới thiệu sản phẩm). ★ = 「商品の」.",
+      "options": [
+       "説明をゆっくり読んでください",
+       "今すぐ決め",
+       "なくてもいいので、",
+       "商品の"
+      ],
+      "prompt_ja": "この店では、＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「Vない bỏ い ＋ くてもいい」 (= 〜なくてもいい): không cần phải làm, không bắt buộc. Câu này nghĩa là: “Hôm nay được nghỉ nên không cần dậy sớm.”. Phương án “Hôm nay được nghỉ nhưng vẫn phải dậy sớm.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Hôm nay được nghỉ nên không cần dậy sớm.",
+       "Hôm nay được nghỉ nhưng vẫn phải dậy sớm.",
+       "Giả sử tuần sau được nghỉ thì bạn muốn đi đâu?",
+       "Cô ấy nói được không chỉ tiếng Anh mà cả tiếng Nhật."
+      ],
+      "prompt_ja": "今日は休みだから、早く起きなくてもいい。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「Vない bỏ い ＋ くてもいい」 (= 〜なくてもいい): không cần phải làm, không bắt buộc. Câu này nghĩa là: “Giấy tờ này hôm nay chưa cần nộp đâu.”. Phương án “Giấy tờ này phải nộp ngay hôm nay.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Khi vào tòa nhà, xin hãy ghi tên ở quầy lễ tân.",
+       "Giấy tờ này hôm nay chưa cần nộp đâu.",
+       "Giấy tờ này phải nộp ngay hôm nay.",
+       "Phần giải thích này ngắn gọn, dễ hiểu."
+      ],
+      "prompt_ja": "この書類は今日出さなくてもいいですよ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「まだ時間があります。そんなに急がないくてもいいから、温かいお茶を飲んでください。」 — Phải bỏ い của 〜ない: 「急がなくてもいい」. Ba câu còn lại dùng đúng mẫu Vなくてもいい.",
+      "options": [
+       "今日は休みだから、早く起きなくてもいい。",
+       "この書類は今日出さなくてもいいですよ。",
+       "まだ時間があります。そんなに急がないくてもいいから、温かいお茶を飲んでください。",
+       "この店では、今すぐ決めなくてもいいので、商品の説明をゆっくり読んでください。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「この店では、今すぐ決めるなくてもいいので、商品の説明をゆっくり読んでください。」 — Phải chia thể ない: 決めない → 「決めなくてもいい」. Ba câu còn lại dùng đúng mẫu Vなくてもいい.",
+      "options": [
+       "今日は休みだから、早く起きなくてもいい。",
+       "この書類は今日出さなくてもいいですよ。",
+       "まだ時間があります。そんなに急がなくてもいいから、温かいお茶を飲んでください。",
+       "この店では、今すぐ決めるなくてもいいので、商品の説明をゆっくり読んでください。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Chia nhầm thành 〜ないでもいい (trong văn viết và ngữ pháp chuẩn phải đổi ない thành なくて + もいい).",
+    "examples": [
+     {
+      "ja": "急がなくてもいいですよ。",
+      "ja_furigana": "急(いそ)がなくてもいいですよ。",
+      "source": "BOOK",
+      "vi": "Bạn không cần phải vội đâu nhé."
+     },
+     {
+      "ja": "明日は休みだから早く起きなくてもいいです。",
+      "ja_furigana": "明日(あした)は休(やす)みだから早(はや)く起(お)きなくてもいいです。",
+      "source": "AI",
+      "vi": "Ngày mai được nghỉ nên không cần phải dậy sớm đâu."
+     },
+     {
+      "ja": "無理をして全部食べなくてもいいですよ。",
+      "ja_furigana": "無理(むり)をして全部(ぜんぶ)食(た)べなくてもいいですよ。",
+      "source": "AI",
+      "vi": "Bạn không cần phải cố ăn hết tất cả đâu nhé."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「なくてもいい」. 「Vない bỏ い ＋ くてもいい」 (= 〜なくてもいい): không cần phải làm, không bắt buộc. Thể ない bỏ い + くてもいい: 起きない → 起きなくてもいい; ba dạng còn lại chia sai. Câu đầy đủ: まだ時間があります。そんなに急がなくてもいいから、温かいお茶を飲んでください。 (Vẫn còn thời gian. Không cần vội như thế đâu, hãy uống trà nóng đi).",
+      "options": [
+       "ないてもいい",
+       "なくてもいい",
+       "なくてはいい",
+       "なくでもいい"
+      ],
+      "prompt_ja": "まだ時間があります。そんなに急が（　　）から、温かいお茶を飲んでください。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「なくてもいい」. 「Vない bỏ い ＋ くてもいい」 (= 〜なくてもいい): không cần phải làm, không bắt buộc. Thể ない bỏ い + くてもいい: 起きない → 起きなくてもいい; ba dạng còn lại chia sai. Câu đầy đủ: この店では、今すぐ決めなくてもいいので、商品の説明をゆっくり読んでください。 (Ở cửa hàng này không cần quyết định ngay, hãy đọc kỹ phần giới thiệu sản phẩm).",
+      "options": [
+       "ないてもいい",
+       "なくてはいい",
+       "なくてもいい",
+       "なくでもいい"
+      ],
+      "prompt_ja": "この店では、今すぐ決め（　　）ので、商品の説明をゆっくり読んでください。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「今日は休みだから、早く起きなくてもいけない。」 — 'Không cần' là 「なくてもいい」; 「なくてもいけない」 là sai. Ba câu còn lại dùng đúng mẫu Vなくてもいい.",
+      "options": [
+       "今日は休みだから、早く起きなくてもいけない。",
+       "この書類は今日出さなくてもいいですよ。",
+       "まだ時間があります。そんなに急がなくてもいいから、温かいお茶を飲んでください。",
+       "この店では、今すぐ決めなくてもいいので、商品の説明をゆっくり読んでください。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "なくていい",
+       "なくても大丈夫"
+      ],
+      "answer": "なくてもいい",
+      "sentence_ja": "今日は休みだから、早く起き＿＿。",
+      "translation_vi": "Hôm nay được nghỉ nên không cần dậy sớm."
+     },
+     {
+      "accept": [
+       "なくていい"
+      ],
+      "answer": "なくてもいい",
+      "sentence_ja": "この書類は今日出さ＿＿ですよ。",
+      "translation_vi": "Giấy tờ này hôm nay chưa cần nộp đâu."
+     }
+    ],
+    "findings": [],
+    "formation": "V(bỏ ない) + なくてもいい / Aい(bỏ い) + くなくてもいい / Aな・N + でなくてもいい",
+    "locked_fields": [],
+    "meaning_vi": "Không cần phải — Cho biết việc đó không bắt buộc.",
+    "nuance_vi": "Cho phép hoặc trấn an người nghe rằng một việc là không bắt buộc; lịch sự hơn có thể dùng 〜なくてもかまいません.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "今日出さなくても",
+       "いいですよ。",
+       "この書類は"
+      ],
+      "translation_vi": "Giấy tờ này hôm nay chưa cần nộp đâu."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "なくてもいい。",
+       "今日は休みだから、",
+       "早く起き"
+      ],
+      "translation_vi": "Hôm nay được nghỉ nên không cần dậy sớm."
+     }
+    ],
+    "pattern": "V-ない bỏ い + くてもいい",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": "Lời khuyên, nghĩa vụ và đề xuất",
+    "usage_vi": "Danh từ và tính từ cũng dùng được: 新しくなくてもいい, 全部でなくてもいい."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-62745cb1cf"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「くせに」. 「Thể thường (Nの／Aな) ＋ くせに」: 'vậy mà…', thể hiện sự trách móc, khó chịu với người khác; hai vế cùng chủ ngữ. Chỉ 「くせに」 mang sắc thái trách móc 'bản thân cũng… vậy mà…'; 「ついでに／うちに／最中に」 không hợp nghĩa và cách nối. Câu đầy đủ: 自分も遅れたくせに、人を責めるな。 (Chính cậu cũng đến muộn vậy mà còn trách người khác à).",
+      "options": [
+       "くせに",
+       "ついでに",
+       "うちに",
+       "最中に"
+      ],
+      "prompt_ja": "自分も遅れた（　　）、人を責めるな。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「くせに」. 「Thể thường (Nの／Aな) ＋ くせに」: 'vậy mà…', thể hiện sự trách móc, khó chịu với người khác; hai vế cùng chủ ngữ. Chỉ 「くせに」 mang sắc thái trách móc 'bản thân cũng… vậy mà…'; 「ついでに／うちに／最中に」 không hợp nghĩa và cách nối. Câu đầy đủ: 兄は知っているくせに、何も教えてくれない。 (Anh trai biết rõ vậy mà chẳng chỉ cho tôi gì cả).",
+      "options": [
+       "ついでに",
+       "くせに",
+       "うちに",
+       "最中に"
+      ],
+      "prompt_ja": "兄は知っている（　　）、何も教えてくれない。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 遅れないと約束した → くせに、 → 駅前の → 公園で一時間も友達を待たせた. Câu: 弟は、遅れないと約束したくせに、駅前の公園で一時間も友達を待たせた。 (Em trai hứa sẽ không đến muộn vậy mà lại bắt bạn chờ cả tiếng ở công viên trước ga). ★ = 「駅前の」.",
+      "options": [
+       "公園で一時間も友達を待たせた",
+       "くせに、",
+       "駅前の",
+       "遅れないと約束した"
+      ],
+      "prompt_ja": "弟は、＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 自分では何もしない → くせに、 → 人の → 仕事に文句ばかり言う. Câu: あの人は、自分では何もしないくせに、人の仕事に文句ばかり言う。 (Người đó bản thân chẳng làm gì vậy mà toàn chê bai công việc của người khác). ★ = 「人の」.",
+      "options": [
+       "仕事に文句ばかり言う",
+       "自分では何もしない",
+       "くせに、",
+       "人の"
+      ],
+      "prompt_ja": "あの人は、＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「Thể thường (Nの／Aな) ＋ くせに」: 'vậy mà…', thể hiện sự trách móc, khó chịu với người khác; hai vế cùng chủ ngữ. Câu này nghĩa là: “Chính cậu cũng đến muộn vậy mà còn trách người khác à.”. Phương án “Vì cậu không đến muộn nên cậu được trách người khác.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Chính cậu cũng đến muộn vậy mà còn trách người khác à.",
+       "Vì cậu không đến muộn nên cậu được trách người khác.",
+       "Quán này không chỉ rẻ mà món ăn cũng ngon.",
+       "Khi đăng ký, xin hãy xuất trình thẻ sinh viên."
+      ],
+      "prompt_ja": "自分も遅れたくせに、人を責めるな。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「Thể thường (Nの／Aな) ＋ くせに」: 'vậy mà…', thể hiện sự trách móc, khó chịu với người khác; hai vế cùng chủ ngữ. Câu này nghĩa là: “Anh trai biết rõ vậy mà chẳng chỉ cho tôi gì cả.”. Phương án “Vì anh trai không biết nên chẳng chỉ cho tôi gì.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Cây bút này đầu to nên khó viết.",
+       "Anh trai biết rõ vậy mà chẳng chỉ cho tôi gì cả.",
+       "Vì anh trai không biết nên chẳng chỉ cho tôi gì.",
+       "Chính vì thích nên tôi mới có thể luyện tập mỗi ngày."
+      ],
+      "prompt_ja": "兄は知っているくせに、何も教えてくれない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「弟は、遅れないと約束したのくせに、駅前の公園で一時間も友達を待たせた。」 — Động từ nối trực tiếp: 「約束したくせに」; chỉ danh từ mới cần の. Ba câu còn lại dùng đúng mẫu 〜くせに.",
+      "options": [
+       "自分も遅れたくせに、人を責めるな。",
+       "兄は知っているくせに、何も教えてくれない。",
+       "弟は、遅れないと約束したのくせに、駅前の公園で一時間も友達を待たせた。",
+       "あの人は、自分では何もしないくせに、人の仕事に文句ばかり言う。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「あの人は、自分では何もしないだくせに、人の仕事に文句ばかり言う。」 — Không thêm だ trước くせに: 「しないくせに」. Ba câu còn lại dùng đúng mẫu 〜くせに.",
+      "options": [
+       "自分も遅れたくせに、人を責めるな。",
+       "兄は知っているくせに、何も教えてくれない。",
+       "弟は、遅れないと約束したくせに、駅前の公園で一時間も友達を待たせた。",
+       "あの人は、自分では何もしないだくせに、人の仕事に文句ばかり言う。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng くせに để nói về bản thân hoặc dùng cho hoàn cảnh thiên nhiên khách quan như 雨が降るくせに (chỉ dùng để trách một con người cụ thể).",
+    "examples": [
+     {
+      "ja": "石田さんは次の日にテストがあることを知っていたくせに、教えてくれなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ishida dù biết ngày hôm sau có bài kiểm tra nhưng không bảo với tôi."
+     },
+     {
+      "ja": "母は歌が下手なくせに、マイクを持つと放さない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mẹ tôi hát rất tệ nhưng bà cứ cầm micro là không chịu buông."
+     },
+     {
+      "ja": "自分で何もできないくせに文句ばかり言う。",
+      "ja_furigana": "自分(じぶん)で何(なに)もできないくせに文句(もんく)ばかり言(い)う。",
+      "source": "AI",
+      "vi": "Bản thân chẳng làm được gì thế mà suốt ngày chỉ toàn phàn nàn."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「くせに」. 「Thể thường (Nの／Aな) ＋ くせに」: 'vậy mà…', thể hiện sự trách móc, khó chịu với người khác; hai vế cùng chủ ngữ. Chỉ 「くせに」 mang sắc thái trách móc 'bản thân cũng… vậy mà…'; 「ついでに／うちに／最中に」 không hợp nghĩa và cách nối. Câu đầy đủ: 弟は、遅れないと約束したくせに、駅前の公園で一時間も友達を待たせた。 (Em trai hứa sẽ không đến muộn vậy mà lại bắt bạn chờ cả tiếng ở công viên trước ga).",
+      "options": [
+       "ついでに",
+       "くせに",
+       "うちに",
+       "最中に"
+      ],
+      "prompt_ja": "弟は、遅れないと約束した（　　）、駅前の公園で一時間も友達を待たせた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「くせに」. 「Thể thường (Nの／Aな) ＋ くせに」: 'vậy mà…', thể hiện sự trách móc, khó chịu với người khác; hai vế cùng chủ ngữ. Chỉ 「くせに」 diễn tả sự trách móc; 「ついでに／最中に／とたんに」 không nối được với 〜しない. Câu đầy đủ: あの人は、自分では何もしないくせに、人の仕事に文句ばかり言う。 (Người đó bản thân chẳng làm gì vậy mà toàn chê bai công việc của người khác).",
+      "options": [
+       "ついでに",
+       "最中に",
+       "くせに",
+       "とたんに"
+      ],
+      "prompt_ja": "あの人は、自分では何もしない（　　）、人の仕事に文句ばかり言う。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「私は日本語が下手なくせに、毎日一生懸命勉強している。」 — くせに dùng để trách móc người khác, không dùng khi người nói tự kể việc tích cực của mình. Ba câu còn lại dùng đúng mẫu 〜くせに.",
+      "options": [
+       "私は日本語が下手なくせに、毎日一生懸命勉強している。",
+       "兄は知っているくせに、何も教えてくれない。",
+       "弟は、遅れないと約束したくせに、駅前の公園で一時間も友達を待たせた。",
+       "あの人は、自分では何もしないくせに、人の仕事に文句ばかり言う。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "のに"
+      ],
+      "answer": "くせに",
+      "sentence_ja": "自分も遅れた＿＿、人を責めるな。",
+      "translation_vi": "Chính cậu cũng đến muộn vậy mà còn trách người khác à."
+     },
+     {
+      "accept": [
+       "のに"
+      ],
+      "answer": "くせに",
+      "sentence_ja": "兄は知っている＿＿、何も教えてくれない。",
+      "translation_vi": "Anh trai biết rõ vậy mà chẳng chỉ cho tôi gì cả."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 石田さんは次の日にテストがあることを知っていたくせに、教えてくれなかった。",
+     "FURIGANA_MISSING: 母は歌が下手なくせに、マイクを持つと放さない。"
+    ],
+    "formation": "V / Aい / Aな + な / N + の + くせに",
+    "locked_fields": [],
+    "meaning_vi": "Tuy… mà… (trách móc)",
+    "nuance_vi": "Nối hai vế ngược chiều nhau giống のに nhưng mang đậm thái độ chê trách, coi thường hoặc bực bội của người nói đối với chủ ngữ.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "くせに、",
+       "人を責めるな。",
+       "自分も遅れた"
+      ],
+      "translation_vi": "Chính cậu cũng đến muộn vậy mà còn trách người khác à."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "何も教えてくれない。",
+       "兄は知っている",
+       "くせに、"
+      ],
+      "translation_vi": "Anh trai biết rõ vậy mà chẳng chỉ cho tôi gì cả."
+     }
+    ],
+    "pattern": "〜くせに",
+    "pattern_variants": [
+     "Thể thường / N の + くせに"
+    ],
+    "unit_no": 14,
+    "unit_title_vi": "Lý do, đối lập và giải thích",
+    "usage_vi": "Diễn tả sự trái ngược kèm sắc thái chê trách, khinh miệt. Thường dùng trong văn nói. 1) Dễ nhầm với ～のに／～くせして. → ～くせに mang sắc thái chê trách/khinh miệt rõ, thiên về khẩu ngữ. 2) Không dùng khi chỉ nói đối lập trung tính. → Nếu đối lập trung tính, dùng ～のに／～一方で／～反面… tùy câu. 3) Hay dùng khi người nói không hài lòng với hành vi đối phương. → Dễ bị bẫy vì nghĩa mạnh hơn “mặc dù”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d922d7b776"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「みせる」. 「Vて＋みせる」: thể hiện quyết tâm mạnh 'nhất định sẽ làm cho bằng được (cho mọi người thấy)'. Quyết tâm 'nhất định làm cho được' dùng 〜てみせる; 〜てある (trạng thái), 〜ておく (làm sẵn), 〜てしまう (lỡ, xong) không diễn tả quyết tâm. Câu đầy đủ: 来年は必ず合格してみせると、彼はみんなの前で言った。 (Anh ấy nói trước mọi người rằng năm sau nhất định sẽ đỗ cho mà xem).",
+      "options": [
+       "みせる",
+       "ある",
+       "おく",
+       "しまう"
+      ],
+      "prompt_ja": "来年は必ず合格して（　　）と、彼はみんなの前で言った。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「みせる」. 「Vて＋みせる」: thể hiện quyết tâm mạnh 'nhất định sẽ làm cho bằng được (cho mọi người thấy)'. Quyết tâm 'nhất định làm cho được' dùng 〜てみせる; 〜てある (trạng thái), 〜ておく (làm sẵn), 〜てしまう (lỡ, xong) không diễn tả quyết tâm. Câu đầy đủ: 次の試合では、絶対に勝ってみせる。 (Trận sau tôi nhất định sẽ thắng cho mà xem).",
+      "options": [
+       "ある",
+       "みせる",
+       "おく",
+       "しまう"
+      ],
+      "prompt_ja": "次の試合では、絶対に勝って（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 次こそ勝って → みせると、 → チームの → みんなに宣言した. Câu: 負けて悔しかったので、次こそ勝ってみせると、チームのみんなに宣言した。 (Thua nên tiếc nuối, tôi tuyên bố với cả đội rằng lần sau nhất định sẽ thắng). ★ = 「チームの」.",
+      "options": [
+       "みんなに宣言した",
+       "みせると、",
+       "チームの",
+       "次こそ勝って"
+      ],
+      "prompt_ja": "負けて悔しかったので、＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 今度こそおいしいカレーを作って → みせると、 → 家族の → 前で言った. Câu: 料理が苦手な姉は、今度こそおいしいカレーを作ってみせると、家族の前で言った。 (Chị tôi vốn nấu ăn kém đã nói trước cả nhà rằng lần này nhất định sẽ nấu cà ri ngon cho mà xem). ★ = 「家族の」.",
+      "options": [
+       "前で言った",
+       "今度こそおいしいカレーを作って",
+       "みせると、",
+       "家族の"
+      ],
+      "prompt_ja": "料理が苦手な姉は、＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「Vて＋みせる」: thể hiện quyết tâm mạnh 'nhất định sẽ làm cho bằng được (cho mọi người thấy)'. Câu này nghĩa là: “Anh ấy nói trước mọi người rằng năm sau nhất định sẽ đỗ cho mà xem.”. Phương án “Anh ấy nói trước mọi người rằng năm sau sẽ không thi nữa.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Anh ấy nói trước mọi người rằng năm sau nhất định sẽ đỗ cho mà xem.",
+       "Anh ấy nói trước mọi người rằng năm sau sẽ không thi nữa.",
+       "Phần giải thích này ngắn gọn, dễ hiểu.",
+       "Chính vì là bạn quan trọng nên tôi mới nói thật."
+      ],
+      "prompt_ja": "来年は必ず合格してみせると、彼はみんなの前で言った。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「Vて＋みせる」: thể hiện quyết tâm mạnh 'nhất định sẽ làm cho bằng được (cho mọi người thấy)'. Câu này nghĩa là: “Trận sau tôi nhất định sẽ thắng cho mà xem.”. Phương án “Trận sau chắc tôi sẽ thua.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Anh ấy đã chạy liên tục đến cuối cùng.",
+       "Trận sau tôi nhất định sẽ thắng cho mà xem.",
+       "Trận sau chắc tôi sẽ thua.",
+       "Bạn tôi đi ra ngoài từ sáng rồi đến giờ vẫn chưa về."
+      ],
+      "prompt_ja": "次の試合では、絶対に勝ってみせる。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「負けて悔しかったので、次こそ勝ちみせると、チームのみんなに宣言した。」 — みせる đi sau thể て: 「勝ってみせる」. Ba câu còn lại dùng đúng mẫu Vて＋みせる.",
+      "options": [
+       "来年は必ず合格してみせると、彼はみんなの前で言った。",
+       "次の試合では、絶対に勝ってみせる。",
+       "負けて悔しかったので、次こそ勝ちみせると、チームのみんなに宣言した。",
+       "料理が苦手な姉は、今度こそおいしいカレーを作ってみせると、家族の前で言った。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「料理が苦手な姉は、今度こそおいしいカレーを作るみせると、家族の前で言った。」 — Phải dùng thể て: 「作ってみせる」. Ba câu còn lại dùng đúng mẫu Vて＋みせる.",
+      "options": [
+       "来年は必ず合格してみせると、彼はみんなの前で言った。",
+       "次の試合では、絶対に勝ってみせる。",
+       "負けて悔しかったので、次こそ勝ってみせると、チームのみんなに宣言した。",
+       "料理が苦手な姉は、今度こそおいしいカレーを作るみせると、家族の前で言った。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Nhầm với 〜てみる (thử làm xem sao); 〜てみせる thể hiện sự tự tin hoặc quyết tâm chứng minh kết quả trước mặt người khác.",
+    "examples": [
+     {
+      "ja": "言葉で説明するのが難しいことでも、実際にやってみせればすぐにわかる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Điều đó là khó giải thích bằng lời nhưng nếu tôi làm thật thì cậu sẽ hiểu ngay."
+     },
+     {
+      "ja": "子どもが不安そうだったので、母親は「大丈夫よ」と言うように、うなずいてみせた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì có vẻ như đứa trẻ cảm thấy bất an, mẹ nó đã gật đầu như thể muốn nói rằng \"ổn thôi con ạ\"."
+     },
+     {
+      "ja": "今度の試験には必ず合格してみせます。",
+      "ja_furigana": "今度(こんど)の試験(しけん)には必(かなら)ず合格(ごうかく)してみせます。",
+      "source": "AI",
+      "vi": "Kỳ thi lần này tôi nhất định sẽ thi đỗ cho mà xem."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「みせる」. 「Vて＋みせる」: thể hiện quyết tâm mạnh 'nhất định sẽ làm cho bằng được (cho mọi người thấy)'. Quyết tâm 'nhất định làm cho được' dùng 〜てみせる; 〜てある (trạng thái), 〜ておく (làm sẵn), 〜てしまう (lỡ, xong) không diễn tả quyết tâm. Câu đầy đủ: 負けて悔しかったので、次こそ勝ってみせると、チームのみんなに宣言した。 (Thua nên tiếc nuối, tôi tuyên bố với cả đội rằng lần sau nhất định sẽ thắng).",
+      "options": [
+       "ある",
+       "みせる",
+       "おく",
+       "しまう"
+      ],
+      "prompt_ja": "負けて悔しかったので、次こそ勝って（　　）と、チームのみんなに宣言した。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「みせる」. 「Vて＋みせる」: thể hiện quyết tâm mạnh 'nhất định sẽ làm cho bằng được (cho mọi người thấy)'. Quyết tâm 'nhất định làm cho được' dùng 〜てみせる; 〜てある (trạng thái), 〜ておく (làm sẵn), 〜てしまう (lỡ, xong) không diễn tả quyết tâm. Câu đầy đủ: 料理が苦手な姉は、今度こそおいしいカレーを作ってみせると、家族の前で言った。 (Chị tôi vốn nấu ăn kém đã nói trước cả nhà rằng lần này nhất định sẽ nấu cà ri ngon cho mà xem).",
+      "options": [
+       "ある",
+       "おく",
+       "みせる",
+       "しまう"
+      ],
+      "prompt_ja": "料理が苦手な姉は、今度こそおいしいカレーを作って（　　）と、家族の前で言った。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「来年は必ず合格したみせると、彼はみんなの前で言った。」 — みせる nối với thể て, không nối với thể た: 「合格してみせる」. Ba câu còn lại dùng đúng mẫu Vて＋みせる.",
+      "options": [
+       "来年は必ず合格したみせると、彼はみんなの前で言った。",
+       "次の試合では、絶対に勝ってみせる。",
+       "負けて悔しかったので、次こそ勝ってみせると、チームのみんなに宣言した。",
+       "料理が苦手な姉は、今度こそおいしいカレーを作ってみせると、家族の前で言った。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "みせる",
+      "sentence_ja": "来年は必ず合格して＿＿と、彼はみんなの前で言った。",
+      "translation_vi": "Anh ấy nói trước mọi người rằng năm sau nhất định sẽ đỗ cho mà xem."
+     },
+     {
+      "answer": "みせる",
+      "sentence_ja": "次の試合では、絶対に勝って＿＿。",
+      "translation_vi": "Trận sau tôi nhất định sẽ thắng cho mà xem."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 言葉で説明するのが難しいことでも、実際にやってみせればすぐにわかる。",
+     "FURIGANA_MISSING: 子どもが不安そうだったので、母親は「大丈夫よ」と言うように、うなずいてみせた。"
+    ],
+    "formation": "V-て + みせる",
+    "locked_fields": [],
+    "meaning_vi": "Quyết tâm làm",
+    "nuance_vi": "Có hai nghĩa: (1) làm mẫu thực tế cho người khác xem, hoặc (2) thể hiện ý chí quyết tâm cao độ 'nhất định tôi sẽ làm được cho mà xem'.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "必ず勝って",
+       "みせる。",
+       "次の試合では"
+      ],
+      "translation_vi": "Trận sau tôi nhất định sẽ thắng cho mà xem."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "みせる。",
+       "来年は",
+       "必ず合格して"
+      ],
+      "translation_vi": "Năm sau tôi nhất định sẽ đỗ cho mà xem."
+     }
+    ],
+    "pattern": "〜てみせる",
+    "pattern_variants": [],
+    "unit_no": 3,
+    "unit_title_vi": "Điều kiện, quyết tâm và thói quen",
+    "usage_vi": "Diễn tả việc người nói thực hiện hành động để cho người khác thấy, thường nhằm trấn an, thuyết phục hoặc vì lợi ích của người khác. Thể hiện hiện ý chí mạnh mẽ của người nói 1) Dễ nhầm với ～てやる／～てあげる. → ～てみせる nhấn mạnh “tôi sẽ làm cho anh xem”, thể hiện ý chí/biểu diễn quyết tâm. 2) Thường mang sắc thái quyết tâm hoặc thách thức. → Hay dùng khi muốn chứng minh năng lực. 3) Không phải mẫu “thử làm” (～てみる). → Dễ bị bẫy vì giống chữ “み”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5c5ffa2374"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「とすると」. 「Thể thường ＋ とする／とすると／としたら」: giả định một tình huống (thường đi với もし／仮に) rồi suy ra kết luận. Giả định dùng 「〜だとすると」; 「にすると」 sai cách nối với だ, 「ばかりに／とたんに」 không mang nghĩa giả định. Câu đầy đủ: もし来週休みだとすると、どこへ行きたいですか。 (Giả sử tuần sau được nghỉ thì bạn muốn đi đâu?).",
+      "options": [
+       "とすると",
+       "にすると",
+       "ばかりに",
+       "とたんに"
+      ],
+      "prompt_ja": "もし来週休みだ（　　）、どこへ行きたいですか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「としたら」. 「Thể thường ＋ とする／とすると／としたら」: giả định một tình huống (thường đi với もし／仮に) rồi suy ra kết luận. Giả định 'giả sử nhận được' dùng 「としたら」; 「にしたら」 sai cách nối, 「ところに／最中に」 không phải giả định. Câu đầy đủ: 仮に百万円もらったとしたら、何に使いますか。 (Giả sử được nhận một triệu yên thì bạn sẽ dùng vào việc gì?).",
+      "options": [
+       "にしたら",
+       "としたら",
+       "ところに",
+       "最中に"
+      ],
+      "prompt_ja": "仮に百万円もらった（　　）、何に使いますか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 明日の朝七時に出発する → とすると、 → 五時半には → 起きなければならない. Câu: もし、明日の朝七時に出発するとすると、五時半には起きなければならない。 (Giả sử sáng mai 7 giờ xuất phát thì phải dậy trước 5 giờ rưỡi). ★ = 「五時半には」.",
+      "options": [
+       "起きなければならない",
+       "とすると、",
+       "五時半には",
+       "明日の朝七時に出発する"
+      ],
+      "prompt_ja": "もし、＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 毎日千円使う → とすると、 → 一か月の → 合計は三万円になる. Câu: 仮に毎日千円使うとすると、一か月の合計は三万円になる。 (Giả sử mỗi ngày tiêu 1.000 yên thì tổng một tháng sẽ là 30.000 yên). ★ = 「一か月の」.",
+      "options": [
+       "合計は三万円になる",
+       "毎日千円使う",
+       "とすると、",
+       "一か月の"
+      ],
+      "prompt_ja": "仮に＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「Thể thường ＋ とする／とすると／としたら」: giả định một tình huống (thường đi với もし／仮に) rồi suy ra kết luận. Câu này nghĩa là: “Giả sử tuần sau được nghỉ thì bạn muốn đi đâu?”. Phương án “Vì tuần sau được nghỉ nên bạn đã đi đâu?” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Giả sử tuần sau được nghỉ thì bạn muốn đi đâu?",
+       "Vì tuần sau được nghỉ nên bạn đã đi đâu?",
+       "Chính vì thích nên tôi mới có thể luyện tập mỗi ngày.",
+       "Ăn cơm xong thì đánh răng đi."
+      ],
+      "prompt_ja": "もし来週休みだとすると、どこへ行きたいですか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「Thể thường ＋ とする／とすると／としたら」: giả định một tình huống (thường đi với もし／仮に) rồi suy ra kết luận. Câu này nghĩa là: “Giả sử được nhận một triệu yên thì bạn sẽ dùng vào việc gì?”. Phương án “Vì đã nhận được một triệu yên nên bạn tiêu hết rồi.” sai nội dung; hai phương án còn lại không liên quan đến câu.",
+      "options": [
+       "Từ lần gặp anh trai năm ngoái, tôi chưa liên lạc lần nào.",
+       "Giả sử được nhận một triệu yên thì bạn sẽ dùng vào việc gì?",
+       "Vì đã nhận được một triệu yên nên bạn tiêu hết rồi.",
+       "Giấy tờ này hôm nay chưa cần nộp đâu."
+      ],
+      "prompt_ja": "仮に百万円もらったとしたら、何に使いますか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「もし、明日の朝七時に出発するだとすると、五時半には起きなければならない。」 — Động từ nối trực tiếp: 「出発するとすると」; だ chỉ dùng sau danh từ/tính từ な. Ba câu còn lại dùng đúng mẫu 〜とすると／としたら.",
+      "options": [
+       "もし来週休みだとすると、どこへ行きたいですか。",
+       "仮に百万円もらったとしたら、何に使いますか。",
+       "もし、明日の朝七時に出発するだとすると、五時半には起きなければならない。",
+       "仮に毎日千円使うとすると、一か月の合計は三万円になる。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「仮に毎日千円使うにすると、一か月の合計は三万円になる。」 — Giả định dùng 「とすると」, không dùng 「にすると」. Ba câu còn lại dùng đúng mẫu 〜とすると／としたら.",
+      "options": [
+       "もし来週休みだとすると、どこへ行きたいですか。",
+       "仮に百万円もらったとしたら、何に使いますか。",
+       "もし、明日の朝七時に出発するとすると、五時半には起きなければならない。",
+       "仮に毎日千円使うにすると、一か月の合計は三万円になる。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Nhầm với V(ý chí) + とする (định làm gì); khi mang nghĩa giả định 'giả sử' thì trước とする là thể thông thường (V-る / V-た / Nだ).",
+    "examples": [
+     {
+      "ja": "太陽を直径１メートルの球だとします。すると地球は９ミリくらいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giả sử mặt trời là trái bóng có đường kính 1 mét. Thì trái đất có đường kính khoảng 9 milimét."
+     },
+     {
+      "ja": "「お見舞に行くとしたら何時ごろがいいだろうか」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu đi dự thăm người bệnh thì khoảng mấy giờ được nhỉ?"
+     },
+     {
+      "ja": "今から歩いて行くとしたら三十分はかかります。",
+      "ja_furigana": "今(いま)から歩(ある)いて行(い)くとしたら三十分(さんじっぷん)はかかります。",
+      "source": "AI",
+      "vi": "Giả sử bây giờ đi bộ đến đó thì cũng mất tầm 30 phút."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「とすると」. 「Thể thường ＋ とする／とすると／としたら」: giả định một tình huống (thường đi với もし／仮に) rồi suy ra kết luận. Giả định dùng 「〜だとすると」; 「にすると」 sai cách nối với だ, 「ばかりに／とたんに」 không mang nghĩa giả định. Câu đầy đủ: もし、明日の朝七時に出発するとすると、五時半には起きなければならない。 (Giả sử sáng mai 7 giờ xuất phát thì phải dậy trước 5 giờ rưỡi).",
+      "options": [
+       "にすると",
+       "とすると",
+       "ばかりに",
+       "とたんに"
+      ],
+      "prompt_ja": "もし、明日の朝七時に出発する（　　）、五時半には起きなければならない。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「とすると」. 「Thể thường ＋ とする／とすると／としたら」: giả định một tình huống (thường đi với もし／仮に) rồi suy ra kết luận. Giả định dùng 「〜だとすると」; 「にすると」 sai cách nối với だ, 「ばかりに／とたんに」 không mang nghĩa giả định. Câu đầy đủ: 仮に毎日千円使うとすると、一か月の合計は三万円になる。 (Giả sử mỗi ngày tiêu 1.000 yên thì tổng một tháng sẽ là 30.000 yên).",
+      "options": [
+       "にすると",
+       "ばかりに",
+       "とすると",
+       "とたんに"
+      ],
+      "prompt_ja": "仮に毎日千円使う（　　）、一か月の合計は三万円になる。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「もし来週休みのとすると、どこへ行きたいですか。」 — Danh từ nối bằng だ: 「休みだとすると」, không dùng の. Ba câu còn lại dùng đúng mẫu 〜とすると／としたら.",
+      "options": [
+       "もし来週休みのとすると、どこへ行きたいですか。",
+       "仮に百万円もらったとしたら、何に使いますか。",
+       "もし、明日の朝七時に出発するとすると、五時半には起きなければならない。",
+       "仮に毎日千円使うとすると、一か月の合計は三万円になる。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "としたら",
+       "とすれば",
+       "なら"
+      ],
+      "answer": "とすると",
+      "sentence_ja": "もし来週休みだ＿＿、どこへ行きたいですか。",
+      "translation_vi": "Giả sử tuần sau được nghỉ thì bạn muốn đi đâu?"
+     },
+     {
+      "accept": [
+       "とすると",
+       "とすれば",
+       "ら"
+      ],
+      "answer": "としたら",
+      "sentence_ja": "仮に百万円もらった＿＿、何に使いますか。",
+      "translation_vi": "Giả sử được nhận một triệu yên thì bạn sẽ dùng vào việc gì?"
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 太陽を直径１メートルの球だとします。すると地球は９ミリくらいです。",
+     "FURIGANA_MISSING: 「お見舞に行くとしたら何時ごろがいいだろうか」"
+    ],
+    "formation": "V / Aい / Aな + だ / N + だ (thể thông thường) + とする (としたら / とすれば / としても)",
+    "locked_fields": [],
+    "meaning_vi": "Dùng để giả định một tình huống hoặc điều kiện chưa xảy ra, từ đó suy luận hoặc nêu quan điểm.",
+    "nuance_vi": "Đặt ra một giả thuyết hoặc tiền đề giả định ('giả sử rằng...') để từ đó tính toán hoặc suy luận tiếp.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "とすると、",
+       "何時に起きればいいですか。",
+       "明日出発する"
+      ],
+      "translation_vi": "Giả sử mai xuất phát thì nên dậy lúc mấy giờ?"
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "どこへ行きたいですか。",
+       "もし来週休みだ",
+       "とすると、"
+      ],
+      "translation_vi": "Giả sử tuần sau được nghỉ thì bạn muốn đi đâu?"
+     }
+    ],
+    "pattern": "〜とする",
+    "pattern_variants": [
+     "V thể ý chí + とする"
+    ],
+    "unit_no": 8,
+    "unit_title_vi": "Giả định, nhượng bộ và điều kiện",
+    "usage_vi": "Dùng để giả định một tình huống hoặc điều kiện chưa xảy ra, từ đó suy luận hoặc nêu quan điểm. Dùng để giả định một tình huống hoặc điều kiện chưa xảy ra, từ đó suy luận hoặc nêu quan điểm. Dùng để giả định một tình huống hoặc điều kiện chưa xảy ra, từ đó suy luận hoặc nêu quan điểm. 1) Dễ nhầm các dạng giả định. → ～とする là “giả định rằng…”, hay dùng khi đặt điều kiện giả tưởng. 2) Trong dữ liệu của bạn có nhiều ct (ghichu=2/3). → Nếu muốn bẫy riêng cho từng dạng (としたら／としても), cần update thêm theo ghichu tương ứng. 3) Không nhầm với ～とすると (kết quả tự nhiên). → ～とする là “coi như/giả định”; ～とすると có thể mang nghĩa “nếu vậy thì” theo suy luận."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6070598bd1"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-027"
+}

@@ -1,0 +1,424 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "その男はわたしの顔を見ると、すぐに逃げて行ってしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người đàn ông đó nhìn thấy mặt tôi thì vội vàng chạy mất."
+     },
+     {
+      "ja": "先生は教室に入ってくると、すぐ試験問題を配り始めた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giáo viên bước vào lớp thì ngay lập tức bắt đầu phát đề thi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: その男はわたしの顔を見ると、すぐに逃げて行ってしまった。",
+     "FURIGANA_MISSING: 先生は教室に入ってくると、すぐ試験問題を配り始めた。"
+    ],
+    "formation": "V1-る + と、+ V2-た / V1-たら、+ V2-た",
+    "locked_fields": [],
+    "meaning_vi": "Sau hành động ~ thì tiếp tục thực hiện … ngay.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜と...た",
+    "pattern_variants": [
+     "〜と...た・〜たら...た (A)",
+     "〜と...た・〜たら...た (B)",
+     "〜と...た・〜たら...た (C)"
+    ],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［動］辞書形 ＋と Sau hành động ~ thì tiếp tục thực hiện … ngay. Chủ ngữ của ~ và … là giống nhau. Ví dụ: 1. その男はわたしの顔を見ると、すぐに逃げて行ってしまった。 Người đàn ông đó nhìn thấy mặt tôi thì vội vàng chạy mất. 2. 先生は教室に入ってくると、すぐ試験問題を配り始めた。 Giáo viên bước vào lớp thì ngay lập tức bắt đầu phát đề thi. 3. ゆき子は飛行機から降りると、どこかに電話をかけた。 ゆき子 vừa xuống máy bay thì đã gọi điện đi đâu đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-681d0a92b6"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "人生には楽しい時もあればつらい時もある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuộc đời có lúc vui, có lúc khổ."
+     },
+     {
+      "ja": "妻はお酒もよく飲めば甘い物もたくさん食べる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vợ tôi vừa uống khá nhiều rượu, lại còn ăn nhiều đồ ngọt."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 人生には楽しい時もあればつらい時もある。",
+     "FURIGANA_MISSING: 妻はお酒もよく飲めば甘い物もたくさん食べる。"
+    ],
+    "formation": "N1 + も + V-ば / A-ければ + N2 + も / N1 + も + Aな・N + なら + N2 + も",
+    "locked_fields": [],
+    "meaning_vi": "Cả hai ~ và …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜も...ば〜も...・〜も...なら〜も",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［名］ ＋も ＋［動］ば形・い形い-ければ・な形なら・［名］なら ＋［名］ ＋も Cả hai ~ và … も được sử dụng hai lần. Ví dụ: 1. 人生には楽しい時もあればつらい時もある。 Cuộc đời có lúc vui, có lúc khổ. 2. 妻はお酒もよく飲めば甘い物もたくさん食べる。 Vợ tôi vừa uống khá nhiều rượu, lại còn ăn nhiều đồ ngọt. 3. そんな人、会ったこともなければ名前を聞いたこともありません。 Người như vậy, tôi chưa từng gặp và cũng chưa từng nghe tên. 4. 松本さんは趣味が多い。スポーツも好きならピアノも弾くらしい。 松本さん có nhiều sở thích. Nghe nói vừa thích thể thao, lại còn chơi đàn piano. 5. 前回も雨なら今回も雨が… 。ぼくたちの旅行はいつも運が悪いね。 Lần trước mưa thì lần này cũng mưa... Chuyến đi của chúng ta lúc nào cũng xui nhỉ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c3e340e11b"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "自分で決めたことは最後までやり通そう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái gì mình tự quyết định thì hãy làm đến cùng."
+     },
+     {
+      "ja": "彼は何を聞かれても黙り通した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù bị hỏi gì, anh ấy vẫn giữ im lặng suốt."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 自分で決めたことは最後までやり通そう。",
+     "FURIGANA_MISSING: 彼は何を聞かれても黙り通した。"
+    ],
+    "formation": "V(bỏ ます) + 通す(とおす)",
+    "locked_fields": [],
+    "meaning_vi": "Làm ~ đến cùng",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜通す",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［動］ます ＋ 通す Làm ~ đến cùng Ví dụ: 3. 自分で決めたことは最後までやり通そう。 Cái gì mình tự quyết định thì hãy làm đến cùng. 4. 彼は何を聞かれても黙り通した。 Dù bị hỏi gì, anh ấy vẫn giữ im lặng suốt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-11bfc92cae"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この店の料理はおいしい。その上値段も安い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Món ăn tiệm này ngon. Hơn nữa giá cũng rẻ"
+     },
+     {
+      "ja": "彼は、頭がいい。その上スポーツも何でもできる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta thì đầu óc thông minh. Hơn nữa cả thể thao, bất cứ cái gì cũng làm được"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この店の料理はおいしい。その上値段も安い。",
+     "FURIGANA_MISSING: 彼は、頭がいい。その上スポーツも何でもできる。"
+    ],
+    "formation": "Câu 1。+ その上(に)、+ Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Thêm vào đó, hơn nữa",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜おいしい。その上。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Thường dùng trong trường hợp muốn bổ sung một đặc điểm nữa của sự vật, sự việc, con người. Thường dùng với hàm ý khen ngợi, nâng cao hơn nữa."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6e3704387e"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "コーヒーにしますか。それとも紅茶にしますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Uống cà phê? Hay là uống trà?"
+     },
+     {
+      "ja": "来週にしましょうか。それとも再来週がいいですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quyết định tuần sau nhé. Hay là tuần sau nữa thì được?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: コーヒーにしますか。それとも紅茶にしますか。",
+     "FURIGANA_MISSING: 来週にしましょうか。それとも再来週がいいですか。"
+    ],
+    "formation": "Câu 1 か。+ それとも + Câu 2 か",
+    "locked_fields": [],
+    "meaning_vi": "Hay là, hoặc là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜コーヒー?それとも紅茶?",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi muốn liên kết hai câu hỏi, nhằm đưa ra nhiều sự lựa chọn cho đối phương"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6ec26b2470"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "レタスひとつとトマトを3個ください。それと、ピーマンも１袋ください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho tôi 1 bó rau diếp và 3 quả cà chua. Và 1 túi ớt."
+     },
+     {
+      "ja": "言われたことはしました。あと、何をすればいいですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã làm những gì được bảo. Và tôi nên làm gì khác nữa?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: レタスひとつとトマトを3個ください。それと、ピーマンも１袋ください。",
+     "FURIGANA_MISSING: 言われたことはしました。あと、何をすればいいですか。"
+    ],
+    "formation": "Câu 1。+ それと、+ Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Và rồi",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜トマト3個。それとピーマンも。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi muốn thêm, gia tăng số lượng của sự vật, sự việc, con người."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3b016717aa"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この店はおいしいことはおいしいが、量が少ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quán này ngon thì ngon, nhưng lượng ít."
+     },
+     {
+      "ja": "日本語は話せることは話せるけど、専門用語は苦手だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tiếng Nhật nói được thì nói được, nhưng thuật ngữ chuyên môn thì yếu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この店はおいしいことはおいしいが、量が少ない。",
+     "FURIGANA_MISSING: 日本語は話せることは話せるけど、専門用語は苦手だ。"
+    ],
+    "formation": "V / Aい / Aな(な) + ことは + V / Aい / Aな + が",
+    "locked_fields": [],
+    "meaning_vi": "Công nhận một phần ở vế trước, nhưng đưa ra hạn chế/ngoại lệ/ý khác ở vế sau: “Có … thì có, nhưng …”. Sắc thái nhấn mạnh sự dè dặt, không phủ nhận hoàn toàn. Vế sau thường nêu lý do/điều kiện khiến đánh giá cuối cùng thay đổi.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cũng có, nhưng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Bắt buộc lặp lại cùng từ/cùng gốc để tạo nhấn mạnh nhượng bộ. “が/けど” có thể thay đổi, “けれども” trang trọng hơn. Thường dùng hiện tại chung; có thể biến đổi thời nếu phù hợp ngữ cảnh, nhưng duy trì song song hai vế. Sắc thái lịch sự nhẹ nhàng, tránh khẳng định tuyệt đối. [6. Ghi chú mở rộng] Dạng nhấn mạnh: ～のは～のだが cũng tồn tại nhưng khác cấu trúc. Có thể chen phó từ giữa hai lần lặp để tinh chỉnh sắc thái: 少し高いことは高いが… Trong khẩu ngữ, có thể lược bỏ “が” và ngắt câu rồi nêu tiếp ý ở câu sau. [7. Biến thể & cụm cố định] AいことはAい（が）…／AなことはAだ（が）… VることはVる（が/けど）… ～ないことはない（mẫu liên quan, phủ định kép). [8. Lỗi thường gặp & bẫy JLPT] Không lặp lại cùng từ: ×おいしいことは美味だが… → phải cùng gốc: おいしいことはおいしいが… Nhầm với “Vることはある” (thỉnh thoảng xảy ra). Đây là mẫu khác nghĩa hoàn toàn. Sai kết hợp tính từ -na: ×便利だことは便利だが → đúng: 便利なことは便利だが。 Lạm dụng với danh từ trong hội thoại thường không tự nhiên; ưu tiên động/tính từ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8e013d4ae0"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "読みかけの本が机の上にある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuốn sách đang đọc dở nằm trên bàn."
+     },
+     {
+      "ja": "このレポートはまだ作りかけだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Báo cáo này vẫn còn làm dở."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 読みかけの本が机の上にある。",
+     "FURIGANA_MISSING: このレポートはまだ作りかけだ。"
+    ],
+    "formation": "V(bỏ ます) + かけの + N / かけだ / かける",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa 1: “Dở dang/chưa hoàn thành” — hành động đã bắt đầu nhưng chưa kết thúc. Nghĩa 2: “Chớm/suýt” — trạng thái ở ranh giới xảy ra (thường tiêu cực: 壊れかける, 死にかける). Khác với ～ている: nhấn mạnh “dở dang” hoặc “chưa xong”, không chỉ là đang diễn tiến. Thường đi với các động từ có tính quá trình (読む、食べる、作る…).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dang dở, dở dang",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] “Dở dang”: nhấn mạnh chưa hoàn tất; thường mô tả vật/sự việc còn bỏ dở (飲みかけのコーヒー). “Chớm/suýt”: thường đi với các động từ chỉ tình trạng xấu (壊れる、死ぬ、忘れる…). Dùng được cho cả người và vật; với người mang sắc thái “đang dở tay” hay “suýt thì…”. Không phù hợp với hành động tức thời thiếu tiến trình, nhưng văn nói vẫn có 行きかけ (đã lưng chừng việc đi). [6. Ghi chú mở rộng] V-かけの + N rất tự nhiên trong văn viết mô tả trạng thái vật thể (食べかけのパン、書きかけの手紙). V-かける (khả năng “suýt”) thường đi với động từ tự động từ trạng thái: 壊れかける、枯れかける、忘れかける. “言いかける” vừa mang nghĩa “bắt đầu nói” vừa “đang nói dở”, tùy ngữ cảnh. [7. Biến thể & cụm cố định] 飲みかけ／読みかけ／書きかけ／作りかけ 壊れかける／忘れかける／死にかける／枯れかける V-かけの + N／V-かけだ／V-かけている [8. Lỗi thường gặp & bẫy JLPT] Dùng với hành động tức thời: ×着きかけだ → 〇着いたところだ／着きそうだ (tùy ý). Nhầm với ～ている: “食べている” là đang ăn; “食べかけだ” là ăn dở (đã dừng chưa xong). Nhầm “suýt” với そうだ: 壊れかけ (đã xuống cấp gần hỏng) ≠ 壊れそう (trông có vẻ sắp hỏng). JLPT: hay kiểm tra danh ngữ “V-かけのN” và sắc thái tiêu cực của “死にかける”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e734630bde"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この量は一人では食べ切れない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lượng này một mình không thể ăn hết."
+     },
+     {
+      "ja": "多すぎて、メールを全部読み切れない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhiều quá nên không thể đọc hết mail."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この量は一人では食べ切れない。",
+     "FURIGANA_MISSING: 多すぎて、メールを全部読み切れない。"
+    ],
+    "formation": "V(bỏ ます) + 切れない(きれない)",
+    "locked_fields": [],
+    "meaning_vi": "- Diễn tả “không thể làm xong/không hết/không hoàn toàn” do số lượng nhiều, thời gian không đủ, năng lực không cho phép hoặc mang tính trừu tượng (không thể hiểu/diễn tả hết). - Có sắc thái “toàn vẹn” bị phủ định: không đạt tới mức trọn vẹn như dự định.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không làm hết, không hết nổi",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Gắn sau liên dụng hình (Vます). Diễn tả bất khả thi về lượng hoặc mức độ hoàn tất. Dùng cả nghĩa trừu tượng: 信じ切れない（không thể tin hoàn toàn）, 理解し切れない（không thể hiểu hết）. Khác với đơn thuần phủ định “食べられない”: “食べ切れない” nhấn “không ăn hết được (vì nhiều)”. [6. Ghi chú mở rộng] Thường đi với động từ liên quan số lượng/thời gian: 食べる／読む／見る／集める／書く＋切れない. Dạng nhấn mạnh bất khả thi: とてもVます＋切れない（Rất… không thể làm hết）. Kết hợp với ほど/くらい để cường điệu: 数え切れないほどある（nhiều không đếm xuể）. [7. Biến thể & cụm cố định] 数え切れない（vô số, không đếm xuể）. 言い切れない（không thể khẳng định chắc chắn/không thể nói dứt khoát）. やり切る（làm đến cùng）, 使い切る（dùng hết sạch）: cặp đối nghĩa tích cực. [8. Lỗi thường gặp & bẫy JLPT] Nhầm “không thể” vì lý do năng lực với “không hết”: 食べられない ≠ 食べ切れない. Chọn sai khi nói nghĩa trừu tượng: “không thể hiểu hết” → 理解し切れない, không phải 理解できない (trong bẫy JLPT có thể cả hai đúng nhưng khác sắc thái). Sai chia: Vる＋切れない × đúng: Vます＋切れない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-eead311e53"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "会議資料、先に印刷しとくね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tài liệu họp, tớ in sẵn nhé."
+     },
+     {
+      "ja": "そのファイル、消さないでといて。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tệp đó đừng xóa, cứ để nguyên nhé."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 会議資料、先に印刷しとくね。",
+     "FURIGANA_MISSING: そのファイル、消さないでといて。"
+    ],
+    "formation": "V-て + おく → V-とく / V-どく",
+    "locked_fields": [],
+    "meaning_vi": "～ておく rút gọn thành ～とく trong văn nói: làm sẵn/làm trước để tiện; giữ nguyên trạng thái; xử lý xong để khỏi bận. Ba giá trị chính: Chuẩn bị trước: 明日のために準備しとく。 Giữ nguyên: そのままにしといて。 Xử lý sớm: ゴミは出しとく。 Sắc thái thân mật, nhanh gọn, thường trong hội thoại hàng ngày.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Làm sẵn, để sẵn",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Khẩu ngữ mạnh; dùng với bạn bè/đồng nghiệp thân; văn bản trang trọng nên dùng ～ておく chuẩn. Trong lịch sự nhẹ có thể dùng ～ときます: 明日までに準備しときます。 Biến âm phổ biến: 言っておく→言っとく（いっとく）, 行っておく→行っとく（いっとく）, もらっておく→もらっとく。 Chức năng “giữ nguyên”: ～ておいてください→～といてください。 [6. Ghi chú mở rộng] Đừng nhầm ～とく với 得（お得）/特（とく） là danh từ/tiền tố khác nghĩa. Trong mệnh lệnh thân mật: ～とけ（覚えとけ, 言っとけ）; yêu cầu nhẹ: ～といて（しといて）。 Chuỗi rút gọn thường gặp trong hội thoại công việc thân mật: 共有しときます・展開しときます。 [7. Biến thể & cụm cố định] Vとく／Vといて／Vといた／Vとかない／Vとけば／Vとけ ～しとく／～やっとく／～買っとく／～書いとく（書いておく→書いとく） ～といてくれ／～といてください（để nguyên/chuẩn bị giúp） [8. Lỗi thường gặp & bẫy JLPT] Dùng trong văn viết trang trọng: nên quay về ～ておく. Nhầm 言っとく（いっとく：nói trước） với 行っとく（いっとく：đi trước/làm trước đi） do đồng âm. Sai phát âm/viết: 読んでおく→×読んとく（thiếu んど）; đúng: 読んどく。 Lẫn với ～てある: ～とく nhấn “hành động chuẩn bị”, ～てある nhấn “trạng thái đã có”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-782a502176"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-070"
+}

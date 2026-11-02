@@ -1,0 +1,413 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今日は、春らしい暖かい日でした。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay là ngày ấm áp có vẻ mùa xuân"
+     },
+     {
+      "ja": "私は女性らしい洋服はあまり着ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi không hay mặc những bộ đồ có vẻ nữ tính"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今日は、春らしい暖かい日でした。",
+     "FURIGANA_MISSING: 私は女性らしい洋服はあまり着ない。"
+    ],
+    "formation": "N + らしい + N / N + らしい",
+    "locked_fields": [],
+    "meaning_vi": "Có vẻ (nam tính, nữ tính, trẻ con….)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜春らしい",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong văn nói. Dùng khi muốn miêu tả đặc tính mà mình cảm nhận được từ sự vật sự việc"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6705df9eb4"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あの人のせいでみんなが迷惑している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì người đó mà mọi người đều bị làm phiền."
+     },
+     {
+      "ja": "景気が悪いせいでボーナスが減った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì kinh tế xấu nên tiền thưởng giảm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あの人のせいでみんなが迷惑している。",
+     "FURIGANA_MISSING: 景気が悪いせいでボーナスが減った。"
+    ],
+    "formation": "N + の + せいで / V・A(thể thông thường) + せいで / せいだ",
+    "locked_fields": [],
+    "meaning_vi": "Vì… mà/Do… mà (kết quả xấu, trách móc)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜せい",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Nêu nguyên nhân dẫn đến kết quả xấu, mang sắc thái trách móc. Diễn tả phỏng đoán chưa chắc chắn: “có lẽ là do…”, sắc thái nhẹ hơn ～せい. 1) Dễ nhầm với ～おかげで. → ～せいで dùng khi kết quả xấu và thường kèm sắc thái trách móc. 2) Không dùng cho kết quả tích cực. → Nếu kết quả tốt thì không phù hợp với ～せいで. 3) Nếu chỉ phỏng đoán “có lẽ do…”, dùng ～せいか. → ～せいか giảm mức chắc chắn, mang nghĩa “không chắc nhưng có thể do…”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-84a52f5b94"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "道が混んでいる。これでは間に合わないのではないだろうか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đường đông thế này, liệu có kịp giờ không nhỉ."
+     },
+     {
+      "ja": "この仕事を６時までに終わらせるのは無理なのではないだろうか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Liệu có quá sức khi phải xong việc này trước 6 giờ không nhỉ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 道が混んでいる。これでは間に合わないのではないだろうか。",
+     "FURIGANA_MISSING: この仕事を６時までに終わらせるのは無理なのではないだろうか。"
+    ],
+    "formation": "V / Aい / Aな(な)・N(な) + のではないだろうか / のではないかと思う",
+    "locked_fields": [],
+    "meaning_vi": "Nêu ý kiến/nhận định: “tôi nghĩ rằng…”",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜のではないだろうか/〜ないかと思う",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nêu nhận định hoặc ý kiến của người nói với mức khẳng định vừa phải, mang sắc thái lịch sự. Cách nói thân mật, thường dùng trong hội thoại để nêu ý kiến hoặc gợi ý. 1) Dễ nhầm với câu khẳng định mạnh. → ～のではないだろうか／～ないかと思う là cách nêu ý kiến với mức độ chắc chắn vừa phải. 2) Chú ý sắc thái suy nghĩ/đề xuất mềm. → Hay dùng khi đưa ra nhận định, tránh áp đặt “chắc chắn là…”. 3) Không dùng như câu hỏi xin phép đơn thuần. → Mẫu này thiên về “tôi nghĩ rằng…” hơn là hỏi thông tin."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e4d4494e7b"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "丸みを帯びた形・青みを帯びた白・厚みのある板",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hình tròn hơi bo; màu trắng hơi pha xanh; tấm ván dày."
+     },
+     {
+      "ja": "校長は入学式で毎年同じことを言っている。ぜんぜん新鮮味がない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Năm nào hiệu trưởng cũng nói y như nhau trong lễ nhập học, chẳng có gì mới mẻ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 丸みを帯びた形・青みを帯びた白・厚みのある板",
+     "FURIGANA_MISSING: 校長は入学式で毎年同じことを言っている。ぜんぜん新鮮味がない。"
+    ],
+    "formation": "Aい(bỏ い) + み (丸み・青み・厚み・深み・温かみ)",
+    "locked_fields": [],
+    "meaning_vi": "Cảm nhận về tính chất/tình trạng (～み)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜み",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Chuyển một số tính từ thành danh từ với ～み để diễn tả độ, cảm giác hoặc sắc thái của tính chất. Không dùng được với mọi tính từ. 1) Dễ hiểu ～み là “thử làm” (～てみる). → ～み ở đây là biến tính từ thành danh từ để nói “cảm giác/độ…”, không liên quan ～てみる. 2) Không phải tính từ nào cũng dùng được với ～み. → Chỉ một số tính từ cố định hay dùng (như 痛み, 苦み…), không nên tự tạo bừa trong bài thi. 3) Dễ nhầm với ～さ. → ～さ thường dùng để đo/định lượng (độ cao, độ dài…); ～み thiên về cảm nhận/chất cảm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-71541c68c8"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "子どもが習いたいというので、ピアノを習わせることにした。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Con nói muốn học nên tôi quyết định cho con học piano."
+     },
+     {
+      "ja": "アルバイトをしたいのだが、親が高校生の間はだめだと言って、させてくれない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi muốn đi làm thêm nhưng bố mẹ bảo khi còn là học sinh cấp ba thì không được nên không cho làm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 子どもが習いたいというので、ピアノを習わせることにした。",
+     "FURIGANA_MISSING: アルバイトをしたいのだが、親が高校生の間はだめだと言って、させてくれない。"
+    ],
+    "formation": "N1 + は + N2 + に / を + V(thể sai khiến: 〜せる / 〜させる)",
+    "locked_fields": [],
+    "meaning_vi": "Cho phép/không cho phép ai làm…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "使役形を使った表現",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng thể sai khiến để nói việc cho phép, không cho phép, để hoặc bắt ai đó làm một việc. Diễn tả do sơ suất hoặc không chủ ý mà khiến ai đó làm và dẫn đến kết quả không tốt. Mang sắc thái hối tiếc. Dùng để xin hoặc nhận sự cho phép một cách lịch sự. Thường dùng trong tình huống trang trọng. Diễn tả được ai đó cho phép hoặc làm cho, kèm sắc thái biết ơn đối với hành động đó. 1) Dễ nhầm 使役形 (cho/ bắt ai làm) với bị động. → 使役形 là “khiến/cho phép” người khác làm, không phải “bị” làm. 2) Chú ý sắc thái “cho phép” hay “bắt buộc”. → Tùy ngữ cảnh: 先生が学生に発表させた có thể là cho phép hoặc bắt, nhưng thường nghiêng về “khiến”. 3) Không tự động hiểu là lịch sự. → Muốn lịch sự/nhờ vả thường dùng các mẫu riêng (vd: させていただく), không chỉ 使役形."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b861f84ada"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「あそこに座ってる人、だれ？」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người đang ngồi ở kia là ai thế?"
+     },
+     {
+      "ja": "「すぐ行くから、先に行ってて」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đến ngay đây, bạn đi trước đi nhé."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「あそこに座ってる人、だれ？」",
+     "FURIGANA_MISSING: 「すぐ行くから、先に行ってて」"
+    ],
+    "formation": "V-ている → V-てる / V-でいる → V-でる (khẩu ngữ)",
+    "locked_fields": [],
+    "meaning_vi": "Dạng rút gọn: ～ている → てる／～でいる → でる",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "縮約形(〜ている/〜でいる)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dạng rút gọn thân mật của ～ている／～でいる, dùng phổ biến trong hội thoại đời thường. Dạng rút gọn thân mật của ～ておく／～でおく, vẫn giữ nghĩa làm trước hoặc chuẩn bị sẵn. Dạng rút gọn thân mật của ～なければ, thường dùng trong hội thoại. Dạng rút gọn thân mật của các mẫu nghĩa vụ “phải…”, dùng nhiều trong văn nói. 1) Dễ nhầm dạng rút gọn với dạng chuẩn trong văn viết. → てる／でる là khẩu ngữ, chủ yếu dùng trong hội thoại. 2) Khi làm JLPT, chú ý ngữ cảnh văn nói. → Nếu câu mang sắc thái thân mật, nhanh, hội thoại thì mới chọn dạng rút gọn. 3) Không dùng trong văn bản trang trọng, thông báo, bài luận. → Văn viết thường dùng ～ている／～でいる."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ba64bac889"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "雨が止んで、空が明るくなりました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mưa tạnh và bầu trời sáng lên. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 雨が止んで、空が明るくなりました。"
+    ],
+    "formation": "N + が + V(tự động từ)",
+    "locked_fields": [],
+    "meaning_vi": "Tính chất, tình trạng",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "自動詞を使った表現",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng tự động từ để biểu thị tính chất, tình trạng hoặc khả năng như một trạng thái tự nhiên, không nhấn mạnh tác nhân. 1) Dễ nhầm tự động từ với tha động từ. → Mẫu này dùng tự động từ để nói tính chất/tình trạng (khả năng, đặc điểm), không nhấn tác nhân làm ra. 2) Hay đi với các từ chỉ “dễ/khó”, “tính chất”. → Ví dụ kiểu: 開きやすい, 壊れやすい… thường là tính chất của vật. 3) Khi có tác nhân rõ ràng, thường dùng tha động từ hoặc cấu trúc khác. → Nếu muốn nói “ai đó làm…” thì không dùng kiểu tự động từ mô tả tình trạng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-082c3fc844"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「このDVDプレーヤー、こわれているんだよね。」 「いや、直してもらったから、使えるようになったよ。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái máy DVD player này hỏng rồi nhỉ Không, vì đã sửa cho rồi nên đã trở nên có thể dùng được rồi"
+     },
+     {
+      "ja": "ここの電気は人が通るとつくようになっています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Điện ở đây trở nên sáng lên khi có người đi qua"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「このDVDプレーヤー、こわれているんだよね。」 「いや、直してもらったから、使えるようになったよ。」",
+     "FURIGANA_MISSING: ここの電気は人が通るとつくようになっています。"
+    ],
+    "formation": "V(thể khả năng) / V-る / V-ない + ようになる",
+    "locked_fields": [],
+    "meaning_vi": "Trở nên như thế nào",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜使えるようになった",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng diễn tả sự biến đổi của sự vật, chủ thể thành một trạng thái khác. Thường dùng với tự động từ, động từ ở thể khả năng"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-56fd9a4e58"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "忘れ物をしないようにしましょう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hãy cố gắng đừng để quên đồ"
+     },
+     {
+      "ja": "毎食後、歯をみがくようにしています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mỗi ngày sau bữa ăn thì đánh răng"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 忘れ物をしないようにしましょう。",
+     "FURIGANA_MISSING: 毎食後、歯をみがくようにしています。"
+    ],
+    "formation": "V-る / V-ない + ようにしましょう",
+    "locked_fields": [],
+    "meaning_vi": "Cố gắng làm gì, thường xuyên làm gì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜忘れ物をしないようにしましょう",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nói sự nỗ lực, dự định hoặc thói quen thực hiện hành động nào đó"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-31cf3bcfc4"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "みんなに聞こえるようにもっと大きな声で話してください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hãy nói lớn lên để mọi người nghe thấy"
+     },
+     {
+      "ja": "忘れないように、手帳に書いておこう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Viết sẵn vào sổ tay để không quên"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: みんなに聞こえるようにもっと大きな声で話してください。",
+     "FURIGANA_MISSING: 忘れないように、手帳に書いておこう。"
+    ],
+    "formation": "V(thể khả năng) / V-る / V-ない + ように + V2",
+    "locked_fields": [],
+    "meaning_vi": "Để, nhằm",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜聞こえるようにする",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để chỉ mục đích của hành động thực hiện sau đó KHông dùng được với động từ là tha động từ, động từ mang ý chủ động. Thường dùng với động từ ở thể khả năng, tự động từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-157bdfea39"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-037"
+}
