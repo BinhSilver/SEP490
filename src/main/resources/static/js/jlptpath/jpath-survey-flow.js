@@ -7,7 +7,9 @@
  *   buildPreferenceBody(answers)          PUT /api/learning/jlpt/entry-preferences body, or {error:'kana'|'days'}
  *   targetDisabled(level, config)         target level not released yet (only when the path is on)
  *   smartTestHandoffUrl(config, goal, id) confirmation page after Smart Test, or null (legacy flow)
- *   afterSurveyUrl(config, survey, pathStatus) where "Xem lộ trình" goes, or null (legacy flow)
+ *   afterSurveyUrl(config, survey, pathStatus, context) where "Xem lộ trình" goes, or null (Smart Test invitation /
+ *                                         legacy flow); context = {edit, smartTestStatus}
+ *   keepsPath(pathStatus)                 the learner already has an ACTIVE or PAUSED path
  *   editStartStep(edit, answers)          first step for /survey?edit=1|goal|days, or null
  * A missing config or enabled=false always means the legacy behaviour.
  */
@@ -40,7 +42,8 @@
     steps = ['goal', 'studied'];
     // Before the goal is chosen the JLPT order is counted, the goal most learners pick.
     if (!a.goal || a.goal === 'JLPT') {
-      if (studied) steps.push('duration', 'kana');
+      // While "studied" is unanswered the longer branch is counted, so the first screen reads 1/7.
+      if (studied || !a.studied) steps.push('duration', 'kana');
       steps.push('target', 'minutes', 'days');
       return steps;
     }
@@ -85,11 +88,22 @@
     return '/learning/jlpt/confirm?source=SMART_TEST&assessmentAttemptId=' + encodeURIComponent(attemptId);
   }
 
-  function afterSurveyUrl(config, survey, pathStatus) {
+  function keepsPath(pathStatus) {
+    return pathStatus === 'ACTIVE' || pathStatus === 'PAUSED';
+  }
+
+  function afterSurveyUrl(config, survey, pathStatus, context) {
     if (!isOn(config) || !survey || survey.goal !== 'JLPT') return null;
     // Preflight C8: a learner whose path is ACTIVE/PAUSED does not retake Smart Test.
-    if (pathStatus === 'ACTIVE' || pathStatus === 'PAUSED') return '/learning/jlpt/start';
-    return survey.selfReportedLevel === 'FROM_ZERO' ? '/learning/jlpt/start' : null;
+    if (keepsPath(pathStatus)) return '/learning/jlpt/start';
+    if (survey.selfReportedLevel === 'FROM_ZERO') return '/learning/jlpt/start';
+    // ?edit=days came from the start route (no entry answers yet): an existing Smart Test attempt goes back there
+    // (→ confirm) instead of starting a new attempt. ?edit=1 after a restart still offers a fresh Smart Test.
+    var c = context || {};
+    if (c.edit === 'days' && (c.smartTestStatus === 'IN_PROGRESS' || c.smartTestStatus === 'SUBMITTED')) {
+      return '/learning/jlpt/start';
+    }
+    return null;
   }
 
   function editStartStep(edit, answers) {
@@ -109,6 +123,7 @@
     targetDisabled: targetDisabled,
     smartTestHandoffUrl: smartTestHandoffUrl,
     afterSurveyUrl: afterSurveyUrl,
+    keepsPath: keepsPath,
     editStartStep: editStartStep
   };
 });

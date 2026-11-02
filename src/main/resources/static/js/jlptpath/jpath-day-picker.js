@@ -5,6 +5,7 @@
  *   toggle(state, day, kind)     kind 'skill'|'rest' → new {skillDays, restDays, message}; never mutates state.
  *                                A 3rd skill day drops the earliest picked one; a 3rd rest day and a rest day on a
  *                                skill day (or the reverse) are refused with a message.
+ *   validDays(list)              known day codes only (upper-cased, no duplicates); anything else → []
  *   mount(el, state, onChange)   draws 2 rows of 7 chips (T2…CN, aria-pressed) into el; onChange(state) after each
  *                                accepted click. Returns {getState(), setState(state)}.
  */
@@ -55,6 +56,16 @@
     return next;
   }
 
+  function validDays(list) {
+    if (!Array.isArray(list)) return [];
+    var out = [];
+    list.forEach(function (value) {
+      var day = typeof value === 'string' ? value.trim().toUpperCase() : null;
+      if (day && DAYS.indexOf(day) >= 0 && out.indexOf(day) < 0) out.push(day);
+    });
+    return out;
+  }
+
   function mount(el, state, onChange) {
     var doc = el.ownerDocument;
     var current = copy(state);
@@ -88,17 +99,23 @@
       return group;
     }
 
+    // The rows are redrawn; the status line is created once so screen readers keep announcing it.
+    el.textContent = '';
+    el.classList.add('jpath-day-picker');
+    var rows = doc.createElement('div');
+    rows.className = 'jpath-day-picker__rows';
+    var note = doc.createElement('p');
+    note.className = 'jpath-day-picker__message';
+    note.setAttribute('role', 'status');
+    el.appendChild(rows);
+    el.appendChild(note);
+
     function draw() {
-      el.textContent = '';
-      el.classList.add('jpath-day-picker');
-      el.appendChild(row('skill', 'Ngày kỹ năng (chọn 2)', current.skillDays));
-      el.appendChild(row('rest', 'Ngày nghỉ (0–2)', current.restDays));
-      var note = doc.createElement('p');
-      note.className = 'jpath-day-picker__message';
-      note.setAttribute('role', 'status');
+      rows.textContent = '';
+      rows.appendChild(row('skill', 'Ngày kỹ năng (chọn 2)', current.skillDays));
+      rows.appendChild(row('rest', 'Ngày nghỉ (0–2)', current.restDays));
       note.textContent = message || '';
       note.hidden = !message;
-      el.appendChild(note);
     }
 
     el.addEventListener('click', function (event) {
@@ -120,5 +137,5 @@
     };
   }
 
-  return { DAYS: DAYS, toggle: toggle, mount: mount };
+  return { DAYS: DAYS, toggle: toggle, validDays: validDays, mount: mount };
 });

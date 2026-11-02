@@ -100,10 +100,11 @@
     var kana = entryStatus.preferenceDone ? entryStatus.kanaChoice : null;
     kanaAutoFilled = false;
     if (kana === 'REMEMBER' || kana === 'REVIEW') setKanaChoice(kana); else { setKanaChoice(null); prefillKana(); }
-    dayState = {
-      skillDays: Array.isArray(entryStatus.skillDays) && entryStatus.skillDays.length ? entryStatus.skillDays.slice() : ['WED', 'SAT'],
-      restDays: Array.isArray(entryStatus.restDays) ? entryStatus.restDays.slice() : []
-    };
+    var Days = window.JpathDayPicker;
+    var skill = Days ? Days.validDays(entryStatus.skillDays) : [];
+    var rest = Days ? Days.validDays(entryStatus.restDays).filter(function (d) { return skill.indexOf(d) < 0; }) : [];
+    dayState = { skillDays: skill.length === 2 ? skill : ['WED', 'SAT'], restDays: rest.slice(0, 2) };
+    if (skill.length !== 2) dayState.restDays = dayState.restDays.filter(function (d) { return d !== 'WED' && d !== 'SAT'; });
     if (dayPicker) dayPicker.setState(dayState);
   }
 
@@ -182,13 +183,20 @@
     var fromZero = survey.selfReportedLevel === 'FROM_ZERO';
     // [JLAS-W0108] BA/TRAVEL/DAILY_LIFE are survey-only (owner decision 2026-10-14); none may offer Smart Test.
     var surveyOnlyGoal = survey.goal === 'BA' || survey.goal === 'TRAVEL' || survey.goal === 'DAILY_LIFE';
-    afterSurveyTarget = jpathOn && Flow
-      ? Flow.afterSurveyUrl(jpathConfig, survey, entryStatus ? entryStatus.pathStatus : null) : null;
-    var keepsPath = Boolean(afterSurveyTarget) && !fromZero;
+    var pathStatus = entryStatus ? entryStatus.pathStatus : null;
+    afterSurveyTarget = jpathOn && Flow ? Flow.afterSurveyUrl(jpathConfig, survey, pathStatus, {
+      edit: editParam,
+      smartTestStatus: entryStatus && entryStatus.smartTest ? entryStatus.smartTest.status : null
+    }) : null;
+    var keepsPath = Boolean(afterSurveyTarget) && Flow.keepsPath(pathStatus);
+    var resumesSmartTest = Boolean(afterSurveyTarget) && !keepsPath && !fromZero;
     var needsPathOnly = fromZero || surveyOnlyGoal || Boolean(afterSurveyTarget);
     if (keepsPath) {
       document.getElementById('inviteTitle').textContent = 'Lộ trình JLPT của bạn vẫn được giữ!';
       document.getElementById('inviteText').textContent = 'Bạn đã có lộ trình nên không cần làm lại Smart Test. Tiến độ học vẫn được giữ nguyên.';
+    } else if (resumesSmartTest) {
+      document.getElementById('inviteTitle').textContent = 'Kitsu đã lưu lịch học của bạn!';
+      document.getElementById('inviteText').textContent = 'Bạn đã có bài Smart Test. Tiếp tục để xem kết quả và xác nhận lộ trình JLPT.';
     } else if (surveyOnlyGoal) {
       document.getElementById('inviteTitle').textContent = 'Chọn tình huống bạn muốn luyện!';
       document.getElementById('inviteText').textContent = 'Mục tiêu giao tiếp không dùng Smart Test. J-LAS sẽ dùng khảo sát chủ đề để tạo lộ trình giao tiếp phù hợp.';
@@ -330,6 +338,12 @@
   });
   function openWizard(startStep) {
     if (savedSurvey) fillSurvey(savedSurvey);
+    // An old answer only the legacy survey offers (duration 3 "Dưới 6 tháng") stays visible so the step reads answered.
+    if (jpathOn) {
+      form.querySelectorAll('.survey-option[data-legacy-only]').forEach(function (option) {
+        if (option.querySelector('input:checked')) option.hidden = false;
+      });
+    }
     applyEntryStatus();
     invitation.hidden = true;
     form.hidden = false;
