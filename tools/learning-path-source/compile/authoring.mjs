@@ -46,10 +46,13 @@ const kanjiContext = k => ({ character: k.character, han_viet: k.han_viet, meani
 const grammarContext = g => ({ pattern: g.pattern, pattern_variants: g.pattern_variants, meaning_vi: g.meaning_vi, unit_no: g.unit_no,
   examples: g.examples.map(e => ({ ja: e.ja, vi: e.vi })), source_questions: g.source_questions ?? [] });
 
+const inQueue = v => v.queue !== 'EXTRA';
+
 function needs(level) {
   const out = [];
   const add = (kind, item, fields, context) => out.push({ kind, id: item.id, fields_needed: fields, context });
-  for (const v of level.vocabulary) {
+  // Words out of the study queue (queue EXTRA) are not authored.
+  for (const v of level.vocabulary.filter(inQueue)) {
     if (!v.meaning_vi) add('VOCAB_MEANING', v, ['meaning_vi'], vocabContext(v));
     if (!v.word_type_label) add('VOCAB_TYPE', v, ['word_type_label'], vocabContext(v));
     if (!v.examples.length || !v.examples[0].vi) add('VOCAB_EXAMPLE', v, ['examples'], vocabContext(v));
@@ -111,7 +114,7 @@ const lockedFields = x => [...new Set(Object.entries(SOURCE_OF).filter(([f, src]
 
 // extra(kind, item) adds what the item alone does not carry (dictionary meaning, check findings, spelling twins).
 export function buildReviewPackets(level, { size = 40, sizeByKind = { REVIEW_GRAMMAR: 10 }, extra = () => ({}) } = {}) {
-  const lists = [['REVIEW_VOCAB', level.vocabulary], ['REVIEW_KANJI', level.kanji], ['REVIEW_GRAMMAR', level.grammar]];
+  const lists = [['REVIEW_VOCAB', level.vocabulary.filter(inQueue)], ['REVIEW_KANJI', level.kanji], ['REVIEW_GRAMMAR', level.grammar]];
   return lists.filter(([, items]) => items.length).flatMap(([kind, items]) => chunk(items.map(x => ({ id: x.id, fields_needed: ['verdict'],
     context: { ...reviewContext[kind](x), locked_fields: lockedFields(x), ...extra(kind, x) } })), sizeByKind[kind] ?? size).map((c, i) => toPacket(kind, i + 1, level, c)));
 }

@@ -29,6 +29,9 @@ export function writeReport({ level, compiled, result, date }, outDir = REPORT_D
     [`${level}-de-xuat-bo-sung-tu-dien.csv`]: csv(['expression', 'reading', 'meaning_vi', 'word_type', 'level'],
       compiled.vocabulary.filter(v => v.dictionary_entry_id == null).map(v => [v.expression, v.reading, v.meaning_vi, v.word_type_label, level]))
   };
+  // A capped level (N3): the words kept out of the study queue, in rank order (Luyện thêm / Look up candidates).
+  if (compiled.study_cap) files[`${level}-ngoai-hang-hoc.csv`] = csv(['order', 'id', 'expression', 'reading', 'tier', 'meaning_vi'],
+    compiled.vocabulary.filter(v => v.queue === 'EXTRA').map(v => [v.order, v.id, v.expression, v.reading, v.tier, v.meaning_vi]));
   for (const [name, text] of Object.entries(files)) writeFileSync(path.join(csvDir, name), text);
   const codes = Object.entries(s.errors_by_code).sort((a, b) => b[1] - a[1]).map(([c, n]) => `| ${c} | ${n} |`).join('\n');
   const md = `# Báo cáo dữ liệu lộ trình JLPT ${level} (${date})
@@ -41,7 +44,8 @@ export function writeReport({ level, compiled, result, date }, outDir = REPORT_D
 
 - Từ theo khung Mirai: ${s.from_frame}; có trong nguồn J-LAS: ${s.jlas_matched}; mục có phần AI soạn: ${s.ai_authored}.
 - Chuyển cấp (về ${level}): ${s.level_moves}; xung đột nghĩa: ${compiled.conflicts.filter(c => c.kind !== 'REVIEW_FIX').length}; ghi đè khi duyệt: ${compiled.conflicts.filter(c => c.kind === 'REVIEW_FIX').length}; câu bị bỏ: ${(compiled.dropped_examples ?? []).length}; từ chưa có trong từ điển: ${compiled.vocabulary.filter(v => v.dictionary_entry_id == null).length}.
-- Lỗi chặn: ${blocking.length}; cảnh báo: ${result.errors.length - blocking.length}.
+${compiled.study_cap ? `- Giới hạn hàng học: ${compiled.study_cap.vocabulary} từ; trong hàng học ${compiled.study_cap.in_queue} (khung Mirai ${compiled.study_cap.from_frame}); ngoài hàng học ${compiled.study_cap.out_of_queue} (HOLD, để Luyện thêm/Look up; danh sách \`du-lieu-csv/${level}-ngoai-hang-hoc.csv\`). Cách chọn: ${compiled.study_cap.rule}
+` : ''}- Lỗi chặn: ${blocking.length}; cảnh báo: ${result.errors.length - blocking.length}.
 
 | Mã | Số |
 |---|---:|

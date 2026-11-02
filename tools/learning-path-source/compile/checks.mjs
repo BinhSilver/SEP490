@@ -197,7 +197,10 @@ export function runChecks(compiled, ctx) {
     detail: m.spellings.map(s => `${s.expression}#${s.entry_id}`).join(', ') });
   for (const t of compiled.spelling_twins ?? []) errors.push({ code: 'SAME_SPELLING', id: t.id, detail: `${t.twin_id} (${t.twin_level})`, warning: true });
 
+  // A word out of the study queue (capped level, queue EXTRA) is not served by the path, so its content is not checked;
+  // it is still counted in the duplicate and lost-id checks above and below.
   for (const v of compiled.vocabulary) {
+    if (v.queue === 'EXTRA') continue;
     const { err, warn } = sink(v.id);
     if (v.normalized_expression !== normalizeJapanese(v.expression) || v.normalized_reading !== normalizeJapanese(v.reading))
       err('NORMALIZATION_MISMATCH', v.key);
@@ -241,15 +244,17 @@ export function runChecks(compiled, ctx) {
     from_frame: compiled.vocabulary.filter(v => v.provenance?.frame).length,
     jlas_matched: compiled.vocabulary.filter(v => v.provenance?.sources?.includes('JLAS')).length,
     ai_authored: [...compiled.vocabulary, ...compiled.kanji, ...compiled.grammar].filter(x => aiFields(x).length).length,
-    level_moves: compiled.level_moves?.length ?? 0, conflicts: compiled.conflicts?.length ?? 0, errors_by_code: byCode };
+    level_moves: compiled.level_moves?.length ?? 0, conflicts: compiled.conflicts?.length ?? 0, errors_by_code: byCode,
+    ...(compiled.study_cap ? { out_of_queue: compiled.vocabulary.filter(v => v.queue === 'EXTRA').length } : {}) };
   return { errors, stats };
 }
 
 // Items with any blocking error stay DRAFT (hidden); clean items become AI_CHECKED when the AI pass wrote any field,
-// otherwise REVIEWED. HOLD (reported) items keep HOLD.
+// otherwise REVIEWED. HOLD (reported) items keep HOLD; a word out of the study queue (queue EXTRA) is HOLD too —
+// kept in the source, never served by the path (Luyện thêm / Look up use it later, spec 4.11).
 export function applyStatuses(compiled, result) {
   const blocked = new Set(result.errors.filter(e => !e.warning && !WARNING_CODES.has(e.code)).map(e => e.id));
-  const status = x => x.status === 'HOLD' ? 'HOLD' : blocked.has(x.id) ? 'DRAFT'
+  const status = x => x.status === 'HOLD' || x.queue === 'EXTRA' ? 'HOLD' : blocked.has(x.id) ? 'DRAFT'
     : aiFields(x).length ? 'AI_CHECKED' : 'REVIEWED';
   return { ...compiled, vocabulary: compiled.vocabulary.map(v => ({ ...v, status: status(v) })),
     kanji: compiled.kanji.map(k => ({ ...k, status: status(k) })), grammar: compiled.grammar.map(g => ({ ...g, status: status(g) })) };

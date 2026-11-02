@@ -131,7 +131,7 @@ function vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub, miraiM
     // A reviewed spelling/reading fix (悪い read "悪い" → わるい) applies before grouping so the word meets its twins.
     for (const v of jlasLevels[level]?.vocabulary ?? []) add({ src: 'JLAS', level, id: v.id, expression: v.expression,
       reading: v.reading, ...identity.get(v.id), meanings: v.meanings_vi ?? [], example_ja: v.example_ja, example_vi: v.example_vi,
-      jlas_example: v.jlas_example, tier: v.labels?.tier ?? null, position: v.position ?? 1,
+      jlas_example: v.jlas_example, tier: v.labels?.tier ?? null, position: v.position ?? 1, books: v.books ?? [],
       word_types: [v.reviewed_word_type, v.word_type] });
   }
   return out;
@@ -516,9 +516,21 @@ function grammarItems({ frames, jlasLevels }, level, { grammarPattern = new Map(
   return { items: sorted.map((x, i) => ({ ...x.item, order: i + 1 })), merged: sorted.flatMap(x => x.merged) };
 }
 
+// ---------------------------------------------------------------- study-queue cap
+// Owner 31/10 (spec 4.11): N5 and N4 keep every word; N3 studies about 2,000 — every Mirai N3 word, then J-LAS words
+// CORE first and most common first. A capped level's words all carry `queue`: STUDY (in the path) or EXTRA (kept
+// for Luyện thêm / Look up, not in the path).
+export const STUDY_CAP = Object.freeze({ N3: 2000 });
+export const STUDY_CAP_RULE = 'Mirai frame words of the level (all, Mirai order), then the other words ranked: tier CORE before '
+  + 'EXTENDED; more J-LAS source books first (commonness: a word several books teach is more common); lower J-LAS position '
+  + 'first (easy → hard order of the books); key by code point. The first (cap − frame words) ranked words are STUDY, the rest EXTRA.';
+const byCodePoint = (a, b) => a < b ? -1 : a > b ? 1 : 0;
+const bookCount = l => new Set(l.jlas.flatMap(m => m.books ?? [])).size;
+const minPosition = l => Math.min(...l.jlas.map(m => m.position ?? 1), 1);
+
 // ---------------------------------------------------------------- entry point
 export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub, miraiMeanings = new Map(),
-  corrections = {} }) {
+  corrections = {}, studyCap = STUDY_CAP }) {
   const { identity = new Map(), identityByForm = new Map(), sameWord = [], notSameWord = [], dropVariant = new Map() } = corrections;
   const candidates = vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub, miraiMeanings, identity, identityByForm });
   const barred = reviewBars(notSameWord, dropVariant);
@@ -549,13 +561,30 @@ export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub, 
     .map(v => ({ ...v, provenance: { ...v.provenance, example_source: v.examples[0]?.source ?? null } }));
   const framedOrder = new Map(here.map(l => [l.id, l.mirai.find(m => m.level === level)?.order ?? null]));
   const jlasPos = new Map(here.map(l => [l.id, l.jlas[0]?.position ?? 1]));
+  const cap = studyCap?.[level] ?? null;
+  const lexemeById = new Map(here.map(l => [l.id, l]));
+  const coreFirst = (a, b) => (a.tier === 'CORE' ? 0 : 1) - (b.tier === 'CORE' ? 0 : 1);
+  // A capped level ranks the unframed words by the cap rule so the study queue is a prefix of the order.
+  const unframed = cap == null
+    ? (a, b) => coreFirst(a, b) || jlasPos.get(a.id) - jlasPos.get(b.id) || a.key.localeCompare(b.key)
+    : (a, b) => coreFirst(a, b) || bookCount(lexemeById.get(b.id)) - bookCount(lexemeById.get(a.id))
+      || minPosition(lexemeById.get(a.id)) - minPosition(lexemeById.get(b.id)) || byCodePoint(a.key, b.key);
   vocabulary.sort((a, b) => {
     const oa = framedOrder.get(a.id), ob = framedOrder.get(b.id);
     if ((oa == null) !== (ob == null)) return oa == null ? 1 : -1;
     if (oa != null) return oa - ob;
-    return (a.tier === 'CORE' ? 0 : 1) - (b.tier === 'CORE' ? 0 : 1) || jlasPos.get(a.id) - jlasPos.get(b.id) || a.key.localeCompare(b.key);
+    return unframed(a, b);
   });
   vocabulary.forEach((v, i) => { v.order = i + 1; v.priority = i + 1; });
+  let studyCapSummary = null;
+  if (cap != null) {
+    const fromFrame = vocabulary.filter(v => framedOrder.get(v.id) != null).length;
+    const inQueue = Math.max(cap, fromFrame);
+    vocabulary.forEach((v, i) => { v.queue = i < inQueue ? 'STUDY' : 'EXTRA'; });
+    const studying = Math.min(inQueue, vocabulary.length);
+    studyCapSummary = { vocabulary: cap, in_queue: studying, out_of_queue: vocabulary.length - studying, from_frame: fromFrame,
+      rule: STUDY_CAP_RULE };
+  }
   const grammar = grammarItems({ frames, jlasLevels }, level, corrections);
   // Same spelling and reading kept as two words (any level): homonyms, or synonyms the fit test missed — for review.
   const base = l => l.key.split('#')[0];
@@ -564,7 +593,7 @@ export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub, 
   const spellingTwins = here.flatMap(l => bySpelling.get(base(l)).filter(o => o !== l)
     .map(o => ({ id: l.id, twin_id: o.id, twin_level: o.level })))
     .sort((a, b) => a.id.localeCompare(b.id) || a.twin_id.localeCompare(b.twin_id));
-  return { level, vocabulary, kanji: kanjiItems({ frames, jlasLevels, dictionary }, level, pool),
+  return { level, ...(studyCapSummary ? { study_cap: studyCapSummary } : {}), vocabulary, kanji: kanjiItems({ frames, jlasLevels, dictionary }, level, pool),
     grammar: grammar.items, conflicts, level_moves: levelMoves, unmatched, spelling_twins: spellingTwins,
     mixed_entries: mixed.filter(m => m.level === level).map(({ id, spellings }) => ({ id, spellings })).sort((a, b) => a.id.localeCompare(b.id)),
     merged_ids: [...here.flatMap(l => l.merged_ids.map(m => ({ id: m, into: l.id }))),
