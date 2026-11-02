@@ -8,12 +8,15 @@ import com.jlas.jlptpath.dto.JpathSmartTestSnapshot;
 import com.jlas.jlptpath.entity.JpathEntryPreference;
 import com.jlas.jlptpath.entity.JpathSliderAdjustment;
 import com.jlas.jlptpath.enums.JpathEntrySource;
+import com.jlas.jlptpath.enums.JpathItemState;
 import com.jlas.jlptpath.enums.JpathItemType;
 import com.jlas.jlptpath.enums.JpathKanaChoice;
 import com.jlas.jlptpath.enums.JpathSliderKind;
 import com.jlas.jlptpath.enums.JpathTab;
 import com.jlas.jlptpath.service.JpathCatalogService;
 import com.jlas.jlptpath.service.JpathLevelInfo;
+import com.jlas.jlptpath.repository.JpathKanaRowRepository;
+import com.jlas.jlptpath.repository.JpathUserItemRepository;
 import com.jlas.jlptpath.service.JpathTodayTargetsPort;
 import com.jlas.jlptpath.util.JpathOpenLevelRule;
 import com.jlas.jlptpath.util.JpathSliderBounds;
@@ -163,5 +166,48 @@ final class JpathPathRules {
             }
         }
         return true;
+    }
+
+    /** Source of the skill-day quiz (policy #25): a V/K/G tab, the passed kana rows, or none (no quiz). */
+    enum SkillQuizSource {
+        VOCAB, KANJI, GRAMMAR, KANA_ROW
+    }
+
+    /** LEARNED rows a V/K/G tab needs for the skill-day quiz (#25). */
+    static final int SKILL_QUIZ_MIN_LEARNED = 10;
+    /** Passed kana rows the KANA_ROW skill step needs, kana phase only (#25). */
+    static final int SKILL_QUIZ_MIN_KANA_ROWS = 2;
+
+    /**
+     * Policy #25, the one rule for the skill-day quiz (plan Task 31/38; never the ALL source): the V/K/G tab with the
+     * most LEARNED rows (learner rows not KNOWN) when it has at least 10 (ties VOCAB &gt; KANJI &gt; GRAMMAR); else,
+     * in the kana phase with at least 2 passed rows, KANA_ROW; else empty (the day needs no quiz).
+     */
+    static Optional<SkillQuizSource> skillQuizSource(long vocabLearned, long kanjiLearned, long grammarLearned,
+            boolean kanaPhase, long passedKanaRows) {
+        long best = Math.max(vocabLearned, Math.max(kanjiLearned, grammarLearned));
+        if (best >= SKILL_QUIZ_MIN_LEARNED) {
+            if (vocabLearned == best) {
+                return Optional.of(SkillQuizSource.VOCAB);
+            }
+            return Optional.of(kanjiLearned == best ? SkillQuizSource.KANJI : SkillQuizSource.GRAMMAR);
+        }
+        return kanaPhase && passedKanaRows >= SKILL_QUIZ_MIN_KANA_ROWS
+                ? Optional.of(SkillQuizSource.KANA_ROW) : Optional.empty();
+    }
+
+    /** {@link #skillQuizSource} for the learner's rows of {@code level}. */
+    static Optional<SkillQuizSource> skillQuizSource(JpathUserItemRepository userItems,
+            JpathKanaRowRepository kanaRows, Long userId, String level, boolean kanaPhase) {
+        long[] learned = new long[SLIDER_TABS.length];
+        for (int i = 0; i < SLIDER_TABS.length; i++) {
+            JpathItemType type = JpathItemType.valueOf(SLIDER_TABS[i].name());
+            learned[i] = userItems.countByUserIdAndLevelAndItemTypeAndState(userId, level, type,
+                    JpathItemState.LEARNING)
+                    + userItems.countByUserIdAndLevelAndItemTypeAndState(userId, level, type,
+                    JpathItemState.NOTEBOOK);
+        }
+        long rows = kanaPhase ? kanaRows.countCompletedRows(userId) : 0;
+        return skillQuizSource(learned[0], learned[1], learned[2], kanaPhase, rows);
     }
 }

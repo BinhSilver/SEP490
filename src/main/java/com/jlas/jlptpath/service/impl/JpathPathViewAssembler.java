@@ -278,7 +278,6 @@ public class JpathPathViewAssembler {
         });
     }
 
-
     /** The stored third skill day when it is one valid code, else null (automatic choice). */
     static DayOfWeek storedThirdDay(JpathUserPath path) {
         try {
