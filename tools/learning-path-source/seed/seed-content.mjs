@@ -1,0 +1,392 @@
+// [JLAS-W0108] JLPT path seed generator, part 2: compiled level source → table rows, edits written back by the admin,
+// column-length check, release verdict and the level content SQL. Pure functions; the CLI that writes the level data
+// file lives with the caller. Rows hold SQL-ready values: JSON columns are already serialised strings (or null).
+// Compiled grammar has no `priority` yet: it falls back to the study order.
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync, statSync } from 'node:fs';
+import path from 'node:path';
+import { LEVELS, LEVEL_RANK, ROOT } from '../compile/util.mjs';
+import { codePointLength, rowsToUpsert, sqlString } from './seed-sql.mjs';
+import { LIMITS } from './limits.mjs';
+
+/** Table key → SQL table, primary key and the columns a seed run writes (report_hidden and updated_at never). */
+export const TABLES = {
+  topic: { sql: 'jpath_vocab_topic', pk: ['level', 'topic_key'], cols: ['level', 'topic_key', 'title_vi', 'sort_order'] },
+  grammar_unit: { sql: 'jpath_grammar_unit', pk: ['level', 'unit_no'], cols: ['level', 'unit_no', 'title_vi'] },
+  vocabulary: {
+    sql: 'jpath_vocabulary', pk: ['code'], cc: true,
+    cols: ['code', 'level', 'topic_key', 'sort_order', 'priority', 'tier', 'expression', 'reading', 'normalized_expression',
+      'normalized_reading', 'romaji', 'kana_only', 'variants_json', 'meaning_vi', 'word_type_label', 'mnemonic_vi',
+      'dictionary_entry_id', 'audio_path', 'audio_sha256', 'status', 'authored', 'seed_version'],
+  },
+  kanji: {
+    sql: 'jpath_kanji', pk: ['code'], cc: true,
+    cols: ['code', 'level', 'character', 'sort_order', 'han_viet', 'han_viet_alt_json', 'meanings_vi', 'readings_on_json',
+      'readings_kun_json', 'level_readings_json', 'stroke_count', 'radical_number', 'radical_name_vi', 'frequency',
+      'mnemonic_vi', 'dictionary_kanji_id', 'status', 'authored', 'seed_version'],
+  },
+  kanji_compound: { sql: 'jpath_kanji_compound', pk: ['kanji_code', 'vocab_code'], cols: ['kanji_code', 'vocab_code', 'sort_order'] },
+  grammar: {
+    sql: 'jpath_grammar', pk: ['code'], cc: true,
+    cols: ['code', 'level', 'unit_no', 'sort_order', 'priority', 'pattern', 'pattern_variants_json', 'family_key', 'meaning_vi',
+      'formation', 'usage_vi', 'nuance_vi', 'common_mistakes_vi', 'related_codes_json', 'status', 'authored', 'seed_version'],
+  },
+  example: {
+    sql: 'jpath_example', pk: ['code'], cc: true,
+    cols: ['code', 'owner_type', 'owner_code', 'level', 'sort_order', 'role', 'ja', 'ja_furigana', 'vi', 'audio_path',
+      'audio_sha256', 'status', 'authored', 'seed_version'],
+  },
+  grammar_question: {
+    sql: 'jpath_grammar_question', pk: ['code'], cc: true,
+    cols: ['code', 'grammar_code', 'level', 'bank', 'question_type', 'sort_order', 'prompt_ja', 'prompt_furigana',
+      'options_json', 'answer_index', 'pieces_json', 'answer_order_json', 'answer_text', 'accept_json', 'explanation_vi',
+      'status', 'authored', 'seed_version'],
+  },
+  confusable_pair: { sql: 'jpath_confusable_pair', pk: ['item_type', 'code_a', 'code_b'], cols: ['item_type', 'code_a', 'code_b', 'level'] },
+};
+
+/** Report/edit target type → table key (KANA rows belong to the base seed and are never edited here). */
+const EDIT_TARGETS = { VOCAB: 'vocabulary', KANJI: 'kanji', GRAMMAR: 'grammar', EXAMPLE: 'example', QUESTION: 'grammar_question' };
+
+const CJK = /[々㐀-䶿一-鿿豈-﫿\u{20000}-\u{2FFFF}]/u;
+const AUDIO_PREFIX = 'data/content-audio/';
+const VISIBLE = new Set(['REVIEWED', 'AI_CHECKED']);
+const AI_SOURCES = new Set(['AI', 'CLAUDE']); // 'CLAUDE' / claude_fields: names used by compiled files before the rename
+
+const jsonOrNull = (v) => (v === null || v === undefined ? null : JSON.stringify(v));
+const blank = (v) => v === null || v === undefined || String(v).trim() === '';
+
+// ---------------------------------------------------------------- audio
+/**
+ * Audio manifest → Map keyed by file name without `.mp3` (`<code>` for a word, `<code>-ex<n>` for the n-th compiled example).
+ * `ok` only when the file exists under `audioRoot` with the manifest's byte count and SHA-256.
+ */
+export function loadAudio(manifest, audioRoot = 'data/content-audio') {
+  const root = path.resolve(ROOT, audioRoot);
+  const out = new Map();
+  for (const item of manifest?.items ?? []) {
+    const file = String(item.file);
+    const key = path.posix.basename(file).replace(/\.mp3$/i, '');
+    const audioPath = file.startsWith(AUDIO_PREFIX) ? file.slice(AUDIO_PREFIX.length) : file;
+    const local = path.join(root, audioPath);
+    let ok = false;
+    if (existsSync(local) && statSync(local).size === item.bytes) {
+      ok = createHash('sha256').update(readFileSync(local)).digest('hex') === item.sha256;
+    }
+    out.set(key, { audio_path: audioPath, audio_sha256: item.sha256, ok });
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- compiled → rows
+const aiFields = (prov) => [...(prov?.ai_fields ?? []), ...(prov?.claude_fields ?? [])];
+/** An item is authored when the AI wrote any field of it, or any of its `*_source` says AI. */
+function itemAuthored(prov) {
+  if (aiFields(prov).length > 0) return 1;
+  return Object.entries(prov ?? {}).some(([k, v]) => k.endsWith('_source') && AI_SOURCES.has(v)) ? 1 : 0;
+}
+const exampleAuthored = (example, prov) => (AI_SOURCES.has(example.source) || aiFields(prov).includes('examples') ? 1 : 0);
+
+function compareBy(pk) {
+  return (a, b) => {
+    for (const col of pk) {
+      if (a[col] < b[col]) return -1;
+      if (a[col] > b[col]) return 1;
+    }
+    return 0;
+  };
+}
+
+/** Rank (1-based) of each key by the smallest `order` of its items. */
+function rankByFirstOrder(items, keyOf) {
+  const first = new Map();
+  for (const item of items) {
+    const key = keyOf(item);
+    const seen = first.get(key);
+    if (!seen || item.order < seen.order) first.set(key, item);
+  }
+  return [...first.entries()].sort((a, b) => a[1].order - b[1].order).map(([key, item], i) => ({ key, item, rank: i + 1 }));
+}
+
+function audioOf(audio, key) {
+  const a = audio?.get(key);
+  return a?.ok ? { audio_path: a.audio_path, audio_sha256: a.audio_sha256 } : { audio_path: null, audio_sha256: null };
+}
+
+function exampleRows(ownerType, item, audio, seedVersion) {
+  // MAIN first, otherwise compiled order; the audio file is numbered by the compiled position (tts.mjs).
+  const indexed = (item.examples ?? []).map((e, at) => ({ e, at }));
+  const sorted = [...indexed.filter((x) => x.e.role === 'MAIN'), ...indexed.filter((x) => x.e.role !== 'MAIN')];
+  return sorted.map(({ e, at }, i) => ({
+    code: `${item.id}-E${i + 1}`, owner_type: ownerType, owner_code: item.id, level: item.level, sort_order: i + 1,
+    role: e.role === 'MAIN' ? 'MAIN' : 'EXTRA', ja: e.ja, ja_furigana: e.ja_furigana ?? null, vi: e.vi ?? null,
+    ...audioOf(audio, `${item.id}-ex${at + 1}`), status: item.status, authored: exampleAuthored(e, item.provenance),
+    seed_version: seedVersion,
+  }));
+}
+
+const two = (n) => String(n).padStart(2, '0');
+function questionRows(g, seedVersion) {
+  const base = { grammar_code: g.id, level: g.level, prompt_furigana: null, options_json: null, answer_index: null,
+    pieces_json: null, answer_order_json: null, answer_text: null, accept_json: null, explanation_vi: null,
+    status: g.status, authored: 1, seed_version: seedVersion };
+  const choice = (bank, letter) => (q, i) => ({ ...base, code: `${g.id}-${letter}${two(i + 1)}`, bank, question_type: q.type,
+    sort_order: i + 1, prompt_ja: q.prompt_ja, options_json: jsonOrNull(q.options), answer_index: q.answer_index ?? null,
+    explanation_vi: q.explanation_vi ?? null });
+  const order = (q, i) => ({ ...base, code: `${g.id}-O${two(i + 1)}`, bank: 'ORDER', question_type: 'ORDER', sort_order: i + 1,
+    prompt_ja: q.pieces.join(' / '), pieces_json: jsonOrNull(q.pieces), answer_order_json: jsonOrNull(q.answer_order),
+    explanation_vi: q.translation_vi ?? null });
+  const fill = (q, i) => {
+    const accept = [...new Set((q.accept ?? []).map((a) => String(a).trim()).filter((a) => a && a !== q.answer))];
+    return { ...base, code: `${g.id}-F${two(i + 1)}`, bank: 'FILL', question_type: 'FILL_TEXT', sort_order: i + 1,
+      prompt_ja: q.sentence_ja, answer_text: q.answer, accept_json: accept.length ? JSON.stringify(accept) : null,
+      explanation_vi: q.translation_vi ?? null };
+  };
+  return [
+    ...(g.check_bank ?? []).map(choice('CHECK', 'C')),
+    ...(g.order_items ?? []).map(order),
+    ...(g.fill_items ?? []).map(fill),
+    ...(g.extra_practice ?? []).map(choice('EXTRA', 'X')),
+  ];
+}
+
+function confusableRows(itemType, items, levelOf) {
+  const pairs = new Map();
+  for (const item of items) {
+    for (const other of item.confusable_ids ?? []) {
+      if (other === item.id) continue;
+      const otherLevel = levelOf(other);
+      if (!otherLevel) continue;
+      const [a, b] = item.id < other ? [item.id, other] : [other, item.id];
+      const level = LEVEL_RANK[otherLevel] > LEVEL_RANK[item.level] ? otherLevel : item.level;
+      pairs.set(`${a}|${b}`, { item_type: itemType, code_a: a, code_b: b, level });
+    }
+  }
+  return [...pairs.values()];
+}
+
+/**
+ * Compiled level JSON → the 9 content tables, each sorted by primary key. `audio` comes from loadAudio; `knownCodes`
+ * (Map code → level, or a Set of codes of this level) limits confusable pairs to items that exist.
+ */
+export function buildLevelRows(compiled, { seedVersion, audio = new Map(), knownCodes = new Map() } = {}) {
+  const level = compiled.level;
+  const levelOf = (code) => (knownCodes instanceof Map ? knownCodes.get(code) : knownCodes.has(code) ? level : undefined);
+  const vocab = compiled.vocabulary ?? [];
+  const kanji = compiled.kanji ?? [];
+  const grammar = compiled.grammar ?? [];
+
+  const topic = rankByFirstOrder(vocab, (v) => v.topic_key)
+    .map(({ key, item, rank }) => ({ level, topic_key: key, title_vi: item.topic_vi, sort_order: rank }));
+  const grammar_unit = rankByFirstOrder(grammar, (g) => g.unit_no)
+    .map(({ key, item }) => ({ level, unit_no: key, title_vi: item.unit_title_vi ?? null }));
+
+  const vocabulary = vocab.map((v) => ({
+    code: v.id, level: v.level, topic_key: v.topic_key, sort_order: v.order, priority: v.priority ?? v.order, tier: v.tier ?? 'CORE',
+    expression: v.expression, reading: v.reading, normalized_expression: v.normalized_expression,
+    normalized_reading: v.normalized_reading, romaji: v.romaji ?? null, kana_only: CJK.test(v.expression) ? 0 : 1,
+    variants_json: jsonOrNull(v.variants), meaning_vi: v.meaning_vi ?? null, word_type_label: v.word_type_label ?? null,
+    mnemonic_vi: v.mnemonic_vi ?? null, dictionary_entry_id: v.dictionary_entry_id ?? null, ...audioOf(audio, v.id),
+    status: v.status, authored: itemAuthored(v.provenance), seed_version: seedVersion,
+  }));
+
+  const kanjiRows = kanji.map((k) => ({
+    code: k.id, level: k.level, character: k.character, sort_order: k.order, han_viet: k.han_viet ?? null,
+    han_viet_alt_json: jsonOrNull(k.han_viet_alt), meanings_vi: k.meanings_vi ?? null,
+    readings_on_json: jsonOrNull(k.readings_on), readings_kun_json: jsonOrNull(k.readings_kun),
+    level_readings_json: jsonOrNull(k.level_readings), stroke_count: k.stroke_count ?? null,
+    radical_number: k.radical?.number ?? null, radical_name_vi: k.radical?.name_vi ?? null, frequency: k.frequency ?? null,
+    mnemonic_vi: k.mnemonic_vi ?? null, dictionary_kanji_id: null, status: k.status, authored: itemAuthored(k.provenance),
+    seed_version: seedVersion,
+  }));
+  const kanji_compound = kanji.flatMap((k) => (k.compound_ids ?? []).slice(0, 5)
+    .map((code, i) => ({ kanji_code: k.id, vocab_code: code, sort_order: i + 1 })));
+
+  const grammarRows = grammar.map((g) => ({
+    code: g.id, level: g.level, unit_no: g.unit_no, sort_order: g.order, priority: g.priority ?? g.order, pattern: g.pattern,
+    pattern_variants_json: jsonOrNull(g.pattern_variants), family_key: g.family_key, meaning_vi: g.meaning_vi ?? null,
+    formation: g.formation ?? null, usage_vi: g.usage_vi ?? null, nuance_vi: g.nuance_vi ?? null,
+    common_mistakes_vi: g.common_mistakes_vi ?? null, related_codes_json: jsonOrNull(g.related_ids), status: g.status,
+    authored: itemAuthored(g.provenance), seed_version: seedVersion,
+  }));
+
+  const example = [
+    ...vocab.flatMap((v) => exampleRows('VOCAB', v, audio, seedVersion)),
+    ...kanji.flatMap((k) => exampleRows('KANJI', k, audio, seedVersion)),
+    ...grammar.flatMap((g) => exampleRows('GRAMMAR', g, audio, seedVersion)),
+  ];
+  const grammar_question = grammar.flatMap((g) => questionRows(g, seedVersion));
+  const confusable_pair = [...confusableRows('VOCAB', vocab, levelOf), ...confusableRows('KANJI', kanji, levelOf)];
+
+  const tables = { topic, grammar_unit, vocabulary, kanji: kanjiRows, kanji_compound, grammar: grammarRows, example,
+    grammar_question, confusable_pair };
+  for (const [key, def] of Object.entries(TABLES)) tables[key].sort(compareBy(def.pk));
+  return tables;
+}
+
+// ---------------------------------------------------------------- edits
+/**
+ * Admin edits (`data/learning-path/edits/<L>.json` `edits[]`, last value per field) applied to row columns in file order.
+ * Returns new tables; the input is not changed. A column the table does not have is a hard error.
+ */
+export function applyEdits(tables, edits = []) {
+  const out = structuredClone(tables);
+  const index = new Map();
+  for (const key of Object.values(EDIT_TARGETS)) index.set(key, new Map((out[key] ?? []).map((row) => [row.code, row])));
+  let applied = 0;
+  const skipped = [];
+  for (const edit of edits) {
+    if (edit.targetType === 'KANA') { skipped.push({ ...edit, reason: 'KANA' }); continue; }
+    const key = EDIT_TARGETS[edit.targetType];
+    if (!key) throw new Error(`Unknown edit target type ${edit.targetType}`);
+    if (edit.field === 'report_hidden') { skipped.push({ ...edit, reason: 'REPORT_HIDDEN' }); continue; }
+    if (!TABLES[key].cols.includes(edit.field) || TABLES[key].pk.includes(edit.field)) {
+      throw new Error(`${TABLES[key].sql} has no editable column ${edit.field}`);
+    }
+    const row = index.get(key).get(edit.targetCode);
+    if (!row) { skipped.push({ ...edit, reason: 'UNKNOWN_CODE' }); continue; }
+    const v = edit.value;
+    row[edit.field] = edit.field.endsWith('_json') && v !== null && v !== undefined && typeof v !== 'string' ? JSON.stringify(v) : v ?? null;
+    applied++;
+  }
+  return { tables: out, applied, skipped };
+}
+
+// ---------------------------------------------------------------- limits
+/** Every string value longer than its DDL length (code points), as `{table, code, column, length, limit}`. */
+export function checkLimits(tables) {
+  const out = [];
+  for (const [key, def] of Object.entries(TABLES)) {
+    for (const row of tables[key] ?? []) {
+      for (const [column, value] of Object.entries(row)) {
+        const limit = LIMITS[`${def.sql}.${column}`];
+        if (limit === undefined || typeof value !== 'string') continue;
+        const length = codePointLength(value);
+        if (length > limit) out.push({ table: def.sql, code: row.code ?? def.pk.map((c) => row[c]).join('|'), column, length, limit });
+      }
+    }
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- release verdict
+const NOTE_LIMIT = LIMITS['jpath_level.release_note'];
+
+/**
+ * Release check of one level after edits (spec 4.11). Only visible items (REVIEWED|AI_CHECKED) are checked; each reason
+ * counts items. AUDIO_MISSING (preflight C4): a word without ok audio or without ok MAIN-example audio, a grammar pattern
+ * without ok MAIN-example audio. FURIGANA_MISSING (C5) only for sentences that contain a kanji.
+ */
+export function releaseVerdict(level, tables) {
+  const reasons = {};
+  const add = (code, n = 1) => { if (n > 0) reasons[code] = (reasons[code] ?? 0) + n; };
+  const ofLevel = (rows) => (rows ?? []).filter((r) => r.level === level);
+  const vocab = ofLevel(tables.vocabulary);
+  const kanji = ofLevel(tables.kanji);
+  const grammar = ofLevel(tables.grammar);
+
+  add('DRAFT_ITEMS', [...vocab, ...kanji, ...grammar].filter((r) => r.status === 'DRAFT').length);
+
+  const examplesOf = new Map();
+  for (const e of ofLevel(tables.example)) {
+    if (!VISIBLE.has(e.status)) continue;
+    if (!examplesOf.has(e.owner_code)) examplesOf.set(e.owner_code, []);
+    examplesOf.get(e.owner_code).push(e);
+  }
+  const exampleChecks = (item) => {
+    const exs = examplesOf.get(item.code) ?? [];
+    const main = exs.find((e) => e.role === 'MAIN');
+    if (blank(item.meaning_vi)) add('MEANING_MISSING');
+    if (!main) add('MAIN_EXAMPLE_MISSING');
+    if (exs.some((e) => blank(e.vi))) add('EXAMPLE_VI_MISSING');
+    if (exs.some((e) => CJK.test(e.ja) && blank(e.ja_furigana))) add('FURIGANA_MISSING');
+    return main;
+  };
+
+  const meanings = new Set();
+  for (const v of vocab.filter((r) => VISIBLE.has(r.status))) {
+    const main = exampleChecks(v);
+    if (blank(v.audio_path) || blank(main?.audio_path)) add('AUDIO_MISSING');
+    const key = `${v.normalized_expression}|${v.normalized_reading}|${v.meaning_vi ?? ''}`;
+    if (meanings.has(key)) add('DUPLICATE_MEANING');
+    meanings.add(key);
+  }
+
+  const compounds = new Set((tables.kanji_compound ?? []).map((c) => c.kanji_code));
+  for (const k of kanji.filter((r) => VISIBLE.has(r.status))) {
+    if (blank(k.meanings_vi)) add('MEANING_MISSING');
+    if (blank(k.han_viet)) add('HAN_VIET_MISSING');
+    if (!compounds.has(k.code)) add('KANJI_COMPOUND_MISSING');
+  }
+
+  const questionsOf = new Map();
+  for (const q of ofLevel(tables.grammar_question)) {
+    if (!VISIBLE.has(q.status)) continue;
+    if (!questionsOf.has(q.grammar_code)) questionsOf.set(q.grammar_code, []);
+    questionsOf.get(q.grammar_code).push(q);
+  }
+  for (const g of grammar.filter((r) => VISIBLE.has(r.status))) {
+    const main = exampleChecks(g);
+    if (blank(main?.audio_path)) add('AUDIO_MISSING');
+    const qs = questionsOf.get(g.code) ?? [];
+    const check = qs.filter((q) => q.bank === 'CHECK');
+    const types = new Set(check.map((q) => q.question_type));
+    const short = check.length < 8 || ['FILL', 'ORDER_STAR', 'MEANING', 'ERROR'].some((t) => !types.has(t))
+      || qs.filter((q) => q.bank === 'ORDER').length < 2 || qs.filter((q) => q.bank === 'FILL').length < 2;
+    if (short) add('GRAMMAR_BANK_SHORT');
+  }
+
+  const sorted = Object.fromEntries(Object.entries(reasons).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
+  const released = Object.keys(sorted).length === 0;
+  let note = null;
+  if (!released) {
+    note = Object.entries(sorted).map(([k, n]) => `${k}=${n}`).join('; ');
+    if (codePointLength(note) > NOTE_LIMIT) note = `${[...note].slice(0, NOTE_LIMIT - 1).join('')}…`;
+  }
+  return { released, reasons: sorted, note };
+}
+
+// ---------------------------------------------------------------- SQL
+function upsert(key, rows) {
+  const def = TABLES[key];
+  return rowsToUpsert(def.sql, def.cols, rows, def.cols.filter((c) => !def.pk.includes(c))).trimEnd();
+}
+
+/**
+ * One level's content SQL in one transaction: upserts in FK order, link rows (compounds, confusable pairs) deleted and
+ * re-inserted for the level, rows this seed version did not write are moved to HOLD (never deleted), then the release flag.
+ */
+export function levelContentSql(level, tables, { seedVersion, verdict, header } = {}) {
+  if (!LEVELS.includes(level)) throw new Error(`Unknown level ${level}`);
+  if (!seedVersion) throw new Error('seedVersion is required');
+  if (!verdict) throw new Error('verdict is required');
+  const L = sqlString(level);
+  const v = sqlString(seedVersion);
+  const headerLines = header === undefined || header === null ? [] : (Array.isArray(header) ? header : [header]);
+  const parts = [
+    ...headerLines,
+    `-- release: ${level} released=${verdict.released ? 1 : 0}`,
+    'SET NAMES utf8mb4;',
+    'START TRANSACTION;',
+    rowsToUpsert('jpath_level', ['level', 'sort_order'], [{ level, sort_order: LEVELS.indexOf(level) + 1 }], ['sort_order']).trimEnd(),
+    upsert('topic', tables.topic),
+    upsert('grammar_unit', tables.grammar_unit),
+    upsert('vocabulary', tables.vocabulary),
+    upsert('kanji', tables.kanji),
+    `DELETE c FROM jpath_kanji_compound c JOIN jpath_kanji k ON k.code = c.kanji_code WHERE k.level = ${L};`,
+    upsert('kanji_compound', tables.kanji_compound),
+    upsert('grammar', tables.grammar),
+    upsert('example', tables.example),
+    upsert('grammar_question', tables.grammar_question),
+    `DELETE FROM jpath_confusable_pair WHERE level = ${L};`,
+    upsert('confusable_pair', tables.confusable_pair),
+    ...Object.values(TABLES).filter((d) => d.cc).map((d) =>
+      `UPDATE ${d.sql} SET status = 'HOLD' WHERE level = ${L} AND (seed_version IS NULL OR seed_version <> ${v});`),
+    verdict.released
+      ? `UPDATE jpath_level SET released = 1, released_at = COALESCE(released_at, NOW(6)), seed_version = ${v}, release_note = NULL WHERE level = ${L};`
+      : `UPDATE jpath_level SET seed_version = ${v}, release_note = ${sqlString(verdict.note)} WHERE level = ${L};`,
+    'COMMIT;',
+    '',
+  ];
+  return parts.filter((p) => p !== '').join('\n') + '\n';
+}
