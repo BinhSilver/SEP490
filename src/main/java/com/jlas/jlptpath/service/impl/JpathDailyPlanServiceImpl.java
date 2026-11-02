@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.jlptpath.dto.JpathCombinedStep;
+import com.jlas.jlptpath.dto.JpathDaySummaryView;
 import com.jlas.jlptpath.dto.JpathHeroCard;
 import com.jlas.jlptpath.dto.JpathItemRef;
 import com.jlas.jlptpath.dto.JpathResumeView;
@@ -81,11 +82,13 @@ public class JpathDailyPlanServiceImpl implements JpathDailyPlanService, JpathTo
     private final JpathCalendarService calendar;
     private final JpathContentReader content;
     private final JpathClock clock;
+    private final JpathDaySummaryReader summaryReader;
 
     public JpathDailyPlanServiceImpl(JpathPathService pathService, JpathDailyPlanInserter inserter,
             JpathDailyPlanRepository plans, JpathDailyTabRepository dailyTabs, JpathStudySessionRepository sessions,
             JpathUserItemRepository userItems, JpathKanaRowRepository kanaRows, JpathUserLevelRepository levels,
-            JpathCalendarService calendar, JpathContentReader content, JpathClock clock) {
+            JpathCalendarService calendar, JpathContentReader content, JpathClock clock,
+            JpathDaySummaryReader summaryReader) {
         this.pathService = pathService;
         this.inserter = inserter;
         this.plans = plans;
@@ -97,6 +100,7 @@ public class JpathDailyPlanServiceImpl implements JpathDailyPlanService, JpathTo
         this.calendar = calendar;
         this.content = content;
         this.clock = clock;
+        this.summaryReader = summaryReader;
     }
 
     // ---- plan --------------------------------------------------------------------------------------------------
@@ -122,6 +126,15 @@ public class JpathDailyPlanServiceImpl implements JpathDailyPlanService, JpathTo
     public JpathTodayView today(Long userId) {
         JpathDailyPlan plan = ensureToday(userId);
         return view(userId, plan);
+    }
+
+    @Override
+    @Transactional
+    public JpathDaySummaryView summary(Long userId) {
+        pathService.requireActive(userId);
+        JpathDailyPlan plan = plans.findByUserIdAndStudyDay(userId, clock.today(userId))
+                .orElseGet(() -> ensureToday(userId));
+        return summaryReader.read(userId, plan);
     }
 
     @Override

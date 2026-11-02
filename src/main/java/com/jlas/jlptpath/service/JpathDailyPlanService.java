@@ -1,5 +1,6 @@
 package com.jlas.jlptpath.service;
 
+import com.jlas.jlptpath.dto.JpathDaySummaryView;
 import com.jlas.jlptpath.dto.JpathItemRef;
 import com.jlas.jlptpath.dto.JpathTodayView;
 import com.jlas.jlptpath.entity.JpathDailyPlan;
@@ -41,6 +42,12 @@ public interface JpathDailyPlanService {
      * next new codes up to the remaining target. No side effect (never creates the plan or a session).
      */
     List<JpathItemRef> plannedNewItems(Long userId, JpathTab tab);
+
+    /**
+     * Summary of today ("Xong hôm nay"; creates today's plan when missing): today's new learned / reviewed counts,
+     * check accuracy, wrong items, CP paid today ({@code cp_awarded}), streak and the level % before today and now.
+     */
+    JpathDaySummaryView summary(Long userId);
 
     /** Policy #14: a skill day of this week was missed and no study day is left this week to make it up. */
     boolean skillDayMissed(Long userId);

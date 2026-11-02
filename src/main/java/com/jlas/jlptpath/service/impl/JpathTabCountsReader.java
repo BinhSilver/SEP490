@@ -6,6 +6,7 @@ import com.jlas.jlptpath.enums.JpathItemType;
 import com.jlas.jlptpath.enums.JpathTab;
 import com.jlas.jlptpath.repository.JpathKanaRowRepository;
 import com.jlas.jlptpath.repository.JpathUserItemRepository;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
@@ -37,6 +38,22 @@ public class JpathTabCountsReader {
         out.put(JpathTab.VOCAB, count(userId, level, JpathItemType.VOCAB));
         out.put(JpathTab.KANJI, count(userId, level, JpathItemType.KANJI));
         out.put(JpathTab.GRAMMAR, count(userId, level, JpathItemType.GRAMMAR));
+        return Collections.unmodifiableMap(out);
+    }
+
+    /**
+     * Like {@link #read} but counting only items counted before {@code before} (learner local time): the level %
+     * at the start of a day.
+     */
+    @Transactional(readOnly = true)
+    public Map<JpathTab, JpathTabCount> readCountedBefore(Long userId, String level, LocalDateTime before) {
+        Map<JpathTab, JpathTabCount> out = new EnumMap<>(JpathTab.class);
+        for (JpathTab tab : new JpathTab[] {JpathTab.VOCAB, JpathTab.KANJI, JpathTab.GRAMMAR}) {
+            JpathItemType type = JpathItemType.valueOf(tab.name());
+            out.put(tab, new JpathTabCount(
+                    userItems.countByUserIdAndLevelAndItemTypeAndCountedAtBefore(userId, level, type, before),
+                    0, 0, content.learnableCount(level, type)));
+        }
         return Collections.unmodifiableMap(out);
     }
 

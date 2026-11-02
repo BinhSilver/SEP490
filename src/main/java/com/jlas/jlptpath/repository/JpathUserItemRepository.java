@@ -23,6 +23,10 @@ public interface JpathUserItemRepository extends JpaRepository<JpathUserItem, Lo
     /** Items of a level counted towards progress (countedAt set). */
     long countByUserIdAndLevelAndItemTypeAndCountedAtIsNotNull(Long userId, String level, JpathItemType itemType);
 
+    /** Items of a level counted before {@code before} (learner local time), e.g. before the start of today. */
+    long countByUserIdAndLevelAndItemTypeAndCountedAtBefore(Long userId, String level, JpathItemType itemType,
+                                                            LocalDateTime before);
+
     List<JpathUserItem> findByUserIdAndItemTypeAndItemCodeIn(Long userId, JpathItemType itemType,
                                                              Collection<String> itemCodes);
 

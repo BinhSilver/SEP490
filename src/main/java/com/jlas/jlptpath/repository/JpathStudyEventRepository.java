@@ -3,6 +3,10 @@ package com.jlas.jlptpath.repository;
 import com.jlas.jlptpath.entity.JpathStudyEvent;
 import com.jlas.jlptpath.enums.JpathItemType;
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -31,4 +35,46 @@ public interface JpathStudyEventRepository extends JpaRepository<JpathStudyEvent
             """)
     boolean existsForgotToday(@Param("userId") Long userId, @Param("t") JpathItemType t,
                               @Param("code") String code, @Param("day") LocalDate day);
+
+    /**
+     * Distinct (study_day, item_type, item_code) of items newly learned in {@code [from, to]}: a FIRST_RATE or a
+     * correct SKIP_KNOWN. Read through {@link #newLearnedByDay}.
+     */
+    @Query("""
+            select distinct e.studyDay, e.itemType, e.itemCode from JpathStudyEvent e
+            where e.userId = :userId and e.studyDay between :from and :to
+              and (e.action = 'FIRST_RATE' or (e.action = 'SKIP_KNOWN' and e.correct = true))
+            """)
+    List<Object[]> findNewLearnedKeys(@Param("userId") Long userId, @Param("from") LocalDate from,
+                                      @Param("to") LocalDate to);
+
+    /**
+     * "New learned" per study day in {@code [from, to]}: distinct items with a FIRST_RATE or a correct SKIP_KNOWN
+     * that day. The one definition used by the day summary and the history; days without any are absent.
+     */
+    default Map<LocalDate, Integer> newLearnedByDay(Long userId, LocalDate from, LocalDate to) {
+        Map<LocalDate, Integer> out = new TreeMap<>();
+        for (Object[] row : findNewLearnedKeys(userId, from, to)) {
+            out.merge((LocalDate) row[0], 1, Integer::sum);
+        }
+        return out;
+    }
+
+    /** Events of {@code day} with one of {@code actions}. */
+    long countByUserIdAndStudyDayAndActionIn(Long userId, LocalDate studyDay, Collection<String> actions);
+
+    /** CHECK_ANSWER (or another action) events of {@code day} with the given {@code correct}. */
+    long countByUserIdAndStudyDayAndActionAndCorrect(Long userId, LocalDate studyDay, String action,
+                                                     Boolean correct);
+
+    /** Wrong events of {@code day}, oldest first: a wrong CHECK_ANSWER, or FIRST_RATE / REVIEW_RATE rated FORGOT. */
+    @Query("""
+            select e from JpathStudyEvent e
+            where e.userId = :userId and e.studyDay = :day
+              and ((e.action = 'CHECK_ANSWER' and e.correct = false)
+                or (e.action in ('FIRST_RATE', 'REVIEW_RATE')
+                    and e.rating = com.jlas.jlptpath.enums.JpathRating.FORGOT))
+            order by e.id
+            """)
+    List<JpathStudyEvent> findWrongOn(@Param("userId") Long userId, @Param("day") LocalDate day);
 }
