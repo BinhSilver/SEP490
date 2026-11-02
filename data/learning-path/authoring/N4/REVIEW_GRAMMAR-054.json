@@ -1,0 +1,2214 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Từ để hỏi + V-ても. Nghĩa: Chữ Hán này viết bao nhiêu lần cũng không nhớ được.",
+      "options": [
+       "てから",
+       "たら",
+       "ては",
+       "ても"
+      ],
+      "prompt_ja": "この漢字は、何回書い（　　）覚えられません。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Aな + でも. Nghĩa: Dù yên tĩnh nhưng phòng này tối nên tôi không thích.",
+      "options": [
+       "くても",
+       "なでも",
+       "いても",
+       "でも"
+      ],
+      "prompt_ja": "静か（　　）、この部屋は暗いから好きじゃない。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: どんなに忙しくても朝ご飯は食べます。 (Dù bận đến đâu tôi cũng ăn sáng.) Mảnh ở ô ★ là 「朝ご飯は」.",
+      "options": [
+       "朝ご飯は",
+       "食べます",
+       "忙しくても",
+       "どんなに"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: お金がなくても毎日楽しいです。 (Dù không có tiền, ngày nào cũng vui.) Mảnh ở ô ★ là 「毎日」.",
+      "options": [
+       "楽しいです",
+       "毎日",
+       "なくても",
+       "お金が"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu này nghĩa là: \"Dù trời mưa tôi vẫn đi dạo.\"",
+      "options": [
+       "Vì trời mưa nên tôi không đi dạo.",
+       "Trời tạnh mưa rồi tôi mới đi dạo.",
+       "Dù trời mưa tôi vẫn đi dạo.",
+       "Nếu trời mưa thì tôi không đi dạo."
+      ],
+      "prompt_ja": "雨が降っても、散歩します。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu này nghĩa là: \"Luyện tập bao nhiêu cũng không giỏi lên.\"",
+      "options": [
+       "Luyện tập nhiều nên đã giỏi lên.",
+       "Luyện tập bao nhiêu cũng không giỏi lên.",
+       "Luyện tập một chút là giỏi ngay.",
+       "Không luyện tập thì không giỏi."
+      ],
+      "prompt_ja": "いくら練習しても、上手になりません。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai: tính từ い: 高い → 高くても. Sửa: このかばんは高くても、買います。",
+      "options": [
+       "雨が降っても、散歩します。",
+       "高くても、このかばんが買いたいです。",
+       "このかばんは高いても、買います。",
+       "静かでも、この部屋は暗いから好きじゃない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai: tính từ な dùng でも: 親切でも. Sửa: あの人は親切でも、ちょっとこわいです。",
+      "options": [
+       "あの人は親切くても、ちょっとこわいです。",
+       "いくら練習しても、上手になりません。",
+       "この漢字は、何回書いても覚えられません。",
+       "どんなに忙しくても朝ご飯は食べます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Chia sai tính từ (×高いても → 高くても; ×親切くても → 親切でも); dùng たら với いくら (×いくら考えたら → 考えても).",
+    "examples": [
+     {
+      "ja": "雨が降っても、散歩します。",
+      "ja_furigana": "雨(あめ)が降(ふ)っても、散歩(さんぽ)します。",
+      "source": "BOOK",
+      "vi": "Dù trời mưa tôi vẫn đi dạo."
+     },
+     {
+      "ja": "いくら練習しても、上手になりません。",
+      "ja_furigana": "いくら練習(れんしゅう)しても、上手(じょうず)になりません。",
+      "source": "AI",
+      "vi": "Luyện tập bao nhiêu cũng không giỏi lên."
+     },
+     {
+      "ja": "高くても、このかばんが買いたいです。",
+      "ja_furigana": "高(たか)くても、このかばんが買(か)いたいです。",
+      "source": "AI",
+      "vi": "Dù đắt tôi vẫn muốn mua cái túi này."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "飲んで + も → 飲んでも. Nghĩa: Dù uống thuốc rồi cũng không hạ sốt.",
+      "options": [
+       "でて",
+       "でも",
+       "では",
+       "だり"
+      ],
+      "prompt_ja": "薬を飲ん（　　）、熱が下がりません。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu này nghĩa là: \"Dù đắt tôi vẫn muốn mua cái túi này.\"",
+      "options": [
+       "Cái túi này rẻ nên tôi muốn mua.",
+       "Vì đắt nên tôi không mua cái túi này.",
+       "Nếu rẻ tôi sẽ mua cái túi này.",
+       "Dù đắt tôi vẫn muốn mua cái túi này."
+      ],
+      "prompt_ja": "高くても、このかばんが買いたいです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai: いくら đi với 〜ても. Sửa: いくら考えても、わかりません。",
+      "options": [
+       "この漢字は、何回書いても覚えられません。",
+       "いくら考えたら、わかりません。",
+       "どんなに忙しくても朝ご飯は食べます。",
+       "雨が降っても、散歩します。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ても",
+      "sentence_ja": "この漢字は、何回書い＿＿覚えられません。",
+      "translation_vi": "Chữ Hán này viết bao nhiêu lần cũng không nhớ được."
+     },
+     {
+      "answer": "でも",
+      "sentence_ja": "静か＿＿、この部屋は暗いから好きじゃない。",
+      "translation_vi": "Dù yên tĩnh nhưng phòng này tối nên tôi không thích."
+     }
+    ],
+    "findings": [],
+    "formation": "V-て + も; Aい → くても; Aな/N → でも; phủ định: Vなくても",
+    "locked_fields": [],
+    "meaning_vi": "dù … cũng …; cho dù …",
+    "nuance_vi": "Hay đi với もし, どんなに, いくら, hoặc từ để hỏi: 何回聞いても、わかりません. Khác のに: ても nói được cả giả định chưa xảy ra.",
+    "order_items": [
+     {
+      "answer_order": [
+       3,
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "朝ご飯は",
+       "食べます",
+       "忙しくても",
+       "どんなに"
+      ],
+      "translation_vi": "Dù bận đến đâu tôi cũng ăn sáng."
+     },
+     {
+      "answer_order": [
+       3,
+       2,
+       1,
+       0
+      ],
+      "pieces": [
+       "楽しいです",
+       "毎日",
+       "なくても",
+       "お金が"
+      ],
+      "translation_vi": "Dù không có tiền, ngày nào cũng vui."
+     }
+    ],
+    "pattern": "〜ても・・・",
+    "pattern_variants": [],
+    "unit_no": 45,
+    "unit_title_vi": "Giả định trường hợp",
+    "usage_vi": "Dù điều kiện ở vế trước xảy ra thì vế sau vẫn vậy, trái với điều thường nghĩ: 雨が降っても、散歩します; いくら練習しても、上手になりません; 高くても、このかばんが買いたいです."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9608351ddf"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Cầu chúc: Vます + ように. Nghĩa: Mong sao bệnh của mẹ sớm khỏi.",
+      "options": [
+       "ましたように",
+       "たいように",
+       "ますように",
+       "ないように"
+      ],
+      "prompt_ja": "どうか、母の病気が早くよくなり（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Cầu điều xấu không xảy ra: Vません + ように. Nghĩa: Mong ngày thi đấu mai trời đừng mưa.",
+      "options": [
+       "ません",
+       "なく",
+       "ました",
+       "ない"
+      ],
+      "prompt_ja": "あしたの試合の日、雨が降り（　　）ように。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: どうかみんなが元気でいられますように。 (Mong sao mọi người luôn khỏe mạnh.) Mảnh ở ô ★ là 「いられ」.",
+      "options": [
+       "ますように",
+       "元気で",
+       "みんなが",
+       "いられ"
+      ],
+      "prompt_ja": "どうか ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 来年もいい年になりますように。 (Mong năm sau cũng là một năm tốt đẹp.) Mảnh ở ô ★ là 「年に」.",
+      "options": [
+       "年に",
+       "いい",
+       "なりますように",
+       "来年も"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu này nghĩa là: \"Mong ngày mai trời nắng.\"",
+      "options": [
+       "Ngày mai trời sẽ nắng.",
+       "Mong ngày mai trời nắng.",
+       "Hôm nay trời nắng đẹp.",
+       "Nếu mai nắng thì đi chơi."
+      ],
+      "prompt_ja": "明日、晴れますように。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu này nghĩa là: \"Mong ngày đi du lịch trời đừng mưa.\"",
+      "options": [
+       "Mong ngày đi du lịch trời đừng mưa.",
+       "Trời sắp mưa rồi.",
+       "Hôm đi du lịch trời đã không mưa.",
+       "Hãy mang ô vì trời mưa."
+      ],
+      "prompt_ja": "旅行の日に雨が降りませんように。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai: cầu chúc dùng thể ます (晴れますように), không dùng quá khứ. Sửa: 明日、晴れますように。",
+      "options": [
+       "試験に合格できますように。",
+       "どうか、母の病気が早くよくなりますように。",
+       "明日、晴れましたように。",
+       "どうかみんなが元気でいられますように。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai: dùng thân ます: いきますように. Sửa: テストがうまくいきますように。",
+      "options": [
+       "テストがうまくいくますように。",
+       "試験に合格できますように。",
+       "どうか、母の病気が早くよくなりますように。",
+       "どうかみんなが元気でいられますように。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng thể quá khứ (×晴れましたように); dùng thể từ điển + ます (×いくますように, ×治るますように).",
+    "examples": [
+     {
+      "ja": "明日、晴れますように。",
+      "ja_furigana": "明日(あした)、晴(は)れますように。",
+      "source": "BOOK",
+      "vi": "Mong ngày mai trời nắng."
+     },
+     {
+      "ja": "試験に合格できますように。",
+      "ja_furigana": "試験(しけん)に合格(ごうかく)できますように。",
+      "source": "AI",
+      "vi": "Mong sao thi đỗ."
+     },
+     {
+      "ja": "旅行の日に雨が降りませんように。",
+      "ja_furigana": "旅行(りょこう)の日(ひ)に雨(あめ)が降(ふ)りませんように。",
+      "source": "AI",
+      "vi": "Mong ngày đi du lịch trời đừng mưa."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Vます + ように. Nghĩa: Mong ở trường mới có được bạn tốt.",
+      "options": [
+       "たいように",
+       "ましたように",
+       "ないように",
+       "ますように"
+      ],
+      "prompt_ja": "新しい学校で、いい友達ができ（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu này nghĩa là: \"Mong sao thi đỗ.\"",
+      "options": [
+       "Tôi không muốn thi.",
+       "Tôi đã thi đỗ.",
+       "Mong sao thi đỗ.",
+       "Kỳ thi khó quá."
+      ],
+      "prompt_ja": "試験に合格できますように。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai: dùng thân ます: 治りますように. Sửa: どうか、病気が早く治りますように。",
+      "options": [
+       "どうか、母の病気が早くよくなりますように。",
+       "どうか、病気が早く治るますように。",
+       "どうかみんなが元気でいられますように。",
+       "明日、晴れますように。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ますように",
+      "sentence_ja": "どうか、母の病気が早くよくなり＿＿。",
+      "translation_vi": "Mong sao bệnh của mẹ sớm khỏi."
+     },
+     {
+      "answer": "ません",
+      "sentence_ja": "あしたの試合の日、雨が降り＿＿ように。",
+      "translation_vi": "Mong ngày thi đấu mai trời đừng mưa."
+     }
+    ],
+    "findings": [],
+    "formation": "Vます + ように; Vません + ように",
+    "locked_fields": [],
+    "meaning_vi": "mong sao …; cầu cho …",
+    "nuance_vi": "Hay đi với どうか để nhấn mạnh; dùng khi đi chùa, viết thiệp, chúc người khác. Không dùng thể quá khứ (×晴れましたように).",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       1,
+       3,
+       0
+      ],
+      "pieces": [
+       "ますように",
+       "元気で",
+       "どうかみんなが",
+       "いられ"
+      ],
+      "translation_vi": "Mong sao mọi người luôn khỏe mạnh."
+     },
+     {
+      "answer_order": [
+       3,
+       1,
+       0,
+       2
+      ],
+      "pieces": [
+       "年に",
+       "いい",
+       "なりますように",
+       "来年も"
+      ],
+      "translation_vi": "Mong năm sau cũng là một năm tốt đẹp."
+     }
+    ],
+    "pattern": "Mong rằng..., cầu mong...",
+    "pattern_variants": [],
+    "unit_no": 36,
+    "unit_title_vi": "Mục đích và sự thay đổi khả năng",
+    "usage_vi": "Lời cầu chúc, ước nguyện khi kết quả không do mình quyết định: 明日、晴れますように; 試験に合格できますように; 雨が降りませんように."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-12abcb007e"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Vたら + いい. Nghĩa: Từ nào không hiểu thì tra từ điển là được.",
+      "options": [
+       "ても",
+       "ながら",
+       "たら",
+       "ては"
+      ],
+      "prompt_ja": "わからない言葉は、辞書で調べ（　　）いいですよ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "乗る → 乗ったら + いい. Nghĩa: \"Đến ga thì đi thế nào?\" \"Đi xe buýt là được.\"",
+      "options": [
+       "乗ったら",
+       "乗らら",
+       "乗りたら",
+       "乗ても"
+      ],
+      "prompt_ja": "「駅までどうやって行ったらいいですか」「バスに（　　）いいですよ」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 明日天気がよかったらいいですね。 (Mai trời đẹp thì tốt nhỉ.) Mảnh ở ô ★ là 「よかったら」.",
+      "options": [
+       "よかったら",
+       "いいですね",
+       "天気が",
+       "明日"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: このボタンを押したらいいですか。 (Bấm cái nút này là được phải không?) Mảnh ở ô ★ là 「押したら」.",
+      "options": [
+       "押したら",
+       "いいですか",
+       "ボタンを",
+       "この"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu này nghĩa là: \"Nếu mệt thì nghỉ một chút là được đấy.\"",
+      "options": [
+       "Nếu mệt thì nghỉ một chút là được đấy.",
+       "Mệt quá nên tôi đã nghỉ.",
+       "Mệt cũng không được nghỉ.",
+       "Nghỉ nhiều quá nên mệt."
+      ],
+      "prompt_ja": "疲れているなら、少し休んだらいいですよ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu này nghĩa là: \"Giá mà được làm việc ở Nhật.\"",
+      "options": [
+       "Tôi đã làm việc ở Nhật.",
+       "Tôi đang tìm việc ở Nhật.",
+       "Tôi không muốn làm việc ở Nhật.",
+       "Giá mà được làm việc ở Nhật."
+      ],
+      "prompt_ja": "日本で働けたらいいな。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai: thể た của 休む là 休んだ: 休んだらいい. Sửa: 疲れたら、休んだらいいですよ。",
+      "options": [
+       "疲れているなら、少し休んだらいいですよ。",
+       "この荷物はどこに置いたらいいですか。",
+       "疲れたら、休みたらいいですよ。",
+       "「駅までどうやって行ったらいいですか」「バスに乗ったらいいですよ」"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai: dùng thể た: どうしたらいいですか. Sửa: どうしたらいいですか。",
+      "options": [
+       "どうするらいいですか。",
+       "日本で働けたらいいな。",
+       "わからない言葉は、辞書で調べたらいいですよ。",
+       "明日天気がよかったらいいですね。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Chia sai thể た (×休みたら → 休んだら; ×使うたら → 使ったら); ×どうするらいい (đúng: どうしたらいい).",
+    "examples": [
+     {
+      "ja": "疲れているなら、少し休んだらいいですよ。",
+      "ja_furigana": "疲(つか)れているなら、少(すこ)し休(やす)んだらいいですよ。",
+      "source": "BOOK",
+      "vi": "Nếu mệt thì nghỉ một chút là được đấy."
+     },
+     {
+      "ja": "日本で働けたらいいな。",
+      "ja_furigana": "日本(にほん)で働(はたら)けたらいいな。",
+      "source": "BOOK",
+      "vi": "Giá mà được làm việc ở Nhật."
+     },
+     {
+      "ja": "この荷物はどこに置いたらいいですか。",
+      "ja_furigana": "この荷物(にもつ)はどこに置(お)いたらいいですか。",
+      "source": "AI",
+      "vi": "Hành lý này để ở đâu thì được ạ?"
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Ước muốn: 〜たらいいなあ. Nghĩa: Giá mà mai trời nắng thì tốt nhỉ.",
+      "options": [
+       "よさ",
+       "よく",
+       "いく",
+       "いい"
+      ],
+      "prompt_ja": "明日、晴れたら（　　）なあ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu này nghĩa là: \"Hành lý này để ở đâu thì được ạ?\"",
+      "options": [
+       "Hành lý này để ở đâu thì được ạ?",
+       "Hãy để hành lý ở đây.",
+       "Hành lý này của ai?",
+       "Hành lý này nặng quá."
+      ],
+      "prompt_ja": "この荷物はどこに置いたらいいですか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai: dùng thể た: 使ったらいい. Sửa: このペンを使ったらいいですよ。",
+      "options": [
+       "わからない言葉は、辞書で調べたらいいですよ。",
+       "このペンを使うたらいいですよ。",
+       "明日天気がよかったらいいですね。",
+       "疲れているなら、少し休んだらいいですよ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "ると",
+       "れば"
+      ],
+      "answer": "たら",
+      "sentence_ja": "わからない言葉は、辞書で調べ＿＿いいですよ。",
+      "translation_vi": "Từ nào không hiểu thì tra từ điển là được."
+     },
+     {
+      "accept": [
+       "乗れば",
+       "乗ると"
+      ],
+      "answer": "乗ったら",
+      "sentence_ja": "「駅までどうやって行ったらいいですか」「バスに＿＿いいですよ」",
+      "translation_vi": "\"Đến ga thì đi thế nào?\" \"Đi xe buýt là được.\""
+     }
+    ],
+    "findings": [],
+    "formation": "Vた + ら + いい (です); Vたらいいな (ước muốn); どうしたらいいですか (xin lời khuyên)",
+    "locked_fields": [],
+    "meaning_vi": "… thì tốt; nên …; giá mà …",
+    "nuance_vi": "Mềm hơn 〜たほうがいい. Với cấp trên nên dùng 〜たらいかがですか. 〜ばいい và 〜といい cũng dùng được với nghĩa gần như vậy.",
+    "order_items": [
+     {
+      "answer_order": [
+       3,
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "よかったら",
+       "いいですね",
+       "天気が",
+       "明日"
+      ],
+      "translation_vi": "Mai trời đẹp thì tốt nhỉ."
+     },
+     {
+      "answer_order": [
+       3,
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "押したら",
+       "いいですか",
+       "ボタンを",
+       "この"
+      ],
+      "translation_vi": "Bấm cái nút này là được phải không?"
+     }
+    ],
+    "pattern": "Nếu... thì tốt",
+    "pattern_variants": [],
+    "unit_no": 26,
+    "unit_title_vi": "Giải thích lý do và nhờ vả lịch sự",
+    "usage_vi": "Khuyên nhẹ: 疲れているなら、少し休んだらいいですよ. Ước muốn: 日本で働けたらいいな. Xin lời khuyên: この荷物はどこに置いたらいいですか; どうしたらいいですか."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2d8ad07406"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "寝る (nhóm II) → 寝よう. Nghĩa: Mệt rồi nên hôm nay tôi định ngủ sớm.",
+      "options": [
+       "よう",
+       "りよう",
+       "るよう",
+       "ろう"
+      ],
+      "prompt_ja": "疲れたので、今日は早く寝（　　）と思います。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "行く → 行こう. Nghĩa: Mai tôi định đi thư viện.",
+      "options": [
+       "行きよう",
+       "行こう",
+       "行けよう",
+       "行くよう"
+      ],
+      "prompt_ja": "明日、図書館へ（　　）と思っています。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 今度の休みに国へ帰ろうと思っています。 (Kỳ nghỉ tới tôi định về nước.) Mảnh ở ô ★ là 「国へ帰ろう」.",
+      "options": [
+       "休みに",
+       "今度の",
+       "と思っています",
+       "国へ帰ろう"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 今日は家でゆっくりしようと思います。 (Hôm nay tôi định ở nhà nghỉ ngơi.) Mảnh ở ô ★ là 「ゆっくりしよう」.",
+      "options": [
+       "ゆっくりしよう",
+       "家で",
+       "今日は",
+       "と思います"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu này nghĩa là: \"Trời đẹp nên tôi định ra ngoài.\"",
+      "options": [
+       "Trời đẹp nên chắc anh ấy ra ngoài.",
+       "Trời đẹp nên tôi định ra ngoài.",
+       "Hôm qua trời đẹp nên tôi đã ra ngoài.",
+       "Trời đẹp nhưng tôi ở nhà."
+      ],
+      "prompt_ja": "いい天気だから、出かけようと思います。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu này nghĩa là: \"Sắp đi du lịch nên tôi định mua cái túi.\"",
+      "options": [
+       "Tôi đã mua túi cho chuyến du lịch.",
+       "Đi du lịch về tôi sẽ cho bạn mượn túi.",
+       "Tôi nghĩ bạn nên mua túi.",
+       "Sắp đi du lịch nên tôi định mua cái túi."
+      ],
+      "prompt_ja": "旅行に行くので、かばんを買おうと思っています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai: thể ý chí của 起きる là 起きよう. Sửa: 明日、早く起きようと思います。",
+      "options": [
+       "いい天気だから、出かけようと思います。",
+       "兄は来年、車を買おうと思っています。",
+       "明日、早く起きるようと思います。",
+       "明日、図書館へ行こうと思っています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai: thừa です. Sửa: 週末は、友達と遊ぼうと思います。",
+      "options": [
+       "週末は、友達と遊ぼうと思いますです。",
+       "旅行に行くので、かばんを買おうと思っています。",
+       "疲れたので、今日は早く寝ようと思います。",
+       "今度の休みに国へ帰ろうと思っています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng thể từ điển (出かけると思う là phỏng đoán); chia sai thể ý chí (×起きるよう → 起きよう; ×泳ご → 泳ごう); thừa です (×思いますです).",
+    "examples": [
+     {
+      "ja": "いい天気だから、出かけようと思います。",
+      "ja_furigana": "いい天気(てんき)だから、出(で)かけようと思(おも)います。",
+      "source": "BOOK",
+      "vi": "Trời đẹp nên tôi định ra ngoài."
+     },
+     {
+      "ja": "旅行に行くので、かばんを買おうと思っています。",
+      "ja_furigana": "旅行(りょこう)に行(い)くので、かばんを買(か)おうと思(おも)っています。",
+      "source": "BOOK",
+      "vi": "Sắp đi du lịch nên tôi định mua cái túi."
+     },
+     {
+      "ja": "兄は来年、車を買おうと思っています。",
+      "ja_furigana": "兄(あに)は来年(らいねん)、車(くるま)を買(か)おうと思(おも)っています。",
+      "source": "AI",
+      "vi": "Anh tôi định năm sau mua ô tô."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "習う → 習おう. Nghĩa: Từ năm sau tôi định học ghi ta.",
+      "options": [
+       "おう",
+       "うよう",
+       "えよう",
+       "いよう"
+      ],
+      "prompt_ja": "来年から、ギターを習（　　）と思っています。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu này nghĩa là: \"Anh tôi định năm sau mua ô tô.\"",
+      "options": [
+       "Anh tôi định năm sau mua ô tô.",
+       "Tôi định mua ô tô cho anh trai.",
+       "Anh tôi nghĩ ô tô đắt.",
+       "Anh tôi đã mua ô tô năm ngoái."
+      ],
+      "prompt_ja": "兄は来年、車を買おうと思っています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai: thể ý chí của 泳ぐ là 泳ごう. Sửa: 夏休みに、海で泳ごうと思います。",
+      "options": [
+       "疲れたので、今日は早く寝ようと思います。",
+       "夏休みに、海で泳ごと思います。",
+       "今度の休みに国へ帰ろうと思っています。",
+       "いい天気だから、出かけようと思います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "よう",
+      "sentence_ja": "疲れたので、今日は早く寝＿＿と思います。",
+      "translation_vi": "Mệt rồi nên hôm nay tôi định ngủ sớm."
+     },
+     {
+      "answer": "行こう",
+      "sentence_ja": "明日、図書館へ＿＿と思っています。",
+      "translation_vi": "Mai tôi định đi thư viện."
+     }
+    ],
+    "findings": [],
+    "formation": "Vよう (thể ý chí) + と思います; 〜と思っています (ý định kéo dài)",
+    "locked_fields": [],
+    "meaning_vi": "tôi định …; (đang) định …",
+    "nuance_vi": "〜と思います: ý định vừa quyết; 〜と思っています: ý định đã giữ một thời gian. 〜とは思いません: phủ định mạnh (không hề nghĩ sẽ …).",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       0,
+       3,
+       2
+      ],
+      "pieces": [
+       "休みに",
+       "今度の",
+       "と思っています",
+       "国へ帰ろう"
+      ],
+      "translation_vi": "Kỳ nghỉ tới tôi định về nước."
+     },
+     {
+      "answer_order": [
+       2,
+       1,
+       0,
+       3
+      ],
+      "pieces": [
+       "ゆっくりしよう",
+       "家で",
+       "今日は",
+       "と思います"
+      ],
+      "translation_vi": "Hôm nay tôi định ở nhà nghỉ ngơi."
+     }
+    ],
+    "pattern": "〜(よ)うと思います",
+    "pattern_variants": [],
+    "unit_no": 31,
+    "unit_title_vi": "Thể ý chí và dự định",
+    "usage_vi": "Nói ý định của người nói (ngôi thứ nhất): いい天気だから、出かけようと思います; 旅行に行くので、かばんを買おうと思っています. 〜と思っています cũng dùng để nói ý định của người thứ ba: 兄は来年、車を買おうと思っています."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a54fce2194"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Nhờ lịch sự: V-て いただけませんか. Nghĩa: Xin lỗi, anh xem giúp tờ giấy này được không ạ?",
+      "options": [
+       "いただきません",
+       "いただけれません",
+       "くださりません",
+       "いただけません"
+      ],
+      "prompt_ja": "すみませんが、この紙を見て（　　）か。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "V-て + いただけませんか. Nghĩa: Thầy ơi, thầy sửa bài văn giúp em được không ạ?",
+      "options": [
+       "直す",
+       "直して",
+       "直し",
+       "直した"
+      ],
+      "prompt_ja": "先生、作文を（　　）いただけませんか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: すみません、駅への行き方を教えていただけませんか。 (Xin lỗi, chỉ giúp tôi đường đến ga được không ạ?) Mảnh ở ô ★ là 「行き方を」.",
+      "options": [
+       "への",
+       "駅",
+       "行き方を",
+       "教えていただけませんか"
+      ],
+      "prompt_ja": "すみません、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: この荷物を少し持っていただけませんか。 (Anh cầm giúp tôi hành lý này một chút được không ạ?) Mảnh ở ô ★ là 「少し」.",
+      "options": [
+       "荷物を",
+       "この",
+       "少し",
+       "持っていただけませんか"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu này nghĩa là: \"Anh có thể nói chậm lại một lần nữa được không ạ?\"",
+      "options": [
+       "Tôi nói chậm lại một lần nữa nhé.",
+       "Anh nói nhanh lên được không?",
+       "Anh có thể nói chậm lại một lần nữa được không ạ?",
+       "Anh đã nói chậm rồi."
+      ],
+      "prompt_ja": "もう一度ゆっくり話していただけませんか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu này nghĩa là: \"Xin chỉ giúp tôi cách đọc chữ Hán này được không ạ?\"",
+      "options": [
+       "Chữ Hán này đọc khó quá.",
+       "Anh có đọc được chữ Hán này không?",
+       "Tôi sẽ chỉ anh cách đọc chữ Hán này.",
+       "Xin chỉ giúp tôi cách đọc chữ Hán này được không ạ?"
+      ],
+      "prompt_ja": "この漢字の読み方を教えていただけませんか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai: dùng thể て: 説明して + いただけませんか. Sửa: もう一度説明していただけませんか。",
+      "options": [
+       "もう一度ゆっくり話していただけませんか。",
+       "すみませんが、写真をとっていただけませんか。",
+       "もう一度説明するいただけませんか。",
+       "先生、作文を直していただけませんか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai: nhờ lịch sự dùng thể khả năng いただけませんか. Sửa: すみません、窓を開けていただけませんか。",
+      "options": [
+       "すみません、窓を開けていただきませんか。",
+       "この漢字の読み方を教えていただけませんか。",
+       "すみませんが、この紙を見ていただけませんか。",
+       "すみません、駅への行き方を教えていただけませんか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng いただきませんか thay いただけませんか; dùng thể từ điển (×説明するいただけませんか); dùng もらいませんか với người trên.",
+    "examples": [
+     {
+      "ja": "もう一度ゆっくり話していただけませんか。",
+      "ja_furigana": "もう一度(いちど)ゆっくり話(はな)していただけませんか。",
+      "source": "BOOK",
+      "vi": "Anh có thể nói chậm lại một lần nữa được không ạ?"
+     },
+     {
+      "ja": "この漢字の読み方を教えていただけませんか。",
+      "ja_furigana": "この漢字(かんじ)の読(よ)み方(かた)を教(おし)えていただけませんか。",
+      "source": "AI",
+      "vi": "Xin chỉ giúp tôi cách đọc chữ Hán này được không ạ?"
+     },
+     {
+      "ja": "すみませんが、写真をとっていただけませんか。",
+      "ja_furigana": "すみませんが、写真(しゃしん)をとっていただけませんか。",
+      "source": "AI",
+      "vi": "Xin lỗi, anh chụp ảnh giúp tôi được không ạ?"
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "貸す → 貸して + いただけませんか. Nghĩa: Xin lỗi, anh cho tôi mượn bút một chút được không ạ?",
+      "options": [
+       "貸し",
+       "貸した",
+       "貸す",
+       "貸して"
+      ],
+      "prompt_ja": "すみません、ちょっとペンを（　　）いただけませんか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu này nghĩa là: \"Xin lỗi, anh chụp ảnh giúp tôi được không ạ?\"",
+      "options": [
+       "Xin lỗi, anh chụp ảnh giúp tôi được không ạ?",
+       "Xin lỗi, tôi chụp ảnh cho anh nhé.",
+       "Anh có thích chụp ảnh không?",
+       "Ở đây chụp ảnh được không?"
+      ],
+      "prompt_ja": "すみませんが、写真をとっていただけませんか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai: nhờ người trên dùng 〜ていただけませんか. Sửa: 先生、この本を貸していただけませんか。",
+      "options": [
+       "すみませんが、この紙を見ていただけませんか。",
+       "先生、この本を貸してもらいませんか。",
+       "すみません、駅への行き方を教えていただけませんか。",
+       "もう一度ゆっくり話していただけませんか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "いただけません",
+      "sentence_ja": "すみませんが、この紙を見て＿＿か。",
+      "translation_vi": "Xin lỗi, anh xem giúp tờ giấy này được không ạ?"
+     },
+     {
+      "answer": "直して",
+      "sentence_ja": "先生、作文を＿＿いただけませんか。",
+      "translation_vi": "Thầy ơi, thầy sửa bài văn giúp em được không ạ?"
+     }
+    ],
+    "findings": [],
+    "formation": "V-て + いただけませんか (いただけますか)",
+    "locked_fields": [],
+    "meaning_vi": "có thể vui lòng … giúp tôi được không ạ? (rất lịch sự)",
+    "nuance_vi": "Mức lịch sự: 〜てください < 〜てくれませんか < 〜てもらえませんか < 〜ていただけませんか. Dạng phủ định (〜ませんか) mềm hơn dạng khẳng định. Hay mở lời bằng すみませんが.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       0,
+       2,
+       3
+      ],
+      "pieces": [
+       "への",
+       "すみません、駅",
+       "行き方を",
+       "教えていただけませんか"
+      ],
+      "translation_vi": "Xin lỗi, chỉ giúp tôi đường đến ga được không ạ?"
+     },
+     {
+      "answer_order": [
+       1,
+       0,
+       2,
+       3
+      ],
+      "pieces": [
+       "荷物を",
+       "この",
+       "少し",
+       "持っていただけませんか"
+      ],
+      "translation_vi": "Anh cầm giúp tôi hành lý này một chút được không ạ?"
+     }
+    ],
+    "pattern": "Có thể vui lòng...? (lịch sự)",
+    "pattern_variants": [],
+    "unit_no": 26,
+    "unit_title_vi": "Giải thích lý do và nhờ vả lịch sự",
+    "usage_vi": "Nhờ người trên, khách, người lạ một cách rất lịch sự: もう一度ゆっくり話していただけませんか; この漢字の読み方を教えていただけませんか; すみませんが、写真をとっていただけませんか."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fcfb162902"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Nhờ: V-て くれませんか. Nghĩa: Bạn giữ yên lặng một chút được không?",
+      "options": [
+       "くれません",
+       "くださりません",
+       "くれりません",
+       "くれれません"
+      ],
+      "prompt_ja": "ちょっと静かにして（　　）か。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "V-て + くれませんか. Nghĩa: Xin lỗi, lấy giúp tôi lọ muối được không?",
+      "options": [
+       "取って",
+       "取った",
+       "取る",
+       "取り"
+      ],
+      "prompt_ja": "すみません、そのしおを（　　）くれませんか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: この手紙を出してくれませんか。 (Gửi giúp tôi lá thư này được không?) Mảnh ở ô ★ là 「出して」.",
+      "options": [
+       "手紙を",
+       "出して",
+       "くれませんか",
+       "この"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: すみません、写真をとってくれませんか。 (Xin lỗi, chụp ảnh giúp tôi được không?) Mảnh ở ô ★ là 「とって」.",
+      "options": [
+       "写真",
+       "とって",
+       "を",
+       "くれませんか"
+      ],
+      "prompt_ja": "すみません、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu này nghĩa là: \"Bạn mở cửa sổ giúp được không? Hơi nóng.\"",
+      "options": [
+       "Bạn mở cửa sổ giúp được không? Hơi nóng.",
+       "Cửa sổ đang mở à?",
+       "Tôi mở cửa sổ giúp bạn nhé.",
+       "Đừng mở cửa sổ."
+      ],
+      "prompt_ja": "窓を開けてくれませんか。ちょっと暑いので。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu này nghĩa là: \"Xin lỗi, giúp tôi một chút được không?\"",
+      "options": [
+       "Tôi giúp bạn một chút nhé.",
+       "Xin lỗi, giúp tôi một chút được không?",
+       "Bạn đã giúp tôi rồi.",
+       "Bạn không cần giúp đâu."
+      ],
+      "prompt_ja": "すみません、ちょっと手伝ってくれませんか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai: dùng thể て: 見て + くれませんか. Sửa: ちょっとこれを見てくれませんか。",
+      "options": [
+       "窓を開けてくれませんか。ちょっと暑いので。",
+       "この荷物、駅まで持ってくれない？",
+       "ちょっとこれを見るくれませんか。",
+       "すみません、そのしおを取ってくれませんか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai: nhờ người khác làm cho mình dùng くれませんか. Sửa: すみません、ペンを貸してくれませんか。",
+      "options": [
+       "すみません、ペンを貸してあげませんか。",
+       "すみません、ちょっと手伝ってくれませんか。",
+       "ちょっと静かにしてくれませんか。",
+       "この手紙を出してくれませんか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng thể từ điển (×見るくれませんか); dùng あげませんか thay くれませんか (×貸してあげませんか); dùng 〜てくれ với thầy cô.",
+    "examples": [
+     {
+      "ja": "窓を開けてくれませんか。ちょっと暑いので。",
+      "ja_furigana": "窓(まど)を開(あ)けてくれませんか。ちょっと暑(あつ)いので。",
+      "source": "BOOK",
+      "vi": "Bạn mở cửa sổ giúp được không? Hơi nóng."
+     },
+     {
+      "ja": "すみません、ちょっと手伝ってくれませんか。",
+      "ja_furigana": "すみません、ちょっと手伝(てつだ)ってくれませんか。",
+      "source": "AI",
+      "vi": "Xin lỗi, giúp tôi một chút được không?"
+     },
+     {
+      "ja": "この荷物、駅まで持ってくれない？",
+      "ja_furigana": "この荷物(にもつ)、駅(えき)まで持(も)ってくれない？",
+      "source": "AI",
+      "vi": "Mang hộ tớ hành lý này đến ga được không?"
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "V-て + くれない？. Nghĩa: Mai đến đón tớ ở ga bằng xe được không?",
+      "options": [
+       "来た",
+       "来て",
+       "来",
+       "来る"
+      ],
+      "prompt_ja": "明日、駅まで車で迎えに（　　）くれない？",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu này nghĩa là: \"Mang hộ tớ hành lý này đến ga được không?\"",
+      "options": [
+       "Tớ mang hành lý của cậu đến ga nhé.",
+       "Hành lý này nặng không?",
+       "Ga có xa không?",
+       "Mang hộ tớ hành lý này đến ga được không?"
+      ],
+      "prompt_ja": "この荷物、駅まで持ってくれない？",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai cách dùng: 〜てくれ là cách nói cộc, không dùng với thầy cô. Sửa: 先生、これを教えていただけませんか。",
+      "options": [
+       "ちょっと静かにしてくれませんか。",
+       "先生、これを教えてくれ。",
+       "この手紙を出してくれませんか。",
+       "窓を開けてくれませんか。ちょっと暑いので。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "くれません",
+      "sentence_ja": "ちょっと静かにして＿＿か。",
+      "translation_vi": "Bạn giữ yên lặng một chút được không?"
+     },
+     {
+      "answer": "取って",
+      "sentence_ja": "すみません、そのしおを＿＿くれませんか。",
+      "translation_vi": "Xin lỗi, lấy giúp tôi lọ muối được không?"
+     }
+    ],
+    "findings": [],
+    "formation": "V-て + くれませんか (くれますか); thân mật: 〜てくれない？",
+    "locked_fields": [],
+    "meaning_vi": "… giúp tôi được không?",
+    "nuance_vi": "くれませんか mềm hơn くれますか. Với người trên, khách hàng nên dùng 〜ていただけませんか. 〜てくれ (cộc) chỉ dùng thân mật.",
+    "order_items": [
+     {
+      "answer_order": [
+       3,
+       0,
+       1,
+       2
+      ],
+      "pieces": [
+       "手紙を",
+       "出して",
+       "くれませんか",
+       "この"
+      ],
+      "translation_vi": "Gửi giúp tôi lá thư này được không?"
+     },
+     {
+      "answer_order": [
+       0,
+       2,
+       1,
+       3
+      ],
+      "pieces": [
+       "すみません、写真",
+       "とって",
+       "を",
+       "くれませんか"
+      ],
+      "translation_vi": "Xin lỗi, chụp ảnh giúp tôi được không?"
+     }
+    ],
+    "pattern": "Có thể... cho tôi không?",
+    "pattern_variants": [],
+    "unit_no": 42,
+    "unit_title_vi": "Mục đích và công dụng",
+    "usage_vi": "Nhờ người nghe làm gì đó cho mình, lịch sự vừa phải (bạn bè, đồng nghiệp, người ngang hàng): 窓を開けてくれませんか; すみません、ちょっと手伝ってくれませんか. Thân mật: この荷物、駅まで持ってくれない？"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-233936b57c"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Xin phép: V-て + もいいですか. Nghĩa: \"Tôi mượn điện thoại được không?\" \"Vâng, mời bạn.\"",
+      "options": [
+       "を",
+       "は",
+       "が",
+       "も"
+      ],
+      "prompt_ja": "「電話を借りて（　　）いいですか」「ええ、どうぞ」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Từ để hỏi + でもいい. Nghĩa: Đồ uống gì cũng được.",
+      "options": [
+       "のも",
+       "にも",
+       "とも",
+       "でも"
+      ],
+      "prompt_ja": "飲み物は、何（　　）いいですよ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 少し早く帰ってもいいですか。 (Tôi về sớm một chút được không?) Mảnh ở ô ★ là 「帰っても」.",
+      "options": [
+       "早く",
+       "いいですか",
+       "少し",
+       "帰っても"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: ペンで書いてもいいですか。 (Viết bằng bút mực có được không?) Mảnh ở ô ★ là 「書いても」.",
+      "options": [
+       "ペンで",
+       "書いても",
+       "ですか",
+       "いい"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu này nghĩa là: \"Tôi mở cửa sổ được không?\"",
+      "options": [
+       "Hãy mở cửa sổ ra.",
+       "Tôi không được mở cửa sổ.",
+       "Cửa sổ đang mở à?",
+       "Tôi mở cửa sổ được không?"
+      ],
+      "prompt_ja": "窓を開けてもいいですか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu này nghĩa là: \"Gặp nhau lúc nào cũng được.\"",
+      "options": [
+       "Hôm nay gặp nhau nhé.",
+       "Không gặp được lúc nào cả.",
+       "Gặp nhau lúc nào thì được?",
+       "Gặp nhau lúc nào cũng được."
+      ],
+      "prompt_ja": "会うのは、いつでもいいですよ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai: xin phép dùng 〜てもいいですか. Sửa: 窓を開けてもいいですか。",
+      "options": [
+       "ここに荷物を置いてもいいですよ。",
+       "「電話を借りてもいいですか」「ええ、どうぞ」",
+       "窓を開けてはいいですか。",
+       "少し早く帰ってもいいですか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai: dùng thể て: 置いても. Sửa: ここに自転車を置いてもいいですか。",
+      "options": [
+       "ここに自転車を置くもいいですか。",
+       "ここに荷物を置いてもいいですよ。",
+       "「電話を借りてもいいですか」「ええ、どうぞ」",
+       "少し早く帰ってもいいですか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng は thay も (×開けてはいいですか); dùng thể từ điển (×置くもいい); dùng quá khứ khi xin phép (×行ってもいいでしたか).",
+    "examples": [
+     {
+      "ja": "窓を開けてもいいですか。",
+      "ja_furigana": "窓(まど)を開(あ)けてもいいですか。",
+      "source": "BOOK",
+      "vi": "Tôi mở cửa sổ được không?"
+     },
+     {
+      "ja": "ここに荷物を置いてもいいですよ。",
+      "ja_furigana": "ここに荷物(にもつ)を置(お)いてもいいですよ。",
+      "source": "BOOK",
+      "vi": "Để hành lý ở đây cũng được đấy."
+     },
+     {
+      "ja": "会うのは、いつでもいいですよ。",
+      "ja_furigana": "会(あ)うのは、いつでもいいですよ。",
+      "source": "AI",
+      "vi": "Gặp nhau lúc nào cũng được."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "どこでもいい. Nghĩa: Địa điểm ở đâu cũng được.",
+      "options": [
+       "にも",
+       "のも",
+       "でも",
+       "とも"
+      ],
+      "prompt_ja": "場所は、どこ（　　）いいです。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu này nghĩa là: \"Để hành lý ở đây cũng được đấy.\"",
+      "options": [
+       "Để hành lý ở đây cũng được đấy.",
+       "Hành lý này của ai vậy?",
+       "Không được để hành lý ở đây.",
+       "Hãy mang hành lý đi."
+      ],
+      "prompt_ja": "ここに荷物を置いてもいいですよ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai: xin phép dùng 〜てもいいですか. Sửa: ちょっとトイレに行ってもいいですか。",
+      "options": [
+       "「電話を借りてもいいですか」「ええ、どうぞ」",
+       "ちょっとトイレに行ってもいいでしたか。",
+       "少し早く帰ってもいいですか。",
+       "窓を開けてもいいですか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "も",
+      "sentence_ja": "「電話を借りて＿＿いいですか」「ええ、どうぞ」",
+      "translation_vi": "\"Tôi mượn điện thoại được không?\" \"Vâng, mời bạn.\""
+     },
+     {
+      "answer": "でも",
+      "sentence_ja": "飲み物は、何＿＿いいですよ。",
+      "translation_vi": "Đồ uống gì cũng được."
+     }
+    ],
+    "findings": [],
+    "formation": "V-て + もいいですか (xin phép); V-て + もいいです (cho phép); từ để hỏi + でもいい",
+    "locked_fields": [],
+    "meaning_vi": "… có được không?; … cũng được",
+    "nuance_vi": "Trả lời đồng ý: ええ、どうぞ; từ chối khéo: すみません、ちょっと…. \"Không cần\" là 〜なくてもいい.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "早く",
+       "いいですか",
+       "少し",
+       "帰っても"
+      ],
+      "translation_vi": "Tôi về sớm một chút được không?"
+     },
+     {
+      "answer_order": [
+       0,
+       1,
+       3,
+       2
+      ],
+      "pieces": [
+       "ペンで",
+       "書いても",
+       "ですか",
+       "いい"
+      ],
+      "translation_vi": "Viết bằng bút mực có được không?"
+     }
+    ],
+    "pattern": "Được phép...",
+    "pattern_variants": [],
+    "unit_no": 15,
+    "unit_title_vi": "Điều kiện và nghĩa vụ",
+    "usage_vi": "Xin phép: 窓を開けてもいいですか. Cho phép: ここに荷物を置いてもいいですよ. Chấp nhận mọi lựa chọn: いつでもいいですよ; どこでもいいです. Lịch sự hơn: 〜てもよろしいですか."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-39c5d9cf96"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Thân ます (し) + なさい. Nghĩa: Làm bài tập xong thì dọn phòng đi.",
+      "options": [
+       "れ",
+       "なさい",
+       "ませ",
+       "ろう"
+      ],
+      "prompt_ja": "宿題が終わったら、部屋をそうじし（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "選ぶ → 選び + なさい. Nghĩa: Hãy chọn một đáp án đúng.",
+      "options": [
+       "選ぶ",
+       "選び",
+       "選べ",
+       "選んで"
+      ],
+      "prompt_ja": "正しい答えを一つ（　　）なさい。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: テレビを消して早く寝なさい。 (Tắt tivi rồi đi ngủ sớm đi.) Mảnh ở ô ★ là 「早く」.",
+      "options": [
+       "早く",
+       "テレビを",
+       "消して",
+       "寝なさい"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 野菜もちゃんと食べなさい。 (Ăn cả rau cho đầy đủ vào.) Mảnh ở ô ★ là 「食べ」.",
+      "options": [
+       "食べ",
+       "ちゃんと",
+       "なさい",
+       "野菜も"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu này nghĩa là: \"Trong lớp hãy giữ trật tự.\"",
+      "options": [
+       "Trong lớp hãy giữ trật tự.",
+       "Trong lớp nói to cũng được.",
+       "Lớp học yên tĩnh quá.",
+       "Hãy nói chuyện trong lớp."
+      ],
+      "prompt_ja": "教室では静かにしなさい。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu này nghĩa là: \"Hãy rửa tay trước khi ăn.\"",
+      "options": [
+       "Hãy rửa tay trước khi ăn.",
+       "Ăn xong rồi rửa tay.",
+       "Không cần rửa tay.",
+       "Tôi đã rửa tay rồi."
+      ],
+      "prompt_ja": "ご飯の前に手を洗いなさい。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai: dùng thân ます: 起きなさい. Sửa: 早く起きなさい。",
+      "options": [
+       "教室では静かにしなさい。",
+       "ご飯の前に手を洗いなさい。",
+       "早く起きるなさい。",
+       "正しい答えを一つ選びなさい。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai cách dùng: なさい không dùng với cấp trên. Sửa: 部長、この紙を見ていただけませんか。",
+      "options": [
+       "部長、この紙を見なさい。",
+       "ここに名前を書きなさい。",
+       "宿題が終わったら、部屋をそうじしなさい。",
+       "テレビを消して早く寝なさい。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng thể từ điển hoặc thể て (×起きるなさい, ×食べてなさい); dùng với cấp trên.",
+    "examples": [
+     {
+      "ja": "教室では静かにしなさい。",
+      "ja_furigana": "教室(きょうしつ)では静(しず)かにしなさい。",
+      "source": "AI",
+      "vi": "Trong lớp hãy giữ trật tự."
+     },
+     {
+      "ja": "ここに名前を書きなさい。",
+      "ja_furigana": "ここに名前(なまえ)を書(か)きなさい。",
+      "source": "BOOK",
+      "vi": "Hãy viết tên vào đây."
+     },
+     {
+      "ja": "ご飯の前に手を洗いなさい。",
+      "ja_furigana": "ご飯(はん)の前(まえ)に手(て)を洗(あら)いなさい。",
+      "source": "AI",
+      "vi": "Hãy rửa tay trước khi ăn."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thân ます (着) + なさい. Nghĩa: Ngoài trời lạnh, mặc áo khoác vào.",
+      "options": [
+       "ろう",
+       "ませ",
+       "なさい",
+       "れ"
+      ],
+      "prompt_ja": "外は寒いから、コートを着（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu này nghĩa là: \"Hãy viết tên vào đây.\"",
+      "options": [
+       "Hãy viết tên vào đây.",
+       "Ở đây có viết tên ai không?",
+       "Tên tôi viết ở đây.",
+       "Đừng viết tên vào đây."
+      ],
+      "prompt_ja": "ここに名前を書きなさい。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai: dùng thân ます: 食べなさい. Sửa: もっとたくさん食べなさい。",
+      "options": [
+       "宿題が終わったら、部屋をそうじしなさい。",
+       "もっとたくさん食べてなさい。",
+       "テレビを消して早く寝なさい。",
+       "教室では静かにしなさい。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "なさい",
+      "sentence_ja": "宿題が終わったら、部屋をそうじし＿＿。",
+      "translation_vi": "Làm bài tập xong thì dọn phòng đi."
+     },
+     {
+      "answer": "選び",
+      "sentence_ja": "正しい答えを一つ＿＿なさい。",
+      "translation_vi": "Hãy chọn một đáp án đúng."
+     }
+    ],
+    "findings": [],
+    "formation": "Vます (bỏ ます) + なさい",
+    "locked_fields": [],
+    "meaning_vi": "hãy …! (mệnh lệnh nhẹ của người trên)",
+    "nuance_vi": "Mạnh hơn 〜てください nhưng nhẹ hơn thể mệnh lệnh (しろ). Không dùng với người trên, khách hàng.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       2,
+       0,
+       3
+      ],
+      "pieces": [
+       "早く",
+       "テレビを",
+       "消して",
+       "寝なさい"
+      ],
+      "translation_vi": "Tắt tivi rồi đi ngủ sớm đi."
+     },
+     {
+      "answer_order": [
+       3,
+       1,
+       0,
+       2
+      ],
+      "pieces": [
+       "食べ",
+       "ちゃんと",
+       "なさい",
+       "野菜も"
+      ],
+      "translation_vi": "Ăn cả rau cho đầy đủ vào."
+     }
+    ],
+    "pattern": "Hãy... (mệnh lệnh nhẹ nhàng)",
+    "pattern_variants": [],
+    "unit_no": 33,
+    "unit_title_vi": "Thể mệnh lệnh và cấm đoán",
+    "usage_vi": "Cha mẹ, giáo viên ra lệnh hoặc nhắc nhở trẻ em, học sinh: 教室では静かにしなさい; ここに名前を書きなさい; ご飯の前に手を洗いなさい. Cũng gặp trong đề thi: 正しい答えを選びなさい."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3173d79745"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "作る → 作ったら + どうですか. Nghĩa: Nếu muốn giỏi tiếng Nhật thì kết bạn với người Nhật xem sao?",
+      "options": [
+       "作りたら",
+       "作ったら",
+       "作るら",
+       "作ても"
+      ],
+      "prompt_ja": "日本語が上手になりたいなら、日本人の友達を（　　）どうですか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "〜たらどう？. Nghĩa: Buồn ngủ thì uống chút cà phê xem sao?",
+      "options": [
+       "どう",
+       "どこ",
+       "いつ",
+       "なに"
+      ],
+      "prompt_ja": "眠いなら、コーヒーでも飲んだら（　　）？",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: そんなに好きなら、彼女に話してみたらどうですか。 (Thích đến vậy thì thử nói với cô ấy xem sao?) Mảnh ở ô ★ là 「話してみたら」.",
+      "options": [
+       "どうですか",
+       "彼女",
+       "に",
+       "話してみたら"
+      ],
+      "prompt_ja": "そんなに好きなら、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 暑いなら窓を開けたらどう？ (Nóng thì mở cửa sổ xem sao?) Mảnh ở ô ★ là 「開けたら」.",
+      "options": [
+       "開けたら",
+       "窓を",
+       "どう",
+       "暑いなら"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿ ？",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu này nghĩa là: \"Nếu đau đầu thì hôm nay ngủ sớm thì sao?\"",
+      "options": [
+       "Hôm nay tôi đã ngủ sớm.",
+       "Ngủ sớm nên bị đau đầu.",
+       "Đau đầu thì không được ngủ.",
+       "Nếu đau đầu thì hôm nay ngủ sớm thì sao?"
+      ],
+      "prompt_ja": "頭が痛いなら、今日は早く寝たらどうですか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu này nghĩa là: \"Chỗ không hiểu thì hỏi thầy xem sao?\"",
+      "options": [
+       "Tôi không hiểu thầy nói gì.",
+       "Thầy hỏi tôi chỗ không hiểu.",
+       "Tôi đã hỏi thầy rồi.",
+       "Chỗ không hiểu thì hỏi thầy xem sao?"
+      ],
+      "prompt_ja": "わからないところは先生に聞いたらどう？",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai: thể た của 聞く là 聞いた. Sửa: 先生に聞いたらどうですか。",
+      "options": [
+       "頭が痛いなら、今日は早く寝たらどうですか。",
+       "疲れているなら、少し休んだらどうですか。",
+       "先生に聞きたらどうですか。",
+       "眠いなら、コーヒーでも飲んだらどう？"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai: dùng thể た: 行ったらどうですか. Sửa: 病院へ行ったらどうですか。",
+      "options": [
+       "病院へ行くらどうですか。",
+       "わからないところは先生に聞いたらどう？",
+       "日本語が上手になりたいなら、日本人の友達を作ったらどうですか。",
+       "そんなに好きなら、彼女に話してみたらどうですか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Chia sai thể た (×聞きたら → 聞いたら); dùng thể từ điển (×行くらどう → 行ったら); dùng quá khứ (×どうでしたか).",
+    "examples": [
+     {
+      "ja": "頭が痛いなら、今日は早く寝たらどうですか。",
+      "ja_furigana": "頭(あたま)が痛(いた)いなら、今日(きょう)は早(はや)く寝(ね)たらどうですか。",
+      "source": "BOOK",
+      "vi": "Nếu đau đầu thì hôm nay ngủ sớm thì sao?"
+     },
+     {
+      "ja": "わからないところは先生に聞いたらどう？",
+      "ja_furigana": "わからないところは先生(せんせい)に聞(き)いたらどう？",
+      "source": "BOOK",
+      "vi": "Chỗ không hiểu thì hỏi thầy xem sao?"
+     },
+     {
+      "ja": "疲れているなら、少し休んだらどうですか。",
+      "ja_furigana": "疲(つか)れているなら、少(すこ)し休(やす)んだらどうですか。",
+      "source": "AI",
+      "vi": "Nếu mệt thì nghỉ một chút xem sao?"
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "買う → 買ったら + どうですか. Nghĩa: Đắt thế thì mua ở cửa hàng khác xem sao?",
+      "options": [
+       "買いたら",
+       "買っても",
+       "買ったら",
+       "買うら"
+      ],
+      "prompt_ja": "そんなに高いなら、ほかの店で（　　）どうですか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu này nghĩa là: \"Nếu mệt thì nghỉ một chút xem sao?\"",
+      "options": [
+       "Mệt nên tôi đã nghỉ.",
+       "Nghỉ nhiều quá nên mệt.",
+       "Nếu mệt thì nghỉ một chút xem sao?",
+       "Mệt cũng phải làm tiếp."
+      ],
+      "prompt_ja": "疲れているなら、少し休んだらどうですか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai: gợi ý dùng 〜たらどうですか. Sửa: もっと野菜を食べたらどうですか。",
+      "options": [
+       "日本語が上手になりたいなら、日本人の友達を作ったらどうですか。",
+       "もっと野菜を食べたらどうでしたか。",
+       "そんなに好きなら、彼女に話してみたらどうですか。",
+       "頭が痛いなら、今日は早く寝たらどうですか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "作ったら",
+      "sentence_ja": "日本語が上手になりたいなら、日本人の友達を＿＿どうですか。",
+      "translation_vi": "Nếu muốn giỏi tiếng Nhật thì kết bạn với người Nhật xem sao?"
+     },
+     {
+      "answer": "どう",
+      "sentence_ja": "眠いなら、コーヒーでも飲んだら＿＿？",
+      "translation_vi": "Buồn ngủ thì uống chút cà phê xem sao?"
+     }
+    ],
+    "findings": [],
+    "formation": "Vた + ら + どうですか; thân mật: 〜たらどう？/〜たら？",
+    "locked_fields": [],
+    "meaning_vi": "… thì sao?; sao không thử …? (gợi ý)",
+    "nuance_vi": "Lịch sự hơn: 〜たらいかがですか. Ngữ điệu gắt có thể nghe như trách (やめたらどう？). Tránh dùng với người trên khi không được hỏi ý.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       2,
+       3,
+       0
+      ],
+      "pieces": [
+       "どうですか",
+       "そんなに好きなら、彼女",
+       "に",
+       "話してみたら"
+      ],
+      "translation_vi": "Thích đến vậy thì thử nói với cô ấy xem sao?"
+     },
+     {
+      "answer_order": [
+       3,
+       1,
+       0,
+       2
+      ],
+      "pieces": [
+       "開けたら",
+       "窓を",
+       "どう？",
+       "暑いなら"
+      ],
+      "translation_vi": "Nóng thì mở cửa sổ xem sao?"
+     }
+    ],
+    "pattern": "Nếu... thì sao? (gợi ý)",
+    "pattern_variants": [],
+    "unit_no": 26,
+    "unit_title_vi": "Giải thích lý do và nhờ vả lịch sự",
+    "usage_vi": "Gợi ý, khuyên người nghe đang gặp vấn đề: 頭が痛いなら、今日は早く寝たらどうですか; わからないところは先生に聞いたらどう？; 疲れているなら、少し休んだらどうですか."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-09d4373994"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「大きく」: Aい→くします, Aな／N→にします: làm cho vật trở nên như thế. Cả câu: テレビの音を大きくしました。 (Tôi đã vặn to tiếng tivi.)",
+      "options": [
+       "大きい",
+       "大きく",
+       "大きに",
+       "大きいに"
+      ],
+      "prompt_ja": "テレビの音を（　　）しました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「きれいに」: Aい→くします, Aな／N→にします: làm cho vật trở nên như thế. Cả câu: 部屋をきれいにしてください。 (Hãy dọn phòng cho sạch.)",
+      "options": [
+       "きれいに",
+       "きれいく",
+       "きれいな",
+       "きれいで"
+      ],
+      "prompt_ja": "部屋を（　　）してください。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: このズボンを少し短くしてください。 (Hãy sửa cái quần này ngắn lại một chút.) Mảnh ở ô ★ là 「短く」.",
+      "options": [
+       "少し",
+       "短く",
+       "このズボンを",
+       "してください"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 寒いので、部屋を暖かくしました。 (Vì lạnh nên tôi làm ấm phòng lên.) Mảnh ở ô ★ là 「暖かく」.",
+      "options": [
+       "暖かく",
+       "しました",
+       "部屋を",
+       "寒いので、"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Aい→くします, Aな／N→にします: làm cho vật trở nên như thế. Câu này nghĩa là: \"Vì lạnh nên tôi làm ấm phòng lên.\"",
+      "options": [
+       "Đừng đi nguyên giày vào phòng.",
+       "Thầy bảo mai trường nghỉ đấy.",
+       "Vì lạnh nên tôi làm ấm phòng lên.",
+       "Sở thích của tôi là chụp ảnh."
+      ],
+      "prompt_ja": "寒いので、部屋を暖かくしました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Aい→くします, Aな／N→にします: làm cho vật trở nên như thế. Câu này nghĩa là: \"Bớt cho tôi thêm một chút được không?\"",
+      "options": [
+       "Bên ngoài hình như đang mưa.",
+       "Đây là món Nhật tên là sukiyaki.",
+       "Cuốn từ điển này tiện để tra chữ Hán.",
+       "Bớt cho tôi thêm một chút được không?"
+      ],
+      "prompt_ja": "もう少し安くしてくれませんか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: テレビの音を大きいしました。 Tính từ い bỏ い thêm く rồi mới nối với します. Sửa lại: テレビの音を大きくしました。",
+      "options": [
+       "テレビの音を大きいしました。",
+       "テレビの音を大きくしました。",
+       "このズボンを少し短くしてください。",
+       "もう少し安くしてくれませんか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 部屋をきれいくしてください。 Tính từ な nối bằng に, không dùng く. Sửa lại: 部屋をきれいにしてください。",
+      "options": [
+       "部屋をきれいにしてください。",
+       "寒いので、部屋を暖かくしました。",
+       "テレビの音を大きくしました。",
+       "部屋をきれいくしてください。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Giữ い của tính từ (× 大きいします). Dùng く với tính từ な (× きれいくします). Dùng なります khi có người chủ động làm (× ズボンを短くなりました).",
+    "examples": [
+     {
+      "ja": "テレビの音を大きくしました。",
+      "ja_furigana": "テレビの音(おと)を大(おお)きくしました。",
+      "source": "BOOK",
+      "vi": "Tôi đã vặn to tiếng tivi."
+     },
+     {
+      "ja": "部屋をきれいにしてください。",
+      "ja_furigana": "部屋(へや)をきれいにしてください。",
+      "source": "AI",
+      "vi": "Hãy dọn phòng cho sạch."
+     },
+     {
+      "ja": "このズボンを少し短くしてください。",
+      "ja_furigana": "このズボンを少(すこ)し短(みじか)くしてください。",
+      "source": "BOOK",
+      "vi": "Hãy sửa cái quần này ngắn lại một chút."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「安く」: Aい→くします, Aな／N→にします: làm cho vật trở nên như thế. Cả câu: もう少し安くしてくれませんか。 (Bớt cho tôi thêm một chút được không?)",
+      "options": [
+       "安い",
+       "安く",
+       "安に",
+       "安いく"
+      ],
+      "prompt_ja": "もう少し（　　）してくれませんか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Aい→くします, Aな／N→にします: làm cho vật trở nên như thế. Câu này nghĩa là: \"Hãy dọn phòng cho sạch.\"",
+      "options": [
+       "Tokyo đông người đến thế này nhỉ.",
+       "Đã 8 giờ tối rồi. Vì vậy chắc trong lớp không còn ai.",
+       "Hãy dọn phòng cho sạch.",
+       "Mình nghỉ ở đây cho đến khi tạnh mưa nhé."
+      ],
+      "prompt_ja": "部屋をきれいにしてください。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 私はこのズボンを少し短くなりました。 Có người chủ động sửa thì dùng ～くします; ～くなります là tự thay đổi. Sửa lại: 私はこのズボンを少し短くしました。",
+      "options": [
+       "私はこのズボンを少し短くなりました。",
+       "このズボンを少し短くしてください。",
+       "寒いので、部屋を暖かくしました。",
+       "部屋をきれいにしてください。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "短く",
+      "sentence_ja": "このズボンを少し＿＿してください。",
+      "translation_vi": "Hãy sửa cái quần này ngắn lại một chút."
+     },
+     {
+      "answer": "暖かく",
+      "sentence_ja": "寒いので、部屋を＿＿しました。",
+      "translation_vi": "Vì lạnh nên tôi làm ấm phòng lên."
+     }
+    ],
+    "findings": [],
+    "formation": "Aい（bỏ い）＋ くします ／ Aな・N ＋ にします",
+    "locked_fields": [],
+    "meaning_vi": "làm cho trở nên …; chủ động thay đổi trạng thái",
+    "nuance_vi": "Khác ～くなります (tự trở nên, không nói ai làm): ～くします luôn có người tác động. Danh từ ＋ にします còn có nghĩa chọn (コーヒーにします) — đó là mẫu khác.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       1,
+       0
+      ],
+      "pieces": [
+       "ください",
+       "きれいにして",
+       "部屋を"
+      ],
+      "translation_vi": "Hãy dọn phòng cho sạch."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "安くして",
+       "くれませんか",
+       "もう少し"
+      ],
+      "translation_vi": "Bớt cho tôi thêm một chút được không?"
+     }
+    ],
+    "pattern": "〜くします・〜にします",
+    "pattern_variants": [],
+    "unit_no": 44,
+    "unit_title_vi": "Mức độ quá và cách thức",
+    "usage_vi": "Người nói chủ động làm thay đổi trạng thái của vật: テレビの音を大きくします, 部屋をきれいにします. Nhờ người khác: 少し安くしてください."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8290bad161"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N4",
+ "packet_id": "REVIEW_GRAMMAR-054"
+}
