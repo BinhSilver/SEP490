@@ -8184,7 +8184,7 @@ DROP PROCEDURE IF EXISTS jlas_validate_comm_path_v1;
 DROP TEMPORARY TABLE IF EXISTS jlas_comm_expected;
 -- END generated communication-goal lessons
 
--- BEGIN tools/learning-path-source/seed/seed-sql.mjs#COMMON SHA256 1caf4599199f4b89a2577bbbf3b63cd2a5a6b527ad4cb61c9b483607bd5a10fd
+-- BEGIN tools/learning-path-source/seed/seed-sql.mjs#COMMON SHA256 3315c47a0ed684789aa230f87430c8c58ce7aa3ce7b663676e9f35007551b684
 -- SINH TỰ ĐỘNG, KHÔNG SỬA TAY.
 -- JLPT path base data: levels (planned counts only; release is set by the admin), kana rows and kana.
 SET NAMES utf8mb4;
@@ -8192,7 +8192,7 @@ START TRANSACTION;
 INSERT INTO `jpath_level` (`level`, `sort_order`, `planned_vocab`, `planned_kanji`, `planned_grammar`) VALUES
 ('N5', 1, 1950, 313, 409),
 ('N4', 2, 2041, 246, 483),
-('N3', 3, 2000, 370, 150),
+('N3', 3, 2000, 193, 748),
 ('N2', 4, 1546, 367, 150),
 ('N1', 5, 1852, 1000, 99)
 AS n ON DUPLICATE KEY UPDATE `sort_order` = n.`sort_order`, `planned_vocab` = n.`planned_vocab`, `planned_kanji` = n.`planned_kanji`, `planned_grammar` = n.`planned_grammar`;
