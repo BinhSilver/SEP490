@@ -11,8 +11,8 @@
 -- Du lieu tao ra:
 --   * 4 bo flashcard mau tieu de "Cộng đồng: ...": 3 PUBLIC (N3, N2, N1) + 1 PRIVATE (kiem tra khong hien o feed).
 --   * Rating va binh luan tren cac bo mau va toi da 3 bo PUBLIC co san khac.
---   * Bo "Cộng đồng: Từ vựng N1 chuyên ngành" o trang thai TEMPORARILY_HIDDEN (1 bao cao OPEN).
---   * 1 binh luan TEMPORARILY_HIDDEN cua learner.clean@jlas.local (1 bao cao OPEN).
+--   * Bo "Cộng đồng: Từ vựng N1 chuyên ngành" o trang thai TEMPORARILY_HIDDEN (3 bao cao OPEN = nguong mac dinh).
+--   * 1 binh luan TEMPORARILY_HIDDEN cua learner.clean@jlas.local (3 bao cao OPEN).
 --   * 3 video Shadowing "Cộng đồng: ...": 2 PUBLIC READY (N4, N3) + 1 PRIVATE, kem phu de, danh gia
 --     (video_user_state) va binh luan cong dong. Video PUBLIC co san khac tu hien trong feed.
 
@@ -138,12 +138,16 @@ WHERE c.user_id IS NOT NULL
                   WHERE x.community_content_id = cc.id AND x.user_id = c.user_id AND x.body = c.body);
 
 -- ── 5. Bao cao + trang thai tam an ────────────────────────────────────────────────────────────────────────
--- Noi dung: bo N1 mau bi learner.clean bao cao vi pham ban quyen -> TEMPORARILY_HIDDEN.
+-- Noi dung: bo N1 mau bi 3 nguoi bao cao (dat nguong community.report.content-hide-threshold = 3) -> TEMPORARILY_HIDDEN.
 INSERT IGNORE INTO community_report (reporter_id, target_type, target_id, reason, note, status)
-SELECT @cm_learner, 'CONTENT', cc.id, 'COPYRIGHT', 'Nội dung có vẻ chép từ giáo trình có bản quyền (dữ liệu mẫu).', 'OPEN'
+SELECT r.user_id, 'CONTENT', cc.id, r.reason, r.note, 'OPEN'
 FROM tmp_cm_target t
 JOIN community_content cc ON cc.content_type = 'FLASHCARD_SET' AND cc.content_id = t.set_id
-WHERE t.tag = 'SAMPLE_N1' AND @cm_learner IS NOT NULL AND @cm_learner <> t.owner_id;
+JOIN (SELECT @cm_learner AS user_id, 'COPYRIGHT' AS reason,
+             'Nội dung có vẻ chép từ giáo trình có bản quyền (dữ liệu mẫu).' AS note
+      UNION ALL SELECT @cm_admin, 'COPYRIGHT', 'Trùng nội dung giáo trình (dữ liệu mẫu).'
+      UNION ALL SELECT @cm_owner_a, 'WRONG_CONTENT', NULL) r
+WHERE t.tag = 'SAMPLE_N1' AND r.user_id IS NOT NULL AND r.user_id <> t.owner_id;
 
 UPDATE community_content cc
 JOIN tmp_cm_target t ON cc.content_type = 'FLASHCARD_SET' AND cc.content_id = t.set_id
@@ -152,11 +156,15 @@ WHERE t.tag = 'SAMPLE_N1'
   AND EXISTS (SELECT 1 FROM community_report r
               WHERE r.target_type = 'CONTENT' AND r.target_id = cc.id AND r.status = 'OPEN');
 
--- Binh luan an: bao cao boi content@jlab.local.
+-- Binh luan an: 3 nguoi bao cao (dat nguong community.report.comment-hide-threshold = 3).
 INSERT IGNORE INTO community_report (reporter_id, target_type, target_id, reason, note, status)
-SELECT @cm_owner_b, 'COMMENT', x.id, 'SPAM', 'Bình luận mẫu bị báo cáo spam.', 'OPEN'
+SELECT r.user_id, 'COMMENT', x.id, 'SPAM', r.note, 'OPEN'
 FROM community_comment x
-WHERE @cm_owner_b IS NOT NULL AND x.user_id = @cm_learner AND x.deleted_at IS NULL
+JOIN (SELECT @cm_owner_b AS user_id, 'Bình luận mẫu bị báo cáo spam.' AS note
+      UNION ALL SELECT @cm_admin, NULL
+      UNION ALL SELECT @cm_owner_a, NULL) r
+WHERE r.user_id IS NOT NULL AND r.user_id <> x.user_id AND x.deleted_at IS NULL
+  AND x.user_id = @cm_learner
   AND x.body = 'Bình luận mẫu đang bị ẩn do bị báo cáo (dùng để kiểm thử quyền xem).';
 
 -- ── 6. Video Shadowing (SHADOWING_VIDEO) ──────────────────────────────────────────────────────────────────

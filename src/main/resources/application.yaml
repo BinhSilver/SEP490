@@ -241,7 +241,9 @@ shadowing:
 # [JLAS2-37] Community Hub: so bao cao OPEN de tu dong tam an noi dung/binh luan (moderator xu ly o /admin/moderation/reports).
 community:
   report:
-    auto-hide-threshold: ${COMMUNITY_REPORT_AUTO_HIDE_THRESHOLD:1}
+    # Số người khác nhau báo cáo (OPEN) để tự ẩn chờ kiểm duyệt; 3 giống ngưỡng ẩn video của Shadowing.
+    content-hide-threshold: ${COMMUNITY_REPORT_CONTENT_HIDE_THRESHOLD:3}
+    comment-hide-threshold: ${COMMUNITY_REPORT_COMMENT_HIDE_THRESHOLD:3}
 
 moderation:
   avatar:

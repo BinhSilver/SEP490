@@ -28,7 +28,8 @@ import java.util.Optional;
 
 /**
  * Báo cáo nội dung/bình luận. Mỗi người báo cáo một đối tượng một lần (trùng → 409), không tự báo cáo.
- * Khi số báo cáo OPEN đạt {@code community.report.auto-hide-threshold} thì đối tượng chuyển
+ * Khi số báo cáo OPEN đạt {@code community.report.content-hide-threshold} (nội dung) hoặc
+ * {@code community.report.comment-hide-threshold} (bình luận), mặc định 3, thì đối tượng chuyển
  * TEMPORARILY_HIDDEN ngay trong cùng transaction; moderator xử lý tiếp ở /admin/moderation/reports.
  * Báo cáo NỘI DUNG của loại có {@link SourceReportSupport} (video Shadowing) đi thẳng sang luồng của nguồn.
  */
@@ -44,8 +45,11 @@ public class CommunityReportService {
     private final UserActionPolicyPort actionPolicy;
     private final CommunityNotifier notifier;
 
-    @Value("${community.report.auto-hide-threshold:1}")
-    private int autoHideThreshold;
+    @Value("${community.report.content-hide-threshold:3}")
+    private int contentHideThreshold;
+
+    @Value("${community.report.comment-hide-threshold:3}")
+    private int commentHideThreshold;
 
     @Transactional
     public ReportResult report(ReportRequest request, Long viewerId) {
@@ -72,7 +76,7 @@ public class CommunityReportService {
             }
             String note = StringUtils.hasText(request.note()) ? request.note().trim() : null;
             boolean hidden = sourceReports.get().report(target.source().contentId(), request.reason(), note);
-            notifier.contentReported(target.source(), viewerId, hidden);
+            notifier.contentReported(target.source(), viewerId, viewerId + "_" + System.currentTimeMillis(), hidden);
             return new ReportResult(null, hidden, sourceReports.get().reportedMessage());
         }
         CommunityContent row = access.lockInteractable(target).row();
@@ -81,7 +85,7 @@ public class CommunityReportService {
         boolean hidden = reachedThreshold(ReportTargetType.CONTENT, row.getId());
         if (hidden) row.setStatus(CommunityStatus.TEMPORARILY_HIDDEN.name());
         contents.save(row);
-        notifier.contentReported(target.source(), viewerId, hidden);
+        notifier.contentReported(target.source(), viewerId, "R" + saved.getId(), hidden);
         return new ReportResult(saved.getId(), hidden, null);
     }
 
@@ -131,6 +135,7 @@ public class CommunityReportService {
     /** So với số báo cáo OPEN (không tính báo cáo đã xử lý) để nội dung đã khôi phục không bị ẩn lại ngay. */
     private boolean reachedThreshold(ReportTargetType type, Long targetId) {
         long open = reports.countByTargetTypeAndTargetIdAndStatus(type.name(), targetId, ReportStatus.OPEN.name());
-        return open >= Math.max(1, autoHideThreshold);
+        int threshold = type == ReportTargetType.CONTENT ? contentHideThreshold : commentHideThreshold;
+        return open >= Math.max(1, threshold);
     }
 }

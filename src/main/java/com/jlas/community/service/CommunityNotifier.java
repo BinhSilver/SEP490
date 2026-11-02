@@ -41,9 +41,10 @@ public class CommunityNotifier {
 
     /**
      * Nội dung bị báo cáo: báo chủ nội dung ngay (cả bộ thẻ lẫn video Shadowing), không nêu người báo cáo.
-     * eventKey (không trả về FE) gồm người báo cáo để mỗi lượt báo cáo chỉ sinh một thông báo.
+     * {@code reportKey} định danh lượt báo cáo (id community_report, hoặc với báo cáo chuyển sang nguồn là người báo
+     * cáo + thời điểm, vì nguồn cho báo cáo lại sau khi đã xử lý) để mỗi lượt chỉ sinh một thông báo.
      */
-    public void contentReported(CommunitySource source, Long reporterId, boolean hidden) {
+    public void contentReported(CommunitySource source, Long reporterId, String reportKey, boolean hidden) {
         Long ownerId = source.ownerId();
         if (ownerId == null || Objects.equals(ownerId, reporterId)) return;
         String label = CommunityContentType.label(source.contentType());
@@ -51,7 +52,7 @@ public class CommunityNotifier {
                 + (hidden ? " và đang tạm ẩn chờ kiểm duyệt viên xem xét." : ", kiểm duyệt viên sẽ xem xét.");
         notifications.notifyUser(ownerId, ModerationNotifier.TYPE_CONTENT, label + " của bạn bị báo cáo", message,
                 url(source), "COMMUNITY_CONTENT_REPORT_" + source.contentType() + "_" + source.contentId()
-                        + "_" + reporterId);
+                        + "_" + reportKey);
     }
 
     /** Dùng lại loại thông báo bình luận đã có để chuông/lịch sử hiện đúng icon. */
