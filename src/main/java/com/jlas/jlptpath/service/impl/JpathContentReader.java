@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -230,6 +231,18 @@ public class JpathContentReader {
     public Optional<JpathVocabulary> vocab(String code) {
         return code == null ? Optional.empty() : vocabularies.findById(code)
                 .filter(v -> visible(v.getStatus(), v.isReportHidden(), v.getLevel()));
+    }
+
+    /** The visible words among {@code codes}, in the order of {@code codes}; hidden and unknown codes are dropped. */
+    public List<JpathVocabulary> vocabs(List<String> codes) {
+        if (codes == null || codes.isEmpty()) {
+            return List.of();
+        }
+        Map<String, JpathVocabulary> byCode = new HashMap<>();
+        vocabularies.findAllById(codes).stream()
+                .filter(v -> visible(v.getStatus(), v.isReportHidden(), v.getLevel()))
+                .forEach(v -> byCode.put(v.getCode(), v));
+        return codes.stream().map(byCode::get).filter(Objects::nonNull).distinct().toList();
     }
 
     /** The kanji {@code code} when visible. */

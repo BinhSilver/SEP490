@@ -40,6 +40,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class JpathItemServiceImpl implements JpathItemService {
 
+    private static final Logger log = LoggerFactory.getLogger(JpathItemServiceImpl.class);
     private static final String NEW = "NEW";
     private static final String KNOWN_BY_USER = "USER";
     private static final Locale VI = Locale.forLanguageTag("vi");
@@ -105,8 +108,10 @@ public class JpathItemServiceImpl implements JpathItemService {
     private JpathItemDetailView kanjiDetail(Long userId, JpathKanji k, String state, boolean hard) {
         String svg = JpathStrokeSvg.url(k.getCharacter().codePointAt(0));
         JpathKanjiFacts facts = new JpathKanjiFacts(k.getHanViet() == null ? null : k.getHanViet().toUpperCase(VI),
-                strings(k.getHanVietAltJson()), strings(k.getReadingsOnJson()), strings(k.getReadingsKunJson()),
-                strings(k.getLevelReadingsJson()), k.getStrokeCount(), k.getRadicalNumber(), k.getRadicalNameVi(),
+                strings(k.getCode(), "han_viet_alt_json", k.getHanVietAltJson()),
+                strings(k.getCode(), "readings_on_json", k.getReadingsOnJson()),
+                strings(k.getCode(), "readings_kun_json", k.getReadingsKunJson()),
+                strings(k.getCode(), "level_readings_json", k.getLevelReadingsJson()), k.getStrokeCount(), k.getRadicalNumber(), k.getRadicalNameVi(),
                 svg);
         return new JpathItemDetailView(JpathItemType.KANJI, k.getCode(), k.getLevel(), k.getCharacter(), null, null,
                 k.getMeaningsVi(), null, null, examples(JpathItemType.KANJI, k.getCode()), k.getMnemonicVi(),
@@ -154,12 +159,10 @@ public class JpathItemServiceImpl implements JpathItemService {
 
     /** Visible compound words of a kanji by sort order. */
     private List<JpathCompoundView> compounds(Long userId, String kanjiCode) {
-        List<JpathVocabulary> words = compounds.findByKanjiCodeOrderBySortOrder(kanjiCode).stream()
+        List<String> codes = compounds.findByKanjiCodeOrderBySortOrder(kanjiCode).stream()
                 .map(JpathKanjiCompound::getVocabCode)
-                .map(content::vocab)
-                .flatMap(Optional::stream)
                 .toList();
-        return wordViews(userId, words);
+        return wordViews(userId, content.vocabs(codes));
     }
 
     private List<JpathCompoundView> confusables(Long userId, JpathItemType type, String code) {
@@ -206,6 +209,9 @@ public class JpathItemServiceImpl implements JpathItemService {
     public JpathKnownResult markKnown(Long userId, JpathItemType type, String code) {
         lockActivePath(userId);
         JpathUserItem i = row(userId, type, code).orElseThrow(JpathItemServiceImpl::notFound);
+        if (!visible(type, code)) {
+            throw notFound();
+        }
         if (i.getState() != JpathItemState.KNOWN) {
             states.markKnown(i, KNOWN_BY_USER);
         }
@@ -224,6 +230,10 @@ public class JpathItemServiceImpl implements JpathItemService {
         }
         String level = learnableLevel(type, code);
         JpathUserItem i = states.ensureRow(userId, type, code, level);
+        if (i.getState() == JpathItemState.NOTEBOOK) {
+            return stateView(type, code, Optional.of(i)); // already there: keep source, since and hits
+        }
+        // KNOWN → NOTEBOOK by hand is intended: toNotebook clears known_at / known_source.
         states.toNotebook(i, source);
         return stateView(type, code, Optional.of(i));
     }
@@ -233,6 +243,9 @@ public class JpathItemServiceImpl implements JpathItemService {
     public JpathItemStateView removeFromNotebook(Long userId, JpathItemType type, String code) {
         lockActivePath(userId);
         Optional<JpathUserItem> row = row(userId, type, code);
+        if (row.isEmpty() && !visible(type, code)) {
+            throw notFound();
+        }
         row.filter(i -> i.getState() == JpathItemState.NOTEBOOK).ifPresent(states::leaveNotebook);
         return stateView(type, code, row);
     }
@@ -259,6 +272,16 @@ public class JpathItemServiceImpl implements JpathItemService {
         return k.getLevel();
     }
 
+    /** Same visibility rule as {@link #detail}: the item reads through {@link JpathContentReader}. */
+    private boolean visible(JpathItemType type, String code) {
+        return switch (type) {
+            case VOCAB -> content.vocab(code).isPresent();
+            case KANJI -> content.kanji(code).isPresent();
+            case GRAMMAR -> content.grammar(code).isPresent();
+            case KANA -> content.kanaItem(code).isPresent();
+        };
+    }
+
     private Optional<JpathUserItem> row(Long userId, JpathItemType type, String code) {
         return code == null ? Optional.empty() : items.findByUserIdAndItemTypeAndItemCode(userId, type, code);
     }
@@ -277,7 +300,8 @@ public class JpathItemServiceImpl implements JpathItemService {
         return cp != 0x3005 && Character.UnicodeScript.of(cp) == Character.UnicodeScript.HAN;
     }
 
-    private static List<String> strings(String json) {
+    /** A JSON string array as a list; malformed JSON is logged (item code + field) and reads as empty. */
+    private static List<String> strings(String code, String field, String json) {
         if (json == null || json.isBlank()) {
             return List.of();
         }
@@ -290,6 +314,7 @@ public class JpathItemServiceImpl implements JpathItemService {
             node.forEach(n -> out.add(n.asText()));
             return out;
         } catch (Exception e) {
+            log.warn("Malformed JSON in {} of item {}: {}", field, code, e.getMessage());
             return List.of();
         }
     }
