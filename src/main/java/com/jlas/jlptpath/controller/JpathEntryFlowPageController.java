@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class JpathEntryFlowPageController {
 
     private static final String START = "redirect:/learning/jlpt/start";
-    private static final String RESUME = "redirect:/learning/jlpt/resume";
+    private static final String CONFIRM_PATH = "/learning/jlpt/confirm?";
     private static final String LEARNING = "redirect:/learning";
 
     private final JpathPathService pathService;
@@ -39,11 +39,7 @@ public class JpathEntryFlowPageController {
             return "redirect:" + JpathStartRedirect.resolve(
                     new JpathStartRedirect.StartState(false, false, null, false, null, null, null, null));
         }
-        JpathEntryStatusView status = pathService.entryStatus(user.userId());
-        JpathEntryStatusView.SmartTest smartTest = status.smartTest();
-        return "redirect:" + JpathStartRedirect.resolve(new JpathStartRedirect.StartState(true, status.surveyDone(),
-                status.goal(), status.preferenceDone(), status.studiedBefore(), status.pathStatus(),
-                smartTest == null ? null : smartTest.attemptId(), smartTest == null ? null : smartTest.status()));
+        return "redirect:" + JpathStartRedirect.resolve(startState(pathService.entryStatus(user.userId())));
     }
 
     /** Resumes the paused path; without one, /learning decides where the learner belongs. */
@@ -60,8 +56,10 @@ public class JpathEntryFlowPageController {
     }
 
     /**
-     * Confirmation screen; the model carries only {@code source} and {@code assessmentAttemptId}. A missing or unknown
-     * source or a malformed attempt id goes back to start; an ACTIVE path goes to /learning, a PAUSED one to resume.
+     * Confirmation screen; the model carries only {@code source} and {@code assessmentAttemptId}. An ACTIVE path goes to
+     * /learning. The page renders only when {@link JpathStartRedirect} would send the learner to a confirmation screen;
+     * otherwise (missing or unknown source, malformed attempt id, PAUSED path, goal not JLPT, no survey or answers,
+     * nothing to confirm) it goes back to start, which decides in one place.
      */
     @GetMapping("/learning/jlpt/confirm")
     public String confirm(@AuthenticationPrincipal UserPrincipal user,
@@ -74,16 +72,23 @@ public class JpathEntryFlowPageController {
         if (entrySource == null || (attemptGiven && attemptId == null)) {
             return START;
         }
-        JpathPathStatus pathStatus = pathService.entryStatus(user.userId()).pathStatus();
-        if (pathStatus == JpathPathStatus.ACTIVE) {
+        JpathEntryStatusView status = pathService.entryStatus(user.userId());
+        if (status.pathStatus() == JpathPathStatus.ACTIVE) {
             return LEARNING;
         }
-        if (pathStatus == JpathPathStatus.PAUSED) {
-            return RESUME;
+        if (!JpathStartRedirect.resolve(startState(status)).startsWith(CONFIRM_PATH)) {
+            return START;
         }
         model.addAttribute("source", entrySource.name());
         model.addAttribute("assessmentAttemptId", attemptId);
         return "jlptpath/confirm";
+    }
+
+    private static JpathStartRedirect.StartState startState(JpathEntryStatusView status) {
+        JpathEntryStatusView.SmartTest smartTest = status.smartTest();
+        return new JpathStartRedirect.StartState(true, status.surveyDone(), status.goal(), status.preferenceDone(),
+                status.studiedBefore(), status.pathStatus(), smartTest == null ? null : smartTest.attemptId(),
+                smartTest == null ? null : smartTest.status());
     }
 
     private static JpathEntrySource parseSource(String source) {

@@ -5,11 +5,15 @@
  *   paceLine(pace)                {tone:'ok'|'warn'|'block', text}; blocked wins, then late / over budget / any warning
  *   suggestionLabel(s)            button text of a MORE_MINUTES / LATER_EXAM / LOWER_TARGET suggestion
  *   initialState(view)            editable state from GET /confirmation
- *   setSlider / setMinutes / applySuggestion   new state, never mutate; minutes reset sliders to the recommendation
+ *   setSlider / setMinutes / applySuggestion   new state, never mutate; a minutes change moves only the sliders still
+ *                                 at the old recommendation, the MORE_MINUTES suggestion resets all three
  *   recommend(minutes, bounds)    slider recommendation (policy #2) clamped to the level's bounds
  *   estimateBody(state) / createBody(state)    bodies of POST /estimate and POST /paths
- *   canCreate(state)              false while blocked, a Smart Test is unfinished, an estimate is pending, saving,
- *                                 or the 2 skill days are not picked
+ *   canCreate(state)              false while blocked, a Smart Test is unfinished, an estimate is pending or failed,
+ *                                 saving, the exam date has passed, or the 2 skill days are not picked
+ *   lockReason(state)             why create is locked ('' when it is not)
+ *   examLimits(todayIso)          {min: tomorrow, max: today + 3 years} for the exam date input
+ *   visibleWarnings(pace)         pace warnings shown here (EXAM_DATE_PASSED is replaced by the lock reason)
  *   confirmationUrl(source, id), endTestUrl(id), formatDate(iso)
  *   mount(root, deps)             draws the screen into the page skeleton; every text goes through textContent.
  */
@@ -36,10 +40,14 @@
     { key: 'kanji', tab: 'KANJI', label: 'Kanji', unit: 'chữ' },
     { key: 'grammar', tab: 'GRAMMAR', label: 'Ngữ pháp', unit: 'mẫu' }
   ];
+  // Share of the daily minutes and minutes per unit of each slider (policy #1/#2). Source of truth:
+  // JpathPacingEngine.recommend (VOCAB_SHARE / VOCAB_MIN …); keep these numbers in step with it.
   var SHARE = { vocab: [0.40, 0.6], kanji: [0.33, 1.25], grammar: [0.27, 4.0] };
   var ATTEMPT_KEY = 'jlasSmartTestAttemptId';
   var DEBOUNCE_MS = 300;
   var MSG_LOAD_FAILED = 'Không tải được màn xác nhận. Thử tải lại trang.';
+  var MSG_EXAM_PASSED = 'Ngày thi đã qua — chọn ngày khác hoặc bỏ ngày thi';
+  var MSG_ESTIMATE_FAILED = 'Chưa tính được ngày xong dự kiến. Đổi một lựa chọn để thử lại.';
 
   function formatDate(iso) {
     if (typeof iso !== 'string') return '';
@@ -55,12 +63,45 @@
     return { tone: warned ? 'warn' : 'ok', text: text };
   }
 
+  function finishPart(iso) {
+    var date = formatDate(iso);
+    return date ? ' → xong ' + date : '';
+  }
+
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+  function isoDate(y, m, d) { return y + '-' + pad(m) + '-' + pad(d); }
+
+  function daysIn(y, m) { return new Date(Date.UTC(y, m, 0)).getUTCDate(); }
+
+  /** Exam date input limits from the learner's today (YYYY-MM-DD): (today, today + 3 years], like the server. */
+  function examLimits(todayIso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(todayIso || '');
+    if (!m) return { min: '', max: '' };
+    var y = +m[1];
+    var mo = +m[2];
+    var d = +m[3];
+    var next = d < daysIn(y, mo) ? isoDate(y, mo, d + 1) : (mo < 12 ? isoDate(y, mo + 1, 1) : isoDate(y + 1, 1, 1));
+    return { min: next, max: isoDate(y + 3, mo, Math.min(d, daysIn(y + 3, mo))) };
+  }
+
+  function examPassed(state) {
+    return !!(state && state.examDate && state.pace && Array.isArray(state.pace.warnings)
+      && state.pace.warnings.some(function (w) { return w && w.code === 'EXAM_DATE_PASSED'; }));
+  }
+
+  function visibleWarnings(pace) {
+    return (pace && Array.isArray(pace.warnings) ? pace.warnings : []).filter(function (w) {
+      return w && w.messageVi && w.code !== 'EXAM_DATE_PASSED';
+    });
+  }
+
   function suggestionLabel(s) {
     if (!s) return '';
     switch (s.kind) {
-      case 'MORE_MINUTES': return 'Học ' + s.minutes + ' phút/ngày → xong ' + formatDate(s.finish);
+      case 'MORE_MINUTES': return 'Học ' + s.minutes + ' phút/ngày' + finishPart(s.finish);
       case 'LATER_EXAM': return 'Thi kỳ ' + formatDate(s.examDate);
-      case 'LOWER_TARGET': return 'Thi ' + s.level + ' trước → xong ' + formatDate(s.finish);
+      case 'LOWER_TARGET': return 'Thi ' + s.level + ' trước' + finishPart(s.finish);
       default: return '';
     }
   }
@@ -104,7 +145,8 @@
       mode: v.suggestion && v.suggestion.mode ? v.suggestion.mode : 'COMBINED',
       pace: v.pace || null,
       pending: false,
-      saving: false
+      saving: false,
+      estimateFailed: false
     };
   }
 
@@ -124,7 +166,22 @@
     return with_(state, { sliders: sliders });
   }
 
+  /** Minutes change: sliders still at the old recommendation follow the new one; sliders the learner moved stay. */
   function setMinutes(state, minutes) {
+    var m = Number(minutes);
+    if (!isFinite(m) || m <= 0) return with_(state, {});
+    var bounds = state.view && state.view.bounds;
+    var before = recommend(state.dailyMinutes, bounds);
+    var after = recommend(m, bounds);
+    var sliders = {};
+    SLIDERS.forEach(function (s) {
+      sliders[s.key] = state.sliders[s.key] === before[s.key] ? after[s.key] : state.sliders[s.key];
+    });
+    return with_(state, { dailyMinutes: m, sliders: sliders });
+  }
+
+  /** Minutes change that puts all three sliders back to the recommendation (MORE_MINUTES suggestion). */
+  function resetMinutes(state, minutes) {
     var m = Number(minutes);
     if (!isFinite(m) || m <= 0) return with_(state, {});
     return with_(state, { dailyMinutes: m, sliders: recommend(m, state.view && state.view.bounds) });
@@ -132,7 +189,7 @@
 
   function applySuggestion(state, s) {
     if (!s) return with_(state, {});
-    if (s.kind === 'MORE_MINUTES' && s.minutes) return setMinutes(state, s.minutes);
+    if (s.kind === 'MORE_MINUTES' && s.minutes) return resetMinutes(state, s.minutes);
     if (s.kind === 'LATER_EXAM' && s.examDate) return with_(state, { examDate: s.examDate });
     if (s.kind === 'LOWER_TARGET' && s.level) return with_(state, { targetLevel: s.level });
     return with_(state, {});
@@ -161,7 +218,7 @@
   function canCreate(state) {
     if (!state || !state.view || !state.pace) return false;
     if (state.view.smartTestInProgress || state.pace.blocked) return false;
-    if (state.pending || state.saving) return false;
+    if (state.pending || state.saving || state.estimateFailed || examPassed(state)) return false;
     return Array.isArray(state.skillDays) && state.skillDays.length === 2;
   }
 
@@ -172,6 +229,8 @@
     if (!Array.isArray(state.skillDays) || state.skillDays.length !== 2) return 'Chọn đủ 2 ngày kỹ năng.';
     if (state.pending) return 'Đang tính lại ngày xong dự kiến…';
     if (state.saving) return 'Đang tạo lộ trình…';
+    if (state.estimateFailed) return MSG_ESTIMATE_FAILED;
+    if (examPassed(state)) return MSG_EXAM_PASSED;
     if (state.pace && state.pace.blocked) return 'Đích quá gấp. Chọn một gợi ý ở trên hoặc đổi đích để tạo lộ trình.';
     return '';
   }
@@ -270,6 +329,10 @@
       target.addEventListener('change', function () { change(with_(state, { targetLevel: target.value })); });
 
       var exam = part('exam');
+      var now = new Date();
+      var limits = examLimits(isoDate(now.getFullYear(), now.getMonth() + 1, now.getDate()));
+      exam.min = limits.min;
+      exam.max = limits.max;
       exam.addEventListener('change', function () { change(with_(state, { examDate: exam.value || '' })); });
       part('exam-clear').addEventListener('click', function () { change(with_(state, { examDate: '' })); });
 
@@ -389,8 +452,8 @@
       part('pace-text').textContent = line.text;
       var warnings = part('warnings');
       warnings.textContent = '';
-      (pace && Array.isArray(pace.warnings) ? pace.warnings : []).forEach(function (w) {
-        if (w && w.messageVi) warnings.appendChild(make('li', 'jp-confirm-warning', w.messageVi));
+      visibleWarnings(pace).forEach(function (w) {
+        warnings.appendChild(make('li', 'jp-confirm-warning', w.messageVi));
       });
       warnings.hidden = !warnings.firstChild;
 
@@ -402,7 +465,10 @@
           if (!text) return;
           var button = make('button', 'jp-confirm-suggestion', text);
           button.type = 'button';
-          button.addEventListener('click', function () { change(applySuggestion(state, s)); });
+          button.addEventListener('click', function () {
+            change(applySuggestion(state, s));
+            part('pace-text').focus(); // the clicked button is redrawn; keep focus on the result it changes
+          });
           suggestions.appendChild(button);
         });
       part('suggestions-box').hidden = !suggestions.firstChild;
@@ -443,11 +509,11 @@
       var mine = ++seq;
       api.send('POST', '/api/learning/jlpt/estimate', estimateBody(state)).then(function (pace) {
         if (mine !== seq) return;
-        state = with_(state, { pace: pace, pending: false });
+        state = with_(state, { pace: pace, pending: false, estimateFailed: false });
         update();
       }, function (error) {
         if (mine !== seq) return;
-        state = with_(state, { pending: false });
+        state = with_(state, { pending: false, estimateFailed: true });
         update();
         showError(error && error.message ? error.message : MSG_LOAD_FAILED);
       });
@@ -461,9 +527,11 @@
         go('/learning');
       }, function (error) {
         if (error && error.code === 'JPATH_ACTIVE_PATH_EXISTS') { go('/learning'); return; }
+        var message = error && error.message ? error.message : MSG_LOAD_FAILED;
         state = with_(state, { saving: false });
-        update();
-        showError(error && error.message ? error.message : MSG_LOAD_FAILED);
+        if (error && error.code === 'JPATH_TARGET_TOO_SOON') change(state); // re-estimate: pace and lock catch up
+        else update();
+        showError(message);
       });
     }
 
@@ -502,6 +570,8 @@
     createBody: createBody,
     canCreate: canCreate,
     lockReason: lockReason,
+    examLimits: examLimits,
+    visibleWarnings: visibleWarnings,
     confirmationUrl: confirmationUrl,
     endTestUrl: endTestUrl,
     mount: mount
