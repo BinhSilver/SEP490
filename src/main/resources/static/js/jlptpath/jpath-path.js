@@ -11,11 +11,9 @@
  *   levelBarHtml(path), levelCellHtml(cell)
  *   stageLineHtml(path), weekHtml(week)
  *   estimateHtml(path, tab), volumeHtml(path, tab), skillsTabHtml(path, today)
- *   UNIT, sliderHtml/newDraft/changeDraft/sliderBody, minutesLine, appliesNote   daily sliders (PUT /path/sliders)
- *   todayHtml(today, path, activeTab), reasonText   "Hôm nay của bạn" (type A: Gộp / Tách buttons)
- *   levelPreviewHtml, comingSoonHtml, warningsHtml   level dialog + pace warnings (Cân lại → POST /path/rebalance)
- *   startRequest(kind, tabKey, itemCode), onStart(req, deps)   POST /sessions → /learning/jlpt/study?session=<id>
- *   isStale(today, todayIso)         the page reloads /today when it becomes visible on a new day
+ *   (re-exported) every JpathPathControls renderer: sliders, today block, level preview, warnings, start requests
+ *   activateTab, displayTarget, writeUrl   tab focus, display-class target, ?tab= with other params kept
+ *   Needs jpath-display.js, jpath-path-controls.js and jpath-dialog.js loaded first.
  *   mount(root, deps)                loads both views in parallel, keeps ?tab= in the url, fires JpathDisplay.rendered
  */
 (function (root, factory) {
@@ -36,7 +34,6 @@
 
   var PATH_URL = '/api/learning/jlpt/path';
   var TODAY_URL = '/api/learning/jlpt/today';
-  var SESSIONS_URL = '/api/learning/jlpt/sessions';
   var ESTIMATE_URL = '/api/learning/jlpt/estimate';
   var SLIDERS_URL = '/api/learning/jlpt/path/sliders';
   var REBALANCE_URL = '/api/learning/jlpt/path/rebalance';
@@ -46,12 +43,15 @@
   var TAB_KEY = { kana: 'KANA', vocab: 'VOCAB', kanji: 'KANJI', grammar: 'GRAMMAR', skills: 'SKILL' };
   var TAB_LABEL = { kana: 'Chữ cái', vocab: 'Từ vựng', kanji: 'Kanji', grammar: 'Ngữ pháp', skills: 'Đọc · Nghe' };
   var VOLUME_UNIT = { kana: 'chữ', vocab: 'từ', kanji: 'chữ Kanji', grammar: 'mẫu' };
-  var UNIT = { VOCAB: 'từ', KANJI: 'Kanji', GRAMMAR: 'mẫu' };
-  var CODE_LABEL = { KANA: 'Chữ cái', VOCAB: 'Từ vựng', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp', SKILL: 'Đọc · Nghe' };
   var WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
   var SKILL_OPENS_AT = 80;
   var MSG_LOAD_FAILED = 'Không tải được lộ trình. Thử tải lại trang.';
 
+  var C = (root && root.JpathPathControls)
+    || (typeof require === 'function' ? require('./jpath-path-controls.js') : null);
+  function DLG() {
+    return (root && root.JpathDialog) || (typeof require === 'function' ? require('./jpath-dialog.js') : null);
+  }
   function D() { return root.JpathDisplay; }
   function esc(v) { return D().esc(v); }
   function list(v) { return Array.isArray(v) ? v : []; }
@@ -135,8 +135,9 @@
     if (cards.length) {
       html += '<div class="jp-hero__stack"><p class="jp-hero__motto">Một từ, một khởi đầu</p>'
         + '<ul class="jp-hero-cards">' + cards.map(heroCardHtml).join('') + '</ul>'
-        + '<button type="button" class="jp-btn jp-btn--primary" data-action="start" data-item="'
-        + esc(cards[0].itemCode) + '">Học từ này</button></div>';
+        + '<button type="button" class="jp-btn jp-btn--primary" data-action="start-item" data-start-tab="'
+        + esc(String(cards[0].tab || 'VOCAB').toLowerCase()) + '" data-item="' + esc(cards[0].itemCode)
+        + '">Học từ này</button></div>';
     }
     return html;
   }
@@ -149,13 +150,13 @@
     var name = esc(c.level);
     var body;
     if (state === 'PASSED') body = '<span class="jp-level-cell__name">' + name + '</span>'
-      + '<button type="button" class="jp-level-cell__preview" data-view-level="' + name + '">✓ Đã vượt qua</button>';
+      + '<button type="button" class="jp-level-cell__preview" data-action="view-level" data-view-level="' + name + '">✓ Đã vượt qua</button>';
     else if (state === 'OPEN') body = '<span class="jp-level-cell__name">' + name + '</span><span class="jp-level-cell__state">Đang học · '
       + esc(Number(c.percent) || 0) + '%</span>';
     else if (state === 'LOCKED') body = '<span class="jp-level-cell__name">🔒 ' + name + '</span>'
-      + '<button type="button" class="jp-level-cell__preview" data-preview-level="' + name + '">Xem trước</button>';
+      + '<button type="button" class="jp-level-cell__preview" data-action="preview" data-preview-level="' + name + '">Xem trước</button>';
     else body = '<span class="jp-level-cell__name">' + name + '</span>'
-      + '<button type="button" class="jp-level-cell__preview" data-coming-soon="' + name + '">Sắp có</button>';
+      + '<button type="button" class="jp-level-cell__preview" data-action="coming-soon" data-coming-soon="' + name + '">Sắp có</button>';
     if (c.note) body += '<span class="jp-level-cell__note">' + esc(c.note) + '</span>';
     return '<li class="jp-level-cell jp-level-cell--' + esc(state.toLowerCase()) + '"'
       + (state === 'OPEN' ? ' aria-current="step"' : '') + '>' + body + '</li>';
@@ -239,244 +240,6 @@
     return estimateHtml(path, tab) + volumeHtml(path, tab);
   }
 
-  // ------------------------------------------------------------------------------------------------ controls (Task 45)
-
-  var SLIDER_CODES = ['VOCAB', 'KANJI', 'GRAMMAR'];
-  var REASON = {
-    LOW_MINUTES: function (m) { return 'bạn rảnh ' + (Number(m) || 0) + ' phút/ngày, học liền một lượt sẽ gọn hơn.'; },
-    EVEN_SKILLS: function () { return '3 kỹ năng Smart Test của bạn khá đều.'; },
-    WEAK_SKILL: function () { return 'một kỹ năng Smart Test thấp hơn hẳn, học riêng giúp bạn tập trung phần đó.'; },
-    NO_SMART_TEST: function () { return 'bạn bắt đầu từ đầu, học liền một lượt giúp giữ nhịp.'; }
-  };
-
-  function code(tab) {
-    var s = String(tab || '');
-    return TAB_KEY[s.toLowerCase()] || s.toUpperCase();
-  }
-  function num(v) { return Number(v) || 0; }
-
-  function newDraft(sliders) {
-    var s = sliders || {};
-    var base = { VOCAB: num(s.vocab), KANJI: num(s.kanji), GRAMMAR: num(s.grammar) };
-    return { base: base, values: Object.assign({}, base), dirty: false };
-  }
-
-  function changeDraft(draft, tab, value) {
-    var d = draft || newDraft(null);
-    var values = Object.assign({}, d.values);
-    var c = code(tab);
-    if (SLIDER_CODES.indexOf(c) >= 0) values[c] = Math.round(num(value));
-    var dirty = SLIDER_CODES.some(function (k) { return values[k] !== d.base[k]; });
-    return { base: d.base, values: values, dirty: dirty };
-  }
-
-  function sliderBody(draft) {
-    var v = (draft || newDraft(null)).values;
-    return { vocab: v.VOCAB, kanji: v.KANJI, grammar: v.GRAMMAR };
-  }
-
-  function minutesLine(sliders) {
-    var s = sliders || {};
-    var line = 'Khoảng ' + num(s.estimatedMinutes) + ' phút/ngày';
-    if (!s.overBudget) return '<p class="jp-minutes" data-part="minutes">' + esc(line) + '</p>';
-    return '<p class="jp-minutes jp-warn" data-part="minutes">' + esc(line + ' · nhiều hơn ' + num(s.dailyMinutes)
-      + ' phút bạn đã khai') + '</p>';
-  }
-
-  function appliesNote(view) {
-    var tabs = list(view && view.appliesFromTomorrow).map(function (t) { return CODE_LABEL[t] || ''; }).filter(Boolean);
-    if (!tabs.length) return '';
-    return '<p class="jp-muted jp-applies">' + esc(tabs.join(', ') + ' áp dụng từ ngày mai vì hôm nay bạn đã bắt đầu học.')
-      + '</p>';
-  }
-
-  function sliderHtml(sliders, tab, level, draft) {
-    var c = code(tab);
-    var s = sliders || {};
-    var head = '<section class="jp-card jp-slider" data-tour="slider" aria-labelledby="jp-slider-title">'
-      + '<h2 class="jp-section-title" id="jp-slider-title">Nhịp học mỗi ngày</h2>';
-    if (c === 'SKILL') return '';
-    if (c === 'KANA') return head + '<p class="jp-slider__value">2 hàng mỗi ngày</p></section>';
-    if (SLIDER_CODES.indexOf(c) < 0) return '';
-    var d = draft || newDraft(s);
-    var value = d.values[c];
-    var b = (s.bounds || {})[c] || {};
-    var locked = num(s.adjustmentsLeft) <= 0;
-    var id = 'jp-slider-' + c.toLowerCase();
-    var html = head + '<label class="jp-slider__value" for="' + id + '" data-part="slider-value">'
-      + esc('Mỗi ngày học ' + value + ' ' + UNIT[c]) + '</label>'
-      + '<input type="range" class="jp-slider__range" id="' + id + '" data-slider="' + c + '" min="' + esc(num(b.min))
-      + '" max="' + esc(num(b.max)) + '" step="1" value="' + esc(value) + '"' + (locked ? ' disabled' : '') + '>'
-      + '<p class="jp-slider__bounds jp-muted" aria-hidden="true"><span>' + esc(num(b.min)) + '</span><span>'
-      + esc(num(b.max)) + '</span></p>'
-      + '<div data-part="minutes-wrap">' + minutesLine(s) + '</div>'
-      + '<p class="jp-slider__left' + (locked ? ' jp-warn' : '') + '">' + esc(locked
-        ? 'Đã dùng hết 2 lần chỉnh của cấp ' + (level || '')
-        : 'Còn ' + num(s.adjustmentsLeft) + ' lần chỉnh trong cấp ' + (level || '')) + '</p>';
-    if (!locked && s.nextChangeCounted === false) html += '<p class="jp-muted">Lần chỉnh này không tính</p>';
-    html += appliesNote(s)
-      + '<button type="button" class="jp-btn jp-btn--primary" data-action="save-sliders"'
-      + (d.dirty && !locked ? '' : ' disabled') + '>Cập nhật lộ trình</button>'
-      + '<p class="jp-slider__error jp-alert" role="alert" data-part="slider-error" hidden></p></section>';
-    return html;
-  }
-
-  function reasonText(reason, m) {
-    var f = REASON[reason];
-    return f ? f(m) : '';
-  }
-
-  function chipsHtml(today) {
-    var chips = list(today && today.tabs).map(function (t) {
-      return '<li class="jp-chip">' + esc((CODE_LABEL[t.tab] || t.tab) + ' ' + num(t.done) + '/' + num(t.target)) + '</li>';
-    }).join('');
-    return chips ? '<ul class="jp-chips" aria-label="Tiến độ hôm nay">' + chips + '</ul>' : '';
-  }
-
-  function target(today, tab) {
-    var t = list(today && today.tabs).filter(function (x) { return x && x.tab === tab; })[0];
-    return t ? num(t.target) : 0;
-  }
-
-  function modeButtonsHtml(today, path, activeTab) {
-    var p = path || {};
-    var suggested = p.suggestedMode || 'COMBINED';
-    var splitTab = activeTab === 'skills' ? 'vocab' : (activeTab || 'vocab');
-    var defs = [
-      { mode: 'COMBINED', label: 'Học hôm nay (Gộp)',
-        desc: 'Một lượt học liền mạch: ôn thẻ đến hạn → từ mới → Kanji mới → ngữ pháp mới.' },
-      { mode: 'SPLIT', label: 'Học riêng ' + TAB_LABEL[splitTab] + ' (Tách)',
-        desc: 'Học từng phần riêng, bắt đầu với tab ' + TAB_LABEL[splitTab] + '.' }];
-    var html = defs.map(function (def) {
-      var on = def.mode === suggested;
-      var out = '<div class="jp-mode' + (on ? ' jp-suggested' : '') + '">'
-        + '<button type="button" class="jp-btn' + (on ? ' jp-btn--primary jp-suggested' : '') + '" data-mode="' + def.mode
-        + '"' + (def.mode === 'SPLIT' ? ' data-tab-key="' + esc(splitTab) + '"' : '') + '>' + esc(def.label) + '</button>'
-        + (on ? '<span class="jp-mode__tag">Gợi ý cho bạn</span>' : '')
-        + '<p class="jp-muted">' + esc(def.desc) + '</p>';
-      if (def.mode !== (p.mode || 'COMBINED')) {
-        out += '<button type="button" class="jp-link-btn" data-action="default-mode" data-mode="' + def.mode + '">'
-          + 'Đặt làm cách học mặc định</button>';
-      }
-      return out + '</div>';
-    }).join('');
-    var why = reasonText(p.suggestionReason, p.sliders && p.sliders.dailyMinutes);
-    if (why) html += '<p class="jp-muted jp-why">' + esc('Vì sao gợi ý: ' + why) + '</p>';
-    return '<div class="jp-modes">' + html + '</div>';
-  }
-
-  function todayHtml(today, path, activeTab) {
-    if (!today) return '';
-    var t = today;
-    var html = '<section class="jp-card jp-today" data-tour="today" aria-labelledby="jp-today-title">'
-      + '<h2 class="jp-section-title" id="jp-today-title">Hôm nay của bạn</h2>';
-    var end = '</section>';
-    var missed = t.skillDayMissed ? '<p class="jp-warn">Tuần này bạn còn thiếu ngày kỹ năng.</p>' : '';
-    if (t.allDone) {
-      return html + '<p class="jp-today__done">Bạn đã xong phần hôm nay ✓</p>'
-        + '<a class="jp-btn" href="/learning/jlpt/done">Xem tổng kết hôm nay</a>' + missed + end;
-    }
-    if (t.kind === 'REST') {
-      return html + '<p>Hôm nay là ngày nghỉ của bạn: không có phần bắt buộc.</p>' + missed + end;
-    }
-    if (t.kind === 'SKILL') {
-      var line = 'Hôm nay là ngày kỹ năng: không học mới, ôn ' + num(t.reviewDue) + ' thẻ'
-        + (t.quizRequired === false ? '.' : ' + 1 quiz tự do từ 10 câu.');
-      if (t.skillMakeup) line += ' Hôm nay bù ngày kỹ năng đã lỡ.';
-      return html + '<p>' + esc(line) + '</p>' + missed
-        + '<button type="button" class="jp-btn jp-btn--primary" data-start-tab="skills">Bắt đầu ngày kỹ năng</button>' + end;
-    }
-    if (t.kind === 'REVIEW_ONLY') {
-      return html + '<p>' + esc('Hôm nay là ngày ôn: chỉ ôn ' + num(t.reviewDue) + ' thẻ, không học mới.') + '</p>' + missed
-        + '<button type="button" class="jp-btn jp-btn--primary" data-mode="COMBINED">Bắt đầu ôn</button>' + end;
-    }
-    var summary = t.kanaPhase
-      ? num(t.kanaRows || 2) + ' hàng chữ cái · ' + target(t, 'VOCAB') + ' từ mới · khoảng ' + num(t.estimatedMinutes) + ' phút'
-      : 'Ôn ' + num(t.reviewDue) + ' thẻ · ' + target(t, 'VOCAB') + ' từ mới · ' + target(t, 'KANJI') + ' Kanji mới · '
-        + target(t, 'GRAMMAR') + ' mẫu ngữ pháp · khoảng ' + num(t.estimatedMinutes) + ' phút';
-    html += '<p class="jp-today__summary">' + esc(summary) + '</p>' + chipsHtml(t) + missed;
-    if (t.reviewDayHint) {
-      html += '<div class="jp-today__hint"><p>Bạn đang dồn nhiều thẻ ôn. Hôm nay chỉ ôn, không học mới?</p>'
-        + '<button type="button" class="jp-btn" data-action="review-day">Chỉ ôn hôm nay</button></div>';
-    }
-    return html + modeButtonsHtml(t, path, activeTab)
-      + '<p class="jp-alert" role="alert" data-part="today-error" hidden></p>' + end;
-  }
-
-  function safeUrl(url) {
-    var u = String(url || '');
-    return /^\/(?!\/)/.test(u) || /^https?:\/\//i.test(u) ? u : '';
-  }
-
-  function levelPreviewHtml(preview, openLevel) {
-    var p = preview || {};
-    var counts = p.counts || {};
-    var countLine = SLIDER_CODES.map(function (c) { return D().fmtNumber(num(counts[c])) + ' ' + UNIT[c]; }).join(' · ');
-    var items = list(p.previewItems).slice(0, 5).map(function (it) {
-      return '<li class="jp-preview-item"><span lang="ja">' + esc(it.expression) + '</span> <span class="jp-muted" lang="ja">'
-        + esc(it.reading) + '</span> <span>' + esc(it.meaning) + '</span></li>';
-    }).join('');
-    var html = '<h2 class="jp-section-title" id="jp-dialog-title">' + esc((p.level || '') + ' · Đang khóa') + '</h2>'
-      + '<p>' + esc(countLine) + '</p>' + (items ? '<ul class="jp-preview-list">' + items + '</ul>' : '')
-      + (p.conditionVi ? '<p>' + esc(p.conditionVi) + '</p>' : '')
-      + '<p class="jp-muted">' + esc('Tiến độ ' + (openLevel || '') + ' hiện tại: ' + num(p.currentPercent) + '%') + '</p>';
-    var mock = safeUrl(p.mockUrl);
-    if (mock) html += '<a class="jp-btn jp-btn--primary" href="' + esc(mock) + '">' + esc('Thi thử JLPT ' + (openLevel || '')) + '</a>';
-    return html;
-  }
-
-  function comingSoonHtml(level) {
-    return '<p id="jp-dialog-title">' + esc((level || '') + ' sắp có: cấp này đang được biên soạn.') + '</p>';
-  }
-
-  function warningsHtml(warnings) {
-    var rows = list(warnings).map(function (w) {
-      var action = '';
-      if (w.code === 'LATE' || w.code === 'OVER_BUDGET') {
-        action = ' <button type="button" class="jp-btn" data-action="rebalance">Cân lại</button>';
-      } else if (w.code === 'EXAM_DATE_PASSED') {
-        action = ' <a class="jp-btn" href="/learning/jlpt/settings">Đặt ngày thi mới</a>';
-      }
-      return '<li class="jp-warning"><span class="jp-warn">' + esc(w.messageVi) + '</span>' + action + '</li>';
-    }).join('');
-    return rows ? '<ul class="jp-warnings" aria-label="Lưu ý về lộ trình">' + rows + '</ul>' : '';
-  }
-
-  function startRequest(kind, tabKey, itemCode) {
-    if (kind === 'COMBINED') return { tab: 'COMBINED', mode: 'TODAY' };
-    var req = { tab: code(tabKey || 'vocab'), mode: 'TODAY' };
-    if (kind === 'ITEM' && itemCode) req.startItemCode = itemCode;
-    return req;
-  }
-
-  function onStart(req, deps) {
-    var d = deps || {};
-    var apiClient = d.api || root.JpathApi;
-    var go = d.navigate || function (u) { root.location.assign(u); };
-    return apiClient.send('POST', SESSIONS_URL, req).then(function (res) {
-      var id = res && (res.sessionId != null ? res.sessionId : res.id);
-      go('/learning/jlpt/study?session=' + encodeURIComponent(id));
-      return res;
-    });
-  }
-
-  function localIso(date) {
-    var dt = date || new Date();
-    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
-    return dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate());
-  }
-
-  function isStale(today, todayIso) {
-    return !!(today && today.day && today.day !== todayIso);
-  }
-
-  function estimateBody(path, draft) {
-    var p = path || {};
-    return { openLevel: p.openLevel, targetLevel: p.targetLevel, examDate: p.examDate || null,
-      dailyMinutes: num(p.sliders && p.sliders.dailyMinutes), skillDays: list(p.skillDays), restDays: list(p.restDays),
-      sliders: sliderBody(draft), kanaTab: !!p.kanaTab, mode: p.mode || 'COMBINED' };
-  }
-
   // tab buttons are updated in place so focus stays on the activated tab
   function activateTab(buttons, key, focus) {
     var active = null;
@@ -536,43 +299,21 @@
     el.hidden = false;
   }
 
-  function openDialog(doc, html, opener) {
-    if (!doc || !doc.body) return null;
-    var box = doc.createElement('div');
-    box.className = 'jp-dialog-backdrop';
-    box.innerHTML = '<div class="jp-dialog jp-card" role="dialog" aria-modal="true" aria-labelledby="jp-dialog-title"'
-      + ' tabindex="-1">' + html + '<button type="button" class="jp-btn" data-dialog-close>Đóng</button></div>';
-    var panel = box.firstChild;
-    function close() {
-      doc.removeEventListener('keydown', onKey, true);
-      if (box.parentNode) box.parentNode.removeChild(box);
-      if (opener && typeof opener.focus === 'function') opener.focus();
-    }
-    function onKey(ev) { if (ev.key === 'Escape') { ev.preventDefault(); close(); } }
-    box.addEventListener('click', function (ev) {
-      if (ev.target === box || (ev.target.closest && ev.target.closest('[data-dialog-close]'))) close();
-    });
-    doc.addEventListener('keydown', onKey, true);
-    doc.body.appendChild(box);
-    panel.focus();
-    return { close: close, el: panel };
-  }
-
   function mount(rootEl, deps) {
     var d = deps || {};
     var apiClient = d.api || root.JpathApi;
     var loc = d.location || root.location;
     var doc = d.document || root.document;
     var rendered = d.rendered || function (el) { D().rendered(el); };
-    var state = { path: null, today: null, tab: null, draft: null, viewLevel: null };
+    var state = { path: null, today: null, todayFailed: false, tab: null, draft: null, viewLevel: null };
     var env = { location: loc, history: d.history || root.history };
     var estimateTimer = null;
     var estimateSeq = 0;
 
     function paintControls() {
       var p = state.path;
-      setSlot(rootEl, 'slider', sliderHtml(p.sliders, state.tab, p.openLevel, state.draft) + warningsHtml(p.warnings));
-      setSlot(rootEl, 'today', todayHtml(state.today, p, state.tab));
+      setSlot(rootEl, 'slider', C.sliderHtml(p.sliders, state.tab, p.openLevel, state.draft) + C.warningsHtml(p.warnings));
+      setSlot(rootEl, 'today', C.todayHtml(state.today, p, state.tab));
     }
 
     function paintTab(keepTabs) {
@@ -592,6 +333,12 @@
       paintTab(true);
     }
 
+    function levelBand() {
+      if (!state.viewLevel) return '';
+      return '<p class="jp-band" role="status">' + esc('Đang xem ' + state.viewLevel + ' (đã vượt qua): ôn tự do, không tính tiến độ.')
+        + ' <button type="button" class="jp-link-btn" data-action="back-to-open">Về cấp đang học</button></p>';
+    }
+
     function paintAll() {
       var p = state.path;
       if (p.display && rootEl.classList) D().applyDisplay(displayTarget(rootEl), p.display);
@@ -599,12 +346,6 @@
       setHtml(rootEl, 'stage', stageLineHtml(p) + weekHtml(p.week));
       setHtml(rootEl, 'levels', levelBand() + levelBarHtml(p));
       paintTab(false);
-    }
-
-    function levelBand() {
-      if (!state.viewLevel) return '';
-      return '<p class="jp-band" role="status">' + esc('Đang xem ' + state.viewLevel + ' (đã vượt qua): ôn tự do, không tính tiến độ.')
-        + ' <button type="button" class="jp-link-btn" data-action="back-to-open">Về cấp đang học</button></p>';
     }
 
     function viewLevel(level) {
@@ -616,24 +357,29 @@
       }
     }
 
+    function loadToday() {
+      return Promise.resolve().then(function () { return apiClient.get(TODAY_URL); }).then(function (t) {
+        state.today = t;
+        state.todayFailed = false;
+      }, function () { state.todayFailed = true; });
+    }
+
     function reload() {
-      return Promise.all([apiClient.get(PATH_URL), apiClient.get(TODAY_URL).catch(function () { return null; })])
-        .then(function (res) {
-          state.path = res[0] || {};
-          state.today = res[1];
-          state.draft = newDraft(state.path.sliders);
-          paintAll();
-        });
+      return Promise.all([apiClient.get(PATH_URL), loadToday()]).then(function (res) {
+        state.path = res[0] || {};
+        state.draft = C.newDraft(state.path.sliders);
+        paintAll();
+      });
     }
 
     function scheduleEstimate() {
       if (estimateTimer) clearTimeout(estimateTimer);
       estimateTimer = setTimeout(function () {
         var seq = ++estimateSeq;
-        apiClient.send('POST', ESTIMATE_URL, estimateBody(state.path, state.draft)).then(function (pace) {
+        apiClient.send('POST', ESTIMATE_URL, C.estimateBody(state.path, state.draft)).then(function (pace) {
           if (seq !== estimateSeq || !pace) return;
           var wrap = part(rootEl, 'minutes-wrap');
-          if (wrap) wrap.innerHTML = minutesLine(pace);
+          if (wrap) wrap.innerHTML = C.minutesLine(pace);
           state.path.estimates = pace.tabFinish || state.path.estimates;
           state.path.levelFinish = pace.levelFinish || state.path.levelFinish;
           setHtml(rootEl, 'numbers', numbersHtml(state.path, state.tab, state.today));
@@ -641,11 +387,68 @@
       }, 300);
     }
 
-    function startWith(req, errorPart) {
-      return api.onStart(req, { api: apiClient }).catch(function (e) {
-        showError(part(rootEl, errorPart || 'today-error'), e && e.message);
-      });
+    function failInto(name, btn) {
+      return function (e) {
+        if (btn) btn.disabled = false;
+        showError(part(rootEl, name), e && e.message);
+      };
     }
+
+    function start(req, btn) {
+      if (btn) btn.disabled = true;
+      return Promise.resolve().then(function () { return api.onStart(req, { api: apiClient }); })
+        .catch(failInto('today-error', btn));
+    }
+
+    function openDialog(html, opener) {
+      var dlg = DLG();
+      return dlg ? dlg.open(doc, html, opener) : null;
+    }
+
+    var actions = {
+      'start-item': function (el) {
+        start(C.startRequest('ITEM', el.getAttribute('data-start-tab') || 'vocab', el.getAttribute('data-item')), el);
+      },
+      'start-mode': function (el) {
+        var req = el.getAttribute('data-mode') === 'SPLIT'
+          ? C.startRequest('TAB', el.getAttribute('data-tab-key') || state.tab) : C.startRequest('COMBINED');
+        start(req, el);
+      },
+      'start-tab': function (el) { start(C.startRequest('TAB', el.getAttribute('data-start-tab')), el); },
+      'save-sliders': function (el) {
+        el.disabled = true;
+        apiClient.send('PUT', SLIDERS_URL, C.sliderBody(state.draft)).then(function (view) {
+          // the PUT answer carries appliesFromTomorrow, which GET /path does not: keep it and refetch only /today
+          if (view) state.path.sliders = view;
+          state.draft = C.newDraft(state.path.sliders);
+          return loadToday();
+        }).then(paintAll).catch(failInto('slider-error', el));
+      },
+      'rebalance': function (el) {
+        el.disabled = true;
+        apiClient.send('POST', REBALANCE_URL).then(reload).catch(failInto('rebalance-error', el));
+      },
+      'default-mode': function (el) {
+        el.disabled = true;
+        apiClient.send('PUT', MODE_URL, { mode: el.getAttribute('data-mode') }).then(reload)
+          .catch(failInto('today-error', el));
+      },
+      'review-day': function (el) {
+        el.disabled = true;
+        apiClient.send('POST', REVIEW_DAY_URL).then(reload).catch(failInto('today-error', el));
+      },
+      'preview': function (el) {
+        var lv = el.getAttribute('data-preview-level');
+        apiClient.get(PREVIEW_URL + encodeURIComponent(lv) + '/preview').then(function (pv) {
+          openDialog(C.levelPreviewHtml(pv, state.path.openLevel), el);
+        }, function (e) {
+          openDialog('<p id="jp-dialog-title">' + esc((e && e.message) || 'Không tải được.') + '</p>', el);
+        });
+      },
+      'coming-soon': function (el) { openDialog(C.comingSoonHtml(el.getAttribute('data-coming-soon')), el); },
+      'view-level': function (el) { viewLevel(el.getAttribute('data-view-level')); },
+      'back-to-open': function () { viewLevel(null); }
+    };
 
     rootEl.addEventListener('click', function (ev) {
       var t = ev.target;
@@ -654,78 +457,22 @@
       if (tabBtn) { selectTab(tabBtn.getAttribute('data-tab')); return; }
       var flip = t.closest('[data-flip]');
       if (flip) {
-        var on = flip.getAttribute('aria-pressed') !== 'true';
-        flip.setAttribute('aria-pressed', String(on));
+        flip.setAttribute('aria-pressed', String(flip.getAttribute('aria-pressed') !== 'true'));
         return;
       }
-      var startBtn = t.closest('[data-action="start"]');
-      if (startBtn) { startWith(startRequest('ITEM', 'vocab', startBtn.getAttribute('data-item'))); return; }
-      var save = t.closest('[data-action="save-sliders"]');
-      if (save) {
-        save.disabled = true;
-        apiClient.send('PUT', SLIDERS_URL, sliderBody(state.draft)).then(reload, function (e) {
-          save.disabled = false;
-          showError(part(rootEl, 'slider-error'), e && e.message);
-        });
-        return;
-      }
-      var rebalance = t.closest('[data-action="rebalance"]');
-      if (rebalance) {
-        rebalance.disabled = true;
-        apiClient.send('POST', REBALANCE_URL).then(reload, function (e) {
-          rebalance.disabled = false;
-          showError(part(rootEl, 'slider-error'), e && e.message);
-        });
-        return;
-      }
-      var defMode = t.closest('[data-action="default-mode"]');
-      if (defMode) {
-        apiClient.send('PUT', MODE_URL, { mode: defMode.getAttribute('data-mode') }).then(reload, function (e) {
-          showError(part(rootEl, 'today-error'), e && e.message);
-        });
-        return;
-      }
-      var reviewDay = t.closest('[data-action="review-day"]');
-      if (reviewDay) {
-        reviewDay.disabled = true;
-        apiClient.send('POST', REVIEW_DAY_URL).then(reload, function (e) {
-          reviewDay.disabled = false;
-          showError(part(rootEl, 'today-error'), e && e.message);
-        });
-        return;
-      }
-      var modeBtn = t.closest('[data-mode]');
-      if (modeBtn) {
-        modeBtn.disabled = true;
-        var req = modeBtn.getAttribute('data-mode') === 'SPLIT'
-          ? startRequest('TAB', modeBtn.getAttribute('data-tab-key') || state.tab) : startRequest('COMBINED');
-        startWith(req).then(function () { modeBtn.disabled = false; });
-        return;
-      }
-      var tabStart = t.closest('[data-start-tab]');
-      if (tabStart) { startWith(startRequest('TAB', tabStart.getAttribute('data-start-tab'))); return; }
-      var previewBtn = t.closest('[data-preview-level]');
-      if (previewBtn) {
-        var lv = previewBtn.getAttribute('data-preview-level');
-        apiClient.get(PREVIEW_URL + encodeURIComponent(lv) + '/preview').then(function (pv) {
-          openDialog(doc, levelPreviewHtml(pv, state.path.openLevel), previewBtn);
-        }, function (e) { openDialog(doc, '<p id="jp-dialog-title">' + esc(e && e.message) + '</p>', previewBtn); });
-        return;
-      }
-      var soon = t.closest('[data-coming-soon]');
-      if (soon) { openDialog(doc, comingSoonHtml(soon.getAttribute('data-coming-soon')), soon); return; }
-      var passed = t.closest('[data-view-level]');
-      if (passed) { viewLevel(passed.getAttribute('data-view-level')); return; }
-      if (t.closest('[data-action="back-to-open"]')) viewLevel(null);
+      var el = t.closest('[data-action]');
+      var handler = el && actions[el.getAttribute('data-action')];
+      if (handler) handler(el);
     });
 
     rootEl.addEventListener('input', function (ev) {
       var t = ev.target;
       if (!t || typeof t.getAttribute !== 'function' || !t.getAttribute('data-slider') || !state.path) return;
       var c = t.getAttribute('data-slider');
-      state.draft = changeDraft(state.draft, c, t.value);
+      state.draft = C.changeDraft(state.draft, c, t.value);
       var label = part(rootEl, 'slider-value');
-      if (label) label.textContent = 'Mỗi ngày học ' + state.draft.values[c] + ' ' + UNIT[c];
+      if (label) label.textContent = 'Mỗi ngày học ' + state.draft.values[c] + ' ' + C.UNIT[c];
+      t.setAttribute('aria-valuetext', C.valueText(c, state.draft.values[c]));
       var save = rootEl.querySelector('[data-action="save-sliders"]');
       if (save) save.disabled = !state.draft.dirty;
       scheduleEstimate();
@@ -744,19 +491,21 @@
       if (next) { ev.preventDefault(); selectTab(next); }
     });
 
-    if (doc && typeof doc.addEventListener === 'function') {
-      doc.addEventListener('visibilitychange', function () {
-        if (doc.visibilityState === 'visible' && state.path && isStale(state.today, localIso())) reload().catch(function () {});
-      });
+    function onVisible() {
+      if (doc.visibilityState !== 'visible' || !state.path) return;
+      if (state.todayFailed || C.isStale(state.today, C.localIso())) {
+        loadToday().then(paintAll).catch(function () { /* keep the current page */ });
+      }
+    }
+    if (doc && typeof doc.addEventListener === 'function' && !rootEl.__jpathVisibility) {
+      rootEl.__jpathVisibility = true; // one listener per mounted page
+      doc.addEventListener('visibilitychange', onVisible);
     }
 
-    var todayLoad = Promise.resolve().then(function () { return apiClient.get(TODAY_URL); })
-      .catch(function () { return null; });
     var pathLoad = Promise.resolve().then(function () { return apiClient.get(PATH_URL); });
-    return Promise.all([pathLoad, todayLoad]).then(function (res) {
+    return Promise.all([pathLoad, loadToday()]).then(function (res) {
       state.path = res[0] || {};
-      state.today = res[1];
-      state.draft = newDraft(state.path.sliders);
+      state.draft = C.newDraft(state.path.sliders);
       state.tab = resolveTab(readParam(loc) || (rootEl.getAttribute && rootEl.getAttribute('data-jpath-tab')), state.path);
       writeTab(env, state.tab);
       paintAll();
@@ -769,15 +518,11 @@
     });
   }
 
-  var api = {
-    TAB_KEY: TAB_KEY, UNIT: UNIT, resolveTab: resolveTab, tabsBarHtml: tabsBarHtml, heroHtml: heroHtml,
+  var api = Object.assign({}, C, {
+    TAB_KEY: TAB_KEY, resolveTab: resolveTab, tabsBarHtml: tabsBarHtml, heroHtml: heroHtml,
     levelBarHtml: levelBarHtml, levelCellHtml: levelCellHtml, stageLineHtml: stageLineHtml, weekHtml: weekHtml,
-    estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml,
-    sliderHtml: sliderHtml, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, minutesLine: minutesLine,
-    appliesNote: appliesNote, todayHtml: todayHtml, reasonText: reasonText, levelPreviewHtml: levelPreviewHtml,
-    comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart,
-    isStale: isStale, localIso: localIso, estimateBody: estimateBody, activateTab: activateTab,
+    estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,
     displayTarget: displayTarget, writeUrl: writeUrl, mount: mount, current: null
-  };
+  });
   return api;
 });
