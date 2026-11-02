@@ -104,7 +104,7 @@
 .jp-level-cell--locked, .jp-level-cell--coming_soon { color: var(--jp-muted); }
 .jp-level-cell__note { color: var(--jp-muted); }
 .jp-level-cell__preview {
-  min-height: 32px; padding: 4px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-chip);
+  min-height: 44px; padding: 4px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-chip);
   background: var(--jp-surface); color: var(--jp-primary); font: inherit; font-weight: 600; cursor: pointer;
 }
 .jp-level-cell__preview:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
@@ -114,6 +114,38 @@
 .jp-stat__value { font-size: 1.4em; font-weight: 700; }
 .jp-stat__sub { color: var(--jp-muted); font-size: .92em; }
 .jp-skills { grid-column: 1 / -1; }
+
+/* controls: sliders, today, warnings, level dialog (Task 45) */
+.jp-tab__later { margin-left: 4px; color: var(--jp-muted); font-size: .75em; font-weight: 500; }
+.jp-day--review { background: var(--jp-surface); border-style: dashed; }
+.jp-path .jp-warn { color: var(--jp-warn); font-weight: 600; }
+.jp-slider__value { font-weight: 700; }
+.jp-slider__range { width: 100%; min-height: 44px; accent-color: var(--jp-primary); }
+.jp-slider__range:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-slider__bounds { display: flex; justify-content: space-between; font-size: .85em; }
+.jp-path .jp-btn[disabled] { opacity: .55; cursor: not-allowed; }
+.jp-link-btn {
+  min-height: 44px; padding: 4px 0; border: 0; background: transparent; color: var(--jp-primary); font: inherit;
+  font-weight: 600; text-decoration: underline; cursor: pointer; justify-self: start;
+}
+.jp-link-btn:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.jp-chip { padding: 2px 10px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-chip); font-size: .9em; }
+.jp-modes { display: grid; gap: 10px; }
+.jp-mode { display: grid; gap: 4px; padding: 10px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive); }
+.jp-mode.jp-suggested { border: 2px solid var(--jp-primary); background: var(--jp-primary-soft); }
+.jp-mode__tag { color: var(--jp-primary); font-size: .85em; font-weight: 700; }
+.jp-today__hint { display: grid; gap: 6px; padding: 10px; border-radius: var(--jp-radius-interactive); background: var(--jp-primary-soft); }
+.jp-warnings { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.jp-warning { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.jp-band { margin: 0 0 8px; padding: 8px 12px; border-radius: var(--jp-radius-interactive); background: var(--jp-primary-soft); }
+.jp-dialog-backdrop {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px;
+  background: rgba(0, 0, 0, .45);
+}
+.jp-dialog { width: min(440px, 100%); max-height: calc(100vh - 32px); overflow: auto; }
+.jp-dialog:focus { outline: none; }
+.jp-preview-list { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 
 @media (max-width: 899px) {
   .jp-path__grid {
