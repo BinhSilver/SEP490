@@ -40,7 +40,12 @@
       ? UI.avatar(detail.author) + '<span>' + UI.esc(detail.author.displayName) + (detail.owner ? ' (bạn)' : '') +
         (detail.createdAt ? ' · ' + UI.esc(UI.formatDate(detail.createdAt)) : '') + '</span>'
       : '';
-    el('cmDesc').textContent = detail.description || 'Chưa có mô tả.';
+    // Loại không có mô tả (vd. video Shadowing) thì ẩn hẳn dòng mô tả.
+    el('cmDesc').hidden = !detail.description;
+    el('cmDesc').textContent = detail.description || '';
+    if (detail.contentType === 'SHADOWING_VIDEO') {
+      el('cmCommentTitle').firstChild.textContent = 'Bình luận cộng đồng ';
+    }
     el('cmOpenSource').href = UI.safeUrl(detail.link);
     el('cmReportContent').hidden = !detail.canReport;
 
@@ -77,7 +82,7 @@
     }
     starsBox.innerHTML = html;
     el('cmMyRating').textContent = detail.myRating ? 'Bạn đã chấm ' + detail.myRating + ' sao' : (detail.canRate ? 'Chọn số sao để đánh giá' : '');
-    el('cmUnrate').hidden = !detail.myRating;
+    el('cmUnrate').hidden = !detail.myRating || !detail.canUnrate;
     hint.hidden = detail.canRate;
     hint.textContent = detail.canRate ? '' : detail.owner
       ? 'Bạn không thể tự đánh giá nội dung của mình.'
@@ -274,7 +279,7 @@
       var wasComment = reportTarget.type === 'COMMENT';
       var commentId = reportTarget.id;
       closeReport();
-      UI.toast('Đã gửi báo cáo. Cảm ơn bạn!', 'success');
+      UI.toast(result && result.message ? result.message : 'Đã gửi báo cáo. Cảm ơn bạn!', 'success');
       if (result && result.targetHidden) {
         if (wasComment) {
           var item = document.querySelector('.cm-comment[data-id="' + commentId + '"]');
@@ -282,7 +287,7 @@
           detail.commentCount = Math.max(0, (detail.commentCount || 0) - 1);
           setCommentCount();
         } else {
-          showNotFound('Nội dung đã được ẩn tạm thời để kiểm duyệt viên xem xét.');
+          showNotFound(result.message || 'Nội dung đã được ẩn tạm thời để kiểm duyệt viên xem xét.');
         }
       } else if (wasComment) {
         var reported = document.querySelector('.cm-comment[data-id="' + commentId + '"] [data-action="report"]');
