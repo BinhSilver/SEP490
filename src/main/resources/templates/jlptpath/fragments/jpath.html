@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&amp;display=swap" />
     <link rel="stylesheet" th:href="@{/css/learning-v2-tokens.css(v=${jpathAssetVersion})}" />
     <link rel="stylesheet" th:href="@{/css/pages/jpath-base.css(v=${jpathAssetVersion})}" />
+    <link rel="stylesheet" th:href="@{/css/pages/jpath-extras.css(v=${jpathAssetVersion})}" />
     <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
           th:href="@{${'/css/pages/' + pageCss + '.css'}(v=${jpathAssetVersion})}" />
 </th:block>
@@ -15,6 +16,8 @@
     <!-- fragments/head does not load confirm-dialog.js; path pages use window.JlasConfirm. -->
     <script th:src="@{/js/pages/confirm-dialog.js(v=${jpathAssetVersion})}"></script>
     <script th:src="@{/js/jlptpath/jpath-api.js(v=${jpathAssetVersion})}"></script>
+    <!-- Extras: "Báo sai" binds every [data-jpath-report] block, also after each 'jpath:rendered'. -->
+    <script th:src="@{/js/jlptpath/jpath-report.js(v=${jpathAssetVersion})}"></script>
 </th:block>
 
 </html>

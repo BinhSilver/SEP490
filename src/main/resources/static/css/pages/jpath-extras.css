@@ -1,0 +1,94 @@
+/* [JLAS-W0108] JLPT path extras loaded on every path page: "Báo sai" (.jp-report) and writing practice
+   (.jp-writing). Colours only through --jp-*; touch targets ≥ 44 px; bottom sheet at ≤ 640 px. */
+
+/* ---- Báo sai ------------------------------------------------------------------------------------------- */
+[data-jpath-report] { position: relative; }
+
+.jp-report-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  border-radius: var(--jp-radius-chip);
+  background: transparent;
+  color: var(--jp-muted);
+  font-size: 1rem;
+  cursor: pointer;
+}
+.jp-report-btn:hover { color: var(--jp-danger); background: var(--jp-danger-soft); }
+.jp-report-btn:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+
+.jp-report {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: color-mix(in srgb, var(--jp-ink) 45%, transparent);
+}
+.jp-report__panel {
+  box-sizing: border-box;
+  width: min(440px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 20px;
+  border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius-panel);
+  background: var(--jp-surface);
+  color: var(--jp-ink);
+}
+.jp-report__title { margin: 0 0 12px; font-size: calc(1.1rem * var(--jp-font-scale)); }
+.jp-report__types { margin: 0 0 12px; padding: 0; border: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.jp-report__types legend { margin-bottom: 8px; padding: 0; color: var(--jp-muted); }
+.jp-report__option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius-interactive);
+  cursor: pointer;
+}
+.jp-report__option:has(input:checked) { border-color: var(--jp-primary); background: var(--jp-primary-soft); }
+.jp-report__note-label { display: block; margin-bottom: 4px; color: var(--jp-muted); }
+.jp-report__note {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius-interactive);
+  background: var(--jp-canvas);
+  color: var(--jp-ink);
+  font: inherit;
+  resize: vertical;
+}
+.jp-report__status { min-height: 1.4em; margin: 8px 0; color: var(--jp-muted); }
+.jp-report__actions { display: flex; justify-content: flex-end; gap: 8px; }
+.jp-report__action {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius-interactive);
+  background: var(--jp-surface);
+  color: var(--jp-ink);
+  font: inherit;
+  cursor: pointer;
+}
+.jp-report__action--primary { border-color: var(--jp-primary); background: var(--jp-primary); color: var(--jp-surface); }
+.jp-report__action:focus-visible,
+.jp-report__option:focus-within { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-report__action[disabled] { opacity: .55; cursor: not-allowed; }
+
+@media (max-width: 640px) {
+  .jp-report { align-items: flex-end; padding: 0; }
+  .jp-report__panel {
+    width: 100%;
+    max-height: 85vh;
+    border-radius: var(--jp-radius-panel) var(--jp-radius-panel) 0 0;
+  }
+}
