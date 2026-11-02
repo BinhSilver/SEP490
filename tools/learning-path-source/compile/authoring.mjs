@@ -31,12 +31,13 @@ for (const k of ['REVIEW_VOCAB', 'REVIEW_KANJI', 'REVIEW_GRAMMAR']) INSTRUCTIONS
 
 // Fields a review may correct; a value from a reviewed source (…_REVIEWED provenance) is never replaced.
 const FIXABLE = {
-  REVIEW_VOCAB: ['expression', 'reading', 'meaning_vi', 'word_type_label', 'topic_key', 'topic_vi', 'examples', 'mnemonic_vi', 'confusable_ids'],
+  REVIEW_VOCAB: ['expression', 'reading', 'meaning_vi', 'word_type_label', 'topic_key', 'topic_vi', 'examples', 'mnemonic_vi', 'confusable_ids', 'variants'],
   REVIEW_KANJI: ['han_viet', 'han_viet_alt', 'meanings_vi', 'mnemonic_vi', 'confusable_ids'],
   REVIEW_GRAMMAR: [...GRAMMAR_TEXT, 'examples', 'unit_no', 'unit_title_vi', ...Object.keys(BANK)]
 };
 const REVIEW_KINDS = new Set(Object.keys(FIXABLE));
-const SOURCE_OF = { meaning_vi: 'meaning_source', meanings_vi: 'meaning_source', examples: 'example_source' };
+const SOURCE_OF = { meaning_vi: 'meaning_source', meanings_vi: 'meaning_source', word_type_label: 'word_type_source', examples: 'example_source' };
+const ARRAY_FIELDS = new Set(['han_viet_alt', 'confusable_ids', 'variants']);
 
 const vocabContext = v => ({ expression: v.expression, reading: v.reading, meaning_vi: v.meaning_vi, word_type_label: v.word_type_label,
   topic_vi: v.topic_vi, examples: v.examples.map(e => ({ ja: e.ja, vi: e.vi })) });
@@ -106,7 +107,7 @@ const reviewContext = {
     ...Object.fromEntries(Object.keys(BANK).map(f => [f, g[f] ?? []])) })
 };
 
-const lockedFields = x => Object.entries(SOURCE_OF).filter(([f, src]) => f !== 'examples' && f in x && /REVIEWED/.test(x.provenance?.[src] ?? '')).map(([f]) => f);
+const lockedFields = x => [...new Set(Object.entries(SOURCE_OF).filter(([f, src]) => f !== 'examples' && f in x && /REVIEWED/.test(x.provenance?.[src] ?? '')).map(([f]) => f))];
 
 // extra(kind, item) adds what the item alone does not carry (dictionary meaning, check findings, spelling twins).
 export function buildReviewPackets(level, { size = 40, sizeByKind = { REVIEW_GRAMMAR: 10 }, extra = () => ({}) } = {}) {
@@ -199,28 +200,48 @@ function addExamples(item, examples, max) {
 
 const reviewed = source => /REVIEWED/.test(source ?? '');
 
-function applyFix(item, field, value) {
+// Where the value being replaced came from: its provenance source, else the AI pass when it wrote the field, else
+// the merged sources.
+function sourceOf(item, field) {
+  const src = item.provenance?.[SOURCE_OF[field]];
+  if (src) return src;
+  return (item.provenance?.ai_fields ?? item.provenance?.claude_fields ?? []).includes(field) ? 'AI' : 'SOURCE';
+}
+
+// A review fix replaces the field; every override is logged (conflicts, kind REVIEW_FIX) and every sentence it drops
+// is listed (dropped_examples), so the report shows what the review changed. An echoed sentence keeps its source.
+function applyFix(item, field, value, log) {
   if (field !== 'examples' && reviewed(item.provenance?.[SOURCE_OF[field]])) return;
+  const before = structuredClone(item[field] ?? null), beforeSource = sourceOf(item, field);
   if (field === 'meaning_vi' || field === 'meanings_vi') { item[field] = formatMeaningVi([].concat(value)); item.provenance.meaning_source = 'AI'; }
   else if (field === 'examples') {
     if (!Array.isArray(value) || !value.length) return;
     // Reviewed sentences stay (first); the review's own sentences replace the rest.
     const kept = item.examples.filter(e => reviewed(e.source));
     const fresh = value.filter(e => e?.ja && !kept.some(k => k.ja === e.ja)).map(e => ({ ja: e.ja, ja_furigana: e.ja_furigana ?? null,
-      vi: e.vi ?? null, source: 'AI' }));
+      vi: e.vi ?? null, source: item.examples.find(o => o.ja === e.ja)?.source ?? 'AI' }));
     item.examples = [...kept, ...fresh].slice(0, 3).map((e, i) => ({ ...e, role: i === 0 ? 'MAIN' : 'EXTRA' }));
     item.provenance.example_source = item.examples[0]?.source ?? null;
+    for (const e of before ?? []) if (!item.examples.some(n => n.ja === e.ja)) log.dropped.push({ id: item.id, ja: e.ja, vi: e.vi ?? null, source: e.source });
   } else if (field === 'expression' || field === 'reading') {
     item[field] = value;
     item[`normalized_${field}`] = normalizeJapanese(value);
     if (field === 'reading') item.romaji = toRomaji(value);
-  } else item[field] = field === 'unit_no' ? Number(value) : value;
+  } else {
+    item[field] = field === 'unit_no' ? Number(value) : value;
+    if (field === 'word_type_label') item.provenance.word_type_source = 'AI';
+  }
   item.provenance.fixed_fields = [...new Set([...(item.provenance.fixed_fields ?? []), field])].sort();
   (item.provenance.ai_fields ??= []).push(field);
+  if (field === 'confusable_ids') for (const gone of (before ?? []).filter(x => !value.includes(x))) log.unlinked.add(`${item.id}|${gone}`);
+  if (JSON.stringify(before) !== JSON.stringify(item[field] ?? null))
+    log.conflicts.push({ kind: 'REVIEW_FIX', id: item.id, field, chosen: 'AI',
+      values: [{ source: beforeSource, value: before }, { source: 'AI', value: structuredClone(item[field]) }] });
 }
 
 export function applyPackets(level, packets) {
   const out = structuredClone(level);
+  const log = { conflicts: [], dropped: [], unlinked: new Set() };
   const byId = new Map([...out.vocabulary, ...out.kanji, ...out.grammar].map(x => [x.id, x]));
   for (const m of out.merged_ids ?? []) if (!byId.has(m.id) && byId.has(m.into)) byId.set(m.id, byId.get(m.into));
   const ordered = [...packets.filter(p => !REVIEW_KINDS.has(p.kind)), ...packets.filter(p => REVIEW_KINDS.has(p.kind))];
@@ -228,7 +249,9 @@ export function applyPackets(level, packets) {
     if (!answer) continue;
     if (REVIEW_KINDS.has(p.kind)) {
       const item = byId.get(id);
-      if (item && answer.fix) for (const f of FIXABLE[p.kind]) if (!empty(answer.fix[f])) applyFix(item, f, answer.fix[f]);
+      // An explicit [] clears an array field (junk alternative readings, wrong confusables); other empties are ignored.
+      if (item && answer.fix) for (const f of FIXABLE[p.kind]) if (!empty(answer.fix[f]) || (ARRAY_FIELDS.has(f) && Array.isArray(answer.fix[f])))
+        applyFix(item, f, answer.fix[f], log);
       continue;
     }
     if (p.kind === 'RADICAL_NAME') {
@@ -242,7 +265,7 @@ export function applyPackets(level, packets) {
       case 'VOCAB_MEANING':
         if (setIfEmpty(item, 'meaning_vi', answer.meaning_vi, v => formatMeaningVi([v]))) item.provenance.meaning_source = 'AI';
         break;
-      case 'VOCAB_TYPE': setIfEmpty(item, 'word_type_label', answer.word_type_label); break;
+      case 'VOCAB_TYPE': if (setIfEmpty(item, 'word_type_label', answer.word_type_label)) item.provenance.word_type_source = 'AI'; break;
       case 'VOCAB_EXAMPLE': addExamples(item, answer.examples, 3); break;
       case 'VOCAB_MNEMONIC': case 'KANJI_MNEMONIC':
         setIfEmpty(item, 'mnemonic_vi', answer.mnemonic_vi);
@@ -271,10 +294,15 @@ export function applyPackets(level, packets) {
         break;
     }
   }
+  // Confusables are symmetric; a pair a review removed is removed on both sides.
+  const unlinked = (a, b) => log.unlinked.has(`${a}|${b}`) || log.unlinked.has(`${b}|${a}`);
+  for (const list of [out.vocabulary, out.kanji]) for (const x of list) x.confusable_ids = (x.confusable_ids ?? []).filter(o => !unlinked(x.id, o));
   for (const list of [out.vocabulary, out.kanji]) for (const x of list) for (const other of x.confusable_ids ?? []) {
     const o = byId.get(other);
-    if (o && !(o.confusable_ids ?? []).includes(x.id)) o.confusable_ids = [...(o.confusable_ids ?? []), x.id];
+    if (o && !unlinked(x.id, o.id) && !(o.confusable_ids ?? []).includes(x.id)) o.confusable_ids = [...(o.confusable_ids ?? []), x.id];
   }
+  if (log.conflicts.length) out.conflicts = [...(out.conflicts ?? []), ...log.conflicts];
+  if (log.dropped.length) out.dropped_examples = [...(out.dropped_examples ?? []), ...log.dropped];
   return out;
 }
 

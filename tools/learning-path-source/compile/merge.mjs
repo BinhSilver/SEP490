@@ -318,8 +318,10 @@ function buildLexeme(members, key, dropVariant = new Map()) {
   const conflicts = [];
   if (jlasMeaning && dictMeaning && !overlap(senses(jlasMeaning), senses(dictMeaning))) conflicts.push({ kind: 'MEANING', id,
     values: [{ source: 'JLAS', value: jlasMeaning }, { source: 'DICTIONARY', value: dictMeaning }], chosen: 'JLAS' });
-  const rawTypes = [...jlas.flatMap(m => m.word_types), ...members.flatMap(m => m.vnjp.map(v => v.tu_loai)), dictEntry?.word_type];
-  const wordType = rawTypes.map(t => wordTypeLabel(t || null, display.expression, display.reading)).find(Boolean) ?? null;
+  const rawTypes = [...jlas.flatMap(m => [[m.word_types[0], 'JLAS_REVIEWED'], [m.word_types[1], 'JLAS']]),
+    ...members.flatMap(m => m.vnjp.map(v => [v.tu_loai, 'VNJPCLUB'])), [dictEntry?.word_type, 'DICTIONARY']];
+  const [wordType, wordTypeSource] = rawTypes.map(([t, src]) => [wordTypeLabel(t || null, display.expression, display.reading), src])
+    .find(([label]) => label) ?? [null, null];
   const sources = ['MIRAI', 'JLAS', 'VNJPCLUB', 'DICTIONARY'].filter(s =>
     s === 'MIRAI' ? mirai.length : s === 'JLAS' ? jlas.length : s === 'VNJPCLUB' ? members.some(m => m.vnjp.length) : !!dictEntry);
   return { id, merged_ids: jlas.slice(1).map(m => m.id).filter(x => x !== id), key, level, members, mirai, jlas,
@@ -330,7 +332,8 @@ function buildLexeme(members, key, dropVariant = new Map()) {
       dictionary_entry_id: dictEntry?.id ?? null, key, topic_key: mirai[0]?.topic_key ?? 'khac',
       topic_vi: mirai[0]?.topic_vi ?? 'Từ thông dụng khác', order: 0, meaning_vi: meaning, word_type_label: wordType,
       examples: [], mnemonic_vi: null, confusable_ids: [], priority: 0, tier: jlas[0]?.tier ?? 'CORE', status: 'DRAFT',
-      provenance: { frame: mirai.length ? 'MIRAI' : null, sources, meaning_source: meaningSource, example_source: null } },
+      provenance: { frame: mirai.length ? 'MIRAI' : null, sources, meaning_source: meaningSource, word_type_source: wordTypeSource,
+        example_source: null } },
     conflicts };
 }
 
