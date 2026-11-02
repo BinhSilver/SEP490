@@ -1613,3 +1613,15 @@ html[data-theme="dark"] #jlabBaseSanctionBanner.is-ban {
     display: none;
   }
 }
+
+/* [JLAS2-37] Màn 901–1366px: menu chính đủ chỗ cho mọi mục (kể cả "Cộng đồng") mà không tràn, không xuống dòng. */
+@media (min-width: 901px) and (max-width: 1366px) {
+  #jlabBasePrimaryNav {
+    gap: 14px;
+  }
+
+  #jlabBasePrimaryNav > a,
+  #jlabBasePrimaryNav > .dropdown > button {
+    white-space: nowrap;
+  }
+}
