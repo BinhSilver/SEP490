@@ -42,11 +42,13 @@ public class JpathPaceService {
     /**
      * What to estimate. {@code examDate} may be past (it is then dropped with EXAM_DATE_PASSED); {@code thirdSkillDay}
      * null = automatic; {@code mode} null = COMBINED; {@code skillPracticeSince} = the day the open level entered
-     * skill practice, null when it has not.
+     * skill practice, null when it has not; {@code openLevelCounts} = the open level's tab counts when the caller
+     * already read them (null = read here).
      */
     public record Query(LocalDate today, String openLevel, String targetLevel, LocalDate examDate, int minutes,
             Set<DayOfWeek> skillDays, Set<DayOfWeek> restDays, DayOfWeek thirdSkillDay, JpathSliderValues sliders,
-            int kanaRowsLeft, JpathStudyMode mode, LocalDate skillPracticeSince, boolean enforceTarget) {
+            int kanaRowsLeft, JpathStudyMode mode, LocalDate skillPracticeSince, boolean enforceTarget,
+            Map<JpathTab, JpathTabCount> openLevelCounts) {
     }
 
     /**
@@ -99,9 +101,11 @@ public class JpathPaceService {
         List<JpathPaceLevel> levels = new ArrayList<>();
         for (int i = LEVELS.indexOf(q.openLevel()); i <= LEVELS.indexOf(q.targetLevel()); i++) {
             String level = LEVELS.get(i);
-            LocalDate since = i == LEVELS.indexOf(q.openLevel()) ? q.skillPracticeSince() : null;
+            boolean open = i == LEVELS.indexOf(q.openLevel());
+            LocalDate since = open ? q.skillPracticeSince() : null;
             if (catalog.isReleased(level)) {
-                Map<JpathTab, JpathTabCount> counts = tabCounts.read(userId, level);
+                Map<JpathTab, JpathTabCount> counts = open && q.openLevelCounts() != null ? q.openLevelCounts()
+                        : tabCounts.read(userId, level);
                 JpathTabCount v = counts.get(JpathTab.VOCAB);
                 JpathTabCount k = counts.get(JpathTab.KANJI);
                 JpathTabCount g = counts.get(JpathTab.GRAMMAR);
