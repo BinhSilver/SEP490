@@ -4,7 +4,9 @@
  },
  "items": [
   {
-   "answer": null,
+   "answer": {
+    "ok": true
+   },
    "context": {
     "check_bank": [
      {
@@ -228,7 +230,9 @@
    "id": "JG-d475586038"
   },
   {
-   "answer": null,
+   "answer": {
+    "ok": true
+   },
    "context": {
     "check_bank": [
      {
@@ -454,7 +458,30 @@
    "id": "JG-60616bfbb1"
   },
   {
-   "answer": null,
+   "answer": {
+    "ok": false,
+    "fix": {
+     "pattern": "〜(よ)うか / 〜ましょうか",
+     "examples": [
+      {
+       "ja": "窓を閉めましょうか。",
+       "ja_furigana": "窓(まど)を閉(し)めましょうか。",
+       "vi": "Để tôi đóng cửa sổ nhé?"
+      },
+      {
+       "ja": "駅まで迎えに行こうか。",
+       "ja_furigana": "駅(えき)まで迎(むか)えに行(い)こうか。",
+       "vi": "Để mình ra ga đón cậu nhé?"
+      },
+      {
+       "ja": "暑いですね。エアコンをつけましょうか。",
+       "ja_furigana": "暑(あつ)いですね。エアコンをつけましょうか。",
+       "vi": "Trời nóng nhỉ. Để tôi bật điều hòa nhé?"
+      }
+     ]
+    },
+    "note": "Sửa lỗi đánh máy pattern 〜(よ)いか → 〜(よ)うか và viết lại ví dụ #3 tránh trùng Mirai"
+   },
    "context": {
     "check_bank": [
      {
@@ -676,7 +703,29 @@
    "id": "JG-90974c32e2"
   },
   {
-   "answer": null,
+   "answer": {
+    "ok": false,
+    "fix": {
+     "examples": [
+      {
+       "ja": "田中様でいらっしゃいますね。",
+       "ja_furigana": "田中(たなか)様(さま)でいらっしゃいますね。",
+       "vi": "Ngài là ông Tanaka phải không ạ?"
+      },
+      {
+       "ja": "山田様から先ほどお電話がありました。",
+       "ja_furigana": "山田(やまだ)様(さま)から先(さき)ほどお電話(でんわ)がありました。",
+       "vi": "Vừa nãy có điện thoại từ ông Yamada ạ."
+      },
+      {
+       "ja": "あちらの帽子の方はどなたですか。",
+       "ja_furigana": "あちらの帽子(ぼうし)の方(かた)はどなたですか。",
+       "vi": "Vị đội mũ đằng kia là ai vậy ạ?"
+      }
+     ]
+    },
+    "note": "Viết lại ví dụ #2 tránh trùng câu mẫu Mirai"
+   },
    "context": {
     "check_bank": [
      {
