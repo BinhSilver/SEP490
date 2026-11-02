@@ -13,7 +13,8 @@
  *   estimateHtml(path, tab), volumeHtml(path, tab), skillsTabHtml(path, today)
  *   (re-exported) every JpathPathControls renderer: sliders, today block, level preview, warnings, start requests
  *   activateTab, displayTarget, writeUrl   tab focus, display-class target, ?tab= with other params kept
- *   Needs jpath-display.js, jpath-path-controls.js and jpath-dialog.js loaded first.
+ *   Needs jpath-display.js, jpath-path-controls.js and jpath-dialog.js loaded first; jpath-lists.js (optional) draws
+ *   the [data-slot="list"] area of each tab.
  *   mount(root, deps)                loads both views in parallel, keeps ?tab= in the url, fires JpathDisplay.rendered
  */
 (function (root, factory) {
@@ -316,12 +317,24 @@
       setSlot(rootEl, 'today', C.todayHtml(state.today, p, state.tab));
     }
 
+    // the [data-slot="list"] area belongs to jpath-lists.js (loaded before this file); it keeps its own filters
+    function paintList() {
+      var lists = root.JpathLists;
+      var el = slot(rootEl, 'list');
+      if (!lists || !el || typeof lists.mountTab !== 'function') return;
+      var p = state.path;
+      lists.mountTab(el, state.tab, { level: state.viewLevel || p.openLevel, display: p.display || {},
+        skillDay: !!(state.today && state.today.kind === 'SKILL'), api: apiClient, location: loc,
+        history: env.history, document: doc });
+    }
+
     function paintTab(keepTabs) {
       var buttons = keepTabs ? all(rootEl, '[role="tab"]') : [];
       if (buttons.length) activateTab(buttons, state.tab, true);
       else setHtml(rootEl, 'tabs', tabsBarHtml(state.path, state.tab));
       setHtml(rootEl, 'numbers', numbersHtml(state.path, state.tab, state.today));
       paintControls();
+      paintList();
       if (rootEl.setAttribute) rootEl.setAttribute('data-jpath-tab', state.tab);
     }
 
@@ -351,6 +364,7 @@
     function viewLevel(level) {
       state.viewLevel = level;
       setHtml(rootEl, 'levels', levelBand() + levelBarHtml(state.path));
+      paintList();
       if (rootEl.dispatchEvent && typeof root.CustomEvent === 'function') {
         rootEl.dispatchEvent(new root.CustomEvent('jpath:view-level', { detail: { level: level || state.path.openLevel,
           passed: !!level }, bubbles: true }));
@@ -453,6 +467,7 @@
     rootEl.addEventListener('click', function (ev) {
       var t = ev.target;
       if (!t || typeof t.closest !== 'function' || !state.path) return;
+      if (t.closest('[data-slot="list"]')) return; // list controls (e.g. Luyện quiz data-tab) are not tabs
       var tabBtn = t.closest('[data-tab]');
       if (tabBtn) { selectTab(tabBtn.getAttribute('data-tab')); return; }
       var flip = t.closest('[data-flip]');
