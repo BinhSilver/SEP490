@@ -207,7 +207,10 @@ export function buildLevelRows(compiled, { seedVersion, audio = new Map(), known
     mnemonic_vi: k.mnemonic_vi ?? null, dictionary_kanji_id: null, status: k.status, authored: itemAuthored(k.provenance),
     seed_version: seedVersion,
   }));
-  const kanji_compound = kanji.flatMap((k) => (k.compound_ids ?? []).slice(0, 5)
+  // A compound links a word that exists at this or a lower level and is not HOLD; the first 5 such words are kept.
+  const lowerOf = (key) => lowerLevels.filter((c) => LEVEL_RANK[c.level] < LEVEL_RANK[level]).flatMap((c) => c[key] ?? []);
+  const linkable = new Set([...vocab, ...lowerOf('vocabulary')].filter((v) => v.status !== 'HOLD').map((v) => v.id));
+  const kanji_compound = kanji.flatMap((k) => (k.compound_ids ?? []).filter((code) => linkable.has(code)).slice(0, 5)
     .map((code, i) => ({ kanji_code: k.id, vocab_code: code, sort_order: i + 1 })));
 
   const grammarRows = grammar.map((g) => ({
@@ -224,9 +227,8 @@ export function buildLevelRows(compiled, { seedVersion, audio = new Map(), known
     ...grammar.flatMap((g) => exampleRows('GRAMMAR', g, audio, seedVersion)),
   ];
   const grammar_question = grammar.flatMap((g) => questionRows(g, seedVersion));
-  const lower = (key) => lowerLevels.filter((c) => LEVEL_RANK[c.level] < LEVEL_RANK[level]).flatMap((c) => c[key] ?? []);
-  const confusable_pair = [...confusableRows('VOCAB', vocab, lower('vocabulary'), levelOf),
-    ...confusableRows('KANJI', kanji, lower('kanji'), levelOf)];
+  const confusable_pair = [...confusableRows('VOCAB', vocab, lowerOf('vocabulary'), levelOf),
+    ...confusableRows('KANJI', kanji, lowerOf('kanji'), levelOf)];
 
   const tables = { topic, grammar_unit, vocabulary, kanji: kanjiRows, kanji_compound, grammar: grammarRows, example,
     grammar_question, confusable_pair };
@@ -285,9 +287,10 @@ const NOTE_LIMIT = LIMITS['jpath_level.release_note'];
 /**
  * Release check of one level after edits (spec 4.11). Only visible items (REVIEWED|AI_CHECKED) are checked; each reason
  * counts items. AUDIO_MISSING (preflight C4): a word without ok audio or without ok MAIN-example audio, a grammar pattern
- * without ok MAIN-example audio. FURIGANA_MISSING (C5) only for sentences that contain a kanji.
+ * without ok MAIN-example audio. FURIGANA_MISSING (C5) only for sentences that contain a kanji. KANJI_COMPOUND_MISSING:
+ * a kanji without a compound whose word is visible; `visibleVocab` adds visible words the tables do not hold (lower levels).
  */
-export function releaseVerdict(level, tables) {
+export function releaseVerdict(level, tables, { visibleVocab = new Set() } = {}) {
   const reasons = {};
   const add = (code, n = 1) => { if (n > 0) reasons[code] = (reasons[code] ?? 0) + n; };
   const ofLevel = (rows) => (rows ?? []).filter((r) => r.level === level);
@@ -322,7 +325,9 @@ export function releaseVerdict(level, tables) {
     meanings.add(key);
   }
 
-  const compounds = new Set((tables.kanji_compound ?? []).map((c) => c.kanji_code));
+  const visibleWords = new Set([...visibleVocab,
+    ...(tables.vocabulary ?? []).filter((r) => VISIBLE.has(r.status)).map((r) => r.code)]);
+  const compounds = new Set((tables.kanji_compound ?? []).filter((c) => visibleWords.has(c.vocab_code)).map((c) => c.kanji_code));
   for (const k of kanji.filter((r) => VISIBLE.has(r.status))) {
     if (blank(k.meanings_vi)) add('MEANING_MISSING');
     if (blank(k.han_viet)) add('HAN_VIET_MISSING');
@@ -388,7 +393,7 @@ export function levelContentSql(level, tables, { seedVersion, verdict, header } 
     upsert('grammar', tables.grammar),
     upsert('example', tables.example),
     upsert('grammar_question', tables.grammar_question),
-    `DELETE FROM jpath_confusable_pair WHERE level = ${L};`,
+    `DELETE p FROM jpath_confusable_pair p WHERE p.level = ${L};`,
     upsert('confusable_pair', tables.confusable_pair),
     ...Object.values(TABLES).filter((d) => d.cc).map((d) =>
       `UPDATE ${d.sql} SET status = 'HOLD' WHERE level = ${L} AND (seed_version IS NULL OR seed_version <> ${v});`),

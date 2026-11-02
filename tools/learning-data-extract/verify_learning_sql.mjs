@@ -34,9 +34,12 @@ export function verifyDataFiles(base = root) {
 }
 // Fail closed (2026-10-19 review): every DELETE/DROP line must be one of the known, scoped forms.
 // The second DELETE form (D3-04 compiled books) is set-based, scoped to the words of that block's own temporary table.
-export const ALLOWED_DELETE = new RegExp('^DELETE cv FROM content_vocabulary cv (?:'
+// Plan 2 Task 10: a jpath level run re-writes its link rows (kanji compounds, confusable pairs), scoped to its level.
+export const ALLOWED_DELETE = new RegExp('^(?:DELETE cv FROM content_vocabulary cv (?:'
   + String.raw`WHERE cv\.content_item_id=@item_[a-z0-9_]+ AND cv\.vocabulary_id<>@vocab_[a-z0-9_]+`
-  + String.raw`|JOIN jlas_compiled_word_n[1-5] w ON w\.item_id=cv\.content_item_id WHERE cv\.vocabulary_id<>w\.vocab_id);$`);
+  + String.raw`|JOIN jlas_compiled_word_n[1-5] w ON w\.item_id=cv\.content_item_id WHERE cv\.vocabulary_id<>w\.vocab_id)`
+  + String.raw`|DELETE c FROM jpath_kanji_compound c JOIN jpath_kanji k ON k\.code = c\.kanji_code WHERE k\.level = 'N[1-5]'`
+  + String.raw`|DELETE p FROM jpath_confusable_pair p WHERE p\.level = 'N[1-5]');$`);
 // §2.32 T4: widening a CHECK constraint drops and re-adds it inside one ALTER TABLE (no rows are touched).
 export const ALLOWED_DROP = /^DROP (?:PROCEDURE (?:IF EXISTS )?jlas_[a-z0-9_]+(?:;|\/\/|\$\$)|TEMPORARY TABLE IF EXISTS jlas_[a-z0-9_]+;|CHECK chk_[a-z0-9_]+,)$/;
 export function verify(migration, seed, content = null) {
@@ -96,7 +99,8 @@ export function verify(migration, seed, content = null) {
     if (/^DROP\b/i.test(statement) && !ALLOWED_DROP.test(statement)) throw new Error(`Destructive DROP outside the allowlist: ${statement.slice(0, 120)}`);
   }
   // V07 (24/10): an UPDATE statement (it may span lines) without WHERE before its terminating semicolon touches every row.
-  for (const match of `${migrationSql}\n${seedSql}`.matchAll(/^\s*UPDATE\b[^;]*;/gim)) {
+  // A quoted literal may hold a semicolon (jpath release_note "A=1; B=2"): the statement end skips over literals.
+  for (const match of `${migrationSql}\n${seedSql}`.matchAll(/^\s*UPDATE\b(?:[^;']|'(?:[^'\\]|\\.)*')*;/gim)) {
     if (!/\bWHERE\b/i.test(match[0])) throw new Error(`UPDATE without WHERE: ${match[0].trim().slice(0, 120)}`);
   }
   for (const part of ['-- PART A.', '-- PART B.', '-- PART C.'])
