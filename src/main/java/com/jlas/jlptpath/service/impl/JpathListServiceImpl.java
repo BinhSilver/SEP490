@@ -60,7 +60,8 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * [JLAS-W0108] The JLPT path lists. Filters run in memory over the visible content of one level (read through
  * {@link JpathContentReader}) joined with one map of the learner's rows per item type, so a list costs a few queries
- * whatever its size. Rows without a learner row read as NEW.
+ * whatever its size. Rows without a learner row read as NEW. Topic and unit totals count learnable items only (the
+ * progress denominator, {@code JpathContentReader.learnable}); the lists still show every visible row.
  */
 @Service
 @Transactional(readOnly = true)
@@ -76,6 +77,8 @@ public class JpathListServiceImpl implements JpathListService {
     private static final String FILL_BANK = "FILL";
     private static final String EXTRA_BANK = "EXTRA";
     private static final int MIN_EXTRA = 3;
+    /** ASCII queries shorter than this match by prefix (see {@link TextMatch}). */
+    private static final int SHORT_QUERY = 3;
     private static final Locale VI = Locale.forLanguageTag("vi");
     private static final ObjectMapper JSON = new ObjectMapper();
 
@@ -105,6 +108,7 @@ public class JpathListServiceImpl implements JpathListService {
     public List<JpathTopicCardView> topics(Long userId, String level) {
         String lv = releasedLevel(level);
         Map<String, List<JpathVocabulary>> byTopic = content.visibleVocabulary(lv).stream()
+                .filter(content::learnable)
                 .collect(Collectors.groupingBy(JpathVocabulary::getTopicKey, LinkedHashMap::new, Collectors.toList()));
         Map<String, JpathUserItem> rows = rows(userId, JpathItemType.VOCAB);
         List<JpathTopicCardView> out = new ArrayList<>();
@@ -170,13 +174,14 @@ public class JpathListServiceImpl implements JpathListService {
         String romaji = q.trim().toLowerCase(Locale.ROOT);
         String fromRomaji = asciiLetters(romaji) ? JpathKanaText.romajiToHiragana(romaji) : null;
         String vi = JpathKanaText.foldVi(q);
-        return v -> contains(JpathKanaText.normalize(v.getExpression()), kana)
-                || contains(JpathKanaText.normalize(v.getReading()), kana)
-                || contains(v.getNormalizedExpression(), kana)
-                || contains(v.getNormalizedReading(), kana)
-                || (v.getRomaji() != null && contains(v.getRomaji().toLowerCase(Locale.ROOT), romaji))
-                || (fromRomaji != null && contains(v.getNormalizedReading(), fromRomaji))
-                || contains(JpathKanaText.foldVi(v.getMeaningVi()), vi);
+        TextMatch m = TextMatch.of(q);
+        return v -> m.text(JpathKanaText.normalize(v.getExpression()), kana)
+                || m.text(JpathKanaText.normalize(v.getReading()), kana)
+                || m.text(v.getNormalizedExpression(), kana)
+                || m.text(v.getNormalizedReading(), kana)
+                || (v.getRomaji() != null && m.text(v.getRomaji().toLowerCase(Locale.ROOT), romaji))
+                || (fromRomaji != null && m.text(v.getNormalizedReading(), fromRomaji))
+                || m.words(JpathKanaText.foldVi(v.getMeaningVi()), vi);
     }
 
     private JpathVocabRowView vocabRow(JpathVocabulary v, JpathUserItem row) {
@@ -241,15 +246,16 @@ public class JpathListServiceImpl implements JpathListService {
         String lower = raw.toLowerCase(Locale.ROOT);
         String fromRomaji = asciiLetters(lower) ? JpathKanaText.romajiToHiragana(lower) : null;
         String vi = JpathKanaText.foldVi(raw);
+        TextMatch m = TextMatch.of(raw);
         return k -> {
-            if (contains(k.getCharacter(), raw) || contains(JpathKanaText.foldVi(k.getHanViet()), vi)
-                    || contains(JpathKanaText.foldVi(k.getMeaningsVi()), vi)) {
+            if (contains(k.getCharacter(), raw) || m.words(JpathKanaText.foldVi(k.getHanViet()), vi)
+                    || m.words(JpathKanaText.foldVi(k.getMeaningsVi()), vi)) {
                 return true;
             }
             for (String json : new String[] {k.getReadingsOnJson(), k.getReadingsKunJson(), k.getLevelReadingsJson()}) {
                 for (String r : strings(k.getCode(), json)) {
                     String reading = JpathKanaText.normalize(r);
-                    if (contains(reading, kana) || (fromRomaji != null && contains(reading, fromRomaji))) {
+                    if (m.text(reading, kana) || (fromRomaji != null && m.text(reading, fromRomaji))) {
                         return true;
                     }
                 }
@@ -291,9 +297,11 @@ public class JpathListServiceImpl implements JpathListService {
             if (searching && matching.isEmpty()) {
                 continue;
             }
-            int done = (int) patterns.stream().map(g -> rows.get(g.getCode()))
+            List<JpathGrammar> learnable = patterns.stream()
+                    .filter(g -> content.learnable(g, checks.getOrDefault(g.getCode(), 0))).toList();
+            int done = (int) learnable.stream().map(g -> rows.get(g.getCode()))
                     .filter(r -> r != null && r.getCountedAt() != null).count();
-            out.add(new JpathGrammarUnitView(e.getKey(), titles.get(e.getKey()), patterns.size(), done, matching));
+            out.add(new JpathGrammarUnitView(e.getKey(), titles.get(e.getKey()), learnable.size(), done, matching));
         }
         return out;
     }
@@ -349,8 +357,9 @@ public class JpathListServiceImpl implements JpathListService {
         }
         String kana = JpathKanaText.normalize(q.trim());
         String vi = JpathKanaText.foldVi(q);
-        return g -> contains(JpathKanaText.normalize(g.getPattern()), kana)
-                || contains(JpathKanaText.foldVi(g.getMeaningVi()), vi);
+        TextMatch m = TextMatch.of(q);
+        return g -> m.text(JpathKanaText.normalize(g.getPattern()), kana)
+                || m.words(JpathKanaText.foldVi(g.getMeaningVi()), vi);
     }
 
     /** Visible patterns grouped by unit number (ascending), each unit in the reader's teaching order. */
@@ -409,12 +418,16 @@ public class JpathListServiceImpl implements JpathListService {
                 return i != null && i.getCountedAt() != null;
             });
             List<JpathKanaCellView> cells = kanas.stream()
-                    .map(k -> new JpathKanaCellView(k.getCode(), k.getKana(), k.getRomaji(), state(rows.get(k.getCode())),
-                            JpathAudio.url(null, k.getKana()), JpathStrokeSvg.url(k.getKana().codePointAt(0))))
+                    .map(k -> kanaCell(k, rows.get(k.getCode())))
                     .toList();
             out.add(new JpathKanaRowView(r.getCode(), r.getTitleVi(), r.getRowKind(), passed, cells));
         }
         return out;
+    }
+
+    private static JpathKanaCellView kanaCell(JpathKana k, JpathUserItem row) {
+        return new JpathKanaCellView(k.getCode(), k.getKana(), k.getRomaji(), state(row),
+                JpathAudio.url(null, k.getKana()), JpathStrokeSvg.url(k.getKana().codePointAt(0)));
     }
 
     // ---- notebook / known ----------------------------------------------------------------------------------
@@ -437,36 +450,47 @@ public class JpathListServiceImpl implements JpathListService {
         return store(userId, type, JpathItemState.KNOWN, JpathUserItem::getKnownAt, page);
     }
 
-    /** Rows of {@code type} in {@code state} whose item is visible in a released level, newest {@code since} first. */
+    @Override
+    public JpathPage<JpathKanaCellView> knownKana(Long userId, int page) {
+        List<JpathUserItem> held = held(userId, JpathItemType.KANA, JpathItemState.KNOWN, JpathUserItem::getKnownAt);
+        Map<String, JpathKana> byCode = content.kanaItems(codes(held)).stream()
+                .collect(Collectors.toMap(JpathKana::getCode, Function.identity()));
+        List<JpathKanaCellView> all = held.stream()
+                .map(i -> Optional.ofNullable(byCode.get(i.getItemCode())).map(k -> kanaCell(k, i)).orElse(null))
+                .filter(Objects::nonNull)
+                .toList();
+        return page(all, page, Map.of());
+    }
+
+    /**
+     * Rows of {@code type} in {@code state} whose item is visible, newest {@code since} first. Only the held codes
+     * are looked up (through the reader's visible batch accessors).
+     */
     private JpathPage<JpathVocabRowView> store(Long userId, JpathItemType type, JpathItemState state,
                                                Function<JpathUserItem, LocalDateTime> since, int page) {
-        List<JpathUserItem> held = items.findByUserIdAndItemType(userId, type).stream()
-                .filter(i -> i.getState() == state)
-                .sorted(Comparator.comparing(since, Comparator.nullsLast(Comparator.<LocalDateTime>reverseOrder()))
-                        .thenComparing(JpathUserItem::getId, Comparator.reverseOrder()))
-                .toList();
+        List<JpathUserItem> held = held(userId, type, state, since);
         if (held.isEmpty()) {
             return page(List.of(), page, Map.of());
         }
-        List<String> released = LEVELS.stream().filter(catalog::isReleased).toList();
+        List<String> codes = codes(held);
         Function<JpathUserItem, JpathVocabRowView> toRow = switch (type) {
             case VOCAB -> {
-                Map<String, JpathVocabulary> byCode = new HashMap<>();
-                released.forEach(l -> content.visibleVocabulary(l).forEach(v -> byCode.put(v.getCode(), v)));
+                Map<String, JpathVocabulary> byCode = content.vocabs(codes).stream()
+                        .collect(Collectors.toMap(JpathVocabulary::getCode, Function.identity()));
                 yield i -> Optional.ofNullable(byCode.get(i.getItemCode())).map(v -> vocabRow(v, i)).orElse(null);
             }
             case KANJI -> {
-                Map<String, JpathKanji> byCode = new HashMap<>();
-                released.forEach(l -> content.visibleKanji(l).forEach(k -> byCode.put(k.getCode(), k)));
+                Map<String, JpathKanji> byCode = content.kanjis(codes).stream()
+                        .collect(Collectors.toMap(JpathKanji::getCode, Function.identity()));
                 yield i -> Optional.ofNullable(byCode.get(i.getItemCode())).map(k -> kanjiStoreRow(k, i)).orElse(null);
             }
             case GRAMMAR -> {
-                Map<String, JpathGrammar> byCode = new HashMap<>();
+                List<JpathGrammar> found = content.grammars(codes);
+                Map<String, JpathGrammar> byCode = found.stream()
+                        .collect(Collectors.toMap(JpathGrammar::getCode, Function.identity()));
                 Map<String, Integer> checks = new HashMap<>();
-                released.forEach(l -> {
-                    content.visibleGrammar(l).forEach(g -> byCode.put(g.getCode(), g));
-                    checks.putAll(content.visibleCheckCounts(l));
-                });
+                found.stream().map(JpathGrammar::getLevel).distinct()
+                        .forEach(l -> checks.putAll(content.visibleCheckCounts(l)));
                 yield i -> Optional.ofNullable(byCode.get(i.getItemCode())).map(g -> grammarStoreRow(g, i, checks))
                         .orElse(null);
             }
@@ -474,6 +498,20 @@ public class JpathListServiceImpl implements JpathListService {
         };
         List<JpathVocabRowView> all = held.stream().map(toRow).filter(Objects::nonNull).toList();
         return page(all, page, Map.of());
+    }
+
+    /** The learner's rows of {@code type} in {@code state}, newest {@code since} first (null last), then id desc. */
+    private List<JpathUserItem> held(Long userId, JpathItemType type, JpathItemState state,
+                                     Function<JpathUserItem, LocalDateTime> since) {
+        return items.findByUserIdAndItemType(userId, type).stream()
+                .filter(i -> i.getState() == state)
+                .sorted(Comparator.comparing(since, Comparator.nullsLast(Comparator.<LocalDateTime>reverseOrder()))
+                        .thenComparing(JpathUserItem::getId, Comparator.reverseOrder()))
+                .toList();
+    }
+
+    private static List<String> codes(List<JpathUserItem> held) {
+        return held.stream().map(JpathUserItem::getItemCode).distinct().toList();
     }
 
     private JpathVocabRowView kanjiStoreRow(JpathKanji k, JpathUserItem row) {
@@ -554,6 +592,39 @@ public class JpathListServiceImpl implements JpathListService {
 
     private static boolean contains(String haystack, String needle) {
         return haystack != null && !needle.isEmpty() && haystack.contains(needle);
+    }
+
+    /**
+     * How a search term matches. An ASCII query shorter than {@link #SHORT_QUERY} letters would match almost every
+     * row with "contains", so it matches by prefix instead: {@link #text} = starts with, {@link #words} = some word
+     * starts with it. Other queries match anywhere.
+     */
+    private record TextMatch(boolean prefix) {
+
+        static TextMatch of(String q) {
+            String t = q == null ? "" : q.trim();
+            return new TextMatch(t.length() < SHORT_QUERY && t.chars().allMatch(c -> c < 0x80));
+        }
+
+        boolean text(String haystack, String needle) {
+            return prefix ? haystack != null && !needle.isEmpty() && haystack.startsWith(needle)
+                    : contains(haystack, needle);
+        }
+
+        boolean words(String haystack, String needle) {
+            if (!prefix) {
+                return contains(haystack, needle);
+            }
+            if (haystack == null || needle.isEmpty()) {
+                return false;
+            }
+            for (int i = haystack.indexOf(needle); i >= 0; i = haystack.indexOf(needle, i + 1)) {
+                if (i == 0 || !Character.isLetterOrDigit(haystack.charAt(i - 1))) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     private static boolean blank(String s) {

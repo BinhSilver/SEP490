@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class JpathListController {
 
     private static final String OK = "OK";
+    private static final String KANA = "KANA";
 
     private final JpathListService lists;
 
@@ -87,9 +88,13 @@ public class JpathListController {
         return ResponseEntity.ok(ApiResponse.ok(OK, lists.notebook(user.userId(), tab, page)));
     }
 
+    /** {@code tab=KANA} (any case) lists kana cells; the other tabs list vocab-shaped rows. */
     @GetMapping("/known")
-    public ResponseEntity<ApiResponse<JpathPage<JpathVocabRowView>>> known(@AuthenticationPrincipal UserPrincipal user,
+    public ResponseEntity<ApiResponse<JpathPage<?>>> known(@AuthenticationPrincipal UserPrincipal user,
             @RequestParam(required = false) String tab, @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.ok(ApiResponse.ok(OK, lists.known(user.userId(), tab, page)));
+        JpathPage<?> body = tab != null && KANA.equalsIgnoreCase(tab.trim())
+                ? lists.knownKana(user.userId(), page)
+                : lists.known(user.userId(), tab, page);
+        return ResponseEntity.ok(ApiResponse.ok(OK, body));
     }
 }

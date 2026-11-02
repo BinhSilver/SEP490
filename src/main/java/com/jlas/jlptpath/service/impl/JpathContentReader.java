@@ -250,6 +250,22 @@ public class JpathContentReader {
         return code == null ? Optional.empty() : kanjis.findById(code).filter(this::visible);
     }
 
+    /** The visible kanji among {@code codes}, in the order of {@code codes}; hidden and unknown codes are dropped. */
+    public List<JpathKanji> kanjis(List<String> codes) {
+        return inOrder(codes, kanjis::findAllById, JpathKanji::getCode, this::visible);
+    }
+
+    /** The visible patterns among {@code codes}, in the order of {@code codes}; hidden and unknown codes dropped. */
+    public List<JpathGrammar> grammars(List<String> codes) {
+        return inOrder(codes, grammars::findAllById, JpathGrammar::getCode,
+                g -> visible(g.getStatus(), g.isReportHidden(), g.getLevel()));
+    }
+
+    /** The kana among {@code codes}, in the order of {@code codes}; unknown codes are dropped. */
+    public List<JpathKana> kanaItems(List<String> codes) {
+        return inOrder(codes, kanas::findAllById, JpathKana::getCode, k -> true);
+    }
+
     /** The visible kanji written {@code character}. */
     public Optional<JpathKanji> kanjiByCharacter(String character) {
         return character == null ? Optional.empty() : kanjis.findByCharacter(character).filter(this::visible);
@@ -341,6 +357,16 @@ public class JpathContentReader {
                                                   ToIntFunction<T> sortOrder, ToIntFunction<T> priority) {
         return rows.stream().map(r -> new Candidate(code.apply(r), sortOrder.applyAsInt(r), priority.applyAsInt(r)))
                 .toList();
+    }
+
+    private static <T> List<T> inOrder(List<String> codes, Function<List<String>, List<T>> load,
+                                       Function<T, String> code, Predicate<T> keep) {
+        if (codes == null || codes.isEmpty()) {
+            return List.of();
+        }
+        Map<String, T> byCode = new HashMap<>();
+        load.apply(codes).stream().filter(keep).forEach(r -> byCode.put(code.apply(r), r));
+        return codes.stream().map(byCode::get).filter(Objects::nonNull).distinct().toList();
     }
 
     private boolean visible(JpathKanji k) {

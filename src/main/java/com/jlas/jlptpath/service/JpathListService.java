@@ -3,6 +3,7 @@ package com.jlas.jlptpath.service;
 import com.jlas.jlptpath.dto.JpathGrammarFilter;
 import com.jlas.jlptpath.dto.JpathGrammarLessonView;
 import com.jlas.jlptpath.dto.JpathGrammarUnitView;
+import com.jlas.jlptpath.dto.JpathKanaCellView;
 import com.jlas.jlptpath.dto.JpathKanaRowView;
 import com.jlas.jlptpath.dto.JpathKanjiFilter;
 import com.jlas.jlptpath.dto.JpathKanjiRowView;
@@ -22,7 +23,10 @@ public interface JpathListService {
 
     int PAGE_SIZE = 50;
 
-    /** Topic cards of {@code level} in topic order; topics without a visible word are left out. */
+    /**
+     * Topic cards of {@code level} in topic order. Counts cover learnable words only (the progress denominator);
+     * topics without a learnable word are left out.
+     */
     List<JpathTopicCardView> topics(Long userId, String level);
 
     /** Words of a level in teaching order, filtered; facets {@code topics} and {@code states}. */
@@ -31,7 +35,10 @@ public interface JpathListService {
     /** Kanji of a level, filtered and sorted; facet {@code radicals}. */
     JpathPage<JpathKanjiRowView> kanji(Long userId, JpathKanjiFilter filter);
 
-    /** Grammar units of a level in order with their matching patterns; units without a match are left out. */
+    /**
+     * Grammar units of a level in order with their matching patterns; units without a match are left out. A unit's
+     * {@code total} / {@code done} count learnable patterns only.
+     */
     List<JpathGrammarUnitView> grammar(Long userId, JpathGrammarFilter filter);
 
     /** The lesson of one visible pattern; hidden or unknown → {@code JPATH_ITEM_NOT_FOUND}. */
@@ -46,6 +53,12 @@ public interface JpathListService {
      */
     JpathPage<JpathVocabRowView> notebook(Long userId, String tab, int page);
 
-    /** KNOWN items of {@code tab} (VOCAB, KANJI or GRAMMAR) across every visible level, newest {@code known_at} first. */
+    /**
+     * KNOWN items of {@code tab} (VOCAB, KANJI or GRAMMAR) across every visible level, newest {@code known_at} first.
+     * KANA rows have the kana-cell shape, so they come from {@link #knownKana}; here KANA → empty page.
+     */
     JpathPage<JpathVocabRowView> known(Long userId, String tab, int page);
+
+    /** KNOWN kana, newest {@code known_at} first, in the kana-cell shape of {@link #kana}; unknown codes left out. */
+    JpathPage<JpathKanaCellView> knownKana(Long userId, int page);
 }
