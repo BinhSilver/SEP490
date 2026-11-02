@@ -131,22 +131,25 @@ function ownWords(item) {
 }
 
 const stripFurigana = text => String(text).replace(/[(（][^)）]*[)）]/g, '');
-const ownMeaning = item => item.provenance?.meaning_source === 'CLAUDE';
+// Values written by the AI pass ("CLAUDE" in data built before the rename).
+export const isAiSource = source => source === 'AI' || source === 'CLAUDE';
+const ownMeaning = item => isAiSource(item.provenance?.meaning_source);
 
 function checkExamples(item, examples, minCount, level, ctx, err, warn) {
   if (examples.length < minCount) err('EXAMPLE_MISSING', `${examples.length}/${minCount}`);
-  for (const e of examples) {
+  for (const [i, e] of examples.entries()) {
     if (!e.vi) err('EXAMPLE_TRANSLATION_MISSING', e.ja);
     if (e.ja_furigana && stripFurigana(e.ja_furigana) !== e.ja) err('FURIGANA_MISMATCH', e.ja);
     if (!e.ja_furigana && HAS_KANJI.test(e.ja)) warn('FURIGANA_MISSING', e.ja);
-    if (e.source !== 'CLAUDE') continue;
+    if (!isAiSource(e.source)) continue;
     const above = wordsAbove(e.ja, ctx, level, ownWords(item));
     if (above.kanji.length) err('EXAMPLE_ABOVE_LEVEL', `${e.ja} → ${above.kanji.join(',')}`);
     if (above.kana.length) warn('EXAMPLE_KANA_ABOVE_LEVEL', `${e.ja} → ${above.kana.join(',')}`);
     const len = e.ja.replace(/\s/g, '').length, [min, max] = EXAMPLE_LENGTH[level];
     if (len < min || len > max) err('EXAMPLE_LENGTH', `${len}: ${e.ja}`);
     const ref = ctx.miraiExamples?.find(r => similarity(r, e.ja) > 0.7);
-    if (ref) err('MIRAI_SIMILAR', `example ≈ ${ref}`);
+    // The detail names the field only: Mirai text must never reach a report or a review packet.
+    if (ref) err('MIRAI_SIMILAR', `example #${i + 1}`);
   }
 }
 
@@ -189,7 +192,7 @@ export function runChecks(compiled, ctx) {
     if (!v.mnemonic_vi) err('MNEMONIC_MISSING', v.key);
     checkExamples(v, v.examples, 1, level, ctx, err, warn);
     const ref = ctx.miraiReference.get(v.key);
-    if (ref?.meaning_vi && ownMeaning(v) && similarity(ref.meaning_vi, v.meaning_vi) > 0.7) err('MIRAI_SIMILAR', `meaning ≈ ${ref.meaning_vi}`);
+    if (ref?.meaning_vi && ownMeaning(v) && similarity(ref.meaning_vi, v.meaning_vi) > 0.7) err('MIRAI_SIMILAR', 'meaning');
   }
   for (const k of compiled.kanji) {
     const { err, warn } = sink(k.id);
