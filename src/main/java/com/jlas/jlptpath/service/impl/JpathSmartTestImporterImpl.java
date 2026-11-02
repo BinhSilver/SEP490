@@ -31,7 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
  * [JLAS-W0108] Wrong VOCABULARY / KANJI items of a submitted Smart Test → path notebook (source SMART_TEST).
  * A word maps by its dictionary entry id (smallest code when several), else by the normalized lexeme against
  * {@code normalized_expression} then {@code normalized_reading}, only when exactly one visible word matches. A kanji
- * lexeme must be one codepoint. Only visible content (catalog statuses, not report-hidden, level released) counts;
+ * lexeme must be one codepoint. Only visible, learnable content (catalog statuses, not report-hidden, level released,
+ * {@link JpathContentReader#learnable}) counts;
  * items the learner already has a row for are left alone. A non-SUBMITTED attempt keeps the source's CONFLICT.
  */
 @Service
@@ -47,16 +48,19 @@ public class JpathSmartTestImporterImpl implements JpathSmartTestImporter {
     private final JpathUserItemRepository items;
     private final JpathCatalogService catalog;
     private final JpathItemStateMachine stateMachine;
+    private final JpathContentReader content;
 
     public JpathSmartTestImporterImpl(LearningProfileSource profiles, JpathVocabularyRepository vocabulary,
                                       JpathKanjiRepository kanji, JpathUserItemRepository items,
-                                      JpathCatalogService catalog, JpathItemStateMachine stateMachine) {
+                                      JpathCatalogService catalog, JpathItemStateMachine stateMachine,
+                                      JpathContentReader content) {
         this.profiles = profiles;
         this.vocabulary = vocabulary;
         this.kanji = kanji;
         this.items = items;
         this.catalog = catalog;
         this.stateMachine = stateMachine;
+        this.content = content;
     }
 
     @Override
@@ -158,7 +162,7 @@ public class JpathSmartTestImporterImpl implements JpathSmartTestImporter {
             return out;
         }
         Map<String, List<JpathKanji>> byChar = kanji.findByCharacterIn(characters).stream()
-                .filter(k -> visible(k.getStatus(), k.isReportHidden(), k.getLevel()))
+                .filter(k -> visible(k.getStatus(), k.isReportHidden(), k.getLevel()) && content.learnable(k))
                 .collect(Collectors.groupingBy(JpathKanji::getCharacter));
         for (String c : characters) {
             List<JpathKanji> found = byChar.get(c);
@@ -170,7 +174,8 @@ public class JpathSmartTestImporterImpl implements JpathSmartTestImporter {
     }
 
     private List<JpathVocabulary> visible(List<JpathVocabulary> rows) {
-        return rows.stream().filter(v -> visible(v.getStatus(), v.isReportHidden(), v.getLevel())).toList();
+        return rows.stream().filter(v -> visible(v.getStatus(), v.isReportHidden(), v.getLevel()) && content.learnable(v))
+                .toList();
     }
 
     private boolean visible(JpathContentStatus status, boolean reportHidden, String level) {
