@@ -15,5 +15,11 @@ public interface JpathVocabularyRepository extends JpaRepository<JpathVocabulary
     List<JpathVocabulary> findByLevelAndStatusInAndReportHiddenFalseOrderBySortOrder(
             String level, Collection<JpathContentStatus> statuses);
 
+    List<JpathVocabulary> findByDictionaryEntryIdIn(Collection<Long> dictionaryEntryIds);
+
+    List<JpathVocabulary> findByNormalizedExpressionIn(Collection<String> normalizedExpressions);
+
+    List<JpathVocabulary> findByNormalizedReadingIn(Collection<String> normalizedReadings);
+
     long countByLevelAndStatusInAndReportHiddenFalse(String level, Collection<JpathContentStatus> statuses);
 }

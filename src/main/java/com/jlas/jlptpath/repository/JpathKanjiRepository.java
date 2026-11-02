@@ -19,5 +19,8 @@ public interface JpathKanjiRepository extends JpaRepository<JpathKanji, String> 
     /** The kanji written {@code character} (binary compare), whatever its status. */
     Optional<JpathKanji> findByCharacter(String character);
 
+    /** The kanji written as any of {@code characters}, whatever their status. */
+    List<JpathKanji> findByCharacterIn(Collection<String> characters);
+
     long countByLevelAndStatusInAndReportHiddenFalse(String level, Collection<JpathContentStatus> statuses);
 }
