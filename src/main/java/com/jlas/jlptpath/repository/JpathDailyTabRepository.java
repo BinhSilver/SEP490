@@ -1,5 +1,7 @@
 package com.jlas.jlptpath.repository;
 
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 import com.jlas.jlptpath.entity.JpathDailyTab;
 import com.jlas.jlptpath.entity.JpathDailyTabId;
 import com.jlas.jlptpath.enums.JpathTab;
@@ -21,4 +23,15 @@ public interface JpathDailyTabRepository extends JpaRepository<JpathDailyTab, Jp
               and (t.newDone > 0 or t.extraDone > 0 or t.reviewDone > 0)
             """)
     List<JpathTab> findStartedTabs(@Param("userId") Long userId, @Param("day") LocalDate day);
+
+    /** Tabs of a plan, by tab. */
+    List<JpathDailyTab> findByPlanIdOrderByTab(Long planId);
+
+    /**
+     * Tabs of a plan read with a locking read, so rows committed after this transaction's snapshot (by the plan
+     * inserter's own transaction) are seen.
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select t from JpathDailyTab t where t.planId = :planId")
+    List<JpathDailyTab> findForUpdateByPlanId(@Param("planId") Long planId);
 }

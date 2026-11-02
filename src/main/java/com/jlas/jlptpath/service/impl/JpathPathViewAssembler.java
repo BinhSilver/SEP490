@@ -16,7 +16,6 @@ import com.jlas.jlptpath.entity.JpathUserLevel;
 import com.jlas.jlptpath.entity.JpathUserLevelId;
 import com.jlas.jlptpath.entity.JpathUserPath;
 import com.jlas.jlptpath.entity.JpathUserSettings;
-import com.jlas.jlptpath.enums.JpathItemType;
 import com.jlas.jlptpath.enums.JpathLevelCellState;
 import com.jlas.jlptpath.enums.JpathStage;
 import com.jlas.jlptpath.enums.JpathStudyMode;
@@ -158,7 +157,7 @@ public class JpathPathViewAssembler {
         String open = path.getOpenLevel();
         // Task 14: in skill practice with no new item left every non-rest day is a skill day.
         boolean noNewLeft = level.getStage() == JpathStage.SKILL_PRACTICE
-                && noNewItemsLeft(userId, open, level.isPriorityMode());
+                && JpathPathRules.noNewItemsLeft(content, userId, open, level.isPriorityMode());
 
         List<JpathTabInfo> tabs = new ArrayList<>();
         if (p.kana() != null) {
@@ -279,16 +278,6 @@ public class JpathPathViewAssembler {
         });
     }
 
-    /** No learnable vocabulary, kanji or grammar item of {@code level} is left unstarted. */
-    private boolean noNewItemsLeft(Long userId, String level, boolean priorityMode) {
-        for (JpathTab tab : SLIDER_TABS) {
-            JpathItemType type = JpathItemType.valueOf(tab.name());
-            if (!content.nextNewCodes(userId, level, type, 1, priorityMode, null).isEmpty()) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     /** The stored third skill day when it is one valid code, else null (automatic choice). */
     static DayOfWeek storedThirdDay(JpathUserPath path) {

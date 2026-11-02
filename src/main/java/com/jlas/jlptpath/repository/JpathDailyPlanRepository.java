@@ -1,5 +1,7 @@
 package com.jlas.jlptpath.repository;
 
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 import com.jlas.jlptpath.entity.JpathDailyPlan;
 import java.time.LocalDate;
 import java.util.List;
@@ -27,4 +29,12 @@ public interface JpathDailyPlanRepository extends JpaRepository<JpathDailyPlan, 
     @Modifying(flushAutomatically = true)
     @Query("delete from JpathDailyPlan p where p.userId = :userId")
     int deleteByUserId(@Param("userId") Long userId);
+
+    /**
+     * The user's plan for {@code day} locked for writing (SELECT … FOR UPDATE on the existing row, so no gap lock);
+     * a locking read sees the latest committed row, also one inserted after this transaction's snapshot.
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select p from JpathDailyPlan p where p.userId = :userId and p.studyDay = :day")
+    Optional<JpathDailyPlan> findForUpdate(@Param("userId") Long userId, @Param("day") LocalDate day);
 }

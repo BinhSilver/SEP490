@@ -8,6 +8,7 @@ import com.jlas.jlptpath.dto.JpathSmartTestSnapshot;
 import com.jlas.jlptpath.entity.JpathEntryPreference;
 import com.jlas.jlptpath.entity.JpathSliderAdjustment;
 import com.jlas.jlptpath.enums.JpathEntrySource;
+import com.jlas.jlptpath.enums.JpathItemType;
 import com.jlas.jlptpath.enums.JpathKanaChoice;
 import com.jlas.jlptpath.enums.JpathSliderKind;
 import com.jlas.jlptpath.enums.JpathTab;
@@ -148,5 +149,19 @@ final class JpathPathRules {
         }
         Set<JpathTab> kept = port.refreshTodayTargets(userId);
         return kept == null ? EnumSet.noneOf(JpathTab.class) : kept;
+    }
+
+    /**
+     * No learnable vocabulary, kanji or grammar item of {@code level} is left unstarted (the "no new items left" of
+     * the calendar, shared by the path view and the daily plan).
+     */
+    static boolean noNewItemsLeft(JpathContentReader content, Long userId, String level, boolean priorityMode) {
+        for (JpathTab tab : SLIDER_TABS) {
+            JpathItemType type = JpathItemType.valueOf(tab.name());
+            if (!content.nextNewCodes(userId, level, type, 1, priorityMode, null).isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 }
