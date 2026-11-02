@@ -13,6 +13,8 @@
 --   * Rating va binh luan tren cac bo mau va toi da 3 bo PUBLIC co san khac.
 --   * Bo "Cộng đồng: Từ vựng N1 chuyên ngành" o trang thai TEMPORARILY_HIDDEN (1 bao cao OPEN).
 --   * 1 binh luan TEMPORARILY_HIDDEN cua learner.clean@jlas.local (1 bao cao OPEN).
+--   * 3 video Shadowing "Cộng đồng: ...": 2 PUBLIC READY (N4, N3) + 1 PRIVATE, kem phu de, danh gia
+--     (video_user_state) va binh luan cong dong. Video PUBLIC co san khac tu hien trong feed.
 
 SET NAMES utf8mb4;
 
@@ -157,7 +159,90 @@ FROM community_comment x
 WHERE @cm_owner_b IS NOT NULL AND x.user_id = @cm_learner AND x.deleted_at IS NULL
   AND x.body = 'Bình luận mẫu đang bị ẩn do bị báo cáo (dùng để kiểm thử quyền xem).';
 
--- ── 6. Tinh lai bo dem tu bang con (cho moi noi dung cong dong) ───────────────────────────────────────────
+-- ── 6. Video Shadowing (SHADOWING_VIDEO) ──────────────────────────────────────────────────────────────────
+-- Video nhan dien theo (owner, title); dung lai file media cua video demo co san (neu co). Danh gia video ghi vao
+-- video_user_state.rating (dung chung voi trang Shadowing), binh luan cong dong vao community_comment.
+SET @cm_media := (SELECT video_path FROM video WHERE video_path IS NOT NULL AND video_path <> '' ORDER BY id LIMIT 1);
+
+DROP TEMPORARY TABLE IF EXISTS tmp_cm_video;
+CREATE TEMPORARY TABLE tmp_cm_video (
+    owner_id   BIGINT UNSIGNED NULL,
+    title      VARCHAR(255) NOT NULL,
+    visibility VARCHAR(20) NOT NULL,
+    level      VARCHAR(10) NOT NULL,
+    tag        VARCHAR(20) NOT NULL
+) ENGINE=MEMORY DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO tmp_cm_video (owner_id, title, visibility, level, tag) VALUES
+    (@cm_owner_b, 'Cộng đồng: Hội thoại mua sắm ở konbini', 'PUBLIC', 'N4', 'VIDEO_N4'),
+    (@cm_owner_a, 'Cộng đồng: Hỏi đường ở nhà ga', 'PUBLIC', 'N3', 'VIDEO_N3'),
+    (@cm_owner_b, 'Cộng đồng: Video luyện nghe riêng tư', 'PRIVATE', 'N5', 'VIDEO_PRIVATE');
+
+INSERT INTO video (owner_id, title, video_path, duration_seconds, status, progress_percent, target_language,
+                   visibility, moderation_status, moderation_checked_at)
+SELECT t.owner_id, t.title, @cm_media, 7.000, 'READY', 100, 'vi', t.visibility, 'SAFE', NOW(6)
+FROM tmp_cm_video t
+WHERE t.owner_id IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM video v WHERE v.owner_id = t.owner_id AND v.title = t.title);
+
+-- Cap do JLPT qua tag VIDEO-Nx (cung cach thu vien Shadowing doc cap do).
+INSERT INTO tag (code, name, tag_type)
+SELECT CONCAT('VIDEO-', l.level), l.level, 'VIDEO'
+FROM (SELECT DISTINCT level FROM tmp_cm_video) l
+WHERE NOT EXISTS (SELECT 1 FROM tag x WHERE x.code = CONCAT('VIDEO-', l.level));
+
+INSERT IGNORE INTO video_tag (video_id, tag_id)
+SELECT v.id, g.id
+FROM tmp_cm_video t
+JOIN video v ON v.owner_id = t.owner_id AND v.title = t.title
+JOIN tag g ON g.code = CONCAT('VIDEO-', t.level);
+
+INSERT IGNORE INTO subtitle (video_id, start_time, end_time, text, translation, sort_order, ai_status)
+SELECT v.id, s.start_time, s.end_time, s.text, s.translation, s.sort_order, 'COMPLETED'
+FROM tmp_cm_video t
+JOIN video v ON v.owner_id = t.owner_id AND v.title = t.title
+JOIN (SELECT 'VIDEO_N4' AS tag, 1 AS sort_order, 0.000 AS start_time, 3.500 AS end_time,
+             'このおにぎりはいくらですか。' AS text, 'Cơm nắm này bao nhiêu tiền?' AS translation
+      UNION ALL SELECT 'VIDEO_N4', 2, 3.500, 7.000, '袋はいりますか。', 'Bạn có cần túi không?'
+      UNION ALL SELECT 'VIDEO_N3', 1, 0.000, 3.500, '駅までの道を教えてください。', 'Làm ơn chỉ đường tới nhà ga.'
+      UNION ALL SELECT 'VIDEO_N3', 2, 3.500, 7.000, 'この道をまっすぐ行ってください。', 'Hãy đi thẳng con đường này.'
+      UNION ALL SELECT 'VIDEO_PRIVATE', 1, 0.000, 3.500, 'おはようございます。', 'Chào buổi sáng.') s ON s.tag = t.tag;
+
+-- Danh gia video (upsert, khong de chu so huu tu danh gia).
+INSERT INTO video_user_state (user_id, video_id, rating)
+SELECT r.user_id, v.id, r.score
+FROM tmp_cm_video t
+JOIN video v ON v.owner_id = t.owner_id AND v.title = t.title
+JOIN (SELECT 'VIDEO_N4' AS tag, @cm_learner AS user_id, 5 AS score
+      UNION ALL SELECT 'VIDEO_N4', @cm_admin, 4
+      UNION ALL SELECT 'VIDEO_N3', @cm_learner, 4
+      UNION ALL SELECT 'VIDEO_N3', @cm_owner_b, 3) r ON r.tag = t.tag
+WHERE r.user_id IS NOT NULL AND r.user_id <> t.owner_id
+ON DUPLICATE KEY UPDATE rating = VALUES(rating);
+
+-- Binh luan cong dong tren video PUBLIC.
+INSERT INTO community_content (content_type, content_id)
+SELECT 'SHADOWING_VIDEO', v.id
+FROM tmp_cm_video t
+JOIN video v ON v.owner_id = t.owner_id AND v.title = t.title
+WHERE t.visibility = 'PUBLIC'
+ON DUPLICATE KEY UPDATE community_content.id = community_content.id;
+
+INSERT INTO community_comment (community_content_id, user_id, body, status, report_count, created_at, updated_at)
+SELECT cc.id, c.user_id, c.body, 'PUBLISHED', 0, NOW(6) - INTERVAL c.age_min MINUTE, NOW(6) - INTERVAL c.age_min MINUTE
+FROM tmp_cm_video t
+JOIN video v ON v.owner_id = t.owner_id AND v.title = t.title
+JOIN community_content cc ON cc.content_type = 'SHADOWING_VIDEO' AND cc.content_id = v.id
+JOIN (SELECT 'VIDEO_N4' AS tag, @cm_learner AS user_id, 'Giọng đọc rõ, hợp để luyện shadowing mỗi sáng.' AS body, 200 AS age_min
+      UNION ALL SELECT 'VIDEO_N4', @cm_admin, 'Câu ngắn, dễ bắt chước ngữ điệu.', 100
+      UNION ALL SELECT 'VIDEO_N3', @cm_owner_b, 'Tốc độ nói vừa phải, có thể thêm phụ đề furigana.', 50) c ON c.tag = t.tag
+WHERE c.user_id IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM community_comment x
+                  WHERE x.community_content_id = cc.id AND x.user_id = c.user_id AND x.body = c.body);
+
+DROP TEMPORARY TABLE IF EXISTS tmp_cm_video;
+
+-- ── 7. Tinh lai bo dem tu bang con (cho moi noi dung cong dong) ───────────────────────────────────────────
 -- Giu nguyen updated_at (ON UPDATE CURRENT_TIMESTAMP) de binh luan khong bi hien "da sua".
 UPDATE community_comment x
 SET x.report_count = (SELECT COUNT(*) FROM community_report r WHERE r.target_type = 'COMMENT' AND r.target_id = x.id),
