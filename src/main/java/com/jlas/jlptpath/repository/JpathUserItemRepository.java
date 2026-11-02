@@ -43,6 +43,10 @@ public interface JpathUserItemRepository extends JpaRepository<JpathUserItem, Lo
 
     long countByUserIdAndItemTypeAndState(Long userId, JpathItemType itemType, JpathItemState state);
 
+    /** Items of a level in one state (KNOWN / NOTEBOOK counts of a tab). */
+    long countByUserIdAndLevelAndItemTypeAndState(Long userId, String level, JpathItemType itemType,
+                                                  JpathItemState state);
+
     /**
      * Review queue of one item type: not KNOWN and due at {@code now} (learner local time), NOTEBOOK items first,
      * then the oldest due; id breaks ties so the order is stable.
