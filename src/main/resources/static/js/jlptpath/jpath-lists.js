@@ -14,6 +14,11 @@
  *   printMenuHtml(tab, filter)          data-jpath-print TODAY and LIST (the filter without page)
  *   itemDrawerHtml(detail)              item detail; buttons follow the learner state
  *   freeQuizDialogHtml(tab, ctx), freeQuizRequest(values)
+ *   kanjiFiltersHtml(filter, facets)    search, radical (character + name + count), sort, Bảng / Lưới
+ *   kanjiListHtml(page, view, filter)   table Chữ · Hán Việt · Nghĩa · On · Kun · Nét, or a .jp-kanji grid; print menu
+ *   kanaColumns(row), kanaHtml(rows, script)
+ *                                       kana grid (a i u e o; YOON a u o; ん in its own slot), writing on every cell,
+ *                                       "Học hàng này" → POST /sessions {tab:'KANA', mode:'BROWSE', startItemCode}
  *   safeReturn(v), checkUrl(token, returnTo)
  *   mountTab(slot, tabKey, ctx)         draws the list of one tab into slot and wires it; ctx = {level, display,
  *                                       skillDay, api, location, history, document, navigate, confirm, rendered}
@@ -237,6 +242,143 @@
     var p = page || {};
     return '<div class="jp-list-bar">' + printMenuHtml('VOCAB', filter) + '</div>'
       + vocabFiltersHtml(filter, p.facets) + vocabResultsHtml(p);
+  }
+
+  // ------------------------------------------------------------------------------------------------ kanji
+
+  var KANJI_SORTS = [['JLPT', 'Thứ tự cấp'], ['STROKES', 'Số nét'], ['FREQUENCY', 'Tần suất'], ['HAN_VIET', 'Âm Hán Việt']];
+
+  /** The Kangxi radical n (1–214) as its CJK character; '' when out of range. */
+  function radicalChar(n) {
+    var v = Number(n);
+    if (!(v >= 1 && v <= 214) || Math.floor(v) !== v) return '';
+    var c = String.fromCodePoint(0x2F00 + v - 1);
+    return typeof c.normalize === 'function' ? c.normalize('NFKC') : c;
+  }
+
+  function radicalLabel(facet) {
+    var f = facet || {};
+    var name = [radicalChar(f.value), has(f.label) ? f.label : null].filter(has).join(' ') || ('Bộ ' + f.value);
+    return name + (f.count != null ? ' (' + num(f.count) + ')' : '');
+  }
+
+  function kanjiFiltersHtml(filter, facets) {
+    var f = filter || {};
+    var radicals = list((facets || {}).radicals);
+    var grid = f.view === 'GRID';
+    return '<div class="jp-list-filters" role="search">'
+      + '<label class="jp-field jp-field--grow"><span class="jp-field__label">Tìm</span>'
+      + '<input class="jp-input" type="search" data-filter="q" placeholder="Tìm chữ, âm Hán, nghĩa…" value="'
+      + esc(f.q || '') + '" autocomplete="off"></label>'
+      + '<label class="jp-field"><span class="jp-field__label">Bộ thủ</span><select class="jp-input" data-filter="radical">'
+      + optionHtml('', 'Tất cả bộ', !has(f.radical))
+      + radicals.map(function (r) { return optionHtml(r.value, radicalLabel(r), String(r.value) === String(f.radical)); }).join('')
+      + '</select></label>'
+      + '<label class="jp-field"><span class="jp-field__label">Sắp xếp</span><select class="jp-input" data-filter="sort">'
+      + KANJI_SORTS.map(function (s) { return optionHtml(s[0], s[1], s[0] === (f.sort || 'JLPT')); }).join('')
+      + '</select></label>'
+      + '<div class="jp-seg" role="group" aria-label="Kiểu hiển thị">'
+      + '<button type="button" class="jp-seg__btn" data-action="kanji-view" data-view="TABLE" aria-pressed="' + !grid
+      + '">Bảng</button><button type="button" class="jp-seg__btn" data-action="kanji-view" data-view="GRID" aria-pressed="'
+      + grid + '">Lưới</button></div></div>';
+  }
+
+  function kanjiRowHtml(r) {
+    var k = r || {};
+    return '<tr><td><button type="button" class="jp-row-open jp-kanji jp-kanji-char" data-action="open-item" data-type="KANJI"'
+      + ' data-code="' + esc(k.code) + '" lang="ja">' + esc(k.character) + '</button></td>'
+      + '<td class="jp-hanviet">' + esc(has(k.hanViet) ? String(k.hanViet).toUpperCase() : '') + '</td>'
+      + '<td>' + esc(k.meaning) + '</td>'
+      + '<td class="jp-ja">' + readingsHtml(k.readingsOn, k.levelReadings) + '</td>'
+      + '<td class="jp-ja">' + readingsHtml(k.readingsKun, k.levelReadings) + '</td>'
+      + '<td>' + esc(has(k.strokeCount) ? k.strokeCount : '') + '</td></tr>';
+  }
+
+  function kanjiCellHtml(r) {
+    var k = r || {};
+    return '<li><button type="button" class="jp-kanji-tile jp-kanji-tile--' + stateOf(k.state).toLowerCase()
+      + '" data-action="open-item" data-type="KANJI" data-code="' + esc(k.code) + '">'
+      + '<span class="jp-kanji jp-kanji-tile__char" lang="ja">' + esc(k.character) + '</span>'
+      + '<span class="jp-kanji-tile__hv">' + esc(has(k.hanViet) ? String(k.hanViet).toUpperCase() : '') + '</span>'
+      + '</button></li>';
+  }
+
+  function kanjiListHtml(page, view, filter) {
+    var p = page || {};
+    var items = list(p.items);
+    var html = '<div class="jp-list-bar">' + printMenuHtml('KANJI', filter) + '</div>';
+    if (!items.length) return html + '<p class="jp-muted jp-list-empty">Không có chữ Kanji nào khớp bộ lọc.</p>';
+    if (view === 'GRID') {
+      html += '<ul class="jp-kanji-grid">' + items.map(kanjiCellHtml).join('') + '</ul>';
+    } else {
+      html += '<div class="jp-table-wrap"><table class="jp-table jp-table--kanji"><thead><tr><th scope="col">Chữ</th>'
+        + '<th scope="col">Hán Việt</th><th scope="col">Nghĩa</th><th scope="col">On</th><th scope="col">Kun</th>'
+        + '<th scope="col">Nét</th></tr></thead><tbody>' + items.map(kanjiRowHtml).join('') + '</tbody></table></div>';
+    }
+    return html + pagerHtml(p);
+  }
+
+  // ------------------------------------------------------------------------------------------------ kana
+
+  var VOWELS = ['a', 'i', 'u', 'e', 'o'];
+  var YOON_VOWELS = ['a', 'u', 'o'];
+
+  function lastVowel(romaji) {
+    var m = /([aiueo])$/.exec(String(romaji || '').toLowerCase());
+    return m ? m[1] : null;
+  }
+
+  /** Grid slots of one kana row: 5 per line a i u e o (ん in its own slot after them), YOON 3 per line a u o. */
+  function kanaColumns(row) {
+    var r = row || {};
+    var cells = list(r.kanas).filter(Boolean);
+    if (r.kind === 'YOON') {
+      var groups = [];
+      var byKey = {};
+      cells.forEach(function (c) {
+        var key = String(c.romaji || '').replace(/[aiueo]$/, '');
+        if (!byKey[key]) { byKey[key] = [null, null, null]; groups.push(byKey[key]); }
+        var i = YOON_VOWELS.indexOf(lastVowel(c.romaji));
+        if (i >= 0) byKey[key][i] = c;
+      });
+      return [].concat.apply([], groups);
+    }
+    var slots = [null, null, null, null, null];
+    var extra = [];
+    cells.forEach(function (c) {
+      var i = VOWELS.indexOf(lastVowel(c.romaji));
+      if (i >= 0 && !slots[i]) slots[i] = c; else extra.push(c);
+    });
+    return slots.concat(extra);
+  }
+
+  function kanaCellHtml(c) {
+    if (!c) return '<span class="jp-kana-cell jp-kana-cell--empty" aria-hidden="true"></span>';
+    return '<button type="button" class="jp-kana-cell jp-kana-cell--' + stateOf(c.state).toLowerCase()
+      + '" data-jpath-writing="' + dataJson({ itemType: 'KANA', code: c.code }) + '" aria-label="'
+      + esc(c.kana + ' ' + (c.romaji || '') + ', luyện viết') + '"><span class="jp-kanji jp-kana-cell__kana" lang="ja">'
+      + esc(c.kana) + '</span><span class="jp-romaji">' + esc(c.romaji) + '</span></button>';
+  }
+
+  function kanaHtml(rows, script) {
+    var s = script === 'KATAKANA' ? 'KATAKANA' : 'HIRAGANA';
+    var html = '<div class="jp-list-bar"><div class="jp-seg" role="group" aria-label="Bảng chữ">'
+      + '<button type="button" class="jp-seg__btn" data-action="kana-script" data-script="HIRAGANA" aria-pressed="'
+      + (s === 'HIRAGANA') + '">Hiragana</button><button type="button" class="jp-seg__btn" data-action="kana-script"'
+      + ' data-script="KATAKANA" aria-pressed="' + (s === 'KATAKANA') + '">Katakana</button></div>'
+      + '<button type="button" class="jp-btn" data-jpath-print="' + dataJson({ scope: 'KANA', script: s }) + '">In bảng chữ</button></div>';
+    var items = list(rows).filter(Boolean);
+    if (!items.length) return html + '<p class="jp-muted jp-list-empty">Chưa có hàng chữ nào.</p>';
+    html += '<ol class="jp-kana-rows">' + items.map(function (r) {
+      var first = list(r.kanas).filter(Boolean)[0];
+      return '<li class="jp-kana-row"><div class="jp-kana-row__head"><h3 class="jp-kana-row__title">' + esc(r.title)
+        + '</h3>' + (r.passed ? '<span class="jp-ok jp-kana-row__passed">✓ Đã đạt</span>' : '')
+        + (first ? '<button type="button" class="jp-link-btn" data-action="kana-row" data-row="' + esc(r.code)
+          + '" data-start="' + esc(first.code) + '">Học hàng này</button>' : '') + '</div>'
+        + '<div class="jp-kana-grid' + (r.kind === 'YOON' ? ' jp-kana-grid--yoon' : '') + '">'
+        + kanaColumns(r).map(kanaCellHtml).join('') + '</div></li>';
+    }).join('') + '</ol>';
+    return html;
   }
 
   // ------------------------------------------------------------------------------------------------ drawer
@@ -468,6 +610,50 @@
     }
   };
 
+  TABS.kanji = {
+    urlKeys: ['q', 'radical', 'sort', 'view'],
+    init: function (st, params) {
+      var sort = String(params.sort || '').toUpperCase();
+      st.filter = { q: params.q || '', radical: /^\d+$/.test(params.radical || '') ? params.radical : '',
+        sort: KANJI_SORTS.some(function (s) { return s[0] === sort; }) ? sort : '',
+        view: String(params.view || '').toUpperCase() === 'GRID' ? 'GRID' : '', page: 0 };
+    },
+    load: function (st) {
+      var f = st.filter;
+      var level = st.ctx.level;
+      return st.api.get(listUrl('kanji', { level: level, q: f.q, radical: f.radical, sort: f.sort, view: f.view,
+        page: f.page })).then(function (page) {
+        var current = { level: level, q: f.q, radical: f.radical, sort: f.sort, view: f.view };
+        return '<div class="jp-list-bar">' + quizButtonHtml('KANJI') + '</div>'
+          + kanjiFiltersHtml(current, page && page.facets) + kanjiListHtml(page, f.view === 'GRID' ? 'GRID' : 'TABLE', current);
+      });
+    }
+  };
+
+  TABS.kana = {
+    urlKeys: ['script'],
+    init: function (st, params) {
+      st.filter = { script: String(params.script || '').toUpperCase() === 'KATAKANA' ? 'KATAKANA' : 'HIRAGANA' };
+    },
+    load: function (st) {
+      return st.api.get(listUrl('kana', { script: st.filter.script })).then(function (rows) {
+        return kanaHtml(rows, st.filter.script);
+      });
+    }
+  };
+
+  function startKanaRow(slot, st, el) {
+    var req = { tab: 'KANA', mode: 'BROWSE', startItemCode: el.getAttribute('data-start') };
+    el.disabled = true;
+    return st.api.send('POST', BASE + '/sessions', req).then(function (res) {
+      var id = res && (res.sessionId != null ? res.sessionId : res.id);
+      st.navigate('/learning/jlpt/study?session=' + encodeURIComponent(id));
+    }, function (e) {
+      el.disabled = false;
+      showError(slot, 'list-error', messageOf(e));
+    });
+  }
+
   function mountTab(slot, tabKey, ctx) {
     if (!slot) return Promise.resolve();
     var key = String(tabKey || '').toLowerCase();
@@ -674,7 +860,12 @@
       'page': function (el) { return applyFilter(slot, st, 'page', Math.max(0, num(el.getAttribute('data-page')))); },
       'open-item': function (el) { return openItem(slot, st, el.getAttribute('data-type'), el.getAttribute('data-code'), el); },
       'topic-known': function (el) { return topicKnown(slot, st, el); },
-      'free-quiz': function (el) { return freeQuiz(slot, st, el); }
+      'free-quiz': function (el) { return freeQuiz(slot, st, el); },
+      'kanji-view': function (el) {
+        return applyFilter(slot, st, 'view', el.getAttribute('data-view') === 'GRID' ? 'GRID' : '');
+      },
+      'kana-script': function (el) { return applyFilter(slot, st, 'script', el.getAttribute('data-script')); },
+      'kana-row': function (el) { return startKanaRow(slot, st, el); }
     };
     st.actions = actions;
     slot.addEventListener('click', function (ev) {
@@ -703,6 +894,8 @@
     STATE_LABEL: STATE_LABEL, SEARCH_DELAY_MS: SEARCH_DELAY_MS, listUrl: listUrl, viewToggleHtml: viewToggleHtml,
     topicGridHtml: topicGridHtml, vocabTableHtml: vocabTableHtml, printMenuHtml: printMenuHtml,
     itemDrawerHtml: itemDrawerHtml, freeQuizDialogHtml: freeQuizDialogHtml, freeQuizRequest: freeQuizRequest,
-    safeReturn: safeReturn, checkUrl: checkUrl, mountTab: mountTab, messageOf: messageOf
+    safeReturn: safeReturn, checkUrl: checkUrl, mountTab: mountTab, messageOf: messageOf,
+    kanjiFiltersHtml: kanjiFiltersHtml, kanjiListHtml: kanjiListHtml, radicalChar: radicalChar,
+    kanaColumns: kanaColumns, kanaHtml: kanaHtml
   };
 });

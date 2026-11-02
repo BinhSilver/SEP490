@@ -283,6 +283,46 @@
 .jp-choice:has(input:disabled) { opacity: .5; cursor: not-allowed; }
 .jp-choice:has(input:checked) { border-color: var(--jp-primary); background: var(--jp-primary-soft); }
 
+/* Kanji list and kana table (Task 47) */
+.jp-kanji-char { font-size: 1.6em; }
+.jp-hanviet { font-weight: 600; letter-spacing: .02em; white-space: nowrap; }
+.jp-table--kanji td:nth-child(4), .jp-table--kanji td:nth-child(5) { min-width: 7em; }
+.jp-kanji-grid {
+  list-style: none; margin: 0; padding: 0; display: grid; gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+}
+.jp-kanji-tile {
+  width: 100%; min-height: 76px; display: grid; place-items: center; gap: 2px; padding: 6px;
+  border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface);
+  color: var(--jp-ink); font: inherit; cursor: pointer;
+}
+.jp-kanji-tile:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-kanji-tile--known { border-color: var(--jp-ok); }
+.jp-kanji-tile--learning, .jp-kanji-tile--notebook { border-color: var(--jp-primary); }
+.jp-kanji-tile__char { font-size: 2em; line-height: 1.1; }
+.jp-kanji-tile__hv { color: var(--jp-muted); font-size: .75em; font-weight: 600; }
+.jp-kana-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.jp-kana-row {
+  display: grid; gap: 8px; padding: 12px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-panel);
+  background: var(--jp-surface);
+}
+.jp-kana-row__head { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+.jp-kana-row__title { margin: 0; font-size: 1em; }
+.jp-kana-row__head .jp-link-btn { margin-left: auto; }
+.jp-kana-row__passed { font-weight: 600; }
+.jp-kana-grid { display: grid; gap: 6px; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.jp-kana-grid--yoon { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.jp-kana-cell {
+  min-height: 56px; display: grid; place-items: center; gap: 0; padding: 4px; border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink); font: inherit;
+  cursor: pointer;
+}
+.jp-kana-cell:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-kana-cell--empty { border-style: dashed; background: transparent; cursor: default; }
+.jp-kana-cell--known { border-color: var(--jp-ok); }
+.jp-kana-cell--learning { border-color: var(--jp-primary); }
+.jp-kana-cell__kana { font-size: 1.5em; line-height: 1.1; }
+
 @media (max-width: 640px) {
   .jp-dialog-backdrop:has(.jp-dialog--drawer) { padding: 0; }
   .jp-dialog--drawer { width: 100%; height: 100%; max-height: none; border-radius: 0; }
