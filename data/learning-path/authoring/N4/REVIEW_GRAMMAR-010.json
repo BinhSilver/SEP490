@@ -1,0 +1,4323 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "Tại (nơi diễn ra hành động); bằng (phương tiện, công cụ); vì (nguyên nhân); trong (phạm vi)",
+     "formation": "N (nơi chốn / phương tiện / nguyên nhân / phạm vi) + で",
+     "usage_vi": "で đánh dấu nơi hành động diễn ra (学校で勉強する), phương tiện, công cụ (バスで行く, はしで食べる), nguyên nhân (病気で休む), phạm vi (クラスで一番).",
+     "nuance_vi": "Khác に: に chỉ nơi tồn tại hoặc đích đến (学校に学生がいる, 学校に行く), còn で chỉ nơi xảy ra hành động.",
+     "common_mistakes_vi": "Dùng で với động từ tồn tại (sai: 公園で子どもがいます; đúng: 公園に子どもがいます) hoặc dùng に cho nơi diễn ra hành động (sai: 図書館に勉強します; đúng: 図書館で勉強します).",
+     "examples": [
+      {
+       "ja": "公園で子どもたちが遊んでいます。",
+       "ja_furigana": "公園(こうえん)で子(こ)どもたちが遊(あそ)んでいます。",
+       "vi": "Bọn trẻ đang chơi ở công viên."
+      },
+      {
+       "ja": "毎朝バスで会社へ行きます。",
+       "ja_furigana": "毎朝(まいあさ)バスで会社(かいしゃ)へ行(い)きます。",
+       "vi": "Mỗi sáng tôi đi làm bằng xe buýt."
+      },
+      {
+       "ja": "きのうは風邪で学校を休みました。",
+       "ja_furigana": "きのうは風邪(かぜ)で学校(がっこう)を休(やす)みました。",
+       "vi": "Hôm qua tôi nghỉ học vì bị cảm."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "図書館（　　）日本語を勉強しています。",
+       "options": [
+        "を",
+        "に",
+        "が",
+        "で"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Điền 「で」: で chỉ nơi diễn ra hành động, phương tiện, nguyên nhân hoặc phạm vi. Nghĩa: Tôi đang học tiếng Nhật ở thư viện."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "クラス（　　）一番背が高いのは田中さんです。",
+       "options": [
+        "を",
+        "で",
+        "へ",
+        "に"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Điền 「で」: で chỉ nơi diễn ra hành động, phương tiện, nguyên nhân hoặc phạm vi. Nghĩa: Người cao nhất lớp là anh Tanaka."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "行きます",
+        "バスで",
+        "毎朝",
+        "会社へ"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: 毎朝バスで会社へ行きます。 (Mỗi sáng tôi đi làm bằng xe buýt.). Mảnh ở ô ★ là 「会社へ」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "食べるのは",
+        "ご飯を",
+        "難しいです",
+        "はしで"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: はしでご飯を食べるのは難しいです。 (Ăn cơm bằng đũa thì khó.). Mảnh ở ô ★ là 「食べるのは」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "公園で子どもたちが遊んでいます。",
+       "options": [
+        "Là vì xe buýt không đến nên tôi bị muộn.",
+        "Xin quý khách vui lòng đợi ở đây một lát.",
+        "Bọn trẻ đang chơi ở công viên.",
+        "Anh/chị có thể chỉ giúp tôi cách đọc chữ Hán này được không ạ?"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu dùng mẫu trợ từ で (tại (nơi diễn ra hành động); bằng (phương tiện, công cụ); vì (nguyên nhân); trong (phạm vi)): \"Bọn trẻ đang chơi ở công viên.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "きのうは風邪で学校を休みました。",
+       "options": [
+        "Vì tàu điện ngừng chạy nên tôi đến công ty muộn.",
+        "Từ đâu đó vọng đến một bài hát hay.",
+        "Tôi tra ở ga thì biết tàu đang ngừng chạy.",
+        "Hôm qua tôi nghỉ học vì bị cảm."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu dùng mẫu trợ từ で (tại (nơi diễn ra hành động); bằng (phương tiện, công cụ); vì (nguyên nhân); trong (phạm vi)): \"Hôm qua tôi nghỉ học vì bị cảm.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "公園で子どもがたくさんいます。",
+        "公園で子どもたちが遊んでいます。",
+        "図書館で日本語を勉強しています。",
+        "はしでご飯を食べるのは難しいです。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "「公園で子どもがたくさんいます。」 sai: nơi tồn tại (いる / ある) dùng に, không dùng で. Câu đúng: 公園に子どもがたくさんいます。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "毎朝バスで会社へ行きます。",
+        "きのうは風邪で学校を休みました。",
+        "図書館に日本語を勉強しています。",
+        "クラスで一番背が高いのは田中さんです。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "「図書館に日本語を勉強しています。」 sai: nơi diễn ra hành động dùng で. Câu đúng: 図書館で日本語を勉強しています。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "遊んで",
+        "子どもたちが",
+        "います。",
+        "公園で"
+       ],
+       "answer_order": [
+        3,
+        1,
+        0,
+        2
+       ],
+       "translation_vi": "Bọn trẻ đang chơi ở công viên."
+      },
+      {
+       "pieces": [
+        "風邪で",
+        "休みました。",
+        "学校を",
+        "きのうは"
+       ],
+       "answer_order": [
+        3,
+        0,
+        2,
+        1
+       ],
+       "translation_vi": "Hôm qua tôi nghỉ học vì bị cảm."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "毎朝バス＿＿会社へ行きます。",
+       "answer": "で",
+       "translation_vi": "Mỗi sáng tôi đi làm bằng xe buýt."
+      },
+      {
+       "sentence_ja": "きのうは風邪＿＿学校を休みました。",
+       "answer": "で",
+       "translation_vi": "Hôm qua tôi nghỉ học vì bị cảm."
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "はし（　　）ご飯を食べるのは難しいです。",
+       "options": [
+        "へ",
+        "で",
+        "が",
+        "を"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Điền 「で」: で chỉ nơi diễn ra hành động, phương tiện, nguyên nhân hoặc phạm vi. Nghĩa: Ăn cơm bằng đũa thì khó."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "図書館で日本語を勉強しています。",
+       "options": [
+        "Trên cửa quán có ghi \"Đang chuẩn bị\".",
+        "Tôi đang học tiếng Nhật ở thư viện.",
+        "Bông hoa này có mùi rất ngọt.",
+        "Máy bay dự kiến hạ cánh lúc 10 giờ."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu trợ từ で (tại (nơi diễn ra hành động); bằng (phương tiện, công cụ); vì (nguyên nhân); trong (phạm vi)): \"Tôi đang học tiếng Nhật ở thư viện.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "毎朝バスで会社へ行きます。",
+        "公園で子どもたちが遊んでいます。",
+        "クラスで一番背が高いのは田中さんです。",
+        "はしにご飯を食べます。"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "「はしにご飯を食べます。」 sai: công cụ, phương tiện dùng で. Câu đúng: はしでご飯を食べます。"
+      }
+     ]
+    },
+    "note": "mục nguồn chép ghi chú dài, lõi chỉ là nhãn tiếng Việt; viết lại lõi theo các nghĩa chính của で, ví dụ và toàn bộ ngân hàng câu"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「でいる」 theo mẫu Bằng..., tại..., vì... (Trợ từ で đa chức năng: nơi hành động, phương tiện, nguyên nhân, phạm vi, giá cả, giới hạn thời gian, trạng thái. Khác biệt lõi với に: で = “tại (nơi diễn ra hành động)”, に = “tới/ở (vị trí tồn tại/đích)”. “～で” còn là dạng liên kết của だ đối với danh từ/な-tính từ, dùng để nối mệnh đề hoặc chỉ trạng thái.). Nghĩa cả câu: Bọn trẻ đang chơi ở công viên.",
+      "options": [
+       "つもり",
+       "でいる",
+       "てしまう",
+       "てくる"
+      ],
+      "prompt_ja": "公園で子どもたちが遊ん（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc Bằng..., tại..., vì... (Trợ từ で đa chức năng: nơi hành động, phương tiện, nguyên nhân, phạm vi, giá cả, giới hạn thời gian, trạng thái. Khác biệt lõi với に: で = “tại (nơi diễn ra hành động)”, に = “tới/ở (vị trí tồn tại/đích)”. “～で” còn là dạng liên kết của だ đối với danh từ/な-tính từ, dùng để nối mệnh đề hoặc chỉ trạng thái.), chỗ trống cần điền 「ます」. Nghĩa: Đi bằng xe buýt đến sân bay.",
+      "options": [
+       "はず",
+       "ておく",
+       "ます",
+       "ていく"
+      ],
+      "prompt_ja": "バスで空港へ行き（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 公園で子どもたちが遊んでいる。 (Bọn trẻ đang chơi ở công viên.). Theo cấu trúc Bằng..., tại..., vì..., mảnh đứng ở vị trí ★ là 「たちが」.",
+      "options": [
+       "子ども",
+       "遊んでいる",
+       "公園で",
+       "たちが"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: バスで空港へ行きます。 (Đi bằng xe buýt đến sân bay.). Theo cấu trúc Bằng..., tại..., vì..., mảnh đứng ở vị trí ★ là 「空港へ」.",
+      "options": [
+       "ます",
+       "空港へ",
+       "行き",
+       "バスで"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Mẫu Bằng..., tại..., vì... có nghĩa là \"Trợ từ で đa chức năng: nơi hành động, phương tiện, nguyên nhân, phạm vi, giá cả, giới hạn thời gian, trạng thái. Khác biệt lõi với に: で = “tại (nơi diễn ra hành động)”, に = “tới/ở (vị trí tồn tại/đích)”. “～で” còn là dạng liên kết của だ đối với danh từ/な-tính từ, dùng để nối mệnh đề hoặc chỉ trạng thái.\". Câu này dịch là: \"Bọn trẻ đang chơi ở công viên.\"",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Bọn trẻ đang chơi ở công viên."
+      ],
+      "prompt_ja": "公園で子どもたちが遊んでいる。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu Bằng..., tại..., vì... (Trợ từ で đa chức năng: nơi hành động, phương tiện, nguyên nhân, phạm vi, giá cả, giới hạn thời gian, trạng thái. Khác biệt lõi với に: で = “tại (nơi diễn ra hành động)”, に = “tới/ở (vị trí tồn tại/đích)”. “～で” còn là dạng liên kết của だ đối với danh từ/な-tính từ, dùng để nối mệnh đề hoặc chỉ trạng thái.), câu trên có nghĩa là: \"Đi bằng xe buýt đến sân bay.\"",
+      "options": [
+       "Đi bằng xe buýt đến sân bay.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà."
+      ],
+      "prompt_ja": "バスで空港へ行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Bằng..., tại..., vì...). Câu đúng: 公園で子どもたちが遊んでいる。",
+      "options": [
+       "バスで空港へ行きます。",
+       "公園で子どもたちが遊んでいるますだ。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu Bằng..., tại..., vì...). Câu đúng: バスで空港へ行きます。",
+      "options": [
+       "公園で子どもたちが遊んでいる。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "バスで空港へ行きますですます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Bằng..., tại..., vì...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "公園で子どもたちが遊んでいる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bọn trẻ đang chơi ở công viên."
+     },
+     {
+      "ja": "バスで空港へ行きます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đi bằng xe buýt đến sân bay."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「ています」 theo cấu trúc Bằng..., tại..., vì... (Trợ từ で đa chức năng: nơi hành động, phương tiện, nguyên nhân, phạm vi, giá cả, giới hạn thời gian, trạng thái. Khác biệt lõi với に: で = “tại (nơi diễn ra hành động)”, に = “tới/ở (vị trí tồn tại/đích)”. “～で” còn là dạng liên kết của だ đối với danh từ/な-tính từ, dùng để nối mệnh đề hoặc chỉ trạng thái.). Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "ついでに",
+       "ている",
+       "すぎる",
+       "ています"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu Bằng..., tại..., vì... (Trợ từ で đa chức năng: nơi hành động, phương tiện, nguyên nhân, phạm vi, giá cả, giới hạn thời gian, trạng thái. Khác biệt lõi với に: で = “tại (nơi diễn ra hành động)”, に = “tới/ở (vị trí tồn tại/đích)”. “～で” còn là dạng liên kết của だ đối với danh từ/な-tính từ, dùng để nối mệnh đề hoặc chỉ trạng thái.), câu này nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "毎日まじめにを日本語を勉強しています。",
+       "公園で子どもたちが遊んでいる。",
+       "バスで空港へ行きます。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "でいる",
+      "sentence_ja": "公園で子どもたちが遊ん＿＿。",
+      "translation_vi": "Bọn trẻ đang chơi ở công viên."
+     },
+     {
+      "answer": "ます",
+      "sentence_ja": "バスで空港へ行き＿＿。",
+      "translation_vi": "Đi bằng xe buýt đến sân bay."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 公園で子どもたちが遊んでいる。",
+     "FURIGANA_MISSING: バスで空港へ行きます。"
+    ],
+    "formation": "Cấu trúc: Bằng..., tại..., vì...",
+    "locked_fields": [],
+    "meaning_vi": "Trợ từ で đa chức năng: nơi hành động, phương tiện, nguyên nhân, phạm vi, giá cả, giới hạn thời gian, trạng thái. Khác biệt lõi với に: で = “tại (nơi diễn ra hành động)”, に = “tới/ở (vị trí tồn tại/đích)”. “～で” còn là dạng liên kết của だ đối với danh từ/な-tính từ, dùng để nối mệnh đề hoặc chỉ trạng thái.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Bằng..., tại..., vì...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "たちが",
+       "公園で",
+       "遊んでいる",
+       "子ども"
+      ],
+      "translation_vi": "Bọn trẻ đang chơi ở công viên."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "空港へ",
+       "ます",
+       "バスで",
+       "行き"
+      ],
+      "translation_vi": "Đi bằng xe buýt đến sân bay."
+     }
+    ],
+    "pattern": "Bằng..., tại..., vì...",
+    "pattern_variants": [],
+    "unit_no": 1,
+    "unit_title_vi": "Trạng thái và hành động song song",
+    "usage_vi": "[4. Cách dùng & sắc thái] Nơi diễn ra hành động: 学校で勉強する (hành động học diễn ra tại trường). Với ある／いる (tồn tại), dùng に, không dùng で: 学校に学生がいる. Lý do bằng で mang tính sự cố/khách quan; lý do chủ quan/unhappy có thể dùng から/ので. Dạng nối của だ bằng で tạo câu mạch lạc và súc tích trong văn viết. [6. Ghi chú mở rộng] “これで以上です/終わりです” là cụm cố định kết thúc phần trình bày. Khi đếm người tham gia: ～人で là công thức chuẩn trong đặt bàn/đặt chỗ. Nguyên nhân bằng で không dùng với mệnh đề dài; nếu cần giải thích, chuyển sang ため/ので. [7. Biến thể & cụm cố định] ～でお願いします (xin với …/bằng …) ～で結構です (thế là được) ～で大丈夫です (thế là ổn) これで以上です／これで終わりです 一人で／二人で (một mình/2 người) [8. Lỗi thường gặp & bẫy JLPT] Dùng で với いる/ある: × 図書館で本がある → 図書館に本がある. Nhầm で và に trong “đến nơi”: × 学校で行く → 学校に行く. Liên kết sai tính từ: × 静かくて → 静かで; × 安いで → 安くて. Dùng で cho mọi loại lý do: mệnh đề dài nên chuyển ので/ために để tự nhiên hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-04ce90caff"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "Cũng; cả... lẫn...; (từ để hỏi + も + phủ định) không... gì cả",
+     "formation": "N + も / N1 も N2 も / Từ để hỏi + も + V-ない",
+     "usage_vi": "も thay cho は / が / を để nói \"cũng\" (私も行きます); AもBも là \"cả A lẫn B\"; từ để hỏi + も + phủ định là phủ định hoàn toàn (何も食べません, だれも来ません).",
+     "nuance_vi": "Với trợ từ khác, も đứng sau (にも, からも, でも); không dùng chung với は, が, を.",
+     "common_mistakes_vi": "Để cả を và も (sai: パンをも食べます; đúng: パンも食べます) hoặc dùng từ để hỏi + も với câu khẳng định khi muốn nói \"không gì cả\" (sai: 何も食べました).",
+     "examples": [
+      {
+       "ja": "私もあしたのパーティーに行きます。",
+       "ja_furigana": "私(わたし)もあしたのパーティーに行(い)きます。",
+       "vi": "Tôi cũng sẽ đi dự tiệc ngày mai."
+      },
+      {
+       "ja": "今日は朝から何も食べていません。",
+       "ja_furigana": "今日(きょう)は朝(あさ)から何(なに)も食(た)べていません。",
+       "vi": "Hôm nay từ sáng tôi chưa ăn gì cả."
+      },
+      {
+       "ja": "彼は英語も日本語も話せます。",
+       "ja_furigana": "彼(かれ)は英語(えいご)も日本語(にほんご)も話(はな)せます。",
+       "vi": "Anh ấy nói được cả tiếng Anh lẫn tiếng Nhật."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "日曜日はだれ（　　）会社に来ません。",
+       "options": [
+        "も",
+        "へ",
+        "を",
+        "で"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「も」: も nghĩa là \"cũng\", \"cả... lẫn...\"; từ để hỏi + も đi với phủ định. Nghĩa: Chủ nhật không ai đến công ty cả."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "妹は肉（　　）魚も食べません。",
+       "options": [
+        "へ",
+        "も",
+        "を",
+        "で"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Điền 「も」: も nghĩa là \"cũng\", \"cả... lẫn...\"; từ để hỏi + も đi với phủ định. Nghĩa: Em gái tôi không ăn cả thịt lẫn cá."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "今日は",
+        "朝から",
+        "食べていません",
+        "何も"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: 今日は朝から何も食べていません。 (Hôm nay từ sáng tôi chưa ăn gì cả.). Mảnh ở ô ★ là 「何も」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "子どもも",
+        "この",
+        "わかります",
+        "問題は"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: この問題は子どももわかります。 (Bài này đến trẻ con cũng hiểu.). Mảnh ở ô ★ là 「子どもも」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "私もあしたのパーティーに行きます。",
+       "options": [
+        "Bạn đã mua chiếc túi đó ở đâu vậy?",
+        "Việc này nên nhờ ai thì được ạ?",
+        "Tôi đã từng leo núi Phú Sĩ.",
+        "Tôi cũng sẽ đi dự tiệc ngày mai."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu dùng mẫu trợ từ も (cũng; cả... lẫn...; (từ để hỏi + も + phủ định) không... gì cả): \"Tôi cũng sẽ đi dự tiệc ngày mai.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "彼は英語も日本語も話せます。",
+       "options": [
+        "Anh ấy nói được cả tiếng Anh lẫn tiếng Nhật.",
+        "Quyển sách này tôi đã đọc xong hết trong một ngày.",
+        "Tôi xin thông báo lịch ngày mai qua email.",
+        "Không chừng tôi đã đánh rơi ví."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu dùng mẫu trợ từ も (cũng; cả... lẫn...; (từ để hỏi + も + phủ định) không... gì cả): \"Anh ấy nói được cả tiếng Anh lẫn tiếng Nhật.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "この問題は子どももわかります。",
+        "私もはあしたのパーティーに行きます。",
+        "日曜日はだれも会社に来ません。",
+        "私もあしたのパーティーに行きます。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "「私もはあしたのパーティーに行きます。」 sai: も thay chỗ は, không dùng chung với は. Câu đúng: 私もあしたのパーティーに行きます。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "妹は肉も魚も食べません。",
+        "今日は朝から何も食べました。",
+        "彼は英語も日本語も話せます。",
+        "今日は朝から何も食べていません。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "「今日は朝から何も食べました。」 sai: từ để hỏi + も (何も) đi với phủ định. Câu đúng: 今日は朝から何も食べていません。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "あしたの",
+        "行きます。",
+        "私も",
+        "パーティーに"
+       ],
+       "answer_order": [
+        2,
+        0,
+        3,
+        1
+       ],
+       "translation_vi": "Tôi cũng sẽ đi dự tiệc ngày mai."
+      },
+      {
+       "pieces": [
+        "英語も",
+        "日本語も",
+        "話せます。",
+        "彼は"
+       ],
+       "answer_order": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "translation_vi": "Anh ấy nói được cả tiếng Anh lẫn tiếng Nhật."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "今日は朝から何＿＿食べていません。",
+       "answer": "も",
+       "translation_vi": "Hôm nay từ sáng tôi chưa ăn gì cả."
+      },
+      {
+       "sentence_ja": "彼は英語＿＿日本語も話せます。",
+       "answer": "も",
+       "translation_vi": "Anh ấy nói được cả tiếng Anh lẫn tiếng Nhật."
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "この問題は子ども（　　）わかります。",
+       "options": [
+        "も",
+        "で",
+        "を",
+        "へ"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「も」: も nghĩa là \"cũng\", \"cả... lẫn...\"; từ để hỏi + も đi với phủ định. Nghĩa: Bài này đến trẻ con cũng hiểu."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "日曜日はだれも会社に来ません。",
+       "options": [
+        "Nghe nói mì ramen quán kia rất ngon.",
+        "Gần ga có lẽ tiền thuê nhà sẽ đắt.",
+        "Bạn có nấu được món Nhật nào không?",
+        "Chủ nhật không ai đến công ty cả."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu dùng mẫu trợ từ も (cũng; cả... lẫn...; (từ để hỏi + も + phủ định) không... gì cả): \"Chủ nhật không ai đến công ty cả.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "妹は肉をも魚をも食べません。",
+        "私もあしたのパーティーに行きます。",
+        "妹は肉も魚も食べません。",
+        "今日は朝から何も食べていません。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "「妹は肉をも魚をも食べません。」 sai: も thay chỗ を, không để cả を và も. Câu đúng: 妹は肉も魚も食べません。"
+      }
+     ]
+    },
+    "note": "mục nguồn chép ghi chú dài, lõi chỉ là nhãn tiếng Việt, ví dụ ngắn 7 ký tự; viết lại lõi, ví dụ và toàn bộ ngân hàng câu"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「ます」 theo mẫu Cũng..., tận..., cả ... (Nghĩa “cũng”: Thêm thông tin cùng chiều với đã nêu. Ví dụ: 田中さんも来ます (Tanaka cũng sẽ đến). Nghĩa “ngay cả/đến cả”: Nhấn mạnh tính bất ngờ, cực đoan. Ví dụ: 子どもも分かる (đến trẻ con cũng hiểu). Liệt kê song song: AもBも～ (cả A lẫn B). Có thể mở rộng: AもBもCも～. Phủ định toàn phần với nghi vấn từ: 誰も～ない, 何も～ない, どこも～ない → “không … nào”. Nhấn mạnh số lượng/tần suất: 数量 + も (tận…), 何度 + も (nhiều lần). Với khẳng định, một số nghi vấn từ + も mang nghĩa “mọi/ai cũng/đâu cũng”: 誰もが, どこも, いつも.). Nghĩa cả câu: Tôi cũng đi.",
+      "options": [
+       "ます",
+       "てある",
+       "やすい",
+       "らしい"
+      ],
+      "prompt_ja": "私も行き（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc Cũng..., tận..., cả ... (Nghĩa “cũng”: Thêm thông tin cùng chiều với đã nêu. Ví dụ: 田中さんも来ます (Tanaka cũng sẽ đến). Nghĩa “ngay cả/đến cả”: Nhấn mạnh tính bất ngờ, cực đoan. Ví dụ: 子どもも分かる (đến trẻ con cũng hiểu). Liệt kê song song: AもBも～ (cả A lẫn B). Có thể mở rộng: AもBもCも～. Phủ định toàn phần với nghi vấn từ: 誰も～ない, 何も～ない, どこも～ない → “không … nào”. Nhấn mạnh số lượng/tần suất: 数量 + も (tận…), 何度 + も (nhiều lần). Với khẳng định, một số nghi vấn từ + も mang nghĩa “mọi/ai cũng/đâu cũng”: 誰もが, どこも, いつも.), chỗ trống cần điền 「せる」. Nghĩa: Anh ấy nói được cả tiếng Anh lẫn tiếng Nhật.",
+      "options": [
+       "てみる",
+       "せる",
+       "にくい",
+       "かもしれない"
+      ],
+      "prompt_ja": "彼は英語も日本語も話（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 私も行きます。 (Tôi cũng đi.). Theo cấu trúc Cũng..., tận..., cả ..., mảnh đứng ở vị trí ★ là 「き」.",
+      "options": [
+       "き",
+       "私",
+       "ます",
+       "も行"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 彼は英語も日本語も話せる。 (Anh ấy nói được cả tiếng Anh lẫn tiếng Nhật.). Theo cấu trúc Cũng..., tận..., cả ..., mảnh đứng ở vị trí ★ là 「英語も」.",
+      "options": [
+       "英語も",
+       "話せる",
+       "彼は",
+       "日本語も"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mẫu Cũng..., tận..., cả ... có nghĩa là \"Nghĩa “cũng”: Thêm thông tin cùng chiều với đã nêu. Ví dụ: 田中さんも来ます (Tanaka cũng sẽ đến). Nghĩa “ngay cả/đến cả”: Nhấn mạnh tính bất ngờ, cực đoan. Ví dụ: 子どもも分かる (đến trẻ con cũng hiểu). Liệt kê song song: AもBも～ (cả A lẫn B). Có thể mở rộng: AもBもCも～. Phủ định toàn phần với nghi vấn từ: 誰も～ない, 何も～ない, どこも～ない → “không … nào”. Nhấn mạnh số lượng/tần suất: 数量 + も (tận…), 何度 + も (nhiều lần). Với khẳng định, một số nghi vấn từ + も mang nghĩa “mọi/ai cũng/đâu cũng”: 誰もが, どこも, いつも.\". Câu này dịch là: \"Tôi cũng đi.\"",
+      "options": [
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Tôi cũng đi.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại."
+      ],
+      "prompt_ja": "私も行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu Cũng..., tận..., cả ... (Nghĩa “cũng”: Thêm thông tin cùng chiều với đã nêu. Ví dụ: 田中さんも来ます (Tanaka cũng sẽ đến). Nghĩa “ngay cả/đến cả”: Nhấn mạnh tính bất ngờ, cực đoan. Ví dụ: 子どもも分かる (đến trẻ con cũng hiểu). Liệt kê song song: AもBも～ (cả A lẫn B). Có thể mở rộng: AもBもCも～. Phủ định toàn phần với nghi vấn từ: 誰も～ない, 何も～ない, どこも～ない → “không … nào”. Nhấn mạnh số lượng/tần suất: 数量 + も (tận…), 何度 + も (nhiều lần). Với khẳng định, một số nghi vấn từ + も mang nghĩa “mọi/ai cũng/đâu cũng”: 誰もが, どこも, いつも.), câu trên có nghĩa là: \"Anh ấy nói được cả tiếng Anh lẫn tiếng Nhật.\"",
+      "options": [
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Anh ấy nói được cả tiếng Anh lẫn tiếng Nhật."
+      ],
+      "prompt_ja": "彼は英語も日本語も話せる。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Cũng..., tận..., cả ...). Câu đúng: 私も行きます。",
+      "options": [
+       "私も行きますますだ。",
+       "彼は英語も日本語も話せる。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: 彼は英語も日本語も話せる。",
+      "options": [
+       "私も行きます。",
+       "毎日まじめに日本語を勉強しています。",
+       "彼はを英語も日本語も話せる。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Cũng..., tận..., cả ...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "私も行きます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi cũng đi."
+     },
+     {
+      "ja": "彼は英語も日本語も話せる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy nói được cả tiếng Anh lẫn tiếng Nhật."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「ています」 theo cấu trúc Cũng..., tận..., cả ... (Nghĩa “cũng”: Thêm thông tin cùng chiều với đã nêu. Ví dụ: 田中さんも来ます (Tanaka cũng sẽ đến). Nghĩa “ngay cả/đến cả”: Nhấn mạnh tính bất ngờ, cực đoan. Ví dụ: 子どもも分かる (đến trẻ con cũng hiểu). Liệt kê song song: AもBも～ (cả A lẫn B). Có thể mở rộng: AもBもCも～. Phủ định toàn phần với nghi vấn từ: 誰も～ない, 何も～ない, どこも～ない → “không … nào”. Nhấn mạnh số lượng/tần suất: 数量 + も (tận…), 何度 + も (nhiều lần). Với khẳng định, một số nghi vấn từ + も mang nghĩa “mọi/ai cũng/đâu cũng”: 誰もが, どこも, いつも.). Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "ていく",
+       "ようだ",
+       "ています",
+       "から"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu Cũng..., tận..., cả ... (Nghĩa “cũng”: Thêm thông tin cùng chiều với đã nêu. Ví dụ: 田中さんも来ます (Tanaka cũng sẽ đến). Nghĩa “ngay cả/đến cả”: Nhấn mạnh tính bất ngờ, cực đoan. Ví dụ: 子どもも分かる (đến trẻ con cũng hiểu). Liệt kê song song: AもBも～ (cả A lẫn B). Có thể mở rộng: AもBもCも～. Phủ định toàn phần với nghi vấn từ: 誰も～ない, 何も～ない, どこも～ない → “không … nào”. Nhấn mạnh số lượng/tần suất: 数量 + も (tận…), 何度 + も (nhiều lần). Với khẳng định, một số nghi vấn từ + も mang nghĩa “mọi/ai cũng/đâu cũng”: 誰もが, どこも, いつも.), câu này nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "私も行きます。",
+       "彼は英語も日本語も話せる。",
+       "わからない言葉を辞書で調べました。",
+       "毎日まじめにを日本語を勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ます",
+      "sentence_ja": "私も行き＿＿。",
+      "translation_vi": "Tôi cũng đi."
+     },
+     {
+      "answer": "せる",
+      "sentence_ja": "彼は英語も日本語も話＿＿。",
+      "translation_vi": "Anh ấy nói được cả tiếng Anh lẫn tiếng Nhật."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 私も行きます。",
+     "FURIGANA_MISSING: 彼は英語も日本語も話せる。"
+    ],
+    "formation": "Cấu trúc: Cũng..., tận..., cả ...",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa “cũng”: Thêm thông tin cùng chiều với đã nêu. Ví dụ: 田中さんも来ます (Tanaka cũng sẽ đến). Nghĩa “ngay cả/đến cả”: Nhấn mạnh tính bất ngờ, cực đoan. Ví dụ: 子どもも分かる (đến trẻ con cũng hiểu). Liệt kê song song: AもBも～ (cả A lẫn B). Có thể mở rộng: AもBもCも～. Phủ định toàn phần với nghi vấn từ: 誰も～ない, 何も～ない, どこも～ない → “không … nào”. Nhấn mạnh số lượng/tần suất: 数量 + も (tận…), 何度 + も (nhiều lần). Với khẳng định, một số nghi vấn từ + も mang nghĩa “mọi/ai cũng/đâu cũng”: 誰もが, どこも, いつも.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Cũng..., tận..., cả ...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "も行",
+       "ます",
+       "私",
+       "き"
+      ],
+      "translation_vi": "Tôi cũng đi."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "話せる",
+       "日本語も",
+       "彼は",
+       "英語も"
+      ],
+      "translation_vi": "Anh ấy nói được cả tiếng Anh lẫn tiếng Nhật."
+     }
+    ],
+    "pattern": "Cũng..., tận..., cả ...",
+    "pattern_variants": [],
+    "unit_no": 2,
+    "unit_title_vi": "Giới hạn và khuynh hướng",
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mạnh “cũng/đồng thời”: đặt も vào vị trí trợ từ gốc (は/が/を), hoặc sau các trợ từ khác (にも/からも). “Ngay cả” thường hàm ý bất ngờ/ngoài dự đoán, gần nghĩa với さえ/まで (nhưng さえ mạnh hơn). Với nghi vấn từ + も: khẳng định → nghĩa “mọi/đâu cũng”, phủ định → “không … nào”. 数量 + も: nhấn mạnh mức độ nhiều/ít (少しも～ない = một chút cũng không). Trong liệt kê dài, も tạo cảm giác bao quát hơn so với や (liệt kê không đầy đủ). [6. Ghi chú mở rộng] “誰もが/皆もが” dùng để nhấn mạnh chủ ngữ phổ quát trong văn viết: 誰もが知っている事実だ。 “少しも～ない/ちっとも～ない” mang sắc thái “một chút cũng không”. Kết hợp kép: ここにもあそこにも雪が残っている (cả chỗ này lẫn chỗ kia). Trong câu điều kiện hay nhượng bộ, も không đảm nhiệm vai trò “dù” (đó là ても). Tránh nhầm: いくら勉強しても vs いくら～ても (đúng là ても). [7. Biến thể & cụm cố định] 何度も / 何回も (nhiều lần) 一度も～ない (chưa từng lần nào) 少しも～ない / ちっとも～ない (một chút cũng không) どこも / いつも / だれも (khắp/luôn/ai cũng) 何もかも (mọi thứ, tất cả) [8. Lỗi thường gặp & bẫy JLPT] Sai: 何もあります。→ Đúng: 何もありません (疑問語+も cần phủ định). Nhầm も với でも: だれでも (ai cũng) ≠ だれも (ai cũng… khi khẳng định rất hạn chế; thường dùng 誰もが). Quên chuyển trợ từ: を/が/は → も khi muốn nhấn “cũng”. Lạm dụng 数量+も ở mức không tự nhiên: 三分も待った (tận 3 phút) chỉ hợp khi thật sự muốn nhấn mạnh là nhiều. Phủ định kép với AもBも～ない: đảm bảo động từ ở dạng phủ định chung cho cả hai."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cdca5afec0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "Đã từng... (kinh nghiệm)",
+     "formation": "V-た + ことがある / ことがあります / ことがありません",
+     "usage_vi": "Nói về kinh nghiệm đã có (hoặc chưa có) trong quá khứ, không nhấn vào thời điểm cụ thể; hay đi với 一度, 何回も, 一度も〜ない.",
+     "nuance_vi": "Nhấn vào việc \"đã từng hay chưa\"; việc mới làm gần đây (hôm qua, sáng nay) không dùng mẫu này.",
+     "common_mistakes_vi": "Dùng thể từ điển trước ことがある (sai khi muốn nói \"đã từng\": 行くことがあります nghĩa là \"thỉnh thoảng có đi\") hoặc dùng với mốc rất gần (sai: きのう食べたことがあります).",
+     "examples": [
+      {
+       "ja": "私は富士山に登ったことがあります。",
+       "ja_furigana": "私(わたし)は富士山(ふじさん)に登(のぼ)ったことがあります。",
+       "vi": "Tôi đã từng leo núi Phú Sĩ."
+      },
+      {
+       "ja": "北海道へはまだ行ったことがありません。",
+       "ja_furigana": "北海道(ほっかいどう)へはまだ行(い)ったことがありません。",
+       "vi": "Tôi chưa từng đến Hokkaido."
+      },
+      {
+       "ja": "すしを一度も食べたことがありません。",
+       "ja_furigana": "すしを一度(いちど)も食(た)べたことがありません。",
+       "vi": "Tôi chưa từng ăn sushi lần nào."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "日本の映画を見た（　　）あります。",
+       "options": [
+        "ことが",
+        "ても",
+        "たら",
+        "ながら"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「ことが」: V-た + ことがあります: đã từng làm. Nghĩa: Tôi đã từng xem phim Nhật."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "一度着物を着た（　　）ありますか。",
+       "options": [
+        "ながら",
+        "ても",
+        "たら",
+        "ことが"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Điền 「ことが」: V-た + ことがあります: đã từng làm. Nghĩa: Bạn đã từng mặc kimono lần nào chưa?"
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "まだ",
+        "行った",
+        "ことがありません",
+        "北海道へは"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 北海道へはまだ行ったことがありません。 (Tôi chưa từng đến Hokkaido.). Mảnh ở ô ★ là 「行った」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "あります",
+        "泳いだことが",
+        "子どものころ",
+        "この川で"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 子どものころこの川で泳いだことがあります。 (Hồi nhỏ tôi đã từng bơi ở con sông này.). Mảnh ở ô ★ là 「泳いだことが」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "私は富士山に登ったことがあります。",
+       "options": [
+        "Nhà vệ sinh này hiện đang được dọn dẹp.",
+        "Tôi đã từng leo núi Phú Sĩ.",
+        "Tôi muốn bàn một chút, bây giờ có tiện không ạ?",
+        "Tôi đã ra khỏi nhà sớm để không bị muộn."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu 〜たことがある (đã từng... (kinh nghiệm)): \"Tôi đã từng leo núi Phú Sĩ.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "すしを一度も食べたことがありません。",
+       "options": [
+        "Trong giờ học xin đừng dùng điện thoại.",
+        "Căn phòng này yên tĩnh quá nên hơi buồn.",
+        "Chủ nhật không ai đến công ty cả.",
+        "Tôi chưa từng ăn sushi lần nào."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu dùng mẫu 〜たことがある (đã từng... (kinh nghiệm)): \"Tôi chưa từng ăn sushi lần nào.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "私は富士山に登ることがあります。",
+        "日本の映画を見たことがあります。",
+        "子どものころこの川で泳いだことがあります。",
+        "私は富士山に登ったことがあります。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "「私は富士山に登ることがあります。」 sai: \"đã từng\" dùng thể た trước ことがある. Câu đúng: 私は富士山に登ったことがあります。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "一度着物を着たことがありますか。",
+        "北海道へはまだ行ったことがありません。",
+        "すしを一度も食べたことがありません。",
+        "きのう、すしを食べたことがあります。"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "「きのう、すしを食べたことがあります。」 sai: việc vừa làm hôm qua không dùng 〜たことがある (mẫu này nói kinh nghiệm). Câu đúng: きのう、すしを食べました。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "富士山に",
+        "ことがあります。",
+        "私は",
+        "登った"
+       ],
+       "answer_order": [
+        2,
+        0,
+        3,
+        1
+       ],
+       "translation_vi": "Tôi đã từng leo núi Phú Sĩ."
+      },
+      {
+       "pieces": [
+        "ことがありません。",
+        "一度も",
+        "すしを",
+        "食べた"
+       ],
+       "answer_order": [
+        2,
+        1,
+        3,
+        0
+       ],
+       "translation_vi": "Tôi chưa từng ăn sushi lần nào."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "北海道へはまだ行った＿＿。",
+       "answer": "ことがありません",
+       "translation_vi": "Tôi chưa từng đến Hokkaido.",
+       "accept": [
+        "ことがない"
+       ]
+      },
+      {
+       "sentence_ja": "すしを一度も食べた＿＿。",
+       "answer": "ことがありません",
+       "translation_vi": "Tôi chưa từng ăn sushi lần nào.",
+       "accept": [
+        "ことがない"
+       ]
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "子どものころこの川で泳いだ（　　）あります。",
+       "options": [
+        "ても",
+        "ながら",
+        "ことが",
+        "たら"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「ことが」: V-た + ことがあります: đã từng làm. Nghĩa: Hồi nhỏ tôi đã từng bơi ở con sông này."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "日本の映画を見たことがあります。",
+       "options": [
+        "Bên ngoài có tiếng động lớn.",
+        "Tôi đã từng xem phim Nhật.",
+        "Cây cầu này làm bằng đá.",
+        "Bữa tiệc có đến tận năm mươi người đến."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu 〜たことがある (đã từng... (kinh nghiệm)): \"Tôi đã từng xem phim Nhật.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "一度着物を着たのことがありますか。",
+        "私は富士山に登ったことがあります。",
+        "一度着物を着たことがありますか。",
+        "北海道へはまだ行ったことがありません。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "「一度着物を着たのことがありますか。」 sai: động từ nối thẳng với こと, không chèn の. Câu đúng: 一度着物を着たことがありますか。"
+      }
+     ]
+    },
+    "note": "mục nguồn chép ghi chú dài, lõi chỉ là nhãn tiếng Việt; viết lại lõi, ví dụ và toàn bộ ngân hàng câu"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「がある」 theo mẫu Đã từng... (Vたことがある diễn tả kinh nghiệm trong quá khứ không xác định thời điểm cụ thể, nhấn vào “đã từng hay chưa”. Phủ định: Vたことがない = hoàn toàn chưa từng có kinh nghiệm đó. Mẫu chủ yếu nhấn kinh nghiệm, nên thường không cần mốc thời gian cụ thể. Tuy vậy, các mốc như 去年一度 hoặc 子どものころに vẫn có thể đi cùng nếu ngữ cảnh đang tổng kết kinh nghiệm. Khác với Vた đơn thuần: Vた kể một lần đã xảy ra (có thể có thời gian); Vたことがある nhấn kinh nghiệm từng làm.). Nghĩa cả câu: Bạn đã từng leo núi Phú Sĩ chưa?",
+      "options": [
+       "すぎる",
+       "のに",
+       "なら",
+       "がある"
+      ],
+      "prompt_ja": "富士山に登ったこと（　　）？",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc Đã từng... (Vたことがある diễn tả kinh nghiệm trong quá khứ không xác định thời điểm cụ thể, nhấn vào “đã từng hay chưa”. Phủ định: Vたことがない = hoàn toàn chưa từng có kinh nghiệm đó. Mẫu chủ yếu nhấn kinh nghiệm, nên thường không cần mốc thời gian cụ thể. Tuy vậy, các mốc như 去年一度 hoặc 子どものころに vẫn có thể đi cùng nếu ngữ cảnh đang tổng kết kinh nghiệm. Khác với Vた đơn thuần: Vた kể một lần đã xảy ra (có thể có thời gian); Vたことがある nhấn kinh nghiệm từng làm.), chỗ trống cần điền 「ません」. Nghĩa: Tôi chưa từng đi Hokkaido.",
+      "options": [
+       "ません",
+       "そうだ",
+       "ので",
+       "ば"
+      ],
+      "prompt_ja": "北海道へは行ったことがあり（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 富士山に登ったことがある？ (Bạn đã từng leo núi Phú Sĩ chưa?). Theo cấu trúc Đã từng..., mảnh đứng ở vị trí ★ là 「が」.",
+      "options": [
+       "富士山に",
+       "が",
+       "登ったこと",
+       "ある"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 北海道へは行ったことがありません。 (Tôi chưa từng đi Hokkaido.). Theo cấu trúc Đã từng..., mảnh đứng ở vị trí ★ là 「は行ったこと」.",
+      "options": [
+       "があり",
+       "北海道へ",
+       "ません",
+       "は行ったこと"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mẫu Đã từng... có nghĩa là \"Vたことがある diễn tả kinh nghiệm trong quá khứ không xác định thời điểm cụ thể, nhấn vào “đã từng hay chưa”. Phủ định: Vたことがない = hoàn toàn chưa từng có kinh nghiệm đó. Mẫu chủ yếu nhấn kinh nghiệm, nên thường không cần mốc thời gian cụ thể. Tuy vậy, các mốc như 去年一度 hoặc 子どものころに vẫn có thể đi cùng nếu ngữ cảnh đang tổng kết kinh nghiệm. Khác với Vた đơn thuần: Vた kể một lần đã xảy ra (có thể có thời gian); Vたことがある nhấn kinh nghiệm từng làm.\". Câu này dịch là: \"Bạn đã từng leo núi Phú Sĩ chưa?\"",
+      "options": [
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bạn đã từng leo núi Phú Sĩ chưa?",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà."
+      ],
+      "prompt_ja": "富士山に登ったことがある？",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu Đã từng... (Vたことがある diễn tả kinh nghiệm trong quá khứ không xác định thời điểm cụ thể, nhấn vào “đã từng hay chưa”. Phủ định: Vたことがない = hoàn toàn chưa từng có kinh nghiệm đó. Mẫu chủ yếu nhấn kinh nghiệm, nên thường không cần mốc thời gian cụ thể. Tuy vậy, các mốc như 去年一度 hoặc 子どものころに vẫn có thể đi cùng nếu ngữ cảnh đang tổng kết kinh nghiệm. Khác với Vた đơn thuần: Vた kể một lần đã xảy ra (có thể có thời gian); Vたことがある nhấn kinh nghiệm từng làm.), câu trên có nghĩa là: \"Tôi chưa từng đi Hokkaido.\"",
+      "options": [
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Tôi chưa từng đi Hokkaido.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển."
+      ],
+      "prompt_ja": "北海道へは行ったことがありません。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Đã từng...). Câu đúng: 富士山に登ったことがある？",
+      "options": [
+       "北海道へは行ったことがありません。",
+       "雨が降ったら試合は中止です。",
+       "安ければこのパソコンを買います。",
+       "富士山に登ったことがあるますだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: 北海道へは行ったことがありません。",
+      "options": [
+       "富士山に登ったことがある？",
+       "北海道へはを行ったことがありません。",
+       "雨が降ったら試合は中止です。",
+       "安ければこのパソコンを買います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Đã từng...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "富士山に登ったことがある？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn đã từng leo núi Phú Sĩ chưa?"
+     },
+     {
+      "ja": "北海道へは行ったことがありません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi chưa từng đi Hokkaido."
+     },
+     {
+      "ja": "雨が降ったら試合は中止です。",
+      "ja_furigana": "雨(あめ)が降(ふ)ったら試合(しあい)は中止(ちゅうし)です。",
+      "source": "CLAUDE",
+      "vi": "Nếu trời mưa thì trận đấu sẽ bị hủy."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「です」 theo cấu trúc Đã từng... (Vたことがある diễn tả kinh nghiệm trong quá khứ không xác định thời điểm cụ thể, nhấn vào “đã từng hay chưa”. Phủ định: Vたことがない = hoàn toàn chưa từng có kinh nghiệm đó. Mẫu chủ yếu nhấn kinh nghiệm, nên thường không cần mốc thời gian cụ thể. Tuy vậy, các mốc như 去年一度 hoặc 子どものころに vẫn có thể đi cùng nếu ngữ cảnh đang tổng kết kinh nghiệm. Khác với Vた đơn thuần: Vた kể một lần đã xảy ra (có thể có thời gian); Vたことがある nhấn kinh nghiệm từng làm.). Nghĩa: Nếu trời mưa thì trận đấu sẽ bị hủy.",
+      "options": [
+       "かもしれない",
+       "です",
+       "たら",
+       "だけ"
+      ],
+      "prompt_ja": "雨が降ったら試合は中止（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu Đã từng... (Vたことがある diễn tả kinh nghiệm trong quá khứ không xác định thời điểm cụ thể, nhấn vào “đã từng hay chưa”. Phủ định: Vたことがない = hoàn toàn chưa từng có kinh nghiệm đó. Mẫu chủ yếu nhấn kinh nghiệm, nên thường không cần mốc thời gian cụ thể. Tuy vậy, các mốc như 去年一度 hoặc 子どものころに vẫn có thể đi cùng nếu ngữ cảnh đang tổng kết kinh nghiệm. Khác với Vた đơn thuần: Vた kể một lần đã xảy ra (có thể có thời gian); Vたことがある nhấn kinh nghiệm từng làm.), câu này nghĩa là: \"Nếu trời mưa thì trận đấu sẽ bị hủy.\"",
+      "options": [
+       "Nếu trời mưa thì trận đấu sẽ bị hủy.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại."
+      ],
+      "prompt_ja": "雨が降ったら試合は中止です。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 雨が降ったら試合は中止です。",
+      "options": [
+       "富士山に登ったことがある？",
+       "北海道へは行ったことがありません。",
+       "雨が降ったら試合は中止ですだます。",
+       "春になれば暖かくなります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "がある",
+      "sentence_ja": "富士山に登ったこと＿＿？",
+      "translation_vi": "Bạn đã từng leo núi Phú Sĩ chưa?"
+     },
+     {
+      "answer": "ません",
+      "sentence_ja": "北海道へは行ったことがあり＿＿。",
+      "translation_vi": "Tôi chưa từng đi Hokkaido."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 富士山に登ったことがある？",
+     "FURIGANA_MISSING: 北海道へは行ったことがありません。"
+    ],
+    "formation": "Cấu trúc: Đã từng...",
+    "locked_fields": [],
+    "meaning_vi": "Vたことがある diễn tả kinh nghiệm trong quá khứ không xác định thời điểm cụ thể, nhấn vào “đã từng hay chưa”. Phủ định: Vたことがない = hoàn toàn chưa từng có kinh nghiệm đó. Mẫu chủ yếu nhấn kinh nghiệm, nên thường không cần mốc thời gian cụ thể. Tuy vậy, các mốc như 去年一度 hoặc 子どものころに vẫn có thể đi cùng nếu ngữ cảnh đang tổng kết kinh nghiệm. Khác với Vた đơn thuần: Vた kể một lần đã xảy ra (có thể có thời gian); Vたことがある nhấn kinh nghiệm từng làm.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Đã từng...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "ある",
+       "が",
+       "富士山に",
+       "登ったこと"
+      ],
+      "translation_vi": "Bạn đã từng leo núi Phú Sĩ chưa?"
+     },
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "があり",
+       "北海道へ",
+       "ません",
+       "は行ったこと"
+      ],
+      "translation_vi": "Tôi chưa từng đi Hokkaido."
+     }
+    ],
+    "pattern": "Đã từng...",
+    "pattern_variants": [],
+    "unit_no": 9,
+    "unit_title_vi": "Thử nghiệm và trải nghiệm",
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường đi kèm các từ chỉ số lần: 一度／何回も／数回／一回も…ない để làm rõ tần suất kinh nghiệm. Dùng thể lịch sự: 〜たことがあります／〜たことがありません. Khi hỏi kinh nghiệm: 〜たことがありますか？ là mẫu lịch sự, trung tính. [6. Ghi chú mở rộng] Thêm mốc thời gian rộng vẫn được: 子どものころに、海外へ行ったことがある (khoảng thời thơ ấu, không phải mốc cụ thể). Đi với もう/まだ: もう行ったことがあります (đã từng rồi)／まだ行ったことがありません (vẫn chưa từng). Đối thoại tự nhiên thường lược bỏ ことが: 食べたことある？ (khẩu ngữ). [7. Biến thể & cụm cố định] 〜たことがありますか (bạn đã từng… chưa?) 一度も〜たことがない (chưa một lần) 何回か／何度か〜たことがある (đã từng vài lần) [8. Lỗi thường gặp & bẫy JLPT] Gắn thời điểm cụ thể: “昨日富士山に登ったことがある” (không tự nhiên) → “昨日登った” hoặc “富士山に登ったことがある”. Nhầm với thói quen: “よく行く” ≠ “行ったことがある”. Một cái là thường xuyên, một cái là kinh nghiệm đã từng. Bỏ こと gây trang trọng không phù hợp trong văn viết: “食べたことある” khẩu ngữ, JLPT yêu cầu đầy đủ. Trong văn viết chuẩn (như bài thi), nên dùng“一度も行ったことがありません”thay vì “一度も行ったことないです” vì câu cần giữ mức lịch sự thống nhất."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-dbbb24985b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "Sắp sửa..., đúng lúc chuẩn bị làm...",
+     "formation": "V-る + ところだ / ところです / ところに (へ)",
+     "usage_vi": "Diễn tả thời điểm ngay trước khi bắt đầu một hành động (これから出かけるところです). V-るところに / へ: vừa định làm thì có việc khác xen vào.",
+     "nuance_vi": "Cận kề hơn V-るとき; hay đi với これから, 今から, ちょうど.",
+     "common_mistakes_vi": "Nhầm với V-たところ (vừa mới làm xong) hoặc V-ているところ (đang làm).",
+     "examples": [
+      {
+       "ja": "これから映画を見に行くところです。",
+       "ja_furigana": "これから映画(えいが)を見(み)に行(い)くところです。",
+       "vi": "Bây giờ tôi chuẩn bị đi xem phim."
+      },
+      {
+       "ja": "出かけるところに友だちから電話がかかってきました。",
+       "ja_furigana": "出(で)かけるところに友(とも)だちから電話(でんわ)がかかってきました。",
+       "vi": "Đúng lúc tôi định ra ngoài thì bạn gọi điện đến."
+      },
+      {
+       "ja": "ちょうど今寝るところでした。",
+       "ja_furigana": "ちょうど今(いま)寝(ね)るところでした。",
+       "vi": "Tôi đúng lúc đang chuẩn bị đi ngủ."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "今から晩ご飯を作る（　　）です。",
+       "options": [
+        "ながら",
+        "ても",
+        "たら",
+        "ところ"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Điền 「ところ」: V-る + ところ: ngay trước lúc bắt đầu làm. Nghĩa: Bây giờ tôi chuẩn bị nấu bữa tối."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "家を出る（　　）へ雨が降ってきました。",
+       "options": [
+        "ところ",
+        "たら",
+        "ても",
+        "ながら"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「ところ」: V-る + ところ: ngay trước lúc bắt đầu làm. Nghĩa: Đúng lúc tôi sắp ra khỏi nhà thì trời đổ mưa."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "友だちから",
+        "かかってきました",
+        "電話が",
+        "出かけるところに"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 出かけるところに友だちから電話がかかってきました。 (Đúng lúc tôi định ra ngoài thì bạn gọi điện đến.). Mảnh ở ô ★ là 「電話が」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "これから",
+        "会社へ",
+        "です",
+        "行くところ"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: これから会社へ行くところです。 (Bây giờ tôi chuẩn bị đi đến công ty.). Mảnh ở ô ★ là 「行くところ」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "これから映画を見に行くところです。",
+       "options": [
+        "Bạn không đến bữa tiệc nên tôi thấy buồn.",
+        "Bây giờ tôi chuẩn bị đi xem phim.",
+        "Đã sang xuân rồi mà trời vẫn rất lạnh.",
+        "Có lẽ từ chiều trời sẽ mưa."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu 〜るところ (sắp sửa..., đúng lúc chuẩn bị làm..): \"Bây giờ tôi chuẩn bị đi xem phim.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "ちょうど今寝るところでした。",
+       "options": [
+        "Tôi đúng lúc đang chuẩn bị đi ngủ.",
+        "Tôi bị đau đầu, cho tôi về sớm được không ạ?",
+        "Xe buýt không đến nên tôi muộn học.",
+        "Nguy hiểm đấy, không nên đến chỗ đó."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu dùng mẫu 〜るところ (sắp sửa..., đúng lúc chuẩn bị làm..): \"Tôi đúng lúc đang chuẩn bị đi ngủ.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "今から晩ご飯を作るところです。",
+        "これから映画を見に行ったところです。",
+        "これから映画を見に行くところです。",
+        "これから会社へ行くところです。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "「これから映画を見に行ったところです。」 sai: \"sắp làm\" dùng V-る + ところ; 〜たところ là \"vừa làm xong\", không đi với これから. Câu đúng: これから映画を見に行くところです。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "ちょうど今寝るところでした。",
+        "出かけますところに友だちから電話がかかってきました。",
+        "出かけるところに友だちから電話がかかってきました。",
+        "家を出るところへ雨が降ってきました。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "「出かけますところに友だちから電話がかかってきました。」 sai: trước ところ dùng thể từ điển. Câu đúng: 出かけるところに友だちから電話がかかってきました。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "これから",
+        "見に行く",
+        "映画を",
+        "ところです。"
+       ],
+       "answer_order": [
+        0,
+        2,
+        1,
+        3
+       ],
+       "translation_vi": "Bây giờ tôi chuẩn bị đi xem phim."
+      },
+      {
+       "pieces": [
+        "ところでした。",
+        "今",
+        "ちょうど",
+        "寝る"
+       ],
+       "answer_order": [
+        2,
+        1,
+        3,
+        0
+       ],
+       "translation_vi": "Tôi đúng lúc đang chuẩn bị đi ngủ."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "出かける＿＿に友だちから電話がかかってきました。",
+       "answer": "ところ",
+       "translation_vi": "Đúng lúc tôi định ra ngoài thì bạn gọi điện đến."
+      },
+      {
+       "sentence_ja": "ちょうど今寝る＿＿。",
+       "answer": "ところでした",
+       "translation_vi": "Tôi đúng lúc đang chuẩn bị đi ngủ.",
+       "accept": [
+        "ところだった"
+       ]
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "これから会社へ行く（　　）です。",
+       "options": [
+        "ながら",
+        "ところ",
+        "ても",
+        "たら"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Điền 「ところ」: V-る + ところ: ngay trước lúc bắt đầu làm. Nghĩa: Bây giờ tôi chuẩn bị đi đến công ty."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "今から晩ご飯を作るところです。",
+       "options": [
+        "Em trai tôi mới chỉ viết được chữ hiragana.",
+        "Bây giờ tôi chuẩn bị nấu bữa tối.",
+        "Trong kỳ nghỉ hè tôi đã đến nhà bà.",
+        "Giám đốc đang đọc báo ạ."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu 〜るところ (sắp sửa..., đúng lúc chuẩn bị làm..): \"Bây giờ tôi chuẩn bị nấu bữa tối.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "出かけるところに友だちから電話がかかってきました。",
+        "これから映画を見に行くところです。",
+        "家を出るところへ雨が降ってきました。",
+        "これから会社へ行くのところです。"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "「これから会社へ行くのところです。」 sai: không chèn の trước ところ. Câu đúng: これから会社へ行くところです。"
+      }
+     ]
+    },
+    "note": "mục nguồn chép ghi chú dài, lõi chỉ là nhãn tiếng Việt; viết lại lõi, ví dụ và toàn bộ ngân hàng câu"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「ところだ」 theo mẫu Đang chuẩn bị làm... (V-るところ: “sắp/đúng lúc bắt đầu” một hành động; tính tức thì và cận kề. Đi kèm trợ từ khác nhau để biểu thị mối quan hệ với sự kiện khác: に (đúng lúc có việc xảy ra), を (bị tác động), で (bối cảnh). So với “～とき”: “～るところ” nhấn mạnh hơn tính “ngay trước khi”, sát thời điểm hơn. Thường đi với các từ chỉ thời điểm như これから, 今, ちょうど, まさに.). Nghĩa cả câu: Tôi sắp ăn đây.",
+      "options": [
+       "から",
+       "と",
+       "ところだ",
+       "ずつ"
+      ],
+      "prompt_ja": "これから食べる（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc Đang chuẩn bị làm... (V-るところ: “sắp/đúng lúc bắt đầu” một hành động; tính tức thì và cận kề. Đi kèm trợ từ khác nhau để biểu thị mối quan hệ với sự kiện khác: に (đúng lúc có việc xảy ra), を (bị tác động), で (bối cảnh). So với “～とき”: “～るところ” nhấn mạnh hơn tính “ngay trước khi”, sát thời điểm hơn. Thường đi với các từ chỉ thời điểm như これから, 今, ちょうど, まさに.), chỗ trống cần điền 「すると」. Nghĩa: Đúng lúc sắp xuất phát thì nhận điện thoại của sếp.",
+      "options": [
+       "ても",
+       "しか",
+       "とか",
+       "すると"
+      ],
+      "prompt_ja": "出発（　　）ころに、上司から電話が入った。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: これから食べるところだ。 (Tôi sắp ăn đây.). Theo cấu trúc Đang chuẩn bị làm..., mảnh đứng ở vị trí ★ là 「べると」.",
+      "options": [
+       "ころだ",
+       "から食",
+       "べると",
+       "これ"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 出発するところに、上司から電話が入った。 (Đúng lúc sắp xuất phát thì nhận điện thoại của sếp.). Theo cấu trúc Đang chuẩn bị làm..., mảnh đứng ở vị trí ★ là 「ころに、」.",
+      "options": [
+       "出発すると",
+       "上司から",
+       "ころに、",
+       "電話が入った"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Mẫu Đang chuẩn bị làm... có nghĩa là \"V-るところ: “sắp/đúng lúc bắt đầu” một hành động; tính tức thì và cận kề. Đi kèm trợ từ khác nhau để biểu thị mối quan hệ với sự kiện khác: に (đúng lúc có việc xảy ra), を (bị tác động), で (bối cảnh). So với “～とき”: “～るところ” nhấn mạnh hơn tính “ngay trước khi”, sát thời điểm hơn. Thường đi với các từ chỉ thời điểm như これから, 今, ちょうど, まさに.\". Câu này dịch là: \"Tôi sắp ăn đây.\"",
+      "options": [
+       "Tôi sắp ăn đây.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà."
+      ],
+      "prompt_ja": "これから食べるところだ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu Đang chuẩn bị làm... (V-るところ: “sắp/đúng lúc bắt đầu” một hành động; tính tức thì và cận kề. Đi kèm trợ từ khác nhau để biểu thị mối quan hệ với sự kiện khác: に (đúng lúc có việc xảy ra), を (bị tác động), で (bối cảnh). So với “～とき”: “～るところ” nhấn mạnh hơn tính “ngay trước khi”, sát thời điểm hơn. Thường đi với các từ chỉ thời điểm như これから, 今, ちょうど, まさに.), câu trên có nghĩa là: \"Đúng lúc sắp xuất phát thì nhận điện thoại của sếp.\"",
+      "options": [
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Đúng lúc sắp xuất phát thì nhận điện thoại của sếp.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "prompt_ja": "出発するところに、上司から電話が入った。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Đang chuẩn bị làm...). Câu đúng: これから食べるところだ。",
+      "options": [
+       "出発するところに、上司から電話が入った。",
+       "これから昼ご飯を食べるところだ。",
+       "これから食べるところだますだ。",
+       "雨が降ったら試合は中止です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu Đang chuẩn bị làm...). Câu đúng: 出発するところに、上司から電話が入った。",
+      "options": [
+       "出発するところに、上司から電話が入ったですます。",
+       "これから食べるところだ。",
+       "これから昼ご飯を食べるところだ。",
+       "雨が降ったら試合は中止です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Đang chuẩn bị làm...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "これから食べるところだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi sắp ăn đây."
+     },
+     {
+      "ja": "出発するところに、上司から電話が入った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đúng lúc sắp xuất phát thì nhận điện thoại của sếp."
+     },
+     {
+      "ja": "これから昼ご飯を食べるところだ。",
+      "ja_furigana": "これから昼(ひる)ご飯(はん)を食(た)べるところだ。",
+      "source": "CLAUDE",
+      "vi": "Bây giờ tôi chuẩn bị ăn cơm trưa."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「ところだ」 theo cấu trúc Đang chuẩn bị làm... (V-るところ: “sắp/đúng lúc bắt đầu” một hành động; tính tức thì và cận kề. Đi kèm trợ từ khác nhau để biểu thị mối quan hệ với sự kiện khác: に (đúng lúc có việc xảy ra), を (bị tác động), で (bối cảnh). So với “～とき”: “～るところ” nhấn mạnh hơn tính “ngay trước khi”, sát thời điểm hơn. Thường đi với các từ chỉ thời điểm như これから, 今, ちょうど, まさに.). Nghĩa: Bây giờ tôi chuẩn bị ăn cơm trưa.",
+      "options": [
+       "ところだ",
+       "ば",
+       "くらい",
+       "ながら"
+      ],
+      "prompt_ja": "これから昼ご飯を食べる（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu Đang chuẩn bị làm... (V-るところ: “sắp/đúng lúc bắt đầu” một hành động; tính tức thì và cận kề. Đi kèm trợ từ khác nhau để biểu thị mối quan hệ với sự kiện khác: に (đúng lúc có việc xảy ra), を (bị tác động), で (bối cảnh). So với “～とき”: “～るところ” nhấn mạnh hơn tính “ngay trước khi”, sát thời điểm hơn. Thường đi với các từ chỉ thời điểm như これから, 今, ちょうど, まさに.), câu này nghĩa là: \"Bây giờ tôi chuẩn bị ăn cơm trưa.\"",
+      "options": [
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Bây giờ tôi chuẩn bị ăn cơm trưa."
+      ],
+      "prompt_ja": "これから昼ご飯を食べるところだ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: これから昼ご飯を食べるところだ。",
+      "options": [
+       "これから食べるところだ。",
+       "これから昼ご飯を食べるところだだます。",
+       "出発するところに、上司から電話が入った。",
+       "安ければこのパソコンを買います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ところだ",
+      "sentence_ja": "これから食べる＿＿。",
+      "translation_vi": "Tôi sắp ăn đây."
+     },
+     {
+      "answer": "すると",
+      "sentence_ja": "出発＿＿ころに、上司から電話が入った。",
+      "translation_vi": "Đúng lúc sắp xuất phát thì nhận điện thoại của sếp."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: これから食べるところだ。",
+     "FURIGANA_MISSING: 出発するところに、上司から電話が入った。"
+    ],
+    "formation": "Cấu trúc: Đang chuẩn bị làm...",
+    "locked_fields": [],
+    "meaning_vi": "V-るところ: “sắp/đúng lúc bắt đầu” một hành động; tính tức thì và cận kề. Đi kèm trợ từ khác nhau để biểu thị mối quan hệ với sự kiện khác: に (đúng lúc có việc xảy ra), を (bị tác động), で (bối cảnh). So với “～とき”: “～るところ” nhấn mạnh hơn tính “ngay trước khi”, sát thời điểm hơn. Thường đi với các từ chỉ thời điểm như これから, 今, ちょうど, まさに.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Đang chuẩn bị làm...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "べると",
+       "これ",
+       "ころだ",
+       "から食"
+      ],
+      "translation_vi": "Tôi sắp ăn đây."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "ころに、",
+       "電話が入った",
+       "出発すると",
+       "上司から"
+      ],
+      "translation_vi": "Đúng lúc sắp xuất phát thì nhận điện thoại của sếp."
+     }
+    ],
+    "pattern": "Đang chuẩn bị làm...",
+    "pattern_variants": [],
+    "unit_no": 46,
+    "unit_title_vi": "Thời điểm của hành động và sự chắc chắn",
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi hành động gần như sắp diễn ra; mức độ “cận” cao hơn “V-るとき”. “ところだった” diễn tả suýt nữa thì làm (nhưng đã không làm). Với “ところに/を/で”: lựa chọn trợ từ làm rõ quan hệ giữa hai sự kiện (đến/gián đoạn/bối cảnh). Phong cách hội thoại thường thêm ちょうど/今/これから để nhấn mạnh. [6. Ghi chú mở rộng] “ところ” gốc nghĩa là “chỗ/điểm”, ở đây là “điểm thời gian”. “ところを失礼します” là cách nói lịch sự khi xen ngang, dựa trên “V-るところを”. Dễ kết hợp với trạng thái bị động/khả năng để nêu tình huống bị tác động đúng lúc chuẩn bị làm. [7. Biến thể & cụm cố định] いいところに来たね。 Đến đúng lúc đấy. 危ないところを助かった。 Thoát nạn trong gang tấc. 今ちょうどいいところ。 Đúng đoạn hay (phim/truyện). ～するところだった（suýt thì…） [8. Lỗi thường gặp & bẫy JLPT] Nhầm “ところ” nghĩa “địa điểm” với “điểm thời gian”. Hãy dựa vào động từ trước để phân biệt. Dùng “V-るところ” cho hành động còn xa thời điểm bắt đầu → không tự nhiên. Nên dùng “V-るとき/前に”. Nhầm trợ từ: ×出るところを雨が降った → ○出るところに雨が降ってきた. JLPT hay kiểm tra ba cặp: V-る/V-ている/V-た + ところ qua ngữ cảnh đi kèm (ちょうど/今/さっき)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-08be21ce13"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "Đang đúng lúc làm...",
+     "formation": "V-ている + ところだ / ところです / ところに (へ)",
+     "usage_vi": "Nhấn mạnh hành động đang diễn ra ngay lúc nói, hay dùng để giải thích vì sao chưa làm việc khác được (今、会議をしているところです). V-ているところに / へ: đang làm thì có việc khác xen vào.",
+     "nuance_vi": "Tập trung vào khoảnh khắc hơn 〜ています; hay đi với 今, ちょうど.",
+     "common_mistakes_vi": "Dùng với động từ chỉ trạng thái lâu dài (sai: 東京に住んでいるところです) hoặc quên いる (sai: 会議をしてところです).",
+     "examples": [
+      {
+       "ja": "今、資料を作っているところです。",
+       "ja_furigana": "今(いま)、資料(しりょう)を作(つく)っているところです。",
+       "vi": "Bây giờ tôi đang làm tài liệu."
+      },
+      {
+       "ja": "ご飯を食べているところに友だちが来ました。",
+       "ja_furigana": "ご飯(はん)を食(た)べているところに友(とも)だちが来(き)ました。",
+       "vi": "Đang ăn cơm thì bạn đến."
+      },
+      {
+       "ja": "すみません、今運転しているところです。",
+       "ja_furigana": "すみません、今(いま)運転(うんてん)しているところです。",
+       "vi": "Xin lỗi, bây giờ tôi đang lái xe."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "父は今新聞を読ん（　　）ところです。",
+       "options": [
+        "ながら",
+        "でいる",
+        "でも",
+        "だり"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Điền 「でいる」: V-ている + ところ: đang đúng lúc làm việc đó. Nghĩa: Bố tôi đang đọc báo."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "宿題をし（　　）ところへ母が帰ってきました。",
+       "options": [
+        "たり",
+        "ている",
+        "ても",
+        "ながら"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Điền 「ている」: V-ている + ところ: đang đúng lúc làm việc đó. Nghĩa: Đang làm bài tập thì mẹ về."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "ご飯を",
+        "来ました",
+        "食べているところに",
+        "友だちが"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: ご飯を食べているところに友だちが来ました。 (Đang ăn cơm thì bạn đến.). Mảnh ở ô ★ là 「友だちが」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "ちょうど",
+        "その話を",
+        "今",
+        "しているところです"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 今ちょうどその話をしているところです。 (Chúng tôi đang nói đúng chuyện đó.). Mảnh ở ô ★ là 「その話を」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "今、資料を作っているところです。",
+       "options": [
+        "Bây giờ tôi đang làm tài liệu.",
+        "Thầy đã về rồi ạ?",
+        "Trước chuyến du lịch tôi đã đặt khách sạn sẵn.",
+        "Bạn đã viết được hết katakana chưa?"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu dùng mẫu 〜ているところ (đang đúng lúc làm..): \"Bây giờ tôi đang làm tài liệu.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "すみません、今運転しているところです。",
+       "options": [
+        "Tôi vừa mới dậy nên vẫn còn buồn ngủ.",
+        "Lát nữa tôi sẽ gọi điện cho ngài.",
+        "Tôi thích nấu ăn cùng gia đình.",
+        "Xin lỗi, bây giờ tôi đang lái xe."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu dùng mẫu 〜ているところ (đang đúng lúc làm..): \"Xin lỗi, bây giờ tôi đang lái xe.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "今ちょうどその話をしているところです。",
+        "今、資料を作ってところです。",
+        "今、資料を作っているところです。",
+        "父は今新聞を読んでいるところです。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "「今、資料を作ってところです。」 sai: thiếu いる: phải là 〜ているところ. Câu đúng: 今、資料を作っているところです。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "私は田中さんを知っているところです。",
+        "宿題をしているところへ母が帰ってきました。",
+        "ご飯を食べているところに友だちが来ました。",
+        "すみません、今運転しているところです。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "「私は田中さんを知っているところです。」 sai: 〜ているところ không dùng với động từ trạng thái như 知っている. Câu đúng: 私は田中さんを知っています。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "資料を",
+        "ところです。",
+        "今、",
+        "作っている"
+       ],
+       "answer_order": [
+        2,
+        0,
+        3,
+        1
+       ],
+       "translation_vi": "Bây giờ tôi đang làm tài liệu."
+      },
+      {
+       "pieces": [
+        "運転している",
+        "今",
+        "ところです。",
+        "すみません、"
+       ],
+       "answer_order": [
+        3,
+        1,
+        0,
+        2
+       ],
+       "translation_vi": "Xin lỗi, bây giờ tôi đang lái xe."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "ご飯を食べ＿＿ところに友だちが来ました。",
+       "answer": "ている",
+       "translation_vi": "Đang ăn cơm thì bạn đến."
+      },
+      {
+       "sentence_ja": "すみません、今運転し＿＿ところです。",
+       "answer": "ている",
+       "translation_vi": "Xin lỗi, bây giờ tôi đang lái xe."
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "今ちょうどその話をし（　　）ところです。",
+       "options": [
+        "ながら",
+        "ている",
+        "たり",
+        "ても"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Điền 「ている」: V-ている + ところ: đang đúng lúc làm việc đó. Nghĩa: Chúng tôi đang nói đúng chuyện đó."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "父は今新聞を読んでいるところです。",
+       "options": [
+        "Đến ga thì bạn đi xe buýt là được.",
+        "Bố tôi đang đọc báo.",
+        "Mỗi ngày tôi về nhà lúc 7 giờ.",
+        "Tôi ăn sáng rồi đi học."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu 〜ているところ (đang đúng lúc làm..): \"Bố tôi đang đọc báo.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "今、資料を作っているところです。",
+        "ご飯を食べているところに友だちが来ました。",
+        "今、資料を作りているところです。",
+        "宿題をしているところへ母が帰ってきました。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "「今、資料を作りているところです。」 sai: thể て của 作る là 作って. Câu đúng: 今、資料を作っているところです。"
+      }
+     ]
+    },
+    "note": "mục nguồn chép ghi chú dài, lõi chỉ là nhãn tiếng Việt; viết lại lõi, ví dụ và toàn bộ ngân hàng câu"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「ところです」 theo mẫu Đang lúc... (Nhấn mạnh thời điểm “đang trong quá trình” thực hiện hành động, thường để giải thích vì sao không thể làm việc khác hoặc mô tả sự cố chen ngang. Khi đi với ところに/へ: diễn tả một sự kiện khác xảy ra vào đúng thời điểm đó (điện thoại reo, ai đó đến…). Khi đi với ところを: nhấn bị tác động vào quá trình (bị làm phiền, bị bắt gặp…). Khi đi với ところで: bối cảnh địa điểm/thời điểm của hành động đang diễn ra.). Nghĩa cả câu: Bây giờ tôi đang họp. Tôi sẽ gọi lại sau.",
+      "options": [
+       "だけ",
+       "ところです",
+       "し",
+       "つもり"
+      ],
+      "prompt_ja": "今、会議をしている（　　）。後でかけ直します。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc Đang lúc... (Nhấn mạnh thời điểm “đang trong quá trình” thực hiện hành động, thường để giải thích vì sao không thể làm việc khác hoặc mô tả sự cố chen ngang. Khi đi với ところに/へ: diễn tả một sự kiện khác xảy ra vào đúng thời điểm đó (điện thoại reo, ai đó đến…). Khi đi với ところを: nhấn bị tác động vào quá trình (bị làm phiền, bị bắt gặp…). Khi đi với ところで: bối cảnh địa điểm/thời điểm của hành động đang diễn ra.), chỗ trống cần điền 「ている」. Nghĩa: Đúng lúc tôi đang ra ngoài thì trưởng phòng đến.",
+      "options": [
+       "ほど",
+       "てもいい",
+       "ている",
+       "はず"
+      ],
+      "prompt_ja": "ちょうど出かけ（　　）ところに、部長が来た。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 今、会議をしているところです。後でかけ直します。 (Bây giờ tôi đang họp. Tôi sẽ gọi lại sau.). Theo cấu trúc Đang lúc..., mảnh đứng ở vị trí ★ là 「ころです。後で」.",
+      "options": [
+       "していると",
+       "かけ直します",
+       "今、会議を",
+       "ころです。後で"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: ちょうど出かけているところに、部長が来た。 (Đúng lúc tôi đang ra ngoài thì trưởng phòng đến.). Theo cấu trúc Đang lúc..., mảnh đứng ở vị trí ★ là 「出かけていると」.",
+      "options": [
+       "部長が来た",
+       "出かけていると",
+       "ころに、",
+       "ちょうど"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Mẫu Đang lúc... có nghĩa là \"Nhấn mạnh thời điểm “đang trong quá trình” thực hiện hành động, thường để giải thích vì sao không thể làm việc khác hoặc mô tả sự cố chen ngang. Khi đi với ところに/へ: diễn tả một sự kiện khác xảy ra vào đúng thời điểm đó (điện thoại reo, ai đó đến…). Khi đi với ところを: nhấn bị tác động vào quá trình (bị làm phiền, bị bắt gặp…). Khi đi với ところで: bối cảnh địa điểm/thời điểm của hành động đang diễn ra.\". Câu này dịch là: \"Bây giờ tôi đang họp. Tôi sẽ gọi lại sau.\"",
+      "options": [
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Bây giờ tôi đang họp. Tôi sẽ gọi lại sau."
+      ],
+      "prompt_ja": "今、会議をしているところです。後でかけ直します。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu Đang lúc... (Nhấn mạnh thời điểm “đang trong quá trình” thực hiện hành động, thường để giải thích vì sao không thể làm việc khác hoặc mô tả sự cố chen ngang. Khi đi với ところに/へ: diễn tả một sự kiện khác xảy ra vào đúng thời điểm đó (điện thoại reo, ai đó đến…). Khi đi với ところを: nhấn bị tác động vào quá trình (bị làm phiền, bị bắt gặp…). Khi đi với ところで: bối cảnh địa điểm/thời điểm của hành động đang diễn ra.), câu trên có nghĩa là: \"Đúng lúc tôi đang ra ngoài thì trưởng phòng đến.\"",
+      "options": [
+       "Đúng lúc tôi đang ra ngoài thì trưởng phòng đến.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua."
+      ],
+      "prompt_ja": "ちょうど出かけているところに、部長が来た。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Đang lúc...). Câu đúng: 今、会議をしているところです。後でかけ直します。",
+      "options": [
+       "ちょうど出かけているところに、部長が来た。",
+       "今、会議をしているところです。後でかけ直しますますだ。",
+       "これから昼ご飯を食べるところだ。",
+       "雨が降ったら試合は中止です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu Đang lúc...). Câu đúng: ちょうど出かけているところに、部長が来た。",
+      "options": [
+       "今、会議をしているところです。後でかけ直します。",
+       "これから昼ご飯を食べるところだ。",
+       "雨が降ったら試合は中止です。",
+       "ちょうど出かけているところに、部長が来たですます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Đang lúc...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "今、会議をしているところです。後でかけ直します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bây giờ tôi đang họp. Tôi sẽ gọi lại sau."
+     },
+     {
+      "ja": "ちょうど出かけているところに、部長が来た。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đúng lúc tôi đang ra ngoài thì trưởng phòng đến."
+     },
+     {
+      "ja": "これから昼ご飯を食べるところだ。",
+      "ja_furigana": "これから昼(ひる)ご飯(はん)を食(た)べるところだ。",
+      "source": "CLAUDE",
+      "vi": "Bây giờ tôi chuẩn bị ăn cơm trưa."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「ところだ」 theo cấu trúc Đang lúc... (Nhấn mạnh thời điểm “đang trong quá trình” thực hiện hành động, thường để giải thích vì sao không thể làm việc khác hoặc mô tả sự cố chen ngang. Khi đi với ところに/へ: diễn tả một sự kiện khác xảy ra vào đúng thời điểm đó (điện thoại reo, ai đó đến…). Khi đi với ところを: nhấn bị tác động vào quá trình (bị làm phiền, bị bắt gặp…). Khi đi với ところで: bối cảnh địa điểm/thời điểm của hành động đang diễn ra.). Nghĩa: Bây giờ tôi chuẩn bị ăn cơm trưa.",
+      "options": [
+       "とか",
+       "ところ",
+       "ついでに",
+       "ところだ"
+      ],
+      "prompt_ja": "これから昼ご飯を食べる（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu Đang lúc... (Nhấn mạnh thời điểm “đang trong quá trình” thực hiện hành động, thường để giải thích vì sao không thể làm việc khác hoặc mô tả sự cố chen ngang. Khi đi với ところに/へ: diễn tả một sự kiện khác xảy ra vào đúng thời điểm đó (điện thoại reo, ai đó đến…). Khi đi với ところを: nhấn bị tác động vào quá trình (bị làm phiền, bị bắt gặp…). Khi đi với ところで: bối cảnh địa điểm/thời điểm của hành động đang diễn ra.), câu này nghĩa là: \"Bây giờ tôi chuẩn bị ăn cơm trưa.\"",
+      "options": [
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Bây giờ tôi chuẩn bị ăn cơm trưa.",
+       "Tôi vẫn chưa làm xong bài tập về nhà."
+      ],
+      "prompt_ja": "これから昼ご飯を食べるところだ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: これから昼ご飯を食べるところだ。",
+      "options": [
+       "これから昼ご飯を食べるところだだます。",
+       "今、会議をしているところです。後でかけ直します。",
+       "ちょうど出かけているところに、部長が来た。",
+       "安ければこのパソコンを買います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ところです",
+      "sentence_ja": "今、会議をしている＿＿。後でかけ直します。",
+      "translation_vi": "Bây giờ tôi đang họp. Tôi sẽ gọi lại sau."
+     },
+     {
+      "answer": "ている",
+      "sentence_ja": "ちょうど出かけ＿＿ところに、部長が来た。",
+      "translation_vi": "Đúng lúc tôi đang ra ngoài thì trưởng phòng đến."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 今、会議をしているところです。後でかけ直します。",
+     "FURIGANA_MISSING: ちょうど出かけているところに、部長が来た。"
+    ],
+    "formation": "Cấu trúc: Đang lúc...",
+    "locked_fields": [],
+    "meaning_vi": "Nhấn mạnh thời điểm “đang trong quá trình” thực hiện hành động, thường để giải thích vì sao không thể làm việc khác hoặc mô tả sự cố chen ngang. Khi đi với ところに/へ: diễn tả một sự kiện khác xảy ra vào đúng thời điểm đó (điện thoại reo, ai đó đến…). Khi đi với ところを: nhấn bị tác động vào quá trình (bị làm phiền, bị bắt gặp…). Khi đi với ところで: bối cảnh địa điểm/thời điểm của hành động đang diễn ra.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Đang lúc...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "していると",
+       "かけ直します",
+       "今、会議を",
+       "ころです。後で"
+      ],
+      "translation_vi": "Bây giờ tôi đang họp. Tôi sẽ gọi lại sau."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "部長が来た",
+       "ころに、",
+       "ちょうど",
+       "出かけていると"
+      ],
+      "translation_vi": "Đúng lúc tôi đang ra ngoài thì trưởng phòng đến."
+     }
+    ],
+    "pattern": "Đang lúc...",
+    "pattern_variants": [],
+    "unit_no": 46,
+    "unit_title_vi": "Thời điểm của hành động và sự chắc chắn",
+    "usage_vi": "[4. Cách dùng & sắc thái] Thêm 今／ちょうど／まさに để nhấn “đúng lúc này”. Văn lịch sự thêm です/おります: ただいま対応しているところでございます。 So với 〜ている, 〜ているところ nhấn mạnh khoảnh khắc, phù hợp khi cần từ chối/giải thích lịch sự. Thường đi với sự kiện chen ngang có tính tức thời như 電話が鳴る、来客が来る、メールが届く… [6. Ghi chú mở rộng] ところで không đơn thuần thay cho 間に để nói “trong lúc”. Hãy xét quan hệ nối câu; khi muốn nói suốt thời gian A, dùng ～ている間は. Trong email công việc: ただいま確認しているところで、判明次第ご連絡いたします là cách nói tiêu chuẩn. Không dùng với động từ trạng thái khó có tiến trình rõ (知っているところ thường không tự nhiên). [7. Biến thể & cụm cố định] ただいま〜しているところです／今まさに〜しているところだ 〜しているところに／へ／を／で + sự kiện chen ngang Vるところ・Vたところ bộ ba thời điểm với ところ [8. Lỗi thường gặp & bẫy JLPT] Nhầm với 最中に: 〜ているところに cũng được nhưng 最中に mạnh hơn về “đúng giữa chừng” và hay đi với phiền toái. Dùng ところ với động từ trạng thái: 知っているところ là tự nhiên hiếm; nên dùng 知っています thôi. JLPT hay hỏi phân biệt Vるところ／Vているところ／Vたところ theo ngữ cảnh thời gian."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5f4c8d11f7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "Đang... (tiếp diễn); trạng thái kết quả; thói quen, nghề nghiệp",
+     "formation": "V-て + いる / います",
+     "usage_vi": "Ba cách dùng chính: (1) hành động đang diễn ra (今、雨が降っている); (2) trạng thái còn lại sau khi hành động xong (窓が開いている, 結婚している); (3) thói quen, việc làm thường xuyên hay nghề nghiệp (毎朝走っている, 銀行で働いている).",
+     "nuance_vi": "Với động từ khoảnh khắc như 知る, 結婚する, 〜ている chỉ trạng thái chứ không phải \"đang làm\". Văn nói rút gọn thành 〜てる.",
+     "common_mistakes_vi": "Nói \"biết\" bằng 知ります thay vì 知っています, hoặc nói phủ định của 知っています là 知っていません (đúng: 知りません).",
+     "examples": [
+      {
+       "ja": "今、外は雨が降っています。",
+       "ja_furigana": "今(いま)、外(そと)は雨(あめ)が降(ふ)っています。",
+       "vi": "Bây giờ bên ngoài đang mưa."
+      },
+      {
+       "ja": "窓が開いているから寒いです。",
+       "ja_furigana": "窓(まど)が開(あ)いているから寒(さむ)いです。",
+       "vi": "Cửa sổ đang mở nên lạnh."
+      },
+      {
+       "ja": "姉は銀行で働いています。",
+       "ja_furigana": "姉(あね)は銀行(ぎんこう)で働(はたら)いています。",
+       "vi": "Chị gái tôi làm việc ở ngân hàng."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "父は毎朝公園を走っ（　　）。",
+       "options": [
+        "たり",
+        "ても",
+        "ています",
+        "ながら"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「ています」: V-て + います: đang làm / trạng thái / thói quen. Nghĩa: Bố tôi sáng nào cũng chạy bộ ở công viên."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "兄は去年から東京に住ん（　　）。",
+       "options": [
+        "だり",
+        "でも",
+        "でいます",
+        "ながら"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「でいます」: V-て + います: đang làm / trạng thái / thói quen. Nghĩa: Anh trai tôi sống ở Tokyo từ năm ngoái."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "いるから",
+        "窓が",
+        "開いて",
+        "寒いです"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: 窓が開いているから寒いです。 (Cửa sổ đang mở nên lạnh.). Mảnh ở ô ★ là 「いるから」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "田中さんの",
+        "私は",
+        "知っています",
+        "電話番号を"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: 私は田中さんの電話番号を知っています。 (Tôi biết số điện thoại của anh Tanaka.). Mảnh ở ô ★ là 「電話番号を」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "今、外は雨が降っています。",
+       "options": [
+        "Trước cuộc họp tôi sẽ photo sẵn tài liệu.",
+        "Bánh tôi ăn một nửa, nửa còn lại để mai ăn.",
+        "Bây giờ bên ngoài đang mưa.",
+        "Lát nữa tôi sẽ gọi điện cho ngài."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu dùng mẫu 〜ている (đang... (tiếp diễn); trạng thái kết quả; thói quen, nghề nghiệp): \"Bây giờ bên ngoài đang mưa.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "姉は銀行で働いています。",
+       "options": [
+        "Mùa đông dễ bị cảm.",
+        "Chị gái tôi làm việc ở ngân hàng.",
+        "Anh ấy từng sống ở Nhật nên chắc chắn nói được tiếng Nhật.",
+        "Theo tin tức, hôm qua đã có một vụ tai nạn lớn."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu 〜ている (đang... (tiếp diễn); trạng thái kết quả; thói quen, nghề nghiệp): \"Chị gái tôi làm việc ở ngân hàng.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "私は田中さんの電話番号を知ります。",
+        "父は毎朝公園を走っています。",
+        "今、外は雨が降っています。",
+        "私は田中さんの電話番号を知っています。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "「私は田中さんの電話番号を知ります。」 sai: \"biết\" dùng 知っています (trạng thái), không dùng 知ります. Câu đúng: 私は田中さんの電話番号を知っています。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "兄は去年から東京に住んでいます。",
+        "田中さんの電話番号を知っていません。",
+        "姉は銀行で働いています。",
+        "窓が開いているから寒いです。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "「田中さんの電話番号を知っていません。」 sai: phủ định của 知っています là 知りません. Câu đúng: 田中さんの電話番号を知りません。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "雨が",
+        "今、",
+        "降っています。",
+        "外は"
+       ],
+       "answer_order": [
+        1,
+        3,
+        0,
+        2
+       ],
+       "translation_vi": "Bây giờ bên ngoài đang mưa."
+      },
+      {
+       "pieces": [
+        "働いて",
+        "銀行で",
+        "姉は",
+        "います。"
+       ],
+       "answer_order": [
+        2,
+        1,
+        0,
+        3
+       ],
+       "translation_vi": "Chị gái tôi làm việc ở ngân hàng."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "窓が開いて＿＿から寒いです。",
+       "answer": "いる",
+       "translation_vi": "Cửa sổ đang mở nên lạnh."
+      },
+      {
+       "sentence_ja": "姉は銀行で働いて＿＿。",
+       "answer": "います",
+       "translation_vi": "Chị gái tôi làm việc ở ngân hàng."
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "私は田中さんの電話番号を知っ（　　）。",
+       "options": [
+        "ています",
+        "ながら",
+        "たり",
+        "ても"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「ています」: V-て + います: đang làm / trạng thái / thói quen. Nghĩa: Tôi biết số điện thoại của anh Tanaka."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "父は毎朝公園を走っています。",
+       "options": [
+        "Trước cuộc họp tôi sẽ photo sẵn tài liệu.",
+        "Bố tôi sáng nào cũng chạy bộ ở công viên.",
+        "Anh trai tôi làm cho một công ty ở Tokyo.",
+        "Xin mời quý khách tự nhiên dùng trà."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu 〜ている (đang... (tiếp diễn); trạng thái kết quả; thói quen, nghề nghiệp): \"Bố tôi sáng nào cũng chạy bộ ở công viên.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "今、外は雨が降りています。",
+        "兄は去年から東京に住んでいます。",
+        "窓が開いているから寒いです。",
+        "今、外は雨が降っています。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "「今、外は雨が降りています。」 sai: thể て của 降る là 降って. Câu đúng: 今、外は雨が降っています。"
+      }
+     ]
+    },
+    "note": "mục nguồn chép ghi chú dài, lõi chỉ là nhãn tiếng Việt; viết lại lõi theo 3 nghĩa (đang diễn ra / trạng thái / thói quen-nghề nghiệp), ví dụ và toàn bộ ngân hàng câu"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「ています」 theo mẫu Đang..., lặp lại, trạng thái (Diễn tả hành động đang diễn ra: 今、雨が降っている。 Trạng thái kết quả (resultative) sau khi hành động hoàn tất: ドアが開いている (cửa đang mở). Thói quen, lặp lại: 毎朝ジョギングしている。 Tình trạng hiện hữu/hôn nhân/kiến thức: 東京に住んでいる／結婚している／田中さんを知っている。 Với động từ biến đổi trạng thái, 〜ている = “ở trạng thái đã thay đổi”: 料金は500円になっている。). Nghĩa cả câu: Tôi đang họp bây giờ.",
+      "options": [
+       "ています",
+       "ながら",
+       "まま",
+       "てある"
+      ],
+      "prompt_ja": "今、会議をし（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc Đang..., lặp lại, trạng thái (Diễn tả hành động đang diễn ra: 今、雨が降っている。 Trạng thái kết quả (resultative) sau khi hành động hoàn tất: ドアが開いている (cửa đang mở). Thói quen, lặp lại: 毎朝ジョギングしている。 Tình trạng hiện hữu/hôn nhân/kiến thức: 東京に住んでいる／結婚している／田中さんを知っている。 Với động từ biến đổi trạng thái, 〜ている = “ở trạng thái đã thay đổi”: 料金は500円になっている。), chỗ trống cần điền 「から」. Nghĩa: Đèn đang sáng nên chắc có ai trong đó.",
+      "options": [
+       "ばかり",
+       "から",
+       "とおり",
+       "てみる"
+      ],
+      "prompt_ja": "電気がついている（　　）、誰かが中にいるはずだ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 今、会議をしています。 (Tôi đang họp bây giờ.). Theo cấu trúc Đang..., lặp lại, trạng thái, mảnh đứng ở vị trí ★ là 「して」.",
+      "options": [
+       "して",
+       "今、",
+       "います",
+       "会議を"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 電気がついているから、誰かが中にいるはずだ。 (Đèn đang sáng nên chắc có ai trong đó.). Theo cấu trúc Đang..., lặp lại, trạng thái, mảnh đứng ở vị trí ★ là 「ついているから、」.",
+      "options": [
+       "ついているから、",
+       "いるはずだ",
+       "電気が",
+       "誰かが中に"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mẫu Đang..., lặp lại, trạng thái có nghĩa là \"Diễn tả hành động đang diễn ra: 今、雨が降っている。 Trạng thái kết quả (resultative) sau khi hành động hoàn tất: ドアが開いている (cửa đang mở). Thói quen, lặp lại: 毎朝ジョギングしている。 Tình trạng hiện hữu/hôn nhân/kiến thức: 東京に住んでいる／結婚している／田中さんを知っている。 Với động từ biến đổi trạng thái, 〜ている = “ở trạng thái đã thay đổi”: 料金は500円になっている。\". Câu này dịch là: \"Tôi đang họp bây giờ.\"",
+      "options": [
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Tôi đang họp bây giờ.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "prompt_ja": "今、会議をしています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu Đang..., lặp lại, trạng thái (Diễn tả hành động đang diễn ra: 今、雨が降っている。 Trạng thái kết quả (resultative) sau khi hành động hoàn tất: ドアが開いている (cửa đang mở). Thói quen, lặp lại: 毎朝ジョギングしている。 Tình trạng hiện hữu/hôn nhân/kiến thức: 東京に住んでいる／結婚している／田中さんを知っている。 Với động từ biến đổi trạng thái, 〜ている = “ở trạng thái đã thay đổi”: 料金は500円になっている。), câu trên có nghĩa là: \"Đèn đang sáng nên chắc có ai trong đó.\"",
+      "options": [
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Đèn đang sáng nên chắc có ai trong đó."
+      ],
+      "prompt_ja": "電気がついているから、誰かが中にいるはずだ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Đang..., lặp lại, trạng thái). Câu đúng: 今、会議をしています。",
+      "options": [
+       "今、会議をしていますますだ。",
+       "電気がついているから、誰かが中にいるはずだ。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: 電気がついているから、誰かが中にいるはずだ。",
+      "options": [
+       "今、会議をしています。",
+       "毎日まじめに日本語を勉強しています。",
+       "電気がついているから、誰かが中にいるはをずだ。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Đang..., lặp lại, trạng thái\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "今、会議をしています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đang họp bây giờ."
+     },
+     {
+      "ja": "電気がついているから、誰かが中にいるはずだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đèn đang sáng nên chắc có ai trong đó."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「ています」 theo cấu trúc Đang..., lặp lại, trạng thái (Diễn tả hành động đang diễn ra: 今、雨が降っている。 Trạng thái kết quả (resultative) sau khi hành động hoàn tất: ドアが開いている (cửa đang mở). Thói quen, lặp lại: 毎朝ジョギングしている。 Tình trạng hiện hữu/hôn nhân/kiến thức: 東京に住んでいる／結婚している／田中さんを知っている。 Với động từ biến đổi trạng thái, 〜ている = “ở trạng thái đã thay đổi”: 料金は500円になっている。). Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "はず",
+       "ておく",
+       "ています",
+       "ていく"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu Đang..., lặp lại, trạng thái (Diễn tả hành động đang diễn ra: 今、雨が降っている。 Trạng thái kết quả (resultative) sau khi hành động hoàn tất: ドアが開いている (cửa đang mở). Thói quen, lặp lại: 毎朝ジョギングしている。 Tình trạng hiện hữu/hôn nhân/kiến thức: 東京に住んでいる／結婚している／田中さんを知っている。 Với động từ biến đổi trạng thái, 〜ている = “ở trạng thái đã thay đổi”: 料金は500円になっている。), câu này nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "今、会議をしています。",
+       "電気がついているから、誰かが中にいるはずだ。",
+       "わからない言葉を辞書で調べました。",
+       "毎日まじめにを日本語を勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ています",
+      "sentence_ja": "今、会議をし＿＿。",
+      "translation_vi": "Tôi đang họp bây giờ."
+     },
+     {
+      "answer": "から",
+      "sentence_ja": "電気がついている＿＿、誰かが中にいるはずだ。",
+      "translation_vi": "Đèn đang sáng nên chắc có ai trong đó."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 今、会議をしています。",
+     "FURIGANA_MISSING: 電気がついているから、誰かが中にいるはずだ。"
+    ],
+    "formation": "Cấu trúc: Đang..., lặp lại, trạng thái",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả hành động đang diễn ra: 今、雨が降っている。 Trạng thái kết quả (resultative) sau khi hành động hoàn tất: ドアが開いている (cửa đang mở). Thói quen, lặp lại: 毎朝ジョギングしている。 Tình trạng hiện hữu/hôn nhân/kiến thức: 東京に住んでいる／結婚している／田中さんを知っている。 Với động từ biến đổi trạng thái, 〜ている = “ở trạng thái đã thay đổi”: 料金は500円になっている。",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Đang..., lặp lại, trạng thái\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "います",
+       "して",
+       "今、",
+       "会議を"
+      ],
+      "translation_vi": "Tôi đang họp bây giờ."
+     },
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "誰かが中に",
+       "電気が",
+       "いるはずだ",
+       "ついているから、"
+      ],
+      "translation_vi": "Đèn đang sáng nên chắc có ai trong đó."
+     }
+    ],
+    "pattern": "Đang..., lặp lại, trạng thái",
+    "pattern_variants": [],
+    "unit_no": 28,
+    "unit_title_vi": "Vừa làm vừa và liệt kê lý do",
+    "usage_vi": "[4. Cách dùng & sắc thái] Chú ý phân biệt “đang làm” và “đang ở trạng thái”: 開けている (đang mở) vs 開いている (đang mở sẵn). Với động từ khoảnh khắc (biết, hiểu), 〜ている = trạng thái: 知っている＝biết; 分かっている＝đã hiểu sẵn. Khẩu ngữ rút gọn: 〜てる／〜てます dùng nhiều trong hội thoại thân mật/lịch sự. Diễn đạt nghề nghiệp, thói quen hiện tại sử dụng 〜ている tự nhiên hơn thì hiện tại đơn. [6. Ghi chú mở rộng] Thường kết hợp với いく／くる để chỉ hướng biến đổi: 増えていく（sẽ tăng dần）／分かってくる（dần hiểu ra）. Với tự động từ chỉ thay đổi, 〜ている mang nghĩa “đã và đang ở trạng thái”: 太っている、痩せている、混んでいる。 Trong văn cảnh lịch sự, 〜ております là khiêm nhường/lịch sự cao: 担当しております。 [7. Biến thể & cụm cố định] 〜てる（khẩu ngữ）, 〜てます（lịch sự）, 〜ております（khiêm nhường/lịch sự cao） 結果の状態: 壊れている／閉まっている／座っている／住んでいる 習慣: よく〜している／いつも〜している [8. Lỗi thường gặp & bẫy JLPT] Nhầm 〜ている với 〜てある: 花が飾ってある（ai đó đã trang trí sẵn）≠ 花が飾っている（ít dùng, dễ sai). Dịch máy “đang biết”: 知っている không phải “đang biết” mà là “biết”. Dùng 〜ている với động từ khoảnh khắc như 死ぬ, 着く… thường không ở nghĩa tiếp diễn (着いている = đã đến và đang ở đó)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f593149249"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "Khi (đã)... thì...",
+     "formation": "V-た + とき(に)、〜 / V-る + とき(に)、〜",
+     "usage_vi": "V-たとき: việc ở vế sau xảy ra sau khi hành động ở vế trước đã xong (日本に来たとき、友だちができた). V-るとき: việc ở vế sau xảy ra trước hoặc trong lúc hành động vế trước chưa xong (日本へ来るとき、空港でカメラを買った).",
+     "nuance_vi": "Thì của động từ trước とき cho biết thứ tự: た = đã xong, る = chưa xong; không phụ thuộc thì của cả câu.",
+     "common_mistakes_vi": "Dùng V-るとき cho việc đã xong (sai: 家に帰るとき、「ただいま」と言います; đúng: 帰ったとき) hoặc ngược lại.",
+     "examples": [
+      {
+       "ja": "日本に来たとき、たくさんの友だちができました。",
+       "ja_furigana": "日本(にほん)に来(き)たとき、たくさんの友(とも)だちができました。",
+       "vi": "Khi đến Nhật, tôi đã có nhiều bạn."
+      },
+      {
+       "ja": "家に帰ったとき、鍵がないことに気づきました。",
+       "ja_furigana": "家(いえ)に帰(かえ)ったとき、鍵(かぎ)がないことに気(き)づきました。",
+       "vi": "Khi về đến nhà tôi mới nhận ra không có chìa khóa."
+      },
+      {
+       "ja": "朝起きたとき、頭が痛かったです。",
+       "ja_furigana": "朝(あさ)起(お)きたとき、頭(あたま)が痛(いた)かったです。",
+       "vi": "Khi sáng thức dậy tôi bị đau đầu."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "駅に着いた（　　）、電話をください。",
+       "options": [
+        "ても",
+        "たら",
+        "ながら",
+        "とき"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Điền 「とき」: V-たとき: khi việc ở vế trước đã xong thì việc ở vế sau xảy ra. Nghĩa: Khi đến ga thì gọi điện cho tôi nhé."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "日本へ来る（　　）、空港でカメラを買いました。",
+       "options": [
+        "たら",
+        "ても",
+        "とき",
+        "ながら"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「とき」: V-たとき: khi việc ở vế trước đã xong thì việc ở vế sau xảy ra. Nghĩa: Lúc sắp sang Nhật, tôi đã mua máy ảnh ở sân bay."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "鍵がないことに",
+        "帰ったとき、",
+        "家に",
+        "気づきました"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: 家に帰ったとき、鍵がないことに気づきました。 (Khi về đến nhà tôi mới nhận ra không có chìa khóa.). Mảnh ở ô ★ là 「鍵がないことに」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "電気が",
+        "ついていました",
+        "部屋に",
+        "入ったとき、"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: 部屋に入ったとき、電気がついていました。 (Khi tôi vào phòng thì đèn đang bật.). Mảnh ở ô ★ là 「電気が」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "日本に来たとき、たくさんの友だちができました。",
+       "options": [
+        "Thầy đã về rồi ạ?",
+        "Khi đến Nhật, tôi đã có nhiều bạn.",
+        "Tôi sẽ tra xem đến ga mất bao lâu.",
+        "Tôi đã tặng bạn quà lưu niệm Nhật."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu 〜たとき (khi (đã)... thì..): \"Khi đến Nhật, tôi đã có nhiều bạn.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "朝起きたとき、頭が痛かったです。",
+       "options": [
+        "Cái nóng năm nay không bằng năm ngoái.",
+        "Ở khách sạn này có thể ăn sáng từ 7 giờ.",
+        "Khi sáng thức dậy tôi bị đau đầu.",
+        "Điểm kiểm tra tốt nên tôi được thầy khen."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu dùng mẫu 〜たとき (khi (đã)... thì..): \"Khi sáng thức dậy tôi bị đau đầu.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "家に帰るとき、「ただいま」と言います。",
+        "部屋に入ったとき、電気がついていました。",
+        "駅に着いたとき、電話をください。",
+        "日本に来たとき、たくさんの友だちができました。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "「家に帰るとき、「ただいま」と言います。」 sai: nói ただいま khi đã về tới nhà nên dùng V-たとき. Câu đúng: 家に帰ったとき、「ただいま」と言います。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "日本へ来るとき、空港でカメラを買いました。",
+        "朝起きたとき、頭が痛かったです。",
+        "朝起きましたとき、頭が痛かったです。",
+        "家に帰ったとき、鍵がないことに気づきました。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "「朝起きましたとき、頭が痛かったです。」 sai: trước とき dùng thể thường (起きた), không dùng thể ます. Câu đúng: 朝起きたとき、頭が痛かったです。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "できました。",
+        "たくさんの友だちが",
+        "日本に",
+        "来たとき、"
+       ],
+       "answer_order": [
+        2,
+        3,
+        1,
+        0
+       ],
+       "translation_vi": "Khi đến Nhật, tôi đã có nhiều bạn."
+      },
+      {
+       "pieces": [
+        "頭が",
+        "痛かったです。",
+        "起きたとき、",
+        "朝"
+       ],
+       "answer_order": [
+        3,
+        2,
+        0,
+        1
+       ],
+       "translation_vi": "Khi sáng thức dậy tôi bị đau đầu."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "家に帰った＿＿、鍵がないことに気づきました。",
+       "answer": "とき",
+       "translation_vi": "Khi về đến nhà tôi mới nhận ra không có chìa khóa.",
+       "accept": [
+        "時"
+       ]
+      },
+      {
+       "sentence_ja": "朝起きた＿＿、頭が痛かったです。",
+       "answer": "とき",
+       "translation_vi": "Khi sáng thức dậy tôi bị đau đầu.",
+       "accept": [
+        "時"
+       ]
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "部屋に入った（　　）、電気がついていました。",
+       "options": [
+        "ても",
+        "たら",
+        "ながら",
+        "とき"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Điền 「とき」: V-たとき: khi việc ở vế trước đã xong thì việc ở vế sau xảy ra. Nghĩa: Khi tôi vào phòng thì đèn đang bật."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "駅に着いたとき、電話をください。",
+       "options": [
+        "Hãy nói sao cho đến ghế phía sau cũng nghe thấy.",
+        "Bạn có biết độ cao của núi Phú Sĩ không?",
+        "Từ sáng tôi thấy trong người không khỏe.",
+        "Khi đến ga thì gọi điện cho tôi nhé."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu dùng mẫu 〜たとき (khi (đã)... thì..): \"Khi đến ga thì gọi điện cho tôi nhé.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "日本へ来るとき、空港でカメラを買いました。",
+        "家に帰ったとき、鍵がないことに気づきました。",
+        "寝たとき、「おやすみなさい」と言います。",
+        "日本に来たとき、たくさんの友だちができました。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "「寝たとき、「おやすみなさい」と言います。」 sai: nói おやすみなさい trước khi ngủ nên dùng V-るとき. Câu đúng: 寝るとき、「おやすみなさい」と言います。"
+      }
+     ]
+    },
+    "note": "mục nguồn chép ghi chú dài, lõi chỉ là nhãn tiếng Việt; viết lại lõi (phân biệt V-たとき / V-るとき), ví dụ và toàn bộ ngân hàng câu"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「だ」 theo mẫu Khi... (Nêu mốc thời điểm ngay sau khi hành động trong mệnh đề phụ đã hoàn tất, tại đó sự việc chính xảy ra. Thì của động từ trước とき thể hiện quan hệ thời gian tương đối: V-るとき: hành động chính xảy ra trước/đang lúc V xảy ra. V-たとき: hành động chính xảy ra sau khi V hoàn tất. に có tính đánh dấu mục tiêu thời điểm rõ ràng hơn, nhưng thường có thể lược bỏ. Thường dùng cho các sự việc một lần, cụ thể; ít dùng cho thói quen lặp lại liên tục. Khi chủ ngữ khác nhau giữa mệnh đề phụ và chính, phải dùng trợ từ chủ ngữ phù hợp (ga/wa) để tránh mơ hồ.). Nghĩa cả câu: Khi đã đến Nhật, tôi đã có nhiều bạn.",
+      "options": [
+       "ついでに",
+       "ている",
+       "すぎる",
+       "だ"
+      ],
+      "prompt_ja": "日本に来たときに、たくさんの友（　　）ちができた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc Khi... (Nêu mốc thời điểm ngay sau khi hành động trong mệnh đề phụ đã hoàn tất, tại đó sự việc chính xảy ra. Thì của động từ trước とき thể hiện quan hệ thời gian tương đối: V-るとき: hành động chính xảy ra trước/đang lúc V xảy ra. V-たとき: hành động chính xảy ra sau khi V hoàn tất. に có tính đánh dấu mục tiêu thời điểm rõ ràng hơn, nhưng thường có thể lược bỏ. Thường dùng cho các sự việc một lần, cụ thể; ít dùng cho thói quen lặp lại liên tục. Khi chủ ngữ khác nhau giữa mệnh đề phụ và chính, phải dùng trợ từ chủ ngữ phù hợp (ga/wa) để tránh mơ hồ.), chỗ trống cần điền 「づいた」. Nghĩa: Khi về đến nhà rồi, tôi mới nhận ra là không có chìa khóa.",
+      "options": [
+       "づいた",
+       "てしまう",
+       "てくる",
+       "そうだ"
+      ],
+      "prompt_ja": "家に帰ったときに、鍵がないことに気（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 日本に来たときに、たくさんの友だちができた。 (Khi đã đến Nhật, tôi đã có nhiều bạn.). Theo cấu trúc Khi..., mảnh đứng ở vị trí ★ là 「たくさんの」.",
+      "options": [
+       "日本に",
+       "たくさんの",
+       "来たときに、",
+       "友だちができた"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 家に帰ったときに、鍵がないことに気づいた。 (Khi về đến nhà rồi, tôi mới nhận ra là không có chìa khóa.). Theo cấu trúc Khi..., mảnh đứng ở vị trí ★ là 「きに、鍵が」.",
+      "options": [
+       "ないこと",
+       "家に帰ったと",
+       "に気づいた",
+       "きに、鍵が"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mẫu Khi... có nghĩa là \"Nêu mốc thời điểm ngay sau khi hành động trong mệnh đề phụ đã hoàn tất, tại đó sự việc chính xảy ra. Thì của động từ trước とき thể hiện quan hệ thời gian tương đối: V-るとき: hành động chính xảy ra trước/đang lúc V xảy ra. V-たとき: hành động chính xảy ra sau khi V hoàn tất. に có tính đánh dấu mục tiêu thời điểm rõ ràng hơn, nhưng thường có thể lược bỏ. Thường dùng cho các sự việc một lần, cụ thể; ít dùng cho thói quen lặp lại liên tục. Khi chủ ngữ khác nhau giữa mệnh đề phụ và chính, phải dùng trợ từ chủ ngữ phù hợp (ga/wa) để tránh mơ hồ.\". Câu này dịch là: \"Khi đã đến Nhật, tôi đã có nhiều bạn.\"",
+      "options": [
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Khi đã đến Nhật, tôi đã có nhiều bạn.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua."
+      ],
+      "prompt_ja": "日本に来たときに、たくさんの友だちができた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu Khi... (Nêu mốc thời điểm ngay sau khi hành động trong mệnh đề phụ đã hoàn tất, tại đó sự việc chính xảy ra. Thì của động từ trước とき thể hiện quan hệ thời gian tương đối: V-るとき: hành động chính xảy ra trước/đang lúc V xảy ra. V-たとき: hành động chính xảy ra sau khi V hoàn tất. に có tính đánh dấu mục tiêu thời điểm rõ ràng hơn, nhưng thường có thể lược bỏ. Thường dùng cho các sự việc một lần, cụ thể; ít dùng cho thói quen lặp lại liên tục. Khi chủ ngữ khác nhau giữa mệnh đề phụ và chính, phải dùng trợ từ chủ ngữ phù hợp (ga/wa) để tránh mơ hồ.), câu trên có nghĩa là: \"Khi về đến nhà rồi, tôi mới nhận ra là không có chìa khóa.\"",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Khi về đến nhà rồi, tôi mới nhận ra là không có chìa khóa.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày."
+      ],
+      "prompt_ja": "家に帰ったときに、鍵がないことに気づいた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Khi...). Câu đúng: 日本に来たときに、たくさんの友だちができた。",
+      "options": [
+       "家に帰ったときに、鍵がないことに気づいた。",
+       "雨が降ったら試合は中止です。",
+       "安ければこのパソコンを買います。",
+       "日本に来たときに、たくさんの友だちができたますだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu Khi...). Câu đúng: 家に帰ったときに、鍵がないことに気づいた。",
+      "options": [
+       "日本に来たときに、たくさんの友だちができた。",
+       "家に帰ったときに、鍵がないことに気づいたですます。",
+       "雨が降ったら試合は中止です。",
+       "安ければこのパソコンを買います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Khi...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "日本に来たときに、たくさんの友だちができた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi đã đến Nhật, tôi đã có nhiều bạn."
+     },
+     {
+      "ja": "家に帰ったときに、鍵がないことに気づいた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi về đến nhà rồi, tôi mới nhận ra là không có chìa khóa."
+     },
+     {
+      "ja": "雨が降ったら試合は中止です。",
+      "ja_furigana": "雨(あめ)が降(ふ)ったら試合(しあい)は中止(ちゅうし)です。",
+      "source": "CLAUDE",
+      "vi": "Nếu trời mưa thì trận đấu sẽ bị hủy."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「です」 theo cấu trúc Khi... (Nêu mốc thời điểm ngay sau khi hành động trong mệnh đề phụ đã hoàn tất, tại đó sự việc chính xảy ra. Thì của động từ trước とき thể hiện quan hệ thời gian tương đối: V-るとき: hành động chính xảy ra trước/đang lúc V xảy ra. V-たとき: hành động chính xảy ra sau khi V hoàn tất. に có tính đánh dấu mục tiêu thời điểm rõ ràng hơn, nhưng thường có thể lược bỏ. Thường dùng cho các sự việc một lần, cụ thể; ít dùng cho thói quen lặp lại liên tục. Khi chủ ngữ khác nhau giữa mệnh đề phụ và chính, phải dùng trợ từ chủ ngữ phù hợp (ga/wa) để tránh mơ hồ.). Nghĩa: Nếu trời mưa thì trận đấu sẽ bị hủy.",
+      "options": [
+       "てみる",
+       "です",
+       "にくい",
+       "かもしれない"
+      ],
+      "prompt_ja": "雨が降ったら試合は中止（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu Khi... (Nêu mốc thời điểm ngay sau khi hành động trong mệnh đề phụ đã hoàn tất, tại đó sự việc chính xảy ra. Thì của động từ trước とき thể hiện quan hệ thời gian tương đối: V-るとき: hành động chính xảy ra trước/đang lúc V xảy ra. V-たとき: hành động chính xảy ra sau khi V hoàn tất. に có tính đánh dấu mục tiêu thời điểm rõ ràng hơn, nhưng thường có thể lược bỏ. Thường dùng cho các sự việc một lần, cụ thể; ít dùng cho thói quen lặp lại liên tục. Khi chủ ngữ khác nhau giữa mệnh đề phụ và chính, phải dùng trợ từ chủ ngữ phù hợp (ga/wa) để tránh mơ hồ.), câu này nghĩa là: \"Nếu trời mưa thì trận đấu sẽ bị hủy.\"",
+      "options": [
+       "Nếu trời mưa thì trận đấu sẽ bị hủy.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "prompt_ja": "雨が降ったら試合は中止です。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 雨が降ったら試合は中止です。",
+      "options": [
+       "日本に来たときに、たくさんの友だちができた。",
+       "家に帰ったときに、鍵がないことに気づいた。",
+       "雨が降ったら試合は中止ですだます。",
+       "春になれば暖かくなります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "だ",
+      "sentence_ja": "日本に来たときに、たくさんの友＿＿ちができた。",
+      "translation_vi": "Khi đã đến Nhật, tôi đã có nhiều bạn."
+     },
+     {
+      "answer": "づいた",
+      "sentence_ja": "家に帰ったときに、鍵がないことに気＿＿。",
+      "translation_vi": "Khi về đến nhà rồi, tôi mới nhận ra là không có chìa khóa."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 日本に来たときに、たくさんの友だちができた。",
+     "FURIGANA_MISSING: 家に帰ったときに、鍵がないことに気づいた。"
+    ],
+    "formation": "Cấu trúc: Khi...",
+    "locked_fields": [],
+    "meaning_vi": "Nêu mốc thời điểm ngay sau khi hành động trong mệnh đề phụ đã hoàn tất, tại đó sự việc chính xảy ra. Thì của động từ trước とき thể hiện quan hệ thời gian tương đối: V-るとき: hành động chính xảy ra trước/đang lúc V xảy ra. V-たとき: hành động chính xảy ra sau khi V hoàn tất. に có tính đánh dấu mục tiêu thời điểm rõ ràng hơn, nhưng thường có thể lược bỏ. Thường dùng cho các sự việc một lần, cụ thể; ít dùng cho thói quen lặp lại liên tục. Khi chủ ngữ khác nhau giữa mệnh đề phụ và chính, phải dùng trợ từ chủ ngữ phù hợp (ga/wa) để tránh mơ hồ.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Khi...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "たくさんの",
+       "日本に",
+       "友だちができた",
+       "来たときに、"
+      ],
+      "translation_vi": "Khi đã đến Nhật, tôi đã có nhiều bạn."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "きに、鍵が",
+       "に気づいた",
+       "家に帰ったと",
+       "ないこと"
+      ],
+      "translation_vi": "Khi về đến nhà rồi, tôi mới nhận ra là không có chìa khóa."
+     }
+    ],
+    "pattern": "Khi...",
+    "pattern_variants": [],
+    "unit_no": 34,
+    "unit_title_vi": "Làm theo hướng dẫn và trình tự",
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để neo thời điểm đã hoàn tất rồi mới phát sinh sự việc chính, tạo cảm giác “sau khi xong V thì…”. Phong cách trung tính; dùng được trong văn nói và viết. Khi muốn nhấn mạnh “ngay sau khoảnh khắc”, cân nhắc dùng ～たとたん(に) hoặc ～た途端(に) thay vì ～たとき(に). Nếu sự việc chính là phát hiện/nhận thức (気づく、分かる、見つける…), ～たとき(に) rất tự nhiên. [6. Ghi chú mở rộng] Trong mệnh đề とき, thì quá khứ/hiện tại không phụ thuộc thì của toàn câu mà biểu thị quan hệ trước-sau tương đối. Với hành động lặp lại theo thói quen, thường dùng とき nói chung (không nhất thiết dùng V-た). とき thường không đi với trợ từ đề tài は trong mệnh đề phụ, nhưng “X ときは …” vẫn tự nhiên khi nêu điều kiện chung. に sau とき giúp rõ thời điểm khi câu dài/phức tạp, hữu ích trong văn viết. [7. Biến thể & cụm cố định] ～たとき(に) / ～るとき(に) (cặp đối lập về thời gian tương đối) ～た際(に): trang trọng hơn ときに ～した時点で: nhấn mạnh mốc thời điểm chính thức ～たときに限って: cứ vào đúng lúc… thì (hàm ý trớ trêu) [8. Lỗi thường gặp & bẫy JLPT] Lẫn lộn V-るとき và V-たとき: chọn sai thì trong mệnh đề とき làm sai quan hệ thời gian. Dùng ～たとき cho hành động chưa hoàn tất hoặc thói quen chung → nên dùng ～るとき hoặc とき nói chung. Nhầm với ～たあとで: khi muốn nhấn mạnh mối quan hệ nguyên nhân-kết quả tức thời/nhận ra ngay, dùng ～たところ phù hợp hơn. Quên に sau とき trong văn trang trọng có thể giảm rõ ràng khi câu phức tạp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3438f5e937"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "Lúc (thời điểm); ở (nơi tồn tại); đến (đích); cho (người nhận)",
+     "formation": "N (thời điểm / nơi tồn tại / đích / người nhận) + に",
+     "usage_vi": "に chỉ thời điểm cụ thể (三時に), nơi tồn tại (部屋に猫がいる), đích đến (駅に着く, 学校に行く), người nhận (友だちに手紙を書く), mục đích đi lại (買い物に行く).",
+     "nuance_vi": "Khác で (nơi diễn ra hành động). Với 今日, あした, 来週... thường không dùng に.",
+     "common_mistakes_vi": "Dùng に cho nơi diễn ra hành động (sai: 公園に遊びます; đúng: 公園で遊びます) hoặc thêm に sau あした (sai: あしたに会います).",
+     "examples": [
+      {
+       "ja": "午後三時に会議が始まります。",
+       "ja_furigana": "午後(ごご)三時(さんじ)に会議(かいぎ)が始(はじ)まります。",
+       "vi": "Cuộc họp bắt đầu lúc 3 giờ chiều."
+      },
+      {
+       "ja": "駅に着いたら電話してください。",
+       "ja_furigana": "駅(えき)に着(つ)いたら電話(でんわ)してください。",
+       "vi": "Đến ga thì gọi điện cho tôi nhé."
+      },
+      {
+       "ja": "友だちに日本のお土産をあげました。",
+       "ja_furigana": "友(とも)だちに日本(にほん)のお土産(みやげ)をあげました。",
+       "vi": "Tôi đã tặng bạn quà lưu niệm Nhật."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "毎朝六時（　　）起きています。",
+       "options": [
+        "に",
+        "で",
+        "を",
+        "へ"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「に」: に chỉ thời điểm, nơi tồn tại, đích đến hoặc người nhận. Nghĩa: Mỗi sáng tôi dậy lúc 6 giờ."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "机の上（　　）ねこが寝ています。",
+       "options": [
+        "を",
+        "へ",
+        "に",
+        "が"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「に」: に chỉ thời điểm, nơi tồn tại, đích đến hoặc người nhận. Nghĩa: Trên bàn có con mèo đang ngủ."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "駅に",
+        "着いたら",
+        "電話して",
+        "ください"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 駅に着いたら電話してください。 (Đến ga thì gọi điện cho tôi nhé.). Mảnh ở ô ★ là 「電話して」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "母に",
+        "手紙を",
+        "書いて",
+        "います"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 母に手紙を書いています。 (Tôi đang viết thư cho mẹ.). Mảnh ở ô ★ là 「書いて」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "午後三時に会議が始まります。",
+       "options": [
+        "Khách đã đến quầy lễ tân rồi ạ.",
+        "Cuộc họp bắt đầu lúc 3 giờ chiều.",
+        "Cùng đi bộ đến ga nào.",
+        "Em gái tôi không ăn cả thịt lẫn cá."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu trợ từ に (lúc (thời điểm); ở (nơi tồn tại); đến (đích); cho (người nhận)): \"Cuộc họp bắt đầu lúc 3 giờ chiều.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "友だちに日本のお土産をあげました。",
+       "options": [
+        "Tôi đã tặng bạn quà lưu niệm Nhật.",
+        "Có lẽ anh ấy sẽ không đến bữa tiệc.",
+        "Hôm nay tôi mệt. Hơn nữa còn hơi sốt.",
+        "Càng gần ga càng tiện lợi."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu dùng mẫu trợ từ に (lúc (thời điểm); ở (nơi tồn tại); đến (đích); cho (người nhận)): \"Tôi đã tặng bạn quà lưu niệm Nhật.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "午後三時に会議が始まります。",
+        "毎朝六時に起きています。",
+        "母に手紙を書いています。",
+        "あしたに友だちと会います。"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "「あしたに友だちと会います。」 sai: với あした, 今日, 来週... không dùng に. Câu đúng: あした友だちと会います。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "公園に子どもたちが遊んでいます。",
+        "駅に着いたら電話してください。",
+        "机の上にねこが寝ています。",
+        "友だちに日本のお土産をあげました。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "「公園に子どもたちが遊んでいます。」 sai: nơi diễn ra hành động dùng で, không dùng に. Câu đúng: 公園で子どもたちが遊んでいます。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "午後",
+        "始まります。",
+        "会議が",
+        "三時に"
+       ],
+       "answer_order": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "translation_vi": "Cuộc họp bắt đầu lúc 3 giờ chiều."
+      },
+      {
+       "pieces": [
+        "友だちに",
+        "あげました。",
+        "日本の",
+        "お土産を"
+       ],
+       "answer_order": [
+        0,
+        2,
+        3,
+        1
+       ],
+       "translation_vi": "Tôi đã tặng bạn quà lưu niệm Nhật."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "駅＿＿着いたら電話してください。",
+       "answer": "に",
+       "translation_vi": "Đến ga thì gọi điện cho tôi nhé."
+      },
+      {
+       "sentence_ja": "友だち＿＿日本のお土産をあげました。",
+       "answer": "に",
+       "translation_vi": "Tôi đã tặng bạn quà lưu niệm Nhật."
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "母（　　）手紙を書いています。",
+       "options": [
+        "を",
+        "に",
+        "で",
+        "から"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Điền 「に」: に chỉ thời điểm, nơi tồn tại, đích đến hoặc người nhận. Nghĩa: Tôi đang viết thư cho mẹ."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "毎朝六時に起きています。",
+       "options": [
+        "Tôi đã hiểu được tin tức tiếng Nhật.",
+        "Chúng tôi đang nói đúng chuyện đó.",
+        "Mỗi sáng tôi dậy lúc 6 giờ.",
+        "Xin mời quý khách tự nhiên dùng trà."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu dùng mẫu trợ từ に (lúc (thời điểm); ở (nơi tồn tại); đến (đích); cho (người nhận)): \"Mỗi sáng tôi dậy lúc 6 giờ.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "駅に着いたら電話してください。",
+        "駅を着いたら電話してください。",
+        "午後三時に会議が始まります。",
+        "机の上にねこが寝ています。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "「駅を着いたら電話してください。」 sai: điểm đến của 着く dùng に. Câu đúng: 駅に着いたら電話してください。"
+      }
+     ]
+    },
+    "note": "mục nguồn chép ghi chú dài, lõi chỉ là nhãn tiếng Việt; viết lại lõi theo các nghĩa chính của に, ví dụ và toàn bộ ngân hàng câu"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「ます」 theo mẫu Ở..., đến..., cho... (Chỉ điểm đích, điểm đến, điểm mốc: không gian, thời gian, trạng thái. Đánh dấu đối tượng gián tiếp/đối tượng hướng tới hành động: người nhận, đối tượng hỏi, người bị tác động (bị động). Biểu thị kết quả/đích của sự thay đổi hoặc mục tiêu điều khiển: ～になる／～にする. Khác với で: に nhấn “điểm/đích/địa điểm tồn tại”; で nhấn “nơi xảy ra hành động”.). Nghĩa cả câu: Cuộc họp bắt đầu lúc 3 giờ chiều.",
+      "options": [
+       "ていく",
+       "ようだ",
+       "ます",
+       "から"
+      ],
+      "prompt_ja": "午後３時に会議が始まり（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc Ở..., đến..., cho... (Chỉ điểm đích, điểm đến, điểm mốc: không gian, thời gian, trạng thái. Đánh dấu đối tượng gián tiếp/đối tượng hướng tới hành động: người nhận, đối tượng hỏi, người bị tác động (bị động). Biểu thị kết quả/đích của sự thay đổi hoặc mục tiêu điều khiển: ～になる／～にする. Khác với で: に nhấn “điểm/đích/địa điểm tồn tại”; で nhấn “nơi xảy ra hành động”.), chỗ trống cần điền 「話して」. Nghĩa: Đến ga thì gọi nhé.",
+      "options": [
+       "やすい",
+       "らしい",
+       "ても",
+       "話して"
+      ],
+      "prompt_ja": "駅に着いたら電（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 午後３時に会議が始まります。 (Cuộc họp bắt đầu lúc 3 giờ chiều.). Theo cấu trúc Ở..., đến..., cho..., mảnh đứng ở vị trí ★ là 「始まり」.",
+      "options": [
+       "ます",
+       "会議が",
+       "始まり",
+       "午後３時に"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 駅に着いたら電話して。 (Đến ga thì gọi nhé.). Theo cấu trúc Ở..., đến..., cho..., mảnh đứng ở vị trí ★ là 「着いた」.",
+      "options": [
+       "駅に",
+       "ら電",
+       "着いた",
+       "話して"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Mẫu Ở..., đến..., cho... có nghĩa là \"Chỉ điểm đích, điểm đến, điểm mốc: không gian, thời gian, trạng thái. Đánh dấu đối tượng gián tiếp/đối tượng hướng tới hành động: người nhận, đối tượng hỏi, người bị tác động (bị động). Biểu thị kết quả/đích của sự thay đổi hoặc mục tiêu điều khiển: ～になる／～にする. Khác với で: に nhấn “điểm/đích/địa điểm tồn tại”; で nhấn “nơi xảy ra hành động”.\". Câu này dịch là: \"Cuộc họp bắt đầu lúc 3 giờ chiều.\"",
+      "options": [
+       "Cuộc họp bắt đầu lúc 3 giờ chiều.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng."
+      ],
+      "prompt_ja": "午後３時に会議が始まります。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu Ở..., đến..., cho... (Chỉ điểm đích, điểm đến, điểm mốc: không gian, thời gian, trạng thái. Đánh dấu đối tượng gián tiếp/đối tượng hướng tới hành động: người nhận, đối tượng hỏi, người bị tác động (bị động). Biểu thị kết quả/đích của sự thay đổi hoặc mục tiêu điều khiển: ～になる／～にする. Khác với で: に nhấn “điểm/đích/địa điểm tồn tại”; で nhấn “nơi xảy ra hành động”.), câu trên có nghĩa là: \"Đến ga thì gọi nhé.\"",
+      "options": [
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Đến ga thì gọi nhé.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "prompt_ja": "駅に着いたら電話して。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Ở..., đến..., cho...). Câu đúng: 午後３時に会議が始まります。",
+      "options": [
+       "駅に着いたら電話して。",
+       "毎日まじめに日本語を勉強しています。",
+       "午後３時に会議が始まりますますだ。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu Ở..., đến..., cho...). Câu đúng: 駅に着いたら電話して。",
+      "options": [
+       "駅に着いたら電話してですます。",
+       "午後３時に会議が始まります。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Ở..., đến..., cho...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "午後３時に会議が始まります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuộc họp bắt đầu lúc 3 giờ chiều."
+     },
+     {
+      "ja": "駅に着いたら電話して。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đến ga thì gọi nhé."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「ています」 theo cấu trúc Ở..., đến..., cho... (Chỉ điểm đích, điểm đến, điểm mốc: không gian, thời gian, trạng thái. Đánh dấu đối tượng gián tiếp/đối tượng hướng tới hành động: người nhận, đối tượng hỏi, người bị tác động (bị động). Biểu thị kết quả/đích của sự thay đổi hoặc mục tiêu điều khiển: ～になる／～にする. Khác với で: に nhấn “điểm/đích/địa điểm tồn tại”; で nhấn “nơi xảy ra hành động”.). Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "ています",
+       "そうだ",
+       "ので",
+       "ば"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu Ở..., đến..., cho... (Chỉ điểm đích, điểm đến, điểm mốc: không gian, thời gian, trạng thái. Đánh dấu đối tượng gián tiếp/đối tượng hướng tới hành động: người nhận, đối tượng hỏi, người bị tác động (bị động). Biểu thị kết quả/đích của sự thay đổi hoặc mục tiêu điều khiển: ～になる／～にする. Khác với で: に nhấn “điểm/đích/địa điểm tồn tại”; で nhấn “nơi xảy ra hành động”.), câu này nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "午後３時に会議が始まります。",
+       "毎日まじめにを日本語を勉強しています。",
+       "駅に着いたら電話して。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ます",
+      "sentence_ja": "午後３時に会議が始まり＿＿。",
+      "translation_vi": "Cuộc họp bắt đầu lúc 3 giờ chiều."
+     },
+     {
+      "answer": "話して",
+      "sentence_ja": "駅に着いたら電＿＿。",
+      "translation_vi": "Đến ga thì gọi nhé."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 午後３時に会議が始まります。",
+     "FURIGANA_MISSING: 駅に着いたら電話して。"
+    ],
+    "formation": "Cấu trúc: Ở..., đến..., cho...",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ điểm đích, điểm đến, điểm mốc: không gian, thời gian, trạng thái. Đánh dấu đối tượng gián tiếp/đối tượng hướng tới hành động: người nhận, đối tượng hỏi, người bị tác động (bị động). Biểu thị kết quả/đích của sự thay đổi hoặc mục tiêu điều khiển: ～になる／～にする. Khác với で: に nhấn “điểm/đích/địa điểm tồn tại”; で nhấn “nơi xảy ra hành động”.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Ở..., đến..., cho...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "会議が",
+       "ます",
+       "午後３時に",
+       "始まり"
+      ],
+      "translation_vi": "Cuộc họp bắt đầu lúc 3 giờ chiều."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "話して",
+       "ら電",
+       "駅に",
+       "着いた"
+      ],
+      "translation_vi": "Đến ga thì gọi nhé."
+     }
+    ],
+    "pattern": "Ở..., đến..., cho...",
+    "pattern_variants": [],
+    "unit_no": 1,
+    "unit_title_vi": "Trạng thái và hành động song song",
+    "usage_vi": "[4. Cách dùng & sắc thái] Thời gian: dùng với mốc cụ thể (３時, ４月１日). Với từ như 今日/明日/来週 thường bỏ に: 明日会う. Địa điểm: に cho đích/tồn tại; で cho nơi diễn ra hành động: 学校に行く vs 学校で勉強する. Mục đích: Vます + に + 行く/来る/帰る. Nhấn mục đích chuyến đi. Thay đổi/khiến cho: Aい dùng く, Aな/N dùng に: 部屋をきれいにする／値段を高くする. [6. Ghi chú mở rộng] Tác nhân bị động là người/vật chủ động gây ra: 先生に褒められた. Khi nói “bởi” theo nghĩa nguyên nhân/nhờ bởi, dùng ～によって. Điểm đến trừu tượng: 質問に答える（trả lời “cho” câu hỏi）, 相談に乗る. Định mức: 100グラムに塩を5グラム（cứ 100g thì 5g muối）. Biểu thị mục tiêu cảm xúc: 彼女に夢中だ（mê mẩn cô ấy）. [7. Biến thể & cụm cố định] ～になれる（quen với）／～に違いない（chắc chắn là）／～について（về）／～による（tùy theo/do bởi） ～にとって（đối với）／～に対して（đối với/đối lập） ～において（tại, trong: trang trọng）／～に比べて（so với） [8. Lỗi thường gặp & bẫy JLPT] Nhầm に với で: ×学校に勉強する → 〇学校で勉強する. Sai mục đích: ×本を買うに行く → 〇本を買いに行く（dùng Vます-bỏ ます）. Thời gian mơ hồ thêm に: ×今日に行く → 〇今日行く. Với mốc cụ thể mới dùng に: ３時に行く. Aい dùng に trong なる/する: ×高になる → 〇高くなる. Aな/N mới dùng に. Đích vs hướng: ×東京へ着く (vẫn chấp nhận) nhưng chuẩn là 東京に着く（điểm đến cụ thể）."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-37b53eb867"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "Trong lúc..., trong khoảng thời gian... (thì một việc xảy ra)",
+     "formation": "V-ている / V-ない / Nの + 間(あいだ)に、〜",
+     "usage_vi": "Diễn tả một việc xảy ra hoặc được làm xong vào một thời điểm nào đó bên trong một khoảng thời gian (子どもが寝ている間に、部屋を掃除した).",
+     "nuance_vi": "Khác 〜間 (không có に): 〜間 chỉ việc kéo dài suốt cả khoảng thời gian (夏休みの間、ずっと国にいた).",
+     "common_mistakes_vi": "Dùng 〜間に cho việc kéo dài suốt cả khoảng (sai: 夏休みの間に、ずっと国にいた; đúng: 夏休みの間、ずっと…) hoặc quên の sau danh từ (sai: 夏休み間に).",
+     "examples": [
+      {
+       "ja": "子どもが寝ている間に部屋を掃除しました。",
+       "ja_furigana": "子(こ)どもが寝(ね)ている間(あいだ)に部屋(へや)を掃除(そうじ)しました。",
+       "vi": "Trong lúc con ngủ tôi đã dọn phòng."
+      },
+      {
+       "ja": "夏休みの間に祖母の家へ行きました。",
+       "ja_furigana": "夏休(なつやす)みの間(あいだ)に祖母(そぼ)の家(いえ)へ行(い)きました。",
+       "vi": "Trong kỳ nghỉ hè tôi đã đến nhà bà."
+      },
+      {
+       "ja": "私が出かけている間に友だちが来ました。",
+       "ja_furigana": "私(わたし)が出(で)かけている間(あいだ)に友(とも)だちが来(き)ました。",
+       "vi": "Trong lúc tôi đi vắng thì bạn đến."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "母が買い物をしている（　　）ご飯を作りました。",
+       "options": [
+        "ながら",
+        "ても",
+        "間に",
+        "たら"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「間に」: V-ている / Nの + 間に: trong khoảng thời gian đó thì một việc xảy ra. Nghĩa: Trong lúc mẹ đi mua đồ tôi đã nấu cơm."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "日本にいる（　　）一度富士山に登りたいです。",
+       "options": [
+        "たら",
+        "ても",
+        "間に",
+        "ながら"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「間に」: V-ている / Nの + 間に: trong khoảng thời gian đó thì một việc xảy ra. Nghĩa: Trong thời gian ở Nhật tôi muốn leo núi Phú Sĩ một lần."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "行きました",
+        "夏休みの",
+        "間に",
+        "祖母の家へ"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: 夏休みの間に祖母の家へ行きました。 (Trong kỳ nghỉ hè tôi đã đến nhà bà.). Mảnh ở ô ★ là 「祖母の家へ」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "授業の",
+        "しまいました",
+        "間に",
+        "眠って"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: 授業の間に眠ってしまいました。 (Tôi đã lỡ ngủ gật trong giờ học.). Mảnh ở ô ★ là 「眠って」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "子どもが寝ている間に部屋を掃除しました。",
+       "options": [
+        "Đổi lại việc làm Chủ nhật, tôi nghỉ thứ Hai.",
+        "Trong lúc con ngủ tôi đã dọn phòng.",
+        "Đeo kính vào tôi đã nhìn rõ chữ.",
+        "Tôi không có ô, bạn cho tôi mượn được không ạ?"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu 〜間に (trong lúc..., trong khoảng thời gian... (thì một việc xảy ra)): \"Trong lúc con ngủ tôi đã dọn phòng.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "私が出かけている間に友だちが来ました。",
+       "options": [
+        "Theo dự báo thời tiết, ngày mai trời sẽ mưa.",
+        "Trường hợp hỏa hoạn xin đừng dùng thang máy.",
+        "Trong lúc tôi đi vắng thì bạn đến.",
+        "Tôi đang đúng lúc suy nghĩ về vấn đề đó."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu dùng mẫu 〜間に (trong lúc..., trong khoảng thời gian... (thì một việc xảy ra)): \"Trong lúc tôi đi vắng thì bạn đến.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "授業の間に眠ってしまいました。",
+        "母が買い物をしている間にご飯を作りました。",
+        "夏休みの間に、ずっと国にいました。",
+        "子どもが寝ている間に部屋を掃除しました。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "「夏休みの間に、ずっと国にいました。」 sai: việc kéo dài suốt khoảng thời gian (ずっと) dùng 〜間, không có に. Câu đúng: 夏休みの間、ずっと国にいました。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "日本にいる間に一度富士山に登りたいです。",
+        "私が出かけている間に友だちが来ました。",
+        "夏休みの間に祖母の家へ行きました。",
+        "夏休み間に祖母の家へ行きました。"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "「夏休み間に祖母の家へ行きました。」 sai: danh từ nối với 間に cần の. Câu đúng: 夏休みの間に祖母の家へ行きました。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "子どもが",
+        "掃除しました。",
+        "部屋を",
+        "寝ている間に"
+       ],
+       "answer_order": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "translation_vi": "Trong lúc con ngủ tôi đã dọn phòng."
+      },
+      {
+       "pieces": [
+        "出かけている間に",
+        "私が",
+        "来ました。",
+        "友だちが"
+       ],
+       "answer_order": [
+        1,
+        0,
+        3,
+        2
+       ],
+       "translation_vi": "Trong lúc tôi đi vắng thì bạn đến."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "夏休みの＿＿祖母の家へ行きました。",
+       "answer": "間に",
+       "translation_vi": "Trong kỳ nghỉ hè tôi đã đến nhà bà.",
+       "accept": [
+        "あいだに",
+        "うちに"
+       ]
+      },
+      {
+       "sentence_ja": "私が出かけている＿＿友だちが来ました。",
+       "answer": "間に",
+       "translation_vi": "Trong lúc tôi đi vắng thì bạn đến.",
+       "accept": [
+        "あいだに",
+        "うちに"
+       ]
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "授業の（　　）眠ってしまいました。",
+       "options": [
+        "たら",
+        "ながら",
+        "ても",
+        "間に"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Điền 「間に」: V-ている / Nの + 間に: trong khoảng thời gian đó thì một việc xảy ra. Nghĩa: Tôi đã lỡ ngủ gật trong giờ học."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "母が買い物をしている間にご飯を作りました。",
+       "options": [
+        "Trong lúc mẹ đi mua đồ tôi đã nấu cơm.",
+        "Sau khi rửa tay tôi ăn cơm.",
+        "Khi bị cảm thì nên ngủ sớm.",
+        "Tàu điện vừa mới chạy ngay lúc nãy đấy."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu dùng mẫu 〜間に (trong lúc..., trong khoảng thời gian... (thì một việc xảy ra)): \"Trong lúc mẹ đi mua đồ tôi đã nấu cơm.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "夏休みの間に祖母の家へ行きました。",
+        "日本にいる間に一度富士山に登りたいです。",
+        "子どもが寝ている間に部屋を掃除しました。",
+        "子どもが寝る間に部屋を掃除しました。"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "「子どもが寝る間に部屋を掃除しました。」 sai: khoảng thời gian đang diễn ra dùng V-ている + 間に. Câu đúng: 子どもが寝ている間に部屋を掃除しました。"
+      }
+     ]
+    },
+    "note": "mục nguồn chép ghi chú dài, lõi chỉ là nhãn tiếng Việt; viết lại lõi (phân biệt 間に / 間), ví dụ và toàn bộ ngân hàng câu"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「行った」 theo mẫu Trong lúc..., trong khi... (“Trong khi/trong lúc”: Diễn tả một hành động/sự kiện xảy ra tại một thời điểm nào đó trong khoảng thời gian được nêu. Độ phủ thời gian: ～間に thiên về “điểm/ít lần trong khoảng”, khác với ～間 nhấn “xuyên suốt, song hành”. Kết hợp tự nhiên: N thời gian (休み、会議、授業、在学) hoặc Vている để biểu thị trạng thái kéo dài. Phân biệt cốt lõi: A間、B (B diễn ra suốt thời A). A間に、B (B xảy ra một/ít lần trong thời A).). Nghĩa cả câu: Trong kỳ nghỉ hè, tôi đã đến nhà ông bà.",
+      "options": [
+       "かもしれない",
+       "行った",
+       "たら",
+       "だけ"
+      ],
+      "prompt_ja": "夏休みの間に、祖父母の家へ（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc Trong lúc..., trong khi... (“Trong khi/trong lúc”: Diễn tả một hành động/sự kiện xảy ra tại một thời điểm nào đó trong khoảng thời gian được nêu. Độ phủ thời gian: ～間に thiên về “điểm/ít lần trong khoảng”, khác với ～間 nhấn “xuyên suốt, song hành”. Kết hợp tự nhiên: N thời gian (休み、会議、授業、在学) hoặc Vている để biểu thị trạng thái kéo dài. Phân biệt cốt lõi: A間、B (B diễn ra suốt thời A). A間に、B (B xảy ra một/ít lần trong thời A).), chỗ trống cần điền 「ている」. Nghĩa: Trong lúc con đang ngủ, tôi giặt đồ xong.",
+      "options": [
+       "のに",
+       "なら",
+       "ている",
+       "ほど"
+      ],
+      "prompt_ja": "子供が寝（　　）間に、洗濯を済ませた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 夏休みの間に、祖父母の家へ行った。 (Trong kỳ nghỉ hè, tôi đã đến nhà ông bà.). Theo cấu trúc Trong lúc..., trong khi..., mảnh đứng ở vị trí ★ là 「祖父母の」.",
+      "options": [
+       "間に、",
+       "家へ行った",
+       "夏休みの",
+       "祖父母の"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 子供が寝ている間に、洗濯を済ませた。 (Trong lúc con đang ngủ, tôi giặt đồ xong.). Theo cấu trúc Trong lúc..., trong khi..., mảnh đứng ở vị trí ★ là 「寝ている」.",
+      "options": [
+       "済ませた",
+       "寝ている",
+       "間に、洗濯を",
+       "子供が"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Mẫu Trong lúc..., trong khi... có nghĩa là \"“Trong khi/trong lúc”: Diễn tả một hành động/sự kiện xảy ra tại một thời điểm nào đó trong khoảng thời gian được nêu. Độ phủ thời gian: ～間に thiên về “điểm/ít lần trong khoảng”, khác với ～間 nhấn “xuyên suốt, song hành”. Kết hợp tự nhiên: N thời gian (休み、会議、授業、在学) hoặc Vている để biểu thị trạng thái kéo dài. Phân biệt cốt lõi: A間、B (B diễn ra suốt thời A). A間に、B (B xảy ra một/ít lần trong thời A).\". Câu này dịch là: \"Trong kỳ nghỉ hè, tôi đã đến nhà ông bà.\"",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Trong kỳ nghỉ hè, tôi đã đến nhà ông bà."
+      ],
+      "prompt_ja": "夏休みの間に、祖父母の家へ行った。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu Trong lúc..., trong khi... (“Trong khi/trong lúc”: Diễn tả một hành động/sự kiện xảy ra tại một thời điểm nào đó trong khoảng thời gian được nêu. Độ phủ thời gian: ～間に thiên về “điểm/ít lần trong khoảng”, khác với ～間 nhấn “xuyên suốt, song hành”. Kết hợp tự nhiên: N thời gian (休み、会議、授業、在学) hoặc Vている để biểu thị trạng thái kéo dài. Phân biệt cốt lõi: A間、B (B diễn ra suốt thời A). A間に、B (B xảy ra một/ít lần trong thời A).), câu trên có nghĩa là: \"Trong lúc con đang ngủ, tôi giặt đồ xong.\"",
+      "options": [
+       "Trong lúc con đang ngủ, tôi giặt đồ xong.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh."
+      ],
+      "prompt_ja": "子供が寝ている間に、洗濯を済ませた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Trong lúc..., trong khi...). Câu đúng: 夏休みの間に、祖父母の家へ行った。",
+      "options": [
+       "子供が寝ている間に、洗濯を済ませた。",
+       "夏休みの間に、祖父母の家へ行ったますだ。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc Trong lúc..., trong khi.... Câu đúng: 子供が寝ている間に、洗濯を済ませた。",
+      "options": [
+       "夏休みの間に、祖父母の家へ行った。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "子供が寝ている間に、洗濯をが済ませた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Trong lúc..., trong khi...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "夏休みの間に、祖父母の家へ行った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong kỳ nghỉ hè, tôi đã đến nhà ông bà."
+     },
+     {
+      "ja": "子供が寝ている間に、洗濯を済ませた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong lúc con đang ngủ, tôi giặt đồ xong."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「ています」 theo cấu trúc Trong lúc..., trong khi... (“Trong khi/trong lúc”: Diễn tả một hành động/sự kiện xảy ra tại một thời điểm nào đó trong khoảng thời gian được nêu. Độ phủ thời gian: ～間に thiên về “điểm/ít lần trong khoảng”, khác với ～間 nhấn “xuyên suốt, song hành”. Kết hợp tự nhiên: N thời gian (休み、会議、授業、在学) hoặc Vている để biểu thị trạng thái kéo dài. Phân biệt cốt lõi: A間、B (B diễn ra suốt thời A). A間に、B (B xảy ra một/ít lần trong thời A).). Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "ても",
+       "しか",
+       "とか",
+       "ています"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu Trong lúc..., trong khi... (“Trong khi/trong lúc”: Diễn tả một hành động/sự kiện xảy ra tại một thời điểm nào đó trong khoảng thời gian được nêu. Độ phủ thời gian: ～間に thiên về “điểm/ít lần trong khoảng”, khác với ～間 nhấn “xuyên suốt, song hành”. Kết hợp tự nhiên: N thời gian (休み、会議、授業、在学) hoặc Vている để biểu thị trạng thái kéo dài. Phân biệt cốt lõi: A間、B (B diễn ra suốt thời A). A間に、B (B xảy ra một/ít lần trong thời A).), câu này nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "毎日まじめにを日本語を勉強しています。",
+       "夏休みの間に、祖父母の家へ行った。",
+       "子供が寝ている間に、洗濯を済ませた。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "行った",
+      "sentence_ja": "夏休みの間に、祖父母の家へ＿＿。",
+      "translation_vi": "Trong kỳ nghỉ hè, tôi đã đến nhà ông bà."
+     },
+     {
+      "answer": "ている",
+      "sentence_ja": "子供が寝＿＿間に、洗濯を済ませた。",
+      "translation_vi": "Trong lúc con đang ngủ, tôi giặt đồ xong."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 夏休みの間に、祖父母の家へ行った。",
+     "FURIGANA_MISSING: 子供が寝ている間に、洗濯を済ませた。"
+    ],
+    "formation": "Cấu trúc: Trong lúc..., trong khi...",
+    "locked_fields": [],
+    "meaning_vi": "“Trong khi/trong lúc”: Diễn tả một hành động/sự kiện xảy ra tại một thời điểm nào đó trong khoảng thời gian được nêu. Độ phủ thời gian: ～間に thiên về “điểm/ít lần trong khoảng”, khác với ～間 nhấn “xuyên suốt, song hành”. Kết hợp tự nhiên: N thời gian (休み、会議、授業、在学) hoặc Vている để biểu thị trạng thái kéo dài. Phân biệt cốt lõi: A間、B (B diễn ra suốt thời A). A間に、B (B xảy ra một/ít lần trong thời A).",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Trong lúc..., trong khi...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "家へ行った",
+       "祖父母の",
+       "夏休みの",
+       "間に、"
+      ],
+      "translation_vi": "Trong kỳ nghỉ hè, tôi đã đến nhà ông bà."
+     },
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "間に、洗濯を",
+       "子供が",
+       "済ませた",
+       "寝ている"
+      ],
+      "translation_vi": "Trong lúc con đang ngủ, tôi giặt đồ xong."
+     }
+    ],
+    "pattern": "Trong lúc..., trong khi...",
+    "pattern_variants": [],
+    "unit_no": 39,
+    "unit_title_vi": "Nguyên nhân và lý do",
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn “điểm” trong khoảng: Dùng cho sự kiện đơn lẻ chen vào một khoảng kéo dài. Trang trọng trung tính: Dùng tốt trong văn nói và viết; với biển báo thường dùng ～中/～の際 thay thế tuỳ ngữ cảnh. Thiên về trạng thái nền kéo dài: Trước ～の間に thường là danh từ biểu thị khoảng thời gian có tính kéo dài. [6. Ghi chú mở rộng] Vている + 間に tự nhiên hơn Vる + 間に với động từ có tính kéo dài: 彼がいる間に vs 彼がいている間に (cả hai gặp, nhưng Vている rõ trạng thái). Danh từ chỉ trạng thái: 留守/在学/勤務/出張など rất hợp với ～の間に. “この間” còn có nghĩa “dạo gần đây”; nhưng “この間に” nhấn khoảng thời gian cụ thể vừa qua. [7. Biến thể & cụm cố định] ～の間（は）: trong suốt khoảng (song hành). その／この／あの間に: trong khoảng thời gian đó/đây/kia. ～している間に: trong lúc đang ~. [8. Lỗi thường gặp & bẫy JLPT] Lẫn 間 với 間に: Sự kiện kéo dài phải dùng 間, sự kiện điểm dùng 間に. Dùng Vる + 間に với động từ tức thời gây gượng: ×帰る間に盗まれた → ○帰っている間に? Thực tế nên dùng ～うちに/～とちゅうで tuỳ ý nghĩa. Quên 「の」 sau danh từ: ×夏休み間に → ○夏休みの間に."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c809e784a8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "Làm... thì (thấy, biết được)...",
+     "formation": "V-た + ところ、〜 (vế sau thường ở quá khứ)",
+     "usage_vi": "Nói kết quả hoặc điều phát hiện ra ngay sau khi làm một hành động (thường là hỏi, thử, tra cứu): 店に聞いたところ、もう売り切れていました.",
+     "nuance_vi": "Mang tính tường thuật, hơi trang trọng; gần với 〜たら nhưng chỉ dùng cho việc đã xảy ra. Khác 〜たところです (vừa mới làm xong).",
+     "common_mistakes_vi": "Dùng vế sau là ý chí, nhờ vả (sai: 駅に着いたところ、電話してください) hoặc nhầm với 〜たところです \"vừa mới\".",
+     "examples": [
+      {
+       "ja": "店に聞いたところ、もう売り切れていました。",
+       "ja_furigana": "店(みせ)に聞(き)いたところ、もう売(う)り切(き)れていました。",
+       "vi": "Tôi hỏi cửa hàng thì được biết đã bán hết rồi."
+      },
+      {
+       "ja": "先生に相談したところ、いい方法を教えてくれました。",
+       "ja_furigana": "先生(せんせい)に相談(そうだん)したところ、いい方法(ほうほう)を教(おし)えてくれました。",
+       "vi": "Tôi hỏi ý kiến thầy thì thầy chỉ cho cách hay."
+      },
+      {
+       "ja": "新しい薬を飲んだところ、すぐによくなりました。",
+       "ja_furigana": "新(あたら)しい薬(くすり)を飲(の)んだところ、すぐによくなりました。",
+       "vi": "Tôi uống thuốc mới thì khỏi ngay."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "駅で調べた（　　）、電車は止まっていました。",
+       "options": [
+        "ところ",
+        "ても",
+        "ながら",
+        "たら"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「ところ」: V-た + ところ、〜: làm việc đó thì biết được kết quả ở vế sau. Nghĩa: Tôi tra ở ga thì biết tàu đang ngừng chạy."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "友だちに電話した（　　）、もう寝ていました。",
+       "options": [
+        "ところ",
+        "ても",
+        "ながら",
+        "たら"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「ところ」: V-た + ところ、〜: làm việc đó thì biết được kết quả ở vế sau. Nghĩa: Tôi gọi điện cho bạn thì bạn đã ngủ rồi."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "教えてくれました",
+        "いい方法を",
+        "相談したところ、",
+        "先生に"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 先生に相談したところ、いい方法を教えてくれました。 (Tôi hỏi ý kiến thầy thì thầy chỉ cho cách hay.). Mảnh ở ô ★ là 「いい方法を」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "誰もいませんでした",
+        "ドアを",
+        "部屋には",
+        "開けたところ、"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: ドアを開けたところ、部屋には誰もいませんでした。 (Tôi mở cửa ra thì trong phòng không có ai.). Mảnh ở ô ★ là 「部屋には」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "店に聞いたところ、もう売り切れていました。",
+       "options": [
+        "Em gái tôi vẫn chưa biết bơi.",
+        "Tôi hỏi cửa hàng thì được biết đã bán hết rồi.",
+        "Tôi vừa mới về đến nhà.",
+        "Hôm qua tôi ở nhà cả ngày."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu 〜たところ、〜 (làm... thì (thấy, biết được)..): \"Tôi hỏi cửa hàng thì được biết đã bán hết rồi.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "新しい薬を飲んだところ、すぐによくなりました。",
+       "options": [
+        "Cuộc họp tới hãy chọn ngày thứ Hai nhé.",
+        "Trời vừa mưa, gió lại mạnh.",
+        "Tôi uống thuốc mới thì khỏi ngay.",
+        "Thầy Yamada hiện đang ở phòng học ạ."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu dùng mẫu 〜たところ、〜 (làm... thì (thấy, biết được)..): \"Tôi uống thuốc mới thì khỏi ngay.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "駅で調べたところ、電車は止まっていました。",
+        "店に聞いたところ、もう売り切れていました。",
+        "駅に着いたところ、電話してください。",
+        "ドアを開けたところ、部屋には誰もいませんでした。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "「駅に着いたところ、電話してください。」 sai: vế sau 〜たところ là kết quả đã xảy ra, không dùng câu nhờ vả; dùng 〜たら. Câu đúng: 駅に着いたら、電話してください。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "友だちに電話したところ、もう寝ていました。",
+        "先生に相談したところ、いい方法を教えてくれました。",
+        "新しい薬を飲んだところ、すぐによくなりました。",
+        "先生に相談するところ、いい方法を教えてくれました。"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "「先生に相談するところ、いい方法を教えてくれました。」 sai: trước ところ (làm... thì biết) dùng thể た. Câu đúng: 先生に相談したところ、いい方法を教えてくれました。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "売り切れていました。",
+        "聞いたところ、",
+        "もう",
+        "店に"
+       ],
+       "answer_order": [
+        3,
+        1,
+        2,
+        0
+       ],
+       "translation_vi": "Tôi hỏi cửa hàng thì được biết đã bán hết rồi."
+      },
+      {
+       "pieces": [
+        "飲んだところ、",
+        "すぐに",
+        "よくなりました。",
+        "新しい薬を"
+       ],
+       "answer_order": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "translation_vi": "Tôi uống thuốc mới thì khỏi ngay."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "先生に相談した＿＿、いい方法を教えてくれました。",
+       "answer": "ところ",
+       "translation_vi": "Tôi hỏi ý kiến thầy thì thầy chỉ cho cách hay."
+      },
+      {
+       "sentence_ja": "新しい薬を飲んだ＿＿、すぐによくなりました。",
+       "answer": "ところ",
+       "translation_vi": "Tôi uống thuốc mới thì khỏi ngay."
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "ドアを開けた（　　）、部屋には誰もいませんでした。",
+       "options": [
+        "たら",
+        "ながら",
+        "ても",
+        "ところ"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Điền 「ところ」: V-た + ところ、〜: làm việc đó thì biết được kết quả ở vế sau. Nghĩa: Tôi mở cửa ra thì trong phòng không có ai."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "駅で調べたところ、電車は止まっていました。",
+       "options": [
+        "Tôi tra ở ga thì biết tàu đang ngừng chạy.",
+        "Mỗi ngày tôi học thuộc năm chữ Hán.",
+        "Xin lỗi, bây giờ tôi đang lái xe.",
+        "Anh Yamada vẽ tranh giỏi nhỉ."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu dùng mẫu 〜たところ、〜 (làm... thì (thấy, biết được)..): \"Tôi tra ở ga thì biết tàu đang ngừng chạy.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "先生に相談したところ、いい方法を教えてくれました。",
+        "ドアを開けましたところ、部屋には誰もいませんでした。",
+        "店に聞いたところ、もう売り切れていました。",
+        "友だちに電話したところ、もう寝ていました。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "「ドアを開けましたところ、部屋には誰もいませんでした。」 sai: trước ところ dùng thể た thường, không dùng thể ます. Câu đúng: ドアを開けたところ、部屋には誰もいませんでした。"
+      }
+     ]
+    },
+    "note": "mục nguồn chép ghi chú dài, lõi chỉ là nhãn tiếng Việt (nhãn \"Vừa mới...\" dễ nhầm với 〜たところです); viết lại lõi theo nghĩa nguồn (làm... thì biết...), ví dụ và toàn bộ ngân hàng câu"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「ていた」 theo mẫu Vừa mới..., ngay sau khi... (Biểu thị kết quả/hiện tượng xảy ra hoặc thông tin phát hiện ngay sau khi thực hiện hành động V. Thường đi với động từ mang tính thử/tra cứu/hành động ngắn: 〜てみる、尋ねる、調べる、連絡する、申し込む… Sắc thái “một lần, cụ thể, phát hiện mới”, khác với diễn đạt thói quen. Thường kết hợp với các động từ tri giác/nhận định: 分かった、気づいた、見つかった、断られた、判明した…). Nghĩa cả câu: Khi tôi thử liên hệ với cửa hàng, thì đã bán hết mất rồi.",
+      "options": [
+       "ていた",
+       "ば",
+       "くらい",
+       "ながら"
+      ],
+      "prompt_ja": "店に問い合わせてみたところ、すでに売り切れ（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc Vừa mới..., ngay sau khi... (Biểu thị kết quả/hiện tượng xảy ra hoặc thông tin phát hiện ngay sau khi thực hiện hành động V. Thường đi với động từ mang tính thử/tra cứu/hành động ngắn: 〜てみる、尋ねる、調べる、連絡する、申し込む… Sắc thái “một lần, cụ thể, phát hiện mới”, khác với diễn đạt thói quen. Thường kết hợp với các động từ tri giác/nhận định: 分かった、気づいた、見つかった、断られた、判明した…), chỗ trống cần điền 「ていた」. Nghĩa: Sau khi nộp đăng ký thì biết là đã hết hạn.",
+      "options": [
+       "と",
+       "ていた",
+       "ずつ",
+       "ばかり"
+      ],
+      "prompt_ja": "申し込んだところ、締め切られ（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 店に問い合わせてみたところ、すでに売り切れていた。 (Khi tôi thử liên hệ với cửa hàng, thì đã bán hết mất rồi.). Theo cấu trúc Vừa mới..., ngay sau khi..., mảnh đứng ở vị trí ★ là 「ころ、すでに」.",
+      "options": [
+       "ころ、すでに",
+       "店に問い",
+       "売り切れていた",
+       "合わせてみたと"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 申し込んだところ、締め切られていた。 (Sau khi nộp đăng ký thì biết là đã hết hạn.). Theo cấu trúc Vừa mới..., ngay sau khi..., mảnh đứng ở vị trí ★ là 「込んだと」.",
+      "options": [
+       "込んだと",
+       "切られていた",
+       "申し",
+       "ころ、締め"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mẫu Vừa mới..., ngay sau khi... có nghĩa là \"Biểu thị kết quả/hiện tượng xảy ra hoặc thông tin phát hiện ngay sau khi thực hiện hành động V. Thường đi với động từ mang tính thử/tra cứu/hành động ngắn: 〜てみる、尋ねる、調べる、連絡する、申し込む… Sắc thái “một lần, cụ thể, phát hiện mới”, khác với diễn đạt thói quen. Thường kết hợp với các động từ tri giác/nhận định: 分かった、気づいた、見つかった、断られた、判明した…\". Câu này dịch là: \"Khi tôi thử liên hệ với cửa hàng, thì đã bán hết mất rồi.\"",
+      "options": [
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Khi tôi thử liên hệ với cửa hàng, thì đã bán hết mất rồi.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "prompt_ja": "店に問い合わせてみたところ、すでに売り切れていた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu Vừa mới..., ngay sau khi... (Biểu thị kết quả/hiện tượng xảy ra hoặc thông tin phát hiện ngay sau khi thực hiện hành động V. Thường đi với động từ mang tính thử/tra cứu/hành động ngắn: 〜てみる、尋ねる、調べる、連絡する、申し込む… Sắc thái “một lần, cụ thể, phát hiện mới”, khác với diễn đạt thói quen. Thường kết hợp với các động từ tri giác/nhận định: 分かった、気づいた、見つかった、断られた、判明した…), câu trên có nghĩa là: \"Sau khi nộp đăng ký thì biết là đã hết hạn.\"",
+      "options": [
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Sau khi nộp đăng ký thì biết là đã hết hạn."
+      ],
+      "prompt_ja": "申し込んだところ、締め切られていた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Vừa mới..., ngay sau khi...). Câu đúng: 店に問い合わせてみたところ、すでに売り切れていた。",
+      "options": [
+       "店に問い合わせてみたところ、すでに売り切れていたますだ。",
+       "申し込んだところ、締め切られていた。",
+       "この靴を一度はいてみます。",
+       "新しい料理を作ってみました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu Vừa mới..., ngay sau khi...). Câu đúng: 申し込んだところ、締め切られていた。",
+      "options": [
+       "店に問い合わせてみたところ、すでに売り切れていた。",
+       "この靴を一度はいてみます。",
+       "申し込んだところ、締め切られていたですます。",
+       "新しい料理を作ってみました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Vừa mới..., ngay sau khi...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "店に問い合わせてみたところ、すでに売り切れていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi tôi thử liên hệ với cửa hàng, thì đã bán hết mất rồi."
+     },
+     {
+      "ja": "申し込んだところ、締め切られていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi nộp đăng ký thì biết là đã hết hạn."
+     },
+     {
+      "ja": "この靴を一度はいてみます。",
+      "ja_furigana": "この靴(くつ)を一度(いちど)はいてみます。",
+      "source": "CLAUDE",
+      "vi": "Tôi sẽ đi thử đôi giày này một lần."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「てみます」 theo cấu trúc Vừa mới..., ngay sau khi... (Biểu thị kết quả/hiện tượng xảy ra hoặc thông tin phát hiện ngay sau khi thực hiện hành động V. Thường đi với động từ mang tính thử/tra cứu/hành động ngắn: 〜てみる、尋ねる、調べる、連絡する、申し込む… Sắc thái “một lần, cụ thể, phát hiện mới”, khác với diễn đạt thói quen. Thường kết hợp với các động từ tri giác/nhận định: 分かった、気づいた、見つかった、断られた、判明した…). Nghĩa: Tôi sẽ đi thử đôi giày này một lần.",
+      "options": [
+       "ほど",
+       "てもいい",
+       "てみます",
+       "はず"
+      ],
+      "prompt_ja": "この靴を一度はい（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu Vừa mới..., ngay sau khi... (Biểu thị kết quả/hiện tượng xảy ra hoặc thông tin phát hiện ngay sau khi thực hiện hành động V. Thường đi với động từ mang tính thử/tra cứu/hành động ngắn: 〜てみる、尋ねる、調べる、連絡する、申し込む… Sắc thái “một lần, cụ thể, phát hiện mới”, khác với diễn đạt thói quen. Thường kết hợp với các động từ tri giác/nhận định: 分かった、気づいた、見つかった、断られた、判明した…), câu này nghĩa là: \"Tôi sẽ đi thử đôi giày này một lần.\"",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Tôi sẽ đi thử đôi giày này một lần.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày."
+      ],
+      "prompt_ja": "この靴を一度はいてみます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: この靴を一度はいてみます。",
+      "options": [
+       "店に問い合わせてみたところ、すでに売り切れていた。",
+       "申し込んだところ、締め切られていた。",
+       "わからないので先生に聞いてみる。",
+       "この靴を一度はいてみますだます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ていた",
+      "sentence_ja": "店に問い合わせてみたところ、すでに売り切れ＿＿。",
+      "translation_vi": "Khi tôi thử liên hệ với cửa hàng, thì đã bán hết mất rồi."
+     },
+     {
+      "answer": "ていた",
+      "sentence_ja": "申し込んだところ、締め切られ＿＿。",
+      "translation_vi": "Sau khi nộp đăng ký thì biết là đã hết hạn."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 店に問い合わせてみたところ、すでに売り切れていた。",
+     "FURIGANA_MISSING: 申し込んだところ、締め切られていた。"
+    ],
+    "formation": "Vừa mới..., ngay sau khi...",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị kết quả/hiện tượng xảy ra hoặc thông tin phát hiện ngay sau khi thực hiện hành động V. Thường đi với động từ mang tính thử/tra cứu/hành động ngắn: 〜てみる、尋ねる、調べる、連絡する、申し込む… Sắc thái “một lần, cụ thể, phát hiện mới”, khác với diễn đạt thói quen. Thường kết hợp với các động từ tri giác/nhận định: 分かった、気づいた、見つかった、断られた、判明した…",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Vừa mới..., ngay sau khi...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "ころ、すでに",
+       "店に問い",
+       "売り切れていた",
+       "合わせてみたと"
+      ],
+      "translation_vi": "Khi tôi thử liên hệ với cửa hàng, thì đã bán hết mất rồi."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "込んだと",
+       "切られていた",
+       "申し",
+       "ころ、締め"
+      ],
+      "translation_vi": "Sau khi nộp đăng ký thì biết là đã hết hạn."
+     }
+    ],
+    "pattern": "Vừa mới..., ngay sau khi...",
+    "pattern_variants": [],
+    "unit_no": 46,
+    "unit_title_vi": "Thời điểm của hành động và sự chắc chắn",
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mạnh kết quả hoặc phát hiện ngay lập tức sau hành động. Thường dùng thì quá khứ ở mệnh đề sau; câu mang tính tường thuật, khách quan. Không dùng để nói thói quen/lặp lại đều đặn. Trang trọng hơn ～たら trong văn viết khi báo cáo kết quả kiểm tra/tra cứu. [6. Ghi chú mở rộng] Các động từ thể hiện ý định thử 〜てみる + たところ là collocation tự nhiên khi báo cáo kết quả. V-たところに/へ thể hiện “đúng lúc vừa … thì … đến”; V-たところを nhấn thời điểm bị bắt gặp/nhắm vào. Trong báo cáo nghiệp vụ, ～たところ thường đi kèm kết luận/đề xuất tiếp theo. [7. Biến thể & cụm cố định] 伺ったところ、〜 / お聞きしたところ、〜: kính ngữ báo cáo kết quả nghe hỏi. 確認したところ、〜: sau khi xác nhận thì … V-たところで + も: dẫu có … cũng (mang nghĩa khác, cần phân biệt) [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～たら: đề bài yêu cầu nhấn “kết quả phát hiện”, chọn ～たところ phù hợp hơn. Dùng ～たところ cho thói quen/hành động lặp lại → sai sắc thái. Nhầm ～たところ với liên từ ところで “nhân tiện/tiện thể” trong hội thoại. Bỏ qua trợ từ đúng sau ところ (に/へ/を) làm sai nghĩa bối cảnh thời điểm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-98767a400b"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N4",
+ "packet_id": "REVIEW_GRAMMAR-010"
+}
