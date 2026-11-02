@@ -60,6 +60,10 @@ public class JpathKanji {
     @Column(name = "level_readings_json", columnDefinition = "json")
     private String levelReadingsJson;
 
+    /** Where level_readings came from; FIRST_READING/OVERRIDE readings are shown but never asked in checks. */
+    @Column(name = "level_reading_source", length = 20)
+    private String levelReadingSource;
+
     @JdbcTypeCode(SqlTypes.TINYINT)
     @Column(name = "stroke_count")
     private Integer strokeCount;
