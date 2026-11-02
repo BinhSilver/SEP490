@@ -1,0 +1,32 @@
+/* [JLAS-W0108] Survey day step of the JLPT path (skill / rest day chips) and the flag-dependent survey options. */
+.survey-option[data-jpath-only][hidden],
+.survey-option[data-legacy-only][hidden],
+[data-legacy-only][hidden],
+[data-jpath-only][hidden] { display: none !important; }
+
+.jpath-day-picker { display: grid; gap: 18px; }
+.jpath-day-row { display: grid; gap: 10px; }
+.jpath-day-row__title { margin: 0; font-weight: 700; font-size: 15px; color: var(--color-on-surface); }
+.jpath-day-row__chips { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.jpath-day-chip {
+  min-height: 48px; min-width: 0; padding: 0 4px; border: 1.5px solid var(--color-outline-variant);
+  border-radius: 14px; background: var(--color-surface); color: var(--color-on-surface);
+  font: 700 15px var(--font-mono, inherit); cursor: pointer; transition: var(--transition, all .2s ease);
+}
+.jpath-day-chip:hover { border-color: var(--color-primary-container); }
+.jpath-day-chip:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+.jpath-day-chip--skill[aria-pressed="true"] {
+  border-color: var(--color-primary); background: var(--color-primary); color: #fff;
+}
+.jpath-day-chip--rest[aria-pressed="true"] {
+  border-color: var(--color-tertiary-container, #e9ab26); background: var(--color-tertiary-fixed-dim, #ffe08a);
+  color: var(--color-on-tertiary-container, #3d2a00);
+}
+.jpath-day-picker__message { margin: 0; color: var(--color-error, #b3261e); font-weight: 600; font-size: 14px; }
+.jpath-day-picker__message[hidden] { display: none; }
+.jpath-day-note { margin: 16px 0 0; color: var(--color-on-surface-variant); font-size: 14px; line-height: 1.55; }
+
+@media (max-width: 420px) {
+  .jpath-day-row__chips { gap: 5px; }
+  .jpath-day-chip { min-height: 44px; border-radius: 11px; font-size: 13px; padding: 0 2px; }
+}

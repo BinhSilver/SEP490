@@ -16,23 +16,95 @@
   var noTest = false;
   if (!window.JlasAuth || !window.JlasAuth.requireLogin('/survey')) return;
 
-  function visibleSlides() {
-    var goal = document.querySelector('input[name="goal"]:checked');
-    var studied = document.querySelector('input[name="studied"]:checked');
-    return slides.filter(function (slide) {
-      var step = slide.dataset.surveyStep;
-      if (step === 'target') return !!goal && goal.value === 'JLPT';
-      if (step === 'level') return !!studied && studied.value === 'YES';
-      if (step === 'duration') return !!studied && studied.value === 'YES';
-      return true;
+  // [JLAS-W0108] Task 23 - JLPT path (flag learning.jlpt-path.enabled, read from GET /api/learning/jlpt/config; any
+  // failure counts as off). Off: the old 6-step survey, untouched. On: goal first, kana and skill-day steps, entry
+  // answers saved to PUT /api/learning/jlpt/entry-preferences (JLPT goal only).
+  var Flow = window.JpathSurveyFlow;
+  var jpathConfig = { enabled: false };
+  var jpathOn = false;
+  var entryStatus = null;
+  var afterSurveyTarget = null;
+  var dayPicker = null;
+  var dayState = { skillDays: ['WED', 'SAT'], restDays: [] };
+  var kanaAutoFilled = false;
+  var editParam = null;
+  try { editParam = new URLSearchParams(window.location.search).get('edit'); } catch (ignore) { editParam = null; }
+
+  function checkedValue(name) {
+    var input = form.querySelector('input[name="' + name + '"]:checked');
+    return input ? input.value : null;
+  }
+
+  function legacySteps(goal, studied) {
+    return slides.map(function (slide) { return slide.dataset.surveyStep; }).filter(function (step) {
+      if (step === 'target') return goal === 'JLPT';
+      if (step === 'level' || step === 'duration') return studied === 'YES';
+      return step !== 'kana' && step !== 'days';
     });
+  }
+
+  function visibleSlides() {
+    var goal = checkedValue('goal');
+    var studied = checkedValue('studied');
+    var steps = Flow ? Flow.visibleSteps({ goal: goal, studied: studied }, jpathOn) : legacySteps(goal, studied);
+    return steps.map(function (step) {
+      return slides.filter(function (slide) { return slide.dataset.surveyStep === step; })[0];
+    }).filter(Boolean);
+  }
+
+  function stepIndex(step) {
+    return visibleSlides().map(function (slide) { return slide.dataset.surveyStep; }).indexOf(step);
   }
 
   function currentSlide() { return visibleSlides()[currentIndex]; }
 
   function hasAnswer(slide) {
     if (!slide) return false;
-    return Boolean(slide.querySelector('input:checked'));
+    if (slide.dataset.surveyStep === 'days') return dayState.skillDays.length === 2;
+    // An option hidden by the flag (e.g. the old "Dưới 6 tháng") does not count as an answer.
+    return Array.prototype.some.call(slide.querySelectorAll('input:checked'), function (input) {
+      return !input.closest('[data-jpath-only][hidden], [data-legacy-only][hidden]');
+    });
+  }
+
+  function applyFlagVisibility() {
+    document.querySelectorAll('[data-jpath-only]').forEach(function (el) { el.hidden = !jpathOn; });
+    document.querySelectorAll('[data-legacy-only]').forEach(function (el) { el.hidden = jpathOn; });
+  }
+
+  function setupDayPicker() {
+    var mountPoint = form.querySelector('[data-jpath-day-picker]');
+    if (!jpathOn || !mountPoint || !window.JpathDayPicker) return;
+    dayPicker = window.JpathDayPicker.mount(mountPoint, dayState, function (next) {
+      dayState = next;
+      nextButton.disabled = !hasAnswer(currentSlide());
+    });
+  }
+
+  function setKanaChoice(value) {
+    form.querySelectorAll('input[name="kanaChoice"]').forEach(function (input) { input.checked = input.value === value; });
+  }
+
+  /** "Dưới 3 tháng" pre-selects "Muốn ôn lại"; a choice the learner made is never overwritten. */
+  function prefillKana() {
+    if (!jpathOn || !Flow) return;
+    var current = checkedValue('kanaChoice');
+    if (current && !kanaAutoFilled) return;
+    var suggested = Flow.defaultKanaChoice(checkedValue('duration'));
+    setKanaChoice(suggested);
+    kanaAutoFilled = Boolean(suggested);
+  }
+
+  function applyEntryStatus() {
+    if (!jpathOn || !entryStatus) return;
+    var kana = entryStatus.preferenceDone ? entryStatus.kanaChoice : null;
+    kanaAutoFilled = false;
+    if (kana === 'REMEMBER' || kana === 'REVIEW') setKanaChoice(kana); else { setKanaChoice(null); prefillKana(); }
+    dayState = {
+      skillDays: Array.isArray(entryStatus.skillDays) && entryStatus.skillDays.length ? entryStatus.skillDays.slice() : ['WED', 'SAT'],
+      restDays: Array.isArray(entryStatus.restDays) ? entryStatus.restDays.slice() : []
+    };
+    if (dayPicker) dayPicker.setState(dayState);
   }
 
   function render() {
@@ -73,10 +145,13 @@
         detail.className = 'survey-option__server';
         text.appendChild(detail);
       }
-      input.disabled = !match || match.disabled;
+      // JLPT path on: a level whose path is not released yet is shown as "Sắp có" and cannot be picked.
+      var comingSoon = Boolean(jpathOn && Flow && Flow.targetDisabled(input.value, jpathConfig));
+      input.disabled = comingSoon || !match || match.disabled;
       if (label) label.classList.toggle('is-disabled', input.disabled);
       if (detail) {
-        detail.textContent = !match ? 'Chưa tải được lựa chọn từ máy chủ.'
+        detail.textContent = comingSoon ? 'Sắp có'
+          : !match ? 'Chưa tải được lựa chọn từ máy chủ.'
           : match.disabled || match.reason ? match.reason
           : (match.recommended ? 'Gợi ý · ' : '') + (match.stageLabel ? 'Lộ trình: ' + match.stageLabel : '');
       }
@@ -87,7 +162,8 @@
   async function refreshTargetOptions() {
     var request = ++targetOptionsRequest;
     var studied = document.querySelector('input[name="studied"]:checked');
-    var selfLevel = document.querySelector('input[name="selfLevel"]:checked');
+    // The JLPT path does not ask the level step, so an old hidden answer must not steer the targets.
+    var selfLevel = jpathOn && checkedValue('goal') === 'JLPT' ? null : document.querySelector('input[name="selfLevel"]:checked');
     var assessed = window.SmartTestSurveyTargets.assessedLevelFor({
       studied: studied ? studied.value : null, selfLevel: selfLevel ? selfLevel.value : null });
     try {
@@ -106,8 +182,14 @@
     var fromZero = survey.selfReportedLevel === 'FROM_ZERO';
     // [JLAS-W0108] BA/TRAVEL/DAILY_LIFE are survey-only (owner decision 2026-10-14); none may offer Smart Test.
     var surveyOnlyGoal = survey.goal === 'BA' || survey.goal === 'TRAVEL' || survey.goal === 'DAILY_LIFE';
-    var needsPathOnly = fromZero || surveyOnlyGoal;
-    if (surveyOnlyGoal) {
+    afterSurveyTarget = jpathOn && Flow
+      ? Flow.afterSurveyUrl(jpathConfig, survey, entryStatus ? entryStatus.pathStatus : null) : null;
+    var keepsPath = Boolean(afterSurveyTarget) && !fromZero;
+    var needsPathOnly = fromZero || surveyOnlyGoal || Boolean(afterSurveyTarget);
+    if (keepsPath) {
+      document.getElementById('inviteTitle').textContent = 'Lộ trình JLPT của bạn vẫn được giữ!';
+      document.getElementById('inviteText').textContent = 'Bạn đã có lộ trình nên không cần làm lại Smart Test. Tiến độ học vẫn được giữ nguyên.';
+    } else if (surveyOnlyGoal) {
       document.getElementById('inviteTitle').textContent = 'Chọn tình huống bạn muốn luyện!';
       document.getElementById('inviteText').textContent = 'Mục tiêu giao tiếp không dùng Smart Test. J-LAS sẽ dùng khảo sát chủ đề để tạo lộ trình giao tiếp phù hợp.';
     } else if (fromZero) {
@@ -180,13 +262,17 @@
       studyDurationMonths: studied === 'YES' && durationEl ? Number(durationEl.value) : 0,
       dailyStudyMinutes: minutesEl ? Number(minutesEl.value) : 30
     };
+    var jpathJlpt = Boolean(jpathOn && Flow && goal === 'JLPT');
+    // [JLAS-W0108] The JLPT path has no level step: a learner who studied is UNKNOWN (Smart Test finds the level).
+    if (jpathJlpt) body.selfReportedLevel = Flow.selfReportedLevelFor(studied);
 
     if (goal === 'JLPT') {
       var dateStr = examDateInput && examDateInput.value ? examDateInput.value.trim() : '';
       body.examDate = dateStr ? dateStr : null;
-      // F1-5 (owner 2026-10-28): up to two focus skills; the server checks them again.
+      // F1-5 (owner 2026-10-28): up to two focus skills; the server checks them again. Not asked on the JLPT path.
       var focusBoxes = typeof f.querySelectorAll === 'function' ? f.querySelectorAll('input[name="focusSkills"]:checked') : [];
-      body.focusSkills = Array.prototype.map.call(focusBoxes, function (input) { return input.value; }).slice(0, 2);
+      body.focusSkills = jpathJlpt ? []
+        : Array.prototype.map.call(focusBoxes, function (input) { return input.value; }).slice(0, 2);
     }
     return body;
   }
@@ -234,26 +320,32 @@
   startTest.addEventListener('click', function () { if (savedSurvey) beginTest(savedSurvey); });
   goHome.addEventListener('click', async function () {
     if (!noTest) return window.location.assign('/');
+    // [JLAS-W0108] JLPT path on: the path's own start route decides (confirm FROM_ZERO, resume, …).
+    if (afterSurveyTarget) return window.location.assign(afterSurveyTarget);
     if (savedSurvey && savedSurvey.goal !== 'JLPT') {
       return window.location.assign('/learning/goals/' + encodeURIComponent(savedSurvey.goal) + '/survey');
     }
     try { await api('/api/learning/paths/from-zero', { method: 'POST', body: '{}' }); } catch (error) { showError(error.message); return; }
     window.location.assign('/learning/path');
   });
-  document.getElementById('surveyEdit').addEventListener('click', function () {
+  function openWizard(startStep) {
     if (savedSurvey) fillSurvey(savedSurvey);
+    applyEntryStatus();
     invitation.hidden = true;
     form.hidden = false;
     progressHeader.hidden = false;
     backButton.hidden = false;
     wizard.classList.remove('survey-wizard--invitation');
-    currentIndex = 0;
+    currentIndex = startStep ? Math.max(0, stepIndex(startStep)) : 0;
     render();
-  });
+  }
+  document.getElementById('surveyEdit').addEventListener('click', function () { openWizard(null); });
 
   slides.forEach(function (slide) {
     slide.querySelectorAll('input').forEach(function (input) {
       input.addEventListener('change', function () {
+        if (input.name === 'kanaChoice') kanaAutoFilled = false;
+        if (input.name === 'duration') prefillKana();
         if (input.name === 'studied' || input.name === 'goal') {
           render();
         } else {
@@ -270,9 +362,25 @@
     if (!hasAnswer(activeSlides[currentIndex])) return;
     if (currentIndex < activeSlides.length - 1) { currentIndex++; render(); return; }
     var body = buildSurveyBody(form);
+    // [JLAS-W0108] Preflight C37: entry answers are saved only for a JLPT goal with the path on.
+    var preference = null;
+    if (jpathOn && Flow && body.goal === 'JLPT') {
+      preference = Flow.buildPreferenceBody({ studied: checkedValue('studied'), kanaChoice: checkedValue('kanaChoice'),
+        skillDays: dayState.skillDays, restDays: dayState.restDays });
+      if (preference.error) {
+        var missing = preference.error === 'kana' ? 'kana' : 'days';
+        currentIndex = Math.max(0, stepIndex(missing));
+        render();
+        showError(missing === 'kana' ? 'Hãy chọn có ôn lại bảng chữ cái hay không.' : 'Hãy chọn đúng 2 ngày kỹ năng.');
+        return;
+      }
+    }
     nextButton.disabled = true; nextButton.querySelector('span').textContent = 'Đang lưu khảo sát...';
     try {
       var data = await api('/api/assessment/survey', { method: 'POST', body: JSON.stringify(body) });
+      if (preference) {
+        entryStatus = await api('/api/learning/jlpt/entry-preferences', { method: 'PUT', body: JSON.stringify(preference) });
+      }
       showInvitation(data.survey);
     }
     catch (error) {
@@ -314,10 +422,38 @@
       }
     });
   }
-  render();
-  api('/api/assessment/survey').then(function (data) {
-    if (data.completed && data.survey) { showInvitation(data.survey); }
-  }).catch(function (error) { showError(error.message); });
+  function loadJpathConfig() {
+    if (!Flow) return Promise.resolve();
+    return api('/api/learning/jlpt/config').then(function (config) {
+      if (config) jpathConfig = config;
+    }).catch(function () { jpathConfig = { enabled: false }; }).then(function () {
+      jpathOn = Boolean(jpathConfig && jpathConfig.enabled);
+    });
+  }
+
+  function loadSurvey() {
+    return api('/api/assessment/survey').then(async function (data) {
+      var survey = data && data.completed && data.survey ? data.survey : null;
+      if (jpathOn) {
+        try { entryStatus = await api('/api/learning/jlpt/entry-status'); } catch (ignore) { entryStatus = null; }
+      }
+      // ?edit=1|goal (settings: restart / change goal) and ?edit=days (start route without entry answers, C7).
+      var startStep = jpathOn ? Flow.editStartStep(editParam, {
+        studied: survey ? (survey.selfReportedLevel === 'FROM_ZERO' ? 'NO' : 'YES') : null,
+        kanaChoice: entryStatus && entryStatus.preferenceDone ? entryStatus.kanaChoice : null
+      }) : null;
+      if (survey) savedSurvey = survey;
+      if (startStep) openWizard(startStep);
+      else if (survey) showInvitation(survey);
+    }).catch(function (error) { showError(error.message); });
+  }
+
+  loadJpathConfig().then(function () {
+    applyFlagVisibility();
+    setupDayPicker();
+    render();
+    return loadSurvey();
+  });
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = {

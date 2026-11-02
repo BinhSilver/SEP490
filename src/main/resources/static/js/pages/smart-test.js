@@ -857,6 +857,10 @@
   if (createPathButton) {
     createPathButton.addEventListener('click', async function (event) {
       event.preventDefault();
+      // [JLAS-W0108] Decision 34: a JLPT learner with the path on goes straight to the confirmation page, never
+      // through the old entry questions below.
+      var jpathUrl = window.JpathSurveyFlow && window.JpathSurveyFlow.smartTestHandoffUrl(jpathConfig, state.goal, state.attemptId);
+      if (jpathUrl) return window.location.assign(jpathUrl);
       if (!state.attemptId) return;
       var targetLevel = state.result && String(state.result.targetLevel || '').toUpperCase();
       var assessedLevel = state.result && String(state.result.estimatedOverallLevel || '').toUpperCase();
@@ -935,6 +939,12 @@
   document.getElementById('restartButton').addEventListener('click', function () {
     state = { attemptId: null, currentQuestion: null, goal: null, result: null }; localStorage.removeItem(ACTIVE_ATTEMPT_KEY); window.location.assign('/survey');
   });
+
+  // [JLAS-W0108] JLPT path flag for the "Tạo lộ trình" hand-off; any failure keeps the old flow.
+  var jpathConfig = { enabled: false };
+  if (window.JpathSurveyFlow) {
+    api('/api/learning/jlpt/config').then(function (c) { if (c) jpathConfig = c; }).catch(function () {});
+  }
 
   var activeAttempt = localStorage.getItem(ACTIVE_ATTEMPT_KEY);
   if (activeAttempt) {
