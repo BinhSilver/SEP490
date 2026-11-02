@@ -50,7 +50,7 @@ public class FlashcardSetCommunityHandler implements CommunityContentTypeHandler
                     rs.getString("description"), rs.getLong("owner_id"), rs.getString("thumbnail_url"),
                     rs.getString("link"), rs.getString("jlpt_level"),
                     created == null ? null : created.toLocalDateTime(), rs.getInt("is_public") == 1,
-                    Map.of("cardCount", rs.getLong("card_count")));
+                    Map.of("cardCount", rs.getLong("card_count")), null);
         });
         return rows.stream().findFirst();
     }
@@ -60,6 +60,7 @@ public class FlashcardSetCommunityHandler implements CommunityContentTypeHandler
         return "SELECT '" + CommunityContentType.FLASHCARD_SET + "' AS content_type, "
                 + "s.id AS content_id, s.title AS title, s.description AS description, s.owner_id AS owner_id, "
                 + "s.thumbnail_url AS thumbnail_url, " + LEVEL + " AS jlpt_level, s.created_at AS created_at, "
-                + LINK + " AS link FROM flashcard_set s WHERE " + PUBLIC_AT_SOURCE;
+                + LINK + " AS link, NULL AS ext_rating_avg, NULL AS ext_rating_count, NULL AS ext_my_rating "
+                + "FROM flashcard_set s WHERE " + PUBLIC_AT_SOURCE;
     }
 }

@@ -34,6 +34,9 @@ public class CommunityFeedService {
     public static final int DEFAULT_PAGE_SIZE = 12;
     public static final int MAX_PAGE_SIZE = 50;
     static final List<String> LEVELS = List.of("N5", "N4", "N3", "N2", "N1");
+    /** Đánh giá lấy ở nguồn (ext_*, vd. video Shadowing) nếu có, không thì từ community_content. */
+    private static final String RATING_AVG = "COALESCE(f.ext_rating_avg, cc.rating_avg, 0)";
+    private static final String RATING_COUNT = "COALESCE(f.ext_rating_count, cc.rating_count, 0)";
 
     private final CommunityAccessService access;
     private final NamedParameterJdbcTemplate jdbc;
@@ -104,7 +107,7 @@ public class CommunityFeedService {
             if (query.minRating() < 0 || query.minRating() > 5) {
                 throw new ApiException(ErrorCode.BAD_REQUEST, "Điểm đánh giá tối thiểu phải từ 0 đến 5");
             }
-            where.append(" AND COALESCE(cc.rating_avg, 0) >= :minRating");
+            where.append(" AND ").append(RATING_AVG).append(" >= :minRating");
             params.addValue("minRating", query.minRating());
         }
 
@@ -118,9 +121,9 @@ public class CommunityFeedService {
 
         params.addValue("limit", size).addValue("offset", (long) page * size);
         String sql = "SELECT f.content_type, f.content_id, f.title, f.description, f.owner_id, f.thumbnail_url, "
-                + "f.jlpt_level, f.created_at, f.link, COALESCE(cc.rating_avg, 0) AS rating_avg, "
-                + "COALESCE(cc.rating_count, 0) AS rating_count, COALESCE(cc.comment_count, 0) AS comment_count, "
-                + "u.full_name, u.username, u.avatar_url, my.score AS my_score"
+                + "f.jlpt_level, f.created_at, f.link, " + RATING_AVG + " AS rating_avg, "
+                + RATING_COUNT + " AS rating_count, COALESCE(cc.comment_count, 0) AS comment_count, "
+                + "u.full_name, u.username, u.avatar_url, COALESCE(f.ext_my_rating, my.score) AS my_score"
                 + from
                 + " LEFT JOIN users u ON u.id = f.owner_id"
                 + " LEFT JOIN community_rating my ON my.community_content_id = cc.id AND my.user_id = :viewerId"

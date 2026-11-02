@@ -27,7 +27,8 @@ import java.util.Optional;
  * Quy tắc xem và tương tác dùng chung cho mọi API Community (kiểm tra ở service, không dựa vào FE):
  * <ul>
  *   <li>Công khai (nguồn public + PUBLISHED): mọi user đã đăng nhập.</li>
- *   <li>Nguồn không public hoặc TEMPORARILY_HIDDEN: chỉ owner và MODERATOR/ADMIN.</li>
+ *   <li>Nguồn không public hoặc TEMPORARILY_HIDDEN: chỉ owner và MODERATOR/ADMIN (handler có thể siết thêm,
+ *       vd. video Shadowing PRIVATE chỉ owner, xem {@code CommunityContentTypeHandler#canViewNonPublic}).</li>
  *   <li>REMOVED: chỉ MODERATOR/ADMIN.</li>
  * </ul>
  * Không đủ quyền xem luôn trả 404 (không 403) để không lộ sự tồn tại của nội dung.
@@ -92,7 +93,14 @@ public class CommunityAccessService {
     public boolean canView(Target target, Long viewerId, boolean moderator) {
         if (CommunityStatus.REMOVED.name().equals(target.status())) return moderator;
         if (target.publicNow()) return true;
-        return moderator || target.ownedBy(viewerId);
+        return handler(target.source().contentType())
+                .map(h -> h.canViewNonPublic(target.source(), viewerId, moderator))
+                .orElse(false);
+    }
+
+    /** Banner khi nội dung không công khai: ưu tiên thông báo riêng của nguồn. */
+    public String sourceNotice(Target target, boolean owner) {
+        return handler(target.source().contentType()).map(h -> h.sourceNotice(target.source(), owner)).orElse(null);
     }
 
     public Target requireViewable(String contentType, Long contentId, Long viewerId) {

@@ -39,7 +39,8 @@ public final class CommunityDtos {
                                 AuthorDto author, LocalDateTime createdAt, Map<String, Object> extra,
                                 String status, boolean publicAtSource, double ratingAvg, int ratingCount,
                                 int commentCount, Integer myRating, boolean owner, boolean moderator,
-                                boolean canRate, boolean canComment, boolean canReport, String notice) {
+                                boolean canRate, boolean canUnrate, boolean canComment, boolean canReport,
+                                String notice) {
     }
 
     public record RatingRequest(
@@ -76,7 +77,8 @@ public final class CommunityDtos {
             @Size(max = 500, message = "Ghi chú tối đa 500 ký tự") String note) {
     }
 
-    public record ReportResult(Long reportId, boolean targetHidden) {
+    /** {@code reportId} null khi báo cáo được chuyển sang luồng báo cáo của nguồn (vd. video Shadowing). */
+    public record ReportResult(Long reportId, boolean targetHidden, String message) {
     }
 
     public record Option(String value, String label) {

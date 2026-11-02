@@ -10,6 +10,7 @@ import com.jlas.community.entity.CommunityReport;
 import com.jlas.community.enums.CommunityStatus;
 import com.jlas.community.enums.ReportStatus;
 import com.jlas.community.enums.ReportTargetType;
+import com.jlas.community.handler.SourceReportSupport;
 import com.jlas.community.repository.CommunityCommentRepository;
 import com.jlas.community.repository.CommunityContentRepository;
 import com.jlas.community.repository.CommunityReportRepository;
@@ -23,11 +24,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Báo cáo nội dung/bình luận. Mỗi người báo cáo một đối tượng một lần (trùng → 409), không tự báo cáo.
  * Khi số báo cáo OPEN đạt {@code community.report.auto-hide-threshold} thì đối tượng chuyển
  * TEMPORARILY_HIDDEN ngay trong cùng transaction; moderator xử lý tiếp ở /admin/moderation/reports.
+ * Báo cáo NỘI DUNG của loại có {@link SourceReportSupport} (video Shadowing) đi thẳng sang luồng của nguồn.
  */
 @Service
 @RequiredArgsConstructor
@@ -58,13 +61,25 @@ public class CommunityReportService {
         if (target.ownedBy(viewerId)) {
             throw new ApiException(ErrorCode.FORBIDDEN, "Bạn không thể báo cáo nội dung của chính mình");
         }
+        Optional<SourceReportSupport> sourceReports = access.handler(target.source().contentType())
+                .filter(SourceReportSupport.class::isInstance).map(SourceReportSupport.class::cast);
+        if (sourceReports.isPresent()) {
+            // Nguồn có luồng báo cáo riêng (vd. video Shadowing, ngưỡng 3): không tạo community_report để mỗi
+            // nội dung chỉ có một mục trong hàng chờ admin. Báo trùng / quá hạn mức do nguồn trả lỗi.
+            if (!target.publicNow()) {
+                throw new ApiException(ErrorCode.CONFLICT, "Nội dung đang không công khai nên không thể báo cáo");
+            }
+            String note = StringUtils.hasText(request.note()) ? request.note().trim() : null;
+            boolean hidden = sourceReports.get().report(target.source().contentId(), request.reason(), note);
+            return new ReportResult(null, hidden, sourceReports.get().reportedMessage());
+        }
         CommunityContent row = access.lockInteractable(target).row();
         CommunityReport saved = save(request, viewerId, ReportTargetType.CONTENT, row.getId());
         row.setReportCount(row.getReportCount() + 1);
         boolean hidden = reachedThreshold(ReportTargetType.CONTENT, row.getId());
         if (hidden) row.setStatus(CommunityStatus.TEMPORARILY_HIDDEN.name());
         contents.save(row);
-        return new ReportResult(saved.getId(), hidden);
+        return new ReportResult(saved.getId(), hidden, null);
     }
 
     private ReportResult reportComment(ReportRequest request, Long viewerId) {
@@ -91,7 +106,7 @@ public class CommunityReportService {
         if (hidden) comment.setStatus(CommunityStatus.TEMPORARILY_HIDDEN.name());
         comments.saveAndFlush(comment);
         if (hidden) access.refreshCommentCount(row);
-        return new ReportResult(saved.getId(), hidden);
+        return new ReportResult(saved.getId(), hidden, null);
     }
 
     private CommunityReport save(ReportRequest request, Long viewerId, ReportTargetType type, Long targetId) {

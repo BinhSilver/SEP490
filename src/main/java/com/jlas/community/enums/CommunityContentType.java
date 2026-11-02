@@ -6,7 +6,7 @@ package com.jlas.community.enums;
  */
 public final class CommunityContentType {
     public static final String FLASHCARD_SET = "FLASHCARD_SET";
-    /** Chưa có handler: S4-04 thêm cuối sprint. Không có handler thì loại này không xuất hiện ở feed. */
+    /** Video Shadowing: xem {@code ShadowingVideoCommunityHandler}. */
     public static final String SHADOWING_VIDEO = "SHADOWING_VIDEO";
 
     private CommunityContentType() {
