@@ -90,6 +90,9 @@
     gameLink: 'jlabBaseGameLink',
     gameIcon: 'jlabBaseGameIcon',
     gameLabel: 'jlabBaseGameLabel',
+    communityLink: 'jlabBaseCommunityLink',
+    communityIcon: 'jlabBaseCommunityIcon',
+    communityLabel: 'jlabBaseCommunityLabel',
     toolsWrapper: 'jlabBaseToolsWrapper',
     toolsButton: 'jlabBaseToolsButton',
     toolsIcon: 'jlabBaseToolsIcon',
@@ -226,6 +229,7 @@
       headphones: '<path d="M4 14v-2a8 8 0 0 1 16 0v2"></path><path d="M4 14h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H4Z"></path><path d="M20 14h-2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2Z"></path>',
       bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path>',
       bellOff: '<path d="m3 3 18 18"></path><path d="M17 17H3c0-2 3-2 3-9a6 6 0 0 1 9.5-4.9"></path><path d="M18 8c0 3.2.6 5 1.4 6.1"></path><path d="M10 21h4"></path>',
+      users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.9"></path><path d="M16 3.1a4 4 0 0 1 0 7.8"></path>',
       user: '<circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path>',
       flame: '<path d="M12 22c4 0 7-2.7 7-6.7 0-3.8-2.5-6.1-5.3-9.3.2 2.8-1.1 4.4-3.2 5.8.1-2.8-1.1-4.9-2.9-6.8C6.6 7.8 5 10.2 5 13.2 5 18.1 8 22 12 22Z"></path>',
       shield: '<path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7Z"></path><rect x="9" y="11" width="6" height="5" rx="1"></rect><path d="M10.5 11V9.5a1.5 1.5 0 0 1 3 0V11"></path>',
@@ -246,6 +250,7 @@
     replaceIcon(ids.textbooksIcon, 'book');
     replaceIcon(ids.lookupIcon, 'search');
     replaceIcon(ids.gameIcon, 'game');
+    replaceIcon(ids.communityIcon, 'users');
     replaceIcon(ids.examsIcon, 'learning');
     replaceIcon(ids.examsChevron, 'chevron', 'jlab-base-icon--chevron');
     replaceIcon(ids.examSmartTestIcon, 'clipboardCheck');
@@ -323,7 +328,9 @@
               '<i id="' + ids.gameIcon + '" aria-hidden="true"></i><span id="' + ids.gameLabel + '">Game</span>' +
             '</a>' +
             // [JLAS2-37] Community Hub: nội dung cộng đồng công khai (đánh giá, bình luận, báo cáo).
-            '<a id="jlabBaseCommunityLink" href="/community" title="Nội dung cộng đồng chia sẻ">' + icon('', 'message') + '<span>Cộng đồng</span></a>' +
+            '<a id="' + ids.communityLink + '" href="/community" title="Nội dung cộng đồng chia sẻ">' +
+              '<i id="' + ids.communityIcon + '" aria-hidden="true"></i><span id="' + ids.communityLabel + '">Cộng đồng</span>' +
+            '</a>' +
             '<div id="' + ids.toolsWrapper + '" class="dropdown nav-tools-dropdown">' +
               '<button id="' + ids.toolsButton + '" class="nav-tools-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="' + ids.toolsMenu + '">' +
                 '<i id="' + ids.toolsIcon + '" aria-hidden="true"></i><span id="' + ids.toolsLabel + '">Công cụ</span><i id="' + ids.toolsChevron + '" aria-hidden="true"></i>' +
@@ -440,6 +447,7 @@
       path.indexOf('/learning/onyomi/') === 0;
     var isTextbooks = path === '/textbooks' || path.indexOf('/textbooks/') === 0;
     var isGame = path === '/games' || path.indexOf('/games/') === 0;
+    var isCommunity = path === '/community' || path.indexOf('/community/') === 0;
     var isDictionary = path === '/dictionary/index' || path === '/dictionary' ||
       path.indexOf('/dictionary/') === 0 || path === '/search' || path.indexOf('/search/') === 0;
     var isAiCall = path === '/ai-call' ||
@@ -469,6 +477,7 @@
     markCurrent(ids.learningPathLink, isOnyomi);
     markCurrent(ids.lookupLink, isDictionary);
     markCurrent(ids.gameLink, isGame);
+    markCurrent(ids.communityLink, isCommunity);
     markCurrent(ids.aiCallLink, isAiCall);
     markCurrent(ids.flashcardLink, isFlashcard);
     markCurrent(ids.shadowingLink, isShadowing);
