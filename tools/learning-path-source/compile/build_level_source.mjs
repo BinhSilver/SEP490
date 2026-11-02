@@ -8,6 +8,7 @@ import { grammarFamilyKey } from './normalize.mjs';
 import { applyPackets, authoringDir, correctionDirs as allCorrectionDirs, emitReviewPackets, globalCorrections, readPackets } from './authoring.mjs';
 import { applyStatuses, buildLevelIndex, runChecks, WARNING_CODES } from './checks.mjs';
 import { writeReport, REPORT_DIR } from './report.mjs';
+import { audioErrors, audioManifestFile } from './tts.mjs';
 
 export const compiledFile = level => path.join(ROOT, 'data/learning-path/compiled', `${level}.json`);
 
@@ -68,7 +69,7 @@ function checkContext(inputs, level, outFile, corrections = {}) {
 }
 
 export function buildLevel(level, { inputs = loadCompileInputs(), outFile = compiledFile(level), reportDir = REPORT_DIR,
-  packetsDir = authoringDir(level), correctionDirs = allCorrectionDirs(), check = false,
+  packetsDir = authoringDir(level), correctionDirs = allCorrectionDirs(), check = false, audioFile = audioManifestFile(level),
   date = new Date().toISOString().slice(0, 10) } = {}) {
   const packets = readPackets(packetsDir);
   // Review corrections come from every level's packets (packetsDir included even when it is a scratch folder).
@@ -77,6 +78,14 @@ export function buildLevel(level, { inputs = loadCompileInputs(), outFile = comp
   const applied = applyPackets(compiledLevels(inputs, corrections).levels[LEVELS.indexOf(level)], packets);
   const result = runChecks(applied, checkContext(inputs, level, outFile, corrections));
   const compiled = applyStatuses(applied, result);
+  // Audio is checked against the level's manifest once statuses are known (released items only). These errors do
+  // not hide items — TTS skips hidden items, so hiding would never let the audio be made — they block the release.
+  // A level with no manifest yet has no audio pass to check.
+  result.stats.audio_checked = existsSync(audioFile);
+  if (result.stats.audio_checked) for (const e of audioErrors(compiled, readJson(audioFile))) {
+    result.errors.push(e);
+    result.stats.errors_by_code[e.code] = (result.stats.errors_by_code[e.code] ?? 0) + 1;
+  }
   const ok = writeOrCheck(outFile, { ...compiled, generated_by: 'tools/learning-path-source/compile/build_level_source.mjs' }, check);
   if (!check) writeReport({ level, compiled, result, date }, reportDir);
   const statusOf = new Map([...compiled.vocabulary, ...compiled.kanji, ...compiled.grammar].map(x => [x.id, x.status]));

@@ -27,6 +27,20 @@ export function buildSsml(textOrOpts, opts = {}) {
   return `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="ja-JP"><voice name="${escapeXml(voice)}"><prosody rate="${escapeXml(rate)}">${escapeXml(text)}</prosody></voice></speak>`;
 }
 
+// What is spoken for a card text: the first of a/b alternatives, an optional [お]/（お） kept, no 〜, and no notation
+// brackets — ＜する＞/（する）/（な） and any other (…) or ＜…＞ annotation are dropped (decision: the word card says the
+// word itself; する is grammar notation, the examples carry the verb forms).
+export function spokenText(text) {
+  let t = String(text ?? '').trim();
+  if (/[/／]/.test(t) && !/[。、！？]/.test(t)) t = t.split(/[/／]/)[0];
+  t = t.replace(/[[［]([おご御])[\]］]/g, '$1').replace(/[（(]([おご御])[）)]/g, '$1')
+    .replace(/[＜<][^＞>]*[＞>]/g, '').replace(/[（(][^）)]*[）)]/g, '').replace(/[[［][^\]］]*[\]］]/g, '')
+    .replace(/[〜～~]/g, '');
+  return t.replace(/\s+/g, ' ').trim();
+}
+
+const entry = (id, kind, raw, file) => { const text = spokenText(raw); return { id, kind, text, file, sha_text: sha256(text) }; };
+
 export function planAudio(compiled) {
   const level = compiled?.level ?? 'N5';
   const baseDir = `data/content-audio/learning-path/${level}`;
@@ -34,28 +48,11 @@ export function planAudio(compiled) {
 
   for (const v of compiled?.vocabulary ?? []) {
     if (SKIPPED_STATUSES.has(v.status)) continue;
-    if (v.reading) {
-      const text = String(v.reading);
-      plan.push({
-        id: v.id,
-        kind: 'WORD',
-        text,
-        file: `${baseDir}/${v.id}.mp3`,
-        sha_text: sha256(text)
-      });
-    }
+    if (v.reading) plan.push(entry(v.id, 'WORD', v.reading, `${baseDir}/${v.id}.mp3`));
     const examples = v.examples ?? [];
     for (let i = 0; i < examples.length; i++) {
       const ja = examples[i]?.ja;
-      if (!ja) continue;
-      const text = String(ja);
-      plan.push({
-        id: v.id,
-        kind: 'EXAMPLE',
-        text,
-        file: `${baseDir}/${v.id}-ex${i + 1}.mp3`,
-        sha_text: sha256(text)
-      });
+      if (ja) plan.push(entry(v.id, 'EXAMPLE', ja, `${baseDir}/${v.id}-ex${i + 1}.mp3`));
     }
   }
 
@@ -64,15 +61,7 @@ export function planAudio(compiled) {
     const examples = (g.examples ?? []).slice(0, 3);
     for (let i = 0; i < examples.length; i++) {
       const ja = examples[i]?.ja;
-      if (!ja) continue;
-      const text = String(ja);
-      plan.push({
-        id: g.id,
-        kind: 'EXAMPLE',
-        text,
-        file: `${baseDir}/${g.id}-ex${i + 1}.mp3`,
-        sha_text: sha256(text)
-      });
+      if (ja) plan.push(entry(g.id, 'EXAMPLE', ja, `${baseDir}/${g.id}-ex${i + 1}.mp3`));
     }
   }
 
@@ -86,6 +75,7 @@ export async function synthesizeAll(plan, {
   dryRun = false,
   fetchImpl = globalThis.fetch,
   rootDir = ROOT,
+  manifest: previous = [],
   voice = DEFAULT_VOICE,
   rate = DEFAULT_RATE,
   key = process.env.AZURE_SPEECH_KEY ?? process.env.AZURE_SPEECH_PRONUNCIATION_KEY ?? null,
@@ -105,17 +95,14 @@ export async function synthesizeAll(plan, {
 
   const manifest = [];
   let requestCount = 0;
+  const made = new Map((previous ?? []).map(e => [e.file, e]));
 
   for (const item of selected) {
     const absFile = path.resolve(rootDir, item.file);
-    if (existsSync(absFile)) {
+    // A file is reused only when the manifest says it was made from this exact text.
+    if (existsSync(absFile) && made.get(item.file)?.text_sha256 === item.sha_text) {
       const existing = readFileSync(absFile);
-      manifest.push({
-        id: item.id,
-        file: item.file,
-        sha256: sha256(existing),
-        bytes: existing.length
-      });
+      manifest.push({ id: item.id, file: item.file, sha256: sha256(existing), bytes: existing.length, text_sha256: item.sha_text });
       continue;
     }
 
@@ -151,15 +138,28 @@ export async function synthesizeAll(plan, {
     const buf = Buffer.from(await response.arrayBuffer());
     mkdirSync(path.dirname(absFile), { recursive: true });
     writeFileSync(absFile, buf);
-    manifest.push({
-      id: item.id,
-      file: item.file,
-      sha256: sha256(buf),
-      bytes: buf.length
-    });
+    manifest.push({ id: item.id, file: item.file, sha256: sha256(buf), bytes: buf.length, text_sha256: item.sha_text });
+    if (requestCount % 100 === 0) logger(`TTS: ${requestCount} files synthesized`);
   }
 
   return Object.assign(manifest, { files: manifest.length, chars: totalChars });
+}
+
+// A run over part of the plan (--limit) updates its own entries and keeps every other one.
+export function mergeManifest(old, fresh) {
+  const byFile = new Map((old ?? []).map(e => [e.file, e]));
+  for (const e of fresh) byFile.set(e.file, e);
+  return [...byFile.values()];
+}
+
+// Released items (not DRAFT/HOLD) need an audio entry made from their current spoken text.
+export function audioErrors(compiled, manifest) {
+  const byFile = new Map((manifest?.items ?? []).map(e => [e.file, e]));
+  return planAudio(compiled).flatMap(p => {
+    const e = byFile.get(p.file);
+    if (!e) return [{ code: 'AUDIO_MISSING', id: p.id, detail: p.file }];
+    return e.text_sha256 === p.sha_text ? [] : [{ code: 'AUDIO_SHA_MISMATCH', id: p.id, detail: p.file }];
+  });
 }
 
 export const compiledLevelFile = level => path.join(ROOT, 'data/learning-path/compiled', `${level}.json`);
@@ -173,9 +173,13 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const limit = limitRaw != null ? Number(limitRaw) : null;
   const compiled = readJson(compiledLevelFile(level));
   const plan = planAudio(compiled);
-  const manifest = await synthesizeAll(plan, { limit, dryRun });
+  const file = audioManifestFile(level);
+  const previous = existsSync(file) ? readJson(file).items : [];
+  const manifest = await synthesizeAll(plan, { limit, dryRun, manifest: previous });
   if (!dryRun) {
-    writeOrCheck(audioManifestFile(level), { level, items: manifest }, false);
-    console.log(`${level}: wrote ${manifest.length} audio entries to data/learning-path/audio/${level}.json`);
+    // A full run lists exactly the plan; a limited one keeps the entries it did not touch.
+    const items = limit != null ? mergeManifest(previous, manifest) : [...manifest];
+    writeOrCheck(file, { level, items }, false);
+    console.log(`${level}: wrote ${items.length} audio entries to data/learning-path/audio/${level}.json`);
   }
 }
