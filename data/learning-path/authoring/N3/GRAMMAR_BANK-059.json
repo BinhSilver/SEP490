@@ -1,0 +1,780 @@
+{
+ "header": {
+  "instructions": "check_bank ≥ 8 câu, mỗi dạng FILL/ORDER_STAR/MEANING/ERROR ≥ 2: {type, prompt_ja, options[4], answer_index, explanation_vi}; order_items 2 {pieces[], answer_order[]}; fill_items 2 {sentence_ja với ＿＿, answer}; extra_practice 3 (cùng dạng check_bank). Đáp án nhiễu không được cũng đúng."
+ },
+ "items": [
+  {
+   "answer": null,
+   "context": {
+    "examples": [
+     {
+      "ja": "週末は映画とかカフェとかに行きたい。",
+      "vi": "Cuối tuần muốn đi xem phim hay quán cà phê chẳng hạn."
+     },
+     {
+      "ja": "北海道では雪祭りが有名とか。",
+      "vi": "Nghe nói lễ hội tuyết ở Hokkaidō nổi tiếng."
+     }
+    ],
+    "meaning_vi": "- Liệt kê: Đưa ra vài ví dụ tiêu biểu, không bao quát toàn bộ; mang tính gợi ý, tùy tiện, thân mật. - Truyền văn: “とか” ở cuối câu diễn đạt nguồn tin mơ hồ, người nói không khẳng định chắc (nghe đâu, hình như). - Khi đi với “とかで”: chỉ nguyên nhân mơ hồ, người nói không biết chính xác (kiểu “do gì đó như là…”). - Mức độ lịch sự: khá khẩu ngữ; tránh dùng trong văn bản trang trọng khi cần độ chính xác cao.",
+    "pattern": "Ví dụ như, như là",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "週末は映画とか見に行きたい。",
+      "answer_vi": "Cuối tuần tôi muốn đi xem phim hay gì đó.",
+      "chapter": 21,
+      "context_vi": "Trong tình huống: Cuối tuần tôi muốn đi xem phim hay gì đó.",
+      "correct_index": 3,
+      "correct_order": null,
+      "explanation_vi": "とか diễn đạt - Liệt kê: Đưa ra vài ví dụ tiêu biểu, không bao quát toàn bộ; mang tính gợi ý, tùy tiện, thân mật.. にとって và に比べて không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-8f0a9e2eb1",
+      "id": "LP-GRAMC-N3-C21-8f0a9e2eb1-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "に比べて",
+       "に加えて",
+       "とか",
+       "にとって"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "Ví dụ như, như là",
+      "prompt_ja": "週末は映画[ ]見に行きたい。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "休みの日は本とか雑誌とかを読む。",
+      "answer_vi": "Ngày nghỉ tôi đọc sách, tạp chí chẳng hạn.",
+      "chapter": 21,
+      "context_vi": "Sắp xếp câu để diễn đạt: Ngày nghỉ tôi đọc sách, tạp chí chẳng hạn.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 休みの日は本とか雑誌とかを読む。; mẫu Ví dụ như, như là diễn đạt - Liệt kê: Đưa ra vài ví dụ tiêu biểu, không bao quát toàn bộ; mang tính gợi ý, tùy tiện, thân mật..",
+      "goal": "JLPT",
+      "grammar_id": "JG-8f0a9e2eb1",
+      "id": "LP-GRAMC-N3-C21-8f0a9e2eb1-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "本とか雑誌とかを",
+       "読む。",
+       "休みの日は"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "Ví dụ như, như là",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-8f0a9e2eb1"
+  },
+  {
+   "answer": null,
+   "context": {
+    "examples": [
+     {
+      "ja": "私は教師として、学生の成長を第一に考えています。",
+      "vi": "Là giáo viên, tôi đặt sự trưởng thành của học sinh lên hàng đầu."
+     },
+     {
+      "ja": "専門家としての意見を聞かせてください。",
+      "vi": "Xin cho biết ý kiến với tư cách chuyên gia."
+     }
+    ],
+    "meaning_vi": "Xác định vai trò/tư cách: Nêu địa vị, chức danh, thân phận để từ đó phát ngôn/hành động. Bổ nghĩa tính chất với としての + N: nhấn mạnh đặc điểm, trách nhiệm gắn với vai trò. Góc nhìn/đánh giá với としては: “xét trên cương vị… thì…”. Giả định nhượng bộ với としても: “kể cả là… thì cũng…”.",
+    "pattern": "Với tư cách, như là",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "彼は先生としてその会議に出た。",
+      "answer_vi": "Anh ấy dự họp với tư cách giáo viên.",
+      "chapter": 21,
+      "context_vi": "Trong tình huống: Anh ấy dự họp với tư cách giáo viên.",
+      "correct_index": 1,
+      "correct_order": null,
+      "explanation_vi": "として diễn đạt Xác định vai trò/tư cách: Nêu địa vị, chức danh, thân phận để từ đó phát ngôn/hành động. Bổ nghĩa tí. に比べて và に加えて không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-8bb1fc30e7",
+      "id": "LP-GRAMC-N3-C21-8bb1fc30e7-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "として",
+       "に比べて",
+       "に加えて",
+       "にとって"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "Với tư cách, như là",
+      "prompt_ja": "彼は先生[ ]その会議に出た。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "私は学生として発表した。",
+      "answer_vi": "Tôi trình bày với tư cách học sinh.",
+      "chapter": 21,
+      "context_vi": "Sắp xếp câu để diễn đạt: Tôi trình bày với tư cách học sinh.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 私は学生として発表した。; mẫu Với tư cách, như là diễn đạt Xác định vai trò/tư cách: Nêu địa vị, chức danh, thân phận để từ đó phát ngôn/hành động. Bổ nghĩa tí.",
+      "goal": "JLPT",
+      "grammar_id": "JG-8bb1fc30e7",
+      "id": "LP-GRAMC-N3-C21-8bb1fc30e7-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "学生として",
+       "発表した。",
+       "私は"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "Với tư cách, như là",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-8bb1fc30e7"
+  },
+  {
+   "answer": null,
+   "context": {
+    "examples": [
+     {
+      "ja": "たとえ反対されても留学します。",
+      "vi": "Giả sử có bị phản đối đi chăng nữa thì tôi cũng sẽ đi du học"
+     },
+     {
+      "ja": "たとえ元気じゃなくても、家族への手紙には元気だと書きます。",
+      "vi": "Giả dụ có không khỏe thì trong thư viết cho gia đình cũng sẽ viết là khỏe"
+     }
+    ],
+    "meaning_vi": "Giả sử là…đi nữa thì…./ Thậm chí là….thì cũng…",
+    "pattern": "〜たとえ反対されても",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "たとえ反対されても、私は続ける。",
+      "answer_vi": "Dù bị phản đối, tôi vẫn tiếp tục.",
+      "chapter": 21,
+      "context_vi": "Trong tình huống: Dù bị phản đối, tôi vẫn tiếp tục.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "ても diễn đạt Giả sử là…đi nữa thì…./ Thậm chí là….thì cũng…. たら và るから không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-eab503b0d9",
+      "id": "LP-GRAMC-N3-C21-eab503b0d9-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "るために",
+       "ても",
+       "たら",
+       "るから"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～たとえ反対されても",
+      "prompt_ja": "たとえ反対され[ ]、私は続ける。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "たとえ家族に反対されても、私は日本へ行きたい。",
+      "answer_vi": "Dù gia đình phản đối, tôi vẫn muốn đến Nhật.",
+      "chapter": 21,
+      "context_vi": "Sắp xếp thành câu: Dù gia đình phản đối, tôi vẫn muốn đến Nhật.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép theo thứ tự 3→1→2. Mẫu 「～たとえ反対されても」 diễn đạt dù giả định có trở ngại thì ý định vẫn không đổi. Trong câu này: Dù gia đình phản đối, tôi vẫn muốn đến Nhật.",
+      "goal": "JLPT",
+      "grammar_id": "JG-eab503b0d9",
+      "id": "LP-GRAMC-N3-C21-eab503b0d9-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "私は",
+       "日本へ行きたい。",
+       "たとえ家族に反対されても、"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～たとえ反対されても",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-eab503b0d9"
+  },
+  {
+   "answer": null,
+   "context": {
+    "examples": [
+     {
+      "ja": "合格した！まるで夢のようだ。",
+      "vi": "Đậu rồi! Cứ như là mơ ấy"
+     },
+     {
+      "ja": "彼の日本語はまるで日本人が話しているみたいに聞こえる。",
+      "vi": "Tiếng Nhật của anh ấy nghe cứ như là người Nhật đang nói chuyện ấy"
+     }
+    ],
+    "meaning_vi": "(Hoàn toàn) Cứ như là, giống như là",
+    "pattern": "〜まるで夢のよう",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "昨日の出来事は夢のようだった。",
+      "answer_vi": "Chuyện hôm qua cứ như mơ.",
+      "chapter": 21,
+      "context_vi": "Trong tình huống: Chuyện hôm qua cứ như mơ.",
+      "correct_index": 1,
+      "correct_order": null,
+      "explanation_vi": "ようだった diễn đạt (Hoàn toàn) Cứ như là, giống như là. ためだった và 最中だった không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-8c5ae16c47",
+      "id": "LP-GRAMC-N3-C21-8c5ae16c47-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "ようだった",
+       "ためだった",
+       "最中だった",
+       "かわりだった"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～まるで夢のよう",
+      "prompt_ja": "昨日の出来事は夢の[ ]。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "その景色はまるで絵のようだ。",
+      "answer_vi": "Phong cảnh ấy như một bức tranh.",
+      "chapter": 21,
+      "context_vi": "Sắp xếp câu để diễn đạt: Phong cảnh ấy như một bức tranh.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là その景色はまるで絵のようだ。; mẫu ～まるで夢のよう diễn đạt (Hoàn toàn) Cứ như là, giống như là.",
+      "goal": "JLPT",
+      "grammar_id": "JG-8c5ae16c47",
+      "id": "LP-GRAMC-N3-C21-8c5ae16c47-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "まるで",
+       "絵のようだ。",
+       "その景色は"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～まるで夢のよう",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-8c5ae16c47"
+  },
+  {
+   "answer": null,
+   "context": {
+    "examples": [
+     {
+      "ja": "もしかすると彼の話はうそかもしれない。",
+      "vi": "Có khả năng câu chuyện của anh ấy là nói dối"
+     },
+     {
+      "ja": "もしかしたら、明日行けないかもしれません。",
+      "vi": "Có lẽ ngày mai sẽ không thể đến được"
+     }
+    ],
+    "meaning_vi": "Có lẽ là, có khả năng là",
+    "pattern": "〜もしかするとうそかもしれない",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "空が暗い。もしかすると雨が降るかもしれない。",
+      "answer_vi": "Trời tối. Có lẽ sẽ mưa.",
+      "chapter": 21,
+      "context_vi": "Trong tình huống: Trời tối. Có lẽ sẽ mưa.",
+      "correct_index": 4,
+      "correct_order": null,
+      "explanation_vi": "かもしれない diễn đạt Có lẽ là, có khả năng là. はずがない và ことはない không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-8fe3f021e7",
+      "id": "LP-GRAMC-N3-C21-8fe3f021e7-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "はずがない",
+       "ことはない",
+       "つもりだ",
+       "かもしれない"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～もしかするとうそかもしれない",
+      "prompt_ja": "空が暗い。もしかすると雨が降る[ ]。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "もしかすると彼はもう帰ったかもしれない。",
+      "answer_vi": "Có lẽ anh ấy đã về rồi.",
+      "chapter": 21,
+      "context_vi": "Sắp xếp câu để diễn đạt: Có lẽ anh ấy đã về rồi.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là もしかすると彼はもう帰ったかもしれない。; mẫu ～もしかするとうそかもしれない diễn đạt Có lẽ là, có khả năng là.",
+      "goal": "JLPT",
+      "grammar_id": "JG-8fe3f021e7",
+      "id": "LP-GRAMC-N3-C21-8fe3f021e7-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "彼は",
+       "もう帰ったかもしれない。",
+       "もしかすると"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～もしかするとうそかもしれない",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-8fe3f021e7"
+  },
+  {
+   "answer": null,
+   "context": {
+    "examples": [
+     {
+      "ja": "高い物が必ずしも便利とは限りません。",
+      "vi": "Đồ đắt tiền chưa chắc đã tiện lợi. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "meaning_vi": "Không chắc chắn là/ không nhất thiết là/ Không giới hạn là",
+    "pattern": "〜必ずしもいいとは限らない",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "値段が高い物が必ずしもいいとは限らない。",
+      "answer_vi": "Đồ đắt không phải lúc nào cũng tốt.",
+      "chapter": 21,
+      "context_vi": "Trong tình huống: Đồ đắt không phải lúc nào cũng tốt.",
+      "correct_index": 3,
+      "correct_order": null,
+      "explanation_vi": "とは限らない diễn đạt Không chắc chắn là/ không nhất thiết là/ Không giới hạn là. に違いない và はずだ không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-cf997affc4",
+      "id": "LP-GRAMC-N3-C21-cf997affc4-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "はずだ",
+       "べきだ",
+       "とは限らない",
+       "に違いない"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～必ずしもいいとは限らない",
+      "prompt_ja": "値段が高い物が必ずしもいい[ ]。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "練習したからといって、必ずしも勝てるとは限らない。",
+      "answer_vi": "Luyện tập không có nghĩa là lúc nào cũng thắng.",
+      "chapter": 21,
+      "context_vi": "Sắp xếp câu để diễn đạt: Luyện tập không có nghĩa là lúc nào cũng thắng.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 練習したからといって、必ずしも勝てるとは限らない。; mẫu ～必ずしもいいとは限らない diễn đạt Không chắc chắn là/ không nhất thiết là/ Không giới hạn là.",
+      "goal": "JLPT",
+      "grammar_id": "JG-cf997affc4",
+      "id": "LP-GRAMC-N3-C21-cf997affc4-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "必ずしも",
+       "勝てるとは限らない。",
+       "練習したからといって、"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～必ずしもいいとは限らない",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-cf997affc4"
+  },
+  {
+   "answer": null,
+   "context": {
+    "examples": [
+     {
+      "ja": "死ぬほど疲れた。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Đến mức — Nêu mức độ bằng một hình ảnh cụ thể.",
+    "pattern": "N / V từ điển + ほど",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "今日は立てないほど疲れた。",
+      "answer_vi": "Hôm nay tôi mệt đến mức không đứng nổi.",
+      "chapter": 21,
+      "context_vi": "Trong tình huống: Hôm nay tôi mệt đến mức không đứng nổi.",
+      "correct_index": 3,
+      "correct_order": null,
+      "explanation_vi": "ほど diễn đạt Đến mức. たびに và ために không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-822eb5c5fb",
+      "id": "LP-GRAMC-N3-C21-822eb5c5fb-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "ために",
+       "かわりに",
+       "ほど",
+       "たびに"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "N / V từ điển + ほど",
+      "prompt_ja": "今日は立てない[ ]疲れた。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "声が出ないほどのどが痛い。",
+      "answer_vi": "Tôi đau họng tới mức không nói nổi.",
+      "chapter": 21,
+      "context_vi": "Sắp xếp câu để diễn đạt: Tôi đau họng tới mức không nói nổi.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 声が出ないほどのどが痛い。; mẫu N / V từ điển + ほど diễn đạt Đến mức.",
+      "goal": "JLPT",
+      "grammar_id": "JG-822eb5c5fb",
+      "id": "LP-GRAMC-N3-C21-822eb5c5fb-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "のどが",
+       "痛い。",
+       "声が出ないほど"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "N / V từ điển + ほど",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-822eb5c5fb"
+  },
+  {
+   "answer": null,
+   "context": {
+    "examples": [
+     {
+      "ja": "この店は安いわりにおいしい。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "So với thì, tuy nhưng — Kết quả không tương xứng với điều lẽ ra phải như vậy, thường mang ý bất ngờ.",
+    "pattern": "Thể thường / N の + わりに",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "この店は小さいわりに、品物が多い。",
+      "answer_vi": "Cửa hàng này tuy nhỏ nhưng có nhiều hàng.",
+      "chapter": 21,
+      "context_vi": "Trong tình huống: Cửa hàng này tuy nhỏ nhưng có nhiều hàng.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "わりに diễn đạt So với thì, tuy nhưng. たびに và ために không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-d0e8881fdb",
+      "id": "LP-GRAMC-N3-C21-d0e8881fdb-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "最中に",
+       "わりに",
+       "たびに",
+       "ために"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "Thể thường / N の + わりに",
+      "prompt_ja": "この店は小さい[ ]、品物が多い。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "彼は年齢のわりに若く見える。",
+      "answer_vi": "Anh ấy trông trẻ so với tuổi.",
+      "chapter": 21,
+      "context_vi": "Sắp xếp câu để diễn đạt: Anh ấy trông trẻ so với tuổi.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 彼は年齢のわりに若く見える。; mẫu Thể thường / N の + わりに diễn đạt So với thì, tuy nhưng.",
+      "goal": "JLPT",
+      "grammar_id": "JG-d0e8881fdb",
+      "id": "LP-GRAMC-N3-C21-d0e8881fdb-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "年齢のわりに",
+       "若く見える。",
+       "彼は"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "Thể thường / N の + わりに",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-d0e8881fdb"
+  },
+  {
+   "answer": null,
+   "context": {
+    "examples": [
+     {
+      "ja": "時間があれば、行きます。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Nếu — Điều kiện mang tính giả định hoặc quy luật chung.",
+    "pattern": "V thể ば",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "時間があれば、手伝います。",
+      "answer_vi": "Nếu có thời gian, tôi sẽ giúp.",
+      "chapter": 21,
+      "context_vi": "Trong tình huống: Nếu có thời gian, tôi sẽ giúp.",
+      "correct_index": 1,
+      "correct_order": null,
+      "explanation_vi": "ば diễn đạt Nếu. ても và るから không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-31b901048d",
+      "id": "LP-GRAMC-N3-C21-31b901048d-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "ば",
+       "ても",
+       "るから",
+       "るために"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V thể ば",
+      "prompt_ja": "時間があれ[ ]、手伝います。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "早く起きれば、朝ご飯を作れる。",
+      "answer_vi": "Nếu dậy sớm, tôi có thể nấu bữa sáng.",
+      "chapter": 21,
+      "context_vi": "Sắp xếp câu để diễn đạt: Nếu dậy sớm, tôi có thể nấu bữa sáng.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 早く起きれば、朝ご飯を作れる。; mẫu V thể ば diễn đạt Nếu.",
+      "goal": "JLPT",
+      "grammar_id": "JG-31b901048d",
+      "id": "LP-GRAMC-N3-C21-31b901048d-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "朝ご飯を",
+       "作れる。",
+       "早く起きれば、"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V thể ば",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-31b901048d"
+  },
+  {
+   "answer": null,
+   "context": {
+    "examples": [
+     {
+      "ja": "買い物に行くついでに、郵便局にも寄ります。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Tiện thể — Nhân lúc làm việc chính thì làm luôn việc phụ.",
+    "pattern": "V từ điển / V-た / N の + ついでに",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "散歩のついでに、パンを買った。",
+      "answer_vi": "Nhân tiện đi dạo, tôi mua bánh mì.",
+      "chapter": 21,
+      "context_vi": "Trong tình huống: Nhân tiện đi dạo, tôi mua bánh mì.",
+      "correct_index": 1,
+      "correct_order": null,
+      "explanation_vi": "ついでに diễn đạt Tiện thể. 最中に và おかげで không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-f11ede25be",
+      "id": "LP-GRAMC-N3-C21-f11ede25be-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "ついでに",
+       "最中に",
+       "おかげで",
+       "かわりに"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V từ điển / V-た / N の + ついでに",
+      "prompt_ja": "散歩の[ ]、パンを買った。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "買い物のついでに郵便局へ寄った。",
+      "answer_vi": "Nhân tiện mua đồ, tôi ghé bưu điện.",
+      "chapter": 21,
+      "context_vi": "Sắp xếp câu để diễn đạt: Nhân tiện mua đồ, tôi ghé bưu điện.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 買い物のついでに郵便局へ寄った。; mẫu V từ điển / V-た / N の + ついでに diễn đạt Tiện thể.",
+      "goal": "JLPT",
+      "grammar_id": "JG-f11ede25be",
+      "id": "LP-GRAMC-N3-C21-f11ede25be-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "郵便局へ",
+       "寄った。",
+       "買い物のついでに"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V từ điển / V-た / N の + ついでに",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-f11ede25be"
+  }
+ ],
+ "kind": "GRAMMAR_BANK",
+ "level": "N3",
+ "packet_id": "GRAMMAR_BANK-059"
+}
