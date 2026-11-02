@@ -32,8 +32,8 @@
       : '<i class="fa-solid ' + (detail.contentType === 'SHADOWING_VIDEO' ? 'fa-film' : 'fa-layer-group') + '"></i>';
     var badges = '<span class="cm-badge">' + UI.esc(detail.contentTypeLabel) + '</span>';
     if (detail.jlptLevel) badges += '<span class="cm-badge cm-badge--level">' + UI.esc(detail.jlptLevel) + '</span>';
-    if (detail.extra && detail.extra.cardCount != null) badges += '<span class="cm-badge cm-badge--soft">' + detail.extra.cardCount + ' thẻ</span>';
-    if (detail.status !== 'PUBLISHED') badges += '<span class="cm-badge cm-badge--warn">' + statusLabel(detail.status) + '</span>';
+    if (detail.extra && detail.extra.cardCount != null) badges += '<span class="cm-badge cm-badge--soft">' + Number(detail.extra.cardCount) + ' thẻ</span>';
+    if (detail.status !== 'PUBLISHED') badges += '<span class="cm-badge cm-badge--warn">' + UI.esc(statusLabel(detail.status)) + '</span>';
     el('cmBadges').innerHTML = badges;
     el('cmTitle').textContent = detail.title;
     el('cmAuthor').innerHTML = detail.author
@@ -65,7 +65,7 @@
   // ── Đánh giá ───────────────────────────────────────────────────────────
   function renderRating() {
     el('cmRatingSummary').innerHTML = UI.stars(detail.ratingAvg) + ' <b>' + Number(detail.ratingAvg || 0).toFixed(1) +
-      '</b>/5 · ' + detail.ratingCount + ' lượt đánh giá';
+      '</b>/5 · ' + Number(detail.ratingCount || 0) + ' lượt đánh giá';
     var starsBox = el('cmStars');
     var hint = el('cmRateHint');
     var html = '';
@@ -120,7 +120,7 @@
     var label = '';
     if (c.status === 'TEMPORARILY_HIDDEN') label = '<span class="cm-badge cm-badge--warn">Đang bị ẩn</span>';
     if (c.status === 'REMOVED') label = '<span class="cm-badge cm-badge--danger">Đã gỡ</span>';
-    return '<li class="cm-comment' + (c.hidden ? ' is-hidden' : '') + '" data-id="' + c.id + '">' +
+    return '<li class="cm-comment' + (c.hidden ? ' is-hidden' : '') + '" data-id="' + Number(c.id) + '">' +
       UI.avatar(c.author) +
       '<div class="cm-comment__main">' +
         '<div class="cm-comment__head"><b>' + UI.esc(c.author ? c.author.displayName : '') + '</b>' +

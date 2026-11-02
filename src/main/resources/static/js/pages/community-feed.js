@@ -64,11 +64,11 @@
           '<h2 class="cm-card__title">' + UI.esc(item.title) + '</h2>' +
           (item.description ? '<p class="cm-card__desc">' + UI.esc(item.description) + '</p>' : '') +
           '<div class="cm-card__meta">' +
-            '<span>' + UI.stars(item.ratingAvg) + ' <b>' + Number(item.ratingAvg || 0).toFixed(1) + '</b> (' + item.ratingCount + ')</span>' +
-            '<span><i class="fa-regular fa-comment" aria-hidden="true"></i> ' + item.commentCount + '</span>' +
+            '<span>' + UI.stars(item.ratingAvg) + ' <b>' + Number(item.ratingAvg || 0).toFixed(1) + '</b> (' + Number(item.ratingCount || 0) + ')</span>' +
+            '<span><i class="fa-regular fa-comment" aria-hidden="true"></i> ' + Number(item.commentCount || 0) + '</span>' +
           '</div>' +
           '<p class="cm-card__author"><i class="fa-regular fa-user" aria-hidden="true"></i> ' + author +
-            (item.myRating ? ' · <span class="cm-mine">Bạn đã chấm ' + item.myRating + '★</span>' : '') + '</p>' +
+            (item.myRating ? ' · <span class="cm-mine">Bạn đã chấm ' + Number(item.myRating) + '★</span>' : '') + '</p>' +
         '</div>' +
       '</a>' +
     '</article>';
