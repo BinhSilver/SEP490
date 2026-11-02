@@ -322,6 +322,8 @@
             '<a id="' + ids.gameLink + '" href="/games" title="Chơi game luyện tiếng Nhật">' +
               '<i id="' + ids.gameIcon + '" aria-hidden="true"></i><span id="' + ids.gameLabel + '">Game</span>' +
             '</a>' +
+            // [JLAS2-37] Community Hub: nội dung cộng đồng công khai (đánh giá, bình luận, báo cáo).
+            '<a id="jlabBaseCommunityLink" href="/community" title="Nội dung cộng đồng chia sẻ">' + icon('', 'message') + '<span>Cộng đồng</span></a>' +
             '<div id="' + ids.toolsWrapper + '" class="dropdown nav-tools-dropdown">' +
               '<button id="' + ids.toolsButton + '" class="nav-tools-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="' + ids.toolsMenu + '">' +
                 '<i id="' + ids.toolsIcon + '" aria-hidden="true"></i><span id="' + ids.toolsLabel + '">Công cụ</span><i id="' + ids.toolsChevron + '" aria-hidden="true"></i>' +
