@@ -27,7 +27,7 @@ const INSTRUCTIONS = {
   GRAMMAR_PARENT: 'parent_id: id một mẫu CHÍNH (MAIN) cùng chức năng; chọn trong context.candidates, không hợp thì chọn trong header.mains. Mẫu phụ được học ở cuối bài của mẫu chính đó.',
   GRAMMAR_BANK: 'check_bank ≥ 8 câu, mỗi dạng FILL/ORDER_STAR/MEANING/ERROR ≥ 2: {type, prompt_ja, options[4], answer_index, explanation_vi}; order_items 2 {pieces[], answer_order[]}; fill_items 2 {sentence_ja với ＿＿, answer}; extra_practice 3 (cùng dạng check_bank). Đáp án nhiễu không được cũng đúng.'
 };
-const REVIEW_INSTRUCTION = 'verdict: {"ok": true} nếu mục đúng; sai thì {"fix": {<trường>: <giá trị mới>}, "note": "lý do ngắn"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một "twins" là cùng một từ thì thêm "same_word_as": "<id twin>"; (ngữ pháp: sửa mẫu bằng "fix": {"pattern": "〜…"}, mẫu trùng một mẫu khác thì thêm "same_pattern_as": "<id>"); mục bị ghép nhầm với một từ khác thì thêm "not_same_word_as": "<id từ kia>" hoặc "drop_variant": "<cách viết sai>" (bỏ một cách viết thuộc từ khác khỏi "variants").';
+const REVIEW_INSTRUCTION = 'verdict: {"ok": true} nếu mục đúng; sai thì {"fix": {<trường>: <giá trị mới>}, "note": "lý do ngắn"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một "twins" là cùng một từ thì thêm "same_word_as": "<id twin>"; (ngữ pháp: sửa mẫu bằng "fix": {"pattern": "〜…"}, mẫu trùng một mẫu khác thì thêm "same_pattern_as": "<id>"); mục bị ghép nhầm với một từ khác thì thêm "not_same_word_as": "<id từ kia>" hoặc "drop_variant": "<cách viết sai>" (bỏ một cách viết thuộc từ khác khỏi "variants"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm "drop_example": "<câu ja>"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong "fix.examples" kèm ja_furigana.';
 for (const k of ['REVIEW_VOCAB', 'REVIEW_KANJI', 'REVIEW_GRAMMAR']) INSTRUCTIONS[k] = REVIEW_INSTRUCTION;
 // A SECONDARY grammar pattern (split level, N3) has light content only: meaning, formation, 1–2 examples.
 const SECONDARY_TEXT = ['meaning_vi', 'formation'];
@@ -258,10 +258,18 @@ function applyFix(item, field, value, log) {
   else if (field === 'examples') {
     if (!Array.isArray(value) || !value.length) return;
     // Reviewed sentences stay (first); the review's own sentences replace the rest.
-    const kept = item.examples.filter(e => reviewed(e.source));
+    // Reviewed sentences stay as written; an echo of one may only add the furigana it lacks (spelling the same text).
+    const kept = item.examples.filter(e => reviewed(e.source)).map(e => {
+      const echo = value.find(v => v?.ja === e.ja && v.ja_furigana && stripFurigana(v.ja_furigana) === e.ja);
+      return !e.ja_furigana && echo ? { ...e, ja_furigana: echo.ja_furigana } : e;
+    });
     const fresh = value.filter(e => e?.ja && !kept.some(k => k.ja === e.ja)).map(e => ({ ja: e.ja, ja_furigana: e.ja_furigana ?? null,
       vi: e.vi ?? null, source: item.examples.find(o => o.ja === e.ja)?.source ?? 'AI' }));
     item.examples = [...kept, ...fresh].slice(0, 3).map((e, i) => ({ ...e, role: i === 0 ? 'MAIN' : 'EXTRA' }));
+    // The same sentences as before keep their order (a furigana-only echo moves no sentence, so no audio moves).
+    const order = (before ?? []).map(e => e.ja);
+    if (item.examples.length === order.length && item.examples.every(e => order.includes(e.ja)))
+      item.examples = order.map(ja => item.examples.find(e => e.ja === ja)).map((e, i) => ({ ...e, role: i === 0 ? 'MAIN' : 'EXTRA' }));
     item.provenance.example_source = item.examples[0]?.source ?? null;
     for (const e of before ?? []) if (!item.examples.some(n => n.ja === e.ja)) log.dropped.push({ id: item.id, ja: e.ja, vi: e.vi ?? null, source: e.source });
   } else if (field === 'pattern') {
@@ -283,6 +291,21 @@ function applyFix(item, field, value, log) {
       values: [{ source: beforeSource, value: before }, { source: 'AI', value: structuredClone(item[field]) }] });
 }
 
+const stripFurigana = text => String(text).replace(/[(（][^)）]*[)）]/g, '');
+
+// drop_example: sentences a review rules wrong (any source, reviewed ones included) leave the item; logged like a fix.
+function dropExamples(item, sentences, log) {
+  const gone = new Set([].concat(sentences ?? []).filter(Boolean));
+  if (!gone.size || !item.examples?.some(e => gone.has(e.ja))) return;
+  const before = structuredClone(item.examples), beforeSource = sourceOf(item, 'examples');
+  item.examples = item.examples.filter(e => !gone.has(e.ja)).map((e, i) => ({ ...e, role: i === 0 ? 'MAIN' : 'EXTRA' }));
+  item.provenance.example_source = item.examples[0]?.source ?? null;
+  for (const e of before) if (gone.has(e.ja)) log.dropped.push({ id: item.id, ja: e.ja, vi: e.vi ?? null, source: e.source });
+  item.provenance.fixed_fields = [...new Set([...(item.provenance.fixed_fields ?? []), 'examples'])].sort();
+  log.conflicts.push({ kind: 'REVIEW_FIX', id: item.id, field: 'examples', chosen: 'AI',
+    values: [{ source: beforeSource, value: before }, { source: 'AI', value: structuredClone(item.examples) }] });
+}
+
 export function applyPackets(level, packets) {
   const out = structuredClone(level);
   const log = { conflicts: [], dropped: [], unlinked: new Set() };
@@ -293,6 +316,7 @@ export function applyPackets(level, packets) {
     if (!answer) continue;
     if (REVIEW_KINDS.has(p.kind)) {
       const item = byId.get(id);
+      if (item && answer.drop_example) dropExamples(item, answer.drop_example, log);
       // An explicit [] clears an array field (junk alternative readings, wrong confusables); other empties are ignored.
       if (item && answer.fix) for (const f of FIXABLE[p.kind]) if (!empty(answer.fix[f]) || (ARRAY_FIELDS.has(f) && Array.isArray(answer.fix[f])))
         applyFix(item, f, answer.fix[f], log);
