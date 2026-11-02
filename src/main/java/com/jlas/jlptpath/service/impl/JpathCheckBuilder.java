@@ -47,11 +47,12 @@ public class JpathCheckBuilder {
     /**
      * Server-only answer of one question. MCQ: {@code correct} option id; board: {@code pairs} left → right id and
      * {@code pairItems} left id → item code; {@code accepts} = FILL_TEXT synonyms ({@code accept_json}), empty
-     * otherwise.
+     * otherwise; {@code audioPath} = AUDIO_MCQ file under the content audio store, served only through the check's
+     * token + {@code audioSlot} (never sent: the file name is the item code).
      */
     public record AnswerKey(String correct, Map<String, String> pairs, List<String> order, String text,
                             List<String> accepts, JpathItemType itemType, String itemCode,
-                            Map<String, String> pairItems, String explanation) {
+                            Map<String, String> pairItems, String explanation, String audioPath) {
     }
 
     /**
@@ -123,7 +124,8 @@ public class JpathCheckBuilder {
     }
 
     /**
-     * clamp(2n, 4, 10) questions; question i asks pattern i % n in form FILL, ORDER_STAR, MEANING, ERROR [i % 4].
+     * clamp(2n, 4, 10) questions; question i asks pattern i % n in form FILL, ORDER_STAR, MEANING, ERROR
+     * [(i + i / n) % 4] (each round shifts the forms, so a pattern never gets the same form twice by rotation).
      * Choice per slot: same form not in {@code usedCodes} → another form not used → same form used before → any
      * form used before; a question never repeats within one check, and a slot with nothing left is dropped.
      *
@@ -155,7 +157,7 @@ public class JpathCheckBuilder {
         List<String> covered = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             JpathGrammar g = patterns.get(i % patterns.size());
-            String form = GRAMMAR_FORMS.get(i % GRAMMAR_FORMS.size());
+            String form = GRAMMAR_FORMS.get((i + i / patterns.size()) % GRAMMAR_FORMS.size());
             List<Mcq> left = valid.get(g.getCode()).stream().filter(m -> !chosen.contains(m.q.getCode())).toList();
             Mcq pick = first(left, m -> form.equals(m.q.getQuestionType()) && !used.contains(m.q.getCode()));
             if (pick == null) {
@@ -191,7 +193,7 @@ public class JpathCheckBuilder {
             d.add(qid -> new JpathQuestionView(qid, MCQ, null, instruction, q.getPromptJa(), q.getPromptFurigana(),
                             null, options, null, timer),
                     new AnswerKey(correct, null, null, null, List.of(), JpathItemType.GRAMMAR, g.getCode(), null,
-                            q.getExplanationVi()));
+                            q.getExplanationVi(), null));
         }
         return new BuiltCheck(d.questions, d.answers, covered);
     }
@@ -272,7 +274,7 @@ public class JpathCheckBuilder {
             String kind = audio ? AUDIO_MCQ : dir.name();
             List<Card> order = priority.stream()
                     .filter(c -> !asked.contains(c.code + "|" + kind))
-                    .filter(c -> !audio || c.audioUrl() != null)
+                    .filter(c -> !audio || c.hasAudio())
                     .sorted(Comparator.comparingInt(c -> uses.getOrDefault(c.code, 0)))
                     .toList();
             for (Card c : order) {
@@ -380,6 +382,7 @@ public class JpathCheckBuilder {
         private final Map<String, AnswerKey> answers = new LinkedHashMap<>();
         private final Set<String> asked = new LinkedHashSet<>();
         private int boards;
+        private int audioSlots;
 
         void add(ViewMaker view, AnswerKey key) {
             String id = "q" + (questions.size() + 1);
@@ -412,7 +415,7 @@ public class JpathCheckBuilder {
             JpathBoardView board = new JpathBoardView("b" + (++boards), List.copyOf(leftViews),
                     List.copyOf(rightViews));
             add(qid -> new JpathQuestionView(qid, PAIR_BOARD, null, instruction, null, null, null, null, board, null),
-                    new AnswerKey(null, pairs, null, null, List.of(), type, null, pairItems, null));
+                    new AnswerKey(null, pairs, null, null, List.of(), type, null, pairItems, null, null));
         }
 
         void mcq(Card answer, List<Card> distractors, JpathQuizDirection dir, boolean audio, Integer timer,
@@ -437,13 +440,15 @@ public class JpathCheckBuilder {
                     : (kanji ? "Chọn chữ Hán đúng với nghĩa" : "Chọn từ đúng với nghĩa");
             String prompt = audio ? null : viLabels ? answer.ja : answer.vi;
             String furigana = audio || !viLabels ? null : answer.furigana;
-            String audioUrl = audio ? answer.audioUrl() : null;
+            Integer audioSlot = audio ? ++audioSlots : null;
+            String audioPath = audio ? answer.audioPath : null;
             String type = audio ? AUDIO_MCQ : MCQ;
             String direction = audio ? null : dir.name();
             List<JpathOptionView> frozen = List.copyOf(options);
-            add(qid -> new JpathQuestionView(qid, type, direction, instruction, prompt, furigana, audioUrl, frozen,
+            add(qid -> new JpathQuestionView(qid, type, direction, instruction, prompt, furigana, audioSlot, frozen,
                             null, timer),
-                    new AnswerKey(correct, null, null, null, List.of(), answer.type, answer.code, null, null));
+                    new AnswerKey(correct, null, null, null, List.of(), answer.type, answer.code, null, null,
+                            audioPath));
         }
 
         /** Item codes that appear in a question, in input order. */
@@ -464,8 +469,9 @@ public class JpathCheckBuilder {
                     || same(normExpr, o.normExpr) || same(normRead, o.normRead);
         }
 
-        String audioUrl() {
-            return JpathAudio.url(audioPath, null);
+        /** A safe audio path exists (the same check the play URL uses). */
+        boolean hasAudio() {
+            return JpathAudio.url(audioPath, null) != null;
         }
 
         private static boolean same(String a, String b) {
