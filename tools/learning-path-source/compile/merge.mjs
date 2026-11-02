@@ -413,12 +413,25 @@ function kanjiItems({ frames, jlasLevels, dictionary }, level, vocabPool) {
 const wordChars = s => [...s].filter(c => JAPANESE.test(c)).join('');
 function commonPrefixLength(a, b) { let n = 0; while (n < a.length && n < b.length && a[n] === b[n]) n++; return n; }
 
-function grammarItems({ frames, jlasLevels }, level) {
-  const byFamily = new Map();
+// A review may fix a J-LAS pattern (typos, Vietnamese labels) before families form, and join duplicate patterns
+// (same_pattern_as): the named family absorbs the other, whose ids stay as merged ids.
+function grammarItems({ frames, jlasLevels }, level, { grammarPattern = new Map(), samePattern = [] } = {}) {
+  let byFamily = new Map();
   const take = fam => { if (!byFamily.has(fam)) byFamily.set(fam, { mirai: [], jlas: [] }); return byFamily.get(fam); };
   for (const l of LEVELS) {
     for (const f of frames[l]?.grammar ?? []) take(grammarFamilyKey(f.pattern)).mirai.push({ level: l, ...f });
-    for (const g of jlasLevels[l]?.grammar ?? []) take(grammarFamilyKey(g.pattern)).jlas.push({ level: l, ...g });
+    for (const g of jlasLevels[l]?.grammar ?? []) { const pattern = grammarPattern.get(g.id) ?? g.pattern;
+      take(grammarFamilyKey(pattern)).jlas.push({ level: l, ...g, pattern }); }
+  }
+  if (samePattern.length) {
+    const familyOf = id => { for (const [fam, g] of byFamily) if (g.jlas.some(j => j.id === id) || `JG-${sha256(`LP|${fam}`).slice(0, 10)}` === id) return fam; return null; };
+    for (const [a, b] of samePattern) {
+      const [from, into] = [familyOf(a), familyOf(b)];
+      if (!from || !into || from === into) continue;
+      const g = byFamily.get(from), t = byFamily.get(into);
+      t.mirai.push(...g.mirai); t.jlas.push(...g.jlas); t.absorbed = [...(t.absorbed ?? []), ...(g.jlas.length ? [] : [from]), ...(g.absorbed ?? [])];
+      byFamily.delete(from);
+    }
   }
   const families = [];
   for (const [family, g] of byFamily) {
@@ -432,7 +445,8 @@ function grammarItems({ frames, jlasLevels }, level) {
     const id = j?.id ?? `JG-${sha256(`LP|${f.family}`).slice(0, 10)}`;
     const patterns = [...new Set([...f.jlas, ...f.mirai].map(x => normalizeGrammarPattern(x.pattern)))];
     const pattern = normalizeGrammarPattern(j?.pattern ?? m.pattern);
-    const merged = f.jlas.map(x => x.id).filter(x => x !== id).map(x => ({ id: x, into: id }));
+    const merged = [...f.jlas.map(x => x.id), ...(f.absorbed ?? []).map(fam => `JG-${sha256(`LP|${fam}`).slice(0, 10)}`)]
+      .filter((x, i, all) => x !== id && all.indexOf(x) === i).map(x => ({ id: x, into: id }));
     return { family: f.family, merged, mirai: m?.level === level ? m : null, position: j?.position ?? 1, item: {
       id, level, pattern, pattern_variants: patterns.filter(p => p !== pattern), family_key: f.family,
       unit_no: m?.unit_no ?? 0, unit_title_vi: null, order: 0, meaning_vi: j?.meaning?.trim() || null, formation: null,
@@ -495,7 +509,7 @@ export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub, 
     return (a.tier === 'CORE' ? 0 : 1) - (b.tier === 'CORE' ? 0 : 1) || jlasPos.get(a.id) - jlasPos.get(b.id) || a.key.localeCompare(b.key);
   });
   vocabulary.forEach((v, i) => { v.order = i + 1; v.priority = i + 1; });
-  const grammar = grammarItems({ frames, jlasLevels }, level);
+  const grammar = grammarItems({ frames, jlasLevels }, level, corrections);
   // Same spelling and reading kept as two words (any level): homonyms, or synonyms the fit test missed — for review.
   const base = l => l.key.split('#')[0];
   const bySpelling = new Map();

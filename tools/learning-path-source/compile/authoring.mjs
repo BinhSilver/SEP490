@@ -7,7 +7,7 @@
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { LEVELS, ROOT, argValue, json, normalizeJapanese, readJson } from './util.mjs';
-import { formatMeaningVi } from './normalize.mjs';
+import { formatMeaningVi, grammarFamilyKey, normalizeGrammarPattern } from './normalize.mjs';
 import { toRomaji } from './merge.mjs';
 
 const BANK = { check_bank: 8, order_items: 2, fill_items: 2, extra_practice: 3 };
@@ -26,14 +26,14 @@ const INSTRUCTIONS = {
   GRAMMAR_UNIT: 'unit_no: số bài (theo header.units) phù hợp nhất; unit_title_vi tùy chọn.',
   GRAMMAR_BANK: 'check_bank ≥ 8 câu, mỗi dạng FILL/ORDER_STAR/MEANING/ERROR ≥ 2: {type, prompt_ja, options[4], answer_index, explanation_vi}; order_items 2 {pieces[], answer_order[]}; fill_items 2 {sentence_ja với ＿＿, answer}; extra_practice 3 (cùng dạng check_bank). Đáp án nhiễu không được cũng đúng.'
 };
-const REVIEW_INSTRUCTION = 'verdict: {"ok": true} nếu mục đúng; sai thì {"fix": {<trường>: <giá trị mới>}, "note": "lý do ngắn"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một "twins" là cùng một từ thì thêm "same_word_as": "<id twin>"; mục bị ghép nhầm với một từ khác thì thêm "not_same_word_as": "<id từ kia>" hoặc "drop_variant": "<cách viết sai>" (bỏ một cách viết thuộc từ khác khỏi "variants").';
+const REVIEW_INSTRUCTION = 'verdict: {"ok": true} nếu mục đúng; sai thì {"fix": {<trường>: <giá trị mới>}, "note": "lý do ngắn"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một "twins" là cùng một từ thì thêm "same_word_as": "<id twin>"; (ngữ pháp: sửa mẫu bằng "fix": {"pattern": "〜…"}, mẫu trùng một mẫu khác thì thêm "same_pattern_as": "<id>"); mục bị ghép nhầm với một từ khác thì thêm "not_same_word_as": "<id từ kia>" hoặc "drop_variant": "<cách viết sai>" (bỏ một cách viết thuộc từ khác khỏi "variants").';
 for (const k of ['REVIEW_VOCAB', 'REVIEW_KANJI', 'REVIEW_GRAMMAR']) INSTRUCTIONS[k] = REVIEW_INSTRUCTION;
 
 // Fields a review may correct; a value from a reviewed source (…_REVIEWED provenance) is never replaced.
 const FIXABLE = {
   REVIEW_VOCAB: ['expression', 'reading', 'meaning_vi', 'word_type_label', 'topic_key', 'topic_vi', 'examples', 'mnemonic_vi', 'confusable_ids', 'variants'],
   REVIEW_KANJI: ['han_viet', 'han_viet_alt', 'meanings_vi', 'mnemonic_vi', 'confusable_ids'],
-  REVIEW_GRAMMAR: [...GRAMMAR_TEXT, 'examples', 'unit_no', 'unit_title_vi', ...Object.keys(BANK)]
+  REVIEW_GRAMMAR: ['pattern', ...GRAMMAR_TEXT, 'examples', 'unit_no', 'unit_title_vi', ...Object.keys(BANK)]
 };
 const REVIEW_KINDS = new Set(Object.keys(FIXABLE));
 const SOURCE_OF = { meaning_vi: 'meaning_source', meanings_vi: 'meaning_source', word_type_label: 'word_type_source', examples: 'example_source' };
@@ -139,6 +139,11 @@ export function emitReviewPackets(level, dir, opts = {}) {
 // Mirai words, which carry no id before the merge).
 export function reviewCorrections(packets) {
   const identity = new Map(), identityByForm = new Map(), sameWord = [], notSameWord = [], dropVariant = new Map();
+  const grammarPattern = new Map(), samePattern = [];
+  for (const p of packets.filter(p => p.kind === 'REVIEW_GRAMMAR')) for (const { id, answer } of p.items) {
+    if (!empty(answer?.fix?.pattern)) grammarPattern.set(id, answer.fix.pattern);
+    if (answer?.same_pattern_as) samePattern.push([id, answer.same_pattern_as]);
+  }
   for (const p of packets.filter(p => p.kind === 'REVIEW_VOCAB')) for (const { id, context, answer } of p.items) {
     const fix = Object.fromEntries(['expression', 'reading'].filter(f => !empty(answer?.fix?.[f])).map(f => [f, answer.fix[f]]));
     if (Object.keys(fix).length) {
@@ -150,7 +155,7 @@ export function reviewCorrections(packets) {
     const dropped = [].concat(answer?.drop_variant ?? []).filter(Boolean);
     if (dropped.length) dropVariant.set(id, new Set([...(dropVariant.get(id) ?? []), ...dropped]));
   }
-  return { identity, identityByForm, sameWord, notSameWord, dropVariant };
+  return { identity, identityByForm, sameWord, notSameWord, dropVariant, grammarPattern, samePattern };
 }
 
 // Corrections are global: a review at one level (N5 どなた same_word_as a J-LAS N4 word) also moves or fixes the word
@@ -223,6 +228,9 @@ function applyFix(item, field, value, log) {
     item.examples = [...kept, ...fresh].slice(0, 3).map((e, i) => ({ ...e, role: i === 0 ? 'MAIN' : 'EXTRA' }));
     item.provenance.example_source = item.examples[0]?.source ?? null;
     for (const e of before ?? []) if (!item.examples.some(n => n.ja === e.ja)) log.dropped.push({ id: item.id, ja: e.ja, vi: e.vi ?? null, source: e.source });
+  } else if (field === 'pattern') {
+    item.pattern = normalizeGrammarPattern(value);
+    item.family_key = grammarFamilyKey(value);
   } else if (field === 'expression' || field === 'reading') {
     item[field] = value;
     item[`normalized_${field}`] = normalizeJapanese(value);
