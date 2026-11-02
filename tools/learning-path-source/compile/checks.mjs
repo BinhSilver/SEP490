@@ -2,7 +2,8 @@
 import { LEVEL_RANK, normalizeJapanese } from './util.mjs';
 import { formatMeaningVi } from './normalize.mjs';
 
-export const WARNING_CODES = new Set(['FURIGANA_MISSING', 'RADICAL_NAME_MISSING', 'SAME_SPELLING', 'EXAMPLE_KANA_ABOVE_LEVEL']);
+export const WARNING_CODES = new Set(['FURIGANA_MISSING', 'RADICAL_NAME_MISSING', 'SAME_SPELLING', 'EXAMPLE_KANA_ABOVE_LEVEL',
+  'EXAMPLE_ABOVE_LEVEL_SOURCE']);
 const EXAMPLE_LENGTH = { N5: [8, 25], N4: [8, 32], N3: [8, 40], N2: [8, 48], N1: [8, 56] };
 const BANK_TYPES = ['FILL', 'ORDER_STAR', 'MEANING', 'ERROR'];
 const HAS_KANJI = /[一-龯々]/;
@@ -136,19 +137,31 @@ export const isAiSource = source => source === 'AI' || source === 'CLAUDE';
 const aiFields = x => x.provenance?.ai_fields ?? x.provenance?.claude_fields ?? [];
 const ownMeaning = item => isAiSource(item.provenance?.meaning_source);
 
+// First Mirai example (any level) more than 70% alike; lengths too far apart cannot pass the Dice test.
+function similarToAny(ctx, text) {
+  const x = plain(text);
+  if (x.length < 6) return null;
+  return (ctx.miraiExamples ?? []).find(r => { const y = plain(r);
+    return y.length >= 6 && 2 * Math.min(x.length, y.length) / (x.length + y.length) > 0.7 && similarity(r, text) > 0.7; }) ?? null;
+}
+
 function checkExamples(item, examples, minCount, level, ctx, err, warn) {
   if (examples.length < minCount) err('EXAMPLE_MISSING', `${examples.length}/${minCount}`);
   for (const [i, e] of examples.entries()) {
     if (!e.vi) err('EXAMPLE_TRANSLATION_MISSING', e.ja);
     if (e.ja_furigana && stripFurigana(e.ja_furigana) !== e.ja) err('FURIGANA_MISMATCH', e.ja);
     if (!e.ja_furigana && HAS_KANJI.test(e.ja)) warn('FURIGANA_MISSING', e.ja);
-    if (!isAiSource(e.source)) continue;
     const above = wordsAbove(e.ja, ctx, level, ownWords(item));
+    // Book, VNJPClub and reviewed sentences are not rewritten here: above-level words in them only warn.
+    if (!isAiSource(e.source)) {
+      if (above.kanji.length) warn('EXAMPLE_ABOVE_LEVEL_SOURCE', `${e.ja} → ${above.kanji.join(',')}`);
+      continue;
+    }
     if (above.kanji.length) err('EXAMPLE_ABOVE_LEVEL', `${e.ja} → ${above.kanji.join(',')}`);
     if (above.kana.length) warn('EXAMPLE_KANA_ABOVE_LEVEL', `${e.ja} → ${above.kana.join(',')}`);
     const len = e.ja.replace(/\s/g, '').length, [min, max] = EXAMPLE_LENGTH[level];
     if (len < min || len > max) err('EXAMPLE_LENGTH', `${len}: ${e.ja}`);
-    const ref = ctx.miraiExamples?.find(r => similarity(r, e.ja) > 0.7);
+    const ref = similarToAny(ctx, e.ja);
     // The detail names the field only: Mirai text must never reach a report or a review packet.
     if (ref) err('MIRAI_SIMILAR', `example #${i + 1}`);
   }
@@ -192,8 +205,9 @@ export function runChecks(compiled, ctx) {
     if (!v.word_type_label) err('WORD_TYPE_MISSING', v.key);
     if (!v.mnemonic_vi) err('MNEMONIC_MISSING', v.key);
     checkExamples(v, v.examples, 1, level, ctx, err, warn);
-    const ref = ctx.miraiReference.get(v.key);
-    if (ref?.meaning_vi && ownMeaning(v) && similarity(ref.meaning_vi, v.meaning_vi) > 0.7) err('MIRAI_SIMILAR', 'meaning');
+    // Every spelling of the word against Mirai's word read the same way.
+    const refs = [v.expression, ...(v.variants ?? [])].map(e => ctx.miraiReference.get(`${normalizeJapanese(e)}|${v.normalized_reading}`)).filter(Boolean);
+    if (ownMeaning(v) && refs.some(r => r.meaning_vi && similarity(r.meaning_vi, v.meaning_vi) > 0.7)) err('MIRAI_SIMILAR', 'meaning');
   }
   for (const k of compiled.kanji) {
     const { err, warn } = sink(k.id);
@@ -205,6 +219,8 @@ export function runChecks(compiled, ctx) {
   for (const g of compiled.grammar) {
     const { err, warn } = sink(g.id);
     if (!g.meaning_vi) err('MEANING_FORMAT', g.pattern);
+    const gref = ctx.miraiGrammar?.get(g.family_key);
+    if (gref && ownMeaning(g) && similarity(gref, g.meaning_vi) > 0.7) err('MIRAI_SIMILAR', 'meaning');
     if (['formation', 'usage_vi', 'nuance_vi', 'common_mistakes_vi'].some(f => !g[f])) err('GRAMMAR_CORE_MISSING', g.pattern);
     if (!g.unit_no) err('UNIT_MISSING', g.pattern);
     checkExamples(g, g.examples, 3, level, ctx, err, warn);
