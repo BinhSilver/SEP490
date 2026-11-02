@@ -125,7 +125,11 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const inputs = loadCompileInputs();
   const { ok, result, compiled, blockingNonDraft, corrections } = buildLevel(level, { inputs, check, outFile, reportDir });
   if (argv.includes('--emit-review')) {
-    const written = emitReviewPackets(compiled, authoringDir(level), { extra: reviewExtra(inputs, compiled, result, corrections) });
+    // --review-ids <file.json>: a JSON array of ids to review again (covered or not); --review-size: items per packet.
+    const idsFile = argValue(argv, '--review-ids');
+    const size = argValue(argv, '--review-size');
+    const written = emitReviewPackets(compiled, authoringDir(level), { extra: reviewExtra(inputs, compiled, result, corrections),
+      ...(idsFile ? { ids: readJson(idsFile) } : {}), ...(size ? { size: Number(size) } : {}) });
     console.log(`${level}: ${written.length} review packets written`);
   }
   const errorsJson = argValue(argv, '--errors-json');

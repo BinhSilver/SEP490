@@ -151,12 +151,15 @@ export function buildReviewPackets(level, { size = 40, sizeByKind = { REVIEW_GRA
     context: { ...reviewContext[kind](x), locked_fields: lockedFields(x), ...extra(kind, x) } })), sizeByKind[kind] ?? size).map((c, i) => toPacket(kind, i + 1, level, c)));
 }
 
-// Review packets for items no review packet covers yet; existing files are never rewritten.
-export function emitReviewPackets(level, dir, opts = {}) {
+// Review packets for items no review packet covers yet; existing files are never rewritten. `ids` instead picks
+// exactly those items, covered ones included (a later pass on items whose word changed); the newer packet applies last.
+export function emitReviewPackets(level, dir, { ids = null, ...opts } = {}) {
   const existing = readPackets(dir).filter(p => REVIEW_KINDS.has(p.kind));
   const present = new Set(existing.flatMap(p => p.items.map(i => `${p.kind}|${i.id}`)));
-  const fresh = { ...level, vocabulary: level.vocabulary.filter(v => !present.has(`REVIEW_VOCAB|${v.id}`)),
-    kanji: level.kanji.filter(k => !present.has(`REVIEW_KANJI|${k.id}`)), grammar: level.grammar.filter(g => !present.has(`REVIEW_GRAMMAR|${g.id}`)) };
+  const wanted = ids ? new Set(ids) : null;
+  const pick = kind => x => wanted ? wanted.has(x.id) : !present.has(`${kind}|${x.id}`);
+  const fresh = { ...level, vocabulary: level.vocabulary.filter(pick('REVIEW_VOCAB')),
+    kanji: level.kanji.filter(pick('REVIEW_KANJI')), grammar: level.grammar.filter(pick('REVIEW_GRAMMAR')) };
   const lastNumber = kind => Math.max(0, ...existing.filter(p => p.kind === kind).map(p => Number(p.packet_id.slice(-3))));
   const offset = Object.fromEntries([...REVIEW_KINDS].map(k => [k, lastNumber(k)]));
   mkdirSync(dir, { recursive: true });
