@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 
 /**
- * Thông báo của Community, chỉ gửi cho người liên quan: chủ nội dung khi có bình luận mới, chủ bình luận khi
- * bình luận bị báo cáo. Không bao giờ nêu ai là người báo cáo. Chạy trong transaction của thao tác gốc nên
+ * Thông báo của Community, chỉ gửi cho người liên quan: chủ nội dung khi có bình luận mới hoặc nội dung bị báo
+ * cáo, chủ bình luận khi bình luận bị báo cáo. Không bao giờ nêu ai là người báo cáo. Chạy trong transaction của thao tác gốc nên
  * thao tác bị rollback thì không gửi gì. Kết quả kiểm duyệt (gỡ / khôi phục) do ModerationNotifier gửi.
  */
 @Component
@@ -37,6 +37,21 @@ public class CommunityNotifier {
                 + (hidden ? " và đang tạm ẩn chờ kiểm duyệt viên xem xét." : ", kiểm duyệt viên sẽ xem xét.");
         notifications.notifyUser(commentOwnerId, ModerationNotifier.TYPE_CONTENT, "Bình luận của bạn bị báo cáo",
                 message, url(source), "COMMUNITY_COMMENT_REPORT_" + reportId);
+    }
+
+    /**
+     * Nội dung bị báo cáo: báo chủ nội dung ngay (cả bộ thẻ lẫn video Shadowing), không nêu người báo cáo.
+     * eventKey (không trả về FE) gồm người báo cáo để mỗi lượt báo cáo chỉ sinh một thông báo.
+     */
+    public void contentReported(CommunitySource source, Long reporterId, boolean hidden) {
+        Long ownerId = source.ownerId();
+        if (ownerId == null || Objects.equals(ownerId, reporterId)) return;
+        String label = CommunityContentType.label(source.contentType());
+        String message = label + " “" + clip(source.title()) + "” của bạn đã bị báo cáo"
+                + (hidden ? " và đang tạm ẩn chờ kiểm duyệt viên xem xét." : ", kiểm duyệt viên sẽ xem xét.");
+        notifications.notifyUser(ownerId, ModerationNotifier.TYPE_CONTENT, label + " của bạn bị báo cáo", message,
+                url(source), "COMMUNITY_CONTENT_REPORT_" + source.contentType() + "_" + source.contentId()
+                        + "_" + reporterId);
     }
 
     /** Dùng lại loại thông báo bình luận đã có để chuông/lịch sử hiện đúng icon. */

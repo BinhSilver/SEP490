@@ -72,6 +72,7 @@ public class CommunityReportService {
             }
             String note = StringUtils.hasText(request.note()) ? request.note().trim() : null;
             boolean hidden = sourceReports.get().report(target.source().contentId(), request.reason(), note);
+            notifier.contentReported(target.source(), viewerId, hidden);
             return new ReportResult(null, hidden, sourceReports.get().reportedMessage());
         }
         CommunityContent row = access.lockInteractable(target).row();
@@ -80,6 +81,7 @@ public class CommunityReportService {
         boolean hidden = reachedThreshold(ReportTargetType.CONTENT, row.getId());
         if (hidden) row.setStatus(CommunityStatus.TEMPORARILY_HIDDEN.name());
         contents.save(row);
+        notifier.contentReported(target.source(), viewerId, hidden);
         return new ReportResult(saved.getId(), hidden, null);
     }
 
