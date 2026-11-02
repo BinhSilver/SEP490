@@ -10,7 +10,7 @@ export const LIMITS = {
   'jpath_vocabulary.word_type_label': 40, 'jpath_vocabulary.mnemonic_vi': 500, 'jpath_vocabulary.audio_path': 255,
   'jpath_vocabulary.audio_sha256': 64, 'jpath_vocabulary.status': 12, 'jpath_vocabulary.seed_version': 16,
   'jpath_kanji.code': 24, 'jpath_kanji.level': 2, 'jpath_kanji.character': 4, 'jpath_kanji.han_viet': 40,
-  'jpath_kanji.meanings_vi': 255, 'jpath_kanji.radical_name_vi': 40, 'jpath_kanji.mnemonic_vi': 500,
+  'jpath_kanji.meanings_vi': 255, 'jpath_kanji.level_reading_source': 20, 'jpath_kanji.radical_name_vi': 40, 'jpath_kanji.mnemonic_vi': 500,
   'jpath_kanji.status': 12, 'jpath_kanji.seed_version': 16,
   'jpath_kanji_compound.kanji_code': 24, 'jpath_kanji_compound.vocab_code': 24,
   'jpath_grammar_unit.level': 2, 'jpath_grammar_unit.title_vi': 120,

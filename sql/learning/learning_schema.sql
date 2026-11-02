@@ -1307,6 +1307,9 @@ CREATE TABLE IF NOT EXISTS jpath_kanji (
     readings_on_json JSON NULL,
     readings_kun_json JSON NULL,
     level_readings_json JSON NULL,
+    -- [JLAS-W0108] Nguồn của level_readings (LEVEL_WORDS, DICTIONARY_WORDS, FIRST_READING…): FIRST_READING là cách đọc
+    -- đầu tiên chỉ để hiện trên thẻ, không đem ra hỏi trong bài kiểm cách đọc.
+    level_reading_source VARCHAR(20) NULL,
     stroke_count TINYINT UNSIGNED NULL,
     radical_number SMALLINT UNSIGNED NULL,
     radical_name_vi VARCHAR(40) NULL,
@@ -1798,3 +1801,13 @@ CREATE TABLE IF NOT EXISTS jpath_reminder_log (
     PRIMARY KEY (user_id, reminder_day),
     CONSTRAINT fk_jpath_reminder_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] Nâng cấp tại chỗ cho DB đã có bảng jpath_* từ trước (kiểm information_schema, chạy lại không đổi gì).
+-- jpath_kanji.level_reading_source (Plan 2 Task 9, sửa vòng 1).
+SET @jpath_ddl = (SELECT IF(COUNT(*) = 0,
+    'ALTER TABLE jpath_kanji ADD COLUMN level_reading_source VARCHAR(20) NULL AFTER level_readings_json', 'DO 0')
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'jpath_kanji' AND COLUMN_NAME = 'level_reading_source');
+PREPARE jpath_ddl_stmt FROM @jpath_ddl;
+EXECUTE jpath_ddl_stmt;
+DEALLOCATE PREPARE jpath_ddl_stmt;

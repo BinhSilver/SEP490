@@ -22,7 +22,7 @@ export const TABLES = {
   kanji: {
     sql: 'jpath_kanji', pk: ['code'], cc: true,
     cols: ['code', 'level', 'character', 'sort_order', 'han_viet', 'han_viet_alt_json', 'meanings_vi', 'readings_on_json',
-      'readings_kun_json', 'level_readings_json', 'stroke_count', 'radical_number', 'radical_name_vi', 'frequency',
+      'readings_kun_json', 'level_readings_json', 'level_reading_source', 'stroke_count', 'radical_number', 'radical_name_vi', 'frequency',
       'mnemonic_vi', 'dictionary_kanji_id', 'status', 'authored', 'seed_version'],
   },
   kanji_compound: { sql: 'jpath_kanji_compound', pk: ['kanji_code', 'vocab_code'], cols: ['kanji_code', 'vocab_code', 'sort_order'] },
@@ -150,11 +150,17 @@ function questionRows(g, seedVersion) {
   ];
 }
 
-function confusableRows(itemType, items, levelOf) {
+/**
+ * Pairs of this level's items, plus pairs that lower-level items point at this level's items: a pair is stored at the
+ * higher level, so this level's run (which deletes its pairs first) must write it back even when only the lower item lists it.
+ */
+function confusableRows(itemType, items, lowerItems, levelOf) {
   const pairs = new Map();
-  for (const item of items) {
+  const own = new Set(items.map((item) => item.id));
+  const sources = [...items.map((item) => [item, null]), ...lowerItems.map((item) => [item, own])];
+  for (const [item, onlyTo] of sources) {
     for (const other of item.confusable_ids ?? []) {
-      if (other === item.id) continue;
+      if (other === item.id || (onlyTo && !onlyTo.has(other))) continue;
       const otherLevel = levelOf(other);
       if (!otherLevel) continue;
       const [a, b] = item.id < other ? [item.id, other] : [other, item.id];
@@ -167,9 +173,10 @@ function confusableRows(itemType, items, levelOf) {
 
 /**
  * Compiled level JSON → the 9 content tables, each sorted by primary key. `audio` comes from loadAudio; `knownCodes`
- * (Map code → level, or a Set of codes of this level) limits confusable pairs to items that exist.
+ * (Map code → level, or a Set of codes of this level) limits confusable pairs to items that exist. `lowerLevels` = the
+ * compiled sources of lower levels: their confusable links to this level's items are written by this level's run too.
  */
-export function buildLevelRows(compiled, { seedVersion, audio = new Map(), knownCodes = new Map() } = {}) {
+export function buildLevelRows(compiled, { seedVersion, audio = new Map(), knownCodes = new Map(), lowerLevels = [] } = {}) {
   const level = compiled.level;
   const levelOf = (code) => (knownCodes instanceof Map ? knownCodes.get(code) : knownCodes.has(code) ? level : undefined);
   const vocab = compiled.vocabulary ?? [];
@@ -194,7 +201,8 @@ export function buildLevelRows(compiled, { seedVersion, audio = new Map(), known
     code: k.id, level: k.level, character: k.character, sort_order: k.order, han_viet: k.han_viet ?? null,
     han_viet_alt_json: jsonOrNull(k.han_viet_alt), meanings_vi: k.meanings_vi ?? null,
     readings_on_json: jsonOrNull(k.readings_on), readings_kun_json: jsonOrNull(k.readings_kun),
-    level_readings_json: jsonOrNull(k.level_readings), stroke_count: k.stroke_count ?? null,
+    level_readings_json: jsonOrNull(k.level_readings), level_reading_source: k.provenance?.level_readings_source ?? null,
+    stroke_count: k.stroke_count ?? null,
     radical_number: k.radical?.number ?? null, radical_name_vi: k.radical?.name_vi ?? null, frequency: k.frequency ?? null,
     mnemonic_vi: k.mnemonic_vi ?? null, dictionary_kanji_id: null, status: k.status, authored: itemAuthored(k.provenance),
     seed_version: seedVersion,
@@ -216,7 +224,9 @@ export function buildLevelRows(compiled, { seedVersion, audio = new Map(), known
     ...grammar.flatMap((g) => exampleRows('GRAMMAR', g, audio, seedVersion)),
   ];
   const grammar_question = grammar.flatMap((g) => questionRows(g, seedVersion));
-  const confusable_pair = [...confusableRows('VOCAB', vocab, levelOf), ...confusableRows('KANJI', kanji, levelOf)];
+  const lower = (key) => lowerLevels.filter((c) => LEVEL_RANK[c.level] < LEVEL_RANK[level]).flatMap((c) => c[key] ?? []);
+  const confusable_pair = [...confusableRows('VOCAB', vocab, lower('vocabulary'), levelOf),
+    ...confusableRows('KANJI', kanji, lower('kanji'), levelOf)];
 
   const tables = { topic, grammar_unit, vocabulary, kanji: kanjiRows, kanji_compound, grammar: grammarRows, example,
     grammar_question, confusable_pair };
