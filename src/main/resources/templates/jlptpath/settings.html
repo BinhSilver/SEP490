@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] Settings page of the JLPT path; jpath-settings.js fills it from GET /api/learning/jlpt/settings. -->
+<head th:replace="~{fragments/head :: standard('Cài đặt lộ trình JLPT - JLAS', null)}"></head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-settings')}"></th:block>
+<link rel="stylesheet" th:href="@{/css/pages/jpath-day-picker.css(v=${jpathAssetVersion})}" />
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page jp-settings" data-inline-dictionary data-jpath-settings>
+    <header class="jp-settings__header">
+        <a class="jp-settings__back" href="/learning">← Về lộ trình</a>
+        <h1 class="jp-settings__title">Cài đặt lộ trình JLPT</h1>
+        <p class="jp-settings__lead">Mỗi khối lưu riêng. Các thay đổi lớn có hộp xác nhận.</p>
+    </header>
+
+    <p class="jp-settings__alert" role="alert" data-role="error" hidden></p>
+    <p class="jp-settings__loading" role="status" data-role="loading">Đang tải cài đặt…</p>
+
+    <div class="jp-settings__content" data-role="content" hidden>
+        <section class="jp-card" data-block="target" aria-labelledby="jp-settings-target-title">
+            <h2 class="jp-settings-card__title" id="jp-settings-target-title"><span aria-hidden="true">🎯</span> Đích của bạn</h2>
+            <div class="jp-settings-fields">
+                <label class="jp-settings-field">
+                    <span class="jp-settings-field__label">Cấp mục tiêu</span>
+                    <select class="jp-settings-input" data-field="targetLevel"></select>
+                </label>
+                <div class="jp-settings-field">
+                    <label class="jp-settings-field__label" for="jp-settings-exam">Ngày thi
+                        <span class="jp-settings-muted">(để trống nếu chưa có)</span></label>
+                    <div class="jp-settings-field__row">
+                        <input class="jp-settings-input" id="jp-settings-exam" type="date" data-field="examDate" />
+                        <button type="button" class="jp-settings-btn jp-settings-btn--small" data-role="exam-clear" hidden>Bỏ ngày thi</button>
+                    </div>
+                </div>
+            </div>
+            <div class="jp-settings-pace" data-role="pace">
+                <p class="jp-settings-pace__text" data-role="pace-text" aria-live="polite"></p>
+                <ul class="jp-settings-warnings" data-role="warnings" hidden></ul>
+            </div>
+            <p class="jp-settings-muted">Đổi đích sẽ tính lại đề xuất thanh kéo, không trừ lượt chỉnh.</p>
+            <p class="jp-settings-error" role="alert" data-role="block-error" hidden></p>
+            <div class="jp-settings-save">
+                <button type="button" class="jp-settings-btn jp-settings-btn--primary" data-role="save" disabled aria-disabled="true">Lưu đích</button>
+                <span class="jp-settings-saved" role="status" data-role="saved" hidden></span>
+            </div>
+        </section>
+
+        <section class="jp-card" data-block="schedule" aria-labelledby="jp-settings-schedule-title">
+            <h2 class="jp-settings-card__title" id="jp-settings-schedule-title"><span aria-hidden="true">🗓</span> Lịch tuần</h2>
+            <div class="jp-settings-fields">
+                <label class="jp-settings-field">
+                    <span class="jp-settings-field__label">Thời gian rảnh mỗi ngày</span>
+                    <select class="jp-settings-input" data-field="dailyMinutes"></select>
+                </label>
+                <label class="jp-settings-field">
+                    <span class="jp-settings-field__label">Giờ nhắc học</span>
+                    <input class="jp-settings-input" type="time" step="300" data-field="reminderTime" />
+                </label>
+            </div>
+            <div class="jp-settings-days" data-role="days"></div>
+            <p class="jp-settings-muted" role="status" data-role="days-hint" hidden></p>
+            <label class="jp-settings-field" data-role="third-wrap" hidden>
+                <span class="jp-settings-field__label">Ngày kỹ năng thứ 3 (giai đoạn Rèn)</span>
+                <select class="jp-settings-input" data-field="thirdSkillDay"></select>
+            </label>
+            <p class="jp-settings-error" role="alert" data-role="block-error" hidden></p>
+            <div class="jp-settings-save">
+                <button type="button" class="jp-settings-btn jp-settings-btn--primary" data-role="save" disabled aria-disabled="true">Lưu lịch tuần</button>
+                <span class="jp-settings-saved" role="status" data-role="saved" hidden></span>
+            </div>
+        </section>
+
+        <section class="jp-card" data-block="display" aria-labelledby="jp-settings-display-title">
+            <h2 class="jp-settings-card__title" id="jp-settings-display-title"><span aria-hidden="true">⚙</span> Cách học &amp; hiển thị</h2>
+            <fieldset class="jp-settings-group">
+                <legend class="jp-settings-field__label">Cách học mặc định</legend>
+                <div class="jp-settings-radios">
+                    <label class="jp-settings-check"><input type="radio" name="jp-settings-mode" value="COMBINED" data-field="studyMode" /> Gộp</label>
+                    <label class="jp-settings-check"><input type="radio" name="jp-settings-mode" value="SPLIT" data-field="studyMode" /> Tách</label>
+                </div>
+                <p class="jp-settings-hint" data-role="mode-hint" hidden></p>
+            </fieldset>
+            <div class="jp-settings-fields">
+                <label class="jp-settings-field">
+                    <span class="jp-settings-field__label">Romaji</span>
+                    <select class="jp-settings-input" data-field="romajiMode">
+                        <option value="AUTO">Tự động (bật ở N5, tắt từ N4)</option>
+                        <option value="ON">Luôn bật</option>
+                        <option value="OFF">Tắt</option>
+                    </select>
+                </label>
+                <label class="jp-settings-field">
+                    <span class="jp-settings-field__label">Cỡ chữ</span>
+                    <select class="jp-settings-input" data-field="fontSize">
+                        <option value="S">Nhỏ</option>
+                        <option value="M">Vừa</option>
+                        <option value="L">Lớn</option>
+                    </select>
+                </label>
+            </div>
+            <div class="jp-settings-checks">
+                <label class="jp-settings-check"><input type="checkbox" data-field="furiganaHiddenAll" /> Ẩn furigana ở tất cả các trang</label>
+                <label class="jp-settings-check"><input type="checkbox" data-field="soundOn" /> Âm thanh</label>
+                <label class="jp-settings-check"><input type="checkbox" data-field="autoplayAudio" /> Tự phát audio khi mở thẻ</label>
+                <label class="jp-settings-check"><input type="checkbox" data-field="quizTimerOn" /> Đồng hồ trong quiz Từ vựng / Kanji</label>
+                <label class="jp-settings-check"><input type="checkbox" data-field="grammarTimerOn" /> Đồng hồ trong bài ngữ pháp</label>
+                <label class="jp-settings-check"><input type="checkbox" data-field="reminderWeb" /> Nhắc học trong web</label>
+                <label class="jp-settings-check"><input type="checkbox" data-field="reminderEmail" aria-describedby="jp-settings-email-off" /> Nhắc học qua email</label>
+                <p class="jp-settings-muted" id="jp-settings-email-off" data-role="email-off" hidden>Chưa bật gửi email.</p>
+            </div>
+            <p class="jp-settings-error" role="alert" data-role="block-error" hidden></p>
+            <div class="jp-settings-save">
+                <button type="button" class="jp-settings-btn jp-settings-btn--primary" data-role="save" disabled aria-disabled="true">Lưu cách học</button>
+                <span class="jp-settings-saved" role="status" data-role="saved" hidden></span>
+            </div>
+        </section>
+
+        <section class="jp-card" data-block="sliders" aria-labelledby="jp-settings-sliders-title">
+            <h2 class="jp-settings-card__title" id="jp-settings-sliders-title"><span aria-hidden="true">📊</span> Mỗi ngày học</h2>
+            <p class="jp-settings-strong" data-role="slider-values"></p>
+            <p data-role="adjustments"></p>
+            <p class="jp-settings-muted"><a class="jp-settings-link" href="/learning">Đổi tại trang lộ trình</a>; lịch sử các lần chỉnh xem ở đây.</p>
+            <h3 class="jp-settings-subtitle">Lịch sử chỉnh</h3>
+            <ul class="jp-settings-history" data-role="history"></ul>
+        </section>
+
+        <section class="jp-card jp-settings-change" data-block="change" aria-labelledby="jp-settings-change-title">
+            <h2 class="jp-settings-card__title" id="jp-settings-change-title"><span aria-hidden="true">🔀</span> Đổi lộ trình</h2>
+            <div class="jp-settings-options">
+                <div class="jp-settings-option" data-role="lower" hidden>
+                    <h3 class="jp-settings-subtitle"><span aria-hidden="true">⬇</span> Học cấp thấp hơn</h3>
+                    <p data-role="lower-text"></p>
+                    <label class="jp-settings-field" data-role="lower-level-wrap" hidden>
+                        <span class="jp-settings-field__label">Cấp muốn học</span>
+                        <select class="jp-settings-input" data-role="lower-level"></select>
+                    </label>
+                    <button type="button" class="jp-settings-btn" data-role="lower-go">Học cấp thấp hơn</button>
+                </div>
+                <div class="jp-settings-option">
+                    <h3 class="jp-settings-subtitle"><span aria-hidden="true">↔</span> Đổi mục tiêu</h3>
+                    <p>Sang Công việc / Đời sống / Du lịch. Lộ trình JLPT được giữ, quay về được.</p>
+                    <button type="button" class="jp-settings-btn" data-role="goal-go">Đổi mục tiêu</button>
+                </div>
+                <div class="jp-settings-option jp-settings-option--danger">
+                    <h3 class="jp-settings-subtitle"><span aria-hidden="true">↺</span> Bắt đầu lại từ đầu</h3>
+                    <p>Xóa toàn bộ tiến độ JLPT, làm lại khảo sát + Smart Test.</p>
+                    <label class="jp-settings-field">
+                        <span class="jp-settings-field__label">Gõ “BẮT ĐẦU LẠI” để mở nút</span>
+                        <input class="jp-settings-input" type="text" autocomplete="off" spellcheck="false" data-role="restart-text" />
+                    </label>
+                    <button type="button" class="jp-settings-btn jp-settings-btn--danger" data-role="restart" disabled>Bắt đầu lại từ đầu</button>
+                </div>
+            </div>
+            <p class="jp-settings-error" role="alert" data-role="block-error" hidden></p>
+        </section>
+    </div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlptpath/jpath-day-picker.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-settings.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

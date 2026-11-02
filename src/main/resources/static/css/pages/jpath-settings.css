@@ -1,0 +1,89 @@
+/* [JLAS-W0108] Settings page of the JLPT path (/learning/jlpt/settings). Colours only via --jp-*. */
+.jp-settings { max-width: 960px; display: grid; gap: 16px; font-size: calc(16px * var(--jp-font-scale)); }
+.jp-settings [hidden] { display: none !important; }
+.jp-settings__header { display: grid; gap: 6px; }
+.jp-settings__back { color: var(--jp-primary); font-weight: 600; text-decoration: none; }
+.jp-settings__back:hover { text-decoration: underline; }
+.jp-settings__title { margin: 0; font-size: 1.6em; line-height: 1.25; }
+.jp-settings__lead, .jp-settings__loading { margin: 0; color: var(--jp-muted); line-height: 1.5; }
+.jp-settings__alert, .jp-settings-error {
+  margin: 0; padding: 12px 14px; border-radius: var(--jp-radius-interactive);
+  background: var(--jp-danger-soft); color: var(--jp-danger); font-weight: 600; line-height: 1.5;
+}
+.jp-settings__content { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+
+.jp-settings .jp-card {
+  display: grid; gap: 12px; padding: 18px; border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius-panel); background: var(--jp-surface); overflow-wrap: anywhere;
+}
+.jp-settings .jp-card p { margin: 0; line-height: 1.5; }
+.jp-settings-change, .jp-settings [data-block="sliders"] { grid-column: 1 / -1; }
+.jp-settings-card__title { margin: 0; font-size: 1.1em; }
+.jp-settings-subtitle { margin: 0; font-size: 1em; }
+.jp-settings-muted { color: var(--jp-muted); font-size: .92em; font-weight: 400; }
+.jp-settings-strong { font-weight: 700; }
+.jp-settings-hint { color: var(--jp-primary); font-size: .92em; margin: 0; }
+.jp-settings-link { color: var(--jp-primary); font-weight: 600; }
+.jp-settings-link:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+
+.jp-settings-fields { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.jp-settings-field { display: grid; gap: 6px; align-content: start; }
+.jp-settings-field__label { font-weight: 600; font-size: .92em; }
+.jp-settings-field__row { display: flex; flex-wrap: wrap; gap: 8px; }
+.jp-settings-field__row .jp-settings-input { flex: 1 1 150px; }
+.jp-settings-input {
+  box-sizing: border-box; width: 100%; min-height: 44px; padding: 8px 10px; border: 1.5px solid var(--jp-line);
+  border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink); font: inherit;
+  color-scheme: light dark;
+}
+.jp-settings-input:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+
+.jp-settings-group { margin: 0; padding: 0; border: 0; display: grid; gap: 6px; }
+.jp-settings-radios, .jp-settings-checks { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.jp-settings-checks { flex-direction: column; }
+.jp-settings-check { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; line-height: 1.35; }
+.jp-settings-check input { width: 20px; height: 20px; margin: 0; flex: none; accent-color: var(--jp-primary); }
+.jp-settings-check input:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-settings-check:has(input:disabled) { color: var(--jp-muted); cursor: not-allowed; }
+
+.jp-settings-pace { display: grid; gap: 4px; padding: 10px 12px; border-left: 4px solid var(--jp-line);
+  border-radius: var(--jp-radius-interactive); }
+.jp-settings-pace__text { font-weight: 700; }
+.jp-settings-pace[data-tone="ok"] { border-left-color: var(--jp-ok); }
+.jp-settings-pace[data-tone="ok"] .jp-settings-pace__text { color: var(--jp-ok); }
+.jp-settings-pace[data-tone="warn"] { border-left-color: var(--jp-warn); }
+.jp-settings-pace[data-tone="block"] { border-left-color: var(--jp-danger); background: var(--jp-danger-soft); }
+.jp-settings-pace[data-tone="block"] .jp-settings-pace__text { color: var(--jp-danger); }
+.jp-settings-warnings { display: grid; gap: 4px; margin: 0; padding-left: 20px; line-height: 1.5; }
+
+.jp-settings-history { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.jp-settings-history li { padding: 8px 10px; border-radius: var(--jp-radius-interactive); background: var(--jp-primary-soft);
+  line-height: 1.4; }
+.jp-settings-history .jp-settings-history__empty { background: none; padding: 0; color: var(--jp-muted); }
+
+.jp-settings-options { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.jp-settings-option { display: grid; gap: 8px; align-content: start; padding: 12px; border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius-interactive); }
+.jp-settings-option--danger { border-color: var(--jp-danger); }
+.jp-settings-option--danger .jp-settings-subtitle { color: var(--jp-danger); }
+
+.jp-settings-save { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.jp-settings-saved { color: var(--jp-muted); font-size: .92em; }
+.jp-settings-btn {
+  min-height: 44px; padding: 10px 18px; border: 1.5px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
+  background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-weight: 700; cursor: pointer;
+}
+.jp-settings-btn--small { padding: 8px 12px; font-weight: 600; }
+.jp-settings-btn--primary { border-color: var(--jp-primary); background: var(--jp-primary); color: var(--jp-surface); }
+.jp-settings-btn--danger { border-color: var(--jp-danger); background: var(--jp-danger); color: var(--jp-surface); }
+.jp-settings-btn:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-settings-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+@media (max-width: 760px) {
+  .jp-settings__content, .jp-settings-fields { grid-template-columns: minmax(0, 1fr); }
+  .jp-settings .jp-card { padding: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jp-settings * { transition: none !important; animation: none !important; }
+}
