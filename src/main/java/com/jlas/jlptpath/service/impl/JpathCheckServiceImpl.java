@@ -763,12 +763,9 @@ public class JpathCheckServiceImpl implements JpathCheckService {
 
     // ---- helpers -------------------------------------------------------------------------------------------
 
-    /**
-     * The session {@code id} only when it belongs to {@code userId} (plan decision 43). Equivalent to Task 34's
-     * {@code JpathStudySessionRepository.findByIdAndUserId}, which is not committed yet; switch to it once it is.
-     */
+    /** The session {@code id} only when it belongs to {@code userId} (plan decision 43). */
     private Optional<JpathStudySession> ownedSession(Long id, Long userId) {
-        return id == null ? Optional.empty() : sessions.findById(id).filter(s -> userId.equals(s.getUserId()));
+        return id == null ? Optional.empty() : sessions.findByIdAndUserId(id, userId);
     }
 
     private static void requireOpen(JpathCheckSet set) {

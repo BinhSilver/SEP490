@@ -75,9 +75,9 @@ import org.springframework.transaction.support.TransactionTemplate;
  * [JLAS-W0108] Starting, resuming and reading study sessions (queue order: {@link JpathQueueBuilder}).
  *
  * <p>Lock order (Task 31): {@link #start} is not transactional itself. TODAY and EXTRA first run
- * {@link JpathDailyPlanService#ensureToday} in its own transaction, which commits (and so releases the plan lock)
- * before anything else; the session is then built in one transaction that takes path → level → plan → tabs, the same
- * order as the slider writers.
+ * {@link JpathDailyPlanService#ensurePlanExists} (the insert's own transaction); the session is then built in one
+ * transaction that takes path {@code findActiveForUpdate} → {@link JpathDailyPlanService#lockToday} (level, then plan)
+ * → tabs, the same order as the slider writers.
  */
 @Service
 public class JpathStudyServiceImpl implements JpathStudyService {
@@ -152,9 +152,8 @@ public class JpathStudyServiceImpl implements JpathStudyService {
             throw new ApiException(ErrorCode.VALIDATION_FAILED);
         }
         if (r.mode() == JpathSessionMode.TODAY || r.mode() == JpathSessionMode.EXTRA) {
-            // own transaction, committed before the path lock below (lock order path → level → plan).
-            // TODO(Task 31 fix): switch to ensurePlanExists(userId) once that non-transactional method lands.
-            dailyPlans.ensureToday(userId);
+            // the insert's own transaction, before the writer transaction below (never under the path lock)
+            dailyPlans.ensurePlanExists(userId);
         }
         return tx.execute(status -> startLocked(userId, r));
     }
@@ -162,11 +161,14 @@ public class JpathStudyServiceImpl implements JpathStudyService {
     private JpathSessionView startLocked(Long userId, JpathSessionStartRequest r) {
         JpathUserPath path = paths.findActiveForUpdate(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
+        boolean needsPlan = r.mode() == JpathSessionMode.TODAY || r.mode() == JpathSessionMode.EXTRA;
+        // lockToday takes the level lock, then the plan lock (path → level → plan → tabs)
+        JpathDailyPlan plan = needsPlan ? dailyPlans.lockToday(path) : null;
         JpathUserLevel open = levels.findForUpdate(path.getId(), path.getOpenLevel())
                 .orElseThrow(() -> new ApiException(ErrorCode.INTERNAL_ERROR));
         JpathStudySession s = switch (r.mode()) {
-            case TODAY -> today(userId, open, r);
-            case EXTRA -> extra(userId, open, r);
+            case TODAY -> today(userId, plan, open, r);
+            case EXTRA -> extra(userId, plan, open, r);
             case LOWER_LEVEL -> lowerLevel(userId, open, r);
             case BROWSE -> browse(userId, open, r);
             case NOTEBOOK -> notebook(userId, r);
@@ -174,8 +176,8 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         return view(userId, s);
     }
 
-    private JpathStudySession today(Long userId, JpathUserLevel open, JpathSessionStartRequest r) {
-        JpathDailyPlan plan = lockTodayPlan(userId);
+    private JpathStudySession today(Long userId, JpathDailyPlan plan, JpathUserLevel open,
+            JpathSessionStartRequest r) {
         Map<JpathTab, JpathDailyTab> tabs = tabsOf(plan);
         Optional<JpathStudySession> existing = openTodaySessions(userId, plan).stream()
                 .filter(s -> s.getTab().equals(r.tab().name())).findFirst();
@@ -229,9 +231,9 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         return save(userId, plan.getId(), st, JpathSessionMode.TODAY, q);
     }
 
-    private JpathStudySession extra(Long userId, JpathUserLevel open, JpathSessionStartRequest r) {
+    private JpathStudySession extra(Long userId, JpathDailyPlan plan, JpathUserLevel open,
+            JpathSessionStartRequest r) {
         JpathTab t = cardTab(r.tab());
-        JpathDailyPlan plan = lockTodayPlan(userId);
         JpathDailyTab row = tabsOf(plan).get(t);
         if (row == null || row.getDoneAt() == null) {
             throw new ApiException(ErrorCode.JPATH_EXTRA_NOT_READY);
@@ -308,12 +310,6 @@ public class JpathStudyServiceImpl implements JpathStudyService {
     }
 
     // ---- start helpers -------------------------------------------------------------------------------------
-
-    private JpathDailyPlan lockTodayPlan(Long userId) {
-        // ensureToday committed the plan just before; missing only when the learner's day changed in between
-        return plans.findForUpdate(userId, clock.today(userId))
-                .orElseThrow(() -> new ApiException(ErrorCode.CONFLICT));
-    }
 
     private Map<JpathTab, JpathDailyTab> tabsOf(JpathDailyPlan plan) {
         Map<JpathTab, JpathDailyTab> out = new EnumMap<>(JpathTab.class);
