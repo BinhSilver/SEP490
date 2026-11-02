@@ -4,7 +4,187 @@
  },
  "items": [
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "体調が悪いので、少し（　　）いただけますか。",
+      "options": [
+       "休ませて",
+       "休んで",
+       "休まれて",
+       "休まさせて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「休ませて」. 「V (thể sai khiến) て＋いただく」: cách nói khiêm nhường, xin phép đối phương để mình làm (〜させていただけますか／〜させていただきます). Người nói xin phép để mình nghỉ nên dùng thể sai khiến 休ませて + いただけますか; 「休んでいただけますか」 là nhờ người nghe nghỉ, 「休まれて／休まさせて」 sai dạng. Câu đầy đủ: 体調が悪いので、少し休ませていただけますか。 (Tôi thấy không khỏe, cho phép tôi nghỉ một chút được không ạ?)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "では、私から説明（　　）。",
+      "options": [
+       "していただきます",
+       "させていただきます",
+       "されていただきます",
+       "させいただきます"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「させていただきます」. 「V (thể sai khiến) て＋いただく」: cách nói khiêm nhường, xin phép đối phương để mình làm (〜させていただけますか／〜させていただきます). Khiêm nhường 'xin phép được (tôi) giải thích' dùng 「させていただきます」; 「していただきます」 là nhờ người khác làm, hai dạng còn lại sai. Câu đầy đủ: では、私から説明させていただきます。 (Vậy, xin phép để tôi giải thích trước)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "会議の始めに、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "男性が言った",
+       "させていただきますと、",
+       "眼鏡の",
+       "資料について説明"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 資料について説明 → させていただきますと、 → 眼鏡の → 男性が言った. Câu: 会議の始めに、資料について説明させていただきますと、眼鏡の男性が言った。 (Đầu cuộc họp, một người đàn ông đeo kính nói: 'Xin phép được giải thích về tài liệu'). ★ = 「眼鏡の」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "先生に、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "メールを送った",
+       "少し質問",
+       "させていただきたいと",
+       "短い"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 少し質問 → させていただきたいと → 短い → メールを送った. Câu: 先生に、少し質問させていただきたいと短いメールを送った。 (Tôi gửi một email ngắn cho thầy, xin phép được hỏi một chút). ★ = 「短い」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "体調が悪いので、少し休ませていただけますか。",
+      "options": [
+       "Tôi thấy không khỏe, cho phép tôi nghỉ một chút được không ạ?",
+       "Tôi thấy không khỏe, nhờ anh/chị nghỉ thay tôi một chút nhé.",
+       "Đây là sách tôi đang đọc dở nên chưa trả được.",
+       "Tối nay tôi định không ăn gì cả."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「V (thể sai khiến) て＋いただく」: cách nói khiêm nhường, xin phép đối phương để mình làm (〜させていただけますか／〜させていただきます). Câu này nghĩa là: “Tôi thấy không khỏe, cho phép tôi nghỉ một chút được không ạ?”. Phương án “Tôi thấy không khỏe, nhờ anh/chị nghỉ thay tôi một chút nhé.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "では、私から説明させていただきます。",
+      "options": [
+       "Xin lỗi vì đã để anh/chị chờ lâu.",
+       "Vậy, xin phép để tôi giải thích trước.",
+       "Vậy, xin mời anh/chị giải thích trước.",
+       null
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「V (thể sai khiến) て＋いただく」: cách nói khiêm nhường, xin phép đối phương để mình làm (〜させていただけますか／〜させていただきます). Câu này nghĩa là: “Vậy, xin phép để tôi giải thích trước.”. Phương án “Vậy, xin mời anh/chị giải thích trước.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "体調が悪いので、少し休ませていただけますか。",
+       "では、私から説明させていただきます。",
+       "会議の始めに、資料について説明していただきますと、眼鏡の男性が言った。",
+       "先生に、少し質問させていただきたいと短いメールを送った。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「会議の始めに、資料について説明していただきますと、眼鏡の男性が言った。」 — Người nói tự giải thích thì dùng 「説明させていただきます」; 「説明していただきます」 là nhờ người khác giải thích. Ba câu còn lại dùng đúng mẫu Vさせていただく."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "体調が悪いので、少し休ませていただけますか。",
+       "では、私から説明させていただきます。",
+       "会議の始めに、資料について説明させていただきますと、眼鏡の男性が言った。",
+       "先生に、少し質問させていただくたいと短いメールを送った。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「先生に、少し質問させていただくたいと短いメールを送った。」 — たい nối với thể ます bỏ ます: 「いただきたい」. Ba câu còn lại dùng đúng mẫu Vさせていただく."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "質問させて",
+       "いただけますか。",
+       "ここで"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Cho phép tôi hỏi ở đây được không ạ?"
+     },
+     {
+      "pieces": [
+       "いただけますか。",
+       "少し",
+       "休ませて"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Cho phép tôi nghỉ một chút được không ạ?"
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "体調が悪いので、少し＿＿いただけますか。",
+      "answer": "休ませて",
+      "translation_vi": "Tôi thấy không khỏe, cho phép tôi nghỉ một chút được không ạ?"
+     },
+     {
+      "sentence_ja": "では、私から説明＿＿。",
+      "answer": "させていただきます",
+      "accept": [
+       "させてもらいます"
+      ],
+      "translation_vi": "Vậy, xin phép để tôi giải thích trước."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "会議の始めに、資料について説明（　　）と、眼鏡の男性が言った。",
+      "options": [
+       "していただきます",
+       "させていただきます",
+       "されていただきます",
+       "させいただきます"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「させていただきます」. 「V (thể sai khiến) て＋いただく」: cách nói khiêm nhường, xin phép đối phương để mình làm (〜させていただけますか／〜させていただきます). Người nói xin phép để mình nghỉ nên dùng thể sai khiến 休ませて + いただけますか; 「休んでいただけますか」 là nhờ người nghe nghỉ, 「休まれて／休まさせて」 sai dạng. Câu đầy đủ: 会議の始めに、資料について説明させていただきますと、眼鏡の男性が言った。 (Đầu cuộc họp, một người đàn ông đeo kính nói: 'Xin phép được giải thích về tài liệu')."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "先生に、少し質問（　　）と短いメールを送った。",
+      "options": [
+       "されていただきたい",
+       "させいただきたい",
+       "させていただきたい",
+       "さしていただきたい"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「させていただきたい」. 「V (thể sai khiến) て＋いただく」: cách nói khiêm nhường, xin phép đối phương để mình làm (〜させていただけますか／〜させていただきます). Xin phép được hỏi dùng 「させていただきたい」; 「されて」 là bị động, 「させいただきたい」 thiếu て, 「さして」 là cách nói sai. Câu đầy đủ: 先生に、少し質問させていただきたいと短いメールを送った。 (Tôi gửi một email ngắn cho thầy, xin phép được hỏi một chút)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "では、私から説明させいただきます。",
+       "では、私から説明させていただきます。",
+       "会議の始めに、資料について説明させていただきますと、眼鏡の男性が言った。",
+       "先生に、少し質問させていただきたいと短いメールを送った。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「では、私から説明させいただきます。」 — Cần thể て: 「説明させていただきます」. Ba câu còn lại dùng đúng mẫu Vさせていただく."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -79,7 +259,184 @@
    "id": "JG-33a56a6761"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "台所に作り（　　）の料理がある。",
+      "options": [
+       "かけ",
+       "終わり",
+       "きり",
+       "出し"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「かけ」. 「Vます＋かけ（の N）」: đang làm dở, làm giữa chừng (読みかけの本、食べかけのパン). 'Làm dở' dùng 「Vます＋かけの N」; 「終わり／きり／出し」 không tạo nghĩa này. Câu đầy đủ: 台所に作りかけの料理がある。 (Trong bếp có món ăn đang nấu dở)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "これは読み（　　）の本だから、まだ返せない。",
+      "options": [
+       "終わり",
+       "かけ",
+       "きり",
+       "出し"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「かけ」. 「Vます＋かけ（の N）」: đang làm dở, làm giữa chừng (読みかけの本、食べかけのパン). 'Làm dở' dùng 「Vます＋かけの N」; 「終わり／きり／出し」 không tạo nghĩa này. Câu đầy đủ: これは読みかけの本だから、まだ返せない。 (Đây là sách tôi đang đọc dở nên chưa trả được)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "机の上に、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "置いてある",
+       "かけの",
+       "雑誌が",
+       "読み"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 読み → かけの → 雑誌が → 置いてある. Câu: 机の上に、読みかけの雑誌が置いてある。 (Trên bàn có một cuốn tạp chí đang đọc dở). ★ = 「雑誌が」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "朝、急いでいたので、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "テーブルに残して家を出た",
+       "食べ",
+       "かけの",
+       "パンを"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 食べ → かけの → パンを → テーブルに残して家を出た. Câu: 朝、急いでいたので、食べかけのパンをテーブルに残して家を出た。 (Sáng vội nên tôi để lại miếng bánh mì ăn dở trên bàn rồi đi). ★ = 「パンを」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "台所に作りかけの料理がある。",
+      "options": [
+       "Trong bếp có món ăn đang nấu dở.",
+       "Trong bếp có món ăn đã nấu xong.",
+       "Xin lỗi vì đã đến muộn giờ hẹn.",
+       "Tôi thấy không khỏe, cho phép tôi nghỉ một chút được không ạ?"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「Vます＋かけ（の N）」: đang làm dở, làm giữa chừng (読みかけの本、食べかけのパン). Câu này nghĩa là: “Trong bếp có món ăn đang nấu dở.”. Phương án “Trong bếp có món ăn đã nấu xong.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "これは読みかけの本だから、まだ返せない。",
+      "options": [
+       "Năm sau tôi định đi du học Nhật.",
+       "Đây là sách tôi đang đọc dở nên chưa trả được.",
+       "Đây là sách tôi đọc xong rồi nên trả được.",
+       null
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「Vます＋かけ（の N）」: đang làm dở, làm giữa chừng (読みかけの本、食べかけのパン). Câu này nghĩa là: “Đây là sách tôi đang đọc dở nên chưa trả được.”. Phương án “Đây là sách tôi đọc xong rồi nên trả được.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "台所に作りかけの料理がある。",
+       "これは読みかけの本だから、まだ返せない。",
+       "机の上に、読むかけの雑誌が置いてある。",
+       "朝、急いでいたので、食べかけのパンをテーブルに残して家を出た。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「机の上に、読むかけの雑誌が置いてある。」 — かけ nối với thể ます bỏ ます: 「読みかけ」. Ba câu còn lại dùng đúng mẫu Vます＋かけ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "台所に作りかけの料理がある。",
+       "これは読みかけの本だから、まだ返せない。",
+       "机の上に、読みかけの雑誌が置いてある。",
+       "朝、急いでいたので、食べてかけのパンをテーブルに残して家を出た。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「朝、急いでいたので、食べてかけのパンをテーブルに残して家を出た。」 — Không dùng thể て; đúng là 「食べかけの」. Ba câu còn lại dùng đúng mẫu Vます＋かけ."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "かけのパンが",
+       "ある。",
+       "皿の上に食べ"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Trên đĩa có miếng bánh mì ăn dở."
+     },
+     {
+      "pieces": [
+       "机にしまった。",
+       "書き",
+       "かけの手紙を"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Tôi cất lá thư đang viết dở vào bàn."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "台所に作り＿＿の料理がある。",
+      "answer": "かけ",
+      "translation_vi": "Trong bếp có món ăn đang nấu dở."
+     },
+     {
+      "sentence_ja": "これは読み＿＿の本だから、まだ返せない。",
+      "answer": "かけ",
+      "translation_vi": "Đây là sách tôi đang đọc dở nên chưa trả được."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "机の上に、読み（　　）の雑誌が置いてある。",
+      "options": [
+       "終わり",
+       "かけ",
+       "きり",
+       "出し"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「かけ」. 「Vます＋かけ（の N）」: đang làm dở, làm giữa chừng (読みかけの本、食べかけのパン). 'Làm dở' dùng 「Vます＋かけの N」; 「終わり／きり／出し」 không tạo nghĩa này. Câu đầy đủ: 机の上に、読みかけの雑誌が置いてある。 (Trên bàn có một cuốn tạp chí đang đọc dở)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "朝、急いでいたので、食べ（　　）のパンをテーブルに残して家を出た。",
+      "options": [
+       "終わり",
+       "きり",
+       "かけ",
+       "出し"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「かけ」. 「Vます＋かけ（の N）」: đang làm dở, làm giữa chừng (読みかけの本、食べかけのパン). 'Làm dở' dùng 「Vます＋かけの N」; 「終わり／きり／出し」 không tạo nghĩa này. Câu đầy đủ: 朝、急いでいたので、食べかけのパンをテーブルに残して家を出た。 (Sáng vội nên tôi để lại miếng bánh mì ăn dở trên bàn rồi đi)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "台所に作りかけな料理がある。",
+       "これは読みかけの本だから、まだ返せない。",
+       "机の上に、読みかけの雑誌が置いてある。",
+       "朝、急いでいたので、食べかけのパンをテーブルに残して家を出た。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「台所に作りかけな料理がある。」 — Danh từ 〜かけ nối với danh từ bằng の: 「作りかけの料理」. Ba câu còn lại dùng đúng mẫu Vます＋かけ."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -207,7 +564,184 @@
    "id": "JG-3aacb701b7"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "来年、日本へ（　　）つもりだ。",
+      "options": [
+       "留学する",
+       "留学して",
+       "留学し",
+       "留学しろ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「留学する」. 「Vる／Vない ＋ つもりだ」: dự định, ý định của người nói (đã quyết trong lòng). つもりだ đi sau thể từ điển (hoặc thể ない): 留学するつもりだ; thể て, thể ます bỏ ます, thể mệnh lệnh không nối được. Câu đầy đủ: 来年、日本へ留学するつもりだ。 (Năm sau tôi định đi du học Nhật)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "今夜は何も（　　）つもりだ。",
+      "options": [
+       "食べなくて",
+       "食べない",
+       "食べないで",
+       "食べません"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「食べない」. 「Vる／Vない ＋ つもりだ」: dự định, ý định của người nói (đã quyết trong lòng). Ý định không làm dùng thể ない nguyên dạng + つもり. Câu đầy đủ: 今夜は何も食べないつもりだ。 (Tối nay tôi định không ăn gì cả)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "来年、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "勉強を始めた",
+       "つもりなので、",
+       "受験の",
+       "日本の大学に入る"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 日本の大学に入る → つもりなので、 → 受験の → 勉強を始めた. Câu: 来年、日本の大学に入るつもりなので、受験の勉強を始めた。 (Năm sau tôi định vào đại học ở Nhật nên đã bắt đầu ôn thi). ★ = 「受験の」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "週末は＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "靴を買った",
+       "友達と山に登る",
+       "つもりだから、",
+       "登山用の"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 友達と山に登る → つもりだから、 → 登山用の → 靴を買った. Câu: 週末は友達と山に登るつもりだから、登山用の靴を買った。 (Cuối tuần tôi định leo núi với bạn nên đã mua giày leo núi). ★ = 「登山用の」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "来年、日本へ留学するつもりだ。",
+      "options": [
+       "Năm sau tôi định đi du học Nhật.",
+       "Năm sau tôi không định đi du học Nhật.",
+       "Vậy, xin phép để tôi giải thích trước.",
+       "Đây là sách tôi đang đọc dở nên chưa trả được."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「Vる／Vない ＋ つもりだ」: dự định, ý định của người nói (đã quyết trong lòng). Câu này nghĩa là: “Năm sau tôi định đi du học Nhật.”. Phương án “Năm sau tôi không định đi du học Nhật.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "今夜は何も食べないつもりだ。",
+      "options": [
+       "Xin lỗi vì đã để anh/chị chờ lâu.",
+       "Tối nay tôi định không ăn gì cả.",
+       "Tối nay tôi định ăn thật nhiều.",
+       null
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「Vる／Vない ＋ つもりだ」: dự định, ý định của người nói (đã quyết trong lòng). Câu này nghĩa là: “Tối nay tôi định không ăn gì cả.”. Phương án “Tối nay tôi định ăn thật nhiều.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "来年、日本へ留学するつもりだ。",
+       "今夜は何も食べないつもりだ。",
+       "来年、日本の大学に入りつもりなので、受験の勉強を始めた。",
+       "週末は友達と山に登るつもりだから、登山用の靴を買った。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「来年、日本の大学に入りつもりなので、受験の勉強を始めた。」 — つもり đi sau thể từ điển: 「入るつもり」. Ba câu còn lại dùng đúng mẫu Vる／Vない＋つもりだ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "来年、日本へ留学するつもりだ。",
+       "今夜は何も食べないつもりだ。",
+       "来年、日本の大学に入るつもりなので、受験の勉強を始めた。",
+       "週末は友達と山に登ってつもりだから、登山用の靴を買った。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「週末は友達と山に登ってつもりだから、登山用の靴を買った。」 — Không dùng thể て: 「登るつもり」. Ba câu còn lại dùng đúng mẫu Vる／Vない＋つもりだ."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "友達に会う",
+       "つもりだ。",
+       "週末は"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Cuối tuần tôi định gặp bạn."
+     },
+     {
+      "pieces": [
+       "つもりだ。",
+       "来年、",
+       "日本へ行く"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Năm sau tôi định đi Nhật."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "来年、日本へ＿＿つもりだ。",
+      "answer": "留学する",
+      "translation_vi": "Năm sau tôi định đi du học Nhật."
+     },
+     {
+      "sentence_ja": "今夜は何も＿＿つもりだ。",
+      "answer": "食べない",
+      "translation_vi": "Tối nay tôi định không ăn gì cả."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "来年、日本の大学に（　　）つもりなので、受験の勉強を始めた。",
+      "options": [
+       "入って",
+       "入る",
+       "入り",
+       "入れ"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「入る」. 「Vる／Vない ＋ つもりだ」: dự định, ý định của người nói (đã quyết trong lòng). つもり đi sau thể từ điển: 入るつもり. Câu đầy đủ: 来年、日本の大学に入るつもりなので、受験の勉強を始めた。 (Năm sau tôi định vào đại học ở Nhật nên đã bắt đầu ôn thi)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "週末は友達と山に（　　）つもりだから、登山用の靴を買った。",
+      "options": [
+       "登って",
+       "登り",
+       "登る",
+       "登れ"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「登る」. 「Vる／Vない ＋ つもりだ」: dự định, ý định của người nói (đã quyết trong lòng). つもり đi sau thể từ điển: 登るつもり. Câu đầy đủ: 週末は友達と山に登るつもりだから、登山用の靴を買った。 (Cuối tuần tôi định leo núi với bạn nên đã mua giày leo núi)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "来年、日本へ留学するのつもりだ。",
+       "今夜は何も食べないつもりだ。",
+       "来年、日本の大学に入るつもりなので、受験の勉強を始めた。",
+       "週末は友達と山に登るつもりだから、登山用の靴を買った。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「来年、日本へ留学するのつもりだ。」 — Động từ nối trực tiếp: 「留学するつもりだ」. Ba câu còn lại dùng đúng mẫu Vる／Vない＋つもりだ."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -282,7 +816,184 @@
    "id": "JG-738aff38d9"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "約束の時間に（　　）すみません。",
+      "options": [
+       "遅れて",
+       "遅れる",
+       "遅れた",
+       "遅れ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「遅れて」. 「Vて＋すみません」: xin lỗi vì việc mình đã làm (gây phiền): 遅れてすみません、待たせてすみません. Xin lỗi về việc mình đã làm dùng thể て + すみません: 遅れてすみません; các dạng khác không nối được. Câu đầy đủ: 約束の時間に遅れてすみません。 (Xin lỗi vì đã đến muộn giờ hẹn)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "長い時間（　　）すみませんでした。",
+      "options": [
+       "待たせる",
+       "待たせて",
+       "待たせた",
+       "待って"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「待たせて」. 「Vて＋すみません」: xin lỗi vì việc mình đã làm (gây phiền): 遅れてすみません、待たせてすみません. Xin lỗi vì đã bắt người khác chờ → thể sai khiến 待たせて + すみません; 「待って」 là 'mình chờ'. Câu đầy đủ: 長い時間待たせてすみませんでした。 (Xin lỗi vì đã để anh/chị chờ lâu)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "先生の部屋に入って、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "下げて謝った",
+       "すみませんと",
+       "頭を",
+       "授業に遅れて"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 授業に遅れて → すみませんと → 頭を → 下げて謝った. Câu: 先生の部屋に入って、授業に遅れてすみませんと頭を下げて謝った。 (Bước vào phòng thầy, tôi cúi đầu xin lỗi vì đã đến lớp muộn). ★ = 「頭を」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "友達に、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "メールを書いた",
+       "ずっと連絡しなくて",
+       "すみませんと",
+       "長い"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: ずっと連絡しなくて → すみませんと → 長い → メールを書いた. Câu: 友達に、ずっと連絡しなくてすみませんと長いメールを書いた。 (Tôi viết một email dài cho bạn để xin lỗi vì lâu rồi không liên lạc). ★ = 「長い」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "約束の時間に遅れてすみません。",
+      "options": [
+       "Xin lỗi vì đã đến muộn giờ hẹn.",
+       "Cảm ơn vì đã đến đúng giờ hẹn.",
+       "Năm sau tôi định đi du học Nhật.",
+       "Tôi thấy không khỏe, cho phép tôi nghỉ một chút được không ạ?"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「Vて＋すみません」: xin lỗi vì việc mình đã làm (gây phiền): 遅れてすみません、待たせてすみません. Câu này nghĩa là: “Xin lỗi vì đã đến muộn giờ hẹn.”. Phương án “Cảm ơn vì đã đến đúng giờ hẹn.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "長い時間待たせてすみませんでした。",
+      "options": [
+       "Trong bếp có món ăn đang nấu dở.",
+       "Xin lỗi vì đã để anh/chị chờ lâu.",
+       "Cảm ơn anh/chị đã chờ tôi.",
+       null
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「Vて＋すみません」: xin lỗi vì việc mình đã làm (gây phiền): 遅れてすみません、待たせてすみません. Câu này nghĩa là: “Xin lỗi vì đã để anh/chị chờ lâu.”. Phương án “Cảm ơn anh/chị đã chờ tôi.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "約束の時間に遅れてすみません。",
+       "長い時間待たせてすみませんでした。",
+       "先生の部屋に入って、授業に遅れたすみませんと頭を下げて謝った。",
+       "友達に、ずっと連絡しなくてすみませんと長いメールを書いた。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「先生の部屋に入って、授業に遅れたすみませんと頭を下げて謝った。」 — すみません đi sau thể て: 「遅れてすみません」. Ba câu còn lại dùng đúng mẫu Vてすみません."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "約束の時間に遅れてすみません。",
+       "長い時間待たせてすみませんでした。",
+       "先生の部屋に入って、授業に遅れてすみませんと頭を下げて謝った。",
+       "友達に、ずっと連絡しないすみませんと長いメールを書いた。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「友達に、ずっと連絡しないすみませんと長いメールを書いた。」 — Phải dùng thể て của phủ định: 「連絡しなくてすみません」. Ba câu còn lại dùng đúng mẫu Vてすみません."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "遅くなって",
+       "すみませんでした。",
+       "返事が"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Xin lỗi vì đã trả lời muộn."
+     },
+     {
+      "pieces": [
+       "すみません。",
+       "窓を",
+       "閉め忘れて"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Xin lỗi vì đã quên đóng cửa sổ."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "約束の時間に＿＿すみません。",
+      "answer": "遅れて",
+      "translation_vi": "Xin lỗi vì đã đến muộn giờ hẹn."
+     },
+     {
+      "sentence_ja": "長い時間＿＿すみませんでした。",
+      "answer": "待たせて",
+      "translation_vi": "Xin lỗi vì đã để anh/chị chờ lâu."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "先生の部屋に入って、授業に（　　）すみませんと頭を下げて謝った。",
+      "options": [
+       "遅れる",
+       "遅れて",
+       "遅れた",
+       "遅れ"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「遅れて」. 「Vて＋すみません」: xin lỗi vì việc mình đã làm (gây phiền): 遅れてすみません、待たせてすみません. Xin lỗi về việc mình đã làm dùng thể て + すみません: 遅れてすみません; các dạng khác không nối được. Câu đầy đủ: 先生の部屋に入って、授業に遅れてすみませんと頭を下げて謝った。 (Bước vào phòng thầy, tôi cúi đầu xin lỗi vì đã đến lớp muộn)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "友達に、ずっと（　　）すみませんと長いメールを書いた。",
+      "options": [
+       "連絡しない",
+       "連絡しなかった",
+       "連絡しなくて",
+       "連絡しず"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「連絡しなくて」. 「Vて＋すみません」: xin lỗi vì việc mình đã làm (gây phiền): 遅れてすみません、待たせてすみません. Xin lỗi vì đã không làm dùng 「Vなくて＋すみません」. Câu đầy đủ: 友達に、ずっと連絡しなくてすみませんと長いメールを書いた。 (Tôi viết một email dài cho bạn để xin lỗi vì lâu rồi không liên lạc)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "約束の時間に遅れるてすみません。",
+       "長い時間待たせてすみませんでした。",
+       "先生の部屋に入って、授業に遅れてすみませんと頭を下げて謝った。",
+       "友達に、ずっと連絡しなくてすみませんと長いメールを書いた。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「約束の時間に遅れるてすみません。」 — Thể て của 遅れる là 「遅れて」. Ba câu còn lại dùng đúng mẫu Vてすみません."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
