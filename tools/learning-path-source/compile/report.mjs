@@ -32,6 +32,9 @@ export function writeReport({ level, compiled, result, date }, outDir = REPORT_D
   // A capped level (N3): the words kept out of the study queue, in rank order (Luyện thêm / Look up candidates).
   if (compiled.study_cap) files[`${level}-ngoai-hang-hoc.csv`] = csv(['order', 'id', 'expression', 'reading', 'tier', 'meaning_vi'],
     compiled.vocabulary.filter(v => v.queue === 'EXTRA').map(v => [v.order, v.id, v.expression, v.reading, v.tier, v.meaning_vi]));
+  // A kanji-capped level (N1): the kanji kept out of the study queue, in level order.
+  if (compiled.kanji_cap) files[`${level}-kanji-ngoai-hang-hoc.csv`] = csv(['order', 'id', 'character', 'han_viet', 'meanings_vi'],
+    compiled.kanji.filter(k => k.queue === 'EXTRA').map(k => [k.order, k.id, k.character, k.han_viet, k.meanings_vi]));
   // A split level (N3): every SECONDARY grammar pattern and the MAIN pattern it is attached to (empty: waits for a packet).
   if (compiled.grammar_split) {
     const patternOf = new Map(compiled.grammar.map(g => [g.id, g.pattern]));
@@ -52,6 +55,7 @@ export function writeReport({ level, compiled, result, date }, outDir = REPORT_D
 - Từ theo khung Mirai: ${s.from_frame}; có trong nguồn J-LAS: ${s.jlas_matched}; mục có phần AI soạn: ${s.ai_authored}.
 - Chuyển cấp (về ${level}): ${s.level_moves}; xung đột nghĩa: ${compiled.conflicts.filter(c => c.kind !== 'REVIEW_FIX').length}; ghi đè khi duyệt: ${compiled.conflicts.filter(c => c.kind === 'REVIEW_FIX').length}; câu bị bỏ: ${(compiled.dropped_examples ?? []).length}; từ chưa có trong từ điển: ${compiled.vocabulary.filter(v => v.dictionary_entry_id == null).length}.
 ${compiled.study_cap ? `- Giới hạn hàng học: ${compiled.study_cap.vocabulary} từ; trong hàng học ${compiled.study_cap.in_queue} (khung Mirai ${compiled.study_cap.from_frame}); ngoài hàng học ${compiled.study_cap.out_of_queue} (HOLD, để Luyện thêm/Look up; danh sách \`du-lieu-csv/${level}-ngoai-hang-hoc.csv\`). Cách chọn: ${compiled.study_cap.rule}
+` : ''}${compiled.kanji_cap ? `- Giới hạn Kanji hàng học: ${compiled.kanji_cap.kanji} chữ; trong hàng học ${compiled.kanji_cap.in_queue}; ngoài hàng học ${compiled.kanji_cap.out_of_queue} (HOLD, không có gói; danh sách \`du-lieu-csv/${level}-kanji-ngoai-hang-hoc.csv\`). Cách chọn: ${compiled.kanji_cap.rule}
 ` : ''}${compiled.grammar_split ? `- Ngữ pháp chính/phụ: chính ${s.grammar_main} (hàng học); phụ ${s.grammar_secondary} (học cuối bài mẫu chính, nội dung nhẹ); mẫu trùng đã gộp ${compiled.grammar_split.merged_duplicates}; phụ chưa có mẫu chính ${s.grammar_pending_parent} (gói GRAMMAR_PARENT; danh sách \`du-lieu-csv/${level}-ngu-phap-phu.csv\`). Cách chọn: ${compiled.grammar_split.rule}
 ` : ''}- Lỗi chặn: ${blocking.length}; cảnh báo: ${result.errors.length - blocking.length}.
 

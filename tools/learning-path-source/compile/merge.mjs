@@ -544,7 +544,7 @@ function grammarItems({ frames, jlasLevels }, level, { grammarPattern = new Map(
     const secondary = items.filter(g => g.grammar_role === 'SECONDARY');
     summary = { main: mains.length, secondary: secondary.length, merged_duplicates: sorted.reduce((n, x) => n + x.absorbed, 0),
       attached: secondary.filter(g => g.parent_id).length, pending_parent: secondary.filter(g => !g.parent_id).length,
-      rule: GRAMMAR_SPLIT_RULE };
+      rule: grammarSplitRule(split) };
   }
   return { items, merged: sorted.flatMap(x => x.merged), summary };
 }
@@ -553,7 +553,9 @@ function grammarItems({ frames, jlasLevels }, level, { grammarPattern = new Map(
 // Owner 02/11: N3 studies about 200 MAIN patterns; every other pattern is SECONDARY — kept, attached to one MAIN
 // pattern of the same function and shown at the end of its lesson with light content (meaning, formation, 1–2
 // examples), outside the daily count, with no question bank and no quiz of its own. N5 and N4 have no split.
-export const GRAMMAR_SPLIT = Object.freeze({ N3: Object.freeze({ main_book: 'Tiếng Nhật N3', min_books: 2 }) });
+// Owner 02/11 (later): N2 and N1 split the same way, each with the J-LAS book of its own level as the main book.
+export const GRAMMAR_SPLIT = Object.freeze({ N3: Object.freeze({ main_book: 'Tiếng Nhật N3', min_books: 2 }),
+  N2: Object.freeze({ main_book: 'Tiếng Nhật N2', min_books: 2 }), N1: Object.freeze({ main_book: 'Tiếng Nhật N1', min_books: 2 }) });
 export const GRAMMAR_SPLIT_RULE = 'Duplicates merge first: families sharing a grammar core key (the grammar word however '
   + 'a book writes it: furigana or kanji, optional kana, formation "X + word", sense labels (A)/(B)/1 dropped) join, '
   + 'except that two items of one curated source (the Mirai frame, the book "Tiếng Nhật N3") never join unless they '
@@ -562,6 +564,9 @@ export const GRAMMAR_SPLIT_RULE = 'Duplicates merge first: families sharing a gr
   + 'automatically when its pattern ends with exactly one MAIN core key of the longest length (3+ characters, or 2 '
   + 'after a kanji with a shared meaning word), no other MAIN key sits before it and it is not a description; '
   + 'otherwise it gets a GRAMMAR_PARENT packet.';
+// The rule as it reads for one level's split (its main book, its book count); for N3 it is GRAMMAR_SPLIT_RULE as written.
+export const grammarSplitRule = split => GRAMMAR_SPLIT_RULE.replaceAll('"Tiếng Nhật N3"', `"${split.main_book}"`)
+  .replace('2+ J-LAS books', `${split.min_books}+ J-LAS books`);
 
 const familySources = f => new Set([...(f.mirai.length ? ['MIRAI'] : []), ...f.jlas.flatMap(j => j.books ?? [])]);
 const senseBase = p => normalizeGrammarPattern(p).replace(/〜/g, '')
@@ -657,7 +662,8 @@ export function parentCandidates(g, mains, limit = 5) {
 // Owner 31/10 (spec 4.11): N5 and N4 keep every word; N3 studies about 2,000 — every Mirai N3 word, then J-LAS words
 // CORE first and most common first. A capped level's words all carry `queue`: STUDY (in the path) or EXTRA (kept
 // for Luyện thêm / Look up, not in the path).
-export const STUDY_CAP = Object.freeze({ N3: 2000 });
+// Owner 02/11: N2 and N1 study about 2,000 words each, by the same rule.
+export const STUDY_CAP = Object.freeze({ N3: 2000, N2: 2000, N1: 2000 });
 export const STUDY_CAP_RULE = 'Mirai frame words of the level (all, Mirai order), then the other words ranked: tier CORE before '
   + 'EXTENDED; more J-LAS source books first (commonness: a word several books teach is more common); lower J-LAS position '
   + 'first (easy → hard order of the books); key by code point. The first (cap − frame words) ranked words are STUDY, the rest EXTRA.';
@@ -665,9 +671,33 @@ const byCodePoint = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 const bookCount = l => new Set(l.jlas.flatMap(m => m.books ?? [])).size;
 const minPosition = l => Math.min(...l.jlas.map(m => m.position ?? 1), 1);
 
+// Owner 02/11: N5–N2 keep every kanji; N1 studies about 600 — the kanji the queued N1 words use most. A capped level's
+// kanji all carry `queue` STUDY or EXTRA (HOLD: kept in the source, no packets, not served by the path).
+export const KANJI_STUDY_CAP = Object.freeze({ N1: 600 });
+export const KANJI_STUDY_CAP_RULE = 'Kanji ranked: more study-queue words of the level written with it first; then more J-LAS '
+  + 'source books (commonness; the sources carry no frequency); fewer strokes; then the level order (frame order, then J-LAS '
+  + 'position). The first (cap) ranked kanji are STUDY, the rest EXTRA; STUDY kanji come first, each part in the level order.';
+
+function capKanji(kanji, cap, vocabulary, jlasLevels) {
+  const queued = vocabulary.filter(v => v.queue !== 'EXTRA').map(v => [v.expression, ...(v.variants ?? [])]);
+  const uses = new Map(kanji.map(k => [k.id, queued.filter(spellings => spellings.some(s => s.includes(k.character))).length]));
+  const books = new Map();
+  for (const l of LEVELS) for (const k of jlasLevels[l]?.kanji ?? []) {
+    if (!books.has(k.character)) books.set(k.character, new Set());
+    for (const b of k.books ?? []) books.get(k.character).add(b);
+  }
+  const bookCountOf = k => books.get(k.character)?.size ?? 0;
+  const ranked = [...kanji].sort((a, b) => uses.get(b.id) - uses.get(a.id) || bookCountOf(b) - bookCountOf(a)
+    || (a.stroke_count ?? Infinity) - (b.stroke_count ?? Infinity) || a.order - b.order);
+  const study = new Set(ranked.slice(0, cap).map(k => k.id));
+  const out = [...kanji.filter(k => study.has(k.id)), ...kanji.filter(k => !study.has(k.id))]
+    .map((k, i) => ({ ...k, order: i + 1, queue: study.has(k.id) ? 'STUDY' : 'EXTRA' }));
+  return { kanji: out, summary: { kanji: cap, in_queue: study.size, out_of_queue: kanji.length - study.size, rule: KANJI_STUDY_CAP_RULE } };
+}
+
 // ---------------------------------------------------------------- entry point
 export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub, miraiMeanings = new Map(),
-  corrections = {}, studyCap = STUDY_CAP, grammarSplit = GRAMMAR_SPLIT }) {
+  corrections = {}, studyCap = STUDY_CAP, grammarSplit = GRAMMAR_SPLIT, kanjiStudyCap = KANJI_STUDY_CAP }) {
   const { identity = new Map(), identityByForm = new Map(), sameWord = [], notSameWord = [], dropVariant = new Map() } = corrections;
   const candidates = vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub, miraiMeanings, identity, identityByForm });
   const barred = reviewBars(notSameWord, dropVariant);
@@ -723,6 +753,8 @@ export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub, 
       rule: STUDY_CAP_RULE };
   }
   const grammar = grammarItems({ frames, jlasLevels }, level, corrections, grammarSplit?.[level] ?? null);
+  let kanji = kanjiItems({ frames, jlasLevels, dictionary }, level, pool), kanjiCap = null;
+  if (kanjiStudyCap?.[level] != null) ({ kanji, summary: kanjiCap } = capKanji(kanji, kanjiStudyCap[level], vocabulary, jlasLevels));
   // Same spelling and reading kept as two words (any level): homonyms, or synonyms the fit test missed — for review.
   const base = l => l.key.split('#')[0];
   const bySpelling = new Map();
@@ -730,7 +762,7 @@ export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub, 
   const spellingTwins = here.flatMap(l => bySpelling.get(base(l)).filter(o => o !== l)
     .map(o => ({ id: l.id, twin_id: o.id, twin_level: o.level })))
     .sort((a, b) => a.id.localeCompare(b.id) || a.twin_id.localeCompare(b.twin_id));
-  return { level, ...(studyCapSummary ? { study_cap: studyCapSummary } : {}), vocabulary, kanji: kanjiItems({ frames, jlasLevels, dictionary }, level, pool),
+  return { level, ...(studyCapSummary ? { study_cap: studyCapSummary } : {}), vocabulary, kanji, ...(kanjiCap ? { kanji_cap: kanjiCap } : {}),
     grammar: grammar.items, ...(grammar.summary ? { grammar_split: grammar.summary } : {}), conflicts, level_moves: levelMoves, unmatched, spelling_twins: spellingTwins,
     mixed_entries: mixed.filter(m => m.level === level).map(({ id, spellings }) => ({ id, spellings })).sort((a, b) => a.id.localeCompare(b.id)),
     merged_ids: [...here.flatMap(l => l.merged_ids.map(m => ({ id: m, into: l.id }))),

@@ -4,7 +4,7 @@ import { formatMeaningVi } from './normalize.mjs';
 
 export const WARNING_CODES = new Set(['FURIGANA_MISSING', 'RADICAL_NAME_MISSING', 'SAME_SPELLING', 'EXAMPLE_KANA_ABOVE_LEVEL',
   'EXAMPLE_ABOVE_LEVEL_SOURCE']);
-const EXAMPLE_LENGTH = { N5: [8, 25], N4: [8, 32], N3: [8, 40], N2: [8, 48], N1: [8, 56] };
+const EXAMPLE_LENGTH = { N5: [8, 25], N4: [8, 32], N3: [8, 40], N2: [8, 50], N1: [8, 60] };
 const BANK_TYPES = ['FILL', 'ORDER_STAR', 'MEANING', 'ERROR'];
 const HAS_KANJI = /[一-龯々]/;
 const PUNCT = /[\s.,;:!?'"“”‘’()（）「」『』、。！？・…\-–—]/g;
@@ -215,7 +215,9 @@ export function runChecks(compiled, ctx) {
     if (ownMeaning(v) && refs.some(r => r.meaning_vi && similarity(r.meaning_vi, v.meaning_vi) > 0.7)
       && !own.some(m => similarity(m, v.meaning_vi) > 0.7 || plain(m) === plain(v.meaning_vi))) err('MIRAI_SIMILAR', 'meaning');
   }
+  // A kanji out of the study queue (capped level, queue EXTRA) is not served either: no content checks.
   for (const k of compiled.kanji) {
+    if (k.queue === 'EXTRA') continue;
     const { err, warn } = sink(k.id);
     if (!k.han_viet || !k.meanings_vi) err('KANJI_CORE_MISSING', k.character);
     else if (k.meanings_vi !== formatMeaningVi([k.meanings_vi])) err('MEANING_FORMAT', k.meanings_vi);
@@ -256,6 +258,7 @@ export function runChecks(compiled, ctx) {
     ai_authored: [...compiled.vocabulary, ...compiled.kanji, ...compiled.grammar].filter(x => aiFields(x).length).length,
     level_moves: compiled.level_moves?.length ?? 0, conflicts: compiled.conflicts?.length ?? 0, errors_by_code: byCode,
     ...(compiled.study_cap ? { out_of_queue: compiled.vocabulary.filter(v => v.queue === 'EXTRA').length } : {}),
+    ...(compiled.kanji_cap ? { kanji_out_of_queue: compiled.kanji.filter(k => k.queue === 'EXTRA').length } : {}),
     ...(compiled.grammar_split ? { grammar_main: mainIds.size, grammar_secondary: compiled.grammar.length - mainIds.size,
       grammar_pending_parent: compiled.grammar.filter(g => g.grammar_role === 'SECONDARY' && !g.parent_id).length } : {}) };
   return { errors, stats };

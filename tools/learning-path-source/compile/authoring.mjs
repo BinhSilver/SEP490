@@ -16,7 +16,7 @@ const GRAMMAR_TEXT = ['meaning_vi', 'formation', 'usage_vi', 'nuance_vi', 'commo
 const INSTRUCTIONS = {
   VOCAB_MEANING: 'meaning_vi: chữ thường, tối đa 3 nghĩa ngăn bởi "; ", nghĩa chính đầu, không dấu chấm, không ngoặc tiếng Anh.',
   VOCAB_TYPE: 'word_type_label: một nhãn trong {danh từ, động từ nhóm I/II/III, tính từ い, tính từ な, phó từ, trợ từ, liên từ, thán từ, cụm từ, số từ, đại từ}.',
-  VOCAB_EXAMPLE: 'examples: 1–3 câu {ja, ja_furigana "漢字(かんじ)", vi}; chỉ dùng từ và ngữ pháp ≤ cấp; N5 dài 8–25 ký tự, N3 ≤ 40; không tên riêng lạ; tự viết, không chép nguồn ngoài.',
+  VOCAB_EXAMPLE: 'examples: 1–3 câu {ja, ja_furigana "漢字(かんじ)", vi}; chỉ dùng từ và ngữ pháp ≤ cấp; N5 dài 8–25 ký tự, N4 8–32, N3 ≤ 40, N2 ≤ 50, N1 ≤ 60; không tên riêng lạ; tự viết, không chép nguồn ngoài.',
   VOCAB_MNEMONIC: 'mnemonic_vi: 1–2 câu liên tưởng Hán Việt hoặc âm gần tiếng Việt, không tục; confusable_ids (tùy chọn): id các từ dễ nhầm cùng hoặc thấp hơn cấp.',
   TOPIC_ASSIGN: 'topic_key/topic_vi: chọn chủ đề gần nghĩa nhất trong header.topics; không hợp thì "khac"/"Từ thông dụng khác".',
   KANJI_CORE: 'han_viet (âm chính), han_viet_alt (âm phụ), meanings_vi theo khuôn nghĩa.',
@@ -69,7 +69,8 @@ function needs(level) {
     if (v.topic_key === 'khac') add('TOPIC_ASSIGN', v, ['topic_key', 'topic_vi'], vocabContext(v));
   }
   const radicals = new Map();
-  for (const k of level.kanji) {
+  // Kanji out of the study queue (capped level, queue EXTRA) are not authored either.
+  for (const k of level.kanji.filter(inQueue)) {
     const missing = ['han_viet', 'meanings_vi'].filter(f => !k[f]);
     if (missing.length) add('KANJI_CORE', k, missing, kanjiContext(k));
     if (!k.mnemonic_vi) add('KANJI_MNEMONIC', k, ['mnemonic_vi'], kanjiContext(k));
@@ -145,7 +146,7 @@ const lockedFields = x => [...new Set(Object.entries(SOURCE_OF).filter(([f, src]
 
 // extra(kind, item) adds what the item alone does not carry (dictionary meaning, check findings, spelling twins).
 export function buildReviewPackets(level, { size = 40, sizeByKind = { REVIEW_GRAMMAR: 10 }, extra = () => ({}) } = {}) {
-  const lists = [['REVIEW_VOCAB', level.vocabulary.filter(inQueue)], ['REVIEW_KANJI', level.kanji], ['REVIEW_GRAMMAR', level.grammar]];
+  const lists = [['REVIEW_VOCAB', level.vocabulary.filter(inQueue)], ['REVIEW_KANJI', level.kanji.filter(inQueue)], ['REVIEW_GRAMMAR', level.grammar]];
   return lists.filter(([, items]) => items.length).flatMap(([kind, items]) => chunk(items.map(x => ({ id: x.id, fields_needed: ['verdict'],
     context: { ...reviewContext[kind](x), locked_fields: lockedFields(x), ...extra(kind, x) } })), sizeByKind[kind] ?? size).map((c, i) => toPacket(kind, i + 1, level, c)));
 }
