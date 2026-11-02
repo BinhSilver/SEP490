@@ -94,9 +94,34 @@ public class JpathPathViewAssembler {
             EnumSet<DayOfWeek> restDays, JpathSliderValues sliders, JpathPaceView pace) {
     }
 
+    /**
+     * The schedule a pace is computed from: the path's target, exam, minutes, days, mode and the open level's sliders,
+     * either as stored ({@link #of}) or as a learner wants to change them (settings).
+     */
+    public record Schedule(String targetLevel, LocalDate examDate, int minutes, EnumSet<DayOfWeek> skillDays,
+            EnumSet<DayOfWeek> restDays, DayOfWeek thirdSkillDay, JpathStudyMode mode, JpathSliderValues sliders) {
+
+        /** The stored schedule of {@code path} with the sliders of {@code level}. */
+        public static Schedule of(JpathUserPath path, JpathUserLevel level) {
+            return new Schedule(path.getTargetLevel(), path.getExamDate(), path.getDailyMinutes(),
+                    JpathDays.parse(path.getSkillDays()), JpathDays.parse(path.getRestDays()), storedThirdDay(path),
+                    path.getStudyMode() == null ? JpathStudyMode.COMBINED : path.getStudyMode(),
+                    new JpathSliderValues(level.getSliderVocab(), level.getSliderKanji(), level.getSliderGrammar()));
+        }
+    }
+
     /** Pace of {@code path} with the sliders of {@code level} (its open level row, possibly just changed). */
     @Transactional(readOnly = true)
     public Pacing pacing(JpathUserPath path, JpathUserLevel level) {
+        return pacing(path, level, Schedule.of(path, level), false);
+    }
+
+    /**
+     * Pace of {@code path} with {@code schedule} instead of the stored values (the open level, its counts, kana phase
+     * and skill practice day stay the path's); {@code enforceTarget} = a target that cannot be reached is blocked.
+     */
+    @Transactional(readOnly = true)
+    public Pacing pacing(JpathUserPath path, JpathUserLevel level, Schedule schedule, boolean enforceTarget) {
         Long userId = path.getUserId();
         String open = path.getOpenLevel();
         LocalDate today = clock.today(userId);
@@ -106,17 +131,14 @@ public class JpathPathViewAssembler {
         // No kana row left counts as completed even when kana_completed_at was never set.
         boolean kanaCompleted = path.getKanaCompletedAt() != null || kanaRowsLeft == 0;
         boolean kanaPhase = path.isKanaTab() && !kanaCompleted;
-        JpathStudyMode mode = path.getStudyMode() == null ? JpathStudyMode.COMBINED : path.getStudyMode();
-        EnumSet<DayOfWeek> skillDays = JpathDays.parse(path.getSkillDays());
-        EnumSet<DayOfWeek> restDays = JpathDays.parse(path.getRestDays());
-        JpathSliderValues sliders = new JpathSliderValues(level.getSliderVocab(), level.getSliderKanji(),
-                level.getSliderGrammar());
         LocalDate skillPracticeSince = level.getSkillPracticeAt() == null ? null
                 : level.getSkillPracticeAt().toLocalDate();
-        JpathPaceView pace = paceService.pace(userId, new JpathPaceService.Query(today, open, path.getTargetLevel(),
-                path.getExamDate(), path.getDailyMinutes(), skillDays, restDays, storedThirdDay(path), sliders,
-                kanaPhase ? kanaRowsLeft : 0, mode, skillPracticeSince, false, counts));
-        return new Pacing(today, counts, kana, kanaCompleted, kanaPhase, mode, skillDays, restDays, sliders, pace);
+        JpathPaceView pace = paceService.pace(userId, new JpathPaceService.Query(today, open, schedule.targetLevel(),
+                schedule.examDate(), schedule.minutes(), schedule.skillDays(), schedule.restDays(),
+                schedule.thirdSkillDay(), schedule.sliders(), kanaPhase ? kanaRowsLeft : 0, schedule.mode(),
+                skillPracticeSince, enforceTarget, counts));
+        return new Pacing(today, counts, kana, kanaCompleted, kanaPhase, schedule.mode(), schedule.skillDays(),
+                schedule.restDays(), schedule.sliders(), pace);
     }
 
     /** View of {@code path} (the learner's active path). */
@@ -277,7 +299,7 @@ public class JpathPathViewAssembler {
     }
 
     /** The stored third skill day when it is one valid code, else null (automatic choice). */
-    private static DayOfWeek storedThirdDay(JpathUserPath path) {
+    static DayOfWeek storedThirdDay(JpathUserPath path) {
         try {
             Set<DayOfWeek> days = JpathDays.parse(path.getThirdSkillDay());
             return days.size() == 1 ? days.iterator().next() : null;

@@ -31,7 +31,6 @@ import com.jlas.jlptpath.repository.JpathUserLevelRepository;
 import com.jlas.jlptpath.repository.JpathUserPathRepository;
 import com.jlas.jlptpath.service.JpathCatalogService;
 import com.jlas.jlptpath.service.JpathClock;
-import com.jlas.jlptpath.service.JpathLevelInfo;
 import com.jlas.jlptpath.service.JpathPathService;
 import com.jlas.jlptpath.service.JpathSmartTestImporter;
 import com.jlas.jlptpath.util.JpathDays;
@@ -183,9 +182,9 @@ public class JpathPathServiceImpl implements JpathPathService {
                 suggestion.mode(), null, true, null));
 
         return new JpathConfirmationView(source, attemptId, inProgress, summary, openLevel, levelNote, targetLevel,
-                targetOptions(openLevel), JpathPaceService.usableExamDate(surveyExam, today), minutes,
-                JpathPacingEngine.MINUTE_OPTIONS, JpathDays.codes(skillDays), JpathDays.codes(restDays), kanaTab,
-                sliders, JpathPathRules.bounds(openLevel), pace, suggestion);
+                JpathPathRules.targetOptions(catalog, openLevel), JpathPaceService.usableExamDate(surveyExam, today),
+                minutes, JpathPacingEngine.MINUTE_OPTIONS, JpathDays.codes(skillDays), JpathDays.codes(restDays),
+                kanaTab, sliders, JpathPathRules.bounds(openLevel), pace, suggestion);
     }
 
     @Override
@@ -297,15 +296,6 @@ public class JpathPathServiceImpl implements JpathPathService {
             return openLevel;
         }
         return catalog.capToReleased(wanted);
-    }
-
-    private List<String> targetOptions(String openLevel) {
-        int open = LEVELS.indexOf(openLevel);
-        return catalog.levels().stream()
-                .filter(JpathLevelInfo::released)
-                .map(JpathLevelInfo::level)
-                .filter(level -> LEVELS.indexOf(level) >= open)
-                .toList();
     }
 
     /** Closest of {@link JpathPacingEngine#MINUTE_OPTIONS}; a tie goes to the smaller; no answer → 30. */

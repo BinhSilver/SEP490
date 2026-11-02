@@ -12,6 +12,7 @@ import com.jlas.jlptpath.enums.JpathKanaChoice;
 import com.jlas.jlptpath.enums.JpathSliderKind;
 import com.jlas.jlptpath.enums.JpathTab;
 import com.jlas.jlptpath.service.JpathCatalogService;
+import com.jlas.jlptpath.service.JpathLevelInfo;
 import com.jlas.jlptpath.util.JpathOpenLevelRule;
 import com.jlas.jlptpath.util.JpathSliderBounds;
 import java.util.Collections;
@@ -92,6 +93,26 @@ final class JpathPathRules {
             throw new ApiException(ErrorCode.JPATH_LEVEL_NOT_RELEASED);
         }
         return key;
+    }
+
+    /** Released levels the target can be set to: the open level and the released levels above it. */
+    static List<String> targetOptions(JpathCatalogService catalog, String openLevel) {
+        int open = LEVELS.indexOf(openLevel);
+        return catalog.levels().stream()
+                .filter(JpathLevelInfo::released)
+                .map(JpathLevelInfo::level)
+                .filter(level -> LEVELS.indexOf(level) >= open)
+                .toList();
+    }
+
+    /** Released levels below the open level (lower-level practice). */
+    static List<String> lowerLevels(JpathCatalogService catalog, String openLevel) {
+        int open = LEVELS.indexOf(openLevel);
+        return catalog.levels().stream()
+                .filter(JpathLevelInfo::released)
+                .map(JpathLevelInfo::level)
+                .filter(level -> LEVELS.indexOf(level) < open)
+                .toList();
     }
 
     /** One slider log row; {@code before} null = no earlier value (INITIAL). */
