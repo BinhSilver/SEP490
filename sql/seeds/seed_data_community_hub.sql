@@ -158,8 +158,10 @@ WHERE @cm_owner_b IS NOT NULL AND x.user_id = @cm_learner AND x.deleted_at IS NU
   AND x.body = 'Bình luận mẫu đang bị ẩn do bị báo cáo (dùng để kiểm thử quyền xem).';
 
 -- ── 6. Tinh lai bo dem tu bang con (cho moi noi dung cong dong) ───────────────────────────────────────────
+-- Giu nguyen updated_at (ON UPDATE CURRENT_TIMESTAMP) de binh luan khong bi hien "da sua".
 UPDATE community_comment x
-SET x.report_count = (SELECT COUNT(*) FROM community_report r WHERE r.target_type = 'COMMENT' AND r.target_id = x.id);
+SET x.report_count = (SELECT COUNT(*) FROM community_report r WHERE r.target_type = 'COMMENT' AND r.target_id = x.id),
+    x.updated_at = x.updated_at;
 
 UPDATE community_content cc
 LEFT JOIN (SELECT community_content_id, COUNT(*) AS n, AVG(score) AS avg_score
