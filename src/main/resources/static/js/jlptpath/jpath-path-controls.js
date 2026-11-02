@@ -108,16 +108,40 @@
     return f ? f(m) : '';
   }
 
+  // JpathTodayView tabs: {tab, newTarget, newDone, reviewDue, reviewCap, reviewDone, checkPassed, done, required}
+  function todayTab(today, tab) {
+    return list(today && today.tabs).filter(function (x) { return x && x.tab === tab; })[0] || null;
+  }
+
   function chipsHtml(today) {
-    var chips = list(today && today.tabs).map(function (t) {
-      return '<li class="jp-chip">' + esc((CODE_LABEL[t.tab] || t.tab) + ' ' + num(t.done) + '/' + num(t.target)) + '</li>';
+    var chips = list(today && today.tabs).filter(function (t) {
+      return t && t.tab !== 'SKILL' && num(t.newTarget) > 0;
+    }).map(function (t) {
+      return '<li class="jp-chip' + (t.done ? ' jp-chip--done' : '') + '">'
+        + esc((CODE_LABEL[t.tab] || t.tab) + ' ' + num(t.newDone) + '/' + num(t.newTarget) + (t.done ? ' ✓' : '')) + '</li>';
     }).join('');
     return chips ? '<ul class="jp-chips" aria-label="Tiến độ hôm nay">' + chips + '</ul>' : '';
   }
 
   function target(today, tab) {
-    var t = list(today && today.tabs).filter(function (x) { return x && x.tab === tab; })[0];
-    return t ? num(t.target) : 0;
+    var t = todayTab(today, tab);
+    return t ? num(t.newTarget) : 0;
+  }
+
+  // cards due now over every tab
+  function reviewDue(today) {
+    return list(today && today.tabs).reduce(function (sum, t) { return sum + num(t && t.reviewDue); }, 0);
+  }
+
+  // skill day: a quiz is still needed while the SKILL tab has no passed check (none to quiz → passed from the start)
+  function quizRequired(today) {
+    var s = todayTab(today, 'SKILL');
+    return !!(s && !s.checkPassed);
+  }
+
+  // kana phase: the KANA tab target counts rows
+  function kanaRows(today) {
+    return target(today, 'KANA') || 2;
   }
 
   function modeButtonsHtml(today, path, activeTab) {
@@ -162,19 +186,19 @@
       return html + '<p>Hôm nay là ngày nghỉ của bạn: không có phần bắt buộc.</p>' + missed + end;
     }
     if (t.kind === 'SKILL') {
-      var line = 'Hôm nay là ngày kỹ năng: không học mới, ôn ' + num(t.reviewDue) + ' thẻ'
-        + (t.quizRequired === false ? '.' : ' + 1 quiz tự do từ 10 câu.');
+      var line = 'Hôm nay là ngày kỹ năng: không học mới, ôn ' + reviewDue(t) + ' thẻ'
+        + (quizRequired(t) ? ' + 1 quiz tự do từ 10 câu.' : '.');
       if (t.skillMakeup) line += ' Hôm nay bù ngày kỹ năng đã lỡ.';
       return html + '<p>' + esc(line) + '</p>' + missed
         + '<button type="button" class="jp-btn jp-btn--primary" data-action="start-tab" data-start-tab="skills">Bắt đầu ngày kỹ năng</button>' + end;
     }
     if (t.kind === 'REVIEW_ONLY') {
-      return html + '<p>' + esc('Hôm nay là ngày ôn: chỉ ôn ' + num(t.reviewDue) + ' thẻ, không học mới.') + '</p>' + missed
+      return html + '<p>' + esc('Hôm nay là ngày ôn: chỉ ôn ' + reviewDue(t) + ' thẻ, không học mới.') + '</p>' + missed
         + '<button type="button" class="jp-btn jp-btn--primary" data-action="start-mode" data-mode="COMBINED">Bắt đầu ôn</button>' + end;
     }
     var summary = t.kanaPhase
-      ? num(t.kanaRows || 2) + ' hàng chữ cái · ' + target(t, 'VOCAB') + ' từ mới · khoảng ' + num(t.estimatedMinutes) + ' phút'
-      : 'Ôn ' + num(t.reviewDue) + ' thẻ · ' + target(t, 'VOCAB') + ' từ mới · ' + target(t, 'KANJI') + ' Kanji mới · '
+      ? kanaRows(t) + ' hàng chữ cái · ' + target(t, 'VOCAB') + ' từ mới · khoảng ' + num(t.estimatedMinutes) + ' phút'
+      : 'Ôn ' + reviewDue(t) + ' thẻ · ' + target(t, 'VOCAB') + ' từ mới · ' + target(t, 'KANJI') + ' Kanji mới · '
         + target(t, 'GRAMMAR') + ' mẫu ngữ pháp · khoảng ' + num(t.estimatedMinutes) + ' phút';
     html += '<p class="jp-today__summary">' + esc(summary) + '</p>' + chipsHtml(t) + missed;
     if (t.reviewDayHint) {
@@ -237,7 +261,7 @@
     var apiClient = d.api || root.JpathApi;
     var go = d.navigate || function (u) { root.location.assign(u); };
     return apiClient.send('POST', SESSIONS_URL, req).then(function (res) {
-      var id = res && (res.sessionId != null ? res.sessionId : res.id);
+      var id = res && res.sessionId; // JpathSessionView
       go('/learning/jlpt/study?session=' + encodeURIComponent(id));
       return res;
     });
@@ -260,5 +284,5 @@
       sliders: sliderBody(draft), kanaTab: !!p.kanaTab, mode: p.mode || 'COMBINED' };
   }
 
-  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
+  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
 });
