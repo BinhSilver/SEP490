@@ -1,17 +1,30 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
-<!-- [JLAS-W0108] Temporary JLPT path shell (Task 7); the path page itself replaces it. -->
+<!-- [JLAS-W0108] JLPT path page (/learning): jpath-path.js draws the overview; later scripts fill the data-slot areas. -->
 <head th:replace="~{fragments/head :: standard('Lộ trình JLPT - JLAS', null)}"></head>
-<th:block th:replace="~{jlptpath/fragments/jpath :: assets(null)}"></th:block>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-path')}"></th:block>
 <body id="jlabBasePage" class="app-body jp-body">
 <div id="jlabBaseShellMount"></div>
-<main id="jlabBaseContent" class="jp-page" data-inline-dictionary
+<main id="jlabBaseContent" class="jp-page jp-path" data-inline-dictionary
       th:attr="data-jpath-tab=${jpathTab},data-jpath-topic=${jpathTopic}">
-    <section class="jp-state" role="status">
-        <h1>Đang tải lộ trình</h1>
-    </section>
+    <div id="jpathPathRoot" class="jp-path__grid" aria-live="polite" aria-busy="true"
+         th:attr="data-jpath-tab=${jpathTab}">
+        <div class="jp-path__hero" data-region="hero">
+            <p class="jp-path__loading" role="status">Đang tải lộ trình…</p>
+        </div>
+        <nav class="jp-path__tabs" data-region="tabs" aria-label="Phần học"></nav>
+        <div class="jp-path__stage" data-region="stage"></div>
+        <div class="jp-path__levels" data-region="levels"></div>
+        <div class="jp-path__numbers" id="jp-tab-panel" role="tabpanel" data-region="numbers"></div>
+        <aside class="jp-path__slider" data-slot="slider"></aside>
+        <section class="jp-path__today" data-slot="today"></section>
+        <section class="jp-path__list" data-slot="list"></section>
+        <div data-jpath-extra-links class="jp-path__extra"></div>
+    </div>
 </main>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlptpath/jpath-display.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-path.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
 </html>
