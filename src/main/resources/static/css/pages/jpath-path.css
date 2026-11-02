@@ -323,6 +323,58 @@
 .jp-kana-cell--learning { border-color: var(--jp-primary); }
 .jp-kana-cell__kana { font-size: 1.5em; line-height: 1.1; }
 
+/* Grammar accordion, list pane and lesson page (Task 52) */
+.jp-sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0);
+  white-space: nowrap; border: 0;
+}
+.jp-grammar-sum { margin: 0; font-size: .92em; }
+.jp-legend { color: var(--jp-muted); }
+.jp-dot { display: inline-block; width: .7em; height: .7em; border-radius: 50%; vertical-align: middle; flex: 0 0 auto; }
+.jp-dot-known { background: var(--jp-ok); }
+.jp-dot-learning { background: var(--jp-primary); }
+.jp-dot-new { background: transparent; border: 1.5px solid var(--jp-muted); box-sizing: border-box; }
+.jp-gunit { display: grid; gap: 6px; }
+.jp-gunit__title { margin: 8px 0 0; font-size: 1em; }
+.jp-gunit__count { color: var(--jp-muted); font-size: .85em; font-weight: 400; }
+.jp-gunit__rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.jp-grow {
+  width: 100%; min-height: 44px; display: flex; gap: 8px; align-items: center; padding: 8px 12px;
+  border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface);
+  color: var(--jp-ink); font: inherit; text-align: left; cursor: pointer;
+}
+.jp-grow--open { border: 2px solid var(--jp-primary); }
+.jp-grow:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-grow__text { flex: 1 1 auto; }
+.jp-grow__mark { color: var(--jp-muted); }
+.jp-grammar-split { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: start; }
+.jp-grammar-list { display: grid; gap: 8px; }
+.jp-grammar-pane { position: sticky; top: 16px; display: grid; gap: 12px; }
+.jp-lesson, .jp-lesson-practice {
+  display: grid; gap: 10px; padding: 16px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-panel);
+  background: var(--jp-surface); overflow-wrap: anywhere;
+}
+.jp-lesson p, .jp-lesson-practice p { margin: 0; line-height: 1.55; }
+.jp-lesson__eyebrow { color: var(--jp-muted); font-size: .78em; letter-spacing: .04em; }
+.jp-lesson__pattern { margin: 0; font-size: 1.6em; line-height: 1.25; }
+.jp-lesson__part { display: grid; gap: 4px; }
+.jp-lesson__label { color: var(--jp-muted); font-size: .75em; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+.jp-struct { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.jp-struct__chip { padding: 2px 8px; border-radius: var(--jp-radius-chip); background: var(--jp-primary-soft); color: var(--jp-ink); }
+.jp-struct__plus { color: var(--jp-muted); }
+.jp-lesson__compare { padding: 8px 10px; border-radius: var(--jp-radius-interactive); background: var(--jp-canvas); font-size: .92em; }
+.jp-lesson-practice__title { margin: 0; font-size: 1.05em; }
+.jp-lesson__foot { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.jp-lesson__nav { display: flex; gap: 16px; margin-left: auto; }
+.jp-status { margin: 0; color: var(--jp-ok); font-weight: 600; }
+.jp-status:empty { display: none; }
+.jp-lesson-page { display: grid; gap: 12px; max-width: 760px; }
+.jp-lesson-root { display: grid; gap: 12px; }
+@media (max-width: 899px) {
+  .jp-grammar-split { grid-template-columns: minmax(0, 1fr); }
+  .jp-grammar-pane { position: static; }
+}
+
 @media (max-width: 640px) {
   .jp-dialog-backdrop:has(.jp-dialog--drawer) { padding: 0; }
   .jp-dialog--drawer { width: 100%; height: 100%; max-height: none; border-radius: 0; }

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] Grammar lesson page (/learning/jlpt/grammar/{code}); jpath-lists.js draws it from
+     GET /api/learning/jlpt/grammar/{code}. Narrow screens open lessons here, wide screens in the list pane. -->
+<head th:replace="~{fragments/head :: standard('Bài ngữ pháp - JLAS', null)}"></head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-path')}"></th:block>
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page jp-path jp-lesson-page" data-inline-dictionary>
+    <a class="jp-link-btn jp-lesson-page__back" href="/learning?tab=grammar">← Về danh sách ngữ pháp</a>
+    <div id="jpathGrammarRoot" class="jp-lesson-root" aria-busy="true" th:attr="data-grammar-code=${grammarCode}">
+        <p class="jp-path__loading" role="status">Đang tải bài ngữ pháp…</p>
+    </div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlptpath/jpath-display.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-dialog.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-lists.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

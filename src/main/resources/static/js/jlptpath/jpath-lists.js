@@ -16,6 +16,12 @@
  *   freeQuizDialogHtml(tab, ctx), freeQuizRequest(values)
  *   kanjiFiltersHtml(filter, facets)    search, radical (character + name + count), sort, Bảng / Lưới
  *   kanjiListHtml(page, view, filter)   table Chữ · Hán Việt · Nghĩa · On · Kun · Nét, or a .jp-kanji grid; print menu
+ *   grammarAccordionHtml(units, filter, openCode, totals)
+ *                                       units with "{done}/{total} mẫu", state dots, aria-expanded on the open pattern
+ *   grammarLessonHtml(lesson), structureChips(formation), grammarOpenMode(width) (≥ 900 PANE, else PAGE)
+ *   mountGrammarLesson(rootEl?, deps?)  the /learning/jlpt/grammar/{code} page (#jpathGrammarRoot); auto-mounted
+ *                                       Luyện ngay / Luyện thêm → POST /checks → JpathCheck.mountInline (when loaded,
+ *                                       else the check page); "Học mẫu này…" → POST /grammar/{code}/queue-today
  *   kanaColumns(row), kanaHtml(rows, script)
  *                                       kana grid (a i u e o; YOON a u o; ん in its own slot), writing on every cell,
  *                                       "Học hàng này" → POST /sessions {tab:'KANA', mode:'BROWSE', startItemCode}
@@ -29,6 +35,13 @@
   var api = factory(root);
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (root) root.JpathLists = api;
+  if (root && root.document && typeof root.document.getElementById === 'function') {
+    var start = function () {
+      if (root.document.getElementById('jpathGrammarRoot')) api.mountGrammarLesson();
+    };
+    if (root.document.readyState === 'loading') root.document.addEventListener('DOMContentLoaded', start);
+    else start();
+  }
 })(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : null), function (root) {
   'use strict';
 
@@ -381,6 +394,212 @@
     return html;
   }
 
+  // ------------------------------------------------------------------------------------------------ grammar
+
+  var PANE_MIN_WIDTH = 900;
+  var MSG_QUEUED = 'Đã thêm vào lượt hôm nay.';
+
+  function grammarOpenMode(width) { return num(width) >= PANE_MIN_WIDTH ? 'PANE' : 'PAGE'; }
+
+  function unitTitle(u) {
+    var x = u || {};
+    return 'Bài ' + x.unitNo + (has(x.title) ? ' · ' + x.title : '');
+  }
+
+  function dotClass(state) {
+    var s = stateOf(state);
+    if (s === 'KNOWN') return 'jp-dot-known';
+    if (s === 'LEARNING' || s === 'NOTEBOOK') return 'jp-dot-learning';
+    return 'jp-dot-new';
+  }
+
+  function grammarRowHtml(r, openCode) {
+    var g = r || {};
+    var open = has(openCode) && g.code === openCode;
+    return '<li><button type="button" class="jp-grow' + (open ? ' jp-grow--open' : '') + '" data-action="open-grammar"'
+      + ' data-code="' + esc(g.code) + '" aria-expanded="' + open + '">'
+      + '<span class="jp-dot ' + dotClass(g.state) + '" aria-hidden="true"></span>'
+      + '<span class="jp-sr-only">' + esc(STATE_LABEL[stateOf(g.state)]) + ': </span>'
+      + '<span class="jp-grow__text"><b lang="ja">' + esc(g.pattern) + '</b>' + (has(g.meaning) ? ' · ' + esc(g.meaning) : '')
+      + '</span><span class="jp-grow__mark" aria-hidden="true">' + (open ? '▾' : '▸') + '</span></button></li>';
+  }
+
+  function grammarAccordionHtml(units, filter, openCode, totals) {
+    var f = filter || {};
+    var items = list(units).filter(Boolean);
+    var t = totals || {};
+    var total = has(t.total) ? num(t.total) : items.reduce(function (s, u) { return s + num(u.total); }, 0);
+    var done = has(t.done) ? num(t.done) : items.reduce(function (s, u) { return s + num(u.done); }, 0);
+    var options = list(t.units).length ? list(t.units) : items;
+    var html = '<div class="jp-list-filters" role="search">'
+      + '<label class="jp-field"><span class="jp-field__label">Bài</span><select class="jp-input" data-filter="unit">'
+      + optionHtml('', 'Tất cả bài', !has(f.unit))
+      + options.map(function (u) { return optionHtml(u.unitNo, unitTitle(u), String(u.unitNo) === String(f.unit)); }).join('')
+      + '</select></label>'
+      + '<label class="jp-field jp-field--grow"><span class="jp-field__label">Tìm</span>'
+      + '<input class="jp-input" type="search" data-filter="q" placeholder="Tìm mẫu, nghĩa…" value="' + esc(f.q || '')
+      + '" autocomplete="off"></label>' + quizButtonHtml('GRAMMAR') + '</div>';
+    html += '<p class="jp-grammar-sum">' + esc(done + '/' + total + ' mẫu đã xong') + ' · <span class="jp-legend">'
+      + '<span class="jp-dot jp-dot-known" aria-hidden="true"></span> đã xong '
+      + '<span class="jp-dot jp-dot-learning" aria-hidden="true"></span> đang học '
+      + '<span class="jp-dot jp-dot-new" aria-hidden="true"></span> chưa học</span></p>';
+    if (!items.length) return html + '<p class="jp-muted jp-list-empty">Không có mẫu nào khớp bộ lọc.</p>';
+    return html + items.map(function (u) {
+      return '<section class="jp-gunit"><h3 class="jp-gunit__title">' + esc(unitTitle(u))
+        + ' <span class="jp-gunit__count">' + esc(num(u.done) + '/' + num(u.total) + ' mẫu') + '</span></h3>'
+        + '<ul class="jp-gunit__rows">' + list(u.patterns).map(function (r) { return grammarRowHtml(r, openCode); }).join('')
+        + '</ul></section>';
+    }).join('');
+  }
+
+  function structureChips(formation) {
+    if (!has(formation)) return '';
+    var parts = String(formation).split(/\s*[+＋]\s*/).filter(function (p) { return p !== ''; });
+    return '<span class="jp-struct" lang="ja">' + parts.map(function (p) {
+      return '<span class="jp-struct__chip">' + esc(p) + '</span>';
+    }).join('<span class="jp-struct__plus" aria-hidden="true">+</span>') + '</span>';
+  }
+
+  function lessonPart(label, body) {
+    return body ? '<div class="jp-lesson__part"><span class="jp-lesson__label">' + esc(label) + '</span>' + body + '</div>' : '';
+  }
+
+  function textPart(label, value) { return has(value) ? lessonPart(label, '<p>' + esc(value) + '</p>') : ''; }
+
+  function grammarLessonHtml(lesson) {
+    var g = lesson || {};
+    var state = stateOf(g.state);
+    var html = '<article class="jp-lesson" data-jpath-report="'
+      + dataJson({ targetType: 'GRAMMAR', targetCode: g.code, pageContext: 'GRAMMAR_LESSON' }) + '">';
+    var eyebrow = ['NGỮ PHÁP ' + (g.level || ''), has(g.unitNo) ? 'BÀI ' + g.unitNo : null,
+      num(g.unitSize) > 0 ? 'MẪU ' + num(g.indexInUnit) + '/' + num(g.unitSize) : null].filter(has).join(' · ');
+    html += '<p class="jp-lesson__eyebrow">' + esc(eyebrow) + '</p>';
+    html += '<h2 class="jp-lesson__pattern" id="jp-lesson-title" lang="ja">' + esc(g.pattern) + '</h2>';
+    var variants = list(g.variants).filter(has);
+    if (variants.length) html += '<p class="jp-muted" lang="ja">' + esc(variants.join(' · ')) + '</p>';
+    html += textPart('Nghĩa', g.meaning);
+    html += lessonPart('Cấu trúc', structureChips(g.formation));
+    html += textPart('Cách dùng', g.usage) + textPart('Sắc thái', g.nuance) + textPart('Lỗi thường gặp', g.commonMistakes);
+    var compare = list(g.related).filter(function (r) { return r && has(r.pattern); }).map(function (r) {
+      return '<p class="jp-lesson__compare">' + esc('So sánh: ' + r.pattern + (has(r.meaning) ? ' (' + r.meaning + ')' : ''))
+        + '</p>';
+    }).join('');
+    html += compare;
+    var examples = list(g.examples).map(function (e) {
+      var ex = F().exampleHtml(e);
+      if (!ex) return '';
+      return '<li class="jp-example">' + (e && has(e.audioUrl) ? '<button type="button" class="jp-icon-btn" data-action="play" data-audio="'
+        + esc(e.audioUrl) + '" aria-label="Nghe câu ví dụ">🔊</button>' : '') + '<div>' + ex + '</div></li>';
+    }).filter(Boolean).join('');
+    html += lessonPart('Ví dụ', examples ? '<ul class="jp-examples">' + examples + '</ul>' : '');
+    html += '</article>';
+    if (g.practiceAvailable || g.extraAvailable) {
+      html += '<section class="jp-lesson-practice no-inline-dictionary" data-practice="GRAMMAR_PRACTICE"'
+        + ' aria-labelledby="jp-practice-title"><h3 class="jp-lesson-practice__title" id="jp-practice-title">Luyện ngay</h3>';
+      if (g.practiceAvailable) {
+        html += '<p class="jp-muted">1 câu xếp từ và 1 câu điền.</p><button type="button" class="jp-btn jp-btn--primary"'
+          + ' data-action="grammar-practice" data-kind="GRAMMAR_PRACTICE">Luyện ngay</button>';
+      }
+      if (g.extraAvailable) {
+        html += '<button type="button" class="jp-link-btn" data-action="grammar-practice" data-kind="GRAMMAR_EXTRA">'
+          + '+ Luyện thêm 3 câu</button>';
+      }
+      html += '<div class="jp-lesson-practice__mount" data-part="practice-mount"></div>'
+        + '<p class="jp-alert" role="alert" data-part="lesson-error" hidden></p></section>';
+    } else {
+      html += '<p class="jp-alert" role="alert" data-part="lesson-error" hidden></p>';
+    }
+    var foot = '';
+    if (state === 'NEW' && g.learnable !== false) {
+      foot += '<button type="button" class="jp-btn" data-action="queue-today">Học mẫu này trong lượt hôm nay</button>';
+    }
+    var nav = '';
+    if (has(g.prevCode)) {
+      nav += '<a class="jp-link-btn" data-action="open-grammar" data-code="' + esc(g.prevCode) + '" href="/learning/jlpt/grammar/'
+        + encodeURIComponent(g.prevCode) + '">← Mẫu trước</a>';
+    }
+    if (has(g.nextCode)) {
+      nav += '<a class="jp-link-btn" data-action="open-grammar" data-code="' + esc(g.nextCode) + '" href="/learning/jlpt/grammar/'
+        + encodeURIComponent(g.nextCode) + '">Mẫu sau →</a>';
+    }
+    if (nav) foot += '<nav class="jp-lesson__nav" aria-label="Mẫu khác">' + nav + '</nav>';
+    if (foot) html += '<div class="jp-lesson__foot">' + foot + '<p class="jp-status" role="status" data-part="lesson-status"></p></div>';
+    return html;
+  }
+
+  function lessonUrl(code) { return BASE + '/grammar/' + encodeURIComponent(code); }
+
+  /** Lesson buttons shared by the list pane and the lesson page. env = {api, navigate, returnTo, toast}. */
+  function lessonAction(el, lesson, container, env) {
+    var action = el.getAttribute('data-action');
+    var g = lesson || {};
+    if (action === 'play') { D().playAudio(el.getAttribute('data-audio')); return true; }
+    if (action === 'grammar-practice') {
+      el.disabled = true;
+      env.api.send('POST', BASE + '/checks', { kind: el.getAttribute('data-kind') || 'GRAMMAR_PRACTICE', tab: 'GRAMMAR',
+        level: g.level, itemCode: g.code }).then(function (res) {
+        var token = res && (res.token || res.checkToken);
+        var mountEl = container.querySelector('[data-part="practice-mount"]');
+        var check = root && root.JpathCheck;
+        if (token && check && typeof check.mountInline === 'function' && mountEl) {
+          el.disabled = false;
+          return check.mountInline(mountEl, token, {});
+        }
+        if (token) env.navigate(checkUrl(token, env.returnTo));
+        return null;
+      }).catch(function (e) {
+        el.disabled = false;
+        showError(container, 'lesson-error', messageOf(e));
+      });
+      return true;
+    }
+    if (action === 'queue-today') {
+      el.disabled = true;
+      env.api.send('POST', BASE + '/grammar/' + encodeURIComponent(g.code) + '/queue-today').then(function () {
+        var ui = root && root.JlasUI;
+        if (ui && typeof ui.toast === 'function') ui.toast(MSG_QUEUED, 'success');
+        var status = container.querySelector('[data-part="lesson-status"]');
+        if (status) status.textContent = MSG_QUEUED;
+      }, function (e) {
+        el.disabled = false;
+        showError(container, 'lesson-error', messageOf(e));
+      });
+      return true;
+    }
+    return false;
+  }
+
+  /** Draws the grammar lesson page (#jpathGrammarRoot[data-grammar-code]). */
+  function mountGrammarLesson(rootEl, deps) {
+    var d = deps || {};
+    var doc = d.document || (root && root.document);
+    var el = rootEl || (doc && doc.getElementById('jpathGrammarRoot'));
+    if (!el) return Promise.resolve();
+    var apiClient = d.api || root.JpathApi;
+    var loc = d.location || root.location;
+    var rendered = d.rendered || function (x) { D().rendered(x); };
+    var code = el.getAttribute('data-grammar-code');
+    var lesson = null;
+    var env = { api: apiClient, navigate: d.navigate || function (u) { root.location.assign(u); },
+      returnTo: ((loc && loc.pathname) || '/learning') + ((loc && loc.search) || '') };
+    el.addEventListener('click', function (ev) {
+      var t = ev.target;
+      var btn = t && typeof t.closest === 'function' ? t.closest('[data-action]') : null;
+      if (!btn || btn.disabled || !lesson) return;
+      lessonAction(btn, lesson, el, env);
+    });
+    return Promise.resolve().then(function () { return apiClient.get(lessonUrl(code)); }).then(function (view) {
+      lesson = view || {};
+      el.innerHTML = grammarLessonHtml(lesson);
+      el.setAttribute('aria-busy', 'false');
+      if (doc && has(lesson.pattern)) doc.title = lesson.pattern + ' - JLAS';
+      rendered(el);
+    }, function (e) {
+      el.innerHTML = '<p class="jp-alert" role="alert">' + esc(messageOf(e, 'Không tải được bài ngữ pháp.')) + '</p>';
+      el.setAttribute('aria-busy', 'false');
+    });
+  }
+
   // ------------------------------------------------------------------------------------------------ drawer
 
   function section(label, body) {
@@ -642,6 +861,60 @@
     }
   };
 
+  TABS.grammar = {
+    urlKeys: ['unit', 'q', 'open'],
+    init: function (st, params) {
+      st.filter = { unit: /^\d+$/.test(params.unit || '') ? params.unit : '', q: params.q || '',
+        open: /^JG-[0-9a-f]{10}$/.test(params.open || '') ? params.open : '' };
+      st.cache = {};
+    },
+    load: function (st) {
+      var f = st.filter;
+      var level = st.ctx.level;
+      var mode = grammarOpenMode(widthOf(st.ctx));
+      function units(filter) {
+        var url = listUrl('grammar', filter);
+        if (st.cache[url]) return Promise.resolve(st.cache[url]);
+        return st.api.get(url).then(function (v) { st.cache[url] = list(v); return st.cache[url]; });
+      }
+      var all = units({ level: level });
+      var shown = has(f.unit) || has(f.q) ? units({ level: level, unit: f.unit, q: f.q }) : all;
+      var pane = mode === 'PANE' && has(f.open)
+        ? st.api.get(lessonUrl(f.open)).then(function (v) { return v; }, function () { return null; }) : Promise.resolve(null);
+      return Promise.all([all, shown, pane]).then(function (res) {
+        st.units = res[0];
+        st.lesson = res[2];
+        var totals = { units: res[0], total: res[0].reduce(function (s, u) { return s + num(u.total); }, 0),
+          done: res[0].reduce(function (s, u) { return s + num(u.done); }, 0) };
+        var accordion = grammarAccordionHtml(res[1], f, mode === 'PANE' ? f.open : null, totals);
+        if (mode !== 'PANE') return accordion;
+        var paneHtml = st.lesson ? grammarLessonHtml(st.lesson)
+          : '<p class="jp-muted jp-grammar-pane__hint">Chọn một mẫu để xem bài học.</p>';
+        return '<div class="jp-grammar-split"><div class="jp-grammar-list">' + accordion + '</div>'
+          + '<div class="jp-grammar-pane" data-part="pane" aria-live="polite">' + paneHtml + '</div></div>';
+      });
+    }
+  };
+
+  function widthOf(ctx) {
+    if (ctx && typeof ctx.width === 'function') return ctx.width();
+    return (root && root.innerWidth) || 0;
+  }
+
+  function openGrammar(slot, st, el, ev) {
+    var code = el.getAttribute('data-code');
+    if (!/^JG-[0-9a-f]{10}$/.test(code || '')) return null;
+    var link = typeof el.getAttribute === 'function' && el.getAttribute('href');
+    if (grammarOpenMode(widthOf(st.ctx)) === 'PAGE') {
+      if (!link) st.navigate('/learning/jlpt/grammar/' + encodeURIComponent(code));
+      return null;
+    }
+    if (ev && typeof ev.preventDefault === 'function') ev.preventDefault();
+    tabState(st).filter.open = code;
+    writeParams(st.env, { open: code });
+    return reload(slot, st);
+  }
+
   function startKanaRow(slot, st, el) {
     var req = { tab: 'KANA', mode: 'BROWSE', startItemCode: el.getAttribute('data-start') };
     el.disabled = true;
@@ -865,14 +1138,22 @@
         return applyFilter(slot, st, 'view', el.getAttribute('data-view') === 'GRID' ? 'GRID' : '');
       },
       'kana-script': function (el) { return applyFilter(slot, st, 'script', el.getAttribute('data-script')); },
-      'kana-row': function (el) { return startKanaRow(slot, st, el); }
+      'kana-row': function (el) { return startKanaRow(slot, st, el); },
+      'open-grammar': function (el, ev) { return openGrammar(slot, st, el, ev); }
     };
+    function paneAction(el) {
+      var t = tabState(st);
+      if (st.key !== 'grammar' || !t.lesson || typeof slot.querySelector !== 'function') return false;
+      var pane = slot.querySelector('[data-part="pane"]');
+      return !!pane && lessonAction(el, t.lesson, pane, { api: st.api, navigate: st.navigate, returnTo: currentReturn(st) });
+    }
     st.actions = actions;
     slot.addEventListener('click', function (ev) {
       var t = ev.target;
       var el = t && typeof t.closest === 'function' ? t.closest('[data-action]') : null;
-      var handler = el && actions[el.getAttribute('data-action')];
-      if (handler && !el.disabled) handler(el);
+      if (!el || el.disabled) return;
+      var handler = actions[el.getAttribute('data-action')];
+      if (handler) handler(el, ev); else paneAction(el);
     });
     slot.addEventListener('change', function (ev) {
       var t = ev.target;
@@ -896,6 +1177,8 @@
     itemDrawerHtml: itemDrawerHtml, freeQuizDialogHtml: freeQuizDialogHtml, freeQuizRequest: freeQuizRequest,
     safeReturn: safeReturn, checkUrl: checkUrl, mountTab: mountTab, messageOf: messageOf,
     kanjiFiltersHtml: kanjiFiltersHtml, kanjiListHtml: kanjiListHtml, radicalChar: radicalChar,
-    kanaColumns: kanaColumns, kanaHtml: kanaHtml
+    kanaColumns: kanaColumns, kanaHtml: kanaHtml,
+    grammarAccordionHtml: grammarAccordionHtml, grammarLessonHtml: grammarLessonHtml, structureChips: structureChips,
+    grammarOpenMode: grammarOpenMode, mountGrammarLesson: mountGrammarLesson
   };
 });
