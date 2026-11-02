@@ -4,6 +4,7 @@ import com.jlas.jlptpath.entity.JpathUserItem;
 import com.jlas.jlptpath.enums.JpathItemState;
 import com.jlas.jlptpath.enums.JpathItemType;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,25 @@ public interface JpathUserItemRepository extends JpaRepository<JpathUserItem, Lo
 
     /** Items of a level counted towards progress (countedAt set). */
     long countByUserIdAndLevelAndItemTypeAndCountedAtIsNotNull(Long userId, String level, JpathItemType itemType);
+
+    List<JpathUserItem> findByUserIdAndItemTypeAndItemCodeIn(Long userId, JpathItemType itemType,
+                                                             Collection<String> itemCodes);
+
+    List<JpathUserItem> findByUserIdAndItemType(Long userId, JpathItemType itemType);
+
+    /** Codes of every item of {@code t} the learner has a row for (started, in the notebook or known). */
+    @Query("select i.itemCode from JpathUserItem i where i.userId = :userId and i.itemType = :t")
+    List<String> findCodesByUserIdAndItemType(@Param("userId") Long userId, @Param("t") JpathItemType t);
+
+    /** Size of {@link #due}: items of {@code t} not KNOWN with next review at or before {@code localNow}. */
+    @Query("""
+            select count(i) from JpathUserItem i
+            where i.userId = :userId and i.itemType = :t
+              and i.state <> com.jlas.jlptpath.enums.JpathItemState.KNOWN
+              and i.nextReviewAt <= :localNow
+            """)
+    long countDue(@Param("userId") Long userId, @Param("t") JpathItemType t,
+                  @Param("localNow") LocalDateTime localNow);
 
     long countByUserIdAndItemTypeAndState(Long userId, JpathItemType itemType, JpathItemState state);
 
