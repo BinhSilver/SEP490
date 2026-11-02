@@ -75,7 +75,7 @@ function vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub, miraiM
   };
   const out = [];
   const add = (c) => {
-    c.ne = normalizeJapanese(c.expression); c.nr = normalizeJapanese(c.reading); c.form = spellingForm(c.ne); c.rkey = c.nr;
+    c.ne = normalizeJapanese(c.expression); c.nr = normalizeJapanese(c.reading); [c.form, c.rkey] = notationFree(c.ne, c.nr); c.form = spellingForm(c.form);
     // The ids a review may name this candidate by: its J-LAS id, or the id a Mirai word has alone (as listed and as corrected).
     c.ids = c.src === 'JLAS' ? [c.id] : [...new Set([[c.ne, c.nr], c.listed.map(normalizeJapanese)].map(([e, r]) => `JV-${sha256(`LP|${e}|${r}`).slice(0, 10)}`))];
     const exact = dictFor(c.ne, c.nr);
@@ -128,6 +128,17 @@ const looseFits = (a, b) => {
 const sameSpellingFits = looseFits;
 const fitScore = (a, b) => (sharedSense(a, b) ? 10 : 0) + sharedWords(a, b);
 
+// Grammar notation is not part of the spelling: 講義＜する＞, 輸出（する）, 元気（な） group with 講義, 輸出, 元気
+// (a reading that writes する out — べんきょう＜する＞ read べんきょうする — drops it too). Other brackets stay.
+const NOTATION = /\s*[＜<（(]\s*(する|します|な|な\s*[/／]\s*する)\s*[＞>）)]\s*$/;
+function notationFree(ne, nr) {
+  const m = ne.match(NOTATION);
+  if (!m) return [ne, nr];
+  const form = ne.replace(NOTATION, '');
+  let reading = nr.replace(NOTATION, '');
+  if (reading === nr && /する/.test(m[1]) && reading.endsWith('する') && !form.endsWith('する')) reading = reading.slice(0, -2);
+  return [form, reading.trim()];
+}
 // Spellings that differ only in okurigana or kana between the same kanji (分る/分かる, 引越し/引っ越し, 曇/曇り) are
 // one spelling of the word: the dictionary lists them as separate entries, but same kanji + same reading is one word.
 const spellingForm = ne => HAS_KANJI.test(ne) ? [...ne].filter(ch => /[一-龯々]/.test(ch)).join('') : ne;
@@ -167,6 +178,8 @@ function groupLexemes(candidates, barred = () => false) {
     if (a.entry && b.entry && a.entry.id === b.entry.id) return true;
     if (a.form !== b.form) return false;
     if (KATAKANA_WORD.test(a.expression) && a.expression === b.expression) return true;
+    // Hiragana and katakana spellings read alike are not one spelling (でも "nhưng" / デモ "biểu tình").
+    if (!HAS_KANJI.test(a.form) && /[ァ-ヺ]/.test(a.expression) !== /[ァ-ヺ]/.test(b.expression)) return false;
     if (names(a) || names(b)) return HAS_KANJI.test(a.form);
     if (a.entry && b.entry) return sameSpellingFits(fullSenses(a), fullSenses(b));
     if (HAS_KANJI.test(a.form)) return true;
