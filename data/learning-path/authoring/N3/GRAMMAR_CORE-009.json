@@ -1,6 +1,7 @@
 {
  "header": {
-  "instructions": "Các trường còn thiếu: meaning_vi, formation (ký hiệu 〜, V-て, N, Aい, Aな), usage_vi, nuance_vi, common_mistakes_vi, examples (đủ 3 câu {ja, ja_furigana, vi})."
+  "grammar_role": "SECONDARY",
+  "instructions": "Mẫu PHỤ (học ở cuối bài của mẫu chính): chỉ cần meaning_vi, formation (ký hiệu 〜, V-て, N, Aい, Aな), examples 1–2 câu {ja, ja_furigana, vi}. Không viết usage/nuance/lỗi thường gặp, không câu hỏi."
  },
  "items": [
   {
@@ -8,3120 +9,860 @@
    "context": {
     "examples": [
      {
-      "ja": "どんなに疲れていても、約束は守る。",
-      "vi": "Dù có mệt đến đâu, tôi vẫn giữ lời hứa."
+      "ja": "たとえ雨が降っても、試合は行います。",
+      "vi": "Dẫu có mưa, trận đấu vẫn diễn ra."
      },
      {
-      "ja": "どんなに練習しても、なかなか上達しない。",
-      "vi": "Dù luyện tập thế nào cũng mãi không tiến bộ."
+      "ja": "忙しくても、運動するようにしている。",
+      "vi": "Dù bận, tôi vẫn cố gắng tập thể dục."
      }
     ],
-    "meaning_vi": "Nhượng bộ cực hạn: “cho dù… đến mức nào đi nữa thì… (kết quả/quan điểm không đổi)”. Nhấn mạnh bằng どんなに: rộng mọi mức độ, mọi cách. Vế sau thường biểu thị kết quả/ý chí/đánh giá không thay đổi, hay mang sắc thái bất biến, khó thay đổi.",
-    "pattern": "Dù thế nào cũng",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "どんなに忙しくても、朝ご飯は食べる。",
-      "answer_vi": "Dù bận đến đâu, tôi vẫn ăn sáng.",
-      "chapter": 11,
-      "context_vi": "Hoàn thành câu: Dù bận đến đâu, tôi vẫn ăn sáng.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「ても」 diễn đạt Nhượng bộ cực hạn: “cho dù… đến mức nào đi nữa thì… (kết quả/quan điểm không đổi)”. Nhấn mạnh bằng どんなに: rộng mọi mức độ, mọi cách. Vế sau thường biểu thị kết quả/ý chí/đánh giá không thay đổi, hay mang sắc thái bất biến, khó thay đổi. Các lựa chọn 「てもいい」 và 「てから」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-bb71e82491",
-      "id": "LP-GRAMC-N3-C11-bb71e82491-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "てもいい",
-       "ても",
-       "てから",
-       "てまで"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Dù thế nào cũng",
-      "prompt_ja": "どんなに忙しく[ ]、朝ご飯は食べる。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "どんなに遠くても家族に会いに行く。",
-      "answer_vi": "Dù xa đến đâu, tôi vẫn đi gặp gia đình.",
-      "chapter": 11,
-      "context_vi": "Sắp xếp thành câu: Dù xa đến đâu, tôi vẫn đi gặp gia đình.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「Dù thế nào cũng」 với nghĩa Nhượng bộ cực hạn: “cho dù… đến mức nào đi nữa thì… (kết quả/quan điểm không đổi)”. Nhấn mạnh bằng どんなに: rộng mọi mức độ, mọi cách. Vế sau thường biểu thị kết quả/ý chí/đánh giá không thay đổi, hay mang sắc thái bất biến, khó thay đổi.",
-      "goal": "JLPT",
-      "grammar_id": "JG-bb71e82491",
-      "id": "LP-GRAMC-N3-C11-bb71e82491-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "家族に",
-       "会いに行く。",
-       "どんなに遠くても"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Dù thế nào cũng",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Nghĩa chính: Nhượng bộ/nhượng bộ giả định “dẫu cho X thì Y vẫn…”, Y không bị ảnh hưởng bởi X. Phạm vi: Có thể chỉ giả định (chưa có) hoặc thực tế; khác のに (đã thực tế, trái mong đợi). Cấu trúc phổ biến: たとえ～ても, いくら～ても, もし～ても; Y thường mang ý chí/phán đoán/thói quen. Biến thể cho phép/không vấn đề: ～てもいい (được phép), ～てもかまわない (không sao).",
+    "pattern": "Dù... cũng",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-bb71e82491"
+   "id": "JG-aa570d2fc1"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "厳しい規制が導入された。その結果、排出量が大幅に減った。",
-      "vi": "Quy định nghiêm ngặt được áp dụng. Kết quả là lượng thải giảm mạnh."
+      "ja": "あのとき謝ればよかった。",
+      "vi": "Giá mà lúc đó mình xin lỗi."
      },
      {
-      "ja": "十分な準備ができなかった。その結果、試験は不合格だった。",
-      "vi": "Không chuẩn bị đầy đủ. Kết quả là trượt kỳ thi."
+      "ja": "もっと早く医者に行けばよかった。",
+      "vi": "Phải chi mình đi bác sĩ sớm hơn."
      }
     ],
-    "meaning_vi": "“Kết quả là/Do đó” nhấn mạnh mối quan hệ nhân-quả và thành quả cuối cùng sau một quá trình. Thường dùng trong văn viết, báo cáo, luận văn; sắc thái trang trọng hơn それで/だから. Tiền đề (nguyên nhân, quá trình) cần rõ ràng ở câu/đoạn trước để “その結果” có tham chiếu chính xác. Có thể dùng cho cả kết quả tích cực, tiêu cực, hoặc trung tính.",
-    "pattern": "Kết quả là",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "毎日歩いた。その結果、体が強くなった。",
-      "answer_vi": "Tôi đi bộ mỗi ngày. Kết quả là cơ thể khỏe hơn.",
-      "chapter": 11,
-      "context_vi": "Hoàn thành câu: Tôi đi bộ mỗi ngày. Kết quả là cơ thể khỏe hơn.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「その結果」 diễn đạt “Kết quả là/Do đó” nhấn mạnh mối quan hệ nhân-quả và thành quả cuối cùng sau một quá trình. Thường dùng trong văn viết, báo cáo, luận văn; sắc thái trang trọng hơn それで/だから. Tiền đề (nguyên nhân, quá trình) cần rõ ràng ở câu/đoạn trước để “その結果” có tham chiếu chính xác. Có thể dùng cho cả kết quả tích cực, tiêu cực, hoặc trung tính. Các lựa chọn 「その目的」 và 「その途中」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-d02e2fe6d9",
-      "id": "LP-GRAMC-N3-C11-d02e2fe6d9-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "その目的",
-       "その結果",
-       "その途中",
-       "その予定"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Kết quả là",
-      "prompt_ja": "毎日歩いた。[ ]、体が強くなった。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "何度も練習した。その結果、上手に話せた。",
-      "answer_vi": "Tôi luyện tập nhiều lần. Kết quả là nói tốt.",
-      "chapter": 11,
-      "context_vi": "Sắp xếp thành câu: Tôi luyện tập nhiều lần. Kết quả là nói tốt.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「Kết quả là」 với nghĩa “Kết quả là/Do đó” nhấn mạnh mối quan hệ nhân-quả và thành quả cuối cùng sau một quá trình. Thường dùng trong văn viết, báo cáo, luận văn; sắc thái trang trọng hơn それで/だから. Tiền đề (nguyên nhân, quá trình) cần rõ ràng ở câu/đoạn trước để “その結果” có tham chiếu chính xác. Có thể dùng cho cả kết quả tích cực, tiêu cực, hoặc trung tính.",
-      "goal": "JLPT",
-      "grammar_id": "JG-d02e2fe6d9",
-      "id": "LP-GRAMC-N3-C11-d02e2fe6d9-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "その結果、",
-       "上手に話せた。",
-       "何度も練習した。"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Kết quả là",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Biểu hiện sự tiếc nuối, hối hận về một việc trong quá khứ đã không làm (hoặc đã làm). Dịch tự nhiên: “Giá mà…”, “Phải chi…”, “Ước gì đã…”. Thường nói về hành động chưa thực hiện nhưng đáng lẽ nên làm, hoặc hành động đã làm nhưng ước gì không làm. Đây là cách nói cảm xúc, sử dụng nhiều trong hội thoại, phim ảnh, nhật ký nội tâm.",
+    "pattern": "Giá mà đã... (hối tiếc)",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-d02e2fe6d9"
+   "id": "JG-0070feac6a"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "彼は忙しすぎて、昼ご飯さえ食べない。",
-      "vi": "Anh ấy bận đến mức ngay cả bữa trưa cũng không ăn."
+      "ja": "これ、食べてごらん。おいしいよ。",
+      "vi": "Cái này, thử ăn xem. Ngon lắm."
      },
      {
-      "ja": "子どもでさえ理解できる説明にしてほしい。",
-      "vi": "Mong hãy giải thích sao cho đến trẻ con cũng hiểu được."
+      "ja": "もう一度やってごらん。できるはずだよ。",
+      "vi": "Thử làm lại lần nữa đi. Chắc chắn làm được mà."
      }
     ],
-    "meaning_vi": "Nghĩa 1: Nhấn mạnh mức độ “đến cả/ngay cả” một ví dụ cực đoan → nhấn mạnh bất ngờ, ngoài dự đoán. Nghĩa 2: Mẫu điều kiện đủ ～さえ～ば “chỉ cần … là …” → xác định điều kiện tối thiểu để đạt mục tiêu. Vị trí: さえ gắn ngay sau yếu tố được nhấn (danh từ/trợ từ cách; với động từ dùng Vます＋さえすれば). Sắc thái mạnh hơn でも; ですら trang trọng hơn さえ.",
-    "pattern": "Ngay cả, thậm chí",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "小学生でさえ分かる問題だ。",
-      "answer_vi": "Đây là câu hỏi mà ngay cả học sinh tiểu học cũng hiểu.",
-      "chapter": 11,
-      "context_vi": "Hoàn thành câu: Đây là câu hỏi mà ngay cả học sinh tiểu học cũng hiểu.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「でさえ」 diễn đạt Nghĩa 1: Nhấn mạnh mức độ “đến cả/ngay cả” một ví dụ cực đoan → nhấn mạnh bất ngờ, ngoài dự đoán. Nghĩa 2: Mẫu điều kiện đủ ～さえ～ば “chỉ cần … là …” → xác định điều kiện tối thiểu để đạt mục tiêu. Vị trí: さえ gắn ngay sau yếu tố được nhấn (danh từ/trợ từ cách; với động từ dùng Vます＋さえすれば). Sắc thái mạnh hơn でも; ですら trang trọng hơn さえ. Các lựa chọn 「でこそ」 và 「でばかり」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-f8114b2673",
-      "id": "LP-GRAMC-N3-C11-f8114b2673-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "でこそ",
-       "でさえ",
-       "でばかり",
-       "でぐらい"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Ngay cả, thậm chí",
-      "prompt_ja": "小学生[ ]分かる問題だ。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "彼は名前さえ書かずに帰った。",
-      "answer_vi": "Anh ấy về mà thậm chí không ghi tên.",
-      "chapter": 11,
-      "context_vi": "Sắp xếp thành câu: Anh ấy về mà thậm chí không ghi tên.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「Ngay cả, thậm chí」 với nghĩa Nghĩa 1: Nhấn mạnh mức độ “đến cả/ngay cả” một ví dụ cực đoan → nhấn mạnh bất ngờ, ngoài dự đoán. Nghĩa 2: Mẫu điều kiện đủ ～さえ～ば “chỉ cần … là …” → xác định điều kiện tối thiểu để đạt mục tiêu. Vị trí: さえ gắn ngay sau yếu tố được nhấn (danh từ/trợ từ cách; với động từ dùng Vます＋さえすれば). Sắc thái mạnh hơn でも; ですら trang trọng hơn さえ.",
-      "goal": "JLPT",
-      "grammar_id": "JG-f8114b2673",
-      "id": "LP-GRAMC-N3-C11-f8114b2673-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "書かずに",
-       "帰った。",
-       "彼は名前さえ"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Ngay cả, thậm chí",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Đề nghị/mệnh lệnh nhẹ “hãy thử làm … xem” hướng tới người nghe ở vai dưới/quan hệ thân mật. Mang sắc thái khuyến khích trải nghiệm trực tiếp: làm thử để tự cảm nhận/kết luận. ～てごらん là biến dạng mệnh lệnh của “ご覧になる/ごらん” (xem/nhìn), mở rộng sang mọi động từ qua Vて.",
+    "pattern": "Hãy thử...",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-f8114b2673"
+   "id": "JG-6926b68318"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "先生のおかげで、第一志望に合格できた。",
-      "vi": "Nhờ thầy cô mà tôi đỗ nguyện vọng 1."
+      "ja": "彼は謝ろうとしない。",
+      "vi": "Anh ta chẳng thèm xin lỗi."
      },
      {
-      "ja": "友だちが手伝ってくれたおかげで、早く終わった。",
-      "vi": "Nhờ bạn giúp nên xong sớm."
+      "ja": "子どもが野菜を食べようとしない。",
+      "vi": "Đứa trẻ không chịu ăn rau."
      }
     ],
-    "meaning_vi": "Nêu nguyên nhân tích cực: “nhờ vào … mà … (kết quả tốt)”. Cũng có thể dùng mỉa mai/tiêu cực trong văn nói: “…のおかげで (trái ý)”, nhưng cẩn thận sắc thái. Mang hàm ý biết ơn đối với người/nguyên nhân giúp đạt kết quả. Sử dụng với người, sự vật, điều kiện, hoàn cảnh đều được nếu mang lại lợi ích.",
-    "pattern": "Nhờ (kết quả tốt)",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "あなたの助言のおかげで、合格できた。",
-      "answer_vi": "Nhờ lời khuyên của bạn, tôi đã đỗ.",
-      "chapter": 11,
-      "context_vi": "Hoàn thành câu: Nhờ lời khuyên của bạn, tôi đã đỗ.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「おかげで」 diễn đạt Nêu nguyên nhân tích cực: “nhờ vào … mà … (kết quả tốt)”. Cũng có thể dùng mỉa mai/tiêu cực trong văn nói: “…のおかげで (trái ý)”, nhưng cẩn thận sắc thái. Mang hàm ý biết ơn đối với người/nguyên nhân giúp đạt kết quả. Sử dụng với người, sự vật, điều kiện, hoàn cảnh đều được nếu mang lại lợi ích. Các lựa chọn 「せいで」 và 「かわりに」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-ab95775ccd",
-      "id": "LP-GRAMC-N3-C11-ab95775ccd-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "せいで",
-       "おかげで",
-       "かわりに",
-       "とおりに"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Nhờ (kết quả tốt)",
-      "prompt_ja": "あなたの助言の[ ]、合格できた。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "早く寝たおかげで今日は体が軽い。",
-      "answer_vi": "Nhờ ngủ sớm nên hôm nay người tôi nhẹ nhõm.",
-      "chapter": 11,
-      "context_vi": "Sắp xếp thành câu: Nhờ ngủ sớm nên hôm nay người tôi nhẹ nhõm.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「Nhờ (kết quả tốt)」 với nghĩa Nêu nguyên nhân tích cực: “nhờ vào … mà … (kết quả tốt)”. Cũng có thể dùng mỉa mai/tiêu cực trong văn nói: “…のおかげで (trái ý)”, nhưng cẩn thận sắc thái. Mang hàm ý biết ơn đối với người/nguyên nhân giúp đạt kết quả. Sử dụng với người, sự vật, điều kiện, hoàn cảnh đều được nếu mang lại lợi ích.",
-      "goal": "JLPT",
-      "grammar_id": "JG-ab95775ccd",
-      "id": "LP-GRAMC-N3-C11-ab95775ccd-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "今日は体が",
-       "軽い。",
-       "早く寝たおかげで"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Nhờ (kết quả tốt)",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Biểu thị “không hề có ý định/không thèm/không buồn (thử) làm V”, “không có dấu hiệu sẽ V”. Sắc thái chê trách/bất mãn của người nói, nhất là với chủ thể con người. Cũng dùng được với hiện tượng tự nhiên (không cho thấy dấu hiệu thay đổi). Khác với phủ định đơn thuần, nhấn vào “thiếu nỗ lực/thiếu ý hướng” hơn là kết quả không xảy ra.",
+    "pattern": "Không chịu, không định",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-ab95775ccd"
+   "id": "JG-015e239b59"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "雨のせいで試合が中止になった。",
-      "vi": "Vì mưa nên trận đấu bị hủy."
+      "ja": "もし彼が来ていたなら、直接話せたのに。",
+      "vi": "Nếu anh ấy đã đến thì đã có thể nói chuyện trực tiếp rồi (nhưng thực tế không đến)."
      },
      {
-      "ja": "彼のミスのせいで、計画が台無しになった。",
-      "vi": "Vì lỗi của anh ấy mà kế hoạch bị phá hỏng."
+      "ja": "もしあの時もっと勉強していたなら、合格できたかもしれない。",
+      "vi": "Nếu lúc đó học chăm hơn thì có lẽ đã đậu."
      }
     ],
-    "meaning_vi": "Biểu thị nguyên nhân mang sắc thái tiêu cực, đổ lỗi: “vì/Do … nên (kết quả xấu)”. Người nói thường hàm ý trách móc, than phiền, hoặc cảm nhận tiêu cực về nguyên nhân. So với ～ために/～ので/～から: ～せいで thiên về cảm xúc “tại/bởi vì (đáng trách)”. Thường dùng với N のせいで và Vたせいで khi nguyên nhân đã xảy ra rồi. ～せいか: “chắc là do… hay sao mà…”, thể hiện sự không chắc chắn về nguyên nhân.",
-    "pattern": "Tại, vì (kết quả xấu)",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "風邪のせいで、旅行に行けなかった。",
-      "answer_vi": "Vì bị cảm nên tôi không đi du lịch được.",
-      "chapter": 11,
-      "context_vi": "Hoàn thành câu: Vì bị cảm nên tôi không đi du lịch được.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「せいで」 diễn đạt Biểu thị nguyên nhân mang sắc thái tiêu cực, đổ lỗi: “vì/Do … nên (kết quả xấu)”. Người nói thường hàm ý trách móc, than phiền, hoặc cảm nhận tiêu cực về nguyên nhân. So với ～ために/～ので/～から: ～せいで thiên về cảm xúc “tại/bởi vì (đáng trách)”. Thường dùng với N のせいで và Vたせいで khi nguyên nhân đã xảy ra rồi. ～せいか: “chắc là do… hay sao mà…”, thể hiện sự không chắc chắn về nguyên nhân. Các lựa chọn 「おかげで」 và 「かわりに」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-925c6812cc",
-      "id": "LP-GRAMC-N3-C11-925c6812cc-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "おかげで",
-       "せいで",
-       "かわりに",
-       "うえに"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Tại, vì (kết quả xấu)",
-      "prompt_ja": "風邪の[ ]、旅行に行けなかった。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "弟の忘れ物のせいで出発が遅れた。",
-      "answer_vi": "Vì em trai quên đồ nên khởi hành trễ.",
-      "chapter": 11,
-      "context_vi": "Sắp xếp thành câu: Vì em trai quên đồ nên khởi hành trễ.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「Tại, vì (kết quả xấu)」 với nghĩa Biểu thị nguyên nhân mang sắc thái tiêu cực, đổ lỗi: “vì/Do … nên (kết quả xấu)”. Người nói thường hàm ý trách móc, than phiền, hoặc cảm nhận tiêu cực về nguyên nhân. So với ～ために/～ので/～から: ～せいで thiên về cảm xúc “tại/bởi vì (đáng trách)”. Thường dùng với N のせいで và Vたせいで khi nguyên nhân đã xảy ra rồi. ～せいか: “chắc là do… hay sao mà…”, thể hiện sự không chắc chắn về nguyên nhân.",
-      "goal": "JLPT",
-      "grammar_id": "JG-925c6812cc",
-      "id": "LP-GRAMC-N3-C11-925c6812cc-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "出発が",
-       "遅れた。",
-       "弟の忘れ物のせいで"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Tại, vì (kết quả xấu)",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Giả định trái sự thật về quá khứ: “Nếu mà đã … (nhưng thực tế không như vậy) thì …”. Thường biểu lộ hối tiếc, tiếc nuối, hay suy luận kết quả có thể đã xảy ra. Vế sau hay dùng với のに／だろう／よかった（のに）／と思う／かもしれない để thể hiện hệ quả giả định. Khác với もし～たら (trung tính), ～たなら nhấn mạnh tính “điều kiện đã không xảy ra”.",
+    "pattern": "Nếu đã... thì chắc",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-925c6812cc"
+   "id": "JG-305da7cf38"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "電車が遅れました。そのため、授業に間に合いませんでした。",
-      "vi": "Tàu bị trễ. Vì vậy tôi không kịp giờ học. · Ví dụ J-LAS soạn bổ sung"
-     }
-    ],
-    "meaning_vi": "“そのために” có hai cách hiểu: Liên từ kết quả: “vì vậy/do đó”. Chỉ mục đích: “để làm điều đó/nhằm mục tiêu đó”. Khi là “kết quả”, vế trước nêu nguyên nhân/sự tình; vế sau nêu hệ quả logic. Khi là “mục đích”, vế trước nêu mục tiêu; vế sau là hành động cụ thể để đạt mục tiêu ấy. Trong văn viết, “そのため” (không に) hơi trang trọng hơn cho nghĩa “do đó”.",
-    "pattern": "Vì vậy, do đó",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "今日は電車が止まった。そのため、遅刻した。",
-      "answer_vi": "Hôm nay tàu dừng. Vì vậy tôi đến muộn.",
-      "chapter": 11,
-      "context_vi": "Hoàn thành câu: Hôm nay tàu dừng. Vì vậy tôi đến muộn.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「そのため」 diễn đạt “そのために” có hai cách hiểu: Liên từ kết quả: “vì vậy/do đó”. Chỉ mục đích: “để làm điều đó/nhằm mục tiêu đó”. Khi là “kết quả”, vế trước nêu nguyên nhân/sự tình; vế sau nêu hệ quả logic. Khi là “mục đích”, vế trước nêu mục tiêu; vế sau là hành động cụ thể để đạt mục tiêu ấy. Trong văn viết, “そのため” (không に) hơi trang trọng hơn cho nghĩa “do đó”. Các lựa chọn 「そのうち」 và 「そのかわり」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-e5ba4b74da",
-      "id": "LP-GRAMC-N3-C11-e5ba4b74da-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "そのうち",
-       "そのため",
-       "そのかわり",
-       "そのとおり"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Vì vậy, do đó",
-      "prompt_ja": "今日は電車が止まった。[ ]、遅刻した。",
-      "type": "FILL"
+      "ja": "そろそろ寝ないと。",
+      "vi": "Đến giờ phải ngủ rồi."
      },
      {
-      "answer_ja": "雨が強くなった。そのため、試合は中止になった。",
-      "answer_vi": "Mưa mạnh lên. Vì vậy trận đấu bị hủy.",
-      "chapter": 11,
-      "context_vi": "Sắp xếp thành câu: Mưa mạnh lên. Vì vậy trận đấu bị hủy.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「Vì vậy, do đó」 với nghĩa “そのために” có hai cách hiểu: Liên từ kết quả: “vì vậy/do đó”. Chỉ mục đích: “để làm điều đó/nhằm mục tiêu đó”. Khi là “kết quả”, vế trước nêu nguyên nhân/sự tình; vế sau nêu hệ quả logic. Khi là “mục đích”, vế trước nêu mục tiêu; vế sau là hành động cụ thể để đạt mục tiêu ấy. Trong văn viết, “そのため” (không に) hơi trang trọng hơn cho nghĩa “do đó”.",
-      "goal": "JLPT",
-      "grammar_id": "JG-e5ba4b74da",
-      "id": "LP-GRAMC-N3-C11-e5ba4b74da-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "そのため、",
-       "試合は中止になった。",
-       "雨が強くなった。"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Vì vậy, do đó",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
+      "ja": "提出期限に間に合わせないと。",
+      "vi": "Phải nộp kịp hạn."
      }
     ],
-    "unit_no": 0
+    "meaning_vi": "Nghĩa bắt buộc (khẩu ngữ): V-ないと thường là rút gọn của V-ないといけない, vế sau bị lược do hiển nhiên. Nghĩa điều kiện: “nếu không … thì …”, vế sau nêu hệ quả xấu/không mong muốn. Sắc thái: Tự nhiên, đời thường; trong văn viết trang trọng nên dùng dạng đầy đủ.",
+    "pattern": "Nếu không... thì",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-e5ba4b74da"
+   "id": "JG-cc35bc6c0d"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "行きたくない。だって、疲れているんだもん。",
-      "vi": "Tớ không muốn đi. Tại vì mệt mà."
-     },
-     {
-      "ja": "今日は無理。だって、約束があるから。",
-      "vi": "Hôm nay không được. Bởi vì có hẹn rồi."
+      "ja": "もし雨なら、家で本をよみます。",
+      "vi": "Nếu trời mưa thì tôi đọc sách ở nhà. · Ví dụ J-LAS soạn bổ sung"
      }
     ],
-    "meaning_vi": "Giải thích lý do theo cảm xúc/ngụy biện nhẹ: “Tại vì… mà”. Không nhằm lập luận logic chặt, mà thể hiện tâm trạng cá nhân, biện minh. Thường đứng đầu câu, theo sau bằng dấu phẩy; S2 là mệnh đề lý do.",
-    "pattern": "Vì... mà, tại vì",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "今日は出かけない。だって、雨が降っているんだもん。",
-      "answer_vi": "Hôm nay tôi không ra ngoài. Tại vì trời đang mưa mà.",
-      "chapter": 11,
-      "context_vi": "Hoàn thành câu: Hôm nay tôi không ra ngoài. Tại vì trời đang mưa mà.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「んだもん」 diễn đạt Giải thích lý do theo cảm xúc/ngụy biện nhẹ: “Tại vì… mà”. Không nhằm lập luận logic chặt, mà thể hiện tâm trạng cá nhân, biện minh. Thường đứng đầu câu, theo sau bằng dấu phẩy; S2 là mệnh đề lý do. Các lựa chọn 「ことだ」 và 「はずだ」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-8933c0df15",
-      "id": "LP-GRAMC-N3-C11-8933c0df15-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "ことだ",
-       "んだもん",
-       "はずだ",
-       "ところだ"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Vì… mà, tại vì",
-      "prompt_ja": "今日は出かけない。だって、雨が降っている[ ]。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "だって、まだ宿題が終わっていないんだもん。",
-      "answer_vi": "Tại vì tôi vẫn chưa làm xong bài tập mà.",
-      "chapter": 11,
-      "context_vi": "Sắp xếp thành câu: Tại vì tôi vẫn chưa làm xong bài tập mà.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「Vì… mà, tại vì」 với nghĩa Giải thích lý do theo cảm xúc/ngụy biện nhẹ: “Tại vì… mà”. Không nhằm lập luận logic chặt, mà thể hiện tâm trạng cá nhân, biện minh. Thường đứng đầu câu, theo sau bằng dấu phẩy; S2 là mệnh đề lý do.",
-      "goal": "JLPT",
-      "grammar_id": "JG-8933c0df15",
-      "id": "LP-GRAMC-N3-C11-8933c0df15-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "まだ宿題が",
-       "終わっていないんだもん。",
-       "だって、"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Vì… mà, tại vì",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Giả sử/nếu giả định rằng ~ thì…; dùng để nêu hệ quả hoặc lựa chọn dựa trên một giả thuyết. Thường dùng cho tình huống “chưa chắc xảy ra”, thiên về suy đoán, lập kế hoạch, hỏi ý kiến. Thường đi kèm どうする／どうなる／だろう／でしょう／場合は…など. Sắc thái trang trọng hơn なら; ít dùng cho điều kiện đã/đang là sự thật.",
+    "pattern": "Nếu mà, giả sử",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-8933c0df15"
+   "id": "JG-9fccac32d0"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "ここから見る夜景はまるで夢のようだ。",
-      "vi": "Quang cảnh đêm nhìn từ đây cứ như trong mơ."
+      "ja": "この問題に関して、ご意見ありませんか。",
+      "vi": "Liên quan đến vấn đề này, anh có ý kiến gì không ạ?"
      },
      {
-      "ja": "彼はまるで子どものように喜んだ。",
-      "vi": "Anh ấy vui mừng cứ như trẻ con."
+      "ja": "農業に関する論文を読む。",
+      "vi": "Đọc bài luận liên quan đến nông nghiệp"
      }
     ],
-    "meaning_vi": "まるで nhấn mạnh mức độ giống/khác thường đến mức “cứ như, hệt như”. Khi đi với ようだ/みたいだ tạo phép so sánh ví von; khi đi với ～ない mang nghĩa “hoàn toàn không”. かのようだ tăng sắc thái giả định, văn viết. まるで + N のようだ: mô tả tổng thể “hệt như N”. まるで + ように/ような: bổ nghĩa cách thức/tính chất. まるで + みたい: khẩu ngữ, thân mật, tần suất cao trong hội thoại.",
-    "pattern": "Y như, giống như",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "この雲はまるで魚のように見える。",
-      "answer_vi": "Đám mây này trông hệt như con cá.",
-      "chapter": 11,
-      "context_vi": "Hoàn thành câu: Đám mây này trông hệt như con cá.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「ように」 diễn đạt まるで nhấn mạnh mức độ giống/khác thường đến mức “cứ như, hệt như”. Khi đi với ようだ/みたいだ tạo phép so sánh ví von; khi đi với ～ない mang nghĩa “hoàn toàn không”. かのようだ tăng sắc thái giả định, văn viết. まるで + N のようだ: mô tả tổng thể “hệt như N”. まるで + ように/ような: bổ nghĩa cách thức/tính chất. まるで + みたい: khẩu ngữ, thân mật, tần suất cao trong hội thoại. Các lựa chọn 「ために」 và 「せいで」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-819f6a37cd",
-      "id": "LP-GRAMC-N3-C11-819f6a37cd-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "ために",
-       "ように",
-       "せいで",
-       "かわりに"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Y như, giống như",
-      "prompt_ja": "この雲はまるで魚の[ ]見える。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "あの子はまるで大人のように話す。",
-      "answer_vi": "Đứa trẻ ấy nói chuyện hệt người lớn.",
-      "chapter": 11,
-      "context_vi": "Sắp xếp thành câu: Đứa trẻ ấy nói chuyện hệt người lớn.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「Y như, giống như」 với nghĩa まるで nhấn mạnh mức độ giống/khác thường đến mức “cứ như, hệt như”. Khi đi với ようだ/みたいだ tạo phép so sánh ví von; khi đi với ～ない mang nghĩa “hoàn toàn không”. かのようだ tăng sắc thái giả định, văn viết. まるで + N のようだ: mô tả tổng thể “hệt như N”. まるで + ように/ような: bổ nghĩa cách thức/tính chất. まるで + みたい: khẩu ngữ, thân mật, tần suất cao trong hội thoại.",
-      "goal": "JLPT",
-      "grammar_id": "JG-819f6a37cd",
-      "id": "LP-GRAMC-N3-C11-819f6a37cd-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "まるで大人のように",
-       "話す。",
-       "あの子は"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Y như, giống như",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Liên quan đến",
+    "pattern": "〜この問題に関して",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-819f6a37cd"
+   "id": "JG-f29d8913bf"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "これは、100円にしても、高いと思う。",
-      "vi": "Cái này thậm chí là 100 yên thì cũng là mắc"
+      "ja": "彼は努力によって病気を克服した！",
+      "vi": "Anh ấy đã hồi phục chính nhờ sự nỗ lực đấy"
      },
      {
-      "ja": "遅れるとは聞いていたけど、それにしても田中さん、遅いね。",
-      "vi": "Việc trễ thì tôi đã nghe rồi nhưng mà thậm chí là vậy thì Tanaka cũng trễ nhỉ"
+      "ja": "人によって考え方が違います。",
+      "vi": "Cách nghĩ khác nhau tùy vào mỗi người"
      }
     ],
-    "meaning_vi": "Thậm chí là…cũng/ Dẫu là vậy thì…",
-    "pattern": "〜100円にしても",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "百円にしても、私は買わない。",
-      "answer_vi": "Dù chỉ một trăm yên, tôi cũng không mua.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Dù chỉ một trăm yên, tôi cũng không mua.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「にしても」 diễn đạt Thậm chí là…cũng/ Dẫu là vậy thì… Các lựa chọn 「にしては」 và 「として」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-5549bed0c1",
-      "id": "LP-GRAMC-N3-C12-5549bed0c1-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "にしては",
-       "にしても",
-       "として",
-       "によって"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～100円にしても",
-      "prompt_ja": "百円[ ]、私は買わない。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "忙しいにしても連絡ぐらいはできるでしょう。",
-      "answer_vi": "Dù bận thì ít nhất cũng liên lạc được chứ.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Dù bận thì ít nhất cũng liên lạc được chứ.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～100円にしても」 với nghĩa Thậm chí là…cũng/ Dẫu là vậy thì…",
-      "goal": "JLPT",
-      "grammar_id": "JG-5549bed0c1",
-      "id": "LP-GRAMC-N3-C12-5549bed0c1-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "連絡ぐらいは",
-       "できるでしょう。",
-       "忙しいにしても"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～100円にしても",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Bằng cách, do, vì, tùy theo",
+    "pattern": "〜努力によって",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-5549bed0c1"
+   "id": "JG-04e9d717f1"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "外国人にしては日本語が上手だ。",
-      "vi": "Dù là người nước ngoài nhưng lại rất giỏi tiếng Nhật"
+      "ja": "天気予報によれば、明日は晴れるらしい。",
+      "vi": "Theo dự báo thời tiết thì ngày mai nghe nói sẽ nắng"
      },
      {
-      "ja": "初めてにしては、よくできました。",
-      "vi": "Dù là lần đầu nhưng đã làm tốt"
+      "ja": "さっきの地震はテレビの速報によると震度３だそうだ。",
+      "vi": "Động đất mới nãy theo tin nhanh của tivi thì hình như là chấn động 3 đấy"
      }
     ],
-    "meaning_vi": "Cho dù là/ Dù là/ thế mà lại",
-    "pattern": "〜外国人にしては",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "初めて作ったにしては、上手ですね。",
-      "answer_vi": "Với lần đầu làm mà bạn làm giỏi đấy.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Với lần đầu làm mà bạn làm giỏi đấy.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「にしては」 diễn đạt Cho dù là/ Dù là/ thế mà lại Các lựa chọn 「にしても」 và 「として」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-c2f6c383ee",
-      "id": "LP-GRAMC-N3-C12-c2f6c383ee-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "にしても",
-       "にしては",
-       "として",
-       "によって"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～外国人にしては",
-      "prompt_ja": "初めて作った[ ]、上手ですね。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "子どもにしては難しい本を読んでいる。",
-      "answer_vi": "Là trẻ con mà em ấy đọc sách khó.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Là trẻ con mà em ấy đọc sách khó.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～外国人にしては」 với nghĩa Cho dù là/ Dù là/ thế mà lại",
-      "goal": "JLPT",
-      "grammar_id": "JG-c2f6c383ee",
-      "id": "LP-GRAMC-N3-C12-c2f6c383ee-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "難しい本を",
-       "読んでいる。",
-       "子どもにしては"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～外国人にしては",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Theo…",
+    "pattern": "〜天気予報によれば",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-c2f6c383ee"
+   "id": "JG-033fd0dff7"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "彼は外国人だが、日本代表として試合に出る。",
-      "vi": "Anh ấy là người nước ngoài nhưng tham dự trận đấu với tư cách là đại biểu Nhật Bản"
+      "ja": "日本文化について勉強する。",
+      "vi": "Học về văn hóa Nhật Bản"
      },
      {
-      "ja": "彼女は女性としても女優としても最高だが、妻としてはどうだろう。",
-      "vi": "Cô ấy cho dù là phụ nữ cho dù là diễn viên thì cũng đều tuyệt vời nhưng với tư cách là người vợ thì sao nhỉ?"
+      "ja": "「受験についての注意」を読む。",
+      "vi": "Đọc \"Chú ý về việc dự thi\""
      }
     ],
-    "meaning_vi": "Với tư cách/vị trí là/ Với tư cách/vị trí là…thì/ Cho dù là với tư cách/vị trí là…",
-    "pattern": "〜日本代表として",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "学生として、毎日勉強を続けたい。",
-      "answer_vi": "Là một học sinh, tôi muốn tiếp tục học mỗi ngày.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu để diễn đạt: Là một học sinh, tôi muốn tiếp tục học mỗi ngày.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "Chọn phương án đúng để hoàn thành câu. Mẫu 「～日本代表として」 được dùng trong câu 「学生として、毎日勉強を続けたい。」, nghĩa là: Là một học sinh, tôi muốn tiếp tục học mỗi ngày.",
-      "goal": "JLPT",
-      "grammar_id": "JG-d038b619e3",
-      "id": "LP-GRAMC-N3-C12-d038b619e3-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "にしては",
-       "として",
-       "にしても",
-       "によって"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～日本代表として",
-      "prompt_ja": "学生[ ]、毎日勉強を続けたい。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "彼女は代表として会議に出席した。",
-      "answer_vi": "Cô ấy tham dự cuộc họp với tư cách đại diện.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Cô ấy tham dự cuộc họp với tư cách đại diện.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～日本代表として」 với nghĩa Với tư cách/vị trí là/ Với tư cách/vị trí là…thì/ Cho dù là với tư cách/vị trí là…",
-      "goal": "JLPT",
-      "grammar_id": "JG-d038b619e3",
-      "id": "LP-GRAMC-N3-C12-d038b619e3-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "会議に",
-       "出席した。",
-       "彼女は代表として"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～日本代表として",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Về….",
+    "pattern": "〜日本文化について",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-d038b619e3"
+   "id": "JG-039f69db10"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "その話が本当だとしたら、うれしいです。",
-      "vi": "Nếu câu chuyện đó là thật thì tôi vui lắm"
+      "ja": "かさを持っていなかったので、ぬれて帰るしかなかった。",
+      "vi": "Vì tôi không mang ô nên chỉ còn cách đội mưa về."
      },
      {
-      "ja": "飛行機で行くとしたら、いくらぐらいかかりますか。",
-      "vi": "Nếu đi bằng máy bay thì mất bao nhiêu?"
+      "ja": "良い大学に入るためには、一生懸命勉強するほかない。",
+      "vi": "Để vào được trường đại học tốt, tôi chỉ còn cách học thật chăm chỉ."
      }
     ],
-    "meaning_vi": "Nếu là, nếu…thì",
-    "pattern": "〜本当だとしたら",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "その話が本当だとしたら、急いで確認しよう。",
-      "answer_vi": "Nếu câu chuyện đó là thật thì hãy kiểm tra ngay.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Nếu câu chuyện đó là thật thì hãy kiểm tra ngay.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「としたら」 diễn đạt Nếu là, nếu…thì Các lựa chọn 「としても」 và 「にしては」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-20225ffe0e",
-      "id": "LP-GRAMC-N3-C12-20225ffe0e-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "としても",
-       "としたら",
-       "にしては",
-       "とするとき"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～本当だとしたら",
-      "prompt_ja": "その話が本当だ[ ]、急いで確認しよう。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "明日雨だとしたら家で本を読もう。",
-      "answer_vi": "Nếu mai mưa, tôi sẽ đọc sách ở nhà.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Nếu mai mưa, tôi sẽ đọc sách ở nhà.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～本当だとしたら」 với nghĩa Nếu là, nếu…thì",
-      "goal": "JLPT",
-      "grammar_id": "JG-20225ffe0e",
-      "id": "LP-GRAMC-N3-C12-20225ffe0e-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "家で本を",
-       "読もう。",
-       "明日雨だとしたら"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～本当だとしたら",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Chỉ còn cách …",
+    "pattern": "〜しかない/ほかない/よりない/よりほかない/ほかしかたがない",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-20225ffe0e"
+   "id": "JG-be6f06d6ff"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "次の休みは何曜日だっけ。",
-      "vi": "Kỳ nghỉ tới là thứ mấy nhỉ? · Ví dụ J-LAS soạn bổ sung"
-     }
-    ],
-    "meaning_vi": "Xác nhận thông tin",
-    "pattern": "〜っけ",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "会議は何時からだっけ。",
-      "answer_vi": "Cuộc họp bắt đầu mấy giờ nhỉ?",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Cuộc họp bắt đầu mấy giờ nhỉ?",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「っけ」 diễn đạt Xác nhận thông tin Các lựa chọn 「そう」 và 「もの」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-b36edcf068",
-      "id": "LP-GRAMC-N3-C12-b36edcf068-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "そう",
-       "っけ",
-       "もの",
-       "はず"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～っけ",
-      "prompt_ja": "会議は何時からだ[ ]。",
-      "type": "FILL"
+      "ja": "一口食べたとたん、まずくて吐き出した。",
+      "vi": "Ngay khi vừa bỏ vào miệng một miếng, tôi đã nhè ra ngay vì quá tệ."
      },
      {
-      "answer_ja": "この字はどう読むんだっけ。",
-      "answer_vi": "Chữ này đọc thế nào nhỉ?",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Chữ này đọc thế nào nhỉ?",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～っけ」 với nghĩa Xác nhận thông tin",
-      "goal": "JLPT",
-      "grammar_id": "JG-b36edcf068",
-      "id": "LP-GRAMC-N3-C12-b36edcf068-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "どう読むん",
-       "だっけ。",
-       "この字は"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～っけ",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
+      "ja": "ボタンを押したとたんに、画面の文字が消えてしまった。",
+      "vi": "Ngay khi ấn nút, chữ trên màn hình đã biến mất."
      }
     ],
-    "unit_no": 0
+    "meaning_vi": "Vừa… thì…",
+    "pattern": "〜たとたん(に)",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-b36edcf068"
+   "id": "JG-52faa1dc6b"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "ほこりっぽい部屋",
-      "vi": "Phòng đầy bụi."
+      "ja": "試験が近づくにつれて、だんだん心配になってきた。",
+      "vi": "Kì thi đang đến gần và tôi thấy lo lắng dần."
      },
      {
-      "ja": "白っぽい服",
-      "vi": "Bộ quần áo màu trăng trắng."
+      "ja": "日本での生活が長くなるにつれ、友だちもできて楽しくなった。",
+      "vi": "Càng sống lâu ở Nhật, tôi càng có thêm bạn bè và thấy vui hơn."
      }
     ],
-    "meaning_vi": "Có vẻ…; mang cảm giác…",
-    "pattern": "〜っぽい",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "このシャツは少し子どもっぽいね。",
-      "answer_vi": "Áo này hơi có vẻ trẻ con nhỉ.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Áo này hơi có vẻ trẻ con nhỉ.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「っぽい」 diễn đạt Có vẻ…; mang cảm giác… Các lựa chọn 「がち」 và 「ぎみ」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-5a81ed7066",
-      "id": "LP-GRAMC-N3-C12-5a81ed7066-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "がち",
-       "っぽい",
-       "ぎみ",
-       "向き"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～っぽい",
-      "prompt_ja": "このシャツは少し子ども[ ]ね。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "今日は春っぽい暖かい天気だ。",
-      "answer_vi": "Hôm nay trời ấm mang cảm giác mùa xuân.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Hôm nay trời ấm mang cảm giác mùa xuân.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～っぽい」 với nghĩa Có vẻ…; mang cảm giác…",
-      "goal": "JLPT",
-      "grammar_id": "JG-5a81ed7066",
-      "id": "LP-GRAMC-N3-C12-5a81ed7066-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "暖かい",
-       "天気だ。",
-       "今日は春っぽい"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～っぽい",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Càng … thì càng …",
+    "pattern": "〜につれ(て)",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-5a81ed7066"
+   "id": "JG-b3a321929f"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "年間仲間とともにがんばった思い出は、一生忘れないだろう。",
-      "vi": "Tôi sẽ không thể quên kỉ niệm tôi cùng với bạn mình cố gắng trong 3 năm."
-     },
-     {
-      "ja": "日曜日ぐらいは家族とともに過ごしたい。",
-      "vi": "Tôi muốn dành thời gian cùng gia đình vào ngày chủ nhật."
+      "ja": "食事中に、電話が鳴りました。",
+      "vi": "Điện thoại reo trong lúc ăn. · Ví dụ J-LAS soạn bổ sung"
      }
     ],
-    "meaning_vi": "Cùng với …",
-    "pattern": "〜とともに",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "町の人口が増えるとともに、店も増えた。",
-      "answer_vi": "Cùng với việc dân số thị trấn tăng, số cửa hàng cũng tăng.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu để diễn đạt: Cùng với việc dân số thị trấn tăng, số cửa hàng cũng tăng.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "Chọn phương án đúng để hoàn thành câu. Mẫu 「～とともに」 được dùng trong câu 「町の人口が増えるとともに、店も増えた。」, nghĩa là: Cùng với việc dân số thị trấn tăng, số cửa hàng cũng tăng.",
-      "goal": "JLPT",
-      "grammar_id": "JG-76e6eabbb3",
-      "id": "LP-GRAMC-N3-C12-76e6eabbb3-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "にしては",
-       "とともに",
-       "としても",
-       "のかわりに"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～とともに",
-      "prompt_ja": "町の人口が増える[ ]、店も増えた。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "春が近づくとともに花が咲き始めた。",
-      "answer_vi": "Khi mùa xuân đến gần, hoa cũng bắt đầu nở.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp câu để diễn đạt: Khi mùa xuân đến gần, hoa cũng bắt đầu nở.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo thứ tự để tạo câu đúng. Mẫu 「～とともに」 được dùng trong câu 「春が近づくとともに花が咲き始めた。」, nghĩa là: Khi mùa xuân đến gần, hoa cũng bắt đầu nở.",
-      "goal": "JLPT",
-      "grammar_id": "JG-76e6eabbb3",
-      "id": "LP-GRAMC-N3-C12-76e6eabbb3-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "花が",
-       "咲き始めた。",
-       "春が近づくとともに"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～とともに",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Đúng lúc đang… thì…",
+    "pattern": "〜最中",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-76e6eabbb3"
+   "id": "JG-810c6bc2e0"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "人口の増加にともなって、店も増えました。",
-      "vi": "Cùng với dân số tăng, số cửa hàng cũng tăng. · Ví dụ J-LAS soạn bổ sung"
-     }
-    ],
-    "meaning_vi": "Kéo theo, dẫn đến",
-    "pattern": "〜にともなって/ともない",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "町の人口が増えるのにともなって、店も増えた。",
-      "answer_vi": "Dân số thị trấn tăng kéo theo số cửa hàng cũng tăng.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Dân số thị trấn tăng kéo theo số cửa hàng cũng tăng.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「にともなって」 diễn đạt Kéo theo, dẫn đến Các lựa chọn 「にかわって」 và 「に反して」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-4f5ae091fe",
-      "id": "LP-GRAMC-N3-C12-4f5ae091fe-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "にかわって",
-       "にともなって",
-       "に反して",
-       "を通じて"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～にともなって／ともない",
-      "prompt_ja": "町の人口が増えるの[ ]、店も増えた。",
-      "type": "FILL"
+      "ja": "来週のテストのことで、質問があります。",
+      "vi": "Có câu hỏi về kỳ thi tuần sau"
      },
      {
-      "answer_ja": "季節の変化にともなって服装も変わる。",
-      "answer_vi": "Trang phục thay đổi theo mùa.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Trang phục thay đổi theo mùa.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～にともなって／ともない」 với nghĩa Kéo theo, dẫn đến",
-      "goal": "JLPT",
-      "grammar_id": "JG-4f5ae091fe",
-      "id": "LP-GRAMC-N3-C12-4f5ae091fe-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "服装も",
-       "変わる。",
-       "季節の変化にともなって"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～にともなって／ともない",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
+      "ja": "田中さんが入院したことを知っていますか。",
+      "vi": "Có biết việc Tanaka đã nhập viện không?"
      }
     ],
-    "unit_no": 0
+    "meaning_vi": "Về việc…",
+    "pattern": "〜テストのこと",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-4f5ae091fe"
+   "id": "JG-ef6dbb1fde"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "手紙に彼の住所が書いてない。これでは返事の出しようがない。",
-      "vi": "Trên lá thư không ghi địa chỉ của anh ta. Vì thế không thể trả lời được."
+      "ja": "大きさは違うが、君と同じかばんを持っているよ。",
+      "vi": "Độ lớn khác nhau nhưng tôi có cặp giống cậu đấy"
      },
      {
-      "ja": "とても悲しそうだったので、慰めようがなかった。",
-      "vi": "Tôi buồn đến nỗi không gì có thể an ủi được."
+      "ja": "子どもに命の大切さを教えなければならない。",
+      "vi": "Phải dạy cho trẻ biết tầm quan trọng của sinh mệnh"
      }
     ],
-    "meaning_vi": "Không có cách nào để …",
-    "pattern": "〜ようがない",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "住所を知らないので、手紙を送りようがない。",
-      "answer_vi": "Không biết địa chỉ nên không có cách gửi thư.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Không biết địa chỉ nên không có cách gửi thư.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「ようがない」 diễn đạt Không có cách nào để … Các lựa chọn 「きりがない」 và 「がちだ」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-6e6beb773d",
-      "id": "LP-GRAMC-N3-C12-6e6beb773d-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "きりがない",
-       "ようがない",
-       "がちだ",
-       "っぱなしだ"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～ようがない",
-      "prompt_ja": "住所を知らないので、手紙を送り[ ]。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "鍵がなければドアを開けようがない。",
-      "answer_vi": "Không có chìa thì không có cách mở cửa.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Không có chìa thì không có cách mở cửa.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～ようがない」 với nghĩa Không có cách nào để …",
-      "goal": "JLPT",
-      "grammar_id": "JG-6e6beb773d",
-      "id": "LP-GRAMC-N3-C12-6e6beb773d-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "ドアを開け",
-       "ようがない。",
-       "鍵がなければ"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～ようがない",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "(Danh từ)",
+    "pattern": "〜大きさが",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-6e6beb773d"
+   "id": "JG-fcd8f14866"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "子どもは親の思うようにはならないのがふつうだ。",
-      "vi": "Con cái không như mong muốn của bố mẹ là điều bình thường."
+      "ja": "戦争が終わった今でも、この国の苦しみはまだ続いている。",
+      "vi": "Ngay cả bây giờ khi chiến tranh đã kết thúc thì nỗi đau của quốc gia này vẫn tiếp diễn"
      },
      {
-      "ja": "「皆さん、今から私が言うように体を動かしてください。」",
-      "vi": "Giờ mọi người hãy vận động cơ thể theo những gì tôi nói."
+      "ja": "田中さんの強みは、2ヶ国語が話せるということです。",
+      "vi": "Điểm mạnh của Tanaka là có thể nói được 2 ngôn ngữ"
      }
     ],
-    "meaning_vi": "Giống như / theo như …",
-    "pattern": "〜ように",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "先生が教えたように、書いてください。",
-      "answer_vi": "Hãy viết theo như thầy cô hướng dẫn.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Hãy viết theo như thầy cô hướng dẫn.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「ように」 diễn đạt Giống như / theo như … Các lựa chọn 「せいで」 và 「かわりに」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-e474403ee1",
-      "id": "LP-GRAMC-N3-C12-e474403ee1-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "せいで",
-       "ように",
-       "かわりに",
-       "おそれで"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～ように",
-      "prompt_ja": "先生が教えた[ ]、書いてください。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "私が見せるように手を動かしてください。",
-      "answer_vi": "Hãy cử động tay giống như tôi làm mẫu.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Hãy cử động tay giống như tôi làm mẫu.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～ように」 với nghĩa Giống như / theo như …",
-      "goal": "JLPT",
-      "grammar_id": "JG-e474403ee1",
-      "id": "LP-GRAMC-N3-C12-e474403ee1-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "手を",
-       "動かしてください。",
-       "私が見せるように"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～ように",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "(Danh từ)",
+    "pattern": "〜苦しみは",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-e474403ee1"
+   "id": "JG-fdd04c609e"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "彼女とサークルの先輩を通して知り合った。",
-      "vi": "Tôi quen cô ấy thông qua đàn anh trong câu lạc bộ."
+      "ja": "田中さんに電話するのをすっかり忘れていました。",
+      "vi": "Tôi đã quên khuấy việc điện thoại cho Tanaka"
      },
      {
-      "ja": "子どもは学校の勉強だけではなく、いろいろな経験を通して成長していく。",
-      "vi": "Con trẻ không chỉ học ở trường mà còn trưởng thành bằng cách trải nghiệm thực tế."
+      "ja": "日曜日に混んだところへ行くのは、あまり好きではありません。",
+      "vi": "Đi đến những nơi đông đúc vào Chủ nhật thì tôi không thích lắm"
      }
     ],
-    "meaning_vi": "Thông qua, bằng cách …",
-    "pattern": "〜を通じて/通して",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "旅行を通じて、多くの人と知り合った。",
-      "answer_vi": "Thông qua chuyến đi, tôi quen nhiều người.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Thông qua chuyến đi, tôi quen nhiều người.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「を通じて」 diễn đạt Thông qua, bằng cách … Các lựa chọn 「に反して」 và 「にかわって」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-d45e84b77d",
-      "id": "LP-GRAMC-N3-C12-d45e84b77d-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "に反して",
-       "を通じて",
-       "にかわって",
-       "にしては"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～を通じて／通して",
-      "prompt_ja": "旅行[ ]、多くの人と知り合った。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "旅行を通して新しい文化を知った。",
-      "answer_vi": "Tôi biết thêm về văn hóa mới qua chuyến du lịch.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp câu để diễn đạt: Tôi biết thêm về văn hóa mới qua chuyến du lịch.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo thứ tự để tạo câu đúng. Mẫu 「～を通じて／通して」 được dùng trong câu 「旅行を通して新しい文化を知った。」, nghĩa là: Tôi biết thêm về văn hóa mới qua chuyến du lịch.",
-      "goal": "JLPT",
-      "grammar_id": "JG-d45e84b77d",
-      "id": "LP-GRAMC-N3-C12-d45e84b77d-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "新しい文化を",
-       "知った。",
-       "旅行を通して"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～を通じて／通して",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Việc (danh từ)",
+    "pattern": "〜電話するのを忘れた",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-d45e84b77d"
+   "id": "JG-d68cbc0860"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "この雑誌は子ども向けです。",
-      "vi": "Tạp chí này dành cho trẻ em. · Ví dụ J-LAS soạn bổ sung"
-     }
-    ],
-    "meaning_vi": "Dành cho đối tượng …",
-    "pattern": "〜向け",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "この本は外国人向けに書かれた。",
-      "answer_vi": "Cuốn sách này được viết dành cho người nước ngoài.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Cuốn sách này được viết dành cho người nước ngoài.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「向け」 diễn đạt Dành cho đối tượng … Các lựa chọn 「向き」 và 「向かい」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-80d9626375",
-      "id": "LP-GRAMC-N3-C12-80d9626375-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "向き",
-       "向け",
-       "向かい",
-       "向こう"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～向け",
-      "prompt_ja": "この本は外国人[ ]に書かれた。",
-      "type": "FILL"
+      "ja": "「デジカメ」というのは、デジタルカメラを短くした言い方です。",
+      "vi": "Cái gọi là \"Digicame\" là cách nói rút gọn của máy ảnh kỹ thuật số"
      },
      {
-      "answer_ja": "子ども向けの映画を選んだ。",
-      "answer_vi": "Tôi chọn phim dành cho trẻ em.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Tôi chọn phim dành cho trẻ em.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～向け」 với nghĩa Dành cho đối tượng …",
-      "goal": "JLPT",
-      "grammar_id": "JG-80d9626375",
-      "id": "LP-GRAMC-N3-C12-80d9626375-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "映画を",
-       "選んだ。",
-       "子ども向けの"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～向け",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
+      "ja": "「電車で「カクテイ」っていうのは何のことですか。」 「各駅に停車する電車のことです。」",
+      "vi": "Ở trên xe điện có chữ là \"Kakutei\" là gì vậy? Là xe điện dừng ở mỗi ga"
      }
     ],
-    "unit_no": 0
+    "meaning_vi": "Cái mà gọi là, cái mà tên là",
+    "pattern": "〜「デジカメ」というのは・・・",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-80d9626375"
+   "id": "JG-2309470825"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "店員B「そうだね。店長に行ってみよう。」",
-      "vi": "Nhân viên A「Giờ nghỉ trưa ngắn quá nhỉ。Mong được ăn trưa thong thả hơn。」 <br /> Nhân viên B「Đúng vậy。Đi gặp quản lý thử đi。」"
+      "ja": "リンさんが帰国するということを聞いて驚きました。",
+      "vi": "Tôi đã ngạc nhiên khi nghe là Lin sắp về nước"
      },
      {
-      "ja": "それはさっきも説明したことだよ。何度も同じことを言わせないでもらいたいよ。",
-      "vi": "Đó là điều tôi đã giải thích lúc nãy。Đừng bắt tôi phải nói đi nói lại cùng một điều nhiều lần。"
+      "ja": "こんなによく遅刻をするというのは、問題ですよ。",
+      "vi": "Việc đi trễ như thế này là vấn đề đấy"
      }
     ],
-    "meaning_vi": "(Bản thân) muốn được cho phép làm ~/ không làm ~.",
-    "pattern": "〜(さ)せてもらいたい・〜(さ)せていただきたい・〜(さ)せてほしい",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "少し休ませていただきたいのですが。",
-      "answer_vi": "Tôi muốn được phép nghỉ một chút.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Tôi muốn được phép nghỉ một chút.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「いただきたい」 diễn đạt (Bản thân) muốn được cho phép làm ~/ không làm ~. Các lựa chọn 「いただかれたい」 và 「いただきそう」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-bb0f8b45c2",
-      "id": "LP-GRAMC-N3-C12-bb0f8b45c2-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "いただかれたい",
-       "いただきたい",
-       "いただきそう",
-       "いただくべき"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～（さ）せてもらいたい・～（さ）せていただきたい・～（さ）せてほしい",
-      "prompt_ja": "少し休ませて[ ]のですが。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "この資料を見せていただきたいのですが。",
-      "answer_vi": "Tôi muốn được phép xem tài liệu này.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Tôi muốn được phép xem tài liệu này.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～（さ）せてもらいたい・～（さ）せていただきたい・～（さ）せてほしい」 với nghĩa (Bản thân) muốn được cho phép làm ~/ không làm ~.",
-      "goal": "JLPT",
-      "grammar_id": "JG-bb0f8b45c2",
-      "id": "LP-GRAMC-N3-C12-bb0f8b45c2-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "見せていただきたい",
-       "のですが。",
-       "この資料を"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～（さ）せてもらいたい・～（さ）せていただきたい・～（さ）せてほしい",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Về việc…",
+    "pattern": "〜帰国するというのは本当ですか",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-bb0f8b45c2"
+   "id": "JG-160fb9a39d"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "彼からの手紙は読んだことは読んだんですが、意味がよくわかりませんでした。",
-      "vi": "Thư của anh ấy thì tôi có đọc, nhưng ý nghĩa tôi không hiểu rõ lắm。"
+      "ja": "さっき、木村さんという人から電話がありましたよ。",
+      "vi": "Mới nãy có điện thoại từ người gọi là Kimura đấy"
      },
      {
-      "ja": "わたしは泳げることは泳げますが、長い距離はだめなんです。",
-      "vi": "Tôi thì có thể bơi, nhưng không thể bơi quãng dài được。"
+      "ja": "これは、日本の楽器で「尺八」というものです。",
+      "vi": "Cái này là thứ mà trong nhạc cụ của Nhật gọi là sáo"
      }
     ],
-    "meaning_vi": "Quả đúng là ~ nhưng sự thực nó không mấy quan trọng nên …",
-    "pattern": "〜ことは〜が、...",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "行くことは行くが、長くはいられない。",
-      "answer_vi": "Đi thì đúng là có đi nhưng không ở lâu được.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Đi thì đúng là có đi nhưng không ở lâu được.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「ことは」 diễn đạt Quả đúng là ~ nhưng sự thực nó không mấy quan trọng nên … Các lựa chọn 「わけは」 và 「はずは」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-2ce3b0d88c",
-      "id": "LP-GRAMC-N3-C12-2ce3b0d88c-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "わけは",
-       "ことは",
-       "はずは",
-       "ためは"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～ことは～が、…",
-      "prompt_ja": "行く[ ]行くが、長くはいられない。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "食べることは食べるが、あまり好きではない。",
-      "answer_vi": "Ăn thì có ăn nhưng tôi không thích lắm.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Ăn thì có ăn nhưng tôi không thích lắm.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～ことは～が、…」 với nghĩa Quả đúng là ~ nhưng sự thực nó không mấy quan trọng nên …",
-      "goal": "JLPT",
-      "grammar_id": "JG-2ce3b0d88c",
-      "id": "LP-GRAMC-N3-C12-2ce3b0d88c-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "あまり好き",
-       "ではない。",
-       "食べることは食べるが、"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～ことは～が、…",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Gọi là, tên là",
+    "pattern": "〜木村さんという人",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-2ce3b0d88c"
+   "id": "JG-19ca210e36"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "友達に話を聞いてもらいたいです。",
-      "vi": "Tôi muốn được bạn lắng nghe. · Ví dụ J-LAS soạn bổ sung"
-     }
-    ],
-    "meaning_vi": "Muốn( ai đó) làm hay không làm ~.",
-    "pattern": "〜てもらいたい・〜てただきたい・〜てほしい",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "父に荷物を運んでもらいたい。",
-      "answer_vi": "Tôi muốn bố giúp chuyển hành lý.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Tôi muốn bố giúp chuyển hành lý.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「もらいたい」 diễn đạt Muốn( ai đó) làm hay không làm ~. Các lựa chọn 「もらわれたい」 và 「もらいそう」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-56106408b7",
-      "id": "LP-GRAMC-N3-C12-56106408b7-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "もらわれたい",
-       "もらいたい",
-       "もらいそう",
-       "もらうべき"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～てもらいたい・～てただきたい・～てほしい",
-      "prompt_ja": "父に荷物を運んで[ ]。",
-      "type": "FILL"
+      "ja": "その箱、もう使わないんですか。使わないなら私にください。",
+      "vi": "Cái hộp đó không dùng nữa sao? Nếu không dùng thì cho tôi."
      },
      {
-      "answer_ja": "友達にもう少し待ってほしい。",
-      "answer_vi": "Tôi muốn bạn đợi thêm một chút.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Tôi muốn bạn đợi thêm một chút.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～てもらいたい・～てただきたい・～てほしい」 với nghĩa Muốn( ai đó) làm hay không làm ~.",
-      "goal": "JLPT",
-      "grammar_id": "JG-56106408b7",
-      "id": "LP-GRAMC-N3-C12-56106408b7-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "もう少し待って",
-       "ほしい。",
-       "友達に"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～てもらいたい・～てただきたい・～てほしい",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
+      "ja": "ああ、あしたは雨か。雨ならサイクリングには行けそうもないね。",
+      "vi": "À, ngày mai mưa à. Nếu mưa thì có lẽ không thể đi đạp xe được nhỉ."
      }
     ],
-    "unit_no": 0
+    "meaning_vi": "Tiếp nhận thông tin ~ , i…",
+    "pattern": "〜(の)なら...",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-56106408b7"
+   "id": "JG-4df0f3af82"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "この駅は古くから歌われているが、日本人だみんな知っているとは限らない。",
-      "vi": "Nhà ga này từ lâu đã được nhắc trong các bài hát, nhưng chưa hẳn mọi người Nhật đều biết。"
+      "ja": "わずかな誤解から友達との関係が悪くなってしまった。",
+      "vi": "Chỉ vì một chút hiểu lầm mà mối quan hệ với bạn bè đã xấu đi."
      },
      {
-      "ja": "値段が高いものが必ず質がいいとは限らない。",
-      "vi": "Đồ có giá cao chưa hẳn là có chất lượng tốt。"
+      "ja": "日本語の授業でとなりの席になったことから、わたしたちは親しくなった。",
+      "vi": "Do ngồi cạnh nhau trong tiết học tiếng Nhật, chúng tôi trở nên thân thiết."
      }
     ],
-    "meaning_vi": "Không thể đoán chắc là ~/ Cũng có những trường hợp không phải là ~.",
-    "pattern": "〜とは限らない",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "安い物が悪いとは限らない。",
-      "answer_vi": "Đồ rẻ chưa chắc đã xấu.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Đồ rẻ chưa chắc đã xấu.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「とは限らない」 diễn đạt Không thể đoán chắc là ~/ Cũng có những trường hợp không phải là ~. Các lựa chọn 「に決まっている」 và 「ことになる」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-d3d2376073",
-      "id": "LP-GRAMC-N3-C12-d3d2376073-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "に決まっている",
-       "とは限らない",
-       "ことになる",
-       "しかない"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～とは限らない",
-      "prompt_ja": "安い物が悪い[ ]。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "練習すれば必ず勝てるとは限らない。",
-      "answer_vi": "Luyện tập chưa chắc sẽ thắng.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Luyện tập chưa chắc sẽ thắng.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～とは限らない」 với nghĩa Không thể đoán chắc là ~/ Cũng có những trường hợp không phải là ~.",
-      "goal": "JLPT",
-      "grammar_id": "JG-d3d2376073",
-      "id": "LP-GRAMC-N3-C12-d3d2376073-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "必ず勝てる",
-       "とは限らない。",
-       "練習すれば"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～とは限らない",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Sự thực ~ là nguyên nhân để phát triển thành kết quả… /để phán đoán rằng …",
+    "pattern": "〜から...・〜ことから...",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-d3d2376073"
+   "id": "JG-cf78c3995d"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "ここから駅まで歩けないことはありませんが、かなり時間がかかりますよ",
-      "vi": "Không phải là không thể đi bộ từ đây đến ga, nhưng sẽ tốn khá nhiều thời gian đấy。"
+      "ja": "山田さんは手術したばかりだから、お見舞いに行ってはかえって迷惑だろう。",
+      "vi": "Anh Yamada vừa mới phẫu thuật, nên đến thăm có khi lại phiền lắm."
      },
      {
-      "ja": "この店のカレーもおいしくないことはないが、わたしはもっと辛いのがすきだ。",
-      "vi": "Cà ri ở quán này không phải là không ngon, nhưng tôi thích vị cay hơn。"
+      "ja": "そんな無責任な態度ではみんなにきらわれますよ。",
+      "vi": "Với thái độ vô trách nhiệm như vậy, bạn sẽ bị mọi người ghét đấy."
      }
     ],
-    "meaning_vi": "Không thể nói là tuyệt đối không ~.",
-    "pattern": "〜ないことはない",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "この店は高いが、買えないことはない。",
-      "answer_vi": "Cửa hàng này đắt nhưng không phải không mua nổi.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Cửa hàng này đắt nhưng không phải không mua nổi.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「ないことはない」 diễn đạt Không thể nói là tuyệt đối không ~. Các lựa chọn 「ないわけがない」 và 「ないはずがない」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-87f30a97c8",
-      "id": "LP-GRAMC-N3-C12-87f30a97c8-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "ないわけがない",
-       "ないことはない",
-       "ないはずがない",
-       "ないことにする"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～ないことはない",
-      "prompt_ja": "この店は高いが、買え[ ]。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "一人で行けないことはないが、一緒だと安心だ。",
-      "answer_vi": "Không phải tôi không thể đi một mình nhưng đi cùng thì yên tâm hơn.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Không phải tôi không thể đi một mình nhưng đi cùng thì yên tâm hơn.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～ないことはない」 với nghĩa Không thể nói là tuyệt đối không ~.",
-      "goal": "JLPT",
-      "grammar_id": "JG-87f30a97c8",
-      "id": "LP-GRAMC-N3-C12-87f30a97c8-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "一緒だと",
-       "安心だ。",
-       "一人で行けないことはないが、"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～ないことはない",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Nếu sự thật là( hoặc tình huống giả định) ~ thì sẽ đem lại kết quả không hay là…",
+    "pattern": "〜ては...・〜(の)では...",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-87f30a97c8"
+   "id": "JG-a6f0d3c1fb"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "ちゃんと約束したんだから、彼が来ないはずがない。どうしたのかなあ。",
-      "vi": "Đã hẹn rõ ràng rồi nên không thể nào anh ấy không tới. Không biết chuyện gì vậy nhỉ."
+      "ja": "世界は広いのだから、いろいろな習慣があるのは当然だ。",
+      "vi": "Thế giới vốn rộng lớn nên có nhiều tập quán khác nhau là điều đương nhiên."
      },
      {
-      "ja": "あの店が今日休みのはずはありません。電話で確認したんですから。",
-      "vi": "Không thể nào cửa hàng đó nghỉ hôm nay được. Tôi đã xác nhận qua điện thoại mà."
+      "ja": "あなたはけがをしているんだから、無理をしてはいけませんよ。",
+      "vi": "Bạn đang bị thương nên đừng cố gắng quá nhé。"
      }
     ],
-    "meaning_vi": "Chắc chắn không ~.",
-    "pattern": "〜はずがない・〜わけがない",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "彼が約束を忘れるはずがない。",
-      "answer_vi": "Chắc chắn anh ấy không quên lời hứa.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Chắc chắn anh ấy không quên lời hứa.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「はずがない」 diễn đạt Chắc chắn không ~. Các lựa chọn 「わけではない」 và 「ことがある」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-87b7030e81",
-      "id": "LP-GRAMC-N3-C12-87b7030e81-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "わけではない",
-       "はずがない",
-       "ことがある",
-       "おそれがある"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～はずがない・～わけがない",
-      "prompt_ja": "彼が約束を忘れる[ ]。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "あの人がそんなことを言うわけがない。",
-      "answer_vi": "Người đó chắc chắn không nói chuyện như vậy.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Người đó chắc chắn không nói chuyện như vậy.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～はずがない・～わけがない」 với nghĩa Chắc chắn không ~.",
-      "goal": "JLPT",
-      "grammar_id": "JG-87b7030e81",
-      "id": "LP-GRAMC-N3-C12-87b7030e81-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "そんなことを言う",
-       "わけがない。",
-       "あの人が"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～はずがない・～わけがない",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Vì ~ là sự thực nên đương nhiên là…",
+    "pattern": "〜のだから",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-87b7030e81"
+   "id": "JG-6d68b800db"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "長い間本をお借りたままでしたが、忘れていたわけではありません。",
-      "vi": "Tôi đã để mượn cuốn sách lâu rồi, nhưng không phải là tôi đã quên。"
-     },
-     {
-      "ja": "いつも電話に出られるわけではありません。連絡はメールでお願いします。",
-      "vi": "Không phải lúc nào tôi cũng có thể nghe điện thoại. Xin hãy liên hệ qua email。"
+      "ja": "もし寝坊していたらこの飛行機には乗れなかった。間に合ってよかった。",
+      "vi": "Nếu ngủ nướng thì đã không thể lên chuyến bay này. May mà kịp."
      }
     ],
-    "meaning_vi": "Nhìn tình hình thì có lẽ mọi người sẽ tưởng tượng rằng ~ nhưng thực ra không phải vậy.",
-    "pattern": "〜わけではない・〜というわけではない・〜のではない",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "毎日勉強しているが、試験が好きなわけではない。",
-      "answer_vi": "Tôi học mỗi ngày nhưng không có nghĩa tôi thích thi.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Tôi học mỗi ngày nhưng không có nghĩa tôi thích thi.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「わけではない」 diễn đạt Nhìn tình hình thì có lẽ mọi người sẽ tưởng tượng rằng ~ nhưng thực ra không phải vậy. Các lựa chọn 「はずがない」 và 「ことになる」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-8d5739b6ee",
-      "id": "LP-GRAMC-N3-C12-8d5739b6ee-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "はずがない",
-       "わけではない",
-       "ことになる",
-       "ようにする"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～わけではない・～というわけではない・～のではない",
-      "prompt_ja": "毎日勉強しているが、試験が好きな[ ]。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "静かだからといって、誰もいないわけではない。",
-      "answer_vi": "Yên tĩnh không có nghĩa là không có ai.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Yên tĩnh không có nghĩa là không có ai.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～わけではない・～というわけではない・～のではない」 với nghĩa Nhìn tình hình thì có lẽ mọi người sẽ tưởng tượng rằng ~ nhưng thực ra không phải vậy.",
-      "goal": "JLPT",
-      "grammar_id": "JG-8d5739b6ee",
-      "id": "LP-GRAMC-N3-C12-8d5739b6ee-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "誰もいない",
-       "わけではない。",
-       "静かだからといって、"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～わけではない・～というわけではない・～のではない",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Trong trường hợp nếu ~ thì chắc chắn sẽ dẫn đến kết quả là … nhưng trên thực tế lại không phải như vậy.",
+    "pattern": "〜ば...・〜たら...・〜なら...",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-8d5739b6ee"
+   "id": "JG-a9d82b51de"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "子どものころはよく川で遊んだものだ",
-      "vi": "Thời còn nhỏ thường chơi đùa ở con sông"
-     },
-     {
-      "ja": "学生時代は毎日図書館へ通ったものだ。",
-      "vi": "Thời học sinh mỗi ngày đều tới thư viện"
+      "ja": "今日は早く帰りたいもん。",
+      "vi": "Vì hôm nay tôi muốn về sớm mà. · Ví dụ J-LAS soạn bổ sung"
      }
     ],
-    "meaning_vi": "Đã thường làm gì/ không làm gì",
-    "pattern": "〜よく遊んだものだ",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "子どものころ、よく川で遊んだものだ。",
-      "answer_vi": "Hồi nhỏ tôi thường chơi ở sông.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Hồi nhỏ tôi thường chơi ở sông.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「ものだ」 diễn đạt Đã thường làm gì/ không làm gì Các lựa chọn 「ことだ」 và 「はずだ」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-f339938845",
-      "id": "LP-GRAMC-N3-C12-f339938845-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "ことだ",
-       "ものだ",
-       "はずだ",
-       "わけだ"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～よく遊んだものだ",
-      "prompt_ja": "子どものころ、よく川で遊んだ[ ]。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "昔は母とよく料理を作ったものだ。",
-      "answer_vi": "Ngày xưa tôi thường nấu ăn cùng mẹ.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Ngày xưa tôi thường nấu ăn cùng mẹ.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～よく遊んだものだ」 với nghĩa Đã thường làm gì/ không làm gì",
-      "goal": "JLPT",
-      "grammar_id": "JG-f339938845",
-      "id": "LP-GRAMC-N3-C12-f339938845-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "よく料理を",
-       "作ったものだ。",
-       "昔は母と"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～よく遊んだものだ",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Dùng để trình bày lý do hoặc lời giải thích mang tính cảm xúc, chủ quan của người nói. 「もん」 là dạng thân mật.",
+    "pattern": "〜もの(もん)",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-f339938845"
+   "id": "JG-6ac6bfe385"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "約束は守るべきだ。",
-      "vi": "Lời hứa là phải giữ"
-     },
-     {
-      "ja": "おもちゃは、まず安全であるべきだ。",
-      "vi": "Đồ chơi trước hết phải an toàn"
+      "ja": "たとえ周りに反対されても、自分で決めます。",
+      "vi": "Dù bị mọi người xung quanh phản đối, tôi vẫn tự quyết định. · Ví dụ J-LAS soạn bổ sung"
      }
     ],
-    "meaning_vi": "Phải, nên làm gì/ không làm gì",
-    "pattern": "〜守るべきだ",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "借りた本は返すべきだ。",
-      "answer_vi": "Nên trả sách đã mượn.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Nên trả sách đã mượn.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「べきだ」 diễn đạt Phải, nên làm gì/ không làm gì Các lựa chọn 「つもりだ」 và 「ことがある」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-9f3f74055f",
-      "id": "LP-GRAMC-N3-C12-9f3f74055f-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "つもりだ",
-       "べきだ",
-       "ことがある",
-       "らしい"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～守るべきだ",
-      "prompt_ja": "借りた本は返す[ ]。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "困っている人は助けるべきだ。",
-      "answer_vi": "Nên giúp người đang gặp khó khăn.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Nên giúp người đang gặp khó khăn.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～守るべきだ」 với nghĩa Phải, nên làm gì/ không làm gì",
-      "goal": "JLPT",
-      "grammar_id": "JG-9f3f74055f",
-      "id": "LP-GRAMC-N3-C12-9f3f74055f-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "助ける",
-       "べきだ。",
-       "困っている人は"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～守るべきだ",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Ngay cả trong trường hợp giả định ~ là sự thật đi nữa thì … cũng không liên quan gì.",
+    "pattern": "「〜が事実だと仮定した場合でも、それに関係なく...。」",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-9f3f74055f"
+   "id": "JG-69d19d9a2b"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "田中さんは今、旅行中だから、家にいないはずだ。",
-      "vi": "Tanaka bây giờ đang đi du lịch nên chắc không có ở nhà"
+      "ja": "彼は私にもう一度説明してくれと頼んだ。",
+      "vi": "Anh ấy nhờ tôi giải thích lại cho anh ấy."
      },
      {
-      "ja": "まじめな田中さんが、無断で休むはずがない。",
-      "vi": "Người chăm chỉ Tanaka chắc chắn không nghỉ đột xuất không báo trước"
+      "ja": "上司に明日までに報告書を出してくれと言われた。",
+      "vi": "Tôi được sếp bảo nộp báo cáo trước ngày mai."
      }
     ],
-    "meaning_vi": "Chắn chắn là/ chắn chắn không",
-    "pattern": "〜家にいないはずだ",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "店はもう閉まっているはずだ。",
-      "answer_vi": "Chắc giờ cửa hàng đã đóng rồi.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Chắc giờ cửa hàng đã đóng rồi.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「はずだ」 diễn đạt Chắn chắn là/ chắn chắn không Các lựa chọn 「わけではない」 và 「ことがある」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-128f2aa353",
-      "id": "LP-GRAMC-N3-C12-128f2aa353-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "わけではない",
-       "はずだ",
-       "ことがある",
-       "ようにする"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～家にいないはずだ",
-      "prompt_ja": "店はもう閉まっている[ ]。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "父はもう家に着いているはずだ。",
-      "answer_vi": "Chắc bố đã về đến nhà rồi.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Chắc bố đã về đến nhà rồi.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～家にいないはずだ」 với nghĩa Chắn chắn là/ chắn chắn không",
-      "goal": "JLPT",
-      "grammar_id": "JG-128f2aa353",
-      "id": "LP-GRAMC-N3-C12-128f2aa353-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "家に着いている",
-       "はずだ。",
-       "父はもう"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～家にいないはずだ",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Trích dẫn nội dung yêu cầu “hãy V cho tôi/chúng tôi” bằng cách dùng ～てくれと + 言う/頼む/頼まれる. “くれ” thể hiện lợi ích hướng về người nói/nhóm người nói; mang sắc thái xin/ra lệnh hơi thô khi dùng trực tiếp. Dạng phủ định “～ないでくれと” = “bảo đừng …”. Thường đi với động từ phát ngôn/yêu cầu: 言う・頼む・注意する・命じる（mạnh, ít dùng với くれ）.",
+    "pattern": "Bị bảo, được yêu cầu",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-128f2aa353"
+   "id": "JG-1fb7d5d1eb"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "昨日は買い物に行くつもりでしたが、頭が痛かったのでずっと家にいました。",
-      "vi": "Ngày hôm qua đã định đi mua sắm như vì đau đầu nên cứ ở nhà suốt luôn"
+      "ja": "努力こそ成功への近道だ。",
+      "vi": "Chính nỗ lực mới là con đường gần nhất đến thành công."
      },
      {
-      "ja": "お菓子を食べないつもりでしたが、つい食べてしまいました。",
-      "vi": "Đã định không ăn kẹo nhưng mà cuối cùng đã ăn mất tiêu"
+      "ja": "今日はこそ早く寝るぞ。",
+      "vi": "Hôm nay nhất định sẽ ngủ sớm."
      }
     ],
-    "meaning_vi": "Đã dự định làm gì/ không làm gì",
-    "pattern": "〜行くつもりでした",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "今日は海へ行くつもりだったが、雨でやめた。",
-      "answer_vi": "Hôm nay tôi định ra biển nhưng đã bỏ ý định vì trời mưa.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu để diễn đạt: Hôm nay tôi định ra biển nhưng đã bỏ ý định vì trời mưa.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "Chọn phương án đúng để hoàn thành câu. Mẫu 「～行くつもりでした」 được dùng trong câu 「今日は海へ行くつもりだったが、雨でやめた。」, nghĩa là: Hôm nay tôi định ra biển nhưng đã bỏ ý định vì trời mưa.",
-      "goal": "JLPT",
-      "grammar_id": "JG-f3cf9c1a22",
-      "id": "LP-GRAMC-N3-C12-f3cf9c1a22-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "ことになった",
-       "つもりだった",
-       "ことがある",
-       "はずがない"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～行くつもりでした",
-      "prompt_ja": "今日は海へ行く[ ]が、雨でやめた。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "先週は映画を見るつもりだったが、時間がなかった。",
-      "answer_vi": "Tuần trước tôi định xem phim nhưng không có thời gian.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Tuần trước tôi định xem phim nhưng không có thời gian.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～行くつもりでした」 với nghĩa Đã dự định làm gì/ không làm gì",
-      "goal": "JLPT",
-      "grammar_id": "JG-f3cf9c1a22",
-      "id": "LP-GRAMC-N3-C12-f3cf9c1a22-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "見るつもりだったが、",
-       "時間がなかった。",
-       "先週は映画を"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～行くつもりでした",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Hạt nhấn mạnh “chính là/đích thị là”: đưa yếu tố đứng trước thành tiêu điểm. Nhấn lý do với ～からこそ: khẳng định mạnh mối quan hệ nhân quả (“chính vì… nên…”). Nhấn thời điểm quyết định: 今日こそ／今度こそ biểu thị quyết tâm/kỳ vọng cao. Dùng trong phép lịch sự đối ứng: こちらこそ（xin đáp lại: chính tôi mới phải cảm ơn/xin lỗi）.",
+    "pattern": "Chính..., nhấn mạnh",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-f3cf9c1a22"
+   "id": "JG-5a190c4e88"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "映画なんかどうですか。",
-      "vi": null
-     }
-    ],
-    "meaning_vi": "Những thứ như, cỡ như — Nêu ví dụ, hoặc hạ thấp giá trị.",
-    "pattern": "N + なんか / など",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "漢字なんか、少しなら読める。",
-      "answer_vi": "Chữ Hán chẳng hạn, tôi đọc được một ít.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Chữ Hán chẳng hạn, tôi đọc được một ít.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「なんか」 diễn đạt Những thứ như, cỡ như — Nêu ví dụ, hoặc hạ thấp giá trị. Các lựa chọn 「として」 và 「によって」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-e743130a56",
-      "id": "LP-GRAMC-N3-C12-e743130a56-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "として",
-       "なんか",
-       "によって",
-       "にともなって"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "N + なんか / など",
-      "prompt_ja": "漢字[ ]、少しなら読める。",
-      "type": "FILL"
+      "ja": "この山の高さは想像以上だ。",
+      "vi": "Độ cao của ngọn núi này vượt quá tưởng tượng."
      },
      {
-      "answer_ja": "週末は映画なんかを見て過ごす。",
-      "answer_vi": "Cuối tuần tôi dành thời gian xem phim chẳng hạn.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Cuối tuần tôi dành thời gian xem phim chẳng hạn.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「N + なんか / など」 với nghĩa Những thứ như, cỡ như — Nêu ví dụ, hoặc hạ thấp giá trị.",
-      "goal": "JLPT",
-      "grammar_id": "JG-e743130a56",
-      "id": "LP-GRAMC-N3-C12-e743130a56-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "映画なんかを",
-       "見て過ごす。",
-       "週末は"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "N + なんか / など",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
+      "ja": "日本語の難しさを感じている。",
+      "vi": "Tôi đang cảm nhận sự khó của tiếng Nhật."
      }
     ],
-    "unit_no": 0
+    "meaning_vi": "Biến tính từ thành danh từ trừu tượng chỉ mức độ, tính chất, thuộc tính: “độ…/sự…”. Sắc thái khách quan, đo đếm được hoặc có thể so sánh: 高さ（độ cao）, 速さ（tốc độ）, 大きさ（kích cỡ）. Với な形容詞: nêu “tính …/độ …”: 静かさ, 便利さ, 真面目さ. Phân biệt với ～み: ～さ thiên về khách quan/đo đếm; ～み thiên về cảm nhận/chủ quan (詳しく ở mục 5). Thường kết hợp với các danh từ đo lường, chuẩn mực: 強さ, 弱さ, 深さ, 重さ, 明るさ, 厳しさ.",
+    "pattern": "Danh từ hóa tính từ (mức độ)",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-e743130a56"
+   "id": "JG-88ddef918b"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "どうして遅れたんですか。",
-      "vi": null
-     }
-    ],
-    "meaning_vi": "Là bởi vì, thì ra là — Giải thích lý do, hoặc nhấn mạnh hoàn cảnh.",
-    "pattern": "Thể thường + のだ / んです",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "遅れたんです。電車が止まったんです。",
-      "answer_vi": "Tôi đến muộn. Vì tàu đã dừng.",
-      "chapter": 13,
-      "context_vi": "Hoàn thành câu: Tôi đến muộn. Vì tàu đã dừng.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「です」 diễn đạt Là bởi vì, thì ra là — Giải thích lý do, hoặc nhấn mạnh hoàn cảnh. Các lựa chọn 「ます」 và 「だ」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-fb04ca320d",
-      "id": "LP-GRAMC-N3-C13-fb04ca320d-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "ます",
-       "です",
-       "だ",
-       "で"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Thể thường + のだ / んです",
-      "prompt_ja": "遅れたん[ ]。電車が止まったんです。",
-      "type": "FILL"
+      "ja": "家を出ようとしたところ、上司から電話がかかってきた。",
+      "vi": "Vừa định ra khỏi nhà thì sếp gọi tới."
      },
      {
-      "answer_ja": "今日は早く帰るんです。家族と約束があります。",
-      "answer_vi": "Hôm nay tôi về sớm vì có hẹn với gia đình.",
-      "chapter": 13,
-      "context_vi": "Sắp xếp thành câu: Hôm nay tôi về sớm vì có hẹn với gia đình.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「Thể thường + のだ / んです」 với nghĩa Là bởi vì, thì ra là — Giải thích lý do, hoặc nhấn mạnh hoàn cảnh.",
-      "goal": "JLPT",
-      "grammar_id": "JG-fb04ca320d",
-      "id": "LP-GRAMC-N3-C13-fb04ca320d-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "家族と約束が",
-       "あります。",
-       "今日は早く帰るんです。"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "Thể thường + のだ / んです",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
+      "ja": "ドアを開けようとしたが、鍵が壊れていて開かなかった。",
+      "vi": "Đã cố mở cửa nhưng khóa hỏng nên không mở được."
      }
     ],
-    "unit_no": 0
+    "meaning_vi": "Ý nghĩa 1: “Định/sắp làm … thì …” — nhấn mạnh khoảnh khắc ngay trước khi thực hiện hành động và có sự kiện khác chen vào. Ý nghĩa 2: “Đã cố gắng làm … (nhưng không thành)” — kết nối bằng が／ものの để thể hiện kết quả trái kỳ vọng. Ý nghĩa 3: Sắc thái “cận biên” (on the verge) — hành động gần xảy ra nhưng rốt cuộc chưa diễn ra hoặc bị ngăn lại. Phân tích: とした là quá khứ của とする, mô tả ý đồ tại một thời điểm đã qua; thường kèm mệnh đề sau biểu thị cản trở, kết quả ngược, hay sự kiện bất ngờ. Chủ ngữ thường là người nói hoặc chủ thể có ý chí; ít dùng với chủ thể vô tri.",
+    "pattern": "Định làm... nhưng",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-fb04ca320d"
+   "id": "JG-7b9abd464e"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "今から出かけるところです。",
-      "vi": null
-     }
-    ],
-    "meaning_vi": "Vừa định, đang, vừa mới xong — Chỉ rõ giai đoạn của hành động theo thời gian.",
-    "pattern": "V từ điển / V-ている / V-た + ところだ",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "今、手紙を書いているところだ。",
-      "answer_vi": "Bây giờ tôi đang viết thư.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Bây giờ tôi đang viết thư.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「ところだ」 diễn đạt Vừa định, đang, vừa mới xong — Chỉ rõ giai đoạn của hành động theo thời gian. Các lựa chọn 「ことだ」 và 「はずだ」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-9a19921bea",
-      "id": "LP-GRAMC-N3-C12-9a19921bea-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "ことだ",
-       "ところだ",
-       "はずだ",
-       "わけだ"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "V từ điển / V-ている / V-た + ところだ",
-      "prompt_ja": "今、手紙を書いている[ ]。",
-      "type": "FILL"
+      "ja": "来月から貯金を始めるつもりだ。",
+      "vi": "Tôi định bắt đầu tiết kiệm từ tháng sau."
      },
      {
-      "answer_ja": "今から昼ご飯を食べるところだ。",
-      "answer_vi": "Bây giờ tôi sắp ăn trưa.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Bây giờ tôi sắp ăn trưa.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「V từ điển / V-ている / V-た + ところだ」 với nghĩa Vừa định, đang, vừa mới xong — Chỉ rõ giai đoạn của hành động theo thời gian.",
-      "goal": "JLPT",
-      "grammar_id": "JG-9a19921bea",
-      "id": "LP-GRAMC-N3-C12-9a19921bea-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "昼ご飯を食べる",
-       "ところだ。",
-       "今から"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "V từ điển / V-ている / V-た + ところだ",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
+      "ja": "今日は雨だから、出かけないつもりだ。",
+      "vi": "Hôm nay mưa nên tôi định không ra ngoài."
      }
     ],
-    "unit_no": 0
+    "meaning_vi": "Ý định/kế hoạch cá nhân: người nói dự định sẽ/không làm việc gì. Chủ quan/nhận định sai: Vたつもりだ = nghĩ rằng đã làm nhưng thực tế chưa/không như vậy. Độ chắc: mạnh hơn “～と思う” về ý chí, yếu hơn “～予定だ” (kế hoạch có lịch cụ thể). Với chủ ngữ ngôi thứ ba: thường dùng dạng truyền đạt suy đoán “～つもりらしい／～つもりだという”. Hay đi kèm mệnh đề đối lập: ～つもりだったのに (đáng ra định… nhưng…).",
+    "pattern": "Dự định",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-9a19921bea"
+   "id": "JG-983857125e"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "富士山に登ったことがありますか。",
-      "vi": null
-     }
-    ],
-    "meaning_vi": "Đã từng — Nêu kinh nghiệm đã trải qua trong quá khứ.",
-    "pattern": "V-た + ことがある",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "私は一度、山に登ったことがある。",
-      "answer_vi": "Tôi đã từng leo núi một lần.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Tôi đã từng leo núi một lần.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「たことがある」 diễn đạt Đã từng — Nêu kinh nghiệm đã trải qua trong quá khứ. Các lựa chọn 「たことにする」 và 「たことになる」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-7462a3f644",
-      "id": "LP-GRAMC-N3-C12-7462a3f644-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "たことにする",
-       "たことがある",
-       "たことになる",
-       "たことはない"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "V-た + ことがある",
-      "prompt_ja": "私は一度、山に登っ[ ]。",
-      "type": "FILL"
+      "ja": "健康のために、よく噛んで食べるようにしましょう。",
+      "vi": "Vì sức khỏe, hãy cố gắng nhai kỹ khi ăn."
      },
      {
-      "answer_ja": "彼女は日本で働いたことがある。",
-      "answer_vi": "Cô ấy từng làm việc ở Nhật.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Cô ấy từng làm việc ở Nhật.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「V-た + ことがある」 với nghĩa Đã từng — Nêu kinh nghiệm đã trải qua trong quá khứ.",
-      "goal": "JLPT",
-      "grammar_id": "JG-7462a3f644",
-      "id": "LP-GRAMC-N3-C12-7462a3f644-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "日本で働いた",
-       "ことがある。",
-       "彼女は"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "V-た + ことがある",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
+      "ja": "エレベーターでは騒がないようにしましょう。",
+      "vi": "Trong thang máy hãy cố gắng không ồn ào."
      }
     ],
-    "unit_no": 0
+    "meaning_vi": "Mẫu “～ようにしましょう” diễn đạt lời kêu gọi/khuyên nhủ cùng thực hiện một nỗ lực đều đặn hoặc tạo thói quen: “Chúng ta hãy cố gắng …/hãy chú ý để …”. Khác với “～ましょう” (chỉ rủ rê làm ngay), “～ようにしましょう” tập trung vào việc duy trì/quan tâm đến một nguyên tắc hay hành vi lặp lại. Có thể dùng thể phủ định để khuyên tránh một hành vi: “～ないようにしましょう”. Thường xuất hiện trong thông báo công cộng, nội quy, khuyến nghị sức khỏe/an toàn, lớp học, tài liệu hướng dẫn.",
+    "pattern": "Hãy cố gắng...",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-7462a3f644"
+   "id": "JG-441d3d5a34"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "友達が空港まで送ってくれました。",
-      "vi": null
-     }
-    ],
-    "meaning_vi": "Cho, giúp, được giúp — Diễn tả việc cho nhận ân huệ giữa các bên.",
-    "pattern": "V-て + あげる / くれる / もらう",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "妹が私にお茶を入れてくれた。",
-      "answer_vi": "Em gái đã pha trà cho tôi.",
-      "chapter": 12,
-      "context_vi": "Hoàn thành câu: Em gái đã pha trà cho tôi.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「てくれた」 diễn đạt Cho, giúp, được giúp — Diễn tả việc cho nhận ân huệ giữa các bên. Các lựa chọn 「てあげた」 và 「てみた」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-0a15490b65",
-      "id": "LP-GRAMC-N3-C12-0a15490b65-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "てあげた",
-       "てくれた",
-       "てみた",
-       "ておいた"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "V-て + あげる / くれる / もらう",
-      "prompt_ja": "妹が私にお茶を入れ[ ]。",
-      "type": "FILL"
+      "ja": "遅れるなら、電話くらいは入れてください。",
+      "vi": "Nếu đến muộn thì ít nhất cũng gọi điện chứ."
      },
      {
-      "answer_ja": "私は弟に宿題を教えてあげた。",
-      "answer_vi": "Tôi đã giúp em trai làm bài tập.",
-      "chapter": 12,
-      "context_vi": "Sắp xếp thành câu: Tôi đã giúp em trai làm bài tập.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「V-て + あげる / くれる / もらう」 với nghĩa Cho, giúp, được giúp — Diễn tả việc cho nhận ân huệ giữa các bên.",
-      "goal": "JLPT",
-      "grammar_id": "JG-0a15490b65",
-      "id": "LP-GRAMC-N3-C12-0a15490b65-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "宿題を教えて",
-       "あげた。",
-       "私は弟に"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "V-て + あげる / くれる / もらう",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
+      "ja": "初対面なら、挨拶くらいはちゃんとしよう。",
+      "vi": "Mới gặp lần đầu thì ít nhất cũng chào hỏi cho đàng hoàng."
      }
     ],
-    "unit_no": 0
+    "meaning_vi": "Nhấn mức tối thiểu chấp nhận được: “ít nhất thì cũng…”. Thái độ người nói: thường kèm nhắc nhở, trách nhẹ, yêu cầu tối thiểu, hoặc đề nghị. Đối tượng đứng trước くらいは là thứ “dễ làm/điều cơ bản”, hoặc một mức nhỏ.",
+    "pattern": "Ít nhất thì, chí ít",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-0a15490b65"
+   "id": "JG-350ff85642"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "散歩のついでに、この手紙を出してきてくれませんか。",
-      "vi": "Nhân tiện đi dạo thì có thể gửi lá thư này đi giúp được không?"
+      "ja": "明日、晴れるといいなあ。",
+      "vi": "Mong ngày mai trời nắng."
      },
      {
-      "ja": "郵便局へ行ったついでに、はがきを買ってきた。",
-      "vi": "Nhân tiện đi đến bưu điện đã mua bưu thiếp về."
+      "ja": "このプレゼント、喜んでくれるといいなあ。",
+      "vi": "Mong là họ sẽ vui với món quà này."
      }
     ],
-    "meaning_vi": "Nhân tiện (làm gì) thì …..",
-    "pattern": "〜散歩のついでに",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "散歩のついでに、牛乳を買ってきて。",
-      "answer_vi": "Tiện đi dạo hãy mua sữa.",
-      "chapter": 13,
-      "context_vi": "Hoàn thành câu: Tiện đi dạo hãy mua sữa.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「ついでに」 diễn đạt Nhân tiện (làm gì) thì ….. Các lựa chọn 「最中に」 và 「とたんに」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-8f95fbe4ac",
-      "id": "LP-GRAMC-N3-C13-8f95fbe4ac-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "最中に",
-       "ついでに",
-       "とたんに",
-       "たびに"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～散歩のついでに",
-      "prompt_ja": "散歩の[ ]、牛乳を買ってきて。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "駅へ行くついでに手紙を出した。",
-      "answer_vi": "Tiện đường tới ga tôi gửi thư.",
-      "chapter": 13,
-      "context_vi": "Sắp xếp thành câu: Tiện đường tới ga tôi gửi thư.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～散歩のついでに」 với nghĩa Nhân tiện (làm gì) thì …..",
-      "goal": "JLPT",
-      "grammar_id": "JG-8f95fbe4ac",
-      "id": "LP-GRAMC-N3-C13-8f95fbe4ac-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "手紙を",
-       "出した。",
-       "駅へ行くついでに"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～散歩のついでに",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Biểu thị ước mong/hi vọng cá nhân về tương lai hoặc điều chưa biết hiện tại: “Giá mà/Mong là…”. Thường dùng khi người nói không kiểm soát sự việc (thi cử, thời tiết, phản hồi…). Sắc thái thân mật, tự nói với bản thân hoặc chia sẻ cảm xúc nhẹ với người nghe. Thêm なあ tăng tính độc thoại; な thay cho なあ trong một số vùng miền/khẩu ngữ.",
+    "pattern": "Mong là, ước gì",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-8f95fbe4ac"
+   "id": "JG-4af3b02e3d"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "買い物のたびに、袋をたくさんもらう。",
-      "vi": "Mỗi khi mua sắm thường nhận được nhiều túi"
+      "ja": "静かにしてほしいんですが。",
+      "vi": "Tôi muốn/phiền bạn giữ yên lặng."
      },
      {
-      "ja": "この曲を聞くたびに、ふるさとを思い出す。",
-      "vi": "Mỗi lần nghe khúc nhạc này tôi lại nhớ về quê hương"
+      "ja": "明日は早く来てほしい。",
+      "vi": "Tôi muốn bạn đến sớm ngày mai."
      }
     ],
-    "meaning_vi": "Mỗi khi, mỗi lần",
-    "pattern": "〜買い物のたびに",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "祖母の家へ行くたびに、手作りのお菓子をもらう。",
-      "answer_vi": "Mỗi lần đến nhà bà, tôi lại được nhận bánh kẹo bà làm.",
-      "chapter": 13,
-      "context_vi": "Hoàn thành câu để diễn đạt: Mỗi lần đến nhà bà, tôi lại được nhận bánh kẹo bà làm.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "Chọn phương án đúng để hoàn thành câu. Mẫu 「～買い物のたびに」 được dùng trong câu 「祖母の家へ行くたびに、手作りのお菓子をもらう。」, nghĩa là: Mỗi lần đến nhà bà, tôi lại được nhận bánh kẹo bà làm.",
-      "goal": "JLPT",
-      "grammar_id": "JG-5dd715ff5e",
-      "id": "LP-GRAMC-N3-C13-5dd715ff5e-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "とたん",
-       "たびに",
-       "ついでに",
-       "最中に"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～買い物のたびに",
-      "prompt_ja": "祖母の家へ行く[ ]、手作りのお菓子をもらう。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "母は旅行のたびに写真をたくさん撮る。",
-      "answer_vi": "Mẹ tôi chụp nhiều ảnh mỗi lần đi du lịch.",
-      "chapter": 13,
-      "context_vi": "Sắp xếp thành câu: Mẹ tôi chụp nhiều ảnh mỗi lần đi du lịch.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～買い物のたびに」 với nghĩa Mỗi khi, mỗi lần",
-      "goal": "JLPT",
-      "grammar_id": "JG-5dd715ff5e",
-      "id": "LP-GRAMC-N3-C13-5dd715ff5e-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "写真を",
-       "たくさん撮る。",
-       "母は旅行のたびに"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～買い物のたびに",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Biểu thị mong muốn/yêu cầu người khác thực hiện hành động (hoặc sự việc xảy ra). Chủ ngữ thường là người nói (tôi/chúng tôi). Với mong muốn chung: みんなに分かってほしい。 Độ mạnh tùy ngữ cảnh: trần thuật (mong), đề nghị (yêu cầu), phản nàn (đừng làm…). に đánh dấu “đối tượng được yêu cầu”; が đánh dấu “chủ thể hành vi/sự việc được mong đợi”.",
+    "pattern": "Muốn ai đó làm gì",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-5dd715ff5e"
+   "id": "JG-22d43d9664"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "窓を開けたとたん、強い風が入ってきた。",
-      "vi": "Vừa mới mở cửa sổ thì gió mạnh ùa vào"
+      "ja": "健康のためには、よく歩くことだ。",
+      "vi": "Vì sức khỏe thì nên đi bộ nhiều."
      },
      {
-      "ja": "お酒を飲んだとたん、顔が赤くなった。",
-      "vi": "Vừa mới uống rượu thì mặt đã đỏ lên rồi"
+      "ja": "風邪のときは無理をしないことだ。",
+      "vi": "Khi cảm thì không nên cố quá."
      }
     ],
-    "meaning_vi": "Vừa mới (làm gì) thì….",
-    "pattern": "〜開けたとたん",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "窓を開けたとたん、鳥が入ってきた。",
-      "answer_vi": "Vừa mở cửa sổ thì chim bay vào.",
-      "chapter": 13,
-      "context_vi": "Hoàn thành câu: Vừa mở cửa sổ thì chim bay vào.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「とたん」 diễn đạt Vừa mới (làm gì) thì…. Các lựa chọn 「たびに」 và 「ついでに」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-5837bff0c5",
-      "id": "LP-GRAMC-N3-C13-5837bff0c5-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "たびに",
-       "とたん",
-       "ついでに",
-       "最中に"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～開けたとたん",
-      "prompt_ja": "窓を開けた[ ]、鳥が入ってきた。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "家を出たとたん、雨が降り始めた。",
-      "answer_vi": "Vừa ra khỏi nhà thì trời bắt đầu mưa.",
-      "chapter": 13,
-      "context_vi": "Sắp xếp thành câu: Vừa ra khỏi nhà thì trời bắt đầu mưa.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～開けたとたん」 với nghĩa Vừa mới (làm gì) thì….",
-      "goal": "JLPT",
-      "grammar_id": "JG-5837bff0c5",
-      "id": "LP-GRAMC-N3-C13-5837bff0c5-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "雨が",
-       "降り始めた。",
-       "家を出たとたん、"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～開けたとたん",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Đưa ra lời khuyên “nên/không nên” một cách khái quát, khách quan. Không quá mạnh như ～べきだ, nhẹ hơn ～なさい. Thường dùng khi nói cách giải quyết/biện pháp cho vấn đề cụ thể: 痩せたいなら、間食を減らすことだ。 Dạng phủ định Vないことだ = “không nên …”. Cảm thán ～ことだ (嬉しいことだ/残念なことだ) tồn tại, nhưng trong JLPT phần lớn đề cập nghĩa “lời khuyên”.",
+    "pattern": "Nên (lời khuyên)",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-5837bff0c5"
+   "id": "JG-89f0e6c639"
   },
   {
    "answer": null,
    "context": {
     "examples": [
      {
-      "ja": "食事の最中に、お客さんが来た",
-      "vi": "Trong khi đang ăn thì khách hàng đến"
+      "ja": "冗談のつもりで言ったが、彼を傷つけてしまった。",
+      "vi": "Tôi nói với ý định đùa nhưng lại làm anh ấy tổn thương."
      },
      {
-      "ja": "会議をしている最中に、携帯電話が鳴った。",
-      "vi": "Giữa lúc đang họp thì điện thoại di động reo"
+      "ja": "留学するつもりで英語を勉強している。",
+      "vi": "Tôi học tiếng Anh với ý định sẽ du học."
      }
     ],
-    "meaning_vi": "Trong khi, đang lúc, giữa lúc",
-    "pattern": "〜食事の最中に",
-    "pattern_variants": [],
-    "source_questions": [
-     {
-      "answer_ja": "授業の最中に、電話が鳴った。",
-      "answer_vi": "Đúng lúc đang học thì điện thoại reo.",
-      "chapter": 13,
-      "context_vi": "Hoàn thành câu: Đúng lúc đang học thì điện thoại reo.",
-      "correct_index": 2,
-      "correct_order": null,
-      "explanation_vi": "「最中に」 diễn đạt Trong khi, đang lúc, giữa lúc Các lựa chọn 「ついでに」 và 「たびに」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
-      "goal": "JLPT",
-      "grammar_id": "JG-d8cea0654a",
-      "id": "LP-GRAMC-N3-C13-d8cea0654a-01",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "ついでに",
-       "最中に",
-       "たびに",
-       "とたんに"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～食事の最中に",
-      "prompt_ja": "授業の[ ]、電話が鳴った。",
-      "type": "FILL"
-     },
-     {
-      "answer_ja": "昼ご飯の最中に友達から連絡が来た。",
-      "answer_vi": "Đúng lúc ăn trưa thì bạn liên lạc.",
-      "chapter": 13,
-      "context_vi": "Sắp xếp thành câu: Đúng lúc ăn trưa thì bạn liên lạc.",
-      "correct_index": null,
-      "correct_order": [
-       3,
-       1,
-       2
-      ],
-      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～食事の最中に」 với nghĩa Trong khi, đang lúc, giữa lúc",
-      "goal": "JLPT",
-      "grammar_id": "JG-d8cea0654a",
-      "id": "LP-GRAMC-N3-C13-d8cea0654a-02",
-      "label": "J-LAS soạn bổ sung",
-      "level": "N3",
-      "options": [
-       "友達から",
-       "連絡が来た。",
-       "昼ご飯の最中に"
-      ],
-      "origin": "JLAS_SUPPLEMENT",
-      "pattern": "～食事の最中に",
-      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
-      "type": "ORDER"
-     }
-    ],
-    "unit_no": 0
+    "meaning_vi": "Nêu mục đích/ý hướng khi thực hiện hành động chính: “với ý định … thì …”. Vたつもりで: “coi như đã làm … để …”, dùng trong tiết kiệm/thay thế. Nのつもりで: “đóng vai/giả định là …”. Sắc thái chủ quan; khác với ～ために (mục đích thực tế) vì nhấn “tâm thế/khuynh hướng”.",
+    "pattern": "Với ý định, định làm",
+    "pattern_variants": []
    },
    "fields_needed": [
-    "formation",
-    "nuance_vi",
-    "common_mistakes_vi",
-    "examples"
+    "formation"
    ],
-   "id": "JG-d8cea0654a"
+   "id": "JG-abc6544f1e"
   }
  ],
  "kind": "GRAMMAR_CORE",
