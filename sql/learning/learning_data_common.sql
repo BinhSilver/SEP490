@@ -8184,14 +8184,14 @@ DROP PROCEDURE IF EXISTS jlas_validate_comm_path_v1;
 DROP TEMPORARY TABLE IF EXISTS jlas_comm_expected;
 -- END generated communication-goal lessons
 
--- BEGIN tools/learning-path-source/seed/seed-sql.mjs#COMMON SHA256 ea772f3973763ac49ce583126cd7ed1cee2004b5bc7803fd60d7f493ff7c4e43
+-- BEGIN tools/learning-path-source/seed/seed-sql.mjs#COMMON SHA256 1caf4599199f4b89a2577bbbf3b63cd2a5a6b527ad4cb61c9b483607bd5a10fd
 -- SINH TỰ ĐỘNG, KHÔNG SỬA TAY.
 -- JLPT path base data: levels (planned counts only; release is set by the admin), kana rows and kana.
 SET NAMES utf8mb4;
 START TRANSACTION;
 INSERT INTO `jpath_level` (`level`, `sort_order`, `planned_vocab`, `planned_kanji`, `planned_grammar`) VALUES
-('N5', 1, 1952, 313, 409),
-('N4', 2, 2042, 246, 484),
+('N5', 1, 1950, 313, 409),
+('N4', 2, 2041, 246, 483),
 ('N3', 3, 2000, 370, 150),
 ('N2', 4, 1546, 367, 150),
 ('N1', 5, 1852, 1000, 99)
