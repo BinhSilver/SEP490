@@ -234,7 +234,7 @@ function applyFix(item, field, value, log) {
   } else if (field === 'expression' || field === 'reading') {
     item[field] = value;
     item[`normalized_${field}`] = normalizeJapanese(value);
-    if (field === 'reading') item.romaji = toRomaji(value);
+    if (field === 'reading' || field === 'expression') item.romaji = toRomaji(item.reading, item.expression);
   } else {
     item[field] = field === 'unit_no' ? Number(value) : value;
     if (field === 'word_type_label') item.provenance.word_type_source = 'AI';

@@ -21,13 +21,20 @@ const KANA = {
   ぁ: 'a', ぃ: 'i', ぅ: 'u', ぇ: 'e', ぉ: 'o'
 };
 const YOON = { ゃ: 'a', ゅ: 'u', ょ: 'o' };
-export function toRomaji(kana) {
-  const text = normalizeJapanese(kana);
+// Loanword syllables written with a small vowel (ファ fa, ティ ti, チェ che, ウィ wi, ヴァ va...).
+const SMALL_VOWEL = { ぁ: 'a', ぃ: 'i', ぅ: 'u', ぇ: 'e', ぉ: 'o' };
+const SMALL_COMBO = { ふ: 'f', ゔ: 'v', う: 'w', ち: 'ch', じ: 'j', し: 'sh', て: 't', で: 'd', と: 't', ど: 'd', い: 'y', く: 'kw', ぐ: 'gw', つ: 'ts' };
+function kanaRomaji(text) {
   let out = '';
   for (let i = 0; i < text.length; i++) {
     const c = text[i], next = text[i + 1];
-    if (c === 'っ') { const n = KANA[next] ?? ''; out += n.startsWith('ch') ? 't' : (n[0] ?? ''); continue; }
-    if (c === 'ー') { out += out.slice(-1); continue; }
+    if (c === 'っ') {
+      const n = next && SMALL_VOWEL[text[i + 2]] && SMALL_COMBO[next] ? SMALL_COMBO[next] : KANA[next] ?? '';
+      out += n.startsWith('ch') ? 't' : (n[0] ?? ''); continue;
+    }
+    // ー lengthens the vowel before it once (レポート repooto).
+    if (c === 'ー') { const v = out.match(/[aiueo]$/); out += v ? v[0] : ''; continue; }
+    if (next && SMALL_VOWEL[next] && SMALL_COMBO[c]) { out += SMALL_COMBO[c] + SMALL_VOWEL[next]; i++; continue; }
     if (next && YOON[next] && KANA[c]) {
       const base = KANA[c];
       out += (/^(shi|chi|ji)$/.test(base) ? base.slice(0, -1) : base.slice(0, -1) + 'y') + YOON[next];
@@ -36,6 +43,33 @@ export function toRomaji(kana) {
     out += KANA[c] ?? c;
   }
   return out;
+}
+
+const PARTICLE_ROMAJI = { は: 'wa', へ: 'e', を: 'o' };
+// Readings of phrases split at their particles: by spaces in the reading, or by the expression — a lone は/へ/を
+// written between non-hiragana (本を読みます, 私は学生です) is a particle. Single words (今日は, はな) are unchanged.
+function phraseParts(reading, expression) {
+  if (/\s/.test(reading.trim())) return reading.trim().split(/\s+/);
+  const ex = normalizeJapanese(expression ?? '');
+  if (!ex || !/[^ぁ-ゖ]/.test(ex)) return null;
+  const tokens = ex.match(/[ぁ-ゖ]+|[^ぁ-ゖ]+/g) ?? [];
+  const isParticle = (t, k) => /^[はへを]$/.test(t) && k > 0 && k < tokens.length - 1;
+  if (!tokens.some(isParticle)) return null;
+  const re = new RegExp('^' + tokens.map(t => /^[ぁ-ゖ]+$/.test(t) ? `(${t})` : '(.+?)').join('') + '$');
+  const m = reading.match(re);
+  if (!m) return null;
+  const parts = [];
+  let word = '';
+  tokens.forEach((t, k) => { if (isParticle(t, k)) { if (word) parts.push(word); parts.push(m[k + 1]); word = ''; } else word += m[k + 1]; });
+  if (word) parts.push(word);
+  return parts;
+}
+
+export function toRomaji(kana, expression = null) {
+  const text = normalizeJapanese(kana);
+  const parts = phraseParts(text, expression);
+  if (!parts) return kanaRomaji(text);
+  return parts.map(p => PARTICLE_ROMAJI[p] ?? kanaRomaji(p)).join(' ');
 }
 
 // ---------------------------------------------------------------- vocabulary
@@ -339,7 +373,7 @@ function buildLexeme(members, key, dropVariant = new Map()) {
     s === 'MIRAI' ? mirai.length : s === 'JLAS' ? jlas.length : s === 'VNJPCLUB' ? members.some(m => m.vnjp.length) : !!dictEntry);
   return { id, merged_ids: jlas.slice(1).map(m => m.id).filter(x => x !== id), key, level, members, mirai, jlas,
     item: { id, level, expression: display.expression, reading: display.reading, normalized_expression: display.ne,
-      normalized_reading: display.nr, romaji: toRomaji(display.reading),
+      normalized_reading: display.nr, romaji: toRomaji(display.reading, display.expression),
       variants: [...new Set([...members.map(m => m.expression), HAS_KANJI.test(dictEntry?.expression ?? '') ? dictEntry.expression : null])]
         .filter(e => e && e !== display.expression && !droppedFrom(dropVariant, id, e)).sort(),
       dictionary_entry_id: dictEntry?.id ?? null, key, topic_key: mirai[0]?.topic_key ?? 'khac',
