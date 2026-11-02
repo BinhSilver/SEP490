@@ -1,10 +1,14 @@
 package com.jlas.jlptpath.service;
 
 import com.jlas.jlptpath.dto.JpathConfirmationView;
+import com.jlas.jlptpath.dto.JpathCreateRequest;
 import com.jlas.jlptpath.dto.JpathEntryPreferenceRequest;
 import com.jlas.jlptpath.dto.JpathEntryStatusView;
 import com.jlas.jlptpath.dto.JpathEstimateRequest;
+import com.jlas.jlptpath.dto.JpathLevelPreviewView;
 import com.jlas.jlptpath.dto.JpathPaceView;
+import com.jlas.jlptpath.dto.JpathPathView;
+import com.jlas.jlptpath.entity.JpathUserLevel;
 import com.jlas.jlptpath.entity.JpathUserPath;
 import com.jlas.jlptpath.enums.JpathEntrySource;
 import java.util.Optional;
@@ -31,6 +35,31 @@ public interface JpathPathService {
 
     /** What-if pace for the confirmation screen with the target enforced; writes nothing. */
     JpathPaceView estimate(Long userId, JpathEstimateRequest request);
+
+    /**
+     * Creates the learner's path from the confirmation screen; checks everything before writing. Rejects: an ACTIVE
+     * or PAUSED path (JPATH_ACTIVE_PATH_EXISTS, also when a parallel request inserted first); a survey goal that is no
+     * longer JLPT (VALIDATION_FAILED); SMART_TEST without a submitted attempt of the learner (IN_PROGRESS →
+     * JPATH_SMART_TEST_IN_PROGRESS); FROM_ZERO for a learner who studied before; bad minutes or days; sliders outside
+     * the limits of the open level; an exam date not in (today, today + 3 years]; a target that cannot be reached
+     * before the exam (JPATH_TARGET_TOO_SOON with the estimate message). The open level, kana tab and suggested mode
+     * are decided here again, never taken from the client. Writes the path, its open level, the INITIAL (and, when
+     * the sliders differ from the recommendation, CONFIRM) slider log, default display settings; imports the wrong
+     * Smart Test items (SMART_TEST with a result) or finishes the abandoned IN_PROGRESS attempt (ABANDONED_TEST).
+     */
+    JpathPathView create(Long userId, JpathCreateRequest request);
+
+    /** The active path view; JPATH_NO_ACTIVE_PATH when there is none. */
+    JpathPathView current(Long userId);
+
+    /** The open level row of the active path; JPATH_NO_ACTIVE_PATH when there is none. */
+    JpathUserLevel openLevelState(Long userId);
+
+    /**
+     * Preview of {@code level} (N1..N5, any case; VALIDATION_FAILED otherwise) as seen from the active path's open
+     * level (N5 without a path).
+     */
+    JpathLevelPreviewView levelPreview(Long userId, String level);
 
     Optional<JpathUserPath> findActive(Long userId);
 

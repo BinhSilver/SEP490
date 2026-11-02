@@ -62,6 +62,12 @@ public class JpathSmartTestReader {
         return snapshot(userId, attempt);
     }
 
+    /** Whether the attempt has its Smart Test session row (finishing an attempt without one would 404). */
+    @Transactional(readOnly = true)
+    public boolean hasSession(Long attemptId) {
+        return sessions.existsById(attemptId);
+    }
+
     private JpathSmartTestSnapshot snapshot(Long userId, AssessmentAttempt attempt) {
         if (IN_PROGRESS.equals(attempt.getStatus())) {
             return new JpathSmartTestSnapshot(attempt.getId(), attempt.getStatus(), null, null, null, null, null, null,

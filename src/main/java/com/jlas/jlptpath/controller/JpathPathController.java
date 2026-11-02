@@ -3,10 +3,13 @@ package com.jlas.jlptpath.controller;
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.security.UserPrincipal;
 import com.jlas.jlptpath.dto.JpathConfirmationView;
+import com.jlas.jlptpath.dto.JpathCreateRequest;
 import com.jlas.jlptpath.dto.JpathEntryPreferenceRequest;
 import com.jlas.jlptpath.dto.JpathEntryStatusView;
 import com.jlas.jlptpath.dto.JpathEstimateRequest;
+import com.jlas.jlptpath.dto.JpathLevelPreviewView;
 import com.jlas.jlptpath.dto.JpathPaceView;
+import com.jlas.jlptpath.dto.JpathPathView;
 import com.jlas.jlptpath.enums.JpathEntrySource;
 import com.jlas.jlptpath.service.JpathPathService;
 import jakarta.validation.Valid;
@@ -14,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,7 +25,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** [JLAS-W0108] Entry status, survey answers, confirmation screen and pace estimate of the JLPT path. */
+/**
+ * [JLAS-W0108] Entry status, survey answers, confirmation screen, pace estimate, path creation, the path view and
+ * level previews of the JLPT path.
+ */
 @RestController
 @RequestMapping("/api/learning/jlpt")
 @RequiredArgsConstructor
@@ -54,5 +61,22 @@ public class JpathPathController {
             @AuthenticationPrincipal UserPrincipal user, @Valid @RequestBody JpathEntryPreferenceRequest request) {
         return ResponseEntity.ok(ApiResponse.ok("Đã lưu lựa chọn.",
                 pathService.saveEntryPreference(user.userId(), request)));
+    }
+
+    @PostMapping("/paths")
+    public ResponseEntity<ApiResponse<JpathPathView>> create(
+            @AuthenticationPrincipal UserPrincipal user, @Valid @RequestBody JpathCreateRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã tạo lộ trình.", pathService.create(user.userId(), request)));
+    }
+
+    @GetMapping("/path")
+    public ResponseEntity<ApiResponse<JpathPathView>> current(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", pathService.current(user.userId())));
+    }
+
+    @GetMapping("/levels/{level}/preview")
+    public ResponseEntity<ApiResponse<JpathLevelPreviewView>> levelPreview(
+            @AuthenticationPrincipal UserPrincipal user, @PathVariable String level) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", pathService.levelPreview(user.userId(), level)));
     }
 }

@@ -27,8 +27,14 @@ public interface JpathCalendarService {
     /** Third skill day picked for the learner's chosen skill and rest days. */
     DayOfWeek thirdSkillDay(Set<DayOfWeek> chosen, Set<DayOfWeek> rest);
 
-    /** Monday→Sunday of the week holding {@code anyDay}; empty when the learner has no active path. */
+    /** Same as {@link #week(Long, LocalDate, boolean)} with {@code noNewItemsLeft=false}. */
     List<JpathCalendarDayView> week(Long userId, LocalDate anyDay);
+
+    /**
+     * Monday→Sunday of the week holding {@code anyDay}; empty when the learner has no active path. A day with a stored
+     * plan keeps its kind; {@code noNewItemsLeft} (the open level has no new item left) applies to today and later.
+     */
+    List<JpathCalendarDayView> week(Long userId, LocalDate anyDay, boolean noNewItemsLeft);
 
     /**
      * Plan decision 14: among the days that are neither chosen nor rest, the one whose smallest week-circular

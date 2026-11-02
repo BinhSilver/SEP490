@@ -79,6 +79,12 @@ public class JpathCalendarServiceImpl implements JpathCalendarService {
     @Override
     @Transactional(readOnly = true)
     public List<JpathCalendarDayView> week(Long userId, LocalDate anyDay) {
+        return week(userId, anyDay, false);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<JpathCalendarDayView> week(Long userId, LocalDate anyDay, boolean noNewItemsLeft) {
         JpathUserPath path = paths.findFirstByUserIdAndStatusOrderByIdDesc(userId, JpathPathStatus.ACTIVE)
                 .orElse(null);
         if (path == null) {
@@ -95,7 +101,7 @@ public class JpathCalendarServiceImpl implements JpathCalendarService {
         for (LocalDate day = monday; !day.isAfter(sunday); day = day.plusDays(1)) {
             JpathDailyPlan plan = stored.get(day);
             JpathDayKind kind = plan != null && plan.getDayKind() != null
-                    ? plan.getDayKind() : dayKind(path, stage, day);
+                    ? plan.getDayKind() : dayKind(path, stage, day, noNewItemsLeft && !day.isBefore(today));
             boolean done = plan != null && plan.getAllDoneAt() != null;
             week.add(new JpathCalendarDayView(day, kind, done, day.equals(today)));
         }
