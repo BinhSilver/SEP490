@@ -4,8 +4,10 @@
  *   enqueue(event) -> boolean   false once MAX_PENDING events are waiting
  *   flush() -> Promise<{sent, kept, dropped, result?}>   in order, BATCH per send; one run at a time
  *     send rejects {network:true} or a 5xx -> keep everything left, retry after BACKOFF_MS (last value repeats)
- *     send rejects a 4xx                   -> drop that batch, onChange({dropped}), go on with the next one
- *   pending(), attach(win) ('online' -> flush), clear()
+ *     send rejects 408 or 429              -> same as network: keep and retry with backoff
+ *     send rejects 401 or 403              -> keep, no timer; the next flush() or resume() (after a new login) retries
+ *     send rejects any other 4xx           -> drop that batch, onChange({dropped}), go on with the next one
+ *   pending(), attach(win) ('online' -> flush), resume(), clear()
  * Events are saved under KEY_PREFIX + sessionId; when storage is missing or throws the queue lives in memory.
  * Resending is safe: the server applies events idempotently by eventId.
  */
@@ -22,8 +24,13 @@
   var MAX_PENDING = 500;
   var BACKOFF_MS = [2000, 5000, 15000, 30000];
 
-  function isClientError(err) {
-    return !!err && !err.network && typeof err.status === 'number' && err.status >= 400 && err.status < 500;
+  function isAuthError(err) {
+    return !!err && !err.network && (err.status === 401 || err.status === 403);
+  }
+
+  function isRejected(err) {
+    return !!err && !err.network && typeof err.status === 'number' && err.status >= 400 && err.status < 500
+      && err.status !== 408 && err.status !== 429 && !isAuthError(err);
   }
 
   function create(options) {
@@ -84,7 +91,7 @@
           outcome.result = result;
           return next();
         }, function (err) {
-          if (isClientError(err)) {
+          if (isRejected(err)) {
             events.splice(0, batch.length);
             save();
             outcome.dropped += batch.length;
@@ -92,7 +99,8 @@
             return next();
           }
           outcome.kept = events.length;
-          scheduleRetry();
+          if (isAuthError(err)) onChange({ authRequired: true, error: err, pending: events.length });
+          else scheduleRetry();
           return outcome;
         });
       }
@@ -122,7 +130,7 @@
       try { storage.removeItem(key); } catch (e) { storage = null; }
     }
 
-    return { enqueue: enqueue, flush: flush, pending: pending, attach: attach, clear: clear };
+    return { enqueue: enqueue, flush: flush, resume: flush, pending: pending, attach: attach, clear: clear };
   }
 
   function uuid(cryptoObj) {
