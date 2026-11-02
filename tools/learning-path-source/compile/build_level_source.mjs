@@ -4,6 +4,7 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { LEVELS, ROOT, argValue, normalizeJapanese, readJson, writeOrCheck } from './util.mjs';
 import { compileFromInputs, loadCompileInputs, loadReference } from './inputs.mjs';
+import { grammarFamilyKey } from './normalize.mjs';
 import { applyPackets, authoringDir, correctionDirs as allCorrectionDirs, emitReviewPackets, globalCorrections, readPackets } from './authoring.mjs';
 import { applyStatuses, buildLevelIndex, runChecks, WARNING_CODES } from './checks.mjs';
 import { writeReport, REPORT_DIR } from './report.mjs';
@@ -30,19 +31,28 @@ const idsOf = c => [...c.vocabulary, ...c.kanji, ...c.grammar, ...(c.merged_ids 
 function checkContext(inputs, level, outFile, corrections = {}) {
   const { levels, index: { levelOfWord, kanaLevel, kanjiLevel } } = compiledLevels(inputs, corrections);
 
-  const miraiReference = new Map();
-  let miraiExamples = [];
+  // Mirai reference (free preview) of every level: word meanings by spelling|reading, grammar meanings by family key,
+  // and every example sentence — read only to flag copying.
+  const miraiReference = new Map(), miraiGrammar = new Map(), miraiExamples = [];
   for (const l of LEVELS) {
     const ref = loadReference(l);
     const byRef = new Map(ref.vocabulary.map(r => [r.mirai_ref, r]));
     for (const f of inputs.frames[l].vocabulary) {
       const r = byRef.get(f.mirai_ref);
-      if (r) miraiReference.set(`${normalizeJapanese(f.expression)}|${normalizeJapanese(f.reading)}`, r);
+      const key = `${normalizeJapanese(f.expression)}|${normalizeJapanese(f.reading)}`;
+      if (r && !miraiReference.has(key)) miraiReference.set(key, r);
     }
-    if (l === level) miraiExamples = [...ref.vocabulary.map(r => r.example_ja), ...ref.grammar.flatMap(g => g.examples)].filter(Boolean);
+    const gByRef = new Map(ref.grammar.map(g => [g.mirai_ref, g]));
+    for (const f of inputs.frames[l].grammar ?? []) {
+      const g = gByRef.get(f.mirai_ref);
+      if (g?.meaning_vi && !miraiGrammar.has(grammarFamilyKey(f.pattern))) miraiGrammar.set(grammarFamilyKey(f.pattern), g.meaning_vi);
+    }
+    miraiExamples.push(...[...ref.vocabulary.map(r => r.example_ja), ...ref.grammar.flatMap(g => g.examples)].filter(Boolean));
   }
   const src = inputs.jlasLevels[level];
+  // Expected: every J-LAS id of the level, and every id (and merged id) the previous compiled file had.
   const expectedIds = new Set([...src.vocabulary, ...src.kanji, ...src.grammar].map(x => x.id));
+  if (existsSync(outFile)) for (const id of idsOf(readJson(outFile))) expectedIds.add(id);
   // Another level counts as its compiled file beside this one; with no file there yet (a scratch --out), as this
   // compiler builds it. An id the compiler puts in a level whose file lacks it is lost until that level is rebuilt.
   const otherLevelIds = new Set(), compiledAt = new Map();
@@ -53,7 +63,7 @@ function checkContext(inputs, level, outFile, corrections = {}) {
     for (const id of existsSync(file) ? idsOf(readJson(file)) : idsOf(levels[i])) otherLevelIds.add(id);
   }
   const lostDetail = id => compiledAt.has(id) ? `compiled into ${compiledAt.get(id)}; ${compiledAt.get(id)}.json is stale` : '';
-  return { levelOfWord, kanaLevel, kanjiLevel, miraiReference, miraiExamples, expectedIds, otherLevelIds, lostDetail };
+  return { levelOfWord, kanaLevel, kanjiLevel, miraiReference, miraiGrammar, miraiExamples, expectedIds, otherLevelIds, lostDetail };
 }
 
 export function buildLevel(level, { inputs = loadCompileInputs(), outFile = compiledFile(level), reportDir = REPORT_DIR,
