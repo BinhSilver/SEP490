@@ -63,6 +63,8 @@ public class JpathReportTargets {
                     e.getOwnerType(), e.getOwnerCode(), e.getLevel(), e.isAuthored(), e.isReportHidden()));
             case QUESTION -> questions.findById(code).map(q -> new JpathReportTargetRef(type, code,
                     JpathItemType.GRAMMAR, q.getGrammarCode(), q.getLevel(), q.isAuthored(), q.isReportHidden()));
+            // Plan 3: skill sets are reportable once the report service wires them; until then not found.
+            case SKILL_SET, SKILL_QUESTION -> Optional.empty();
         };
     }
 
@@ -89,8 +91,8 @@ public class JpathReportTargets {
                 q.setReportHidden(hidden);
                 questions.save(q);
             });
-            case KANA -> {
-                // kana are never hidden by reports
+            case KANA, SKILL_SET, SKILL_QUESTION -> {
+                // kana are never hidden by reports; skill targets are not resolvable yet (see findRef)
             }
         }
     }
@@ -104,6 +106,7 @@ public class JpathReportTargets {
             case KANA -> kanas.findById(ref.code()).map(JpathReportTargets::kanaText).orElse("");
             case EXAMPLE -> examples.findById(ref.code()).map(JpathExample::getJa).orElse("");
             case QUESTION -> questions.findById(ref.code()).map(JpathGrammarQuestion::getPromptJa).orElse("");
+            case SKILL_SET, SKILL_QUESTION -> "";
         };
         return shorten(text == null ? "" : text);
     }

@@ -68,6 +68,16 @@ public enum ErrorCode {
             "Hôm nay bạn đã bắt đầu học mới, chỉ đổi sang ngày ôn được khi chưa học mục mới nào."),
     JPATH_EXTRA_NOT_READY(HttpStatus.CONFLICT, "Xong phần hôm nay của tab này trước khi học thêm."),
     JPATH_CONTENT_NOT_LEARNABLE(HttpStatus.CONFLICT, "Mục này chưa sẵn sàng để học."),
+    // [JLAS-W0108] Kế hoạch 3: Đọc · Nghe, Thi thử.
+    JPATH_SKILL_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy dạng câu này."),
+    JPATH_SKILL_NO_SETS(HttpStatus.CONFLICT, "Dạng câu này chưa có bài luyện."),
+    JPATH_SKILL_LESSON_REQUIRED(HttpStatus.CONFLICT, "Hãy hoàn thành phần lý thuyết trước."),
+    JPATH_SKILL_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy buổi luyện."),
+    JPATH_SKILL_NOT_SKILL_DAY(HttpStatus.CONFLICT, "Hôm nay không phải ngày kỹ năng — hãy dùng Luyện tập tự do."),
+    JPATH_SECTION_LOCKED(HttpStatus.CONFLICT, "Luyện thi theo phần mở ở chặng Rèn kỹ năng."),
+    JPATH_MOCK_NOT_APPLICABLE(HttpStatus.CONFLICT, "Lượt thi thử này không dùng được cho cấp đang học."),
+    JPATH_MOCK_UNAVAILABLE(HttpStatus.CONFLICT, "Thi thử JLPT chưa sẵn sàng."),
+    JPATH_MOCK_ATTEMPT_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy lượt thi thử."),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
 
     private final HttpStatus status;
