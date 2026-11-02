@@ -1,0 +1,1590 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Khi trà còn nóng là khoảng thời gian thích hợp để uống; うちに chỉ tranh thủ trước khi trạng thái đổi.",
+      "options": [
+       "うちに",
+       "たびに",
+       "とたんに",
+       "せいで"
+      ],
+      "prompt_ja": "熱い（　　）飲んでください。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Ghi địa chỉ trước khi quên; ないうちに nêu thời hạn trước khi tình trạng thay đổi.",
+      "options": [
+       "おかげで",
+       "うちに",
+       "ところに",
+       "ほど"
+      ],
+      "prompt_ja": "忘れない（　　）、住所をメモします。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "まだ明るいうちに駅へ向かおう。★ は駅へ; trạng thái còn sáng đặt trước うちに.",
+      "options": [
+       "うちに",
+       "向かおう",
+       "駅へ",
+       "明るい"
+      ],
+      "prompt_ja": "まだ ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "子どもが寝ているうちに夕食を作った。★ là 夕食を, tân ngữ của 作った.",
+      "options": [
+       "作った",
+       "うちに",
+       "寝ている",
+       "夕食を"
+      ],
+      "prompt_ja": "子どもが ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "学生のうちに nghĩa là trong khoảng thời gian còn là sinh viên.",
+      "options": [
+       "Tôi muốn đi nước ngoài khi còn là sinh viên.",
+       "Tôi chỉ đi nước ngoài sau khi tốt nghiệp.",
+       "Tôi muốn đi nước ngoài mỗi khi gặp sinh viên.",
+       "Tôi không muốn đi nước ngoài lúc còn đi học."
+      ],
+      "prompt_ja": "学生のうちに海外へ行きたい。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "降らないうちに diễn đạt tranh thủ trước khi trời bắt đầu mưa.",
+      "options": [
+       "Hãy cất đồ giặt ngay khi mưa bắt đầu.",
+       "Hãy cất đồ giặt trước khi trời mưa.",
+       "Mỗi lần mưa hãy mang đồ ra phơi.",
+       "Vì trời đã mưa nên đồ giặt bị ướt."
+      ],
+      "prompt_ja": "雨が降らないうちに洗濯物を入れよう。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "うちに ở nghĩa tranh thủ đi với trạng thái còn duy trì, không dùng 降った để nói trước khi mưa.",
+      "options": [
+       "元気なうちに旅行したい。",
+       "忘れないうちに電話します。",
+       "雨が降ったうちに帰ります。",
+       "子どもが寝ているうちに掃除した。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Danh từ 学生 cần の trước うちに: 学生のうちに.",
+      "options": [
+       "若いうちに勉強しよう。",
+       "熱いうちに食べてね。",
+       "母がいないうちに準備した。",
+       "学生うちに日本へ行った。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dễ quên な sau tính từ đuôi な (sai: 静かうちに; đúng: 静かなうちに) hoặc quên の sau danh từ (đúng: 学生のうちに).",
+    "examples": [
+     {
+      "ja": "熱いうちに召し上がってください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "若いうちにいろいろな国へ行きたいです。",
+      "ja_furigana": "若(わか)いうちにいろいろな国(くに)へ行(い)きたいです。",
+      "source": "AI",
+      "vi": "Trong lúc còn trẻ tôi muốn đi đến nhiều đất nước khác nhau."
+     },
+     {
+      "ja": "雨が降らないうちに早く帰りましょう。",
+      "ja_furigana": "雨(あめ)が降(ふ)らないうちに早(はや)く帰(かえ)りましょう。",
+      "source": "AI",
+      "vi": "Chúng ta hãy về sớm trước khi trời mưa nhé."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Tranh thủ lúc con còn nhỏ nên dùng うちに.",
+      "options": [
+       "せいで",
+       "うちに",
+       "とたんに",
+       "たびに"
+      ],
+      "prompt_ja": "子どもが小さい（　　）、一緒に遊びたい。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "うちに cũng chỉ sự biến đổi dần trong lúc một việc đang tiếp diễn.",
+      "options": [
+       "Tôi phải ngủ trước khi đọc sách.",
+       "Mỗi lần đọc sách tôi đều ngủ ngay.",
+       "Trong lúc đọc sách, tôi dần buồn ngủ.",
+       "Vì không đọc sách nên tôi buồn ngủ."
+      ],
+      "prompt_ja": "本を読んでいるうちに眠くなった。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Danh từ 朝 phải nối bằng の: 朝のうちに.",
+      "options": [
+       "朝のうちに出発した。",
+       "寒くないうちに帰ろう。",
+       "音楽を聞いているうちに寝た。",
+       "朝うちに出発した。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "うちに",
+      "sentence_ja": "花が咲いている＿＿、写真を撮ろう。",
+      "translation_vi": "Hãy chụp ảnh khi hoa còn nở."
+     },
+     {
+      "answer": "うちに",
+      "sentence_ja": "店が閉まらない＿＿、買い物を済ませよう。",
+      "translation_vi": "Hãy mua đồ trước khi cửa hàng đóng."
+     }
+    ],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 熱いうちに召し上がってください。",
+     "FURIGANA_MISSING: 熱いうちに召し上がってください。"
+    ],
+    "formation": "V-る / V-ている / V-ない / Aい / Aな + な / N + の + うちに",
+    "locked_fields": [],
+    "meaning_vi": "Trong lúc còn, trước khi — Làm việc gì trong khoảng thời gian điều kiện còn thuận lợi, trước khi nó thay đổi.",
+    "nuance_vi": "Nhấn mạnh việc tranh thủ làm ngay khi điều kiện thuận lợi còn đang duy trì, hoặc diễn tả sự biến đổi xảy ra lúc nào không hay khi đang làm việc gì; khác với 間に (chỉ mốc thời gian thuần túy).",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       0,
+       1
+      ],
+      "pieces": [
+       "うちに",
+       "家に帰ろう。",
+       "暗く",
+       "なる"
+      ],
+      "translation_vi": "Hãy về nhà trước khi trời tối."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "富士山を見たい。",
+       "うちに",
+       "日本に",
+       "住んでいる"
+      ],
+      "translation_vi": "Tôi muốn ngắm núi Phú Sĩ khi còn sống ở Nhật."
+     }
+    ],
+    "pattern": "内(うち)に",
+    "pattern_variants": [
+     "V-ている / V-ない / A / N の + うちに",
+     "〜うちに... (A)",
+     "〜うちに... (B)"
+    ],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "ないうちに = trước khi điều gì xảy ra. Khác với 間に: うちに nhấn mạnh kẻo lỡ mất cơ hội."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4dc6cfd5af"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Cụm その同じ時間に xác định hai việc diễn ra đồng thời; 間に chỉ khoảng mẹ đang nấu.",
+      "options": [
+       "間に",
+       "前に",
+       "後で",
+       "ために"
+      ],
+      "prompt_ja": "母が料理している（　　）、その同じ時間に私は皿を洗った。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "父が出かけている間に nghĩa là trong lúc bố đang vắng nhà.",
+      "options": [
+       "ため",
+       "間",
+       "前",
+       "後"
+      ],
+      "prompt_ja": "父が出かけている（　　）に、私は家で荷物を受け取った。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "母が料理している間に皿を洗った。Ô ★ là 皿を, tân ngữ của 洗った.",
+      "options": [
+       "間に",
+       "料理している",
+       "皿を",
+       "洗った"
+      ],
+      "prompt_ja": "母が ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "私が寝ている間に妹は帰った。Ô ★ là 妹は, chủ ngữ của mệnh đề sau.",
+      "options": [
+       "寝ている",
+       "間に",
+       "妹は",
+       "帰った"
+      ],
+      "prompt_ja": "私が ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "授業の間に là trong khoảng thời gian của tiết học.",
+      "options": [
+       "Thầy rời lớp trong lúc tiết học đang diễn ra.",
+       "Thầy rời lớp trước khi tiết học bắt đầu.",
+       "Thầy rời lớp sau khi tiết học kết thúc.",
+       "Thầy rời lớp vì tiết học bị hủy."
+      ],
+      "prompt_ja": "授業の間に、先生が教室を出た。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Việc hoàn thành bài xảy ra trong khoảng em đang ngủ trưa.",
+      "options": [
+       "Tôi làm bài sau khi em trai tỉnh dậy.",
+       "Tôi hoàn thành bài trong lúc em trai ngủ trưa.",
+       "Tôi đánh thức em để cùng làm bài.",
+       "Em trai làm bài trong lúc tôi ngủ trưa."
+      ],
+      "prompt_ja": "弟が昼寝をしている間に、私は宿題を終えた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "間に không chen で; phải là 父が寝ている間に.",
+      "options": [
+       "母が働いている間に、私は買い物をした。",
+       "夏休みの間に、本を三冊読んだ。",
+       "父が寝ている間でに、庭を掃除した。",
+       "電車を待っている間に、友達に電話した。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Danh từ 夏休み cần の trước 間に: 夏休みの間に.",
+      "options": [
+       "授業の間に、雨が降り始めた。",
+       "妹が出かけている間に、手紙を書いた。",
+       "会議をしている間に、電話が鳴った。",
+       "夏休み間に、京都へ行った。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay dùng nhầm 間に khi hành động ở vế sau kéo dài liên tục suốt khoảng thời gian vế trước (ví dụ: ずっと待っていた phải đi với 間 chứ không phải 間に).",
+    "examples": [
+     {
+      "ja": "母が寝ている間に、部屋を掃除した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "留守の間に友達が遊びに来ました。",
+      "ja_furigana": "留守(るす)の間(あいだ)に友達(ともだち)が遊(あそ)びに来(き)ました。",
+      "source": "AI",
+      "vi": "Trong lúc tôi vắng nhà thì bạn đã đến chơi."
+     },
+     {
+      "ja": "電車に乗っている間に本を読み終えた。",
+      "ja_furigana": "電車(でんしゃ)に乗(の)っている間(あいだ)に本(ほん)を読(よ)み終(お)えた。",
+      "source": "AI",
+      "vi": "Trong lúc đi tàu điện tôi đã đọc xong cuốn sách."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "留守の間に là trong lúc anh vắng nhà.",
+      "options": [
+       "前",
+       "間",
+       "後",
+       "ため"
+      ],
+      "prompt_ja": "兄が留守の（　　）に、荷物が届いた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "父がニュースを見ている間に電話が鳴った。★ là 電話が, chủ ngữ của mệnh đề sau.",
+      "options": [
+       "鳴った",
+       "見ている間に",
+       "電話が",
+       "ニュースを"
+      ],
+      "prompt_ja": "父が ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Danh từ 試験 cần の trước 間に.",
+      "options": [
+       "母が寝ている間に帰った。",
+       "休みの間に旅行した。",
+       "父が食事している間に皿を洗った。",
+       "試験間に話してはいけない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "間に",
+      "sentence_ja": "母が電話をしている＿＿、私は静かに待った。",
+      "translation_vi": "Tôi im lặng chờ trong lúc mẹ gọi điện."
+     },
+     {
+      "answer": "間に",
+      "sentence_ja": "試験の＿＿、外で工事の音がした。",
+      "translation_vi": "Trong lúc thi, ngoài trời vang tiếng công trình."
+     }
+    ],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 母が寝ている間に、部屋を掃除した。",
+     "FURIGANA_MISSING: 母が寝ている間に、部屋を掃除した。"
+    ],
+    "formation": "V-ている / V-る / N + の + 間に",
+    "locked_fields": [],
+    "meaning_vi": "Trong lúc, nhân lúc — Làm việc gì trong khoảng thời gian một việc khác đang diễn ra.",
+    "nuance_vi": "Diễn tả một hành động đơn lẻ xảy ra tại một thời điểm nằm trong khoảng thời gian trạng thái ở vế trước đang tiếp diễn; khác với 間 (hành động ở vế sau kéo dài suốt cả khoảng thời gian đó).",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "手紙を書いた。",
+       "間に",
+       "弟が",
+       "昼寝をしている"
+      ],
+      "translation_vi": "Tôi viết thư trong lúc em trai ngủ trưa."
+     },
+     {
+      "answer_order": [
+       3,
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "間に",
+       "雨が降り出した。",
+       "買い物をしている",
+       "私が"
+      ],
+      "translation_vi": "Trời bắt đầu mưa trong lúc tôi mua sắm."
+     }
+    ],
+    "pattern": "の間(あいだ)に",
+    "pattern_variants": [
+     "V-ている / N の + 間に"
+    ],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "間に = việc xảy ra tại một điểm trong khoảng đó. 間 (không に) = việc kéo dài suốt khoảng đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-da860d1ee9"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "歩けないほど diễn tả mức đau bằng hậu quả không thể đi.",
+      "options": [
+       "ほど",
+       "たび",
+       "ついで",
+       "せい"
+      ],
+      "prompt_ja": "足が痛くて、歩けない（　　）だった。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "声が出ないほど nêu mức đau họng.",
+      "options": [
+       "たび",
+       "ほど",
+       "ついで",
+       "せい"
+      ],
+      "prompt_ja": "のどが痛くて、声が出ない（　　）です。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "彼は立てないほど足が痛かった。★ là 足が, chủ ngữ của 痛かった.",
+      "options": [
+       "痛かった",
+       "ほど",
+       "足が",
+       "立てない"
+      ],
+      "prompt_ja": "彼は ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "今日は声が出ないほどのどが痛い。★ là のどが.",
+      "options": [
+       "痛い",
+       "ほど",
+       "声が出ない",
+       "のどが"
+      ],
+      "prompt_ja": "のどの痛みがひどくて、今日は ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "涙が出るほど là mức độ cười rất nhiều.",
+      "options": [
+       "Tôi cười đến mức chảy nước mắt.",
+       "Tôi vừa khóc vừa cười.",
+       "Tôi ngừng cười khi thấy nước mắt.",
+       "Tôi cười vì có người khóc."
+      ],
+      "prompt_ja": "涙が出るほど笑った。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "手が震えるほど nêu mức lạnh.",
+      "options": [
+       "Tôi lạnh vì tay bị thương.",
+       "Trời lạnh đến mức tay run.",
+       "Tôi chỉ lạnh khi tay không run.",
+       "Tôi làm tay run để bớt lạnh."
+      ],
+      "prompt_ja": "手が震えるほど寒い。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Dạng động từ phủ định nối trực tiếp ほど: 立てないほど.",
+      "options": [
+       "歩けないほど疲れた。",
+       "泣きたいほど嬉しい。",
+       "立てないのほど足が痛い。",
+       "声が出ないほど驚いた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "ほど nối thẳng với tính từ 悲しかった, không thêm を.",
+      "options": [
+       "目が覚めるほど大きな音だった。",
+       "息ができないほど走った。",
+       "手が痛くなるほど書いた。",
+       "泣くほどを悲しかった。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Khi đi với tính từ đuôi な phải có な trước ほど (sai: 静かほど; đúng: 静かなほど), còn danh từ thì nối trực tiếp không thêm の.",
+    "examples": [
+     {
+      "ja": "死ぬほど疲れた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "昨日は涙が出るほど嬉しかったです。",
+      "ja_furigana": "昨日(きのう)は涙(なみだ)が出(で)るほど嬉(うれ)しかったです。",
+      "source": "AI",
+      "vi": "Hôm qua tôi đã vui đến mức rơi nước mắt."
+     },
+     {
+      "ja": "仕事が山ほど残っていて帰れません。",
+      "ja_furigana": "仕事(しごと)が山(やま)ほど残(のこ)っていて帰(かえ)れません。",
+      "source": "AI",
+      "vi": "Công việc còn chất đống như núi nên tôi chưa về được."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "聞こえないほど cho biết giọng rất nhỏ.",
+      "options": [
+       "たび",
+       "ほど",
+       "せい",
+       "ついで"
+      ],
+      "prompt_ja": "聞こえない（　　）小さな声で話した。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "ほど diễn tả mức độ xấu hổ.",
+      "options": [
+       "Tôi đỏ mặt vì trời nóng.",
+       "Tôi không hề xấu hổ.",
+       "Tôi xấu hổ đến đỏ mặt.",
+       "Tôi muốn mặt mình đỏ hơn."
+      ],
+      "prompt_ja": "顔が赤くなるほど恥ずかしかった。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Aい nối trực tiếp ほど, không có な.",
+      "options": [
+       "死ぬほど眠い。",
+       "驚くほど上手だ。",
+       "歩けないほど足が痛い。",
+       "痛いなほど疲れた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "くらい"
+      ],
+      "answer": "ほど",
+      "sentence_ja": "笑いすぎて、涙が出る＿＿でした。",
+      "translation_vi": "Tôi cười đến mức chảy nước mắt."
+     },
+     {
+      "accept": [
+       "くらい"
+      ],
+      "answer": "ほど",
+      "sentence_ja": "今日は立てない＿＿疲れています。",
+      "translation_vi": "Hôm nay tôi mệt đến mức không đứng nổi."
+     }
+    ],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 死ぬほど疲れた。",
+     "FURIGANA_MISSING: 死ぬほど疲れた。"
+    ],
+    "formation": "V-る / V-ない / Aい / Aな + な / N + ほど",
+    "locked_fields": [],
+    "meaning_vi": "Đến mức — Nêu mức độ bằng một hình ảnh cụ thể.",
+    "nuance_vi": "Dùng hình ảnh cụ thể hoặc ví dụ cực đoan để nhấn mạnh mức độ cao của trạng thái; trang trọng hơn くらい / ぐらい.",
+    "order_items": [
+     {
+      "answer_order": [
+       3,
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "疲れた。",
+       "歩けない",
+       "ほど",
+       "今日は"
+      ],
+      "translation_vi": "Hôm nay tôi mệt đến mức không đi nổi."
+     },
+     {
+      "answer_order": [
+       3,
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "ほど",
+       "寒かった。",
+       "手が震える",
+       "外は"
+      ],
+      "translation_vi": "Ngoài trời lạnh đến mức tay run."
+     }
+    ],
+    "pattern": "程(ほど)",
+    "pattern_variants": [
+     "N / V từ điển + ほど",
+     "〜ほど",
+     "〜ほど/くらい(程度の例)"
+    ],
+    "unit_no": 21,
+    "unit_title_vi": "Mức độ, so sánh và nhấn mạnh",
+    "usage_vi": "Khác ほど〜ない (không bằng). Ở đây là 死ぬほど疲れた (mệt đến chết đi được)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4bbb7c553d"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "歩けないくらい nêu mức độ đau chân.",
+      "options": [
+       "くらい",
+       "たびに",
+       "ついでに",
+       "せいで"
+      ],
+      "prompt_ja": "今日は足が痛くて、歩けない（　　）です。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "十分くらい là khoảng mười phút.",
+      "options": [
+       "たびに",
+       "くらい",
+       "ついでに",
+       "せいで"
+      ],
+      "prompt_ja": "駅までは歩いて十分（　　）です。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "彼は歩けないくらい足が痛くて休んだ。★ là 痛くて.",
+      "options": [
+       "痛くて",
+       "休んだ",
+       "足が",
+       "歩けないくらい"
+      ],
+      "prompt_ja": "彼は ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "彼は涙が出るくらい笑ってお腹が痛くなった。★ là お腹が.",
+      "options": [
+       "笑って",
+       "痛くなった",
+       "涙が出るくらい",
+       "お腹が"
+      ],
+      "prompt_ja": "彼は ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "くらい nêu mức độ nặng.",
+      "options": [
+       "Cái hộp nặng đến mức một người không mang nổi.",
+       "Cái hộp chỉ nặng bằng một người.",
+       "Tôi chỉ mang hộp khi có một người khác.",
+       "Một người đã mang hộp đi rồi."
+      ],
+      "prompt_ja": "この箱は一人で持てないくらい重い。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "五分くらい là thời lượng xấp xỉ.",
+      "options": [
+       "Từ nhà đến ga đúng năm giờ.",
+       "Từ nhà đến ga khoảng năm phút.",
+       "Tôi rời ga lúc năm phút.",
+       "Tôi đi ga năm lần mỗi ngày."
+      ],
+      "prompt_ja": "家から駅まで五分くらいです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Vない nối trực tiếp くらい: 歩けないくらい.",
+      "options": [
+       "泣くくらい嬉しかった。",
+       "十分くらいかかります。",
+       "歩けないのくらい疲れた。",
+       "声が出ないくらい驚いた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Số lượng nối trực tiếp くらい: 二十分くらい.",
+      "options": [
+       "一時間くらい待った。",
+       "走れないくらい足が痛い。",
+       "これくらいで足りる。",
+       "二十分のくらいかかった。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Ghép trực tiếp tính từ đuôi な với くらい mà bỏ quên な (đúng: 嫌なくらい).",
+    "examples": [
+     {
+      "ja": "歩けないくらい足が痛い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "声が枯れるくらい大声で応援しました。",
+      "ja_furigana": "声(こえ)が枯(か)れるくらい大声(おおごえ)で応援(おうえん)しました。",
+      "source": "AI",
+      "vi": "Tôi đã cổ vũ lớn tiếng đến mức khản cả giọng."
+     },
+     {
+      "ja": "お腹が痛くなるぐらい笑いました。",
+      "ja_furigana": "お腹(なか)が痛(いた)くなるぐらい笑(わら)いました。",
+      "source": "AI",
+      "vi": "Tôi đã cười đến mức đau cả bụng."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "くらい diễn tả mức độ ngạc nhiên.",
+      "options": [
+       "たびに",
+       "くらい",
+       "せいで",
+       "ついでに"
+      ],
+      "prompt_ja": "驚いて声が出ない（　　）だった。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "同じくらい là mức độ gần bằng nhau.",
+      "options": [
+       "Anh ấy thấp hơn tôi nhiều.",
+       "Anh ấy cao hơn tôi rất nhiều.",
+       "Anh ấy cao khoảng bằng tôi.",
+       "Tôi không biết chiều cao anh ấy."
+      ],
+      "prompt_ja": "彼は私と同じくらい背が高い。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Vない nối trực tiếp ぐらい, không có な.",
+      "options": [
+       "三日くらい休んだ。",
+       "泣きたいくらい嬉しい。",
+       "十分くらいで着く。",
+       "歩けないなぐらい疲れた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "ぐらい",
+       "ほど"
+      ],
+      "answer": "くらい",
+      "sentence_ja": "この荷物は一人で持てない＿＿重い。",
+      "translation_vi": "Kiện hàng nặng đến mức một người không mang nổi."
+     },
+     {
+      "accept": [
+       "ぐらい",
+       "ほど"
+      ],
+      "answer": "くらい",
+      "sentence_ja": "ここから学校まで十分＿＿かかります。",
+      "translation_vi": "Từ đây đến trường mất khoảng mười phút."
+     }
+    ],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 歩けないくらい足が痛い。",
+     "FURIGANA_MISSING: 歩けないくらい足が痛い。"
+    ],
+    "formation": "V-る / V-ない / Aい / Aな + な / N + くらい(だ) / ぐらい(だ)",
+    "locked_fields": [],
+    "meaning_vi": "Đến mức, cỡ — Nêu mức độ hoặc lượng ước chừng.",
+    "nuance_vi": "Khẩu ngữ và gần gũi hơn ほど; ngoài việc nêu ví dụ chỉ mức độ cao còn có thể dùng để chỉ mức độ tối thiểu hoặc xem nhẹ.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       1,
+       3,
+       0
+      ],
+      "pieces": [
+       "学校を休んだ。",
+       "足が",
+       "歩けないくらい",
+       "痛くて"
+      ],
+      "translation_vi": "Chân đau đến mức không đi được nên anh ấy nghỉ học."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       0,
+       1
+      ],
+      "pieces": [
+       "五分",
+       "くらいです。",
+       "家から駅までは",
+       "歩いて"
+      ],
+      "translation_vi": "Từ nhà đi bộ đến ga khoảng năm phút."
+     }
+    ],
+    "pattern": "くらい 2",
+    "pattern_variants": [
+     "N / V từ điển + くらい",
+     "〜くらいだ・〜ぐらいだ・〜くらい...・〜ぐらい...・ほどだ・〜ほど...",
+     "〜くらい/〜ぐらい"
+    ],
+    "unit_no": 21,
+    "unit_title_vi": "Mức độ, so sánh và nhấn mạnh",
+    "usage_vi": "Nghĩa mức độ gần ほど. Nghĩa coi nhẹ: それくらいできるでしょう (chừng ấy thì làm được chứ)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-714ee49e65"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sự giúp đỡ của thầy cô dẫn đến kết quả tốt.",
+      "options": [
+       "おかげで",
+       "せいで",
+       "ついでに",
+       "たびに"
+      ],
+      "prompt_ja": "先生が教えてくれた（　　）、問題が解けた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Người nói biết ơn sự giúp đỡ của bạn.",
+      "options": [
+       "せいで",
+       "おかげで",
+       "ついでに",
+       "たびに"
+      ],
+      "prompt_ja": "友達の助けの（　　）、時間どおりに終わった。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Nhờ thầy cô, tôi đã đỗ. ★ = 試験に。",
+      "options": [
+       "合格できた",
+       "おかげで、",
+       "試験に",
+       "先生の"
+      ],
+      "prompt_ja": "私は ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Nhờ mẹ, em không bị lạc đường. ★ = 道に。",
+      "options": [
+       "迷わなかった",
+       "母の",
+       "おかげで、",
+       "道に"
+      ],
+      "prompt_ja": "弟は ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "おかげで nêu nguyên nhân tích cực.",
+      "options": [
+       "Nhờ luyện tập hằng ngày, tôi đã biết bơi.",
+       "Vì tập hằng ngày nên tôi quên bơi.",
+       "Tôi bỏ tập sau khi biết bơi.",
+       "Tôi không thể bơi dù đã tập."
+      ],
+      "prompt_ja": "毎日練習したおかげで、泳げるようになった。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Kết quả thuận lợi được quy cho bạn.",
+      "options": [
+       "Bạn tôi đến ga sau tôi.",
+       "Nhờ bạn, tôi đến ga sớm.",
+       "Tôi đến ga để gặp bạn.",
+       "Tôi bỏ lỡ chuyến tàu của bạn."
+      ],
+      "prompt_ja": "友達のおかげで、駅に早く着いた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Vた nối trực tiếp おかげで, không chèn のの.",
+      "options": [
+       "先生が教えたおかげで、分かった。",
+       "友達のおかげで、道が分かった。",
+       "先生が教えたののおかげで、分かった。",
+       "練習したおかげで、上手になった。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Danh từ nối おかげで bằng の: 母のおかげで.",
+      "options": [
+       "母のおかげで、早く帰れた。",
+       "晴れたおかげで、外で遊べた。",
+       "先生のおかげで、試験に受かった。",
+       "母をおかげで、早く帰れた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng おかげで cho nguyên nhân gây hậu quả xấu ngoài ý muốn (trường hợp kết quả xấu phải dùng せいで).",
+    "examples": [
+     {
+      "ja": "先生のおかげで合格できました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "近くに駅ができたおかげで通勤が楽になった。",
+      "ja_furigana": "近(ちか)くに駅(えき)ができたおかげで通勤(つうきん)が楽(らく)になった。",
+      "source": "AI",
+      "vi": "Nhờ có nhà ga mới xây ở gần nên việc đi làm đã nhẹ nhàng hơn."
+     },
+     {
+      "ja": "毎日運動したおかげで体が丈夫になりました。",
+      "ja_furigana": "毎日(まいにち)運動(うんどう)したおかげで体(からだ)が丈夫(じょうぶ)になりました。",
+      "source": "AI",
+      "vi": "Nhờ tập thể dục mỗi ngày mà cơ thể tôi đã khỏe mạnh lên."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Tàu đến đúng giờ là nguyên nhân thuận lợi.",
+      "options": [
+       "せいで",
+       "おかげで",
+       "ついでに",
+       "たびに"
+      ],
+      "prompt_ja": "電車が時間どおりに来た（　　）、会議に間に合った。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Người nói ghi nhận sự giúp đỡ.",
+      "options": [
+       "Anh trai không giúp tôi.",
+       "Tôi làm mất hành lý của anh.",
+       "Nhờ anh trai, tôi mang được đồ nặng.",
+       "Anh trai làm hành lý nặng hơn."
+      ],
+      "prompt_ja": "兄のおかげで、重い荷物を運べた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Danh từ cần の: 友達のおかげで.",
+      "options": [
+       "友達のおかげで、助かった。",
+       "毎日歩いたおかげで、元気になった。",
+       "先生のおかげで、合格した。",
+       "友達におかげで、助かった。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "おかげで",
+      "sentence_ja": "先生の＿＿、漢字が読めるようになった。",
+      "translation_vi": "Nhờ thầy cô, tôi đã đọc được Kanji."
+     },
+     {
+      "answer": "おかげで",
+      "sentence_ja": "友達が手伝ってくれた＿＿、早く終わった。",
+      "translation_vi": "Nhờ bạn giúp, tôi hoàn thành sớm."
+     }
+    ],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 先生のおかげで合格できました。",
+     "FURIGANA_MISSING: 先生のおかげで合格できました。"
+    ],
+    "formation": "V / Aい / Aな + な / N + の + おかげで / おかげだ",
+    "locked_fields": [],
+    "meaning_vi": "Nhờ có — Nêu nguyên nhân dẫn đến kết quả tốt, kèm lòng biết ơn.",
+    "nuance_vi": "Luôn đi kèm kết quả tích cực và thể hiện sự biết ơn, trân trọng của người nói; nếu dùng cho kết quả xấu thì mang giọng điệu mỉa mai.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       0,
+       1
+      ],
+      "pieces": [
+       "駅に",
+       "着いた。",
+       "友達の",
+       "おかげで、"
+      ],
+      "translation_vi": "Nhờ bạn, tôi đã đến ga."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       0,
+       1
+      ],
+      "pieces": [
+       "試合に",
+       "勝てた。",
+       "毎日練習した",
+       "おかげで、"
+      ],
+      "translation_vi": "Nhờ luyện tập mỗi ngày, tôi thắng trận đấu."
+     }
+    ],
+    "pattern": "お陰(かげ)で",
+    "pattern_variants": [
+     "Thể thường / N の + おかげで",
+     "〜おかげ",
+     "〜おかげだ・〜おかげで.../〜せいだ・〜せいで...",
+     "〜おかげで"
+    ],
+    "unit_no": 10,
+    "unit_title_vi": "Nguyên nhân, mục đích và kết quả",
+    "usage_vi": "Ngược lại là せいで (tại, vì — kết quả xấu). Dùng nhầm hai mẫu này là lỗi rất nặng về sắc thái."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-91bc2a2ee1"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Chỉ cần có nước là đủ.",
+      "options": [
+       "さえ",
+       "ほど",
+       "ついでに",
+       "せいで"
+      ],
+      "prompt_ja": "水（　　）あれば、今夜は大丈夫だ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Uống thuốc là điều kiện duy nhất được nêu.",
+      "options": [
+       "ほど",
+       "さえ",
+       "たびに",
+       "せいで"
+      ],
+      "prompt_ja": "この薬（　　）飲めば、熱が下がるだろう。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Chỉ cần mưa tạnh là có thể ra ngoài. ★ = 出かけ。",
+      "options": [
+       "られる",
+       "止めば、",
+       "出かけ",
+       "雨さえ"
+      ],
+      "prompt_ja": "今日は、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Chỉ cần có tiền thì có thể mua sắm ở cửa hàng này. ★ = 買い物が。",
+      "options": [
+       "できる",
+       "お金さえ",
+       "あれば、",
+       "買い物が"
+      ],
+      "prompt_ja": "この店は、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "さえ〜ば chỉ một điều kiện đủ.",
+      "options": [
+       "Chỉ cần có thời gian, tôi sẽ giúp được.",
+       "Nếu không có thời gian thì tôi vẫn giúp.",
+       "Tôi giúp để có thêm thời gian.",
+       "Tôi đã hết thời gian giúp."
+      ],
+      "prompt_ja": "時間さえあれば、手伝えます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Viết tên là điều kiện tối thiểu.",
+      "options": [
+       "Phải viết cả địa chỉ mới nộp được.",
+       "Chỉ cần viết tên là có thể nộp.",
+       "Viết tên xong vẫn không được nộp.",
+       "Tôi đã nộp mà không ghi tên."
+      ],
+      "prompt_ja": "名前さえ書けば、出せます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điều kiện của ある là あれば, không phải あるば.",
+      "options": [
+       "水さえあれば、大丈夫だ。",
+       "雨さえ止めば、外へ出られる。",
+       "水さえあるば、大丈夫だ。",
+       "時間さえあれば、行ける。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điều kiện của 飲む là 飲めば.",
+      "options": [
+       "この薬さえ飲めば、よくなる。",
+       "雨さえ止めば、出かけられる。",
+       "お金さえあれば、買える。",
+       "この薬さえ飲むば、よくなる。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Quên chia vế đi kèm sang thể điều kiện ば / なら (sai: お金さえあるといい; đúng: お金さえあればいい).",
+    "examples": [
+     {
+      "ja": "この薬さえ飲めば、すぐよくなります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "天気が良くさえあればどこへ行っても楽しい。",
+      "ja_furigana": "天気(てんき)が良(よ)くさえあればどこへ行(い)っても楽(たの)しい。",
+      "source": "AI",
+      "vi": "Chỉ cần thời tiết đẹp thì đi đâu cũng vui."
+     },
+     {
+      "ja": "健康でありさえすれば他に何も望みません。",
+      "ja_furigana": "健康(けんこう)でありさえすれば他(ほか)に何(なに)も望(のぞ)みません。",
+      "source": "AI",
+      "vi": "Chỉ cần có sức khỏe thì tôi không mong ước gì khác nữa."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Thời gian là điều kiện tối thiểu.",
+      "options": [
+       "ほど",
+       "さえ",
+       "ついでに",
+       "せいで"
+      ],
+      "prompt_ja": "時間（　　）あれば、映画を見られる。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Một thao tác được xem là đủ điều kiện.",
+      "options": [
+       "Phải gọi điện mới đăng ký được.",
+       "Đã ghi địa chỉ nhưng không được đăng ký.",
+       "Chỉ cần ghi địa chỉ ở đây là có thể đăng ký.",
+       "Địa chỉ này không nhận đăng ký."
+      ],
+      "prompt_ja": "ここに住所さえ書けば、申し込めます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Phải chia ある thành あれば.",
+      "options": [
+       "水さえあれば、十分だ。",
+       "薬さえ飲めば、よくなる。",
+       "雨さえ止めば、行ける。",
+       "時間さえあるば、できる。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "あれば",
+      "sentence_ja": "お金さえ＿＿、この本を買える。",
+      "translation_vi": "Chỉ cần có tiền thì mua được cuốn sách này."
+     },
+     {
+      "answer": "止めば",
+      "sentence_ja": "雨さえ＿＿、試合ができる。",
+      "translation_vi": "Chỉ cần mưa tạnh thì có thể thi đấu."
+     }
+    ],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: この薬さえ飲めば、すぐよくなります。",
+     "FURIGANA_MISSING: この薬さえ飲めば、すぐよくなります。"
+    ],
+    "formation": "N + さえ + V-ば / Aい-ければ / Aな-なら / V(bỏ ます) + さえすれば",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ cần là được — Chỉ cần đủ một điều kiện duy nhất thì mọi việc ổn.",
+    "nuance_vi": "Nhấn mạnh điều kiện tối thiểu duy nhất: chỉ cần đạt được điều đó thì kết quả phía sau đương nhiên thành công.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       0,
+       1
+      ],
+      "pieces": [
+       "手伝う",
+       "ことができる。",
+       "時間さえ",
+       "あれば、"
+      ],
+      "translation_vi": "Chỉ cần có thời gian thì tôi có thể giúp."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       0,
+       1
+      ],
+      "pieces": [
+       "外で",
+       "遊べる。",
+       "雨さえ",
+       "止めば、"
+      ],
+      "translation_vi": "Chỉ cần mưa tạnh thì có thể chơi ngoài trời."
+     }
+    ],
+    "pattern": "さえ〜ば",
+    "pattern_variants": [
+     "N + さえ + V thể ば",
+     "〜さえ〜ば、...・〜さえ〜なら...",
+     "〜さえ...ば"
+    ],
+    "unit_no": 3,
+    "unit_title_vi": "Điều kiện, quyết tâm và thói quen",
+    "usage_vi": "Nhấn mạnh rằng không cần gì thêm. Động từ: V thể ます + さえすれば."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9430bc537a"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng trợ từ の thay vì という khi giới thiệu tên gọi mới lần đầu (ví dụ: 田中という人 chứ không nói 田中の人).",
+    "examples": [
+     {
+      "ja": "田中という人から電話がありました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "駅の近くにさくらという新しい店ができた。",
+      "ja_furigana": "駅(えき)の近(ちか)くにさくらという新(あたら)しい店(みせ)ができた。",
+      "source": "AI",
+      "vi": "Ở gần nhà ga mới mở một cửa hàng tên là Sakura."
+     },
+     {
+      "ja": "これは日本でとても有名な花という歌です。",
+      "ja_furigana": "これは日本(にほん)でとても有名(ゆうめい)な花(はな)という歌(うた)です。",
+      "source": "AI",
+      "vi": "Đây là bài hát tên là Hana rất nổi tiếng ở Nhật Bản."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 田中という人から電話がありました。",
+     "FURIGANA_MISSING: 田中という人から電話がありました。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N1 + という + N2",
+    "locked_fields": [],
+    "meaning_vi": "Được gọi là, có tên là — Giới thiệu tên gọi mà người nghe có thể chưa biết.",
+    "nuance_vi": "Giới thiệu tên riêng, thuật ngữ hoặc định danh cụ thể của một người/vật mà người nghe chưa quen biết.",
+    "order_items": [],
+    "pattern": "と言(い)う",
+    "pattern_variants": [
+     "N + という + N"
+    ],
+    "unit_no": 15,
+    "unit_title_vi": "Truyền đạt, trích dẫn và định nghĩa",
+    "usage_vi": "ということだ = nghe nói rằng (truyền đạt). というのは = nghĩa là (giải thích)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-593c23ac99"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Thêm だ trước はずがない (sai: 本当だはずがない; đúng: 本当のはずがない).",
+    "examples": [
+     {
+      "ja": "彼がそんなことを言うはずがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "真面目な彼が約束を破るはずがありません。",
+      "ja_furigana": "真面目(まじめ)な彼(かれ)が約束(やくそく)を破(やぶ)るはずがありません。",
+      "source": "AI",
+      "vi": "Một người nghiêm túc như anh ấy thì không đời nào lại thất hứa."
+     },
+     {
+      "ja": "まだ九時だから店が閉まっているはずがない。",
+      "ja_furigana": "まだ九時(くじ)だから店(みせ)が閉(し)まっているはずがない。",
+      "source": "AI",
+      "vi": "Mới 9 giờ thôi nên không thể nào cửa hàng đã đóng cửa được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 彼がそんなことを言うはずがない。",
+     "FURIGANA_MISSING: 彼がそんなことを言うはずがない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V / Aい / Aな + な / N + の + はずがない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể nào — Phủ định mạnh dựa trên căn cứ, khẳng định điều đó không thể đúng.",
+    "nuance_vi": "Phủ định mạnh mẽ dựa trên căn cứ, lý lẽ cụ thể mà người nói nắm rõ (ví dụ: biết rõ lịch trình, tính cách của đối phương).",
+    "order_items": [],
+    "pattern": "筈(はず)がない",
+    "pattern_variants": [
+     "Thể thường + はずがない",
+     "〜はずがない",
+     "〜はずがない・〜わけがない"
+    ],
+    "unit_no": 12,
+    "unit_title_vi": "Phủ định, suy đoán và khẳng định",
+    "usage_vi": "Khác với わけがない ở chỗ はずがない dựa trên lý lẽ, わけがない mang cảm xúc mạnh hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0c2175aa99"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng 〜てほしい cho hành động của chính bản thân người nói (mong muốn bản thân làm gì phải dùng V-たい).",
+    "examples": [
+     {
+      "ja": "もう少し静かにしてほしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "明日までにこの書類を確認してほしいです。",
+      "ja_furigana": "明日(あした)までにこの書類(しょるい)を確認(かくにん)してほしいです。",
+      "source": "AI",
+      "vi": "Tôi muốn bạn kiểm tra giúp tài liệu này trước ngày mai."
+     },
+     {
+      "ja": "他の人にはこの秘密を言わないでほしい。",
+      "ja_furigana": "他(ほか)の人(ひと)にはこの秘密(ひみつ)を言(い)わないでほしい。",
+      "source": "AI",
+      "vi": "Tôi muốn bạn đừng nói bí mật này cho người khác."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: もう少し静かにしてほしい。",
+     "FURIGANA_MISSING: もう少し静かにしてほしい。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + に + V-てほしい / V-ないでほしい",
+    "locked_fields": [],
+    "meaning_vi": "Muốn ai đó làm gì — Mong muốn người khác thực hiện hành động nào đó.",
+    "nuance_vi": "Bày tỏ mong muốn người khác làm (hoặc đừng làm) việc gì cho mình; trực tiếp hơn 〜てもらいたい nên không dùng thẳng với cấp trên.",
+    "order_items": [],
+    "pattern": "〜て欲(ほ)しい",
+    "pattern_variants": [
+     "V-て + ほしい",
+     "〜てほしい/もらいたい"
+    ],
+    "unit_no": 2,
+    "unit_title_vi": "Cảm xúc, giác quan và trạng thái",
+    "usage_vi": "Khác với たい (mình muốn làm). Phủ định: ないでほしい. Với người trên nên dùng ていただきたい."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5a6bb1d9de"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Nhầm với ことになる (quyết định khách quan từ tập thể hoặc ngoại cảnh đưa đẩy, không phải tự mình quyết).",
+    "examples": [
+     {
+      "ja": "来年から日本で働くことにしました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "健康のために夜は甘い物を食べないことにしている。",
+      "ja_furigana": "健康(けんこう)のために夜(よる)は甘(あま)い物(もの)を食(た)べないことにしている。",
+      "source": "AI",
+      "vi": "Vì sức khỏe nên tôi giữ thói quen không ăn đồ ngọt vào buổi tối."
+     },
+     {
+      "ja": "今年の夏休みは田舎へ帰ることにしました。",
+      "ja_furigana": "今年(ことし)の夏休(なつやす)みは田舎(いなか)へ帰(かえ)ることにしました。",
+      "source": "AI",
+      "vi": "Kỳ nghỉ hè năm nay tôi đã quyết định sẽ về quê."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 来年から日本で働くことにしました。",
+     "FURIGANA_MISSING: 来年から日本で働くことにしました。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-る / V-ない + ことにする / ことにしている",
+    "locked_fields": [],
+    "meaning_vi": "Quyết định làm — Chính người nói tự quyết định một việc.",
+    "nuance_vi": "ことにする thể hiện quyết định chủ quan tại thời điểm nói; ことにしている thể hiện quyết định đó được duy trì đều đặn thành thói quen hoặc nguyên tắc cá nhân.",
+    "order_items": [],
+    "pattern": "事(こと)にする",
+    "pattern_variants": [
+     "V từ điển / V-ない + ことにする",
+     "〜ことにしている",
+     "〜ことにする・〜ことにしている"
+    ],
+    "unit_no": 3,
+    "unit_title_vi": "Điều kiện, quyết tâm và thói quen",
+    "usage_vi": "ことにしている = duy trì thói quen do mình đặt ra. Khác với ことになる (do hoàn cảnh hoặc người khác quyết)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8586547bd5"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-001"
+}

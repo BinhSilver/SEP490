@@ -1,0 +1,497 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng 向きだ ở dạng trạng từ bổ nghĩa cho động từ sản xuất như 子供向きに作る (khi chỉ mục đích chế tạo phải dùng 子供向けに作る).",
+    "examples": [
+     {
+      "ja": "これは初心者向けの教科書です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "このマンションは一人暮らし向きで便利です。",
+      "ja_furigana": "このマンションは一人暮(ひとりぐ)らし向(む)きで便利(べんり)です。",
+      "source": "AI",
+      "vi": "Chung cư này rất tiện lợi và phù hợp với người sống một mình."
+     },
+     {
+      "ja": "子供向けのアニメがテレビで放送されている。",
+      "ja_furigana": "子供向(こどもむ)けのアニメがテレビで放送(ほうそう)されている。",
+      "source": "AI",
+      "vi": "Phim hoạt hình dành cho trẻ em đang được chiếu trên tivi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: これは初心者向けの教科書です。",
+     "FURIGANA_MISSING: これは初心者向けの教科書です。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + 向け(だ / に / の + N) / N + 向き(だ / の + N)",
+    "locked_fields": [],
+    "meaning_vi": "Dành cho, hợp với — 向け là làm ra nhắm tới đối tượng đó; 向き là tình cờ phù hợp.",
+    "nuance_vi": "向け là được thiết kế, sản xuất chủ đích dành riêng cho đối tượng N; 向き là bản chất sản phẩm/sự vật vốn dĩ hợp với N.",
+    "order_items": [],
+    "pattern": "N + 向け / 向き",
+    "pattern_variants": [
+     "〜向け"
+    ],
+    "unit_no": 19,
+    "unit_title_vi": "Quan hệ, lập trường và phạm vi",
+    "usage_vi": "子供向けの番組 (chương trình làm cho trẻ em) khác 子供向きの番組 (chương trình hợp với trẻ em)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-db3d3982b0"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng ように sau động từ ý chí của chính mình hoặc dùng ために sau động từ phủ định V-ない (phủ định V-ない luôn đi với ように).",
+    "examples": [
+     {
+      "ja": "後ろの人にも聞こえるように、大きい声で話した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "電車に乗り遅れないように早く家を出た。",
+      "ja_furigana": "電車(でんしゃ)に乗(の)り遅(おく)れないように早(はや)く家(いえ)を出(で)た。",
+      "source": "AI",
+      "vi": "Tôi đã ra khỏi nhà sớm để không bị lỡ tàu điện."
+     },
+     {
+      "ja": "風邪が早く治るように薬を飲んで寝ます。",
+      "ja_furigana": "風邪(かぜ)が早(はや)く治(なお)るように薬(くすり)を飲(の)んで寝(ね)ます。",
+      "source": "AI",
+      "vi": "Tôi uống thuốc rồi đi ngủ để cảm cúm mau khỏi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 後ろの人にも聞こえるように、大きい声で話した。",
+     "FURIGANA_MISSING: 後ろの人にも聞こえるように、大きい声で話した。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V(thể khả năng) / V(tự động từ) / V-ない + ように",
+    "locked_fields": [],
+    "meaning_vi": "Để mà, sao cho — Nêu mục đích với những việc không hoàn toàn do mình quyết định.",
+    "nuance_vi": "Chỉ mục đích hướng tới một trạng thái mong muốn; khác với ために (đi với động từ có ý chí), trước ように là động từ không tự kiểm soát trực tiếp được.",
+    "order_items": [],
+    "pattern": "V thể khả năng / V-ない + ように",
+    "pattern_variants": [],
+    "unit_no": 10,
+    "unit_title_vi": "Nguyên nhân, mục đích và kết quả",
+    "usage_vi": "Đi với động từ không ý chí (わかる, 見える) hoặc thể khả năng. Câu sau thường là hành động mình làm để đạt được điều đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5a7b3d6650"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Giữ nguyên い của tính từ đuôi い (sai: おいしいそうだ — thành truyền đạt nghe nói; đúng: おいしそうだ) hoặc chia いい thành いそうだ (đúng: よさそうだ).",
+    "examples": [
+     {
+      "ja": "このケーキ、おいしそうですね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "黒い雲が出てきたから雨が降りそうです。",
+      "ja_furigana": "黒(くろ)い雲(くも)が出(で)てきたから雨(あめ)が降(ふ)りそうです。",
+      "source": "AI",
+      "vi": "Mây đen kéo đến rồi nên trông có vẻ sắp mưa."
+     },
+     {
+      "ja": "この新しいかばんは丈夫で使いやすそうですね。",
+      "ja_furigana": "この新(あたら)しいかばんは丈夫(じょうぶ)で使(つか)いやすそうですね。",
+      "source": "AI",
+      "vi": "Chiếc cặp mới này bền và trông có vẻ dễ dùng nhỉ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: このケーキ、おいしそうですね。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V(bỏ ます) / Aい(bỏ い) / Aな + そうだ (いい → よさそうだ, ない → なさそうだ)",
+    "locked_fields": [],
+    "meaning_vi": "Trông có vẻ, sắp — Phán đoán từ vẻ bề ngoài nhìn thấy được, hoặc dấu hiệu sắp xảy ra.",
+    "nuance_vi": "Phán đoán trực tiếp qua vẻ ngoài đang nhìn thấy trước mắt hoặc dự báo một việc sắp sửa xảy ra ngay.",
+    "order_items": [],
+    "pattern": "V thể ます (bỏ ます) / A bỏ い + そうだ",
+    "pattern_variants": [],
+    "unit_no": 2,
+    "unit_title_vi": "Cảm xúc, giác quan và trạng thái",
+    "usage_vi": "いい → よさそう, ない → なさそう là hai ngoại lệ. Đừng nhầm với そうだ truyền đạt (nối sau thể thường)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9c2c09786b"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng 〜ていく cho sự thay đổi từ trước dẫn đến trạng thái hiện tại (ví dụ 'trời đã bắt đầu mưa' phải nói 雨が降ってきた chứ không phải 降っていった).",
+    "examples": [
+     {
+      "ja": "だんだん寒くなってきました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "これからも日本語の勉強を続けていきます。",
+      "ja_furigana": "これからも日本語(にほんご)の勉強(べんきょう)を続(つづ)けていきます。",
+      "source": "AI",
+      "vi": "Từ nay về sau tôi cũng sẽ tiếp tục việc học tiếng Nhật."
+     },
+     {
+      "ja": "春になって少しずつ暖かくなってきました。",
+      "ja_furigana": "春(はる)になって少(すこ)しずつ暖(あたた)かくなってきました。",
+      "source": "AI",
+      "vi": "Sang xuân trời đã ấm dần lên từng chút một."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: だんだん寒くなってきました。",
+     "FURIGANA_MISSING: だんだん寒くなってきました。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て + くる / V-て + いく",
+    "locked_fields": [],
+    "meaning_vi": "Dần dần, từ đó trở đi — Diễn tả sự thay đổi theo thời gian, hoặc hướng di chuyển so với người nói.",
+    "nuance_vi": "てくる chỉ sự biến đổi bắt đầu từ quá khứ tiến dần đến hiện tại (hoặc hướng lại gần người nói); ていく chỉ sự biến đổi từ hiện tại tiếp diễn về tương lai (hoặc rời xa người nói).",
+    "order_items": [],
+    "pattern": "V-て + くる / いく",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "てくる = thay đổi từ quá khứ đến hiện tại; ていく = từ hiện tại về tương lai. Còn nghĩa di chuyển: 買ってくる (mua rồi mang về)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2e6c459631"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Quên trợ từ の sau danh từ hoặc dùng nhầm のように trước danh từ (trước danh từ phải dùng のような).",
+    "examples": [
+     {
+      "ja": "彼は父親のように優しい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "この犬は人間の言葉が分かるかのようだ。",
+      "ja_furigana": "この犬(いぬ)は人間(にんげん)の言葉(ことば)が分(わ)かるかのようだ。",
+      "source": "AI",
+      "vi": "Chú chó này trông cứ như thể hiểu được tiếng người vậy."
+     },
+     {
+      "ja": "京都のような静かな町に住んでみたいです。",
+      "ja_furigana": "京都(きょうと)のような静(しず)かな町(まち)に住(す)んでみたいです。",
+      "source": "AI",
+      "vi": "Tôi muốn thử sống ở một thành phố yên tĩnh như Kyoto."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 彼は父親のように優しい。",
+     "FURIGANA_MISSING: 彼は父親のように優しい。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + のように + V / A / N1 + のような + N2",
+    "locked_fields": [],
+    "meaning_vi": "Giống như — So sánh hoặc nêu ví dụ minh hoạ.",
+    "nuance_vi": "Dùng để so sánh ví von ('giống hệt như N') hoặc đưa ra một ví dụ thực tế đại diện cho nhóm ('những thứ/người như N').",
+    "order_items": [],
+    "pattern": "N の + ように / ような",
+    "pattern_variants": [
+     "〜ように/〜ために(目的)",
+     "〜ように",
+     "〜ように... (A)",
+     "〜ように... (B)",
+     "〜ように...・〜ようにと...・〜よう..."
+    ],
+    "unit_no": 2,
+    "unit_title_vi": "Cảm xúc, giác quan và trạng thái",
+    "usage_vi": "ように bổ nghĩa cho động từ, ような bổ nghĩa cho danh từ. Văn nói dùng みたい."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1f269f2c38"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Bỏ mất だ sau danh từ hoặc tính từ đuôi な (bỏ だ sẽ biến thành mẫu そうだ chỉ vẻ bề ngoài).",
+    "examples": [
+     {
+      "ja": "天気予報によると、明日は雨だそうです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "ニュースによると来週からガソリンが高くなるそうだ。",
+      "ja_furigana": "ニュースによると来週(らいしゅう)からガソリンが高(たか)くなるそうだ。",
+      "source": "AI",
+      "vi": "Theo bản tin thì nghe nói từ tuần sau giá xăng sẽ tăng."
+     },
+     {
+      "ja": "隣の部屋には来月から学生が住むそうです。",
+      "ja_furigana": "隣(となり)の部屋(へや)には来月(らいげつ)から学生(がくせい)が住(す)むそうです。",
+      "source": "AI",
+      "vi": "Nghe nói từ tháng sau sẽ có một sinh viên chuyển đến sống ở phòng bên cạnh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 天気予報によると、明日は雨だそうです。",
+     "FURIGANA_MISSING: 天気予報によると、明日は雨だそうです。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V / Aい / Aな + だ / N + だ (thể thông thường) + そうだ",
+    "locked_fields": [],
+    "meaning_vi": "Nghe nói rằng — Truyền đạt lại thông tin nghe được từ nguồn khác, không thêm nhận định của mình.",
+    "nuance_vi": "Truyền đạt nguyên vẹn thông tin nghe được từ nguồn khác (bản tin, người khác kể lại) mà không thêm suy đoán cá nhân; thường đi kèm 〜によると.",
+    "order_items": [],
+    "pattern": "Thể thường + そうだ",
+    "pattern_variants": [],
+    "unit_no": 15,
+    "unit_title_vi": "Truyền đạt, trích dẫn và định nghĩa",
+    "usage_vi": "Khác hẳn そうだ dạng suy đoán (V thể ます (bỏ ます) + そうだ = trông có vẻ). Dạng truyền đạt nối sau thể thường, không chia phủ định そうじゃない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-65137fd7f8"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Ghép 〜てある với tự động từ (như 窓が開いてある là sai; tự động từ phải dùng 窓が開いている, còn tha động từ mới dùng 窓が開けてある).",
+    "examples": [
+     {
+      "ja": "壁に地図が貼ってあります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "机の上に会議の資料が並べてあります。",
+      "ja_furigana": "机(つくえ)の上(うえ)に会議(かいぎ)の資料(しりょう)が並(なら)べてあります。",
+      "source": "AI",
+      "vi": "Trên bàn có xếp sẵn tài liệu của cuộc họp."
+     },
+     {
+      "ja": "カレンダーに大切な予定が書いてある。",
+      "ja_furigana": "カレンダーに大切(たいせつ)な予定(よてい)が書(か)いてある。",
+      "source": "AI",
+      "vi": "Trên lịch có ghi sẵn những kế hoạch quan trọng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 壁に地図が貼ってあります。",
+     "FURIGANA_MISSING: 壁に地図が貼ってあります。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + が / は + V(tha động từ)-て + ある",
+    "locked_fields": [],
+    "meaning_vi": "Đã được làm sẵn — Trạng thái còn lại sau khi ai đó cố ý làm việc gì, nhấn mạnh kết quả.",
+    "nuance_vi": "Miêu tả trạng thái kết quả đang hiện hữu trước mắt do có ai đó đã chủ đích thực hiện từ trước.",
+    "order_items": [],
+    "pattern": "V-て + ある",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "Chỉ dùng với tha động từ. So sánh: ドアが開いている (cửa đang mở, tả trạng thái) và ドアが開けてある (cửa được mở sẵn, có người mở)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f260032f65"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Sử dụng とか trong bài viết luận văn trang trọng (trong văn viết nên thay bằng 〜や〜など).",
+    "examples": [
+     {
+      "ja": "果物はりんごとかバナナとかが好きです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "休日は掃除するとか洗濯するとかして過ごす。",
+      "ja_furigana": "休日(きゅうじつ)は掃除(そうじ)するとか洗濯(せんたく)するとかして過(す)ごす。",
+      "source": "AI",
+      "vi": "Ngày nghỉ tôi thường trải qua bằng những việc như dọn dẹp hay giặt giũ."
+     },
+     {
+      "ja": "机の上にペンとかノートとかが置いてある。",
+      "ja_furigana": "机(つくえ)の上(うえ)にペンとかノートとかが置(お)いてある。",
+      "source": "AI",
+      "vi": "Trên bàn có để mấy thứ như bút bi hay vở ghi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 果物はりんごとかバナナとかが好きです。",
+     "FURIGANA_MISSING: 果物はりんごとかバナナとかが好きです。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N1 + とか + N2 (とか) / V1-る + とか + V2-る (とか)",
+    "locked_fields": [],
+    "meaning_vi": "Nào là nào là — Liệt kê vài ví dụ không đầy đủ, giọng văn nói.",
+    "nuance_vi": "Liệt kê các ví dụ tiêu biểu trong văn nói hằng ngày, tương đương với 〜や〜など nhưng thân mật và thoải mái hơn.",
+    "order_items": [],
+    "pattern": "N とか N + とか",
+    "pattern_variants": [],
+    "unit_no": 23,
+    "unit_title_vi": "Liên kết câu và biểu hiện hội thoại",
+    "usage_vi": "Suồng sã hơn や. Có thể dùng với động từ: 行くとか行かないとか."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bae1e5c45f"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Thêm だ trước らしい (sai: 雨だらしい; đúng: 雨らしい). Cũng cần phân biệt với N + らしい mang nghĩa 'đúng chất N'.",
+    "examples": [
+     {
+      "ja": "あの店は閉まったらしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "噂によると彼は来月結婚するらしいです。",
+      "ja_furigana": "噂(うわさ)によると彼(かれ)は来月(らいげつ)結婚(けっこん)するらしいです。",
+      "source": "AI",
+      "vi": "Theo lời đồn thì hình như tháng sau anh ấy sẽ kết hôn."
+     },
+     {
+      "ja": "外で傘をさしているから雨が降っているらしい。",
+      "ja_furigana": "外(そと)で傘(かさ)をさしているから雨(あめ)が降(ふ)っているらしい。",
+      "source": "AI",
+      "vi": "Ngoài kia mọi người đang che ô nên có vẻ trời đang mưa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: あの店は閉まったらしい。",
+     "FURIGANA_MISSING: あの店は閉まったらしい。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V / Aい / Aな(bỏ だ) / N(bỏ だ) + らしい",
+    "locked_fields": [],
+    "meaning_vi": "Hình như, có vẻ (nghe ngóng được) — Suy đoán dựa trên thông tin nghe hoặc thấy từ bên ngoài, người nói không chắc chắn hoàn toàn.",
+    "nuance_vi": "Suy đoán khách quan dựa trên thông tin nghe được hoặc bằng chứng gián tiếp; độ tin cậy cao hơn かもしれない nhưng người nói không tự chịu trách nhiệm trực tiếp như はずだ.",
+    "order_items": [],
+    "pattern": "Thể thường + らしい",
+    "pattern_variants": [],
+    "unit_no": 15,
+    "unit_title_vi": "Truyền đạt, trích dẫn và định nghĩa",
+    "usage_vi": "Còn một nghĩa khác: N + らしい = đúng chất, ra dáng (男らしい = ra dáng đàn ông). Phân biệt theo ngữ cảnh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e9175124de"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng ことにする khi nói về lịch công tác hay quy định do công ty sắp đặt (khi đó phải dùng ことになる / ことになっている).",
+    "examples": [
+     {
+      "ja": "来月、大阪へ転勤することになりました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "来週から新しい事務所で働くことになりました。",
+      "ja_furigana": "来週(らいしゅう)から新(あたら)しい事務所(じむしょ)で働(はたら)くことになりました。",
+      "source": "AI",
+      "vi": "Tôi đã được quyết định chuyển sang làm việc ở văn phòng mới từ tuần sau."
+     },
+     {
+      "ja": "この建物ではタバコを吸わないことになっている。",
+      "ja_furigana": "この建物(たてもの)ではタバコを吸(す)わないことになっている。",
+      "source": "AI",
+      "vi": "Theo quy định thì không được hút thuốc trong tòa nhà này."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 来月、大阪へ転勤することになりました。",
+     "FURIGANA_MISSING: 来月、大阪へ転勤することになりました。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-る / V-ない + ことになる / ことになっている",
+    "locked_fields": [],
+    "meaning_vi": "Được quyết định là — Kết quả do hoàn cảnh hoặc tổ chức quyết định, không phải ý mình.",
+    "nuance_vi": "Diễn tả quyết định hoặc kết quả được đưa ra bởi tập thể, công ty, nhà trường hoặc do hoàn cảnh khách quan, không phải ý muốn cá nhân.",
+    "order_items": [],
+    "pattern": "V từ điển / V-ない + ことになる",
+    "pattern_variants": [],
+    "unit_no": 3,
+    "unit_title_vi": "Điều kiện, quyết tâm và thói quen",
+    "usage_vi": "Người Nhật hay dùng ことになりました cả khi tự quyết, để tránh nghe như khoe: 結婚することになりました."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-198043d76e"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-005"
+}

@@ -1,0 +1,492 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Ghép 〜てみる với các động từ tự động không có ý chí (chỉ dùng với hành động có chủ đích của con người).",
+    "examples": [
+     {
+      "ja": "この服を着てみてもいいですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "分からない言葉を辞書で調べてみました。",
+      "ja_furigana": "分(わ)からない言葉(ことば)を辞書(じしょ)で調(しら)べてみました。",
+      "source": "AI",
+      "vi": "Tôi đã thử tra từ điển những từ chưa biết."
+     },
+     {
+      "ja": "初めて日本の着物を着てみて嬉しかった。",
+      "ja_furigana": "初(はじ)めて日本(にほん)の着物(きもの)を着(き)てみて嬉(うれ)しかった。",
+      "source": "AI",
+      "vi": "Lần đầu tiên được mặc thử kimono của Nhật tôi đã rất vui."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: この服を着てみてもいいですか。",
+     "FURIGANA_MISSING: この服を着てみてもいいですか。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て + みる",
+    "locked_fields": [],
+    "meaning_vi": "Thử làm — Làm thử để xem kết quả ra sao.",
+    "nuance_vi": "Thực hiện thử một hành động để kiểm nghiệm xem kết quả, cảm giác hoặc tình hình thực tế như thế nào.",
+    "order_items": [],
+    "pattern": "V-て + みる",
+    "pattern_variants": [],
+    "unit_no": 3,
+    "unit_title_vi": "Điều kiện, quyết tâm và thói quen",
+    "usage_vi": "Không dùng khi việc đó chắc chắn phải làm. てみたい = muốn thử."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-30ded84c2f"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Áp dụng お〜になる cho các động từ đã có dạng tôn kính đặc biệt riêng (như 行く・来る → いらっしゃる, 食べる → 召し上がる, 見る → ご覧になる, 言う → おっしゃる).",
+    "examples": [
+     {
+      "ja": "社長はもうお帰りになりました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "先生はもうこの本をお読みになりましたか。",
+      "ja_furigana": "先生(せんせい)はもうこの本(ほん)をお読(よ)みになりましたか。",
+      "source": "AI",
+      "vi": "Thầy đã đọc cuốn sách này chưa ạ?"
+     },
+     {
+      "ja": "部長は何時ごろ会社にお着きになりますか。",
+      "ja_furigana": "部長(ぶちょう)は何時(なんじ)ごろ会社(かいしゃ)にお着(つ)きになりますか。",
+      "source": "AI",
+      "vi": "Khoảng mấy giờ trưởng phòng sẽ đến công ty ạ?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 社長はもうお帰りになりました。",
+     "FURIGANA_MISSING: 社長はもうお帰りになりました。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "お + V(nhóm I, II bỏ ます) + になる / ご + Danh động từ Hán tự + になる",
+    "locked_fields": [],
+    "meaning_vi": "Tôn kính ngữ — Nâng hành động của người trên lên để tỏ kính trọng.",
+    "nuance_vi": "Mẫu tôn kính ngữ chuẩn mực và lịch sự dùng để nói về hành động của cấp trên, thầy cô, khách hàng; trang trọng hơn V-られる.",
+    "order_items": [],
+    "pattern": "お + V thể ます (bỏ ます) + になる",
+    "pattern_variants": [],
+    "unit_no": 23,
+    "unit_title_vi": "Liên kết câu và biểu hiện hội thoại",
+    "usage_vi": "Dùng cho hành động của ĐỐI PHƯƠNG. Nói về mình phải dùng khiêm nhường ngữ お〜する. Nhiều động từ có dạng riêng: 行く → いらっしゃる."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2b90af1b8d"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng なんか khi nói về việc của người bề trên sẽ gây cảm giác thiếu tôn trọng.",
+    "examples": [
+     {
+      "ja": "映画なんかどうですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "私なんかまだまだ日本語が下手ですよ。",
+      "ja_furigana": "私(わたし)なんかまだまだ日本語(にほんご)が下手(へた)ですよ。",
+      "source": "AI",
+      "vi": "Cỡ như tôi thì tiếng Nhật vẫn còn kém lắm."
+     },
+     {
+      "ja": "休みの日は公園で散歩などしています。",
+      "ja_furigana": "休(やす)みの日(ひ)は公園(こうえん)で散歩(さんぽ)などしています。",
+      "source": "AI",
+      "vi": "Vào ngày nghỉ tôi thường làm những việc như đi dạo ở công viên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 映画なんかどうですか。",
+     "FURIGANA_MISSING: 映画なんかどうですか。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + なんか / など",
+    "locked_fields": [],
+    "meaning_vi": "Những thứ như, cỡ như — Nêu ví dụ, hoặc hạ thấp giá trị.",
+    "nuance_vi": "なんか dùng trong văn nói để đưa ra ví dụ gần gũi hoặc tự khiêm tốn, xem nhẹ một đối tượng; など trung tính và lịch sự hơn.",
+    "order_items": [],
+    "pattern": "N + なんか / など",
+    "pattern_variants": [
+     "〜なんか"
+    ],
+    "unit_no": 23,
+    "unit_title_vi": "Liên kết câu và biểu hiện hội thoại",
+    "usage_vi": "なんか là dạng nói của など. Khi nói về mình thì mang ý khiêm tốn: 私なんか."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e743130a56"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Quên thêm な sau danh từ và tính từ đuôi な trước のだ / んです (sai: 休みんです; đúng: 休みなのです / 休みなんだ).",
+    "examples": [
+     {
+      "ja": "どうして遅れたんですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "電車が止まったので遅れてしまったんです。",
+      "ja_furigana": "電車(でんしゃ)が止(と)まったので遅(おく)れてしまったんです。",
+      "source": "AI",
+      "vi": "Là bởi vì tàu điện bị dừng nên tôi mới đến muộn thế này."
+     },
+     {
+      "ja": "気分が悪そうですがどうしたんですか。",
+      "ja_furigana": "気分(きぶん)が悪(わる)そうですがどうしたんですか。",
+      "source": "AI",
+      "vi": "Trông sắc mặt bạn có vẻ không khỏe, có chuyện gì vậy?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: どうして遅れたんですか。",
+     "FURIGANA_MISSING: どうして遅れたんですか。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V / Aい / Aな + な / N + な + のだ / のです (khẩu ngữ: んだ / んです)",
+    "locked_fields": [],
+    "meaning_vi": "Là bởi vì, thì ra là — Giải thích lý do, hoặc nhấn mạnh hoàn cảnh.",
+    "nuance_vi": "Dùng để giải thích nguyên nhân, nêu lý do cho tình huống đang thấy, hoặc hỏi tìm lời giải thích từ người nghe.",
+    "order_items": [],
+    "pattern": "Thể thường + のだ / んです",
+    "pattern_variants": [],
+    "unit_no": 14,
+    "unit_title_vi": "Lý do, đối lập và giải thích",
+    "usage_vi": "んです là dạng nói. Dùng quá nhiều nghe như đang phân bua. Danh từ và tính từ đuôi な nối bằng な: 学生なんです."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fb04ca320d"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng V-たところだ cho việc đã xảy ra từ hôm qua hay tuần trước (khi khoảng cách thời gian đã xa phải dùng V-たばかりだ).",
+    "examples": [
+     {
+      "ja": "今から出かけるところです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "たった今、空港に着いたところです。",
+      "ja_furigana": "たった今(いま)、空港(くうこう)に着(つ)いたところです。",
+      "source": "AI",
+      "vi": "Tôi vừa mới đến sân bay ngay tức thì."
+     },
+     {
+      "ja": "今ちょうど晩ご飯を作っているところです。",
+      "ja_furigana": "今(いま)ちょうど晩(ばん)ご飯(はん)を作(つく)っているところです。",
+      "source": "AI",
+      "vi": "Bây giờ tôi đang đúng lúc nấu bữa tối."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 今から出かけるところです。",
+     "FURIGANA_MISSING: 今から出かけるところです。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-る / V-ている / V-た + ところだ",
+    "locked_fields": [],
+    "meaning_vi": "Vừa định, đang, vừa mới xong — Chỉ rõ giai đoạn của hành động theo thời gian.",
+    "nuance_vi": "Phân biệt rõ 3 thời điểm: V-るところだ (sắp sửa làm ngay bây giờ), V-ているところだ (đang làm dở tay), V-たところだ (vừa mới làm xong tức thì).",
+    "order_items": [],
+    "pattern": "V từ điển / V-ている / V-た + ところだ",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "V từ điển + ところ = sắp làm; V-ている + ところ = đang làm; V-た + ところ = vừa làm xong ngay lúc này."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9a19921bea"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Ghép ことがある với các trạng từ thời gian quá khứ gần như 昨日, 先週 (những mốc đó dùng thẳng V-ました).",
+    "examples": [
+     {
+      "ja": "富士山に登ったことがありますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "私は一度も北海道へ行ったことがありません。",
+      "ja_furigana": "私(わたし)は一度(いちど)も北海道(ほっかいどう)へ行(い)ったことがありません。",
+      "source": "AI",
+      "vi": "Tôi chưa từng đi Hokkaido lần nào cả."
+     },
+     {
+      "ja": "日本の古い映画を見たことがありますか。",
+      "ja_furigana": "日本(にほん)の古(ふる)い映画(えいが)を見(み)たことがありますか。",
+      "source": "AI",
+      "vi": "Bạn đã từng xem phim cổ của Nhật Bản bao giờ chưa?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 富士山に登ったことがありますか。",
+     "FURIGANA_MISSING: 富士山に登ったことがありますか。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-た + ことがある / ことがない",
+    "locked_fields": [],
+    "meaning_vi": "Đã từng — Nêu kinh nghiệm đã trải qua trong quá khứ.",
+    "nuance_vi": "Nói về kinh nghiệm từng trải qua trong đời tính đến hiện tại; không dùng để kể lại hành động vừa làm hôm qua hay sáng nay.",
+    "order_items": [],
+    "pattern": "V-た + ことがある",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "Khác với V từ điển + ことがある = thỉnh thoảng có khi (たまに遅れることがある). Không dùng cho việc vừa mới xảy ra."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7462a3f644"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng 〜てあげる trực tiếp với người bề trên sẽ mang sắc thái kể ơn (với cấp trên nên hỏi お〜しましょうか).",
+    "examples": [
+     {
+      "ja": "友達が空港まで送ってくれました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "母が誕生日に暖かいセーターを編んでくれた。",
+      "ja_furigana": "母(はは)が誕生日(たんじょうび)に暖(あたた)かいセーターを編(あ)んでくれた。",
+      "source": "AI",
+      "vi": "Mẹ đã đan cho tôi một chiếc áo len ấm áp vào ngày sinh nhật."
+     },
+     {
+      "ja": "分からない漢字を先輩に教えてもらいました。",
+      "ja_furigana": "分(わ)からない漢字(かんじ)を先輩(せんぱい)に教(おし)えてもらいました。",
+      "source": "AI",
+      "vi": "Tôi đã được tiền bối chỉ dạy cho những chữ Hán chưa biết."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 友達が空港まで送ってくれました。",
+     "FURIGANA_MISSING: 友達が空港まで送ってくれました。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て + あげる / くれる / もらう",
+    "locked_fields": [],
+    "meaning_vi": "Cho, giúp, được giúp — Diễn tả việc cho nhận ân huệ giữa các bên.",
+    "nuance_vi": "Biểu thị chiều hướng ân huệ: あげる (mình làm giúp người khác), くれる (người khác làm giúp mình/người thân mình), もらう (mình nhận sự giúp đỡ từ ai đó).",
+    "order_items": [],
+    "pattern": "V-て + あげる / くれる / もらう",
+    "pattern_variants": [],
+    "unit_no": 23,
+    "unit_title_vi": "Liên kết câu và biểu hiện hội thoại",
+    "usage_vi": "あげる = mình làm cho người khác (cẩn thận, dễ nghe như ban ơn). くれる = người khác làm cho mình. もらう = mình nhờ và nhận được."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0a15490b65"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Giữ lại trợ từ を hoặc が trước でも (phải lược bỏ を, が; còn các trợ từ chỉ hướng/nơi chốn như へ, に, で, から thì giữ nguyên trước でも).",
+    "examples": [
+     {
+      "ja": "お茶でも飲みませんか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "今度の週末に映画でも見に行きませんか。",
+      "ja_furigana": "今度(こんど)の週末(しゅうまつ)に映画(えいが)でも見(み)に行(い)きませんか。",
+      "source": "AI",
+      "vi": "Cuối tuần này chúng mình đi xem phim hay gì đó nhé?"
+     },
+     {
+      "ja": "疲れたから近くの喫茶店で休みでもしよう。",
+      "ja_furigana": "疲(つか)れたから近(ちか)くの喫茶店(きっさてん)で休(やす)みでもしよう。",
+      "source": "AI",
+      "vi": "Mệt rồi nên chúng ta vào quán nước gần đây nghỉ ngơi chút đi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: お茶でも飲みませんか。",
+     "FURIGANA_MISSING: お茶でも飲みませんか。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N (+ trợ từ) + でも",
+    "locked_fields": [],
+    "meaning_vi": "Chẳng hạn như — Nêu một gợi ý nhẹ nhàng, không áp đặt.",
+    "nuance_vi": "Đưa ra một gợi ý đại diện nhẹ nhàng ('uống trà hay gì đó nhé') để người nghe dễ dàng nhận lời mà không cảm thấy bị ép buộc.",
+    "order_items": [],
+    "pattern": "N + でも",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": "Lời khuyên, nghĩa vụ và đề xuất",
+    "usage_vi": "Khác với でも nghĩa nhượng bộ. Ở đây là お茶でも飲みませんか (uống trà chẳng hạn nhé)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ecfd2a3629"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Giữ nguyên だ trước だろう / でしょう (sai: 雨だでしょう; đúng: 雨でしょう).",
+    "examples": [
+     {
+      "ja": "明日は晴れるでしょう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "この時間なら道はあまり混んでいないでしょう。",
+      "ja_furigana": "この時間(じかん)なら道(みち)はあまり混(こ)んでいないでしょう。",
+      "source": "AI",
+      "vi": "Vào giờ này thì chắc là đường không đông lắm đâu."
+     },
+     {
+      "ja": "彼もきっと私たちの意見に賛成するだろう。",
+      "ja_furigana": "彼(かれ)もきっと私(わたし)たちの意見(いけん)に賛成(さんせい)するだろう。",
+      "source": "AI",
+      "vi": "Chắc hẳn anh ấy cũng sẽ tán thành ý kiến của chúng ta."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 明日は晴れるでしょう。",
+     "FURIGANA_MISSING: 明日は晴れるでしょう。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V / Aい / Aな(bỏ だ) / N(bỏ だ) + だろう / でしょう",
+    "locked_fields": [],
+    "meaning_vi": "Chắc là — Suy đoán của người nói, mức độ vừa phải.",
+    "nuance_vi": "Diễn tả sự phỏng đoán của người nói; khi lên giọng ở cuối câu でしょう？ còn dùng để hỏi xác nhận sự đồng tình của người nghe ('đúng không?').",
+    "order_items": [],
+    "pattern": "Thể thường + だろう / でしょう",
+    "pattern_variants": [],
+    "unit_no": 12,
+    "unit_title_vi": "Phủ định, suy đoán và khẳng định",
+    "usage_vi": "でしょう lịch sự hơn だろう. Lên giọng cuối câu thì thành xác nhận: 明日でしょう？"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e85d7d42ff"
+  },
+  {
+   "answer": null,
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Đặt hai chủ ngữ khác nhau ở hai vế (khi hai người khác nhau cùng làm việc phải dùng 〜ている間に).",
+    "examples": [
+     {
+      "ja": "音楽を聞きながら勉強します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "地図を見ながら初めての町を歩きました。",
+      "ja_furigana": "地図(ちず)を見(み)ながら初(はじ)めての町(まち)を歩(ある)きました。",
+      "source": "AI",
+      "vi": "Tôi vừa xem bản đồ vừa đi bộ trong thị trấn lần đầu ghé thăm."
+     },
+     {
+      "ja": "アルバイトをしながら大学で勉強しています。",
+      "ja_furigana": "アルバイトをしながら大学(だいがく)で勉強(べんきょう)しています。",
+      "source": "AI",
+      "vi": "Tôi vừa đi làm thêm vừa học đại học."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 音楽を聞きながら勉強します。",
+     "FURIGANA_MISSING: 音楽を聞きながら勉強します。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V1(bỏ ます) + ながら + V2",
+    "locked_fields": [],
+    "meaning_vi": "Vừa làm vừa làm — Hai hành động diễn ra đồng thời, hành động chính nằm ở vế sau.",
+    "nuance_vi": "Cùng một chủ ngữ thực hiện đồng thời hai hành động, trong đó V2 là hành động chính còn V1 là hành động phụ đi kèm.",
+    "order_items": [],
+    "pattern": "V thể ます (bỏ ます) + ながら",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "Hai hành động phải cùng một chủ ngữ. Còn nghĩa thứ hai là tuy nhưng (残念ながら = tiếc là)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b03f6700a7"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-006"
+}
