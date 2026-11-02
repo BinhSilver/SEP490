@@ -64,13 +64,12 @@ public class JpathProgressServiceImpl implements JpathProgressService {
             total += view.total();
         }
         Optional<JpathUserPath> path = paths.findActive(userId);
-        JpathStage stage = path.flatMap(p -> levels.findById(new JpathUserLevelId(p.getId(), level)))
-                .map(JpathUserLevel::getStage).orElse(JpathStage.STUDY);
+        JpathStage stage = path.map(p -> stageOf(p, level)).orElse(JpathStage.STUDY);
         if (path.map(JpathUserPath::isKanaTab).orElse(false)) {
             tabs.add(view(userId, level, JpathTab.KANA, tabCounts.kana(userId)));
         }
-        return new JpathLevelProgressView(level, levelPercent(counts), stage, List.copyOf(tabs), known, notebook,
-                total);
+        return new JpathLevelProgressView(level, JpathTabCount.levelPercent(counts), stage, List.copyOf(tabs), known,
+                notebook, total);
     }
 
     @Override
@@ -87,26 +86,30 @@ public class JpathProgressServiceImpl implements JpathProgressService {
 
     @Override
     @Transactional
-    public void reevaluateStage(Long userId) {
+    public boolean reevaluateStage(Long userId) {
         // Lock order: path, then level (Task 20); a locking read also sees the latest committed path row.
         Optional<JpathUserPath> found = pathRepository.findActiveForUpdate(userId);
         if (found.isEmpty()) {
-            return;
+            return false;
         }
+        boolean changed = false;
         JpathUserPath path = found.get();
         if (path.isKanaTab() && path.getKanaCompletedAt() == null
                 && tabCounts.kana(userId).counted() >= JpathTabCountsReader.KANA_ROWS) {
             path.setKanaCompletedAt(clock.now());
+            changed = true;
         }
         JpathUserLevel open = levels.findForUpdate(path.getId(), path.getOpenLevel()).orElse(null);
         if (open == null || open.getStage() != JpathStage.STUDY) {
-            return; // SKILL_PRACTICE, EXAM and PASSED (also after lowering onto a passed level) stay as they are
+            return changed; // SKILL_PRACTICE, EXAM and PASSED (also after lowering onto a passed level) stay as they are
         }
         Map<JpathTab, JpathTabCount> counts = tabCounts.read(userId, path.getOpenLevel());
         if (LEVEL_TABS.stream().allMatch(t -> reachesSkillStage(counts.get(t)))) {
             open.setStage(JpathStage.SKILL_PRACTICE);
             open.setSkillPracticeAt(clock.now());
+            changed = true;
         }
+        return changed;
     }
 
     /** {@code counted * 100 >= 80 * total} with total &gt; 0 (exact, no rounding). */
@@ -114,20 +117,11 @@ public class JpathProgressServiceImpl implements JpathProgressService {
         return c.total() > 0 && c.counted() * 100 >= SKILL_STAGE_PERCENT * c.total();
     }
 
-    /** floor(100 x exact mean of the three tab ratios); a tab with total 0 counts 0, a ratio caps at 1. */
-    static int levelPercent(Map<JpathTab, JpathTabCount> counts) {
-        // Sum of counted/total over a common denominator keeps the mean exact.
-        long numerator = 0;
-        long denominator = 1;
-        for (JpathTab tab : LEVEL_TABS) {
-            JpathTabCount c = counts.get(tab);
-            boolean empty = c == null || c.total() <= 0;
-            long t = empty ? 1 : c.total();
-            long n = empty ? 0 : Math.min(c.counted(), c.total());
-            numerator = numerator * t + n * denominator;
-            denominator *= t;
-        }
-        return (int) (numerator * 100 / (denominator * LEVEL_TABS.size()));
+    /** Stored stage of {@code level}; without a row a level below the open one reads PASSED (as the path page). */
+    private JpathStage stageOf(JpathUserPath path, String level) {
+        return levels.findById(new JpathUserLevelId(path.getId(), level)).map(JpathUserLevel::getStage)
+                .orElseGet(() -> JpathPathRules.LEVELS.indexOf(level)
+                        < JpathPathRules.LEVELS.indexOf(path.getOpenLevel()) ? JpathStage.PASSED : JpathStage.STUDY);
     }
 
     private JpathTabProgressView view(Long userId, String level, JpathTab tab, JpathTabCount c) {

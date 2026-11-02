@@ -224,7 +224,7 @@ public class JpathPathViewAssembler {
             case LOCKED -> "Đậu Thi thử JLPT " + open + " để mở " + level;
             case COMING_SOON -> "Cấp " + level + " sắp có.";
         };
-        int currentPercent = path.isPresent() ? levelPercent(tabCounts.read(userId, open)) : 0;
+        int currentPercent = path.isPresent() ? JpathTabCount.levelPercent(tabCounts.read(userId, open)) : 0;
         MockTestDestination destination = mockTests.resolveDestination(open);
         String mockUrl = destination != null && destination.available() ? destination.url() : null;
         return new JpathLevelPreviewView(level, state, Collections.unmodifiableMap(counts), items, condition,
@@ -253,7 +253,8 @@ public class JpathPathViewAssembler {
     private static JpathLevelCell cell(String level, JpathLevelCellState state, Map<JpathTab, JpathTabCount> counts,
             String note) {
         JpathTabCount vocab = counts.get(JpathTab.VOCAB);
-        return new JpathLevelCell(level, state, (int) vocab.counted(), (int) vocab.total(), levelPercent(counts),
+        return new JpathLevelCell(level, state, (int) vocab.counted(), (int) vocab.total(),
+                JpathTabCount.levelPercent(counts),
                 note);
     }
 
@@ -267,15 +268,6 @@ public class JpathPathViewAssembler {
             return JpathLevelCellState.OPEN;
         }
         return catalog.isReleased(level) ? JpathLevelCellState.LOCKED : JpathLevelCellState.COMING_SOON;
-    }
-
-    /** Level % = mean of the vocabulary, kanji and grammar tab % (policy #16), rounded down. */
-    private static int levelPercent(Map<JpathTab, JpathTabCount> counts) {
-        int sum = 0;
-        for (JpathTab tab : SLIDER_TABS) {
-            sum += counts.get(tab).percent();
-        }
-        return sum / SLIDER_TABS.length;
     }
 
     /** The open level row; a missing row (should not happen) reads as STUDY with the recommended sliders. */
