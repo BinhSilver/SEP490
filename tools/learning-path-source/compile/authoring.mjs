@@ -1,4 +1,4 @@
-// Authoring packets: the content still missing after the merge is written by J-LAS (Claude) into JSON packets under
+// Authoring packets: the content still missing after the merge is written by the AI pass into JSON packets under
 // data/learning-path/authoring/<level>/, then applied back. Packets only fill empty fields; they never overwrite
 // J-LAS, book, dictionary or reviewed content. Files are never rewritten once emitted, so answers stay stable.
 // Review packets (REVIEW_*, a second pass by a different author) cover every item and may correct any value that
@@ -183,17 +183,17 @@ const empty = value => value == null || value === '' || (Array.isArray(value) &&
 function setIfEmpty(item, field, value, transform = x => x) {
   if (empty(value) || !empty(item[field])) return false;
   item[field] = transform(value);
-  (item.provenance.claude_fields ??= []).push(field);
+  (item.provenance.ai_fields ??= []).push(field);
   return true;
 }
 function addExamples(item, examples, max) {
   if (!Array.isArray(examples) || !examples.length) return;
   const have = new Set(item.examples.map(e => e.ja));
   const added = examples.filter(e => e?.ja && !have.has(e.ja)).slice(0, Math.max(0, max - item.examples.length))
-    .map(e => ({ ja: e.ja, ja_furigana: e.ja_furigana ?? null, vi: e.vi ?? null, source: 'CLAUDE' }));
+    .map(e => ({ ja: e.ja, ja_furigana: e.ja_furigana ?? null, vi: e.vi ?? null, source: 'AI' }));
   if (!added.length) return;
   item.examples = [...item.examples, ...added].map((e, i) => ({ ...e, role: i === 0 ? 'MAIN' : 'EXTRA' }));
-  (item.provenance.claude_fields ??= []).push('examples');
+  (item.provenance.ai_fields ??= []).push('examples');
   item.provenance.example_source = item.examples[0].source;
 }
 
@@ -201,13 +201,13 @@ const reviewed = source => /REVIEWED/.test(source ?? '');
 
 function applyFix(item, field, value) {
   if (field !== 'examples' && reviewed(item.provenance?.[SOURCE_OF[field]])) return;
-  if (field === 'meaning_vi' || field === 'meanings_vi') { item[field] = formatMeaningVi([].concat(value)); item.provenance.meaning_source = 'CLAUDE'; }
+  if (field === 'meaning_vi' || field === 'meanings_vi') { item[field] = formatMeaningVi([].concat(value)); item.provenance.meaning_source = 'AI'; }
   else if (field === 'examples') {
     if (!Array.isArray(value) || !value.length) return;
     // Reviewed sentences stay (first); the review's own sentences replace the rest.
     const kept = item.examples.filter(e => reviewed(e.source));
     const fresh = value.filter(e => e?.ja && !kept.some(k => k.ja === e.ja)).map(e => ({ ja: e.ja, ja_furigana: e.ja_furigana ?? null,
-      vi: e.vi ?? null, source: 'CLAUDE' }));
+      vi: e.vi ?? null, source: 'AI' }));
     item.examples = [...kept, ...fresh].slice(0, 3).map((e, i) => ({ ...e, role: i === 0 ? 'MAIN' : 'EXTRA' }));
     item.provenance.example_source = item.examples[0]?.source ?? null;
   } else if (field === 'expression' || field === 'reading') {
@@ -216,7 +216,7 @@ function applyFix(item, field, value) {
     if (field === 'reading') item.romaji = toRomaji(value);
   } else item[field] = field === 'unit_no' ? Number(value) : value;
   item.provenance.fixed_fields = [...new Set([...(item.provenance.fixed_fields ?? []), field])].sort();
-  (item.provenance.claude_fields ??= []).push(field);
+  (item.provenance.ai_fields ??= []).push(field);
 }
 
 export function applyPackets(level, packets) {
@@ -240,7 +240,7 @@ export function applyPackets(level, packets) {
     if (!item) continue;
     switch (p.kind) {
       case 'VOCAB_MEANING':
-        if (setIfEmpty(item, 'meaning_vi', answer.meaning_vi, v => formatMeaningVi([v]))) item.provenance.meaning_source = 'CLAUDE';
+        if (setIfEmpty(item, 'meaning_vi', answer.meaning_vi, v => formatMeaningVi([v]))) item.provenance.meaning_source = 'AI';
         break;
       case 'VOCAB_TYPE': setIfEmpty(item, 'word_type_label', answer.word_type_label); break;
       case 'VOCAB_EXAMPLE': addExamples(item, answer.examples, 3); break;
@@ -254,7 +254,7 @@ export function applyPackets(level, packets) {
       case 'KANJI_CORE':
         setIfEmpty(item, 'han_viet', answer.han_viet);
         setIfEmpty(item, 'han_viet_alt', answer.han_viet_alt);
-        if (setIfEmpty(item, 'meanings_vi', answer.meanings_vi, v => formatMeaningVi([].concat(v)))) item.provenance.meaning_source = 'CLAUDE';
+        if (setIfEmpty(item, 'meanings_vi', answer.meanings_vi, v => formatMeaningVi([].concat(v)))) item.provenance.meaning_source = 'AI';
         break;
       case 'GRAMMAR_CORE':
         for (const f of GRAMMAR_TEXT) setIfEmpty(item, f, answer[f]);
@@ -266,7 +266,7 @@ export function applyPackets(level, packets) {
       case 'GRAMMAR_BANK':
         for (const [f, n] of Object.entries(BANK)) if ((item[f]?.length ?? 0) < n && Array.isArray(answer[f])) {
           item[f] = answer[f];
-          (item.provenance.claude_fields ??= []).push(f);
+          (item.provenance.ai_fields ??= []).push(f);
         }
         break;
     }

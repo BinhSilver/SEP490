@@ -33,7 +33,7 @@ export function writeReport({ level, compiled, result, date }, outDir = REPORT_D
 | Kanji | ${s.kanji} | ${JSON.stringify(byStatus(compiled.kanji))} |
 | Ngữ pháp | ${s.grammar} | ${JSON.stringify(byStatus(compiled.grammar))} |
 
-- Từ theo khung Mirai: ${s.from_frame}; có trong nguồn J-LAS: ${s.jlas_matched}; mục có phần Claude soạn: ${s.claude_authored}.
+- Từ theo khung Mirai: ${s.from_frame}; có trong nguồn J-LAS: ${s.jlas_matched}; mục có phần AI soạn: ${s.ai_authored}.
 - Chuyển cấp (về ${level}): ${s.level_moves}; xung đột nghĩa: ${s.conflicts}; từ chưa có trong từ điển: ${compiled.vocabulary.filter(v => v.dictionary_entry_id == null).length}.
 - Lỗi chặn: ${blocking.length}; cảnh báo: ${result.errors.length - blocking.length}.
 

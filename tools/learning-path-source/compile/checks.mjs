@@ -133,6 +133,7 @@ function ownWords(item) {
 const stripFurigana = text => String(text).replace(/[(（][^)）]*[)）]/g, '');
 // Values written by the AI pass ("CLAUDE" in data built before the rename).
 export const isAiSource = source => source === 'AI' || source === 'CLAUDE';
+const aiFields = x => x.provenance?.ai_fields ?? x.provenance?.claude_fields ?? [];
 const ownMeaning = item => isAiSource(item.provenance?.meaning_source);
 
 function checkExamples(item, examples, minCount, level, ctx, err, warn) {
@@ -220,17 +221,17 @@ export function runChecks(compiled, ctx) {
   const stats = { vocabulary: compiled.vocabulary.length, kanji: compiled.kanji.length, grammar: compiled.grammar.length,
     from_frame: compiled.vocabulary.filter(v => v.provenance?.frame).length,
     jlas_matched: compiled.vocabulary.filter(v => v.provenance?.sources?.includes('JLAS')).length,
-    claude_authored: [...compiled.vocabulary, ...compiled.kanji, ...compiled.grammar].filter(x => x.provenance?.claude_fields?.length).length,
+    ai_authored: [...compiled.vocabulary, ...compiled.kanji, ...compiled.grammar].filter(x => aiFields(x).length).length,
     level_moves: compiled.level_moves?.length ?? 0, conflicts: compiled.conflicts?.length ?? 0, errors_by_code: byCode };
   return { errors, stats };
 }
 
-// Items with any blocking error stay DRAFT (hidden); clean items become AI_CHECKED when Claude wrote any field,
+// Items with any blocking error stay DRAFT (hidden); clean items become AI_CHECKED when the AI pass wrote any field,
 // otherwise REVIEWED. HOLD (reported) items keep HOLD.
 export function applyStatuses(compiled, result) {
   const blocked = new Set(result.errors.filter(e => !e.warning && !WARNING_CODES.has(e.code)).map(e => e.id));
   const status = x => x.status === 'HOLD' ? 'HOLD' : blocked.has(x.id) ? 'DRAFT'
-    : x.provenance?.claude_fields?.length ? 'AI_CHECKED' : 'REVIEWED';
+    : aiFields(x).length ? 'AI_CHECKED' : 'REVIEWED';
   return { ...compiled, vocabulary: compiled.vocabulary.map(v => ({ ...v, status: status(v) })),
     kanji: compiled.kanji.map(k => ({ ...k, status: status(k) })), grammar: compiled.grammar.map(g => ({ ...g, status: status(g) })) };
 }
