@@ -2,7 +2,7 @@
 // Members come from the Mirai lists and the J-LAS path source of every level; the dictionary and VNJPClub only
 // supply content and may lower an item's level. Each item lands in exactly one level: the lowest one any source gives.
 import { LEVELS, LEVEL_RANK, normalizeJapanese, sha256 } from './util.mjs';
-import { formatMeaningVi, grammarFamilyKey, normalizeGrammarPattern, wordTypeLabel } from './normalize.mjs';
+import { formatMeaningVi, grammarCoreKeys, grammarFamilyKey, normalizeGrammarPattern, wordTypeLabel } from './normalize.mjs';
 import { KANJI_READING_OVERRIDES, dictionaryCompounds, kanjiForms, wordReadings } from './kanji-readings.mjs';
 
 const HAS_KANJI = /[一-龯々]/;
@@ -462,7 +462,7 @@ function commonPrefixLength(a, b) { let n = 0; while (n < a.length && n < b.leng
 
 // A review may fix a J-LAS pattern (typos, Vietnamese labels) before families form, and join duplicate patterns
 // (same_pattern_as): the named family absorbs the other, whose ids stay as merged ids.
-function grammarItems({ frames, jlasLevels }, level, { grammarPattern = new Map(), samePattern = [] } = {}) {
+function grammarItems({ frames, jlasLevels }, level, { grammarPattern = new Map(), samePattern = [] } = {}, split = null) {
   let byFamily = new Map();
   const take = fam => { if (!byFamily.has(fam)) byFamily.set(fam, { mirai: [], jlas: [] }); return byFamily.get(fam); };
   for (const l of LEVELS) {
@@ -485,35 +485,172 @@ function grammarItems({ frames, jlasLevels }, level, { grammarPattern = new Map(
     const lvl = lowest([...g.mirai.map(m => m.level), ...g.jlas.map(j => j.level)]);
     families.push({ family, lvl, ...g });
   }
+  // A split level sorts its families so the merge does not depend on input order.
   const atLevel = families.filter(f => f.lvl === level);
-  const out = atLevel.map(f => {
-    const j = f.jlas.sort((a, b) => LEVEL_RANK[a.level] - LEVEL_RANK[b.level] || a.id.localeCompare(b.id))[0] ?? null;
-    const m = f.mirai.sort((a, b) => LEVEL_RANK[a.level] - LEVEL_RANK[b.level] || a.order - b.order)[0] ?? null;
-    const id = j?.id ?? `JG-${sha256(`LP|${f.family}`).slice(0, 10)}`;
-    const patterns = [...new Set([...f.jlas, ...f.mirai].map(x => normalizeGrammarPattern(x.pattern)))];
-    const pattern = normalizeGrammarPattern(j?.pattern ?? m.pattern);
-    const merged = [...f.jlas.map(x => x.id), ...(f.absorbed ?? []).map(fam => `JG-${sha256(`LP|${fam}`).slice(0, 10)}`)]
-      .filter((x, i, all) => x !== id && all.indexOf(x) === i).map(x => ({ id: x, into: id }));
-    return { family: f.family, merged, mirai: m?.level === level ? m : null, position: j?.position ?? 1, item: {
-      id, level, pattern, pattern_variants: patterns.filter(p => p !== pattern), family_key: f.family,
-      unit_no: m?.unit_no ?? 0, unit_title_vi: null, order: 0, meaning_vi: j?.meaning?.trim() || null, formation: null,
-      usage_vi: j?.note ?? null, nuance_vi: null, common_mistakes_vi: null, related_ids: [],
-      examples: parseExampleLines(j?.example).slice(0, 3).map((e, i) => ({ ...e, ja_furigana: null, source: 'BOOK',
-        role: i === 0 ? 'MAIN' : 'EXTRA' })),
-      check_bank: [], order_items: [], fill_items: [], extra_practice: [],
-      source_questions: [...(j?.reviewed_application_questions ?? []), ...(j?.application_questions ?? [])],
-      status: 'DRAFT', provenance: { frame: f.mirai.length ? 'MIRAI' : null,
-        sources: ['MIRAI', 'JLAS'].filter(s => s === 'MIRAI' ? f.mirai.length : f.jlas.length),
-        meaning_source: j?.meaning ? 'JLAS' : null } } };
+  if (split) atLevel.sort((a, b) => byCodePoint(a.family, b.family));
+  for (const f of atLevel) {
+    f.jlas.sort((a, b) => LEVEL_RANK[a.level] - LEVEL_RANK[b.level] || a.id.localeCompare(b.id));
+    f.mirai.sort((a, b) => LEVEL_RANK[a.level] - LEVEL_RANK[b.level] || a.order - b.order);
+  }
+  // A split level first merges duplicate families (the same grammar word written another way, sense splits);
+  // otherwise every family is its own group.
+  const groups = split ? mergeDuplicateFamilies(atLevel, level, split) : atLevel.map(f => [f]);
+  const lpId = fam => `JG-${sha256(`LP|${fam}`).slice(0, 10)}`;
+  const out = groups.map(members => {
+    const [rep, ...others] = members;
+    const j = rep.jlas[0] ?? others.map(o => o.jlas[0]).find(Boolean) ?? null;
+    const m = rep.mirai[0] ?? null;
+    const id = rep.jlas[0]?.id ?? lpId(rep.family);
+    const all = members.flatMap(f => [...f.jlas, ...f.mirai]);
+    const patterns = [...new Set(all.map(x => normalizeGrammarPattern(x.pattern)))];
+    const pattern = normalizeGrammarPattern(rep.jlas[0]?.pattern ?? m?.pattern ?? j.pattern);
+    const merged = [...members.flatMap(f => f.jlas.map(x => x.id)), ...members.flatMap(f => f.absorbed ?? []).map(lpId),
+      ...others.filter(f => !f.jlas.length).map(f => lpId(f.family))]
+      .filter((x, i, list) => x !== id && list.indexOf(x) === i).map(x => ({ id: x, into: id }));
+    const books = new Set(members.flatMap(f => f.jlas.flatMap(x => x.books ?? [])));
+    const framed = members.some(f => f.mirai.length);
+    const questions = (members.length > 1 ? members.map(f => f.jlas[0] ?? null) : [j]).filter(Boolean)
+      .flatMap(x => [...(x.reviewed_application_questions ?? []), ...(x.application_questions ?? [])]);
+    const main = !split || framed || books.size >= split.min_books || books.has(split.main_book);
+    const examples = parseExampleLines(j?.example).slice(0, main ? 3 : 2).map((e, i) => ({ ...e, ja_furigana: null, source: 'BOOK',
+      role: i === 0 ? 'MAIN' : 'EXTRA' }));
+    return { family: rep.family, merged, absorbed: members.length - 1, main, mirai: m?.level === level ? m : null,
+      position: j?.position ?? 1, item: {
+        id, level, pattern, pattern_variants: patterns.filter(p => p !== pattern), family_key: rep.family,
+        unit_no: m?.unit_no ?? 0, unit_title_vi: null, order: 0, meaning_vi: j?.meaning?.trim() || null, formation: null,
+        usage_vi: j?.note ?? null, nuance_vi: null, common_mistakes_vi: null, related_ids: [], examples,
+        check_bank: [], order_items: [], fill_items: [], extra_practice: [], source_questions: questions,
+        ...(split ? { grammar_role: main ? 'MAIN' : 'SECONDARY', parent_id: null, queue: main ? 'STUDY' : 'ATTACHED' } : {}),
+        status: 'DRAFT', provenance: { frame: framed ? 'MIRAI' : null,
+          sources: ['MIRAI', 'JLAS'].filter(s => s === 'MIRAI' ? framed : members.some(f => f.jlas.length)),
+          meaning_source: j?.meaning ? 'JLAS' : null } } };
   });
   for (const a of out) {
     const aw = wordChars(a.family);
     a.item.related_ids = out.filter(b => b !== a && commonPrefixLength(aw, wordChars(b.family)) >= 2)
       .map(b => b.item.id).slice(0, 3);
   }
-  const sorted = out.sort((a, b) => (a.mirai ? 0 : 1) - (b.mirai ? 0 : 1) || (a.mirai?.order ?? 0) - (b.mirai?.order ?? 0)
-    || a.position - b.position || a.item.pattern.localeCompare(b.item.pattern));
-  return { items: sorted.map((x, i) => ({ ...x.item, order: i + 1 })), merged: sorted.flatMap(x => x.merged) };
+  // A split level lists its MAIN patterns first (the study queue), then the SECONDARY ones.
+  const sorted = out.sort((a, b) => (a.main ? 0 : 1) - (b.main ? 0 : 1) || (a.mirai ? 0 : 1) - (b.mirai ? 0 : 1)
+    || (a.mirai?.order ?? 0) - (b.mirai?.order ?? 0) || a.position - b.position || a.item.pattern.localeCompare(b.item.pattern));
+  const items = sorted.map((x, i) => ({ ...x.item, order: i + 1 }));
+  let summary = null;
+  if (split) {
+    const mains = items.filter(g => g.grammar_role === 'MAIN');
+    for (const g of items.filter(x => x.grammar_role === 'SECONDARY')) {
+      const parent = autoParent(g, mains);
+      if (parent) { g.parent_id = parent; g.provenance.parent_source = 'AUTO'; }
+    }
+    const secondary = items.filter(g => g.grammar_role === 'SECONDARY');
+    summary = { main: mains.length, secondary: secondary.length, merged_duplicates: sorted.reduce((n, x) => n + x.absorbed, 0),
+      attached: secondary.filter(g => g.parent_id).length, pending_parent: secondary.filter(g => !g.parent_id).length,
+      rule: GRAMMAR_SPLIT_RULE };
+  }
+  return { items, merged: sorted.flatMap(x => x.merged), summary };
+}
+
+// ---------------------------------------------------------------- grammar split (MAIN / SECONDARY)
+// Owner 02/11: N3 studies about 200 MAIN patterns; every other pattern is SECONDARY — kept, attached to one MAIN
+// pattern of the same function and shown at the end of its lesson with light content (meaning, formation, 1–2
+// examples), outside the daily count, with no question bank and no quiz of its own. N5 and N4 have no split.
+export const GRAMMAR_SPLIT = Object.freeze({ N3: Object.freeze({ main_book: 'Tiếng Nhật N3', min_books: 2 }) });
+export const GRAMMAR_SPLIT_RULE = 'Duplicates merge first: families sharing a grammar core key (the grammar word however '
+  + 'a book writes it: furigana or kanji, optional kana, formation "X + word", sense labels (A)/(B)/1 dropped) join, '
+  + 'except that two items of one curated source (the Mirai frame, the book "Tiếng Nhật N3") never join unless they '
+  + 'differ only by a sense label; longer keys join first. MAIN = a merged pattern with a Mirai frame item, or taught '
+  + 'by 2+ J-LAS books, or by the book "Tiếng Nhật N3"; every other pattern is SECONDARY. A SECONDARY attaches '
+  + 'automatically when its pattern ends with exactly one MAIN core key of the longest length (3+ characters, or 2 '
+  + 'after a kanji with a shared meaning word), no other MAIN key sits before it and it is not a description; '
+  + 'otherwise it gets a GRAMMAR_PARENT packet.';
+
+const familySources = f => new Set([...(f.mirai.length ? ['MIRAI'] : []), ...f.jlas.flatMap(j => j.books ?? [])]);
+const senseBase = p => normalizeGrammarPattern(p).replace(/〜/g, '')
+  .replace(/\s*[(（]\s*[A-CＡ-Ｃ]\s*[)）]|\s+[A-C1-3]$|[(（][一-龯・、]+[)）]|…|\.{2,}/g, '').trim();
+
+// Families sharing a core key join (union-find over key edges in a fixed order: same pattern but for a sense label
+// first, then longer keys first). Two groups that each hold an item of one curated source stay apart, unless the
+// two patterns differ only by a sense label. The first member of each group is its representative: a Mirai frame
+// family first (Mirai order), then more books, the main book, lower position, family key.
+function mergeDuplicateFamilies(families, level, split) {
+  const curated = ['MIRAI', split.main_book];
+  const patternsOf = f => [...new Set([...f.jlas, ...f.mirai].map(x => x.pattern))];
+  const holders = new Map();
+  for (const f of families) for (const k of new Set(patternsOf(f).flatMap(p => grammarCoreKeys(p)))) {
+    if (!holders.has(k)) holders.set(k, []);
+    holders.get(k).push(f);
+  }
+  const edges = [];
+  for (const [key, list] of holders) for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
+    const [a, b] = [list[i], list[j]];
+    const bases = new Set(patternsOf(a).map(senseBase));
+    edges.push({ a, b, key, same: patternsOf(b).some(p => bases.has(senseBase(p))) });
+  }
+  edges.sort((x, y) => (x.same ? 0 : 1) - (y.same ? 0 : 1) || y.key.length - x.key.length || byCodePoint(x.key, y.key)
+    || byCodePoint(x.a.family, y.a.family) || byCodePoint(x.b.family, y.b.family));
+  const root = new Map(families.map(f => [f, f])), sources = new Map(families.map(f => [f, familySources(f)]));
+  const find = f => { while (root.get(f) !== f) f = root.get(f); return f; };
+  for (const e of edges) {
+    const ra = find(e.a), rb = find(e.b);
+    if (ra === rb) continue;
+    if (!e.same && curated.some(s => sources.get(ra).has(s) && sources.get(rb).has(s))) continue;
+    root.set(rb, ra);
+    for (const s of sources.get(rb)) sources.get(ra).add(s);
+  }
+  const books = f => new Set(f.jlas.flatMap(j => j.books ?? []));
+  const miraiOrder = f => f.mirai.find(m => m.level === level)?.order ?? (f.mirai.length ? Infinity : null);
+  const rank = (a, b) => (miraiOrder(a) == null ? 1 : 0) - (miraiOrder(b) == null ? 1 : 0)
+    || (miraiOrder(a) ?? 0) - (miraiOrder(b) ?? 0) || books(b).size - books(a).size
+    || (books(b).has(split.main_book) ? 1 : 0) - (books(a).has(split.main_book) ? 1 : 0)
+    || (a.jlas[0]?.position ?? 1) - (b.jlas[0]?.position ?? 1) || byCodePoint(a.family, b.family);
+  const groups = new Map();
+  for (const f of families) { const r = find(f); if (!groups.has(r)) groups.set(r, []); groups.get(r).push(f); }
+  return [...groups.values()].map(g => g.sort(rank));
+}
+
+const VI_STOP = new Set(('là có được không thì mà của một cho khi với những các cái này đó ai gì việc làm nó sự người ra '
+  + 'vào lại đã đang sẽ rất cũng như hay và hoặc bị nên vì do để từ theo trong ngoài trên dưới đến tới ở về hơn nhất').split(' '));
+const meaningWords = text => new Set(String(text ?? '').toLocaleLowerCase('vi').normalize('NFC').split(/[^\p{L}]+/u)
+  .filter(w => w && !VI_STOP.has(w)));
+const mainKeys = g => [...new Set([g.pattern, ...(g.pattern_variants ?? [])].flatMap(p => grammarCoreKeys(p)))];
+const dropSenseLabel = p => String(p).replace(/[(（][一-龯・、]+[)）]/g, '');
+const secondaryKeys = g => [...new Set([g.pattern, ...(g.pattern_variants ?? [])]
+  .flatMap(p => grammarCoreKeys(dropSenseLabel(p), { first: true })))];
+const HAS_JAPANESE = /[ぁ-ゖァ-ヺ一-龯々]/;
+// What a SECONDARY's meaning is compared on: its meaning, and its pattern when the pattern is a Vietnamese title.
+const secondaryWords = g => meaningWords([g.meaning_vi, HAS_JAPANESE.test(g.pattern) ? '' : g.pattern].join(' '));
+// Common verbs and adjectives a pattern may end with (V-たり + する, V-たら + いい); they never make a match ambiguous.
+const GENERIC_TAIL = new Set(['する', 'いい', 'なる', 'ある', 'いる']);
+const DESCRIPTION = /[「」:：。]/;
+
+// The MAIN pattern a SECONDARY's pattern ends with, when that is unambiguous (the rule in GRAMMAR_SPLIT_RULE).
+function autoParent(g, mains) {
+  if (DESCRIPTION.test(g.pattern)) return null;
+  const keys = secondaryKeys(g);
+  let best = 0, hits = [];
+  for (const m of mains) {
+    const length = Math.max(0, ...mainKeys(m).filter(km => keys.some(k => k.endsWith(km))).map(km => km.length));
+    if (length > best) { best = length; hits = [m]; } else if (length && length === best) hits.push(m);
+  }
+  if (hits.length !== 1) return null;
+  const [parent] = hits;
+  const matched = keys.find(k => mainKeys(parent).some(km => km.length === best && k.endsWith(km)));
+  const before = matched.slice(0, matched.length - best);
+  if (mains.some(m => m !== parent && mainKeys(m).some(km => km.length >= 2 && !GENERIC_TAIL.has(km) && before.includes(km)))) return null;
+  if (best >= 3) return parent.id;
+  const shared = [...secondaryWords(g)].filter(w => meaningWords(parent.meaning_vi).has(w)).length;
+  return (!before.length || HAS_KANJI.test(before[before.length - 1])) && shared >= 1 ? parent.id : null;
+}
+
+// MAIN patterns a reviewer may attach a SECONDARY to, best first: the longest MAIN core key its pattern ends with,
+// contains or is contained in (×10), plus shared meaning words; at most `limit`, only those with a score.
+export function parentCandidates(g, mains, limit = 5) {
+  const keys = secondaryKeys(g), words = secondaryWords(g);
+  return mains.map((m, i) => {
+    const key = Math.max(0, ...mainKeys(m).filter(km => keys.some(k => k.includes(km) || km.includes(k))).map(km => km.length));
+    const shared = [...words].filter(w => meaningWords(m.meaning_vi).has(w)).length;
+    return { m, i, score: key * 10 + shared };
+  }).filter(x => x.score > 0).sort((a, b) => b.score - a.score || a.i - b.i).slice(0, limit)
+    .map(({ m }) => ({ id: m.id, pattern: m.pattern, meaning_vi: m.meaning_vi }));
 }
 
 // ---------------------------------------------------------------- study-queue cap
@@ -530,7 +667,7 @@ const minPosition = l => Math.min(...l.jlas.map(m => m.position ?? 1), 1);
 
 // ---------------------------------------------------------------- entry point
 export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub, miraiMeanings = new Map(),
-  corrections = {}, studyCap = STUDY_CAP }) {
+  corrections = {}, studyCap = STUDY_CAP, grammarSplit = GRAMMAR_SPLIT }) {
   const { identity = new Map(), identityByForm = new Map(), sameWord = [], notSameWord = [], dropVariant = new Map() } = corrections;
   const candidates = vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub, miraiMeanings, identity, identityByForm });
   const barred = reviewBars(notSameWord, dropVariant);
@@ -585,7 +722,7 @@ export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub, 
     studyCapSummary = { vocabulary: cap, in_queue: studying, out_of_queue: vocabulary.length - studying, from_frame: fromFrame,
       rule: STUDY_CAP_RULE };
   }
-  const grammar = grammarItems({ frames, jlasLevels }, level, corrections);
+  const grammar = grammarItems({ frames, jlasLevels }, level, corrections, grammarSplit?.[level] ?? null);
   // Same spelling and reading kept as two words (any level): homonyms, or synonyms the fit test missed — for review.
   const base = l => l.key.split('#')[0];
   const bySpelling = new Map();
@@ -594,7 +731,7 @@ export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub, 
     .map(o => ({ id: l.id, twin_id: o.id, twin_level: o.level })))
     .sort((a, b) => a.id.localeCompare(b.id) || a.twin_id.localeCompare(b.twin_id));
   return { level, ...(studyCapSummary ? { study_cap: studyCapSummary } : {}), vocabulary, kanji: kanjiItems({ frames, jlasLevels, dictionary }, level, pool),
-    grammar: grammar.items, conflicts, level_moves: levelMoves, unmatched, spelling_twins: spellingTwins,
+    grammar: grammar.items, ...(grammar.summary ? { grammar_split: grammar.summary } : {}), conflicts, level_moves: levelMoves, unmatched, spelling_twins: spellingTwins,
     mixed_entries: mixed.filter(m => m.level === level).map(({ id, spellings }) => ({ id, spellings })).sort((a, b) => a.id.localeCompare(b.id)),
     merged_ids: [...here.flatMap(l => l.merged_ids.map(m => ({ id: m, into: l.id }))),
       ...[...aliases].filter(([, into]) => hereIds.has(into)).map(([id, into]) => ({ id, into })), ...grammar.merged] };

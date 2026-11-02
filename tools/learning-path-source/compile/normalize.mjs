@@ -76,3 +76,52 @@ export function grammarFamilyKey(pattern) {
   const stripped = core.replace(POLITE_TAIL, '').replace(/^〜+|〜+$/g, '').trim();
   return HAS_WORD.test(stripped) ? stripped : core;
 }
+
+// ---------------------------------------------------------------- grammar core keys (N3 MAIN/SECONDARY split)
+const JA_CHAR = /[ぁ-ゖァ-ヺー一-龯々]/;
+const LATIN = /[A-Za-zÀ-ỹ]/;
+// Kana in brackets after kanji is a reading (内(うち)に), except these one-kana particles, which are optional okurigana
+// (一方(で), 最中(に)).
+const OPTIONAL_KANA = new Set(['に', 'で', 'て', 'は', 'を', 'が', 'の']);
+const ALTERNATIVE = /\s*[/／]\s*|・/;
+const toHiragana = s => s.replace(/[ァ-ヶ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60));
+const japaneseOnly = s => toHiragana([...s].filter(c => JA_CHAR.test(c)).join(''));
+
+// The grammar word a pattern teaches, however a book writes it: 内(うち)に, 〜うちに... (A) and
+// "V-ている / V-ない / A / N の + うちに" all give うちに. Readings and kanji spellings both count (内に), optional kana
+// are kept (に対し(て) → に対して), letter/number sense labels ((A), B, 1) are dropped, a kanji sense label ((原因))
+// stays part of the key, the polite tail だ/です is dropped when 3+ characters remain. A formation segment (with Latin
+// letters) adds only the verb-form ending all its alternatives share (V-て / A-くて → て). Only the first alternative
+// counts, plus — unless `first` — later alternatives that start with its first three characters (おかげだ・おかげで).
+export function grammarCoreKeys(pattern, { first = false } = {}) {
+  const s = String(pattern ?? '').normalize('NFKC').replace(/[~～]/g, '〜')
+    .replace(/・{2,}|。{2,}|\.{2,}|…+/g, '…')
+    .replace(/\s*[(（]\s*[A-CＡ-Ｃ]\s*[)）]/g, '').replace(/\s+[A-C1-3](?=$|[・/])/g, '');
+  let alternatives;
+  if (s.includes('+')) {
+    const parts = s.split('+');
+    const ending = segment => {
+      const ends = segment.split(/\s*\/\s*/).map(f => (f.trim().match(/(?:V|A)-く?(て|たり|た|ば)$/) ?? [])[1] ?? null);
+      return ends.every(e => e && e === ends[0]) ? ends[0] : '';
+    };
+    alternatives = [parts.slice(0, -1).map(p => LATIN.test(p) ? ending(p) : japaneseOnly(p)).join('')
+      + parts[parts.length - 1].split(ALTERNATIVE)[0]];
+  } else {
+    const all = s.split(ALTERNATIVE).filter(x => x.trim());
+    const head = japaneseOnly(all[0] ?? '').slice(0, 3);
+    alternatives = all.filter((a, i) => i === 0 || (!first && head.length === 3 && japaneseOnly(a).startsWith(head)));
+  }
+  const keys = new Set();
+  const furigana = /([一-龯々]+)[(（]([ぁ-ゖ]+)[)）]/g;
+  for (const a of alternatives) {
+    const spell = keepKanji => a.replace(furigana, (m, k, r) => OPTIONAL_KANA.has(r) ? k + r : keepKanji ? k : r)
+      .replace(/[(（]([ぁ-ゖ]+)[)）]/g, '$1');
+    for (const form of [spell(false), spell(true)]) {
+      const whole = japaneseOnly(form), bare = whole.replace(/(です|だ)$/, ''), key = bare.length >= 3 ? bare : whole;
+      if (key.length >= 2) keys.add(key);
+      // の before a kanji word is the formation's (の間(あいだ)に ~ N の + 間に).
+      if (/^の[一-龯々]/.test(key) && key.length >= 3) keys.add(key.slice(1));
+    }
+  }
+  return [...keys];
+}

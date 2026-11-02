@@ -222,11 +222,21 @@ export function runChecks(compiled, ctx) {
     if (!k.mnemonic_vi) err('MNEMONIC_MISSING', k.character);
     if (k.radical && !k.radical.name_vi) warn('RADICAL_NAME_MISSING', String(k.radical.number));
   }
+  const mainIds = new Set(compiled.grammar.filter(g => g.grammar_role === 'MAIN').map(g => g.id));
   for (const g of compiled.grammar) {
     const { err, warn } = sink(g.id);
     if (!g.meaning_vi) err('MEANING_FORMAT', g.pattern);
     const gref = ctx.miraiGrammar?.get(g.family_key);
     if (gref && ownMeaning(g) && similarity(gref, g.meaning_vi) > 0.7) err('MIRAI_SIMILAR', 'meaning');
+    // A SECONDARY pattern (split level) is shown in its MAIN pattern's lesson with light content only: meaning,
+    // formation and one or two examples; no unit, no question bank. It must name a MAIN parent.
+    if (g.grammar_role === 'SECONDARY') {
+      if (!g.formation) err('GRAMMAR_CORE_MISSING', g.pattern);
+      if (!g.parent_id) err('PARENT_MISSING', g.pattern);
+      else if (!mainIds.has(g.parent_id)) err('PARENT_NOT_MAIN', g.parent_id);
+      checkExamples(g, g.examples, 1, level, ctx, err, warn);
+      continue;
+    }
     if (['formation', 'usage_vi', 'nuance_vi', 'common_mistakes_vi'].some(f => !g[f])) err('GRAMMAR_CORE_MISSING', g.pattern);
     if (!g.unit_no) err('UNIT_MISSING', g.pattern);
     checkExamples(g, g.examples, 3, level, ctx, err, warn);
@@ -245,7 +255,9 @@ export function runChecks(compiled, ctx) {
     jlas_matched: compiled.vocabulary.filter(v => v.provenance?.sources?.includes('JLAS')).length,
     ai_authored: [...compiled.vocabulary, ...compiled.kanji, ...compiled.grammar].filter(x => aiFields(x).length).length,
     level_moves: compiled.level_moves?.length ?? 0, conflicts: compiled.conflicts?.length ?? 0, errors_by_code: byCode,
-    ...(compiled.study_cap ? { out_of_queue: compiled.vocabulary.filter(v => v.queue === 'EXTRA').length } : {}) };
+    ...(compiled.study_cap ? { out_of_queue: compiled.vocabulary.filter(v => v.queue === 'EXTRA').length } : {}),
+    ...(compiled.grammar_split ? { grammar_main: mainIds.size, grammar_secondary: compiled.grammar.length - mainIds.size,
+      grammar_pending_parent: compiled.grammar.filter(g => g.grammar_role === 'SECONDARY' && !g.parent_id).length } : {}) };
   return { errors, stats };
 }
 

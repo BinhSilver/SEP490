@@ -8,7 +8,7 @@ import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { LEVELS, ROOT, argValue, json, normalizeJapanese, readJson } from './util.mjs';
 import { formatMeaningVi, grammarFamilyKey, normalizeGrammarPattern } from './normalize.mjs';
-import { toRomaji } from './merge.mjs';
+import { parentCandidates, toRomaji } from './merge.mjs';
 
 const BANK = { check_bank: 8, order_items: 2, fill_items: 2, extra_practice: 3 };
 const GRAMMAR_TEXT = ['meaning_vi', 'formation', 'usage_vi', 'nuance_vi', 'common_mistakes_vi'];
@@ -24,10 +24,16 @@ const INSTRUCTIONS = {
   RADICAL_NAME: 'name_vi: tên bộ thủ tiếng Việt theo bảng 214 bộ (vd 亻 "nhân đứng").',
   GRAMMAR_CORE: 'Các trường còn thiếu: meaning_vi, formation (ký hiệu 〜, V-て, N, Aい, Aな), usage_vi, nuance_vi, common_mistakes_vi, examples (đủ 3 câu {ja, ja_furigana, vi}).',
   GRAMMAR_UNIT: 'unit_no: số bài (theo header.units) phù hợp nhất; unit_title_vi tùy chọn.',
+  GRAMMAR_PARENT: 'parent_id: id một mẫu CHÍNH (MAIN) cùng chức năng; chọn trong context.candidates, không hợp thì chọn trong header.mains. Mẫu phụ được học ở cuối bài của mẫu chính đó.',
   GRAMMAR_BANK: 'check_bank ≥ 8 câu, mỗi dạng FILL/ORDER_STAR/MEANING/ERROR ≥ 2: {type, prompt_ja, options[4], answer_index, explanation_vi}; order_items 2 {pieces[], answer_order[]}; fill_items 2 {sentence_ja với ＿＿, answer}; extra_practice 3 (cùng dạng check_bank). Đáp án nhiễu không được cũng đúng.'
 };
 const REVIEW_INSTRUCTION = 'verdict: {"ok": true} nếu mục đúng; sai thì {"fix": {<trường>: <giá trị mới>}, "note": "lý do ngắn"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một "twins" là cùng một từ thì thêm "same_word_as": "<id twin>"; (ngữ pháp: sửa mẫu bằng "fix": {"pattern": "〜…"}, mẫu trùng một mẫu khác thì thêm "same_pattern_as": "<id>"); mục bị ghép nhầm với một từ khác thì thêm "not_same_word_as": "<id từ kia>" hoặc "drop_variant": "<cách viết sai>" (bỏ một cách viết thuộc từ khác khỏi "variants").';
 for (const k of ['REVIEW_VOCAB', 'REVIEW_KANJI', 'REVIEW_GRAMMAR']) INSTRUCTIONS[k] = REVIEW_INSTRUCTION;
+// A SECONDARY grammar pattern (split level, N3) has light content only: meaning, formation, 1–2 examples.
+const SECONDARY_TEXT = ['meaning_vi', 'formation'];
+const SECONDARY_EXAMPLES = 2;
+const SECONDARY_CORE = 'Mẫu PHỤ (học ở cuối bài của mẫu chính): chỉ cần meaning_vi, formation (ký hiệu 〜, V-て, N, Aい, Aな), examples 1–2 câu {ja, ja_furigana, vi}. Không viết usage/nuance/lỗi thường gặp, không câu hỏi.';
+const isSecondary = g => g.grammar_role === 'SECONDARY';
 
 // Fields a review may correct; a value from a reviewed source (…_REVIEWED provenance) is never replaced.
 const FIXABLE = {
@@ -45,12 +51,15 @@ const kanjiContext = k => ({ character: k.character, han_viet: k.han_viet, meani
   readings_kun: k.readings_kun, level_readings: k.level_readings, radical: k.radical });
 const grammarContext = g => ({ pattern: g.pattern, pattern_variants: g.pattern_variants, meaning_vi: g.meaning_vi, unit_no: g.unit_no,
   examples: g.examples.map(e => ({ ja: e.ja, vi: e.vi })), source_questions: g.source_questions ?? [] });
+const secondaryContext = g => ({ pattern: g.pattern, pattern_variants: g.pattern_variants, meaning_vi: g.meaning_vi,
+  examples: g.examples.map(e => ({ ja: e.ja, vi: e.vi })) });
+const mainList = level => level.grammar.filter(g => g.grammar_role === 'MAIN');
 
 const inQueue = v => v.queue !== 'EXTRA';
 
 function needs(level) {
   const out = [];
-  const add = (kind, item, fields, context) => out.push({ kind, id: item.id, fields_needed: fields, context });
+  const add = (kind, item, fields, context, variant = null) => out.push({ kind, id: item.id, fields_needed: fields, context, variant });
   // Words out of the study queue (queue EXTRA) are not authored.
   for (const v of level.vocabulary.filter(inQueue)) {
     if (!v.meaning_vi) add('VOCAB_MEANING', v, ['meaning_vi'], vocabContext(v));
@@ -68,35 +77,57 @@ function needs(level) {
   }
   for (const [n, sample] of [...radicals].sort((a, b) => a[0] - b[0]))
     out.push({ kind: 'RADICAL_NAME', id: `R-${n}`, fields_needed: ['name_vi'], context: { number: n, sample_kanji: sample } });
-  for (const g of level.grammar) {
+  for (const g of level.grammar.filter(x => !isSecondary(x))) {
     const text = GRAMMAR_TEXT.filter(f => !g[f]);
     if (text.length || g.examples.length < 3) add('GRAMMAR_CORE', g, [...text, ...(g.examples.length < 3 ? ['examples'] : [])], grammarContext(g));
     if (!g.unit_no) add('GRAMMAR_UNIT', g, ['unit_no', 'unit_title_vi'], grammarContext(g));
     const bank = Object.entries(BANK).filter(([f, n]) => (g[f]?.length ?? 0) < n).map(([f]) => f);
     if (bank.length) add('GRAMMAR_BANK', g, bank, grammarContext(g));
   }
+  const mains = mainList(level);
+  for (const g of level.grammar.filter(isSecondary)) {
+    const text = SECONDARY_TEXT.filter(f => !g[f]);
+    if (text.length || !g.examples.length) add('GRAMMAR_CORE', g, [...text, ...(g.examples.length ? [] : ['examples'])], secondaryContext(g), 'SECONDARY');
+    if (!g.parent_id) add('GRAMMAR_PARENT', g, ['parent_id'], { ...secondaryContext(g), candidates: parentCandidates(g, mains) });
+  }
   return out;
 }
 
-function header(kind, level) {
-  const h = { instructions: INSTRUCTIONS[kind] };
+function header(kind, level, variant = null) {
+  const h = { instructions: variant === 'SECONDARY' && kind === 'GRAMMAR_CORE' ? SECONDARY_CORE : INSTRUCTIONS[kind] };
+  if (variant) h.grammar_role = variant;
+  if (kind === 'GRAMMAR_PARENT') h.mains = mainList(level).map(g => ({ id: g.id, pattern: g.pattern, meaning_vi: g.meaning_vi }));
   if (kind === 'TOPIC_ASSIGN') h.topics = [...new Map(level.vocabulary.filter(v => v.topic_key !== 'khac')
     .map(v => [v.topic_key, v.topic_vi])).entries()].map(([topic_key, topic_vi]) => ({ topic_key, topic_vi }));
-  if (kind === 'GRAMMAR_UNIT') h.units = [...new Set(level.grammar.map(g => g.unit_no).filter(Boolean))].sort((a, b) => a - b);
+  if (kind === 'GRAMMAR_UNIT') h.units = [...new Set(level.grammar.filter(g => !isSecondary(g)).map(g => g.unit_no).filter(Boolean))].sort((a, b) => a - b);
   return h;
 }
 
 const chunk = (list, size) => Array.from({ length: Math.ceil(list.length / size) }, (_, i) => list.slice(i * size, (i + 1) * size));
 const packetId = (kind, n) => `${kind}-${String(n).padStart(3, '0')}`;
-const toPacket = (kind, n, level, items) => ({ packet_id: packetId(kind, n), kind, level: level.level, header: header(kind, level),
+const toPacket = (kind, n, level, items, variant = null) => ({ packet_id: packetId(kind, n), kind, level: level.level, header: header(kind, level, variant),
   items: items.map(({ id, fields_needed, context }) => ({ id, fields_needed, context, answer: null })) });
 
 export const DEFAULT_SIZE_BY_KIND = { GRAMMAR_BANK: 10 };
 
-export function buildPackets(level, { size = 40, sizeByKind = {} } = {}) {
+// Needs grouped by kind, then variant (a SECONDARY GRAMMAR_CORE never shares a packet with a MAIN one); packet
+// numbers run on per kind across its variants.
+function groupNeeds(list) {
   const byKind = new Map();
-  for (const n of needs(level)) { if (!byKind.has(n.kind)) byKind.set(n.kind, []); byKind.get(n.kind).push(n); }
-  return [...byKind].flatMap(([kind, items]) => chunk(items, sizeByKind[kind] ?? size).map((c, i) => toPacket(kind, i + 1, level, c)));
+  for (const n of list) {
+    if (!byKind.has(n.kind)) byKind.set(n.kind, new Map());
+    const variants = byKind.get(n.kind);
+    if (!variants.has(n.variant)) variants.set(n.variant, []);
+    variants.get(n.variant).push(n);
+  }
+  return byKind;
+}
+
+export function buildPackets(level, { size = 40, sizeByKind = {} } = {}) {
+  return [...groupNeeds(needs(level))].flatMap(([kind, variants]) => {
+    let n = 0;
+    return [...variants].flatMap(([variant, items]) => chunk(items, sizeByKind[kind] ?? size).map(c => toPacket(kind, ++n, level, c, variant)));
+  });
 }
 
 const reviewContext = {
@@ -171,20 +202,22 @@ export function readPackets(dir) {
   return readdirSync(dir).filter(f => f.endsWith('.json')).sort().map(f => readJson(path.join(dir, f)));
 }
 
-export function emitPackets(level, dir, { size = 40, sizeByKind = {} } = {}) {
+// `kinds` limits the emit to some packet kinds (null: every kind).
+export function emitPackets(level, dir, { size = 40, sizeByKind = {}, kinds = null } = {}) {
   const existing = readPackets(dir);
   const present = new Set(existing.flatMap(p => p.items.map(i => `${p.kind}|${i.id}`)));
   const lastNumber = kind => Math.max(0, ...existing.filter(p => p.kind === kind).map(p => Number(p.packet_id.slice(-3))));
-  const fresh = needs(level).filter(n => !present.has(`${n.kind}|${n.id}`));
-  const byKind = new Map();
-  for (const n of fresh) { if (!byKind.has(n.kind)) byKind.set(n.kind, []); byKind.get(n.kind).push(n); }
+  const fresh = needs(level).filter(n => !present.has(`${n.kind}|${n.id}`) && (!kinds || kinds.includes(n.kind)));
   mkdirSync(dir, { recursive: true });
   const written = [];
-  for (const [kind, items] of byKind) chunk(items, sizeByKind[kind] ?? size).forEach((c, i) => {
-    const p = toPacket(kind, lastNumber(kind) + i + 1, level, c);
-    writeFileSync(path.join(dir, `${p.packet_id}.json`), json(p));
-    written.push(p.packet_id);
-  });
+  for (const [kind, variants] of groupNeeds(fresh)) {
+    let n = lastNumber(kind);
+    for (const [variant, items] of variants) for (const c of chunk(items, sizeByKind[kind] ?? size)) {
+      const p = toPacket(kind, ++n, level, c, variant);
+      writeFileSync(path.join(dir, `${p.packet_id}.json`), json(p));
+      written.push(p.packet_id);
+    }
+  }
   return written;
 }
 
@@ -291,9 +324,18 @@ export function applyPackets(level, packets) {
         if (setIfEmpty(item, 'meanings_vi', answer.meanings_vi, v => formatMeaningVi([].concat(v)))) item.provenance.meaning_source = 'AI';
         break;
       case 'GRAMMAR_CORE':
-        for (const f of GRAMMAR_TEXT) setIfEmpty(item, f, answer[f]);
-        addExamples(item, answer.examples, 3);
+        for (const f of isSecondary(item) ? SECONDARY_TEXT : GRAMMAR_TEXT) setIfEmpty(item, f, answer[f]);
+        addExamples(item, answer.examples, isSecondary(item) ? SECONDARY_EXAMPLES : 3);
         break;
+      case 'GRAMMAR_PARENT': {
+        // The answer may name a merged id; it resolves to the item it went into, which must be a MAIN pattern.
+        const parent = byId.get(answer.parent_id);
+        if (isSecondary(item) && !item.parent_id && parent?.grammar_role === 'MAIN') {
+          item.parent_id = parent.id;
+          item.provenance.parent_source = 'AI';
+        }
+        break;
+      }
       case 'GRAMMAR_UNIT':
         if (!item.unit_no && answer.unit_no) { item.unit_no = Number(answer.unit_no); item.unit_title_vi ??= answer.unit_title_vi ?? null; }
         break;
@@ -328,7 +370,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   // Gaps are what is still empty after every packet already written (an alias may have filled an item).
   const compiled = applyPackets(compileFromInputs({ ...loadCompileInputs(), corrections: globalCorrections() }, level), existing);
   if (argv.includes('--emit')) {
-    const written = emitPackets(compiled, dir, { size: 40, sizeByKind: DEFAULT_SIZE_BY_KIND });
+    const kinds = argValue(argv, '--kinds')?.split(',').filter(Boolean) ?? null;
+    const written = emitPackets(compiled, dir, { size: 40, sizeByKind: DEFAULT_SIZE_BY_KIND, kinds });
     const counts = {};
     for (const id of written) { const k = id.slice(0, -4); counts[k] = (counts[k] ?? 0) + 1; }
     console.log(`${level}: ${written.length} new packets`, JSON.stringify(counts));
