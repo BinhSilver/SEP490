@@ -207,7 +207,10 @@ export function runChecks(compiled, ctx) {
     checkExamples(v, v.examples, 1, level, ctx, err, warn);
     // Every spelling of the word against Mirai's word read the same way.
     const refs = [v.expression, ...(v.variants ?? [])].map(e => ctx.miraiReference.get(`${normalizeJapanese(e)}|${v.normalized_reading}`)).filter(Boolean);
-    if (ownMeaning(v) && refs.some(r => r.meaning_vi && similarity(r.meaning_vi, v.meaning_vi) > 0.7)) err('MIRAI_SIMILAR', 'meaning');
+    // A wording the J-LAS dictionary entry also has (one-word glosses: "con voi", "tạp chí") is J-LAS's, not a copy.
+    const own = (ctx.dictionaryMeanings?.(v.dictionary_entry_id) ?? []).flatMap(m => [m, ...String(m).split(/[;,]/)]);
+    if (ownMeaning(v) && refs.some(r => r.meaning_vi && similarity(r.meaning_vi, v.meaning_vi) > 0.7)
+      && !own.some(m => similarity(m, v.meaning_vi) > 0.7 || plain(m) === plain(v.meaning_vi))) err('MIRAI_SIMILAR', 'meaning');
   }
   for (const k of compiled.kanji) {
     const { err, warn } = sink(k.id);

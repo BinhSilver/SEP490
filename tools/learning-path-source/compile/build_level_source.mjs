@@ -65,7 +65,8 @@ function checkContext(inputs, level, outFile, corrections = {}) {
     for (const id of existsSync(file) ? idsOf(readJson(file)) : idsOf(levels[i])) otherLevelIds.add(id);
   }
   const lostDetail = id => compiledAt.has(id) ? `compiled into ${compiledAt.get(id)}; ${compiledAt.get(id)}.json is stale` : '';
-  return { levelOfWord, kanaLevel, kanjiLevel, miraiReference, miraiGrammar, miraiExamples, expectedIds, otherLevelIds, lostDetail };
+  const dictionaryMeanings = id => { const e = inputs.dictionary.entryById?.get(id); return e ? [e.meaning_vi, ...(e.glosses_vi ?? [])].filter(Boolean) : []; };
+  return { levelOfWord, kanaLevel, kanjiLevel, miraiReference, miraiGrammar, miraiExamples, expectedIds, otherLevelIds, lostDetail, dictionaryMeanings };
 }
 
 export function buildLevel(level, { inputs = loadCompileInputs(), outFile = compiledFile(level), reportDir = REPORT_DIR,
