@@ -9,7 +9,7 @@ they can be merged into the team database later.
 | File | Content |
 |---|---|
 | `learning_schema.sql` | Part A: every Learning table, final shape, `CREATE TABLE IF NOT EXISTS`. Part B: guarded upgrades (columns, indexes, FKs, CHECKs, Learning columns on shared tables) for older databases. Part C: jpath tables. |
-| `learning_data_common.sql` | Data tied to no JLPT level: Learning flags on the base textbooks, kana sound rules (FOUNDATION), the communication goals (BA / Travel / Daily Life: goal catalogue, survey, lessons) and the non-JLPT source drafts. |
+| `learning_data_common.sql` | Data tied to no JLPT level: Learning flags on the base textbooks, kana sound rules (FOUNDATION), the communication goals (BA / Travel / Daily Life: goal catalogue, survey, lessons), the non-JLPT source drafts and the jpath base data (levels, kana rows, kana). |
 | `learning_data_N5.sql` … `learning_data_N1.sql` | Every row of one level: Learning-owned supplement books, reviewed vocabulary, practice/source drafts, Reading/Listening checks, the J-LAS compiled book, store pool, Smart Test corrections of that level. Each ends with an empty `-- BEGIN GENERATED jpath` / `-- END GENERATED jpath` region for the jpath data of that level. |
 
 Generated blocks sit between `-- BEGIN <source> SHA256 <hash>` and `-- END <source>`. A block that came from a
@@ -52,6 +52,7 @@ node tools/learning-data-extract/build_speed_n5_n4_reading_sql.mjs . [--check]  
 node tools/learning-data-extract/build_speed_n3_comprehension_sql.mjs . [--check] # N3
 node tools/learning-data-extract/build_jlas_store_pool_sql.mjs . [--check]        # N4 + N3
 node tools/learning-data-extract/build_jlas_compiled_books_sql.mjs . [--check]    # N5, N4, N3
+node tools/learning-path-source/seed/seed-sql.mjs [--check]                       # common: jpath levels + kana
 node tools/learning-data-extract/verify_learning_sql.mjs   # headers, markers, safety rules, block hashes, 50 MiB per file
 ```
 

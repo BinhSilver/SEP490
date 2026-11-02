@@ -1,0 +1,33 @@
+// [JLAS-W0108] Lengths of the jpath content text columns (sql/learning/learning_schema.sql Part C), as `table.column` → max
+// code points. The seed generator checks every value against these before it writes SQL; the local DDL test keeps the two
+// in step, so change both together.
+export const LIMITS = {
+  'jpath_level.level': 2, 'jpath_level.seed_version': 16, 'jpath_level.release_note': 500,
+  'jpath_vocab_topic.level': 2, 'jpath_vocab_topic.topic_key': 60, 'jpath_vocab_topic.title_vi': 120,
+  'jpath_vocabulary.code': 24, 'jpath_vocabulary.level': 2, 'jpath_vocabulary.topic_key': 60, 'jpath_vocabulary.tier': 10,
+  'jpath_vocabulary.expression': 120, 'jpath_vocabulary.reading': 120, 'jpath_vocabulary.normalized_expression': 120,
+  'jpath_vocabulary.normalized_reading': 120, 'jpath_vocabulary.romaji': 160, 'jpath_vocabulary.meaning_vi': 255,
+  'jpath_vocabulary.word_type_label': 40, 'jpath_vocabulary.mnemonic_vi': 500, 'jpath_vocabulary.audio_path': 255,
+  'jpath_vocabulary.audio_sha256': 64, 'jpath_vocabulary.status': 12, 'jpath_vocabulary.seed_version': 16,
+  'jpath_kanji.code': 24, 'jpath_kanji.level': 2, 'jpath_kanji.character': 4, 'jpath_kanji.han_viet': 40,
+  'jpath_kanji.meanings_vi': 255, 'jpath_kanji.radical_name_vi': 40, 'jpath_kanji.mnemonic_vi': 500,
+  'jpath_kanji.status': 12, 'jpath_kanji.seed_version': 16,
+  'jpath_kanji_compound.kanji_code': 24, 'jpath_kanji_compound.vocab_code': 24,
+  'jpath_grammar_unit.level': 2, 'jpath_grammar_unit.title_vi': 120,
+  'jpath_grammar.code': 24, 'jpath_grammar.level': 2, 'jpath_grammar.pattern': 120, 'jpath_grammar.family_key': 120,
+  'jpath_grammar.meaning_vi': 1000, 'jpath_grammar.formation': 255, 'jpath_grammar.status': 12,
+  'jpath_grammar.seed_version': 16,
+  'jpath_example.code': 24, 'jpath_example.owner_type': 8, 'jpath_example.owner_code': 24, 'jpath_example.level': 2,
+  'jpath_example.role': 5, 'jpath_example.ja': 255, 'jpath_example.ja_furigana': 600, 'jpath_example.vi': 500,
+  'jpath_example.audio_path': 255, 'jpath_example.audio_sha256': 64, 'jpath_example.status': 12,
+  'jpath_example.seed_version': 16,
+  'jpath_grammar_question.code': 24, 'jpath_grammar_question.grammar_code': 24, 'jpath_grammar_question.level': 2,
+  'jpath_grammar_question.bank': 6, 'jpath_grammar_question.question_type': 12, 'jpath_grammar_question.prompt_ja': 500,
+  'jpath_grammar_question.prompt_furigana': 800, 'jpath_grammar_question.answer_text': 255,
+  'jpath_grammar_question.explanation_vi': 1000, 'jpath_grammar_question.status': 12,
+  'jpath_grammar_question.seed_version': 16,
+  'jpath_confusable_pair.item_type': 8, 'jpath_confusable_pair.code_a': 24, 'jpath_confusable_pair.code_b': 24,
+  'jpath_confusable_pair.level': 2,
+  'jpath_kana_row.code': 24, 'jpath_kana_row.script': 8, 'jpath_kana_row.title_vi': 60, 'jpath_kana_row.row_kind': 10,
+  'jpath_kana.code': 24, 'jpath_kana.row_code': 24, 'jpath_kana.script': 8, 'jpath_kana.kana': 4, 'jpath_kana.romaji': 8,
+};

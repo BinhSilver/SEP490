@@ -103,7 +103,8 @@ export function verify(migration, seed, content = null) {
     if (!migration.includes(part)) throw new Error(`Learning schema lacks ${part}`);
   if ((seed.match(/^-- BEGIN GENERATED jpath\r?$/gm) || []).length !== DATA_LEVELS.length)
     throw new Error('Every level data file needs its GENERATED jpath region');
-  if ((seed.match(/-- BEGIN /g) || []).length !== 44)
+  // 45 = 44 Learning blocks + the jpath base block (levels, kana) of learning_data_common.sql (Plan 2 Task 8).
+  if ((seed.match(/-- BEGIN /g) || []).length !== 45)
     throw new Error('Unexpected consolidated SQL section count');
   // Embedded outputs and the level parts of split seed blocks carry the SHA-256 of their own body.
   const embeddedOutputs = [...seed.matchAll(/^-- BEGIN ((?:outputs\/[^\r\n #]+\.sql|sql\/seeds\/[^\r\n #]+\.sql#(?:N[1-5]|COMMON))(?:#N[1-5])?) SHA256 ([0-9a-f]{64})\r?\n/gm)];
