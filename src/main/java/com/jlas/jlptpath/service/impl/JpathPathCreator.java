@@ -5,6 +5,7 @@ import com.jlas.assessment.repository.UserLearningSurveyRepository;
 import com.jlas.assessment.service.AssessmentService;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.jlptpath.config.JpathProperties;
 import com.jlas.jlptpath.dto.JpathCreateRequest;
 import com.jlas.jlptpath.dto.JpathModeSuggestion;
 import com.jlas.jlptpath.dto.JpathPaceView;
@@ -73,13 +74,14 @@ public class JpathPathCreator {
     private final JpathClock clock;
     private final ObjectProvider<JpathSmartTestImporter> importer;
     private final AssessmentService assessment;
+    private final JpathProperties props;
 
     public JpathPathCreator(JpathEntryPreferenceRepository preferences, JpathUserPathRepository paths,
             JpathUserLevelRepository userLevels, JpathSliderAdjustmentRepository adjustments,
             JpathUserSettingsRepository settings, UserLearningSurveyRepository surveys,
             JpathSmartTestReader smartTests, JpathCatalogService catalog, JpathTabCountsReader tabCounts,
             JpathPaceService paceService, JpathClock clock, ObjectProvider<JpathSmartTestImporter> importer,
-            AssessmentService assessment) {
+            AssessmentService assessment, JpathProperties props) {
         this.preferences = preferences;
         this.paths = paths;
         this.userLevels = userLevels;
@@ -93,6 +95,7 @@ public class JpathPathCreator {
         this.clock = clock;
         this.importer = importer;
         this.assessment = assessment;
+        this.props = props;
     }
 
     /** Checks everything, then writes; returns the saved path. */
@@ -204,7 +207,8 @@ public class JpathPathCreator {
                     recommended, sliders, minutes));
         }
         if (!settings.existsById(userId)) {
-            settings.save(JpathUserSettings.builder().userId(userId).build());
+            settings.save(JpathUserSettings.builder().userId(userId)
+                    .reminderTime(props.reminder().defaultLocalTime()).build());
         }
         if (withResult) {
             JpathSmartTestImporter wrongItems = importer.getIfAvailable();

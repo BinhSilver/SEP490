@@ -11,13 +11,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UpdateTimestamp;
 
 /**
  * [JLAS-W0108] Display settings of a learner (jpath_user_settings). quizTimerOn is the vocabulary/kanji quiz timer
- * (off by default), grammarTimerOn the grammar timer (on by default).
+ * (off by default), grammarTimerOn the grammar timer (on by default). Updates write only the changed columns, so two
+ * requests saving different settings at the same time keep each other's change.
  */
 @Entity
+@DynamicUpdate
 @Table(name = "jpath_user_settings")
 @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class JpathUserSettings {

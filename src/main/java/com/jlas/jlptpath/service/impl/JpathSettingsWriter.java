@@ -9,6 +9,7 @@ import com.jlas.jlptpath.dto.JpathSliderValues;
 import com.jlas.jlptpath.entity.JpathUserLevel;
 import com.jlas.jlptpath.entity.JpathUserPath;
 import com.jlas.jlptpath.entity.JpathUserSettings;
+import com.jlas.jlptpath.enums.JpathEntrySource;
 import com.jlas.jlptpath.enums.JpathSliderKind;
 import com.jlas.jlptpath.enums.JpathStudyMode;
 import com.jlas.jlptpath.enums.JpathTab;
@@ -31,7 +32,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Pattern;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -49,9 +49,6 @@ import static com.jlas.jlptpath.service.impl.JpathPathRules.LEVELS;
 @Transactional(propagation = Propagation.MANDATORY)
 public class JpathSettingsWriter {
 
-    /** HH:mm in 5-minute steps. */
-    static final Pattern REMINDER_TIME = Pattern.compile("^([01]\\d|2[0-3]):[0-5][05]$");
-    static final LocalTime FALLBACK_REMINDER_TIME = LocalTime.of(20, 0);
     private static final int EXAM_MAX_YEARS = 3;
     private static final List<String> ROMAJI_MODES = List.of("AUTO", "ON", "OFF");
     private static final List<String> FONT_SIZES = List.of("S", "M", "L");
@@ -110,7 +107,7 @@ public class JpathSettingsWriter {
         JpathUserSettings row = null;
         if (changesDisplay(r)) {
             row = settings.findById(userId).orElseGet(() -> JpathUserSettings.builder().userId(userId)
-                    .reminderTime(defaultReminderTime(props)).build());
+                    .reminderTime(props.reminder().defaultLocalTime()).build());
             if (r.furiganaHiddenAll() != null) {
                 row.setFuriganaHiddenAll(r.furiganaHiddenAll());
             }
@@ -154,13 +151,6 @@ public class JpathSettingsWriter {
         }
         return change == null ? new Result(null, null, null, null, row)
                 : new Result(change.path, change.level, change.pacing, fromTomorrow, row);
-    }
-
-    /** The reminder time of a learner without a settings row: the configured default, 20:00 when it is unusable. */
-    static LocalTime defaultReminderTime(JpathProperties props) {
-        String configured = props.reminder() == null ? null : props.reminder().defaultTime();
-        return configured != null && REMINDER_TIME.matcher(configured).matches() ? LocalTime.parse(configured)
-                : FALLBACK_REMINDER_TIME;
     }
 
     /** Checked new values of the schedule with the pace they give (the target enforced when it changed). */
@@ -258,6 +248,7 @@ public class JpathSettingsWriter {
         path.setSkillDays(JpathDays.format(s.skillDays()));
         path.setRestDays(JpathDays.format(s.restDays()));
         path.setThirdSkillDay(s.thirdSkillDay() == null ? null : JpathDays.format(List.of(s.thirdSkillDay())));
+        // Same effect as JpathPathUpdater.changeMode: the mode is stored, sliders kept, today's plan refreshed below.
         path.setStudyMode(s.mode());
         if (c.minutesChanged) {
             // Policy #27 depends on the minutes: keep the stored suggestion in step with them.
@@ -281,13 +272,19 @@ public class JpathSettingsWriter {
         return slidersChanged || c.modeChanged ? refreshToday(path.getUserId()) : null;
     }
 
-    /** Suggestion of policy #27 from the stored Smart Test scores and the path's current minutes. */
-    static JpathModeSuggestion suggestion(JpathUserPath path) {
+    /**
+     * Suggestion of policy #27 for the path's current minutes, deciding "has a Smart Test" as {@link JpathPathCreator}
+     * does: a SMART_TEST path whose attempt had a stored result (band or a skill score, stored only then).
+     */
+    public static JpathModeSuggestion suggestion(JpathUserPath path) {
         Integer vocab = score(path.getSmartVocabScore());
         Integer kanji = score(path.getSmartKanjiScore());
         Integer grammar = score(path.getSmartGrammarScore());
-        boolean hasSmartTest = vocab != null || kanji != null || grammar != null;
-        return JpathModeRule.suggest(path.getDailyMinutes(), vocab, kanji, grammar, hasSmartTest);
+        boolean hasSmartTest = path.getEntrySource() == JpathEntrySource.SMART_TEST
+                && path.getAssessmentAttemptId() != null
+                && (path.getSmartAbilityBand() != null || vocab != null || kanji != null || grammar != null);
+        return hasSmartTest ? JpathModeRule.suggest(path.getDailyMinutes(), vocab, kanji, grammar, true)
+                : JpathModeRule.suggest(path.getDailyMinutes(), null, null, null, false);
     }
 
     private static Integer score(BigDecimal value) {
@@ -329,7 +326,7 @@ public class JpathSettingsWriter {
 
     private static LocalTime reminderTime(String value) {
         String time = value.trim();
-        if (!REMINDER_TIME.matcher(time).matches()) {
+        if (!JpathProperties.Reminder.TIME_PATTERN.matcher(time).matches()) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Giờ nhắc học phải theo dạng HH:mm, bước 5 phút.");
         }
         return LocalTime.parse(time);

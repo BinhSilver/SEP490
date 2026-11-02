@@ -115,8 +115,8 @@ public class JpathSettingsServiceImpl implements JpathSettingsService {
             Set<JpathTab> appliesFromTomorrow, JpathUserSettings row) {
         boolean web = row == null || row.isReminderWeb();
         boolean email = row != null && row.isReminderEmail();
-        LocalTime time = row == null ? JpathSettingsWriter.defaultReminderTime(props) : row.getReminderTime();
-        boolean emailAvailable = props.reminder() != null && props.reminder().emailEnabled();
+        LocalTime time = row == null ? props.reminder().defaultLocalTime() : row.getReminderTime();
+        boolean emailAvailable = props.reminder().emailEnabled();
         if (path == null) {
             return new JpathSettingsView(null, List.of(), null, null, 0, JpathPacingEngine.MINUTE_OPTIONS, List.of(),
                     List.of(), null, true, null, null, null, JpathDisplaySettings.from(row, null), web, email,

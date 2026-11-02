@@ -1,9 +1,11 @@
 package com.jlas.jlptpath.config;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
@@ -61,9 +63,17 @@ public record JpathProperties(
             String defaultTime) {
 
         static final String DEFAULT_TIME = "20:00";
+        /** Reminder times are HH:mm in 5-minute steps. */
+        public static final Pattern TIME_PATTERN = Pattern.compile("^([01]\\d|2[0-3]):[0-5][05]$");
 
         public Reminder {
             defaultTime = defaultTime == null || defaultTime.isBlank() ? DEFAULT_TIME : defaultTime.trim();
+        }
+
+        /** The time a new learner settings row starts with: {@code defaultTime}, 20:00 when it is not a valid time. */
+        public LocalTime defaultLocalTime() {
+            return TIME_PATTERN.matcher(defaultTime).matches() ? LocalTime.parse(defaultTime)
+                    : LocalTime.parse(DEFAULT_TIME);
         }
     }
 }
