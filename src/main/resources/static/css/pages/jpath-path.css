@@ -158,3 +158,137 @@
   .jp-hero__title { font-size: 1.35em; }
   .jp-day { font-size: .8em; }
 }
+
+/* lists (Task 46): toolbar, topic cards, flat table, pager, print menu, item drawer, free quiz.
+   The drawer and the quiz dialog are appended to <body>, so their rules are not scoped to .jp-path. */
+.jp-path__list { display: grid; gap: 12px; }
+.jp-list-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.jp-seg { display: inline-flex; border: 1.5px solid var(--jp-line); border-radius: var(--jp-radius-interactive); overflow: hidden; }
+.jp-seg__btn {
+  min-height: 44px; padding: 8px 14px; border: 0; background: var(--jp-surface); color: var(--jp-ink);
+  font: inherit; font-weight: 600; cursor: pointer;
+}
+.jp-seg__btn[aria-pressed="true"] { background: var(--jp-primary); color: var(--jp-surface); }
+.jp-seg__btn:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: -3px; }
+.jp-print-menu { position: relative; }
+.jp-print-menu > summary { list-style: none; display: inline-flex; align-items: center; }
+.jp-print-menu > summary::-webkit-details-marker { display: none; }
+.jp-print-menu__items {
+  position: absolute; z-index: 5; right: 0; top: calc(100% + 4px); display: grid; min-width: 220px; padding: 4px 12px;
+  border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface);
+}
+.jp-topic-grid {
+  list-style: none; margin: 0; padding: 0; display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.jp-topic-card {
+  display: grid; gap: 6px; align-content: start; padding: 12px; border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius-panel); background: var(--jp-surface);
+}
+.jp-topic-card__open {
+  min-height: 44px; padding: 4px 0; border: 0; background: transparent; color: var(--jp-ink); font: inherit;
+  text-align: left; cursor: pointer;
+}
+.jp-topic-card__open:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-topic-card__title { font-weight: 700; }
+.jp-topic-card__count, .jp-topic-card__sub { color: var(--jp-muted); font-size: .9em; }
+.jp-topic-card__sub, .jp-topic-card__done { margin: 0; }
+.jp-topic-card__done { color: var(--jp-ok); font-weight: 600; min-height: 44px; display: flex; align-items: center; }
+.jp-stack { display: flex; height: 8px; border-radius: var(--jp-radius-chip); overflow: hidden; background: var(--jp-line); }
+.jp-stack__seg--known { background: var(--jp-ok); }
+.jp-stack__seg--learning { background: var(--jp-primary); }
+.jp-stack__seg--notebook { background: var(--jp-warn); }
+.jp-stack__seg--new { background: var(--jp-line); }
+.jp-list-filters { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: end; }
+.jp-field { display: grid; gap: 4px; }
+.jp-field--grow { flex: 1 1 200px; }
+.jp-field__label { color: var(--jp-muted); font-size: .85em; }
+.jp-input {
+  box-sizing: border-box; width: 100%; min-height: 44px; padding: 8px 10px; border: 1.5px solid var(--jp-line);
+  border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink); font: inherit;
+}
+.jp-input:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 1px; }
+.jp-table-wrap { overflow-x: auto; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-panel); background: var(--jp-surface); }
+.jp-table { width: 100%; border-collapse: collapse; }
+.jp-table th, .jp-table td { padding: 6px 10px; border-bottom: 1px solid var(--jp-line); text-align: left; vertical-align: middle; }
+.jp-table th { color: var(--jp-muted); font-size: .85em; font-weight: 600; white-space: nowrap; }
+.jp-table tbody tr:last-child td { border-bottom: 0; }
+.jp-row-open {
+  min-height: 44px; padding: 4px 0; border: 0; background: transparent; color: var(--jp-primary); font: inherit;
+  font-size: 1.1em; font-weight: 600; cursor: pointer; text-align: left;
+}
+.jp-row-open:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-romaji { display: block; color: var(--jp-muted); font-size: .85em; }
+.jp-romaji-off .jp-romaji { display: none; }
+.jp-state {
+  display: inline-block; padding: 1px 8px; border-radius: var(--jp-radius-chip); font-size: .85em; font-weight: 600;
+  white-space: nowrap; background: var(--jp-canvas); color: var(--jp-muted);
+}
+.jp-state--learning { background: var(--jp-primary-soft); color: var(--jp-primary); }
+.jp-state--notebook { color: var(--jp-warn); }
+.jp-state--known { color: var(--jp-ok); }
+.jp-badge { color: var(--jp-danger); font-size: .8em; font-weight: 600; white-space: nowrap; }
+.jp-ok { color: var(--jp-ok); }
+.jp-pager { display: flex; gap: 8px; align-items: center; justify-content: center; }
+.jp-pager__at { font-weight: 600; }
+.jp-list-empty { padding: 12px 0; }
+
+.jp-dialog-backdrop .jp-dialog {
+  box-sizing: border-box; display: grid; gap: 10px; padding: 16px; border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius-panel); background: var(--jp-surface); color: var(--jp-ink);
+}
+.jp-dialog-backdrop .jp-alert {
+  margin: 0; padding: 10px 12px; border-radius: var(--jp-radius-interactive);
+  background: var(--jp-danger-soft); color: var(--jp-danger); font-weight: 600;
+}
+.jp-dialog-backdrop [hidden] { display: none !important; }
+.jp-dialog--drawer { width: min(520px, 100%); }
+.jp-drawer { display: grid; gap: 10px; }
+.jp-drawer p { margin: 0; line-height: 1.5; }
+.jp-drawer__head { display: flex; gap: 8px; align-items: center; }
+.jp-drawer__x {
+  margin-left: auto; min-width: 44px; min-height: 44px; border: 0; border-radius: var(--jp-radius-interactive);
+  background: transparent; color: var(--jp-ink); font-size: 1.5em; line-height: 1; cursor: pointer;
+}
+.jp-drawer__x:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-drawer__title { margin: 0; font-size: 2em; line-height: 1.2; }
+.jp-drawer__reading { font-size: 1.1em; }
+.jp-drawer__meaning { font-weight: 600; }
+.jp-drawer__label { margin: 0 0 4px; color: var(--jp-muted); font-size: .8em; letter-spacing: .04em; text-transform: uppercase; }
+.jp-drawer__char { font-size: 1.4em; }
+.jp-drawer__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.jp-facts { margin: 0; display: grid; gap: 4px; }
+.jp-fact { display: grid; grid-template-columns: 6.5em minmax(0, 1fr); gap: 8px; }
+.jp-fact dt { color: var(--jp-muted); }
+.jp-fact dd { margin: 0; }
+.jp-okuri { color: var(--jp-muted); }
+.jp-word-list, .jp-examples { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.jp-example { display: flex; gap: 6px; align-items: flex-start; }
+.jp-ex-vi { color: var(--jp-muted); font-size: .92em; }
+.jp-icon-btn {
+  flex: 0 0 auto; min-width: 44px; min-height: 44px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
+  background: var(--jp-surface); color: var(--jp-ink); cursor: pointer;
+}
+.jp-icon-btn:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-dialog__title { margin: 0; font-size: 1.2em; }
+.jp-quiz-form { display: grid; gap: 12px; }
+.jp-fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: 6px; }
+.jp-fieldset legend { padding: 0; margin-bottom: 4px; font-weight: 600; }
+.jp-choices { display: flex; flex-wrap: wrap; gap: 6px; }
+.jp-choice {
+  display: inline-flex; gap: 6px; align-items: center; min-height: 44px; padding: 0 12px; border: 1.5px solid var(--jp-line);
+  border-radius: var(--jp-radius-interactive); cursor: pointer;
+}
+.jp-choice input { accent-color: var(--jp-primary); }
+.jp-choice:has(input:disabled) { opacity: .5; cursor: not-allowed; }
+.jp-choice:has(input:checked) { border-color: var(--jp-primary); background: var(--jp-primary-soft); }
+
+@media (max-width: 640px) {
+  .jp-dialog-backdrop:has(.jp-dialog--drawer) { padding: 0; }
+  .jp-dialog--drawer { width: 100%; height: 100%; max-height: none; border-radius: 0; }
+  .jp-col-type { display: none; }
+  .jp-print-menu__items { right: auto; left: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jp-path__list *, .jp-dialog-backdrop * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
