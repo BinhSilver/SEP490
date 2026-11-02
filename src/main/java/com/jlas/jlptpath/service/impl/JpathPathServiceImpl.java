@@ -13,7 +13,9 @@ import com.jlas.jlptpath.dto.JpathLevelPreviewView;
 import com.jlas.jlptpath.dto.JpathModeSuggestion;
 import com.jlas.jlptpath.dto.JpathPaceView;
 import com.jlas.jlptpath.dto.JpathPathView;
+import com.jlas.jlptpath.dto.JpathSliderUpdateRequest;
 import com.jlas.jlptpath.dto.JpathSliderValues;
+import com.jlas.jlptpath.dto.JpathSliderView;
 import com.jlas.jlptpath.dto.JpathSmartTestSnapshot;
 import com.jlas.jlptpath.dto.JpathSmartTestSummary;
 import com.jlas.jlptpath.entity.JpathEntryPreference;
@@ -51,8 +53,8 @@ import static com.jlas.jlptpath.service.impl.JpathPathRules.LEVELS;
 
 /**
  * [JLAS-W0108] Entry status, entry answers, the confirmation screen, pace estimates and the learner's active path.
- * Creating a path is done by {@link JpathPathCreator}, the path view and level previews by
- * {@link JpathPathViewAssembler}.
+ * Creating a path is done by {@link JpathPathCreator}, later changes (sliders, Rebalance, study mode, priority mode)
+ * by {@link JpathPathUpdater}, the path view and level previews by {@link JpathPathViewAssembler}.
  */
 @Service
 public class JpathPathServiceImpl implements JpathPathService {
@@ -72,12 +74,13 @@ public class JpathPathServiceImpl implements JpathPathService {
     private final ObjectProvider<JpathSmartTestImporter> importer;
     private final JpathPathCreator creator;
     private final JpathPathViewAssembler views;
+    private final JpathPathUpdater updater;
 
     public JpathPathServiceImpl(JpathEntryPreferenceRepository preferences, JpathUserPathRepository paths,
             JpathUserLevelRepository userLevels, UserLearningSurveyRepository surveys,
             JpathSmartTestReader smartTests, JpathCatalogService catalog, JpathPaceService paceService,
             JpathClock clock, ObjectProvider<JpathSmartTestImporter> importer, JpathPathCreator creator,
-            JpathPathViewAssembler views) {
+            JpathPathViewAssembler views, JpathPathUpdater updater) {
         this.preferences = preferences;
         this.paths = paths;
         this.userLevels = userLevels;
@@ -89,6 +92,7 @@ public class JpathPathServiceImpl implements JpathPathService {
         this.importer = importer;
         this.creator = creator;
         this.views = views;
+        this.updater = updater;
     }
 
     @Override
@@ -239,6 +243,32 @@ public class JpathPathServiceImpl implements JpathPathService {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Cấp không hợp lệ.");
         }
         return views.preview(userId, findActive(userId), key);
+    }
+
+    @Override
+    @Transactional
+    public JpathSliderView updateSliders(Long userId, JpathSliderUpdateRequest request) {
+        JpathPathUpdater.Change c = updater.updateSliders(userId, request);
+        return views.sliderView(c.path(), c.level(), c.pacing(), c.appliesFromTomorrow());
+    }
+
+    @Override
+    @Transactional
+    public JpathPaceView rebalance(Long userId) {
+        return updater.rebalance(userId).pacing().pace();
+    }
+
+    @Override
+    @Transactional
+    public JpathPathView changeMode(Long userId, JpathStudyMode mode) {
+        JpathPathUpdater.Change c = updater.changeMode(userId, mode);
+        return views.view(c.path(), c.level(), c.pacing(), c.appliesFromTomorrow());
+    }
+
+    @Override
+    @Transactional
+    public void refreshPacing(Long userId) {
+        updater.refreshPacing(userId);
     }
 
     @Override

@@ -12,7 +12,6 @@ import com.jlas.jlptpath.dto.JpathSliderValues;
 import com.jlas.jlptpath.dto.JpathSmartTestSnapshot;
 import com.jlas.jlptpath.dto.JpathTabCount;
 import com.jlas.jlptpath.entity.JpathEntryPreference;
-import com.jlas.jlptpath.entity.JpathSliderAdjustment;
 import com.jlas.jlptpath.entity.JpathUserLevel;
 import com.jlas.jlptpath.entity.JpathUserPath;
 import com.jlas.jlptpath.entity.JpathUserSettings;
@@ -198,10 +197,11 @@ public class JpathPathCreator {
                 .openedAt(clock.now())
                 .build());
         JpathSliderValues recommended = JpathPacingEngine.recommend(openLevel, minutes);
-        adjustments.save(adjustment(path.getId(), openLevel, JpathSliderKind.INITIAL, null, recommended, minutes));
+        adjustments.save(JpathPathRules.adjustment(path.getId(), openLevel, JpathSliderKind.INITIAL, false, null,
+                recommended, minutes));
         if (!recommended.equals(sliders)) {
-            adjustments.save(adjustment(path.getId(), openLevel, JpathSliderKind.CONFIRM, recommended, sliders,
-                    minutes));
+            adjustments.save(JpathPathRules.adjustment(path.getId(), openLevel, JpathSliderKind.CONFIRM, false,
+                    recommended, sliders, minutes));
         }
         if (!settings.existsById(userId)) {
             settings.save(JpathUserSettings.builder().userId(userId).build());
@@ -264,23 +264,6 @@ public class JpathPathCreator {
     private int kanaRowsLeft(Long userId) {
         JpathTabCount kana = tabCounts.kana(userId);
         return (int) Math.max(0, kana.total() - kana.counted());
-    }
-
-    private static JpathSliderAdjustment adjustment(Long pathId, String level, JpathSliderKind kind,
-            JpathSliderValues before, JpathSliderValues after, int minutes) {
-        return JpathSliderAdjustment.builder()
-                .pathId(pathId)
-                .level(level)
-                .kind(kind)
-                .counted(false)
-                .vocabBefore(before == null ? null : before.vocab())
-                .vocabAfter(after.vocab())
-                .kanjiBefore(before == null ? null : before.kanji())
-                .kanjiAfter(after.kanji())
-                .grammarBefore(before == null ? null : before.grammar())
-                .grammarAfter(after.grammar())
-                .dailyMinutes(minutes)
-                .build();
     }
 
     private static BigDecimal score(Integer value) {

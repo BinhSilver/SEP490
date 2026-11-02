@@ -3,6 +3,7 @@ package com.jlas.jlptpath.repository;
 import com.jlas.jlptpath.entity.JpathDailyPlan;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,4 +13,7 @@ public interface JpathDailyPlanRepository extends JpaRepository<JpathDailyPlan, 
 
     /** Plans of the user with {@code from <= study_day <= to}. */
     List<JpathDailyPlan> findByUserIdAndStudyDayBetween(Long userId, LocalDate from, LocalDate to);
+
+    /** The user's plan for {@code studyDay} (at most one: unique user_id, study_day). */
+    Optional<JpathDailyPlan> findByUserIdAndStudyDay(Long userId, LocalDate studyDay);
 }

@@ -8,8 +8,11 @@ import com.jlas.jlptpath.dto.JpathEntryPreferenceRequest;
 import com.jlas.jlptpath.dto.JpathEntryStatusView;
 import com.jlas.jlptpath.dto.JpathEstimateRequest;
 import com.jlas.jlptpath.dto.JpathLevelPreviewView;
+import com.jlas.jlptpath.dto.JpathModeRequest;
 import com.jlas.jlptpath.dto.JpathPaceView;
 import com.jlas.jlptpath.dto.JpathPathView;
+import com.jlas.jlptpath.dto.JpathSliderUpdateRequest;
+import com.jlas.jlptpath.dto.JpathSliderView;
 import com.jlas.jlptpath.enums.JpathEntrySource;
 import com.jlas.jlptpath.service.JpathPathService;
 import jakarta.validation.Valid;
@@ -26,8 +29,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * [JLAS-W0108] Entry status, survey answers, confirmation screen, pace estimate, path creation, the path view and
- * level previews of the JLPT path.
+ * [JLAS-W0108] Entry status, survey answers, confirmation screen, pace estimate, path creation, the path view, level
+ * previews, sliders, Rebalance and the study mode of the JLPT path.
  */
 @RestController
 @RequestMapping("/api/learning/jlpt")
@@ -78,5 +81,24 @@ public class JpathPathController {
     public ResponseEntity<ApiResponse<JpathLevelPreviewView>> levelPreview(
             @AuthenticationPrincipal UserPrincipal user, @PathVariable String level) {
         return ResponseEntity.ok(ApiResponse.ok("OK", pathService.levelPreview(user.userId(), level)));
+    }
+
+    @PutMapping("/path/sliders")
+    public ResponseEntity<ApiResponse<JpathSliderView>> updateSliders(@AuthenticationPrincipal UserPrincipal user,
+            @Valid @RequestBody JpathSliderUpdateRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã cập nhật lộ trình.",
+                pathService.updateSliders(user.userId(), request)));
+    }
+
+    @PostMapping("/path/rebalance")
+    public ResponseEntity<ApiResponse<JpathPaceView>> rebalance(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã cân lại số mục mỗi ngày.", pathService.rebalance(user.userId())));
+    }
+
+    @PutMapping("/path/mode")
+    public ResponseEntity<ApiResponse<JpathPathView>> changeMode(@AuthenticationPrincipal UserPrincipal user,
+            @Valid @RequestBody JpathModeRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã đổi cách học.",
+                pathService.changeMode(user.userId(), request.mode())));
     }
 }

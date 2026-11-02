@@ -3,10 +3,13 @@ package com.jlas.jlptpath.service.impl;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.jlptpath.dto.JpathSliderBoundView;
+import com.jlas.jlptpath.dto.JpathSliderValues;
 import com.jlas.jlptpath.dto.JpathSmartTestSnapshot;
 import com.jlas.jlptpath.entity.JpathEntryPreference;
+import com.jlas.jlptpath.entity.JpathSliderAdjustment;
 import com.jlas.jlptpath.enums.JpathEntrySource;
 import com.jlas.jlptpath.enums.JpathKanaChoice;
+import com.jlas.jlptpath.enums.JpathSliderKind;
 import com.jlas.jlptpath.enums.JpathTab;
 import com.jlas.jlptpath.service.JpathCatalogService;
 import com.jlas.jlptpath.util.JpathOpenLevelRule;
@@ -26,6 +29,8 @@ final class JpathPathRules {
     static final String JLPT = "JLPT";
     static final String SUBMITTED = "SUBMITTED";
     static final String IN_PROGRESS = "IN_PROGRESS";
+    /** Counted slider adjustments per level (policy #29). */
+    static final int MAX_ADJUSTMENTS = 2;
 
     private JpathPathRules() {
     }
@@ -87,5 +92,23 @@ final class JpathPathRules {
             throw new ApiException(ErrorCode.JPATH_LEVEL_NOT_RELEASED);
         }
         return key;
+    }
+
+    /** One slider log row; {@code before} null = no earlier value (INITIAL). */
+    static JpathSliderAdjustment adjustment(Long pathId, String level, JpathSliderKind kind, boolean counted,
+            JpathSliderValues before, JpathSliderValues after, int minutes) {
+        return JpathSliderAdjustment.builder()
+                .pathId(pathId)
+                .level(level)
+                .kind(kind)
+                .counted(counted)
+                .vocabBefore(before == null ? null : before.vocab())
+                .vocabAfter(after.vocab())
+                .kanjiBefore(before == null ? null : before.kanji())
+                .kanjiAfter(after.kanji())
+                .grammarBefore(before == null ? null : before.grammar())
+                .grammarAfter(after.grammar())
+                .dailyMinutes(minutes)
+                .build();
     }
 }

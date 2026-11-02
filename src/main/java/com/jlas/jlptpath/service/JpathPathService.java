@@ -8,9 +8,12 @@ import com.jlas.jlptpath.dto.JpathEstimateRequest;
 import com.jlas.jlptpath.dto.JpathLevelPreviewView;
 import com.jlas.jlptpath.dto.JpathPaceView;
 import com.jlas.jlptpath.dto.JpathPathView;
+import com.jlas.jlptpath.dto.JpathSliderUpdateRequest;
+import com.jlas.jlptpath.dto.JpathSliderView;
 import com.jlas.jlptpath.entity.JpathUserLevel;
 import com.jlas.jlptpath.entity.JpathUserPath;
 import com.jlas.jlptpath.enums.JpathEntrySource;
+import com.jlas.jlptpath.enums.JpathStudyMode;
 import java.util.Optional;
 
 /** [JLAS-W0108] Entering the JLPT path and the learner's path. */
@@ -60,6 +63,23 @@ public interface JpathPathService {
      * level (N5 without a path).
      */
     JpathLevelPreviewView levelPreview(Long userId, String level);
+
+    /**
+     * Sets the open level's sliders (policy #29): out of the level's limits → JPATH_SLIDER_OUT_OF_RANGE; the same
+     * values change nothing; the first drag after creating the path is free; later changes use one of the 2
+     * adjustments of the level (none left → JPATH_ADJUSTMENTS_EXHAUSTED). Every change is logged and refreshes today's
+     * targets of the tabs not started yet; {@code appliesFromTomorrow} lists the started ones.
+     */
+    JpathSliderView updateSliders(Long userId, JpathSliderUpdateRequest request);
+
+    /** Rebalance: sliders back to the recommendation for the daily minutes; logged, never counted. */
+    JpathPaceView rebalance(Long userId);
+
+    /** Switches between Gộp and Tách (null → VALIDATION_FAILED); sliders and adjustments stay. */
+    JpathPathView changeMode(Long userId, JpathStudyMode mode);
+
+    /** Recomputes the pace of the active path and stores its priority mode (#30); no active path → nothing. */
+    void refreshPacing(Long userId);
 
     Optional<JpathUserPath> findActive(Long userId);
 

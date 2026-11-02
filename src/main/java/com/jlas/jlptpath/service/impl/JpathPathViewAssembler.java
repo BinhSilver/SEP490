@@ -47,13 +47,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.jlas.jlptpath.service.impl.JpathPathRules.LEVELS;
+import static com.jlas.jlptpath.service.impl.JpathPathRules.MAX_ADJUSTMENTS;
 import static com.jlas.jlptpath.service.impl.JpathPathRules.SLIDER_TABS;
 
-/** [JLAS-W0108] Builds the path view and level previews; reads only. */
+/** [JLAS-W0108] Builds the path view, its slider panel and level previews; reads only. */
 @Component
 public class JpathPathViewAssembler {
 
-    private static final int MAX_ADJUSTMENTS = 2;
     private static final int PREVIEW_ITEMS = 5;
 
     private final JpathUserLevelRepository userLevels;
@@ -85,12 +85,20 @@ public class JpathPathViewAssembler {
         this.mockTests = mockTests;
     }
 
-    /** View of {@code path} (the learner's active path). */
+    /**
+     * What the path view, the slider panel and the slider/mode endpoints share: the open level's counts (read once),
+     * the kana phase and the pace with the learner's own sliders (target not enforced, lateness is a warning).
+     */
+    public record Pacing(LocalDate today, Map<JpathTab, JpathTabCount> counts, JpathTabCount kana,
+            boolean kanaCompleted, boolean kanaPhase, JpathStudyMode mode, EnumSet<DayOfWeek> skillDays,
+            EnumSet<DayOfWeek> restDays, JpathSliderValues sliders, JpathPaceView pace) {
+    }
+
+    /** Pace of {@code path} with the sliders of {@code level} (its open level row, possibly just changed). */
     @Transactional(readOnly = true)
-    public JpathPathView view(JpathUserPath path) {
+    public Pacing pacing(JpathUserPath path, JpathUserLevel level) {
         Long userId = path.getUserId();
         String open = path.getOpenLevel();
-        JpathUserLevel level = levelRow(path);
         LocalDate today = clock.today(userId);
         Map<JpathTab, JpathTabCount> counts = tabCounts.read(userId, open);
         JpathTabCount kana = path.isKanaTab() ? tabCounts.kana(userId) : null;
@@ -105,44 +113,73 @@ public class JpathPathViewAssembler {
                 level.getSliderGrammar());
         LocalDate skillPracticeSince = level.getSkillPracticeAt() == null ? null
                 : level.getSkillPracticeAt().toLocalDate();
-
-        // The path view shows the learner's own sliders: the target is not enforced, lateness is a warning.
         JpathPaceView pace = paceService.pace(userId, new JpathPaceService.Query(today, open, path.getTargetLevel(),
                 path.getExamDate(), path.getDailyMinutes(), skillDays, restDays, storedThirdDay(path), sliders,
                 kanaPhase ? kanaRowsLeft : 0, mode, skillPracticeSince, false, counts));
+        return new Pacing(today, counts, kana, kanaCompleted, kanaPhase, mode, skillDays, restDays, sliders, pace);
+    }
+
+    /** View of {@code path} (the learner's active path). */
+    @Transactional(readOnly = true)
+    public JpathPathView view(JpathUserPath path) {
+        JpathUserLevel level = levelRow(path);
+        return view(path, level, pacing(path, level), null);
+    }
+
+    /**
+     * View of {@code path} from its open level row and the pacing already computed for it;
+     * {@code appliesFromTomorrow} as in {@link #sliderView}.
+     */
+    @Transactional(readOnly = true)
+    public JpathPathView view(JpathUserPath path, JpathUserLevel level, Pacing p, Set<JpathTab> appliesFromTomorrow) {
+        Long userId = path.getUserId();
+        String open = path.getOpenLevel();
         // Task 14: in skill practice with no new item left every non-rest day is a skill day.
         boolean noNewLeft = level.getStage() == JpathStage.SKILL_PRACTICE
                 && noNewItemsLeft(userId, open, level.isPriorityMode());
 
         List<JpathTabInfo> tabs = new ArrayList<>();
-        if (kana != null) {
-            tabs.add(new JpathTabInfo(JpathTab.KANA, true, false, kana.percent(), 0, 0, (int) kana.total()));
+        if (p.kana() != null) {
+            tabs.add(new JpathTabInfo(JpathTab.KANA, true, false, p.kana().percent(), 0, 0, (int) p.kana().total()));
         }
         // Combined kana phase: vocabulary only, no new kanji or grammar yet (policy #26).
-        boolean kanjiGrammarOpen = !(kanaPhase && mode == JpathStudyMode.COMBINED);
+        boolean kanjiGrammarOpen = !(p.kanaPhase() && p.mode() == JpathStudyMode.COMBINED);
         for (JpathTab tab : SLIDER_TABS) {
-            JpathTabCount c = counts.get(tab);
+            JpathTabCount c = p.counts().get(tab);
             tabs.add(new JpathTabInfo(tab, tab == JpathTab.VOCAB || kanjiGrammarOpen, false, c.percent(),
                     (int) c.known(), (int) c.notebook(), (int) c.total()));
         }
         tabs.add(new JpathTabInfo(JpathTab.SKILL, false, true, 0, 0, 0, 0));
 
-        Set<JpathTab> started = EnumSet.noneOf(JpathTab.class);
-        started.addAll(dailyTabs.findStartedTabs(userId, today));
-        List<JpathTab> fromTomorrow = Arrays.stream(SLIDER_TABS).filter(started::contains).toList();
-        JpathSliderView sliderView = new JpathSliderView(sliders.vocab(), sliders.kanji(), sliders.grammar(),
-                JpathPathRules.bounds(open), pace.estimatedMinutes(), path.getDailyMinutes(), pace.overBudget(),
-                Math.max(0, MAX_ADJUSTMENTS - level.getAdjustmentsUsed()), level.isFirstDragUsed(), fromTomorrow);
-
+        JpathPaceView pace = p.pace();
         JpathUserSettings userSettings = settings.findById(userId).orElse(null);
         return new JpathPathView(path.getId(), displayName(userId), open, path.getTargetLevel(),
-                JpathPaceService.usableExamDate(path.getExamDate(), today), !pace.late(), level.getStage(),
-                levelCells(userId, open, counts), List.copyOf(tabs), calendar.week(userId, today, noNewLeft),
-                pace.tabFinish(), pace.levelFinish(), sliderView, mode, path.getSuggestedMode(),
-                path.getSuggestionReason(), path.isKanaTab(), path.isKanaTab() && kanaCompleted,
-                JpathDays.codes(skillDays), JpathDays.codes(restDays),
+                JpathPaceService.usableExamDate(path.getExamDate(), p.today()), !pace.late(), level.getStage(),
+                levelCells(userId, open, p.counts()), List.copyOf(tabs), calendar.week(userId, p.today(), noNewLeft),
+                pace.tabFinish(), pace.levelFinish(), sliderView(path, level, p, appliesFromTomorrow), p.mode(),
+                path.getSuggestedMode(), path.getSuggestionReason(), path.isKanaTab(),
+                path.isKanaTab() && p.kanaCompleted(), JpathDays.codes(p.skillDays()), JpathDays.codes(p.restDays()),
                 userSettings != null && userSettings.getTourDoneAt() != null,
                 JpathDisplaySettings.from(userSettings, open), pace.warnings());
+    }
+
+    /**
+     * Slider panel of the open level. {@code appliesFromTomorrow} = the tabs a change just made reaches only from
+     * tomorrow; null = the tabs of today's plan already started (new, extra or review done > 0, policy #29).
+     */
+    @Transactional(readOnly = true)
+    public JpathSliderView sliderView(JpathUserPath path, JpathUserLevel level, Pacing p,
+            Set<JpathTab> appliesFromTomorrow) {
+        Set<JpathTab> tabs = appliesFromTomorrow;
+        if (tabs == null) {
+            tabs = EnumSet.noneOf(JpathTab.class);
+            tabs.addAll(dailyTabs.findStartedTabs(path.getUserId(), p.today()));
+        }
+        List<JpathTab> fromTomorrow = Arrays.stream(SLIDER_TABS).filter(tabs::contains).toList();
+        JpathSliderValues s = p.sliders();
+        return new JpathSliderView(s.vocab(), s.kanji(), s.grammar(), JpathPathRules.bounds(path.getOpenLevel()),
+                p.pace().estimatedMinutes(), path.getDailyMinutes(), p.pace().overBudget(),
+                Math.max(0, MAX_ADJUSTMENTS - level.getAdjustmentsUsed()), level.isFirstDragUsed(), fromTomorrow);
     }
 
     /** Preview of {@code level} (already N1..N5) seen from the path's open level (N5 without a path). */
