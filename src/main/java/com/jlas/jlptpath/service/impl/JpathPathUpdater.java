@@ -6,7 +6,6 @@ import com.jlas.jlptpath.dto.JpathSliderUpdateRequest;
 import com.jlas.jlptpath.dto.JpathSliderValues;
 import com.jlas.jlptpath.entity.JpathUserLevel;
 import com.jlas.jlptpath.entity.JpathUserPath;
-import com.jlas.jlptpath.enums.JpathPathStatus;
 import com.jlas.jlptpath.enums.JpathSliderKind;
 import com.jlas.jlptpath.enums.JpathStudyMode;
 import com.jlas.jlptpath.enums.JpathTab;
@@ -16,6 +15,8 @@ import com.jlas.jlptpath.repository.JpathUserPathRepository;
 import com.jlas.jlptpath.service.JpathTodayTargetsPort;
 import com.jlas.jlptpath.util.JpathPacingEngine;
 import com.jlas.jlptpath.util.JpathSliderBounds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.EnumSet;
 import java.util.Set;
 import org.springframework.beans.factory.ObjectProvider;
@@ -27,12 +28,21 @@ import static com.jlas.jlptpath.service.impl.JpathPathRules.MAX_ADJUSTMENTS;
 
 /**
  * [JLAS-W0108] Changes to the active path after it was created: sliders (policy #29), Rebalance, the study mode and the
- * priority mode (#30). Each change locks the open level row first ({@code PESSIMISTIC_WRITE}), so two tabs changing
- * the same path run one after the other. Runs inside the caller's transaction.
+ * priority mode (#30). Runs inside the caller's transaction.
+ *
+ * <p>Lock order, everywhere: the {@code jpath_user_path} row first ({@link JpathUserPathRepository#findActiveForUpdate}),
+ * then the open level's {@code jpath_user_level} row ({@link JpathUserLevelRepository#findForUpdate}); only then is
+ * anything written. Inserting a {@code jpath_slider_adjustment} row takes a shared lock on the path row through its
+ * FK, which the path's exclusive lock already covers. The path must never be read with a plain read before its lock in
+ * the same transaction: under REPEATABLE READ that read fixes a snapshot, so the decision would use a stale mode, open
+ * level or daily minutes ({@code em.refresh} does not help). Code that writes these rows elsewhere (target change,
+ * level start, Task 31's plan inserter) must take the locks in the same order.
  */
 @Component
 @Transactional(propagation = Propagation.MANDATORY)
 public class JpathPathUpdater {
+
+    private static final Logger log = LoggerFactory.getLogger(JpathPathUpdater.class);
 
     private final JpathUserPathRepository paths;
     private final JpathUserLevelRepository userLevels;
@@ -67,7 +77,7 @@ public class JpathPathUpdater {
         if (request == null || request.vocab() == null || request.kanji() == null || request.grammar() == null) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Thiếu số mục mỗi ngày.");
         }
-        JpathUserPath path = requireActive(userId);
+        JpathUserPath path = lockActive(userId);
         JpathSliderValues wanted = new JpathSliderValues(request.vocab(), request.kanji(), request.grammar());
         JpathSliderBounds.requireInRange(path.getOpenLevel(), wanted);
         JpathUserLevel level = lockOpenLevel(path);
@@ -92,9 +102,13 @@ public class JpathPathUpdater {
         return applySliders(path, level, kind, counted, current, wanted);
     }
 
-    /** Rebalance: back to the recommendation for the daily minutes; never counted, allowed with no adjustment left. */
+    /**
+     * Rebalance: back to the recommendation for the daily minutes; never counted, allowed with no adjustment left. It
+     * is not a drag: done before the first drag it leaves {@code first_drag_used} false, so the next drag is still free
+     * (intended under #29).
+     */
     public Change rebalance(Long userId) {
-        JpathUserPath path = requireActive(userId);
+        JpathUserPath path = lockActive(userId);
         JpathUserLevel level = lockOpenLevel(path);
         JpathSliderValues current = sliders(level);
         JpathSliderValues recommended = JpathPacingEngine.recommend(path.getOpenLevel(), path.getDailyMinutes());
@@ -109,7 +123,7 @@ public class JpathPathUpdater {
         if (mode == null) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Hãy chọn cách học Gộp hoặc Tách.");
         }
-        JpathUserPath path = requireActive(userId);
+        JpathUserPath path = lockActive(userId);
         JpathUserLevel level = lockOpenLevel(path);
         if (mode == path.getStudyMode()) {
             return new Change(path, level, views.pacing(path, level), null);
@@ -120,10 +134,18 @@ public class JpathPathUpdater {
         return new Change(path, level, pacing, refreshToday(userId));
     }
 
-    /** Recomputes the pace of the active path and stores its priority mode (#30); no active path → nothing. */
+    /**
+     * Recomputes the pace of the active path and stores its priority mode (#30); no active path → nothing. An active
+     * path without its open level row is a data error: logged, INTERNAL_ERROR.
+     */
     public void refreshPacing(Long userId) {
-        paths.findFirstByUserIdAndStatusOrderByIdDesc(userId, JpathPathStatus.ACTIVE).ifPresent(path -> {
-            refreshPriority(path, lockOpenLevel(path));
+        paths.findActiveForUpdate(userId).ifPresent(path -> {
+            JpathUserLevel level = userLevels.findForUpdate(path.getId(), path.getOpenLevel()).orElseThrow(() -> {
+                log.error("Active JLPT path {} of user {} has no row for its open level {}", path.getId(), userId,
+                        path.getOpenLevel());
+                return new ApiException(ErrorCode.INTERNAL_ERROR);
+            });
+            refreshPriority(path, level);
             userLevels.flush();
         });
     }
@@ -161,9 +183,9 @@ public class JpathPathUpdater {
         return kept == null ? EnumSet.noneOf(JpathTab.class) : kept;
     }
 
-    private JpathUserPath requireActive(Long userId) {
-        return paths.findFirstByUserIdAndStatusOrderByIdDesc(userId, JpathPathStatus.ACTIVE)
-                .orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
+    /** The ACTIVE path, locked (first lock of every change); JPATH_NO_ACTIVE_PATH when there is none. */
+    private JpathUserPath lockActive(Long userId) {
+        return paths.findActiveForUpdate(userId).orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
     }
 
     private JpathUserLevel lockOpenLevel(JpathUserPath path) {
