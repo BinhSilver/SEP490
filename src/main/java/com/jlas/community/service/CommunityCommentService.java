@@ -37,6 +37,7 @@ public class CommunityCommentService {
     private final CommunityContentRepository contents;
     private final CommunityCommentRepository comments;
     private final UserActionPolicyPort actionPolicy;
+    private final CommunityNotifier notifier;
 
     @Transactional(readOnly = true)
     public PageResult<CommentDto> list(String contentType, Long contentId, Long viewerId, Integer page, Integer size) {
@@ -65,7 +66,9 @@ public class CommunityCommentService {
                 .communityContentId(row.getId()).userId(viewerId).body(text)
                 .status(CommunityStatus.PUBLISHED.name()).reportCount(0).build());
         access.refreshCommentCount(row);
-        return toDto(comment, access.author(viewerId), viewerId, CommunityAccessService.isModerator(), true);
+        AuthorDto author = access.author(viewerId);
+        notifier.newComment(target.source(), comment.getId(), viewerId, author.displayName());
+        return toDto(comment, author, viewerId, CommunityAccessService.isModerator(), true);
     }
 
     @Transactional

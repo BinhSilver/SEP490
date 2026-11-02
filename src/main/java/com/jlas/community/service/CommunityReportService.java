@@ -42,6 +42,7 @@ public class CommunityReportService {
     private final CommunityCommentRepository comments;
     private final CommunityReportRepository reports;
     private final UserActionPolicyPort actionPolicy;
+    private final CommunityNotifier notifier;
 
     @Value("${community.report.auto-hide-threshold:1}")
     private int autoHideThreshold;
@@ -106,6 +107,7 @@ public class CommunityReportService {
         if (hidden) comment.setStatus(CommunityStatus.TEMPORARILY_HIDDEN.name());
         comments.saveAndFlush(comment);
         if (hidden) access.refreshCommentCount(row);
+        notifier.commentReported(comment.getUserId(), target.source(), saved.getId(), hidden);
         return new ReportResult(saved.getId(), hidden, null);
     }
 
