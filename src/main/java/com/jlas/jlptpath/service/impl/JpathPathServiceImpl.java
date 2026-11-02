@@ -53,7 +53,8 @@ import static com.jlas.jlptpath.service.impl.JpathPathRules.LEVELS;
 /**
  * [JLAS-W0108] Entry status, entry answers, the confirmation screen, pace estimates and the learner's active path.
  * Creating a path is done by {@link JpathPathCreator}, later changes (sliders, Rebalance, study mode, priority mode)
- * by {@link JpathPathUpdater}, the path view and level previews by {@link JpathPathViewAssembler}.
+ * by {@link JpathPathUpdater}, pausing and resuming by {@link JpathPathChanger}, the path view and level previews by
+ * {@link JpathPathViewAssembler}.
  */
 @Service
 public class JpathPathServiceImpl implements JpathPathService {
@@ -74,12 +75,13 @@ public class JpathPathServiceImpl implements JpathPathService {
     private final JpathPathCreator creator;
     private final JpathPathViewAssembler views;
     private final JpathPathUpdater updater;
+    private final JpathPathChanger changer;
 
     public JpathPathServiceImpl(JpathEntryPreferenceRepository preferences, JpathUserPathRepository paths,
             JpathUserLevelRepository userLevels, UserLearningSurveyRepository surveys,
             JpathSmartTestReader smartTests, JpathCatalogService catalog, JpathPaceService paceService,
             JpathClock clock, ObjectProvider<JpathSmartTestImporter> importer, JpathPathCreator creator,
-            JpathPathViewAssembler views, JpathPathUpdater updater) {
+            JpathPathViewAssembler views, JpathPathUpdater updater, JpathPathChanger changer) {
         this.preferences = preferences;
         this.paths = paths;
         this.userLevels = userLevels;
@@ -92,6 +94,7 @@ public class JpathPathServiceImpl implements JpathPathService {
         this.creator = creator;
         this.views = views;
         this.updater = updater;
+        this.changer = changer;
     }
 
     @Override
@@ -268,6 +271,19 @@ public class JpathPathServiceImpl implements JpathPathService {
     @Transactional
     public void refreshPacing(Long userId) {
         updater.refreshPacing(userId);
+    }
+
+    @Override
+    @Transactional
+    public void pauseForGoalChange(Long userId) {
+        changer.pauseForGoalChange(userId);
+    }
+
+    @Override
+    @Transactional
+    public JpathPathView resumePaused(Long userId) {
+        JpathPathUpdater.Change c = changer.resumePaused(userId);
+        return views.view(c.path(), c.level(), c.pacing(), c.appliesFromTomorrow());
     }
 
     @Override

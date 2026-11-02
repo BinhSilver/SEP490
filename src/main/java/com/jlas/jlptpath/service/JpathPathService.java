@@ -85,4 +85,13 @@ public interface JpathPathService {
 
     /** The ACTIVE path; JPATH_NO_ACTIVE_PATH when there is none. */
     JpathUserPath requireActive(Long userId);
+
+    /**
+     * Pauses the ACTIVE path (none → JPATH_NO_ACTIVE_PATH) while the learner changes the survey goal; nothing else
+     * changes. A paused path blocks creating a new one; the JLPT start page resumes it.
+     */
+    void pauseForGoalChange(Long userId);
+
+    /** Makes the PAUSED path ACTIVE again and returns its view; no PAUSED path → JPATH_NO_ACTIVE_PATH. */
+    JpathPathView resumePaused(Long userId);
 }

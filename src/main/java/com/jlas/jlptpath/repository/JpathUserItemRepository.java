@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
 /** [JLAS-W0108] Learner state of items. */
@@ -61,4 +62,12 @@ public interface JpathUserItemRepository extends JpaRepository<JpathUserItem, Lo
             """)
     List<JpathUserItem> due(@Param("userId") Long userId, @Param("t") JpathItemType t,
                             @Param("now") LocalDateTime now, Pageable p);
+
+    /**
+     * Restart: bulk-deletes every item row of the learner and returns the row count (managed entities are not
+     * detached).
+     */
+    @Modifying(flushAutomatically = true)
+    @Query("delete from JpathUserItem i where i.userId = :userId")
+    int deleteByUserId(@Param("userId") Long userId);
 }

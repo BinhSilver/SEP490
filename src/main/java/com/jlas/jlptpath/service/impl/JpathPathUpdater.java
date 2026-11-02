@@ -17,7 +17,6 @@ import com.jlas.jlptpath.util.JpathPacingEngine;
 import com.jlas.jlptpath.util.JpathSliderBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.EnumSet;
 import java.util.Set;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
@@ -173,14 +172,8 @@ public class JpathPathUpdater {
         return pacing;
     }
 
-    /** Tabs that keep today's targets; empty without the port (nothing refreshes today's plan then). */
     private Set<JpathTab> refreshToday(Long userId) {
-        JpathTodayTargetsPort port = todayTargets.getIfAvailable();
-        if (port == null) {
-            return EnumSet.noneOf(JpathTab.class);
-        }
-        Set<JpathTab> kept = port.refreshTodayTargets(userId);
-        return kept == null ? EnumSet.noneOf(JpathTab.class) : kept;
+        return JpathPathRules.refreshToday(todayTargets, userId);
     }
 
     /** The ACTIVE path, locked (first lock of every change); JPATH_NO_ACTIVE_PATH when there is none. */

@@ -13,14 +13,18 @@ import com.jlas.jlptpath.enums.JpathSliderKind;
 import com.jlas.jlptpath.enums.JpathTab;
 import com.jlas.jlptpath.service.JpathCatalogService;
 import com.jlas.jlptpath.service.JpathLevelInfo;
+import com.jlas.jlptpath.service.JpathTodayTargetsPort;
 import com.jlas.jlptpath.util.JpathOpenLevelRule;
 import com.jlas.jlptpath.util.JpathSliderBounds;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import org.springframework.beans.factory.ObjectProvider;
 
 /** [JLAS-W0108] Rules shared by the confirmation screen, path creation and the path view. */
 final class JpathPathRules {
@@ -131,5 +135,18 @@ final class JpathPathRules {
                 .grammarAfter(after.grammar())
                 .dailyMinutes(minutes)
                 .build();
+    }
+
+    /**
+     * Re-applies the open level's sliders and mode to today's plan through the port (policy #29); returns the tabs
+     * that keep today's targets, empty without the port (nothing refreshes today's plan then).
+     */
+    static Set<JpathTab> refreshToday(ObjectProvider<JpathTodayTargetsPort> todayTargets, Long userId) {
+        JpathTodayTargetsPort port = todayTargets.getIfAvailable();
+        if (port == null) {
+            return EnumSet.noneOf(JpathTab.class);
+        }
+        Set<JpathTab> kept = port.refreshTodayTargets(userId);
+        return kept == null ? EnumSet.noneOf(JpathTab.class) : kept;
     }
 }

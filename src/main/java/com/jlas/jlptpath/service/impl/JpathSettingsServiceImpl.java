@@ -4,6 +4,7 @@ import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.jlptpath.config.JpathProperties;
 import com.jlas.jlptpath.dto.JpathDisplaySettings;
+import com.jlas.jlptpath.dto.JpathPathView;
 import com.jlas.jlptpath.dto.JpathSettingsUpdateRequest;
 import com.jlas.jlptpath.dto.JpathSettingsView;
 import com.jlas.jlptpath.dto.JpathSliderAdjustmentView;
@@ -34,8 +35,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * [JLAS-W0108] Settings of the JLPT path. Writes are done by {@link JpathSettingsWriter}; the pace, slider panel and
- * schedule rules come from {@link JpathPathViewAssembler} and {@link JpathPathRules}.
+ * [JLAS-W0108] Settings of the JLPT path. Writes are done by {@link JpathSettingsWriter}, lower level and restart by
+ * {@link JpathPathChanger}; the pace, slider panel and schedule rules come from {@link JpathPathViewAssembler} and
+ * {@link JpathPathRules}.
  */
 @Service
 public class JpathSettingsServiceImpl implements JpathSettingsService {
@@ -50,11 +52,12 @@ public class JpathSettingsServiceImpl implements JpathSettingsService {
     private final JpathPathViewAssembler views;
     private final JpathSettingsWriter writer;
     private final JpathProperties props;
+    private final JpathPathChanger changer;
 
     public JpathSettingsServiceImpl(JpathUserPathRepository paths, JpathUserLevelRepository userLevels,
             JpathSliderAdjustmentRepository adjustments, JpathUserSettingsRepository settings,
             JpathCatalogService catalog, JpathPathViewAssembler views, JpathSettingsWriter writer,
-            JpathProperties props) {
+            JpathProperties props, JpathPathChanger changer) {
         this.paths = paths;
         this.userLevels = userLevels;
         this.adjustments = adjustments;
@@ -63,6 +66,7 @@ public class JpathSettingsServiceImpl implements JpathSettingsService {
         this.views = views;
         this.writer = writer;
         this.props = props;
+        this.changer = changer;
     }
 
     @Override
@@ -109,6 +113,19 @@ public class JpathSettingsServiceImpl implements JpathSettingsService {
                 .map(path -> adjustments.findByPathIdOrderByIdDesc(path.getId()).stream()
                         .map(JpathSettingsServiceImpl::historyRow).toList())
                 .orElse(List.of());
+    }
+
+    @Override
+    @Transactional
+    public JpathPathView lowerLevel(Long userId, String level) {
+        JpathPathUpdater.Change c = changer.lowerLevel(userId, level);
+        return views.view(c.path(), c.level(), c.pacing(), c.appliesFromTomorrow());
+    }
+
+    @Override
+    @Transactional
+    public void restart(Long userId, String confirmText) {
+        changer.restart(userId, confirmText);
     }
 
     private JpathSettingsView view(JpathUserPath path, JpathUserLevel level, JpathPathViewAssembler.Pacing p,

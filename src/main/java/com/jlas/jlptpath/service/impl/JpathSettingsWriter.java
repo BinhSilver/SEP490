@@ -292,12 +292,7 @@ public class JpathSettingsWriter {
     }
 
     private Set<JpathTab> refreshToday(Long userId) {
-        JpathTodayTargetsPort port = todayTargets.getIfAvailable();
-        if (port == null) {
-            return EnumSet.noneOf(JpathTab.class);
-        }
-        Set<JpathTab> kept = port.refreshTodayTargets(userId);
-        return kept == null ? EnumSet.noneOf(JpathTab.class) : kept;
+        return JpathPathRules.refreshToday(todayTargets, userId);
     }
 
     private static boolean changesDisplay(JpathSettingsUpdateRequest r) {
