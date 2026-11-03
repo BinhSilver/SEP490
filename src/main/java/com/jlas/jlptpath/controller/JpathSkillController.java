@@ -6,8 +6,11 @@ import com.jlas.jlptpath.dto.JpathSkillLessonCheckRequest;
 import com.jlas.jlptpath.dto.JpathSkillLessonCheckResult;
 import com.jlas.jlptpath.dto.JpathSkillLessonView;
 import com.jlas.jlptpath.dto.JpathSkillOverview;
+import com.jlas.jlptpath.dto.JpathSkillSessionStartRequest;
+import com.jlas.jlptpath.dto.JpathSkillSessionView;
 import com.jlas.jlptpath.service.JpathSkillCatalogService;
 import com.jlas.jlptpath.service.JpathSkillLessonService;
+import com.jlas.jlptpath.service.JpathSkillSessionService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,10 +29,13 @@ public class JpathSkillController {
 
     private final JpathSkillCatalogService catalog;
     private final JpathSkillLessonService lessons;
+    private final JpathSkillSessionService sessions;
 
-    public JpathSkillController(JpathSkillCatalogService catalog, JpathSkillLessonService lessons) {
+    public JpathSkillController(JpathSkillCatalogService catalog, JpathSkillLessonService lessons,
+            JpathSkillSessionService sessions) {
         this.catalog = catalog;
         this.lessons = lessons;
+        this.sessions = sessions;
     }
 
     @GetMapping("/overview")
@@ -50,5 +56,23 @@ public class JpathSkillController {
             @Valid @RequestBody JpathSkillLessonCheckRequest request) {
         return ResponseEntity.ok(ApiResponse.ok("OK",
                 lessons.check(user.userId(), typeCode, request.option(), request.sessionId())));
+    }
+
+    @PostMapping("/sessions")
+    public ResponseEntity<ApiResponse<JpathSkillSessionView>> startSession(@AuthenticationPrincipal UserPrincipal user,
+            @Valid @RequestBody JpathSkillSessionStartRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", sessions.start(user.userId(), request)));
+    }
+
+    @GetMapping("/sessions/{id}")
+    public ResponseEntity<ApiResponse<JpathSkillSessionView>> session(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", sessions.get(user.userId(), id)));
+    }
+
+    @PostMapping("/sessions/{id}/advance")
+    public ResponseEntity<ApiResponse<JpathSkillSessionView>> advance(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", sessions.advance(user.userId(), id)));
     }
 }
