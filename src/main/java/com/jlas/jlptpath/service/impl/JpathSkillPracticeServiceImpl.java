@@ -97,6 +97,14 @@ public class JpathSkillPracticeServiceImpl implements JpathSkillPracticeService 
                     revealed && listening ? s.getScriptVi() : null,
                     revealed ? newWords(s.getNewWordsJson(), s.getLevel()) : null));
         }
+        if (set.getKind() == JpathCheckKind.SKILL_SECTION) {
+            JsonNode issue = tree(set.getIssueJson());
+            JsonNode deadline = issue.path(JpathSkillCheckBuilder.DEADLINE_AT);
+            JsonNode perSet = issue.path("perSetAnswerSeconds");
+            return new JpathSkillCheckView(skillSessionId(set), out, List.of(),
+                    deadline.isTextual() ? deadline.asText() : null, clock.now().toString(),
+                    perSet.canConvertToInt() ? perSet.asInt() : null);
+        }
         return new JpathSkillCheckView(skillSessionId(set), out);
     }
 

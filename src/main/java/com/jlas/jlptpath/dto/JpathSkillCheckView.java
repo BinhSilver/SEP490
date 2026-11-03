@@ -7,12 +7,19 @@ import java.util.List;
  * of their questions. Before every question of a set is locked only what the learner needs to answer is sent (the
  * Reading passage, the Listening audio slot and picture description); once the set is locked, {@code revealed} is
  * true and the translation, the script and the new words follow. {@code skillSessionId} is the session to go back to;
- * {@code dictation} is empty except for a SKILL_DICTATION check.
+ * {@code dictation} is empty except for a SKILL_DICTATION check. A timed section (Plan 3 Task 15/22) adds the server's
+ * {@code deadlineAt} (Reading) and {@code serverNow} (both server-local ISO times, so the page counts down without
+ * trusting the device clock) and {@code perSetAnswerSeconds} (Listening).
  */
-public record JpathSkillCheckView(Long skillSessionId, List<SetView> sets, List<DictationLine> dictation) {
+public record JpathSkillCheckView(Long skillSessionId, List<SetView> sets, List<DictationLine> dictation,
+                                  String deadlineAt, String serverNow, Integer perSetAnswerSeconds) {
 
     public JpathSkillCheckView(Long skillSessionId, List<SetView> sets) {
-        this(skillSessionId, sets, List.of());
+        this(skillSessionId, sets, List.of(), null, null, null);
+    }
+
+    public JpathSkillCheckView(Long skillSessionId, List<SetView> sets, List<DictationLine> dictation) {
+        this(skillSessionId, sets, dictation, null, null, null);
     }
 
     /**
