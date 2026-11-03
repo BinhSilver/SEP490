@@ -27,6 +27,7 @@ import com.jlas.jlptpath.service.JpathClock;
 import com.jlas.jlptpath.service.JpathSkillCheckIssuer;
 import com.jlas.jlptpath.service.impl.JpathCheckBuilder.AnswerKey;
 import com.jlas.jlptpath.util.JpathDictationGrader;
+import com.jlas.jlptpath.util.JpathSkillPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -60,6 +61,10 @@ public class JpathSkillCheckBuilder implements JpathSkillCheckIssuer {
     static final String MASK = "＿＿";
     /** Policy #34: a listening session dictates at least this many lines. */
     static final int MIN_DICTATION = 5;
+    /** issue_json key of a timed Reading section: the ISO time after which answers are refused (+ grace). */
+    static final String DEADLINE_AT = "deadlineAt";
+    /** #40: seconds to answer after each Listening audio of a section. */
+    static final int LISTENING_ANSWER_SECONDS = 12;
     private static final ObjectMapper JSON = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -105,6 +110,29 @@ public class JpathSkillCheckBuilder implements JpathSkillCheckIssuer {
 
     @Override
     public String issuePractice(JpathSkillSession session) {
+        return issueSets(session, JpathCheckKind.SKILL_PRACTICE, false, Map.of());
+    }
+
+    /**
+     * Plan 3 Task 15 — SKILL_SECTION of a section session (#40): the same questions as a practice of its sets, with
+     * the timer on. Reading: {@code issue_json.deadlineAt} = issued + {@code sectionSeconds(level, questions)};
+     * Listening: no total clock, {@code issue_json.perSetAnswerSeconds} = 12 after each audio.
+     */
+    public String issueSection(JpathSkillSession session) {
+        Map<String, Object> extra = new LinkedHashMap<>();
+        extra.put("skill", session.getSkill().name());
+        if (session.getSkill() == JpathSkill.READING) {
+            int questions = reader.visibleQuestions(readList(session.getSetCodesJson())).size();
+            extra.put(DEADLINE_AT, clock.now().plusSeconds(JpathSkillPolicy.sectionSeconds(session.getLevel(), questions))
+                    .toString());
+        } else {
+            extra.put("perSetAnswerSeconds", LISTENING_ANSWER_SECONDS);
+        }
+        return issueSets(session, JpathCheckKind.SKILL_SECTION, true, extra);
+    }
+
+    private String issueSets(JpathSkillSession session, JpathCheckKind kind, boolean timerOn,
+                             Map<String, Object> extra) {
         List<String> codes = readList(session.getSetCodesJson());
         List<JpathSkillSet> ordered = setsInOrder(codes);
         Map<String, List<JpathSkillQuestion>> bySet = new LinkedHashMap<>();
@@ -151,7 +179,7 @@ public class JpathSkillCheckBuilder implements JpathSkillCheckIssuer {
         if (questions.isEmpty()) {
             throw new ApiException(ErrorCode.JPATH_SKILL_NO_SETS);
         }
-        save(token, session, JpathCheckKind.SKILL_PRACTICE, questions, keys, used);
+        save(token, session, kind, questions, keys, used, timerOn, extra);
         return token;
     }
 
@@ -192,7 +220,7 @@ public class JpathSkillCheckBuilder implements JpathSkillCheckIssuer {
                 used.add(line.getSetCode());
             }
         }
-        save(token, session, JpathCheckKind.SKILL_DICTATION, questions, keys, used);
+        save(token, session, JpathCheckKind.SKILL_DICTATION, questions, keys, used, false, Map.of());
         return token;
     }
 
@@ -230,15 +258,16 @@ public class JpathSkillCheckBuilder implements JpathSkillCheckIssuer {
     }
 
     private void save(String token, JpathSkillSession session, JpathCheckKind kind, List<JpathQuestionView> questions,
-                      Map<String, AnswerKey> keys, List<String> used) {
+                      Map<String, AnswerKey> keys, List<String> used, boolean timerOn, Map<String, Object> extra) {
         Map<String, Object> issue = new LinkedHashMap<>();
         issue.put("kind", kind.name());
         issue.put("tab", JpathTab.SKILL.name());
         issue.put("level", session.getLevel());
         issue.put(SKILL_SESSION_ID, session.getId());
+        issue.putAll(extra);
         checks.saveAndFlush(JpathCheckSet.builder().token(token).userId(session.getUserId())
                 .planId(session.getPlanId()).kind(kind).tab(JpathTab.SKILL)
-                .level(session.getLevel()).timerOn(false).totalCount(questions.size()).issueJson(json(issue))
+                .level(session.getLevel()).timerOn(timerOn).totalCount(questions.size()).issueJson(json(issue))
                 .questionsJson(json(questions))
                 .answersJson(json(new JpathCheckServiceImpl.StoredKeys(keys, Map.of())))
                 .progressJson(json(new JpathCheckServiceImpl.Progress(null, null))).itemCodesJson(json(used))

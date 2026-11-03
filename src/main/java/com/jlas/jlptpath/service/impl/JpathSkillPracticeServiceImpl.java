@@ -19,6 +19,7 @@ import com.jlas.jlptpath.entity.JpathSkillTypeStatId;
 import com.jlas.jlptpath.entity.JpathVocabulary;
 import com.jlas.jlptpath.enums.JpathCheckKind;
 import com.jlas.jlptpath.enums.JpathSkill;
+import com.jlas.jlptpath.enums.JpathSkillStep;
 import com.jlas.jlptpath.repository.JpathSkillSessionRepository;
 import com.jlas.jlptpath.repository.JpathSkillSetUseRepository;
 import com.jlas.jlptpath.repository.JpathSkillTypeStatRepository;
@@ -163,6 +164,17 @@ public class JpathSkillPracticeServiceImpl implements JpathSkillPracticeService 
         Long sessionId = skillSessionId(set);
         JpathSkillSession session = sessionId == null ? null
                 : skillSessions.findByIdAndUserId(sessionId, set.getUserId()).orElse(null);
+        if (set.getKind() == JpathCheckKind.SKILL_SECTION) {
+            // #40: a section session ends with its check; only the sets are counted as used (no type stats)
+            recordUses(set);
+            if (session != null && session.getCompletedAt() == null) {
+                session.setStep(JpathSkillStep.DONE);
+                session.setCompletedAt(clock.now());
+                session.setScorePct(set.getScorePct());
+                skillSessions.save(session);
+            }
+            return;
+        }
         if (set.getKind() == JpathCheckKind.SKILL_PRACTICE) {
             recordPractice(set, session);
         }
@@ -190,6 +202,12 @@ public class JpathSkillPracticeServiceImpl implements JpathSkillPracticeService 
             stat.setUpdatedAt(clock.now());
             stats.save(stat);
         }
+        recordUses(set);
+    }
+
+    /** Every set of the check used once more, on the learner's today (#39). */
+    private void recordUses(JpathCheckSet set) {
+        Long userId = set.getUserId();
         for (String code : JpathSkillCheckBuilder.readList(set.getItemCodesJson())) {
             JpathSkillSetUse use = uses.findById(new JpathSkillSetUseId(userId, code))
                     .orElseGet(() -> JpathSkillSetUse.builder().userId(userId).setCode(code).build());

@@ -93,6 +93,17 @@ public class JpathSkillPicker {
         return JpathSkillRotation.pickSets(setInfos(userId, sets), floor, dailyMinutes / 2.0, today);
     }
 
+    /** #40: one set of every available type of {@code skill} (exam order), each the first #39 candidate. */
+    public Pick pickSection(Long userId, LevelContent content, JpathSkill skill, LocalDate today) {
+        Map<String, List<SetInfo>> byType = new java.util.LinkedHashMap<>();
+        for (JpathSkillType t : content.types(skill)) {
+            if (content.available(t)) {
+                byType.put(t.getCode(), setInfos(userId, content.sets().getOrDefault(t.getCode(), List.of())));
+            }
+        }
+        return JpathSkillRotation.pickSection(byType, today);
+    }
+
     /** Estimated minutes of the picked sets plus the dictation floor of the skill (#34). */
     public static double minutes(JpathSkillType type, List<VisibleSet> sets, Collection<String> picked) {
         JpathSkillPolicy.Floor floor = JpathSkillPolicy.floor(type.getLevel(), type.getSkill());

@@ -46,6 +46,10 @@ public interface JpathCheckSetRepository extends JpaRepository<JpathCheckSet, Lo
             Long sessionId, JpathCheckKind kind, JpathTab tab, String status);
 
     /** The learner's latest check sets of one kind and status, newest submit first (used questions, past mistakes). */
+    /** Plan 3 #41: the latest submitted checks of {@code kind} at {@code level}, newest first. */
+    List<JpathCheckSet> findTop20ByUserIdAndKindAndLevelAndStatusOrderBySubmittedAtDescIdDesc(Long userId,
+            JpathCheckKind kind, String level, String status);
+
     List<JpathCheckSet> findTop10ByUserIdAndKindAndStatusOrderBySubmittedAtDescIdDesc(Long userId, JpathCheckKind kind,
                                                                                     String status);
 

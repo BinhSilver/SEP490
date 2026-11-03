@@ -2,12 +2,16 @@ package com.jlas.jlptpath.controller;
 
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.security.UserPrincipal;
+import com.jlas.jlptpath.dto.JpathCheckView;
+import com.jlas.jlptpath.dto.JpathReadiness;
+import com.jlas.jlptpath.dto.JpathSectionStartRequest;
 import com.jlas.jlptpath.dto.JpathSkillLessonCheckRequest;
 import com.jlas.jlptpath.dto.JpathSkillLessonCheckResult;
 import com.jlas.jlptpath.dto.JpathSkillLessonView;
 import com.jlas.jlptpath.dto.JpathSkillOverview;
 import com.jlas.jlptpath.dto.JpathSkillSessionStartRequest;
 import com.jlas.jlptpath.dto.JpathSkillSessionView;
+import com.jlas.jlptpath.service.JpathSectionPracticeService;
 import com.jlas.jlptpath.service.JpathSkillCatalogService;
 import com.jlas.jlptpath.service.JpathSkillLessonService;
 import com.jlas.jlptpath.service.JpathSkillSessionService;
@@ -30,12 +34,28 @@ public class JpathSkillController {
     private final JpathSkillCatalogService catalog;
     private final JpathSkillLessonService lessons;
     private final JpathSkillSessionService sessions;
+    private final JpathSectionPracticeService sections;
 
     public JpathSkillController(JpathSkillCatalogService catalog, JpathSkillLessonService lessons,
-            JpathSkillSessionService sessions) {
+            JpathSkillSessionService sessions, JpathSectionPracticeService sections) {
         this.catalog = catalog;
         this.lessons = lessons;
         this.sessions = sessions;
+        this.sections = sections;
+    }
+
+    /** Timed section practice (#40): the SKILL_SECTION check to take (answer and submit through /checks/{token}). */
+    @PostMapping("/sections")
+    public ResponseEntity<ApiResponse<JpathCheckView>> startSection(@AuthenticationPrincipal UserPrincipal user,
+            @Valid @RequestBody JpathSectionStartRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", sections.start(user.userId(), request.skill())));
+    }
+
+    /** Exam readiness (#41) of {@code level} (default: the open level). */
+    @GetMapping("/readiness")
+    public ResponseEntity<ApiResponse<JpathReadiness>> readiness(@AuthenticationPrincipal UserPrincipal user,
+            @RequestParam(required = false) String level) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", sections.readiness(user.userId(), level)));
     }
 
     @GetMapping("/overview")

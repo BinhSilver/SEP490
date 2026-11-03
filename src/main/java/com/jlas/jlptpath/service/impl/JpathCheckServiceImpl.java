@@ -138,7 +138,9 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             JpathCheckKind.GRAMMAR_PRACTICE, JpathCheckKind.GRAMMAR_EXTRA);
     /** Plan 3 skill checks: no item rows, no plan, their own session page. */
     static final Set<JpathCheckKind> SKILL_KINDS = EnumSet.of(JpathCheckKind.SKILL_PRACTICE,
-            JpathCheckKind.SKILL_DICTATION);
+            JpathCheckKind.SKILL_DICTATION, JpathCheckKind.SKILL_SECTION);
+    /** Plan 3 #40: a timed section refuses answers this long after its deadline (network latency). */
+    static final long SECTION_GRACE_SECONDS = 5;
     static final String SKILL_SESSION_URL = "/learning/jlpt/skills/session/";
     private static final Set<JpathTab> CARD_TABS = EnumSet.of(JpathTab.VOCAB, JpathTab.KANJI, JpathTab.GRAMMAR);
     /** Kinds bound to one item of the step: a check of another item is never reused for them. */
@@ -770,6 +772,9 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         }
         requireOpen(set);
         LocalDateTime now = clock.now();
+        if (pastDeadline(set, now)) {
+            throw new ApiException(ErrorCode.JPATH_CHECK_CLOSED, "Đã hết giờ làm bài. Hãy nộp bài.");
+        }
         // Floor: the server time since the previous answer (or the issue), less a small grace, is the least a
         // question took; a client value below it (or none) is raised to it.
         LocalDateTime since = set.getLastAnswerAt() != null ? set.getLastAnswerAt() : set.getIssuedAt();
@@ -895,7 +900,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         List<JpathQuestionView> questions = readQuestions(set);
         StoredKeys keys = readKeys(set);
         Progress p = readProgress(set);
-        if (!complete(questions, keys, p)) {
+        // a timed section may be handed in unfinished once its time is up: what is not answered counts wrong
+        if (!complete(questions, keys, p) && !pastDeadline(set, clock.now())) {
             throw new ApiException(ErrorCode.JPATH_CHECK_INCOMPLETE);
         }
         if (path == null) {
@@ -922,6 +928,9 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             }
             Answer a = p.answers().get(qv.id());
             total++;
+            if (a == null) {
+                continue; // a section question left unanswered when the time ran out
+            }
             if (a.correct()) {
                 correct++;
             } else if (key.itemCode() != null) {
@@ -1004,8 +1013,23 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             case MICRO_CHECK, KANA_ROW -> total > 0 && correct * 100L >= (long) JpathCheckSizing.PASS_PERCENT * total;
             case SKIP_ONE -> total > 0 && correct == total;
             case TOPIC_KNOWN -> total > 0 && correct * 10L >= 9L * total;
+            // Plan 3 #40: a section passes at a shown (rounded) 32% — the floor 19 of 60 is 31.7% → 32%
+            case SKILL_SECTION -> total > 0
+                    && Math.round(100.0 * correct / total) >= com.jlas.jlptpath.util.JpathSkillPolicy.SECTION_PASS_PCT;
             default -> null;
         };
+    }
+
+    /** A timed Reading section past {@code issue_json.deadlineAt} plus the grace; never true for other checks. */
+    static boolean pastDeadline(JpathCheckSet set, LocalDateTime now) {
+        if (set.getKind() != JpathCheckKind.SKILL_SECTION) {
+            return false;
+        }
+        JsonNode at = readTree(set.getIssueJson()).path(JpathSkillCheckBuilder.DEADLINE_AT);
+        if (!at.isTextual()) {
+            return false;
+        }
+        return now.isAfter(LocalDateTime.parse(at.asText()).plusSeconds(SECTION_GRACE_SECONDS));
     }
 
     /** Locked question id → the value given (insertion order kept). */

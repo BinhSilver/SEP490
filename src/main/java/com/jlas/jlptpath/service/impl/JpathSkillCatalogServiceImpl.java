@@ -2,9 +2,10 @@ package com.jlas.jlptpath.service.impl;
 
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
-import com.jlas.jlptpath.dto.JpathSkillOverview;
+import com.jlas.jlptpath.dto.JpathReadiness;
 import com.jlas.jlptpath.dto.JpathSkillOverview.SkillCard;
 import com.jlas.jlptpath.dto.JpathSkillOverview.TypeRow;
+import com.jlas.jlptpath.dto.JpathSkillOverview;
 import com.jlas.jlptpath.dto.JpathTodayTab;
 import com.jlas.jlptpath.dto.JpathTodayView;
 import com.jlas.jlptpath.entity.JpathDailyPlan;
@@ -43,6 +44,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -69,6 +72,9 @@ public class JpathSkillCatalogServiceImpl implements JpathSkillCatalogService {
     private final JpathSkillSessionRepository sessions;
     private final JpathClock clock;
     private final TransactionTemplate readTx;
+    // Plan 3 Task 15 readiness; field-injected so the constructor (and its tests) stay as they were
+    @Autowired
+    private ObjectProvider<JpathSectionPracticeServiceImpl> sectionPractice;
 
     public JpathSkillCatalogServiceImpl(JpathCatalogService catalog, JpathSkillPicker picker, JpathDailyPlanService dailyPlans, JpathCalendarService calendar,
             JpathUserPathRepository paths, JpathUserLevelRepository levels, JpathDailyPlanRepository plans,
@@ -135,7 +141,14 @@ public class JpathSkillCatalogServiceImpl implements JpathSkillCatalogService {
         int reviewsDue = todayView == null || todayView.tabs() == null ? 0
                 : todayView.tabs().stream().mapToInt(JpathTodayTab::reviewDue).sum();
         return new JpathSkillOverview(level, stage, skillDay, reviewsDue, (int) Math.ceil(minutes[0]), done,
-                skillDays * skills, reading, listening, rows, stage != null && SECTION_STAGES.contains(stage), null);
+                skillDays * skills, reading, listening, rows, stage != null && SECTION_STAGES.contains(stage),
+                readiness(userId, level));
+    }
+
+    /** #41 through the section service (Task 15); null when that service is not in the context. */
+    private JpathReadiness readiness(Long userId, String level) {
+        JpathSectionPracticeServiceImpl s = sectionPractice == null ? null : sectionPractice.getIfAvailable();
+        return s == null ? null : s.readinessOf(userId, level);
     }
 
     private SkillCard card(Long userId, JpathUserPath path, String level, LevelContent content,
