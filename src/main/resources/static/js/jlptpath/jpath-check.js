@@ -23,6 +23,14 @@
  *                                    PAIR_BOARD, MCQ, AUDIO_MCQ (▶), ORDER, FILL_TEXT; results jp-ok / jp-bad,
  *                                    explanation, compare (.jp-compare-col ×2)
  *   timerRemaining(timerSec, startedMs, nowMs), timerActive(check, state), advance(state, now), errorHtml(err)
+ *   submitKey(token, storage, uuid)  one key per token in sessionStorage (jpath.submit.<token>), reused on resend
+ *   resultHtml(result, check, opts)  score / Đạt / Chưa đạt (≥ 80%), CP, too fast, wrong items, next / retry; group
+ *                                    exercise, "Tôi biết chủ đề này" and free quiz have their own texts
+ *   reviewWrongHtml(check, state)    wrong answers with the right option, explanation and ⚑ (pageContext CHECK_REVIEW)
+ *   retryRequest(check) = check.issue; nextHref(result, search): next.url → ?return= → ?session= → /learning
+ *   checkPageUrl(token, search)      keeps ?session= and ?return=
+ *   When the last question is done the check is submitted (offline: "Chưa nộp được, đang thử lại…" + "Thử lại",
+ *   same key); the result removes no-inline-dictionary from the root so Look up works on it.
  *   mountPage()                      mounts #jpathCheckRoot[data-check-token]
  *   mountInline(el, token, {onDone}) → Promise<JpathCheckResult>
  * Keys: 1–4 pick an option, Enter goes on. A wrong pick flashes red for 600 ms.
@@ -425,6 +433,188 @@
       + '<button type="button" class="jp-btn" data-action="reload">Thử lại</button></div>';
   }
 
+  // ---- result (Task 49) -------------------------------------------------------------------------------------
+
+  var SUBMIT_PREFIX = 'jpath.submit.';
+  var PASS_PERCENT = 80;
+  var SUBMIT_RETRY_MS = 4000;
+  var memoryKeys = {};
+
+  function randomKey() {
+    var c = root && root.crypto;
+    if (c && typeof c.randomUUID === 'function') return c.randomUUID();
+    var s = '';
+    for (var i = 0; i < 32; i++) s += Math.floor(Math.random() * 16).toString(16);
+    return s;
+  }
+
+  /** One submit key per token (sessionStorage jpath.submit.<token>), so a resend is the same submit. */
+  function submitKey(token, storage, uuid) {
+    var key = SUBMIT_PREFIX + token;
+    var v = null;
+    var usable = !!storage;
+    try { v = storage ? storage.getItem(key) : null; } catch (e) { usable = false; }
+    if (!usable) v = memoryKeys[key] || null;
+    if (v) return v;
+    v = String((uuid || randomKey)()).slice(0, 40);
+    try { if (usable) storage.setItem(key, v); } catch (e) { usable = false; }
+    if (!usable) memoryKeys[key] = v;
+    return v;
+  }
+
+  function safeReturn(v) {
+    if (typeof v !== 'string') return '/learning';
+    if (!/^\/learning(?:[/?#]|$)/.test(v) || v.indexOf('//') >= 0 || v.indexOf('\\') >= 0) return '/learning';
+    return v;
+  }
+
+  function searchParams(search) {
+    var out = {};
+    String(search || '').replace(/^\?/, '').split('&').forEach(function (pair) {
+      if (!pair) return;
+      var i = pair.indexOf('=');
+      var k = i < 0 ? pair : pair.slice(0, i);
+      var v = i < 0 ? '' : pair.slice(i + 1);
+      try { out[decodeURIComponent(k)] = decodeURIComponent(v.replace(/\+/g, ' ')); } catch (e) { /* skip a broken pair */ }
+    });
+    return out;
+  }
+
+  /** next.url → ?return= (only /learning…) → the study round of ?session= → /learning. */
+  function nextHref(result, search) {
+    var n = result && result.next;
+    if (n && typeof n.url === 'string' && safeReturn(n.url) === n.url) return n.url;
+    var p = searchParams(search);
+    if (has(p['return'])) return safeReturn(p['return']);
+    if (/^\d+$/.test(p.session || '')) return '/learning/jlpt/study?session=' + p.session;
+    return '/learning';
+  }
+
+  /** The check page of a new token, keeping ?session= and ?return= of the current page. */
+  function checkPageUrl(token, search) {
+    var p = searchParams(search);
+    var q = [];
+    if (/^\d+$/.test(p.session || '')) q.push('session=' + p.session);
+    if (has(p['return'])) q.push('return=' + encodeURIComponent(safeReturn(p['return'])));
+    return '/learning/jlpt/check/' + encodeURIComponent(String(token || '')) + (q.length ? '?' + q.join('&') : '');
+  }
+
+  function retryRequest(check) { return copy((check && check.issue) || {}); }
+
+  function wrongLine(result, check) {
+    var items = (result && result.wrongItems) || [];
+    if (!items.length) return '';
+    var kind = check && check.kind;
+    var names = items.map(function (w) { return w.expression || w.code || ''; }).join(', ');
+    var line = 'Sai ' + items.length + ': ' + names;
+    var silent = kind === 'GROUP_EXERCISE' || kind === 'TOPIC_KNOWN' || kind === 'FREE_QUIZ';
+    if (!silent) {
+      var vk = items.some(function (w) { return w.itemType === 'VOCAB' || w.itemType === 'KANJI'; });
+      var review = items.some(function (w) { return w.itemType !== 'KANA'; });
+      if (vk) line += ' → đã vào Ôn lại và Sổ tay';
+      else if (review) line += ' → đã vào Ôn lại';
+    }
+    return '<p class="jp-result__wrong" lang="ja">' + esc(line) + '</p>';
+  }
+
+  function resultHtml(result, check, opts) {
+    var r = result || {};
+    var kind = check && check.kind;
+    var o = opts || {};
+    var pct = Number(r.scorePercent) || 0;
+    var html = '<section class="jp-result jp-card" aria-labelledby="jp-result-title">';
+    var tone = r.passed === true ? ' jp-ok' : (r.passed === false ? ' jp-bad' : '');
+    if (kind === 'GROUP_EXERCISE') {
+      html += '<h2 class="jp-result__title" id="jp-result-title">Xong bài tập nhóm. Câu sai sẽ được ôn lại trong lượt này.</h2>'
+        + '<p class="jp-result__count">Đúng ' + esc(r.correct) + '/' + esc(r.total) + '</p>';
+    } else if (kind === 'TOPIC_KNOWN') {
+      var ok = r.passed === true || (r.passed == null && Number(r.correct) >= 9);
+      html += '<div class="jp-result__score' + (ok ? ' jp-ok' : '') + '">' + esc(pct) + '%</div>'
+        + '<p class="jp-result__title" id="jp-result-title">' + (ok
+          ? esc('Bạn đúng ' + r.correct + '/' + r.total + ' câu: các từ trả lời đúng đã vào Đã biết, các từ chưa hỏi tới sẽ được ôn sớm để xác nhận.')
+          : esc('Bạn đúng ' + r.correct + '/' + r.total + ' câu (cần 9) nên chưa đổi gì; cứ học chủ đề này như bình thường.')) + '</p>';
+    } else if (kind === 'FREE_QUIZ') {
+      html += '<div class="jp-result__score">' + esc(pct) + '%</div>'
+        + '<p class="jp-result__title" id="jp-result-title">Đúng ' + esc(r.correct) + '/' + esc(r.total) + ' câu. Quiz tự do không tính tiến độ và CP.</p>';
+    } else {
+      html += '<div class="jp-result__score' + tone + '">' + esc(pct) + '%</div><p class="jp-result__title" id="jp-result-title">';
+      if (r.passed === true) html += '<b>Đạt</b> (cần ≥ ' + PASS_PERCENT + '%)';
+      else if (r.passed === false) html += '<b>Chưa đạt</b> (cần ≥ ' + PASS_PERCENT + '%)';
+      else html += 'Đúng ' + esc(r.correct) + '/' + esc(r.total);
+      if (Number(r.cpAwarded) > 0) html += ' · +' + esc(r.cpAwarded) + ' CP';
+      html += '</p>';
+    }
+    if (r.tooFast) html += '<p class="jp-result__note">Bạn trả lời quá nhanh nên lần này không cộng CP.</p>';
+    html += wrongLine(r, check);
+    html += '<div class="jp-result__actions">';
+    var n = r.next;
+    var failed = r.passed === false && kind !== 'TOPIC_KNOWN';
+    if (n && n.action !== 'RETRY' && !failed && (n.url || !o.inline)) {
+      html += '<button type="button" class="jp-btn jp-btn--primary" data-action="continue">' + esc(n.label || 'Tiếp tục') + ' →</button>';
+    }
+    if (failed) {
+      html += '<button type="button" class="jp-btn" data-action="review-cards">Xem lại thẻ các mục sai</button>'
+        + '<button type="button" class="jp-btn jp-btn--primary" data-action="retry">Làm đề mới</button>';
+    }
+    if ((r.wrongItems || []).length) {
+      html += '<button type="button" class="jp-link-btn" data-action="review-wrong" aria-expanded="' + (o.reviewOpen ? 'true' : 'false')
+        + '">Xem lại câu sai</button>';
+    }
+    if (!n && !failed && !o.inline) html += '<a class="jp-btn" href="/learning">Về lộ trình học</a>';
+    return html + '</div><p class="jp-status" role="status" data-part="result-status"></p></section>';
+  }
+
+  function optionLabel(q, id) {
+    var o = (q.options || []).filter(function (x) { return x.id === id; })[0];
+    return o ? o.label : '';
+  }
+
+  /** Wrong answers of this check: question, options (picked = jp-bad, right = jp-ok), explanation and ⚑. */
+  function reviewWrongHtml(check, state) {
+    var answered = {};
+    ((check && check.answered) || []).forEach(function (a) { answered[a.questionId] = a; });
+    var html = '';
+    questionsOf(check).forEach(function (q) {
+      if (isBoard(q)) {
+        var b = state && state.boards[q.board.boardId];
+        var errors = b ? b.errors : ((answered[q.id] || {}).errors || 0);
+        if (errors > 0) html += '<li class="jp-review__item"><p>Bảng nối: ' + esc(errors) + ' lần chọn sai</p></li>';
+        return;
+      }
+      var a = (state && state.answers[q.id]) || answered[q.id];
+      if (!a || a.correct) return;
+      var report = a.report || (answered[q.id] && answered[q.id].report);
+      html += '<li class="jp-review__item"' + (report && report.targetType && report.targetCode ? ' data-jpath-report="'
+        + esc(JSON.stringify({ targetType: report.targetType, targetCode: report.targetCode, pageContext: 'CHECK_REVIEW' })) + '"' : '') + '>';
+      html += promptHtml(q).replace(/<button[^>]*data-action="play-audio"[^>]*>▶<\/button>/, '');
+      if (q.type === 'ORDER') {
+        html += '<p>Bạn xếp: <span lang="ja">' + esc(String(a.value || '').split(',').map(function (p) { return optionLabel(q, p); }).join(' '))
+          + '</span></p><p>Đáp án: <span lang="ja">' + esc(String(a.correctValue || '').split(',').map(function (p) { return optionLabel(q, p); }).join(' ')) + '</span></p>';
+      } else if (q.type === 'FILL_TEXT') {
+        html += '<p>Bạn điền: <span lang="ja">' + esc(a.value) + '</span></p><p>Đáp án: <span lang="ja">' + esc(a.correctValue) + '</span></p>';
+      } else {
+        html += '<ul class="jp-review__options">' + (q.options || []).map(function (o) {
+          var cls = 'jp-check-opt' + (o.id === a.correctValue ? ' jp-ok' : (o.id === a.value ? ' jp-bad' : ''));
+          return '<li class="' + cls + '">' + esc(o.label) + (o.id === a.correctValue ? ' ✓' : (o.id === a.value ? ' ✗' : '')) + '</li>';
+        }).join('') + '</ul>';
+        if (a.value === null || a.value === undefined) html += '<p>Hết giờ.</p>';
+      }
+      if (has(a.explanation)) html += '<p class="jp-check__explain">' + esc(a.explanation) + '</p>';
+      html += '</li>';
+    });
+    if (!html) return '<p class="jp-status">Không có câu sai.</p>';
+    return '<section class="jp-review" aria-label="Câu sai"><h2 class="jp-review__title">Câu sai</h2><ol class="jp-review__list">' + html + '</ol></section>';
+  }
+
+  function wrongCardsHtml(result) {
+    var items = (result && result.wrongItems) || [];
+    return '<h2 id="jp-dialog-title">Các mục sai</h2><ul class="jp-review__cards">' + items.map(function (w) {
+      return '<li class="jp-review__card"><span class="jp-review__ja" lang="ja">' + esc(w.expression || w.code) + '</span>'
+        + (has(w.reading) ? '<span class="jp-review__reading" lang="ja">' + esc(w.reading) + '</span>' : '')
+        + (has(w.meaning) ? '<span class="jp-review__meaning">' + esc(w.meaning) + '</span>' : '') + '</li>';
+    }).join('') + '</ul>';
+  }
+
   // ---- mounting ---------------------------------------------------------------------------------------------
 
   function envOf(o) {
@@ -468,7 +658,10 @@
     var ticker = null;
     var resolveDone;
     var done = new Promise(function (r) { resolveDone = r; });
-    var hooks = mount.hooks;
+    var result = null;
+    var submitting = false;
+    var retryTimer = null;
+    var reviewOpen = false;
 
     el.classList.add('no-inline-dictionary');
     el.setAttribute('aria-busy', 'true');
@@ -482,7 +675,7 @@
     function stopTicker() { if (ticker !== null) { env.clearInterval(ticker); ticker = null; } }
 
     function draw() {
-      if (state.index >= state.questions.length) { stopTicker(); hooks.finish(ctx); return; }
+      if (state.index >= state.questions.length) { stopTicker(); submit(); return; }
       var q = current(state);
       el.innerHTML = '<div class="jp-check">' + headerHtml(check, state) + questionHtml(q, questionState(state, q), display)
         + '<p class="jp-status" role="status" data-part="status"></p></div>';
@@ -576,7 +769,6 @@
         if (r.save && saver()) saver().save(r.save);
         return draw();
       }
-      if (hooks.action) hooks.action(ctx, action, n);
     }
 
     function onKey(ev) {
@@ -619,30 +811,96 @@
       });
     }
 
-    var ctx = {
-      el: el, token: token, env: env,
-      get check() { return check; }, get state() { return state; }, get display() { return display; },
-      resolve: function (result) { if (env.onDone) env.onDone(result); resolveDone(result); },
-      reload: load
-    };
+    function failedSoft(err) {
+      var e = err || {};
+      return e.code === 'NETWORK' || e.status === 0 || e.status === 408 || e.status === 429 || e.status >= 500;
+    }
+
+    function submit() {
+      if (result || submitting) return;
+      submitting = true;
+      if (retryTimer !== null) { env.clearTimeout(retryTimer); retryTimer = null; }
+      el.setAttribute('aria-busy', 'true');
+      el.innerHTML = '<p class="jp-status" role="status">Đang nộp bài…</p>';
+      var body = { submitKey: submitKey(token, env.storage, env.uuid) };
+      env.api.send('POST', BASE + '/checks/' + encodeURIComponent(token) + '/submit', body).then(function (res) {
+        submitting = false;
+        showResult(res || {});
+      }, function (err) {
+        submitting = false;
+        el.setAttribute('aria-busy', 'false');
+        if (failedSoft(err)) {
+          el.innerHTML = '<div class="jp-check__error jp-card" role="alert"><p>Chưa nộp được, đang thử lại…</p>'
+            + '<button type="button" class="jp-btn jp-btn--primary" data-action="submit-retry">Thử lại</button></div>';
+          retryTimer = env.setTimeout(function () { retryTimer = null; submit(); }, SUBMIT_RETRY_MS);
+        } else if (err && err.code === 'JPATH_CHECK_INCOMPLETE') {
+          load();
+        } else if (err && err.code === 'JPATH_CHECK_CLOSED') {
+          el.innerHTML = '<div class="jp-check__error jp-card" role="alert"><p>Bài kiểm tra này đã đóng.</p>'
+            + '<a class="jp-btn" href="/learning">Về lộ trình học</a></div>';
+        } else {
+          el.innerHTML = errorHtml(err);
+        }
+      });
+    }
+
+    function drawResult() {
+      var html = resultHtml(result, check, { inline: env.inline, reviewOpen: reviewOpen });
+      if (reviewOpen) html += reviewWrongHtml(check, state);
+      el.innerHTML = '<div class="jp-check jp-check--result">' + html + '</div>';
+      if (D()) D().rendered(el, env.doc);
+    }
+
+    function showResult(res) {
+      result = res;
+      el.setAttribute('aria-busy', 'false');
+      el.classList.remove('no-inline-dictionary');
+      drawResult();
+      if (env.onDone) env.onDone(res);
+      resolveDone(res);
+    }
+
+    function retry(button) {
+      if (button) button.disabled = true;
+      env.api.send('POST', BASE + '/checks', retryRequest(check)).then(function (view) {
+        var next = view && (view.token || view.checkToken);
+        if (!next) throw new Error('no token');
+        if (env.inline) {
+          mount(el, next, { api: env.api, document: env.doc, onDone: env.onDone, inline: true, storage: env.storage,
+            uuid: env.uuid, location: env.location, navigate: env.navigate });
+        } else {
+          env.navigate(checkPageUrl(next, env.location && env.location.search));
+        }
+      }).catch(function (err) {
+        if (button) button.disabled = false;
+        var p = el.querySelector && el.querySelector('[data-part="result-status"]');
+        if (p) p.textContent = (err && err.message) || MSG_LOAD_FAILED;
+      });
+    }
+
+    function resultAction(n) {
+      var action = n.getAttribute('data-action');
+      if (action === 'continue') env.navigate(nextHref(result, env.location && env.location.search));
+      else if (action === 'review-wrong') { reviewOpen = !reviewOpen; drawResult(); }
+      else if (action === 'review-cards') {
+        var dlg = root && root.JpathDialog;
+        if (dlg && env.doc && env.doc.body) dlg.open(env.doc, wrongCardsHtml(result), n);
+        else { reviewOpen = true; drawResult(); }
+      } else if (action === 'retry') retry(n);
+    }
 
     el.addEventListener('click', function (ev) {
       var n = closestAttr(ev.target, 'data-action', el);
-      if (n && n.getAttribute('data-action') === 'reload') { load(); return; }
+      var action = n && n.getAttribute('data-action');
+      if (action === 'reload') { load(); return; }
+      if (action === 'submit-retry') { submit(); return; }
+      if (result) { if (n) resultAction(n); return; }
       if (state) act(ev.target);
     });
     if (env.doc && env.doc.addEventListener) env.doc.addEventListener('keydown', onKey);
     load();
     return done;
   }
-
-  /** Extension points filled further down (submit and result screen). */
-  mount.hooks = {
-    finish: function (ctx) {
-      ctx.el.innerHTML = '<p class="jp-status" role="status">Đã trả lời hết các câu.</p>';
-    },
-    action: null
-  };
 
   function mountInline(el, token, options) {
     var o = copy(options);
@@ -665,5 +923,7 @@
   return { KIND_TITLE: KIND_TITLE, initState: initState, parts: parts, headerHtml: headerHtml, boardReduce: boardReduce,
     answerReduce: answerReduce, orderReduce: orderReduce, questionState: questionState, questionHtml: questionHtml,
     timerRemaining: timerRemaining, timerActive: timerActive, advance: advance, errorHtml: errorHtml,
-    timerOffPatch: timerOffPatch, audioUrl: audioUrl, mount: mount, mountPage: mountPage, mountInline: mountInline };
+    timerOffPatch: timerOffPatch, audioUrl: audioUrl, submitKey: submitKey, resultHtml: resultHtml,
+    reviewWrongHtml: reviewWrongHtml, retryRequest: retryRequest, nextHref: nextHref, checkPageUrl: checkPageUrl,
+    safeReturn: safeReturn, mount: mount, mountPage: mountPage, mountInline: mountInline };
 });
