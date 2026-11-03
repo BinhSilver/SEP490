@@ -234,7 +234,7 @@ public class JpathStudyEventApplier {
         boolean learnedBefore = existing.isPresent() && existing.get().getFirstLearnedAt() != null;
         if (step.repeat() || learnedBefore) {
             if (existing.isEmpty()) {
-                return rejected(e.clientEventId(), ITEM_NOT_FOUND);
+                return passOver(b, e);
             }
             if (rating != null) {
                 states.rate(existing.get(), rating);
@@ -242,7 +242,7 @@ public class JpathStudyEventApplier {
         } else {
             Optional<Visible> item = visible(type, step.itemCode());
             if (item.isEmpty()) {
-                return rejected(e.clientEventId(), ITEM_NOT_FOUND);
+                return passOver(b, e);
             }
             states.startLearning(b.userId, type, step.itemCode(), item.get().level(), rating);
             countNew(b, step, item.get().level());
@@ -262,7 +262,7 @@ public class JpathStudyEventApplier {
         JpathUserItem row = userItems.findByUserIdAndItemTypeAndItemCode(b.userId, step.itemType(), step.itemCode())
                 .orElse(null);
         if (row == null) {
-            return rejected(e.clientEventId(), ITEM_NOT_FOUND);
+            return passOver(b, e);
         }
         boolean due = due(b, row);
         states.rate(row, rating);
@@ -279,7 +279,7 @@ public class JpathStudyEventApplier {
                 .orElse(null);
         String expected = expectedReading(step);
         if (row == null || expected == null) {
-            return rejected(e.clientEventId(), ITEM_NOT_FOUND);
+            return passOver(b, e);
         }
         JpathRetypeVerdict verdict = JpathKanaText.retypeVerdict(expected, e.typed());
         boolean due = due(b, row);
@@ -296,7 +296,7 @@ public class JpathStudyEventApplier {
         JpathUserItem row = userItems.findByUserIdAndItemTypeAndItemCode(b.userId, step.itemType(), step.itemCode())
                 .orElse(null);
         if (row == null) {
-            return rejected(e.clientEventId(), ITEM_NOT_FOUND);
+            return passOver(b, e);
         }
         if (row.getState() != JpathItemState.KNOWN) {
             states.markKnown(row, KNOWN_BY_USER);
@@ -366,6 +366,17 @@ public class JpathStudyEventApplier {
                 .quality(rating == null ? null : JpathSrsPolicy.quality(rating)).correct(correct)
                 .elapsedMs(elapsed).studyDay(day).build());
         b.applied = true;
+    }
+
+    /**
+     * The step's item is gone (hidden since the queue was frozen, or its learner row was reset): nothing is learned,
+     * rated or recorded, but the step is passed so the session never stalls on a card it cannot apply. The outcome is
+     * APPLIED with reason ITEM_NOT_FOUND.
+     */
+    private JpathEventOutcome passOver(Batch b, JpathStudyEventInput e) {
+        b.applied = true;
+        JpathEventOutcome moved = advance(b, e, null, null);
+        return new JpathEventOutcome(moved.clientEventId(), APPLIED, ITEM_NOT_FOUND, null, null, null);
     }
 
     /** position = max(position, event position + 1); the queue is written back; past the end → COMPLETED. */

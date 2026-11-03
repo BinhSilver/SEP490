@@ -28,11 +28,14 @@ public interface JpathStudyEventRepository extends JpaRepository<JpathStudyEvent
     @Query("delete from JpathStudyEvent e where e.userId = :userId")
     int deleteByUserId(@Param("userId") Long userId);
 
-    /** True when the learner already rated this item FORGOT (FIRST_RATE or REVIEW_RATE) on {@code day}. */
+    /**
+     * True when the learner already forgot this item on {@code day}: a FIRST_RATE / REVIEW_RATE rated FORGOT or a
+     * WRONG RETYPE (stored with rating FORGOT), so the forget counter moves once per day.
+     */
     @Query("""
             select count(e) > 0 from JpathStudyEvent e
             where e.userId = :userId and e.itemType = :t and e.itemCode = :code
-              and e.action in ('FIRST_RATE', 'REVIEW_RATE')
+              and e.action in ('FIRST_RATE', 'REVIEW_RATE', 'RETYPE')
               and e.rating = com.jlas.jlptpath.enums.JpathRating.FORGOT
               and e.studyDay = :day
             """)
