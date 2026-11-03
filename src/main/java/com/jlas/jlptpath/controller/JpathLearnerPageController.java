@@ -73,6 +73,17 @@ public class JpathLearnerPageController {
         return "jlptpath/study";
     }
 
+    /** "Xong hôm nay" page; jpath-done.js draws it from {@code GET /api/learning/jlpt/today/summary}. */
+    @GetMapping("/learning/jlpt/done")
+    public String done(@AuthenticationPrincipal UserPrincipal user, Model model) {
+        String blocked = guard(user);
+        if (blocked != null) {
+            return blocked;
+        }
+        model.addAttribute("layoutMode", "app");
+        return "jlptpath/done";
+    }
+
     /** {@code null} when the learner may open the page, otherwise the redirect to send. */
     String guard(UserPrincipal user) {
         if (user == null) {

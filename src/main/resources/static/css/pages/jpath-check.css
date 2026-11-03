@@ -164,3 +164,31 @@
   min-height: 44px; padding: 10px 18px; border: 1.5px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
   background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-weight: 600; cursor: pointer;
 }
+
+/* "Xong hôm nay" (done.html, Task 53) */
+.jp-done { display: grid; gap: 10px; justify-items: center; text-align: center; border-radius: 16px; }
+.jp-done__title { margin: 0; font-size: 1.5em; }
+.jp-done__counts, .jp-done__level, .jp-done__wrong, .jp-done__hint, .jp-done p { margin: 0; }
+.jp-done__stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.jp-done__stat {
+  padding: 6px 12px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-chip); background: var(--jp-canvas);
+  font-weight: 600;
+}
+.jp-done__cp { color: var(--jp-ok); border-color: var(--jp-ok); }
+.jp-done__extra { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.jp-done__chip {
+  min-height: 44px; padding: 8px 14px; border: 1.5px solid var(--jp-primary); border-radius: var(--jp-radius-chip);
+  background: var(--jp-primary-soft); color: var(--jp-ink); font: inherit; cursor: pointer;
+}
+.jp-done__chip[disabled] { opacity: .55; cursor: wait; }
+.jp-done__hint { color: var(--jp-muted); font-size: .85em; }
+.jp-done__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.jp-celebrate { animation: jp-celebrate 1.2s ease-out 1; }
+@keyframes jp-celebrate {
+  0% { transform: scale(.94); opacity: 0; }
+  40% { transform: scale(1.03); opacity: 1; }
+  100% { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jp-celebrate { animation: none; }
+}
