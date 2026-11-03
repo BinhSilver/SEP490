@@ -721,21 +721,27 @@
     if (page.offline) { setNotice(page, NEED_NETWORK_TEXT); return; }
     page.busy = true;
     var api = root.JpathApi;
+    // SKIP_KNOWN on the current step: the server issues the session-bound SKIP_ONE check, so a right answer counts
+    // the item and moves the session on (the list drawer's /known route is a free check that moves nothing).
+    var ev = makeEvent(page.flow, c, 'SKIP_KNOWN', null, null, Date.now() - (page.shownAt || Date.now()), page.deps);
     page.queue.flush().then(function () {
-      return api.send('POST', BASE + '/items/' + encodeURIComponent(c.itemType) + '/' + encodeURIComponent(c.code) + '/known');
-    }).then(function (res) {
-      if (res && res.checkToken) {
-        var slot = page.el.querySelector('[data-jp-inline-check]');
-        if (!slot || !root.JpathCheck || typeof root.JpathCheck.mountInline !== 'function') {
-          root.location.assign('/learning/jlpt/check/' + encodeURIComponent(res.checkToken) + '?session=' + page.sessionId);
-          return null;
-        }
-        slot.hidden = false;
-        return root.JpathCheck.mountInline(slot, res.checkToken, { embedded: true }).then(function (result) {
-          return skipMessage(!!(result && result.passed));
-        });
+      if (page.queue.pending().length) throw new Error(NEED_NETWORK_TEXT);
+      return api.send('POST', BASE + '/sessions/' + page.sessionId + '/events', { events: [ev] });
+    }).then(function (batch) {
+      var res = list(batch && batch.outcomes).filter(function (o) { return o && o.clientEventId === ev.clientEventId; })[0];
+      if (!res || res.status === 'REJECTED' || !res.checkToken) {
+        page.busy = false;
+        return reload(page).then(function () { return null; });
       }
-      return skipMessage(!!res && res.state === 'KNOWN');
+      var slot = page.el.querySelector('[data-jp-inline-check]');
+      if (!slot || !root.JpathCheck || typeof root.JpathCheck.mountInline !== 'function') {
+        root.location.assign('/learning/jlpt/check/' + encodeURIComponent(res.checkToken) + '?session=' + page.sessionId);
+        return null;
+      }
+      slot.hidden = false;
+      return root.JpathCheck.mountInline(slot, res.checkToken, { embedded: true }).then(function (result) {
+        return skipMessage(!!(result && result.passed));
+      });
     }).then(function (message) {
       page.busy = false;
       if (message === null) return;

@@ -79,6 +79,7 @@ public class JpathStudyEventApplier {
     static final String ACTION_MISMATCH = "ACTION_MISMATCH";
     static final String RATING_INVALID = "RATING_INVALID";
     static final String ITEM_NOT_FOUND = "ITEM_NOT_FOUND";
+    static final String ALREADY_KNOWN = "ALREADY_KNOWN";
     /** Repeats of one card queued at most (same rule as the check effects). */
     static final int MAX_REPEATS = 2;
 
@@ -236,6 +237,11 @@ public class JpathStudyEventApplier {
                 step.itemCode());
         // A repeat (or a card started elsewhere since the queue was frozen) is rated, never restarted or counted.
         boolean learnedBefore = existing.isPresent() && existing.get().getFirstLearnedAt() != null;
+        // Known since the queue was frozen (a passed skip check from a list): never restarted, the step is passed.
+        if (!step.repeat() && !learnedBefore && existing.isPresent()
+                && existing.get().getState() == JpathItemState.KNOWN) {
+            return passOver(b, e, ALREADY_KNOWN);
+        }
         if (step.repeat() || learnedBefore) {
             if (existing.isEmpty()) {
                 return passOver(b, e);
@@ -389,9 +395,13 @@ public class JpathStudyEventApplier {
      * APPLIED with reason ITEM_NOT_FOUND.
      */
     private JpathEventOutcome passOver(Batch b, JpathStudyEventInput e) {
+        return passOver(b, e, ITEM_NOT_FOUND);
+    }
+
+    private JpathEventOutcome passOver(Batch b, JpathStudyEventInput e, String reason) {
         b.applied = true;
         JpathEventOutcome moved = advance(b, e, null, null);
-        return new JpathEventOutcome(moved.clientEventId(), APPLIED, ITEM_NOT_FOUND, null, null, null);
+        return new JpathEventOutcome(moved.clientEventId(), APPLIED, reason, null, null, null);
     }
 
     /** position = max(position, event position + 1); the queue is written back; past the end → COMPLETED. */
