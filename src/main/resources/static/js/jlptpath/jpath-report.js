@@ -28,7 +28,7 @@
     Object.freeze({ code: 'OTHER', label: 'Khác' })
   ]);
   var MSG_THANKS = 'Cảm ơn bạn! Người biên soạn sẽ xem lại.';
-  var MSG_DUPLICATE = 'Bạn đã báo lỗi này rồi, người biên soạn đang xem.';
+  var MSG_DUPLICATE = 'Bạn đã báo sai mục này, người biên soạn đang xem.';
   var MSG_LIMIT = 'Bạn đã gửi 20 báo lỗi hôm nay. Hãy thử lại vào ngày mai.';
   var MSG_NOT_FOUND = 'Không tìm thấy nội dung này nữa.';
   var MSG_FAILED = 'Chưa gửi được báo lỗi. Thử lại sau.';
