@@ -58,6 +58,8 @@ public class JpathCheckPicker {
     /** "Tôi biết chủ đề này": at most 10 questions (#19). */
     static final int TOPIC_MAX = 10;
     static final int EXTRA_QUESTIONS = 3;
+    /** KANA review limit per day (#13): the skill-day kana review asks at most this many kana. */
+    static final int KANA_REVIEW_LIMIT = 20;
     static final int CONFUSABLE_MAX = JpathCheckBuilder.CONFUSABLE_MAX;
     static final String ORDER_BANK = "ORDER";
     static final String FILL_BANK = "FILL";
@@ -177,7 +179,12 @@ public class JpathCheckPicker {
             codes = switch (type) {
                 case VOCAB -> content.visibleVocabulary(poolLevel).stream().map(JpathVocabulary::getCode).toList();
                 case KANJI -> content.visibleKanji(poolLevel).stream().map(JpathKanji::getCode).toList();
-                default -> content.visibleGrammar(poolLevel).stream().map(JpathGrammar::getCode).toList();
+                default -> {
+                    Map<String, Integer> checkCounts = content.visibleCheckCounts(poolLevel);
+                    yield content.visibleGrammar(poolLevel).stream()
+                            .filter(g -> content.learnable(g, checkCounts.getOrDefault(g.getCode(), 0)))
+                            .map(JpathGrammar::getCode).toList();
+                }
             };
         } else {
             JpathItemState only = src == JpathCheckSource.NOTEBOOK ? JpathItemState.NOTEBOOK : null;
@@ -225,8 +232,9 @@ public class JpathCheckPicker {
                 List<JpathGrammar> patterns = new ArrayList<>(content.grammars(codes).stream()
                         .filter(g -> unitNo == null || unitNo.equals(g.getUnitNo())).toList());
                 Collections.shuffle(patterns, new Random(seed));
-                return grammar(patterns.subList(0, Math.min(count, patterns.size())), Set.of(), count, timerOn,
-                        seed);
+                // One question per pattern: a small pool gives a shorter quiz instead of repeating patterns.
+                int n = Math.min(count, patterns.size());
+                return grammar(patterns.subList(0, n), Set.of(), n, timerOn, seed);
             }
         }
     }
@@ -373,9 +381,17 @@ public class JpathCheckPicker {
         for (JpathKana k : content.kana(null)) {
             byRow.computeIfAbsent(k.getRowCode(), r -> new ArrayList<>()).add(k);
         }
+        List<List<JpathKana>> passed = new ArrayList<>(byRow.values().stream()
+                .filter(row -> row.stream().allMatch(k -> counted.contains(k.getCode()))).toList());
+        Collections.shuffle(passed, new Random(seed));
+        // Whole rows, at most the KANA review limit of cards (at least one row).
         List<JpathKana> kana = new ArrayList<>();
-        byRow.values().stream().filter(row -> row.stream().allMatch(k -> counted.contains(k.getCode())))
-                .forEach(kana::addAll);
+        for (List<JpathKana> row : passed) {
+            if (!kana.isEmpty() && kana.size() + row.size() > KANA_REVIEW_LIMIT) {
+                continue;
+            }
+            kana.addAll(row);
+        }
         return Built.of(requireQuestions(builder.kanaRowCheck(kana, seed)));
     }
 

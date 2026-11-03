@@ -158,18 +158,25 @@ public class JpathCheckEffects {
                 }
             }
             case SKIP_ONE -> {
-                if (Boolean.TRUE.equals(s.passed())) {
-                    for (String code : s.itemCodes()) {
-                        JpathUserItem row = items.ensureRow(userId, type, code, set.getLevel());
-                        items.markKnown(row, SKIP_CHECK);
-                        items.count(row);
+                if (!Boolean.TRUE.equals(s.passed())) {
+                    // Wrong: no row; in a session the learner stays on the card and rates it (FIRST_RATE counts it).
+                    if (session == null) {
+                        return new Applied(0, new JpathCheckNext("BACK", "Quay lại", null, null, null, null), false);
                     }
-                    cp = newDone(userId, set.getTab(), today, tabs, s.tooFast());
-                    credit = today != null;
-                    reevaluate(userId);
-                } else {
-                    repeatCard(session, set);
+                    return new Applied(0, new JpathCheckNext("CONTINUE", "Học thẻ này", STUDY_URL + session.getId(),
+                            set.getTab(), null, session.getId()), false);
                 }
+                for (String code : s.itemCodes()) {
+                    JpathUserItem row = items.ensureRow(userId, type, code, set.getLevel());
+                    items.markKnown(row, SKIP_CHECK);
+                    items.count(row);
+                }
+                // A new item of today's round only when it belongs to the plan's (open) level (plan line 1912).
+                if (session != null && today != null && Objects.equals(set.getLevel(), today.getLevel())) {
+                    cp = newDone(userId, set.getTab(), today, tabs, s.tooFast());
+                    credit = true;
+                }
+                reevaluate(userId);
                 advance = true;
             }
             case TOPIC_KNOWN -> {
@@ -369,16 +376,20 @@ public class JpathCheckEffects {
         write(session, JpathQueueBuilder.appendRepeat(q, of, MAX_REPEATS));
     }
 
-    /** Skip one answered wrong: the card (the step that carries the token) comes back at the end of the queue. */
-    private void repeatCard(JpathStudySession session, JpathCheckSet set) {
-        if (session == null) {
-            return;
+    /**
+     * A step with nothing to ask, done by the server: a skill quiz with no source gets the #25 "nothing to quiz"
+     * rule (SKILL check_passed_at + evaluation); every such step then moves the session on.
+     */
+    @Transactional(propagation = Propagation.MANDATORY)
+    public JpathCheckNext skipStep(Long userId, JpathStudySession session, int position, JpathDailyPlan today,
+                                   List<JpathDailyTab> tabs, boolean skillNothing) {
+        if (skillNothing) {
+            skillDone(userId, today, tabs, false);
         }
-        List<JpathQueueStep> q = parse(session.getQueueJson());
-        int at = stepOf(q, set.getToken());
-        if (at >= 0) {
-            write(session, JpathQueueBuilder.appendRepeat(q, q.get(at), MAX_REPEATS));
+        if (session.getPosition() == position) {
+            session.setPosition(position + 1);
         }
+        return next(session);
     }
 
     /** Group exercise: repeat cards of the wrong words right after the exercise step. */
@@ -410,6 +421,12 @@ public class JpathCheckEffects {
         if (at >= 0 && at == session.getPosition()) {
             session.setPosition(at + 1);
         }
+        return next(session);
+    }
+
+    /** What comes after the session's position (DONE and COMPLETED past the end). */
+    private JpathCheckNext next(JpathStudySession session) {
+        List<JpathQueueStep> q = parse(session.getQueueJson());
         session.setTotal(q.size());
         if (session.getPosition() >= q.size()) {
             if ("OPEN".equals(session.getStatus())) {

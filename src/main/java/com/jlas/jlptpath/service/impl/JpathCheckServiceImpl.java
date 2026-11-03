@@ -115,6 +115,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     static final String EXPIRED = "EXPIRED";
     static final String CHECK_ANSWER = "CHECK_ANSWER";
     static final String SKILL_REVIEW = "skillReview";
+    static final String SKILL_DAY = "skillDay";
+    static final String SKIPPED = "SKIPPED";
     static final int MAX_ORPHANS = 10;
     static final int GROUP_WORDS = 10;
     /** Skill-day quiz size (#25: one free quiz of at least 10 questions). */
@@ -131,6 +133,9 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             JpathCheckKind.TOPIC_KNOWN, JpathCheckKind.FREE_QUIZ, JpathCheckKind.CONFUSABLE,
             JpathCheckKind.GRAMMAR_PRACTICE, JpathCheckKind.GRAMMAR_EXTRA);
     private static final Set<JpathTab> CARD_TABS = EnumSet.of(JpathTab.VOCAB, JpathTab.KANJI, JpathTab.GRAMMAR);
+    /** Kinds bound to one item of the step: a check of another item is never reused for them. */
+    private static final Set<JpathCheckKind> ITEM_BOUND = EnumSet.of(JpathCheckKind.SKIP_ONE,
+            JpathCheckKind.GRAMMAR_PRACTICE);
     private static final Pattern FILL_IGNORED = Pattern.compile("[\\s\\u3000。]+");
     private static final ObjectMapper JSON = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -180,7 +185,12 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     /** What to issue: kind, tab, level of the items, plan id, and the session step (all null for a free check). */
     private record Spec(JpathCheckKind kind, JpathTab tab, String level, Long planId, JpathStudySession session,
                         List<JpathQueueStep> q, int position, JpathQueueStep step, boolean skillReview,
-                        JpathCheckIssueRequest echo) {
+                        JpathCheckIssueRequest echo, boolean skillDay, boolean skip) {
+        Spec(JpathCheckKind kind, JpathTab tab, String level, Long planId, JpathStudySession session,
+             List<JpathQueueStep> q, int position, JpathQueueStep step, boolean skillReview,
+             JpathCheckIssueRequest echo) {
+            this(kind, tab, level, planId, session, q, position, step, skillReview, echo, false, false);
+        }
     }
 
     private final JpathCheckSetRepository checks;
@@ -231,10 +241,11 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     @Override
     @Transactional
     public JpathCheckView issue(Long userId, JpathCheckIssueRequest r) {
-        if (r == null || r.kind() == null || r.tab() == null) {
+        boolean free = r == null || r.sessionId() == null || r.redoOf() != null;
+        // A session-bound request takes its tab from the step (C13), so only a free one must name it.
+        if (r == null || r.kind() == null || (free && r.tab() == null && r.redoOf() == null)) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED);
         }
-        boolean free = r.sessionId() == null || r.redoOf() != null;
         if (free && r.redoOf() == null && !FREE_KINDS.contains(r.kind())) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Bài kiểm tra này cần một lượt học.");
         }
@@ -248,6 +259,9 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         }
         levels.findForUpdate(path.getId(), path.getOpenLevel());
         Spec spec = free ? freeSpec(userId, path, r, old) : sessionSpec(userId, path, session, r);
+        if (spec.skip()) {
+            return skipStep(userId, spec);
+        }
 
         JpathCheckSet previous = null;
         if (spec.session() != null) {
@@ -255,6 +269,11 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                     ? checks.findByTokenAndUserId(spec.step().checkToken(), userId).orElse(null)
                     : checks.findFirstByUserIdAndSessionIdAndKindAndTabAndStatusOrderByIdDesc(userId,
                             spec.session().getId(), spec.kind(), spec.tab(), ISSUED).orElse(null);
+            // Item-bound kinds: a check of another card of the same session is never reused.
+            if (previous != null && ITEM_BOUND.contains(spec.kind()) && spec.step().checkToken() == null
+                    && !readList(previous.getItemCodesJson()).contains(spec.step().itemCode())) {
+                previous = null;
+            }
             if (previous != null && (ISSUED.equals(previous.getStatus())
                     || (SUBMITTED.equals(previous.getStatus()) && !Boolean.FALSE.equals(previous.getPassed())))) {
                 if (spec.step().checkToken() == null) {
@@ -272,7 +291,17 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                     : (s != null && s.isQuizTimerOn());
         };
         long seed = SEEDS.nextLong();
-        Built built = build(userId, path, spec, old, previous, r, timerOn, seed);
+        Built built;
+        try {
+            built = build(userId, path, spec, old, previous, r, timerOn, seed);
+        } catch (ApiException e) {
+            // Ruling (Task 38 review): a step with nothing to ask never stalls the session — the server moves on.
+            if (spec.session() != null && e.getErrorCode() == ErrorCode.JPATH_CONTENT_NOT_LEARNABLE
+                    && (spec.kind() == JpathCheckKind.GRAMMAR_REVIEW || spec.kind() == JpathCheckKind.GRAMMAR_PRACTICE)) {
+                return skipStep(userId, spec);
+            }
+            throw e;
+        }
         if (built.check().questions().isEmpty()) {
             throw new ApiException(ErrorCode.JPATH_CONTENT_NOT_LEARNABLE);
         }
@@ -281,6 +310,9 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         ObjectNode echo = JSON.valueToTree(spec.echo());
         if (spec.skillReview()) {
             echo.put(SKILL_REVIEW, true);
+        }
+        if (spec.skillDay()) {
+            echo.put(SKILL_DAY, true);
         }
         JpathCheckSet set = JpathCheckSet.builder()
                 .token(token).userId(userId).planId(spec.planId())
@@ -320,10 +352,11 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         JpathCheckKind kind;
         JpathTab tab;
         boolean skillReview = false;
+        boolean skillDay = false;
         JpathCheckSource source = null;
         Integer count = null;
         if (r.kind() == JpathCheckKind.SKIP_ONE) {
-            if (step == null || step.kind() != JpathStepKind.NEW || step.itemCode() == null
+            if (step == null || step.kind() != JpathStepKind.NEW || step.itemCode() == null || step.repeat()
                     || step.itemType() == null || !CARD_TABS.contains(step.tab())) {
                 throw wrongStep();
             }
@@ -364,9 +397,15 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                     // #25 via the one shared rule (Task 31): a V/K/G tab with ≥ 10 LEARNED rows, else the kana rows.
                     boolean kanaPhase = session.getPlanId() != null && plans.findById(session.getPlanId())
                             .map(JpathDailyPlan::isKanaPhase).orElse(false);
-                    JpathPathRules.SkillQuizSource src = JpathPathRules.skillQuizSource(userItems, kanaRows, userId,
-                            path.getOpenLevel(), kanaPhase)
-                            .orElseThrow(() -> new ApiException(ErrorCode.JPATH_CONTENT_NOT_LEARNABLE));
+                    Optional<JpathPathRules.SkillQuizSource> found = JpathPathRules.skillQuizSource(userItems,
+                            kanaRows, userId, path.getOpenLevel(), kanaPhase);
+                    if (found.isEmpty()) {
+                        // #25 "nothing to quiz": the step is done by the server (skipStep).
+                        return new Spec(kind, tab, level, session.getPlanId(), session, q, position, step, false,
+                                null, true, true);
+                    }
+                    JpathPathRules.SkillQuizSource src = found.get();
+                    skillDay = true;
                     if (src == JpathPathRules.SkillQuizSource.KANA_ROW) {
                         kind = JpathCheckKind.KANA_ROW;
                         skillReview = true;
@@ -382,7 +421,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         }
         JpathCheckIssueRequest echo = new JpathCheckIssueRequest(kind, tab, session.getId(), level, null, null,
                 source, count, null, r.timerOn(), null, null);
-        return new Spec(kind, tab, level, session.getPlanId(), session, q, position, step, skillReview, echo);
+        return new Spec(kind, tab, level, session.getPlanId(), session, q, position, step, skillReview, echo,
+                skillDay, false);
     }
 
     private static ApiException wrongStep() {
@@ -437,6 +477,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 level = picker.itemLevel(JpathItemType.GRAMMAR, r.itemCode());
             }
             default -> { }
+        }
+        if (level != null && r.kind() != JpathCheckKind.FREE_QUIZ && r.kind() != JpathCheckKind.CONFUSABLE
+                && JpathPathRules.LEVELS.indexOf(level) > JpathPathRules.LEVELS.indexOf(open)) {
+            throw new ApiException(ErrorCode.JPATH_LEVEL_LOCKED);
         }
         // The echo is public: it never carries the item code of a check (decision: no item codes before submit).
         JpathCheckIssueRequest echo = new JpathCheckIssueRequest(r.kind(), tab, null, level, r.topicKey(),
@@ -552,6 +596,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         LocalDateTime startOfToday = clock.today(userId).atStartOfDay();
         return userItems.findByUserIdAndItemType(userId, type).stream()
                 .filter(i -> i.getState() == JpathItemState.LEARNING && i.getCountedAt() == null
+                        && !JpathItemStateMachine.TOPIC_PENDING.equals(i.getKnownSource())
                         && level.equals(i.getLevel()) && i.getFirstLearnedAt() != null
                         && i.getFirstLearnedAt().isBefore(startOfToday))
                 .sorted(Comparator.comparing(JpathUserItem::getFirstLearnedAt).thenComparing(JpathUserItem::getId))
@@ -611,7 +656,30 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             }
         }
         return new JpathCheckView(set.getToken(), set.getKind(), set.getTab(), set.getAttemptNo(), set.isTimerOn(),
-                set.getStatus(), read(set.getIssueJson(), JpathCheckIssueRequest.class), questions, answered);
+                set.getStatus(), read(set.getIssueJson(), JpathCheckIssueRequest.class), questions, answered, null);
+    }
+
+    /**
+     * The current step has nothing to ask (skill quiz without a source, grammar review with nothing due, practice
+     * on a broken bank): locks today's plan and tabs (after the path and level locks of issue), applies the step's
+     * "done" rule and moves the session on. Returns a token-less view with status SKIPPED and the next step.
+     */
+    private JpathCheckView skipStep(Long userId, Spec spec) {
+        JpathStudySession s = spec.session();
+        JpathDailyPlan today = null;
+        List<JpathDailyTab> tabs = List.of();
+        if (JpathCheckEffects.todayRound(s) && s.getPlanId() != null) {
+            today = plans.findForUpdate(userId, clock.today(userId))
+                    .filter(plan -> plan.getId().equals(s.getPlanId())).orElse(null);
+            if (today != null) {
+                tabs = dailyTabs.findForUpdateByPlanId(today.getId());
+            }
+        }
+        boolean skillNothing = spec.kind() == JpathCheckKind.FREE_QUIZ;
+        com.jlas.jlptpath.dto.JpathCheckNext next = effects.skipStep(userId, s, spec.position(), today, tabs,
+                skillNothing);
+        return new JpathCheckView(null, spec.kind(), spec.tab(), 0, false, SKIPPED, null, List.of(), List.of(),
+                next);
     }
 
     // ---- pick ----------------------------------------------------------------------------------------------
@@ -634,12 +702,12 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         }
         Progress p = readProgress(set);
         Board b = p.boards().getOrDefault(r.boardId(), new Board(null, 0, null));
-        set.setLastAnswerAt(clock.now());
         if (b.matched().size() == key.pairs().size() || b.matched().contains(r.leftId())) {
             // A left item already matched changes nothing; the verdict only says whether this pick is its pair.
             return new JpathPairPickResult(r.rightId().equals(key.pairs().get(r.leftId())), b.errors(),
                     b.matched().size() == key.pairs().size(), b.matched());
         }
+        set.setLastAnswerAt(clock.now());
         boolean correct = r.rightId().equals(key.pairs().get(r.leftId()));
         List<String> matched = new ArrayList<>(b.matched());
         Set<String> wrongLeft = new LinkedHashSet<>(b.wrongLeft());
@@ -687,12 +755,12 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         }
         requireOpen(set);
         LocalDateTime now = clock.now();
-        Long elapsed = r.elapsedMs();
-        if (elapsed == null) {
-            // No client time: the server time since the previous answer (or the issue) stands in for it.
-            LocalDateTime since = set.getLastAnswerAt() != null ? set.getLastAnswerAt() : set.getIssuedAt();
-            elapsed = since == null ? 0L : Math.max(0L, Duration.between(since, now).toMillis());
-        }
+        // Floor: the server time since the previous answer (or the issue), less a small grace, is the least a
+        // question took; a client value below it (or none) is raised to it.
+        LocalDateTime since = set.getLastAnswerAt() != null ? set.getLastAnswerAt() : set.getIssuedAt();
+        long serverElapsed = since == null ? 0L : Math.max(0L, Duration.between(since, now).toMillis());
+        long floor = r.elapsedMs() == null ? serverElapsed : Math.max(0L, serverElapsed - TIMER_GRACE_MS);
+        long elapsed = r.elapsedMs() == null ? floor : Math.max(r.elapsedMs(), floor);
         boolean timedOut = r.value() == null || r.value().isBlank()
                 || (qv.timerSec() != null && elapsed > qv.timerSec() * 1000L + TIMER_GRACE_MS);
         boolean correct = !timedOut && correct(qv, key, r.value());
@@ -858,7 +926,9 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         boolean skillReview = issue.path(SKILL_REVIEW).asBoolean(false);
         String source = issue.path("source").isTextual() ? issue.path("source").asText() : null;
         // #25 / D4: only a quiz of ≥ 10 questions on LEARNED or NOTEBOOK items counts for the skill day.
-        boolean skillDayQuiz = set.getKind() == JpathCheckKind.FREE_QUIZ && total >= SKILL_QUIZ_SIZE
+        // The server-chosen skill-day step counts whatever its size (its pool may give fewer than 10 questions).
+        boolean skillDayQuiz = set.getKind() == JpathCheckKind.FREE_QUIZ
+                && (total >= SKILL_QUIZ_SIZE || issue.path(SKILL_DAY).asBoolean(false))
                 && (JpathCheckSource.LEARNED.name().equals(source) || JpathCheckSource.NOTEBOOK.name().equals(source));
 
         List<String> itemCodes = readList(set.getItemCodesJson());
