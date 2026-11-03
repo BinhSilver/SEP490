@@ -104,4 +104,13 @@ public interface JpathStudyEventRepository extends JpaRepository<JpathStudyEvent
             order by e.id
             """)
     List<JpathStudyEvent> findWrongOn(@Param("userId") Long userId, @Param("day") LocalDate day);
+
+    /** [code, wrong CHECK_ANSWER count] of the learner's items of {@code t} (confusable pairs, most mistakes first). */
+    @Query("""
+            select e.itemCode, count(e) from JpathStudyEvent e
+            where e.userId = :userId and e.itemType = :t and e.action = 'CHECK_ANSWER' and e.correct = false
+            group by e.itemCode
+            """)
+    List<Object[]> countWrongAnswersByItem(@Param("userId") Long userId,
+                                           @Param("t") JpathItemType t);
 }

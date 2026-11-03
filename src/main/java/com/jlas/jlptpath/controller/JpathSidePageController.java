@@ -58,6 +58,27 @@ public class JpathSidePageController {
         return blocked != null ? blocked : "jlptpath/stats";
     }
 
+    /** Known store; jpath-wordbank.js reads {@code GET /api/learning/jlpt/known}. */
+    @GetMapping("/learning/jlpt/known")
+    public String known(@AuthenticationPrincipal UserPrincipal user) {
+        String blocked = guard(user);
+        return blocked != null ? blocked : "jlptpath/known";
+    }
+
+    /** Notebook; jpath-wordbank.js reads {@code GET /api/learning/jlpt/notebook}. */
+    @GetMapping("/learning/jlpt/notebook")
+    public String notebook(@AuthenticationPrincipal UserPrincipal user) {
+        String blocked = guard(user);
+        return blocked != null ? blocked : "jlptpath/notebook";
+    }
+
+    /** Confusable pairs; jpath-confusables.js reads {@code GET /api/learning/jlpt/confusables}. */
+    @GetMapping("/learning/jlpt/confusables")
+    public String confusables(@AuthenticationPrincipal UserPrincipal user) {
+        String blocked = guard(user);
+        return blocked != null ? blocked : "jlptpath/confusables";
+    }
+
     /** {@code null} when the learner may open the page, otherwise the redirect to send. */
     String guard(UserPrincipal user) {
         if (user == null) {
