@@ -219,3 +219,20 @@
   .jp-writing__svg path,
   .jp-writing__svg text { transition: none !important; }
 }
+
+/* Look up: grammar pattern cards under the dictionary popup (or the selection); pinned to the bottom on phones. */
+.jp-lookup-grammar { position: absolute; z-index: 1100; width: min(360px, calc(100vw - 16px)); max-height: 60vh; overflow: auto;
+  padding: 12px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-panel); background: var(--jp-surface);
+  color: var(--jp-ink); box-shadow: 0 8px 24px rgba(0, 0, 0, .16); }
+.jp-lookup-grammar[hidden] { display: none; }
+.jp-lookup-grammar__card + .jp-lookup-grammar__card { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--jp-line); }
+.jp-lookup-grammar__card header { display: flex; align-items: baseline; gap: 8px; font-size: 1.1rem; }
+.jp-lookup-grammar__level { font-size: .8rem; color: var(--jp-muted); }
+.jp-lookup-grammar__meaning,
+.jp-lookup-grammar__formation { margin: 4px 0; }
+.jp-lookup-grammar__formation { color: var(--jp-muted); }
+.jp-lookup-grammar__example p { margin: 4px 0; }
+
+@media (max-width: 640px) {
+  .jp-lookup-grammar.is-pinned { position: fixed; left: 8px; right: 8px; bottom: 8px; width: auto; }
+}
