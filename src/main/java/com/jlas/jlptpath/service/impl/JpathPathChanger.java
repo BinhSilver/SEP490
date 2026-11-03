@@ -125,7 +125,7 @@ public class JpathPathChanger {
             throw new ApiException(ErrorCode.JPATH_RESTART_CONFIRM_MISMATCH);
         }
         JpathUserPath path = paths.findActiveForUpdate(userId)
-                .or(() -> paths.findForUpdate(userId, JpathPathStatus.PAUSED))
+                .or(() -> paths.findPausedForUpdate(userId))
                 .orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
         int deleted = checks.deleteByUserId(userId) + events.deleteByUserId(userId)
                 + sessions.deleteByUserId(userId) + plans.deleteByUserId(userId) + userItems.deleteByUserId(userId);
@@ -148,7 +148,7 @@ public class JpathPathChanger {
      * JPATH_ACTIVE_PATH_EXISTS) and refreshes the priority mode of its open level, since the exam came closer.
      */
     public JpathPathUpdater.Change resumePaused(Long userId) {
-        JpathUserPath path = paths.findForUpdate(userId, JpathPathStatus.PAUSED)
+        JpathUserPath path = paths.findPausedForUpdate(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
         JpathUserLevel level = userLevels.findForUpdate(path.getId(), path.getOpenLevel()).orElseThrow(() -> {
             log.error("Paused JLPT path {} of user {} has no row for its open level {}", path.getId(), userId,

@@ -49,6 +49,8 @@ public class JpathDayCompletion {
      * <ul>
      *   <li>Tab done: {@code new_done >= effectiveTarget} and (target 0 or {@code check_passed_at}); SKILL needs
      *       {@code check_passed_at}. The hook is told only for V/K/G/KANA with an effective target &gt; 0.</li>
+     *   <li>Any other non-SKILL tab not done whose effective target is 0 (its content ran out) is marked done
+     *       without hook or CP, so it never blocks the day.</li>
      *   <li>Reviews cleared: every tab has {@code review_done >= review_cap} or no due card, and at least one review
      *       was done today.</li>
      *   <li>Day done: STUDY → every required tab done; SKILL → reviews done (or none due) and the SKILL check passed;
@@ -59,6 +61,23 @@ public class JpathDayCompletion {
     @Transactional(propagation = Propagation.MANDATORY)
     public JpathCompletionOutcome evaluate(Long userId, JpathDailyPlan plan, List<JpathDailyTab> lockedTabs,
             JpathTab touchedTab, boolean rewardEligible) {
+        return run(userId, plan, lockedTabs, touchedTab, rewardEligible, true);
+    }
+
+    /**
+     * The same marks for a plan that was just inserted or switched (the inserter's transaction, under its path, level
+     * and plan locks, owning the plan and tabs), never calling the hook and paying no CP: a day with nothing to do
+     * (SKILL quiz without a source and no card due, or no new item left on any required tab) is done at once, so it
+     * counts as done for the owed skill days (#14) and never earns CP or streak by itself.
+     */
+    @Transactional(propagation = Propagation.MANDATORY)
+    public JpathCompletionOutcome settleWithoutReward(Long userId, JpathDailyPlan plan,
+            List<JpathDailyTab> lockedTabs) {
+        return run(userId, plan, lockedTabs, null, false, false);
+    }
+
+    private JpathCompletionOutcome run(Long userId, JpathDailyPlan plan, List<JpathDailyTab> lockedTabs,
+            JpathTab touchedTab, boolean rewardEligible, boolean mayReward) {
         LocalDateTime now = clock.now();
         LocalDate day = plan.getStudyDay();
         List<JpathDailyTab> rows = lockedTabs.stream().filter(t -> plan.getId().equals(t.getPlanId())).toList();
@@ -80,6 +99,13 @@ public class JpathDayCompletion {
             }
         }
 
+        for (JpathDailyTab t : rows) {
+            if (t != touched && t.getTab() != JpathTab.SKILL && t.getDoneAt() == null
+                    && planService.effectiveTarget(plan, t) == 0) {
+                t.setDoneAt(now);
+            }
+        }
+
         boolean reviewsDone = reviewsDone(userId, rows);
         boolean reviewsCleared = false;
         if (plan.getReviewsClearedAt() == null && reviewsDone
@@ -96,7 +122,7 @@ public class JpathDayCompletion {
         boolean dayEligible = rewardEligible && rows.stream().noneMatch(JpathDailyTab::isTooFast);
 
         int cp = 0;
-        JpathRewardHook hook = day.equals(clock.today(userId)) ? hooks.getIfAvailable() : null;
+        JpathRewardHook hook = mayReward && day.equals(clock.today(userId)) ? hooks.getIfAvailable() : null;
         if (hook != null) {
             if (tabPays) {
                 hook.onTabDayCompleted(userId, day, touched.getTab(), rewardEligible);

@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class JpathDaySummaryReader {
 
     private static final String CHECK_ANSWER = "CHECK_ANSWER";
-    private static final List<String> REVIEW_ACTIONS = List.of("REVIEW_RATE", "RETYPE");
 
     private final JpathStudyEventRepository events;
     private final JpathTabCountsReader tabCounts;
@@ -44,7 +43,7 @@ public class JpathDaySummaryReader {
     public JpathDaySummaryView read(Long userId, JpathDailyPlan plan) {
         LocalDate day = plan.getStudyDay();
         int newLearned = events.newLearnedByDay(userId, day, day).getOrDefault(day, 0);
-        int reviewed = (int) events.countByUserIdAndStudyDayAndActionIn(userId, day, REVIEW_ACTIONS);
+        int reviewed = events.reviewedByDay(userId, day, day).getOrDefault(day, 0);
         long right = events.countByUserIdAndStudyDayAndActionAndCorrect(userId, day, CHECK_ANSWER, true);
         long wrong = events.countByUserIdAndStudyDayAndActionAndCorrect(userId, day, CHECK_ANSWER, false);
         Integer accuracy = right + wrong == 0 ? null : (int) Math.round(right * 100.0 / (right + wrong));

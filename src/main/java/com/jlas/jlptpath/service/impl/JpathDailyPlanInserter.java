@@ -28,6 +28,7 @@ import java.util.EnumSet;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,12 +58,14 @@ public class JpathDailyPlanInserter {
     private final JpathCalendarService calendar;
     private final JpathContentReader content;
     private final JpathClock clock;
+    private final ObjectProvider<JpathDayCompletion> completion;
 
     public JpathDailyPlanInserter(JpathUserPathRepository paths, JpathUserLevelRepository levels,
             JpathDailyPlanRepository plans, JpathDailyTabRepository dailyTabs, JpathStudySessionRepository sessions,
             JpathUserItemRepository userItems, JpathKanaRowRepository kanaRows, JpathPathService pathService,
             JpathProgressService progress, JpathCalendarService calendar, JpathContentReader content,
-            JpathClock clock) {
+            JpathClock clock, ObjectProvider<JpathDayCompletion> completion) {
+        this.completion = completion;
         this.paths = paths;
         this.levels = levels;
         this.plans = plans;
@@ -111,7 +114,8 @@ public class JpathDailyPlanInserter {
                     .orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
             JpathUserLevel level = lockLevel(path);
             LocalDate today = clock.today(userId);
-            JpathDailyPlan plan = plans.findForUpdate(userId, today).orElseThrow(() -> missingPlan(userId, today));
+            JpathDailyPlan plan = plans.findForUpdate(userId, today)
+                    .orElseThrow(() -> missingPlan(plans, userId, today));
             List<JpathDailyTab> tabs = dailyTabs.findForUpdateByPlanId(plan.getId());
             if (plan.getDayKind() != JpathDayKind.STUDY || tabs.stream().anyMatch(t -> t.getNewDone() > 0)) {
                 throw new ApiException(ErrorCode.JPATH_REVIEW_DAY_NOT_ALLOWED);
@@ -121,6 +125,11 @@ public class JpathDailyPlanInserter {
                             path.isKanaTab(), path.getStudyMode(), level, path.getDailyMinutes()),
                     EnumSet.noneOf(JpathTab.class), clock.now(), dailyTabs);
             dailyTabs.flush();
+            JpathDayCompletion days = completion.getIfAvailable();
+            if (days != null) {
+                // A review day with no card due is done at once (no CP); rows added by applyRows are read again.
+                days.settleWithoutReward(userId, plan, dailyTabs.findForUpdateByPlanId(plan.getId()));
+            }
         } finally {
             if (!heldBefore) {
                 JpathPathLocks.release();
@@ -152,7 +161,11 @@ public class JpathDailyPlanInserter {
                 tab.setCheckPassedAt(now);
             }
         }
-        dailyTabs.saveAll(tabs);
+        List<JpathDailyTab> saved = dailyTabs.saveAll(tabs);
+        JpathDayCompletion days = completion.getIfAvailable();
+        if (days != null) {
+            days.settleWithoutReward(userId, plan, saved);
+        }
         for (JpathStudySession s : sessions.findByUserIdAndStatusAndModeOrderByIdDesc(userId, OPEN,
                 JpathSessionMode.TODAY.name())) {
             if (!plan.getId().equals(s.getPlanId())) {
@@ -173,5 +186,17 @@ public class JpathDailyPlanInserter {
     static ApiException missingPlan(Long userId, LocalDate day) {
         log.error("No daily plan of user {} for {} under lock; ensurePlanExists must run first", userId, day);
         return new ApiException(ErrorCode.INTERNAL_ERROR);
+    }
+
+    /**
+     * Today's plan is missing under lock. When yesterday's plan exists, the learner's day rolled over between
+     * {@code ensurePlanExists} and the lock: CONFLICT (the page reloads). Otherwise a bug: logged INTERNAL_ERROR.
+     */
+    static ApiException missingPlan(JpathDailyPlanRepository plans, Long userId, LocalDate day) {
+        if (plans.findByUserIdAndStudyDay(userId, day.minusDays(1)).isPresent()) {
+            log.info("Day of user {} rolled over to {} between ensurePlanExists and the plan lock", userId, day);
+            return new ApiException(ErrorCode.CONFLICT);
+        }
+        return missingPlan(userId, day);
     }
 }

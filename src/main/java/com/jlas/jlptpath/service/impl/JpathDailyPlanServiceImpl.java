@@ -105,10 +105,14 @@ public class JpathDailyPlanServiceImpl implements JpathDailyPlanService, JpathTo
             throw new IllegalStateException("lockToday needs the path lock of the caller's transaction");
         }
         Long userId = lockedPath.getUserId();
-        levels.findForUpdate(lockedPath.getId(), lockedPath.getOpenLevel())
-                .orElseThrow(() -> new ApiException(ErrorCode.INTERNAL_ERROR));
+        levels.findForUpdate(lockedPath.getId(), lockedPath.getOpenLevel()).orElseThrow(() -> {
+            log.error("Active JLPT path {} of user {} has no row for its open level {}", lockedPath.getId(), userId,
+                    lockedPath.getOpenLevel());
+            return new ApiException(ErrorCode.INTERNAL_ERROR);
+        });
         LocalDate today = clock.today(userId);
-        return plans.findForUpdate(userId, today).orElseThrow(() -> JpathDailyPlanInserter.missingPlan(userId, today));
+        return plans.findForUpdate(userId, today)
+                .orElseThrow(() -> JpathDailyPlanInserter.missingPlan(plans, userId, today));
     }
 
     @Override

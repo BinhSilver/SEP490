@@ -163,7 +163,11 @@ public class JpathTodayViewAssembler {
         }
         JpathUserPath path = active.get();
         LocalDate today = clock.today(userId);
-        return skillDayMissed(path, openLevel(path), plans.findByUserIdAndStudyDay(userId, today), today);
+        // No row for the open level (should not happen): judge it as the STUDY stage rather than fail.
+        JpathUserLevel level = levels.findById(new JpathUserLevelId(path.getId(), path.getOpenLevel()))
+                .orElseGet(() -> JpathUserLevel.builder().pathId(path.getId()).level(path.getOpenLevel())
+                        .stage(JpathStage.STUDY).build());
+        return skillDayMissed(path, level, plans.findByUserIdAndStudyDay(userId, today), today);
     }
 
     // ---- view --------------------------------------------------------------------------------------------------

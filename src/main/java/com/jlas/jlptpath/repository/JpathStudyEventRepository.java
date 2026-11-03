@@ -3,7 +3,6 @@ package com.jlas.jlptpath.repository;
 import com.jlas.jlptpath.entity.JpathStudyEvent;
 import com.jlas.jlptpath.enums.JpathItemType;
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -60,8 +59,29 @@ public interface JpathStudyEventRepository extends JpaRepository<JpathStudyEvent
         return out;
     }
 
-    /** Events of {@code day} with one of {@code actions}. */
-    long countByUserIdAndStudyDayAndActionIn(Long userId, LocalDate studyDay, Collection<String> actions);
+    /**
+     * Distinct (study_day, item_type, item_code) of items reviewed in {@code [from, to]}: a REVIEW_RATE or a RETYPE.
+     * Read through {@link #reviewedByDay}.
+     */
+    @Query("""
+            select distinct e.studyDay, e.itemType, e.itemCode from JpathStudyEvent e
+            where e.userId = :userId and e.studyDay between :from and :to
+              and e.action in ('REVIEW_RATE', 'RETYPE')
+            """)
+    List<Object[]> findReviewedKeys(@Param("userId") Long userId, @Param("from") LocalDate from,
+                                    @Param("to") LocalDate to);
+
+    /**
+     * "Reviewed" per study day in {@code [from, to]}: distinct items with a REVIEW_RATE or RETYPE that day (an item
+     * reviewed twice counts once). Days without any are absent.
+     */
+    default Map<LocalDate, Integer> reviewedByDay(Long userId, LocalDate from, LocalDate to) {
+        Map<LocalDate, Integer> out = new TreeMap<>();
+        for (Object[] row : findReviewedKeys(userId, from, to)) {
+            out.merge((LocalDate) row[0], 1, Integer::sum);
+        }
+        return out;
+    }
 
     /** CHECK_ANSWER (or another action) events of {@code day} with the given {@code correct}. */
     long countByUserIdAndStudyDayAndActionAndCorrect(Long userId, LocalDate studyDay, String action,
