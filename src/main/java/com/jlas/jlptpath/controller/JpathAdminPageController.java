@@ -19,4 +19,10 @@ public class JpathAdminPageController {
     public String reports() {
         return "admin/jpath-reports";
     }
+
+    /** ADMIN only (/admin/system/**); this fixed route wins over AdminPageController's /admin/system/{section}. */
+    @GetMapping("/admin/system/learning-path-report")
+    public String report() {
+        return "admin/jpath-report";
+    }
 }

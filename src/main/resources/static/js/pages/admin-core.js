@@ -15,7 +15,8 @@
   var MODULES = [
     { title: null, items: [
       { key: 'overview', label: 'Tổng quan', icon: 'fa-gauge-high', href: '/admin', roles: ['MODERATOR'] },
-      { key: 'system-dashboard', label: 'Tổng quan', icon: 'fa-gauge-high', href: '/admin/system/dashboard', roles: SYSTEM }
+      { key: 'system-dashboard', label: 'Tổng quan', icon: 'fa-gauge-high', href: '/admin/system/dashboard', roles: SYSTEM },
+      { key: 'system-jpath-report', label: 'Báo cáo lộ trình JLPT', icon: 'fa-chart-line', href: '/admin/system/learning-path-report', roles: SYSTEM }
     ] },
     { title: 'Quản lý nội dung', items: [
       { key: 'content-textbooks', label: 'Giáo trình và bài học', icon: 'fa-book-open', href: '/textbooks/manage', roles: ['CONTENT_CREATOR'] },
