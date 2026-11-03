@@ -3,7 +3,8 @@
 //        --files sql/learning/learning_data_common.sql,sql/learning/learning_data_N5.sql [--yaml <application-local.yaml>]
 //        [--mysql <mysql.exe>]
 // From learning_data_common.sql it takes the seed-sql.mjs base block (levels, kana); from learning_data_<L>.sql the
-// GENERATED jpath region; any other file is refused, and so is a part that holds USE or a mysql client command (connect,
+// GENERATED jpath region, then (Plan 3) its GENERATED jpath-skills region when present; any other file is refused,
+// and so is a part that holds USE or a mysql client command (connect,
 // source, backslash commands) outside literals and comments. Unexported admin edits of the levels, or without a level,
 // stop the load (P19). The password goes to the mysql child process through MYSQL_PWD only; nothing prints the
 // password, the URL or row content.
@@ -14,10 +15,14 @@ import { fileURLToPath } from 'node:url';
 import { ROOT, argValue } from '../compile/util.mjs';
 import { REGION_BEGIN, REGION_END, readRegion } from './build_path_seed.mjs';
 import { BASE_MARKER } from './seed-sql.mjs';
+import { SKILL_BEGIN, SKILL_END, readSkillRegion } from '../skills/skill-seed.mjs';
 
 export const CONTENT_TABLES = ['jpath_level', 'jpath_kana_row', 'jpath_kana', 'jpath_vocab_topic', 'jpath_grammar_unit',
   'jpath_vocabulary', 'jpath_kanji', 'jpath_kanji_compound', 'jpath_grammar', 'jpath_example', 'jpath_grammar_question',
   'jpath_confusable_pair'];
+/** Plan 3: skill content tables, written by the GENERATED jpath-skills region of a level file. */
+export const SKILL_CONTENT_TABLES = ['jpath_skill_type', 'jpath_skill_lesson', 'jpath_skill_set', 'jpath_skill_question',
+  'jpath_skill_dictation'];
 const DEFAULT_MYSQL = 'C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe';
 const DEFAULT_YAML = 'src/main/resources/application-local.yaml';
 
@@ -91,6 +96,12 @@ export function extractJpathSql(text, file) {
     if (!region) throw new Error(`${name} has no GENERATED jpath region`);
     sql = region.text.slice(REGION_BEGIN.length).replace(/^\r?\n/, '');
     sql = sql.slice(0, sql.length - REGION_END.length);
+    // Plan 3 Task 6: the skills region (if any) runs after the jpath region.
+    const skills = readSkillRegion(text);
+    if (skills) {
+      const body = skills.text.slice(SKILL_BEGIN.length).replace(/^\r?\n/, '');
+      sql += body.slice(0, body.length - SKILL_END.length);
+    }
   }
   sql = sql.replace(/\r\n/g, '\n');
   try {
@@ -230,7 +241,9 @@ function runCli(argv) {
       if (r.status !== 0) { console.error(`${p.name}: ${errLine(r)} — stopped`); return 1; }
       console.log(`Loaded ${p.name} (jpath part)`);
     }
-    const counts = query(CONTENT_TABLES.map((t) => `SELECT '${t}', COUNT(*) FROM ${t}`).join(' UNION ALL '));
+    const skillTables = query(`SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'jpath_skill_set'`) === '1'
+      ? SKILL_CONTENT_TABLES : [];
+    const counts = query([...CONTENT_TABLES, ...skillTables].map((t) => `SELECT '${t}', COUNT(*) FROM ${t}`).join(' UNION ALL '));
     for (const line of counts.split(/\r?\n/)) console.log(line.replace('\t', ' '));
     return 0;
   } catch (e) {

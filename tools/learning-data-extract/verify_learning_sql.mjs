@@ -26,6 +26,10 @@ export function verifyDataFiles(base = root) {
     const hasJpath = /^-- BEGIN GENERATED jpath\r?$/m.test(text) && /^-- END GENERATED jpath\r?$/m.test(text);
     if (level && !hasJpath) throw new Error(`${file} lacks its GENERATED jpath region`);
     if (!level && hasJpath) throw new Error(`${file} must not carry a jpath region`);
+    // Plan 3 Task 6: a level file may end with one GENERATED jpath-skills region (build_skill_seed.mjs).
+    const skills = (text.match(/^-- BEGIN GENERATED jpath-skills\r?$/gm) || []).length;
+    if (skills !== (text.match(/^-- END GENERATED jpath-skills\r?$/gm) || []).length || skills > (level ? 1 : 0))
+      throw new Error(`${file} has a misplaced or unclosed GENERATED jpath-skills region`);
     for (const match of text.matchAll(/^-- BEGIN (?:data\/learning-owned\/learning-content\.json#sections\.[a-z0-9_]+@(N[1-5])|\S+#(N[1-5]|COMMON)) SHA256 /gm)) {
       const part = match[1] ?? match[2];
       if ((part === 'COMMON' ? null : part) !== level) throw new Error(`${file} holds a block of ${part}: ${match[0]}`);
@@ -108,7 +112,8 @@ export function verify(migration, seed, content = null) {
   if ((seed.match(/^-- BEGIN GENERATED jpath\r?$/gm) || []).length !== DATA_LEVELS.length)
     throw new Error('Every level data file needs its GENERATED jpath region');
   // 45 = 44 Learning blocks + the jpath base block (levels, kana) of learning_data_common.sql (Plan 2 Task 8).
-  if ((seed.match(/-- BEGIN /g) || []).length !== 45)
+  // The optional jpath-skills regions of the level files (Plan 3 Task 6) are not counted.
+  if ((seed.match(/-- BEGIN /g) || []).length - (seed.match(/^-- BEGIN GENERATED jpath-skills\r?$/gm) || []).length !== 45)
     throw new Error('Unexpected consolidated SQL section count');
   // Embedded outputs and the level parts of split seed blocks carry the SHA-256 of their own body.
   const embeddedOutputs = [...seed.matchAll(/^-- BEGIN ((?:outputs\/[^\r\n #]+\.sql|sql\/seeds\/[^\r\n #]+\.sql#(?:N[1-5]|COMMON))(?:#N[1-5])?) SHA256 ([0-9a-f]{64})\r?\n/gm)];
