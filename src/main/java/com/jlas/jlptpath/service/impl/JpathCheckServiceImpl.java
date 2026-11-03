@@ -11,6 +11,7 @@ import com.jlas.jlptpath.dto.JpathAnswerRequest;
 import com.jlas.jlptpath.dto.JpathAnswerResult;
 import com.jlas.jlptpath.dto.JpathAnsweredView;
 import com.jlas.jlptpath.dto.JpathCheckIssueRequest;
+import com.jlas.jlptpath.dto.JpathCheckNext;
 import com.jlas.jlptpath.dto.JpathCheckResult;
 import com.jlas.jlptpath.dto.JpathCheckSubmitRequest;
 import com.jlas.jlptpath.dto.JpathCheckView;
@@ -21,6 +22,7 @@ import com.jlas.jlptpath.dto.JpathPairPickRequest;
 import com.jlas.jlptpath.dto.JpathPairPickResult;
 import com.jlas.jlptpath.dto.JpathQuestionView;
 import com.jlas.jlptpath.dto.JpathReportTargetView;
+import com.jlas.jlptpath.dto.JpathSkillCheckView;
 import com.jlas.jlptpath.dto.JpathWrongItemView;
 import com.jlas.jlptpath.entity.JpathCheckSet;
 import com.jlas.jlptpath.entity.JpathDailyPlan;
@@ -55,6 +57,7 @@ import com.jlas.jlptpath.repository.JpathUserPathRepository;
 import com.jlas.jlptpath.repository.JpathUserSettingsRepository;
 import com.jlas.jlptpath.service.JpathCheckService;
 import com.jlas.jlptpath.service.JpathClock;
+import com.jlas.jlptpath.service.JpathSkillPracticeService;
 import com.jlas.jlptpath.service.impl.JpathCheckBuilder.AnswerKey;
 import com.jlas.jlptpath.service.impl.JpathCheckBuilder.BuiltCheck;
 import com.jlas.jlptpath.service.impl.JpathCheckPicker.Built;
@@ -84,6 +87,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -132,6 +136,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     private static final Set<JpathCheckKind> FREE_KINDS = EnumSet.of(JpathCheckKind.SKIP_ONE,
             JpathCheckKind.TOPIC_KNOWN, JpathCheckKind.FREE_QUIZ, JpathCheckKind.CONFUSABLE,
             JpathCheckKind.GRAMMAR_PRACTICE, JpathCheckKind.GRAMMAR_EXTRA);
+    /** Plan 3 skill checks: no item rows, no plan, their own session page. */
+    static final Set<JpathCheckKind> SKILL_KINDS = EnumSet.of(JpathCheckKind.SKILL_PRACTICE,
+            JpathCheckKind.SKILL_DICTATION);
+    static final String SKILL_SESSION_URL = "/learning/jlpt/skills/session/";
     private static final Set<JpathTab> CARD_TABS = EnumSet.of(JpathTab.VOCAB, JpathTab.KANJI, JpathTab.GRAMMAR);
     /** Kinds bound to one item of the step: a check of another item is never reused for them. */
     private static final Set<JpathCheckKind> ITEM_BOUND = EnumSet.of(JpathCheckKind.SKIP_ONE,
@@ -209,6 +217,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     private final JpathCheckEffects effects;
     private final JpathClock clock;
     private final Path audioRoot;
+    // Plan 3 skill checks (SKILL_*): looked up when used, the skill services sit above this one
+    private final ObjectProvider<JpathSkillPracticeService> skillPractice;
 
     public JpathCheckServiceImpl(JpathCheckSetRepository checks, JpathUserPathRepository paths,
                                  JpathUserLevelRepository levels, JpathStudySessionRepository sessions,
@@ -217,7 +227,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                                  JpathStudyEventRepository events, JpathKanaRowRepository kanaRows,
                                  JpathContentReader content, JpathCheckBuilder builder, JpathCheckPicker picker,
                                  JpathCheckEffects effects, JpathClock clock,
-                                 @Value("${content.audio.path:data/content-audio/}") String audioDirectory) {
+                                 @Value("${content.audio.path:data/content-audio/}") String audioDirectory,
+                                 ObjectProvider<JpathSkillPracticeService> skillPractice) {
         this.checks = checks;
         this.paths = paths;
         this.levels = levels;
@@ -234,6 +245,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         this.effects = effects;
         this.clock = clock;
         this.audioRoot = Paths.get(audioDirectory).toAbsolutePath().normalize();
+        this.skillPractice = skillPractice;
     }
 
     // ---- issue ---------------------------------------------------------------------------------------------
@@ -655,8 +667,11 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                         key.explanation(), null, 0, report(key, keys.questionCode(qv.id()))));
             }
         }
+        JpathSkillCheckView skill = SKILL_KINDS.contains(set.getKind())
+                ? skillPractice.getObject().view(set, p.answers().keySet()) : null;
         return new JpathCheckView(set.getToken(), set.getKind(), set.getTab(), set.getAttemptNo(), set.isTimerOn(),
-                set.getStatus(), read(set.getIssueJson(), JpathCheckIssueRequest.class), questions, answered, null);
+                set.getStatus(), read(set.getIssueJson(), JpathCheckIssueRequest.class), questions, answered, null,
+                skill);
     }
 
     /**
@@ -951,9 +966,15 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                         skillReview, skillDayQuiz), session, today, tabs);
 
         boolean rewardEligible = !tooFast && applied.dayCredit();
+        boolean skillKind = SKILL_KINDS.contains(set.getKind());
+        Long skillSessionId = skillKind ? JpathSkillPracticeServiceImpl.skillSessionId(set) : null;
+        JpathCheckNext next = !skillKind ? applied.next() : skillSessionId == null
+                ? new JpathCheckNext("BACK", "Quay lại", null, null, null, null)
+                : new JpathCheckNext("CONTINUE", "Tiếp tục buổi kỹ năng", SKILL_SESSION_URL + skillSessionId,
+                        JpathTab.SKILL, null, null);
         JpathCheckResult result = new JpathCheckResult(set.getToken(), correct, total, percent, passed,
-                rewardEligible, tooFast, wrongItems(JpathCheckEffects.itemType(set), wrong), applied.cpAwarded(),
-                applied.next());
+                rewardEligible, tooFast, skillKind ? List.of() : wrongItems(JpathCheckEffects.itemType(set), wrong),
+                applied.cpAwarded(), next);
         set.setStatus(SUBMITTED);
         set.setSubmittedAt(now);
         set.setSubmitKey(r == null ? null : r.submitKey());
@@ -964,6 +985,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         set.setPassed(passed);
         set.setTooFast(tooFast);
         set.setResultJson(json(result));
+        if (skillKind) {
+            // the check row is SUBMITTED in this transaction, so the session sees it when it moves on
+            skillPractice.getObject().afterSubmit(set);
+        }
         return result;
     }
 
@@ -1076,7 +1101,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 .studyDay(clock.today(set.getUserId())).build());
     }
 
-    private static List<JpathQuestionView> readQuestions(JpathCheckSet set) {
+    static List<JpathQuestionView> readQuestions(JpathCheckSet set) {
         return read(set.getQuestionsJson(), new TypeReference<List<JpathQuestionView>>() { });
     }
 

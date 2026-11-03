@@ -212,6 +212,8 @@ public class JpathCheckEffects {
                 advance = true;
             }
             case CONFUSABLE, GRAMMAR_PRACTICE, GRAMMAR_EXTRA -> advance = true;
+            // Plan 3 skill checks: their session moves on in JpathSkillPracticeService (no item rows, no plan)
+            case SKILL_LESSON, SKILL_PRACTICE, SKILL_DICTATION, SKILL_SECTION -> advance = true;
             default -> { // MICRO_CHECK
                 boolean notebookType = type == JpathItemType.VOCAB || type == JpathItemType.KANJI;
                 if (Boolean.TRUE.equals(s.passed())) {
