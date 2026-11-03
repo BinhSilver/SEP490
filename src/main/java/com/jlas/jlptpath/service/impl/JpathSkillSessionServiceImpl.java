@@ -152,8 +152,11 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
     @Override
     public JpathSkillSessionView advance(Long userId, Long sessionId) {
         return tx.execute(status -> {
-            paths.findActiveForUpdate(userId);
-            JpathSkillSession s = own(userId, sessionId);
+            boolean active = paths.findActiveForUpdate(userId).isPresent();
+            JpathSkillSession s = own(userId, sessionId); // another learner's session stays NOT_FOUND
+            if (!active) {
+                throw new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH);
+            }
             switch (s.getStep()) {
                 case THEORY -> {
                     if (s.getLessonPassedAt() == null) {
