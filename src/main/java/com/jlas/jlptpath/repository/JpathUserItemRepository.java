@@ -49,6 +49,15 @@ public interface JpathUserItemRepository extends JpaRepository<JpathUserItem, Lo
     long countDue(@Param("userId") Long userId, @Param("t") JpathItemType t,
                   @Param("localNow") LocalDateTime localNow);
 
+    /** Items of every type not KNOWN with next review at or before {@code localNow} (learner local time). */
+    @Query("""
+            select count(i) from JpathUserItem i
+            where i.userId = :userId
+              and i.state <> com.jlas.jlptpath.enums.JpathItemState.KNOWN
+              and i.nextReviewAt <= :localNow
+            """)
+    long countDue(@Param("userId") Long userId, @Param("localNow") LocalDateTime localNow);
+
     long countByUserIdAndItemTypeAndState(Long userId, JpathItemType itemType, JpathItemState state);
 
     /** Items of a level in one state (KNOWN / NOTEBOOK counts of a tab). */
