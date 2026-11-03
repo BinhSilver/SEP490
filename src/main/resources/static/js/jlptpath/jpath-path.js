@@ -15,6 +15,7 @@
  *   activateTab, displayTarget, writeUrl   tab focus, display-class target, ?tab= with other params kept
  *   Needs jpath-display.js, jpath-path-controls.js and jpath-dialog.js loaded first; jpath-lists.js (optional) draws
  *   the [data-slot="list"] area of each tab.
+ *   menuHtml()                       "⋯" menu: Xem lại hướng dẫn (/learning?tour=1), Cài đặt lộ trình
  *   mount(root, deps)                loads both views in parallel, keeps ?tab= in the url, fires JpathDisplay.rendered
  */
 (function (root, factory) {
@@ -141,6 +142,23 @@
         + '">Học từ này</button></div>';
     }
     return html;
+  }
+
+  // page menu "⋯" (top right of the hero)
+  function menuHtml() {
+    return '<details class="jp-menu"><summary class="jp-menu__btn" aria-label="Menu trang">⋯</summary>'
+      + '<ul class="jp-menu__list">'
+      + '<li><a class="jp-menu__item" href="/learning?tour=1">Xem lại hướng dẫn</a></li>'
+      + '<li><a class="jp-menu__item" href="/learning/jlpt/settings">Cài đặt lộ trình</a></li></ul></details>';
+  }
+
+  /** The url without tour=1, other params kept. */
+  function withoutTour(loc) {
+    var base = (loc && loc.pathname) || '/learning';
+    var rest = String((loc && loc.search) || '').replace(/^\?/, '').split('&').filter(function (p) {
+      return p && p !== 'tour=1';
+    });
+    return base + (rest.length ? '?' + rest.join('&') : '');
   }
 
   // ------------------------------------------------------------------------------------------------ levels
@@ -355,7 +373,7 @@
     function paintAll() {
       var p = state.path;
       if (p.display && rootEl.classList) D().applyDisplay(displayTarget(rootEl), p.display);
-      setHtml(rootEl, 'hero', heroHtml(p, state.today));
+      setHtml(rootEl, 'hero', heroHtml(p, state.today) + menuHtml());
       setHtml(rootEl, 'stage', stageLineHtml(p) + weekHtml(p.week));
       setHtml(rootEl, 'levels', levelBand() + levelBarHtml(p));
       paintTab(false);
@@ -517,6 +535,20 @@
       doc.addEventListener('visibilitychange', onVisible);
     }
 
+    // first visit (or ?tour=1): tourDone is saved on done and on skip, and tour=1 leaves the url
+    function startTour() {
+      var tour = root.JpathTour;
+      if (!tour || !tour.shouldStart(state.path, (loc && loc.search) || '')) return;
+      var saver = d.saver || D().createSaver({ send: function (m, u, b) { return apiClient.send(m, u, b); } });
+      tour.create({ doc: doc, onFinish: function () {
+        state.path.tourDone = true;
+        saver.save({ tourDone: true });
+        if (env.history && /(^|[?&])tour=1(&|$)/.test((loc && loc.search) || '')) {
+          try { env.history.replaceState(null, '', withoutTour(loc)); } catch (e) { /* ignore */ }
+        }
+      } }).start();
+    }
+
     var pathLoad = Promise.resolve().then(function () { return apiClient.get(PATH_URL); });
     return Promise.all([pathLoad, loadToday()]).then(function (res) {
       state.path = res[0] || {};
@@ -527,6 +559,7 @@
       api.current = state;
       rootEl.setAttribute('aria-busy', 'false');
       rendered(rootEl);
+      startTour();
     }, function () {
       setHtml(rootEl, 'hero', '<p class="jp-alert" role="alert">' + esc(MSG_LOAD_FAILED) + '</p>');
       rootEl.setAttribute('aria-busy', 'false');
@@ -534,7 +567,7 @@
   }
 
   var api = Object.assign({}, C, {
-    TAB_KEY: TAB_KEY, resolveTab: resolveTab, tabsBarHtml: tabsBarHtml, heroHtml: heroHtml,
+    TAB_KEY: TAB_KEY, resolveTab: resolveTab, menuHtml: menuHtml, withoutTour: withoutTour, tabsBarHtml: tabsBarHtml, heroHtml: heroHtml,
     levelBarHtml: levelBarHtml, levelCellHtml: levelCellHtml, stageLineHtml: stageLineHtml, weekHtml: weekHtml,
     estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,
     displayTarget: displayTarget, writeUrl: writeUrl, mount: mount, current: null
