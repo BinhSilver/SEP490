@@ -1,0 +1,126 @@
+/* [JLAS-W0108] Study card screen of the JLPT path (/learning/jlpt/study). Colours only through --jp-* tokens
+   (jpath-base.css), so light and dark follow the theme. Works at 375 px; every control is at least 44 px. */
+.jp-study { max-width: 640px; font-size: calc(1rem * var(--jp-font-scale)); }
+.jp-study .jp-btn {
+  min-height: 44px; padding: 10px 18px; border: 1.5px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
+  background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-weight: 600; cursor: pointer;
+}
+.jp-study .jp-btn--primary { background: var(--jp-primary); border-color: var(--jp-primary); color: var(--jp-surface); }
+.jp-study .jp-btn[disabled] { opacity: .55; cursor: not-allowed; }
+.jp-study .jp-link-btn {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; border: 0; background: transparent;
+  color: var(--jp-primary); font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer;
+}
+.jp-study .jp-input {
+  box-sizing: border-box; min-height: 44px; width: 100%; padding: 8px 12px; border: 1.5px solid var(--jp-line);
+  border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink); font: inherit;
+}
+.jp-study :is(button, a, input, summary):focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-study .jp-alert {
+  padding: 10px 12px; border-radius: var(--jp-radius-interactive); background: var(--jp-danger-soft); color: var(--jp-danger);
+}
+
+.jp-study-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.jp-study-title { margin: 0; font-size: 1.15em; }
+.jp-study-root { display: grid; gap: 12px; margin-top: 8px; }
+.jp-study-muted { color: var(--jp-muted); font-size: .9em; }
+.jp-study-label { margin-top: 10px; color: var(--jp-muted); font-size: .72em; letter-spacing: .08em; }
+
+/* combined step bar */
+.jp-study-steps__line { margin: 0 0 6px; font-size: .85em; line-height: 1.6; }
+.jp-step { white-space: nowrap; color: var(--jp-muted); }
+.jp-step--done { color: var(--jp-ink); font-weight: 700; }
+.jp-step--active { color: var(--jp-primary); font-weight: 700; }
+.jp-step-sep { color: var(--jp-muted); }
+.jp-study-progress { height: 6px; overflow: hidden; border-radius: 3px; background: var(--jp-line); }
+.jp-study-progress > span { display: block; height: 100%; border-radius: 3px; background: var(--jp-ok); transition: width .3s ease; }
+
+/* card */
+.jp-study-card {
+  position: relative; padding: 16px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-panel);
+  background: var(--jp-surface); color: var(--jp-ink); text-align: center; touch-action: pan-y;
+}
+.jp-study-tools { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; margin-bottom: 4px; }
+.jp-study-icon, .jp-study .jp-display-btn {
+  min-width: 44px; min-height: 44px; padding: 0 10px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-chip);
+  background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-size: .85em; cursor: pointer;
+}
+.jp-study .jp-display-btn[aria-pressed="true"] { background: var(--jp-primary-soft); color: var(--jp-primary); }
+.jp-study .jp-display-controls { display: flex; flex-wrap: wrap; gap: 6px; }
+.jp-study-flags { display: flex; justify-content: center; gap: 6px; }
+.jp-study-flag { padding: 2px 8px; border-radius: var(--jp-radius-chip); font-size: .75em; font-weight: 600; }
+.jp-study-flag--notebook { background: var(--jp-danger-soft); color: var(--jp-danger); }
+.jp-study-flag--hard { background: var(--jp-primary-soft); color: var(--jp-warn); }
+.jp-study-meaning { margin-top: 4px; font-size: 1.05em; font-weight: 700; overflow-wrap: anywhere; }
+.jp-study-word { margin-top: 6px; font-size: 2.4em; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+.jp-study-glyph { margin-top: 6px; font-size: 4.5em; line-height: 1.1; }
+.jp-study-reading { font-size: 1.05em; }
+.jp-study-hanviet { font-weight: 700; letter-spacing: .06em; }
+.jp-study-readings b { color: var(--jp-primary); }
+.jp-study-more { margin-top: 4px; color: var(--jp-muted); }
+.jp-study-more summary, .jp-mnemonic summary { min-height: 44px; display: inline-flex; align-items: center; cursor: pointer; }
+.jp-study .jp-romaji { color: var(--jp-muted); font-size: .85em; }
+.jp-study .jp-romaji-off .jp-romaji { display: none; }
+.jp-study-examples { margin-top: 10px; display: grid; gap: 8px; }
+.jp-ex .jp-ex-ja { font-size: .95em; }
+.jp-ex .jp-ex-vi { color: var(--jp-muted); font-size: .85em; }
+.jp-study .jp-furigana-off rt { visibility: hidden; }
+.jp-study .jp-furigana-off ruby.jp-rt-flip rt { visibility: visible; }
+.jp-study ruby.jp-rt-flip rt { visibility: hidden; }
+.jp-study .jp-furigana-off ruby { cursor: pointer; }
+.jp-mnemonic { margin-top: 10px; padding: 0 10px; border: 1px dashed var(--jp-primary); border-radius: var(--jp-radius-interactive); color: var(--jp-primary); }
+.jp-mnemonic p { margin: 0 0 10px; color: var(--jp-ink); text-align: left; }
+.jp-study-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 10px; }
+.jp-study .jp-chip { padding: 4px 10px; border-radius: var(--jp-radius-chip); background: var(--jp-primary-soft); color: var(--jp-primary); font-weight: 600; }
+.jp-study-usage { margin-top: 8px; text-align: left; }
+.jp-study-compounds, .jp-study-confusables { margin-top: 10px; text-align: left; }
+.jp-study-compounds ul, .jp-study-confusables ul { margin: 4px 0 0; padding-left: 18px; }
+.jp-study-skip { margin: 0; text-align: center; font-size: .85em; color: var(--jp-muted); }
+
+/* retype */
+.jp-retype { display: flex; gap: 8px; margin-top: 12px; }
+.jp-retype .jp-input { flex: 1 1 auto; }
+.jp-retype-msg { min-height: 1.4em; margin: 8px 0 0; }
+.jp-retype-msg--EXACT { color: var(--jp-ok); }
+.jp-retype-msg--MINOR { color: var(--jp-warn); }
+.jp-retype-msg--WRONG { color: var(--jp-danger); }
+
+/* rating bar: stays above the shell's bottom bar on phones */
+.jp-rate-bar {
+  position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 2; display: grid; gap: 8px; padding: 8px 0;
+  background: var(--jp-canvas);
+}
+.jp-rate-bar--two { grid-template-columns: 1fr 1fr; }
+.jp-rate-bar--four { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.jp-rate {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 52px; padding: 6px 4px;
+  border: 2px solid var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface);
+  color: var(--jp-ink); font: inherit; font-weight: 700; cursor: pointer;
+}
+.jp-rate:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-rate__ivl { font-size: .8em; font-weight: 500; }
+.jp-key-hint { font-size: .7em; font-weight: 500; color: var(--jp-muted); }
+.jp-rate--forgot { border-color: var(--jp-danger); color: var(--jp-danger); }
+.jp-rate--remembered { border-color: var(--jp-ok); background: var(--jp-ok); color: var(--jp-surface); }
+.jp-rate--remembered .jp-key-hint { color: var(--jp-surface); }
+.jp-rate--hard { border-color: var(--jp-warn); color: var(--jp-warn); }
+.jp-rate--good { border-color: var(--jp-ok); color: var(--jp-ok); }
+.jp-rate--easy { border-color: var(--jp-primary); color: var(--jp-primary); }
+.jp-rate--flip, .jp-rate--next { border-color: var(--jp-primary); background: var(--jp-primary); color: var(--jp-surface); }
+.jp-rate--next .jp-key-hint { color: var(--jp-surface); }
+.jp-study-status { margin: 0; min-height: 1.2em; color: var(--jp-muted); font-size: .85em; text-align: center; }
+
+/* Touch screens have no keyboard: hide the key hints. */
+@media (pointer: coarse) {
+  .jp-key-hint { display: none; }
+}
+
+@media (max-width: 480px) {
+  .jp-study-word { font-size: 2em; }
+  .jp-rate-bar--four { gap: 4px; }
+  .jp-rate { font-size: .85em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jp-study-progress > span { transition: none; }
+}
