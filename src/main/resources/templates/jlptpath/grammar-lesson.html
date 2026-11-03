@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
-<!-- [JLAS-W0108] Grammar lesson page (/learning/jlpt/grammar/{code}); jpath-lists.js draws it from
+<!-- [JLAS-W0108] Grammar lesson page (/learning/jlpt/grammar/{code}); jpath-grammar-lesson.js draws it from
      GET /api/learning/jlpt/grammar/{code}. Narrow screens open lessons here, wide screens in the list pane. -->
 <head th:replace="~{fragments/head :: standard('Bài ngữ pháp - JLAS', null)}"></head>
 <th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-path')}"></th:block>
@@ -19,7 +19,8 @@
 <script th:src="@{/js/jlptpath/jpath-dialog.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-check.js(v=${jpathAssetVersion})}"></script>
-<script th:src="@{/js/jlptpath/jpath-lists.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-item-drawer.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-grammar-lesson.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
 </html>

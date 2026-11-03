@@ -1,73 +1,60 @@
-/* [JLAS-W0108] jpath-lists.js — the list part of the JLPT path page tabs ([data-slot="list"]) and the item drawer.
+/* [JLAS-W0108] jpath-lists.js — the list part of the JLPT path page tabs ([data-slot="list"]).
  *
- * Reads GET /api/learning/jlpt/lists/* (pages are 0-based), GET /items/{type}/{code}; writes through
- * POST /items/{type}/{code}/known, POST|DELETE /items/{type}/{code}/notebook, POST /topics/{level}/{topicKey}/known-check,
- * POST /checks and PUT /settings {vocabListView}. Every text goes through JpathDisplay.esc.
+ * Reads GET /api/learning/jlpt/lists/* (pages are 0-based); writes POST /topics/{level}/{topicKey}/known-check,
+ * POST /sessions (kana row) and PUT /settings {vocabListView}. The item drawer and free quiz dialog live in
+ * jpath-item-drawer.js, the grammar lesson in jpath-grammar-lesson.js; both are re-exported here unchanged.
+ * Every text goes through JpathDisplay.esc.
+ *
+ * The slot holds a filter bar ([data-part="bar"]) and a results region ([data-part="results"]). A filter change redraws
+ * only the results, so the search input keeps focus, caret and IME composition; the bar is redrawn only when its own
+ * shape changes (tab, view, script, pane mode). Search waits 300 ms, never while composing (fires on compositionend).
  *
  * window.JpathLists:
- *   STATE_LABEL                         NEW 'Chưa học', LEARNING 'Đang học', NOTEBOOK 'Sổ tay', KNOWN 'Đã biết'
- *   listUrl(kind, filter)               /lists/<kind>?… in the fixed order level, topic, unit, state, q, radical, sort,
+ *   STATE_LABEL, listUrl(kind, filter)  /lists/<kind>?… in the fixed order level, topic, unit, state, q, radical, sort,
  *                                       view, script, page; empty values left out
- *   viewToggleHtml(view)                Theo chủ đề / Danh sách (TOPICS | FLAT)
- *   topicGridHtml(topics, level)        topic cards: counts, stacked bar, "Tôi biết chủ đề này"
- *   vocabTableHtml(page, filter)        filters + flat table + "Trang p/n" + print menu
- *   printMenuHtml(tab, filter)          data-jpath-print TODAY and LIST (the filter without page)
- *   itemDrawerHtml(detail)              item detail; buttons follow the learner state
- *   freeQuizDialogHtml(tab, ctx), freeQuizRequest(values)
- *   kanjiFiltersHtml(filter, facets)    search, radical (character + name + count), sort, Bảng / Lưới
- *   kanjiListHtml(page, view, filter)   table Chữ · Hán Việt · Nghĩa · On · Kun · Nét, or a .jp-kanji grid; print menu
- *   grammarAccordionHtml(units, filter, openCode, totals)
- *                                       units with "{done}/{total} mẫu", state dots, aria-expanded on the open pattern
- *   grammarLessonHtml(lesson), structureChips(formation), grammarOpenMode(width) (≥ 900 PANE, else PAGE)
- *   mountGrammarLesson(rootEl?, deps?)  the /learning/jlpt/grammar/{code} page (#jpathGrammarRoot); auto-mounted
- *                                       Luyện ngay / Luyện thêm → POST /checks → JpathCheck.mountInline (when loaded,
- *                                       else the check page); "Học mẫu này…" → POST /grammar/{code}/queue-today
+ *   viewToggleHtml(view), topicGridHtml(topics, level), vocabTableHtml(page, filter), printMenuHtml(tab, filter)
+ *   kanjiFiltersHtml(filter, facets), kanjiListHtml(page, view, filter), radicalChar(n)
  *   kanaColumns(row), kanaHtml(rows, script)
- *                                       kana grid (a i u e o; YOON a u o; ん in its own slot), writing on every cell,
- *                                       "Học hàng này" → POST /sessions {tab:'KANA', mode:'BROWSE', startItemCode}
- *   safeReturn(v), checkUrl(token, returnTo)
- *   mountTab(slot, tabKey, ctx)         draws the list of one tab into slot and wires it; ctx = {level, display,
- *                                       skillDay, api, location, history, document, navigate, confirm, rendered}
- * Needs jpath-display.js, jpath-furigana.js and jpath-dialog.js loaded first.
+ *                                       "Học hàng này" → POST /sessions {tab:'KANA', mode:'BROWSE', startItemCode: row code}
+ *   grammarAccordionHtml(units, filter, openCode, totals), grammarOpenMode(width) (≥ 900 PANE, else PAGE)
+ *   mountTab(slot, tabKey, ctx)         ctx = {level, display, skillDay, api, location, history, document, navigate,
+ *                                       confirm, rendered, width, force}; the same tab + level + view + skill day is not
+ *                                       fetched again unless force; a new level drops the per-tab filters
+ *   (re-exported) itemDrawerHtml, freeQuizDialogHtml, freeQuizRequest, safeReturn, checkUrl, messageOf,
+ *                 grammarLessonHtml, structureChips, mountGrammarLesson
+ * Needs jpath-display.js, jpath-furigana.js, jpath-dialog.js, jpath-item-drawer.js and jpath-grammar-lesson.js first.
  */
 (function (root, factory) {
   'use strict';
   var api = factory(root);
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (root) root.JpathLists = api;
-  if (root && root.document && typeof root.document.getElementById === 'function') {
-    var start = function () {
-      if (root.document.getElementById('jpathGrammarRoot')) api.mountGrammarLesson();
-    };
-    if (root.document.readyState === 'loading') root.document.addEventListener('DOMContentLoaded', start);
-    else start();
-  }
 })(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : null), function (root) {
   'use strict';
 
   var BASE = '/api/learning/jlpt';
   var SETTINGS_URL = BASE + '/settings';
-  var STATE_LABEL = { NEW: 'Chưa học', LEARNING: 'Đang học', NOTEBOOK: 'Sổ tay', KNOWN: 'Đã biết' };
   var STATES = ['NEW', 'LEARNING', 'NOTEBOOK', 'KNOWN'];
   var URL_ORDER = ['level', 'topic', 'unit', 'state', 'q', 'radical', 'sort', 'view', 'script', 'page'];
   var LIST_KIND = { topics: 'topics', vocab: 'vocabulary', vocabulary: 'vocabulary', kanji: 'kanji',
     grammar: 'grammar', kana: 'kana' };
   var TAB_CODE = { kana: 'KANA', vocab: 'VOCAB', kanji: 'KANJI', grammar: 'GRAMMAR', skills: 'SKILL' };
+  var LIST_URL_KEYS = ['topic', 'state', 'q', 'radical', 'sort', 'view', 'script', 'unit', 'open'];
   var SEARCH_DELAY_MS = 300;
   var MSG_LOAD = 'Không tải được danh sách. Thử lại sau.';
-  var MSG_BAD_FILTER = 'Bộ lọc không hợp lệ. Hãy đổi bộ lọc rồi thử lại.';
-  var MSG_ACTION = 'Chưa làm được thao tác này. Thử lại sau.';
   var MSG_EMPTY_VOCAB = 'Không có từ nào khớp bộ lọc.';
+  var MSG_PICK = 'Chọn một mẫu để xem bài học.';
 
   function D() {
     return (root && root.JpathDisplay) || (typeof require === 'function' ? require('./jpath-display.js') : null);
   }
-  function F() {
-    return (root && root.JpathFurigana) || (typeof require === 'function' ? require('./jpath-furigana.js') : null);
+  function H() {
+    return (root && root.JpathItemDrawer) || (typeof require === 'function' ? require('./jpath-item-drawer.js') : null);
   }
-  function DLG() {
-    return (root && root.JpathDialog) || (typeof require === 'function' ? require('./jpath-dialog.js') : null);
+  function GL() {
+    return (root && root.JpathGrammarLesson) || (typeof require === 'function' ? require('./jpath-grammar-lesson.js') : null);
   }
+  var STATE_LABEL = H().STATE_LABEL;
   function esc(v) { return D().esc(v); }
   function dataJson(o) { return D().dataJson(o); }
   function list(v) { return Array.isArray(v) ? v : []; }
@@ -77,15 +64,11 @@
     var s = String(tab || '');
     return TAB_CODE[s.toLowerCase()] || s.toUpperCase();
   }
-  function stateOf(s) { return STATE_LABEL[s] ? s : 'NEW'; }
-
-  /** A user-facing message: 400s get our own text (the server says only "Bad request"). */
-  function messageOf(e, fallback) {
-    if (e && (e.status === 400 || e.code === 'BAD_REQUEST')) return MSG_BAD_FILTER;
-    return (e && e.message) || fallback || MSG_ACTION;
-  }
-
-  // ------------------------------------------------------------------------------------------------ urls
+  function stateOf(s) { return H().stateOf(s); }
+  function stateChip(s) { return H().stateChip(s); }
+  function optionHtml(v, l, s) { return H().optionHtml(v, l, s); }
+  function readingsHtml(r, lv) { return H().readingsHtml(r, lv); }
+  function messageOf(e, fallback, scope) { return H().messageOf(e, fallback, scope); }
 
   function listUrl(kind, filter) {
     var f = filter || {};
@@ -96,27 +79,7 @@
     return BASE + '/lists/' + (LIST_KIND[kind] || kind) + (parts.length ? '?' + parts.join('&') : '');
   }
 
-  function safeReturn(v) {
-    if (typeof v !== 'string') return '/learning';
-    if (!/^\/learning(?:[/?#]|$)/.test(v) || v.indexOf('//') >= 0 || v.indexOf('\\') >= 0) return '/learning';
-    return v;
-  }
-
-  function checkUrl(token, returnTo) {
-    return '/learning/jlpt/check/' + encodeURIComponent(String(token || '')) + '?return='
-      + encodeURIComponent(safeReturn(returnTo));
-  }
-
-  function itemUrl(type, code) {
-    return BASE + '/items/' + encodeURIComponent(String(type || '').toLowerCase()) + '/' + encodeURIComponent(code);
-  }
-
   // ------------------------------------------------------------------------------------------------ shared bits
-
-  function stateChip(state) {
-    var s = stateOf(state);
-    return '<span class="jp-state jp-state--' + s.toLowerCase() + '">' + esc(STATE_LABEL[s]) + '</span>';
-  }
 
   function printFilter(tab, filter) {
     var out = { scope: 'LIST', tab: tabCode(tab) };
@@ -152,10 +115,6 @@
     html += '<button type="button" class="jp-btn" data-action="page" data-page="' + (at + 1) + '"'
       + (at >= pages - 1 ? ' disabled' : '') + '>Sau ›</button>';
     return html + '</nav>';
-  }
-
-  function optionHtml(value, label, selected) {
-    return '<option value="' + esc(value) + '"' + (selected ? ' selected' : '') + '>' + esc(label) + '</option>';
   }
 
   function facetLabel(facet) {
@@ -211,9 +170,6 @@
     var topics = list(fc.topics);
     var states = list(fc.states);
     var html = '<div class="jp-list-filters" role="search">';
-    if (has(f.topic)) {
-      html += '<button type="button" class="jp-link-btn" data-action="clear-topic">← Tất cả chủ đề</button>';
-    }
     html += '<label class="jp-field"><span class="jp-field__label">Chủ đề</span><select class="jp-input" data-filter="topic">'
       + optionHtml('', 'Tất cả chủ đề', !has(f.topic))
       + topics.map(function (t) { return optionHtml(t.value, facetLabel(t), t.value === f.topic); }).join('')
@@ -241,11 +197,15 @@
       + '<td>' + stateChip(row.state) + (row.hard ? ' <span class="jp-badge">Khó nhớ</span>' : '') + '</td></tr>';
   }
 
-  function vocabResultsHtml(page) {
+  function vocabResultsHtml(page, filter) {
     var p = page || {};
+    var f = filter || {};
     var items = list(p.items);
-    if (!items.length) return '<p class="jp-muted jp-list-empty">' + esc(MSG_EMPTY_VOCAB) + '</p>';
-    return '<div class="jp-table-wrap"><table class="jp-table"><thead><tr><th scope="col">Từ</th>'
+    var html = '<div class="jp-list-bar">' + (has(f.topic)
+      ? '<button type="button" class="jp-link-btn" data-action="clear-topic">← Tất cả chủ đề</button>' : '')
+      + printMenuHtml('VOCAB', f) + '</div>';
+    if (!items.length) return html + '<p class="jp-muted jp-list-empty">' + esc(MSG_EMPTY_VOCAB) + '</p>';
+    return html + '<div class="jp-table-wrap"><table class="jp-table"><thead><tr><th scope="col">Từ</th>'
       + '<th scope="col">Cách đọc</th><th scope="col">Nghĩa</th><th scope="col" class="jp-col-type">Loại từ</th>'
       + '<th scope="col">Trạng thái</th></tr></thead><tbody>' + items.map(vocabRowHtml).join('')
       + '</tbody></table></div>' + pagerHtml(p);
@@ -253,8 +213,7 @@
 
   function vocabTableHtml(page, filter) {
     var p = page || {};
-    return '<div class="jp-list-bar">' + printMenuHtml('VOCAB', filter) + '</div>'
-      + vocabFiltersHtml(filter, p.facets) + vocabResultsHtml(p);
+    return vocabFiltersHtml(filter, p.facets) + vocabResultsHtml(p, filter);
   }
 
   // ------------------------------------------------------------------------------------------------ kanji
@@ -373,31 +332,37 @@
       + esc(c.kana) + '</span><span class="jp-romaji">' + esc(c.romaji) + '</span></button>';
   }
 
-  function kanaHtml(rows, script) {
+  function kanaBarHtml(script) {
     var s = script === 'KATAKANA' ? 'KATAKANA' : 'HIRAGANA';
-    var html = '<div class="jp-list-bar"><div class="jp-seg" role="group" aria-label="Bảng chữ">'
+    return '<div class="jp-list-bar"><div class="jp-seg" role="group" aria-label="Bảng chữ">'
       + '<button type="button" class="jp-seg__btn" data-action="kana-script" data-script="HIRAGANA" aria-pressed="'
       + (s === 'HIRAGANA') + '">Hiragana</button><button type="button" class="jp-seg__btn" data-action="kana-script"'
       + ' data-script="KATAKANA" aria-pressed="' + (s === 'KATAKANA') + '">Katakana</button></div>'
       + '<button type="button" class="jp-btn" data-jpath-print="' + dataJson({ scope: 'KANA', script: s }) + '">In bảng chữ</button></div>';
+  }
+
+  function kanaRowsHtml(rows) {
+    var html = '';
     var items = list(rows).filter(Boolean);
     if (!items.length) return html + '<p class="jp-muted jp-list-empty">Chưa có hàng chữ nào.</p>';
     html += '<ol class="jp-kana-rows">' + items.map(function (r) {
       var first = list(r.kanas).filter(Boolean)[0];
+      // BROWSE takes the row code (HR-…/KR-…): Task 34 starts that row's new kana plus a KANA_ROW check
       return '<li class="jp-kana-row"><div class="jp-kana-row__head"><h3 class="jp-kana-row__title">' + esc(r.title)
         + '</h3>' + (r.passed ? '<span class="jp-ok jp-kana-row__passed">✓ Đã đạt</span>' : '')
         + (first ? '<button type="button" class="jp-link-btn" data-action="kana-row" data-row="' + esc(r.code)
-          + '" data-start="' + esc(first.code) + '">Học hàng này</button>' : '') + '</div>'
+          + '">Học hàng này</button>' : '') + '</div>'
         + '<div class="jp-kana-grid' + (r.kind === 'YOON' ? ' jp-kana-grid--yoon' : '') + '">'
         + kanaColumns(r).map(kanaCellHtml).join('') + '</div></li>';
     }).join('') + '</ol>';
     return html;
   }
 
+  function kanaHtml(rows, script) { return kanaBarHtml(script) + kanaRowsHtml(rows); }
+
   // ------------------------------------------------------------------------------------------------ grammar
 
   var PANE_MIN_WIDTH = 900;
-  var MSG_QUEUED = 'Đã thêm vào lượt hôm nay.';
 
   function grammarOpenMode(width) { return num(width) >= PANE_MIN_WIDTH ? 'PANE' : 'PAGE'; }
 
@@ -413,25 +378,21 @@
     return 'jp-dot-new';
   }
 
-  function grammarRowHtml(r, openCode) {
+  function grammarRowHtml(r, openCode, pane) {
     var g = r || {};
     var open = has(openCode) && g.code === openCode;
     return '<li><button type="button" class="jp-grow' + (open ? ' jp-grow--open' : '') + '" data-action="open-grammar"'
-      + ' data-code="' + esc(g.code) + '" aria-expanded="' + open + '">'
+      + ' data-code="' + esc(g.code) + '" aria-expanded="' + open + '"'
+      + (pane ? ' aria-controls="jp-grammar-pane"' : '') + '>'
       + '<span class="jp-dot ' + dotClass(g.state) + '" aria-hidden="true"></span>'
       + '<span class="jp-sr-only">' + esc(STATE_LABEL[stateOf(g.state)]) + ': </span>'
       + '<span class="jp-grow__text"><b lang="ja">' + esc(g.pattern) + '</b>' + (has(g.meaning) ? ' · ' + esc(g.meaning) : '')
       + '</span><span class="jp-grow__mark" aria-hidden="true">' + (open ? '▾' : '▸') + '</span></button></li>';
   }
 
-  function grammarAccordionHtml(units, filter, openCode, totals) {
+  function grammarFiltersHtml(filter, options) {
     var f = filter || {};
-    var items = list(units).filter(Boolean);
-    var t = totals || {};
-    var total = has(t.total) ? num(t.total) : items.reduce(function (s, u) { return s + num(u.total); }, 0);
-    var done = has(t.done) ? num(t.done) : items.reduce(function (s, u) { return s + num(u.done); }, 0);
-    var options = list(t.units).length ? list(t.units) : items;
-    var html = '<div class="jp-list-filters" role="search">'
+    return '<div class="jp-list-filters" role="search">'
       + '<label class="jp-field"><span class="jp-field__label">Bài</span><select class="jp-input" data-filter="unit">'
       + optionHtml('', 'Tất cả bài', !has(f.unit))
       + options.map(function (u) { return optionHtml(u.unitNo, unitTitle(u), String(u.unitNo) === String(f.unit)); }).join('')
@@ -439,7 +400,15 @@
       + '<label class="jp-field jp-field--grow"><span class="jp-field__label">Tìm</span>'
       + '<input class="jp-input" type="search" data-filter="q" placeholder="Tìm mẫu, nghĩa…" value="' + esc(f.q || '')
       + '" autocomplete="off"></label>' + quizButtonHtml('GRAMMAR') + '</div>';
-    html += '<p class="jp-grammar-sum">' + esc(done + '/' + total + ' mẫu đã xong') + ' · <span class="jp-legend">'
+  }
+
+  /** The progress line and the units; pane = true adds aria-controls to the rows (wide-screen pane). */
+  function grammarUnitsHtml(units, openCode, totals, pane) {
+    var items = list(units).filter(Boolean);
+    var t = totals || {};
+    var total = has(t.total) ? num(t.total) : items.reduce(function (s, u) { return s + num(u.total); }, 0);
+    var done = has(t.done) ? num(t.done) : items.reduce(function (s, u) { return s + num(u.done); }, 0);
+    var html = '<p class="jp-grammar-sum">' + esc(done + '/' + total + ' mẫu đã xong') + ' · <span class="jp-legend">'
       + '<span class="jp-dot jp-dot-known" aria-hidden="true"></span> đã xong '
       + '<span class="jp-dot jp-dot-learning" aria-hidden="true"></span> đang học '
       + '<span class="jp-dot jp-dot-new" aria-hidden="true"></span> chưa học</span></p>';
@@ -447,329 +416,15 @@
     return html + items.map(function (u) {
       return '<section class="jp-gunit"><h3 class="jp-gunit__title">' + esc(unitTitle(u))
         + ' <span class="jp-gunit__count">' + esc(num(u.done) + '/' + num(u.total) + ' mẫu') + '</span></h3>'
-        + '<ul class="jp-gunit__rows">' + list(u.patterns).map(function (r) { return grammarRowHtml(r, openCode); }).join('')
+        + '<ul class="jp-gunit__rows">' + list(u.patterns).map(function (r) { return grammarRowHtml(r, openCode, pane); }).join('')
         + '</ul></section>';
     }).join('');
   }
 
-  function structureChips(formation) {
-    if (!has(formation)) return '';
-    var parts = String(formation).split(/\s*[+＋]\s*/).filter(function (p) { return p !== ''; });
-    return '<span class="jp-struct" lang="ja">' + parts.map(function (p) {
-      return '<span class="jp-struct__chip">' + esc(p) + '</span>';
-    }).join('<span class="jp-struct__plus" aria-hidden="true">+</span>') + '</span>';
-  }
-
-  function lessonPart(label, body) {
-    return body ? '<div class="jp-lesson__part"><span class="jp-lesson__label">' + esc(label) + '</span>' + body + '</div>' : '';
-  }
-
-  function textPart(label, value) { return has(value) ? lessonPart(label, '<p>' + esc(value) + '</p>') : ''; }
-
-  function grammarLessonHtml(lesson) {
-    var g = lesson || {};
-    var state = stateOf(g.state);
-    var html = '<article class="jp-lesson" data-jpath-report="'
-      + dataJson({ targetType: 'GRAMMAR', targetCode: g.code, pageContext: 'GRAMMAR_LESSON' }) + '">';
-    var eyebrow = ['NGỮ PHÁP ' + (g.level || ''), has(g.unitNo) ? 'BÀI ' + g.unitNo : null,
-      num(g.unitSize) > 0 ? 'MẪU ' + num(g.indexInUnit) + '/' + num(g.unitSize) : null].filter(has).join(' · ');
-    html += '<p class="jp-lesson__eyebrow">' + esc(eyebrow) + '</p>';
-    html += '<h2 class="jp-lesson__pattern" id="jp-lesson-title" lang="ja">' + esc(g.pattern) + '</h2>';
-    var variants = list(g.variants).filter(has);
-    if (variants.length) html += '<p class="jp-muted" lang="ja">' + esc(variants.join(' · ')) + '</p>';
-    html += textPart('Nghĩa', g.meaning);
-    html += lessonPart('Cấu trúc', structureChips(g.formation));
-    html += textPart('Cách dùng', g.usage) + textPart('Sắc thái', g.nuance) + textPart('Lỗi thường gặp', g.commonMistakes);
-    var compare = list(g.related).filter(function (r) { return r && has(r.pattern); }).map(function (r) {
-      return '<p class="jp-lesson__compare">' + esc('So sánh: ' + r.pattern + (has(r.meaning) ? ' (' + r.meaning + ')' : ''))
-        + '</p>';
-    }).join('');
-    html += compare;
-    var examples = list(g.examples).map(function (e) {
-      var ex = F().exampleHtml(e);
-      if (!ex) return '';
-      return '<li class="jp-example">' + (e && has(e.audioUrl) ? '<button type="button" class="jp-icon-btn" data-action="play" data-audio="'
-        + esc(e.audioUrl) + '" aria-label="Nghe câu ví dụ">🔊</button>' : '') + '<div>' + ex + '</div></li>';
-    }).filter(Boolean).join('');
-    html += lessonPart('Ví dụ', examples ? '<ul class="jp-examples">' + examples + '</ul>' : '');
-    html += '</article>';
-    if (g.practiceAvailable || g.extraAvailable) {
-      html += '<section class="jp-lesson-practice no-inline-dictionary" data-practice="GRAMMAR_PRACTICE"'
-        + ' aria-labelledby="jp-practice-title"><h3 class="jp-lesson-practice__title" id="jp-practice-title">Luyện ngay</h3>';
-      if (g.practiceAvailable) {
-        html += '<p class="jp-muted">1 câu xếp từ và 1 câu điền.</p><button type="button" class="jp-btn jp-btn--primary"'
-          + ' data-action="grammar-practice" data-kind="GRAMMAR_PRACTICE">Luyện ngay</button>';
-      }
-      if (g.extraAvailable) {
-        html += '<button type="button" class="jp-link-btn" data-action="grammar-practice" data-kind="GRAMMAR_EXTRA">'
-          + '+ Luyện thêm 3 câu</button>';
-      }
-      html += '<div class="jp-lesson-practice__mount" data-part="practice-mount"></div>'
-        + '<p class="jp-alert" role="alert" data-part="lesson-error" hidden></p></section>';
-    } else {
-      html += '<p class="jp-alert" role="alert" data-part="lesson-error" hidden></p>';
-    }
-    var foot = '';
-    if (state === 'NEW' && g.learnable !== false) {
-      foot += '<button type="button" class="jp-btn" data-action="queue-today">Học mẫu này trong lượt hôm nay</button>';
-    }
-    var nav = '';
-    if (has(g.prevCode)) {
-      nav += '<a class="jp-link-btn" data-action="open-grammar" data-code="' + esc(g.prevCode) + '" href="/learning/jlpt/grammar/'
-        + encodeURIComponent(g.prevCode) + '">← Mẫu trước</a>';
-    }
-    if (has(g.nextCode)) {
-      nav += '<a class="jp-link-btn" data-action="open-grammar" data-code="' + esc(g.nextCode) + '" href="/learning/jlpt/grammar/'
-        + encodeURIComponent(g.nextCode) + '">Mẫu sau →</a>';
-    }
-    if (nav) foot += '<nav class="jp-lesson__nav" aria-label="Mẫu khác">' + nav + '</nav>';
-    if (foot) html += '<div class="jp-lesson__foot">' + foot + '<p class="jp-status" role="status" data-part="lesson-status"></p></div>';
-    return html;
-  }
-
-  function lessonUrl(code) { return BASE + '/grammar/' + encodeURIComponent(code); }
-
-  /** Lesson buttons shared by the list pane and the lesson page. env = {api, navigate, returnTo, toast}. */
-  function lessonAction(el, lesson, container, env) {
-    var action = el.getAttribute('data-action');
-    var g = lesson || {};
-    if (action === 'play') { D().playAudio(el.getAttribute('data-audio')); return true; }
-    if (action === 'grammar-practice') {
-      el.disabled = true;
-      env.api.send('POST', BASE + '/checks', { kind: el.getAttribute('data-kind') || 'GRAMMAR_PRACTICE', tab: 'GRAMMAR',
-        level: g.level, itemCode: g.code }).then(function (res) {
-        var token = res && (res.token || res.checkToken);
-        var mountEl = container.querySelector('[data-part="practice-mount"]');
-        var check = root && root.JpathCheck;
-        if (token && check && typeof check.mountInline === 'function' && mountEl) {
-          el.disabled = false;
-          return check.mountInline(mountEl, token, {});
-        }
-        if (token) env.navigate(checkUrl(token, env.returnTo));
-        return null;
-      }).catch(function (e) {
-        el.disabled = false;
-        showError(container, 'lesson-error', messageOf(e));
-      });
-      return true;
-    }
-    if (action === 'queue-today') {
-      el.disabled = true;
-      env.api.send('POST', BASE + '/grammar/' + encodeURIComponent(g.code) + '/queue-today').then(function () {
-        var ui = root && root.JlasUI;
-        if (ui && typeof ui.toast === 'function') ui.toast(MSG_QUEUED, 'success');
-        var status = container.querySelector('[data-part="lesson-status"]');
-        if (status) status.textContent = MSG_QUEUED;
-      }, function (e) {
-        el.disabled = false;
-        showError(container, 'lesson-error', messageOf(e));
-      });
-      return true;
-    }
-    return false;
-  }
-
-  /** Draws the grammar lesson page (#jpathGrammarRoot[data-grammar-code]). */
-  function mountGrammarLesson(rootEl, deps) {
-    var d = deps || {};
-    var doc = d.document || (root && root.document);
-    var el = rootEl || (doc && doc.getElementById('jpathGrammarRoot'));
-    if (!el) return Promise.resolve();
-    var apiClient = d.api || root.JpathApi;
-    var loc = d.location || root.location;
-    var rendered = d.rendered || function (x) { D().rendered(x); };
-    var code = el.getAttribute('data-grammar-code');
-    var lesson = null;
-    var env = { api: apiClient, navigate: d.navigate || function (u) { root.location.assign(u); },
-      returnTo: ((loc && loc.pathname) || '/learning') + ((loc && loc.search) || '') };
-    el.addEventListener('click', function (ev) {
-      var t = ev.target;
-      var btn = t && typeof t.closest === 'function' ? t.closest('[data-action]') : null;
-      if (!btn || btn.disabled || !lesson) return;
-      lessonAction(btn, lesson, el, env);
-    });
-    return Promise.resolve().then(function () { return apiClient.get(lessonUrl(code)); }).then(function (view) {
-      lesson = view || {};
-      el.innerHTML = grammarLessonHtml(lesson);
-      el.setAttribute('aria-busy', 'false');
-      if (doc && has(lesson.pattern)) doc.title = lesson.pattern + ' - JLAS';
-      rendered(el);
-    }, function (e) {
-      el.innerHTML = '<p class="jp-alert" role="alert">' + esc(messageOf(e, 'Không tải được bài ngữ pháp.')) + '</p>';
-      el.setAttribute('aria-busy', 'false');
-    });
-  }
-
-  // ------------------------------------------------------------------------------------------------ drawer
-
-  function section(label, body) {
-    return body ? '<section class="jp-drawer__part"><h3 class="jp-drawer__label">' + esc(label) + '</h3>' + body
-      + '</section>' : '';
-  }
-
-  function readingsHtml(readings, levelReadings) {
-    return list(readings).filter(has).map(function (r) {
-      return '<span lang="ja">' + F().kanjiReadingHtml(r, levelReadings) + '</span>';
-    }).join('、');
-  }
-
-  function wordListHtml(words) {
-    var rows = list(words).map(function (w) {
-      var x = w || {};
-      return '<li><span class="jp-ja" lang="ja">' + esc(x.expression) + '</span>'
-        + (has(x.reading) ? ' <span class="jp-muted" lang="ja">' + esc(x.reading) + '</span>' : '')
-        + (has(x.meaning) ? ' · ' + esc(x.meaning) : '') + (x.learned ? ' <span class="jp-ok">✓</span>' : '') + '</li>';
-    }).join('');
-    return rows ? '<ul class="jp-word-list">' + rows + '</ul>' : '';
-  }
-
-  function factRow(label, value) {
-    return value ? '<div class="jp-fact"><dt>' + esc(label) + '</dt><dd>' + value + '</dd></div>' : '';
-  }
-
-  function drawerButtons(type, state) {
-    var noNotebook = type === 'GRAMMAR' || type === 'KANA';
-    if (state === 'NEW') {
-      return '<button type="button" class="jp-btn jp-btn--primary" data-action="item-known">Đã biết (kiểm 1 câu)</button>';
-    }
-    if (state === 'LEARNING') {
-      return '<button type="button" class="jp-btn jp-btn--primary" data-action="item-known">Đánh dấu Đã biết</button>'
-        + (noNotebook ? '' : '<button type="button" class="jp-btn" data-action="notebook-add">Thêm vào sổ tay</button>');
-    }
-    if (state === 'NOTEBOOK') {
-      return '<button type="button" class="jp-btn" data-action="notebook-remove">Bỏ khỏi sổ tay</button>';
-    }
-    return '';
-  }
-
-  function itemDrawerHtml(detail) {
-    var d = detail || {};
-    var type = String(d.itemType || 'VOCAB').toUpperCase();
-    var state = stateOf(d.state);
-    var k = d.kanji || {};
-    var g = d.grammar || {};
-    var kana = d.kana || {};
-    var title = type === 'GRAMMAR' ? (g.pattern || d.expression) : (type === 'KANA' ? (kana.kana || d.expression)
-      : d.expression);
-    var kanjiInWord = list(d.kanjiInWord);
-    var html = '<div class="jp-drawer" data-part="drawer" data-jpath-report="'
-      + dataJson({ targetType: type, targetCode: d.code, pageContext: 'LIST' }) + '">';
-    html += '<div class="jp-drawer__head">' + stateChip(state) + (d.hard ? ' <span class="jp-badge">Khó nhớ</span>' : '')
-      + '<button type="button" class="jp-drawer__x" data-dialog-close aria-label="Đóng">×</button></div>';
-    html += '<h2 class="jp-drawer__title jp-kanji" id="jp-dialog-title" lang="ja">' + esc(title) + '</h2>';
-    if (has(d.reading) && d.reading !== title) html += '<p class="jp-drawer__reading jp-ja" lang="ja">' + esc(d.reading) + '</p>';
-    var romaji = d.romaji || (type === 'KANA' ? kana.romaji : null);
-    if (has(romaji)) html += '<p class="jp-romaji">' + esc(romaji) + '</p>';
-    if (has(d.meaning)) html += '<p class="jp-drawer__meaning">' + esc(d.meaning) + '</p>';
-    var meta = [d.wordType, d.topic].filter(has).join(' · ');
-    if (meta) html += '<p class="jp-muted">' + esc(meta) + '</p>';
-    if (has(d.audioUrl)) {
-      html += '<button type="button" class="jp-btn" data-action="play" data-audio="' + esc(d.audioUrl)
-        + '" aria-label="Nghe phát âm">🔊 Nghe</button>';
-    }
-    if (type === 'KANJI') {
-      var facts = factRow('Hán Việt', esc([k.hanViet].concat(list(k.hanVietAlt)).filter(has).join(', ').toUpperCase()))
-        + factRow('Âm On', readingsHtml(k.readingsOn, k.levelReadings))
-        + factRow('Âm Kun', readingsHtml(k.readingsKun, k.levelReadings))
-        + factRow('Số nét', has(k.strokeCount) ? esc(k.strokeCount) : '')
-        + factRow('Bộ', has(k.radicalNumber) || has(k.radicalName)
-          ? esc([k.radicalName, has(k.radicalNumber) ? '(' + k.radicalNumber + ')' : null].filter(has).join(' ')) : '');
-      if (facts) html += '<dl class="jp-facts">' + facts + '</dl>';
-    }
-    if (type === 'GRAMMAR') {
-      html += section('Cấu trúc', has(g.formation) ? '<p lang="ja">' + esc(g.formation) + '</p>' : '')
-        + section('Cách dùng', has(g.usage) ? '<p>' + esc(g.usage) + '</p>' : '')
-        + section('Sắc thái', has(g.nuance) ? '<p>' + esc(g.nuance) + '</p>' : '');
-    }
-    html += section('Kanji trong từ', kanjiInWord.length ? '<ul class="jp-word-list">' + kanjiInWord.map(function (c) {
-      var x = c || {};
-      return '<li><span class="jp-kanji jp-drawer__char" lang="ja">' + esc(x.character) + '</span>'
-        + (has(x.hanViet) ? ' ' + esc(String(x.hanViet).toUpperCase()) : '') + (has(x.meaning) ? ' · ' + esc(x.meaning) : '')
-        + '</li>';
-    }).join('') + '</ul>' : '');
-    html += section('Từ có chữ này', wordListHtml(d.compounds));
-    var examples = list(d.examples).map(function (e) {
-      var ex = F().exampleHtml(e);
-      if (!ex) return '';
-      return '<li class="jp-example">' + (e && has(e.audioUrl) ? '<button type="button" class="jp-icon-btn" data-action="play" data-audio="'
-        + esc(e.audioUrl) + '" aria-label="Nghe câu ví dụ">🔊</button>' : '') + '<div>' + ex + '</div></li>';
-    }).filter(Boolean).join('');
-    html += section('Ví dụ', examples ? '<ul class="jp-examples">' + examples + '</ul>' : '');
-    html += section('Mẹo nhớ', has(d.mnemonic) ? '<p>' + esc(d.mnemonic) + '</p>' : '');
-    html += section('Dễ nhầm với', wordListHtml(d.confusables));
-    var writable = type === 'KANJI' || type === 'KANA' || (type === 'VOCAB' && kanjiInWord.length > 0);
-    if (writable && has(d.code)) {
-      html += '<div class="jp-drawer__writing" data-jpath-writing="' + dataJson({ itemType: type, code: d.code }) + '"></div>';
-    }
-    var buttons = drawerButtons(type, state);
-    if (buttons) html += '<div class="jp-drawer__actions">' + buttons + '</div>';
-    html += '<p class="jp-alert" role="alert" data-part="drawer-error" hidden></p>';
-    return html + '</div>';
-  }
-
-  // ------------------------------------------------------------------------------------------------ free quiz
-
-  function radio(name, value, label, checked, disabled) {
-    return '<label class="jp-choice"><input type="radio" name="' + name + '" value="' + esc(value) + '"'
-      + (checked ? ' checked' : '') + (disabled ? ' disabled' : '') + '><span>' + esc(label) + '</span></label>';
-  }
-
-  function freeQuizDialogHtml(tab, ctx) {
-    var c = ctx || {};
-    var t = tabCode(tab);
-    var grammar = t === 'GRAMMAR';
-    var display = c.display || {};
-    var timerOn = grammar ? display.grammarTimerOn !== false : !!display.quizTimerOn;
-    var html = '<h2 class="jp-dialog__title" id="jp-dialog-title">Luyện quiz</h2>'
-      + '<form class="jp-quiz-form no-inline-dictionary" data-part="quiz-form" data-tab="' + esc(t) + '">';
-    html += '<fieldset class="jp-fieldset"><legend>Số câu</legend><div class="jp-choices">'
-      + [5, 10, 20].map(function (n) { return radio('count', n, n + ' câu', n === 10, n === 5 && !!c.skillDay); }).join('')
-      + '</div>' + (c.skillDay ? '<p class="jp-muted">Ngày kỹ năng cần quiz từ 10 câu.</p>' : '') + '</fieldset>';
-    if (grammar) {
-      html += '<label class="jp-field"><span class="jp-field__label">Bài</span><select class="jp-input" name="unit">'
-        + optionHtml('', 'Tất cả bài', !has(c.unit))
-        + list(c.units).map(function (u) {
-          return optionHtml(u.unitNo, 'Bài ' + u.unitNo, String(u.unitNo) === String(c.unit));
-        }).join('') + '</select></label>';
-    }
-    var sources = grammar ? [['LEARNED', 'Đã học'], ['ALL', 'Tất cả']]
-      : [['LEARNED', 'Đã học'], ['NOTEBOOK', 'Sổ tay'], ['ALL', 'Tất cả']];
-    html += '<fieldset class="jp-fieldset"><legend>Nguồn câu hỏi</legend><div class="jp-choices">'
-      + sources.map(function (s, i) { return radio('source', s[0], s[1], i === 0); }).join('') + '</div></fieldset>';
-    if (!grammar) {
-      html += '<fieldset class="jp-fieldset"><legend>Chiều hỏi</legend><div class="jp-choices">'
-        + radio('direction', 'JA_VI', 'Nhật → Việt', false) + radio('direction', 'VI_JA', 'Việt → Nhật', false)
-        + radio('direction', 'MIXED', 'Xen kẽ', true) + '</div></fieldset>';
-    }
-    html += '<label class="jp-choice"><input type="checkbox" name="timer"' + (timerOn ? ' checked' : '')
-      + '><span>Bật đồng hồ</span></label>';
-    html += '<p class="jp-alert" role="alert" data-part="quiz-error" hidden></p>'
-      + '<button type="submit" class="jp-btn jp-btn--primary" data-action="quiz-start">Bắt đầu</button></form>';
-    return html;
-  }
-
-  function freeQuizRequest(values) {
-    var v = values || {};
-    var tab = tabCode(v.tab);
-    var grammar = tab === 'GRAMMAR';
-    var count = Number(v.count) || 10;
-    if (v.skillDay && count < 10) count = 10;
-    var req = { kind: 'FREE_QUIZ', tab: tab, level: v.level || null, topicKey: grammar ? null : (v.topicKey || null),
-      source: v.source || 'LEARNED', count: count, direction: grammar ? null : (v.direction || 'MIXED'),
-      timerOn: !!v.timerOn };
-    if (grammar && has(v.unitNo)) req.unitNo = Number(v.unitNo);
-    return req;
-  }
-
-  function readQuizForm(form) {
-    function checked(name) {
-      var el = form.querySelector('input[name="' + name + '"]:checked');
-      return el ? el.value : null;
-    }
-    var unit = form.querySelector('select[name="unit"]');
-    var timer = form.querySelector('input[name="timer"]');
-    return { count: checked('count'), source: checked('source'), direction: checked('direction'),
-      unitNo: unit ? unit.value : null, timerOn: !!(timer && timer.checked) };
+  function grammarAccordionHtml(units, filter, openCode, totals) {
+    var t = totals || {};
+    var options = list(t.units).length ? list(t.units) : list(units).filter(Boolean);
+    return grammarFiltersHtml(filter, options) + grammarUnitsHtml(units, openCode, totals, false);
   }
 
   // ------------------------------------------------------------------------------------------------ url state
@@ -800,7 +455,8 @@
     try { env.history.replaceState(null, '', ((loc.pathname) || '/learning') + (q ? '?' + q : '')); } catch (e) { /* ignore */ }
   }
 
-  // ------------------------------------------------------------------------------------------------ mount
+  // ------------------------------------------------------------------------------------------------ tabs
+  // each load(st) resolves to {barKey, bar, results}: the bar is redrawn only when barKey changes
 
   var TABS = {};
 
@@ -813,18 +469,21 @@
     load: function (st) {
       var f = st.filter;
       var level = st.ctx.level;
-      var bar = '<div class="jp-list-bar">' + viewToggleHtml(has(f.topic) ? 'FLAT' : st.view) + quizButtonHtml('VOCAB')
-        + '</div>';
-      if (st.view === 'TOPICS' && !has(f.topic)) {
+      var view = has(f.topic) ? 'FLAT' : st.view;
+      var top = '<div class="jp-list-bar">' + viewToggleHtml(view) + quizButtonHtml('VOCAB') + '</div>';
+      if (view === 'TOPICS') {
         return st.api.get(listUrl('topics', { level: level })).then(function (topics) {
           st.topics = list(topics);
-          return bar + printMenuHtml('VOCAB', { level: level }) + topicGridHtml(st.topics, level);
+          return { barKey: 'vocab:TOPICS', bar: top,
+            results: '<div class="jp-list-bar">' + printMenuHtml('VOCAB', { level: level }) + '</div>'
+              + topicGridHtml(st.topics, level) };
         });
       }
       return st.api.get(listUrl('vocabulary', { level: level, topic: f.topic, state: f.state, q: f.q, page: f.page }))
         .then(function (page) {
-          st.facets = (page && page.facets) || {};
-          return bar + vocabTableHtml(page, { level: level, topic: f.topic, state: f.state, q: f.q });
+          var current = { level: level, topic: f.topic, state: f.state, q: f.q };
+          return { barKey: 'vocab:FLAT', bar: top + vocabFiltersHtml(current, page && page.facets),
+            results: vocabResultsHtml(page, current) };
         });
     }
   };
@@ -840,11 +499,13 @@
     load: function (st) {
       var f = st.filter;
       var level = st.ctx.level;
+      var view = f.view === 'GRID' ? 'GRID' : 'TABLE';
       return st.api.get(listUrl('kanji', { level: level, q: f.q, radical: f.radical, sort: f.sort, view: f.view,
         page: f.page })).then(function (page) {
         var current = { level: level, q: f.q, radical: f.radical, sort: f.sort, view: f.view };
-        return '<div class="jp-list-bar">' + quizButtonHtml('KANJI') + '</div>'
-          + kanjiFiltersHtml(current, page && page.facets) + kanjiListHtml(page, f.view === 'GRID' ? 'GRID' : 'TABLE', current);
+        return { barKey: 'kanji:' + view,
+          bar: '<div class="jp-list-bar">' + quizButtonHtml('KANJI') + '</div>' + kanjiFiltersHtml(current, page && page.facets),
+          results: kanjiListHtml(page, view, current) };
       });
     }
   };
@@ -855,8 +516,9 @@
       st.filter = { script: String(params.script || '').toUpperCase() === 'KATAKANA' ? 'KATAKANA' : 'HIRAGANA' };
     },
     load: function (st) {
-      return st.api.get(listUrl('kana', { script: st.filter.script })).then(function (rows) {
-        return kanaHtml(rows, st.filter.script);
+      var script = st.filter.script;
+      return st.api.get(listUrl('kana', { script: script })).then(function (rows) {
+        return { barKey: 'kana:' + script, bar: kanaBarHtml(script), results: kanaRowsHtml(rows) };
       });
     }
   };
@@ -880,18 +542,24 @@
       var all = units({ level: level });
       var shown = has(f.unit) || has(f.q) ? units({ level: level, unit: f.unit, q: f.q }) : all;
       var pane = mode === 'PANE' && has(f.open)
-        ? st.api.get(lessonUrl(f.open)).then(function (v) { return v; }, function () { return null; }) : Promise.resolve(null);
+        ? st.api.get(GL().lessonUrl(f.open)).then(function (v) { return { lesson: v || {} }; },
+          function (e) { return { error: messageOf(e, 'Không tải được bài ngữ pháp.') }; })
+        : Promise.resolve({});
       return Promise.all([all, shown, pane]).then(function (res) {
         st.units = res[0];
-        st.lesson = res[2];
+        st.lesson = res[2].lesson || null;
         var totals = { units: res[0], total: res[0].reduce(function (s, u) { return s + num(u.total); }, 0),
           done: res[0].reduce(function (s, u) { return s + num(u.done); }, 0) };
-        var accordion = grammarAccordionHtml(res[1], f, mode === 'PANE' ? f.open : null, totals);
-        if (mode !== 'PANE') return accordion;
-        var paneHtml = st.lesson ? grammarLessonHtml(st.lesson)
-          : '<p class="jp-muted jp-grammar-pane__hint">Chọn một mẫu để xem bài học.</p>';
-        return '<div class="jp-grammar-split"><div class="jp-grammar-list">' + accordion + '</div>'
-          + '<div class="jp-grammar-pane" data-part="pane" aria-live="polite">' + paneHtml + '</div></div>';
+        var out = { barKey: 'grammar:' + mode, bar: grammarFiltersHtml(f, res[0]) };
+        if (mode !== 'PANE') { out.results = grammarUnitsHtml(res[1], null, totals, false); return out; }
+        var paneHtml = st.lesson ? GL().grammarLessonHtml(st.lesson)
+          : (res[2].error ? '<p class="jp-alert" role="alert">' + esc(res[2].error) + '</p>'
+            : '<p class="jp-muted jp-grammar-pane__hint">' + esc(MSG_PICK) + '</p>');
+        out.results = '<div class="jp-grammar-split"><div class="jp-grammar-list">'
+          + grammarUnitsHtml(res[1], f.open, totals, true) + '</div>'
+          + '<div class="jp-grammar-pane" id="jp-grammar-pane" data-part="pane" aria-live="polite">' + paneHtml
+          + '</div></div>';
+        return out;
       });
     }
   };
@@ -901,30 +569,13 @@
     return (root && root.innerWidth) || 0;
   }
 
-  function openGrammar(slot, st, el, ev) {
-    var code = el.getAttribute('data-code');
-    if (!/^JG-[0-9a-f]{10}$/.test(code || '')) return null;
-    var link = typeof el.getAttribute === 'function' && el.getAttribute('href');
-    if (grammarOpenMode(widthOf(st.ctx)) === 'PAGE') {
-      if (!link) st.navigate('/learning/jlpt/grammar/' + encodeURIComponent(code));
-      return null;
-    }
-    if (ev && typeof ev.preventDefault === 'function') ev.preventDefault();
-    tabState(st).filter.open = code;
-    writeParams(st.env, { open: code });
-    return reload(slot, st);
-  }
+  // ------------------------------------------------------------------------------------------------ mount
 
-  function startKanaRow(slot, st, el) {
-    var req = { tab: 'KANA', mode: 'BROWSE', startItemCode: el.getAttribute('data-start') };
-    el.disabled = true;
-    return st.api.send('POST', BASE + '/sessions', req).then(function (res) {
-      var id = res && (res.sessionId != null ? res.sessionId : res.id);
-      st.navigate('/learning/jlpt/study?session=' + encodeURIComponent(id));
-    }, function (e) {
-      el.disabled = false;
-      showError(slot, 'list-error', messageOf(e));
-    });
+  function qs(el, sel) { return el && typeof el.querySelector === 'function' ? el.querySelector(sel) : null; }
+
+  function signature(key, c) {
+    var d = c.display || {};
+    return [key, c.level, d.vocabListView, !!c.skillDay, key === 'grammar' ? grammarOpenMode(widthOf(c)) : ''].join('|');
   }
 
   function mountTab(slot, tabKey, ctx) {
@@ -932,7 +583,7 @@
     var key = String(tabKey || '').toLowerCase();
     var st = slot.__jpathLists;
     if (!st) {
-      st = { seq: 0, filters: {}, timer: null };
+      st = { seq: 0, filters: {}, timer: null, barKey: null, sig: null, level: undefined, ignoreUrl: false };
       slot.__jpathLists = st;
       bind(slot, st);
     }
@@ -945,13 +596,25 @@
     st.rendered = c.rendered || function (el) { D().rendered(el); };
     st.setT = c.setTimeout || function (fn, ms) { return setTimeout(fn, ms); };
     st.clearT = c.clearTimeout || function (id) { clearTimeout(id); };
+    if (st.level !== undefined && st.level !== c.level) {
+      // a new level: the topic, unit, open lesson… of the old level mean nothing there
+      st.filters = {};
+      st.ignoreUrl = true;
+      var cleared = {};
+      LIST_URL_KEYS.forEach(function (k) { cleared[k] = null; });
+      writeParams(st.env, cleared);
+    }
+    st.level = c.level;
+    var sig = signature(key, c);
+    if (!c.force && st.sig === sig && st.key === key) return Promise.resolve();
+    st.sig = sig;
     st.key = key;
     var spec = TABS[key];
-    if (!spec) { slot.innerHTML = ''; return Promise.resolve(); }
+    if (!spec) { slot.innerHTML = ''; st.barKey = null; return Promise.resolve(); }
     if (!st.filters[key]) {
-      var tabState = { ctx: c };
-      spec.init(tabState, readParams(st.env.location));
-      st.filters[key] = tabState;
+      var tabSt = { ctx: c };
+      spec.init(tabSt, st.ignoreUrl ? {} : readParams(st.env.location));
+      st.filters[key] = tabSt;
     }
     return reload(slot, st);
   }
@@ -963,25 +626,62 @@
     return t;
   }
 
+  function liveQuery(slot) {
+    var input = qs(slot, '[data-filter="q"]');
+    return input && typeof input.value === 'string' ? input.value : null;
+  }
+
+  /** Refreshes the facet options of the mounted bar without touching the search input. */
+  function syncSelects(st, bar, html) {
+    if (!st.doc || typeof st.doc.createElement !== 'function' || typeof bar.querySelectorAll !== 'function') return;
+    var tmp = st.doc.createElement('div');
+    tmp.innerHTML = html;
+    Array.prototype.forEach.call(tmp.querySelectorAll('select[data-filter]'), function (fresh) {
+      var live = bar.querySelector('select[data-filter="' + fresh.getAttribute('data-filter') + '"]');
+      if (live) live.innerHTML = fresh.innerHTML;
+    });
+  }
+
+  function tabOfKey(barKey) { return barKey ? String(barKey).split(':')[0] : null; }
+
+  function paint(slot, st, out, focusFilter) {
+    var bar = qs(slot, '[data-part="bar"]');
+    var results = qs(slot, '[data-part="results"]');
+    if (bar && results && st.barKey === out.barKey) {
+      results.innerHTML = out.results;
+      syncSelects(st, bar, out.bar);
+      return;
+    }
+    var live = tabOfKey(st.barKey) === tabOfKey(out.barKey) ? liveQuery(slot) : null;
+    slot.innerHTML = '<div class="jp-list-head" data-part="bar">' + out.bar + '</div><div class="jp-list-results"'
+      + ' data-part="results">' + out.results + '</div><p class="jp-alert" role="alert" data-part="list-error" hidden></p>';
+    st.barKey = out.barKey;
+    var input = qs(slot, '[data-filter="q"]');
+    if (input && live !== null && live !== input.value) input.value = live; // the learner typed on while we loaded
+    restoreFocus(slot, focusFilter);
+  }
+
   function reload(slot, st, focusFilter) {
     var spec = TABS[st.key];
     if (!spec) return Promise.resolve();
     var seq = ++st.seq;
     var key = st.key;
-    return Promise.resolve().then(function () { return spec.load(tabState(st), slot); }).then(function (html) {
+    return Promise.resolve().then(function () { return spec.load(tabState(st), slot); }).then(function (out) {
       if (seq !== st.seq || key !== st.key) return;
-      slot.innerHTML = html + '<p class="jp-alert" role="alert" data-part="list-error" hidden></p>';
-      restoreFocus(slot, focusFilter);
+      paint(slot, st, out, focusFilter);
       st.rendered(slot);
     }, function (e) {
       if (seq !== st.seq) return;
-      slot.innerHTML = '<p class="jp-alert" role="alert">' + esc(messageOf(e, MSG_LOAD)) + '</p>';
+      var results = qs(slot, '[data-part="results"]');
+      var html = '<p class="jp-alert" role="alert">' + esc(messageOf(e, MSG_LOAD, 'list')) + '</p>';
+      if (results && tabOfKey(st.barKey) === key) results.innerHTML = html;
+      else { slot.innerHTML = html; st.barKey = null; }
     });
   }
 
   function restoreFocus(slot, name) {
-    if (!name || typeof slot.querySelector !== 'function') return;
-    var el = slot.querySelector('[data-filter="' + name + '"]');
+    if (!name) return;
+    var el = qs(slot, '[data-filter="' + name + '"]');
     if (!el || typeof el.focus !== 'function') return;
     el.focus();
     if (typeof el.setSelectionRange === 'function' && typeof el.value === 'string') {
@@ -989,13 +689,7 @@
     }
   }
 
-  function showError(container, part, message) {
-    var el = container && typeof container.querySelector === 'function'
-      ? container.querySelector('[data-part="' + part + '"]') : null;
-    if (!el) return;
-    el.textContent = message;
-    el.hidden = false;
-  }
+  function showError(slot, message) { H().showError(slot, 'list-error', message); }
 
   function currentReturn(st) {
     var loc = st.env.location || {};
@@ -1004,60 +698,42 @@
 
   function applyFilter(slot, st, name, value) {
     var t = tabState(st);
+    if (name !== 'page' && String(has(t.filter[name]) ? t.filter[name] : '') === String(has(value) ? value : '')) {
+      return Promise.resolve();
+    }
     t.filter[name] = value;
     if (name !== 'page') t.filter.page = 0;
     var urlValues = {};
     (TABS[st.key].urlKeys || []).forEach(function (k) { urlValues[k] = t.filter[k]; });
     writeParams(st.env, urlValues);
-    return reload(slot, st, name === 'page' ? null : name);
+    return reload(slot, st, name === 'page' || name === 'q' ? null : name);
   }
 
-  function openDialog(st, html, opener) {
-    var dlg = DLG();
-    return dlg ? dlg.open(st.doc, html, opener) : null;
+  function openGrammar(slot, st, el, ev) {
+    var code = el.getAttribute('data-code');
+    if (!/^JG-[0-9a-f]{10}$/.test(code || '')) return null;
+    var link = el.getAttribute('href');
+    if (grammarOpenMode(widthOf(st.ctx)) === 'PAGE') {
+      if (!link) st.navigate('/learning/jlpt/grammar/' + encodeURIComponent(code));
+      return null;
+    }
+    if (ev && typeof ev.preventDefault === 'function') ev.preventDefault();
+    tabState(st).filter.open = code;
+    writeParams(st.env, { open: code });
+    return reload(slot, st);
   }
 
-  function openItem(slot, st, type, code, opener) {
-    return st.api.get(itemUrl(type, code)).then(function (detail) {
-      var handle = openDialog(st, itemDrawerHtml(detail), opener);
-      if (!handle) return null;
-      handle.el.classList.add('jp-dialog--drawer');
-      var current = detail || {};
-      function redraw() {
-        var box = handle.el.querySelector('[data-part="drawer"]');
-        if (box) box.outerHTML = itemDrawerHtml(current);
-        st.rendered(handle.el);
-      }
-      handle.el.addEventListener('click', function (ev) {
-        var t = ev.target;
-        var el = t && typeof t.closest === 'function' ? t.closest('[data-action]') : null;
-        if (!el) return;
-        var action = el.getAttribute('data-action');
-        var url = itemUrl(current.itemType, current.code);
-        var call = null;
-        if (action === 'play') { D().playAudio(el.getAttribute('data-audio')); return; }
-        if (action === 'item-known') {
-          call = st.api.send('POST', url + '/known').then(function (res) {
-            if (res && res.checkToken) { st.navigate(checkUrl(res.checkToken, currentReturn(st))); return; }
-            if (res && res.state) current.state = res.state;
-            redraw();
-          });
-        } else if (action === 'notebook-add' || action === 'notebook-remove') {
-          call = st.api.send(action === 'notebook-add' ? 'POST' : 'DELETE', url + '/notebook').then(function (res) {
-            if (res && res.state) current.state = res.state;
-            redraw();
-          });
-        }
-        if (!call) return;
-        el.disabled = true;
-        call.then(function () { reload(slot, st); }, function (e) {
-          el.disabled = false;
-          showError(handle.el, 'drawer-error', messageOf(e));
-        });
-      });
-      st.rendered(handle.el);
-      return handle;
-    }, function (e) { showError(slot, 'list-error', messageOf(e, 'Không tải được mục này.')); });
+  function startKanaRow(slot, st, el) {
+    // Task 34 BROWSE on KANA takes the row code (HR-…/KR-…): the row's new kana plus a KANA_ROW check
+    var req = { tab: 'KANA', mode: 'BROWSE', startItemCode: el.getAttribute('data-row') };
+    el.disabled = true;
+    return st.api.send('POST', BASE + '/sessions', req).then(function (res) {
+      var id = res && (res.sessionId != null ? res.sessionId : res.id);
+      st.navigate('/learning/jlpt/study?session=' + encodeURIComponent(id));
+    }, function (e) {
+      el.disabled = false;
+      showError(slot, messageOf(e));
+    });
   }
 
   function topicTitle(st, key) {
@@ -1070,50 +746,23 @@
     var level = st.ctx.level;
     var ask = st.ctx.confirm || (root && root.JlasConfirm) || function (m) { return Promise.resolve(root.confirm(m)); };
     var msg = 'Làm 10 câu của chủ đề “' + topicTitle(st, key) + '”? Đúng từ 9 câu thì các từ trả lời đúng vào Đã biết.';
-    return Promise.resolve(ask(msg)).then(function (ok) {
+    return Promise.resolve(ask(msg, { confirmText: 'Làm 10 câu', cancelText: 'Để sau' })).then(function (ok) {
       if (!ok) return null;
       el.disabled = true;
       return st.api.send('POST', BASE + '/topics/' + encodeURIComponent(level) + '/' + encodeURIComponent(key)
         + '/known-check').then(function (res) {
         var token = res && (res.token || res.checkToken);
-        if (token) st.navigate(checkUrl(token, currentReturn(st)));
+        if (token) st.navigate(H().checkUrl(token, currentReturn(st)));
       });
     }).catch(function (e) {
       el.disabled = false;
-      showError(slot, 'list-error', messageOf(e));
+      showError(slot, messageOf(e));
     });
-  }
-
-  function freeQuiz(slot, st, el) {
-    var tab = el.getAttribute('data-tab') || TAB_CODE[st.key];
-    var t = tabState(st);
-    var qctx = { display: st.ctx.display, skillDay: !!st.ctx.skillDay, units: t.units, unit: t.filter && t.filter.unit };
-    var handle = openDialog(st, freeQuizDialogHtml(tab, qctx), el);
-    if (!handle) return null;
-    var form = handle.el.querySelector('[data-part="quiz-form"]');
-    if (!form) return handle;
-    form.addEventListener('submit', function (ev) {
-      ev.preventDefault();
-      var values = readQuizForm(form);
-      values.tab = tab;
-      values.level = st.ctx.level;
-      values.topicKey = t.filter && t.filter.topic;
-      values.skillDay = !!st.ctx.skillDay;
-      var btn = form.querySelector('[data-action="quiz-start"]');
-      if (btn) btn.disabled = true;
-      st.api.send('POST', BASE + '/checks', freeQuizRequest(values)).then(function (res) {
-        var token = res && (res.token || res.checkToken);
-        if (token) st.navigate(checkUrl(token, currentReturn(st)));
-      }, function (e) {
-        if (btn) btn.disabled = false;
-        showError(handle.el, 'quiz-error', messageOf(e));
-      });
-    });
-    return handle;
   }
 
   function saveListView(st, view) {
     if (st.ctx.display) st.ctx.display.vocabListView = view;
+    st.sig = signature(st.key, st.ctx);
     var p = st.api.send('PUT', SETTINGS_URL, { vocabListView: view });
     if (p && typeof p.catch === 'function') p.catch(function () { /* the view still changes on this page */ });
   }
@@ -1131,9 +780,19 @@
       'open-topic': function (el) { return applyFilter(slot, st, 'topic', el.getAttribute('data-topic')); },
       'clear-topic': function () { return applyFilter(slot, st, 'topic', ''); },
       'page': function (el) { return applyFilter(slot, st, 'page', Math.max(0, num(el.getAttribute('data-page')))); },
-      'open-item': function (el) { return openItem(slot, st, el.getAttribute('data-type'), el.getAttribute('data-code'), el); },
+      'open-item': function (el) {
+        return H().openItem({ api: st.api, document: st.doc, type: el.getAttribute('data-type'),
+          code: el.getAttribute('data-code'), opener: el, display: st.ctx.display, navigate: st.navigate,
+          returnTo: currentReturn(st), rendered: st.rendered,
+          onChange: function () { reload(slot, st); }, onError: function (m) { showError(slot, m); } });
+      },
       'topic-known': function (el) { return topicKnown(slot, st, el); },
-      'free-quiz': function (el) { return freeQuiz(slot, st, el); },
+      'free-quiz': function (el) {
+        var t = tabState(st);
+        return H().openFreeQuiz({ api: st.api, document: st.doc, tab: el.getAttribute('data-tab') || TAB_CODE[st.key],
+          opener: el, display: st.ctx.display, skillDay: !!st.ctx.skillDay, units: t.units, unit: t.filter && t.filter.unit,
+          level: st.ctx.level, topicKey: t.filter && t.filter.topic, navigate: st.navigate, returnTo: currentReturn(st) });
+      },
       'kanji-view': function (el) {
         return applyFilter(slot, st, 'view', el.getAttribute('data-view') === 'GRID' ? 'GRID' : '');
       },
@@ -1143,11 +802,21 @@
     };
     function paneAction(el) {
       var t = tabState(st);
-      if (st.key !== 'grammar' || !t.lesson || typeof slot.querySelector !== 'function') return false;
-      var pane = slot.querySelector('[data-part="pane"]');
-      return !!pane && lessonAction(el, t.lesson, pane, { api: st.api, navigate: st.navigate, returnTo: currentReturn(st) });
+      if (st.key !== 'grammar' || !t.lesson) return false;
+      var pane = qs(slot, '[data-part="pane"]');
+      return !!pane && GL().lessonAction(el, t.lesson, pane, { api: st.api, navigate: st.navigate,
+        returnTo: currentReturn(st) });
     }
-    st.actions = actions;
+    function isSearch(t) { return !!t && typeof t.getAttribute === 'function' && t.getAttribute('data-filter') === 'q'; }
+    function scheduleSearch(input) {
+      if (st.timer !== null) st.clearT(st.timer);
+      var key = st.key;
+      st.timer = st.setT(function () {
+        st.timer = null;
+        if (st.key !== key) return;
+        applyFilter(slot, st, 'q', String(input.value || '').trim());
+      }, SEARCH_DELAY_MS);
+    }
     slot.addEventListener('click', function (ev) {
       var t = ev.target;
       var el = t && typeof t.closest === 'function' ? t.closest('[data-action]') : null;
@@ -1162,23 +831,26 @@
       applyFilter(slot, st, name, t.value);
     });
     slot.addEventListener('input', function (ev) {
-      var t = ev.target;
-      if (!t || typeof t.getAttribute !== 'function' || t.getAttribute('data-filter') !== 'q') return;
-      if (st.timer !== null) st.clearT(st.timer);
-      var value = t.value;
-      st.timer = st.setT(function () { st.timer = null; applyFilter(slot, st, 'q', String(value).trim()); },
-        SEARCH_DELAY_MS);
+      if (!isSearch(ev.target) || ev.isComposing) return; // IME: wait for compositionend
+      scheduleSearch(ev.target);
+    });
+    slot.addEventListener('compositionend', function (ev) {
+      if (isSearch(ev.target)) scheduleSearch(ev.target);
     });
   }
 
+  function lessonExport(name) { return function () { var m = GL(); return m[name].apply(m, arguments); }; }
+  function drawerExport(name) { return function () { var m = H(); return m[name].apply(m, arguments); }; }
+
   return {
     STATE_LABEL: STATE_LABEL, SEARCH_DELAY_MS: SEARCH_DELAY_MS, listUrl: listUrl, viewToggleHtml: viewToggleHtml,
-    topicGridHtml: topicGridHtml, vocabTableHtml: vocabTableHtml, printMenuHtml: printMenuHtml,
-    itemDrawerHtml: itemDrawerHtml, freeQuizDialogHtml: freeQuizDialogHtml, freeQuizRequest: freeQuizRequest,
-    safeReturn: safeReturn, checkUrl: checkUrl, mountTab: mountTab, messageOf: messageOf,
+    topicGridHtml: topicGridHtml, vocabTableHtml: vocabTableHtml, printMenuHtml: printMenuHtml, mountTab: mountTab,
     kanjiFiltersHtml: kanjiFiltersHtml, kanjiListHtml: kanjiListHtml, radicalChar: radicalChar,
-    kanaColumns: kanaColumns, kanaHtml: kanaHtml,
-    grammarAccordionHtml: grammarAccordionHtml, grammarLessonHtml: grammarLessonHtml, structureChips: structureChips,
-    grammarOpenMode: grammarOpenMode, mountGrammarLesson: mountGrammarLesson
+    kanaColumns: kanaColumns, kanaHtml: kanaHtml, grammarAccordionHtml: grammarAccordionHtml,
+    grammarOpenMode: grammarOpenMode, messageOf: messageOf,
+    itemDrawerHtml: drawerExport('itemDrawerHtml'), freeQuizDialogHtml: drawerExport('freeQuizDialogHtml'),
+    freeQuizRequest: drawerExport('freeQuizRequest'), safeReturn: drawerExport('safeReturn'),
+    checkUrl: drawerExport('checkUrl'), grammarLessonHtml: lessonExport('grammarLessonHtml'),
+    structureChips: lessonExport('structureChips'), mountGrammarLesson: lessonExport('mountGrammarLesson')
   };
 });
