@@ -139,9 +139,9 @@
     return !!(s && !s.checkPassed);
   }
 
-  // kana phase: the KANA tab target counts rows
+  // kana phase: the KANA tab's effective target counts rows (0 when none is left)
   function kanaRows(today) {
-    return target(today, 'KANA') || 2;
+    return target(today, 'KANA');
   }
 
   function modeButtonsHtml(today, path, activeTab) {

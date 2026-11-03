@@ -5,6 +5,7 @@ import com.jlas.jlptpath.dto.JpathItemStateView;
 import com.jlas.jlptpath.dto.JpathKnownResult;
 import com.jlas.jlptpath.enums.JpathItemType;
 import com.jlas.jlptpath.enums.JpathNotebookSource;
+import java.util.Optional;
 
 /**
  * [JLAS-W0108] One item of the JLPT path seen from the list drawer: its detail, "Tôi biết từ này" and the manual
@@ -14,6 +15,12 @@ public interface JpathItemService {
 
     /** Detail of a visible item; hidden, unreleased or unknown → {@code JPATH_ITEM_NOT_FOUND}. */
     JpathItemDetailView detail(Long userId, JpathItemType type, String code);
+
+    /**
+     * {@link #detail} when the item is visible, empty otherwise — never throws for a hidden item, so a caller inside
+     * a transaction is not marked rollback-only (study cards of items hidden while a session is open, #22).
+     */
+    Optional<JpathItemDetailView> detailIfVisible(Long userId, JpathItemType type, String code);
 
     /**
      * Marks an item the learner already has a row for as KNOWN (known_source USER; counted at once when it was

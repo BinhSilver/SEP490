@@ -88,9 +88,7 @@ public class JpathStudyServiceImpl implements JpathStudyService {
     static final int KANA_ROWS_DEFAULT = 1;
     /** Due cards read per tab; hard cards go past the review cap, so more than the cap is read. */
     static final int DUE_PAGE = 500;
-    /** Policy #25: learned items a tab needs for the skill-day quiz; passed kana rows for the KANA_ROW step. */
-    static final int SKILL_QUIZ_MIN_ITEMS = 10;
-    static final int SKILL_KANA_MIN_ROWS = 2;
+    static final int MAX_COUNT = 200;
 
     // policy #1 minutes per unit, and a quick review
     static final double MIN_VOCAB = 0.6;
@@ -122,6 +120,7 @@ public class JpathStudyServiceImpl implements JpathStudyService {
     private final JpathCatalogService catalog;
     private final JpathClock clock;
     private final TransactionTemplate tx;
+    private final TransactionTemplate readTx;
 
     public JpathStudyServiceImpl(JpathDailyPlanService dailyPlans, JpathDailyPlanRepository plans,
             JpathDailyTabRepository dailyTabs, JpathStudySessionRepository sessions, JpathUserPathRepository paths,
@@ -142,23 +141,30 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         this.catalog = catalog;
         this.clock = clock;
         this.tx = new TransactionTemplate(transactionManager);
+        this.readTx = new TransactionTemplate(transactionManager);
+        this.readTx.setReadOnly(true);
     }
 
     // ---- start ---------------------------------------------------------------------------------------------
 
     @Override
     public JpathSessionView start(Long userId, JpathSessionStartRequest r) {
-        if (r == null || r.tab() == null || r.mode() == null) {
+        if (r == null || r.tab() == null || r.mode() == null
+                || r.count() != null && (r.count() < 1 || r.count() > MAX_COUNT)) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED);
         }
         if (r.mode() == JpathSessionMode.TODAY || r.mode() == JpathSessionMode.EXTRA) {
             // the insert's own transaction, before the writer transaction below (never under the path lock)
             dailyPlans.ensurePlanExists(userId);
         }
-        return tx.execute(status -> startLocked(userId, r));
+        JpathStudySession s = tx.execute(status -> startLocked(userId, r));
+        // the card view reads ~10 statements per card: built after the writer transaction committed
+        return readTx.execute(status -> view(userId, s));
     }
 
-    private JpathSessionView startLocked(Long userId, JpathSessionStartRequest r) {
+    private JpathStudySession startLocked(Long userId, JpathSessionStartRequest r) {
+        // The path lock must be the first statement of this transaction: a plain SELECT before it would fix the
+        // MySQL REPEATABLE READ snapshot early, and later plain reads would miss rows committed meanwhile.
         JpathUserPath path = paths.findActiveForUpdate(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
         boolean needsPlan = r.mode() == JpathSessionMode.TODAY || r.mode() == JpathSessionMode.EXTRA;
@@ -173,7 +179,7 @@ public class JpathStudyServiceImpl implements JpathStudyService {
             case BROWSE -> browse(userId, open, r);
             case NOTEBOOK -> notebook(userId, r);
         };
-        return view(userId, s);
+        return s;
     }
 
     private JpathStudySession today(Long userId, JpathDailyPlan plan, JpathUserLevel open,
@@ -228,6 +234,15 @@ public class JpathStudyServiceImpl implements JpathStudyService {
             q = kanaRowFallback(userId, plan, q);
         }
         q = heroFirst(q, r.startItemCode());
+        if (q.isEmpty()) {
+            // nothing left today on this tab: answer with the last finished session instead of a new empty one
+            Optional<JpathStudySession> done = sessions.findByUserIdAndStatusAndModeOrderByIdDesc(userId, COMPLETED,
+                    JpathSessionMode.TODAY.name()).stream()
+                    .filter(s -> plan.getId().equals(s.getPlanId()) && s.getTab().equals(st.name())).findFirst();
+            if (done.isPresent()) {
+                return done.get();
+            }
+        }
         return save(userId, plan.getId(), st, JpathSessionMode.TODAY, q);
     }
 
@@ -364,17 +379,12 @@ public class JpathStudyServiceImpl implements JpathStudyService {
     }
 
     /**
-     * Policy #25 on a skill day: no V/K/G tab of the level has 10 learned items but the kana phase has 2 passed rows
-     * → the quiz step is a KANA_ROW check over the passed rows (item code null, tab SKILL).
+     * Policy #25 on a skill day ({@link JpathPathRules#skillQuizSource}): source KANA_ROW → the quiz step is a
+     * KANA_ROW check over the passed rows (item code null, tab SKILL); a V/K/G source keeps the FREE_QUIZ step.
      */
     private List<JpathQueueStep> kanaRowFallback(Long userId, JpathDailyPlan plan, List<JpathQueueStep> q) {
-        for (JpathTab t : SLIDER_TABS) {
-            if (userItems.countByUserIdAndLevelAndItemTypeAndCountedAtIsNotNull(userId, plan.getLevel(),
-                    JpathItemType.valueOf(t.name())) >= SKILL_QUIZ_MIN_ITEMS) {
-                return q;
-            }
-        }
-        if (!plan.isKanaPhase() || kanaRows.countCompletedRows(userId) < SKILL_KANA_MIN_ROWS) {
+        if (JpathPathRules.skillQuizSource(userItems, kanaRows, userId, plan.getLevel(), plan.isKanaPhase())
+                .filter(src -> src == JpathPathRules.SkillQuizSource.KANA_ROW).isEmpty()) {
             return q;
         }
         List<JpathQueueStep> out = new ArrayList<>(q.size());
@@ -694,18 +704,18 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         boolean retype = st.kind() == JpathStepKind.RETYPE;
         Map<JpathRating, Integer> intervals = st.itemType() == JpathItemType.GRAMMAR ? null
                 : JpathSrsPolicy.previewDays(srsState(row), st.kind() == JpathStepKind.NEW, localNow);
-        JpathItemDetailView d;
-        try {
-            d = itemService.detail(userId, st.itemType(), st.itemCode());
-        } catch (ApiException e) {
-            // hidden after the queue was frozen: the step stays, without content
+        Optional<JpathItemDetailView> found = itemService.detailIfVisible(userId, st.itemType(), st.itemCode());
+        if (found.isEmpty()) {
+            // hidden after the queue was frozen (#22): the step stays, with no content (expression null)
             return new JpathCardView(st.itemType(), st.itemCode(), st.kind(), st.repeat(), notebook, hard, null,
                     null, null, null, null, null, null, List.of(), null, false, List.of(), List.of(), List.of(), null,
                     intervals, null, null, null, null, null);
         }
+        JpathItemDetailView d = found.get();
         return new JpathCardView(st.itemType(), st.itemCode(), st.kind(), st.repeat(), notebook, hard, d.level(),
                 d.expression(), retype ? null : d.reading(), retype ? null : d.romaji(), d.meaning(), d.wordType(),
-                d.topic(), examples(d.examples(), hard, retype), d.mnemonic(), hard && d.mnemonic() != null,
+                d.topic(), examples(d.examples(), hard, retype), retype ? null : d.mnemonic(),
+                !retype && hard && d.mnemonic() != null,
                 d.compounds(), d.kanjiInWord(), hard ? d.confusables() : List.of(), retype ? null : d.audioUrl(),
                 intervals, d.kanji(), d.grammar(), d.kana(), null, null);
     }

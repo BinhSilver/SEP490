@@ -95,6 +95,19 @@ public class JpathItemServiceImpl implements JpathItemService {
         };
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<JpathItemDetailView> detailIfVisible(Long userId, JpathItemType type, String code) {
+        boolean visible = type != null && code != null && switch (type) {
+            case VOCAB -> content.vocab(code).isPresent();
+            case KANJI -> content.kanji(code).isPresent();
+            case GRAMMAR -> content.grammar(code).isPresent();
+            case KANA -> content.kanaItem(code).isPresent();
+        };
+        // self-call: not through the proxy, and detail cannot throw for a visible item
+        return visible ? Optional.of(detail(userId, type, code)) : Optional.empty();
+    }
+
     private JpathItemDetailView vocabDetail(Long userId, JpathVocabulary v, String state, boolean hard) {
         String topic = topics.findById(new JpathVocabTopicId(v.getLevel(), v.getTopicKey()))
                 .map(JpathVocabTopic::getTitleVi).orElse(null);
