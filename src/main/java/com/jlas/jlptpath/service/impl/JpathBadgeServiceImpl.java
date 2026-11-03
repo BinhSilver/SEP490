@@ -17,7 +17,10 @@ import com.jlas.mission.repository.UserStreaksRepository;
 import com.jlas.mission.service.CreditAwardService;
 import com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import com.jlas.jlptpath.enums.JpathStage;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -28,7 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * [JLAS-W0108] Badge rules: STREAK_n = current streak ≥ n; KNOWN_n = VOCAB items counted (any level) ≥ n; KANA_DONE =
- * the active path has kana_completed_at; N5_SKILL_STAGE = its N5 level has skill_practice_at. A badge is inserted with
+ * the active path has kana_completed_at; N5_SKILL_STAGE = its N5 level has skill_practice_at;
+ * MOCK_PASS_L = its level L is PASSED (mock test, Plan 3 #44). A badge is inserted with
  * INSERT IGNORE; only the call whose insert wins queues the badge CP, so a race never pays twice. Takes no lock.
  */
 @Service
@@ -94,16 +98,28 @@ public class JpathBadgeServiceImpl implements JpathBadgeService {
         boolean kana = path.map(JpathUserPath::getKanaCompletedAt).isPresent();
         boolean skillStage = path.flatMap(p -> levels.findById(new JpathUserLevelId(p.getId(), N5)))
                 .map(l -> l.getSkillPracticeAt() != null).orElse(false);
-        return new Progress(streak, known, kana, skillStage);
+        Set<String> passed = new HashSet<>();
+        path.ifPresent(p -> {
+            for (String level : List.of("N5", "N4", "N3", "N2", "N1")) {
+                levels.findById(new JpathUserLevelId(p.getId(), level))
+                        .filter(l -> l.getStage() == JpathStage.PASSED).ifPresent(l -> passed.add(level));
+            }
+        });
+        return new Progress(streak, known, kana, skillStage, passed);
     }
 
-    private record Progress(int streak, long known, boolean kana, boolean skillStage) {
+    private record Progress(int streak, long known, boolean kana, boolean skillStage, Set<String> passed) {
         long of(JpathBadge badge) {
             return switch (badge) {
                 case STREAK_7, STREAK_30 -> streak;
                 case KNOWN_100, KNOWN_500, KNOWN_1000 -> known;
                 case KANA_DONE -> kana ? 1 : 0;
                 case N5_SKILL_STAGE -> skillStage ? 1 : 0;
+                case MOCK_PASS_N5 -> passed.contains("N5") ? 1 : 0;
+                case MOCK_PASS_N4 -> passed.contains("N4") ? 1 : 0;
+                case MOCK_PASS_N3 -> passed.contains("N3") ? 1 : 0;
+                case MOCK_PASS_N2 -> passed.contains("N2") ? 1 : 0;
+                case MOCK_PASS_N1 -> passed.contains("N1") ? 1 : 0;
             };
         }
     }
