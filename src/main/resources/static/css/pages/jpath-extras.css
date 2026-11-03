@@ -236,3 +236,16 @@
 @media (max-width: 640px) {
   .jp-lookup-grammar.is-pinned { position: fixed; left: 8px; right: 8px; bottom: 8px; width: auto; }
 }
+
+/* "Luyện thêm" strip (jpath-extra-links.js): tools, then the path's own pages. */
+.jp-extra { margin-top: 16px; }
+.jp-extra__title { margin: 0 0 8px; font-size: 1.05rem; }
+.jp-extra__list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.jp-extra__list--pages { margin-top: 8px; }
+.jp-extra__list li { display: flex; align-items: center; gap: 4px; }
+.jp-extra__link { display: inline-flex; align-items: center; min-height: 40px; padding: 6px 14px; border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius-chip); background: var(--jp-surface); color: var(--jp-ink); text-decoration: none; }
+a.jp-extra__link:hover,
+a.jp-extra__link:focus-visible { border-color: var(--jp-primary); outline: none; }
+.jp-extra__link.is-off { color: var(--jp-muted); border-style: dashed; }
+.jp-extra__list small { color: var(--jp-muted); }
