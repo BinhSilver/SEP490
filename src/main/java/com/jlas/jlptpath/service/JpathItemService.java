@@ -3,6 +3,7 @@ package com.jlas.jlptpath.service;
 import com.jlas.jlptpath.dto.JpathItemDetailView;
 import com.jlas.jlptpath.dto.JpathItemStateView;
 import com.jlas.jlptpath.dto.JpathKnownResult;
+import com.jlas.jlptpath.dto.JpathTodayView;
 import com.jlas.jlptpath.enums.JpathItemType;
 import com.jlas.jlptpath.enums.JpathNotebookSource;
 import java.util.Optional;
@@ -23,9 +24,16 @@ public interface JpathItemService {
     Optional<JpathItemDetailView> detailIfVisible(Long userId, JpathItemType type, String code);
 
     /**
+     * Puts a learnable pattern not started yet into today's TODAY round (preflight C16): it takes the first grammar
+     * slot not reached of the open GRAMMAR/COMBINED session, or a TODAY session is started with it. Already started →
+     * nothing changes. Not transactional (today's plan is made to exist first); returns today's block.
+     */
+    JpathTodayView queueGrammarToday(Long userId, String code);
+
+    /**
      * Marks an item the learner already has a row for as KNOWN (known_source USER; counted at once when it was
-     * learned before, #16). An already KNOWN item is left as it is. An item without a row (NEW) gets
-     * {@code JPATH_ITEM_NOT_FOUND}: NEW items are confirmed by a one-question check instead.
+     * learned before, #16). An already KNOWN item is left as it is. An item without a row (NEW) stays NEW
+     * and gets a one-question SKIP_ONE check to take first ({@code checkToken}).
      */
     JpathKnownResult markKnown(Long userId, JpathItemType type, String code);
 

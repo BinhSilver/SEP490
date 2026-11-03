@@ -675,7 +675,12 @@
       var mine = outcomes.filter(function (o) { return o && o.clientEventId === retype.eventId; })[0];
       if (mine) dispatch(page, { type: 'RETYPE_RESULT', outcome: mine });
     }
-    if (outcomes.some(function (o) { return o && o.status === 'REJECTED'; })) { reload(page); return; }
+    if (outcomes.some(function (o) { return o && o.status === 'REJECTED'; })) {
+      // events still queued were made on the stale queue: drop them, the reloaded session is the truth
+      page.queue.clear();
+      reload(page);
+      return;
+    }
     if (batch.session) dispatch(page, { type: 'SERVER_SYNC', session: batch.session, pending: page.queue.pending().length });
   }
 
@@ -908,7 +913,7 @@
     else if (act.type === 'SUBMIT') next(page);
   }
 
-  return { RATINGS: RATINGS, RATING_LABEL: RATING_LABEL, STEP_LABEL: STEP_LABEL, intervalLabel: intervalLabel,
+  return { afterFlush: afterFlush, RATINGS: RATINGS, RATING_LABEL: RATING_LABEL, STEP_LABEL: STEP_LABEL, intervalLabel: intervalLabel,
     cardHtml: cardHtml, ratingButtonsHtml: ratingButtonsHtml, stepsHtml: stepsHtml, keyAction: keyAction,
     controlPatch: controlPatch, bindControls: bindControls, initFlow: initFlow, reduce: reduce, stepEffect: stepEffect,
     classifySwipe: classifySwipe, swipeAllowed: swipeAllowed, swipeRating: swipeRating, newCardEffect: newCardEffect,

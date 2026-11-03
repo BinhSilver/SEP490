@@ -12,7 +12,14 @@ import com.jlas.jlptpath.dto.JpathItemStateView;
 import com.jlas.jlptpath.dto.JpathKanaFacts;
 import com.jlas.jlptpath.dto.JpathKanjiFacts;
 import com.jlas.jlptpath.dto.JpathKanjiInWordView;
+import com.jlas.jlptpath.dto.JpathCheckIssueRequest;
+import com.jlas.jlptpath.dto.JpathCheckView;
 import com.jlas.jlptpath.dto.JpathKnownResult;
+import com.jlas.jlptpath.dto.JpathTodayView;
+import com.jlas.jlptpath.enums.JpathCheckKind;
+import com.jlas.jlptpath.enums.JpathTab;
+import com.jlas.jlptpath.service.JpathCheckService;
+import org.springframework.beans.factory.ObjectProvider;
 import com.jlas.jlptpath.entity.JpathGrammar;
 import com.jlas.jlptpath.entity.JpathKana;
 import com.jlas.jlptpath.entity.JpathKanji;
@@ -64,16 +71,23 @@ public class JpathItemServiceImpl implements JpathItemService {
     private final JpathUserPathRepository paths;
     private final JpathKanjiCompoundRepository compounds;
     private final JpathVocabTopicRepository topics;
+    // looked up when used: the check service and the grammar queue (→ study service → this) would form cycles
+    private final ObjectProvider<JpathCheckService> checks;
+    private final ObjectProvider<JpathGrammarQueue> grammarQueue;
 
     public JpathItemServiceImpl(JpathContentReader content, JpathItemStateMachine states,
                                 JpathUserItemRepository items, JpathUserPathRepository paths,
-                                JpathKanjiCompoundRepository compounds, JpathVocabTopicRepository topics) {
+                                JpathKanjiCompoundRepository compounds, JpathVocabTopicRepository topics,
+                                ObjectProvider<JpathCheckService> checks,
+                                ObjectProvider<JpathGrammarQueue> grammarQueue) {
         this.content = content;
         this.states = states;
         this.items = items;
         this.paths = paths;
         this.compounds = compounds;
         this.topics = topics;
+        this.checks = checks;
+        this.grammarQueue = grammarQueue;
     }
 
     // ---- detail --------------------------------------------------------------------------------------------
@@ -221,14 +235,26 @@ public class JpathItemServiceImpl implements JpathItemService {
     @Transactional
     public JpathKnownResult markKnown(Long userId, JpathItemType type, String code) {
         lockActivePath(userId);
-        JpathUserItem i = row(userId, type, code).orElseThrow(JpathItemServiceImpl::notFound);
+        Optional<JpathUserItem> row = row(userId, type, code);
         if (!visible(type, code)) {
             throw notFound();
         }
+        if (row.isEmpty()) {
+            // NEW: confirmed by one question first (the check counts it on a correct answer)
+            JpathCheckView check = checks.getObject().issue(userId, new JpathCheckIssueRequest(JpathCheckKind.SKIP_ONE,
+                    JpathTab.valueOf(type.name()), null, null, null, null, null, null, null, null, code, null));
+            return new JpathKnownResult(NEW, check.token());
+        }
+        JpathUserItem i = row.get();
         if (i.getState() != JpathItemState.KNOWN) {
             states.markKnown(i, KNOWN_BY_USER);
         }
         return new JpathKnownResult(JpathItemState.KNOWN.name(), null);
+    }
+
+    @Override
+    public JpathTodayView queueGrammarToday(Long userId, String code) {
+        return grammarQueue.getObject().queueToday(userId, code);
     }
 
     // ---- notebook ------------------------------------------------------------------------------------------

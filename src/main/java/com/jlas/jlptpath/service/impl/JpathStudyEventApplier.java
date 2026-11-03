@@ -2,6 +2,8 @@ package com.jlas.jlptpath.service.impl;
 
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.jlptpath.dto.JpathCheckIssueRequest;
+import com.jlas.jlptpath.dto.JpathCheckView;
 import com.jlas.jlptpath.dto.JpathEventOutcome;
 import com.jlas.jlptpath.dto.JpathStudyEventBatch;
 import com.jlas.jlptpath.dto.JpathStudyEventInput;
@@ -25,6 +27,8 @@ import com.jlas.jlptpath.repository.JpathStudyEventRepository;
 import com.jlas.jlptpath.repository.JpathStudySessionRepository;
 import com.jlas.jlptpath.repository.JpathUserItemRepository;
 import com.jlas.jlptpath.repository.JpathUserPathRepository;
+import com.jlas.jlptpath.enums.JpathCheckKind;
+import com.jlas.jlptpath.service.JpathCheckService;
 import com.jlas.jlptpath.service.JpathClock;
 import com.jlas.jlptpath.service.JpathDailyPlanService;
 import com.jlas.jlptpath.util.JpathKanaText;
@@ -75,7 +79,6 @@ public class JpathStudyEventApplier {
     static final String ACTION_MISMATCH = "ACTION_MISMATCH";
     static final String RATING_INVALID = "RATING_INVALID";
     static final String ITEM_NOT_FOUND = "ITEM_NOT_FOUND";
-    static final String NOT_READY = "NOT_READY";
     /** Repeats of one card queued at most (same rule as the check effects). */
     static final int MAX_REPEATS = 2;
 
@@ -96,11 +99,12 @@ public class JpathStudyEventApplier {
     private final JpathItemStateMachine states;
     private final JpathDayCompletion completion;
     private final JpathClock clock;
+    private final JpathCheckService checks;
 
     public JpathStudyEventApplier(JpathUserPathRepository paths, JpathStudySessionRepository sessions,
             JpathDailyPlanService dailyPlans, JpathDailyTabRepository dailyTabs, JpathUserItemRepository userItems,
             JpathStudyEventRepository events, JpathContentReader content, JpathItemStateMachine states,
-            JpathDayCompletion completion, JpathClock clock) {
+            JpathDayCompletion completion, JpathClock clock, JpathCheckService checks) {
         this.paths = paths;
         this.sessions = sessions;
         this.dailyPlans = dailyPlans;
@@ -111,6 +115,7 @@ public class JpathStudyEventApplier {
         this.states = states;
         this.completion = completion;
         this.clock = clock;
+        this.checks = checks;
     }
 
     /** Outcomes in input order and the locked, updated session. */
@@ -202,8 +207,7 @@ public class JpathStudyEventApplier {
             case REVIEW_RATE -> reviewRate(b, step, e);
             case RETYPE -> retype(b, step, e);
             case MARK_KNOWN -> markKnown(b, step, e);
-            // Task 38 issues the SKIP_ONE check here and returns its token.
-            case SKIP_KNOWN -> rejected(id, NOT_READY);
+            case SKIP_KNOWN -> skipKnown(b, step, e);
             case CHECK_ANSWER -> rejected(id, ACTION_MISMATCH);
         };
     }
@@ -290,6 +294,17 @@ public class JpathStudyEventApplier {
             b.queue = JpathQueueBuilder.appendRepeat(b.queue, step, MAX_REPEATS);
         }
         return advance(b, e, verdict, expected);
+    }
+
+    /**
+     * "Đã biết" on a NEW card: issues the session-bound SKIP_ONE check of the current step (Task 38) and returns its
+     * token; the step stays current — the check result decides (counted and passed on, or learned as usual).
+     */
+    private JpathEventOutcome skipKnown(Batch b, JpathQueueStep step, JpathStudyEventInput e) {
+        JpathCheckView check = checks.issue(b.userId, new JpathCheckIssueRequest(JpathCheckKind.SKIP_ONE, step.tab(),
+                b.session.getId(), null, null, null, null, null, null, null, step.itemCode(), null));
+        record(b, e, null, null);
+        return new JpathEventOutcome(e.clientEventId(), APPLIED, null, null, null, check.token());
     }
 
     private JpathEventOutcome markKnown(Batch b, JpathQueueStep step, JpathStudyEventInput e) {
