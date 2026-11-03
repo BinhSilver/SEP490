@@ -32,7 +32,9 @@
  *   When the last question is done the check is submitted (offline: "Chưa nộp được, đang thử lại…" + "Thử lại",
  *   same key); the result removes no-inline-dictionary from the root so Look up works on it.
  *   mountPage()                      mounts #jpathCheckRoot[data-check-token]
- *   mountInline(el, token, {onDone}) → Promise<JpathCheckResult>
+ *   mountInline(el, token, {onDone, embedded, onResult}) → Promise<JpathCheckResult>
+ *                                    embedded: the host page drives the next step, so the result shows no
+ *                                    continue / retry / review-cards buttons and onResult(result) gets it
  * Keys: 1–4 pick an option, Enter goes on. A wrong pick flashes red for 600 ms.
  * Needs jpath-api.js and jpath-display.js; uses jpath-furigana.js for prompts when loaded.
  */
@@ -549,10 +551,10 @@
     html += '<div class="jp-result__actions">';
     var n = r.next;
     var failed = r.passed === false && kind !== 'TOPIC_KNOWN';
-    if (n && n.action !== 'RETRY' && !failed && (n.url || !o.inline)) {
+    if (!o.embedded && n && n.action !== 'RETRY' && !failed && (n.url || !o.inline)) {
       html += '<button type="button" class="jp-btn jp-btn--primary" data-action="continue">' + esc(n.label || 'Tiếp tục') + ' →</button>';
     }
-    if (failed) {
+    if (failed && !o.embedded) {
       html += '<button type="button" class="jp-btn" data-action="review-cards">Xem lại thẻ các mục sai</button>'
         + '<button type="button" class="jp-btn jp-btn--primary" data-action="retry">Làm đề mới</button>';
     }
@@ -560,7 +562,7 @@
       html += '<button type="button" class="jp-link-btn" data-action="review-wrong" aria-expanded="' + (o.reviewOpen ? 'true' : 'false')
         + '">Xem lại câu sai</button>';
     }
-    if (!n && !failed && !o.inline) html += '<a class="jp-btn" href="/learning">Về lộ trình học</a>';
+    if (!n && !failed && !o.inline && !o.embedded) html += '<a class="jp-btn" href="/learning">Về lộ trình học</a>';
     return html + '</div><p class="jp-status" role="status" data-part="result-status"></p></section>';
   }
 
@@ -636,6 +638,8 @@
       playAudio: e.playAudio || function (url) { return D() ? D().playAudio(url) : Promise.resolve(false); },
       tone: e.tone || function (kind, display) { return D() ? D().tone(kind, display) : false; },
       onDone: e.onDone || null,
+      onResult: typeof e.onResult === 'function' ? e.onResult : null,
+      embedded: !!e.embedded,
       inline: !!e.inline
     };
   }
@@ -845,7 +849,7 @@
     }
 
     function drawResult() {
-      var html = resultHtml(result, check, { inline: env.inline, reviewOpen: reviewOpen });
+      var html = resultHtml(result, check, { inline: env.inline, embedded: env.embedded, reviewOpen: reviewOpen });
       if (reviewOpen) html += reviewWrongHtml(check, state);
       el.innerHTML = '<div class="jp-check jp-check--result">' + html + '</div>';
       if (D()) D().rendered(el, env.doc);
@@ -857,6 +861,7 @@
       el.classList.remove('no-inline-dictionary');
       drawResult();
       if (env.onDone) env.onDone(res);
+      if (env.onResult) env.onResult(res);
       resolveDone(res);
     }
 

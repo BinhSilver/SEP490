@@ -110,6 +110,20 @@
 .jp-rate--next .jp-key-hint { color: var(--jp-surface); }
 .jp-study-status { margin: 0; min-height: 1.2em; color: var(--jp-muted); font-size: .85em; text-align: center; }
 
+/* offline banner, swipe hint, skip check under the card (Task 51) */
+.jp-study-offline {
+  margin: 0; padding: 8px 12px; border-radius: var(--jp-radius-interactive); background: var(--jp-danger-soft);
+  color: var(--jp-danger); font-size: .9em;
+}
+.jp-swipe-hint {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px;
+  border: 1px dashed var(--jp-primary); border-radius: var(--jp-radius-interactive); background: var(--jp-primary-soft);
+  color: var(--jp-primary); font-size: .9em;
+}
+.jp-study-inline-check { margin-top: 12px; }
+.jp-study-inline-check[hidden] { display: none; }
+.jp-study-card--check { display: grid; gap: 10px; justify-items: center; }
+
 /* Touch screens have no keyboard: hide the key hints. */
 @media (pointer: coarse) {
   .jp-key-hint { display: none; }
