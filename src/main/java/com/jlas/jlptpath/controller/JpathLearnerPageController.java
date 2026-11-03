@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * [JLAS-W0108] Learner pages of the JLPT path that need an ACTIVE path (grammar lesson; the check, study and done pages
@@ -54,6 +55,22 @@ public class JpathLearnerPageController {
         model.addAttribute("layoutMode", "app");
         model.addAttribute("checkToken", token);
         return "jlptpath/check";
+    }
+
+    /** Study card page; jpath-study.js draws it from {@code GET /api/learning/jlpt/sessions/{id}}. */
+    @GetMapping("/learning/jlpt/study")
+    public String study(@AuthenticationPrincipal UserPrincipal user, @RequestParam(required = false) Long session,
+                        Model model) {
+        String blocked = guard(user);
+        if (blocked != null) {
+            return blocked;
+        }
+        if (session == null || session <= 0) {
+            return "redirect:/learning";
+        }
+        model.addAttribute("layoutMode", "app");
+        model.addAttribute("sessionId", session);
+        return "jlptpath/study";
     }
 
     /** {@code null} when the learner may open the page, otherwise the redirect to send. */
