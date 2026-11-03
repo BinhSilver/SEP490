@@ -35,6 +35,8 @@
  *   mountInline(el, token, {onDone, embedded, onResult}) → Promise<JpathCheckResult>
  *                                    embedded: the host page drives the next step, so the result shows no
  *                                    continue / retry / review-cards buttons and onResult(result) gets it
+ * One mount per element: mounting again into el (el.__jpathCheck) tears the previous one down first. Each
+ * question's first-seen time is kept in sessionStorage (jpath.qstart.<token>.<qid>) for the timer and elapsedMs.
  * Keys: 1–4 pick an option, Enter goes on. A wrong pick flashes red for 600 ms.
  * Needs jpath-api.js and jpath-display.js; uses jpath-furigana.js for prompts when loaded.
  */
@@ -158,6 +160,23 @@
   function timerActive(check, state) {
     var q = current(state);
     return !!(state.timerOn && q && !isBoard(q) && q.timerSec && !state.answers[q.id]);
+  }
+
+  var START_PREFIX = 'jpath.qstart.';
+  var startMemory = {};
+
+  /** First time this question was shown (sessionStorage per token + question), so F5 does not restart its clock. */
+  function questionStart(storage, token, questionId, now) {
+    var key = START_PREFIX + token + '.' + questionId;
+    var v = null;
+    var usable = !!storage;
+    try { v = storage ? storage.getItem(key) : null; } catch (e) { usable = false; }
+    if (!usable) v = startMemory[key];
+    var n = Number(v);
+    if (v !== null && v !== undefined && isFinite(n)) return n;
+    try { if (usable) storage.setItem(key, String(now)); } catch (e) { usable = false; }
+    if (!usable) startMemory[key] = now;
+    return now;
   }
 
   function timerRemaining(timerSec, startedMs, nowMs) {
@@ -340,7 +359,7 @@
 
   function feedbackHtml(a, extra) {
     if (!a) return '';
-    var html = '<div class="jp-check__feedback ' + (a.correct ? 'jp-ok' : 'jp-bad') + '" role="status">'
+    var html = '<div class="jp-check__feedback ' + (a.correct ? 'jp-ok' : 'jp-bad') + '">'
       + (a.correct ? 'Đúng rồi!' : (a.value === null ? 'Hết giờ.' : 'Chưa đúng.')) + (extra || '') + '</div>';
     if (has(a.explanation)) html += '<p class="jp-check__explain">' + esc(a.explanation) + '</p>';
     html += compareHtml(a.compare);
@@ -439,7 +458,7 @@
 
   var SUBMIT_PREFIX = 'jpath.submit.';
   var PASS_PERCENT = 80;
-  var SUBMIT_RETRY_MS = 4000;
+  var SUBMIT_RETRY_MS = [4000, 10000, 30000];
   var memoryKeys = {};
 
   function randomKey() {
@@ -508,15 +527,15 @@
     if (!items.length) return '';
     var kind = check && check.kind;
     var names = items.map(function (w) { return w.expression || w.code || ''; }).join(', ');
-    var line = 'Sai ' + items.length + ': ' + names;
-    var silent = kind === 'GROUP_EXERCISE' || kind === 'TOPIC_KNOWN' || kind === 'FREE_QUIZ';
-    if (!silent) {
+    var suffix = '';
+    // Free quiz misses go the same way as a micro-check's (Task 38: wrongInCheck(QUIZ); grammar never the notebook).
+    if (kind !== 'GROUP_EXERCISE' && kind !== 'TOPIC_KNOWN') {
       var vk = items.some(function (w) { return w.itemType === 'VOCAB' || w.itemType === 'KANJI'; });
       var review = items.some(function (w) { return w.itemType !== 'KANA'; });
-      if (vk) line += ' → đã vào Ôn lại và Sổ tay';
-      else if (review) line += ' → đã vào Ôn lại';
+      if (vk) suffix = ' → đã vào Ôn lại và Sổ tay';
+      else if (review) suffix = ' → đã vào Ôn lại';
     }
-    return '<p class="jp-result__wrong" lang="ja">' + esc(line) + '</p>';
+    return '<p class="jp-result__wrong">Sai ' + items.length + ': <span lang="ja">' + esc(names) + '</span>' + esc(suffix) + '</p>';
   }
 
   function resultHtml(result, check, opts) {
@@ -527,19 +546,19 @@
     var html = '<section class="jp-result jp-card" aria-labelledby="jp-result-title">';
     var tone = r.passed === true ? ' jp-ok' : (r.passed === false ? ' jp-bad' : '');
     if (kind === 'GROUP_EXERCISE') {
-      html += '<h2 class="jp-result__title" id="jp-result-title">Xong bài tập nhóm. Câu sai sẽ được ôn lại trong lượt này.</h2>'
+      html += '<h2 class="jp-result__title" id="jp-result-title" tabindex="-1">Xong bài tập nhóm. Câu sai sẽ được ôn lại trong lượt này.</h2>'
         + '<p class="jp-result__count">Đúng ' + esc(r.correct) + '/' + esc(r.total) + '</p>';
     } else if (kind === 'TOPIC_KNOWN') {
-      var ok = r.passed === true || (r.passed == null && Number(r.correct) >= 9);
+      var ok = r.passed === true;
       html += '<div class="jp-result__score' + (ok ? ' jp-ok' : '') + '">' + esc(pct) + '%</div>'
-        + '<p class="jp-result__title" id="jp-result-title">' + (ok
+        + '<p class="jp-result__title" id="jp-result-title" tabindex="-1">' + (ok
           ? esc('Bạn đúng ' + r.correct + '/' + r.total + ' câu: các từ trả lời đúng đã vào Đã biết, các từ chưa hỏi tới sẽ được ôn sớm để xác nhận.')
-          : esc('Bạn đúng ' + r.correct + '/' + r.total + ' câu (cần 9) nên chưa đổi gì; cứ học chủ đề này như bình thường.')) + '</p>';
+          : esc('Bạn đúng ' + r.correct + '/' + r.total + ' câu nên chưa đổi gì; cứ học chủ đề này như bình thường.')) + '</p>';
     } else if (kind === 'FREE_QUIZ') {
       html += '<div class="jp-result__score">' + esc(pct) + '%</div>'
-        + '<p class="jp-result__title" id="jp-result-title">Đúng ' + esc(r.correct) + '/' + esc(r.total) + ' câu. Quiz tự do không tính tiến độ và CP.</p>';
+        + '<p class="jp-result__title" id="jp-result-title" tabindex="-1">Đúng ' + esc(r.correct) + '/' + esc(r.total) + ' câu. Quiz tự do không tính tiến độ và CP.</p>';
     } else {
-      html += '<div class="jp-result__score' + tone + '">' + esc(pct) + '%</div><p class="jp-result__title" id="jp-result-title">';
+      html += '<div class="jp-result__score' + tone + '">' + esc(pct) + '%</div><p class="jp-result__title" id="jp-result-title" tabindex="-1">';
       if (r.passed === true) html += '<b>Đạt</b> (cần ≥ ' + PASS_PERCENT + '%)';
       else if (r.passed === false) html += '<b>Chưa đạt</b> (cần ≥ ' + PASS_PERCENT + '%)';
       else html += 'Đúng ' + esc(r.correct) + '/' + esc(r.total);
@@ -550,7 +569,8 @@
     html += wrongLine(r, check);
     html += '<div class="jp-result__actions">';
     var n = r.next;
-    var failed = r.passed === false && kind !== 'TOPIC_KNOWN';
+    // The server decides: RETRY = a new set is offered; every other next (also a wrong SKIP_ONE kept on its card) continues.
+    var failed = !!(n && n.action === 'RETRY');
     if (!o.embedded && n && n.action !== 'RETRY' && !failed && (n.url || !o.inline)) {
       html += '<button type="button" class="jp-btn jp-btn--primary" data-action="continue">' + esc(n.label || 'Tiếp tục') + ' →</button>';
     }
@@ -655,7 +675,13 @@
 
   /** Draws one check into el and plays it through. Resolves with the JpathCheckResult once it is submitted. */
   function mount(el, token, options) {
+    if (el.__jpathCheck && typeof el.__jpathCheck.destroy === 'function') el.__jpathCheck.destroy();
     var env = envOf(options);
+    var alive = true;
+    var abort = typeof AbortController === 'function' ? new AbortController() : null;
+    var listenOpts = abort ? { signal: abort.signal } : undefined;
+    var focusWanted = null;
+    var autoTries = 0;
     var check = null;
     var state = null;
     var display = {};
@@ -678,13 +704,67 @@
 
     function stopTicker() { if (ticker !== null) { env.clearInterval(ticker); ticker = null; } }
 
+    /** A persistent live region next to el (outside the redrawn part), so verdicts are announced. */
+    function liveRegion() {
+      if (el.__jpathCheckLive) return el.__jpathCheckLive;
+      var d = env.doc;
+      if (!d || typeof d.createElement !== 'function' || !el.parentNode || !el.parentNode.insertBefore) return null;
+      var p = d.createElement('p');
+      p.className = 'jp-sr-only';
+      p.setAttribute('aria-live', 'polite');
+      p.setAttribute('data-jpath-check-live', '');
+      el.parentNode.insertBefore(p, el.nextSibling || null);
+      el.__jpathCheckLive = p;
+      return p;
+    }
+
+    function announce(msg) {
+      var p = liveRegion();
+      if (p) { p.textContent = ''; p.textContent = msg; }
+    }
+
+    function focusFirst(selectors) {
+      if (!el.querySelector) return;
+      for (var i = 0; i < selectors.length; i++) {
+        var n = el.querySelector(selectors[i]);
+        if (n && typeof n.focus === 'function') { n.focus(); return; }
+      }
+    }
+
+    /** After a redraw: the same cell/option when still open, else the next open one; a verdict → "Tiếp →". */
+    function restoreFocus() {
+      var q = current(state);
+      if (q && state.answers[q.id]) { focusFirst(['[data-action="next"]']); focusWanted = null; return; }
+      if (!focusWanted) return;
+      var w = focusWanted;
+      focusWanted = null;
+      focusFirst(['[' + w.attr + '="' + String(w.value).replace(/["\\]/g, '') + '"]:not([disabled])',
+        '[' + w.attr + ']:not([disabled])', '[data-left]:not([disabled])', '[data-right]:not([disabled])',
+        '[data-option]:not([disabled])']);
+    }
+
+    function teardown() {
+      alive = false;
+      stopTicker();
+      if (retryTimer !== null) { env.clearTimeout(retryTimer); retryTimer = null; }
+      if (abort) abort.abort();
+      el.removeEventListener && el.removeEventListener('click', onClick);
+      if (env.doc && env.doc.removeEventListener) env.doc.removeEventListener('keydown', onKey);
+    }
+
+    function stopKeys() {
+      if (env.doc && env.doc.removeEventListener) env.doc.removeEventListener('keydown', onKey);
+    }
+
     function draw() {
       if (state.index >= state.questions.length) { stopTicker(); submit(); return; }
       var q = current(state);
+      if (q && !finished(state, q)) state.qStartedMs = questionStart(env.storage, token, q.id, state.qStartedMs);
       el.innerHTML = '<div class="jp-check">' + headerHtml(check, state) + questionHtml(q, questionState(state, q), display)
         + '<p class="jp-status" role="status" data-part="status"></p></div>';
       el.setAttribute('aria-busy', 'false');
       if (D()) D().rendered(el, env.doc);
+      restoreFocus();
       if (timerActive(check, state)) { if (ticker === null) ticker = env.setInterval(tick, 250); tick(); }
       else stopTicker();
     }
@@ -709,10 +789,13 @@
       if (!r.request) return;
       draw();
       env.api.send('POST', BASE + '/checks/' + encodeURIComponent(token) + '/answers', r.request).then(function (res) {
+        if (!alive) return;
+        announce(res && res.correct ? 'Đúng rồi!' : (r.request.value === null ? 'Hết giờ.' : 'Chưa đúng.'));
         state = answerReduce(state, { type: 'RESULT', questionId: r.request.questionId, result: res }).state;
         env.tone(res && res.correct ? 'correct' : 'wrong', display);
         draw();
       }, function () {
+        if (!alive) return;
         state = answerReduce(state, { type: 'FAIL', questionId: r.request.questionId }).state;
         draw();
         status(MSG_SEND_FAILED);
@@ -726,16 +809,19 @@
       if (!r.request) return;
       var req = r.request;
       env.api.send('POST', BASE + '/checks/' + encodeURIComponent(token) + '/pick', req).then(function (res) {
+        if (!alive) return;
+        announce(res && res.correct ? 'Đúng một cặp.' : 'Sai cặp, chọn lại.');
         state = boardReduce(state, { type: 'PICK_RESULT', boardId: req.boardId, leftId: req.leftId, rightId: req.rightId,
           result: res }).state;
         env.tone(res && res.correct ? 'correct' : 'wrong', display);
         draw();
         if (res && !res.correct) {
-          env.setTimeout(function () { state = boardReduce(state, { type: 'FLASH_END', boardId: req.boardId }).state; draw(); }, FLASH_MS);
+          env.setTimeout(function () { if (!alive) return; state = boardReduce(state, { type: 'FLASH_END', boardId: req.boardId }).state; draw(); }, FLASH_MS);
         } else if (finished(state, current(state))) {
-          env.setTimeout(function () { next(); }, BOARD_DONE_MS);
+          env.setTimeout(function () { if (alive) next(); }, BOARD_DONE_MS);
         }
       }, function () {
+        if (!alive) return;
         state = boardReduce(state, { type: 'PICK_FAIL', boardId: req.boardId }).state;
         draw();
         status(MSG_SEND_FAILED);
@@ -753,6 +839,11 @@
       var q = current(state);
       if (!q) return;
       var n;
+      ['data-left', 'data-right', 'data-option', 'data-piece'].some(function (a) {
+        var c = closestAttr(target, a, el);
+        if (c) focusWanted = { attr: a, value: c.getAttribute(a) };
+        return !!c;
+      });
       if ((n = closestAttr(target, 'data-left', el))) return pick({ type: 'PICK_LEFT', boardId: n.getAttribute('data-board'), leftId: n.getAttribute('data-left') });
       if ((n = closestAttr(target, 'data-right', el))) return pick({ type: 'PICK_RIGHT', boardId: n.getAttribute('data-board'), rightId: n.getAttribute('data-right') });
       if ((n = closestAttr(target, 'data-option', el))) return sendAnswer({ type: 'CHOOSE', questionId: q.id, value: n.getAttribute('data-option'), nowMs: env.now() });
@@ -790,7 +881,7 @@
       }
       if (/^[1-9]$/.test(ev.key) && q && q.options && q.type !== 'ORDER' && !isBoard(q)) {
         var o = q.options[Number(ev.key) - 1];
-        if (o) { ev.preventDefault(); sendAnswer({ type: 'CHOOSE', questionId: q.id, value: o.id, nowMs: env.now() }); }
+        if (o) { ev.preventDefault(); focusWanted = { attr: 'data-option', value: o.id }; sendAnswer({ type: 'CHOOSE', questionId: q.id, value: o.id, nowMs: env.now() }); }
       } else if (ev.key === 'Enter' && q) {
         if (state.answers[q.id]) { ev.preventDefault(); next(); }
         else if (q.type === 'ORDER' && (state.placed[q.id] || []).length === (q.options || []).length) {
@@ -804,12 +895,14 @@
       el.setAttribute('aria-busy', 'true');
       var settings = env.api.get(BASE + '/settings').then(null, function () { return null; });
       return Promise.all([env.api.get(BASE + '/checks/' + encodeURIComponent(token)), settings]).then(function (res) {
+        if (!alive) return;
         check = res[0] || {};
         display = (res[1] && res[1].display) || {};
         if (D()) D().applyDisplay(el, display);
         state = initState(check, env.now());
         draw();
       }, function (err) {
+        if (!alive) return;
         el.setAttribute('aria-busy', 'false');
         el.innerHTML = errorHtml(err);
       });
@@ -820,23 +913,31 @@
       return e.code === 'NETWORK' || e.status === 0 || e.status === 408 || e.status === 429 || e.status >= 500;
     }
 
-    function submit() {
-      if (result || submitting) return;
+    function submit(manual) {
+      if (!alive || result || submitting) return;
+      if (manual) autoTries = 0;
       submitting = true;
       if (retryTimer !== null) { env.clearTimeout(retryTimer); retryTimer = null; }
       el.setAttribute('aria-busy', 'true');
       el.innerHTML = '<p class="jp-status" role="status">Đang nộp bài…</p>';
       var body = { submitKey: submitKey(token, env.storage, env.uuid) };
       env.api.send('POST', BASE + '/checks/' + encodeURIComponent(token) + '/submit', body).then(function (res) {
+        if (!alive) return;
         submitting = false;
         showResult(res || {});
       }, function (err) {
+        if (!alive) return;
         submitting = false;
         el.setAttribute('aria-busy', 'false');
         if (failedSoft(err)) {
-          el.innerHTML = '<div class="jp-check__error jp-card" role="alert"><p>Chưa nộp được, đang thử lại…</p>'
+          var auto = autoTries < SUBMIT_RETRY_MS.length;
+          el.innerHTML = '<div class="jp-check__error jp-card" role="alert"><p>'
+            + (auto ? 'Chưa nộp được, đang thử lại…' : 'Chưa nộp được. Kiểm tra kết nối rồi bấm Thử lại.') + '</p>'
             + '<button type="button" class="jp-btn jp-btn--primary" data-action="submit-retry">Thử lại</button></div>';
-          retryTimer = env.setTimeout(function () { retryTimer = null; submit(); }, SUBMIT_RETRY_MS);
+          if (auto) {
+            retryTimer = env.setTimeout(function () { retryTimer = null; submit(); }, SUBMIT_RETRY_MS[autoTries]);
+            autoTries++;
+          }
         } else if (err && err.code === 'JPATH_CHECK_INCOMPLETE') {
           load();
         } else if (err && err.code === 'JPATH_CHECK_CLOSED') {
@@ -853,10 +954,12 @@
       if (reviewOpen) html += reviewWrongHtml(check, state);
       el.innerHTML = '<div class="jp-check jp-check--result">' + html + '</div>';
       if (D()) D().rendered(el, env.doc);
+      focusFirst(['#jp-result-title']);
     }
 
     function showResult(res) {
       result = res;
+      stopKeys();
       el.setAttribute('aria-busy', 'false');
       el.classList.remove('no-inline-dictionary');
       drawResult();
@@ -869,10 +972,12 @@
       if (button) button.disabled = true;
       env.api.send('POST', BASE + '/checks', retryRequest(check)).then(function (view) {
         var next = view && (view.token || view.checkToken);
+        if (!alive) return;
         if (!next) throw new Error('no token');
         if (env.inline) {
-          mount(el, next, { api: env.api, document: env.doc, onDone: env.onDone, inline: true, storage: env.storage,
-            uuid: env.uuid, location: env.location, navigate: env.navigate });
+          mount(el, next, { api: env.api, document: env.doc, onDone: env.onDone, onResult: env.onResult,
+            embedded: env.embedded, inline: true, storage: env.storage, uuid: env.uuid, location: env.location,
+            navigate: env.navigate });
         } else {
           env.navigate(checkPageUrl(next, env.location && env.location.search));
         }
@@ -894,15 +999,19 @@
       } else if (action === 'retry') retry(n);
     }
 
-    el.addEventListener('click', function (ev) {
+    function onClick(ev) {
+      if (!alive) return;
       var n = closestAttr(ev.target, 'data-action', el);
       var action = n && n.getAttribute('data-action');
       if (action === 'reload') { load(); return; }
-      if (action === 'submit-retry') { submit(); return; }
+      if (action === 'submit-retry') { submit(true); return; }
       if (result) { if (n) resultAction(n); return; }
       if (state) act(ev.target);
-    });
-    if (env.doc && env.doc.addEventListener) env.doc.addEventListener('keydown', onKey);
+    }
+
+    el.addEventListener('click', onClick, listenOpts);
+    if (env.doc && env.doc.addEventListener) env.doc.addEventListener('keydown', onKey, listenOpts);
+    el.__jpathCheck = { token: token, destroy: teardown };
     load();
     return done;
   }
@@ -928,7 +1037,7 @@
   return { KIND_TITLE: KIND_TITLE, initState: initState, parts: parts, headerHtml: headerHtml, boardReduce: boardReduce,
     answerReduce: answerReduce, orderReduce: orderReduce, questionState: questionState, questionHtml: questionHtml,
     timerRemaining: timerRemaining, timerActive: timerActive, advance: advance, errorHtml: errorHtml,
-    timerOffPatch: timerOffPatch, audioUrl: audioUrl, submitKey: submitKey, resultHtml: resultHtml,
+    timerOffPatch: timerOffPatch, audioUrl: audioUrl, questionStart: questionStart, submitKey: submitKey, resultHtml: resultHtml,
     reviewWrongHtml: reviewWrongHtml, retryRequest: retryRequest, nextHref: nextHref, checkPageUrl: checkPageUrl,
     safeReturn: safeReturn, mount: mount, mountPage: mountPage, mountInline: mountInline };
 });

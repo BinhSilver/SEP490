@@ -60,11 +60,14 @@
       + (delta > 0 ? ' (+' + delta + '%)' : '') + '</p>';
     var wrong = (s.wrongItems || []).map(function (w) { return w && (w.expression || w.code); }).filter(Boolean);
     if (wrong.length) html += '<p class="jp-done__wrong">Mục sai hôm nay: <span lang="ja">' + esc(wrong.join(', ')) + '</span></p>';
-    html += '<div class="jp-done__extra" role="group" aria-label="Học thêm 5 mục">'
-      + EXTRA_TABS.map(function (t) {
-        return '<button type="button" class="jp-chip jp-done__chip" data-extra-tab="' + t[0] + '">Học thêm 5 mục · ' + esc(t[1]) + '</button>';
-      }).join('') + '</div><p class="jp-done__hint">Học vượt nhiều sẽ làm tăng số thẻ ôn ngày mai.</p>'
-      + '<div class="jp-done__actions">'
+    // A skill day has no new learning, so it offers no extra rounds.
+    if (s.kind !== 'SKILL') {
+      html += '<div class="jp-done__extra" role="group" aria-label="Học thêm 5 mục">'
+        + EXTRA_TABS.map(function (t) {
+          return '<button type="button" class="jp-chip jp-done__chip" data-extra-tab="' + t[0] + '">Học thêm 5 mục · ' + esc(t[1]) + '</button>';
+        }).join('') + '</div><p class="jp-done__hint">Học vượt nhiều sẽ làm tăng số thẻ ôn ngày mai.</p>';
+    }
+    html += '<div class="jp-done__actions">'
       + '<button type="button" class="jp-btn" data-jpath-writing="' + dataJson({ today: 'VOCAB' }) + '">Luyện viết hôm nay</button>'
       + '<button type="button" class="jp-btn" data-jpath-print="' + dataJson({ scope: 'TODAY', tab: 'VOCAB' }) + '">In bảng</button>'
       + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình học</a></div>'
@@ -89,6 +92,14 @@
     var doc = o.document || w.document;
     var navigate = o.navigate || function (url) { w.location.href = url; };
     var D = w.JpathDisplay;
+    var busy = false;
+
+    function setChips(disabled, first) {
+      var list = el.querySelectorAll ? el.querySelectorAll('[data-extra-tab]') : null;
+      var chips = list ? Array.prototype.slice.call(list) : [];
+      if (first && chips.indexOf(first) < 0) chips.push(first);
+      chips.forEach(function (c) { c.disabled = disabled; });
+    }
 
     function status(msg) {
       var p = el.querySelector && el.querySelector('[data-part="status"]');
@@ -112,13 +123,16 @@
     el.addEventListener('click', function (ev) {
       var n = closestAttr(ev.target, 'data-extra-tab', el);
       if (n) {
-        n.disabled = true;
+        if (busy) return;
+        busy = true;
+        setChips(true, n);
         api.send('POST', BASE + '/sessions', extraRequest(n.getAttribute('data-extra-tab'))).then(function (view) {
           var id = view && view.sessionId;
           if (id === null || id === undefined) throw new Error('no session');
           navigate('/learning/jlpt/study?session=' + encodeURIComponent(id));
         }).catch(function (err) {
-          n.disabled = false;
+          busy = false;
+          setChips(false, n);
           status((err && err.message) || MSG_EXTRA_FAILED);
         });
         return;
