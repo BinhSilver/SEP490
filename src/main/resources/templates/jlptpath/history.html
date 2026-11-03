@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] History page of the JLPT path; jpath-history.js fills it from GET /api/learning/jlpt/history
+     (?day=YYYY-MM-DD opens that day from GET /history/{day}). "Làm lại" issues a FREE_QUIZ redo of a check. -->
+<head th:replace="~{fragments/head :: standard('Lịch sử học - JLAS', null)}"></head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-side')}"></th:block>
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page jp-side" data-inline-dictionary data-jpath-history>
+    <header class="jp-side__head">
+        <a class="jp-side__back" href="/learning">← Về lộ trình</a>
+        <h1 class="jp-side__title">Lịch sử học</h1>
+        <a class="jp-side__link" href="/learning/jlpt/stats">Thống kê</a>
+    </header>
+    <div class="jp-side__range" role="group" aria-label="Khoảng thời gian">
+        <button type="button" class="jp-side-btn" data-range="14" aria-pressed="true">14 ngày</button>
+        <button type="button" class="jp-side-btn" data-range="30" aria-pressed="false">30 ngày</button>
+    </div>
+    <p class="jp-side__status" role="status" data-role="status">Đang tải…</p>
+    <section class="jp-side-card" data-role="detail" hidden aria-live="polite"></section>
+    <ul class="jp-side-days" data-role="days"></ul>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlptpath/jpath-history.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

@@ -44,6 +44,20 @@ public class JpathSidePageController {
         return "jlptpath/print";
     }
 
+    /** History page; jpath-history.js reads {@code GET /api/learning/jlpt/history} (and {@code /history/{day}}). */
+    @GetMapping("/learning/jlpt/history")
+    public String history(@AuthenticationPrincipal UserPrincipal user) {
+        String blocked = guard(user);
+        return blocked != null ? blocked : "jlptpath/history";
+    }
+
+    /** Stats page; jpath-stats.js reads {@code /stats}, {@code /stats/heatmap} and {@code /badges}. */
+    @GetMapping("/learning/jlpt/stats")
+    public String stats(@AuthenticationPrincipal UserPrincipal user) {
+        String blocked = guard(user);
+        return blocked != null ? blocked : "jlptpath/stats";
+    }
+
     /** {@code null} when the learner may open the page, otherwise the redirect to send. */
     String guard(UserPrincipal user) {
         if (user == null) {

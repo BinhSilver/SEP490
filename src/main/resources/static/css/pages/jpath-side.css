@@ -1,0 +1,63 @@
+/* [JLAS-W0108] History and stats pages of the JLPT path (jpath-history.js, jpath-stats.js). */
+.jp-side { max-width: 960px; margin: 0 auto; }
+.jp-side__head { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 12px; }
+.jp-side__title { flex: 1; margin: 0; font-size: 1.5rem; }
+.jp-side__back,
+.jp-side__link { color: var(--jp-primary); text-decoration: none; font-weight: 600; }
+.jp-side__range { display: flex; gap: 8px; margin-bottom: 12px; }
+.jp-side__status:empty { display: none; }
+.jp-side__note { color: var(--jp-muted); font-size: .9rem; }
+
+.jp-side-btn { min-height: 44px; padding: 8px 16px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
+  background: var(--jp-surface); color: var(--jp-ink); font: inherit; cursor: pointer; }
+.jp-side-btn[aria-pressed="true"] { border-color: var(--jp-primary); background: var(--jp-primary-soft); }
+.jp-side-btn:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-side-btn--small { min-height: 36px; padding: 4px 12px; }
+
+.jp-side-card { margin-bottom: 16px; padding: 16px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-panel);
+  background: var(--jp-surface); }
+.jp-side-card h2 { margin: 0 0 12px; font-size: 1.1rem; }
+
+.jp-side-days { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.jp-side-day__btn { display: grid; grid-template-columns: 7rem 1fr auto; gap: 8px; width: 100%; min-height: 44px; padding: 10px 12px;
+  border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink);
+  font: inherit; text-align: left; cursor: pointer; }
+.jp-side-day__btn:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-side-day__nums { color: var(--jp-muted); }
+.jp-side-checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.jp-side-ok { color: var(--jp-ok); }
+.jp-side-miss { color: var(--jp-danger); }
+
+.jp-side-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+.jp-side-tile { display: flex; flex-direction: column; padding: 12px; border-radius: var(--jp-radius-interactive); background: var(--jp-canvas); }
+.jp-side-tile strong { font-size: 1.4rem; }
+.jp-side-tile span { color: var(--jp-muted); }
+
+.jp-side-bars { display: flex; align-items: flex-end; gap: 4px; min-height: 120px; overflow-x: auto; }
+.jp-side-bar { display: flex; flex: 1 0 24px; flex-direction: column; align-items: center; justify-content: flex-end; gap: 2px; font-size: .75rem; }
+.jp-side-bar__fill { display: block; width: 100%; min-height: 1px; border-radius: 4px 4px 0 0; background: var(--jp-primary); }
+.jp-side-bar__day { color: var(--jp-muted); }
+
+/* 375 px: only the heatmap frame scrolls sideways. */
+.jp-side-heat { overflow-x: auto; }
+.jp-side-heat__grid { display: flex; gap: 3px; width: max-content; }
+.jp-side-heat__col { display: grid; grid-template-rows: repeat(7, 16px); gap: 3px; }
+.jp-side-heat__cell { display: grid; place-items: center; width: 16px; height: 16px; border-radius: 3px; font-size: 10px;
+  line-height: 1; text-decoration: none; background: var(--jp-canvas); }
+.jp-side-heat__cell.is-empty { background: transparent; }
+.jp-side-heat__cell:focus-visible { outline: 2px solid var(--jp-primary); }
+.jp-heat-0 { background: var(--jp-canvas); }
+.jp-heat-1 { background: color-mix(in srgb, var(--jp-primary) 25%, var(--jp-surface)); }
+.jp-heat-2 { background: color-mix(in srgb, var(--jp-primary) 50%, var(--jp-surface)); }
+.jp-heat-3 { background: color-mix(in srgb, var(--jp-primary) 75%, var(--jp-surface)); }
+.jp-heat-4 { background: var(--jp-primary); }
+
+.jp-side-badges { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+.jp-side-badge { display: flex; flex-direction: column; gap: 4px; padding: 12px; border: 1px dashed var(--jp-line);
+  border-radius: var(--jp-radius-interactive); color: var(--jp-muted); }
+.jp-side-badge.is-earned { border-style: solid; border-color: var(--jp-primary); color: var(--jp-ink); }
+.jp-side-badge__state { font-weight: 600; }
+
+@media (max-width: 640px) {
+  .jp-side-day__btn { grid-template-columns: 1fr; }
+}
