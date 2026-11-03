@@ -1,0 +1,1544 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "phía lối đi",
+    "examples": [
+     {
+      "ja": "通路側の席が空いている。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Ghế phía lối đi đang trống."
+     }
+    ],
+    "expression": "通路側",
+    "findings": [
+     "FURIGANA_MISSING: 通路側の席が空いている。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "hướng về lối đi; (chỗ ngồi) gần lối đi",
+    "mnemonic_vi": "通路 là lối đi, 側 là phía; ghế sát lối đi trong toa tàu.",
+    "reading": "つうろがわ",
+    "romaji": "tsuurogawa",
+    "topic_vi": "Tàu điện và tàu Shin kansen",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9be3905d84"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cửa soát vé",
+    "examples": [
+     {
+      "ja": "改札で切符を見せる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đưa vé ở cổng soát vé."
+     },
+     {
+      "ja": "改札を出たところで、カードを落としたことに気づいた。",
+      "ja_furigana": "改札(かいさつ)を出(で)たところで、カードを落(お)としたことに気(き)づいた。",
+      "source": "AI",
+      "vi": "Vừa ra khỏi cửa soát vé, tôi nhận ra mình đánh rơi thẻ."
+     }
+    ],
+    "expression": "改札",
+    "findings": [
+     "FURIGANA_MISSING: 改札で切符を見せる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "cửa soát vé; soát vé; cổng soát vé",
+    "mnemonic_vi": "改 là kiểm lại, 札 là vé; cửa máy soát vé ở ga.",
+    "reading": "かいさつ",
+    "romaji": "kaisatsu",
+    "topic_vi": "Tàu điện và tàu Shin kansen",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c4c8064dbb"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ghế đặt trước",
+    "examples": [
+     {
+      "ja": "指定席なら座れるよ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Nếu là ghế đặt trước thì có chỗ ngồi."
+     }
+    ],
+    "expression": "指定席",
+    "findings": [
+     "FURIGANA_MISSING: 指定席なら座れるよ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "ghế chỉ định",
+    "mnemonic_vi": "指定 là chỉ rõ, 席 là ghế; số ghế đã ghi sẵn trên vé.",
+    "reading": "していせき",
+    "romaji": "shiteiseki",
+    "topic_vi": "Tàu điện và tàu Shin kansen",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-defe413520"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sân ga; nhà",
+    "examples": [
+     {
+      "ja": "ホームで電車を待つ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đợi tàu trên sân ga."
+     },
+     {
+      "ja": "二番ホームに東京行きの電車がまいります。",
+      "ja_furigana": "二番(にばん)ホームに東京行(とうきょうゆ)きの電車(でんしゃ)がまいります。",
+      "source": "AI",
+      "vi": "Tàu đi Tokyo sắp vào sân ga số 2."
+     }
+    ],
+    "expression": "ホーム",
+    "findings": [
+     "FURIGANA_MISSING: ホームで電車を待つ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "sân ga; nhà",
+    "mnemonic_vi": "Đứng trên ホーム chờ tàu sát mép đường ray; đó là sân ga.",
+    "reading": "ほーむ",
+    "romaji": "hoomu",
+    "topic_vi": "Tàu điện và tàu Shin kansen",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d396e6ae82"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đường ray",
+    "examples": [
+     {
+      "ja": "線路のそばでは遊ばないで。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Đừng chơi gần đường ray."
+     }
+    ],
+    "expression": "線路",
+    "findings": [
+     "FURIGANA_MISSING: 線路のそばでは遊ばないで。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đường ray; đường tàu",
+    "mnemonic_vi": "線 là đường kẻ dài, 路 là lối; hai thanh ray dẫn tàu đi.",
+    "reading": "せんろ",
+    "romaji": "senro",
+    "topic_vi": "Tàu điện và tàu Shin kansen",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-17bc33ac30"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đường ngang qua đường sắt",
+    "examples": [
+     {
+      "ja": "踏切ではいったん止まって。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hãy dừng lại một lần ở đường ngang."
+     }
+    ],
+    "expression": "踏切",
+    "findings": [
+     "FURIGANA_MISSING: 踏切ではいったん止まって。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đường ngang qua đường sắt; rào chắn tàu; nơi chắn tàu",
+    "mnemonic_vi": "踏 là bước, 切 là chỗ cắt ngang; nơi đường bộ cắt qua đường sắt.",
+    "reading": "ふみきり",
+    "romaji": "fumikiri",
+    "topic_vi": "Tàu điện và tàu Shin kansen",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2e8d3fa3e5"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nhỡ tàu",
+    "examples": [
+     {
+      "ja": "寝坊して電車に乗り遅れる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi dậy muộn nên lỡ tàu."
+     }
+    ],
+    "expression": "乗り遅れる",
+    "findings": [
+     "FURIGANA_MISSING: 寝坊して電車に乗り遅れる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "lỡ chuyến tàu; nhỡ tàu; lỡ chuyến",
+    "mnemonic_vi": "乗 là lên tàu, 遅 là trễ; chạy đến ga khi cửa đã đóng.",
+    "reading": "のりおくれる",
+    "romaji": "noriokureru",
+    "topic_vi": "Tàu điện và tàu Shin kansen",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-64976e5648"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đi tàu xa hơn nơi định đi ban đầu",
+    "examples": [
+     {
+      "ja": "駅を乗り越すと運賃が増える。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Đi quá ga thì giá vé tăng."
+     },
+     {
+      "ja": "うっかり降りる駅を乗り越して、二駅戻った。",
+      "ja_furigana": "うっかり降(お)りる駅(えき)を乗(の)り越(こ)して、二駅(ふたえき)戻(もど)った。",
+      "source": "AI",
+      "vi": "Lơ đễnh đi quá ga cần xuống nên tôi phải quay lại hai ga."
+     }
+    ],
+    "expression": "乗り越す",
+    "findings": [
+     "FURIGANA_MISSING: 駅を乗り越すと運賃が増える。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đi quá điểm xuống; đi quá ga cần tới; đi tàu xa hơn nơi định đi ban đầu",
+    "mnemonic_vi": "乗 là ngồi tàu, 越 là vượt quá; mải ngủ đi quá ga cần xuống.",
+    "reading": "のりこす",
+    "romaji": "norikosu",
+    "topic_vi": "Tàu điện và tàu Shin kansen",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d640c88342"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đi quá",
+    "examples": [
+     {
+      "ja": "寝ていると駅を乗り過ごすよ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Ngủ thì bạn sẽ đi quá ga đấy."
+     },
+     {
+      "ja": "疲れて眠ってしまい、終点まで乗り過ごした。",
+      "ja_furigana": "疲(つか)れて眠(ねむ)ってしまい、終点(しゅうてん)まで乗(の)り過(す)ごした。",
+      "source": "AI",
+      "vi": "Mệt quá ngủ quên nên tôi đi quá đến tận ga cuối."
+     }
+    ],
+    "expression": "乗り過ごす",
+    "findings": [
+     "FURIGANA_MISSING: 寝ていると駅を乗り過ごすよ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đi quá ga cần tới; đi quá; bỏ lỡ",
+    "mnemonic_vi": "過 là quá khỏi; nhìn cửa ga lướt qua vì quên xuống tàu.",
+    "reading": "のりすごす",
+    "romaji": "norisugosu",
+    "topic_vi": "Tàu điện và tàu Shin kansen",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ecd15a6378"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hành khách",
+    "examples": [
+     {
+      "ja": "乗客が皆降りるまで待とう。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hãy chờ đến khi mọi hành khách xuống."
+     }
+    ],
+    "expression": "乗客",
+    "findings": [
+     "FURIGANA_MISSING: 乗客が皆降りるまで待とう。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "hành khách; hành khách trên phương tiện",
+    "mnemonic_vi": "乗 là đi xe, 客 là khách; mọi người đang ngồi trên xe là hành khách.",
+    "reading": "じょうきゃく",
+    "romaji": "joukyaku",
+    "topic_vi": "Xe buýt",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e644319623"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "xe khởi hành",
+    "examples": [
+     {
+      "ja": "発車まであと五分だ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Còn năm phút nữa tàu khởi hành."
+     },
+     {
+      "ja": "発車のベルが鳴ったので、急いで電車に乗った。",
+      "ja_furigana": "発車(はっしゃ)のベルが鳴(な)ったので、急(いそ)いで電車(でんしゃ)に乗(の)った。",
+      "source": "AI",
+      "vi": "Chuông báo khởi hành reo nên tôi vội lên tàu."
+     }
+    ],
+    "expression": "発車＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 発車まであと五分だ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "xe khởi hành; khởi hành; khởi hành (xe",
+    "mnemonic_vi": "発 là khởi, 車 là xe; xe rời bến đúng giờ.",
+    "reading": "はっしゃ＜する＞",
+    "romaji": "hassha<suru>",
+    "topic_vi": "Xe buýt",
+    "twins": [],
+    "variants": [
+     "発車",
+     "発車（する）"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a3315a6027"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đi qua, thông qua",
+    "examples": [
+     {
+      "ja": "この駅を電車が通過した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tàu đi qua ga này."
+     },
+     {
+      "ja": "一回目の面接を無事に通過した。",
+      "ja_furigana": "一回目(いっかいめ)の面接(めんせつ)を無事(ぶじ)に通過(つうか)した。",
+      "source": "AI",
+      "vi": "Tôi đã vượt qua vòng phỏng vấn đầu tiên suôn sẻ."
+     },
+     {
+      "ja": "トンネルを通過するとき、電話が切れてしまった。",
+      "ja_furigana": "トンネルを通過(つうか)するとき、電話(でんわ)が切(き)れてしまった。",
+      "source": "AI",
+      "vi": "Khi đi qua đường hầm, cuộc gọi bị ngắt."
+     }
+    ],
+    "expression": "通過＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: この駅を電車が通過した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đi qua; thông qua; vượt qua",
+    "mnemonic_vi": "通 là thông suốt, 過 là đi qua; xe chạy qua ga không dừng.",
+    "reading": "つうか＜する＞",
+    "romaji": "tsuuka<suru>",
+    "topic_vi": "Xe buýt",
+    "twins": [],
+    "variants": [
+     "通過",
+     "通過（する）"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f894a207fb"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "dừng xe",
+    "examples": [
+     {
+      "ja": "次の駅では停車しない。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tàu không dừng ở ga tiếp theo."
+     },
+     {
+      "ja": "大雪のため、電車は駅に三十分停車した。",
+      "ja_furigana": "大雪(おおゆき)のため、電車(でんしゃ)は駅(えき)に三十分(さんじゅっぷん)停車(ていしゃ)した。",
+      "source": "AI",
+      "vi": "Do tuyết lớn, tàu đã dừng ở ga ba mươi phút."
+     }
+    ],
+    "expression": "停車＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 次の駅では停車しない。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "dừng xe; sự dừng tàu; xe",
+    "mnemonic_vi": "停 là dừng, 車 là xe; xe dừng hẳn ở trạm.",
+    "reading": "ていしゃ＜する＞",
+    "romaji": "teisha<suru>",
+    "topic_vi": "Xe buýt",
+    "twins": [],
+    "variants": [
+     "停車"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6b2460fed0"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hoàn tiền lại",
+    "examples": [
+     {
+      "ja": "店は代金を払い戻す。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Cửa hàng hoàn lại tiền."
+     },
+     {
+      "ja": "試合が中止になったので、チケット代が払い戻された。",
+      "ja_furigana": "試合(しあい)が中止(ちゅうし)になったので、チケット代(だい)が払(はら)い戻(もど)された。",
+      "source": "AI",
+      "vi": "Trận đấu bị hủy nên tiền vé được hoàn lại."
+     },
+     {
+      "ja": "買った服が小さかったので、店でお金を払い戻してもらった。",
+      "ja_furigana": "買(か)った服(ふく)が小(ちい)さかったので、店(みせ)でお金(かね)を払(はら)い戻(もど)してもらった。",
+      "source": "AI",
+      "vi": "Áo mua bị nhỏ nên cửa hàng đã hoàn tiền cho tôi."
+     }
+    ],
+    "expression": "払い戻す",
+    "findings": [
+     "FURIGANA_MISSING: 店は代金を払い戻す。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "trả lại; hoàn tiền lại; hoàn trả",
+    "mnemonic_vi": "払う là trả, 戻す là đưa về; quầy hoàn lại tiền vé.",
+    "reading": "はらいもどす",
+    "romaji": "haraimodosu",
+    "topic_vi": "Xe buýt",
+    "twins": [],
+    "variants": [
+     "払戻す"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d1122ed57a"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "số người quy định",
+    "examples": [
+     {
+      "ja": "この部屋の定員は五人です。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Sức chứa của phòng này là năm người."
+     },
+     {
+      "ja": "人気の料理教室は、すぐに定員になった。",
+      "ja_furigana": "人気(にんき)の料理教室(りょうりきょうしつ)は、すぐに定員(ていいん)になった。",
+      "source": "AI",
+      "vi": "Lớp học nấu ăn được ưa chuộng đã nhanh chóng đủ số người."
+     }
+    ],
+    "expression": "定員",
+    "findings": [
+     "FURIGANA_MISSING: この部屋の定員は五人です。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "số người quy định; số người cho phép; sức chứa",
+    "mnemonic_vi": "定 là mức quy định, 員 là người; xe chỉ chở đúng số người cho phép.",
+    "reading": "ていいん",
+    "romaji": "teiin",
+    "topic_vi": "Xe buýt",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-32be0e5997"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "kín chỗ, đầy người",
+    "examples": [
+     {
+      "ja": "このバスはもう満員だ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Xe buýt này đã đầy khách."
+     },
+     {
+      "ja": "人気歌手のコンサートで、会場は満員だった。",
+      "ja_furigana": "人気(にんき)歌手(かしゅ)のコンサートで、会場(かいじょう)は満員(まんいん)だった。",
+      "source": "AI",
+      "vi": "Ở buổi hòa nhạc của ca sĩ nổi tiếng, hội trường chật kín người."
+     }
+    ],
+    "expression": "満員",
+    "findings": [
+     "FURIGANA_MISSING: このバスはもう満員だ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "kín chỗ; đầy người; đông người",
+    "mnemonic_vi": "満 là đầy, 員 là người; toa tàu chật kín khách.",
+    "reading": "まんいん",
+    "romaji": "manin",
+    "topic_vi": "Xe buýt",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d9153bb2f1"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thời khắc, giờ giấc",
+    "examples": [
+     {
+      "ja": "列車の出発時刻を調べる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi tra giờ tàu khởi hành."
+     },
+     {
+      "ja": "時刻表で、最後の電車の時刻を確かめた。",
+      "ja_furigana": "時刻表(じこくひょう)で、最後(さいご)の電車(でんしゃ)の時刻(じこく)を確(たし)かめた。",
+      "source": "AI",
+      "vi": "Tôi xem bảng giờ tàu để kiểm tra giờ của chuyến cuối."
+     }
+    ],
+    "expression": "時刻",
+    "findings": [
+     "FURIGANA_MISSING: 列車の出発時刻を調べる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "thời khắc; giờ giấc",
+    "mnemonic_vi": "時 là giờ, 刻 là khắc; giờ khởi hành in trên bảng.",
+    "reading": "じこく",
+    "romaji": "jikoku",
+    "topic_vi": "Xe buýt",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0b15e6e363"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chỗ ưu tiên",
+    "examples": [
+     {
+      "ja": "お年寄りには優先席をゆずろう。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hãy nhường ghế ưu tiên cho người già."
+     }
+    ],
+    "expression": "優先席",
+    "findings": [
+     "FURIGANA_MISSING: お年寄りには優先席をゆずろう。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "ghế ưu tiên; chỗ ưu tiên",
+    "mnemonic_vi": "優先 là được trước, 席 là ghế; ghế dành ưu tiên cho người cần.",
+    "reading": "ゆうせんせき",
+    "romaji": "yuusenseki",
+    "topic_vi": "Xe buýt",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-64e84f3133"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đứng dậy; vùng lên",
+    "examples": [
+     {
+      "ja": "呼ばれて席から立ち上がる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đứng dậy khỏi ghế khi được gọi."
+     },
+     {
+      "ja": "長い時間座っていたので、立ち上がるときに足が痛かった。",
+      "ja_furigana": "長(なが)い時間(じかん)座(すわ)っていたので、立(た)ち上(あ)がるときに足(あし)が痛(いた)かった。",
+      "source": "AI",
+      "vi": "Ngồi lâu nên lúc đứng dậy chân bị đau."
+     },
+     {
+      "ja": "地震のあと、町の人たちは力を合わせて立ち上がった。",
+      "ja_furigana": "地震(じしん)のあと、町(まち)の人(ひと)たちは力(ちから)を合(あ)わせて立(た)ち上(あ)がった。",
+      "source": "AI",
+      "vi": "Sau trận động đất, người dân thị trấn đồng lòng vực dậy."
+     }
+    ],
+    "expression": "立ち上がる",
+    "findings": [
+     "FURIGANA_MISSING: 呼ばれて席から立ち上がる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đứng dậy; vùng lên; đứng lên",
+    "mnemonic_vi": "立 là đứng, 上 là lên; rời ghế để đứng dậy.",
+    "reading": "たちあがる",
+    "romaji": "tachiagaru",
+    "topic_vi": "Xe buýt",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e43340151c"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nhường lại",
+    "examples": [
+     {
+      "ja": "お年寄りに席を譲る。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi nhường ghế cho người lớn tuổi."
+     },
+     {
+      "ja": "せまい道で、向こうから来た車に道を譲った。",
+      "ja_furigana": "せまい道(みち)で、向(む)こうから来(き)た車(くるま)に道(みち)を譲(ゆず)った。",
+      "source": "AI",
+      "vi": "Trên con đường hẹp, tôi nhường đường cho chiếc xe đi ngược chiều."
+     },
+     {
+      "ja": "父は店を長男に譲ることにした。",
+      "ja_furigana": "父(ちち)は店(みせ)を長男(ちょうなん)に譲(ゆず)ることにした。",
+      "source": "AI",
+      "vi": "Bố tôi quyết định giao lại cửa hàng cho con trai cả."
+     }
+    ],
+    "expression": "譲る",
+    "findings": [
+     "FURIGANA_MISSING: お年寄りに席を譲る。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "nhường lại; bàn giao; chuyển nhượng",
+    "mnemonic_vi": "Nhường chiếc ghế mình đang ngồi cho người lớn tuổi: 譲る.",
+    "reading": "ゆずる",
+    "romaji": "yuzuru",
+    "topic_vi": "Xe buýt",
+    "twins": [],
+    "variants": [
+     "ゆずる"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c186f43433"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "phanh",
+    "examples": [
+     {
+      "ja": "急にブレーキを踏んだ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đạp phanh đột ngột."
+     },
+     {
+      "ja": "自転車のブレーキがきかなくなったので、店に持っていった。",
+      "ja_furigana": "自転車(じてんしゃ)のブレーキがきかなくなったので、店(みせ)に持(も)っていった。",
+      "source": "AI",
+      "vi": "Phanh xe đạp không ăn nữa nên tôi đem ra tiệm."
+     },
+     {
+      "ja": "雨の日は、ブレーキを早めにかけたほうがいい。",
+      "ja_furigana": "雨(あめ)の日(ひ)は、ブレーキを早(はや)めにかけたほうがいい。",
+      "source": "AI",
+      "vi": "Ngày mưa thì nên phanh sớm hơn."
+     }
+    ],
+    "expression": "ブレーキ",
+    "findings": [
+     "FURIGANA_MISSING: 急にブレーキを踏んだ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "phanh",
+    "mnemonic_vi": "Đạp ブレーキ, bánh xe giảm tốc rồi dừng: phanh.",
+    "reading": "ぶれーき",
+    "romaji": "bureeki",
+    "topic_vi": "Xe buýt",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d3ac8d517f"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lái xe đi chơi",
+    "examples": [
+     {
+      "ja": "週末は海までドライブしよう。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Cuối tuần hãy lái xe đi biển."
+     },
+     {
+      "ja": "週末に家族とドライブする。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Cuối tuần tôi đi dạo bằng ô tô với gia đình."
+     },
+     {
+      "ja": "夜の町をドライブしながら、音楽を聞いた。",
+      "ja_furigana": "夜(よる)の町(まち)をドライブしながら、音楽(おんがく)を聞(き)いた。",
+      "source": "AI",
+      "vi": "Tôi vừa lái xe dạo quanh thành phố về đêm vừa nghe nhạc."
+     }
+    ],
+    "expression": "ドライブ＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 週末は海までドライブしよう。",
+     "FURIGANA_MISSING: 週末に家族とドライブする。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đi dạo bằng ô tô; lái xe đi chơi; lái xe",
+    "mnemonic_vi": "Cả nhà lên ô tô chạy dọc bờ biển cho vui; ドライブ là lái xe đi chơi.",
+    "reading": "どらいぶ＜する＞",
+    "romaji": "doraibu<suru>",
+    "topic_vi": "Lái xe",
+    "twins": [],
+    "variants": [
+     "ドライブ",
+     "ドライブ（する）"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0270e842ec"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cho lên xe; đặt lên",
+    "examples": [
+     {
+      "ja": "子どもを自転車に乗せる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi cho con ngồi lên xe đạp."
+     },
+     {
+      "ja": "よった友達をタクシーに乗せて、家に帰した。",
+      "ja_furigana": "よった友達(ともだち)をタクシーに乗(の)せて、家(いえ)に帰(かえ)した。",
+      "source": "AI",
+      "vi": "Tôi cho người bạn say rượu lên taxi để về nhà."
+     }
+    ],
+    "expression": "乗せる",
+    "findings": [
+     "FURIGANA_MISSING: 子どもを自転車に乗せる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "cho lên xe; đặt lên; chất lên",
+    "mnemonic_vi": "乗 là lên xe; bế con đặt lên ghế xe là 乗せる.",
+    "reading": "のせる",
+    "romaji": "noseru",
+    "topic_vi": "Lái xe",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8dc12478fa"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ghế bên cạnh ghế của người cầm lái",
+    "examples": [
+     {
+      "ja": "子どもは助手席に座らせない。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi không cho trẻ ngồi ghế phụ."
+     }
+    ],
+    "expression": "助手席",
+    "findings": [
+     "FURIGANA_MISSING: 子どもは助手席に座らせない。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "ghế bên cạnh ghế của người cầm lái",
+    "mnemonic_vi": "助手 là người giúp lái, 席 là ghế; chỗ ngồi bên cạnh tài xế.",
+    "reading": "じょしゅせき",
+    "romaji": "joshuseki",
+    "topic_vi": "Lái xe",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3d78edbfb1"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "dây an toàn",
+    "examples": [
+     {
+      "ja": "車ではシートベルトを締めて。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Trên xe hãy thắt dây an toàn."
+     },
+     {
+      "ja": "飛行機が空港に着くまで、シートベルトを外さないでください。",
+      "ja_furigana": "飛行機(ひこうき)が空港(くうこう)に着(つ)くまで、シートベルトを外(はず)さないでください。",
+      "source": "AI",
+      "vi": "Xin đừng tháo dây an toàn cho đến khi máy bay tới sân bay."
+     },
+     {
+      "ja": "シートベルトのおかげで、事故でも大きなけがをしなかった。",
+      "ja_furigana": "シートベルトのおかげで、事故(じこ)でも大(おお)きなけがをしなかった。",
+      "source": "AI",
+      "vi": "Nhờ dây an toàn mà dù gặp tai nạn tôi cũng không bị thương nặng."
+     }
+    ],
+    "expression": "シートベルト",
+    "findings": [
+     "FURIGANA_MISSING: 車ではシートベルトを締めて。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "dây an toàn",
+    "mnemonic_vi": "シート là ghế, ベルト là đai; kéo đai qua ngực để thắt dây an toàn.",
+    "reading": "シートベルト",
+    "romaji": "shiitoberuto",
+    "topic_vi": "Lái xe",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-45e2787884"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hệ thống dẫn đường ô tô",
+    "examples": [
+     {
+      "ja": "カーナビで道を調べた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi xem đường bằng hệ thống dẫn đường."
+     }
+    ],
+    "expression": "カーナビ",
+    "findings": [
+     "FURIGANA_MISSING: カーナビで道を調べた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "hệ thống dẫn đường ô tô",
+    "mnemonic_vi": "カー là xe, ナビ là dẫn đường; màn hình chỉ đường trong ô tô.",
+    "reading": "かーなび",
+    "romaji": "kaanabi",
+    "topic_vi": "Lái xe",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0f129a66d3"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tắc đường",
+    "examples": [
+     {
+      "ja": "朝はこの道が渋滞する。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Buổi sáng con đường này tắc nghẽn."
+     },
+     {
+      "ja": "おぼんの時期は、高速道路が渋滞する。",
+      "ja_furigana": "おぼんの時期(じき)は、高速道路(こうそくどうろ)が渋滞(じゅうたい)する。",
+      "source": "AI",
+      "vi": "Vào dịp lễ Obon, đường cao tốc bị tắc."
+     },
+     {
+      "ja": "渋滞のせいで、飛行機に間に合わなかった。",
+      "ja_furigana": "渋滞(じゅうたい)のせいで、飛行機(ひこうき)に間(ま)に合(あ)わなかった。",
+      "source": "AI",
+      "vi": "Vì tắc đường mà tôi không kịp chuyến bay."
+     }
+    ],
+    "expression": "渋滞＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 朝はこの道が渋滞する。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tắc đường; tắc nghẽn ( xe cộ ); tắc dường",
+    "mnemonic_vi": "Xe nối đuôi nhau đứng im hàng dài; 渋滞 là tắc đường.",
+    "reading": "じゅうたい＜する＞",
+    "romaji": "juutai<suru>",
+    "topic_vi": "Lái xe",
+    "twins": [],
+    "variants": [
+     "渋滞"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-795a001845"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tốc độ",
+    "examples": [
+     {
+      "ja": "この道では速度を落として。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Trên đường này hãy giảm tốc độ."
+     },
+     {
+      "ja": "学校の近くでは、速度を守って運転しよう。",
+      "ja_furigana": "学校(がっこう)の近(ちか)くでは、速度(そくど)を守(まも)って運転(うんてん)しよう。",
+      "source": "AI",
+      "vi": "Gần trường học, hãy lái xe đúng tốc độ quy định."
+     }
+    ],
+    "expression": "速度",
+    "findings": [
+     "FURIGANA_MISSING: この道では速度を落として。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tốc độ",
+    "mnemonic_vi": "速 là nhanh, 度 là mức; đồng hồ đo tốc độ xe.",
+    "reading": "そくど",
+    "romaji": "sokudo",
+    "topic_vi": "Lái xe",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-db22a9cece"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đường cao tốc",
+    "examples": [
+     {
+      "ja": "高速道路では速度に気を付けて。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Trên đường cao tốc hãy chú ý tốc độ."
+     },
+     {
+      "ja": "高速道路のサービスエリアで、少し休んだ。",
+      "ja_furigana": "高速道路(こうそくどうろ)のサービスエリアで、少(すこ)し休(やす)んだ。",
+      "source": "AI",
+      "vi": "Chúng tôi nghỉ một chút ở trạm dừng trên đường cao tốc."
+     }
+    ],
+    "expression": "高速道路",
+    "findings": [
+     "FURIGANA_MISSING: 高速道路では速度に気を付けて。",
+     "EXAMPLE_KANA_ABOVE_LEVEL: 高速道路のサービスエリアで、少し休んだ。 → サービスエリア"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đường cao tốc",
+    "mnemonic_vi": "高 là cao, 速 là nhanh, 道路 là đường; xa lộ cho xe chạy nhanh.",
+    "reading": "こうそくどうろ",
+    "romaji": "kousokudouro",
+    "topic_vi": "Lái xe",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9fa64c79e3"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hàng, dãy",
+    "examples": [
+     {
+      "ja": "長い列の後ろに並んだ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi xếp ở cuối hàng dài."
+     },
+     {
+      "ja": "学生たちは二列に並んで歩いた。",
+      "ja_furigana": "学生(がくせい)たちは二列(にれつ)に並(なら)んで歩(ある)いた。",
+      "source": "AI",
+      "vi": "Học sinh xếp thành hai hàng mà đi."
+     },
+     {
+      "ja": "前から三列目の席に座った。",
+      "ja_furigana": "前(まえ)から三列目(さんれつめ)の席(せき)に座(すわ)った。",
+      "source": "AI",
+      "vi": "Tôi ngồi ở hàng ghế thứ ba tính từ trên xuống."
+     }
+    ],
+    "expression": "列",
+    "findings": [
+     "FURIGANA_MISSING: 長い列の後ろに並んだ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "hàng; dãy; dòng",
+    "mnemonic_vi": "Người đứng nối nhau thành một hàng thẳng; 列 là hàng.",
+    "reading": "れつ",
+    "romaji": "retsu",
+    "topic_vi": "Lái xe",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6460a56310"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lỏng, chùng; thoải mái",
+    "examples": [
+     {
+      "ja": "この服は少しゆるい。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Bộ đồ này hơi rộng."
+     },
+     {
+      "ja": "緩いさかを自転車でのぼった。",
+      "ja_furigana": "緩(ゆる)いさかを自転車(じてんしゃ)でのぼった。",
+      "source": "AI",
+      "vi": "Tôi đạp xe lên con dốc thoai thoải."
+     },
+     {
+      "ja": "この学校はきそくが緩くて、髪の色も自由だ。",
+      "ja_furigana": "この学校(がっこう)はきそくが緩(ゆる)くて、髪(かみ)の色(いろ)も自由(じゆう)だ。",
+      "source": "AI",
+      "vi": "Trường này quy định lỏng lẻo, màu tóc cũng được tự do."
+     }
+    ],
+    "expression": "緩い",
+    "findings": [
+     "FURIGANA_MISSING: この服は少しゆるい。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "lỏng lẻo; quản lý lỏng lẻo; độ dốc thoai thoải",
+    "mnemonic_vi": "Sợi dây không căng, kéo nhẹ là tuột; 緩い là lỏng.",
+    "reading": "ゆるい",
+    "romaji": "yurui",
+    "topic_vi": "Lái xe",
+    "twins": [],
+    "variants": [
+     "ゆるい"
+    ],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-cd74acc4c7"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lưu thông một chiều",
+    "examples": [
+     {
+      "ja": "この道は一方通行です。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Con đường này chỉ đi một chiều."
+     }
+    ],
+    "expression": "一方通行",
+    "findings": [
+     "FURIGANA_MISSING: この道は一方通行です。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "lưu thông một chiều",
+    "mnemonic_vi": "一 là một, 方 là phía, 通行 là lưu thông; đường chỉ cho đi một chiều.",
+    "reading": "いっぽうつうこう",
+    "romaji": "ippoutsuukou",
+    "topic_vi": "Lái xe",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e75fddfec1"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bằng lái xe",
+    "examples": [
+     {
+      "ja": "運転免許証を家に忘れた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi để quên bằng lái ở nhà."
+     }
+    ],
+    "expression": "運転免許証",
+    "findings": [
+     "FURIGANA_MISSING: 運転免許証を家に忘れた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bằng lái xe",
+    "mnemonic_vi": "運転 là lái xe, 免許 là giấy phép, 証 là thẻ chứng nhận; bằng lái xe.",
+    "reading": "うんてんめんきょしょう",
+    "romaji": "untenmenkyoshou",
+    "topic_vi": "Lái xe",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9bacd29c9d"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cán, đâm phải (bằng xe)",
+    "examples": [
+     {
+      "ja": "車が猫を轢くところだった。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Chiếc xe suýt cán phải con mèo."
+     },
+     {
+      "ja": "夜の道で、車にひかれそうになった。",
+      "ja_furigana": "夜(よる)の道(みち)で、車(くるま)にひかれそうになった。",
+      "source": "AI",
+      "vi": "Trên đường ban đêm, tôi suýt bị xe cán phải."
+     },
+     {
+      "ja": "タイヤで空きかんをひいてしまった。",
+      "ja_furigana": "タイヤで空(あ)きかんをひいてしまった。",
+      "source": "AI",
+      "vi": "Bánh xe của tôi lỡ cán phải một chiếc lon rỗng."
+     }
+    ],
+    "expression": "轢く",
+    "findings": [
+     "FURIGANA_MISSING: 車が猫を轢くところだった。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "cán; đâm phải (bằng xe); tông cán",
+    "mnemonic_vi": "Bánh xe lăn qua vật nằm trên đường; 轢く là cán phải.",
+    "reading": "ひく",
+    "romaji": "hiku",
+    "topic_vi": "Lái xe",
+    "twins": [],
+    "variants": [
+     "ひく"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-146971c803"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "vô lăng, tay lái",
+    "examples": [
+     {
+      "ja": "ハンドルをしっかり持って。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hãy giữ chắc vô lăng."
+     },
+     {
+      "ja": "雪の道でハンドルを急に回すと危ない。",
+      "ja_furigana": "雪(ゆき)の道(みち)でハンドルを急(きゅう)に回(まわ)すと危(あぶ)ない。",
+      "source": "AI",
+      "vi": "Trên đường tuyết mà đánh tay lái đột ngột thì nguy hiểm."
+     }
+    ],
+    "expression": "ハンドル",
+    "findings": [
+     "FURIGANA_MISSING: ハンドルをしっかり持って。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "vô lăng; tay lái",
+    "mnemonic_vi": "Hai tay giữ vòng ハンドル để điều khiển hướng xe; đó là vô lăng.",
+    "reading": "はんどる",
+    "romaji": "handoru",
+    "topic_vi": "Lái xe",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-28478d6c62"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thùng xe",
+    "examples": [
+     {
+      "ja": "重い箱をトランクに入れた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi bỏ hộp nặng vào cốp."
+     }
+    ],
+    "expression": "トランク",
+    "findings": [
+     "FURIGANA_MISSING: 重い箱をトランクに入れた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "thùng xe",
+    "mnemonic_vi": "Mở nắp phía sau ô tô để cất vali; トランク là cốp xe.",
+    "reading": "とらんく",
+    "romaji": "toranku",
+    "topic_vi": "Lái xe",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d2aea294e7"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "xe tải; đường chạy",
+    "examples": [
+     {
+      "ja": "大きなトラックが橋を渡った。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Xe tải lớn qua cầu."
+     }
+    ],
+    "expression": "トラック",
+    "findings": [
+     "FURIGANA_MISSING: 大きなトラックが橋を渡った。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "xe tải; đường chạy",
+    "mnemonic_vi": "Thùng hàng lớn phía sau buồng lái; トラック là xe tải.",
+    "reading": "とらっく",
+    "romaji": "torakku",
+    "topic_vi": "Lái xe",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-dc8a49df1a"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đi học (di chuyển tới trường)",
+    "examples": [
+     {
+      "ja": "妹は電車で通学している。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Em gái tôi đi học bằng tàu."
+     },
+     {
+      "ja": "雨の日は、通学のバスがとても込む。",
+      "ja_furigana": "雨(あめ)の日(ひ)は、通学(つうがく)のバスがとても込(こ)む。",
+      "source": "AI",
+      "vi": "Ngày mưa, xe buýt đi học rất đông."
+     }
+    ],
+    "expression": "通学＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 妹は電車で通学している。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đi học (di chuyển tới trường); đi học",
+    "mnemonic_vi": "通 là đi lại, 学 là trường học; ngày nào cũng đến trường để học.",
+    "reading": "つうがく＜する＞",
+    "romaji": "tsuugaku<suru>",
+    "topic_vi": "Trường học",
+    "twins": [],
+    "variants": [
+     "通学",
+     "通学（する）"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-474ceff82e"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "năm học, khối lớp",
+    "examples": [
+     {
+      "ja": "弟とは学年が一つ違う。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi và em trai khác nhau một lớp."
+     },
+     {
+      "ja": "学年が上がると、勉強が難しくなる。",
+      "ja_furigana": "学年(がくねん)が上(あ)がると、勉強(べんきょう)が難(むずか)しくなる。",
+      "source": "AI",
+      "vi": "Lên lớp trên thì việc học trở nên khó hơn."
+     }
+    ],
+    "expression": "学年",
+    "findings": [
+     "FURIGANA_MISSING: 弟とは学年が一つ違う。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "năm học; khối lớp; học niên",
+    "mnemonic_vi": "学 là học, 年 là năm; học sinh cùng năm học thuộc một khối lớp.",
+    "reading": "がくねん",
+    "romaji": "gakunen",
+    "topic_vi": "Trường học",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0ed410fdb3"
+  },
+  {
+   "answer": null,
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "học kỳ",
+    "examples": [
+     {
+      "ja": "今学期は日本語を学ぶ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Học kỳ này tôi học tiếng Nhật."
+     },
+     {
+      "ja": "新しい学期が始まって、クラスのメンバーが変わった。",
+      "ja_furigana": "新(あたら)しい学期(がっき)が始(はじ)まって、クラスのメンバーが変(か)わった。",
+      "source": "AI",
+      "vi": "Học kỳ mới bắt đầu, thành viên lớp đã thay đổi."
+     }
+    ],
+    "expression": "学期",
+    "findings": [
+     "FURIGANA_MISSING: 今学期は日本語を学ぶ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "học kỳ; học kì",
+    "mnemonic_vi": "学 là học, 期 là kỳ; lịch học chia thành từng học kỳ.",
+    "reading": "がっき",
+    "romaji": "gakki",
+    "topic_vi": "Trường học",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6fe1d807ea"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N3",
+ "packet_id": "REVIEW_VOCAB-043"
+}
