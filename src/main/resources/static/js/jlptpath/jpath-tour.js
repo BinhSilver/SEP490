@@ -9,9 +9,9 @@
  *   stepHtml(step, i, n)                role="dialog" box: "Bước i/n", text, "Bỏ qua", "Tiếp" / "Xong" on the last step
  *   create({doc, steps, onFinish, reducedMotion}) → {start, next, skip, index}
  *                                       steps whose target is missing are left out; the target is lit by a
- *                                       box-shadow scrim (.jp-tour-target) and scrolled to the centre (no smooth
+ *                                       fixed scrim with a cut-out (.jp-tour-scrim) and scrolled to the centre (no smooth
  *                                       scrolling with prefers-reduced-motion); focus stays in the box (Tab wraps),
- *                                       Esc = Bỏ qua; onFinish('DONE'|'SKIP') fires once and focus goes back
+ *                                       Esc = Bỏ qua; refresh() re-applies the highlight after a repaint; onFinish('DONE'|'SKIP') fires once and focus goes back
  */
 (function (root, factory) {
   'use strict';
@@ -32,6 +32,7 @@
       text: 'Hai ngày mỗi tuần là ngày kỹ năng Đọc · Nghe: không học mới, chỉ ôn và luyện.' })
   ]);
   var TARGET_CLASS = 'jp-tour-target';
+  var PAD = 6;
 
   function esc(v) {
     var d = root && root.JpathDisplay;
@@ -76,12 +77,39 @@
     var layer = null;
     var lit = null;
     var back = null;
+    var scrim = null;
+    var hole = null;
+    var win = o.win || (doc && doc.defaultView) || root;
 
     function targetOf(step) { return doc && step ? doc.querySelector(step.target) : null; }
 
     function unlight() {
       if (lit && lit.classList) lit.classList.remove(TARGET_CLASS);
       lit = null;
+    }
+
+    // one fixed full-screen scrim (blocks pointer input behind the modal box) with a cut-out over the target,
+    // measured from getBoundingClientRect so overflow/sticky parents of the target cannot clip it
+    function place() {
+      if (!hole) return;
+      var r = lit && typeof lit.getBoundingClientRect === 'function' ? lit.getBoundingClientRect() : null;
+      if (!r) { hole.style.display = 'none'; return; }
+      hole.style.display = '';
+      hole.style.top = (r.top - PAD) + 'px';
+      hole.style.left = (r.left - PAD) + 'px';
+      hole.style.width = (r.width + 2 * PAD) + 'px';
+      hole.style.height = (r.height + 2 * PAD) + 'px';
+    }
+
+    /** Re-finds the current target (the page may have repainted it) and re-measures the cut-out. */
+    function refresh() {
+      if (finished || at < 0) return;
+      var el = targetOf(live[at]);
+      if (el !== lit) {
+        unlight();
+        if (el && el.classList) { el.classList.add(TARGET_CLASS); lit = el; }
+      }
+      place();
     }
 
     function buttons() {
@@ -104,7 +132,7 @@
       var t = ev.target;
       var btn = t && typeof t.closest === 'function' ? t.closest('[data-tour-action]') : null;
       if (!btn) return;
-      if (btn.action === 'skip' || (btn.getAttribute && btn.getAttribute('data-tour-action') === 'skip')) skip();
+      if (btn.getAttribute('data-tour-action') === 'skip') skip();
       else next();
     }
 
@@ -117,6 +145,7 @@
       if (el && typeof el.scrollIntoView === 'function') {
         el.scrollIntoView({ block: 'center', behavior: reduced() ? 'auto' : 'smooth' });
       }
+      place();
       layer.innerHTML = stepHtml(step, i + 1, live.length);
       var primary = layer.querySelector('[data-tour-action="next"]');
       if (primary && typeof primary.focus === 'function') primary.focus();
@@ -127,8 +156,15 @@
       finished = true;
       unlight();
       if (doc) doc.removeEventListener('keydown', onKey, true);
+      if (win && typeof win.removeEventListener === 'function') {
+        win.removeEventListener('resize', place);
+        win.removeEventListener('scroll', place, true);
+      }
       if (layer && layer.parentNode) layer.parentNode.removeChild(layer);
+      if (scrim && scrim.parentNode) scrim.parentNode.removeChild(scrim);
       layer = null;
+      scrim = null;
+      hole = null;
       if (back && typeof back.focus === 'function') back.focus();
       onFinish(kind);
     }
@@ -138,10 +174,22 @@
       live = all.filter(function (s) { return !!targetOf(s); });
       if (!live.length) { finish('DONE'); return; }
       back = doc.activeElement;
+      scrim = doc.createElement('div');
+      scrim.className = 'jp-tour-scrim';
+      scrim.setAttribute('aria-hidden', 'true');
+      hole = doc.createElement('div');
+      hole.className = 'jp-tour-scrim__hole';
+      hole.style = hole.style || {};
+      scrim.appendChild(hole);
+      doc.body.appendChild(scrim);
       layer = doc.createElement('div');
       layer.className = 'jp-tour';
       layer.addEventListener('click', onClick);
       doc.body.appendChild(layer);
+      if (win && typeof win.addEventListener === 'function') {
+        win.addEventListener('resize', place);
+        win.addEventListener('scroll', place, true);
+      }
       doc.addEventListener('keydown', onKey, true);
       show(0);
     }
@@ -157,7 +205,7 @@
       finish('SKIP');
     }
 
-    return { start: start, next: next, skip: skip, index: function () { return at; } };
+    return { start: start, next: next, skip: skip, refresh: refresh, index: function () { return at; } };
   }
 
   return { STEPS: STEPS, shouldStart: shouldStart, stepHtml: stepHtml, create: create };

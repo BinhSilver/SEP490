@@ -527,7 +527,8 @@
     function onVisible() {
       if (doc.visibilityState !== 'visible' || !state.path) return;
       if (state.todayFailed || C.isStale(state.today, C.localIso())) {
-        loadToday().then(paintAll).catch(function () { /* keep the current page */ });
+        loadToday().then(paintAll).then(function () { if (state.tour) state.tour.refresh(); })
+          .catch(function () { /* keep the current page */ });
       }
     }
     if (doc && typeof doc.addEventListener === 'function' && !rootEl.__jpathVisibility) {
@@ -539,14 +540,34 @@
     function startTour() {
       var tour = root.JpathTour;
       if (!tour || !tour.shouldStart(state.path, (loc && loc.search) || '')) return;
-      var saver = d.saver || D().createSaver({ send: function (m, u, b) { return apiClient.send(m, u, b); } });
-      tour.create({ doc: doc, onFinish: function () {
+      // saved at once (no debounce): leaving the page right after the tour must keep the flag
+      var saver = d.saver || { save: function (patch) {
+        var p = apiClient.send('PUT', D().SETTINGS_URL, patch);
+        if (p && typeof p.catch === 'function') p.catch(function () { /* the tour shows again next time */ });
+      } };
+      state.tour = tour.create({ doc: doc, onFinish: function () {
+        state.tour = null;
         state.path.tourDone = true;
         saver.save({ tourDone: true });
         if (env.history && /(^|[?&])tour=1(&|$)/.test((loc && loc.search) || '')) {
           try { env.history.replaceState(null, '', withoutTour(loc)); } catch (e) { /* ignore */ }
         }
-      } }).start();
+      } });
+      state.tour.start();
+    }
+
+    // the ⋯ menu closes on Esc and on a click outside it
+    function closeMenus(except) {
+      Array.prototype.forEach.call(rootEl.querySelectorAll ? rootEl.querySelectorAll('details.jp-menu[open]') : [],
+        function (m) { if (m !== except) m.removeAttribute('open'); });
+    }
+    if (doc && typeof doc.addEventListener === 'function' && !rootEl.__jpathMenu) {
+      rootEl.__jpathMenu = true;
+      doc.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') closeMenus(null); });
+      doc.addEventListener('click', function (ev) {
+        var t = ev.target;
+        closeMenus(t && typeof t.closest === 'function' ? t.closest('details.jp-menu') : null);
+      });
     }
 
     var pathLoad = Promise.resolve().then(function () { return apiClient.get(PATH_URL); });

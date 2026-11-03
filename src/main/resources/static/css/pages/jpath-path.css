@@ -387,8 +387,7 @@
   .jp-path__list *, .jp-dialog-backdrop * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
 
-/* page menu and first-visit tour (Task 54). The scrim is the lit target's own box-shadow, so the target stays
-   clickable-looking and bright; the box sits at the bottom, above the shell's mobile bar on phones. */
+/* page menu and first-visit tour (Task 54). The box sits at the bottom, above the shell's mobile bar on phones. */
 .jp-path__hero { position: relative; padding-right: 52px; }
 .jp-menu { position: absolute; top: 0; right: 0; z-index: 5; }
 .jp-menu__btn {
@@ -407,10 +406,12 @@
   font-weight: 600;
 }
 .jp-menu__item:hover, .jp-menu__item:focus-visible { background: var(--jp-primary-soft); outline: none; }
-.jp-tour-target {
-  position: relative; z-index: 60; border-radius: var(--jp-radius-panel);
-  box-shadow: 0 0 0 9999px color-mix(in srgb, var(--jp-ink) 55%, transparent);
-  transition: box-shadow .2s ease;
+.jp-tour-target { border-radius: var(--jp-radius-panel); }
+/* one fixed full-screen layer: it blocks pointer input behind the modal box; the hole's shadow is the scrim */
+.jp-tour-scrim { position: fixed; inset: 0; z-index: 65; overflow: hidden; pointer-events: auto; }
+.jp-tour-scrim__hole {
+  position: fixed; border-radius: var(--jp-radius-panel); box-shadow: 0 0 0 9999px var(--jp-overlay);
+  pointer-events: none; transition: top .2s ease, left .2s ease, width .2s ease, height .2s ease;
 }
 .jp-tour { position: fixed; inset: auto 0 0 0; z-index: 70; display: grid; justify-items: end; padding: 16px 24px; pointer-events: none; }
 .jp-tour__box {
@@ -425,5 +426,5 @@
   .jp-tour { justify-items: stretch; padding: 8px 12px calc(var(--jlab-mobile-bottom, 0px) + 8px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .jp-tour-target { transition: none; }
+  .jp-tour-scrim__hole { transition: none; }
 }
