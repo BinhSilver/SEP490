@@ -2,7 +2,7 @@ package com.jlas.jlptpath.service;
 
 import com.jlas.jlptpath.dto.JpathSkillCheckView;
 import com.jlas.jlptpath.entity.JpathCheckSet;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * [JLAS-W0108] Plan 3 Task 13 — the skill side of a SKILL_* check, called by {@code JpathCheckServiceImpl}: what the
@@ -10,8 +10,12 @@ import java.util.Set;
  */
 public interface JpathSkillPracticeService {
 
-    /** Sets of the check; a set whose questions are all in {@code locked} shows its translation, script and words. */
-    JpathSkillCheckView view(JpathCheckSet set, Set<String> locked);
+    /**
+     * Sets of the check (a set whose questions are all locked shows its translation, script and words) and, for a
+     * dictation, its lines (a locked line shows the sentence, the expected blanks and each verdict). {@code locked} =
+     * locked question id → the value given.
+     */
+    JpathSkillCheckView view(JpathCheckSet set, Map<String, String> locked);
 
     /**
      * After a submit (inside its transaction, the path lock held, the check row already SUBMITTED): type stats and set

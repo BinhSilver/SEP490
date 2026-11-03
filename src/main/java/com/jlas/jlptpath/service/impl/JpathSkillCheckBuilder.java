@@ -9,25 +9,34 @@ import com.jlas.common.exception.ErrorCode;
 import com.jlas.jlptpath.dto.JpathOptionView;
 import com.jlas.jlptpath.dto.JpathQuestionView;
 import com.jlas.jlptpath.entity.JpathCheckSet;
+import com.jlas.jlptpath.entity.JpathSkillDictation;
 import com.jlas.jlptpath.entity.JpathSkillQuestion;
 import com.jlas.jlptpath.entity.JpathSkillSession;
 import com.jlas.jlptpath.entity.JpathSkillSet;
+import com.jlas.jlptpath.entity.JpathSkillSetUse;
 import com.jlas.jlptpath.enums.JpathCheckKind;
+import com.jlas.jlptpath.enums.JpathRetypeVerdict;
 import com.jlas.jlptpath.enums.JpathSkill;
 import com.jlas.jlptpath.enums.JpathTab;
 import com.jlas.jlptpath.repository.JpathCheckSetRepository;
+import com.jlas.jlptpath.repository.JpathSkillDictationRepository;
 import com.jlas.jlptpath.repository.JpathSkillSetRepository;
+import com.jlas.jlptpath.repository.JpathSkillSetUseRepository;
+import com.jlas.jlptpath.service.JpathCatalogService;
 import com.jlas.jlptpath.service.JpathClock;
 import com.jlas.jlptpath.service.JpathSkillCheckIssuer;
 import com.jlas.jlptpath.service.impl.JpathCheckBuilder.AnswerKey;
+import com.jlas.jlptpath.util.JpathDictationGrader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
 
 /**
@@ -45,19 +54,32 @@ public class JpathSkillCheckBuilder implements JpathSkillCheckIssuer {
     static final String SKILL_SESSION_ID = "skillSessionId";
     static final String READING_HINT = "Đọc đoạn văn rồi chọn đáp án đúng.";
     static final String LISTENING_HINT = "Nghe rồi chọn đáp án đúng.";
+    static final String DICTATION_HINT = "Nghe rồi điền chữ còn thiếu vào ô trống.";
+    static final String DICTATION = "DICTATION";
+    /** Shown in place of each blank; the blank's text never leaves the server before the line is locked. */
+    static final String MASK = "＿＿";
+    /** Policy #34: a listening session dictates at least this many lines. */
+    static final int MIN_DICTATION = 5;
     private static final ObjectMapper JSON = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     private final JpathCheckSetRepository checks;
     private final JpathSkillSetRepository sets;
     private final JpathSkillContentReader reader;
+    private final JpathSkillDictationRepository dictations;
+    private final JpathSkillSetUseRepository uses;
+    private final JpathCatalogService catalog;
     private final JpathClock clock;
 
     public JpathSkillCheckBuilder(JpathCheckSetRepository checks, JpathSkillSetRepository sets,
-                                  JpathSkillContentReader reader, JpathClock clock) {
+                                  JpathSkillContentReader reader, JpathSkillDictationRepository dictations,
+                                  JpathSkillSetUseRepository uses, JpathCatalogService catalog, JpathClock clock) {
         this.checks = checks;
         this.sets = sets;
         this.reader = reader;
+        this.dictations = dictations;
+        this.uses = uses;
+        this.catalog = catalog;
         this.clock = clock;
     }
 
@@ -129,25 +151,168 @@ public class JpathSkillCheckBuilder implements JpathSkillCheckIssuer {
         if (questions.isEmpty()) {
             throw new ApiException(ErrorCode.JPATH_SKILL_NO_SETS);
         }
+        save(token, session, JpathCheckKind.SKILL_PRACTICE, questions, keys, used);
+        return token;
+    }
+
+    /**
+     * Plan 3 Task 14 — SKILL_DICTATION of a listening session: the visible lines of its sets, topped up to
+     * {@link #MIN_DICTATION} from sets of the same type the learner used before (#39), oldest use first. A line is
+     * question {@code d<n>} (type DICTATION): its prompt is the sentence with every blank as {@code ＿＿}, its audio
+     * slot {@code n}; the key keeps the sentence ({@code correct}) and the blanks ({@code text}). Null when no line.
+     */
+    @Override
+    public String issueDictation(JpathSkillSession session) {
+        if (session.getSkill() != JpathSkill.LISTENING) {
+            return null;
+        }
+        List<String> own = setsInOrder(readList(session.getSetCodesJson())).stream().map(JpathSkillSet::getCode)
+                .toList();
+        List<JpathSkillDictation> lines = new ArrayList<>(visibleLines(own));
+        if (lines.size() < MIN_DICTATION && session.getTypeCode() != null) {
+            lines.addAll(extraLines(session, own, MIN_DICTATION - lines.size()));
+        }
+        if (lines.isEmpty()) {
+            return null;
+        }
+        String token = UUID.randomUUID().toString();
+        List<JpathQuestionView> questions = new ArrayList<>();
+        Map<String, AnswerKey> keys = new LinkedHashMap<>();
+        List<String> used = new ArrayList<>();
+        int n = 0;
+        for (JpathSkillDictation line : lines) {
+            String qid = "d" + (++n);
+            List<Blank> blanks = blanks(line.getBlanksJson());
+            questions.add(new JpathQuestionView(qid, DICTATION, null, DICTATION_HINT, mask(line.getTextJa(), blanks),
+                    null, line.getAudioPath() != null ? n : null, null, null, null));
+            keys.put(qid, new AnswerKey(line.getTextJa(), null, null, json(blanks), List.of(), null, null, null,
+                    "Đáp án: " + String.join(" / ", blanks.stream().map(Blank::answer).toList()),
+                    line.getAudioPath(), line.getCode(), null));
+            if (!used.contains(line.getSetCode())) {
+                used.add(line.getSetCode());
+            }
+        }
+        save(token, session, JpathCheckKind.SKILL_DICTATION, questions, keys, used);
+        return token;
+    }
+
+    private List<JpathSkillDictation> visibleLines(List<String> setCodes) {
+        if (setCodes.isEmpty()) {
+            return List.of();
+        }
+        Map<String, List<JpathSkillDictation>> bySet = new LinkedHashMap<>();
+        dictations.findBySetCodeInAndStatusInAndReportHiddenFalseOrderBySetCodeAscSortOrderAsc(setCodes,
+                catalog.visibleStatuses()).forEach(d -> bySet.computeIfAbsent(d.getSetCode(), k -> new ArrayList<>())
+                .add(d));
+        return setCodes.stream().flatMap(c -> bySet.getOrDefault(c, List.of()).stream())
+                .filter(d -> !blanks(d.getBlanksJson()).isEmpty()).toList();
+    }
+
+    /** Lines of sets of the session's type used before (not in the session), least recently used first. */
+    private List<JpathSkillDictation> extraLines(JpathSkillSession session, List<String> own, int wanted) {
+        List<String> typeSets = reader.type(session.getTypeCode()).map(reader::visibleSets).orElse(List.of())
+                .stream().map(v -> v.set().getCode()).filter(c -> !own.contains(c)).toList();
+        if (typeSets.isEmpty()) {
+            return List.of();
+        }
+        List<String> usedBefore = uses.findByUserIdAndSetCodeIn(session.getUserId(), typeSets).stream()
+                .sorted(Comparator.comparing(JpathSkillSetUse::getLastUsedDay,
+                        Comparator.nullsFirst(Comparator.naturalOrder())))
+                .map(JpathSkillSetUse::getSetCode).toList();
+        List<JpathSkillDictation> out = new ArrayList<>();
+        for (JpathSkillDictation d : visibleLines(usedBefore)) {
+            if (out.size() >= wanted) {
+                break;
+            }
+            out.add(d);
+        }
+        return out;
+    }
+
+    private void save(String token, JpathSkillSession session, JpathCheckKind kind, List<JpathQuestionView> questions,
+                      Map<String, AnswerKey> keys, List<String> used) {
         Map<String, Object> issue = new LinkedHashMap<>();
-        issue.put("kind", JpathCheckKind.SKILL_PRACTICE.name());
+        issue.put("kind", kind.name());
         issue.put("tab", JpathTab.SKILL.name());
         issue.put("level", session.getLevel());
         issue.put(SKILL_SESSION_ID, session.getId());
         checks.saveAndFlush(JpathCheckSet.builder().token(token).userId(session.getUserId())
-                .planId(session.getPlanId()).kind(JpathCheckKind.SKILL_PRACTICE).tab(JpathTab.SKILL)
+                .planId(session.getPlanId()).kind(kind).tab(JpathTab.SKILL)
                 .level(session.getLevel()).timerOn(false).totalCount(questions.size()).issueJson(json(issue))
                 .questionsJson(json(questions))
                 .answersJson(json(new JpathCheckServiceImpl.StoredKeys(keys, Map.of())))
                 .progressJson(json(new JpathCheckServiceImpl.Progress(null, null))).itemCodesJson(json(used))
                 .issuedAt(clock.now()).build());
-        return token;
     }
 
-    /** Task 14 adds the dictation check; until then a listening session has no dictation line. */
-    @Override
-    public String issueDictation(JpathSkillSession session) {
-        return null;
+    // ---- dictation blanks ----------------------------------------------------------------------------------
+
+    /** One blank of a line: characters {@code [start, end)} of the sentence, its answer and accepted forms. */
+    record Blank(int start, int end, String answer, List<String> accept) {
+        Blank {
+            accept = accept == null ? List.of() : List.copyOf(accept);
+        }
+    }
+
+    static List<Blank> blanks(String json) {
+        if (json == null || json.isBlank()) {
+            return List.of();
+        }
+        try {
+            List<Blank> out = new ArrayList<>(JSON.readValue(json, new TypeReference<List<Blank>>() { }));
+            out.sort(Comparator.comparingInt(Blank::start));
+            return out;
+        } catch (JsonProcessingException e) {
+            return List.of();
+        }
+    }
+
+    /** The sentence with every blank replaced by {@link #MASK}. */
+    static String mask(String text, List<Blank> blanks) {
+        StringBuilder sb = new StringBuilder();
+        int at = 0;
+        for (Blank b : blanks) {
+            if (b.start() < at || b.end() > text.length() || b.start() >= b.end()) {
+                continue;
+            }
+            sb.append(text, at, b.start()).append(MASK);
+            at = b.end();
+        }
+        return sb.append(text.substring(at)).toString();
+    }
+
+    /** The typed blanks of an answer: a JSON array of strings, else the text split at "|". */
+    static List<String> typed(String value) {
+        if (value == null) {
+            return List.of();
+        }
+        String v = value.trim();
+        if (v.startsWith("[")) {
+            try {
+                return JSON.readValue(v, new TypeReference<List<String>>() { });
+            } catch (JsonProcessingException e) {
+                return List.of();
+            }
+        }
+        return List.of(v.split(Pattern.quote("|"), -1));
+    }
+
+    /** Verdict of each blank (EXACT, MINOR, WRONG) for {@code value} against the key's blanks JSON. */
+    static List<JpathRetypeVerdict> verdicts(String value, String blanksJson) {
+        List<Blank> blanks = blanks(blanksJson);
+        List<String> typed = typed(value);
+        List<JpathRetypeVerdict> out = new ArrayList<>();
+        for (int i = 0; i < blanks.size(); i++) {
+            String in = i < typed.size() ? typed.get(i) : null;
+            out.add(JpathDictationGrader.grade(in, blanks.get(i).answer(), blanks.get(i).accept()));
+        }
+        return out;
+    }
+
+    /** #35: a line is right when no blank is WRONG (a MINOR slip counts, its difference is shown). */
+    static boolean dictationCorrect(String value, String blanksJson) {
+        List<JpathRetypeVerdict> v = verdicts(value, blanksJson);
+        return !v.isEmpty() && v.stream().noneMatch(x -> x == JpathRetypeVerdict.WRONG);
     }
 
     static List<String> readList(String json) {

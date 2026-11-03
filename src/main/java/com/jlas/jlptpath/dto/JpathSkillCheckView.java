@@ -6,9 +6,22 @@ import java.util.List;
  * [JLAS-W0108] Skill part of a SKILL_PRACTICE / SKILL_DICTATION check (Plan 3 Task 13): the sets in order with the ids
  * of their questions. Before every question of a set is locked only what the learner needs to answer is sent (the
  * Reading passage, the Listening audio slot and picture description); once the set is locked, {@code revealed} is
- * true and the translation, the script and the new words follow. {@code skillSessionId} is the session to go back to.
+ * true and the translation, the script and the new words follow. {@code skillSessionId} is the session to go back to;
+ * {@code dictation} is empty except for a SKILL_DICTATION check.
  */
-public record JpathSkillCheckView(Long skillSessionId, List<SetView> sets) {
+public record JpathSkillCheckView(Long skillSessionId, List<SetView> sets, List<DictationLine> dictation) {
+
+    public JpathSkillCheckView(Long skillSessionId, List<SetView> sets) {
+        this(skillSessionId, sets, List.of());
+    }
+
+    /**
+     * One dictation line (Plan 3 Task 14): {@code mask} has a {@code ＿＿} per blank and never the blank's text. Once
+     * locked: the sentence, the expected text of each blank, what was typed and each verdict (EXACT, MINOR, WRONG).
+     */
+    public record DictationLine(String questionId, Integer audioSlot, String mask, int blanks, boolean locked,
+                                String textJa, List<String> expected, List<String> typed, List<String> verdicts) {
+    }
 
     public record SetView(String code, int index, String skill, String passageJa, Integer audioSlot,
                           String imageDescriptionVi, List<String> questionIds, boolean revealed, String passageVi,

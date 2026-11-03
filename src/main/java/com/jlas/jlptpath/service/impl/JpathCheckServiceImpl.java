@@ -668,7 +668,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             }
         }
         JpathSkillCheckView skill = SKILL_KINDS.contains(set.getKind())
-                ? skillPractice.getObject().view(set, p.answers().keySet()) : null;
+                ? skillPractice.getObject().view(set, answeredValues(p)) : null;
         return new JpathCheckView(set.getToken(), set.getKind(), set.getTab(), set.getAttemptNo(), set.isTimerOn(),
                 set.getStatus(), read(set.getIssueJson(), JpathCheckIssueRequest.class), questions, answered, null,
                 skill);
@@ -799,6 +799,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         return switch (qv.type()) {
             case "ORDER" -> key.order() != null && String.join(",", key.order())
                     .equals(value.replaceAll("\\s+", ""));
+            // Plan 3 Task 14: every blank EXACT or MINOR (#35)
+            case JpathSkillCheckBuilder.DICTATION -> JpathSkillCheckBuilder.dictationCorrect(value, key.text());
             case "FILL_TEXT" -> fillKey(value).equals(fillKey(key.text()))
                     || (key.accepts() != null && key.accepts().stream().anyMatch(s -> fillKey(value).equals(fillKey(s))));
             default -> value.equals(key.correct());
@@ -1006,6 +1008,13 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         };
     }
 
+    /** Locked question id → the value given (insertion order kept). */
+    private static Map<String, String> answeredValues(Progress p) {
+        Map<String, String> out = new LinkedHashMap<>();
+        p.answers().forEach((id, a) -> out.put(id, a.value()));
+        return out;
+    }
+
     private static JpathRating lower(JpathRating a, JpathRating b) {
         return JpathSrsPolicy.quality(a) <= JpathSrsPolicy.quality(b) ? a : b;
     }
@@ -1105,7 +1114,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         return read(set.getQuestionsJson(), new TypeReference<List<JpathQuestionView>>() { });
     }
 
-    private static StoredKeys readKeys(JpathCheckSet set) {
+    static StoredKeys readKeys(JpathCheckSet set) {
         return read(set.getAnswersJson(), StoredKeys.class);
     }
 

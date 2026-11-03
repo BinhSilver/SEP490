@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jlas.jlptpath.dto.JpathQuestionView;
 import com.jlas.jlptpath.dto.JpathSkillCheckView;
+import com.jlas.jlptpath.dto.JpathSkillCheckView.DictationLine;
 import com.jlas.jlptpath.dto.JpathSkillCheckView.NewWord;
 import com.jlas.jlptpath.dto.JpathSkillCheckView.ScriptLine;
 import com.jlas.jlptpath.dto.JpathSkillCheckView.SetView;
@@ -25,6 +26,7 @@ import com.jlas.jlptpath.repository.JpathVocabularyRepository;
 import com.jlas.jlptpath.service.JpathClock;
 import com.jlas.jlptpath.service.JpathSkillPracticeService;
 import com.jlas.jlptpath.service.JpathSkillSessionService;
+import com.jlas.jlptpath.service.impl.JpathCheckBuilder.AnswerKey;
 import com.jlas.jlptpath.util.JpathKanaText;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -70,7 +72,11 @@ public class JpathSkillPracticeServiceImpl implements JpathSkillPracticeService 
     // ---- view ----------------------------------------------------------------------------------------------
 
     @Override
-    public JpathSkillCheckView view(JpathCheckSet set, Set<String> locked) {
+    public JpathSkillCheckView view(JpathCheckSet set, Map<String, String> answers) {
+        if (set.getKind() == JpathCheckKind.SKILL_DICTATION) {
+            return new JpathSkillCheckView(skillSessionId(set), List.of(), dictation(set, answers));
+        }
+        Set<String> locked = answers.keySet();
         List<JpathSkillSet> ordered = builder.setsInOrder(JpathSkillCheckBuilder.readList(set.getItemCodesJson()));
         Map<Integer, List<String>> questionIds = new LinkedHashMap<>();
         for (JpathQuestionView qv : JpathCheckServiceImpl.readQuestions(set)) {
@@ -91,6 +97,27 @@ public class JpathSkillPracticeServiceImpl implements JpathSkillPracticeService 
                     revealed ? newWords(s.getNewWordsJson(), s.getLevel()) : null));
         }
         return new JpathSkillCheckView(skillSessionId(set), out);
+    }
+
+    private static List<DictationLine> dictation(JpathCheckSet set, Map<String, String> answers) {
+        JpathCheckServiceImpl.StoredKeys keys = JpathCheckServiceImpl.readKeys(set);
+        List<DictationLine> out = new ArrayList<>();
+        for (JpathQuestionView qv : JpathCheckServiceImpl.readQuestions(set)) {
+            AnswerKey key = keys.keys().get(qv.id());
+            if (key == null) {
+                continue;
+            }
+            List<JpathSkillCheckBuilder.Blank> blanks = JpathSkillCheckBuilder.blanks(key.text());
+            boolean locked = answers.containsKey(qv.id());
+            String value = answers.get(qv.id());
+            out.add(new DictationLine(qv.id(), qv.audioSlot(), qv.prompt(), blanks.size(), locked,
+                    locked ? key.correct() : null,
+                    locked ? blanks.stream().map(JpathSkillCheckBuilder.Blank::answer).toList() : null,
+                    locked ? JpathSkillCheckBuilder.typed(value) : null,
+                    locked ? JpathSkillCheckBuilder.verdicts(value, key.text()).stream().map(Enum::name).toList()
+                            : null));
+        }
+        return out;
     }
 
     static Long skillSessionId(JpathCheckSet set) {
