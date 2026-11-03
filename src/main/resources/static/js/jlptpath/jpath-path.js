@@ -246,12 +246,16 @@
   }
 
   function skillsTabHtml(path) {
+    var days = list(path && path.skillDays).length
+      ? '<p class="jp-skills__days">' + esc('Ngày kỹ năng: ' + dayList(path && path.skillDays)) + '</p>' : '';
+    // Plan 3 Task 19: jpath-skills-tab.js fills the real tab from GET /skills/overview
+    if (root.JpathSkillsTab) {
+      return '<section class="jp-card jp-skills" data-jpath-skills-tab aria-live="polite">'
+        + '<p class="jp-muted" role="status">Đang tải phần Đọc · Nghe…</p></section>' + days;
+    }
     return '<section class="jp-card jp-skills" aria-labelledby="jp-skills-title">'
       + '<h2 class="jp-section-title" id="jp-skills-title">Đọc · Nghe <span class="jp-tab__soon">Sắp mở</span></h2>'
-      + '<p>Phần luyện Đọc và Nghe đang được chuẩn bị.</p>'
-      + (list(path && path.skillDays).length
-        ? '<p class="jp-skills__days">' + esc('Ngày kỹ năng: ' + dayList(path && path.skillDays)) + '</p>' : '')
-      + '<p class="jp-muted">Trong lúc chờ, ngày kỹ năng dùng luật tạm: ôn thẻ đến hạn và 1 quiz tự do từ 10 câu.</p></section>';
+      + '<p>Phần luyện Đọc và Nghe đang được chuẩn bị.</p>' + days + '</section>';
   }
 
   function numbersHtml(path, tab, today) {
@@ -346,11 +350,23 @@
         history: env.history, document: doc });
     }
 
+    // Plan 3 Task 19: the Đọc · Nghe tab body; with content at the level the tab loses its "Sắp mở" label
+    function paintSkills() {
+      var el = rootEl.querySelector && rootEl.querySelector('[data-jpath-skills-tab]');
+      if (!el || !root.JpathSkillsTab) return;
+      root.JpathSkillsTab.mount(el, { api: apiClient, location: loc, document: doc,
+        level: state.viewLevel || (state.path && state.path.openLevel) }).then(function (o) {
+        if (!o || !root.JpathSkillsTab.hasContent(o)) return;
+        all(rootEl, '[data-tour="skills"] .jp-tab__soon').forEach(function (n) { n.remove(); });
+      });
+    }
+
     function paintTab(keepTabs) {
       var buttons = keepTabs ? all(rootEl, '[role="tab"]') : [];
       if (buttons.length) activateTab(buttons, state.tab, true);
       else setHtml(rootEl, 'tabs', tabsBarHtml(state.path, state.tab));
       setHtml(rootEl, 'numbers', numbersHtml(state.path, state.tab, state.today));
+      if (state.tab === 'skills') paintSkills();
       paintControls();
       paintList();
       if (rootEl.setAttribute) rootEl.setAttribute('data-jpath-tab', state.tab);

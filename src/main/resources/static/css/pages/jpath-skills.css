@@ -1,0 +1,62 @@
+/* [JLAS-W0108] Plan 3 — Đọc · Nghe: the path tab (jpath-skills-tab.js), the skill session, dictation and section
+   screens. Uses the --jp-* tokens only, so the dark theme follows. */
+.jp-skills__banner { margin: 0 0 12px; padding: 10px 12px; border-radius: var(--jp-radius-interactive);
+  background: var(--jp-primary-soft); }
+.jp-skill-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 12px; }
+.jp-skill-card { display: flex; flex-direction: column; gap: 6px; padding: 14px; border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius-panel); background: var(--jp-surface); }
+.jp-skill-card p { margin: 0; }
+.jp-skill-card.is-done { border-color: var(--jp-ok); }
+.jp-skill-card.is-empty { color: var(--jp-muted); }
+.jp-skill-card__title { margin: 0; font-size: 1.05rem; }
+.jp-skill-card__done { color: var(--jp-ok); font-weight: 600; }
+.jp-skills__sub { margin: 12px 0 8px; font-size: 1rem; }
+.jp-skill-types { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.jp-skill-type { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; padding: 8px 10px;
+  border-radius: var(--jp-radius-interactive); background: var(--jp-canvas); }
+.jp-skill-type__state { margin-left: auto; color: var(--jp-muted); }
+.jp-skills__actions { display: grid; gap: 10px; margin-top: 12px; }
+.jp-skills__free,
+.jp-skills__section { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.jp-skills__free select { min-height: 40px; max-width: 100%; }
+.jp-skills__ready { margin-top: 12px; color: var(--jp-ok); font-weight: 600; }
+.jp-skills__readiness ul { margin: 0; padding-left: 18px; }
+.jp-skills__msg { color: var(--jp-danger); }
+
+/* skill session screen (Task 20/21) */
+.jp-skill-steps { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0 0 12px; padding: 0; }
+.jp-skill-steps li { padding: 4px 10px; border-radius: var(--jp-radius-chip); background: var(--jp-canvas); color: var(--jp-muted); }
+.jp-skill-steps li[aria-current="step"] { background: var(--jp-primary-soft); color: var(--jp-ink); font-weight: 600; }
+.jp-skill-steps li.is-done { color: var(--jp-ok); }
+.jp-skill-block { margin-bottom: 16px; padding: 14px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-panel);
+  background: var(--jp-surface); }
+.jp-skill-passage { line-height: 1.9; white-space: pre-wrap; }
+.jp-skill-situation { padding: 10px; border-left: 4px solid var(--jp-primary); background: var(--jp-canvas); }
+.jp-skill-q { margin-top: 12px; }
+.jp-skill-q__options { display: grid; gap: 6px; margin-top: 6px; }
+.jp-skill-q__options button { min-height: 44px; text-align: left; padding: 8px 12px; border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink); font: inherit; cursor: pointer; }
+.jp-skill-q__options button.is-right { border-color: var(--jp-ok); }
+.jp-skill-q__options button.is-wrong { border-color: var(--jp-danger); }
+.jp-skill-q__options button:disabled { cursor: default; }
+.jp-skill-explain { margin-top: 6px; color: var(--jp-muted); }
+.jp-skill-reveal { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--jp-line); }
+.jp-skill-words { display: grid; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.jp-player { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.jp-player button { min-height: 40px; }
+.jp-dict-line { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+.jp-dict-line input { min-width: 6em; min-height: 40px; font-size: 1.05rem; }
+.jp-dict-line .is-exact { color: var(--jp-ok); }
+.jp-dict-line .is-minor { color: var(--jp-warn); }
+.jp-dict-line .is-wrong { color: var(--jp-danger); }
+
+/* section screen (Task 22) */
+.jp-section-timer { position: sticky; top: 0; z-index: 2; padding: 8px 12px; background: var(--jp-surface);
+  border-bottom: 1px solid var(--jp-line); font-variant-numeric: tabular-nums; font-weight: 600; }
+.jp-section-floor { position: relative; height: 10px; border-radius: 5px; background: var(--jp-canvas); overflow: hidden; }
+.jp-section-floor__bar { height: 100%; background: var(--jp-primary); }
+.jp-section-floor__line { position: absolute; top: 0; bottom: 0; left: 32%; width: 2px; background: var(--jp-danger); }
+
+@media (prefers-reduced-motion: reduce) {
+  .jp-section-floor__bar { transition: none !important; }
+}
