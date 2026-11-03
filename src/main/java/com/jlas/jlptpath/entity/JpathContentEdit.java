@@ -35,7 +35,7 @@ public class JpathContentEdit {
     private Long editorUserId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "target_type", nullable = false, length = 8)
+    @Column(name = "target_type", nullable = false, length = 16)
     private JpathReportTarget targetType;
 
     @Column(name = "target_code", nullable = false, length = 24)

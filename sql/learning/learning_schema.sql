@@ -1212,13 +1212,11 @@ CALL jlas_ls_check('user_knowledge_weakness', 'chk_weakness_skill', 'KANJI', NUL
 -- [JLAS-W0108] 2026-10-19 (owner decision): communication situations carry an approximate JLPT level.
 CALL jlas_ls_add_column('learning_topic', 'jlpt_level', 'VARCHAR(10) NULL AFTER topic_order');
 
-DROP PROCEDURE IF EXISTS jlas_ls_check;
+-- jlas_ls_exec, jlas_ls_modify_column and jlas_ls_check stay until the end of PART C (jpath upgrades use them).
 DROP PROCEDURE IF EXISTS jlas_ls_add_fk;
 DROP PROCEDURE IF EXISTS jlas_ls_drop_index;
 DROP PROCEDURE IF EXISTS jlas_ls_add_index;
-DROP PROCEDURE IF EXISTS jlas_ls_modify_column;
 DROP PROCEDURE IF EXISTS jlas_ls_add_column;
-DROP PROCEDURE IF EXISTS jlas_ls_exec;
 
 -- =============================================================================
 -- PART C. jpath (JLPT path v2, Plan 2): the 27 jpath_* tables as CREATE TABLE IF NOT EXISTS (needs users).
@@ -1734,7 +1732,7 @@ CREATE TABLE IF NOT EXISTS jpath_check_set (
     KEY idx_jpath_check_session (user_id, session_id, kind, status),
     KEY idx_jpath_check_submitted (user_id, submitted_at),
     CONSTRAINT fk_jpath_check_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT chk_jpath_check_kind CHECK (kind IN ('MICRO_CHECK','GROUP_EXERCISE','SKIP_ONE','TOPIC_KNOWN','FREE_QUIZ','CONFUSABLE','KANA_ROW','GRAMMAR_PRACTICE','GRAMMAR_EXTRA','GRAMMAR_REVIEW')),
+    CONSTRAINT chk_jpath_check_kind CHECK (kind IN ('MICRO_CHECK','GROUP_EXERCISE','SKIP_ONE','TOPIC_KNOWN','FREE_QUIZ','CONFUSABLE','KANA_ROW','GRAMMAR_PRACTICE','GRAMMAR_EXTRA','GRAMMAR_REVIEW','SKILL_LESSON','SKILL_PRACTICE','SKILL_DICTATION','SKILL_SECTION')),
     CONSTRAINT chk_jpath_check_status CHECK (status IN ('ISSUED','SUBMITTED','EXPIRED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1742,7 +1740,7 @@ CREATE TABLE IF NOT EXISTS jpath_check_set (
 CREATE TABLE IF NOT EXISTS jpath_content_report (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     reporter_user_id BIGINT UNSIGNED NOT NULL,
-    target_type VARCHAR(8) NOT NULL,
+    target_type VARCHAR(16) NOT NULL,
     target_code VARCHAR(24) NOT NULL,
     item_type VARCHAR(8) NOT NULL,
     item_code VARCHAR(24) NOT NULL,
@@ -1760,7 +1758,7 @@ CREATE TABLE IF NOT EXISTS jpath_content_report (
     KEY idx_jpath_report_target (target_type, target_code, status),
     KEY idx_jpath_report_queue (status, level, created_at),
     CONSTRAINT fk_jpath_report_user FOREIGN KEY (reporter_user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT chk_jpath_report_target_type CHECK (target_type IN ('VOCAB','KANJI','GRAMMAR','KANA','EXAMPLE','QUESTION')),
+    CONSTRAINT chk_jpath_report_target_type CHECK (target_type IN ('VOCAB','KANJI','GRAMMAR','KANA','EXAMPLE','QUESTION','SKILL_SET','SKILL_QUESTION')),
     CONSTRAINT chk_jpath_report_error_type CHECK (error_type IN ('MEANING','EXAMPLE','AUDIO','KANJI','OTHER')),
     CONSTRAINT chk_jpath_report_status CHECK (status IN ('OPEN','RESOLVED','REJECTED')),
     CONSTRAINT chk_jpath_report_open_flag CHECK ((status = 'OPEN' AND open_flag <=> 1) OR (status <> 'OPEN' AND open_flag IS NULL))
@@ -1770,7 +1768,7 @@ CREATE TABLE IF NOT EXISTS jpath_content_report (
 CREATE TABLE IF NOT EXISTS jpath_content_edit (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     editor_user_id BIGINT UNSIGNED NOT NULL,
-    target_type VARCHAR(8) NOT NULL,
+    target_type VARCHAR(16) NOT NULL,
     target_code VARCHAR(24) NOT NULL,
     level VARCHAR(2) NULL,
     field_name VARCHAR(40) NOT NULL,
@@ -1802,6 +1800,210 @@ CREATE TABLE IF NOT EXISTS jpath_reminder_log (
     CONSTRAINT fk_jpath_reminder_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- =============================================================================
+-- [JLAS-W0108] Kế hoạch 3: Đọc · Nghe, Thi thử — bảng 28-36.
+-- 28-32 là nội dung kỹ năng (seed ghi vào vùng "jpath-skills" của learning_data_<L>.sql, ứng dụng chỉ đọc);
+-- 33-36 là trạng thái người học. Câu luyện/chép chính tả/luyện thi đi qua jpath_check_set (kind SKILL_*), nên đáp án
+-- (answer_index, chữ câu chép, lời thoại) chỉ ra API sau khi câu/bộ bị khóa.
+-- =============================================================================
+
+-- 28. Dạng câu JLPT của một cấp (読解/聴解). sort_order = thứ tự dạng trong đề.
+CREATE TABLE IF NOT EXISTS jpath_skill_type (
+    code VARCHAR(24) NOT NULL,
+    level VARCHAR(2) NOT NULL,
+    skill VARCHAR(10) NOT NULL,
+    name_vi VARCHAR(120) NOT NULL,
+    name_ja VARCHAR(60) NOT NULL,
+    sort_order TINYINT UNSIGNED NOT NULL,
+    questions_in_exam TINYINT UNSIGNED NOT NULL,
+    needs_image TINYINT(1) NOT NULL DEFAULT 0,
+    chars_min SMALLINT UNSIGNED NULL,
+    chars_max SMALLINT UNSIGNED NULL,
+    speakers TINYINT UNSIGNED NULL,
+    seconds_typical SMALLINT UNSIGNED NULL,
+    seed_version VARCHAR(16) NULL,
+    PRIMARY KEY (code),
+    KEY idx_jpath_skilltype_level (level, skill, sort_order),
+    CONSTRAINT fk_jpath_skilltype_level FOREIGN KEY (level) REFERENCES jpath_level(level),
+    CONSTRAINT chk_jpath_skill_type_skill CHECK (skill IN ('READING','LISTENING'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 29. Bài chiến thuật của một dạng (1-1). example_json không chứa đáp án: example_answer_index và check_answer_index
+-- chỉ ra API sau khi người học chọn đúng câu kiểm.
+CREATE TABLE IF NOT EXISTS jpath_skill_lesson (
+    type_code VARCHAR(24) NOT NULL,
+    title_vi VARCHAR(200) NOT NULL,
+    goal_vi VARCHAR(500) NOT NULL,
+    steps_json JSON NOT NULL,
+    traps_json JSON NOT NULL,
+    tips_json JSON NOT NULL,
+    example_json JSON NOT NULL,
+    example_answer_index TINYINT UNSIGNED NOT NULL,
+    check_question_vi VARCHAR(500) NOT NULL,
+    check_options_json JSON NOT NULL,
+    check_answer_index TINYINT UNSIGNED NOT NULL,
+    check_explanation_vi VARCHAR(1000) NOT NULL,
+    example_audio_path VARCHAR(255) NULL,
+    example_audio_sha256 CHAR(64) NULL,
+    status VARCHAR(12) NOT NULL DEFAULT 'DRAFT',
+    report_hidden TINYINT(1) NOT NULL DEFAULT 0,
+    authored TINYINT(1) NOT NULL DEFAULT 0,
+    seed_version VARCHAR(16) NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (type_code),
+    CONSTRAINT fk_jpath_skilllesson_type FOREIGN KEY (type_code) REFERENCES jpath_skill_type(code),
+    CONSTRAINT chk_jpath_skill_lesson_status CHECK (status IN ('REVIEWED','AI_CHECKED','DRAFT','HOLD'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 30. Bộ luyện (một đoạn đọc hoặc một bài nghe + câu hỏi). Bộ Nghe chưa có audio_path không hiện cho người học.
+CREATE TABLE IF NOT EXISTS jpath_skill_set (
+    code VARCHAR(24) NOT NULL,
+    type_code VARCHAR(24) NOT NULL,
+    level VARCHAR(2) NOT NULL,
+    skill VARCHAR(10) NOT NULL,
+    sort_order SMALLINT UNSIGNED NOT NULL,
+    passage_ja TEXT NULL,
+    passage_vi TEXT NULL,
+    script_json JSON NULL,
+    script_vi TEXT NULL,
+    image_description_vi VARCHAR(1000) NULL,
+    new_words_json JSON NOT NULL,
+    char_count SMALLINT UNSIGNED NOT NULL,
+    question_count TINYINT UNSIGNED NOT NULL,
+    audio_path VARCHAR(255) NULL,
+    audio_sha256 CHAR(64) NULL,
+    audio_seconds SMALLINT UNSIGNED NULL,
+    status VARCHAR(12) NOT NULL DEFAULT 'DRAFT',
+    report_hidden TINYINT(1) NOT NULL DEFAULT 0,
+    authored TINYINT(1) NOT NULL DEFAULT 0,
+    seed_version VARCHAR(16) NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (code),
+    KEY idx_jpath_skillset_pick (type_code, status, sort_order),
+    CONSTRAINT fk_jpath_skillset_type FOREIGN KEY (type_code) REFERENCES jpath_skill_type(code),
+    CONSTRAINT chk_jpath_skill_set_skill CHECK (skill IN ('READING','LISTENING')),
+    CONSTRAINT chk_jpath_skill_set_status CHECK (status IN ('REVIEWED','AI_CHECKED','DRAFT','HOLD'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 31. Câu hỏi của một bộ (mã <setId>-Q<n>). answer_index không ra API trước khi câu bị khóa.
+CREATE TABLE IF NOT EXISTS jpath_skill_question (
+    code VARCHAR(28) NOT NULL,
+    set_code VARCHAR(24) NOT NULL,
+    sort_order TINYINT UNSIGNED NOT NULL,
+    question_ja VARCHAR(500) NOT NULL,
+    options_json JSON NOT NULL,
+    answer_index TINYINT UNSIGNED NOT NULL,
+    explanation_vi VARCHAR(1000) NOT NULL,
+    status VARCHAR(12) NOT NULL DEFAULT 'DRAFT',
+    report_hidden TINYINT(1) NOT NULL DEFAULT 0,
+    authored TINYINT(1) NOT NULL DEFAULT 0,
+    seed_version VARCHAR(16) NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (code),
+    KEY idx_jpath_skillq_set (set_code, sort_order),
+    CONSTRAINT fk_jpath_skillq_set FOREIGN KEY (set_code) REFERENCES jpath_skill_set(code) ON DELETE CASCADE,
+    CONSTRAINT chk_jpath_skill_question_status CHECK (status IN ('REVIEWED','AI_CHECKED','DRAFT','HOLD'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 32. Câu chép chính tả của bộ Nghe (mã <setId>-D<n>). text_ja chính là đáp án: không ra API trước khi khóa.
+-- blanks_json = [{start, end, answer, accept:[...]}].
+CREATE TABLE IF NOT EXISTS jpath_skill_dictation (
+    code VARCHAR(28) NOT NULL,
+    set_code VARCHAR(24) NOT NULL,
+    sort_order TINYINT UNSIGNED NOT NULL,
+    text_ja VARCHAR(255) NOT NULL,
+    blanks_json JSON NOT NULL,
+    audio_path VARCHAR(255) NULL,
+    audio_sha256 CHAR(64) NULL,
+    status VARCHAR(12) NOT NULL DEFAULT 'DRAFT',
+    report_hidden TINYINT(1) NOT NULL DEFAULT 0,
+    authored TINYINT(1) NOT NULL DEFAULT 0,
+    seed_version VARCHAR(16) NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (code),
+    KEY idx_jpath_skilldict_set (set_code, sort_order),
+    CONSTRAINT fk_jpath_skilldict_set FOREIGN KEY (set_code) REFERENCES jpath_skill_set(code) ON DELETE CASCADE,
+    CONSTRAINT chk_jpath_skill_dictation_status CHECK (status IN ('REVIEWED','AI_CHECKED','DRAFT','HOLD'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 33. Buổi kỹ năng. open_flag = 1 khi chưa xong, NULL khi đã xong: mỗi kỹ năng chỉ một buổi mở mỗi kế hoạch ngày và kind.
+CREATE TABLE IF NOT EXISTS jpath_skill_session (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED NOT NULL,
+    path_id BIGINT UNSIGNED NULL,
+    plan_id BIGINT UNSIGNED NULL,
+    level VARCHAR(2) NOT NULL,
+    skill VARCHAR(10) NOT NULL,
+    kind VARCHAR(8) NOT NULL,
+    type_code VARCHAR(24) NULL,
+    step VARCHAR(10) NOT NULL DEFAULT 'THEORY',
+    set_codes_json JSON NOT NULL,
+    reused TINYINT(1) NOT NULL DEFAULT 0,
+    lesson_passed_at DATETIME(6) NULL,
+    practice_token CHAR(36) NULL,
+    dictation_token CHAR(36) NULL,
+    section_token CHAR(36) NULL,
+    study_day DATE NOT NULL,
+    score_pct DECIMAL(5,2) NULL,
+    cp_awarded TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    started_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    completed_at DATETIME(6) NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    open_flag TINYINT(1) NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jpath_skill_open (user_id, plan_id, skill, kind, open_flag),
+    KEY idx_jpath_skillsess_day (user_id, study_day),
+    KEY idx_jpath_skillsess_done (user_id, kind, completed_at),
+    CONSTRAINT fk_jpath_skillsess_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_jpath_skill_session_skill CHECK (skill IN ('READING','LISTENING')),
+    CONSTRAINT chk_jpath_skill_session_kind CHECK (kind IN ('DAY','FREE','SECTION')),
+    CONSTRAINT chk_jpath_skill_session_step CHECK (step IN ('THEORY','PRACTICE','DICTATION','DONE')),
+    CONSTRAINT chk_jpath_skill_session_open_flag CHECK ((completed_at IS NULL AND open_flag <=> 1) OR (completed_at IS NOT NULL AND open_flag IS NULL))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 34. Thống kê theo dạng của người học (chọn dạng hôm nay, #37).
+CREATE TABLE IF NOT EXISTS jpath_skill_type_stat (
+    user_id BIGINT UNSIGNED NOT NULL,
+    type_code VARCHAR(24) NOT NULL,
+    sessions_done SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    questions_done INT UNSIGNED NOT NULL DEFAULT 0,
+    correct_done INT UNSIGNED NOT NULL DEFAULT 0,
+    last_pct DECIMAL(5,2) NULL,
+    last_session_day DATE NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id, type_code),
+    CONSTRAINT fk_jpath_typestat_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 35. Bộ đã dùng (chọn bộ, dùng lại sau 8 tuần, #39). last_used_day = ngày của người học.
+CREATE TABLE IF NOT EXISTS jpath_skill_set_use (
+    user_id BIGINT UNSIGNED NOT NULL,
+    set_code VARCHAR(24) NOT NULL,
+    uses SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    last_used_day DATE NOT NULL,
+    PRIMARY KEY (user_id, set_code),
+    KEY idx_jpath_setuse_day (user_id, last_used_day),
+    CONSTRAINT fk_jpath_setuse_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 36. Kết quả Thi thử đã áp vào lộ trình. Khóa là id lượt thi: một lượt chỉ áp đúng một lần.
+CREATE TABLE IF NOT EXISTS jpath_mock_result (
+    mock_attempt_id BIGINT UNSIGNED NOT NULL,
+    user_id BIGINT UNSIGNED NOT NULL,
+    path_id BIGINT UNSIGNED NOT NULL,
+    level VARCHAR(2) NOT NULL,
+    outcome VARCHAR(8) NOT NULL,
+    score_pct TINYINT UNSIGNED NOT NULL,
+    sections_json JSON NOT NULL,
+    submitted_at DATETIME(6) NOT NULL,
+    applied_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    cp_awarded SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (mock_attempt_id),
+    KEY idx_jpath_mock_user (user_id, level, submitted_at),
+    CONSTRAINT fk_jpath_mock_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_jpath_mock_outcome CHECK (outcome IN ('PASSED','FAILED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- [JLAS-W0108] Nâng cấp tại chỗ cho DB đã có bảng jpath_* từ trước (kiểm information_schema, chạy lại không đổi gì).
 -- jpath_kanji.level_reading_source (Plan 2 Task 9, sửa vòng 1).
 SET @jpath_ddl = (SELECT IF(COUNT(*) = 0,
@@ -1811,3 +2013,16 @@ SET @jpath_ddl = (SELECT IF(COUNT(*) = 0,
 PREPARE jpath_ddl_stmt FROM @jpath_ddl;
 EXECUTE jpath_ddl_stmt;
 DEALLOCATE PREPARE jpath_ddl_stmt;
+
+-- [JLAS-W0108] Kế hoạch 3: mã báo sai SKILL_QUESTION dài 14 ký tự -> target_type rộng 16 (chỉ nới, dữ liệu cũ vẫn hợp lệ).
+CALL jlas_ls_modify_column('jpath_content_report', 'target_type', 'varchar(16)', 'NO', NULL, 'VARCHAR(16) NOT NULL');
+CALL jlas_ls_modify_column('jpath_content_edit', 'target_type', 'varchar(16)', 'NO', NULL, 'VARCHAR(16) NOT NULL');
+-- Kế hoạch 3: 4 kind câu kỹ năng và 2 đích báo sai mới (thay CHECK khi mệnh đề thiếu giá trị cuối; chỉ nới).
+CALL jlas_ls_check('jpath_check_set', 'chk_jpath_check_kind', 'SKILL_SECTION', NULL,
+    'kind IN (''MICRO_CHECK'',''GROUP_EXERCISE'',''SKIP_ONE'',''TOPIC_KNOWN'',''FREE_QUIZ'',''CONFUSABLE'',''KANA_ROW'',''GRAMMAR_PRACTICE'',''GRAMMAR_EXTRA'',''GRAMMAR_REVIEW'',''SKILL_LESSON'',''SKILL_PRACTICE'',''SKILL_DICTATION'',''SKILL_SECTION'')');
+CALL jlas_ls_check('jpath_content_report', 'chk_jpath_report_target_type', 'SKILL_QUESTION', NULL,
+    'target_type IN (''VOCAB'',''KANJI'',''GRAMMAR'',''KANA'',''EXAMPLE'',''QUESTION'',''SKILL_SET'',''SKILL_QUESTION'')');
+
+DROP PROCEDURE IF EXISTS jlas_ls_check;
+DROP PROCEDURE IF EXISTS jlas_ls_modify_column;
+DROP PROCEDURE IF EXISTS jlas_ls_exec;
