@@ -3,6 +3,7 @@ package com.jlas.jlptpath.repository;
 import com.jlas.jlptpath.entity.JpathCheckSet;
 import com.jlas.jlptpath.enums.JpathCheckKind;
 import com.jlas.jlptpath.enums.JpathTab;
+import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.persistence.LockModeType;
 import java.util.Optional;
@@ -47,4 +48,18 @@ public interface JpathCheckSetRepository extends JpaRepository<JpathCheckSet, Lo
     /** The learner's latest check sets of one kind and status, newest submit first (used questions, past mistakes). */
     List<JpathCheckSet> findTop10ByUserIdAndKindAndStatusOrderBySubmittedAtDescIdDesc(Long userId, JpathCheckKind kind,
                                                                                     String status);
+
+    /**
+     * History: SUBMITTED check sets of the learner with {@code start <= submitted_at < end} (server time), newest
+     * first, without question or answer JSON: {@code [String token, JpathCheckKind kind, JpathTab tab,
+     * BigDecimal scorePct, Boolean passed, LocalDateTime submittedAt]}.
+     */
+    @Query("""
+            select c.token, c.kind, c.tab, c.scorePct, c.passed, c.submittedAt from JpathCheckSet c
+            where c.userId = :userId and c.status = 'SUBMITTED'
+              and c.submittedAt >= :start and c.submittedAt < :end
+            order by c.submittedAt desc, c.id desc
+            """)
+    List<Object[]> findSubmittedSummariesBetween(@Param("userId") Long userId, @Param("start") LocalDateTime start,
+                                                 @Param("end") LocalDateTime end);
 }
