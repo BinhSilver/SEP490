@@ -11,7 +11,7 @@ public enum JpathBadge {
     KNOWN_500("500 từ đã học", "Học được 500 từ vựng.", 500),
     KNOWN_1000("1.000 từ đã học", "Học được 1.000 từ vựng.", 1000),
     KANA_DONE("Thuộc bảng chữ cái", "Học xong bảng Hiragana và Katakana.", 1),
-    N5_SKILL_STAGE("Vào chặng Rèn N5", "Học xong nội dung N5 và bước sang chặng rèn kỹ năng.", 1);
+    N5_SKILL_STAGE("Vào chặng Rèn N5", "Đạt 80% nội dung N5 và bước sang chặng rèn kỹ năng.", 1);
 
     private final String titleVi;
     private final String descriptionVi;

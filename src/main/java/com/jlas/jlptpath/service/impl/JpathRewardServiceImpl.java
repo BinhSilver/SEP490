@@ -10,6 +10,7 @@ import com.jlas.mission.service.StreakService;
 import com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,12 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * (the ledger's reference key keeps a repeat from paying twice), the streak goes through {@link StreakService} and
  * badges through {@link JpathBadgeService}. Takes no jpath lock (the callers hold the path lock). A transaction that
  * queued CP applies the learner's open awards once, after commit.
+ *
+ * <p>Keep in sync: the pay conditions here (SKILL tab never, eligible only, REST day ignored, SKILL_DAY vs DAY) must
+ * match the {@code cp +=} lines of {@code JpathDayCompletion.evaluate}, which report the CP shown on the done screen
+ * and stored in {@code jpath_daily_plan.cp_awarded}.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JpathRewardServiceImpl implements JpathRewardService {
@@ -57,6 +63,8 @@ public class JpathRewardServiceImpl implements JpathRewardService {
             return;
         }
         streaks.recordCompletion(userId, day);
+        // A streak milestone may queue CP inside recordCompletion, even on a day that is not reward eligible.
+        applyAfterCommit(userId);
         if (rewardEligible) {
             if (kind == JpathDayKind.SKILL) {
                 pay(userId, JpathRewardPolicy.SKILL_DAY, JpathRewardPolicy.REF_SKILL_DAY, day.toEpochDay(),
@@ -96,7 +104,12 @@ public class JpathRewardServiceImpl implements JpathRewardService {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                awards.applyOpenAwards(userId);
+                try {
+                    awards.applyOpenAwards(userId);
+                } catch (RuntimeException ex) {
+                    // The request already committed; the retry job applies what is still open.
+                    log.error("Could not apply open credit awards for user {}", userId, ex);
+                }
             }
 
             @Override
