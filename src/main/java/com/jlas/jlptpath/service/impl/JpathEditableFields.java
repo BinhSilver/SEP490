@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -192,6 +193,64 @@ final class JpathEditableFields {
             return JSON.readTree(current).equals(JSON.readTree(next));
         } catch (JsonProcessingException e) {
             return false;
+        }
+    }
+
+    /** Question types answered by picking one of 4 options (answer_index); FILL_TEXT and ORDER are not. */
+    private static final java.util.Set<String> CHOICE_TYPES = java.util.Set.of("FILL", "MEANING", "ERROR", "ORDER_STAR",
+            "MCQ");
+    private static final List<String> CHOICE_ONLY = List.of("options_json", "answer_index");
+    private static final List<String> TEXT_ONLY = List.of("answer_text", "accept_json");
+
+    /**
+     * Checks a grammar question as it will be after {@code next} (normalized values of the edited fields) is applied:
+     * <ul>
+     *   <li>choice types (FILL, MEANING, ERROR, ORDER_STAR): exactly 4 distinct options and an answer_index 0–3,
+     *       neither clearable; no answer_text / accept_json;</li>
+     *   <li>FILL_TEXT: answer_text required; no options_json / answer_index;</li>
+     *   <li>ORDER (pieces + answer order, which the seed owns and this screen does not edit): none of the four answer
+     *       fields;</li>
+     *   <li>prompt_furigana, when set, must read as prompt_ja (same rule as an example's furigana).</li>
+     * </ul>
+     * A field "used" by the wrong type is rejected only when the edit sets it, so a stray stored value never blocks an
+     * unrelated fix.
+     */
+    static void checkQuestion(JpathGrammarQuestion q, Map<String, String> next) {
+        String type = q.getQuestionType() == null ? "" : q.getQuestionType();
+        Map<String, Field> fields = of(JpathReportTarget.QUESTION);
+        Function<String, String> after = name -> next.containsKey(name) ? next.get(name)
+                : fields.get(name).getter().apply(q);
+        List<String> unused;
+        if (CHOICE_TYPES.contains(type)) {
+            String options = after.apply("options_json");
+            if (options == null || after.apply("answer_index") == null) {
+                throw invalid("Câu chọn đáp án cần options_json và answer_index.");
+            }
+            JsonNode node = stringArray("options_json", options);
+            java.util.Set<String> distinct = new java.util.HashSet<>();
+            node.forEach(o -> distinct.add(o.asText().strip()));
+            if (node.size() != 4 || distinct.size() != 4) {
+                throw invalid("options_json phải có đúng 4 lựa chọn khác nhau");
+            }
+            unused = TEXT_ONLY;
+        } else if ("FILL_TEXT".equals(type)) {
+            if (after.apply("answer_text") == null) {
+                throw invalid("Câu điền chữ cần answer_text.");
+            }
+            unused = CHOICE_ONLY;
+        } else {
+            unused = List.of("options_json", "answer_index", "answer_text", "accept_json");
+        }
+        for (String name : unused) {
+            if (next.get(name) != null) {
+                throw invalid(name + " không dùng cho dạng câu " + type);
+            }
+        }
+        if (next.containsKey("prompt_ja") || next.containsKey("prompt_furigana")) {
+            String furigana = after.apply("prompt_furigana");
+            if (furigana != null && !plain(furigana).equals(after.apply("prompt_ja"))) {
+                throw invalid(FURIGANA_MISMATCH);
+            }
         }
     }
 

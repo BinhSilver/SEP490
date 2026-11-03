@@ -15,6 +15,6 @@ public interface JpathContentEditRepository extends JpaRepository<JpathContentEd
     List<JpathContentEdit> findByTargetTypeAndTargetCodeOrderByIdDesc(JpathReportTarget targetType, String targetCode,
                                                                      Pageable page);
 
-    /** Edits of a level not yet exported, oldest first. */
-    List<JpathContentEdit> findByLevelAndExportedAtIsNullOrderByIdAsc(String level);
+    /** Every edit of a level, oldest first (the export is cumulative). */
+    List<JpathContentEdit> findByLevelOrderByIdAsc(String level);
 }

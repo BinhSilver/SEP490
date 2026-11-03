@@ -16,6 +16,7 @@ import com.jlas.jlptpath.dto.JpathReportTargetRef;
 import com.jlas.jlptpath.entity.JpathContentEdit;
 import com.jlas.jlptpath.entity.JpathContentReport;
 import com.jlas.jlptpath.entity.JpathExample;
+import com.jlas.jlptpath.entity.JpathGrammarQuestion;
 import com.jlas.jlptpath.enums.JpathContentStatus;
 import com.jlas.jlptpath.enums.JpathReportTarget;
 import com.jlas.jlptpath.repository.JpathContentEditRepository;
@@ -143,6 +144,9 @@ public class JpathContentAdminServiceImpl implements JpathContentAdminService {
                 throw JpathEditableFields.invalid(JpathEditableFields.FURIGANA_MISMATCH);
             }
         }
+        if (ref.type() == JpathReportTarget.QUESTION) {
+            JpathEditableFields.checkQuestion((JpathGrammarQuestion) entity, next);
+        }
 
         List<JpathContentEdit> log = new ArrayList<>();
         for (Map.Entry<String, String> e : next.entrySet()) {
@@ -189,7 +193,8 @@ public class JpathContentAdminServiceImpl implements JpathContentAdminService {
             Optional<Object> entity = load(ref);
             String old = entity.map(statusField.getter()).orElse(null);
             String reviewed = JpathContentStatus.REVIEWED.name();
-            if (entity.isPresent() && !reviewed.equals(old)) {
+            // A HOLD item stays HOLD: releasing it needs an explicit, logged status edit.
+            if (entity.isPresent() && !reviewed.equals(old) && !JpathContentStatus.HOLD.name().equals(old)) {
                 statusField.setter().accept(entity.get(), reviewed);
                 log.add(editRow(editorId, ref, STATUS, old, reviewed, reportId));
             }
@@ -203,22 +208,33 @@ public class JpathContentAdminServiceImpl implements JpathContentAdminService {
     public JpathEditExport exportEdits(String level) {
         String lv = level(level);
         LocalDateTime now = clock.now();
-        List<JpathContentEdit> pending = edits.findByLevelAndExportedAtIsNullOrderByIdAsc(lv);
+        // Cumulative: every edit of the level, so the exported file can always replace the old one as a whole.
+        List<JpathContentEdit> all = edits.findByLevelOrderByIdAsc(lv);
         Map<String, JpathEditExportRow> last = new HashMap<>();
-        for (JpathContentEdit e : pending) {
+        List<JpathContentEdit> fresh = new ArrayList<>();
+        for (JpathContentEdit e : all) {
             if (!REPORT_HIDDEN.equals(e.getFieldName())) {
                 last.put(key(e.getTargetType(), e.getTargetCode()) + "|" + e.getFieldName(), new JpathEditExportRow(
-                        e.getTargetType().name(), e.getTargetCode(), e.getFieldName(), e.getNewValue()));
+                        e.getTargetType().name(), e.getTargetCode(), e.getFieldName(),
+                        exportValue(e.getFieldName(), e.getNewValue())));
             }
-            e.setExportedAt(now);
+            if (e.getExportedAt() == null) {
+                e.setExportedAt(now);
+                fresh.add(e);
+            }
         }
-        edits.saveAll(pending);
+        edits.saveAll(fresh);
         List<JpathEditExportRow> rows = last.values().stream()
                 .sorted(Comparator.comparing(JpathEditExportRow::targetType)
                         .thenComparing(JpathEditExportRow::targetCode)
                         .thenComparing(JpathEditExportRow::field))
                 .toList();
-        return new JpathEditExport(lv, now, rows.size(), rows);
+        return new JpathEditExport(lv, now, rows.size(), fresh.size(), rows);
+    }
+
+    /** answer_index is exported as a number; every other column as its stored text. */
+    private static Object exportValue(String field, String value) {
+        return "answer_index".equals(field) && value != null ? Integer.valueOf(value) : value;
     }
 
     // ------------------------------------------------------------------ helpers

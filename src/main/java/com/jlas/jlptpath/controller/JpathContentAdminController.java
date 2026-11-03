@@ -62,8 +62,8 @@ public class JpathContentAdminController {
     public ResponseEntity<ApiResponse<JpathAdminItemView>> resolve(@AuthenticationPrincipal UserPrincipal user,
             @PathVariable String targetType, @PathVariable String code,
             @Valid @RequestBody JpathReportResolveRequest request) {
-        return ResponseEntity.ok(ApiResponse.ok("Đã xử lý báo lỗi",
-                adminService.resolve(user.userId(), targetType, code, request)));
+        JpathAdminItemView view = adminService.resolve(user.userId(), targetType, code, request);
+        return ResponseEntity.ok(ApiResponse.ok(JpathContentAdminService.resolveMessage(request, view), view));
     }
 
     @PostMapping("/edits/export")
