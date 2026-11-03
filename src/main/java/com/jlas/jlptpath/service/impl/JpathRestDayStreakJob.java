@@ -4,6 +4,7 @@ import com.jlas.jlptpath.entity.JpathDailyPlan;
 import com.jlas.jlptpath.entity.JpathUserPath;
 import com.jlas.jlptpath.enums.JpathDayKind;
 import com.jlas.jlptpath.repository.JpathUserPathRepository;
+import com.jlas.jlptpath.service.JpathBadgeService;
 import com.jlas.jlptpath.service.JpathClock;
 import com.jlas.jlptpath.service.JpathDailyPlanService;
 import com.jlas.jlptpath.service.JpathEntryRoute;
@@ -11,6 +12,7 @@ import com.jlas.jlptpath.service.JpathEntryRouter;
 import com.jlas.jlptpath.service.JpathFeature;
 import com.jlas.mission.entity.UserStreaks;
 import com.jlas.mission.repository.UserStreaksRepository;
+import com.jlas.mission.service.CreditAwardService;
 import com.jlas.mission.service.StreakService;
 import java.time.LocalDate;
 import java.util.List;
@@ -32,7 +34,9 @@ import org.springframework.transaction.support.TransactionTemplate;
  * <p>Each learner gets one short transaction following the daily-plan contract: today's plan is made to exist first
  * (outside any transaction), then the path lock, then the level and plan locks through {@code lockToday}; the kind of
  * today is the one stored in that plan (decided by {@code JpathCalendarService.dayKind} when the plan was made, so a
- * rest-day change made later in the day applies from tomorrow). A failure for one learner is logged and the job goes on.
+ * rest-day change made later in the day applies from tomorrow). A kept streak may reach a badge (evaluated in the same
+ * transaction) or a streak milestone; the CP they queue is applied right after the commit, and anything that fails
+ * there stays queued for the award retry job. A failure for one learner is logged and the job goes on.
  */
 @Slf4j
 @Component
@@ -46,25 +50,31 @@ public class JpathRestDayStreakJob {
     private final JpathDailyPlanService plans;
     private final UserStreaksRepository streakRows;
     private final StreakService streaks;
+    private final JpathBadgeService badges;
+    private final CreditAwardService awards;
     private final JpathClock clock;
     private final TransactionOperations tx;
 
     @Autowired
     public JpathRestDayStreakJob(JpathFeature feature, JpathEntryRouter router, JpathUserPathRepository paths,
-            JpathDailyPlanService plans, UserStreaksRepository streakRows, StreakService streaks, JpathClock clock,
+            JpathDailyPlanService plans, UserStreaksRepository streakRows, StreakService streaks,
+            JpathBadgeService badges, CreditAwardService awards, JpathClock clock,
             PlatformTransactionManager transactionManager) {
-        this(feature, router, paths, plans, streakRows, streaks, clock, new TransactionTemplate(transactionManager));
+        this(feature, router, paths, plans, streakRows, streaks, badges, awards, clock,
+                new TransactionTemplate(transactionManager));
     }
 
     JpathRestDayStreakJob(JpathFeature feature, JpathEntryRouter router, JpathUserPathRepository paths,
-            JpathDailyPlanService plans, UserStreaksRepository streakRows, StreakService streaks, JpathClock clock,
-            TransactionOperations tx) {
+            JpathDailyPlanService plans, UserStreaksRepository streakRows, StreakService streaks,
+            JpathBadgeService badges, CreditAwardService awards, JpathClock clock, TransactionOperations tx) {
         this.feature = feature;
         this.router = router;
         this.paths = paths;
         this.plans = plans;
         this.streakRows = streakRows;
         this.streaks = streaks;
+        this.badges = badges;
+        this.awards = awards;
         this.clock = clock;
         this.tx = tx;
     }
@@ -98,8 +108,11 @@ public class JpathRestDayStreakJob {
                 return false;
             }
             plans.ensurePlanExists(userId);
-            Boolean kept = tx.execute(status -> keepStreakLocked(userId));
-            return Boolean.TRUE.equals(kept);
+            boolean kept = Boolean.TRUE.equals(tx.execute(status -> keepStreakLocked(userId)));
+            if (kept) {
+                applyAwards(userId);
+            }
+            return kept;
         } catch (RuntimeException e) {
             log.warn("Rest-day streak check failed for user {}: {}", userId, e.toString());
             return false;
@@ -121,6 +134,16 @@ public class JpathRestDayStreakJob {
             return false;
         }
         streaks.recordCompletion(userId, today);
+        badges.evaluate(userId);
         return true;
+    }
+
+    /** After the commit: applies the CP a milestone or badge queued; on failure the retry job applies it later. */
+    private void applyAwards(Long userId) {
+        try {
+            awards.applyOpenAwards(userId);
+        } catch (RuntimeException e) {
+            log.error("Could not apply open credit awards for user {}", userId, e);
+        }
     }
 }
