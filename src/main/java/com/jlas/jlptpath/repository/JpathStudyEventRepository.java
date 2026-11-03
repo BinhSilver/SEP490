@@ -5,6 +5,7 @@ import com.jlas.jlptpath.enums.JpathItemType;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,6 +16,9 @@ import org.springframework.stereotype.Repository;
 /** [JLAS-W0108] Study events. */
 @Repository
 public interface JpathStudyEventRepository extends JpaRepository<JpathStudyEvent, Long> {
+
+    /** The event the learner recorded under {@code clientEventId} (idempotent replays of the offline queue). */
+    Optional<JpathStudyEvent> findByUserIdAndClientEventId(Long userId, String clientEventId);
 
     /**
      * Restart: bulk-deletes every study event of the learner and returns the row count (managed entities are not

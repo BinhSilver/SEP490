@@ -5,8 +5,10 @@ import com.jlas.auth.security.UserPrincipal;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.jlptpath.dto.JpathDaySummaryView;
+import com.jlas.jlptpath.dto.JpathEventBatchResult;
 import com.jlas.jlptpath.dto.JpathSessionStartRequest;
 import com.jlas.jlptpath.dto.JpathSessionView;
+import com.jlas.jlptpath.dto.JpathStudyEventBatch;
 import com.jlas.jlptpath.dto.JpathTodayView;
 import com.jlas.jlptpath.enums.JpathSessionTab;
 import com.jlas.jlptpath.enums.JpathTab;
@@ -68,6 +70,13 @@ public class JpathStudyController {
     public ResponseEntity<ApiResponse<JpathSessionView>> get(@AuthenticationPrincipal UserPrincipal user,
             @PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.ok("OK", study.get(user.userId(), id)));
+    }
+
+    /** Card buttons of the session (offline queue replays included); see {@link JpathStudyService#applyEvents}. */
+    @PostMapping("/sessions/{id}/events")
+    public ResponseEntity<ApiResponse<JpathEventBatchResult>> events(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable Long id, @Valid @RequestBody JpathStudyEventBatch batch) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", study.applyEvents(user.userId(), id, batch)));
     }
 
     private static JpathTab parseTab(String tab) {

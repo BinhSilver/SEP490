@@ -1,7 +1,9 @@
 package com.jlas.jlptpath.service;
 
+import com.jlas.jlptpath.dto.JpathEventBatchResult;
 import com.jlas.jlptpath.dto.JpathSessionStartRequest;
 import com.jlas.jlptpath.dto.JpathSessionView;
+import com.jlas.jlptpath.dto.JpathStudyEventBatch;
 import com.jlas.jlptpath.enums.JpathTab;
 import java.util.Optional;
 
@@ -29,4 +31,12 @@ public interface JpathStudyService {
 
     /** The learner's session {@code sessionId}; another learner's or unknown → {@code JPATH_SESSION_NOT_FOUND}. */
     JpathSessionView get(Long userId, Long sessionId);
+
+    /**
+     * Applies the card buttons of the learner's session {@code sessionId} in one transaction, each event once by its
+     * client event id (a replayed offline batch gives DUPLICATE outcomes and changes nothing). Events of a step that
+     * is not the current one, or of a closed session, are REJECTED. Another learner's or unknown session →
+     * {@code JPATH_SESSION_NOT_FOUND} with nothing written.
+     */
+    JpathEventBatchResult applyEvents(Long userId, Long sessionId, JpathStudyEventBatch batch);
 }

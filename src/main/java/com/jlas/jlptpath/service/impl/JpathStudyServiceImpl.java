@@ -7,10 +7,12 @@ import com.jlas.common.exception.ErrorCode;
 import com.jlas.flashcard.util.SrsUtil;
 import com.jlas.jlptpath.dto.JpathCardView;
 import com.jlas.jlptpath.dto.JpathCombinedStep;
+import com.jlas.jlptpath.dto.JpathEventBatchResult;
 import com.jlas.jlptpath.dto.JpathExampleView;
 import com.jlas.jlptpath.dto.JpathItemDetailView;
 import com.jlas.jlptpath.dto.JpathSessionStartRequest;
 import com.jlas.jlptpath.dto.JpathSessionView;
+import com.jlas.jlptpath.dto.JpathStudyEventBatch;
 import com.jlas.jlptpath.entity.JpathDailyPlan;
 import com.jlas.jlptpath.entity.JpathDailyTab;
 import com.jlas.jlptpath.entity.JpathGrammar;
@@ -119,6 +121,7 @@ public class JpathStudyServiceImpl implements JpathStudyService {
     private final JpathItemStateMachine states;
     private final JpathCatalogService catalog;
     private final JpathClock clock;
+    private final JpathStudyEventApplier eventApplier;
     private final TransactionTemplate tx;
     private final TransactionTemplate readTx;
 
@@ -126,7 +129,8 @@ public class JpathStudyServiceImpl implements JpathStudyService {
             JpathDailyTabRepository dailyTabs, JpathStudySessionRepository sessions, JpathUserPathRepository paths,
             JpathUserLevelRepository levels, JpathUserItemRepository userItems, JpathKanaRowRepository kanaRows,
             JpathContentReader content, JpathItemService itemService, JpathItemStateMachine states,
-            JpathCatalogService catalog, JpathClock clock, PlatformTransactionManager transactionManager) {
+            JpathCatalogService catalog, JpathClock clock, JpathStudyEventApplier eventApplier,
+            PlatformTransactionManager transactionManager) {
         this.dailyPlans = dailyPlans;
         this.plans = plans;
         this.dailyTabs = dailyTabs;
@@ -140,6 +144,7 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         this.states = states;
         this.catalog = catalog;
         this.clock = clock;
+        this.eventApplier = eventApplier;
         this.tx = new TransactionTemplate(transactionManager);
         this.readTx = new TransactionTemplate(transactionManager);
         this.readTx.setReadOnly(true);
@@ -648,6 +653,28 @@ public class JpathStudyServiceImpl implements JpathStudyService {
             throw new ApiException(ErrorCode.JPATH_SESSION_NOT_FOUND);
         }
         return view(userId, s);
+    }
+
+    // ---- events --------------------------------------------------------------------------------------------
+
+    /**
+     * Same lock contract as {@link #start}: the session's owner is checked first (another learner's id → not found,
+     * nothing written), today's plan is made to exist outside the writer transaction, then
+     * {@link JpathStudyEventApplier} takes path → level → plan → tabs → session in one transaction.
+     */
+    @Override
+    public JpathEventBatchResult applyEvents(Long userId, Long sessionId, JpathStudyEventBatch batch) {
+        if (sessionId == null || sessions.findByIdAndUserId(sessionId, userId).isEmpty()) {
+            throw new ApiException(ErrorCode.JPATH_SESSION_NOT_FOUND);
+        }
+        if (batch == null || batch.events() == null || batch.events().isEmpty()) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED);
+        }
+        dailyPlans.ensurePlanExists(userId);
+        JpathStudyEventApplier.Applied applied = tx.execute(status -> eventApplier.apply(userId, sessionId, batch));
+        // like start(): the card view is built after the writer transaction committed
+        return new JpathEventBatchResult(applied.outcomes(), readTx.execute(status -> view(userId,
+                applied.session())));
     }
 
     // ---- view ----------------------------------------------------------------------------------------------
