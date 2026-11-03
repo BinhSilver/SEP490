@@ -117,13 +117,17 @@ final class JpathDayRules {
             }
             case SKILL -> {
                 addZero(out, 2, v, k, g, kanaTab);
-                out.add(tab(JpathTab.SKILL, 0, 0));
+                // Plan 3 Task 16: one per skill (Reading, Listening); the inserter lowers it when content is missing
+                out.add(tab(JpathTab.SKILL, SKILL_SESSIONS_PER_DAY, 0));
             }
             case REVIEW_ONLY -> addZero(out, 4, v, k, g, kanaTab);
             case REST -> addZero(out, 2, v, k, g, kanaTab);
         }
         return out;
     }
+
+    /** Plan 3 Task 16: a skill day asks one DAY session of each skill. */
+    static final int SKILL_SESSIONS_PER_DAY = 2;
 
     /** A tab with target 0 (other than SKILL) is done from the start. */
     static void markZeroTargetDone(JpathDailyTab tab, LocalDateTime now) {

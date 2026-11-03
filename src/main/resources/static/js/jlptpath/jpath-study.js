@@ -48,7 +48,7 @@
   var RATING_LABEL = Object.freeze({ FORGOT: 'Chưa nhớ', REMEMBERED: 'Nhớ rồi', HARD: 'Khó', GOOD: 'Nhớ tốt',
     EASY: 'Rất dễ' });
   var STEP_LABEL = Object.freeze({ REVIEW: 'Ôn', VOCAB: 'Từ mới', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp', KANA: 'Chữ cái',
-    SKILL_QUIZ: 'Quiz tự do' });
+    SKILL_QUIZ: 'Đọc · Nghe' });
   var SPLIT_VOCAB_LABEL = 'Từ vựng';
   var CHECK_KINDS = { MICRO_CHECK: true, GROUP_EXERCISE: true };
   var PAGE_CONTEXT = 'STUDY_CARD';

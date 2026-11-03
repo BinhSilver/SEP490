@@ -16,6 +16,7 @@ import com.jlas.jlptpath.repository.JpathUserPathRepository;
 import com.jlas.jlptpath.service.JpathClock;
 import com.jlas.jlptpath.service.JpathPathService;
 import com.jlas.jlptpath.service.JpathProgressService;
+import com.jlas.jlptpath.util.JpathSkillPolicy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +105,8 @@ public class JpathProgressServiceImpl implements JpathProgressService {
             return changed; // SKILL_PRACTICE, EXAM and PASSED (also after lowering onto a passed level) stay as they are
         }
         Map<JpathTab, JpathTabCount> counts = tabCounts.read(userId, path.getOpenLevel());
-        if (LEVEL_TABS.stream().allMatch(t -> reachesSkillStage(counts.get(t)))) {
+        int threshold = JpathSkillPolicy.stageThresholdPct(open.isPriorityMode());
+        if (LEVEL_TABS.stream().allMatch(t -> reachesSkillStage(counts.get(t), threshold))) {
             open.setStage(JpathStage.SKILL_PRACTICE);
             open.setSkillPracticeAt(clock.now());
             changed = true;
@@ -114,7 +116,12 @@ public class JpathProgressServiceImpl implements JpathProgressService {
 
     /** {@code counted * 100 >= 80 * total} with total &gt; 0 (exact, no rounding). */
     static boolean reachesSkillStage(JpathTabCount c) {
-        return c.total() > 0 && c.counted() * 100 >= SKILL_STAGE_PERCENT * c.total();
+        return reachesSkillStage(c, SKILL_STAGE_PERCENT);
+    }
+
+    /** Plan 3 #46: the same rule with {@code percent} (80, or 60 in priority mode). */
+    static boolean reachesSkillStage(JpathTabCount c, int percent) {
+        return c.total() > 0 && c.counted() * 100L >= (long) percent * c.total();
     }
 
     /** Stored stage of {@code level}; without a row a level below the open one reads PASSED (as the path page). */

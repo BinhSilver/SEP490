@@ -953,9 +953,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         String source = issue.path("source").isTextual() ? issue.path("source").asText() : null;
         // #25 / D4: only a quiz of ≥ 10 questions on LEARNED or NOTEBOOK items counts for the skill day.
         // The server-chosen skill-day step counts whatever its size (its pool may give fewer than 10 questions).
-        boolean skillDayQuiz = set.getKind() == JpathCheckKind.FREE_QUIZ
-                && (total >= SKILL_QUIZ_SIZE || issue.path(SKILL_DAY).asBoolean(false))
-                && (JpathCheckSource.LEARNED.name().equals(source) || JpathCheckSource.NOTEBOOK.name().equals(source));
+        // Plan 3 Task 16 removed rule #25: a free quiz never completes a skill day any more
+        boolean skillDayQuiz = false;
 
         List<String> itemCodes = readList(set.getItemCodesJson());
         JpathStudySession session = set.getSessionId() == null ? null

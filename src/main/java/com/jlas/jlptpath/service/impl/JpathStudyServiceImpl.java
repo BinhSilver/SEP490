@@ -230,8 +230,8 @@ public class JpathStudyServiceImpl implements JpathStudyService {
                         remaining, rows));
             }
         }
-        JpathDailyTab skill = tabs.get(JpathTab.SKILL);
-        boolean skillQuizNeeded = skill != null && skill.getCheckPassedAt() == null;
+        // Plan 3 Task 16: the skill-day quiz (#25) is gone; skill days are done by skill sessions
+        boolean skillQuizNeeded = false;
         List<JpathQueueStep> q = JpathQueueBuilder.build(new JpathQueueInput(st, JpathSessionMode.TODAY,
                 plan.getDayKind(), plan.isKanaPhase(), due, room, grammarDue, newCodes,
                 practiceCodes(newCodes.getOrDefault(JpathTab.GRAMMAR, List.of())), rows, skillQuizNeeded));

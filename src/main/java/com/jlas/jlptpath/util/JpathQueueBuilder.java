@@ -51,9 +51,8 @@ public final class JpathQueueBuilder {
             reviews(in, q, false);
             boolean skillDay = in.dayKind() == JpathDayKind.SKILL
                     && (in.tab() == JpathSessionTab.COMBINED || in.tab() == JpathSessionTab.SKILL);
-            if (skillDay) {
-                if (in.skillQuizNeeded()) q.add(check(JpathTab.SKILL, JpathCheckKind.FREE_QUIZ, null));
-            } else {
+            // Plan 3 Task 16: a skill day queues its reviews only; Reading and Listening are skill sessions
+            if (!skillDay) {
                 news(in, q);
             }
         } else {

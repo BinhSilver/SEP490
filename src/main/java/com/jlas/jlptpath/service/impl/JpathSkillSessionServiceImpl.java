@@ -8,6 +8,7 @@ import com.jlas.jlptpath.dto.JpathSkillSessionStartRequest;
 import com.jlas.jlptpath.dto.JpathSkillSessionView;
 import com.jlas.jlptpath.entity.JpathCheckSet;
 import com.jlas.jlptpath.entity.JpathDailyPlan;
+import com.jlas.jlptpath.entity.JpathDailyTab;
 import com.jlas.jlptpath.entity.JpathSkillSession;
 import com.jlas.jlptpath.entity.JpathSkillType;
 import com.jlas.jlptpath.entity.JpathUserPath;
@@ -15,11 +16,16 @@ import com.jlas.jlptpath.enums.JpathDayKind;
 import com.jlas.jlptpath.enums.JpathSkill;
 import com.jlas.jlptpath.enums.JpathSkillSessionKind;
 import com.jlas.jlptpath.enums.JpathSkillStep;
+import com.jlas.jlptpath.enums.JpathTab;
 import com.jlas.jlptpath.repository.JpathCheckSetRepository;
+import com.jlas.jlptpath.repository.JpathDailyPlanRepository;
+import com.jlas.jlptpath.repository.JpathDailyTabRepository;
 import com.jlas.jlptpath.repository.JpathSkillSessionRepository;
+import com.jlas.jlptpath.repository.JpathUserLevelRepository;
 import com.jlas.jlptpath.repository.JpathUserPathRepository;
 import com.jlas.jlptpath.service.JpathClock;
 import com.jlas.jlptpath.service.JpathDailyPlanService;
+import com.jlas.jlptpath.service.JpathRewardHook;
 import com.jlas.jlptpath.service.JpathSkillCheckIssuer;
 import com.jlas.jlptpath.service.JpathSkillSessionService;
 import com.jlas.jlptpath.service.impl.JpathSkillContentReader.VisibleSet;
@@ -28,6 +34,8 @@ import com.jlas.jlptpath.util.JpathSkillPolicy;
 import com.jlas.jlptpath.util.JpathSkillRotation.Pick;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -54,6 +62,17 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
     private final JpathCheckSetRepository checks;
     private final JpathClock clock;
     private final Optional<JpathSkillCheckIssuer> issuer;
+    // Plan 3 Task 16 (skill day): field-injected so the constructor stays as it was
+    @Autowired
+    private JpathUserLevelRepository levels;
+    @Autowired
+    private JpathDailyPlanRepository plans;
+    @Autowired
+    private JpathDailyTabRepository dailyTabs;
+    @Autowired
+    private ObjectProvider<JpathRewardHook> hooks;
+    @Autowired
+    private ObjectProvider<JpathDayCompletion> completion;
     private final TransactionTemplate tx;
     private final TransactionTemplate readTx;
 
@@ -152,9 +171,9 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
     @Override
     public JpathSkillSessionView advance(Long userId, Long sessionId) {
         return tx.execute(status -> {
-            boolean active = paths.findActiveForUpdate(userId).isPresent();
+            JpathUserPath path = paths.findActiveForUpdate(userId).orElse(null);
             JpathSkillSession s = own(userId, sessionId); // another learner's session stays NOT_FOUND
-            if (!active) {
+            if (path == null) {
                 throw new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH);
             }
             switch (s.getStep()) {
@@ -172,7 +191,7 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
                         if (s.getSkill() == JpathSkill.LISTENING) {
                             s.setStep(JpathSkillStep.DICTATION);
                         } else {
-                            finish(s, practice.get());
+                            finish(path, s, practice.get());
                         }
                     }
                 }
@@ -180,7 +199,7 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
                     ensureTokens(s, false);
                     boolean noLines = s.getDictationToken() == null && issuer.isPresent();
                     if (noLines || submitted(userId, s.getDictationToken()).isPresent()) {
-                        finish(s, submitted(userId, s.getPracticeToken()).orElse(null));
+                        finish(path, s, submitted(userId, s.getPracticeToken()).orElse(null));
                     }
                 }
                 case DONE -> {
@@ -194,11 +213,48 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
 
     // ---- helpers -------------------------------------------------------------------------------------------
 
-    private void finish(JpathSkillSession s, JpathCheckSet practice) {
+    private void finish(JpathUserPath path, JpathSkillSession s, JpathCheckSet practice) {
         s.setStep(JpathSkillStep.DONE);
         s.setCompletedAt(clock.now());
         if (practice != null) {
             s.setScorePct(practice.getScorePct());
+        }
+        if (s.getKind() == JpathSkillSessionKind.DAY) {
+            countSkillDay(path, s);
+        }
+    }
+
+    /**
+     * Plan 3 Task 16: a DAY session done counts once on the SKILL tab of the plan of its {@code study_day} (locks
+     * after the path: open level, that plan, its tabs), pays #44 +2 for the skill when that day is still the
+     * learner's today (a session finished after midnight counts for the old day without reward) and lets the day
+     * completion decide the SKILL tab and the day (+2 and streak, KH2 Task 32).
+     */
+    private void countSkillDay(JpathUserPath path, JpathSkillSession s) {
+        Long userId = s.getUserId();
+        if (levels == null || plans == null || dailyTabs == null) {
+            return; // built by hand without the plan repositories (unit tests)
+        }
+        levels.findForUpdate(path.getId(), path.getOpenLevel());
+        JpathDailyPlan plan = plans.findForUpdate(userId, s.getStudyDay())
+                .filter(p -> p.getId().equals(s.getPlanId())).orElse(null);
+        if (plan == null) {
+            return;
+        }
+        List<JpathDailyTab> tabs = dailyTabs.findForUpdateByPlanId(plan.getId());
+        JpathDailyTab skill = tabs.stream().filter(t -> t.getTab() == JpathTab.SKILL).findFirst().orElse(null);
+        if (skill == null) {
+            return;
+        }
+        skill.setNewDone(skill.getNewDone() + 1);
+        boolean sameDay = s.getStudyDay().equals(clock.today(userId));
+        JpathRewardHook hook = hooks == null ? null : hooks.getIfAvailable();
+        if (sameDay && hook != null) {
+            hook.onSkillSessionDone(userId, s.getStudyDay(), s.getSkill());
+        }
+        JpathDayCompletion days = completion == null ? null : completion.getIfAvailable();
+        if (days != null) {
+            days.evaluate(userId, plan, tabs, JpathTab.SKILL, sameDay);
         }
     }
 

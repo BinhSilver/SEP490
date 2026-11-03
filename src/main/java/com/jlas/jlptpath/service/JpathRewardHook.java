@@ -1,6 +1,7 @@
 package com.jlas.jlptpath.service;
 
 import com.jlas.jlptpath.enums.JpathDayKind;
+import com.jlas.jlptpath.enums.JpathSkill;
 import com.jlas.jlptpath.enums.JpathTab;
 import java.time.LocalDate;
 
@@ -22,4 +23,8 @@ public interface JpathRewardHook {
 
     /** Progress changed (badges, stats); called once per evaluation of today's plan. */
     void onProgressChanged(Long userId);
+
+    /** Plan 3 #44: a DAY skill session of {@code skill} done on {@code day} (the learner's today); +2 once a day. */
+    default void onSkillSessionDone(Long userId, LocalDate day, JpathSkill skill) {
+    }
 }

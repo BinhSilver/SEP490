@@ -9,6 +9,7 @@ import com.jlas.jlptpath.entity.JpathUserLevel;
 import com.jlas.jlptpath.entity.JpathUserPath;
 import com.jlas.jlptpath.enums.JpathDayKind;
 import com.jlas.jlptpath.enums.JpathSessionMode;
+import com.jlas.jlptpath.enums.JpathSkill;
 import com.jlas.jlptpath.enums.JpathTab;
 import com.jlas.jlptpath.repository.JpathDailyPlanRepository;
 import com.jlas.jlptpath.repository.JpathDailyTabRepository;
@@ -29,6 +30,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +61,9 @@ public class JpathDailyPlanInserter {
     private final JpathContentReader content;
     private final JpathClock clock;
     private final ObjectProvider<JpathDayCompletion> completion;
+    // Plan 3: which skills have visible content at a level; field-injected so the constructor stays as it was
+    @Autowired
+    private ObjectProvider<JpathSkillPicker> skillPicker;
 
     public JpathDailyPlanInserter(JpathUserPathRepository paths, JpathUserLevelRepository levels,
             JpathDailyPlanRepository plans, JpathDailyTabRepository dailyTabs, JpathStudySessionRepository sessions,
@@ -156,9 +161,12 @@ public class JpathDailyPlanInserter {
         for (JpathDailyTab tab : tabs) {
             tab.setPlanId(plan.getId());
             JpathDayRules.markZeroTargetDone(tab, now);
-            if (tab.getTab() == JpathTab.SKILL && JpathPathRules.skillQuizSource(userItems, kanaRows, userId,
-                    level.getLevel(), dayPlan.kanaPhase()).isEmpty()) {
-                tab.setCheckPassedAt(now);
+            if (tab.getTab() == JpathTab.SKILL) {
+                int skills = skillsWithContent(level.getLevel());
+                tab.setNewTarget(skills);
+                if (skills == 0) {
+                    tab.setDoneAt(now); // no visible skill content: the skill day is done by its reviews
+                }
             }
         }
         List<JpathDailyTab> saved = dailyTabs.saveAll(tabs);
@@ -198,5 +206,15 @@ public class JpathDailyPlanInserter {
             return new ApiException(ErrorCode.CONFLICT);
         }
         return missingPlan(userId, day);
+    }
+
+    /** Plan 3 Task 16: skills (Reading, Listening) with a visible type at {@code level}; 2 without the skill module. */
+    int skillsWithContent(String level) {
+        JpathSkillPicker picker = skillPicker == null ? null : skillPicker.getIfAvailable();
+        if (picker == null) {
+            return JpathDayRules.SKILL_SESSIONS_PER_DAY;
+        }
+        JpathSkillPicker.LevelContent content = picker.content(level);
+        return (content.hasAvailable(JpathSkill.READING) ? 1 : 0) + (content.hasAvailable(JpathSkill.LISTENING) ? 1 : 0);
     }
 }

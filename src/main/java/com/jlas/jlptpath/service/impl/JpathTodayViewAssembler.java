@@ -242,10 +242,11 @@ public class JpathTodayViewAssembler {
                 }
                 complete = done >= total;
             } else if (key.equals("SKILL_QUIZ")) {
+                // Plan 3 Task 16: the skill step = DAY skill sessions done of the day's target
                 JpathTodayTab skill = tabs.get(JpathTab.SKILL);
-                complete = skill != null && skill.checkPassed();
-                done = complete ? 1 : 0;
-                total = 1;
+                done = skill == null ? 0 : skill.newDone();
+                total = skill == null ? 0 : skill.newTarget();
+                complete = skill == null || skill.done() || done >= total;
             } else {
                 JpathTodayTab t = tabs.get(JpathTab.valueOf(key));
                 done = t == null ? 0 : t.newDone();

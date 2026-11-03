@@ -1,6 +1,7 @@
 package com.jlas.jlptpath.service.impl;
 
 import com.jlas.jlptpath.enums.JpathDayKind;
+import com.jlas.jlptpath.enums.JpathSkill;
 import com.jlas.jlptpath.enums.JpathTab;
 import com.jlas.jlptpath.service.JpathBadgeService;
 import com.jlas.jlptpath.service.JpathRewardService;
@@ -75,6 +76,15 @@ public class JpathRewardServiceImpl implements JpathRewardService {
             }
         }
         evaluateBadges(userId);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void onSkillSessionDone(Long userId, LocalDate day, JpathSkill skill) {
+        String ref = skill == JpathSkill.LISTENING ? JpathRewardPolicy.REF_SKILL_LISTENING
+                : JpathRewardPolicy.REF_SKILL_READING;
+        pay(userId, JpathRewardPolicy.SKILL_SESSION, ref, day.toEpochDay(),
+                skill == JpathSkill.LISTENING ? "Xong buổi Nghe" : "Xong buổi Đọc");
     }
 
     @Override

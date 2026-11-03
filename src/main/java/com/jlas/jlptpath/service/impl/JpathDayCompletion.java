@@ -47,13 +47,14 @@ public class JpathDayCompletion {
      * to exist outside it): {@code plan} and {@code tabs} are the locked, managed rows with the event's counters
      * already written. Neither is re-read here and no lock is taken.
      * <ul>
-     *   <li>Tab done: {@code new_done >= effectiveTarget} and (target 0 or {@code check_passed_at}); SKILL needs
-     *       {@code check_passed_at}. The hook is told only for V/K/G/KANA with an effective target &gt; 0.</li>
+     *   <li>Tab done: {@code new_done >= effectiveTarget} and (target 0 or {@code check_passed_at}); SKILL: its
+     *       {@code new_done} (DAY skill sessions) reaches its {@code new_target}. The hook is told only for V/K/G/KANA
+     *       with an effective target &gt; 0.</li>
      *   <li>Any other non-SKILL tab not done whose effective target is 0 (its content ran out) is marked done
      *       without hook or CP, so it never blocks the day.</li>
      *   <li>Reviews cleared: every tab has {@code review_done >= review_cap} or no due card, and at least one review
      *       was done today.</li>
-     *   <li>Day done: STUDY → every required tab done; SKILL → reviews done (or none due) and the SKILL check passed;
+     *   <li>Day done: STUDY → every required tab done; SKILL → reviews done (or none due) and the SKILL tab done;
      *       REVIEW_ONLY → reviews done (or none due); REST → never. The day reward needs {@code rewardEligible} and
      *       no tab of the plan {@code too_fast}.</li>
      * </ul>
@@ -89,19 +90,22 @@ public class JpathDayCompletion {
         JpathDailyTab touched = touchedTab == null ? null : tabs.get(touchedTab);
         if (touched != null && touched.getDoneAt() == null) {
             boolean checked = touched.getCheckPassedAt() != null;
-            int target = touched.getTab() == JpathTab.SKILL ? 0 : planService.effectiveTarget(plan, touched);
-            boolean complete = touched.getTab() == JpathTab.SKILL ? checked
+            boolean skill = touched.getTab() == JpathTab.SKILL;
+            int target = skill ? touched.getNewTarget() : planService.effectiveTarget(plan, touched);
+            // Plan 3 Task 16: the SKILL tab is done by its DAY sessions (one per skill); it pays no tab CP (#44 pays
+            // each skill session apart)
+            boolean complete = skill ? touched.getNewDone() >= target
                     : touched.getNewDone() >= target && (target == 0 || checked);
             if (complete) {
                 touched.setDoneAt(now);
                 tabCompleted = true;
-                tabPays = target > 0;
+                tabPays = !skill && target > 0;
             }
         }
 
         for (JpathDailyTab t : rows) {
-            if (t != touched && t.getTab() != JpathTab.SKILL && t.getDoneAt() == null
-                    && planService.effectiveTarget(plan, t) == 0) {
+            int target = t.getTab() == JpathTab.SKILL ? t.getNewTarget() : planService.effectiveTarget(plan, t);
+            if (t != touched && t.getDoneAt() == null && target == 0) {
                 t.setDoneAt(now);
             }
         }
@@ -163,9 +167,9 @@ public class JpathDayCompletion {
             // A required tab without a row has nothing to do.
             case STUDY -> planService.requiredTabs(plan).stream()
                     .allMatch(t -> !tabs.containsKey(t) || tabs.get(t).getDoneAt() != null);
-            // No SKILL row: nothing to quiz (#25).
+            // Plan 3 Task 16: reviews done and the SKILL tab done (both skills); no SKILL row → reviews only
             case SKILL -> reviewsDone && (!tabs.containsKey(JpathTab.SKILL)
-                    || tabs.get(JpathTab.SKILL).getCheckPassedAt() != null);
+                    || tabs.get(JpathTab.SKILL).getDoneAt() != null);
             case REVIEW_ONLY -> reviewsDone;
             case REST -> false;
         };
