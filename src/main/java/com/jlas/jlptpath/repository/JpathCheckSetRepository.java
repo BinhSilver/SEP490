@@ -2,6 +2,8 @@ package com.jlas.jlptpath.repository;
 
 import com.jlas.jlptpath.entity.JpathCheckSet;
 import com.jlas.jlptpath.enums.JpathCheckKind;
+import com.jlas.jlptpath.enums.JpathTab;
+import java.util.List;
 import jakarta.persistence.LockModeType;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,4 +39,12 @@ public interface JpathCheckSetRepository extends JpaRepository<JpathCheckSet, Lo
     /** A check set of the session with this kind and status (e.g. the ISSUED one), if any. */
     Optional<JpathCheckSet> findFirstByUserIdAndSessionIdAndKindAndStatus(Long userId, Long sessionId,
                                                                          JpathCheckKind kind, String status);
+
+    /** The check set of the session with this kind, tab and status (the step's ISSUED check), if any. */
+    Optional<JpathCheckSet> findFirstByUserIdAndSessionIdAndKindAndTabAndStatusOrderByIdDesc(Long userId,
+            Long sessionId, JpathCheckKind kind, JpathTab tab, String status);
+
+    /** The learner's latest check sets of one kind and status, newest submit first (used questions, past mistakes). */
+    List<JpathCheckSet> findTop10ByUserIdAndKindAndStatusOrderBySubmittedAtDescIdDesc(Long userId, JpathCheckKind kind,
+                                                                                    String status);
 }

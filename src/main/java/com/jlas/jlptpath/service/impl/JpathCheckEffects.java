@@ -33,9 +33,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * [JLAS-W0108] What a submitted check changes (plan Task 37): learner items, today's tab, the session queue and the
- * stage. Runs inside the submit transaction under its locks (path → level → check set → plan → tabs); takes no lock
- * of its own and never re-reads the path.
+ * [JLAS-W0108] What a submitted check changes (plan Tasks 37, 38): learner items, today's tab, the session queue and
+ * the stage. Runs inside the submit transaction under its locks (path → level → check set → plan → tabs) and takes no
+ * lock of its own; {@code reevaluateStage} / {@code refreshPacing} re-lock the same path and level rows in the same
+ * transaction (already held, so no new lock order).
  * <ul>
  *   <li>MICRO_CHECK passed: every item counted; grammar patterns rated with the lowest auto rating of their
  *       questions; wrong V/K items go to the notebook and get a repeat card; on today's TODAY round the tab gets
@@ -45,6 +46,20 @@ import org.springframework.transaction.annotation.Transactional;
  *       and, once the target is reached, {@code check_passed_at} + evaluation (plan decision 27: FIRST_RATE on kana
  *       never touches {@code new_done}).</li>
  *   <li>GROUP_EXERCISE: never passes or fails; wrong words are repeated right after it; no reward.</li>
+ *   <li>KANA_ROW skill review (#25, {@code issue_json.skillReview}): nothing counted, no {@code new_done}; passed →
+ *       SKILL {@code check_passed_at} + evaluation.</li>
+ *   <li>SKIP_ONE: right → row (if missing) KNOWN "SKIP_CHECK" + counted + stage; wrong → no row. In a session the
+ *       step advances; right on today's TODAY round → the tab's {@code new_done + 1}; wrong → a repeat of the
+ *       card at the end.</li>
+ *   <li>TOPIC_KNOWN applied (≥ 90%): right items KNOWN "TOPIC_CHECK" + counted; items not asked and without a row →
+ *       LEARNING rep 0 due today, {@code first_learned_at} now, {@code known_source = TOPIC_PEND}; wrong items
+ *       unchanged. Below the threshold nothing changes.</li>
+ *   <li>FREE_QUIZ: wrong items get a row if missing, then {@code wrongInCheck(QUIZ)} (grammar: LEARNING due today,
+ *       never the notebook); nothing counted, no CP; a skill-day quiz (≥ 10 questions on LEARNED/NOTEBOOK) on
+ *       today's SKILL plan → SKILL {@code check_passed_at} + evaluation.</li>
+ *   <li>GRAMMAR_REVIEW: each pattern rated with its auto rating, GRAMMAR {@code review_done += patterns},
+ *       evaluation.</li>
+ *   <li>CONFUSABLE, GRAMMAR_PRACTICE, GRAMMAR_EXTRA: no state change, no CP (a session step still advances).</li>
  * </ul>
  * A check whose plan is not today's still counts its items but writes no plan (the caller passes no plan).
  */
@@ -52,6 +67,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class JpathCheckEffects {
 
     static final int MAX_REPEATS = 2;
+    /** known_source of an item marked known by "skip one" / by the topic check. */
+    static final String SKIP_CHECK = "SKIP_CHECK";
+    static final String TOPIC_CHECK = "TOPIC_CHECK";
     static final String STUDY_URL = "/learning/jlpt/study?session=";
     static final String DONE_URL = "/learning/jlpt/done";
 
@@ -85,11 +103,23 @@ public class JpathCheckEffects {
      * @param grammarRatings grammar pattern → lowest auto rating of its questions
      */
     public record Scored(Boolean passed, boolean tooFast, List<String> itemCodes, Set<String> wrongCodes,
-                         Map<String, JpathRating> grammarRatings) {
+                         Map<String, JpathRating> grammarRatings, List<String> pendingCodes, boolean skillReview,
+                         boolean skillDayQuiz) {
+        public Scored {
+            pendingCodes = pendingCodes == null ? List.of() : pendingCodes;
+        }
+
+        public Scored(Boolean passed, boolean tooFast, List<String> itemCodes, Set<String> wrongCodes,
+                      Map<String, JpathRating> grammarRatings) {
+            this(passed, tooFast, itemCodes, wrongCodes, grammarRatings, List.of(), false, false);
+        }
     }
 
-    /** CP paid by the evaluation (0 when nothing was paid) and the page's next step. */
-    public record Applied(int cpAwarded, JpathCheckNext next) {
+    /**
+     * CP paid by the evaluation (0 when nothing was paid), the page's next step, and whether today's plan took the
+     * result ({@code dayCredit}: the check may pay the day's reward unless it was too fast).
+     */
+    public record Applied(int cpAwarded, JpathCheckNext next, boolean dayCredit) {
     }
 
     /**
@@ -105,21 +135,76 @@ public class JpathCheckEffects {
         List<JpathUserItem> rows = rows(userId, type, s.itemCodes());
         int cp = 0;
         boolean advance;
+        boolean credit = false;
         switch (set.getKind()) {
             case GROUP_EXERCISE -> {
                 repeatAfterCurrent(session, set, s.wrongCodes());
                 advance = true;
             }
             case KANA_ROW -> {
-                if (Boolean.TRUE.equals(s.passed())) {
-                    rows.forEach(items::count);
-                    cp = kanaRowDone(userId, today, tabs, s.tooFast());
-                    reevaluate(userId);
+                if (!Boolean.TRUE.equals(s.passed())) {
+                    advance = false;
+                } else if (s.skillReview()) {
+                    // #25: a review of rows already passed — nothing new is counted, new_done stays.
+                    cp = skillDone(userId, today, tabs, s.tooFast());
+                    credit = today != null;
                     advance = true;
                 } else {
-                    advance = false;
+                    rows.forEach(items::count);
+                    cp = kanaRowDone(userId, today, tabs, s.tooFast());
+                    credit = today != null;
+                    reevaluate(userId);
+                    advance = true;
                 }
             }
+            case SKIP_ONE -> {
+                if (Boolean.TRUE.equals(s.passed())) {
+                    for (String code : s.itemCodes()) {
+                        JpathUserItem row = items.ensureRow(userId, type, code, set.getLevel());
+                        items.markKnown(row, SKIP_CHECK);
+                        items.count(row);
+                    }
+                    cp = newDone(userId, set.getTab(), today, tabs, s.tooFast());
+                    credit = today != null;
+                    reevaluate(userId);
+                } else {
+                    repeatCard(session, set);
+                }
+                advance = true;
+            }
+            case TOPIC_KNOWN -> {
+                if (Boolean.TRUE.equals(s.passed())) {
+                    applyTopic(userId, set, s);
+                    reevaluate(userId);
+                }
+                advance = true;
+            }
+            case FREE_QUIZ -> {
+                for (String code : s.itemCodes()) {
+                    if (s.wrongCodes().contains(code)) {
+                        items.wrongInCheck(items.ensureRow(userId, type, code, set.getLevel()),
+                                JpathNotebookSource.QUIZ);
+                    }
+                }
+                if (s.skillDayQuiz()) {
+                    cp = skillDone(userId, today, tabs, s.tooFast());
+                    credit = today != null && tab(tabs, JpathTab.SKILL) != null;
+                }
+                advance = true;
+            }
+            case GRAMMAR_REVIEW -> {
+                for (JpathUserItem row : rows) {
+                    items.rate(row, s.grammarRatings().getOrDefault(row.getItemCode(), JpathRating.GOOD));
+                }
+                JpathDailyTab grammar = tab(tabs, JpathTab.GRAMMAR);
+                if (today != null && grammar != null) {
+                    grammar.setReviewDone(grammar.getReviewDone() + rows.size());
+                    cp = completion.evaluate(userId, today, tabs, JpathTab.GRAMMAR, !s.tooFast()).cpExpected();
+                    credit = true;
+                }
+                advance = true;
+            }
+            case CONFUSABLE, GRAMMAR_PRACTICE, GRAMMAR_EXTRA -> advance = true;
             default -> { // MICRO_CHECK
                 boolean notebookType = type == JpathItemType.VOCAB || type == JpathItemType.KANJI;
                 if (Boolean.TRUE.equals(s.passed())) {
@@ -133,6 +218,7 @@ public class JpathCheckEffects {
                         }
                     }
                     cp = microCheckDone(userId, set.getTab(), today, tabs, s.tooFast());
+                    credit = today != null;
                     reevaluate(userId);
                     advance = true;
                 } else {
@@ -145,13 +231,33 @@ public class JpathCheckEffects {
             }
         }
         if (session == null) {
-            return new Applied(cp, new JpathCheckNext("BACK", "Quay lại", null, null, null, null));
+            return new Applied(cp, new JpathCheckNext("BACK", "Quay lại", null, null, null, null), credit);
         }
         if (!advance) {
             return new Applied(cp, new JpathCheckNext("RETRY", "Làm lại bài kiểm tra", STUDY_URL + session.getId(),
-                    set.getTab(), null, session.getId()));
+                    set.getTab(), null, session.getId()), credit);
         }
-        return new Applied(cp, advance(session, set.getToken()));
+        return new Applied(cp, advance(session, set.getToken()), credit);
+    }
+
+    /** Topic check applied: right items KNOWN (TOPIC_CHECK) and counted; items not asked wait for a review. */
+    private void applyTopic(Long userId, JpathCheckSet set, Scored s) {
+        for (String code : s.itemCodes()) {
+            if (!s.wrongCodes().contains(code)) {
+                JpathUserItem row = items.ensureRow(userId, JpathItemType.VOCAB, code, set.getLevel());
+                items.markKnown(row, TOPIC_CHECK);
+                items.count(row);
+            }
+        }
+        for (String code : s.pendingCodes()) {
+            if (userItems.findByUserIdAndItemTypeAndItemCode(userId, JpathItemType.VOCAB, code).isPresent()) {
+                continue;
+            }
+            JpathUserItem row = items.ensureRow(userId, JpathItemType.VOCAB, code, set.getLevel());
+            row.setFirstLearnedAt(clock.localNow(userId));
+            row.setKnownSource(JpathItemStateMachine.TOPIC_PENDING);
+            userItems.save(row);
+        }
     }
 
     // ---- items ---------------------------------------------------------------------------------------------
@@ -160,7 +266,8 @@ public class JpathCheckEffects {
         if (set.getKind() == JpathCheckKind.GROUP_EXERCISE) {
             return JpathItemType.VOCAB;
         }
-        if (set.getKind() == JpathCheckKind.KANA_ROW) {
+        if (set.getKind() == JpathCheckKind.KANA_ROW || set.getTab() == JpathTab.KANA
+                || set.getTab() == JpathTab.SKILL) {
             return JpathItemType.KANA;
         }
         return JpathItemType.valueOf(set.getTab().name());
@@ -220,6 +327,28 @@ public class JpathCheckEffects {
         return completion.evaluate(userId, today, tabs, JpathTab.KANA, !tooFast).cpExpected();
     }
 
+    /** Skill day (#25): the SKILL tab's check is done; evaluation pays the skill day when the reviews are done. */
+    private int skillDone(Long userId, JpathDailyPlan today, List<JpathDailyTab> tabs, boolean tooFast) {
+        JpathDailyTab row = tab(tabs, JpathTab.SKILL);
+        if (today == null || row == null) {
+            return 0;
+        }
+        if (row.getCheckPassedAt() == null) {
+            row.setCheckPassedAt(clock.now());
+        }
+        return completion.evaluate(userId, today, tabs, JpathTab.SKILL, !tooFast).cpExpected();
+    }
+
+    /** A NEW card answered by "skip one" on today's TODAY round counts as one of the tab's new items. */
+    private int newDone(Long userId, JpathTab tab, JpathDailyPlan today, List<JpathDailyTab> tabs, boolean tooFast) {
+        JpathDailyTab row = tab(tabs, tab);
+        if (today == null || row == null) {
+            return 0;
+        }
+        row.setNewDone(row.getNewDone() + 1);
+        return completion.evaluate(userId, today, tabs, tab, !tooFast).cpExpected();
+    }
+
     private static JpathDailyTab tab(List<JpathDailyTab> tabs, JpathTab tab) {
         return tabs.stream().filter(t -> t.getTab() == tab).findFirst().orElse(null);
     }
@@ -238,6 +367,18 @@ public class JpathCheckEffects {
                 .orElse(new JpathQueueStep(0, JpathStepKind.REVIEW, set.getTab(), row.getItemType(),
                         row.getItemCode(), null, null, false));
         write(session, JpathQueueBuilder.appendRepeat(q, of, MAX_REPEATS));
+    }
+
+    /** Skip one answered wrong: the card (the step that carries the token) comes back at the end of the queue. */
+    private void repeatCard(JpathStudySession session, JpathCheckSet set) {
+        if (session == null) {
+            return;
+        }
+        List<JpathQueueStep> q = parse(session.getQueueJson());
+        int at = stepOf(q, set.getToken());
+        if (at >= 0) {
+            write(session, JpathQueueBuilder.appendRepeat(q, q.get(at), MAX_REPEATS));
+        }
     }
 
     /** Group exercise: repeat cards of the wrong words right after the exercise step. */

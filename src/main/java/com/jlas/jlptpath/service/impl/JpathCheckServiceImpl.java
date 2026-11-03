@@ -1,7 +1,10 @@
 package com.jlas.jlptpath.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.jlptpath.dto.JpathAnswerRequest;
@@ -33,6 +36,8 @@ import com.jlas.jlptpath.entity.JpathUserPath;
 import com.jlas.jlptpath.entity.JpathUserSettings;
 import com.jlas.jlptpath.entity.JpathVocabulary;
 import com.jlas.jlptpath.enums.JpathCheckKind;
+import com.jlas.jlptpath.enums.JpathCheckSource;
+import com.jlas.jlptpath.enums.JpathDayKind;
 import com.jlas.jlptpath.enums.JpathItemState;
 import com.jlas.jlptpath.enums.JpathItemType;
 import com.jlas.jlptpath.enums.JpathRating;
@@ -41,6 +46,7 @@ import com.jlas.jlptpath.enums.JpathTab;
 import com.jlas.jlptpath.repository.JpathCheckSetRepository;
 import com.jlas.jlptpath.repository.JpathDailyPlanRepository;
 import com.jlas.jlptpath.repository.JpathDailyTabRepository;
+import com.jlas.jlptpath.repository.JpathKanaRowRepository;
 import com.jlas.jlptpath.repository.JpathStudyEventRepository;
 import com.jlas.jlptpath.repository.JpathStudySessionRepository;
 import com.jlas.jlptpath.repository.JpathUserItemRepository;
@@ -51,7 +57,7 @@ import com.jlas.jlptpath.service.JpathCheckService;
 import com.jlas.jlptpath.service.JpathClock;
 import com.jlas.jlptpath.service.impl.JpathCheckBuilder.AnswerKey;
 import com.jlas.jlptpath.service.impl.JpathCheckBuilder.BuiltCheck;
-import com.jlas.jlptpath.service.impl.JpathCheckBuilder.DistractorPool;
+import com.jlas.jlptpath.service.impl.JpathCheckPicker.Built;
 import com.jlas.jlptpath.util.JpathCheckSizing;
 import com.jlas.jlptpath.util.JpathKanaText;
 import com.jlas.jlptpath.util.JpathQueueStep;
@@ -68,10 +74,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -83,15 +89,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * [JLAS-W0108] Session-bound checks (plan Task 37): micro-check, group exercise and kana row.
+ * [JLAS-W0108] Checks of the JLPT path (plan Tasks 37, 38).
+ * <p>
+ * Session-bound (kind and tab come from the session's current step, plan decision C13): micro-check, group exercise,
+ * kana row, skill-day quiz (FREE_QUIZ step → the #25 source: a V/K/G free quiz on LEARNED items, or the review of
+ * the passed kana rows = KANA_ROW with {@code issue_json.skillReview}), grammar practice, grammar review, and SKIP_ONE
+ * on the current NEW card. Free (no session): SKIP_ONE, TOPIC_KNOWN, FREE_QUIZ, CONFUSABLE, GRAMMAR_PRACTICE,
+ * GRAMMAR_EXTRA, and redo ({@code redoOf}: a FREE_QUIZ on an old check's items).
  * <p>
  * Storage: {@code questions_json} = public {@link JpathQuestionView}s; {@code answers_json} = {@link StoredKeys}
- * (answer keys by question id + grammar bank question code by question id), never sent; {@code progress_json} =
- * {@link Progress}; {@code result_json} = the {@link JpathCheckResult} returned by every later submit.
+ * (answer keys by question id, each with its grammar bank question code; topic items not asked), never sent;
+ * {@code progress_json} = {@link Progress}; {@code result_json} = the {@link JpathCheckResult} returned by every later
+ * submit; {@code issue_json} = the public echo of the request (+ {@code skillReview}).
  * <p>
- * Locks: writers that touch path data (issue, submit) take the path lock first ({@code findActiveForUpdate}), then
- * the open level, then the check set, then today's plan and its tabs. pick/answer write only the check set (and
- * study events), so they lock just that row. Today's plan is never created here (it exists once the session does).
+ * Locks: issue and submit take the path lock first ({@code findActiveForUpdate}), then the open level, then the check
+ * set, then today's plan and its tabs. pick/answer write only the check set (and study events), so they lock just that
+ * row. Today's plan is never created here: it exists once the session does, and a submit after the learner's
+ * midnight finds no matching plan and writes none (Review Focus 2).
  */
 @Service
 public class JpathCheckServiceImpl implements JpathCheckService {
@@ -100,23 +114,47 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     static final String SUBMITTED = "SUBMITTED";
     static final String EXPIRED = "EXPIRED";
     static final String CHECK_ANSWER = "CHECK_ANSWER";
+    static final String SKILL_REVIEW = "skillReview";
     static final int MAX_ORPHANS = 10;
     static final int GROUP_WORDS = 10;
+    /** Skill-day quiz size (#25: one free quiz of at least 10 questions). */
+    static final int SKILL_QUIZ_SIZE = 10;
+    /** Grammar reviews outside a TODAY round (no plan cap). */
+    static final int REVIEW_ROOM_DEFAULT = 10;
     /** Grace on top of the question timer for network latency. */
     static final long TIMER_GRACE_MS = 2000;
 
-    private static final Set<JpathCheckKind> SESSION_KINDS =
-            EnumSet.of(JpathCheckKind.MICRO_CHECK, JpathCheckKind.GROUP_EXERCISE, JpathCheckKind.KANA_ROW);
-    private static final Set<JpathTab> MICRO_CHECK_TABS = EnumSet.of(JpathTab.VOCAB, JpathTab.KANJI, JpathTab.GRAMMAR);
+    private static final Set<JpathCheckKind> STEP_KINDS = EnumSet.of(JpathCheckKind.MICRO_CHECK,
+            JpathCheckKind.GROUP_EXERCISE, JpathCheckKind.KANA_ROW, JpathCheckKind.FREE_QUIZ,
+            JpathCheckKind.GRAMMAR_PRACTICE, JpathCheckKind.GRAMMAR_REVIEW);
+    private static final Set<JpathCheckKind> FREE_KINDS = EnumSet.of(JpathCheckKind.SKIP_ONE,
+            JpathCheckKind.TOPIC_KNOWN, JpathCheckKind.FREE_QUIZ, JpathCheckKind.CONFUSABLE,
+            JpathCheckKind.GRAMMAR_PRACTICE, JpathCheckKind.GRAMMAR_EXTRA);
+    private static final Set<JpathTab> CARD_TABS = EnumSet.of(JpathTab.VOCAB, JpathTab.KANJI, JpathTab.GRAMMAR);
     private static final Pattern FILL_IGNORED = Pattern.compile("[\\s\\u3000。]+");
-    private static final ObjectMapper JSON = new ObjectMapper();
+    private static final ObjectMapper JSON = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     private static final SecureRandom SEEDS = new SecureRandom();
 
-    /** answers_json: keys by question id; grammar bank question code by question id (for usedCodes and reports). */
-    record StoredKeys(Map<String, AnswerKey> keys, Map<String, String> questionCodes) {
+    /**
+     * answers_json: keys by question id; {@code questionCodes} = bank-code map of rows issued before
+     * {@link AnswerKey#questionCode()} existed (read only); {@code pending} = topic items not asked (TOPIC_KNOWN).
+     */
+    record StoredKeys(Map<String, AnswerKey> keys, Map<String, String> questionCodes, List<String> pending) {
         StoredKeys {
             keys = keys == null ? Map.of() : keys;
             questionCodes = questionCodes == null ? Map.of() : questionCodes;
+            pending = pending == null ? List.of() : pending;
+        }
+
+        StoredKeys(Map<String, AnswerKey> keys, Map<String, String> questionCodes) {
+            this(keys, questionCodes, List.of());
+        }
+
+        /** The bank question behind {@code qid}: from its key, else from the older map. */
+        String questionCode(String qid) {
+            AnswerKey key = keys.get(qid);
+            return key != null && key.questionCode() != null ? key.questionCode() : questionCodes.get(qid);
         }
     }
 
@@ -139,6 +177,12 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         }
     }
 
+    /** What to issue: kind, tab, level of the items, plan id, and the session step (all null for a free check). */
+    private record Spec(JpathCheckKind kind, JpathTab tab, String level, Long planId, JpathStudySession session,
+                        List<JpathQueueStep> q, int position, JpathQueueStep step, boolean skillReview,
+                        JpathCheckIssueRequest echo) {
+    }
+
     private final JpathCheckSetRepository checks;
     private final JpathUserPathRepository paths;
     private final JpathUserLevelRepository levels;
@@ -148,8 +192,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     private final JpathUserItemRepository userItems;
     private final JpathUserSettingsRepository settings;
     private final JpathStudyEventRepository events;
+    private final JpathKanaRowRepository kanaRows;
     private final JpathContentReader content;
     private final JpathCheckBuilder builder;
+    private final JpathCheckPicker picker;
     private final JpathCheckEffects effects;
     private final JpathClock clock;
     private final Path audioRoot;
@@ -158,8 +204,9 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                                  JpathUserLevelRepository levels, JpathStudySessionRepository sessions,
                                  JpathDailyPlanRepository plans, JpathDailyTabRepository dailyTabs,
                                  JpathUserItemRepository userItems, JpathUserSettingsRepository settings,
-                                 JpathStudyEventRepository events, JpathContentReader content,
-                                 JpathCheckBuilder builder, JpathCheckEffects effects, JpathClock clock,
+                                 JpathStudyEventRepository events, JpathKanaRowRepository kanaRows,
+                                 JpathContentReader content, JpathCheckBuilder builder, JpathCheckPicker picker,
+                                 JpathCheckEffects effects, JpathClock clock,
                                  @Value("${content.audio.path:data/content-audio/}") String audioDirectory) {
         this.checks = checks;
         this.paths = paths;
@@ -170,8 +217,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         this.userItems = userItems;
         this.settings = settings;
         this.events = events;
+        this.kanaRows = kanaRows;
         this.content = content;
         this.builder = builder;
+        this.picker = picker;
         this.effects = effects;
         this.clock = clock;
         this.audioRoot = Paths.get(audioDirectory).toAbsolutePath().normalize();
@@ -185,163 +234,310 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         if (r == null || r.kind() == null || r.tab() == null) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED);
         }
-        if (!SESSION_KINDS.contains(r.kind())) {
-            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Loại bài kiểm tra này chưa được hỗ trợ.");
-        }
-        if (r.sessionId() == null) {
+        boolean free = r.sessionId() == null || r.redoOf() != null;
+        if (free && r.redoOf() == null && !FREE_KINDS.contains(r.kind())) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Bài kiểm tra này cần một lượt học.");
         }
         JpathUserPath path = paths.findActiveForUpdate(userId).orElse(null);
-        JpathStudySession session = ownedSession(r.sessionId(), userId)
+        JpathStudySession session = free ? null : sessions.findByIdAndUserId(r.sessionId(), userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.JPATH_SESSION_NOT_FOUND));
+        JpathCheckSet old = r.redoOf() == null ? null : checks.findByTokenAndUserId(r.redoOf(), userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.JPATH_CHECK_NOT_FOUND));
         if (path == null) {
             throw new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH);
         }
         levels.findForUpdate(path.getId(), path.getOpenLevel());
-        if (!"OPEN".equals(session.getStatus())) {
-            throw new ApiException(ErrorCode.CONFLICT, "Lượt học này đã kết thúc.");
-        }
-        List<JpathQueueStep> q = JpathCheckEffects.parse(session.getQueueJson());
-        int position = session.getPosition();
-        JpathQueueStep step = position < q.size() ? q.get(position) : null;
-        if (step == null || (step.kind() != JpathStepKind.MICRO_CHECK && step.kind() != JpathStepKind.GROUP_EXERCISE)
-                || step.checkKind() == null || !SESSION_KINDS.contains(step.checkKind())
-                || (step.checkKind() == JpathCheckKind.MICRO_CHECK && !MICRO_CHECK_TABS.contains(step.tab()))
-                || (step.checkKind() == JpathCheckKind.KANA_ROW && step.itemCode() == null)) {
-            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Bước hiện tại của lượt học không phải bài kiểm tra này.");
-        }
-        // Plan decision C13: kind and tab come from the current step, not from the request.
-        JpathCheckKind kind = step.checkKind();
-        JpathTab tab = step.tab();
+        Spec spec = free ? freeSpec(userId, path, r, old) : sessionSpec(userId, path, session, r);
 
         JpathCheckSet previous = null;
-        if (step.checkToken() != null) {
-            previous = checks.findByTokenAndUserId(step.checkToken(), userId).orElse(null);
-        } else {
-            previous = checks.findFirstByUserIdAndSessionIdAndKindAndStatus(userId, session.getId(), kind, ISSUED)
-                    .filter(c -> c.getTab() == tab).orElse(null);
-        }
-        if (previous != null && (ISSUED.equals(previous.getStatus())
-                || (SUBMITTED.equals(previous.getStatus()) && !Boolean.FALSE.equals(previous.getPassed())))) {
-            if (step.checkToken() == null) {
-                q = new ArrayList<>(q);
-                q.set(position, step.withToken(previous.getToken()));
-                JpathCheckEffects.write(session, q);
+        if (spec.session() != null) {
+            previous = spec.step().checkToken() != null
+                    ? checks.findByTokenAndUserId(spec.step().checkToken(), userId).orElse(null)
+                    : checks.findFirstByUserIdAndSessionIdAndKindAndTabAndStatusOrderByIdDesc(userId,
+                            spec.session().getId(), spec.kind(), spec.tab(), ISSUED).orElse(null);
+            if (previous != null && (ISSUED.equals(previous.getStatus())
+                    || (SUBMITTED.equals(previous.getStatus()) && !Boolean.FALSE.equals(previous.getPassed())))) {
+                if (spec.step().checkToken() == null) {
+                    writeToken(spec, previous.getToken());
+                }
+                return view(previous);
             }
-            return view(previous);
         }
 
-        String level = path.getOpenLevel();
-        Integer attemptNo = previous == null ? 1 : previous.getAttemptNo() + 1;
         JpathUserSettings s = settings.findById(userId).orElse(null);
-        boolean timerOn = switch (kind) {
-            case KANA_ROW, GROUP_EXERCISE -> false;
+        boolean timerOn = switch (spec.kind()) {
+            case KANA_ROW, GRAMMAR_PRACTICE -> false;
             default -> r.timerOn() != null ? r.timerOn()
-                    : tab == JpathTab.GRAMMAR ? (s == null || s.isGrammarTimerOn()) : (s != null && s.isQuizTimerOn());
+                    : spec.tab() == JpathTab.GRAMMAR ? (s == null || s.isGrammarTimerOn())
+                    : (s != null && s.isQuizTimerOn());
         };
         long seed = SEEDS.nextLong();
-        Built built = build(userId, kind, tab, level, q, position, step, previous, timerOn, seed);
+        Built built = build(userId, path, spec, old, previous, r, timerOn, seed);
         if (built.check().questions().isEmpty()) {
             throw new ApiException(ErrorCode.JPATH_CONTENT_NOT_LEARNABLE);
         }
 
         String token = UUID.randomUUID().toString();
-        JpathCheckIssueRequest echo = new JpathCheckIssueRequest(kind, tab, session.getId(), r.level(), r.topicKey(),
-                r.unitNo(), r.source(), r.count(), r.direction(), r.timerOn(), r.itemCode(), r.redoOf());
+        ObjectNode echo = JSON.valueToTree(spec.echo());
+        if (spec.skillReview()) {
+            echo.put(SKILL_REVIEW, true);
+        }
         JpathCheckSet set = JpathCheckSet.builder()
-                .token(token).userId(userId).planId(session.getPlanId()).sessionId(session.getId())
-                .kind(kind).tab(tab).level(kind == JpathCheckKind.KANA_ROW ? null : level)
-                .attemptNo(attemptNo).status(ISSUED).timerOn(timerOn)
+                .token(token).userId(userId).planId(spec.planId())
+                .sessionId(spec.session() == null ? null : spec.session().getId())
+                .kind(spec.kind()).tab(spec.tab()).level(spec.level())
+                .attemptNo(previous == null ? 1 : previous.getAttemptNo() + 1).status(ISSUED).timerOn(timerOn)
                 .issueJson(json(echo))
                 .questionsJson(json(built.check().questions()))
-                .answersJson(json(new StoredKeys(built.check().answers(), built.questionCodes())))
+                .answersJson(json(new StoredKeys(built.check().answers(), Map.of(), built.pending())))
                 .progressJson(json(new Progress(null, null)))
                 .itemCodesJson(json(built.check().itemCodes()))
                 .issuedAt(clock.now())
                 .totalCount(units(built.check().questions(), built.check().answers()))
                 .build();
         checks.save(set);
-        q = new ArrayList<>(q);
-        q.set(position, step.withToken(token));
-        JpathCheckEffects.write(session, q);
+        if (spec.session() != null) {
+            writeToken(spec, token);
+        }
         return view(set);
     }
 
-    private record Built(BuiltCheck check, Map<String, String> questionCodes) {
+    private static void writeToken(Spec spec, String token) {
+        List<JpathQueueStep> q = new ArrayList<>(spec.q());
+        q.set(spec.position(), spec.step().withToken(token));
+        JpathCheckEffects.write(spec.session(), q);
     }
 
-    private Built build(Long userId, JpathCheckKind kind, JpathTab tab, String level, List<JpathQueueStep> q,
-                        int position, JpathQueueStep step, JpathCheckSet previous, boolean timerOn, long seed) {
-        switch (kind) {
+    /** C13: the current step decides the kind and tab; SKIP_ONE needs the current step to be a NEW card. */
+    private Spec sessionSpec(Long userId, JpathUserPath path, JpathStudySession session, JpathCheckIssueRequest r) {
+        if (!"OPEN".equals(session.getStatus())) {
+            throw new ApiException(ErrorCode.CONFLICT, "Lượt học này đã kết thúc.");
+        }
+        List<JpathQueueStep> q = JpathCheckEffects.parse(session.getQueueJson());
+        int position = session.getPosition();
+        JpathQueueStep step = position < q.size() ? q.get(position) : null;
+        String level = path.getOpenLevel();
+        JpathCheckKind kind;
+        JpathTab tab;
+        boolean skillReview = false;
+        JpathCheckSource source = null;
+        Integer count = null;
+        if (r.kind() == JpathCheckKind.SKIP_ONE) {
+            if (step == null || step.kind() != JpathStepKind.NEW || step.itemCode() == null
+                    || step.itemType() == null || !CARD_TABS.contains(step.tab())) {
+                throw wrongStep();
+            }
+            kind = JpathCheckKind.SKIP_ONE;
+            tab = step.tab();
+            level = picker.itemLevel(step.itemType(), step.itemCode());
+        } else {
+            if (step == null || (step.kind() != JpathStepKind.MICRO_CHECK && step.kind() != JpathStepKind.GROUP_EXERCISE)
+                    || step.checkKind() == null || !STEP_KINDS.contains(step.checkKind())) {
+                throw wrongStep();
+            }
+            kind = step.checkKind();
+            tab = step.tab();
+            switch (kind) {
+                case MICRO_CHECK -> {
+                    if (!CARD_TABS.contains(tab)) {
+                        throw wrongStep();
+                    }
+                }
+                case GRAMMAR_PRACTICE -> {
+                    if (step.itemCode() == null) {
+                        throw wrongStep();
+                    }
+                }
+                case KANA_ROW -> {
+                    if (step.itemCode() == null) {
+                        if (tab != JpathTab.SKILL) {
+                            throw wrongStep();
+                        }
+                        skillReview = true;
+                    }
+                    level = null;
+                }
+                case FREE_QUIZ -> {
+                    if (tab != JpathTab.SKILL) {
+                        throw wrongStep();
+                    }
+                    // #25 via the one shared rule (Task 31): a V/K/G tab with ≥ 10 LEARNED rows, else the kana rows.
+                    boolean kanaPhase = session.getPlanId() != null && plans.findById(session.getPlanId())
+                            .map(JpathDailyPlan::isKanaPhase).orElse(false);
+                    JpathPathRules.SkillQuizSource src = JpathPathRules.skillQuizSource(userItems, kanaRows, userId,
+                            path.getOpenLevel(), kanaPhase)
+                            .orElseThrow(() -> new ApiException(ErrorCode.JPATH_CONTENT_NOT_LEARNABLE));
+                    if (src == JpathPathRules.SkillQuizSource.KANA_ROW) {
+                        kind = JpathCheckKind.KANA_ROW;
+                        skillReview = true;
+                        level = null;
+                    } else {
+                        tab = JpathTab.valueOf(src.name());
+                        source = JpathCheckSource.LEARNED;
+                        count = SKILL_QUIZ_SIZE;
+                    }
+                }
+                default -> { }
+            }
+        }
+        JpathCheckIssueRequest echo = new JpathCheckIssueRequest(kind, tab, session.getId(), level, null, null,
+                source, count, null, r.timerOn(), null, null);
+        return new Spec(kind, tab, level, session.getPlanId(), session, q, position, step, skillReview, echo);
+    }
+
+    private static ApiException wrongStep() {
+        return new ApiException(ErrorCode.VALIDATION_FAILED, "Bước hiện tại của lượt học không phải bài kiểm tra này.");
+    }
+
+    private Spec freeSpec(Long userId, JpathUserPath path, JpathCheckIssueRequest r, JpathCheckSet old) {
+        String open = path.getOpenLevel();
+        if (old != null) {
+            if (old.getKind() == JpathCheckKind.KANA_ROW || !CARD_TABS.contains(old.getTab())) {
+                throw new ApiException(ErrorCode.VALIDATION_FAILED, "Bài này không làm lại được.");
+            }
+            // A redo pays nothing and never completes a skill day: no source, no plan.
+            JpathCheckIssueRequest echo = new JpathCheckIssueRequest(JpathCheckKind.FREE_QUIZ, old.getTab(), null,
+                    old.getLevel(), null, null, null, JpathCheckPicker.quizSize(r.count()), r.direction(),
+                    r.timerOn(), null, r.redoOf());
+            return new Spec(JpathCheckKind.FREE_QUIZ, old.getTab(), old.getLevel() == null ? open : old.getLevel(),
+                    null, null, List.of(), 0, null, false, echo);
+        }
+        JpathTab tab = r.tab();
+        String level = r.level() == null || r.level().isBlank() ? null : r.level().trim().toUpperCase(Locale.ROOT);
+        Long planId = null;
+        JpathCheckSource source = r.source();
+        Integer count = r.count();
+        switch (r.kind()) {
+            case SKIP_ONE -> {
+                requireCode(r.itemCode());
+                level = picker.itemLevel(JpathCheckPicker.sliderType(tab), r.itemCode());
+            }
+            case TOPIC_KNOWN -> {
+                if (tab != JpathTab.VOCAB) {
+                    throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chủ đề chỉ có ở Từ vựng.");
+                }
+                level = level == null ? open : level;
+            }
+            case FREE_QUIZ -> {
+                JpathCheckPicker.sliderType(tab);
+                count = JpathCheckPicker.quizSize(r.count());
+                source = source == null ? JpathCheckSource.LEARNED : source;
+                if (source == JpathCheckSource.ALL && level == null) {
+                    level = open;
+                }
+                // A free quiz can complete today's skill day (#25): remember today's plan, never lock it here.
+                planId = plans.findByUserIdAndStudyDay(userId, clock.today(userId)).map(JpathDailyPlan::getId)
+                        .orElse(null);
+            }
+            case GRAMMAR_PRACTICE, GRAMMAR_EXTRA -> {
+                if (tab != JpathTab.GRAMMAR) {
+                    throw new ApiException(ErrorCode.VALIDATION_FAILED, "Bài này chỉ có ở Ngữ pháp.");
+                }
+                requireCode(r.itemCode());
+                level = picker.itemLevel(JpathItemType.GRAMMAR, r.itemCode());
+            }
+            default -> { }
+        }
+        // The echo is public: it never carries the item code of a check (decision: no item codes before submit).
+        JpathCheckIssueRequest echo = new JpathCheckIssueRequest(r.kind(), tab, null, level, r.topicKey(),
+                r.unitNo(), source, count, r.direction(), r.timerOn(), null, null);
+        return new Spec(r.kind(), tab, level, planId, null, List.of(), 0, null, false, echo);
+    }
+
+    private static void requireCode(String code) {
+        if (code == null || code.isBlank()) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Thiếu mục học.");
+        }
+    }
+
+    private Built build(Long userId, JpathUserPath path, Spec spec, JpathCheckSet old, JpathCheckSet previous,
+                        JpathCheckIssueRequest r, boolean timerOn, long seed) {
+        String open = path.getOpenLevel();
+        JpathCheckIssueRequest e = spec.echo();
+        if (old != null) {
+            return picker.redo(userId, old, open, e.count(), r.direction(), timerOn, seed);
+        }
+        return switch (spec.kind()) {
             case KANA_ROW -> {
+                if (spec.skillReview()) {
+                    yield picker.skillKanaReview(userId, seed);
+                }
                 List<JpathKana> row = content.kana(null).stream()
-                        .filter(k -> step.itemCode().equals(k.getRowCode())).toList();
-                return new Built(builder.kanaRowCheck(row, seed), Map.of());
+                        .filter(k -> spec.step().itemCode().equals(k.getRowCode())).toList();
+                yield Built.of(builder.kanaRowCheck(row, seed));
             }
             case GROUP_EXERCISE -> {
                 List<String> recent = new ArrayList<>();
-                for (int i = position - 1; i >= 0 && recent.size() < GROUP_WORDS; i--) {
-                    JpathQueueStep st = q.get(i);
+                for (int i = spec.position() - 1; i >= 0 && recent.size() < GROUP_WORDS; i--) {
+                    JpathQueueStep st = spec.q().get(i);
                     if (isNew(st, JpathTab.VOCAB) && !recent.contains(st.itemCode())) {
                         recent.add(0, st.itemCode());
                     }
                 }
                 List<JpathVocabulary> words = content.vocabs(recent);
-                return new Built(builder.groupExercise(words, vocabPool(userId, q, level, words), seed), Map.of());
+                yield Built.of(builder.groupExercise(words, picker.vocabPool(userId, spec.q(), open, words), timerOn,
+                        seed));
             }
-            default -> {
-                JpathItemType type = JpathItemType.valueOf(tab.name());
-                List<String> codes = new ArrayList<>();
-                for (JpathQueueStep st : q) {
-                    if (isNew(st, tab) && st.itemType() == type && !codes.contains(st.itemCode())) {
-                        codes.add(st.itemCode());
-                    }
-                }
-                for (String orphan : orphans(userId, type, level)) {
-                    if (!codes.contains(orphan)) {
-                        codes.add(orphan);
-                    }
-                }
-                return switch (tab) {
-                    case VOCAB -> {
-                        List<JpathVocabulary> words = content.vocabs(codes);
-                        yield new Built(builder.vocabCheck(words, vocabPool(userId, q, level, words), timerOn, seed),
-                                Map.of());
-                    }
-                    case KANJI -> {
-                        List<JpathKanji> kanji = codes.stream().map(content::kanji).flatMap(Optional::stream).toList();
-                        yield new Built(builder.kanjiCheck(kanji, kanjiPool(userId, level, kanji), timerOn, seed),
-                                Map.of());
-                    }
-                    default -> grammarBuilt(codes, previous, timerOn, seed);
-                };
-            }
-        }
+            case MICRO_CHECK -> Built.of(microCheck(userId, spec, open, previous, timerOn, seed));
+            case SKIP_ONE -> picker.skipOne(userId, JpathCheckPicker.sliderType(spec.tab()),
+                    spec.step() != null ? spec.step().itemCode() : r.itemCode(), timerOn, seed);
+            case TOPIC_KNOWN -> picker.topic(userId, spec.level(), r.topicKey(), timerOn, seed);
+            case FREE_QUIZ -> picker.freeQuiz(userId, spec.tab(), spec.level(), open, e.topicKey(), e.unitNo(),
+                    e.source(), e.count(), e.direction(), timerOn, seed);
+            case CONFUSABLE -> picker.confusable(userId, spec.tab(), open, seed);
+            case GRAMMAR_PRACTICE -> picker.practice(spec.step() != null ? spec.step().itemCode() : r.itemCode(),
+                    seed);
+            case GRAMMAR_EXTRA -> picker.extra(r.itemCode(), timerOn, seed);
+            case GRAMMAR_REVIEW -> picker.grammarReview(userId, reviewRoom(spec),
+                    previous == null ? Set.of() : JpathCheckPicker.questionCodes(previous), timerOn, seed);
+            default -> throw new ApiException(ErrorCode.VALIDATION_FAILED, "Loại bài kiểm tra này chưa được hỗ trợ.");
+        };
     }
 
-    private Built grammarBuilt(List<String> codes, JpathCheckSet previous, boolean timerOn, long seed) {
-        List<JpathGrammar> patterns = codes.stream().map(content::grammar).flatMap(Optional::stream).toList();
-        Map<String, List<JpathGrammarQuestion>> bank = new LinkedHashMap<>();
-        for (JpathGrammar g : patterns) {
-            bank.put(g.getCode(), content.questions(g.getCode(), JpathContentReader.CHECK_BANK));
+    /** Grammar reviews left today (review_cap − review_done of today's GRAMMAR tab); a default outside TODAY. */
+    private int reviewRoom(Spec spec) {
+        if (!JpathCheckEffects.todayRound(spec.session()) || spec.planId() == null) {
+            return REVIEW_ROOM_DEFAULT;
         }
-        Set<String> used = previous == null ? Set.of()
-                : new HashSet<>(readKeys(previous).questionCodes().values());
-        BuiltCheck check = builder.grammarCheck(patterns, bank, used, timerOn, seed);
-        // The builder's public view has no bank code: find each question's row by pattern + prompt.
-        Map<String, String> questionCodes = new LinkedHashMap<>();
-        for (JpathQuestionView v : check.questions()) {
-            AnswerKey key = check.answers().get(v.id());
-            if (key == null || key.itemCode() == null) {
-                continue;
+        return dailyTabs.findByPlanIdOrderByTab(spec.planId()).stream().filter(t -> t.getTab() == JpathTab.GRAMMAR)
+                .findFirst().map(t -> Math.max(0, t.getReviewCap() - t.getReviewDone())).orElse(0);
+    }
+
+    private BuiltCheck microCheck(Long userId, Spec spec, String level, JpathCheckSet previous, boolean timerOn,
+                                  long seed) {
+        JpathTab tab = spec.tab();
+        JpathItemType type = JpathItemType.valueOf(tab.name());
+        List<String> codes = new ArrayList<>();
+        for (JpathQueueStep st : spec.q()) {
+            if (isNew(st, tab) && st.itemType() == type && !codes.contains(st.itemCode())) {
+                codes.add(st.itemCode());
             }
-            Set<String> taken = new HashSet<>(questionCodes.values());
-            bank.getOrDefault(key.itemCode(), List.of()).stream()
-                    .filter(row -> Objects.equals(row.getPromptJa(), v.prompt()) && !taken.contains(row.getCode()))
-                    .findFirst()
-                    .ifPresent(row -> questionCodes.put(v.id(), row.getCode()));
         }
-        return new Built(check, questionCodes);
+        for (String orphan : orphans(userId, type, level)) {
+            if (!codes.contains(orphan)) {
+                codes.add(orphan);
+            }
+        }
+        return switch (tab) {
+            case VOCAB -> {
+                List<JpathVocabulary> words = content.vocabs(codes);
+                yield builder.vocabCheck(words, picker.vocabPool(userId, spec.q(), level, words), timerOn, seed);
+            }
+            case KANJI -> {
+                List<JpathKanji> kanji = codes.stream().map(content::kanji).flatMap(Optional::stream).toList();
+                yield builder.kanjiCheck(kanji, picker.kanjiPool(userId, level, kanji), timerOn, seed);
+            }
+            default -> {
+                // A retry avoids the bank questions of the failed attempt (their codes are in its answer keys).
+                Set<String> used = previous == null ? Set.of() : JpathCheckPicker.questionCodes(previous);
+                List<JpathGrammar> patterns = codes.stream().map(content::grammar).flatMap(Optional::stream)
+                        .toList();
+                Map<String, List<JpathGrammarQuestion>> bank = new LinkedHashMap<>();
+                patterns.forEach(g -> bank.put(g.getCode(), content.questions(g.getCode(),
+                        JpathContentReader.CHECK_BANK)));
+                yield builder.grammarCheck(patterns, bank, used, timerOn, seed);
+            }
+        };
     }
 
     private static boolean isNew(JpathQueueStep st, JpathTab tab) {
@@ -362,31 +558,6 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 .limit(MAX_ORPHANS)
                 .map(JpathUserItem::getItemCode)
                 .toList();
-    }
-
-    private DistractorPool vocabPool(Long userId, List<JpathQueueStep> q, String level, List<JpathVocabulary> asked) {
-        List<String> sessionCodes = q.stream().filter(st -> isNew(st, JpathTab.VOCAB)).map(JpathQueueStep::itemCode)
-                .distinct().toList();
-        List<JpathVocabulary> session = content.vocabs(sessionCodes);
-        List<JpathVocabulary> same = content.visibleVocabulary(level).stream().filter(content::learnable).toList();
-        return new DistractorPool(session, same, confusables(userId, JpathItemType.VOCAB,
-                asked.stream().map(JpathVocabulary::getCode).toList()));
-    }
-
-    private DistractorPool kanjiPool(Long userId, String level, List<JpathKanji> asked) {
-        List<JpathKanji> same = content.visibleKanji(level).stream().filter(content::learnable).toList();
-        return new DistractorPool(asked, same, confusables(userId, JpathItemType.KANJI,
-                asked.stream().map(JpathKanji::getCode).toList()));
-    }
-
-    /** Confusable partners, only when the learner has studied the partner too. */
-    private Map<String, String> confusables(Long userId, JpathItemType type, List<String> codes) {
-        Set<String> studied = new HashSet<>(userItems.findCodesByUserIdAndItemType(userId, type));
-        Map<String, String> out = new HashMap<>();
-        for (String code : codes) {
-            content.confusablePartner(type, code).filter(studied::contains).ifPresent(p -> out.put(code, p));
-        }
-        return out;
     }
 
     // ---- read ----------------------------------------------------------------------------------------------
@@ -436,7 +607,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             Answer a = p.answers().get(qv.id());
             if (a != null) {
                 answered.add(new JpathAnsweredView(qv.id(), a.value(), a.correct(), correctValue(qv, key),
-                        key.explanation(), null, 0, report(key, keys.questionCodes().get(qv.id()))));
+                        key.explanation(), null, 0, report(key, keys.questionCode(qv.id()))));
             }
         }
         return new JpathCheckView(set.getToken(), set.getKind(), set.getTab(), set.getAttemptNo(), set.isTimerOn(),
@@ -465,7 +636,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         Board b = p.boards().getOrDefault(r.boardId(), new Board(null, 0, null));
         set.setLastAnswerAt(clock.now());
         if (b.matched().size() == key.pairs().size() || b.matched().contains(r.leftId())) {
-            return new JpathPairPickResult(b.matched().contains(r.leftId()), b.errors(),
+            // A left item already matched changes nothing; the verdict only says whether this pick is its pair.
+            return new JpathPairPickResult(r.rightId().equals(key.pairs().get(r.leftId())), b.errors(),
                     b.matched().size() == key.pairs().size(), b.matched());
         }
         boolean correct = r.rightId().equals(key.pairs().get(r.leftId()));
@@ -507,30 +679,37 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         }
         StoredKeys keys = readKeys(set);
         AnswerKey key = keys.keys().get(qv.id());
-        String questionCode = keys.questionCodes().get(qv.id());
+        String questionCode = keys.questionCode(qv.id());
         Progress p = readProgress(set);
         Answer done = p.answers().get(qv.id());
         if (done != null) {
-            return result(qv, key, questionCode, done);
+            return result(set, qv, key, questionCode, done);
         }
         requireOpen(set);
+        LocalDateTime now = clock.now();
+        Long elapsed = r.elapsedMs();
+        if (elapsed == null) {
+            // No client time: the server time since the previous answer (or the issue) stands in for it.
+            LocalDateTime since = set.getLastAnswerAt() != null ? set.getLastAnswerAt() : set.getIssuedAt();
+            elapsed = since == null ? 0L : Math.max(0L, Duration.between(since, now).toMillis());
+        }
         boolean timedOut = r.value() == null || r.value().isBlank()
-                || (qv.timerSec() != null && r.elapsedMs() != null
-                    && r.elapsedMs() > qv.timerSec() * 1000L + TIMER_GRACE_MS);
+                || (qv.timerSec() != null && elapsed > qv.timerSec() * 1000L + TIMER_GRACE_MS);
         boolean correct = !timedOut && correct(qv, key, r.value());
-        Answer a = new Answer(r.value(), correct, r.elapsedMs());
+        Answer a = new Answer(r.value(), correct, elapsed);
         p.answers().put(qv.id(), a);
         set.setProgressJson(json(p));
-        set.setLastAnswerAt(clock.now());
+        set.setLastAnswerAt(now);
         if (key.itemCode() != null) {
-            event(set, "c" + set.getId() + "-" + qv.id(), key.itemType(), key.itemCode(), correct, r.elapsedMs());
+            event(set, "c" + set.getId() + "-" + qv.id(), key.itemType(), key.itemCode(), correct, elapsed);
         }
-        return result(qv, key, questionCode, a);
+        return result(set, qv, key, questionCode, a);
     }
 
-    private JpathAnswerResult result(JpathQuestionView qv, AnswerKey key, String questionCode, Answer a) {
+    private JpathAnswerResult result(JpathCheckSet set, JpathQuestionView qv, AnswerKey key, String questionCode,
+                                     Answer a) {
         return new JpathAnswerResult(a.correct(), correctValue(qv, key), key.explanation(),
-                a.correct() ? null : compare(qv, key, a.value()), report(key, questionCode));
+                a.correct() ? null : compare(set, qv, key, a.value()), report(key, questionCode));
     }
 
     static boolean correct(JpathQuestionView qv, AnswerKey key, String value) {
@@ -567,10 +746,21 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 key.itemCode());
     }
 
-    /** Side-by-side card when the picked option is the label of the answer's confusable partner. */
-    private JpathCompareView compare(JpathQuestionView qv, AnswerKey key, String value) {
-        if (value == null || qv.options() == null || key.itemCode() == null
+    /**
+     * Side-by-side card: in a confusable drill every wrong answer shows the answer next to the pair partner;
+     * elsewhere only when the picked option is the label of the answer's confusable partner.
+     */
+    private JpathCompareView compare(JpathCheckSet set, JpathQuestionView qv, AnswerKey key, String value) {
+        if (key.itemCode() == null
                 || (key.itemType() != JpathItemType.VOCAB && key.itemType() != JpathItemType.KANJI)) {
+            return null;
+        }
+        if (set.getKind() == JpathCheckKind.CONFUSABLE && key.partnerCode() != null) {
+            JpathCompoundView a = compound(key.itemType(), key.itemCode());
+            JpathCompoundView b = compound(key.itemType(), key.partnerCode());
+            return a == null || b == null ? null : new JpathCompareView(a, b);
+        }
+        if (value == null || qv.options() == null) {
             return null;
         }
         String picked = qv.options().stream().filter(o -> o.id().equals(value)).map(JpathOptionView::label)
@@ -659,28 +849,38 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             }
         }
         int percent = total == 0 ? 0 : (int) Math.round(100.0 * correct / total);
-        Boolean passed = set.getKind() == JpathCheckKind.GROUP_EXERCISE ? null
-                : percent >= JpathCheckSizing.PASS_PERCENT;
+        Boolean passed = passed(set.getKind(), correct, total);
         LocalDateTime last = set.getLastAnswerAt() != null ? set.getLastAnswerAt() : now;
         long spentMs = Duration.between(set.getIssuedAt(), last).toMillis();
         boolean tooFast = total > 0 && spentMs < (long) JpathCheckSizing.TOO_FAST_MS_PER_UNIT * total;
 
+        JsonNode issue = readTree(set.getIssueJson());
+        boolean skillReview = issue.path(SKILL_REVIEW).asBoolean(false);
+        String source = issue.path("source").isTextual() ? issue.path("source").asText() : null;
+        // #25 / D4: only a quiz of ≥ 10 questions on LEARNED or NOTEBOOK items counts for the skill day.
+        boolean skillDayQuiz = set.getKind() == JpathCheckKind.FREE_QUIZ && total >= SKILL_QUIZ_SIZE
+                && (JpathCheckSource.LEARNED.name().equals(source) || JpathCheckSource.NOTEBOOK.name().equals(source));
+
         List<String> itemCodes = readList(set.getItemCodesJson());
         JpathStudySession session = set.getSessionId() == null ? null
-                : ownedSession(set.getSessionId(), userId).orElse(null);
+                : sessions.findByIdAndUserId(set.getSessionId(), userId).orElse(null);
         JpathDailyPlan today = null;
         List<JpathDailyTab> tabs = List.of();
-        if (JpathCheckEffects.todayRound(session) && set.getPlanId() != null) {
+        boolean planBound = JpathCheckEffects.todayRound(session) || (session == null && skillDayQuiz);
+        if (planBound && set.getPlanId() != null) {
             today = plans.findForUpdate(userId, clock.today(userId))
-                    .filter(plan -> plan.getId().equals(set.getPlanId())).orElse(null);
+                    .filter(plan -> plan.getId().equals(set.getPlanId()))
+                    .filter(plan -> session != null || plan.getDayKind() == JpathDayKind.SKILL)
+                    .orElse(null);
             if (today != null) {
                 tabs = dailyTabs.findForUpdateByPlanId(today.getId());
             }
         }
         JpathCheckEffects.Applied applied = effects.apply(set,
-                new JpathCheckEffects.Scored(passed, tooFast, itemCodes, wrong, grammarRatings), session, today, tabs);
+                new JpathCheckEffects.Scored(passed, tooFast, itemCodes, wrong, grammarRatings, keys.pending(),
+                        skillReview, skillDayQuiz), session, today, tabs);
 
-        boolean rewardEligible = !tooFast && passed != null && passed && today != null;
+        boolean rewardEligible = !tooFast && applied.dayCredit();
         JpathCheckResult result = new JpathCheckResult(set.getToken(), correct, total, percent, passed,
                 rewardEligible, tooFast, wrongItems(JpathCheckEffects.itemType(set), wrong), applied.cpAwarded(),
                 applied.next());
@@ -695,6 +895,20 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         set.setTooFast(tooFast);
         set.setResultJson(json(result));
         return result;
+    }
+
+    /**
+     * Pass rule per kind: micro-check and kana row ≥ 80% (exact: correct·100 ≥ 80·total, never the rounded
+     * percent); skip one = the question right; topic = correct ≥ ceil(0.9·total); other kinds neither pass nor
+     * fail (null).
+     */
+    static Boolean passed(JpathCheckKind kind, int correct, int total) {
+        return switch (kind) {
+            case MICRO_CHECK, KANA_ROW -> total > 0 && correct * 100L >= (long) JpathCheckSizing.PASS_PERCENT * total;
+            case SKIP_ONE -> total > 0 && correct == total;
+            case TOPIC_KNOWN -> total > 0 && correct * 10L >= 9L * total;
+            default -> null;
+        };
     }
 
     private static JpathRating lower(JpathRating a, JpathRating b) {
@@ -763,11 +977,6 @@ public class JpathCheckServiceImpl implements JpathCheckService {
 
     // ---- helpers -------------------------------------------------------------------------------------------
 
-    /** The session {@code id} only when it belongs to {@code userId} (plan decision 43). */
-    private Optional<JpathStudySession> ownedSession(Long id, Long userId) {
-        return id == null ? Optional.empty() : sessions.findByIdAndUserId(id, userId);
-    }
-
     private static void requireOpen(JpathCheckSet set) {
         if (!ISSUED.equals(set.getStatus())) {
             throw new ApiException(ErrorCode.JPATH_CHECK_CLOSED);
@@ -811,6 +1020,14 @@ public class JpathCheckServiceImpl implements JpathCheckService {
 
     private static List<String> readList(String json) {
         return json == null ? List.of() : read(json, new TypeReference<List<String>>() { });
+    }
+
+    private static JsonNode readTree(String json) {
+        try {
+            return json == null ? JSON.createObjectNode() : JSON.readTree(json);
+        } catch (Exception e) {
+            throw new IllegalStateException("Broken check JSON", e);
+        }
     }
 
     private static String json(Object value) {

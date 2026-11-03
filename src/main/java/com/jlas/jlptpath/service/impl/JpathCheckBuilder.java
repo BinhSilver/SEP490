@@ -48,11 +48,14 @@ public class JpathCheckBuilder {
      * Server-only answer of one question. MCQ: {@code correct} option id; board: {@code pairs} left → right id and
      * {@code pairItems} left id → item code; {@code accepts} = FILL_TEXT synonyms ({@code accept_json}), empty
      * otherwise; {@code audioPath} = AUDIO_MCQ file under the content audio store, served only through the check's
-     * token + {@code audioSlot} (never sent: the file name is the item code).
+     * token + {@code audioSlot} (never sent: the file name is the item code); {@code questionCode} = the grammar
+     * bank question ({@code <JG>-C|O|F|X<nn>}) behind the question (retry "used" codes, QUESTION report target), null
+     * for vocabulary/kanji/kana; {@code partnerCode} = the confusable partner a CONFUSABLE question contrasts.
      */
     public record AnswerKey(String correct, Map<String, String> pairs, List<String> order, String text,
                             List<String> accepts, JpathItemType itemType, String itemCode,
-                            Map<String, String> pairItems, String explanation, String audioPath) {
+                            Map<String, String> pairItems, String explanation, String audioPath,
+                            String questionCode, String partnerCode) {
     }
 
     /**
@@ -66,6 +69,9 @@ public class JpathCheckBuilder {
     static final String PAIR_BOARD = "PAIR_BOARD";
     static final String MCQ = "MCQ";
     static final String AUDIO_MCQ = "AUDIO_MCQ";
+    static final String ORDER = "ORDER";
+    static final String FILL_TEXT = "FILL_TEXT";
+    static final int CONFUSABLE_MAX = 10;
 
     private static final int MAX_DISTRACTORS = 3;
     private static final int GROUP_MCQ = 3;
@@ -133,6 +139,16 @@ public class JpathCheckBuilder {
      */
     public BuiltCheck grammarCheck(List<JpathGrammar> items, Map<String, List<JpathGrammarQuestion>> bank,
                                    Set<String> usedCodes, boolean timerOn, long seed) {
+        return grammarQuestions(items, bank, usedCodes, -1, timerOn, seed);
+    }
+
+    /**
+     * {@code count} choice questions with the micro-check rotation and fallback of {@link #grammarCheck}
+     * ({@code count} &lt; 0 = clamp(2n, 4, 10)). count = n gives one question per pattern (grammar review, skip one,
+     * free quiz); one pattern with count 3 gives three different questions (Luyện thêm / EXTRA bank).
+     */
+    public BuiltCheck grammarQuestions(List<JpathGrammar> items, Map<String, List<JpathGrammarQuestion>> bank,
+                                       Set<String> usedCodes, int count, boolean timerOn, long seed) {
         Random rnd = new Random(seed);
         Set<String> used = usedCodes == null ? Set.of() : usedCodes;
         List<JpathGrammar> patterns = new ArrayList<>();
@@ -152,7 +168,12 @@ public class JpathCheckBuilder {
             }
         }
         Draft d = new Draft();
-        int count = JpathCheckSizing.grammarQuestionCount(patterns.size());
+        if (patterns.isEmpty()) {
+            return new BuiltCheck(List.of(), Map.of(), List.of());
+        }
+        if (count < 0) {
+            count = JpathCheckSizing.grammarQuestionCount(patterns.size());
+        }
         Set<String> chosen = new HashSet<>();
         List<String> covered = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -193,7 +214,7 @@ public class JpathCheckBuilder {
             d.add(qid -> new JpathQuestionView(qid, MCQ, null, instruction, q.getPromptJa(), q.getPromptFurigana(),
                             null, options, null, timer),
                     new AnswerKey(correct, null, null, null, List.of(), JpathItemType.GRAMMAR, g.getCode(), null,
-                            q.getExplanationVi(), null));
+                            q.getExplanationVi(), null, q.getCode(), null));
         }
         return new BuiltCheck(d.questions, d.answers, covered);
     }
@@ -225,7 +246,13 @@ public class JpathCheckBuilder {
      * choose the word) — only for words with an audio file (Decision 39), otherwise MCQ VI_JA. No timer.
      */
     public BuiltCheck groupExercise(List<JpathVocabulary> last10, DistractorPool pool, long seed) {
+        return groupExercise(last10, pool, false, seed);
+    }
+
+    /** {@link #groupExercise(List, DistractorPool, long)} with the V/K quiz timer (#20) on the choice questions. */
+    public BuiltCheck groupExercise(List<JpathVocabulary> last10, DistractorPool pool, boolean timerOn, long seed) {
         Random rnd = new Random(seed);
+        Integer timer = timerOn ? JpathCheckSizing.VK_TIMER_SEC : null;
         List<Card> cards = vocabCards(last10);
         Draft d = new Draft();
         if (cards.isEmpty()) {
@@ -236,14 +263,170 @@ public class JpathCheckBuilder {
         d.board(board, Card::ja, Card::vi, "Nối từ với nghĩa đúng", JpathItemType.VOCAB, rnd);
         Chooser chooser = new Chooser(priority(cards, board, rnd));
         for (int i = 0; i < GROUP_MCQ; i++) {
-            chooser.ask(d, ctx, JpathQuizDirection.JA_VI, false, null, rnd);
+            chooser.ask(d, ctx, JpathQuizDirection.JA_VI, false, timer, rnd);
         }
         for (int i = 0; i < GROUP_AUDIO; i++) {
-            if (!chooser.ask(d, ctx, JpathQuizDirection.VI_JA, true, null, rnd)) {
-                chooser.ask(d, ctx, JpathQuizDirection.VI_JA, false, null, rnd);
+            if (!chooser.ask(d, ctx, JpathQuizDirection.VI_JA, true, timer, rnd)) {
+                chooser.ask(d, ctx, JpathQuizDirection.VI_JA, false, timer, rnd);
             }
         }
         return d.build(cards);
+    }
+
+    /**
+     * Choice quiz without boards (skip one, topic check, free quiz, redo): up to {@code count} MCQs over
+     * {@code items} (all {@link JpathVocabulary} or all {@link JpathKanji}); JA_VI and VI_JA ask one direction,
+     * MIXED (or null) alternates starting with JA_VI. An item is never asked twice in the same direction; the quiz
+     * ends early when no item is left to ask.
+     */
+    public BuiltCheck quiz(List<?> items, DistractorPool pool, int count, JpathQuizDirection direction,
+                           boolean timerOn, long seed) {
+        Random rnd = new Random(seed);
+        Class<?> kind = kindOf(items);
+        List<Card> cards = kind == JpathKanji.class ? kanjiCards(typed(items, JpathKanji.class))
+                : vocabCards(typed(items, JpathVocabulary.class));
+        Draft d = new Draft();
+        if (cards.isEmpty() || count <= 0) {
+            return d.build(cards);
+        }
+        Context ctx = context(cards, pool, kind);
+        Chooser chooser = new Chooser(priority(cards, List.of(), rnd));
+        Integer timer = timerOn ? JpathCheckSizing.VK_TIMER_SEC : null;
+        JpathQuizDirection mode = direction == null ? JpathQuizDirection.MIXED : direction;
+        for (int produced = 0; produced < count; produced++) {
+            JpathQuizDirection dir = mode != JpathQuizDirection.MIXED ? mode
+                    : produced % 2 == 0 ? JpathQuizDirection.JA_VI : JpathQuizDirection.VI_JA;
+            if (!chooser.ask(d, ctx, dir, false, timer, rnd)) {
+                break;
+            }
+        }
+        return d.build(cards);
+    }
+
+    /**
+     * Confusable drill (#19): one VI_JA question per pair (answer i with partner i, same type), options = the
+     * answer, its partner and up to 2 other distractors; at most {@value #CONFUSABLE_MAX} questions in input order.
+     * A pair whose partner clashes with the answer (same label or meaning) is skipped. The key keeps the partner
+     * ({@code partnerCode}) so a wrong answer can show the two side by side.
+     */
+    public BuiltCheck confusableQuiz(List<?> answers, List<?> partners, DistractorPool pool, long seed) {
+        Random rnd = new Random(seed);
+        Class<?> kind = kindOf(answers);
+        List<Card> answerCards = new ArrayList<>();
+        Map<String, Card> partnerOf = new HashMap<>();
+        for (int i = 0; i < Math.min(answers.size(), partners.size()); i++) {
+            List<Card> a = cardsOf(Collections.singletonList(answers.get(i)), kind);
+            List<Card> b = cardsOf(Collections.singletonList(partners.get(i)), kind);
+            if (!a.isEmpty() && !b.isEmpty() && !partnerOf.containsKey(a.get(0).code)) {
+                answerCards.add(a.get(0));
+                partnerOf.put(a.get(0).code, b.get(0));
+            }
+        }
+        Draft d = new Draft();
+        Context ctx = context(answerCards, pool, kind);
+        for (Card answer : answerCards) {
+            if (d.questions.size() >= CONFUSABLE_MAX) {
+                break;
+            }
+            Card partner = partnerOf.get(answer.code);
+            // Confusable partners often share a reading (雨/飴): only the same word or the same meaning is unusable.
+            if (partner.ja.equals(answer.ja) || partner.meaningKey.equals(answer.meaningKey)
+                    || partner.vi.equals(answer.vi)) {
+                continue;
+            }
+            List<Card> opts = new ArrayList<>();
+            opts.add(partner);
+            for (Card c : distractors(answer, ctx, rnd)) {
+                if (opts.size() >= MAX_DISTRACTORS) {
+                    break;
+                }
+                if (!c.code.equals(partner.code) && !c.clashes(partner) && opts.stream().noneMatch(c::clashes)) {
+                    opts.add(c);
+                }
+            }
+            d.mcq(answer, opts, JpathQuizDirection.VI_JA, false, null, partner.code, rnd);
+        }
+        return d.build(answerCards);
+    }
+
+    /**
+     * "Luyện ngay" (#19): one ORDER question (pieces as p1.. in random order, answer = piece ids in sentence order)
+     * and one FILL_TEXT question (answer {@code answer_text}, synonyms {@code accept_json}), each picked by the seed
+     * among the valid rows. Empty when either bank has no valid row. No timer.
+     */
+    public BuiltCheck grammarPractice(JpathGrammar g, List<JpathGrammarQuestion> orderRows,
+                                      List<JpathGrammarQuestion> fillRows, long seed) {
+        Random rnd = new Random(seed);
+        List<JpathGrammarQuestion> orders = orderRows == null ? List.of() : orderRows.stream()
+                .filter(q -> q != null && q.getCode() != null && orderOf(q) != null).toList();
+        List<JpathGrammarQuestion> fills = fillRows == null ? List.of() : fillRows.stream()
+                .filter(q -> q != null && q.getCode() != null && hasText(q.getAnswerText())
+                        && hasText(q.getPromptJa())).toList();
+        if (g == null || orders.isEmpty() || fills.isEmpty()) {
+            return new BuiltCheck(List.of(), Map.of(), List.of());
+        }
+        Draft d = new Draft();
+        JpathGrammarQuestion o = orders.get(rnd.nextInt(orders.size()));
+        List<String> pieces = jsonStrings(o.getPiecesJson());
+        List<Integer> shown = shuffledIndexes(pieces.size(), rnd);
+        List<JpathOptionView> options = new ArrayList<>();
+        Map<Integer, String> idOf = new HashMap<>();
+        for (int k = 0; k < shown.size(); k++) {
+            String id = "p" + (k + 1);
+            idOf.put(shown.get(k), id);
+            options.add(new JpathOptionView(id, pieces.get(shown.get(k))));
+        }
+        List<String> answer = orderOf(o).stream().map(idOf::get).toList();
+        List<JpathOptionView> frozen = List.copyOf(options);
+        d.add(qid -> new JpathQuestionView(qid, ORDER, null, "Sắp xếp các phần thành câu đúng", null, null, null,
+                        frozen, null, null),
+                new AnswerKey(null, null, answer, null, List.of(), JpathItemType.GRAMMAR, g.getCode(), null,
+                        o.getExplanationVi(), null, o.getCode(), null));
+        JpathGrammarQuestion f = fills.get(rnd.nextInt(fills.size()));
+        d.add(qid -> new JpathQuestionView(qid, FILL_TEXT, null, "Điền vào chỗ trống", f.getPromptJa(),
+                        f.getPromptFurigana(), null, null, null, null),
+                new AnswerKey(null, null, null, f.getAnswerText().trim(), jsonStrings(f.getAcceptJson()),
+                        JpathItemType.GRAMMAR, g.getCode(), null, f.getExplanationVi(), null, f.getCode(), null));
+        return new BuiltCheck(List.copyOf(d.questions), Collections.unmodifiableMap(d.answers), List.of(g.getCode()));
+    }
+
+    /** Sentence order of an ORDER row (a permutation of its piece indexes), null when the row is broken. */
+    private static List<Integer> orderOf(JpathGrammarQuestion q) {
+        List<String> pieces = jsonStrings(q.getPiecesJson());
+        if (pieces.size() < 2 || pieces.stream().anyMatch(String::isBlank) || !hasText(q.getAnswerOrderJson())) {
+            return null;
+        }
+        try {
+            JsonNode node = JSON.readTree(q.getAnswerOrderJson());
+            if (node == null || !node.isArray() || node.size() != pieces.size()) {
+                return null;
+            }
+            List<Integer> out = new ArrayList<>();
+            for (JsonNode n : node) {
+                if (!n.canConvertToInt() || n.asInt() < 0 || n.asInt() >= pieces.size() || out.contains(n.asInt())) {
+                    return null;
+                }
+                out.add(n.asInt());
+            }
+            return out;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static Class<?> kindOf(List<?> items) {
+        return items != null && items.stream().anyMatch(o -> o instanceof JpathKanji) ? JpathKanji.class
+                : JpathVocabulary.class;
+    }
+
+    private static <T> List<T> typed(List<?> items, Class<T> type) {
+        List<T> out = new ArrayList<>();
+        for (Object o : items == null ? List.of() : items) {
+            if (type.isInstance(o)) {
+                out.add(type.cast(o));
+            }
+        }
+        return out;
     }
 
     // ---- quiz ----------------------------------------------------------------------------------------------
@@ -340,7 +523,9 @@ public class JpathCheckBuilder {
     private static Map<Card, String> readingBoard(List<JpathKanji> items, List<Card> cards, int size, Random rnd) {
         Map<String, List<String>> readings = new HashMap<>();
         for (JpathKanji k : items) {
-            if (k != null && k.getCode() != null && !NOT_ASKED_READING_SOURCES.contains(k.getLevelReadingSource())) {
+            // Set.of(..).contains(null) throws: a kanji without a reading source is asked like LEVEL_WORDS.
+            String source = k == null ? null : k.getLevelReadingSource();
+            if (k != null && k.getCode() != null && (source == null || !NOT_ASKED_READING_SOURCES.contains(source))) {
                 List<String> labels = new ArrayList<>();
                 for (String r : jsonStrings(k.getLevelReadingsJson())) {
                     String label = JpathKanaText.kanjiReadingLabel(r);
@@ -415,11 +600,16 @@ public class JpathCheckBuilder {
             JpathBoardView board = new JpathBoardView("b" + (++boards), List.copyOf(leftViews),
                     List.copyOf(rightViews));
             add(qid -> new JpathQuestionView(qid, PAIR_BOARD, null, instruction, null, null, null, null, board, null),
-                    new AnswerKey(null, pairs, null, null, List.of(), type, null, pairItems, null, null));
+                    new AnswerKey(null, pairs, null, null, List.of(), type, null, pairItems, null, null, null, null));
         }
 
         void mcq(Card answer, List<Card> distractors, JpathQuizDirection dir, boolean audio, Integer timer,
                  Random rnd) {
+            mcq(answer, distractors, dir, audio, timer, null, rnd);
+        }
+
+        void mcq(Card answer, List<Card> distractors, JpathQuizDirection dir, boolean audio, Integer timer,
+                 String partner, Random rnd) {
             boolean viLabels = !audio && dir == JpathQuizDirection.JA_VI;
             List<Card> opts = new ArrayList<>(distractors);
             opts.add(answer);
@@ -448,7 +638,7 @@ public class JpathCheckBuilder {
             add(qid -> new JpathQuestionView(qid, type, direction, instruction, prompt, furigana, audioSlot, frozen,
                             null, timer),
                     new AnswerKey(correct, null, null, null, List.of(), answer.type, answer.code, null, null,
-                            audioPath));
+                            audioPath, null, partner));
         }
 
         /** Item codes that appear in a question, in input order. */

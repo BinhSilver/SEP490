@@ -20,4 +20,7 @@ public interface JpathConfusablePairRepository extends JpaRepository<JpathConfus
             order by p.codeA, p.codeB
             """)
     List<JpathConfusablePair> findWithCode(@Param("type") JpathItemType type, @Param("code") String code);
+
+    /** Every pair of {@code type}, by the two codes (the confusable drill filters them by what the learner studied). */
+    List<JpathConfusablePair> findByItemTypeOrderByCodeAAscCodeBAsc(JpathItemType type);
 }
