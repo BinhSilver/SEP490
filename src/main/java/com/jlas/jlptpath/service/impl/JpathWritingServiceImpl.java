@@ -15,9 +15,13 @@ import com.jlas.jlptpath.service.JpathWritingService;
 import com.jlas.jlptpath.util.JpathStrokeSvg;
 import com.jlas.jlptpath.util.JpathStrokeSvgIndex;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.IntStream;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,60 +50,75 @@ public class JpathWritingServiceImpl implements JpathWritingService {
     @Override
     @Transactional(readOnly = true)
     public JpathWritingView view(Long userId, JpathItemType type, String code) {
-        return find(type, code).orElseThrow(() -> new ApiException(ErrorCode.JPATH_ITEM_NOT_FOUND));
+        Item item = find(type, code).orElseThrow(() -> new ApiException(ErrorCode.JPATH_ITEM_NOT_FOUND));
+        return build(List.of(item)).get(0);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<JpathWritingView> today(Long userId, JpathTab tab) {
-        List<JpathWritingView> out = new ArrayList<>();
+        List<Item> items = new ArrayList<>();
         for (JpathItemRef ref : dailyPlan.plannedNewItems(userId, tab)) {
-            if (out.size() >= TODAY_MAX) {
+            if (items.size() >= TODAY_MAX) {
                 break;
             }
-            find(ref.type(), ref.code()).ifPresent(out::add);
+            find(ref.type(), ref.code()).ifPresent(items::add);
         }
-        return out;
+        return build(items);
     }
 
-    private Optional<JpathWritingView> find(JpathItemType type, String code) {
+    /** A resolved item before its characters are built: the view without cells plus the text to split. */
+    private record Item(String type, String code, String word, String reading, String meaning, String hanViet) {
+    }
+
+    private Optional<Item> find(JpathItemType type, String code) {
         if (type == null) {
             return Optional.empty();
         }
         return switch (type) {
-            case VOCAB -> content.vocab(code).map(this::vocabView);
-            case KANJI -> content.kanji(code).map(this::kanjiView);
-            case KANA -> content.kanaItem(code).map(this::kanaView);
+            case VOCAB -> content.vocab(code).map(JpathWritingServiceImpl::vocabItem);
+            case KANJI -> content.kanji(code).map(JpathWritingServiceImpl::kanjiItem);
+            case KANA -> content.kanaItem(code).map(JpathWritingServiceImpl::kanaItem);
             case GRAMMAR -> Optional.empty();
         };
     }
 
-    private JpathWritingView vocabView(JpathVocabulary v) {
-        return new JpathWritingView(JpathItemType.VOCAB.name(), v.getCode(), v.getExpression(), v.getReading(),
-                v.getMeaningVi(), null, characters(v.getExpression()));
+    private static Item vocabItem(JpathVocabulary v) {
+        return new Item(JpathItemType.VOCAB.name(), v.getCode(), v.getExpression(), v.getReading(), v.getMeaningVi(),
+                null);
     }
 
-    private JpathWritingView kanjiView(JpathKanji k) {
+    private static Item kanjiItem(JpathKanji k) {
         String hanViet = k.getHanViet() == null ? null : k.getHanViet().toUpperCase(VI);
-        return new JpathWritingView(JpathItemType.KANJI.name(), k.getCode(), k.getCharacter(), null,
-                k.getMeaningsVi(), hanViet, characters(k.getCharacter()));
+        return new Item(JpathItemType.KANJI.name(), k.getCode(), k.getCharacter(), null, k.getMeaningsVi(), hanViet);
     }
 
-    private JpathWritingView kanaView(JpathKana k) {
-        return new JpathWritingView(JpathItemType.KANA.name(), k.getCode(), k.getKana(), k.getRomaji(), null, null,
-                characters(k.getKana()));
+    private static Item kanaItem(JpathKana k) {
+        return new Item(JpathItemType.KANA.name(), k.getCode(), k.getKana(), k.getRomaji(), null, null);
     }
 
-    private List<JpathWritingChar> characters(String text) {
-        if (text == null) {
-            return List.of();
-        }
+    /** Builds the views; the stroke counts of every Han character across items come from one batch lookup. */
+    private List<JpathWritingView> build(List<Item> items) {
+        Set<String> han = new LinkedHashSet<>();
+        items.forEach(item -> codePoints(item.word()).filter(JpathWritingServiceImpl::isHan)
+                .forEach(cp -> han.add(new String(Character.toChars(cp)))));
+        Map<String, JpathKanji> kanji = han.isEmpty() ? Map.of() : content.kanjisByCharacter(han);
+        return items.stream().map(item -> new JpathWritingView(item.type(), item.code(), item.word(), item.reading(),
+                item.meaning(), item.hanViet(), characters(item.word(), kanji))).toList();
+    }
+
+    private static IntStream codePoints(String text) {
+        return text == null ? IntStream.empty()
+                : text.codePoints().filter(cp -> !Character.isWhitespace(cp) && !Character.isSpaceChar(cp));
+    }
+
+    private List<JpathWritingChar> characters(String text, Map<String, JpathKanji> kanji) {
         List<JpathWritingChar> out = new ArrayList<>();
-        text.codePoints().filter(cp -> !Character.isWhitespace(cp) && !Character.isSpaceChar(cp)).forEach(cp -> {
+        codePoints(text).forEach(cp -> {
             String ch = new String(Character.toChars(cp));
             boolean svg = svgIndex.exists(cp);
-            Integer strokes = isHan(cp)
-                    ? content.kanjiByCharacter(ch).map(JpathKanji::getStrokeCount).orElse(null) : null;
+            JpathKanji k = isHan(cp) ? kanji.get(ch) : null;
+            Integer strokes = k == null ? null : k.getStrokeCount();
             out.add(new JpathWritingChar(ch, cp, svg ? JpathStrokeSvg.url(cp) : null, strokes, svg));
         });
         return out;

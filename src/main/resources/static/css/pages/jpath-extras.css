@@ -2,7 +2,8 @@
    (.jp-writing). Colours only through --jp-*; touch targets ≥ 44 px; bottom sheet at ≤ 640 px. */
 
 /* ---- Báo sai ------------------------------------------------------------------------------------------- */
-[data-jpath-report] { position: relative; }
+/* Zero specificity: a host that is already positioned keeps its own position. */
+:where([data-jpath-report]) { position: relative; }
 
 .jp-report-btn {
   position: absolute;
@@ -28,7 +29,7 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: color-mix(in srgb, var(--jp-ink) 45%, transparent);
+  background: var(--jp-overlay);
 }
 .jp-report__panel {
   box-sizing: border-box;
@@ -120,7 +121,7 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: color-mix(in srgb, var(--jp-ink) 45%, transparent);
+  background: var(--jp-overlay);
 }
 .jp-writing__panel {
   box-sizing: border-box;
@@ -188,12 +189,30 @@
 .jp-writing__foot { justify-content: flex-end; }
 .jp-writing__pos { min-width: 48px; text-align: center; color: var(--jp-muted); }
 
+/* Viết từng nét: the KanjiVG svg sits under the canvas; strokes appear as they are written or revealed. */
+.jp-writing__picks { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.jp-writing__picks .jp-writing__btn { min-width: 44px; font-size: 1.25rem; }
+.jp-writing__picks .jp-writing__btn[aria-pressed="true"] { border-color: var(--jp-primary); background: var(--jp-primary-soft); }
+.jp-writing__progress { margin: 0 0 8px; font-weight: 600; }
+.jp-writing__cell.jp-writing__cell--quiz { width: 240px; height: 240px; }
+.jp-writing__cell--miss { box-shadow: 0 0 0 3px var(--jp-danger); }
+.jp-writing__cell--miss .jp-writing__canvas { color: var(--jp-danger); }
+.jp-writing__ref { position: absolute; inset: 0; pointer-events: none; }
+.jp-writing__ref svg { width: 100%; height: 100%; }
+.jp-writing__ref path { stroke: var(--jp-ink); }
+.jp-writing__ref path[data-quiz-stroke="pending"] { visibility: hidden; }
+.jp-writing__ref path[data-quiz-stroke="hint"] { stroke: var(--jp-primary); opacity: .35; stroke-dasharray: 4 3; }
+.jp-writing__ref path[data-quiz-stroke="revealed"] { stroke: var(--jp-primary); }
+.jp-writing__msg { min-height: 1.5em; margin: 8px 0 0; }
+.jp-writing__msg[data-tone="miss"] { color: var(--jp-danger); }
+
 @media (max-width: 640px) {
   .jp-writing { align-items: flex-end; padding: 0; }
   .jp-writing__panel { width: 100%; max-height: 92vh; padding: 16px; border-radius: var(--jp-radius-panel) var(--jp-radius-panel) 0 0; }
   .jp-writing__svg,
   .jp-writing__cell { width: 120px; height: 120px; }
   .jp-writing__ghost { font-size: 86px; }
+  .jp-writing__cell.jp-writing__cell--quiz { width: min(240px, 100%); height: auto; aspect-ratio: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

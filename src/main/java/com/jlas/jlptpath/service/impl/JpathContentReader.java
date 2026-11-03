@@ -23,6 +23,7 @@ import com.jlas.jlptpath.repository.JpathVocabularyRepository;
 import com.jlas.jlptpath.service.JpathCatalogService;
 import com.jlas.jlptpath.util.JpathKanaText;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -269,6 +270,19 @@ public class JpathContentReader {
     /** The visible kanji written {@code character}. */
     public Optional<JpathKanji> kanjiByCharacter(String character) {
         return character == null ? Optional.empty() : kanjis.findByCharacter(character).filter(this::visible);
+    }
+
+    /** The visible kanji written as any of {@code characters}, keyed by character (one query; blanks ignored). */
+    public Map<String, JpathKanji> kanjisByCharacter(Collection<String> characters) {
+        List<String> wanted = characters == null ? List.of()
+                : characters.stream().filter(c -> c != null && !c.isBlank()).distinct().toList();
+        if (wanted.isEmpty()) {
+            return Map.of();
+        }
+        Map<String, JpathKanji> out = new HashMap<>();
+        kanjis.findByCharacterIn(wanted).stream().filter(this::visible)
+                .forEach(k -> out.putIfAbsent(k.getCharacter(), k));
+        return out;
     }
 
     /** The pattern {@code code} when visible. */
