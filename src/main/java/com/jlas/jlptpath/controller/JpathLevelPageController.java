@@ -27,6 +27,23 @@ public class JpathLevelPageController {
     private final JpathPathService paths;
     private final JpathLevelUpService levelUp;
 
+    /** Level summary page (Plan 3 Task 23); jpath-level-summary.js reads GET /api/learning/jlpt/levels/{level}/summary. */
+    @GetMapping("/learning/jlpt/levels/{level}/summary")
+    public String summary(@AuthenticationPrincipal UserPrincipal user, @PathVariable String level, Model model) {
+        if (user == null) {
+            return "redirect:/login";
+        }
+        if (paths.entryStatus(user.userId()).pathStatus() != JpathPathStatus.ACTIVE) {
+            return "redirect:/learning";
+        }
+        String lvl = level == null ? "" : level.trim().toUpperCase(Locale.ROOT);
+        if (!lvl.matches("N[1-5]")) {
+            return "redirect:/learning";
+        }
+        model.addAttribute("level", lvl);
+        return "jlptpath/level-summary";
+    }
+
     @GetMapping("/learning/jlpt/levels/{level}/certificate")
     public String certificate(@AuthenticationPrincipal UserPrincipal user, @PathVariable String level, Model model) {
         if (user == null) {

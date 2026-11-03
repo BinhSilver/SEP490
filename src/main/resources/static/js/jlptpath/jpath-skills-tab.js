@@ -205,6 +205,11 @@
 
     return apiClient.get(url).then(function (o) {
       el.innerHTML = tabHtml(o);
+      // Plan 3 Task 23: the mock test card of the open level
+      var mock = el.querySelector('[data-jpath-mock-card]');
+      if (mock && root.JpathMockCard && hasContent(o)) {
+        root.JpathMockCard.mount(mock, { api: apiClient, location: loc, document: doc, readiness: o.readiness });
+      }
       rendered(doc, el);
       return o;
     }, function (e) {
