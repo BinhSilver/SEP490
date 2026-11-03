@@ -142,13 +142,16 @@
   }
 
   async function openItem(type, code) {
-    state.selected = { type: type, code: code };
+    var selected = { type: type, code: code };
+    state.selected = selected;
     var detail = $('jpaDetail');
     detail.innerHTML = '<p class="jpa-muted">Đang tải…</p>';
     try {
-      renderItem(await global.Admin.api.get(itemUrl(type, code)));
+      var item = await global.Admin.api.get(itemUrl(type, code));
+      // a slower answer for an item clicked earlier never replaces the one now selected
+      if (state.selected === selected) { renderItem(item); }
     } catch (error) {
-      detail.innerHTML = '<p class="jpa-error">' + esc(error.message) + '</p>';
+      if (state.selected === selected) { detail.innerHTML = '<p class="jpa-error">' + esc(error.message) + '</p>'; }
     }
     global.document.querySelectorAll('.jpa-group').forEach(function (button) {
       var on = button.dataset.type === type && button.dataset.code === code;
