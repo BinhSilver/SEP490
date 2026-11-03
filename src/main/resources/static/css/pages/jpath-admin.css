@@ -1,0 +1,292 @@
+/* [JLAS-W0108] Admin pages of the JLPT path ("Báo sai lộ trình", "Báo cáo lộ trình JLPT"). Admin pages use the admin
+ * --color-* tokens (pre-flight D2), not the learner --jp-* tokens. */
+.jpa {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  color: var(--color-on-surface);
+  min-width: 0;
+}
+
+.jpa-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.jpa-hero h1 {
+  margin: 2px 0 4px;
+  font-size: 1.5rem;
+}
+
+.jpa-hero p,
+.jpa-muted {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+}
+
+.jpa-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-primary);
+}
+
+.jpa-export,
+.jpa-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.jpa-filters label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.jpa select,
+.jpa textarea {
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 8px;
+  background: var(--color-surface-lowest);
+  color: var(--color-on-surface);
+  font: inherit;
+}
+
+.jpa textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.jpa :focus-visible {
+  outline: 2px solid var(--color-focus, var(--color-primary));
+  outline-offset: 2px;
+}
+
+.jpa-btn {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid var(--color-primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.jpa-btn.is-primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.jpa-btn.is-secondary {
+  background: var(--color-surface-lowest);
+  color: var(--color-primary);
+}
+
+.jpa-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.jpa-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 2fr) minmax(0, 3fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.jpa-list,
+.jpa-detail,
+.jpa-card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 12px;
+  background: var(--color-surface-lowest);
+}
+
+.jpa-groups,
+.jpa-rows {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.jpa-group {
+  width: 100%;
+  min-height: 44px;
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  text-align: left;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.jpa-group:hover,
+.jpa-group.is-selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-fixed);
+}
+
+.jpa-group__head {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--color-on-surface-variant);
+}
+
+.jpa-group__preview {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.jpa-group__meta,
+.jpa-group__note {
+  font-size: 0.85rem;
+  color: var(--color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.jpa-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--color-surface-container);
+  color: var(--color-on-surface);
+}
+
+.jpa-badge.is-warn {
+  background: var(--color-error-container);
+  color: var(--color-on-error-container);
+}
+
+.jpa-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.jpa-detail h2 {
+  margin: 4px 0;
+  font-size: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.jpa-detail h3 {
+  margin: 16px 0 4px;
+  font-size: 1rem;
+}
+
+.jpa-audio {
+  width: 100%;
+  margin: 8px 0;
+}
+
+.jpa-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.jpa-field {
+  display: grid;
+  gap: 4px;
+}
+
+.jpa-field label {
+  font-weight: 600;
+}
+
+.jpa-field code,
+.jpa-rows code {
+  font-size: 0.8rem;
+  color: var(--color-on-surface-variant);
+}
+
+.jpa-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.jpa-note {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--color-secondary-container);
+  color: var(--color-on-surface);
+}
+
+.jpa-error {
+  color: var(--color-error);
+}
+
+.jpa-rows li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-outline-variant);
+  overflow-wrap: anywhere;
+}
+
+.jpa-row__note {
+  margin-top: 4px;
+  color: var(--color-on-surface-variant);
+}
+
+.jpa-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.jpa-stat strong {
+  display: block;
+  font-size: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .jpa-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .jpa {
+    padding: 12px;
+  }
+
+  .jpa-export,
+  .jpa-filters label {
+    width: 100%;
+  }
+
+  .jpa-export select,
+  .jpa-filters select {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jpa * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
