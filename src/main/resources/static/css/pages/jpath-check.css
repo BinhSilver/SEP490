@@ -1,0 +1,126 @@
+/* [JLAS-W0108] Micro-check screen (check.html) and the same check drawn inline (grammar "Luyện ngay").
+   Colours only through --jp-* (jpath-base.css), so light/dark follow html[data-theme]. Targets ≥ 44 px, 375 px safe. */
+
+/* Buttons and inputs for pages that do not load jpath-path.css (same look as there). */
+.jp-check-page .jp-btn, .jp-check .jp-btn {
+  min-height: 44px; padding: 10px 18px; border: 1.5px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
+  background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-weight: 600; cursor: pointer;
+  text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+}
+.jp-check-page .jp-btn--primary, .jp-check .jp-btn--primary {
+  background: var(--jp-primary); border-color: var(--jp-primary); color: var(--jp-surface);
+}
+.jp-check-page .jp-btn[disabled], .jp-check .jp-btn[disabled] { opacity: .55; cursor: not-allowed; }
+.jp-check-page .jp-link-btn, .jp-check .jp-link-btn {
+  min-height: 44px; padding: 4px 0; border: 0; background: transparent; color: var(--jp-primary); font: inherit;
+  font-weight: 600; text-decoration: underline; cursor: pointer;
+}
+.jp-check-page .jp-input, .jp-check .jp-input {
+  box-sizing: border-box; width: 100%; min-height: 44px; padding: 8px 10px; border: 1.5px solid var(--jp-line);
+  border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink); font: inherit;
+}
+.jp-check-page .jp-card, .jp-check .jp-card {
+  padding: 16px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-panel); background: var(--jp-surface);
+  overflow-wrap: anywhere;
+}
+.jp-check-page :focus-visible, .jp-check :focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-check-page .jp-status, .jp-check .jp-status { margin: 0; color: var(--jp-muted); min-height: 1.2em; }
+
+.jp-check-page { max-width: 720px; }
+.jp-check-root { display: block; }
+.jp-check {
+  display: grid; gap: 12px; padding: 14px; border-radius: var(--jp-radius-panel); background: var(--jp-canvas);
+  font-size: calc(1rem * var(--jp-font-scale));
+}
+
+/* header */
+.jp-check__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; }
+.jp-check__title { margin: 0; font-size: .95em; font-weight: 600; color: var(--jp-ink); }
+.jp-check__timer { font-variant-numeric: tabular-nums; color: var(--jp-muted); }
+.jp-check__bar { height: 6px; border-radius: 3px; background: var(--jp-line); overflow: hidden; }
+.jp-check__bar span { display: block; height: 100%; background: var(--jp-primary); transition: width .2s ease; }
+.jp-check__hint { margin: 0; font-size: .85em; color: var(--jp-muted); }
+
+/* pair board */
+.jp-board { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.jp-board__col { display: grid; gap: 8px; align-content: start; }
+.jp-pair {
+  min-height: 48px; padding: 8px 10px; border: 1.5px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
+  background: var(--jp-surface); color: var(--jp-ink); font: inherit; text-align: center; cursor: pointer;
+  overflow-wrap: anywhere; transition: background-color .15s ease, border-color .15s ease;
+}
+.jp-pair[lang="ja"] { font-size: 1.15em; }
+.jp-pair.jp-sel { border: 2px solid var(--jp-primary); background: var(--jp-primary-soft); }
+.jp-pair.jp-ok {
+  border: 2px solid var(--jp-ok); background: color-mix(in srgb, var(--jp-ok) 16%, var(--jp-surface)); color: var(--jp-ink);
+  cursor: default;
+}
+.jp-pair.jp-bad { border: 2px solid var(--jp-danger); background: var(--jp-danger-soft); animation: jp-check-flash .6s ease; }
+@keyframes jp-check-flash { 0%, 100% { transform: none; } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+
+/* quiz */
+.jp-check__prompt { display: grid; justify-items: center; gap: 8px; text-align: center; border-radius: 16px; }
+.jp-check__dir { font-size: .75em; letter-spacing: 1px; color: var(--jp-muted); }
+.jp-check__text { font-size: 1.3em; font-weight: 700; line-height: 1.6; }
+.jp-check__text[lang="ja"] { font-size: 1.5em; }
+.jp-check__play {
+  min-width: 56px; min-height: 56px; border: 0; border-radius: 50%; background: var(--jp-primary); color: var(--jp-surface);
+  font-size: 1.3em; cursor: pointer;
+}
+.jp-check__options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.jp-check-opt {
+  display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 52px; padding: 10px;
+  border: 1.5px solid var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface);
+  color: var(--jp-ink); font: inherit; cursor: pointer; overflow-wrap: anywhere;
+}
+.jp-check-opt[lang="ja"] { font-size: 1.15em; }
+.jp-check-opt[disabled] { cursor: default; }
+.jp-check-opt.jp-ok { border: 2px solid var(--jp-ok); background: color-mix(in srgb, var(--jp-ok) 16%, var(--jp-surface)); }
+.jp-check-opt.jp-bad { border: 2px solid var(--jp-danger); background: var(--jp-danger-soft); }
+.jp-key {
+  min-width: 1.4em; padding: 0 4px; border: 1px solid var(--jp-line); border-radius: 4px; color: var(--jp-muted);
+  font-size: .75em; line-height: 1.4;
+}
+.jp-check__feedback { font-weight: 700; }
+.jp-check__feedback.jp-ok { color: var(--jp-ok); }
+.jp-check__feedback.jp-bad { color: var(--jp-danger); }
+.jp-check__explain { margin: 0; line-height: 1.5; }
+.jp-check__next { justify-self: end; }
+.jp-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.jp-compare-col {
+  display: grid; gap: 2px; padding: 10px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
+  background: var(--jp-surface); text-align: center;
+}
+.jp-compare__ja { font-size: 1.3em; font-weight: 700; }
+.jp-compare__reading, .jp-compare__meaning { color: var(--jp-muted); font-size: .9em; }
+
+/* order and fill */
+.jp-order__slots, .jp-order__pool { display: flex; flex-wrap: wrap; gap: 8px; min-height: 52px; align-items: center; }
+.jp-order__slots {
+  padding: 8px; border: 1.5px dashed var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface);
+}
+.jp-order__slots.jp-ok { border-color: var(--jp-ok); }
+.jp-order__slots.jp-bad { border-color: var(--jp-danger); }
+.jp-order__empty { color: var(--jp-muted); font-size: .9em; }
+.jp-order__piece {
+  min-height: 44px; padding: 6px 12px; border: 1.5px solid var(--jp-line); border-radius: var(--jp-radius-chip);
+  background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-size: 1.1em; cursor: pointer;
+}
+.jp-order__piece[disabled] { opacity: .4; cursor: default; }
+.jp-fill { display: flex; gap: 8px; }
+.jp-fill .jp-input { flex: 1 1 auto; font-size: 1.1em; }
+.jp-fill__given { margin: 0; }
+
+.jp-check__error { display: grid; gap: 10px; justify-items: start; }
+.jp-check__error p { margin: 0; }
+
+@media (max-width: 480px) {
+  .jp-check { padding: 10px; }
+  .jp-check__options { grid-template-columns: 1fr; }
+  .jp-board { gap: 6px; }
+  .jp-fill { flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jp-check *, .jp-check-page * { transition: none !important; animation: none !important; }
+}
