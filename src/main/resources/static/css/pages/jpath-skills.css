@@ -226,3 +226,16 @@
   background: color-mix(in srgb, var(--jp-ok) 14%, var(--jp-surface)); color: var(--jp-ink); opacity: 1; }
 .jp-skill-q__options button.is-wrong, .jp-skill-q__options button.is-wrong:disabled { opacity: 1; }
 .jp-skill-q__options button.is-picked, .jp-skill-q__options button.is-picked:disabled { border: 2px solid var(--jp-primary); background: var(--jp-primary-soft); color: var(--jp-ink); opacity: 1; }
+
+/* Furigana toggle of the Đọc · Nghe pages (jpath-auto-furigana.js) */
+.jp-skill-session .jp-page-head, .jp-skill-section .jp-page-head { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; }
+.jp-furi-toggle { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 6px 14px; border: 1px solid var(--jp-line);
+  border-radius: 999px; background: var(--jp-surface); color: var(--jp-ink); font: inherit; cursor: pointer; }
+.jp-furi-toggle[aria-pressed="true"] { border-color: var(--jp-primary); background: var(--jp-primary-soft); color: var(--jp-primary); }
+.jp-furi-toggle__state { font-weight: 700; }
+.jp-furi-toggle:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-skill-session ruby rt, .jp-skill-section ruby rt { font-size: .5em; }
+.jp-furigana-off ruby rt { visibility: hidden; }
+.jp-furigana-off ruby.jp-rt-flip rt { visibility: visible; }
+.jp-furigana-off ruby { cursor: pointer; }
+@media (max-width: 640px) { .jp-furi-toggle { min-height: 44px; } }
