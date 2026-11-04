@@ -18,13 +18,25 @@ public final class JpathReminderComposer {
     private JpathReminderComposer() {
     }
 
+    /** Plan 3 Task 24: "Hôm nay là ngày kỹ năng: Đọc {dạng}, Nghe {dạng}" when today's types are known. */
+    static String skillDayText(String reading, String listening) {
+        List<String> types = new ArrayList<>(2);
+        if (reading != null && !reading.isBlank()) {
+            types.add("Đọc " + reading);
+        }
+        if (listening != null && !listening.isBlank()) {
+            types.add("Nghe " + listening);
+        }
+        return types.isEmpty() ? "Hôm nay là ngày luyện kỹ năng" : "Hôm nay là ngày kỹ năng: " + String.join(", ", types);
+    }
+
     public static JpathReminderMessage compose(JpathReminderFacts facts) {
         List<String> parts = new ArrayList<>();
         if (facts.dueCount() > 0) {
             parts.add(facts.dueCount() + " thẻ đang chờ ôn");
         }
         if (facts.skillDay()) {
-            parts.add("Hôm nay là ngày luyện kỹ năng");
+            parts.add(skillDayText(facts.readingType(), facts.listeningType()));
         }
         Integer days = facts.daysToExam();
         if (days != null && days == 0) {

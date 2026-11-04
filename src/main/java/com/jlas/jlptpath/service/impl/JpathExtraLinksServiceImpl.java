@@ -14,8 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * [JLAS-W0108] {@link JpathExtraLinksService}. Fixed tools of the app (flashcards, Speed Recall, mini-games, shadowing),
- * the mock test of the open level through {@link MockTestDestinationProvider}, confusable pairs, and the coming-soon
- * Đọc · Nghe entry; no AI conversation link.
+ * the mock test of the open level through {@link MockTestDestinationProvider}, confusable pairs, and Đọc · Nghe (the
+ * skills tab); no AI conversation link.
  */
 @Service
 public class JpathExtraLinksServiceImpl implements JpathExtraLinksService {
@@ -48,7 +48,8 @@ public class JpathExtraLinksServiceImpl implements JpathExtraLinksService {
                         : new JpathExtraLink("MOCK", level == null ? "Thi thử" : "Thi thử " + level, null, false,
                                 NOT_OPEN),
                 open("CONFUSABLES", "Phân biệt chữ dễ nhầm", "/learning/jlpt/confusables", null),
-                new JpathExtraLink("READ_LISTEN", "Đọc · Nghe", null, false, COMING_SOON));
+                // Plan 3 Task 24: the skills tab of the path page
+                open("READ_LISTEN", "Đọc · Nghe", "/learning?tab=skills", null));
         List<JpathExtraLink> pages = List.of(
                 open("HISTORY", "Lịch sử học", "/learning/jlpt/history", null),
                 open("STATS", "Thống kê", "/learning/jlpt/stats", null),

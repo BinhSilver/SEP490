@@ -12,4 +12,7 @@ public interface JpathReminderLogRepository extends JpaRepository<JpathReminderL
 
     /** Whether the learner was already reminded on {@code reminderDay} (the learner's date). */
     boolean existsByUserIdAndReminderDay(Long userId, LocalDate reminderDay);
+
+    /** Whether the learner was reminded on a day in {@code [from, to]} (Plan 3 Task 24: once per new level). */
+    boolean existsByUserIdAndReminderDayBetween(Long userId, LocalDate from, LocalDate to);
 }

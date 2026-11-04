@@ -10,7 +10,9 @@ import com.jlas.jlptpath.entity.JpathUserLevel;
 import com.jlas.jlptpath.entity.JpathUserLevelId;
 import com.jlas.jlptpath.entity.JpathUserPath;
 import com.jlas.jlptpath.entity.JpathUserSettings;
+import com.jlas.jlptpath.entity.JpathSkillType;
 import com.jlas.jlptpath.enums.JpathDayKind;
+import com.jlas.jlptpath.enums.JpathSkill;
 import com.jlas.jlptpath.enums.JpathStage;
 import com.jlas.jlptpath.enums.JpathTab;
 import com.jlas.jlptpath.repository.JpathDailyPlanRepository;
@@ -128,9 +130,40 @@ public class JpathReminderService {
         int due = (int) items.countDue(userId, now.toLocalDateTime());
         Integer daysToExam = path.getExamDate() == null ? null
                 : (int) ChronoUnit.DAYS.between(today, path.getExamDate());
-        String lower = lowerLevel(path);
+        String lower = firstWeekOfOpenLevel(path, today) ? lowerLevel(path) : null;
         int lowerLeft = lower == null ? 0 : notLearned(userId, lower);
-        return new JpathReminderFacts(due, kind == JpathDayKind.SKILL, daysToExam, lowerLeft, lower);
+        boolean skillDay = kind == JpathDayKind.SKILL;
+        String reading = skillDay ? todayType(path, JpathSkill.READING) : null;
+        String listening = skillDay ? todayType(path, JpathSkill.LISTENING) : null;
+        return new JpathReminderFacts(due, skillDay, daysToExam, lowerLeft, lower, reading, listening);
+    }
+
+    // Plan 3 Task 24: field-injected so the constructor (and its tests) stay as they were
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private JpathSkillPicker skillPicker;
+
+    /** Name of the type a skill-day session of {@code skill} would start with now; null when none or unknown. */
+    private String todayType(JpathUserPath path, JpathSkill skill) {
+        if (skillPicker == null) {
+            return null;
+        }
+        JpathSkillPicker.LevelContent content = skillPicker.content(path.getOpenLevel());
+        return skillPicker.nextType(path.getUserId(), content, skill)
+                .flatMap(code -> content.types().stream().filter(t -> t.getCode().equals(code)).findFirst())
+                .map(JpathSkillType::getNameVi).orElse(null);
+    }
+
+    /**
+     * Plan 3 Task 24: the lower level still to learn is mentioned once, in the first reminder of the first week of the
+     * open level (no reminder sent since the level opened).
+     */
+    private boolean firstWeekOfOpenLevel(JpathUserPath path, LocalDate today) {
+        LocalDate opened = levels.findById(new JpathUserLevelId(path.getId(), path.getOpenLevel()))
+                .map(JpathUserLevel::getOpenedAt).map(java.time.LocalDateTime::toLocalDate).orElse(null);
+        if (opened == null || today.isBefore(opened) || !today.isBefore(opened.plusDays(7))) {
+            return false;
+        }
+        return !logs.existsByUserIdAndReminderDayBetween(path.getUserId(), opened, today.minusDays(1));
     }
 
     /** The level just below the open one, when the learner has a row for it in this path (it was studied). */
