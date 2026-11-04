@@ -1,0 +1,39 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "説明は終わりです。ところで、明日は休みですか。",
+       "ja_furigana": "説明(せつめい)は終(お)わりです。ところで、明日(あした)は休(やす)みですか。",
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Phần giải thích đã xong. À mà ngày mai có nghỉ không?"
+      },
+      {
+       "ja": "宿題は終わった？ところで、明日のテストは何時から？",
+       "ja_furigana": "宿題(しゅくだい)は終(お)わった？ところで、明日(あした)のテストは何時(なんじ)から？",
+       "vi": "Làm bài tập xong chưa? À mà bài kiểm tra ngày mai mấy giờ bắt đầu?",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "viết lại 1 câu quá giống nguồn ngoài"
+   },
+   "context": {
+    "expression": "所で"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-48cc2e4419"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N3",
+ "packet_id": "REVIEW_VOCAB-098"
+}
