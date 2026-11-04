@@ -118,8 +118,11 @@ export function kanjiForms(on = [], kun = []) {
 
 // Core kanji whose readings neither the J-LAS dictionary export nor data/seed_jlas/kanji_data.json (KANJIDIC2) carry.
 // Values are the KANJIDIC2 on/kun readings; used only when both lists are empty, so a fixed dictionary takes over.
+// Readings (and the stroke count) of a kanji the dictionary has none for. 鵜 (owner 04/11): on テイ, kun う; 18 strokes
+// as in its KanjiVG file (09d5c.svg).
 export const KANJI_READING_OVERRIDES = {
-  千: { on: ['セン'], kun: ['ち'] }
+  千: { on: ['セン'], kun: ['ち'] },
+  鵜: { on: ['テイ'], kun: ['う'], strokes: 18 }
 };
 
 // Dictionary words for a kanji no level word is written with (九, 七 at N5): published, kana reading, a real word

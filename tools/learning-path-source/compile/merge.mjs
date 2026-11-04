@@ -446,7 +446,7 @@ function kanjiItems({ frames, jlasLevels, dictionary }, level, vocabPool) {
     out.push({ mirai: g.mirai.find(m => m.level === level) ?? null, position: j?.position ?? 1, item: {
       id: `JK-${hexOf(ch)}`, level, character: ch, han_viet: hv[0] ?? null, han_viet_alt: hv.slice(1),
       meanings_vi: formatMeaningVi(meanings), readings_on: on, readings_kun: kun, level_readings: levelReadings,
-      stroke_count: j?.stroke_count ?? dict?.stroke_count ?? null, radical: dict?.radical ?? null, frequency: null,
+      stroke_count: j?.stroke_count ?? dict?.stroke_count ?? KANJI_READING_OVERRIDES[ch]?.strokes ?? null, radical: dict?.radical ?? null, frequency: null,
       compound_ids: compounds.slice(0, 5), dictionary_compounds: dictWords, mnemonic_vi: null, order: 0, status: 'DRAFT',
       provenance: { frame: g.mirai.length ? 'MIRAI' : null, level_readings_source: readingsSource,
         sources: ['MIRAI', 'JLAS', 'DICTIONARY'].filter(s => s === 'MIRAI' ? g.mirai.length : s === 'JLAS' ? g.jlas.length : !!dict),
