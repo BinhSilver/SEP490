@@ -18,6 +18,10 @@
 
   function D() { return root.JpathDisplay; }
   function esc(v) { return D().esc(v); }
+  function icon(name) {
+    var nav = (root && root.JpathNav) || (typeof require === 'function' ? require('./jpath-nav.js') : null);
+    return nav && nav.iconHtml ? nav.iconHtml(name) : '';
+  }
   function list(v) { return Array.isArray(v) ? v : []; }
 
   var SLIDER_CODES = ['VOCAB', 'KANJI', 'GRAMMAR'];
@@ -118,7 +122,7 @@
       return t && t.tab !== 'SKILL' && num(t.newTarget) > 0;
     }).map(function (t) {
       return '<li class="jp-chip' + (t.done ? ' jp-chip--done' : '') + '">'
-        + esc((CODE_LABEL[t.tab] || t.tab) + ' ' + num(t.newDone) + '/' + num(t.newTarget) + (t.done ? ' ✓' : '')) + '</li>';
+        + esc((CODE_LABEL[t.tab] || t.tab) + ' ' + num(t.newDone) + '/' + num(t.newTarget)) + (t.done ? ' ' + icon('check') : '') + '</li>';
     }).join('');
     return chips ? '<ul class="jp-chips" aria-label="Tiến độ hôm nay">' + chips + '</ul>' : '';
   }
@@ -179,7 +183,7 @@
     var end = '</section>';
     var missed = t.skillDayMissed ? '<p class="jp-warn">Tuần này bạn còn thiếu ngày kỹ năng.</p>' : '';
     if (t.allDone) {
-      return html + '<p class="jp-today__done">Bạn đã xong phần hôm nay ✓</p>'
+      return html + '<p class="jp-today__done">' + icon('check') + ' Bạn đã xong phần hôm nay</p>'
         + '<a class="jp-btn" href="/learning/jlpt/done">Xem tổng kết hôm nay</a>' + missed + end;
     }
     if (t.kind === 'REST') {
