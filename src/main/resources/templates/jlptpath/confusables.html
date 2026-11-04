@@ -18,12 +18,17 @@
             <button type="button" class="jp-side-btn" data-tab="VOCAB" aria-pressed="true">Từ vựng</button>
             <button type="button" class="jp-side-btn" data-tab="KANJI" aria-pressed="false">Kanji</button>
         </div>
-        <section class="jp-side-card">
+        <div class="jp-side__range">
             <button type="button" class="jp-side-btn jp-side-btn--primary" data-role="start" disabled>Luyện 10 câu</button>
-            <p class="jp-side__note">Không tính vào tiến độ.</p>
             <p class="jp-side__status" role="status" data-role="status">Đang tải…</p>
-        </section>
+        </div>
+        <label class="jp-side__note">Tìm trong danh sách <input type="search" data-role="search" autocomplete="off"></label>
         <ul class="jp-pairs" data-role="pairs"></ul>
+        <nav class="jp-side__pager" data-role="pager" aria-label="Trang" hidden>
+            <button type="button" class="jp-side-btn" data-page="prev">Trước</button>
+            <span data-role="page"></span>
+            <button type="button" class="jp-side-btn" data-page="next">Sau</button>
+        </nav>
     </div>
 </div>
 </main>

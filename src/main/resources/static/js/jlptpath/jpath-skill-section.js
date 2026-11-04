@@ -31,6 +31,10 @@
   }
 
   function list(x) { return Array.isArray(x) ? x : []; }
+  function icon(name) {
+    var nav = (root && root.JpathNav) || (typeof require === 'function' ? require('./jpath-nav.js') : null);
+    return nav && nav.iconHtml ? nav.iconHtml(name) : '';
+  }
 
   function parse(iso) {
     // server-local ISO without zone: both times share it, so the difference is exact
@@ -76,7 +80,7 @@
         if (!q) return '';
         return '<div class="jp-skill-q" data-question="' + esc(id) + '"><p lang="ja">' + esc(q.prompt) + '</p>'
           + optionButtons(q, (c.answered || {})[id], closed) + '</div>';
-      }).join('') + (listening && closed ? '<p class="jp-muted">Bấm ▶ Phát để nghe một lần rồi trả lời.</p>' : '')
+      }).join('') + (listening && closed ? '<p class="jp-muted">Bấm Phát để nghe một lần rồi trả lời.</p>' : '')
       + '</section>';
   }
 
@@ -85,9 +89,9 @@
     var pct = Math.max(0, Math.min(100, Number(r && r.scorePercent) || 0));
     var passed = !!(r && r.passed);
     var last = list(tries).map(function (t) {
-      return (t.passed ? '✓ ' : '✗ ') + (t.scorePct != null ? Math.round(Number(t.scorePct)) + '%' : '—');
+      return (t.passed ? 'Đạt ' : 'Chưa đạt ') + (t.scorePct != null ? Math.round(Number(t.scorePct)) + '%' : '—');
     }).join(', ');
-    return '<section class="jp-skill-block"><h2>' + (passed ? 'Đạt ✓' : 'Chưa đạt') + ' — ' + esc(pct) + '%</h2>'
+    return '<section class="jp-skill-block"><h2>' + (passed ? 'Đạt ' + icon('check') : 'Chưa đạt') + ' — ' + esc(pct) + '%</h2>'
       + '<div class="jp-section-floor" role="img" aria-label="' + esc(pct + '% so với điểm sàn ' + FLOOR_PCT + '%') + '">'
       + '<div class="jp-section-floor__bar" style="width:' + pct + '%"></div><div class="jp-section-floor__line"></div></div>'
       + '<p class="jp-muted">Điểm sàn ' + FLOOR_PCT + '% · ' + esc((r && r.correct) || 0) + '/' + esc((r && r.total) || 0) + ' câu đúng'

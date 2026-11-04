@@ -33,6 +33,10 @@
   var MSG_NOT_FOUND = 'Không tìm thấy nội dung này nữa.';
   var MSG_FAILED = 'Chưa gửi được báo lỗi. Thử lại sau.';
   var BOUND = 'data-jpath-report-bound';
+  function icon(name) {
+    var nav = (root && root.JpathNav) || (typeof require === 'function' ? require('./jpath-nav.js') : null);
+    return nav && nav.iconHtml ? nav.iconHtml(name) : '';
+  }
 
   function isErrorType(code) {
     for (var i = 0; i < ERROR_TYPES.length; i++) if (ERROR_TYPES[i].code === code) return true;
@@ -177,7 +181,7 @@
     button.className = 'jp-report-btn';
     button.setAttribute('aria-label', 'Báo sai');
     button.setAttribute('title', 'Báo sai');
-    button.textContent = '⚑';
+    button.innerHTML = icon('flag');
     button.addEventListener('click', function (ev) {
       if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation();
       open(ctx, button);

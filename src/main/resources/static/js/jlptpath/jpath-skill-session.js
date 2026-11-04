@@ -38,6 +38,10 @@
   function attrJson(o) { return esc(JSON.stringify(o)); }
 
   function list(x) { return Array.isArray(x) ? x : []; }
+  function icon(name) {
+    var nav = (root && root.JpathNav) || (typeof require === 'function' ? require('./jpath-nav.js') : null);
+    return nav && nav.iconHtml ? nav.iconHtml(name) : '';
+  }
 
   function audioUrl(token, slot) {
     return BASE + '/checks/' + encodeURIComponent(token) + '/audio/' + encodeURIComponent(slot);
@@ -52,7 +56,7 @@
       var done = i < at;
       var state = done ? 'done' : (i === at ? 'now' : 'todo');
       return '<li class="jp-step jp-step--' + state + (done ? ' is-done' : '') + '"' + (i === at ? ' aria-current="step"' : '')
-        + '><span class="jp-step__mark" aria-hidden="true">' + (done ? '✓' : (i + 1)) + '</span>'
+        + '><span class="jp-step__mark" aria-hidden="true">' + (done ? icon('check') : (i + 1)) + '</span>'
         + '<span class="jp-sr">' + (i + 1) + '. </span><span class="jp-step__body"><span class="jp-step__label">'
         + esc(st[1]) + '</span>' + (done ? '<span class="jp-step__sub">Đã xong</span>' : '') + '</span></li>';
     }).join('');
@@ -164,7 +168,7 @@
   }
 
   function doneHtml(s) {
-    return '<section class="jp-skill-block"><h2>Xong buổi ' + esc(s && s.skill === 'LISTENING' ? 'Nghe' : 'Đọc') + ' ✓</h2>'
+    return '<section class="jp-skill-block"><h2>Xong buổi ' + esc(s && s.skill === 'LISTENING' ? 'Nghe' : 'Đọc') + ' ' + icon('check') + '</h2>'
       + '<p>' + esc((s && s.setCount) || 0) + ' bài · ' + esc((s && s.questionCount) || 0) + ' câu'
       + (s && s.dictationCount ? ' · ' + esc(s.dictationCount) + ' câu chép' : '') + '</p>'
       + doneActions(s) + '</section>';

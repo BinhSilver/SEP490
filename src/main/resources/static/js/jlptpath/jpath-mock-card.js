@@ -27,6 +27,10 @@
   }
 
   function list(x) { return Array.isArray(x) ? x : []; }
+  function icon(name) {
+    var nav = (root && root.JpathNav) || (typeof require === 'function' ? require('./jpath-nav.js') : null);
+    return nav && nav.iconHtml ? nav.iconHtml(name) : '';
+  }
 
   function safeUrl(u) {
     var s = String(u || '');
@@ -54,7 +58,7 @@
       body += '<p>Lần gần nhất: chưa đạt' + (st.lastScore != null ? ' (' + esc(st.lastScore) + '%)' : '') + '.</p>'
         + '<ul class="jp-mock-sections">' + list(st.sections).map(function (s) {
           return '<li' + (s.weak ? ' class="is-weak"' : '') + '>' + esc(s.title) + ': ' + esc(s.scorePct) + '%'
-            + (s.passed ? ' ✓' : '') + (s.weak ? ' · cần luyện thêm' : '') + '</li>';
+            + (s.passed ? ' ' + icon('check') : '') + (s.weak ? ' · cần luyện thêm' : '') + '</li>';
         }).join('') + '</ul>'
         + (list(st.advice).length ? '<p>Gợi ý:</p><ul class="jp-mock-advice">' + list(st.advice).map(function (a) {
           return '<li><a href="' + esc(adviceHref(a.action)) + '">' + esc(a.labelVi) + '</a></li>';

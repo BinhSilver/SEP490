@@ -18,6 +18,10 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
+  function icon(name) {
+    var nav = (root && root.JpathNav) || (typeof require === 'function' ? require('./jpath-nav.js') : null);
+    return nav && nav.iconHtml ? nav.iconHtml(name) : '';
+  }
 
   /** True when the browser can record: getUserMedia and MediaRecorder. */
   function hasMicrophone(env) {
@@ -30,9 +34,9 @@
   function panelHtml(text, hasMic) {
     return '<div class="jp-follow" role="group" aria-label="Luyện nói theo">'
       + '<p lang="ja">' + esc(text) + '</p>'
-      + '<button type="button" class="jp-btn" data-follow="listen">▶ Nghe câu</button>'
-      + (hasMic ? ' <button type="button" class="jp-btn" data-follow="record">● Ghi âm</button>'
-        + ' <button type="button" class="jp-btn" data-follow="mine" disabled>▶ Nghe lại giọng mình</button>' : '')
+      + '<button type="button" class="jp-btn" data-follow="listen">' + icon('play') + ' Nghe câu</button>'
+      + (hasMic ? ' <button type="button" class="jp-btn" data-follow="record">' + icon('circle') + ' Ghi âm</button>'
+        + ' <button type="button" class="jp-btn" data-follow="mine" disabled>' + icon('play') + ' Nghe lại giọng mình</button>' : '')
       + '<p class="jp-muted">' + (hasMic ? 'Bản ghi chỉ ở trên máy này, không gửi đi và không chấm điểm.'
         : 'Máy chưa có micro: bạn vẫn nghe và nói theo được.') + '</p></div>';
   }
@@ -55,7 +59,7 @@
       if (what === 'listen' && sentence) { sentence.currentTime = 0; sentence.play(); return; }
       if (what === 'mine' && mineUrl && env.document) { var a = env.document.createElement('audio'); a.src = mineUrl; a.play(); return; }
       if (what === 'record' && mic) {
-        if (recorder && recorder.state === 'recording') { recorder.stop(); b.textContent = '● Ghi âm'; return; }
+        if (recorder && recorder.state === 'recording') { recorder.stop(); b.innerHTML = icon('circle') + ' Ghi âm'; return; }
         env.navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
           chunks = [];
           recorder = new env.MediaRecorder(stream);
@@ -68,7 +72,7 @@
             if (mine) mine.disabled = !mineUrl;
           };
           recorder.start();
-          b.textContent = '■ Dừng ghi';
+          b.innerHTML = icon('pause') + ' Dừng ghi';
         }, function () {
           b.disabled = true;
           b.textContent = 'Không dùng được micro';

@@ -19,7 +19,7 @@
 
   var BASE = '/api/learning/jlpt';
   var DAY_KIND = { STUDY: 'Ngày học', SKILL: 'Ngày kỹ năng', REST: 'Ngày nghỉ', REVIEW_ONLY: 'Ngày ôn' };
-  var KIND_MARK = { REST: '💤', SKILL: '📖' };
+  var KIND_MARK = { REST: 'moon', SKILL: 'book-open' };
   var TAB = { KANA: 'Chữ cái', VOCAB: 'Từ vựng', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp', SKILL: 'Đọc · Nghe' };
   var CHECK = {
     MICRO_CHECK: 'Micro-check', GROUP_EXERCISE: 'Bài tập nhóm', SKIP_ONE: 'Kiểm 1 câu', TOPIC_KNOWN: 'Kiểm chủ đề',
@@ -34,6 +34,9 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
+
+  function icon(name) { return root && root.JpathNav && root.JpathNav.iconHtml ? root.JpathNav.iconHtml(name)
+    : '<svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-' + name + '"></use></svg>'; }
 
   /** "T3 · 03/11" for an ISO day; the raw text when it is not one. */
   function dayLabel(iso) {
@@ -61,10 +64,10 @@
   function rowMarkup(d) {
     if (!d) return '';
     var checks = Array.isArray(d.checks) ? d.checks : [];
-    var mark = KIND_MARK[d.kind] ? KIND_MARK[d.kind] + ' ' : '';
+    var mark = KIND_MARK[d.kind] ? icon(KIND_MARK[d.kind]) + ' ' : '';
     return '<li class="jp-side-day"><button type="button" class="jp-side-day__btn" data-day="' + esc(d.day) + '">'
       + '<span class="jp-side-day__date">' + esc(dayLabel(d.day)) + '</span>'
-      + '<span class="jp-side-day__kind">' + mark + esc(DAY_KIND[d.kind] || 'Ngoài lộ trình') + (d.done ? ' ✓' : '')
+      + '<span class="jp-side-day__kind">' + mark + esc(DAY_KIND[d.kind] || 'Ngoài lộ trình') + (d.done ? ' ' + icon('circle-check') : '')
       + '</span><span class="jp-side-day__nums">' + esc(Number(d.newLearned) || 0) + ' mới · '
       + esc(Number(d.reviewed) || 0) + ' ôn' + (checks.length ? ' · ' + checks.length + ' bài kiểm' : '') + '</span>'
       + '</button></li>';
@@ -100,7 +103,27 @@
     var status = main.querySelector('[data-role="status"]');
     var list = main.querySelector('[data-role="days"]');
     var detail = main.querySelector('[data-role="detail"]');
+    var search = main.querySelector('[data-role="search"]');
+    var pager = main.querySelector('[data-role="pager"]');
     var days = [];
+    var page = 0;
+
+    function draw() {
+      var term = (search.value || '').trim().toLocaleLowerCase();
+      var filtered = days.filter(function (d) {
+        return !term || [d.day, dayLabel(d.day), DAY_KIND[d.kind]].some(function (v) {
+          return String(v || '').toLocaleLowerCase().indexOf(term) >= 0;
+        });
+      });
+      var pages = Math.max(1, Math.ceil(filtered.length / 20));
+      page = Math.min(page, pages - 1);
+      list.innerHTML = filtered.slice(page * 20, page * 20 + 20).map(rowMarkup).join('');
+      pager.hidden = pages <= 1;
+      pager.querySelector('[data-page="prev"]').disabled = page === 0;
+      pager.querySelector('[data-page="next"]').disabled = page + 1 >= pages;
+      pager.querySelector('[data-role="page"]').textContent = 'Trang ' + (page + 1) + '/' + pages;
+      status.textContent = filtered.length ? '' : (days.length ? 'Không tìm thấy ngày phù hợp.' : 'Chưa có ngày học nào trong khoảng này.');
+    }
 
     function show(d) {
       detail.innerHTML = detailMarkup(d);
@@ -117,8 +140,8 @@
       status.textContent = 'Đang tải…';
       return api.get(BASE + '/history?from=' + isoDay(from) + '&to=' + isoDay(to)).then(function (h) {
         days = (h && Array.isArray(h.days)) ? h.days : [];
-        list.innerHTML = days.map(rowMarkup).join('');
-        status.textContent = days.length ? '' : 'Chưa có ngày học nào trong khoảng này.';
+        page = 0;
+        draw();
       }, function (err) { status.textContent = (err && err.message) || 'Không tải được lịch sử.'; });
     }
 
@@ -126,6 +149,8 @@
       var t = e.target;
       var range = t.closest('[data-range]');
       if (range) { load(Number(range.getAttribute('data-range'))); return; }
+      var pg = t.closest('[data-page]');
+      if (pg) { page += pg.getAttribute('data-page') === 'next' ? 1 : -1; draw(); return; }
       var redo = t.closest('[data-redo]');
       if (redo) {
         redo.disabled = true;
@@ -146,6 +171,7 @@
         if (found) show(found);
       }
     });
+    search.addEventListener('input', function () { page = 0; draw(); });
 
     var wanted = /[?&]day=(\d{4}-\d{2}-\d{2})/.exec(String(root.location && root.location.search || ''));
     load(14).then(function () {

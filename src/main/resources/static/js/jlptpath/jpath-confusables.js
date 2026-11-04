@@ -54,7 +54,30 @@
     var status = main.querySelector('[data-role="status"]');
     var list = main.querySelector('[data-role="pairs"]');
     var start = main.querySelector('[data-role="start"]');
+    var search = main.querySelector('[data-role="search"]');
+    var pager = main.querySelector('[data-role="pager"]');
     var tab = 'VOCAB';
+    var pairs = [];
+    var page = 0;
+
+    function draw() {
+      var term = (search.value || '').trim().toLocaleLowerCase();
+      var filtered = pairs.filter(function (p) {
+        return !term || [p.a, p.b].some(function (s) {
+          return s && [s.expression, s.reading, s.meaning].some(function (v) {
+            return String(v || '').toLocaleLowerCase().indexOf(term) >= 0;
+          });
+        });
+      });
+      var pages = Math.max(1, Math.ceil(filtered.length / 20));
+      page = Math.min(page, pages - 1);
+      list.innerHTML = filtered.slice(page * 20, page * 20 + 20).map(pairMarkup).join('');
+      pager.hidden = pages <= 1;
+      pager.querySelector('[data-page="prev"]').disabled = page === 0;
+      pager.querySelector('[data-page="next"]').disabled = page + 1 >= pages;
+      pager.querySelector('[data-role="page"]').textContent = 'Trang ' + (page + 1) + '/' + pages;
+      status.textContent = filtered.length ? filtered.length + ' cặp' : (pairs.length ? 'Không tìm thấy cặp phù hợp.' : NO_PAIR);
+    }
 
     function load() {
       main.querySelectorAll('[data-tab]').forEach(function (b) {
@@ -62,17 +85,19 @@
       });
       status.textContent = 'Đang tải…';
       start.disabled = true;
-      api.get(BASE + '/confusables?tab=' + tab).then(function (pairs) {
-        var items = Array.isArray(pairs) ? pairs : [];
-        list.innerHTML = items.map(pairMarkup).join('');
-        start.disabled = !items.length;
-        status.textContent = items.length ? '' : NO_PAIR;
+      api.get(BASE + '/confusables?tab=' + tab).then(function (result) {
+        pairs = Array.isArray(result) ? result : [];
+        page = 0;
+        start.disabled = !pairs.length;
+        draw();
       }, function (err) { status.textContent = (err && err.message) || 'Không tải được các cặp dễ nhầm.'; });
     }
 
     main.addEventListener('click', function (e) {
       var t = e.target.closest('[data-tab]');
-      if (t) { tab = t.getAttribute('data-tab'); load(); return; }
+      if (t) { tab = t.getAttribute('data-tab'); search.value = ''; load(); return; }
+      var pg = e.target.closest('[data-page]');
+      if (pg) { page += pg.getAttribute('data-page') === 'next' ? 1 : -1; draw(); return; }
       if (e.target.closest('[data-role="start"]') && !start.disabled) {
         start.disabled = true;
         api.send('POST', BASE + '/checks', { kind: 'CONFUSABLE', tab: tab, count: 10 }).then(function (check) {
@@ -84,6 +109,7 @@
         });
       }
     });
+    search.addEventListener('input', function () { page = 0; draw(); });
     load();
   }
 

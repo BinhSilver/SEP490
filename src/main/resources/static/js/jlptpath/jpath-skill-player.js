@@ -15,12 +15,17 @@
 })(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : null), function (root) {
   'use strict';
 
+  function icon(name) {
+    var nav = (root && root.JpathNav) || (typeof require === 'function' ? require('./jpath-nav.js') : null);
+    return nav && nav.iconHtml ? nav.iconHtml(name) : '';
+  }
+
   /** Buttons for a state {playing, listened, slow, allowReplay}. */
   function controlsHtml(st) {
     var s = st || {};
     var locked = !s.allowReplay && s.listened && !s.playing;
     var main = '<button type="button" class="jp-btn jp-btn--primary" data-player="toggle"' + (locked ? ' disabled' : '')
-      + ' aria-pressed="' + (s.playing ? 'true' : 'false') + '">' + (s.playing ? '⏸ Dừng' : (locked ? 'Đã nghe' : '▶ Phát'))
+      + ' aria-pressed="' + (s.playing ? 'true' : 'false') + '">' + (s.playing ? icon('pause') + ' Dừng' : (locked ? 'Đã nghe' : icon('play') + ' Phát'))
       + '</button>';
     if (!s.allowReplay) return '<div class="jp-player">' + main + '</div>';
     return '<div class="jp-player">' + main

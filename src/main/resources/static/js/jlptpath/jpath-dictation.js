@@ -26,6 +26,10 @@
   }
 
   function list(x) { return Array.isArray(x) ? x : []; }
+  function icon(name) {
+    var nav = (root && root.JpathNav) || (typeof require === 'function' ? require('./jpath-nav.js') : null);
+    return nav && nav.iconHtml ? nav.iconHtml(name) : '';
+  }
 
   /** The masked sentence with one input per blank; the blanks' text is never in it. */
   function maskHtml(mask, qid) {
@@ -56,14 +60,14 @@
       }
     });
     return out + '<p class="jp-muted" lang="ja">' + esc(line.textJa) + '</p>'
-      + '<button type="button" class="jp-btn" data-follow-line="' + esc(line.questionId) + '">🗣 Luyện nói theo</button>'
+      + '<button type="button" class="jp-btn" data-follow-line="' + esc(line.questionId) + '">' + icon('mic-2') + ' Luyện nói theo</button>'
       + '<div data-follow-panel="' + esc(line.questionId) + '"></div>';
   }
 
   function lineHtml(line, token) {
     var audio = line.audioSlot != null
       ? '<button type="button" class="jp-btn" data-line-audio="' + esc(BASE + encodeURIComponent(token) + '/audio/'
-        + encodeURIComponent(line.audioSlot)) + '">▶ Nghe</button> ' : '';
+        + encodeURIComponent(line.audioSlot)) + '">' + icon('play') + ' Nghe</button> ' : '';
     return '<div class="jp-dict-line" data-dict-line="' + esc(line.questionId) + '">' + audio
       + (line.locked ? resultHtml(line)
         : maskHtml(line.mask, line.questionId) + ' <button type="button" class="jp-btn jp-btn--primary" data-dict-check="'

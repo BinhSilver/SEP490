@@ -7,6 +7,10 @@
 .jp-side__range { display: flex; gap: 8px; margin-bottom: 12px; }
 .jp-side__status:empty { display: none; }
 .jp-side__note { color: var(--jp-muted); font-size: .9rem; }
+.jp-side__note input[type="search"] { box-sizing: border-box; width: 100%; min-height: 44px; padding: 8px 12px;
+  border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
+  background: var(--jp-surface); color: var(--jp-ink); font: inherit; }
+.jp-side__note input[type="search"]:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
 
 .jp-side-btn { min-height: 44px; padding: 8px 16px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
   background: var(--jp-surface); color: var(--jp-ink); font: inherit; cursor: pointer; }
@@ -110,3 +114,31 @@
 .jp-side__pager [data-role="page"] { min-width: 6em; text-align: center; font-weight: 600; }
 .jp-side-tiles { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; max-width: 900px; }
 .jp-side-tile { gap: 4px; }
+
+/* Stats: four headline figures and one month of history. */
+.jp-side-tiles--summary { max-width: none; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 12px 0 28px; }
+.jp-side-tiles--summary .jp-side-tile { border-bottom: 1px solid var(--jp-line); border-radius: 0; background: none; padding: 8px 0 12px; }
+.jp-side-month-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.jp-side-month-controls { display: flex; align-items: center; gap: 8px; }
+.jp-side-month-controls [data-role="month-label"] { min-width: 7em; text-align: center; font-weight: 600; }
+.jp-side-month-controls .jp-side-btn { width: 44px; padding: 8px; display: grid; place-items: center; }
+.jp-side-heat { overflow: visible; }
+.jp-side-heat__grid { width: min(100%, 560px); display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.jp-side-heat__weekday { text-align: center; color: var(--jp-muted); font-size: .85em; }
+.jp-side-heat__cell { box-sizing: border-box; display: flex; justify-content: space-between; align-items: flex-start;
+  width: auto; min-width: 0; height: 52px; padding: 5px; border: 1px solid var(--jp-line); border-radius: 6px;
+  color: var(--jp-ink); font-size: .9em; }
+.jp-side-heat__cell.is-empty { border-color: transparent; color: var(--jp-muted); }
+.jp-side-heat__cell .jp-i { color: var(--jp-primary); }
+.jp-side-heat__cell:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-side-more { margin-top: 24px; border-top: 1px solid var(--jp-line); }
+.jp-side-more > summary { box-sizing: border-box; min-height: 44px; padding: 10px 0; font-weight: 600; color: var(--jp-primary); cursor: pointer; }
+.jp-side-more > summary:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-side-more > .jp-side-card { margin: 18px 0; }
+.jp-side-badges { margin-top: 14px; }
+
+@media (max-width: 640px) {
+  .jp-side-tiles--summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .jp-side-heat__cell { height: 44px; padding: 3px; font-size: .8em; }
+  .jp-side-heat__cell .jp-i { width: 12px; height: 12px; }
+}

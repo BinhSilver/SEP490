@@ -43,6 +43,10 @@
     return (root && root.JpathItemDrawer) || (typeof require === 'function' ? require('./jpath-item-drawer.js') : null);
   }
   function esc(v) { return D().esc(v); }
+  function icon(name) {
+    var nav = (root && root.JpathNav) || (typeof require === 'function' ? require('./jpath-nav.js') : null);
+    return nav && nav.iconHtml ? nav.iconHtml(name) : '';
+  }
   function list(v) { return Array.isArray(v) ? v : []; }
   function has(v) { return v !== null && v !== undefined && v !== ''; }
   function num(v) { return Number(v) || 0; }
@@ -83,7 +87,7 @@
       var ex = F().exampleHtml(e);
       if (!ex) return '';
       return '<li class="jp-example">' + (e && has(e.audioUrl) ? '<button type="button" class="jp-icon-btn" data-action="play" data-audio="'
-        + esc(e.audioUrl) + '" aria-label="Nghe câu ví dụ">🔊</button>' : '') + '<div>' + ex + '</div></li>';
+        + esc(e.audioUrl) + '" aria-label="Nghe câu ví dụ">' + icon('volume-2') + '</button>' : '') + '<div>' + ex + '</div></li>';
     }).filter(Boolean).join('');
     html += lessonPart('Ví dụ', examples ? '<ul class="jp-examples">' + examples + '</ul>' : '');
     // secondary patterns attached to this one: learned together with it, never on their own
@@ -118,11 +122,11 @@
     var nav = '';
     if (has(g.prevCode)) {
       nav += '<a class="jp-link-btn" data-action="open-grammar" data-code="' + esc(g.prevCode) + '" href="/learning/jlpt/grammar/'
-        + encodeURIComponent(g.prevCode) + '">← Mẫu trước</a>';
+        + encodeURIComponent(g.prevCode) + '">' + icon('arrow-left') + ' Mẫu trước</a>';
     }
     if (has(g.nextCode)) {
       nav += '<a class="jp-link-btn" data-action="open-grammar" data-code="' + esc(g.nextCode) + '" href="/learning/jlpt/grammar/'
-        + encodeURIComponent(g.nextCode) + '">Mẫu sau →</a>';
+        + encodeURIComponent(g.nextCode) + '">Mẫu sau ' + icon('arrow-right') + '</a>';
     }
     if (nav) foot += '<nav class="jp-lesson__nav" aria-label="Mẫu khác">' + nav + '</nav>';
     if (foot) html += '<div class="jp-lesson__foot">' + foot + '<p class="jp-status" role="status" data-part="lesson-status"></p></div>';

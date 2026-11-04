@@ -55,11 +55,11 @@
     } else if (s.nextLevelComing) {
       next = '<p class="jp-muted">Cấp sau sắp có.</p>';
     }
-    var weak = list(s.weak).length ? '<section class="jp-side-card"><h2>10 mục hay quên</h2><ul class="jp-side-checks">'
+    var weak = list(s.weak).length ? '<details class="jp-side-card"><summary>10 mục hay quên</summary><ul class="jp-side-checks">'
       + list(s.weak).map(function (w) {
         return '<li>' + esc(TYPE[w.type] || w.type) + ' · <span lang="ja">' + esc(w.label || w.code) + '</span> · quên '
           + esc(w.forgetCount) + ' lần</li>';
-      }).join('') + '</ul></section>' : '';
+      }).join('') + '</ul></details>' : '';
     return head
       + '<section class="jp-side-card"><h2>Kết quả ' + lvl + '</h2><div class="jp-side-tiles">'
       + tile(s.learned || 0, 'Đã học') + tile(s.known || 0, 'Đã biết') + tile(acc, 'Độ chính xác micro-check')

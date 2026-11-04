@@ -43,6 +43,10 @@
     return (root && root.JpathDialog) || (typeof require === 'function' ? require('./jpath-dialog.js') : null);
   }
   function esc(v) { return D().esc(v); }
+  function icon(name) {
+    var nav = (root && root.JpathNav) || (typeof require === 'function' ? require('./jpath-nav.js') : null);
+    return nav && nav.iconHtml ? nav.iconHtml(name) : '';
+  }
   function dataJson(o) { return D().dataJson(o); }
   function list(v) { return Array.isArray(v) ? v : []; }
   function has(v) { return v !== null && v !== undefined && v !== ''; }
@@ -99,7 +103,7 @@
       var x = w || {};
       return '<li><span class="jp-ja" lang="ja">' + esc(x.expression) + '</span>'
         + (has(x.reading) ? ' <span class="jp-muted" lang="ja">' + esc(x.reading) + '</span>' : '')
-        + (has(x.meaning) ? ' · ' + esc(x.meaning) : '') + (x.learned ? ' <span class="jp-ok">✓</span>' : '') + '</li>';
+        + (has(x.meaning) ? ' · ' + esc(x.meaning) : '') + (x.learned ? ' <span class="jp-ok">' + icon('check') + '</span>' : '') + '</li>';
     }).join('');
     return rows ? '<ul class="jp-word-list">' + rows + '</ul>' : '';
   }
@@ -136,7 +140,7 @@
     var html = '<div class="jp-drawer" data-part="drawer" data-jpath-report="'
       + dataJson({ targetType: type, targetCode: d.code, pageContext: 'LIST' }) + '">';
     html += '<div class="jp-drawer__head">' + stateChip(state) + (d.hard ? ' <span class="jp-badge">Khó nhớ</span>' : '')
-      + '<button type="button" class="jp-drawer__x" data-dialog-close aria-label="Đóng">×</button></div>';
+      + '<button type="button" class="jp-drawer__x" data-dialog-close aria-label="Đóng">' + icon('x') + '</button></div>';
     html += '<h2 class="jp-drawer__title jp-kanji" id="jp-dialog-title" lang="ja" tabindex="-1">' + esc(title) + '</h2>';
     if (has(d.reading) && d.reading !== title) html += '<p class="jp-drawer__reading jp-ja" lang="ja">' + esc(d.reading) + '</p>';
     var romaji = d.romaji || (type === 'KANA' ? kana.romaji : null);
@@ -146,7 +150,7 @@
     if (meta) html += '<p class="jp-muted">' + esc(meta) + '</p>';
     if (has(d.audioUrl)) {
       html += '<button type="button" class="jp-btn" data-action="play" data-audio="' + esc(d.audioUrl)
-        + '" aria-label="Nghe phát âm">🔊 Nghe</button>';
+        + '" aria-label="Nghe phát âm">' + icon('volume-2') + ' Nghe</button>';
     }
     if (type === 'KANJI') {
       var facts = factRow('Hán Việt', esc([k.hanViet].concat(list(k.hanVietAlt)).filter(has).join(', ').toUpperCase()))
@@ -173,7 +177,7 @@
       var ex = F().exampleHtml(e);
       if (!ex) return '';
       return '<li class="jp-example">' + (e && has(e.audioUrl) ? '<button type="button" class="jp-icon-btn" data-action="play" data-audio="'
-        + esc(e.audioUrl) + '" aria-label="Nghe câu ví dụ">🔊</button>' : '') + '<div>' + ex + '</div></li>';
+        + esc(e.audioUrl) + '" aria-label="Nghe câu ví dụ">' + icon('volume-2') + '</button>' : '') + '<div>' + ex + '</div></li>';
     }).filter(Boolean).join('');
     html += section('Ví dụ', examples ? '<ul class="jp-examples">' + examples + '</ul>' : '');
     html += section('Mẹo nhớ', has(d.mnemonic) ? '<p>' + esc(d.mnemonic) + '</p>' : '');
