@@ -75,28 +75,72 @@
     }).join('') + '</div>';
   }
 
-  /** The strategy lesson with its example and the comprehension question. */
+  function calloutList(kind, iconName, title, items) {
+    var l = list(items);
+    if (!l.length) return '';
+    return '<div class="jp-callout jp-callout--' + kind + '"><span class="jp-callout__icon">' + icon(iconName) + '</span><div>'
+      + '<h3 class="jp-callout__title">' + esc(title) + '</h3>' + bullets(l) + '</div></div>';
+  }
+
+  /** The strategy lesson: goal, numbered steps, traps and tips, a worked example to try first, the comprehension check. */
   function lessonHtml(l) {
     if (!l) return '';
     var ex = l.example || {};
-    var exampleBody = (ex.passageJa ? '<div class="jp-skill-passage" lang="ja">' + esc(ex.passageJa) + '</div>' : '')
+    var source = (ex.passageJa ? '<div class="jp-skill-passage" lang="ja">' + esc(ex.passageJa) + '</div>' : '')
       + (ex.imageDescriptionVi ? '<p class="jp-skill-situation">Tình huống: ' + esc(ex.imageDescriptionVi) + '</p>' : '')
-      + (ex.audioUrl ? '<div data-skill-player data-src="' + esc(ex.audioUrl) + '"></div>' : '')
-      + (ex.questionJa ? '<p class="jp-skill-q" lang="ja">' + esc(ex.questionJa) + '</p>'
-        + optionsHtml(ex.options, 'data-example-option', null, ex.answerOption) : '')
-      + (list(ex.walkthroughVi).length ? '<details><summary>Cách giải</summary>' + bullets(ex.walkthroughVi) + '</details>' : '')
+      + (ex.audioUrl ? '<div data-skill-player data-src="' + esc(ex.audioUrl) + '"></div>' : '');
+    // the learner answers the sample question first; the walkthrough opens on the answer
+    var tryIt = (ex.questionJa ? '<p class="jp-skill-try__label">Thử trả lời trước khi xem cách giải</p>'
+      + '<p class="jp-skill-q" lang="ja">' + esc(ex.questionJa) + '</p>'
+      + '<div data-example-answer="' + esc(ex.answerOption) + '">' + optionsHtml(ex.options, 'data-example-option', null, null)
+      + '</div><p class="jp-skill-explain" data-example-result role="status"></p>' : '')
+      + (list(ex.walkthroughVi).length ? '<details class="jp-skill-walk" data-example-walk><summary>Cách giải</summary>'
+        + '<ol class="jp-howto jp-howto--small">' + list(ex.walkthroughVi).map(function (x) {
+          return '<li>' + esc(x) + '</li>'; }).join('') + '</ol></details>' : '')
       + (ex.scriptJa ? '<details><summary>Lời thoại</summary><p lang="ja">' + esc(ex.scriptJa) + '</p></details>' : '')
       + (ex.translationVi ? '<details><summary>Bản dịch</summary><p>' + esc(ex.translationVi) + '</p></details>' : '');
     var check = l.check || {};
-    return '<section class="jp-skill-block" aria-labelledby="jpLessonTitle"><h2 id="jpLessonTitle">' + esc(l.titleVi) + '</h2>'
-      + (l.goalVi ? '<p><strong>Mục tiêu:</strong> ' + esc(l.goalVi) + '</p>' : '')
-      + (list(l.steps).length ? '<h3>Các bước</h3>' + bullets(l.steps) : '')
-      + (list(l.traps).length ? '<details><summary>Bẫy thường gặp</summary>' + bullets(l.traps) + '</details>' : '')
-      + (list(l.tips).length ? '<details><summary>Mẹo</summary>' + bullets(l.tips) + '</details>' : '')
-      + '<h3>Ví dụ giải mẫu</h3>' + exampleBody + '</section>'
-      + '<section class="jp-skill-block" aria-labelledby="jpLessonCheck"><h2 id="jpLessonCheck">Kiểm tra hiểu bài</h2>'
+    var steps = list(l.steps).length ? '<h3 class="jp-skill-sub">Các bước</h3><ol class="jp-howto">'
+      + list(l.steps).map(function (x) { return '<li>' + esc(String(x).replace(/^Bước\s*\d+\s*[:.]\s*/, '')) + '</li>'; }).join('')
+      + '</ol>' : '';
+    var aside = calloutList('warn', 'circle-alert', 'Bẫy thường gặp', l.traps) + calloutList('tip', 'lightbulb', 'Mẹo', l.tips);
+    return '<section class="jp-skill-block jp-skill-lesson" aria-labelledby="jpLessonTitle">'
+      + '<header class="jp-skill-lesson__hero"><h2 id="jpLessonTitle">' + esc(l.titleVi) + '</h2>'
+      + (l.goalVi ? '<p class="jp-skill-lesson__goal">' + icon('target') + '<span><strong>Mục tiêu:</strong> ' + esc(l.goalVi)
+        + '</span></p>' : '') + '</header>'
+      + '<div class="jp-skill-lesson__how">' + '<div>' + steps + '</div>'
+      + (aside ? '<div class="jp-skill-lesson__aside">' + aside + '</div>' : '') + '</div>'
+      + '<h3 class="jp-skill-sub">Ví dụ giải mẫu</h3><div class="jp-skill-example">'
+      + (source ? '<div class="jp-skill-example__source">' + source + '</div>' : '')
+      + '<div class="jp-skill-example__try">' + tryIt + '</div></div></section>'
+      + '<section class="jp-skill-block jp-skill-check" aria-labelledby="jpLessonCheck"><h2 id="jpLessonCheck">Kiểm tra hiểu bài</h2>'
       + '<p>' + esc(check.questionVi) + '</p>' + optionsHtml(check.options, 'data-lesson-option', null, l.passed ? check.answerOption : null)
       + '<p class="jp-skill-explain" data-lesson-result role="status"></p></section>';
+  }
+
+  /** Marks the learner's try on the worked example and opens its walkthrough; true when it handled the click. */
+  function tryExample(btn) {
+    var box = btn.closest('[data-example-answer]');
+    if (!box) return false;
+    var right = box.getAttribute('data-example-answer');
+    var chosen = btn.getAttribute('data-example-option');
+    Array.prototype.forEach.call(box.querySelectorAll('[data-example-option]'), function (b) {
+      b.disabled = true;
+      var id = b.getAttribute('data-example-option');
+      if (right && id === right) b.classList.add('is-right');
+      else if (id === chosen) b.classList.add(right ? 'is-wrong' : 'is-picked');
+    });
+    var block = box.closest('.jp-skill-example__try') || box.parentNode;
+    var out = block && block.querySelector('[data-example-result]');
+    if (out) {
+      // the server sends the example's answer only once the lesson is passed: before that the walkthrough is the key
+      out.innerHTML = !right ? 'Bạn đã chọn một đáp án. Đối chiếu với cách giải bên dưới xem có khớp không.'
+        : (chosen === right ? '<span class="jp-side-ok">' + icon('circle-check') + ' Chính xác!</span> Xem cách giải để chắc vì sao.'
+          : '<span class="jp-side-miss">' + icon('circle-x') + ' Chưa đúng.</span> Đáp án đúng đã được tô xanh, xem cách giải bên dưới.');
+    }
+    var walk = block && block.querySelector('[data-example-walk]');
+    if (walk) walk.open = true;
+    return true;
   }
 
   /** The verdict of a comprehension answer: wrong → explanation and pick again (#36). */
@@ -255,6 +299,8 @@
 
     body.addEventListener('click', function (ev) {
       var t = ev.target;
+      var exampleOpt = t.closest('[data-example-option]');
+      if (exampleOpt && !exampleOpt.disabled && tryExample(exampleOpt)) return;
       var lessonOpt = t.closest('[data-lesson-option]');
       if (lessonOpt && !lessonOpt.disabled && state.lesson) {
         var opt = lessonOpt.getAttribute('data-lesson-option');
@@ -300,6 +346,6 @@
     load();
   }
 
-  return { STEPS: STEPS, stepsHtml: stepsHtml, lessonHtml: lessonHtml, lessonResultHtml: lessonResultHtml, setHtml: setHtml,
+  return { STEPS: STEPS, stepsHtml: stepsHtml, lessonHtml: lessonHtml, tryExample: tryExample, lessonResultHtml: lessonResultHtml, setHtml: setHtml,
     practiceHtml: practiceHtml, doneHtml: doneHtml, audioUrl: audioUrl, mount: mount };
 });

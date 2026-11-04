@@ -179,3 +179,50 @@
   .jp-path .jp-skill-group .jp-skill-type .jp-btn--sm { grid-column: 2; grid-row: 1 / span 2; min-height: 44px; }
 }
 .jp-skill-group .jp-skill-card__done { display: flex; flex-direction: row; align-items: center; gap: 6px; margin: 4px 0 2px; }
+
+/* 04/11 lesson, livelier: goal in a band, numbered steps, traps/tips as callouts, the worked example tried first */
+.jp-skill-lesson__hero { display: grid; gap: 10px; padding: 24px 24px 20px; border-radius: 12px; background: var(--jp-primary-soft); }
+.jp-skill-lesson__hero h2 { margin: 0; font-size: 1.45em; }
+.jp-skill-lesson__goal { display: flex; gap: 10px; align-items: flex-start; margin: 0; line-height: 1.6; }
+.jp-skill-lesson__goal .jp-i { flex: none; margin-top: 3px; color: var(--jp-primary); width: 1.3em; height: 1.3em; }
+.jp-skill-sub { margin: 26px 0 12px; font-size: 1.1em; }
+.jp-skill-lesson__how { display: grid; gap: 18px 40px; }
+.jp-skill-lesson__aside { display: grid; gap: 18px; align-content: start; padding-top: 4px; }
+.jp-howto { list-style: none; counter-reset: howto; margin: 0; padding: 0; display: grid; gap: 0; }
+.jp-howto > li { counter-increment: howto; position: relative; padding: 0 0 18px 48px; line-height: 1.65; }
+.jp-howto > li::before { content: counter(howto); position: absolute; left: 0; top: -2px; display: grid; place-items: center;
+  width: 32px; height: 32px; border-radius: 50%; background: var(--jp-primary); color: var(--jp-surface); font-weight: 700; }
+.jp-howto > li:not(:last-child)::after { content: ""; position: absolute; left: 15px; top: 32px; bottom: 2px; width: 2px;
+  background: var(--jp-primary-soft); }
+.jp-howto--small > li { padding: 0 0 12px 38px; }
+.jp-howto--small > li::before { width: 26px; height: 26px; font-size: .85em; }
+.jp-howto--small > li:not(:last-child)::after { left: 12px; top: 26px; }
+.jp-skill-example { display: grid; gap: 18px 40px; }
+.jp-skill-example__source .jp-skill-passage { margin: 0; padding: 18px 20px; border-left: 4px solid var(--jp-primary);
+  border-radius: 0 10px 10px 0; background: var(--jp-surface); }
+.jp-skill-try__label { margin: 0 0 6px; color: var(--jp-primary); font-size: .85em; font-weight: 700; letter-spacing: .03em;
+  text-transform: uppercase; }
+.jp-skill-example__try .jp-skill-explain .jp-i { vertical-align: -0.2em; }
+.jp-skill-walk[open] { animation: jp-skill-open .3s ease-out; }
+.jp-skill-check { padding: 22px 24px; border: 2px dashed var(--jp-primary-soft); border-radius: 12px; }
+@media (min-width: 1100px) {
+  .jp-skill-lesson__how { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+  .jp-skill-example { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: start; }
+  .jp-skill-example__source { position: sticky; top: 84px; }
+}
+@media (max-width: 640px) {
+  .jp-skill-lesson__hero, .jp-skill-check { padding: 18px 16px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .jp-skill-q__options button.is-right { animation: jp-skill-pop .35s ease-out; }
+  @keyframes jp-skill-pop { 0% { transform: scale(1); } 45% { transform: scale(1.03); } 100% { transform: scale(1); } }
+  @keyframes jp-skill-open { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+}
+.jp-skill-session .jp-side-ok, .jp-skill-session .jp-side-miss { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; }
+.jp-skill-session .jp-side-ok { color: var(--jp-ok); }
+.jp-skill-session .jp-side-miss { color: var(--jp-danger); }
+.jp-skill-session .jp-skill-explain .jp-i { display: inline-block; width: 1.15em; height: 1.15em; }
+.jp-skill-q__options button.is-right, .jp-skill-q__options button.is-right:disabled { border: 2px solid var(--jp-ok);
+  background: color-mix(in srgb, var(--jp-ok) 14%, var(--jp-surface)); color: var(--jp-ink); opacity: 1; }
+.jp-skill-q__options button.is-wrong, .jp-skill-q__options button.is-wrong:disabled { opacity: 1; }
+.jp-skill-q__options button.is-picked, .jp-skill-q__options button.is-picked:disabled { border: 2px solid var(--jp-primary); background: var(--jp-primary-soft); color: var(--jp-ink); opacity: 1; }
