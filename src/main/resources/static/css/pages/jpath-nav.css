@@ -3,7 +3,9 @@
    Sections are separated by space and headings, not by nested boxes; a card is kept only for one distinct object. */
 
 /* ------------------------------------------------------------------ page width + type scale */
-.jp-i { width: 1.125em; height: 1.125em; vertical-align: -0.2em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.jp-i { width: 1.25em; height: 1.25em; vertical-align: -0.25em; flex: none; fill: currentColor; stroke: none; }
+/* duotone icons: the soft layer follows the icon colour unless a place sets --jp-i-duo (sidenav, tabs: the accent) */
+.jp-sidenav .jp-i, .jp-tab .jp-i, .jp-skill-group__title .jp-i { --jp-i-duo: var(--jp-primary); }
 .jp-page { max-width: 1440px; padding: 20px clamp(16px, 3vw, 40px) 48px; font-size: calc(16px * var(--jp-font-scale)); }
 @media (min-width: 1240px) { .jp-page { font-size: calc(17px * var(--jp-font-scale)); } }
 .jp-sr {
