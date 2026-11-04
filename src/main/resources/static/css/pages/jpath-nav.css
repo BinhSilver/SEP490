@@ -1,0 +1,225 @@
+/* [JLAS-W0108] jpath-nav.css — workspace layout + navigation kit of every JLPT path page (team UI direction 04/11).
+   Layout: breadcrumbs on top, then side navigation | main | rail on wide screens, collapsing to one column on phones.
+   Sections are separated by space and headings, not by nested boxes; a card is kept only for one distinct object. */
+
+/* ------------------------------------------------------------------ page width + type scale */
+.jp-page { max-width: 1440px; padding: 20px clamp(16px, 3vw, 40px) 48px; font-size: calc(16px * var(--jp-font-scale)); }
+@media (min-width: 1240px) { .jp-page { font-size: calc(17px * var(--jp-font-scale)); } }
+.jp-sr {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+.jp-page-head { display: grid; gap: 6px; margin: 0 0 8px; }
+.jp-page-head__title { margin: 0; font-size: 2em; line-height: 1.2; letter-spacing: -.01em; }
+.jp-page-head__lede { margin: 0; color: var(--jp-muted); max-width: 62ch; line-height: 1.55; }
+
+/* ------------------------------------------------------------------ workspace grid */
+.jp-ws {
+  display: grid; gap: 28px 40px; align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "crumbs" "main" "side" "rail";
+}
+.jp-ws__crumbs { grid-area: crumbs; }
+.jp-ws__side { grid-area: side; display: grid; gap: 24px; }
+.jp-ws__main { grid-area: main; display: grid; gap: 28px; min-width: 0; }
+.jp-ws__rail { grid-area: rail; display: grid; gap: 28px; }
+.jp-ws__main:empty, .jp-ws__rail:empty, .jp-ws__side:empty { display: none; }
+@media (min-width: 900px) {
+  .jp-ws { grid-template-columns: 220px minmax(0, 1fr); grid-template-areas: "crumbs crumbs" "side main" "side rail"; }
+  .jp-ws__side { position: sticky; top: 84px; }
+}
+@media (min-width: 1240px) {
+  .jp-ws { grid-template-columns: 236px minmax(0, 1fr) 320px; grid-template-areas: "crumbs crumbs crumbs" "side main rail"; }
+  .jp-ws__rail { position: sticky; top: 84px; }
+}
+/* pages without side navigation: main + rail */
+.jp-ws--two { grid-template-areas: "crumbs" "main" "rail"; }
+@media (min-width: 900px) {
+  .jp-ws--two { grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: "crumbs crumbs" "main rail"; }
+}
+/* focused pages (study, check, session): one readable column, wide enough to breathe */
+.jp-ws--focus { max-width: 920px; margin: 0 auto; grid-template-areas: "crumbs" "main"; }
+
+.jp-sec { display: grid; gap: 14px; }
+.jp-sec__title { margin: 0; font-size: 1.15em; line-height: 1.3; }
+.jp-sec__lede { margin: 0; color: var(--jp-muted); line-height: 1.5; }
+.jp-sec + .jp-sec { padding-top: 4px; }
+
+/* ------------------------------------------------------------------ breadcrumbs */
+.jp-crumbs__list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 0; font-size: .9em; }
+.jp-crumbs__item { display: inline-flex; align-items: center; color: var(--jp-muted); }
+.jp-crumbs__item + .jp-crumbs__item::before { content: "›"; margin: 0 8px; color: var(--jp-line); font-weight: 700; }
+.jp-crumbs__link { color: var(--jp-muted); text-decoration: none; padding: 6px 0; }
+.jp-crumbs__link:hover { color: var(--jp-primary); text-decoration: underline; }
+.jp-crumbs__here { color: var(--jp-ink); font-weight: 600; }
+.jp-crumbs__link:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; border-radius: 4px; }
+
+/* ------------------------------------------------------------------ stepper */
+.jp-stepper { list-style: none; margin: 0; padding: 0; display: flex; gap: 0; counter-reset: none; }
+.jp-stepper .jp-step { position: relative; flex: 1 1 0; display: grid; justify-items: center; gap: 6px; text-align: center; padding: 0 4px; }
+.jp-stepper .jp-step::before {
+  content: ""; position: absolute; top: 15px; left: calc(-50% + 18px); right: calc(50% + 18px); height: 2px;
+  background: var(--jp-line);
+}
+.jp-stepper .jp-step:first-child::before { display: none; }
+.jp-stepper .jp-step--done::before, .jp-stepper .jp-step--now::before { background: var(--jp-primary); }
+.jp-stepper .jp-step__mark {
+  position: relative; z-index: 1; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
+  border: 2px solid var(--jp-line); background: var(--jp-surface); color: var(--jp-muted); font-weight: 700; font-size: .9em;
+}
+.jp-stepper .jp-step--done .jp-step__mark { border-color: var(--jp-primary); background: var(--jp-primary); color: var(--jp-surface); }
+.jp-stepper .jp-step--now .jp-step__mark {
+  border-color: var(--jp-primary); color: var(--jp-primary); box-shadow: 0 0 0 5px var(--jp-primary-soft);
+}
+.jp-stepper .jp-step--off { opacity: .6; }
+.jp-stepper .jp-step__body { display: grid; gap: 2px; color: inherit; text-decoration: none; }
+.jp-stepper a.jp-step__body:hover .jp-step__label { color: var(--jp-primary); text-decoration: underline; }
+.jp-stepper .jp-step__label { font-weight: 600; line-height: 1.3; }
+.jp-stepper .jp-step--now .jp-step__label { color: var(--jp-primary); }
+.jp-stepper .jp-step__sub { color: var(--jp-muted); font-size: .85em; line-height: 1.35; }
+.jp-stepper--compact .jp-step__mark { width: 26px; height: 26px; font-size: .8em; }
+.jp-stepper--compact .jp-step::before { top: 12px; }
+/* vertical stepper: the line runs down the left */
+.jp-stepper--vertical { flex-direction: column; }
+.jp-stepper--vertical .jp-step {
+  grid-template-columns: 32px minmax(0, 1fr); justify-items: start; align-items: start; text-align: left;
+  gap: 12px; padding: 0 0 18px;
+}
+.jp-stepper--vertical .jp-step:last-child { padding-bottom: 0; }
+.jp-stepper--vertical .jp-step::before { display: block; top: 34px; bottom: 2px; left: 15px; right: auto; width: 2px; height: auto; }
+.jp-stepper--vertical .jp-step:last-child::before { display: none; }
+.jp-stepper--vertical .jp-step--done::before { background: var(--jp-primary); }
+.jp-stepper--vertical .jp-step--now::before { background: var(--jp-line); }
+.jp-stepper--vertical .jp-step__body { padding-top: 4px; }
+@media (max-width: 560px) {
+  .jp-stepper:not(.jp-stepper--vertical) .jp-step__sub { display: none; }
+  .jp-stepper:not(.jp-stepper--vertical) .jp-step__label { font-size: .85em; }
+}
+
+/* ------------------------------------------------------------------ progress bar */
+.jp-progress { display: grid; gap: 6px; }
+.jp-progress__head { display: flex; justify-content: space-between; gap: 12px; font-size: .9em; color: var(--jp-muted); }
+.jp-progress__head strong { color: var(--jp-ink); }
+.jp-progress__track { height: 10px; border-radius: 999px; background: var(--jp-primary-soft); overflow: hidden; }
+.jp-progress__fill { display: block; height: 100%; border-radius: inherit; background: var(--jp-primary); transition: width .4s ease; }
+.jp-progress--ok .jp-progress__fill { background: var(--jp-ok); }
+.jp-progress--thin .jp-progress__track { height: 6px; }
+
+/* ------------------------------------------------------------------ flow buttons (back / skip / next / finish) */
+.jp-flow {
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+  padding-top: 16px; border-top: 1px solid var(--jp-line);
+}
+.jp-flow__lead, .jp-flow__tail { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.jp-flow__tail { margin-left: auto; }
+.jp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+.jp-btn--ghost { background: transparent; }
+.jp-btn--quiet { background: transparent; border-color: transparent; color: var(--jp-muted); }
+.jp-btn--quiet:hover { color: var(--jp-primary); }
+.jp-btn--lg { min-height: 52px; padding: 12px 26px; font-size: 1.05em; }
+@media (max-width: 640px) {
+  .jp-flow { position: sticky; bottom: 0; z-index: 5; margin: 0 -16px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: var(--jp-surface); box-shadow: 0 -6px 18px rgb(0 0 0 / 8%); border-top: 0; }
+  .jp-flow__tail { flex: 1 1 auto; }
+  .jp-flow__next, .jp-flow__finish { flex: 1 1 auto; }
+}
+
+/* ------------------------------------------------------------------ pagination + load more */
+.jp-pager { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; padding-top: 8px; }
+.jp-pager__nums { display: inline-flex; gap: 4px; align-items: center; }
+.jp-pager__btn {
+  min-width: 40px; min-height: 40px; padding: 0 10px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-chip);
+  background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-weight: 600; cursor: pointer;
+  display: inline-grid; place-items: center;
+}
+.jp-pager__btn:hover:not([disabled]) { border-color: var(--jp-primary); color: var(--jp-primary); }
+.jp-pager__btn[disabled] { opacity: .4; cursor: default; }
+.jp-pager__btn--at { background: var(--jp-primary); border-color: var(--jp-primary); color: var(--jp-surface); cursor: default; }
+.jp-pager__btn:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-pager__gap { color: var(--jp-muted); padding: 0 2px; }
+.jp-pager__at { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+@media (max-width: 560px) { .jp-pager__nums { display: none; } .jp-pager__at { position: static; width: auto; height: auto; clip: auto; font-weight: 600; } }
+.jp-more { display: flex; gap: 12px; align-items: center; justify-content: center; padding-top: 8px; }
+.jp-more__left { color: var(--jp-muted); font-size: .9em; }
+
+/* ------------------------------------------------------------------ accordion */
+.jp-acc { display: grid; }
+.jp-acc__item { border-bottom: 1px solid var(--jp-line); }
+.jp-acc__item:first-child { border-top: 1px solid var(--jp-line); }
+.jp-acc__head {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 52px; padding: 8px 4px;
+  font-weight: 600; cursor: pointer; list-style: none;
+}
+.jp-acc__head::-webkit-details-marker { display: none; }
+.jp-acc__head::after { content: "+"; font-size: 1.3em; color: var(--jp-muted); transition: transform .2s ease; }
+.jp-acc__item[open] > .jp-acc__head::after { transform: rotate(45deg); }
+.jp-acc__head:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: -3px; }
+.jp-acc__body { padding: 0 4px 18px; display: grid; gap: 12px; }
+
+/* ------------------------------------------------------------------ table of contents (scrollspy) */
+.jp-toc__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; border-left: 2px solid var(--jp-line); }
+.jp-toc__link {
+  display: block; margin-left: -2px; padding: 8px 12px; border-left: 2px solid transparent; color: var(--jp-muted);
+  text-decoration: none; line-height: 1.35;
+}
+.jp-toc__link:hover { color: var(--jp-ink); }
+.jp-toc__link[aria-current="true"] { border-left-color: var(--jp-primary); color: var(--jp-primary); font-weight: 600; }
+.jp-toc__link:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: -3px; }
+@media (max-width: 899px) {
+  .jp-toc__list { display: flex; overflow-x: auto; border-left: 0; border-bottom: 2px solid var(--jp-line); gap: 0; }
+  .jp-toc__link { white-space: nowrap; margin: 0 0 -2px; border-left: 0; border-bottom: 2px solid transparent; }
+  .jp-toc__link[aria-current="true"] { border-bottom-color: var(--jp-primary); }
+}
+
+/* ------------------------------------------------------------------ carousel */
+.jp-carousel { display: grid; gap: 10px; }
+.jp-carousel__track {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 100%; overflow-x: auto; scroll-snap-type: x mandatory;
+  scrollbar-width: none; border-radius: var(--jp-radius-panel);
+}
+.jp-carousel__track::-webkit-scrollbar { display: none; }
+.jp-carousel__slide { scroll-snap-align: start; min-width: 0; }
+.jp-carousel__nav { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.jp-carousel__arrow {
+  width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--jp-line); background: var(--jp-surface);
+  color: var(--jp-ink); font-size: 1.2em; cursor: pointer;
+}
+.jp-carousel__dots { display: inline-flex; gap: 6px; }
+.jp-carousel__dot {
+  width: 10px; height: 10px; padding: 0; border-radius: 50%; border: 0; background: var(--jp-line); cursor: pointer;
+}
+.jp-carousel__dot[aria-current="true"] { width: 26px; border-radius: 999px; background: var(--jp-primary); }
+.jp-carousel__arrow:focus-visible, .jp-carousel__dot:focus-visible, .jp-carousel__track:focus-visible {
+  outline: 3px solid var(--jp-primary); outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ side navigation */
+.jp-sidenav { display: grid; gap: 2px; }
+.jp-sidenav__title { margin: 0 0 6px; font-size: .85em; color: var(--jp-muted); font-weight: 600; }
+.jp-sidenav__link {
+  display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 6px 10px; border-radius: var(--jp-radius-interactive);
+  color: var(--jp-ink); text-decoration: none;
+}
+.jp-sidenav__link:hover { background: var(--jp-primary-soft); }
+.jp-sidenav__link[aria-current="page"] { background: var(--jp-primary-soft); color: var(--jp-primary); font-weight: 600; }
+.jp-sidenav__link.is-off { color: var(--jp-muted); cursor: default; }
+.jp-sidenav__link:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: -3px; }
+@media (max-width: 899px) {
+  .jp-ws__side .jp-sidenav { display: flex; overflow-x: auto; gap: 6px; padding-bottom: 4px; }
+  .jp-ws__side .jp-sidenav__title { display: none; }
+  .jp-ws__side .jp-sidenav__link { flex: 0 0 auto; white-space: nowrap; border: 1px solid var(--jp-line); border-radius: 999px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jp-progress__fill, .jp-acc__head::after { transition: none; }
+}
+
+/* pages with side navigation but no rail */
+@media (min-width: 1240px) {
+  .jp-ws--norail { grid-template-columns: 236px minmax(0, 1fr); grid-template-areas: "crumbs crumbs" "side main"; }
+}
+
+/* horizontal scrollers (phone road, chips, tabs): a thin neutral bar instead of the app's thick one */
+.jp-page .jp-sidenav, .jp-page .jp-level-bar, .jp-page .jp-tabs, .jp-page .jp-toc__list, .jp-page .jp-path__tabs {
+  scrollbar-width: thin; scrollbar-color: var(--jp-line) transparent;
+}
