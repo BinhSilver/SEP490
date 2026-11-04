@@ -35,6 +35,8 @@
   'use strict';
 
   var PATH_URL = '/api/learning/jlpt/path';
+  var SKILLS_OVERVIEW_URL = '/api/learning/jlpt/skills/overview';
+  var SKILL_SESSIONS_URL = '/api/learning/jlpt/skills/sessions';
   var TODAY_URL = '/api/learning/jlpt/today';
   var ESTIMATE_URL = '/api/learning/jlpt/estimate';
   var SLIDERS_URL = '/api/learning/jlpt/path/sliders';
@@ -231,11 +233,9 @@
         + '</span><span class="jp-step__body"><span class="jp-step__label">' + esc(st.label) + '</span>'
         + (st.sub ? '<span class="jp-step__sub">' + esc(st.sub) + '</span>' : '') + '</span></li>';
     }).join('');
-    var days = list(p.skillDays).length ? 'Ngày kỹ năng: ' + dayList(p.skillDays) : '';
-    if (list(p.restDays).length) days += (days ? ' · ' : '') + 'Nghỉ: ' + dayList(p.restDays);
     return '<div class="jp-stage"><h2 class="jp-sr">Chặng ' + esc(p.openLevel) + '</h2>'
       + '<ol class="jp-stepper jp-stage__steps" aria-label="' + esc('Chặng ' + (p.openLevel || '')) + '">' + marks + '</ol>'
-      + (days ? '<p class="jp-stage__days">' + esc(days) + '</p>' : '') + '</div>';
+      + '</div>';
   }
 
   function weekday(iso) {
@@ -263,6 +263,22 @@
    * "Mỗi ngày học gì?": what a study, skill and rest day hold with this path's days and sliders, and why today is the
    * kind it is (a make-up skill day, or a plan made before the week schedule changed).
    */
+  /** Why today is the kind it is, or '' when the week schedule already says so. */
+  function todayReason(path, today) {
+    var p = path || {};
+    var skill = list(p.skillDays);
+    var t = today || {};
+    var todayCode = t.day ? weekday(t.day) : null;
+    if (t.kind === 'SKILL' && t.skillMakeup) return '';
+    if (todayCode && t.kind === 'SKILL' && skill.indexOf(todayCode) < 0) {
+      return 'Kế hoạch hôm nay được tạo trước khi bạn đổi lịch nên vẫn là ngày kỹ năng; lịch mới áp dụng từ ngày mai.';
+    }
+    if (todayCode && t.kind === 'STUDY' && skill.indexOf(todayCode) >= 0) {
+      return 'Kế hoạch hôm nay được tạo trước khi bạn đổi lịch nên vẫn là ngày học; lịch mới áp dụng từ ngày mai.';
+    }
+    return '';
+  }
+
   function weekGuideHtml(path, today) {
     var p = path || {};
     var skill = list(p.skillDays);
@@ -270,25 +286,12 @@
     var study = WEEK_CODES.filter(function (c) { return skill.indexOf(c) < 0 && rest.indexOf(c) < 0; });
     var s = p.sliders || {};
     var names = function (codes) { return codes.length ? ' (' + dayList(codes) + ')' : ''; };
-    var t = today || {};
-    var todayCode = t.day ? weekday(t.day) : null;
-    var why = '';
-    if (t.kind === 'SKILL' && t.skillMakeup) {
-      why = 'Hôm nay là ngày kỹ năng bù: trong tuần còn buổi kỹ năng chưa làm.';
-    } else if (todayCode && t.kind === 'SKILL' && skill.indexOf(todayCode) < 0) {
-      why = 'Hôm nay vẫn là ngày kỹ năng vì kế hoạch hôm nay được tạo trước khi bạn đổi lịch; lịch mới áp dụng từ ngày mai.';
-    } else if (todayCode && t.kind === 'STUDY' && skill.indexOf(todayCode) >= 0) {
-      why = 'Hôm nay là ngày học vì kế hoạch hôm nay được tạo trước khi bạn đổi lịch; lịch mới áp dụng từ ngày mai.';
-    } else if (t.kind === 'REVIEW_ONLY') {
-      why = 'Hôm nay bạn chọn chỉ ôn: không học mới.';
-    }
     var items = '<li><strong>Ngày học</strong>' + esc(names(study)) + ': học mới ' + esc((Number(s.vocab) || 0) + ' từ, '
         + (Number(s.kanji) || 0) + ' Kanji, ' + (Number(s.grammar) || 0) + ' mẫu ngữ pháp') + ', rồi ôn các thẻ đến hạn.</li>'
       + '<li><strong>Ngày kỹ năng</strong>' + esc(names(skill)) + ': không học mới; làm 1 buổi Đọc và 1 buổi Nghe, ôn các thẻ đến hạn.</li>'
       + (rest.length ? '<li><strong>Ngày nghỉ</strong>' + esc(names(rest)) + ': không có bài.</li>' : '')
       + '<li>Bỏ lỡ ngày kỹ năng thì ngày học kế tiếp trong tuần thành ngày kỹ năng bù.</li>';
-    return (why ? '<p class="jp-weekguide__why" role="status">' + icon('lightbulb') + ' <span>' + esc(why) + '</span></p>' : '')
-      + '<details class="jp-weekguide"><summary>Mỗi ngày học gì?</summary><ul class="jp-weekguide__list">' + items + '</ul>'
+    return '<details class="jp-weekguide"><summary>Mỗi ngày học gì?</summary><ul class="jp-weekguide__list">' + items + '</ul>'
       + '<p class="jp-muted">Đổi ngày học, ngày kỹ năng, ngày nghỉ ở <a href="/learning/jlpt/settings#jp-settings-schedule-title">'
       + 'Cài đặt lộ trình</a>; số mục mới mỗi ngày đổi ở "Điều chỉnh nhịp học" bên dưới.</p></details>';
   }
@@ -406,7 +409,8 @@
       // the pace panel is folded; a pace warning (behind, rebalance) opens it so it is not missed
       var pace = part(rootEl, 'pace');
       if (pace && list(p.warnings).length) pace.open = true;
-      setSlot(rootEl, 'today', C.todayHtml(state.today, p, state.tab));
+      setSlot(rootEl, 'today', C.todayHtml(state.today, p, state.tab,
+        { skills: state.skills, why: todayReason(p, state.today) }));
     }
 
     // the [data-slot="list"] area belongs to jpath-lists.js (loaded before this file); it keeps its own filters
@@ -481,6 +485,10 @@
       return Promise.resolve().then(function () { return apiClient.get(TODAY_URL); }).then(function (t) {
         state.today = t;
         state.todayFailed = false;
+        // a skill day lists its Reading and Listening sessions: their type of the day and state come from the overview
+        if (!t || t.kind !== 'SKILL') { state.skills = null; return null; }
+        return Promise.resolve().then(function () { return apiClient.get(SKILLS_OVERVIEW_URL); })
+          .then(function (o) { state.skills = o || null; }, function () { state.skills = null; });
       }, function () { state.todayFailed = true; });
     }
 
@@ -533,6 +541,15 @@
         var req = el.getAttribute('data-mode') === 'SPLIT'
           ? C.startRequest('TAB', el.getAttribute('data-tab-key') || state.tab) : C.startRequest('COMBINED');
         start(req, el);
+      },
+      'start-skill': function (el) {
+        el.disabled = true;
+        apiClient.send('POST', SKILL_SESSIONS_URL, { skill: el.getAttribute('data-skill'), kind: 'DAY' }).then(function (v) {
+          if (v && v.id != null) (deps.navigate || function (u) { root.location.assign(u); })('/learning/jlpt/skills/session/' + encodeURIComponent(v.id));
+        }).catch(failInto('today-error', el));
+      },
+      'start-skill-review': function (el) {
+        start({ tab: 'SKILL', mode: 'TODAY' }, el);
       },
       'start-tab': function (el) {
         var key = el.getAttribute('data-start-tab');
@@ -687,7 +704,7 @@
 
   var api = Object.assign({}, C, {
     TAB_KEY: TAB_KEY, resolveTab: resolveTab, menuHtml: menuHtml, withoutTour: withoutTour, tabsBarHtml: tabsBarHtml, heroHtml: heroHtml,
-    levelBarHtml: levelBarHtml, levelCellHtml: levelCellHtml, stageLineHtml: stageLineHtml, weekHtml: weekHtml, weekGuideHtml: weekGuideHtml,
+    levelBarHtml: levelBarHtml, levelCellHtml: levelCellHtml, stageLineHtml: stageLineHtml, weekHtml: weekHtml, weekGuideHtml: weekGuideHtml, todayReason: todayReason,
     estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,
     displayTarget: displayTarget, writeUrl: writeUrl, crumbsHtml: crumbsHtml, mount: mount, current: null
   });

@@ -175,11 +175,57 @@
     return '<div class="jp-modes">' + html + '</div>';
   }
 
-  function todayHtml(today, path, activeTab) {
+  var SKILL_NAME = { READING: 'Đọc', LISTENING: 'Nghe' };
+
+  function skillTask(card, skill) {
+    var name = SKILL_NAME[skill];
+    var c = card || {};
+    var what = c.typeNameVi ? ' · ' + c.typeNameVi : '';
+    var floor = skill === 'LISTENING'
+      ? (c.floorQuestions ? 'Lý thuyết, nghe ít nhất ' + num(c.floorQuestions) + ' câu, chép chính tả ' + num(c.dictationFloor) + ' câu' : '')
+      : (c.floorQuestions ? 'Lý thuyết, đọc ít nhất ' + num(c.floorPassages) + ' đoạn, làm ít nhất ' + num(c.floorQuestions) + ' câu' : '');
+    var action;
+    if (card && !c.typeCode) {
+      action = '<span class="jp-muted">Chưa có bài</span>';
+    } else if (c.doneToday) {
+      action = '<span class="jp-todo__done">' + icon('check') + ' Đã xong</span>';
+    } else if (c.openSessionId != null) {
+      action = '<a class="jp-btn jp-btn--primary" href="/learning/jlpt/skills/session/' + encodeURIComponent(c.openSessionId)
+        + '">Làm tiếp</a>';
+    } else {
+      action = '<button type="button" class="jp-btn jp-btn--primary" data-action="start-skill" data-skill="' + skill + '">Bắt đầu '
+        + esc(name) + '</button>';
+    }
+    return '<li class="jp-todo__item' + (c.doneToday ? ' is-done' : '') + '">'
+      + '<span class="jp-todo__icon">' + icon(skill === 'LISTENING' ? 'headphones' : 'book-open') + '</span>'
+      + '<span class="jp-todo__text"><span><strong>' + esc(name) + '</strong>' + esc(what) + '</span>'
+      + (floor ? '<span class="jp-todo__sub">' + esc(floor) + '</span>' : '') + '</span>' + action + '</li>';
+  }
+
+  /** A skill day as the list of what to do today: the Reading session, the Listening session, then reviews and quiz. */
+  function skillDayHtml(t, extra) {
+    var o = (extra && extra.skills) || null;
+    var due = reviewDue(t);
+    var quiz = quizRequired(t);
+    var reviewDone = due === 0 && !quiz;
+    var reviewText = (due ? 'Ôn ' + due + ' thẻ đến hạn' : 'Không có thẻ đến hạn') + (quiz ? ' · quiz tự do 10 câu' : '');
+    return '<p class="jp-today__summary">Hôm nay không học từ mới. Làm lần lượt:' + (t.skillMakeup ? ' (bù ngày kỹ năng đã lỡ)' : '')
+      + '</p><ol class="jp-todo">' + skillTask(o && o.reading, 'READING') + skillTask(o && o.listening, 'LISTENING')
+      + '<li class="jp-todo__item' + (reviewDone ? ' is-done' : '') + '"><span class="jp-todo__icon">' + icon('rotate-ccw')
+      + '</span><span class="jp-todo__text"><strong>' + (quiz ? 'Ôn và quiz' : 'Ôn thẻ') + '</strong>' + '<span class="jp-todo__sub">' + esc(reviewText)
+      + '</span></span>' + (reviewDone ? '<span class="jp-todo__done">' + icon('check') + ' Xong</span>'
+        : '<button type="button" class="jp-btn" data-action="start-skill-review">Bắt đầu ôn</button>') + '</li></ol>';
+  }
+
+  function todayHtml(today, path, activeTab, extra) {
     if (!today) return '';
     var t = today;
+    var x = extra || {};
+    var kindName = { SKILL: 'Ngày kỹ năng', REST: 'Ngày nghỉ', REVIEW_ONLY: 'Ngày ôn', STUDY: 'Ngày học' }[t.kind] || '';
     var html = '<section class="jp-card jp-today" data-tour="today" aria-labelledby="jp-today-title">'
-      + '<h2 class="jp-section-title" id="jp-today-title">Hôm nay của bạn</h2>';
+      + '<h2 class="jp-section-title" id="jp-today-title">Hôm nay của bạn'
+      + (kindName ? ' <span class="jp-today__kind">' + esc(kindName) + '</span>' : '') + '</h2>'
+      + (x.why ? '<p class="jp-today__why">' + esc(x.why) + '</p>' : '');
     var end = '</section>';
     var missed = t.skillDayMissed ? '<p class="jp-warn">Tuần này bạn còn thiếu ngày kỹ năng.</p>' : '';
     if (t.allDone) {
@@ -190,11 +236,8 @@
       return html + '<p>Hôm nay là ngày nghỉ của bạn: không có phần bắt buộc.</p>' + missed + end;
     }
     if (t.kind === 'SKILL') {
-      var line = 'Hôm nay là ngày kỹ năng: không học mới, ôn ' + reviewDue(t) + ' thẻ'
-        + (quizRequired(t) ? ' + 1 quiz tự do từ 10 câu.' : '.');
-      if (t.skillMakeup) line += ' Hôm nay bù ngày kỹ năng đã lỡ.';
-      return html + '<p>' + esc(line) + '</p>' + missed
-        + '<button type="button" class="jp-btn jp-btn--primary" data-action="start-tab" data-start-tab="skills">Bắt đầu ngày kỹ năng</button>' + end;
+      return html + skillDayHtml(t, extra) + missed
+        + '<p class="jp-alert" role="alert" data-part="today-error" hidden></p>' + end;
     }
     if (t.kind === 'REVIEW_ONLY') {
       return html + '<p>' + esc('Hôm nay là ngày ôn: chỉ ôn ' + reviewDue(t) + ' thẻ, không học mới.') + '</p>' + missed
@@ -288,5 +331,5 @@
       sliders: sliderBody(draft), kanaTab: !!p.kanaTab, mode: p.mode || 'COMBINED' };
   }
 
-  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
+  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, skillDayHtml: skillDayHtml, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
 });
