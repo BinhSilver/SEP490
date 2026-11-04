@@ -2,7 +2,7 @@
  *
  * window.JpathStats = { heatmapColumns(cells, from), barHeights(values, maxPx), heatClass(level), kindMark(kind), mount() }
  *   - GET /api/learning/jlpt/stats?range=7|30: accuracy tiles ("—" when null), learned / known / notebook, streaks and
- *     one CSS bar per day; GET /stats/heatmap?months=6: weeks as columns (Monday first, 💤 rest, 📖 skill), a cell
+ *     one CSS bar per day; GET /stats/heatmap?months=6: one month at a time, a cell
  *     opens /learning/jlpt/history?day=…; GET /badges: earned badges and "progress/goal" for the others.
  */
 (function (root, factory) {
@@ -61,7 +61,13 @@
   }
 
   function kindMark(kind) {
-    return kind === 'REST' ? '💤' : kind === 'SKILL' ? '📖' : '';
+    return kind === 'REST' ? 'moon' : kind === 'SKILL' ? 'book-open' : '';
+  }
+
+  function icon(name, label) {
+    if (root && root.JpathNav && root.JpathNav.iconHtml) return root.JpathNav.iconHtml(name, label);
+    return '<svg class="jp-i" ' + (label ? 'role="img" aria-label="' + esc(label) + '"' : 'aria-hidden="true"')
+      + '><use href="/images/icons/jpath-icons.svg#i-' + esc(name) + '"></use></svg>';
   }
 
   function percent(v) {
@@ -96,20 +102,46 @@
         + 'px"></span><span class="jp-side-bar__n">' + esc(total) + '</span><span class="jp-side-bar__day">'
         + esc(shortDay(d.day)) + '</span></div>';
     }).join('');
-    return { acc: acc, counts: counts, bars: bars };
+    var summary = tile(sum(s.learned), 'Đã học') + tile(sum(s.known), 'Đã biết')
+      + tile(sum(s.notebook), 'Sổ tay') + tile((Number(s.currentStreak) || 0) + ' ngày', 'Chuỗi hiện tại');
+    return { summary: summary, acc: acc, counts: counts, bars: bars };
   }
 
-  function heatmapMarkup(h) {
-    var cols = heatmapColumns(h && h.cells, h && h.from);
-    return '<div class="jp-side-heat__grid">' + cols.map(function (col) {
-      return '<div class="jp-side-heat__col">' + col.map(function (c) {
-        if (!c) return '<span class="jp-side-heat__cell is-empty" aria-hidden="true"></span>';
-        var label = shortDay(c.day) + ': ' + (Number(c.count) || 0) + ' lượt';
-        return '<a class="jp-side-heat__cell ' + heatClass(c.level) + '" href="/learning/jlpt/history?day='
-          + encodeURIComponent(c.day) + '" title="' + esc(label) + '" aria-label="' + esc(label) + '">'
-          + esc(kindMark(c.kind)) + '</a>';
-      }).join('') + '</div>';
-    }).join('') + '</div>';
+  function availableMonths(h) {
+    return Array.from(new Set((h && Array.isArray(h.cells) ? h.cells : []).map(function (c) {
+      return String(c.day || '').slice(0, 7);
+    }).filter(function (m) { return /^\d{4}-\d{2}$/.test(m); })));
+  }
+
+  function heatmapMarkup(h, month) {
+    var cells = h && Array.isArray(h.cells) ? h.cells : [];
+    var months = availableMonths(h);
+    var selected = month || months[months.length - 1];
+    if (!selected) return '';
+    var year = Number(selected.slice(0, 4));
+    var monthIndex = Number(selected.slice(5, 7)) - 1;
+    var first = new Date(Date.UTC(year, monthIndex, 1));
+    var count = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
+    var byDay = {};
+    cells.forEach(function (c) { if (String(c.day).slice(0, 7) === selected) byDay[c.day] = c; });
+    var html = '<div class="jp-side-heat__grid">';
+    ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].forEach(function (day) {
+      html += '<span class="jp-side-heat__weekday">' + day + '</span>';
+    });
+    for (var blank = 0; blank < (first.getUTCDay() + 6) % 7; blank++) {
+      html += '<span class="jp-side-heat__cell is-empty" aria-hidden="true"></span>';
+    }
+    for (var day = 1; day <= count; day++) {
+      var iso = selected + '-' + String(day).padStart(2, '0');
+      var c = byDay[iso];
+      if (!c) { html += '<span class="jp-side-heat__cell is-empty">' + day + '</span>'; continue; }
+      var kind = c.kind === 'REST' ? 'ngày nghỉ' : c.kind === 'SKILL' ? 'ngày kỹ năng' : '';
+      var label = shortDay(c.day) + ': ' + (Number(c.count) || 0) + ' lượt' + (kind ? ', ' + kind : '');
+      html += '<a class="jp-side-heat__cell ' + heatClass(c.level) + '" href="/learning/jlpt/history?day='
+        + encodeURIComponent(c.day) + '" title="' + esc(label) + '" aria-label="' + esc(label) + '">'
+        + '<span>' + day + '</span>' + (kindMark(c.kind) ? icon(kindMark(c.kind)) : '') + '</a>';
+    }
+    return html + '</div>';
   }
 
   function badgesMarkup(list) {
@@ -131,6 +163,21 @@
     var status = main.querySelector('[data-role="status"]');
     var part = function (name) { return main.querySelector('[data-role="' + name + '"]'); };
     var fail = function (err) { status.textContent = (err && err.message) || 'Không tải được thống kê.'; };
+    var heatmap = null;
+    var monthIndex = 0;
+    main.querySelector('[data-month-step="-1"]').innerHTML = icon('chevron-left');
+    main.querySelector('[data-month-step="1"]').innerHTML = icon('chevron-right');
+
+    function drawMonth() {
+      var months = availableMonths(heatmap);
+      if (!months.length) { part('heatmap').textContent = 'Chưa có dữ liệu lịch học.'; return; }
+      monthIndex = Math.max(0, Math.min(monthIndex, months.length - 1));
+      var month = months[monthIndex];
+      part('month-label').textContent = 'Tháng ' + Number(month.slice(5, 7)) + '/' + month.slice(0, 4);
+      part('heatmap').innerHTML = heatmapMarkup(heatmap, month);
+      main.querySelector('[data-month-step="-1"]').disabled = monthIndex === 0;
+      main.querySelector('[data-month-step="1"]').disabled = monthIndex === months.length - 1;
+    }
 
     function load(range) {
       main.querySelectorAll('[data-range]').forEach(function (b) {
@@ -139,6 +186,7 @@
       status.textContent = 'Đang tải…';
       api.get(BASE + '/stats?range=' + range).then(function (s) {
         var m = statsMarkup(s || {});
+        part('summary').innerHTML = m.summary;
         part('accuracy').innerHTML = m.acc;
         part('counts').innerHTML = m.counts;
         part('bars').innerHTML = m.bars;
@@ -149,12 +197,19 @@
     main.addEventListener('click', function (e) {
       var range = e.target.closest('[data-range]');
       if (range) load(Number(range.getAttribute('data-range')));
+      var step = e.target.closest('[data-month-step]');
+      if (step) { monthIndex += Number(step.getAttribute('data-month-step')); drawMonth(); }
     });
     load(7);
-    api.get(BASE + '/stats/heatmap?months=6').then(function (h) { part('heatmap').innerHTML = heatmapMarkup(h); }, fail);
+    api.get(BASE + '/stats/heatmap?months=6').then(function (h) {
+      heatmap = h;
+      monthIndex = availableMonths(h).length - 1;
+      drawMonth();
+    }, fail);
     api.get(BASE + '/badges').then(function (b) { part('badges').innerHTML = badgesMarkup(b); }, fail);
   }
 
   return { heatmapColumns: heatmapColumns, barHeights: barHeights, heatClass: heatClass, kindMark: kindMark,
+    availableMonths: availableMonths,
     statsMarkup: statsMarkup, heatmapMarkup: heatmapMarkup, badgesMarkup: badgesMarkup, mount: mount };
 });

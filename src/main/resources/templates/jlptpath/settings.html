@@ -24,7 +24,7 @@
 
         <div class="jp-settings__content" data-role="content" hidden>
             <section class="jp-card" data-block="target" aria-labelledby="jp-settings-target-title">
-                <h2 class="jp-settings-card__title" id="jp-settings-target-title"><span aria-hidden="true">🎯</span> Đích của bạn</h2>
+                <h2 class="jp-settings-card__title" id="jp-settings-target-title">Đích của bạn</h2>
                 <div class="jp-settings-fields">
                     <label class="jp-settings-field">
                         <span class="jp-settings-field__label">Cấp mục tiêu</span>
@@ -52,7 +52,7 @@
             </section>
 
             <section class="jp-card" data-block="schedule" aria-labelledby="jp-settings-schedule-title">
-                <h2 class="jp-settings-card__title" id="jp-settings-schedule-title"><span aria-hidden="true">🗓</span> Lịch tuần</h2>
+                <h2 class="jp-settings-card__title" id="jp-settings-schedule-title">Lịch tuần</h2>
                 <div class="jp-settings-fields">
                     <label class="jp-settings-field">
                         <span class="jp-settings-field__label">Thời gian rảnh mỗi ngày</span>
@@ -76,8 +76,21 @@
                 </div>
             </section>
 
+            <section class="jp-card" data-block="sliders" aria-labelledby="jp-settings-sliders-title">
+                <h2 class="jp-settings-card__title" id="jp-settings-sliders-title">Mỗi ngày học</h2>
+                <p class="jp-settings-strong" data-role="slider-values"></p>
+                <p data-role="adjustments"></p>
+                <p class="jp-settings-muted"><a class="jp-settings-link" href="/learning">Đổi tại trang lộ trình</a>.</p>
+                <details class="jp-settings-detail">
+                    <summary>Lịch sử chỉnh</summary>
+                    <ul class="jp-settings-history" data-role="history"></ul>
+                </details>
+            </section>
+
+            <details class="jp-settings-advanced">
+                <summary>Nâng cao</summary>
             <section class="jp-card" data-block="display" aria-labelledby="jp-settings-display-title">
-                <h2 class="jp-settings-card__title" id="jp-settings-display-title"><span aria-hidden="true">⚙</span> Cách học &amp; hiển thị</h2>
+                <h2 class="jp-settings-card__title" id="jp-settings-display-title">Cách học &amp; hiển thị</h2>
                 <fieldset class="jp-settings-group">
                     <legend class="jp-settings-field__label">Cách học mặc định</legend>
                     <div class="jp-settings-radios">
@@ -121,20 +134,11 @@
                 </div>
             </section>
 
-            <section class="jp-card" data-block="sliders" aria-labelledby="jp-settings-sliders-title">
-                <h2 class="jp-settings-card__title" id="jp-settings-sliders-title"><span aria-hidden="true">📊</span> Mỗi ngày học</h2>
-                <p class="jp-settings-strong" data-role="slider-values"></p>
-                <p data-role="adjustments"></p>
-                <p class="jp-settings-muted"><a class="jp-settings-link" href="/learning">Đổi tại trang lộ trình</a>; lịch sử các lần chỉnh xem ở đây.</p>
-                <h3 class="jp-settings-subtitle">Lịch sử chỉnh</h3>
-                <ul class="jp-settings-history" data-role="history"></ul>
-            </section>
-
             <section class="jp-card jp-settings-change" data-block="change" aria-labelledby="jp-settings-change-title">
-                <h2 class="jp-settings-card__title" id="jp-settings-change-title"><span aria-hidden="true">🔀</span> Đổi lộ trình</h2>
+                <h2 class="jp-settings-card__title" id="jp-settings-change-title">Đổi lộ trình</h2>
                 <div class="jp-settings-options">
                     <div class="jp-settings-option" data-role="lower" hidden>
-                        <h3 class="jp-settings-subtitle"><span aria-hidden="true">⬇</span> Học cấp thấp hơn</h3>
+                        <h3 class="jp-settings-subtitle">Học cấp thấp hơn</h3>
                         <p data-role="lower-text"></p>
                         <label class="jp-settings-field" data-role="lower-level-wrap" hidden>
                             <span class="jp-settings-field__label">Cấp muốn học</span>
@@ -143,12 +147,12 @@
                         <button type="button" class="jp-settings-btn" data-role="lower-go">Học cấp thấp hơn</button>
                     </div>
                     <div class="jp-settings-option">
-                        <h3 class="jp-settings-subtitle"><span aria-hidden="true">↔</span> Đổi mục tiêu</h3>
+                        <h3 class="jp-settings-subtitle">Đổi mục tiêu</h3>
                         <p>Sang Công việc / Đời sống / Du lịch. Lộ trình JLPT được giữ, quay về được.</p>
                         <button type="button" class="jp-settings-btn" data-role="goal-go">Đổi mục tiêu</button>
                     </div>
                     <div class="jp-settings-option jp-settings-option--danger">
-                        <h3 class="jp-settings-subtitle"><span aria-hidden="true">↺</span> Bắt đầu lại từ đầu</h3>
+                        <h3 class="jp-settings-subtitle">Bắt đầu lại từ đầu</h3>
                         <p>Xóa toàn bộ tiến độ JLPT, làm lại khảo sát + Smart Test.</p>
                         <label class="jp-settings-field">
                             <span class="jp-settings-field__label">Gõ “BẮT ĐẦU LẠI” để mở nút</span>
@@ -159,6 +163,7 @@
                 </div>
                 <p class="jp-settings-error" role="alert" data-role="block-error" hidden></p>
             </section>
+            </details>
         </div>
     </div>
 </div>

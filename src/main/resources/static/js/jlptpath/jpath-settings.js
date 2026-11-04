@@ -450,6 +450,14 @@
     }
 
     function bind() {
+      var toc = el.querySelector('[data-jp-toc-auto]');
+      if (toc) toc.addEventListener('click', function (event) {
+        var link = event.target.closest('[data-jp-toc-for]');
+        if (!link) return;
+        var section = doc.getElementById(link.getAttribute('data-jp-toc-for'));
+        var details = section && section.closest('.jp-settings-advanced');
+        if (details) details.open = true;
+      });
       Object.keys(BLOCKS).forEach(function (name) {
         var scope = block(name);
         scope.addEventListener('change', function (event) {
