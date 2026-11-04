@@ -402,7 +402,8 @@ function kanjiItems({ frames, jlasLevels, dictionary }, level, vocabPool) {
   const take = ch => { if (!byChar.has(ch)) byChar.set(ch, { mirai: [], jlas: [] }); return byChar.get(ch); };
   for (const l of LEVELS) {
     for (const f of frames[l]?.kanji ?? []) take(f.character).mirai.push({ level: l, order: f.order });
-    for (const k of jlasLevels[l]?.kanji ?? []) take(k.character).jlas.push({ level: l, ...k });
+    // a JLAS "kanji" row must be one character: rows like 突く are words and would collide with the kanji's id
+    for (const k of jlasLevels[l]?.kanji ?? []) if ([...String(k.character ?? '')].length === 1) take(k.character).jlas.push({ level: l, ...k });
   }
   // Forms the other kanji of a word may take, from the dictionary readings (or the override table).
   const formsByChar = new Map();
