@@ -13,7 +13,8 @@ public record JpathLevelSummary(String level, int known, int learned, BigDecimal
         List<WeakItem> weak, Integer mockScore, LocalDate passedOn, String nextLevel, boolean targetReached,
         boolean nextLevelComing, List<ExtraLink> extraLinks) {
 
-    public record WeakItem(String type, String code, int forgetCount) { }
+    /** {@code label}: the word, kanji, pattern or kana as shown to the learner (the code when it is gone). */
+    public record WeakItem(String type, String code, int forgetCount, String label) { }
 
     public record ExtraLink(String labelVi, String href) { }
 }

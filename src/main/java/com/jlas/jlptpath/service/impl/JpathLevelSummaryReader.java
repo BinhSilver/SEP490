@@ -46,12 +46,38 @@ public class JpathLevelSummaryReader {
                         + " order by forget_count desc, item_code")
                 .setParameter(1, userId).setParameter(2, level).setMaxResults(WEAK_LIMIT).getResultList();
         List<JpathLevelSummary.WeakItem> weak = new ArrayList<>();
+        java.util.Map<String, String> labels = labels(rows);
         for (Object o : rows) {
             Object[] r = (Object[]) o;
-            weak.add(new JpathLevelSummary.WeakItem(String.valueOf(r[0]), String.valueOf(r[1]),
-                    ((Number) r[2]).intValue()));
+            String code = String.valueOf(r[1]);
+            weak.add(new JpathLevelSummary.WeakItem(String.valueOf(r[0]), code, ((Number) r[2]).intValue(),
+                    labels.getOrDefault(String.valueOf(r[0]) + "|" + code, code)));
         }
         return new Counts(known, learned, accuracy, days, List.copyOf(weak));
+    }
+
+    /** "TYPE|code" → what the learner reads: the word, the kanji, the pattern or the kana. */
+    private java.util.Map<String, String> labels(List<?> rows) {
+        java.util.Map<String, List<String>> byType = new java.util.HashMap<>();
+        for (Object o : rows) {
+            Object[] r = (Object[]) o;
+            byType.computeIfAbsent(String.valueOf(r[0]), k -> new ArrayList<>()).add(String.valueOf(r[1]));
+        }
+        java.util.Map<String, String> out = new java.util.HashMap<>();
+        java.util.Map<String, String> jpql = java.util.Map.of(
+                "VOCAB", "select x.code, x.expression from JpathVocabulary x where x.code in :codes",
+                "KANJI", "select x.code, x.character from JpathKanji x where x.code in :codes",
+                "GRAMMAR", "select x.code, x.pattern from JpathGrammar x where x.code in :codes",
+                "KANA", "select x.code, x.kana from JpathKana x where x.code in :codes");
+        byType.forEach((type, codes) -> {
+            String q = jpql.get(type);
+            if (q != null) {
+                for (Object[] r : em.createQuery(q, Object[].class).setParameter("codes", codes).getResultList()) {
+                    out.put(type + "|" + r[0], String.valueOf(r[1]));
+                }
+            }
+        });
+        return out;
     }
 
     private int count(String sql, Long userId, String level) {

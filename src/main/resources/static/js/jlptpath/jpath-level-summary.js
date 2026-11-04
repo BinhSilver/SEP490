@@ -57,7 +57,7 @@
     }
     var weak = list(s.weak).length ? '<section class="jp-side-card"><h2>10 mục hay quên</h2><ul class="jp-side-checks">'
       + list(s.weak).map(function (w) {
-        return '<li>' + esc(TYPE[w.type] || w.type) + ' · <span lang="ja">' + esc(w.code) + '</span> · quên '
+        return '<li>' + esc(TYPE[w.type] || w.type) + ' · <span lang="ja">' + esc(w.label || w.code) + '</span> · quên '
           + esc(w.forgetCount) + ' lần</li>';
       }).join('') + '</ul></section>' : '';
     return head
