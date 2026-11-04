@@ -221,8 +221,9 @@ public class JpathSettingsWriter {
 
         boolean targetChanged = !target.equals(path.getTargetLevel()) || !Objects.equals(exam, path.getExamDate());
         boolean minutesChanged = minutes != path.getDailyMinutes();
-        // Policy #29: a new target or exam resets the sliders to the recommendation for the minutes.
-        JpathSliderValues sliders = targetChanged ? JpathPacingEngine.recommend(open, minutes)
+        // Policy #29: a new target or exam resets the sliders to the recommendation for the minutes. Owner 04/11: new
+        // minutes reset them too, so the day load follows the time the learner has.
+        JpathSliderValues sliders = targetChanged || minutesChanged ? JpathPacingEngine.recommend(open, minutes)
                 : new JpathSliderValues(level.getSliderVocab(), level.getSliderKanji(), level.getSliderGrammar());
         JpathPathViewAssembler.Schedule schedule = new JpathPathViewAssembler.Schedule(target, exam, minutes,
                 skillDays, restDays, third, mode, sliders);
@@ -261,14 +262,17 @@ public class JpathSettingsWriter {
             path.setSuggestionReason(suggestion.reason());
         }
         boolean slidersChanged = false;
-        if (c.targetChanged) {
+        if (c.targetChanged || c.minutesChanged) {
             JpathSliderValues after = s.sliders();
             slidersChanged = !after.equals(before);
             level.setSliderVocab(after.vocab());
             level.setSliderKanji(after.kanji());
             level.setSliderGrammar(after.grammar());
-            adjustments.save(JpathPathRules.adjustment(path.getId(), path.getOpenLevel(),
-                    JpathSliderKind.TARGET_CHANGE, false, before, after, s.minutes()));
+            if (c.targetChanged || slidersChanged) {
+                adjustments.save(JpathPathRules.adjustment(path.getId(), path.getOpenLevel(),
+                        c.targetChanged ? JpathSliderKind.TARGET_CHANGE : JpathSliderKind.UPDATE, false, before, after,
+                        s.minutes()));
+            }
         }
         // Priority mode (#30) from the pace of the new schedule, as JpathPathUpdater does.
         level.setPriorityMode(c.pacing.pace().skippedLowPriority() > 0);
