@@ -1,6 +1,7 @@
 /* [JLAS-W0108] jpath-nav.js — shared navigation kit of the JLPT path pages (team UI direction 04/11).
  *
  * window.JpathNav = {
+ *   iconHtml(name, label?)            Shared SVG sprite icon; optional accessible label
  *   crumbsHtml(items)                 Breadcrumbs: [{label, href?}], the last one is the current page (aria-current)
  *   stepperHtml(steps, opts)          Stepper: [{label, sub?, state: 'done'|'now'|'todo'|'off', href?}];
  *                                     opts {vertical, label, compact}
@@ -45,6 +46,13 @@
     return Math.max(0, Math.min(100, Math.round(n)));
   }
 
+  function iconHtml(name, label) {
+    var key = String(name || '');
+    if (!/^[a-z][a-z0-9-]*$/.test(key)) return '';
+    var access = label ? ' role="img" aria-label="' + esc(label) + '"' : ' aria-hidden="true"';
+    return '<svg class="jp-i"' + access + '><use href="/images/icons/jpath-icons.svg#i-' + key + '"></use></svg>';
+  }
+
   // ------------------------------------------------------------------------------------------- breadcrumbs
 
   function crumbsHtml(items) {
@@ -70,14 +78,14 @@
     var cls = 'jp-stepper' + (o.vertical ? ' jp-stepper--vertical' : '') + (o.compact ? ' jp-stepper--compact' : '');
     return '<ol class="' + cls + '"' + (o.label ? ' aria-label="' + esc(o.label) + '"' : '') + '>' + xs.map(function (s, i) {
       var state = STATE_WORD[s.state] ? s.state : 'todo';
-      var mark = state === 'done' ? '✓' : String(i + 1);
+      var mark = state === 'done' ? iconHtml('check') : esc(String(i + 1));
       var href = safeHref(s.href);
       var label = '<span class="jp-step__label">' + esc(s.label) + '</span>'
         + (s.sub ? '<span class="jp-step__sub">' + esc(s.sub) + '</span>' : '');
       var body = href ? '<a class="jp-step__body" href="' + esc(href) + '">' + label + '</a>'
         : '<span class="jp-step__body">' + label + '</span>';
       return '<li class="jp-step jp-step--' + state + '"' + (state === 'now' ? ' aria-current="step"' : '') + '>'
-        + '<span class="jp-step__mark" aria-hidden="true">' + esc(mark) + '</span>'
+        + '<span class="jp-step__mark" aria-hidden="true">' + mark + '</span>'
         + '<span class="jp-sr">' + esc('Bước ' + (i + 1) + ', ' + STATE_WORD[state] + ': ') + '</span>' + body + '</li>';
     }).join('') + '</ol>';
   }
@@ -102,9 +110,14 @@
   function flowBtn(b, cls) {
     if (!b || !b.label) return '';
     var href = safeHref(b.href);
-    if (href) return '<a class="jp-btn ' + cls + '" href="' + esc(href) + '">' + esc(b.label) + '</a>';
+    var label = String(b.label);
+    var before = /^[←‹]\s*/.test(label) ? iconHtml('arrow-left') : '';
+    var after = /\s*[→›]$/.test(label) ? iconHtml('arrow-right') : '';
+    label = label.replace(/^[←‹]\s*/, '').replace(/\s*[→›]$/, '');
+    var inner = before + esc(label) + after;
+    if (href) return '<a class="jp-btn ' + cls + '" href="' + esc(href) + '">' + inner + '</a>';
     return '<button type="button" class="jp-btn ' + cls + '"' + (b.action ? ' data-action="' + esc(b.action) + '"' : '')
-      + (b.disabled ? ' disabled' : '') + '>' + esc(b.label) + '</button>';
+      + (b.disabled ? ' disabled' : '') + '>' + inner + '</button>';
   }
 
   function flowNavHtml(opts) {
@@ -144,10 +157,10 @@
       return btn(p, String(p + 1), 'Trang ' + (p + 1));
     }).join('');
     return '<nav class="jp-pager" aria-label="Phân trang">'
-      + btn(0, '«', 'Trang đầu', cur <= 0) + btn(cur - 1, '‹ Trước', 'Trang trước', cur <= 0)
+      + btn(0, 'Đầu', 'Trang đầu', cur <= 0) + btn(cur - 1, 'Trước', 'Trang trước', cur <= 0)
       + '<span class="jp-pager__nums">' + nums + '</span>'
       + '<span class="jp-pager__at">Trang ' + (cur + 1) + '/' + n + '</span>'
-      + btn(cur + 1, 'Sau ›', 'Trang sau', cur >= n - 1) + btn(n - 1, '»', 'Trang cuối', cur >= n - 1) + '</nav>';
+      + btn(cur + 1, 'Sau', 'Trang sau', cur >= n - 1) + btn(n - 1, 'Cuối', 'Trang cuối', cur >= n - 1) + '</nav>';
   }
 
   // ------------------------------------------------------------------------------------------- load more
@@ -167,7 +180,8 @@
   function accordionHtml(sections) {
     return '<div class="jp-acc">' + list(sections).map(function (s) {
       return '<details class="jp-acc__item"' + (s.open ? ' open' : '') + (s.id ? ' id="' + esc(s.id) + '"' : '') + '>'
-        + '<summary class="jp-acc__head">' + esc(s.title) + '</summary><div class="jp-acc__body">' + (s.body || '')
+        + '<summary class="jp-acc__head">' + esc(s.title) + '<span class="jp-acc__icon">' + iconHtml('plus')
+        + '</span></summary><div class="jp-acc__body">' + (s.body || '')
         + '</div></details>';
     }).join('') + '</div>';
   }
@@ -191,12 +205,12 @@
         return '<div class="jp-carousel__slide" role="group" aria-roledescription="trang" aria-label="'
           + (i + 1) + '/' + xs.length + '">' + s + '</div>';
       }).join('') + '</div><div class="jp-carousel__nav">'
-      + '<button type="button" class="jp-carousel__arrow" data-jp-carousel-go="-1" aria-label="Trang trước">‹</button>'
+      + '<button type="button" class="jp-carousel__arrow" data-jp-carousel-go="-1" aria-label="Trang trước">' + iconHtml('chevron-left') + '</button>'
       + '<span class="jp-carousel__dots">' + xs.map(function (s, i) {
         return '<button type="button" class="jp-carousel__dot" data-jp-carousel-to="' + i + '" aria-label="Tới trang '
           + (i + 1) + '"' + (i === 0 ? ' aria-current="true"' : '') + '></button>';
       }).join('') + '</span>'
-      + '<button type="button" class="jp-carousel__arrow" data-jp-carousel-go="1" aria-label="Trang sau">›</button>'
+      + '<button type="button" class="jp-carousel__arrow" data-jp-carousel-go="1" aria-label="Trang sau">' + iconHtml('chevron-right') + '</button>'
       + '</div></section>';
   }
 
@@ -346,7 +360,7 @@
   }
 
   return {
-    esc: esc, crumbsHtml: crumbsHtml, stepperHtml: stepperHtml, progressHtml: progressHtml, flowNavHtml: flowNavHtml,
+    esc: esc, iconHtml: iconHtml, crumbsHtml: crumbsHtml, stepperHtml: stepperHtml, progressHtml: progressHtml, flowNavHtml: flowNavHtml,
     pagerHtml: pagerHtml, pageWindow: pageWindow, moreHtml: moreHtml, accordionHtml: accordionHtml, tocHtml: tocHtml,
     carouselHtml: carouselHtml, mount: mount
   };

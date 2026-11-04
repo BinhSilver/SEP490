@@ -3,6 +3,7 @@
    Sections are separated by space and headings, not by nested boxes; a card is kept only for one distinct object. */
 
 /* ------------------------------------------------------------------ page width + type scale */
+.jp-i { width: 1.125em; height: 1.125em; vertical-align: -0.2em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
 .jp-page { max-width: 1440px; padding: 20px clamp(16px, 3vw, 40px) 48px; font-size: calc(16px * var(--jp-font-scale)); }
 @media (min-width: 1240px) { .jp-page { font-size: calc(17px * var(--jp-font-scale)); } }
 .jp-sr {
@@ -48,7 +49,7 @@
 /* ------------------------------------------------------------------ breadcrumbs */
 .jp-crumbs__list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 0; font-size: .9em; }
 .jp-crumbs__item { display: inline-flex; align-items: center; color: var(--jp-muted); }
-.jp-crumbs__item + .jp-crumbs__item::before { content: "›"; margin: 0 8px; color: var(--jp-line); font-weight: 700; }
+.jp-crumbs__item + .jp-crumbs__item::before { content: ""; width: 6px; height: 6px; margin: 0 10px 0 8px; border-top: 1.5px solid var(--jp-muted); border-right: 1.5px solid var(--jp-muted); transform: rotate(45deg); }
 .jp-crumbs__link { color: var(--jp-muted); text-decoration: none; padding: 6px 0; }
 .jp-crumbs__link:hover { color: var(--jp-primary); text-decoration: underline; }
 .jp-crumbs__here { color: var(--jp-ink); font-weight: 600; }
@@ -69,7 +70,7 @@
 }
 .jp-stepper .jp-step--done .jp-step__mark { border-color: var(--jp-primary); background: var(--jp-primary); color: var(--jp-surface); }
 .jp-stepper .jp-step--now .jp-step__mark {
-  border-color: var(--jp-primary); color: var(--jp-primary); box-shadow: 0 0 0 5px var(--jp-primary-soft);
+  border-color: var(--jp-primary); color: var(--jp-primary);
 }
 .jp-stepper .jp-step--off { opacity: .6; }
 .jp-stepper .jp-step__body { display: grid; gap: 2px; color: inherit; text-decoration: none; }
@@ -119,7 +120,7 @@
 .jp-btn--lg { min-height: 52px; padding: 12px 26px; font-size: 1.05em; }
 @media (max-width: 640px) {
   .jp-flow { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; margin: 0 -16px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-    background: var(--jp-surface); box-shadow: 0 -6px 18px rgb(0 0 0 / 8%); border-top: 0; }
+    background: var(--jp-surface); border-top: 1px solid var(--jp-line); }
   .jp-flow__tail { flex: 1 1 auto; }
   .jp-flow__next, .jp-flow__finish { flex: 1 1 auto; }
 }
@@ -151,8 +152,8 @@
   font-weight: 600; cursor: pointer; list-style: none;
 }
 .jp-acc__head::-webkit-details-marker { display: none; }
-.jp-acc__head::after { content: "+"; font-size: 1.3em; color: var(--jp-muted); transition: transform .2s ease; }
-.jp-acc__item[open] > .jp-acc__head::after { transform: rotate(45deg); }
+.jp-acc__icon { display: inline-flex; color: var(--jp-muted); transition: transform .2s ease; }
+.jp-acc__item[open] > .jp-acc__head .jp-acc__icon { transform: rotate(45deg); }
 .jp-acc__head:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: -3px; }
 .jp-acc__body { padding: 0 4px 18px; display: grid; gap: 12px; }
 
@@ -211,7 +212,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .jp-progress__fill, .jp-acc__head::after { transition: none; }
+  .jp-progress__fill, .jp-acc__icon { transition: none; }
 }
 
 /* pages with side navigation but no rail */
