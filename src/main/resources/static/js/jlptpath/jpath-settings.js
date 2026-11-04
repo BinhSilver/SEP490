@@ -35,6 +35,8 @@
   var DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
   var DAY_NAMES = { MON: 'Thứ Hai', TUE: 'Thứ Ba', WED: 'Thứ Tư', THU: 'Thứ Năm', FRI: 'Thứ Sáu', SAT: 'Thứ Bảy',
     SUN: 'Chủ nhật' };
+  // the server re-plans today only when nothing was learned on it yet (JpathTodayTargetsPort.replanUntouchedToday)
+  var MSG_DAYS_SAVED = 'Đã lưu. Hôm nay đổi theo lịch mới nếu bạn chưa học gì hôm nay; nếu đã học, lịch mới áp dụng từ ngày mai.';
   var BLOCKS = {
     target: ['targetLevel', 'examDate'],
     schedule: ['dailyMinutes', 'skillDays', 'restDays', 'thirdSkillDay', 'reminderTime'],
@@ -388,7 +390,10 @@
       api.send('PUT', SETTINGS_URL, body).then(function (next) {
         busy[blockName] = false;
         applyView(next, blockName);
-        message(scope, 'saved', 'Đã lưu.');
+        var daysMoved = blockName === 'schedule' && ['skillDays', 'restDays', 'thirdSkillDay'].some(function (k) {
+          return Object.prototype.hasOwnProperty.call(body, k);
+        });
+        message(scope, 'saved', daysMoved ? MSG_DAYS_SAVED : 'Đã lưu.');
         loadHistory();
       }, function (error) {
         busy[blockName] = false;

@@ -220,6 +220,7 @@ public class JpathSettingsWriter {
         JpathStudyMode mode = r.studyMode() == null ? storedMode : r.studyMode();
 
         boolean targetChanged = !target.equals(path.getTargetLevel()) || !Objects.equals(exam, path.getExamDate());
+        boolean minutesChanged = minutes != path.getDailyMinutes();
         // Policy #29: a new target or exam resets the sliders to the recommendation for the minutes.
         JpathSliderValues sliders = targetChanged ? JpathPacingEngine.recommend(open, minutes)
                 : new JpathSliderValues(level.getSliderVocab(), level.getSliderKanji(), level.getSliderGrammar());
@@ -230,8 +231,7 @@ public class JpathSettingsWriter {
         if (pacing.pace().blocked()) {
             throw new ApiException(ErrorCode.JPATH_TARGET_TOO_SOON, pacing.pace().messageVi());
         }
-        return new ScheduleChange(path, level, schedule, pacing, targetChanged, mode != storedMode,
-                minutes != path.getDailyMinutes());
+        return new ScheduleChange(path, level, schedule, pacing, targetChanged, mode != storedMode, minutesChanged);
     }
 
     /** Writes a checked schedule; returns the tabs of today's plan that keep their targets (null = not refreshed). */
@@ -242,6 +242,10 @@ public class JpathSettingsWriter {
         JpathSliderValues before = new JpathSliderValues(level.getSliderVocab(), level.getSliderKanji(),
                 level.getSliderGrammar());
 
+        boolean daysChanged = !JpathDays.format(s.skillDays()).equals(path.getSkillDays())
+                || !JpathDays.format(s.restDays()).equals(path.getRestDays())
+                || !java.util.Objects.equals(s.thirdSkillDay() == null ? null : JpathDays.format(List.of(s.thirdSkillDay())),
+                        path.getThirdSkillDay());
         path.setTargetLevel(s.targetLevel());
         path.setExamDate(s.examDate());
         path.setDailyMinutes(s.minutes());
@@ -269,6 +273,11 @@ public class JpathSettingsWriter {
         // Priority mode (#30) from the pace of the new schedule, as JpathPathUpdater does.
         level.setPriorityMode(c.pacing.pace().skippedLowPriority() > 0);
         paths.flush();
+        if (daysChanged) {
+            // the week changed: today's plan, if not started, becomes the day the new schedule says (study, skill, rest)
+            JpathTodayTargetsPort port = todayTargets.getIfAvailable();
+            if (port != null) port.replanUntouchedToday(path.getUserId());
+        }
         return slidersChanged || c.modeChanged ? refreshToday(path.getUserId()) : null;
     }
 

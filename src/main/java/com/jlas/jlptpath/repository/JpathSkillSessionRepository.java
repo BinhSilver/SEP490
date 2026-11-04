@@ -33,4 +33,7 @@ public interface JpathSkillSessionRepository extends JpaRepository<JpathSkillSes
 
     /** Whether the learner passed the lesson check of this type in any session. */
     boolean existsByUserIdAndTypeCodeAndLessonPassedAtIsNotNull(Long userId, String typeCode);
+
+    /** Any skill session (open or done) on a daily plan: the plan has been started. */
+    boolean existsByUserIdAndPlanId(Long userId, Long planId);
 }

@@ -175,6 +175,30 @@ public class JpathDailyPlanServiceImpl implements JpathDailyPlanService, JpathTo
         return kept;
     }
 
+    /** Port, under the caller's path → level locks: an untouched plan of today follows a new week schedule. */
+    @Override
+    @Transactional
+    public boolean replanUntouchedToday(Long userId) {
+        Optional<JpathUserPath> active = pathService.findActive(userId);
+        if (active.isEmpty()) {
+            return false;
+        }
+        JpathUserPath path = active.get();
+        JpathUserLevel level = levels.findForUpdate(path.getId(), path.getOpenLevel())
+                .orElseThrow(() -> new ApiException(ErrorCode.INTERNAL_ERROR));
+        Optional<JpathDailyPlan> found = plans.findForUpdate(userId, clock.today(userId));
+        if (found.isEmpty()) {
+            return false;
+        }
+        JpathDailyPlan plan = found.get();
+        List<JpathDailyTab> tabs = dailyTabs.findForUpdateByPlanId(plan.getId());
+        boolean started = (plan.getCpAwarded() != null && plan.getCpAwarded() > 0)
+                || tabs.stream().anyMatch(t -> t.getNewDone() > 0 || t.getExtraDone() > 0 || t.getReviewDone() > 0)
+                || !views.openTodaySessions(userId, plan).isEmpty()
+                || inserter.hasSkillSession(userId, plan.getId());
+        return !started && inserter.rebuildForSchedule(path, level, plan, tabs);
+    }
+
     // ---- reads -------------------------------------------------------------------------------------------------
 
     @Override

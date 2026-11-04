@@ -14,6 +14,7 @@ import com.jlas.jlptpath.enums.JpathTab;
 import com.jlas.jlptpath.repository.JpathDailyPlanRepository;
 import com.jlas.jlptpath.repository.JpathDailyTabRepository;
 import com.jlas.jlptpath.repository.JpathKanaRowRepository;
+import com.jlas.jlptpath.repository.JpathSkillSessionRepository;
 import com.jlas.jlptpath.repository.JpathStudySessionRepository;
 import com.jlas.jlptpath.repository.JpathUserItemRepository;
 import com.jlas.jlptpath.repository.JpathUserLevelRepository;
@@ -42,6 +43,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 public class JpathDailyPlanInserter {
+
+    /** Optional (setter): the skill sessions, to tell whether a plan was started on its skill part. */
+    private ObjectProvider<JpathSkillSessionRepository> skillSessions;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    void setSkillSessions(ObjectProvider<JpathSkillSessionRepository> skillSessions) {
+        this.skillSessions = skillSessions;
+    }
+
 
     private static final Logger log = LoggerFactory.getLogger(JpathDailyPlanInserter.class);
 
@@ -155,7 +165,23 @@ public class JpathDailyPlanInserter {
         JpathDailyPlan plan = plans.save(JpathDailyPlan.builder().userId(userId).pathId(path.getId()).studyDay(day)
                 .level(level.getLevel()).dayKind(dayPlan.kind()).kanaPhase(dayPlan.kanaPhase())
                 .skillMakeup(dayPlan.skillMakeup()).build());
-        LocalDateTime now = clock.now();
+        List<JpathDailyTab> saved = dailyTabs.saveAll(freshTabs(plan, dayPlan, path, level, clock.now()));
+        JpathDayCompletion days = completion.getIfAvailable();
+        if (days != null) {
+            days.settleWithoutReward(userId, plan, saved);
+        }
+        for (JpathStudySession s : sessions.findByUserIdAndStatusAndModeOrderByIdDesc(userId, OPEN,
+                JpathSessionMode.TODAY.name())) {
+            if (!plan.getId().equals(s.getPlanId())) {
+                s.setStatus(ABANDONED);
+            }
+        }
+        plans.flush();
+    }
+
+    /** The tab rows of a new plan of {@code dayPlan}'s kind, linked to {@code plan}. */
+    private List<JpathDailyTab> freshTabs(JpathDailyPlan plan, JpathDayRules.DayPlan dayPlan, JpathUserPath path,
+            JpathUserLevel level, LocalDateTime now) {
         List<JpathDailyTab> tabs = JpathDayRules.tabRows(dayPlan.kind(), dayPlan.kanaPhase(), path.isKanaTab(),
                 path.getStudyMode(), level, path.getDailyMinutes());
         for (JpathDailyTab tab : tabs) {
@@ -169,18 +195,39 @@ public class JpathDailyPlanInserter {
                 }
             }
         }
-        List<JpathDailyTab> saved = dailyTabs.saveAll(tabs);
+        return tabs;
+    }
+
+    /** True when a skill session (open or done) runs on the plan; false without the skill module. */
+    boolean hasSkillSession(Long userId, Long planId) {
+        JpathSkillSessionRepository repo = skillSessions == null ? null : skillSessions.getIfAvailable();
+        return repo != null && repo.existsByUserIdAndPlanId(userId, planId);
+    }
+
+    /**
+     * Today's plan, untouched (the caller checked it and holds path → level → plan → tabs locks), for the current
+     * week schedule: when the schedule now gives another kind (or make-up) the tabs are rebuilt as a fresh insert
+     * would. True when the plan changed.
+     */
+    boolean rebuildForSchedule(JpathUserPath path, JpathUserLevel level, JpathDailyPlan plan, List<JpathDailyTab> tabs) {
+        JpathDayRules.DayPlan dayPlan = JpathDayRules.dayPlan(content, calendar, plans, path, level, plan.getStudyDay());
+        if (dayPlan.kind() == plan.getDayKind() && dayPlan.skillMakeup() == plan.isSkillMakeup()) {
+            return false;
+        }
+        dailyTabs.deleteAll(tabs);
+        dailyTabs.flush();
+        plan.setDayKind(dayPlan.kind());
+        plan.setSkillMakeup(dayPlan.skillMakeup());
+        plan.setKanaPhase(dayPlan.kanaPhase());
+        plan.setAllDoneAt(null);
+        plan.setReviewsClearedAt(null);
+        List<JpathDailyTab> saved = dailyTabs.saveAll(freshTabs(plan, dayPlan, path, level, clock.now()));
+        dailyTabs.flush();
         JpathDayCompletion days = completion.getIfAvailable();
         if (days != null) {
-            days.settleWithoutReward(userId, plan, saved);
+            days.settleWithoutReward(path.getUserId(), plan, saved);
         }
-        for (JpathStudySession s : sessions.findByUserIdAndStatusAndModeOrderByIdDesc(userId, OPEN,
-                JpathSessionMode.TODAY.name())) {
-            if (!plan.getId().equals(s.getPlanId())) {
-                s.setStatus(ABANDONED);
-            }
-        }
-        plans.flush();
+        return true;
     }
 
     private JpathUserLevel lockLevel(JpathUserPath path) {
