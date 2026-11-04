@@ -115,7 +115,7 @@ public class JpathReportServiceImpl implements JpathReportService {
                     .map(q -> reader.questions(ref.itemCode(), q.getBank()).stream()
                             .anyMatch(v -> ref.code().equals(v.getCode())))
                     .orElse(false);
-            case SKILL_SET, SKILL_QUESTION -> false;
+            case SKILL_SET, SKILL_QUESTION -> targets.skillVisible(ref, catalogStatuses(), this::released);
         };
     }
 
@@ -182,5 +182,18 @@ public class JpathReportServiceImpl implements JpathReportService {
 
     private static String trim(String s) {
         return s == null ? null : s.trim();
+    }
+
+    // ---- Plan 3 Task 24: skill targets use the same visibility rule as the skill reader ----------------------
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.jlptpath.service.JpathCatalogService catalog;
+
+    private java.util.Set<com.jlas.jlptpath.enums.JpathContentStatus> catalogStatuses() {
+        return catalog == null ? java.util.Set.of() : catalog.visibleStatuses();
+    }
+
+    private boolean released(String level) {
+        return catalog != null && catalog.isReleased(level);
     }
 }

@@ -5,6 +5,8 @@ import com.jlas.jlptpath.entity.JpathExample;
 import com.jlas.jlptpath.entity.JpathGrammarQuestion;
 import com.jlas.jlptpath.entity.JpathKana;
 import com.jlas.jlptpath.entity.JpathKanji;
+import com.jlas.jlptpath.entity.JpathSkillQuestion;
+import com.jlas.jlptpath.entity.JpathSkillSet;
 import com.jlas.jlptpath.entity.JpathVocabulary;
 import com.jlas.jlptpath.enums.JpathItemType;
 import com.jlas.jlptpath.enums.JpathReportTarget;
@@ -13,8 +15,11 @@ import com.jlas.jlptpath.repository.JpathGrammarQuestionRepository;
 import com.jlas.jlptpath.repository.JpathGrammarRepository;
 import com.jlas.jlptpath.repository.JpathKanaRepository;
 import com.jlas.jlptpath.repository.JpathKanjiRepository;
+import com.jlas.jlptpath.repository.JpathSkillQuestionRepository;
+import com.jlas.jlptpath.repository.JpathSkillSetRepository;
 import com.jlas.jlptpath.repository.JpathVocabularyRepository;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -45,6 +50,35 @@ public class JpathReportTargets {
         this.questions = questions;
     }
 
+    // Plan 3 Task 24: skill report targets; field-injected so the constructor (and its tests) stay as they were
+    @Autowired(required = false)
+    private JpathSkillSetRepository skillSets;
+    @Autowired(required = false)
+    private JpathSkillQuestionRepository skillQuestions;
+
+    /**
+     * Plan 3 Task 24: a skill set is shown when it and its level are visible and it has a visible question; a skill
+     * question when it and its set are.
+     */
+    public boolean skillVisible(JpathReportTargetRef ref, java.util.Set<com.jlas.jlptpath.enums.JpathContentStatus> shown,
+                                java.util.function.Predicate<String> released) {
+        if (skillSets == null || skillQuestions == null) {
+            return false;
+        }
+        String setCode = ref.type() == JpathReportTarget.SKILL_SET ? ref.code() : ref.itemCode();
+        boolean setShown = skillSets.findById(setCode)
+                .filter(s -> !s.isReportHidden() && shown.contains(s.getStatus()) && released.test(s.getLevel()))
+                .isPresent();
+        if (!setShown) {
+            return false;
+        }
+        java.util.List<JpathSkillQuestion> visible = skillQuestions
+                .findBySetCodeInAndStatusInAndReportHiddenFalseOrderBySetCodeAscSortOrderAsc(java.util.List.of(setCode),
+                        shown);
+        return ref.type() == JpathReportTarget.SKILL_SET ? !visible.isEmpty()
+                : visible.stream().anyMatch(q -> ref.code().equals(q.getCode()));
+    }
+
     /** The target {@code (type, code)}; empty when either is missing or no such row exists. */
     public Optional<JpathReportTargetRef> resolve(JpathReportTarget type, String code) {
         if (type == null || code == null || code.isBlank()) {
@@ -63,8 +97,14 @@ public class JpathReportTargets {
                     e.getOwnerType(), e.getOwnerCode(), e.getLevel(), e.isAuthored(), e.isReportHidden()));
             case QUESTION -> questions.findById(code).map(q -> new JpathReportTargetRef(type, code,
                     JpathItemType.GRAMMAR, q.getGrammarCode(), q.getLevel(), q.isAuthored(), q.isReportHidden()));
-            // Plan 3: skill sets are reportable once the report service wires them; until then not found.
-            case SKILL_SET, SKILL_QUESTION -> Optional.empty();
+            // Plan 3 Task 24: a skill set (item_code = itself) or one of its questions (item_code = its set)
+            case SKILL_SET -> skillSets == null ? Optional.empty() : skillSets.findById(code)
+                    .map(s -> new JpathReportTargetRef(type, code, null, code, s.getLevel(), s.isAuthored(),
+                            s.isReportHidden()));
+            case SKILL_QUESTION -> skillQuestions == null ? Optional.empty() : skillQuestions.findById(code)
+                    .map(q -> new JpathReportTargetRef(type, code, null, q.getSetCode(),
+                            skillSets.findById(q.getSetCode()).map(JpathSkillSet::getLevel).orElse(null),
+                            q.isAuthored(), q.isReportHidden()));
         };
     }
 
@@ -91,8 +131,16 @@ public class JpathReportTargets {
                 q.setReportHidden(hidden);
                 questions.save(q);
             });
-            case KANA, SKILL_SET, SKILL_QUESTION -> {
-                // kana are never hidden by reports; skill targets are not resolvable yet (see findRef)
+            case SKILL_SET -> skillSets.findById(ref.code()).ifPresent(s -> {
+                s.setReportHidden(hidden);
+                skillSets.save(s);
+            });
+            case SKILL_QUESTION -> skillQuestions.findById(ref.code()).ifPresent(q -> {
+                q.setReportHidden(hidden);
+                skillQuestions.save(q);
+            });
+            case KANA -> {
+                // kana are never hidden by reports
             }
         }
     }
@@ -106,7 +154,9 @@ public class JpathReportTargets {
             case KANA -> kanas.findById(ref.code()).map(JpathReportTargets::kanaText).orElse("");
             case EXAMPLE -> examples.findById(ref.code()).map(JpathExample::getJa).orElse("");
             case QUESTION -> questions.findById(ref.code()).map(JpathGrammarQuestion::getPromptJa).orElse("");
-            case SKILL_SET, SKILL_QUESTION -> "";
+            case SKILL_SET -> skillSets.findById(ref.code())
+                    .map(s -> s.getPassageJa() != null ? s.getPassageJa() : s.getCode()).orElse("");
+            case SKILL_QUESTION -> skillQuestions.findById(ref.code()).map(JpathSkillQuestion::getQuestionJa).orElse("");
         };
         return shorten(text == null ? "" : text);
     }

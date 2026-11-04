@@ -1742,7 +1742,7 @@ CREATE TABLE IF NOT EXISTS jpath_content_report (
     reporter_user_id BIGINT UNSIGNED NOT NULL,
     target_type VARCHAR(16) NOT NULL,
     target_code VARCHAR(24) NOT NULL,
-    item_type VARCHAR(8) NOT NULL,
+    item_type VARCHAR(8) NULL,
     item_code VARCHAR(24) NOT NULL,
     level VARCHAR(2) NULL,
     error_type VARCHAR(8) NOT NULL,
@@ -2017,6 +2017,8 @@ DEALLOCATE PREPARE jpath_ddl_stmt;
 -- [JLAS-W0108] Kế hoạch 3: mã báo sai SKILL_QUESTION dài 14 ký tự -> target_type rộng 16 (chỉ nới, dữ liệu cũ vẫn hợp lệ).
 CALL jlas_ls_modify_column('jpath_content_report', 'target_type', 'varchar(16)', 'NO', NULL, 'VARCHAR(16) NOT NULL');
 CALL jlas_ls_modify_column('jpath_content_edit', 'target_type', 'varchar(16)', 'NO', NULL, 'VARCHAR(16) NOT NULL');
+-- Kế hoạch 3 Task 24: báo sai bài Đọc/Nghe không có loại mục thẻ (item_type rỗng; item_code = mã bộ).
+CALL jlas_ls_modify_column('jpath_content_report', 'item_type', 'varchar(8)', 'YES', NULL, 'VARCHAR(8) NULL');
 -- Kế hoạch 3: 4 kind câu kỹ năng và 2 đích báo sai mới (thay CHECK khi mệnh đề thiếu giá trị cuối; chỉ nới).
 CALL jlas_ls_check('jpath_check_set', 'chk_jpath_check_kind', 'SKILL_SECTION', NULL,
     'kind IN (''MICRO_CHECK'',''GROUP_EXERCISE'',''SKIP_ONE'',''TOPIC_KNOWN'',''FREE_QUIZ'',''CONFUSABLE'',''KANA_ROW'',''GRAMMAR_PRACTICE'',''GRAMMAR_EXTRA'',''GRAMMAR_REVIEW'',''SKILL_LESSON'',''SKILL_PRACTICE'',''SKILL_DICTATION'',''SKILL_SECTION'')');

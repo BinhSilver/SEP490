@@ -269,7 +269,9 @@ public class JpathContentAdminServiceImpl implements JpathContentAdminService {
                 .map(e -> new JpathContentEditView(e.getId(), e.getEditorUserId(), e.getFieldName(), e.getOldValue(),
                         e.getNewValue(), e.getCreatedAt(), e.getExportedAt()))
                 .toList();
-        return new JpathAdminItemView(ref.type().name(), ref.code(), ref.itemType().name(), ref.itemCode(),
+        // a skill target has no card item type: its own type stands in
+        String itemType = ref.itemType() == null ? ref.type().name() : ref.itemType().name();
+        return new JpathAdminItemView(ref.type().name(), ref.code(), itemType, ref.itemCode(),
                 ref.level(), contentStatus(ref).orElse(null), ref.hidden(), ref.authored(), fields, context,
                 audioUrl(ref), reportRows, editRows);
     }

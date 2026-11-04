@@ -50,7 +50,8 @@ public class JpathContentReport {
     private String targetCode;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "item_type", nullable = false, length = 8)
+    // null for a Plan 3 skill set or skill question (no card item); item_code is then the set code
+    @Column(name = "item_type", length = 8)
     private JpathItemType itemType;
 
     @Column(name = "item_code", nullable = false, length = 24)
