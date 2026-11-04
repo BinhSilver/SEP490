@@ -90,7 +90,8 @@
   function tabsBarHtml(path, active) {
     var html = tabKeys(path).map(function (key) {
       var on = key === active;
-      var soon = key === 'skills' ? ' <span class="jp-tab__soon">Sắp mở</span>' : '';
+      // the skills tab module decides per level; only without it the tab stays "Sắp mở"
+      var soon = key === 'skills' && !root.JpathSkillsTab ? ' <span class="jp-tab__soon">Sắp mở</span>' : '';
       var tour = key === 'skills' ? ' data-tour="skills"' : '';
       var info = tabInfo(path, key);
       if (key !== 'skills' && key !== 'kana' && info && info.open === false) soon = ' <span class="jp-tab__later">Sau chữ cái</span>';
@@ -144,6 +145,14 @@
     return html;
   }
 
+  /** Trang chủ › Lộ trình JLPT › {level} › {tab}. */
+  function crumbsHtml(path, tab, viewLevel) {
+    var N = root.JpathNav;
+    if (!N) return '';
+    return N.crumbsHtml([{ label: 'Trang chủ', href: '/' }, { label: 'Lộ trình JLPT', href: '/learning' },
+      { label: 'Cấp ' + (viewLevel || (path && path.openLevel) || '') }, { label: TAB_LABEL[tab] || '' }]);
+  }
+
   // page menu "⋯" (top right of the hero)
   function menuHtml() {
     return '<details class="jp-menu"><summary class="jp-menu__btn" aria-label="Menu trang">⋯</summary>'
@@ -163,28 +172,38 @@
 
   // ------------------------------------------------------------------------------------------------ levels
 
+  var LEVEL_STEP = { PASSED: 'done', OPEN: 'now', LOCKED: 'todo', COMING_SOON: 'off' };
+
   function levelCellHtml(cell) {
     var c = cell || {};
     var state = String(c.state || 'COMING_SOON');
     var name = esc(c.level);
-    var body;
-    if (state === 'PASSED') body = '<span class="jp-level-cell__name">' + name + '</span>'
-      + '<button type="button" class="jp-level-cell__preview" data-action="view-level" data-view-level="' + name + '">✓ Đã vượt qua</button>';
-    else if (state === 'OPEN') body = '<span class="jp-level-cell__name">' + name + '</span><span class="jp-level-cell__state">Đang học · '
-      + esc(Number(c.percent) || 0) + '%</span>';
-    else if (state === 'LOCKED') body = '<span class="jp-level-cell__name">🔒 ' + name + '</span>'
-      + '<button type="button" class="jp-level-cell__preview" data-action="preview" data-preview-level="' + name + '">Xem trước</button>';
-    else body = '<span class="jp-level-cell__name">' + name + '</span>'
-      + '<button type="button" class="jp-level-cell__preview" data-action="coming-soon" data-coming-soon="' + name + '">Sắp có</button>';
-    if (c.note) body += '<span class="jp-level-cell__note">' + esc(c.note) + '</span>';
-    return '<li class="jp-level-cell jp-level-cell--' + esc(state.toLowerCase()) + '"'
-      + (state === 'OPEN' ? ' aria-current="step"' : '') + '>' + body + '</li>';
+    var step = LEVEL_STEP[state] || 'off';
+    var mark = state === 'PASSED' ? '✓' : (state === 'LOCKED' ? '🔒' : '');
+    var sub;
+    if (state === 'PASSED') sub = '<button type="button" class="jp-level-cell__preview" data-action="view-level" data-view-level="'
+      + name + '">✓ Đã vượt qua · ôn lại</button>';
+    else if (state === 'OPEN') sub = '<span class="jp-level-cell__state">Đang học · ' + esc(Number(c.percent) || 0) + '%</span>'
+      + '<span class="jp-level-cell__bar" aria-hidden="true"><span style="width:' + Math.max(0, Math.min(100, Number(c.percent) || 0))
+      + '%"></span></span>';
+    else if (state === 'LOCKED') sub = '<button type="button" class="jp-level-cell__preview" data-action="preview" data-preview-level="'
+      + name + '">Xem trước</button>';
+    else sub = '<button type="button" class="jp-level-cell__preview" data-action="coming-soon" data-coming-soon="' + name
+      + '">Sắp có</button>';
+    // the server note often repeats the state ("Đang học", "Sắp có"): show it only when it adds something
+    var said = state === 'OPEN' ? 'Đang học' : (state === 'COMING_SOON' ? 'Sắp có' : '');
+    if (c.note && String(c.note).trim() !== said) sub += '<span class="jp-level-cell__note">' + esc(c.note) + '</span>';
+    return '<li class="jp-step jp-step--' + step + ' jp-level-cell jp-level-cell--' + esc(state.toLowerCase()) + '"'
+      + (state === 'OPEN' ? ' aria-current="step"' : '') + '><span class="jp-step__mark" aria-hidden="true">' + esc(mark)
+      + '</span><span class="jp-step__body"><span class="jp-level-cell__name">' + (state === 'LOCKED' ? '🔒 ' : '') + name
+      + '</span>' + sub + '</span></li>';
   }
 
   function levelBarHtml(path) {
-    return '<section class="jp-card jp-levels" data-tour="level" aria-labelledby="jp-levels-title">'
-      + '<h2 class="jp-section-title" id="jp-levels-title">Cấp độ của bạn</h2>'
-      + '<ol class="jp-level-bar">' + list(path && path.levels).map(levelCellHtml).join('') + '</ol></section>';
+    return '<section class="jp-levels" data-tour="level" aria-labelledby="jp-levels-title">'
+      + '<h2 class="jp-sidenav__title" id="jp-levels-title">Cấp độ của bạn</h2>'
+      + '<ol class="jp-stepper jp-stepper--vertical jp-level-bar">' + list(path && path.levels).map(levelCellHtml).join('')
+      + '</ol></section>';
   }
 
   // ------------------------------------------------------------------------------------------------ stage + week
@@ -194,16 +213,26 @@
     var order = ['STUDY', 'SKILL_PRACTICE', 'EXAM'];
     var at = p.stage === 'PASSED' ? 3 : Math.max(0, order.indexOf(p.stage));
     var cell = openCell(p);
-    var labels = ['Học' + (at === 0 ? ' ' + ((cell && Number(cell.percent)) || 0) + '%' : ''),
-      'Rèn kỹ năng' + (at === 0 ? ' (mở ở ' + SKILL_OPENS_AT + '%)' : ''), 'Thi thử ' + (p.openLevel || '')];
-    var steps = labels.map(function (label, i) {
-      var mark = i < at ? '✓' : (i === at ? '●' : '○');
-      return '<span class="jp-stage__step' + (i === at ? ' jp-stage__step--now' : '') + '">' + mark + ' ' + esc(label) + '</span>';
-    }).join(' → ');
-    var days = list(p.skillDays).length ? ' · Ngày kỹ năng: ' + dayList(p.skillDays) : '';
-    if (list(p.restDays).length) days += ' · Nghỉ: ' + dayList(p.restDays);
-    return '<p class="jp-stage">Chặng ' + esc(p.openLevel) + ': ' + steps + '<span class="jp-stage__days">'
-      + esc(days) + '</span></p>';
+    var pct = (cell && Number(cell.percent)) || 0;
+    var steps = [
+      { label: 'Học', sub: at === 0 ? pct + '% cấp ' + (p.openLevel || '') : (at > 0 ? 'Đã xong' : '') },
+      { label: 'Rèn kỹ năng', sub: at === 0 ? 'Mở khi học được ' + SKILL_OPENS_AT + '%' : (at > 1 ? 'Đã xong' : 'Đang rèn') },
+      { label: 'Thi thử ' + (p.openLevel || ''), sub: at === 2 ? 'Sẵn sàng thi' : (at > 2 ? 'Đã đậu' : 'Sau khi rèn') }
+    ].map(function (st, i) {
+      return { label: st.label, sub: st.sub, state: i < at ? 'done' : (i === at ? 'now' : 'todo') };
+    });
+    var marks = steps.map(function (st, i) {
+      var mark = st.state === 'done' ? '✓' : String(i + 1);
+      return '<li class="jp-step jp-step--' + st.state + ' jp-stage__step' + (st.state === 'now' ? ' jp-stage__step--now' : '') + '"'
+        + (st.state === 'now' ? ' aria-current="step"' : '') + '><span class="jp-step__mark" aria-hidden="true">' + mark
+        + '</span><span class="jp-step__body"><span class="jp-step__label">' + esc(st.label) + '</span>'
+        + (st.sub ? '<span class="jp-step__sub">' + esc(st.sub) + '</span>' : '') + '</span></li>';
+    }).join('');
+    var days = list(p.skillDays).length ? 'Ngày kỹ năng: ' + dayList(p.skillDays) : '';
+    if (list(p.restDays).length) days += (days ? ' · ' : '') + 'Nghỉ: ' + dayList(p.restDays);
+    return '<div class="jp-stage"><h2 class="jp-sr">Chặng ' + esc(p.openLevel) + '</h2>'
+      + '<ol class="jp-stepper jp-stage__steps" aria-label="' + esc('Chặng ' + (p.openLevel || '')) + '">' + marks + '</ol>'
+      + (days ? '<p class="jp-stage__days">' + esc(days) + '</p>' : '') + '</div>';
   }
 
   function weekday(iso) {
@@ -370,6 +399,7 @@
       paintControls();
       paintList();
       if (rootEl.setAttribute) rootEl.setAttribute('data-jpath-tab', state.tab);
+      setHtml(rootEl, 'crumbs', crumbsHtml(state.path, state.tab, state.viewLevel));
     }
 
     function selectTab(key) {
@@ -398,6 +428,7 @@
     function viewLevel(level) {
       state.viewLevel = level;
       setHtml(rootEl, 'levels', levelBand() + levelBarHtml(state.path));
+      setHtml(rootEl, 'crumbs', crumbsHtml(state.path, state.tab, state.viewLevel));
       paintList();
       if (rootEl.dispatchEvent && typeof root.CustomEvent === 'function') {
         rootEl.dispatchEvent(new root.CustomEvent('jpath:view-level', { detail: { level: level || state.path.openLevel,
@@ -607,7 +638,7 @@
     TAB_KEY: TAB_KEY, resolveTab: resolveTab, menuHtml: menuHtml, withoutTour: withoutTour, tabsBarHtml: tabsBarHtml, heroHtml: heroHtml,
     levelBarHtml: levelBarHtml, levelCellHtml: levelCellHtml, stageLineHtml: stageLineHtml, weekHtml: weekHtml,
     estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,
-    displayTarget: displayTarget, writeUrl: writeUrl, mount: mount, current: null
+    displayTarget: displayTarget, writeUrl: writeUrl, crumbsHtml: crumbsHtml, mount: mount, current: null
   });
   return api;
 });

@@ -2,19 +2,10 @@
    (jp-page * resets min-width). Desktop: left 2/3 levels + numbers, right 1/3 slider + today; < 900 px one column. */
 .jp-path { max-width: 1120px; font-size: calc(16px * var(--jp-font-scale)); }
 .jp-path [hidden] { display: none !important; }
-.jp-path__grid {
-  display: grid; gap: 16px; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  grid-template-areas: "hero hero" "tabs tabs" "stage stage" "levels slider" "numbers today" "list list" "extra extra";
-}
-.jp-path__hero { grid-area: hero; }
-.jp-path__tabs { grid-area: tabs; overflow-x: auto; }
-.jp-path__stage { grid-area: stage; display: grid; gap: 8px; }
-.jp-path__levels { grid-area: levels; }
-.jp-path__numbers { grid-area: numbers; display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.jp-path__slider { grid-area: slider; }
-.jp-path__today { grid-area: today; }
-.jp-path__list { grid-area: list; }
-.jp-path__extra { grid-area: extra; }
+/* layout: jpath-nav.css .jp-ws (side | main | rail); the regions below only space their own content */
+.jp-path__stage { display: grid; gap: 14px; }
+.jp-path__tabpart { display: grid; gap: 18px; }
+.jp-path__numbers { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .jp-path__slider:empty, .jp-path__today:empty, .jp-path__list:empty, .jp-path__extra:empty { display: none; }
 .jp-path__loading, .jp-muted { color: var(--jp-muted); margin: 0; }
 .jp-path .jp-alert {
@@ -147,12 +138,7 @@
 .jp-dialog:focus { outline: none; }
 .jp-preview-list { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 
-@media (max-width: 899px) {
-  .jp-path__grid {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: "hero" "tabs" "stage" "levels" "today" "slider" "numbers" "list" "extra";
-  }
-}
+
 @media (max-width: 480px) {
   .jp-path__numbers { grid-template-columns: minmax(0, 1fr); }
   .jp-hero__title { font-size: 1.35em; }
@@ -427,4 +413,122 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .jp-tour-scrim__hole { transition: none; }
+}
+
+/* ======================================================================== 04/11 workspace redesign (team UI direction)
+   Side: the level road (vertical stepper) + page links. Main: hero, stage stepper + week, today's action, tabs.
+   Rail: daily pace and "Luyện thêm". Sections sit on the canvas; a panel is kept only for today's action. */
+.jp-path { max-width: 1440px; }
+
+/* hero: title block on the left, the word stack on the right, no frame */
+.jp-path__hero { padding: 4px 52px 0 0; align-items: flex-end; }
+.jp-hero__title { font-size: 2.1em; letter-spacing: -.01em; }
+.jp-hero__greet { color: var(--jp-muted); }
+.jp-hero-cards { width: 220px; height: 140px; }
+.jp-hero-card__word { font-size: 2.2em; }
+
+/* level road in the side column */
+.jp-levels { display: grid; gap: 10px; }
+.jp-path .jp-level-bar { display: flex; grid-template-columns: none; gap: 0; }
+.jp-path .jp-level-cell {
+  padding: 0 0 16px; border: 0; border-radius: 0; background: none; text-align: left; font-size: 1em; line-height: 1.35;
+}
+.jp-path .jp-level-cell:last-child { padding-bottom: 0; }
+.jp-path .jp-level-cell--open { border: 0; background: none; }
+.jp-path .jp-level-cell .jp-step__body { display: grid; gap: 4px; padding-top: 3px; }
+.jp-path .jp-level-cell__name { font-family: "Klee One", serif; font-size: 1.25em; font-weight: 600; line-height: 1.1; }
+.jp-path .jp-level-cell--open .jp-level-cell__name { color: var(--jp-primary); }
+.jp-level-cell__state { font-size: .88em; font-weight: 600; }
+.jp-level-cell__bar { display: block; width: 100%; height: 5px; border-radius: 999px; background: var(--jp-primary-soft); overflow: hidden; }
+.jp-level-cell__bar > span { display: block; height: 100%; background: var(--jp-primary); border-radius: inherit; }
+.jp-path .jp-level-cell__preview {
+  justify-self: start; min-height: 32px; padding: 2px 0; border: 0; background: none; color: var(--jp-muted);
+  font-size: .88em; font-weight: 600; text-decoration: underline; text-underline-offset: 3px;
+}
+.jp-path .jp-level-cell__preview:hover { color: var(--jp-primary); }
+.jp-path .jp-level-cell--passed .jp-level-cell__preview { color: var(--jp-ok); }
+.jp-level-cell--locked .jp-step__mark { font-size: .75em; }
+@media (max-width: 899px) {
+  /* phones: the road turns sideways so it costs one row */
+  .jp-path .jp-level-bar { flex-direction: row; overflow-x: auto; padding-bottom: 4px; }
+  .jp-path .jp-level-cell { flex: 1 0 96px; grid-template-columns: none; justify-items: center; text-align: center; padding: 0 4px; gap: 6px; }
+  .jp-path .jp-level-cell::before { display: block; top: 15px; bottom: auto; left: calc(-50% + 18px); right: calc(50% + 18px); width: auto; height: 2px; }
+  .jp-path .jp-level-cell:first-child::before { display: none; }
+  .jp-path .jp-level-cell:last-child::before { display: block; }
+  .jp-path .jp-level-cell .jp-step__body { justify-items: center; }
+  .jp-path .jp-level-cell__preview { justify-self: center; }
+}
+
+/* stage stepper + week */
+.jp-stage { display: grid; gap: 10px; margin: 0; }
+.jp-stage__steps { max-width: 640px; }
+.jp-stage__step--now { font-weight: inherit; color: inherit; }
+.jp-stage__days { margin: 0; color: var(--jp-muted); font-size: .92em; }
+.jp-path .jp-week { display: flex; flex-wrap: wrap; gap: 6px; }
+.jp-path .jp-day {
+  flex: 0 0 auto; min-width: 46px; padding: 6px 10px; border: 1px solid transparent; border-radius: 999px;
+  background: var(--jp-primary-soft); font-size: .88em; font-weight: 600; color: var(--jp-muted);
+}
+.jp-path .jp-day--skill { background: var(--jp-primary-soft); color: var(--jp-primary); }
+.jp-path .jp-day--rest { background: transparent; border-color: var(--jp-line); }
+.jp-path .jp-day--done { color: var(--jp-ok); }
+.jp-path .jp-day--today { border: 2px solid var(--jp-primary); color: var(--jp-ink); background: var(--jp-surface); }
+
+/* today: the one panel of the page, it carries the main action */
+.jp-path .jp-today {
+  gap: 12px; padding: 22px 24px; border: 0; background: var(--jp-primary-soft); border-radius: var(--jp-radius-panel);
+}
+.jp-path .jp-today .jp-section-title { font-size: 1.3em; }
+.jp-path .jp-today__summary { font-size: 1.05em; }
+.jp-path .jp-today .jp-btn--primary { min-height: 52px; padding: 12px 28px; font-size: 1.05em; justify-self: start; }
+.jp-path .jp-today .jp-modes { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.jp-path .jp-today .jp-mode { background: var(--jp-surface); border-color: transparent; }
+.jp-path .jp-today .jp-mode.jp-suggested { border-color: var(--jp-primary); }
+
+/* numbers under the tabs: plain figures, no frames */
+.jp-path .jp-stat { padding: 0; border: 0; background: none; gap: 2px; }
+.jp-path .jp-stat__value { font-size: 1.6em; }
+.jp-path .jp-skills { padding: 0; border: 0; background: none; }
+
+/* tabs read as the heading of the list */
+.jp-path .jp-tabs { gap: 8px; }
+.jp-path .jp-tab { font-size: 1.05em; padding: 10px 16px; }
+
+/* rail: pace + practice links, flat */
+.jp-path__rail .jp-card { padding: 0; border: 0; background: none; }
+.jp-path__rail .jp-extra { display: grid; gap: 10px; }
+.jp-path .jp-extra__list--pages { display: none; } /* the side navigation already lists these pages */
+
+@media (max-width: 899px) {
+  .jp-path__hero { padding-right: 48px; }
+  .jp-hero__title { font-size: 1.6em; }
+  .jp-path .jp-today { padding: 18px; }
+}
+.jp-path__rail .jp-extra { margin-top: 0; }
+.jp-path__rail .jp-extra__title { margin: 0; font-size: 1.05em; }
+.jp-path__rail .jp-extra__list:not(.jp-extra__list--pages) { display: grid; gap: 2px; }
+.jp-path__rail .jp-extra__list li { justify-content: space-between; }
+.jp-path__rail .jp-extra__link { flex: 1 1 auto; border: 0; border-radius: var(--jp-radius-interactive); padding: 8px 10px; }
+.jp-path__rail a.jp-extra__link:hover, .jp-path__rail a.jp-extra__link:focus-visible { background: var(--jp-primary-soft); }
+.jp-path__rail .jp-extra__link.is-off { border: 0; }
+.jp-path__rail .jp-extra__link { background: transparent; }
+
+.jp-lesson-page { max-width: 1000px; }
+.jp-lesson-page > .jp-crumbs { margin-bottom: 4px; }
+
+/* phones: each table row becomes a two-line entry (word + reading | meaning, state on the right) */
+@media (max-width: 640px) {
+  .jp-path .jp-table-wrap { border: 0; overflow: visible; }
+  .jp-path .jp-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .jp-path .jp-table, .jp-path .jp-table tbody { display: block; width: 100%; }
+  .jp-path .jp-table tr {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: center;
+    padding: 12px 2px; border-bottom: 1px solid var(--jp-line);
+  }
+  .jp-path .jp-table td { display: block; padding: 0; border: 0; }
+  .jp-path .jp-table td:nth-child(1) { grid-column: 1; }
+  .jp-path .jp-table td:nth-child(2) { grid-column: 1; color: var(--jp-muted); }
+  .jp-path .jp-table td:nth-child(3) { grid-column: 1; }
+  .jp-path .jp-table td.jp-col-type { display: none; }
+  .jp-path .jp-table td:last-child { grid-column: 2; grid-row: 1 / span 3; align-self: center; }
 }

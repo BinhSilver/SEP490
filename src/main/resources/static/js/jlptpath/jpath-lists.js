@@ -108,6 +108,9 @@
     var size = num(p.size) || 50;
     var pages = Math.max(1, Math.ceil(num(p.total) / size));
     var at = Math.min(Math.max(0, num(p.page)), pages - 1);
+    // shared numbered pager (Đầu, Trước, 1 … n, Sau, Cuối) when the nav kit is on the page
+    var N = root && root.JpathNav;
+    if (N && typeof N.pagerHtml === 'function') return N.pagerHtml(at, pages);
     var html = '<nav class="jp-pager" aria-label="Trang">';
     html += '<button type="button" class="jp-btn" data-action="page" data-page="' + (at - 1) + '"'
       + (at <= 0 ? ' disabled' : '') + '>‹ Trước</button>';
