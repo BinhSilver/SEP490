@@ -244,8 +244,9 @@
       + '<div class="jp-today__head"><div class="jp-today__lead"><h2 class="jp-section-title" id="jp-today-title">Hôm nay của bạn</h2>'
       + (x.why ? '<p class="jp-today__why">' + esc(x.why) + '</p>' : '') + '</div>'
       + (day ? '<div class="jp-today__day"><b lang="ja">' + esc(day) + '</b><span>' + esc(dayLine(t)) + '</span></div>' : '')
-      + '</div>';
-    var end = (x.footer ? '<div class="jp-today__foot">' + x.footer + '</div>' : '') + '</section>';
+      + '</div><div class="jp-today__body"><div class="jp-today__main">';
+    // the day's work on the left, the stage (x.side) on its right
+    var end = '</div>' + (x.side ? '<aside class="jp-today__side" aria-label="Tiến trình">' + x.side + '</aside>' : '') + '</div></section>';
     var missed = t.skillDayMissed ? '<p class="jp-warn">Tuần này bạn còn thiếu ngày kỹ năng.</p>' : '';
     if (t.allDone) {
       return html + '<p class="jp-today__done">' + icon('check') + ' Bạn đã xong phần hôm nay</p>'

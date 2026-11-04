@@ -853,3 +853,15 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 .jp-today__foot .jp-day--rest { background: transparent; }
 .jp-path .jp-level-cell { padding-bottom: 5px; }
 .jp-path .jp-path__side .jp-sidenav__link { min-height: 34px; padding-top: 5px; padding-bottom: 5px; }
+
+/* 04/11 today panel: the work (short rows) on the left, the stage stepper on its right; no week strip */
+.jp-today__body { display: grid; gap: 14px 28px; margin-top: 12px; }
+.jp-today__main { min-width: 0; }
+.jp-today__main .jp-todo { margin-top: 0; }
+.jp-today__side { padding: 12px 16px; border-radius: 10px; background: var(--jp-surface); }
+.jp-today__side .jp-stage { display: block; }
+.jp-today__side .jp-stepper { margin: 0; }
+.jp-today__side .jp-step__sub { font-size: .8em; }
+@media (min-width: 980px) {
+  .jp-today__body:has(.jp-today__side) { grid-template-columns: minmax(0, 1fr) minmax(220px, 280px); align-items: start; }
+}

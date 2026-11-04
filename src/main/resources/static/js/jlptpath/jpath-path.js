@@ -413,7 +413,8 @@
       var pace = part(rootEl, 'pace');
       if (pace && list(p.warnings).length) pace.open = true;
       setSlot(rootEl, 'today', C.todayHtml(state.today, p, state.tab,
-        { skills: state.skills, why: todayReason(p, state.today), footer: stageLineHtml(p) + weekHtml(p.week) }));
+        { skills: state.skills, why: todayReason(p, state.today),
+          side: stageLineHtml(p).replace('jp-stepper jp-stage__steps', 'jp-stepper jp-stepper--vertical jp-stage__steps') }));
     }
 
     // the [data-slot="list"] area belongs to jpath-lists.js (loaded before this file); it keeps its own filters
