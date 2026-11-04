@@ -172,7 +172,11 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const limitRaw = argValue(argv, '--limit', null);
   const limit = limitRaw != null ? Number(limitRaw) : null;
   const compiled = readJson(compiledLevelFile(level));
-  const plan = planAudio(compiled);
+  // --required-first: the files a release needs (word audio and the first, MAIN example) before the other examples, so
+  // a level can be released while the rest is still being made; a full run still lists the whole plan.
+  const full = planAudio(compiled);
+  const required = it => it.kind === 'WORD' || /-ex1\.mp3$/.test(it.file);
+  const plan = argv.includes('--required-first') ? [...full.filter(required), ...full.filter(it => !required(it))] : full;
   const file = audioManifestFile(level);
   const previous = existsSync(file) ? readJson(file).items : [];
   const manifest = await synthesizeAll(plan, { limit, dryRun, manifest: previous });
