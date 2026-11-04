@@ -197,7 +197,10 @@
       + '">Sắp có</button>';
     // the server note often repeats the state ("Đang học", "Sắp có"): show it only when it adds something
     var said = state === 'OPEN' ? 'Đang học' : (state === 'COMING_SOON' ? 'Sắp có' : '');
-    if (c.note && String(c.note).trim() !== said) sub += '<span class="jp-level-cell__note">' + esc(c.note) + '</span>';
+    // a locked level already shows a "Xem trước" button: its note keeps only the condition ("Thi thử N5 để mở")
+    var note = String(c.note || '').trim();
+    if (state === 'LOCKED') note = note.replace(/^Xem trước\s*·\s*/, '');
+    if (note && note !== said) sub += '<span class="jp-level-cell__note">' + esc(note) + '</span>';
     return '<li class="jp-step jp-step--' + step + ' jp-level-cell jp-level-cell--' + esc(state.toLowerCase()) + '"'
       + (state === 'OPEN' ? ' aria-current="step"' : '') + '><span class="jp-step__mark" aria-hidden="true">' + mark
       + '</span><span class="jp-step__body"><span class="jp-level-cell__name">' + name
@@ -410,7 +413,7 @@
       var pace = part(rootEl, 'pace');
       if (pace && list(p.warnings).length) pace.open = true;
       setSlot(rootEl, 'today', C.todayHtml(state.today, p, state.tab,
-        { skills: state.skills, why: todayReason(p, state.today) }));
+        { skills: state.skills, why: todayReason(p, state.today), footer: stageLineHtml(p) + weekHtml(p.week) }));
     }
 
     // the [data-slot="list"] area belongs to jpath-lists.js (loaded before this file); it keeps its own filters
@@ -465,7 +468,8 @@
       var p = state.path;
       if (p.display && rootEl.classList) D().applyDisplay(displayTarget(rootEl), p.display);
       setHtml(rootEl, 'hero', heroHtml(p, state.today) + menuHtml());
-      setHtml(rootEl, 'stage', stageLineHtml(p) + weekHtml(p.week) + weekGuideHtml(p, state.today));
+      // the stage and the week sit in the today panel's footer; this region keeps the week guide
+      setHtml(rootEl, 'stage', weekGuideHtml(p, state.today));
       setHtml(rootEl, 'levels', levelBand() + levelBarHtml(p));
       paintTab(false);
     }

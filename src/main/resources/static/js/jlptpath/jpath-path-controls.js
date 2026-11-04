@@ -209,24 +209,43 @@
     var quiz = quizRequired(t);
     var reviewDone = due === 0 && !quiz;
     var reviewText = (due ? 'Ôn ' + due + ' thẻ đến hạn' : 'Không có thẻ đến hạn') + (quiz ? ' · quiz tự do 10 câu' : '');
-    return '<p class="jp-today__summary">Hôm nay không học từ mới. Làm lần lượt:' + (t.skillMakeup ? ' (bù ngày kỹ năng đã lỡ)' : '')
-      + '</p><ol class="jp-todo">' + skillTask(o && o.reading, 'READING') + skillTask(o && o.listening, 'LISTENING')
+    return (t.skillMakeup ? '<p class="jp-today__summary">Hôm nay bù ngày kỹ năng đã lỡ.</p>' : '')
+      + '<ol class="jp-todo">' + skillTask(o && o.reading, 'READING') + skillTask(o && o.listening, 'LISTENING')
       + '<li class="jp-todo__item' + (reviewDone ? ' is-done' : '') + '"><span class="jp-todo__icon">' + icon('rotate-ccw')
       + '</span><span class="jp-todo__text"><strong>' + (quiz ? 'Ôn và quiz' : 'Ôn thẻ') + '</strong>' + '<span class="jp-todo__sub">' + esc(reviewText)
       + '</span></span>' + (reviewDone ? '<span class="jp-todo__done">' + icon('check') + ' Xong</span>'
         : '<button type="button" class="jp-btn" data-action="start-skill-review">Bắt đầu ôn</button>') + '</li></ol>';
   }
 
+  var JA_WEEKDAY = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
+
+  /** 水曜日 for '2026-11-04' (the learner's study day, read as a calendar date). */
+  function jaWeekday(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
+    return m ? JA_WEEKDAY[new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDay()] : '';
+  }
+
+  /** The small line under the weekday: what this kind of day holds. */
+  function dayLine(t) {
+    if (t.kind === 'SKILL') return 'Ngày kỹ năng · Đọc, Nghe và ôn';
+    if (t.kind === 'REST') return 'Ngày nghỉ · không có bài';
+    if (t.kind === 'REVIEW_ONLY') return 'Ngày ôn · không học mới';
+    if (t.kanaPhase) return 'Ngày học · ' + kanaRows(t) + ' hàng chữ cái, ' + target(t, 'VOCAB') + ' từ';
+    return 'Ngày học · ' + target(t, 'VOCAB') + ' từ, ' + target(t, 'KANJI') + ' Kanji, ' + target(t, 'GRAMMAR') + ' ngữ pháp';
+  }
+
   function todayHtml(today, path, activeTab, extra) {
     if (!today) return '';
     var t = today;
     var x = extra || {};
-    var kindName = { SKILL: 'Ngày kỹ năng', REST: 'Ngày nghỉ', REVIEW_ONLY: 'Ngày ôn', STUDY: 'Ngày học' }[t.kind] || '';
+    var day = jaWeekday(t.day);
+    // one panel: title and today's weekday (top right), the day's work, then the stage and the week (footer)
     var html = '<section class="jp-card jp-today" data-tour="today" aria-labelledby="jp-today-title">'
-      + '<h2 class="jp-section-title" id="jp-today-title">Hôm nay của bạn'
-      + (kindName ? ' <span class="jp-today__kind">' + esc(kindName) + '</span>' : '') + '</h2>'
-      + (x.why ? '<p class="jp-today__why">' + esc(x.why) + '</p>' : '');
-    var end = '</section>';
+      + '<div class="jp-today__head"><div class="jp-today__lead"><h2 class="jp-section-title" id="jp-today-title">Hôm nay của bạn</h2>'
+      + (x.why ? '<p class="jp-today__why">' + esc(x.why) + '</p>' : '') + '</div>'
+      + (day ? '<div class="jp-today__day"><b lang="ja">' + esc(day) + '</b><span>' + esc(dayLine(t)) + '</span></div>' : '')
+      + '</div>';
+    var end = (x.footer ? '<div class="jp-today__foot">' + x.footer + '</div>' : '') + '</section>';
     var missed = t.skillDayMissed ? '<p class="jp-warn">Tuần này bạn còn thiếu ngày kỹ năng.</p>' : '';
     if (t.allDone) {
       return html + '<p class="jp-today__done">' + icon('check') + ' Bạn đã xong phần hôm nay</p>'
@@ -331,5 +350,5 @@
       sliders: sliderBody(draft), kanaTab: !!p.kanaTab, mode: p.mode || 'COMBINED' };
   }
 
-  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, skillDayHtml: skillDayHtml, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
+  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, skillDayHtml: skillDayHtml, jaWeekday: jaWeekday, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
 });

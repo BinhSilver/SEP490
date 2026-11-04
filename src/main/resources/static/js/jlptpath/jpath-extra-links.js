@@ -47,10 +47,11 @@
     var links = Array.isArray(v.links) ? v.links : [];
     var pages = Array.isArray(v.pages) ? v.pages : [];
     if (!links.length && !pages.length) return '';
-    return '<nav class="jp-extra" aria-label="Luyện thêm"><h2 class="jp-extra__title">Luyện thêm</h2>'
+    // folded (owner 04/11: the side column fits one screen); the summary is the heading
+    return '<nav class="jp-extra" aria-label="Luyện thêm"><details class="jp-extra__fold"><summary class="jp-extra__title">Luyện thêm</summary>'
       + '<ul class="jp-extra__list">' + links.map(item).join('') + '</ul>'
       + (pages.length ? '<ul class="jp-extra__list jp-extra__list--pages">' + pages.map(item).join('') + '</ul>' : '')
-      + '</nav>';
+      + '</details></nav>';
   }
 
   var view = null;
