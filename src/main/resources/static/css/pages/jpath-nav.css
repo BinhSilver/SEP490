@@ -224,3 +224,17 @@
 .jp-page .jp-sidenav, .jp-page .jp-level-bar, .jp-page .jp-tabs, .jp-page .jp-toc__list, .jp-page .jp-path__tabs {
   scrollbar-width: thin; scrollbar-color: var(--jp-line) transparent;
 }
+
+/* ------------------------------------------------------------------ callout: a tip or a warning set apart by an icon */
+.jp-callout { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; }
+.jp-callout__icon { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--jp-primary-soft); color: var(--jp-primary); font-size: 1.05em; }
+.jp-callout--warn .jp-callout__icon { background: var(--jp-danger-soft); color: var(--jp-danger); }
+.jp-callout > div { display: grid; gap: 6px; }
+.jp-callout p { max-width: 72ch; line-height: 1.7; }
+
+.jp-callout__title { margin: 0; font-size: 1em; }
+.jp-callout ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; line-height: 1.6; }
+
+/* crumbs outside a .jp-ws workspace (focus pages): no named area, or the grid grows an implicit column beside it */
+:not(.jp-ws) > .jp-ws__crumbs { grid-area: auto; }
