@@ -736,3 +736,41 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
   .jp-lesson-practice { animation-delay: .14s; }
   @keyframes jp-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 }
+
+/* ======================================================================== 04/11 item drawer: bigger and wider
+   Top: the item big on the left, its facts on the right; body sections in two columns on wide screens; the report
+   flag sits next to the close button instead of on top of it; actions in one row. */
+.jp-dialog--drawer { width: min(920px, calc(100vw - 32px)); max-height: calc(100vh - 48px); padding: 24px 28px 22px; }
+.jp-drawer { position: relative; gap: 18px; font-size: 1.05rem; }
+.jp-drawer > .jp-report-btn { top: 0; right: 52px; }
+.jp-drawer__head { min-height: 44px; padding-right: 0; }
+.jp-drawer__top { display: grid; gap: 16px 32px; align-items: start; padding: 20px 22px; border-radius: 12px;
+  background: var(--jp-primary-soft); }
+.jp-drawer__id { display: grid; gap: 6px; min-width: 0; }
+.jp-drawer__title { margin: 0; font-size: clamp(3.2em, 7vw, 5.2em); line-height: 1.1; overflow-wrap: anywhere; }
+.jp-drawer__reading { font-size: 1.35em; }
+.jp-drawer__meaning { font-size: 1.25em; font-weight: 700; }
+.jp-drawer__id .jp-btn { justify-self: start; }
+.jp-drawer__top .jp-facts { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 18px; align-content: start; }
+.jp-drawer__top .jp-facts dd { margin: 0; font-size: 1.08em; }
+.jp-drawer__body { display: grid; gap: 4px 36px; }
+.jp-drawer__body > * { min-width: 0; }
+.jp-drawer__body .jp-word-list li, .jp-drawer__body .jp-example { padding: 6px 0; }
+.jp-drawer__writing { grid-column: 1 / -1; }
+.jp-drawer__actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding-top: 14px; border-top: 1px solid var(--jp-line); }
+.jp-drawer__actions .jp-btn { min-height: 46px; }
+@media (min-width: 760px) {
+  .jp-drawer__top:has(.jp-facts) { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
+  .jp-drawer__body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .jp-dialog--drawer { width: 100%; max-height: none; padding: 16px; }
+  .jp-drawer__top { padding: 16px; }
+}
+/* facts: one label/value pair per line (each .jp-fact is a dt/dd pair) */
+.jp-drawer__top .jp-facts { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.jp-drawer__top .jp-fact { display: grid; grid-template-columns: 6.5em minmax(0, 1fr); gap: 14px; align-items: baseline; }
+.jp-drawer__top .jp-fact dt { color: var(--jp-muted); }
+/* the drawer has its own close (X, Esc): the dialog's extra "Đóng" button below the actions only repeats it */
+.jp-dialog--drawer > .jp-btn[data-dialog-close] { display: none; }
+.jp-drawer__writing { padding-top: 6px; }

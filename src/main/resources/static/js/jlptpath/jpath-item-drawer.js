@@ -141,6 +141,7 @@
       + dataJson({ targetType: type, targetCode: d.code, pageContext: 'LIST' }) + '">';
     html += '<div class="jp-drawer__head">' + stateChip(state) + (d.hard ? ' <span class="jp-badge">Khó nhớ</span>' : '')
       + '<button type="button" class="jp-drawer__x" data-dialog-close aria-label="Đóng">' + icon('x') + '</button></div>';
+    html += '<div class="jp-drawer__top"><div class="jp-drawer__id">';
     html += '<h2 class="jp-drawer__title jp-kanji" id="jp-dialog-title" lang="ja" tabindex="-1">' + esc(title) + '</h2>';
     if (has(d.reading) && d.reading !== title) html += '<p class="jp-drawer__reading jp-ja" lang="ja">' + esc(d.reading) + '</p>';
     var romaji = d.romaji || (type === 'KANA' ? kana.romaji : null);
@@ -152,6 +153,8 @@
       html += '<button type="button" class="jp-btn" data-action="play" data-audio="' + esc(d.audioUrl)
         + '" aria-label="Nghe phát âm">' + icon('volume-2') + ' Nghe</button>';
     }
+    html += '</div>';
+    var factsHtml = '';
     if (type === 'KANJI') {
       var facts = factRow('Hán Việt', esc([k.hanViet].concat(list(k.hanVietAlt)).filter(has).join(', ').toUpperCase()))
         + factRow('Âm On', readingsHtml(k.readingsOn, k.levelReadings))
@@ -159,8 +162,9 @@
         + factRow('Số nét', has(k.strokeCount) ? esc(k.strokeCount) : '')
         + factRow('Bộ', has(k.radicalNumber) || has(k.radicalName)
           ? esc([k.radicalName, has(k.radicalNumber) ? '(' + k.radicalNumber + ')' : null].filter(has).join(' ')) : '');
-      if (facts) html += '<dl class="jp-facts">' + facts + '</dl>';
+      if (facts) factsHtml = '<dl class="jp-facts">' + facts + '</dl>';
     }
+    html += factsHtml + '</div><div class="jp-drawer__body">';
     if (type === 'GRAMMAR') {
       html += section('Cấu trúc', has(g.formation) ? '<p lang="ja">' + esc(g.formation) + '</p>' : '')
         + section('Cách dùng', has(g.usage) ? '<p>' + esc(g.usage) + '</p>' : '')
@@ -186,6 +190,7 @@
     if (writable && has(d.code)) {
       html += '<div class="jp-drawer__writing" data-jpath-writing="' + dataJson({ itemType: type, code: d.code }) + '"></div>';
     }
+    html += '</div>';
     var buttons = drawerButtons(type, state);
     if (buttons) html += '<div class="jp-drawer__actions">' + buttons + '</div>';
     html += '<p class="jp-alert" role="alert" data-part="drawer-error" hidden></p>';
