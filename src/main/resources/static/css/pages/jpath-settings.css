@@ -87,3 +87,16 @@
 @media (prefers-reduced-motion: reduce) {
   .jp-settings * { transition: none !important; animation: none !important; }
 }
+
+/* ======================================================================== 04/11 workspace redesign
+   One column of settings blocks, each a flat section separated by a hairline; the side column holds the
+   table of contents (scrollspy) and the path pages. Forms get room: two fields per row from 760 px. */
+.jp-settings { max-width: 1440px; display: block; }
+.jp-settings__content { grid-template-columns: minmax(0, 1fr); gap: 0; max-width: 820px; }
+.jp-settings .jp-card {
+  padding: 28px 0; border: 0; border-top: 1px solid var(--jp-line); border-radius: 0; background: none; gap: 16px;
+  scroll-margin-top: 90px;
+}
+.jp-settings .jp-card:first-child { border-top: 0; padding-top: 8px; }
+.jp-settings-card__title { font-size: 1.25em; }
+.jp-ws__side [data-jp-toc-auto]:not(:empty) + .jp-sidenav { padding-top: 16px; border-top: 1px solid var(--jp-line); }

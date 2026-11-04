@@ -7,37 +7,41 @@
 <body id="jlabBasePage" class="app-body jp-body">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-side" data-inline-dictionary data-jpath-stats>
-    <header class="jp-side__head">
-        <a class="jp-side__back" href="/learning">← Về lộ trình</a>
-        <h1 class="jp-side__title">Thống kê học</h1>
-        <a class="jp-side__link" href="/learning/jlpt/history">Lịch sử</a>
-    </header>
-    <div class="jp-side__range" role="group" aria-label="Khoảng thời gian">
-        <button type="button" class="jp-side-btn" data-range="7" aria-pressed="true">7 ngày</button>
-        <button type="button" class="jp-side-btn" data-range="30" aria-pressed="false">30 ngày</button>
+<div class="jp-ws jp-ws--norail">
+    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Thống kê')}"></th:block>
+    <aside class="jp-ws__side" aria-label="Điều hướng lộ trình">
+        <th:block th:replace="~{jlptpath/fragments/jpath :: sidenav('/learning/jlpt/stats')}"></th:block>
+    </aside>
+    <div class="jp-ws__main">
+        <header class="jp-page-head"><h1 class="jp-page-head__title jp-side__title">Thống kê học</h1></header>
+        <div class="jp-side__range" role="group" aria-label="Khoảng thời gian">
+            <button type="button" class="jp-side-btn" data-range="7" aria-pressed="true">7 ngày</button>
+            <button type="button" class="jp-side-btn" data-range="30" aria-pressed="false">30 ngày</button>
+        </div>
+        <p class="jp-side__status" role="status" data-role="status">Đang tải…</p>
+        <section class="jp-side-card" aria-labelledby="jpsAccTitle">
+            <h2 id="jpsAccTitle">Độ chính xác</h2>
+            <div class="jp-side-tiles" data-role="accuracy"></div>
+        </section>
+        <section class="jp-side-card" aria-labelledby="jpsCountTitle">
+            <h2 id="jpsCountTitle">Mục của bạn</h2>
+            <div class="jp-side-tiles" data-role="counts"></div>
+        </section>
+        <section class="jp-side-card" aria-labelledby="jpsDaysTitle">
+            <h2 id="jpsDaysTitle">Mỗi ngày</h2>
+            <div class="jp-side-bars" data-role="bars"></div>
+        </section>
+        <section class="jp-side-card" aria-labelledby="jpsHeatTitle">
+            <h2 id="jpsHeatTitle">6 tháng gần đây</h2>
+            <div class="jp-side-heat" data-role="heatmap"></div>
+            <p class="jp-side__note">💤 ngày nghỉ · 📖 ngày kỹ năng · bấm một ô để xem ngày đó</p>
+        </section>
+        <section class="jp-side-card" aria-labelledby="jpsBadgeTitle">
+            <h2 id="jpsBadgeTitle">Huy hiệu</h2>
+            <ul class="jp-side-badges" data-role="badges"></ul>
+        </section>
     </div>
-    <p class="jp-side__status" role="status" data-role="status">Đang tải…</p>
-    <section class="jp-side-card" aria-labelledby="jpsAccTitle">
-        <h2 id="jpsAccTitle">Độ chính xác</h2>
-        <div class="jp-side-tiles" data-role="accuracy"></div>
-    </section>
-    <section class="jp-side-card" aria-labelledby="jpsCountTitle">
-        <h2 id="jpsCountTitle">Mục của bạn</h2>
-        <div class="jp-side-tiles" data-role="counts"></div>
-    </section>
-    <section class="jp-side-card" aria-labelledby="jpsDaysTitle">
-        <h2 id="jpsDaysTitle">Mỗi ngày</h2>
-        <div class="jp-side-bars" data-role="bars"></div>
-    </section>
-    <section class="jp-side-card" aria-labelledby="jpsHeatTitle">
-        <h2 id="jpsHeatTitle">6 tháng gần đây</h2>
-        <div class="jp-side-heat" data-role="heatmap"></div>
-        <p class="jp-side__note">💤 ngày nghỉ · 📖 ngày kỹ năng · bấm một ô để xem ngày đó</p>
-    </section>
-    <section class="jp-side-card" aria-labelledby="jpsBadgeTitle">
-        <h2 id="jpsBadgeTitle">Huy hiệu</h2>
-        <ul class="jp-side-badges" data-role="badges"></ul>
-    </section>
+</div>
 </main>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
 <script th:src="@{/js/jlptpath/jpath-stats.js(v=${jpathAssetVersion})}"></script>

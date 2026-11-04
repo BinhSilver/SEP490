@@ -7,21 +7,25 @@
 <body id="jlabBasePage" class="app-body jp-body">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-side" data-inline-dictionary data-jpath-confusables>
-    <header class="jp-side__head">
-        <a class="jp-side__back" href="/learning">← Về lộ trình</a>
-        <h1 class="jp-side__title">Phân biệt chữ dễ nhầm</h1>
-        <a class="jp-side__link" href="/learning/jlpt/notebook">Sổ tay</a>
-    </header>
-    <div class="jp-side__range" role="group" aria-label="Loại mục">
-        <button type="button" class="jp-side-btn" data-tab="VOCAB" aria-pressed="true">Từ vựng</button>
-        <button type="button" class="jp-side-btn" data-tab="KANJI" aria-pressed="false">Kanji</button>
+<div class="jp-ws jp-ws--norail">
+    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Phân biệt chữ dễ nhầm')}"></th:block>
+    <aside class="jp-ws__side" aria-label="Điều hướng lộ trình">
+        <th:block th:replace="~{jlptpath/fragments/jpath :: sidenav('/learning/jlpt/confusables')}"></th:block>
+    </aside>
+    <div class="jp-ws__main">
+        <header class="jp-page-head"><h1 class="jp-page-head__title jp-side__title">Phân biệt chữ dễ nhầm</h1></header>
+        <div class="jp-side__range" role="group" aria-label="Loại mục">
+            <button type="button" class="jp-side-btn" data-tab="VOCAB" aria-pressed="true">Từ vựng</button>
+            <button type="button" class="jp-side-btn" data-tab="KANJI" aria-pressed="false">Kanji</button>
+        </div>
+        <section class="jp-side-card">
+            <button type="button" class="jp-side-btn jp-side-btn--primary" data-role="start" disabled>Luyện 10 câu</button>
+            <p class="jp-side__note">Không tính vào tiến độ.</p>
+            <p class="jp-side__status" role="status" data-role="status">Đang tải…</p>
+        </section>
+        <ul class="jp-pairs" data-role="pairs"></ul>
     </div>
-    <section class="jp-side-card">
-        <button type="button" class="jp-side-btn jp-side-btn--primary" data-role="start" disabled>Luyện 10 câu</button>
-        <p class="jp-side__note">Không tính vào tiến độ.</p>
-        <p class="jp-side__status" role="status" data-role="status">Đang tải…</p>
-    </section>
-    <ul class="jp-pairs" data-role="pairs"></ul>
+</div>
 </main>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
 <script th:src="@{/js/jlptpath/jpath-confusables.js(v=${jpathAssetVersion})}"></script>

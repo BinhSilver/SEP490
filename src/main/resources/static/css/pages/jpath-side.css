@@ -81,3 +81,32 @@
   .jp-bank-row { grid-template-columns: 1fr; }
   .jp-bank-row__actions { justify-content: flex-start; }
 }
+
+/* ======================================================================== 04/11 workspace redesign
+   The page sits in .jp-ws (side navigation | main). Sections are flat: a heading and space, no frame.
+   Rows of a list are separated by a hairline instead of each being a box. */
+.jp-side { max-width: 1440px; }
+.jp-side .jp-page-head { margin-bottom: 4px; }
+.jp-side .jp-side__title { font-size: 2em; flex: none; }
+.jp-side-card { margin: 0; padding: 0; border: 0; border-radius: 0; background: none; display: grid; gap: 14px; }
+.jp-side-card h2 { margin: 0; font-size: 1.15em; }
+.jp-ws__main > .jp-side-card + .jp-side-card { padding-top: 8px; }
+/* segmented switch (range / item type) reads like tabs */
+.jp-side__range { gap: 0; margin: 0; border-bottom: 1px solid var(--jp-line); }
+.jp-side__range .jp-side-btn {
+  min-height: 44px; padding: 8px 18px; border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: transparent;
+  color: var(--jp-muted); font-weight: 600;
+}
+.jp-side__range .jp-side-btn[aria-pressed="true"] { border-bottom-color: var(--jp-primary); background: transparent; color: var(--jp-primary); }
+/* list rows */
+.jp-bank, .jp-pairs, .jp-side-days { gap: 0; }
+.jp-bank-row, .jp-pair { border: 0; border-bottom: 1px solid var(--jp-line); border-radius: 0; background: none; padding: 14px 4px; }
+.jp-side-day__btn { border: 0; border-bottom: 1px solid var(--jp-line); border-radius: 0; background: none; padding: 14px 4px; }
+.jp-side-day__btn:hover, .jp-bank-row:hover { background: color-mix(in srgb, var(--jp-primary-soft) 55%, transparent); }
+.jp-side-tile { background: var(--jp-primary-soft); padding: 14px 16px; }
+.jp-side-tile strong { font-size: 1.6em; }
+.jp-side-bars { min-height: 160px; }
+.jp-side__pager { gap: 8px; }
+.jp-side__pager [data-role="page"] { min-width: 6em; text-align: center; font-weight: 600; }
+.jp-side-tiles { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; max-width: 900px; }
+.jp-side-tile { gap: 4px; }

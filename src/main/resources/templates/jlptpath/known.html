@@ -6,22 +6,26 @@
 <body id="jlabBasePage" class="app-body jp-body">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-side" data-inline-dictionary data-jpath-wordbank="KNOWN">
-    <header class="jp-side__head">
-        <a class="jp-side__back" href="/learning">← Về lộ trình</a>
-        <h1 class="jp-side__title">Kho đã biết</h1>
-        <a class="jp-side__link" href="/learning/jlpt/notebook">Sổ tay</a>
-    </header>
-    <div class="jp-side__range" role="group" aria-label="Loại mục">
-        <button type="button" class="jp-side-btn" data-tab="VOCAB" aria-pressed="true">Từ vựng</button>
-        <button type="button" class="jp-side-btn" data-tab="KANJI" aria-pressed="false">Kanji</button>
+<div class="jp-ws jp-ws--norail">
+    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Kho đã biết')}"></th:block>
+    <aside class="jp-ws__side" aria-label="Điều hướng lộ trình">
+        <th:block th:replace="~{jlptpath/fragments/jpath :: sidenav('/learning/jlpt/known')}"></th:block>
+    </aside>
+    <div class="jp-ws__main">
+        <header class="jp-page-head"><h1 class="jp-page-head__title jp-side__title">Kho đã biết</h1></header>
+        <div class="jp-side__range" role="group" aria-label="Loại mục">
+            <button type="button" class="jp-side-btn" data-tab="VOCAB" aria-pressed="true">Từ vựng</button>
+            <button type="button" class="jp-side-btn" data-tab="KANJI" aria-pressed="false">Kanji</button>
+        </div>
+        <p class="jp-side__status" role="status" data-role="status">Đang tải…</p>
+        <ul class="jp-bank" data-role="rows"></ul>
+        <nav class="jp-side__pager" data-role="pager" aria-label="Trang" hidden>
+            <button type="button" class="jp-side-btn" data-page="prev">Trước</button>
+            <span data-role="page"></span>
+            <button type="button" class="jp-side-btn" data-page="next">Sau</button>
+        </nav>
     </div>
-    <p class="jp-side__status" role="status" data-role="status">Đang tải…</p>
-    <ul class="jp-bank" data-role="rows"></ul>
-    <nav class="jp-side__pager" data-role="pager" aria-label="Trang" hidden>
-        <button type="button" class="jp-side-btn" data-page="prev">Trước</button>
-        <span data-role="page"></span>
-        <button type="button" class="jp-side-btn" data-page="next">Sau</button>
-    </nav>
+</div>
 </main>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
 <script th:src="@{/js/jlptpath/jpath-wordbank.js(v=${jpathAssetVersion})}"></script>
