@@ -495,8 +495,8 @@
 .jp-path .jp-tab { font-size: 1.05em; padding: 10px 16px; }
 
 /* rail: pace + practice links, flat */
-.jp-path__rail .jp-card { padding: 0; border: 0; background: none; }
-.jp-path__rail .jp-extra { display: grid; gap: 10px; }
+.jp-path__side .jp-card { padding: 0; border: 0; background: none; }
+.jp-path__side .jp-extra { display: grid; gap: 10px; }
 .jp-path .jp-extra__list--pages { display: none; } /* the side navigation already lists these pages */
 
 @media (max-width: 899px) {
@@ -504,14 +504,14 @@
   .jp-hero__title { font-size: 1.6em; }
   .jp-path .jp-today { padding: 18px; }
 }
-.jp-path__rail .jp-extra { margin-top: 0; }
-.jp-path__rail .jp-extra__title { margin: 0; font-size: 1.05em; }
-.jp-path__rail .jp-extra__list:not(.jp-extra__list--pages) { display: grid; gap: 2px; }
-.jp-path__rail .jp-extra__list li { justify-content: space-between; }
-.jp-path__rail .jp-extra__link { flex: 1 1 auto; border: 0; border-radius: var(--jp-radius-interactive); padding: 8px 10px; }
-.jp-path__rail a.jp-extra__link:hover, .jp-path__rail a.jp-extra__link:focus-visible { background: var(--jp-primary-soft); }
-.jp-path__rail .jp-extra__link.is-off { border: 0; }
-.jp-path__rail .jp-extra__link { background: transparent; }
+.jp-path__side .jp-extra { margin-top: 0; }
+.jp-path__side .jp-extra__title { margin: 0; font-size: 1.05em; }
+.jp-path__side .jp-extra__list:not(.jp-extra__list--pages) { display: grid; gap: 2px; }
+.jp-path__side .jp-extra__list li { justify-content: space-between; }
+.jp-path__side .jp-extra__link { flex: 1 1 auto; border: 0; border-radius: var(--jp-radius-interactive); padding: 8px 10px; }
+.jp-path__side a.jp-extra__link:hover, .jp-path__side a.jp-extra__link:focus-visible { background: var(--jp-primary-soft); }
+.jp-path__side .jp-extra__link.is-off { border: 0; }
+.jp-path__side .jp-extra__link { background: transparent; }
 
 .jp-lesson-page { max-width: 1000px; }
 .jp-lesson-page > .jp-crumbs { margin-bottom: 4px; }
@@ -541,7 +541,7 @@
 .jp-attached__meaning { margin: 0; }
 .jp-attached__example { color: var(--jp-muted); }
 /* the path page has the Đọc · Nghe tab itself: its shortcut in "Luyện thêm" would only point at this page */
-.jp-path__rail .jp-extra__list li:has(> a[href="/learning?tab=skills"]) { display: none; }
+.jp-path__side .jp-extra__list li:has(> a[href="/learning?tab=skills"]) { display: none; }
 
 /* 04/11 polish: bài ngữ pháp + tạo lộ trình */
 .jp-lesson-page { max-width: 1100px; }
@@ -586,3 +586,69 @@
   .jp-lesson__nav a:last-child:not(:first-child) { right: 12px; width: calc(30% - 16px); }
 }
 @media (prefers-reduced-motion: reduce) { .jp-lesson-practice *, .jp-lesson__nav * { transition: none !important; animation: none !important; } }
+
+/* ======================================================================== 04/11 path page, round 2 (owner: "still too much")
+   Two columns only. Side: level road, the path's pages, practice tools. Main, in reading order: who/target → today's
+   action (the one panel) → progress band (stage + week on one line) → pace (folded) → the library (tabs). */
+@media (min-width: 1240px) {
+  .jp-path .jp-ws--norail { grid-template-columns: 248px minmax(0, 1fr); }
+}
+.jp-path__main { gap: 22px; max-width: 1040px; }
+.jp-path__side { gap: 22px; }
+
+/* hero: one quiet line under the title; the card stack stays beside it when there is one */
+.jp-path__hero { padding-top: 0; align-items: center; }
+.jp-hero__title { font-size: 1.9em; }
+.jp-hero__text { gap: 2px; }
+.jp-hero__greet { font-size: .95em; }
+
+/* today is the action of the page */
+.jp-path .jp-today { padding: 26px 28px; }
+.jp-path .jp-today .jp-section-title { font-size: 1.45em; }
+
+/* progress band: stage stepper and the week side by side, no heading */
+.jp-path__stage { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px 32px; }
+.jp-path__stage .jp-stage__steps { max-width: 520px; }
+.jp-path__stage .jp-week { justify-content: flex-end; gap: 4px; }
+.jp-path__stage .jp-day { min-width: 38px; padding: 4px 8px; font-size: .82em; }
+@media (max-width: 899px) {
+  .jp-path__stage { grid-template-columns: minmax(0, 1fr); }
+  .jp-path__stage .jp-week { justify-content: flex-start; }
+}
+
+/* pace: folded behind one line */
+.jp-path__pace { border-top: 1px solid var(--jp-line); border-bottom: 1px solid var(--jp-line); }
+.jp-path__pace-head {
+  display: flex; align-items: center; justify-content: space-between; min-height: 48px; cursor: pointer; list-style: none;
+  font-weight: 600; color: var(--jp-muted);
+}
+.jp-path__pace-head::-webkit-details-marker { display: none; }
+.jp-path__pace-head::after { content: "+"; font-size: 1.3em; }
+.jp-path__pace[open] > .jp-path__pace-head::after { content: "−"; }
+.jp-path__pace-head:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: -3px; }
+.jp-path__pace .jp-path__slider { padding: 4px 0 18px; max-width: 560px; }
+.jp-path__pace .jp-card { padding: 0; border: 0; background: none; }
+
+/* the two figures under the tabs read as one line */
+.jp-path__numbers { display: flex; flex-wrap: wrap; gap: 6px 28px; align-items: baseline; }
+.jp-path__numbers .jp-stat { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.jp-path__numbers .jp-stat__title { font-size: .85em; }
+.jp-path__numbers .jp-stat__value { font-size: 1.05em; }
+.jp-path__numbers .jp-stat__sub { flex-basis: 100%; font-size: .8em; }
+.jp-path__numbers .jp-skills { flex-basis: 100%; }
+
+/* level road: smaller, "Sắp có" is a quiet note */
+.jp-path .jp-level-cell { padding-bottom: 12px; }
+.jp-path .jp-level-cell--coming_soon .jp-level-cell__preview,
+.jp-path .jp-level-cell--locked .jp-level-cell__preview { text-decoration: none; font-weight: 500; font-size: .8em; }
+
+/* practice tools in the side column look like the page links above them */
+.jp-path__side .jp-extra { gap: 2px; padding-top: 14px; border-top: 1px solid var(--jp-line); }
+.jp-path__side .jp-extra__title { margin: 0 0 6px; font-size: .85em; color: var(--jp-muted); font-weight: 600; }
+.jp-path__side .jp-extra__link { min-height: 36px; padding: 6px 10px; font-weight: 500; }
+.jp-path__side .jp-extra__list small { display: none; }
+.jp-path .jp-sidenav { padding-top: 14px; border-top: 1px solid var(--jp-line); }
+@media (max-width: 899px) {
+  .jp-path__side .jp-extra__list:not(.jp-extra__list--pages) { display: flex; overflow-x: auto; gap: 6px; }
+  .jp-path__side .jp-extra__link { white-space: nowrap; border: 1px solid var(--jp-line); border-radius: 999px; }
+}

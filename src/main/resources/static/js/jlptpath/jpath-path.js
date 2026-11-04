@@ -365,6 +365,9 @@
     function paintControls() {
       var p = state.path;
       setSlot(rootEl, 'slider', C.sliderHtml(p.sliders, state.tab, p.openLevel, state.draft) + C.warningsHtml(p.warnings));
+      // the pace panel is folded; a pace warning (behind, rebalance) opens it so it is not missed
+      var pace = part(rootEl, 'pace');
+      if (pace && list(p.warnings).length) pace.open = true;
       setSlot(rootEl, 'today', C.todayHtml(state.today, p, state.tab));
     }
 

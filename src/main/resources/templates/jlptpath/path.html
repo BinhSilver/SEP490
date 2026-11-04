@@ -10,9 +10,8 @@
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-path" data-inline-dictionary
       th:attr="data-jpath-tab=${jpathTab},data-jpath-topic=${jpathTopic}">
-    <div id="jpathPathRoot" class="jp-ws jp-path__grid" aria-busy="true"
+    <div id="jpathPathRoot" class="jp-ws jp-ws--norail jp-path__grid" aria-busy="true"
          th:attr="data-jpath-tab=${jpathTab}">
-        <div class="jp-ws__crumbs" data-region="crumbs"></div>
         <aside class="jp-ws__side jp-path__side" aria-label="Điều hướng lộ trình">
             <div class="jp-path__levels" data-region="levels"></div>
             <nav class="jp-sidenav" aria-label="Trang của lộ trình">
@@ -25,23 +24,24 @@
                 <a class="jp-sidenav__link" href="/learning/jlpt/confusables">Phân biệt chữ dễ nhầm</a>
                 <a class="jp-sidenav__link" href="/learning/jlpt/settings">Cài đặt lộ trình</a>
             </nav>
+            <div data-jpath-extra-links class="jp-path__extra"></div>
         </aside>
         <div class="jp-ws__main jp-path__main">
             <div class="jp-path__hero" data-region="hero">
                 <p class="jp-path__loading" role="status">Đang tải lộ trình…</p>
             </div>
-            <div class="jp-path__stage" data-region="stage"></div>
             <section class="jp-path__today" data-slot="today"></section>
+            <div class="jp-path__stage" data-region="stage"></div>
+            <details class="jp-path__pace" data-part="pace">
+                <summary class="jp-path__pace-head">Điều chỉnh nhịp học</summary>
+                <div class="jp-path__slider" data-slot="slider"></div>
+            </details>
             <div class="jp-path__tabpart">
                 <div class="jp-path__tabs" data-region="tabs"></div>
                 <div class="jp-path__numbers" id="jp-tab-panel" role="tabpanel" data-region="numbers"></div>
                 <section class="jp-path__list" data-slot="list"></section>
             </div>
         </div>
-        <aside class="jp-ws__rail jp-path__rail" aria-label="Nhịp học và luyện thêm">
-            <div class="jp-path__slider" data-slot="slider"></div>
-            <div data-jpath-extra-links class="jp-path__extra"></div>
-        </aside>
     </div>
 </main>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
