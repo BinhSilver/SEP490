@@ -68,3 +68,21 @@
 .jp-skill-steps li.is-done { color: inherit; }
 .jp-skill-session, .jp-skill-section { max-width: 1000px; }
 .jp-skill-session > .jp-crumbs, .jp-skill-section > .jp-crumbs { margin-bottom: 12px; }
+
+/* 04/11 redesign of the Đọc · Nghe tab: the two skill cards are the only panels (they are today's two actions);
+   the type list, free practice, section practice and readiness are flat sections with room to breathe. */
+.jp-skill-cards { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 8px; }
+.jp-skill-card { padding: 22px; gap: 10px; border-color: transparent; background: var(--jp-primary-soft); }
+.jp-skill-card.is-done { border-color: var(--jp-ok); background: var(--jp-surface); }
+.jp-skill-card.is-empty { background: transparent; border: 1px dashed var(--jp-line); }
+.jp-skill-card__title { font-size: 1.25em; }
+.jp-skill-card .jp-btn--primary { justify-self: start; align-self: flex-start; min-height: 48px; padding: 10px 24px; }
+.jp-skills__sub { margin: 28px 0 10px; font-size: 1.12em; }
+.jp-skill-types { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0 28px; }
+.jp-skill-type { padding: 12px 2px; border-radius: 0; background: none; border-bottom: 1px solid var(--jp-line); }
+.jp-skills__actions { gap: 22px; margin-top: 28px; }
+.jp-skills__free, .jp-skills__section { gap: 12px; }
+.jp-skills__free select { min-height: 44px; min-width: 260px; }
+.jp-skills__readiness ul { list-style: none; padding: 0; display: grid; gap: 8px; }
+.jp-skills__readiness li { padding: 8px 0; border-bottom: 1px solid var(--jp-line); }
+.jp-skill-block.jp-mock-card { margin-top: 28px; padding: 22px; border-radius: var(--jp-radius-panel); }
