@@ -104,7 +104,8 @@ export function buildSeed(level, {
   const seedVersion = sha256(JSON.stringify(tables)).slice(0, 12);
   for (const [key, def] of Object.entries(TABLES)) if (def.cc) for (const row of tables[key]) row.seed_version = seedVersion;
   const visibleVocab = new Set(lowerLevels.flatMap((c) => c.vocabulary ?? []).filter((v) => VISIBLE.has(v.status)).map((v) => v.id));
-  const verdict = releaseVerdict(level, tables, { visibleVocab });
+  const kanjiWithoutWords = new Set((compiled.kanji ?? []).filter((k) => !(k.compound_ids ?? []).length).map((k) => k.id));
+  const verdict = releaseVerdict(level, tables, { visibleVocab, kanjiWithoutWords });
   const release = { released: verdict.released, reasons: verdict.reasons, note: verdict.note };
 
   const header = [

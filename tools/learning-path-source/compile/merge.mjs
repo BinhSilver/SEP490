@@ -756,6 +756,24 @@ export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub, 
   const grammar = grammarItems({ frames, jlasLevels }, level, corrections, grammarSplit?.[level] ?? null);
   let kanji = kanjiItems({ frames, jlasLevels, dictionary }, level, pool), kanjiCap = null;
   if (kanjiStudyCap?.[level] != null) ({ kanji, summary: kanjiCap } = capKanji(kanji, kanjiStudyCap[level], vocabulary, jlasLevels));
+  // A kanji in the study queue keeps one compound word in it: when every compound of the level fell out of the word
+  // cap, its first compound is pulled back in (the cap grows by those words; no other word leaves).
+  if (studyCapSummary) {
+    const byId = new Map(vocabulary.map(v => [v.id, v]));
+    let pulled = 0;
+    for (const k of kanji) {
+      if (k.queue === 'EXTRA') continue;
+      const ids = k.compound_ids ?? [];
+      if (!ids.length || ids.some(id => !byId.has(id) || byId.get(id).queue === 'STUDY')) continue;
+      byId.get(ids[0]).queue = 'STUDY';
+      pulled++;
+    }
+    if (pulled) {
+      studyCapSummary.in_queue += pulled;
+      studyCapSummary.out_of_queue -= pulled;
+      studyCapSummary.pulled_by_kanji = pulled;
+    }
+  }
   // Same spelling and reading kept as two words (any level): homonyms, or synonyms the fit test missed — for review.
   const base = l => l.key.split('#')[0];
   const bySpelling = new Map();

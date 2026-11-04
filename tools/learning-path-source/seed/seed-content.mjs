@@ -293,7 +293,7 @@ const NOTE_LIMIT = LIMITS['jpath_level.release_note'];
  * without ok MAIN-example audio. FURIGANA_MISSING (C5) only for sentences that contain a kanji. KANJI_COMPOUND_MISSING:
  * a kanji without a compound whose word is visible; `visibleVocab` adds visible words the tables do not hold (lower levels).
  */
-export function releaseVerdict(level, tables, { visibleVocab = new Set() } = {}) {
+export function releaseVerdict(level, tables, { visibleVocab = new Set(), kanjiWithoutWords = new Set() } = {}) {
   const reasons = {};
   const add = (code, n = 1) => { if (n > 0) reasons[code] = (reasons[code] ?? 0) + n; };
   const ofLevel = (rows) => (rows ?? []).filter((r) => r.level === level);
@@ -334,7 +334,8 @@ export function releaseVerdict(level, tables, { visibleVocab = new Set() } = {})
   for (const k of kanji.filter((r) => VISIBLE.has(r.status))) {
     if (blank(k.meanings_vi)) add('MEANING_MISSING');
     if (blank(k.han_viet)) add('HAN_VIET_MISSING');
-    if (!compounds.has(k.code)) add('KANJI_COMPOUND_MISSING');
+    // a kanji that no word of this or a lower level uses (君 at N3) cannot have a compound
+    if (!compounds.has(k.code) && !kanjiWithoutWords.has(k.code)) add('KANJI_COMPOUND_MISSING');
   }
 
   const questionsOf = new Map();
