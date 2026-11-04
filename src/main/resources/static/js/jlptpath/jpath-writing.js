@@ -12,7 +12,7 @@
  *     quizzes one character at a time against its KanjiVG strokes in the browser: "Nét k/n", a miss flashes red for
  *     600 ms with a hint, the 3rd miss reveals the stroke, "Xong chữ …" + "Viết lại". Nothing is sent to the server.
  *     openList adds Trước / Sau. Esc closes.
- *   - Tập viết: Mỗi chữ 1/3/5/8/12 ô (1st cell with the guide, 2nd faint, the rest blank); a Kanji or word can also be
+ *   - Tập viết: Mỗi chữ 1/3/5/8/12 ô, split evenly into dark guide / faint guide / blank (cellKinds); a Kanji or word can also be
  *     practised by its reading in hiragana (readingChars); In phiếu viết opens an A4 sheet of the same cells.
  * Needs jpath-api.js; uses /dictionary/js/stroke-order.js and handwriting-core.js (point simplification) when loaded.
  */
@@ -277,18 +277,30 @@
     return (view.characters || []).map(function (c) { return c['char']; });
   }
 
-  /** Practice cells: per cells for each character; the 1st with the full guide, the 2nd faint, the rest blank. */
-  function cellsHtml(chars, per) {
+  /**
+   * How the cells of one character split, evenly: about a third with the dark guide, a third faint, the rest blank
+   * (3 → 1/1/1, 5 → 2/2/1, 8 → 3/3/2, 12 → 4/4/4). Returns one of 'solid' | 'faint' | 'blank' per cell.
+   */
+  function cellKinds(per) {
     var n = Math.max(1, per | 0);
+    var solid = Math.ceil(n / 3);
+    var faint = Math.ceil((n - solid) / 2);
+    var out = [];
+    for (var k = 0; k < n; k++) out.push(k < solid ? 'solid' : (k < solid + faint ? 'faint' : 'blank'));
+    return out;
+  }
+
+  /** Practice cells: per cells for each character, split by cellKinds (dark guide, faint guide, blank). */
+  function cellsHtml(chars, per) {
+    var kinds = cellKinds(per);
     var at = 0;
     return chars.map(function (ch) {
-      var row = '';
-      for (var k = 0; k < n; k++) {
-        var ghost = k === 0 ? '' : (k === 1 ? ' jp-writing__ghost--faint' : null);
-        row += '<div class="jp-writing__cell" data-cell="' + (at++) + '">' + GRID
-          + (ghost === null ? '' : '<span class="jp-writing__ghost' + ghost + ' jp-kanji" aria-hidden="true">' + esc(ch) + '</span>')
-          + '<canvas class="jp-writing__canvas" aria-label="Ô tập viết chữ ' + esc(ch) + ' (' + (k + 1) + '/' + n + ')"></canvas></div>';
-      }
+      var row = kinds.map(function (kind, k) {
+        return '<div class="jp-writing__cell jp-writing__cell--' + kind + '" data-cell="' + (at++) + '">' + GRID
+          + (kind === 'blank' ? '' : '<span class="jp-writing__ghost jp-writing__ghost--' + kind + ' jp-kanji" aria-hidden="true">'
+            + esc(ch) + '</span>')
+          + '<canvas class="jp-writing__canvas" aria-label="Ô tập viết chữ ' + esc(ch) + ' (' + (k + 1) + '/' + kinds.length + ')"></canvas></div>';
+      }).join('');
       return '<div class="jp-writing__row">' + row + '</div>';
     }).join('');
   }
@@ -307,16 +319,14 @@
       + '<button type="button" class="jp-writing__btn" data-writing-print>In phiếu viết</button></div>';
   }
 
-  /** A4 writing sheet: for each character a run of 米 cells (1st solid, 2nd and 3rd faint, the rest blank). */
+  /** A4 writing sheet: for each character a run of cells split like the screen (cellKinds). */
   function sheetHtml(view, chars, per) {
     var v = view || {};
     var n = Math.max(per | 0, 1);
     var rows = chars.map(function (ch) {
-      var cells = '';
-      for (var k = 0; k < n; k++) {
-        var cls = k === 0 ? 'solid' : (k < 3 ? 'faint' : 'blank');
-        cells += '<span class="c c--' + cls + '">' + (cls === 'blank' ? '' : esc(ch)) + '</span>';
-      }
+      var cells = cellKinds(n).map(function (cls) {
+        return '<span class="c c--' + cls + '">' + (cls === 'blank' ? '' : esc(ch)) + '</span>';
+      }).join('');
       return '<div class="r">' + cells + '</div>';
     }).join('');
     var meta = [v.reading, v.hanViet, v.meaning].filter(Boolean).map(esc).join(' · ');
@@ -897,6 +907,6 @@
     sampleSvgStrokes: sampleSvgStrokes,
     dialogHtml: bodyHtml,
     trapTarget: trapTarget,
-    readingChars: readingChars, practiceChars: practiceChars, cellsHtml: cellsHtml, sheetHtml: sheetHtml
+    readingChars: readingChars, practiceChars: practiceChars, cellKinds: cellKinds, cellsHtml: cellsHtml, sheetHtml: sheetHtml
   };
 });
