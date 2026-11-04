@@ -31,3 +31,22 @@
   .jpath-day-row__chips { gap: 5px; }
   .jpath-day-chip { min-height: 44px; border-radius: 11px; font-size: 13px; padding: 0 2px; }
 }
+
+/* 04/11 polish: bài ngữ pháp + tạo lộ trình */
+.jpath-day-picker { gap: 16px; margin-top: 20px; }
+.jpath-day-picker__rows { gap: 20px; }
+.jpath-day-row { gap: 12px; }
+.jpath-day-row__title { color: var(--jp-ink); font-size: 1em; }
+.jpath-day-row__chips { gap: 10px; }
+.jpath-day-chip { min-height: 54px; padding: 8px 4px; border-color: var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-weight: 700; transition: border-color .2s ease, background-color .2s ease; }
+.jpath-day-chip:hover { border-color: var(--jp-primary); }
+.jpath-day-chip--skill[aria-pressed="true"] { border-color: var(--jp-primary); background: var(--jp-primary); color: var(--jp-surface); }
+.jpath-day-chip--rest[aria-pressed="true"] { border-color: var(--jp-warn); background: var(--jp-primary-soft); color: var(--jp-ink); }
+.jpath-day-chip:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jpath-day-picker__message { color: var(--jp-danger); font-size: .9em; }
+.jpath-day-note { color: var(--jp-muted); font-size: .9em; }
+@media (max-width: 420px) {
+  .jpath-day-row__chips { gap: 5px; }
+  .jpath-day-chip { min-height: 48px; padding: 6px 1px; font-size: .84em; }
+}
+@media (prefers-reduced-motion: reduce) { .jpath-day-chip { transition: none; } }

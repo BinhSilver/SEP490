@@ -542,3 +542,47 @@
 .jp-attached__example { color: var(--jp-muted); }
 /* the path page has the Đọc · Nghe tab itself: its shortcut in "Luyện thêm" would only point at this page */
 .jp-path__rail .jp-extra__list li:has(> a[href="/learning?tab=skills"]) { display: none; }
+
+/* 04/11 polish: bài ngữ pháp + tạo lộ trình */
+.jp-lesson-page { max-width: 1100px; }
+.jp-lesson-root { gap: 24px; }
+.jp-lesson { gap: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.jp-lesson__eyebrow { margin-bottom: 10px !important; color: var(--jp-primary); font-size: .88em; font-weight: 700; letter-spacing: .02em; }
+.jp-lesson__pattern { margin: 0 0 26px; font-size: clamp(2.4em, 5vw, 3.5em); line-height: 1.35; overflow-wrap: anywhere; }
+.jp-lesson__part { gap: 10px; padding: 22px 0; border-top: 1px solid var(--jp-line); }
+.jp-lesson__label { font-size: .88em; letter-spacing: 0; text-transform: none; }
+.jp-lesson__part > p { max-width: 72ch; font-size: 1.07em; line-height: 1.7; }
+.jp-lesson__part .jp-struct { gap: 8px; font-size: 1.1em; }
+.jp-lesson__compare { margin-top: 12px !important; padding: 10px 0; border-top: 1px solid var(--jp-line); border-radius: 0; background: transparent; }
+.jp-examples { gap: 0; }
+.jp-example { gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--jp-line); line-height: 1.7; }
+.jp-example:last-child { border-bottom: 0; }
+.jp-example > div { min-width: 0; overflow-wrap: anywhere; }
+.jp-attached-list { gap: 0; }
+.jp-attached { gap: 8px; padding: 18px 0; }
+.jp-attached__pattern { font-size: 1.4em; line-height: 1.4; overflow-wrap: anywhere; }
+.jp-attached__meaning { font-weight: 600; }
+.jp-attached__example { line-height: 1.7; overflow-wrap: anywhere; }
+.jp-lesson-practice { gap: 14px; padding: 22px 0; border: 0; border-top: 1px solid var(--jp-line); border-radius: 0; background: transparent; }
+.jp-lesson-practice__title { font-size: 1.3em; }
+.jp-lesson-practice > [data-action="grammar-practice"] { min-height: 52px; justify-self: start; padding: 12px 24px; }
+.jp-lesson-practice__mount:not(:empty) { margin-top: 20px; }
+.jp-lesson__foot { gap: 12px; padding-top: 16px; border-top: 1px solid var(--jp-line); }
+.jp-lesson__foot > [data-action="queue-today"] { min-height: 48px; }
+.jp-lesson__nav { gap: 10px; }
+.jp-lesson__nav a { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 8px 16px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive); text-decoration: none; }
+.jp-lesson__nav a:focus-visible, .jp-lesson-practice button:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+@media (max-width: 640px) {
+  .jp-lesson-page { padding-bottom: calc(112px + var(--jlab-mobile-bottom, 0px)); }
+  .jp-lesson-page:has(.jp-lesson-practice, .jp-lesson__nav)::after { content: ""; position: fixed; z-index: 6; left: 0; right: 0; bottom: var(--jlab-mobile-bottom, 0px); height: calc(72px + env(safe-area-inset-bottom)); background: var(--jp-surface); box-shadow: 0 -6px 18px rgb(0 0 0 / 8%); pointer-events: none; }
+  .jp-lesson__pattern { font-size: 2.4em; }
+  .jp-lesson__part { padding: 20px 0; }
+  .jp-lesson__foot { display: block; }
+  .jp-lesson__foot > [data-action="queue-today"] { width: 100%; }
+  .jp-lesson__nav { margin: 12px 0 0; }
+  .jp-lesson-practice > [data-action="grammar-practice"][data-kind="GRAMMAR_PRACTICE"], .jp-lesson__nav a { position: fixed; z-index: 7; bottom: calc(var(--jlab-mobile-bottom, 0px) + 10px); box-sizing: border-box; min-height: 52px; margin: 0; padding: 8px 5px; background: var(--jp-surface); text-align: center; font-size: .9em; }
+  .jp-lesson-practice > [data-action="grammar-practice"][data-kind="GRAMMAR_PRACTICE"] { left: 30%; width: 40%; border-color: var(--jp-primary); background: var(--jp-primary); color: var(--jp-surface); }
+  .jp-lesson__nav a:first-child { left: 12px; width: calc(30% - 16px); }
+  .jp-lesson__nav a:last-child:not(:first-child) { right: 12px; width: calc(30% - 16px); }
+}
+@media (prefers-reduced-motion: reduce) { .jp-lesson-practice *, .jp-lesson__nav * { transition: none !important; animation: none !important; } }

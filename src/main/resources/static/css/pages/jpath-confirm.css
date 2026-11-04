@@ -118,3 +118,62 @@
 .jp-wizard__foot:empty { display: none; }
 .jp-confirm .jp-confirm-card { border: 0; padding: 0; background: none; box-shadow: none; }
 .jp-confirm-submit { padding-top: 8px; }
+
+/* 04/11 polish: bài ngữ pháp + tạo lộ trình */
+.jp-confirm { max-width: 1120px; gap: 24px; padding-bottom: 48px; }
+.jp-confirm__header { gap: 8px; }
+.jp-confirm__title { font-size: clamp(2em, 3vw, 2.7em); }
+.jp-confirm__lead { max-width: 68ch; font-size: 1.05em; }
+.jp-confirm__content { gap: 24px; }
+.jp-wizard__head { gap: 18px; margin: 0 0 10px; }
+.jp-wizard__count { font-size: 1em; }
+.jp-wizard__head .jp-stepper { max-width: 840px; }
+.jp-wizard__step { gap: 34px; }
+.jp-confirm .jp-confirm-card { gap: 18px; padding: 0 0 30px; border-bottom: 1px solid var(--jp-line); }
+.jp-confirm .jp-confirm-card--notice { padding-left: 16px; border-left: 3px solid var(--jp-warn); }
+.jp-confirm-card__title { font-size: 1.45em; line-height: 1.35; }
+.jp-confirm-scores { gap: 12px; }
+.jp-confirm-score { padding: 16px 12px; }
+.jp-confirm-score__value { font-size: 1.7em; }
+.jp-confirm-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.jp-confirm-field { gap: 10px; }
+.jp-confirm-field__label { font-size: 1em; }
+.jp-confirm-input { min-height: 52px; padding: 10px 14px; }
+.jp-confirm-sliders { gap: 26px; max-width: 860px; }
+.jp-confirm-slider { gap: 10px; }
+.jp-confirm-slider__head { align-items: center; }
+.jp-confirm-slider__value { font-size: 1.4em; font-variant-numeric: tabular-nums; }
+.jp-confirm-slider__input { min-height: 52px; }
+.jp-confirm-minutes { margin-top: 10px !important; font-size: 1.12em; }
+.jp-confirm-pace { gap: 10px; }
+.jp-confirm-pace__text { font-size: clamp(1.5em, 3vw, 2em); line-height: 1.35 !important; }
+.jp-confirm-pace[data-tone="ok"] { border-bottom-color: var(--jp-ok); }
+.jp-confirm-pace[data-tone="warn"] { border-bottom-color: var(--jp-warn); }
+.jp-confirm-pace[data-tone="block"] { border-bottom-color: var(--jp-danger); background: var(--jp-danger-soft); padding: 16px; }
+.jp-confirm-suggestions__list { gap: 10px; }
+.jp-confirm-modes { gap: 16px; }
+.jp-confirm-mode { min-height: 132px; padding: 20px; gap: 16px; align-items: flex-start; }
+.jp-confirm-mode:has(.jp-confirm-mode__input:checked) { border: 2px solid var(--jp-primary); background: var(--jp-primary-soft); }
+.jp-confirm-mode:focus-within { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-confirm-mode__title { font-size: 1.15em; }
+.jp-confirm-mode__text { font-size: 1em; }
+.jp-confirm-submit { max-width: 520px; padding: 0; }
+.jp-confirm-submit .jp-confirm-btn { min-height: 58px; font-size: 1.1em; }
+.jp-wizard__foot .jp-flow { margin-top: 10px; }
+.jp-wizard__foot .jp-btn { min-height: 52px; }
+.jp-confirm :is(button, a, input, select):focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+@media (max-width: 760px) { .jp-confirm-fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+@media (max-width: 640px) {
+  .jp-confirm { padding-bottom: calc(80px + var(--jlab-mobile-bottom, 0px)); }
+  .jp-wizard__step { gap: 26px; }
+  .jp-confirm-fields, .jp-confirm-modes { grid-template-columns: minmax(0, 1fr); }
+  .jp-confirm-score { padding: 12px 6px; }
+  .jp-confirm-score__value { font-size: 1.4em; }
+  .jp-confirm-mode { min-height: 108px; padding: 16px; }
+  .jp-wizard__foot .jp-flow { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; margin: 0 -16px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: var(--jp-surface); box-shadow: 0 -6px 18px rgb(0 0 0 / 8%); }
+  .jp-confirm-submit .jp-confirm-btn { width: 100%; }
+  .jp-confirm:has(.jp-wizard__step[data-jp-wizard-step="Cách học"]:not([hidden])) .jp-confirm-submit [data-role="create"] { position: fixed; z-index: 6; right: 12px; bottom: calc(var(--jlab-mobile-bottom, 0px) + 10px); width: calc(65% - 12px); min-height: 52px; }
+  .jp-confirm:has(.jp-wizard__step[data-jp-wizard-step="Cách học"]:not([hidden])) .jp-wizard__foot .jp-flow__lead { width: 30%; }
+  .jp-confirm:has(.jp-wizard__step[data-jp-wizard-step="Cách học"]:not([hidden])) .jp-wizard__foot .jp-flow__back { width: 100%; padding-inline: 8px; }
+}
+@media (prefers-reduced-motion: reduce) { .jp-confirm-slider__input, .jp-confirm-mode, .jp-wizard__foot * { transition: none !important; } }
