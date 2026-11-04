@@ -143,3 +143,49 @@
 .jp-study { max-width: 880px; }
 .jp-study .jp-crumbs { margin-bottom: 14px; }
 .jp-study-title { font-size: 1.7em; }
+
+/* 04/11 polish: màn học */
+.jp-study { max-width: 1000px; padding-bottom: 36px; }
+.jp-study-head { margin: 10px 0 18px; gap: 16px; }
+.jp-study-root { gap: 22px; margin-top: 0; }
+.jp-study-steps { display: grid; gap: 10px; }
+.jp-study-steps__line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 0; margin: 0; line-height: 1.5; }
+.jp-study-steps__line .jp-step { display: inline-flex; align-items: center; min-height: 36px; padding: 5px 12px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-chip); background: var(--jp-surface); }
+.jp-study-steps__line .jp-step--done { border-color: var(--jp-primary); color: var(--jp-primary); }
+.jp-study-steps__line .jp-step--active { border-color: var(--jp-primary); background: var(--jp-primary-soft); color: var(--jp-primary); }
+.jp-study-steps__line .jp-step-sep { margin: 0 5px; }
+.jp-study-steps__left { margin-left: auto; color: var(--jp-muted); white-space: nowrap; }
+.jp-study-progress { height: 10px; border-radius: 999px; background: var(--jp-primary-soft); }
+.jp-study-progress > span { border-radius: inherit; background: var(--jp-primary); }
+.jp-study-card { display: grid; align-content: start; min-height: 350px; padding: clamp(22px, 4vw, 44px); border-color: var(--jp-line); }
+.jp-study-tools { margin-bottom: 18px; }
+.jp-study-face { display: grid; align-content: center; justify-items: center; gap: 6px; min-height: 220px; }
+.jp-study-word { font-size: clamp(2.4em, 5vw, 3.5em); line-height: 1.3; }
+.jp-study-glyph { font-size: clamp(3.5em, 7vw, 5em); }
+.jp-study-reading { font-size: 1.15em; color: var(--jp-muted); }
+.jp-study-meaning { margin-top: 14px; font-size: clamp(1.25em, 2vw, 1.55em); line-height: 1.4; }
+.jp-study-examples { width: min(100%, 650px); margin-top: 18px; gap: 12px; text-align: left; }
+.jp-study-examples .jp-ex { padding-top: 10px; border-top: 1px solid var(--jp-line); }
+.jp-study-examples .jp-ex-ja { font-size: 1.05em; line-height: 1.7; }
+.jp-mnemonic { width: min(100%, 650px); padding: 0; border: 0; text-align: left; }
+.jp-mnemonic p { padding-left: 14px; border-left: 3px solid var(--jp-primary); }
+.jp-rate-bar { position: static; display: flex; flex-wrap: nowrap; gap: 10px; padding: 16px 0 0; border-top: 1px solid var(--jp-line); background: transparent; }
+.jp-rate-bar .jp-rate { flex: 1 1 0; min-height: 58px; padding: 8px 10px; }
+.jp-rate-bar--flip .jp-rate, .jp-rate-bar--next .jp-rate { flex: 1 1 auto; }
+.jp-study .jp-btn--primary { min-height: 52px; }
+@media (max-width: 640px) {
+  .jp-study { padding-bottom: 0; }
+  .jp-study-head { align-items: flex-start; }
+  .jp-study-steps__left { width: 100%; margin-left: 0; }
+  .jp-study-card { min-height: 300px; padding: 20px 16px; }
+  .jp-study-word { font-size: 2.5em; }
+  .jp-rate-bar { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; margin: 0 -16px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); border-top: 0; background: var(--jp-surface); box-shadow: 0 -6px 18px rgb(0 0 0 / 8%); }
+  .jp-rate-bar--four { gap: 5px; }
+  .jp-rate-bar--four .jp-rate { padding: 8px 2px; font-size: .84em; }
+}
+@media (prefers-reduced-motion: reduce) { .jp-study-progress > span { transition: none; } }
+@media (max-width: 640px) {
+  /* the step chips stay on one line and scroll sideways instead of wrapping onto a second row */
+  .jp-study-steps__line { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; padding-bottom: 2px; }
+  .jp-study-steps__line .jp-step { flex: 0 0 auto; white-space: nowrap; }
+}

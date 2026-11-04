@@ -118,7 +118,7 @@
 .jp-btn--quiet:hover { color: var(--jp-primary); }
 .jp-btn--lg { min-height: 52px; padding: 12px 26px; font-size: 1.05em; }
 @media (max-width: 640px) {
-  .jp-flow { position: sticky; bottom: 0; z-index: 5; margin: 0 -16px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  .jp-flow { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; margin: 0 -16px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
     background: var(--jp-surface); box-shadow: 0 -6px 18px rgb(0 0 0 / 8%); border-top: 0; }
   .jp-flow__tail { flex: 1 1 auto; }
   .jp-flow__next, .jp-flow__finish { flex: 1 1 auto; }
