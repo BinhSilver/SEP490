@@ -77,5 +77,23 @@
     return send('GET', url);
   }
 
-  return { get: get, send: send };
+  /** POST of a FormData (a recording): the auth headers without the JSON Content-Type, so the browser sets the boundary. */
+  function upload(url, form) {
+    var h = Object.assign({}, headers());
+    Object.keys(h).forEach(function (k) { if (k.toLowerCase() === 'content-type') delete h[k]; });
+    var request;
+    try {
+      request = Promise.resolve(root.fetch(url, { method: 'POST', headers: h, body: form }));
+    } catch (e) {
+      request = Promise.reject(e);
+    }
+    return request.then(function (response) {
+      return Promise.resolve(response.text()).then(parse, function () { return undefined; })
+        .then(function (envelope) { return unwrap(response.status, envelope); });
+    }, function () {
+      throw failure('NETWORK', MSG_NETWORK, 0);
+    });
+  }
+
+  return { get: get, send: send, upload: upload };
 });

@@ -239,3 +239,24 @@
 .jp-furigana-off ruby.jp-rt-flip rt { visibility: visible; }
 .jp-furigana-off ruby { cursor: pointer; }
 @media (max-width: 640px) { .jp-furi-toggle { min-height: 44px; } }
+
+/* 04/11 Luyện nói theo: pronunciation score (jpath-shadow-follow.js scoreHtml) */
+.jp-follow { display: grid; gap: 10px; }
+.jp-follow__score:empty { display: none; }
+.jp-follow__score { display: grid; gap: 8px; padding: 14px 16px; border-radius: 10px; background: var(--jp-primary-soft); }
+.jp-follow__result { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center; }
+.jp-follow__total { display: grid; place-items: center; width: 84px; height: 84px; border-radius: 50%; background: var(--jp-surface);
+  border: 4px solid var(--jp-primary); }
+.jp-follow__total b { font-size: 1.9em; line-height: 1; }
+.jp-follow__total span { color: var(--jp-muted); font-size: .8em; margin-top: -14px; }
+.jp-follow__result.is-good .jp-follow__total { border-color: var(--jp-ok); }
+.jp-follow__result.is-low .jp-follow__total { border-color: var(--jp-danger); }
+.jp-follow__bars { display: grid; gap: 6px; }
+.jp-follow__bar { display: grid; grid-template-columns: 6.5em minmax(0, 1fr) 2.5em; gap: 10px; align-items: center; font-size: .92em; }
+.jp-follow__track { height: 8px; border-radius: 4px; background: var(--jp-surface); overflow: hidden; }
+.jp-follow__track > span { display: block; height: 100%; border-radius: 4px; background: var(--jp-primary); }
+.jp-follow__bar b { text-align: right; }
+.jp-follow__words { margin: 0; font-size: 1.25em; line-height: 1.9; }
+.jp-follow__w { padding: 0 2px; border-radius: 3px; }
+.jp-follow__w.is-bad { color: var(--jp-danger); background: var(--jp-danger-soft); text-decoration: underline wavy; text-underline-offset: 4px; }
+@media (max-width: 640px) { .jp-follow__result { grid-template-columns: minmax(0, 1fr); justify-items: start; } }
