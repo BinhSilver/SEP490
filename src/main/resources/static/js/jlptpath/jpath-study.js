@@ -12,7 +12,7 @@
  *   ratingButtonsHtml(card, flipped, state?)
  *                                      .jp-rate-bar: NEW 2 buttons, REVIEW "Lật thẻ (Space)" then 4 buttons with the
  *                                      spaced interval, GRAMMAR "Tiếp", RETYPE "Tiếp" after the answer
- *   stepsHtml(steps, minutesLeft, tab) "Ôn 18 ✓ → Từ mới 6/20 → … · ~22 phút còn lại" (split tab: "Từ vựng")
+ *   stepsHtml(steps, minutesLeft, tab) "Ôn 18 → Từ mới 6/20 → … · ~22 phút còn lại" (split tab: "Từ vựng")
  *   keyAction(key, ctx)                {type: AUDIO|FLIP|RATE|TOGGLE_FURIGANA|SUBMIT, rating?} | null;
  *                                      ctx = {card, flipped, inputFocused, modifier, retypeDone}
  *   controlPatch(display, control, font) → {display, patch}; bindControls(el, {display, saver, onChange})
@@ -87,32 +87,32 @@
         : '';
       html += '<div class="jp-ex"' + report + '>' + body + '</div>';
     });
-    return html ? '<div class="jp-study-examples">' + html + '</div>' : '';
+    return html ? '<details class="jp-study-examples"><summary>Ví dụ</summary>' + html + '</details>' : '';
   }
 
   function mnemonicHtml(card) {
     if (!has(card.mnemonic)) return '';
-    return '<details' + (card.mnemonicAutoOpen ? ' open' : '') + ' class="jp-mnemonic"><summary>💡 Mẹo nhớ</summary>'
+    return '<details' + (card.mnemonicAutoOpen ? ' open' : '') + ' class="jp-mnemonic"><summary>Mẹo nhớ</summary>'
       + '<p>' + esc(card.mnemonic) + '</p></details>';
   }
 
   function wordListHtml(words, title, cls) {
     var items = list(words).filter(function (w) { return w && has(w.expression); });
     if (!items.length) return '';
-    return '<div class="' + cls + '"><div class="jp-study-label">' + esc(title) + '</div><ul>'
+    return '<details class="' + cls + '"><summary>' + esc(title) + '</summary><ul>'
       + items.map(function (w) {
         return '<li><span class="jp-ja">' + esc(w.expression) + '</span>'
           + (has(w.reading) ? ' <span class="jp-study-muted">' + esc(w.reading) + '</span>' : '')
           + (has(w.meaning) ? ' — ' + esc(w.meaning) : '')
-          + (w.learned ? ' <span class="jp-ok" aria-label="Đã học">✓</span>' : '') + '</li>';
-      }).join('') + '</ul></div>';
+          + (w.learned ? ' <span class="jp-ok" aria-label="Đã học">' + icon('circle-check') + '</span>' : '') + '</li>';
+      }).join('') + '</ul></details>';
   }
 
   function toolsHtml(card, display) {
     var html = '';
     if (has(card.audioUrl)) {
       html += '<button type="button" class="jp-study-icon" data-jp-audio="' + esc(card.audioUrl)
-        + '" aria-label="Nghe phát âm">▶</button>';
+        + '" aria-label="Nghe phát âm">' + icon('play') + '</button>';
     }
     if (card.itemType === 'VOCAB' || card.itemType === 'KANJI') html += D().controlsHtml(display);
     return html ? '<div class="jp-study-tools">' + html + '</div>' : '';
@@ -123,6 +123,11 @@
     return '<div class="jp-study-chips">' + String(text).split(' + ').filter(has).map(function (p) {
       return '<span class="jp-chip">' + esc(p) + '</span>';
     }).join('') + '</div>';
+  }
+
+  function icon(name) {
+    return root && root.JpathNav && root.JpathNav.iconHtml ? root.JpathNav.iconHtml(name)
+      : '<svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-' + name + '"></use></svg>';
   }
 
   function kanjiReadingsHtml(k) {
@@ -286,7 +291,7 @@
       var t = Number(s.total) || 0;
       done += Math.min(d, t);
       total += t;
-      var text = s.complete ? label + ' ' + t + ' ✓' : label + ' ' + d + '/' + t;
+      var text = s.complete ? label + ' ' + t : label + ' ' + d + '/' + t;
       return '<span class="jp-step' + (s.complete ? ' jp-step--done' : '') + (s.active ? ' jp-step--active' : '') + '"'
         + (s.active ? ' aria-current="step"' : '') + '>' + esc(text) + '</span>';
     });

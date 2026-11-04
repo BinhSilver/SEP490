@@ -241,10 +241,27 @@
   .jp-check__prompt.jp-card { min-height: 115px; padding: 18px 8px; }
   .jp-check__text[lang="ja"] { font-size: 2em; }
   .jp-check-opt { min-height: 54px; padding: 10px 12px; }
-  .jp-check__next, .jp-result__actions, .jp-done__actions { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: var(--jp-surface); box-shadow: 0 -6px 18px rgb(0 0 0 / 8%); }
+  .jp-check__next, .jp-result__actions, .jp-done__actions { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: var(--jp-surface); }
   .jp-check__next { justify-self: stretch; width: 100%; box-sizing: border-box; }
   .jp-result__actions, .jp-done__actions { box-sizing: border-box; }
   .jp-result__actions .jp-btn, .jp-done__actions .jp-btn { flex: 1 1 140px; }
   .jp-done__stats { gap: 4px 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .jp-check__bar span { transition: none; } }
+
+/* Focus pages: one prompt or result, with supporting choices below. */
+.jp-check-page { max-width: 1000px; }
+.jp-check__bar { height: 5px; border-radius: 3px; }
+.jp-check__prompt.jp-card, .jp-result.jp-card, .jp-done.jp-card { border-radius: 8px; }
+.jp-check__prompt.jp-card { border: 1px solid var(--jp-line); background: var(--jp-surface); }
+.jp-result, .jp-done { justify-items: start; text-align: left; }
+.jp-result__actions, .jp-done__actions { justify-content: flex-start; }
+.jp-done__more { width: 100%; border-top: 1px solid var(--jp-line); padding-top: 8px; }
+.jp-done__more summary { display: inline-flex; align-items: center; min-height: 44px; color: var(--jp-primary); cursor: pointer; }
+.jp-done__stats, .jp-done__extra { justify-content: flex-start; }
+.jp-done__title { font-size: clamp(1.5em, 3vw, 2em); }
+.jp-celebrate { animation: none; }
+@media (max-width: 640px) {
+  .jp-check__next, .jp-result__actions, .jp-done__actions { box-shadow: none; }
+  .jp-done__actions { position: static; padding: 0; }
+}

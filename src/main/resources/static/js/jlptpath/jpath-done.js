@@ -47,10 +47,11 @@
     var before = num(s.levelPercentBefore);
     var after = num(s.levelPercentAfter);
     var delta = after - before;
-    var html = '<section class="jp-done jp-card jp-celebrate" aria-labelledby="jp-done-title">'
-      + '<h1 class="jp-done__title" id="jp-done-title">' + (s.kind === 'SKILL' ? 'Xong ngày kỹ năng!' : 'Xong phần hôm nay!') + '</h1>'
+    var html = '<section class="jp-done jp-card" aria-labelledby="jp-done-title">'
+      + '<h1 class="jp-done__title" id="jp-done-title">' + (s.kind === 'SKILL' ? 'Xong ngày kỹ năng' : 'Xong phần hôm nay') + '</h1>'
       + '<p class="jp-done__counts">' + esc(num(s.newLearned)) + ' mục đã học · ' + esc(num(s.reviewed)) + ' thẻ đã ôn</p>'
-      + '<ul class="jp-done__stats">';
+      + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình học</a>'
+      + '<details class="jp-done__more"><summary>Xem thêm kết quả và lựa chọn</summary><ul class="jp-done__stats">';
     if (s.accuracyPercent !== null && s.accuracyPercent !== undefined) {
       html += '<li class="jp-done__stat">Đúng ' + esc(num(s.accuracyPercent)) + '%</li>';
     }
@@ -70,10 +71,10 @@
     html += '<div class="jp-done__actions">'
       + '<button type="button" class="jp-btn" data-jpath-writing="' + dataJson({ today: 'VOCAB' }) + '">Luyện viết hôm nay</button>'
       + '<button type="button" class="jp-btn" data-jpath-print="' + dataJson({ scope: 'TODAY', tab: 'VOCAB' }) + '">In bảng</button>'
-      + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình học</a></div>'
+      + '</div>'
       + '<div data-jpath-extra-links></div>'
       + '<p class="jp-status" role="status" data-part="status"></p>';
-    return html + '</section>';
+    return html + '</details></section>';
   }
 
   function closestAttr(target, attr, el) {

@@ -11,7 +11,7 @@
  *                                    question not finished (= questions.length when all are)
  *   parts(check)                     each pair board is one part, a run of other questions is one part
  *   headerHtml(check, state)         "Micro-check · Phần 1/2 · Nối từ với nghĩa (5 cặp)" / "… · Câu 3/6", progress,
- *                                    "⏱ Tắt" while a timed question is open
+ *                                    timer toggle while a timed question is open
  *   boardReduce(state, ev)           PICK_LEFT | PICK_RIGHT → {request:{boardId,leftId,rightId}} once both sides are
  *                                    picked; PICK_RESULT (wrong → flash + errors, selection cleared; right → matched);
  *                                    PICK_FAIL; FLASH_END. A matched left or a pending pick sends nothing.
@@ -20,13 +20,13 @@
  *                                    RESULT, FAIL; TIMER_OFF → {save:{grammarTimerOn|quizTimerOn:false}}
  *   orderReduce(state, ev)           TAP_PIECE | TAP_PLACED → {value:'p3,p1'}
  *   questionState(state, q), questionHtml(q, qState, display)
- *                                    PAIR_BOARD, MCQ, AUDIO_MCQ (▶), ORDER, FILL_TEXT; results jp-ok / jp-bad,
+ *                                    PAIR_BOARD, MCQ, AUDIO_MCQ, ORDER, FILL_TEXT; results jp-ok / jp-bad,
  *                                    explanation, compare (.jp-compare-col ×2)
  *   timerRemaining(timerSec, startedMs, nowMs), timerActive(check, state), advance(state, now), errorHtml(err)
  *   submitKey(token, storage, uuid)  one key per token in sessionStorage (jpath.submit.<token>), reused on resend
  *   resultHtml(result, check, opts)  score / Đạt / Chưa đạt (≥ 80%), CP, too fast, wrong items, next / retry; group
  *                                    exercise, "Tôi biết chủ đề này" and free quiz have their own texts
- *   reviewWrongHtml(check, state)    wrong answers with the right option, explanation and ⚑ (pageContext CHECK_REVIEW)
+ *   reviewWrongHtml(check, state)    wrong answers with the right option, explanation and report target (CHECK_REVIEW)
  *   retryRequest(check) = check.issue; nextHref(result, search): next.url → ?return= → ?session= → /learning
  *   checkPageUrl(token, search)      keeps ?session= and ?return=
  *   When the last question is done the check is submitted (offline: "Chưa nộp được, đang thử lại…" + "Thử lại",
@@ -63,6 +63,8 @@
   var BOARD_HINT = 'Chọn 1 ô trái rồi 1 ô phải. Sai thì nháy đỏ, tính 1 lỗi, chọn lại.';
 
   function D() { return root && root.JpathDisplay; }
+  function icon(name) { return root && root.JpathNav && root.JpathNav.iconHtml ? root.JpathNav.iconHtml(name)
+    : '<svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-' + name + '"></use></svg>'; }
   function esc(v) {
     if (v === null || v === undefined) return '';
     return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -201,8 +203,8 @@
     var pct = qs.length ? Math.round(100 * done / qs.length) : 0;
     var html = '<div class="jp-check__head"><h1 class="jp-check__title">' + esc(bits.join(' · ')) + '</h1>';
     if (timerActive(check, state)) {
-      html += '<span class="jp-check__timer" data-part="timer" aria-live="off">⏱ ' + esc(q.timerSec) + ' giây</span>'
-        + '<button type="button" class="jp-link-btn jp-check__timer-off" data-action="timer-off">⏱ Tắt</button>';
+      html += '<span class="jp-check__timer" data-part="timer" aria-live="off">' + icon('timer') + ' ' + esc(q.timerSec) + ' giây</span>'
+        + '<button type="button" class="jp-link-btn jp-check__timer-off" data-action="timer-off">' + icon('timer-off') + ' Tắt</button>';
     }
     html += '</div><div class="jp-check__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'
       + pct + '"><span style="width:' + pct + '%"></span></div>';
@@ -339,7 +341,7 @@
       var cls = 'jp-pair' + (matched ? ' jp-ok' : '') + (flash ? ' jp-bad' : '') + (sel ? ' jp-sel' : '');
       return '<button type="button" class="' + cls + '" data-board="' + esc(bid) + '" data-' + side + '="' + esc(o.id) + '"'
         + (isLeft ? ' lang="ja"' : '') + ' aria-pressed="' + (sel ? 'true' : 'false') + '"' + (matched ? ' disabled' : '')
-        + '>' + esc(o.label) + (matched ? ' ✓' : '') + (flash ? ' ✗' : '') + '</button>';
+        + '>' + esc(o.label) + (matched ? ' ' + icon('circle-check') : '') + (flash ? ' ' + icon('circle-x') : '') + '</button>';
     }
     return '<div class="jp-board" data-board-id="' + esc(bid) + '">'
       + '<div class="jp-board__col" role="group" aria-label="Cột trái">' + (q.board.left || []).map(function (o) { return cell('left', o); }).join('') + '</div>'
@@ -363,7 +365,7 @@
       + (a.correct ? 'Đúng rồi!' : (a.value === null ? 'Hết giờ.' : 'Chưa đúng.')) + (extra || '') + '</div>';
     if (has(a.explanation)) html += '<p class="jp-check__explain">' + esc(a.explanation) + '</p>';
     html += compareHtml(a.compare);
-    return html + '<button type="button" class="jp-btn jp-btn--primary jp-check__next" data-action="next">Tiếp →</button>';
+    return html + '<button type="button" class="jp-btn jp-btn--primary jp-check__next" data-action="next">Tiếp ' + icon('arrow-right') + '</button>';
   }
 
   function promptHtml(q) {
@@ -372,7 +374,7 @@
     var html = '<div class="jp-check__prompt jp-card">';
     if (label) html += '<div class="jp-check__dir">' + esc(label) + '</div>';
     if (q.type === 'AUDIO_MCQ' && q.audioSlot != null) {
-      html += '<button type="button" class="jp-check__play" data-action="play-audio" aria-label="Nghe">▶</button>';
+      html += '<button type="button" class="jp-check__play" data-action="play-audio" aria-label="Nghe">' + icon('play') + '</button>';
     }
     if (has(q.prompt)) {
       html += '<div class="jp-check__text"' + (ja ? ' lang="ja"' : '') + '>' + (ja ? jaHtml(q.prompt, q.promptFurigana) : esc(q.prompt)) + '</div>';
@@ -572,7 +574,7 @@
     // The server decides: RETRY = a new set is offered; every other next (also a wrong SKIP_ONE kept on its card) continues.
     var failed = !!(n && n.action === 'RETRY');
     if (!o.embedded && n && n.action !== 'RETRY' && !failed && (n.url || !o.inline)) {
-      html += '<button type="button" class="jp-btn jp-btn--primary" data-action="continue">' + esc(n.label || 'Tiếp tục') + ' →</button>';
+      html += '<button type="button" class="jp-btn jp-btn--primary" data-action="continue">' + esc(n.label || 'Tiếp tục') + ' ' + icon('arrow-right') + '</button>';
     }
     if (failed && !o.embedded) {
       html += '<button type="button" class="jp-btn" data-action="review-cards">Xem lại thẻ các mục sai</button>'
@@ -591,7 +593,7 @@
     return o ? o.label : '';
   }
 
-  /** Wrong answers of this check: question, options (picked = jp-bad, right = jp-ok), explanation and ⚑. */
+  /** Wrong answers of this check: question, options (picked = jp-bad, right = jp-ok), explanation and report target. */
   function reviewWrongHtml(check, state) {
     var answered = {};
     ((check && check.answered) || []).forEach(function (a) { answered[a.questionId] = a; });
@@ -608,7 +610,7 @@
       var report = a.report || (answered[q.id] && answered[q.id].report);
       html += '<li class="jp-review__item"' + (report && report.targetType && report.targetCode ? ' data-jpath-report="'
         + esc(JSON.stringify({ targetType: report.targetType, targetCode: report.targetCode, pageContext: 'CHECK_REVIEW' })) + '"' : '') + '>';
-      html += promptHtml(q).replace(/<button[^>]*data-action="play-audio"[^>]*>▶<\/button>/, '');
+      html += promptHtml(q).replace(/<button[^>]*data-action="play-audio"[^>]*>[\s\S]*?<\/button>/, '');
       if (q.type === 'ORDER') {
         html += '<p>Bạn xếp: <span lang="ja">' + esc(String(a.value || '').split(',').map(function (p) { return optionLabel(q, p); }).join(' '))
           + '</span></p><p>Đáp án: <span lang="ja">' + esc(String(a.correctValue || '').split(',').map(function (p) { return optionLabel(q, p); }).join(' ')) + '</span></p>';
@@ -617,7 +619,7 @@
       } else {
         html += '<ul class="jp-review__options">' + (q.options || []).map(function (o) {
           var cls = 'jp-check-opt' + (o.id === a.correctValue ? ' jp-ok' : (o.id === a.value ? ' jp-bad' : ''));
-          return '<li class="' + cls + '">' + esc(o.label) + (o.id === a.correctValue ? ' ✓' : (o.id === a.value ? ' ✗' : '')) + '</li>';
+          return '<li class="' + cls + '">' + esc(o.label) + (o.id === a.correctValue ? ' ' + icon('circle-check') : (o.id === a.value ? ' ' + icon('circle-x') : '')) + '</li>';
         }).join('') + '</ul>';
         if (a.value === null || a.value === undefined) html += '<p>Hết giờ.</p>';
       }
@@ -779,7 +781,7 @@
       var q = current(state);
       var left = timerRemaining(q.timerSec, state.qStartedMs, env.now());
       var t = el.querySelector && el.querySelector('[data-part="timer"]');
-      if (t) t.textContent = '⏱ ' + left + ' giây';
+      if (t) t.innerHTML = icon('timer') + ' ' + left + ' giây';
       if (left <= 0) sendAnswer({ type: 'TIMEOUT', questionId: q.id, nowMs: env.now() });
     }
 

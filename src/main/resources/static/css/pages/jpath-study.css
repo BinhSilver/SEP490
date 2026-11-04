@@ -179,10 +179,25 @@
   .jp-study-steps__left { width: 100%; margin-left: 0; }
   .jp-study-card { min-height: 300px; padding: 20px 16px; }
   .jp-study-word { font-size: 2.5em; }
-  .jp-rate-bar { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; margin: 0 -16px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); border-top: 0; background: var(--jp-surface); box-shadow: 0 -6px 18px rgb(0 0 0 / 8%); }
+  .jp-rate-bar { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; margin: 0 -16px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); border-top: 0; background: var(--jp-surface); }
   .jp-rate-bar--four { gap: 5px; }
   .jp-rate-bar--four .jp-rate { padding: 8px 2px; font-size: .84em; }
 }
+
+/* Keep the current card and its answer controls in the first view. */
+.jp-study { max-width: 1000px; }
+.jp-study-steps__line .jp-step { border: 0; border-radius: 6px; background: transparent; padding-inline: 6px; }
+.jp-study-progress { height: 5px; border-radius: 3px; }
+.jp-study-card { min-height: 280px; border-radius: 8px; }
+.jp-study-tools { margin-bottom: 4px; }
+.jp-study-examples { display: block; width: min(100%, 650px); text-align: left; }
+.jp-study-examples summary, .jp-study-compounds summary, .jp-study-confusables summary {
+  display: inline-flex; align-items: center; min-height: 44px; color: var(--jp-primary); cursor: pointer;
+}
+.jp-study-examples .jp-ex:first-of-type { margin-top: 8px; }
+.jp-study .jp-chip, .jp-study-flag { border-radius: 6px; }
+.jp-study .jp-btn, .jp-rate { border-radius: 8px; }
+.jp-rate-bar { box-shadow: none; }
 @media (prefers-reduced-motion: reduce) { .jp-study-progress > span { transition: none; } }
 @media (max-width: 640px) {
   /* the step chips stay on one line and scroll sideways instead of wrapping onto a second row */
