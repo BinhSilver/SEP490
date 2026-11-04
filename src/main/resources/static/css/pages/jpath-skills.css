@@ -123,7 +123,29 @@
   .jp-skill-steps { margin-bottom: 24px; }
   .jp-skill-block { padding-bottom: 22px; }
   .jp-skill-passage { font-size: 1.1em; }
-  .jp-skill-session [data-submit-practice], .jp-skill-session [data-dict-submit], .jp-skill-section [data-section-submit] { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; width: 100%; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: var(--jp-primary); box-shadow: 0 -6px 18px rgb(0 0 0 / 8%); }
+  .jp-skill-session [data-submit-practice], .jp-skill-session [data-dict-submit], .jp-skill-section [data-section-submit] { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; width: 100%; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: var(--jp-primary); }
   .jp-dict-line input { max-width: none; }
 }
 @media (prefers-reduced-motion: reduce) { .jp-skill-q__options button, .jp-section-floor__bar { transition: none; } }
+
+/* The skills tab starts with the two sessions; practice tools and readiness stay available on request. */
+.jp-path .jp-skills__banner { padding: 0; background: transparent; color: var(--jp-muted); }
+.jp-path .jp-skill-cards { gap: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--jp-line); border-bottom: 1px solid var(--jp-line); }
+.jp-path .jp-skill-card, .jp-path .jp-skill-card.is-done, .jp-path .jp-skill-card.is-empty { padding: 18px 20px; border: 0; border-radius: 0; background: transparent; }
+.jp-path .jp-skill-card + .jp-skill-card { border-left: 1px solid var(--jp-line); }
+.jp-path .jp-skill-card + .jp-skill-card .jp-btn--primary { border-color: var(--jp-line); background: var(--jp-surface); color: var(--jp-ink); }
+.jp-path .jp-skill-card__title { font-size: 1.12em; }
+.jp-path .jp-skill-type { display: grid; grid-template-columns: auto minmax(4em, auto) minmax(0, 1fr) auto; gap: 10px; align-items: center; min-height: 44px; padding: 5px 0; }
+.jp-path .jp-skill-type__state { margin: 0; white-space: nowrap; }
+.jp-path .jp-skill-types { grid-template-columns: 1fr; }
+.jp-path .jp-skills__sub { margin: 18px 0 6px; font-size: 1em; }
+.jp-skills__more { margin-top: 14px; border-top: 1px solid var(--jp-line); }
+.jp-skills__more > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--jp-primary); }
+.jp-skills__more > summary:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+@media (max-width: 640px) {
+  .jp-path .jp-skill-cards { grid-template-columns: minmax(0, 1fr); }
+  .jp-path .jp-skill-card + .jp-skill-card { border-left: 0; border-top: 1px solid var(--jp-line); }
+  .jp-path .jp-skill-type { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .jp-path .jp-skill-type > span:nth-of-type(2) { grid-column: 2; }
+  .jp-path .jp-skills__free select { min-width: 0; width: 100%; }
+}

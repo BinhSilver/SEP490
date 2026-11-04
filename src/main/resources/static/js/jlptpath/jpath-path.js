@@ -15,7 +15,7 @@
  *   activateTab, displayTarget, writeUrl   tab focus, display-class target, ?tab= with other params kept
  *   Needs jpath-display.js, jpath-path-controls.js and jpath-dialog.js loaded first; jpath-lists.js (optional) draws
  *   the [data-slot="list"] area of each tab.
- *   menuHtml()                       "⋯" menu: Xem lại hướng dẫn (/learning?tour=1), Cài đặt lộ trình
+ *   menuHtml()                       page menu: Xem lại hướng dẫn (/learning?tour=1), Cài đặt lộ trình
  *   mount(root, deps)                loads both views in parallel, keeps ?tab= in the url, fires JpathDisplay.rendered
  */
 (function (root, factory) {
@@ -56,6 +56,10 @@
   }
   function D() { return root.JpathDisplay; }
   function esc(v) { return D().esc(v); }
+  function icon(name, label) {
+    var nav = root.JpathNav || (typeof require === 'function' ? require('./jpath-nav.js') : null);
+    return nav ? nav.iconHtml(name, label) : '';
+  }
   function list(v) { return Array.isArray(v) ? v : []; }
   function dayList(codes) { return list(codes).map(function (c) { return D().dayShort(c); }).filter(Boolean).join(', '); }
 
@@ -97,7 +101,7 @@
       if (key !== 'skills' && key !== 'kana' && info && info.open === false) soon = ' <span class="jp-tab__later">Sau chữ cái</span>';
       return '<button type="button" class="jp-tab' + (on ? ' jp-tab--active' : '') + '" role="tab" id="jp-tab-' + key
         + '" data-tab="' + key + '" aria-selected="' + on + '" aria-controls="jp-tab-panel" tabindex="'
-        + (on ? '0' : '-1') + '"' + tour + '>' + esc(TAB_LABEL[key]) + soon + '</button>';
+      + (on ? '0' : '-1') + '"' + tour + '>' + icon({ kana: 'languages', vocab: 'book-open', kanji: 'pen-line', grammar: 'list', skills: 'headphones' }[key]) + ' ' + esc(TAB_LABEL[key]) + soon + '</button>';
     }).join('');
     return '<div class="jp-tabs" role="tablist" aria-label="Phần học">' + html + '</div>';
   }
@@ -108,7 +112,7 @@
     var p = path || {};
     var line = 'Đích: ' + (p.targetLevel || '');
     if (!p.examDate) return line;
-    return line + ' trước ' + D().fmtMonth(p.examDate) + (p.onTrack ? ' ✓ kịp' : ' ⚠ chưa kịp');
+    return line + ' trước ' + D().fmtMonth(p.examDate) + (p.onTrack ? ' · kịp tiến độ' : ' · chậm tiến độ');
   }
 
   function heroCardHtml(card, index) {
@@ -128,19 +132,18 @@
     var t = today || {};
     var cards = list(t.heroCards).slice(0, 3);
     var tone = !p.examDate ? '' : (p.onTrack ? ' jp-hero__target--ok' : ' jp-hero__target--late');
-    var html = '<div class="jp-hero__text"><h1 class="jp-hero__title">Lộ trình của tôi</h1>'
-      + '<p class="jp-hero__greet">Chào mừng trở lại, ' + esc(p.displayName || 'bạn') + '</p>'
+    var html = '<div class="jp-hero__text"><h1 class="jp-hero__title">Lộ trình của ' + esc(p.displayName || 'bạn') + '</h1>'
       + '<p class="jp-hero__target' + tone + '">' + esc(targetLine(p)) + '</p>';
     if (t.resume && t.resume.total) {
       html += '<p class="jp-hero__resume">' + esc('Tiếp tục từ thẻ ' + t.resume.position + '/' + t.resume.total) + '</p>';
     }
     html += '</div>';
     if (cards.length) {
-      html += '<div class="jp-hero__stack"><p class="jp-hero__motto">Một từ, một khởi đầu</p>'
+      html += '<details class="jp-hero__more"><summary>Xem từ gợi ý</summary><div class="jp-hero__stack">'
         + '<ul class="jp-hero-cards">' + cards.map(heroCardHtml).join('') + '</ul>'
         + '<button type="button" class="jp-btn jp-btn--primary" data-action="start-item" data-start-tab="'
         + esc(String(cards[0].tab || 'VOCAB').toLowerCase()) + '" data-item="' + esc(cards[0].itemCode)
-        + '">Học từ này</button></div>';
+        + '">Học từ này</button></div></details>';
     }
     return html;
   }
@@ -153,9 +156,9 @@
       { label: 'Cấp ' + (viewLevel || (path && path.openLevel) || '') }, { label: TAB_LABEL[tab] || '' }]);
   }
 
-  // page menu "⋯" (top right of the hero)
+  // page menu (top right of the hero)
   function menuHtml() {
-    return '<details class="jp-menu"><summary class="jp-menu__btn" aria-label="Menu trang">⋯</summary>'
+    return '<details class="jp-menu"><summary class="jp-menu__btn" aria-label="Menu trang">' + icon('more-horizontal', 'Menu trang') + '</summary>'
       + '<ul class="jp-menu__list">'
       + '<li><a class="jp-menu__item" href="/learning?tour=1">Xem lại hướng dẫn</a></li>'
       + '<li><a class="jp-menu__item" href="/learning/jlpt/settings">Cài đặt lộ trình</a></li></ul></details>';
@@ -179,10 +182,10 @@
     var state = String(c.state || 'COMING_SOON');
     var name = esc(c.level);
     var step = LEVEL_STEP[state] || 'off';
-    var mark = state === 'PASSED' ? '✓' : (state === 'LOCKED' ? '🔒' : '');
+    var mark = state === 'PASSED' ? icon('check') : (state === 'LOCKED' ? icon('lock') : '');
     var sub;
     if (state === 'PASSED') sub = '<button type="button" class="jp-level-cell__preview" data-action="view-level" data-view-level="'
-      + name + '">✓ Đã vượt qua · ôn lại</button>';
+      + name + '">' + icon('check') + ' Đã vượt qua · ôn lại</button>';
     else if (state === 'OPEN') sub = '<span class="jp-level-cell__state">Đang học · ' + esc(Number(c.percent) || 0) + '%</span>'
       + '<span class="jp-level-cell__bar" aria-hidden="true"><span style="width:' + Math.max(0, Math.min(100, Number(c.percent) || 0))
       + '%"></span></span>';
@@ -194,8 +197,8 @@
     var said = state === 'OPEN' ? 'Đang học' : (state === 'COMING_SOON' ? 'Sắp có' : '');
     if (c.note && String(c.note).trim() !== said) sub += '<span class="jp-level-cell__note">' + esc(c.note) + '</span>';
     return '<li class="jp-step jp-step--' + step + ' jp-level-cell jp-level-cell--' + esc(state.toLowerCase()) + '"'
-      + (state === 'OPEN' ? ' aria-current="step"' : '') + '><span class="jp-step__mark" aria-hidden="true">' + esc(mark)
-      + '</span><span class="jp-step__body"><span class="jp-level-cell__name">' + (state === 'LOCKED' ? '🔒 ' : '') + name
+      + (state === 'OPEN' ? ' aria-current="step"' : '') + '><span class="jp-step__mark" aria-hidden="true">' + mark
+      + '</span><span class="jp-step__body"><span class="jp-level-cell__name">' + name
       + '</span>' + sub + '</span></li>';
   }
 
@@ -222,7 +225,7 @@
       return { label: st.label, sub: st.sub, state: i < at ? 'done' : (i === at ? 'now' : 'todo') };
     });
     var marks = steps.map(function (st, i) {
-      var mark = st.state === 'done' ? '✓' : String(i + 1);
+      var mark = st.state === 'done' ? icon('check') : String(i + 1);
       return '<li class="jp-step jp-step--' + st.state + ' jp-stage__step' + (st.state === 'now' ? ' jp-stage__step--now' : '') + '"'
         + (st.state === 'now' ? ' aria-current="step"' : '') + '><span class="jp-step__mark" aria-hidden="true">' + mark
         + '</span><span class="jp-step__body"><span class="jp-step__label">' + esc(st.label) + '</span>'
@@ -249,7 +252,7 @@
       var title = d.kind === 'SKILL' ? ' title="Ngày kỹ năng"' : (d.kind === 'REST' ? ' title="Ngày nghỉ"'
         : (d.kind === 'REVIEW_ONLY' ? ' title="Ngày ôn"' : ''));
       return '<li class="' + cls + '"' + (d.today ? ' aria-current="date"' : '') + title + '>'
-        + esc(D().dayShort(weekday(d.day)) + (d.done ? ' ✓' : '')) + '</li>';
+        + esc(D().dayShort(weekday(d.day))) + (d.done ? ' ' + icon('check') : '') + '</li>';
     }).join('');
     return '<ol class="jp-week" aria-label="Tuần này">' + chips + '</ol>';
   }
@@ -259,7 +262,7 @@
   function estimateHtml(path, tab) {
     var p = path || {};
     var est = (p.estimates || {})[TAB_KEY[tab]];
-    return '<section class="jp-card jp-stat"><h2 class="jp-stat__title"><span aria-hidden="true">🕒</span> Dự kiến xong tab này</h2>'
+    return '<section class="jp-card jp-stat"><h2 class="jp-stat__title">Dự kiến xong tab này</h2>'
       + '<p class="jp-stat__value">' + esc(est ? D().fmtDate(est) : '—') + '</p>'
       + '<p class="jp-stat__sub">' + esc('Cả cấp ' + (p.openLevel || '') + ' (muộn nhất 3 tab): '
         + (p.levelFinish ? D().fmtDate(p.levelFinish) : '—')) + '</p></section>';
@@ -268,15 +271,14 @@
   function volumeHtml(path, tab) {
     var p = path || {};
     var info = tabInfo(p, tab) || {};
-    return '<section class="jp-card jp-stat"><h2 class="jp-stat__title"><span aria-hidden="true">🎯</span> Khối lượng '
+    return '<section class="jp-card jp-stat"><h2 class="jp-stat__title">Khối lượng '
       + esc(p.openLevel) + '</h2><p class="jp-stat__value">' + esc(D().fmtNumber(Number(info.total) || 0) + ' ' + (VOLUME_UNIT[tab] || ''))
       + '</p><p class="jp-stat__sub">' + esc('Đã biết ' + D().fmtNumber(Number(info.known) || 0) + ' · Sổ tay '
         + D().fmtNumber(Number(info.notebook) || 0)) + '</p></section>';
   }
 
   function skillsTabHtml(path) {
-    var days = list(path && path.skillDays).length
-      ? '<p class="jp-skills__days">' + esc('Ngày kỹ năng: ' + dayList(path && path.skillDays)) + '</p>' : '';
+    var days = '';
     // Plan 3 Task 19: jpath-skills-tab.js fills the real tab from GET /skills/overview
     if (root.JpathSkillsTab) {
       return '<section class="jp-card jp-skills" data-jpath-skills-tab aria-live="polite">'
@@ -616,7 +618,7 @@
       state.tour.start();
     }
 
-    // the ⋯ menu closes on Esc and on a click outside it
+    // the page menu closes on Esc and on a click outside it
     function closeMenus(except) {
       Array.prototype.forEach.call(rootEl.querySelectorAll ? rootEl.querySelectorAll('details.jp-menu[open]') : [],
         function (m) { if (m !== except) m.removeAttribute('open'); });

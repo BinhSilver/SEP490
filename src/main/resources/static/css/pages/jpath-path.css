@@ -574,7 +574,7 @@
 .jp-lesson__nav a:focus-visible, .jp-lesson-practice button:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
 @media (max-width: 640px) {
   .jp-lesson-page { padding-bottom: calc(112px + var(--jlab-mobile-bottom, 0px)); }
-  .jp-lesson-page:has(.jp-lesson-practice, .jp-lesson__nav)::after { content: ""; position: fixed; z-index: 6; left: 0; right: 0; bottom: var(--jlab-mobile-bottom, 0px); height: calc(72px + env(safe-area-inset-bottom)); background: var(--jp-surface); box-shadow: 0 -6px 18px rgb(0 0 0 / 8%); pointer-events: none; }
+  .jp-lesson-page:has(.jp-lesson-practice, .jp-lesson__nav)::after { content: ""; position: fixed; z-index: 6; left: 0; right: 0; bottom: var(--jlab-mobile-bottom, 0px); height: calc(72px + env(safe-area-inset-bottom)); background: var(--jp-surface); border-top: 1px solid var(--jp-line); pointer-events: none; }
   .jp-lesson__pattern { font-size: 2.4em; }
   .jp-lesson__part { padding: 20px 0; }
   .jp-lesson__foot { display: block; }
@@ -623,8 +623,8 @@
   font-weight: 600; color: var(--jp-muted);
 }
 .jp-path__pace-head::-webkit-details-marker { display: none; }
-.jp-path__pace-head::after { content: "+"; font-size: 1.3em; }
-.jp-path__pace[open] > .jp-path__pace-head::after { content: "−"; }
+.jp-path__pace-head::after { content: ""; width: 14px; height: 14px; flex: none; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) scale(.65); }
+.jp-path__pace[open] > .jp-path__pace-head::after { transform: rotate(225deg) scale(.65); }
 .jp-path__pace-head:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: -3px; }
 .jp-path__pace .jp-path__slider { padding: 4px 0 18px; max-width: 560px; }
 .jp-path__pace .jp-card { padding: 0; border: 0; background: none; }
@@ -651,4 +651,36 @@
 @media (max-width: 899px) {
   .jp-path__side .jp-extra__list:not(.jp-extra__list--pages) { display: flex; overflow-x: auto; gap: 6px; }
   .jp-path__side .jp-extra__link { white-space: nowrap; border: 1px solid var(--jp-line); border-radius: 999px; }
+}
+
+/* Compact overview: one visible action, short list previews and an optional detail layer. */
+.jp-path { max-width: none; }
+.jp-path__main { max-width: none; min-width: 0; }
+.jp-path__hero { align-items: start; }
+.jp-hero__target { color: var(--jp-muted); font-weight: 400; }
+.jp-hero__resume { color: var(--jp-muted); font-weight: 400; }
+.jp-hero__more { flex: 0 0 100%; border-top: 1px solid var(--jp-line); }
+.jp-hero__more > summary, .jp-list-more > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--jp-primary); }
+.jp-hero__more > summary:focus-visible, .jp-list-more > summary:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-hero__stack { justify-items: start; padding: 12px 0 18px; }
+.jp-hero-cards { width: 180px; height: 120px; }
+.jp-path__tabpart { gap: 12px; }
+.jp-path__numbers .jp-stat__sub { display: none; }
+.jp-list-summary { margin: 0; color: var(--jp-muted); font-size: .9em; }
+.jp-list-more { border-top: 1px solid var(--jp-line); }
+.jp-list-more > :not(summary) { margin-block: 8px 16px; }
+.jp-path[data-jpath-tab="skills"] .jp-path__today,
+.jp-path[data-jpath-tab="skills"] .jp-path__stage,
+.jp-path[data-jpath-tab="skills"] .jp-path__pace,
+#jpathPathRoot[data-jpath-tab="skills"] .jp-path__today,
+#jpathPathRoot[data-jpath-tab="skills"] .jp-path__stage,
+#jpathPathRoot[data-jpath-tab="skills"] .jp-path__pace { display: none; }
+@media (max-width: 899px) {
+  .jp-path__main { width: 100%; }
+  .jp-path__side .jp-extra__link { border-radius: 8px; min-height: 44px; }
+  .jp-path__stage .jp-week { flex-wrap: wrap; }
+  .jp-path .jp-table-wrap { max-width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jp-path .jp-hero-card { transform: none; }
 }

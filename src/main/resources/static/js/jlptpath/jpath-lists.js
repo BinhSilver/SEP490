@@ -56,6 +56,10 @@
   }
   var STATE_LABEL = H().STATE_LABEL;
   function esc(v) { return D().esc(v); }
+  function icon(name) {
+    var nav = root.JpathNav || (typeof require === 'function' ? require('./jpath-nav.js') : null);
+    return nav ? nav.iconHtml(name) : '';
+  }
   function dataJson(o) { return D().dataJson(o); }
   function list(v) { return Array.isArray(v) ? v : []; }
   function has(v) { return v !== null && v !== undefined && v !== ''; }
@@ -103,21 +107,29 @@
       + '">Luyện quiz</button>';
   }
 
-  function pagerHtml(page) {
+  function pagerHtml(page, localPage) {
     var p = page || {};
     var size = num(p.size) || 50;
-    var pages = Math.max(1, Math.ceil(num(p.total) / size));
-    var at = Math.min(Math.max(0, num(p.page)), pages - 1);
+    var perBackendPage = Math.ceil(size / 20);
+    var fullBackendPages = Math.floor(num(p.total) / size);
+    var lastItems = num(p.total) % size;
+    var pages = Math.max(1, fullBackendPages * perBackendPage + Math.ceil(lastItems / 20));
+    var at = Math.min(Math.max(0, num(p.page) * perBackendPage + num(localPage)), pages - 1);
     // shared numbered pager (Đầu, Trước, 1 … n, Sau, Cuối) when the nav kit is on the page
-    var N = root && root.JpathNav;
+    var N = root.JpathNav || (typeof require === 'function' ? require('./jpath-nav.js') : null);
     if (N && typeof N.pagerHtml === 'function') return N.pagerHtml(at, pages);
     var html = '<nav class="jp-pager" aria-label="Trang">';
     html += '<button type="button" class="jp-btn" data-action="page" data-page="' + (at - 1) + '"'
-      + (at <= 0 ? ' disabled' : '') + '>‹ Trước</button>';
+      + (at <= 0 ? ' disabled' : '') + '>Trước</button>';
     html += '<span class="jp-pager__at">' + esc('Trang ' + (at + 1) + '/' + pages) + '</span>';
     html += '<button type="button" class="jp-btn" data-action="page" data-page="' + (at + 1) + '"'
-      + (at >= pages - 1 ? ' disabled' : '') + '>Sau ›</button>';
+      + (at >= pages - 1 ? ' disabled' : '') + '>Sau</button>';
     return html + '</nav>';
+  }
+
+  function localPagerHtml(at, total, action) {
+    var nav = root.JpathNav || (typeof require === 'function' ? require('./jpath-nav.js') : null);
+    return nav && total > 20 ? nav.pagerHtml(at, Math.ceil(total / 20), { action: action }) : '';
   }
 
   function facetLabel(facet) {
@@ -154,17 +166,19 @@
       + '<span class="jp-topic-card__count">' + esc(total + ' từ') + '</span></button>'
       + '<div class="jp-stack" role="img" aria-label="' + esc(summary) + '">' + bar + '</div>'
       + '<p class="jp-topic-card__sub">' + esc(summary) + '</p>'
-      + (done ? '<p class="jp-topic-card__done">Đã biết cả chủ đề ✓</p>'
+      + (done ? '<p class="jp-topic-card__done">' + icon('check') + ' Đã biết cả chủ đề</p>'
         : '<button type="button" class="jp-link-btn" data-action="topic-known" data-topic="' + esc(c.topicKey)
           + '">Tôi biết chủ đề này</button>')
       + '</li>';
   }
 
-  function topicGridHtml(topics, level) {
+  function topicGridHtml(topics, level, page) {
     var items = list(topics);
     if (!items.length) return '<p class="jp-muted">Chưa có chủ đề nào ở ' + esc(level || '') + '.</p>';
-    return '<ul class="jp-topic-grid" aria-label="' + esc('Chủ đề từ vựng ' + (level || '')) + '">'
-      + items.map(topicCardHtml).join('') + '</ul>';
+    return '<p class="jp-list-summary">' + esc(items.length + ' chủ đề') + '</p>'
+      + '<ul class="jp-topic-grid" aria-label="' + esc('Chủ đề từ vựng ' + (level || '')) + '">'
+      + items.slice(num(page) * 20, (num(page) + 1) * 20).map(topicCardHtml).join('') + '</ul>'
+      + localPagerHtml(num(page), items.length, 'topic-page');
   }
 
   function vocabFiltersHtml(filter, facets) {
@@ -200,23 +214,25 @@
       + '<td>' + stateChip(row.state) + (row.hard ? ' <span class="jp-badge">Khó nhớ</span>' : '') + '</td></tr>';
   }
 
-  function vocabResultsHtml(page, filter) {
+  function vocabResultsHtml(page, filter, localPage) {
     var p = page || {};
     var f = filter || {};
     var items = list(p.items);
     var html = '<div class="jp-list-bar">' + (has(f.topic)
-      ? '<button type="button" class="jp-link-btn" data-action="clear-topic">← Tất cả chủ đề</button>' : '')
+      ? '<button type="button" class="jp-link-btn" data-action="clear-topic">' + icon('arrow-left') + ' Tất cả chủ đề</button>' : '')
       + printMenuHtml('VOCAB', f) + '</div>';
     if (!items.length) return html + '<p class="jp-muted jp-list-empty">' + esc(MSG_EMPTY_VOCAB) + '</p>';
-    return html + '<div class="jp-table-wrap"><table class="jp-table"><thead><tr><th scope="col">Từ</th>'
+    return html + '<p class="jp-list-summary">' + esc(num(p.total) + ' từ') + '</p>'
+      + '<div class="jp-table-wrap"><table class="jp-table"><thead><tr><th scope="col">Từ</th>'
       + '<th scope="col">Cách đọc</th><th scope="col">Nghĩa</th><th scope="col" class="jp-col-type">Loại từ</th>'
-      + '<th scope="col">Trạng thái</th></tr></thead><tbody>' + items.map(vocabRowHtml).join('')
-      + '</tbody></table></div>' + pagerHtml(p);
+      + '<th scope="col">Trạng thái</th></tr></thead><tbody>'
+      + items.slice(num(localPage) * 20, (num(localPage) + 1) * 20).map(vocabRowHtml).join('')
+      + '</tbody></table></div>' + pagerHtml(p, localPage);
   }
 
-  function vocabTableHtml(page, filter) {
+  function vocabTableHtml(page, filter, localPage) {
     var p = page || {};
-    return vocabFiltersHtml(filter, p.facets) + vocabResultsHtml(p, filter);
+    return vocabFiltersHtml(filter, p.facets) + vocabResultsHtml(p, filter, localPage);
   }
 
   // ------------------------------------------------------------------------------------------------ kanji
@@ -278,19 +294,20 @@
       + '</button></li>';
   }
 
-  function kanjiListHtml(page, view, filter) {
+  function kanjiListHtml(page, view, filter, localPage) {
     var p = page || {};
     var items = list(p.items);
     var html = '<div class="jp-list-bar">' + printMenuHtml('KANJI', filter) + '</div>';
     if (!items.length) return html + '<p class="jp-muted jp-list-empty">Không có chữ Kanji nào khớp bộ lọc.</p>';
     if (view === 'GRID') {
-      html += '<ul class="jp-kanji-grid">' + items.map(kanjiCellHtml).join('') + '</ul>';
+      html += '<ul class="jp-kanji-grid">' + items.slice(num(localPage) * 20, (num(localPage) + 1) * 20).map(kanjiCellHtml).join('') + '</ul>';
     } else {
       html += '<div class="jp-table-wrap"><table class="jp-table jp-table--kanji"><thead><tr><th scope="col">Chữ</th>'
         + '<th scope="col">Hán Việt</th><th scope="col">Nghĩa</th><th scope="col">On</th><th scope="col">Kun</th>'
-        + '<th scope="col">Nét</th></tr></thead><tbody>' + items.map(kanjiRowHtml).join('') + '</tbody></table></div>';
+        + '<th scope="col">Nét</th></tr></thead><tbody>'
+        + items.slice(num(localPage) * 20, (num(localPage) + 1) * 20).map(kanjiRowHtml).join('') + '</tbody></table></div>';
     }
-    return html + pagerHtml(p);
+    return html + pagerHtml(p, localPage);
   }
 
   // ------------------------------------------------------------------------------------------------ kana
@@ -352,7 +369,7 @@
       var first = list(r.kanas).filter(Boolean)[0];
       // BROWSE takes the row code (HR-…/KR-…): Task 34 starts that row's new kana plus a KANA_ROW check
       return '<li class="jp-kana-row"><div class="jp-kana-row__head"><h3 class="jp-kana-row__title">' + esc(r.title)
-        + '</h3>' + (r.passed ? '<span class="jp-ok jp-kana-row__passed">✓ Đã đạt</span>' : '')
+        + '</h3>' + (r.passed ? '<span class="jp-ok jp-kana-row__passed">' + icon('check') + ' Đã đạt</span>' : '')
         + (first ? '<button type="button" class="jp-link-btn" data-action="kana-row" data-row="' + esc(r.code)
           + '">Học hàng này</button>' : '') + '</div>'
         + '<div class="jp-kana-grid' + (r.kind === 'YOON' ? ' jp-kana-grid--yoon' : '') + '">'
@@ -390,7 +407,7 @@
       + '<span class="jp-dot ' + dotClass(g.state) + '" aria-hidden="true"></span>'
       + '<span class="jp-sr-only">' + esc(STATE_LABEL[stateOf(g.state)]) + ': </span>'
       + '<span class="jp-grow__text"><b lang="ja">' + esc(g.pattern) + '</b>' + (has(g.meaning) ? ' · ' + esc(g.meaning) : '')
-      + '</span><span class="jp-grow__mark" aria-hidden="true">' + (open ? '▾' : '▸') + '</span></button></li>';
+      + '</span><span class="jp-grow__mark" aria-hidden="true">' + icon(open ? 'chevron-down' : 'chevron-right') + '</span></button></li>';
   }
 
   function grammarFiltersHtml(filter, options) {
@@ -406,12 +423,12 @@
   }
 
   /** The progress line and the units; pane = true adds aria-controls to the rows (wide-screen pane). */
-  function grammarUnitsHtml(units, openCode, totals, pane) {
+  function grammarUnitsHtml(units, openCode, totals, pane, showSummary) {
     var items = list(units).filter(Boolean);
     var t = totals || {};
     var total = has(t.total) ? num(t.total) : items.reduce(function (s, u) { return s + num(u.total); }, 0);
     var done = has(t.done) ? num(t.done) : items.reduce(function (s, u) { return s + num(u.done); }, 0);
-    var html = '<p class="jp-grammar-sum">' + esc(done + '/' + total + ' mẫu đã xong') + ' · <span class="jp-legend">'
+    var html = showSummary === false ? '' : '<p class="jp-grammar-sum">' + esc(done + '/' + total + ' mẫu đã xong') + ' · <span class="jp-legend">'
       + '<span class="jp-dot jp-dot-known" aria-hidden="true"></span> đã xong '
       + '<span class="jp-dot jp-dot-learning" aria-hidden="true"></span> đang học '
       + '<span class="jp-dot jp-dot-new" aria-hidden="true"></span> chưa học</span></p>';
@@ -422,6 +439,19 @@
         + '<ul class="jp-gunit__rows">' + list(u.patterns).map(function (r) { return grammarRowHtml(r, openCode, pane); }).join('')
         + '</ul></section>';
     }).join('');
+  }
+
+  function compactGrammarHtml(units, openCode, totals, pane, page) {
+    var count = 0;
+    var shown = [];
+    var start = num(page) * 20, end = start + 20;
+    list(units).filter(Boolean).forEach(function (u) {
+      var rows = list(u.patterns);
+      var part = rows.slice(Math.max(0, start - count), Math.max(0, end - count));
+      if (part.length) shown.push(Object.assign({}, u, { patterns: part }));
+      count += rows.length;
+    });
+    return grammarUnitsHtml(shown, openCode, totals, pane) + localPagerHtml(num(page), count, 'grammar-page');
   }
 
   function grammarAccordionHtml(units, filter, openCode, totals) {
@@ -466,7 +496,9 @@
   TABS.vocab = {
     urlKeys: ['topic', 'state', 'q'],
     init: function (st, params) {
-      st.filter = { topic: params.topic || '', state: params.state || '', q: params.q || '', page: 0 };
+      st.filter = { topic: params.topic || '', state: params.state || '', q: params.q || '', page: 0, localPage: 0,
+        topicPage: 0,
+        backendSize: 50 };
       st.view = (st.ctx.display && st.ctx.display.vocabListView) === 'FLAT' ? 'FLAT' : 'TOPICS';
     },
     load: function (st) {
@@ -475,18 +507,26 @@
       var view = has(f.topic) ? 'FLAT' : st.view;
       var top = '<div class="jp-list-bar">' + viewToggleHtml(view) + quizButtonHtml('VOCAB') + '</div>';
       if (view === 'TOPICS') {
-        return st.api.get(listUrl('topics', { level: level })).then(function (topics) {
+        return (st.topics ? Promise.resolve(st.topics) : st.api.get(listUrl('topics', { level: level }))).then(function (topics) {
           st.topics = list(topics);
-          return { barKey: 'vocab:TOPICS', bar: top,
+          var matched = st.topics.filter(function (t) {
+            return !f.q || String((t && (t.title || t.topicKey)) || '').toLocaleLowerCase().includes(String(f.q).toLocaleLowerCase());
+          });
+          return { barKey: 'vocab:TOPICS', bar: top + '<div class="jp-list-filters" role="search"><label class="jp-field jp-field--grow">'
+            + '<span class="jp-field__label">Tìm chủ đề</span><input class="jp-input" type="search" data-filter="q"'
+            + ' placeholder="Tìm chủ đề…" value="' + esc(f.q) + '" autocomplete="off"></label></div>',
             results: '<div class="jp-list-bar">' + printMenuHtml('VOCAB', { level: level }) + '</div>'
-              + topicGridHtml(st.topics, level) };
+              + topicGridHtml(matched, level, f.topicPage) };
         });
       }
-      return st.api.get(listUrl('vocabulary', { level: level, topic: f.topic, state: f.state, q: f.q, page: f.page }))
+      return (st.pageData && num(st.pageData.page) === f.page ? Promise.resolve(st.pageData)
+        : st.api.get(listUrl('vocabulary', { level: level, topic: f.topic, state: f.state, q: f.q, page: f.page })))
         .then(function (page) {
+          st.pageData = page;
+          f.backendSize = num(page && page.size) || 50;
           var current = { level: level, topic: f.topic, state: f.state, q: f.q };
           return { barKey: 'vocab:FLAT', bar: top + vocabFiltersHtml(current, page && page.facets),
-            results: vocabResultsHtml(page, current) };
+            results: vocabResultsHtml(page, current, f.localPage) };
         });
     }
   };
@@ -497,18 +537,22 @@
       var sort = String(params.sort || '').toUpperCase();
       st.filter = { q: params.q || '', radical: /^\d+$/.test(params.radical || '') ? params.radical : '',
         sort: KANJI_SORTS.some(function (s) { return s[0] === sort; }) ? sort : '',
-        view: String(params.view || '').toUpperCase() === 'GRID' ? 'GRID' : '', page: 0 };
+        view: String(params.view || '').toUpperCase() === 'GRID' ? 'GRID' : '', page: 0, localPage: 0,
+        backendSize: 50 };
     },
     load: function (st) {
       var f = st.filter;
       var level = st.ctx.level;
       var view = f.view === 'GRID' ? 'GRID' : 'TABLE';
-      return st.api.get(listUrl('kanji', { level: level, q: f.q, radical: f.radical, sort: f.sort, view: f.view,
-        page: f.page })).then(function (page) {
+      return (st.pageData && num(st.pageData.page) === f.page ? Promise.resolve(st.pageData)
+        : st.api.get(listUrl('kanji', { level: level, q: f.q, radical: f.radical, sort: f.sort, view: f.view,
+          page: f.page }))).then(function (page) {
+        st.pageData = page;
+        f.backendSize = num(page && page.size) || 50;
         var current = { level: level, q: f.q, radical: f.radical, sort: f.sort, view: f.view };
         return { barKey: 'kanji:' + view,
           bar: '<div class="jp-list-bar">' + quizButtonHtml('KANJI') + '</div>' + kanjiFiltersHtml(current, page && page.facets),
-          results: kanjiListHtml(page, view, current) };
+          results: kanjiListHtml(page, view, current, f.localPage) };
       });
     }
   };
@@ -530,7 +574,7 @@
     urlKeys: ['unit', 'q', 'open'],
     init: function (st, params) {
       st.filter = { unit: /^\d+$/.test(params.unit || '') ? params.unit : '', q: params.q || '',
-        open: /^JG-[0-9a-f]{10}$/.test(params.open || '') ? params.open : '' };
+        open: /^JG-[0-9a-f]{10}$/.test(params.open || '') ? params.open : '', grammarPage: 0 };
       st.cache = {};
     },
     load: function (st) {
@@ -553,13 +597,19 @@
         st.lesson = res[2].lesson || null;
         var totals = { units: res[0], total: res[0].reduce(function (s, u) { return s + num(u.total); }, 0),
           done: res[0].reduce(function (s, u) { return s + num(u.done); }, 0) };
+        if (f.open && !f.grammarPage) {
+          var codes = [].concat.apply([], res[1].map(function (u) { return list(u.patterns); }))
+            .map(function (r) { return r.code; });
+          var openIndex = codes.indexOf(f.open);
+          if (openIndex >= 20) f.grammarPage = Math.floor(openIndex / 20);
+        }
         var out = { barKey: 'grammar:' + mode, bar: grammarFiltersHtml(f, res[0]) };
-        if (mode !== 'PANE') { out.results = grammarUnitsHtml(res[1], null, totals, false); return out; }
+        if (mode !== 'PANE') { out.results = compactGrammarHtml(res[1], null, totals, false, f.grammarPage); return out; }
         var paneHtml = st.lesson ? GL().grammarLessonHtml(st.lesson)
           : (res[2].error ? '<p class="jp-alert" role="alert">' + esc(res[2].error) + '</p>'
             : '<p class="jp-muted jp-grammar-pane__hint">' + esc(MSG_PICK) + '</p>');
         out.results = '<div class="jp-grammar-split"><div class="jp-grammar-list">'
-          + grammarUnitsHtml(res[1], f.open, totals, true) + '</div>'
+          + compactGrammarHtml(res[1], f.open, totals, true, f.grammarPage) + '</div>'
           + '<div class="jp-grammar-pane" id="jp-grammar-pane" data-part="pane" aria-live="polite">' + paneHtml
           + '</div></div>';
         return out;
@@ -618,6 +668,10 @@
       var tabSt = { ctx: c };
       spec.init(tabSt, st.ignoreUrl ? {} : readParams(st.env.location));
       st.filters[key] = tabSt;
+    }
+    if (c.force) {
+      st.filters[key].pageData = null;
+      st.filters[key].topics = null;
     }
     return reload(slot, st);
   }
@@ -704,8 +758,20 @@
     if (name !== 'page' && String(has(t.filter[name]) ? t.filter[name] : '') === String(has(value) ? value : '')) {
       return Promise.resolve();
     }
-    t.filter[name] = value;
-    if (name !== 'page') t.filter.page = 0;
+    if (name === 'page' && (st.key === 'vocab' || st.key === 'kanji')) {
+      var perBackendPage = Math.ceil((num(t.filter.backendSize) || 50) / 20);
+      t.filter.page = Math.floor(num(value) / perBackendPage);
+      t.filter.localPage = num(value) % perBackendPage;
+    } else {
+      t.filter[name] = value;
+      if (name !== 'page') {
+        t.filter.page = 0;
+        t.filter.localPage = 0;
+        t.filter.topicPage = 0;
+        t.filter.grammarPage = 0;
+        t.pageData = null;
+      }
+    }
     var urlValues = {};
     (TABS[st.key].urlKeys || []).forEach(function (k) { urlValues[k] = t.filter[k]; });
     writeParams(st.env, urlValues);
@@ -772,6 +838,14 @@
 
   function bind(slot, st) {
     var actions = {
+      'topic-page': function (el) {
+        tabState(st).filter.topicPage = Math.max(0, num(el.getAttribute('data-page')));
+        return reload(slot, st);
+      },
+      'grammar-page': function (el) {
+        tabState(st).filter.grammarPage = Math.max(0, num(el.getAttribute('data-page')));
+        return reload(slot, st);
+      },
       'list-view': function (el) {
         var view = el.getAttribute('data-view') === 'FLAT' ? 'FLAT' : 'TOPICS';
         var t = tabState(st);

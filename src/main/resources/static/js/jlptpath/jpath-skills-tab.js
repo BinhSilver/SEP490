@@ -3,7 +3,7 @@
  * window.JpathSkillsTab = { bannerHtml(o), cardHtml(card, o), typesHtml(rows), actionsHtml(o), readinessHtml(r),
  *                           tabHtml(o), hasContent(o), mount(el, deps) }
  *   - mount(el) reads GET /api/learning/jlpt/skills/overview and draws: the skill-day strip (skill days only), one
- *     card per skill (type of the day, floors, Bắt đầu / Làm tiếp / Đã xong ✓), the type table, Luyện tập tự do,
+ *     card per skill (type of the day, floors, Bắt đầu / Làm tiếp / Đã xong), the type table, Luyện tập tự do,
  *     Luyện thi theo phần (locked before the skill stage), exam readiness and the mock card slot (Task 23).
  *   - A level without any available type keeps the "Sắp mở" text. Every draw ends with 'jpath:rendered'.
  *   - Bắt đầu → POST /skills/sessions {skill, kind DAY}; tự do → {skill, kind FREE, typeCode}; then the session page
@@ -20,7 +20,11 @@
   var BASE = '/api/learning/jlpt/skills';
   var SESSION_PAGE = '/learning/jlpt/skills/session/';
   var SECTION_PAGE = '/learning/jlpt/skills/section/';
-  var SKILL = { READING: { icon: '📖', name: 'Đọc' }, LISTENING: { icon: '🎧', name: 'Nghe' } };
+  var SKILL = { READING: { icon: 'book-open', name: 'Đọc' }, LISTENING: { icon: 'headphones', name: 'Nghe' } };
+  function icon(name) {
+    var nav = root.JpathNav || (typeof require === 'function' ? require('./jpath-nav.js') : null);
+    return nav ? nav.iconHtml(name) : '';
+  }
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -44,7 +48,7 @@
   /** Skill days only: no new items, reviews, minutes and this week's sessions. */
   function bannerHtml(o) {
     if (!o || !o.skillDay) return '';
-    return '<p class="jp-skills__banner" role="status"><span aria-hidden="true">📅</span> Hôm nay là <strong>ngày kỹ năng'
+    return '<p class="jp-skills__banner" role="status">Hôm nay là <strong>ngày kỹ năng'
       + '</strong>: không học mới, ' + esc(num(o.reviewsDue)) + ' thẻ ôn, ~' + esc(num(o.minutesEstimate)) + ' phút. Tuần này: '
       + esc(num(o.sessionsThisWeek)) + '/' + esc(num(o.sessionsRequiredThisWeek)) + ' buổi.</p>';
   }
@@ -60,7 +64,7 @@
   function cardHtml(card, o) {
     if (!card) return '';
     var s = SKILL[card.skill] || { icon: '', name: card.skill };
-    var head = '<h3 class="jp-skill-card__title"><span aria-hidden="true">' + s.icon + '</span> ' + esc(s.name + ' '
+    var head = '<h3 class="jp-skill-card__title">' + esc(s.name + ' '
       + ((o && o.level) || '')) + '</h3>';
     if (!card.typeCode) {
       return '<article class="jp-skill-card is-empty">' + head + '<p class="jp-muted">Chưa có bài ' + esc(s.name.toLowerCase())
@@ -71,7 +75,7 @@
     var ja = t && t.nameJa ? ' <span lang="ja">(' + esc(t.nameJa) + ')</span>' : '';
     var action;
     if (card.doneToday) {
-      action = '<span class="jp-skill-card__done">Đã xong ✓</span>';
+      action = '<span class="jp-skill-card__done">' + icon('check') + ' Đã xong</span>';
     } else if (card.openSessionId != null) {
       action = '<a class="jp-btn jp-btn--primary" href="' + SESSION_PAGE + encodeURIComponent(card.openSessionId)
         + '">Làm tiếp</a>';
@@ -95,7 +99,7 @@
         var s = SKILL[t.skill] || { icon: '' };
         var state = num(t.sessionsDone) > 0
           ? 'Đã học' + (t.lastPct != null ? ' · ' + esc(num(t.lastPct)) + '%' : '') : 'Chưa học';
-        return '<li class="jp-skill-type"><span aria-hidden="true">' + s.icon + '</span> <span lang="ja">' + esc(t.nameJa)
+        return '<li class="jp-skill-type">' + icon(s.icon) + ' <span lang="ja">' + esc(t.nameJa)
           + '</span> <span>' + esc(t.nameVi) + '</span> <span class="jp-skill-type__state">' + state + '</span></li>';
       }).join('') + '</ul>';
   }
@@ -110,7 +114,7 @@
       + '<select id="jpSkillFreeType" data-skill-free-type>' + options + '</select> '
       + '<button type="button" class="jp-btn" data-skill-free>Luyện</button></div>' : '';
     var open = !!(o && o.sectionOpen);
-    var section = '<div class="jp-skills__section"><span>Luyện thi theo phần <span aria-hidden="true">⏱</span></span> '
+    var section = '<div class="jp-skills__section"><span>Luyện thi theo phần</span> '
       + ['READING', 'LISTENING'].map(function (k) {
         return '<button type="button" class="jp-btn" data-skill-section="' + k + '"' + (open ? '' : ' disabled') + '>'
           + SKILL[k].name + '</button>';
@@ -119,7 +123,7 @@
   }
 
   function tryText(t) {
-    return (t.passed ? '✓ ' : '✗ ') + (t.scorePct != null ? Math.round(num(t.scorePct)) + '%' : '—');
+    return (t.passed ? icon('check') : icon('x')) + ' ' + (t.scorePct != null ? Math.round(num(t.scorePct)) + '%' : '—');
   }
 
   /** Exam readiness (#41): a suggestion, it never locks the mock test. */
@@ -130,8 +134,8 @@
     var listening = list(r.lastListening).map(tryText).join(', ') || 'chưa có';
     return '<div class="jp-skills__readiness"><h3 class="jp-skills__sub">Sẵn sàng thi</h3><ul>'
       + '<li>Dạng câu đã làm: ' + esc(num(r.typesDone)) + '/' + esc(num(r.typesTotal)) + '</li>'
-      + '<li>Luyện thi phần Đọc (2 lần gần nhất): ' + esc(reading) + '</li>'
-      + '<li>Luyện thi phần Nghe (2 lần gần nhất): ' + esc(listening) + '</li></ul>'
+      + '<li>Luyện thi phần Đọc (2 lần gần nhất): ' + reading + '</li>'
+      + '<li>Luyện thi phần Nghe (2 lần gần nhất): ' + listening + '</li></ul>'
       + '<p class="jp-muted">Cần làm mỗi dạng ít nhất một lần và đạt 2 lần luyện thi gần nhất của mỗi phần.</p></div>';
   }
 
@@ -144,7 +148,8 @@
     if (!hasContent(o)) return comingSoonHtml();
     return '<h2 class="jp-section-title">Đọc · Nghe ' + esc(o.level || '') + '</h2>' + bannerHtml(o)
       + '<div class="jp-skill-cards">' + cardHtml(o.reading, o) + cardHtml(o.listening, o) + '</div>'
-      + typesHtml(o.types) + actionsHtml(o) + readinessHtml(o.readiness)
+      + typesHtml(o.types) + '<details class="jp-skills__more"><summary>Luyện thêm và tiến độ thi</summary>'
+      + actionsHtml(o) + readinessHtml(o.readiness) + '</details>'
       + '<div data-jpath-mock-card></div><p class="jp-skills__msg" role="alert" data-skill-msg hidden></p>';
   }
 

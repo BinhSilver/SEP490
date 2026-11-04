@@ -2,7 +2,7 @@
  *
  * window.JpathWordBank = { rowMarkup(row, page), pagerState(page), mount() }
  *   - <main data-jpath-wordbank="KNOWN|NOTEBOOK">: tabs Từ vựng / Kanji; GET /api/learning/jlpt/known|notebook?tab=&page=
- *     (0-based pages of the server's size). Each row has ⚑ Báo sai (data-jpath-report, pageContext KNOWN_LIST /
+ *     (0-based pages of the server's size). Each row has Báo sai (data-jpath-report, pageContext KNOWN_LIST /
  *     NOTEBOOK_LIST) and Luyện viết (data-jpath-writing); the notebook adds "Bỏ khỏi sổ tay" → DELETE
  *     /items/{type}/{code}/notebook. 'jpath:rendered' is sent after each draw so the report and writing modules bind.
  */
@@ -69,7 +69,23 @@
     var status = main.querySelector('[data-role="status"]');
     var list = main.querySelector('[data-role="rows"]');
     var pager = main.querySelector('[data-role="pager"]');
+    var search = main.querySelector('[data-role="search"]');
     var state = { tab: 'VOCAB', page: 0 };
+    var items = [];
+
+    function draw() {
+      var term = (search.value || '').trim().toLocaleLowerCase();
+      var visible = items.filter(function (r) {
+        return !term || [r.expression, r.reading, r.meaning].some(function (v) {
+          return String(v || '').toLocaleLowerCase().indexOf(term) >= 0;
+        });
+      });
+      list.innerHTML = visible.map(function (r) { return rowMarkup(r, kind); }).join('');
+      if (term) status.textContent = visible.length ? visible.length + ' mục trong trang này' : 'Không tìm thấy mục trong trang này.';
+      if (typeof doc.dispatchEvent === 'function' && typeof root.CustomEvent === 'function') {
+        doc.dispatchEvent(new root.CustomEvent('jpath:rendered', { detail: { root: list } }));
+      }
+    }
 
     function load() {
       main.querySelectorAll('[data-tab]').forEach(function (b) {
@@ -78,25 +94,22 @@
       status.textContent = 'Đang tải…';
       var url = BASE + (kind === 'NOTEBOOK' ? '/notebook' : '/known') + '?tab=' + state.tab + '&page=' + state.page;
       return api.get(url).then(function (p) {
-        var items = (p && Array.isArray(p.items)) ? p.items : [];
+        items = (p && Array.isArray(p.items)) ? p.items : [];
         var ps = pagerState(p);
         if (!items.length && state.page > 0) { state.page = ps.pages - 1; return load(); }
-        list.innerHTML = items.map(function (r) { return rowMarkup(r, kind); }).join('');
         status.textContent = items.length ? (Number(p.total) || items.length) + ' mục' : EMPTY[kind];
         pager.hidden = ps.pages <= 1;
         pager.querySelector('[data-page="prev"]').disabled = !ps.hasPrev;
         pager.querySelector('[data-page="next"]').disabled = !ps.hasNext;
         pager.querySelector('[data-role="page"]').textContent = 'Trang ' + (ps.page + 1) + '/' + ps.pages;
-        if (typeof doc.dispatchEvent === 'function' && typeof root.CustomEvent === 'function') {
-          doc.dispatchEvent(new root.CustomEvent('jpath:rendered', { detail: { root: list } }));
-        }
+        draw();
       }, function (err) { status.textContent = (err && err.message) || 'Không tải được danh sách.'; });
     }
 
     main.addEventListener('click', function (e) {
       var t = e.target;
       var tab = t.closest('[data-tab]');
-      if (tab) { state.tab = tab.getAttribute('data-tab'); state.page = 0; load(); return; }
+      if (tab) { state.tab = tab.getAttribute('data-tab'); state.page = 0; search.value = ''; load(); return; }
       var pg = t.closest('[data-page]');
       if (pg) { state.page += pg.getAttribute('data-page') === 'next' ? 1 : -1; state.page = Math.max(0, state.page); load(); return; }
       var rm = t.closest('[data-remove]');
@@ -109,6 +122,7 @@
         });
       }
     });
+    search.addEventListener('input', draw);
     load();
   }
 
