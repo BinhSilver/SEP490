@@ -865,3 +865,39 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 @media (min-width: 980px) {
   .jp-today__body:has(.jp-today__side) { grid-template-columns: minmax(0, 1fr) minmax(220px, 280px); align-items: start; }
 }
+
+/* 04/11 alignment pass: one rhythm (8/12/16/24), equal rows, the action column lined up, the stage card titled */
+.jp-path .jp-today { padding: 20px 24px 22px; }
+.jp-today__head { align-items: center; }
+.jp-today__lead .jp-section-title { font-size: 1.3em; line-height: 1.3; }
+.jp-today__why { max-width: 62ch; font-size: .86em; line-height: 1.5; }
+.jp-today__day { align-self: start; }
+.jp-today__body { margin-top: 16px; gap: 16px 20px; }
+.jp-path .jp-todo { gap: 8px; }
+.jp-path .jp-todo__item { min-height: 56px; padding: 8px 12px 8px 10px; grid-template-columns: 32px minmax(0, 1fr) 150px; }
+.jp-path .jp-todo__icon { width: 32px; height: 32px; }
+.jp-path .jp-todo__text { line-height: 1.35; }
+.jp-path .jp-todo__item > :last-child { justify-self: end; }
+.jp-path .jp-todo__item .jp-btn { width: 150px; justify-content: center; min-height: 40px; padding: 6px 12px; }
+.jp-path .jp-todo__done { width: 150px; justify-content: center; }
+.jp-today__side { display: grid; gap: 10px; padding: 14px 16px; }
+.jp-today__side::before { content: "Tiến trình"; color: var(--jp-muted); font-size: .78em; font-weight: 700; letter-spacing: .05em;
+  text-transform: uppercase; }
+.jp-today__side .jp-stepper--vertical .jp-step { padding-bottom: 12px; gap: 10px; grid-template-columns: 28px minmax(0, 1fr); }
+.jp-today__side .jp-stepper--vertical .jp-step__mark { width: 28px; height: 28px; font-size: .82em; }
+.jp-today__side .jp-stepper--vertical .jp-step::before { top: 30px; left: 13px; }
+.jp-today__side .jp-stepper--vertical .jp-step__body { padding-top: 3px; }
+/* the page under the panel: the guide and the pace on the same left edge, even gaps */
+.jp-path .jp-path__stage { margin: 0; }
+.jp-path .jp-weekguide { margin-top: 0; }
+.jp-path .jp-path__pace > summary, .jp-path .jp-weekguide > summary { min-height: 44px; }
+.jp-path__hero { align-items: center; }
+@media (max-width: 640px) {
+  .jp-path .jp-today { padding: 16px; }
+  .jp-path .jp-todo__item { grid-template-columns: 32px minmax(0, 1fr); }
+  .jp-path .jp-todo__item > :last-child { grid-column: 1 / -1; justify-self: stretch; width: auto; }
+  .jp-path .jp-todo__item .jp-btn, .jp-path .jp-todo__done { width: 100%; }
+}
+.jp-today__side { gap: 6px; padding: 12px 14px; }
+.jp-today__side .jp-stepper--vertical .jp-step { padding-bottom: 6px; }
+.jp-today__side .jp-step__label { font-size: .95em; }

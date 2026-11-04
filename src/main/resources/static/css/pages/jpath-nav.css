@@ -240,3 +240,5 @@
 
 /* crumbs outside a .jp-ws workspace (focus pages): no named area, or the grid grows an implicit column beside it */
 :not(.jp-ws) > .jp-ws__crumbs { grid-area: auto; }
+/* vertical: each step draws the line below it, so the first step keeps its line (only the last has none) */
+.jp-stepper--vertical .jp-step:first-child:not(:last-child)::before { display: block; }
