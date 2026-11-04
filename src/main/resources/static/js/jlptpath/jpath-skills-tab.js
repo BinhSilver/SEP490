@@ -1,12 +1,13 @@
 /* [JLAS-W0108] jpath-skills-tab.js — the real Đọc · Nghe tab of the JLPT path page (Plan 3 Task 19).
  *
- * window.JpathSkillsTab = { bannerHtml(o), cardHtml(card, o), typesHtml(rows), actionsHtml(o), readinessHtml(r),
- *                           tabHtml(o), hasContent(o), mount(el, deps) }
- *   - mount(el) reads GET /api/learning/jlpt/skills/overview and draws: the skill-day strip (skill days only), one
- *     card per skill (type of the day, floors, Bắt đầu / Làm tiếp / Đã xong), the type table, Luyện tập tự do,
- *     Luyện thi theo phần (locked before the skill stage), exam readiness and the mock card slot (Task 23).
+ * window.JpathSkillsTab = { bannerHtml(o), cardHtml(card, o), typesHtml(rows, skill, todayCode), groupHtml(skill, card, o),
+ *                           actionsHtml(o), readinessHtml(r), tabHtml(o), hasContent(o), mount(el, deps) }
+ *   - mount(el) reads GET /api/learning/jlpt/skills/overview and draws the skill-day strip (skill days only), then one
+ *     group per skill (Đọc, Nghe): today's session (Bắt đầu / Làm tiếp / Đã xong + Học lại) and that skill's types,
+ *     each with Học / Học lại (a FREE session of the type, lesson first); then Luyện thi theo phần (locked before the
+ *     skill stage), exam readiness and the mock card slot (Task 23).
  *   - A level without any available type keeps the "Sắp mở" text. Every draw ends with 'jpath:rendered'.
- *   - Bắt đầu → POST /skills/sessions {skill, kind DAY}; tự do → {skill, kind FREE, typeCode}; then the session page
+ *   - Bắt đầu → POST /skills/sessions {skill, kind DAY}; Học / Học lại → {skill, kind FREE, typeCode}; then the session page
  *     /learning/jlpt/skills/session/{id}. Luyện thi theo phần → POST /skills/sections {skill} → /learning/jlpt/skills/section/{token}.
  */
 (function (root, factory) {
@@ -53,29 +54,37 @@
       + esc(num(o.sessionsThisWeek)) + '/' + esc(num(o.sessionsRequiredThisWeek)) + ' buổi.</p>';
   }
 
+  /** What today's session asks for, in plain words. */
   function floorText(card) {
     if (card.skill === 'LISTENING') {
-      return 'Lý thuyết → ≥ ' + num(card.floorQuestions) + ' câu + ' + num(card.dictationFloor) + ' câu chép chính tả';
+      return 'Xem lý thuyết, nghe ít nhất ' + num(card.floorQuestions) + ' câu và chép chính tả ' + num(card.dictationFloor)
+        + ' câu.';
     }
-    return 'Lý thuyết → ≥ ' + num(card.floorPassages) + ' đoạn · ≥ ' + num(card.floorQuestions) + ' câu';
+    return 'Xem lý thuyết, đọc ít nhất ' + num(card.floorPassages) + ' đoạn và làm ít nhất ' + num(card.floorQuestions)
+      + ' câu.';
   }
 
-  /** One skill card: type of the day, floors and the session button for today. */
+  /** Re-opens one question type from its lesson: a FREE session of that type. */
+  function againButton(skill, code, label) {
+    return '<button type="button" class="jp-btn jp-btn--sm" data-skill-free="' + esc(skill) + '" data-skill-type="'
+      + esc(code) + '">' + esc(label) + '</button>';
+  }
+
+  /** Today's session of one skill: its type, what it asks for and the button. */
   function cardHtml(card, o) {
     if (!card) return '';
     var s = SKILL[card.skill] || { icon: '', name: card.skill };
-    var head = '<h3 class="jp-skill-card__title">' + esc(s.name + ' '
-      + ((o && o.level) || '')) + '</h3>';
     if (!card.typeCode) {
-      return '<article class="jp-skill-card is-empty">' + head + '<p class="jp-muted">Chưa có bài ' + esc(s.name.toLowerCase())
-        + ' ở cấp này.</p></article>';
+      return '<div class="jp-skill-card is-empty"><p class="jp-muted">Chưa có bài ' + esc(s.name.toLowerCase())
+        + ' ở cấp này.</p></div>';
     }
     var t = typeOf(o, card.typeCode);
     var name = card.typeNameVi || (t && t.nameVi) || card.typeCode;
     var ja = t && t.nameJa ? ' <span lang="ja">(' + esc(t.nameJa) + ')</span>' : '';
     var action;
     if (card.doneToday) {
-      action = '<span class="jp-skill-card__done">' + icon('check') + ' Đã xong</span>';
+      action = '<p class="jp-skill-card__done">' + icon('check') + ' Đã xong buổi hôm nay</p>'
+        + againButton(card.skill, card.typeCode, 'Học lại dạng này');
     } else if (card.openSessionId != null) {
       action = '<a class="jp-btn jp-btn--primary" href="' + SESSION_PAGE + encodeURIComponent(card.openSessionId)
         + '">Làm tiếp</a>';
@@ -83,43 +92,48 @@
       action = '<button type="button" class="jp-btn jp-btn--primary" data-skill-start="' + esc(card.skill) + '">Bắt đầu '
         + esc(s.name) + '</button>';
     } else {
-      action = '<span class="jp-muted">Buổi chính mở vào ngày kỹ năng.</span>';
+      action = '<p class="jp-muted">Buổi chính mở vào ngày kỹ năng. Hôm nay bạn vẫn học lại được từng dạng bên dưới.</p>';
     }
-    return '<article class="jp-skill-card' + (card.doneToday ? ' is-done' : '') + '">' + head
-      + '<p>Dạng hôm nay: <strong>' + esc(name) + '</strong>' + ja + '</p>'
-      + '<p class="jp-muted">' + esc(floorText(card)) + '</p>' + action + '</article>';
+    return '<div class="jp-skill-card' + (card.doneToday ? ' is-done' : '') + '">'
+      + '<p class="jp-skill-card__kicker">Buổi hôm nay</p>'
+      + '<p class="jp-skill-card__type"><strong>' + esc(name) + '</strong>' + ja + '</p>'
+      + '<p class="jp-muted">' + esc(floorText(card)) + '</p>' + action + '</div>';
   }
 
-  /** The question types in exam order: done or not, last score. */
-  function typesHtml(rows) {
-    var items = list(rows).filter(function (t) { return t && t.available; });
+  /** The question types of one skill (all when skill is empty) in exam order; each one can be studied again. */
+  function typesHtml(rows, skill, todayCode) {
+    var items = list(rows).filter(function (t) { return t && t.available && (!skill || t.skill === skill); });
     if (!items.length) return '';
-    return '<h3 class="jp-skills__sub">Các dạng câu <span class="jp-muted">(học lần lượt, hết vòng quay lại dạng yếu)</span></h3>'
-      + '<ul class="jp-skill-types">' + items.map(function (t) {
-        var s = SKILL[t.skill] || { icon: '' };
-        var state = num(t.sessionsDone) > 0
-          ? 'Đã học' + (t.lastPct != null ? ' · ' + esc(num(t.lastPct)) + '%' : '') : 'Chưa học';
-        return '<li class="jp-skill-type">' + icon(s.icon) + ' <span lang="ja">' + esc(t.nameJa)
-          + '</span> <span>' + esc(t.nameVi) + '</span> <span class="jp-skill-type__state">' + state + '</span></li>';
-      }).join('') + '</ul>';
+    return '<ul class="jp-skill-types">' + items.map(function (t) {
+      var done = num(t.sessionsDone) > 0;
+      var state = done ? 'Đã học' + (t.lastPct != null ? ' · ' + esc(num(t.lastPct)) + '%' : '') : 'Chưa học';
+      var today = todayCode && t.code === todayCode ? ' <span class="jp-skill-type__today">Hôm nay</span>' : '';
+      return '<li class="jp-skill-type"><span class="jp-skill-type__name"><span lang="ja">' + esc(t.nameJa)
+        + '</span> <span>' + esc(t.nameVi) + '</span>' + today + '</span><span class="jp-skill-type__state">' + state
+        + '</span>' + againButton(t.skill, t.code, done ? 'Học lại' : 'Học') + '</li>';
+    }).join('') + '</ul>';
   }
 
-  /** Free practice (pick a type) and section practice (locked before the skill stage). */
+  /** One skill together: today's session, then every type of that skill. */
+  function groupHtml(skill, card, o) {
+    var s = SKILL[skill];
+    var id = 'jp-skill-' + skill.toLowerCase();
+    return '<section class="jp-skill-group" aria-labelledby="' + id + '"><h3 class="jp-skill-group__title" id="' + id + '">'
+      + icon(s.icon) + ' ' + esc(s.name + ' ' + ((o && o.level) || '')) + '</h3>'
+      + cardHtml(card, o)
+      + '<h4 class="jp-skill-group__sub">' + esc('Các dạng ' + s.name) + '</h4>'
+      + typesHtml(o && o.types, skill, card && card.typeCode) + '</section>';
+  }
+
+  /** Section practice (locked before the skill stage). */
   function actionsHtml(o) {
-    var options = list(o && o.types).filter(function (t) { return t && t.available; }).map(function (t) {
-      return '<option value="' + esc(t.code) + '" data-skill="' + esc(t.skill) + '">' + esc((SKILL[t.skill] || {}).name + ' · '
-        + t.nameVi) + '</option>';
-    }).join('');
-    var free = options ? '<div class="jp-skills__free"><label for="jpSkillFreeType">Luyện tập tự do</label> '
-      + '<select id="jpSkillFreeType" data-skill-free-type>' + options + '</select> '
-      + '<button type="button" class="jp-btn" data-skill-free>Luyện</button></div>' : '';
     var open = !!(o && o.sectionOpen);
     var section = '<div class="jp-skills__section"><span>Luyện thi theo phần</span> '
       + ['READING', 'LISTENING'].map(function (k) {
         return '<button type="button" class="jp-btn" data-skill-section="' + k + '"' + (open ? '' : ' disabled') + '>'
           + SKILL[k].name + '</button>';
       }).join(' ') + (open ? '' : ' <span class="jp-muted">Mở ở chặng Rèn kỹ năng</span>') + '</div>';
-    return '<div class="jp-skills__actions">' + free + section + '</div>';
+    return '<div class="jp-skills__actions">' + section + '</div>';
   }
 
   function tryText(t) {
@@ -147,8 +161,10 @@
   function tabHtml(o) {
     if (!hasContent(o)) return comingSoonHtml();
     return '<h2 class="jp-section-title">Đọc · Nghe ' + esc(o.level || '') + '</h2>' + bannerHtml(o)
-      + '<div class="jp-skill-cards">' + cardHtml(o.reading, o) + cardHtml(o.listening, o) + '</div>'
-      + typesHtml(o.types) + '<details class="jp-skills__more"><summary>Luyện thêm và tiến độ thi</summary>'
+      + '<p class="jp-muted jp-skills__how">Mỗi ngày kỹ năng, hệ thống chọn dạng tiếp theo theo thứ tự đề thi; dạng còn yếu'
+      + ' sẽ được ôn lại. Bấm Học lại ở bất kỳ dạng nào để xem lại lý thuyết và luyện từ đầu.</p>'
+      + '<div class="jp-skill-groups">' + groupHtml('READING', o.reading, o) + groupHtml('LISTENING', o.listening, o) + '</div>'
+      + '<details class="jp-skills__more"><summary>Luyện thi theo phần và mức sẵn sàng thi</summary>'
       + actionsHtml(o) + readinessHtml(o.readiness) + '</details>'
       + '<div data-jpath-mock-card></div><p class="jp-skills__msg" role="alert" data-skill-msg hidden></p>';
   }
@@ -191,12 +207,12 @@
             function (s) { return s && s.id != null ? SESSION_PAGE + encodeURIComponent(s.id) : null; });
           return;
         }
-        if (t.closest('[data-skill-free]')) {
-          var sel = el.querySelector('[data-skill-free-type]');
-          var opt = sel && sel.options[sel.selectedIndex];
-          if (!opt) return;
-          go(apiClient.send('POST', BASE + '/sessions', { skill: opt.getAttribute('data-skill'), kind: 'FREE',
-            typeCode: opt.value }), function (s) { return s && s.id != null ? SESSION_PAGE + encodeURIComponent(s.id) : null; });
+        var free = t.closest('[data-skill-free]');
+        if (free) {
+          free.disabled = true;
+          go(apiClient.send('POST', BASE + '/sessions', { skill: free.getAttribute('data-skill-free'), kind: 'FREE',
+            typeCode: free.getAttribute('data-skill-type') }),
+            function (s) { return s && s.id != null ? SESSION_PAGE + encodeURIComponent(s.id) : null; });
           return;
         }
         var sec = t.closest('[data-skill-section]');
@@ -223,6 +239,6 @@
     });
   }
 
-  return { bannerHtml: bannerHtml, cardHtml: cardHtml, typesHtml: typesHtml, actionsHtml: actionsHtml,
+  return { bannerHtml: bannerHtml, cardHtml: cardHtml, typesHtml: typesHtml, groupHtml: groupHtml, actionsHtml: actionsHtml,
     readinessHtml: readinessHtml, tabHtml: tabHtml, hasContent: hasContent, mount: mount };
 });
