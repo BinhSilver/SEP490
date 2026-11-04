@@ -308,7 +308,9 @@ public class JpathListServiceImpl implements JpathListService {
 
     @Override
     public JpathGrammarLessonView grammarLesson(Long userId, String code) {
-        JpathGrammar g = content.grammar(code).orElseThrow(() -> new ApiException(ErrorCode.JPATH_ITEM_NOT_FOUND));
+        JpathGrammar found = content.grammar(code).orElseThrow(() -> new ApiException(ErrorCode.JPATH_ITEM_NOT_FOUND));
+        // a secondary pattern has no lesson of its own: its main pattern's lesson shows it
+        JpathGrammar g = found.getParentCode() == null ? found : content.grammar(found.getParentCode()).orElse(found);
         String lv = g.getLevel();
         List<JpathGrammar> visible = content.visibleGrammar(lv);
         Map<String, Integer> checks = content.visibleCheckCounts(lv);
@@ -343,7 +345,16 @@ public class JpathListServiceImpl implements JpathListService {
                 index + 1, unit.size(), g.getPattern(), strings(g.getCode(), g.getPatternVariantsJson()),
                 g.getMeaningVi(), g.getFormation(), g.getUsageVi(), g.getNuanceVi(), g.getCommonMistakesVi(), related,
                 examples, practice, extra, state(row), content.learnable(g, checks.getOrDefault(g.getCode(), 0)), prev,
-                next);
+                next, attached(g.getCode()));
+    }
+
+    /** The secondary patterns attached to {@code mainCode}, each with its first (MAIN) example. */
+    private List<com.jlas.jlptpath.dto.JpathAttachedPatternView> attached(String mainCode) {
+        return content.attachedGrammar(mainCode).stream().map(a -> {
+            var ex = content.examples(JpathItemType.GRAMMAR.name(), a.getCode()).stream().findFirst().orElse(null);
+            return new com.jlas.jlptpath.dto.JpathAttachedPatternView(a.getCode(), a.getPattern(), a.getMeaningVi(),
+                    ex == null ? null : ex.getJa(), ex == null ? null : ex.getJaFurigana(), ex == null ? null : ex.getVi());
+        }).toList();
     }
 
     private JpathGrammarRowView grammarRow(JpathGrammar g, JpathUserItem row, Map<String, Integer> checks) {

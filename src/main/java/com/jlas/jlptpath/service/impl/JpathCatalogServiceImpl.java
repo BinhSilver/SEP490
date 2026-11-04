@@ -130,7 +130,7 @@ public class JpathCatalogServiceImpl implements JpathCatalogService {
         return new JpathLevelInfo(level, sortOrder, true, false,
                 (int) vocabularyRepository.countByLevelAndStatusInAndReportHiddenFalse(level, visibleStatuses),
                 (int) kanjiRepository.countByLevelAndStatusInAndReportHiddenFalse(level, visibleStatuses),
-                (int) grammarRepository.countByLevelAndStatusInAndReportHiddenFalse(level, visibleStatuses));
+                (int) grammarRepository.countByLevelAndStatusInAndReportHiddenFalseAndParentCodeIsNull(level, visibleStatuses));
     }
 
     private static int sortOrder(String level) {

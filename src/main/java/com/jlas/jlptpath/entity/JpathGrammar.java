@@ -69,6 +69,10 @@ public class JpathGrammar {
     @Column(name = "related_codes_json", columnDefinition = "json")
     private String relatedCodesJson;
 
+    /** Secondary pattern: code of the main pattern it is attached to (never learned on its own); null = main. */
+    @Column(name = "parent_code", length = 24)
+    private String parentCode;
+
     @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 12)

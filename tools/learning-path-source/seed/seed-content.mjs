@@ -29,7 +29,8 @@ export const TABLES = {
   grammar: {
     sql: 'jpath_grammar', pk: ['code'], cc: true,
     cols: ['code', 'level', 'unit_no', 'sort_order', 'priority', 'pattern', 'pattern_variants_json', 'family_key', 'meaning_vi',
-      'formation', 'usage_vi', 'nuance_vi', 'common_mistakes_vi', 'related_codes_json', 'status', 'authored', 'seed_version'],
+      'formation', 'usage_vi', 'nuance_vi', 'common_mistakes_vi', 'related_codes_json', 'parent_code', 'status', 'authored',
+      'seed_version'],
   },
   example: {
     sql: 'jpath_example', pk: ['code'], cc: true,
@@ -217,7 +218,9 @@ export function buildLevelRows(compiled, { seedVersion, audio = new Map(), known
     code: g.id, level: g.level, unit_no: g.unit_no, sort_order: g.order, priority: g.priority ?? g.order, pattern: g.pattern,
     pattern_variants_json: jsonOrNull(g.pattern_variants), family_key: g.family_key, meaning_vi: g.meaning_vi ?? null,
     formation: g.formation ?? null, usage_vi: g.usage_vi ?? null, nuance_vi: g.nuance_vi ?? null,
-    common_mistakes_vi: g.common_mistakes_vi ?? null, related_codes_json: jsonOrNull(g.related_ids), status: g.status,
+    common_mistakes_vi: g.common_mistakes_vi ?? null, related_codes_json: jsonOrNull(g.related_ids),
+    // a secondary pattern is attached to its main one (shown in the main lesson, never learned on its own)
+    parent_code: g.grammar_role === 'SECONDARY' && g.parent_id ? g.parent_id : null, status: g.status,
     authored: itemAuthored(g.provenance), seed_version: seedVersion,
   }));
 
@@ -343,6 +346,8 @@ export function releaseVerdict(level, tables, { visibleVocab = new Set() } = {})
   for (const g of grammar.filter((r) => VISIBLE.has(r.status))) {
     const main = exampleChecks(g);
     if (blank(main?.audio_path)) add('AUDIO_MISSING');
+    // an attached (secondary) pattern has no question bank of its own: it is practised through its main pattern
+    if (g.parent_code) continue;
     const qs = questionsOf.get(g.code) ?? [];
     const check = qs.filter((q) => q.bank === 'CHECK');
     const types = new Set(check.map((q) => q.question_type));

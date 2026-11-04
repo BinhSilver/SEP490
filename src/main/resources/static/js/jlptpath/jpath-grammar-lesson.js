@@ -86,6 +86,14 @@
         + esc(e.audioUrl) + '" aria-label="Nghe câu ví dụ">🔊</button>' : '') + '<div>' + ex + '</div></li>';
     }).filter(Boolean).join('');
     html += lessonPart('Ví dụ', examples ? '<ul class="jp-examples">' + examples + '</ul>' : '');
+    // secondary patterns attached to this one: learned together with it, never on their own
+    var attached = list(g.attached).filter(function (a) { return a && has(a.pattern); }).map(function (a) {
+      var ex = has(a.exampleJa) ? F().exampleHtml({ ja: a.exampleJa, jaFurigana: a.exampleFurigana, vi: a.exampleVi }) : '';
+      return '<li class="jp-attached"><p class="jp-attached__pattern" lang="ja">' + esc(a.pattern) + '</p>'
+        + (has(a.meaning) ? '<p class="jp-attached__meaning">' + esc(a.meaning) + '</p>' : '')
+        + (ex ? '<div class="jp-attached__example">' + ex + '</div>' : '') + '</li>';
+    }).join('');
+    html += lessonPart('Mẫu phụ đi kèm', attached ? '<ul class="jp-attached-list">' + attached + '</ul>' : '');
     html += '</article>';
     if (g.practiceAvailable || g.extraAvailable) {
       html += '<section class="jp-lesson-practice no-inline-dictionary" data-practice="GRAMMAR_PRACTICE"'

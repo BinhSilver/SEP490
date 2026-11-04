@@ -106,7 +106,8 @@ public class JpathContentReader {
         if (!catalog.isReleased(level)) {
             return List.of();
         }
-        return grammars.findByLevelAndStatusInAndReportHiddenFalseOrderBySortOrder(level, catalog.visibleStatuses());
+        return grammars.findByLevelAndStatusInAndReportHiddenFalseAndParentCodeIsNullOrderBySortOrder(level,
+                catalog.visibleStatuses());
     }
 
     /** Kana of {@code script} (HIRAGANA/KATAKANA, any case) in teaching order; null = Hiragana then Katakana. */
@@ -286,6 +287,15 @@ public class JpathContentReader {
     }
 
     /** The pattern {@code code} when visible. */
+    /** Visible secondary patterns attached to {@code parentCode}, in teaching order. */
+    public List<JpathGrammar> attachedGrammar(String parentCode) {
+        if (parentCode == null) {
+            return List.of();
+        }
+        return grammars.findByParentCodeAndStatusInAndReportHiddenFalseOrderBySortOrder(parentCode,
+                catalog.visibleStatuses()).stream().filter(g -> catalog.isReleased(g.getLevel())).toList();
+    }
+
     public Optional<JpathGrammar> grammar(String code) {
         return code == null ? Optional.empty() : grammars.findById(code)
                 .filter(g -> visible(g.getStatus(), g.isReportHidden(), g.getLevel()));

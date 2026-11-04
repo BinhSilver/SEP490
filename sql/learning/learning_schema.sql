@@ -1212,11 +1212,11 @@ CALL jlas_ls_check('user_knowledge_weakness', 'chk_weakness_skill', 'KANJI', NUL
 -- [JLAS-W0108] 2026-10-19 (owner decision): communication situations carry an approximate JLPT level.
 CALL jlas_ls_add_column('learning_topic', 'jlpt_level', 'VARCHAR(10) NULL AFTER topic_order');
 
--- jlas_ls_exec, jlas_ls_modify_column and jlas_ls_check stay until the end of PART C (jpath upgrades use them).
+-- jlas_ls_exec, jlas_ls_modify_column, jlas_ls_add_column and jlas_ls_check stay until the end of PART C (jpath
+-- upgrades use them).
 DROP PROCEDURE IF EXISTS jlas_ls_add_fk;
 DROP PROCEDURE IF EXISTS jlas_ls_drop_index;
 DROP PROCEDURE IF EXISTS jlas_ls_add_index;
-DROP PROCEDURE IF EXISTS jlas_ls_add_column;
 
 -- =============================================================================
 -- PART C. jpath (JLPT path v2, Plan 2): the 27 jpath_* tables as CREATE TABLE IF NOT EXISTS (needs users).
@@ -1359,6 +1359,8 @@ CREATE TABLE IF NOT EXISTS jpath_grammar (
     nuance_vi TEXT NULL,
     common_mistakes_vi TEXT NULL,
     related_codes_json JSON NULL,
+    -- mẫu phụ: mã mẫu chính nó gắn vào (không học riêng, hiện trong bài mẫu chính); NULL = mẫu chính
+    parent_code VARCHAR(24) NULL,
     status VARCHAR(12) NOT NULL DEFAULT 'DRAFT',
     report_hidden TINYINT(1) NOT NULL DEFAULT 0,
     authored TINYINT(1) NOT NULL DEFAULT 0,
@@ -2019,6 +2021,8 @@ CALL jlas_ls_modify_column('jpath_content_report', 'target_type', 'varchar(16)',
 CALL jlas_ls_modify_column('jpath_content_edit', 'target_type', 'varchar(16)', 'NO', NULL, 'VARCHAR(16) NOT NULL');
 -- Kế hoạch 3 Task 24: báo sai bài Đọc/Nghe không có loại mục thẻ (item_type rỗng; item_code = mã bộ).
 CALL jlas_ls_modify_column('jpath_content_report', 'item_type', 'varchar(8)', 'YES', NULL, 'VARCHAR(8) NULL');
+-- 04/11: mẫu ngữ pháp phụ gắn vào mẫu chính (quyết định 02/11: mẫu phụ đi kèm mẫu chính, nội dung nhẹ).
+CALL jlas_ls_add_column('jpath_grammar', 'parent_code', 'VARCHAR(24) NULL AFTER related_codes_json');
 -- Kế hoạch 3: 4 kind câu kỹ năng và 2 đích báo sai mới (thay CHECK khi mệnh đề thiếu giá trị cuối; chỉ nới).
 CALL jlas_ls_check('jpath_check_set', 'chk_jpath_check_kind', 'SKILL_SECTION', NULL,
     'kind IN (''MICRO_CHECK'',''GROUP_EXERCISE'',''SKIP_ONE'',''TOPIC_KNOWN'',''FREE_QUIZ'',''CONFUSABLE'',''KANA_ROW'',''GRAMMAR_PRACTICE'',''GRAMMAR_EXTRA'',''GRAMMAR_REVIEW'',''SKILL_LESSON'',''SKILL_PRACTICE'',''SKILL_DICTATION'',''SKILL_SECTION'')');
@@ -2027,4 +2031,5 @@ CALL jlas_ls_check('jpath_content_report', 'chk_jpath_report_target_type', 'SKIL
 
 DROP PROCEDURE IF EXISTS jlas_ls_check;
 DROP PROCEDURE IF EXISTS jlas_ls_modify_column;
+DROP PROCEDURE IF EXISTS jlas_ls_add_column;
 DROP PROCEDURE IF EXISTS jlas_ls_exec;

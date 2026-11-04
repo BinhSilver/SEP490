@@ -12,8 +12,12 @@ import org.springframework.stereotype.Repository;
 public interface JpathGrammarRepository extends JpaRepository<JpathGrammar, String> {
 
     /** Learner-visible rows of a level: status in {@code statuses}, not hidden by a report, by sort order. */
-    List<JpathGrammar> findByLevelAndStatusInAndReportHiddenFalseOrderBySortOrder(
+    List<JpathGrammar> findByLevelAndStatusInAndReportHiddenFalseAndParentCodeIsNullOrderBySortOrder(
             String level, Collection<JpathContentStatus> statuses);
 
-    long countByLevelAndStatusInAndReportHiddenFalse(String level, Collection<JpathContentStatus> statuses);
+    long countByLevelAndStatusInAndReportHiddenFalseAndParentCodeIsNull(String level, Collection<JpathContentStatus> statuses);
+
+    /** Visible secondary patterns attached to {@code parentCode}, in teaching order. */
+    List<JpathGrammar> findByParentCodeAndStatusInAndReportHiddenFalseOrderBySortOrder(String parentCode,
+                                                                                       Collection<JpathContentStatus> statuses);
 }
