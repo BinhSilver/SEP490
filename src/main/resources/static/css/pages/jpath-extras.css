@@ -249,3 +249,19 @@ a.jp-extra__link:hover,
 a.jp-extra__link:focus-visible { border-color: var(--jp-primary); outline: none; }
 .jp-extra__link.is-off { color: var(--jp-muted); border-style: dashed; }
 .jp-extra__list small { color: var(--jp-muted); }
+
+/* 04/11 Tập viết: cells per character, reading in hiragana, print sheet */
+.jp-writing__opts { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin: 0 0 14px; }
+.jp-writing__opt { display: inline-flex; gap: 8px; align-items: center; }
+.jp-writing__opt select { min-height: 40px; padding: 4px 10px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink); font: inherit; }
+.jp-writing__modes { display: inline-flex; gap: 0; }
+.jp-writing__modes .jp-writing__btn { border-radius: 0; }
+.jp-writing__modes .jp-writing__btn:first-child { border-radius: var(--jp-radius-interactive) 0 0 var(--jp-radius-interactive); }
+.jp-writing__modes .jp-writing__btn:last-child { border-radius: 0 var(--jp-radius-interactive) var(--jp-radius-interactive) 0; margin-left: -1px; }
+.jp-writing__modes .jp-writing__btn[aria-pressed="true"] { border-color: var(--jp-primary); background: var(--jp-primary); color: var(--jp-surface); }
+.jp-writing__cells[data-writing-cells] { display: grid; gap: 10px; }
+.jp-writing__row { display: flex; flex-wrap: wrap; gap: 10px; }
+.jp-writing__row .jp-writing__ghost { opacity: .32; }
+.jp-writing__row .jp-writing__ghost--faint { opacity: .12; }
+.jp-writing__panel { width: min(1000px, calc(100vw - 32px)); }
+@media (max-width: 640px) { .jp-writing__opt select { min-height: 44px; } }

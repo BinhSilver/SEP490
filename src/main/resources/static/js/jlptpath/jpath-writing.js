@@ -12,6 +12,8 @@
  *     quizzes one character at a time against its KanjiVG strokes in the browser: "Nét k/n", a miss flashes red for
  *     600 ms with a hint, the 3rd miss reveals the stroke, "Xong chữ …" + "Viết lại". Nothing is sent to the server.
  *     openList adds Trước / Sau. Esc closes.
+ *   - Tập viết: Mỗi chữ 1/3/5/8/12 ô (1st cell with the guide, 2nd faint, the rest blank); a Kanji or word can also be
+ *     practised by its reading in hiragana (readingChars); In phiếu viết opens an A4 sheet of the same cells.
  * Needs jpath-api.js; uses /dictionary/js/stroke-order.js and handwriting-core.js (point simplification) when loaded.
  */
 (function (root, factory) {
@@ -248,6 +250,115 @@
     + '<path d="M50 0V100M0 50H100M0 0L100 100M100 0L0 100" fill="none" stroke="currentColor" stroke-width=".8"'
     + ' stroke-dasharray="4 3"/></svg>';
 
+  var PER_CELL = [1, 3, 5, 8, 12];
+  var DEFAULT_PER = 3;
+
+  function toHira(str) {
+    return String(str || '').replace(/[\u30a1-\u30f6]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); });
+  }
+
+  /**
+   * The reading to practise in hiragana: a word's reading, or a Kanji's first kun reading (else its first on reading,
+   * turned into hiragana). Okurigana dots and dashes are dropped. [] for kana items or when there is no reading.
+   */
+  function readingChars(view) {
+    var v = view || {};
+    if (String(v.itemType || '').toUpperCase() === 'KANA' || !v.reading) return [];
+    var parts = String(v.reading).split(/[、,・\s/;；]+/).map(function (x) { return x.trim(); }).filter(Boolean);
+    var kun = parts.filter(function (x) { return /[\u3041-\u3096]/.test(x); })[0];
+    var pick = kun || parts[0] || '';
+    var kana = toHira(pick).replace(/[^\u3041-\u3096\u30fc]/g, '');
+    return kana ? kana.split('') : [];
+  }
+
+  /** What the trace pane practises: the item's own characters, or ('kana') its reading. */
+  function practiceChars(view, mode) {
+    if (mode === 'kana') return readingChars(view);
+    return (view.characters || []).map(function (c) { return c['char']; });
+  }
+
+  /** Practice cells: per cells for each character; the 1st with the full guide, the 2nd faint, the rest blank. */
+  function cellsHtml(chars, per) {
+    var n = Math.max(1, per | 0);
+    var at = 0;
+    return chars.map(function (ch) {
+      var row = '';
+      for (var k = 0; k < n; k++) {
+        var ghost = k === 0 ? '' : (k === 1 ? ' jp-writing__ghost--faint' : null);
+        row += '<div class="jp-writing__cell" data-cell="' + (at++) + '">' + GRID
+          + (ghost === null ? '' : '<span class="jp-writing__ghost' + ghost + ' jp-kanji" aria-hidden="true">' + esc(ch) + '</span>')
+          + '<canvas class="jp-writing__canvas" aria-label="Ô tập viết chữ ' + esc(ch) + ' (' + (k + 1) + '/' + n + ')"></canvas></div>';
+      }
+      return '<div class="jp-writing__row">' + row + '</div>';
+    }).join('');
+  }
+
+  function optionsHtml(view, per, mode) {
+    var sel = '<label class="jp-writing__opt">Mỗi chữ <select data-writing-per>' + PER_CELL.map(function (n) {
+      return '<option value="' + n + '"' + (n === per ? ' selected' : '') + '>' + n + ' ô</option>';
+    }).join('') + '</select></label>';
+    var hasKana = readingChars(view).length > 0 && (view.characters || []).length > 0;
+    var modes = hasKana ? '<div class="jp-writing__modes" role="group" aria-label="Tập viết">'
+      + '<button type="button" class="jp-writing__btn" data-writing-mode="word" aria-pressed="' + (mode !== 'kana') + '">'
+      + esc(String(view.itemType).toUpperCase() === 'KANJI' ? 'Chữ Kanji' : 'Chữ trong từ') + '</button>'
+      + '<button type="button" class="jp-writing__btn" data-writing-mode="kana" aria-pressed="' + (mode === 'kana') + '">'
+      + 'Cách đọc (hiragana)</button></div>' : '';
+    return '<div class="jp-writing__opts">' + modes + sel
+      + '<button type="button" class="jp-writing__btn" data-writing-print>In phiếu viết</button></div>';
+  }
+
+  /** A4 writing sheet: for each character a run of 米 cells (1st solid, 2nd and 3rd faint, the rest blank). */
+  function sheetHtml(view, chars, per) {
+    var v = view || {};
+    var n = Math.max(per | 0, 1);
+    var rows = chars.map(function (ch) {
+      var cells = '';
+      for (var k = 0; k < n; k++) {
+        var cls = k === 0 ? 'solid' : (k < 3 ? 'faint' : 'blank');
+        cells += '<span class="c c--' + cls + '">' + (cls === 'blank' ? '' : esc(ch)) + '</span>';
+      }
+      return '<div class="r">' + cells + '</div>';
+    }).join('');
+    var meta = [v.reading, v.hanViet, v.meaning].filter(Boolean).map(esc).join(' · ');
+    return '<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>' + esc('Phiếu viết ' + (v.word || ''))
+      + '</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap">'
+      + '<style>@page{size:A4;margin:14mm}body{font-family:system-ui,sans-serif;color:#222;margin:0}'
+      + 'h1{font:600 22pt "Klee One",serif;margin:0}p{margin:2mm 0 6mm;color:#555;font-size:10.5pt}'
+      + '.r{display:flex;flex-wrap:wrap;gap:0;margin-bottom:4mm;break-inside:avoid}'
+      + '.c{width:17mm;height:17mm;box-sizing:border-box;border:.35mm solid #888;margin:0 -0.35mm -0.35mm 0;display:grid;'
+      + 'place-items:center;font:400 12.5mm/1 "Klee One",serif;background-image:linear-gradient(#ccc,#ccc),linear-gradient(#ccc,#ccc);'
+      + 'background-size:100% .2mm,.2mm 100%;background-position:center;background-repeat:no-repeat}'
+      + '.c--faint{color:#c8c8c8}.c--blank{color:transparent}'
+      + '.tools{margin:0 0 6mm}@media print{.tools{display:none}}</style></head><body>'
+      + '<div class="tools"><button onclick="window.print()">In phiếu này</button></div>'
+      + '<h1>' + esc(v.word || '') + '</h1>' + (meta ? '<p>' + meta + '</p>' : '') + rows + '</body></html>';
+  }
+
+  /** Opens the sheet in a new tab; where pop-ups are blocked it prints from a hidden frame instead. */
+  function printSheet(view, chars, per) {
+    var html = sheetHtml(view, chars, per);
+    var w = null;
+    try { w = root && typeof root.open === 'function' ? root.open('', '_blank') : null; } catch (e) { w = null; }
+    if (w && w.document) {
+      w.document.open();
+      w.document.write(html);
+      w.document.close();
+      return true;
+    }
+    var doc = root && root.document;
+    if (!doc || !doc.body) return false;
+    var frame = doc.createElement('iframe');
+    frame.setAttribute('aria-hidden', 'true');
+    frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+    doc.body.appendChild(frame);
+    frame.onload = function () {
+      try { frame.contentWindow.focus(); frame.contentWindow.print(); } catch (e) { /* the browser refused */ }
+      root.setTimeout(function () { if (frame.parentNode) frame.parentNode.removeChild(frame); }, 60000);
+    };
+    frame.srcdoc = html;
+    return true;
+  }
+
   var current = null;
 
   function apiClient() {
@@ -268,18 +379,14 @@
       return '<figure class="jp-writing__stroke"><div class="jp-writing__svg" data-stroke-index="' + i + '"></div>'
         + '<figcaption class="jp-kanji">' + esc(c['char']) + count + '</figcaption></figure>';
     }).join('');
-    var cells = chars.map(function (c, i) {
-      return '<div class="jp-writing__cell" data-cell="' + i + '">' + GRID
-        + '<span class="jp-writing__ghost jp-kanji" aria-hidden="true">' + esc(c['char']) + '</span>'
-        + '<canvas class="jp-writing__canvas" aria-label="Ô tập viết chữ ' + esc(c['char']) + '"></canvas></div>';
-    }).join('');
+    var cells = cellsHtml(practiceChars(view, 'word'), DEFAULT_PER);
     var navHtml = nav ? '<div class="jp-writing__nav">'
       + '<button type="button" class="jp-writing__btn" data-writing-prev' + (nav.index === 0 ? ' disabled' : '')
       + '>Trước</button><span class="jp-writing__pos">' + (nav.index + 1) + '/' + nav.total + '</span>'
       + '<button type="button" class="jp-writing__btn" data-writing-next'
       + (nav.index >= nav.total - 1 ? ' disabled' : '') + '>Sau</button></div>' : '';
     var hideAnim = anim.length ? '' : ' hidden';
-    var hideTrace = chars.length ? '' : ' hidden';
+    var hideTrace = chars.length || readingChars(view).length ? '' : ' hidden';
     return '<div class="jp-writing__panel">' + headerHtml(view)
       + '<div class="jp-writing__tabs" role="tablist"' + hideTrace + '>'
       + tabHtml('order', 'Thứ tự nét', hideAnim) + tabHtml('trace', 'Tập viết', hideTrace)
@@ -287,8 +394,8 @@
       + paneOpen('order', hideAnim)
       + '<div class="jp-writing__strokes">' + strokes + '</div>'
       + '<button type="button" class="jp-writing__btn" data-writing-replay>Xem lại nét</button></section>'
-      + paneOpen('trace', ' hidden')
-      + '<div class="jp-writing__cells">' + cells + '</div>'
+      + paneOpen('trace', ' hidden') + optionsHtml(view, DEFAULT_PER, 'word')
+      + '<div class="jp-writing__cells" data-writing-cells>' + cells + '</div>'
       + '<div class="jp-writing__tools">'
       + '<button type="button" class="jp-writing__btn" data-writing-undo>Hoàn tác</button>'
       + '<button type="button" class="jp-writing__btn" data-writing-clear-cell>Xóa ô</button>'
@@ -523,9 +630,10 @@
   }
 
   /** Wires the tracing canvases of box to a fresh board. */
-  function setupTrace(box, view) {
-    var board = createTraceBoard((view.characters || []).length);
-    var canvases = Array.prototype.slice.call(box.querySelectorAll('.jp-writing__canvas'));
+  function setupTrace(box) {
+    var pane = box.querySelector('[data-writing-cells]') || box;
+    var canvases = Array.prototype.slice.call(pane.querySelectorAll('.jp-writing__canvas'));
+    var board = createTraceBoard(canvases.length);
     var active = 0;
 
     function size(canvas) {
@@ -582,19 +690,8 @@
       canvas.addEventListener('pointercancel', end);
     });
 
-    box.querySelector('[data-writing-undo]').addEventListener('click', function () {
-      var cell = board.undo();
-      if (cell >= 0) redraw(cell);
-    });
-    box.querySelector('[data-writing-clear-cell]').addEventListener('click', function () {
-      board.clearCell(active);
-      redraw(active);
-    });
-    box.querySelector('[data-writing-clear-all]').addEventListener('click', function () {
-      board.clearAll();
-      canvases.forEach(function (_, i) { redraw(i); });
-    });
-    return { board: board, redrawAll: function () { canvases.forEach(function (_, i) { redraw(i); }); } };
+    return { board: board, redraw: redraw, active: function () { return active; },
+      redrawAll: function () { canvases.forEach(function (_, i) { redraw(i); }); } };
   }
 
   function setupOrder(box, view) {
@@ -652,7 +749,33 @@
     current = handle;
 
     var order = setupOrder(box, view);
-    var trace = setupTrace(box, view);
+    var trace = setupTrace(box);
+    var practice = { per: DEFAULT_PER, mode: 'word' };
+    function rebuild() {
+      var holder = box.querySelector('[data-writing-cells]');
+      if (!holder) return;
+      holder.innerHTML = cellsHtml(practiceChars(view, practice.mode), practice.per);
+      trace = setupTrace(box);
+      trace.redrawAll();
+      Array.prototype.forEach.call(box.querySelectorAll('[data-writing-mode]'), function (b) {
+        b.setAttribute('aria-pressed', String(b.getAttribute('data-writing-mode') === practice.mode));
+      });
+    }
+    var tools = {
+      '[data-writing-undo]': function () { var cell = trace.board.undo(); if (cell >= 0) trace.redraw(cell); },
+      '[data-writing-clear-cell]': function () { trace.board.clearCell(trace.active()); trace.redraw(trace.active()); },
+      '[data-writing-clear-all]': function () { trace.board.clearAll(); trace.redrawAll(); },
+      '[data-writing-print]': function () { printSheet(view, practiceChars(view, practice.mode), practice.per); }
+    };
+    Object.keys(tools).forEach(function (sel) {
+      var el = box.querySelector(sel);
+      if (el) el.addEventListener('click', tools[sel]);
+    });
+    var perSel = box.querySelector('[data-writing-per]');
+    if (perSel) perSel.addEventListener('change', function () { practice.per = Number(perSel.value) || DEFAULT_PER; rebuild(); });
+    Array.prototype.forEach.call(box.querySelectorAll('[data-writing-mode]'), function (b) {
+      b.addEventListener('click', function () { practice.mode = b.getAttribute('data-writing-mode'); rebuild(); });
+    });
     var quiz = setupQuiz(box, view);
     function show(name) {
       Array.prototype.forEach.call(box.querySelectorAll('[data-writing-pane]'), function (p) {
@@ -773,6 +896,7 @@
     quizFeedback: quizFeedback,
     sampleSvgStrokes: sampleSvgStrokes,
     dialogHtml: bodyHtml,
-    trapTarget: trapTarget
+    trapTarget: trapTarget,
+    readingChars: readingChars, practiceChars: practiceChars, cellsHtml: cellsHtml, sheetHtml: sheetHtml
   };
 });

@@ -90,7 +90,20 @@ public class JpathWritingServiceImpl implements JpathWritingService {
 
     private static Item kanjiItem(JpathKanji k) {
         String hanViet = k.getHanViet() == null ? null : k.getHanViet().toUpperCase(VI);
-        return new Item(JpathItemType.KANJI.name(), k.getCode(), k.getCharacter(), null, k.getMeaningsVi(), hanViet);
+        return new Item(JpathItemType.KANJI.name(), k.getCode(), k.getCharacter(), readings(k), k.getMeaningsVi(), hanViet);
+    }
+
+    /** Kun readings then on readings ("ひと.つ、イチ"), so Tập viết can practise the reading in hiragana; null when none. */
+    static String readings(JpathKanji k) {
+        java.util.List<String> all = new java.util.ArrayList<>();
+        for (String json : new String[] { k.getReadingsKunJson(), k.getReadingsOnJson() }) {
+            if (json == null || json.isBlank()) continue;
+            for (String part : json.replaceAll("[\\[\\]\"]", "").split(",")) {
+                String r = part.trim();
+                if (!r.isEmpty() && !all.contains(r)) all.add(r);
+            }
+        }
+        return all.isEmpty() ? null : String.join("、", all);
     }
 
     private static Item kanaItem(JpathKana k) {
