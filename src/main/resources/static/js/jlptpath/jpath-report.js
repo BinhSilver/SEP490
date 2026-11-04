@@ -5,7 +5,7 @@
  *   - A page marks a block with data-jpath-report='{"targetType","targetCode","pageContext"}' (itemType/itemCode
  *     optional hints; the server always derives the owning item). bindAll(root) adds one ⚑ button per block; it runs
  *     on DOMContentLoaded and again on every document 'jpath:rendered' {detail:{root}}.
- *   - The ⚑ button opens a dialog (role="dialog" class="jp-report no-inline-dictionary", bottom sheet ≤ 640 px):
+ *   - The ⚑ button opens a dialog (role="dialog" class="jp-report" data-inline-dictionary, bottom sheet ≤ 640 px):
  *     error type, note (≤ 500), Gửi. POST /api/learning/jlpt/reports through window.JpathApi. Esc closes it.
  */
 (function (root, factory) {
@@ -125,7 +125,8 @@
     if (!doc || !doc.body) return null;
     if (current) current.close(false);
     var box = doc.createElement('div');
-    box.className = 'jp-report no-inline-dictionary';
+    box.className = 'jp-report';
+    box.setAttribute('data-inline-dictionary', '');
     box.setAttribute('role', 'dialog');
     box.setAttribute('aria-modal', 'true');
     box.setAttribute('aria-labelledby', 'jp-report-title');

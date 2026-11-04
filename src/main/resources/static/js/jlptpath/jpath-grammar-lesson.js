@@ -180,7 +180,7 @@
     html += lessonPart('Mẫu phụ đi kèm', attached ? '<ul class="jp-attached-list">' + attached + '</ul>' : '');
     html += '</article>';
     if (g.practiceAvailable || g.extraAvailable) {
-      html += '<section class="jp-lesson-practice no-inline-dictionary" data-practice="GRAMMAR_PRACTICE"'
+      html += '<section class="jp-lesson-practice" data-practice="GRAMMAR_PRACTICE"'
         + ' aria-labelledby="jp-practice-title"><h3 class="jp-lesson-practice__title" id="jp-practice-title">Luyện ngay</h3>';
       if (g.practiceAvailable) {
         html += '<p class="jp-muted">1 câu xếp từ và 1 câu điền.</p><button type="button" class="jp-btn jp-btn--primary"'

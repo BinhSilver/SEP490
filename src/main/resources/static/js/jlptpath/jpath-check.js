@@ -30,7 +30,7 @@
  *   retryRequest(check) = check.issue; nextHref(result, search): next.url → ?return= → ?session= → /learning
  *   checkPageUrl(token, search)      keeps ?session= and ?return=
  *   When the last question is done the check is submitted (offline: "Chưa nộp được, đang thử lại…" + "Thử lại",
- *   same key); the result removes no-inline-dictionary from the root so Look up works on it.
+ *   same key); Look up works on the check at every step (owner 04/11).
  *   mountPage()                      mounts #jpathCheckRoot[data-check-token]
  *   mountInline(el, token, {onDone, embedded, onResult}) → Promise<JpathCheckResult>
  *                                    embedded: the host page drives the next step, so the result shows no
@@ -695,7 +695,6 @@
     var retryTimer = null;
     var reviewOpen = false;
 
-    el.classList.add('no-inline-dictionary');
     el.setAttribute('aria-busy', 'true');
     el.innerHTML = '<p class="jp-status" role="status">Đang tải bài kiểm tra…</p>';
 
@@ -963,7 +962,6 @@
       result = res;
       stopKeys();
       el.setAttribute('aria-busy', 'false');
-      el.classList.remove('no-inline-dictionary');
       drawResult();
       if (env.onDone) env.onDone(res);
       if (env.onResult) env.onResult(res);

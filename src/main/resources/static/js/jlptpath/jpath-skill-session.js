@@ -165,7 +165,7 @@
     var report = attrJson({ targetType: 'SKILL_SET', targetCode: set.code, pageContext: 'SKILL_SESSION' });
     var head = listening
       ? (set.audioSlot != null ? '<div data-skill-player data-src="' + esc(audioUrl(c.token, set.audioSlot)) + '"></div>' : '')
-      : '<div class="jp-skill-passage' + (set.revealed ? '' : ' no-inline-dictionary') + '" lang="ja">' + esc(set.passageJa) + '</div>';
+      : '<div class="jp-skill-passage" lang="ja">' + esc(set.passageJa) + '</div>';
     var situation = set.imageDescriptionVi ? '<p class="jp-skill-situation">Tình huống: ' + esc(set.imageDescriptionVi) + '</p>' : '';
     var qs = list(set.questionIds).map(function (id) {
       var q = byId[id];
@@ -173,7 +173,7 @@
       var a = answered[id];
       var verdict = a ? '<p class="jp-skill-explain" role="status">' + (a.correct ? '<span class="jp-side-ok">Đúng.</span> '
         : '<span class="jp-side-miss">Sai.</span> ') + esc(a.explanation) + '</p>' : '';
-      return '<div class="jp-skill-q' + (a ? '' : ' no-inline-dictionary') + '" data-question="' + esc(id) + '"><p lang="ja">'
+      return '<div class="jp-skill-q" data-question="' + esc(id) + '"><p lang="ja">'
         + esc(q.prompt) + '</p>' + optionsHtml(q.options, 'data-answer-option', a ? a.value : null, a ? a.correctValue : null)
         + verdict + '</div>';
     }).join('');

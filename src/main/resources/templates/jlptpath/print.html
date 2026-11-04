@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&amp;display=swap" />
     <link rel="stylesheet" th:href="@{/css/pages/jpath-print.css(v=${jpathAssetVersion})}" />
 </head>
-<body class="jp-print">
+<body class="jp-print" data-inline-dictionary>
 <div class="jp-print-toolbar" role="toolbar" aria-label="Công cụ in">
     <button type="button" class="jp-print-toolbar__btn jp-print-toolbar__btn--primary" data-jpath-print-now
             th:disabled="${sheet == null or #lists.isEmpty(sheet.pages())}">In bảng này</button>

@@ -794,7 +794,7 @@
     var hint = c.kind === 'NEW' && swipeRating(c, 'RIGHT') && shouldShowSwipeHint(page.display, coarsePointer())
       ? swipeHintHtml() : '';
     el.innerHTML = banner + stepsHtml(s.steps, s.minutesLeft, s.tab)
-      + '<div class="jp-study-main">' + body + '<div class="jp-study-inline-check no-inline-dictionary"'
+      + '<div class="jp-study-main">' + body + '<div class="jp-study-inline-check"'
       + ' data-jp-inline-check hidden></div></div>' + hint
       + ratingButtonsHtml(c, f.flipped, { retype: f.retype })
       + '<p class="jp-study-status" role="status" aria-live="polite" data-jp-status>' + esc(page.notice) + '</p>';

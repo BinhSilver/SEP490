@@ -5,7 +5,7 @@
  *   - A page marks a control with data-jpath-writing='{"itemType":"VOCAB","code":"JV-…"}' (one item) or
  *     '{"today":"VOCAB"}' (today's new items of a tab). bind(root) wires each one once; it runs on DOMContentLoaded and
  *     on every document 'jpath:rendered' {detail:{root}}. A non-button element gets a "Luyện viết" button appended.
- *   - The dialog (class="jp-writing no-inline-dictionary" role="dialog") has two tabs: "Thứ tự nét" plays each
+ *   - The dialog (class="jp-writing" data-inline-dictionary role="dialog") has two tabs: "Thứ tự nét" plays each
  *     character with an SVG through window.DictStrokeOrder.mount (+ "Xem lại nét"; the tab is hidden when no
  *     character has an SVG) and "Tập viết": one 米-grid cell per character, faint Klee One guide, a canvas
  *     (touch-action: none), Hoàn tác / Xóa ô / Xóa tất cả, not scored. "Viết từng nét" (hidden like "Thứ tự nét")
@@ -709,7 +709,8 @@
     var opener = current ? current.opener : doc.activeElement;
     if (current) current.close(false);
     var box = doc.createElement('div');
-    box.className = 'jp-writing no-inline-dictionary';
+    box.className = 'jp-writing';
+    box.setAttribute('data-inline-dictionary', '');
     box.setAttribute('role', 'dialog');
     box.setAttribute('aria-modal', 'true');
     box.setAttribute('aria-labelledby', 'jp-writing-title');

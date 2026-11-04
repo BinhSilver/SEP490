@@ -211,7 +211,7 @@
     var display = c.display || {};
     var timerOn = grammar ? display.grammarTimerOn !== false : !!display.quizTimerOn;
     var html = '<h2 class="jp-dialog__title" id="jp-dialog-title">Luyện quiz</h2>'
-      + '<form class="jp-quiz-form no-inline-dictionary" data-part="quiz-form" data-tab="' + esc(t) + '">';
+      + '<form class="jp-quiz-form" data-part="quiz-form" data-tab="' + esc(t) + '">';
     html += '<fieldset class="jp-fieldset"><legend>Số câu</legend><div class="jp-choices">'
       + [5, 10, 20].map(function (n) { return radio('count', n, n + ' câu', n === 10, n === 5 && !!c.skillDay); }).join('')
       + '</div>' + (c.skillDay ? '<p class="jp-muted">Ngày kỹ năng cần quiz từ 10 câu.</p>' : '') + '</fieldset>';

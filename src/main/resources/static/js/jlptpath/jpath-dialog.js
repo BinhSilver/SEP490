@@ -39,6 +39,8 @@
     var back = opener || doc.activeElement;
     var box = doc.createElement('div');
     box.className = 'jp-dialog-backdrop';
+    // dialogs live under <body>: Look up works on the Japanese in them too
+    if (typeof box.setAttribute === 'function') box.setAttribute('data-inline-dictionary', '');
     box.innerHTML = '<div class="jp-dialog jp-card" role="dialog" aria-modal="true" aria-labelledby="jp-dialog-title"'
       + ' tabindex="-1">' + html + '<button type="button" class="jp-btn" data-dialog-close>Đóng</button></div>';
     var panel = box.firstChild;
