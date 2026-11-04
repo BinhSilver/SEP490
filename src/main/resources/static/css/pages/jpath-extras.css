@@ -264,3 +264,30 @@ a.jp-extra__link:focus-visible { border-color: var(--jp-primary); outline: none;
   .jp-writing__opt select { min-height: 44px; }
   .jp-writing__row .jp-writing__cell { width: 96px; height: 96px; }
 }
+
+/* 04/11 fuller Look up card on the path pages (jpath-lookup-rich.js adds .jp-lu under the shared card's word) */
+.jp-body aside.inline-dict.jp-lu-card { width: min(460px, calc(100vw - 24px)); max-height: min(78vh, 720px); overflow-y: auto; }
+.jp-lu-card .inline-dict__meaning, .jp-lu-card .inline-dict__type, .jp-lu-card .inline-dict__example { display: none; }
+.jp-lu { display: grid; gap: 14px; margin: 10px 0 12px; }
+.jp-lu__facts { margin: 0; display: grid; gap: 6px; }
+.jp-lu__fact { display: grid; grid-template-columns: 6.5em minmax(0, 1fr); gap: 12px; align-items: baseline; }
+.jp-lu__fact dt { color: var(--jp-muted); font-size: .8em; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.jp-lu__fact dd { margin: 0; }
+.jp-lu__hv { color: var(--jp-primary); font-weight: 700; }
+.jp-lu__part { display: grid; gap: 6px; padding-top: 12px; border-top: 1px solid var(--jp-line); }
+.jp-lu__label { display: flex; align-items: center; gap: 6px; margin: 0; color: var(--jp-muted); font-size: .78em; font-weight: 700;
+  letter-spacing: .05em; text-transform: uppercase; }
+.jp-lu__senses { margin: 0; padding-left: 1.4em; display: grid; gap: 8px; line-height: 1.55; }
+.jp-lu__senses li::marker { color: var(--jp-primary); font-weight: 700; }
+.jp-lu__tag { display: inline-block; margin-right: 6px; padding: 0 5px; border-radius: 4px; background: var(--jp-canvas);
+  color: var(--jp-muted); font-size: .78em; }
+.jp-lu__note { display: block; color: var(--jp-muted); font-size: .88em; }
+.jp-lu__ex { margin: 0; font-size: 1.05em; font-style: italic; }
+.jp-lu__exvi { margin: 0; color: var(--jp-muted); }
+.jp-lu__play { display: inline-grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%;
+  background: var(--jp-primary-soft); color: var(--jp-primary); cursor: pointer; }
+.jp-lu__play:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-lu__words { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.jp-lu__words a { display: block; padding: 4px 0; color: var(--jp-ink); text-decoration: none; }
+.jp-lu__words a:hover strong { color: var(--jp-primary); }
+.jp-lu__mean { color: var(--jp-muted); font-size: .9em; }
