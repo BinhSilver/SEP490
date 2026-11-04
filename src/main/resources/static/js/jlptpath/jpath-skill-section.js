@@ -93,7 +93,7 @@
       + '<p class="jp-muted">Điểm sàn ' + FLOOR_PCT + '% · ' + esc((r && r.correct) || 0) + '/' + esc((r && r.total) || 0) + ' câu đúng'
       + (last ? ' · 2 lần gần nhất: ' + esc(last) : '') + '</p>'
       + (r && r.token ? '<a class="jp-link-btn" href="/learning/jlpt/check/' + encodeURIComponent(r.token) + '">Xem lại câu sai</a> ' : '')
-      + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình</a></section>';
+      + '<a class="jp-btn jp-btn--primary" href="/learning?tab=skills">Về Đọc · Nghe</a></section>';
   }
 
   function uuid() {

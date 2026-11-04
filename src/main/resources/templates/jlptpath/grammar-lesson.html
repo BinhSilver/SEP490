@@ -9,8 +9,7 @@
 <body id="jlabBasePage" class="app-body jp-body">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-path jp-lesson-page" data-inline-dictionary>
-    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Bài ngữ pháp')}"></th:block>
-    <a class="jp-link-btn jp-lesson-page__back" href="/learning?tab=grammar">← Về danh sách ngữ pháp</a>
+    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbsIn('Ngữ pháp', '/learning?tab=grammar', 'Bài ngữ pháp')}"></th:block>
     <div id="jpathGrammarRoot" class="jp-lesson-root" aria-busy="true" th:attr="data-grammar-code=${grammarCode}">
         <p class="jp-path__loading" role="status">Đang tải bài ngữ pháp…</p>
     </div>

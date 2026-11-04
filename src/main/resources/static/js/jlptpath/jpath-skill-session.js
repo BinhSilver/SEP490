@@ -167,7 +167,18 @@
     return '<section class="jp-skill-block"><h2>Xong buổi ' + esc(s && s.skill === 'LISTENING' ? 'Nghe' : 'Đọc') + ' ✓</h2>'
       + '<p>' + esc((s && s.setCount) || 0) + ' bài · ' + esc((s && s.questionCount) || 0) + ' câu'
       + (s && s.dictationCount ? ' · ' + esc(s.dictationCount) + ' câu chép' : '') + '</p>'
-      + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình</a></section>';
+      + doneActions(s) + '</section>';
+  }
+
+  /** After a session: a skill day goes on in the Đọc · Nghe tab (the other skill, then today's summary). */
+  function doneActions(s) {
+    if (s && s.kind === 'DAY') {
+      return '<div class="jp-flow"><div class="jp-flow__lead"><a class="jp-btn jp-btn--ghost" href="/learning/jlpt/done">'
+        + 'Xem tổng kết hôm nay</a></div><div class="jp-flow__tail"><a class="jp-btn jp-btn--primary" href="/learning?tab=skills">'
+        + 'Làm tiếp ngày kỹ năng</a></div></div>';
+    }
+    return '<div class="jp-flow"><div class="jp-flow__tail"><a class="jp-btn jp-btn--primary" href="/learning?tab=skills">'
+      + 'Về Đọc · Nghe</a></div></div>';
   }
 
   function uuid() {

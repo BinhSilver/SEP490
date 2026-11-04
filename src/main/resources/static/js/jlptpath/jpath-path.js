@@ -493,7 +493,17 @@
           ? C.startRequest('TAB', el.getAttribute('data-tab-key') || state.tab) : C.startRequest('COMBINED');
         start(req, el);
       },
-      'start-tab': function (el) { start(C.startRequest('TAB', el.getAttribute('data-start-tab')), el); },
+      'start-tab': function (el) {
+        var key = el.getAttribute('data-start-tab');
+        // a skill day is done in the Đọc · Nghe tab (two cards there start the Reading and Listening sessions)
+        if (key === 'skills') {
+          selectTab('skills');
+          var panel = region(rootEl, 'tabs');
+          if (panel && typeof panel.scrollIntoView === 'function') panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+          return;
+        }
+        start(C.startRequest('TAB', key), el);
+      },
       'save-sliders': function (el) {
         el.disabled = true;
         apiClient.send('PUT', SLIDERS_URL, C.sliderBody(state.draft)).then(function (view) {

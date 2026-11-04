@@ -48,6 +48,16 @@
     </nav>
 </th:block>
 
+<!-- Breadcrumbs with a parent page: Trang chủ › Lộ trình JLPT › {parent} › {here}. -->
+<th:block th:fragment="crumbsIn(parentLabel, parentHref, here)">
+    <nav class="jp-crumbs jp-ws__crumbs" aria-label="Bạn đang ở"><ol class="jp-crumbs__list">
+        <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/">Trang chủ</a></li>
+        <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/learning">Lộ trình JLPT</a></li>
+        <li class="jp-crumbs__item"><a class="jp-crumbs__link" th:href="${parentHref}" th:text="${parentLabel}">Mục</a></li>
+        <li class="jp-crumbs__item"><span class="jp-crumbs__here" aria-current="page" th:text="${here}">Trang</span></li>
+    </ol></nav>
+</th:block>
+
 <!-- Breadcrumbs: Trang chủ › Lộ trình JLPT › {here}. -->
 <th:block th:fragment="crumbs(here)">
     <nav class="jp-crumbs jp-ws__crumbs" aria-label="Bạn đang ở"><ol class="jp-crumbs__list">
