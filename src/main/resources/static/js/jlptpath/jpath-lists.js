@@ -16,7 +16,7 @@
  *   kanjiFiltersHtml(filter, facets), kanjiListHtml(page, view, filter), radicalChar(n)
  *   kanaColumns(row), kanaHtml(rows, script)
  *                                       "Học hàng này" → POST /sessions {tab:'KANA', mode:'BROWSE', startItemCode: row code}
- *   grammarAccordionHtml(units, filter, openCode, totals), grammarOpenMode(width) (≥ 900 PANE, else PAGE)
+ *   grammarAccordionHtml(units, filter, openCode, totals), grammarOpenMode() (always PAGE: the lesson page)
  *   mountTab(slot, tabKey, ctx)         ctx = {level, display, skillDay, api, location, history, document, navigate,
  *                                       confirm, rendered, width, force}; the same tab + level + view + skill day is not
  *                                       fetched again unless force; a new level drops the per-tab filters
@@ -384,7 +384,8 @@
 
   var PANE_MIN_WIDTH = 900;
 
-  function grammarOpenMode(width) { return num(width) >= PANE_MIN_WIDTH ? 'PANE' : 'PAGE'; }
+  // owner 04/11: a grammar lesson always opens on its own page (the side pane beside the list is gone)
+  function grammarOpenMode() { return 'PAGE'; }
 
   function unitTitle(u) {
     var x = u || {};

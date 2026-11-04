@@ -774,3 +774,13 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 /* the drawer has its own close (X, Esc): the dialog's extra "Đóng" button below the actions only repeats it */
 .jp-dialog--drawer > .jp-btn[data-dialog-close] { display: none; }
 .jp-drawer__writing { padding-top: 6px; }
+
+/* 04/11 "Mỗi ngày học gì?" under the week strip; the reason line says why today is the kind it is */
+.jp-weekguide__why { display: flex; gap: 8px; align-items: flex-start; margin: 10px 0 0; padding: 10px 12px; border-radius: 8px;
+  background: var(--jp-primary-soft); line-height: 1.55; }
+.jp-weekguide__why .jp-i { flex: none; margin-top: 2px; color: var(--jp-primary); }
+.jp-weekguide { margin-top: 8px; }
+.jp-weekguide > summary { display: inline-flex; align-items: center; min-height: 40px; cursor: pointer; color: var(--jp-primary); font-weight: 600; }
+.jp-weekguide > summary:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-weekguide__list { margin: 4px 0 8px; padding-left: 20px; display: grid; gap: 6px; line-height: 1.6; }
+.jp-path__stage .jp-weekguide, .jp-path__stage .jp-weekguide__why { grid-column: 1 / -1; }

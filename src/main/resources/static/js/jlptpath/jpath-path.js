@@ -9,7 +9,7 @@
  *   tabsBarHtml(path, active)        role="tablist"; Chữ cái (when kanaTab), Từ vựng, Kanji, Ngữ pháp, Đọc · Nghe (Sắp mở)
  *   heroHtml(path, today)            greeting, target line, stack of 3 hero cards, resume line
  *   levelBarHtml(path), levelCellHtml(cell)
- *   stageLineHtml(path), weekHtml(week)
+ *   stageLineHtml(path), weekHtml(week), weekGuideHtml(path, today)  what each kind of day holds, why today is what it is
  *   estimateHtml(path, tab), volumeHtml(path, tab), skillsTabHtml(path, today)
  *   (re-exported) every JpathPathControls renderer: sliders, today block, level preview, warnings, start requests
  *   activateTab, displayTarget, writeUrl   tab focus, display-class target, ?tab= with other params kept
@@ -257,6 +257,42 @@
     return '<ol class="jp-week" aria-label="Tuần này">' + chips + '</ol>';
   }
 
+  var WEEK_CODES = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+
+  /**
+   * "Mỗi ngày học gì?": what a study, skill and rest day hold with this path's days and sliders, and why today is the
+   * kind it is (a make-up skill day, or a plan made before the week schedule changed).
+   */
+  function weekGuideHtml(path, today) {
+    var p = path || {};
+    var skill = list(p.skillDays);
+    var rest = list(p.restDays);
+    var study = WEEK_CODES.filter(function (c) { return skill.indexOf(c) < 0 && rest.indexOf(c) < 0; });
+    var s = p.sliders || {};
+    var names = function (codes) { return codes.length ? ' (' + dayList(codes) + ')' : ''; };
+    var t = today || {};
+    var todayCode = t.day ? weekday(t.day) : null;
+    var why = '';
+    if (t.kind === 'SKILL' && t.skillMakeup) {
+      why = 'Hôm nay là ngày kỹ năng bù: trong tuần còn buổi kỹ năng chưa làm.';
+    } else if (todayCode && t.kind === 'SKILL' && skill.indexOf(todayCode) < 0) {
+      why = 'Hôm nay vẫn là ngày kỹ năng vì kế hoạch hôm nay được tạo trước khi bạn đổi lịch; lịch mới áp dụng từ ngày mai.';
+    } else if (todayCode && t.kind === 'STUDY' && skill.indexOf(todayCode) >= 0) {
+      why = 'Hôm nay là ngày học vì kế hoạch hôm nay được tạo trước khi bạn đổi lịch; lịch mới áp dụng từ ngày mai.';
+    } else if (t.kind === 'REVIEW_ONLY') {
+      why = 'Hôm nay bạn chọn chỉ ôn: không học mới.';
+    }
+    var items = '<li><strong>Ngày học</strong>' + esc(names(study)) + ': học mới ' + esc((Number(s.vocab) || 0) + ' từ, '
+        + (Number(s.kanji) || 0) + ' Kanji, ' + (Number(s.grammar) || 0) + ' mẫu ngữ pháp') + ', rồi ôn các thẻ đến hạn.</li>'
+      + '<li><strong>Ngày kỹ năng</strong>' + esc(names(skill)) + ': không học mới; làm 1 buổi Đọc và 1 buổi Nghe, ôn các thẻ đến hạn.</li>'
+      + (rest.length ? '<li><strong>Ngày nghỉ</strong>' + esc(names(rest)) + ': không có bài.</li>' : '')
+      + '<li>Bỏ lỡ ngày kỹ năng thì ngày học kế tiếp trong tuần thành ngày kỹ năng bù.</li>';
+    return (why ? '<p class="jp-weekguide__why" role="status">' + icon('lightbulb') + ' <span>' + esc(why) + '</span></p>' : '')
+      + '<details class="jp-weekguide"><summary>Mỗi ngày học gì?</summary><ul class="jp-weekguide__list">' + items + '</ul>'
+      + '<p class="jp-muted">Đổi ngày học, ngày kỹ năng, ngày nghỉ ở <a href="/learning/jlpt/settings#jp-settings-schedule-title">'
+      + 'Cài đặt lộ trình</a>; số mục mới mỗi ngày đổi ở "Điều chỉnh nhịp học" bên dưới.</p></details>';
+  }
+
   // ------------------------------------------------------------------------------------------------ numbers
 
   function estimateHtml(path, tab) {
@@ -425,7 +461,7 @@
       var p = state.path;
       if (p.display && rootEl.classList) D().applyDisplay(displayTarget(rootEl), p.display);
       setHtml(rootEl, 'hero', heroHtml(p, state.today) + menuHtml());
-      setHtml(rootEl, 'stage', stageLineHtml(p) + weekHtml(p.week));
+      setHtml(rootEl, 'stage', stageLineHtml(p) + weekHtml(p.week) + weekGuideHtml(p, state.today));
       setHtml(rootEl, 'levels', levelBand() + levelBarHtml(p));
       paintTab(false);
     }
@@ -651,7 +687,7 @@
 
   var api = Object.assign({}, C, {
     TAB_KEY: TAB_KEY, resolveTab: resolveTab, menuHtml: menuHtml, withoutTour: withoutTour, tabsBarHtml: tabsBarHtml, heroHtml: heroHtml,
-    levelBarHtml: levelBarHtml, levelCellHtml: levelCellHtml, stageLineHtml: stageLineHtml, weekHtml: weekHtml,
+    levelBarHtml: levelBarHtml, levelCellHtml: levelCellHtml, stageLineHtml: stageLineHtml, weekHtml: weekHtml, weekGuideHtml: weekGuideHtml,
     estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,
     displayTarget: displayTarget, writeUrl: writeUrl, crumbsHtml: crumbsHtml, mount: mount, current: null
   });
