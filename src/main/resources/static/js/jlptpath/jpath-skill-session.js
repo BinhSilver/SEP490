@@ -47,10 +47,14 @@
   function stepsHtml(s) {
     var steps = s && s.skill === 'READING' ? STEPS.slice(0, 2) : STEPS;
     var at = ORDER[(s && s.step) || 'THEORY'];
+    // stepper (jpath-nav.css): a circle per step joined by a line; the list itself is <ol class="jp-stepper">
     return steps.map(function (st, i) {
       var done = i < at;
-      return '<li' + (i === at ? ' aria-current="step"' : '') + (done ? ' class="is-done"' : '') + '>'
-        + (i + 1) + '. ' + esc(st[1]) + (done ? ' ✓' : '') + '</li>';
+      var state = done ? 'done' : (i === at ? 'now' : 'todo');
+      return '<li class="jp-step jp-step--' + state + (done ? ' is-done' : '') + '"' + (i === at ? ' aria-current="step"' : '')
+        + '><span class="jp-step__mark" aria-hidden="true">' + (done ? '✓' : (i + 1)) + '</span>'
+        + '<span class="jp-sr">' + (i + 1) + '. </span><span class="jp-step__body"><span class="jp-step__label">'
+        + esc(st[1]) + '</span>' + (done ? '<span class="jp-step__sub">Đã xong</span>' : '') + '</span></li>';
     }).join('');
   }
 

@@ -8,10 +8,8 @@
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-skill-section no-inline-dictionary" th:attr="data-token=${token}"
       data-jpath-skill-section>
-    <header class="jp-side__head">
-        <a class="jp-side__back" href="/learning">← Về lộ trình</a>
-        <h1 class="jp-side__title" data-role="title">Luyện thi theo phần</h1>
-    </header>
+    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Luyện thi theo phần')}"></th:block>
+    <header class="jp-page-head"><h1 class="jp-page-head__title jp-side__title" data-role="title">Luyện thi theo phần</h1></header>
     <div class="jp-section-timer" data-role="timer" role="timer" aria-live="off" hidden></div>
     <p class="jp-muted" role="status" data-role="status">Đang tải bài…</p>
     <div data-role="body"></div>

@@ -8,6 +8,7 @@
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-confirm" data-inline-dictionary data-jpath-confirm
       th:attr="data-source=${source},data-attempt-id=${assessmentAttemptId}">
+    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Tạo lộ trình')}"></th:block>
     <header class="jp-confirm__header">
         <h1 class="jp-confirm__title">Xác nhận lộ trình JLPT</h1>
         <p class="jp-confirm__lead">Kiểm tra và chỉnh lại trước khi tạo. Chỉnh ở đây không tính vào số lần chỉnh.</p>
@@ -16,7 +17,8 @@
     <p class="jp-confirm__alert" role="alert" data-role="error" hidden></p>
     <p class="jp-confirm__loading" role="status" data-role="loading">Đang tải thông tin…</p>
 
-    <div class="jp-confirm__content" data-role="content" hidden>
+    <div class="jp-confirm__content" data-role="content" data-jp-wizard hidden>
+        <div class="jp-wizard__step" data-jp-wizard-step="Lộ trình" data-jp-wizard-sub="Cấp và lịch học">
         <section class="jp-confirm-card" data-role="smart" aria-labelledby="jp-confirm-smart-title" hidden>
             <h2 class="jp-confirm-card__title" id="jp-confirm-smart-title">Kết quả Smart Test</h2>
             <p class="jp-confirm-smart__level">
@@ -62,6 +64,8 @@
             <div class="jp-confirm-days" data-role="days"></div>
         </section>
 
+        </div>
+        <div class="jp-wizard__step" data-jp-wizard-step="Nhịp học" data-jp-wizard-sub="Mỗi ngày học bao nhiêu">
         <section class="jp-confirm-card" aria-labelledby="jp-confirm-sliders-title">
             <h2 class="jp-confirm-card__title" id="jp-confirm-sliders-title">Mỗi ngày học</h2>
             <div class="jp-confirm-sliders" data-role="slider-list"></div>
@@ -78,6 +82,8 @@
             </div>
         </section>
 
+        </div>
+        <div class="jp-wizard__step" data-jp-wizard-step="Cách học" data-jp-wizard-sub="Rồi tạo lộ trình">
         <section class="jp-confirm-card" aria-labelledby="jp-confirm-mode-title">
             <h2 class="jp-confirm-card__title" id="jp-confirm-mode-title">Cách học mỗi ngày</h2>
             <div class="jp-confirm-modes" role="radiogroup" aria-labelledby="jp-confirm-mode-title" data-role="modes"></div>
@@ -88,6 +94,7 @@
             <button type="button" class="jp-confirm-btn jp-confirm-btn--primary jp-confirm-btn--wide" data-role="create"
                     disabled aria-disabled="true">Tạo lộ trình</button>
             <p class="jp-confirm-submit__hint" data-role="create-hint" aria-live="polite" hidden></p>
+        </div>
         </div>
     </div>
 </main>

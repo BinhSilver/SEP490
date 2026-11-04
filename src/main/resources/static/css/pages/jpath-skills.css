@@ -60,3 +60,11 @@
 @media (prefers-reduced-motion: reduce) {
   .jp-section-floor__bar { transition: none !important; }
 }
+
+/* 04/11 redesign: session steps use the shared stepper (jpath-nav.css) */
+.jp-skill-steps { flex-wrap: nowrap; gap: 0; margin: 8px 0 28px; max-width: 560px; }
+.jp-skill-steps li { padding: 0 4px; border-radius: 0; background: none; color: inherit; }
+.jp-skill-steps li[aria-current="step"] { background: none; color: inherit; font-weight: inherit; }
+.jp-skill-steps li.is-done { color: inherit; }
+.jp-skill-session, .jp-skill-section { max-width: 1000px; }
+.jp-skill-session > .jp-crumbs, .jp-skill-section > .jp-crumbs { margin-bottom: 12px; }

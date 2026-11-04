@@ -9,11 +9,9 @@
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-skill-session" data-inline-dictionary
       th:attr="data-session-id=${sessionId}" data-jpath-skill-session>
-    <header class="jp-side__head">
-        <a class="jp-side__back" href="/learning">← Về lộ trình</a>
-        <h1 class="jp-side__title" data-role="title">Buổi Đọc · Nghe</h1>
-    </header>
-    <ol class="jp-skill-steps" data-role="steps"></ol>
+    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Buổi Đọc · Nghe')}"></th:block>
+    <header class="jp-page-head"><h1 class="jp-page-head__title jp-side__title" data-role="title">Buổi Đọc · Nghe</h1></header>
+    <ol class="jp-stepper jp-skill-steps" data-role="steps" aria-label="Các bước của buổi học"></ol>
     <p class="jp-muted" role="status" data-role="status">Đang tải buổi học…</p>
     <div data-role="body"></div>
 </main>

@@ -106,3 +106,15 @@
 @media (prefers-reduced-motion: reduce) {
   .jp-confirm * { transition: none !important; animation: none !important; }
 }
+
+/* ======================================================================== 04/11 wizard (team UI direction)
+   Path creation in 3 steps: stepper on top, one step at a time, Quay lại / Tiếp tục below, "Tạo lộ trình" last. */
+.jp-confirm { max-width: 980px; }
+.jp-confirm > .jp-crumbs { margin-bottom: 4px; }
+.jp-wizard__head { display: grid; gap: 14px; margin-bottom: 8px; }
+.jp-wizard__count { margin: 0; color: var(--jp-muted); font-size: .9em; font-weight: 600; }
+.jp-wizard__step { display: grid; gap: 28px; }
+.jp-wizard__step h2:focus { outline: none; }
+.jp-wizard__foot:empty { display: none; }
+.jp-confirm .jp-confirm-card { border: 0; padding: 0; background: none; box-shadow: none; }
+.jp-confirm-submit { padding-top: 8px; }
