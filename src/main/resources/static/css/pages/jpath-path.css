@@ -942,38 +942,672 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 .jp-path .jp-grow:hover, .jp-path .jp-grow--open { background: var(--jp-primary-soft); }
 .jp-path .jp-grow__text b { font-size: 1.08em; }
 
-/* 05/11 study parts of a tab (jpath-parts.js); the full list hides behind "Xem toàn bộ" */
-.jp-path__parts { display: grid; gap: 10px; margin: 12px 0; }
-.jp-parts__title { margin: 0; font-size: 1.1rem; }
+/* 05/11 study parts of a tab (jpath-parts.js, round 2): scenic 3D coin winding map + Kitsu + popover */
+.jp-path__parts { display: grid; gap: 16px; margin: 14px 0; }
+.jp-parts__top {
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: var(--jp-surface, #fff);
+  border: 1px solid var(--jp-line);
+}
+.jp-parts__heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 14px; }
+.jp-parts__title { margin: 0; font-size: 1.15rem; color: var(--jp-ink); }
 .jp-parts__sub { margin: 2px 0 0; color: var(--jp-muted); font-size: .9rem; }
-.jp-parts__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.jp-parts__part { border: 1px solid var(--jp-line); border-radius: 12px; background: var(--jp-surface, #fff); }
-.jp-parts__part--today { border-color: var(--jp-primary); box-shadow: 0 0 0 1px var(--jp-primary) inset; }
-.jp-parts__part--done, .jp-parts__part--donegroup { background: var(--jp-primary-soft); }
-.jp-parts__head { display: grid; grid-template-columns: auto auto auto 1fr; align-items: baseline; gap: 4px 12px;
-  padding: 10px 14px; cursor: pointer; list-style: none; }
+.jp-parts__meter {
+  height: 9px;
+  border-radius: 999px;
+  background: var(--jp-primary-soft);
+  overflow: hidden;
+}
+.jp-parts__meter > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22c55e, var(--jp-primary));
+  transition: width .35s ease;
+}
+.jp-parts__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: .82rem;
+  color: var(--jp-muted);
+}
+.jp-parts__legend-item { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; }
+.jp-parts__dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+.jp-parts__dot--done { background: #22c55e; box-shadow: 0 2px 0 #15803d; }
+.jp-parts__dot--today { background: #f59e0b; box-shadow: 0 2px 0 #b45309, 0 0 0 3px rgb(251 191 36 / 30%); }
+.jp-parts__dot--next { background: #cbd5e1; box-shadow: 0 2px 0 #94a3b8; }
+.jp-parts__dot--milestone { background: #d97706; border-radius: 3px; box-shadow: 0 2px 0 #78350f; }
+
+/* Scenic stage wrapper per tab */
+.jp-parts__stage {
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1.5px solid var(--jp-line);
+  padding: 24px 12px 28px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 6%);
+}
+.jp-parts__stage--vocab {
+  background: linear-gradient(180deg, #dbeafe 0%, #eff6ff 48%, #dcfce7 100%);
+}
+.jp-parts__stage--kanji {
+  background: linear-gradient(180deg, #ede9fe 0%, #ffedd5 52%, #fed7aa 100%);
+}
+.jp-parts__stage--grammar {
+  background: linear-gradient(180deg, #2e1065 0%, #4c1d95 54%, #581c87 100%);
+}
+.jp-parts__backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.jp-parts__scene-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Winding map container */
+.jp-parts__list {
+  position: relative;
+  z-index: 1;
+  list-style: none;
+  margin: 0 auto;
+  padding: 8px 8px 4px;
+  width: 100%;
+  max-width: 620px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.jp-parts__step {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  animation: jp-parts-step-in .42s cubic-bezier(.2, .8, .2, 1) both;
+  animation-delay: calc(var(--step-i, 0) * 55ms);
+}
+
+/* Side decorations (sakura, pine tree, lantern, cloud) */
+.jp-parts__deco {
+  position: absolute;
+  top: 18px;
+  pointer-events: none;
+  opacity: .88;
+  z-index: 0;
+}
+.jp-parts__deco--left { left: 10%; }
+.jp-parts__deco--right { right: 10%; }
+.jp-parts__deco-svg { width: 32px; height: 32px; display: block; filter: drop-shadow(0 3px 5px rgb(0 0 0 / 10%)); }
+
+.jp-parts__part {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+.jp-parts__head {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  text-align: center;
+  transition: transform .18s ease;
+}
 .jp-parts__head::-webkit-details-marker { display: none; }
-.jp-parts__no { font-weight: 700; }
-.jp-parts__when { font-size: .85rem; color: var(--jp-primary); font-weight: 600; }
-.jp-parts__n { font-size: .85rem; color: var(--jp-muted); }
-.jp-parts__peek { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--jp-muted); text-align: right; }
-.jp-parts__body { padding: 0 14px 12px; display: grid; gap: 10px; }
-.jp-parts__items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
-.jp-parts__items li { display: grid; padding: 6px 10px; border-radius: 8px; background: var(--jp-bg, #f6f5fb); }
-.jp-parts__ja { font-size: 1.1rem; }
-.jp-parts__rd, .jp-parts__mean { font-size: .8rem; color: var(--jp-muted); }
-.jp-parts__part--donegroup > .jp-parts__list { padding: 0 10px 10px; }
-.jp-parts__actions { display: flex; gap: 8px; }
-.jp-parts__all { margin-top: 4px; }
-@media (max-width: 640px) { .jp-parts__head { grid-template-columns: auto auto 1fr; } .jp-parts__peek { grid-column: 1 / -1; text-align: left; } }
-.jp-parts__ok { align-self: center; color: var(--jp-ok); font-weight: 600; }
-.jp-parts__pager { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
-.jp-parts__pg { min-width: 36px; min-height: 36px; padding: 0 10px; border: 1px solid var(--jp-line); border-radius: 8px; background: none; font: inherit; cursor: pointer; }
-.jp-parts__pg.is-on { background: var(--jp-primary); border-color: var(--jp-primary); color: #fff; }
+.jp-parts__head:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 4px; border-radius: 16px; }
+
+/* Winding horizontal positions for node heads */
+.jp-parts__step--pos-center > .jp-parts__part > .jp-parts__head { transform: translateX(0); }
+.jp-parts__step--pos-left > .jp-parts__part > .jp-parts__head { transform: translateX(-52px); }
+.jp-parts__step--pos-right > .jp-parts__part > .jp-parts__head { transform: translateX(52px); }
+
+/* Node wrapper + floating status bubble */
+.jp-parts__node-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+.jp-parts__bubble {
+  position: relative;
+  margin-bottom: 8px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+  color: #fff;
+  font-size: .8rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  border: 2px solid #fff;
+  box-shadow: 0 4px 12px rgb(180 83 9 / 32%);
+  animation: jp-parts-float 2s ease-in-out infinite;
+}
+.jp-parts__bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0;
+  border-style: solid;
+  border-color: #d97706 transparent transparent;
+}
+.jp-parts__bubble--done {
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+  box-shadow: 0 4px 12px rgb(21 128 61 / 32%);
+}
+.jp-parts__bubble--done::after {
+  border-color: #16a34a transparent transparent;
+}
+
+/* 3D Tactile Coin Nodes */
+.jp-parts__orb {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.jp-parts__orb-shine {
+  position: absolute;
+  top: 5px;
+  left: 11px;
+  right: 11px;
+  height: 15px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 48%) 0%, rgb(255 255 255 / 0%) 100%);
+  pointer-events: none;
+}
+.jp-parts__icon { width: 26px; height: 26px; display: block; position: relative; z-index: 1; }
+.jp-parts__icon--chest { width: 34px; height: 34px; }
+.jp-parts__orb-num {
+  position: absolute;
+  right: -5px;
+  bottom: -4px;
+  min-width: 23px;
+  height: 23px;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-size: .74rem;
+  font-weight: 800;
+  line-height: 19px;
+  text-align: center;
+  background: #fff;
+  color: #1e293b;
+  border: 2px solid #cbd5e1;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 14%);
+  box-sizing: border-box;
+  z-index: 2;
+}
+
+/* DONE coin: fresh green 3D coin */
+.jp-parts__orb--done {
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 45%, #16a34a 100%);
+  color: #fff;
+  border: 3px solid #dcfce7;
+  box-shadow: 0 6px 0 #15803d, 0 10px 18px rgb(21 128 61 / 28%), inset 0 2px 0 rgb(255 255 255 / 45%);
+}
+.jp-parts__orb--done .jp-parts__orb-num {
+  border-color: #16a34a;
+  color: #15803d;
+}
+
+/* TODAY & TODAY_DONE coin: vibrant amber-gold 3D coin with glow + continuous bounce */
+.jp-parts__orb--today,
+.jp-parts__orb--today-done {
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(180deg, #fde047 0%, #fbbf24 45%, #f59e0b 100%);
+  color: #78350f;
+  border: 3px solid #fef9c3;
+  box-shadow: 0 7px 0 #b45309, 0 0 0 8px rgb(251 191 36 / 34%), 0 12px 24px rgb(180 83 9 / 32%);
+  animation: jp-parts-coin-bounce 2s ease-in-out infinite;
+}
+.jp-parts__orb--today .jp-parts__icon,
+.jp-parts__orb--today-done .jp-parts__icon { width: 30px; height: 30px; color: #fff; filter: drop-shadow(0 1px 2px rgb(120 53 15 / 45%)); }
+.jp-parts__orb--today .jp-parts__orb-num,
+.jp-parts__orb--today-done .jp-parts__orb-num {
+  border-color: #d97706;
+  color: #b45309;
+}
+
+/* NEXT coin: silver-slate 3D coin with lock */
+.jp-parts__orb--next {
+  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 55%, #cbd5e1 100%);
+  color: #64748b;
+  border: 3px solid #f1f5f9;
+  box-shadow: 0 6px 0 #94a3b8, 0 8px 14px rgb(15 23 42 / 14%);
+}
+
+/* MILESTONE coin: treasure chest pedestal */
+.jp-parts__orb--milestone {
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #fef3c7 0%, #fde68a 60%, #fcd34d 100%);
+  border: 3px solid #fffbeb;
+  box-shadow: 0 6px 0 #b45309, 0 10px 18px rgb(180 83 9 / 24%);
+}
+.jp-parts__milestone--unlocked .jp-parts__orb--milestone {
+  box-shadow: 0 6px 0 #b45309, 0 0 0 6px rgb(251 191 36 / 32%), 0 10px 20px rgb(180 83 9 / 30%);
+}
+
+/* Tactile press-down effect on hover/active/open */
+.jp-parts__head:hover .jp-parts__orb {
+  transform: translateY(-2px);
+}
+.jp-parts__head:active .jp-parts__orb,
+details.jp-parts__part[open] > .jp-parts__head .jp-parts__orb {
+  transform: translateY(4px);
+}
+.jp-parts__head:active .jp-parts__orb--done,
+details.jp-parts__part[open] > .jp-parts__head .jp-parts__orb--done {
+  box-shadow: 0 2px 0 #15803d, 0 4px 10px rgb(21 128 61 / 24%);
+}
+.jp-parts__head:active .jp-parts__orb--today,
+.jp-parts__head:active .jp-parts__orb--today-done,
+details.jp-parts__part[open] > .jp-parts__head .jp-parts__orb--today,
+details.jp-parts__part[open] > .jp-parts__head .jp-parts__orb--today-done {
+  box-shadow: 0 2px 0 #b45309, 0 0 0 6px rgb(251 191 36 / 36%), 0 5px 12px rgb(180 83 9 / 28%);
+}
+.jp-parts__head:active .jp-parts__orb--next,
+details.jp-parts__part[open] > .jp-parts__head .jp-parts__orb--next {
+  box-shadow: 0 2px 0 #94a3b8, 0 4px 8px rgb(15 23 42 / 12%);
+}
+.jp-parts__head:active .jp-parts__orb--milestone,
+details.jp-parts__part[open] > .jp-parts__head .jp-parts__orb--milestone {
+  box-shadow: 0 2px 0 #b45309, 0 4px 10px rgb(180 83 9 / 22%);
+}
+
+/* Kitsu Mascots along the path */
+.jp-parts__mascot {
+  position: absolute;
+  display: inline-flex;
+   flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  animation: jp-parts-kitsu-bob 2.4s ease-in-out infinite;
+  z-index: 3;
+}
+.jp-parts__mascot--today {
+  left: calc(100% + 10px);
+  bottom: -4px;
+}
+.jp-parts__mascot--side.jp-parts__mascot--right {
+  left: calc(100% + 14px);
+  top: 2px;
+}
+.jp-parts__mascot--side.jp-parts__mascot--left {
+  right: calc(100% + 14px);
+  top: 2px;
+}
+.jp-parts__mascot-img {
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgb(0 0 0 / 18%));
+}
+.jp-parts__mascot-speech {
+  margin-bottom: 3px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: #fff;
+  color: #1e293b;
+  font-size: .74rem;
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1.5px solid #f59e0b;
+  box-shadow: 0 3px 8px rgb(0 0 0 / 12%);
+}
+.jp-parts__mascot-speech--sm {
+  margin-top: 2px;
+  margin-bottom: 0;
+  padding: 2px 8px;
+  font-size: .7rem;
+  border-color: var(--jp-line);
+}
+
+/* High-contrast frosted pill caption under each coin */
+.jp-parts__caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  max-width: 210px;
+  padding: 5px 12px;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 92%);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
+  backdrop-filter: blur(4px);
+}
+.jp-parts__no { font-weight: 800; font-size: .9rem; color: #0f172a; }
+.jp-parts__when { font-size: .78rem; color: #6d28d9; font-weight: 700; }
+.jp-parts__step--done .jp-parts__when { color: #15803d; }
+.jp-parts__step--today .jp-parts__when,
+.jp-parts__step--today-done .jp-parts__when { color: #b45309; }
+.jp-parts__step--next .jp-parts__when { color: #64748b; font-weight: 600; }
+.jp-parts__n { font-size: .75rem; color: #475569; }
+.jp-parts__peek {
+  max-width: 185px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #334155;
+  font-size: .78rem;
+}
+
+/* SVG winding curve connector between nodes */
+.jp-parts__curve {
+  width: 240px;
+  height: 40px;
+  display: block;
+  margin: 2px auto;
+  color: rgb(148 163 184 / 75%);
+  pointer-events: none;
+}
+.jp-parts__stage--grammar .jp-parts__curve {
+  color: rgb(233 213 255 / 45%);
+}
+.jp-parts__curve--done {
+  color: #22c55e;
+}
+.jp-parts__curve--run {
+  color: #f59e0b;
+}
+.jp-parts__curve--run .jp-parts__curve-track {
+  stroke-dasharray: 8 6;
+  animation: jp-parts-dash-run 1s linear infinite;
+}
+
+/* Compact Popover Bubble (replaces old full-width box) */
+.jp-parts__body.jp-parts__popover {
+  position: relative;
+  width: min(100%, 340px);
+  box-sizing: border-box;
+  margin: 10px auto 6px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #0f172a;
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 12px 28px rgb(15 23 42 / 16%);
+  display: grid;
+  gap: 8px;
+  z-index: 5;
+}
+.jp-parts__popover-arrow {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 13px;
+  height: 13px;
+  background: #ffffff;
+  border-top: 2px solid #e2e8f0;
+  border-left: 2px solid #e2e8f0;
+  transform: translateX(-50%) rotate(45deg);
+}
+.jp-parts__part--today > .jp-parts__popover {
+  border-color: #f59e0b;
+}
+.jp-parts__part--today > .jp-parts__popover > .jp-parts__popover-arrow {
+  border-color: #f59e0b;
+}
+.jp-parts__part--done > .jp-parts__popover {
+  border-color: #22c55e;
+}
+.jp-parts__part--done > .jp-parts__popover > .jp-parts__popover-arrow {
+  border-color: #22c55e;
+}
+.jp-parts__milestone > .jp-parts__popover {
+  border-color: #d97706;
+}
+.jp-parts__milestone > .jp-parts__popover > .jp-parts__popover-arrow {
+  border-color: #d97706;
+}
+
+.jp-parts__body-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: .88rem;
+  color: #0f172a;
+}
+.jp-parts__body-when { color: #6d28d9; font-weight: 700; font-size: .8rem; }
+.jp-parts__preview-line {
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #1e293b;
+  font-size: .95rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.jp-parts__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.jp-parts__locked-note { margin: 0; font-size: .82rem; color: #64748b; font-style: italic; }
+.jp-parts__ok { align-self: center; color: #15803d; font-weight: 700; font-size: .85rem; }
+
+/* Expandable "Xem các mục" compact borderless list inside popover */
+.jp-parts__more {
+  border-top: 1px dashed #e2e8f0;
+  padding-top: 6px;
+}
+.jp-parts__more-btn {
+  cursor: pointer;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--jp-primary, #6d28d9);
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.jp-parts__more-btn::-webkit-details-marker { display: none; }
+.jp-parts__more-btn::after { content: '▾'; font-size: .85em; }
+.jp-parts__more[open] > .jp-parts__more-btn::after { content: '▴'; }
+
+.jp-parts__items {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  max-height: 210px;
+  overflow-y: auto;
+}
+.jp-parts__items li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  padding: 4px 2px;
+  border-bottom: 1px solid #f1f5f9;
+  background: transparent;
+}
+.jp-parts__items li:last-child { border-bottom: 0; }
+.jp-parts__ja { font-size: 1rem; font-weight: 700; color: #0f172a; }
+.jp-parts__rd { font-size: .8rem; color: #6d28d9; }
+.jp-parts__mean { font-size: .8rem; color: #475569; margin-left: auto; }
+
+.jp-parts__all { display: flex; justify-content: center; margin-top: 4px; }
+
+/* Pagination */
+.jp-parts__pager { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; margin-top: 8px; }
+.jp-parts__pg {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--jp-line);
+  border-radius: 8px;
+  background: var(--jp-surface, #fff);
+  color: var(--jp-ink);
+  font: inherit;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+.jp-parts__pg:hover:not([disabled]):not(.is-on) { background: var(--jp-primary-soft); border-color: var(--jp-primary); }
+.jp-parts__pg.is-on { background: var(--jp-primary); border-color: var(--jp-primary); color: #fff; font-weight: 600; }
 .jp-parts__pg[disabled] { opacity: .4; cursor: default; }
 .jp-parts__pginfo { margin-left: 6px; color: var(--jp-muted); font-size: .9em; }
-.jp-saved-note { margin: 0 auto 12px; max-width: 1100px; padding: 10px 14px; border-radius: 10px; background: #e7f6ec; color: #145c32; font-weight: 600; }
-.jp-parts__weekly { display: grid; gap: 6px; padding: 12px 14px; border-radius: 12px; background: #fff7e6; }
-.jp-parts__weekly-title { margin: 0; font-weight: 700; }
-.jp-parts__weekly-note { margin: 0; color: var(--jp-muted); font-size: .9rem; }
-.jp-parts__err { color: var(--jp-bad, #b3261e); font-size: .9rem; align-self: center; }
+
+/* Top saved=1 celebration notice with Confetti & Kitsu */
+.jp-saved-note {
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto 14px;
+  max-width: 1100px;
+  padding: 12px 18px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, #dcfce7 0%, #fef9c3 55%, #ede9fe 100%);
+  border: 2px solid #22c55e;
+  color: #14532d;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 6px 18px rgb(21 128 61 / 15%);
+}
+.jp-saved-note__kitsu {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+}
+.jp-saved-note__body {
+  display: grid;
+  gap: 2px;
+  position: relative;
+  z-index: 1;
+}
+.jp-saved-note__title { font-size: 1rem; color: #14532d; }
+.jp-saved-note__text { font-size: .9rem; font-weight: 600; color: #166534; }
+.jp-saved-note__confetti-wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.jp-saved-note__confetti {
+  position: absolute;
+  top: -8px;
+  left: calc((var(--cf-i, 0) + 1) * 6%);
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: .85;
+  animation: jp-parts-confetti 2.4s ease-in-out infinite;
+  animation-delay: calc(var(--cf-i, 0) * 110ms);
+}
+.jp-saved-note__confetti--0 { background: #f59e0b; }
+.jp-saved-note__confetti--1 { background: #22c55e; }
+.jp-saved-note__confetti--2 { background: #ec4899; }
+.jp-saved-note__confetti--3 { background: #6366f1; }
+
+.jp-parts__weekly {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--jp-primary-soft);
+  border: 1px solid var(--jp-primary);
+}
+.jp-parts__weekly-title { margin: 0; font-weight: 700; color: #0f172a; }
+.jp-parts__weekly-note {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--jp-surface, #fff);
+  border: 1px dashed var(--jp-line);
+  color: var(--jp-muted);
+  font-size: .9rem;
+}
+.jp-parts__err { color: var(--jp-danger, #b3261e); font-size: .9rem; align-self: center; }
+
+@keyframes jp-parts-step-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes jp-parts-coin-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes jp-parts-kitsu-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes jp-parts-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+@keyframes jp-parts-dash-run {
+  from { stroke-dashoffset: 28; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes jp-parts-confetti {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(85px) rotate(260deg); opacity: 0; }
+}
+
+@media (max-width: 640px) {
+  .jp-parts__stage { padding: 18px 6px 20px; border-radius: 16px; }
+  .jp-parts__list { padding: 6px 2px; }
+  .jp-parts__step--pos-left > .jp-parts__part > .jp-parts__head { transform: translateX(-28px); }
+  .jp-parts__step--pos-right > .jp-parts__part > .jp-parts__head { transform: translateX(28px); }
+  .jp-parts__curve { width: 148px; height: 32px; }
+  .jp-parts__deco--left { left: 2%; }
+  .jp-parts__deco--right { right: 2%; }
+  .jp-parts__mascot--today { left: calc(100% + 4px); }
+  .jp-parts__mascot--today .jp-parts__mascot-img { width: 48px; height: 48px; }
+  .jp-parts__mascot--side { display: none; }
+  .jp-parts__mascot-speech { font-size: .68rem; padding: 3px 7px; }
+  .jp-parts__caption { max-width: 155px; padding: 4px 9px; }
+  .jp-parts__peek { max-width: 140px; }
+  .jp-parts__body.jp-parts__popover { width: min(100%, 310px); padding: 10px 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jp-parts__step,
+  .jp-parts__orb--today,
+  .jp-parts__orb--today-done,
+  .jp-parts__bubble,
+  .jp-parts__mascot,
+  .jp-parts__curve--run .jp-parts__curve-track,
+  .jp-saved-note__confetti {
+    animation: none !important;
+  }
+  .jp-parts__head,
+  .jp-parts__orb,
+  .jp-parts__meter > span,
+  .jp-parts__pg {
+    transition: none !important;
+  }
+  .jp-parts__head:hover .jp-parts__orb {
+    transform: none !important;
+  }
+}

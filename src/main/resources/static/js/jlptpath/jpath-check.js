@@ -433,10 +433,44 @@
     return '<p class="jp-fill__given">Bạn điền: <span lang="ja">' + esc(a.value) + '</span></p>' + feedbackHtml(a, right);
   }
 
+  function checkMascotHtml(q, st) {
+    var img = '/images/mascots/kitsu/kitsu-thinking-30.webp';
+    var speech = 'Suy nghĩ kỹ nhé!';
+    var mood = 'think';
+    if (isBoard(q)) {
+      var b = st.board || emptyBoard();
+      if (b.flash) {
+        img = '/images/mascots/kitsu/kitsu-confused-30.webp';
+        speech = 'Tiếc quá, chọn lại cặp khác nhé!';
+        mood = 'bad';
+      } else if (Object.keys(b.matched || {}).length > 0) {
+        img = '/images/mascots/kitsu/kitsu-cheer-30.webp';
+        speech = 'Đúng rồi, nối tiếp nào!';
+        mood = 'ok';
+      } else {
+        speech = 'Chọn 1 ô trái rồi 1 ô phải nhé!';
+      }
+    } else if (st.answer) {
+      if (st.answer.correct) {
+        img = '/images/mascots/kitsu/kitsu-cheer-30.webp';
+        speech = 'Đúng rồi, tuyệt lắm!';
+        mood = 'ok';
+      } else {
+        img = '/images/mascots/kitsu/kitsu-confused-30.webp';
+        speech = 'Tiếc quá, cố lên ở câu sau nhé!';
+        mood = 'bad';
+      }
+    }
+    return '<div class="jp-check__mascot jp-check__mascot--' + mood + '" aria-hidden="true">'
+      + '<img class="jp-check__mascot-img" src="' + img + '" alt="" width="56" height="56" loading="eager">'
+      + '<span class="jp-check__mascot-bubble" data-speech="' + esc(speech) + '"></span></div>';
+  }
+
   function questionHtml(q, qs, display) {
     var st = qs || {};
     if (!q) return '';
-    var html = '<section class="jp-check__q" data-qid="' + esc(q.id) + '" data-type="' + esc(q.type) + '">';
+    var html = '<section class="jp-check__q" data-qid="' + esc(q.id) + '" data-type="' + esc(q.type) + '">'
+      + checkMascotHtml(q, st);
     if (isBoard(q)) return html + boardHtml(q, st.board) + '</section>';
     html += promptHtml(q);
     if (q.type === 'AUDIO_MCQ' && q.audioSlot != null) {
@@ -544,12 +578,39 @@
     return '<p class="jp-result__wrong">Sai ' + items.length + ': <span lang="ja">' + esc(names) + '</span>' + esc(suffix) + '</p>';
   }
 
+  function celebrateArtHtml(passed) {
+    var img = passed === false
+      ? '/images/mascots/kitsu/kitsu-encouraging.webp'
+      : '/images/mascots/kitsu/kitsu-celebrate-30.webp';
+    var speech = passed === false
+      ? 'Đừng nản, ôn lại chút là vượt qua ngay!'
+      : 'Xuất sắc! Bạn làm rất tốt!';
+    return '<div class="jp-celebrate__art' + (passed === false ? ' jp-celebrate__art--retry' : '') + '" aria-hidden="true">'
+      + '<div class="jp-celebrate__stage">'
+      + '<svg class="jp-celebrate__svg" viewBox="0 0 180 104" fill="none">'
+      + '<circle class="jp-celebrate__halo" cx="90" cy="54" r="40"/>'
+      + '<g class="jp-celebrate__sparks">'
+      + '<path class="jp-celebrate__spark jp-celebrate__spark--1" d="M24 30l3.5-8 3.5 8 8 3.5-8 3.5-3.5 8-3.5-8-8-3.5 8-3.5z"/>'
+      + '<path class="jp-celebrate__spark jp-celebrate__spark--2" d="M154 24l3-7 3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/>'
+      + '<circle class="jp-celebrate__dot jp-celebrate__dot--1" cx="38" cy="78" r="4"/>'
+      + '<circle class="jp-celebrate__dot jp-celebrate__dot--2" cx="144" cy="74" r="4.5"/>'
+      + '<rect class="jp-celebrate__confetti jp-celebrate__confetti--1" x="48" y="14" width="10" height="4.5" rx="2.2" transform="rotate(-24 48 14)"/>'
+      + '<rect class="jp-celebrate__confetti jp-celebrate__confetti--2" x="122" y="12" width="10" height="4.5" rx="2.2" transform="rotate(28 122 12)"/>'
+      + '</g></svg>'
+      + '<img class="jp-celebrate__mascot" src="' + img + '" alt="" width="88" height="88" loading="eager">'
+      + '</div>'
+      + '<span class="jp-celebrate__bubble" data-speech="' + esc(speech) + '"></span>'
+      + '</div>';
+  }
+
   function resultHtml(result, check, opts) {
     var r = result || {};
     var kind = check && check.kind;
     var o = opts || {};
     var pct = Number(r.scorePercent) || 0;
-    var html = '<section class="jp-result jp-card" aria-labelledby="jp-result-title">';
+    var celCls = r.passed === false ? ' jp-celebrate jp-result--retry' : ' jp-celebrate jp-result--pass';
+    var html = '<section class="jp-result jp-card' + celCls + '" aria-labelledby="jp-result-title">'
+      + celebrateArtHtml(r.passed);
     var tone = r.passed === true ? ' jp-ok' : (r.passed === false ? ' jp-bad' : '');
     if (kind === 'GROUP_EXERCISE') {
       html += '<h2 class="jp-result__title" id="jp-result-title" tabindex="-1">Xong bài tập nhóm. Câu sai sẽ được ôn lại trong lượt này.</h2>'

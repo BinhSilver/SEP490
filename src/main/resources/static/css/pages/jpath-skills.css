@@ -260,3 +260,31 @@
 .jp-follow__w { padding: 0 2px; border-radius: 3px; }
 .jp-follow__w.is-bad { color: var(--jp-danger); background: var(--jp-danger-soft); text-decoration: underline wavy; text-underline-offset: 4px; }
 @media (max-width: 640px) { .jp-follow__result { grid-template-columns: minmax(0, 1fr); justify-items: start; } }
+
+/* 05/11 redesign: the Đọc · Nghe practice — one bài at a time, sentence-by-sentence hover translation,
+   exam-style questions (問N) and the Kết quả / Làm lại / Đáp án / Dịch nghĩa bar. */
+.jp-skill-context { margin: 0 0 4px; font-size: .98em; font-weight: 700; color: var(--jp-primary); }
+.jp-skill-bai { padding-bottom: 28px; }
+.jp-sen-list { white-space: normal; }
+.jp-sen { display: block; position: relative; padding: 6px 0; }
+.jp-sen:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; border-radius: 4px; }
+.jp-sen__ja { display: block; }
+.jp-sen__who { display: block; margin-bottom: 2px; font-size: .72em; font-weight: 700; color: var(--jp-muted);
+  text-transform: uppercase; letter-spacing: .05em; }
+.jp-sen__vi { display: none; margin: 4px 0 8px; padding: 6px 12px; border-radius: 8px; background: var(--jp-primary-soft);
+  color: var(--jp-ink); font-size: .86em; line-height: 1.6; box-shadow: 0 1px 3px rgba(0, 0, 0, .08); }
+.jp-sen:hover .jp-sen__vi, .jp-sen:focus .jp-sen__vi, .jp-sen.is-open .jp-sen__vi,
+.jp-sen-list.is-vi .jp-sen__vi { display: block; }
+.jp-skill-bai .jp-skill-q__no { margin: 0 0 8px; font-size: .8em; font-weight: 700; color: var(--jp-primary);
+  letter-spacing: .06em; }
+.jp-skill-bai .jp-skill-q__no + p { margin: 0 0 12px; font-size: 1.12em; font-weight: 600; line-height: 1.65; }
+.jp-skill-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; padding-top: 18px;
+  border-top: 1px solid var(--jp-line); }
+.jp-skill-toolbar .jp-btn { min-height: 44px; }
+.jp-skill-score { margin: 14px 0 0; font-weight: 700; color: var(--jp-ink); }
+.jp-skill-next { margin-top: 18px; }
+.jp-skill-next .jp-btn--primary { min-height: 52px; padding-inline: 28px; }
+@media (max-width: 640px) {
+  .jp-skill-toolbar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .jp-skill-toolbar .jp-btn, .jp-skill-next .jp-btn--primary { width: 100%; }
+}

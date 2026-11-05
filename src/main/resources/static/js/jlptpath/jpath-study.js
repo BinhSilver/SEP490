@@ -258,8 +258,41 @@
     var skip = card.kind === 'NEW' && type === 'VOCAB'
       ? '<p class="jp-study-skip">Đã biết từ này? <button type="button" class="jp-link-btn" data-jp-skip>Bỏ qua (kiểm 1 câu)</button></p>'
       : '';
-    return '<article class="jp-study-card jp-study-card--' + esc(String(card.kind || '').toLowerCase()) + '"' + attrs + '>'
-      + toolsHtml(card, display) + headChips(card, newOrFlipped) + '<div class="jp-study-face">' + body + '</div>'
+    var kindCls = esc(String(card.kind || '').toLowerCase());
+    var stateCls = card.kind === 'REVIEW' ? (flipped ? ' jp-study-card--flipped' : ' jp-study-card--front')
+      : (newOrFlipped ? ' jp-study-card--flipped' : '');
+    var typeCls = has(type) ? ' jp-study-card--type-' + esc(String(type).toLowerCase()) : '';
+    var faceTag = card.kind === 'REVIEW'
+      ? (flipped
+        ? '<span class="jp-study-face-tag jp-study-face-tag--back" data-label="Mặt sau · Giải nghĩa &amp; ví dụ" aria-hidden="true"></span>'
+        : '<span class="jp-study-face-tag jp-study-face-tag--front" data-label="Mặt trước · Nhớ lại nghĩa &amp; cách đọc" aria-hidden="true"></span>')
+      : (card.kind === 'NEW' ? '<span class="jp-study-face-tag jp-study-face-tag--new" data-label="Mục mới" aria-hidden="true"></span>' : '');
+    var flipCue = card.kind === 'REVIEW' && !flipped
+      ? '<span class="jp-study-flip-cue" data-jp-flip data-label="Chạm hoặc bấm Space để lật thẻ" aria-hidden="true"><svg class="jp-study-flip-cue__icon" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0 1 10.2-4.2L16 7.5M16 4v3.5h-3.5M16 10a6 6 0 0 1-10.2 4.2L4 12.5M4 16v-3.5h3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+      : '';
+    var mImg = '/images/mascots/kitsu/kitsu-thinking-30.webp';
+    var mSpeech = 'Thử nhớ lại xem nào!';
+    var mMood = 'think';
+    var rt = state && state.retype;
+    if (card.kind === 'RETYPE') {
+      if (rt && (rt.verdict === 'EXACT' || rt.verdict === 'MINOR')) {
+        mImg = '/images/mascots/kitsu/kitsu-cheer-30.webp'; mSpeech = 'Giỏi lắm, chuẩn rồi!'; mMood = 'ok';
+      } else if (rt && rt.verdict === 'WRONG') {
+        mImg = '/images/mascots/kitsu/kitsu-confused-30.webp'; mSpeech = 'Chú ý cách đọc nhé!'; mMood = 'bad';
+      } else {
+        mImg = '/images/mascots/kitsu/kitsu-thinking-30.webp'; mSpeech = 'Gõ lại cách đọc nào!'; mMood = 'think';
+      }
+    } else if (card.kind === 'NEW') {
+      mImg = '/images/mascots/kitsu/kitsu-encouraging.webp'; mSpeech = 'Cùng ghi nhớ mục mới nhé!'; mMood = 'encourage';
+    } else if (flipped) {
+      mImg = '/images/mascots/kitsu/kitsu-cheer-30.webp'; mSpeech = 'Đối chiếu đáp án nhé!'; mMood = 'ok';
+    }
+    var mascot = '<div class="jp-study-mascot jp-study-mascot--' + mMood + '" aria-hidden="true">'
+      + '<img class="jp-study-mascot__img" src="' + mImg + '" alt="" width="56" height="56" loading="eager">'
+      + '<span class="jp-study-mascot__bubble" data-speech="' + esc(mSpeech) + '"></span></div>';
+    return '<article class="jp-study-card jp-study-card--' + kindCls + stateCls + typeCls + '"' + attrs + '>'
+      + '<div class="jp-study-card__top">' + mascot + headChips(card, newOrFlipped) + toolsHtml(card, display) + '</div>'
+      + '<div class="jp-study-face">' + faceTag + body + flipCue + '</div>'
       + '</article>' + skip;
   }
 
@@ -304,20 +337,29 @@
     var items = list(steps).filter(function (s) { return s && STEP_LABEL[s.key]; });
     var done = 0;
     var total = 0;
-    var parts = items.map(function (s) {
+    var parts = items.map(function (s, idx) {
       var label = s.key === 'VOCAB' && tab && tab !== 'COMBINED' ? SPLIT_VOCAB_LABEL : STEP_LABEL[s.key];
       var d = Number(s.done) || 0;
       var t = Number(s.total) || 0;
       done += Math.min(d, t);
       total += t;
-      var text = s.complete ? label + ' ' + t : label + ' ' + d + '/' + t;
+      var countStr = s.complete ? String(t) : (d + '/' + t);
+      var dotIcon = s.complete
+        ? '<svg class="jp-step__check" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        : '';
+      var dot = '<span class="jp-step__dot" data-step-num="' + (idx + 1) + '" aria-hidden="true">' + dotIcon + '</span>';
+      var sep = idx < items.length - 1
+        ? '<span class="jp-step-sep' + (s.complete ? ' jp-step-sep--done' : '') + '" aria-hidden="true"> → </span>'
+        : '';
       return '<span class="jp-step' + (s.complete ? ' jp-step--done' : '') + (s.active ? ' jp-step--active' : '') + '"'
-        + (s.active ? ' aria-current="step"' : '') + '>' + esc(text) + '</span>';
+        + (s.active ? ' aria-current="step"' : '') + '>' + dot
+        + '<span class="jp-step__text"><span class="jp-step__name">' + esc(label) + '</span> <span class="jp-step__count">'
+        + esc(countStr) + '</span></span></span>' + sep;
     });
     var pct = total > 0 ? Math.round(done * 100 / total) : 0;
     var minutes = Math.max(0, Math.round(Number(minutesLeft) || 0));
     return '<div class="jp-study-steps"><p class="jp-study-steps__line">'
-      + parts.join('<span class="jp-step-sep" aria-hidden="true"> → </span>')
+      + parts.join('')
       + '<span class="jp-study-steps__left"> · ~' + minutes + ' phút còn lại</span></p>'
       + '<div class="jp-study-progress" role="progressbar" aria-label="Tiến độ lượt học" aria-valuemin="0"'
       + ' aria-valuemax="100" aria-valuenow="' + pct + '"><span style="width:' + pct + '%"></span></div></div>';

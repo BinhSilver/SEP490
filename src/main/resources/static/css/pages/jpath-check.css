@@ -300,3 +300,396 @@ ul.jp-done__wrong { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; 
 ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid var(--jp-bad, #b3261e); color: var(--jp-bad, #b3261e); }
 .jp-done__actions, .jp-done__extra { justify-content: flex-start; width: auto; margin-top: 0; }
 .jp-done__actions .jp-btn { min-height: 44px; }
+
+
+/* 05/11 Việc 2: Lựa chọn đúng xanh nảy nhẹ, sai đỏ rung ngang & Màn kết thúc phần có hiệu ứng chúc mừng (<= 1.2s) */
+.jp-check__prompt.jp-card {
+  border: 1.5px solid var(--jp-line);
+  border-top: 4px solid var(--jp-primary);
+  border-radius: 18px;
+  background: linear-gradient(180deg, var(--jp-surface) 0%, color-mix(in srgb, var(--jp-primary-soft) 35%, var(--jp-surface)) 100%);
+  box-shadow: 0 10px 26px -10px color-mix(in srgb, var(--jp-primary) 15%, transparent);
+}
+.jp-check-opt, .jp-pair {
+  border-radius: 12px;
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--jp-ink) 6%, transparent);
+  transition: transform .15s ease, border-color .18s ease, background-color .18s ease, box-shadow .18s ease;
+}
+.jp-check-opt:hover:not([disabled]), .jp-pair:hover:not([disabled]) {
+  transform: translateY(-2px);
+  border-color: var(--jp-primary);
+  box-shadow: 0 5px 12px color-mix(in srgb, var(--jp-primary) 14%, transparent);
+}
+.jp-check-opt.jp-ok, .jp-pair.jp-ok {
+  border: 2px solid var(--jp-ok);
+  background: color-mix(in srgb, var(--jp-ok) 15%, var(--jp-surface));
+  color: var(--jp-ink);
+  font-weight: 700;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--jp-ok) 22%, transparent);
+  animation: jp-ok-bounce .42s cubic-bezier(.34, 1.56, .64, 1) 1 both;
+}
+.jp-check-opt.jp-ok .jp-key {
+  border-color: var(--jp-ok);
+  background: var(--jp-ok);
+  color: var(--jp-surface);
+}
+.jp-check-opt.jp-ok .jp-i, .jp-pair.jp-ok .jp-i {
+  color: var(--jp-ok);
+}
+.jp-check-opt.jp-bad, .jp-pair.jp-bad {
+  border: 2px solid var(--jp-danger);
+  background: color-mix(in srgb, var(--jp-danger) 14%, var(--jp-surface));
+  color: var(--jp-ink);
+  font-weight: 700;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--jp-danger) 18%, transparent);
+  animation: jp-bad-shake .46s ease-in-out 1 both;
+}
+.jp-check-opt.jp-bad .jp-key {
+  border-color: var(--jp-danger);
+  background: var(--jp-danger);
+  color: var(--jp-surface);
+}
+.jp-check-opt.jp-bad .jp-i, .jp-pair.jp-bad .jp-i {
+  color: var(--jp-danger);
+}
+.jp-order__slots.jp-ok {
+  border: 2px solid var(--jp-ok);
+  background: color-mix(in srgb, var(--jp-ok) 12%, var(--jp-surface));
+  animation: jp-ok-bounce .42s cubic-bezier(.34, 1.56, .64, 1) 1 both;
+}
+.jp-order__slots.jp-bad {
+  border: 2px solid var(--jp-danger);
+  background: color-mix(in srgb, var(--jp-danger) 12%, var(--jp-surface));
+  animation: jp-bad-shake .46s ease-in-out 1 both;
+}
+.jp-review__options .jp-check-opt.jp-ok,
+.jp-review__options .jp-check-opt.jp-bad {
+  animation: none;
+}
+@keyframes jp-ok-bounce {
+  0% { transform: scale(.96); }
+  50% { transform: scale(1.025) translateY(-2px); }
+  80% { transform: scale(.995); }
+  100% { transform: none; }
+}
+@keyframes jp-bad-shake {
+  0%, 100% { transform: none; }
+  18% { transform: translateX(-7px); }
+  36% { transform: translateX(6px); }
+  54% { transform: translateX(-5px); }
+  72% { transform: translateX(4px); }
+  88% { transform: translateX(-2px); }
+}
+
+.jp-check__feedback {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+.jp-check__feedback::before {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  border-radius: 50%;
+  font-size: .82em;
+  font-weight: 800;
+  line-height: 1;
+}
+.jp-check__feedback.jp-ok {
+  border: 1.5px solid color-mix(in srgb, var(--jp-ok) 45%, var(--jp-line));
+  background: color-mix(in srgb, var(--jp-ok) 14%, var(--jp-surface));
+  color: var(--jp-ok);
+  animation: jp-ok-bounce .36s cubic-bezier(.34, 1.56, .64, 1) 1 both;
+}
+.jp-check__feedback.jp-ok::before {
+  content: "✓";
+  background: var(--jp-ok);
+  color: var(--jp-surface);
+}
+.jp-check__feedback.jp-bad {
+  border: 1.5px solid color-mix(in srgb, var(--jp-danger) 45%, var(--jp-line));
+  background: color-mix(in srgb, var(--jp-danger) 12%, var(--jp-surface));
+  color: var(--jp-danger);
+  animation: jp-bad-shake .42s ease-in-out 1 both;
+}
+.jp-check__feedback.jp-bad::before {
+  content: "✕";
+  background: var(--jp-danger);
+  color: var(--jp-surface);
+}
+
+/* Màn kết thúc phần (.jp-result / .jp-celebrate): hiệu ứng chúc mừng ngắn <= 1.2s */
+.jp-result.jp-card {
+  position: relative;
+  overflow: hidden;
+  justify-items: center;
+  text-align: center;
+  gap: 12px;
+  border: 1.5px solid var(--jp-line);
+  border-top: 4px solid var(--jp-primary);
+  border-radius: 20px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--jp-primary-soft) 50%, var(--jp-surface)) 0%, var(--jp-surface) 65%);
+  box-shadow: 0 14px 36px -12px color-mix(in srgb, var(--jp-primary) 18%, transparent);
+}
+.jp-result--pass.jp-card {
+  border-top-color: var(--jp-ok);
+}
+.jp-result__actions {
+  justify-content: center;
+}
+.jp-celebrate {
+  animation: jp-celebrate-card .85s cubic-bezier(.22, 1, .36, 1) 1 both;
+}
+.jp-celebrate__art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 92px;
+  margin-bottom: 2px;
+  color: var(--jp-primary);
+}
+.jp-celebrate__art--retry {
+  width: 120px;
+  height: 84px;
+  color: var(--jp-warn);
+}
+.jp-celebrate__svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.jp-celebrate__halo {
+  fill: var(--jp-primary-soft);
+  transform-origin: center;
+  animation: jp-celebrate-halo 1.05s ease-out 1 both;
+}
+.jp-celebrate__art--retry .jp-celebrate__halo {
+  fill: color-mix(in srgb, var(--jp-warn) 16%, var(--jp-surface));
+}
+.jp-celebrate__cup {
+  transform-origin: 80px 48px;
+  animation: jp-celebrate-cup .95s cubic-bezier(.34, 1.56, .64, 1) 1 both;
+}
+.jp-celebrate__cup-body {
+  fill: var(--jp-primary);
+}
+.jp-celebrate__cup-stroke {
+  stroke: var(--jp-primary);
+}
+.jp-celebrate__cup-star {
+  fill: var(--jp-surface);
+}
+.jp-celebrate__spark {
+  fill: var(--jp-warn);
+  transform-origin: center;
+  animation: jp-celebrate-spark 1.15s ease-out 1 both;
+}
+.jp-celebrate__spark--2 {
+  fill: var(--jp-ok);
+  animation-delay: .1s;
+}
+.jp-celebrate__dot--1, .jp-celebrate__confetti--1 {
+  fill: var(--jp-ok);
+  transform-origin: center;
+  animation: jp-celebrate-burst 1.1s ease-out 1 both;
+}
+.jp-celebrate__dot--2, .jp-celebrate__confetti--2 {
+  fill: var(--jp-primary);
+  transform-origin: center;
+  animation: jp-celebrate-burst 1.1s ease-out .08s 1 both;
+}
+.jp-result__score {
+  animation: jp-celebrate-score .75s cubic-bezier(.34, 1.56, .64, 1) .08s 1 both;
+}
+@keyframes jp-celebrate-card {
+  0% { opacity: 0; transform: translateY(10px) scale(.96); }
+  60% { opacity: 1; transform: translateY(-2px) scale(1.01); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes jp-celebrate-halo {
+  0% { transform: scale(.5); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes jp-celebrate-cup {
+  0% { transform: scale(.4) rotate(-8deg); opacity: 0; }
+  60% { transform: scale(1.12) rotate(3deg); opacity: 1; }
+  82% { transform: scale(.97) rotate(-1deg); }
+  100% { transform: none; opacity: 1; }
+}
+@keyframes jp-celebrate-spark {
+  0% { transform: scale(0) rotate(-35deg); opacity: 0; }
+  55% { transform: scale(1.25) rotate(10deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes jp-celebrate-burst {
+  0% { transform: scale(.3) translateY(8px); opacity: 0; }
+  60% { transform: scale(1.15) translateY(-3px); opacity: 1; }
+  100% { transform: none; opacity: 1; }
+}
+@keyframes jp-celebrate-score {
+  0% { transform: scale(.75); opacity: 0; }
+  70% { transform: scale(1.06); opacity: 1; }
+  100% { transform: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jp-celebrate,
+  .jp-celebrate *,
+  .jp-check-opt.jp-ok,
+  .jp-check-opt.jp-bad,
+  .jp-pair.jp-ok,
+  .jp-pair.jp-bad,
+  .jp-order__slots.jp-ok,
+  .jp-order__slots.jp-bad,
+  .jp-check__feedback.jp-ok,
+  .jp-check__feedback.jp-bad,
+  .jp-result__score {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+
+/* 05/11 Lượt 2: Linh vật Kitsu đồng hành trong bài kiểm tra + nút 3D + màn ăn mừng */
+.jp-check__mascot {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  justify-self: start;
+  max-width: 100%;
+}
+.jp-check__mascot-img {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px color-mix(in srgb, var(--jp-primary) 22%, transparent));
+  animation: jp-check-kitsu-bob 2.2s ease-in-out infinite;
+}
+.jp-check__mascot-bubble {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border: 1.5px solid color-mix(in srgb, var(--jp-primary) 35%, var(--jp-line));
+  border-radius: 14px 14px 14px 4px;
+  background: var(--jp-surface);
+  color: var(--jp-ink);
+  font-size: .86em;
+  font-weight: 700;
+  line-height: 1.35;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-primary) 14%, transparent);
+}
+.jp-check__mascot-bubble::after {
+  content: attr(data-speech);
+}
+.jp-check__mascot--ok .jp-check__mascot-bubble {
+  border-color: #16a34a;
+  background: color-mix(in srgb, #22c55e 14%, var(--jp-surface));
+  color: #15803d;
+  box-shadow: 0 3px 0 rgb(22 163 74 / 22%);
+}
+.jp-check__mascot--bad .jp-check__mascot-bubble {
+  border-color: var(--jp-danger);
+  background: color-mix(in srgb, var(--jp-danger) 12%, var(--jp-surface));
+  color: var(--jp-danger);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-danger) 22%, transparent);
+}
+@keyframes jp-check-kitsu-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Nút phương án & nối cặp nổi 3D, bấm vào lún xuống */
+.jp-check-opt, .jp-pair {
+  border-width: 2px;
+  border-bottom-width: 4px;
+  border-radius: 14px;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-ink) 10%, transparent);
+}
+.jp-check-opt:active:not([disabled]), .jp-pair:active:not([disabled]) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--jp-ink) 10%, transparent);
+}
+.jp-check-opt.jp-ok, .jp-pair.jp-ok {
+  border-color: #16a34a;
+  border-bottom-color: #15803d;
+  background: color-mix(in srgb, #22c55e 16%, var(--jp-surface));
+  box-shadow: 0 3px 0 rgb(21 128 61 / 32%);
+}
+.jp-check-opt.jp-bad, .jp-pair.jp-bad {
+  border-color: var(--jp-danger);
+  border-bottom-color: color-mix(in srgb, var(--jp-danger) 80%, #000000);
+  background: color-mix(in srgb, var(--jp-danger) 14%, var(--jp-surface));
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-danger) 30%, transparent);
+}
+
+/* Kitsu ăn mừng trên màn kết quả (.jp-celebrate__art) */
+.jp-celebrate__art {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: auto;
+  height: auto;
+  margin-bottom: 4px;
+}
+.jp-celebrate__stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 180px;
+  height: 104px;
+}
+.jp-celebrate__stage .jp-celebrate__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.jp-celebrate__mascot {
+  position: relative;
+  z-index: 1;
+  width: 86px;
+  height: 86px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 12px color-mix(in srgb, var(--jp-primary) 24%, transparent));
+  animation: jp-celebrate-cup .95s cubic-bezier(.34, 1.56, .64, 1) 1 both;
+}
+.jp-celebrate__bubble {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 14px;
+  border: 1.5px solid color-mix(in srgb, var(--jp-ok) 45%, var(--jp-line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--jp-ok) 12%, var(--jp-surface));
+  color: var(--jp-ink);
+  font-size: .85em;
+  font-weight: 700;
+}
+.jp-celebrate__art--retry .jp-celebrate__bubble {
+  border-color: color-mix(in srgb, var(--jp-warn) 50%, var(--jp-line));
+  background: color-mix(in srgb, var(--jp-warn) 14%, var(--jp-surface));
+}
+.jp-celebrate__bubble::after {
+  content: attr(data-speech);
+}
+
+@media (max-width: 640px) {
+  .jp-check__mascot-img { width: 46px; height: 46px; flex-basis: 46px; }
+  .jp-check__mascot-bubble { font-size: .78em; padding: 5px 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jp-check__mascot-img,
+  .jp-celebrate__mascot {
+    animation: none !important;
+  }
+}
