@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
-<head th:replace="~{fragments/head :: standard(${pageTitle}, 'onyomi-ff')}"></head>
-<body data-mobile-adapt="owned" id="jlabBasePage" class="app-body onyomi-body ff-theme">
+<head th:replace="~{fragments/head :: standard(${pageTitle}, 'onyomi')}"></head>
+<body data-mobile-adapt="owned" id="jlabBasePage" class="app-body onyomi-body">
 <div id="jlabBaseShellMount"></div>
 <div th:replace="~{learning/fragments/welcome-modal :: welcome-modal}"></div>
 
@@ -15,7 +15,7 @@
         <div class="oy-notice" th:if="${lockedNotice}" role="status">
             <i class="fa-solid fa-lock" aria-hidden="true"></i>
             <span th:if="${lockedNotice == 'final'}">Bài kiểm tra cuối giai đoạn mở khoá khi bạn hoàn thành mọi bài trong giai đoạn đó.</span>
-            <span th:if="${lockedNotice == 'pro'}">Bài đó dành cho tài khoản Pro. <a th:href="@{/profile(tab='premium')}">Nâng cấp Pro</a> để học toàn bộ giáo trình và làm các bài kiểm tra.</span>
+            <span th:if="${lockedNotice == 'pro'}">Bài đó dành cho tài khoản Pro. <a th:href="@{/premium}">Nâng cấp Pro</a> để học toàn bộ giáo trình và làm các bài kiểm tra.</span>
             <span th:unless="${lockedNotice == 'final' or lockedNotice == 'pro'}">Bài đó chưa mở khoá. Các bài mở lần lượt: vượt qua bài luyện tập (từ 60%) của bài trước để học bài tiếp theo.</span>
         </div>
 
@@ -85,7 +85,7 @@
                                th:href="@{/learning/onyomi/lessons/{id}(id=${card.lessonId})}">
                                 <span th:text="${done} ? 'Ôn lại' : (${card.status == 'IN_PROGRESS'} ? 'Học tiếp' : 'Bắt đầu học')">Bắt đầu học</span>
                             </a>
-                            <a th:if="${locked and card.proOnly}" class="oy-lesson-card__locked" th:href="@{/profile(tab='premium')}">
+                            <a th:if="${locked and card.proOnly}" class="oy-lesson-card__locked" th:href="@{/premium}">
                                 <i class="fa-solid fa-crown" aria-hidden="true"></i> Nâng cấp Pro để mở khoá
                             </a>
                             <span th:if="${locked and !card.proOnly}" class="oy-lesson-card__locked">
