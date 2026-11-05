@@ -12,6 +12,10 @@ public enum ErrorCode {
     AICALL_STAGE_LOCKED(HttpStatus.FORBIDDEN, "Bạn cần hoàn thành các màn trước để mở màn này."),
     AICALL_FREE_CHAT_NEW_DAY(HttpStatus.CONFLICT, "Đã sang ngày mới, chuyển sang cuộc trò chuyện hôm nay."),
     ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên."),
+    /** Video Shadowing có nhãn độ tuổi mà tài khoản chưa có ngày sinh: trang hiện hộp nhập ngày sinh. */
+    BIRTH_DATE_REQUIRED(HttpStatus.FORBIDDEN, "Vui lòng nhập ngày sinh để xem video có giới hạn độ tuổi."),
+    /** Người xem chưa đủ tuổi tối thiểu của video Shadowing (video.min_age). */
+    AGE_RESTRICTED(HttpStatus.FORBIDDEN, "Bạn chưa đủ tuổi để xem video này."),
     NOT_FOUND(HttpStatus.NOT_FOUND, "Resource not found"),
     CONFLICT(HttpStatus.CONFLICT, "Conflict"),
     PENDING_VERIFICATION(HttpStatus.CONFLICT, "Email is pending verification"),

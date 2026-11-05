@@ -83,6 +83,7 @@ public class AzurePronunciationAssessmentService {
         Subtitle subtitle = subtitleRepository.findById(subtitleId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy câu phụ đề"));
         videoService.requireReadable(subtitle.getVideo());
+        videoService.requireAgeAllowed(subtitle.getVideo());
         validateUpload(audio);
 
         Path tempDirectory = null;

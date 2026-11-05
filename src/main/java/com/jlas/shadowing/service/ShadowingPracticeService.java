@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,6 +42,7 @@ public class ShadowingPracticeService {
     private final SubtitleQualityReviewService subtitleQualityReviewService;
     private final ShadowingQuestionBankRepository questionBank;
     private final ShadowingQuestionPreparationService preparationService;
+    private final ShadowingAgeGate ageGate;
     private final Map<Long, Deque<Instant>> createRequests = new ConcurrentHashMap<>();
 
     public ShadowingPracticeService(VideoRepository videoRepository,
@@ -49,7 +51,8 @@ public class ShadowingPracticeService {
                                     ShadowingPracticeRepository practiceRepository,
                                     SubtitleQualityReviewService subtitleQualityReviewService,
                                     ShadowingQuestionBankRepository questionBank,
-                                    ShadowingQuestionPreparationService preparationService) {
+                                    ShadowingQuestionPreparationService preparationService,
+                                    ShadowingAgeGate ageGate) {
         this.videoRepository = videoRepository;
         this.subtitleRepository = subtitleRepository;
         this.analysisService = analysisService;
@@ -57,6 +60,7 @@ public class ShadowingPracticeService {
         this.subtitleQualityReviewService = subtitleQualityReviewService;
         this.questionBank = questionBank;
         this.preparationService = preparationService;
+        this.ageGate = ageGate;
     }
 
     public CreatePracticeSessionResponse create(long userId, CreatePracticeSessionRequest request) {
@@ -180,6 +184,8 @@ public class ShadowingPracticeService {
         ShadowingPracticeSession session = ownedSession(userId, sessionId);
         Video video = videoRepository.findById(session.getVideoId())
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy video"));
+        // A session started before the video got an age rating must not keep serving it.
+        ageGate.requireAllowed(video, userId);
         List<PracticeStopView> stops = practiceRepository.findStops(sessionId);
         if (session.getStatus() == PracticeSessionStatus.COMPLETED
                 || session.getCurrentPosition() >= session.getTotalQuestions()) {
@@ -382,7 +388,14 @@ public class ShadowingPracticeService {
         boolean publicReady = video.getStatus() == VideoStatus.READY
                 && (video.getVisibility() == null || video.getVisibility() == VideoVisibility.PUBLIC);
         if (!owner && !publicReady) throw new ApiException(ErrorCode.FORBIDDEN, "Bạn không có quyền học video này");
+        ageGate.requireAllowed(video, userId);
         return video;
+    }
+
+    /** Video of one of the learner's sessions, so the exercise page can run the age-rating check. */
+    public Optional<Long> ownedSessionVideoId(long userId, long sessionId) {
+        return Optional.ofNullable(practiceRepository.findOwnedSession(sessionId, userId))
+                .map(ShadowingPracticeSession::getVideoId);
     }
 
     private ShadowingPracticeSession ownedSession(long userId, long sessionId) {

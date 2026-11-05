@@ -76,9 +76,11 @@ public class VideoController {
             @RequestParam(value = "tags", required = false) List<String> tags,
             @RequestParam(value = "genres", required = false) List<String> genres,
             @RequestParam(value = "targetLanguage", defaultValue = "vi") String targetLanguage,
-            @RequestParam(value = "generateFurigana", required = false, defaultValue = "false") Boolean generateFurigana) {
+            @RequestParam(value = "generateFurigana", required = false, defaultValue = "false") Boolean generateFurigana,
+            @RequestParam(value = "minAge", required = false) Integer minAge) {
         try {
-            Video video = videoService.uploadVideo(file, thumbnail, title, category, tags, targetLanguage, generateFurigana, genres);
+            Video video = videoService.uploadVideo(file, thumbnail, title, category, tags, targetLanguage,
+                    generateFurigana, genres, minAge);
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
                     "id", video.getId(),
                     "status", video.getStatus().name(),
@@ -113,7 +115,22 @@ public class VideoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Video> getVideo(@PathVariable Long id) {
-        return ResponseEntity.ok(videoService.getVideo(id));
+        return ResponseEntity.ok(videoService.getVideoForViewing(id));
+    }
+
+    public record AgeRatingRequest(Integer minAge) { }
+
+    /** Owner or moderator sets the age rating from the player page: 13, 16 or 18; 0 or null = all ages. */
+    @PutMapping("/{id}/age-rating")
+    public ResponseEntity<Video> setAgeRating(@PathVariable Long id, @RequestBody AgeRatingRequest request) {
+        return ResponseEntity.ok(videoService.setAgeRating(id, request.minAge()));
+    }
+
+    /** Lets a lesson page check the age rating before it loads: 204, or the error (BIRTH_DATE_REQUIRED…). */
+    @GetMapping("/{id}/access")
+    public ResponseEntity<Void> access(@PathVariable Long id) {
+        videoService.getVideoForViewing(id);
+        return ResponseEntity.noContent().build();
     }
 
     /** Library card data for one video (level, tags, counts, rating), for the practice page header. */
@@ -193,7 +210,7 @@ public class VideoController {
 
     @GetMapping("/{id}/stream")
     public ResponseEntity<Resource> streamVideo(@PathVariable Long id) {
-        Video video = videoService.getVideo(id);
+        Video video = videoService.getVideoForViewing(id);
         // Embeddable YouTube videos are played through the YouTube embed; the server never serves a copy of them.
         // Only uploads and YouTube videos that cannot be embedded (playback mode FILE) are streamed from file.
         if (video.getVideoPath() == null || video.getVideoPath().isBlank() || video.isYoutubeEmbed()) {

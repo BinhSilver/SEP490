@@ -30,6 +30,8 @@ public class VideoSummaryDto {
     private long commentCount;
     private Long ownerId;
     private String visibility;
+    /** Nhãn độ tuổi (13, 16, 18); null = mọi lứa tuổi. */
+    private Integer minAge;
     private boolean ownedByMe;
     /** Lần gần nhất người dùng mở video này; chỉ có ở tab Lịch sử. */
     private LocalDateTime viewedAt;

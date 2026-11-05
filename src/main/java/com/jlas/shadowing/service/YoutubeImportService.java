@@ -7,6 +7,7 @@ import com.jlas.shadowing.dto.YoutubeImportStatusDto;
 import com.jlas.shadowing.model.*;
 import com.jlas.shadowing.repository.TagRepository;
 import com.jlas.shadowing.repository.VideoRepository;
+import com.jlas.shadowing.util.VideoAgeRatings;
 import com.jlas.shadowing.util.NullSafe;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,13 +39,15 @@ public class YoutubeImportService {
     @Transactional
     public YoutubeImportResultDto startImport(String url, String category, String targetLanguage,
                                               Boolean generateFurigana) throws Exception {
-        return startImport(url, category, targetLanguage, generateFurigana, null);
+        return startImport(url, category, targetLanguage, generateFurigana, null, null);
     }
 
     @Transactional
     public YoutubeImportResultDto startImport(String url, String category, String targetLanguage,
-                                              Boolean generateFurigana, List<String> genres) throws Exception {
+                                              Boolean generateFurigana, List<String> genres,
+                                              Integer minAge) throws Exception {
         List<Tag> genreTags = videoTags.genreTags(genres);
+        Integer requestedRating = VideoAgeRatings.parse(minAge);
         YoutubeAnalyzeResultDto meta = youtubeAnalyzeService.analyze(url);
         if (meta.isBlockedNonJapanese()) {
             throw new IllegalArgumentException(meta.getLanguageMessage() != null
@@ -84,6 +87,7 @@ public class YoutubeImportService {
             video.setOwnerId(null);
         }
         video.setVisibility(VideoVisibility.PRIVATE);
+        video.setMinAge(VideoAgeRatings.stricter(requestedRating, meta.getYoutubeMinAge()));
         video.setPlaybackMode(meta.isEmbeddable() ? Video.PLAYBACK_EMBED : Video.PLAYBACK_FILE);
 
         try {

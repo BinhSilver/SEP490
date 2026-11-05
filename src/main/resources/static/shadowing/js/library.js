@@ -297,20 +297,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const levelBadge = v.estimatedLevel
                 ? `<span class="card-level-badge" title="Cấp độ JLPT">${esc(v.estimatedLevel)}</span>`
                 : '';
+            const minAge = Number(v.minAge) || 0;
+            const ageBadge = minAge
+                ? `<span class="card-age-badge" title="Dành cho người từ ${minAge} tuổi trở lên">${minAge}+</span>`
+                : '';
             const canManage = !!v.ownedByMe;
 
             card.innerHTML = `
                 <div class="video-card-thumb">
                     ${thumbHtml}
                     ${levelBadge}
+                    ${ageBadge}
                     <button class="card-fav-btn ${v.favorited ? 'favorited' : ''}" title="Yêu thích">
                         <i class="${v.favorited ? 'fa-solid' : 'fa-regular'} fa-star"></i>
                     </button>
                 </div>
                 <div class="video-card-title">${esc(v.title)}</div>
                 <div class="video-card-meta">
-                    ${statusBadge}
-                    ${canManage || currentScope === 'public' ? visBadge : ''}
+                    ${currentScope === 'my' ? statusBadge + visBadge : ''}
                     <span class="badge badge-category"><i class="fa-solid fa-folder"></i> ${esc(category)}</span>
                     <span class="badge badge-lesson"><i class="fa-solid fa-closed-captioning"></i> ${v.subtitleCount || 0} câu</span>
                 </div>

@@ -50,6 +50,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const languageCheckMessage = document.getElementById('language-check-message');
     const ytCategorySelect = document.getElementById('yt-category-select');
     const ytLangSelect = document.getElementById('yt-lang-select');
+    const fileMinAgeSelect = document.getElementById('file-min-age-select');
+    const ytMinAgeSelect = document.getElementById('yt-min-age-select');
+    const ytMinAgeHint = document.getElementById('yt-min-age-hint');
+
+    /** YouTube's own age restriction is the floor: lower ratings are disabled (the server keeps the stricter one). */
+    function applyYoutubeAgeLimit(youtubeMinAge) {
+        const floor = Number(youtubeMinAge) || 0;
+        Array.from(ytMinAgeSelect.options).forEach(option => { option.disabled = Number(option.value) < floor; });
+        if (Number(ytMinAgeSelect.value) < floor) ytMinAgeSelect.value = String(floor);
+        ytMinAgeHint.hidden = !floor;
+        ytMinAgeHint.textContent = floor
+            ? `YouTube giới hạn video này cho người từ ${floor} tuổi, nên nhãn không thấp hơn ${floor}+.` : '';
+    }
 
     let analyzedUrl = null;
     let analyzeData = null;
@@ -265,6 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.ShadowingGenres.read(document.getElementById('file-genres')).forEach(code => formData.append('genres', code));
         formData.append('targetLanguage', fileLangSelect.value);
         formData.append('generateFurigana', wantAi ? 'true' : 'false');
+        formData.append('minAge', fileMinAgeSelect.value);
 
         fileStatus.textContent = 'Đang upload...';
         uploadBtn.disabled = true;
@@ -335,6 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
         previewDuration.textContent = `Thời lượng: ${formatDuration(data.duration)}`;
 
         renderLanguageCheck(data);
+        applyYoutubeAgeLimit(data.youtubeMinAge);
 
         if (data.thumbnail) {
             previewThumb.src = data.thumbnail;
@@ -480,7 +495,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     category: ytCategorySelect.value,
                     genres: window.ShadowingGenres.read(document.getElementById('yt-genres')),
                     targetLanguage: ytLangSelect.value,
-                    generateFurigana: wantAi
+                    generateFurigana: wantAi,
+                    minAge: Number(ytMinAgeSelect.value)
                 })
             });
             const data = await res.json().catch(() => ({}));
