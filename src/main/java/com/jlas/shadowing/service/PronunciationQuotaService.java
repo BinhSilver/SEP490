@@ -35,6 +35,10 @@ public class PronunciationQuotaService {
         static final String FREE = "FREE";
         static final String QUOTA = "QUOTA";
         static final String CREDIT = "CREDIT";
+
+        public int creditCharged() {
+            return CREDIT.equals(kind) ? CREDIT_PRICE : 0;
+        }
     }
 
     /** What the popup shows: checks used today out of the daily allowance, the price after it and the balance. */

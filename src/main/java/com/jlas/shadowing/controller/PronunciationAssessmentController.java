@@ -43,7 +43,9 @@ public class PronunciationAssessmentController {
             @RequestParam(value = "useCredit", defaultValue = "false") boolean useCredit) {
         PronunciationQuotaService.Charge charge = quotaService.reserve(CurrentUser.requireUserId(), useCredit);
         try {
-            return assessmentService.assess(subtitleId, audio);
+            PronunciationAssessmentDto result = assessmentService.assess(subtitleId, audio);
+            result.setCreditCharged(charge.creditCharged());
+            return result;
         } catch (RuntimeException failure) {
             quotaService.release(charge);
             throw failure;

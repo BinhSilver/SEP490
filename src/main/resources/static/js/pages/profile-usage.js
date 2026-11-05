@@ -16,7 +16,7 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
 
-  var UPGRADE_URL = '/profile?tab=premium';
+  var UPGRADE_URL = '/premium';
 
   function escapeHtml(value) {
     return String(value == null ? '' : value).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -79,6 +79,15 @@
     return list;
   }
 
+  /** "Không hỏi lại hôm nay" đang bật cho dòng này: số CP đã tự dùng và nút tắt. */
+  function autoPayMarkup(row) {
+    var auto = typeof window !== 'undefined' ? window.JlasCpAutoPay : null;
+    var paid = auto ? auto.state(row.key) : null;
+    if (!paid || !paid.on) return '';
+    return '<p class="profile-usage__detail">Tự dùng CP hôm nay: ' + paid.spent + '/' + paid.cap + ' CP '
+      + '<button type="button" class="profile-usage__auto-off" data-usage-auto-off="' + escapeHtml(row.key) + '">Hỏi lại khi tốn CP</button></p>';
+  }
+
   function rowMarkup(row) {
     var bar = row.percent == null ? ''
       : '<div class="profile-usage__bar" aria-hidden="true"><div class="profile-usage__fill'
@@ -87,6 +96,7 @@
       + '<div class="profile-usage__line"><span>' + escapeHtml(row.label) + '</span><strong>' + escapeHtml(row.value) + '</strong></div>'
       + bar
       + (row.detail ? '<p class="profile-usage__detail">' + escapeHtml(row.detail) + '</p>' : '')
+      + autoPayMarkup(row)
       + '</div>';
   }
 
@@ -141,6 +151,12 @@
     });
     modal.querySelectorAll('[data-usage-close]').forEach(function (element) {
       element.addEventListener('click', close);
+    });
+    modal.addEventListener('click', function (event) {
+      var off = event.target.closest && event.target.closest('[data-usage-auto-off]');
+      if (!off || !window.JlasCpAutoPay) return;
+      window.JlasCpAutoPay.disable(off.getAttribute('data-usage-auto-off'));
+      load();
     });
   }
 

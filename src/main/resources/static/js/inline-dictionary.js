@@ -11,6 +11,8 @@
   'use strict';
   var popup;
   var requestNumber = 0;
+  // "Không hỏi lại hôm nay" (js/components/cp-auto-pay.js).
+  var AUTO_PAY = 'quickLookup';
 
   function escapeHtml(value) {
     return String(value == null ? '' : value).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -94,10 +96,17 @@
       : 'Mua ' + allowance.packLookups + ' lượt tra cần ' + price + ' CP. Bạn có ' + balance + ' CP, còn thiếu <strong>' + (price - balance) + ' CP</strong>.';
     var buy = enough
       ? '<button type="button" data-inline-buy>Mua ' + allowance.packLookups + ' lượt (' + price + ' CP)</button>'
-      : '<a href="/profile">Nạp CP</a>';
-    return '<div class="inline-dict__paywall"><strong>Bạn đã hết lượt tra từ nhanh</strong><p>' + detail + '</p>' +
+      : '<a href="/credits">Nạp CP</a>';
+    var auto = typeof window !== 'undefined' ? window.JlasCpAutoPay : null;
+    var capNote = auto && auto.capReached(AUTO_PAY)
+      ? '<p class="inline-dict__hint">Đã tự dùng đủ ' + auto.DAILY_CAP + ' CP hôm nay nên cần xác nhận lại.</p>' : '';
+    var autoOption = auto && enough
+      ? '<label class="inline-dict__auto"><input type="checkbox" data-inline-auto> Không hỏi lại hôm nay (tự mua khi hết lượt, tối đa '
+        + auto.DAILY_CAP + ' CP/ngày)</label>' : '';
+    return '<div class="inline-dict__paywall"><strong>Bạn đã hết lượt tra từ nhanh</strong><p>' + detail + '</p>' + capNote +
       '<p class="inline-dict__hint">Tài khoản Pro tra từ không giới hạn. Tra lại một từ trong cùng ngày không tốn lượt.</p></div>' +
-      '<div class="inline-dict__actions">' + buy + '<a href="/profile?tab=premium">Nâng cấp Pro</a></div>' +
+      autoOption +
+      '<div class="inline-dict__actions">' + buy + '<a href="/premium">Nâng cấp Pro</a></div>' +
       '<p class="inline-dict__status" role="status" aria-live="polite"></p>';
   }
 
@@ -305,7 +314,7 @@
     return panel;
   }
 
-  async function lookupText(text, rect) {
+  async function lookupText(text, rect, chargeNote) {
     var current = ++requestNumber;
     try {
       var word = await request('/api/dictionary/inline?q=' + encodeURIComponent(text));
@@ -313,8 +322,23 @@
       var panel = showPanel(popupMarkup(word), rect);
       var saveButton = panel.querySelector('[data-inline-save]');
       saveButton.serverSaved = word.saved === true;
+      if (chargeNote) panel.querySelector('.inline-dict__status').textContent = chargeNote;
     } catch (error) {
       if (current !== requestNumber || error.code !== 'QUICK_LOOKUP_EXHAUSTED') { close(); return; }
+      var auto = window.JlasCpAutoPay;
+      if (!chargeNote && auto && auto.covers(AUTO_PAY)) {
+        try {
+          var pack = await request('/api/dictionary/inline/pack', { method: 'POST' });
+          auto.add(AUTO_PAY, pack.packPrice);
+          var paid = auto.state(AUTO_PAY);
+          await lookupText(text, rect, '−' + pack.packPrice + ' CP: đã tự mua ' + pack.packLookups
+            + ' lượt tra (tự dùng hôm nay: ' + paid.spent + '/' + paid.cap + ' CP)');
+          return;
+        } catch (buyError) {
+          // Không đủ CP: tắt tự mua và hiện bảng mua để báo số còn thiếu.
+          auto.disable(AUTO_PAY);
+        }
+      }
       try {
         var allowance = await request('/api/dictionary/inline/allowance');
         if (current !== requestNumber) return;
@@ -326,9 +350,19 @@
 
   async function buyPack(button) {
     var status = popup.querySelector('.inline-dict__status');
+    var autoBox = popup.querySelector('[data-inline-auto]');
+    var auto = window.JlasCpAutoPay;
     button.disabled = true;
     try {
-      await request('/api/dictionary/inline/pack', { method: 'POST' });
+      var pack = await request('/api/dictionary/inline/pack', { method: 'POST' });
+      if (auto) {
+        if (autoBox && autoBox.checked) {
+          auto.enable(AUTO_PAY, pack.packPrice);
+          auto.add(AUTO_PAY, pack.packPrice);
+        } else {
+          auto.disable(AUTO_PAY);
+        }
+      }
       if (pendingLookup) await lookupText(pendingLookup.text, pendingLookup.rect);
       pendingLookup = null;
     } catch (error) {

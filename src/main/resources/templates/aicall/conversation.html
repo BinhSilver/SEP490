@@ -10,15 +10,15 @@
     <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
     <link rel="stylesheet" th:href="@{/css/base.css}"/>
-    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20261031-pro-cp')}"/>
+    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20261105-plum')}"/>
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/cards.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/inputs.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/forms.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/dropdowns.css}"/>
-    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261031-pro-cp)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261103-auto)}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261011-flush-corner')}"/>
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261103-nav-hover-2')}"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
 <body data-mobile-adapt="owned" id="jlabBasePage" th:class="${freeChat} ? 'mode-free-chat show-feedback' : 'show-furigana show-feedback show-suggestions'"
@@ -404,11 +404,11 @@
       <ul class="quota-usage" id="quotaUsage"></ul>
       <label class="quota-auto" id="quotaAutoWrap" hidden>
         <input type="checkbox" id="quotaAutoCredit">
-        <span>Tự dùng CP cho các lượt sau trong cuộc gọi này (tối đa <span id="quotaAutoCap">100</span> CP)</span>
+        <span>Không hỏi lại hôm nay (tự dùng CP, tối đa <span id="quotaAutoCap">100</span> CP/ngày)</span>
       </label>
       <div class="quota-actions">
         <button class="button-primary btn-sm" id="btnQuotaUseCredit" hidden><i class="fa-solid fa-coins"></i> Dùng CP cho lượt này</button>
-        <button class="button-secondary btn-sm" id="btnQuotaBuy"><i class="fa-solid fa-coins"></i> Xem lịch sử CP</button>
+        <button class="button-secondary btn-sm" id="btnQuotaBuy"><i class="fa-solid fa-coins"></i> Nạp CP</button>
         <button class="button-primary btn-sm" id="btnQuotaUpgrade"><i class="fa-solid fa-crown"></i> Nâng cấp Premium</button>
       </div>
     </div>
@@ -426,11 +426,12 @@
   </div>
 </div>
 <script th:src="@{/js/auth-session.js}"></script>
-<script defer th:src="@{/js/inline-dictionary.js(v=20261031-pro-cp)}"></script>
+<script th:src="@{/js/components/cp-auto-pay.js(v=20261103-auto)}"></script>
+<script defer th:src="@{/js/inline-dictionary.js(v=20261103-auto)}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 <script src="/js/audio-visualizer.js"></script>
 <script src="/js/pages/aicall-scene-image.js?v=20261002"></script>
-<script th:src="@{/js/conversation.js(v='20261031-pro-cp')}"></script>
+<script th:src="@{/js/conversation.js(v='20261103-auto')}"></script>
 <script src="/js/conversation-settings.js?v=20261009-composer-fix"></script>
 </body>
 </html>

@@ -28,6 +28,9 @@
             ? '<li>Sau lượt này còn: <strong>' + (d.creditBalance - d.creditPerTurn) + ' CP</strong></li>'
             : '<li>Bạn còn thiếu <strong>' + (d.creditPerTurn - d.creditBalance) + ' CP</strong> cho một lượt</li>';
         }
+        if (window.JlasCpAutoPay && window.JlasCpAutoPay.capReached('aiCall')) {
+          html += '<li>Đã tự dùng đủ ' + window.JlasCpAutoPay.DAILY_CAP + ' CP hôm nay nên cần xác nhận lại.</li>';
+        }
       }
       usage.innerHTML = html;
     }
@@ -44,18 +47,20 @@
       if (canPay) useCp.innerHTML = '<i class="fa-solid fa-coins"></i> Dùng ' + cost + ' CP cho lượt này';
       var autoWrap = document.getElementById('quotaAutoWrap');
       var autoBox = document.getElementById('quotaAutoCredit');
-      if (autoWrap) autoWrap.hidden = !canPay;
+      var autoCap = document.getElementById('quotaAutoCap');
+      if (autoWrap) autoWrap.hidden = !canPay || !window.JlasCpAutoPay;
+      if (autoCap && window.JlasCpAutoPay) autoCap.textContent = window.JlasCpAutoPay.DAILY_CAP;
       if (autoBox) autoBox.checked = false;
       useCp.onclick = function () {
         modal.hidden = true;
         var auto = !!(autoBox && autoBox.checked);
-        if (window.AICallUI && typeof window.AICallUI.onUseCredit === 'function') window.AICallUI.onUseCredit(auto);
+        if (window.AICallUI && typeof window.AICallUI.onUseCredit === 'function') window.AICallUI.onUseCredit(auto, cost);
       };
     }
     var buy = document.getElementById('btnQuotaBuy');
-    if (buy) buy.onclick = function () { window.location.href = '/profile'; };
+    if (buy) buy.onclick = function () { window.location.href = '/credits'; };
     var up = document.getElementById('btnQuotaUpgrade');
-    if (up) up.onclick = function () { window.location.href = '/profile?tab=premium'; };
+    if (up) up.onclick = function () { window.location.href = '/premium'; };
   }
 
   function showMuteModal(data) {
@@ -777,17 +782,17 @@
 
   // Lượt vừa bị chặn vì hết hạn mức: nếu người học bấm "Dùng CP" thì gửi lại đúng lượt đó (cùng mã).
   let creditRetry = null;
-  // "Tự dùng CP cho các lượt sau trong cuộc gọi này": các lượt sau tự trả CP, không hỏi lại, tới khi đã
-  // dùng AUTO_CREDIT_CAP CP thì hỏi lại để người học không lỡ tiêu quá tay.
-  const AUTO_CREDIT_CAP = 100;
-  const autoCredit = { on: false, spent: 0, perTurn: 0 };
+  // "Không hỏi lại hôm nay" (js/components/cp-auto-pay.js): các lượt sau tự trả CP, không hỏi lại trong ngày.
+  const AUTO_PAY = 'aiCall';
   function autoCreditCovers() {
-    return autoCredit.on && autoCredit.spent + autoCredit.perTurn <= AUTO_CREDIT_CAP;
+    return !!window.JlasCpAutoPay && window.JlasCpAutoPay.covers(AUTO_PAY);
   }
-  window.AICallUI.onUseCredit = function (auto) {
+  window.AICallUI.onUseCredit = function (auto, cost) {
     if (!creditRetry || busy || ended) return;
-    autoCredit.on = !!auto;
-    autoCredit.spent = 0;
+    if (window.JlasCpAutoPay) {
+      if (auto) window.JlasCpAutoPay.enable(AUTO_PAY, cost);
+      else window.JlasCpAutoPay.disable(AUTO_PAY);
+    }
     const retry = creditRetry;
     creditRetry = null;
     busy = true;
@@ -873,7 +878,8 @@
       // Hết hạn mức (hoặc không đủ CP): hiện modal chờ hạn mức mới / dùng CP / nâng cấp.
       if (res.status === 402) {
         if (data && data.code === 'QUOTA_EXCEEDED') creditRetry = { text: text, learnerRow: learnerRow, requestId: requestId };
-        autoCredit.on = false;
+        // Không đủ CP thì tắt tự trả; hết trần ngày thì giữ để popup nói rõ lý do hỏi lại.
+        if (window.JlasCpAutoPay && !(data && data.code === 'QUOTA_EXCEEDED')) window.JlasCpAutoPay.disable(AUTO_PAY);
         showQuotaModal(data);
         return;
       }
@@ -915,13 +921,16 @@
         if (settings.autoplay) speak(audibleRow.dataset.text || '', audibleRow.querySelector('.btn-tts'));
         if (settings.furigana || settings.translation) ensureAnnotations(row, settings.furigana);
       }
-      if (data.creditPerTurn > 0) autoCredit.perTurn = data.creditPerTurn;
       if (data.chargeRefunded) {
         addChargeNote(learnerRow, 'AI gặp lỗi nên lượt này không bị tính.', false);
       } else if (data.creditCharged > 0) {
-        if (autoCredit.on) autoCredit.spent += data.creditCharged;
-        addChargeNote(learnerRow, '−' + data.creditCharged + ' CP cho lượt này'
-          + (autoCredit.on ? ' (tự dùng CP: ' + autoCredit.spent + '/' + AUTO_CREDIT_CAP + ' CP)' : ''), false);
+        let autoNote = '';
+        if (window.JlasCpAutoPay && window.JlasCpAutoPay.state(AUTO_PAY).on) {
+          window.JlasCpAutoPay.add(AUTO_PAY, data.creditCharged);
+          const paid = window.JlasCpAutoPay.state(AUTO_PAY);
+          autoNote = ' (tự dùng hôm nay: ' + paid.spent + '/' + paid.cap + ' CP)';
+        }
+        addChargeNote(learnerRow, '−' + data.creditCharged + ' CP cho lượt này' + autoNote, false);
       } else if (typeof data.quotaTurnsLeft === 'number' && data.chargeType === 'QUOTA' && data.quotaTurnsLeft <= 3) {
         // Báo trước khi sắp hết hạn mức, để popup CP không xuất hiện bất ngờ.
         addChargeNote(learnerRow, data.quotaTurnsLeft > 0

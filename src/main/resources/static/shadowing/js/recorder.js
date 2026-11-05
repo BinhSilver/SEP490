@@ -720,8 +720,11 @@
     setDetailsVisible(card, addToHistory !== false);
   }
 
-  // "Tự dùng CP cho các câu sau trong buổi luyện này", chosen on the CP popup; resets on reload.
-  let creditForSession = false;
+  // "Không hỏi lại hôm nay" on the CP popup (js/components/cp-auto-pay.js).
+  const AUTO_PAY = 'pronunciation';
+  function autoPayCovers() {
+    return !!window.JlasCpAutoPay && window.JlasCpAutoPay.covers(AUTO_PAY);
+  }
 
   async function confirmCreditCheck() {
     let quota = {};
@@ -730,16 +733,19 @@
       if (response.ok) quota = await response.json();
     } catch (ignored) { /* the popup still shows the price */ }
     const price = quota.creditPrice || 5;
-    if (!window.JlasCpConfirm) return { confirmed: false, option: false };
-    return window.JlasCpConfirm.open({
+    if (!window.JlasCpConfirm) return { confirmed: false, option: false, price: price };
+    const auto = window.JlasCpAutoPay;
+    const choice = await window.JlasCpConfirm.open({
       title: 'Hết lượt chấm miễn phí hôm nay',
-      message: 'Bạn đã dùng ' + (quota.usedToday != null ? quota.usedToday : '') + '/' + (quota.dailyLimit || '') +
-        ' lượt chấm hôm nay. Chấm câu này bằng CP?',
+      message: (auto && auto.capReached(AUTO_PAY) ? 'Đã tự dùng đủ ' + auto.DAILY_CAP + ' CP hôm nay nên cần xác nhận lại. ' : '')
+        + 'Bạn đã dùng ' + (quota.usedToday != null ? quota.usedToday : '') + '/' + (quota.dailyLimit || '')
+        + ' lượt chấm hôm nay. Chấm câu này bằng CP?',
       cost: price,
       balance: quota.creditBalance,
       confirmLabel: 'Chấm bằng ' + price + ' CP',
-      option: 'Tự dùng CP cho các câu sau trong buổi luyện này'
+      option: auto ? 'Không hỏi lại hôm nay (tự dùng CP, tối đa ' + auto.DAILY_CAP + ' CP/ngày)' : ''
     });
+    return Object.assign(choice, { price: price });
   }
 
   async function assess(card) {
@@ -791,7 +797,7 @@
           signal: controller.signal
         });
       };
-      let response = await send(creditForSession);
+      let response = await send(autoPayCovers());
       let result = await response.json().catch(() => ({}));
       // Hết lượt chấm miễn phí hôm nay: báo trước số CP rồi mới chấm bằng CP.
       if (response.status === 402 && result.code === 'PRONUNCIATION_QUOTA_EXCEEDED') {
@@ -805,9 +811,15 @@
           setStatus(card, message);
           return { status: 'error', message };
         }
-        creditForSession = choice.option;
+        if (window.JlasCpAutoPay) {
+          if (choice.option) window.JlasCpAutoPay.enable(AUTO_PAY, choice.price);
+          else window.JlasCpAutoPay.disable(AUTO_PAY);
+        }
         response = await send(true);
         result = await response.json().catch(() => ({}));
+      }
+      if (response.status === 402 && result.code === 'INSUFFICIENT_CREDIT' && window.JlasCpAutoPay) {
+        window.JlasCpAutoPay.disable(AUTO_PAY);
       }
       if (!response.ok) {
         console.error('[Pronunciation] assessment request failed', {
@@ -818,7 +830,9 @@
         throw new Error(result.message || result.error || ('Chấm phát âm thất bại (HTTP ' + response.status + ')'));
       }
       renderAttempt(card, result);
-      setStatus(card, 'Đã chấm xong câu #' + state.context.sentenceNumber);
+      if (result.creditCharged > 0 && window.JlasCpAutoPay) window.JlasCpAutoPay.add(AUTO_PAY, result.creditCharged);
+      setStatus(card, 'Đã chấm xong câu #' + state.context.sentenceNumber
+        + (result.creditCharged > 0 ? ' · −' + result.creditCharged + ' CP' : ''));
       return { status: 'completed', attempt: result };
     } catch (error) {
       console.error('[Pronunciation] assessment failed', {

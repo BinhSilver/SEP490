@@ -3,7 +3,7 @@
  * sau khi trừ; thiếu CP thì hiện số còn thiếu kèm nút nạp CP. Một popup dùng chung cho mọi chỗ trừ CP.
  *
  * JlasCpConfirm.open({ title, message, cost, balance, confirmLabel, option }) → Promise<{ confirmed, option }>
- * option (tuỳ chọn): một ô đánh dấu, ví dụ "Tự dùng CP cho các lượt sau trong cuộc gọi này".
+ * option (tuỳ chọn): một ô đánh dấu, ví dụ "Không hỏi lại hôm nay".
  */
 (function (root, factory) {
   'use strict';
@@ -13,8 +13,8 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
 
-  var TOP_UP_URL = '/profile';
-  var UPGRADE_URL = '/profile?tab=premium';
+  var TOP_UP_URL = '/credits';
+  var UPGRADE_URL = '/premium';
 
   function escapeHtml(value) {
     return String(value == null ? '' : value).replace(/&/g, '&amp;').replace(/</g, '&lt;')
