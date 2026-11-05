@@ -260,7 +260,13 @@ public class SubtitleService {
     }
 
     public void regenerateAllSubtitles(Long videoId) {
-        getEditableVideo(videoId);
+        Video video = getEditableVideo(videoId);
+        // Mark it before the @Async job starts, or the editor's first status poll could read "not running".
+        video.setStatus(VideoStatus.PROCESSING);
+        video.setProcessingStep(ProcessingStep.TRANSCRIBING);
+        video.setProgressPercent(5);
+        video.setErrorMessage(null);
+        videoRepository.save(video);
         processingJobService.regenerateTranscript(videoId);
     }
 

@@ -13,6 +13,8 @@ public class YoutubeAnalyzeResultDto {
     private boolean hasSubtitle;
     /** False when the video owner does not allow embedding; such videos are downloaded and played from file. */
     private boolean embeddable = true;
+    /** Age rating YouTube itself applies (yt-dlp age_limit): 18 for age-restricted videos, null otherwise. */
+    private Integer youtubeMinAge;
     private boolean hasAutoSubtitle;
     private boolean viManual;
     private boolean viAuto;

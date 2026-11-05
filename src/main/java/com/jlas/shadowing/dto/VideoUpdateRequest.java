@@ -13,4 +13,6 @@ public class VideoUpdateRequest {
     private List<String> genres;
     /** PUBLIC | PRIVATE */
     private String visibility;
+    /** Age rating: 13, 16 or 18; 0 clears it (all ages); null keeps the current rating. */
+    private Integer minAge;
 }

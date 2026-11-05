@@ -1,5 +1,6 @@
 /**
- * Hồ sơ → "Khung avatar & màu tên": chọn khung và màu tên, xem thử cả món chưa mua và mua ngay tại đây
+ * Hồ sơ → popup "Khung avatar & màu tên" (mở từ nút "Đổi khung viền" dưới tên): chọn khung và màu tên, xem thử
+ * cả món chưa mua và mua ngay tại đây
  * (không cần sang Cửa hàng). Món đã có: bấm Lưu → PUT /api/profile/cosmetics. Món chưa có: nút đổi thành
  * "Mua · N CP" (bấm thêm lần nữa để xác nhận) → POST /api/profile/cosmetics/frames/{code}/buy.
  * Xong thì làm mới thông tin người dùng để header và sidebar dùng khung/màu mới.
@@ -184,6 +185,36 @@
       if (state.view) render();
     }
   });
+
+  // Popup: mở từ nút "Đổi khung viền", đóng bằng nút ×, nền mờ hoặc Esc. Đóng khi chưa lưu thì bỏ phần đang xem thử.
+  var modal = document.getElementById('profileCosmeticsModal');
+  var opener = null;
+  function onKey(event) { if (event.key === 'Escape') closeModal(); }
+  function closeModal() {
+    if (!modal || modal.hidden) return;
+    modal.hidden = true;
+    document.removeEventListener('keydown', onKey);
+    if (state.view && !state.busy) {
+      resetConfirm();
+      apply(state.view);
+    }
+    if (opener) opener.focus();
+  }
+  document.querySelectorAll('[data-cosmetics-open]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      if (!modal) return;
+      opener = button;
+      modal.hidden = false;
+      document.addEventListener('keydown', onKey);
+      var close = modal.querySelector('.profile-modal__close');
+      if (close) close.focus();
+    });
+  });
+  if (modal) {
+    modal.querySelectorAll('[data-cosmetics-close]').forEach(function (element) {
+      element.addEventListener('click', closeModal);
+    });
+  }
 
   call('GET').then(apply).catch(function (error) {
     el.status.textContent = error.message;

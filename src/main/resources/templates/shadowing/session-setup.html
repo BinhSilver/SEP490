@@ -10,12 +10,14 @@
     <link rel="stylesheet" href="/css/tokens.css">
     <link rel="stylesheet" href="/css/theme-bridge.css">
     <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20260929-merge-ti">
+    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20261105-plum">
     <link rel="stylesheet" href="/css/jlab-base-shell.css">
     <link rel="icon" href="/images/jlab.png" type="image/png">
-    <link rel="stylesheet" href="/shadowing/css/session-setup.css?v=20261014-level-counts">
+    <link rel="stylesheet" href="/shadowing/css/session-setup.css?v=20261105-plum">
     <link rel="stylesheet" href="/shadowing/css/empty-exercises.css?v=20261009-crying-30frames">
     <link rel="stylesheet" href="/shadowing/css/responsive-player.css?v=20261012-1">
+    <link rel="stylesheet" href="/css/components/date-wheel.css?v=20261102-wheel2">
+    <link rel="stylesheet" href="/shadowing/css/age-gate.css?v=20261102-wheel2">
 </head>
 <body id="jlabBasePage" class="page-shadowing-practice-select page-shadowing-session-setup">
 <div id="jlabBaseShellMount"></div>
@@ -74,6 +76,9 @@
 <script src="/js/auth-session.js"></script>
 <script src="/js/jlab-base-shell.js"></script>
 <script src="/shadowing/js/client.js"></script>
+<div th:replace="~{shadowing/fragments/age-gate :: dialog(${videoId})}"></div>
+<script src="/js/components/date-wheel.js?v=20261102-wheel2"></script>
+<script src="/shadowing/js/age-gate.js?v=20261102-wheel2"></script>
 <script src="/shadowing/js/empty-exercises.js?v=20261009"></script>
 <script src="/shadowing/js/session-guide.js?v=20261009-empty-exercises"></script>
 <script src="/shadowing/js/practice-select.js?v=20261014-level-counts"></script>

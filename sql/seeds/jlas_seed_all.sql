@@ -74,7 +74,7 @@ VALUES
      'LOCAL', 'Demo Administrator', 'OTHER', 'N1', 0, 1),
     ((SELECT id FROM roles WHERE name = 'CONTENT_CREATOR'), (SELECT id FROM premium_plans WHERE name = 'FREE'),
      'content@jlab.local', 'content', '$2a$10$6rwQqFQw0OsYuuC2OMa3/uLm..ThobaeqDWqSaLAHQUG8GSoJHUmi',
-     'LOCAL', 'Demo Content Admin', 'OTHER', 'N3', 0, 1);
+     'LOCAL', 'Hệ thống', 'OTHER', 'N3', 0, 1);
 
 SET @demo_user  = (SELECT id FROM users WHERE email = 'demo@jlab.local');
 SET @demo_admin = (SELECT id FROM users WHERE email = 'admin@jlab.local');

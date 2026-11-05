@@ -20,14 +20,14 @@
   font-family: 'Hanken Grotesk', 'Inter', sans-serif;
 }
 html[data-theme="dark"] .editor-ai-dialog {
-  --ai-surface: #141c27;
-  --ai-raised: #222e3b;
-  --ai-ink: #f8fafc;
-  --ai-muted: #b4c3d3;
-  --ai-line: #405468;
-  --ai-accent: #c084fc;
-  --ai-success: #8eddb6;
-  --ai-error: #ffb4bd;
+  --ai-surface: var(--dark-surface);
+  --ai-raised: var(--dark-raised);
+  --ai-ink: var(--dark-ink);
+  --ai-muted: var(--dark-muted);
+  --ai-line: var(--dark-line);
+  --ai-accent: var(--dark-accent);
+  --ai-success: var(--dark-success);
+  --ai-error: var(--dark-danger);
 }
 .editor-ai-dialog::backdrop { background: #07101bb3; backdrop-filter: blur(4px); }
 .editor-ai-dialog__header { display: flex; gap: 16px; align-items: center; padding: 28px 28px 20px; }
@@ -49,6 +49,11 @@ html[data-theme="dark"] .editor-ai-dialog {
 .editor-ai-dialog__footer button { min-height: 44px; }
 .editor-ai-dialog button:focus-visible { outline: 3px solid var(--ai-accent); outline-offset: 3px; }
 .page-shadowing-editor #editor-ai-progress[hidden] { display: none; }
+.editor-ai-dialog__footer [hidden], .editor-regen__progress[hidden] { display: none; }
+.editor-ai-dialog__footer a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; }
+.editor-regen__progress { display: flex; align-items: center; gap: 12px; margin-top: 20px; }
+.editor-regen__progress .progress-bar { flex: 1; }
+.editor-regen__percent { color: var(--ai-ink); font-weight: 700; font-variant-numeric: tabular-nums; }
 .page-shadowing-editor .play-segment { min-width: 36px; min-height: 36px; }
 .page-shadowing-editor .play-segment[aria-pressed="true"] { color: #fff; background: #7335a6; border-color: #c084fc; }
 .page-shadowing-editor .editor-sub-item[aria-busy="true"] { cursor: progress; }
@@ -60,7 +65,7 @@ html.editor-ai-open { overflow: hidden; }
   .editor-ai-dialog__header h2 { font-size: 20px; }
   .editor-ai-dialog__body { padding: 0 16px 20px; }
   .editor-ai-dialog__footer { padding: 16px; }
-  .editor-ai-dialog__footer button { flex: 1; }
+  .editor-ai-dialog__footer :is(button, a) { flex: 1; justify-content: center; }
 }
 
 /* Add a subtitle: timing first, then text. Reuses the AI dialog surface and tokens. */

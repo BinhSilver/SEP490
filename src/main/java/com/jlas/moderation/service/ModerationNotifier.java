@@ -69,8 +69,10 @@ public class ModerationNotifier {
                                      Long caseId) {
         String subject = word == null || word.isBlank() ? "Từ vựng bạn đóng góp" : "Từ \"" + word + "\"";
         if (approved) {
+            String thanks = reward > 0 ? " Bạn nhận được " + reward + " credit, cảm ơn bạn!"
+                    : " Hôm nay bạn đã nhận đủ credit cho đóng góp, cảm ơn bạn!";
             send(contributorId, TYPE_CONTRIBUTION, "Đóng góp từ vựng đã được duyệt",
-                    subject + " đã được công khai trong từ điển. Bạn nhận được " + reward + " credit, cảm ơn bạn!",
+                    subject + " đã được công khai trong từ điển." + thanks,
                     CREDIT_URL, "MOD_CONTRIBUTION_" + caseId);
         } else {
             send(contributorId, TYPE_CONTRIBUTION, "Đóng góp từ vựng chưa được duyệt",

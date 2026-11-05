@@ -1,3 +1,4 @@
+@import url("../controls.css");
 @import url("./auth.css");
 
 /* Login surfaces follow the saved theme on desktop and phone. */
@@ -15,19 +16,87 @@ body.page-login {
   --login-selection: #e9ddff;
   --login-background: linear-gradient(135deg, #f8fbff 0%, #eef5ff 48%, #dbeafe 100%);
 }
+/* Dark login reads the shared palette in css/dark-palette.css. Colour only. */
 html[data-theme="dark"] body.page-login {
-  --login-ink: #f0edf8;
-  --login-muted: #c0bacd;
-  --login-surface: #171b26;
-  --login-border: #525b70;
-  --login-action: #c4a3f3;
-  --login-action-hover: #d7bcfa;
-  --login-on-action: #211b34;
-  --login-focus: #c4a3f3;
-  --login-focus-ring: rgb(196 163 243 / 22%);
-  --login-error: #ffb4bd;
-  --login-selection: #3a2d50;
-  --login-background: #0b0d13;
+  --login-ink: var(--dark-ink);
+  --login-muted: var(--dark-muted);
+  --login-surface: var(--dark-surface);
+  --login-border: var(--dark-line);
+  --login-action: var(--dark-accent);
+  --login-action-hover: var(--dark-accent-hover);
+  --login-button: var(--dark-button);
+  --login-button-hover: var(--dark-button-hover);
+  --login-on-action: var(--dark-on-button);
+  --login-input-surface: var(--dark-input);
+  --login-input-border: var(--dark-input-line);
+  --login-focus: var(--dark-focus);
+  --login-focus-ring: var(--dark-focus-ring);
+  --login-error: var(--dark-danger);
+  --login-selection: var(--dark-selection);
+  --login-canvas: var(--dark-bg);
+  --login-background: radial-gradient(ellipse 65% 85% at 24% 58%, var(--dark-line) 0%, var(--login-canvas) 72%);
+  --color-on-surface: var(--login-ink);
+  --color-on-surface-variant: var(--login-muted);
+  --color-outline: var(--login-muted);
+  --color-outline-variant: var(--login-border);
+  --color-surface-lowest: var(--login-surface);
+  --color-primary: var(--login-action);
+  --color-on-primary: var(--login-on-action);
+  --color-primary-fixed: var(--login-selection);
+  --color-error: var(--login-error);
+  --color-focus: var(--login-focus);
+  /* auth.css paints phone inputs from these, ahead of the login roles. */
+  --dm-auth-bg: var(--login-canvas);
+  --dm-auth-surface: var(--login-surface);
+  --dm-auth-ink: var(--login-ink);
+  --dm-auth-muted: var(--login-muted);
+  --dm-auth-line: var(--login-border);
+}
+@media (min-width: 901px) {
+  html[data-theme="dark"] .page-login .login-layout .login-card {
+    box-shadow: 0 20px 55px rgb(0 0 0 / 42%) !important;
+  }
+  /* The card paints above later siblings, so its shadow would dim this line. */
+  html[data-theme="dark"] .page-login .form-footer {
+    position: relative;
+    z-index: 1;
+  }
+}
+/* The id outranks the desktop input rule and auth.css, which otherwise hide both states. */
+html[data-theme="dark"] .page-login #jlabBaseContent #submitBtn {
+  background: var(--login-button) !important;
+}
+html[data-theme="dark"] .page-login #jlabBaseContent #submitBtn:not(:disabled):hover {
+  background: var(--login-button-hover) !important;
+}
+html[data-theme="dark"] .page-login #jlabBaseContent .input {
+  background: var(--login-input-surface) !important;
+  border-color: var(--login-input-border) !important;
+}
+/* Google paints this button itself, partly inside a cross-origin iframe, so CSS cannot recolour it directly.
+   Each matrix maps Google's fill and #3c4043 label onto the requested fill and #231829 label. */
+html[data-theme="dark"] .page-login #googleBtnContainer > div {
+  filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='t' color-interpolation-filters='sRGB'%3E%3CfeColorMatrix values='1.0769 0 0 0 -0.1161 0 1.1204 0 0 -0.1871 0 0 1.1011 0 -0.1285 0 0 0 1 0'/%3E%3C/filter%3E%3C/svg%3E#t");
+}
+html[data-theme="dark"] .page-login #googleBtnContainer > div:hover {
+  filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='t' color-interpolation-filters='sRGB'%3E%3CfeColorMatrix values='1.1056 0 0 0 -0.1229 0 1.0884 0 0 -0.1790 0 0 1.0642 0 -0.1188 0 0 0 1 0'/%3E%3C/filter%3E%3C/svg%3E#t");
+}
+html[data-theme="dark"] .page-login .toast--error {
+  border-color: #8c1d18;
+  color: #ffdad6;
+  background: #8c1d18;
+}
+html[data-theme="dark"] .page-login #jlabBaseContent .input:focus {
+  border-color: var(--login-focus) !important;
+  box-shadow: 0 0 0 3px var(--login-focus-ring) !important;
+}
+html[data-theme="dark"] .page-login #jlabBaseContent .has-error .input {
+  border-color: var(--login-error) !important;
+}
+html[data-theme="dark"] .page-login input:is(:-webkit-autofill, :autofill) {
+  -webkit-text-fill-color: var(--login-ink) !important;
+  box-shadow: 0 0 0 1000px var(--login-input-surface) inset !important;
+  caret-color: var(--login-focus);
 }
 
 
@@ -907,22 +976,11 @@ body.page-login::before {
 }
 
 html[data-theme="dark"] body.page-login {
-  --login-ink: #f8fafc;
-  --login-muted: #b2bfd2;
-  --login-surface: #171b26;
-  --login-border: #40485d;
-  --login-action: #c4a3f3;
-  --login-action-hover: #d7bcfa;
-  --login-on-action: #211b34;
-  --login-focus: #c4a3f3;
-  --login-focus-ring: rgb(196 163 243 / 22%);
-  --login-error: #ffb4bd;
-  --login-selection: #3a2d50;
-  background: #0b0d13 !important;
+  background: var(--login-canvas) !important;
 }
 
 html[data-theme="dark"] .page-login .login-background {
-  background: #0b0d13;
+  background: var(--login-canvas);
 }
 
 

@@ -1,5 +1,6 @@
 package com.jlas.shadowing.service;
 
+import com.jlas.common.ai.AiUsageRecorder;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.auth.security.CurrentUser;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -50,6 +53,7 @@ public class AzurePronunciationAssessmentService {
     private final PronunciationAttemptService attemptService;
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
+    private final AiUsageRecorder usage;
 
     public AzurePronunciationAssessmentService(
             AzureSpeechPronunciationConfig config,
@@ -58,7 +62,8 @@ public class AzurePronunciationAssessmentService {
             FfmpegService ffmpegService,
             PronunciationRateLimitService rateLimitService,
             PronunciationAttemptService attemptService,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            AiUsageRecorder usage) {
         this.config = config;
         this.subtitleRepository = subtitleRepository;
         this.videoService = videoService;
@@ -66,6 +71,7 @@ public class AzurePronunciationAssessmentService {
         this.rateLimitService = rateLimitService;
         this.attemptService = attemptService;
         this.objectMapper = objectMapper;
+        this.usage = usage;
         this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
     }
 
@@ -77,6 +83,7 @@ public class AzurePronunciationAssessmentService {
         Subtitle subtitle = subtitleRepository.findById(subtitleId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy câu phụ đề"));
         videoService.requireReadable(subtitle.getVideo());
+        videoService.requireAgeAllowed(subtitle.getVideo());
         validateUpload(audio);
 
         Path tempDirectory = null;
@@ -109,6 +116,9 @@ public class AzurePronunciationAssessmentService {
             log.info("Pronunciation assessment calling Azure diagnosticId={} userId={} subtitleId={} durationSec={}",
                     diagnosticId, userId, subtitleId, Math.round(duration * 10.0) / 10.0);
             PronunciationAssessmentDto result = callAzure(wav, subtitle.getText(), diagnosticId);
+            // Azure bills pronunciation assessment by audio time.
+            usage.record(new AiUsageRecorder.Usage(userId, "PRONUNCIATION_CHECK", "azure", "pronunciation-assessment",
+                    null, null, null, null, null, BigDecimal.valueOf(duration).setScale(2, RoundingMode.HALF_UP), null));
             long elapsedMs = (System.nanoTime() - startedAt) / 1_000_000L;
             log.info("Azure pronunciation completed diagnosticId={} userId={} subtitleId={} durationSec={} elapsedMs={} status={} score={}",
                     diagnosticId, userId, subtitleId, Math.round(duration * 10.0) / 10.0, elapsedMs,

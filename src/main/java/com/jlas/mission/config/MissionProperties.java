@@ -17,7 +17,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 @ConfigurationProperties(prefix = "mission")
 public record MissionProperties(
         @DefaultValue("Asia/Ho_Chi_Minh") String defaultZone,
-        @DefaultValue("10") int dailyGoalReward,
+        @DefaultValue("5") int dailyGoalReward,
         @DefaultValue("50") int freezePrice,
         @DefaultValue("2") int maxFreezes,
         @DefaultValue("7") int freezeBonusFromMilestone,

@@ -50,8 +50,10 @@
   }
 
   A.section('game-skins', { render: async function (host) {
-    var loaded = await Promise.all([A.api.get(API), A.api.get(API + '/renderers'), A.api.get(API + '/pack-options')]);
-    var items = loaded[0], renderers = loaded[1], options = loaded[2], editing = false;
+    // tiers: bậc trang phục (Thường / Hiếm / Huyền thoại) và giá đi kèm, lấy từ máy chủ.
+    var loaded = await Promise.all([A.api.get(API), A.api.get(API + '/renderers'), A.api.get(API + '/pack-options'),
+      A.api.get(API + '/tiers').catch(function () { return []; })]);
+    var items = loaded[0], renderers = loaded[1], options = loaded[2], tiers = loaded[3], editing = false;
     var game = '';
     host.innerHTML = '<div class="skin-admin">'
       + '<div class="ga-toolbar">'
@@ -72,6 +74,8 @@
       var label = { active: 'Đang bán', hidden: 'Đã ẩn', deleted: 'Đã xóa' }[state(item)];
       var price = item.price > 0 ? '<span class="ga-chip ga-chip--price"><i class="fa-solid fa-coins" aria-hidden="true"></i> ' + item.price.toLocaleString('vi-VN') + ' CP</span>'
         : '<span class="ga-chip ga-chip--free">Miễn phí</span>';
+      var tier = tiers.find(function (t) { return t.code === item.tier; });
+      if (tier && !item.starter) price = '<span class="ga-chip ga-chip--tier-' + A.esc(tier.code.toLowerCase()) + '">' + A.esc(tier.label) + '</span>' + price;
       var actions = item.deleted ? '' : '<button type="button" class="ga-icon-btn ga-icon-btn--edit" data-edit="' + A.esc(item.code) + '" title="Sửa" aria-label="Sửa ' + A.esc(item.name) + '"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>'
         + '<button type="button" class="ga-icon-btn" data-effects="' + A.esc(item.code) + '" title="Xem hiệu ứng" aria-label="Xem hiệu ứng của ' + A.esc(item.name) + '"><i class="fa-solid fa-play" aria-hidden="true"></i></button>'
         + (item.starter ? '' : '<button type="button" class="ga-icon-btn ga-icon-btn--star" data-starter="' + A.esc(item.code) + '" title="Đặt làm trang phục mặc định" aria-label="Đặt ' + A.esc(item.name) + ' làm trang phục mặc định"><i class="fa-regular fa-star" aria-hidden="true"></i></button>'
@@ -104,7 +108,11 @@
 
     function editor(item) {
       if (editing) return;
-      var current = item || { code: '', gameType: 'NEKO_CATCH', name: '', description: '', price: 200, image: '', renderCode: 'PACK', active: true, packPath: null, weaponTheme: null };
+      var current = item || { code: '', gameType: 'NEKO_CATCH', name: '', description: '', price: 500, tier: 'COMMON', image: '', renderCode: 'PACK', active: true, packPath: null, weaponTheme: null };
+      var tierOptions = tiers.map(function (t) {
+        return '<option value="' + A.esc(t.code) + '"' + (t.code === (current.tier || 'COMMON') ? ' selected' : '') + '>'
+          + A.esc(t.label) + ' · ' + t.price.toLocaleString('vi-VN') + ' CP</option>';
+      }).join('');
       var mount = root.querySelector('[data-editor]');
       mount.innerHTML = '<div class="ga-backdrop" data-cancel></div><aside class="ga-drawer" role="dialog" aria-modal="true" aria-labelledby="skin-editor-title">'
         + '<form class="skin-editor"><header><h2 id="skin-editor-title">' + (item ? 'Sửa trang phục' : 'Thêm trang phục') + '</h2>'
@@ -113,7 +121,9 @@
         + '<div class="skin-editor__grid"><label>Mã trang phục<input class="input" name="code" required maxlength="40" pattern="[a-z0-9][a-z0-9-]{1,39}" placeholder="cat-ten-skin" value="' + A.esc(current.code) + '" ' + (item ? 'readonly' : '') + '></label>'
         + '<label>Game<select class="input" name="gameType" ' + (item ? 'disabled' : '') + '><option value="NEKO_CATCH">Bắt cá</option><option value="AIR_DEFENSE">Bắn máy bay</option></select></label>'
         + '<label>Tên trang phục<input class="input" name="name" required maxlength="100" value="' + A.esc(current.name) + '"></label>'
-        + '<label>Giá CP<input class="input" name="price" type="number" min="0" max="1000000" step="1" required value="' + current.price + '" ' + (current.starter ? 'readonly' : '') + '></label>'
+        + (current.starter
+          ? '<label>Bậc<input class="input" value="Mặc định · miễn phí" readonly></label>'
+          : '<label>Bậc (quyết định giá)<select class="input" name="tier">' + tierOptions + '</select></label>')
         + '<label>Hình trong game<select class="input" name="renderCode"></select></label>'
         + '<label data-weapon-field>Bộ vũ khí<select class="input" name="weaponTheme"><option value="">Vũ khí mặc định</option>'
         + Object.keys(WEAPONS).map(function (code) { return '<option value="' + code + '">Mượn của ' + A.esc(WEAPONS[code]) + '</option>'; }).join('') + '</select></label>'
@@ -167,7 +177,7 @@
           var source = renderers.find(function (r) { return r.code === code; });
           return '<option value="' + A.esc(code) + '">Mẫu: ' + A.esc(source ? source.name : code) + '</option>'; }).join('');
       }
-      rendererOptions(current.renderCode); sync(); A.digitsOnly(fields.namedItem('price'));
+      rendererOptions(current.renderCode); sync();
       if (packPath) packStatus.textContent = 'Đang dùng gói ' + packPath;
       mount.querySelectorAll('[data-cancel]').forEach(function (button) { button.addEventListener('click', closeEditor); });
       fields.namedItem('gameType').addEventListener('change', function () { packPath = null; image.value = ''; rendererOptions(); sync(); });
@@ -211,7 +221,8 @@
         if (!image.value) { errorBox.textContent = 'Trang phục cần ảnh đại diện.'; return; }
         editing = true; var save = form.querySelector('[type=submit]'); save.disabled = true; save.textContent = 'Đang lưu…';
         var body = { code: fields.namedItem('code').value.trim(), gameType: game(), name: fields.namedItem('name').value.trim(),
-          price: Number(fields.namedItem('price').value), image: image.value.trim(), description: fields.namedItem('description').value.trim(),
+          price: current.price, tier: fields.namedItem('tier') ? fields.namedItem('tier').value : (current.tier || 'COMMON'),
+          image: image.value.trim(), description: fields.namedItem('description').value.trim(),
           renderCode: render(), active: fields.namedItem('active').checked, packPath: pack ? packPath : null,
           weaponTheme: pack && game() === 'AIR_DEFENSE' ? (fields.namedItem('weaponTheme').value || null) : null };
         try {

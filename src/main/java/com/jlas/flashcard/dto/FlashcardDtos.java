@@ -30,6 +30,8 @@ public final class FlashcardDtos {
         private Long folderId; private String folderName; private boolean draft;
         private long totalCards; private long cardCount; private long studyCount; private Double avgRating; private long ratingCount;
         private long commentCount; private boolean ownedByMe; private boolean favorited; private Integer myRating; private LocalDateTime createdAt; private LocalDateTime updatedAt;
+        /** Lần gần nhất người dùng mở bộ này; chỉ có ở tab Lịch sử. */
+        private LocalDateTime viewedAt;
     }
     @Data @NoArgsConstructor @AllArgsConstructor
     public static class SetDetailDto extends SetSummaryDto { private List<CardDto> cards; }

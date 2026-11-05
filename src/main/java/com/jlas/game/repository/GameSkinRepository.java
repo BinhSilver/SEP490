@@ -1,6 +1,7 @@
 package com.jlas.game.repository;
 
 import com.jlas.game.enums.GameType;
+import com.jlas.game.enums.SkinTier;
 import com.jlas.game.util.GameShopCatalog.ShopItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,21 +19,22 @@ public class GameSkinRepository {
             rs.getString("code"), GameType.valueOf(rs.getString("game_type")), rs.getString("name"),
             rs.getString("description"), rs.getInt("price"), rs.getString("image"), rs.getBoolean("starter"),
             rs.getString("render_code"), rs.getBoolean("active"), rs.getBoolean("deleted"),
-            rs.getString("pack_path"), rs.getString("weapon_theme"));
+            rs.getString("pack_path"), rs.getString("weapon_theme"),
+            SkinTier.parse(rs.getString("tier"), rs.getInt("price")));
 
     public List<ShopItem> all() { return jdbc.query("SELECT * FROM game_shop_skin ORDER BY game_type, id", MAPPER); }
     public Optional<ShopItem> find(String code) {
         return jdbc.query("SELECT * FROM game_shop_skin WHERE code = ?", MAPPER, code).stream().findFirst();
     }
     public void create(ShopItem item) {
-        jdbc.update("INSERT INTO game_shop_skin (code, game_type, name, description, price, image, render_code, starter, active, pack_path, weapon_theme) VALUES (?, ?, ?, ?, ?, ?, ?, FALSE, ?, ?, ?)",
+        jdbc.update("INSERT INTO game_shop_skin (code, game_type, name, description, price, image, render_code, starter, active, pack_path, weapon_theme, tier) VALUES (?, ?, ?, ?, ?, ?, ?, FALSE, ?, ?, ?, ?)",
                 item.code(), item.gameType().name(), item.name(), item.description(), item.price(), item.image(), item.renderCode(), item.active(),
-                item.packPath(), item.weaponTheme());
+                item.packPath(), item.weaponTheme(), item.tier().name());
     }
     public void update(ShopItem item) {
-        jdbc.update("UPDATE game_shop_skin SET name=?, description=?, price=?, image=?, render_code=?, active=?, pack_path=?, weapon_theme=? WHERE code=? AND deleted=FALSE",
+        jdbc.update("UPDATE game_shop_skin SET name=?, description=?, price=?, image=?, render_code=?, active=?, pack_path=?, weapon_theme=?, tier=? WHERE code=? AND deleted=FALSE",
                 item.name(), item.description(), item.price(), item.image(), item.renderCode(), item.active(),
-                item.packPath(), item.weaponTheme(), item.code());
+                item.packPath(), item.weaponTheme(), item.tier().name(), item.code());
     }
     /**
      * Đổi skin mặc định của một game: bỏ cờ của skin cũ, skin mới thành mặc định, miễn phí và đang bán.

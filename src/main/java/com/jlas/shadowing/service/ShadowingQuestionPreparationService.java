@@ -54,6 +54,7 @@ public class ShadowingQuestionPreparationService {
     private final ShadowingQuestionBankRepository bank;
     private final ShadowingQuestionAiClient ai;
     private final SubtitleQualityReviewService qualityReview;
+    private final ShadowingAgeGate ageGate;
     private final ExecutorService jobs = Executors.newFixedThreadPool(2);
     private final ThreadPoolExecutor batches = new ThreadPoolExecutor(3, 3, 30, TimeUnit.SECONDS,
             new ArrayBlockingQueue<>(9), new ThreadPoolExecutor.CallerRunsPolicy());
@@ -62,12 +63,14 @@ public class ShadowingQuestionPreparationService {
     public ShadowingQuestionPreparationService(VideoRepository videos, SubtitleRepository subtitles,
                                                ShadowingQuestionBankRepository bank,
                                                ShadowingQuestionAiClient ai,
-                                               SubtitleQualityReviewService qualityReview) {
+                                               SubtitleQualityReviewService qualityReview,
+                                               ShadowingAgeGate ageGate) {
         this.videos = videos;
         this.subtitles = subtitles;
         this.bank = bank;
         this.ai = ai;
         this.qualityReview = qualityReview;
+        this.ageGate = ageGate;
     }
 
     public Map<String, Object> status(long userId, long videoId) {
@@ -141,6 +144,7 @@ public class ShadowingQuestionPreparationService {
                 || video.getVisibility() != com.jlas.shadowing.model.VideoVisibility.PUBLIC)) {
             throw new ApiException(ErrorCode.FORBIDDEN, "Bạn không có quyền học video này");
         }
+        ageGate.requireAllowed(video, userId);
         List<Subtitle> source = source(videoId);
         List<PreparedQuestion> valid = validQuestions(videoId, source);
         List<PreparedQuestion> allPrepared = validQuestions(videoId, source, true);
@@ -665,7 +669,10 @@ public class ShadowingQuestionPreparationService {
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy video"));
         if (video.getOwnerId() != null && video.getOwnerId() == userId) return video;
         if (video.getStatus() == VideoStatus.READY
-                && video.getVisibility() == com.jlas.shadowing.model.VideoVisibility.PUBLIC) return video;
+                && video.getVisibility() == com.jlas.shadowing.model.VideoVisibility.PUBLIC) {
+            ageGate.requireAllowed(video, userId);
+            return video;
+        }
         throw new ApiException(ErrorCode.FORBIDDEN, "Bạn không có quyền đóng góp cho video này");
     }
 

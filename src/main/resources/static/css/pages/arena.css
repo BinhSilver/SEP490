@@ -1,3 +1,4 @@
+@import url("../controls.css");
 /* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4
  * Game Arena (sảnh, thiết lập trận, phòng chờ). Giữ bảng màu Komorebi của site, thêm chất "clay":
  * khối bo tròn, viền dày nhẹ, bóng đổ hai lớp. Mọi màu/khoảng cách đi qua token bên dưới.
@@ -2829,6 +2830,24 @@ body.is-vs-room .ar-page {
   border-color: var(--game);
 }
 
+/* Bậc trang phục: Thường xám, Hiếm xanh, Huyền thoại vàng; nhãn nằm góc trên trái của ảnh. */
+.ar-shop-tier {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  background: #6b7280;
+}
+.ar-shop-tier--starter { color: var(--ar-ink, #1f2937); background: rgba(255, 255, 255, .9); }
+.ar-shop-tier--rare { background: #2563eb; }
+.ar-shop-tier--legendary { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.ar-shop-item--legendary:not(.is-equipped) { border-color: #f5c46b; }
+
 .ar-shop-item__art {
   display: grid;
   place-items: center;
@@ -3356,28 +3375,28 @@ body.is-vs-room .ar-page {
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
 html[data-theme="dark"] {
-  --dm-arena-bg: #0b0d13;
-  --dm-arena-surface: #151a28;
-  --dm-arena-raised: #232b3d;
-  --dm-arena-ink: #f8fafc;
-  --dm-arena-muted: #b2bfd2;
-  --dm-arena-line: #414c65;
-  --dm-arena-accent: #c084fc;
-  --dm-arena-action: #7335a6;
-  --dm-arena-accent-soft: #2b2140;
-  --dm-arena-on-accent: #211b34;
-  --dm-arena-success: #8eddb6;
-  --dm-arena-success-bg: #1b3d32;
-  --dm-arena-success-line: #43816b;
-  --dm-arena-danger: #ffb4bd;
-  --dm-arena-danger-bg: #452832;
-  --dm-arena-danger-line: #96616d;
-  --dm-arena-warning: #f3d28a;
-  --dm-arena-warning-bg: #403522;
-  --dm-arena-warning-line: #947a46;
-  --dm-arena-pink: #f4aed2;
-  --dm-arena-pink-bg: #432d40;
-  --dm-arena-pink-line: #88637b;
+  --dm-arena-bg: var(--dark-bg);
+  --dm-arena-surface: var(--dark-surface);
+  --dm-arena-raised: var(--dark-raised);
+  --dm-arena-ink: var(--dark-ink);
+  --dm-arena-muted: var(--dark-muted);
+  --dm-arena-line: var(--dark-line);
+  --dm-arena-accent: var(--dark-accent);
+  --dm-arena-action: var(--dark-button);
+  --dm-arena-accent-soft: var(--dark-soft);
+  --dm-arena-on-accent: var(--dark-on-button);
+  --dm-arena-success: var(--dark-success);
+  --dm-arena-success-bg: var(--dark-success-bg);
+  --dm-arena-success-line: var(--dark-success-line);
+  --dm-arena-danger: var(--dark-danger);
+  --dm-arena-danger-bg: var(--dark-danger-bg);
+  --dm-arena-danger-line: var(--dark-danger-line);
+  --dm-arena-warning: var(--dark-warning);
+  --dm-arena-warning-bg: var(--dark-warning-bg);
+  --dm-arena-warning-line: var(--dark-warning-line);
+  --dm-arena-pink: var(--dark-pink);
+  --dm-arena-pink-bg: var(--dark-pink-bg);
+  --dm-arena-pink-line: var(--dark-pink-line);
 }
 html[data-theme="dark"] .arena-body {
     --ar-line: var(--dm-arena-line);
@@ -3600,7 +3619,7 @@ html[data-theme="dark"] .pv-card__back::before {
 }
 html[data-theme="dark"] .pv-card__front {
     background: linear-gradient(160deg, var(--dm-arena-action), var(--dm-arena-action));
-    color: var(--dm-arena-ink)
+    color:var(--dark-on-button)
 }
 html[data-theme="dark"] .pv-card.is-matched .pv-card__front {
     background: linear-gradient(160deg, var(--dm-arena-success-bg), var(--dm-arena-success-bg))
@@ -3633,13 +3652,13 @@ html[data-theme="dark"] .pv-laser {
 }
 
 /* Dark interaction and state pairs for this page. */
-html[data-theme="dark"] .arena-body{--color-background:var(--dm-arena-bg);--color-surface:var(--dm-arena-bg);--color-surface-lowest:var(--dm-arena-surface);--color-surface-low:var(--dm-arena-raised);--color-surface-mid:var(--dm-arena-raised);--color-surface-high:var(--dm-arena-raised);--color-surface-container:var(--dm-arena-raised);--color-surface-container-high:var(--dm-arena-raised);--color-on-surface:var(--dm-arena-ink);--color-on-surface-variant:var(--dm-arena-muted);--color-secondary:var(--dm-arena-muted);--color-outline:var(--dm-arena-muted);--color-outline-variant:var(--dm-arena-line);--color-primary:var(--dm-arena-accent);--color-primary-container:var(--dm-arena-action);--color-on-primary:var(--dm-arena-on-accent);--color-on-primary-container:var(--dm-arena-ink);--color-primary-fixed:var(--dm-arena-accent-soft);--color-on-primary-fixed:var(--dm-arena-accent);--color-secondary-container:var(--dm-arena-accent-soft);--color-secondary-fixed:var(--dm-arena-accent-soft);--color-success:var(--dm-arena-success);--color-success-bg:var(--dm-arena-success-bg);--color-error:var(--dm-arena-danger);--color-error-container:var(--dm-arena-danger-bg);--color-on-error-container:var(--dm-arena-danger);--color-tertiary:var(--dm-arena-warning);--color-tertiary-container:var(--dm-arena-warning-bg);--color-on-tertiary-container:var(--dm-arena-warning);--color-focus:var(--dm-arena-accent);--jlab-base-page-background:var(--dm-arena-bg);}
-html[data-theme="dark"] .arena-body .btn--primary{background:var(--dm-arena-action)!important;color:var(--dm-arena-ink)!important;}
-html[data-theme="dark"] .arena-body .btn--primary:hover{background:#8166c4!important;}
+html[data-theme="dark"] .arena-body{--color-background:var(--dm-arena-bg);--color-surface:var(--dm-arena-bg);--color-surface-lowest:var(--dm-arena-surface);--color-surface-low:var(--dm-arena-raised);--color-surface-mid:var(--dm-arena-raised);--color-surface-high:var(--dm-arena-raised);--color-surface-container:var(--dm-arena-raised);--color-surface-container-high:var(--dm-arena-raised);--color-on-surface:var(--dm-arena-ink);--color-on-surface-variant:var(--dm-arena-muted);--color-secondary:var(--dm-arena-muted);--color-outline:var(--dm-arena-muted);--color-outline-variant:var(--dm-arena-line);--color-primary:var(--dm-arena-accent);--color-primary-container:var(--dm-arena-action);--color-on-primary:var(--dm-arena-on-accent);--color-on-primary-container:var(--dark-on-button);--color-primary-fixed:var(--dm-arena-accent-soft);--color-on-primary-fixed:var(--dm-arena-accent);--color-secondary-container:var(--dm-arena-accent-soft);--color-secondary-fixed:var(--dm-arena-accent-soft);--color-success:var(--dm-arena-success);--color-success-bg:var(--dm-arena-success-bg);--color-error:var(--dm-arena-danger);--color-error-container:var(--dm-arena-danger-bg);--color-on-error-container:var(--dm-arena-danger);--color-tertiary:var(--dm-arena-warning);--color-tertiary-container:var(--dm-arena-warning-bg);--color-on-tertiary-container:var(--dm-arena-warning);--color-focus:var(--dm-arena-accent);--jlab-base-page-background:var(--dm-arena-bg);}
+html[data-theme="dark"] .arena-body .btn--primary{background:var(--dm-arena-action)!important;color:var(--dark-on-button)!important;}
+html[data-theme="dark"] .arena-body .btn--primary:hover{background:var(--dark-button-hover)!important;}
 
 /* Dark interaction and state pairs for this page. */
-html[data-theme="dark"] .arena-body{--ar-paper:var(--dm-arena-surface);--ar-paper-2:var(--dm-arena-raised);--ar-ink:var(--dm-arena-ink);--ar-muted:var(--dm-arena-muted);--ar-line:var(--dm-arena-line);--ar-line-strong:#70809e;--ar-neko:#ffba96;--ar-neko-soft:#45302b;--ar-memory:#8bdaec;--ar-memory-soft:#243c48;--ar-air:#b4bcff;--ar-air-soft:#303651;--ar-clay:0 1px 0 #ffffff0c inset,0 9px 20px #0004;--ar-clay-press:0 1px 0 #ffffff0a inset;--ar-gold-soft:var(--dm-arena-warning-bg);}
-html[data-theme="dark"] .arena-body .ar-btn--primary{background:var(--dm-arena-action);color:var(--dm-arena-ink);}
+html[data-theme="dark"] .arena-body{--ar-paper:var(--dm-arena-surface);--ar-paper-2:var(--dm-arena-raised);--ar-ink:var(--dm-arena-ink);--ar-muted:var(--dm-arena-muted);--ar-line:var(--dm-arena-line);--ar-line-strong:var(--dark-input-line);--ar-neko:#ffba96;--ar-neko-soft:#45302b;--ar-memory:#8bdaec;--ar-memory-soft:#243c48;--ar-air:#b4bcff;--ar-air-soft:#303651;--ar-clay:0 1px 0 #ffffff0c inset,0 9px 20px #0004;--ar-clay-press:0 1px 0 #ffffff0a inset;--ar-gold-soft:var(--dm-arena-warning-bg);}
+html[data-theme="dark"] .arena-body .ar-btn--primary{background:var(--dm-arena-action);color:var(--dark-on-button);}
 html[data-theme="dark"] .arena-body .ar-btn--primary:hover{background:#8468c8;color:var(--dm-arena-ink);}
 
 /* Mobile hub: keep the room-code control on the same row as the shop. */

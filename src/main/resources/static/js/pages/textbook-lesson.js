@@ -2766,7 +2766,9 @@
   var VOCAB_PER_PAGE = 12;
   var KANJI_PER_PAGE = 24;
   var ui = { vocabPage: 1, kanjiPage: 1, kanjiIndex: 0, grammarIndex: 0 };
-  var FLASHCARD_URL = '/flashcard/library.html';   // module flashcard (thư viện bộ thẻ); chưa nhận lessonId
+  // Bộ flashcard từ vựng sinh từ chính bài này (trang gắn data-flashcard-set-id); không có thì mở thư viện.
+  var flashcardSetId = main ? main.getAttribute('data-flashcard-set-id') : null;
+  var FLASHCARD_URL = flashcardSetId ? '/flashcard/study.html?setId=' + encodeURIComponent(flashcardSetId) : '/flashcard/library.html';
   var PARTICLES = ['は', 'も', 'の', 'か', 'が', 'を', 'に', 'で', 'へ', 'と', 'や', 'から', 'まで', 'より', 'ね', 'よ',
     'には', 'では', 'とは', 'でも', 'にも', 'へは'];
   var COPULAS = ['です', 'じゃありません', 'ではありません', 'ます', 'ません', 'でした', 'ました', 'ませんでした',
