@@ -13,5 +13,13 @@ import com.jlas.jlptpath.enums.JpathSkillStep;
 public record JpathSkillSessionView(Long id, JpathSkill skill, JpathSkillSessionKind kind, String typeCode,
                                     JpathSkillStep step, int setCount, int questionCount, int dictationCount,
                                     boolean reused, String practiceToken, String dictationToken, boolean done,
-                                    int cpAwarded) {
+                                    int cpAwarded, java.time.LocalDate studyDay) {
+    /** Owner 05/11: the study day of the session, so the practice page names the right date. */
+    public JpathSkillSessionView(Long id, JpathSkill skill, JpathSkillSessionKind kind, String typeCode,
+                                 JpathSkillStep step, int setCount, int questionCount, int dictationCount,
+                                 boolean reused, String practiceToken, String dictationToken, boolean done,
+                                 int cpAwarded) {
+        this(id, skill, kind, typeCode, step, setCount, questionCount, dictationCount, reused, practiceToken,
+                dictationToken, done, cpAwarded, null);
+    }
 }

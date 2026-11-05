@@ -195,8 +195,11 @@
     return list(script).map(function (l, i) { return { speaker: l.speaker, ja: l.ja, vi: vis[i] || '' }; });
   }
 
-  /** "Thứ bảy 07/11" for the header (the learner's today). */
+  /** "Thứ bảy 07/11" for the header: the session's study day (GET /skills/sessions/{id} studyDay), else today. */
+  var sessionDay = null;
   function dayLabel() {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(sessionDay || ''));
+    if (m) return WEEKDAY[new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDay()] + ' ' + m[3] + '/' + m[2];
     var d = new Date();
     return WEEKDAY[d.getDay()] + ' ' + String(d.getDate()).padStart(2, '0') + '/'
       + String(d.getMonth() + 1).padStart(2, '0');
@@ -381,6 +384,7 @@
 
     function load() {
       return api.get(BASE + '/skills/sessions/' + encodeURIComponent(id)).then(function (s) {
+        if (s && s.studyDay) sessionDay = s.studyDay;
         state.session = s;
         steps.innerHTML = stepsHtml(s);
         main.querySelector('[data-role="title"]').textContent = 'Buổi ' + (s.skill === 'LISTENING' ? 'Nghe' : 'Đọc');

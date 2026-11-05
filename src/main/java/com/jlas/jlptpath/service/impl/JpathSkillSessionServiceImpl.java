@@ -301,7 +301,7 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
                 : s.getSkill() == JpathSkill.LISTENING ? JpathSkillPolicy.DICTATION_FLOOR : 0;
         return new JpathSkillSessionView(s.getId(), s.getSkill(), s.getKind(), s.getTypeCode(), s.getStep(),
                 codes.size(), questions, dictation, s.isReused(), s.getPracticeToken(), s.getDictationToken(),
-                s.getCompletedAt() != null, s.getCpAwarded() == null ? 0 : s.getCpAwarded());
+                s.getCompletedAt() != null, s.getCpAwarded() == null ? 0 : s.getCpAwarded(), s.getStudyDay());
     }
 
     private Integer total(Long userId, String token) {
