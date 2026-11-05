@@ -591,8 +591,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 List<JpathGrammar> patterns = codes.stream().map(content::grammar).flatMap(Optional::stream)
                         .toList();
                 Map<String, List<JpathGrammarQuestion>> bank = new LinkedHashMap<>();
-                patterns.forEach(g -> bank.put(g.getCode(), content.questions(g.getCode(),
-                        JpathContentReader.CHECK_BANK)));
+                patterns.forEach(g -> bank.put(g.getCode(), content.checkQuestions(g.getCode())));
                 yield builder.grammarCheck(patterns, bank, used, timerOn, seed);
             }
         };

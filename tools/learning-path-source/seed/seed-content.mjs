@@ -148,6 +148,12 @@ function questionRows(g, seedVersion) {
     ...(g.order_items ?? []).map(order),
     ...(g.fill_items ?? []).map(fill),
     ...(g.extra_practice ?? []).map(choice('EXTRA', 'X')),
+    // owner 05/11: JLPT-style situation questions (data/learning-path/situation/<L>.json); the context rides in
+    // the prompt as "tình huống ‖ câu" because the table has no context column
+    ...(g.situation_bank ?? []).map((q, i) => ({ ...base, code: `${g.id}-S${two(i + 1)}`, bank: 'SITU', question_type: q.type,
+      sort_order: i + 1, prompt_ja: q.context_vi ? `${q.context_vi} ‖ ${q.prompt_ja}` : q.prompt_ja,
+      prompt_furigana: q.prompt_furigana ? (q.context_vi ? `${q.context_vi} ‖ ${q.prompt_furigana}` : q.prompt_furigana) : null,
+      options_json: jsonOrNull(q.options), answer_index: q.answer_index ?? null, explanation_vi: q.explanation_vi ?? null })),
   ];
 }
 

@@ -357,7 +357,7 @@ public class JpathCheckPicker {
     BuiltCheck grammar(List<JpathGrammar> patterns, Set<String> used, int count, boolean timerOn, long seed) {
         Map<String, List<JpathGrammarQuestion>> bank = new LinkedHashMap<>();
         for (JpathGrammar g : patterns) {
-            bank.put(g.getCode(), content.questions(g.getCode(), JpathContentReader.CHECK_BANK));
+            bank.put(g.getCode(), content.checkQuestions(g.getCode()));
         }
         return builder.grammarQuestions(patterns, bank, used, count, timerOn, seed);
     }

@@ -318,6 +318,16 @@ public class JpathContentReader {
                 .toList();
     }
 
+    /** Owner 05/11: JLPT-style situation questions (FILL / ORDER_STAR / SITUATION) asked by checks with the CHECK bank. */
+    public static final String SITUATION_BANK = "SITU";
+
+    /** Visible CHECK questions of a pattern, then its situation questions. */
+    public List<JpathGrammarQuestion> checkQuestions(String grammarCode) {
+        List<JpathGrammarQuestion> all = new java.util.ArrayList<>(questions(grammarCode, CHECK_BANK));
+        all.addAll(questions(grammarCode, SITUATION_BANK));
+        return all;
+    }
+
     /** Visible questions of a pattern in {@code bank} (CHECK, ORDER, FILL, EXTRA) by sort order. */
     public List<JpathGrammarQuestion> questions(String grammarCode, String bank) {
         if (grammarCode == null || bank == null) {

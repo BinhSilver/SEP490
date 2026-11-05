@@ -80,13 +80,16 @@ public class JpathCheckBuilder {
      * Owner 05/11: questions should test using the pattern like the JLPT, not its Vietnamese meaning. The rotation
      * asks the two JLPT forms (FILL, ORDER_STAR) twice as often as ERROR and MEANING.
      */
-    private static final List<String> GRAMMAR_FORMS = List.of("FILL", "ORDER_STAR", "ERROR", "FILL", "ORDER_STAR",
-            "MEANING");
+    private static final List<String> GRAMMAR_FORMS = List.of("FILL", "SITUATION", "ORDER_STAR", "FILL", "ERROR",
+            "SITUATION", "ORDER_STAR", "MEANING");
     private static final Map<String, String> GRAMMAR_INSTRUCTIONS = Map.of(
             "FILL", "（　）に入るものはどれですか · Chọn phần điền vào chỗ trống",
             "ORDER_STAR", "★に入るものはどれですか · Sắp xếp câu, chọn phần ở ô ★",
             "MEANING", "Câu này có nghĩa là gì?",
-            "ERROR", "使い方が正しくない文はどれですか · Chọn câu dùng sai");
+            "ERROR", "使い方が正しくない文はどれですか · Chọn câu dùng sai",
+            "SITUATION", "この場面で何と言いますか · Chọn câu nói hợp tình huống");
+    /** A situation question stores "tình huống ‖ prompt" (no column of its own); the context joins the instruction. */
+    private static final String CONTEXT_SEP = " ‖ ";
     private static final String ERROR_PROMPT_JA = "使い方が正しくない文はどれですか。";
     private static final Set<String> NOT_ASKED_READING_SOURCES = Set.of("FIRST_READING", "OVERRIDE");
     private static final ObjectMapper JSON = new ObjectMapper();
@@ -216,11 +219,17 @@ public class JpathCheckBuilder {
                     correct = id;
                 }
             }
-            String instruction = GRAMMAR_INSTRUCTIONS.getOrDefault(q.getQuestionType(), "Chọn đáp án đúng");
+            String baseInstruction = GRAMMAR_INSTRUCTIONS.getOrDefault(q.getQuestionType(), "Chọn đáp án đúng");
             // An ERROR prompt written in Vietnamese ("Câu nào dùng sai…") is asked in Japanese, like the exam.
             boolean viPrompt = "ERROR".equals(q.getQuestionType()) && !q.getPromptJa().matches(".*[\\u3040-\\u30ff\\u4e00-\\u9fff].*");
-            String promptJa = viPrompt ? ERROR_PROMPT_JA : q.getPromptJa();
-            String promptFuri = viPrompt ? null : q.getPromptFurigana();
+            String rawJa = viPrompt ? ERROR_PROMPT_JA : q.getPromptJa();
+            String rawFuri = viPrompt ? null : q.getPromptFurigana();
+            int cut = rawJa.indexOf(CONTEXT_SEP);
+            String instruction = cut < 0 ? baseInstruction
+                    : "Tình huống: " + rawJa.substring(0, cut).trim() + " · " + baseInstruction;
+            String promptJa = cut < 0 ? rawJa : rawJa.substring(cut + CONTEXT_SEP.length());
+            String promptFuri = rawFuri == null ? null : rawFuri.contains(CONTEXT_SEP)
+                    ? rawFuri.substring(rawFuri.indexOf(CONTEXT_SEP) + CONTEXT_SEP.length()) : rawFuri;
             d.add(qid -> new JpathQuestionView(qid, MCQ, null, instruction, promptJa, promptFuri,
                             null, options, null, timer),
                     new AnswerKey(correct, null, null, null, List.of(), JpathItemType.GRAMMAR, g.getCode(), null,

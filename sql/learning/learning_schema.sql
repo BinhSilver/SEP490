@@ -1423,8 +1423,8 @@ CREATE TABLE IF NOT EXISTS jpath_grammar_question (
     PRIMARY KEY (code),
     KEY idx_jpath_gq_bank (grammar_code, bank, sort_order),
     CONSTRAINT fk_jpath_grammar_question_grammar FOREIGN KEY (grammar_code) REFERENCES jpath_grammar(code),
-    CONSTRAINT chk_jpath_grammar_question_bank CHECK (bank IN ('CHECK','ORDER','FILL','EXTRA')),
-    CONSTRAINT chk_jpath_grammar_question_type CHECK (question_type IN ('FILL','ORDER_STAR','MEANING','ERROR','ORDER','FILL_TEXT')),
+    CONSTRAINT chk_jpath_grammar_question_bank CHECK (bank IN ('CHECK','ORDER','FILL','EXTRA','SITU')),
+    CONSTRAINT chk_jpath_grammar_question_type CHECK (question_type IN ('FILL','ORDER_STAR','MEANING','ERROR','ORDER','FILL_TEXT','SITUATION')),
     CONSTRAINT chk_jpath_grammar_question_status CHECK (status IN ('REVIEWED','AI_CHECKED','DRAFT','HOLD'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2028,6 +2028,11 @@ CALL jlas_ls_check('jpath_check_set', 'chk_jpath_check_kind', 'SKILL_SECTION', N
     'kind IN (''MICRO_CHECK'',''GROUP_EXERCISE'',''SKIP_ONE'',''TOPIC_KNOWN'',''FREE_QUIZ'',''CONFUSABLE'',''KANA_ROW'',''GRAMMAR_PRACTICE'',''GRAMMAR_EXTRA'',''GRAMMAR_REVIEW'',''SKILL_LESSON'',''SKILL_PRACTICE'',''SKILL_DICTATION'',''SKILL_SECTION'')');
 CALL jlas_ls_check('jpath_content_report', 'chk_jpath_report_target_type', 'SKILL_QUESTION', NULL,
     'target_type IN (''VOCAB'',''KANJI'',''GRAMMAR'',''KANA'',''EXAMPLE'',''QUESTION'',''SKILL_SET'',''SKILL_QUESTION'')');
+-- 05/11: câu hỏi ngữ pháp kiểu đề theo tình huống (nhóm SITU, loại SITUATION; chỉ nới).
+CALL jlas_ls_check('jpath_grammar_question', 'chk_jpath_grammar_question_bank', 'SITU', NULL,
+    'bank IN (''CHECK'',''ORDER'',''FILL'',''EXTRA'',''SITU'')');
+CALL jlas_ls_check('jpath_grammar_question', 'chk_jpath_grammar_question_type', 'SITUATION', NULL,
+    'question_type IN (''FILL'',''ORDER_STAR'',''MEANING'',''ERROR'',''ORDER'',''FILL_TEXT'',''SITUATION'')');
 
 DROP PROCEDURE IF EXISTS jlas_ls_check;
 DROP PROCEDURE IF EXISTS jlas_ls_modify_column;

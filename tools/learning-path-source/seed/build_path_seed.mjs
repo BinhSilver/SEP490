@@ -52,6 +52,13 @@ export function buildSeed(level, {
   if (!compiledBytes) return fail(1, null, `${rel(compiledFile)} does not exist`);
   const compiled = JSON.parse(compiledBytes.toString('utf8'));
   if (compiled.level !== level) return fail(1, null, `${rel(compiledFile)} holds level ${compiled.level}`);
+  // owner 05/11: situation questions written outside the compile step join the level's grammar here
+  const situationFile = path.join(resolve(compiledDir), '..', 'situation', `${level}.json`);
+  const situationBytes = readIf(situationFile);
+  if (situationBytes) {
+    const byId = JSON.parse(situationBytes.toString('utf8'));
+    for (const g of compiled.grammar ?? []) if (Array.isArray(byId[g.id])) g.situation_bank = byId[g.id];
+  }
 
   // Every compiled level: lower levels feed cross-level pairs and compounds, all of them name the codes that exist.
   const sources = new Map();
