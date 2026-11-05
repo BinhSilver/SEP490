@@ -265,3 +265,19 @@
   .jp-check__next, .jp-result__actions, .jp-done__actions { box-shadow: none; }
   .jp-done__actions { position: static; padding: 0; }
 }
+
+/* 04/11 polish round 4: kiểm tra và tổng kết ngày */
+.jp-check-page { max-width: 1120px; }
+.jp-check-opt { width: 100%; min-height: 64px; border-radius: 8px; }
+.jp-check-opt .jp-i { margin-left: auto; flex: none; }
+.jp-check-opt.jp-ok { border-color: var(--jp-ok); background: var(--jp-primary-soft); }
+.jp-check-opt.jp-bad { border-color: var(--jp-danger); background: var(--jp-danger-soft); }
+.jp-check__bar { height: 8px; background: var(--jp-line); }
+.jp-check__feedback.jp-ok { animation: jp-correct-in .2s ease-out; }
+@keyframes jp-correct-in { from { opacity: .5; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+.jp-done__stats { display: grid; width: 100%; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.jp-done__stat { display: grid; gap: 4px; padding: 16px; border: 1px solid var(--jp-line); border-radius: 8px; background: var(--jp-primary-soft); }
+.jp-done__stat strong { font-size: clamp(1.6em, 3vw, 2.2em); line-height: 1; }
+.jp-done__stat span { color: var(--jp-muted); }
+@media (max-width: 640px) { .jp-done__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) { .jp-check__feedback.jp-ok { animation: none; } }

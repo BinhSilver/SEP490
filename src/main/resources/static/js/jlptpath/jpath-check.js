@@ -390,7 +390,8 @@
       else if (a && a.value === o.id) cls += ' jp-bad';
       return '<button type="button" class="' + cls + '" data-option="' + esc(o.id) + '"'
         + (q.direction === 'JA_VI' ? '' : ' lang="ja"') + (a || qs.pending ? ' disabled' : '') + '>'
-        + (i < 9 ? '<span class="jp-key" aria-hidden="true">' + (i + 1) + '</span> ' : '') + esc(o.label) + '</button>';
+        + (i < 9 ? '<span class="jp-key" aria-hidden="true">' + (i + 1) + '</span> ' : '') + esc(o.label)
+        + (a && a.correctValue === o.id ? ' ' + icon('check') : (a && a.value === o.id ? ' ' + icon('x') : '')) + '</button>';
     }).join('') + '</div>';
   }
 

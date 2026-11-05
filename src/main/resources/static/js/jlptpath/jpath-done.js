@@ -49,14 +49,15 @@
     var delta = after - before;
     var html = '<section class="jp-done jp-card" aria-labelledby="jp-done-title">'
       + '<h1 class="jp-done__title" id="jp-done-title">' + (s.kind === 'SKILL' ? 'Xong ngày kỹ năng' : 'Xong phần hôm nay') + '</h1>'
-      + '<p class="jp-done__counts">' + esc(num(s.newLearned)) + ' mục đã học · ' + esc(num(s.reviewed)) + ' thẻ đã ôn</p>'
-      + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình học</a>'
-      + '<details class="jp-done__more"><summary>Xem thêm kết quả và lựa chọn</summary><ul class="jp-done__stats">';
+      + '<ul class="jp-done__stats"><li class="jp-done__stat"><strong>' + esc(num(s.newLearned)) + '</strong><span>Mục đã học</span></li>'
+      + '<li class="jp-done__stat"><strong>' + esc(num(s.reviewed)) + '</strong><span>Thẻ đã ôn</span></li>';
     if (s.accuracyPercent !== null && s.accuracyPercent !== undefined) {
-      html += '<li class="jp-done__stat">Đúng ' + esc(num(s.accuracyPercent)) + '%</li>';
+      html += '<li class="jp-done__stat"><strong>' + esc(num(s.accuracyPercent)) + '%</strong><span>Đúng</span></li>';
     }
-    html += '<li class="jp-done__stat jp-done__cp">+' + esc(num(s.cpToday)) + ' CP</li>'
-      + '<li class="jp-done__stat">Chuỗi ' + esc(num(s.streak)) + ' ngày</li></ul>'
+    html += '<li class="jp-done__stat jp-done__cp"><strong>+' + esc(num(s.cpToday)) + '</strong><span>CP</span></li></ul>'
+      + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình học</a>'
+      + '<details class="jp-done__more"><summary>Xem thêm kết quả và lựa chọn</summary>'
+      + '<p class="jp-done__streak">Chuỗi ' + esc(num(s.streak)) + ' ngày</p>'
       + '<p class="jp-done__level">Tiến độ ' + esc(s.level || '') + ': ' + before + '% → ' + after + '%'
       + (delta > 0 ? ' (+' + delta + '%)' : '') + '</p>';
     var wrong = (s.wrongItems || []).map(function (w) { return w && (w.expression || w.code); }).filter(Boolean);
