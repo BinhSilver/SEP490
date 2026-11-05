@@ -9,6 +9,8 @@ import java.util.List;
  * @param currentLessonId the first unlocked lesson not completed yet; null when every lesson is done
  * @param unrestricted    true for a content reviewer (content admin or admin), who has every lesson and
  *                        final test unlocked to check the content
+ * @param fullAccess      Pro or a content reviewer; without it only the first {@code freeLessons} lessons open
+ * @param freeLessons     lessons open without Pro
  */
 public record OnyomiCourseView(
         List<Stage> stages,
@@ -16,7 +18,9 @@ public record OnyomiCourseView(
         int completedLessons,
         int percent,
         Long currentLessonId,
-        boolean unrestricted) {
+        boolean unrestricted,
+        boolean fullAccess,
+        int freeLessons) {
 
     /** One stage of the course (a unit of the Onyomi textbook). */
     public record Stage(
@@ -31,7 +35,8 @@ public record OnyomiCourseView(
 
     /**
      * A lesson tile. {@code status} is a {@link OnyomiLessonStatus} name; {@code bestScore} is the best
-     * practice-quiz score in percent, null before the first submitted attempt.
+     * practice-quiz score in percent, null before the first submitted attempt. {@code proOnly} marks a
+     * LOCKED lesson that opens with Pro rather than by finishing the previous lesson.
      */
     public record LessonCard(
             Long lessonId,
@@ -41,10 +46,14 @@ public record OnyomiCourseView(
             String status,
             Integer bestScore,
             List<String> sounds,
-            List<String> examples) {
+            List<String> examples,
+            boolean proOnly) {
     }
 
-    /** The final test of a stage; {@code quizId} is null when the stage has no final test. */
-    public record FinalTest(Long quizId, boolean unlocked, boolean passed, Integer bestScore) {
+    /**
+     * The final test of a stage; {@code quizId} is null when the stage has no final test.
+     * {@code proOnly} is set when the learner has no Pro, so the test stays locked whatever their progress.
+     */
+    public record FinalTest(Long quizId, boolean unlocked, boolean passed, Integer bestScore, boolean proOnly) {
     }
 }

@@ -51,7 +51,7 @@
     contextMenu = document.getElementById('lib-context-menu');
     exportModal = document.getElementById('export-modal');
     var tabParam = new URLSearchParams(window.location.search).get('tab');
-    if (tabParam === 'my' || tabParam === 'favorites' || tabParam === 'review') state.tab = tabParam;
+    if (tabParam === 'my' || tabParam === 'favorites' || tabParam === 'review' || tabParam === 'history') state.tab = tabParam;
     document.getElementById('cancel-delete-set').addEventListener('click', closeDeleteModal);
     document.getElementById('confirm-delete-set').addEventListener('click', confirmDelete);
     document.getElementById('delete-set-modal').addEventListener('click', function (event) {
@@ -87,14 +87,31 @@
       );
     });
 
-    var searchTimer;
-    searchInput.addEventListener('input', function () {
-      clearTimeout(searchTimer);
-      searchTimer = setTimeout(function () {
-        state.title = searchInput.value.trim();
+    // Search on Enter or the magnifier button only, so typing does not hit the server per keystroke.
+    function search() {
+      var title = searchInput.value.trim();
+      if (title === state.title) return;
+      state.title = title;
+      state.page = 0;
+      load();
+    }
+    document.getElementById('lib-search-form').addEventListener('submit', function (event) {
+      event.preventDefault();
+      search();
+    });
+    document.getElementById('lib-history-clear').addEventListener('click', async function () {
+      if (!window.confirm('Xoá toàn bộ lịch sử bộ thẻ đã xem?')) return;
+      try {
+        await FlashApi.del('/api/flashcards/history');
         state.page = 0;
         load();
-      }, 320);
+      } catch (e) {
+        FlashShell.showToast(e.message || 'Không xoá được lịch sử', 'err');
+      }
+    });
+    // The native clear (×) of a search field empties it: show every set again.
+    searchInput.addEventListener('search', function () {
+      if (!searchInput.value) search();
     });
 
     sortSelect.addEventListener('change', function () {
@@ -149,6 +166,9 @@
     } else if (state.tab === 'favorites') {
       document.getElementById('library-heading').innerHTML = '<span class="library-results-heading__icon"><i class="fa-regular fa-heart"></i></span> Bộ thẻ yêu thích';
       document.getElementById('library-subheading').textContent = 'Các bộ thẻ bạn đã bấm tim. Bấm tim lần nữa để bỏ khỏi danh sách.';
+    } else if (state.tab === 'history') {
+      document.getElementById('library-heading').innerHTML = '<span class="library-results-heading__icon"><i class="fa-solid fa-clock-rotate-left"></i></span> Lịch sử';
+      document.getElementById('library-subheading').textContent = 'Các bộ thẻ bạn đã mở, lần gần nhất ở trên.';
     } else {
       document.getElementById('library-heading').innerHTML = '<span class="library-results-heading__icon"><i class="fa-regular fa-rectangle-list"></i></span> Bộ thẻ công khai';
       document.getElementById('library-subheading').textContent = 'Khám phá các bộ thẻ được chia sẻ bởi cộng đồng.';
@@ -195,7 +215,23 @@
       }
     });
     mobileLibrary.addEventListener('change', adaptLibrary);
+    var historyTab = state.tab === 'history';
+    document.querySelector('.library-content').classList.toggle('is-history', historyTab);
+    document.getElementById('lib-history-clear').hidden = !historyTab;
     adaptLibrary();
+  }
+
+  /** "Hôm nay" / "Hôm qua" / ngày cụ thể của một lần ghé. */
+  function historyDay(value) {
+    var day = new Date(value);
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var start = new Date(day);
+    start.setHours(0, 0, 0, 0);
+    var diff = Math.round((today - start) / 86400000);
+    if (diff === 0) return 'Hôm nay';
+    if (diff === 1) return 'Hôm qua';
+    return start.toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
   function updateLibraryUrl() {
@@ -223,6 +259,8 @@
         path = '/api/flashcards/my?' + q.toString();
       } else if (state.tab === 'favorites') {
         path = '/api/flashcards/favorites?' + q.toString();
+      } else if (state.tab === 'history') {
+        path = '/api/flashcards/history?' + q.toString();
       } else {
         path = '/api/flashcards/public?' + q.toString();
       }
@@ -370,16 +408,27 @@
     if (!items.length) {
       grid.innerHTML = '';
       var noFavorites = state.tab === 'favorites' && !state.title;
-      document.getElementById('lib-empty-title').textContent = noFavorites ? 'Chưa có bộ thẻ yêu thích' : 'Chưa tìm thấy bộ thẻ phù hợp';
+      var noHistory = state.tab === 'history' && !state.title;
+      document.getElementById('lib-empty-title').textContent = noFavorites ? 'Chưa có bộ thẻ yêu thích'
+        : noHistory ? 'Chưa có lịch sử' : 'Chưa tìm thấy bộ thẻ phù hợp';
       document.getElementById('lib-empty-text').textContent = noFavorites
         ? 'Bấm biểu tượng tim trên một bộ thẻ để lưu nó vào đây.'
+        : noHistory ? 'Bộ thẻ bạn mở sẽ hiện ở đây để quay lại học tiếp.'
         : 'Thử đổi từ khóa, chuyển tab hoặc tạo bộ thẻ đầu tiên của riêng bạn.';
       empty.hidden = false;
       return;
     }
     empty.hidden = true;
 
+    var lastDay = null;
     grid.innerHTML = items.map(function (s) {
+      // Lịch sử: một dòng tiêu đề mỗi ngày ghé, như lịch sử YouTube.
+      var dayHeading = '';
+      if (state.tab === 'history' && s.viewedAt) {
+        var day = historyDay(s.viewedAt);
+        if (day !== lastDay) dayHeading = '<h3 class="lib-history-day">' + day + '</h3>';
+        lastDay = day;
+      }
       var totalCards = s.totalCards || 0;
       var setTitle = s.title || 'Bản nháp chưa đặt tên';
       var setHref = s.draft ? '/flashcard/editor.html?id=' + s.id : '/flashcard/study.html?setId=' + s.id;
@@ -403,6 +452,9 @@
       }
       actions +=
           '<button type="button" class="btn btn--ghost btn-ghost btn-sm lib-icon-action" data-export="' + s.id + '" title="Xuất bộ thẻ" aria-label="Xuất bộ thẻ" aria-haspopup="dialog"><i class="fa-solid fa-download"></i></button>';
+      if (state.tab === 'history') {
+        actions += '<button type="button" class="btn btn--ghost btn-ghost btn-sm lib-icon-action" data-history-remove="' + s.id + '" title="Xoá khỏi lịch sử" aria-label="Xoá khỏi lịch sử"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>';
+      }
       if (!s.draft) {
         actions += favoriteButton(s.id, Boolean(s.favorited));
         // Only public sets can be opened by other people, so only they get a share link.
@@ -418,7 +470,7 @@
             '<div class="lib-card__meta">' + ratingBadge(s) + '</div>' +
           '</a>'
         : '<div class="lib-card__meta lib-card__meta--no-thumb">' + ratingBadge(s) + '</div>';
-      return (
+      return dayHeading + (
         '<article class="lib-card' + (s.thumbnail ? '' : ' lib-card--no-thumb') + '" data-set-id="' + s.id + '" data-set-owned="' + Boolean(s.ownedByMe) + '" data-set-visibility="' + FlashShell.esc(s.visibility || 'PRIVATE') + '" data-set-draft="' + Boolean(s.draft) + '">' +
           cardVisual +
           '<div class="lib-card__body">' +
@@ -449,6 +501,18 @@
     });
     grid.querySelectorAll('[data-favorite]').forEach(function (btn) {
       btn.addEventListener('click', function () { toggleFavorite(btn); });
+    });
+    grid.querySelectorAll('[data-history-remove]').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        btn.disabled = true;
+        try {
+          await FlashApi.del('/api/flashcards/history/' + btn.getAttribute('data-history-remove'));
+          load();
+        } catch (e) {
+          btn.disabled = false;
+          FlashShell.showToast(e.message || 'Không xoá được khỏi lịch sử', 'err');
+        }
+      });
     });
     grid.querySelectorAll('[data-share]').forEach(function (btn) {
       btn.addEventListener('click', function () { doShare(Number(btn.getAttribute('data-share'))); });

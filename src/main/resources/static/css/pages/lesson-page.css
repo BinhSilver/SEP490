@@ -1232,3 +1232,14 @@ html.lp-zoom-open { overflow: hidden; }
 /* [JLAS2-17] Marugoto: tiêu đề mẫu ngữ pháp và ghi chú ◎ (tách khỏi thẻ ví dụ) */
 .lesson-page .lp-sline--pattern { margin-top: 14px; font-weight: 600; }
 .lesson-page .lp-sline--note { color: var(--muted); }
+
+/* Nút mở bộ flashcard sinh từ chính bài này (phần Từ vựng / Hán tự). */
+.lesson-page .lp-hero__flashcards { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.lesson-page .lp-flashcard-link {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 14px;
+  color: var(--color-on-primary); background: var(--color-primary); border-radius: 999px;
+  font-size: 14px; font-weight: 700; text-decoration: none; transition: filter .15s ease, transform .15s ease;
+}
+.lesson-page .lp-flashcard-link small { font-weight: 600; opacity: .85; }
+.lesson-page .lp-flashcard-link:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.lesson-page .lp-flashcard-link:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }

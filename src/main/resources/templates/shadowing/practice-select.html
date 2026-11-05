@@ -10,12 +10,14 @@
     <link rel="stylesheet" href="/css/tokens.css">
     <link rel="stylesheet" href="/css/theme-bridge.css">
     <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20261014-select-modes">
+    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20261105-plum">
     <link rel="stylesheet" href="/css/jlab-base-shell.css">
     <link rel="stylesheet" href="/shadowing/css/empty-exercises.css?v=20261009-crying-30frames">
     <link rel="icon" href="/images/jlab.png" type="image/png">
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
     <link rel="stylesheet" href="/shadowing/css/responsive-player.css?v=20261012-mic-tools">
+    <link rel="stylesheet" href="/css/components/date-wheel.css?v=20261102-wheel2">
+    <link rel="stylesheet" href="/shadowing/css/age-gate.css?v=20261102-wheel2">
 </head>
 <body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing-practice-select">
 <div id="jlabBaseShellMount"></div>
@@ -81,6 +83,9 @@
 <script src="/js/auth-session.js"></script>
 <script src="/js/jlab-base-shell.js"></script>
 <script src="/shadowing/js/client.js"></script>
+<div th:replace="~{shadowing/fragments/age-gate :: dialog(${videoId})}"></div>
+<script src="/js/components/date-wheel.js?v=20261102-wheel2"></script>
+<script src="/shadowing/js/age-gate.js?v=20261102-wheel2"></script>
 <script src="/shadowing/js/empty-exercises.js?v=20261009"></script>
 <script src="/shadowing/js/mode-select.js?v=20261014-level-label"></script>
 </body>

@@ -34,3 +34,11 @@ condition = "AND"
 paths = ['''(^|/)data/learning-owned/learning-content\.json$''']
 regexTarget = "match"
 regexes = ['''^seed_key"\s*:\s*"[A-Z0-9]+(-[A-Z0-9]+)*"?$''']
+
+[[allowlists]]
+description = "The setup guide and local config example show a 'change me' placeholder in place of the JWT secret"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''(^|/)docs/HUONG-DAN-CHAY-DU-AN\.md$''', '''(^|/)src/main/resources/application-local\.example\.yaml$''']
+regexTarget = "match"
+regexes = [''''doi-thanh-chuoi-ngau-nhien-it-nhat-32-ky-tu-cho-moi-may'?$''']

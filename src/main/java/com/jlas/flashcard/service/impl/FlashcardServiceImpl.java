@@ -65,6 +65,7 @@ public class FlashcardServiceImpl implements FlashcardService {
     private final FlashcardFileCodec fileCodec;
     private final com.jlas.flashcard.service.FlashcardSrsService srs;
     private final com.jlas.game.service.AvatarFrameService frames;
+    private final com.jlas.common.history.ViewHistoryRepository history;
     @Value("${upload.path.flashcard:uploads/flashcard}") private String uploadPath;
 
     @Override @Transactional(readOnly = true)
@@ -81,6 +82,37 @@ public class FlashcardServiceImpl implements FlashcardService {
     public PageResponse<SetSummaryDto> favoriteSets(String title, String sort, int page, int size, Long userId) {
         login(userId);
         return page(sets.findFavorites(userId, blank(title), pageable(sort, page, size)), userId);
+    }
+
+    @Override
+    public PageResponse<SetSummaryDto> historySets(String title, int page, int size, Long userId) {
+        login(userId);
+        Map<Long, LocalDateTime> seen = history.recent(userId, com.jlas.common.history.ViewHistoryRepository.Item.FLASHCARD_SET);
+        Map<Long, FlashcardSet> byId = new HashMap<>();
+        sets.findAllById(seen.keySet()).forEach(set -> byId.put(set.getId(), set));
+        String query = blank(title) == null ? null : title.trim().toLowerCase(Locale.ROOT);
+        // Same visibility as Favorites: the user's own sets, or public published ones that still exist.
+        List<FlashcardSet> visible = seen.keySet().stream().map(byId::get).filter(Objects::nonNull)
+                .filter(set -> set.getDeletedAt() == null
+                        && (userId.equals(set.getOwner().getId()) || "PUBLIC".equals(set.getVisibility()) && !set.isDraft()))
+                .filter(set -> query == null || set.getTitle() != null && set.getTitle().toLowerCase(Locale.ROOT).contains(query))
+                .toList();
+        Pageable pageable = PageRequest.of(Math.max(page, 0), Math.max(1, Math.min(size, 100)));
+        int from = (int) Math.min(pageable.getOffset(), visible.size());
+        PageResponse<SetSummaryDto> result = page(new PageImpl<>(visible.subList(from, Math.min(from + pageable.getPageSize(), visible.size())),
+                pageable, visible.size()), userId);
+        result.getContent().forEach(dto -> dto.setViewedAt(seen.get(dto.getId())));
+        return result;
+    }
+
+    @Override
+    public void removeHistory(Long setId, Long userId) {
+        history.remove(login(userId), com.jlas.common.history.ViewHistoryRepository.Item.FLASHCARD_SET, setId);
+    }
+
+    @Override
+    public void clearHistory(Long userId) {
+        history.clear(login(userId), com.jlas.common.history.ViewHistoryRepository.Item.FLASHCARD_SET);
     }
     /** Mở một bộ cũng ghi lần truy cập, để bộ đó hiện ở mục "Xem gần đây" (Game Arena). */
     @Override
@@ -482,7 +514,7 @@ public class FlashcardServiceImpl implements FlashcardService {
     }
     private Map<Long,FlashcardCardProgress> progressMap(Long userId,Long setId){if(userId==null)return Map.of();Map<Long,FlashcardCardProgress> result=new HashMap<>();progress.findByUserIdAndCardSetId(userId,setId).forEach(p->result.put(p.getCard().getId(),p));return result;}
     private FlashcardCardProgress stateProgress(Long userId,FlashcardCard card){FlashcardCardProgressId id=new FlashcardCardProgressId(login(userId),card.getId());return progress.findById(id).orElseGet(()->FlashcardCardProgress.builder().id(id).user(user(userId)).card(card).nextReviewAt(LocalDateTime.now()).build());}
-    private FlashcardUserSetState state(Long userId,FlashcardSet set){FlashcardUserSetStateId id=new FlashcardUserSetStateId(login(userId),set.getId());return states.findById(id).orElseGet(()->FlashcardUserSetState.builder().id(id).user(user(userId)).set(set).build());}private void accessed(Long userId,FlashcardSet set){if(userId==null)return;FlashcardUserSetState state=state(userId,set);state.setLastAccessedAt(LocalDateTime.now());states.save(state);}
+    private FlashcardUserSetState state(Long userId,FlashcardSet set){FlashcardUserSetStateId id=new FlashcardUserSetStateId(login(userId),set.getId());return states.findById(id).orElseGet(()->FlashcardUserSetState.builder().id(id).user(user(userId)).set(set).build());}private void accessed(Long userId,FlashcardSet set){if(userId==null)return;FlashcardUserSetState state=state(userId,set);state.setLastAccessedAt(LocalDateTime.now());states.save(state);history.record(userId,com.jlas.common.history.ViewHistoryRepository.Item.FLASHCARD_SET,set.getId());}
     /** Gắn khung avatar + màu tên (mua ở Cửa hàng) cho người bình luận, một lần truy vấn cho cả trang bình luận. */
     private List<CommentDto> withProfileStyles(List<CommentDto> list) {
         Map<Long, com.jlas.game.repository.AvatarFrameJdbcRepository.Style> styles =

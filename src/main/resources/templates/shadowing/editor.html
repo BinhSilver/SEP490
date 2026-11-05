@@ -10,10 +10,10 @@
     <link rel="stylesheet" href="/css/tokens.css"/>
     <link rel="stylesheet" href="/css/theme-bridge.css"/>
     <link rel="stylesheet" href="/css/base.css"/>
-    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261021-ack">
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261105-plum">
     <link rel="icon" href="/images/jlab.png" type="image/png"/>
-    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261009-editor-spacing"/>
-    <link rel="stylesheet" href="/shadowing/css/editor-ai-dialog.css?v=20261017-add-subtitle-2"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261102-icon-toolbar"/>
+    <link rel="stylesheet" href="/shadowing/css/editor-ai-dialog.css?v=20261102-regen-popup"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
@@ -32,10 +32,10 @@
                 </span>
             </div>
             <div class="editor-toolbar-actions">
-                <button id="undo-btn" class="button-secondary btn-sm" disabled><i class="fa-solid fa-rotate-left"></i> Hoàn tác</button>
-                <button id="redo-btn" class="button-secondary btn-sm" disabled><i class="fa-solid fa-rotate-right"></i> Làm lại</button>
+                <button id="undo-btn" class="button-secondary btn-sm editor-icon-btn" title="Hoàn tác" aria-label="Hoàn tác" disabled><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></button>
+                <button id="redo-btn" class="button-secondary btn-sm editor-icon-btn" title="Làm lại" aria-label="Làm lại" disabled><i class="fa-solid fa-rotate-right" aria-hidden="true"></i></button>
                 <button id="add-subtitle-btn" class="button-secondary btn-sm" title="Thêm câu phụ đề tại vị trí đang phát"><i class="fa-solid fa-plus" aria-hidden="true"></i> Thêm câu</button>
-                <button id="focus-mode-btn" class="button-secondary btn-sm"><i class="fa-solid fa-crosshairs"></i> Tập trung</button>
+                <button id="focus-mode-btn" class="button-secondary btn-sm editor-icon-btn" title="Tập trung" aria-label="Tập trung" aria-pressed="false"><i class="fa-solid fa-crosshairs" aria-hidden="true"></i></button>
                 <button id="regenerate-all-btn" class="button-secondary btn-sm"><i class="fa-solid fa-arrows-rotate"></i> Tạo lại phụ đề</button>
                 <button id="editor-ai-progress" class="button-secondary btn-sm" hidden>Xem tiến trình AI</button>
                 <button id="validate-btn" class="button-secondary btn-sm"><i class="fa-solid fa-clipboard-check"></i> Kiểm tra</button>
@@ -61,6 +61,16 @@
                     <option value="Story">Truyện</option>
                     <option value="JLPT">JLPT</option>
                 </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="meta-min-age">Độ tuổi</label>
+                <select id="meta-min-age" class="form-input form-select" aria-describedby="meta-min-age-hint">
+                    <option value="0">Mọi lứa tuổi</option>
+                    <option value="13">13+</option>
+                    <option value="16">16+</option>
+                    <option value="18">18+</option>
+                </select>
+                <p id="meta-min-age-hint" class="caption">Người xem chưa đủ tuổi không mở được video; tài khoản chưa có ngày sinh sẽ được hỏi trước khi xem.</p>
             </div>
             <div th:replace="~{shadowing/genre-picker :: picker('meta-genres')}"></div>
             <button id="save-meta-btn" class="button-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> Lưu thông tin</button>
@@ -164,6 +174,28 @@
         </footer>
     </dialog>
 
+    <dialog id="editor-regen-dialog" class="editor-ai-dialog" data-state="loading" aria-labelledby="editor-regen-title" aria-describedby="editor-regen-detail">
+        <header class="editor-ai-dialog__header">
+            <span class="editor-ai-dialog__symbol"><i class="fa-solid fa-closed-captioning" aria-hidden="true"></i></span>
+            <div><h2 id="editor-regen-title">Tạo phụ đề</h2></div>
+        </header>
+        <div class="editor-ai-dialog__body">
+            <div class="editor-ai-dialog__status" role="status" aria-live="polite" aria-atomic="true">
+                <span class="editor-ai-dialog__marker" aria-hidden="true"></span>
+                <div><strong id="editor-regen-status">Đang xử lý</strong><p id="editor-regen-detail"></p></div>
+            </div>
+            <div class="editor-regen__progress" id="editor-regen-progress">
+                <div class="progress-bar progress-bar-lg" role="progressbar" aria-label="Tiến độ tạo phụ đề" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-fill" id="editor-regen-fill" style="width:0"></div></div>
+                <span class="editor-regen__percent" id="editor-regen-percent">0%</span>
+            </div>
+        </div>
+        <footer class="editor-ai-dialog__footer">
+            <a class="button-secondary" id="editor-regen-leave" href="/shadowing">Về thư viện</a>
+            <button type="button" class="button-secondary" id="editor-regen-close" hidden>Đóng</button>
+            <button type="button" class="button-primary" id="editor-regen-primary" disabled>Đang xử lý…</button>
+        </footer>
+    </dialog>
+
     <script src="/js/auth-session.js"></script>
     <script src="/js/jlab-base-shell.js"></script>
     <script src="/shadowing/js/client.js?v=20261017-genres"></script>
@@ -171,7 +203,7 @@
     <script src="/flashcard/js/prevalidation.js"></script>
     <script src="/shadowing/js/editor-operations.js?v=20261017-add-subtitle"></script>
     <script src="/shadowing/js/youtube-media.js?v=20261021-yt"></script>
-    <script src="/shadowing/js/editor.js?v=20261021-dangtai"></script>
+    <script src="/shadowing/js/editor.js?v=20261102-regen-popup"></script>
     <script>
       // BR-11 — Pre-validation cho tiêu đề video Shadowing
       document.addEventListener('DOMContentLoaded', function () {

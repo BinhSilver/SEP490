@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -65,6 +66,10 @@ public class User {
 
     @Column(name = "gender", length = 20)
     private String gender;
+
+    /** Ngày sinh; NULL với tài khoản cũ và tài khoản Google (được hỏi khi mở video có nhãn độ tuổi). */
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
 
     @Column(name = "japanese_level", length = 10)
     private String japaneseLevel;

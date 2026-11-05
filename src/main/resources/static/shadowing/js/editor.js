@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const metadataPanel = document.getElementById('metadata-panel');
     const metaTitle = document.getElementById('meta-title');
     const metaCategory = document.getElementById('meta-category');
+    const metaMinAge = document.getElementById('meta-min-age');
     const saveMetaBtn = document.getElementById('save-meta-btn');
     const metaGenres = document.getElementById('meta-genres');
     window.ShadowingGenres.bind(metaGenres);
@@ -231,6 +232,8 @@ document.addEventListener('DOMContentLoaded', () => {
         videoData = await vRes.json();
         subtitles = sRes.ok ? await sRes.json() : [];
         qualityReviews = qRes.ok ? await qRes.json() : {};
+        // Reopened (or reloaded) while a run is still going: block editing again right away.
+        if (videoData.status === 'PROCESSING') watchRegenerate();
         updateEditorTitle(videoData.title);
         metaTitle.value = videoData.title || '';
         const cat = videoData.category
@@ -238,6 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ['Podcast','Anime','Drama','News','Speech','Daily','Story','JLPT'].includes(t))
             || 'Daily';
         if (metaCategory) metaCategory.value = cat;
+        if (metaMinAge) metaMinAge.value = String(videoData.minAge || 0);
         window.ShadowingGenres.write(metaGenres, (videoData.tags || [])
             .map(tag => tag && tag.code || '').filter(code => code.startsWith('VIDEO_GENRE_'))
             .map(code => code.slice('VIDEO_GENRE_'.length)));
@@ -355,7 +359,9 @@ document.addEventListener('DOMContentLoaded', () => {
             body: JSON.stringify({
                 title: metaTitle.value,
                 category: metaCategory?.value || 'Daily',
-                genres: window.ShadowingGenres.read(metaGenres)
+                genres: window.ShadowingGenres.read(metaGenres),
+                // 0 = all ages (clears the rating).
+                minAge: Number(metaMinAge?.value || 0)
             })
         });
         if (!res.ok) {
@@ -371,6 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
     focusModeBtn.addEventListener('click', () => {
         focusMode = !focusMode;
         focusModeBtn.classList.toggle('active', focusMode);
+        focusModeBtn.setAttribute('aria-pressed', String(focusMode));
         editorLayout.classList.toggle('focus-mode', focusMode);
         if (focusMode && !focusedId && subtitles.length) focusedId = subtitles[0].id;
         renderList();
@@ -384,25 +391,110 @@ document.addEventListener('DOMContentLoaded', () => {
             cancelText: 'Hủy',
             variant: 'danger'
         });
-        if (!ok) return;
-        await flushSaves();
-        pushUndo();
-        await fetch(`/api/videos/${videoId}/regenerate-subtitles`, { method: 'POST', headers: headers() });
-        regenerateAllBtn.disabled = true;
-        regenerateAllBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...';
-        pollRegenerate();
+        if (ok) startRegenerate();
     });
 
-    async function pollRegenerate() {
-        const res = await fetch(`/api/videos/${videoId}/status`, { headers: headers() });
-        const data = await res.json();
-        if (data.status === 'PROCESSING') {
-            setTimeout(pollRegenerate, 2000);
+    // The subtitles are being replaced on the server, so the popup stays up until the run ends:
+    // edits made now would be lost. Leaving the page is fine, the owner gets a notification.
+    const regenDialog = document.getElementById('editor-regen-dialog');
+    const regenPrimary = document.getElementById('editor-regen-primary');
+    const regenStatus = document.getElementById('editor-regen-status');
+    const regenDetail = document.getElementById('editor-regen-detail');
+    const regenFill = document.getElementById('editor-regen-fill');
+    const regenPercent = document.getElementById('editor-regen-percent');
+    const REGEN_STEPS = {
+        UPLOADED: 'Đang bắt đầu',
+        YOUTUBE_DOWNLOAD: 'Đang hoàn tất',
+        SUBTITLE_DOWNLOAD: 'Đang tải phụ đề',
+        EXTRACTING_AUDIO: 'Đang tách âm thanh',
+        TRANSCRIBING: 'Đang nhận dạng giọng nói',
+        AI_PROCESSING: 'AI đang thêm cách đọc và bản dịch'
+    };
+    const REGEN_POLL_MS = 2000;
+
+    function regenState(state, status, detail) {
+        regenDialog.dataset.state = state;
+        // Only on change, so the live region does not repeat the step on every poll.
+        if (regenStatus.textContent !== status) regenStatus.textContent = status;
+        if (regenDetail.textContent !== detail) regenDetail.textContent = detail;
+        regenPrimary.disabled = state === 'loading';
+        regenPrimary.textContent = state === 'success' ? 'Xem phụ đề' : state === 'error' ? 'Thử lại' : 'Đang xử lý…';
+        document.getElementById('editor-regen-leave').hidden = state !== 'loading';
+        document.getElementById('editor-regen-close').hidden = state !== 'error';
+        document.getElementById('editor-regen-progress').hidden = state !== 'loading';
+    }
+
+    function regenRunning(step, percent) {
+        const value = Math.min(100, Math.max(0, Number(percent) || 0));
+        regenState('loading', step, 'Trong lúc này chưa sửa được phụ đề. Bạn có thể rời trang, khi xong sẽ có thông báo.');
+        regenFill.style.width = value + '%';
+        regenPercent.textContent = value + '%';
+        regenPercent.parentElement.querySelector('[role="progressbar"]').setAttribute('aria-valuenow', String(value));
+    }
+
+    function openRegenDialog() {
+        video.pause();
+        if (!regenDialog.open) regenDialog.showModal();
+        document.documentElement.classList.add('editor-ai-open');
+    }
+
+    regenDialog.addEventListener('cancel', e => {
+        if (regenDialog.dataset.state === 'loading') e.preventDefault();
+    });
+    regenDialog.addEventListener('close', () => {
+        // Chrome still closes on a second Esc after cancel is prevented.
+        if (regenDialog.dataset.state === 'loading') { regenDialog.showModal(); return; }
+        document.documentElement.classList.remove('editor-ai-open');
+    });
+    document.getElementById('editor-regen-close').addEventListener('click', () => regenDialog.close());
+    regenPrimary.addEventListener('click', () => {
+        if (regenDialog.dataset.state === 'error') startRegenerate();
+        else regenDialog.close();
+    });
+
+    async function startRegenerate() {
+        regenRunning(REGEN_STEPS.UPLOADED, 0);
+        openRegenDialog();
+        try {
+            await flushSaves();
+            await operations.response(await fetch(`/api/videos/${videoId}/regenerate-subtitles`, { method: 'POST', headers: headers() }));
+            pushUndo();
+        } catch (error) {
+            regenState('error', 'Chưa tạo lại được', error.message || 'Không kết nối được tới máy chủ. Hãy thử lại.');
             return;
         }
-        regenerateAllBtn.disabled = false;
-        regenerateAllBtn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Tạo lại phụ đề';
-        await reloadSubs();
+        watchRegenerate();
+    }
+
+    async function watchRegenerate() {
+        let data;
+        try {
+            const res = await fetch(`/api/videos/${videoId}/status`, { headers: headers() });
+            if (!res.ok) throw new Error('status ' + res.status);
+            data = await res.json();
+        } catch (_) {
+            setTimeout(watchRegenerate, REGEN_POLL_MS); // a network blip must not end the wait
+            return;
+        }
+        if (data.status === 'PROCESSING') {
+            regenRunning(REGEN_STEPS[data.processingStep] || 'Đang xử lý', data.progressPercent);
+            openRegenDialog();
+            setTimeout(watchRegenerate, REGEN_POLL_MS);
+            return;
+        }
+        videoData.status = data.status;
+        if (data.status !== 'READY') publishBtn.innerHTML = '<i class="fa-solid fa-upload"></i> Xuất bản';
+        try {
+            await reloadSubs();
+        } catch (_) {
+            location.reload();
+            return;
+        }
+        if (data.status === 'FAILED') {
+            regenState('error', 'Tạo phụ đề bị dừng', data.errorMessage || 'Hãy thử lại.');
+            return;
+        }
+        regenState('success', 'Đã tạo xong phụ đề', `Có ${subtitles.length} câu mới. Hãy kiểm tra lại rồi xuất bản.`);
         pollAiPending();
     }
 

@@ -1,11 +1,16 @@
 package com.jlas.kaiwa.service.ai;
 
+import com.jlas.common.ai.AiUsageRecorder;
 import com.jlas.kaiwa.config.FishAudioConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,14 +29,27 @@ public class FishAudioClient {
 
     private static final Logger log = LoggerFactory.getLogger(FishAudioClient.class);
     private static final int STREAM_BUFFER_SIZE = 16 * 1024;
+    /** ai_usage_log feature name; Fish Audio bills by the UTF-8 bytes of the text, which is what gets recorded. */
+    static final String FEATURE_TTS = "AI_CALL_TTS";
+    /** Recent lines kept in memory: replaying a line with the same voice and speed does not call (and pay) again. */
+    private static final int CACHE_ENTRIES = 300;
+    private static final int CACHE_MAX_BYTES = 2 * 1024 * 1024;
 
     private final FishAudioConfig config;
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
+    private final AiUsageRecorder usage;
+    private final Map<String, byte[]> cache = Collections.synchronizedMap(new LinkedHashMap<>(64, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, byte[]> eldest) {
+            return size() > CACHE_ENTRIES;
+        }
+    });
 
-    public FishAudioClient(FishAudioConfig config, ObjectMapper objectMapper) {
+    public FishAudioClient(FishAudioConfig config, ObjectMapper objectMapper, AiUsageRecorder usage) {
         this.config = config;
         this.objectMapper = objectMapper;
+        this.usage = usage;
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(15_000);
         factory.setReadTimeout(90_000);
@@ -50,6 +68,11 @@ public class FishAudioClient {
 
     public byte[] synthesizeVoice(String text, String referenceId, double speed) {
         TtsRequest request = buildRequest(text, referenceId, speed);
+        String key = cacheKey(text, referenceId, speed);
+        byte[] cached = cache.get(key);
+        if (cached != null) {
+            return cached;
+        }
 
         String url = trimSlash(config.getApiUrl()) + "/v1/tts";
         HttpHeaders headers = createHeaders(request.apiKey());
@@ -67,6 +90,8 @@ public class FishAudioClient {
             }
             log.info("Fish Audio TTS OK ref={} bytes={} model={}",
                     request.referenceId(), audio.length, config.getModel());
+            remember(key, audio);
+            recordUsage(text);
             return audio;
         } catch (HttpStatusCodeException e) {
             String errBody = e.getResponseBodyAsString();
@@ -95,9 +120,21 @@ public class FishAudioClient {
 
     public void synthesizeVoiceStreaming(String text, String referenceId, double speed, OutputStream target) {
         TtsRequest request = buildRequest(text, referenceId, speed);
+        String key = cacheKey(text, referenceId, speed);
+        byte[] cached = cache.get(key);
+        if (cached != null) {
+            try {
+                target.write(cached);
+                target.flush();
+                return;
+            } catch (IOException e) {
+                throw new IllegalStateException("Fish Audio cached audio could not be sent: " + e.getMessage(), e);
+            }
+        }
         String url = trimSlash(config.getApiUrl()) + "/v1/tts";
         HttpHeaders headers = createHeaders(request.apiKey());
         long startedAt = System.nanoTime();
+        ByteArrayOutputStream copy = new ByteArrayOutputStream();
 
         try {
             StreamStats stats = restTemplate.execute(
@@ -107,7 +144,11 @@ public class FishAudioClient {
                         clientRequest.getHeaders().putAll(headers);
                         clientRequest.getBody().write(objectMapper.writeValueAsBytes(request.body()));
                     },
-                    response -> copyProgressively(response.getBody(), target, startedAt));
+                    response -> copyProgressively(response.getBody(), target, copy, startedAt));
+            if (copy.size() > 0) {
+                remember(key, copy.toByteArray());
+            }
+            recordUsage(text);
 
             long elapsedMs = (System.nanoTime() - startedAt) / 1_000_000;
             log.info("Fish Audio streaming TTS OK ref={} bytes={} firstByteMs={} elapsedMs={} model={}",
@@ -172,8 +213,9 @@ public class FishAudioClient {
         return headers;
     }
 
-    private static StreamStats copyProgressively(InputStream source, OutputStream target, long startedAt)
-            throws IOException {
+    /** Sends audio to the caller as it arrives and keeps a copy (up to the cache limit) for replays. */
+    private static StreamStats copyProgressively(InputStream source, OutputStream target, ByteArrayOutputStream copy,
+                                                 long startedAt) throws IOException {
         byte[] buffer = new byte[STREAM_BUFFER_SIZE];
         long total = 0;
         long firstByteMs = -1;
@@ -185,8 +227,28 @@ public class FishAudioClient {
             target.write(buffer, 0, read);
             target.flush();
             total += read;
+            if (total <= CACHE_MAX_BYTES) {
+                copy.write(buffer, 0, read);
+            } else {
+                copy.reset();
+            }
         }
         return new StreamStats(total, firstByteMs);
+    }
+
+    private String cacheKey(String text, String referenceId, double speed) {
+        return config.getModel() + '|' + referenceId + '|' + Math.min(2.0, Math.max(0.5, speed)) + '|' + text;
+    }
+
+    private void remember(String key, byte[] audio) {
+        if (audio.length <= CACHE_MAX_BYTES) {
+            cache.put(key, audio);
+        }
+    }
+
+    private void recordUsage(String text) {
+        usage.record(new AiUsageRecorder.Usage(null, FEATURE_TTS, "fish-audio", config.getModel(), null, null, null,
+                null, text.getBytes(StandardCharsets.UTF_8).length, null, null));
     }
 
     private record TtsRequest(String apiKey, String referenceId, Map<String, Object> body) {

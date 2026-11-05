@@ -1,5 +1,6 @@
 package com.jlas.admin.controller;
 
+import com.jlas.admin.dto.AdminBirthDateRequest;
 import com.jlas.admin.dto.AdminPremiumGrantRequest;
 import com.jlas.admin.dto.AdminReasonRequest;
 import com.jlas.admin.dto.AdminPage;
@@ -61,6 +62,14 @@ public class AdminUserController {
                                                 @AuthenticationPrincipal UserPrincipal actor) {
         return ApiResponse.ok("Đã đổi vai trò",
                 users.changeRole(actor.userId(), id, request.getRole(), request.getReason()));
+    }
+
+    @PostMapping("/{id}/birth-date")
+    public ApiResponse<AdminUserView> changeBirthDate(@PathVariable Long id,
+                                                     @Valid @RequestBody AdminBirthDateRequest request,
+                                                     @AuthenticationPrincipal UserPrincipal actor) {
+        return ApiResponse.ok("Đã cập nhật ngày sinh",
+                users.changeBirthDate(actor.userId(), id, request.getDateOfBirth(), request.getReason()));
     }
 
     @PostMapping("/{id}/premium-grants")

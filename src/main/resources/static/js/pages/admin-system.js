@@ -11,6 +11,7 @@
   var ACTIONS = {
     USER_LOCK: 'Khoá tài khoản', USER_UNLOCK: 'Mở khoá tài khoản',
     USER_ROLE_CHANGE: 'Đổi vai trò', PREMIUM_GRANT: 'Cấp Premium thủ công', USER_CREDIT_ADJUST: 'Điều chỉnh CP',
+    USER_BIRTH_DATE_CHANGE: 'Sửa ngày sinh',
     PREMIUM_PLAN_CREATE: 'Tạo gói Premium', PREMIUM_PLAN_UPDATE: 'Sửa gói Premium',
     PREMIUM_PLAN_DEACTIVATE: 'Ngừng bán gói', PREMIUM_PLAN_ACTIVATE: 'Mở bán gói',
     COUPON_CREATE: 'Tạo mã giảm giá', COUPON_UPDATE: 'Sửa mã giảm giá', COUPON_ACTIVE: 'Bật/tắt mã giảm giá',
@@ -251,6 +252,7 @@
             ['Lý do khoá', u.lockedReason],
             ['Premium', u.premiumActive ? (u.premiumPlanName || 'Premium') + ' đến ' + A.date(u.premiumExpiredAt) : 'Miễn phí'],
             ['Số dư CP', u.creditBalance], ['Điện thoại', u.phoneNumber], ['Trình độ', u.japaneseLevel],
+            ['Ngày sinh', birthDateText(u.dateOfBirth)],
             ['Ngày tạo', A.date(u.createdAt)], ['Đăng nhập gần nhất', A.date(u.lastLoginAt)]
           ];
           box.innerHTML = '<section class="adm-panel" aria-label="Chi tiết tài khoản">' +
@@ -260,6 +262,7 @@
             }).join('') + '</dl>' +
             '<p class="adm-toolbar">' + lockButton(u) + manageButtons(u) +
               '<button type="button" class="btn btn--secondary btn--sm" data-adjust="' + u.id + '">Điều chỉnh CP</button>' +
+              '<button type="button" class="btn btn--secondary btn--sm" data-birth-date="' + u.id + '">Sửa ngày sinh</button>' +
               '<button type="button" class="btn btn--secondary btn--sm" data-close-detail>Đóng</button></p>' +
           '</section>';
           rows[u.id] = u;
@@ -312,6 +315,49 @@
         } catch (e) { A.toast(e.message, 'error'); }
       }
 
+      function birthDateText(iso) {
+        return iso ? iso.split('-').reverse().join('/') : 'Chưa có';
+      }
+
+      // Learners set their birth date once; a wrong one is fixed here, or cleared so they are asked again.
+      async function changeBirthDate(id) {
+        var u = rows[id];
+        var current = u.dateOfBirth || '';
+        var now = new Date();
+        var today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' +
+          String(now.getDate()).padStart(2, '0');
+        var decision = await A.decide({
+          title: 'Sửa ngày sinh của ' + (u.fullName || u.email) + '?',
+          message: 'Hiện tại: ' + A.esc(birthDateText(u.dateOfBirth)) + '. Ngày sinh quyết định video Shadowing có ' +
+            'nhãn độ tuổi nào người dùng được xem. Để trống để xoá: người dùng sẽ được hỏi lại khi mở video có nhãn.',
+          confirmText: 'Lưu ngày sinh', maxLength: 500,
+          placeholder: 'Lý do (ít nhất 5 ký tự), lưu vào nhật ký quản trị',
+          extraHtml: '<div class="field"><label class="field__label" for="admBirthDate">Ngày sinh mới</label>' +
+            '<input class="input" id="admBirthDate" type="date" min="1900-01-01" max="' + today + '" value="' +
+              A.esc(current) + '" data-autofocus></div>',
+          collect: function (modal) {
+            var input = modal.querySelector('#admBirthDate');
+            var value = input.value;
+            if (input.validity.badInput || (value && (value < '1900-01-01' || value > today))) {
+              return { error: 'Ngày sinh chưa hợp lệ.' };
+            }
+            if (value === current) return { error: 'Ngày sinh mới trùng với ngày sinh hiện tại.' };
+            return reasonLength(modal) || { dateOfBirth: value || null };
+          }
+        });
+        if (!decision) return;
+        try {
+          await A.api.post(API + '/users/' + id + '/birth-date', {
+            dateOfBirth: decision.extra.dateOfBirth, reason: decision.reason
+          });
+          A.toast('Đã cập nhật ngày sinh', 'success');
+        } catch (e) {
+          A.toast(e.message, 'error');
+        }
+        await load();
+        await showDetail(id);
+      }
+
       form.addEventListener('submit', function (event) { event.preventDefault(); page = 0; load(); });
       root.addEventListener('click', function (event) {
         var target = event.target;
@@ -322,6 +368,7 @@
         if ((el = target.closest('[data-role-change]'))) { changeRole(Number(el.dataset.roleChange)); return; }
         if ((el = target.closest('[data-grant]'))) { grantPremium(Number(el.dataset.grant)); return; }
         if ((el = target.closest('[data-adjust]'))) { adjustCredits(Number(el.dataset.adjust)); return; }
+        if ((el = target.closest('[data-birth-date]'))) { changeBirthDate(Number(el.dataset.birthDate)); return; }
         // Checked after the row's own buttons so "Khoá"/"Mở khoá" inside a row don't also open the detail.
         if ((el = target.closest('[data-detail-id]'))) { showDetail(Number(el.dataset.detailId)); return; }
         if (target.closest('[data-close-detail]')) { detailId = null; root.querySelector('[data-detail]').innerHTML = ''; }
@@ -374,7 +421,7 @@
       var labels = { code: 'Mã', name: 'Tên', description: 'Mô tả', price: 'Giá', creditAmount: 'Số CP',
         discountType: 'Kiểu giảm', discountValue: 'Mức giảm', maxDiscount: 'Giảm tối đa', minOrderAmount: 'Đơn tối thiểu',
         appliesTo: 'Áp dụng cho', startsAt: 'Bắt đầu', endsAt: 'Kết thúc', usageLimit: 'Lượt dùng tối đa',
-        perUserLimit: 'Lượt mỗi người', active: 'Trạng thái' };
+        perUserLimit: 'Lượt mỗi người', active: 'Trạng thái', dateOfBirth: 'Ngày sinh' };
       var show = function (k, v) { return v == null ? '—' : k === 'active' ? (v ? 'Bật' : 'Tắt') : v; };
       var changed = Object.keys(c.after).filter(function (k) { return String(c.before[k]) !== String(c.after[k]); });
       if (!changed.length) return '<span class="adm-muted">Không đổi</span>';

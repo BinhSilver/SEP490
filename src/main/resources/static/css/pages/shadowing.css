@@ -1,3 +1,4 @@
+@import url("../controls.css");
 /*
  * JLAS Shadowing page layer.
  * The feature keeps its existing JS/API contract; this file only composes
@@ -234,6 +235,8 @@
 #jlabBasePage.page-shadowing-library .library-tabs__actions .button-icon-circular {
   width: 42px;
   height: 42px;
+  background: transparent;
+  box-shadow: none;
 }
 
 #jlabBasePage.page-shadowing-library .library-tabs-scope .tab-btn {
@@ -250,7 +253,8 @@
   background: transparent;
 }
 
-#jlabBasePage.page-shadowing-library .library-tabs-scope .tab-btn.active::after {
+#jlabBasePage.page-shadowing-library .library-tabs-scope .tab-btn.active::after,
+#jlabBasePage.page-shadowing-library .library-tabs-status .tab-btn.active::after {
   content: "";
   position: absolute;
   right: 0;
@@ -273,15 +277,17 @@
 }
 
 #jlabBasePage.page-shadowing-library .library-tabs-status .tab-btn {
-  padding: 7px 14px;
+  padding: 7px 2px;
   border: 0;
-  border-radius: var(--radius-full, 9999px);
-  background: var(--color-surface-container, #e8eff1);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-on-surface-variant, #494551);
 }
 
 #jlabBasePage.page-shadowing-library .library-tabs-status .tab-btn.active {
-  color: var(--color-on-primary, #fff);
-  background: var(--color-primary, #4f378a);
+  position: relative;
+  color: var(--color-primary, #4f378a);
+  background: transparent;
 }
 
 #jlabBasePage.page-shadowing-library .video-grid {
@@ -425,6 +431,22 @@
   pointer-events: none;
 }
 
+/* Age rating (13+ / 16+ / 18+) on the thumbnail, so it stays visible where mobile hides the meta row. */
+#jlabBasePage.page-shadowing-library .card-age-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  z-index: 1;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #b91c1c;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+}
+
 #jlabBasePage.page-shadowing-library .video-card-title,
 #jlabBasePage.page-shadowing-library .video-card-meta,
 #jlabBasePage.page-shadowing-library .video-card-genres,
@@ -445,7 +467,7 @@
 
 #jlabBasePage.page-shadowing-library .video-card-meta {
   flex-wrap: nowrap;
-  gap: 4px;
+  gap: 12px;
   min-width: 0;
   overflow: hidden;
 }
@@ -460,6 +482,14 @@
 #jlabBasePage.page-shadowing-library .video-card-meta .badge-category {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Plain text facts; only the owner's status badges keep a colored background. */
+#jlabBasePage.page-shadowing-library .video-card-meta :is(.badge-category, .badge-lesson) {
+  padding-inline: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
 }
 
 #jlabBasePage.page-shadowing-library .card-actions {
@@ -689,8 +719,18 @@
 }
 
 #jlabBasePage.page-shadowing-editor .editor-toolbar > div:first-child {
-  min-width: 0;
+  /* The title gives way first, so the actions (Xuất bản included) stay on one row. */
+  flex: 1 1 0;
+  min-width: 160px;
   max-width: 100%;
+}
+
+#jlabBasePage.page-shadowing-editor .editor-toolbar-actions .editor-icon-btn {
+  flex: none;
+  width: 36px;
+  padding: 0 !important; /* .btn-sm sets its padding with !important */
+  display: inline-grid;
+  place-items: center;
 }
 
 #jlabBasePage.page-shadowing-editor .editor-video-col {
@@ -1574,6 +1614,10 @@
     flex-direction: column;
   }
 
+  #jlabBasePage.page-shadowing-editor .editor-toolbar > div:first-child {
+    flex: none;
+  }
+
   #jlabBasePage.page-shadowing-editor .editor-toolbar-actions {
     width: 100%;
   }
@@ -1597,28 +1641,28 @@
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
 html[data-theme="dark"] {
-  --dm-shadowing-bg: #0b1017;
-  --dm-shadowing-surface: #141c27;
-  --dm-shadowing-raised: #222e3b;
-  --dm-shadowing-ink: #f8fafc;
-  --dm-shadowing-muted: #b4c3d3;
-  --dm-shadowing-line: #405468;
-  --dm-shadowing-accent: #c084fc;
-  --dm-shadowing-action: #7335a6;
-  --dm-shadowing-accent-soft: #28223c;
-  --dm-shadowing-on-accent: #211b34;
-  --dm-shadowing-success: #8eddb6;
-  --dm-shadowing-success-bg: #1b3d32;
-  --dm-shadowing-success-line: #43816b;
-  --dm-shadowing-danger: #ffb4bd;
-  --dm-shadowing-danger-bg: #452832;
-  --dm-shadowing-danger-line: #96616d;
-  --dm-shadowing-warning: #f3d28a;
-  --dm-shadowing-warning-bg: #403522;
-  --dm-shadowing-warning-line: #947a46;
-  --dm-shadowing-pink: #f4aed2;
-  --dm-shadowing-pink-bg: #432d40;
-  --dm-shadowing-pink-line: #88637b;
+  --dm-shadowing-bg: var(--dark-bg);
+  --dm-shadowing-surface: var(--dark-surface);
+  --dm-shadowing-raised: var(--dark-raised);
+  --dm-shadowing-ink: var(--dark-ink);
+  --dm-shadowing-muted: var(--dark-muted);
+  --dm-shadowing-line: var(--dark-line);
+  --dm-shadowing-accent: var(--dark-accent);
+  --dm-shadowing-action: var(--dark-button);
+  --dm-shadowing-accent-soft: var(--dark-soft);
+  --dm-shadowing-on-accent: var(--dark-on-button);
+  --dm-shadowing-success: var(--dark-success);
+  --dm-shadowing-success-bg: var(--dark-success-bg);
+  --dm-shadowing-success-line: var(--dark-success-line);
+  --dm-shadowing-danger: var(--dark-danger);
+  --dm-shadowing-danger-bg: var(--dark-danger-bg);
+  --dm-shadowing-danger-line: var(--dark-danger-line);
+  --dm-shadowing-warning: var(--dark-warning);
+  --dm-shadowing-warning-bg: var(--dark-warning-bg);
+  --dm-shadowing-warning-line: var(--dark-warning-line);
+  --dm-shadowing-pink: var(--dark-pink);
+  --dm-shadowing-pink-bg: var(--dark-pink-bg);
+  --dm-shadowing-pink-line: var(--dark-pink-line);
 }
 html[data-theme="dark"] #jlabBasePage.page-shadowing-library #video-empty-action,
 html[data-theme="dark"] #jlabBasePage.page-shadowing-library #video-empty-action:hover,
@@ -1802,10 +1846,10 @@ html[data-theme="dark"] #jlabBasePage.page-shadowing-player .sub-pronunciation-h
 }
 
 /* Dark interaction and state pairs for this page. */
-html[data-theme="dark"]{--color-background:var(--dm-shadowing-bg);--color-surface:var(--dm-shadowing-bg);--color-surface-lowest:var(--dm-shadowing-surface);--color-surface-low:var(--dm-shadowing-raised);--color-surface-mid:var(--dm-shadowing-raised);--color-surface-high:var(--dm-shadowing-raised);--color-surface-container:var(--dm-shadowing-raised);--color-surface-container-high:var(--dm-shadowing-raised);--color-on-surface:var(--dm-shadowing-ink);--color-on-surface-variant:var(--dm-shadowing-muted);--color-secondary:var(--dm-shadowing-muted);--color-outline:var(--dm-shadowing-muted);--color-outline-variant:var(--dm-shadowing-line);--color-primary:var(--dm-shadowing-accent);--color-primary-container:var(--dm-shadowing-action);--color-on-primary:var(--dm-shadowing-on-accent);--color-on-primary-container:var(--dm-shadowing-ink);--color-primary-fixed:var(--dm-shadowing-accent-soft);--color-on-primary-fixed:var(--dm-shadowing-accent);--color-secondary-container:var(--dm-shadowing-accent-soft);--color-secondary-fixed:var(--dm-shadowing-accent-soft);--color-success:var(--dm-shadowing-success);--color-success-bg:var(--dm-shadowing-success-bg);--color-error:var(--dm-shadowing-danger);--color-error-container:var(--dm-shadowing-danger-bg);--color-on-error-container:var(--dm-shadowing-danger);--color-tertiary:var(--dm-shadowing-warning);--color-tertiary-container:var(--dm-shadowing-warning-bg);--color-on-tertiary-container:var(--dm-shadowing-warning);--color-focus:var(--dm-shadowing-accent);--jlab-base-page-background:var(--dm-shadowing-bg);--color-bg:var(--dm-shadowing-bg);--color-card:var(--dm-shadowing-surface);--color-text:var(--dm-shadowing-ink);--color-text-secondary:var(--dm-shadowing-muted);--color-text-muted:var(--dm-shadowing-muted);--color-border:var(--dm-shadowing-line);--color-primary-soft:var(--dm-shadowing-accent-soft);--color-primary-hover:var(--dm-shadowing-action);--color-warning-soft:var(--dm-shadowing-warning-bg);--color-danger-soft:var(--dm-shadowing-danger-bg);--color-danger:var(--dm-shadowing-danger);--color-divider:var(--dm-shadowing-line);}
+html[data-theme="dark"]{--color-background:var(--dm-shadowing-bg);--color-surface:var(--dm-shadowing-bg);--color-surface-lowest:var(--dm-shadowing-surface);--color-surface-low:var(--dm-shadowing-raised);--color-surface-mid:var(--dm-shadowing-raised);--color-surface-high:var(--dm-shadowing-raised);--color-surface-container:var(--dm-shadowing-raised);--color-surface-container-high:var(--dm-shadowing-raised);--color-on-surface:var(--dm-shadowing-ink);--color-on-surface-variant:var(--dm-shadowing-muted);--color-secondary:var(--dm-shadowing-muted);--color-outline:var(--dm-shadowing-muted);--color-outline-variant:var(--dm-shadowing-line);--color-primary:var(--dm-shadowing-accent);--color-primary-container:var(--dm-shadowing-action);--color-on-primary:var(--dm-shadowing-on-accent);--color-on-primary-container:var(--dark-on-button);--color-primary-fixed:var(--dm-shadowing-accent-soft);--color-on-primary-fixed:var(--dm-shadowing-accent);--color-secondary-container:var(--dm-shadowing-accent-soft);--color-secondary-fixed:var(--dm-shadowing-accent-soft);--color-success:var(--dm-shadowing-success);--color-success-bg:var(--dm-shadowing-success-bg);--color-error:var(--dm-shadowing-danger);--color-error-container:var(--dm-shadowing-danger-bg);--color-on-error-container:var(--dm-shadowing-danger);--color-tertiary:var(--dm-shadowing-warning);--color-tertiary-container:var(--dm-shadowing-warning-bg);--color-on-tertiary-container:var(--dm-shadowing-warning);--color-focus:var(--dm-shadowing-accent);--jlab-base-page-background:var(--dm-shadowing-bg);--color-bg:var(--dm-shadowing-bg);--color-card:var(--dm-shadowing-surface);--color-text:var(--dm-shadowing-ink);--color-text-secondary:var(--dm-shadowing-muted);--color-text-muted:var(--dm-shadowing-muted);--color-border:var(--dm-shadowing-line);--color-primary-soft:var(--dm-shadowing-accent-soft);--color-primary-hover:var(--dm-shadowing-action);--color-warning-soft:var(--dm-shadowing-warning-bg);--color-danger-soft:var(--dm-shadowing-danger-bg);--color-danger:var(--dm-shadowing-danger);--color-divider:var(--dm-shadowing-line);}
 html[data-theme="dark"] #jlabBasePage.page-shadowing{background:var(--dm-shadowing-bg)!important;}
-html[data-theme="dark"] #jlabBasePage.page-shadowing :is(.button-primary,.btn.btn--primary){background:var(--dm-shadowing-action)!important;color:var(--dm-shadowing-ink)!important;}
-html[data-theme="dark"] #jlabBasePage.page-shadowing :is(.button-primary,.btn.btn--primary):hover{background:#8267c4!important;}
+html[data-theme="dark"] #jlabBasePage.page-shadowing :is(.button-primary,.btn.btn--primary){background:var(--dm-shadowing-action)!important;color:var(--dark-on-button)!important;}
+html[data-theme="dark"] #jlabBasePage.page-shadowing :is(.button-primary,.btn.btn--primary):hover{background:var(--dark-button-hover)!important;}
 html[data-theme="dark"] .page-shadowing-editor{--timeline-bg:#14232e;--timeline-segment:#354d61;--timeline-active:#b4c6ff;--timeline-text:#eaf3f7;--timeline-active-text:#172238;--timeline-playhead:#ffaebd;}
 html[data-theme="dark"] .page-shadowing .confirm-modal{background:var(--dm-shadowing-surface);color:var(--dm-shadowing-ink);}
 html[data-theme="dark"] .page-shadowing {

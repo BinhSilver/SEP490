@@ -15,7 +15,8 @@
         <div class="oy-notice" th:if="${lockedNotice}" role="status">
             <i class="fa-solid fa-lock" aria-hidden="true"></i>
             <span th:if="${lockedNotice == 'final'}">Bài kiểm tra cuối giai đoạn mở khoá khi bạn hoàn thành mọi bài trong giai đoạn đó.</span>
-            <span th:unless="${lockedNotice == 'final'}">Bài đó chưa mở khoá. Các bài mở lần lượt: vượt qua bài luyện tập (từ 60%) của bài trước để học bài tiếp theo.</span>
+            <span th:if="${lockedNotice == 'pro'}">Bài đó dành cho tài khoản Pro. <a th:href="@{/premium}">Nâng cấp Pro</a> để học toàn bộ giáo trình và làm các bài kiểm tra.</span>
+            <span th:unless="${lockedNotice == 'final' or lockedNotice == 'pro'}">Bài đó chưa mở khoá. Các bài mở lần lượt: vượt qua bài luyện tập (từ 60%) của bài trước để học bài tiếp theo.</span>
         </div>
 
         <header class="oy-panel oy-course-hero">
@@ -67,7 +68,8 @@
                             <span class="oy-lesson-card__number" th:text="'Bài ' + ${card.order}">Bài 1</span>
                             <span th:if="${done}" class="oy-pill oy-pill--done"><i class="fa-solid fa-check" aria-hidden="true"></i> Hoàn thành</span>
                             <span th:if="${card.status == 'IN_PROGRESS'}" class="oy-pill oy-pill--active">Đang học</span>
-                            <span th:if="${locked}" class="oy-pill"><i class="fa-solid fa-lock" aria-hidden="true"></i> Chưa mở</span>
+                            <span th:if="${locked and card.proOnly}" class="oy-pill oy-pill--pro"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</span>
+                            <span th:if="${locked and !card.proOnly}" class="oy-pill"><i class="fa-solid fa-lock" aria-hidden="true"></i> Chưa mở</span>
                         </div>
                         <h3 class="oy-lesson-card__title" th:text="${card.title}">Âm đầu C, K, QU → K</h3>
                         <ul class="oy-sounds" th:if="${!#lists.isEmpty(card.sounds)}" aria-label="Quy tắc">
@@ -83,7 +85,10 @@
                                th:href="@{/learning/onyomi/lessons/{id}(id=${card.lessonId})}">
                                 <span th:text="${done} ? 'Ôn lại' : (${card.status == 'IN_PROGRESS'} ? 'Học tiếp' : 'Bắt đầu học')">Bắt đầu học</span>
                             </a>
-                            <span th:if="${locked}" class="oy-lesson-card__locked">
+                            <a th:if="${locked and card.proOnly}" class="oy-lesson-card__locked" th:href="@{/premium}">
+                                <i class="fa-solid fa-crown" aria-hidden="true"></i> Nâng cấp Pro để mở khoá
+                            </a>
+                            <span th:if="${locked and !card.proOnly}" class="oy-lesson-card__locked">
                                 <i class="fa-solid fa-lock" aria-hidden="true"></i> Vượt qua bài trước để mở khoá
                             </span>
                         </div>
@@ -106,7 +111,8 @@
                     <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
                     <span th:text="${stage.finalTest.passed} ? 'Làm lại' : 'Làm bài kiểm tra'">Làm bài kiểm tra</span>
                 </a>
-                <span th:unless="${stage.finalTest.unlocked}" class="oy-pill"><i class="fa-solid fa-lock" aria-hidden="true"></i> Chưa mở</span>
+                <span th:if="${!stage.finalTest.unlocked and stage.finalTest.proOnly}" class="oy-pill oy-pill--pro"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</span>
+                <span th:if="${!stage.finalTest.unlocked and !stage.finalTest.proOnly}" class="oy-pill"><i class="fa-solid fa-lock" aria-hidden="true"></i> Chưa mở</span>
             </div>
         </section>
     </div>

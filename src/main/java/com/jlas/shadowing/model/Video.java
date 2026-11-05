@@ -86,6 +86,11 @@ public class Video {
     @Column(name = "visibility", length = 20)
     private VideoVisibility visibility = VideoVisibility.PRIVATE;
 
+    /** Tuổi tối thiểu để xem: 13, 16 hoặc 18 (xem VideoAgeRatings). Null = mọi lứa tuổi. */
+    @JdbcTypeCode(SqlTypes.TINYINT)
+    @Column(name = "min_age")
+    private Integer minAge;
+
     /**
      * When false, skip AI furigana (use plain JP text) — faster for long videos.
      * Translation still runs if missing from YouTube.

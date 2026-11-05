@@ -1,0 +1,77 @@
+/* Scroll-wheel date picker (static/js/components/date-wheel.js): five rows, the middle one is the selection. */
+.date-wheel {
+  --date-wheel-row: 36px;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 12px;
+  background: var(--color-surface-lowest);
+}
+
+.date-wheel[hidden] { display: none; }
+
+.date-wheel::before {
+  content: "";
+  position: absolute;
+  inset: 50% 4px auto;
+  height: var(--date-wheel-row);
+  transform: translateY(-50%);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  pointer-events: none;
+}
+
+.date-wheel__col {
+  position: relative;
+  box-sizing: border-box;
+  height: calc(var(--date-wheel-row) * 5);
+  padding-block: calc(var(--date-wheel-row) * 2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+  border-radius: 8px;
+  mask-image: linear-gradient(transparent, #000 32%, #000 68%, transparent);
+}
+
+.date-wheel__col::-webkit-scrollbar { display: none; }
+.date-wheel__col.is-dragging { scroll-snap-type: none; cursor: grabbing; }
+.date-wheel__col:focus-visible { outline: 2px solid var(--color-focus); outline-offset: -2px; mask-image: none; }
+
+.date-wheel__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--date-wheel-row);
+  scroll-snap-align: center;
+  color: var(--color-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+
+.date-wheel__row[hidden] { display: none; }
+.date-wheel__row--label { font-size: 14px; }
+.date-wheel__row.is-selected { color: var(--color-on-surface); font-weight: 700; }
+.date-wheel__row--label.is-selected { color: var(--color-on-surface-variant); font-weight: 500; }
+
+/* Compact field that opens the wheels over the form, so nothing below it moves. */
+.date-wheel-host { position: relative; }
+.date-wheel-trigger { width: 100%; text-align: left; cursor: pointer; font-variant-numeric: tabular-nums; }
+.date-wheel-trigger.is-empty { color: var(--color-on-surface-variant); }
+
+.date-wheel--popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 30;
+  width: max(100%, 240px);
+  box-sizing: border-box;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 22%);
+}
+
+.date-wheel-trigger:disabled { cursor: not-allowed; opacity: .75; }

@@ -30,6 +30,7 @@ import com.jlas.notification.service.UserNotificationPort;
 import com.jlas.auth.util.JwtUtil;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.common.util.BirthDates;
 import com.jlas.config.AuthProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -42,6 +43,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
@@ -117,6 +119,7 @@ public class AuthServiceImpl implements AuthService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username is already registered");
         }
         checkProfileText(request.getUsername(), request.getFullName());
+        requirePlausibleBirthDate(request.getDateOfBirth());
         Role learner = roleRepository.findByName("LEARNER")
                 .orElseGet(() -> roleRepository.save(Role.builder().name("LEARNER").description("Learner").build()));
         User user = User.builder()
@@ -127,6 +130,7 @@ public class AuthServiceImpl implements AuthService {
                 .loginType(LoginType.LOCAL.name())
                 .fullName(blankToNull(request.getFullName()))
                 .japaneseLevel(blankToNull(request.getJapaneseLevel()))
+                .dateOfBirth(request.getDateOfBirth())
                 .creditBalance(0)
                 .isVerified(false)
                 .build();
@@ -169,9 +173,30 @@ public class AuthServiceImpl implements AuthService {
         if (request.getFullName() != null) user.setFullName(blankToNull(request.getFullName()));
         if (request.getPhoneNumber() != null) user.setPhoneNumber(blankToNull(request.getPhoneNumber()));
         if (request.getGender() != null) user.setGender(blankToNull(request.getGender()));
+        if (request.getDateOfBirth() != null) setDateOfBirthOnce(user, request.getDateOfBirth());
         if (request.getJapaneseLevel() != null) user.setJapaneseLevel(blankToNull(request.getJapaneseLevel()));
         if (request.getAvatar() != null) user.setAvatarUrl(blankToNull(request.getAvatar()));
         return userMapper.toResponse(userRepository.save(user));
+    }
+
+    /**
+     * Ngày sinh quyết định video Shadowing có nhãn độ tuổi nào được xem, nên người học chỉ đặt được một lần
+     * (tài khoản cũ / Google chưa có); muốn đổi phải qua quản trị viên. Gửi lại đúng ngày đã lưu thì bỏ qua,
+     * vì trang hồ sơ gửi lại mọi trường mỗi lần lưu.
+     */
+    private static void setDateOfBirthOnce(User user, LocalDate dateOfBirth) {
+        if (dateOfBirth.equals(user.getDateOfBirth())) return;
+        if (user.getDateOfBirth() != null) {
+            throw new ApiException(ErrorCode.CONFLICT, "Ngày sinh đã được lưu. Liên hệ quản trị viên nếu cần thay đổi.");
+        }
+        requirePlausibleBirthDate(dateOfBirth);
+        user.setDateOfBirth(dateOfBirth);
+    }
+
+    private static void requirePlausibleBirthDate(LocalDate dateOfBirth) {
+        if (!BirthDates.isPlausible(dateOfBirth, BirthDates.today())) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Ngày sinh không hợp lệ.");
+        }
     }
 
     private void checkProfileText(String username, String fullName) {

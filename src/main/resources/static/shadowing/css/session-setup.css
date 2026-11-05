@@ -17,10 +17,10 @@
 .page-shadowing-session-setup .practice-level-list label { flex-wrap: wrap; white-space: normal !important; }
 .page-shadowing-session-setup #practice-guide-open { float: right; min-height: 44px; padding: 8px 16px; border: 1px solid #ccd5e0; border-radius: 12px; color: #643396; background: #fff; font: inherit; font-weight: 700; cursor: pointer; }
 html[data-theme="dark"] .page-shadowing-session-setup #practice-options,
-html[data-theme="dark"] .page-shadowing-session-setup #practice-guide-open { background: #141c27; border-color: #405468; color: #f8fafc; }
+html[data-theme="dark"] .page-shadowing-session-setup #practice-guide-open { background: var(--dark-surface); border-color: var(--dark-line); color: var(--dark-ink); }
 .session-guide-scrim { position: fixed; inset: 0; background: #07101bab; z-index: 5000; }
 .session-guide-target { position: relative; z-index: 5001; outline: 3px solid #c084fc !important; outline-offset: 5px; border-radius: 12px; background: #fff; scroll-margin-block: 170px 240px; }
-html[data-theme="dark"] .session-guide-target { background: #141c27; }
+html[data-theme="dark"] .session-guide-target { background: var(--dark-surface); }
 .session-guide { position: fixed; z-index: 5002; box-sizing: border-box; width: min(380px, calc(100vw - 32px)); padding: 20px; border: 1px solid #c9c1d3; border-radius: 18px; background: #fff; color: #1c2634; box-shadow: 0 18px 60px #0005; }
 .session-guide small { color: #643396; font-weight: 700; }
 .session-guide h2 { font: 700 20px/1.3 'Hanken Grotesk', sans-serif; margin: 8px 0; color: inherit; }
@@ -29,10 +29,10 @@ html[data-theme="dark"] .session-guide-target { background: #141c27; }
 .session-guide button { min-height: 44px; padding: 8px 14px; border: 1px solid #c9c1d3; border-radius: 10px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
 .session-guide button[data-guide-next] { margin-left: auto; background: #7335a6; border-color: #7335a6; color: #fff; font-weight: 700; }
 .session-guide button:focus-visible, #practice-guide-open:focus-visible { outline: 3px solid #c084fc; outline-offset: 3px; }
-html[data-theme="dark"] .session-guide { background: #222e3b; border-color: #405468; color: #f8fafc; }
-html[data-theme="dark"] .session-guide p { color: #b4c3d3; }
-html[data-theme="dark"] .session-guide small { color: #c084fc; }
-html[data-theme="dark"] .session-guide button { border-color: #61758b; }
+html[data-theme="dark"] .session-guide { background: var(--dark-raised); border-color: var(--dark-line); color: var(--dark-ink); }
+html[data-theme="dark"] .session-guide p { color: var(--dark-muted); }
+html[data-theme="dark"] .session-guide small { color: var(--dark-accent); }
+html[data-theme="dark"] .session-guide button { border-color: var(--dark-input-line); }
 @media (max-width: 640px) {
   .page-shadowing-session-setup #practice-select-header { grid-template-columns: 1fr; }
   .page-shadowing-session-setup #practice-kitsu { display: none; }
@@ -52,4 +52,4 @@ html[data-theme="dark"] .session-guide button { border-color: #61758b; }
 .page-shadowing-session-setup .practice-level-count input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .page-shadowing-session-setup .practice-level-list label:has(.practice-level-count:not([hidden])) small { order: 4; margin-left: 4px; }
 html[data-theme="dark"] .page-shadowing-session-setup .practice-level-count button,
-html[data-theme="dark"] .page-shadowing-session-setup .practice-level-count input { background: #141c27; border-color: #405468; color: #f8fafc; }
+html[data-theme="dark"] .page-shadowing-session-setup .practice-level-count input { background: var(--dark-input); border-color: var(--dark-input-line); color: var(--dark-ink); }

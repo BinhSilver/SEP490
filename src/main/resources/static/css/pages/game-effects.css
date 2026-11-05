@@ -1,3 +1,4 @@
+@import url("../controls.css");
 .game-effects-page { margin:0; background:var(--color-surface,#f4fafd); color:var(--color-on-surface,#191724); font:14px/1.5 Inter,"Segoe UI",sans-serif; }
 .game-effects-page * { box-sizing:border-box; }
 .ge-viewer { width:100%; padding:2px; }
@@ -101,28 +102,28 @@
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
 html[data-theme="dark"] {
-  --dm-admin-bg: #0b0d13;
-  --dm-admin-surface: #12151f;
-  --dm-admin-raised: #1e2635;
-  --dm-admin-ink: #f8fafc;
-  --dm-admin-muted: #b2bfd2;
-  --dm-admin-line: #40485d;
-  --dm-admin-accent: #c084fc;
-  --dm-admin-action: #7335a6;
-  --dm-admin-accent-soft: #281d3a;
-  --dm-admin-on-accent: #211b34;
-  --dm-admin-success: #8eddb6;
-  --dm-admin-success-bg: #1b3d32;
-  --dm-admin-success-line: #43816b;
-  --dm-admin-danger: #ffb4bd;
-  --dm-admin-danger-bg: #452832;
-  --dm-admin-danger-line: #96616d;
-  --dm-admin-warning: #f3d28a;
-  --dm-admin-warning-bg: #403522;
-  --dm-admin-warning-line: #947a46;
-  --dm-admin-pink: #f4aed2;
-  --dm-admin-pink-bg: #432d40;
-  --dm-admin-pink-line: #88637b;
+  --dm-admin-bg: var(--dark-bg);
+  --dm-admin-surface: var(--dark-surface);
+  --dm-admin-raised: var(--dark-raised);
+  --dm-admin-ink: var(--dark-ink);
+  --dm-admin-muted: var(--dark-muted);
+  --dm-admin-line: var(--dark-line);
+  --dm-admin-accent: var(--dark-accent);
+  --dm-admin-action: var(--dark-button);
+  --dm-admin-accent-soft: var(--dark-soft);
+  --dm-admin-on-accent: var(--dark-on-button);
+  --dm-admin-success: var(--dark-success);
+  --dm-admin-success-bg: var(--dark-success-bg);
+  --dm-admin-success-line: var(--dark-success-line);
+  --dm-admin-danger: var(--dark-danger);
+  --dm-admin-danger-bg: var(--dark-danger-bg);
+  --dm-admin-danger-line: var(--dark-danger-line);
+  --dm-admin-warning: var(--dark-warning);
+  --dm-admin-warning-bg: var(--dark-warning-bg);
+  --dm-admin-warning-line: var(--dark-warning-line);
+  --dm-admin-pink: var(--dark-pink);
+  --dm-admin-pink-bg: var(--dark-pink-bg);
+  --dm-admin-pink-line: var(--dark-pink-line);
 }
 html[data-theme="dark"] #memory-root.ge-memory-scene {
     color: var(--dm-admin-ink)

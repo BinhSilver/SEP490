@@ -49,6 +49,7 @@ import com.jlas.dictionary.service.ContentAdminService;
 import com.jlas.dictionary.service.DictionaryEngagementService;
 import com.jlas.dictionary.service.DictionaryService;
 import com.jlas.dictionary.service.LessonImportService;
+import com.jlas.dictionary.service.QuickLookupAllowance;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.nio.charset.StandardCharsets;
@@ -86,6 +87,7 @@ public class DictionaryController {
     private final DictionaryEngagementService engagementService;
     private final ContentAdminService contentAdminService;
     private final LessonImportService lessonImportService;
+    private final QuickLookupAllowance quickLookups;
 
     @GetMapping(value = "/tts", produces = "audio/mpeg")
     public ResponseEntity<byte[]> tts(@RequestParam(required = false) String text,
@@ -155,10 +157,24 @@ public class DictionaryController {
         return ApiResponse.ok("OK", engagementService.history(requiredId(user), page, size));
     }
 
+    /** Tra từ nhanh: một lượt mỗi từ mỗi ngày, trừ khi có Pro (402 QUICK_LOOKUP_EXHAUSTED khi hết lượt). */
     @GetMapping("/inline")
     public ApiResponse<InlineLookupResponse> inlineLookup(@RequestParam("q") String query,
             @AuthenticationPrincipal UserPrincipal user) {
-        return ApiResponse.ok("OK", engagementService.inlineLookup(query, id(user)));
+        InlineLookupResponse word = engagementService.inlineLookup(query, id(user));
+        quickLookups.consume(id(user), word.vocabularyId());
+        return ApiResponse.ok("OK", word);
+    }
+
+    @GetMapping("/inline/allowance")
+    public ApiResponse<QuickLookupAllowance.Status> inlineAllowance(@AuthenticationPrincipal UserPrincipal user) {
+        return ApiResponse.ok("OK", quickLookups.status(id(user)));
+    }
+
+    @PostMapping("/inline/pack")
+    public ApiResponse<QuickLookupAllowance.Status> buyInlinePack(@AuthenticationPrincipal UserPrincipal user) {
+        return ApiResponse.ok("Đã mua " + QuickLookupAllowance.PACK_LOOKUPS + " lượt tra từ nhanh",
+                quickLookups.buyPack(id(user)));
     }
 
     @GetMapping("/favorites")

@@ -31,6 +31,15 @@ public interface OnyomiCourseService {
     /** True only for an Onyomi stage whose final test the user has not unlocked yet. */
     boolean isFinalLocked(Long userId, Long unitId);
 
+    /** True for a lesson past the free ones that the user cannot open without Pro. */
+    boolean isLessonProLocked(Long userId, Long lessonId);
+
+    /** True for Pro or a content reviewer: every lesson and final test can open. */
+    boolean hasFullAccess(Long userId);
+
+    /** Lessons a learner without Pro can study, counted from the start of the course. */
+    int FREE_LESSONS = 3;
+
     /** True for any Onyomi lesson, published or not. */
     boolean isCourseLesson(Long lessonId);
 }

@@ -104,6 +104,22 @@ public class AiCallQuotaService {
                 monthlyLimit == Double.MAX_VALUE, credits, properties.creditPerTurn());
     }
 
+    /**
+     * Free turns left before a turn costs CP (the tighter of today's and this month's quota); null = unlimited.
+     * Its own transaction: {@link #snapshot} is called on {@code this}, which skips the proxy, and reads the lazy plan.
+     */
+    @Transactional(readOnly = true)
+    public Integer turnsLeft(UserPrincipal user) {
+        UsageSnapshot usage = snapshot(user);
+        if (usage.unlimited() && usage.dailyLimitMin() == Double.MAX_VALUE) {
+            return null;
+        }
+        double minutesLeft = Math.min(usage.dailyLimitMin() - usage.dailyMinutes(),
+                usage.monthlyLimitMin() - usage.monthlyMinutes());
+        // A small epsilon so 0.6 minutes left at 0.2 per turn reads as 3 turns despite floating point.
+        return (int) Math.max(0, Math.floor(minutesLeft / properties.minutesPerTurn() + 1e-9));
+    }
+
     public static BigDecimal minutes(double value) {
         return BigDecimal.valueOf(value).setScale(3, RoundingMode.HALF_UP);
     }

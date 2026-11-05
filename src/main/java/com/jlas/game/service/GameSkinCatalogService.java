@@ -3,6 +3,7 @@ package com.jlas.game.service;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.game.enums.GameType;
+import com.jlas.game.enums.SkinTier;
 import com.jlas.game.repository.GameSkinRepository;
 import com.jlas.game.util.GameShopCatalog;
 import com.jlas.game.util.GameShopCatalog.ShopItem;
@@ -25,16 +26,26 @@ public class GameSkinCatalogService {
      * {@code renderCode}: {@code PACK} (gói skin tải lên, cần {@code packPath}) hoặc mã một skin gốc (dùng lại chuyển
      * động của nó). {@code weaponTheme}: chỉ cho máy bay dùng gói skin, một trong
      * {@link GameSkinPackService#WEAPON_THEMES} hoặc null (vũ khí mặc định).
+     * {@code tier}: bậc trang phục, quyết định giá; {@code price} chỉ còn dùng để suy ra bậc khi request không gửi bậc.
      */
     public record SkinInput(@NotBlank @Pattern(regexp="[a-z0-9][a-z0-9-]{1,39}") String code,
                             @NotNull GameType gameType, @NotBlank @Size(max=100) String name,
                             @Size(max=500) String description, @Min(0) @Max(1000000) int price,
                             @NotBlank @Size(max=1024) String image,
                             @NotBlank @Size(max=40) String renderCode, boolean active,
-                            @Size(max=255) String packPath, @Size(max=40) String weaponTheme) {
+                            @Size(max=255) String packPath, @Size(max=40) String weaponTheme, SkinTier tier) {
+        public SkinInput(String code, GameType gameType, String name, String description, int price, String image,
+                         String renderCode, boolean active, String packPath, String weaponTheme) {
+            this(code, gameType, name, description, price, image, renderCode, active, packPath, weaponTheme, null);
+        }
+
         public SkinInput(String code, GameType gameType, String name, String description, int price, String image,
                          String renderCode, boolean active) {
-            this(code, gameType, name, description, price, image, renderCode, active, null, null);
+            this(code, gameType, name, description, price, image, renderCode, active, null, null, null);
+        }
+
+        SkinTier resolvedTier() {
+            return tier != null ? tier : SkinTier.fromPrice(price);
         }
     }
 
@@ -72,10 +83,11 @@ public class GameSkinCatalogService {
         if (weapon != null && (!pack || input.gameType() != GameType.AIR_DEFENSE || !GameSkinPackService.WEAPON_THEMES.contains(weapon)))
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Bộ vũ khí chỉ chọn được cho máy bay dùng gói skin");
         boolean starter = current != null && current.starter();
-        if (starter && (input.price() != 0 || !input.active())) throw new ApiException(ErrorCode.CONFLICT, "Trang phục mặc định phải miễn phí và luôn hoạt động");
+        if (starter && !input.active()) throw new ApiException(ErrorCode.CONFLICT, "Trang phục mặc định phải miễn phí và luôn hoạt động");
+        SkinTier tier = input.resolvedTier();
         return new ShopItem(current == null ? 0 : current.id(), input.code(), input.gameType(), input.name().trim(),
-                input.description() == null ? "" : input.description().trim(), input.price(), image, starter, render,
-                input.active(), false, packPath, weapon);
+                input.description() == null ? "" : input.description().trim(), tier.priceFor(starter), image, starter, render,
+                input.active(), false, packPath, weapon, tier);
     }
     @Transactional
     public ShopItem create(SkinInput input) {

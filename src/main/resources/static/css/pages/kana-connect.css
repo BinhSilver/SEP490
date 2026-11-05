@@ -17,19 +17,26 @@
   --kc-podium: linear-gradient(135deg, #7c5cff 0%, #b04cf0 100%);
   display: grid; gap: 18px; min-width: 0;
 }
-html[data-theme="dark"] .kc {
-  --kc-accent-ink: var(--gp-violet);
-  --kc-wall: #34313d;
-  --kc-frame-edge: #5d586a;
+html[data-theme="dark"] :is(.kc, .kc-tut) {
+  --kc-accent-ink: var(--dark-accent);
+  --kc-wall: var(--dark-raised);
+  --kc-frame-edge: var(--dark-line);
   --kc-cell: var(--gp-card);
   --kc-grid: rgba(255, 255, 255, .09);
   --kc-found: #9cbd2c;
   --kc-found-edge: #c4e05a;
   --kc-found-ink: #172005;
-  --kc-active: rgba(142, 111, 240, .38);
-  --kc-active-edge: #a68cff;
+  --kc-active: rgb(220 174 232 / 30%);
+  --kc-active-edge: var(--dark-accent);
   --kc-slot: rgba(255, 255, 255, .1);
+  --kc-podium: linear-gradient(135deg, var(--dark-line) 0%, var(--dark-soft) 100%);
 }
+html[data-theme="dark"] .kc-tut__btn {
+  border-color: var(--dark-button);
+  color: var(--dark-on-button);
+  background: var(--dark-button);
+}
+html[data-theme="dark"] .kc-tut-num { fill: var(--dark-button); stroke: var(--dark-on-button); }
 .kc [hidden] { display: none !important; }
 .kc-intro { margin: 4px 0 0; color: var(--gp-muted); font-size: 13px; }
 

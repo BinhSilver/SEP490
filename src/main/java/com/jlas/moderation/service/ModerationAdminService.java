@@ -21,7 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ModerationAdminService {
-    public static final int WORD_CONTRIBUTION_REWARD = 15;
+    public static final int WORD_CONTRIBUTION_REWARD = 10;
+    /** Approved contributions paid per contributor per day; later approvals that day earn no CP. */
+    static final int WORD_CONTRIBUTION_DAILY_PAID = 3;
     public static final String WORD_CONTRIBUTION = "WORD_CONTRIBUTION";
 
     private final ReviewCaseRepository reviewCases;
@@ -82,18 +84,23 @@ public class ModerationAdminService {
         Integer creditReward = null;
         Long creditedTo = null;
         if (approve && dictionary && item.getOwnerUser() != null) {
-            creditedTo = item.getOwnerUser().getId();
-            credits.earn(creditedTo, WORD_CONTRIBUTION_REWARD,
-                    CreditReason.WORD_CONTRIBUTION_REWARD,
-                    WORD_CONTRIBUTION, item.getTargetId(),
-                    "Đóng góp từ vựng đã được duyệt");
-            creditReward = WORD_CONTRIBUTION_REWARD;
+            Long contributor = item.getOwnerUser().getId();
+            if (credits.countEarnedToday(contributor, CreditReason.WORD_CONTRIBUTION_REWARD) < WORD_CONTRIBUTION_DAILY_PAID) {
+                creditedTo = contributor;
+                credits.earn(creditedTo, WORD_CONTRIBUTION_REWARD,
+                        CreditReason.WORD_CONTRIBUTION_REWARD,
+                        WORD_CONTRIBUTION, item.getTargetId(),
+                        "Đóng góp từ vựng đã được duyệt");
+                creditReward = WORD_CONTRIBUTION_REWARD;
+            } else {
+                creditReward = 0;
+            }
         }
 
         Long ownerId = item.getOwnerUser() == null ? null : item.getOwnerUser().getId();
         if (dictionary) {
             notifier.contributionDecision(ownerId, word(snapshot.contentPreview()), approve,
-                    WORD_CONTRIBUTION_REWARD, why, item.getId());
+                    creditReward == null ? WORD_CONTRIBUTION_REWARD : creditReward, why, item.getId());
         } else {
             notifier.queueDecision(ownerId, item.getTargetType(), item.getTargetId(), approve, why,
                     "USER_AVATAR".equals(item.getTargetType()) ? "/profile" : snapshot.targetUrl(), item.getId());
