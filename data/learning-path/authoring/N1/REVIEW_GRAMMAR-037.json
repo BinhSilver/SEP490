@@ -1,0 +1,583 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は昔ながらの味を守っている。",
+       "ja_furigana": "この店(みせ)は昔(むかし)ながらの味(あじ)を守(まも)っている。",
+       "vi": "Quán này vẫn giữ hương vị truyền thống từ xưa."
+      },
+      {
+       "ja": "彼は生まれながらの才能を持っている。",
+       "ja_furigana": "彼(かれ)は生(う)まれながらの才能(さいのう)を持(も)っている。",
+       "vi": "Anh ấy có tài năng bẩm sinh."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この店は昔ながらの製法にこだわっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quán này chú trọng phương pháp chế biến theo lối xưa."
+     },
+     {
+      "ja": "彼は生まれながらのリーダーだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy là một người lãnh đạo bẩm sinh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この店は昔ながらの製法にこだわっている。",
+     "FURIGANA_MISSING: 彼は生まれながらのリーダーだ。"
+    ],
+    "formation": "N + ながらの + N; Vます + ながらの + N",
+    "locked_fields": [],
+    "meaning_vi": "Định ngữ: “mang dáng dấp/trạng thái vốn có như…”, “đúng chất… từ trước đến nay”. Nhấn mạnh tính truyền thống, bẩm sinh, đặc trưng không đổi. Sắc thái trang trọng/miêu tả; thường đi với các danh từ về hương vị, phong cảnh, phong cách, tính cách, khả năng bẩm sinh.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vốn dĩ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Bổ nghĩa trực tiếp danh từ để nêu đặc tính “xưa nay như vậy/bẩm sinh như vậy”. Thường thấy với: 昔ながらの + 味／家／街並み／製法／店, 生まれながらの + 才能／天分／素質, いつもながらの + 笑顔／優しさ. Trang trọng, thích hợp văn thuyết minh, quảng cáo sản phẩm truyền thống. [6. Ghi chú mở rộng] “Vます-stem + ながらの” thực chất là danh từ hóa gốc động từ: 生まれ（る）→ 生まれながらの. “いつもながらの” là thành ngữ rất thường gặp để khen tính ổn định/nhất quán. “〜ながらの” gợi giá trị cảm xúc/hoài cổ nhiều hơn so với các tính từ trung tính. [7. Biến thể & cụm cố định] 昔ながらの製法／家／街並み／雰囲気 生まれながらの才能／天才／資質 いつもながらの笑顔／丁寧さ／落ち着き 職人ながらの技／誇り [8. Lỗi thường gặp & bẫy JLPT] Nhầm vị trí: dùng 〜ながらに để bổ nghĩa danh từ. Đúng: 〜ながらの N. Lạm dụng với danh từ hiện đại không hợp ngữ cảnh (ví dụ: “最新ながらのデザイン” → gượng gạo). Dùng với tính chất không ổn định (tạm thời) → mâu thuẫn với sắc thái “vốn có/không đổi”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f4b1916416"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は生まれながらに歌が上手だ。",
+       "ja_furigana": "彼(かれ)は生(う)まれながらに歌(うた)が上手(じょうず)だ。",
+       "vi": "Anh ấy bẩm sinh hát đã hay."
+      },
+      {
+       "ja": "涙ながらに、別れを惜しんだ。",
+       "ja_furigana": "涙(なみだ)ながらに、別(わか)れを惜(お)しんだ。",
+       "vi": "Trong nước mắt, họ luyến tiếc chia xa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は生まれながらに優れた音感を持っている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy bẩm sinh đã có tai nghe âm nhạc tuyệt vời."
+     },
+     {
+      "ja": "家にいながらにして世界の講義を受けられる時代だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã đến thời có thể học các bài giảng trên thế giới ngay khi ở nhà."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は生まれながらに優れた音感を持っている。",
+     "FURIGANA_MISSING: 家にいながらにして世界の講義を受けられる時代だ。"
+    ],
+    "formation": "N + ながらに(して); Vます + ながらにして",
+    "locked_fields": [],
+    "meaning_vi": "Giữ nguyên trạng thái/điều kiện ban đầu “mà vẫn…”. Diễn tả việc thực hiện/đạt được điều gì trong khi vẫn giữ một trạng thái có sẵn (bẩm sinh, vốn có, thông qua phương tiện hiện tại). Phong cách trang trọng, hay gặp trong văn viết, quảng cáo, thuyết minh. Tính hạn chế: chủ yếu trong những cụm quen dùng như 生まれながらに, 涙ながらに, 昔ながらに, 居ながらにして.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vốn... / trong khi...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] 〜ながらに nhấn mạnh tính “giữ nguyên trạng thái” hơn là hành động đồng thời như 〜ながら (thông thường). “〜ながらにして” dùng để nói “ngay cả khi đang ở trong trạng thái/điều kiện đó, vẫn có thể…”. Thích hợp diễn đạt trang trọng, mô tả tính truyền thống, bẩm sinh, phương tiện hiện đại cho phép làm gì “tại chỗ”. [6. Ghi chú mở rộng] Cụm điển hình: 生まれながらに（して）, 昔ながらに, 涙ながらに, 居ながらにして, 家にいながらにして. Chủ thể thường là người/sự vật mang tính “bẩm sinh/vốn có” hoặc bối cảnh “tại chỗ”. Không nên lạm dụng với mọi động từ vì sẽ gượng gạo; ưu tiên cụm đã quen dùng. [7. Biến thể & cụm cố định] 生まれながらに才能がある／障がいを抱える 家にいながらにして注文できる／学べる 昔ながらに（の→ xem 214）受け継がれる 涙ながらに語る／謝る [8. Lỗi thường gặp & bẫy JLPT] Dùng 〜ながらに cho mọi hành động đồng thời → sai; phải dùng 〜ながら (thông thường) cho “vừa… vừa…”. Nhầm 〜ながらに với 〜ながらの: に = trạng ngữ; の = định ngữ. Bỏ “して” khi cần nhấn phương thức: 家にいながら〜 và 家にいながらにして〜 không hoàn toàn đồng nghĩa về sắc thái."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d81c332497"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は家に着くや否や、寝てしまった。",
+       "ja_furigana": "彼(かれ)は家(いえ)に着(つ)くや否(いな)や、寝(ね)てしまった。",
+       "vi": "Vừa về đến nhà, anh ấy đã ngủ ngay."
+      },
+      {
+       "ja": "ニュースが流れるや否や、問い合わせが殺到した。",
+       "ja_furigana": "ニュースが流(なが)れるや否(いな)や、問(と)い合(あ)わせが殺到(さっとう)した。",
+       "vi": "Tin tức vừa phát ra, các cuộc hỏi han dồn dập đổ về."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ベルが鳴るや否や、生徒たちは教室を飛び出した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chuông vừa reo là học sinh lao ra khỏi lớp."
+     },
+     {
+      "ja": "彼はドアを開けるや否や、大声で謝った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta vừa mở cửa liền xin lỗi lớn tiếng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ベルが鳴るや否や、生徒たちは教室を飛び出した。",
+     "FURIGANA_MISSING: 彼はドアを開けるや否や、大声で謝った。"
+    ],
+    "formation": "Vる + や否や; Vた + や否や",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả hai sự kiện nối tiếp gần như đồng thời: “vừa … là … ngay”. Sắc thái tường thuật, trang trọng; dùng nhiều trong văn viết, sách báo, miêu tả sự kiện đột ngột. Chủ ngữ hai vế thường là cùng một người/vật; nếu khác cần rõ ràng và tự nhiên theo ngữ cảnh. Không dùng để diễn đạt thói quen lặp lại; mang tính một lần, tức thời.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vừa... lập tức",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Vế sau là sự việc xảy đến ngay tức thì (không có độ trễ): ～た／～たのだ/～出したなど. Tránh dùng mệnh lệnh/đề nghị/ý chí của người nói ở vế sau. Dùng tốt trong miêu tả văn chương hoặc tin tức để tạo cảm giác khẩn. Thường đi với các động từ chỉ khoảnh khắc: 立つ・出る・開く・鳴る・見る. [6. Ghi chú mở rộng] “否” đọc いな; toàn cụm thường viết kana “やいなや” trong văn thường nhật để dễ đọc. So với ～とすぐ, ～や否や trang trọng và kịch tính hơn. Trong văn tin/báo cáo sự kiện, giúp tạo nhịp nhanh, mạch kể giàu nhấn mạnh thời điểm. [7. Biến thể & cụm cố định] ～るやいなや: hình thức phổ biến. Văn học: ～るや (cổ), ít dùng trong hiện đại. Cụm thường gặp: 見るや否や／着くや否や／開くや否や／鳴るや否や. [8. Lỗi thường gặp & bẫy JLPT] Dùng với mệnh lệnh/đề nghị ở vế sau là sai: ×着くや否や、連絡してください。 Dùng cho thói quen lặp lại không phù hợp. Mẫu này diễn tả sự kiện nhất thời. Sai thì: cần V-る trước や否や; không dùng V-た. Đề thi hay gài với ～たとたん／～か～ないかのうちに: để ý sắc thái trang trọng và tính “tức thì” mạnh của ～や否や."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9255d7e499"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "参加者は時間を厳守するものとする。",
+       "ja_furigana": "参加者(さんかしゃ)は時間(じかん)を厳守(げんしゅ)するものとする。",
+       "vi": "Người tham gia phải tuân thủ nghiêm ngặt giờ giấc."
+      },
+      {
+       "ja": "応募書類は期限までに提出するものとする。",
+       "ja_furigana": "応募書類(おうぼしょるい)は期限(きげん)までに提出(ていしゅつ)するものとする。",
+       "vi": "Hồ sơ ứng tuyển phải nộp trước thời hạn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "受験者は身分証を常時携帯するものとする。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thí sinh phải luôn mang theo giấy tờ tùy thân."
+     },
+     {
+      "ja": "申請は電子メールで行うものとする。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Việc nộp đơn được quy định thực hiện qua email."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 受験者は身分証を常時携帯するものとする。",
+     "FURIGANA_MISSING: 申請は電子メールで行うものとする。"
+    ],
+    "formation": "Vる + ものとする",
+    "locked_fields": [],
+    "meaning_vi": "Ngôn ngữ quy phạm: “(ta/điều lệ) quy định sẽ…”, tương đương “shall” trong tiếng Anh pháp lý. Chủ ngữ thường lược bỏ; đối tượng áp dụng là “受験者／参加者／申請者／本学／本契約など”. Sắc thái cứng, khách quan, không thể hiện ý chí cá nhân tại thời điểm nói. Thường xuất hiện trong điều khoản: 条・項・但し書き v.v.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Xem như sẽ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng trong quy chế, hợp đồng, thông báo chính thức. Tránh dùng trong hội thoại thường ngày. Thường đi với các danh từ pháp quy: 本規程／本学／当社／当委員会／第○条など. Kết hợp với ただし、但し書き để nêu ngoại lệ: ただし、緊急時はこの限りではない。 Có thể dùng V-ない + ものとする để cấm/chặn hành vi. [6. Ghi chú mở rộng] Cấu trúc “ものとする” tăng tính chuẩn tắc, hạn chế diễn giải mơ hồ. Trong hợp đồng, thường đi kèm định nghĩa: 用語の定義は別紙に定めるものとする。 Ở thông cáo mềm hơn, doanh nghiệp thường dùng ～こととする để thân thiện hơn. [7. Biến thể & cụm cố định] …しないものとする: quy định cấm/không chấp nhận. …とするものとする: mẫu kép trang trọng trong pháp quy (ít dùng trong tiếng Nhật chung). ただし、…この限りではない: câu ngoại lệ đi kèm điều khoản dùng với ものとする. [8. Lỗi thường gặp & bẫy JLPT] Dùng trong hội thoại đời thường sẽ cứng và buồn cười. Nhầm với ～とみなす: “coi như là” ≠ “sẽ/được quy định là”. Sai chủ thể: câu quy phạm thường không nêu “tôi/chúng tôi”; dùng danh xưng tổ chức hay lược bỏ. Thi JLPT hay gài lựa chọn lịch sự: quy định cứng → chọn ～るものとする, không chọn ～ことにする (tự quyết cá nhân)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8257d2e2c9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "炊きたてのご飯はおいしい。",
+       "ja_furigana": "炊(た)きたてのご飯(はん)はおいしい。",
+       "vi": "Cơm vừa nấu xong rất ngon."
+      },
+      {
+       "ja": "焼きたてのパンの香りがする。",
+       "ja_furigana": "焼(や)きたてのパンの香(かお)りがする。",
+       "vi": "Thơm mùi bánh mì vừa nướng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "てんぷらは揚げたてが一番おいしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tempura ngon nhất là khi vừa chiên xong."
+     },
+     {
+      "ja": "彼女の髪はいつも洗いたてのようにさらさらしている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tóc cô ấy lúc nào cũng mềm mượt như vừa mới gội."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: 〜たて(の)",
+     "FURIGANA_MISSING: てんぷらは揚げたてが一番おいしい。",
+     "FURIGANA_MISSING: 彼女の髪はいつも洗いたてのようにさらさらしている。"
+    ],
+    "formation": "Vます + たて(の) + N",
+    "locked_fields": [],
+    "meaning_vi": "Vừa mới... xong; mới làm ra nên còn rất mới/tươi/nóng.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜たて(の)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Nhấn mạnh trạng thái còn nguyên ngay sau khi hành động vừa hoàn tất. Thường dùng với những động từ tạo ra sự thay đổi dễ cảm nhận như nướng, nấu, pha, sơn, giặt hoặc dùng lần đầu. 1) Dễ nhầm với ～たばかり. → ～たて nhấn mạnh trạng thái còn tươi, nóng, mới hoặc nguyên vẹn ngay sau khi hành động hoàn tất, không chỉ nói thời gian gần. 2) Trước mẫu dùng thân ます. → Các dạng như 焼きたて, 作りたて, 炊きたて, 洗いたて được tạo từ bỏ ます rồi thêm たて. 3) Không kết hợp tự do với mọi động từ. → Mẫu chủ yếu dùng với hành động tạo ra thay đổi có thể cảm nhận; các từ như 生まれたて・できたて nên ghi nhớ như cụm quen dùng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6e7347f8a1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "これは二人で話し合っての結論です。",
+       "ja_furigana": "これは二人(ふたり)で話(はな)し合(あ)っての結論(けつろん)です。",
+       "vi": "Đây là kết luận đạt được sau khi hai người bàn bạc."
+      },
+      {
+       "ja": "長い練習を積んでの本番だった。",
+       "ja_furigana": "長(なが)い練習(れんしゅう)を積(つ)んでの本番(ほんばん)だった。",
+       "vi": "Đây là buổi biểu diễn chính thức sau bao ngày luyện tập."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「昨年出産したスミス選手、今回はそのお子さんを連れての来日です」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "“Tuyển thủ Smith sinh con năm ngoái; lần này cô sang Nhật cùng với người con ấy.”"
+     },
+     {
+      "ja": "最近はホテルに泊まっての受験が一般的になり、大学が斡旋してくれることも多い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gần đây, việc ở khách sạn để đi dự thi đã trở nên phổ biến, và nhiều trường đại học còn đứng ra giới thiệu chỗ ở."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: 〜ての+名詞",
+     "FURIGANA_MISSING: 「昨年出産したスミス選手、今回はそのお子さんを連れての来日です」",
+     "FURIGANA_MISSING: 最近はホテルに泊まっての受験が一般的になり、大学が斡旋してくれることも多い。"
+    ],
+    "formation": "V-て + の + N",
+    "locked_fields": [],
+    "meaning_vi": "Danh từ chỉ hành động được thực hiện bằng/cùng với việc...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ての+名詞",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biến cả cụm động từ thể て thành phần bổ nghĩa cho danh từ phía sau, cho biết cách thức hoặc hoàn cảnh thực hiện hành động ấy. Thường gặp trong lối diễn đạt cô đọng, trang trọng. 1) Dễ nhầm với một chuỗi động từ thể て thông thường. → VてのN ở nghĩa này biến toàn bộ hành động V thành phần bổ nghĩa cô đọng, cho biết phương thức hoặc hoàn cảnh thực hiện N. 2) Danh từ phía sau thường chỉ hành động hoặc sự kiện. → Cần đọc VてのN như một cụm, chẳng hạn 全員そろっての会議 là cuộc họp với đầy đủ mọi người. 3) Mẫu mang sắc thái văn viết, trang trọng. → Trong hội thoại, có thể phải diễn đạt dài hơn bằng ～て行うN／～た上でのN tùy ý nghĩa. Trong mẫu …は～てのことだ, cụm trước のことだ nêu ý định, mục đích hoặc lý do dẫn đến hành động ở đầu câu. Có sắc thái giải thích động cơ đã cân nhắc từ trước. 1) Dễ nhầm với ～ためのことだ. → Trong mẫu AはBを考えてのことだ, B nêu mục đích, ý định hoặc lý do đã được cân nhắc dẫn đến hành động A. 2) Không diễn tả thứ tự “sau khi làm B”. → Thể て ở đây gắn B với のことだ để giải thích động cơ, không đơn thuần nối hai hành động theo thời gian. 3) Mẫu thường dùng để thanh minh hoặc giải thích. → Người nói nhấn mạnh hành động trước đó được thực hiện vì một dụng ý nhất định, không phải ngẫu nhiên. Cho biết danh từ hoặc kết luận phía sau có được sau khi đã trải nghiệm, xem xét hay thử làm việc phía trước. Có thể lược danh từ trong những cách nói cố định như 見てのお楽しみ. 1) Dễ nhầm với ～た後のN. → VてのN ở nghĩa này nhấn mạnh danh từ, kết luận hoặc giá trị phía sau chỉ có được sau khi đã thử, xem xét hay trải nghiệm V. 2) Quan hệ không chỉ là thứ tự thời gian. → Mẫu thường hàm ý kinh nghiệm V là điều kiện để hiểu hoặc đánh giá N. 3) Có những cách nói cố định lược danh từ. → 見てのお楽しみ có nghĩa phải xem rồi mới biết điều thú vị, không thể dịch máy móc từng thành phần."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-558f225c92"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼への感謝は、いくら言っても言い切れない。",
+       "ja_furigana": "彼(かれ)への感謝(かんしゃ)は、いくら言(い)っても言(い)い切(き)れない。",
+       "vi": "Lòng biết ơn với anh ấy, có nói bao nhiêu cũng không hết."
+      },
+      {
+       "ja": "あの失敗は悔やんでも悔やみきれない。",
+       "ja_furigana": "あの失敗(しっぱい)は悔(く)やんでも悔(く)やみきれない。",
+       "vi": "Thất bại đó có hối hận bao nhiêu cũng không hết."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あの時のミスは悔やんでも悔やみきれない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sai lầm khi ấy là điều tôi có hối hận bao nhiêu cũng không hết."
+     },
+     {
+      "ja": "子どもを殺した犯人は、どんなに憎んでも憎みきれない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kẻ đã giết đứa trẻ ấy, có căm ghét đến đâu cũng không thể hả được nỗi căm hận."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: 〜ても〜きれない(否定的表現)",
+     "FURIGANA_MISSING: あの時のミスは悔やんでも悔やみきれない。",
+     "FURIGANA_MISSING: 子どもを殺した犯人は、どんなに憎んでも憎みきれない。"
+    ],
+    "formation": "V-ても + Vます + きれない",
+    "locked_fields": [],
+    "meaning_vi": "Dù có... đến đâu cũng không thể... hết/cho đủ; nhấn mạnh mạnh mẽ một cảm xúc tiêu cực.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ても〜きれない(否定的表現)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Lặp lại cùng một động từ để nói mức độ quá lớn, đến mức làm bao nhiêu cũng không thể trọn vẹn hoặc nguôi ngoai. Chủ yếu dùng với cảm xúc tiêu cực như hối hận, căm ghét, xin lỗi. 1) Dễ nhầm với ～きれない đứng một mình. → VてもVきれない lặp cùng một động từ để nhấn mạnh dù có làm đến đâu cũng không thể hết, đủ hoặc nguôi ngoai. 2) Hai vị trí phải dùng cùng một động từ. → Ví dụ 謝っても謝りきれない không thể đổi động từ phía sau mà vẫn giữ nguyên mẫu. 3) Không phải lúc nào nội dung cũng mang nghĩa xấu. → Thường gặp với 悔やむ・憎む・謝る; cũng có thể dùng 感謝しても感謝しきれない để nói lòng biết ơn không thể diễn tả hết."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1b53b4c1b6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店の料理はおいしいのなんの、また来たくなる。",
+       "ja_furigana": "この店(みせ)の料理(りょうり)はおいしいのなんの、また来(き)たくなる。",
+       "vi": "Món ăn quán này ngon vô cùng, khiến tôi muốn quay lại."
+      },
+      {
+       "ja": "彼は走るのが速いのなんの、すぐ見えなくなった。",
+       "ja_furigana": "彼(かれ)は走(はし)るのが速(はや)いのなんの、すぐ見(み)えなくなった。",
+       "vi": "Anh ấy chạy nhanh không thể tả, loáng cái đã khuất dạng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「彼の食べ方といったら早いの早くないの、私が『いただきます』と言っている間に、もう食べ終わっているくらいなんだ」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "“Nói đến tốc độ ăn của anh ấy thì nhanh không thể tả; trong lúc tôi còn đang nói ‘mời ăn’, anh ấy đã ăn xong rồi.”"
+     },
+     {
+      "ja": "「彼女の部屋ときたら汚いのなんのって、とても女の子の部屋とは思えないよ」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "“Còn phòng cô ấy thì bẩn kinh khủng, chẳng thể tin đó là phòng của một cô gái.”"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「彼の食べ方といったら早いの早くないの、私が『いただきます』と言っている間に、もう食べ終わっているくらいなんだ」",
+     "FURIGANA_MISSING: 「彼女の部屋ときたら汚いのなんのって、とても女の子の部屋とは思えないよ」"
+    ],
+    "formation": "Aい + の + Aくない + の; Aい/Aな + のなんの(って)",
+    "locked_fields": [],
+    "meaning_vi": "Vô cùng/rất...; ... không thể tả nổi (khẩu ngữ).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜の〜ないの/〜のなんの",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Lặp lại từ ngữ theo kiểu cường điệu để nhấn mạnh mức độ rất cao, không phải để đặt câu hỏi phủ định thật sự. Đây là cách nói thân mật, giàu cảm xúc trong hội thoại. 1) Không phải cấu trúc lựa chọn “có A hay không A”. → AのAないの／Aのなんのって lặp lại từ để cường điệu rằng mức độ vô cùng lớn, không đặt câu hỏi phủ định thật. 2) Chú ý sự lặp lại của cùng một từ. → Động từ hoặc tính từ được đưa ở dạng khẳng định rồi dạng phủ định, hoặc theo sau bằng のなんのって. 3) Đây là cách nói rất khẩu ngữ và giàu cảm xúc. → Không phù hợp với bài viết trang trọng; khi dịch nên dùng “vô cùng, không thể tả” thay vì bám từng chữ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-029c1868e2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お客様あっての商売です。",
+       "ja_furigana": "お客様(きゃくさま)あっての商売(しょうばい)です。",
+       "vi": "Việc buôn bán có được là nhờ khách hàng."
+      },
+      {
+       "ja": "健康あっての幸せだということを忘れないで。",
+       "ja_furigana": "健康(けんこう)あっての幸(しあわ)せだということを忘(わす)れないで。",
+       "vi": "Đừng quên rằng hạnh phúc có được là nhờ sức khỏe."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "読み手あっての連載だ。数字だけ追って題材を選べば、すぐ離れていく。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chuyên mục sống nhờ bạn đọc. Nếu chỉ chạy theo số liệu mà chọn đề tài, họ sẽ rời ngay."
+     },
+     {
+      "ja": "現場の技能者あっての工期遵守であり、図面の完成度だけでは足りない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giữ đúng tiến độ là nhờ thợ hiện trường; chỉ hoàn thiện bản vẽ thì chưa đủ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 読み手あっての連載だ。数字だけ追って題材を選べば、すぐ離れていく。",
+     "FURIGANA_MISSING: 現場の技能者あっての工期遵守であり、図面の完成度だけでは足りない。"
+    ],
+    "formation": "N + あっての + N",
+    "locked_fields": [],
+    "meaning_vi": "Có… mới có…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có... mới có...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nói N2 tồn tại hoặc thành công chỉ nhờ N1; N1 là nền tảng không thể thiếu. Cách dùng: 「N1あってのN2」 khẳng định quan hệ nền tảng: không có N1 thì N2 không thành hình, không giữ được ý nghĩa. N1 là điều kiện tồn tại, N2 là kết quả, vai trò, hoặc thực thể dựa trên N1. Trật tự rất quan trọng: 「読み手あっての連載」 nghĩa chuyên mục sống nhờ bạn đọc, không đảo ngược. Hay dùng khi nhắc ai đó đừng quên gốc rễ: sức khỏe, hiện trường, người dùng, giấc ngủ, lòng tin. Mẫu mang tính khẳng định mạnh, hơi trang trọng, phù hợp phát biểu, nhận xét nghề nghiệp, không phải mô tả số liệu khô. Sắc thái: Nhấn mạnh ân nghĩa, sự phụ thuộc then chốt, đôi khi như lời răn. Không trung lập như 「のおかげで」 kể ơn cụ thể một lần; 「あっての」 nói cấu trúc tồn tại lâu dài. Cảm xúc tôn trọng đối với N1. Lưu ý: Cả hai vế là danh từ; không gắn trực tiếp sau động từ (cần danh từ hóa). Không đảo N1/N2: nền tảng phải đứng trước 「あっての」。 Không dùng cho quan hệ ngẫu nhiên, tạm thời; phải là điều kiện sống còn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-07d75a29d8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "成績は下がる一方だ。英語に至っては、赤点だった。",
+       "ja_furigana": "成績(せいせき)は下(さ)がる一方(いっぽう)だ。英語(えいご)に至(いた)っては、赤点(あかてん)だった。",
+       "vi": "Điểm số cứ giảm dần. Còn môn tiếng Anh thì bị điểm liệt."
+      },
+      {
+       "ja": "今年は客足が落ちた。平日に至っては、ほとんど来ない。",
+       "ja_furigana": "今年(ことし)は客足(きゃくあし)が落(お)ちた。平日(へいじつ)に至(いた)っては、ほとんど来(こ)ない。",
+       "vi": "Năm nay vắng khách. Còn ngày thường thì hầu như không ai đến."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今期は出張精算の遅延が目立つ。備品の紛失も増えた。経理課に至っては、月次締めを二度やり直すありさまだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kỳ này quyết toán công tác chậm rõ. Đồ dùng cũng mất nhiều hơn. Còn phòng kế toán thì phải chốt sổ tháng tới hai lần."
+     },
+     {
+      "ja": "受講生の欠席は週を追って増えている。最終課題に至っては、提出者が半数を切った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Học viên vắng ngày càng nhiều theo tuần. Đến bài cuối thì số người nộp không đầy một nửa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今期は出張精算の遅延が目立つ。備品の紛失も増えた。経理課に至っては、月次締めを二度やり直すありさまだ。",
+     "FURIGANA_MISSING: 受講生の欠席は週を追って増えている。最終課題に至っては、提出者が半数を切った。"
+    ],
+    "formation": "N + に至っては",
+    "locked_fields": [],
+    "meaning_vi": "Còn đến mức / Riêng trường hợp…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Còn đến mức / Riêng trường hợp...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu đối tượng hoặc tình huống cực đoan nhất trong một chuỗi ví dụ, thường để chê trách hoặc bày tỏ kinh ngạc. Cách dùng: 「〜に至っては」 không phải biến thể thời gian của 「に至って」, mà là cách đưa ra trường hợp tột cùng sau khi đã kể vài sự việc cùng chiều, thường là tiêu cực. Người nói liệt kê A, B, rồi chốt bằng Cに至っては để cho thấy C còn tệ hoặc còn lệch chuẩn hơn. Cũng dùng khi chuyển sang một đối tượng cụ thể mà mức độ đã vượt xa phần còn lại. Thường gặp trong nhận xét nội bộ, bình luận quản lý, văn viết hơn là trò chuyện ngắn. Sắc thái: Sắc thái đánh giá mạnh, hay gắn với kết quả xấu hoặc hành vi khó chấp nhận. Gần 「ときたら」 về ý còn về X thì, nhưng lịch sự và mang tính văn viết hơn. Không dùng để khen sở trường. Lưu ý: Thường cần ngữ cảnh liệt kê hoặc so sánh ngầm; dùng một mình khi chưa có các trường hợp khác sẽ khó hiểu. Đi với danh từ chỉ đối tượng/trường hợp, không phải mốc quá trình như 「Vに至って」。 Không dùng để nêu thế mạnh; muốn nói giỏi về lĩnh vực nào đó thì dùng 「にかけては」。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cfcfab8313"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-037"
+}

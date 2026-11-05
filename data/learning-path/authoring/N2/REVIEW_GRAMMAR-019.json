@@ -1,0 +1,651 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この本がおもしろくてしかたがない。",
+       "ja_furigana": "この本(ほん)がおもしろくてしかたがない。",
+       "vi": "Cuốn sách này thú vị không chịu nổi."
+      },
+      {
+       "ja": "明日の旅行が楽しみでしかたがなくて、昨夜はなかなか寝られなかった。",
+       "ja_furigana": "明日(あした)の旅行(りょこう)が楽(たの)しみでしかたがなくて、昨夜(ゆうべ)はなかなか寝(ね)られなかった。",
+       "source": "AI",
+       "vi": "Tôi háo hức về chuyến đi ngày mai đến mức tối qua mãi không ngủ được."
+      },
+      {
+       "ja": "朝から何も食べていないので、おなかがすいてしかたがない。",
+       "ja_furigana": "朝(あさ)から何(なに)も食(た)べていないので、おなかがすいてしかたがない。",
+       "source": "AI",
+       "vi": "Từ sáng chưa ăn gì nên tôi đói không chịu nổi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng với động từ ý chí, hoặc nhầm với 仕方がない nghĩa là 'hết cách'. Chủ thể thường là người nói; với ngôi thứ ba cần thêm ようだ.",
+    "examples": [
+     {
+      "ja": "眠くてしかたがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "明日の旅行が楽しみでしかたがなくて、昨夜はなかなか寝られなかった。",
+      "ja_furigana": "明日(あした)の旅行(りょこう)が楽(たの)しみでしかたがなくて、昨夜(ゆうべ)はなかなか寝(ね)られなかった。",
+      "source": "AI",
+      "vi": "Tôi háo hức về chuyến đi ngày mai đến mức tối qua mãi không ngủ được."
+     },
+     {
+      "ja": "朝から何も食べていないので、おなかがすいてしかたがない。",
+      "ja_furigana": "朝(あさ)から何(なに)も食(た)べていないので、おなかがすいてしかたがない。",
+      "source": "AI",
+      "vi": "Từ sáng chưa ăn gì nên tôi đói không chịu nổi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 眠くてしかたがない。",
+     "FURIGANA_MISSING: 眠くてしかたがない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て / Aくて / Aな・N + で + しかたがない",
+    "locked_fields": [],
+    "meaning_vi": "Hết cách, quá đỗi — Mức độ cảm giác quá lớn, không làm gì được.",
+    "nuance_vi": "Cảm giác, cảm xúc mạnh đến mức không chịu nổi; dùng cả nói lẫn viết, hơi trung tính hơn てしようがない. Hay đi với từ chỉ cảm giác như 眠い, 楽しみ, 気になる.",
+    "order_items": [],
+    "pattern": "V-て / A-くて + しかたがない",
+    "pattern_variants": [
+     "〜 てしかたがない"
+    ],
+    "unit_no": 2,
+    "unit_title_vi": null,
+    "usage_vi": "Văn nói rút gọn しょうがない. Nghĩa gần たまらない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b8b10e17a8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "父が亡くなって以来、母は一人で暮らしている。",
+       "ja_furigana": "父(ちち)が亡(な)くなって以来(いらい)、母(はは)は一人(ひとり)で暮(く)らしている。",
+       "vi": "Từ khi bố mất, mẹ tôi sống một mình."
+      },
+      {
+       "ja": "この町に来て以来、ずっとこの店で働いている。",
+       "ja_furigana": "この町(まち)に来(き)て以来(いらい)、ずっとこの店(みせ)で働(はたら)いている。",
+       "vi": "Từ khi đến thị trấn này, tôi làm việc ở quán này suốt."
+      },
+      {
+       "ja": "彼女は去年の事故以来、車に乗るのが怖くなったそうだ。",
+       "ja_furigana": "彼女(かのじょ)は去年(きょねん)の事故(じこ)以来(いらい)、車(くるま)に乗(の)るのが怖(こわ)くなったそうだ。",
+       "source": "AI",
+       "vi": "Nghe nói từ vụ tai nạn năm ngoái, cô ấy trở nên sợ đi ô tô."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép sách; thêm furigana + bản dịch"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay để vế sau là hành động chỉ xảy ra một lần, hoặc nói về tương lai. Không nhầm với 〜てから (chỉ thứ tự trước sau).",
+    "examples": [
+     {
+      "ja": "彼と別れて以来、仕事に没頭している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Từ khi chia tay anh ấy, tôi vùi đầu vào công việc."
+     },
+     {
+      "ja": "引っ越して以来、近所づきあいが増えた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Từ khi chuyển nhà, giao lưu với hàng xóm nhiều hơn."
+     },
+     {
+      "ja": "彼女は去年の事故以来、車に乗るのが怖くなったそうだ。",
+      "ja_furigana": "彼女(かのじょ)は去年(きょねん)の事故(じこ)以来(いらい)、車(くるま)に乗(の)るのが怖(こわ)くなったそうだ。",
+      "source": "AI",
+      "vi": "Nghe nói từ vụ tai nạn năm ngoái, cô ấy trở nên sợ đi ô tô."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼と別れて以来、仕事に没頭している。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 彼と別れて以来、仕事に没頭している。 → 没頭",
+     "FURIGANA_MISSING: 引っ越して以来、近所づきあいが増えた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て + 以来; N + 以来",
+    "locked_fields": [],
+    "meaning_vi": "Kể từ khi … (đến nay). Nhấn mạnh sự kéo dài/duy trì. Vế sau mô tả trạng thái tiếp diễn hoặc thay đổi kéo dài đến hiện tại. Không dùng với mệnh lệnh/ý chí trực tiếp.",
+    "nuance_vi": "Kể từ mốc đó cho đến hiện tại, trạng thái hay việc lặp lại vẫn tiếp diễn; trang trọng hơn てから. Vế sau là trạng thái kéo dài hay thay đổi.",
+    "order_items": [],
+    "pattern": "Kể từ...",
+    "pattern_variants": [],
+    "unit_no": 3,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng trong văn tin tức, tiểu sử, câu chuyện cá nhân. Thường đi với ずっと／一度も～ない để nhấn mạnh liên tục/tuyệt đối. Vế sau thường là hiện tại hoặc hiện tại hoàn thành trong tiếng Nhật (～ている). [6. Ghi chú mở rộng] Ngoài người/vật, mốc có thể là sự kiện xã hội: コロナ禍以来. Không dùng với hành động lặp lại làm mốc mơ hồ: X 彼に会う以来. Vế sau đôi khi là thay đổi một lần nhưng hàm ý duy trì: 吸わなくなった（và đến nay vẫn vậy）. [7. Biến thể & cụm cố định] ～以来ずっと／～以来一度も～ない. N以来の最高/最悪/最多: “cao nhất kể từ …”. [8. Lỗi thường gặp & bẫy JLPT] Lẫn với 以降 trong thông báo tương lai: X 来週以来 → phải là 来週以降. Vế sau chỉ sự kiện tức thời không kéo dài: X 結婚して以来、昨日パーティーをした。 Sai mốc mơ hồ (hành động lặp): X 彼に会う以来 → nên: 彼に会って以来."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-99c17c7b01"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この程度の雨では、運動会をやめる理由にもならない。",
+       "ja_furigana": "この程度(ていど)の雨(あめ)では、運動会(うんどうかい)をやめる理由(りゆう)にもならない。",
+       "vi": "Mưa cỡ này chẳng đủ thành lý do để hoãn hội thao."
+      },
+      {
+       "ja": "一日だけ勉強しても、試験のたいさくにもならないよ。",
+       "ja_furigana": "一日(いちにち)だけ勉強(べんきょう)しても、試験(しけん)のたいさくにもならないよ。",
+       "source": "AI",
+       "vi": "Chỉ học một ngày thì đến đối phó cho kỳ thi cũng chẳng ra gì đâu."
+      },
+      {
+       "ja": "少しのお金では、旅行の足しにもならない。",
+       "ja_furigana": "少(すこ)しのお金(かね)では、旅行(りょこう)の足(た)しにもならない。",
+       "source": "AI",
+       "vi": "Chút tiền ít ỏi này thì chẳng giúp ích gì cho chuyến du lịch."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; sửa câu AI dùng 策 ngoài danh sách"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay nhầm với 〜にならない (không trở thành, không được tính). も ở đây nhấn mạnh 'đến cả … cũng không'; chỉ dùng với danh từ chỉ giá trị, tác dụng.",
+    "examples": [
+     {
+      "ja": "そんな計画では話にもならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "一日だけ勉強しても、試験の対策にもならないよ。",
+      "ja_furigana": "一日(いちにち)だけ勉強(べんきょう)しても、試験(しけん)の対策(たいさく)にもならないよ。",
+      "source": "AI",
+      "vi": "Chỉ học một ngày thì đến đối phó cho kỳ thi cũng chẳng ra gì đâu."
+     },
+     {
+      "ja": "少しのお金では、旅行の足しにもならない。",
+      "ja_furigana": "少(すこ)しのお金(かね)では、旅行(りょこう)の足(た)しにもならない。",
+      "source": "AI",
+      "vi": "Chút tiền ít ỏi này thì chẳng giúp ích gì cho chuyến du lịch."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: そんな計画では話にもならない。",
+     "FURIGANA_MISSING: そんな計画では話にもならない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + にもならない; Vる + 足しにもならない",
+    "locked_fields": [],
+    "meaning_vi": "Chẳng ra gì, không thành — Không đạt được cả mức tối thiểu.",
+    "nuance_vi": "Đánh giá thấp: không đạt được cả mức tối thiểu, 'chẳng ra gì, chẳng thành'; hay gặp ở 話にもならない, 慰めにもならない, 足しにもならない. Giọng chê bai mạnh.",
+    "order_items": [],
+    "pattern": "Thể thường + にもならない",
+    "pattern_variants": [],
+    "unit_no": 12,
+    "unit_title_vi": null,
+    "usage_vi": "Cụm hay gặp: 話にもならない, 一円にもならない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-68ec2cf92f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "値段はともかく、この車はとても乗りやすい。",
+       "ja_furigana": "値段(ねだん)はともかく、この車(くるま)はとても乗(の)りやすい。",
+       "vi": "Giá cả thì để sau, chiếc xe này rất dễ lái."
+      },
+      {
+       "ja": "雨が降るかどうかはともかく、明日は早く出よう。",
+       "ja_furigana": "雨(あめ)が降(ふ)るかどうかはともかく、明日(あした)は早(はや)く出(で)よう。",
+       "vi": "Chuyện mai có mưa hay không tính sau, cứ đi sớm đã."
+      },
+      {
+       "ja": "見た目はともかく、この料理は味がとてもいい。",
+       "ja_furigana": "見(み)た目(め)はともかく、この料理(りょうり)は味(あじ)がとてもいい。",
+       "source": "AI",
+       "vi": "Tạm không bàn đến vẻ ngoài, món ăn này vị rất ngon."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép sách; thêm furigana + bản dịch"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay nhầm với N + はもちろん (không chỉ N mà còn). ともかく ở đây là gác lại, vế sau thường nêu điều ưu tiên; dùng với một hay hai danh từ tương phản.",
+    "examples": [
+     {
+      "ja": "外観はともかく、この道具は使いやすい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tạm không bàn đến vẻ ngoài, dụng cụ này rất dễ dùng."
+     },
+     {
+      "ja": "採用するかどうかはともかくとして、まず本人の話を聞こう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tạm gác chuyện có tuyển hay không, trước hết hãy nghe chính người đó trình bày."
+     },
+     {
+      "ja": "見た目はともかく、この料理は味がとてもいい。",
+      "ja_furigana": "見(み)た目(め)はともかく、この料理(りょうり)は味(あじ)がとてもいい。",
+      "source": "AI",
+      "vi": "Tạm không bàn đến vẻ ngoài, món ăn này vị rất ngon."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 外観はともかく、この道具は使いやすい。",
+     "FURIGANA_MISSING: 採用するかどうかはともかくとして、まず本人の話を聞こう。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + はともかく(として); Thể thường + かどうかはともかく(として)",
+    "locked_fields": [],
+    "meaning_vi": "Tạm gác… sang một bên",
+    "nuance_vi": "Tạm gác N sang một bên, chưa bàn đến, để nói điều quan trọng hơn hay đáng nói hơn ở vế sau. Khác はもちろん (N là đương nhiên, còn thêm điều khác).",
+    "order_items": [],
+    "pattern": "Tạm gác... sang một bên",
+    "pattern_variants": [],
+    "unit_no": 11,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Tạm không xét một mặt để tập trung đánh giá hoặc bàn về mặt quan trọng hơn. Cách dùng: 〜はともかく（として） cho biết người nói tạm không đánh giá, giải quyết hoặc tranh luận về chủ đề đứng trước để chuyển trọng tâm sang một điểm khác đáng chú ý hơn. Điểm bị gác lại có thể còn gây nghi ngờ, ít quan trọng trong lúc này hoặc không ảnh hưởng đến nhận định sau. Dạng có として làm thao tác “coi như tạm gác lại” rõ hơn. Mẫu thường dùng khi so sánh hai phương diện như giá cả và chất lượng, hình thức và công dụng. Sắc thái: Có thể ngầm cho thấy mặt đứng trước chưa thuyết phục hoặc không được ưu tiên; vì vậy cần thận trọng khi dùng trực tiếp về một người. Lưu ý: Dùng trợ từ は để nêu chủ đề bị tạm gác. Vế sau cần đưa ra trọng tâm mới, không nên chỉ lặp lại nội dung đã gác."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-08d5822005"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "部屋の中は、服やら本やらで、足の踏み場もない。",
+       "ja_furigana": "部屋(へや)の中(なか)は、服(ふく)やら本(ほん)やらで、足(あし)の踏(ふ)み場(ば)もない。",
+       "vi": "Trong phòng nào quần áo nào sách, không có cả chỗ đặt chân."
+      },
+      {
+       "ja": "急に雨が降るやら電車が遅れるやらで、今日は大変な一日だった。",
+       "ja_furigana": "急(きゅう)に雨(あめ)が降(ふ)るやら電車(でんしゃ)が遅(おく)れるやらで、今日(きょう)は大変(たいへん)な一日(いちにち)だった。",
+       "source": "AI",
+       "vi": "Nào là đột nhiên mưa, nào là tàu chạy trễ, hôm nay thật là một ngày vất vả."
+      },
+      {
+       "ja": "試験の前は、不安やら心配やらで、昨夜はほとんど眠れなかった。",
+       "ja_furigana": "試験(しけん)の前(まえ)は、不安(ふあん)やら心配(しんぱい)やらで、昨夜(ゆうべ)はほとんど眠(ねむ)れなかった。",
+       "source": "AI",
+       "vi": "Trước kỳ thi, nào bất an nào lo lắng nên đêm qua gần như không ngủ được."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay chỉ dùng một やら hoặc dùng cho những thứ tích cực rõ ràng, không rối. Hai vế phải cùng loại (hai cảm xúc, hai sự cố); vế sau thường kèm で nói lên hệ quả.",
+    "examples": [
+     {
+      "ja": "うれしいやら悲しいやら、複雑な気持ちだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "急に雨が降るやら電車が遅れるやらで、今日は大変な一日だった。",
+      "ja_furigana": "急(きゅう)に雨(あめ)が降(ふ)るやら電車(でんしゃ)が遅(おく)れるやらで、今日(きょう)は大変(たいへん)な一日(いちにち)だった。",
+      "source": "AI",
+      "vi": "Nào là đột nhiên mưa, nào là tàu chạy trễ, hôm nay thật là một ngày vất vả."
+     },
+     {
+      "ja": "試験の前は、不安やら心配やらで、昨夜はほとんど眠れなかった。",
+      "ja_furigana": "試験(しけん)の前(まえ)は、不安(ふあん)やら心配(しんぱい)やらで、昨夜(ゆうべ)はほとんど眠(ねむ)れなかった。",
+      "source": "AI",
+      "vi": "Trước kỳ thi, nào bất an nào lo lắng nên đêm qua gần như không ngủ được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: うれしいやら悲しいやら、複雑な気持ちだ。",
+     "FURIGANA_MISSING: うれしいやら悲しいやら、複雑な気持ちだ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + やら + N + やら; Aい + やら + Aい + やら; Vる + やら + Vる + やら",
+    "locked_fields": [],
+    "meaning_vi": "Nào là nào là, lẫn lộn — Liệt kê nhiều thứ trong tình trạng bối rối hoặc lộn xộn.",
+    "nuance_vi": "Liệt kê vài sự việc hay cảm xúc lẫn lộn, ngụ ý còn nhiều nữa và trạng thái rối rắm; khẩu ngữ. Khác や (liệt kê trung tính) và たり〜たり (hành động luân phiên).",
+    "order_items": [],
+    "pattern": "N やら N + やら",
+    "pattern_variants": [],
+    "unit_no": 10,
+    "unit_title_vi": null,
+    "usage_vi": "Mang cảm giác rối rắm, khác với とか (liệt kê trung tính)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6b7a6ce4bb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼はさびしげな声で、名前を呼んだ。",
+       "ja_furigana": "彼(かれ)はさびしげな声(こえ)で、名前(なまえ)を呼(よ)んだ。",
+       "vi": "Anh ấy gọi tên tôi bằng giọng buồn bã."
+      },
+      {
+       "ja": "母はさびしげに、古い写真を見ていた。",
+       "ja_furigana": "母(はは)はさびしげに、古(ふる)い写真(しゃしん)を見(み)ていた。",
+       "vi": "Mẹ nhìn tấm ảnh cũ với vẻ cô đơn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép sách; viết câu mới dùng đúng さびしげ"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あの人はさびしげな目をしている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người kia có ánh mắt buồn."
+     },
+     {
+      "ja": "彼は何か言いたげだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hình như anh ấy muốn nói điều gì đó."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あの人はさびしげな目をしている。",
+     "FURIGANA_MISSING: 彼は何か言いたげだった。"
+    ],
+    "formation": "Aい(語幹) / Aな / V-ます(語幹) + 〜げ(だ・な・に)",
+    "locked_fields": [],
+    "meaning_vi": "Vẻ ~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜さびしげ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "⚠ よいさげ／ないさげ ⚠ あります→ありげ ⚠ 自慢げ Chỉ trạng thái cảm nhận được về tâm trạng của một người."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-df003cea2c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このごろ忘れっぽくなって、よく物をなくす。",
+       "ja_furigana": "このごろ忘(わす)れっぽくなって、よく物(もの)をなくす。",
+       "vi": "Dạo này tôi hay quên nên thường đánh mất đồ."
+      },
+      {
+       "ja": "彼は怒りっぽい性格で、すぐに顔が赤くなる。",
+       "ja_furigana": "彼(かれ)は怒(おこ)りっぽい性格(せいかく)で、すぐに顔(かお)が赤(あか)くなる。",
+       "vi": "Anh ấy có tính hay nổi giận, mặt đỏ ngay."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép sách; thêm furigana + bản dịch"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "年を取ると、忘れっぽくなる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lớn tuổi thì sẽ mau quên."
+     },
+     {
+      "ja": "このコート、デザインはいいけれど、生地が安っぽいね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chiếc áo khoác này kiểu dáng thì đẹp nhưng chất liệu vải trông có vẻ rẻ tiền, nhỉ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 年を取ると、忘れっぽくなる。",
+     "FURIGANA_MISSING: このコート、デザインはいいけれど、生地が安っぽいね。"
+    ],
+    "formation": "N / Vます(語幹) / Aい(語幹) + 〜っぽい",
+    "locked_fields": [],
+    "meaning_vi": "Như là…, giống như…, có vẻ như…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜忘れっぽい",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Thể hiện cảm giác “cảm thấy như là”, thấy như là…"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2455e64ff8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このごろ、朝から疲れ気味で、なかなか元気が出ない。",
+       "ja_furigana": "このごろ、朝(あさ)から疲れ気味(ぎみ)で、なかなか元気(げんき)が出(で)ない。",
+       "vi": "Dạo này, ngay từ sáng đã hơi mệt, mãi không có sức."
+      },
+      {
+       "ja": "母は疲れ気味な声で、電話に出た。",
+       "ja_furigana": "母(はは)は疲れ気味(ぎみ)な声(こえ)で、電話(でんわ)に出(で)た。",
+       "vi": "Mẹ bắt điện thoại với giọng có vẻ mệt mỏi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép sách; thêm furigana + bản dịch"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "残業続きで、疲れ気味だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Do tăng ca liên miên, nên hơi mệt."
+     },
+     {
+      "ja": "新入社員は緊張気味の顔をしていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân viên mới có vẻ mặt hơi căng thẳng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 残業続きで、疲れ気味だ。",
+     "FURIGANA_MISSING: 新入社員は緊張気味の顔をしていた。"
+    ],
+    "formation": "N / Vます(語幹) + 〜気味",
+    "locked_fields": [],
+    "meaning_vi": "Có vẻ, hơi có, cảm giác là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜疲れ気味",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả ý nghĩa “có tình trạng như vậy, có khuynh hướng như vậy” Thường dùng với trường hợp mang nghĩa xấu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f8e93ab6f3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この子は小さいころから病気がちで、よく病院へ行く。",
+       "ja_furigana": "この子(こ)は小(ちい)さいころから病気(びょうき)がちで、よく病院(びょういん)へ行(い)く。",
+       "vi": "Đứa bé này từ nhỏ hay ốm, thường xuyên đến bệnh viện."
+      },
+      {
+       "ja": "夜遅くまで仕事をすると、翌朝は寝坊しがちだ。",
+       "ja_furigana": "夜(よる)遅(おそ)くまで仕事(しごと)をすると、翌朝(よくあさ)は寝坊(ねぼう)しがちだ。",
+       "vi": "Nếu làm việc đến khuya thì sáng hôm sau hay ngủ quên."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép sách; thêm furigana + bản dịch"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "私は子どもの頃、病気がちだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hồi còn nhỏ, tôi thường bị bệnh."
+     },
+     {
+      "ja": "最近、彼は仕事を休みがちだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gần đây, anh ấy hay nghỉ làm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 私は子どもの頃、病気がちだった。",
+     "FURIGANA_MISSING: 最近、彼は仕事を休みがちだ。"
+    ],
+    "formation": "N / Vます(語幹) + 〜がち",
+    "locked_fields": [],
+    "meaning_vi": "Có khuynh hướng~, thường là~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜病気がち",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để biểu đạt ý nghĩa có khuynh hướng, thường xảy ra…và sự việc được trình bày có khuynh hướng không tốt. Giống với mẫu câu ～嫌いがある。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d84e87d8b3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は味がいい。ただ、少し高い。",
+       "ja_furigana": "この店(みせ)は味(あじ)がいい。ただ、少(すこ)し高(たか)い。",
+       "vi": "Quán này ngon. Tuy nhiên, hơi đắt một chút."
+      },
+      {
+       "ja": "明日は休みでいい。ただ、宿題は忘れないで。",
+       "ja_furigana": "明日(あした)は休(やす)みでいい。ただ、宿題(しゅくだい)は忘(わす)れないで。",
+       "vi": "Mai được nghỉ cũng được. Chỉ có điều, đừng quên bài tập."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép sách; thêm furigana + bản dịch"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "このプランは安い。ただ、データ容量が少ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gói này rẻ. Tuy nhiên, dung lượng dữ liệu ít."
+     },
+     {
+      "ja": "明日は出勤しなくていい。ただ、午前中に報告書を提出しておいて。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngày mai không cần đi làm. Chỉ có điều, buổi sáng nhớ nộp báo cáo."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: このプランは安い。ただ、データ容量が少ない。",
+     "FURIGANA_MISSING: 明日は出勤しなくていい。ただ、午前中に報告書を提出しておいて。"
+    ],
+    "formation": "文1。ただ、文2",
+    "locked_fields": [],
+    "meaning_vi": "Nối bổ sung hạn chế: S2 nêu điều kiện, ngoại lệ, nhược điểm hoặc lưu ý cho thông tin S1. Độ mạnh yếu: mềm hơn しかし, trung tính hơn でも; không trang trọng bằng ただし. Sắc thái: “đúng là S1, chỉ có điều/tuy nhiên S2”. Không phủ định S1 mà điều chỉnh kỳ vọng. Ngữ cảnh: khẩu ngữ và viết đều dùng được; thích hợp trong giải thích, thương lượng, nêu điều kiện kèm.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chỉ là, tuy nhiên",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt đầu câu sau, theo sau bằng dấu phẩy: “ただ、…”. S2 thường là điều kiện bổ sung, ngoại lệ, lưu ý an toàn. Trung tính, lịch sự vừa phải; dùng được trong email công việc thường ngày. Tránh dùng ただ để quy định/điều khoản pháp lý cứng (khi đó dùng ただし). [6. Ghi chú mở rộng] Trong phát biểu thuyết trình, ただ giúp “giảm sốc” khi đưa ra điểm trừ sau khen ngợi. Đặt ただ giữa hai câu ngắn giúp tiết kiệm từ so với けれども/とはいえ nhưng vẫn tự nhiên. Đừng nhầm với ただ = “chỉ/duy nhất”: ただ一つ (chỉ một), ただの冗談 (chỉ là đùa). [7. Biến thể & cụm cố định] ただ、～だけ／ただ、～に過ぎない: “chỉ là … mà thôi” (sắc thái giảm nhẹ). ただ、～こと: trong hướng dẫn, nêu điểm cần lưu ý (“Chỉ có điều, …”). Kết hợp thường thấy: ただ、注意が必要だ／例外がある／念のため… [8. Lỗi thường gặp & bẫy JLPT] Nhầm ただ với ただし: câu hỏi quy định/điều khoản chọn ただし, không phải ただ. Thiếu dấu phẩy sau ただ: nên viết “ただ、…”. Dịch máy cứng “however” trong mọi ngữ cảnh: với yêu cầu nhẹ, dịch “chỉ có điều/nhưng mà”. Chọn しかし khi cần lập luận phản biện mạnh; ただ là mức nhẹ hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-206e6fb52d"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-019"
+}

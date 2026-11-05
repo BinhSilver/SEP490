@@ -1,0 +1,568 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "薬を飲んでも、病状は悪くなるばかりだ。",
+       "ja_furigana": "薬(くすり)を飲(の)んでも、病状(びょうじょう)は悪(わる)くなるばかりだ。",
+       "vi": "Dù đã uống thuốc nhưng tình trạng bệnh ngày càng xấu đi."
+      },
+      {
+       "ja": "値段は上がるばかりで、生活は楽にならない。",
+       "ja_furigana": "値段(ねだん)は上(あ)がるばかりで、生活(せいかつ)は楽(らく)にならない。",
+       "vi": "Giá cả ngày càng tăng, cuộc sống chẳng dễ chịu hơn chút nào."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "退職してから、貯金は減るばかりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi nghỉ hưu, tiền tiết kiệm chỉ ngày càng giảm."
+     },
+     {
+      "ja": "このままでは、被害は広がるばかりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu cứ như thế này, thiệt hại sẽ chỉ gia tăng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 退職してから、貯金は減るばかりだ。",
+     "FURIGANA_MISSING: このままでは、被害は広がるばかりだ。"
+    ],
+    "formation": "Vる + ばかりだ",
+    "locked_fields": [],
+    "meaning_vi": "Xu hướng một chiều: Diễn tả trạng thái đang tiến triển theo một chiều hướng (thường là xấu) mà người nói khó can thiệp. Gần nghĩa với ～一方だ nhưng ～ばかりだ thường mang sắc thái tiêu cực rõ hơn. Chỉ còn (việc cuối): Tất cả đã sẵn sàng, việc duy nhất còn lại là làm V. Sắc thái “đã tới bước cuối cùng”. Ngữ dụng: Thường dùng trong văn viết, tin tức, bình luận. Tránh dùng cho xu hướng tích cực quá mức (dùng ～一方だ tự nhiên hơn). Khác với ～たばかりだ: ～たばかりだ = “vừa mới…”, chỉ thời điểm; còn ～ばかりだ = xu hướng hoặc việc còn lại.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Ngày càng..., chỉ toàn...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thời, thể: Thường ở hiện tại; quá khứ dùng để mô tả xu hướng đã diễn ra cho đến một thời điểm. Chủ đề: Thường là hiện tượng xã hội, chỉ số, tình trạng sức khỏe, chi phí… Sắc thái: Với nghĩa xu hướng, thường tiêu cực/đáng lo; với nghĩa “chỉ còn”, trung tính hoặc tích cực. Không dùng với hành động đơn lẻ, nhất thời không hàm ý xu hướng. [6. Ghi chú mở rộng] Khi cần nhấn mạnh mức độ leo thang: “～増える一方でなく、増えるばかりだ” – chọn “ばかりだ” nếu muốn sắc thái tiêu cực. Với danh từ trừu tượng: 不安・負担・圧力・赤字・被害・緊張 đi kèm tự nhiên với “増す/高まる/広がる＋ばかりだ”. “Chỉ còn” thường đi với các động từ: 残る・待つ・祈る・任せる・出発する・始める. [7. Biến thể & cụm cố định] V-る＋ばかりのN: 出発するばかりの状態。 Cụm tin tức: 「被害は拡大するばかりだ」「物価は上昇するばかりだ」。 Đi với phó từ nhấn mạnh: ますます／どんどん＋悪化するばかりだ。 [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～たばかりだ: “来たばかりだ” (vừa đến) ≠ “来るばかりだ” (chỉ còn đến). Dùng cho xu hướng tích cực mạnh: “給料が増えるばかりだ” nghe hơi lạ; dùng “一方だ/伸び続けている” tự nhiên hơn. Nhầm với てばかりいる: “文句を言うばかりだ” không tự nhiên; phải là “文句を言ってばかりいる”. JLPT: hay kiểm tra phân biệt “一方だ/ばかりだ/つつある”. “つつある” = đang dần (trung tính, hiện tại tiếp diễn)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2d78634fc7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅まで行きがてら、郵便局に寄った。",
+       "ja_furigana": "駅(えき)まで行(い)きがてら、郵便局(ゆうびんきょく)に寄(よ)った。",
+       "vi": "Nhân lúc đi đến ga, tôi đã ghé qua bưu điện."
+      },
+      {
+       "ja": "父は毎朝の運動がてら、この公園を一周する。",
+       "ja_furigana": "父(ちち)は毎朝(まいあさ)の運動(うんどう)がてら、この公園(こうえん)を一周(いっしゅう)する。",
+       "vi": "Bố tôi nhân lúc tập thể dục buổi sáng, đi một vòng quanh công viên này."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "散歩がてら、公園まで行きませんか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân tiện đi dạo, mình ra công viên nhé."
+     },
+     {
+      "ja": "買い物がてら、友だちの家に寄った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân tiện đi mua sắm, tôi ghé nhà bạn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 散歩がてら、公園まで行きませんか。",
+     "FURIGANA_MISSING: 買い物がてら、友だちの家に寄った。"
+    ],
+    "formation": "N / Vます + がてら",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “nhân lúc/tiện thể đang A thì làm B”. A là hoạt động chính hoặc lý do ra ngoài; B là việc kèm theo. Phổ biến trong hội thoại; sắc thái tự nhiên, đời thường hơn 「かたがた」. A thường là hoạt động đi lại/ra ngoài: 散歩, 買い物, ドライブ, お茶, 花見, 見物; hoặc Vます chỉ hoạt động: 歩き, 出かけ. Trật tự ngầm: ưu tiên A; B “tiện thể”. Nếu muốn trung lập hơn, dùng 「ついでに」.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nhân tiện..., tiện thể...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thân mật, tự nhiên; hay dùng để rủ rê, gợi ý. Thích hợp cho hoạt động ngoài trời/di chuyển. Ít dùng cho hoạt động tĩnh tại trong nhà (như 勉強がてら: nghe kém tự nhiên). Có thể kết hợp với ý chí/đề nghị: 〜ましょう/ませんか. [6. Ghi chú mở rộng] Nên chọn N/V chỉ hoạt động có tính “ra ngoài/di chuyển” để câu tự nhiên. Khi muốn lịch sự trong công việc, đổi sang 「〜かたがた」 hoặc giữ 「〜ついでに」. Nếu B quan trọng ngang A, cân nhắc 「ついでに」 để tránh cảm giác xem nhẹ B. [7. Biến thể & cụm cố định] 散歩がてら 花見がてら ドライブがてら お茶がてら（＝お茶しながら・ついでに雑談） 散歩しがてら（Vます連用＋がてら dạng nói) [8. Lỗi thường gặp & bẫy JLPT] Dùng với hoạt động tĩnh (勉強がてら) → không tự nhiên. Hãy dùng ついでに. Hiểu sai trọng tâm: với 「がてら」 A là chính, B là phụ; chọn sai A/B dễ lệch nghĩa. Nhầm phong cách với 「かたがた」: 「がてら」 không phù hợp thư tín trang trọng. Quên dùng dạng Vます khi dùng động từ: cần bỏ ます trước 「がてら」."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6c81e8b3af"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "説明の上ではわかったが、実際には使えない。",
+       "ja_furigana": "説明(せつめい)の上(うえ)ではわかったが、実際(じっさい)には使(つか)えない。",
+       "vi": "Trên lý thuyết thì hiểu nhưng thực tế không dùng được."
+      },
+      {
+       "ja": "計算の上では、この工事は三月に終わるはずだ。",
+       "ja_furigana": "計算(けいさん)の上(うえ)では、この工事(こうじ)は三月(さんがつ)に終(お)わるはずだ。",
+       "vi": "Theo tính toán thì công trình này sẽ kết thúc vào tháng Ba."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "理論の上では可能だが、実現は難しい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Về mặt lý thuyết thì có thể, nhưng hiện thực hóa thì khó."
+     },
+     {
+      "ja": "地図の上では近いが、山道なので時間がかかる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trên bản đồ thì gần, nhưng do đường núi nên mất thời gian."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 理論の上では可能だが、実現は難しい。",
+     "FURIGANA_MISSING: 地図の上では近いが、山道なので時間がかかる。"
+    ],
+    "formation": "N + の上では",
+    "locked_fields": [],
+    "meaning_vi": "～の上では nêu nhận định “xét về mặt A/ theo A / trên giấy tờ thì…”, nhấn mạnh góc nhìn lý thuyết, tài liệu, số liệu, bản đồ. Hàm ý thường gặp: thực tế có thể khác (đối chiếu giữa lý thuyết và thực tế). Miền ngữ nghĩa: 理論・記録・統計・法律・書類・地図・規則など. Hay dùng cặp đối lập: Nの上では～が、実際は～／現場では～. Khác với 「上で(うえで)＝sau khi/để」; ở đây là “trên phương diện”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Trên lý thuyết..., theo danh nghĩa",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường đi với vế sau diễn đạt thực tế trái ngược hoặc bổ sung bối cảnh. Phong cách trung tính → trang trọng; phù hợp trong văn bản, báo cáo, tin tức. Không dùng để chỉ trình tự thời gian/hành động (đó là nghĩa khác của 上で). [6. Ghi chú mở rộng] 「見かけの上では」「形式の上では」「制度の上では」 là cụm thường gặp trong văn báo chí. 「上では」 có thể lược 「は」 thành 「上で」 trong văn nói, nhưng dễ nhầm với nghĩa khác; nên giữ 「は」 khi viết. Đặt trước bằng cụm danh hóa để rõ phương diện: 実験結果の上では／理屈の上では… [7. Biến thể & cụm cố định] 理論/法律/書類/統計/記録/地図 + の上では 形の上では（trên hình thức）, 名目の上では（về danh nghĩa） 対外的には～、内部資料の上では～（đối chiếu ngoài-trong） [8. Lỗi thường gặp & bẫy JLPT] Nhầm với 「Vた上で」: đề thi hay gài bẫy phân biệt nghĩa “trên phương diện” vs “sau khi”. Thiếu 「は」 sau 「上で」 làm tối nghĩa; trong bài thi nên chọn 「上では」 cho nghĩa “trên giấy tờ”. Dùng với danh từ không thể là “phương diện” (ví dụ: 人の上では) → không tự nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-695c67ad31"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は計算の速さにかけては、だれにも負けない。",
+       "ja_furigana": "彼(かれ)は計算(けいさん)の速(はや)さにかけては、だれにも負(ま)けない。",
+       "vi": "Về tốc độ tính toán thì anh ấy không thua ai."
+      },
+      {
+       "ja": "料理の味にかけては、この店が一番だ。",
+       "ja_furigana": "料理(りょうり)の味(あじ)にかけては、この店(みせ)が一番(いちばん)だ。",
+       "vi": "Về hương vị món ăn thì quán này là số một."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼女は分析力にかけては群を抜いている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Về khả năng phân tích, cô ấy vượt trội."
+     },
+     {
+      "ja": "この選手は持久力にかけては世界トップクラスだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vận động viên này về sức bền thuộc hàng đầu thế giới."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼女は分析力にかけては群を抜いている。",
+     "FURIGANA_MISSING: この選手は持久力にかけては世界トップクラスだ。"
+    ],
+    "formation": "N + にかけては",
+    "locked_fields": [],
+    "meaning_vi": "Nêu bật sở trường trong một mảng xác định; dùng để so sánh ưu thế tương đối/ tuyệt đối. Vế sau thường đi với biểu thức không thua kém/đứng đầu/đáng nể. Không thích hợp cho phàn nàn trực tiếp; nếu chê nên dùng 苦手だ/下手だ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Về khoản..., trong lĩnh vực...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Là câu khen; dùng trong giới thiệu năng lực, PR, bình luận thể thao, đánh giá nhân sự. Danh từ phải là phạm vi kỹ năng/phẩm chất đo được. Kết hợp khuôn mẫu khen: 〜は一番だ／随一だ／ピカイチだ／右に出るものはいない. [6. Ghi chú mở rộng] Dùng được cho tập thể: 日本チームにかけては守備が堅い. Hàm ý so sánh tương đối với phần còn lại của tập hợp (社内/リーグ/地域など). Có thể đảo vị trí thành phần để nhấn mạnh: 守備にかけてはこのチームが最強だ. [7. Biến thể & cụm cố định] 〜にかけては右に出るものはいない／ピカイチだ／随一だ／天下一品だ 営業/分析力/記憶力/集中力/スピード/正確性 + にかけては 人/チーム/会社 + にかけては + 評価表現 [8. Lỗi thường gặp & bẫy JLPT] Dùng với danh từ không phải “lĩnh vực”: × 天気にかけては → nên dùng については. Dùng để chê thẳng: × 彼は時間管理にかけては下手だ → không tự nhiên; dùng 彼は時間管理が下手だ. Nhầm với 〜にかけて (tới/kéo dài); đề thi hay gài hai nghĩa."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f95fb51f6a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夜、虫の声を聞くともなしに聞いていたら、いつのまにか朝になっていた。",
+       "ja_furigana": "夜(よる)、虫(むし)の声(こえ)を聞(き)くともなしに聞(き)いていたら、いつのまにか朝(あさ)になっていた。",
+       "vi": "Đêm đến, tôi nghe tiếng dế một cách vô tình, rồi lúc nào không hay đã sáng."
+      },
+      {
+       "ja": "祖父は新聞を読むともなしに読みながら、ときどき窓の外を見ていた。",
+       "ja_furigana": "祖父(そふ)は新聞(しんぶん)を読(よ)むともなしに読(よ)みながら、ときどき窓(まど)の外(そと)を見(み)ていた。",
+       "vi": "Ông tôi vừa đọc báo một cách hờ hững, vừa thỉnh thoảng nhìn ra ngoài cửa sổ."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ラジオを聞くともなしに聞いていたら、懐かしい曲が流れてきた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe radio trong vô thức thì vang lên một bài quen thuộc."
+     },
+     {
+      "ja": "通勤電車で外を眺めるともなしに眺めていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trên tàu đi làm, tôi nhìn ra ngoài bâng quơ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ラジオを聞くともなしに聞いていたら、懐かしい曲が流れてきた。",
+     "FURIGANA_MISSING: 通勤電車で外を眺めるともなしに眺めていた。"
+    ],
+    "formation": "Vる + ともなしに + V",
+    "locked_fields": [],
+    "meaning_vi": "Mang nghĩa “không chủ ý/không thật sự làm”, tương đương ～るともなく về nghĩa vô thức. Sắc thái hơi “khách quan, lỏng lẻo”, thường dùng trong miêu tả đời thường. Về lựa chọn từ: ともなしに được ưa dùng với động từ hành vi liên tục (見る, 聞く, 歩く, 眺める…), ít dùng với hành động tức thời.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vô tình..., không chủ ý",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Diễn tả trạng thái “thả lỏng”: làm cho có, không tập trung. Thường đi với dạng lặp để tự nhiên hơn trong văn nói/viết. Không dùng khi người nói muốn thể hiện mục tiêu rõ ràng hay ra lệnh/ý chí. [6. Ghi chú mở rộng] Nhiều khi ともなく／ともなしに hoán đổi được; khác biệt chủ yếu ở thói quen collocation. Trong văn nghệ thuật, dạng lặp tạo nhịp điệu: 見るともなしに見る／聞くともなしに聞く. Hạn chế dùng với động từ chỉ hành động tức thời, có chủ đích mạnh (決める, 申請する…). [7. Biến thể & cụm cố định] 見るともなしに見る／聞くともなしに聞く／歩くともなしに歩く どこからともなしに／いつからともなしに（ít hơn ともなく nhưng vẫn gặp） Biến thể song hành: ～るともなく (xem mục 161) [8. Lỗi thường gặp & bẫy JLPT] Dùng với mệnh lệnh/ý chí: × 見るともなしに見てください → không tự nhiên. Dùng cho mục đích rõ ràng: × 情報を集めるともなしに集める (hành vi này thường có mục tiêu). Nhầm với ～つい: ～ともなしに là trạng thái kéo dài bâng quơ; ～つい là hành vi chốc lát “lỡ”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7ffee116f6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の名前を呼んだばかりに、みんなに笑われてしまった。",
+       "ja_furigana": "彼(かれ)の名前(なまえ)を呼(よ)んだばかりに、みんなに笑(わら)われてしまった。",
+       "vi": "Chỉ vì gọi tên anh ấy mà tôi bị mọi người cười."
+      },
+      {
+       "ja": "少し遅刻したばかりに、大事な話を聞きのがしてしまった。",
+       "ja_furigana": "少(すこ)し遅刻(ちこく)したばかりに、大事(だいじ)な話(はなし)を聞(き)きのがしてしまった。",
+       "vi": "Chỉ vì đến muộn một chút mà tôi đã bỏ lỡ mất câu chuyện quan trọng."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あの飛行機に乗ったばかりに、彼は死んだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ vì đi máy bay đó mà anh ấy đã chết."
+     },
+     {
+      "ja": "英語の先生が嫌いなばかりに、英語も嫌いになってしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ vì ghét giáo viên tiếng Anh mà ghét luôn cả tiếng Anh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あの飛行機に乗ったばかりに、彼は死んだ。",
+     "FURIGANA_MISSING: 英語の先生が嫌いなばかりに、英語も嫌いになってしまった。"
+    ],
+    "formation": "thể thường (Aな + な・N + である) + ばかりに",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ vì～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜あの飛行機に乗ったばかりに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* A(な）だな * Nだである Biểu thị tâm trạng tiếc vì chỉ tại nguyên nhân đó mà trở thành kết quả xấu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f2c31503fb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "さすが有名な店だけあって、料理がとてもおいしい。",
+       "ja_furigana": "さすが有名(ゆうめい)な店(みせ)だけあって、料理(りょうり)がとてもおいしい。",
+       "vi": "Đúng là quán nổi tiếng có khác, món ăn rất ngon."
+      },
+      {
+       "ja": "長年練習を続けてきただけに、彼の動きは安定している。",
+       "ja_furigana": "長年(ながねん)練習(れんしゅう)を続(つづ)けてきただけに、彼(かれ)の動(うご)きは安定(あんてい)している。",
+       "vi": "Chính vì đã luyện tập nhiều năm nên động tác của anh ấy rất ổn định."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ここは一流ホテルだけあって快適だった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quả đúng là khách sạn hàng đầu, thật thoải mái."
+     },
+     {
+      "ja": "このバッグは安いだけにすぐに壊れてしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái túi này quả đúng là rẻ tiền, bị hư liền rồi nè."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ここは一流ホテルだけあって快適だった。",
+     "FURIGANA_MISSING: このバッグは安いだけにすぐに壊れてしまった。"
+    ],
+    "formation": "N / thể thường + だけあって",
+    "locked_fields": [],
+    "meaning_vi": "Phù hợp với, quả đúng là, đúng là….có khác",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜一流ホテルだけあって",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* A(な）だな * Nだ Dùng khi đánh giá tốt, theo đúng như mong đợi. Biểu đạt mối quan hệ nhân quả."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2dba3c2e5a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あの店は値段が安いばかりか、味もとてもいい。",
+       "ja_furigana": "あの店(みせ)は値段(ねだん)が安(やす)いばかりか、味(あじ)もとてもいい。",
+       "vi": "Quán đó không chỉ giá rẻ mà món ăn cũng rất ngon."
+      },
+      {
+       "ja": "この薬はよく効くばかりか、副作用も少ない。",
+       "ja_furigana": "この薬(くすり)はよく効(き)くばかりか、副作用(ふくさよう)も少(すく)ない。",
+       "vi": "Loại thuốc này không những hiệu quả mà tác dụng phụ cũng ít."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あの人は、学校の成績がいいばかりかスボーツもできる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người đó không chỉ thành tích học ở trường giỏi mà còn chơi được thể thao."
+     },
+     {
+      "ja": "このあたりは、空気ばかりでなく水も汚染されている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vùng này không chỉ không khí mà cả nước cũng ô nhiễm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あの人は、学校の成績がいいばかりかスボーツもできる。",
+     "FURIGANA_MISSING: このあたりは、空気ばかりでなく水も汚染されている。"
+    ],
+    "formation": "thể thường (Aな + な・N + である) + ばかりか",
+    "locked_fields": [],
+    "meaning_vi": "Không chỉ ～, ngoài ra còn…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜成績がいいばかりかスポーツも",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* A(な）だな * Nだ Diễn đạt ý nghĩa không chỉ ～ mà còn… Thêm vào sự việc với phạm vi, mức độ lớn hơn. Các câu mệnh lệnh, cưỡng chế hầu như không dùng sau 「ばかりか／ばかりでなく」"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-36ff05d9be"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この発見は国内のみならず、海外でも大きな話題になった。",
+       "ja_furigana": "この発見(はっけん)は国内(こくない)のみならず、海外(かいがい)でも大(おお)きな話題(わだい)になった。",
+       "vi": "Phát hiện này không chỉ trong nước mà còn trở thành đề tài lớn ở nước ngoài."
+      },
+      {
+       "ja": "彼は英語のみならず、日本語も上手だ。",
+       "ja_furigana": "彼(かれ)は英語(えいご)のみならず、日本語(にほんご)も上手(じょうず)だ。",
+       "vi": "Anh ấy không chỉ giỏi tiếng Anh mà tiếng Nhật cũng giỏi."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "その映画は日本のみならず、外国でも知られている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bộ phim đó được biết đến không chỉ ở nước Nhật mà cả nước ngoài."
+     },
+     {
+      "ja": "この料理は味が良いのみならず、見た目も美しい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Món ăn này không chỉ vị ngon mà nhìn cũng ngon mắt nữa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: その映画は日本のみならず、外国でも知られている。",
+     "FURIGANA_MISSING: この料理は味が良いのみならず、見た目も美しい。"
+    ],
+    "formation": "N / thể thường + のみならず",
+    "locked_fields": [],
+    "meaning_vi": "Không chỉ, mà còn ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜日本のみならず外国でも",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* A(な）だな * Nだである Dạng văn viết, trang trọng của 「だけでなく」「ばかりでなく」 Câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5098a98718"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の説明はあまりにも短くて、よくわからなかった。",
+       "ja_furigana": "彼(かれ)の説明(せつめい)はあまりにも短(みじか)くて、よくわからなかった。",
+       "vi": "Lời giải thích của anh ấy ngắn quá mức nên tôi không hiểu rõ."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "大臣のあまりにも無責任な発言に、聞いていて腹が立ってきた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trước phát ngôn quá vô trách nhiệm của bộ trưởng, nghe mà tôi thấy tức giận."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 大臣のあまりにも無責任な発言に、聞いていて腹が立ってきた。"
+    ],
+    "formation": "あまりにも + Aい / Aな / V",
+    "locked_fields": [],
+    "meaning_vi": "Quá đến mức khó chấp nhận, quá mức.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜あまりにも",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "〈Quảng cáo phim〉Một câu chuyện tình yêu quá buồn và đẹp. Bạn chắc chắn sẽ không kìm được nước mắt…。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c43ae13902"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-053"
+}

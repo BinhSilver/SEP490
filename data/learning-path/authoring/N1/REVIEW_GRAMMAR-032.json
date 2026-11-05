@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この建物は強い地震に耐える構造だ。",
+       "ja_furigana": "この建物(たてもの)は強(つよ)い地震(じしん)に耐(た)える構造(こうぞう)だ。",
+       "vi": "Tòa nhà này có kết cấu chịu được động đất mạnh."
+      },
+      {
+       "ja": "彼は苦労に耐えて、夢をあきらめなかった。",
+       "ja_furigana": "彼(かれ)は苦労(くろう)に耐(た)えて、夢(ゆめ)をあきらめなかった。",
+       "vi": "Anh ấy chịu đựng gian khổ, không từ bỏ ước mơ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この橋は大地震に耐える設計だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cây cầu này được thiết kế chịu được động đất lớn."
+     },
+     {
+      "ja": "彼は長年の痛みに耐えて研究を続けた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy đã chịu đựng cơn đau suốt nhiều năm và tiếp tục nghiên cứu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この橋は大地震に耐える設計だ。",
+     "FURIGANA_MISSING: 彼は長年の痛みに耐えて研究を続けた。"
+    ],
+    "formation": "N + に耐える; Vる + に耐える",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa 1: Chịu đựng/kháng chịu được tác động khó chịu hay khắc nghiệt (thể chất/tinh thần): 痛み・寒さ・重圧・地震など。 Nghĩa 2: Đủ giá trị để làm hành vi cảm thụ/đánh giá: 見る・読む・鑑賞・批判・使用など。「～に耐えるN」 = N đủ chất lượng để … Độ trang trọng: trung tính → trang trọng (khi dùng chữ 堪). Nghĩa 2 thường dùng trong văn viết/đánh giá học thuật, phê bình. Hạn chế động từ với nghĩa 2: thường đi với động từ cảm quan/đánh giá (見る・読む・鑑賞する・使用する…). Dùng với động từ thông thường có thể gượng.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có thể chịu được...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nghĩa 1 mang sắc thái kiên cường/chịu đựng; chủ ngữ thường là người/vật chịu tác động. Nghĩa 2 mang sắc thái đánh giá chất lượng/giá trị. Dùng trong phê bình, báo cáo, văn viết trang trọng. 「～に耐えるN」 thường đứng trước danh từ: 読むに耐える内容・使用に耐える強度。 Phủ định 「～に耐えない」 nhấn mạnh “không thể chấp nhận/không đáng để…”, sắc thái mạnh. [6. Ghi chú mở rộng] Chữ Hán: 耐える・堪える. Với nghĩa “đáng để…”, thường dùng 堪える trong văn trang trọng. Collocations tiêu biểu (nghĩa 2): 観賞/鑑賞・見る・読む・批判・引用・使用 + に耐える。 Tránh lạm dụng với động từ hành động thường ngày (食べるに耐える…): nghe gượng. Nên dùng với hoạt động đánh giá/cảm thụ. Trong kỹ thuật: 耐震・耐熱・耐水 là tiền tố thường gặp diễn tả “chịu …”. [7. Biến thể & cụm cố định] 見る/読/鑑賞/引用/批判 + に耐える 直視/傍観 + に耐えない（không nỡ nhìn/đứng nhìn） 使用/実用 + に耐える（đủ bền để sử dụng/thực dụng） 耐震に耐える → thường nói 耐震性が高い/耐震構造 [8. Lỗi thường gặp & bẫy JLPT] Lẫn lộn nghĩa: dùng ～に耐える để nói “dễ làm” → sai. Đây là “chịu được/đáng để”, không phải “dễ”. Dùng với động từ không phù hợp: 食べるに耐える nghe không tự nhiên. Hãy ưu tiên động từ cảm thụ/đánh giá. Quên sắc thái mạnh của ～に耐えない: dùng trong văn nói thân mật có thể quá gay gắt. JLPT N1: Phân biệt ～に耐える vs ～に耐えかねる vs ～に堪えない trong ngữ cảnh đánh giá/phê phán."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-807b8cece7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "その光景はあまりに悲惨で、見るに堪えない。",
+       "ja_furigana": "その光景(こうけい)はあまりに悲惨(ひさん)で、見(み)るに堪(た)えない。",
+       "vi": "Cảnh tượng ấy quá thảm khốc, không thể nhìn nổi."
+      },
+      {
+       "ja": "彼の演説は聞くに堪えないものだった。",
+       "ja_furigana": "彼(かれ)の演説(えんぜつ)は聞(き)くに堪(た)えないものだった。",
+       "vi": "Bài diễn thuyết của anh ấy nghe không chịu nổi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "事故の映像は惨惨しくて、見るに堪えない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cảnh quay vụ tai nạn quá thê thảm, không thể xem nổi."
+     },
+     {
+      "ja": "低俗な発言で、聞くに堪えない言葉が続いた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Những lời lẽ thô tục, nghe không chịu nổi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 事故の映像は惨惨しくて、見るに堪えない。",
+     "FURIGANA_MISSING: 低俗な発言で、聞くに堪えない言葉が続いた。"
+    ],
+    "formation": "N + に堪えない; Vる + に堪えない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể chịu nổi/đau lòng: Quá kinh khủng, thảm hại, tục tĩu… nên “không thể xem/nghe/đọc nổi”. Không đáng để V: Chất lượng kém đến mức không đáng xem/đọc… (đánh giá nghiêm khắc). Nhấn mạnh cảm xúc mạnh: Với danh từ cảm xúc: 感謝/喜び/同情/遺憾 + に堪えない = “vô cùng …”. Phong cách: Văn viết, trang trọng; trong nghĩa tiêu cực với V thường thấy trong bình luận/phê bình.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không đáng / không chịu nổi",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] V với giác quan/tiếp nhận: 見る・聞く・読む・鑑賞する・直視する + に堪えない. Danh từ cảm xúc: 感謝・喜び・同情・憤り・遺憾 + に堪えない (cách nói điển phạm trong công văn). Ngữ khí mạnh, nên cân nhắc mức độ lịch sự/quan hệ khi dùng với người đối thoại. [6. Ghi chú mở rộng] Về hình thức, với V thường là V-る + に堪えない (khác với một số tài liệu ghi V-ます語幹 + に堪えない; cách dùng phổ biến là V-る như 見るに堪えない). “に堪えない” dùng với danh từ cảm xúc mang sắc thái văn thư trang trọng, thường gặp trong diễn văn thông cáo. Với phê bình nghệ thuật, “鑑賞に堪えない” nhấn mạnh giá trị thẩm mỹ kém. [7. Biến thể & cụm cố định] 見るに堪えない／聞くに堪えない／読むに堪えない (cụm điển phạm). 感謝に堪えない／遺憾に堪えない／憤りに堪えない (công văn). 直視に堪えない, 鑑賞に堪えない. [8. Lỗi thường gặp & bẫy JLPT] Dùng với động từ không phù hợp (ví dụ 操作するに堪えない là lạ). Hãy ưu tiên động từ cảm nhận/tiếp nhận. Nhầm sắc thái tích cực của “感謝に堪えない” với tiêu cực của “見るに堪えない”. Cùng hình thức nhưng trái sắc thái. Nhầm “に堪えない” với “に足りない/に値しない” (khác mức cảm xúc và phạm vi dùng)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-17a0513e2b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の無責任な態度には、怒りを禁じ得ない。",
+       "ja_furigana": "彼(かれ)の無責任(むせきにん)な態度(たいど)には、怒(いか)りを禁(きん)じ得(え)ない。",
+       "vi": "Trước thái độ vô trách nhiệm của anh ấy, tôi không thể không giận."
+      },
+      {
+       "ja": "彼女の頑張りには、感動を禁じ得ない。",
+       "ja_furigana": "彼女(かのじょ)の頑張(がんば)りには、感動(かんどう)を禁(きん)じ得(え)ない。",
+       "vi": "Trước sự cố gắng của cô ấy, tôi không thể không xúc động."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼の勇気ある行動には感動を禁じ得ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trước hành động dũng cảm của anh ấy, không thể không xúc động."
+     },
+     {
+      "ja": "相次ぐ不祥事に、怒りを禁じ得ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trước hàng loạt bê bối, tôi không thể kìm nén cơn giận."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼の勇気ある行動には感動を禁じ得ない。",
+     "FURIGANA_MISSING: 相次ぐ不祥事に、怒りを禁じ得ない。"
+    ],
+    "formation": "N + を禁じ得ない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể kìm nén/không thể nào không cảm thấy N (một cảm xúc mạnh) trước tình huống nào đó. Sắc thái văn viết, trang trọng, thường dùng trong bình luận, bài báo, diễn văn. Chủ thể là con người hoặc tập thể với tư cách người nói/quan sát; ít dùng với chủ thể vô tri.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không thể kìm được cảm xúc",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Chỉ kết hợp với danh từ cảm xúc; không đi với động từ/tính từ trực tiếp. Thường đặt cuối câu; trước đó nêu bối cảnh gây cảm xúc. Mạnh hơn và trang trọng hơn ないではいられない／ずにはいられない (vốn dùng với động từ). [6. Ghi chú mở rộng] Danh từ cảm xúc mang sắc thái Hán Nhật tạo cảm giác nghiêm túc: 憤り、憤怒、落胆、羞恥、感嘆、悲嘆... Khi muốn nhấn mạnh mức độ, có thể thêm 割り切れない思い/やりきれない思いなど rồi dùng ～を禁じ得ない. Trong văn phê bình/bài xã luận, cụm này giúp tăng tính khách quan, mạch lạc. [7. Biến thể & cụm cố định] N を禁じ得ない：mẫu chuẩn. 涙/苦笑/失望/驚愕/憤りを禁じ得ない：các cụm rất thường gặp. ～ざるを得ない là mẫu khác hẳn nghĩa (bị buộc phải), dễ nhầm hình thức. [8. Lỗi thường gặp & bẫy JLPT] Dùng với động từ: sai. Phải là danh từ cảm xúc. Chủ thể vô tri (会社、この結果など) + を禁じ得ない: không tự nhiên. Nên để chủ thể là người/nhóm người. Nhầm với ～ずにはいられない: đề thi hỏi sự khác nhau về loại từ đi kèm và mức độ trang trọng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-70759aa88f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このような賞を頂けるとは、感激の極みです。",
+       "ja_furigana": "このような賞(しょう)を頂(いただ)けるとは、感激(かんげき)の極(きわ)みです。",
+       "vi": "Được nhận giải thưởng như vậy, tôi vô cùng cảm kích."
+      },
+      {
+       "ja": "ご迷惑をおかけして、恐縮の極みです。",
+       "ja_furigana": "ご迷惑(めいわく)をおかけして、恐縮(きょうしゅく)の極(きわ)みです。",
+       "vi": "Đã gây phiền toái, tôi vô cùng áy náy."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "このような賞を頂き、光栄の極みです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Được nhận giải thưởng như thế này là vinh hạnh tột cùng."
+     },
+     {
+      "ja": "お忙しいところを煩わせてしまい、失礼の極みでございます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã làm phiền lúc quý vị bận rộn, thật là vô cùng thất lễ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: このような賞を頂き、光栄の極みです。",
+     "FURIGANA_MISSING: お忙しいところを煩わせてしまい、失礼の極みでございます。"
+    ],
+    "formation": "N + の極みだ; N + の極み",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả mức độ “tột cùng/cùng cực” của một trạng thái, cảm xúc: “N là cực điểm”. Sắc thái trang trọng, mang tính tu từ mạnh; thường dùng trong phát biểu, văn bản chính thức. Giới hạn kết hợp: thiên về danh từ trừu tượng hoặc đánh giá. Không gắn trực tiếp với tính từ; cần danh từ hóa. Khác với 極まる/極まりない: の極み nghiêng về “danh xưng ở mức tột cùng” và có tính cố định từ vựng cao.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tột đỉnh...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn nhấn mạnh mức độ cao nhất theo phép cường điệu trang trọng. Thường xuất hiện trong lời cảm ơn/xin lỗi, diễn văn, thông cáo: 光栄の極み, 遺憾の極み. Không dùng trong hội thoại thường ngày trừ khi cố ý tạo sắc thái “kịch/tu từ”. Phần sau có thể là だ/です/でございます để điều chỉnh mức lịch sự. [6. Ghi chú mở rộng] Cụm “遺憾の極み” thường thấy trong phát ngôn chính trị/điều trần. “贅沢の極み” mang sắc thái tán dương lẫn châm biếm tùy ngữ cảnh. Nếu muốn màu sắc phê phán mạnh, cân nhắc “極まりない”: その発言は無責任極まりない。 [7. Biến thể & cụm cố định] 光栄の極み／感激の極み／遺憾の極み／失礼の極み／無礼の極み／迷惑の極み／贅沢の極み／残念の極み Trang trọng hơn nữa: 〜でございますを dùng thay です. [8. Lỗi thường gặp & bẫy JLPT] Tính từ thường cần danh từ hóa: × 嬉しいの極み → ○ うれしさの極み／感激の極み. Không phải mọi trường hợp đều chỉ có một cách sửa cố định. Dùng trong văn nói thân mật nghe “quá đà”. Hãy chọn 極まりない/とても… đối thoại thường ngày. Nhầm với の至り: “迷惑の至り” nghe gượng; với tiêu cực nên dùng “迷惑の極み”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-869a80b1bc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "教師たる者、生徒の手本となるべきだ。",
+       "ja_furigana": "教師(きょうし)たる者(もの)、生徒(せいと)の手本(てほん)となるべきだ。",
+       "vi": "Là thầy giáo thì phải làm gương cho học sinh."
+      },
+      {
+       "ja": "社会人たる者、約束を守らなければならない。",
+       "ja_furigana": "社会人(しゃかいじん)たる者(もの)、約束(やくそく)を守(まも)らなければならない。",
+       "vi": "Là người trưởng thành đi làm thì phải giữ lời hứa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "指導者たる者、公平でなければならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Là người lãnh đạo thì phải công bằng."
+     },
+     {
+      "ja": "医師たる身として、常に最新の知識を学ぶべきだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Với thân phận bác sĩ, luôn phải học hỏi kiến thức mới."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 指導者たる者、公平でなければならない。",
+     "FURIGANA_MISSING: 医師たる身として、常に最新の知識を学ぶべきだ。"
+    ],
+    "formation": "N + たる + N",
+    "locked_fields": [],
+    "meaning_vi": "Nêu tư cách/thân phận và yêu cầu, phẩm chất, trách nhiệm tương ứng “đã là … thì …”. Sắc thái trang trọng, giáo huấn; thường dùng với các vai trò có vị thế/đạo đức (指導者・医師・社会人・親・教師…). Gần nghĩa “としての/にふさわしい” nhưng cổ hơn, mạnh hơn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Với tư cách là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi nhấn mạnh tiêu chuẩn ứng xử phù hợp với tư cách/thân phận. Văn phong trang trọng, diễn văn, nội quy, bài viết ý thức nghề nghiệp. Ít dùng với vai trò tầm thường/quá cụ thể; tránh dùng trong đối thoại thân mật. [6. Ghi chú mở rộng] “者/もの/身/責任/使命/役割” là các danh từ hay đi kèm “たる”. “社会人たるもの” là thành ngữ rất thường gặp trong huấn thị công ty. Không dùng “たる” trước động từ; nó gắn vào danh từ để tạo danh ngữ. [7. Biến thể & cụm cố định] 指導者たる者／社会人たるもの／親たる者／医師たる身 教師たる責務／公務員たる自覚／学生たる本分 [8. Lỗi thường gặp & bẫy JLPT] Dùng cho đồ vật/sự vật vô tri: × 高級車たるエンジン (không tự nhiên). Dùng trong hội thoại thân mật khiến câu nghe khoa trương, cổ kính quá mức. Nhầm thứ tự: × たる指導者者 → phải là 指導者たる者."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1ff10e24e9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この小説は面白くて、読み出したが最後、止まらない。",
+       "ja_furigana": "この小説(しょうせつ)は面白(おもしろ)くて、読(よ)み出(だ)したが最後(さいご)、止(と)まらない。",
+       "vi": "Cuốn tiểu thuyết này hay đến mức hễ bắt đầu đọc là không dừng lại được."
+      },
+      {
+       "ja": "彼は話し出したが最後、誰も口を挟めない。",
+       "ja_furigana": "彼(かれ)は話(はな)し出(だ)したが最後(さいご)、誰(だれ)も口(くち)を挟(はさ)めない。",
+       "vi": "Hễ anh ấy bắt đầu nói thì không ai chen vào được."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この漫画は面白い。読み出したが最後、やめられない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bộ truyện tranh này rất thú vị. Một khi đã bắt đầu đọc thì không thể dừng lại."
+     },
+     {
+      "ja": "母はカラオケが大好きで、マイクを握ったが最後、決して離そうとしない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mẹ tôi rất thích karaoke, hễ đã cầm micro là nhất quyết không chịu buông."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この漫画は面白い。読み出したが最後、やめられない。",
+     "FURIGANA_MISSING: 母はカラオケが大好きで、マイクを握ったが最後、決して離そうとしない。"
+    ],
+    "formation": "Vた + が最後",
+    "locked_fields": [],
+    "meaning_vi": "Một khi đã ～ thì sau đó không còn cách nào thay đổi hoặc dừng lại.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜が最後",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Nhấn mạnh hậu quả tất yếu, thường là tiêu cực, sẽ tiếp diễn sau khi hành động trước xảy ra. Sắc thái mạnh hơn một câu điều kiện thông thường. 1) Dễ nhầm với ～たら最後. → Vたが最後 cũng nói một khi A xảy ra thì hậu quả sau đó không thể dừng hoặc thay đổi, thường mang sắc thái tiêu cực mạnh. 2) Hành động phía trước là điểm không thể quay lại. → Vế sau thường nêu kết quả tiếp diễn, bị cuốn vào hoặc không thoát ra được. 3) Không dùng cho điều kiện trung tính. → Mẫu mang hàm ý cảnh báo, phê phán hoặc dự đoán hậu quả nghiêm trọng hơn câu điều kiện thông thường."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f0b313dfd1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この料理は一流のシェフにして初めて作れる味だ。",
+       "ja_furigana": "この料理(りょうり)は一流(いちりゅう)のシェフにして初(はじ)めて作(つく)れる味(あじ)だ。",
+       "vi": "Món ăn này phải là đầu bếp hạng nhất mới làm ra được hương vị ấy."
+      },
+      {
+       "ja": "彼にして解決できない問題なら、他の人には無理だ。",
+       "ja_furigana": "彼(かれ)にして解決(かいけつ)できない問題(もんだい)なら、他(ほか)の人(ひと)には無理(むり)だ。",
+       "vi": "Bài toán mà ngay cả anh ấy cũng không giải được thì người khác càng bó tay."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "こんな細かい仕事はベテランの職人にして初めてできることだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công việc tinh xảo như thế này phải là một thợ lành nghề kỳ cựu mới làm được."
+     },
+     {
+      "ja": "この問題を解くのに、優秀な高橋君にして3時間もかかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Để giải bài toán này, ngay cả Takahashi xuất sắc cũng mất tới ba giờ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: こんな細かい仕事はベテランの職人にして初めてできることだ。",
+     "FURIGANA_MISSING: この問題を解くのに、優秀な高橋君にして3時間もかかった。"
+    ],
+    "formation": "N + にして",
+    "locked_fields": [],
+    "meaning_vi": "Chính vì là ～ ở trình độ cao nên mới có thể; ngay cả ～ mà cũng.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜にして",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Lấy một người hay đối tượng được đánh giá rất cao làm chuẩn. Có thể nhấn mạnh chỉ người đó mới làm được, hoặc ngay cả người đó cũng gặp kết quả bất ngờ. 1) Dễ nhầm giữa hai hướng nghĩa “chỉ A mới…” và “ngay cả A cũng…”. → Nにして lấy một người hoặc đối tượng ở trình độ rất cao làm chuẩn; nghĩa cụ thể được quyết định bởi kết luận phía sau. 2) Cần đọc tính tích cực hoặc phủ định của vế sau. → Nếu A làm được điều đặc biệt thì là “chỉ A mới”; nếu A cũng thất bại thì là “ngay cả A cũng”. 3) Không nhầm với NにしてN chỉ hai tư cách. → Ở mục này, N phía trước là chuẩn năng lực hoặc địa vị, không phải danh xưng thứ nhất trong cấu trúc “vừa A vừa B”. Nhấn mạnh một sự việc xảy ra ở một mốc đặc biệt sớm, muộn hoặc đáng chú ý hơn dự đoán. 1) Dễ nhầm với trợ từ ～で chỉ thời điểm. → Nにして nhấn mạnh sự việc xảy ra ngay ở một tuổi, thời điểm hoặc số lượng đặc biệt sớm, muộn hay đáng chú ý. 2) Phải có sắc thái ngoài dự đoán. → Nếu chỉ nói trung tính một sự việc xảy ra lúc bao nhiêu tuổi, ～で thường đủ dùng. 3) Hay đi với 初めて／ようやく／すでに. → Những từ này làm rõ việc đạt tới hoặc xảy ra ở một mốc đặc biệt. Cách văn viết trang trọng để nói một người hoặc vật đồng thời có hai tư cách hay đặc điểm. 1) Dễ nhầm với ～であり. → AにしてB là cách văn viết trang trọng để nói cùng một người hoặc vật đồng thời có hai tư cách hay đặc điểm. 2) A và B phải cùng chỉ một đối tượng. → Không dùng khi A và B là hai chủ thể khác nhau hoặc hai sự việc nối tiếp. 3) Không nhầm với các nghĩa khác của ～にして. → Ở nghĩa này, cấu trúc hoàn chỉnh thường là AにしてB, có thể dịch “vừa là A, đồng thời là B”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-21d7be24c7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この役は彼をおいて任せられる人はいない。",
+       "ja_furigana": "この役(やく)は彼(かれ)をおいて任(まか)せられる人(ひと)はいない。",
+       "vi": "Ngoài anh ấy ra, không ai có thể giao vai này."
+      },
+      {
+       "ja": "会長の後任は彼女をおいて考えられない。",
+       "ja_furigana": "会長(かいちょう)の後任(こうにん)は彼女(かのじょ)をおいて考(かんが)えられない。",
+       "vi": "Ngoài cô ấy ra, tôi không thể nghĩ ra ai kế nhiệm chủ tịch."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "結婚相手は彼女をおいては考えられない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngoài cô ấy ra, tôi không thể nghĩ đến ai khác làm bạn đời."
+     },
+     {
+      "ja": "彼をおいてこの仕事を任せられる人物はいない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngoài anh ấy ra, không có ai có thể đảm nhận công việc này."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 結婚相手は彼女をおいては考えられない。",
+     "FURIGANA_MISSING: 彼をおいてこの仕事を任せられる人物はいない。"
+    ],
+    "formation": "N + をおいて + 〜ない",
+    "locked_fields": [],
+    "meaning_vi": "Ngoài ～ ra không có ai hoặc không có gì khác.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜をおいて...ない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng cùng một biểu thức phủ định ở vế sau để khẳng định danh từ đứng trước là lựa chọn duy nhất hoặc phù hợp nhất. Cách nói này nhấn mạnh sự độc nhất. 1) Dễ nhầm với ～しかない. → Nをおいて（は）～ない khẳng định ngoài N ra không có người hoặc vật nào khác phù hợp, chứ không nêu một hành động bất đắc dĩ. 2) Vế sau phải mang dạng phủ định. → Thường gặp với いない・ない・考えられない・あり得ない để nhấn mạnh tính duy nhất. 3) Mẫu thể hiện đánh giá mạnh của người nói. → N thường là lựa chọn tốt nhất hoặc duy nhất theo nhận định chủ quan, không nhất thiết là sự thật tuyệt đối."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f5538beaf9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "館内では飲食すべからず。",
+       "ja_furigana": "館内(かんない)では飲食(いんしょく)すべからず。",
+       "vi": "Trong tòa nhà, không được ăn uống."
+      },
+      {
+       "ja": "受験生は不正をすべからず。",
+       "ja_furigana": "受験生(じゅけんせい)は不正(ふせい)をすべからず。",
+       "vi": "Thí sinh không được gian lận."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "構内では許可なく撮影すべからず。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong khuôn viên, không được chụp ảnh khi chưa có phép."
+     },
+     {
+      "ja": "それは公僕として許すべからざる怠慢である。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đó là sự tắc trách không thể dung thứ đối với người làm công vụ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 構内では許可なく撮影すべからず。",
+     "FURIGANA_MISSING: それは公僕として許すべからざる怠慢である。"
+    ],
+    "formation": "Vる + べからず; Vる + べからざる + N",
+    "locked_fields": [],
+    "meaning_vi": "Cấm / không được (văn ngôn); không thể chấp nhận",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cấm / không được (văn ngôn); không thể chấp nhận",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: べからず cấm ở cuối câu; べからざる làm định ngữ ‘không được phép / không thể thiếu’. Cách dùng: べからず là lệnh cấm văn ngôn, hay trên biển, nội quy: không được chụp, không được vào. Kết thúc câu, không chia thì. べからざる đứng trước danh từ: hành vi không thể dung thứ, công đoạn không thể thiếu (欠くべからざる). する thường thành すべからず. Giọng cổ, cứng, công cộng; không dùng để cấm trẻ trong nhà (hãy dùng てはいけない). べからず không biến thành べからざる khi kết thúc câu, và ngược lại べからざる không đứng một mình làm vị ngữ hoàn chỉnh trong tiếng hiện đại. Sắc thái: Răn đe, chuẩn mực. 許すべからざる nặng về đạo lý, pháp lý. 欠くべからざる lại tích cực: thứ bắt buộc phải có. Cùng hình thức べからざる nên đọc đúng danh từ đi sau. Lưu ý: べからず: kết câu. べからざる: trước danh từ. Không đảo vị trí. する → すべからず là dạng văn ngôn chuẩn. Không dùng hội thoại gia đình; nghe như biển cấm hoặc văn bản."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-dda5d56cbb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "突然の失業で落ち込む彼の気持ちは、想像するにかたくない。",
+       "ja_furigana": "突然(とつぜん)の失業(しつぎょう)で落(お)ち込(こ)む彼(かれ)の気持(きも)ちは、想像(そうぞう)するにかたくない。",
+       "vi": "Tâm trạng suy sụp của anh ấy khi đột ngột mất việc là điều không khó hình dung."
+      },
+      {
+       "ja": "残業続きの社員の不満は、理解するにかたくない。",
+       "ja_furigana": "残業続(ざんぎょうつづ)きの社員(しゃいん)の不満(ふまん)は、理解(りかい)するにかたくない。",
+       "vi": "Nỗi bất mãn của nhân viên vì tăng ca liên miên là điều không khó hiểu."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "十年かけて育てた企画が直前で凍結された担当者の落胆は、想像するにかたくない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nỗi chán nản của người phụ trách khi đề án nuôi mười năm bị đóng băng sát giờ là điều không khó tưởng tượng."
+     },
+     {
+      "ja": "夜間工事が続く沿線住民の不満は、理解するにかたくない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bất mãn của dân dọc tuyến khi công trình đêm kéo dài là điều không khó hiểu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 十年かけて育てた企画が直前で凍結された担当者の落胆は、想像するにかたくない。",
+     "FURIGANA_MISSING: 夜間工事が続く沿線住民の不満は、理解するにかたくない。"
+    ],
+    "formation": "Vる + にかたくない; N + にかたくない",
+    "locked_fields": [],
+    "meaning_vi": "Không khó để (tưởng tượng / hiểu / đoán)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không khó để (tưởng tượng / hiểu / đoán)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nói rằng việc hình dung, thấu hiểu một tâm trạng hay tình thế là điều dễ, gần như tất yếu. Cách dùng: 〜にかたくない gần như thành ngữ: không khó để tưởng tượng, hiểu, đoán. Chủ ngữ thường là nỗi thất vọng, bất mãn, nghi ngờ của người trong cuộc. Người viết mời độc giả đồng cảm mà không cần kể dài. Văn viết, bình luận, tường thuật; ít nói miệng. Collocation hẹp: 想像するにかたくない, 理解にかたくない, 察するにかたくない là lõi. Gắn động từ tùy tiện như 食べる, 行く sẽ sai. かたくない bắt nguồn từ 難くない; viết kana hay kanji đều gặp, nhưng cụm là cố định, không phải ‘không cứng’. Sắc thái: Đồng cảm, khẳng định nhẹ. Không phải khoe khả năng mà nói ‘ai cũng thấy ngay’. Giọng khách quan, hơi báo chí. Lưu ý: Hầu như chỉ đi với 想像・理解・察する và một số danh từ tương đương (想像にかたくない). Không chia かたい thành 難しくない trong cụm này. Không dùng như khả năng vật lý (×開けるにかたくない với nghĩa ‘dễ mở cửa’)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-27af1b4661"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-032"
+}

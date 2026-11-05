@@ -1,0 +1,582 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "一度失敗したからといって、あきらめる必要はない。",
+       "ja_furigana": "一度(いちど)失敗(しっぱい)したからといって、あきらめる必要(ひつよう)はない。",
+       "vi": "Không phải cứ thất bại một lần là phải từ bỏ."
+      },
+      {
+       "ja": "安いからといって、たくさん買うのはよくない。",
+       "ja_furigana": "安(やす)いからといって、たくさん買(か)うのはよくない。",
+       "vi": "Không phải cứ rẻ là mua nhiều, như thế không tốt."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "値段が高いからといって、必ずしも品質が優れているとは限らない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ vì giá cao không có nghĩa là chất lượng chắc chắn tốt."
+     },
+     {
+      "ja": "親しい友人だからといって、何でも頼んでよいわけではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không phải cứ là bạn thân thì có thể nhờ bất cứ việc gì."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 値段が高いからといって、必ずしも品質が優れているとは限らない。",
+     "FURIGANA_MISSING: 親しい友人だからといって、何でも頼んでよいわけではない。"
+    ],
+    "formation": "thể thường + からといって",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ vì… không có nghĩa là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chỉ vì... không có nghĩa là",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Bác bỏ một kết luận đơn giản được suy ra chỉ từ lý do đứng trước. Cách dùng: 〜からといって nêu một lý do mà ai đó có thể dùng để đi đến kết luận, sau đó cho biết kết luận ấy không nhất thiết đúng hoặc hành động ấy không được phép. Vế sau thường mang phủ định hay giới hạn, chẳng hạn 〜わけではない, 〜とは限らない, 〜てはいけない hoặc 〜必要はない. Trọng tâm không nằm ở quan hệ nguyên nhân thông thường mà ở việc cảnh báo không nên đánh giá hay hành động chỉ dựa trên một căn cứ. Sắc thái: Thường dùng để phản bác sự khái quát vội vàng, lời biện hộ hoặc quyết định thiếu căn cứ; sắc thái có thể là khuyên nhủ hay phê bình. Lưu ý: Vế sau thường không phải kết quả khẳng định trực tiếp; nó cần bác bỏ hoặc hạn chế suy luận từ vế trước."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-71e24a0e93"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "たとえ雨が降るとしても、試合は行われる。",
+       "ja_furigana": "たとえ雨(あめ)が降(ふ)るとしても、試合(しあい)は行(おこな)われる。",
+       "vi": "Dù có mưa thì trận đấu vẫn diễn ra."
+      },
+      {
+       "ja": "忙しいにしても、連絡ぐらいはできるはずだ。",
+       "ja_furigana": "忙(いそが)しいにしても、連絡(れんらく)ぐらいはできるはずだ。",
+       "vi": "Dù bận đến đâu thì ít nhất cũng có thể liên lạc được chứ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "計画に反対だとしても、まず相手の説明を聞くべきだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho dù phản đối kế hoạch, trước hết vẫn nên nghe đối phương giải thích."
+     },
+     {
+      "ja": "どんな理由があるにしても、無断で欠席するのはよくない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù có lý do gì thì tự ý vắng mặt vẫn không tốt."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 計画に反対だとしても、まず相手の説明を聞くべきだ。",
+     "FURIGANA_MISSING: どんな理由があるにしても、無断で欠席するのはよくない。"
+    ],
+    "formation": "thể thường + としても / N + にしても",
+    "locked_fields": [],
+    "meaning_vi": "Cho dù, ngay cả nếu",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cho dù, ngay cả nếu",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Tạm chấp nhận một giả định nhưng khẳng định phán đoán hoặc yêu cầu sau vẫn không thay đổi. Cách dùng: Các mẫu này tạm thừa nhận một tình huống rồi cho biết kết luận, nghĩa vụ hay đánh giá ở vế sau vẫn giữ nguyên. 〜としても thường đặt một giả định tương đối rõ. 〜にしても cũng có thể lấy một trường hợp làm ví dụ để xem xét. 〜にしろ và 〜にせよ cứng và trang trọng hơn, thường dùng trong lời yêu cầu, phán đoán hoặc cấu trúc liệt kê hai khả năng như AにせよBにせよ. Nội dung sau không bị điều kiện trước làm thay đổi. Sắc thái: Đều mang nghĩa nhượng bộ; にしろ có thể mạnh và trực tiếp hơn, còn にせよ thường có vẻ trang trọng, điềm tĩnh. Lưu ý: Vế sau cần là kết luận vẫn đúng dù giả định ở vế trước được chấp nhận. Trước にしろ／にせよ, vị ngữ danh từ hoặc tính từ な thường dùng である trong cách viết rõ và trang trọng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-654604452a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "もし宝くじが当たったとしたら、何を買いますか。",
+       "ja_furigana": "もし宝(たから)くじが当(あ)たったとしたら、何(なに)を買(か)いますか。",
+       "vi": "Giả sử trúng số, bạn sẽ mua gì?"
+      },
+      {
+       "ja": "この問題が難しいとすれば、試験には出ないだろう。",
+       "ja_furigana": "この問題(もんだい)が難(むずか)しいとすれば、試験(しけん)には出(で)ないだろう。",
+       "vi": "Nếu bài này khó thì chắc không có trong đề thi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "来月転勤するとしたら、今週中に家を探し始めたい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giả sử tháng sau phải chuyển công tác, tôi muốn bắt đầu tìm nhà ngay trong tuần này."
+     },
+     {
+      "ja": "このデータが正しいとすれば、従来の予測を見直す必要がある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu giả định dữ liệu này đúng, chúng ta cần xem xét lại dự báo trước đây."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 来月転勤するとしたら、今週中に家を探し始めたい。",
+     "FURIGANA_MISSING: このデータが正しいとすれば、従来の予測を見直す必要がある。"
+    ],
+    "formation": "thể thường + としたら / とすれば",
+    "locked_fields": [],
+    "meaning_vi": "Giả sử; nếu thực sự đến lúc",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Giả sử; nếu thực sự đến lúc",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Đặt ra một giả định để suy xét hoặc nói về hệ quả khi tình huống ấy trở thành hiện thực. Cách dùng: Nhóm 〜としたら／とすれば／とすると chủ động đặt một tình huống làm giả định để suy luận; とすれば thường thiên về lập luận, còn としたら dễ thể hiện phản ứng cá nhân. Nhóm có なる nhấn mạnh trường hợp tình huống ấy thực sự thành hiện thực hoặc trở thành vấn đề phải đối mặt. となったら hay gợi thời điểm quyết định, となれば nêu điều kiện, còn となると tập trung vào hệ quả tất yếu hoặc vấn đề phát sinh. Sắc thái: Các dạng đều mang tính giả định nhưng khác điểm nhìn; dạng có なる thường khiến tình huống được cảm nhận cụ thể và nghiêm trọng hơn. Lưu ý: Với vị ngữ danh từ hoặc tính từ な trước としたら／とすれば／とすると, cần dùng だ. Chọn biến thể theo trọng tâm là giả định lý luận, phản ứng cá nhân hay hệ quả khi thành hiện thực."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5b0a52b85b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "何度も注意したにもかかわらず、彼は同じミスをした。",
+       "ja_furigana": "何度(なんど)も注意(ちゅうい)したにもかかわらず、彼(かれ)は同(おな)じミスをした。",
+       "vi": "Dù đã nhắc nhở nhiều lần, anh ấy vẫn mắc lỗi cũ."
+      },
+      {
+       "ja": "休日にもかかわらず、医者は病院に来てくれた。",
+       "ja_furigana": "休日(きゅうじつ)にもかかわらず、医者(いしゃ)は病院(びょういん)に来(き)てくれた。",
+       "vi": "Dù là ngày nghỉ, bác sĩ vẫn đến bệnh viện."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "雨が強く降っているにもかかわらず、試合は予定どおり行われた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mặc dù trời đang mưa lớn, trận đấu vẫn diễn ra đúng kế hoạch."
+     },
+     {
+      "ja": "彼は初参加であるにもかかわらず、会議を落ち着いて進行した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù đây là lần đầu tham gia, anh ấy vẫn điều hành cuộc họp rất bình tĩnh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 雨が強く降っているにもかかわらず、試合は予定どおり行われた。",
+     "FURIGANA_MISSING: 彼は初参加であるにもかかわらず、会議を落ち着いて進行した。"
+    ],
+    "formation": "thể thường(Aな → Aな / N → Nである) + にもかかわらず",
+    "locked_fields": [],
+    "meaning_vi": "Mặc dù, bất chấp",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Mặc dù, bất chấp",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả kết quả trái với điều thường được dự đoán từ sự việc đứng trước. Cách dùng: Mẫu này nối hai sự việc có quan hệ tương phản: từ vế trước, người nói thông thường sẽ dự đoán một kết quả khác, nhưng vế sau lại xảy ra. Nó thích hợp khi trình bày một sự thật khách quan, nhận xét có căn cứ hoặc tình huống đáng ngạc nhiên. Vế trước có thể là hành động, trạng thái hay danh từ. Trong văn viết và lời nói trang trọng, mẫu này được dùng nhiều hơn 〜のに. Sắc thái: Sắc thái khá trang trọng và thiên về mô tả khách quan; đôi khi hàm ý ngạc nhiên, phê bình hoặc khó hiểu trước sự trái ngược. Lưu ý: Hai vế cần tạo ra một sự trái ngược có ý nghĩa, không chỉ là quan hệ nguyên nhân–kết quả thông thường. Trong hội thoại thân mật, 〜のに thường tự nhiên hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-44cd3060b3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は若いながらも、会社の代表として働いている。",
+       "ja_furigana": "彼(かれ)は若(わか)いながらも、会社(かいしゃ)の代表(だいひょう)として働(はたら)いている。",
+       "vi": "Tuy còn trẻ nhưng anh ấy đang làm đại diện công ty."
+      },
+      {
+       "ja": "この機械は古いながらも、まだよく動く。",
+       "ja_furigana": "この機械(きかい)は古(ふる)いながらも、まだよく動(うご)く。",
+       "vi": "Cỗ máy này tuy cũ nhưng vẫn chạy tốt."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "小さな店ながらも、遠方から通う客が多い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tuy là cửa hàng nhỏ nhưng có nhiều khách từ xa tìm đến."
+     },
+     {
+      "ja": "彼は新人でありながら、顧客への説明が非常に丁寧だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mặc dù là nhân viên mới, anh ấy giải thích cho khách hàng rất chu đáo."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 小さな店ながらも、遠方から通う客が多い。",
+     "FURIGANA_MISSING: 彼は新人でありながら、顧客への説明が非常に丁寧だ。"
+    ],
+    "formation": "Vます / Aい / N・Aな + ながら(も)",
+    "locked_fields": [],
+    "meaning_vi": "Mặc dù, tuy vẫn",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Mặc dù, tuy vẫn",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Biểu thị hai đặc điểm hoặc hành động trái ngược cùng tồn tại ở một chủ thể. Cách dùng: Ở nghĩa nhượng bộ, 〜ながら（も） cho biết một trạng thái hay hành động tồn tại dù nó không phù hợp với điều được nêu trước đó. Chủ thể của hai vế thường giống nhau. Với động từ, hình thức giống mẫu chỉ hai hành động đồng thời, nhưng quan hệ ngữ nghĩa quyết định cách hiểu; thêm も làm sắc thái tương phản rõ hơn. Mẫu này xuất hiện nhiều trong văn viết, nhận xét trang trọng và một số cách nói cố định. Sắc thái: Cách nói cô đọng, hơi trang trọng; thường dùng để đánh giá một chủ thể có hai mặt tưởng như khó cùng tồn tại. Lưu ý: Khi diễn tả hai hành động đồng thời đơn thuần, thường không thêm も. Với động từ, hai vế về cơ bản phải có cùng chủ thể."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2fc5048996"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "やめられるものなら、こんな仕事はすぐにやめたい。",
+       "ja_furigana": "やめられるものなら、こんな仕事(しごと)はすぐにやめたい。",
+       "vi": "Nếu có thể nghỉ thì tôi muốn nghỉ ngay công việc thế này."
+      },
+      {
+       "ja": "生まれ変われるものなら、鳥になって空を飛びたい。",
+       "ja_furigana": "生(う)まれ変(か)われるものなら、鳥(とり)になって空(そら)を飛(と)びたい。",
+       "vi": "Nếu được sinh ra lần nữa, tôi muốn thành con chim bay trên trời."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "戻れるものなら、学生時代に戻ってもっと勉強したい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu có thể quay lại, tôi muốn trở về thời sinh viên và học nhiều hơn."
+     },
+     {
+      "ja": "この痛みを代わってあげられるものなら、代わってあげたい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu có thể chịu cơn đau thay em, tôi thật sự muốn làm vậy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 戻れるものなら、学生時代に戻ってもっと勉強したい。",
+     "FURIGANA_MISSING: この痛みを代わってあげられるものなら、代わってあげたい。"
+    ],
+    "formation": "V可能形 + ものなら",
+    "locked_fields": [],
+    "meaning_vi": "Nếu có thể… thì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu có thể... thì",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Giả định một việc khó thực hiện và bày tỏ mong muốn mạnh hoặc lời thách thức. Cách dùng: 〜ものなら thường theo sau động từ khả năng để giả định rằng một việc khó hoặc gần như không thể thực hiện lại trở nên khả thi. Vế sau hay bày tỏ mong muốn tha thiết của người nói, chẳng hạn muốn quay lại quá khứ hay giúp người khác. Trong ngữ cảnh thách thức, mẫu có thể mang nghĩa “nếu làm được thì cứ thử”, cho thấy người nói tin đối phương khó làm nổi. Điều kiện này không dùng cho khả năng bình thường, dễ đạt được. Sắc thái: Hàm ý khả năng rất thấp; tùy vế sau, câu có thể chứa tiếc nuối, ước ao sâu sắc hoặc thái độ thách thức. Lưu ý: Thông thường phải dùng động từ ở thể khả năng trước ものなら. Không thích hợp khi điều kiện là việc thực tế, dễ thực hiện và không có sắc thái đặc biệt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8f80b3b9d0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "実際に食べてみないことには、おいしいかどうか分からない。",
+       "ja_furigana": "実際(じっさい)に食(た)べてみないことには、おいしいかどうか分(わ)からない。",
+       "vi": "Nếu chưa nếm thử thực tế thì không biết ngon hay không."
+      },
+      {
+       "ja": "先生に聞かないことには、答えは分からない。",
+       "ja_furigana": "先生(せんせい)に聞(き)かないことには、答(こた)えは分(わ)からない。",
+       "vi": "Nếu không hỏi thầy giáo thì không biết đáp án."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "現物を見ないことには、買うかどうか決められない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu chưa xem hàng thật thì tôi không thể quyết định có mua hay không."
+     },
+     {
+      "ja": "担当者に確認しないことには、正確な日程はお伝えできません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu chưa xác nhận với người phụ trách, tôi không thể báo lịch trình chính xác."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 現物を見ないことには、買うかどうか決められない。",
+     "FURIGANA_MISSING: 担当者に確認しないことには、正確な日程はお伝えできません。"
+    ],
+    "formation": "Vない + ことには",
+    "locked_fields": [],
+    "meaning_vi": "Nếu không… thì không thể",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu không... thì không thể",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu điều kiện tiên quyết mà thiếu nó thì kết quả sau không thể có hoặc chưa thể xác định. Cách dùng: 〜ないことには đặt ra một hành động hoặc trạng thái tối thiểu phải được thực hiện trước. Nếu điều kiện ấy chưa được đáp ứng, người nói cho rằng không thể hành động, đánh giá, quyết định hay biết kết quả ở vế sau. Vì vậy, vế sau thường mang hình thức phủ định như 〜ない, 〜できない, 〜分からない hoặc một cách nói chỉ sự bất khả thi. Mẫu này nhấn mạnh tính cần thiết của bước đầu tiên hơn một câu điều kiện phủ định thông thường. Sắc thái: Mang ý “trước hết phải làm việc này”; có thể dùng để giải thích giới hạn thực tế hoặc thúc giục người nghe đáp ứng điều kiện cần. Lưu ý: Vế sau về nguyên tắc phải mang nghĩa phủ định, chưa xác định hoặc không thể thực hiện. Không dùng khi vế sau khẳng định một kết quả đã hoàn thành."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b81c1a7c99"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このことを母に言おうものなら、きっと心配するに決まっている。",
+       "ja_furigana": "このことを母(はは)に言(い)おうものなら、きっと心配(しんぱい)するに決(き)まっている。",
+       "vi": "Chỉ cần lỡ nói chuyện này với mẹ là chắc chắn mẹ sẽ lo."
+      },
+      {
+       "ja": "遅刻しようものなら、部長にひどく注意される。",
+       "ja_furigana": "遅刻(ちこく)しようものなら、部長(ぶちょう)にひどく注意(ちゅうい)される。",
+       "vi": "Chỉ cần lỡ đi muộn là sẽ bị trưởng phòng nhắc nhở dữ dội."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この機密を外部に漏らそうものなら、会社の信用は一瞬で失われる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu lỡ tiết lộ bí mật này ra ngoài, uy tín công ty sẽ mất trong chớp mắt."
+     },
+     {
+      "ja": "今ここで弱音を吐こうものなら、仲間まで不安にさせてしまう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu lúc này mà buông lời yếu đuối, tôi sẽ khiến cả đồng đội bất an."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この機密を外部に漏らそうものなら、会社の信用は一瞬で失われる。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: この機密を外部に漏らそうものなら、会社の信用は一瞬で失われる。 → 密",
+     "FURIGANA_MISSING: 今ここで弱音を吐こうものなら、仲間まで不安にさせてしまう。"
+    ],
+    "formation": "V意向形(よう) + ものなら",
+    "locked_fields": [],
+    "meaning_vi": "Nếu lỡ mà làm… thì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu lỡ mà làm... thì",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Cảnh báo hậu quả nghiêm trọng nếu một hành động không nên làm xảy ra. Cách dùng: Mẫu này đặt sau thể ý chí của động từ để giả định một hành động mà người nói cho là nguy hiểm, sai trái hoặc không nên xảy ra. Vế sau nêu hậu quả xấu, nghiêm trọng hay khó cứu vãn nếu ai đó lỡ thực hiện hành động ấy. Đây không phải lời rủ rê dù có dùng thể ý chí; toàn cụm mang chức năng cảnh báo mạnh. Cách diễn đạt thường gặp trong văn viết, lời kể kịch tính hoặc lời nói có cảm xúc rõ. Sắc thái: Tạo cảm giác “chỉ cần lỡ làm là hậu quả sẽ lớn”; thường chứa sự lo sợ, đe dọa hoặc phê phán. Lưu ý: Vế sau cần là hậu quả bất lợi hoặc phản ứng nghiêm trọng. Không nhầm thể ý chí + ものなら với thể khả năng + ものなら dùng cho mong muốn khó thành."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fb42711dc8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "社長を抜きにしては、この会社の将来は話せない。",
+       "ja_furigana": "社長(しゃちょう)を抜(ぬ)きにしては、この会社(かいしゃ)の将来(しょうらい)は話(はな)せない。",
+       "vi": "Nếu không có giám đốc thì không thể nói về tương lai công ty này."
+      },
+      {
+       "ja": "先生の指導を抜きにしては、この結果は考えられない。",
+       "ja_furigana": "先生(せんせい)の指導(しどう)を抜(ぬ)きにしては、この結果(けっか)は考(かんが)えられない。",
+       "vi": "Nếu không có sự hướng dẫn của thầy thì không thể nghĩ đến kết quả này."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "地域住民の協力を抜きにしては、この祭りを続けることはできない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu thiếu sự hợp tác của cư dân địa phương thì không thể duy trì lễ hội này."
+     },
+     {
+      "ja": "安全性の検証を抜きにしては、新製品の発売は認められない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu bỏ qua việc kiểm chứng độ an toàn thì không thể chấp thuận bán sản phẩm mới."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 地域住民の協力を抜きにしては、この祭りを続けることはできない。",
+     "FURIGANA_MISSING: 安全性の検証を抜きにしては、新製品の発売は認められない。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 安全性の検証を抜きにしては、新製品の発売は認められない。 → 検証"
+    ],
+    "formation": "N + を抜きにしては",
+    "locked_fields": [],
+    "meaning_vi": "Nếu thiếu, nếu không tính đến",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu thiếu, nếu không tính đến",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Khẳng định một yếu tố là thiết yếu, đến mức không có nó thì việc sau không thể thực hiện. Cách dùng: 〜を抜きにしては đưa một danh từ lên làm yếu tố không thể thiếu đối với kết quả ở vế sau. Người nói cho rằng nếu loại bỏ, bỏ qua hoặc không có yếu tố ấy thì không thể hoàn thành, đánh giá hay bàn luận điều gì đó. Vế sau vì thế thường chứa 〜できない, 〜語れない, 〜考えられない và các biểu thức phủ định tương tự. Mẫu thường dùng trong nhận định trang trọng khi nhấn mạnh vai trò của con người, điều kiện hoặc bước kiểm chứng. Sắc thái: Nhấn mạnh mạnh mẽ tính cốt yếu của danh từ đứng trước, chứ không đơn thuần mô tả việc bỏ một thành phần tùy chọn. Lưu ý: Vế sau thường phải mang nghĩa không thể hoặc không đầy đủ. Nếu chỉ yêu cầu bỏ một thành phần như đường hay đá trong đồ uống, dùng N抜きで tự nhiên hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6ff9ccb285"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "英語ができるといっても、あいさつ程度だ。",
+       "ja_furigana": "英語(えいご)ができるといっても、あいさつ程度(ていど)だ。",
+       "vi": "Nói là biết tiếng Anh nhưng cũng chỉ ở mức chào hỏi."
+      },
+      {
+       "ja": "料理が好きだといっても、週に一度作るだけだ。",
+       "ja_furigana": "料理(りょうり)が好(す)きだといっても、週(しゅう)に一度(いちど)作(つく)るだけだ。",
+       "vi": "Nói là thích nấu ăn nhưng tôi chỉ nấu mỗi tuần một lần."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "料理ができるといっても、簡単なスープを作れる程度だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tuy nói là biết nấu ăn, tôi chỉ nấu được món súp đơn giản."
+     },
+     {
+      "ja": "海外勤務といっても、月の半分は日本に戻ってくる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nói là làm việc ở nước ngoài nhưng nửa tháng tôi lại về Nhật."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 料理ができるといっても、簡単なスープを作れる程度だ。",
+     "FURIGANA_MISSING: 海外勤務といっても、月の半分は日本に戻ってくる。"
+    ],
+    "formation": "thể thường + といっても",
+    "locked_fields": [],
+    "meaning_vi": "Tuy nói là, nhưng thực ra",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tuy nói là, nhưng thực ra",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Điều chỉnh một cách gọi hoặc nhận định để người nghe không hiểu nó theo mức độ thông thường. Cách dùng: Mẫu này đưa ra một cách gọi, nhận xét hoặc thông tin rồi ngay sau đó giới hạn ý nghĩa của nó. Người nói muốn báo rằng thực tế không hoàn toàn giống hình dung thông thường mà từ ngữ ở vế trước gợi lên, thường là quy mô nhỏ hơn, mức độ thấp hơn hoặc nội dung khác đi. Vế sau hay có các cách nói cụ thể hóa như 〜程度だ, 〜だけだ hoặc một lời giải thích giúp người nghe hiểu đúng phạm vi. Sắc thái: Có sắc thái đính chính nhẹ nhàng, không phủ nhận hoàn toàn vế trước mà chỉ thu hẹp hoặc giải thích lại nội dung ấy. Lưu ý: Vế sau phải làm rõ giới hạn hay thực chất của nội dung đã nêu, không chỉ kể một kết quả do vế trước gây ra."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-68fc79074a"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-043"
+}

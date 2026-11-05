@@ -1,0 +1,741 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "学生にしたら、毎日の宿題はとても大変だろう。",
+       "ja_furigana": "学生(がくせい)にしたら、毎日(まいにち)の宿題(しゅくだい)はとても大変(たいへん)だろう。",
+       "vi": "Đứng ở góc nhìn học sinh thì bài tập về nhà hằng ngày hẳn rất vất vả."
+      },
+      {
+       "ja": "店員にしたら、お客さんのわがままは困るだろう。",
+       "ja_furigana": "店員(てんいん)にしたら、お客(きゃく)さんのわがままは困(こま)るだろう。",
+       "vi": "Đứng ở phía nhân viên thì việc khách đòi hỏi tùy tiện hẳn rất khó xử."
+      },
+      {
+       "ja": "親にしたら、子どもが海外に行くのはやはり心配だろう。",
+       "ja_furigana": "親(おや)にしたら、子(こ)どもが海外(かいがい)に行(い)くのはやはり心配(しんぱい)だろう。",
+       "source": "AI",
+       "vi": "Đứng ở lập trường bố mẹ thì việc con ra nước ngoài chắc chắn vẫn đáng lo."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "N phải là người hay tổ chức; vế sau là suy nghĩ, cảm nhận (だろう, らしい) chứ không phải ý chí. Khác にとって (đối với – dùng được cho cả vật, trung tính hơn).",
+    "examples": [
+     {
+      "ja": "髪を茶色に染めることなど、私にしたら何でもないことだが、祖父母にすれば許せないことらしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Việc nhuộm màu tóc nâu, với tôi thì chẳng có gì, nhưng trên lập trường của ông bà thì đó là điều không thể tha thứ."
+     },
+     {
+      "ja": "会社の経験が苦しいことがわかっているので、組合側にしても大幅な賃金アップは要求できないだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì hiểu được rằng việc kinh doanh của công ty đang gặp khó khăn nên có vẻ ngay cả với công đoàn thì việc yêu cầu tăng tiền công nhiều cũng không thể."
+     },
+     {
+      "ja": "親にしたら、子どもが海外に行くのはやはり心配だろう。",
+      "ja_furigana": "親(おや)にしたら、子(こ)どもが海外(かいがい)に行(い)くのはやはり心配(しんぱい)だろう。",
+      "source": "AI",
+      "vi": "Đứng ở lập trường bố mẹ thì việc con ra nước ngoài chắc chắn vẫn đáng lo."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 髪を茶色に染めることなど、私にしたら何でもないことだが、祖父母にすれば許せないことらしい。",
+     "FURIGANA_MISSING: 会社の経験が苦しいことがわかっているので、組合側にしても大幅な賃金アップは要求できないだろう。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + にしたら; N + にすれば; N + にしても",
+    "locked_fields": [],
+    "meaning_vi": "Đối lập, đứng trên lập trường",
+    "nuance_vi": "Đứng từ lập trường của người đó mà nhìn thì…; N là người hoặc nhóm người, vế sau nêu suy nghĩ, cảm nhận của họ, thường khác với người nói.",
+    "order_items": [],
+    "pattern": "にしたら",
+    "pattern_variants": [
+     "〜にしたら/すれば/しても"
+    ],
+    "unit_no": 19,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 立場を表す名詞 Ý nghĩa: ～の立場からいえば/いっても→気持ち、考え方 Đối lập, đứng trên lập trường Ví dụ: 1. 髪を茶色に染めることなど、私にしたら何でもないことだが、祖父母にすれば許せないことらしい。 Việc nhuộm màu tóc nâu, với tôi thì chẳng có gì, nhưng trên lập trường của ông bà thì đó là điều không thể tha thứ. 2. 会社の経験が苦しいことがわかっているので、組合側にしても大幅な賃金アップは要求できないだろう。 Vì hiểu được rằng việc kinh doanh của công ty đang gặp khó khăn nên có vẻ ngay cả với công đoàn thì việc yêu cầu tăng tiền công nhiều cũng không thể. 3. 夫は転勤が多い。夫自身は好きで選んだ仕事だからいいだろうが、子どもにしたら、２年ごとに転校させられて嫌だと思っているだろう。私にしても、やむを得ないことと理解はしているが、引っ越しのたびに気が重い。 Chồng tôi chuyển việc nhiều. Bản thân chồng tôi được lựa chọn công việc yêu thích thì tốt thôi nhưng với bọn trẻ thì tôi nghĩ việc bị chuyển trường là điều không hay. Về phía mình, tôi cảm thấy thật nặng nề mỗi khi chuyển nhà dù biết rằng đó là điều không tránh khỏi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7fd1a327d3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "妹は部屋に入ったきり、出てこない。",
+       "ja_furigana": "妹(いもうと)は部屋(へや)に入(はい)ったきり、出(で)てこない。",
+       "vi": "Em gái tôi vào phòng rồi không ra nữa."
+      },
+      {
+       "ja": "大学を出たきり、彼は地元に帰っていない。",
+       "ja_furigana": "大学(だいがく)を出(で)たきり、彼(かれ)は地元(じもと)に帰(かえ)っていない。",
+       "vi": "Từ khi tốt nghiệp đại học, anh ấy chưa từng về quê."
+      },
+      {
+       "ja": "友だちは留学したきり、一度も連絡をくれない。",
+       "ja_furigana": "友(とも)だちは留学(りゅうがく)したきり、一度(いちど)も連絡(れんらく)をくれない。",
+       "source": "AI",
+       "vi": "Bạn tôi đi du học rồi là từ đó chưa một lần liên lạc."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau là phủ định hoặc trạng thái kéo dài (帰ってこない, 連絡がない). Khác 〜たまま (giữ nguyên trạng thái trong lúc làm việc khác). N + きり còn có nghĩa 'chỉ có' (二人きり).",
+    "examples": [
+     {
+      "ja": "母は朝出かけたきり、夜になっても帰ってこない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mẹ tôi đi ra ngoài suốt từ sáng, đã tối rồi vẫn chưa thấy về."
+     },
+     {
+      "ja": "今日は忙しくて昼ご飯を食べる時間もなかった。朝牛乳を飲んだきりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay tôi bận rộn đến mức không có thời gian ăn cơm. Buổi sáng tôi chỉ uống chút sữa thôi."
+     },
+     {
+      "ja": "友だちは留学したきり、一度も連絡をくれない。",
+      "ja_furigana": "友(とも)だちは留学(りゅうがく)したきり、一度(いちど)も連絡(れんらく)をくれない。",
+      "source": "AI",
+      "vi": "Bạn tôi đi du học rồi là từ đó chưa một lần liên lạc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 母は朝出かけたきり、夜になっても帰ってこない。",
+     "FURIGANA_MISSING: 今日は忙しくて昼ご飯を食べる時間もなかった。朝牛乳を飲んだきりだ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vた + きり",
+    "locked_fields": [],
+    "meaning_vi": "Kể từ, sau khi",
+    "nuance_vi": "Sau khi làm việc A thì không có diễn biến tiếp theo như mong đợi, trạng thái cứ thế kéo dài; vế sau thường là phủ định hay trạng thái không thay đổi.",
+    "order_items": [],
+    "pattern": "〜きり",
+    "pattern_variants": [
+     "きり"
+    ],
+    "unit_no": 20,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 動詞のタ形／【これ・それ・あれ】 Ý nghĩa: ①～だけで終わり、本来続くはず後のことがない Kể từ, sau khi Ví dụ: 1. 母は朝出かけたきり、夜になっても帰ってこない。 Mẹ tôi đi ra ngoài suốt từ sáng, đã tối rồi vẫn chưa thấy về. 2. 今日は忙しくて昼ご飯を食べる時間もなかった。朝牛乳を飲んだきりだ。 Hôm nay tôi bận rộn đến mức không có thời gian ăn cơm. Buổi sáng tôi chỉ uống chút sữa thôi. 3. 北原さんは「Tあっ」といったきり、黙り込んでしまった。 Anh Kitahara chỉ “Ơ” một tiếng rồi chìm vào im lặng. 4. 彼と会うのはもうこれっきりにしまう。 Tóm lại là chỉ gặp anh ta lần này thôi nhé. * 祖父は足の骨を折って入院して以来、寝たきりになってしまった。 Ông tôi nằm liệt giường suốt từ sau khi nhập viện vì bị gãy chân. Ý nghĩa: ②～だけ（限定） Chỉ Ví dụ: 1. 父の単身赴任で、母と子二人きりの生活になった。 Bố đi nhận nhiệm vụ 1 mình, chỉ mẹ và 2 đứa con tiếp tục sống. 2. 財布には１０００円きりしかなかった。 Trong ví chỉ còn 1000 yên. * 今時っているお金はこれっきりです。 Giờ tôi chỉ cầm có ngần này tiền thôi. Ý nghĩa: ③ずっと～している（慣用的表現） Suốt Ví dụ: 1. 付きっきりで看病する。 Chăm sóc thường xuyên. 2. 彼はこのごろ部屋にこもり（っ）きりだ。 Dạo này nó cứ rúc ở trong phòng suốt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8063225e20"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "何時間も待たされたあげく、結局面接を受けられなかった。",
+       "ja_furigana": "何時間(なんじかん)も待(ま)たされたあげく、結局(けっきょく)面接(めんせつ)を受(う)けられなかった。",
+       "vi": "Bị bắt chờ mấy tiếng đồng hồ, cuối cùng lại không được phỏng vấn."
+      },
+      {
+       "ja": "兄は友だちとさんざんけんかしたあげく、口もきかなくなった。",
+       "ja_furigana": "兄(あに)は友(とも)だちとさんざんけんかしたあげく、口(くち)もきかなくなった。",
+       "source": "AI",
+       "vi": "Anh tôi cãi nhau dữ dội với bạn rồi cuối cùng không thèm nói chuyện nữa."
+      },
+      {
+       "ja": "長い時間考えたあげく、結局その仕事は断ることにした。",
+       "ja_furigana": "長(なが)い時間(じかん)考(かんが)えたあげく、結局(けっきょく)その仕事(しごと)は断(ことわ)ることにした。",
+       "source": "AI",
+       "vi": "Sau thời gian dài suy nghĩ, cuối cùng tôi quyết định từ chối công việc đó."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Kết quả luôn xấu hoặc đáng tiếc. Khác 末に (trung tính, có thể tốt) và 〜たすえ; không dùng khi quá trình ngắn.",
+    "examples": [
+     {
+      "ja": "さんざん迷ったあげく、何も買わなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "兄は友だちとさんざんけんかしたあげく、口もきかなくなった。",
+      "ja_furigana": "兄(あに)は友(とも)だちとさんざんけんかしたあげく、口(くち)もきかなくなった。",
+      "source": "AI",
+      "vi": "Anh tôi cãi nhau dữ dội với bạn rồi cuối cùng không thèm nói chuyện nữa."
+     },
+     {
+      "ja": "長い時間考えたあげく、結局その仕事は断ることにした。",
+      "ja_furigana": "長(なが)い時間(じかん)考(かんが)えたあげく、結局(けっきょく)その仕事(しごと)は断(ことわ)ることにした。",
+      "source": "AI",
+      "vi": "Sau thời gian dài suy nghĩ, cuối cùng tôi quyết định từ chối công việc đó."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: さんざん迷ったあげく、何も買わなかった。",
+     "FURIGANA_MISSING: さんざん迷ったあげく、何も買わなかった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vた + あげく(に); N の + あげく(に)",
+    "locked_fields": [],
+    "meaning_vi": "Sau bao nhiêu rốt cuộc — Sau một quá trình dài loay hoay thì dẫn tới kết quả, thường không tốt.",
+    "nuance_vi": "Sau một quá trình dài với nhiều khó khăn, do dự hay cãi vã, cuối cùng dẫn đến kết quả không mong muốn; hay đi với さんざん, 長い間.",
+    "order_items": [],
+    "pattern": "挙句(あげく)",
+    "pattern_variants": [
+     "V-た / N の + あげく",
+     "〜あげく"
+    ],
+    "unit_no": 20,
+    "unit_title_vi": null,
+    "usage_vi": "Khác với 末に (trung tính hoặc tốt) ở chỗ あげく hầu như luôn tiêu cực."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9f9f613812"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "こんな難しい問題を一人で解くなんて、すごいね。",
+       "ja_furigana": "こんな難(むずか)しい問題(もんだい)を一人(ひとり)で解(と)くなんて、すごいね。",
+       "vi": "Giải một bài khó thế này một mình, giỏi thật đấy."
+      },
+      {
+       "ja": "まさか彼が会社を辞めるなんて、思わなかった。",
+       "ja_furigana": "まさか彼(かれ)が会社(かいしゃ)を辞(や)めるなんて、思(おも)わなかった。",
+       "vi": "Không ngờ anh ấy lại nghỉ việc ở công ty."
+      },
+      {
+       "ja": "あんなに元気だった祖父が入院するなんて、思ってもいなかった。",
+       "ja_furigana": "あんなに元気(げんき)だった祖父(そふ)が入院(にゅういん)するなんて、思(おも)ってもいなかった。",
+       "source": "AI",
+       "vi": "Tôi không hề nghĩ ông nội khỏe mạnh như vậy mà lại phải nhập viện."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau thường là cảm xúc, đánh giá hoặc bỏ lửng. Khác なんか (coi nhẹ danh từ đi trước). なんて ở cuối câu bày tỏ sự ngạc nhiên, không phải câu hỏi.",
+    "examples": [
+     {
+      "ja": "日本での生活はこんなに忙しいとは（夢にも思わなかった）。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không ngờ ở Nhật, cuộc sống lại bận rộn thế này."
+     },
+     {
+      "ja": "セミットの警備がこんなに厳重とは（知らなかった）。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bảo mật của hội nghị thượng đỉnh nghiêm ngặt đến mức không hề hay biết luôn."
+     },
+     {
+      "ja": "あんなに元気だった祖父が入院するなんて、思ってもいなかった。",
+      "ja_furigana": "あんなに元気(げんき)だった祖父(そふ)が入院(にゅういん)するなんて、思(おも)ってもいなかった。",
+      "source": "AI",
+      "vi": "Tôi không hề nghĩ ông nội khỏe mạnh như vậy mà lại phải nhập viện."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 日本での生活はこんなに忙しいとは（夢にも思わなかった）。",
+     "FURIGANA_MISSING: セミットの警備がこんなに厳重とは（知らなかった）。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + なんて; N + なんて",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị cảm giác ngạc nhiên, ngoài tưởng tượng",
+    "nuance_vi": "Diễn tả ngạc nhiên, bất ngờ, có khi kèm coi nhẹ hay cảm xúc mạnh; mang tính văn nói, trong văn viết dùng とは.",
+    "order_items": [],
+    "pattern": "なんて",
+    "pattern_variants": [
+     "〜なんて/とは"
+    ],
+    "unit_no": 21,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞／【動詞・イ形容詞・ナ形容詞】の普通形ただし、ナ形容詞現在形の「だ」は省略可 Ý nghĩa: ～というのは→驚き、意外等の感情 Biểu thị cảm giác ngạc nhiên, ngoài tưởng tượng Ví dụ: 1. 日本での生活はこんなに忙しいとは（夢にも思わなかった）。 Không ngờ ở Nhật, cuộc sống lại bận rộn thế này. 2. セミットの警備がこんなに厳重とは（知らなかった）。 Bảo mật của hội nghị thượng đỉnh nghiêm ngặt đến mức không hề hay biết luôn. 3. ３億円の宝くじが当たったとは（うらやまし）！ Mình cũng thèm được trúng số 100 triệu yên như thế! 4. 「あの二人が離婚するなんて！あんなに仲が良かったのに」 Có chuyện 2 người ly hôn sao! Một chuyện tình đẹp thế mà…"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7f1f0796af"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このままでは、会社が倒産しかねない。",
+       "ja_furigana": "このままでは、会社(かいしゃ)が倒産(とうさん)しかねない。",
+       "vi": "Cứ thế này thì công ty có thể phá sản."
+      },
+      {
+       "ja": "寝不足のまま運転すると、大きな事故につながりかねない。",
+       "ja_furigana": "寝不足(ねぶそく)のまま運転(うんてん)すると、大(おお)きな事故(じこ)につながりかねない。",
+       "source": "AI",
+       "vi": "Nếu lái xe khi thiếu ngủ thì có thể dẫn đến tai nạn lớn."
+      },
+      {
+       "ja": "あの人は怒りっぽいから、ちょっとしたことで大声を出しかねない。",
+       "ja_furigana": "あの人(ひと)は怒(おこ)りっぽいから、ちょっとしたことで大声(おおごえ)を出(だ)しかねない。",
+       "source": "AI",
+       "vi": "Người đó hay cáu nên chỉ chuyện nhỏ cũng có thể hét lên."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ dùng cho kết quả xấu, không dùng cho việc tốt (sai: 合格しかねない). Đừng nhầm với かねる (không thể, từ chối lịch sự): かねない nghĩa là 'có thể làm / xảy ra'.",
+    "examples": [
+     {
+      "ja": "そんな運転では事故を起こしかねない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "寝不足のまま運転すると、大きな事故につながりかねない。",
+      "ja_furigana": "寝不足(ねぶそく)のまま運転(うんてん)すると、大(おお)きな事故(じこ)につながりかねない。",
+      "source": "AI",
+      "vi": "Nếu lái xe khi thiếu ngủ thì có thể dẫn đến tai nạn lớn."
+     },
+     {
+      "ja": "あの人は怒りっぽいから、ちょっとしたことで大声を出しかねない。",
+      "ja_furigana": "あの人(ひと)は怒(おこ)りっぽいから、ちょっとしたことで大声(おおごえ)を出(だ)しかねない。",
+      "source": "AI",
+      "vi": "Người đó hay cáu nên chỉ chuyện nhỏ cũng có thể hét lên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: そんな運転では事故を起こしかねない。",
+     "FURIGANA_MISSING: そんな運転では事故を起こしかねない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vます(bỏ ます) + かねない",
+    "locked_fields": [],
+    "meaning_vi": "Có thể dẫn đến (điều xấu) — Khả năng xảy ra hậu quả không mong muốn.",
+    "nuance_vi": "Có khả năng xảy ra việc xấu, người nói lo ngại hoặc cảnh báo; không chắc chắn nhưng không thể coi thường.",
+    "order_items": [],
+    "pattern": "兼(か)ねない",
+    "pattern_variants": [
+     "V thể ます (bỏ ます) + かねない"
+    ],
+    "unit_no": 22,
+    "unit_title_vi": null,
+    "usage_vi": "Chỉ dùng cho việc xấu. Đừng nhầm với かねる (không thể làm được)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8ae98e3128"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この病気は人にうつるおそれがある。",
+       "ja_furigana": "この病気(びょうき)は人(ひと)にうつるおそれがある。",
+       "vi": "Căn bệnh này có nguy cơ lây sang người khác."
+      },
+      {
+       "ja": "海が荒れているため、明日の船は出ないおそれがあります。",
+       "ja_furigana": "海(うみ)が荒(あ)れているため、明日(あした)の船(ふね)は出(で)ないおそれがあります。",
+       "source": "AI",
+       "vi": "Do biển động nên ngày mai có khả năng tàu sẽ không chạy."
+      },
+      {
+       "ja": "川の水が増えているので、あふれるおそれがある。",
+       "ja_furigana": "川(かわ)の水(みず)が増(ふ)えているので、あふれるおそれがある。",
+       "source": "AI",
+       "vi": "Nước sông đang dâng lên nên có nguy cơ tràn bờ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ dùng cho điều xấu (台風が来るおそれ), không dùng cho điều tốt. Khác かねない (hành động của người có thể gây ra việc xấu); おそれ dùng cả cho hiện tượng tự nhiên, sự việc.",
+    "examples": [
+     {
+      "ja": "大雨のおそれがあります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "海が荒れているため、明日の船は出ないおそれがあります。",
+      "ja_furigana": "海(うみ)が荒(あ)れているため、明日(あした)の船(ふね)は出(で)ないおそれがあります。",
+      "source": "AI",
+      "vi": "Do biển động nên ngày mai có khả năng tàu sẽ không chạy."
+     },
+     {
+      "ja": "川の水が増えているので、あふれるおそれがある。",
+      "ja_furigana": "川(かわ)の水(みず)が増(ふ)えているので、あふれるおそれがある。",
+      "source": "AI",
+      "vi": "Nước sông đang dâng lên nên có nguy cơ tràn bờ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 大雨のおそれがあります。",
+     "FURIGANA_MISSING: 大雨のおそれがあります。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる/Vない + おそれがある; N の + おそれがある",
+    "locked_fields": [],
+    "meaning_vi": "Có nguy cơ — Cảnh báo khả năng xảy ra điều xấu.",
+    "nuance_vi": "Văn viết, hay gặp trong tin tức, dự báo thời tiết, thông báo; cảnh báo khả năng xảy ra việc xấu dù chưa chắc chắn.",
+    "order_items": [],
+    "pattern": "恐(おそ)れがある",
+    "pattern_variants": [
+     "V từ điển / N の + おそれがある"
+    ],
+    "unit_no": 22,
+    "unit_title_vi": null,
+    "usage_vi": "Chỉ dùng cho việc tiêu cực, hay gặp trong bản tin và cảnh báo."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cd49023dc1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あんな人には、もう何も頼むまい。",
+       "ja_furigana": "あんな人(ひと)には、もう何(なに)も頼(たの)むまい。",
+       "vi": "Với người như thế, tôi sẽ không nhờ vả gì nữa."
+      },
+      {
+       "ja": "彼は誰にも本当のことを話すまいと決めているらしい。",
+       "ja_furigana": "彼(かれ)は誰(だれ)にも本当(ほんとう)のことを話(はな)すまいと決(き)めているらしい。",
+       "vi": "Có vẻ anh ấy quyết không nói sự thật với ai."
+      },
+      {
+       "ja": "二度とあの店には行くまいと心に決めた。",
+       "ja_furigana": "二度(にど)とあの店(みせ)には行(い)くまいと心(こころ)に決(き)めた。",
+       "source": "AI",
+       "vi": "Tôi đã quyết trong lòng là không bao giờ đến cửa hàng đó nữa."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Phải phân biệt: ngôi thứ nhất là ý chí (行くまい), ngôi thứ ba là phỏng đoán (彼は来るまい). Trong văn nói thường thay bằng ないつもり, ないようにする.",
+    "examples": [
+     {
+      "ja": "人の忠告を聞こうとしない彼には、もう何も言うまい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi sẽ không nói gì với người không muốn nghe lời khuyên của mọi người như anh ta nữa."
+     },
+     {
+      "ja": "もう甘いものは食べまいと思っても、ついつい食べてしまう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quyết không ăn đồ ăn ngọt mà lỡ ăn nó mất."
+     },
+     {
+      "ja": "二度とあの店には行くまいと心に決めた。",
+      "ja_furigana": "二度(にど)とあの店(みせ)には行(い)くまいと心(こころ)に決(き)めた。",
+      "source": "AI",
+      "vi": "Tôi đã quyết trong lòng là không bao giờ đến cửa hàng đó nữa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 人の忠告を聞こうとしない彼には、もう何も言うまい。",
+     "FURIGANA_MISSING: もう甘いものは食べまいと思っても、ついつい食べてしまう。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + まい; Vない + まい (する → するまい/しまい, 来る → 来るまい/来まい)",
+    "locked_fields": [],
+    "meaning_vi": "Quyết không",
+    "nuance_vi": "Văn viết, hơi cứng; với ngôi thứ nhất là ý chí phủ định 'quyết không…', với ngôi khác là phỏng đoán 'chắc là không…'.",
+    "order_items": [],
+    "pattern": "〜まい",
+    "pattern_variants": [
+     "まい",
+     "V từ điển + まい"
+    ],
+    "unit_no": 22,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 動詞の普通形ただし、Ⅱ、Ⅲグループはナイ形にも続く Ý nghĩa: ①～するのはやめよう（否定の意志）（書き言葉）主語は基本的には一人称 Quyết không Ý nghĩa: ②～ないだろう（否定の水量）（書き言葉）主語は基本的には三人称） Ví dụ: 1. 人の忠告を聞こうとしない彼には、もう何も言うまい。 Tôi sẽ không nói gì với người không muốn nghe lời khuyên của mọi người như anh ta nữa. 2. もう甘いものは食べまいと思っても、ついつい食べてしまう。 Quyết không ăn đồ ăn ngọt mà lỡ ăn nó mất. 3. 一気飲みなどというばかなこと二度とす（/する）まい。 Tôi sẽ không lặp lại lần thứ hai việc điên rồ như tu một hơi (bia/rượu). 4. 彼女は涙を見せまいとして横を向いた。 Cô ấy quyết không cho thấy rơi nước mắt nên quay ngang đi. 1. 彼は昨日とても具合が悪そうだったから、今日のスポーツ大会には来るまい。 Anh ấy ngày hôm qua tình trạng không được tốt nên hôm nay đại hội thể thao không sẽ không đến. 2. この程度の雨なら、川が氾濫する恐れはあるまい。 Nếu như mưa với mức độ như này thì không lo lắng về việc nước sông tràn bờ. 3. 親は知るまいが、私は高校時代よくたばこを吸って先生に怒られたものだ。 Thời học phổ thông, tuy bố mẹ không biết nhưng tôi thường bị thầy nổi giận vì hút thuốc. 4. 私はもうそれほど長くは生きられまい。 Tôi làm sao có thể sống lâu đến mức đó. * 飢えとはどんなものか、今の日本の子どもたちには理解できないのではあるまいか。（＝～ではないだろうか）（N1)"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cde47d89cb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この成績なら、彼が合格するに相違ない。",
+       "ja_furigana": "この成績(せいせき)なら、彼(かれ)が合格(ごうかく)するに相違(そうい)ない。",
+       "vi": "Với thành tích này thì chắc chắn anh ấy sẽ đỗ."
+      },
+      {
+       "ja": "誰も手伝わないなら、この仕事は明日までに終わらないに相違ない。",
+       "ja_furigana": "誰(だれ)も手伝(てつだ)わないなら、この仕事(しごと)は明日(あした)までに終(お)わらないに相違(そうい)ない。",
+       "vi": "Nếu không ai giúp thì chắc chắn công việc này không xong trước ngày mai."
+      },
+      {
+       "ja": "会議の様子から見て、この計画が採用されるに相違ない。",
+       "ja_furigana": "会議(かいぎ)の様子(ようす)から見(み)て、この計画(けいかく)が採用(さいよう)されるに相違(そうい)ない。",
+       "source": "AI",
+       "vi": "Nhìn tình hình cuộc họp thì chắc chắn kế hoạch này sẽ được chọn."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không dùng trong hội thoại thân mật. Khác に違いない ở độ trang trọng. 相違ありません còn dùng trong giấy tờ để xác nhận 'đúng như vậy'.",
+    "examples": [
+     {
+      "ja": "これだけの証拠がある以上、犯人はあの人の男に相違ないと思われる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có chứng cứ ngần này, thủ phạm chính là thằng đó không sai đâu."
+     },
+     {
+      "ja": "双方が譲歩しなければ、交渉は初列するに相違ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu cả hai bên không nhượng bộ thì chắc chắn cuộc đàm phán sẽ thất bại."
+     },
+     {
+      "ja": "会議の様子から見て、この計画が採用されるに相違ない。",
+      "ja_furigana": "会議(かいぎ)の様子(ようす)から見(み)て、この計画(けいかく)が採用(さいよう)されるに相違(そうい)ない。",
+      "source": "AI",
+      "vi": "Nhìn tình hình cuộc họp thì chắc chắn kế hoạch này sẽ được chọn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: これだけの証拠がある以上、犯人はあの人の男に相違ないと思われる。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: これだけの証拠がある以上、犯人はあの人の男に相違ないと思われる。 → 証拠",
+     "FURIGANA_MISSING: 双方が譲歩しなければ、交渉は初列するに相違ない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + に相違ない; N/Aな + に相違ない",
+    "locked_fields": [],
+    "meaning_vi": "Không sai, chắc chắn",
+    "nuance_vi": "Văn viết, trang trọng hơn に違いない; dùng trong văn bản, báo cáo, phán đoán dựa trên căn cứ.",
+    "order_items": [],
+    "pattern": "に相違(そうい)ない",
+    "pattern_variants": [
+     "〜に相違ない",
+     "Thể thường + に相違ない"
+    ],
+    "unit_no": 22,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞・イ形容詞・ナ形容詞】の普通形ただし、ナ形容詞現在形に「だ」はつかない Ý nghĩa: きっと～だと思う（強い確信）（書き言葉） ＝～違いない（N3) Không sai, chắc chắn Ví dụ: 1. これだけの証拠がある以上、犯人はあの人の男に相違ないと思われる。 Có chứng cứ ngần này, thủ phạm chính là thằng đó không sai đâu. 2. 双方が譲歩しなければ、交渉は初列するに相違ない。 Nếu cả hai bên không nhượng bộ thì chắc chắn cuộc đàm phán sẽ thất bại. 3. 今の状況が続けば今年の収支は赤字になるに相違なく、何らかの対策を立てる必要があります。 Nếu tiếp tục tình trạng này thì chắc chắn thu chi năm nay sẽ thâm hụt, cần phải đưa ra đối sách gì đó. *「これは私のものに相違（/違い）ありません。 Đây chắc chắn là đồ của tôi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-50e25efeaa"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "こんなに雨が降っているから、試合は中止に決まっている。",
+       "ja_furigana": "こんなに雨(あめ)が降(ふ)っているから、試合(しあい)は中止(ちゅうし)に決(き)まっている。",
+       "vi": "Mưa to thế này thì trận đấu chắc chắn bị hủy."
+      },
+      {
+       "ja": "あんなに勉強したのだから、合格するに決まっているよ。",
+       "ja_furigana": "あんなに勉強(べんきょう)したのだから、合格(ごうかく)するに決(き)まっているよ。",
+       "source": "AI",
+       "vi": "Đã học chăm như vậy thì chắc chắn sẽ đỗ."
+      },
+      {
+       "ja": "一人で山に登るなんて、危ないに決まっている。",
+       "ja_furigana": "一人(ひとり)で山(やま)に登(のぼ)るなんて、危(あぶ)ないに決(き)まっている。",
+       "source": "AI",
+       "vi": "Một mình leo núi thì chắc chắn là nguy hiểm rồi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vì rất mạnh nên không dùng trong văn bản trang trọng hay khi nói với người trên. Khác に違いない (có căn cứ suy luận) và に相違ない (cứng hơn).",
+    "examples": [
+     {
+      "ja": "そんな話、嘘に決まっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "あんなに勉強したのだから、合格するに決まっているよ。",
+      "ja_furigana": "あんなに勉強(べんきょう)したのだから、合格(ごうかく)するに決(き)まっているよ。",
+      "source": "AI",
+      "vi": "Đã học chăm như vậy thì chắc chắn sẽ đỗ."
+     },
+     {
+      "ja": "一人で山に登るなんて、危ないに決まっている。",
+      "ja_furigana": "一人(ひとり)で山(やま)に登(のぼ)るなんて、危(あぶ)ないに決(き)まっている。",
+      "source": "AI",
+      "vi": "Một mình leo núi thì chắc chắn là nguy hiểm rồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: そんな話、嘘に決まっている。",
+     "FURIGANA_MISSING: そんな話、嘘に決まっている。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + に決まっている",
+    "locked_fields": [],
+    "meaning_vi": "Chắc chắn là rồi — Khẳng định chủ quan mạnh, giọng văn nói.",
+    "nuance_vi": "Văn nói; khẳng định chủ quan rất mạnh 'chắc chắn là vậy', thường không cần căn cứ rõ ràng, có khi dùng để phản bác.",
+    "order_items": [],
+    "pattern": "に決(き)まっている",
+    "pattern_variants": [
+     "Thể thường + に決まっている"
+    ],
+    "unit_no": 22,
+    "unit_title_vi": null,
+    "usage_vi": "Thân mật hơn に違いない nhiều. Không dùng trong văn bản trang trọng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c833c02a7c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "約束を守らないのは、人として恥ずかしいというものだ。",
+       "ja_furigana": "約束(やくそく)を守(まも)らないのは、人(ひと)として恥(は)ずかしいというものだ。",
+       "vi": "Không giữ lời hứa thì đúng là điều đáng xấu hổ đối với một con người."
+      },
+      {
+       "ja": "困っている人を見て何もしないのは、冷たいというものだ。",
+       "ja_furigana": "困(こま)っている人(ひと)を見(み)て何(なに)もしないのは、冷(つめ)たいというものだ。",
+       "vi": "Thấy người gặp khó khăn mà không làm gì thì đúng là lạnh lùng."
+      },
+      {
+       "ja": "努力もしないで人のせいにばかりするのは、わがままというものだ。",
+       "ja_furigana": "努力(どりょく)もしないで人(ひと)のせいにばかりするのは、わがままというものだ。",
+       "source": "AI",
+       "vi": "Không chịu nỗ lực mà chỉ toàn đổ lỗi cho người khác thì đúng là ích kỷ."
+      }
+     ],
+     "meaning_vi": "Đúng là…, thật là… (khẳng định mạnh một cách đánh giá)."
+    },
+    "note": "viết lại câu chép nguồn, sửa nghĩa"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Khác というものではない/というものでもない (phủ định 'không hẳn là'): というものだ là khẳng định 'đúng là…'. Không dùng cho sự thật đơn giản, cần có đánh giá của người nói.",
+    "examples": [
+     {
+      "ja": "初対面なのにあれこれ個人的なことを聞くのは失礼というものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lần đầu gặt mặt, à cứ hỏi suốt thông tin cá nhân, thật bất lịch sự."
+     },
+     {
+      "ja": "学歴がないから能力がないという見方があるが、それは偏見というものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cứ không có bằng cấp là không có năng lực là cách nghĩ đầy thành kiến."
+     },
+     {
+      "ja": "努力もしないで人のせいにばかりするのは、わがままというものだ。",
+      "ja_furigana": "努力(どりょく)もしないで人(ひと)のせいにばかりするのは、わがままというものだ。",
+      "source": "AI",
+      "vi": "Không chịu nỗ lực mà chỉ toàn đổ lỗi cho người khác thì đúng là ích kỷ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 初対面なのにあれこれ個人的なことを聞くのは失礼というものだ。",
+     "FURIGANA_MISSING: 学歴がないから能力がないという見方があるが、それは偏見というものだ。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 学歴がないから能力がないという見方があるが、それは偏見というものだ。 → 偏見",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + というものだ",
+    "locked_fields": [],
+    "meaning_vi": "Không hẳn là, không thể nói là",
+    "nuance_vi": "Người nói đưa ra đánh giá, nhận định chắc chắn về bản chất của sự việc, thường là phê bình hoặc cảm thán.",
+    "order_items": [],
+    "pattern": "と言(い)うものだ",
+    "pattern_variants": [
+     "〜というものだ",
+     "Thể thường + というものだ"
+    ],
+    "unit_no": 23,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞／【動詞・イ形容詞・ナ形容詞】の普通形ただし、ナ形容詞現在形に「だ」はつかない Ý nghĩa: 全く～だ（断定、強調） Ví dụ: 1. 初対面なのにあれこれ個人的なことを聞くのは失礼というものだ。 Lần đầu gặt mặt, à cứ hỏi suốt thông tin cá nhân, thật bất lịch sự. 2. 学歴がないから能力がないという見方があるが、それは偏見というものだ。 Cứ không có bằng cấp là không có năng lực là cách nghĩ đầy thành kiến. 3. 初恋の人と結婚するなんて、それこそ珍しいというものだ。 Kết hôn với người yêu đầu, thật là hiếm có đó. 4. 新しい薬の開発にやっと成功した。長年の苦労が報われたというものだ。 Việc phát triển loại thuốc mới cuối cùng đã thành công. Đúng là bõ công những tháng ngày dài vất vả. ～というものでは／もない Ý nghĩa: ～とは言い切れない Không hẳn là, không thể nói là Ví dụ: 1. 作文は長ければいいというものではない。中身が大切だ。 Không thể nói đoạn văn dài là tốt. Nội dung mới là quan trọng. 2. 塾に行きさえすれば成績が上がるというものではない。 Không phải cứ đi học thêm là thành tích sẽ được cải thiện. 3. 社会の中で生活している以上、自分さえよければそれでいいというものではないかろう。 Một khi đã sống trong xã hội, không phải cứ tốt cho bản thân là được. 4. 犬っているから不健康というものでもないだろう。 Không phải cứ béo là không khỏe."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ac95ddc4c8"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-008"
+}

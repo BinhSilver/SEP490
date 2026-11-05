@@ -1,0 +1,736 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このレストランは、店の外観からして高そうに見える。",
+       "ja_furigana": "このレストランは、店(みせ)の外観(がいかん)からして高(たか)そうに見(み)える。",
+       "vi": "Nhà hàng này, ngay từ vẻ ngoài của cửa tiệm đã trông có vẻ đắt tiền rồi."
+      },
+      {
+       "ja": "彼は話し方からして優しそうだ。",
+       "ja_furigana": "彼(かれ)は話(はな)し方(かた)からして優(やさ)しそうだ。",
+       "vi": "Anh ấy ngay từ cách nói chuyện đã có vẻ dịu dàng."
+      },
+      {
+       "ja": "この店は入り口からして汚くて、入る気にならなかった。",
+       "ja_furigana": "この店(みせ)は入(い)り口(ぐち)からして汚(きたな)くて、入(はい)る気(き)にならなかった。",
+       "source": "AI",
+       "vi": "Cửa hàng này ngay từ lối vào đã bẩn rồi, nên tôi không muốn vào."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dễ nhầm với 〜から見て/〜からすると (đánh giá dựa trên căn cứ): からして nhấn mạnh 'ngay cả chi tiết đầu tiên, nhỏ nhất cũng đã như vậy', nên vế sau hay là kết luận tiêu cực về toàn thể. Không dùng để nêu số liệu trung tính.",
+    "examples": [
+     {
+      "ja": "金持ちの彼女は持ち物からして私たちとは違う。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người giàu như cô ấy bắt đầu từ những vật mang theo, toàn bộ đã khác với chúng tôi."
+     },
+     {
+      "ja": "あの子は口のきき方からして反抗的だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đứa trẻ đó ngay cả cách ăn nói cũng mang tính phản kháng rồi."
+     },
+     {
+      "ja": "この店は入り口からして汚くて、入る気にならなかった。",
+      "ja_furigana": "この店(みせ)は入(い)り口(ぐち)からして汚(きたな)くて、入(はい)る気(き)にならなかった。",
+      "source": "AI",
+      "vi": "Cửa hàng này ngay từ lối vào đã bẩn rồi, nên tôi không muốn vào."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 金持ちの彼女は持ち物からして私たちとは違う。",
+     "FURIGANA_MISSING: あの子は口のきき方からして反抗的だ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + からして",
+    "locked_fields": [],
+    "meaning_vi": "Bắt đầu từ... và toàn bộ những thứ khác",
+    "nuance_vi": "Lấy một chi tiết nhỏ, dễ thấy làm ví dụ tiêu biểu để đánh giá cả đối tượng; thường dùng khi chê hoặc nhận xét, văn nói và văn viết đều được.",
+    "order_items": [],
+    "pattern": "〜からして",
+    "pattern_variants": [
+     "N + からして"
+    ],
+    "unit_no": 1,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞 Ý nghĩa: ～をはじめとして他も全部 Bắt đầu từ... và toàn bộ những thứ khác Ví dụ: 1. 金持ちの彼女は持ち物からして私たちとは違う。 Người giàu như cô ấy bắt đầu từ những vật mang theo, toàn bộ đã khác với chúng tôi. 2. あの子は口のきき方からして反抗的だ。 Đứa trẻ đó ngay cả cách ăn nói cũng mang tính phản kháng rồi. 3. 「君の論は前提からして間違っている」 Lập luận của em sai ngay từ phần giả định rồi. 4. そのホテルは大理石のロビーからして豪華だった。 Khách sạn đó hào nhoáng, từ hành lang đá cẩm thạch đi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c0cb0dc65c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "入学に際して、必要な書類を出してください。",
+       "ja_furigana": "入学(にゅうがく)に際(さい)して、必要(ひつよう)な書類(しょるい)を出(だ)してください。",
+       "vi": "Nhân dịp nhập học, hãy nộp các giấy tờ cần thiết."
+      },
+      {
+       "ja": "新しい店を開くに際して、近所の人たちにあいさつに回った。",
+       "ja_furigana": "新(あたら)しい店(みせ)を開(ひら)くに際(さい)して、近所(きんじょ)の人(ひと)たちにあいさつに回(まわ)った。",
+       "source": "AI",
+       "vi": "Nhân dịp mở cửa hàng mới, tôi đã đi chào hỏi hàng xóm."
+      },
+      {
+       "ja": "契約に際して、必要な書類をすべて確認してください。",
+       "ja_furigana": "契約(けいやく)に際(さい)して、必要(ひつよう)な書類(しょるい)をすべて確認(かくにん)してください。",
+       "source": "AI",
+       "vi": "Khi ký hợp đồng, xin hãy kiểm tra tất cả giấy tờ cần thiết."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không dùng cho việc thường ngày (sai: 朝ご飯を食べるに際して). Gần nghĩa に当たって nhưng に際して nhấn mạnh 'đúng vào lúc xảy ra', còn に当たって nhấn mạnh 'trước khi bắt đầu, chuẩn bị'; khác 際に (không đi với の và chỉ là thời điểm đơn giản).",
+    "examples": [
+     {
+      "ja": "卒業に際して、一言申し上げます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "新しい店を開くに際して、近所の人たちにあいさつに回った。",
+      "ja_furigana": "新(あたら)しい店(みせ)を開(ひら)くに際(さい)して、近所(きんじょ)の人(ひと)たちにあいさつに回(まわ)った。",
+      "source": "AI",
+      "vi": "Nhân dịp mở cửa hàng mới, tôi đã đi chào hỏi hàng xóm."
+     },
+     {
+      "ja": "契約に際して、必要な書類をすべて確認してください。",
+      "ja_furigana": "契約(けいやく)に際(さい)して、必要(ひつよう)な書類(しょるい)をすべて確認(かくにん)してください。",
+      "source": "AI",
+      "vi": "Khi ký hợp đồng, xin hãy kiểm tra tất cả giấy tờ cần thiết."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 卒業に際して、一言申し上げます。",
+     "FURIGANA_MISSING: 卒業に際して、一言申し上げます。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + に際して; N + に際して",
+    "locked_fields": [],
+    "meaning_vi": "Nhân dịp, khi — Vào đúng dịp làm một việc quan trọng.",
+    "nuance_vi": "Trang trọng, dùng trong văn viết và lời phát biểu; chỉ dịp quan trọng đúng lúc bắt đầu hoặc đang thực hiện một việc lớn, thường theo sau là lời chào, cảm ơn hoặc lưu ý.",
+    "order_items": [],
+    "pattern": "に際(さい)して",
+    "pattern_variants": [
+     "V từ điển / N + に際して",
+     "〜に際して/際し"
+    ],
+    "unit_no": 1,
+    "unit_title_vi": null,
+    "usage_vi": "Chỉ dùng cho dịp đặc biệt, không dùng cho việc thường ngày. Trang trọng, hay gặp trong diễn văn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-73d7edfcf0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "留学するに当たって、いろいろな準備をした。",
+       "ja_furigana": "留学(りゅうがく)するに当(あ)たって、いろいろな準備(じゅんび)をした。",
+       "vi": "Trước khi đi du học, tôi đã chuẩn bị đủ thứ."
+      },
+      {
+       "ja": "海外で働くに当たって、まず語学の勉強を始めた。",
+       "ja_furigana": "海外(かいがい)で働(はたら)くに当(あ)たって、まず語学(ごがく)の勉強(べんきょう)を始(はじ)めた。",
+       "source": "AI",
+       "vi": "Trước khi đi làm ở nước ngoài, trước hết tôi bắt đầu học ngoại ngữ."
+      },
+      {
+       "ja": "一人暮らしを始めるに当たって、両親にいろいろ相談した。",
+       "ja_furigana": "一人暮(ひとりぐ)らしを始(はじ)めるに当(あ)たって、両親(りょうしん)にいろいろ相談(そうだん)した。",
+       "source": "AI",
+       "vi": "Trước khi bắt đầu sống một mình, tôi đã bàn bạc nhiều chuyện với bố mẹ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không dùng cho việc không hay như tai nạn, đám tang (sai: 事故に当たって) hay việc nhỏ hằng ngày. Khác に際して ở chỗ に当たって hướng về 'trước khi bắt đầu'; viết 当たって hoặc あたって đều được.",
+    "examples": [
+     {
+      "ja": "新年を迎えるに当たって、目標を立てた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "海外で働くに当たって、まず語学の勉強を始めた。",
+      "ja_furigana": "海外(かいがい)で働(はたら)くに当(あ)たって、まず語学(ごがく)の勉強(べんきょう)を始(はじ)めた。",
+      "source": "AI",
+      "vi": "Trước khi đi làm ở nước ngoài, trước hết tôi bắt đầu học ngoại ngữ."
+     },
+     {
+      "ja": "一人暮らしを始めるに当たって、両親にいろいろ相談した。",
+      "ja_furigana": "一人暮(ひとりぐ)らしを始(はじ)めるに当(あ)たって、両親(りょうしん)にいろいろ相談(そうだん)した。",
+      "source": "AI",
+      "vi": "Trước khi bắt đầu sống một mình, tôi đã bàn bạc nhiều chuyện với bố mẹ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 新年を迎えるに当たって、目標を立てた。",
+     "FURIGANA_MISSING: 新年を迎えるに当たって、目標を立てた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + に当たって; N + に当たって",
+    "locked_fields": [],
+    "meaning_vi": "Trước khi bước vào — Vào thời điểm bắt đầu một việc lớn, thường mang tính tích cực.",
+    "nuance_vi": "Trang trọng, nhấn mạnh sự chuẩn bị hay quyết tâm trước khi bắt đầu việc quan trọng, thường mang sắc thái tích cực; vế sau hay là lời chào, chuẩn bị hoặc lưu ý.",
+    "order_items": [],
+    "pattern": "に当(あ)たって",
+    "pattern_variants": [
+     "V từ điển / N + に当たって",
+     "〜にあたって/あたり",
+     "〜にあたって"
+    ],
+    "unit_no": 1,
+    "unit_title_vi": null,
+    "usage_vi": "Gần với に際して. Không dùng cho việc đã xảy ra hay việc vặt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a515679c9f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "赤ちゃんは笑ったかと思うと、すぐ寝てしまった。",
+       "ja_furigana": "赤(あか)ちゃんは笑(わら)ったかと思(おも)うと、すぐ寝(ね)てしまった。",
+       "vi": "Em bé vừa cười xong thì đã ngủ ngay."
+      },
+      {
+       "ja": "空が暗くなったかと思うと、大粒の雨が降ってきた。",
+       "ja_furigana": "空(そら)が暗(くら)くなったかと思(おも)うと、大粒(おおつぶ)の雨(あめ)が降(ふ)ってきた。",
+       "vi": "Bầu trời vừa tối sầm lại thì mưa hạt lớn đổ xuống."
+      },
+      {
+       "ja": "弟は怒っていたかと思うと、もう笑っておもちゃで遊んでいる。",
+       "ja_furigana": "弟(おとうと)は怒(おこ)っていたかと思(おも)うと、もう笑(わら)っておもちゃで遊(あそ)んでいる。",
+       "source": "AI",
+       "vi": "Em trai tôi vừa mới giận dỗi đó mà đã cười và chơi đồ chơi rồi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng để tả việc người khác hoặc sự vật, không dùng cho hành động của chính mình (sai: 私は帰ったかと思うと…); vế sau không dùng ý chí hay mệnh lệnh. Khác た途端 ở chỗ hai vế thường là trạng thái trái ngược hoặc lặp đi lặp lại.",
+    "examples": [
+     {
+      "ja": "この時期は、晴れていたかと思うと、急に降り出すことがあるから、傘を持っていったら？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thời điểm này, có khi trời vừa nắng xong lại đổ mưa bất chợt, cậu nên mang theo ô đi nhé。"
+     },
+     {
+      "ja": "日曜なのに、お父さん忙しそうだね。さっき戻ったかと思うと、また出かけて行った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù là Chủ Nhật nhưng bố trông có vẻ bận。Lúc nãy mới vừa về, vậy mà lại đi ra ngoài nữa。"
+     },
+     {
+      "ja": "弟は怒っていたかと思うと、もう笑っておもちゃで遊んでいる。",
+      "ja_furigana": "弟(おとうと)は怒(おこ)っていたかと思(おも)うと、もう笑(わら)っておもちゃで遊(あそ)んでいる。",
+      "source": "AI",
+      "vi": "Em trai tôi vừa mới giận dỗi đó mà đã cười và chơi đồ chơi rồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この時期は、晴れていたかと思うと、急に降り出すことがあるから、傘を持っていったら？",
+     "FURIGANA_MISSING: 日曜なのに、お父さん忙しそうだね。さっき戻ったかと思うと、また出かけて行った。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vた + かと思うと; Vた + かと思ったら",
+    "locked_fields": [],
+    "meaning_vi": "Vừa mới thế này thì đã thế khác ngay.",
+    "nuance_vi": "Mang cảm giác ngạc nhiên khi chứng kiến sự thay đổi liên tiếp; hay dùng khi nói về trẻ con, thời tiết hay người hay thay đổi.",
+    "order_items": [],
+    "pattern": "かと思(おも)うと",
+    "pattern_variants": [
+     "〜かと思うと"
+    ],
+    "unit_no": 1,
+    "unit_title_vi": null,
+    "usage_vi": "Người nói quan sát thấy một thay đổi diễn ra rất nhanh: vừa có việc A thì ngay sau đó xuất hiện việc B khác hẳn hoặc đối lập."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1703b7bb03"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "電車のドアが開くか開かないかのうちに、多くの人が乗り込んだ。",
+       "ja_furigana": "電車(でんしゃ)のドアが開(あ)くか開(あ)かないかのうちに、多(おお)くの人(ひと)が乗(の)り込(こ)んだ。",
+       "vi": "Cửa tàu điện vừa hé mở thì nhiều người đã ùa lên."
+      },
+      {
+       "ja": "試合が始まるか始まらないかのうちに、雨が降り出した。",
+       "ja_furigana": "試合(しあい)が始(はじ)まるか始(はじ)まらないかのうちに、雨(あめ)が降(ふ)り出(だ)した。",
+       "vi": "Trận đấu vừa bắt đầu thì trời đổ mưa."
+      },
+      {
+       "ja": "授業が終わるか終わらないかのうちに、学生たちは教室を飛び出していった。",
+       "ja_furigana": "授業(じゅぎょう)が終(お)わるか終(お)わらないかのうちに、学生(がくせい)たちは教室(きょうしつ)を飛(と)び出(だ)していった。",
+       "source": "AI",
+       "vi": "Giờ học vừa kết thúc, hay đúng hơn là chưa kịp kết thúc, thì các học sinh đã lao ra khỏi lớp."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Phải lặp lại cùng một động từ ở dạng khẳng định và phủ định (開くか開かないか), không ghép hai động từ khác nhau. Vế sau không dùng ý chí, mệnh lệnh. Khác た途端: た途端 là sau khi đã xong, còn mẫu này là lúc chưa kịp xong.",
+    "examples": [
+     {
+      "ja": "デパートのドアが開くか開かないかのうちに、待っていた客たちはバーゲン会場に殺到した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cánh cửa siêu thị trong khoảnh khắc cửa từ đóng sang mở, khách đang chờ ồ ạt vào mua hàng giảm giá."
+     },
+     {
+      "ja": "けがをしたところが治ったか治らないかのうちに、また同じところを切ってしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vết thương vừa kịp lành thì tôi đã cứa vào đúng chỗ đó luôn rồi."
+     },
+     {
+      "ja": "授業が終わるか終わらないかのうちに、学生たちは教室を飛び出していった。",
+      "ja_furigana": "授業(じゅぎょう)が終(お)わるか終(お)わらないかのうちに、学生(がくせい)たちは教室(きょうしつ)を飛(と)び出(だ)していった。",
+      "source": "AI",
+      "vi": "Giờ học vừa kết thúc, hay đúng hơn là chưa kịp kết thúc, thì các học sinh đã lao ra khỏi lớp."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: デパートのドアが開くか開かないかのうちに、待っていた客たちはバーゲン会場に殺到した。",
+     "FURIGANA_MISSING: けがをしたところが治ったか治らないかのうちに、また同じところを切ってしまった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + か + Vない + か + の内に",
+    "locked_fields": [],
+    "meaning_vi": "Ngay lập tức, gần như đồng thời",
+    "nuance_vi": "Nhấn mạnh việc sau xảy ra ngay khi việc trước chưa kịp xong hoặc vừa mới bắt đầu; ranh giới thời điểm rất mong manh, thiên về văn viết và miêu tả.",
+    "order_items": [],
+    "pattern": "か〜ないかの内(うち)に",
+    "pattern_variants": [
+     "〜か〜ないかのうちに"
+    ],
+    "unit_no": 1,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 動詞の【辞書形・タ形】（か）動詞のナイ形（かのうちに） Ý nghĩa: すぐに、ほとんど同時に Ngay lập tức, gần như đồng thời Ví dụ: 1. デパートのドアが開くか開かないかのうちに、待っていた客たちはバーゲン会場に殺到した。 Cánh cửa siêu thị trong khoảnh khắc cửa từ đóng sang mở, khách đang chờ ồ ạt vào mua hàng giảm giá. 2. けがをしたところが治ったか治らないかのうちに、また同じところを切ってしまった。 Vết thương vừa kịp lành thì tôi đã cứa vào đúng chỗ đó luôn rồi. 3. 始業ベルがあり終わるか終わらないかのうちに先生が教室に入ってきた。 Chuông vào giờ vừa dứt thì thầy giáo đã bước vào lớp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d46e3e0d3d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "家族を守るためなら、どんな苦労をしてでも頑張りたい。",
+       "ja_furigana": "家族(かぞく)を守(まも)るためなら、どんな苦労(くろう)をしてでも頑張(がんば)りたい。",
+       "vi": "Nếu là để bảo vệ gia đình thì dù khổ đến đâu tôi cũng muốn cố gắng."
+      },
+      {
+       "ja": "遠くても、自転車に乗ってでも君に会いに行きたい。",
+       "ja_furigana": "遠(とお)くても、自転車(じてんしゃ)に乗(の)ってでも君(きみ)に会(あ)いに行(い)きたい。",
+       "vi": "Dù xa, tôi vẫn muốn đạp xe đến gặp bạn."
+      },
+      {
+       "ja": "借金をしてでも、この家を買いたいと思っている。",
+       "ja_furigana": "借金(しゃっきん)をしてでも、この家(いえ)を買(か)いたいと思(おも)っている。",
+       "source": "AI",
+       "vi": "Dù phải đi vay nợ, tôi vẫn muốn mua căn nhà này."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Khác 〜ても (dù có… thì vẫn): 〜てでも nêu một biện pháp cực đoan để đạt mục đích. Vế sau là việc người nói mong muốn, không dùng cho sự việc khách quan hay điều không mong muốn.",
+    "examples": [
+     {
+      "ja": "A: 課長、電車、止まってるみたいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A: Trưởng phòng ơi, có vẻ tàu đang ngừng chạy."
+     },
+     {
+      "ja": "B: 大事な打ち合わせだから、歩いてでも行かないと。電車はあきらめて、タクシーを拾おう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "B: Cuộc họp quan trọng nên dù phải đi bộ cũng phải tới. Bỏ tàu đi, bắt taxi thôi."
+     },
+     {
+      "ja": "借金をしてでも、この家を買いたいと思っている。",
+      "ja_furigana": "借金(しゃっきん)をしてでも、この家(いえ)を買(か)いたいと思(おも)っている。",
+      "source": "AI",
+      "vi": "Dù phải đi vay nợ, tôi vẫn muốn mua căn nhà này."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: A: 課長、電車、止まってるみたいです。",
+     "FURIGANA_MISSING: B: 大事な打ち合わせだから、歩いてでも行かないと。電車はあきらめて、タクシーを拾おう。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て + でも; N をして + でも",
+    "locked_fields": [],
+    "meaning_vi": "Dù phải làm đến mức đó cũng nhất định phải đạt được mục đích.",
+    "nuance_vi": "Thể hiện quyết tâm rất mạnh của người nói, vế sau thường là ý muốn, ý chí (nhất định…, bằng mọi giá…).",
+    "order_items": [],
+    "pattern": "〜てでも",
+    "pattern_variants": [],
+    "unit_no": 2,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi quyết tâm thực hiện mục đích đến mức chấp nhận cả cách làm cực đoan, vất vả hoặc hy sinh lớn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d3569a6699"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この会社の業績は悪くなる一方だ。",
+       "ja_furigana": "この会社(かいしゃ)の業績(ぎょうせき)は悪(わる)くなる一方(いっぽう)だ。",
+       "vi": "Thành tích kinh doanh của công ty này ngày càng xấu đi."
+      },
+      {
+       "ja": "駅前の店は、客が減る一方だ。",
+       "ja_furigana": "駅前(えきまえ)の店(みせ)は、客(きゃく)が減(へ)る一方(いっぽう)だ。",
+       "source": "AI",
+       "vi": "Các cửa hàng trước nhà ga ngày càng vắng khách."
+      },
+      {
+       "ja": "説明を聞けば聞くほど、私の不安は大きくなる一方だった。",
+       "ja_furigana": "説明(せつめい)を聞(き)けば聞(き)くほど、私(わたし)の不安(ふあん)は大(おお)きくなる一方(いっぽう)だった。",
+       "source": "AI",
+       "vi": "Càng nghe giải thích, nỗi bất an của tôi càng lớn dần."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ đi với động từ chỉ sự biến đổi (増える, 減る, 悪くなる), không dùng cho hành động thông thường của con người. Khác つつある: 一方だ nhấn mạnh 'chỉ có một chiều', thường theo hướng xấu; つつある trung tính, chỉ quá trình đang dần thay đổi.",
+    "examples": [
+     {
+      "ja": "物価は上がる一方だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "駅前の店は、客が減る一方だ。",
+      "ja_furigana": "駅前(えきまえ)の店(みせ)は、客(きゃく)が減(へ)る一方(いっぽう)だ。",
+      "source": "AI",
+      "vi": "Các cửa hàng trước nhà ga ngày càng vắng khách."
+     },
+     {
+      "ja": "説明を聞けば聞くほど、私の不安は大きくなる一方だった。",
+      "ja_furigana": "説明(せつめい)を聞(き)けば聞(き)くほど、私(わたし)の不安(ふあん)は大(おお)きくなる一方(いっぽう)だった。",
+      "source": "AI",
+      "vi": "Càng nghe giải thích, nỗi bất an của tôi càng lớn dần."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 物価は上がる一方だ。",
+     "FURIGANA_MISSING: 物価は上がる一方だ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + 一方だ",
+    "locked_fields": [],
+    "meaning_vi": "Ngày càng — Xu hướng chỉ tiến về một phía, thường là xấu đi.",
+    "nuance_vi": "Văn viết, tin tức; diễn tả một xu hướng cứ tiếp diễn theo một chiều mà không có dấu hiệu dừng lại, thường là chiều xấu.",
+    "order_items": [],
+    "pattern": "一方(いっぽう)だ",
+    "pattern_variants": [
+     "V từ điển + 一方だ"
+    ],
+    "unit_no": 2,
+    "unit_title_vi": null,
+    "usage_vi": "Khác với 一方で (mặt khác). Vế trước phải là động từ chỉ sự biến đổi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-02b110a23d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町の古い建物は、少しずつ失われつつある。",
+       "ja_furigana": "この町(まち)の古(ふる)い建物(たてもの)は、少(すこ)しずつ失(うしな)われつつある。",
+       "vi": "Những tòa nhà cũ của thị trấn này đang dần bị mất đi."
+      },
+      {
+       "ja": "最近の若者は、紙の新聞を読まなくなりつつある。",
+       "ja_furigana": "最近(さいきん)の若者(わかもの)は、紙(かみ)の新聞(しんぶん)を読(よ)まなくなりつつある。",
+       "vi": "Giới trẻ gần đây đang dần không đọc báo giấy nữa."
+      },
+      {
+       "ja": "町の景色は、新しい駅ができてから大きく変わりつつある。",
+       "ja_furigana": "町(まち)の景色(けしき)は、新(あたら)しい駅(えき)ができてから大(おお)きく変(か)わりつつある。",
+       "source": "AI",
+       "vi": "Cảnh quan của thị trấn đang dần thay đổi lớn kể từ khi có nhà ga mới."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ đi với động từ chỉ sự biến đổi, không dùng cho hành động thường ngày (sai: 本を読みつつある). Khác ている: つつある nhấn mạnh quá trình đang dần thay đổi, còn ている chỉ đơn giản là đang diễn ra.",
+    "examples": [
+     {
+      "ja": "事故から一週間がたち、原因などが明らかになりつつある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một tuần đã trôi qua kể từ vụ tai nạn, các nguyên nhân đang dần được làm rõ."
+     },
+     {
+      "ja": "最近、車に興味のない若者が増えつつある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gần đây, ngày càng có nhiều bạn trẻ không quan tâm đến ô tô."
+     },
+     {
+      "ja": "町の景色は、新しい駅ができてから大きく変わりつつある。",
+      "ja_furigana": "町(まち)の景色(けしき)は、新(あたら)しい駅(えき)ができてから大(おお)きく変(か)わりつつある。",
+      "source": "AI",
+      "vi": "Cảnh quan của thị trấn đang dần thay đổi lớn kể từ khi có nhà ga mới."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 事故から一週間がたち、原因などが明らかになりつつある。",
+     "FURIGANA_MISSING: 最近、車に興味のない若者が増えつつある。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vます(bỏ ます) + つつある",
+    "locked_fields": [],
+    "meaning_vi": "Đang dần…; đang trong quá trình biến đổi… (văn viết)",
+    "nuance_vi": "Văn viết, hay gặp trong tin tức và báo cáo; diễn tả một sự thay đổi đang dần tiến triển theo một hướng nhất định.",
+    "order_items": [],
+    "pattern": "〜つつある",
+    "pattern_variants": [
+     "つつある",
+     "V thể ます (bỏ ます) + つつある"
+    ],
+    "unit_no": 2,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả một sự thay đổi đang tiến triển ngay tại thời điểm được nói tới. Mẫu thường dùng trong văn viết, báo cáo hoặc khi mô tả xu hướng xã hội. 1) Dễ nhầm với ～ている. → ～つつある không chỉ nói trạng thái đang tiếp diễn mà nhấn mạnh một sự biến đổi đang dần tiến triển. 2) Thường đi với động từ chỉ thay đổi. → Các động từ như 増える・減る・変わる・失われる phù hợp hơn động từ chỉ trạng thái cố định. 3) Mẫu mang sắc thái khách quan, văn viết. → Hay gặp trong báo cáo, tin tức và câu mô tả xu hướng xã hội; ít dùng trong hội thoại thân mật."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f139f0f53e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女は笑顔を見せつつ、心の中では悲しんでいた。",
+       "ja_furigana": "彼女(かのじょ)は笑顔(えがお)を見(み)せつつ、心(こころ)の中(なか)では悲(かな)しんでいた。",
+       "vi": "Cô ấy vừa nở nụ cười, vừa buồn bã trong lòng."
+      },
+      {
+       "ja": "音楽を聞きつつ、ゆっくり本を読むのが私の休日の過ごし方だ。",
+       "ja_furigana": "音楽(おんがく)を聞(き)きつつ、ゆっくり本(ほん)を読(よ)むのが私(わたし)の休日(きゅうじつ)の過(す)ごし方(かた)だ。",
+       "source": "AI",
+       "vi": "Vừa nghe nhạc vừa thong thả đọc sách là cách tôi trải qua ngày nghỉ."
+      },
+      {
+       "ja": "体に悪いと知りつつ、夜遅くにラーメンを食べてしまった。",
+       "ja_furigana": "体(からだ)に悪(わる)いと知(し)りつつ、夜遅(よるおそ)くにラーメンを食(た)べてしまった。",
+       "source": "AI",
+       "vi": "Biết là có hại cho cơ thể nhưng tôi vẫn lỡ ăn mì ramen lúc nửa đêm."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Hai vế phải cùng chủ ngữ. Nghĩa 'vừa… vừa…' trong văn nói thường thay bằng ながら; nghĩa 'tuy…' đi với những động từ về nhận thức như 知りつつ, 思いつつ, không dùng với các hành động thường ngày khác nhau.",
+    "examples": [
+     {
+      "ja": "結果を気にしつつ、待っている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "音楽を聞きつつ、ゆっくり本を読むのが私の休日の過ごし方だ。",
+      "ja_furigana": "音楽(おんがく)を聞(き)きつつ、ゆっくり本(ほん)を読(よ)むのが私(わたし)の休日(きゅうじつ)の過(す)ごし方(かた)だ。",
+      "source": "AI",
+      "vi": "Vừa nghe nhạc vừa thong thả đọc sách là cách tôi trải qua ngày nghỉ."
+     },
+     {
+      "ja": "体に悪いと知りつつ、夜遅くにラーメンを食べてしまった。",
+      "ja_furigana": "体(からだ)に悪(わる)いと知(し)りつつ、夜遅(よるおそ)くにラーメンを食(た)べてしまった。",
+      "source": "AI",
+      "vi": "Biết là có hại cho cơ thể nhưng tôi vẫn lỡ ăn mì ramen lúc nửa đêm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 結果を気にしつつ、待っている。",
+     "FURIGANA_MISSING: 結果を気にしつつ、待っている。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vます(bỏ ます) + つつ",
+    "locked_fields": [],
+    "meaning_vi": "Vừa vừa, tuy nhưng — Hai hành động đồng thời, hoặc nghĩa nhượng bộ.",
+    "nuance_vi": "Văn viết, trang trọng; hoặc là 'vừa… vừa…' (hai hành động đồng thời), hoặc là 'tuy… nhưng…' (nhượng bộ), khi đó thường đi với 知る, 思う, 悪いと思う.",
+    "order_items": [],
+    "pattern": "つつ",
+    "pattern_variants": [
+     "V thể ます (bỏ ます) + つつ"
+    ],
+    "unit_no": 2,
+    "unit_title_vi": null,
+    "usage_vi": "Nghĩa đồng thời giống ながら nhưng văn viết. Nghĩa nhượng bộ hay đi với も: 悪いと知りつつも."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-adea88bcc1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大学生にしても、そんなにお金を使うのはよくない。",
+       "ja_furigana": "大学生(だいがくせい)にしても、そんなにお金(かね)を使(つか)うのはよくない。",
+       "vi": "Dù là sinh viên đại học đi nữa thì tiêu tiền hoang như vậy cũng không tốt."
+      },
+      {
+       "ja": "子どもにしても、人の物を勝手に使ってはいけない。",
+       "ja_furigana": "子(こ)どもにしても、人(ひと)の物(もの)を勝手(かって)に使(つか)ってはいけない。",
+       "vi": "Dù là trẻ con đi nữa thì cũng không được tự ý dùng đồ của người khác."
+      },
+      {
+       "ja": "遠いにしても、一度は両親に顔を見せに行くべきだ。",
+       "ja_furigana": "遠(とお)いにしても、一度(いちど)は両親(りょうしん)に顔(かお)を見(み)せに行(い)くべきだ。",
+       "source": "AI",
+       "vi": "Dù xa đi nữa thì ít nhất một lần cũng nên đến thăm bố mẹ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Khác にしては (so với tiêu chuẩn thì khác thường): にしても là 'dù chấp nhận điều đó'. Khác としても (giả sử): vế sau của にしても thường là phê phán hoặc yêu cầu, không phải kết quả tự nhiên.",
+    "examples": [
+     {
+      "ja": "謝るにしても、もう少しちゃんと謝るべきだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù là xin lỗi đi nữa thì nên xin lỗi đàng hoàng hơn một chút。"
+     },
+     {
+      "ja": "忙しいにしても、次席の連絡をしてこないのはよくない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù bận, nhưng không liên lạc với cấp phó là không tốt。"
+     },
+     {
+      "ja": "遠いにしても、一度は両親に顔を見せに行くべきだ。",
+      "ja_furigana": "遠(とお)いにしても、一度(いちど)は両親(りょうしん)に顔(かお)を見(み)せに行(い)くべきだ。",
+      "source": "AI",
+      "vi": "Dù xa đi nữa thì ít nhất một lần cũng nên đến thăm bố mẹ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 謝るにしても、もう少しちゃんと謝るべきだ。",
+     "FURIGANA_MISSING: 忙しいにしても、次席の連絡をしてこないのはよくない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + にしても; N/Aな + にしても",
+    "locked_fields": [],
+    "meaning_vi": "Cho dù là… đi nữa thì vẫn…",
+    "nuance_vi": "Người nói chấp nhận lý do của đối phương nhưng vẫn không đồng tình; còn dùng dạng 'AにしてもBにしても' để liệt kê.",
+    "order_items": [],
+    "pattern": "〜にしても",
+    "pattern_variants": [
+     "Thể thường / N + にしても"
+    ],
+    "unit_no": 2,
+    "unit_title_vi": null,
+    "usage_vi": "Thừa nhận một điều kiện hay lý do, nhưng vẫn đưa ra nhận xét, phê bình trái với kỳ vọng ở vế sau."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6111c4dcc9"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-001"
+}

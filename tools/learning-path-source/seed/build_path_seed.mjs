@@ -104,7 +104,11 @@ export function buildSeed(level, {
   const seedVersion = sha256(JSON.stringify(tables)).slice(0, 12);
   for (const [key, def] of Object.entries(TABLES)) if (def.cc) for (const row of tables[key]) row.seed_version = seedVersion;
   const visibleVocab = new Set(lowerLevels.flatMap((c) => c.vocabulary ?? []).filter((v) => VISIBLE.has(v.status)).map((v) => v.id));
-  const kanjiWithoutWords = new Set((compiled.kanji ?? []).filter((k) => !(k.compound_ids ?? []).length).map((k) => k.id));
+  // Owner 05/11 level caps: a kanji whose compounds all went to Mở rộng (HOLD, at this or a lower level) has no word
+  // in the path either — it is checked like a kanji without words, not as a missing compound.
+  const visibleHere = new Set([...visibleVocab, ...(compiled.vocabulary ?? []).filter((v) => VISIBLE.has(v.status)).map((v) => v.id)]);
+  const kanjiWithoutWords = new Set((compiled.kanji ?? [])
+    .filter((k) => !(k.compound_ids ?? []).some((id) => visibleHere.has(id))).map((k) => k.id));
   const verdict = releaseVerdict(level, tables, { visibleVocab, kanjiWithoutWords });
   const release = { released: verdict.released, reasons: verdict.reasons, note: verdict.note };
 

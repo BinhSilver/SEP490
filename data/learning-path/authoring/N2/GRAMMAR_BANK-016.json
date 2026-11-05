@@ -4,7 +4,188 @@
  },
  "items": [
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "日曜日（　　）、毎日営業しています。",
+      "options": [
+       "を除いて",
+       "に応じて",
+       "をめぐって",
+       "に限って"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "日曜日を除いて = ngoại trừ chủ nhật, các ngày khác đều mở cửa."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "会員（　　）、どなたでも入場できます。",
+      "options": [
+       "を除いて",
+       "をこめて",
+       "にかけて",
+       "に沿って"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "会員を除いて = ngoại trừ hội viên, ai cũng vào được."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "営業している",
+       "日曜日",
+       "毎日",
+       "を除いて"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "日曜日を除いて毎日営業している。★ là を除いて。を除いて đứng sau danh từ để loại một đối tượng ra khỏi phạm vi."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "年中無休だ",
+       "この店は",
+       "を除いて",
+       "月曜"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "この店は月曜を除いて年中無休だ。★ là を除いて。月曜を除いて = ngoại trừ thứ hai, các ngày còn lại đều mở."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼を除いて、誰もその話を知らなかった。",
+      "options": [
+       "Ngoài anh ấy ra, không ai biết câu chuyện đó.",
+       "Anh ấy là người duy nhất không biết câu chuyện đó.",
+       "Mọi người đều biết câu chuyện đó.",
+       "Không ai, kể cả anh ấy, biết câu chuyện đó."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "彼を除いて…ない = trừ anh ấy ra thì không ai, tức chỉ anh ấy biết."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "会員を除いて、この部屋には入れません。",
+      "options": [
+       "Chỉ hội viên mới được vào phòng này.",
+       "Ngoại trừ hội viên, ai cũng được vào phòng này.",
+       "Không ai, kể cả hội viên, được vào phòng này.",
+       "Phòng này không có hội viên nào."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "会員を除いて…ない = ngoài hội viên ra thì không ai vào được, tức chỉ hội viên vào được."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "日曜日を除いて、毎日営業しています。",
+       "彼を除いて、全員が出席した。",
+       "日曜日を除いてで、毎日営業しています。",
+       "会員を除いて、どなたでも入場できます。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì đã dùng を除いて thì không thêm で phía sau."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "日曜を除いて、毎日練習している。",
+       "父を除いて、家族はみんな旅行に行った。",
+       "休むを除いて、毎日働いた。",
+       "会員を除いて、この部屋には入れません。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì を除いて gắn với danh từ, không dùng trực tiếp sau động từ 休む."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "毎日",
+       "日曜日",
+       "営業しています。",
+       "を除いて"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Ngoại trừ chủ nhật, ngày nào cũng mở cửa."
+     },
+     {
+      "pieces": [
+       "誰も",
+       "彼",
+       "知らなかった。",
+       "を除いて"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Ngoài anh ấy ra, không ai biết."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "土曜日＿＿、毎日学校に通っています。",
+      "answer": "を除いて",
+      "translation_vi": "Ngoại trừ thứ bảy, ngày nào tôi cũng đến trường."
+     },
+     {
+      "sentence_ja": "彼＿＿、誰もそのことを知りません。",
+      "answer": "を除いて",
+      "translation_vi": "Ngoài anh ấy, không ai biết chuyện đó."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "会員（　　）、このイベントには参加できません。",
+      "options": [
+       "を除いて",
+       "をこめて",
+       "に沿って",
+       "に応じて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "会員を除いて…ない = chỉ hội viên mới tham gia được."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "月曜日を除いて、毎日ジムに通っています。",
+      "options": [
+       "Ngoại trừ thứ hai, ngày nào tôi cũng đến phòng tập.",
+       "Chỉ thứ hai tôi mới đến phòng tập.",
+       "Thứ hai là ngày duy nhất tôi không nghỉ tập.",
+       "Tôi đã nghỉ tập từ thứ hai."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "月曜日を除いて = loại thứ hai ra khỏi lịch tập hằng ngày."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "日曜日を除いて、毎日開いている。",
+       "先生を除いて、みんな来た。",
+       "雨の日を除いて、毎日走る。",
+       "日曜日を除いた、毎日営業しています。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai vì trước mệnh đề sau phải là を除いて, không dùng 除いた."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -27,7 +208,188 @@
    "id": "JG-5a0249bec4"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "このパソコンは便利な（　　）、値段が高い。",
+      "options": [
+       "反面",
+       "に伴って",
+       "を通じて",
+       "に応じて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "便利な反面 = tiện lợi, nhưng mặt trái là giá đắt."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "一人で住むのは自由な（　　）、さびしいこともある。",
+      "options": [
+       "反面",
+       "に限って",
+       "をめぐって",
+       "に反して"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "自由な反面 = tự do, nhưng mặt khác cũng có lúc buồn."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "とても忙しい",
+       "この仕事は",
+       "反面",
+       "給料がいい"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "この仕事は給料がいい反面とても忙しい。★ là 反面。反面 nêu mặt trái ngược với mặt vừa nói."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "眠くなる",
+       "この薬は",
+       "反面",
+       "よく効く"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "この薬はよく効く反面眠くなる。★ là 反面。よく効く反面 = hiệu quả tốt nhưng mặt khác gây buồn ngủ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この携帯は便利な反面、バッテリーがすぐ切れる。",
+      "options": [
+       "Chiếc điện thoại này tiện lợi, nhưng mặt trái là pin rất nhanh hết.",
+       "Chiếc điện thoại này tiện lợi và pin rất bền.",
+       "Chiếc điện thoại này vừa không tiện vừa hết pin nhanh.",
+       "Chiếc điện thoại này chỉ tiện khi hết pin."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "便利な反面 = mặt tốt là tiện, mặt trái là pin yếu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "兄はおとなしい反面、負けず嫌いだ。",
+      "options": [
+       "Anh trai tôi hiền lành, nhưng mặt khác lại rất hiếu thắng.",
+       "Anh trai tôi hiền lành và không bao giờ tranh đua.",
+       "Anh trai tôi vừa hiền vừa hay khóc.",
+       "Anh trai tôi chỉ hiếu thắng khi ở nhà."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "おとなしい反面 = hiền nhưng mặt trái là hiếu thắng."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この店は安い反面、味もいい。",
+       "この車は速い反面、ガソリンをよく使う。",
+       "この町は静かな反面、買い物が不便だ。",
+       "このアプリは便利な反面、広告が多い。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Sai vì 反面 nối hai mặt trái ngược; 安い và 味もいい đều là ưu điểm."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この機械は便利な反面、音がうるさい。",
+       "弟は元気な反面、落ち着きがない。",
+       "この機械は便利反面、音がうるさい。",
+       "この仕事は楽な反面、給料が少ない。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì tính từ な phải có な trước 反面: 便利な反面."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "反面",
+       "この車は",
+       "ガソリンをよく使う。",
+       "速い"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Chiếc xe này chạy nhanh, nhưng mặt khác lại tốn xăng."
+     },
+     {
+      "pieces": [
+       "反面",
+       "この町は",
+       "少し不便だ。",
+       "静かな"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Thị trấn này yên tĩnh, nhưng mặt khác lại hơi bất tiện."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "このパソコンは軽い＿＿、値段が高い。",
+      "answer": "反面",
+      "translation_vi": "Chiếc máy tính này nhẹ, nhưng mặt trái là giá đắt."
+     },
+     {
+      "sentence_ja": "一人暮らしは自由な＿＿、さびしいこともある。",
+      "answer": "反面",
+      "translation_vi": "Sống một mình thì tự do, nhưng cũng có lúc buồn."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "このスマホは便利な（　　）、電池がすぐなくなる。",
+      "options": [
+       "反面",
+       "ために",
+       "たびに",
+       "とおりに"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "便利な反面 = tiện nhưng mặt trái là hao pin."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "弟は元気な反面、とてもこわがりだ。",
+      "options": [
+       "Em trai tôi hoạt bát, nhưng mặt khác lại rất nhút nhát.",
+       "Em trai tôi hoạt bát và rất dũng cảm.",
+       "Em trai tôi ốm yếu và nhút nhát.",
+       "Em trai tôi chỉ hoạt bát khi sợ."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "元気な反面 = hoạt bát nhưng mặt trái là nhút nhát."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この道は広い反面、車が多い。",
+       "この店は安い反面、味がいい。",
+       "彼女は明るい反面、怒りやすい。",
+       "この仕事は楽な反面、給料が少ない。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sai vì 安い và 味がいい không phải hai mặt trái ngược."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -50,7 +412,188 @@
    "id": "JG-0012ecbc4c"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "日本で運転する（　　）、国際免許が必要だ。",
+      "options": [
+       "には",
+       "たびに",
+       "うちに",
+       "とおりに"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "運転するには = để lái xe thì cần bằng lái quốc tế."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "大学に入る（　　）、一生懸命勉強しなければならない。",
+      "options": [
+       "には",
+       "反面",
+       "くせに",
+       "ところで"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "入るには = để vào được đại học thì phải học chăm."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "会員カードが要る",
+       "この店で",
+       "には",
+       "買い物する"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "この店で買い物するには会員カードが要る。★ là には。V-る + には nêu mục đích rồi đưa điều kiện cần."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "お金がかかる",
+       "外国で",
+       "には",
+       "暮らす"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "外国で暮らすにはお金がかかる。★ là には。暮らすには = để sống ở nước ngoài thì tốn tiền."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この機械を使うには、説明書をよく読んでください。",
+      "options": [
+       "Để sử dụng máy này, hãy đọc kỹ hướng dẫn.",
+       "Sau khi dùng máy này, hãy đọc hướng dẫn.",
+       "Dùng máy này thì không cần đọc hướng dẫn.",
+       "Mỗi lần dùng máy này đều phải mua hướng dẫn."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "使うには nêu mục đích: để dùng được thì cần đọc hướng dẫn."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "いい写真を撮るには、光が大切だ。",
+      "options": [
+       "Để chụp được ảnh đẹp, ánh sáng rất quan trọng.",
+       "Chụp ảnh đẹp thì không cần ánh sáng.",
+       "Ánh sáng quan trọng hơn mọi bức ảnh.",
+       "Vì ánh sáng yếu nên ảnh không đẹp."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "撮るには = để chụp được ảnh đẹp thì ánh sáng là điều kiện quan trọng."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "外国で働くには、ビザが必要だ。",
+       "日本語を覚えるには、毎日練習するしかない。",
+       "外国で働くに、ビザが必要だ。",
+       "健康を保つには、運動が大切だ。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì để nêu mục đích phải dùng には, không dùng に một mình."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この店に入るには、予約が必要だ。",
+       "日本語を話せるようになるには、練習が必要だ。",
+       "この店に入るためにには、予約が必要だ。",
+       "試験に合格するには、毎日勉強しなければならない。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì không có dạng ためにには; chỉ dùng 入るには hoặc 入るためには."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "には",
+       "日本で",
+       "ビザが必要だ。",
+       "働く"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Để làm việc ở Nhật thì cần visa."
+     },
+     {
+      "pieces": [
+       "には",
+       "この店を",
+       "会員登録が要る。",
+       "利用する"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Để sử dụng cửa hàng này thì cần đăng ký hội viên."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "外国に行く＿＿、パスポートが必要です。",
+      "answer": "には",
+      "translation_vi": "Để đi nước ngoài thì cần hộ chiếu."
+     },
+     {
+      "sentence_ja": "この機械を動かす＿＿、専門の知識が要る。",
+      "answer": "には",
+      "translation_vi": "Để vận hành máy này thì cần kiến thức chuyên môn."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "試験に合格する（　　）、毎日勉強するしかない。",
+      "options": [
+       "には",
+       "たびに",
+       "くせに",
+       "ところで"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "合格するには = để đỗ kỳ thi thì chỉ còn cách học mỗi ngày."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この店で買い物するには、会員カードが必要だ。",
+      "options": [
+       "Để mua sắm ở cửa hàng này thì cần có thẻ hội viên.",
+       "Sau khi mua sắm ở cửa hàng này thì nhận thẻ hội viên.",
+       "Ở cửa hàng này, thẻ hội viên không cần thiết.",
+       "Mỗi lần mua sắm, tôi đều làm mất thẻ hội viên."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "買い物するには = để mua sắm thì cần thẻ hội viên."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "山に登るには、装備が必要だ。",
+       "この店に入るには、予約が必要だ。",
+       "日本語を学ぶにには、練習が大切だ。",
+       "健康を保つには、運動がいい。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì không có dạng にには; đúng là 学ぶには."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -73,7 +616,188 @@
    "id": "JG-1bcafa12d5"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "社長に相談して（　　）、決められません。",
+      "options": [
+       "からでないと",
+       "からこそ",
+       "ばかりか",
+       "ところで"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "相談してからでないと = nếu chưa bàn với giám đốc thì không quyết được."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "実際に使って（　　）、良さは分かりません。",
+      "options": [
+       "からでないと",
+       "に応じて",
+       "をめぐって",
+       "につれて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "使ってからでないと = nếu chưa dùng thử thì không biết hay ở đâu."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "返事はできない",
+       "上司に",
+       "からでないと",
+       "確認して"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "上司に確認してからでないと返事はできない。★ là からでないと。V-て + からでないと, mệnh đề sau phủ định."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "始められない",
+       "全員が",
+       "からでないと",
+       "そろって"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "全員がそろってからでないと始められない。★ là からでないと。そろってからでないと = nếu chưa đủ người thì không bắt đầu được."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "お金を払ってからでないと、この商品は受け取れません。",
+      "options": [
+       "Nếu chưa trả tiền thì không thể nhận món hàng này.",
+       "Món hàng này được nhận miễn phí.",
+       "Trả tiền xong thì không nhận được hàng.",
+       "Món hàng này không cần trả tiền."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "払ってからでないと…ない = chưa trả tiền thì chưa nhận được."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "先生に聞いてからでないと、答えられません。",
+      "options": [
+       "Nếu chưa hỏi thầy thì tôi không thể trả lời.",
+       "Tôi sẽ trả lời trước khi hỏi thầy.",
+       "Vì đã hỏi thầy nên tôi không trả lời.",
+       "Tôi trả lời mà không cần hỏi thầy."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "聞いてからでないと…ない = phải hỏi thầy trước rồi mới trả lời được."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "上司に確認してからでないと、返事できません。",
+       "お金を払ってからでないと、商品は受け取れません。",
+       "先生に聞いてからでないと、答えられません。",
+       "上司に確認してからでないと、返事します。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai vì mệnh đề sau からでないと phải ở thể phủ định: 返事できません."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "社長に聞いてからでないと、決められない。",
+       "実際に使ってからでないと、分からない。",
+       "社長に聞くからでないと、決められない。",
+       "全員がそろってからでないと、始められない。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì phải dùng V-て: 聞いてからでないと."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "からでないと",
+       "社長に",
+       "決められない。",
+       "相談して"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Nếu chưa bàn với giám đốc thì không thể quyết định."
+     },
+     {
+      "pieces": [
+       "からでないと",
+       "お金を",
+       "商品を受け取れない。",
+       "払って"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Nếu chưa trả tiền thì không thể nhận hàng."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "先生に＿＿、答えられません。",
+      "answer": "聞いてからでないと",
+      "translation_vi": "Nếu chưa hỏi thầy thì tôi không thể trả lời."
+     },
+     {
+      "sentence_ja": "実際に使って＿＿、良さは分かりません。",
+      "answer": "からでないと",
+      "translation_vi": "Nếu chưa dùng thử thật thì không biết được cái hay."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "全員がそろって（　　）、会議は始められません。",
+      "options": [
+       "からでないと",
+       "からこそ",
+       "ばかりか",
+       "に応じて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "そろってからでないと = chưa đủ người thì chưa họp được."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "医者に診てもらってからでないと、薬は飲めません。",
+      "options": [
+       "Nếu chưa được bác sĩ khám thì không được uống thuốc.",
+       "Uống thuốc xong mới đi khám bác sĩ.",
+       "Thuốc này không cần bác sĩ kê đơn.",
+       "Tôi uống thuốc trước rồi mới đi khám."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "診てもらってからでないと…ない = phải khám trước rồi mới uống thuốc."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "母に聞いてからでないと、決められない。",
+       "お金を払ってからでないと、入れない。",
+       "確認してからでないと、返事しません。",
+       "確認するからでないと、返事できません。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai vì phải là 確認してからでないと (V-て)."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -96,7 +820,188 @@
    "id": "JG-71bd86ae87"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "期待（　　）、彼はあっさり負けてしまった。",
+      "options": [
+       "に反して",
+       "ばかりか",
+       "おかげで",
+       "せいで"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "期待に反して = trái với kỳ vọng, anh ấy thua ngay."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "両親の希望（　　）、彼は芸術家の道を選んだ。",
+      "options": [
+       "に反して",
+       "をこめて",
+       "たびに",
+       "ほど"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "希望に反して = trái với mong muốn của bố mẹ."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "優勝した",
+       "予想",
+       "彼が",
+       "に反して"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "予想に反して彼が優勝した。★ là に反して。に反して gắn với danh từ như 予想, 期待, 規則."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "大学をやめた",
+       "親の",
+       "彼は",
+       "期待に反して"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "親の期待に反して彼は大学をやめた。★ là 期待に反して。期待に反して = trái với kỳ vọng của bố mẹ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "天気予報に反して、朝から大雨が降っている。",
+      "options": [
+       "Trái với dự báo thời tiết, từ sáng trời đã mưa to.",
+       "Đúng như dự báo, từ sáng trời mưa to.",
+       "Dự báo nói rằng từ sáng trời sẽ mưa to.",
+       "Vì mưa to nên dự báo thời tiết thay đổi."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "天気予報に反して = kết quả ngược với dự báo."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "予想に反して、試験はとても簡単だった。",
+      "options": [
+       "Trái với dự đoán, bài thi rất dễ.",
+       "Đúng như dự đoán, bài thi rất dễ.",
+       "Bài thi khó hơn dự đoán rất nhiều.",
+       "Bài thi dễ vì mọi người đã dự đoán."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "予想に反して = ngược lại với điều đã dự đoán."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "予想に反して、売り上げが大きく下がった。",
+       "親の希望に反して、彼は大学をやめた。",
+       "予想に反して、彼は予想どおりに負けた。",
+       "規則に反して、彼は会場に入った。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì sau に反して phải là kết quả trái ngược dự đoán, không thể là 予想どおり."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "天気予報に反して、今日はよく晴れた。",
+       "期待に反して、彼の成績は伸びなかった。",
+       "予想するに反して、売り上げは大きく伸びた。",
+       "親の希望に反して、彼は芸術の道に進んだ。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì に反して gắn với danh từ; đúng là 予想に反して."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "今日は",
+       "天気予報",
+       "よく晴れた。",
+       "に反して"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Trái với dự báo thời tiết, hôm nay trời rất đẹp."
+     },
+     {
+      "pieces": [
+       "試験は",
+       "予想",
+       "とても簡単だった。",
+       "に反して"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Trái với dự đoán, bài thi rất dễ."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "予想＿＿、売り上げは大きく伸びた。",
+      "answer": "に反して",
+      "translation_vi": "Trái với dự đoán, doanh số tăng mạnh."
+     },
+     {
+      "sentence_ja": "両親の希望＿＿、彼は芸術の道を選んだ。",
+      "answer": "に反して",
+      "translation_vi": "Trái với mong muốn của bố mẹ, anh ấy chọn con đường nghệ thuật."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "天気予報（　　）、朝から雨が降っている。",
+      "options": [
+       "に反して",
+       "に応じて",
+       "に沿って",
+       "に加えて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "天気予報に反して = trời mưa trái với dự báo."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "期待に反して、彼の成績は下がった。",
+      "options": [
+       "Trái với kỳ vọng, thành tích của anh ấy giảm sút.",
+       "Đúng như kỳ vọng, thành tích của anh ấy giảm sút.",
+       "Thành tích của anh ấy tăng vì mọi người kỳ vọng.",
+       "Mọi người không hề kỳ vọng vào anh ấy."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "期待に反して = kết quả ngược lại kỳ vọng."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "予想に反して、雨が止んだ。",
+       "規則に反して、試合に出た。",
+       "予想に反して、予想どおりに晴れた。",
+       "親の希望に反して、彼は留学した。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì không thể vừa に反して vừa 予想どおり."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -119,7 +1024,188 @@
    "id": "JG-04534b5fc2"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この店には、日本酒（　　）、外国の酒もたくさんある。",
+      "options": [
+       "以外に",
+       "に限って",
+       "をめぐって",
+       "に応じて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "日本酒以外に = ngoài rượu Nhật còn có rượu nước ngoài."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "彼（　　）、この問題を解ける人はいない。",
+      "options": [
+       "以外に",
+       "に限って",
+       "をめぐって",
+       "にかけても"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "彼以外に…ない = ngoài anh ấy ra không ai giải được."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "解ける人はいない",
+       "彼",
+       "この問題を",
+       "以外に"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "彼以外にこの問題を解ける人はいない。★ là 以外に。以外に = ngoài đối tượng đã nêu ra."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "外国語を勉強している",
+       "日本語",
+       "もう一つ",
+       "以外に"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "日本語以外にもう一つ外国語を勉強している。★ là 以外に。日本語以外に = ngoài tiếng Nhật còn học thêm một ngoại ngữ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この店では、ケーキ以外に、パンも売っている。",
+      "options": [
+       "Cửa hàng này ngoài bánh ngọt ra còn bán cả bánh mì.",
+       "Cửa hàng này chỉ bán bánh ngọt, không bán bánh mì.",
+       "Cửa hàng này không bán bánh ngọt mà chỉ bán bánh mì.",
+       "Cửa hàng này bán bánh ngọt vì có bánh mì."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "ケーキ以外に…も = ngoài bánh ngọt còn có thêm bánh mì."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼以外に、このことを知っている人はいない。",
+      "options": [
+       "Ngoài anh ấy ra, không ai biết chuyện này.",
+       "Ngoài anh ấy ra, mọi người đều biết chuyện này.",
+       "Anh ấy là người duy nhất không biết chuyện này.",
+       "Chỉ mình tôi biết chuyện này."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "以外に…ない = chỉ có đối tượng đó, ngoài ra không ai."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この店には、日本酒以外に、外国の酒もある。",
+       "彼以外に、この問題を解ける人はいない。",
+       "彼以外を、このことを知っている人はいない。",
+       "日本語以外に、英語も話せる。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì cần 以外に, không dùng 以外を."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この店は、ケーキ以外にパンも売っている。",
+       "彼以外に、この計画を知っている人はいない。",
+       "日本語以外に、中国語も話せる。",
+       "休む以外に、毎日働いた。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai vì 以外に ở đây phải gắn với danh từ như 休み, câu cũng không có nghĩa."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "以外に",
+       "この店では",
+       "パンも売っている。",
+       "ケーキ"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Cửa hàng này ngoài bánh ngọt còn bán cả bánh mì."
+     },
+     {
+      "pieces": [
+       "このことを",
+       "彼",
+       "知っている人はいない。",
+       "以外に"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Ngoài anh ấy ra, không ai biết chuyện này."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "日本酒＿＿、外国の酒も置いてあります。",
+      "answer": "以外に",
+      "translation_vi": "Ngoài rượu Nhật, cửa hàng còn bày bán rượu nước ngoài."
+     },
+     {
+      "sentence_ja": "彼＿＿、この問題を解ける人はいません。",
+      "answer": "以外に",
+      "translation_vi": "Ngoài anh ấy, không ai giải được bài này."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この店では、パン（　　）、ケーキも売っている。",
+      "options": [
+       "以外に",
+       "に限って",
+       "をめぐって",
+       "に応じて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "パン以外に = ngoài bánh mì còn bán bánh ngọt."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "日本語以外に、英語と中国語も話せる。",
+      "options": [
+       "Ngoài tiếng Nhật, tôi còn nói được tiếng Anh và tiếng Trung.",
+       "Tôi chỉ nói được tiếng Nhật.",
+       "Tôi nói được tiếng Anh nhưng không nói được tiếng Nhật.",
+       "Tôi đang học tiếng Nhật bằng tiếng Anh."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "日本語以外に…も = ngoài tiếng Nhật còn nói được ngôn ngữ khác."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "ケーキ以外に、アイスも買った。",
+       "父以外に、誰も知らない。",
+       "日本語以外に、韓国語も話せる。",
+       "彼以外にを、誰も知らない。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai vì không có dạng 以外にを."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -142,7 +1228,188 @@
    "id": "JG-2a0c30d330"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "毎日二時間勉強すれば、一か月で六十時間勉強した（　　）。",
+      "options": [
+       "ことになる",
+       "ことにする",
+       "ことだ",
+       "ところだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "勉強したことになる = hoá ra là đã học được 60 tiếng."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "彼が来ないなら、参加者は五人（　　）。",
+      "options": [
+       "ということになる",
+       "ということにする",
+       "というものだ",
+       "というはずだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "五人ということになる = hoá ra chỉ còn năm người tham gia."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★。",
+      "options": [
+       "三千円ということになる",
+       "この",
+       "全部で",
+       "計算では"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "この計算では全部で三千円ということになる。★ là 三千円ということになる。N + ということになる = kết luận rút ra là như vậy."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★。",
+      "options": [
+       "四人ということになる",
+       "彼が",
+       "メンバーは",
+       "参加しないなら"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "彼が参加しないならメンバーは四人ということになる。★ là 四人ということになる。四人ということになる = hoá ra còn bốn thành viên."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この分だと、工事は来月までかかることになる。",
+      "options": [
+       "Với tình hình này thì hoá ra công trình sẽ kéo dài đến tháng sau.",
+       "Công trình đã kết thúc vào tháng trước.",
+       "Tôi quyết định hoãn công trình đến tháng sau.",
+       "Công trình sẽ bắt đầu từ tháng sau."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "かかることになる = suy ra là sẽ kéo dài."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "毎日一時間練習すれば、一年で三百時間練習したことになる。",
+      "options": [
+       "Nếu mỗi ngày luyện một tiếng thì một năm hoá ra là đã luyện được 300 giờ.",
+       "Mỗi ngày luyện một tiếng thì một năm sau mới bắt đầu.",
+       "Tôi quyết định mỗi ngày luyện một tiếng.",
+       "Một năm chỉ luyện được một tiếng."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "練習したことになる = tính ra là đã luyện được chừng đó."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "毎日二時間勉強すれば、六十時間勉強したことになる。",
+       "彼が来ないなら、参加者は五人ということになる。",
+       "彼が来ないなら、参加者は五人ことになる。",
+       "この分だと、工事は来月までかかることになる。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì danh từ 五人 cần ということになる."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "毎日一時間練習すれば、三百時間練習したことになる。",
+       "この分だと、会議は来週まで続くことになる。",
+       "毎日一時間練習すれば、三百時間練習することがなる。",
+       "彼が来ないなら、参加者は五人ということになる。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì phải là ことになる, không phải ことがなる."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "全部で",
+       "この",
+       "三千円ということになる。",
+       "計算では"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Theo cách tính này thì hoá ra tổng cộng là ba nghìn yên."
+     },
+     {
+      "pieces": [
+       "参加者は",
+       "彼が",
+       "五人ということになる。",
+       "来ないなら"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Nếu anh ấy không đến thì hoá ra chỉ còn năm người tham gia."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "毎日一時間練習すれば、一年で三百時間練習した＿＿。",
+      "answer": "ことになる",
+      "translation_vi": "Nếu mỗi ngày luyện một tiếng thì một năm hoá ra là đã luyện 300 giờ."
+     },
+     {
+      "sentence_ja": "この分だと、工事は来月までかかる＿＿。",
+      "answer": "ことになる",
+      "translation_vi": "Với tình hình này thì hoá ra công trình sẽ kéo dài đến tháng sau."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この分だと、会議は夕方まで続く（　　）。",
+      "options": [
+       "ことになる",
+       "ことにする",
+       "ものにする",
+       "ところになる"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "続くことになる = suy ra là sẽ kéo dài đến chiều."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "これで彼に会うのは三回目ということになる。",
+      "options": [
+       "Như vậy, hoá ra đây là lần thứ ba tôi gặp anh ấy.",
+       "Đây là lần đầu tiên tôi gặp anh ấy.",
+       "Tôi quyết định sẽ gặp anh ấy ba lần.",
+       "Tôi đã gặp anh ấy ba lần trong một ngày."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "三回目ということになる = tính ra là lần thứ ba."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "彼が来ないなら、四人ということになる。",
+       "この計算では、全部で千円ということになる。",
+       "これで二回目ということになる。",
+       "毎日練習すれば、百回練習することがなる。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai vì phải là ことになる, không phải ことがなる."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -165,7 +1432,188 @@
    "id": "JG-4f4e542b56"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "日本に来て（　　）、一度も雪を見ていない。",
+      "options": [
+       "以来",
+       "うちに",
+       "たびに",
+       "とたん"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "来て以来 = kể từ khi đến Nhật, chưa từng thấy tuyết."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "大学を卒業して（　　）、彼とは会っていない。",
+      "options": [
+       "以来",
+       "反面",
+       "くせに",
+       "ところで"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "卒業して以来 = kể từ khi tốt nghiệp, chưa gặp anh ấy."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "彼に会っていない",
+       "日本に",
+       "以来",
+       "来て"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "日本に来て以来彼に会っていない。★ là 以来。V-て + 以来: từ mốc đó đến nay trạng thái vẫn tiếp diễn."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "ずっと一人で暮らしている",
+       "大学を",
+       "以来",
+       "卒業して"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "大学を卒業して以来ずっと一人で暮らしている。★ là 以来。卒業して以来 = kể từ khi tốt nghiệp, sống một mình suốt."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "たばこをやめて以来、体の調子がいい。",
+      "options": [
+       "Kể từ khi bỏ thuốc lá, sức khỏe tôi rất tốt.",
+       "Trước khi bỏ thuốc lá, sức khỏe tôi rất tốt.",
+       "Tôi bỏ thuốc lá vì sức khỏe tốt.",
+       "Mỗi lần bỏ thuốc lá, sức khỏe lại tốt hơn."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "やめて以来 = kể từ khi bỏ thuốc đến nay."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "引っ越して以来、昔の友達に会っていない。",
+      "options": [
+       "Kể từ khi chuyển nhà, tôi chưa gặp lại bạn cũ.",
+       "Sau khi gặp bạn cũ, tôi mới chuyển nhà.",
+       "Tôi chuyển nhà để gặp lại bạn cũ.",
+       "Tôi gặp bạn cũ mỗi lần chuyển nhà."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "引っ越して以来 = từ khi chuyển nhà đến nay."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "日本に来て以来、彼に会っていない。",
+       "たばこをやめて以来、体の調子がいい。",
+       "日本に来る以来、彼に会っていない。",
+       "卒業して以来、ずっと連絡していない。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì 以来 nối với V-て: 来て以来."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "引っ越して以来、昔の友達に会っていない。",
+       "その日以来、彼は学校に来ていない。",
+       "その日以来で、彼は学校に来ていない。",
+       "けんかして以来、二人は話していない。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì 以来 không đi với で."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "以来",
+       "日本に",
+       "一度も雪を見ていない。",
+       "来て"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Kể từ khi đến Nhật, tôi chưa từng thấy tuyết."
+     },
+     {
+      "pieces": [
+       "以来",
+       "大学を",
+       "彼とは会っていない。",
+       "卒業して"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Kể từ khi tốt nghiệp đại học, tôi chưa gặp anh ấy."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "たばこをやめて＿＿、体の調子がいい。",
+      "answer": "以来",
+      "translation_vi": "Kể từ khi bỏ thuốc lá, sức khỏe tôi rất tốt."
+     },
+     {
+      "sentence_ja": "引っ越して＿＿、昔の友達に会っていない。",
+      "answer": "以来",
+      "translation_vi": "Kể từ khi chuyển nhà, tôi chưa gặp lại bạn cũ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "その日（　　）、彼は学校に来ていない。",
+      "options": [
+       "以来",
+       "うちに",
+       "たびに",
+       "とたん"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "その日以来 = kể từ ngày hôm đó đến nay."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "けんかして以来、二人は話していない。",
+      "options": [
+       "Kể từ sau trận cãi nhau, hai người không nói chuyện.",
+       "Hai người cãi nhau vì đã lâu không nói chuyện.",
+       "Hai người nói chuyện mỗi lần cãi nhau.",
+       "Trước khi cãi nhau, hai người không nói chuyện."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "けんかして以来 = từ sau khi cãi nhau đến nay."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "卒業して以来、ずっと連絡していない。",
+       "入院して以来、たばこを吸っていない。",
+       "会う以来、彼のことを忘れられない。",
+       "その日以来、一度も会っていない。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì 以来 cần V-て: 会って以来."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -188,7 +1636,188 @@
    "id": "JG-6ef0399b6b"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "彼女は一日も休む（　　）、練習を続けた。",
+      "options": [
+       "ことなく",
+       "ことから",
+       "ばかりか",
+       "ところで"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "休むことなく = không nghỉ ngày nào, tiếp tục luyện tập."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "彼は苦労する（　　）、有名になった。",
+      "options": [
+       "ことなく",
+       "に応じて",
+       "をめぐって",
+       "につれて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "苦労することなく = không phải vất vả mà vẫn nổi tiếng."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "練習を続けた",
+       "彼らは",
+       "休むことなく",
+       "一日も"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "彼らは一日も休むことなく練習を続けた。★ là 休むことなく。V-る + ことなく = làm gì đó mà không làm việc kia."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "手に入れた",
+       "彼は",
+       "その地位を",
+       "苦労することなく"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "彼は苦労することなくその地位を手に入れた。★ là 苦労することなく。苦労することなく = không cần vất vả."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼は誰にも知られることなく、この町を去った。",
+      "options": [
+       "Anh ấy rời thị trấn này mà không để ai biết.",
+       "Anh ấy rời thị trấn sau khi mọi người biết.",
+       "Mọi người biết rằng anh ấy sẽ rời thị trấn.",
+       "Anh ấy ở lại thị trấn vì mọi người đã biết."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "知られることなく = không bị ai biết đến."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼女は休むことなく、三時間走り続けた。",
+      "options": [
+       "Cô ấy chạy liên tục ba tiếng mà không nghỉ.",
+       "Cô ấy nghỉ ba tiếng rồi mới chạy.",
+       "Cô ấy chạy ba tiếng rồi nghỉ.",
+       "Cô ấy chỉ chạy ba phút là nghỉ."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "休むことなく = không nghỉ giữa chừng."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "彼らは一日も休むことなく練習した。",
+       "彼は苦労することなく成功した。",
+       "彼は休んだことなく練習した。",
+       "誰にも気づかれることなく、彼は部屋を出た。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì ことなく nối với V-る: 休むことなく."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "彼は文句も言うことなく、仕事を続けた。",
+       "彼女は一度も休むことなく、走り続けた。",
+       "彼は休むことない、練習を続けた。",
+       "誰にも見られることなく、彼は家を出た。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì phải là ことなく, không dùng ことない."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "休むことなく",
+       "彼らは",
+       "練習を続けた。",
+       "一日も"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Họ luyện tập liên tục mà không nghỉ một ngày nào."
+     },
+     {
+      "pieces": [
+       "有名に",
+       "彼は",
+       "なった。",
+       "苦労することなく"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Anh ấy nổi tiếng mà không phải vất vả."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "彼女は一日も休む＿＿、走り続けた。",
+      "answer": "ことなく",
+      "translation_vi": "Cô ấy chạy liên tục mà không nghỉ một ngày nào."
+     },
+     {
+      "sentence_ja": "彼は誰にも気づかれる＿＿、部屋を出た。",
+      "answer": "ことなく",
+      "translation_vi": "Anh ấy ra khỏi phòng mà không để ai nhận ra."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "彼は文句も言う（　　）、仕事を続けた。",
+      "options": [
+       "ことなく",
+       "ことから",
+       "ばかりか",
+       "ところで"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "言うことなく = không phàn nàn lời nào."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼は努力することなく、試験に合格した。",
+      "options": [
+       "Anh ấy đỗ kỳ thi mà không cần nỗ lực.",
+       "Anh ấy đỗ kỳ thi nhờ nỗ lực rất nhiều.",
+       "Anh ấy thi trượt vì không nỗ lực.",
+       "Anh ấy nỗ lực để được thi lại."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "努力することなく = không nỗ lực mà vẫn đỗ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "彼は一度も笑うことなく、話し続けた。",
+       "誰にも知られることなく、計画は進んだ。",
+       "彼は努力することない、成功した。",
+       "彼女は休むことなく、働き続けた。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì phải là ことなく, không dùng ことない."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -215,7 +1844,188 @@
    "id": "JG-880c4c509b"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "私が傘を持っていないときに（　　）、雨が降る。",
+      "options": [
+       "限って",
+       "限らず",
+       "限り",
+       "限る"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "ときに限って = đúng lúc đó thì lại xảy ra."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "大事な日に（　　）、彼はけがをした。",
+      "options": [
+       "限って",
+       "反面",
+       "くせに",
+       "ところで"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "大事な日に限って = đúng ngày quan trọng thì lại bị thương."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "降る",
+       "私が",
+       "雨が",
+       "傘を持っていないときに限って"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "私が傘を持っていないときに限って雨が降る。★ là 傘を持っていないときに限って。〜ときに限って = đúng vào lúc đó thì lại."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "遅刻する",
+       "大事な",
+       "彼は",
+       "日に限って"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "大事な日に限って彼は遅刻する。★ là 日に限って。大事な日に限って = đúng ngày quan trọng lại đi muộn."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "急いでいるときに限って、バスがなかなか来ない。",
+      "options": [
+       "Đúng lúc đang vội thì xe buýt lại mãi không đến.",
+       "Khi rảnh rỗi thì xe buýt đến rất nhanh.",
+       "Xe buýt luôn đến đúng giờ khi tôi vội.",
+       "Tôi vội nên không đi xe buýt."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "急いでいるときに限って…ない = đúng lúc vội thì lại không có xe."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "私がかさを持っていないときに限って、雨が降る。",
+      "options": [
+       "Đúng những lúc tôi không mang ô thì trời lại mưa.",
+       "Trời mưa nên tôi luôn mang ô.",
+       "Tôi mang ô mỗi khi trời mưa.",
+       "Trời không mưa khi tôi mang ô."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "〜ときに限って = đúng lúc không mong muốn thì lại xảy ra."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "私が急いでいるときに限って、バスが来ない。",
+       "大事な日に限って、彼は遅刻する。",
+       "私が急いでいるときを限って、バスが来ない。",
+       "安いものに限って、すぐ壊れる。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì phải là に限って, không dùng を限って."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "私が急いでいるときに限って、バスがなかなか来ない。",
+       "大事な日に限って、彼は遅刻する。",
+       "安いものに限って、すぐ壊れる。",
+       "急ぐに限って、バスが来ない。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai vì に限って gắn với danh từ/thời điểm; đúng là 急いでいるときに限って."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "限って",
+       "私が",
+       "バスが来ない。",
+       "急いでいるときに"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Đúng lúc tôi vội thì xe buýt lại không đến."
+     },
+     {
+      "pieces": [
+       "限って",
+       "大事な",
+       "彼は遅刻する。",
+       "日に"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Đúng ngày quan trọng thì anh ấy lại đi muộn."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "私が傘を持っていないときに＿＿、雨が降る。",
+      "answer": "限って",
+      "translation_vi": "Đúng lúc tôi không mang ô thì trời lại mưa."
+     },
+     {
+      "sentence_ja": "大事な日＿＿、彼は必ず熱を出す。",
+      "answer": "に限って",
+      "translation_vi": "Đúng ngày quan trọng là anh ấy lại sốt."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "安いもの（　　）、すぐ壊れる。",
+      "options": [
+       "に限って",
+       "に反して",
+       "に応じて",
+       "をめぐって"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "安いものに限って = đúng đồ rẻ thì lại dễ hỏng."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "急いでいるときに限って、信号は全部赤になる。",
+      "options": [
+       "Đúng lúc đang vội thì đèn giao thông lại toàn đỏ.",
+       "Khi không vội thì đèn giao thông toàn đỏ.",
+       "Tôi vội nên không gặp đèn đỏ.",
+       "Đèn giao thông ở đây lúc nào cũng đỏ."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "〜ときに限って = đúng lúc vội thì lại gặp chuyện không mong muốn."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "私がいちばん忙しいときに限って、電話が鳴る。",
+       "高いものに限って、よく売れる。",
+       "忙しいに限って、客が来る。",
+       "試験の日に限って、彼は具合が悪くなる。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai vì に限って cần danh từ/thời điểm; đúng là 忙しいときに限って."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {

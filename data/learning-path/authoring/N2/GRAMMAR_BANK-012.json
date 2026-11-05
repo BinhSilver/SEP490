@@ -4,7 +4,188 @@
  },
  "items": [
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "明日は試験だから、今夜は勉強し（　　）。",
+      "options": [
+       "ないわけにはいかない",
+       "ないことにしている",
+       "ないでいる",
+       "ないばかりだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "V-ない + わけにはいかない: không thể không (bắt buộc)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "部長に頼まれたので、引き受け（　　）。",
+      "options": [
+       "ないわけにはいかない",
+       "わけではない",
+       "にすぎない",
+       "おそれがある"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "引き受けないわけにはいかない: không thể không nhận."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "わけにはいかない。",
+       "大切な",
+       "出席しない",
+       "会議だから"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "大切な会議だから出席しないわけにはいかない。。★ là 出席しない。出席しないわけにはいかない: không thể không tham dự."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "わけにはいかない。",
+       "先生に",
+       "断らない",
+       "頼まれたので"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "先生に頼まれたので断らないわけにはいかない。。★ là 断らない。断らないわけにはいかない: không thể từ chối."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "あしたは試験なので、勉強しないわけにはいかない。",
+      "options": [
+       "Mai thi nên tôi không thể không học bài.",
+       "Mai thi nhưng tôi không cần học.",
+       "Tôi đã học xong từ hôm qua.",
+       "Tôi quyết định không học bài."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "勉強しないわけにはいかない: không thể không học."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "みんなが待っているので、行かないわけにはいかない。",
+      "options": [
+       "Mọi người đang đợi nên tôi không thể không đi.",
+       "Mọi người đang đợi nên tôi ở lại.",
+       "Tôi đã đi rồi.",
+       "Không ai đợi tôi cả."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "行かないわけにはいかない: không thể không đi."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "明日は試験なので、勉強しないわけにはいかない。",
+       "部長に頼まれたので、引き受けないわけにはいかない。",
+       "みんなが待っているので、行かないわけにはいかない。",
+       "大切な会議なので、出席するわけにはいかない。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "出席するわけにはいかない sai: phải có ない, đúng là 出席しないわけにはいかない."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "約束したので、行かないわけにはいかない。",
+       "部長の命令なので、従わないわけにはいかない。",
+       "大切な会議だから、出席しないわけにはいかない。",
+       "時間がないから、急がないわけにはいかないない。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "わけにはいかないない sai: lặp phủ định hai lần."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "勉強しない",
+       "明日は",
+       "わけにはいかない。",
+       "試験なので"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Mai thi nên tôi không thể không học."
+     },
+     {
+      "pieces": [
+       "引き受けない",
+       "部長に",
+       "わけにはいかない。",
+       "頼まれたので"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Được trưởng phòng nhờ nên tôi không thể không nhận."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "みんなが待っているので、＿＿。",
+      "answer": "行かないわけにはいかない",
+      "translation_vi": "Mọi người đang đợi nên tôi không thể không đi."
+     },
+     {
+      "sentence_ja": "約束したのだから、＿＿。",
+      "answer": "行かないわけにはいかない",
+      "translation_vi": "Đã hứa rồi thì tôi không thể không đi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "社長の命令だから、従わ（　　）。",
+      "options": [
+       "ないわけにはいかない",
+       "ないことにしている",
+       "ないでいる",
+       "ないばかりだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "従わないわけにはいかない: không thể không phục tùng."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "大切な客が来るので、部屋を片づけないわけにはいかない。",
+      "options": [
+       "Khách quan trọng đến nên tôi không thể không dọn phòng.",
+       "Khách đến nên tôi không cần dọn phòng.",
+       "Tôi đã dọn phòng xong từ sớm.",
+       "Khách không đến nên tôi không dọn phòng."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "片づけないわけにはいかない: không thể không dọn."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "明日は試験なので、勉強しないわけにはいかない。",
+       "先生に頼まれたので、手伝わないわけにはいかない。",
+       "約束したからには、行かないわけにはいかない。",
+       "大切な会議なので、出席するわけにはいかない。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "出席するわけにはいかない sai: thiếu ない, phải là 出席しないわけにはいかない."
+     }
+    ]
+   },
    "context": {
     "examples": [],
     "meaning_vi": null,
@@ -22,7 +203,188 @@
    "id": "JG-98cf004509"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "学校の規則なので、髪を切ら（　　）。",
+      "options": [
+       "ざるを得ない",
+       "ざるを得る",
+       "ざるを得ている",
+       "ざるを得たい"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "V-ない stem + ざるを得ない: buộc phải làm."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "上司の命令なので、従わ（　　）。",
+      "options": [
+       "ざるを得ない",
+       "ざるを得る",
+       "ざるを得ている",
+       "ざるを得ません"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "従わざるを得ない: buộc phải phục tùng."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "切らざるを得ない。",
+       "学校の",
+       "髪を",
+       "規則なので"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "学校の規則なので髪を切らざるを得ない。。★ là 髪を。切らざるを得ない: buộc phải cắt."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "行かざるを得ない。",
+       "台風で",
+       "タクシーで",
+       "電車が止まり"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "台風で電車が止まりタクシーで行かざるを得ない。。★ là タクシーで。行かざるを得ない: buộc phải đi."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この状況では、計画を変更せざるを得ない。",
+      "options": [
+       "Trong tình hình này, buộc phải thay đổi kế hoạch.",
+       "Trong tình hình này, kế hoạch không cần đổi.",
+       "Kế hoạch đã được thay đổi từ lâu.",
+       "Tôi muốn giữ nguyên kế hoạch."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "変更せざるを得ない: buộc phải thay đổi."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "証拠があるので、認めざるを得ない。",
+      "options": [
+       "Có bằng chứng nên buộc phải thừa nhận.",
+       "Có bằng chứng nên tôi không thừa nhận.",
+       "Tôi không biết có bằng chứng hay không.",
+       "Tôi đã thừa nhận trước khi có bằng chứng."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "認めざるを得ない: buộc phải thừa nhận."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "学校の規則なので、髪を切らざるを得ない。",
+       "証拠があるので、認めざるを得ない。",
+       "この状況では、計画を変更せざるを得ない。",
+       "忙しいので、行くざるを得ない。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "行くざるを得ない sai: phải là 行かざるを得ない (V-ない stem)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "台風で、旅行を中止せざるを得ない。",
+       "時間がないので、急ぐざるを得ない。",
+       "上司の命令なので、従わざるを得ない。",
+       "お金がないので、借りざるを得ない。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "急ぐざるを得ない sai: phải là 急がざるを得ない."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "従わ",
+       "上司の",
+       "ざるを得ない。",
+       "命令なので"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Vì mệnh lệnh của cấp trên nên buộc phải phục tùng."
+     },
+     {
+      "pieces": [
+       "認め",
+       "証拠が",
+       "ざるを得ない。",
+       "あるので"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Có bằng chứng nên buộc phải thừa nhận."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "学校の規則なので、髪を＿＿。",
+      "answer": "切らざるを得ない",
+      "translation_vi": "Vì quy định của trường nên buộc phải cắt tóc."
+     },
+     {
+      "sentence_ja": "台風で、旅行を＿＿。",
+      "answer": "中止せざるを得ない",
+      "translation_vi": "Vì bão nên buộc phải hủy chuyến đi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "お金がないので、買わ（　　）。",
+      "options": [
+       "ざるを得ない",
+       "ざるを得る",
+       "ざるを得ている",
+       "ざるを得た"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "買わざるを得ない: buộc phải mua (dù không muốn)."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "社長が決めたことなので、従わざるを得ない。",
+      "options": [
+       "Vì là điều sếp đã quyết nên buộc phải phục tùng.",
+       "Vì là điều sếp đã quyết nên tôi phản đối.",
+       "Tôi tự quyết định việc này.",
+       "Sếp chưa quyết định gì cả."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "従わざるを得ない: buộc phải phục tùng."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "時間がないので、タクシーで行かざるを得ない。",
+       "証拠を見せられて、認めざるを得なかった。",
+       "上司の命令なので、従わざるを得ない。",
+       "雨なので、試合を中止するざるを得ない。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "中止するざるを得ない sai: phải là 中止せざるを得ない."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -52,7 +414,188 @@
    "id": "JG-b06b782d7b"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "子どものころは、よく川で泳いだ（　　）。",
+      "options": [
+       "ものだ",
+       "わけだ",
+       "ところだ",
+       "ばかりだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "V-た + ものだ: hồi xưa thường làm gì."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "昔はこの辺りに大きな木があった（　　）。",
+      "options": [
+       "ものだ",
+       "にすぎない",
+       "かねない",
+       "おそれがある"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "あったものだ: ngày xưa vốn có."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "泳いだものだ。",
+       "子どものころは",
+       "この川で",
+       "よく"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "子どものころはよくこの川で泳いだものだ。。★ là この川で。泳いだものだ: hồi nhỏ thường bơi ở đây."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "本を読んだものだ。",
+       "学生のころは",
+       "遅くまで",
+       "毎晩"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "学生のころは毎晩遅くまで本を読んだものだ。。★ là 遅くまで。読んだものだ: hồi sinh viên thường đọc sách khuya."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "子どものころは、よく祖母と買い物に行ったものだ。",
+      "options": [
+       "Hồi nhỏ tôi thường đi mua sắm với bà.",
+       "Hồi nhỏ tôi chưa từng đi mua sắm với bà.",
+       "Bây giờ tôi vẫn thường đi mua sắm với bà.",
+       "Bà tôi không thích đi mua sắm."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "〜たものだ hồi tưởng thói quen trong quá khứ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "若いころは、朝まで平気で起きていたものだ。",
+      "options": [
+       "Hồi trẻ tôi thường thức đến sáng mà không sao.",
+       "Hồi trẻ tôi không bao giờ thức khuya.",
+       "Bây giờ tôi vẫn thức đến sáng.",
+       "Tôi không nhớ chuyện hồi trẻ."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "起きていたものだ: hồi đó thường thức khuya."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "子どものころは、よく川で泳いだものだ。",
+       "昔はこの辺りに大きな木があったものだ。",
+       "学生のころは、よく図書館で勉強したものだ。",
+       "子どものころは、よく川で泳ぐものだ。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "泳ぐものだ sai: hồi tưởng quá khứ phải dùng V-た + ものだ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "若いころは、よく夜遅くまで話したものだ。",
+       "昔は、この店によく来たものだ。",
+       "昔はよく遊ぶものだった。",
+       "子どものころは、毎日のように遊んだものだ。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "遊ぶものだった sai: phải là 遊んだものだ."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "祖母と",
+       "子どものころは",
+       "買い物に行ったものだ。",
+       "よく"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Hồi nhỏ tôi thường đi mua sắm với bà."
+     },
+     {
+      "pieces": [
+       "遅くまで",
+       "学生のころは",
+       "本を読んだものだ。",
+       "毎晩"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Hồi sinh viên tôi thường đọc sách đến khuya."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "子どものころは、よくこの川で＿＿。",
+      "answer": "泳いだものだ",
+      "translation_vi": "Hồi nhỏ tôi thường bơi ở con sông này."
+     },
+     {
+      "sentence_ja": "昔はこの辺りに大きな木が＿＿。",
+      "answer": "あったものだ",
+      "translation_vi": "Ngày xưa ở khu này có một cây lớn."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "若いころは、よく山に登った（　　）。",
+      "options": [
+       "ものだ",
+       "わけだ",
+       "ところだ",
+       "ばかりだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "登ったものだ: hồi trẻ thường leo núi."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "学生のころは、よく友達と夜通し話したものだ。",
+      "options": [
+       "Hồi sinh viên tôi thường nói chuyện với bạn suốt đêm.",
+       "Hồi sinh viên tôi không có bạn bè.",
+       "Bây giờ tôi vẫn nói chuyện suốt đêm.",
+       "Tôi đã quên hết bạn cũ."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "〜たものだ hồi tưởng thói quen cũ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "昔は、よくこの店で食べたものだ。",
+       "子どものころは、毎日のように外で遊んだものだ。",
+       "学生のころは、よく徹夜したものだ。",
+       "若いころは、毎日走るものだった。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "走るものだった sai: phải là 走ったものだ."
+     }
+    ]
+   },
    "context": {
     "examples": [],
     "meaning_vi": null,
@@ -70,7 +613,188 @@
    "id": "JG-f8c1050c9a"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この問題を解決できない（　　）。",
+      "options": [
+       "ものだろうか",
+       "わけだろうか",
+       "べきだろうか",
+       "そうだろうか"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "V-ない + ものだろうか: ước gì, không biết có thể... không."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "もっと安く買えない（　　）と、いつも考えている。",
+      "options": [
+       "ものだろうか",
+       "にすぎない",
+       "おそれがある",
+       "かねない"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "買えないものだろうか: ước gì mua được rẻ hơn."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "ものだろうか。",
+       "この",
+       "解決できない",
+       "問題を"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "この問題を解決できないものだろうか。。★ là 解決できない。解決できないものだろうか: ước gì giải quyết được."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "ものだろうか。",
+       "もっと",
+       "ならない",
+       "安く"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "もっと安くならないものだろうか。。★ là ならない。ならないものだろうか: ước gì trở nên rẻ hơn."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "だれか助けてくれないものだろうか。",
+      "options": [
+       "Không biết có ai giúp mình được không nhỉ.",
+       "Chắc chắn sẽ có người giúp.",
+       "Không ai có thể giúp tôi.",
+       "Tôi đã nhờ được người giúp."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "〜ないものだろうか thể hiện mong muốn, kỳ vọng."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この町にもっと人が来ないものだろうか。",
+      "options": [
+       "Ước gì có nhiều người đến thị trấn này hơn.",
+       "Thị trấn này đã có rất nhiều người.",
+       "Tôi không muốn ai đến thị trấn này.",
+       "Người dân đang rời khỏi thị trấn."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "来ないものだろうか: mong có nhiều người đến."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この問題を解決できないものだろうか。",
+       "もっと安くならないものだろうか。",
+       "だれか助けてくれないものだろうか。",
+       "助けてくれないものだだろうか。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "ものだだろうか sai: lặp だ, mẫu đúng là ものだろうか."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "何かいい方法はないものだろうか。",
+       "彼にもう一度会えないものだろうか。",
+       "もう少し静かにできないものだろうか。",
+       "早く春が来ないものだろうです。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "ものだろうです sai: không thêm です vào giữa だろう và câu."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "解決できない",
+       "この",
+       "ものだろうか。",
+       "問題を"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Ước gì giải quyết được vấn đề này."
+     },
+     {
+      "pieces": [
+       "ならない",
+       "もっと",
+       "ものだろうか。",
+       "安く"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Ước gì nó trở nên rẻ hơn."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "だれか助けてくれない＿＿。",
+      "answer": "ものだろうか",
+      "translation_vi": "Không biết có ai giúp mình được không."
+     },
+     {
+      "sentence_ja": "何かいい方法はない＿＿。",
+      "answer": "ものだろうか",
+      "translation_vi": "Ước gì có cách nào hay."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この町にもっと店ができない（　　）。",
+      "options": [
+       "ものだろうか",
+       "わけだろうか",
+       "べきだろうか",
+       "そうだろうか"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "できないものだろうか: ước gì có thêm cửa hàng."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "もう少し早く家を出られないものだろうか。",
+      "options": [
+       "Ước gì tôi có thể ra khỏi nhà sớm hơn một chút.",
+       "Tôi luôn ra khỏi nhà rất sớm.",
+       "Tôi không bao giờ ra khỏi nhà.",
+       "Tôi đã ra khỏi nhà từ sáng."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "〜ないものだろうか diễn tả mong muốn cải thiện."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "だれか手伝ってくれないものだろうか。",
+       "もう少し安くならないものだろうか。",
+       "この問題を早く解決できないものだろうか。",
+       "彼にもう一度会えないものだろうかだ。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "ものだろうかだ sai: không thêm だ sau だろうか."
+     }
+    ]
+   },
    "context": {
     "examples": [],
     "meaning_vi": null,
@@ -88,7 +812,188 @@
    "id": "JG-d25295d5da"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "彼の話には、人の心を動かす（　　）。",
+      "options": [
+       "ものがある",
+       "べきだ",
+       "つもりだ",
+       "そうだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "V-る + ものがある: có điều khiến người ta cảm nhận được."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "この写真には、人を引きつける（　　）。",
+      "options": [
+       "ものがある",
+       "おそれがある",
+       "かねない",
+       "ことはない"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "引きつけるものがある: có sức hút."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "引きつけるものがある。",
+       "彼の",
+       "人を",
+       "演奏には"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "彼の演奏には人を引きつけるものがある。。★ là 人を。人を引きつけるものがある: có sức cuốn hút."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "動かすものがある。",
+       "この",
+       "人の心を",
+       "作品には"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "この作品には人の心を動かすものがある。。★ là 人の心を。人の心を動かすものがある: có điều lay động lòng người."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼の言葉には、人を勇気づけるものがある。",
+      "options": [
+       "Lời nói của anh ấy có điều khiến người ta được truyền động lực.",
+       "Lời nói của anh ấy không ảnh hưởng đến ai.",
+       "Anh ấy chỉ nói những điều vô nghĩa.",
+       "Tôi không hiểu lời nói của anh ấy."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "勇気づけるものがある: có điều tiếp thêm can đảm."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この町の風景には、どこか懐かしいものがある。",
+      "options": [
+       "Phong cảnh thị trấn này có nét gì đó rất gần gũi thân quen.",
+       "Phong cảnh thị trấn này hoàn toàn xa lạ.",
+       "Tôi chưa từng đến thị trấn này.",
+       "Thị trấn này không có phong cảnh đẹp."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "懐かしいものがある: có nét gợi nhớ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "彼の話には、人の心を動かすものがある。",
+       "この映画には、人を引きつけるものがある。",
+       "最近の技術の進歩には、目を見張るものがある。",
+       "この本には、読む人を感動させるものがあるだ。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "ものがあるだ sai: không thêm だ sau ある."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "彼の演奏には、人を感動させるものがある。",
+       "この町の風景には、どこか懐かしいものがある。",
+       "彼の言葉には、人を勇気づけるものがあります。",
+       "この問題には、考えるべきものある。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "ものある sai: thiếu が, đúng là ものがある."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "人を",
+       "彼の",
+       "引きつけるものがある。",
+       "演奏には"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Phần trình diễn của anh ấy có sức cuốn hút người nghe."
+     },
+     {
+      "pieces": [
+       "人の心を",
+       "この",
+       "動かすものがある。",
+       "作品には"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Tác phẩm này có điều lay động lòng người."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "彼の話には、人の心を＿＿。",
+      "answer": "動かすものがある",
+      "translation_vi": "Câu chuyện của anh ấy có điều lay động lòng người."
+     },
+     {
+      "sentence_ja": "この町の風景には、どこか＿＿。",
+      "answer": "懐かしいものがある",
+      "translation_vi": "Phong cảnh thị trấn này có nét gì đó thân quen."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この歌には、人を元気にする（　　）。",
+      "options": [
+       "ものがある",
+       "べきだ",
+       "つもりだ",
+       "そうだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "元気にするものがある: có điều khiến người ta phấn chấn."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼の文章には、読む人を引きつけるものがある。",
+      "options": [
+       "Bài viết của anh ấy có sức hút người đọc.",
+       "Bài viết của anh ấy rất khó đọc.",
+       "Không ai đọc bài viết của anh ấy.",
+       "Bài viết của anh ấy rất ngắn."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "引きつけるものがある: có sức cuốn hút."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この映画には、人を感動させるものがある。",
+       "彼の声には、人を落ち着かせるものがある。",
+       "この町には、どこか寂しいものがある。",
+       "彼の説明には、分かりやすいものがありませんです。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "ありませんです sai: không kết hợp ありません với です như vậy."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -118,7 +1023,188 @@
    "id": "JG-fbcb453cbc"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "外国での一人暮らしはどんなに寂しい（　　）。",
+      "options": [
+       "ことか",
+       "ものか",
+       "ところか",
+       "わけか"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "どんなに〜ことか: cảm thán, biết bao nhiêu."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "あの時は、どんなにうれしかった（　　）。",
+      "options": [
+       "ことか",
+       "にすぎない",
+       "おそれがある",
+       "かねない"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "うれしかったことか: vui biết bao."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "寂しいことか。",
+       "一人で",
+       "どんなに",
+       "暮らすのは"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "一人で暮らすのはどんなに寂しいことか。。★ là どんなに。どんなに寂しいことか: cô đơn biết bao."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "うれしかったことか。",
+       "合格を",
+       "どんなに",
+       "知った時"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "合格を知った時どんなにうれしかったことか。。★ là どんなに。うれしかったことか: vui biết bao."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "毎日残業して、どんなに疲れたことか。",
+      "options": [
+       "Ngày nào cũng làm thêm, tôi mệt biết bao nhiêu.",
+       "Ngày nào cũng làm thêm nhưng tôi không mệt.",
+       "Tôi chưa bao giờ làm thêm.",
+       "Tôi rất thích làm thêm."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "どんなに疲れたことか: cảm thán về sự mệt mỏi."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "子どもが生まれた時、どんなにうれしかったことか。",
+      "options": [
+       "Khi con chào đời, tôi vui biết bao nhiêu.",
+       "Khi con chào đời, tôi rất buồn.",
+       "Tôi không có con.",
+       "Con tôi sinh ra ở nước ngoài."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "どんなにうれしかったことか: cảm thán niềm vui."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "外国での一人暮らしはどんなに寂しいことか。",
+       "合格した時は、どんなにうれしかったことか。",
+       "毎日残業して、どんなに疲れたことか。",
+       "どんなにうれしいことかだ。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "ことかだ sai: ことか không đi với だ phía sau."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "子どもが生まれた時、どんなにうれしかったことか。",
+       "英語が話せたら、どんなにいいことか。",
+       "一人で暮らすのは、どんなに寂しいことか。",
+       "どんなに彼を待ったことかです。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "ことかです sai: không thêm です sau ことか."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "どんなに",
+       "一人で",
+       "寂しいことか。",
+       "暮らすのは"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Sống một mình cô đơn biết bao nhiêu."
+     },
+     {
+      "pieces": [
+       "どんなに",
+       "合格を",
+       "うれしかったことか。",
+       "知った時は"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Khi biết mình đỗ, tôi vui biết bao nhiêu."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "外国での一人暮らしは、どんなに寂しい＿＿。",
+      "answer": "ことか",
+      "translation_vi": "Sống một mình ở nước ngoài cô đơn biết bao."
+     },
+     {
+      "sentence_ja": "子どもが生まれた時、どんなにうれしかった＿＿。",
+      "answer": "ことか",
+      "translation_vi": "Khi con chào đời, tôi vui biết bao."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "こんなに人が多い所で、どんなに大変だった（　　）。",
+      "options": [
+       "ことか",
+       "ものか",
+       "ところか",
+       "わけか"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "どんなに大変だったことか: vất vả biết bao."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "毎日練習して、どんなに苦しかったことか。",
+      "options": [
+       "Ngày nào cũng luyện tập, tôi đã khổ sở biết bao.",
+       "Ngày nào cũng luyện tập nhưng rất nhẹ nhàng.",
+       "Tôi chưa từng luyện tập.",
+       "Luyện tập khiến tôi rất vui."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "どんなに苦しかったことか: cảm thán nỗi khổ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "一人で暮らすのは、どんなに寂しいことか。",
+       "母に会えなくて、どんなに寂しかったことか。",
+       "あの時は、どんなに慌てたことか。",
+       "どんなに大変だったことかだです。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "ことかだです sai: không thêm だです sau ことか."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -147,7 +1233,188 @@
    "id": "JG-c1f1f9e9dc"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "会議は大ホール（　　）行われます。",
+      "options": [
+       "において",
+       "にとって",
+       "について",
+       "によって"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "N + において: tại, ở (văn viết trang trọng)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "この分野（　　）の研究はまだ少ない。",
+      "options": [
+       "における",
+       "によって",
+       "によると",
+       "にとって"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "N + における + N: trong lĩnh vực."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "行われます。",
+       "開会式は",
+       "において",
+       "体育館"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "開会式は体育館において行われます。。★ là において。体育館において: tại nhà thi đấu."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "問題を考える。",
+       "現代",
+       "教育の",
+       "社会における"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "現代社会における教育の問題を考える。。★ là 社会における。社会における教育の問題: vấn đề giáo dục trong xã hội."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "卒業式は講堂において行われます。",
+      "options": [
+       "Lễ tốt nghiệp được tổ chức tại giảng đường.",
+       "Lễ tốt nghiệp được tổ chức ở ngoài trời.",
+       "Lễ tốt nghiệp đã bị hủy.",
+       "Lễ tốt nghiệp diễn ra vào buổi tối."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "講堂において: tại giảng đường."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "教育における情報技術の役割は大きい。",
+      "options": [
+       "Vai trò của công nghệ thông tin trong giáo dục là rất lớn.",
+       "Công nghệ thông tin không liên quan đến giáo dục.",
+       "Giáo dục chỉ dùng sách giấy.",
+       "Trường học không có máy tính."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "教育における: trong lĩnh vực giáo dục."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "会議は大ホールにおいて行われます。",
+       "式典は体育館において行われた。",
+       "会議は大ホールにおいてで行われます。",
+       "教育における技術の役割は大きい。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "においてで sai: において đã bao gồm trợ từ, không thêm で."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "現代社会における問題は複雑だ。",
+       "会議は昨日、東京において開かれた。",
+       "この分野における研究は進んでいる。",
+       "会議は東京においてに行われた。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "においてに sai: において không đi cùng に phía sau."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "において",
+       "開会式は",
+       "行われます。",
+       "体育館"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Lễ khai mạc được tổ chức tại nhà thi đấu."
+     },
+     {
+      "pieces": [
+       "教育の",
+       "現代",
+       "問題を考える。",
+       "社会における"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Suy nghĩ về vấn đề giáo dục trong xã hội hiện đại."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "卒業式は講堂＿＿行われます。",
+      "answer": "において",
+      "translation_vi": "Lễ tốt nghiệp được tổ chức tại giảng đường."
+     },
+     {
+      "sentence_ja": "教育＿＿情報技術の役割は大きい。",
+      "answer": "における",
+      "translation_vi": "Vai trò của công nghệ thông tin trong giáo dục là rất lớn."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この問題は昨日の会議（　　）話し合われた。",
+      "options": [
+       "において",
+       "にとって",
+       "について",
+       "によると"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "会議において: tại cuộc họp."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "式典は市民ホールにおいて行われた。",
+      "options": [
+       "Lễ được tổ chức tại hội trường thành phố.",
+       "Lễ được tổ chức tại sân vận động.",
+       "Lễ đã bị hoãn lại.",
+       "Lễ diễn ra ở nhà riêng."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "市民ホールにおいて: tại hội trường thành phố."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "会議は東京において開かれた。",
+       "現代社会における問題は複雑だ。",
+       "この分野における研究は進んでいる。",
+       "式典は体育館においてで行われた。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "においてで sai: において không đi cùng で."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -170,7 +1437,188 @@
    "id": "JG-2f6d68d69c"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "電話（　　）メールで連絡してください。",
+      "options": [
+       "なり",
+       "しか",
+       "ほど",
+       "ばかり"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "N + なり N + なり: hoặc là... hoặc là."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "困ったときは、家族（　　）友達に相談しよう。",
+      "options": [
+       "なり",
+       "しか",
+       "まで",
+       "だけ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "家族なり友達なりに: hoặc gia đình hoặc bạn bè."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "してください。",
+       "連絡は",
+       "メールなりで",
+       "電話なり"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "連絡は電話なりメールなりでしてください。。★ là メールなりで。電話なりメールなりで: bằng điện thoại hoặc mail."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "して過ごす。",
+       "休みの日は",
+       "散歩するなり",
+       "本を読むなり"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "休みの日は本を読むなり散歩するなりして過ごす。。★ là 散歩するなり。V-る なり V-る なりして: làm cái này hoặc cái kia."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "分からないことは、先生なり友達なりに聞いてください。",
+      "options": [
+       "Điều gì không hiểu thì hãy hỏi thầy cô hoặc bạn bè.",
+       "Đừng hỏi ai cả.",
+       "Chỉ được hỏi thầy cô.",
+       "Tôi sẽ tự tìm hiểu một mình."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "先生なり友達なりに: hỏi thầy hoặc bạn."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "雨の日は、映画を見るなり音楽を聞くなりして過ごす。",
+      "options": [
+       "Ngày mưa tôi xem phim hoặc nghe nhạc để giết thời gian.",
+       "Ngày mưa tôi chỉ ngủ.",
+       "Ngày mưa tôi đi ra ngoài chơi.",
+       "Ngày mưa tôi không làm gì cả."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "〜なり〜なりして: làm việc này hay việc kia."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "電話なりメールなりで連絡してください。",
+       "分からないことは、先生なり友達なりに聞いてください。",
+       "休みの日は、本を読むなり散歩するなりして過ごす。",
+       "電話なりメールなりを連絡してください。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "メールなりを連絡 sai: なり đã là trợ từ, không dùng thêm を như vậy."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "ジュースなりお茶なり、好きなものを選んでください。",
+       "行くなり帰るなり、自分で決めてください。",
+       "何か食べるなり寝るなりして、休んでください。",
+       "電話なりでメールなり、連絡してください。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "電話なりでメールなり sai: trật tự sai, đúng là 電話なりメールなりで."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "メールなりで",
+       "連絡は",
+       "してください。",
+       "電話なり"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Hãy liên lạc bằng điện thoại hoặc mail."
+     },
+     {
+      "pieces": [
+       "散歩するなり",
+       "休みの日は",
+       "して過ごす。",
+       "本を読むなり"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Ngày nghỉ tôi đọc sách hoặc đi dạo."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "分からないことは、先生＿＿友達に聞いてください。",
+      "answer": "なり",
+      "translation_vi": "Điều gì không hiểu thì hãy hỏi thầy hoặc bạn."
+     },
+     {
+      "sentence_ja": "電話なりメールなり＿＿連絡してください。",
+      "answer": "で",
+      "translation_vi": "Hãy liên lạc bằng điện thoại hoặc mail."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "何か飲み物は、お茶（　　）コーヒーでいいですか。",
+      "options": [
+       "なり",
+       "しか",
+       "ほど",
+       "ばかり"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "お茶なりコーヒーなり: trà hoặc cà phê."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "困ったら、両親なり先生なりに相談したほうがいい。",
+      "options": [
+       "Nếu gặp khó khăn thì nên hỏi ý kiến bố mẹ hoặc thầy cô.",
+       "Không nên hỏi ý kiến ai.",
+       "Chỉ nên hỏi bố mẹ.",
+       "Tự giải quyết một mình là tốt nhất."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "両親なり先生なりに: bố mẹ hoặc thầy cô."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "電話なりメールなりで連絡してください。",
+       "休みの日は、散歩するなり買い物するなりして過ごす。",
+       "何か食べるなり寝るなりして休んでください。",
+       "連絡は、メールなりで電話なりしてください。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "メールなりで電話なり sai: trật tự sai, đúng là 電話なりメールなりで."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -193,7 +1641,188 @@
    "id": "JG-a1275b8738"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "嫌いな（　　）が、あまり食べない。",
+      "options": [
+       "わけではない",
+       "に違いない",
+       "かねない",
+       "おそれがある"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "〜わけではない: không hẳn là, phủ định một phần."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "お金があれば幸せになれる（　　）が、そうとも言えない。",
+      "options": [
+       "わけではない",
+       "に違いない",
+       "にすぎない",
+       "ほかない"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "幸せになれるわけではない: không hẳn là sẽ hạnh phúc."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "あまり食べない。",
+       "嫌いな",
+       "ないが",
+       "わけでは"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "嫌いなわけではないがあまり食べない。。★ là わけでは。嫌いなわけではない: không hẳn là ghét."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "わけではない。",
+       "高いものが",
+       "いい",
+       "いつも"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "高いものがいつもいいわけではない。。★ là いい。高いものがいいわけではない: đắt không hẳn đã tốt."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "日本人だからといって、みんなが寿司を好きなわけではない。",
+      "options": [
+       "Không phải cứ là người Nhật thì ai cũng thích sushi.",
+       "Người Nhật nào cũng thích sushi.",
+       "Người Nhật không ai thích sushi.",
+       "Tôi không biết người Nhật có thích sushi không."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "〜わけではない phủ định một phần, không phủ định toàn bộ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "毎日運動すれば必ずやせられるわけではない。",
+      "options": [
+       "Không hẳn cứ tập thể dục mỗi ngày là sẽ gầy đi.",
+       "Tập thể dục mỗi ngày chắc chắn sẽ gầy.",
+       "Tập thể dục không liên quan đến cân nặng.",
+       "Ai tập thể dục cũng bị gầy."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "必ずやせられるわけではない: không hẳn là chắc chắn gầy."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "嫌いなわけではないが、あまり食べない。",
+       "日本人だからといって、みんなが寿司を好きなわけではない。",
+       "毎日運動すれば必ずやせられるわけではない。",
+       "お金があれば幸せになれるわけではないだ。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "わけではないだ sai: không thêm だ sau ではない."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "高いものがいつもいいわけではない。",
+       "忙しいからといって、会えないわけではない。",
+       "全然知らないわけではない。少しは知っている。",
+       "彼が嫌いなわけではありませんない。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "わけではありませんない sai: lặp phủ định hai lần."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "ないが",
+       "嫌いな",
+       "あまり食べない。",
+       "わけでは"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Không hẳn là ghét nhưng tôi ăn ít."
+     },
+     {
+      "pieces": [
+       "いい",
+       "高いものが",
+       "わけではない。",
+       "いつも"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Không hẳn cứ đắt là tốt."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "日本人だからといって、みんなが寿司を好きな＿＿。",
+      "answer": "わけではない",
+      "translation_vi": "Không phải cứ là người Nhật là ai cũng thích sushi."
+     },
+     {
+      "sentence_ja": "お金があれば幸せになれる＿＿。",
+      "answer": "わけではない",
+      "translation_vi": "Không hẳn có tiền là sẽ hạnh phúc."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この店が安いからといって、質が悪い（　　）。",
+      "options": [
+       "わけではない",
+       "に違いない",
+       "かねない",
+       "おそれがある"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "質が悪いわけではない: không hẳn là chất lượng kém."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "毎日同じものを食べるのが嫌なわけではない。",
+      "options": [
+       "Không hẳn là tôi ghét ăn cùng một món mỗi ngày.",
+       "Tôi rất ghét ăn cùng một món.",
+       "Tôi không bao giờ ăn cùng một món.",
+       "Tôi chỉ ăn một món duy nhất."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "嫌なわけではない: không hẳn là ghét."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "嫌いなわけではないが、あまり食べない。",
+       "高ければいいわけではない。",
+       "忙しくても会えないわけではない。",
+       "安いからといって、質が悪いわけではありませんない。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "わけではありませんない sai: lặp phủ định hai lần."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -216,7 +1845,188 @@
    "id": "JG-bf5dd7803d"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "息子は得意（　　）にテストを差し出した。",
+      "options": [
+       "げ",
+       "さ",
+       "み",
+       "め"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "得意げに: ra vẻ tự hào."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "彼女は悲し（　　）な顔をしていた。",
+      "options": [
+       "げ",
+       "さ",
+       "み",
+       "め"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "悲しげな: vẻ mặt buồn (tính từ đuôi い bỏ い + げ)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "差し出した。",
+       "息子は",
+       "テストを",
+       "得意げに"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "息子は得意げにテストを差し出した。。★ là 得意げに。得意げに: với vẻ đắc ý."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "いっぱいだった。",
+       "店は",
+       "若者たちで",
+       "楽しげな"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "店は楽しげな若者たちでいっぱいだった。。★ là 楽しげな。楽しげな若者: những người trẻ vui vẻ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼は寂しげな顔で、窓の外を見ていた。",
+      "options": [
+       "Anh ấy với vẻ mặt cô đơn nhìn ra ngoài cửa sổ.",
+       "Anh ấy vui vẻ nhìn ra ngoài cửa sổ.",
+       "Anh ấy đang ngủ bên cửa sổ.",
+       "Anh ấy đã đóng cửa sổ lại."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "寂しげな顔: vẻ mặt cô đơn."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "子どもたちは嬉しげに走り回っている。",
+      "options": [
+       "Bọn trẻ chạy nhảy với vẻ mặt vui mừng.",
+       "Bọn trẻ buồn bã ngồi yên.",
+       "Bọn trẻ đang ngủ.",
+       "Bọn trẻ không được chạy nhảy."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "嬉しげに: với vẻ vui mừng."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "息子は得意げにテストを差し出した。",
+       "彼女は悲しげな顔をしていた。",
+       "店は楽しげな若者でいっぱいだった。",
+       "彼は元気げに走った。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "元気げ sai: 元気 là danh từ, không kết hợp trực tiếp với げ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "彼は寂しげな顔で外を見ていた。",
+       "子どもは嬉しげに笑った。",
+       "彼女は不安げな声で答えた。",
+       "彼は悲しげな声を話した。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "声を話す sai: phải dùng 声で話した."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "テストを",
+       "息子は",
+       "差し出した。",
+       "得意げに"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Con trai tôi với vẻ đắc ý đưa tờ bài kiểm tra ra."
+     },
+     {
+      "pieces": [
+       "若者たちで",
+       "店は",
+       "いっぱいだった。",
+       "楽しげな"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Quán đầy những bạn trẻ vui vẻ."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "息子は＿＿テストを差し出した。",
+      "answer": "得意げに",
+      "translation_vi": "Con trai tôi với vẻ đắc ý đưa bài kiểm tra ra."
+     },
+     {
+      "sentence_ja": "彼女は＿＿な顔をしていた。",
+      "answer": "悲しげ",
+      "translation_vi": "Cô ấy có vẻ mặt buồn."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "彼は不安（　　）な声で答えた。",
+      "options": [
+       "げ",
+       "さ",
+       "み",
+       "め"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "不安げな声: giọng nói có vẻ bất an."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼女は嬉しげに手を振った。",
+      "options": [
+       "Cô ấy vẫy tay với vẻ mặt vui mừng.",
+       "Cô ấy buồn bã cúi đầu.",
+       "Cô ấy không nhìn thấy tôi.",
+       "Cô ấy đã đi mất."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "嬉しげに: với vẻ vui mừng."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "彼は寂しげな顔で笑った。",
+       "子どもは楽しげに遊んでいる。",
+       "彼女は悲しげな声で話した。",
+       "彼は静かげだ顔をしていた。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "静かげだ顔 sai: げ gắn trực tiếp vào thân tính từ, không thêm だ."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {

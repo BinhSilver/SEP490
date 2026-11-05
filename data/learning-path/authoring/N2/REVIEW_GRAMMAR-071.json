@@ -1,0 +1,582 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この問題は地域ぐるみで取り組む必要がある。",
+       "ja_furigana": "この問題(もんだい)は地域(ちいき)ぐるみで取(と)り組(く)む必要(ひつよう)がある。",
+       "vi": "Vấn đề này cần được cả khu vực cùng chung tay giải quyết."
+      },
+      {
+       "ja": "家族ぐるみで旅行するのがこの家の習慣だ。",
+       "ja_furigana": "家族(かぞく)ぐるみで旅行(りょこう)するのがこの家(いえ)の習慣(しゅうかん)だ。",
+       "vi": "Cả nhà cùng đi du lịch là thói quen của gia đình này."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "地域ぐるみで防災訓練を行う。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cả khu cùng tổ chức diễn tập phòng chống thiên tai."
+     },
+     {
+      "ja": "家族ぐるみの友人付き合いが続いている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chúng tôi duy trì quan hệ bạn bè ở mức cả gia đình."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 地域ぐるみで防災訓練を行う。",
+     "FURIGANA_MISSING: 家族ぐるみの友人付き合いが続いている。"
+    ],
+    "formation": "N + ぐるみ",
+    "locked_fields": [],
+    "meaning_vi": "Nhấn mạnh sự tham gia bao trùm của toàn nhóm (gia đình/công ty/khu vực…). Ngữ cảnh tích cực (hợp tác) và tiêu cực (bao che, đồng phạm) đều dùng tự nhiên. Tạo cảm giác “đồng lòng/toàn diện” hoặc “hệ thống/lan rộng”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Toàn..., cả...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Chỉ kết hợp danh từ chỉ nhóm người/tổ chức/khu vực. “の” khi bổ nghĩa danh từ; “で” khi làm trạng ngữ cho động từ. Trong điều tra: “〜ぐるみの不正/隠蔽/改ざん” mang sắc thái phê phán mạnh. [6. Ghi chú mở rộng] Cụm “家族ぐるみの付き合い” thường chỉ mức thân cận lâu dài. Ngoài người, có thể dùng đơn vị xã hội: 企業／自治体／地域／商店街, nhưng không dùng cho đồ vật. Ngoài phạm vi xã hội, dùng まるごと/全部で khi không phải nhóm người. [7. Biến thể & cụm cố định] 家族ぐるみの交流／友人関係 組織ぐるみの不正／隠蔽／改ざん 地域ぐるみで支援／防犯／防災 学校ぐるみのプロジェクト／参加 [8. Lỗi thường gặp & bẫy JLPT] Dùng với đối tượng không phải nhóm người: ×机ぐるみで運ぶ → 机ごと/全部で thì được. Quên の khi bổ nghĩa danh từ: ×組織ぐるみ不正 → ○組織ぐるみの不正. JLPT: phân biệt với 一丸となって (đoàn kết) và 全体で (trung tính) tùy sắc thái đề."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f6fb060b61"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今年はいいことずくめで、本当にうれしい。",
+       "ja_furigana": "今年(ことし)はいいことずくめで、本当(ほんとう)にうれしい。",
+       "vi": "Năm nay toàn chuyện tốt, thật sự rất vui."
+      },
+      {
+       "ja": "三日間ずくめの会議で、もうへとへとだ。",
+       "ja_furigana": "三日間(みっかかん)ずくめの会議(かいぎ)で、もうへとへとだ。",
+       "vi": "Suốt ba ngày toàn họp, tôi mệt lử rồi."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今日は朝から会議ずくめだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay từ sáng toàn họp."
+     },
+     {
+      "ja": "彼は全身黒ずくめの格好をしている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta ăn mặc toàn màu đen."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今日は朝から会議ずくめだ。",
+     "FURIGANA_MISSING: 彼は全身黒ずくめの格好をしている。"
+    ],
+    "formation": "N + ずくめ",
+    "locked_fields": [],
+    "meaning_vi": "“Toàn là/đầy rẫy/bao trùm bởi …”: nhấn mạnh tính đơn nhất, đồng nhất một màu. Thường dùng với màu sắc, sự kiện lặp lại, quy định, điều tốt/xấu toàn tập. Sắc thái: có thể tích cực (いいことずくめ) hoặc tiêu cực (苦情ずくめ／規則ずくめ). Khác với づくし: ずくめ = cùng một loại bao trùm; づくし = “đủ loại trong một chủ đề”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Toàn..., chẳng gì ngoài...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Gắn trực tiếp sau danh từ; thường đi với の khi bổ nghĩa danh từ khác: 黒ずくめの男. Dùng cho cảm giác “một màu”, “dày đặc” hơn là chỉ số lượng đơn thuần. Ngữ cảnh quảng cáo/báo chí hay dùng để nhấn mạnh tính “toàn diện”. [6. Ghi chú mở rộng] Cụm màu sắc cố định: 黒ずくめ／白ずくめ（toàn đen/toàn trắng）. Với sự kiện kéo dài: ～三日間ずくめで（suốt 3 ngày toàn…）. Tránh dùng cho vật thể phủ vật chất bẩn → dùng まみれ phù hợp hơn. [7. Biến thể & cụm cố định] 黒ずくめ／白ずくめ／赤ずくめ 会議ずくめ／仕事ずくめ／規則ずくめ いいことずくめ／悪いことずくめ 笑顔ずくめの一日（cách dùng tu từ) [8. Lỗi thường gặp & bẫy JLPT] Dùng với động từ: ×勉強ずくめする → đúng: 勉強ずくめの日々. Nhầm với づくし: ずくめ = một màu; づくし = đủ loại trong một chủ đề. Dùng ずくめ cho hiện tượng bẩn/bao phủ vật chất là sai sắc thái → dùng まみれ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c65d5298f6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会議は五時間にわたって続いた。",
+       "ja_furigana": "会議(かいぎ)は五時間(ごじかん)にわたって続(つづ)いた。",
+       "vi": "Cuộc họp kéo dài suốt năm tiếng."
+      },
+      {
+       "ja": "この工事は来月まで二週間にわたって行われる。",
+       "ja_furigana": "この工事(こうじ)は来月(らいげつ)まで二週間(にしゅうかん)にわたって行(おこな)われる。",
+       "vi": "Công trình này sẽ diễn ra trong hai tuần cho đến tháng sau."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "会議は三日間にわたって行われた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuộc họp được tổ chức suốt ba ngày."
+     },
+     {
+      "ja": "台風の影響は関東全域にわたり広がった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ảnh hưởng của bão lan rộng khắp toàn vùng Kanto."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 会議は三日間にわたって行われた。",
+     "FURIGANA_MISSING: 台風の影響は関東全域にわたり広がった。"
+    ],
+    "formation": "N + にわたって／にわたり／にわたる + N",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả sự kéo dài/bao trùm “trải suốt/trên khắp” một khoảng thời gian, phạm vi, số lượng hay lĩnh vực. Tập trung vào độ rộng và thời lượng, không nhất thiết liên tục không ngừng, nhưng mức độ bao phủ lớn. Thường dùng cho những phạm vi đáng kể (vài ngày, nhiều năm, toàn quốc...). Văn phong trang trọng, phổ biến trong báo cáo, tin tức.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Trải suốt..., trong suốt...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] N đứng trước phải là đơn vị “độ bao phủ”: thời gian (時間/日/年), không gian (地域/全域), số lượng (回/項目), lĩnh vực (分野). Sắc thái trang trọng; dùng trong tường thuật, mô tả quy mô/độ dài. Không dùng cho khoảng rất ngắn/trivial; khi ngắn dùng ずっと/ずいぶん/長い間. [6. Ghi chú mở rộng] Dạng định ngữ “多岐にわたる + N” là cụm rất hay gặp trong văn học thuật/PR. “長期にわたって/長時間にわたって” là công thức thường thấy trong tin tức. Không kết hợp trực tiếp với động từ (không “V にわたって”); cần danh từ hóa: “検討にわたって” không tự nhiên → “長期にわたる検討”. [7. Biến thể & cụm cố định] 全国にわたり／全域にわたり：trên toàn quốc/toàn vùng. 多岐にわたるN：nhiều mặt/đa dạng (多岐にわたる活動/研究). 長期にわたって／長時間にわたって：trong thời gian dài/dài giờ. [8. Lỗi thường gặp & bẫy JLPT] Dùng với N không chỉ độ bao phủ: “気持ちにわたって” sai; nên dùng với thời gian/phạm vi cụ thể. Nhầm với “を通じて”: đề thi kiểm tra sự khác nhau giữa “bao phủ” (にわたって) và “liên tục suốt thời gian” (を通じて). Quên biến thể định ngữ: chọn “にわたるN” khi đứng trước danh từ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-98da335f79"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟は食べては寝、寝ては食べて、太ってしまった。",
+       "ja_furigana": "弟(おとうと)は食(た)べては寝(ね)、寝(ね)ては食(た)べて、太(ふと)ってしまった。",
+       "vi": "Em tôi cứ ăn rồi ngủ, ngủ rồi ăn nên béo lên."
+      },
+      {
+       "ja": "このごろ雨が降ってはやみ、降ってはやみしている。",
+       "ja_furigana": "このごろ雨(あめ)が降(ふ)ってはやみ、降(ふ)ってはやみしている。",
+       "vi": "Dạo này trời cứ mưa rồi tạnh, mưa rồi tạnh."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "雨が降ってはやみ、降ってはやみしている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mưa rồi lại tạnh, mưa rồi lại tạnh."
+     },
+     {
+      "ja": "書いては消し、書いては消しで、レポートがなかなか進まない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Viết rồi xóa, viết rồi xóa, mãi mà bản báo cáo không tiến triển."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 雨が降ってはやみ、降ってはやみしている。",
+     "FURIGANA_MISSING: 書いては消し、書いては消しで、レポートがなかなか進まない。"
+    ],
+    "formation": "V-ては + V-ては〜; V-ては + V-て〜",
+    "locked_fields": [],
+    "meaning_vi": "Hành động lặp đi lặp lại",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ては・・・〜ては・・・",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 動詞のテ形（は）動詞のマス形、動詞のテ形（は）動詞のマス形 Ý nghĩa: 行為を（/状況が）繰り返している Hành động lặp đi lặp lại Ví dụ: 1. 雨が降ってはやみ、降ってはやみしている。 Mưa rồi lại tạnh, mưa rồi lại tạnh. 2. 書いては消し、書いては消しで、レポートがなかなか進まない。 Viết rồi xóa, viết rồi xóa, mãi mà bản báo cáo không tiến triển. 3. 冬休みは食べっては寝、食べっては寝（→食べっちゃ寝、食べっちゃ寝）で、３キロも太ってしまった。 Kỳ nghỉ đông, tôi cứ ăn lại ngủ, ăn lại ngủ nên béo lên tận 3kg rồi. Ý nghĩa: （注）「～ては」一つだけで反復を表すこともある。 Ví dụ: 1. 彼女は毎年海外旅行に行っては、珍しい織物を買って帰ってくる。 Cô ấy cứ mỗi năm đi du lịch nước ngoài lại mua về những loại vải hiếm. 2. 留学のために貯金をしているのだが、なかなかたまらない。貯金通帳を見てはため息をつく毎日だ。 Tôi đang để dành tiền để đi du học nhưng mãi mà không dành được. Mỗi ngày, cứ nhìn đến tài khoản tiết kiệm tôi lại thở dài."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2968adfb08"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "家を出た矢先に、雨が降り出した。",
+       "ja_furigana": "家(いえ)を出(で)た矢先(やさき)に、雨(あめ)が降(ふ)り出(だ)した。",
+       "vi": "Vừa ra khỏi nhà thì trời bắt đầu mưa."
+      },
+      {
+       "ja": "出かけようとした矢先に、電話が鳴った。",
+       "ja_furigana": "出(で)かけようとした矢先(やさき)に、電話(でんわ)が鳴(な)った。",
+       "vi": "Đúng lúc định ra ngoài thì điện thoại reo."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "日本へ来た矢先にバッグを置き忘れ、パスポートをなくしてしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngay sau khi đến Nhật để quên cặp, nên mất hộ chiếu."
+     },
+     {
+      "ja": "突然彼女が婚約解消を言い出した。式場を決めた矢先のことだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đột nhiên cô ấy nói hủy hôn. Ngay sau khi quyết định nơi tổ chức hôn lễ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 日本へ来た矢先にバッグを置き忘れ、パスポートをなくしてしまった。",
+     "FURIGANA_MISSING: 突然彼女が婚約解消を言い出した。式場を決めた矢先のことだった。"
+    ],
+    "formation": "Vる・Vた・Vている + 矢先に／矢先の + N",
+    "locked_fields": [],
+    "meaning_vi": "Ngay sau khi làm gì đó",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜矢先に/の",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 動詞のタ形 Ý nghĩa: ①～した直後 Ngay sau khi làm gì đó Ví dụ: 1. 日本へ来た矢先にバッグを置き忘れ、パスポートをなくしてしまった。 Ngay sau khi đến Nhật để quên cặp, nên mất hộ chiếu. 2. 突然彼女が婚約解消を言い出した。式場を決めた矢先のことだった。 Đột nhiên cô ấy nói hủy hôn. Ngay sau khi quyết định nơi tổ chức hôn lễ. 3. 何度受験してもだめなので、あきらめようかと思った矢先に、合格通知が届いた。 Đã dự thi biết bao lần mà vẫn trượt, tôi định từ bỏ thì ngay sau đó thông báo thi đỗ đến. Cách kết hợp: 動詞の意志形∔とした Ý nghĩa: ②～しようとしたちょうどそのとき/する直前 Ngay trước khi Ví dụ: 1. 電話をかけようとした矢先に向こうからかかってきた。 Định gọi điện thì phía kia lại gọi điện đến. 2. 社内の不祥事を公表しようとした矢先に新聞に出てしまった。 Đúng lúc định công bố sự việc không hay trong công ty thì báo đã đăng tải mất rồi. 3. オフィスを出ようとした矢先に課長に呼び止められた。 Vừa lúc định đi ra khỏi văn phòng thì trưởng phòng gọi lại. 4. 父が倒れたのは、退職祝いをしようとした矢先のことでした。 Bố tôi bị bất tỉnh ngay trước buổi lễ nghỉ hưu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c2beb0600a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "Chỉ ～ (văn viết); chỉ có ～",
+     "examples": [
+      {
+       "ja": "今はただ、あなたの無事を祈るのみです。",
+       "ja_furigana": "今(いま)はただ、あなたの無事(ぶじ)を祈(いの)るのみです。",
+       "vi": "Bây giờ tôi chỉ cầu mong bạn được bình an."
+      },
+      {
+       "ja": "予算は一万円のみだ。",
+       "ja_furigana": "予算(よさん)は一万円(いちまんえん)のみだ。",
+       "vi": "Kinh phí chỉ có một vạn yên thôi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn và bổ sung nghĩa"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "野球の全国大会に出場できるのは１県に1枚のみだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tham dự giải bóng chày toàn quốc, mỗi tỉnh chỉ 1 trường thôi."
+     },
+     {
+      "ja": "今はただ、父が無事であるよう、祈るのみです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bây giờ tôi chỉ cầu mong bố tôi bình an vô sự thôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 野球の全国大会に出場できるのは１県に1枚のみだ。",
+     "FURIGANA_MISSING: 今はただ、父が無事であるよう、祈るのみです。"
+    ],
+    "formation": "（ただ）N + のみ; （ただ）Vる + のみだ",
+    "locked_fields": [],
+    "meaning_vi": "Cách kết hợp:",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "(ただ)〜のみ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞／【名詞・イ形容詞】の普通形 Ý nghĩa: ～だけ（書き言葉） Chỉ Ví dụ: 1. 野球の全国大会に出場できるのは１県に1枚のみだ。 Tham dự giải bóng chày toàn quốc, mỗi tỉnh chỉ 1 trường thôi. 2. 今はただ、父が無事であるよう、祈るのみです。 Bây giờ tôi chỉ cầu mong bố tôi bình an vô sự thôi. 3. 指導者はまだ厳しいのみではいけない。それでは若者はついてこないだろう。 Người lãnh đạo đừng có lúc nào cũng nghiêm khắc. Như thế thì người trẻ sẽ không theo đâu. 4. 最近はペーパーテストのみではなく、面接も行こう大学が増えた。 Gần đây không chỉ thi viết, các trường đại học tổ chức phỏng vấn cũng tăng. 5. 彼はただ人を殺したのみか（＝ばかりか）、その罪を人に着せようとした。 Anh ấy không chỉ giết người mà còn đổ tội đó cho người khác. * T大学合格には、ただ努力あるのみ！ Chỉ có năng lực thì mới có thể thi đỗ Đại học T."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7635e5f8a3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は味がいいのみならず、値段も安い。",
+       "ja_furigana": "この店(みせ)は味(あじ)がいいのみならず、値段(ねだん)も安(やす)い。",
+       "vi": "Quán này không chỉ ngon mà giá còn rẻ."
+      },
+      {
+       "ja": "彼女は英語のみならず、日本語も話せる。",
+       "ja_furigana": "彼女(かのじょ)は英語(えいご)のみならず、日本語(にほんご)も話(はな)せる。",
+       "vi": "Cô ấy không chỉ nói được tiếng Anh mà cả tiếng Nhật."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "黒沢監督の映画は日本国内のみならず、海外でも高い評価を得ている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phim của đạo diễn Kurosawa không chỉ trong nước Nhật mà nước ngoài cũng nhận được sự đánh giá cao."
+     },
+     {
+      "ja": "この機械は性能が良いのみならず、操作も簡単だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Máy này tính năng không chỉ tốt, mà còn thao tác đơn giản."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 黒沢監督の映画は日本国内のみならず、海外でも高い評価を得ている。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 黒沢監督の映画は日本国内のみならず、海外でも高い評価を得ている。 → 沢",
+     "FURIGANA_MISSING: この機械は性能が良いのみならず、操作も簡単だ。"
+    ],
+    "formation": "（ただ）N・thể thường + のみならず〜も",
+    "locked_fields": [],
+    "meaning_vi": "Không chỉ mà còn",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "(ただ)〜のみならず",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞／【動詞・イ形容詞】の普通形／【名詞・ナ形容詞】＋である Ý nghĩa: ～だけではなく他にも（書き言葉） Không chỉ mà còn Ví dụ: 1. 黒沢監督の映画は日本国内のみならず、海外でも高い評価を得ている。 Phim của đạo diễn Kurosawa không chỉ trong nước Nhật mà nước ngoài cũng nhận được sự đánh giá cao. 2. この機械は性能が良いのみならず、操作も簡単だ。 Máy này tính năng không chỉ tốt, mà còn thao tác đơn giản. 3. 木村教授は優れた研究者であるのみならず、立派な教育者でもある。 Giáo sư Kimura không chỉ là nhà nghiên cứu xuất sắc mà còn là một nhà giáo tuyệt vời. 4. 彼は交通事故を起こし、自分の右足を失ったのみならず、相手にも大けがを負わせてしまった。 Anh ấy gây ra tai nạn giao thông, không chỉ làm gãy chân phải của mình mà còn gây ra vết thương nghiêm trong cho đối phương. 5. あの国は気候が穏やかであるのみならず、人々も親切なので住みやすい。 Đất nước ấy không chỉ có khí hậu ấm áp mà mọi người cũng rất thân thiện nên rất dễ sống. 6. 今度の新車はただ機能的であるのみならず、デザインにおいても優れている。 Loại xe mới lần này không chỉ tính năng mà thiết kế cũng rất xuất sắc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2ee9b8c30c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "昨日は寝不足だった。それで今日は頭が痛い。",
+       "ja_furigana": "昨日(きのう)は寝不足(ねぶそく)だった。それで今日(きょう)は頭(あたま)が痛(いた)い。",
+       "vi": "Hôm qua tôi thiếu ngủ. Vì thế hôm nay bị đau đầu."
+      },
+      {
+       "ja": "「どうして遅れたの？」「バスが来なかった。それで歩いて来たんだ。」",
+       "ja_furigana": "「どうして遅(おく)れたの？」「バスが来(こ)なかった。それで歩(ある)いて来(き)たんだ。」",
+       "vi": "\"Sao bạn đến muộn vậy?\" \"Xe buýt không đến. Vì thế tôi đi bộ đến.\""
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "父は働きすぎた。それで病気になった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cha tôi đã làm việc quá sức. Vì thế đã bị bệnh."
+     },
+     {
+      "ja": "「田中君、インフルエンザにかかったんだって。」 「それで学校を休んだんだね。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe nói bé Tanaka bị cảm cúm. Vì vậy, hôm nay nghỉ học ấy nhỉ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 父は働きすぎた。それで病気になった。",
+     "FURIGANA_MISSING: 「田中君、インフルエンザにかかったんだって。」 「それで学校を休んだんだね。」"
+    ],
+    "formation": "câu 1。それで + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "（1）Vì thế, do đó （2）Vậy, ～?",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜働きすぎた。それで病気になった。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "(1) biểu thị kết quả. (2) từ nối sử dụng để dò hỏi kết quả. 「で」 được sử dụng trong văn nói."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b5fab584b6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "とても疲れていた。それでも最後まで走り続けた。",
+       "ja_furigana": "とても疲(つか)れていた。それでも最後(さいご)まで走(はし)り続(つづ)けた。",
+       "vi": "Tôi đã rất mệt. Dù vậy vẫn chạy đến cuối cùng."
+      },
+      {
+       "ja": "雨が降っている。それでも試合は行われる。",
+       "ja_furigana": "雨(あめ)が降(ふ)っている。それでも試合(しあい)は行(おこな)われる。",
+       "vi": "Trời đang mưa. Dù vậy trận đấu vẫn được tổ chức."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "外は大雨だ。それでも出かけないといけない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bên ngoài trời mưa. Dù vậy không ra ngoài không được."
+     },
+     {
+      "ja": "みんなに反対されている。それでも私は彼と結婚したい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bị mọi người phản đối. Dù vậy tôi muốn kết hôn với anh ấy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 外は大雨だ。それでも出かけないといけない。",
+     "FURIGANA_MISSING: みんなに反対されている。それでも私は彼と結婚したい。"
+    ],
+    "formation": "câu 1。それでも + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Tuy nhiêｎ, dù vậy ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜大雨だ。それでも出かける。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu thị ý kiến hoặc kết quả ngược lại với tình huống a ở vế trước."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-04790caee5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "「明日は雨らしいよ。」「それなら、出かけるのはやめよう。」",
+       "ja_furigana": "「明日(あした)は雨(あめ)らしいよ。」「それなら、出(で)かけるのはやめよう。」",
+       "vi": "\"Nghe nói mai trời mưa đấy.\" \"Vậy thì thôi không ra ngoài nữa.\""
+      },
+      {
+       "ja": "「この店は今日休みだそうだ。」「それなら、別の店に行こう。」",
+       "ja_furigana": "「この店(みせ)は今日(きょう)休(やす)みだそうだ。」「それなら、別(べつ)の店(みせ)に行(い)こう。」",
+       "vi": "\"Nghe nói hôm nay quán này nghỉ.\" \"Vậy thì sang quán khác vậy.\""
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「道がすごく渋滞しているようだよ。」 「それなら、電車で行こう。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngoài đường hình như là đang kẹt xe dữ lắm. Nếu vậy thì, đi bằng tàu điện thôi."
+     },
+     {
+      "ja": "「今、それ、やりたくない。」「それならやらなくていいよ。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bây giờ không muốn làm vậy. Nếu vậy thì không làm cũng được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「道がすごく渋滞しているようだよ。」 「それなら、電車で行こう。」",
+     "FURIGANA_MISSING: 「今、それ、やりたくない。」「それならやらなくていいよ。」"
+    ],
+    "formation": "câu 1。それなら + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Nếu vậy, vậy thì～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜渋滞だとか。それなら電車で行こう。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "dụng trong văn nói)） Từ nối biểu thị ý kiến hoặc kết luận trên cơ sở của a."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-784d520593"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-071"
+}

@@ -331,11 +331,13 @@ export function releaseVerdict(level, tables, { visibleVocab = new Set(), kanjiW
   const visibleWords = new Set([...visibleVocab,
     ...(tables.vocabulary ?? []).filter((r) => VISIBLE.has(r.status)).map((r) => r.code)]);
   const compounds = new Set((tables.kanji_compound ?? []).filter((c) => visibleWords.has(c.vocab_code)).map((c) => c.kanji_code));
+  // Owner 05/11 level caps: a kanji whose compounds all went to Mở rộng (HOLD) still has words, just not in the path
+  const anyCompound = new Set((tables.kanji_compound ?? []).map((c) => c.kanji_code));
   for (const k of kanji.filter((r) => VISIBLE.has(r.status))) {
     if (blank(k.meanings_vi)) add('MEANING_MISSING');
     if (blank(k.han_viet)) add('HAN_VIET_MISSING');
     // a kanji that no word of this or a lower level uses (君 at N3) cannot have a compound
-    if (!compounds.has(k.code) && !kanjiWithoutWords.has(k.code)) add('KANJI_COMPOUND_MISSING');
+    if (!compounds.has(k.code) && !kanjiWithoutWords.has(k.code) && !anyCompound.has(k.code)) add('KANJI_COMPOUND_MISSING');
   }
 
   const questionsOf = new Map();

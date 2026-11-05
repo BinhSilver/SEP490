@@ -1066,7 +1066,188 @@
    "id": "JG-bf5466998a"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この店では、寿司（　　）、いろいろな日本料理が楽しめる。",
+      "options": [
+       "にわたって",
+       "を始め",
+       "にかけては",
+       "をめぐって"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「〜を始め」lấy một ví dụ tiêu biểu, nghĩa là bắt đầu từ..., tiêu biểu là..."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "彼は英語（　　）、多くの外国語が話せる。",
+      "options": [
+       "を始め",
+       "に限って",
+       "ずじまいで",
+       "にわたって"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「英語を始め」nghĩa là tiêu biểu là tiếng Anh, còn nhiều ngoại ngữ khác."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "魚料理が有名だ。",
+       "この店は",
+       "を始め",
+       "寿司"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "この店は寿司を始め魚料理が有名だ。。★ là を始め。この店は寿司を始め魚料理が有名だ: quán này nổi tiếng với cá, tiêu biểu là sushi."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "社長 ＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "参加した。",
+       "を始め",
+       "全員が",
+       "社員"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "社長を始め社員全員が参加した。。★ là 社員。社長を始め社員全員が参加した: bắt đầu từ giám đốc, toàn bộ nhân viên đã tham gia."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "校長先生を始め、先生方が全員集まった。",
+      "options": [
+       "Bắt đầu từ thầy hiệu trưởng, toàn thể giáo viên đã tập hợp.",
+       "Chỉ có thầy hiệu trưởng đến.",
+       "Thầy hiệu trưởng đến sau cùng.",
+       "Giáo viên không ai đến."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「〜を始め」nêu ví dụ tiêu biểu trong một tập thể."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "京都を始め、日本には古い寺が多い。",
+      "options": [
+       "Nhật Bản có nhiều chùa cổ, tiêu biểu là Kyoto.",
+       "Chỉ Kyoto có chùa cổ.",
+       "Nhật Bản không có chùa cổ.",
+       "Các chùa ở Kyoto đều mới."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「京都を始め」lấy Kyoto làm ví dụ tiêu biểu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "彼は走るを始め、運動が好きだ。",
+       "社長を始め、社員全員が参加した。",
+       "東京を始め、大都市は人が多い。",
+       "富士山を始め、日本の山は美しい。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「走るを始め」sai: を始め nối sau danh từ, không nối sau động từ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "寿司を始め、日本料理が好きになった。",
+       "彼女を始め、多くの人が協力した。",
+       "大阪を始め、関西には名所が多い。",
+       "この店は寿司を始めて、魚料理が人気だ。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "「寿司を始めて」sai: mẫu này là を始め, không phải を始めて."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "を始め",
+       "彼女は",
+       "三か国語が話せる。",
+       "英語"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Cô ấy nói được ba thứ tiếng, tiêu biểu là tiếng Anh."
+     },
+     {
+      "pieces": [
+       "を始め",
+       "日本には",
+       "美しい山が多い。",
+       "富士山"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Nhật Bản có nhiều núi đẹp, tiêu biểu là núi Phú Sĩ."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "この店では、寿司＿＿、いろいろな料理が楽しめる。",
+      "answer": "を始め",
+      "translation_vi": "Ở cửa hàng này, tiêu biểu là sushi, có thể thưởng thức nhiều món khác nhau."
+     },
+     {
+      "sentence_ja": "校長先生＿＿、先生方が集まった。",
+      "answer": "を始め",
+      "translation_vi": "Bắt đầu từ thầy hiệu trưởng, các giáo viên đã tập hợp."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "彼は数学（　　）、科学全般に詳しい。",
+      "options": [
+       "にわたって",
+       "に応じて",
+       "を始め",
+       "をめぐって"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "「数学を始め」nghĩa là tiêu biểu là toán, còn cả khoa học nói chung."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼は英語を始め、多くの外国語が話せる。",
+      "options": [
+       "Anh ấy nói được nhiều ngoại ngữ, tiêu biểu là tiếng Anh.",
+       "Anh ấy chỉ nói được tiếng Anh.",
+       "Anh ấy không nói được ngoại ngữ nào.",
+       "Anh ấy đang học tiếng Anh."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「英語を始め」nêu tiếng Anh là ví dụ tiêu biểu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "大阪を始め、関西には名所が多い。",
+       "社長を始め、社員全員が反対した。",
+       "日本の秋を始め、紅葉がきれいだ。",
+       "彼女を始め、多くの学生が参加した。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "「日本の秋を始め」sai: を始め cần một sự vật cụ thể làm ví dụ, không dùng với mùa."
+     }
+    ]
+   },
    "context": {
     "examples": [],
     "meaning_vi": null,
@@ -1084,7 +1265,188 @@
    "id": "JG-d2849dbd11"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "工事は三年（　　）続いた。",
+      "options": [
+       "を始め",
+       "にわたって",
+       "にかけては",
+       "に限って"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「〜にわたって」diễn tả phạm vi thời gian trải dài."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "会議は五時間（　　）行われた。",
+      "options": [
+       "に応じて",
+       "をめぐって",
+       "にわたって",
+       "にしても"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "「五時間にわたって」nghĩa là suốt năm giờ liền."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "続いた。",
+       "工事は",
+       "にわたって",
+       "三年間"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "工事は三年間にわたって続いた。。★ là にわたって。工事は三年間にわたって続いた: công trình kéo dài suốt ba năm."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "会議は ＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "議論が続いた。",
+       "五時間",
+       "白熱した",
+       "にわたって"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "会議は五時間にわたって白熱した議論が続いた。。★ là にわたって。会議は五時間にわたって白熱した議論が続いた: cuộc họp tranh luận sôi nổi suốt năm giờ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "台風で、広い範囲にわたって被害が出た。",
+      "options": [
+       "Do bão, thiệt hại đã xảy ra trên một phạm vi rộng.",
+       "Do bão, thiệt hại chỉ ở một nơi.",
+       "Bão đã không gây thiệt hại.",
+       "Thiệt hại do bão đã được sửa chữa."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「広い範囲にわたって」nghĩa là trải rộng trên phạm vi lớn."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この祭りは三日間にわたって行われる。",
+      "options": [
+       "Lễ hội này diễn ra suốt ba ngày.",
+       "Lễ hội này chỉ diễn ra một ngày.",
+       "Lễ hội này đã kết thúc sau ba ngày.",
+       "Lễ hội này diễn ra ba lần một năm."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「三日間にわたって」nghĩa là kéo dài suốt ba ngày."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "彼は毎日にわたって走っている。",
+       "工事は一年にわたって続いた。",
+       "会議は二時間にわたって開かれた。",
+       "被害は広い範囲にわたって出た。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「毎日にわたって」sai: cần một khoảng thời gian cụ thể, không dùng với 毎日."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "会議は午後三時にわたって開かれた。",
+       "工事は二年間にわたって行われた。",
+       "祭りは三週間にわたって続いた。",
+       "被害は広い地域にわたって出た。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「午後三時にわたって」sai: にわたって cần một khoảng, không dùng với mốc thời gian cụ thể."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "範囲にわたって",
+       "被害は",
+       "出ている。",
+       "広い"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Thiệt hại đang xảy ra trên một phạm vi rộng."
+     },
+     {
+      "pieces": [
+       "にわたって",
+       "祭りは",
+       "行われた。",
+       "三日間"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Lễ hội đã diễn ra suốt ba ngày."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "工事は二年間＿＿続いた。",
+      "answer": "にわたって",
+      "translation_vi": "Công trình đã tiếp tục suốt hai năm."
+     },
+     {
+      "sentence_ja": "会議は四時間＿＿開かれた。",
+      "answer": "にわたって",
+      "translation_vi": "Cuộc họp đã diễn ra suốt bốn giờ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "台風の被害は広い地域（　　）出た。",
+      "options": [
+       "を始め",
+       "にわたって",
+       "にかけては",
+       "をめぐって"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「広い地域にわたって」nghĩa là trải rộng trên nhiều khu vực."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼は十年間にわたって研究を続けた。",
+      "options": [
+       "Ông ấy tiếp tục nghiên cứu suốt mười năm.",
+       "Ông ấy nghiên cứu trong mười ngày.",
+       "Ông ấy đã ngừng nghiên cứu sau mười năm.",
+       "Ông ấy nghiên cứu mười lần."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「十年間にわたって」nghĩa là suốt mười năm."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "祭りは三日間にわたって行われた。",
+       "会議は五時間にわたって続いた。",
+       "彼は毎日にわたって絵をかく。",
+       "被害は広い範囲にわたって出た。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "「毎日にわたって」sai: không dùng にわたって với 毎日."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -1109,7 +1471,188 @@
    "id": "JG-7c2abc8efb"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "インターネット（　　）世界とつながる。",
+      "options": [
+       "をめぐって",
+       "に応じて",
+       "を通じて",
+       "に限って"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "「〜を通じて」diễn tả phương tiện trung gian."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "この一年（　　）、彼には一度も会っていない。",
+      "options": [
+       "を始め",
+       "にかけては",
+       "にしても",
+       "を通じて"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "「この一年を通じて」nghĩa là suốt cả năm nay."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "知り合った。",
+       "彼女とは",
+       "を通じて",
+       "友人"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "彼女とは友人を通じて知り合った。。★ là を通じて。彼女とは友人を通じて知り合った: tôi quen cô ấy qua một người bạn."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "この資料は ＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "見ることができる。",
+       "インターネット",
+       "誰でも",
+       "を通じて"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "この資料はインターネットを通じて誰でも見ることができる。。★ là を通じて。この資料はインターネットを通じて誰でも見ることができる: ai cũng xem được tài liệu này qua Internet."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "友人を通じて、彼女と知り合った。",
+      "options": [
+       "Tôi quen cô ấy thông qua một người bạn.",
+       "Tôi quen cô ấy ở trường.",
+       "Tôi không quen cô ấy.",
+       "Tôi quen cô ấy qua một cuốn sách."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「〜を通じて」chỉ phương tiện trung gian."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この店は一年を通じて観光客でにぎわう。",
+      "options": [
+       "Cửa hàng này đông khách du lịch suốt cả năm.",
+       "Cửa hàng này chỉ đông vào mùa hè.",
+       "Cửa hàng này vắng khách quanh năm.",
+       "Cửa hàng này mở một năm rồi đóng."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「一年を通じて」nghĩa là suốt cả năm."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "雨を通じて、窓を閉めた。",
+       "友人を通じて、彼の連絡先を知った。",
+       "インターネットを通じて、情報を集めた。",
+       "一年を通じて、温暖な気候だ。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「雨を通じて」sai: を通じて cần một phương tiện trung gian hợp lý."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この経験を通じて、学んだことが多い。",
+       "テレビを通じて、世界のニュースを知る。",
+       "社長を通じて、返事をもらった。",
+       "練習するを通じて、上達した。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "「練習するを通じて」sai: を通じて nối sau danh từ, đúng là 練習を通じて."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "通じて",
+       "この店は",
+       "観光客が多い。",
+       "一年を"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Cửa hàng này đông khách du lịch suốt cả năm."
+     },
+     {
+      "pieces": [
+       "通じて",
+       "私たちは",
+       "問題を解決した。",
+       "話し合いを"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Chúng tôi giải quyết vấn đề thông qua thảo luận."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "インターネット＿＿世界とつながる。",
+      "answer": "を通じて",
+      "translation_vi": "Kết nối với thế giới thông qua Internet."
+     },
+     {
+      "sentence_ja": "この地方は一年＿＿温暖な気候だ。",
+      "answer": "を通じて",
+      "translation_vi": "Vùng này có khí hậu ấm áp suốt cả năm."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "彼とは仕事（　　）知り合った。",
+      "options": [
+       "にわたって",
+       "をめぐって",
+       "に限って",
+       "を通じて"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "「仕事を通じて」nghĩa là quen nhau qua công việc."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "経験を通じて、多くのことを学んだ。",
+      "options": [
+       "Qua trải nghiệm, tôi đã học được nhiều điều.",
+       "Tôi học được nhiều điều mà không cần trải nghiệm.",
+       "Tôi đã quên hết trải nghiệm.",
+       "Trải nghiệm không dạy tôi điều gì."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「経験を通じて」chỉ phương tiện trung gian là trải nghiệm."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "友人を通じて、彼の連絡先を知った。",
+       "一年を通じて、雪が降る。",
+       "毎日を通じて、日本語を覚えた。",
+       "インターネットを通じて、世界とつながる。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "「毎日を通じて」sai: を通じて không dùng với 毎日 để chỉ khoảng thời gian."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -1134,7 +1677,188 @@
    "id": "JG-c6afc41f7a"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "忙しくて、旅行には行け（　　）。",
+      "options": [
+       "にわたった",
+       "ずじまいだった",
+       "を始めた",
+       "に応じた"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「〜ずじまい」nghĩa là rốt cuộc đã không thể làm gì."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "友達に借りた本を、返さ（　　）。",
+      "options": [
+       "に限られた",
+       "を通じた",
+       "をめぐった",
+       "ずじまいだった"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "「返さずじまいだった」nghĩa là cuối cùng vẫn chưa trả được."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "ずじまいだった。",
+       "忙しくて",
+       "行け",
+       "旅行には"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "忙しくて旅行には行けずじまいだった。。★ là 行け。忙しくて旅行には行けずじまいだった: vì bận nên rốt cuộc không đi du lịch được."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "せっかく ＿＿ ＿＿ ＿＿ ★。",
+      "options": [
+       "ずじまいだった。",
+       "買った",
+       "使え",
+       "カメラを"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "せっかく買ったカメラを使えずじまいだった。。★ là ずじまいだった。。せっかく買ったカメラを使えずじまいだった: máy ảnh mua mà rốt cuộc không dùng được."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "日本にいる間に、富士山を見られずじまいだった。",
+      "options": [
+       "Trong thời gian ở Nhật, rốt cuộc tôi đã không thể thấy núi Phú Sĩ.",
+       "Tôi đã thấy núi Phú Sĩ nhiều lần.",
+       "Tôi sẽ thấy núi Phú Sĩ vào năm sau.",
+       "Tôi không muốn thấy núi Phú Sĩ."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「〜ずじまい」diễn tả việc cuối cùng không thực hiện được."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "せっかくの休みだったが、どこにも行けずじまいだった。",
+      "options": [
+       "Kỳ nghỉ hiếm có nhưng rốt cuộc tôi chẳng đi được đâu.",
+       "Kỳ nghỉ hiếm có và tôi đã đi nhiều nơi.",
+       "Tôi đã hủy kỳ nghỉ.",
+       "Tôi đi du lịch mỗi ngày."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「行けずじまいだった」nghĩa là cuối cùng không đi được."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "友達に会えずじまいだった。",
+       "安い服を買えずじまいだった。",
+       "本当のことを言えずじまいだった。",
+       "食べるずじまいだった。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "「食べるずじまい」sai: ずじまい nối sau dạng ない-stem, đúng là 食べずじまい."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "その本は読めずじまいだった。",
+       "会いたかったが、会えずじまいだった。",
+       "彼は有名ずじまいだった。",
+       "旅行には行けずじまいだった。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "「有名ずじまい」sai: ずじまい không nối với danh từ hay tính từ."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "返せ",
+       "友達に",
+       "ずじまいだった。",
+       "借りた本を"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Rốt cuộc tôi đã không trả được cuốn sách mượn của bạn."
+     },
+     {
+      "pieces": [
+       "一度も",
+       "日本に",
+       "食べずじまいだった。",
+       "いる間に"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Trong lúc ở Nhật, rốt cuộc tôi chưa ăn món đó lần nào."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "忙しくて、旅行には行け＿＿。",
+      "answer": "ずじまいだった",
+      "translation_vi": "Vì bận nên rốt cuộc tôi đã không đi du lịch được."
+     },
+     {
+      "sentence_ja": "最後まで本当のことを言え＿＿。",
+      "answer": "ずじまいだった",
+      "translation_vi": "Đến cuối cùng tôi đã không thể nói ra sự thật."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "せっかく買ったカメラを、一度も使え（　　）。",
+      "options": [
+       "にわたって",
+       "を始め",
+       "ずじまいだった",
+       "に応じて"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "「使えずじまいだった」nghĩa là rốt cuộc không dùng được lần nào."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "会いたかったが、結局会えずじまいだった。",
+      "options": [
+       "Tôi muốn gặp nhưng rốt cuộc đã không gặp được.",
+       "Tôi đã gặp được người đó.",
+       "Tôi không muốn gặp ai.",
+       "Tôi sẽ gặp vào ngày mai."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「会えずじまいだった」nghĩa là cuối cùng không gặp được."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "その本は最後まで読めずじまいだった。",
+       "彼には本当のことを言えずじまいだった。",
+       "有名ずじまいだった。",
+       "旅行には行けずじまいだった。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "「有名ずじまい」sai: ずじまい chỉ nối với động từ."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -1161,7 +1885,188 @@
    "id": "JG-e31f878921"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "私たちが黙っている（　　）、この秘密は人に知られない。",
+      "options": [
+       "をめぐって",
+       "に応じて",
+       "にかけて",
+       "限り"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "「〜限り」nghĩa là chừng nào... thì..."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "学生である（　　）、校則を守らなければならない。",
+      "options": [
+       "限り",
+       "ばかりに",
+       "ずじまい",
+       "に限り"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「学生である限り」nghĩa là chừng nào còn là học sinh."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "試合は行われる。",
+       "雨が",
+       "限り",
+       "降らない"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "雨が降らない限り試合は行われる。。★ là 限り。雨が降らない限り試合は行われる: chừng nào trời không mưa thì trận đấu diễn ra."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "私が ＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "あなたを守る。",
+       "生きて",
+       "限り",
+       "いる"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "私が生きている限りあなたを守る。。★ là いる。私が生きている限りあなたを守る: chừng nào tôi còn sống thì sẽ bảo vệ bạn."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "雨が降らない限り、試合は行われる。",
+      "options": [
+       "Chừng nào trời không mưa thì trận đấu sẽ diễn ra.",
+       "Nếu trời mưa thì trận đấu vẫn diễn ra.",
+       "Trận đấu bị hủy vì mưa.",
+       "Trận đấu chỉ diễn ra khi có mưa."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「〜ない限り」nêu điều kiện giới hạn."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "ここにいる限り、安全だ。",
+      "options": [
+       "Chừng nào còn ở đây thì an toàn.",
+       "Ở đây cũng không an toàn.",
+       "Rời khỏi đây thì an toàn hơn.",
+       "Chỉ hôm nay ở đây mới an toàn."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「いる限り」nghĩa là chừng nào còn ở đây."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "健康限り、働きたい。",
+       "参加する限り、最後までやるべきだ。",
+       "雨が降らない限り、試合は行われる。",
+       "私がいる限り、問題はない。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「健康限り」sai: danh từ cần である trước 限り, đúng là 健康である限り."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "学生である限り、規則を守るべきだ。",
+       "雨が降らない限り、出発する。",
+       "私が生きている限り、あなたを守る。",
+       "彼が来る限り、会議を始める。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "「来る限り」sai: điều kiện giới hạn phải là 来ない限り."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "限り",
+       "ここに",
+       "安全だ。",
+       "いる"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Chừng nào còn ở đây thì an toàn."
+     },
+     {
+      "pieces": [
+       "限り",
+       "学生で",
+       "規則を守るべきだ。",
+       "ある"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Chừng nào còn là học sinh thì phải tuân thủ nội quy."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "雨が降らない＿＿、試合は行われる。",
+      "answer": "限り",
+      "translation_vi": "Chừng nào trời không mưa thì trận đấu sẽ diễn ra."
+     },
+     {
+      "sentence_ja": "学生である＿＿、校則を守らなければならない。",
+      "answer": "限り",
+      "translation_vi": "Chừng nào còn là học sinh thì phải tuân thủ nội quy."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "私がいる（　　）、心配しないでください。",
+      "options": [
+       "ものの",
+       "限り",
+       "ばかりに",
+       "にわたって"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「いる限り」nghĩa là chừng nào tôi còn ở đây."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "あきらめない限り、夢はかなう。",
+      "options": [
+       "Chừng nào chưa từ bỏ thì ước mơ sẽ thành hiện thực.",
+       "Nếu từ bỏ thì ước mơ sẽ thành hiện thực.",
+       "Ước mơ không bao giờ thành hiện thực.",
+       "Từ bỏ rồi thì ước mơ vẫn thành."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「〜ない限り」nghĩa là chừng nào chưa làm việc đó."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "学生である限り、規則を守るべきだ。",
+       "体が丈夫な限り、働きたい。",
+       "健康限り、無理はしない。",
+       "雨が降らない限り、出発する。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "「健康限り」sai: phải là 健康である限り."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {

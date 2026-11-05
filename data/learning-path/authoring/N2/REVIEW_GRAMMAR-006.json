@@ -1,0 +1,738 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は平日どころか、週末も客が少ない。",
+       "ja_furigana": "この店(みせ)は平日(へいじつ)どころか、週末(しゅうまつ)も客(きゃく)が少(すく)ない。",
+       "vi": "Quán này nói gì ngày thường, cuối tuần khách cũng ít."
+      },
+      {
+       "ja": "この雨では、散歩どころか、家の外にも出られない。",
+       "ja_furigana": "この雨(あめ)では、散歩(さんぽ)どころか、家(いえ)の外(そと)にも出(で)られない。",
+       "vi": "Mưa thế này thì nói gì đi dạo, ra khỏi nhà còn không được."
+      },
+      {
+       "ja": "彼は料理が上手どころか、卵焼きさえ作れない。",
+       "ja_furigana": "彼(かれ)は料理(りょうり)が上手(じょうず)どころか、卵焼(たまごや)きさえ作(つく)れない。",
+       "source": "AI",
+       "vi": "Anh ấy nấu ăn giỏi gì đâu, đến trứng chiên còn không làm nổi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Khác どころではない (không có tâm trí làm vì bận): どころか phản bác kỳ vọng và nói sự thật trái ngược hoặc nặng hơn. Vế sau phải cùng kiểu với vế trước (cùng khẳng định hoặc cùng phủ định).",
+    "examples": [
+     {
+      "ja": "勉強が忙しくて、友達と遊ぶどころか、家でテレビを見る時間もない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bận học đi chơi với bạn á, có mà đến thời gian xem phim cũng chẳng có."
+     },
+     {
+      "ja": "のどが痛くて、ご飯を食べるどころか水も飲めない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đau cổ quá, ăn cơm á?"
+     },
+     {
+      "ja": "彼は料理が上手どころか、卵焼きさえ作れない。",
+      "ja_furigana": "彼(かれ)は料理(りょうり)が上手(じょうず)どころか、卵焼(たまごや)きさえ作(つく)れない。",
+      "source": "AI",
+      "vi": "Anh ấy nấu ăn giỏi gì đâu, đến trứng chiên còn không làm nổi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 勉強が忙しくて、友達と遊ぶどころか、家でテレビを見る時間もない。",
+     "FURIGANA_MISSING: のどが痛くて、ご飯を食べるどころか水も飲めない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + どころか (Aな: な, N: bỏ だ)",
+    "locked_fields": [],
+    "meaning_vi": "Diễn đạt 1 việc quá xa trang thái mong đợi, ý sau thể hiện điều khác ý trước",
+    "nuance_vi": "Phủ định mạnh điều ở vế trước và nói điều ngược lại hoặc mức độ khác hẳn; vế sau thường có も hoặc さえ.",
+    "order_items": [],
+    "pattern": "〜どころか",
+    "pattern_variants": [
+     "どころか",
+     "Thể thường / N + どころか"
+    ],
+    "unit_no": 12,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞／【動詞・イ形容詞・ナ形容詞】の普通形ただし、ナ形容詞現在形「だ」はつかない Ý nghĩa: ～の程度ではない→それより激しい、正反対である（後半を強調） Diễn đạt 1 việc quá xa trang thái mong đợi, ý sau thể hiện điều khác ý trước Ví dụ: 1. 勉強が忙しくて、友達と遊ぶどころか、家でテレビを見る時間もない。 Bận học đi chơi với bạn á, có mà đến thời gian xem phim cũng chẳng có. 2. のどが痛くて、ご飯を食べるどころか水も飲めない。 Đau cổ quá, ăn cơm á? 3. この絵は１００万円した。しかし私はこの絵には１００万円どころか２００万円の価値があると思う。 Có mà nước cũng không uống được. 4. 評判の映画を見に行ったのだが、面白いどころか退屈で、途中で帰ってしまった。 Tôi đi xem bộ phim nổi tiếng nhưng không những không hay mà còn chán ngắt nên tôi bỏ về giữa chừng. 5. 「お宅のおじさんの病気、治った？」 Ông nhà mình đã khỏi bệnh rồi chứ ạ? →・「ええ、それ（/治った）どころか、前より元気になったみたいよ」 Vâng, không những lành bệnh mà còn có vẻ khỏe hơn trước. ・「それが、治るどころか悪化して、入院したんですよ」 Bệnh tình ông tôi không những không khỏi mà còn chuyển biến xấu, phải nhập viện nữa."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9d942cb4a7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "有名な大学を出たからといって、仕事ができるというものでもない。",
+       "ja_furigana": "有名(ゆうめい)な大学(だいがく)を出(で)たからといって、仕事(しごと)ができるというものでもない。",
+       "vi": "Không phải cứ tốt nghiệp trường đại học nổi tiếng là làm việc giỏi."
+      },
+      {
+       "ja": "安いからといって、質が悪くてもいいというものでもない。",
+       "ja_furigana": "安(やす)いからといって、質(しつ)が悪(わる)くてもいいというものでもない。",
+       "vi": "Không phải vì rẻ mà chất lượng kém cũng được."
+      },
+      {
+       "ja": "高い服を着ていれば、おしゃれだというものでもない。",
+       "ja_furigana": "高(たか)い服(ふく)を着(き)ていれば、おしゃれだというものでもない。",
+       "source": "AI",
+       "vi": "Không phải cứ mặc đồ đắt tiền là sành điệu."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không phải phủ nhận hoàn toàn mà chỉ nói 'không phải lúc nào cũng vậy'. Khác というわけではない: というものでもない dùng nhiều để phản bác ý kiến, quan niệm của người khác.",
+    "examples": [
+     {
+      "ja": "美人だから幸せになれるというものでもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không phải cứ xinh đẹp là sẽ hạnh phúc."
+     },
+     {
+      "ja": "物価が安くなるのはうれしいけど、何でも安くなればいいというものでもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Việc giá cả giảm thì đáng mừng, nhưng không phải mọi thứ rẻ hơn đều tốt."
+     },
+     {
+      "ja": "高い服を着ていれば、おしゃれだというものでもない。",
+      "ja_furigana": "高(たか)い服(ふく)を着(き)ていれば、おしゃれだというものでもない。",
+      "source": "AI",
+      "vi": "Không phải cứ mặc đồ đắt tiền là sành điệu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 美人だから幸せになれるというものでもない。",
+     "FURIGANA_MISSING: 物価が安くなるのはうれしいけど、何でも安くなればいいというものでもない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + というものでもない",
+    "locked_fields": [],
+    "meaning_vi": "Không hẳn là…; không phải cứ… là…",
+    "nuance_vi": "Phủ định nhẹ nhàng, không cực đoan; thường đi với 〜ば, 〜からといって để phản bác quan niệm chung.",
+    "order_items": [],
+    "pattern": "と言(い)うものでもない",
+    "pattern_variants": [
+     "〜というものでもない"
+    ],
+    "unit_no": 12,
+    "unit_title_vi": null,
+    "usage_vi": "Phủ nhận một suy nghĩ phổ biến là lúc nào cũng đúng, hàm ý vẫn có trường hợp ngoại lệ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4caad28958"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "日本の春といえば、花見を楽しむ人が多いだろう。",
+       "ja_furigana": "日本(にほん)の春(はる)といえば、花見(はなみ)を楽(たの)しむ人(ひと)が多(おお)いだろう。",
+       "vi": "Nói đến mùa xuân Nhật Bản, chắc nhiều người nghĩ đến việc ngắm hoa."
+      },
+      {
+       "ja": "冬といえば、やはり温泉が一番だ。",
+       "ja_furigana": "冬(ふゆ)といえば、やはり温泉(おんせん)が一番(いちばん)だ。",
+       "vi": "Nói đến mùa đông thì vẫn là suối nước nóng là nhất."
+      },
+      {
+       "ja": "夏といえば、私はまず海とスイカを思い出す。",
+       "ja_furigana": "夏(なつ)といえば、私(わたし)はまず海(うみ)とスイカを思(おも)い出(だ)す。",
+       "source": "AI",
+       "vi": "Nói đến mùa hè, tôi nhớ ngay đến biển và dưa hấu."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không dùng để nói chung về N như について. N là chủ đề đã được nhắc đến hoặc vừa nảy ra trong đầu, vế sau không phải mệnh lệnh. Gần nghĩa というと, といったら.",
+    "examples": [
+     {
+      "ja": "日本料理といえば、やはりおすしが有名ですね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nói đến ẩm thực Nhật Bản thì đúng là sushi nổi tiếng nhỉ。"
+     },
+     {
+      "ja": "「母の日」といえば、カーネーションがすぐに浮かぶけど、ほかの花でもいいんですよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nói đến Ngày của mẹ thì ngay lập tức nghĩ đến hoa cẩm chướng, nhưng hoa khác cũng được mà。"
+     },
+     {
+      "ja": "夏といえば、私はまず海とスイカを思い出す。",
+      "ja_furigana": "夏(なつ)といえば、私(わたし)はまず海(うみ)とスイカを思(おも)い出(だ)す。",
+      "source": "AI",
+      "vi": "Nói đến mùa hè, tôi nhớ ngay đến biển và dưa hấu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 日本料理といえば、やはりおすしが有名ですね。",
+     "FURIGANA_MISSING: 「母の日」といえば、カーネーションがすぐに浮かぶけど、ほかの花でもいいんですよ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + といえば",
+    "locked_fields": [],
+    "meaning_vi": "Nói đến… thì (nghĩ ngay đến…).",
+    "nuance_vi": "Dùng khi nhắc đến điều liên tưởng tiêu biểu hay nhớ ra một chuyện có liên quan; vế sau là thông tin gắn với N đó.",
+    "order_items": [],
+    "pattern": "〜といえば",
+    "pattern_variants": [
+     "といえば",
+     "N + といえば"
+    ],
+    "unit_no": 13,
+    "unit_title_vi": null,
+    "usage_vi": "※くだけた会話では「っていえば」になる。 ※Trong hội thoại thân mật sẽ dùng dạng nói rút gọn。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-340193e839"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は体調が悪いにもかかわらず、会議に出席した。",
+       "ja_furigana": "彼(かれ)は体調(たいちょう)が悪(わる)いにもかかわらず、会議(かいぎ)に出席(しゅっせき)した。",
+       "vi": "Mặc dù sức khỏe không tốt, anh ấy vẫn tham dự cuộc họp."
+      },
+      {
+       "ja": "値段が高いにもかかわらず、この商品はよく売れている。",
+       "ja_furigana": "値段(ねだん)が高(たか)いにもかかわらず、この商品(しょうひん)はよく売(う)れている。",
+       "vi": "Mặc dù giá cao, sản phẩm này vẫn bán rất chạy."
+      },
+      {
+       "ja": "大雨にもかかわらず、スタジアムには大勢のファンが集まった。",
+       "ja_furigana": "大雨(おおあめ)にもかかわらず、スタジアムには大勢(おおぜい)のファンが集(あつ)まった。",
+       "source": "AI",
+       "vi": "Mặc dù mưa lớn, rất đông người hâm mộ vẫn tụ tập ở sân vận động."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Khác にかかわらず (bất kể): có も thì nghĩa là 'mặc dù'. Cứng hơn のに, vế sau không có cảm xúc cá nhân mạnh như のに.",
+    "examples": [
+     {
+      "ja": "彼は熱が高いにもかかわらず、仕事に行った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mặc dù anh ấy sốt cao, nhưng vẫn đi làm."
+     },
+     {
+      "ja": "深夜にもかかわらず、大勢の人が病院に駆けつけた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù đã khuya, nhiều người vẫn tới bệnh viện."
+     },
+     {
+      "ja": "大雨にもかかわらず、スタジアムには大勢のファンが集まった。",
+      "ja_furigana": "大雨(おおあめ)にもかかわらず、スタジアムには大勢(おおぜい)のファンが集(あつ)まった。",
+      "source": "AI",
+      "vi": "Mặc dù mưa lớn, rất đông người hâm mộ vẫn tụ tập ở sân vận động."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は熱が高いにもかかわらず、仕事に行った。",
+     "FURIGANA_MISSING: 深夜にもかかわらず、大勢の人が病院に駆けつけた。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 深夜にもかかわらず、大勢の人が病院に駆けつけた。 → 駆",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + にもかかわらず (Aな: な/である; N: である)",
+    "locked_fields": [],
+    "meaning_vi": "Mặc dù",
+    "nuance_vi": "Trang trọng; nhấn mạnh kết quả ở vế sau trái với dự đoán thông thường từ vế trước, vế sau là sự thật khách quan hoặc đánh giá.",
+    "order_items": [],
+    "pattern": "にも拘(かか)わらず",
+    "pattern_variants": [
+     "〜にもかかわらず",
+     "Thể thường / N + にもかかわらず"
+    ],
+    "unit_no": 14,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞・【動詞・イ形容詞】の普通形／【名詞・ナ形容詞】＋である Ý nghĩa: ～のに Mặc dù Ví dụ: 1. 彼は熱が高いにもかかわらず、仕事に行った。 Mặc dù anh ấy sốt cao, nhưng vẫn đi làm. 2. 深夜にもかかわらず、大勢の人が病院に駆けつけた。 Dù đã khuya, nhiều người vẫn tới bệnh viện. 3. このゲーム機は高価であるにもかかわらず、よく売れているそうだ。 Dù cái máy chơi game này đắt tiền, nó vẫn bán rất chạy. 4. 気を付けていたにもかかわらず、また失敗してしまった。 Dù đã cẩn thận chú ý, nhưng tôi lại thất bại mất rồi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e899b34293"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大学を卒業したとはいうものの、まだ仕事が決まっていない。",
+       "ja_furigana": "大学(だいがく)を卒業(そつぎょう)したとはいうものの、まだ仕事(しごと)が決(き)まっていない。",
+       "vi": "Tuy nói là đã tốt nghiệp đại học nhưng công việc vẫn chưa được quyết định."
+      },
+      {
+       "ja": "この店は人気があるとはいうものの、いつも空いている。",
+       "ja_furigana": "この店(みせ)は人気(にんき)があるとはいうものの、いつも空(す)いている。",
+       "vi": "Tuy nói là quán đông khách nhưng lúc nào cũng vắng."
+      },
+      {
+       "ja": "春とはいうものの、朝晩はまだコートが必要なほど冷え込む。",
+       "ja_furigana": "春(はる)とはいうものの、朝晩(あさばん)はまだコートが必要(ひつよう)なほど冷(ひ)え込(こ)む。",
+       "source": "AI",
+       "vi": "Tuy nói là mùa xuân nhưng sáng tối vẫn lạnh đến mức cần áo khoác."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế trước là điều được nói hoặc nhận định phổ biến; vế sau không dùng mệnh lệnh. Khác ものの (vế trước là việc đã làm, đã biết) và と言っても (giải thích mức độ thực tế).",
+    "examples": [
+     {
+      "ja": "3月とはいうものの、まだまだ寒い日が続きますね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù đã là tháng 3 nhưng những ngày lạnh vẫn tiếp tục nhỉ。"
+     },
+     {
+      "ja": "工場の火災は、大きな事故にならなかったとはいうものの、周辺住民に大変な不安を与えた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mặc dù vụ cháy nhà máy không trở thành một tai nạn lớn nhưng đã gây ra sự lo lắng lớn cho cư dân xung quanh。"
+     },
+     {
+      "ja": "春とはいうものの、朝晩はまだコートが必要なほど冷え込む。",
+      "ja_furigana": "春(はる)とはいうものの、朝晩(あさばん)はまだコートが必要(ひつよう)なほど冷(ひ)え込(こ)む。",
+      "source": "AI",
+      "vi": "Tuy nói là mùa xuân nhưng sáng tối vẫn lạnh đến mức cần áo khoác."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 3月とはいうものの、まだまだ寒い日が続きますね。",
+     "FURIGANA_MISSING: 工場の火災は、大きな事故にならなかったとはいうものの、周辺住民に大変な不安を与えた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + とはいうものの; N + とはいうものの",
+    "locked_fields": [],
+    "meaning_vi": "Tuy nói là… nhưng (thực tế khác).",
+    "nuance_vi": "Văn viết hoặc lời nói trang trọng, hơi cứng; hay dùng khi nói về mùa, danh xưng, quy định.",
+    "order_items": [],
+    "pattern": "とは言(い)うものの",
+    "pattern_variants": [
+     "〜とはいうものの"
+    ],
+    "unit_no": 14,
+    "unit_title_vi": null,
+    "usage_vi": "Thừa nhận điều thường được nói ở vế trước, nhưng chỉ ra thực tế khác với kỳ vọng ở vế sau."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3f3aed94a1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼はお金がないと知りつつも、友だちと遊びに行った。",
+       "ja_furigana": "彼(かれ)はお金(かね)がないと知(し)りつつも、友(とも)だちと遊(あそ)びに行(い)った。",
+       "vi": "Tuy biết là không có tiền nhưng anh ấy vẫn đi chơi với bạn."
+      },
+      {
+       "ja": "合格したいと思いつつも、なかなか勉強が続かない。",
+       "ja_furigana": "合格(ごうかく)したいと思(おも)いつつも、なかなか勉強(べんきょう)が続(つづ)かない。",
+       "vi": "Tuy nghĩ là muốn đỗ nhưng việc học mãi không duy trì được."
+      },
+      {
+       "ja": "いけないと思いつつも、つい夜遅くまでゲームをしてしまった。",
+       "ja_furigana": "いけないと思(おも)いつつも、つい夜遅(よるおそ)くまでゲームをしてしまった。",
+       "source": "AI",
+       "vi": "Tuy nghĩ là không nên nhưng tôi vẫn lỡ chơi game đến khuya."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không mang nghĩa 'vừa… vừa…' (đó là つつ hoặc ながら). Hai vế phải cùng chủ ngữ. Khác ながらも: つつも thiên về động từ trừu tượng hơn, cứng hơn.",
+    "examples": [
+     {
+      "ja": "もう間に合わないと半分諦めつつも、必死で走った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mặc dù đã phần nào từ bỏ vì nghĩ không kịp, nhưng tôi vẫn chạy hết sức."
+     },
+     {
+      "ja": "勉強しようと思いつつも、彼女のことが気になって、できない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù có định học, nhưng lại bận tâm về cô ấy nên không thể tập trung được."
+     },
+     {
+      "ja": "いけないと思いつつも、つい夜遅くまでゲームをしてしまった。",
+      "ja_furigana": "いけないと思(おも)いつつも、つい夜遅(よるおそ)くまでゲームをしてしまった。",
+      "source": "AI",
+      "vi": "Tuy nghĩ là không nên nhưng tôi vẫn lỡ chơi game đến khuya."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: もう間に合わないと半分諦めつつも、必死で走った。",
+     "FURIGANA_MISSING: 勉強しようと思いつつも、彼女のことが気になって、できない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vます(bỏ ます) + つつも",
+    "locked_fields": [],
+    "meaning_vi": "Vừa… vừa…; trong khi làm… thì đồng thời… (văn viết)",
+    "nuance_vi": "Văn viết; nghĩa 'tuy… nhưng…', thường đi với động từ nhận thức hay mong muốn như 思う, 知る; vế sau trái với kỳ vọng.",
+    "order_items": [],
+    "pattern": "〜つつも",
+    "pattern_variants": [
+     "つつも"
+    ],
+    "unit_no": 14,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả hai hành động hoặc hai phương diện được duy trì đồng thời. Mẫu tương đương ながら nhưng thiên về văn viết và trang trọng hơn. 1) Dễ nhầm với ～ながら. → Ở nghĩa đồng thời, ～つつ gần với ～ながら nhưng mang sắc thái văn viết và trang trọng hơn. 2) Hai hành động thường có cùng chủ thể. → Vế trước và vế sau diễn ra song song trong một khoảng thời gian, không phải hai sự việc rời rạc. 3) Không nhầm với nghĩa nghịch ý của ～つつ（も）. → Nếu vế sau trái với điều biết hoặc nghĩ ở vế trước, mẫu mang nghĩa “mặc dù… nhưng…”, không còn là hành động đồng thời. Nêu sự mâu thuẫn giữa điều người nói biết, nghĩ hoặc tuyên bố với hành động hay kết quả thực tế. Dạng つつも làm sắc thái nghịch ý rõ hơn. 1) Dễ nhầm với nghĩa “vừa… vừa…” của ～つつ. → Ở mục này, hai vế mâu thuẫn nhau: chủ thể biết, nghĩ hoặc thừa nhận A nhưng thực tế lại B. 2) ～つつも làm quan hệ nghịch ý rõ hơn. → Các cách nói như 知りつつ, 思いつつ, 悪いと思いつつ thường xuất hiện trước hành động trái ngược. 3) Mẫu thiên về văn viết. → Trong hội thoại, ～ながら（も）／～のに thường tự nhiên hơn tùy ngữ cảnh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-697778b4b6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "空が飛べるものなら、一度でいいから飛んでみたい。",
+       "ja_furigana": "空(そら)が飛(と)べるものなら、一度(いちど)でいいから飛(と)んでみたい。",
+       "vi": "Nếu bay được trên trời, chỉ một lần thôi tôi cũng muốn thử bay."
+      },
+      {
+       "ja": "好きなことを仕事にできるものなら、そうしたい。",
+       "ja_furigana": "好(す)きなことを仕事(しごと)にできるものなら、そうしたい。",
+       "vi": "Nếu có thể biến điều mình thích thành công việc thì tôi muốn làm vậy."
+      },
+      {
+       "ja": "過去に戻れるものなら、あの日に戻ってあやまりたい。",
+       "ja_furigana": "過去(かこ)に戻(もど)れるものなら、あの日(ひ)に戻(もど)ってあやまりたい。",
+       "source": "AI",
+       "vi": "Nếu quay về được quá khứ, tôi muốn quay lại ngày hôm đó để xin lỗi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Đừng nhầm với 〜ようものなら (nếu lỡ… thì sẽ có hậu quả xấu) – mẫu đó đi với thể ý chí. Ở đây ものなら đi với thể khả năng và vế sau là ước muốn.",
+    "examples": [
+     {
+      "ja": "人生をやり直せるものならやり直したい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu làm lại được cuộc đời này, muốn làm lại quá."
+     },
+     {
+      "ja": "（病気の子どもに対し）代われるものなら代わってやりたい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu có thể thay sẽ thay cho con."
+     },
+     {
+      "ja": "過去に戻れるものなら、あの日に戻って謝りたい。",
+      "ja_furigana": "過去(かこ)に戻(もど)れるものなら、あの日(ひ)に戻(もど)って謝(あやま)りたい。",
+      "source": "AI",
+      "vi": "Nếu quay về được quá khứ, tôi muốn quay lại ngày hôm đó để xin lỗi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 人生をやり直せるものならやり直したい。",
+     "FURIGANA_MISSING: （病気の子どもに対し）代われるものなら代わってやりたい。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V thể khả năng + ものなら",
+    "locked_fields": [],
+    "meaning_vi": "Nếu làm được... muốn làm",
+    "nuance_vi": "Giả định một việc rất khó thực hiện được để bày tỏ ước muốn mãnh liệt; vế sau là mong muốn như 〜たい.",
+    "order_items": [],
+    "pattern": "ものなら 1",
+    "pattern_variants": [
+     "ものなら 2",
+     "〜ものなら",
+     "V thể khả năng + ものなら"
+    ],
+    "unit_no": 15,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 動詞の可能形 Ý nghĩa: ①（不可能、あるいはそれに近いが）もしできるなら～たい Nếu làm được... muốn làm Ví dụ: 1. 人生をやり直せるものならやり直したい。 Nếu làm lại được cuộc đời này, muốn làm lại quá. 2. （病気の子どもに対し）代われるものなら代わってやりたい。 Nếu có thể thay sẽ thay cho con. 3. 食べられるものなら、世界中の珍味を食べてみたい。 Nếu có thể, tôi muốn thưởng thức cao lương mỹ vị trên khắp thế giới. 4. 自然破壊を止められるものなら、何としてでも止めたい。 Nếu có thể, bằng mọi cách tôi muốn ngăn chặn tình trạng hủy hoại môi trường. *「こんな高い所から飛び降りられるはずがない。やれるものならやってみろ」 Chắc chắn không thể bay xuống từ nơi cao như thế này đâu. Nếu làm được tôi sẽ thử. Cách kết hợp: 動詞の意志形／イ形容詞＋かろう Ý nghĩa: ②もし～たら→大変な結果 Nếu Ví dụ: 1. A先生は時間に厳しい。授業に遅れようものなら教室にも入れてもらえない。 Giáo viên A thời gian nghiêm lắm. Nếu muộn là không được vào lớp học đâu. 2. 最近はよその子どもに注意などしようものなら、母親に文句を言われてしまう。 Gần đây, ta sẽ bị các bà mẹ càu nhàu nếu ta nhắc nhở con họ. 3. 米国の株価が暴落しようものなら、世界中の市場がパニックになるだろう。 Nếu giá cổ phiếu Mỹ sụt giảm mạnh thì thị trường thế giới chắc hẳn sẽ bị rúng động. 4. 子どものころ、テストの点が悪かろうものなら、父になぐられたものだ。 Hồi còn nhỏ, nếu bị điểm kém là tôi bị bố đánh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3c08138fb5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "うれしさのあまり、涙が出た。",
+       "ja_furigana": "うれしさのあまり、涙(なみだ)が出(で)た。",
+       "vi": "Vì quá mừng nên tôi bật khóc."
+      },
+      {
+       "ja": "試験に落ちたショックのあまり、三日間何も食べられなかった。",
+       "ja_furigana": "試験(しけん)に落(お)ちたショックのあまり、三日間(みっかかん)何(なに)も食(た)べられなかった。",
+       "source": "AI",
+       "vi": "Quá sốc vì thi trượt, suốt ba ngày tôi không ăn được gì."
+      },
+      {
+       "ja": "忙しさのあまり、昼ご飯を食べるのを忘れていた。",
+       "ja_furigana": "忙(いそが)しさのあまり、昼(ひる)ご飯(はん)を食(た)べるのを忘(わす)れていた。",
+       "source": "AI",
+       "vi": "Bận quá nên tôi quên cả ăn trưa."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau là kết quả bất thường, không dùng cho kết quả bình thường hay tốt. Đừng nhầm với 余り + phủ định (không… lắm) hay 余り nghĩa 'phần thừa'.",
+    "examples": [
+     {
+      "ja": "驚きのあまり、声も出なかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "試験に落ちたショックのあまり、三日間何も食べられなかった。",
+      "ja_furigana": "試験(しけん)に落(お)ちたショックのあまり、三日間(みっかかん)何(なに)も食(た)べられなかった。",
+      "source": "AI",
+      "vi": "Quá sốc vì thi trượt, suốt ba ngày tôi không ăn được gì."
+     },
+     {
+      "ja": "忙しさのあまり、昼ご飯を食べるのを忘れていた。",
+      "ja_furigana": "忙(いそが)しさのあまり、昼(ひる)ご飯(はん)を食(た)べるのを忘(わす)れていた。",
+      "source": "AI",
+      "vi": "Bận quá nên tôi quên cả ăn trưa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 驚きのあまり、声も出なかった。",
+     "FURIGANA_MISSING: 驚きのあまり、声も出なかった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + あまり; N の + あまり",
+    "locked_fields": [],
+    "meaning_vi": "Vì quá mà — Cảm xúc hoặc mức độ quá lớn dẫn đến kết quả bất thường.",
+    "nuance_vi": "Cảm xúc hay mức độ quá lớn dẫn đến kết quả bất thường ngoài dự kiến; thường là kết quả tiêu cực, thiên về văn viết.",
+    "order_items": [],
+    "pattern": "余(あま)り",
+    "pattern_variants": [
+     "N の / V từ điển + あまり",
+     "〜あまり"
+    ],
+    "unit_no": 16,
+    "unit_title_vi": null,
+    "usage_vi": "Hay đi với cảm xúc mạnh: 心配, 驚き, うれしさ. Vế sau thường tiêu cực."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8cf1c12392"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の問題はあまりに複雑で、すぐには答えられない。",
+       "ja_furigana": "彼(かれ)の問題(もんだい)はあまりに複雑(ふくざつ)で、すぐには答(こた)えられない。",
+       "vi": "Vấn đề của anh ấy quá phức tạp, không thể trả lời ngay được."
+      },
+      {
+       "ja": "今日はあまりに暑くて、外に出る気にならない。",
+       "ja_furigana": "今日(きょう)はあまりに暑(あつ)くて、外(そと)に出(で)る気(き)にならない。",
+       "vi": "Hôm nay nóng quá nên chẳng muốn ra ngoài."
+      },
+      {
+       "ja": "値段があまりに高くて、買うのをあきらめた。",
+       "ja_furigana": "値段(ねだん)があまりに高(たか)くて、買(か)うのをあきらめた。",
+       "source": "AI",
+       "vi": "Giá đắt quá nên tôi bỏ ý định mua."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Đừng nhầm với あまり + phủ định (không… lắm). Khi mang nghĩa 'quá', vế sau là kết quả hay đánh giá, thường không phải ý chí của người nói.",
+    "examples": [
+     {
+      "ja": "緊張のあまり気分が悪くなった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì quá căng thẳng nên tâm trạng của tôi trở nên xấu đi."
+     },
+     {
+      "ja": "母は心配のあまり病気になってしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì quá lo lắng mà mẹ tôi đã đổ bệnh."
+     },
+     {
+      "ja": "値段があまりに高くて、買うのをあきらめた。",
+      "ja_furigana": "値段(ねだん)があまりに高(たか)くて、買(か)うのをあきらめた。",
+      "source": "AI",
+      "vi": "Giá đắt quá nên tôi bỏ ý định mua."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 緊張のあまり気分が悪くなった。",
+     "FURIGANA_MISSING: 母は心配のあまり病気になってしまった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "あまりに + Aい/Aな; Vる/N の + あまり(に)",
+    "locked_fields": [],
+    "meaning_vi": "Vì bất thường, kết quả quá",
+    "nuance_vi": "Nhấn mạnh mức độ quá đáng; あまりに(も) đứng trước tính từ để nói 'quá', hoặc đi với danh từ/động từ để chỉ nguyên nhân dẫn đến kết quả bất thường.",
+    "order_items": [],
+    "pattern": "余(あま)りに",
+    "pattern_variants": [
+     "〜あまり(に)"
+    ],
+    "unit_no": 16,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞∔の／動詞の【普通形・タ形】 Ý nghĩa: ～すぎた結果→（-）の結果 Vì bất thường, kết quả quá Ví dụ: 1. 緊張のあまり気分が悪くなった。 Vì quá căng thẳng nên tâm trạng của tôi trở nên xấu đi. 2. 母は心配のあまり病気になってしまった。 Vì quá lo lắng mà mẹ tôi đã đổ bệnh. 3. 現代の日本には、体系を気にするあまり過激なダイエットをする女性がいる。 Trong xã hội Nhật hiện đại, có những cô gái vì quá coi trọng hình thể nên ăn kiêng một cách cực đoan. 4. 日本では経済成長を急ぐあまりに、環境破壊が急激に進んだ。 Vì tăng trưởng kinh tế một cách vội vã nên nước Nhật đã hủy hoại môi trường nghiêm trọng. 5. ゲームに熱中していたあまり、父が帰ってきたことに気がつかなかった。 Vì mải chơi game nên tôi đã không hề nhận ra bố đã về nhà. *あまりに寒くて（=寒さのあまり）息ができなかった。 Lạnh không thở nổi (vì lạnh quá nên không thở nổi)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e1aef7d3cf"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "雨天につき、本日の試合は中止です。",
+       "ja_furigana": "雨天(うてん)につき、本日(ほんじつ)の試合(しあい)は中止(ちゅうし)です。",
+       "vi": "Vì trời mưa nên trận đấu hôm nay bị hủy."
+      },
+      {
+       "ja": "会場は満員につき、入場をお断りしています。",
+       "ja_furigana": "会場(かいじょう)は満員(まんいん)につき、入場(にゅうじょう)をお断(ことわ)りしています。",
+       "vi": "Hội trường đã chật kín nên chúng tôi xin từ chối cho vào."
+      },
+      {
+       "ja": "工事中につき、この道は通れません。",
+       "ja_furigana": "工事中(こうじちゅう)につき、この道(みち)は通(とお)れません。",
+       "source": "AI",
+       "vi": "Vì đang thi công nên không thể đi qua con đường này."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Có hai nghĩa: lý do (thông báo) và 'trên mỗi' (一人につき二つ). Không dùng trong hội thoại thân mật; khác のため là cách nói thông thường hơn.",
+    "examples": [
+     {
+      "ja": "出入り口につき、駐車禁止。（書き言葉）",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Với lí do cửa ra vào, cấm dừng đỗ xe. (Ghi trên biển hiệu)"
+     },
+     {
+      "ja": "本日は定休日につき、休ませていただきます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì hôm nay là ngày nghỉ quy định nên chúng tôi xin phép đóng cửa. (Ghi trên tờ thông báo)"
+     },
+     {
+      "ja": "工事中につき、この道は通れません。",
+      "ja_furigana": "工事中(こうじちゅう)につき、この道(みち)は通(とお)れません。",
+      "source": "AI",
+      "vi": "Vì đang thi công nên không thể đi qua con đường này."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 出入り口につき、駐車禁止。（書き言葉）",
+     "FURIGANA_MISSING: 本日は定休日につき、休ませていただきます。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + につき",
+    "locked_fields": [],
+    "meaning_vi": "Với lý do, vì",
+    "nuance_vi": "Văn viết, hay thấy trong thông báo, biển báo; nghĩa 'vì…' (nêu lý do), hoặc 'mỗi/trên' khi đi với số lượng như 一人につき.",
+    "order_items": [],
+    "pattern": "に就(つ)き",
+    "pattern_variants": [
+     "〜につき"
+    ],
+    "unit_no": 16,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞 Ý nghĩa: ①～という理由で（書き言葉） Với lý do, vì Ví dụ: 1. 出入り口につき、駐車禁止。（書き言葉） Với lí do cửa ra vào, cấm dừng đỗ xe. (Ghi trên biển hiệu) 2. 本日は定休日につき、休ませていただきます。 Vì hôm nay là ngày nghỉ quy định nên chúng tôi xin phép đóng cửa. (Ghi trên tờ thông báo) 3. 残高不足につき、引き落としできません。 Vì số dư không đủ nên không thể chuyển khoản. (Thông báo từ ngân hàng) Ý nghĩa: ②割合 Tỷ lệ Ví dụ: 1. 手数料は書類1通につき3００円です。 Lệ phí là 300 yên trên 1 tờ tài liệu. 2. 駅前の駐車場は１時間につき５００円かかる。 Bãi đỗ xe trước nhà ga phí là 500 yên một giờ. 3. この図書館では１回につき５冊まで本が借りられる。 Ở thư viện này 1 lần mượn được 5 quyển. 4. このポイントカードは、３００円につき１個、スタンプを押させてうただきます。 Thẻ tích điểm này cứ mỗi 300 yên sẽ được đóng dấu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9926065b20"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-006"
+}

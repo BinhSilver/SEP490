@@ -1,0 +1,581 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "料理の味もさることながら、店の雰囲気も素晴らしい。",
+       "ja_furigana": "料理(りょうり)の味(あじ)もさることながら、店(みせ)の雰囲気(ふんいき)も素晴(すば)らしい。",
+       "vi": "Hương vị món ăn đã đáng kể, không khí quán cũng rất tuyệt."
+      },
+      {
+       "ja": "彼の努力もさることながら、周りの支えが大きかった。",
+       "ja_furigana": "彼(かれ)の努力(どりょく)もさることながら、周(まわ)りの支(ささ)えが大(おお)きかった。",
+       "vi": "Sự nỗ lực của anh ấy đã đành, sự giúp đỡ của mọi người xung quanh cũng rất lớn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "資料の正確さもさることながら、説明の分かりやすさが評価された。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Độ chính xác của tài liệu đã đáng kể, nhưng cách giải thích dễ hiểu mới được đánh giá cao."
+     },
+     {
+      "ja": "本人の語学力もさることながら、現地協力者のネットワークの広さが決め手となった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Năng lực ngôn ngữ của bản thân đã vậy, mạng lưới cộng tác viên tại chỗ mới là yếu tố quyết định."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 資料の正確さもさることながら、説明の分かりやすさが評価された。",
+     "FURIGANA_MISSING: 本人の語学力もさることながら、現地協力者のネットワークの広さが決め手となった。"
+    ],
+    "formation": "N + もさることながら、〜",
+    "locked_fields": [],
+    "meaning_vi": "… đã đáng kể, … còn đáng nói hơn",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "... đã đáng kể, ... còn đáng nói hơn",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Thừa nhận A là quan trọng, rồi đẩy trọng tâm sang B còn nổi bật hơn. Cách dùng: Mẫu もさることながら thừa nhận A là điều đáng kể, rồi nêu B mới là điểm then chốt hoặc đáng bàn hơn. A không bị phủ nhận, chỉ bị đặt xuống hàng đã biết. Đi với danh từ chỉ phẩm chất, điều kiện, hoàn cảnh. Giọng văn viết, hay gặp khi nhận xét thành quả, nhân sự, cơ sở vật chất. Có thể khen hoặc chê, miễn là trọng tâm nằm ở vế sau. Khác はおろか vì không hạ A thành mức không đạt, mà công nhận A rồi chuyển sang B. Sắc thái: Lịch sự, cân bằng: không bỏ qua A nhưng muốn người nghe chú ý B. Phù hợp bình luận, đánh giá hồ sơ, nhận xét triển lãm hay báo cáo. Ít dùng trong hội thoại suồng sã. Lưu ý: Đi với danh từ, không gắn sau động từ từ điển. Vế sau phải là điểm đáng nói hơn, không phải phủ định A. Không dùng khi A hoàn toàn không có giá trị; A vẫn được thừa nhận."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bb9779be3b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この味を出せるのは、長年働く料理長ならではの腕だ。",
+       "ja_furigana": "この味(あじ)を出(だ)せるのは、長年(ながねん)働(はたら)く料理長(りょうりちょう)ならではの腕(うで)だ。",
+       "vi": "Tạo được hương vị này đúng là tay nghề chỉ riêng bếp trưởng lâu năm mới có."
+      },
+      {
+       "ja": "この丁寧な説明は、経験豊かな先生ならではだ。",
+       "ja_furigana": "この丁寧(ていねい)な説明(せつめい)は、経験豊(けいけんゆた)かな先生(せんせい)ならではだ。",
+       "vi": "Cách giải thích cặn kẽ này đúng là chỉ có thầy giáo giàu kinh nghiệm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "閉架から関連文献を掘り起こしたのは、ベテラン司書ならではの選書眼だった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Việc đào ra được tài liệu liên quan từ kho đóng là con mắt chọn sách chỉ thủ thư lão luyện mới có."
+     },
+     {
+      "ja": "このきめ細かな住民対応は、長年この地区を歩いてきた相談員ならではだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cách tiếp xúc cư dân tỉ mỉ thế này đúng là chỉ có nhân viên tư vấn đã đi từng ngõ trong khu vực nhiều năm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 閉架から関連文献を掘り起こしたのは、ベテラン司書ならではの選書眼だった。",
+     "FURIGANA_MISSING: このきめ細かな住民対応は、長年この地区を歩いてきた相談員ならではだ。"
+    ],
+    "formation": "N + ならではの + N／N + ならでは",
+    "locked_fields": [],
+    "meaning_vi": "Đặc trưng chỉ có ở …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đặc trưng chỉ có ở ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu phẩm chất, cách làm hoặc sản vật mang dấu ấn độc đáo của một đối tượng, thường mang sắc thái khen. Cách dùng: Mẫu ならでは dùng để nói rằng phẩm chất, sản vật hoặc cách làm ấy chỉ sinh ra từ chính đối tượng được nêu, người ngoài khó bắt chước. Dạng hay gặp là NならではのN khi bổ nghĩa cho một danh từ, Nならではだ khi kết thúc nhận xét, và Nならでは〜できない khi nhấn mạnh chỉ đối tượng ấy mới làm được. Thường mang đánh giá tích cực: tinh tế, sâu, đúng chất. Đi với danh từ chỉ nghề, nơi chốn, nhóm người hoặc hoàn cảnh cụ thể. Không dùng như một mệnh đề điều kiện なら thông thường. Sắc thái: Giọng khen, trân trọng nét độc đáo. Hay xuất hiện khi nhận xét chuyên môn, sản vật địa phương, cách tiếp xúc với cư dân, không khí của một dịp đặc biệt. Ít dùng để chê. Lưu ý: Thường đánh giá tích cực; gắn với thói xấu sẽ rất gượng. Đứng sau danh từ, không sau động từ từ điển. ならではの phải có danh từ theo sau; muốn kết thúc câu thì dùng ならではだ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5b3a5321dc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "学生であれ社会人であれ、この規則は守らなければならない。",
+       "ja_furigana": "学生(がくせい)であれ社会人(しゃかいじん)であれ、この規則(きそく)は守(まも)らなければならない。",
+       "vi": "Dù là sinh viên hay người đi làm, đều phải tuân theo quy tắc này."
+      },
+      {
+       "ja": "暑かろうと寒かろうと、毎日の練習は欠かせない。",
+       "ja_furigana": "暑(あつ)かろうと寒(さむ)かろうと、毎日(まいにち)の練習(れんしゅう)は欠(か)かせない。",
+       "vi": "Dù nóng hay lạnh, việc luyện tập hằng ngày cũng không thể bỏ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "正社員であれ契約社員であれ、安全研修の受講は義務である。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù nhân viên chính thức hay hợp đồng, việc dự tập huấn an toàn vẫn là nghĩa vụ."
+     },
+     {
+      "ja": "雨であろうと強風であろうと、測量の日程は動かせない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù mưa hay gió mạnh, lịch đo đạc cũng không dời được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 正社員であれ契約社員であれ、安全研修の受講は義務である。",
+     "FURIGANA_MISSING: 雨であろうと強風であろうと、測量の日程は動かせない。"
+    ],
+    "formation": "N + であれ + N + であれ／N + であろうと + N + であろうと、〜",
+    "locked_fields": [],
+    "meaning_vi": "Dù là … hay …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù là ... hay ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Bất luận thuộc nhóm A hay B, kết luận hoặc nghĩa vụ ở vế sau vẫn giữ nguyên. Cách dùng: Hai dạng であれ…であれ và であろうと…であろうと đều nêu hai tư cách, điều kiện hoặc tình huống đối lập rồi khẳng định việc phía sau áp dụng cho cả hai. Đi với danh từ, kể cả tính từ na đã danh từ hóa. Hay dùng trong nội quy, nghĩa vụ, nguyên tắc: nhân viên chính thức hay hợp đồng đều phải học an toàn; mưa hay gió mạnh cũng không dời lịch đo đạc. であろうと hơi văn viết, nghị luận hơn. Có thể dùng một vế với 何／誰／どれであろうと. Không dùng để đưa menu hành động như なり…なり. Sắc thái: Giọng nguyên tắc, không nhân nhượng. Người nói muốn chốt rằng khác biệt bề mặt không đổi nghĩa vụ hay kết luận. Phù hợp văn bản, phát biểu trang trọng, ít dùng khi gợi ý nhẹ. Lưu ý: Hai vế thường là cặp đối lập hoặc cùng bình diện tư cách, không phải hai việc cần chọn để làm. Không chia thì; không gắn た／です sau であれ. Vế sau phải là kết luận chung, không phải mô tả A khác B."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b0c24de72f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "分からなければ、辞書を引くなり先生に聞くなりしてください。",
+       "ja_furigana": "分(わ)からなければ、辞書(じしょ)を引(ひ)くなり先生(せんせい)に聞(き)くなりしてください。",
+       "vi": "Nếu không hiểu thì hãy tra từ điển hoặc hỏi thầy cô."
+      },
+      {
+       "ja": "空き時間は、本を読むなり体を休めるなり、自由に使ってよい。",
+       "ja_furigana": "空(あ)き時間(じかん)は、本(ほん)を読(よ)むなり体(からだ)を休(やす)めるなり、自由(じゆう)に使(つか)ってよい。",
+       "vi": "Giờ rảnh thì đọc sách hay nghỉ ngơi, tùy mỗi người."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "手順が分からなければ、規程を読み直すなり担当者に尋ねるなりして確認してほしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu không rõ quy trình, hãy đọc lại quy chế hoặc hỏi người phụ trách mà xác nhận."
+     },
+     {
+      "ja": "空き時間は、資料室で調べるなり下書きを進めるなり、各自で使ってよい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giờ trống có thể dùng để tra cứu ở phòng tư liệu hoặc viết tiếp bản thảo, tùy mỗi người."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 手順が分からなければ、規程を読み直すなり担当者に尋ねるなりして確認してほしい。",
+     "FURIGANA_MISSING: 空き時間は、資料室で調べるなり下書きを進めるなり、各自で使ってよい。"
+    ],
+    "formation": "Vる／N + なり + Vる／N + なり、〜",
+    "locked_fields": [],
+    "meaning_vi": "Hoặc … hoặc … (hãy chọn một cách)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hoặc ... hoặc ... (hãy chọn một cách)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Đưa ra hai cách làm tiêu biểu và thúc người nghe chọn một, rồi hành động. Cách dùng: Mẫu なり…なり liệt kê hai khả năng cùng loại như những ví dụ hành động, thường với hàm ý hãy chọn một rồi làm, đừng đứng im. Đi với danh từ hoặc động từ dạng từ điển. Hay dùng khi nhắc nhở, hướng dẫn: không rõ thì tra quy chế hoặc hỏi người phụ trách. Hai vế phải cùng tầng, cùng hướng giải quyết. Không phải liệt kê lung tung như とか, cũng không phải bất luận A hay B như であれ. Giọng hơi cứng, hợp chỉ thị, nội quy, lời khuyên dứt khoát. Sắc thái: Mang tính thúc đẩy: có đường ra, hãy dùng. Người nói không bắt buộc đúng một việc, nhưng yêu cầu phải có hành động. Ít dùng để mô tả thói quen trung tính. Lưu ý: Hai vế cùng loại hành động hoặc cùng loại phương tiện; không ghép việc trái chiều vô cớ. Động từ dùng dạng từ điển, không dùng た形 hay て形. Thường theo sau là yêu cầu hành động: して確認する, すればよい, すること."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5893f71e56"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は外国語はおろか、母語の発表さえ苦手だ。",
+       "ja_furigana": "彼(かれ)は外国語(がいこくご)はおろか、母語(ぼご)の発表(はっぴょう)さえ苦手(にがて)だ。",
+       "vi": "Ngoại ngữ thì khỏi nói, anh ấy đến thuyết trình bằng tiếng mẹ đẻ cũng kém."
+      },
+      {
+       "ja": "この村では、医者はおろか、薬を売る店さえない。",
+       "ja_furigana": "この村(むら)では、医者(いしゃ)はおろか、薬(くすり)を売(う)る店(みせ)さえない。",
+       "vi": "Ở làng này, bác sĩ thì khỏi nói, đến cửa hàng bán thuốc cũng không có."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "新配属の彼は、顧客折衝はおろか、定型の社内メールさえまだ覚束ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh mới phân công, thương lượng với khách đã đành, ngay cả thư nội bộ theo mẫu cũng còn chưa vững."
+     },
+     {
+      "ja": "その過疎集落では、専門医はおろか、常勤の看護師も確保できていない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ở cụm dân cư thưa ấy, bác sĩ chuyên khoa đã đành, ngay cả điều dưỡng thường trực cũng chưa tuyển được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 新配属の彼は、顧客折衝はおろか、定型の社内メールさえまだ覚束ない。",
+     "FURIGANA_MISSING: その過疎集落では、専門医はおろか、常勤の看護師も確保できていない。"
+    ],
+    "formation": "N + はおろか、〜も／さえ",
+    "locked_fields": [],
+    "meaning_vi": "Huống hồ / nói chi đến …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Huống hồ / nói chi đến ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: A vốn đã khó hoặc đáng lẽ phải có, vậy mà ngay cả B thấp hơn, cơ bản hơn cũng không đạt. Cách dùng: Mẫu はおろか đặt A là việc lớn, mức cao hoặc điều đáng lẽ phải có, rồi nêu B thấp hơn, dễ hơn hoặc cơ bản hơn vẫn không ổn. Cấu trúc điển hình là Aはおろか、Bも／さえ／すら〜ない. Ví dụ: thương lượng khách hàng đã đành, ngay cả thư nội bộ mẫu cũng chưa vững. Cũng gặp khi thiếu thốn: bác sĩ chuyên khoa đã đành, ngay cả điều dưỡng thường trực cũng không có. Giọng mạnh, hay dùng khi than sự thiếu hụt hoặc năng lực chưa đạt. Không dùng để khen hai ưu điểm song song. Sắc thái: Sắc thái nhấn mạnh sự chênh lệch: A còn xa, B vốn khiêm tốn cũng không xong. Thiên về tình huống tiêu cực, bất cập. Văn viết và nói trang trọng đều dùng được, nhưng cảm xúc rõ hơn だけでなく. Lưu ý: A phải là mức cao hơn hoặc việc đáng kể hơn B; đảo thứ tự sẽ sai logic. Vế sau thường có も／さえ／すら và hay kèm phủ định hoặc tình trạng cực đoan. Không dùng để liệt kê hai điểm cùng chiều khen như もさることながら."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ef8aa4848e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "被害はその町にとどまらず、周辺の村にまで広がった。",
+       "ja_furigana": "被害(ひがい)はその町(まち)にとどまらず、周辺(しゅうへん)の村(むら)にまで広(ひろ)がった。",
+       "vi": "Thiệt hại không dừng ở thị trấn đó mà lan ra cả các làng lân cận."
+      },
+      {
+       "ja": "彼の活動は地域の清掃にとどまらず、町の活性化にまで広がった。",
+       "ja_furigana": "彼(かれ)の活動(かつどう)は地域(ちいき)の清掃(せいそう)にとどまらず、町(まち)の活性化(かっせいか)にまで広(ひろ)がった。",
+       "vi": "Hoạt động của anh ấy không dừng ở dọn vệ sinh khu vực mà lan đến cả việc làm sôi động thị trấn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "騒音の苦情は夜間にとどまらず、昼間の搬入音にまで寄せられている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khiếu nại về tiếng ồn không dừng ở ban đêm mà còn nhắm cả tiếng xe chuyển hàng ban ngày."
+     },
+     {
+      "ja": "その研究は基礎理論の整理にとどまらず、現場の計測手順まで提案している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghiên cứu ấy không dừng ở việc sắp xếp lý thuyết cơ sở mà còn đề xuất cả quy trình đo đạc hiện trường."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 騒音の苦情は夜間にとどまらず、昼間の搬入音にまで寄せられている。",
+     "FURIGANA_MISSING: その研究は基礎理論の整理にとどまらず、現場の計測手順まで提案している。"
+    ],
+    "formation": "N + にとどまらず、〜(も／まで)",
+    "locked_fields": [],
+    "meaning_vi": "Không chỉ dừng lại ở …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không chỉ dừng lại ở ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Phạm vi không khép ở A mà lan sang B rộng hơn, mạnh hơn hoặc sang lĩnh vực khác. Cách dùng: Mẫu にとどまらず báo rằng việc, ảnh hưởng hoặc hoạt động không dừng ở phạm vi A mà còn mở sang B. A là ranh giới ban đầu, B là bước vượt ra, thường rộng hơn, nặng hơn hoặc sang lĩnh vực khác. Đi với danh từ chỉ nơi chốn, đối tượng, giai đoạn, hoặc với động từ từ điển. Giọng khách quan, hơi trang trọng, hợp báo cáo, văn hành chính và mô tả nghiên cứu. Khác với phép cộng đơn giản, mẫu này nhấn mạnh ý vượt khỏi giới hạn lẽ ra có thể dừng. Sắc thái: Tập trung vào sự lan rộng, nâng cấp quy mô. Có thể trung tính hoặc đánh giá tích cực khi nói thành quả vượt tầm; cũng dùng cho vấn đề lan ra ngoài dự kiến. Không mang sắc thái than vãn mạnh như はおろか. Lưu ý: Vế sau cần phạm vi rộng hơn hoặc lĩnh vực khác, không lặp lại cùng một mức. Không dùng để nói lựa chọn duy nhất như をおいて. Với động từ, dùng dạng từ điển: 整理するにとどまらず, không dùng た形."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5905f655a4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "問い合わせの電話は、朝といわず夜といわず鳴り続ける。",
+       "ja_furigana": "問(と)い合(あ)わせの電話(でんわ)は、朝(あさ)といわず夜(よる)といわず鳴(な)り続(つづ)ける。",
+       "vi": "Điện thoại hỏi thông tin reo liên tục cả sáng lẫn tối."
+      },
+      {
+       "ja": "机の上といわず床といわず、本が散らかっている。",
+       "ja_furigana": "机(つくえ)の上(うえ)といわず床(ゆか)といわず、本(ほん)が散(ち)らかっている。",
+       "vi": "Cả trên bàn lẫn dưới sàn, sách vứt bừa bãi khắp nơi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "点検の連絡は、出勤前といわず退勤後といわず入ってくる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Liên lạc kiểm tra tuôn đến cả trước giờ vào ca lẫn sau giờ tan, không chừa lúc nào."
+     },
+     {
+      "ja": "室内といわず廊下といわず、搬入した段ボールが通路を塞いでいた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong phòng cũng như hành lang, thùng các-tông vừa chuyển vào chắn mất lối đi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 点検の連絡は、出勤前といわず退勤後といわず入ってくる。",
+     "FURIGANA_MISSING: 室内といわず廊下といわず、搬入した段ボールが通路を塞いでいた。"
+    ],
+    "formation": "N + といわず + N + といわず、〜",
+    "locked_fields": [],
+    "meaning_vi": "Không phân biệt … hay … / cả … lẫn …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không phân biệt ... hay ... / cả ... lẫn ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Không trừ A cũng không trừ B; việc xảy ra trên cả dải, khắp phạm vi. Cách dùng: Mẫu といわず…といわず lấy hai mốc vốn đối lập hoặc chia hết một dải, rồi nói sự việc xảy ra mà không loại trừ bên nào. Nghĩa là A cũng B cũng, khắp nơi, suốt khoảng ấy. Cặp điển hình là trước/sau giờ làm, trong phòng/hành lang, trên mặt bàn/trong ngăn kéo. Giọng mô tả mức độ bao phủ, thường hơi cường điệu. Khác といい vì không chọn hai điểm để bình phẩm mà nhấn mạnh không chừa khoảng trống. Vế sau mô tả tình trạng trải đều, không phải nghĩa vụ bất luận như であれ. Sắc thái: Tạo ấn tượng toàn phần: lúc nào cũng, chỗ nào cũng. Có thể than phiền hoặc tả thực. Hay dùng khi nói liên lạc không ngớt, đồ đạc tràn, bụi bám khắp bề mặt. Không dùng để đưa hai lựa chọn cho người nghe. Lưu ý: Hai danh từ phải bao một phổ: thời gian, không gian, bộ phận; hai việc không liên quan sẽ gượng. Không dùng động từ trước といわず. Không thay cho といい khi mục đích là đánh giá hai đặc điểm rồi khen hoặc chê."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-16646e3cc8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この役を任せられるのは、ベテランの彼をおいてほかにいない。",
+       "ja_furigana": "この役(やく)を任(まか)せられるのは、ベテランの彼(かれ)をおいてほかにいない。",
+       "vi": "Người đảm nhận được vai này thì ngoài anh ấy là người kỳ cựu, không còn ai."
+      },
+      {
+       "ja": "この翻訳を任せるなら、彼女をおいてほかに適任者はいない。",
+       "ja_furigana": "この翻訳(ほんやく)を任(まか)せるなら、彼女(かのじょ)をおいてほかに適任者(てきにんしゃ)はいない。",
+       "vi": "Nếu giao bản dịch này thì ngoài cô ấy ra không còn ai thích hợp."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この入札案件の統括は、現場経験二十年の田村課長をおいてほかにいない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người tổng phụ trách gói thầu này, ngoài trưởng phòng Tamura với hai mươi năm kinh nghiệm hiện trường, không còn ai khác."
+     },
+     {
+      "ja": "区の文化財修復を任せるなら、地元の漆工房をおいてほかに適当な相手はあるまい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu giao việc tu bổ di sản văn hóa của quận, ngoài xưởng sơn mài địa phương e không còn đối tác nào thích hợp."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この入札案件の統括は、現場経験二十年の田村課長をおいてほかにいない。",
+     "FURIGANA_MISSING: 区の文化財修復を任せるなら、地元の漆工房をおいてほかに適当な相手はあるまい。"
+    ],
+    "formation": "N + をおいて(ほかに) + ない／いない",
+    "locked_fields": [],
+    "meaning_vi": "Ngoài … ra không còn ai/gì phù hợp",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Ngoài ... ra không còn ai/gì phù hợp",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Khẳng định đối tượng nêu ra là lựa chọn duy nhất xứng đáng; phần sau thường là phủ định. Cách dùng: Mẫu này dùng khi người nói khẳng định rằng, trong các lựa chọn đang được cân nhắc, chỉ đối tượng đứng trước をおいて mới phù hợp, đủ tư cách hoặc có khả năng đảm nhận. Danh từ đi trước thường là người, tổ chức, đơn vị hoặc phương án cụ thể. Mệnh đề sau gần như bắt buộc mang nghĩa phủ định, điển hình là ほかにない, いない, 見当たらない. Cấu trúc trang trọng, hay gặp trong văn viết, đề cử nhân sự và đánh giá năng lực. Không dùng để liệt kê trung tính kiểu ngoài A còn có B, cũng không dùng khi vẫn còn vài lựa chọn khả dĩ. Sắc thái: Sắc thái nhấn mạnh, hơi văn viết. Người nói như đang loại hết ứng viên khác để chốt một cái tên. Thường xuất hiện khi bổ nhiệm, giao việc khó, hoặc nhận xét ai là người duy nhất hiểu hiện trường. Lưu ý: Phần sau gần như luôn là phủ định; câu khẳng định trần *田中さんをおいて適任だ* nghe không tự nhiên. Đi với danh từ (người, tổ chức, nơi chốn, phương án), không gắn trực tiếp sau động từ. Không dùng khi chỉ muốn nói trừ A ra vẫn còn lựa chọn khác."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-60308ce74c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "立地といい値段といい、この物件は申し分ない。",
+       "ja_furigana": "立地(りっち)といい値段(ねだん)といい、この物件(ぶっけん)は申(もう)し分(ぶん)ない。",
+       "vi": "Xét vị trí cũng như giá cả, căn hộ này không chê vào đâu được."
+      },
+      {
+       "ja": "見た目といい味といい、この店の料理は素晴らしい。",
+       "ja_furigana": "見(み)た目(め)といい味(あじ)といい、この店(みせ)の料理(りょうり)は素晴(すば)らしい。",
+       "vi": "Xét cả hình thức lẫn hương vị, món ăn của quán này đều tuyệt vời."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "日当たりといい風通しといい、この研究室は機材の保管に向いている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xét ánh sáng cũng như thông gió, phòng thí nghiệm này hợp để cất thiết bị."
+     },
+     {
+      "ja": "字の丁寧さといい構成といい、今期の報告書は以前より格段に読みやすい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chữ viết cẩn thận cũng như bố cục, báo cáo kỳ này dễ đọc hơn hẳn trước."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Xét về ... cũng như về ...",
+     "FURIGANA_MISSING: 日当たりといい風通しといい、この研究室は機材の保管に向いている。",
+     "FURIGANA_MISSING: 字の丁寧さといい構成といい、今期の報告書は以前より格段に読みやすい。"
+    ],
+    "formation": "N + といい + N + といい、〜",
+    "locked_fields": [],
+    "meaning_vi": "Xét về … cũng như về …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Xét về ... cũng như về ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu hai khía cạnh tiêu biểu rồi đưa nhận xét chung, thường là đánh giá. Cách dùng: Mẫu といい…といい lấy hai yếu tố đại diện rồi kết bằng lời bình: tốt, xấu, hợp, khó dùng. Hai danh từ là hai mặt của cùng một đối tượng, không phải hai lựa chọn để làm. Hay gặp khi nhận xét phòng ốc, bản báo cáo, tư liệu ghi hình. Giọng viết, hơi chủ quan. Khác といわず vì không nói hết thảy không trừ, mà chỉ chọn hai điểm tiêu biểu để minh họa cho đánh giá. Vế sau cần có nhận xét, không dừng ở việc liệt kê. Sắc thái: Người nói như chỉ vào hai chỗ rồi chốt một nhận định. Có thể khen hoặc chê. Không mang tính nội quy như であれ, cũng không thúc hành động như なり. Lưu ý: Hai vế là danh từ cùng đối tượng, cùng tầng đánh giá. Cần mệnh đề đánh giá ở sau; không dùng như cặp lựa chọn hành động. Không thay bằng động từ từ điển trước といい."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5ee574f221"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "選手たちは大雨をものともせずに、試合を続けた。",
+       "ja_furigana": "選手(せんしゅ)たちは大雨(おおあめ)をものともせずに、試合(しあい)を続(つづ)けた。",
+       "vi": "Các cầu thủ bất chấp mưa lớn, vẫn tiếp tục trận đấu."
+      },
+      {
+       "ja": "周囲の反対をものともせずに、彼は夢を追い続けた。",
+       "ja_furigana": "周囲(しゅうい)の反対(はんたい)をものともせずに、彼(かれ)は夢(ゆめ)を追(お)い続(つづ)けた。",
+       "vi": "Bất chấp sự phản đối xung quanh, anh ấy vẫn theo đuổi ước mơ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は悪天候をものともせずに、山頂を目指した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy hướng tới đỉnh núi bất chấp thời tiết xấu."
+     },
+     {
+      "ja": "多くの批判をものともせずに、彼女は改革を進めた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bất chấp muôn vàn chỉ trích, cô ấy vẫn thúc đẩy cải cách."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は悪天候をものともせずに、山頂を目指した。",
+     "FURIGANA_MISSING: 多くの批判をものともせずに、彼女は改革を進めた。"
+    ],
+    "formation": "N + をものともせずに、〜",
+    "locked_fields": [],
+    "meaning_vi": "“Bất chấp/không coi là gì” – biểu thị thái độ không nao núng trước nghịch cảnh. Sắc thái mạnh, văn vẻ; dùng khi đánh giá cao tinh thần vượt khó. Không áp dụng cho yếu tố tích cực; chỉ kết hợp với tác nhân tiêu cực/bất lợi.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Bất chấp...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn khen ngợi tinh thần/quyết tâm; giọng văn tường thuật, miêu tả anh hùng. Tránh dùng để nói về bản thân trong văn cảnh khiêm nhường; nếu cần dùng thì giảm sắc thái: ～にもめげず／～に負けず. Không dùng với mệnh đề/động từ trực tiếp; cần danh từ chỉ nghịch cảnh. [6. Ghi chú mở rộng] Hay đi kèm từ vựng mang tính thử thách: 逆境、障害、重圧、痛み、非難、逆風. Hữu ích trong văn miêu tả, diễn văn động viên, tin tức thể thao. Trật tự câu thường: N（nghịch cảnh）+ をものともせずに + V (hướng tới mục tiêu). [7. Biến thể & cụm cố định] 危険をものともせず／雨風をものともせず: cụm thường gặp. ～をものともせぬ + 名: tính từ hóa văn vẻ (例: 困難をものともせぬ精神). ～をものともせずの + 名: dạng liên kết danh từ (ít dùng, văn viết). [8. Lỗi thường gặp & bẫy JLPT] Dùng với yếu tố tích cực (例: 応援をものともせず ×) → sai phạm vi nghĩa. Dùng để tự khen mình trong ngữ cảnh trang trọng → nghe khoe khoang. Nhầm với ～をよそに: JLPT kiểm tra sắc thái khen ngợi vs chê trách."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bd8dd7fcfd"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-020"
+}

@@ -1,0 +1,1296 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "予算の使い方をめぐって、議員の間で議論が続いている。",
+       "ja_furigana": "予算(よさん)の使(つか)い方(かた)をめぐって、議員(ぎいん)の間(あいだ)で議論(ぎろん)が続(つづ)いている。",
+       "vi": "Xoay quanh cách sử dụng ngân sách, cuộc tranh luận giữa các nghị viên vẫn tiếp diễn."
+      },
+      {
+       "ja": "新しい駅の場所をめぐって、住民の意見が分かれている。",
+       "ja_furigana": "新(あたら)しい駅(えき)の場所(ばしょ)をめぐって、住民(じゅうみん)の意見(いけん)が分(わ)かれている。",
+       "source": "AI",
+       "vi": "Xoay quanh vị trí nhà ga mới, ý kiến của cư dân đang bị chia rẽ."
+      },
+      {
+       "ja": "部長と課長は、来年の計画をめぐって長い時間議論した。",
+       "ja_furigana": "部長(ぶちょう)と課長(かちょう)は、来年(らいねん)の計画(けいかく)をめぐって長(なが)い時間(じかん)議論(ぎろん)した。",
+       "source": "AI",
+       "vi": "Trưởng phòng và tổ trưởng đã bàn luận rất lâu xoay quanh kế hoạch năm sau."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Khác について/に関して (chỉ nêu đề tài đơn thuần): をめぐって hàm ý có nhiều ý kiến đối lập hoặc tranh luận. Không dùng khi chỉ một người nói về đề tài.",
+    "examples": [
+     {
+      "ja": "新しい法律をめぐって議論が続いている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "新しい駅の場所をめぐって、住民の意見が分かれている。",
+      "ja_furigana": "新(あたら)しい駅(えき)の場所(ばしょ)をめぐって、住民(じゅうみん)の意見(いけん)が分(わ)かれている。",
+      "source": "AI",
+      "vi": "Xoay quanh vị trí nhà ga mới, ý kiến của cư dân đang bị chia rẽ."
+     },
+     {
+      "ja": "部長と課長は、来年の計画をめぐって長い時間議論した。",
+      "ja_furigana": "部長(ぶちょう)と課長(かちょう)は、来年(らいねん)の計画(けいかく)をめぐって長(なが)い時間(じかん)議論(ぎろん)した。",
+      "source": "AI",
+      "vi": "Trưởng phòng và tổ trưởng đã bàn luận rất lâu xoay quanh kế hoạch năm sau."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 新しい法律をめぐって議論が続いている。",
+     "FURIGANA_MISSING: 新しい法律をめぐって議論が続いている。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + をめぐって; N + をめぐり; N + をめぐる + N",
+    "locked_fields": [],
+    "meaning_vi": "Xoay quanh — Nhiều ý kiến hoặc tranh luận xoay quanh một vấn đề.",
+    "nuance_vi": "Nhiều người cùng tranh luận, tranh chấp quanh một vấn đề; hay đi với 議論, 争い, 意見が分かれる, 対立.",
+    "order_items": [],
+    "pattern": "を巡(めぐ)って",
+    "pattern_variants": [
+     "N + をめぐって",
+     "〜をめぐって",
+     "〜をめぐって/めぐり"
+    ],
+    "unit_no": 7,
+    "unit_title_vi": null,
+    "usage_vi": "Vế sau thường là 議論, 対立, 争う. Dạng định ngữ là をめぐる."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9ae2b388c1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "数学にかけては、彼はクラスで一番だ。",
+       "ja_furigana": "数学(すうがく)にかけては、彼(かれ)はクラスで一番(いちばん)だ。",
+       "vi": "Nói về toán thì anh ấy đứng nhất lớp."
+      },
+      {
+       "ja": "ピアノにかけては、彼女はクラスで一番上手だ。",
+       "ja_furigana": "ピアノにかけては、彼女(かのじょ)はクラスで一番(いちばん)上手(じょうず)だ。",
+       "vi": "Nói về piano thì cô ấy giỏi nhất lớp."
+      },
+      {
+       "ja": "料理にかけては、うちの母は近所で一番だと思う。",
+       "ja_furigana": "料理(りょうり)にかけては、うちの母(はは)は近所(きんじょ)で一番(いちばん)だと思(おも)う。",
+       "source": "AI",
+       "vi": "Nói về nấu ăn thì tôi nghĩ mẹ tôi giỏi nhất khu phố."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không dùng cho đánh giá tiêu cực (sai: 失敗にかけては…); N phải là kỹ năng hay khả năng. Khác に関しては (chỉ nêu đề tài) và にとって (đối với).",
+    "examples": [
+     {
+      "ja": "私は足の速さにかけてはだれにも負けない自信がある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu nói về tốc độ thì tôi tin mình không thua kém ai."
+     },
+     {
+      "ja": "B社のブランドはデザインにかけては定評がある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhãn hiệu của công ty B nói về thiết kế thì có tiếng rồi."
+     },
+     {
+      "ja": "料理にかけては、うちの母は近所で一番だと思う。",
+      "ja_furigana": "料理(りょうり)にかけては、うちの母(はは)は近所(きんじょ)で一番(いちばん)だと思(おも)う。",
+      "source": "AI",
+      "vi": "Nói về nấu ăn thì tôi nghĩ mẹ tôi giỏi nhất khu phố."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 私は足の速さにかけてはだれにも負けない自信がある。",
+     "FURIGANA_MISSING: B社のブランドはデザインにかけては定評がある。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: B社のブランドはデザインにかけては定評がある。 → 評",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + にかけては",
+    "locked_fields": [],
+    "meaning_vi": "Nếu nói về",
+    "nuance_vi": "Dùng để khen năng lực nổi trội của ai trong một lĩnh vực mà người nói tự tin; vế sau thường là đánh giá tích cực như 負けない, 一番だ, 評判だ.",
+    "order_items": [],
+    "pattern": "〜にかけては",
+    "pattern_variants": [
+     "にかけては",
+     "N + にかけては"
+    ],
+    "unit_no": 7,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞 Ý nghĩa: ～の面では→（＋）評価 Nếu nói về Ví dụ: 1. 私は足の速さにかけてはだれにも負けない自信がある。 Nếu nói về tốc độ thì tôi tin mình không thua kém ai. 2. B社のブランドはデザインにかけては定評がある。 Nhãn hiệu của công ty B nói về thiết kế thì có tiếng rồi. 3. 歴史の知識にかけては、クラスで佐藤さんにかなう人はいない。 Nói về kiến thức lịch sử thì trong lớp không ai lại Satou."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f37665334b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "国民の声に応えて、政府は新しい制度を作った。",
+       "ja_furigana": "国民(こくみん)の声(こえ)に応(こた)えて、政府(せいふ)は新(あたら)しい制度(せいど)を作(つく)った。",
+       "vi": "Đáp lại tiếng nói của người dân, chính phủ đã tạo ra một chế độ mới."
+      },
+      {
+       "ja": "客の要望に応えて、店は営業時間を一時間延ばした。",
+       "ja_furigana": "客(きゃく)の要望(ようぼう)に応(こた)えて、店(みせ)は営業時間(えいぎょうじかん)を一時間(いちじかん)延(の)ばした。",
+       "source": "AI",
+       "vi": "Đáp lại yêu cầu của khách, cửa hàng đã kéo dài giờ mở cửa thêm một tiếng."
+      },
+      {
+       "ja": "ファンの期待に応えて、選手は最後まで全力で走った。",
+       "ja_furigana": "ファンの期待(きたい)に応(こた)えて、選手(せんしゅ)は最後(さいご)まで全力(ぜんりょく)で走(はし)った。",
+       "source": "AI",
+       "vi": "Đáp lại sự cổ vũ của người hâm mộ, vận động viên đã chạy hết sức đến cùng."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "N phải là thứ do người khác kỳ vọng hay yêu cầu, không dùng cho danh từ thông thường. Khác に対して (đối với): に応えて nhấn mạnh hành động đáp ứng lại.",
+    "examples": [
+     {
+      "ja": "皆様のご期待にこたえて、新商品を発売します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "客の要望に応えて、店は営業時間を一時間延ばした。",
+      "ja_furigana": "客(きゃく)の要望(ようぼう)に応(こた)えて、店(みせ)は営業時間(えいぎょうじかん)を一時間(いちじかん)延(の)ばした。",
+      "source": "AI",
+      "vi": "Đáp lại yêu cầu của khách, cửa hàng đã kéo dài giờ mở cửa thêm một tiếng."
+     },
+     {
+      "ja": "ファンの期待に応えて、選手は最後まで全力で走った。",
+      "ja_furigana": "ファンの期待(きたい)に応(こた)えて、選手(せんしゅ)は最後(さいご)まで全力(ぜんりょく)で走(はし)った。",
+      "source": "AI",
+      "vi": "Đáp lại sự cổ vũ của người hâm mộ, vận động viên đã chạy hết sức đến cùng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 皆様のご期待にこたえて、新商品を発売します。",
+     "FURIGANA_MISSING: 皆様のご期待にこたえて、新商品を発売します。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + に応えて; N + に応え",
+    "locked_fields": [],
+    "meaning_vi": "Đáp lại — Thực hiện theo mong đợi hoặc yêu cầu của ai.",
+    "nuance_vi": "Đáp lại kỳ vọng, yêu cầu, ý kiến hay mong muốn của người khác; N thường là 期待, 要望, 声援, 希望.",
+    "order_items": [],
+    "pattern": "に応(こた)えて",
+    "pattern_variants": [
+     "N + にこたえて",
+     "〜に応えて",
+     "〜にこたえ(て)"
+    ],
+    "unit_no": 7,
+    "unit_title_vi": null,
+    "usage_vi": "Hay đi với 期待, 要望, 声援. Dạng định ngữ にこたえる."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1cf614ee6b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "アンケートの結果をもとに、新しい商品を開発した。",
+       "ja_furigana": "アンケートの結果(けっか)をもとに、新(あたら)しい商品(しょうひん)を開発(かいはつ)した。",
+       "vi": "Dựa trên kết quả khảo sát, chúng tôi đã phát triển sản phẩm mới."
+      },
+      {
+       "ja": "去年のデータをもとに、今年の売り上げの計画を立てた。",
+       "ja_furigana": "去年(きょねん)のデータをもとに、今年(ことし)の売(う)り上(あ)げの計画(けいかく)を立(た)てた。",
+       "source": "AI",
+       "vi": "Dựa trên số liệu năm ngoái, tôi đã lập kế hoạch doanh thu năm nay."
+      },
+      {
+       "ja": "子どものころの経験をもとにして、小説を書いた。",
+       "ja_furigana": "子(こ)どものころの経験(けいけん)をもとにして、小説(しょうせつ)を書(か)いた。",
+       "source": "AI",
+       "vi": "Tôi đã viết tiểu thuyết dựa trên những trải nghiệm hồi nhỏ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「をもとに」: N + をもとに là lấy N làm chất liệu, căn cứ để tạo ra cái mới. Trợ từ phải là を và đi với に, không có dạng にもとで, をもとで, にもとにして. Nghĩa: Bộ phim này được làm dựa trên một vụ việc có thật.",
+      "options": [
+       "にもとで",
+       "をもとに",
+       "をもとで",
+       "にもとにして"
+      ],
+      "prompt_ja": "この映画は、実際にあった事件（　　）作られた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「もとに」: mẫu cố định là N + をもとに (lấy làm căn cứ); もとで, もとから, もとへ không ghép với を theo nghĩa này. Nghĩa: Dựa trên kết quả khảo sát, chúng tôi đã nghĩ ra thực đơn mới.",
+      "options": [
+       "もとで",
+       "もとから",
+       "もとへ",
+       "もとに"
+      ],
+      "prompt_ja": "アンケートの結果を（　　）、新しいメニューを考えた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: この絵本は、祖母から聞いた昔話をもとに作られた。 (Cuốn sách tranh này được làm dựa trên câu chuyện cổ tôi nghe từ bà.). Mảnh ở ô ★ là 「昔話」.",
+      "options": [
+       "をもとに",
+       "祖母",
+       "昔話",
+       "から聞いた"
+      ],
+      "prompt_ja": "この絵本は、＿＿ ＿＿ ★ ＿＿ 作られた。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 会議では、先月の売り上げデータをもとに来年の計画を話し合った。 (Trong cuộc họp, chúng tôi đã bàn kế hoạch năm sau dựa trên số liệu doanh thu tháng trước.). Mảnh ở ô ★ là 「売り上げ」.",
+      "options": [
+       "データ",
+       "先月の",
+       "をもとに",
+       "売り上げ"
+      ],
+      "prompt_ja": "会議では、＿＿ ★ ＿＿ ＿＿ 来年の計画を話し合った。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu dùng mẫu 〜をもとに (lấy làm căn cứ, chất liệu): \"Dựa trên ý kiến của khách hàng, chúng tôi đã thay đổi thiết kế sản phẩm.\"",
+      "options": [
+       "Bất chấp ý kiến của khách hàng, chúng tôi đã thay đổi thiết kế sản phẩm.",
+       "Dựa trên ý kiến của khách hàng, chúng tôi đã thay đổi thiết kế sản phẩm.",
+       "Trước khi hỏi ý kiến khách hàng, chúng tôi đã thay đổi thiết kế sản phẩm.",
+       "Khách hàng đã tự thay đổi thiết kế sản phẩm theo ý mình."
+      ],
+      "prompt_ja": "客の意見をもとに、商品のデザインを変えた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu dùng mẫu 〜をもとにした (được làm dựa trên): \"Bộ phim truyền hình này được làm dựa trên một cuốn tiểu thuyết được yêu thích.\" Chiều là tiểu thuyết → phim, không phải ngược lại.",
+      "options": [
+       "Bộ phim truyền hình này nổi tiếng hơn cả cuốn tiểu thuyết.",
+       "Cuốn tiểu thuyết nổi tiếng được viết dựa trên bộ phim truyền hình này.",
+       "Bộ phim truyền hình này không liên quan gì đến tiểu thuyết.",
+       "Bộ phim truyền hình này được làm dựa trên một cuốn tiểu thuyết được yêu thích."
+      ],
+      "prompt_ja": "このドラマは、人気のある小説をもとにしたものだ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「雨をもとに、試合が中止になった。」 sai: をもとに là lấy làm chất liệu để tạo ra cái mới, không dùng để nói nguyên nhân. Câu đúng: 雨のため、試合が中止になった。",
+      "options": [
+       "祖父の話をもとに、家族の歴史をまとめた。",
+       "雨をもとに、試合が中止になった。",
+       "調べた資料をもとにして、レポートを書いた。",
+       "本当にあった話をもとにした映画を見た。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「友だちの意見をもとで」 sai: mẫu là N + をもとに(して), không có をもとで. Câu đúng: 友だちの意見をもとに、計画を立て直した。",
+      "options": [
+       "友だちの意見をもとで、計画を立て直した。",
+       "このケーキは、母のレシピをもとに作ってみた。",
+       "先生の説明をもとに、自分でまとめを作った。",
+       "去年の失敗をもとに、新しいルールが作られた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Khác に基づいて: に基づいて là làm đúng theo căn cứ như luật, nguyên tắc; をもとに là lấy làm chất liệu rồi tự phát triển. Khi bổ nghĩa cho danh từ dùng をもとにした+N.",
+    "examples": [
+     {
+      "ja": "実話をもとに映画が作られた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "去年のデータをもとに、今年の売り上げの計画を立てた。",
+      "ja_furigana": "去年(きょねん)のデータをもとに、今年(ことし)の売(う)り上(あ)げの計画(けいかく)を立(た)てた。",
+      "source": "AI",
+      "vi": "Dựa trên số liệu năm ngoái, tôi đã lập kế hoạch doanh thu năm nay."
+     },
+     {
+      "ja": "子どものころの経験をもとにして、小説を書いた。",
+      "ja_furigana": "子(こ)どものころの経験(けいけん)をもとにして、小説(しょうせつ)を書(か)いた。",
+      "source": "AI",
+      "vi": "Tôi đã viết tiểu thuyết dựa trên những trải nghiệm hồi nhỏ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「をもとに」: lấy bài văn của học sinh làm chất liệu để soạn câu ví dụ; trợ từ đúng là を. Nghĩa: Tôi đã soạn câu ví dụ trong sách giáo khoa dựa trên bài văn học sinh viết.",
+      "options": [
+       "にもとに",
+       "をもとで",
+       "をもとに",
+       "がもとに"
+      ],
+      "prompt_ja": "学生が書いた作文（　　）、教科書の例文を作った。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu dùng mẫu 〜をもとに (lấy làm chất liệu để tạo ra cái mới): \"Một loại bánh mới đã ra đời dựa trên món ăn lâu đời của địa phương.\"",
+      "options": [
+       "Một loại bánh mới đã ra đời dựa trên món ăn lâu đời của địa phương.",
+       "Món ăn lâu đời của địa phương đã bị bánh kẹo mới thay thế.",
+       "Bánh kẹo mới được bán kèm với món ăn lâu đời của địa phương.",
+       "Món ăn lâu đời của địa phương được làm từ bánh kẹo."
+      ],
+      "prompt_ja": "地元で昔から食べられている料理をもとに、新しいお菓子が生まれた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "「私は父をもとに、毎朝公園を散歩している。」 sai: をもとに không có nghĩa 'cùng với ai'; N phải là chất liệu, căn cứ. Câu đúng: 私は父と一緒に、毎朝公園を散歩している。",
+      "options": [
+       "旅行の写真をもとに、アルバムを作った。",
+       "社員のアイデアをもとに、新しいサービスが始まった。",
+       "私は父をもとに、毎朝公園を散歩している。",
+       "昔の地図をもとにして、町の歴史を調べた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "もとにして",
+       "元に",
+       "元にして"
+      ],
+      "answer": "もとに",
+      "sentence_ja": "今回の調査の結果を＿＿、来年の計画を立てる。",
+      "translation_vi": "Chúng tôi sẽ lập kế hoạch năm sau dựa trên kết quả khảo sát lần này."
+     },
+     {
+      "accept": [
+       "元"
+      ],
+      "answer": "もと",
+      "sentence_ja": "これは実話を＿＿にした映画です。",
+      "translation_vi": "Đây là bộ phim được làm dựa trên chuyện có thật."
+     }
+    ],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 実話をもとに映画が作られた。",
+     "FURIGANA_MISSING: 実話をもとに映画が作られた。"
+    ],
+    "formation": "N + をもとに(して); N + をもとにした + N",
+    "locked_fields": [],
+    "meaning_vi": "Dựa trên — Lấy cái gì làm nguyên liệu hoặc căn cứ để tạo ra cái mới.",
+    "nuance_vi": "Lấy N làm tư liệu, chất liệu nền để tạo ra hoặc suy ra cái mới (phim, truyện, kế hoạch, báo cáo); N chỉ là điểm xuất phát chứ không phải quy định bắt buộc phải theo.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       0,
+       1
+      ],
+      "pieces": [
+       "もとに",
+       "採用する人を決める。",
+       "面接の",
+       "結果を"
+      ],
+      "translation_vi": "Chúng tôi quyết định người được tuyển dựa trên kết quả phỏng vấn."
+     },
+     {
+      "answer_order": [
+       3,
+       0,
+       1,
+       2
+      ],
+      "pieces": [
+       "もとにして",
+       "書かれた",
+       "小説だ。",
+       "本当の話を"
+      ],
+      "translation_vi": "Đây là cuốn tiểu thuyết được viết dựa trên một câu chuyện có thật."
+     }
+    ],
+    "pattern": "を元(もと)に",
+    "pattern_variants": [
+     "N + をもとに"
+    ],
+    "unit_no": 8,
+    "unit_title_vi": null,
+    "usage_vi": "Khác với に基づいて ở chỗ をもとに là lấy làm chất liệu, に基づいて là tuân theo quy tắc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c1dbd760b4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この作品は事実に基づいて作られた。",
+       "ja_furigana": "この作品(さくひん)は事実(じじつ)に基(もと)づいて作(つく)られた。",
+       "vi": "Tác phẩm này được tạo ra dựa trên sự thật."
+      },
+      {
+       "ja": "調査の結果に基づいて、新しい商品の値段が決められた。",
+       "ja_furigana": "調査(ちょうさ)の結果(けっか)に基(もと)づいて、新(あたら)しい商品(しょうひん)の値段(ねだん)が決(き)められた。",
+       "source": "AI",
+       "vi": "Giá của sản phẩm mới đã được quyết định dựa trên kết quả khảo sát."
+      },
+      {
+       "ja": "会社の規則に基づいて、遅刻した社員に注意をした。",
+       "ja_furigana": "会社(かいしゃ)の規則(きそく)に基(もと)づいて、遅刻(ちこく)した社員(しゃいん)に注意(ちゅうい)をした。",
+       "source": "AI",
+       "vi": "Theo quy định của công ty, tôi đã nhắc nhở nhân viên đi trễ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「に基づいて」: 基づく luôn đi với trợ từ に và không chia bị động. Nghĩa: Nguyên nhân tai nạn đã được điều tra căn cứ trên dữ liệu thu thập được.",
+      "options": [
+       "を基づいて",
+       "に基づいて",
+       "に基づかれて",
+       "と基づいて"
+      ],
+      "prompt_ja": "事故の原因は、集めたデータ（　　）調べられた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「に基づき」: trước động từ dùng に基づいて/に基づき; に基づく và に基づいた chỉ đứng trước danh từ, を基づき sai trợ từ. Nghĩa: Ở công ty này, lương được quyết định căn cứ theo năng lực.",
+      "options": [
+       "に基づく",
+       "に基づき",
+       "を基づき",
+       "に基づいた"
+      ],
+      "prompt_ja": "この会社では、給料は能力（　　）決められる。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 医者は血液を調べた結果に基づいて病名を判断した。 (Bác sĩ đã chẩn đoán bệnh căn cứ vào kết quả xét nghiệm máu.). Mảnh ở ô ★ là 「結果に」.",
+      "options": [
+       "基づいて",
+       "結果に",
+       "血液",
+       "を調べた"
+      ],
+      "prompt_ja": "医者は ＿＿ ＿＿ ★ ＿＿ 病名を判断した。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 市は、住民へのアンケートの結果に基づいて新しい駐車場を作った。 (Thành phố đã xây bãi đỗ xe mới căn cứ theo kết quả khảo sát người dân.). Mảnh ở ô ★ là 「の結果に」.",
+      "options": [
+       "住民への",
+       "基づいて",
+       "アンケート",
+       "の結果に"
+      ],
+      "prompt_ja": "市は、＿＿ ＿＿ ★ ＿＿ 新しい駐車場を作った。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu dùng mẫu 〜に基づいて (căn cứ theo quy định, văn bản): \"Xin quý khách thanh toán phí theo đúng hợp đồng.\"",
+      "options": [
+       "Trước khi ký hợp đồng, xin quý khách thanh toán phí.",
+       "Xin quý khách thanh toán phí mà không cần hợp đồng.",
+       "Xin quý khách thanh toán phí theo đúng hợp đồng.",
+       "Phí trong hợp đồng đã bị ghi sai."
+      ],
+      "prompt_ja": "契約書に基づいて、料金をお支払いいただきます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu dùng mẫu 〜に基づいて (căn cứ trên dữ liệu, sự thật): \"Bài báo này được viết căn cứ trên khảo sát của các chuyên gia.\"",
+      "options": [
+       "Bài báo này được viết căn cứ trên khảo sát của các chuyên gia.",
+       "Bài báo này phê phán cuộc khảo sát của các chuyên gia.",
+       "Các chuyên gia đã khảo sát căn cứ trên bài báo này.",
+       "Bài báo này được viết trước khi chuyên gia khảo sát."
+      ],
+      "prompt_ja": "この記事は、専門家の調査に基づいて書かれている。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "「何となくの気分に基づいて」 sai: に基づいて cần căn cứ rõ ràng (luật, dữ liệu, sự thật), không đi với cảm giác mơ hồ. Câu đúng: 何となくその時の気分で、旅行先を決めた。",
+      "options": [
+       "法律に基づいて、正しく判断する。",
+       "計画に基づき、工事が進められた。",
+       "これは事実に基づいた話だ。",
+       "何となくの気分に基づいて、旅行先を決めた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「規則を基づいて」 sai: 基づく đi với trợ từ に, không đi với を. Câu đúng: 規則に基づいて、遅れた人に注意した。",
+      "options": [
+       "調査の結果に基づいて、値段を決めた。",
+       "規則を基づいて、遅れた人に注意した。",
+       "実験のデータに基づき、論文を書いた。",
+       "国の基準に基づいた方法で調べる。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Không dùng với căn cứ mơ hồ như 気持ち, 感じ. Khác をもとに (lấy làm chất liệu sáng tạo); khi bổ nghĩa cho danh từ dùng に基づく+N.",
+    "examples": [
+     {
+      "ja": "法律に基づいて処理します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "調査の結果に基づいて、新しい商品の値段が決められた。",
+      "ja_furigana": "調査(ちょうさ)の結果(けっか)に基(もと)づいて、新(あたら)しい商品(しょうひん)の値段(ねだん)が決(き)められた。",
+      "source": "AI",
+      "vi": "Giá của sản phẩm mới đã được quyết định dựa trên kết quả khảo sát."
+     },
+     {
+      "ja": "会社の規則に基づいて、遅刻した社員に注意をした。",
+      "ja_furigana": "会社(かいしゃ)の規則(きそく)に基(もと)づいて、遅刻(ちこく)した社員(しゃいん)に注意(ちゅうい)をした。",
+      "source": "AI",
+      "vi": "Theo quy định của công ty, tôi đã nhắc nhở nhân viên đi trễ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「に基づいて」: 基づく chỉ đi với trợ từ に. Nghĩa: Việc phán đoán nên dựa trên sự thật chứ không phải cảm xúc.",
+      "options": [
+       "を基づいて",
+       "と基づいて",
+       "に基づいて",
+       "で基づいて"
+      ],
+      "prompt_ja": "判断は、感情ではなく事実（　　）行うべきだ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu dùng mẫu 〜に基づいて (căn cứ theo luật lệ): \"Theo luật, chưa đủ hai mươi tuổi thì không được mua rượu.\"",
+      "options": [
+       "Luật không quy định gì về tuổi mua rượu.",
+       "Theo luật, chưa đủ hai mươi tuổi thì không được mua rượu.",
+       "Đủ hai mươi tuổi thì phải mua rượu theo luật.",
+       "Luật về rượu sẽ thay đổi khi bạn hai mươi tuổi."
+      ],
+      "prompt_ja": "法律に基づいて、二十歳になるまでお酒は買えない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「友だちに基づいて、映画を見に行った。」 sai: に基づいて cần một căn cứ như luật, dữ liệu, không có nghĩa 'cùng với ai'. Câu đúng: 友だちと一緒に、映画を見に行った。",
+      "options": [
+       "患者の希望に基づいて、治療の方法を選ぶ。",
+       "友だちに基づいて、映画を見に行った。",
+       "過去の記録に基づき、予定を立てた。",
+       "国のルールに基づいて、ごみを分ける。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "基づき",
+       "もとづいて",
+       "もとづき"
+      ],
+      "answer": "基づいて",
+      "sentence_ja": "調査の結果に＿＿、計画を変更した。",
+      "translation_vi": "Căn cứ vào kết quả khảo sát, chúng tôi đã thay đổi kế hoạch."
+     },
+     {
+      "accept": [
+       "基づく",
+       "もとづいた",
+       "もとづく"
+      ],
+      "answer": "基づいた",
+      "sentence_ja": "これは実際のデータに＿＿グラフです。",
+      "translation_vi": "Đây là biểu đồ dựa trên dữ liệu thực tế."
+     }
+    ],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 法律に基づいて処理します。",
+     "FURIGANA_MISSING: 法律に基づいて処理します。"
+    ],
+    "formation": "N + に基づいて; N + に基づき; N + に基づく + N",
+    "locked_fields": [],
+    "meaning_vi": "Căn cứ theo — Làm theo đúng quy định, dữ liệu hoặc nguyên tắc đã có.",
+    "nuance_vi": "Trang trọng; làm đúng theo căn cứ chắc chắn như luật lệ, quy định, dữ liệu, sự thật; vế sau là việc xử lý hay phán đoán dựa trên căn cứ đó.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       0,
+       2
+      ],
+      "pieces": [
+       "基づいて",
+       "会社の規則に",
+       "休みを取ることができる。"
+      ],
+      "translation_vi": "Có thể nghỉ phép căn cứ theo quy định của công ty."
+     },
+     {
+      "answer_order": [
+       0,
+       3,
+       2,
+       1
+      ],
+      "pieces": [
+       "事実に",
+       "ドラマです。",
+       "作られた",
+       "基づいて"
+      ],
+      "translation_vi": "Đây là bộ phim truyền hình được làm dựa trên sự thật."
+     }
+    ],
+    "pattern": "に基(もと)づいて",
+    "pattern_variants": [
+     "N + に基づいて"
+    ],
+    "unit_no": 8,
+    "unit_title_vi": null,
+    "usage_vi": "Dạng định ngữ に基づく. Trang trọng, hay gặp trong văn bản pháp lý."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-073f255e7b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "計画に沿って、工事を進めている。",
+       "ja_furigana": "計画(けいかく)に沿(そ)って、工事(こうじ)を進(すす)めている。",
+       "vi": "Chúng tôi đang tiến hành thi công theo đúng kế hoạch."
+      },
+      {
+       "ja": "説明書に沿って組み立てたのに、部品が一つ余ってしまった。",
+       "ja_furigana": "説明書(せつめいしょ)に沿(そ)って組(く)み立(た)てたのに、部品(ぶひん)が一(ひと)つ余(あま)ってしまった。",
+       "source": "AI",
+       "vi": "Tôi lắp theo đúng sách hướng dẫn mà vẫn thừa một bộ phận."
+      },
+      {
+       "ja": "海岸に沿って、小さな店が並んでいる。",
+       "ja_furigana": "海岸(かいがん)に沿(そ)って、小(ちい)さな店(みせ)が並(なら)んでいる。",
+       "source": "AI",
+       "vi": "Những cửa hàng nhỏ xếp thành hàng dọc theo bờ biển."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「に沿って」: N + に沿って đứng trước động từ (並んでいる), nghĩa dọc theo; に沿った chỉ đứng trước danh từ, を/と sai trợ từ. Nghĩa: Những cây cổ thụ xếp hàng dọc theo bờ sông.",
+      "options": [
+       "に沿った",
+       "を沿って",
+       "に沿って",
+       "と沿って"
+      ],
+      "prompt_ja": "古い木が川（　　）並んでいる。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「に沿って」: làm đúng theo trình tự đã định; trước động từ 進めます dùng に沿って, không dùng に沿う. Nghĩa: Cuộc họp sẽ tiến hành theo thứ tự của tài liệu đã phát.",
+      "options": [
+       "に沿う",
+       "を沿い",
+       "が沿って",
+       "に沿って"
+      ],
+      "prompt_ja": "会議は、お配りした資料の順番（　　）進めます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: この線路に沿って歩くと、駅に着きます。 (Đi bộ dọc theo đường ray này sẽ tới nhà ga.). Mảnh ở ô ★ là 「沿って」.",
+      "options": [
+       "歩くと",
+       "線路に",
+       "この",
+       "沿って"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿ 、駅に着きます。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: お客様のご希望に沿ったプランをご紹介します。 (Chúng tôi xin giới thiệu kế hoạch theo đúng mong muốn của quý khách.). Mảnh ở ô ★ là 「に」.",
+      "options": [
+       "沿った",
+       "プラン",
+       "ご希望",
+       "に"
+      ],
+      "prompt_ja": "お客様の ＿＿ ★ ＿＿ ＿＿ をご紹介します。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu dùng mẫu 〜に沿って (làm theo đúng phương châm): \"Phát triển sản phẩm mới theo đúng phương châm của công ty.\"",
+      "options": [
+       "Phát triển sản phẩm mới trái với phương châm của công ty.",
+       "Phát triển sản phẩm mới theo đúng phương châm của công ty.",
+       "Thay đổi phương châm của công ty để phát triển sản phẩm mới.",
+       "Phát triển sản phẩm mới trước khi công ty có phương châm."
+      ],
+      "prompt_ja": "会社の方針に沿って、新しい商品を開発する。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu dùng mẫu 〜に沿って (dọc theo một vật dài): \"Con đường dài chạy dọc theo bờ biển.\"",
+      "options": [
+       "Con đường dài dẫn thẳng ra biển.",
+       "Cuối con đường dài là biển.",
+       "Con đường dài nằm cách xa biển.",
+       "Con đường dài chạy dọc theo bờ biển."
+      ],
+      "prompt_ja": "海に沿って、長い道路が続いている。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「私は風邪に沿って、学校を休んだ。」 sai: に沿って là dọc theo hoặc làm đúng theo kế hoạch, không dùng để nói nguyên nhân. Câu đúng: 私は風邪で、学校を休んだ。",
+      "options": [
+       "私は風邪に沿って、学校を休んだ。",
+       "この道に沿って、店がたくさん並んでいる。",
+       "マニュアルに沿って、機械を操作してください。",
+       "計画に沿って、作業を進めている。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「計画を沿って」 sai: 沿う đi với trợ từ に. Câu đúng: 決まった計画に沿って、旅行の準備をした。",
+      "options": [
+       "川に沿って、自転車で走った。",
+       "決まった計画を沿って、旅行の準備をした。",
+       "学生の希望に沿った授業をしたい。",
+       "道路に沿い、花が植えられている。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Nghĩa 'theo' đi với kế hoạch, hướng dẫn, phương châm, nguyện vọng. Khác に基づいて (dựa trên căn cứ) và にしたがって (theo mệnh lệnh, chỉ thị hoặc biến đổi song song).",
+    "examples": [
+     {
+      "ja": "川に沿って道が続いている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "説明書に沿って組み立てたのに、部品が一つ余ってしまった。",
+      "ja_furigana": "説明書(せつめいしょ)に沿(そ)って組(く)み立(た)てたのに、部品(ぶひん)が一(ひと)つ余(あま)ってしまった。",
+      "source": "AI",
+      "vi": "Tôi lắp theo đúng sách hướng dẫn mà vẫn thừa một bộ phận."
+     },
+     {
+      "ja": "海岸に沿って、小さな店が並んでいる。",
+      "ja_furigana": "海岸(かいがん)に沿(そ)って、小(ちい)さな店(みせ)が並(なら)んでいる。",
+      "source": "AI",
+      "vi": "Những cửa hàng nhỏ xếp thành hàng dọc theo bờ biển."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「に沿って」: làm theo đúng lời hướng dẫn, đứng trước vế động từ nên dùng に沿って; に沿った phải đi với danh từ. Nghĩa: Hãy tham quan lần lượt theo lời giải thích của hướng dẫn viên.",
+      "options": [
+       "を沿って",
+       "に沿って",
+       "に沿った",
+       "で沿って"
+      ],
+      "prompt_ja": "ガイドの説明（　　）、順番に見学しましょう。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu dùng mẫu 〜に沿った + N (theo đúng): \"Hãy xử lý theo đúng sổ tay hướng dẫn.\"",
+      "options": [
+       "Hãy tự xử lý theo cách của mình, không cần sổ tay.",
+       "Hãy sửa lại sổ tay hướng dẫn cho đúng.",
+       "Hãy xử lý theo đúng sổ tay hướng dẫn.",
+       "Hãy đọc sổ tay hướng dẫn sau khi xử lý xong."
+      ],
+      "prompt_ja": "マニュアルに沿った対応をしてください。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "「暑さに沿って、アイスがよく売れた。」 sai: に沿って không diễn tả biến đổi song song hay nguyên nhân. Câu đúng: 暑かったので、アイスがよく売れた。",
+      "options": [
+       "線路に沿って、細い道が続いている。",
+       "練習の計画に沿って、毎日少しずつ練習する。",
+       "お客様の要望に沿った商品を作る。",
+       "暑さに沿って、アイスがよく売れた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "そって",
+       "沿い",
+       "そい"
+      ],
+      "answer": "沿って",
+      "sentence_ja": "道に＿＿、花が植えてある。",
+      "translation_vi": "Hoa được trồng dọc theo con đường."
+     },
+     {
+      "accept": [
+       "そった",
+       "沿う",
+       "そう"
+      ],
+      "answer": "沿った",
+      "sentence_ja": "学生の希望に＿＿授業を計画した。",
+      "translation_vi": "Tôi đã lên kế hoạch cho giờ học theo đúng mong muốn của học sinh."
+     }
+    ],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 川に沿って道が続いている。",
+     "FURIGANA_MISSING: 川に沿って道が続いている。"
+    ],
+    "formation": "N + に沿って; N + に沿い; N + に沿った + N",
+    "locked_fields": [],
+    "meaning_vi": "Dọc theo, theo đúng — Đi dọc theo vật gì, hoặc làm theo đúng phương châm.",
+    "nuance_vi": "Có hai nghĩa: đi dọc theo một vật dài (sông, đường), hoặc làm đúng theo kế hoạch, phương châm, mong muốn đã định.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       0,
+       2
+      ],
+      "pieces": [
+       "沿って",
+       "川に",
+       "散歩した。"
+      ],
+      "translation_vi": "Tôi đã đi dạo dọc theo bờ sông."
+     },
+     {
+      "answer_order": [
+       0,
+       1,
+       3,
+       2
+      ],
+      "pieces": [
+       "説明書の",
+       "手順に",
+       "組み立てる。",
+       "沿って"
+      ],
+      "translation_vi": "Lắp ráp theo đúng các bước trong sách hướng dẫn."
+     }
+    ],
+    "pattern": "に沿(そ)って",
+    "pattern_variants": [
+     "N + に沿って",
+     "〜に沿って",
+     "〜にそって/沿い"
+    ],
+    "unit_no": 8,
+    "unit_title_vi": null,
+    "usage_vi": "Nghĩa cụ thể: 川に沿って歩く. Nghĩa trừu tượng: 方針に沿って進める."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-54de130bab"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "有名な先生のもとで、彼女は演技を学んだ。",
+       "ja_furigana": "有名(ゆうめい)な先生(せんせい)のもとで、彼女(かのじょ)は演技(えんぎ)を学(まな)んだ。",
+       "vi": "Dưới sự dẫn dắt của một người thầy nổi tiếng, cô ấy đã học diễn xuất."
+      },
+      {
+       "ja": "先生の丁寧な指導のもとで、学生たちは大きく成長した。",
+       "ja_furigana": "先生(せんせい)の丁寧(ていねい)な指導(しどう)のもとで、学生(がくせい)たちは大(おお)きく成長(せいちょう)した。",
+       "vi": "Dưới sự hướng dẫn tận tình của thầy, các học sinh đã trưởng thành vượt bậc."
+      },
+      {
+       "ja": "私は田中先生の指導のもとで、論文を書き上げた。",
+       "ja_furigana": "私(わたし)は田中(たなか)先生(せんせい)の指導(しどう)のもとで、論文(ろんぶん)を書(か)き上(あ)げた。",
+       "source": "AI",
+       "vi": "Tôi đã hoàn thành luận văn dưới sự hướng dẫn của thầy Tanaka."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "N là người có quyền hạn hay điều kiện, hoàn cảnh (指導, 保護, 約束), không dùng cho vị trí vật lý thông thường (sai: 机のもとで). Khác 〜の下で nghĩa gốc là 'ở bên dưới'.",
+    "examples": [
+     {
+      "ja": "晴れた空のもとで運動会が盛大に行われた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong điều kiện trời nắng thì hội thao sẽ được tổ chức hoành tráng"
+     },
+     {
+      "ja": "女の子は両親の温かい愛情のもとですっくすくと育った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô bé lớn nhanh trong tình yêu thương ấm áp của bố mẹ."
+     },
+     {
+      "ja": "私は田中先生の指導のもとで、論文を書き上げた。",
+      "ja_furigana": "私(わたし)は田中(たなか)先生(せんせい)の指導(しどう)のもとで、論文(ろんぶん)を書(か)き上(あ)げた。",
+      "source": "AI",
+      "vi": "Tôi đã hoàn thành luận văn dưới sự hướng dẫn của thầy Tanaka."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 晴れた空のもとで運動会が盛大に行われた。",
+     "FURIGANA_MISSING: 女の子は両親の温かい愛情のもとですっくすくと育った。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + のもとで; N + のもとに",
+    "locked_fields": [],
+    "meaning_vi": "Dưới (sự quản lí, chỉ đạo,... )",
+    "nuance_vi": "Trang trọng; chịu sự chỉ đạo, bảo hộ, ảnh hưởng của một người hay một điều kiện, hoàn cảnh nào đó.",
+    "order_items": [],
+    "pattern": "の下(もと)で",
+    "pattern_variants": [
+     "〜のもとで/に",
+     "〜のもとで"
+    ],
+    "unit_no": 8,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞 Ý nghĩa: 条件、指導、支配等の下で Dưới (sự quản lí, chỉ đạo,... ) Ví dụ: 1. 晴れた空のもとで運動会が盛大に行われた。 Trong điều kiện trời nắng thì hội thao sẽ được tổ chức hoành tráng 2. 女の子は両親の温かい愛情のもとですっくすくと育った。 Cô bé lớn nhanh trong tình yêu thương ấm áp của bố mẹ. 3. 選挙は国連の管理のもとで行われた。 Cuộc bầu cử được diễn ra dưới sự giám sát của Liên Hợp Quốc. 4. 「ぜひ鈴木先生の下で研究させていただきたいと思っております」 Rất muốn được nghiên cứu dưới sự chỉ dẫn của thầy Suzuki. *～の名のもとに Ý nghĩa: ～を表面上の理由にして（-）の行為が行われている Với lí do Ví dụ: 1. 開発の名のもとに自然破壊が進み、さまざまな問題が生じている。 Tiến hành tàn phá tự nhiên làm phát sinh nhiều vấn đề dưới danh nghĩa các cuộc khai thác. 2. 一部の学校では、教育の名のもとに体罰が行われているそうだ。 Theo ghi nhận, ở một số trường học đang thực hiện hình thức phạt nhục hình dưới danh nghĩa giáo dục."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a8d183b035"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "子どもが成長するにつれて、親の心配も増える。",
+       "ja_furigana": "子(こ)どもが成長(せいちょう)するにつれて、親(おや)の心配(しんぱい)も増(ふ)える。",
+       "vi": "Khi con cái lớn lên, nỗi lo của bố mẹ cũng tăng theo."
+      },
+      {
+       "ja": "日本語が上達するにつれて、日本の友だちが増えていった。",
+       "ja_furigana": "日本語(にほんご)が上達(じょうたつ)するにつれて、日本(にほん)の友(とも)だちが増(ふ)えていった。",
+       "source": "AI",
+       "vi": "Càng giỏi tiếng Nhật, số bạn người Nhật của tôi càng tăng."
+      },
+      {
+       "ja": "夜が深まるにつれて、町は静かになっていった。",
+       "ja_furigana": "夜(よる)が深(ふか)まるにつれて、町(まち)は静(しず)かになっていった。",
+       "source": "AI",
+       "vi": "Khi đêm càng khuya, thị trấn càng trở nên yên tĩnh."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Cả hai vế đều phải là sự thay đổi dần dần; vế sau không dùng ý chí, mệnh lệnh. Khác にしたがって (còn nghĩa 'tuân theo') và とともに (hai việc đồng thời, không nhất thiết theo tỉ lệ).",
+    "examples": [
+     {
+      "ja": "時間がたつにつれて、痛みは和らいだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "日本語が上達するにつれて、日本の友だちが増えていった。",
+      "ja_furigana": "日本語(にほんご)が上達(じょうたつ)するにつれて、日本(にほん)の友(とも)だちが増(ふ)えていった。",
+      "source": "AI",
+      "vi": "Càng giỏi tiếng Nhật, số bạn người Nhật của tôi càng tăng."
+     },
+     {
+      "ja": "夜が深まるにつれて、町は静かになっていった。",
+      "ja_furigana": "夜(よる)が深(ふか)まるにつれて、町(まち)は静(しず)かになっていった。",
+      "source": "AI",
+      "vi": "Khi đêm càng khuya, thị trấn càng trở nên yên tĩnh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 時間がたつにつれて、痛みは和らいだ。",
+     "FURIGANA_MISSING: 時間がたつにつれて、痛みは和らいだ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + につれて; N + につれて",
+    "locked_fields": [],
+    "meaning_vi": "Càng thì càng — Hai bên biến đổi tỉ lệ với nhau một cách tự nhiên.",
+    "nuance_vi": "Hai sự thay đổi tiến triển song song và tự nhiên theo tỉ lệ; vế sau là sự thay đổi tự nhiên, thiên về văn nói và viết thông thường.",
+    "order_items": [],
+    "pattern": "に連(つ)れて",
+    "pattern_variants": [
+     "V từ điển / N + につれて"
+    ],
+    "unit_no": 9,
+    "unit_title_vi": null,
+    "usage_vi": "Chỉ dùng cho biến đổi dần dần, không dùng cho việc xảy ra tức thì."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f98bfaa66f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会社の規則に従って、休みを取ってください。",
+       "ja_furigana": "会社(かいしゃ)の規則(きそく)に従(したが)って、休(やす)みを取(と)ってください。",
+       "vi": "Hãy xin nghỉ theo quy định của công ty."
+      },
+      {
+       "ja": "先生の指示にしたがって、実験の準備を進めた。",
+       "ja_furigana": "先生(せんせい)の指示(しじ)にしたがって、実験(じっけん)の準備(じゅんび)を進(すす)めた。",
+       "source": "AI",
+       "vi": "Tôi đã tiến hành chuẩn bị thí nghiệm theo chỉ dẫn của thầy."
+      },
+      {
+       "ja": "年を取るにしたがって、食べ物の好みが変わってきた。",
+       "ja_furigana": "年(とし)を取(と)るにしたがって、食(た)べ物(もの)の好(この)みが変(か)わってきた。",
+       "source": "AI",
+       "vi": "Càng lớn tuổi, khẩu vị của tôi càng thay đổi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Nghĩa 'tuân theo' đi với danh từ chỉ thị hay quy tắc (指示, ルール) và vế sau là hành động có ý chí; nghĩa biến đổi thì cả hai vế đều là thay đổi. Khác に沿って (làm đúng kế hoạch, phương châm).",
+    "examples": [
+     {
+      "ja": "山を登るにしたがって、気温が下がった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "先生の指示にしたがって、実験の準備を進めた。",
+      "ja_furigana": "先生(せんせい)の指示(しじ)にしたがって、実験(じっけん)の準備(じゅんび)を進(すす)めた。",
+      "source": "AI",
+      "vi": "Tôi đã tiến hành chuẩn bị thí nghiệm theo chỉ dẫn của thầy."
+     },
+     {
+      "ja": "年を取るにしたがって、食べ物の好みが変わってきた。",
+      "ja_furigana": "年(とし)を取(と)るにしたがって、食(た)べ物(もの)の好(この)みが変(か)わってきた。",
+      "source": "AI",
+      "vi": "Càng lớn tuổi, khẩu vị của tôi càng thay đổi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 山を登るにしたがって、気温が下がった。",
+     "FURIGANA_MISSING: 山を登るにしたがって、気温が下がった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + にしたがって; N + にしたがって",
+    "locked_fields": [],
+    "meaning_vi": "Theo, càng thì càng — Biến đổi song song, hoặc tuân theo chỉ dẫn.",
+    "nuance_vi": "Văn viết hơi trang trọng; có hai nghĩa: biến đổi song song (giống につれて) và làm theo chỉ dẫn, quy tắc.",
+    "order_items": [],
+    "pattern": "に従(したが)って",
+    "pattern_variants": [
+     "V từ điển / N + にしたがって"
+    ],
+    "unit_no": 9,
+    "unit_title_vi": null,
+    "usage_vi": "Hai nghĩa: 指示にしたがう (tuân theo) và 上がるにしたがって (càng lên càng)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3c3ff1bf18"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "経済の成長に伴って、人々の生活も豊かになった。",
+       "ja_furigana": "経済(けいざい)の成長(せいちょう)に伴(ともな)って、人々(ひとびと)の生活(せいかつ)も豊(ゆた)かになった。",
+       "vi": "Cùng với sự tăng trưởng kinh tế, đời sống của người dân cũng trở nên sung túc."
+      },
+      {
+       "ja": "会社が大きくなるに伴って、社員の数も増えてきた。",
+       "ja_furigana": "会社(かいしゃ)が大(おお)きくなるに伴(ともな)って、社員(しゃいん)の数(かず)も増(ふ)えてきた。",
+       "source": "AI",
+       "vi": "Cùng với việc công ty lớn lên, số nhân viên cũng tăng."
+      },
+      {
+       "ja": "台風が近づくに伴って、風も強くなってきた。",
+       "ja_furigana": "台風(たいふう)が近(ちか)づくに伴(ともな)って、風(かぜ)も強(つよ)くなってきた。",
+       "source": "AI",
+       "vi": "Bão càng đến gần thì gió cũng càng mạnh lên."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Cả hai vế đều là sự thay đổi; không dùng cho việc nhỏ hằng ngày. Khác につれて (dần dần, tự nhiên): に伴って nhấn mạnh hệ quả đi kèm một thay đổi lớn.",
+    "examples": [
+     {
+      "ja": "人口の増加に伴って、住宅が不足している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "会社が大きくなるに伴って、社員の数も増えてきた。",
+      "ja_furigana": "会社(かいしゃ)が大(おお)きくなるに伴(ともな)って、社員(しゃいん)の数(かず)も増(ふ)えてきた。",
+      "source": "AI",
+      "vi": "Cùng với việc công ty lớn lên, số nhân viên cũng tăng."
+     },
+     {
+      "ja": "台風が近づくに伴って、風も強くなってきた。",
+      "ja_furigana": "台風(たいふう)が近(ちか)づくに伴(ともな)って、風(かぜ)も強(つよ)くなってきた。",
+      "source": "AI",
+      "vi": "Bão càng đến gần thì gió cũng càng mạnh lên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 人口の増加に伴って、住宅が不足している。",
+     "FURIGANA_MISSING: 人口の増加に伴って、住宅が不足している。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + に伴って; N + に伴って; N + に伴い; N + に伴う + N",
+    "locked_fields": [],
+    "meaning_vi": "Cùng với, kéo theo — Việc này thay đổi thì việc kia thay đổi theo.",
+    "nuance_vi": "Trang trọng; một sự thay đổi lớn kéo theo thay đổi khác, thường là thay đổi quy mô như xã hội, kinh tế, môi trường.",
+    "order_items": [],
+    "pattern": "に伴(ともな)って",
+    "pattern_variants": [
+     "V từ điển / N + に伴って"
+    ],
+    "unit_no": 9,
+    "unit_title_vi": null,
+    "usage_vi": "Trang trọng. Dạng định ngữ に伴う."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2ba858f748"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-004"
+}

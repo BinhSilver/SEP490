@@ -4,7 +4,188 @@
  },
  "items": [
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "お金はなければ困るし、あっ（　　）心配が増える。",
+      "options": [
+       "たらあったで",
+       "たきりで",
+       "たとたん",
+       "ないまでも"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "たら〜たで: có rồi thì lại nảy sinh rắc rối khác."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "雨が降らないと困るが、降っ（　　）洗濯物が乾かない。",
+      "options": [
+       "てまで",
+       "たら降ったで",
+       "たきり",
+       "てこそ"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Không mưa thì khổ, mưa thì lại khổ kiểu khác."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "子どもは ＿＿ ＿＿ ＿＿ ★ 大変だ。",
+      "options": [
+       "いたら",
+       "いなければ",
+       "いたで",
+       "寂しいし"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "子どもはいなければ寂しいしいたらいたで大変だ。 Ô ★ là いたで. いたらいたで lặp lại cùng động từ để nêu cái khó ở trường hợp ngược lại."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "仕事が ＿＿ ★ ＿＿ ＿＿ 退屈だ。",
+      "options": [
+       "疲れるが",
+       "暇で",
+       "忙しいと",
+       "暇だったら"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "仕事が忙しいと疲れるが暇だったら暇で退屈だ。 Ô ★ là 疲れるが. Vế đầu nêu cái khó khi bận, vế sau dùng 暇だったら暇で."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "車は便利だが、持ったら持ったでお金がかかる。",
+      "options": [
+       "Ô tô tiện thật, nhưng có rồi thì lại tốn tiền.",
+       "Vì ô tô tiện nên ai cũng nên mua.",
+       "Không có ô tô thì không tốn tiền gì.",
+       "Ô tô rẻ nên tôi đã mua."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "たら〜たで: có điều mình muốn thì lại sinh vấn đề khác."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "合格したらしたで、次の悩みが出てくる。",
+      "options": [
+       "Đỗ rồi thì hết lo.",
+       "Vì trượt nên tôi phiền não.",
+       "Đỗ rồi thì lại nảy sinh nỗi lo tiếp theo.",
+       "Tôi lo không biết có đỗ không."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Dù đạt được kết quả tốt, vẫn có rắc rối mới."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "お金がないと困るが、あったらあったで悩む。",
+       "寒かったら暑いで、困る。",
+       "暇がないと困るが、あったらあったで退屈だ。",
+       "家族がいないと寂しいが、いたらいたでうるさい。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Phải lặp lại cùng một từ: 寒かったら寒かったで."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "雨が降ったらで、試合は中止だ。",
+       "負けたら負けたで、次がある。",
+       "失敗したらしたで、やり直せばいい。",
+       "雪が降ったら降ったで楽しめばいい。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Thiếu phần lặp lại: 降ったら降ったで."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "いたらいたでうるさい。",
+       "不安だが",
+       "いないと",
+       "親が"
+      ],
+      "answer_order": [
+       3,
+       2,
+       1,
+       0
+      ],
+      "translation_vi": "Không có bố mẹ thì bất an, có thì lại thấy phiền."
+     },
+     {
+      "pieces": [
+       "休みが",
+       "あったらあったで暇だ。",
+       "ないと",
+       "困るが"
+      ],
+      "answer_order": [
+       0,
+       2,
+       3,
+       1
+      ],
+      "translation_vi": "Không có ngày nghỉ thì khổ, có thì lại rảnh rỗi chán."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "家が広いと掃除が大変だが、狭かったら＿＿不便だ。",
+      "answer": "狭かったで",
+      "translation_vi": "Nhà rộng thì dọn khổ, hẹp thì lại bất tiện."
+     },
+     {
+      "sentence_ja": "給料が上がったら上がった＿＿、税金も増える。",
+      "answer": "で",
+      "translation_vi": "Lương tăng thì thuế cũng tăng theo."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "雪が少ないと困るが、多かったら（　　）道が危ない。",
+      "options": [
+       "多いまで",
+       "多くて",
+       "多かったで",
+       "多いなら"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Lặp lại 多かったら多かったで."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "子どもは小さいと手がかかるが、大きくなったらなったでお金がかかる。",
+      "options": [
+       "Con lớn thì không tốn kém gì nữa.",
+       "Con nhỏ thì vất vả, lớn lên thì lại tốn tiền.",
+       "Con nhỏ không cần chăm sóc.",
+       "Chỉ khi con nhỏ mới tốn tiền."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Mỗi giai đoạn có cái khó riêng."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "車を買ったら買うで、昨日買った。",
+       "一人なら一人で気楽だ。",
+       "仕事が増えたら増えたで大変だ。",
+       "引っ越したら引っ越したで忙しい。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Mẫu cần lặp lại cùng dạng và nêu hệ quả, câu này vừa sai dạng vừa vô nghĩa."
+     }
+    ]
+   },
    "context": {
     "examples": [],
     "meaning_vi": null,
@@ -22,7 +203,188 @@
    "id": "JG-5917f4949c"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "夢を実現せ（　　）、彼は毎日努力している。",
+      "options": [
+       "んがために",
+       "んばかりに",
+       "ずにはおかず",
+       "まじく"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "んがために: nhằm mục đích, văn viết; する chia せんがため."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "真実を知ら（　　）、記者は危険な場所へ向かった。",
+      "options": [
+       "んばかりに",
+       "んがために",
+       "ないまでも",
+       "ずじまいで"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Mục đích là biết sự thật."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "家族を ★ ＿＿ ＿＿ ＿＿ 必死に働いた。",
+      "options": [
+       "彼は",
+       "守ら",
+       "ために",
+       "んが"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "家族を守らんがために彼は必死に働いた。 Ô ★ là 守ら. 守らんがために: để bảo vệ gia đình."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "試合に ＿＿ ＿＿ ★ ＿＿ 練習に耐えた。",
+      "options": [
+       "んが",
+       "ために",
+       "厳しい",
+       "勝た"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "試合に勝たんがために厳しい練習に耐えた。 Ô ★ là ために. 勝たんがために rồi đến 厳しい練習."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "生きんがために、彼らは何でも食べた。",
+      "options": [
+       "Họ ăn mọi thứ vì quá đói bụng.",
+       "Để sống sót, họ đã ăn bất cứ thứ gì.",
+       "Họ không ăn gì vì muốn chết.",
+       "Họ sống để ăn."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "んがために: với mục đích mạnh mẽ là sống sót."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "自分の立場を守らんがために、彼はうそをついた。",
+      "options": [
+       "Anh ta nói thật để bảo vệ người khác.",
+       "Anh ta mất vị trí vì nói dối.",
+       "Anh ta không quan tâm đến vị trí của mình.",
+       "Để giữ vị trí của mình, anh ta đã nói dối."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Mục đích giữ vị trí."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "勝つんがために、練習した。",
+       "勝たんがために、練習した。",
+       "知らんがために、調べた。",
+       "生きんがために、働いた。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Động từ chia thể ない bỏ ない: 勝たん, không phải 勝つん."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "寝坊せんがために、遅刻してしまった。",
+       "合格せんがために、勉強した。",
+       "救わんがために、走った。",
+       "売らんがために、宣伝した。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "んがために chỉ mục đích chủ ý, không dùng cho kết quả ngoài ý muốn như ngủ quên."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "んがために",
+       "研究を",
+       "すべてをささげた。",
+       "完成させ"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Để hoàn thành nghiên cứu, anh ấy hiến dâng tất cả."
+     },
+     {
+      "pieces": [
+       "救わ",
+       "医者になった。",
+       "人々を",
+       "んがために"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Để cứu người, anh ấy đã trở thành bác sĩ."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "目標を達成せ＿＿、チーム全員が力を合わせた。",
+      "answer": "んがために",
+      "translation_vi": "Để đạt mục tiêu, cả đội đã hợp sức."
+     },
+     {
+      "sentence_ja": "選挙に勝た＿＿、候補者は無理な約束をした。",
+      "answer": "んがために",
+      "translation_vi": "Để thắng cử, ứng viên đã hứa những điều vô lý."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "早く家に帰ら（　　）、彼は仕事を急いで片付けた。",
+      "options": [
+       "ずには",
+       "まいと",
+       "とばかりに",
+       "んがために"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Mục đích về nhà sớm."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "売上を伸ばさんがため、店は値段を下げた。",
+      "options": [
+       "Để tăng doanh thu, cửa hàng đã hạ giá.",
+       "Doanh thu giảm vì cửa hàng hạ giá.",
+       "Cửa hàng tăng giá để có lời.",
+       "Cửa hàng không quan tâm doanh thu."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "んがため(に): với mục đích tăng doanh thu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "見たいんがために、映画館に行った。",
+       "見んがために、並んだ。",
+       "聞かんがために、近づいた。",
+       "進まんがために、努力した。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "んがために không nối với 見たい; phải là động từ thể ない bỏ ない."
+     }
+    ]
+   },
    "context": {
     "examples": [],
     "meaning_vi": null,
@@ -40,7 +402,188 @@
    "id": "JG-8dbbcff65d"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "本日（　　）受付を終了いたします。",
+      "options": [
+       "をもって",
+       "をよそに",
+       "ともなく",
+       "ながらに"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "をもって chỉ mốc kết thúc, văn trang trọng."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "書面（　　）ご連絡いたします。",
+      "options": [
+       "をものともせず",
+       "をもって",
+       "にひきかえ",
+       "といえども"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "をもって: bằng phương tiện, cách thức."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "今月末 ＿＿ ＿＿ ＿＿ ★ なりました。",
+      "options": [
+       "ことに",
+       "退職する",
+       "もって",
+       "を"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "今月末をもって退職することになりました。 Ô ★ là ことに. Mốc thời gian 今月末をもって rồi đến 退職することになりました."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "彼の ★ ＿＿ ＿＿ ＿＿ 合格は間違いない。",
+      "options": [
+       "実力",
+       "すれば",
+       "を",
+       "もって"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "彼の実力をもってすれば合格は間違いない。 Ô ★ là 実力. をもってすれば: nếu dùng đến thực lực của anh ấy."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "以上をもって、会議を終わります。",
+      "options": [
+       "Cuộc họp sẽ tiếp tục sau đây.",
+       "Cuộc họp chưa bắt đầu.",
+       "Đến đây, xin kết thúc cuộc họp.",
+       "Cuộc họp bị hoãn."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "をもって: đánh dấu điểm kết thúc."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "誠意をもって対応すれば、相手も分かってくれるだろう。",
+      "options": [
+       "Nếu ứng xử bằng thành ý, đối phương hẳn sẽ hiểu.",
+       "Đối phương không có thành ý.",
+       "Dù ứng xử thế nào cũng vô ích.",
+       "Đối phương đã hiểu nhầm thành ý."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "をもって: bằng, với (phương tiện)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "昨日をもって、明日から店を開けます。",
+       "本日をもって閉店します。",
+       "拍手をもって迎えた。",
+       "書面をもって通知する。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Mốc kết thúc 昨日 không khớp với việc bắt đầu mở cửa từ ngày mai."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "電話にもって連絡した。",
+       "誠意をもって謝った。",
+       "以上をもって終わります。",
+       "三月末をもって退職します。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Trợ từ đúng là を: 電話をもって."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "閉店いたします。",
+       "本日",
+       "もちまして",
+       "を"
+      ],
+      "answer_order": [
+       1,
+       3,
+       2,
+       0
+      ],
+      "translation_vi": "Cửa hàng xin đóng cửa kể từ hôm nay."
+     },
+     {
+      "pieces": [
+       "を",
+       "もって",
+       "お迎えください。",
+       "拍手"
+      ],
+      "answer_order": [
+       3,
+       0,
+       1,
+       2
+      ],
+      "translation_vi": "Xin hãy chào đón bằng một tràng pháo tay."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "これ＿＿、説明会を終了いたします。",
+      "answer": "をもって",
+      "translation_vi": "Đến đây, xin kết thúc buổi giới thiệu."
+     },
+     {
+      "sentence_ja": "結果はメール＿＿お知らせします。",
+      "answer": "をもって",
+      "translation_vi": "Kết quả sẽ được thông báo bằng email."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "三月三十一日（　　）この制度は廃止される。",
+      "options": [
+       "にかまけて",
+       "をもって",
+       "ならでは",
+       "ずくめ"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Mốc thời gian chế độ bị bãi bỏ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼女の才能をもってすれば、どんな役もこなせる。",
+      "options": [
+       "Cô ấy không có tài năng diễn xuất.",
+       "Vai nào cô ấy cũng từ chối.",
+       "Cô ấy cần thêm tài năng để diễn.",
+       "Với tài năng của cô ấy thì vai nào cũng đảm nhận được."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "をもってすれば: nếu dùng đến tài năng ấy."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "友達とをもって映画を見た。",
+       "文書をもって回答する。",
+       "本日をもって締め切ります。",
+       "全力をもって取り組む。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "をもって không đi sau と; câu không có nghĩa."
+     }
+    ]
+   },
    "context": {
     "examples": [],
     "meaning_vi": null,
@@ -58,7 +601,188 @@
    "id": "JG-9c95625b11"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "あなたのことを思え（　　）、注意しているのだ。",
+      "options": [
+       "ばこそ",
+       "ばかりに",
+       "ばかりか",
+       "まいか"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "ばこそ: chính vì nghĩ cho bạn nên mới nhắc."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "健康であれ（　　）、好きな仕事も続けられる。",
+      "options": [
+       "ばかりか",
+       "ばこそ",
+       "ども",
+       "まいと"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Chính vì khỏe mạnh nên mới làm được việc mình thích."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "家族が ＿＿ ＿＿ ＿＿ ★ のだ。",
+      "options": [
+       "こそ",
+       "いれ",
+       "頑張れる",
+       "ば"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "家族がいればこそ頑張れるのだ。 Ô ★ là 頑張れる. いればこそ rồi đến 頑張れるのだ."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "信頼 ＿＿ ★ ＿＿ ＿＿ のです。",
+      "options": [
+       "いれ",
+       "任せた",
+       "して",
+       "ばこそ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "信頼していればこそ任せたのです。 Ô ★ là いれ. 信頼していればこそ任せた."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "練習を重ねればこそ、本番で落ち着いていられる。",
+      "options": [
+       "Luyện tập nhiều quá nên bị căng thẳng.",
+       "Không cần luyện tập vẫn bình tĩnh.",
+       "Chính vì luyện tập nhiều lần nên mới bình tĩnh khi thi thật.",
+       "Thi thật xong mới bắt đầu luyện tập."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "ばこそ nhấn mạnh lý do duy nhất."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "君の将来を考えればこそ、反対したんだ。",
+      "options": [
+       "Chính vì nghĩ đến tương lai của em nên anh mới phản đối.",
+       "Anh phản đối vì không quan tâm đến em.",
+       "Anh không nghĩ đến tương lai của em.",
+       "Em phản đối tương lai của anh."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Lý do phản đối chính là vì nghĩ cho tương lai."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "好きだればこそ、毎日練習する。",
+       "好きであればこそ、続けられる。",
+       "愛していればこそ叱る。",
+       "若ければこそできる。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Với tính từ な/danh từ phải dùng であればこそ, không có だればこそ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "昨日行ったばこそ、会えた。",
+       "努力すればこそ報われる。",
+       "信じればこそ待つ。",
+       "思えばこそ言うのだ。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "ばこそ đi với thể điều kiện ば, không nối với quá khứ 行った."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "ここまで来られた。",
+       "いればこそ",
+       "くれる人が",
+       "応援して"
+      ],
+      "answer_order": [
+       3,
+       2,
+       1,
+       0
+      ],
+      "translation_vi": "Chính vì có người ủng hộ nên tôi mới đi được đến đây."
+     },
+     {
+      "pieces": [
+       "若けれ",
+       "できるのだ。",
+       "ばこそ",
+       "こんな無理も"
+      ],
+      "answer_order": [
+       0,
+       2,
+       3,
+       1
+      ],
+      "translation_vi": "Chính vì còn trẻ nên mới làm quá sức được thế này."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "期待していれ＿＿、厳しいことも言うのです。",
+      "answer": "ばこそ",
+      "translation_vi": "Chính vì kỳ vọng nên tôi mới nói lời nghiêm khắc."
+     },
+     {
+      "sentence_ja": "互いに信じ合っていれ＿＿、長く続く関係だ。",
+      "answer": "ばこそ",
+      "translation_vi": "Chính vì tin nhau nên mối quan hệ mới bền lâu."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "苦労があれ（　　）、成功の喜びも大きい。",
+      "options": [
+       "とて",
+       "まで",
+       "ばこそ",
+       "ずに"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Chính vì có gian khổ nên niềm vui thành công mới lớn."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "健康であればこそ、何でもできる。",
+      "options": [
+       "Dù khỏe mạnh cũng không làm được gì.",
+       "Không khỏe vẫn làm được mọi thứ.",
+       "Làm mọi thứ khiến sức khỏe giảm.",
+       "Chính vì khỏe mạnh nên mới làm được mọi việc."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "ばこそ: nhấn mạnh điều kiện là lý do."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "愛するばこそ、厳しくする。",
+       "愛すればこそ、厳しくする。",
+       "親であればこそ心配する。",
+       "必要とされればこそ働ける。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Phải là thể ば: 愛すればこそ."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -87,7 +811,188 @@
    "id": "JG-17743c8d09"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "子ども（　　）、一人で起きられるよ。",
+      "options": [
+       "じゃあるまいし",
+       "ならでは",
+       "とあって",
+       "にして"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Có phải trẻ con đâu, tự dậy được mà."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "魔法使い（　　）、すぐには直せないよ。",
+      "options": [
+       "ともなると",
+       "じゃあるまいし",
+       "だけあって",
+       "ゆえに"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Có phải phù thủy đâu mà sửa ngay được."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "初めて ＿＿ ＿＿ ★ ＿＿ 緊張しなくていいよ。",
+      "options": [
+       "そんなに",
+       "じゃ",
+       "まいし",
+       "ある"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "初めてじゃあるまいしそんなに緊張しなくていいよ。 Ô ★ là まいし. 初めてじゃあるまいし rồi đến そんなに緊張しなくていい."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "一生の ★ ＿＿ ＿＿ ＿＿ よ。",
+      "options": [
+       "じゃ",
+       "あるまいし",
+       "泣かないで",
+       "別れ"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "一生の別れじゃあるまいし泣かないでよ。 Ô ★ là 別れ. 一生の別れ: chia tay cả đời."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "子どもじゃあるまいし、そんなことで怒るなよ。",
+      "options": [
+       "Vì là trẻ con nên cứ giận đi.",
+       "Có phải trẻ con đâu, đừng giận vì chuyện như thế.",
+       "Trẻ con không bao giờ giận.",
+       "Hãy giận như một đứa trẻ."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "じゃあるまいし: không phải là... nên đừng."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "死ぬわけじゃあるまいし、少しくらい失敗してもいい。",
+      "options": [
+       "Thất bại một chút cũng chẳng chết ai, không sao đâu.",
+       "Thất bại là chết.",
+       "Không được phép thất bại.",
+       "Ai cũng sẽ chết vì thất bại."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Có phải chết đâu mà sợ thất bại."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "子どもじゃあるまいし、子どもだから仕方がない。",
+       "学生じゃあるまいし、言い訳するな。",
+       "冬じゃあるまいし、そんなに着なくていい。",
+       "他人じゃあるまいし、遠慮しないで。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Vế trước phủ định là trẻ con, vế sau lại nói vì là trẻ con, mâu thuẫn."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "子どもじゃないまいし、一人でできる。",
+       "神様じゃあるまいし、分かるわけない。",
+       "初めてじゃあるまいし、慌てるな。",
+       "ロボットじゃあるまいし、休もう。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Dạng đúng là じゃあるまいし."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "じゃあるまいし",
+       "遠い国へ",
+       "大げさだね。",
+       "行くわけ"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Có phải đi nước xa đâu, làm quá lên thế."
+     },
+     {
+      "pieces": [
+       "じゃあるまいし",
+       "通らない。",
+       "学生",
+       "そんな言い訳は"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Có phải học sinh đâu, lời bào chữa đó không ổn."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "冬＿＿、そんなに厚い服はいらないよ。",
+      "answer": "じゃあるまいし",
+      "translation_vi": "Có phải mùa đông đâu, không cần áo dày thế."
+     },
+     {
+      "sentence_ja": "新人＿＿、その程度のことは自分で考えなさい。",
+      "answer": "じゃあるまいし",
+      "translation_vi": "Có phải người mới đâu, chuyện cỡ đó tự nghĩ đi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "ロボット（　　）、休まずに働けるわけがない。",
+      "options": [
+       "なりとも",
+       "だに",
+       "じゃあるまいし",
+       "ならでは"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Có phải robot đâu mà làm không nghỉ được."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "子どもじゃあるまいし、一人で病院に行けるでしょう。",
+      "options": [
+       "Trẻ con phải đi viện cùng người lớn.",
+       "Tôi không muốn đến bệnh viện.",
+       "Có phải trẻ con đâu, tự đi viện được chứ.",
+       "Bệnh viện không nhận trẻ con."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "じゃあるまいし: phủ định để trách nhẹ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "神様じゃあるまいし、何でも分かるに違いない。",
+       "魔法じゃあるまいし、すぐには無理だ。",
+       "子どもじゃあるまいし、泣くな。",
+       "旅行じゃあるまいし、荷物が多すぎる。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Phủ định là thần thánh thì vế sau phải là không thể biết hết, câu mâu thuẫn."
+     }
+    ]
+   },
    "context": {
     "examples": [],
     "meaning_vi": null,

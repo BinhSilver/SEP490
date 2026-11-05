@@ -1,0 +1,583 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "開会にあたって、一言ごあいさつ申し上げます。",
+       "ja_furigana": "開会(かいかい)にあたって、一言(ひとこと)ごあいさつ申(もう)し上(あ)げます。",
+       "vi": "Nhân dịp khai mạc, tôi xin có đôi lời chào."
+      },
+      {
+       "ja": "新しい仕事を始めるにあたって、家族とよく話し合った。",
+       "ja_furigana": "新(あたら)しい仕事(しごと)を始(はじ)めるにあたって、家族(かぞく)とよく話(はな)し合(あ)った。",
+       "vi": "Trước khi bắt đầu công việc mới, tôi đã bàn bạc kỹ với gia đình."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "新しい観測所を開設するにあたって、地域住民への説明会を行った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân dịp mở trạm quan sát mới, chúng tôi đã tổ chức buổi giải thích cho cư dân địa phương."
+     },
+     {
+      "ja": "長期保存データを移行するに際して、形式の互換性を確認した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi chuyển dữ liệu lưu trữ dài hạn, chúng tôi đã kiểm tra tính tương thích của định dạng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 新しい観測所を開設するにあたって、地域住民への説明会を行った。",
+     "FURIGANA_MISSING: 長期保存データを移行するに際して、形式の互換性を確認した。"
+    ],
+    "formation": "Vる + にあたって / に際して  Nの + にあたって / に際して",
+    "locked_fields": [],
+    "meaning_vi": "Nhân dịp, khi bắt đầu việc quan trọng",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nhân dịp, khi bắt đầu việc quan trọng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu một dịp đặc biệt làm bối cảnh cho sự chuẩn bị, thái độ hoặc hành động liên quan. Cách dùng: Hai mẫu đều đặt một sự kiện đáng chú ý làm bối cảnh cho hành động ở vế sau. 〜に際して dùng được với nhiều dịp, kể cả tình huống khó khăn hay khẩn cấp. 〜にあたって thường gợi một cột mốc quan trọng mà người nói chủ động chuẩn bị hoặc xác định thái độ trước khi thực hiện. Các dạng に際し và にあたり cô đọng hơn, thường gặp trong văn viết, diễn văn và thông báo chính thức. Sắc thái: Đều trang trọng; にあたって thiên về khởi đầu có chủ đích và sự chuẩn bị, còn に際して nhấn vào chính dịp hoặc hoàn cảnh. Lưu ý: Động từ đứng trước thường ở dạng từ điển, không dùng dạng た chỉ để nói dịp đã hoàn tất. Không phù hợp với việc nhỏ, ngẫu nhiên như ăn một món vặt hay mở một ngăn kéo."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d674a25d52"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "家族と相談した上で、返事をします。",
+       "ja_furigana": "家族(かぞく)と相談(そうだん)した上(うえ)で、返事(へんじ)をします。",
+       "vi": "Sau khi bàn với gia đình, tôi sẽ trả lời."
+      },
+      {
+       "ja": "実際に使った上で、この商品の良さを判断してください。",
+       "ja_furigana": "実際(じっさい)に使(つか)った上(うえ)で、この商品(しょうひん)の良(よ)さを判断(はんだん)してください。",
+       "vi": "Sau khi dùng thử thực tế, hãy đánh giá ưu điểm của sản phẩm này."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "試作品を実際に動かした上で、改良する箇所を決めよう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hãy vận hành thử nguyên mẫu rồi trên cơ sở đó quyết định những chỗ cần cải tiến."
+     },
+     {
+      "ja": "複数の見積もりを比べた上で、修理を依頼する会社を選んだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi so sánh nhiều báo giá, tôi đã chọn công ty để nhờ sửa chữa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 試作品を実際に動かした上で、改良する箇所を決めよう。",
+     "FURIGANA_MISSING: 複数の見積もりを比べた上で、修理を依頼する会社を選んだ。"
+    ],
+    "formation": "Vた + 上で / Nの + 上で",
+    "locked_fields": [],
+    "meaning_vi": "Sau khi; trong quá trình",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Sau khi; trong quá trình",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Biểu thị bước thực hiện có cân nhắc trước hành động sau, hoặc một phương diện quan trọng khi làm việc gì. Cách dùng: Với Vた形, 〜上で cho biết sau khi hoàn thành A và dựa trên kết quả cân nhắc, kiểm tra hay chuẩn bị đó, người ta mới thực hiện B. Với V辞書形 hoặc Nの, mẫu nêu bối cảnh, phương diện hay điều kiện quan trọng trong việc A. Cách dùng này thường gắn với hành động có chủ đích, quyết định, thủ tục hoặc vấn đề cần suy xét, chứ không chỉ kể hai việc xảy ra liên tiếp một cách ngẫu nhiên. Sắc thái: Có sắc thái cân nhắc và quy trình; trang trọng hơn 〜てから, đặc biệt trong hướng dẫn và thảo luận công việc. Lưu ý: Khi mang nghĩa sau khi làm A, động từ trước 上で dùng dạng た. Không dùng để nối hai hiện tượng tự nhiên không có quan hệ chuẩn bị hay căn cứ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e3c18643bc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "雨が止んだかと思うと、また降り出した。",
+       "ja_furigana": "雨(あめ)が止(や)んだかと思(おも)うと、また降(ふ)り出(だ)した。",
+       "vi": "Tưởng như mưa đã tạnh thì trời lại mưa tiếp."
+      },
+      {
+       "ja": "弟は宿題を始めたかと思ったら、すぐに寝てしまった。",
+       "ja_furigana": "弟(おとうと)は宿題(しゅくだい)を始(はじ)めたかと思(おも)ったら、すぐに寝(ね)てしまった。",
+       "vi": "Cậu em vừa mới bắt đầu làm bài thì đã đi ngủ ngay."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn (tránh chữ quá cấp) + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "雲の切れ間から月が見えたかと思うと、またすぐ霧に隠れた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vừa thấy trăng ló qua kẽ mây thì nó lại lập tức khuất trong sương."
+     },
+     {
+      "ja": "子猫は棚に飛び乗ったと思ったら、反対側へ駆け下りた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chú mèo con vừa nhảy lên kệ thì đã chạy xuống phía bên kia."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 雲の切れ間から月が見えたかと思うと、またすぐ霧に隠れた。",
+     "FURIGANA_MISSING: 子猫は棚に飛び乗ったと思ったら、反対側へ駆け下りた。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 子猫は棚に飛び乗ったと思ったら、反対側へ駆け下りた。 → 駆け"
+    ],
+    "formation": "Vた + かと思うと / かと思ったら",
+    "locked_fields": [],
+    "meaning_vi": "Vừa mới tưởng là... thì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vừa mới tưởng là... thì",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả hai trạng thái hoặc hành động đối lập thay đổi rất nhanh, khiến người quan sát bất ngờ. Cách dùng: Mẫu này cho biết ngay sau khi người nói nhận thấy sự việc A vừa xảy ra, sự việc B đã tiếp nối hoặc tình hình đã đổi khác. Hai vế thường tạo cảm giác biến chuyển quá nhanh để kịp theo dõi, đôi khi còn tương phản rõ rệt. Chủ thể thường là người khác, hiện tượng tự nhiên hoặc sự việc được quan sát từ bên ngoài. Có か hay không đều được; dạng có か làm cảm giác vừa nhận ra A rõ hơn. Sắc thái: Mang góc nhìn ngạc nhiên của người quan sát; と思ったら thường gần khẩu ngữ hơn, còn と思うと dễ gặp trong lời kể. Lưu ý: Động từ trước mẫu dùng dạng た khi biểu thị sự tiếp nối nhanh. Không thích hợp để kể hai hành động của chính người nói đã được lên kế hoạch tuần tự."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-340778d9ef"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今日の会は仕事の話は抜きにして、楽しく過ごしましょう。",
+       "ja_furigana": "今日(きょう)の会(かい)は仕事(しごと)の話(はなし)は抜(ぬ)きにして、楽(たの)しく過(す)ごしましょう。",
+       "vi": "Buổi hôm nay chúng ta bỏ qua chuyện công việc mà vui vẻ với nhau nhé."
+      },
+      {
+       "ja": "形式ばった話は抜きにして、自由に意見を言ってください。",
+       "ja_furigana": "形式(けいしき)ばった話(はなし)は抜(ぬ)きにして、自由(じゆう)に意見(いけん)を言(い)ってください。",
+       "vi": "Bỏ qua những lời khách sáo, xin hãy nêu ý kiến thoải mái."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "皆さん、仕事の話は抜きにして楽しく飲みましょう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mọi người này, chúng ta thôi chuyện công việc mà hãy uống với nhau vui vẻ, nhé."
+     },
+     {
+      "ja": "お世辞抜きに、君の日本語は本当にうまいよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nói không phải nịnh chứ tiếng Nhật của cậu thật sự rất cừ đấy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 皆さん、仕事の話は抜きにして楽しく飲みましょう。",
+     "FURIGANA_MISSING: お世辞抜きに、君の日本語は本当にうまいよ。"
+    ],
+    "formation": "N + は抜きにして / 抜きに",
+    "locked_fields": [],
+    "meaning_vi": "Hãy bỏ…ra, hãy thôi…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜仕事の話は抜きにして",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để diễn tả không là một chuyện gì nữa. Có nghĩa là ｢…は除いて｣(cái đó, hãy loại bỏ ra),「は止めて」(chuyện đó, hãy thôi đi)"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5a3d1c6e4b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私の力では、掃除はまだしも、引っ越しの手伝いは無理だ。",
+       "ja_furigana": "私(わたし)の力(ちから)では、掃除(そうじ)はまだしも、引(ひ)っ越(こ)しの手伝(てつだ)いは無理(むり)だ。",
+       "vi": "Với sức của tôi, dọn dẹp thì còn được, chứ phụ chuyển nhà thì không nổi."
+      },
+      {
+       "ja": "少しの雨ならまだしも、台風の日に出かけるのは危険だ。",
+       "ja_furigana": "少(すこ)しの雨(あめ)ならまだしも、台風(たいふう)の日(ひ)に出(で)かけるのは危険(きけん)だ。",
+       "vi": "Mưa một chút thì còn đỡ, chứ đi ra ngoài vào ngày bão thì nguy hiểm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "私の英語力では、旅行はまだしも、留学なんて無理です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Với khả năng tiếng Anh của tôi, đi du lịch thì còn được, chứ du học thì không được đâu."
+     },
+     {
+      "ja": "１０分や２０分ならまだしも、１時間も待てません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "10 phút hay 20 phút thì còn được, chứ 1 tiếng thì tôi không đợi được đâu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 私の英語力では、旅行はまだしも、留学なんて無理です。",
+     "FURIGANA_MISSING: １０分や２０分ならまだしも、１時間も待てません。"
+    ],
+    "formation": "N / 普通形 + ならまだしも / はまだしも",
+    "locked_fields": [],
+    "meaning_vi": "Nếu…thì còn được, đằng này…(ý ngược lại)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜旅行はまだしも",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9eea4bd917"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は値段はともかく、味は一流だ。",
+       "ja_furigana": "この店(みせ)は値段(ねだん)はともかく、味(あじ)は一流(いちりゅう)だ。",
+       "vi": "Quán này khoan bàn giá, hương vị thì hạng nhất."
+      },
+      {
+       "ja": "この車は色はともかく、走りが安定している。",
+       "ja_furigana": "この車(くるま)は色(いろ)はともかく、走(はし)りが安定(あんてい)している。",
+       "vi": "Chiếc xe này khoan nói màu sắc, khả năng chạy khá ổn định."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana; mẫu trùng JG-3094a98d91",
+    "same_pattern_as": "JG-3094a98d91"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "母の料理は見た目はともかく味はおいしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mấy món ăn mẹ tôi làm khoan bàn đến chuyện có đẹp hay không, chứ mùi vị thì ngon đấy."
+     },
+     {
+      "ja": "あの女優は、顔はともかくとして演技がすばらしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nữ diễn viên đó khoan bàn đến mặt mũi ra sao chứ diễn xuất thì tuyệt vời."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 母の料理は見た目はともかく味はおいしい。",
+     "FURIGANA_MISSING: あの女優は、顔はともかくとして演技がすばらしい。"
+    ],
+    "formation": "N + はともかく(として)",
+    "locked_fields": [],
+    "meaning_vi": "Để sau, khoan bàn",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜見た目はともかく味は",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "+ Diễn tả ý nghĩa “rút sự việc đó ra khỏi đối tượng được bàn thảo”. + Dùng trong trường hợp ưu tiên trình bày một sự việc ở phía sau, vì cho rằng nó quan trọng hơn sự việc đó. + Có cách nói khác là「Nはともかくとして」"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5bb80b7a14"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は、地元の人はもとより、外国からの客も多い。",
+       "ja_furigana": "この店(みせ)は、地元(じもと)の人(ひと)はもとより、外国(がいこく)からの客(きゃく)も多(おお)い。",
+       "vi": "Quán này không chỉ người địa phương mà khách từ nước ngoài cũng đông."
+      },
+      {
+       "ja": "彼は歌はもとより、ピアノも上手だ。",
+       "ja_furigana": "彼(かれ)は歌(うた)はもとより、ピアノも上手(じょうず)だ。",
+       "vi": "Anh ấy không chỉ hát hay mà chơi piano cũng giỏi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "うちには、車はもとより自転車もないんです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ở nhà tôi, không chỉ xe hơi mà ngay cả xe đạp cũng không có nữa."
+     },
+     {
+      "ja": "レタスはサラダで食べるのはもとより、炒めてもおいしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xà lách không chỉ ăn trong món xà lách mà đến cả xào cũng ngon nữa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: うちには、車はもとより自転車もないんです。",
+     "FURIGANA_MISSING: レタスはサラダで食べるのはもとより、炒めてもおいしい。"
+    ],
+    "formation": "N1 + はもとより + N2 + も",
+    "locked_fields": [],
+    "meaning_vi": "Không chỉ, nói chi.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜車はもとより自転車も",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Đưa ra những việc được cho là đương nhiên để diễn tả ý nghĩa “không chỉ như thế mà còn có những chuyện quan trọng hơn hoặc nhẹ hơn” Dùng trong phong cách nghiêm trang mang tính văn viết."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-35d32344b7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今日はよく働いたね。それはそうと、明日の予定は決まった？",
+       "ja_furigana": "今日(きょう)はよく働(はたら)いたね。それはそうと、明日(あした)の予定(よてい)は決(き)まった？",
+       "vi": "Hôm nay làm việc chăm thật đấy. À mà này, kế hoạch ngày mai đã quyết chưa?"
+      },
+      {
+       "ja": "このお茶、おいしいね。それはそうと、返事の手紙は出した？",
+       "ja_furigana": "このお茶(ちゃ)、おいしいね。それはそうと、返事(へんじ)の手紙(てがみ)は出(だ)した？",
+       "vi": "Trà này ngon nhỉ. À mà, cậu đã gửi thư hồi âm chưa?"
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "企画は順調だね。それはそうと、来週の出張、誰が行く？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dự án tiến triển tốt nhỉ. À mà, chuyến công tác tuần sau ai đi?"
+     },
+     {
+      "ja": "今日はここまでにしよう。それはそうと、この資料見た？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay đến đây thôi. Nhân tiện, đã xem tài liệu này chưa?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 企画は順調だね。それはそうと、来週の出張、誰が行く？",
+     "FURIGANA_MISSING: 今日はここまでにしよう。それはそうと、この資料見た？"
+    ],
+    "formation": "文1。それはそうと、文2",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: cụm nối để chuyển chủ đề, thường khá bất ngờ nhưng nhẹ nhàng. Sắc thái: thân mật, hơi đời thường; mang cảm giác “nhớ ra điều khác”. Liên kết: có thể liên quan lỏng hoặc không liên quan đến A.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "À mà này... (chuyển chủ đề)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường dùng trong hội thoại đời thường để bẻ lái sang chủ đề khác. Tránh dùng quá đột ngột với cấp trên trong văn cảnh trang trọng; cân nhắc ところで/さて. Đặt ngay đầu câu mới, sau dấu chấm của câu trước. [6. Ghi chú mở rộng] Hay dùng để gắn một “nhắc việc” vừa nhớ ra trong cuộc trò chuyện. Nếu muốn mạch lạc hơn trong trình bày chính thức, dùng さて/次に/では thay vì それはそうと. Không mang quan hệ nhân quả hay đối lập; chỉ là tín hiệu chuyển đề. [7. Biến thể & cụm cố định] それはそうと：biểu thức cố định, khó biến đổi hình thức. それはさておき：tương tự nhưng lịch sự hơn đôi chút. ところで：từ thay thế phổ biến. [8. Lỗi thường gặp & bẫy JLPT] Chọn それはそうと cho câu cần “nguyên nhân-kết quả” → sai (nên dùng だから/そのため/それで). Dùng giữa câu hoặc sau dấu phẩy trong cùng câu dài → thiếu tự nhiên; chuẩn là sau dấu chấm câu trước. Nhầm với それでは (mở bước tiếp theo trong thuyết trình) → khác chức năng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1ead5e9276"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "その話は抜きにして、本題に入りましょう。",
+       "ja_furigana": "その話(はなし)は抜(ぬ)きにして、本題(ほんだい)に入(はい)りましょう。",
+       "vi": "Bỏ qua chuyện đó, chúng ta vào vấn đề chính đi."
+      },
+      {
+       "ja": "悪口は抜きにして、彼の意見を聞いてみよう。",
+       "ja_furigana": "悪口(わるぐち)は抜(ぬ)きにして、彼(かれ)の意見(いけん)を聞(き)いてみよう。",
+       "vi": "Đừng nói lời chê bai, hãy thử nghe ý kiến của anh ấy."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana; mẫu trùng JG-5a3d1c6e4b",
+    "same_pattern_as": "JG-5a3d1c6e4b"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "冗談は抜きにして、真面目に話そう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bỏ đùa giỡn sang một bên, hãy nói nghiêm túc."
+     },
+     {
+      "ja": "今日は仕事の話は抜きにして、楽しみましょう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay miễn bàn chuyện công việc, cứ vui thôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 冗談は抜きにして、真面目に話そう。",
+     "FURIGANA_MISSING: 今日は仕事の話は抜きにして、楽しみましょう。"
+    ],
+    "formation": "N + は抜きにして / 抜きで",
+    "locked_fields": [],
+    "meaning_vi": "“Để sang một bên…, bỏ qua…, miễn bàn …”: loại bỏ một yếu tố A ra khỏi cuộc nói chuyện/hoàn cảnh để tập trung vào điều chính. Với đồ vật/thành phần: nghĩa “không kèm A/không thêm A”. Thường dùng để chuyển mạch trong hội thoại, cuộc họp: cắt đứt đùa cợt/lòng vòng để vào trọng tâm. Sắc thái trực tiếp, đôi khi mạnh; cân nhắc lịch sự tùy đối tượng.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Bỏ qua..., không tính...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] “N は抜きにして” để điều hướng chủ đề: dùng khi muốn yêu cầu tập trung/chuyển chủ đề. “N 抜きで/抜きに/抜きの” mô tả trạng thái “không có A” (đồ ăn, dịch vụ…). Trong ngữ cảnh trang trọng, có thể thay bằng “～はさておき／～はともかく”. Tránh dùng với người trên theo kiểu mệnh lệnh thẳng; nên thêm đệm lịch sự: 失礼ですが、冗談は抜きにして… [6. Ghi chú mở rộng] “お世辞抜きで/冗談抜きで” là cụm thường trực, rút gọn không dùng は. Trong ẩm thực: “～抜きでお願いします” rất tự nhiên khi gọi món (氷抜きで/ネギ抜きで…). “N を抜きにしては” là mẫu khác: điều kiện cần; đừng nhầm với “N は抜きにして”. [7. Biến thể & cụm cố định] N は抜きにして、… N 抜きで／抜きに／抜きの N お世辞抜きで／冗談抜きで（cố định, khẩu ngữ） N を抜きにしては V できない／語れない（mẫu khác nghĩa） [8. Lỗi thường gặp & bẫy JLPT] Lẫn với “～なしで”: JLPT hỏi phân biệt sắc thái chuyển chủ đề (抜きにして) vs trạng thái không có (なしで). Dùng “は抜きにして” với đối tượng nhạy cảm (công lao người khác) có thể bị thô; chú ý lịch sự. Nhầm vị trí は: × 抜きには冗談して → ○ 冗談は抜きにして"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9436dec461"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "返事はがき、あるいはお電話でお知らせします。",
+       "ja_furigana": "返事(へんじ)はがき、あるいはお電話(でんわ)でお知(し)らせします。",
+       "vi": "Chúng tôi sẽ thông báo bằng bưu thiếp hoặc điện thoại."
+      },
+      {
+       "ja": "会議は三日後、あるいは四日後になります。",
+       "ja_furigana": "会議(かいぎ)は三日後(みっかご)、あるいは四日後(よっかご)になります。",
+       "vi": "Cuộc họp sẽ diễn ra ba ngày hoặc bốn ngày nữa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "支払い方法は現金、あるいはクレジットカードをご利用いただけます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có thể thanh toán bằng tiền mặt hoặc thẻ tín dụng."
+     },
+     {
+      "ja": "参加は明日、あるいは来週でも構いません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tham gia vào ngày mai hoặc tuần tới đều được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 支払い方法は現金、あるいはクレジットカードをご利用いただけます。",
+     "FURIGANA_MISSING: 参加は明日、あるいは来週でも構いません。"
+    ],
+    "formation": "N1、あるいはN2 / 文1。あるいは、文2",
+    "locked_fields": [],
+    "meaning_vi": "- Liên từ/trạng từ mang nghĩa “hoặc; hoặc là; có lẽ”. - Sắc thái trang trọng, thích hợp văn bản chính thức, quy định, mô tả kỹ thuật. - Khi đi với “か”: dùng khung “Xか、あるいはYか” để nhấn mạnh hai khả năng loại trừ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hoặc là",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dạng “N、あるいは N” phổ biến trong thông báo/hướng dẫn trang trọng. Ở đầu câu, “あるいは、...” mang sắc thái suy đoán lịch sự. Trong câu hỏi lựa chọn nên dùng それとも; “Xか、あるいはYか” là nhấn mạnh/viết. [6. Ghi chú mở rộng] Khi liệt kê nhiều hơn 2, có thể: A、B、あるいはC のいずれか. “あるいは” có thể đứng giữa câu với dấu phẩy trước sau để tách ý rõ ràng. Trong đặc tả kỹ thuật, “または” và “もしくは/あるいは” đôi khi mang mức độ bao hàm khác; theo quy ước tài liệu. [7. Biến thể & cụm cố định] X か、あるいは Y か（khuôn lựa chọn） あるいは～かもしれない／～の可能性がある（phỏng đoán） N、あるいは N（liệt kê danh từ trang trọng） [8. Lỗi thường gặp & bẫy JLPT] Kết hợp trợ từ sai: (x) A あるいは B か → (o) A か、あるいは B か. Dùng あるいは trong câu hỏi tự thân, nghe cứng; ưu tiên それとも. Lẫn sắc thái với または/もしくは: あるいは có thể mang nghĩa phỏng đoán khi ở đầu câu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4fec272cb7"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-022"
+}

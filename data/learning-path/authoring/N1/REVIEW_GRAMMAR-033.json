@@ -1,0 +1,581 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "試験が近いので、遊んでばかりはいられない。",
+       "ja_furigana": "試験(しけん)が近(ちか)いので、遊(あそ)んでばかりはいられない。",
+       "vi": "Kỳ thi đến gần rồi, không thể cứ mãi chơi bời."
+      },
+      {
+       "ja": "仕事が忙しくて、ゆっくり休んではいられない。",
+       "ja_furigana": "仕事(しごと)が忙(いそが)しくて、ゆっくり休(やす)んではいられない。",
+       "vi": "Công việc bận rộn, không thể cứ thong thả nghỉ ngơi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "締切が明日に迫り、悠長に草案を推敲してはいられない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hạn nộp đã kề ngày mai, không thể cứ thong thả mài bản thảo."
+     },
+     {
+      "ja": "病棟内で感染が確認され、職員も油断してはいられない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã ghi nhận lây nhiễm trong khu điều trị, nhân viên cũng không thể chủ quan."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 締切が明日に迫り、悠長に草案を推敲してはいられない。",
+     "FURIGANA_MISSING: 病棟内で感染が確認され、職員も油断してはいられない。"
+    ],
+    "formation": "V-て + は + いられない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể cứ mãi / không rảnh để tiếp tục…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không thể cứ mãi / không rảnh để tiếp tục...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Không thể giữ nguyên trạng thái hay thái độ ấy thêm nữa vì tình thế thúc. Cách dùng: 〜て（は）いられない nói người nói không thể tiếp tục một trạng thái: chờ đợi thong thả, chủ quan, đứng ngoài hiện trường. は tô đậm ‘cứ thế thì không xong’. てばかりはいられない thêm nghĩa ‘không thể mãi chỉ làm có thế’. Lý do thường là hạn chót, rủi ro, trách nhiệm. Khác てはならない (cấm, không được phép) và わけにはいかない (về nghĩa vụ xã hội không thể làm). Đây là bất lực vì tình thế không cho phép giữ thái độ cũ. Dùng được cả nói và viết, giọng hơi khẩn. Sắc thái: Thúc bách, chịu trách nhiệm. Người nói tự nhắc hoặc nhắc tập thể phải chuyển thái độ. Không phải cấm từ bên ngoài mà là ‘ngồi im không xong’. Lưu ý: Không nhầm với てはならない (cấm). Động từ là trạng thái/thái độ có thể ‘duy trì’ (待つ, 喜ぶ, 油断する); hành động một phát khó vào mẫu này. てはいられない phủ định khả năng duy trì, không phải phủ định phép tắc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2a6f6181c3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "そんな遠い夢は、叶うべくもない。",
+       "ja_furigana": "そんな遠(とお)い夢(ゆめ)は、叶(かな)うべくもない。",
+       "vi": "Ước mơ xa vời như thế chẳng thể nào thành hiện thực."
+      },
+      {
+       "ja": "他人の気持ちなど、完全に知るべくもない。",
+       "ja_furigana": "他人(たにん)の気持(きも)ちなど、完全(かんぜん)に知(し)るべくもない。",
+       "vi": "Lòng người khác thì chẳng thể nào biết trọn vẹn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "非公開の内部会議の内容など、外部の記者が知るべくもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nội dung họp nội bộ không công khai, phóng viên bên ngoài chẳng thể nào biết được."
+     },
+     {
+      "ja": "当時の測定機器では、いま求められる精度を出すべくもなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Với máy đo thời ấy, không thể nào đạt độ chính xác người ta đòi hỏi bây giờ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 非公開の内部会議の内容など、外部の記者が知るべくもない。",
+     "FURIGANA_MISSING: 当時の測定機器では、いま求められる精度を出すべくもなかった。"
+    ],
+    "formation": "Vる + べくもない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể nào / chẳng mong gì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không thể nào / chẳng mong gì",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nói việc ấy nằm ngoài tầm, không có cơ sở để kỳ vọng hay thực hiện. Cách dùng: 〜べくもない phủ định khả năng đến mức ‘không có chuyện ấy’: người ngoài không thể biết nội dung họp kín, máy đo cũ không cho ra độ chính xác hiện nay, tiền quyên góp cá nhân không đủ xây lại nhà văn hóa. Đây không phải mẫu mục đích べく mà là bất khả, thường văn viết. Chủ thể thường thiếu tư cách, thiếu điều kiện, thiếu thông tin. Khác ようがない: ようがない nhấn không có phương pháp; べくもない nhấn việc vốn không nằm trong tầm kỳ vọng. Không dùng khi việc vẫn làm được nếu cố. Sắc thái: Tuyệt vọng nhẹ, khách quan, đôi khi tự biết phận. Giọng luận, hồi tưởng, bình luận. Không gay như cấm đoán. Lưu ý: Hình thức giống べく nhưng nghĩa đối lập: không phải ‘nhằm’ mà là ‘không thể nào’. Động từ thể từ điển; không ますべくもない. Không dùng cho cấm (cấm dùng べからず, てはならない)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9aab88e411"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "嘘をつくなど、教師にあるまじき行為だ。",
+       "ja_furigana": "嘘(うそ)をつくなど、教師(きょうし)にあるまじき行為(こうい)だ。",
+       "vi": "Nói dối là việc không xứng với tư cách giáo viên."
+      },
+      {
+       "ja": "約束を破るのは、社会人にあるまじき行為だ。",
+       "ja_furigana": "約束(やくそく)を破(やぶ)るのは、社会人(しゃかいじん)にあるまじき行為(こうい)だ。",
+       "vi": "Thất hứa là hành vi không thể chấp nhận với người đi làm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "患者の同意なく症例を話題にするなど、医師にあるまじき行為だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đem ca bệnh ra bàn khi bệnh nhân chưa đồng ý là việc không xứng với tư cách bác sĩ."
+     },
+     {
+      "ja": "選挙公報に虚偽を載せるのは、許すまじき違反である。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đưa thông tin giả vào công báo bầu cử là vi phạm không thể dung thứ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 患者の同意なく症例を話題にするなど、医師にあるまじき行為だ。",
+     "FURIGANA_MISSING: 選挙公報に虚偽を載せるのは、許すまじき違反である。"
+    ],
+    "formation": "N + にあるまじき + N",
+    "locked_fields": [],
+    "meaning_vi": "Không xứng / không thể chấp nhận (với tư cách…)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không xứng / không thể chấp nhận (với tư cách...)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Định ngữ văn ngôn: hành vi không nên có ở một vai, nghề, hoặc việc không thể dung thứ. Cách dùng: 〜まじき là 連体形 văn ngôn, luôn gắn danh từ: hành vi không xứng bác sĩ, giáo viên, công chức, hoặc vi phạm không thể tha. Cụm あるまじき rất hay gặp: với tư cách ấy thì không được có hành vi ấy. 許すまじき nhấn việc không thể bỏ qua. Không kết thúc câu bằng まじき một mình trong tiếng hiện đại (vị ngữ cổ là まじ). Giọng lên án đạo đức, nghề nghiệp, nặng hơn べきではない. Dùng trong bình luận, kỷ luật, báo chí; không dùng để cấm việc nhỏ như đóng cửa. Sắc thái: Lên án, chuẩn mực nghề. Người nói xét hành vi dưới ánh sáng vai xã hội. あるまじき nhấn ‘lệch tư cách’; 許すまじき nhấn ‘không tha’. Cứng, công khai. Lưu ý: Phải có danh từ sau まじき; không dùng làm vị ngữ độc lập. あるまじき chứ không phải ありまじき. Không thay べからず trên biển cấm sinh hoạt (入るべからず ≠ 入るまじき)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4597fdf37c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "道が渋滞していて、急ごうにも急げない。",
+       "ja_furigana": "道(みち)が渋滞(じゅうたい)していて、急(いそ)ごうにも急(いそ)げない。",
+       "vi": "Đường tắc, muốn vội cũng không vội được."
+      },
+      {
+       "ja": "声が出なくて、話そうにも話せない。",
+       "ja_furigana": "声(こえ)が出(で)なくて、話(はな)そうにも話(はな)せない。",
+       "vi": "Mất tiếng, muốn nói cũng không nói được."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "サーバーが全台保守に入っており、ログを確認しようにもできない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Toàn bộ máy chủ đang bảo trì, muốn kiểm nhật ký cũng không thể."
+     },
+     {
+      "ja": "橋が崩落したため、現場へ向かおうにも向かえない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì cầu sập, muốn lao ra hiện trường cũng không ra được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: サーバーが全台保守に入っており、ログを確認しようにもできない。",
+     "FURIGANA_MISSING: 橋が崩落したため、現場へ向かおうにも向かえない。"
+    ],
+    "formation": "Vよう + にも + Vれない/できない",
+    "locked_fields": [],
+    "meaning_vi": "Muốn… cũng không thể",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Muốn... cũng không thể",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Dù có ý muốn làm, hoàn cảnh cũng chặn mất, không thực hiện được. Cách dùng: Hai biến thể gần nghĩa. 〜（よ）うにも〜ない lấy ý chí (thể ý hướng) rồi phủ định, thường bằng khả năng: muốn kiểm cũng không kiểm được vì máy bảo trì, muốn đến hiện trường cũng không đến được vì cầu sập. Động từ hai vế cùng gốc. 〜に〜ない gọn hơn, thành ngữ: 言うに言えない, 待つに待てない. Lý do bất lực thường được nêu trước hoặc sau. Khác たくても〜ない ở chỗ gọn, văn viết hơn, và vế sau hay là khả năng phủ định chứ không chỉ ‘không làm’. Không dùng khi vẫn làm được mà chỉ là không thích. Sắc thái: Bế tắc, bất lực, đôi khi đáng tiếc. Người nói muốn nhấn hoàn cảnh bên ngoài, không phải thiếu động lực. 言うに言えない gợi chuyện không tiện nói ra. Lưu ý: Hai động từ phải cùng ngữ căn; không trộn 行こうにも待てない. Vế sau thường 可能の否定 (行けない, できない), không chỉ 行かない (không đi). Không dùng khi việc hoàn toàn trong tầm tay mà người nói lười."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-aacf3a2cfa"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は一日に客が十人といったところだ。",
+       "ja_furigana": "この店(みせ)は一日(いちにち)に客(きゃく)が十人(じゅうにん)といったところだ。",
+       "vi": "Quán này một ngày cũng chỉ cỡ mười khách."
+      },
+      {
+       "ja": "残ったお金は五千円といったところだ。",
+       "ja_furigana": "残(のこ)ったお金(かね)は五千円(ごせんえん)といったところだ。",
+       "vi": "Số tiền còn lại chỉ cỡ 5000 yên."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "売上は回復したが、まだコロナ前の七割といったところだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Doanh thu đã hồi phục nhưng cũng chỉ khoảng 70% so với trước Covid."
+     },
+     {
+      "ja": "休みは多くても月に二日といったところだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhiều lắm thì mỗi tháng được hai ngày nghỉ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 売上は回復したが、まだコロナ前の七割といったところだ。",
+     "FURIGANA_MISSING: 休みは多くても月に二日といったところだ。"
+    ],
+    "formation": "N + といったところだ",
+    "locked_fields": [],
+    "meaning_vi": "Diễn đạt mức độ xấp xỉ hoặc giới hạn trên “tối đa cũng chỉ thế”, mang sắc thái khiêm tốn/hạn chế. Thường đi kèm các từ chỉ hạn định như せいぜい、多くても、せめて để nhấn mạnh mức trần. Ngữ dụng: Trang trọng hơn くらい/ぐらい; hay dùng trong báo cáo, nhận định khách quan.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cỡ như...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thích hợp khi phát biểu thận trọng, tránh tuyệt đối hóa; phù hợp văn viết/trình bày. Không dùng để khoe khoang/nhấn mạnh vượt trội; sắc thái “khiêm tốn, hạn chế” là chủ đạo. Thường dùng để kết câu nhận định số liệu, mức độ, phạm vi. [6. Ghi chú mở rộng] Dùng tốt trong viết học thuật/báo cáo: kết luận mở, chừa biên độ sai số. Khi nói về trải nghiệm/bằng cấp cá nhân, giúp tránh khoe khoang: “勉強したといったところだ”。 Đặt ở cuối câu để giữ giọng điệu mềm, lịch sự mà vẫn chính xác. [7. Biến thể & cụm cố định] せいぜい／多くても＋数量＋といったところだ 名詞句＋といったところ（dùng như định ngữ: ～といったところの数字） 概ね／大体＋数量＋といったところだ [8. Lỗi thường gặp & bẫy JLPT] Dùng để phóng đại là sai sắc thái: ×最高で100人も来るといったところだ. Lẫn với くらい: JLPT hay hỏi chọn mẫu “khiêm tốn” → ưu tiên といったところだ. Thiếu ngữ cảnh “giới hạn trên”: nếu mang nghĩa “ít nhất”, không dùng といったところだ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-41bc8d9442"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "仕事の進み具合は半分というところだ。",
+       "ja_furigana": "仕事(しごと)の進(すす)み具合(ぐあい)は半分(はんぶん)というところだ。",
+       "vi": "Tiến độ công việc khoảng chừng một nửa."
+      },
+      {
+       "ja": "彼の実力は中級というところだ。",
+       "ja_furigana": "彼(かれ)の実力(じつりょく)は中級(ちゅうきゅう)というところだ。",
+       "vi": "Thực lực của anh ấy tầm trung cấp."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "準備は８割というところだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khâu chuẩn bị được khoảng 80%."
+     },
+     {
+      "ja": "到着は午後３時というところでしょう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dự là tầm 3 giờ chiều sẽ đến."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 準備は８割というところだ。",
+     "FURIGANA_MISSING: 到着は午後３時というところでしょう。"
+    ],
+    "formation": "N + というところだ; Vる + というところだ",
+    "locked_fields": [],
+    "meaning_vi": "- Nghĩa: “Cỡ như…, khoảng chừng…, tầm … mà thôi”. Diễn đạt ước lượng/đánh giá mang tính tổng kết ở thời điểm nói. - Sắc thái: Khách quan, hơi trang trọng; hay dùng trong báo cáo, tin tức, nhận định chuyên môn. Có thể hàm ý “tối đa/chưa cao lắm” tùy ngữ cảnh. - Thường đi kèm các biểu hiện lượng hóa (割, パーセント, 時間, 人, 点…) hoặc mức trình độ (初級/中級/平均的…).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đại khái là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi tổng kết/ước lượng sau khi đã cân nhắc dữ kiện; mang tính “nói cho gọn”. Thường kèm だろう／でしょう để làm mềm nhận định. Không dùng cho mệnh lệnh/đề nghị; là câu tường thuật đánh giá. [6. Ghi chú mở rộng] Phù hợp khi cần “neo” một con số/mức đánh giá đại diện, tránh hiểu là giá trị chính xác. Nếu muốn giảm sắc thái chắc chắn, ưu tiên kết với でしょう/だろう hoặc thêm おそらく/たぶん. Khi đánh giá năng lực/cấp độ, mang tính khiêm tốn lịch sự trong tự giới thiệu. [7. Biến thể & cụm cố định] ～といったところだ: biến thể mềm hơn, hay đi cùng dải khoảng A～B. 数％／数時間／数人というところだ: mẫu báo cáo thường gặp. 今の実力は～というところだ: cụm tự đánh giá năng lực phổ biến. [8. Lỗi thường gặp & bẫy JLPT] Dùng như số liệu chính xác tuyệt đối: Sai; đây là ước lượng. Nhầm với ところ (đang, sắp, vừa mới): というところだ khác hoàn toàn. Dùng trong câu mệnh lệnh/đề nghị: Không phù hợp chức năng. Thi JLPT: bẫy chọn せいぜい khi văn cảnh trung lập (せいぜい có sắc thái “tối đa”)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c65e3610a8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "一言なりとも、ご意見を聞かせてください。",
+       "ja_furigana": "一言(ひとこと)なりとも、ご意見(いけん)を聞(き)かせてください。",
+       "vi": "Dù chỉ một lời, xin hãy cho tôi biết ý kiến."
+      },
+      {
+       "ja": "少しなりとも、お役に立てればうれしいです。",
+       "ja_furigana": "少(すこ)しなりとも、お役(やく)に立(た)てればうれしいです。",
+       "vi": "Nếu giúp ích được dù chỉ chút ít thì tôi rất vui."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "一言なりともご感想をいただけますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù chỉ một lời thôi, mong nhận được cảm tưởng của bạn."
+     },
+     {
+      "ja": "少しなりとも力になれれば幸いです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu có thể giúp được dù chỉ một chút thì tôi rất mừng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 一言なりともご感想をいただけますか。",
+     "FURIGANA_MISSING: 少しなりとも力になれれば幸いです。"
+    ],
+    "formation": "N + なりとも",
+    "locked_fields": [],
+    "meaning_vi": "Nêu mức tối thiểu: “dù chỉ … cũng …”, thể hiện nhượng bộ tối thiểu hoặc mong được chấp nhận mức nhỏ nhất. Gợi ý/lời đề nghị khiêm nhường: đề nghị giúp “ít nhất thì …”, tránh cảm giác ép buộc. Nhấn sắc thái nhỏ bé, giới hạn: thường đi kèm từ chỉ lượng nhỏ (一言・一円・少し・気持ちなど). Cụm なんなりとも mang nghĩa mở rộng “bất cứ điều gì”, khác với ý nghĩa “tối thiểu”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù chỉ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Lịch sự/nhã nhặn, dùng nhiều trong thư từ, hội thoại trang trọng khi đề nghị/nhờ vả. Hàm ý người nói hạ thấp mức kỳ vọng để người nghe dễ chấp nhận. Không dùng trực tiếp sau động từ nguyên dạng; nên danh hóa: 参加→参加、手伝う→手伝い. Với số lượng, thường là số ít, nhỏ; tránh dùng với lượng lớn vì trái sắc thái “tối thiểu”. [6. Ghi chú mở rộng] Trong văn viết trang trọng, なりとも tạo cảm giác lịch thiệp hơn ～でも/だけでも. Thường đi với danh từ trừu tượng: 気持ち・援助・情報・意見・協力. Cụm thương mại: なんなりとも＋お申し付けください／お尋ねください. Kết hợp tốt với せめて để nhấn mạnh: せめて一言なりとも. [7. Biến thể & cụm cố định] 一言なりとも／一円なりとも／少しなりとも／気持ちなりとも 手伝いなりともさせてください／参加なりともさせてください なんなりともお申し付けください（cực kỳ thường gặp trong dịch vụ） [8. Lỗi thường gặp & bẫy JLPT] Dùng sau động từ thường: × 手伝うなりとも → ○ 手伝いなりとも. Dùng với lượng lớn làm sai sắc thái: × 一万円なりともあげる → nên dùng với lượng nhỏ như 一円/少し. Nhầm なんなりとも với “tối thiểu”: なんなりとも = “bất cứ”, khác với “ít nhất”. Nhầm với ～でも: JLPT hay kiểm tra sắc thái lịch sự và “mức tối thiểu”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-05854fa985"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は飛ぶがごとく走ってきた。",
+       "ja_furigana": "彼(かれ)は飛(と)ぶがごとく走(はし)ってきた。",
+       "vi": "Anh ấy chạy đến nhanh như bay."
+      },
+      {
+       "ja": "彼女は花のごとき笑顔で迎えてくれた。",
+       "ja_furigana": "彼女(かのじょ)は花(はな)のごとき笑顔(えがお)で迎(むか)えてくれた。",
+       "vi": "Cô ấy đón tôi với nụ cười như hoa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は鬼のごとき形相で怒鳴った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta gầm lên với gương mặt như quỷ."
+     },
+     {
+      "ja": "春の雪は綿のごとく降り積もった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tuyết xuân rơi dày như bông vải."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Giống như...",
+     "FURIGANA_MISSING: 彼は鬼のごとき形相で怒鳴った。",
+     "FURIGANA_MISSING: 春の雪は綿のごとく降り積もった。"
+    ],
+    "formation": "N + のごとき + N; N + のごとく",
+    "locked_fields": [],
+    "meaning_vi": "Ý nghĩa: “như/giống như…”, tương đương ～のような／～のように nhưng văn vẻ, cổ điển hơn. Dùng để ví von, so sánh ước lệ, tăng tính hình tượng, trang trọng. “ごとき” đứng trước danh từ; “ごとく” đứng trước động/tính từ hoặc cả câu. Lưu ý sắc thái khinh miệt khi dùng với người: N + ごとき（者） có thể mang nghĩa “hạng như…”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Giống như...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sử dụng khi muốn văn phong trang trọng, giàu hình ảnh (văn học, diễn văn, tiêu đề). Trong hội thoại thường nhật, ưu tiên ～ような／～ように để tự nhiên hơn. Tránh dùng ごとき cho người đối phương vì có thể mang sắc thái khinh miệt. Kết hợp tốt với danh từ trừu tượng: 夢・幻・稲妻・雷・光・神… [6. Ghi chú mở rộng] Gốc từ “如（ごと）し” trong văn cổ; “夢のごとし” là dạng kết câu cổ điển. “～するがごとく” thường thấy trong văn cổ/diễn văn để tạo nhịp điệu. Khi cần trung tính, thay bằng ～ような／～ように để tránh quá kiểu cách. [7. Biến thể & cụm cố định] 夢のごとき（者・時・景色）／鬼のごとき形相／神のごとき存在 雷のごとく怒る／光のごとく走る おまえごとき（者）…（sắc thái khinh miệt, cần thận trọng） Dạng cổ: ～のごとし（kết câu) [8. Lỗi thường gặp & bẫy JLPT] Dùng bừa bãi trong hội thoại hằng ngày → văn phong gượng gạo. Nhầm “ごとき” (bổ nghĩa N) với “ごとく” (trạng từ) → sai vị trí. Không nhận ra sắc thái miệt thị của Nごとき（者） → gây bất lịch sự. Nhầm với ～ほど (mức độ) → “ごとき” là so sánh ví von, không phải mức độ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-30fb121e88"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "結果のいかんによらず、挑戦したこと自体に価値がある。",
+       "ja_furigana": "結果(けっか)のいかんによらず、挑戦(ちょうせん)したこと自体(じたい)に価値(かち)がある。",
+       "vi": "Bất kể kết quả ra sao, bản thân việc đã thử sức đã có giá trị."
+      },
+      {
+       "ja": "理由のいかんによらず、遅刻は認められない。",
+       "ja_furigana": "理由(りゆう)のいかんによらず、遅刻(ちこく)は認(みと)められない。",
+       "vi": "Bất kể lý do gì, đi muộn đều không được chấp nhận."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "天候のいかんによらず、大会は予定どおり実施します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù thời tiết thế nào đi nữa, giải đấu vẫn diễn ra như dự định."
+     },
+     {
+      "ja": "参加のいかんによらず、納入済みの会費は返金いたしません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bất kể có tham dự hay không, hội phí đã nộp sẽ không hoàn lại."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 天候のいかんによらず、大会は予定どおり実施します。",
+     "FURIGANA_MISSING: 参加のいかんによらず、納入済みの会費は返金いたしません。"
+    ],
+    "formation": "N + のいかんによらず",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “Bất kể/không phụ thuộc vào N”, “cho dù N như thế nào đi nữa thì…”. Sắc thái rất trang trọng, dùng trong văn viết, văn bản pháp lý/quy định, thông báo, diễn văn. N “のいかん” = “tình hình/điều kiện của N” (如何). Không dùng với động từ/tính từ trực tiếp. Vế sau thường là mệnh đề mang tính quyết định/quy định chung: ～します／～いたしません／許可しません／同様に扱います… Thường đi với các danh từ phạm trù: 成否（thành bại）, 合否（đỗ trượt）, 理由（lý do）, 事情（hoàn cảnh）, 結果（kết quả）, 天候（thời tiết）, 出欠（có/không tham dự）, 国籍（quốc tịch）…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không kể...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi người nói muốn nhấn mạnh tính nhất quán của quy định/chính sách. Trang trọng hơn ～にかかわらず／～を問わず; phạm vi danh từ hẹp hơn (thiên về “tình hình/điều kiện”). Không dùng để miêu tả hành vi cá nhân thường ngày một cách thân mật. Vế sau thường là mệnh lệnh/quyết định khách quan; hiếm khi là cảm xúc cá nhân. [6. Ghi chú mở rộng] “如何” vốn Hán ngữ, chỉ “như thế nào”. Cụm này là thành ngữ cố định trong văn bản chính thức. Nếu danh từ quá cụ thể (tên người, đồ vật cụ thể) thường không dùng với のいかん. Thích hợp trong quy chế, điều khoản, thông báo tuyển dụng, hướng dẫn sự kiện. [7. Biến thể & cụm cố định] N + のいかんにかかわらず（rất phổ biến) N + のいかんを問わず Cụm thường gặp: 合否のいかん／成否のいかん／天候のいかん／理由のいかん／結果のいかん／出欠のいかん [8. Lỗi thường gặp & bẫy JLPT] Dùng với động từ/tính từ trực tiếp: Sai. Phải là danh từ + のいかん. Dùng trong ngữ cảnh thân mật: Không tự nhiên. Mẫu này trang trọng. Nhầm với ～にもかかわらず (mặc dù): Khác hẳn về ý nghĩa. Vế sau là cảm xúc cá nhân mạnh: Không phù hợp. Nên là quyết định/quy định khách quan."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2a105bb541"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "年齢のいかんにかかわらず、挑戦する人を歓迎する。",
+       "ja_furigana": "年齢(ねんれい)のいかんにかかわらず、挑戦(ちょうせん)する人(ひと)を歓迎(かんげい)する。",
+       "vi": "Bất kể độ tuổi, chúng tôi hoan nghênh người dám thử sức."
+      },
+      {
+       "ja": "成績のいかんにかかわらず、皆勤賞を授与する。",
+       "ja_furigana": "成績(せいせき)のいかんにかかわらず、皆勤賞(かいきんしょう)を授与(じゅよ)する。",
+       "vi": "Bất kể thành tích, ai đi học đầy đủ đều được trao giải chuyên cần."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "天候のいかんにかかわらず、大会は決行します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bất kể thời tiết ra sao, giải đấu vẫn tiến hành."
+     },
+     {
+      "ja": "経験のいかんにかかわらず、やる気のある方を募集します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tuyển người có động lực, bất kể kinh nghiệm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 天候のいかんにかかわらず、大会は決行します。",
+     "FURIGANA_MISSING: 経験のいかんにかかわらず、やる気のある方を募集します。"
+    ],
+    "formation": "N + のいかんにかかわらず",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị chính sách/điều kiện KHÔNG thay đổi dù N có thế nào: “bất kể/không kể”. Giọng trang trọng, thường xuất hiện trong quy chế, thông báo, hợp đồng, tuyển dụng. Nhấn mạnh tính công bằng/nhất quán: không ngoại lệ theo N.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không phụ thuộc vào...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để tuyên bố quy định/chính sách minh bạch, không có ngoại lệ. Hạn chế dùng trong hội thoại thân mật; thay bằng “〜に関係なく/にかかわらず” thông thường. Nên đi với N có phổ biến/độ biến thiên (理由・天候・状況…). [6. Ghi chú mở rộng] Trong văn bản cứng: “理由のいかんにかかわらず、〜しない/認めない/不可とする” là công thức thường dùng. “いかんによらず” hơi cổ/văn viết, nhưng vẫn gặp trong pháp quy. Khi cần nhấn không ngoại lệ mạnh hơn nữa, có thể thêm “一切”: 理由のいかんにかかわらず、一切返金いたしません。 [7. Biến thể & cụm cố định] 理由／年齢／経験／国籍／性別／成否 + のいかんにかかわらず 天候のいかんにかかわらず、開催する。 参加可否のいかんにかかわらず、ご連絡ください。 〜のいかんを問わず（biến thể ngắn, cùng nghĩa). [8. Lỗi thường gặp & bẫy JLPT] Dùng với N cụ thể cá nhân → nghe khiên cưỡng: ×太郎のいかんにかかわらず → 太郎の都合に関係なく. Nhầm với “によっては/では”: đề thi hay kiểm tra phân biệt “bất kể” vs “tùy theo”. Vế sau phải là mệnh đề khẳng định quy tắc/chính sách; tránh câu cảm xúc cá nhân."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8548967f5b"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-033"
+}

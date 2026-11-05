@@ -1,0 +1,581 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "書きかけの手紙が机の上に置いてある。",
+       "ja_furigana": "書(か)きかけの手紙(てがみ)が机(つくえ)の上(うえ)に置(お)いてある。",
+       "vi": "Trên bàn có lá thư viết dở."
+      },
+      {
+       "ja": "食べかけのパンをお皿の上に残してしまった。",
+       "ja_furigana": "食(た)べかけのパンをお皿(さら)の上(うえ)に残(のこ)してしまった。",
+       "vi": "Tôi để lại chiếc bánh mì ăn dở trên đĩa."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "読みかけの本が何冊もある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có cả mấy cuốn sách đang đọc dang dở luôn."
+     },
+     {
+      "ja": "彼女は何か言いかけてやめた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô ấy đang nói gì đó thì dừng lại."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 読みかけの本が何冊もある。",
+     "FURIGANA_MISSING: 彼女は何か言いかけてやめた。"
+    ],
+    "formation": "V-ます(語幹) + かける",
+    "locked_fields": [],
+    "meaning_vi": "Chưa xong, đang dở dang",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜読みかける",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4f17089ed3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "借りた本を全部読み切るまで返さないつもりだ。",
+       "ja_furigana": "借(か)りた本(ほん)を全部(ぜんぶ)読(よ)み切(き)るまで返(かえ)さないつもりだ。",
+       "vi": "Tôi định chưa trả cuốn sách đã mượn cho đến khi đọc hết."
+      },
+      {
+       "ja": "私が作った料理を母は全部食べ切ってくれた。",
+       "ja_furigana": "私(わたし)が作(つく)った料理(りょうり)を母(はは)は全部(ぜんぶ)食(た)べ切(き)ってくれた。",
+       "vi": "Mẹ đã ăn hết món tôi nấu."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この小説はおもしろくて、１日で読み切った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuốn tiểu thuyết này hấp dẫn, đã đọc hết sạch trong một ngày."
+     },
+     {
+      "ja": "彼は疲れ切った顔をしている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy tỏ vẻ mặt quá mệt mỏi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この小説はおもしろくて、１日で読み切った。",
+     "FURIGANA_MISSING: 彼は疲れ切った顔をしている。"
+    ],
+    "formation": "V-ます(語幹) + 切る",
+    "locked_fields": [],
+    "meaning_vi": "Làm cho xong, toàn bộ xong",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜読み切る",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1d45c93405"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会員に限り、このサービスを無料で利用できる。",
+       "ja_furigana": "会員(かいいん)に限(かぎ)り、このサービスを無料(むりょう)で利用(りよう)できる。",
+       "vi": "Chỉ hội viên mới được dùng dịch vụ này miễn phí."
+      },
+      {
+       "ja": "本日は学生に限り、入場料が半額になる。",
+       "ja_furigana": "本日(ほんじつ)は学生(がくせい)に限(かぎ)り、入場料(にゅうじょうりょう)が半額(はんがく)になる。",
+       "vi": "Hôm nay chỉ sinh viên mới được giảm nửa giá vé vào cửa."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "７０歳以上の方に限り、入場無料。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ những vị trên 70 tuổi mới vào cửa miễn phí."
+     },
+     {
+      "ja": "最近は、女性に限らず男性も化粧をする。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gần đây không chỉ phụ nữ mà cả đàn ông cũng trang điểm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ７０歳以上の方に限り、入場無料。",
+     "FURIGANA_MISSING: 最近は、女性に限らず男性も化粧をする。"
+    ],
+    "formation": "N + に限り / に限って",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ…/ Giới hạn …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜70歳以上の方に限り",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "N được giới hạn bởi danh từ chỉ số lượng hay thời gian"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e21ae0e323"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "明るいうちに家に帰ったほうがいい。",
+       "ja_furigana": "明(あか)るいうちに家(いえ)に帰(かえ)ったほうがいい。",
+       "vi": "Nên về nhà khi trời còn sáng."
+      },
+      {
+       "ja": "熱いうちにスープを飲んでください。",
+       "ja_furigana": "熱(あつ)いうちにスープを飲(の)んでください。",
+       "vi": "Hãy uống súp khi còn nóng."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "忘れないうちに、メモしておこう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong lúc chưa quên thì hãy ghi chú lại nào."
+     },
+     {
+      "ja": "桜がきれいなうちに、お花見に行きましょう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong lúc hoa anh đào còn đẹp, đi ngắm hoa nào."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 忘れないうちに、メモしておこう。",
+     "FURIGANA_MISSING: 桜がきれいなうちに、お花見に行きましょう。"
+    ],
+    "formation": "Vない・Aい・Aな(〜な) + うちに",
+    "locked_fields": [],
+    "meaning_vi": "Trong lúc …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜忘れないうちに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Khi có gì đang/chưa xảy ra. Đang có gì xảy ra."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ca0a2eb477"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この会社で働く限り、会社の規則を守らなければならない。",
+       "ja_furigana": "この会社(かいしゃ)で働(はたら)く限(かぎ)り、会社(かいしゃ)の規則(きそく)を守(まも)らなければならない。",
+       "vi": "Chừng nào còn làm ở công ty này, tôi phải tuân thủ quy định của công ty."
+      },
+      {
+       "ja": "生きている限り、夢を持ち続けたい。",
+       "ja_furigana": "生(い)きている限(かぎ)り、夢(ゆめ)を持(も)ち続(つづ)けたい。",
+       "vi": "Chừng nào còn sống, tôi muốn tiếp tục giữ ước mơ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "日本にいる限り、日本語は必要だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Suốt trong thời gian ở Nhật thì tiếng Nhật là cần thiết."
+     },
+     {
+      "ja": "悪い生活習慣を改めない限り、健康にはなれない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chừng nào mà không sửa đổi thói quen sinh hoạt xấu thì không thể khỏe mạnh được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 日本にいる限り、日本語は必要だ。",
+     "FURIGANA_MISSING: 悪い生活習慣を改めない限り、健康にはなれない。"
+    ],
+    "formation": "Vる・Vている・Vない + 限り",
+    "locked_fields": [],
+    "meaning_vi": "Giới hạn, hạn chế, hạn trong ~ Chỉ phạm vi",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜日本にいる限り",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-eb0c71a74a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ベルが鳴るか鳴らないかのうちに、学生たちは立ち上がった。",
+       "ja_furigana": "ベルが鳴(な)るか鳴(な)らないかのうちに、学生(がくせい)たちは立(た)ち上(あ)がった。",
+       "vi": "Chuông vừa reo thì học sinh đã đứng dậy."
+      },
+      {
+       "ja": "電車が着くか着かないかのうちに、ドアの前に人が集まった。",
+       "ja_furigana": "電車(でんしゃ)が着(つ)くか着(つ)かないかのうちに、ドアの前(まえ)に人(ひと)が集(あつ)まった。",
+       "vi": "Tàu vừa đến thì mọi người đã tụ tập trước cửa."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "授業が終わるか終わらないかのうちに、彼は教室を出た。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong khi giờ học chưa kết thúc thì anh ấy đã đi ra khỏi phòng."
+     },
+     {
+      "ja": "布団に入るか入らないかのうちに眠ってしまう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mới vừa nằm vào nệm đã ngủ mất tiêu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 授業が終わるか終わらないかのうちに、彼は教室を出た。",
+     "FURIGANA_MISSING: 布団に入るか入らないかのうちに眠ってしまう。"
+    ],
+    "formation": "Vる + か + Vない + かのうちに",
+    "locked_fields": [],
+    "meaning_vi": "Trong khi chưa…thì đã",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜終わるかないかのうちに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả tình trạng mặc dù vẫn chưa hoàn thành… nhưng liền ngay… Với mẫu câu này sẽ sử dụng cùng một động từ giống nhau."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-51c215a901"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今日は早く帰る。というのも、家族の誕生日だからだ。",
+       "ja_furigana": "今日(きょう)は早(はや)く帰(かえ)る。というのも、家族(かぞく)の誕生日(たんじょうび)だからだ。",
+       "vi": "Hôm nay tôi về sớm. Sở dĩ vậy là vì hôm nay là sinh nhật của người nhà."
+      },
+      {
+       "ja": "彼は今回の試験に落ちた。というのも、ほとんど勉強しなかったからだ。",
+       "ja_furigana": "彼(かれ)は今回(こんかい)の試験(しけん)に落(お)ちた。というのも、ほとんど勉強(べんきょう)しなかったからだ。",
+       "vi": "Anh ấy trượt kỳ thi lần này. Lý do là vì anh ấy hầu như không học bài."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼とはあまり話さない。というのも、性格が合わないからだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi không nói chuyện với anh ấy nhiều. Sở dĩ vậy là vì tính cách không hợp."
+     },
+     {
+      "ja": "来週は忙しくなる。というのも、新しいプロジェクトが始まるからだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tuần sau sẽ bận. Lý do là vì dự án mới sẽ bắt đầu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼とはあまり話さない。というのも、性格が合わないからだ。",
+     "FURIGANA_MISSING: 来週は忙しくなる。というのも、新しいプロジェクトが始まるからだ。"
+    ],
+    "formation": "文1。というのも、文2(+からだ)",
+    "locked_fields": [],
+    "meaning_vi": "Dùng để đưa ra lý do hoặc giải thích cho mệnh đề phía trước. Tương đương với “Sở dĩ… là vì…”, “Lý do là…”. Mệnh đề A là kết luận hoặc sự thật. Mệnh đề B (sau というのも) là nguyên nhân, lý do. Thường dùng trong văn viết, văn nói trang trọng, đặc biệt là văn nghị luận, giải thích, hoặc thuyết phục.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Bởi vì..., lý do là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đứng đầu mệnh đề b để giải thích cho mệnh đề a. Trang trọng hơn so với だって hay なんでかというと. Thường dùng khi giải thích trong hội thoại lịch sự, báo chí, bài luận, văn nghị luận. Khác với というのは ở chỗ: というのは giới thiệu lý do, còn というのも nhấn mạnh “đây là lý do của điều vừa nói”. [6. Ghi chú mở rộng] よく dùng trong bài luận, văn viết chính luận, khi muốn trình bày mạch lạc. Có thể kết hợp với thể lịch sự: ～ということです・～というのです. Nếu lý do dài, có thể đảo: というのも、～からだ。 [7. Biến thể & cụm cố định] というのも～からだ：Sở dĩ là vì… というのも事実だ：Cũng là sự thật rằng… というのもあって：Một phần vì… [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ということだ (nghe nói / kết luận) – khác hoàn toàn chức năng. Không dùng trong văn thân mật đơn giản – nghe cứng, nên dùng だって/なんでかというと. Sau というのも phải là lý do hợp lý, không dùng cho thông tin không liên quan. JLPT N2~N1 thường hỏi phân biệt với というのは/なぜかというと."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-300480ba17"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "実際に会ってこそ、その人の性格がわかる。",
+       "ja_furigana": "実際(じっさい)に会(あ)ってこそ、その人(ひと)の性格(せいかく)がわかる。",
+       "vi": "Chỉ khi gặp trực tiếp mới hiểu được tính cách của người đó."
+      },
+      {
+       "ja": "苦労してこそ、人の気持ちがわかる。",
+       "ja_furigana": "苦労(くろう)してこそ、人(ひと)の気持(きも)ちがわかる。",
+       "vi": "Chính nhờ trải qua vất vả mới hiểu được cảm xúc của người khác."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "努力してこそ、夢は現実になる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ khi nỗ lực thì ước mơ mới trở thành hiện thực."
+     },
+     {
+      "ja": "親になってこそ、親の有り難みがわかる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ khi trở thành cha mẹ mới hiểu được ân nghĩa của cha mẹ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 努力してこそ、夢は現実になる。",
+     "FURIGANA_MISSING: 親になってこそ、親の有り難みがわかる。"
+    ],
+    "formation": "V-て + こそ",
+    "locked_fields": [],
+    "meaning_vi": "～てこそ diễn tả “chỉ khi đã/đúng là làm V thì mới…”. Nhấn mạnh điều kiện tiên quyết để một giá trị/thấu hiểu/khả năng thực sự xuất hiện. Hàm ý loại trừ: nếu chưa V thì điều nói sau chưa thể thành hiện thực/đúng nghĩa. Mệnh đề sau thường là: khả năng (～できる), nhận thức (～わかる), đánh giá bản chất (本当の～だ), phát hiện (～というものだ). Thời điểm: thường nói về hiện tại/ tương lai; ít dùng để quy chiếu một việc quá khứ cụ thể. Sắc thái tôn vinh “giá trị chân chính” chỉ bộc lộ sau kinh nghiệm thật sự: 会ってこそ, 苦労してこそ, 失敗してこそ, 親になってこそ…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chỉ khi..., phải... thì mới...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn khẳng định một điều kiện “cần và đủ” về mặt kinh nghiệm/thực tiễn. Mang sắc thái nhấn mạnh, thuyết phục; phù hợp văn viết, diễn thuyết, nhận xét chuyên môn. Không tự nhiên nếu dùng để xin phép, mệnh lệnh, yêu cầu trực tiếp. Chủ ngữ thường là ngôi chung/không xác định; câu sau là đánh giá khái quát hơn là sự kiện đơn lẻ. [6. Ghi chú mở rộng] Sau ～てこそ thường không dùng quá khứ đơn cụ thể như ～た (nhưng có thể dùng cho chân lý/nhận thức chung đã nhận ra: 失敗してこそ学びがあった là ít tự nhiên). Không kết hợp với ý chí/mệnh lệnh trực tiếp: ×努力してこそ、頑張れ。 Phủ định dạng này hiếm; nếu muốn phủ định dùng cấu trúc khác (～だけでは/～なしには…). [7. Biến thể & cụm cố định] 会ってこそ / 話してこそ / 一緒に住んでこそ 苦労してこそ / 失敗してこそ / 挑戦してこそ 親になってこそ / 社会に出てこそ 本当の～はVてこそだ／Vてこそ意味がある [8. Lỗi thường gặp & bẫy JLPT] Dùng cho quá khứ sự kiện cụ thể: ×昨日会ってこそ、分かった。→ 昨日会って、初めて分かった。 Nhầm với ～てはじめて: ～てこそ nhấn giá trị/tiên quyết, không chỉ là “lần đầu”. Dùng để yêu cầu/khuyên nhủ trực tiếp: không tự nhiên. JLPT N2: thường kiểm tra phân biệt với ～てはじめて, ～からこそ, ～あってこそ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-62639caa96"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町の人口は少しずつ減りつつある。",
+       "ja_furigana": "この町(まち)の人口(じんこう)は少(すこ)しずつ減(へ)りつつある。",
+       "vi": "Dân số thị trấn này đang dần giảm."
+      },
+      {
+       "ja": "日本語を学ぶ人が世界中で増えつつある。",
+       "ja_furigana": "日本語(にほんご)を学(まな)ぶ人(ひと)が世界中(せかいじゅう)で増(ふ)えつつある。",
+       "vi": "Ngày càng có nhiều người trên khắp thế giới học tiếng Nhật."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "都市部で人口が増えつつある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dân số ở khu đô thị đang dần tăng."
+     },
+     {
+      "ja": "オンライン教育の需要は高まりつつある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhu cầu giáo dục trực tuyến đang ngày càng tăng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 都市部で人口が増えつつある。",
+     "FURIGANA_MISSING: オンライン教育の需要は高まりつつある。"
+    ],
+    "formation": "V-ます(語幹) + つつある",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả một xu hướng/biến đổi đang tiếp diễn và có khả năng còn tiếp tục trong hiện tại. Nêu trạng thái chuyển tiếp, “đang trong quá trình” thay vì “đã đạt tới”. Thường xuất hiện trong ngôn ngữ học thuật, báo chí, báo cáo: tính khách quan, trang trọng. Hay dùng với động từ chỉ sự thay đổi: 増える、減る、広がる、進む、深まる、弱まる、安定する(しつつある).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đang dần..., ngày càng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái khách quan, mô tả xu hướng; ít dùng trong hội thoại thân mật. Tốt với dữ liệu thời gian/biểu đồ: 増加しつつある傾向、低下しつつある割合. Không dùng với mệnh lệnh, ý chí, rủ rê. Thường đi kèm phó từ, chỉ thời gian: ますます、徐々に、次第に、年々、徐々に～しつつある. [6. Ghi chú mở rộng] Thường đi với danh từ hóa: ～しつつある＋N (例: 変化しつつある社会, 失われつつある文化). Kết hợp đánh giá: ～しつつある一方で、～／～しつつあるが、～ (nêu đối lập). Trong tiêu đề báo: 「～が広がりつつある」 ngắn gọn, trung tính, dễ đọc. [7. Biến thể & cụm cố định] 広がりつつある／増えつつある／減りつつある／進みつつある／変わりつつある／弱まりつつある／深まりつつある ～しつつある状況／～しつつある傾向／～しつつある問題 徐々に／次第に／年々／着実に + Vます + つつある [8. Lỗi thường gặp & bẫy JLPT] Sai cấu trúc: × V辞書形＋つつある → đúng: Vます(bỏ ます)＋つつある. Dùng với động từ khoảnh khắc: × 到着しつつある (có thể dùng khi nói “đang trên đường đến” thì nên: 到着に向けて進んでいる). Nhầm với Vている: つつある nhấn xu hướng biến đổi, không chỉ trạng thái đang xảy ra. Thi JLPT thường hỏi nhận diện phong cách trang trọng và kết hợp với động từ biến đổi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e683aa5e21"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "有名だからといって、必ずしもいい大学とは限らない。",
+       "ja_furigana": "有名(ゆうめい)だからといって、必(かなら)ずしもいい大学(だいがく)とは限(かぎ)らない。",
+       "vi": "Không phải cứ nổi tiếng là nhất định là trường đại học tốt."
+      },
+      {
+       "ja": "先生だからといって、何でも知っているわけではない。",
+       "ja_furigana": "先生(せんせい)だからといって、何(なん)でも知(し)っているわけではない。",
+       "vi": "Không phải cứ là giáo viên là biết mọi thứ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "高いからといって、品質がいいとは限らない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không phải cứ đắt là chất lượng tốt."
+     },
+     {
+      "ja": "日本人だからといって、みんな寿司が好きなわけではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không phải người Nhật ai cũng thích sushi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 高いからといって、品質がいいとは限らない。",
+     "FURIGANA_MISSING: 日本人だからといって、みんな寿司が好きなわけではない。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 日本人だからといって、みんな寿司が好きなわけではない。 → 寿,司"
+    ],
+    "formation": "普通形 + からといって + 〜とは限らない・〜わけではない",
+    "locked_fields": [],
+    "meaning_vi": "“Chỉ vì… mà … (không hẳn/không nhất thiết/không nên)”: phủ định suy nghĩ máy móc dựa trên lý do trước đó. Thường kết hợp với biểu thức phủ định một phần: ～とは限らない／わけではない／とは言えない. Cũng dùng để nhắc nhở, phê phán hành vi dựa trên lý do chưa thỏa đáng. Sắc thái: phản biện định kiến, khuyên sống có chừng mực/không ngụy biện.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không phải cứ... là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Vế trước nêu “lý do tưởng chừng đủ”, vế sau phủ định hoặc điều chỉnh kỳ vọng. Phổ biến trong tranh luận, giáo dục, quy tắc ứng xử. Khẩu ngữ dùng からって; văn viết, trang trọng dùng からといって. Thường tránh kết luận khẳng định mạnh mang tính chấp nhận lý do đó. [6. Ghi chú mở rộng] Kết hợp tự nhiên: ～からといって…とは限らない／…わけではない／…とは言えない／…べきではない。 Trong quảng cáo/PR, có thể bị dùng sai (ngụy biện). Câu mẫu giúp nhận diện thiên kiến. Vế sau đôi khi là cảm thán phê phán: ～のか？／～ってわけ？ (khẩu ngữ, cần văn cảnh). [7. Biến thể & cụm cố định] ～からって（khẩu ngữ） 有名だからといって／安いからといって／忙しいからといって：các mở đầu thường gặp. ～とは限らない／～わけではない：cặp đôi “chuẩn sách” đi sau. [8. Lỗi thường gặp & bẫy JLPT] Vế sau khẳng định mạnh “nên/được phép” → Thường không tự nhiên. Mẫu này thiên về phủ định/khuyên can. Nhầm với といっても (giảm mức độ) → JLPT hay gài cặp này. Dùng thể lịch sự ở vế trước (です/ます) trực tiếp → Không sai ngữ pháp nhưng thi JLPT chuộng thể thường. Thiếu phần phủ định/điều chỉnh ở vế sau → Dễ mất điểm ý nghĩa mẫu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-dca0ed2c36"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-029"
+}

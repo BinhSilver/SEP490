@@ -1,0 +1,582 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "早めに準備しておけば楽だったものを、前日になって慌ててしまった。",
+       "ja_furigana": "早(はや)めに準備(じゅんび)しておけば楽(らく)だったものを、前日(ぜんじつ)になって慌(あわ)ててしまった。",
+       "vi": "Giá như chuẩn bị sớm thì đã nhàn, thế mà đến hôm trước mới cuống cuồng."
+      },
+      {
+       "ja": "一言謝れば済んだものを、黙っていたせいで仲が悪くなった。",
+       "ja_furigana": "一言(ひとこと)謝(あやま)れば済(す)んだものを、黙(だま)っていたせいで仲(なか)が悪(わる)くなった。",
+       "vi": "Chỉ cần xin lỗi một câu là xong, thế mà im lặng nên tình cảm rạn nứt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "昨日のうちに共有フォルダへ上げておけば会議はスムーズに進んだものを、当日朝のアップロードでは間に合わなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu hôm trước đã đưa lên thư mục dùng chung thì họp đã êm, thế mà tải sáng hôm ấy nên không kịp."
+     },
+     {
+      "ja": "少し説明を補えば誤解は解けたものを、沈黙したせいで対立が深まった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ cần bổ sung đôi lời là hết hiểu lầm, thế mà im lặng nên mâu thuẫn càng sâu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 昨日のうちに共有フォルダへ上げておけば会議はスムーズに進んだものを、当日朝のアップロードでは間に合わなかった。",
+     "FURIGANA_MISSING: 少し説明を補えば誤解は解けたものを、沈黙したせいで対立が深まった。"
+    ],
+    "formation": "Vば + 〜ものを; 普通形 + ものを",
+    "locked_fields": [],
+    "meaning_vi": "Đáng lẽ… thế mà… (tiếc nuối, trách móc)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đáng lẽ... thế mà... (tiếc nuối, trách móc)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Than rằng nếu làm A thì đã ổn, nhưng đã chọn cách khác nên hậu quả xấu xảy ra. Cách dùng: 「〜ものを」 diễn tiếc nuối hoặc trách móc: đáng lẽ làm A thì ổn, thế mà đã chọn B nên hậu quả xấu xảy ra. Thường đi sau giả định 「ば／たら／なら」 hoặc sau một việc lẽ ra đơn giản. Câu có thể kết thúc bằng 「ものを」 mà không cần mệnh đề sau, giọng than. Mạnh và văn viết hơn 「のに」, không dùng cho tương phản trung tính không có tiếc nuối. Dễ nhầm với 「ものだから」 (lý do) và 「ものか」 (phủ định mạnh). Không dùng khi người nói hoàn toàn chấp nhận kết quả. Sắc thái: Tiếc, trách, đôi khi ấm ức. Người nói tin rằng có một lựa chọn dễ hơn đã bị bỏ qua. Giọng không trung lập. Lưu ý: Cần sắc thái tiếc nuối hoặc trách móc; không dùng cho tương phản khách quan như số liệu. Không kết hợp chồng 「ものをのに」。 Không nhầm với 「ものだから」（vì thế nên） hay 「ものか」（đâu có dễ）。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ca59a91b53"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "急いでいるところを呼び止められて、道を聞かれた。",
+       "ja_furigana": "急(いそ)いでいるところを呼(よ)び止(と)められて、道(みち)を聞(き)かれた。",
+       "vi": "Đang vội thì bị gọi lại, bị hỏi đường."
+      },
+      {
+       "ja": "本来なら一度で済むところを、やり直しを命じられた。",
+       "ja_furigana": "本来(ほんらい)なら一度(いちど)で済(す)むところを、やり直(なお)しを命(めい)じられた。",
+       "vi": "Đáng lẽ một lần là xong, lại bị bắt làm lại."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "昼休みで手が空いているところを捕まって、別課の集計を頼まれた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đúng lúc giờ nghỉ tay đang rỗi thì bị giữ lại, bị nhờ thống kê hộ phòng khác."
+     },
+     {
+      "ja": "本来なら口頭注意で済むところを、今回は始末書の提出を求められた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đáng lẽ chỉ cần nhắc miệng là xong, lần này lại bị yêu cầu nộp bản tự kiểm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 昼休みで手が空いているところを捕まって、別課の集計を頼まれた。",
+     "FURIGANA_MISSING: 本来なら口頭注意で済むところを、今回は始末書の提出を求められた。"
+    ],
+    "formation": "Vる/Vた/Vている + ところを",
+    "locked_fields": [],
+    "meaning_vi": "Dù đang trong tình huống… / đúng lúc đang…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù đang trong tình huống... / đúng lúc đang...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu tình huống đáng lẽ phải được tôn trọng hoặc đáng lẽ khác đi, rồi nói điều thực tế đi ngược lại. Cách dùng: Trong nhóm nhượng bộ, 「〜ところを」 nêu một tình huống đáng lẽ phải được tôn trọng hoặc đáng lẽ dẫn đến kết quả khác, rồi nói điều thực tế đi ngược lại. Ba hướng thường gặp: xin lỗi hoặc cảm ơn vì đã làm phiền lúc người kia bận; bị gọi dừng hay bị bắt gặp đúng lúc đang làm việc khác; và “đáng lẽ chỉ cần… thì lại…”. Mẫu không chỉ báo thời điểm trung tính, cũng không phải 「ところで」 chuyển đề. Động từ trước hay ở 「ている」 hoặc tính từ tình huống như 「忙しい」。 Sắc thái: Có thể lịch sự (xin lỗi vì làm phiền), có thể kịch tính (bắt gặp đúng lúc), hoặc trách móc nhẹ (đáng lẽ thế này thì lại thế kia). Giọng tùy ngữ cảnh, nhưng luôn có yếu tố “trái với tình huống ấy”. Lưu ý: Không nhầm với 「ところで」（nhân tiện / chuyển đề） hay 「ところへ／ところに」（đúng lúc ai đó xuất hiện）. Khi cảm ơn hoặc xin lỗi, hay dùng cụm sẵn 「お忙しいところを」「お休みのところを」。 Nếu chỉ muốn nói “đúng lúc ấy thì” trung tính, 「ところに／ところへ」 thường hợp hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-143dad0c70"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "上司といえども、規則を破ることは許されない。",
+       "ja_furigana": "上司(じょうし)といえども、規則(きそく)を破(やぶ)ることは許(ゆる)されない。",
+       "vi": "Dù là cấp trên đi nữa, phá luật cũng không được tha thứ."
+      },
+      {
+       "ja": "急ぎの仕事といえども、確認を省くことはできない。",
+       "ja_furigana": "急(いそ)ぎの仕事(しごと)といえども、確認(かくにん)を省(はぶ)くことはできない。",
+       "vi": "Dù công việc gấp đến mấy, cũng không thể bỏ qua bước kiểm tra."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "所長といえども、個人情報の閲覧ログは残る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù là trưởng sở đi nữa, nhật ký truy cập thông tin cá nhân vẫn được lưu."
+     },
+     {
+      "ja": "緊急性が高い案件といえども、決裁を飛ばすことはできない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù hồ sơ khẩn đến mấy, cũng không được bỏ qua bước phê duyệt."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 所長といえども、個人情報の閲覧ログは残る。",
+     "FURIGANA_MISSING: 緊急性が高い案件といえども、決裁を飛ばすことはできない。"
+    ],
+    "formation": "N + といえども",
+    "locked_fields": [],
+    "meaning_vi": "Dù là… đi nữa",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù là... đi nữa",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Tuyên bố không có ngoại lệ: dù địa vị, kinh nghiệm hay lý do mạnh đến đâu vẫn phải tuân quy tắc. Cách dùng: 「〜といえども」 mang sắc thái văn ngữ, nhấn mạnh không có ngoại lệ: dù chủ thể có địa vị, kinh nghiệm hay lý do mạnh đến đâu vẫn phải tuân quy tắc. Hay đi với chức danh, chuyên gia, tính khẩn cấp, hoặc 「いかなる／どれほど」. Khác 「とはいえ」 ở chỗ không chỉ “thừa nhận rồi hạn chế” mà tuyên bố “ngay cả X cũng không được đứng ngoài”. Trang trọng, hợp nội quy, cảnh báo an toàn, đạo đức nghề nghiệp. Không dùng để giảm nhẹ thành tích theo kiểu nói chuyện phiếm. Sắc thái: Mạnh, trang nghiêm, hơi cổ. Người nói bịt cửa ngoại lệ, không thương lượng. Có thể là sự thật (“dù là giám đốc”) hoặc giả định (“dù khẩn cấp đến mấy”). Lưu ý: Giọng quá cứng cho tán gẫu; hợp văn bản, phát biểu, nội quy. Mệnh đề sau thường là nghĩa vụ, cấm đoán hoặc giới hạn, không phải khen nhẹ. Không thay thế 「とはいえ」 khi chỉ muốn hạn chế ôn hòa một thành công."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-97292b8c84"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "試験に合格したとはいえ、まだ勉強を続ける必要がある。",
+       "ja_furigana": "試験(しけん)に合格(ごうかく)したとはいえ、まだ勉強(べんきょう)を続(つづ)ける必要(ひつよう)がある。",
+       "vi": "Dù nói đã thi đỗ, vẫn cần tiếp tục học tập."
+      },
+      {
+       "ja": "便利な街とはいえ、家賃の高さだけは気になる。",
+       "ja_furigana": "便利(べんり)な街(まち)とはいえ、家賃(やちん)の高(たか)さだけは気(き)になる。",
+       "vi": "Dù là thành phố tiện lợi, riêng tiền thuê nhà cao thì vẫn phải bận tâm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "試作は成功したとはいえ、量産ラインに乗せるには工程を二つ増やす必要がある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù nói thử phẩm đã thành công, muốn lên dây chuyền hàng loạt vẫn phải thêm hai công đoạn."
+     },
+     {
+      "ja": "静かな住宅街とはいえ、早朝のごみ収集音までは止められない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù là khu nhà ở yên tĩnh, cũng không thể chặn được tiếng thu rác sáng sớm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 試作は成功したとはいえ、量産ラインに乗せるには工程を二つ増やす必要がある。",
+     "FURIGANA_MISSING: 静かな住宅街とはいえ、早朝のごみ収集音までは止められない。"
+    ],
+    "formation": "普通形 + とはいえ",
+    "locked_fields": [],
+    "meaning_vi": "Dù nói là… nhưng…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù nói là... nhưng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Thừa nhận điều vừa nêu là đúng, rồi đưa hạn chế hoặc điểm vẫn chưa đủ. Cách dùng: 「〜とはいえ」 thừa nhận mệnh đề trước là đúng, rồi đưa hạn chế, hệ quả chưa đủ hoặc điểm vẫn phải thận trọng. Giọng nhượng bộ ôn hòa: không phủ nhận A, nhưng không để A kết thúc thảo luận. Đi sau danh từ hoặc thể thông thường. Có thể đứng đầu câu 「とはいえ、…」 để nối với câu trước. Nhẹ hơn 「といえども」 và gần văn viết hơn 「といっても」. Phù hợp nhận xét sau thành công một phần, sau danh hiệu, hoặc sau vẻ ngoài tưởng đã đủ. Sắc thái: Nhượng bộ ôn hòa, khách quan. Người nói công nhận A rồi kéo thảo luận về giới hạn thực tế. Không gay như phủ định hoàn toàn. Lưu ý: Mệnh đề sau phải hạn chế hoặc bổ sung, không được cùng chiều hoàn toàn với vế trước. Không nhầm với 「といえば」（nói đến thì） hay 「というと」（nhắc đến thì）。 Giọng hơi viết; nói chuyện có thể dùng 「といっても」。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-48a0163ba2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "四月とはいえ、まだ朝は寒い。",
+       "ja_furigana": "四月(しがつ)とはいえ、まだ朝(あさ)は寒(さむ)い。",
+       "vi": "Dù đã là tháng tư nhưng buổi sáng vẫn còn lạnh."
+      },
+      {
+       "ja": "子どもとはいえ、礼儀は守ってもらう。",
+       "ja_furigana": "子(こ)どもとはいえ、礼儀(れいぎ)は守(まも)ってもらう。",
+       "vi": "Dù là trẻ con nhưng vẫn phải giữ lễ phép."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "春とはいえ、まだ夜は冷える。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù là mùa xuân nhưng ban đêm vẫn lạnh."
+     },
+     {
+      "ja": "新人とはいえ、基本は守ってもらう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù là người mới nhưng vẫn phải tuân thủ những điều cơ bản."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 春とはいえ、まだ夜は冷える。",
+     "FURIGANA_MISSING: 新人とはいえ、基本は守ってもらう。"
+    ],
+    "formation": "N + とはいえ; Aい + とはいえ",
+    "locked_fields": [],
+    "meaning_vi": "Mẫu nhượng bộ/chấp nhận một thực tế A, nhưng vế sau B đưa ra nhận định trái kỳ vọng: “mặc dù… nhưng…”. Sắc thái trang trọng, văn viết; mạnh hơn けど/が; gần với とはいえ＝とは言え. Vế sau thường là đánh giá, giới hạn, phản đề: しかし/それでも/とはいってもの cảm giác. Không dùng cho mệnh lệnh/ý chí trực tiếp đối lập ngay sau; thường là phán đoán hoặc thực tế khách quan.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cho dù...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để “giảm nhẹ rồi phản biện”: công nhận A nhưng nhấn mạnh B mới là điểm chính. Văn phong nghiêm túc, phù hợp báo cáo, luận điểm, tin tức. Thường đi với từ chỉ mức độ giới hạn: まだ、やはり、必ずしも、それでも. Khác với にしては: とはいえ không so sánh lệch chuẩn cụ thể mà chỉ nhượng bộ chung rồi phản đề. [6. Ghi chú mở rộng] Dạng đầy đủ とは言え (kanji) và とはいえ (kana) đều dùng; kana phổ biến trong hiện đại. Hay kết hợp với danh từ chỉ thời điểm/mùa: 春・子どもの日・連休とはいえ,... Có thể đứng giữa câu hoặc đầu câu để mở đoạn phản đề: とはいえ、～。 Với quá khứ: ～たとはいえ nhấn mạnh “dù đã ... rồi, nhưng ...”. [7. Biến thể & cụm cố định] ～とはいうものの：Dù nói là ~ nhưng...（trang trọng hơn, hơi cứng). とはいえ、～：Dùng mở câu phản đề độc lập. N + とはいえの + N（ít dùng）：Tính từ hóa trong văn viết (例: 春とはいえの寒さ). [8. Lỗi thường gặp & bẫy JLPT] Nhầm với にしては: とはいえ không có tiêu chuẩn so sánh cụ thể; nếu có chuẩn rõ (年齢のわりに) thì dùng にしては. Biến とはいえ thành mệnh lệnh trực diện sau đó nghe gắt; nên dùng phán đoán/nhận xét. Bẫy sắc thái: といっても thiên khẩu ngữ; とはいえ trang trọng. Chọn theo bối cảnh. JLPT: Khi câu cần “công nhận A nhưng giữ lập trường B”, đáp án thường là とはいえ/とはいうものの."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9ef3014318"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "たとえ人数が増えたとしたところで、仕事の量は減らない。",
+       "ja_furigana": "たとえ人数(にんずう)が増(ふ)えたとしたところで、仕事(しごと)の量(りょう)は減(へ)らない。",
+       "vi": "Giả sử có thêm người đi nữa, khối lượng công việc cũng không giảm."
+      },
+      {
+       "ja": "今から急いだとしたところで、もう間に合わないだろう。",
+       "ja_furigana": "今(いま)から急(いそ)いだとしたところで、もう間(ま)に合(あ)わないだろう。",
+       "vi": "Dẫu bây giờ có vội đi nữa, chắc cũng không kịp nữa rồi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "仮に予算が増えたとしたところで、納期は変わらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giả sử ngân sách có tăng đi nữa, thời hạn cũng không đổi."
+     },
+     {
+      "ja": "彼が謝罪したとしたところで、被害者の怒りは収まらないだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dẫu anh ta có xin lỗi, cơn giận của nạn nhân chắc cũng không nguôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 仮に予算が増えたとしたところで、納期は変わらない。",
+     "FURIGANA_MISSING: 彼が謝罪したとしたところで、被害者の怒りは収まらないだろう。"
+    ],
+    "formation": "仮に + 普通形 + としたところで; Vた + ところで",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: Nhượng bộ giả định mạnh “cho dù/giả sử rằng … thì (cũng) … không thay đổi kết quả (thường tiêu cực/giới hạn)”. Sắc thái phê phán/bi quan nhẹ, nhấn tính vô ích/khó thay đổi cục diện. Đi với phủ định, hạn định: 〜ない／たいした〜ない／所詮〜／わけではない thường xuất hiện ở vế sau. にしたところで nhấn “ngay cả đối với (người/nhóm đó)”. としたところで trung tính hơn, áp cho mệnh đề.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cho dù... thì cũng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn thừa nhận một khả năng nhưng khẳng định kết luận không thay đổi (giới hạn/không hiệu quả). Phong cách hơi trang trọng/học thuật hơn 〜たところで và 〜としても. Vế sau thường tránh mệnh lệnh/ý chí mạnh; tập trung vào đánh giá khách quan. [6. Ghi chú mở rộng] Thêm たとえ／仮に để nhấn mạnh giả định xa thực tế. Trong lập luận, mẫu này giúp “chặn” phản biện: thừa nhận điểm đối phương nhưng bảo toàn kết luận. Không nên dùng cùng mong muốn trực tiếp (〜たい) ở vế sau; giữ sắc thái đánh giá/nhận định. [7. Biến thể & cụm cố định] たとえ／仮に／仮定上 + 〜としたところで N + にしたところで（＝にしても／にしたって） 極端な例＋としたところで（“ngay cả trong trường hợp cực đoan”） [8. Lỗi thường gặp & bẫy JLPT] Nhầm với 〜とすると (điều kiện suy luận). 〜としたところで là nhượng bộ; kết quả thường phủ định/hạn chế. Thiếu sắc thái tiêu cực ở vế sau → câu nghe gượng. Hãy dùng 〜ない／限らない／たいした〜ない… Đảo “にしたところで” thành “をしたところで” với danh từ → sai trợ từ. Phải là に. Bẫy: chọn 〜としても hay 〜としたところで. Nếu văn phong trang trọng và kết quả phủ định mạnh → ưu tiên 〜としたところで."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a312577371"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は腹が減ったとみえて、何杯もおかわりした。",
+       "ja_furigana": "彼(かれ)は腹(はら)が減(へ)ったとみえて、何杯(なんばい)もおかわりした。",
+       "vi": "Có vẻ anh ấy đói bụng nên ăn thêm mấy bát nữa."
+      },
+      {
+       "ja": "彼女はうれしいとみえて、ずっと笑っている。",
+       "ja_furigana": "彼女(かのじょ)はうれしいとみえて、ずっと笑(わら)っている。",
+       "vi": "Có vẻ cô ấy vui nên cười suốt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "子どもたちは疲れたとみえて、帰りの電車でぐっすり寝ている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bọn trẻ có vẻ mệt nên ngủ say trên tàu về."
+     },
+     {
+      "ja": "空が急に暗くなってきた。雨になるとみえて、風も強くなってきた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trời bỗng tối sầm. Có vẻ sắp mưa, gió cũng mạnh dần."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Có vẻ như...",
+     "FURIGANA_MISSING: 子どもたちは疲れたとみえて、帰りの電車でぐっすり寝ている。",
+     "FURIGANA_MISSING: 空が急に暗くなってきた。雨になるとみえて、風も強くなってきた。"
+    ],
+    "formation": "普通形 + とみえて",
+    "locked_fields": [],
+    "meaning_vi": "～とみえて diễn tả phán đoán “ có vẻ như…/hình như…” dựa trên dấu hiệu quan sát được (hành vi, trạng thái, tình hình cụ thể). Người nói không khẳng định tuyệt đối mà suy luận từ thực tế trước mắt. Tính khách quan: có bằng chứng hiển hiện (nét mặt, thời tiết, dòng người, số liệu…). Vị trí: thường đứng giữa câu: Mệnh đề A (cơ sở quan sát) ＋ とみえて ＋ Mệnh đề B (nhận định). Độ chắc chắn: cao hơn ～ようだ/～みたいだ khi A là “bằng chứng mạnh”. Thấp hơn 断定. Phong cách: hay dùng trong văn viết, báo cáo, lời bình; hội thoại trang trọng vẫn tự nhiên.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có vẻ như...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Khung nghĩa: A là bằng chứng → người nói suy ra B (nhận định). Không dùng khi không có dấu hiệu cụ thể. Sắc thái khách quan: hơi “lùi lại” quan sát, tránh cảm giác áp đặt chủ quan. Đi kèm từ chỉ dấu hiệu: 見たところ／様子から／どうやら／最近～／数字を見ると… → tăng tính tin cậy. Hạn chế: thường không kết hợp với mệnh lệnh/ý chí trực tiếp ở mệnh đề B. Phong cách văn viết: trong tin tức/báo cáo có thể dùng dạng kết câu ～とみえる. [6. Ghi chú mở rộng] Biểu đồ suy luận ngầm: Dấu hiệu A → Giả thuyết H → Phán đoán mềm B. ～とみえて nằm giữa quan sát và kết luận, giúp câu “giữ độ mềm”. Phù hợp văn phong học thuật/báo chí: dùng để mô tả hiện tượng xã hội, xu hướng thị trường khi chưa có số liệu khẳng định. Độ tin cậy: tăng khi A là số liệu, thời tiết, hành vi lặp lại; giảm khi A chỉ là cảm xúc thoáng qua. Chuyển giọng lịch sự: ở mệnh đề B dùng ～ようです／～でしょう để tăng tính khách quan. [7. Biến thể & cụm cố định] ～とみえる: biến thể ở cuối câu. Ví dụ: 渋滞は解消したとみえる。 ～とみえても: “tưởng là… nhưng thực ra…”. Ví dụ: 簡単とみえても、やってみると難しい。 Dịch: Tưởng là đơn giản nhưng làm thử mới khó. ～と見えて: dạng dùng chữ Hán 見える, đồng nghĩa, trang trọng nhẹ. 見たところ／様子から／どうやら＋～とみえて: cụm dẫn dắt dấu hiệu. [8. Lỗi thường gặp & bẫy JLPT] Lẫn với ～らしい: ～らしい dựa vào nguồn tin; ～とみえて dựa vào quan sát. Bài thi hay gài lựa chọn nguồn thông tin. Lẫn với ～ようだ／～みたいだ: khi đề bài có “bằng chứng cụ thể” (số liệu, hiện tượng rõ), ưu tiên ～とみえて. Bỏ sót 「だ」 với danh từ/na-adj: N/Aな＋ だ＋とみえて → văn nói đôi khi lược, nhưng đề thi thường cần chuẩn hình thức. Dùng với mệnh lệnh/ý chí: không tự nhiên. Tránh kiểu「遅れるとみえて、急ぎなさい」。Hãy tách phán đoán và mệnh lệnh. Thiếu mệnh đề quan sát A: ～とみえて cần A làm cơ sở. Nếu không có dấu hiệu, dùng mẫu khác. Nhầm hướng quan hệ nhân quả: A là dấu hiệu, B là phán đoán, không phải giải thích lý do chắc chắn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9f8124f185"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大学生ともなると、自分で責任を負う場面が増える。",
+       "ja_furigana": "大学生(だいがくせい)ともなると、自分(じぶん)で責任(せきにん)を負(お)う場面(ばめん)が増(ふ)える。",
+       "vi": "Một khi đã là sinh viên đại học, những lúc phải tự chịu trách nhiệm sẽ nhiều hơn."
+      },
+      {
+       "ja": "連休ともなると、観光地はどこも人でいっぱいだ。",
+       "ja_furigana": "連休(れんきゅう)ともなると、観光地(かんこうち)はどこも人(ひと)でいっぱいだ。",
+       "vi": "Đến kỳ nghỉ dài thì điểm du lịch nào cũng đông nghịt người."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "社会人ともなると、時間の使い方が問われる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một khi đã đi làm, cách sử dụng thời gian sẽ bị đặt lên bàn cân."
+     },
+     {
+      "ja": "年末ともなると、どこの店も混み合う。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đến cuối năm thì cửa hàng nào cũng đông."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 社会人ともなると、時間の使い方が問われる。",
+     "FURIGANA_MISSING: 年末ともなると、どこの店も混み合う。"
+    ],
+    "formation": "N + ともなると",
+    "locked_fields": [],
+    "meaning_vi": "Khi đã đến giai đoạn/địa vị/tình huống X, thì tình hình/tiêu chuẩn/nhu cầu sẽ thay đổi đáng kể. Sắc thái “hễ/đến khi… thì” với cảm giác chuyển bậc. Thường kèm vế sau mô tả hệ quả tự nhiên, yêu cầu cao hơn. Thường dùng trong giải thích, bình luận; tự nhiên trong khẩu ngữ lẫn văn viết.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hễ đến lúc...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Vế trước: danh từ thể hiện mốc/địa vị: 社会人, 管理職, 年末, 本番, 受験シーズン. Vế sau: hệ quả/điều kiện mới, thường là quy luật/hệ quả tự nhiên hơn là ý chí cá nhân. Không dùng để nêu một sự kiện ngẫu nhiên duy nhất; phù hợp mô tả xu hướng chung. Khác với ともなれば: ～ともなると nghe khẩu ngữ hơn và có sức nhấn mạnh trực tiếp. [6. Ghi chú mở rộng] Hay đi với những mốc có tính “ngưỡng”: 本番, 期末, 繁忙期, 子育て, 老後. Kết hợp với いざ để nhấn mạnh khoảng cách giữa chuẩn bị và thực chiến: いざ～ともなると… Có thể dùng ở đầu câu như cụm trạng ngữ: 夏休みともなると、… [7. Biến thể & cụm cố định] N＋ともなると／N＋ともなっては（ít hơn, mang sắc thái điều kiện mạnh） いざ＋N＋ともなると 本番ともなると／年末ともなると／社会人ともなると [8. Lỗi thường gặp & bẫy JLPT] Dùng với động từ trực tiếp: mẫu này ưu tiên danh từ làm mốc, không phải V＋ともなると. Vế sau nêu ý chí cá nhân đơn lẻ → kém tự nhiên. Hãy nêu hệ quả chung/tất yếu. Nhầm với となると (chủ đề hóa). ～ともなると là “đến giai đoạn”, không phải “nói đến”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f9f10f1ef5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母は私の顔をみると、いつも「またやせた」と言う。",
+       "ja_furigana": "母(はは)は私(わたし)の顔(かお)をみると、いつも「またやせた」と言(い)う。",
+       "vi": "Mẹ hễ nhìn thấy mặt tôi là lại bảo “lại gầy đi rồi”."
+      },
+      {
+       "ja": "犬は散歩の時間だとみると、すぐ尻尾を振り出す。",
+       "ja_furigana": "犬(いぬ)は散歩(さんぽ)の時間(じかん)だとみると、すぐ尻尾(しっぽ)を振(ふ)り出(だ)す。",
+       "vi": "Con chó hễ thấy đến giờ đi dạo là vẫy đuôi ngay."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "兄はセールとみると、大量に買い込む。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh tôi hễ thấy có giảm giá là mua rất nhiều."
+     },
+     {
+      "ja": "子どもは先生がいないとみると、途端に騒ぎ出した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bọn trẻ vừa thấy không có cô giáo là ồn ào ngay."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Hễ thấy... thì...",
+     "FURIGANA_MISSING: 兄はセールとみると、大量に買い込む。",
+     "FURIGANA_MISSING: 子どもは先生がいないとみると、途端に騒ぎ出した。"
+    ],
+    "formation": "N + とみると",
+    "locked_fields": [],
+    "meaning_vi": "Dùng khi “vừa nhận thấy/đánh giá là X” thì “ngay lập tức/định kỳ” xảy ra hành động Y. Nhấn mạnh phản xạ nhanh hoặc thói quen. Chủ thể ở vế sau thường là người khác/đối tượng được mô tả; người nói kể lại tình huống có tính kể chuyện. Có thể diễn đạt tính quy luật: “Hễ thấy X là Y” (thói quen). Cũng dùng cho một lần cụ thể (khiến ngạc nhiên).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hễ thấy... thì...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái kể chuyện, miêu tả phản ứng nhanh, có chút bất ngờ hoặc định hình thói quen. Không tự nhiên nếu theo sau là mệnh lệnh/ý chí người nói trực tiếp (hãy/đi nào…). Thích hợp để miêu tả, không phải để yêu cầu. Thường đi với từ gợi “tín hiệu”: チャンス、セール、隙、警官の姿、雨雲… [6. Ghi chú mở rộng] Dùng quá khứ để kể sự kiện một lần: ～たとみると、～た。 Vế trước có thể là đánh giá chủ quan của đối tượng trong câu: 敵は我々が弱いとみると… Dễ đi cùng trạng ngữ chỉ ngay-lập-tức: すぐ／途端に／一気に／さっと… [7. Biến thể & cụm cố định] チャンスとみると／隙とみると／安いとみると ～とみるや (biến thể văn viết) V-た + とみると、すぐ～／途端に～ [8. Lỗi thường gặp & bẫy JLPT] Dùng để ra lệnh/khuyên trực tiếp ở vế sau → không tự nhiên: × 安いとみると、買いましょう！ Nhầm với ～たとたん: ～とみると có sắc thái “nhận định rồi phản ứng”, không chỉ thuần mốc thời gian. Dùng cho cảm xúc nội tâm thuần túy khó quan sát → không hợp: × 悲しいとみると、泣いた (nên dùng ～とたん nếu là thời điểm)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5996811f1a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "親にして初めて、親のありがたさが分かった。",
+       "ja_furigana": "親(おや)にして初(はじ)めて、親(おや)のありがたさが分(わ)かった。",
+       "vi": "Chỉ khi làm cha mẹ tôi mới hiểu lòng biết ơn dành cho cha mẹ."
+      },
+      {
+       "ja": "リーダーにして初めて、決断の難しさを実感する。",
+       "ja_furigana": "リーダーにして初(はじ)めて、決断(けつだん)の難(むずか)しさを実感(じっかん)する。",
+       "vi": "Chỉ khi làm người dẫn đầu mới thấm thía cái khó của việc quyết định."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "教師にして初めて、生徒の気持ちの複雑さが分かった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ khi làm giáo viên tôi mới hiểu sự phức tạp trong tâm lý học sinh."
+     },
+     {
+      "ja": "現場責任者にして初めて、判断の重さを痛感する。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ khi làm người chịu trách nhiệm hiện trường mới thấm thía sức nặng của quyết định."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 教師にして初めて、生徒の気持ちの複雑さが分かった。",
+     "FURIGANA_MISSING: 現場責任者にして初めて、判断の重さを痛感する。"
+    ],
+    "formation": "N + にして初めて",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “Chỉ khi (đạt đến) N thì mới lần đầu …”. Nhấn mốc quan trọng/đáng nói, gợi cảm giác muộn, khó đạt, hoặc cần trải nghiệm/điều kiện nghiêm ngặt mới có được kết quả/nhận thức. N: mốc thời gian (40歳, 入社三年目), tư cách (親, 社会人, プロ), bối cảnh (現場, 海外). Vế sau: lần đầu đạt được/hiểu ra (～ようになる／分かる／悟る／実感する／達成する). Sử dụng nhiều trong văn viết, bài luận, hồi ký, phỏng vấn trải nghiệm.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Mãi đến khi... mới...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng, có chiều sâu trải nghiệm; phù hợp với bài viết phản tỉnh, truyền cảm hứng. Tránh dùng với mốc tầm thường/vô nghĩa; nên là mốc “bước ngoặt”. Hay đi với thành ngữ cảm giác mạnh: 身に染みる・痛感する・骨身にこたえる. [6. Ghi chú mở rộng] Cấu trúc điệp âm tăng trọng: ～にして初めて、～と分かった／～ことに気づいた. Có thể kết hợp số đếm nhấn muộn mằn: 三度目にして初めて合格した。 Trong tiêu đề/phỏng vấn: “現場にして初めて見えた真実”. [7. Biến thể & cụm cố định] 人生の節目 + にして初めて: 結婚/出産/昇進にして初めて～。 年齢 + にして初めて: 50歳にして初めて起業した。 立場 + にして初めて: 経営者にして初めて～。 [8. Lỗi thường gặp & bẫy JLPT] Dùng với N không phải “mốc” → câu mờ nghĩa. Nhầm với Vて初めて khi mốc là hành động cụ thể → chọn Vて初めて tự nhiên hơn. Dùng cho sự kiện ngẫu nhiên, một lần duy nhất không có “tích lũy” → không hợp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0abda6333f"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-025"
+}

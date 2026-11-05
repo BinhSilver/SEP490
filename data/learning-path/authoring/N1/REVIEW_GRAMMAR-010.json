@@ -1,0 +1,730 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "だめなら、もう一度やり直すまでだ。",
+       "ja_furigana": "だめなら、もう一度(いちど)やり直(なお)すまでだ。",
+       "vi": "Không được thì đơn giản là làm lại từ đầu thôi."
+      },
+      {
+       "ja": "今の会社で認められなければ、独立するまでのことだ。",
+       "ja_furigana": "今(いま)の会社(かいしゃ)で認(みと)められなければ、独立(どくりつ)するまでのことだ。",
+       "source": "AI",
+       "vi": "Nếu không được công nhận ở công ty hiện tại thì ra làm riêng thôi."
+      },
+      {
+       "ja": "機械が直らないなら、手作業でやるまでだ。",
+       "ja_furigana": "機械(きかい)が直(なお)らないなら、手作業(てさぎょう)でやるまでだ。",
+       "source": "AI",
+       "vi": "Nếu máy không sửa được thì làm bằng tay thôi."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Nhầm với Vたまでだ (chỉ làm vậy thôi, giải thích hành động đã xảy ra). Vるまでだ nói về cách làm sắp tới và thường cần vế điều kiện đi trước.",
+    "examples": [
+     {
+      "ja": "断られたら、他を当たるまでだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "今の会社で認められなければ、独立するまでのことだ。",
+      "ja_furigana": "今(いま)の会社(かいしゃ)で認(みと)められなければ、独立(どくりつ)するまでのことだ。",
+      "source": "AI",
+      "vi": "Nếu không được công nhận ở công ty hiện tại thì ra làm riêng thôi."
+     },
+     {
+      "ja": "機械が直らないなら、手作業でやるまでだ。",
+      "ja_furigana": "機械(きかい)が直(なお)らないなら、手作業(てさぎょう)でやるまでだ。",
+      "source": "AI",
+      "vi": "Nếu máy không sửa được thì làm bằng tay thôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 断られたら、他を当たるまでだ。",
+     "FURIGANA_MISSING: 断られたら、他を当たるまでだ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + までだ; Vる + までのことだ",
+    "locked_fields": [],
+    "meaning_vi": "Thì chỉ còn cách — Nếu không được thì đơn giản là làm cách khác, giọng dứt khoát.",
+    "nuance_vi": "Giọng dứt khoát và bình thản, thể hiện quyết tâm làm cách khác nếu phương án trước thất bại; vế trước thường có たら, なら, ば.",
+    "order_items": [],
+    "pattern": "V từ điển + までだ / までのことだ",
+    "pattern_variants": [
+     "〜までだ/のことだ"
+    ],
+    "unit_no": 9,
+    "unit_title_vi": "Duy nhất, chỉ còn cách",
+    "usage_vi": "Thể hiện sự bình thản hoặc quyết đoán, không than vãn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-66a4a4d50a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女は、今にも笑い出さんばかりの表情で話を聞いていた。",
+       "ja_furigana": "彼女(かのじょ)は、今(いま)にも笑(わら)い出(だ)さんばかりの表情(ひょうじょう)で話(はなし)を聞(き)いていた。",
+       "vi": "Cô ấy nghe chuyện với vẻ mặt như sắp bật cười đến nơi."
+      },
+      {
+       "ja": "観客は割れんばかりの拍手を送った。",
+       "ja_furigana": "観客(かんきゃく)は割(わ)れんばかりの拍手(はくしゅ)を送(おく)った。",
+       "source": "AI",
+       "vi": "Khán giả dành tặng những tràng pháo tay như muốn vỡ tung."
+      },
+      {
+       "ja": "母は私の顔を見るなり、飛びつかんばかりに喜んだ。",
+       "ja_furigana": "母(はは)は私(わたし)の顔(かお)を見(み)るなり、飛(と)びつかんばかりに喜(よろこ)んだ。",
+       "source": "AI",
+       "vi": "Vừa nhìn thấy mặt tôi, mẹ mừng như muốn lao vào ôm."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Phải bỏ ない rồi mới thêm んばかり (泣かんばかり, không phải 泣かないんばかり); する đổi thành せんばかり. Khác 〜そうだ (chỉ phỏng đoán): 〜んばかり là so sánh 'như thể sắp làm', không dùng để đoán việc sắp xảy ra.",
+    "examples": [
+     {
+      "ja": "彼は泣かんばかりの顔をしていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "観客は割れんばかりの拍手を送った。",
+      "ja_furigana": "観客(かんきゃく)は割(わ)れんばかりの拍手(はくしゅ)を送(おく)った。",
+      "source": "AI",
+      "vi": "Khán giả dành tặng những tràng pháo tay như muốn vỡ tung."
+     },
+     {
+      "ja": "母は私の顔を見るなり、飛びつかんばかりに喜んだ。",
+      "ja_furigana": "母(はは)は私(わたし)の顔(かお)を見(み)るなり、飛(と)びつかんばかりに喜(よろこ)んだ。",
+      "source": "AI",
+      "vi": "Vừa nhìn thấy mặt tôi, mẹ mừng như muốn lao vào ôm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 彼は泣かんばかりの顔をしていた。",
+     "FURIGANA_MISSING: 彼は泣かんばかりの顔をしていた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vない（ない を取る）+ んばかり（する→せんばかり）",
+    "locked_fields": [],
+    "meaning_vi": "Như thể sắp — Trông như sắp làm việc gì đến nơi, dù thực tế chưa làm.",
+    "nuance_vi": "Văn viết, hơi văn chương; tả dáng vẻ, biểu cảm hay động tác đã gần đến mức làm việc đó, thường để miêu tả sinh động tình huống.",
+    "order_items": [],
+    "pattern": "V-ない bỏ ない + んばかり",
+    "pattern_variants": [
+     "〜んばかりだ/に/の"
+    ],
+    "unit_no": 14,
+    "unit_title_vi": "Biểu đạt đặc biệt, văn cổ",
+    "usage_vi": "する → せんばかり (ngoại lệ). Văn viết, mang tính miêu tả mạnh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cccef551a3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "早めに準備しておくに越したことはない。",
+       "ja_furigana": "早(はや)めに準備(じゅんび)しておくに越(こ)したことはない。",
+       "vi": "Chuẩn bị sớm vẫn là tốt nhất."
+      },
+      {
+       "ja": "旅行の前に天気予報を確認しておくに越したことはない。",
+       "ja_furigana": "旅行(りょこう)の前(まえ)に天気予報(てんきよほう)を確認(かくにん)しておくに越(こ)したことはない。",
+       "source": "AI",
+       "vi": "Trước chuyến đi, kiểm tra dự báo thời tiết vẫn là tốt nhất."
+      },
+      {
+       "ja": "資格は持っているに越したことはないが、なくても応募できる。",
+       "ja_furigana": "資格(しかく)は持(も)っているに越(こ)したことはないが、なくても応募(おうぼ)できる。",
+       "source": "AI",
+       "vi": "Có chứng chỉ thì tốt hơn, nhưng không có cũng vẫn nộp đơn được."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không dùng để ra lệnh hay nói điều bắt buộc; khi bắt buộc phải dùng 〜なければならない. Khác 〜に限る (ý kiến riêng 'nhất là'): に越したことはない mang tính lẽ thường, nên đi với việc phòng xa, chuẩn bị.",
+    "examples": [
+     {
+      "ja": "用心するに越したことはない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "旅行の前に天気予報を確認しておくに越したことはない。",
+      "ja_furigana": "旅行(りょこう)の前(まえ)に天気予報(てんきよほう)を確認(かくにん)しておくに越(こ)したことはない。",
+      "source": "AI",
+      "vi": "Trước chuyến đi, kiểm tra dự báo thời tiết vẫn là tốt nhất."
+     },
+     {
+      "ja": "資格は持っているに越したことはないが、なくても応募できる。",
+      "ja_furigana": "資格(しかく)は持(も)っているに越(こ)したことはないが、なくても応募(おうぼ)できる。",
+      "source": "AI",
+      "vi": "Có chứng chỉ thì tốt hơn, nhưng không có cũng vẫn nộp đơn được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 用心するに越したことはない。",
+     "FURIGANA_MISSING: 用心するに越したことはない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる / Vない / Aい / Aな(である)/ N(である) + に越したことはない",
+    "locked_fields": [],
+    "meaning_vi": "Thì tốt hơn cả — Được như vậy là tốt nhất, dù không bắt buộc.",
+    "nuance_vi": "Dùng cả văn nói lẫn văn viết; nêu điều hiển nhiên là tốt nhất theo lẽ thường, ngầm hiểu là không bắt buộc.",
+    "order_items": [],
+    "pattern": "Thể thường + に越したことはない",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": "Đánh giá, giá trị",
+    "usage_vi": "Cụm cố định. Thường dùng khi đưa lời khuyên nhẹ nhàng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9191cc0ad4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "少しなりとも、お力になれればうれしいです。",
+       "ja_furigana": "少(すこ)しなりとも、お力(ちから)になれればうれしいです。",
+       "vi": "Dù chỉ một chút, được giúp sức cho bạn tôi rất vui."
+      },
+      {
+       "ja": "一言なりとも、お礼を申し上げたいと思っておりました。",
+       "ja_furigana": "一言(ひとこと)なりとも、お礼(れい)を申(もう)し上(あ)げたいと思(おも)っておりました。",
+       "source": "AI",
+       "vi": "Dù chỉ một lời, tôi cũng muốn nói lời cảm ơn."
+      },
+      {
+       "ja": "少しなりとも、被災地の力になれればと思い寄付をした。",
+       "ja_furigana": "少(すこ)しなりとも、被災地(ひさいち)の力(ちから)になれればと思(おも)い寄付(きふ)をした。",
+       "source": "AI",
+       "vi": "Tôi quyên góp với mong muốn dù chỉ một chút cũng giúp được vùng bị thiên tai."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Đi với danh từ chỉ lượng nhỏ (一言, 少し, 多少) hoặc nghi vấn từ + か (何かなりとも). Không dùng cho câu phủ định mạnh 'dù một cũng không' (đó là 〜たりとも). Cũng không nhầm với なりに (theo cách của mình).",
+    "examples": [
+     {
+      "ja": "多少なりともお役に立てれば幸いです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "一言なりとも、お礼を申し上げたいと思っておりました。",
+      "ja_furigana": "一言(ひとこと)なりとも、お礼(れい)を申(もう)し上(あ)げたいと思(おも)っておりました。",
+      "source": "AI",
+      "vi": "Dù chỉ một lời, tôi cũng muốn nói lời cảm ơn."
+     },
+     {
+      "ja": "少しなりとも、被災地の力になれればと思い寄付をした。",
+      "ja_furigana": "少(すこ)しなりとも、被災地(ひさいち)の力(ちから)になれればと思(おも)い寄付(きふ)をした。",
+      "source": "AI",
+      "vi": "Tôi quyên góp với mong muốn dù chỉ một chút cũng giúp được vùng bị thiên tai."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 多少なりともお役に立てれば幸いです。",
+     "FURIGANA_MISSING: 多少なりともお役に立てれば幸いです。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N（数量詞 / 疑問詞+か）+ なりとも",
+    "locked_fields": [],
+    "meaning_vi": "Dù chỉ một chút — Dù ít ỏi cũng được, mang tính khiêm nhường.",
+    "nuance_vi": "Văn viết, lời nói khiêm nhường, thường đi với nguyện vọng, nhờ vả hoặc ý chí; ngầm nói 'ít ỏi cũng được, miễn là có'.",
+    "order_items": [],
+    "pattern": "N + なりとも",
+    "pattern_variants": [],
+    "unit_no": 8,
+    "unit_title_vi": "Nhấn mạnh cả trường hợp cực đoan",
+    "usage_vi": "Cụm hay gặp: 多少なりとも, 少しなりとも."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d3080453f3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あの店のクーポンをもらったが最後、つい買い物をしてしまう。",
+       "ja_furigana": "あの店(みせ)のクーポンをもらったが最後(さいご)、つい買(か)い物(もの)をしてしまう。",
+       "vi": "Một khi đã nhận phiếu giảm giá của quán đó là lại mua sắm ngay."
+      },
+      {
+       "ja": "あの人に秘密を話したが最後、すぐに社内中に広まってしまう。",
+       "ja_furigana": "あの人(ひと)に秘密(ひみつ)を話(はな)したが最後(さいご)、すぐに社内中(しゃないじゅう)に広(ひろ)まってしまう。",
+       "source": "AI",
+       "vi": "Một khi đã nói bí mật cho người đó thì sẽ lan khắp công ty ngay."
+      },
+      {
+       "ja": "一度ゲームを始めたが最後、朝まで止められなくなる。",
+       "ja_furigana": "一度(いちど)ゲームを始(はじ)めたが最後(さいご)、朝(あさ)まで止(や)められなくなる。",
+       "source": "AI",
+       "vi": "Một khi đã bắt đầu chơi game thì không thể dừng lại cho đến sáng."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau phải là kết quả tiêu cực hoặc không thể quay lại, không dùng với kết quả tốt hay ý chí, nguyện vọng của người nói. Khác 〜たら (giả định chung) ở chỗ có sắc thái cảnh báo mạnh; luôn dùng Vた, không dùng Vる.",
+    "examples": [
+     {
+      "ja": "彼に貸したが最後、返ってこない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "あの人に秘密を話したが最後、すぐに社内中に広まってしまう。",
+      "ja_furigana": "あの人(ひと)に秘密(ひみつ)を話(はな)したが最後(さいご)、すぐに社内中(しゃないじゅう)に広(ひろ)まってしまう。",
+      "source": "AI",
+      "vi": "Một khi đã nói bí mật cho người đó thì sẽ lan khắp công ty ngay."
+     },
+     {
+      "ja": "一度ゲームを始めたが最後、朝まで止められなくなる。",
+      "ja_furigana": "一度(いちど)ゲームを始(はじ)めたが最後(さいご)、朝(あさ)まで止(や)められなくなる。",
+      "source": "AI",
+      "vi": "Một khi đã bắt đầu chơi game thì không thể dừng lại cho đến sáng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 彼に貸したが最後、返ってこない。",
+     "FURIGANA_MISSING: 彼に貸したが最後、返ってこない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vた + が最後",
+    "locked_fields": [],
+    "meaning_vi": "Một khi đã là xong — Một khi làm việc đó thì hậu quả xấu không tránh khỏi.",
+    "nuance_vi": "Văn nói lẫn văn viết, giọng nhấn mạnh; hàm ý một khi hành động đã xảy ra thì kết quả xấu, không thể cứu vãn là chắc chắn.",
+    "order_items": [],
+    "pattern": "V-た + が最後",
+    "pattern_variants": [],
+    "unit_no": 14,
+    "unit_title_vi": "Biểu đạt đặc biệt, văn cổ",
+    "usage_vi": "Dạng khác たら最後. Vế sau luôn tiêu cực và dứt khoát."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0eb4ec670f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "親になって初めて、親の苦労が分かった。",
+       "ja_furigana": "親(おや)になって初(はじ)めて、親(おや)の苦労(くろう)が分(わ)かった。",
+       "vi": "Phải đến khi làm cha mẹ tôi mới hiểu nỗi vất vả của cha mẹ."
+      },
+      {
+       "ja": "定年を迎えるこの歳にして初めて、自分の時間を持てた。",
+       "ja_furigana": "定年(ていねん)を迎(むか)えるこの歳(とし)にして初(はじ)めて、自分(じぶん)の時間(じかん)を持(も)てた。",
+       "source": "AI",
+       "vi": "Phải đến cái tuổi sắp nghỉ hưu này tôi mới có được thời gian cho riêng mình."
+      },
+      {
+       "ja": "四度目の挑戦にして初めて、彼は合格を勝ち取った。",
+       "ja_furigana": "四度目(よんどめ)の挑戦(ちょうせん)にして初(はじ)めて、彼(かれ)は合格(ごうかく)を勝(か)ち取(と)った。",
+       "source": "AI",
+       "vi": "Phải đến lần thử thách thứ tư, anh ấy mới giành được tấm vé đỗ."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "N phải là mốc có tính 'mức độ' (年齢, 回数, 段階) chứ không phải hành động bất kỳ. Khác 〜て初めて (sau khi làm V mới...) dùng cho động từ; にして đi với danh từ và thường ngụ ý 'cuối cùng cũng'. Vế sau thường là điều đạt được hoặc nhận ra.",
+    "examples": [
+     {
+      "ja": "この年齢にして初めて分かることがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "定年を迎えるこの歳にして初めて、自分の時間を持てた。",
+      "ja_furigana": "定年(ていねん)を迎(むか)えるこの歳(とし)にして初(はじ)めて、自分(じぶん)の時間(じかん)を持(も)てた。",
+      "source": "AI",
+      "vi": "Phải đến cái tuổi sắp nghỉ hưu này tôi mới có được thời gian cho riêng mình."
+     },
+     {
+      "ja": "四度目の挑戦にして初めて、彼は合格を勝ち取った。",
+      "ja_furigana": "四度目(よんどめ)の挑戦(ちょうせん)にして初(はじ)めて、彼(かれ)は合格(ごうかく)を勝(か)ち取(と)った。",
+      "source": "AI",
+      "vi": "Phải đến lần thử thách thứ tư, anh ấy mới giành được tấm vé đỗ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: この年齢にして初めて分かることがある。",
+     "FURIGANA_MISSING: この年齢にして初めて分かることがある。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N（時期・年齢・回数など）+ にして初めて",
+    "locked_fields": [],
+    "meaning_vi": "Phải đến mới — Phải đạt tới mức đó rồi mới có được điều kia.",
+    "nuance_vi": "Văn viết, trang trọng; nhấn mạnh phải đến mốc thời gian, số lần hay giai đoạn đó mới đạt được hoặc nhận ra điều gì.",
+    "order_items": [],
+    "pattern": "N + にして初めて",
+    "pattern_variants": [],
+    "unit_no": 10,
+    "unit_title_vi": "Nhấn mạnh nguyên nhân, điều kiện",
+    "usage_vi": "Nhấn mạnh điều kiện khắt khe. Hay gặp: 大人になって初めて."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d2f9db227b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "白ずくめの衣装を着た踊り手が舞台に現れた。",
+       "ja_furigana": "白(しろ)ずくめの衣装(いしょう)を着(き)た踊(おど)り手(て)が舞台(ぶたい)に現(あらわ)れた。",
+       "vi": "Vũ công mặc toàn đồ trắng bước ra sân khấu."
+      },
+      {
+       "ja": "新しい職場では、規則ずくめで息が詰まりそうだ。",
+       "ja_furigana": "新(あたら)しい職場(しょくば)では、規則(きそく)ずくめで息(いき)が詰(つ)まりそうだ。",
+       "source": "AI",
+       "vi": "Ở nơi làm mới toàn là quy tắc, tôi cảm thấy ngột ngạt."
+      },
+      {
+       "ja": "今年は結婚、昇進、新居と、いいことずくめの一年だった。",
+       "ja_furigana": "今年(ことし)は結婚(けっこん)、昇進(しょうしん)、新居(しんきょ)と、いいことずくめの一年(いちねん)だった。",
+       "source": "AI",
+       "vi": "Năm nay toàn chuyện tốt, nào kết hôn, thăng chức, nhà mới."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ đi với một số danh từ cố định (黒ずくめ, 規則ずくめ, いいことずくめ, ごちそうずくめ), không tự do ghép với mọi danh từ. Khác 〜だらけ (nhiều thứ không mong muốn) và 〜まみれ (dính bẩn): ずくめ nhấn 'toàn bộ đều là thứ đó'.",
+    "examples": [
+     {
+      "ja": "黒ずくめの男が立っていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "新しい職場では、規則ずくめで息が詰まりそうだ。",
+      "ja_furigana": "新(あたら)しい職場(しょくば)では、規則(きそく)ずくめで息(いき)が詰(つ)まりそうだ。",
+      "source": "AI",
+      "vi": "Ở nơi làm mới toàn là quy tắc, tôi cảm thấy ngột ngạt."
+     },
+     {
+      "ja": "今年は結婚、昇進、新居と、いいことずくめの一年だった。",
+      "ja_furigana": "今年(ことし)は結婚(けっこん)、昇進(しょうしん)、新居(しんきょ)と、いいことずくめの一年(いちねん)だった。",
+      "source": "AI",
+      "vi": "Năm nay toàn chuyện tốt, nào kết hôn, thăng chức, nhà mới."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 黒ずくめの男が立っていた。",
+     "FURIGANA_MISSING: 黒ずくめの男が立っていた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + ずくめ",
+    "locked_fields": [],
+    "meaning_vi": "Toàn một màu, toàn những — Toàn bộ đều là thứ đó, không có gì khác.",
+    "nuance_vi": "Văn nói lẫn văn viết; nói về việc xung quanh toàn là một thứ (màu, quy tắc, chuyện tốt, chuyện xấu...), dùng được cả nghĩa tích cực lẫn tiêu cực.",
+    "order_items": [],
+    "pattern": "N + ずくめ",
+    "pattern_variants": [
+     "〜ずくめ"
+    ],
+    "unit_no": 7,
+    "unit_title_vi": "Hậu tố và cách nói đặc trưng",
+    "usage_vi": "Hay gặp: 黒ずくめ (toàn đồ đen), いいことずくめ (toàn chuyện tốt). Khác だらけ ở chỗ ずくめ trung tính hoặc tích cực."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ba7630b905"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この問題は、もはや他人事にあらず、全員に関わることだ。",
+       "ja_furigana": "この問題(もんだい)は、もはや他人事(ひとごと)にあらず、全員(ぜんいん)に関(かか)わることだ。",
+       "vi": "Vấn đề này không còn là chuyện của người khác nữa mà liên quan đến tất cả mọi người."
+      },
+      {
+       "ja": "彼の行動は勇気にあらず、無謀というものだ。",
+       "ja_furigana": "彼(かれ)の行動(こうどう)は勇気(ゆうき)にあらず、無謀(むぼう)というものだ。",
+       "source": "AI",
+       "vi": "Hành động của anh ấy không phải dũng cảm mà là liều lĩnh."
+      },
+      {
+       "ja": "これは単なる偶然にあらず、必然の結果である。",
+       "ja_furigana": "これは単(たん)なる偶然(ぐうぜん)にあらず、必然(ひつぜん)の結果(けっか)である。",
+       "source": "AI",
+       "vi": "Đây không phải chỉ là ngẫu nhiên mà là kết quả tất yếu."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không dùng trong hội thoại thường ngày vì nghe cổ và cứng; trong văn hiện đại dùng ではない. Đứng sau danh từ, không đi với tính từ hay động từ.",
+    "examples": [
+     {
+      "ja": "もはや他人事にあらず。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "彼の行動は勇気にあらず、無謀というものだ。",
+      "ja_furigana": "彼(かれ)の行動(こうどう)は勇気(ゆうき)にあらず、無謀(むぼう)というものだ。",
+      "source": "AI",
+      "vi": "Hành động của anh ấy không phải dũng cảm mà là liều lĩnh."
+     },
+     {
+      "ja": "これは単なる偶然にあらず、必然の結果である。",
+      "ja_furigana": "これは単(たん)なる偶然(ぐうぜん)にあらず、必然(ひつぜん)の結果(けっか)である。",
+      "source": "AI",
+      "vi": "Đây không phải chỉ là ngẫu nhiên mà là kết quả tất yếu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: もはや他人事にあらず。",
+     "FURIGANA_MISSING: もはや他人事にあらず。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + にあらず",
+    "locked_fields": [],
+    "meaning_vi": "Không phải là — Phủ định theo lối văn cổ, dùng trong châm ngôn và khẩu hiệu.",
+    "nuance_vi": "Văn cổ, văn viết trang trọng; dùng trong khẩu hiệu, châm ngôn hoặc bài bình luận, nghĩa tương đương 〜ではない.",
+    "order_items": [],
+    "pattern": "N + にあらず",
+    "pattern_variants": [],
+    "unit_no": 14,
+    "unit_title_vi": "Biểu đạt đặc biệt, văn cổ",
+    "usage_vi": "Cứng và cổ. Hay gặp trong tục ngữ: 人にあらず."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-58b0580c68"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "工事の後、作業員はほこりまみれになっていた。",
+       "ja_furigana": "工事(こうじ)の後(あと)、作業員(さぎょういん)はほこりまみれになっていた。",
+       "vi": "Sau giờ thi công, công nhân bám đầy bụi."
+      },
+      {
+       "ja": "子どもたちは泥まみれになって、夕方まで遊んでいた。",
+       "ja_furigana": "子(こ)どもたちは泥(どろ)まみれになって、夕方(ゆうがた)まで遊(あそ)んでいた。",
+       "source": "AI",
+       "vi": "Bọn trẻ lấm lem bùn đất, chơi đến tận chiều."
+      },
+      {
+       "ja": "倉庫を片付けると、ほこりまみれで服が真っ黒になった。",
+       "ja_furigana": "倉庫(そうこ)を片付(かたづ)けると、ほこりまみれで服(ふく)が真(ま)っ黒(くろ)になった。",
+       "source": "AI",
+       "vi": "Dọn kho xong, quần áo dính đầy bụi đen sì."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ dùng với chất bẩn, chất lỏng hay thứ khó chịu, không dùng với vật tốt (sai: 花まみれ). Khác 〜だらけ (có nhiều thứ không mong muốn, kể cả lỗi sai) và 〜ずくめ (toàn một loại).",
+    "examples": [
+     {
+      "ja": "汗まみれになって働いた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "子どもたちは泥まみれになって、夕方まで遊んでいた。",
+      "ja_furigana": "子(こ)どもたちは泥(どろ)まみれになって、夕方(ゆうがた)まで遊(あそ)んでいた。",
+      "source": "AI",
+      "vi": "Bọn trẻ lấm lem bùn đất, chơi đến tận chiều."
+     },
+     {
+      "ja": "倉庫を片付けると、ほこりまみれで服が真っ黒になった。",
+      "ja_furigana": "倉庫(そうこ)を片付(かたづ)けると、ほこりまみれで服(ふく)が真(ま)っ黒(くろ)になった。",
+      "source": "AI",
+      "vi": "Dọn kho xong, quần áo dính đầy bụi đen sì."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 汗まみれになって働いた。",
+     "FURIGANA_MISSING: 汗まみれになって働いた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + まみれ",
+    "locked_fields": [],
+    "meaning_vi": "Bê bết, dính đầy — Bề mặt bám đầy chất lỏng hoặc bụi bẩn.",
+    "nuance_vi": "Văn nói lẫn văn viết; bề mặt dính đầy thứ bẩn hoặc không mong muốn (bùn, bụi, máu, mồ hôi, nợ), thường mang sắc thái tiêu cực.",
+    "order_items": [],
+    "pattern": "N + まみれ",
+    "pattern_variants": [
+     "〜まみれ"
+    ],
+    "unit_no": 7,
+    "unit_title_vi": "Hậu tố và cách nói đặc trưng",
+    "usage_vi": "Chỉ dùng với chất cụ thể: 泥, 汗, 血, ほこり. Khác だらけ (có thể trừu tượng như 間違いだらけ)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3bce8ac5d2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "風が暖かくなり、だんだん秋めいてきた。",
+       "ja_furigana": "風(かぜ)が暖(あたた)かくなり、だんだん秋(あき)めいてきた。",
+       "vi": "Gió trở nên ấm áp, dần dần mang sắc thu."
+      },
+      {
+       "ja": "彼女は皮肉めいた言い方で私の失敗を指摘した。",
+       "ja_furigana": "彼女(かのじょ)は皮肉(ひにく)めいた言(い)い方(かた)で私(わたし)の失敗(しっぱい)を指摘(してき)した。",
+       "source": "AI",
+       "vi": "Cô ấy chỉ ra thất bại của tôi bằng giọng điệu mỉa mai."
+      },
+      {
+       "ja": "古い町並みには、どこか謎めいた雰囲気が漂っている。",
+       "ja_furigana": "古(ふる)い町並(まちな)みには、どこか謎(なぞ)めいた雰囲気(ふんいき)が漂(ただよ)っている。",
+       "source": "AI",
+       "vi": "Khu phố cổ phảng phất một bầu không khí huyền bí."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ ghép với một số danh từ cố định (春めく, 謎めく, 皮肉めく, 冗談めく); không tự tạo từ mới. Khác 〜らしい (đúng là N) và 〜のような (giống như): めく nhấn 'bắt đầu có dáng vẻ'.",
+    "examples": [
+     {
+      "ja": "ようやく春めいてきた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "彼女は皮肉めいた言い方で私の失敗を指摘した。",
+      "ja_furigana": "彼女(かのじょ)は皮肉(ひにく)めいた言(い)い方(かた)で私(わたし)の失敗(しっぱい)を指摘(してき)した。",
+      "source": "AI",
+      "vi": "Cô ấy chỉ ra thất bại của tôi bằng giọng điệu mỉa mai."
+     },
+     {
+      "ja": "古い町並みには、どこか謎めいた雰囲気が漂っている。",
+      "ja_furigana": "古(ふる)い町並(まちな)みには、どこか謎(なぞ)めいた雰囲気(ふんいき)が漂(ただよ)っている。",
+      "source": "AI",
+      "vi": "Khu phố cổ phảng phất một bầu không khí huyền bí."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: ようやく春めいてきた。",
+     "FURIGANA_MISSING: ようやく春めいてきた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N（一部の語）+ めく",
+    "locked_fields": [],
+    "meaning_vi": "Ngả sang, nhuốm vẻ — Bắt đầu mang dáng vẻ hoặc không khí của thứ gì đó.",
+    "nuance_vi": "Văn viết hoặc văn miêu tả; động từ nhóm I nghĩa là 'mang vẻ, nhuốm vẻ của N', thường ở dạng めいた + danh từ hoặc めいて.",
+    "order_items": [],
+    "pattern": "N + めく",
+    "pattern_variants": [
+     "〜めく"
+    ],
+    "unit_no": 7,
+    "unit_title_vi": "Hậu tố và cách nói đặc trưng",
+    "usage_vi": "Chia như động từ nhóm 1. Hay gặp: 春めく, 謎めいた, 皮肉めいた."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-10d85a43f2"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-010"
+}

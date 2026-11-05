@@ -4,7 +4,188 @@
  },
  "items": [
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "連絡先が分からないので、知らせ（　　）。",
+      "options": [
+       "ようがない",
+       "はずがない",
+       "わけがない",
+       "に違いない"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "知らせようがない = không có cách nào báo tin; ようがない nối với thể ます bỏ ます."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "住所が分からないので、手紙を出し（　　）。",
+      "options": [
+       "はずがない",
+       "ようがない",
+       "わけがない",
+       "に違いない"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "出しようがない = không có cách nào gửi đi."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★。",
+      "options": [
+       "ようがない",
+       "連絡先が",
+       "知らせ",
+       "分からないので"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "連絡先が分からないので知らせようがない。★ là ようがない。ようがない = muốn làm cũng không có cách."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★。",
+      "options": [
+       "治しようがない",
+       "この",
+       "深くて",
+       "傷は"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "この傷は深くて治しようがない。★ là 治しようがない。治しようがない = không có cách nào chữa khỏi."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "住所が分からないので、連絡しようがない。",
+      "options": [
+       "Vì không biết địa chỉ nên không có cách nào liên lạc.",
+       "Vì biết địa chỉ nên tôi sẽ liên lạc.",
+       "Tôi liên lạc được dù không có địa chỉ.",
+       "Tôi không muốn liên lạc."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "連絡しようがない = không có cách nào liên lạc."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "こんなに壊れては、直しようがない。",
+      "options": [
+       "Hỏng nặng thế này thì không có cách nào sửa được.",
+       "Hỏng nhẹ nên có thể sửa được.",
+       "Tôi đã sửa xong rồi.",
+       "Đồ này chưa từng bị hỏng."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "直しようがない = không có cách nào sửa."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "電話番号が分からず、連絡しようがない。",
+       "これだけ壊れては、直しようがない。",
+       "住所が分からないので、送るようがない。",
+       "証拠がなくて、証明しようがない。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "送るようがない sai: ようがない nối với thể ます bỏ ます, phải là 送りようがない."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "名前を忘れたので、呼びようがない。",
+       "証拠がないので、証明しようがない。",
+       "壊れてしまって、使うようがない。",
+       "お金がないので、買いようがない。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "使うようがない sai: phải là 使いようがない."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "知らせ",
+       "連絡先が",
+       "ようがない",
+       "分からないので"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Vì không biết địa chỉ liên lạc nên không có cách nào báo tin."
+     },
+     {
+      "pieces": [
+       "深すぎて",
+       "この",
+       "治しようがない",
+       "傷は"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Vết thương này quá sâu nên không có cách nào chữa khỏi."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "住所が分からないので、手紙を出し＿＿。",
+      "answer": "ようがない",
+      "translation_vi": "Vì không biết địa chỉ nên không có cách nào gửi thư."
+     },
+     {
+      "sentence_ja": "証拠がなくて、証明し＿＿。",
+      "answer": "ようがない",
+      "translation_vi": "Không có bằng chứng nên không có cách nào chứng minh."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "証拠がないので、彼が犯人だと証明し（　　）。",
+      "options": [
+       "ようがない",
+       "はずがない",
+       "わけがない",
+       "に違いない"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "証明しようがない = không có cách nào chứng minh."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "名前も分からないので、呼びようがない。",
+      "options": [
+       "Vì không biết cả tên nên không có cách nào gọi.",
+       "Vì biết tên nên tôi gọi được.",
+       "Tôi không muốn gọi người đó.",
+       "Người đó đã gọi tôi trước."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "呼びようがない = không có cách nào gọi."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "連絡先が分からず、知らせようがない。",
+       "傷が深くて、治しようがない。",
+       "壊れて、使うようがない。",
+       "お金がないので、買いようがない。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "使うようがない sai: phải là 使いようがない."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -29,7 +210,188 @@
    "id": "JG-df00d02bd4"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この不況では、大手企業の倒産もあり（　　）。",
+      "options": [
+       "得る",
+       "得ない",
+       "得たい",
+       "得らしい"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "あり得る = có thể xảy ra; 得る nối với thể ます bỏ ます."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "そのような事故は、いつでも起こり（　　）。",
+      "options": [
+       "得る",
+       "得たい",
+       "得らしい",
+       "得がちだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "起こり得る = có thể xảy ra."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★。",
+      "options": [
+       "得ない",
+       "そんな",
+       "あり",
+       "ことは"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "そんなことはあり得ない。★ là 得ない。得ない = không thể có, không thể xảy ra."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★。",
+      "options": [
+       "ことはあり得る",
+       "この",
+       "失敗する",
+       "計画が"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "この計画が失敗することはあり得る。★ là ことはあり得る。あり得る = có khả năng xảy ra."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この不況では、大手企業の倒産もあり得る。",
+      "options": [
+       "Trong tình hình suy thoái này, việc công ty lớn phá sản cũng có thể xảy ra.",
+       "Trong suy thoái, công ty lớn chắc chắn không phá sản.",
+       "Công ty lớn đã phá sản vì suy thoái.",
+       "Suy thoái là do công ty lớn phá sản."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "あり得る = có thể xảy ra."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "その話はあり得ない。",
+      "options": [
+       "Câu chuyện đó không thể có được.",
+       "Câu chuyện đó chắc chắn là thật.",
+       "Câu chuyện đó rất thú vị.",
+       "Câu chuyện đó đã xảy ra rồi."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "あり得ない = không thể có chuyện đó."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "そのような事故は起こり得る。",
+       "彼がそんなことをするなんてあり得ない。",
+       "この方法は失敗し得る。",
+       "誰でも間違う得る。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "間違う得る sai: 得る nối với thể ます bỏ ます, phải là 間違い得る."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この計画が成功し得るかどうか、まだ分からない。",
+       "誰にでも失敗はあり得る。",
+       "私は一人で泳ぎ得ない。",
+       "この問題は今後も起こり得る。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "泳ぎ得ない sai: 得ない diễn tả khả năng xảy ra, không dùng thay cho 泳げない."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "起こり",
+       "そのような",
+       "得る",
+       "事故は"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Tai nạn như thế có thể xảy ra."
+     },
+     {
+      "pieces": [
+       "失敗する",
+       "この",
+       "ことはあり得ない",
+       "計画が"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Việc kế hoạch này thất bại là không thể xảy ra."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "そのようなことは科学的にあり＿＿。",
+      "answer": "得ない",
+      "translation_vi": "Điều như vậy là không thể về mặt khoa học."
+     },
+     {
+      "sentence_ja": "この不況では、中小企業の倒産もあり＿＿。",
+      "answer": "得る",
+      "translation_vi": "Trong tình hình suy thoái này, doanh nghiệp vừa và nhỏ cũng có thể phá sản."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "このまま人口が減れば、町がなくなり（　　）。",
+      "options": [
+       "得る",
+       "得たい",
+       "得らしい",
+       "得すぎる"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "なくなり得る = có thể biến mất."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "誰にでも、こんな失敗はあり得る。",
+      "options": [
+       "Ai cũng có thể mắc lỗi như thế này.",
+       "Không ai có thể mắc lỗi như vậy.",
+       "Tôi đã mắc lỗi này một lần.",
+       "Lỗi này không bao giờ xảy ra."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "あり得る = có khả năng xảy ra."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この事故は誰にでも起こり得る。",
+       "彼がそんなことを言うとはあり得ない。",
+       "私は速く走り得ない。",
+       "会社が倒産する可能性もあり得る。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "走り得ない sai: 得ない chỉ khả năng xảy ra; khả năng bản thân phải dùng 走れない."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -59,7 +421,188 @@
    "id": "JG-55be0484f3"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "今の科学では、まだ解明し（　　）問題がたくさんある。",
+      "options": [
+       "得ない",
+       "得すぎる",
+       "得がちだ",
+       "得よう"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "解明し得ない = không thể làm rõ; 得ない nối với thể ます bỏ ます."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "誰も予想し（　　）結果になった。",
+      "options": [
+       "得なかった",
+       "得たい",
+       "得がちだ",
+       "得ようだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "予想し得なかった = không ai có thể dự đoán được."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★。",
+      "options": [
+       "得ない",
+       "今の",
+       "作り",
+       "技術では"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "今の技術では作り得ない。★ là 得ない。作り得ない = không thể chế tạo được."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "結果になった",
+       "誰も",
+       "得なかった",
+       "予想し"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "誰も予想し得なかった結果になった。★ là 得なかった。得なかった = đã không thể (xảy ra)."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼がそんなことをするとは考え得ない。",
+      "options": [
+       "Không thể nghĩ rằng anh ấy sẽ làm điều đó.",
+       "Anh ấy chắc chắn sẽ làm điều đó.",
+       "Tôi đã nghĩ là anh ấy sẽ làm.",
+       "Anh ấy đã nói là sẽ làm."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "考え得ない = không thể nghĩ tới."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "その事故は誰にも予測し得なかった。",
+      "options": [
+       "Tai nạn đó không ai có thể dự đoán được.",
+       "Mọi người đều đã dự đoán tai nạn đó.",
+       "Tai nạn đó đã được báo trước.",
+       "Tai nạn đó không hề xảy ra."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "予測し得なかった = không thể dự đoán."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "今の技術では、この問題は解決し得ない。",
+       "誰も想像し得ない結果だった。",
+       "彼が来る得ない。",
+       "この病気は薬では治り得ない。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "来る得ない sai: phải là 来得ない (thể ます bỏ ます)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "そのようなことはあり得ない。",
+       "誰も予想し得ない出来事だった。",
+       "私はピアノを弾き得ない。",
+       "この計画は成功し得ないだろう。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "弾き得ない sai: 得ない nói về khả năng xảy ra, không dùng cho khả năng cá nhân; phải là 弾けない."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "作り",
+       "今の",
+       "得ない",
+       "技術では"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Với kỹ thuật hiện nay thì không thể chế tạo được."
+     },
+     {
+      "pieces": [
+       "得なかった",
+       "誰も",
+       "結果になった",
+       "予想し"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Kết quả không ai có thể dự đoán được."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "彼がそんなことをするとは、考え＿＿。",
+      "answer": "得ない",
+      "translation_vi": "Không thể nghĩ rằng anh ấy làm điều đó."
+     },
+     {
+      "sentence_ja": "誰も予想し＿＿事故だった。",
+      "answer": "得ない",
+      "translation_vi": "Đó là tai nạn không ai có thể dự đoán."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "誰も予想し（　　）出来事が起きた。",
+      "options": [
+       "得ない",
+       "得る",
+       "得たい",
+       "得そう"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "予想し得ない = không thể dự đoán."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "このままでは、計画は成功し得ない。",
+      "options": [
+       "Cứ thế này thì kế hoạch không thể thành công.",
+       "Cứ thế này thì kế hoạch chắc chắn thành công.",
+       "Kế hoạch đã thành công rồi.",
+       "Kế hoạch chưa từng được bàn tới."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "成功し得ない = không thể thành công."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "その話は信じ得ない。",
+       "今の技術では解明し得ない。",
+       "誰も考え得ない方法だった。",
+       "彼は速く走り得ない。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "走り得ない sai: phải là 走れない; 得ない dùng cho khả năng xảy ra."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -88,7 +631,188 @@
    "id": "JG-8a99154124"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この店は安い（　　）、味がいい。",
+      "options": [
+       "割に",
+       "うちに",
+       "たびに",
+       "とたん"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "安い割に = so với giá rẻ thì (khá là)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "彼は年を取っている（　　）、元気だ。",
+      "options": [
+       "割に",
+       "に限り",
+       "を問わず",
+       "に沿って"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "年を取っている割に = so với tuổi thì."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "きれいだ",
+       "このアパートは",
+       "割に",
+       "古い"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "このアパートは古い割にきれいだ。★ là 割に。割に = so với dự đoán thì khác."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "考えがしっかりしている",
+       "彼は",
+       "割に",
+       "若い"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "彼は若い割に考えがしっかりしている。★ là 割に。若い割に = so với tuổi trẻ thì."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この問題は難しい割に、時間がかからなかった。",
+      "options": [
+       "Bài này khó vậy mà lại không mất nhiều thời gian.",
+       "Bài này khó nên mất rất nhiều thời gian.",
+       "Bài này dễ nên tốn ít thời gian.",
+       "Bài này không khó nhưng vẫn tốn thời gian."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "難しい割に = khó vậy mà."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼女は仕事が忙しい割には、よく料理を作る。",
+      "options": [
+       "Cô ấy bận việc vậy mà vẫn hay nấu ăn.",
+       "Vì bận việc nên cô ấy không nấu ăn.",
+       "Cô ấy rảnh nên nấu ăn thường xuyên.",
+       "Cô ấy không biết nấu ăn."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "忙しい割には = bận vậy mà."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この店は高い割に、おいしくない。",
+       "彼は若い割に、落ち着いている。",
+       "この部屋は静か割に、家賃が高い。",
+       "値段が安い割に、品質がいい。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "静か割に sai: tính từ -な phải là 静かな割に."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "彼女は年齢の割に、若く見える。",
+       "この靴は安い割に、丈夫だ。",
+       "彼は勉強した割に、点数が低い。",
+       "薬を飲んだ割に、熱が下がった。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "薬を飲んだ割に、熱が下がった sai: vế sau là kết quả bình thường, không có ý 'khác với dự đoán'."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "割に",
+       "この店は",
+       "おいしい",
+       "安い"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Quán này rẻ vậy mà ngon."
+     },
+     {
+      "pieces": [
+       "割に",
+       "彼は",
+       "考えがしっかりしている",
+       "若い"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Anh ấy trẻ vậy mà suy nghĩ chín chắn."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "このアパートは古い＿＿、中はきれいだ。",
+      "answer": "割に",
+      "translation_vi": "Căn hộ này cũ vậy mà bên trong lại sạch sẽ."
+     },
+     {
+      "sentence_ja": "彼女は忙しい＿＿、よく料理を作る。",
+      "answer": "割に",
+      "translation_vi": "Cô ấy bận vậy mà vẫn hay nấu ăn."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この車は小さい（　　）、中は広い。",
+      "options": [
+       "割に",
+       "うちに",
+       "たびに",
+       "とたん"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "小さい割に = nhỏ vậy mà."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼は新人の割に、仕事が早い。",
+      "options": [
+       "Anh ấy là người mới vậy mà làm việc nhanh.",
+       "Vì là người mới nên làm việc chậm.",
+       "Anh ấy làm việc lâu năm nên rất nhanh.",
+       "Anh ấy không biết làm việc."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "新人の割に = so với việc là người mới thì."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "値段が高い割に、客が多い。",
+       "この店は狭い割に、メニューが豊富だ。",
+       "彼は若い割に、経験が豊富だ。",
+       "この辞書は便利割に、使いやすい。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "便利割に sai: phải là 便利な割に."
+     }
+    ]
+   },
    "context": {
     "examples": [],
     "meaning_vi": null,
@@ -106,7 +830,188 @@
    "id": "JG-248bff19fa"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "さすが有名な店だ。値段が高い（　　）。",
+      "options": [
+       "だけのことはある",
+       "に限ったことではない",
+       "に越したことはない",
+       "といったところだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "高いだけのことはある = đắt thì đúng là xứng đáng."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "10年も練習している（　　）、とても上手だ。",
+      "options": [
+       "に越したことはない",
+       "だけのことはある",
+       "に限ったことではない",
+       "といったところだ"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "練習しているだけのことはある = không hổ danh luyện tập 10 năm."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★。",
+      "options": [
+       "だけのことはある",
+       "さすが",
+       "レストランだ",
+       "一流の"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "さすが一流のレストランだだけのことはある。★ là だけのことはある。だけのことはある = thật xứng đáng, không hổ danh."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "とても丈夫だ",
+       "長年",
+       "だけのことはあって",
+       "使っている"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "長年使っているだけのことはあってとても丈夫だ。★ là だけのことはあって。だけのことはあって = đúng là xứng với việc."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "高いだけのことはある。このかばんは軽くて丈夫だ。",
+      "options": [
+       "Đúng là xứng với giá tiền. Chiếc cặp này nhẹ mà bền.",
+       "Chiếc cặp này đắt nhưng rất nặng.",
+       "Chiếc cặp này rẻ nên không bền.",
+       "Chiếc cặp này không đáng tiền."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "高いだけのことはある = đắt thì đúng là xứng."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "さすがに10年も運転しているだけのことはあって、彼の運転は安心だ。",
+      "options": [
+       "Quả nhiên là người lái xe 10 năm, anh ấy lái rất yên tâm.",
+       "Anh ấy mới lái xe nên không an toàn.",
+       "Anh ấy lái xe 10 năm nhưng rất ẩu.",
+       "Anh ấy không biết lái xe."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "だけのことはあって = quả đúng là không hổ danh."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "さすが一流ホテルだけのことはある。サービスがいい。",
+       "高いだけのことはあって、品質がいい。",
+       "毎日練習しただけのことはあって、上手になった。",
+       "彼は若いだけのことはあって、すぐ疲れる。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "若いだけのことはあって、すぐ疲れる sai: vế sau phải tương xứng với nguyên nhân; trẻ thì phải khỏe."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "古いだけのことはあって、味がある。",
+       "人気があるだけのことはあって、いつも満席だ。",
+       "この店は有名なだけのことはない、味もいい。",
+       "長く待っただけのことはあって、料理はとてもおいしかった。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "有名なだけのことはない、味もいい sai: phải là だけのことはあって; だけのことはない nghĩa ngược lại."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "選手だ",
+       "さすが",
+       "だけのことはある",
+       "一流の"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Quả nhiên là vận động viên hàng đầu, thật xứng đáng."
+     },
+     {
+      "pieces": [
+       "だけのことはあって",
+       "長年",
+       "とても丈夫だ",
+       "使い続けてきた"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Dùng nhiều năm mà vẫn rất chắc chắn, đúng là xứng."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "この靴は高い。高い＿＿、履き心地がとてもいい。",
+      "answer": "だけのことはある",
+      "translation_vi": "Đôi giày này đắt. Đắt thì đúng là xứng, đi rất êm."
+     },
+     {
+      "sentence_ja": "さすがに10年も練習している＿＿、彼はとても上手だ。",
+      "answer": "だけのことはある",
+      "translation_vi": "Quả nhiên là người luyện tập 10 năm, anh ấy rất giỏi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "さすがに毎日練習している（　　）、彼はとても上手だ。",
+      "options": [
+       "だけのことはある",
+       "に限ったことではない",
+       "に越したことはない",
+       "といったところだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "練習しているだけのことはある = không hổ danh luyện tập mỗi ngày."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この店は並んででも食べるだけのことはある。",
+      "options": [
+       "Quán này đáng để xếp hàng chờ mà ăn.",
+       "Quán này không đáng phải xếp hàng.",
+       "Quán này lúc nào cũng vắng khách.",
+       "Quán này đã đóng cửa."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "だけのことはある = đáng để làm vậy."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "さすがプロだけのことはあって、仕事が早い。",
+       "高いだけのことはあって、品質がいい。",
+       "毎日走っただけのことはあって、体力がついた。",
+       "彼は医者だけのことはあって、すぐ風邪をひく。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "医者だけのことはあって、すぐ風邪をひく sai: kết quả không tương xứng với nguyên nhân."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -136,7 +1041,188 @@
    "id": "JG-3d5aec3c0e"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "私（　　）何でもないことだが、母にとっては大問題だ。",
+      "options": [
+       "にしたら",
+       "に限って",
+       "を問わず",
+       "に先立って"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "私にしたら = đứng trên lập trường của tôi."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "子ども（　　）、このゲームは難しいだろう。",
+      "options": [
+       "にしたら",
+       "に沿って",
+       "にわたって",
+       "をめぐって"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "子どもにしたら = đối với trẻ con."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "大問題だ",
+       "私にしたら",
+       "母にすれば",
+       "何でもないが"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "私にしたら何でもないが母にすれば大問題だ。★ là 何でもないが。にしたら / にすれば = xét từ lập trường."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "勉強は大変だ",
+       "子ども",
+       "一日中",
+       "にしたら"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "子どもにしたら一日中勉強は大変だ。★ là にしたら。子どもにしたら = đối với trẻ con thì."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "親にしたら、子どもの失敗は心配の種だ。",
+      "options": [
+       "Đứng trên lập trường của cha mẹ thì thất bại của con là nguồn lo lắng.",
+       "Đối với con thì thất bại là chuyện vui.",
+       "Cha mẹ không quan tâm đến con.",
+       "Con không bao giờ thất bại."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "親にしたら = xét từ phía cha mẹ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "新人にしたら、この仕事はとても大変だろう。",
+      "options": [
+       "Đối với người mới thì công việc này chắc rất vất vả.",
+       "Người mới thấy công việc này rất dễ.",
+       "Người mới đã quen việc này.",
+       "Công việc này không có gì khó với ai."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "新人にしたら = xét từ phía người mới."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "私にしたら、そんなことは問題ではない。",
+       "親にしたら、子どもはいつまでも心配だ。",
+       "この天気にしたら、出発は無理だ。",
+       "新人にしたら、難しい仕事だろう。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "天気にしたら sai: にしたら đứng sau người/nhóm người để nêu lập trường, không dùng cho sự vật."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "会社にしたら、大きな痛手だろう。",
+       "部下にしたら、納得できないだろう。",
+       "私にしたら、それはうれしい話だ。",
+       "この料理にしたら、値段が高い。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "料理にしたら sai: phải dùng lập trường của người; câu này cần この料理にしては."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "たいしたことでは",
+       "私",
+       "ない",
+       "にしたら"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Đối với tôi thì đó không phải chuyện lớn."
+     },
+     {
+      "pieces": [
+       "一日中",
+       "子ども",
+       "勉強は大変だ",
+       "にしたら"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Đối với trẻ con thì học cả ngày là vất vả."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "私＿＿、何でもないことだが、祖母には大問題だ。",
+      "answer": "にしたら",
+      "translation_vi": "Đối với tôi là chuyện nhỏ nhưng với bà lại là chuyện lớn."
+     },
+     {
+      "sentence_ja": "新人＿＿、この仕事は難しすぎるだろう。",
+      "answer": "にしたら",
+      "translation_vi": "Đối với người mới thì công việc này quá khó."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "親（　　）、子どもの心配は尽きないものだ。",
+      "options": [
+       "にしたら",
+       "に沿って",
+       "にわたって",
+       "をめぐって"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "親にしたら = xét từ phía cha mẹ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "社員にしたら、給料が上がらないのは不満だろう。",
+      "options": [
+       "Đứng trên lập trường nhân viên thì việc không tăng lương chắc là bất mãn.",
+       "Nhân viên thấy việc tăng lương rất hợp lý.",
+       "Công ty đã tăng lương cho nhân viên.",
+       "Nhân viên nào cũng hài lòng với lương."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "社員にしたら = xét từ phía nhân viên."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "私にしたら、何でもないことだ。",
+       "親にしたら、それは大変なことだ。",
+       "この問題にしたら、解けるはずだ。",
+       "新人にしたら、分からなくて当然だ。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "この問題にしたら sai: にしたら cần chủ thể là người; câu này phải là この問題なら."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -165,7 +1251,188 @@
    "id": "JG-7fd1a327d3"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "親（　　）、子どもはいつまでも子どもだ。",
+      "options": [
+       "にしてみれば",
+       "に沿って",
+       "をめぐって",
+       "に先立って"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "親にしてみれば = xét từ lập trường của cha mẹ."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "私（　　）、それはたいした問題ではない。",
+      "options": [
+       "にしてみれば",
+       "に沿って",
+       "を問わず",
+       "にわたって"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "私にしてみれば = xét từ phía tôi."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "傷つく言葉だ",
+       "当人",
+       "冗談でも",
+       "にしてみれば"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "当人にしてみれば冗談でも傷つく言葉だ。★ là にしてみれば。にして見れば = xét từ lập trường của chính người đó."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "リスクが大きい",
+       "社長",
+       "この計画は",
+       "にしてみれば"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "社長にしてみればこの計画はリスクが大きい。★ là にしてみれば。社長にしてみれば = đứng từ phía giám đốc."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "外国人にしてみれば、日本語の漢字はとても難しい。",
+      "options": [
+       "Xét từ phía người nước ngoài thì chữ Hán của tiếng Nhật rất khó.",
+       "Người nước ngoài thấy chữ Hán rất dễ.",
+       "Người Nhật thấy chữ Hán khó hơn.",
+       "Chữ Hán không được dạy cho người nước ngoài."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "外国人にしてみれば = xét từ phía người nước ngoài."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "当人にしてみれば、冗談でも傷つく言葉だ。",
+      "options": [
+       "Đứng từ phía người trong cuộc thì dù là đùa cũng là lời gây tổn thương.",
+       "Người trong cuộc thấy đó chỉ là câu đùa vui.",
+       "Người ngoài mới bị tổn thương.",
+       "Câu nói đó không ảnh hưởng đến ai."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "当人にしてみれば = xét từ phía chính người đó."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "外国人にしてみれば、この習慣は不思議だ。",
+       "社長にしてみれば、この計画は危険だ。",
+       "この店にしてみれば、値段が高い。",
+       "親にしてみれば、子どもはいつまでも子どもだ。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "この店にしてみれば、値段が高い sai: cần nêu lập trường của người; câu này nên dùng この店にしては."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "私にしてみれば、それは小さな問題だ。",
+       "子どもにしてみれば、それは大きな冒険だ。",
+       "責任者にしてみれば、簡単には決められない。",
+       "この料理にしてみれば、味が薄い。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "料理にしてみれば sai: phải là この料理にしては."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "冗談でも",
+       "当人",
+       "傷つく言葉だ",
+       "にしてみれば"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Đứng từ phía người trong cuộc thì dù là đùa cũng gây tổn thương."
+     },
+     {
+      "pieces": [
+       "子どもは",
+       "親",
+       "いつまでも子どもだ",
+       "にしてみれば"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Đứng từ phía cha mẹ thì con mãi vẫn là con."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "外国人＿＿、日本語の漢字はとても難しい。",
+      "answer": "にしてみれば",
+      "translation_vi": "Đối với người nước ngoài, chữ Hán tiếng Nhật rất khó."
+     },
+     {
+      "sentence_ja": "当人＿＿、冗談でも傷つく言葉だ。",
+      "answer": "にしてみれば",
+      "translation_vi": "Đứng từ phía người trong cuộc, dù là đùa cũng là lời gây tổn thương."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "患者（　　）、この待ち時間はとても長い。",
+      "options": [
+       "にしてみれば",
+       "に沿って",
+       "をめぐって",
+       "に先立って"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "患者にしてみれば = xét từ phía bệnh nhân."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "私にしてみれば、その程度の失敗はたいしたことではない。",
+      "options": [
+       "Đứng từ phía tôi thì thất bại cỡ đó không có gì to tát.",
+       "Tôi cho rằng thất bại đó rất nghiêm trọng.",
+       "Tôi chưa từng thất bại.",
+       "Người khác thất bại thay tôi."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "私にしてみれば = xét từ phía tôi."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "親にしてみれば、子どもの心配は尽きない。",
+       "私にしてみれば、それは問題ではない。",
+       "この計画にしてみれば、予算が足りない。",
+       "社長にしてみれば、この決断は重い。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "この計画にしてみれば sai: cần chủ thể là người; phải là この計画にしては."
+     }
+    ]
+   },
    "context": {
     "examples": [],
     "meaning_vi": null,
@@ -183,7 +1450,188 @@
    "id": "JG-0c3c3e8eee"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "母は朝出かけた（　　）、夜になっても帰ってこない。",
+      "options": [
+       "きり",
+       "うちに",
+       "たびに",
+       "とたん"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "出かけたきり = đi từ sáng rồi không về."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "彼とは去年会った（　　）、一度も連絡を取っていない。",
+      "options": [
+       "きり",
+       "につれて",
+       "に応じて",
+       "を問わず"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "会ったきり = gặp năm ngoái rồi không liên lạc."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "返事がない",
+       "彼女に",
+       "かけたきり",
+       "電話を"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "彼女に電話をかけたきり返事がない。★ là かけたきり。V-た きり = từ khi làm xong thì không có gì tiếp theo."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "食べていない",
+       "昼ご飯を",
+       "何も",
+       "食べたきり"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "昼ご飯を食べたきり何も食べていない。★ là 食べたきり。食べたきり = từ bữa trưa đến giờ không ăn gì."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "兄は大学を出たきり、一度も家に帰っていない。",
+      "options": [
+       "Anh trai tôi từ khi tốt nghiệp đại học đã không về nhà lần nào.",
+       "Anh trai tôi tốt nghiệp rồi về nhà thường xuyên.",
+       "Anh trai tôi chưa học đại học.",
+       "Anh trai tôi mới về nhà hôm qua."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "出たきり = ra trường rồi không về lần nào."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "朝牛乳を飲んだきり、何も食べていない。",
+      "options": [
+       "Từ sáng chỉ uống sữa, không ăn gì cả.",
+       "Sáng uống sữa rồi ăn rất nhiều.",
+       "Sáng không uống gì cả.",
+       "Tôi ăn rồi mới uống sữa."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "飲んだきり = uống xong thì không ăn gì nữa."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "母は出かけたきり、帰ってこない。",
+       "彼に会ったきり、連絡がない。",
+       "去年卒業したきり、会っていない。",
+       "彼は行きますきり、戻らない。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "行きますきり sai: phải dùng thể thường 行ったきり."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "朝出かけたきり、母は帰ってこない。",
+       "彼とは去年会ったきり連絡していない。",
+       "祖父は入院したきり、外に出ていない。",
+       "大学を卒業するきり、一度も会っていない。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "卒業するきり sai: phải dùng V-た + きり: 卒業したきり."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "会ったきり",
+       "彼女とは",
+       "連絡がない",
+       "去年"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Từ năm ngoái gặp cô ấy xong thì không liên lạc gì."
+     },
+     {
+      "pieces": [
+       "入院したきり",
+       "祖父は",
+       "外に出ていない",
+       "去年"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Ông tôi từ khi nhập viện năm ngoái đến giờ không ra khỏi nhà."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "母は朝出かけた＿＿、夜になっても帰ってこない。",
+      "answer": "きり",
+      "translation_vi": "Mẹ đi ra ngoài từ sáng, đến tối vẫn chưa về."
+     },
+     {
+      "sentence_ja": "彼とは去年会った＿＿、一度も連絡していない。",
+      "answer": "きり",
+      "translation_vi": "Từ lần gặp năm ngoái, tôi chưa liên lạc với anh ấy lần nào."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "友だちとは一度けんかした（　　）、話していない。",
+      "options": [
+       "きり",
+       "うちに",
+       "たびに",
+       "とたん"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "けんかしたきり = từ lần cãi nhau đến giờ không nói chuyện."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼は出かけたきり、何も連絡してこない。",
+      "options": [
+       "Anh ấy đi ra ngoài từ đó và không liên lạc gì.",
+       "Anh ấy đi ra ngoài rồi về ngay.",
+       "Anh ấy chưa từng ra khỏi nhà.",
+       "Anh ấy liên lạc rất thường xuyên."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "出かけたきり = đi rồi không liên lạc."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "母は買い物に行ったきり、帰ってこない。",
+       "彼とは一度会ったきりだ。",
+       "祖父は入院したきり、退院していない。",
+       "朝ご飯を食べるきり、何も食べていない。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "食べるきり sai: phải là 食べたきり."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -212,7 +1660,188 @@
    "id": "JG-8063225e20"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "さんざん迷った（　　）、何も買わなかった。",
+      "options": [
+       "あげく",
+       "うちに",
+       "たびに",
+       "とたん"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "迷ったあげく = sau bao nhiêu do dự thì cuối cùng."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "長い間話し合った（　　）、結局計画は中止になった。",
+      "options": [
+       "あげく",
+       "に沿って",
+       "を問わず",
+       "に先立って"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "話し合ったあげく = sau khi bàn bạc mãi."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "何もしないことにした",
+       "彼は",
+       "考えたあげく",
+       "何時間も"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "彼は何時間も考えたあげく何もしないことにした。★ là 考えたあげく。あげく = sau quá trình dài rồi dẫn tới kết quả (thường xấu)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "やめることにした",
+       "さんざん",
+       "会社を",
+       "悩んだあげく"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "さんざん悩んだあげく会社をやめることにした。★ là 悩んだあげく。悩んだあげく = sau bao nhiêu trăn trở."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼女は長く悩んだあげく、留学をあきらめた。",
+      "options": [
+       "Sau một thời gian dài trăn trở, cuối cùng cô ấy đã từ bỏ du học.",
+       "Cô ấy quyết định đi du học ngay lập tức.",
+       "Cô ấy chưa từng nghĩ đến du học.",
+       "Vì nghĩ ngắn nên cô ấy đi du học."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "悩んだあげく = sau bao nhiêu trăn trở."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "飲みすぎたあげく、家で寝てしまった。",
+      "options": [
+       "Sau khi uống quá nhiều, cuối cùng anh ấy ngủ luôn ở nhà.",
+       "Vì uống ít nên anh ấy về nhà sớm.",
+       "Anh ấy ngủ xong mới đi uống.",
+       "Anh ấy không uống chút nào."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "飲みすぎたあげく = sau khi uống quá nhiều."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "さんざん迷ったあげく、買わなかった。",
+       "長く話し合ったあげく、計画は中止になった。",
+       "悩んだあげく、二人は別れることにした。",
+       "迷ったあげく、すぐ決めた。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "あげく、すぐ決めた sai: あげく diễn tả quá trình dài rồi mới có kết quả, 'すぐ' mâu thuẫn."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "飲みすぎたあげく、気分が悪くなった。",
+       "さんざん探したあげく、見つからなかった。",
+       "考えたあげく、彼は会社を辞めた。",
+       "努力したあげく、見事に成功した。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "努力したあげく、見事に成功した sai: あげく thường dùng cho kết quả xấu; kết quả tốt thì dùng 末に."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "考えたあげく",
+       "彼は",
+       "何も買わなかった",
+       "何時間も"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Anh ấy suy nghĩ mấy tiếng đồng hồ rồi cuối cùng chẳng mua gì."
+     },
+     {
+      "pieces": [
+       "留学を",
+       "さんざん",
+       "あきらめた",
+       "悩んだあげく"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Sau bao nhiêu trăn trở, cuối cùng cô ấy đã từ bỏ du học."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "長い間話し合った＿＿、結局計画は中止になった。",
+      "answer": "あげく",
+      "translation_vi": "Sau khi bàn bạc rất lâu, cuối cùng kế hoạch bị hủy."
+     },
+     {
+      "sentence_ja": "さんざん迷った＿＿、何も買わなかった。",
+      "answer": "あげく",
+      "translation_vi": "Sau bao nhiêu do dự, cuối cùng chẳng mua gì."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "何度も話し合った（　　）、結局何も決まらなかった。",
+      "options": [
+       "あげく",
+       "うちに",
+       "たびに",
+       "とたん"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "話し合ったあげく = sau khi bàn bạc nhiều lần."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼はさんざん文句を言ったあげく、結局何もしなかった。",
+      "options": [
+       "Anh ấy phàn nàn rất nhiều rồi cuối cùng chẳng làm gì.",
+       "Anh ấy phàn nàn xong rồi làm rất tốt.",
+       "Anh ấy không hề phàn nàn.",
+       "Anh ấy làm việc trước rồi mới phàn nàn."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "文句を言ったあげく = sau khi phàn nàn rất nhiều."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "さんざん迷ったあげく、何も買わなかった。",
+       "長く待ったあげく、結局会えなかった。",
+       "悩んだあげく、留学をやめた。",
+       "努力したあげく、優勝して喜んだ。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "努力したあげく、優勝して喜んだ sai: あげく dùng cho kết quả xấu; kết quả tốt dùng 末に."
+     }
+    ]
+   },
    "context": {
     "examples": [
      {
@@ -238,7 +1867,188 @@
    "id": "JG-9f9f613812"
   },
   {
-   "answer": null,
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "よく相談した（　　）、引っ越すことに決めた。",
+      "options": [
+       "末に",
+       "うちに",
+       "たびに",
+       "とたんに"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "相談した末に = sau khi bàn bạc kỹ thì cuối cùng."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "長い話し合い（　　）、新しい計画が決まった。",
+      "options": [
+       "の末",
+       "のうち",
+       "のたび",
+       "のとたん"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "N の 末 = sau (quá trình dài)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "決めた",
+       "考えた",
+       "留学を",
+       "末に"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "考えた末に留学を決めた。★ là 末に。V-た 末に = sau khi (quá trình dài) thì cuối cùng."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "仕事を選んだ",
+       "十分に",
+       "この",
+       "悩んだ末に"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "十分に悩んだ末にこの仕事を選んだ。★ là 悩んだ末に。悩んだ末に = sau khi trăn trở kỹ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "十分に迷った末に、この仕事を選んだ。",
+      "options": [
+       "Sau khi do dự rất nhiều, cuối cùng tôi đã chọn công việc này.",
+       "Vì không do dự nên tôi chọn ngay.",
+       "Tôi chọn công việc này trước khi suy nghĩ.",
+       "Tôi từ bỏ công việc này."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "迷った末に = sau khi do dự kỹ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "長い闘病生活の末、彼は元気になった。",
+      "options": [
+       "Sau một thời gian dài chống chọi bệnh tật, cuối cùng anh ấy đã khỏe lại.",
+       "Vì bệnh nặng nên anh ấy không khỏi.",
+       "Anh ấy khỏe lại trước khi bị bệnh.",
+       "Anh ấy chưa từng bị bệnh."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "闘病生活の末 = sau quá trình dài chống bệnh."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "よく話し合った末に、別れることにした。",
+       "長い研究の末、新しい薬ができた。",
+       "考える末、彼は会社を辞めた。",
+       "十分に迷った末に、この道を選んだ。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "考える末 sai: phải dùng V-た + 末: 考えた末."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "長い議論の末、計画が決まった。",
+       "努力した末、ついに成功した。",
+       "迷った末に、やめることにした。",
+       "彼はすぐ決める末に、後悔した。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "すぐ決める末に sai: 末 diễn tả quá trình dài, phải là 決めた末に và không dùng với 'すぐ'."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "末に",
+       "よく",
+       "引っ越すことに決めた",
+       "相談した"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Sau khi bàn bạc kỹ, cuối cùng quyết định chuyển nhà."
+     },
+     {
+      "pieces": [
+       "新しい",
+       "長い",
+       "ルールが決まった",
+       "議論の末"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Sau cuộc bàn bạc dài, quy tắc mới đã được quyết định."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "よく考えた＿＿、留学することに決めた。",
+      "answer": "末に",
+      "translation_vi": "Sau khi suy nghĩ kỹ, cuối cùng tôi quyết định đi du học."
+     },
+     {
+      "sentence_ja": "長い話し合い＿＿、新しい計画が決まった。",
+      "answer": "の末",
+      "translation_vi": "Sau cuộc bàn bạc dài, kế hoạch mới đã được quyết định."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "よく考えた（　　）、今の会社に入ることにした。",
+      "options": [
+       "末に",
+       "うちに",
+       "たびに",
+       "とたんに"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "考えた末に = sau khi suy nghĩ kỹ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "長い相談の末、二人は結婚することにした。",
+      "options": [
+       "Sau khi bàn bạc lâu, cuối cùng hai người quyết định kết hôn.",
+       "Vì bàn bạc nhanh nên họ quyết định ngay.",
+       "Hai người chia tay sau khi bàn bạc.",
+       "Hai người chưa từng bàn bạc gì."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "相談の末 = sau quá trình bàn bạc."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "長い研究の末、新薬が完成した。",
+       "十分に迷った末に、進学を決めた。",
+       "話し合いの末、計画は中止になった。",
+       "彼は短い時間の末、決めた。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "短い時間の末 sai: 末 diễn tả quá trình dài rồi mới có kết quả."
+     }
+    ]
+   },
    "context": {
     "examples": [],
     "meaning_vi": null,

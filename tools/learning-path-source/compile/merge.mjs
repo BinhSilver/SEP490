@@ -664,7 +664,10 @@ export function parentCandidates(g, mains, limit = 5) {
 // CORE first and most common first. A capped level's words all carry `queue`: STUDY (in the path) or EXTRA (kept
 // for Luyện thêm / Look up, not in the path).
 // Owner 02/11: N2 and N1 study about 2,000 words each, by the same rule.
-export const STUDY_CAP = Object.freeze({ N3: 2000, N2: 2000, N1: 2000 });
+// Owner 05/11: every level to its usual JLPT size (N5 ~800, N4 ~700 new, N3/N2/N1 ~2,000); the rest is EXTRA (Mở rộng).
+export const STUDY_CAP = Object.freeze({ N5: 800, N4: 700, N3: 2000, N2: 2000, N1: 2000 });
+// Owner 05/11: the cap also cuts Mirai frame words (before, a capped level kept every frame word).
+export const STUDY_CAP_STRICT = Object.freeze({ N5: true, N4: true });
 export const STUDY_CAP_RULE = 'Mirai frame words of the level (all, Mirai order), then the other words ranked: tier CORE before '
   + 'EXTENDED; more J-LAS source books first (commonness: a word several books teach is more common); lower J-LAS position '
   + 'first (easy → hard order of the books); key by code point. The first (cap − frame words) ranked words are STUDY, the rest EXTRA.';
@@ -674,7 +677,12 @@ const minPosition = l => Math.min(...l.jlas.map(m => m.position ?? 1), 1);
 
 // Owner 02/11: N5–N2 keep every kanji; N1 studies about 600 — the kanji the queued N1 words use most. A capped level's
 // kanji all carry `queue` STUDY or EXTRA (HOLD: kept in the source, no packets, not served by the path).
-export const KANJI_STUDY_CAP = Object.freeze({ N1: 600 });
+export const KANJI_STUDY_CAP = Object.freeze({ N5: 100, N4: 200, N3: 350, N1: 600 });
+// Owner 05/11: main grammar patterns studied per level (in lesson order); secondaries follow their main.
+export const GRAMMAR_STUDY_CAP = Object.freeze({ N5: 80, N4: 100, N3: 120, N2: 200, N1: 200 });
+// Patterns that moved to a level on 05/11 without content yet (〜すると came down from N2): out of the cap until
+// their GRAMMAR_CORE / examples / bank are written.
+const GRAMMAR_CAP_WAIT = new Set(['JG-34d7003451']);
 export const KANJI_STUDY_CAP_RULE = 'Kanji ranked: more study-queue words of the level written with it first; then more J-LAS '
   + 'source books (commonness; the sources carry no frequency); fewer strokes; then the level order (frame order, then J-LAS '
   + 'position). The first (cap) ranked kanji are STUDY, the rest EXTRA; STUDY kanji come first, each part in the level order.';
@@ -747,13 +755,26 @@ export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub, 
   let studyCapSummary = null;
   if (cap != null) {
     const fromFrame = vocabulary.filter(v => framedOrder.get(v.id) != null).length;
-    const inQueue = Math.max(cap, fromFrame);
+    const inQueue = STUDY_CAP_STRICT[level] ? cap : Math.max(cap, fromFrame);
     vocabulary.forEach((v, i) => { v.queue = i < inQueue ? 'STUDY' : 'EXTRA'; });
     const studying = Math.min(inQueue, vocabulary.length);
     studyCapSummary = { vocabulary: cap, in_queue: studying, out_of_queue: vocabulary.length - studying, from_frame: fromFrame,
       rule: STUDY_CAP_RULE };
   }
   const grammar = grammarItems({ frames, jlasLevels }, level, corrections, grammarSplit?.[level] ?? null);
+  let grammarCap = null;
+  const gCap = GRAMMAR_STUDY_CAP[level];
+  if (gCap != null && grammar.items.length) {
+    const ordered = [...grammar.items].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const mains = ordered.filter(g => g.grammar_role !== 'SECONDARY' && !GRAMMAR_CAP_WAIT.has(g.id));
+    const study = new Set(mains.slice(0, gCap).map(g => g.id));
+    for (const g of grammar.items) {
+      const own = g.grammar_role === 'SECONDARY' ? (g.parent_id ? study.has(g.parent_id) : false) : study.has(g.id);
+      g.queue = own ? 'STUDY' : 'EXTRA';
+    }
+    grammarCap = { grammar: gCap, in_queue: grammar.items.filter(g => g.queue === 'STUDY').length,
+      out_of_queue: grammar.items.filter(g => g.queue === 'EXTRA').length };
+  }
   let kanji = kanjiItems({ frames, jlasLevels, dictionary }, level, pool), kanjiCap = null;
   if (kanjiStudyCap?.[level] != null) ({ kanji, summary: kanjiCap } = capKanji(kanji, kanjiStudyCap[level], vocabulary, jlasLevels));
   // A kanji in the study queue keeps one compound word in it: when every compound of the level fell out of the word
@@ -782,7 +803,7 @@ export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub, 
     .map(o => ({ id: l.id, twin_id: o.id, twin_level: o.level })))
     .sort((a, b) => a.id.localeCompare(b.id) || a.twin_id.localeCompare(b.twin_id));
   return { level, ...(studyCapSummary ? { study_cap: studyCapSummary } : {}), vocabulary, kanji, ...(kanjiCap ? { kanji_cap: kanjiCap } : {}),
-    grammar: grammar.items, ...(grammar.summary ? { grammar_split: grammar.summary } : {}), conflicts, level_moves: levelMoves, unmatched, spelling_twins: spellingTwins,
+    grammar: grammar.items, ...(grammar.summary ? { grammar_split: grammar.summary } : {}), ...(grammarCap ? { grammar_cap: grammarCap } : {}), conflicts, level_moves: levelMoves, unmatched, spelling_twins: spellingTwins,
     mixed_entries: mixed.filter(m => m.level === level).map(({ id, spellings }) => ({ id, spellings })).sort((a, b) => a.id.localeCompare(b.id)),
     merged_ids: [...here.flatMap(l => l.merged_ids.map(m => ({ id: m, into: l.id }))),
       ...[...aliases].filter(([, into]) => hereIds.has(into)).map(([id, into]) => ({ id, into })), ...grammar.merged] };

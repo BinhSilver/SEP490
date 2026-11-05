@@ -1,0 +1,590 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜に違いない",
+     "examples": [
+      {
+       "ja": "電気がついているから、彼はまだ起きているに違いない。",
+       "ja_furigana": "電気(でんき)がついているから、彼(かれ)はまだ起(お)きているに違(ちが)いない。",
+       "vi": "Vì đèn còn sáng nên chắc chắn anh ấy vẫn còn thức."
+      },
+      {
+       "ja": "こんなに道が混んでいるのは、事故があったに違いない。",
+       "ja_furigana": "こんなに道(みち)が混(こ)んでいるのは、事故(じこ)があったに違(ちが)いない。",
+       "vi": "Đường đông thế này chắc chắn là đã có tai nạn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "机に鍵があるから、佐藤さんはまだ建物の中にいるに違いない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì chìa khóa vẫn ở trên bàn nên anh Sato chắc chắn vẫn còn trong tòa nhà."
+     },
+     {
+      "ja": "全員が同じ箇所で迷ったなら、説明文が分かりにくかったに違いない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu mọi người đều vướng ở cùng một chỗ thì phần giải thích chắc hẳn đã khó hiểu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 机に鍵があるから、佐藤さんはまだ建物の中にいるに違いない。",
+     "FURIGANA_MISSING: 全員が同じ箇所で迷ったなら、説明文が分かりにくかったに違いない。"
+    ],
+    "formation": "普通形 + に違いない（N・Aな は だ なし）",
+    "locked_fields": [],
+    "meaning_vi": "Chắc chắn là, không sai vào đâu được",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chắc chắn là, không sai vào đâu được",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Khẳng định với mức tin chắc cao rằng một phán đoán là đúng. Cách dùng: Hai mẫu này cho biết người nói tin chắc vào một kết luận dựa trên dấu hiệu, lý lẽ hoặc thông tin đã có. Mức chắc chắn cao hơn だろう hay かもしれない nhưng vẫn là phán đoán của người nói. 〜に違いない được dùng khá rộng trong văn nói và văn viết. 〜に相違ない có ý tương tự nhưng trang trọng, cứng và thường xuất hiện trong xác nhận chính thức hoặc văn phong nghiêm túc. Sắc thái: 〜に違いない thể hiện sự xác tín tự nhiên; 〜に相違ない tạo cảm giác kết luận đã được đối chiếu kỹ và “không có sai khác”. Lưu ý: Sau danh từ và tính từ đuôi な không đặt だ trước に違いない hoặc に相違ない. Không dùng khi người nói chỉ muốn nêu một khả năng yếu hoặc hoàn toàn thiếu căn cứ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f200505b65"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜おそれがある",
+     "examples": [
+      {
+       "ja": "このまま工事が遅れれば、期日に間に合わないおそれがある。",
+       "ja_furigana": "このまま工事(こうじ)が遅(おく)れれば、期日(きじつ)に間(ま)に合(あ)わないおそれがある。",
+       "vi": "Nếu công trình cứ chậm thế này thì có nguy cơ không kịp hạn."
+      },
+      {
+       "ja": "強い風で、木が倒れるおそれがある。",
+       "ja_furigana": "強(つよ)い風(かぜ)で、木(き)が倒(たお)れるおそれがある。",
+       "vi": "Vì gió mạnh nên có nguy cơ cây bị đổ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今夜は気温が急に下がり、路面が凍結するおそれがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tối nay nhiệt độ có thể giảm đột ngột và có nguy cơ mặt đường đóng băng."
+     },
+     {
+      "ja": "このまま水位が上がれば、川があふれるおそれがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu mực nước tiếp tục dâng, có nguy cơ sông tràn bờ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今夜は気温が急に下がり、路面が凍結するおそれがある。",
+     "FURIGANA_MISSING: このまま水位が上がれば、川があふれるおそれがある。"
+    ],
+    "formation": "Vる / Vない + おそれがある / N の + おそれがある",
+    "locked_fields": [],
+    "meaning_vi": "Có nguy cơ, e rằng",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có nguy cơ, e rằng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu khả năng xảy ra một sự việc bất lợi theo cách khách quan và trang trọng. Cách dùng: Mẫu này thông báo rằng có nguy cơ xảy ra một kết quả xấu dựa trên tình hình, dữ liệu hoặc điều kiện hiện có. Nó thường dùng trong dự báo thời tiết, cảnh báo an toàn, tin tức, báo cáo và hướng dẫn chính thức. Có thể đặt sau động từ dạng từ điển, dạng phủ định hoặc sau danh từ kèm の. Nội dung được nêu phải là điều bất lợi, nguy hiểm hoặc cần phòng tránh, chứ không phải một khả năng trung tính. Sắc thái: Khách quan và trang trọng, ít bộc lộ cảm xúc cá nhân. Cách nói này làm người nghe chú ý đến rủi ro nhưng không khẳng định chắc chắn sự việc sẽ xảy ra. Lưu ý: Danh từ phải nối bằng の, ví dụ 火災のおそれがある. Không dùng để diễn đạt hy vọng về một kết quả tốt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-518e64986c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜かねない",
+     "examples": [
+      {
+       "ja": "このまま放っておくと、問題がもっと大きくなりかねない。",
+       "ja_furigana": "このまま放(ほう)っておくと、問題(もんだい)がもっと大(おお)きくなりかねない。",
+       "vi": "Cứ để nguyên thế này thì vấn đề có thể càng lớn hơn."
+      },
+      {
+       "ja": "うそをつくと、信用を失いかねない。",
+       "ja_furigana": "うそをつくと、信用(しんよう)を失(うしな)いかねない。",
+       "vi": "Nói dối thì có thể sẽ mất lòng tin."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "確認せずにこの薬を飲むと、症状を悪化させかねない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu uống thuốc này mà không kiểm tra, có thể làm triệu chứng nặng hơn."
+     },
+     {
+      "ja": "個人情報を公開すれば、思わぬ犯罪に利用されかねない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu công khai thông tin cá nhân, thông tin đó có nguy cơ bị lợi dụng cho một tội phạm không ngờ tới."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 確認せずにこの薬を飲むと、症状を悪化させかねない。",
+     "FURIGANA_MISSING: 個人情報を公開すれば、思わぬ犯罪に利用されかねない。"
+    ],
+    "formation": "Vます語幹 + かねない",
+    "locked_fields": [],
+    "meaning_vi": "Có thể dẫn đến, có nguy cơ",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có thể dẫn đến, có nguy cơ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Cảnh báo rằng một kết quả xấu hoặc ngoài mong muốn hoàn toàn có khả năng xảy ra. Cách dùng: 〜かねない diễn tả nguy cơ một sự việc không mong muốn có thể xảy ra nếu tình trạng hiện tại tiếp tục hoặc nếu thực hiện một hành động nào đó. Người nói thường nhìn thấy nguyên nhân cụ thể và đưa ra lời cảnh báo mạnh. Dù ない xuất hiện trong mẫu, toàn bộ cấu trúc lại mang nghĩa khẳng định khả năng. Kết quả phía trước かねない hầu hết là tiêu cực, nguy hiểm hoặc gây bất lợi. Sắc thái: Thể hiện đánh giá và sự lo ngại của người nói, thường mạnh hơn cách nói đơn thuần かもしれない. Dùng nhiều trong cảnh báo, nhận xét và phân tích rủi ro. Lưu ý: Phải nối với gốc của dạng ます, chẳng hạn 起こります thành 起こりかねない. Không thường dùng cho kết quả tích cực mà người nói mong đợi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-424a27ac2b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜とみえる",
+     "examples": [
+      {
+       "ja": "机の上に資料が広がっている。彼はまだ仕事中とみえる。",
+       "ja_furigana": "机(つくえ)の上(うえ)に資料(しりょう)が広(ひろ)がっている。彼(かれ)はまだ仕事中(しごとちゅう)とみえる。",
+       "vi": "Tài liệu bày khắp bàn. Xem ra anh ấy vẫn đang làm việc."
+      },
+      {
+       "ja": "水たまりができている。昨夜は雨が降ったとみえる。",
+       "ja_furigana": "水(みず)たまりができている。昨夜(ゆうべ)は雨(あめ)が降(ふ)ったとみえる。",
+       "vi": "Có vũng nước. Xem ra đêm qua trời đã mưa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "店内の明かりが消えている。今日はもう閉店したとみえる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đèn trong cửa hàng đã tắt. Xem ra hôm nay cửa hàng đã đóng cửa."
+     },
+     {
+      "ja": "何度呼んでも返事がない。彼はぐっすり眠っているとみえる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gọi mấy lần cũng không có tiếng trả lời. Có vẻ anh ấy đang ngủ rất say."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 店内の明かりが消えている。今日はもう閉店したとみえる。",
+     "FURIGANA_MISSING: 何度呼んでも返事がない。彼はぐっすり眠っているとみえる。"
+    ],
+    "formation": "普通形 + とみえる",
+    "locked_fields": [],
+    "meaning_vi": "Có vẻ là, xem ra",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có vẻ là, xem ra",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Suy đoán một tình huống dựa trên dấu hiệu mà người nói quan sát được. Cách dùng: 〜とみえる biểu thị kết luận mà người nói rút ra từ dấu hiệu cụ thể đang thấy hoặc từ một kết quả có thể quan sát. Phần trước là điều được suy đoán; phần sau dạng とみえて thường nêu hiện tượng làm căn cứ. Mẫu không đơn thuần có nghĩa “nhìn thấy”, mà gần với “xem ra là”. Nó thường xuất hiện trong lời kể hoặc văn viết khi người nói đứng ngoài và nhận xét tình hình. Sắc thái: Sắc thái hơi văn viết và có khoảng cách khách quan. Dù mức chắc chắn khá cao, đây vẫn là suy đoán chứ không phải sự thật đã được xác nhận. Lưu ý: Nên có dấu hiệu quan sát được làm căn cứ; nếu thông tin chỉ do người khác nói lại thì dùng mẫu truyền đạt phù hợp hơn. Không dùng để nói trực tiếp về ý định nội tâm của chính người nói khi không cần suy đoán."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3185b9d67c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜まい",
+     "examples": [
+      {
+       "ja": "母を心配させるまいと、入院したことを言わなかった。",
+       "ja_furigana": "母(はは)を心配(しんぱい)させるまいと、入院(にゅういん)したことを言(い)わなかった。",
+       "vi": "Để mẹ khỏi lo, tôi đã không nói việc mình nhập viện."
+      },
+      {
+       "ja": "こんなに遅くまで起きているから、明日は早く起きられまい。",
+       "ja_furigana": "こんなに遅(おそ)くまで起(お)きているから、明日(あした)は早(はや)く起(お)きられまい。",
+       "vi": "Thức khuya thế này thì mai chắc không dậy sớm nổi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "二度と同じ失敗を繰り返すまいと、確認手順を書き直した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Với quyết tâm không lặp lại sai lầm ấy lần nữa, tôi đã viết lại quy trình kiểm tra."
+     },
+     {
+      "ja": "この時間なら、駅前の店はまだ開いてはいまい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vào giờ này, có lẽ cửa hàng trước ga vẫn chưa mở."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 二度と同じ失敗を繰り返すまいと、確認手順を書き直した。",
+     "FURIGANA_MISSING: この時間なら、駅前の店はまだ開いてはいまい。"
+    ],
+    "formation": "Vる + まい（Vない + まい も可）",
+    "locked_fields": [],
+    "meaning_vi": "Sẽ không, có lẽ không / chẳng phải là... sao",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Sẽ không, có lẽ không / chẳng phải là... sao",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả quyết tâm phủ định, dự đoán phủ định hoặc đưa ra một nhận định thận trọng. Cách dùng: 〜まい có hai cách dùng chính: thể hiện quyết tâm “nhất định không làm” hoặc dự đoán trang trọng rằng một việc có lẽ không xảy ra. Ngữ cảnh và chủ thể giúp phân biệt hai nghĩa. Dạng 〜のではあるまいか không phủ định thẳng mà đặt câu hỏi tu từ để đưa ra nhận định “chẳng phải là... hay sao”. Cách nói này giúp người viết khẳng định một ý kiến nhưng vẫn giữ vẻ thận trọng và dành chỗ cho người đọc cân nhắc. Sắc thái: 〜まい mang sắc thái văn viết hoặc ý chí mạnh, ít dùng trong hội thoại thân mật hiện đại. 〜のではあるまいか thường gặp trong bình luận, tiểu luận và lập luận trang trọng. Lưu ý: Khi diễn tả quyết tâm không làm, dùng động từ khẳng định trước まい, không chồng thêm dạng ない. Không nhầm 〜のではあるまいか với một câu hỏi yêu cầu câu trả lời có hoặc không; nó thường là cách nêu ý kiến gián tiếp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0555360328"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜ものがある",
+     "examples": [
+      {
+       "ja": "彼の文章には、人を説得させるものがある。",
+       "ja_furigana": "彼(かれ)の文章(ぶんしょう)には、人(ひと)を説得(せっとく)させるものがある。",
+       "vi": "Bài viết của anh ấy có sức thuyết phục người đọc."
+      },
+      {
+       "ja": "この町の風景には、思わず立ち止まるものがある。",
+       "ja_furigana": "この町(まち)の風景(ふうけい)には、思(おも)わず立(た)ち止(と)まるものがある。",
+       "vi": "Phong cảnh thị trấn này có điều gì đó khiến người ta bất giác dừng bước."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼の演説には人を引きつけるものがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bài diễn thuyết của anh ấy có sức hút gì đó."
+     },
+     {
+      "ja": "あの映画には心に響くものがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bộ phim ấy có điều gì đó chạm đến trái tim."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼の演説には人を引きつけるものがある。",
+     "FURIGANA_MISSING: あの映画には心に響くものがある。"
+    ],
+    "formation": "Vる / Aい / Aな + ものがある",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả ấn tượng/đánh giá khó diễn đạt rõ, kiểu “có điều gì đó …; phần nào …; mang tính …”. Thường dùng trong bình luận, phê bình, tin tức: 〜には目を見張るものがある, 〜には疑問を感じさせるものがある. Nghe trung tính đến tích cực; nhưng cũng có thể dùng nhẹ nhàng cho phê phán.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có nét..., có điều gì đó...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn cảm nhận chủ quan nhưng có cơ sở cảm tính; phù hợp bình luận khách quan nhẹ. Hay đi kèm cụm gây cảm xúc: 心に響く/胸を打つ/考えさせられる/印象深い/重みがある/迫力がある. Ít dùng cho ý định/tương lai; mô tả thuộc tính/ấn tượng hiện hữu là chính. [6. Ghi chú mở rộng] Các collocation hay: 説得力があるものがある, 奥深いものがある, 無理がある（lưu ý: “無理がある” là mẫu cố định khác, không dùng ものがある ở đây). Trong tiêu đề/bài báo: 「〜には〜ものがある」 tạo sắc thái bình luận chuyên môn. [7. Biến thể & cụm cố định] 心に響くものがある／胸を打つものがある 考えさせられるものがある／印象深いものがある どこか〜ものがある／何か〜ものがある 目を見張るものがある／迫力のあるものがある [8. Lỗi thường gặp & bẫy JLPT] Nhầm với “〜ところがある”: ものがある trừu tượng hơn; đề bẫy bằng cách thay tính từ trừu tượng. Sai hình thái tính từ な: × 静かなものがある → ✓ 静かなものがある. Dùng cho ý chí/ra lệnh → không hợp: × 早く行くものがある."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d0ebf17567"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜のももっともだ",
+     "examples": [
+      {
+       "ja": "急に予定が変わったのだから、みんなが困るのももっともだ。",
+       "ja_furigana": "急(きゅう)に予定(よてい)が変(か)わったのだから、みんなが困(こま)るのももっともだ。",
+       "vi": "Vì kế hoạch đột nhiên thay đổi nên việc mọi người bối rối cũng dễ hiểu."
+      },
+      {
+       "ja": "十年も使えば、壊れるのももっともだ。",
+       "ja_furigana": "十(じゅう)年(ねん)も使(つか)えば、壊(こわ)れるのももっともだ。",
+       "vi": "Dùng đến mười năm thì hỏng cũng là điều đương nhiên."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "約束を破られて、君が怒るのももっともだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bị thất hứa, cậu nổi giận cũng là điều dễ hiểu."
+     },
+     {
+      "ja": "初めての発表なら、緊張するのももっともだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu thuyết trình lần đầu, hồi hộp cũng hợp lẽ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 約束を破られて、君が怒るのももっともだ。",
+     "FURIGANA_MISSING: 初めての発表なら、緊張するのももっともだ。"
+    ],
+    "formation": "普通形 + のももっともだ",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị “(A) là điều dễ hiểu/hợp lẽ/đương nhiên”. Người nói đánh giá hành động/cảm xúc/trạng thái là hợp lý dựa trên hoàn cảnh đã nêu. Sắc thái đồng cảm, biện hộ. Thường dùng cho cảm xúc/hành vi của người khác: 怒る・悲しむ・心配する… Khác với mệnh lệnh/ý chí: không dùng để ra lệnh, chỉ là nhận định. Tính khách quan nhấn mạnh hơn 「～のも無理はない」 (ít thiên về “không trách được”).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cũng đúng..., hợp lý...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường theo sau phần nêu lý do (～から/～ので/状況説明). Dùng cho người thứ hai/ba; dùng cho chính mình có thể nghe tự bao biện, nhưng không sai nếu tự phản tỉnh. Sắc thái chuẩn mực, hơi khách quan; thích hợp trong báo cáo/đánh giá. [6. Ghi chú mở rộng] 「もっとも」 còn là liên từ “tuy/điều này nói vậy nhưng”: もっとも、例外もある。 Không nhầm với 「もっともだ」. Có thể biến đổi thì/định ngữ: ～のももっともだった／～のももっともだろう để điều chỉnh thời/độ chắc chắn. Phủ định trực tiếp 「もっともではない」 ít dùng; thường thay bằng mẫu khác mềm hơn. [7. Biến thể & cụm cố định] ～のももっともだ／～のももっともだった／～のももっともだろう ～のも道理だ (tương đương, văn viết) 理由 + から/ので + ～のももっともだ (kết cấu lập luận chuẩn) [8. Lỗi thường gặp & bẫy JLPT] Nhầm với 「もっとも」 (liên từ) → phải có 「だ」 để thành tính từ đuôi -だ. Gắn trực tiếp na/N mà không có 「な/である」: cần Aなのも/Nなのも hoặc であるのも. Dùng để trách móc người khác nghe mâu thuẫn: mẫu này vốn là đồng cảm/hợp lẽ. Đổi chủ ngữ giữa phần lý do và mệnh đề chính làm mơ hồ tham chiếu (chú ý nhất quán)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2573cabea7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜までも",
+     "examples": [
+      {
+       "ja": "全部は覚えられないまでも、大切なところだけは覚えたい。",
+       "ja_furigana": "全部(ぜんぶ)は覚(おぼ)えられないまでも、大切(たいせつ)なところだけは覚(おぼ)えたい。",
+       "vi": "Dù không thể nhớ hết nhưng ít nhất tôi muốn nhớ những phần quan trọng."
+      },
+      {
+       "ja": "有名な店ではないまでも、ゆっくり食事ができる店がいい。",
+       "ja_furigana": "有名(ゆうめい)な店(みせ)ではないまでも、ゆっくり食事(しょくじ)ができる店(みせ)がいい。",
+       "vi": "Dù không phải quán cao cấp thì tôi vẫn muốn một quán có thể ăn uống thong thả."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "優勝はできないまでも、ベスト４には入りたい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù không vô địch, tôi muốn vào top 4."
+     },
+     {
+      "ja": "毎日とはいかないまでも、週数回は練習する。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù không phải mỗi ngày, tôi tập vài lần mỗi tuần."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 優勝はできないまでも、ベスト４には入りたい。",
+     "FURIGANA_MISSING: 毎日とはいかないまでも、週数回は練習する。"
+    ],
+    "formation": "Vない / Aくない / Nではない + までも",
+    "locked_fields": [],
+    "meaning_vi": "Không đạt tới mức A, song vẫn đạt một mức chấp nhận được B. Khiêm tốn, thực tế; dùng tốt trong báo cáo/đánh giá. Thường đặt A là chuẩn mực cao: 完璧・理想・一流・満点・優勝.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù không... thì cũng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt “A = chuẩn”, sau đó hạ kỳ vọng để chấp nhận “B”. Văn phong lịch sự hơn so với ～ほどではないが. Không dùng khi mệnh đề sau phủ định hoàn toàn. [6. Ghi chú mở rộng] Cặp điển hình: 完璧とはいかないまでも／理想とはいかないまでも. Thích hợp khi báo cáo tiến độ, đánh giá sản phẩm, mục tiêu thực tế. [7. Biến thể & cụm cố định] ～と(は)いかないまでも／～とまではいかない（が） すぐとはいかないまでも／毎日とはいかないまでも [8. Lỗi thường gặp & bẫy JLPT] Nối trực tiếp danh từ với ないまでも → cần と(は)いかない: ×完璧ないまでも. Sau ～ないまでも dùng mệnh đề phủ định mạnh → không phù hợp ý “vẫn đạt phần nào”. Phân biệt với ～ないことはない (khả năng yếu) trong câu hỏi chọn đáp án."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cedf7c482a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜というものだ",
+     "examples": [
+      {
+       "ja": "自分の失敗を人のせいにするのは、ずるいというものだ。",
+       "ja_furigana": "自分(じぶん)の失敗(しっぱい)を人(ひと)のせいにするのは、ずるいというものだ。",
+       "vi": "Đổ lỗi thất bại của mình cho người khác thì đúng là xấu tính."
+      },
+      {
+       "ja": "一度決めたことを途中で投げ出すのは、無責任というものだ。",
+       "ja_furigana": "一度(いちど)決(き)めたことを途中(とちゅう)で投(な)げ出(だ)すのは、無責任(むせきにん)というものだ。",
+       "vi": "Bỏ dở việc đã quyết định giữa chừng thì đúng là vô trách nhiệm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "約束を破って謝りもしないのは、無礼というものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã thất hứa lại không xin lỗi thì đúng là vô lễ."
+     },
+     {
+      "ja": "困っている人を助けるのが人情というものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giúp người gặp khó là điều gọi là tình người."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 約束を破って謝りもしないのは、無礼というものだ。",
+     "FURIGANA_MISSING: 困っている人を助けるのが人情というものだ。"
+    ],
+    "formation": "N / 普通形 + というものだ",
+    "locked_fields": [],
+    "meaning_vi": "Khẳng định, định nghĩa mang tính lẽ thường: “đúng là…”, “chính là…”. Đánh giá phán xét: gắn nhãn hành vi/tình huống là “失礼/無礼/無茶/当然/人情…”. Dùng để kết luận sau lý lẽ: tổng kết quan điểm của người nói.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đúng là..., quả thật...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng vừa; hay dùng trong bình luận, tiểu luận, diễn thuyết để khẳng định lập trường. Hàm ý “quan điểm phổ quát/常識”: người nói dựa vào lẽ thường để đánh giá. Dễ mang sắc thái phê phán khi gắn với từ tiêu cực (無礼・非常識・無茶…). [6. Ghi chú mở rộng] Thường kèm các danh từ đánh giá: 常識/人情/礼儀/道理/筋/本質/現実/妥当/無茶/横暴. Vị trí “X は/こそ ～というものだ” để nhấn mạnh: まさに努力こそ成功への近道というものだ。 Trong tiêu đề xã luận, ～というものだ tạo tiếng nói dứt khoát, thuyết phục. [7. Biến thể & cụm cố định] まさに～というものだ: “đúng là/đích thực là”. ～とはこういうものだ: biến thể khẩu ngữ tương đương. ～というものではない: phủ định tính tuyệt đối, hay dùng cặp với mẫu chính. [8. Lỗi thường gặp & bẫy JLPT] Dùng cho sự kiện cá nhân nhỏ nhặt → nghe lên lớp; dùng khi cần phán xét chung/quan điểm. Nhầm với というわけだ: cái sau là suy luận, không phải nhãn giá trị. Bỏ “のは/のが” khi cần danh hoá trước というものだ → dễ sai ngữ pháp. Đề thi hay gài cặp đối lập: というものだ vs というものではない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-566fa971c0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜当然だ",
+     "examples": [
+      {
+       "ja": "初めての海外だから、不安になるのは当然だ。",
+       "ja_furigana": "初(はじ)めての海外(かいがい)だから、不安(ふあん)になるのは当然(とうぜん)だ。",
+       "vi": "Vì là lần đầu ra nước ngoài nên lo lắng là đương nhiên."
+      },
+      {
+       "ja": "あんなに練習をさぼったのだから、負けて当然だ。",
+       "ja_furigana": "あんなに練習(れんしゅう)をさぼったのだから、負(ま)けて当然(とうぜん)だ。",
+       "vi": "Vì đã trốn luyện tập nhiều như thế nên thua là đương nhiên."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "約束を破ったのだから、信用を失って当然だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã thất hứa thì mất tín nhiệm là đương nhiên."
+     },
+     {
+      "ja": "あれだけ練習したんだ、優勝して当然だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Luyện tập đến thế, vô địch là hiển nhiên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 約束を破ったのだから、信用を失って当然だ。",
+     "FURIGANA_MISSING: あれだけ練習したんだ、優勝して当然だ。"
+    ],
+    "formation": "V-て / Aくて / N で + 当然だ",
+    "locked_fields": [],
+    "meaning_vi": "Đánh giá “đương nhiên/hiển nhiên”, dựa trên lẽ thường, quy luật, quan hệ nhân quả. Thường kèm sắc thái phê phán khi chủ ngữ chịu kết quả bất lợi: “đáng bị…”. Khi nói cảm xúc tự nhiên: “buồn là đương nhiên”, mức đồng cảm, không phán xét.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đương nhiên, hẳn là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mạnh quan hệ nhân quả hợp lý. Tránh lạm dụng trong tình huống nhạy cảm để không thiếu đồng cảm. Khi khen/đánh giá tích cực: “して当然だ” = “xứng đáng”. So với 当たり前だ, 当然だ trang trọng hơn, thiên về lý luận. [6. Ghi chú mở rộng] Đi với động từ có kết quả xã hội: 評価される／非難される／罰せられる／称賛される. Đảo vị ngữ với danh từ: N + で当然だ (彼が優勝して当然だチーム＝nghe gượng; nên tách câu cho tự nhiên). Trong bài luận, 当然だ giúp chốt luận điểm sau khi nêu đủ căn cứ. [7. Biến thể & cụm cố định] 道理で～：hóa ra là thế (liên quan lý lẽ), song không cùng cấu trúc. ～て当然の結果／当然の報い：kết quả/“quả báo” đương nhiên. ～のは当然のことだ：dài hơn, trang trọng. [8. Lỗi thường gặp & bẫy JLPT] Dùng 当然だ cho cảm xúc người khác khi chưa có bối cảnh → nghe phán xét; cân nhắc dùng 無理はない. Nhầm quan hệ “nên” (べき) với “hệ quả” (当然): đề bài có nguyên nhân rõ → chọn 当然だ. Dùng sai hình thái: なA/N + で当然だ (không dùng に/は). Câu ví dụ “勝って当然だチームだ” cần ngắt: 勝って当然だ。強いチームだ。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-dec51b66a1"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-061"
+}
