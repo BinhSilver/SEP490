@@ -161,6 +161,9 @@
     premiumLink: 'jlabBasePremiumLink',
     premiumIcon: 'jlabBasePremiumIcon',
     premiumLabel: 'jlabBasePremiumLabel',
+    notebookIcon: 'jlabBaseNotebookIcon',
+    creditsLink: 'jlabBaseCreditsLink',
+    creditsIcon: 'jlabBaseCreditsIcon',
     adminLink: 'jlabBaseAdminLink',
     adminIcon: 'jlabBaseAdminIcon',
     adminLabel: 'jlabBaseAdminLabel',
@@ -230,6 +233,8 @@
       flame: '<path d="M12 22c4 0 7-2.7 7-6.7 0-3.8-2.5-6.1-5.3-9.3.2 2.8-1.1 4.4-3.2 5.8.1-2.8-1.1-4.9-2.9-6.8C6.6 7.8 5 10.2 5 13.2 5 18.1 8 22 12 22Z"></path>',
       shield: '<path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7Z"></path><rect x="9" y="11" width="6" height="5" rx="1"></rect><path d="M10.5 11V9.5a1.5 1.5 0 0 1 3 0V11"></path>',
       chart: '<path d="M4 19V5"></path><path d="M4 19h16"></path><path d="m7 15 3-4 3 2 4-6"></path>',
+      award: '<circle cx="12" cy="8" r="6"></circle><path d="M8.2 13 7 22l5-3 5 3-1.2-9"></path>',
+      coins: '<circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><path d="m16.71 13.88.7.71-2.82 2.82"></path>',
       logout: '<path d="M10 17l5-5-5-5"></path><path d="M15 12H3"></path><path d="M21 3v18"></path>'
     };
     return '<svg' + (id ? ' id="' + id + '"' : '') + ' class="jlab-base-icon' + (extraClass ? ' ' + extraClass : '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + paths[name] + '</svg>';
@@ -265,6 +270,9 @@
     replaceIcon(ids.myLearningPathIcon, 'route');
     replaceIcon(ids.adminIcon, 'shield');
     replaceIcon(ids.streakIcon, 'flame');
+    replaceIcon(ids.notebookIcon, 'book');
+    replaceIcon(ids.premiumIcon, 'award');
+    replaceIcon(ids.creditsIcon, 'coins');
     replaceIcon(ids.rewardStreakIcon, 'flame');
     replaceIcon(ids.logoutIcon, 'logout');
 
@@ -385,10 +393,10 @@
                   '</div>' +
                   '<a id="' + ids.profileLink + '" class="dropdown__item" href="/profile" role="menuitem"><span id="' + ids.profileIcon + '" class="material-symbols-outlined" aria-hidden="true">person</span><span id="' + ids.profileLabel + '">Hồ sơ và cài đặt</span></a>' +
                   '<a id="' + ids.myLearningPathLink + '" class="dropdown__item" href="/learning/path" role="menuitem"><span id="' + ids.myLearningPathIcon + '" class="material-symbols-outlined" aria-hidden="true">route</span><span id="' + ids.myLearningPathLabel + '">Lộ trình của tôi</span></a>' +
-                  '<a id="jlabBaseNotebookLink" class="dropdown__item" href="/learning/notebook" role="menuitem"><span class="material-symbols-outlined" aria-hidden="true">menu_book</span><span>Sổ tay của tôi</span></a>' +
+                  '<a id="jlabBaseNotebookLink" class="dropdown__item" href="/learning/notebook" role="menuitem"><span id="' + ids.notebookIcon + '" class="material-symbols-outlined" aria-hidden="true">menu_book</span><span>Sổ tay của tôi</span></a>' +
                   '<a id="' + ids.streakLink + '" class="dropdown__item" href="/goals" role="menuitem"><span id="' + ids.streakIcon + '" class="material-symbols-outlined" aria-hidden="true">local_fire_department</span><span id="' + ids.streakLabel + '">Mục tiêu &amp; chuỗi ngày</span></a>' +
                   '<a id="' + ids.premiumLink + '" class="dropdown__item" href="/premium/billing" role="menuitem" hidden><span id="' + ids.premiumIcon + '" class="material-symbols-outlined" aria-hidden="true">workspace_premium</span><span id="' + ids.premiumLabel + '">Gói &amp; thanh toán</span></a>' +
-                  '<a class="dropdown__item" href="/credits" role="menuitem"><span class="material-symbols-outlined" aria-hidden="true">toll</span> Mua CP</a>' +
+                  '<a id="' + ids.creditsLink + '" class="dropdown__item" href="/credits" role="menuitem"><span id="' + ids.creditsIcon + '" class="material-symbols-outlined" aria-hidden="true">toll</span><span>Mua CP</span></a>' +
                   '<a id="' + ids.adminLink + '" class="dropdown__item" href="/admin" role="menuitem" hidden><i id="' + ids.adminIcon + '" aria-hidden="true"></i><span id="' + ids.adminLabel + '">Trang quản trị</span></a>' +
                   '<div id="' + ids.accountDivider + '" class="dropdown__divider" aria-hidden="true"></div>' +
                   '<button id="' + ids.logoutButton + '" class="dropdown__item" type="button" role="menuitem"><span id="' + ids.logoutIcon + '" class="material-symbols-outlined" aria-hidden="true">logout</span><span id="' + ids.logoutLabel + '">Đăng xuất</span></button>' +
@@ -480,6 +488,7 @@
       path === '/login' || path === '/register' || isGoals || path === '/admin' || path.indexOf('/admin/') === 0);
     markCurrent(ids.adminLink, path === '/admin' || path.indexOf('/admin/') === 0);
     markCurrent(ids.premiumLink, path === '/premium' || path.indexOf('/premium/') === 0);
+    markCurrent(ids.creditsLink, path === '/credits');
 
     var toolsButton = byId(ids.toolsButton);
     if (toolsButton) {
