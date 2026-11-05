@@ -98,6 +98,8 @@
         var ps = pagerState(p);
         if (!items.length && state.page > 0) { state.page = ps.pages - 1; return load(); }
         status.textContent = items.length ? (Number(p.total) || items.length) + ' mục' : EMPTY[kind];
+        var summary = main.querySelector('[data-role="summary"]');
+        if (summary) summary.textContent = (Number(p.total) || items.length) + (kind === 'NOTEBOOK' ? ' mục trong sổ tay' : ' mục đã biết');
         pager.hidden = ps.pages <= 1;
         pager.querySelector('[data-page="prev"]').disabled = !ps.hasPrev;
         pager.querySelector('[data-page="next"]').disabled = !ps.hasNext;

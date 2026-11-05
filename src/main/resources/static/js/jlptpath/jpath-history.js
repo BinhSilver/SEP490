@@ -116,6 +116,8 @@
         });
       });
       var pages = Math.max(1, Math.ceil(filtered.length / 20));
+      var summary = main.querySelector('[data-role="summary"]');
+      if (summary) summary.textContent = filtered.length + ' ngày trong danh sách';
       page = Math.min(page, pages - 1);
       list.innerHTML = filtered.slice(page * 20, page * 20 + 20).map(rowMarkup).join('');
       pager.hidden = pages <= 1;
