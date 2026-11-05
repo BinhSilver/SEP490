@@ -321,7 +321,8 @@
   function studyDayHtml(t) {
     return '<div class="jp-today__go">'
       + '<button type="button" class="jp-btn jp-btn--primary jp-btn--lg" data-action="start-mode" data-mode="COMBINED">Học hôm nay</button>'
-      + '<span class="jp-today__go-meta">' + esc(studySummaryText(t)) + '</span>'
+      // the headline above already says what today holds; the button line says how the round goes
+      + '<span class="jp-today__go-meta">Ôn thẻ đến hạn rồi học mới liền một lượt</span>'
       + '</div>'
       + studyPillsHtml(t);
   }
