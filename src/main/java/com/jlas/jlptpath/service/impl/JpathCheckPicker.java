@@ -188,7 +188,11 @@ public class JpathCheckPicker {
             };
         } else {
             JpathItemState only = src == JpathCheckSource.NOTEBOOK ? JpathItemState.NOTEBOOK : null;
+            // Owner 05/11 weekly test: the items first learned in the last 7 days
+            java.time.LocalDateTime weekStart = java.time.LocalDateTime.now().minusDays(7);
             codes = userItems.findByUserIdAndItemType(userId, type).stream()
+                    .filter(i -> src != JpathCheckSource.WEEK
+                            || (i.getFirstLearnedAt() != null && i.getFirstLearnedAt().isAfter(weekStart)))
                     .filter(i -> i.getState() != JpathItemState.KNOWN && (only == null || i.getState() == only))
                     .filter(i -> level == null || level.equals(i.getLevel()))
                     .sorted(java.util.Comparator.comparing(JpathUserItem::getId))

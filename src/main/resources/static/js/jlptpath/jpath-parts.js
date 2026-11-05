@@ -12,6 +12,24 @@
   var api = factory(root);
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (root) root.JpathParts = api;
+  // Owner 05/11: a finished day comes back to the path (no summary page) with a short notice
+  if (root && root.location && /[?&]saved=1\b/.test(String(root.location.search || '')) && root.document) {
+    var notice = function () {
+      var msg = 'Đã lưu tiến trình hôm nay. Xem lại ở "Xem ngày học hôm nay".';
+      if (root.JlasToast && typeof root.JlasToast.show === 'function') root.JlasToast.show(msg);
+      else {
+        var p = root.document.createElement('p');
+        p.className = 'jp-saved-note';
+        p.setAttribute('role', 'status');
+        p.textContent = msg;
+        var main = root.document.querySelector('main');
+        if (main) main.insertBefore(p, main.firstChild);
+      }
+      try { root.history.replaceState(null, '', root.location.pathname); } catch (e) { /* keep the url */ }
+    };
+    if (root.document.readyState === 'loading') root.document.addEventListener('DOMContentLoaded', notice);
+    else notice();
+  }
 })(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : null), function (root) {
   'use strict';
 
@@ -52,11 +70,14 @@
     if (p.status === 'TODAY') {
       actions = '<div class="jp-parts__actions"><button type="button" class="jp-btn jp-btn--primary" data-action="start-mode"'
         + ' data-mode="SPLIT" data-tab-key="' + esc(tabKey) + '">Học phần này</button></div>';
-    } else if (p.status === 'TODAY_DONE') {
-      actions = '<div class="jp-parts__actions"><span class="jp-parts__ok">Đã xong phần hôm nay</span>'
-        + '<a class="jp-btn" href="/learning/jlpt/day?d=' + esc(p.day) + '">Xem ngày học</a></div>';
-    } else if (p.status === 'DONE' && p.day) {
-      actions = '<div class="jp-parts__actions"><a class="jp-btn" href="/learning/jlpt/day?d=' + esc(p.day) + '">Xem ngày học</a></div>';
+    } else if ((p.status === 'TODAY_DONE' || p.status === 'DONE') && p.day) {
+      // Owner 05/11: a learned part opens as a fresh study page; the old results sit behind their own button
+      var first = list(p.items)[0];
+      actions = '<div class="jp-parts__actions">'
+        + (p.status === 'TODAY_DONE' ? '<span class="jp-parts__ok">Đã xong phần hôm nay</span>' : '')
+        + (first ? '<button type="button" class="jp-btn jp-btn--primary" data-parts-relearn="' + esc(first.code)
+          + '" data-parts-count="' + list(p.items).length + '">Học lại phần này</button>' : '')
+        + '<a class="jp-btn" href="/learning/jlpt/day?d=' + esc(p.day) + '">Kết quả lần trước</a></div>';
     }
     return '<li><details class="' + cls + '"' + (p.status === 'TODAY' || p.status === 'TODAY_DONE' ? ' open' : '') + '>' + head
       + '<div class="jp-parts__body">' + itemsHtml(p.items) + actions + '</div></details></li>';
@@ -108,6 +129,27 @@
     return html;
   }
 
+  /**
+   * Owner 05/11: one test a week, on the last study day (REST days excluded). On that day the block offers the three
+   * tests (items first learned in the last 7 days); before it, it says when the test comes.
+   */
+  function weeklyHtml(week) {
+    var days = list(week).filter(function (d) { return d && d.kind !== 'REST'; });
+    if (!days.length) return '';
+    var last = days[days.length - 1];
+    var today = list(week).filter(function (d) { return d && d.today; })[0];
+    if (!today) return '';
+    if (today.day !== last.day) {
+      return '<p class="jp-parts__weekly-note">Kiểm tra tuần: ' + esc(dayLabel(last.day)) + ' (các mục học trong tuần).</p>';
+    }
+    return '<div class="jp-parts__weekly"><p class="jp-parts__weekly-title">Hôm nay có kiểm tra tuần</p>'
+      + '<p class="jp-parts__sub">10 câu mỗi phần, chỉ các mục bạn học trong 7 ngày qua. Mục sai vào Sổ tay.</p>'
+      + '<div class="jp-parts__actions">' + ['VOCAB', 'KANJI', 'GRAMMAR'].map(function (t) {
+        return '<button type="button" class="jp-btn" data-parts-weekly="' + t + '">'
+          + { VOCAB: 'Từ vựng', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp' }[t] + '</button>';
+      }).join('') + '</div></div>';
+  }
+
   function mount(partsEl, listEl, tabKey, opts) {
     if (!partsEl) return null;
     var key = String(tabKey || '').toLowerCase();
@@ -128,6 +170,33 @@
       partsEl.__bound = true;
       partsEl.addEventListener('click', function (ev) {
         var t = ev.target;
+        var wk = t.closest && t.closest('[data-parts-weekly]');
+        if (wk) {
+          var tab = wk.getAttribute('data-parts-weekly');
+          wk.disabled = true;
+          Promise.resolve(client.send('POST', '/api/learning/jlpt/checks', { kind: 'FREE_QUIZ', tab: tab, source: 'WEEK',
+            count: 10, direction: tab === 'GRAMMAR' ? null : 'MIXED', timerOn: false })).then(function (res) {
+            var token = res && (res.token || res.checkToken);
+            if (token) root.location.assign('/learning/jlpt/check/' + encodeURIComponent(token) + '?return=%2Flearning');
+            else wk.disabled = false;
+          }, function (e) {
+            wk.disabled = false;
+            wk.insertAdjacentHTML('afterend', '<span class="jp-parts__err">' + esc((e && e.message) || 'Chưa mở được bài kiểm tra.') + '</span>');
+          });
+          return;
+        }
+        var re = t.closest && t.closest('[data-parts-relearn]');
+        if (re) {
+          var d0 = partsEl.__data || {};
+          re.disabled = true;
+          Promise.resolve(client.send('POST', '/api/learning/jlpt/sessions', { tab: TABS[partsEl.__tab][0], mode: 'BROWSE',
+            level: d0.level, startItemCode: re.getAttribute('data-parts-relearn'),
+            count: Number(re.getAttribute('data-parts-count')) || 10 })).then(function (view) {
+            if (view && view.sessionId != null) root.location.assign('/learning/jlpt/study?session=' + encodeURIComponent(view.sessionId));
+            else re.disabled = false;
+          }, function () { re.disabled = false; });
+          return;
+        }
         var pg = t.closest && t.closest('[data-parts-page]');
         if (pg && !pg.disabled) {
           partsEl.innerHTML = partsHtml(partsEl.__data, partsEl.__tab, Number(pg.getAttribute('data-parts-page')));
@@ -148,7 +217,7 @@
     return Promise.resolve(client.get('/api/learning/jlpt/parts?tab=' + TABS[key][0])).then(function (data) {
       if (partsEl.__seq !== mine) return;
       partsEl.__data = data;
-      partsEl.innerHTML = partsHtml(data, key, 0);
+      partsEl.innerHTML = weeklyHtml(o.week) + partsHtml(data, key, 0);
       var btn = partsEl.querySelector('[data-parts-all]');
       if (btn && partsEl.__allOpen) {
         btn.setAttribute('aria-expanded', 'true');

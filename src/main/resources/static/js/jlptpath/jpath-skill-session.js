@@ -221,7 +221,7 @@
   /** After a session: a skill day goes on in the Đọc · Nghe tab (the other skill, then today's summary). */
   function doneActions(s) {
     if (s && s.kind === 'DAY') {
-      return '<div class="jp-flow"><div class="jp-flow__lead"><a class="jp-btn jp-btn--ghost" href="/learning/jlpt/done">'
+      return '<div class="jp-flow"><div class="jp-flow__lead"><a class="jp-btn jp-btn--ghost" href="/learning?saved=1">'
         + 'Xem tổng kết hôm nay</a></div><div class="jp-flow__tail"><a class="jp-btn jp-btn--primary" href="/learning?tab=skills">'
         + 'Làm tiếp ngày kỹ năng</a></div></div>';
     }

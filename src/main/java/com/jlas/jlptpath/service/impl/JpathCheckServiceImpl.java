@@ -1009,7 +1009,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
      */
     static Boolean passed(JpathCheckKind kind, int correct, int total) {
         return switch (kind) {
-            case MICRO_CHECK, KANA_ROW -> total > 0 && correct * 100L >= (long) JpathCheckSizing.PASS_PERCENT * total;
+            // Owner 05/11: the check after a part is practice — finishing it completes the part whatever the score
+            // (wrong items still go to the notebook); the weekly test is where scores matter.
+            case MICRO_CHECK -> total > 0;
+            case KANA_ROW -> total > 0 && correct * 100L >= (long) JpathCheckSizing.PASS_PERCENT * total;
             case SKIP_ONE -> total > 0 && correct == total;
             case TOPIC_KNOWN -> total > 0 && correct * 10L >= 9L * total;
             // Plan 3 #40: a section passes at a shown (rounded) 32% — the floor 19 of 60 is 31.7% → 32%

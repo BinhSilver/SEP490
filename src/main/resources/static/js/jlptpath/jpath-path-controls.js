@@ -278,7 +278,7 @@
     var missed = t.skillDayMissed ? '<p class="jp-warn">Tuần này bạn còn thiếu ngày kỹ năng.</p>' : '';
     if (t.allDone) {
       return html + '<p class="jp-today__done">' + icon('check') + ' Bạn đã xong phần hôm nay</p>'
-        + '<a class="jp-btn" href="/learning/jlpt/done">Xem tổng kết hôm nay</a>' + missed + end;
+        + '<a class="jp-btn" href="/learning/jlpt/day">Xem ngày học hôm nay</a>' + missed + end;
     }
     if (t.kind === 'REST') {
       return html + '<p>Hôm nay là ngày nghỉ của bạn: không có phần bắt buộc.</p>' + missed + end;

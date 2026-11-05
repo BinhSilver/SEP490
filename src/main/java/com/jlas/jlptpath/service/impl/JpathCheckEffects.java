@@ -71,7 +71,7 @@ public class JpathCheckEffects {
     static final String SKIP_CHECK = "SKIP_CHECK";
     static final String TOPIC_CHECK = "TOPIC_CHECK";
     static final String STUDY_URL = "/learning/jlpt/study?session=";
-    static final String DONE_URL = "/learning/jlpt/done";
+    static final String DONE_URL = "/learning?saved=1"; // owner 05/11: no summary page, back to the path
 
     private static final ObjectMapper JSON = new ObjectMapper();
 

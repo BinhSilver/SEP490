@@ -384,7 +384,7 @@
 
   // ---- flow (pure) ----------------------------------------------------------------------------------------
 
-  var DONE_URL = '/learning/jlpt/done';
+  var DONE_URL = '/learning?saved=1'; // owner 05/11: no summary page
   var MAX_REPEATS = 2;
   var DAY_TABS = { VOCAB: true, KANJI: true, GRAMMAR: true, KANA: true, SKILL: true };
   var STEP_TAB = { VOCAB: 'VOCAB', KANJI: 'KANJI', GRAMMAR: 'GRAMMAR', KANA: 'KANA', SKILL_QUIZ: 'SKILL' };
