@@ -44,14 +44,23 @@ public class JpathWritingServiceImpl implements JpathWritingService {
 
     public JpathWritingServiceImpl(JpathContentReader content, JpathStrokeSvgIndex svgIndex,
                                    JpathDailyPlanService dailyPlan) {
-        this(content, svgIndex, dailyPlan, null, null);
+        this(content, svgIndex, dailyPlan, (com.jlas.jlptpath.repository.JpathUserItemRepository) null,
+                (com.jlas.jlptpath.service.JpathClock) null);
     }
 
+    /** Optional beans (absent in slim test contexts): without them "today" lists the planned items only. */
     @org.springframework.beans.factory.annotation.Autowired
     public JpathWritingServiceImpl(JpathContentReader content, JpathStrokeSvgIndex svgIndex,
                                    JpathDailyPlanService dailyPlan,
-                                   com.jlas.jlptpath.repository.JpathUserItemRepository userItems,
-                                   com.jlas.jlptpath.service.JpathClock clock) {
+                                   org.springframework.beans.factory.ObjectProvider<com.jlas.jlptpath.repository.JpathUserItemRepository> userItems,
+                                   org.springframework.beans.factory.ObjectProvider<com.jlas.jlptpath.service.JpathClock> clock) {
+        this(content, svgIndex, dailyPlan, userItems.getIfAvailable(), clock.getIfAvailable());
+    }
+
+    JpathWritingServiceImpl(JpathContentReader content, JpathStrokeSvgIndex svgIndex,
+                            JpathDailyPlanService dailyPlan,
+                            com.jlas.jlptpath.repository.JpathUserItemRepository userItems,
+                            com.jlas.jlptpath.service.JpathClock clock) {
         this.content = content;
         this.svgIndex = svgIndex;
         this.dailyPlan = dailyPlan;
