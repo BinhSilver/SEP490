@@ -12,6 +12,10 @@ OUTPUT = ROOT / "sql/seeds/seed_data_shadowing.sql"
 RUN_OUTPUT = ROOT / "sqlrun/03_datashadowing.sql"
 INTERACTION_OUTPUT = ROOT / "sql/seeds/seed_data_shadowing_interactions.sql"
 INTERACTION_RUN_OUTPUT = ROOT / "sqlrun/05_shadowing_interactions.sql"
+AGE_OUTPUT = ROOT / "sql/seeds/seed_data_shadowing_age_rating.sql"
+AGE_RUN_OUTPUT = ROOT / "sqlrun/44_shadowing_age_rating.sql"
+# Optional per-video "min_age"; must match com.jlas.shadowing.util.VideoAgeRatings.LEVELS. Absent = all ages.
+AGE_LEVELS = (13, 16, 18)
 # Story genres, several per video; codes and labels must match com.jlas.shadowing.model.ShadowingGenre.
 GENRE_LABELS = {
     "ACTION": "Hành động", "ROMANCE": "Lãng mạn", "SCHOOL": "Học đường", "COMEDY": "Hài hước",
@@ -26,6 +30,23 @@ def sql_json(value):
     # Hex is independent of NO_BACKSLASH_ESCAPES and client source encodings.
     raw = json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode("utf-8").hex()
     return f"CONVERT(0x{raw} USING utf8mb4)"
+
+
+def build_age_ratings(catalog):
+    """Companion seed for video.min_age; it runs after migration 067, which adds the column."""
+    invalid = sorted(v["source_key"] for v in catalog["videos"] if v.get("min_age") not in (None, *AGE_LEVELS))
+    if invalid:
+        raise ValueError(f"min_age must be one of {AGE_LEVELS} in catalog.json: {invalid}")
+    ratings = [{"source_key": v["source_key"], "source_url": v["source_url"], "min_age": v["min_age"]}
+               for v in catalog["videos"] if v.get("min_age")]
+    per_level = Counter(r["min_age"] for r in ratings)
+    summary = ", ".join(f"{per_level[level]} at {level}+" for level in AGE_LEVELS if per_level[level])
+    template = Path(__file__).with_name("age_rating_template.sql").read_text(encoding="utf-8")
+    template = (template.replace("{{AGE_RATINGS}}", sql_json(ratings))
+                .replace("{{RATED_COUNT}}", str(len(ratings))).replace("{{RATED_SUMMARY}}", summary or "none"))
+    for output in (AGE_OUTPUT, AGE_RUN_OUTPUT):
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_bytes(template.encode("utf-8"))
 
 
 def build():
@@ -90,6 +111,7 @@ def build():
     for output in (OUTPUT, RUN_OUTPUT):
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_bytes(payload)
+    build_age_ratings(catalog)
     engagement = build_engagement(catalog)
     interaction_template = Path(__file__).with_name("engagement_template.sql").read_text(encoding="utf-8")
     interaction_template = interaction_template.replace("{{DEMO_PAYLOAD}}", sql_json(engagement))
@@ -109,5 +131,5 @@ def build():
 
 if __name__ == "__main__":
     build()
-    for output in (OUTPUT, RUN_OUTPUT, INTERACTION_OUTPUT, INTERACTION_RUN_OUTPUT):
+    for output in (OUTPUT, RUN_OUTPUT, INTERACTION_OUTPUT, INTERACTION_RUN_OUTPUT, AGE_OUTPUT, AGE_RUN_OUTPUT):
         print(output)
