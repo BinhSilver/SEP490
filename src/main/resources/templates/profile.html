@@ -145,6 +145,13 @@
                                 </select>
                             </div>
                             <div class="field">
+                                <label class="field__label" for="dateOfBirth">Ngày sinh</label>
+                                <div>
+                                    <input class="input" id="dateOfBirth" type="date" min="1900-01-01" autocomplete="bday" aria-describedby="dateOfBirthHint"/>
+                                </div>
+                                <p class="field__hint" id="dateOfBirthHint">Chỉ đặt được một lần. Cần đổi, hãy liên hệ quản trị viên.</p>
+                            </div>
+                            <div class="field">
                                 <label class="field__label" for="japaneseLevel">Mục tiêu trình độ JLPT</label>
                                 <select class="select" id="japaneseLevel">
                                     <option value="UNKNOWN">Chưa xác định</option>
@@ -544,9 +551,11 @@
     window.INITIAL_SECURITY_SECTION = /*[[${securitySection}]]*/ 'home';
 </script>
 <script th:src="@{/js/pages/profile-navigation.js?v=20261011-mobile-popup}"></script>
-<script defer th:src="@{/js/pages/profile-usage.js?v=20261031-cosmetics-popup}"></script>
+<script defer th:src="@{/js/pages/profile-usage.js?v=20261103-auto}"></script>
+<script th:src="@{/js/components/date-wheel.js?v=20261102-wheel2}"></script>
 <script>
 (function () {
+    var dateOfBirthWheel = DateWheel.attach(document.getElementById('dateOfBirth'), { popover: true });
     if (typeof JlasAuth === 'undefined') {
         console.error('JlasAuth missing — /js/auth-session.js failed to load');
         document.body.insertAdjacentHTML('afterbegin',
@@ -591,6 +600,7 @@
         document.getElementById('fullName').value = user.fullName || '';
         document.getElementById('phoneNumber').value = user.phoneNumber || '';
         document.getElementById('gender').value = user.gender || '';
+        dateOfBirthWheel.set(user.dateOfBirth || '', !!user.dateOfBirth);
         document.getElementById('japaneseLevel').value = user.japaneseLevel || 'UNKNOWN';
         document.getElementById('jlptSealLevel').textContent = user.japaneseLevel && user.japaneseLevel !== 'UNKNOWN'
             ? user.japaneseLevel : '—';
@@ -748,11 +758,19 @@
                 fullName: document.getElementById('fullName').value.trim(),
                 phoneNumber: document.getElementById('phoneNumber').value.trim(),
                 gender: document.getElementById('gender').value || 'PREFER_NOT_TO_SAY',
+                // Empty keeps the stored date; the server ignores a resend of the same date.
+                dateOfBirth: document.getElementById('dateOfBirth').value || undefined,
                 japaneseLevel: document.getElementById('japaneseLevel').value || 'UNKNOWN',
                 avatar: document.getElementById('avatarUrl').value.trim()
             };
             if (!body.fullName || body.fullName.length < 2) {
                 if (window.JlasUI) JlasUI.showAlert(alertEl, 'Vui lòng nhập họ và tên (tối thiểu 2 ký tự)', 'error');
+                btn.disabled = false;
+                btn.textContent = 'Lưu thay đổi';
+                return;
+            }
+            if (dateOfBirthWheel.isPartial()) {
+                if (window.JlasUI) JlasUI.showAlert(alertEl, 'Vui lòng chọn đủ ngày, tháng và năm sinh', 'error');
                 btn.disabled = false;
                 btn.textContent = 'Lưu thay đổi';
                 return;
@@ -842,6 +860,6 @@
 <script th:src="@{/js/pages/profile-retention.js?v=20261031-pro-cp}"></script>
 <script th:src="@{/js/pages/profile-account.js?v=20261012-profile-summary}"></script>
 <script th:src="@{/js/pages/profile-cosmetics.js?v=20261031-popup}"></script>
-<script th:src="@{/js/jlab-base-shell.js?v=20261013-reward-styles}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=20261105-nav}"></script>
 </body>
 </html>
