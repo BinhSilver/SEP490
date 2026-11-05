@@ -281,3 +281,22 @@
 .jp-done__stat span { color: var(--jp-muted); }
 @media (max-width: 640px) { .jp-done__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (prefers-reduced-motion: reduce) { .jp-check__feedback.jp-ok { animation: none; } }
+
+/* 05/11 "Xong hôm nay" per the approved mock-up: left-aligned sections, all visible */
+.jp-done { display: grid; gap: 14px; text-align: left; justify-items: stretch; }
+.jp-done__title { font-size: clamp(1.6em, 3vw, 2.2em); }
+.jp-done__date { font-size: .55em; font-weight: 500; color: var(--jp-muted); }
+.jp-done__stats { justify-content: flex-start; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+.jp-done__stat { display: grid; gap: 2px; padding: 12px 14px; border: 0; border-radius: 12px; background: var(--jp-primary-soft); }
+.jp-done__stat strong { font-size: 1.8em; line-height: 1.1; }
+.jp-done__stat span { color: var(--jp-muted); font-size: .9em; }
+.jp-done__cp strong { color: var(--jp-ok); }
+.jp-done__level { display: grid; gap: 6px; }
+.jp-done__bar { height: 8px; border-radius: 99px; background: var(--jp-line); overflow: hidden; }
+.jp-done__bar span { display: block; height: 100%; background: var(--jp-primary); border-radius: 99px; }
+.jp-done__label { margin: 4px 0 0; font-size: .85em; font-weight: 600; color: var(--jp-muted); }
+.jp-done__wrongbox { display: grid; gap: 6px; }
+ul.jp-done__wrong { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; margin: 0; }
+ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid var(--jp-bad, #b3261e); color: var(--jp-bad, #b3261e); }
+.jp-done__actions, .jp-done__extra { justify-content: flex-start; width: auto; margin-top: 0; }
+.jp-done__actions .jp-btn { min-height: 44px; }

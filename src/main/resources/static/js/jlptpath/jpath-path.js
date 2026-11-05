@@ -249,8 +249,12 @@
         + (d.kind === 'REVIEW_ONLY' ? ' jp-day--review' : '');
       var title = d.kind === 'SKILL' ? ' title="Ngày kỹ năng"' : (d.kind === 'REST' ? ' title="Ngày nghỉ"'
         : (d.kind === 'REVIEW_ONLY' ? ' title="Ngày ôn"' : ''));
+      var label = esc(D().dayShort(weekday(d.day))) + (d.done ? ' ' + icon('check') : '');
+      // Owner 05/11: a past day or today opens its detail page
+      var past = d.today || (d.day && d.day <= new Date().toISOString().slice(0, 10));
       return '<li class="' + cls + '"' + (d.today ? ' aria-current="date"' : '') + title + '>'
-        + esc(D().dayShort(weekday(d.day))) + (d.done ? ' ' + icon('check') : '') + '</li>';
+        + (past && d.day ? '<a class="jp-day__link" href="/learning/jlpt/day?d=' + esc(d.day) + '">' + label + '</a>' : label)
+        + '</li>';
     }).join('');
     return '<ol class="jp-week" aria-label="Tuần này">' + chips + '</ol>';
   }

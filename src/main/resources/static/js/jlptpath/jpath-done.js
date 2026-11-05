@@ -35,6 +35,13 @@
   function num(v) { var n = Number(v); return isFinite(n) ? n : 0; }
   function dataJson(obj) { return esc(JSON.stringify(obj)); }
 
+  var WEEKDAY = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
+  function dayTitle(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
+    if (!m) return String(iso || '');
+    return WEEKDAY[new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDay()] + ' ' + m[3] + '/' + m[2];
+  }
+
   function extraRequest(tab) { return { tab: tab, mode: 'EXTRA', count: EXTRA_COUNT }; }
 
   function summaryHtml(summary) {
@@ -44,38 +51,44 @@
         + 'Phần hôm nay chưa xong</h1><p>Học nốt các phần còn lại trong lộ trình để hoàn thành ngày hôm nay.</p>'
         + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình học</a></section>';
     }
+    // Owner 05/11 (approved mock-up): everything visible, a clear "what next" row, a way back and the day's detail.
     var before = num(s.levelPercentBefore);
     var after = num(s.levelPercentAfter);
-    var delta = after - before;
     var html = '<section class="jp-done jp-card" aria-labelledby="jp-done-title">'
-      + '<h1 class="jp-done__title" id="jp-done-title">' + (s.kind === 'SKILL' ? 'Xong ngày kỹ năng' : 'Xong phần hôm nay') + '</h1>'
-      + '<ul class="jp-done__stats"><li class="jp-done__stat"><strong>' + esc(num(s.newLearned)) + '</strong><span>Mục đã học</span></li>'
-      + '<li class="jp-done__stat"><strong>' + esc(num(s.reviewed)) + '</strong><span>Thẻ đã ôn</span></li>';
+      + '<h1 class="jp-done__title" id="jp-done-title">' + (s.kind === 'SKILL' ? 'Xong ngày kỹ năng' : 'Xong phần hôm nay')
+      + (s.day ? ' <span class="jp-done__date">· ' + esc(dayTitle(s.day)) + '</span>' : '') + '</h1>'
+      + '<ul class="jp-done__stats"><li class="jp-done__stat"><strong>' + esc(num(s.newLearned)) + '</strong><span>mục mới</span></li>'
+      + '<li class="jp-done__stat"><strong>' + esc(num(s.reviewed)) + '</strong><span>thẻ đã ôn</span></li>';
     if (s.accuracyPercent !== null && s.accuracyPercent !== undefined) {
-      html += '<li class="jp-done__stat"><strong>' + esc(num(s.accuracyPercent)) + '%</strong><span>Đúng</span></li>';
+      html += '<li class="jp-done__stat"><strong>' + esc(num(s.accuracyPercent)) + '%</strong><span>trả lời đúng</span></li>';
     }
-    html += '<li class="jp-done__stat jp-done__cp"><strong>+' + esc(num(s.cpToday)) + '</strong><span>CP</span></li></ul>'
-      + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình học</a>'
-      + '<details class="jp-done__more"><summary>Xem thêm kết quả và lựa chọn</summary>'
-      + '<p class="jp-done__streak">Chuỗi ' + esc(num(s.streak)) + ' ngày</p>'
-      + '<p class="jp-done__level">Tiến độ ' + esc(s.level || '') + ': ' + before + '% → ' + after + '%'
-      + (delta > 0 ? ' (+' + delta + '%)' : '') + '</p>';
-    var wrong = (s.wrongItems || []).map(function (w) { return w && (w.expression || w.code); }).filter(Boolean);
-    if (wrong.length) html += '<p class="jp-done__wrong">Mục sai hôm nay: <span lang="ja">' + esc(wrong.join(', ')) + '</span></p>';
+    html += '<li class="jp-done__stat jp-done__cp"><strong>+' + esc(num(s.cpToday)) + '</strong><span>CP · chuỗi '
+      + esc(num(s.streak)) + ' ngày</span></li></ul>'
+      + '<div class="jp-done__level"><span>Tiến độ ' + esc(s.level || '') + ': ' + before + '% → ' + after + '%</span>'
+      + '<div class="jp-done__bar" aria-hidden="true"><span style="width:' + Math.max(1, Math.min(100, after)) + '%"></span></div></div>';
+    var wrong = (s.wrongItems || []).filter(function (w) { return w && (w.expression || w.code); });
+    if (wrong.length) {
+      html += '<div class="jp-done__wrongbox"><p class="jp-done__label">Mục sai hôm nay (' + wrong.length + ') · đã vào Sổ tay điểm yếu</p>'
+        + '<ul class="jp-done__wrong">' + wrong.map(function (w) {
+          return '<li lang="ja">' + esc(w.expression || w.code) + '</li>';
+        }).join('') + '</ul></div>';
+    }
+    html += '<p class="jp-done__label">Tiếp theo</p><div class="jp-done__actions">'
+      + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình</a>'
+      + '<a class="jp-btn" href="/learning/jlpt/day' + (s.day ? '?d=' + esc(s.day) : '') + '">Xem chi tiết ngày</a>'
+      + (wrong.length ? '<a class="jp-btn" href="/learning/jlpt/notebook">Ôn lại ' + wrong.length + ' mục sai</a>' : '')
+      + '<button type="button" class="jp-btn" data-jpath-writing="' + dataJson({ today: 'KANJI' }) + '">Luyện viết kanji</button>'
+      + '<button type="button" class="jp-btn" data-jpath-print="' + dataJson({ scope: 'TODAY', tab: 'VOCAB' }) + '">In bảng</button>'
+      + '</div>';
     // A skill day has no new learning, so it offers no extra rounds.
     if (s.kind !== 'SKILL') {
-      html += '<div class="jp-done__extra" role="group" aria-label="Học thêm 5 mục">'
+      html += '<p class="jp-done__label">Còn sức? Học thêm 5 mục</p><div class="jp-done__extra" role="group" aria-label="Học thêm 5 mục">'
         + EXTRA_TABS.map(function (t) {
-          return '<button type="button" class="jp-chip jp-done__chip" data-extra-tab="' + t[0] + '">Học thêm 5 mục · ' + esc(t[1]) + '</button>';
+          return '<button type="button" class="jp-chip jp-done__chip" data-extra-tab="' + t[0] + '">' + esc(t[1]) + '</button>';
         }).join('') + '</div><p class="jp-done__hint">Học vượt nhiều sẽ làm tăng số thẻ ôn ngày mai.</p>';
     }
-    html += '<div class="jp-done__actions">'
-      + '<button type="button" class="jp-btn" data-jpath-writing="' + dataJson({ today: 'VOCAB' }) + '">Luyện viết hôm nay</button>'
-      + '<button type="button" class="jp-btn" data-jpath-print="' + dataJson({ scope: 'TODAY', tab: 'VOCAB' }) + '">In bảng</button>'
-      + '</div>'
-      + '<div data-jpath-extra-links></div>'
-      + '<p class="jp-status" role="status" data-part="status"></p>';
-    return html + '</details></section>';
+    html += '<div data-jpath-extra-links></div><p class="jp-status" role="status" data-part="status"></p>';
+    return html + '</section>';
   }
 
   function closestAttr(target, attr, el) {

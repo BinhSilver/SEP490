@@ -78,6 +78,7 @@
     return '<h2>' + esc(dayLabel(d.day)) + ' — ' + esc(DAY_KIND[d.kind] || 'Ngoài lộ trình') + '</h2>'
       + '<p>' + esc(Number(d.newLearned) || 0) + ' mục mới · ' + esc(Number(d.reviewed) || 0) + ' lượt ôn'
       + (d.done ? ' · đã xong ngày' : '') + (Number(d.cpAwarded) > 0 ? ' · +' + esc(d.cpAwarded) + ' CP' : '') + '</p>'
+      + '<p><a class="jp-btn jp-btn--primary" href="/learning/jlpt/day?d=' + esc(d.day) + '">Xem chi tiết ngày</a></p>'
       + (checks.length ? '<ul class="jp-side-checks">' + checks.map(checkMarkup).join('') + '</ul>'
         : '<p class="jp-side__note">Ngày này chưa có bài kiểm.</p>');
   }

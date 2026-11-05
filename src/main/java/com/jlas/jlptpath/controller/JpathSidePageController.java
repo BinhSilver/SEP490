@@ -51,6 +51,13 @@ public class JpathSidePageController {
         return blocked != null ? blocked : "jlptpath/history";
     }
 
+    /** Owner 05/11: one study day in full; jpath-day.js reads {@code GET /api/learning/jlpt/history/{day}}. */
+    @GetMapping("/learning/jlpt/day")
+    public String day(@AuthenticationPrincipal UserPrincipal user) {
+        String blocked = guard(user);
+        return blocked != null ? blocked : "jlptpath/day";
+    }
+
     /** Stats page; jpath-stats.js reads {@code /stats}, {@code /stats/heatmap} and {@code /badges}. */
     @GetMapping("/learning/jlpt/stats")
     public String stats(@AuthenticationPrincipal UserPrincipal user) {
