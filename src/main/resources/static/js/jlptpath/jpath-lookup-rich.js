@@ -70,19 +70,20 @@
 
   /** The block added under the word of the shared card. */
   function richHtml(detail, near, sameReading) {
+    // Owner 05/11: compact card — the reading is already in the head, so only Hán Việt / word type as small tags;
+    // senses, one example line, and the related words folded behind one "Từ liên quan" toggle.
     var d = detail || {};
-    var facts = [['Cách đọc', d.reading, 'ja'], ['Hán Việt', has(d.hanViet) ? String(d.hanViet).toUpperCase() : '', 'hv'],
-      ['Từ loại', d.wordType, '']].filter(function (f) { return has(f[1]); }).map(function (f) {
-      return '<div class="jp-lu__fact"><dt>' + f[0] + '</dt><dd' + (f[2] === 'ja' ? ' lang="ja"' : '')
-        + (f[2] === 'hv' ? ' class="jp-lu__hv"' : '') + '>' + esc(f[1]) + '</dd></div>';
-    }).join('');
-    var example = has(d.exampleJa) ? '<section class="jp-lu__part"><h4 class="jp-lu__label">'
-      + '<button type="button" class="jp-lu__play" data-lu-play="' + esc(d.exampleJa) + '" aria-label="Nghe câu ví dụ">'
-      + icon('volume-2') + '</button> Ví dụ</h4><p class="jp-lu__ex" lang="ja">' + esc(d.exampleJa) + '</p>'
-      + (has(d.exampleVi) ? '<p class="jp-lu__exvi">→ ' + esc(d.exampleVi) + '</p>' : '') + '</section>' : '';
-    var sameTitle = 'Từ cùng cách đọc' + (has(d.reading) ? ' <span lang="ja">【' + esc(d.reading) + '】</span>' : '');
-    return '<div class="jp-lu" data-lu-for="' + esc(d.id) + '">' + (facts ? '<dl class="jp-lu__facts">' + facts + '</dl>' : '')
-      + sensesHtml(d.senses) + example + wordRows(near, 'Các kết quả gần đúng') + wordRows(sameReading, sameTitle) + '</div>';
+    var tags = [has(d.hanViet) ? String(d.hanViet).toUpperCase() : '', d.wordType].filter(has)
+      .map(function (t) { return '<span class="jp-lu__tag">' + esc(t) + '</span>'; }).join('');
+    var example = has(d.exampleJa) ? '<p class="jp-lu__ex" lang="ja"><button type="button" class="jp-lu__play" data-lu-play="'
+      + esc(d.exampleJa) + '" aria-label="Nghe câu ví dụ">' + icon('volume-2') + '</button>' + esc(d.exampleJa) + '</p>'
+      + (has(d.exampleVi) ? '<p class="jp-lu__exvi">' + esc(d.exampleVi) + '</p>' : '') : '';
+    var related = list(near).length + list(sameReading).length;
+    var sameTitle = 'Cùng cách đọc' + (has(d.reading) ? ' <span lang="ja">【' + esc(d.reading) + '】</span>' : '');
+    return '<div class="jp-lu jp-lu--compact" data-lu-for="' + esc(d.id) + '">' + (tags ? '<p class="jp-lu__tags">' + tags + '</p>' : '')
+      + sensesHtml(d.senses) + example
+      + (related ? '<details class="jp-lu__more"><summary>Từ liên quan (' + related + ')</summary>'
+        + wordRows(near, 'Gần đúng') + wordRows(sameReading, sameTitle) + '</details>' : '') + '</div>';
   }
 
   function others(page, d, sameReading) {

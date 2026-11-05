@@ -425,6 +425,11 @@
       lists.mountTab(el, state.tab, { level: state.viewLevel || p.openLevel, display: p.display || {},
         skillDay: !!(state.today && state.today.kind === 'SKILL'), api: apiClient, location: loc,
         history: env.history, document: doc });
+      // Owner 05/11: V/K/G tabs open on their study parts; the whole list waits behind "Xem toàn bộ"
+      if (root.JpathParts && typeof root.JpathParts.mount === 'function') {
+        root.JpathParts.mount(slot(rootEl, 'parts'), el, state.tab, {
+          api: apiClient, ownLevel: !state.viewLevel || state.viewLevel === p.openLevel });
+      }
     }
 
     // Plan 3 Task 19: the Đọc · Nghe tab body; with content at the level the tab loses its "Sắp mở" label

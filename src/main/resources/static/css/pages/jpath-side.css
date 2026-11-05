@@ -169,3 +169,17 @@ button.jp-dayd__item:hover { border-color: var(--jp-primary); }
 .jp-dayd__rd { font-size: .8rem; color: var(--jp-muted, #6b6880); }
 .jp-dayd__actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0 10px; }
 .jp-day__link { color: inherit; text-decoration: none; display: block; }
+/* 05/11 day page: flat rows like the study parts, fewer boxes */
+.jp-dayd__list.jp-parts__items { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 4px 16px; }
+.jp-dayd__list .jp-dayd__item { flex-direction: row; align-items: baseline; justify-content: flex-start; gap: 8px; min-width: 0;
+  padding: 4px 0; border: 0; border-bottom: 1px solid var(--jp-line); border-radius: 0; background: none; text-align: left; }
+.jp-dayd__list .jp-dayd__item.is-wrong { background: none; color: var(--jp-bad, #b3261e); }
+.jp-dayd__list .jp-dayd__item.is-wrong .jp-dayd__rd { color: inherit; }
+.jp-dayd__quiz { margin: 0 0 16px; }
+.jp-dayd__quiz > summary { list-style: none; display: inline-flex; cursor: pointer; }
+.jp-dayd__quiz ul { margin: 10px 0; padding-left: 1.2em; }
+.jp-parts__pager { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.jp-parts__pg { min-width: 36px; min-height: 36px; padding: 0 10px; border: 1px solid var(--jp-line); border-radius: 8px; background: none; font: inherit; cursor: pointer; }
+.jp-parts__pg.is-on { background: var(--jp-primary); border-color: var(--jp-primary); color: #fff; }
+.jp-parts__pg[disabled] { opacity: .4; cursor: default; }
+.jp-parts__pginfo { margin-left: 6px; color: var(--jp-muted); font-size: .9em; }

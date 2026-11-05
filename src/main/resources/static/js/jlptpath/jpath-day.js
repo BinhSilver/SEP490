@@ -87,11 +87,16 @@
       + esc(KIND[x.kind] || 'Ngoài lộ trình') + '</h1>' + nav + '</header>';
     var reviewed = items.filter(function (i) { return i.lastAction === 'REVIEW_RATE'; });
     var fresh = items.filter(function (i) { return i.lastAction !== 'REVIEW_RATE'; });
+    // Owner 05/11: same look as the study parts; quiz results behind their own button
     var best = bestScores(x.checks);
-    var scores = TABS.filter(function (t) { return t[0] in best; }).map(function (t) { return t[1] + ' ' + best[t[0]] + '%'; });
+    var scores = TABS.filter(function (t) { return t[0] in best; }).map(function (t) {
+      return '<li>' + esc(t[1]) + ': <b>' + best[t[0]] + '%</b></li>';
+    });
     html += '<p class="jp-dayd__sum">' + (x.done ? 'Đã xong ngày' : (items.length ? 'Chưa xong ngày' : 'Ngày này chưa học'))
-      + (Number(x.cpAwarded) > 0 ? ' · +' + esc(x.cpAwarded) + ' CP' : '')
-      + (scores.length ? ' · Kiểm tra: ' + esc(scores.join(', ')) : '') + '</p>';
+      + (Number(x.cpAwarded) > 0 ? ' · +' + esc(x.cpAwarded) + ' CP' : '') + '</p>'
+      + (scores.length ? '<details class="jp-dayd__quiz"><summary class="jp-btn">Xem kết quả kiểm tra</summary><ul>'
+        + scores.join('') + '</ul><a class="jp-link-btn" href="/learning/jlpt/history?day=' + esc(day)
+        + '">Làm lại một bài kiểm tra</a></details>' : '');
     if (!items.length) {
       return html + '<p class="jp-side__note">Không có mục nào được học hay ôn trong ngày này.</p>'
         + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình</a>';
@@ -101,13 +106,13 @@
       if (!mine.length) return;
       var wrong = mine.filter(isWrong).length;
       html += '<section class="jp-dayd__sec"><h2 class="jp-dayd__h">' + esc(t[1]) + ' · ' + mine.length + ' ' + t[2] + ' mới'
-        + (wrong ? ' <span class="jp-dayd__bad">· sai ' + wrong + '</span>' : '') + '</h2><ul class="jp-dayd__list">'
+        + (wrong ? ' <span class="jp-dayd__bad">· sai ' + wrong + '</span>' : '') + '</h2><ul class="jp-dayd__list jp-parts__items">'
         + mine.map(itemHtml).join('') + '</ul></section>';
     });
     if (reviewed.length) {
       var forgot = reviewed.filter(isWrong).length;
       html += '<section class="jp-dayd__sec"><h2 class="jp-dayd__h">Ôn thẻ · ' + reviewed.length + ' thẻ · '
-        + (reviewed.length - forgot) + ' nhớ, ' + forgot + ' quên</h2><ul class="jp-dayd__list">'
+        + (reviewed.length - forgot) + ' nhớ, ' + forgot + ' quên</h2><ul class="jp-dayd__list jp-parts__items">'
         + reviewed.map(itemHtml).join('') + '</ul></section>';
     }
     var wrongAll = list(x.wrongItems);

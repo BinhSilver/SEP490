@@ -941,3 +941,34 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
   padding: 8px 10px; box-shadow: none; }
 .jp-path .jp-grow:hover, .jp-path .jp-grow--open { background: var(--jp-primary-soft); }
 .jp-path .jp-grow__text b { font-size: 1.08em; }
+
+/* 05/11 study parts of a tab (jpath-parts.js); the full list hides behind "Xem toàn bộ" */
+.jp-path__parts { display: grid; gap: 10px; margin: 12px 0; }
+.jp-parts__title { margin: 0; font-size: 1.1rem; }
+.jp-parts__sub { margin: 2px 0 0; color: var(--jp-muted); font-size: .9rem; }
+.jp-parts__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.jp-parts__part { border: 1px solid var(--jp-line); border-radius: 12px; background: var(--jp-surface, #fff); }
+.jp-parts__part--today { border-color: var(--jp-primary); box-shadow: 0 0 0 1px var(--jp-primary) inset; }
+.jp-parts__part--done, .jp-parts__part--donegroup { background: var(--jp-primary-soft); }
+.jp-parts__head { display: grid; grid-template-columns: auto auto auto 1fr; align-items: baseline; gap: 4px 12px;
+  padding: 10px 14px; cursor: pointer; list-style: none; }
+.jp-parts__head::-webkit-details-marker { display: none; }
+.jp-parts__no { font-weight: 700; }
+.jp-parts__when { font-size: .85rem; color: var(--jp-primary); font-weight: 600; }
+.jp-parts__n { font-size: .85rem; color: var(--jp-muted); }
+.jp-parts__peek { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--jp-muted); text-align: right; }
+.jp-parts__body { padding: 0 14px 12px; display: grid; gap: 10px; }
+.jp-parts__items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.jp-parts__items li { display: grid; padding: 6px 10px; border-radius: 8px; background: var(--jp-bg, #f6f5fb); }
+.jp-parts__ja { font-size: 1.1rem; }
+.jp-parts__rd, .jp-parts__mean { font-size: .8rem; color: var(--jp-muted); }
+.jp-parts__part--donegroup > .jp-parts__list { padding: 0 10px 10px; }
+.jp-parts__actions { display: flex; gap: 8px; }
+.jp-parts__all { margin-top: 4px; }
+@media (max-width: 640px) { .jp-parts__head { grid-template-columns: auto auto 1fr; } .jp-parts__peek { grid-column: 1 / -1; text-align: left; } }
+.jp-parts__ok { align-self: center; color: var(--jp-ok); font-weight: 600; }
+.jp-parts__pager { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.jp-parts__pg { min-width: 36px; min-height: 36px; padding: 0 10px; border: 1px solid var(--jp-line); border-radius: 8px; background: none; font: inherit; cursor: pointer; }
+.jp-parts__pg.is-on { background: var(--jp-primary); border-color: var(--jp-primary); color: #fff; }
+.jp-parts__pg[disabled] { opacity: .4; cursor: default; }
+.jp-parts__pginfo { margin-left: 6px; color: var(--jp-muted); font-size: .9em; }
