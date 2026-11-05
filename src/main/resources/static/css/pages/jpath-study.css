@@ -204,3 +204,25 @@
   .jp-study-steps__line { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; padding-bottom: 2px; }
   .jp-study-steps__line .jp-step { flex: 0 0 auto; white-space: nowrap; }
 }
+
+/* 04/11 polish round 4: học thẻ */
+.jp-study { max-width: 1120px; }
+.jp-study-card { min-height: 380px; background: var(--jp-primary-soft); border: 1px solid var(--jp-line); }
+.jp-study-face { gap: 12px; min-height: 270px; }
+.jp-study-word { font-size: clamp(3em, 6vw, 4.5em); }
+.jp-study-reading { padding-top: 6px; font-size: 1.2em; }
+.jp-study-meaning { width: min(100%, 680px); padding-top: 16px; border-top: 1px solid var(--jp-line); }
+.jp-study-examples { width: min(100%, 680px); margin-top: 12px; }
+.jp-rate-bar--four { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.jp-rate-bar--four .jp-rate { min-width: 0; min-height: 64px; }
+.jp-rate--forgot { background: var(--jp-danger-soft); }
+.jp-rate--hard, .jp-rate--good, .jp-rate--easy { background: var(--jp-surface); }
+.jp-study-card--review .jp-study-face { animation: jp-card-reveal .18s ease-out; }
+@keyframes jp-card-reveal { from { opacity: .65; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (max-width: 640px) {
+  .jp-study-card { min-height: 320px; }
+  .jp-study-word { font-size: 3em; }
+  .jp-rate-bar--four { gap: 4px; }
+  .jp-rate-bar--four .jp-rate { min-height: 54px; padding: 6px 2px; }
+}
+@media (prefers-reduced-motion: reduce) { .jp-study-card--review .jp-study-face { animation: none; } }
