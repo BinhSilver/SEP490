@@ -140,13 +140,8 @@
       html += '<p class="jp-hero__resume">' + esc('Tiếp tục từ thẻ ' + t.resume.position + '/' + t.resume.total) + '</p>';
     }
     html += '</div>';
-    if (cards.length) {
-      html += '<details class="jp-hero__more"><summary>Xem từ gợi ý</summary><div class="jp-hero__stack">'
-        + '<ul class="jp-hero-cards">' + cards.map(heroCardHtml).join('') + '</ul>'
-        + '<button type="button" class="jp-btn jp-btn--primary" data-action="start-item" data-start-tab="'
-        + esc(String(cards[0].tab || 'VOCAB').toLowerCase()) + '" data-item="' + esc(cards[0].itemCode)
-        + '">Học từ này</button></div></details>';
-    }
+    // owner 04/11: the suggested-word stack is gone from the hero; "Học hôm nay" in the today panel starts the day
+    void cards;
     return html;
   }
 

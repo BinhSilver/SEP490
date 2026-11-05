@@ -175,6 +175,34 @@
     return '<div class="jp-modes">' + html + '</div>';
   }
 
+  var STUDY_ROWS = [['VOCAB', 'vocab', 'Từ vựng', 'book-open', 'từ'], ['KANJI', 'kanji', 'Kanji', 'pen-line', 'chữ'],
+    ['GRAMMAR', 'grammar', 'Ngữ pháp', 'list', 'mẫu']];
+
+  /**
+   * A study day as one main button (the whole day in one go, about N minutes) and short rows: reviews, then each tab's
+   * new items x/y with its own "Học riêng" (a session of that tab only) or Đã xong.
+   */
+  function studyDayHtml(t) {
+    var due = reviewDue(t);
+    var rows = '<li class="jp-todo__item' + (due === 0 ? ' is-done' : '') + '"><span class="jp-todo__icon">' + icon('rotate-ccw')
+      + '</span><span class="jp-todo__text"><span><strong>Ôn thẻ</strong></span><span class="jp-todo__sub">'
+      + esc(due ? due + ' thẻ đến hạn' : 'Không có thẻ đến hạn') + '</span></span>'
+      + (due === 0 ? '<span class="jp-todo__done">' + icon('check') + ' Xong</span>' : '<span class="jp-todo__sub">Trong lượt học</span>') + '</li>';
+    rows += STUDY_ROWS.map(function (r) {
+      var tab = todayTab(t, r[0]);
+      if (!tab || num(tab.newTarget) <= 0) return '';
+      var done = !!tab.done || num(tab.newDone) >= num(tab.newTarget);
+      return '<li class="jp-todo__item' + (done ? ' is-done' : '') + '"><span class="jp-todo__icon">' + icon(r[3]) + '</span>'
+        + '<span class="jp-todo__text"><span><strong>' + esc(r[2]) + '</strong> · ' + esc(num(tab.newDone) + '/' + num(tab.newTarget) + ' ' + r[4] + ' mới')
+        + '</span></span>' + (done ? '<span class="jp-todo__done">' + icon('check') + ' Đã xong</span>'
+          : '<button type="button" class="jp-btn" data-action="start-mode" data-mode="SPLIT" data-tab-key="' + r[1]
+            + '">Học riêng</button>') + '</li>';
+    }).join('');
+    return '<div class="jp-today__go"><button type="button" class="jp-btn jp-btn--primary jp-btn--lg" data-action="start-mode"'
+      + ' data-mode="COMBINED">Học hôm nay</button><span class="jp-muted">' + esc('Ôn rồi học mới liền một lượt · khoảng '
+        + num(t.estimatedMinutes) + ' phút') + '</span></div><ol class="jp-todo">' + rows + '</ol>';
+  }
+
   var SKILL_NAME = { READING: 'Đọc', LISTENING: 'Nghe' };
 
   function skillTask(card, skill) {
@@ -263,17 +291,18 @@
       return html + '<p>' + esc('Hôm nay là ngày ôn: chỉ ôn ' + reviewDue(t) + ' thẻ, không học mới.') + '</p>' + missed
         + '<button type="button" class="jp-btn jp-btn--primary" data-action="start-mode" data-mode="COMBINED">Bắt đầu ôn</button>' + end;
     }
-    var summary = t.kanaPhase
-      ? kanaRows(t) + ' hàng chữ cái · ' + target(t, 'VOCAB') + ' từ mới · khoảng ' + num(t.estimatedMinutes) + ' phút'
-      : 'Ôn ' + reviewDue(t) + ' thẻ · ' + target(t, 'VOCAB') + ' từ mới · ' + target(t, 'KANJI') + ' Kanji mới · '
-        + target(t, 'GRAMMAR') + ' mẫu ngữ pháp · khoảng ' + num(t.estimatedMinutes) + ' phút';
-    html += '<p class="jp-today__summary">' + esc(summary) + '</p>' + chipsHtml(t) + missed;
+    if (t.kanaPhase) {
+      var summary = kanaRows(t) + ' hàng chữ cái · ' + target(t, 'VOCAB') + ' từ mới · khoảng ' + num(t.estimatedMinutes) + ' phút';
+      html += '<p class="jp-today__summary">' + esc(summary) + '</p>' + chipsHtml(t) + missed;
+      return html + modeButtonsHtml(t, path, activeTab)
+        + '<p class="jp-alert" role="alert" data-part="today-error" hidden></p>' + end;
+    }
+    html += studyDayHtml(t) + missed;
     if (t.reviewDayHint) {
       html += '<div class="jp-today__hint"><p>Bạn đang dồn nhiều thẻ ôn. Hôm nay chỉ ôn, không học mới?</p>'
         + '<button type="button" class="jp-btn" data-action="review-day">Chỉ ôn hôm nay</button></div>';
     }
-    return html + modeButtonsHtml(t, path, activeTab)
-      + '<p class="jp-alert" role="alert" data-part="today-error" hidden></p>' + end;
+    return html + '<p class="jp-alert" role="alert" data-part="today-error" hidden></p>' + end;
   }
 
   function safeUrl(url) {
@@ -351,5 +380,5 @@
       sliders: sliderBody(draft), kanaTab: !!p.kanaTab, mode: p.mode || 'COMBINED' };
   }
 
-  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, skillDayHtml: skillDayHtml, jaWeekday: jaWeekday, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
+  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, skillDayHtml: skillDayHtml, studyDayHtml: studyDayHtml, jaWeekday: jaWeekday, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
 });
