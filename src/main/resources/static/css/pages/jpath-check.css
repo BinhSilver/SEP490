@@ -558,7 +558,68 @@ ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid
 }
 
 
-/* 05/11 Lượt 2: Linh vật Kitsu đồng hành trong bài kiểm tra + nút 3D + màn ăn mừng */
+/* 06/11 Lượt 4: Phối màu đúng/sai dịu hợp tông tím + Chế độ tối chuyển dần .6s ease */
+:root,
+.jp-page,
+.jp-check {
+  --jp-check-surface: #ffffff;
+  --jp-check-ink: #1e1b2e;
+  --jp-check-line: #e4ddf3;
+  --jp-check-ok-teal: #0d9488;
+  --jp-check-ok-teal-soft: #f0fdfa;
+  --jp-check-ok-teal-rim: #0f766e;
+  --jp-check-bad-rose: #e11d48;
+  --jp-check-bad-rose-soft: #fff1f2;
+  --jp-check-bad-rose-rim: #be123c;
+}
+
+html[data-theme="dark"],
+html.dark,
+html[data-theme="dark"] .jp-page,
+html.dark .jp-page,
+html[data-theme="dark"] .jp-check,
+html.dark .jp-check {
+  --jp-check-surface: #241d3a;
+  --jp-check-ink: #f3f0ff;
+  --jp-check-line: #3f3460;
+  --jp-check-ok-teal: #2dd4bf;
+  --jp-check-ok-teal-soft: #132f38;
+  --jp-check-ok-teal-rim: #0d9488;
+  --jp-check-bad-rose: #fb7185;
+  --jp-check-bad-rose-soft: #3b1c2e;
+  --jp-check-bad-rose-rim: #be123c;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]):not(.light),
+  html:not([data-theme="light"]):not(.light) .jp-page,
+  html:not([data-theme="light"]):not(.light) .jp-check {
+    --jp-check-surface: #241d3a;
+    --jp-check-ink: #f3f0ff;
+    --jp-check-line: #3f3460;
+    --jp-check-ok-teal: #2dd4bf;
+    --jp-check-ok-teal-soft: #132f38;
+    --jp-check-ok-teal-rim: #0d9488;
+    --jp-check-bad-rose: #fb7185;
+    --jp-check-bad-rose-soft: #3b1c2e;
+    --jp-check-bad-rose-rim: #be123c;
+  }
+}
+
+.jp-check .jp-card,
+.jp-check__mascot-bubble,
+.jp-check-opt,
+.jp-pair,
+.jp-celebrate__bubble {
+  transition:
+    background-color .6s ease,
+    background .6s ease,
+    color .6s ease,
+    border-color .6s ease,
+    box-shadow .6s ease,
+    transform .15s ease;
+}
+
 .jp-check__mascot {
   display: inline-flex;
   align-items: center;
@@ -579,10 +640,10 @@ ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid
   display: inline-flex;
   align-items: center;
   padding: 6px 14px;
-  border: 1.5px solid color-mix(in srgb, var(--jp-primary) 35%, var(--jp-line));
+  border: 1.5px solid color-mix(in srgb, var(--jp-primary) 35%, var(--jp-check-line));
   border-radius: 14px 14px 14px 4px;
-  background: var(--jp-surface);
-  color: var(--jp-ink);
+  background: var(--jp-check-surface);
+  color: var(--jp-check-ink);
   font-size: .86em;
   font-weight: 700;
   line-height: 1.35;
@@ -592,16 +653,16 @@ ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid
   content: attr(data-speech);
 }
 .jp-check__mascot--ok .jp-check__mascot-bubble {
-  border-color: #16a34a;
-  background: color-mix(in srgb, #22c55e 14%, var(--jp-surface));
-  color: #15803d;
-  box-shadow: 0 3px 0 rgb(22 163 74 / 22%);
+  border-color: var(--jp-check-ok-teal);
+  background: var(--jp-check-ok-teal-soft);
+  color: var(--jp-check-ok-teal);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-check-ok-teal) 26%, transparent);
 }
 .jp-check__mascot--bad .jp-check__mascot-bubble {
-  border-color: var(--jp-danger);
-  background: color-mix(in srgb, var(--jp-danger) 12%, var(--jp-surface));
-  color: var(--jp-danger);
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-danger) 22%, transparent);
+  border-color: var(--jp-check-bad-rose);
+  background: var(--jp-check-bad-rose-soft);
+  color: var(--jp-check-bad-rose);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-check-bad-rose) 26%, transparent);
 }
 @keyframes jp-check-kitsu-bob {
   0%, 100% { transform: translateY(0); }
@@ -613,23 +674,28 @@ ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid
   border-width: 2px;
   border-bottom-width: 4px;
   border-radius: 14px;
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-ink) 10%, transparent);
+  background: var(--jp-check-surface);
+  color: var(--jp-check-ink);
+  border-color: var(--jp-check-line);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-check-ink) 10%, transparent);
 }
 .jp-check-opt:active:not([disabled]), .jp-pair:active:not([disabled]) {
   transform: translateY(3px);
-  box-shadow: 0 1px 0 color-mix(in srgb, var(--jp-ink) 10%, transparent);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--jp-check-ink) 10%, transparent);
 }
 .jp-check-opt.jp-ok, .jp-pair.jp-ok {
-  border-color: #16a34a;
-  border-bottom-color: #15803d;
-  background: color-mix(in srgb, #22c55e 16%, var(--jp-surface));
-  box-shadow: 0 3px 0 rgb(21 128 61 / 32%);
+  border-color: var(--jp-check-ok-teal);
+  border-bottom-color: var(--jp-check-ok-teal-rim);
+  background: var(--jp-check-ok-teal-soft);
+  color: var(--jp-check-ok-teal);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-check-ok-teal) 32%, transparent);
 }
 .jp-check-opt.jp-bad, .jp-pair.jp-bad {
-  border-color: var(--jp-danger);
-  border-bottom-color: color-mix(in srgb, var(--jp-danger) 80%, #000000);
-  background: color-mix(in srgb, var(--jp-danger) 14%, var(--jp-surface));
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-danger) 30%, transparent);
+  border-color: var(--jp-check-bad-rose);
+  border-bottom-color: var(--jp-check-bad-rose-rim);
+  background: var(--jp-check-bad-rose-soft);
+  color: var(--jp-check-bad-rose);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-check-bad-rose) 32%, transparent);
 }
 
 /* Kitsu ăn mừng trên màn kết quả (.jp-celebrate__art) */
@@ -668,16 +734,16 @@ ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid
   display: inline-flex;
   align-items: center;
   padding: 5px 14px;
-  border: 1.5px solid color-mix(in srgb, var(--jp-ok) 45%, var(--jp-line));
+  border: 1.5px solid color-mix(in srgb, var(--jp-primary) 45%, var(--jp-check-line));
   border-radius: 999px;
-  background: color-mix(in srgb, var(--jp-ok) 12%, var(--jp-surface));
-  color: var(--jp-ink);
+  background: color-mix(in srgb, var(--jp-primary) 14%, var(--jp-check-surface));
+  color: var(--jp-check-ink);
   font-size: .85em;
   font-weight: 700;
 }
 .jp-celebrate__art--retry .jp-celebrate__bubble {
-  border-color: color-mix(in srgb, var(--jp-warn) 50%, var(--jp-line));
-  background: color-mix(in srgb, var(--jp-warn) 14%, var(--jp-surface));
+  border-color: var(--jp-check-bad-rose);
+  background: var(--jp-check-bad-rose-soft);
 }
 .jp-celebrate__bubble::after {
   content: attr(data-speech);
@@ -691,5 +757,12 @@ ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid
   .jp-check__mascot-img,
   .jp-celebrate__mascot {
     animation: none !important;
+  }
+  .jp-check .jp-card,
+  .jp-check__mascot-bubble,
+  .jp-check-opt,
+  .jp-pair,
+  .jp-celebrate__bubble {
+    transition: none !important;
   }
 }

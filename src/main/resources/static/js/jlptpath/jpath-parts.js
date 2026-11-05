@@ -1,15 +1,19 @@
-/* [JLAS-W0108] jpath-parts.js — winding study-part map of the Từ vựng / Kanji / Ngữ pháp tabs (owner 05/11, round 3 + supplements 1–4).
+/* [JLAS-W0108] jpath-parts.js — winding study-part map of the Từ vựng / Kanji / Ngữ pháp tabs (owner 05/11, round 4).
  *
- * - Single-column wide scenic journey ("Hành trình của Kitsu qua nước Nhật"): winding path (±200px wave on wide screens),
- *   layered sky + small drifting clouds + 3 bottom hills + subtle Japanese landmarks & side Kitsu (max 1 per ~6 parts).
- * - Week-by-week collapsible road (Supplement 4): divided into "Tuần n" stages (5 parts + 1 weekly treasure chest).
- *   Only the current week is open initially; other weeks collapse into wooden/flag signposts ("Tuần 1 · 5/5 phần · rương đã mở ✓"
- *   or "Tuần 3 · 5 phần · 10/11–16/11"). Clicking a signpost toggles that week open/closed with a smooth slide.
- * - Top bar: Tab progress (learned x/y, estimated finish), quick week jumper ("Tuần 2/16" with ‹ ›), legend, and
- *   small link "Xem toàn bộ danh sách (lọc, tìm, in, quiz)".
- * - Node-attached popover bubble (Supplement 3): clicking any circular coin node or chest opens a 340px rounded-18px
- *   bubble anchored to that node (or bottom sheet on phones), with top status stripe, 56px Kitsu, 2-column furigana word pills
- *   (6 shown + "+N từ" inline toggle), main action button, "Kết quả lần trước", and a mini circular progress ring.
+ * Round 4 updates:
+ * 1. Continuous winding road of circular coins & chests (no text signposts):
+ *    - Past weeks: compact purple-coin nodes (clickable, opens popover).
+ *    - Current week: full-size nodes + today's bouncing lavender-purple coin + Kitsu ("Bấm vào đây để học").
+ *    - Upcoming weeks: renders up to 2 upcoming weeks as dimmed (45% opacity) lavender-grey locked coins & chests
+ *      (not clickable, cursor: not-allowed, hover tooltip "Mở vào tuần dd/mm–dd/mm").
+ *    - Beyond 2 upcoming weeks: a dimmed horizon milestone ("… còn N tuần nữa").
+ * 2. Popover does not cover today's node:
+ *    - Closed by default on load; opens to the left or right of the clicked node on wide screens (bottom sheet on phones).
+ * 3 & 4. Purple-centered palette & smooth dark-mode transitions via CSS variables (no hardcoded SVG hex colors).
+ * 5. Sticky unified Tab Banner at the top of the map:
+ *    - Left: large tab icon (book / brush / scroll) in a soft purple circle + "Từ vựng N5" + "800 từ · xong dự kiến ...".
+ *    - Center: circular SVG progress ring (pct%, learned/total).
+ *    - Right: pill week selector "‹ Tuần 1/16 ›" (scrolls to past/current weeks) + icon-pill legend + outlined list button.
  *
  * window.JpathParts = { partsHtml(data, tabKey, page, opts), weeklyHtml(week), savedNoticeHtml(msg), mount(partsEl, listEl, tabKey, opts) }
  */
@@ -18,7 +22,6 @@
   var api = factory(root);
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (root) root.JpathParts = api;
-  // Owner 05/11 + Round 2/3: a finished day comes back to the path with confetti + celebrating Kitsu notice
   if (root && root.location && /[?&]saved=1\b/.test(String(root.location.search || '')) && root.document) {
     var notice = function () {
       var msg = 'Đã lưu tiến trình hôm nay! Kitsu chúc mừng bạn hoàn thành bài học. Xem lại ở "Xem ngày học hôm nay".';
@@ -40,9 +43,8 @@
   var TABS = { vocab: ['VOCAB', 'từ', 'Từ vựng'], kanji: ['KANJI', 'chữ', 'Kanji'], grammar: ['GRAMMAR', 'mẫu', 'Ngữ pháp'] };
   var WEEKDAY = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
   var WEEK_SPAN = 5;
+  var UPCOMING_WEEKS_SHOWN = 2;
   var PILL_PREVIEW_COUNT = 6;
-  // Winding horizontal positions: center -> left -> center -> right
-  // In a 420-unit wide centered connector box (calc(var(--wave-offset)*2 + 20px)), left=10, center=210, right=410
   var WAVE_POS = ['center', 'left', 'center', 'right'];
   var WAVE_X = { left: 10, center: 210, right: 410 };
 
@@ -104,27 +106,58 @@
       + '</svg>';
   }
 
+  /* Chest SVGs use CSS variables (--jp-chest-*) so they adapt to the purple palette and dark mode */
   function svgChestClosed() {
     return '<svg class="jp-parts__icon jp-parts__icon--chest" viewBox="0 0 36 36" fill="none" aria-hidden="true">'
-      + '<rect x="5" y="15" width="26" height="15" rx="3" fill="#92400e" stroke="#78350f" stroke-width="1.8"/>'
-      + '<path d="M5 16C5 11.5 9 9 18 9s13 2.5 13 7H5z" fill="#b45309" stroke="#78350f" stroke-width="1.8"/>'
-      + '<rect x="5" y="15" width="26" height="3.2" fill="#fbbf24"/>'
-      + '<rect x="15" y="13.5" width="6" height="7" rx="1.5" fill="#fde68a" stroke="#92400e" stroke-width="1.4"/>'
-      + '<circle cx="18" cy="17" r="1.1" fill="#78350f"/>'
+      + '<rect x="5" y="15" width="26" height="15" rx="3.5" fill="var(--jp-chest-body)" stroke="var(--jp-chest-stroke)" stroke-width="1.8"/>'
+      + '<path d="M5 16C5 11.5 9 9 18 9s13 2.5 13 7H5z" fill="var(--jp-chest-lid)" stroke="var(--jp-chest-stroke)" stroke-width="1.8"/>'
+      + '<rect x="5" y="15" width="26" height="3.2" fill="var(--jp-chest-band)"/>'
+      + '<rect x="15" y="13.5" width="6" height="7" rx="1.5" fill="var(--jp-chest-lock)" stroke="var(--jp-chest-stroke)" stroke-width="1.4"/>'
+      + '<circle cx="18" cy="17" r="1.1" fill="var(--jp-chest-stroke)"/>'
       + '</svg>';
   }
 
   function svgChestOpen() {
     return '<svg class="jp-parts__icon jp-parts__icon--chest" viewBox="0 0 36 36" fill="none" aria-hidden="true">'
-      + '<circle cx="18" cy="14" r="10" fill="#fde68a" fill-opacity="0.45"/>'
-      + '<path d="M6 12C6 7.8 10 5.5 18 5.5S30 7.8 30 12H6z" fill="#d97706" stroke="#78350f" stroke-width="1.6"/>'
-      + '<ellipse cx="14" cy="16" rx="4" ry="2.6" fill="#fbbf24"/>'
-      + '<ellipse cx="21" cy="15.5" rx="4.5" ry="2.8" fill="#f59e0b"/>'
-      + '<polygon points="18,10 21,14 18,18 15,14" fill="#38bdf8" stroke="#fff" stroke-width="1"/>'
-      + '<rect x="5" y="16" width="26" height="14" rx="3" fill="#b45309" stroke="#78350f" stroke-width="1.8"/>'
-      + '<rect x="5" y="16" width="26" height="3" fill="#fbbf24"/>'
-      + '<rect x="15" y="15" width="6" height="6" rx="1.4" fill="#fde68a" stroke="#92400e" stroke-width="1.3"/>'
-      + '<path d="M10 6l1-2M26 6l-1-2M18 3V1" stroke="#fbbf24" stroke-width="1.8" stroke-linecap="round"/>'
+      + '<circle cx="18" cy="14" r="10" fill="var(--jp-chest-glow)" fill-opacity="0.45"/>'
+      + '<path d="M6 12C6 7.8 10 5.5 18 5.5S30 7.8 30 12H6z" fill="var(--jp-chest-lid)" stroke="var(--jp-chest-stroke)" stroke-width="1.6"/>'
+      + '<ellipse cx="14" cy="16" rx="4" ry="2.6" fill="var(--jp-chest-band)"/>'
+      + '<ellipse cx="21" cy="15.5" rx="4.5" ry="2.8" fill="var(--jp-chest-lid)"/>'
+      + '<polygon points="18,10 21,14 18,18 15,14" fill="var(--jp-primary)" stroke="var(--jp-surface)" stroke-width="1"/>'
+      + '<rect x="5" y="16" width="26" height="14" rx="3.5" fill="var(--jp-chest-body)" stroke="var(--jp-chest-stroke)" stroke-width="1.8"/>'
+      + '<rect x="5" y="16" width="26" height="3" fill="var(--jp-chest-band)"/>'
+      + '<rect x="15" y="15" width="6" height="6" rx="1.4" fill="var(--jp-chest-lock)" stroke="var(--jp-chest-stroke)" stroke-width="1.3"/>'
+      + '<path d="M10 6l1-2M26 6l-1-2M18 3V1" stroke="var(--jp-chest-band)" stroke-width="1.8" stroke-linecap="round"/>'
+      + '</svg>';
+  }
+
+  /* Large tab icons for the unified top banner (book, brush, scroll) */
+  function tabBannerIconSvg(sceneKey) {
+    if (sceneKey === 'kanji') {
+      // Calligraphy brush (bút lông)
+      return '<svg class="jp-parts__banner-svg" viewBox="0 0 28 28" fill="none" aria-hidden="true">'
+        + '<path d="M20.5 4.5l3 3-9.5 9.5-3.5.5.5-3.5 9.5-9.5z" fill="var(--jp-primary-soft)" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'
+        + '<path d="M11 17.5c-2.2.5-3.8 2.2-4.5 4.5 2.5.2 4.5-1 5.2-3.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+        + '<path d="M6 23.5h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+        + '</svg>';
+    }
+    if (sceneKey === 'grammar') {
+      // Scroll (cuộn giấy)
+      return '<svg class="jp-parts__banner-svg" viewBox="0 0 28 28" fill="none" aria-hidden="true">'
+        + '<rect x="6" y="5" width="16" height="18" rx="3" fill="var(--jp-primary-soft)" stroke="currentColor" stroke-width="2"/>'
+        + '<path d="M9.5 10.5h9M9.5 14.5h9M9.5 18.5h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+        + '</svg>';
+    }
+    // Open book (sách)
+    return '<svg class="jp-parts__banner-svg" viewBox="0 0 28 28" fill="none" aria-hidden="true">'
+      + '<path d="M4.5 7.5c3-1 6.5-.5 9.5 1.5 3-2 6.5-2.5 9.5-1.5v13c-3-1-6.5-.5-9.5 1.5-3-2-6.5-2.5-9.5-1.5v-13z" fill="var(--jp-primary-soft)" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'
+      + '<path d="M14 9v13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+      + '</svg>';
+  }
+
+  function svgListIcon() {
+    return '<svg class="jp-parts__btn-ic" viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true">'
+      + '<path d="M6 5h10M6 10h10M6 15h10M3 5h.01M3 10h.01M3 15h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
       + '</svg>';
   }
 
@@ -151,40 +184,42 @@
       + '</div>';
   }
 
+  /* Decorative side SVGs use CSS variables (--jp-deco-*) so they adapt to dark mode */
   function sideDecoSvg(index) {
     var kind = index % 4;
     if (kind === 0) {
       return '<svg class="jp-parts__deco-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
-        + '<circle cx="12" cy="7" r="3.6" fill="#fbcfe8"/><circle cx="17" cy="10.5" r="3.6" fill="#f9a8d4"/>'
-        + '<circle cx="15" cy="16.5" r="3.6" fill="#fbcfe8"/><circle cx="9" cy="16.5" r="3.6" fill="#f9a8d4"/>'
-        + '<circle cx="7" cy="10.5" r="3.6" fill="#fbcfe8"/><circle cx="12" cy="12" r="2.2" fill="#fde047"/>'
+        + '<circle cx="12" cy="7" r="3.6" fill="var(--jp-deco-petal-1)"/><circle cx="17" cy="10.5" r="3.6" fill="var(--jp-deco-petal-2)"/>'
+        + '<circle cx="15" cy="16.5" r="3.6" fill="var(--jp-deco-petal-1)"/><circle cx="9" cy="16.5" r="3.6" fill="var(--jp-deco-petal-2)"/>'
+        + '<circle cx="7" cy="10.5" r="3.6" fill="var(--jp-deco-petal-1)"/><circle cx="12" cy="12" r="2.2" fill="var(--jp-chest-band)"/>'
         + '</svg>';
     }
     if (kind === 1) {
       return '<svg class="jp-parts__deco-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
-        + '<rect x="10.5" y="16.5" width="3" height="5" rx="1" fill="#92400e"/>'
-        + '<polygon points="12,3.5 5,12.5 19,12.5" fill="#86efac"/>'
-        + '<polygon points="12,8 4,17.5 20,17.5" fill="#4ade80"/>'
+        + '<rect x="10.5" y="16.5" width="3" height="5" rx="1" fill="var(--jp-chest-stroke)"/>'
+        + '<polygon points="12,3.5 5,12.5 19,12.5" fill="var(--jp-deco-leaf-1)"/>'
+        + '<polygon points="12,8 4,17.5 20,17.5" fill="var(--jp-deco-leaf-2)"/>'
         + '</svg>';
     }
     if (kind === 2) {
       return '<svg class="jp-parts__deco-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
-        + '<line x1="12" y1="2" x2="12" y2="5.5" stroke="#92400e" stroke-width="1.6"/>'
-        + '<rect x="8.5" y="5.5" width="7" height="2" rx="1" fill="#78350f"/>'
-        + '<ellipse cx="12" cy="12" rx="5" ry="5.5" fill="#fb7185" stroke="#be123c" stroke-width="1.2"/>'
-        + '<rect x="8.5" y="17" width="7" height="2" rx="1" fill="#78350f"/>'
+        + '<line x1="12" y1="2" x2="12" y2="5.5" stroke="var(--jp-chest-stroke)" stroke-width="1.6"/>'
+        + '<rect x="8.5" y="5.5" width="7" height="2" rx="1" fill="var(--jp-chest-stroke)"/>'
+        + '<ellipse cx="12" cy="12" rx="5" ry="5.5" fill="var(--jp-deco-lantern)" stroke="var(--jp-chest-stroke)" stroke-width="1.2"/>'
+        + '<rect x="8.5" y="17" width="7" height="2" rx="1" fill="var(--jp-chest-stroke)"/>'
         + '</svg>';
     }
     return '<svg class="jp-parts__deco-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
-      + '<path d="M3 9h18M5 9v11M19 9v11M2 6c6 1.8 14 1.8 20 0" stroke="#e11d48" stroke-width="2" stroke-linecap="round"/>'
+      + '<path d="M3 9h18M5 9v11M19 9v11M2 6c6 1.8 14 1.8 20 0" stroke="var(--jp-deco-torii)" stroke-width="2" stroke-linecap="round"/>'
       + '</svg>';
   }
 
-  function curveSvg(fromPos, toPos, isDone, isActiveRun) {
+  function curveSvg(fromPos, toPos, isDone, isActiveRun, isCompact) {
     var x1 = WAVE_X[fromPos] || 210;
     var x2 = WAVE_X[toPos] || 210;
     var cls = 'jp-parts__curve' + (isDone ? ' jp-parts__curve--done' : '')
-      + (isActiveRun ? ' jp-parts__curve--run' : '');
+      + (isActiveRun ? ' jp-parts__curve--run' : '')
+      + (isCompact ? ' jp-parts__curve--compact' : '');
     return '<svg class="' + cls + '" viewBox="0 0 420 62" preserveAspectRatio="none" aria-hidden="true">'
       + '<path class="jp-parts__curve-track" d="M' + x1 + ' 2 C' + x1 + ' 32, ' + x2 + ' 30, ' + x2 + ' 60" fill="none"'
       + ' stroke="currentColor" stroke-width="6" stroke-linecap="round"' + (isDone && !isActiveRun ? '' : ' stroke-dasharray="8 8"') + '/>'
@@ -206,6 +241,26 @@
       + '</svg>'
       + '<span class="jp-parts__pop-ring-txt">' + dn + '/' + tot + '</span>'
       + '</span>';
+  }
+
+  function bannerProgressRingHtml(learnedNum, totalNum, pct) {
+    var r = 21;
+    var c = 2 * Math.PI * r;
+    var offset = (c - (pct / 100) * c).toFixed(1);
+    return '<div class="jp-parts__banner-progress" aria-label="Tiến độ đã học ' + esc(learnedNum) + '/' + esc(totalNum) + '">'
+      + '<span class="jp-parts__banner-ring" aria-hidden="true">'
+      + '<svg viewBox="0 0 52 52" width="52" height="52">'
+      + '<circle class="jp-parts__banner-ring-bg" cx="26" cy="26" r="' + r + '" fill="none" stroke-width="4.5"/>'
+      + '<circle class="jp-parts__banner-ring-fg" cx="26" cy="26" r="' + r + '" fill="none" stroke-width="4.5"'
+      + ' stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + offset + '" stroke-linecap="round"/>'
+      + '</svg>'
+      + '<strong class="jp-parts__banner-pct">' + pct + '%</strong>'
+      + '</span>'
+      + '<div class="jp-parts__banner-counts">'
+      + '<span class="jp-parts__banner-frac"><strong>' + esc(learnedNum) + '</strong>/' + esc(totalNum) + '</span>'
+      + '<span class="jp-parts__banner-lbl">Đã học</span>'
+      + '</div>'
+      + '</div>';
   }
 
   function wordPillHtml(it) {
@@ -244,7 +299,7 @@
 
   function kitsuBesideTodayHtml(isTodayDone, labelSide) {
     var src = isTodayDone ? '/images/mascots/kitsu/kitsu-celebrate-30.webp' : '/images/mascots/kitsu/kitsu-waving.svg';
-    var say = isTodayDone ? 'Xong rồi!' : 'Học thôi!';
+    var say = isTodayDone ? 'Đã xong! Bấm xem lại' : 'Bấm vào đây để học';
     var sideCls = labelSide === 'left' ? 'jp-parts__mascot--right' : 'jp-parts__mascot--left';
     return '<span class="jp-parts__mascot jp-parts__mascot--today ' + sideCls + '">'
       + '<span class="jp-parts__mascot-speech">' + esc(say) + '</span>'
@@ -261,7 +316,12 @@
       + '</span>';
   }
 
-  function partPopoverHtml(p, unit, tabKey, pillsExpanded) {
+  /* Round 4 Item 2: Place popover to the left or right of the node where space is available */
+  function popoverSideForPos(pos) {
+    return pos === 'right' ? 'left' : 'right';
+  }
+
+  function partPopoverHtml(p, unit, tabKey, pos, pillsExpanded) {
     var items = list(p.items);
     var n = items.length;
     var status = String(p.status || 'NEXT');
@@ -269,6 +329,7 @@
     var isTodayDone = status === 'TODAY_DONE';
     var isDone = status === 'DONE';
     var tone = (isDone || isTodayDone) ? 'done' : (isToday ? 'today' : 'next');
+    var popSide = popoverSideForPos(pos);
 
     var mascotSrc = '/images/mascots/kitsu/kitsu-encouraging.webp';
     var statusLabel = 'Hôm nay';
@@ -298,7 +359,8 @@
       actions = '<span class="jp-parts__locked-note">Học xong phần hôm nay để mở khóa</span>';
     }
 
-    return '<div class="jp-parts__popover jp-parts__popover--' + tone + '" data-parts-popover="part-' + esc(p.index) + '" role="dialog" aria-label="Chi tiết Phần ' + esc(p.index) + '">'
+    return '<div class="jp-parts__popover jp-parts__popover--' + tone + ' jp-parts__popover--side-' + popSide + '"'
+      + ' data-parts-popover="part-' + esc(p.index) + '" role="dialog" aria-label="Chi tiết Phần ' + esc(p.index) + '">'
       + '<span class="jp-parts__popover-arrow" aria-hidden="true"></span>'
       + '<div class="jp-parts__pop-head">'
       + '<img class="jp-parts__pop-kitsu" src="' + mascotSrc + '" width="56" height="56" alt="Kitsu"/>'
@@ -321,9 +383,10 @@
       + '</div>';
   }
 
-  function milestonePopoverHtml(m) {
+  function milestonePopoverHtml(m, pos) {
     var unlocked = !!m.unlocked;
     var tone = unlocked ? 'done' : 'today';
+    var popSide = popoverSideForPos(pos);
     var mascotSrc = unlocked
       ? '/images/mascots/kitsu/kitsu-celebrate-30.webp'
       : '/images/mascots/kitsu/kitsu-cheer-30.webp';
@@ -335,7 +398,8 @@
         + '<span class="jp-parts__pill-mean">' + (unlocked ? 'Đã hoàn thành' : 'Trong chặng') + '</span></li>');
     }
 
-    return '<div class="jp-parts__popover jp-parts__popover--' + tone + '" data-parts-popover="milestone-' + esc(m.weekNum) + '" role="dialog" aria-label="Rương tuần ' + esc(m.weekNum) + '">'
+    return '<div class="jp-parts__popover jp-parts__popover--' + tone + ' jp-parts__popover--side-' + popSide + '"'
+      + ' data-parts-popover="milestone-' + esc(m.weekNum) + '" role="dialog" aria-label="Rương tuần ' + esc(m.weekNum) + '">'
       + '<span class="jp-parts__popover-arrow" aria-hidden="true"></span>'
       + '<div class="jp-parts__pop-head">'
       + '<img class="jp-parts__pop-kitsu" src="' + mascotSrc + '" width="56" height="56" alt="Kitsu"/>'
@@ -359,19 +423,22 @@
       + '</div>';
   }
 
-  function partNodeHtml(p, unit, tabKey, pos, nextPos, hasNext, nextStatus, stepIdx, weekNum, isSelected, pillsExpanded) {
+  function partNodeHtml(p, unit, tabKey, pos, nextPos, hasNext, nextStatus, stepIdx, weekObj, isSelected, pillsExpanded, isFirstInWeek) {
     var items = list(p.items);
     var n = items.length;
     var status = String(p.status || 'NEXT');
     var isToday = status === 'TODAY';
     var isTodayDone = status === 'TODAY_DONE';
     var isDone = status === 'DONE';
+    var isPastWeek = weekObj.state === 'past';
+    var isUpcomingWeek = weekObj.state === 'upcoming';
+
     var when = isToday ? 'Hôm nay' : (isTodayDone ? 'Đã xong hôm nay'
       : (isDone ? (p.day ? dayLabel(p.day) : 'Đã học') : 'Sắp tới'));
     var stepMod = isTodayDone ? 'today-done' : status.toLowerCase();
     var icon = (isDone || isTodayDone) ? svgCheck() : (isToday ? svgStar() : svgLock());
     var bubble = isToday
-      ? '<span class="jp-parts__bubble">Hôm nay</span>'
+      ? '<span class="jp-parts__bubble">Bắt đầu</span>'
       : (isTodayDone ? '<span class="jp-parts__bubble jp-parts__bubble--done">Đã xong</span>' : '');
 
     var labelSide = pos === 'right' ? 'left' : 'right';
@@ -379,21 +446,51 @@
     var mascotHtml = '';
     if (isToday || isTodayDone) {
       mascotHtml = kitsuBesideTodayHtml(isTodayDone, labelSide);
-    } else if (stepIdx === 2) {
-      // Max 1 decorative side Kitsu per week (~6 parts)
-      mascotHtml = kitsuSideHtml(weekNum, pos);
+    } else if (!isUpcomingWeek && stepIdx === 2) {
+      mascotHtml = kitsuSideHtml(weekObj.weekNum, pos);
     }
 
     var decoSide = pos === 'left' ? 'right' : 'left';
-    var decoHtml = '<span class="jp-parts__deco jp-parts__deco--' + decoSide + '" aria-hidden="true">' + sideDecoSvg(weekNum + stepIdx) + '</span>';
+    var decoHtml = '<span class="jp-parts__deco jp-parts__deco--' + decoSide + '" aria-hidden="true">' + sideDecoSvg(weekObj.weekNum + stepIdx) + '</span>';
 
     var isLeadingToToday = (isDone || isTodayDone) && (nextStatus === 'TODAY' || nextStatus === 'TODAY_DONE' || isToday);
-    var connector = hasNext ? curveSvg(pos, nextPos, isDone || isTodayDone, isLeadingToToday) : '';
+    var connector = hasNext ? curveSvg(pos, nextPos, isDone || isTodayDone, isLeadingToToday, isPastWeek) : '';
     var selectKey = 'part-' + p.index;
-    var popHtml = isSelected ? partPopoverHtml(p, unit, tabKey, pillsExpanded) : '';
+    var weekAnchorAttr = isFirstInWeek ? ' data-parts-week-anchor="' + weekObj.weekNum + '"' : '';
 
-    return '<li class="jp-parts__step jp-parts__step--' + stepMod + ' jp-parts__step--pos-' + pos
+    // Round 4 Item 1: Upcoming weeks are dimmed locked coins, not clickable, with hover tooltip
+    if (isUpcomingWeek) {
+      var tipText = 'Mở vào tuần ' + weekObj.dateRange;
+      return '<li class="jp-parts__step jp-parts__step--next jp-parts__step--upcoming-week jp-parts__step--pos-' + pos + '"'
+        + weekAnchorAttr + ' style="--step-i:' + stepIdx + '">'
+        + decoHtml
+        + '<div class="jp-parts__node-row">'
+        + '<div class="jp-parts__head jp-parts__head--locked" aria-disabled="true" title="' + esc(tipText) + '">'
+        + '<span class="jp-parts__node-wrap">'
+        + '<span class="jp-parts__orb jp-parts__orb--next" aria-hidden="true">'
+        + '<span class="jp-parts__orb-shine"></span>'
+        + svgLock()
+        + '<span class="jp-parts__orb-num">' + esc(p.index) + '</span>'
+        + '</span>'
+        + '</span>'
+        + '<span class="jp-parts__label jp-parts__label--' + labelSide + '">'
+        + '<span class="jp-parts__no">Phần ' + esc(p.index) + '</span>'
+        + '<span class="jp-parts__when">' + esc(tipText) + '</span>'
+        + '</span>'
+        + '<span class="jp-parts__lock-tip" role="tooltip">' + esc(tipText) + '</span>'
+        + '</div>'
+        + '</div>'
+        + connector
+        + '</li>';
+    }
+
+    var popHtml = isSelected ? partPopoverHtml(p, unit, tabKey, pos, pillsExpanded) : '';
+
+    return '<li class="jp-parts__step jp-parts__step--' + stepMod
+      + (isPastWeek ? ' jp-parts__step--past-week' : '')
+      + ' jp-parts__step--pos-' + pos
       + (isSelected ? ' is-selected' : '') + '"'
+      + weekAnchorAttr
       + (isToday || isTodayDone ? ' data-parts-today="true"' : '')
       + ' style="--step-i:' + stepIdx + '">'
       + decoHtml
@@ -421,15 +518,45 @@
       + '</li>';
   }
 
-  function milestoneNodeHtml(m, pos, stepIdx, isSelected) {
+  function milestoneNodeHtml(m, pos, nextPos, hasNext, stepIdx, weekObj, isSelected) {
     var unlocked = !!m.unlocked;
+    var isPastWeek = weekObj.state === 'past';
+    var isUpcomingWeek = weekObj.state === 'upcoming';
     var stateCls = unlocked ? 'jp-parts__milestone--unlocked' : 'jp-parts__milestone--locked';
     var chestSvg = unlocked ? svgChestOpen() : svgChestClosed();
     var labelSide = pos === 'right' ? 'left' : 'right';
     var selectKey = 'milestone-' + m.weekNum;
-    var popHtml = isSelected ? milestonePopoverHtml(m) : '';
+    var connector = hasNext ? curveSvg(pos, nextPos, unlocked, false, isPastWeek) : '';
 
-    return '<li class="jp-parts__step jp-parts__step--milestone ' + stateCls + ' jp-parts__step--pos-' + pos
+    if (isUpcomingWeek) {
+      var tipText = 'Mở vào tuần ' + weekObj.dateRange;
+      return '<li class="jp-parts__step jp-parts__step--milestone jp-parts__step--upcoming-week ' + stateCls + ' jp-parts__step--pos-' + pos + '"'
+        + ' style="--step-i:' + stepIdx + '">'
+        + '<div class="jp-parts__node-row">'
+        + '<div class="jp-parts__head jp-parts__milestone-head jp-parts__head--locked" aria-disabled="true" title="' + esc(tipText) + '">'
+        + '<span class="jp-parts__node-wrap">'
+        + '<span class="jp-parts__orb jp-parts__orb--milestone" aria-hidden="true">'
+        + '<span class="jp-parts__orb-shine"></span>'
+        + chestSvg
+        + '<span class="jp-parts__orb-lock">' + svgLock() + '</span>'
+        + '</span>'
+        + '</span>'
+        + '<span class="jp-parts__label jp-parts__label--' + labelSide + '">'
+        + '<span class="jp-parts__no">Rương tuần ' + esc(m.weekNum) + '</span>'
+        + '<span class="jp-parts__when">' + esc(tipText) + '</span>'
+        + '</span>'
+        + '<span class="jp-parts__lock-tip" role="tooltip">' + esc(tipText) + '</span>'
+        + '</div>'
+        + '</div>'
+        + connector
+        + '</li>';
+    }
+
+    var popHtml = isSelected ? milestonePopoverHtml(m, pos) : '';
+
+    return '<li class="jp-parts__step jp-parts__step--milestone ' + stateCls
+      + (isPastWeek ? ' jp-parts__step--past-week' : '')
+      + ' jp-parts__step--pos-' + pos
       + (isSelected ? ' is-selected' : '') + '" style="--step-i:' + stepIdx + '">'
       + '<div class="jp-parts__node-row">'
       + '<button type="button" class="jp-parts__head jp-parts__milestone-head' + (isSelected ? ' is-selected' : '') + '"'
@@ -447,6 +574,17 @@
       + '</span>'
       + '</button>'
       + popHtml
+      + '</div>'
+      + connector
+      + '</li>';
+  }
+
+  function horizonMilestoneHtml(remainingWeeks) {
+    if (remainingWeeks <= 0) return '';
+    return '<li class="jp-parts__step jp-parts__step--horizon" aria-disabled="true">'
+      + '<div class="jp-parts__horizon" role="note">'
+      + '<span class="jp-parts__horizon-icon" aria-hidden="true">' + sideDecoSvg(3) + '</span>'
+      + '<span class="jp-parts__horizon-text">… còn ' + esc(remainingWeeks) + ' tuần nữa</span>'
       + '</div>'
       + '</li>';
   }
@@ -517,7 +655,8 @@
     }
 
     var baseMs = Date.now();
-    for (var w = 0; w < Math.ceil(totalParts / WEEK_SPAN); w++) {
+    var totalW = Math.ceil(totalParts / WEEK_SPAN);
+    for (var w = 0; w < totalW; w++) {
       var slice = parts.slice(w * WEEK_SPAN, (w + 1) * WEEK_SPAN);
       var normalized = [];
       var doneCount = 0;
@@ -535,8 +674,8 @@
       var weekNum = w + 1;
       var allDone = doneCount === normalized.length && normalized.length > 0;
       var isCurrent = w === currentWeekIdx;
+      var state = w < currentWeekIdx ? 'past' : (isCurrent ? 'current' : 'upcoming');
 
-      // Estimate date range for upcoming weeks
       var weekOffset = w - currentWeekIdx;
       var startMs = baseMs + weekOffset * 7 * 86400000;
       var endMs = startMs + 6 * 86400000;
@@ -544,6 +683,7 @@
 
       weeks.push({
         weekNum: weekNum,
+        state: state,
         parts: normalized,
         fromIndex: fromIndex,
         toIndex: toIndex,
@@ -569,68 +709,8 @@
     return weeks;
   }
 
-  function defaultSelectedKey(weeks) {
-    for (var i = 0; i < weeks.length; i++) {
-      var w = weeks[i];
-      for (var j = 0; j < w.parts.length; j++) {
-        var st = w.parts[j].status;
-        if (st === 'TODAY' || st === 'TODAY_DONE') return 'part-' + w.parts[j].index;
-      }
-    }
-    if (weeks.length && weeks[0].parts.length) return 'part-' + weeks[0].parts[0].index;
-    return '';
-  }
-
-  function signpostHtml(w, isOpen) {
-    var tone = w.allDone ? 'done' : (w.isCurrent || w.doneCount > 0 ? 'current' : 'upcoming');
-    var summaryText = '';
-    var badgeIcon = '';
-    if (w.allDone) {
-      summaryText = 'Tuần ' + w.weekNum + ' · ' + w.doneCount + '/' + w.totalParts + ' phần · rương đã mở ✓';
-      badgeIcon = svgCheck();
-    } else if (w.isCurrent || w.doneCount > 0) {
-      summaryText = 'Tuần ' + w.weekNum + ' · Đang học (' + w.doneCount + '/' + w.totalParts + ' phần) · Phần ' + w.fromIndex + '–' + w.toIndex;
-      badgeIcon = svgStar();
-    } else {
-      summaryText = 'Tuần ' + w.weekNum + ' · ' + w.totalParts + ' phần · ' + w.dateRange;
-      badgeIcon = svgLock();
-    }
-    return '<button type="button" class="jp-parts__signpost jp-parts__signpost--' + tone + (isOpen ? ' is-open' : '') + '"'
-      + ' data-parts-week-toggle="' + w.weekNum + '" aria-expanded="' + (isOpen ? 'true' : 'false') + '">'
-      + '<span class="jp-parts__signpost-pin" aria-hidden="true">' + badgeIcon + '</span>'
-      + '<span class="jp-parts__signpost-text">' + esc(summaryText) + '</span>'
-      + '<span class="jp-parts__signpost-Action">' + (isOpen ? 'Thu gọn ▴' : 'Mở chặng ▾') + '</span>'
-      + '</button>';
-  }
-
-  function weekSectionHtml(w, isOpen, unit, sceneKey, activeKey, pillsExpanded) {
-    var html = '<section class="jp-parts__week' + (isOpen ? ' is-open' : ' is-collapsed')
-      + (w.isCurrent ? ' is-current-week' : '') + '" data-parts-week="' + w.weekNum + '">'
-      + signpostHtml(w, isOpen);
-
-    if (isOpen) {
-      html += '<div class="jp-parts__week-body"><ol class="jp-parts__list jp-parts__map">';
-      var totalSteps = w.parts.length + 1; // parts + milestone chest
-      for (var i = 0; i < w.parts.length; i++) {
-        var p = w.parts[i];
-        var pos = WAVE_POS[i % WAVE_POS.length];
-        var nextPos = WAVE_POS[(i + 1) % WAVE_POS.length];
-        var nextStatus = i + 1 < w.parts.length ? w.parts[i + 1].status : (w.allDone ? 'DONE' : 'NEXT');
-        var pKey = 'part-' + p.index;
-        var isSel = activeKey === pKey;
-        html += partNodeHtml(p, unit, sceneKey, pos, nextPos, true, nextStatus, i, w.weekNum, isSel, isSel && pillsExpanded);
-      }
-      var mPos = WAVE_POS[(totalSteps - 1) % WAVE_POS.length];
-      var mSel = activeKey === w.milestone.key;
-      html += milestoneNodeHtml(w.milestone, mPos, totalSteps - 1, mSel);
-      html += '</ol></div>';
-    }
-    html += '</section>';
-    return html;
-  }
-
   function partsHtml(data, tabKey, page, opts) {
-    void page; // Supplement 1 & 4: pagination removed; road organized by collapsible weeks
+    void page;
     var d = data || {};
     var o = opts || {};
     var sceneKey = resolveSceneKey(tabKey, d);
@@ -644,13 +724,9 @@
       if (weeks[i].isCurrent) { currentWeekNum = weeks[i].weekNum; break; }
     }
 
-    var openWeeksMap = o.openWeeks || null;
-    if (!openWeeksMap) {
-      openWeeksMap = {};
-      openWeeksMap[currentWeekNum] = true;
-    }
-    var focusedWeek = o.focusedWeek || currentWeekNum;
-    var activeKey = o.selectedKey !== undefined ? o.selectedKey : defaultSelectedKey(weeks);
+    var focusedWeek = Math.min(currentWeekNum, Math.max(1, o.focusedWeek || currentWeekNum));
+    // Round 4 Item 2: By default, no popover is open on initial load so today's node is never covered
+    var activeKey = o.selectedKey != null ? String(o.selectedKey) : '';
     var pillsExpanded = !!o.pillsExpanded;
 
     var totalNum = Number(d.total) || 0;
@@ -658,45 +734,94 @@
     var pct = totalNum > 0 ? Math.min(100, Math.round((learnedNum / totalNum) * 100)) : 0;
     var est = estimateText(d, o);
 
-    // Top bar: title + tab progress + week quick-jumper ("Tuần 2/16" ‹ ›) + legend + "Xem toàn bộ danh sách"
-    var barHtml = '<div class="jp-parts__bar">'
-      + '<div class="jp-parts__bar-main">'
-      + '<div class="jp-parts__bar-title">'
-      + '<h2 class="jp-parts__title">Bản đồ ' + esc(t[2]) + (d.level ? ' ' + esc(d.level) : '') + '</h2>'
-      + '<span class="jp-parts__sub">Đã học <strong>' + esc(learnedNum) + '/' + esc(totalNum) + '</strong> ' + t[1]
-      + ' (' + pct + '%) · Dự kiến xong: <strong>' + esc(est) + '</strong></span>'
+    // Round 4 Item 5: Unified sticky Tab Banner on top of the map
+    var bannerHtml = '<header class="jp-parts__banner jp-parts__bar" aria-label="Thông tin bản đồ ' + esc(t[2]) + '">'
+      + '<div class="jp-parts__banner-top">'
+      + '<div class="jp-parts__banner-left">'
+      + '<span class="jp-parts__banner-icon" aria-hidden="true">' + tabBannerIconSvg(sceneKey) + '</span>'
+      + '<div class="jp-parts__banner-titles">'
+      + '<h2 class="jp-parts__title">' + esc(t[2]) + (d.level ? ' ' + esc(d.level) : '') + '</h2>'
+      + '<p class="jp-parts__sub">' + esc(totalNum) + ' ' + esc(t[1]) + ' · xong dự kiến <strong>' + esc(est) + '</strong></p>'
       + '</div>'
-      + '<div class="jp-parts__week-nav" role="group" aria-label="Chuyển nhanh theo tuần">'
+      + '</div>'
+      + '<div class="jp-parts__banner-center">'
+      + bannerProgressRingHtml(learnedNum, totalNum, pct)
+      + '</div>'
+      + '<div class="jp-parts__banner-right">'
+      + '<div class="jp-parts__week-nav" role="group" aria-label="Chọn tuần học">'
       + '<button type="button" class="jp-parts__week-btn" data-parts-week-nav="prev"'
       + (focusedWeek <= 1 ? ' disabled' : '') + ' aria-label="Tuần trước">‹</button>'
       + '<span class="jp-parts__week-ind">Tuần <strong>' + focusedWeek + '/' + totalWeeks + '</strong></span>'
       + '<button type="button" class="jp-parts__week-btn" data-parts-week-nav="next"'
-      + (focusedWeek >= totalWeeks ? ' disabled' : '') + ' aria-label="Tuần sau">›</button>'
+      + (focusedWeek >= currentWeekNum ? ' disabled' : '') + ' aria-label="Tuần tiếp theo">›</button>'
       + '</div>'
       + '</div>'
-      + '<div class="jp-parts__meter" aria-hidden="true"><span style="width:' + pct + '%"></span></div>'
-      + '<div class="jp-parts__bar-foot">'
-      + '<div class="jp-parts__legend" aria-label="Chú giải bản đồ">'
-      + '<span class="jp-parts__legend-item"><i class="jp-parts__dot jp-parts__dot--done"></i>Đã học</span>'
-      + '<span class="jp-parts__legend-item"><i class="jp-parts__dot jp-parts__dot--today"></i>Hôm nay</span>'
-      + '<span class="jp-parts__legend-item"><i class="jp-parts__dot jp-parts__dot--next"></i>Sắp tới</span>'
-      + '<span class="jp-parts__legend-item"><i class="jp-parts__dot jp-parts__dot--milestone"></i>Rương tuần</span>'
       + '</div>'
-      + '<button type="button" class="jp-parts__all-link" data-parts-all aria-expanded="false">'
-      + 'Xem toàn bộ danh sách (lọc, tìm, in, quiz)</button>'
+      + '<div class="jp-parts__banner-sub">'
+      + '<div class="jp-parts__legend" aria-label="Chú giải trạng thái">'
+      + '<span class="jp-parts__legend-pill jp-parts__legend-pill--done"><span class="jp-parts__legend-ic">✓</span>Đã học</span>'
+      + '<span class="jp-parts__legend-pill jp-parts__legend-pill--today"><span class="jp-parts__legend-ic">★</span>Hôm nay</span>'
+      + '<span class="jp-parts__legend-pill jp-parts__legend-pill--next"><span class="jp-parts__legend-ic">🔒</span>Sắp tới</span>'
+      + '<span class="jp-parts__legend-pill jp-parts__legend-pill--chest"><span class="jp-parts__legend-ic">🎁</span>Rương tuần</span>'
       + '</div>'
-      + '</div>';
+      + '<button type="button" class="jp-btn jp-parts__all-btn" data-parts-all aria-expanded="false">'
+      + svgListIcon() + '<span>Xem toàn bộ danh sách</span></button>'
+      + '</div>'
+      + '</header>';
 
-    var weeksHtml = weeks.map(function (w) {
-      return weekSectionHtml(w, !!openWeeksMap[w.weekNum], t[1], sceneKey, activeKey, pillsExpanded);
-    }).join('');
+    // Round 4 Item 1: Continuous winding road through past weeks, current week, and up to 2 upcoming weeks
+    var maxVisibleWeek = Math.min(totalWeeks, currentWeekNum + UPCOMING_WEEKS_SHOWN);
+    var remainingWeeks = Math.max(0, totalWeeks - maxVisibleWeek);
+    var flatSteps = [];
+    for (var wIdx = 0; wIdx < maxVisibleWeek; wIdx++) {
+      var wObj = weeks[wIdx];
+      if (!wObj) continue;
+      for (var pIdx = 0; pIdx < wObj.parts.length; pIdx++) {
+        flatSteps.push({
+          kind: 'part',
+          part: wObj.parts[pIdx],
+          weekObj: wObj,
+          stepInWeek: pIdx,
+          isFirstInWeek: pIdx === 0
+        });
+      }
+      flatSteps.push({
+        kind: 'milestone',
+        milestone: wObj.milestone,
+        weekObj: wObj,
+        stepInWeek: wObj.parts.length,
+        isFirstInWeek: false
+      });
+    }
+
+    var mapItemsHtml = '';
+    for (var s = 0; s < flatSteps.length; s++) {
+      var cur = flatSteps[s];
+      var pos = WAVE_POS[s % WAVE_POS.length];
+      var hasNext = (s + 1 < flatSteps.length) || (remainingWeeks > 0);
+      var nextPos = (s + 1 < flatSteps.length) ? WAVE_POS[(s + 1) % WAVE_POS.length] : 'center';
+      var nextEntry = (s + 1 < flatSteps.length) ? flatSteps[s + 1] : null;
+      var nextStatus = nextEntry && nextEntry.kind === 'part' ? nextEntry.part.status : '';
+      if (cur.kind === 'part') {
+        var pKey = 'part-' + cur.part.index;
+        var isSel = activeKey === pKey;
+        mapItemsHtml += partNodeHtml(cur.part, t[1], sceneKey, pos, nextPos, hasNext, nextStatus, cur.stepInWeek, cur.weekObj, isSel, isSel && pillsExpanded, cur.isFirstInWeek);
+      } else {
+        var mKey = cur.milestone.key;
+        var mSel = activeKey === mKey;
+        mapItemsHtml += milestoneNodeHtml(cur.milestone, pos, nextPos, hasNext, cur.stepInWeek, cur.weekObj, mSel);
+      }
+    }
+    if (remainingWeeks > 0) {
+      mapItemsHtml += horizonMilestoneHtml(remainingWeeks);
+    }
 
     var stageHtml = '<div class="jp-parts__stage jp-parts__stage--' + sceneKey + '" data-tab-scene="' + sceneKey + '">'
       + sceneBackdropHtml(sceneKey)
-      + '<div class="jp-parts__weeks">' + weeksHtml + '</div>'
+      + '<ol class="jp-parts__list jp-parts__map">' + mapItemsHtml + '</ol>'
       + '</div>';
 
-    return '<div class="jp-parts__container">' + barHtml + stageHtml + '</div>';
+    return '<div class="jp-parts__container">' + bannerHtml + stageHtml + '</div>';
   }
 
   function triggerWeeklyCheck(wk, client) {
@@ -727,13 +852,11 @@
     root.document.addEventListener('click', function (ev) {
       var t = ev.target;
       if (!t || typeof t.closest !== 'function') return;
-      // Support [data-parts-weekly] inside "Hôm nay của bạn" (.jp-today) as well
       var wk = t.closest('[data-parts-weekly]');
       if (wk && !wk.closest('[data-slot="parts"]')) {
         triggerWeeklyCheck(wk, root.JpathApi);
         return;
       }
-      // Close open popover when clicking outside any node or popover
       var activePartsEl = root.document.querySelector('[data-slot="parts"]');
       if (activePartsEl && activePartsEl.__selectedKey && activePartsEl.__renderCurrent) {
         if (!t.closest('[data-parts-popover]') && !t.closest('[data-parts-node]')) {
@@ -782,11 +905,12 @@
     partsEl.__seq = mine;
     partsEl.__tab = key;
     partsEl.__week = o.week;
+    partsEl.__estimate = o.estimate;
 
     function renderCurrent() {
       partsEl.innerHTML = partsHtml(partsEl.__data, partsEl.__tab, 0, {
         week: partsEl.__week,
-        openWeeks: partsEl.__openWeeks,
+        estimate: partsEl.__estimate,
         focusedWeek: partsEl.__focusedWeek,
         selectedKey: partsEl.__selectedKey,
         pillsExpanded: partsEl.__pillsExpanded
@@ -794,7 +918,7 @@
       var allBtn = partsEl.querySelector('[data-parts-all]');
       if (allBtn && partsEl.__allOpen) {
         allBtn.setAttribute('aria-expanded', 'true');
-        allBtn.textContent = 'Ẩn danh sách đầy đủ';
+        allBtn.innerHTML = svgListIcon() + '<span>Ẩn danh sách đầy đủ</span>';
       }
     }
     partsEl.__renderCurrent = renderCurrent;
@@ -834,36 +958,22 @@
           return;
         }
 
-        var weekToggle = t.closest('[data-parts-week-toggle]');
-        if (weekToggle) {
-          var wNum = Number(weekToggle.getAttribute('data-parts-week-toggle'));
-          if (!partsEl.__openWeeks) partsEl.__openWeeks = {};
-          partsEl.__openWeeks[wNum] = !partsEl.__openWeeks[wNum];
-          partsEl.__focusedWeek = wNum;
-          renderCurrent();
-          if (partsEl.__openWeeks[wNum]) {
-            var wSec = partsEl.querySelector('[data-parts-week="' + wNum + '"]');
-            if (wSec) scrollToTarget(wSec);
-          }
-          return;
-        }
-
         var weekNav = t.closest('[data-parts-week-nav]');
         if (weekNav && !weekNav.disabled) {
           var dir = weekNav.getAttribute('data-parts-week-nav');
           var weeks = buildWeeks(list(partsEl.__data && partsEl.__data.parts));
-          var totalW = Math.max(1, weeks.length);
-          var curW = partsEl.__focusedWeek || 1;
-          var targetW = dir === 'prev' ? Math.max(1, curW - 1) : Math.min(totalW, curW + 1);
+          var curWeekLimit = 1;
+          for (var i = 0; i < weeks.length; i++) {
+            if (weeks[i].isCurrent) { curWeekLimit = weeks[i].weekNum; break; }
+          }
+          var curW = partsEl.__focusedWeek || curWeekLimit;
+          var targetW = dir === 'prev' ? Math.max(1, curW - 1) : Math.min(curWeekLimit, curW + 1);
           partsEl.__focusedWeek = targetW;
-          partsEl.__openWeeks = {};
-          partsEl.__openWeeks[targetW] = true;
-          var targetWeekObj = weeks[targetW - 1];
-          partsEl.__selectedKey = targetWeekObj && targetWeekObj.parts[0] ? ('part-' + targetWeekObj.parts[0].index) : '';
+          partsEl.__selectedKey = '';
           partsEl.__pillsExpanded = false;
           renderCurrent();
-          var targetSec = partsEl.querySelector('[data-parts-week="' + targetW + '"]');
-          if (targetSec) scrollToTarget(targetSec);
+          var anchor = partsEl.querySelector('[data-parts-week-anchor="' + targetW + '"]');
+          if (anchor) scrollToTarget(anchor);
           return;
         }
 
@@ -895,7 +1005,7 @@
           partsEl.__allOpen = !partsEl.__allOpen;
           if (listEl) listEl.hidden = !partsEl.__allOpen;
           all.setAttribute('aria-expanded', String(!!partsEl.__allOpen));
-          all.textContent = partsEl.__allOpen ? 'Ẩn danh sách đầy đủ' : 'Xem toàn bộ danh sách (lọc, tìm, in, quiz)';
+          all.innerHTML = svgListIcon() + '<span>' + (partsEl.__allOpen ? 'Ẩn danh sách đầy đủ' : 'Xem toàn bộ danh sách') + '</span>';
           if (partsEl.__allOpen && listEl && listEl.scrollIntoView) {
             listEl.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
           }
@@ -913,15 +1023,14 @@
         if (weeks[i].isCurrent) { curW = weeks[i].weekNum; break; }
       }
       partsEl.__focusedWeek = curW;
-      partsEl.__openWeeks = {};
-      partsEl.__openWeeks[curW] = true;
-      partsEl.__selectedKey = defaultSelectedKey(weeks);
+      // Round 4 Item 2: Do not open popover automatically on load
+      partsEl.__selectedKey = '';
       partsEl.__pillsExpanded = false;
       renderCurrent();
-      // Auto-scroll smoothly to today's node (or current week) when opening the tab
       if (root && typeof root.requestAnimationFrame === 'function') {
         root.requestAnimationFrame(function () {
-          var todayNode = partsEl.querySelector('[data-parts-today="true"]') || partsEl.querySelector('.is-current-week');
+          var todayNode = partsEl.querySelector('[data-parts-today="true"]')
+            || partsEl.querySelector('[data-parts-week-anchor="' + curW + '"]');
           if (todayNode) scrollToTarget(todayNode);
         });
       }

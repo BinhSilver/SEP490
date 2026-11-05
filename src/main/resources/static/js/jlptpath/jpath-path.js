@@ -332,6 +332,9 @@
 
   function numbersHtml(path, tab, today) {
     if (tab === 'skills') return skillsTabHtml(path, today);
+    if (root && root.JpathParts && (tab === 'vocab' || tab === 'kanji' || tab === 'grammar')) {
+      return '<div class="jp-sr" aria-hidden="true">' + estimateHtml(path, tab) + volumeHtml(path, tab) + '</div>';
+    }
     return estimateHtml(path, tab) + volumeHtml(path, tab);
   }
 
