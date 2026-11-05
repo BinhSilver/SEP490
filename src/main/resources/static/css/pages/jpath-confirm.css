@@ -170,10 +170,25 @@
   .jp-confirm-score { padding: 12px 6px; }
   .jp-confirm-score__value { font-size: 1.4em; }
   .jp-confirm-mode { min-height: 108px; padding: 16px; }
-  .jp-wizard__foot .jp-flow { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; margin: 0 -16px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: var(--jp-surface); box-shadow: 0 -6px 18px rgb(0 0 0 / 8%); }
+  .jp-wizard__foot .jp-flow { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; margin: 0 -16px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: var(--jp-surface); border-top: 1px solid var(--jp-line); }
   .jp-confirm-submit .jp-confirm-btn { width: 100%; }
   .jp-confirm:has(.jp-wizard__step[data-jp-wizard-step="Cách học"]:not([hidden])) .jp-confirm-submit [data-role="create"] { position: fixed; z-index: 6; right: 12px; bottom: calc(var(--jlab-mobile-bottom, 0px) + 10px); width: calc(65% - 12px); min-height: 52px; }
   .jp-confirm:has(.jp-wizard__step[data-jp-wizard-step="Cách học"]:not([hidden])) .jp-wizard__foot .jp-flow__lead { width: 30%; }
   .jp-confirm:has(.jp-wizard__step[data-jp-wizard-step="Cách học"]:not([hidden])) .jp-wizard__foot .jp-flow__back { width: 100%; padding-inline: 8px; }
 }
 @media (prefers-reduced-motion: reduce) { .jp-confirm-slider__input, .jp-confirm-mode, .jp-wizard__foot * { transition: none !important; } }
+
+/* 04/11 polish round 4: wizard tạo lộ trình */
+.jp-confirm { max-width: 1280px; }
+.jp-wizard__step { width: 100%; min-width: 0; }
+.jp-confirm-pace { padding: 22px 26px; border: 1px solid var(--jp-line); border-left: 4px solid var(--jp-primary); border-radius: 8px; background: var(--jp-primary-soft); }
+.jp-confirm-pace__text { font-size: clamp(1.8em, 3vw, 2.4em); font-weight: 700; }
+.jp-confirm-mode { border-radius: 8px; background: var(--jp-surface); }
+.jp-confirm-mode:has(.jp-confirm-mode__input:checked) { border-color: var(--jp-primary); background: var(--jp-primary-soft); }
+.jp-confirm-submit .jp-confirm-btn { min-height: 60px; font-size: 1.15em; }
+.jp-wizard__foot .jp-flow { border-top: 1px solid var(--jp-line); }
+@media (max-width: 640px) {
+  .jp-confirm-pace { padding: 18px 16px; }
+  .jp-confirm-pace__text { font-size: 1.7em; }
+  .jp-confirm-submit .jp-confirm-btn { min-height: 56px; }
+}
