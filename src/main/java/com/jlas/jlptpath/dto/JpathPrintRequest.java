@@ -7,5 +7,5 @@ package com.jlas.jlptpath.dto;
  * the learner's open level.
  */
 public record JpathPrintRequest(String scope, String tab, String topic, String state, String q, String script,
-                                String radical, String sort, String level) {
+                                String radical, String sort, String level, String day) {
 }

@@ -115,6 +115,10 @@
       + (wrongAll.length ? '<a class="jp-btn jp-btn--primary" href="/learning/jlpt/notebook">Ôn lại ' + wrongAll.length + ' mục sai</a>' : '')
       + (day === today ? '<button type="button" class="jp-btn" data-jpath-writing="' + esc(JSON.stringify({ today: 'KANJI' }))
         + '">Luyện viết kanji hôm nay</button>' : '')
+      + '<button type="button" class="jp-btn" data-jpath-print="' + esc(JSON.stringify({ scope: 'DAY', tab: 'KANJI', day: day }))
+      + '">In bảng kanji ngày này</button>'
+      + '<button type="button" class="jp-btn" data-jpath-print="' + esc(JSON.stringify({ scope: 'DAY', tab: 'VOCAB', day: day }))
+      + '">In bảng từ vựng ngày này</button>'
       + '<a class="jp-btn" href="/learning">Về lộ trình</a></div>'
       + '<p class="jp-side__note">Bấm vào một từ hay chữ để luyện viết. Mục màu đỏ là mục sai hoặc chọn "Chưa nhớ".</p>';
     return html;
@@ -130,6 +134,7 @@
     if (day > today) day = today;
     root.JpathApi.get(BASE + '/history/' + day).then(function (d) {
       el.innerHTML = dayHtml(d, day, today);
+      if (root.JpathPrint && root.JpathPrint.bind) root.JpathPrint.bind(el);
     }, function () {
       el.innerHTML = '<p class="jp-alert" role="alert">Chưa tải được ngày này. Thử lại sau.</p>';
     });

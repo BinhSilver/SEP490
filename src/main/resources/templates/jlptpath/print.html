@@ -14,7 +14,13 @@
     <button type="button" class="jp-print-toolbar__btn jp-print-toolbar__btn--primary" data-jpath-print-now
             th:disabled="${sheet == null or #lists.isEmpty(sheet.pages())}">In bảng này</button>
     <button type="button" class="jp-print-toolbar__btn" data-jpath-print-close>Đóng</button>
-    <span class="jp-print-toolbar__hint">Khổ A4 dọc · 6 dòng mỗi trang</span>
+    <nav class="jp-print-toolbar__tabs" aria-label="Chọn bảng" th:if="${param.scope != null and param.scope[0] != 'KANA'}">
+        <a th:each="t : ${ {'VOCAB','KANJI'} }"
+           th:href="@{/learning/jlpt/print(scope=${param.scope[0]},tab=${t},day=${param.day},level=${param.level},q=${param.q},topic=${param.topic},state=${param.state},radical=${param.radical},sort=${param.sort})}"
+           th:classappend="${param.tab != null and param.tab[0] == t} ? ' is-on'"
+           th:text="${t == 'VOCAB'} ? 'Từ vựng' : 'Kanji'">Từ vựng</a>
+    </nav>
+    <span class="jp-print-toolbar__hint">Khổ A4 dọc · chữ mờ để tô, ô trống để tự viết</span>
 </div>
 
 <p class="jp-print-notice" th:if="${printError != null}" th:text="${printError}" role="alert">Lỗi</p>
@@ -38,6 +44,7 @@
                 <span th:text="'Trang ' + ${pageStat.count} + '/' + ${pageStat.size}">Trang 1/1</span>
             </p>
         </header>
+        <div class="jp-print-who" th:if="${pageStat.first}"><span>Họ tên:</span><span>Ngày viết:</span><span>Tự chấm: ☐ ☐ ☐</span></div>
         <div class="jp-print-row" th:each="row : ${page}" th:classappend="'jp-print-row--' + ${#strings.toLowerCase(row.kind())}">
             <div class="jp-print-info">
                 <div class="jp-print-word jp-print-kanji" lang="ja" th:text="${row.text()}">休</div>

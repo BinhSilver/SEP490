@@ -61,15 +61,34 @@ public class JpathPrintServiceImpl implements JpathPrintService {
     private final JpathUserPathRepository paths;
     private final JpathClock clock;
     private final JpathStrokeSvgIndex svgIndex;
+    private final org.springframework.beans.factory.ObjectProvider<com.jlas.jlptpath.service.JpathHistoryService> history;
 
     public JpathPrintServiceImpl(JpathListService lists, JpathDailyPlanService dailyPlan, JpathContentReader content,
                                  JpathUserPathRepository paths, JpathClock clock, JpathStrokeSvgIndex svgIndex) {
+        this(lists, dailyPlan, content, paths, clock, svgIndex, null);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public JpathPrintServiceImpl(JpathListService lists, JpathDailyPlanService dailyPlan, JpathContentReader content,
+                                 JpathUserPathRepository paths, JpathClock clock, JpathStrokeSvgIndex svgIndex,
+                                 org.springframework.beans.factory.ObjectProvider<com.jlas.jlptpath.service.JpathHistoryService> history) {
         this.lists = lists;
         this.dailyPlan = dailyPlan;
         this.content = content;
         this.paths = paths;
         this.clock = clock;
         this.svgIndex = svgIndex;
+        this.history = history;
+    }
+
+    /** Owner 05/11: the new items of one study day on one tab (first touched first); empty when none. */
+    private List<String> dayCodes(Long userId, java.time.LocalDate day, JpathTab tab) {
+        com.jlas.jlptpath.service.JpathHistoryService h = history == null ? null : history.getIfAvailable();
+        if (h == null) return List.of();
+        return h.day(userId, day).items().stream()
+                .filter(i -> i.itemType() != null && i.itemType().name().equals(tab.name()))
+                .filter(i -> !"REVIEW_RATE".equals(i.lastAction()))
+                .map(com.jlas.jlptpath.dto.JpathDayItemView::code).distinct().toList();
     }
 
     @Override
@@ -82,7 +101,7 @@ public class JpathPrintServiceImpl implements JpathPrintService {
         String date = clock.today(userId).format(DATE_VI);
         return switch (scope) {
             case "KANA" -> kanaSheet(request, date);
-            case "TODAY", "LIST" -> itemSheet(userId, scope, request, date);
+            case "TODAY", "LIST", "DAY" -> itemSheet(userId, scope, request, date);
             default -> throw invalid("Phạm vi in không hợp lệ.");
         };
     }
@@ -108,8 +127,23 @@ public class JpathPrintServiceImpl implements JpathPrintService {
 
         List<String> codes;
         boolean truncated = false;
-        if ("TODAY".equals(scope)) {
-            codes = dailyPlan.plannedNewItems(userId, tab).stream().map(JpathItemRef::code).toList();
+        java.time.LocalDate printedDay = null;
+        if ("TODAY".equals(scope) || "DAY".equals(scope)) {
+            printedDay = clock.today(userId);
+            if ("DAY".equals(scope)) {
+                try {
+                    printedDay = java.time.LocalDate.parse(String.valueOf(request.day()).trim());
+                } catch (RuntimeException e) {
+                    throw invalid("Ngày in không hợp lệ.");
+                }
+            }
+            // items learned that day, then (today only) the ones still planned
+            List<String> learned = new ArrayList<>(dayCodes(userId, printedDay, tab));
+            if ("TODAY".equals(scope)) {
+                dailyPlan.plannedNewItems(userId, tab).stream().map(JpathItemRef::code)
+                        .filter(c -> !learned.contains(c)).forEach(learned::add);
+            }
+            codes = learned;
         } else {
             Function<Integer, JpathPage<String>> page = tab == JpathTab.VOCAB
                     ? p -> codesOf(lists.vocabulary(userId, new JpathVocabFilter(level, request.topic(),
@@ -136,7 +170,8 @@ public class JpathPrintServiceImpl implements JpathPrintService {
                 : content.kanjis(codes).stream().map(this::kanjiRow).toList();
         String title = TITLE + " · " + (tab == JpathTab.VOCAB ? "Từ vựng" : "Kanji")
                 + (level == null ? "" : " " + level)
-                + " · " + ("TODAY".equals(scope) ? "Hôm nay" : "Danh sách đang chọn");
+                + " · " + ("TODAY".equals(scope) ? "Hôm nay" : "DAY".equals(scope)
+                        ? "Ngày " + printedDay.format(DATE_VI) : "Danh sách đang chọn");
         return sheet(title, date, scope, truncated, rows);
     }
 
