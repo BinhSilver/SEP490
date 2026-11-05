@@ -906,3 +906,38 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 .jp-today__go { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-bottom: 10px; }
 .jp-today__go .jp-btn--lg { min-height: 48px; padding: 10px 28px; font-size: 1.05em; }
 .jp-path .jp-todo__item > .jp-todo__sub:last-child { width: 150px; justify-self: end; text-align: center; }
+
+/* 04/11 list tabs (Từ vựng / Kanji / Ngữ pháp): toolbar on one band, count + print on one line, an even table */
+.jp-path .jp-list-head { display: grid; gap: 12px; padding: 14px 16px; margin-bottom: 8px; border-radius: 12px; background: var(--jp-surface); }
+.jp-path .jp-list-head > .jp-list-bar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 0; }
+.jp-path .jp-list-head > .jp-list-bar > .jp-btn:last-child { margin-left: auto; }
+.jp-path .jp-list-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 220px)) minmax(220px, 1fr); gap: 10px 12px;
+  align-items: end; margin: 0; }
+.jp-path .jp-list-filters .jp-field--grow { grid-column: auto; }
+.jp-path .jp-list-filters select, .jp-path .jp-list-filters input { min-height: 40px; }
+.jp-path .jp-list-results { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; align-items: center; }
+.jp-path .jp-list-results > * { grid-column: 1 / -1; }
+.jp-path .jp-list-results > .jp-list-summary { grid-column: 1; grid-row: 1; margin: 0; color: var(--jp-muted); font-size: .9em; }
+.jp-path .jp-list-results > .jp-list-bar:first-child { grid-column: 2; grid-row: 1; margin: 0; justify-self: end; }
+.jp-path .jp-list-results > .jp-pager { justify-self: center; margin-top: 6px; }
+.jp-path .jp-table { width: 100%; border-collapse: collapse; }
+.jp-path .jp-table th { padding: 8px 12px; font-size: .78em; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--jp-muted); text-align: left; border-bottom: 1px solid var(--jp-line); }
+.jp-path .jp-table td { padding: 8px 12px; vertical-align: middle; border-bottom: 1px solid var(--jp-line); }
+.jp-path .jp-table td:first-child { font-size: 1.15em; }
+.jp-path .jp-table td:first-child .jp-row-open { font-size: inherit; }
+.jp-path .jp-table td:last-child, .jp-path .jp-table th:last-child { text-align: right; }
+.jp-path .jp-table tbody tr:hover { background: var(--jp-primary-soft); }
+.jp-path .jp-table .jp-romaji { display: block; font-size: .78em; color: var(--jp-muted); }
+@media (max-width: 640px) {
+  .jp-path .jp-list-filters { grid-template-columns: minmax(0, 1fr); }
+  .jp-path .jp-list-head > .jp-list-bar > .jp-btn:last-child { margin-left: 0; }
+}
+.jp-path .jp-list-filters > .jp-seg { justify-self: start; width: auto; align-self: end; }
+.jp-path .jp-list-filters > .jp-btn { justify-self: end; align-self: end; min-height: 40px; }
+/* grammar list: flat rows like the tables (no box per pattern) */
+.jp-path .jp-grammar-unit, .jp-path .jp-gunit { margin-top: 14px; }
+.jp-path .jp-grow { border: 0; border-bottom: 1px solid var(--jp-line); border-radius: 0; background: transparent; min-height: 44px;
+  padding: 8px 10px; box-shadow: none; }
+.jp-path .jp-grow:hover, .jp-path .jp-grow--open { background: var(--jp-primary-soft); }
+.jp-path .jp-grow__text b { font-size: 1.08em; }
