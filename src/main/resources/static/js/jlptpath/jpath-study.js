@@ -87,7 +87,9 @@
         : '';
       html += '<div class="jp-ex"' + report + '>' + body + '</div>';
     });
-    return html ? '<details class="jp-study-examples"><summary>Ví dụ</summary>' + html + '</details>' : '';
+    // Owner 05/11: a collapsed "Ví dụ" looked empty; the first time an item is shown its examples are open.
+    return html ? '<details class="jp-study-examples"' + (card.kind === 'NEW' ? ' open' : '') + '><summary>Ví dụ ('
+      + list(card.examples).filter(Boolean).length + ')</summary>' + html + '</details>' : '';
   }
 
   function mnemonicHtml(card) {
@@ -118,11 +120,28 @@
     return html ? '<div class="jp-study-tools">' + html + '</div>' : '';
   }
 
+  /**
+   * Owner 05/11: "N1 か N2" read like JLPT levels. Placeholders become word-type tags (N1 → Danh từ 1, V → Động từ…),
+   * the pattern's own kana stay as they are, joined by "+" under the label Cấu trúc.
+   */
+  var SLOT = [[/^N(\d?)$/, 'Danh từ'], [/^V(?:る|ます|て|た|ない)?(\d?)$/, 'Động từ'], [/^Aい(\d?)$/, 'Tính từ い'],
+    [/^Aな(\d?)$/, 'Tính từ な'], [/^A(\d?)$/, 'Tính từ'], [/^S(\d?)$/, 'Câu']];
+  function slotLabel(p) {
+    for (var i = 0; i < SLOT.length; i++) {
+      var m = SLOT[i][0].exec(p);
+      if (m) return SLOT[i][1] + (m[1] ? ' ' + m[1] : '');
+    }
+    return null;
+  }
   function chipsHtml(text) {
     if (!has(text)) return '';
-    return '<div class="jp-study-chips">' + String(text).split(' + ').filter(has).map(function (p) {
-      return '<span class="jp-chip">' + esc(p) + '</span>';
-    }).join('') + '</div>';
+    var parts = String(text).split(/\s*\+\s*|\s+/).filter(has);
+    return '<div class="jp-study-formula"><span class="jp-study-label">Cấu trúc</span><div class="jp-study-chips">'
+      + parts.map(function (p) {
+        var slot = slotLabel(p);
+        return slot ? '<span class="jp-chip jp-chip--slot">' + esc(slot) + '</span>'
+          : '<span class="jp-chip jp-chip--ja jp-ja">' + esc(p) + '</span>';
+      }).join('<span class="jp-study-plus" aria-hidden="true">+</span>') + '</div></div>';
   }
 
   function icon(name) {

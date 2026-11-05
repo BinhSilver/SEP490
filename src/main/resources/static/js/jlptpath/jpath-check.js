@@ -388,9 +388,12 @@
       var cls = 'jp-check-opt';
       if (a && a.correctValue === o.id) cls += ' jp-ok';
       else if (a && a.value === o.id) cls += ' jp-bad';
+      // the label alone carries lang="ja", so the furigana toggle can annotate it
+      var ja = /[぀-ヿ一-鿿]/.test(String(o.label || ''));
       return '<button type="button" class="' + cls + '" data-option="' + esc(o.id) + '"'
-        + (q.direction === 'JA_VI' ? '' : ' lang="ja"') + (a || qs.pending ? ' disabled' : '') + '>'
-        + (i < 9 ? '<span class="jp-key" aria-hidden="true">' + (i + 1) + '</span> ' : '') + esc(o.label)
+        + (a || qs.pending ? ' disabled' : '') + '>'
+        + (i < 9 ? '<span class="jp-key" aria-hidden="true">' + (i + 1) + '</span> ' : '')
+        + '<span' + (ja ? ' lang="ja"' : '') + '>' + esc(o.label) + '</span>'
         + (a && a.correctValue === o.id ? ' ' + icon('check') : (a && a.value === o.id ? ' ' + icon('x') : '')) + '</button>';
     }).join('') + '</div>';
   }

@@ -110,9 +110,48 @@
     var cache = {};
     var serial = 0;
 
+    /**
+     * Owner 05/11: some dictionary rows are whole sentences (田中 → 田中さんは隔週で…). Such a head word is replaced by
+     * the real words found for the selected text, so the card never shows a sentence as the word.
+     */
+    function sentenceLike(text) {
+      var t = String(text || '').trim();
+      return /[。、！？!?]/.test(t) || t.length > 10;
+    }
+
+    function replaceSentence(card, head) {
+      var picked = '';
+      try { picked = String(root.getSelection ? root.getSelection().toString() : '').trim(); } catch (e) { picked = ''; }
+      if (!has(picked)) return true;
+      card.classList.add('jp-lu-card');
+      Array.prototype.forEach.call(card.querySelectorAll('.jp-lu'), function (n) { n.remove(); });
+      head.innerHTML = '<strong lang="ja">' + esc(picked) + '</strong>';
+      fetchJson('/api/dictionary/search?q=' + encodeURIComponent(picked) + '&size=12').then(function (page) {
+        var words = others(page, {}, false).filter(function (w) { return !sentenceLike(w.expression); });
+        words.sort(function (a, b) {
+          var ea = a.expression === picked ? 0 : (String(a.expression).indexOf(picked) === 0 ? 1 : 2);
+          var eb = b.expression === picked ? 0 : (String(b.expression).indexOf(picked) === 0 ? 1 : 2);
+          return ea - eb;
+        });
+        var body = wordRows(words.slice(0, MAX_NEAR + 2), 'Từ trong từ điển')
+          || '<p class="jp-lu__note">Chưa có từ này trong từ điển.</p>';
+        head.insertAdjacentHTML('afterend', '<div class="jp-lu" data-lu-for="sentence">' + body + '</div>');
+      }, function () { /* keep the plain card */ });
+      return true;
+    }
+
     function enrich(card) {
       var save = card.querySelector('[data-inline-save]');
       var id = save && save.getAttribute('data-inline-save');
+      var head0 = card.querySelector('.inline-dict__word');
+      var headWord = head0 && head0.querySelector('strong');
+      if (head0 && head0.hasAttribute('data-lu-head')) return;
+      if (headWord && sentenceLike(headWord.textContent) && replaceSentence(card, head0)) {
+        head0.setAttribute('data-lu-head', '1');
+        Array.prototype.forEach.call(card.querySelectorAll('.inline-dict__meaning, .inline-dict__type, .inline-dict__example, .inline-dict__actions'),
+          function (n) { n.hidden = true; });
+        return;
+      }
       if (!id || id === 'null' || card.querySelector('.jp-lu[data-lu-for="' + id + '"]')) return;
       var mine = ++serial;
       var load = cache[id] || (cache[id] = fetchJson('/api/dictionary/vocabulary/' + encodeURIComponent(id)).then(function (det) {

@@ -315,22 +315,18 @@
       + 'place-items:center;font:400 12.5mm/1 "Klee One",serif;background-image:linear-gradient(#ccc,#ccc),linear-gradient(#ccc,#ccc);'
       + 'background-size:100% .2mm,.2mm 100%;background-position:center;background-repeat:no-repeat}'
       + '.c--faint{color:#c8c8c8}.c--blank{color:transparent}'
-      + '.tools{margin:0 0 6mm}@media print{.tools{display:none}}</style></head><body>'
-      + '<div class="tools"><button onclick="window.print()">In phiếu này</button></div>'
+      + 'header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:.4mm solid #4b3a8c;'
+      + 'padding-bottom:2mm;margin-bottom:6mm;font-size:9.5pt;color:#4b3a8c}header b{font-size:11pt}'
+      + '.who{display:flex;gap:10mm;font-size:9.5pt;color:#555;margin:-3mm 0 6mm}.who span{flex:1;border-bottom:.2mm dotted #999}'
+      + '</style></head><body>'
+      + '<header><b>J-LAS · Phiếu luyện viết</b><span>' + esc(new Date().toLocaleDateString('vi-VN')) + '</span></header>'
+      + '<div class="who"><span>Họ tên:</span><span>Ngày viết:</span></div>'
       + '<h1>' + esc(v.word || '') + '</h1>' + (meta ? '<p>' + meta + '</p>' : '') + rows + '</body></html>';
   }
 
-  /** Opens the sheet in a new tab; where pop-ups are blocked it prints from a hidden frame instead. */
+  /** Owner 05/11: no blank tab; the sheet goes straight to the browser's print preview from a hidden frame. */
   function printSheet(view, chars, per) {
     var html = sheetHtml(view, chars, per);
-    var w = null;
-    try { w = root && typeof root.open === 'function' ? root.open('', '_blank') : null; } catch (e) { w = null; }
-    if (w && w.document) {
-      w.document.open();
-      w.document.write(html);
-      w.document.close();
-      return true;
-    }
     var doc = root && root.document;
     if (!doc || !doc.body) return false;
     var frame = doc.createElement('iframe');
@@ -338,7 +334,11 @@
     frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
     doc.body.appendChild(frame);
     frame.onload = function () {
-      try { frame.contentWindow.focus(); frame.contentWindow.print(); } catch (e) { /* the browser refused */ }
+      var go = function () {
+        try { frame.contentWindow.focus(); frame.contentWindow.print(); } catch (e) { /* the browser refused */ }
+      };
+      var fonts = frame.contentDocument && frame.contentDocument.fonts;
+      if (fonts && fonts.ready) fonts.ready.then(go, go); else go();
       root.setTimeout(function () { if (frame.parentNode) frame.parentNode.removeChild(frame); }, 60000);
     };
     frame.srcdoc = html;

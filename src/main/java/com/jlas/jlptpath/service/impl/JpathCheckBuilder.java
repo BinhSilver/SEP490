@@ -76,12 +76,18 @@ public class JpathCheckBuilder {
     private static final int MAX_DISTRACTORS = 3;
     private static final int GROUP_MCQ = 3;
     private static final int GROUP_AUDIO = 2;
-    private static final List<String> GRAMMAR_FORMS = List.of("FILL", "ORDER_STAR", "MEANING", "ERROR");
+    /**
+     * Owner 05/11: questions should test using the pattern like the JLPT, not its Vietnamese meaning. The rotation
+     * asks the two JLPT forms (FILL, ORDER_STAR) twice as often as ERROR and MEANING.
+     */
+    private static final List<String> GRAMMAR_FORMS = List.of("FILL", "ORDER_STAR", "ERROR", "FILL", "ORDER_STAR",
+            "MEANING");
     private static final Map<String, String> GRAMMAR_INSTRUCTIONS = Map.of(
-            "FILL", "Chọn mẫu đúng điền vào chỗ trống",
-            "ORDER_STAR", "Chọn phần đúng ở vị trí ★",
-            "MEANING", "Chọn nghĩa đúng của câu",
-            "ERROR", "Chọn câu dùng mẫu sai");
+            "FILL", "（　）に入るものはどれですか · Chọn phần điền vào chỗ trống",
+            "ORDER_STAR", "★に入るものはどれですか · Sắp xếp câu, chọn phần ở ô ★",
+            "MEANING", "Câu này có nghĩa là gì?",
+            "ERROR", "使い方が正しくない文はどれですか · Chọn câu dùng sai");
+    private static final String ERROR_PROMPT_JA = "使い方が正しくない文はどれですか。";
     private static final Set<String> NOT_ASKED_READING_SOURCES = Set.of("FIRST_READING", "OVERRIDE");
     private static final ObjectMapper JSON = new ObjectMapper();
 
@@ -211,7 +217,11 @@ public class JpathCheckBuilder {
                 }
             }
             String instruction = GRAMMAR_INSTRUCTIONS.getOrDefault(q.getQuestionType(), "Chọn đáp án đúng");
-            d.add(qid -> new JpathQuestionView(qid, MCQ, null, instruction, q.getPromptJa(), q.getPromptFurigana(),
+            // An ERROR prompt written in Vietnamese ("Câu nào dùng sai…") is asked in Japanese, like the exam.
+            boolean viPrompt = "ERROR".equals(q.getQuestionType()) && !q.getPromptJa().matches(".*[\\u3040-\\u30ff\\u4e00-\\u9fff].*");
+            String promptJa = viPrompt ? ERROR_PROMPT_JA : q.getPromptJa();
+            String promptFuri = viPrompt ? null : q.getPromptFurigana();
+            d.add(qid -> new JpathQuestionView(qid, MCQ, null, instruction, promptJa, promptFuri,
                             null, options, null, timer),
                     new AnswerKey(correct, null, null, null, List.of(), JpathItemType.GRAMMAR, g.getCode(), null,
                             q.getExplanationVi(), null, q.getCode(), null));

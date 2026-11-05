@@ -35,6 +35,10 @@ public interface JpathUserItemRepository extends JpaRepository<JpathUserItem, Lo
 
     List<JpathUserItem> findByUserIdAndItemType(Long userId, JpathItemType itemType);
 
+    /** Items of one type first learned at or after {@code since}, oldest first (today's new items). */
+    List<JpathUserItem> findByUserIdAndItemTypeAndFirstLearnedAtGreaterThanEqualOrderByFirstLearnedAtAsc(Long userId,
+            JpathItemType itemType, LocalDateTime since);
+
     /** Codes of every item of {@code t} the learner has a row for (started, in the notebook or known). */
     @Query("select i.itemCode from JpathUserItem i where i.userId = :userId and i.itemType = :t")
     List<String> findCodesByUserIdAndItemType(@Param("userId") Long userId, @Param("t") JpathItemType t);

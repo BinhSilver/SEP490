@@ -6,7 +6,7 @@
 <th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-check')}"></th:block>
 <body id="jlabBasePage" class="app-body jp-body">
 <div id="jlabBaseShellMount"></div>
-<main id="jlabBaseContent" class="jp-page jp-check-page" data-inline-dictionary>
+<main id="jlabBaseContent" class="jp-page jp-check-page" data-inline-dictionary data-jpath-auto-furigana>
     <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Bài kiểm tra')}"></th:block>
     <div id="jpathCheckRoot" class="jp-check-root" aria-busy="true"
          th:attr="data-check-token=${checkToken}">
@@ -17,6 +17,7 @@
 <script th:src="@{/js/jlptpath/jpath-display.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-dialog.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-auto-furigana.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-check.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>

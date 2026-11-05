@@ -39,12 +39,24 @@ public class JpathWritingServiceImpl implements JpathWritingService {
     private final JpathContentReader content;
     private final JpathStrokeSvgIndex svgIndex;
     private final JpathDailyPlanService dailyPlan;
+    private final com.jlas.jlptpath.repository.JpathUserItemRepository userItems;
+    private final com.jlas.jlptpath.service.JpathClock clock;
 
     public JpathWritingServiceImpl(JpathContentReader content, JpathStrokeSvgIndex svgIndex,
                                    JpathDailyPlanService dailyPlan) {
+        this(content, svgIndex, dailyPlan, null, null);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public JpathWritingServiceImpl(JpathContentReader content, JpathStrokeSvgIndex svgIndex,
+                                   JpathDailyPlanService dailyPlan,
+                                   com.jlas.jlptpath.repository.JpathUserItemRepository userItems,
+                                   com.jlas.jlptpath.service.JpathClock clock) {
         this.content = content;
         this.svgIndex = svgIndex;
         this.dailyPlan = dailyPlan;
+        this.userItems = userItems;
+        this.clock = clock;
     }
 
     @Override
@@ -57,14 +69,37 @@ public class JpathWritingServiceImpl implements JpathWritingService {
     @Override
     @Transactional(readOnly = true)
     public List<JpathWritingView> today(Long userId, JpathTab tab) {
+        // Owner 05/11: after the day is done the planned list is empty, so the items learned today come first.
+        Set<String> codes = new LinkedHashSet<>();
         List<Item> items = new ArrayList<>();
+        JpathItemType type = tabType(tab);
+        if (type != null && userItems != null && clock != null) {
+            java.time.LocalDateTime local = clock.localNow(userId);
+            java.time.LocalDateTime since = clock.now()
+                    .minus(java.time.Duration.between(local.toLocalDate().atStartOfDay(), local));
+            for (var learned : userItems.findByUserIdAndItemTypeAndFirstLearnedAtGreaterThanEqualOrderByFirstLearnedAtAsc(
+                    userId, type, since)) {
+                if (items.size() >= TODAY_MAX) break;
+                if (codes.add(learned.getItemCode())) find(type, learned.getItemCode()).ifPresent(items::add);
+            }
+        }
         for (JpathItemRef ref : dailyPlan.plannedNewItems(userId, tab)) {
             if (items.size() >= TODAY_MAX) {
                 break;
             }
-            find(ref.type(), ref.code()).ifPresent(items::add);
+            if (codes.add(ref.code())) find(ref.type(), ref.code()).ifPresent(items::add);
         }
         return build(items);
+    }
+
+    private static JpathItemType tabType(JpathTab tab) {
+        if (tab == null) return null;
+        return switch (tab) {
+            case VOCAB -> JpathItemType.VOCAB;
+            case KANJI -> JpathItemType.KANJI;
+            case KANA -> JpathItemType.KANA;
+            default -> null;
+        };
     }
 
     /** A resolved item before its characters are built: the view without cells plus the text to split. */
@@ -96,14 +131,17 @@ public class JpathWritingServiceImpl implements JpathWritingService {
     /** Kun readings then on readings ("ひと.つ、イチ"), so Tập viết can practise the reading in hiragana; null when none. */
     static String readings(JpathKanji k) {
         java.util.List<String> all = new java.util.ArrayList<>();
-        for (String json : new String[] { k.getReadingsKunJson(), k.getReadingsOnJson() }) {
+        // Owner 05/11: 下 listed 15 readings; the level's readings are enough, else the first four.
+        String[] sources = k.getLevelReadingsJson() != null && k.getLevelReadingsJson().matches(".*[^\\[\\]\\s\"].*")
+                ? new String[] { k.getLevelReadingsJson() } : new String[] { k.getReadingsKunJson(), k.getReadingsOnJson() };
+        for (String json : sources) {
             if (json == null || json.isBlank()) continue;
             for (String part : json.replaceAll("[\\[\\]\"]", "").split(",")) {
                 String r = part.trim();
                 if (!r.isEmpty() && !all.contains(r)) all.add(r);
             }
         }
-        return all.isEmpty() ? null : String.join("、", all);
+        return all.isEmpty() ? null : String.join("、", all.subList(0, Math.min(4, all.size())));
     }
 
     private static Item kanaItem(JpathKana k) {
