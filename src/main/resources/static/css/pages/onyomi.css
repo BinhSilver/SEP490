@@ -1,3 +1,4 @@
+@import url("../controls.css");
 /* Onyomi course pages (Hán Việt → âm On): course path, lesson, rule and stage final test. */
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap");
 
@@ -1439,35 +1440,30 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 /* Page-owned dark mode: css/pages/onyomi.css.
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
- * Tinted-slate palette in violet: the canvas is a violet-grey (12% lightness), not black; cards sit one
- * step lighter, highlight blocks are deep saturated violet, accents a light violet, coral as the second
- * accent. Lightness/saturation copy the reference dark theme, only the hue is turned from teal to violet. */
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
 html[data-theme="dark"] {
-  --dm-onyomi-bg: #21192b;
-  --dm-onyomi-surface: #281f35;
-  --dm-onyomi-raised: #332942;
-  --dm-onyomi-ink: #efeaf5;
-  --dm-onyomi-muted: #b0a5c0;
-  --dm-onyomi-line: #47375d;
-  --dm-onyomi-accent: #b087e8;
-  --dm-onyomi-action: #371a61;
-  --dm-onyomi-accent-soft: #341d53;
-  --dm-onyomi-on-accent: #ffffff;
-  --dm-onyomi-deep: #291349;
-  --dm-onyomi-action-line: #b79adf;
-  --dm-onyomi-coral: #f69d9f;
-  --dm-onyomi-success: #6ee7b7;
-  --dm-onyomi-success-bg: #0f2a22;
-  --dm-onyomi-success-line: #1f6b54;
-  --dm-onyomi-danger: #fda4af;
-  --dm-onyomi-danger-bg: #3a1520;
-  --dm-onyomi-danger-line: #8a3a4c;
-  --dm-onyomi-warning: #fcd34d;
-  --dm-onyomi-warning-bg: #231d0c;
-  --dm-onyomi-warning-line: #6b5520;
-  --dm-onyomi-pink: #f4aed2;
-  --dm-onyomi-pink-bg: #432d40;
-  --dm-onyomi-pink-line: #88637b;
+  --dm-onyomi-bg: var(--dark-bg);
+  --dm-onyomi-surface: var(--dark-surface);
+  --dm-onyomi-raised: var(--dark-raised);
+  --dm-onyomi-ink: var(--dark-ink);
+  --dm-onyomi-muted: var(--dark-muted);
+  --dm-onyomi-line: var(--dark-line);
+  --dm-onyomi-accent: var(--dark-accent);
+  --dm-onyomi-action: var(--dark-button);
+  --dm-onyomi-accent-soft: var(--dark-soft);
+  --dm-onyomi-on-accent: var(--dark-on-button);
+  --dm-onyomi-success: var(--dark-success);
+  --dm-onyomi-success-bg: var(--dark-success-bg);
+  --dm-onyomi-success-line: var(--dark-success-line);
+  --dm-onyomi-danger: var(--dark-danger);
+  --dm-onyomi-danger-bg: var(--dark-danger-bg);
+  --dm-onyomi-danger-line: var(--dark-danger-line);
+  --dm-onyomi-warning: var(--dark-warning);
+  --dm-onyomi-warning-bg: var(--dark-warning-bg);
+  --dm-onyomi-warning-line: var(--dark-warning-line);
+  --dm-onyomi-pink: var(--dark-pink);
+  --dm-onyomi-pink-bg: var(--dark-pink-bg);
+  --dm-onyomi-pink-line: var(--dark-pink-line);
 }
 html[data-theme="dark"] .onyomi-body {
     --oy-paper: var(--dm-onyomi-surface);
@@ -1475,23 +1471,9 @@ html[data-theme="dark"] .onyomi-body {
 }
 
 /* Dark interaction and state pairs for this page. */
-html[data-theme="dark"] .onyomi-body{--color-background:var(--dm-onyomi-bg);--color-surface:var(--dm-onyomi-bg);--color-surface-lowest:var(--dm-onyomi-surface);--color-surface-low:var(--dm-onyomi-raised);--color-surface-mid:var(--dm-onyomi-raised);--color-surface-high:var(--dm-onyomi-raised);--color-surface-container:var(--dm-onyomi-raised);--color-surface-container-high:var(--dm-onyomi-raised);--color-on-surface:var(--dm-onyomi-ink);--color-on-surface-variant:var(--dm-onyomi-muted);--color-secondary:var(--dm-onyomi-muted);--color-outline:var(--dm-onyomi-muted);--color-outline-variant:var(--dm-onyomi-line);--color-primary:var(--dm-onyomi-accent);--color-primary-container:var(--dm-onyomi-action);--color-on-primary:var(--dm-onyomi-on-accent);--color-on-primary-container:var(--dm-onyomi-ink);--color-primary-fixed:var(--dm-onyomi-accent-soft);--color-on-primary-fixed:var(--dm-onyomi-accent);--color-secondary-container:var(--dm-onyomi-accent-soft);--color-secondary-fixed:var(--dm-onyomi-accent-soft);--color-success:var(--dm-onyomi-success);--color-success-bg:var(--dm-onyomi-success-bg);--color-error:var(--dm-onyomi-danger);--color-error-container:var(--dm-onyomi-danger-bg);--color-on-error-container:var(--dm-onyomi-danger);--color-tertiary:var(--dm-onyomi-warning);--color-tertiary-container:var(--dm-onyomi-warning-bg);--color-on-tertiary-container:var(--dm-onyomi-warning);--color-focus:var(--dm-onyomi-accent);--jlab-base-page-background:var(--dm-onyomi-bg);--oy-paper:var(--dm-onyomi-surface);--oy-gold-soft:var(--dm-onyomi-warning-bg);--oy-accent-soft:var(--dm-onyomi-accent-soft);}
-html[data-theme="dark"] .onyomi-body .btn--primary{background:var(--dm-onyomi-action)!important;color:var(--dm-onyomi-ink)!important;}
-html[data-theme="dark"] .onyomi-body .btn--primary:hover{background:#8b5cf6!important;}
-/* Course path: deep-violet actions with a light violet outline (like the reference "Làm bài vượt cấp"),
-   a deep-violet course card, visible progress track, violet hover on lesson cards. */
-html[data-theme="dark"] .onyomi-body .oy-button--primary { border-color: var(--dm-onyomi-action-line); background: var(--dm-onyomi-action); color: var(--dm-onyomi-on-accent); box-shadow: none; }
-html[data-theme="dark"] .onyomi-body .oy-button--primary:hover { border-color: #cdb8ee; background: #452079; color: var(--dm-onyomi-on-accent); }
-html[data-theme="dark"] .onyomi-body .oy-button:not(.oy-button--primary) { border-color: var(--dm-onyomi-line); background: transparent; color: var(--dm-onyomi-ink); }
-html[data-theme="dark"] .onyomi-body .oy-button:not(.oy-button--primary):hover { border-color: var(--dm-onyomi-accent); color: var(--dm-onyomi-accent); }
-html[data-theme="dark"] .onyomi-body .oy-progress { background: var(--dm-onyomi-line); }
-html[data-theme="dark"] .onyomi-body .oy-progress__fill { background: linear-gradient(90deg, #9061d1, var(--dm-onyomi-accent)); }
-html[data-theme="dark"] .onyomi-body .oy-panel { border-color: var(--dm-onyomi-line); box-shadow: none; }
-html[data-theme="dark"] .onyomi-body .oy-course-hero { border-color: #472c6d; background: var(--dm-onyomi-deep); }
-html[data-theme="dark"] .onyomi-body .oy-course-hero .oy-course-stats { background: rgba(255, 255, 255, .05); }
-html[data-theme="dark"] .onyomi-body .oy-lesson-card:hover { border-color: var(--dm-onyomi-accent); box-shadow: 0 0 0 1px rgba(171, 131, 226, .25); }
-html[data-theme="dark"] .onyomi-body .oy-pill--active { background: var(--dm-onyomi-coral); color: #3a1416; }
-html[data-theme="dark"] .onyomi-body .oy-notice { border-color: var(--dm-onyomi-warning-line); }
+html[data-theme="dark"] .onyomi-body{--color-background:var(--dm-onyomi-bg);--color-surface:var(--dm-onyomi-bg);--color-surface-lowest:var(--dm-onyomi-surface);--color-surface-low:var(--dm-onyomi-raised);--color-surface-mid:var(--dm-onyomi-raised);--color-surface-high:var(--dm-onyomi-raised);--color-surface-container:var(--dm-onyomi-raised);--color-surface-container-high:var(--dm-onyomi-raised);--color-on-surface:var(--dm-onyomi-ink);--color-on-surface-variant:var(--dm-onyomi-muted);--color-secondary:var(--dm-onyomi-muted);--color-outline:var(--dm-onyomi-muted);--color-outline-variant:var(--dm-onyomi-line);--color-primary:var(--dm-onyomi-accent);--color-primary-container:var(--dm-onyomi-action);--color-on-primary:var(--dm-onyomi-on-accent);--color-on-primary-container:var(--dark-on-button);--color-primary-fixed:var(--dm-onyomi-accent-soft);--color-on-primary-fixed:var(--dm-onyomi-accent);--color-secondary-container:var(--dm-onyomi-accent-soft);--color-secondary-fixed:var(--dm-onyomi-accent-soft);--color-success:var(--dm-onyomi-success);--color-success-bg:var(--dm-onyomi-success-bg);--color-error:var(--dm-onyomi-danger);--color-error-container:var(--dm-onyomi-danger-bg);--color-on-error-container:var(--dm-onyomi-danger);--color-tertiary:var(--dm-onyomi-warning);--color-tertiary-container:var(--dm-onyomi-warning-bg);--color-on-tertiary-container:var(--dm-onyomi-warning);--color-focus:var(--dm-onyomi-accent);--jlab-base-page-background:var(--dm-onyomi-bg);--oy-paper:var(--dm-onyomi-surface);--oy-gold-soft:var(--dm-onyomi-warning-bg);--oy-accent-soft:var(--dm-onyomi-accent-soft);}
+html[data-theme="dark"] .onyomi-body .btn--primary{background:var(--dm-onyomi-action)!important;color:var(--dark-on-button)!important;}
+html[data-theme="dark"] .onyomi-body .btn--primary:hover{background:var(--dark-button-hover)!important;}
 
 
 /* ── Stage final test page (exam mode; design: stitch_j_las_onyomi_stage_assessment) ─────────────── */

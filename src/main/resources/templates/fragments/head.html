@@ -39,28 +39,30 @@
     <link rel="stylesheet" th:href="@{/css/components/footer.css}" />
     <link rel="stylesheet" th:href="@{/css/components/user-menu.css?v=20261014-frames}" />
     <link rel="stylesheet" th:href="@{/css/components/kitsu-guide.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261031-pro-cp)}" />
+    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261103-auto)}" />
     <link rel="stylesheet" th:href="@{/css/components/retention-live.css?v=20260903-motion}" />
     <link rel="stylesheet" th:href="@{/css/components/avatar-frame.css?v=20261021-catalog}" />
 
     <!-- Page-specific CSS (optional) -->
     <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
-        th:href="@{'/css/pages/' + ${pageCss} + '.css?v=' + ${pageCss == 'weakness-notebook' ? '20261021-notebook-sort-menu' : (pageCss == 'home' ? '20261011-full-background' : (pageCss == 'arena' ? '20261031-pro-cp' : (pageCss == 'login' ? '20261012-login-desktop-theme' : (pageCss == 'profile' ? '20261031-cosmetics-popup' : (pageCss == 'onyomi' ? '20261031-pro-cp' : '20260929')))))}}" />
+        th:href="@{'/css/pages/' + ${pageCss} + '.css?v=' + ${pageCss == 'weakness-notebook' ? '20261021-notebook-sort-menu' : (pageCss == 'home' ? '20261105-plum' : (pageCss == 'arena' ? '20261105-plum' : (pageCss == 'login' ? '20261103-login-plum-night' : (pageCss == 'profile' ? '20261103-auto' : (pageCss == 'onyomi' ? '20261105-plum' : '20261105-plum')))))}}" />
     <link th:if="${pageCss == 'jlpt'}" rel="stylesheet" th:href="@{/css/pages/jlpt.css?v=5}" />
-    <link th:if="${pageCss == 'profile'}" rel="stylesheet" th:href="@{/css/pages/retention-demo.css?v=13}" />
+    <link th:if="${pageCss == 'profile'}" rel="stylesheet" th:href="@{/css/pages/retention-demo.css?v=20261105-plum}" />
+    <link th:if="${pageCss == 'register' or pageCss == 'profile'}" rel="stylesheet" th:href="@{/css/components/date-wheel.css?v=20261102-wheel2}" />
     <link th:if="${pageCss == 'jlpt-practice'}" rel="stylesheet" th:href="@{/css/pages/jlpt-practice.css?v=20261027-furigana}" />
     <link th:if="${pageCss == 'jlpt-exam'}" rel="stylesheet" th:href="@{/css/pages/jlpt-exam-furigana.css?v=3}" />
     <link th:if="${pageCss == 'jlpt-exam'}" rel="stylesheet" th:href="@{/css/pages/jlpt-exam-controls.css?v=14}" />
     <link th:if="${pageCss == 'jlpt-exam' or pageCss == 'jlpt-practice'}" rel="stylesheet" th:href="@{/css/pages/jlpt-sentence-order.css?v=1}" />
     <!-- Shared shell styles are loaded last so every standard page uses the contract-owned navigation. -->
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css?v=20261014-frames2}" />
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css?v=20261103-nav-hover-2}" />
     <link rel="stylesheet" th:href="@{/css/pages/learning-journey.css}" />
 
     <script th:src="@{/js/components/avatar-frame.js?v=20261021-catalog}"></script>
     <script th:src="@{/js/auth-session.js}"></script>
     <script th:src="@{/js/components.js}"></script>
     <script th:src="@{/js/sakura-background.js}"></script>
-    <script defer th:src="@{/js/inline-dictionary.js(v=20261031-pro-cp)}"></script>
+    <script th:src="@{/js/components/cp-auto-pay.js(v=20261103-auto)}"></script>
+    <script defer th:src="@{/js/inline-dictionary.js(v=20261103-auto)}"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2" />
 </head>
@@ -93,10 +95,11 @@
     <link rel="stylesheet" th:href="@{/css/components/brand.css}" />
     <link rel="stylesheet" th:href="@{/css/components/platform-nav.css}" />
     <link rel="stylesheet" th:href="@{/css/components/kitsu-guide.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261031-pro-cp)}" />
+    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261103-auto)}" />
     <link th:if="${extraCss != null and !#strings.isEmpty(extraCss)}" rel="stylesheet" th:href="@{${extraCss}}" />
     <script th:src="@{/js/sakura-background.js}"></script>
-    <script defer th:src="@{/js/inline-dictionary.js(v=20261031-pro-cp)}"></script>
+    <script th:src="@{/js/components/cp-auto-pay.js(v=20261103-auto)}"></script>
+    <script defer th:src="@{/js/inline-dictionary.js(v=20261103-auto)}"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2" />
 </head>
