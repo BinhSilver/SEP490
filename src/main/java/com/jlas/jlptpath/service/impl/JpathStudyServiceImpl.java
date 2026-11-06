@@ -208,8 +208,9 @@ public class JpathStudyServiceImpl implements JpathStudyService {
             }
             int left = Math.max(0, row.getReviewCap() - row.getReviewDone());
             room.put(t, left);
+            // an item hidden since it was learned (level caps move it to Mở rộng) is not reviewed: no empty card
             List<JpathUserItem> dueRows = userItems.due(userId, JpathItemType.valueOf(t.name()), localNow,
-                    PageRequest.of(0, DUE_PAGE));
+                    PageRequest.of(0, DUE_PAGE)).stream().filter(this::stillVisible).toList();
             if (t == JpathTab.GRAMMAR) {
                 grammarDue = dueRows.stream().limit(left).map(JpathUserItem::getItemCode).toList();
             } else {
@@ -321,7 +322,7 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         Map<JpathTab, List<DueCard>> due = new EnumMap<>(JpathTab.class);
         for (JpathTab t : tabs) {
             due.put(t, userItems.findByUserIdAndItemType(userId, JpathItemType.valueOf(t.name())).stream()
-                    .filter(i -> i.getState() == JpathItemState.NOTEBOOK)
+                    .filter(i -> i.getState() == JpathItemState.NOTEBOOK).filter(this::stillVisible)
                     .map(this::dueCard).toList());
         }
         List<JpathQueueStep> q = JpathQueueBuilder.build(new JpathQueueInput(r.tab(), JpathSessionMode.NOTEBOOK,
@@ -560,6 +561,16 @@ public class JpathStudyServiceImpl implements JpathStudyService {
             }
         }
         return out;
+    }
+
+    private boolean stillVisible(JpathUserItem i) {
+        String code = i.getItemCode();
+        return code != null && switch (i.getItemType()) {
+            case VOCAB -> content.vocab(code).isPresent();
+            case KANJI -> content.kanji(code).isPresent();
+            case GRAMMAR -> content.grammar(code).isPresent();
+            case KANA -> content.kanaItem(code).isPresent();
+        };
     }
 
     private void requireLearnable(JpathItemType type, String code) {
