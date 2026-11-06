@@ -299,8 +299,15 @@
   /** A4 writing sheet: the word written left to right, repeated like the screen (cellKinds), in rows that wrap. */
   function sheetHtml(view, chars, per) {
     var v = view || {};
-    var n = Math.max(per | 0, 1);
-    var rows = '<div class="r">' + cellKinds(n).map(function (cls) {
+    // Owner 06/11: the sheet fills the A4 page with large practice squares (7 per row, 8 rows), whatever the screen's
+    // repetition count; the first repetitions are dark, a few faint, the rest blank.
+    var perRow = 7;
+    var reps = Math.max(1, Math.floor((perRow * 8) / Math.max(1, chars.length)));
+    var solid = Math.max(1, Math.min(perRow, Math.ceil(reps / 8)));
+    var faint = Math.max(perRow, Math.ceil(reps / 4));
+    var kinds = [];
+    for (var k = 0; k < reps; k++) kinds.push(k < solid ? 'solid' : (k < solid + faint ? 'faint' : 'blank'));
+    var rows = '<div class="r">' + kinds.map(function (cls) {
       return '<span class="w">' + chars.map(function (ch) {
         return '<span class="c c--' + cls + '">' + (cls === 'blank' ? '' : esc(ch)) + '</span>';
       }).join('') + '</span>';
@@ -310,11 +317,16 @@
       + '</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap">'
       + '<style>@page{size:A4;margin:14mm}body{font-family:system-ui,sans-serif;color:#222;margin:0}'
       + 'h1{font:600 22pt "Klee One",serif;margin:0}p{margin:2mm 0 6mm;color:#555;font-size:10.5pt}'
-      + '.r{display:flex;flex-wrap:wrap;gap:4mm 3mm}.w{display:inline-flex;break-inside:avoid}'
-      + '.c{width:17mm;height:17mm;box-sizing:border-box;border:.35mm solid #888;margin:0 -0.35mm -0.35mm 0;display:grid;'
-      + 'place-items:center;font:400 12.5mm/1 "Klee One",serif;background-image:linear-gradient(#ccc,#ccc),linear-gradient(#ccc,#ccc);'
-      + 'background-size:100% .2mm,.2mm 100%;background-position:center;background-repeat:no-repeat}'
-      + '.c--faint{color:#c8c8c8}.c--blank{color:transparent}'
+      // the same practice square as on screen: frame, dashed centre cross and dashed diagonals
+      + '.r{display:flex;flex-wrap:wrap;gap:2.5mm}.w{display:inline-flex;gap:0;break-inside:avoid}'
+      + '.c{position:relative;width:23mm;height:23mm;box-sizing:border-box;border:.4mm solid #7a6fa8;display:grid;'
+      + 'place-items:center;font:400 17mm/1 "Klee One",serif;color:#222;background:#fff;'
+      + 'background-image:linear-gradient(to right,transparent calc(50% - .1mm),#cfc8e6 calc(50% - .1mm),#cfc8e6 calc(50% + .1mm),transparent calc(50% + .1mm)),'
+      + 'linear-gradient(to bottom,transparent calc(50% - .1mm),#cfc8e6 calc(50% - .1mm),#cfc8e6 calc(50% + .1mm),transparent calc(50% + .1mm)),'
+      + 'linear-gradient(45deg,transparent calc(50% - .1mm),#e4dff2 calc(50% - .1mm),#e4dff2 calc(50% + .1mm),transparent calc(50% + .1mm)),'
+      + 'linear-gradient(-45deg,transparent calc(50% - .1mm),#e4dff2 calc(50% - .1mm),#e4dff2 calc(50% + .1mm),transparent calc(50% + .1mm))}'
+      + '.w .c+.c{border-left:0}.c--faint{color:#cfcfcf}.c--blank{color:transparent}'
+      + '@media print{.c{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'
       + 'header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:.4mm solid #4b3a8c;'
       + 'padding-bottom:2mm;margin-bottom:6mm;font-size:9.5pt;color:#4b3a8c}header b{font-size:11pt}'
       + '.who{display:flex;gap:10mm;font-size:9.5pt;color:#555;margin:-3mm 0 6mm}.who span{flex:1;border-bottom:.2mm dotted #999}'

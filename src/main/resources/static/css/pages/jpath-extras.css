@@ -316,3 +316,14 @@ a.jp-extra__link:focus-visible { border-color: var(--jp-primary); outline: none;
 .jp-warmup__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .jp-warmup .jp-btn.is-done { opacity: .6; }
 .jp-warmup__err { font-size: .85rem; color: var(--jp-bad, #b3261e); }
+
+/* 06/11 owner: the writing practice is large and roomy (dialog up to 1100px, big stroke-order and practice squares) */
+.jp-writing .jp-writing__panel { width: min(1100px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow: auto; }
+.jp-writing .jp-writing__svg { width: 260px; height: 260px; }
+.jp-writing .jp-writing__cell { width: 200px; height: 200px; }
+.jp-writing .jp-writing__canvas { width: 100%; height: 100%; }
+.jp-writing h2, .jp-writing .jp-writing__word { font-size: 2.4rem; }
+@media (max-width: 640px) {
+  .jp-writing .jp-writing__svg { width: 200px; height: 200px; }
+  .jp-writing .jp-writing__cell { width: 140px; height: 140px; }
+}
