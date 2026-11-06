@@ -558,19 +558,36 @@ ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid
 }
 
 
-/* 06/11 Lượt 4: Phối màu đúng/sai dịu hợp tông tím + Chế độ tối chuyển dần .6s ease */
+/* 06/11 Lượt 5: Phối màu đúng/sai hài hòa với tím (--jp-c-mint-*, --jp-c-coral-*) + Tối giản */
 :root,
 .jp-page,
 .jp-check {
-  --jp-check-surface: #ffffff;
-  --jp-check-ink: #1e1b2e;
-  --jp-check-line: #e4ddf3;
-  --jp-check-ok-teal: #0d9488;
-  --jp-check-ok-teal-soft: #f0fdfa;
-  --jp-check-ok-teal-rim: #0f766e;
-  --jp-check-bad-rose: #e11d48;
-  --jp-check-bad-rose-soft: #fff1f2;
-  --jp-check-bad-rose-rim: #be123c;
+  --jp-c-purple-900: #4c1d95;
+  --jp-c-purple-500: #6d28d9;
+  --jp-c-purple-100: #f3e8ff;
+  --jp-c-mint-900: #14532d;
+  --jp-c-mint-500: #15803d;
+  --jp-c-mint-100: #f0fdf4;
+  --jp-c-coral-900: #7f1d1d;
+  --jp-c-coral-500: #dc2626;
+  --jp-c-coral-100: #fef2f2;
+  --jp-c-peach-900: #78350f;
+  --jp-c-peach-500: #d97706;
+  --jp-c-peach-100: #fffbeb;
+  --jp-c-slate-900: #0f172a;
+  --jp-c-slate-500: #64748b;
+  --jp-c-slate-100: #f8fafc;
+  --jp-white: #ffffff;
+
+  --jp-check-surface: var(--jp-white);
+  --jp-check-ink: var(--jp-c-slate-900);
+  --jp-check-line: color-mix(in srgb, var(--jp-c-slate-500) 22%, var(--jp-c-slate-100));
+  --jp-check-ok-ink: var(--jp-c-mint-900);
+  --jp-check-ok-border: var(--jp-c-mint-500);
+  --jp-check-ok-soft: var(--jp-c-mint-100);
+  --jp-check-bad-ink: var(--jp-c-coral-900);
+  --jp-check-bad-border: var(--jp-c-coral-500);
+  --jp-check-bad-soft: var(--jp-c-coral-100);
 }
 
 html[data-theme="dark"],
@@ -579,30 +596,52 @@ html[data-theme="dark"] .jp-page,
 html.dark .jp-page,
 html[data-theme="dark"] .jp-check,
 html.dark .jp-check {
-  --jp-check-surface: #241d3a;
-  --jp-check-ink: #f3f0ff;
-  --jp-check-line: #3f3460;
-  --jp-check-ok-teal: #2dd4bf;
-  --jp-check-ok-teal-soft: #132f38;
-  --jp-check-ok-teal-rim: #0d9488;
-  --jp-check-bad-rose: #fb7185;
-  --jp-check-bad-rose-soft: #3b1c2e;
-  --jp-check-bad-rose-rim: #be123c;
+  --jp-c-purple-900: #e9d5ff;
+  --jp-c-purple-500: #a78bfa;
+  --jp-c-purple-100: #2e1d59;
+  --jp-c-mint-900: #dcfce7;
+  --jp-c-mint-500: #4ade80;
+  --jp-c-mint-100: #143524;
+  --jp-c-coral-900: #fee2e2;
+  --jp-c-coral-500: #f87171;
+  --jp-c-coral-100: #3f1d28;
+  --jp-c-peach-900: #fef3c7;
+  --jp-c-peach-500: #fbbf24;
+  --jp-c-peach-100: #3d2c19;
+  --jp-c-slate-900: #f1f5f9;
+  --jp-c-slate-500: #94a3b8;
+  --jp-c-slate-100: #1e293b;
+  --jp-white: #181528;
+
+  --jp-check-surface: var(--jp-c-slate-100);
+  --jp-check-ink: var(--jp-c-slate-900);
+  --jp-check-line: color-mix(in srgb, var(--jp-c-slate-500) 28%, var(--jp-c-slate-100));
 }
 
 @media (prefers-color-scheme: dark) {
   html:not([data-theme="light"]):not(.light),
   html:not([data-theme="light"]):not(.light) .jp-page,
   html:not([data-theme="light"]):not(.light) .jp-check {
-    --jp-check-surface: #241d3a;
-    --jp-check-ink: #f3f0ff;
-    --jp-check-line: #3f3460;
-    --jp-check-ok-teal: #2dd4bf;
-    --jp-check-ok-teal-soft: #132f38;
-    --jp-check-ok-teal-rim: #0d9488;
-    --jp-check-bad-rose: #fb7185;
-    --jp-check-bad-rose-soft: #3b1c2e;
-    --jp-check-bad-rose-rim: #be123c;
+    --jp-c-purple-900: #e9d5ff;
+    --jp-c-purple-500: #a78bfa;
+    --jp-c-purple-100: #2e1d59;
+    --jp-c-mint-900: #dcfce7;
+    --jp-c-mint-500: #4ade80;
+    --jp-c-mint-100: #143524;
+    --jp-c-coral-900: #fee2e2;
+    --jp-c-coral-500: #f87171;
+    --jp-c-coral-100: #3f1d28;
+    --jp-c-peach-900: #fef3c7;
+    --jp-c-peach-500: #fbbf24;
+    --jp-c-peach-100: #3d2c19;
+    --jp-c-slate-900: #f1f5f9;
+    --jp-c-slate-500: #94a3b8;
+    --jp-c-slate-100: #1e293b;
+    --jp-white: #181528;
+
+    --jp-check-surface: var(--jp-c-slate-100);
+    --jp-check-ink: var(--jp-c-slate-900);
+    --jp-check-line: color-mix(in srgb, var(--jp-c-slate-500) 28%, var(--jp-c-slate-100));
   }
 }
 
@@ -628,77 +667,66 @@ html.dark .jp-check {
   max-width: 100%;
 }
 .jp-check__mascot-img {
-  width: 56px;
-  height: 56px;
-  flex: 0 0 56px;
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
   object-fit: contain;
-  filter: drop-shadow(0 4px 8px color-mix(in srgb, var(--jp-primary) 22%, transparent));
-  animation: jp-check-kitsu-bob 2.2s ease-in-out infinite;
 }
 .jp-check__mascot-bubble {
   position: relative;
   display: inline-flex;
   align-items: center;
-  padding: 6px 14px;
-  border: 1.5px solid color-mix(in srgb, var(--jp-primary) 35%, var(--jp-check-line));
-  border-radius: 14px 14px 14px 4px;
+  padding: 6px 12px;
+  border: 1px solid var(--jp-check-line);
+  border-radius: 12px 12px 12px 4px;
   background: var(--jp-check-surface);
   color: var(--jp-check-ink);
   font-size: .86em;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.35;
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-primary) 14%, transparent);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
 }
 .jp-check__mascot-bubble::after {
   content: attr(data-speech);
 }
 .jp-check__mascot--ok .jp-check__mascot-bubble {
-  border-color: var(--jp-check-ok-teal);
-  background: var(--jp-check-ok-teal-soft);
-  color: var(--jp-check-ok-teal);
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-check-ok-teal) 26%, transparent);
+  border-color: var(--jp-check-ok-border);
+  background: var(--jp-check-ok-soft);
+  color: var(--jp-check-ok-ink);
 }
 .jp-check__mascot--bad .jp-check__mascot-bubble {
-  border-color: var(--jp-check-bad-rose);
-  background: var(--jp-check-bad-rose-soft);
-  color: var(--jp-check-bad-rose);
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-check-bad-rose) 26%, transparent);
-}
-@keyframes jp-check-kitsu-bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  border-color: var(--jp-check-bad-border);
+  background: var(--jp-check-bad-soft);
+  color: var(--jp-check-bad-ink);
 }
 
-/* Nút phương án & nối cặp nổi 3D, bấm vào lún xuống */
-.jp-check-opt, .jp-pair {
-  border-width: 2px;
-  border-bottom-width: 4px;
-  border-radius: 14px;
+/* Clean flat option & pair buttons */
+.jp-check-opt,
+.jp-pair {
+  border: 1px solid var(--jp-check-line);
+  border-radius: 12px;
   background: var(--jp-check-surface);
   color: var(--jp-check-ink);
-  border-color: var(--jp-check-line);
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-check-ink) 10%, transparent);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
 }
-.jp-check-opt:active:not([disabled]), .jp-pair:active:not([disabled]) {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 color-mix(in srgb, var(--jp-check-ink) 10%, transparent);
+.jp-check-opt:hover:not([disabled]),
+.jp-pair:hover:not([disabled]) {
+  border-color: var(--jp-c-purple-500);
 }
-.jp-check-opt.jp-ok, .jp-pair.jp-ok {
-  border-color: var(--jp-check-ok-teal);
-  border-bottom-color: var(--jp-check-ok-teal-rim);
-  background: var(--jp-check-ok-teal-soft);
-  color: var(--jp-check-ok-teal);
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-check-ok-teal) 32%, transparent);
+.jp-check-opt.jp-ok,
+.jp-pair.jp-ok {
+  border-color: var(--jp-check-ok-border);
+  background: var(--jp-check-ok-soft);
+  color: var(--jp-check-ok-ink);
 }
-.jp-check-opt.jp-bad, .jp-pair.jp-bad {
-  border-color: var(--jp-check-bad-rose);
-  border-bottom-color: var(--jp-check-bad-rose-rim);
-  background: var(--jp-check-bad-rose-soft);
-  color: var(--jp-check-bad-rose);
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-check-bad-rose) 32%, transparent);
+.jp-check-opt.jp-bad,
+.jp-pair.jp-bad {
+  border-color: var(--jp-check-bad-border);
+  background: var(--jp-check-bad-soft);
+  color: var(--jp-check-bad-ink);
 }
 
-/* Kitsu ăn mừng trên màn kết quả (.jp-celebrate__art) */
+/* Kitsu celebration on result screen */
 .jp-celebrate__art {
   display: grid;
   justify-items: center;
@@ -711,8 +739,8 @@ html.dark .jp-check {
   position: relative;
   display: grid;
   place-items: center;
-  width: 180px;
-  height: 104px;
+  width: 170px;
+  height: 98px;
 }
 .jp-celebrate__stage .jp-celebrate__svg {
   position: absolute;
@@ -724,26 +752,25 @@ html.dark .jp-check {
 .jp-celebrate__mascot {
   position: relative;
   z-index: 1;
-  width: 86px;
-  height: 86px;
+  width: 82px;
+  height: 82px;
   object-fit: contain;
-  filter: drop-shadow(0 6px 12px color-mix(in srgb, var(--jp-primary) 24%, transparent));
-  animation: jp-celebrate-cup .95s cubic-bezier(.34, 1.56, .64, 1) 1 both;
 }
 .jp-celebrate__bubble {
   display: inline-flex;
   align-items: center;
   padding: 5px 14px;
-  border: 1.5px solid color-mix(in srgb, var(--jp-primary) 45%, var(--jp-check-line));
+  border: 1px solid color-mix(in srgb, var(--jp-c-purple-500) 40%, var(--jp-check-line));
   border-radius: 999px;
-  background: color-mix(in srgb, var(--jp-primary) 14%, var(--jp-check-surface));
-  color: var(--jp-check-ink);
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
   font-size: .85em;
-  font-weight: 700;
+  font-weight: 600;
 }
 .jp-celebrate__art--retry .jp-celebrate__bubble {
-  border-color: var(--jp-check-bad-rose);
-  background: var(--jp-check-bad-rose-soft);
+  border-color: var(--jp-check-bad-border);
+  background: var(--jp-check-bad-soft);
+  color: var(--jp-check-bad-ink);
 }
 .jp-celebrate__bubble::after {
   content: attr(data-speech);
@@ -754,15 +781,63 @@ html.dark .jp-check {
   .jp-check__mascot-bubble { font-size: .78em; padding: 5px 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .jp-check__mascot-img,
-  .jp-celebrate__mascot {
-    animation: none !important;
-  }
   .jp-check .jp-card,
   .jp-check__mascot-bubble,
   .jp-check-opt,
   .jp-pair,
   .jp-celebrate__bubble {
     transition: none !important;
+  }
+}
+
+/* 06/11 Lượt 6: Bài kiểm tra vừa một màn hình (~760px), 4 lựa chọn gọn, nút Tiếp dính đáy & Kitsu động */
+.jp-check {
+  padding-top: 8px;
+  padding-bottom: 12px;
+}
+.jp-check .jp-card {
+  padding: 14px 18px;
+}
+.jp-check__mascot-img {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  animation: jp-check-kitsu-bob 2.6s ease-in-out infinite;
+}
+.jp-check__mascot--ok .jp-check__mascot-img {
+  animation: jp-celebrate-cup .55s ease-out 1, jp-check-kitsu-bob 2.6s ease-in-out .55s infinite;
+}
+.jp-check-opts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+  margin-top: 10px;
+}
+.jp-check-opt {
+  min-height: 46px;
+  padding: 8px 12px;
+}
+.jp-check__foot,
+.jp-check__actions {
+  position: sticky;
+  bottom: 8px;
+  z-index: 25;
+  margin-top: 10px;
+  padding-top: 6px;
+  background: color-mix(in srgb, var(--jp-check-surface) 92%, transparent);
+  backdrop-filter: blur(4px);
+}
+@keyframes jp-check-kitsu-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+@media (max-width: 640px) {
+  .jp-check-opts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jp-check__mascot-img {
+    animation: none !important;
   }
 }

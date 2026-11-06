@@ -1,61 +1,690 @@
-/* [JLAS-W0108] Survey day step of the JLPT path (skill / rest day chips) and the flag-dependent survey options. */
+/* [JLAS-W0108] 06/11 Lượt 6 — Bổ sung 2: Giao diện các trang khảo sát đầu vào (/survey & chọn ngày lộ trình JLPT).
+ * - Cùng bảng màu 9 họ và biểu tượng nét mảnh của lượt 5–6.
+ * - Thanh tiến độ mảnh màu tím, có số bước "1/7" … "7/7".
+ * - Tiêu đề 26–28px. Kitsu nhỏ hơn và đổi dáng theo từng bước.
+ * - Ô chọn dạng viên bo tròn: viền mảnh, chọn rồi thì tô tím nhạt và có dấu tích / huy chương nhỏ.
+ * - Nút chính màu tím (bỏ màu xanh lá chuối).
+ * - Mỗi bước vừa một màn hình (1280×760). Trên điện thoại (375×812), nút chính dính đáy.
+ */
+
+:root,
+#jlabBasePage.smart-test-body,
+.survey-page,
+.jp-confirm,
+.jp-settings {
+  --jp-c-purple-900: #4c1d95;
+  --jp-c-purple-500: #6d28d9;
+  --jp-c-purple-100: #f3e8ff;
+  --jp-c-indigo-900: #312e81;
+  --jp-c-indigo-500: #4f46e5;
+  --jp-c-indigo-100: #e0e7ff;
+  --jp-c-mauve-900: #581c87;
+  --jp-c-mauve-500: #9333ea;
+  --jp-c-mauve-100: #f5d0fe;
+  --jp-c-pink-900: #831843;
+  --jp-c-pink-500: #db2777;
+  --jp-c-pink-100: #fce7f3;
+  --jp-c-coral-900: #7f1d1d;
+  --jp-c-coral-500: #dc2626;
+  --jp-c-coral-100: #fef2f2;
+  --jp-c-peach-900: #78350f;
+  --jp-c-peach-500: #d97706;
+  --jp-c-peach-100: #fffbeb;
+  --jp-c-mint-900: #14532d;
+  --jp-c-mint-500: #15803d;
+  --jp-c-mint-100: #f0fdf4;
+  --jp-c-teal-900: #134e4a;
+  --jp-c-teal-500: #0d9488;
+  --jp-c-teal-100: #ccfbf1;
+  --jp-c-sky-900: #0c4a6e;
+  --jp-c-sky-500: #0284c7;
+  --jp-c-sky-100: #e0f2fe;
+  --jp-c-slate-900: #0f172a;
+  --jp-c-slate-500: #64748b;
+  --jp-c-slate-100: #f8fafc;
+  --jp-white: #ffffff;
+
+  --jp-survey-bg: var(--jp-c-slate-100);
+  --jp-survey-surface: var(--jp-white);
+  --jp-survey-ink: var(--jp-c-slate-900);
+  --jp-survey-muted: var(--jp-c-slate-500);
+  --jp-survey-line: color-mix(in srgb, var(--jp-c-slate-500) 24%, var(--jp-c-slate-100));
+}
+
+html[data-theme="dark"],
+html.dark,
+html[data-theme="dark"] #jlabBasePage.smart-test-body,
+html.dark #jlabBasePage.smart-test-body,
+html[data-theme="dark"] .survey-page,
+html.dark .survey-page,
+html[data-theme="dark"] .jp-confirm,
+html.dark .jp-confirm {
+  --jp-c-purple-900: #e9d5ff;
+  --jp-c-purple-500: #a78bfa;
+  --jp-c-purple-100: #2e1d59;
+  --jp-c-indigo-900: #e0e7ff;
+  --jp-c-indigo-500: #818cf8;
+  --jp-c-indigo-100: #1e2254;
+  --jp-c-mauve-900: #f5d0fe;
+  --jp-c-mauve-500: #c084fc;
+  --jp-c-mauve-100: #351a52;
+  --jp-c-pink-900: #fce7f3;
+  --jp-c-pink-500: #f472b6;
+  --jp-c-pink-100: #421834;
+  --jp-c-coral-900: #fee2e2;
+  --jp-c-coral-500: #f87171;
+  --jp-c-coral-100: #3f1d28;
+  --jp-c-peach-900: #fef3c7;
+  --jp-c-peach-500: #fbbf24;
+  --jp-c-peach-100: #3d2c19;
+  --jp-c-mint-900: #dcfce7;
+  --jp-c-mint-500: #4ade80;
+  --jp-c-mint-100: #143524;
+  --jp-c-teal-900: #ccfbf1;
+  --jp-c-teal-500: #2dd4bf;
+  --jp-c-teal-100: #133638;
+  --jp-c-sky-900: #e0f2fe;
+  --jp-c-sky-500: #38bdf8;
+  --jp-c-sky-100: #152c44;
+  --jp-c-slate-900: #f1f5f9;
+  --jp-c-slate-500: #94a3b8;
+  --jp-c-slate-100: #1e293b;
+  --jp-white: #181528;
+
+  --jp-survey-bg: #110e1c;
+  --jp-survey-surface: var(--jp-c-slate-100);
+  --jp-survey-ink: var(--jp-c-slate-900);
+  --jp-survey-muted: var(--jp-c-slate-500);
+  --jp-survey-line: color-mix(in srgb, var(--jp-c-slate-500) 28%, var(--jp-c-slate-100));
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]):not(.light),
+  html:not([data-theme="light"]):not(.light) #jlabBasePage.smart-test-body,
+  html:not([data-theme="light"]):not(.light) .survey-page,
+  html:not([data-theme="light"]):not(.light) .jp-confirm {
+    --jp-c-purple-900: #e9d5ff;
+    --jp-c-purple-500: #a78bfa;
+    --jp-c-purple-100: #2e1d59;
+    --jp-c-indigo-900: #e0e7ff;
+    --jp-c-indigo-500: #818cf8;
+    --jp-c-indigo-100: #1e2254;
+    --jp-c-mauve-900: #f5d0fe;
+    --jp-c-mauve-500: #c084fc;
+    --jp-c-mauve-100: #351a52;
+    --jp-c-pink-900: #fce7f3;
+    --jp-c-pink-500: #f472b6;
+    --jp-c-pink-100: #421834;
+    --jp-c-coral-900: #fee2e2;
+    --jp-c-coral-500: #f87171;
+    --jp-c-coral-100: #3f1d28;
+    --jp-c-peach-900: #fef3c7;
+    --jp-c-peach-500: #fbbf24;
+    --jp-c-peach-100: #3d2c19;
+    --jp-c-mint-900: #dcfce7;
+    --jp-c-mint-500: #4ade80;
+    --jp-c-mint-100: #143524;
+    --jp-c-teal-900: #ccfbf1;
+    --jp-c-teal-500: #2dd4bf;
+    --jp-c-teal-100: #133638;
+    --jp-c-sky-900: #e0f2fe;
+    --jp-c-sky-500: #38bdf8;
+    --jp-c-sky-100: #152c44;
+    --jp-c-slate-900: #f1f5f9;
+    --jp-c-slate-500: #94a3b8;
+    --jp-c-slate-100: #1e293b;
+    --jp-white: #181528;
+
+    --jp-survey-bg: #110e1c;
+    --jp-survey-surface: var(--jp-c-slate-100);
+    --jp-survey-ink: var(--jp-c-slate-900);
+    --jp-survey-muted: var(--jp-c-slate-500);
+    --jp-survey-line: color-mix(in srgb, var(--jp-c-slate-500) 28%, var(--jp-c-slate-100));
+  }
+}
+
 .survey-option[data-jpath-only][hidden],
 .survey-option[data-legacy-only][hidden],
 [data-legacy-only][hidden],
 [data-jpath-only][hidden] { display: none !important; }
 
-.jpath-day-picker { display: grid; gap: 14px; }
-.jpath-day-picker__rows { display: grid; gap: 18px; }
-.jpath-day-row { display: grid; gap: 10px; }
-.jpath-day-row__title { margin: 0; font-weight: 700; font-size: 15px; color: var(--color-on-surface); }
-.jpath-day-row__chips { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+/* --- 1. Ô chọn ngày (T2..CN) dạng viên bo tròn: viền mảnh, chọn rồi tô tím nhạt và có dấu tích nhỏ --- */
+.jpath-day-picker {
+  display: grid;
+  gap: 14px;
+  margin-top: 10px;
+}
+.jpath-day-picker__rows {
+  display: grid;
+  gap: 14px;
+}
+.jpath-day-row {
+  display: grid;
+  gap: 8px;
+}
+.jpath-day-row__title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--jp-survey-ink);
+}
+.jpath-day-row__chips {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
 .jpath-day-chip {
-  min-height: 48px; min-width: 0; padding: 0 4px; border: 1.5px solid var(--color-outline-variant);
-  border-radius: 14px; background: var(--color-surface); color: var(--color-on-surface);
-  font: 700 15px var(--font-mono, inherit); cursor: pointer; transition: var(--transition, all .2s ease);
+  position: relative;
+  min-height: 46px;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--jp-survey-line);
+  border-radius: 999px;
+  background: var(--jp-survey-surface);
+  color: var(--jp-survey-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  box-shadow: none;
+  transition: border-color .18s ease, background-color .18s ease, color .18s ease, transform .15s ease;
 }
-.jpath-day-chip:hover { border-color: var(--color-primary-container); }
-.jpath-day-chip:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+.jpath-day-chip:hover {
+  border-color: var(--jp-c-purple-500);
+  background: color-mix(in srgb, var(--jp-c-purple-100) 45%, var(--jp-survey-surface));
+}
+.jpath-day-chip:focus-visible {
+  outline: 3px solid var(--jp-c-purple-500);
+  outline-offset: 2px;
+}
+
+/* Chọn rồi: tô tím nhạt, viền tím mảnh, kèm dấu tích nhỏ */
 .jpath-day-chip--skill[aria-pressed="true"] {
-  border-color: var(--color-primary); background: var(--color-primary); color: #fff;
+  border: 1.5px solid var(--jp-c-purple-500);
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+  font-weight: 800;
 }
+.jpath-day-chip--skill[aria-pressed="true"]::after {
+  content: "✓";
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--jp-c-purple-500);
+  color: var(--jp-white);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+}
+
 .jpath-day-chip--rest[aria-pressed="true"] {
-  border-color: var(--color-tertiary-container, #e9ab26); background: var(--color-tertiary-fixed-dim, #ffe08a);
-  color: var(--color-on-tertiary-container, #3d2a00);
+  border: 1.5px solid var(--jp-c-mauve-500);
+  background: var(--jp-c-mauve-100);
+  color: var(--jp-c-mauve-900);
+  font-weight: 800;
 }
-.jpath-day-picker__message { margin: 0; color: var(--color-error, #b3261e); font-weight: 600; font-size: 14px; }
+.jpath-day-chip--rest[aria-pressed="true"]::after {
+  content: "✓";
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--jp-c-mauve-500);
+  color: var(--jp-white);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.jpath-day-picker__message {
+  margin: 0;
+  color: var(--jp-c-coral-500);
+  font-weight: 600;
+  font-size: 13px;
+}
 .jpath-day-picker__message[hidden] { display: none; }
-.jpath-day-note { margin: 16px 0 0; color: var(--color-on-surface-variant); font-size: 14px; line-height: 1.55; }
-
-@media (max-width: 420px) {
-  .jpath-day-row__chips { gap: 5px; }
-  .jpath-day-chip { min-height: 44px; border-radius: 11px; font-size: 13px; padding: 0 2px; }
+.jpath-day-note {
+  margin: 10px 0 0;
+  color: var(--jp-survey-muted);
+  font-size: 13px;
+  line-height: 1.45;
 }
 
-/* 04/11 polish: bài ngữ pháp + tạo lộ trình */
-.jpath-day-picker { gap: 16px; margin-top: 20px; }
-.jpath-day-picker__rows { gap: 20px; }
-.jpath-day-row { gap: 12px; }
-.jpath-day-row__title { color: var(--jp-ink); font-size: 1em; }
-.jpath-day-row__chips { gap: 10px; }
-.jpath-day-chip { min-height: 54px; padding: 8px 4px; border-color: var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-weight: 700; transition: border-color .2s ease, background-color .2s ease; }
-.jpath-day-chip:hover { border-color: var(--jp-primary); }
-.jpath-day-chip--skill[aria-pressed="true"] { border-color: var(--jp-primary); background: var(--jp-primary); color: var(--jp-surface); }
-.jpath-day-chip--rest[aria-pressed="true"] { border-color: var(--jp-warn); background: var(--jp-primary-soft); color: var(--jp-ink); }
-.jpath-day-chip:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
-.jpath-day-picker__message { color: var(--jp-danger); font-size: .9em; }
-.jpath-day-note { color: var(--jp-muted); font-size: .9em; }
-@media (max-width: 420px) {
-  .jpath-day-row__chips { gap: 5px; }
-  .jpath-day-chip { min-height: 48px; padding: 6px 1px; font-size: .84em; }
+/* --- 2. Giao diện 7 bước khảo sát (/survey) đồng bộ bảng màu tím lượt 5–6 & vừa 1 màn hình --- */
+.journey-ui #jlabBaseContent.survey-page,
+#jlabBaseContent.survey-page {
+  min-height: auto;
+  padding: 14px 16px 22px !important;
 }
-@media (prefers-reduced-motion: reduce) { .jpath-day-chip { transition: none; } }
+.journey-ui #jlabBaseContent .survey-wizard,
+.survey-wizard {
+  width: min(820px, 100%) !important;
+  min-height: 0 !important;
+  margin: 0 auto !important;
+  padding: 20px 28px 22px !important;
+  border: 1px solid var(--jp-survey-line) !important;
+  border-radius: 20px !important;
+  background: var(--jp-survey-surface) !important;
+  color: var(--jp-survey-ink) !important;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 5%) !important;
+  transition: background-color .6s ease, border-color .6s ease, color .6s ease;
+}
 
-/* 04/11 polish round 4: wizard tạo lộ trình */
-.jpath-day-row__chips { gap: 8px; }
-.jpath-day-chip { min-height: 56px; border-radius: 8px; }
-.jpath-day-chip[aria-pressed="true"] { font-weight: 800; }
-@media (max-width: 420px) {
-  .jpath-day-row__chips { gap: 4px; }
-  .jpath-day-chip { min-height: 48px; }
+/* Thanh tiến độ mảnh màu tím + số bước "7/7" */
+.journey-ui #jlabBaseContent .survey-progress-header,
+.survey-progress-header {
+  display: grid;
+  grid-template-columns: 38px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px !important;
+}
+.survey-back {
+  width: 36px !important;
+  height: 36px !important;
+  border: 1px solid var(--jp-survey-line) !important;
+  border-radius: 50% !important;
+  background: var(--jp-survey-surface) !important;
+  color: var(--jp-survey-ink) !important;
+  transition: border-color .18s ease, background-color .18s ease;
+}
+.survey-back:hover:not(:disabled) {
+  border-color: var(--jp-c-purple-500) !important;
+  background: var(--jp-c-purple-100) !important;
+  color: var(--jp-c-purple-900) !important;
+}
+.journey-ui #jlabBaseContent .survey-progress-track,
+.survey-progress-track {
+  height: 6px !important;
+  border-radius: 999px !important;
+  background: var(--jp-c-purple-100) !important;
+  overflow: hidden;
+}
+.journey-ui #jlabBaseContent .survey-progress-value,
+.survey-progress-value {
+  background: var(--jp-c-purple-500) !important;
+  border-radius: 999px !important;
+  transition: width .3s ease;
+}
+.journey-ui #jlabBaseContent .survey-step-counter,
+.survey-step-counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900) !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+
+/* Tiêu đề 26–28px, không in hoa, gọn gàng */
+.journey-ui #jlabBaseContent .survey-question,
+.survey-question {
+  min-height: 0 !important;
+  margin-bottom: 14px !important;
+  padding-right: 92px !important;
+}
+.journey-ui #jlabBaseContent .survey-eyebrow,
+.survey-eyebrow {
+  display: inline-block;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--jp-c-purple-500) !important;
+}
+.journey-ui #jlabBaseContent .survey-question h1,
+.survey-question h1,
+.journey-ui #jlabBaseContent .survey-invitation h1,
+.survey-invitation h1 {
+  max-width: 580px;
+  margin: 4px 0 6px !important;
+  font-size: clamp(24px, 2.2vw, 28px) !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -.015em !important;
+  color: var(--jp-survey-ink) !important;
+}
+.survey-question p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--jp-survey-muted) !important;
+}
+
+/* Kitsu nhỏ hơn (76×76px) và đổi dáng theo từng bước */
+.survey-shared-mascot {
+  position: absolute;
+  z-index: 2;
+  top: -2px !important;
+  right: 0 !important;
+  width: 76px !important;
+  height: 76px !important;
+  border-radius: 18px;
+  background: var(--jp-c-purple-100);
+  border: 1px solid color-mix(in srgb, var(--jp-c-purple-500) 24%, var(--jp-survey-line));
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+}
+.survey-shared-mascot .survey-fox {
+  width: 62px !important;
+  height: 62px !important;
+  max-width: 62px !important;
+  transform: none !important;
+  object-fit: contain;
+  display: none;
+  animation: jpSurveyKitsuBob 2.6s ease-in-out infinite;
+}
+/* Mặc định hiện dáng đầu tiên nếu trình duyệt chưa khớp :has */
+.survey-shared-mascot .survey-fox--goal { display: block; }
+#smartTestSurveyForm:has(.survey-slide.is-active:not([data-survey-step="goal"])) .survey-shared-mascot .survey-fox--goal { display: none; }
+#smartTestSurveyForm:has(.survey-slide.is-active[data-survey-step="studied"]) .survey-shared-mascot .survey-fox--studied,
+#smartTestSurveyForm:has(.survey-slide.is-active[data-survey-step="duration"]) .survey-shared-mascot .survey-fox--duration,
+#smartTestSurveyForm:has(.survey-slide.is-active[data-survey-step="kana"]) .survey-shared-mascot .survey-fox--kana,
+#smartTestSurveyForm:has(.survey-slide.is-active[data-survey-step="level"]) .survey-shared-mascot .survey-fox--level,
+#smartTestSurveyForm:has(.survey-slide.is-active[data-survey-step="target"]) .survey-shared-mascot .survey-fox--target,
+#smartTestSurveyForm:has(.survey-slide.is-active[data-survey-step="minutes"]) .survey-shared-mascot .survey-fox--minutes,
+#smartTestSurveyForm:has(.survey-slide.is-active[data-survey-step="days"]) .survey-shared-mascot .survey-fox--days {
+  display: block;
+}
+
+/* Ô chọn dạng viên bo tròn: viền mảnh, chọn rồi tô tím nhạt + dấu tích nhỏ */
+.survey-options {
+  display: grid;
+  gap: 10px !important;
+}
+@media (min-width: 681px) {
+  .survey-options--grid,
+  .survey-options--levels,
+  .survey-slide[data-survey-step="duration"] .survey-options,
+  .survey-slide[data-survey-step="minutes"] .survey-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+.journey-ui #jlabBaseContent .survey-option,
+.survey-option {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 58px !important;
+  padding: 10px 14px !important;
+  border: 1px solid var(--jp-survey-line) !important;
+  border-radius: 16px !important;
+  background: var(--jp-survey-surface) !important;
+  color: var(--jp-survey-ink) !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  transition: border-color .18s ease, background-color .18s ease, transform .15s ease;
+}
+.journey-ui #jlabBaseContent .survey-option.goal-survey-option,
+.survey-option.goal-survey-option {
+  grid-template-columns: 1fr auto;
+}
+.journey-ui #jlabBaseContent .survey-option:hover:not(.is-disabled),
+.survey-option:hover:not(.is-disabled) {
+  border-color: var(--jp-c-purple-500) !important;
+  background: color-mix(in srgb, var(--jp-c-purple-100) 40%, var(--jp-survey-surface)) !important;
+  transform: none !important;
+}
+.journey-ui #jlabBaseContent .survey-option:has(input:checked),
+.survey-option:has(input:checked) {
+  border: 1.5px solid var(--jp-c-purple-500) !important;
+  background: var(--jp-c-purple-100) !important;
+  color: var(--jp-c-purple-900) !important;
+  box-shadow: none !important;
+}
+.survey-option strong {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1.25;
+}
+.survey-option small {
+  margin-top: 2px !important;
+  font-size: 12.5px !important;
+  line-height: 1.3 !important;
+  color: var(--jp-survey-muted) !important;
+}
+.survey-option:has(input:checked) small {
+  color: color-mix(in srgb, var(--jp-c-purple-900) 78%, var(--jp-survey-muted)) !important;
+}
+
+.journey-ui #jlabBaseContent :is(.survey-option__icon, .level-mark, .time-ring),
+.survey-option__icon,
+.level-mark,
+.time-ring {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 12px !important;
+  background: var(--jp-c-purple-100) !important;
+  color: var(--jp-c-purple-500) !important;
+  border: 1px solid color-mix(in srgb, var(--jp-c-purple-500) 22%, transparent);
+  display: grid;
+  place-items: center;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+.time-ring {
+  border-radius: 50% !important;
+  border-width: 2px !important;
+  border-color: var(--jp-c-purple-500) !important;
+}
+.survey-option:has(input:checked) :is(.survey-option__icon, .level-mark, .time-ring) {
+  background: var(--jp-survey-surface) !important;
+  color: var(--jp-c-purple-500) !important;
+}
+.jp-survey-ico {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+/* Dấu tích nhỏ ở ô đã chọn */
+.journey-ui #jlabBaseContent .survey-radio,
+.survey-radio,
+.journey-ui #jlabBaseContent .survey-check,
+.survey-check {
+  width: 22px !important;
+  height: 22px !important;
+  border: 1.5px solid var(--jp-survey-line) !important;
+  border-radius: 50% !important;
+  background: var(--jp-survey-surface) !important;
+  display: inline-grid !important;
+  place-items: center;
+  font-style: normal;
+  box-sizing: border-box;
+}
+.journey-ui #jlabBaseContent .survey-option:has(input:checked) .survey-radio,
+.survey-option:has(input:checked) .survey-radio,
+.journey-ui #jlabBaseContent .survey-option:has(input:checked) .survey-check,
+.survey-option:has(input:checked) .survey-check {
+  border: 1.5px solid var(--jp-c-purple-500) !important;
+  background: var(--jp-c-purple-500) !important;
+  color: var(--jp-white) !important;
+}
+.survey-option:has(input:checked) .survey-radio::after,
+.survey-option:has(input:checked) .survey-check::after {
+  content: "✓";
+  color: var(--jp-white);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* Khung ngày thi dự kiến gọn gàng để vừa màn hình 1280×760 */
+.survey-exam-date {
+  margin-top: 10px !important;
+  padding: 10px 14px !important;
+  border: 1px solid var(--jp-survey-line) !important;
+  border-radius: 14px !important;
+  background: var(--jp-survey-surface) !important;
+}
+.survey-exam-date__label {
+  margin-bottom: 4px !important;
+  font-size: 13.5px !important;
+}
+.survey-exam-date__hint {
+  margin-top: 4px !important;
+  font-size: 12px !important;
+}
+
+/* Nút chính màu tím (bỏ màu xanh lá chuối) & chân trang gọn */
+.journey-ui #jlabBaseContent .survey-wizard-footer,
+.survey-wizard-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px !important;
+  padding-top: 12px !important;
+  border-top: 1px solid var(--jp-survey-line) !important;
+  background: var(--jp-survey-surface) !important;
+}
+.journey-ui #jlabBaseContent .survey-page .smart-test-primary,
+.journey-ui #jlabBaseContent #surveyNextButton,
+.journey-ui #jlabBaseContent #surveyStartTest,
+#surveyNextButton,
+#surveyStartTest,
+.survey-page .smart-test-primary {
+  min-height: 46px !important;
+  padding: 0 24px !important;
+  border: 1.5px solid var(--jp-c-purple-500) !important;
+  border-radius: 999px !important;
+  background: var(--jp-c-purple-500) !important;
+  color: var(--jp-white) !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%) !important;
+  transition: background-color .18s ease, transform .15s ease;
+}
+.journey-ui #jlabBaseContent .survey-page .smart-test-primary:hover:not(:disabled),
+#surveyNextButton:hover:not(:disabled),
+#surveyStartTest:hover:not(:disabled) {
+  background: var(--jp-c-purple-900) !important;
+  border-color: var(--jp-c-purple-900) !important;
+  filter: none !important;
+  transform: translateY(-1px);
+}
+#surveyNextButton:disabled {
+  opacity: .45 !important;
+  box-shadow: none !important;
+}
+
+/* Màn mời làm bài sau khảo sát (#surveyInvitation) */
+.survey-wizard.survey-wizard--invitation {
+  margin-top: 16px !important;
+  padding: 24px 28px !important;
+  background: var(--jp-survey-surface) !important;
+}
+.survey-invitation {
+  grid-template-columns: 140px minmax(0, 1fr) !important;
+  gap: 22px !important;
+}
+.survey-invitation__mascot {
+  width: 132px !important;
+  height: 132px !important;
+  border-radius: 24px !important;
+  background: var(--jp-c-purple-100) !important;
+  display: grid !important;
+  place-items: center;
+}
+.survey-invitation__mascot .survey-fox {
+  width: 108px !important;
+  height: 108px !important;
+  transform: none !important;
+  object-fit: contain;
+  animation: jpSurveyKitsuBob 2.6s ease-in-out infinite;
+}
+
+@keyframes jpSurveyKitsuBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Điện thoại (<= 680px): cuộn được, Kitsu nhỏ gọn ở góc, nút chính dính đáy */
+@media (max-width: 680px) {
+  .journey-ui #jlabBaseContent.survey-page,
+  #jlabBaseContent.survey-page {
+    padding: 10px 10px 24px !important;
+  }
+  .journey-ui #jlabBaseContent .survey-wizard,
+  .survey-wizard {
+    padding: 16px 14px 18px !important;
+    border-radius: 16px !important;
+  }
+  .journey-ui #jlabBaseContent .survey-question,
+  .survey-question {
+    padding-right: 68px !important;
+    margin-bottom: 12px !important;
+  }
+  .journey-ui #jlabBaseContent .survey-shared-mascot,
+  .survey-shared-mascot {
+    display: grid !important;
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 14px;
+  }
+  .survey-shared-mascot .survey-fox {
+    width: 46px !important;
+    height: 46px !important;
+  }
+  .jpath-day-row__chips {
+    gap: 4px;
+  }
+  .jpath-day-chip {
+    min-height: 42px;
+    padding: 4px 2px;
+    border-radius: 12px;
+    font-size: 12.5px;
+    gap: 2px;
+  }
+  .jpath-day-chip[aria-pressed="true"]::after {
+    width: 13px;
+    height: 13px;
+    font-size: 9px;
+  }
+  .journey-ui #jlabBaseContent .survey-wizard-footer,
+  .survey-wizard-footer {
+    position: sticky !important;
+    bottom: var(--jlab-mobile-bottom, 0px) !important;
+    z-index: 25;
+    margin: 14px -14px -18px !important;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom)) !important;
+    background: color-mix(in srgb, var(--jp-survey-surface) 94%, transparent) !important;
+    backdrop-filter: blur(8px);
+  }
+  .survey-next {
+    width: 100% !important;
+  }
+  .survey-invitation {
+    grid-template-columns: 1fr !important;
+    text-align: center;
+  }
+  .survey-invitation__mascot {
+    margin: 0 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jpath-day-chip,
+  .survey-option,
+  .survey-progress-value,
+  .survey-shared-mascot .survey-fox,
+  .survey-invitation__mascot .survey-fox {
+    transition: none !important;
+    animation: none !important;
+  }
 }

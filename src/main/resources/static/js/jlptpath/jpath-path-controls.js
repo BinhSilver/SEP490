@@ -1,6 +1,7 @@
-/* [JLAS-W0108] jpath-path-controls.js — pure renderers of the JLPT path page controls (Task 45): daily sliders,
- * "Hôm nay của bạn" (type A: Gộp / Tách), level preview, pace warnings, session start requests. No DOM access;
- * every text goes through JpathDisplay.esc. window.JpathPathControls (re-exported by JpathPath).
+/* [JLAS-W0108] jpath-path-controls.js — pure renderers of the JLPT path page controls (Task 45, Round 5):
+ * daily sliders, "Hôm nay của bạn" (type A: Gộp / Tách), level preview, pace warnings, session start requests.
+ * Keeps full Round 4 structure (calendar stamp, circular progress ring pills per tab, weekly check box, Kitsu mascot)
+ * upgraded with Round 5 harmonious per-tab palette variables and Morphicons-style thin rounded SVG icons.
  */
 (function (root, factory) {
   'use strict';
@@ -112,7 +113,6 @@
     return f ? f(m) : '';
   }
 
-  // JpathTodayView tabs: {tab, newTarget, newDone, reviewDue, reviewCap, reviewDone, checkPassed, done, required}
   function todayTab(today, tab) {
     return list(today && today.tabs).filter(function (x) { return x && x.tab === tab; })[0] || null;
   }
@@ -121,8 +121,8 @@
     var chips = list(today && today.tabs).filter(function (t) {
       return t && t.tab !== 'SKILL' && num(t.newTarget) > 0;
     }).map(function (t) {
-      return '<li class="jp-chip' + (t.done ? ' jp-chip--done' : '') + '">'
-        + esc((CODE_LABEL[t.tab] || t.tab) + ' ' + num(t.newDone) + '/' + num(t.newTarget)) + (t.done ? ' ' + icon('check') : '') + '</li>';
+      return '<li class="jp-chip' + (t.done ? ' jp-chip--done' : '') + '" data-pill-tab="' + esc(String(t.tab || '').toLowerCase()) + '">'
+        + esc((CODE_LABEL[t.tab] || t.tab) + ' ' + num(t.newDone) + '/' + num(t.newTarget)) + (t.done ? ' ' + medalMiniSvg() : '') + '</li>';
     }).join('');
     return chips ? '<ul class="jp-chips" aria-label="Tiến độ hôm nay">' + chips + '</ul>' : '';
   }
@@ -132,18 +132,15 @@
     return t ? num(t.newTarget) : 0;
   }
 
-  // cards due now over every tab
   function reviewDue(today) {
     return list(today && today.tabs).reduce(function (sum, t) { return sum + num(t && t.reviewDue); }, 0);
   }
 
-  // skill day: a quiz is still needed while the SKILL tab has no passed check (none to quiz → passed from the start)
   function quizRequired(today) {
     var s = todayTab(today, 'SKILL');
     return !!(s && !s.checkPassed);
   }
 
-  // kana phase: the KANA tab's effective target counts rows (0 when none is left)
   function kanaRows(today) {
     return target(today, 'KANA');
   }
@@ -175,10 +172,21 @@
     return '<div class="jp-modes">' + html + '</div>';
   }
 
-  var STUDY_ROWS = [['VOCAB', 'vocab', 'Từ vựng', 'book-open', 'từ'], ['KANJI', 'kanji', 'Kanji', 'pen-line', 'chữ'],
-    ['GRAMMAR', 'grammar', 'Ngữ pháp', 'list', 'mẫu']];
+  var STUDY_ROWS = [
+    ['VOCAB', 'vocab', 'Từ vựng', 'book-open', 'từ'],
+    ['KANJI', 'kanji', 'Kanji', 'pen-line', 'chữ'],
+    ['GRAMMAR', 'grammar', 'Ngữ pháp', 'list', 'mẫu']
+  ];
   var VI_WEEKDAY_FULL = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
   var VI_WEEKDAY_SHORT = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+
+  function medalMiniSvg() {
+    return '<svg class="jp-morph-icon jp-morph-icon--medal jp-today__medal-svg" viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true">'
+      + '<path d="M7.5 11.5L6 17l3-1.3 1-3.2M12.5 11.5L14 17l-3-1.3-1-3.2" fill="var(--jp-c-peach-500)" stroke="var(--jp-c-peach-900)" stroke-width="1.2" stroke-linejoin="round"/>'
+      + '<circle cx="10" cy="8.2" r="4.6" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-peach-900)" stroke-width="1.3"/>'
+      + '<circle cx="10" cy="8.2" r="1.8" fill="var(--jp-c-peach-500)"/>'
+      + '</svg>';
+  }
 
   function progressRingSvg(doneCount, totalCount, isDone) {
     var tot = Math.max(1, num(totalCount));
@@ -188,14 +196,14 @@
     var c = 2 * Math.PI * r;
     var offset = (c - (pct / 100) * c).toFixed(1);
     var ringCls = 'jp-today__ring' + (isDone ? ' is-done' : (dn > 0 ? ' is-active' : ''));
-    var label = isDone ? '✓' : (dn + '/' + num(totalCount));
+    var inner = isDone ? medalMiniSvg() : esc(dn + '/' + num(totalCount));
     return '<span class="' + ringCls + '" aria-hidden="true">'
       + '<svg viewBox="0 0 38 38" width="38" height="38">'
-      + '<circle class="jp-today__ring-bg" cx="19" cy="19" r="' + r + '" fill="none" stroke-width="3.5"/>'
-      + '<circle class="jp-today__ring-fg" cx="19" cy="19" r="' + r + '" fill="none" stroke-width="3.5"'
+      + '<circle class="jp-today__ring-bg" cx="19" cy="19" r="' + r + '" fill="none" stroke-width="3"/>'
+      + '<circle class="jp-today__ring-fg" cx="19" cy="19" r="' + r + '" fill="none" stroke-width="3"'
       + ' stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + offset + '" stroke-linecap="round"/>'
       + '</svg>'
-      + '<span class="jp-today__ring-txt">' + esc(label) + '</span>'
+      + '<span class="jp-today__ring-txt">' + inner + '</span>'
       + '</span>';
   }
 
@@ -219,11 +227,11 @@
   }
 
   function chestMiniSvg() {
-    return '<svg class="jp-today__chest-svg" viewBox="0 0 32 32" width="26" height="26" fill="none" aria-hidden="true">'
-      + '<rect x="4" y="13" width="24" height="14" rx="3" fill="#b45309" stroke="#78350f" stroke-width="1.6"/>'
-      + '<path d="M4 14C4 10 8 8 16 8s12 2 12 6H4z" fill="#d97706" stroke="#78350f" stroke-width="1.6"/>'
-      + '<rect x="4" y="13" width="24" height="3" fill="#fbbf24"/>'
-      + '<rect x="13.5" y="11.5" width="5" height="6" rx="1.2" fill="#fde68a" stroke="#92400e" stroke-width="1.2"/>'
+    return '<svg class="jp-today__chest-svg jp-morph-icon jp-morph-icon--chest" viewBox="0 0 28 28" width="24" height="24" fill="none" aria-hidden="true">'
+      + '<path class="jp-chest__lid" d="M5 12C5 8.8 7.8 7 14 7s9 1.8 9 5H5z" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-peach-900)" stroke-width="1.6" stroke-linejoin="round"/>'
+      + '<rect class="jp-chest__box" x="5" y="12" width="18" height="10" rx="2.5" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-peach-900)" stroke-width="1.6"/>'
+      + '<path d="M5 14.5h18" stroke="var(--jp-c-peach-500)" stroke-width="1.4"/>'
+      + '<rect class="jp-chest__clasp" x="12" y="12" width="4" height="4.5" rx="1.1" fill="var(--jp-c-peach-500)" stroke="var(--jp-c-peach-900)" stroke-width="1.3"/>'
       + '</svg>';
   }
 
@@ -286,6 +294,7 @@
 
   /**
    * Three daily progress pills (Từ vựng / Kanji / Ngữ pháp) with circular x/y ring + review chip.
+   * Each pill carries data-pill-tab="vocab|kanji|grammar|review" so it gets its harmonious tab color.
    */
   function studyPillsHtml(t) {
     var due = reviewDue(t);
@@ -293,35 +302,31 @@
       var tab = todayTab(t, r[0]);
       if (!tab || num(tab.newTarget) <= 0) return '';
       var done = !!tab.done || num(tab.newDone) >= num(tab.newTarget);
-      return '<li class="jp-today__pill jp-todo__item' + (done ? ' is-done' : '') + '">'
+      return '<li class="jp-today__pill jp-todo__item' + (done ? ' is-done' : '') + '" data-pill-tab="' + r[1] + '">'
         + progressRingSvg(tab.newDone, tab.newTarget, done)
         + '<span class="jp-today__pill-body jp-todo__text">'
         + '<strong>' + esc(r[2]) + '</strong>'
         + '<span class="jp-today__pill-sub jp-todo__sub">' + esc(num(tab.newDone) + '/' + num(tab.newTarget) + ' ' + r[4] + ' mới') + '</span>'
         + '</span>'
         + (done
-          ? '<span class="jp-todo__done">' + icon('check') + ' Đã xong</span>'
+          ? '<span class="jp-todo__done">' + medalMiniSvg() + ' Đã học</span>'
           : '<button type="button" class="jp-btn jp-btn--sm" data-action="start-mode" data-mode="SPLIT" data-tab-key="' + r[1] + '">Học riêng</button>')
         + '</li>';
     }).join('');
-    var reviewPill = '<li class="jp-today__pill jp-today__pill--review jp-todo__item' + (due === 0 ? ' is-done' : '') + '">'
+    var reviewPill = '<li class="jp-today__pill jp-today__pill--review jp-todo__item' + (due === 0 ? ' is-done' : '') + '" data-pill-tab="review">'
       + progressRingSvg(due === 0 ? 1 : 0, 1, due === 0)
       + '<span class="jp-today__pill-body jp-todo__text">'
       + '<strong>Ôn thẻ</strong>'
       + '<span class="jp-today__pill-sub jp-todo__sub">' + esc(due ? due + ' thẻ đến hạn' : 'Không có thẻ đến hạn') + '</span>'
       + '</span>'
-      + (due === 0 ? '<span class="jp-todo__done">' + icon('check') + ' Xong</span>' : '<span class="jp-todo__sub">Trong lượt học</span>')
+      + (due === 0 ? '<span class="jp-todo__done">' + medalMiniSvg() + ' Xong</span>' : '<span class="jp-todo__sub">Trong lượt học</span>')
       + '</li>';
     return '<ol class="jp-today__pills jp-todo" aria-label="Tiến độ từng phần hôm nay">' + pills + reviewPill + '</ol>';
   }
 
-  /**
-   * A study day as one main button (the whole day in one go, about N minutes) and 3 progress pills.
-   */
   function studyDayHtml(t) {
     return '<div class="jp-today__go">'
       + '<button type="button" class="jp-btn jp-btn--primary jp-btn--lg" data-action="start-mode" data-mode="COMBINED">Học hôm nay</button>'
-      // the headline above already says what today holds; the button line says how the round goes
       + '<span class="jp-today__go-meta">Ôn thẻ đến hạn rồi học mới liền một lượt</span>'
       + '</div>'
       + studyPillsHtml(t);
@@ -341,7 +346,7 @@
     if (card && !c.typeCode) {
       action = '<span class="jp-muted">Chưa có bài</span>';
     } else if (isDone) {
-      action = '<span class="jp-todo__done">' + icon('check') + ' Đã xong</span>';
+      action = '<span class="jp-todo__done">' + medalMiniSvg() + ' Đã học</span>';
     } else if (c.openSessionId != null) {
       action = '<a class="jp-btn jp-btn--primary jp-btn--sm" href="/learning/jlpt/skills/session/' + encodeURIComponent(c.openSessionId)
         + '">Làm tiếp</a>';
@@ -349,13 +354,12 @@
       action = '<button type="button" class="jp-btn jp-btn--primary jp-btn--sm" data-action="start-skill" data-skill="' + skill + '">Bắt đầu '
         + esc(name) + '</button>';
     }
-    return '<li class="jp-today__pill jp-todo__item' + (isDone ? ' is-done' : '') + '">'
+    return '<li class="jp-today__pill jp-todo__item' + (isDone ? ' is-done' : '') + '" data-pill-tab="skills">'
       + progressRingSvg(isDone ? 1 : (c.openSessionId != null ? 1 : 0), isDone ? 1 : 2, isDone)
       + '<span class="jp-today__pill-body jp-todo__text"><span><strong>' + esc(name) + '</strong>' + esc(what) + '</span>'
       + (floor ? '<span class="jp-today__pill-sub jp-todo__sub">' + esc(floor) + '</span>' : '') + '</span>' + action + '</li>';
   }
 
-  /** A skill day as progress pills: Reading, Listening, then reviews and quiz. */
   function skillDayHtml(t, extra) {
     var o = (extra && extra.skills) || null;
     var due = reviewDue(t);
@@ -364,23 +368,21 @@
     var reviewText = (due ? 'Ôn ' + due + ' thẻ đến hạn' : 'Không có thẻ đến hạn') + (quiz ? ' · quiz 10 câu' : '');
     return (t.skillMakeup ? '<p class="jp-today__summary">Hôm nay bù ngày kỹ năng đã lỡ.</p>' : '')
       + '<ol class="jp-today__pills jp-todo">' + skillTask(o && o.reading, 'READING') + skillTask(o && o.listening, 'LISTENING')
-      + '<li class="jp-today__pill jp-todo__item' + (reviewDone ? ' is-done' : '') + '">'
+      + '<li class="jp-today__pill jp-todo__item' + (reviewDone ? ' is-done' : '') + '" data-pill-tab="review">'
       + progressRingSvg(reviewDone ? 1 : 0, 1, reviewDone)
       + '<span class="jp-today__pill-body jp-todo__text"><strong>' + (quiz ? 'Ôn và quiz' : 'Ôn thẻ') + '</strong>'
       + '<span class="jp-today__pill-sub jp-todo__sub">' + esc(reviewText) + '</span></span>'
-      + (reviewDone ? '<span class="jp-todo__done">' + icon('check') + ' Xong</span>'
+      + (reviewDone ? '<span class="jp-todo__done">' + medalMiniSvg() + ' Xong</span>'
         : '<button type="button" class="jp-btn jp-btn--sm" data-action="start-skill-review">Bắt đầu ôn</button>') + '</li></ol>';
   }
 
   var JA_WEEKDAY = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
 
-  /** 水曜日 for '2026-11-04' (kept for API compatibility). */
   function jaWeekday(iso) {
     var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
     return m ? JA_WEEKDAY[new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDay()] : '';
   }
 
-  /** The small line under the heading: what this kind of day holds. */
   function dayLine(t) {
     if (t.kind === 'SKILL') return 'Ngày kỹ năng · Đọc, Nghe và ôn tập';
     if (t.kind === 'REST') return 'Ngày nghỉ · không có bài bắt buộc';
@@ -422,7 +424,7 @@
       + '<div class="jp-today__lead">'
       + '<div class="jp-today__title-row">'
       + '<h2 class="jp-section-title" id="jp-today-title">Hôm nay của bạn</h2>'
-      + (t.allDone ? '<span class="jp-today__badge jp-today__badge--done">' + icon('check') + ' Đã xong hôm nay</span>' : '')
+      + (t.allDone ? '<span class="jp-today__badge jp-today__badge--done">' + medalMiniSvg() + ' Đã học hôm nay</span>' : '')
       + '</div>'
       + '<p class="jp-today__subtitle">' + esc(dayLine(t)) + '</p>'
       + (x.why ? '<p class="jp-today__why">' + esc(x.why) + '</p>' : '')
@@ -440,7 +442,7 @@
 
     if (t.allDone) {
       return html + '<div class="jp-today__done-bar">'
-        + '<p class="jp-today__done">' + icon('check') + ' Bạn đã hoàn thành toàn bộ bài học hôm nay!</p>'
+        + '<p class="jp-today__done">' + medalMiniSvg() + ' Bạn đã hoàn thành toàn bộ bài học hôm nay!</p>'
         + '<a class="jp-btn jp-btn--primary" href="/learning/jlpt/day">Xem ngày học hôm nay</a>'
         + '</div>'
         + (t.kind !== 'REST' && t.kind !== 'SKILL' && !t.kanaPhase ? studyPillsHtml(t) : '')
@@ -525,7 +527,7 @@
     var apiClient = d.api || root.JpathApi;
     var go = d.navigate || function (u) { root.location.assign(u); };
     return apiClient.send('POST', SESSIONS_URL, req).then(function (res) {
-      var id = res && res.sessionId; // JpathSessionView
+      var id = res && res.sessionId;
       go('/learning/jlpt/study?session=' + encodeURIComponent(id));
       return res;
     });

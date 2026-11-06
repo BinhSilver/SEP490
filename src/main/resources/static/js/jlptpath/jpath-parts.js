@@ -1,19 +1,26 @@
-/* [JLAS-W0108] jpath-parts.js — winding study-part map of the Từ vựng / Kanji / Ngữ pháp tabs (owner 05/11, round 4).
+/* [JLAS-W0108] jpath-parts.js — winding study-part map of the Từ vựng / Kanji / Ngữ pháp tabs (owner 06/11, round 6).
  *
- * Round 4 updates:
- * 1. Continuous winding road of circular coins & chests (no text signposts):
- *    - Past weeks: compact purple-coin nodes (clickable, opens popover).
- *    - Current week: full-size nodes + today's bouncing lavender-purple coin + Kitsu ("Bấm vào đây để học").
- *    - Upcoming weeks: renders up to 2 upcoming weeks as dimmed (45% opacity) lavender-grey locked coins & chests
- *      (not clickable, cursor: not-allowed, hover tooltip "Mở vào tuần dd/mm–dd/mm").
- *    - Beyond 2 upcoming weeks: a dimmed horizon milestone ("… còn N tuần nữa").
- * 2. Popover does not cover today's node:
- *    - Closed by default on load; opens to the left or right of the clicked node on wide screens (bottom sheet on phones).
- * 3 & 4. Purple-centered palette & smooth dark-mode transitions via CSS variables (no hardcoded SVG hex colors).
- * 5. Sticky unified Tab Banner at the top of the map:
- *    - Left: large tab icon (book / brush / scroll) in a soft purple circle + "Từ vựng N5" + "800 từ · xong dự kiến ...".
- *    - Center: circular SVG progress ring (pct%, learned/total).
- *    - Right: pill week selector "‹ Tuần 1/16 ›" (scrolls to past/current weeks) + icon-pill legend + outlined list button.
+ * Round 6 updates (balancing clean minimalism with lively visuals & single-screen ergonomics):
+ * 1. Restored lively Kitsu animations:
+ *    - Kitsu standing beside Today's node with speech bubble & animated webp/svg + bobbing motion.
+ *    - Celebratory Kitsu + short 1-time confetti (< 1.5s, never infinite) on ?saved=1.
+ *    - Weekly side Kitsu along the map margin (1 per week, pose varies by week).
+ * 2. Restored lively multi-layered backdrop using the harmonious 9-family palette (--jp-c-<name>-{100,500,900}):
+ *    - Sky pattern (sakura / stars / breeze), very slow clouds (~60s/cycle, disabled on prefers-reduced-motion),
+ *      and 3-layer hills using the tab's 100/500 colors.
+ * 3. Filled wide-screen side margins:
+ *    - Wider winding path (±220px on wide screens).
+ *    - Alternating weekly themed miniature scenes (60–140px, 75–85% opacity, behind the path):
+ *      for Vocab, inferred from the week's part topics/titles (Gia đình -> house, Ăn uống -> rice bowl & tea,
+ *      Trường học -> school & books, Đi lại -> train & Fuji, Mua sắm -> noren shop, default -> torii & pines).
+ *    - Decorative wooden/flag week signpost ("Tuần 2 · 12/11–18/11") at the start of each week (non-clickable).
+ * 4. Larger, clearer circular nodes & 6px connector:
+ *    - Regular node: 84px, Today node: 100px, Chest / Trophy milestone: 88px.
+ *    - Part number badge: 14px; side label title: 15px, subtitle: 13px; connecting curve: 6px.
+ * 5. Popover z-index & viewport auto-shift:
+ *    - Popover z-index sits above the sticky tab banner (never covered by the banner).
+ *    - Automatically shifts down/up into the visible viewport below the sticky banner when opened.
+ *    - Max height ~70vh with internal scroll; "10/10" progress ring sits neatly inline in the footer button row.
  *
  * window.JpathParts = { partsHtml(data, tabKey, page, opts), weeklyHtml(week), savedNoticeHtml(msg), mount(partsEl, listEl, tabKey, opts) }
  */
@@ -46,13 +53,15 @@
   var UPCOMING_WEEKS_SHOWN = 2;
   var PILL_PREVIEW_COUNT = 6;
   var WAVE_POS = ['center', 'left', 'center', 'right'];
-  var WAVE_X = { left: 10, center: 210, right: 410 };
+  var WAVE_X = { left: 20, center: 240, right: 460 };
 
   var SIDE_KITSUS = [
-    { src: '/images/mascots/kitsu/kitsu-thinking-30.webp', alt: 'Kitsu suy nghĩ', say: 'Nhớ ôn kỹ nhé!' },
     { src: '/images/mascots/kitsu/kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Bạn làm tốt lắm!' },
+    { src: '/images/mascots/kitsu/kitsu-thinking-30.webp', alt: 'Kitsu suy nghĩ', say: 'Nhớ ôn kỹ nhé!' },
+    { src: '/images/mascots/kitsu/kitsu-encouraging.webp', alt: 'Kitsu khích lệ', say: 'Cùng tiến lên nào!' },
+    { src: '/images/mascots/kitsu/kitsu-preparing.webp', alt: 'Kitsu chăm chỉ', say: 'Sắp tới đích rồi!' },
     { src: '/images/mascots/kitsu/kitsu-resting-30.webp', alt: 'Kitsu nghỉ ngơi', say: 'Đều đặn mỗi ngày!' },
-    { src: '/images/mascots/kitsu/kitsu-preparing.webp', alt: 'Kitsu chăm chỉ', say: 'Sắp tới đích rồi!' }
+    { src: '/images/mascots/kitsu/kitsu-celebrate-30.webp', alt: 'Kitsu ăn mừng', say: 'Giữ vững phong độ!' }
   ];
 
   function esc(s) {
@@ -71,9 +80,10 @@
     return String(dt.getUTCDate()).padStart(2, '0') + '/' + String(dt.getUTCMonth() + 1).padStart(2, '0');
   }
 
+  /* Round 6 Item 1b: Celebratory Kitsu + short 1-time confetti (<= 1.5s, never infinite) on ?saved=1 */
   function savedNoticeHtml(msg) {
     var pieces = [];
-    for (var i = 0; i < 16; i++) {
+    for (var i = 0; i < 14; i++) {
       pieces.push('<span class="jp-saved-note__confetti jp-saved-note__confetti--' + (i % 4)
         + '" style="--cf-i:' + i + '" aria-hidden="true"></span>');
     }
@@ -85,144 +95,370 @@
       + '</div>';
   }
 
-  function svgCheck() {
-    return '<svg class="jp-parts__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
-      + '<path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'
+  /* ---- Morphicons-style thin rounded SVG icons ---- */
+
+  function svgMedal(extraCls) {
+    var cls = 'jp-parts__icon jp-morph-icon jp-morph-icon--medal' + (extraCls ? ' ' + extraCls : '');
+    return '<svg class="' + cls + '" viewBox="0 0 28 28" fill="none" aria-hidden="true">'
+      + '<path class="jp-medal__shackle" d="M10.5 11V8.5a3.5 3.5 0 0 1 7 0V11" stroke="var(--jp-c-peach-100)" stroke-width="1.6" stroke-linecap="round"/>'
+      + '<path class="jp-medal__ribbon jp-medal__ribbon--l" d="M10.2 16.2L8 23.8l4.2-1.8L13.5 17.8" fill="var(--jp-c-peach-500)" stroke="var(--jp-c-peach-900)" stroke-width="1.4" stroke-linejoin="round"/>'
+      + '<path class="jp-medal__ribbon jp-medal__ribbon--r" d="M17.8 16.2L20 23.8l-4.2-1.8L14.5 17.8" fill="var(--jp-c-peach-500)" stroke="var(--jp-c-peach-900)" stroke-width="1.4" stroke-linejoin="round"/>'
+      + '<circle class="jp-medal__disc" cx="14" cy="11.5" r="6.4" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-peach-900)" stroke-width="1.6"/>'
+      + '<path class="jp-medal__star" d="M14 7.8l1.15 2.3 2.55.37-1.85 1.8.44 2.53L14 13.6l-2.29 1.2.44-2.53-1.85-1.8 2.55-.37L14 7.8z" fill="var(--jp-c-peach-500)" stroke="var(--jp-c-peach-900)" stroke-width="1.1" stroke-linejoin="round"/>'
+      + '<path class="jp-medal__sparkle" d="M4.8 6.5h1.8M5.7 5.6v1.8M21.4 6.5h1.8M22.3 5.6v1.8" stroke="var(--jp-c-peach-100)" stroke-width="1.5" stroke-linecap="round"/>'
+      + '</svg>';
+  }
+
+  function svgTrophyCup(extraCls) {
+    var cls = 'jp-parts__icon jp-parts__icon--chest jp-morph-icon jp-morph-icon--trophy' + (extraCls ? ' ' + extraCls : '');
+    return '<svg class="' + cls + '" viewBox="0 0 32 32" fill="none" aria-hidden="true">'
+      + '<path class="jp-trophy__handles" d="M9.5 9H6.5a2.2 2.2 0 0 0-2.2 2.2v1.2a4.8 4.8 0 0 0 4.8 4.8h.8M22.5 9h3a2.2 2.2 0 0 1 2.2 2.2v1.2a4.8 4.8 0 0 1-4.8 4.8h-.8" stroke="var(--jp-c-peach-900)" stroke-width="1.8" stroke-linecap="round"/>'
+      + '<path class="jp-trophy__cup" d="M9.5 6.5h13v7.2a6.5 6.5 0 0 1-13 0V6.5z" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-peach-900)" stroke-width="1.8" stroke-linejoin="round"/>'
+      + '<path class="jp-trophy__stem" d="M16 20.2v4.8M11 25.2h10" stroke="var(--jp-c-peach-900)" stroke-width="1.9" stroke-linecap="round"/>'
+      + '<path class="jp-trophy__star" d="M16 9.6l1.05 2.1 2.3.34-1.67 1.62.4 2.3L16 14.85l-2.08 1.11.4-2.3-1.67-1.62 2.3-.34L16 9.6z" fill="var(--jp-c-peach-500)" stroke="var(--jp-c-peach-900)" stroke-width="1" stroke-linejoin="round"/>'
+      + '<path class="jp-trophy__sparkle" d="M5.5 5.5h1.8M6.4 4.6v1.8M24.7 5.5h1.8M25.6 4.6v1.8" stroke="var(--jp-c-peach-500)" stroke-width="1.5" stroke-linecap="round"/>'
       + '</svg>';
   }
 
   function svgStar() {
-    return '<svg class="jp-parts__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
-      + '<path d="M12 3.2l2.7 5.45 6.05.88-4.38 4.26 1.03 6.01L12 17l-5.4 2.8 1.03-6.01-4.38-4.26 6.05-.88L12 3.2z"'
-      + ' fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>'
+    return '<svg class="jp-parts__icon jp-morph-icon jp-morph-icon--star" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
+      + '<path class="jp-star__path" d="M12 3.6l2.55 5.15 5.68.83-4.11 4.01.97 5.66L12 16.58l-5.09 2.67.97-5.66-4.11-4.01 5.68-.83L12 3.6z"'
+      + ' fill="currentColor" fill-opacity="0.22" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
       + '</svg>';
   }
 
   function svgLock() {
-    return '<svg class="jp-parts__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
-      + '<rect x="5" y="11" width="14" height="10" rx="2.5" stroke="currentColor" stroke-width="2.2"/>'
-      + '<path d="M8 11V8a4 4 0 018 0v3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>'
-      + '<circle cx="12" cy="16" r="1.5" fill="currentColor"/>'
+    return '<svg class="jp-parts__icon jp-morph-icon jp-morph-icon--lock" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
+      + '<rect class="jp-lock__body" x="5.5" y="11" width="13" height="9.5" rx="2.5" stroke="currentColor" stroke-width="1.8"/>'
+      + '<path class="jp-lock__shackle" d="M8.2 11V8.2a3.8 3.8 0 0 1 7.6 0V11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'
+      + '<circle cx="12" cy="15.8" r="1.3" fill="currentColor"/>'
       + '</svg>';
   }
 
-  /* Chest SVGs use CSS variables (--jp-chest-*) so they adapt to the purple palette and dark mode */
   function svgChestClosed() {
-    return '<svg class="jp-parts__icon jp-parts__icon--chest" viewBox="0 0 36 36" fill="none" aria-hidden="true">'
-      + '<rect x="5" y="15" width="26" height="15" rx="3.5" fill="var(--jp-chest-body)" stroke="var(--jp-chest-stroke)" stroke-width="1.8"/>'
-      + '<path d="M5 16C5 11.5 9 9 18 9s13 2.5 13 7H5z" fill="var(--jp-chest-lid)" stroke="var(--jp-chest-stroke)" stroke-width="1.8"/>'
-      + '<rect x="5" y="15" width="26" height="3.2" fill="var(--jp-chest-band)"/>'
-      + '<rect x="15" y="13.5" width="6" height="7" rx="1.5" fill="var(--jp-chest-lock)" stroke="var(--jp-chest-stroke)" stroke-width="1.4"/>'
-      + '<circle cx="18" cy="17" r="1.1" fill="var(--jp-chest-stroke)"/>'
+    return '<svg class="jp-parts__icon jp-parts__icon--chest jp-morph-icon jp-morph-icon--chest" viewBox="0 0 32 32" fill="none" aria-hidden="true">'
+      + '<path class="jp-chest__lid" d="M6 13.5C6 9.8 9.2 7.8 16 7.8s10 2 10 5.7H6z" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-peach-500)" stroke-width="1.8" stroke-linejoin="round"/>'
+      + '<rect class="jp-chest__box" x="6" y="13.5" width="20" height="11.5" rx="2.8" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-peach-500)" stroke-width="1.8"/>'
+      + '<path d="M6 16.2h20" stroke="var(--jp-c-peach-500)" stroke-width="1.6"/>'
+      + '<rect class="jp-chest__clasp" x="13.8" y="13.2" width="4.4" height="5.2" rx="1.3" fill="var(--jp-c-peach-500)" stroke="var(--jp-c-peach-900)" stroke-width="1.5"/>'
       + '</svg>';
   }
 
-  function svgChestOpen() {
-    return '<svg class="jp-parts__icon jp-parts__icon--chest" viewBox="0 0 36 36" fill="none" aria-hidden="true">'
-      + '<circle cx="18" cy="14" r="10" fill="var(--jp-chest-glow)" fill-opacity="0.45"/>'
-      + '<path d="M6 12C6 7.8 10 5.5 18 5.5S30 7.8 30 12H6z" fill="var(--jp-chest-lid)" stroke="var(--jp-chest-stroke)" stroke-width="1.6"/>'
-      + '<ellipse cx="14" cy="16" rx="4" ry="2.6" fill="var(--jp-chest-band)"/>'
-      + '<ellipse cx="21" cy="15.5" rx="4.5" ry="2.8" fill="var(--jp-chest-lid)"/>'
-      + '<polygon points="18,10 21,14 18,18 15,14" fill="var(--jp-primary)" stroke="var(--jp-surface)" stroke-width="1"/>'
-      + '<rect x="5" y="16" width="26" height="14" rx="3.5" fill="var(--jp-chest-body)" stroke="var(--jp-chest-stroke)" stroke-width="1.8"/>'
-      + '<rect x="5" y="16" width="26" height="3" fill="var(--jp-chest-band)"/>'
-      + '<rect x="15" y="15" width="6" height="6" rx="1.4" fill="var(--jp-chest-lock)" stroke="var(--jp-chest-stroke)" stroke-width="1.3"/>'
-      + '<path d="M10 6l1-2M26 6l-1-2M18 3V1" stroke="var(--jp-chest-band)" stroke-width="1.8" stroke-linecap="round"/>'
+  /* Round 6 Bổ sung 3: Large 96px custom SVG treasure chest standing directly on the path with ground shadow */
+  function svgBigChest(state) {
+    if (state === 'open') {
+      return '<svg class="jp-parts__big-chest jp-parts__big-chest--open" viewBox="0 0 96 96" width="96" height="96" fill="none" aria-hidden="true">'
+        + '<ellipse class="jp-chest-shadow" cx="48" cy="84" rx="34" ry="7" fill="var(--jp-chest-shadow)"/>'
+        + '<ellipse class="jp-chest-glow" cx="48" cy="36" rx="28" ry="17" fill="var(--jp-c-peach-100)"/>'
+        + '<path class="jp-chest-rays" d="M48 7v13M28 12l6.5 10.5M68 12l-6.5 10.5M17 24l10 6.5M79 24l-10 6.5" stroke="var(--jp-c-peach-500)" stroke-width="2.4" stroke-linecap="round"/>'
+        + '<path class="jp-chest-sparkles" d="M35 15l1.5 3 3.2.5-2.3 2.2.5 3.2-2.9-1.5-2.9 1.5.5-3.2-2.3-2.2 3.2-.5L35 15zM61 13l1.3 2.6 2.8.4-2 2 .5 2.8-2.6-1.4-2.6 1.4.5-2.8-2-2 2.8-.4L61 13z" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-peach-500)" stroke-width="1.4" stroke-linejoin="round"/>'
+        + '<path class="jp-chest-lid-open" d="M20 40C20 26 31 19 48 19s28 7 28 21H20z" fill="var(--jp-c-peach-500)" stroke="var(--jp-chest-outline)" stroke-width="2.5" stroke-linejoin="round"/>'
+        + '<path d="M33 20.5v19M63 20.5v19" stroke="var(--jp-c-peach-100)" stroke-width="3" stroke-linecap="round"/>'
+        + '<ellipse cx="48" cy="42.5" rx="24" ry="5.5" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-peach-500)" stroke-width="1.75"/>'
+        + '<rect x="18" y="42" width="60" height="36" rx="7" fill="var(--jp-c-peach-500)" stroke="var(--jp-chest-outline)" stroke-width="2.5"/>'
+        + '<rect x="21" y="45" width="54" height="12" rx="3" fill="var(--jp-c-peach-100)" fill-opacity="0.42"/>'
+        + '<path d="M19.5 58h57" stroke="var(--jp-chest-outline)" stroke-width="2"/>'
+        + '<rect x="30" y="42" width="6" height="36" rx="1.5" fill="var(--jp-c-peach-100)" stroke="var(--jp-chest-outline)" stroke-width="1.8"/>'
+        + '<rect x="60" y="42" width="6" height="36" rx="1.5" fill="var(--jp-c-peach-100)" stroke="var(--jp-chest-outline)" stroke-width="1.8"/>'
+        + '<rect x="42" y="39.5" width="12" height="15" rx="3.5" fill="var(--jp-c-peach-100)" stroke="var(--jp-chest-outline)" stroke-width="2.2"/>'
+        + '<circle cx="48" cy="47" r="2.2" fill="var(--jp-c-peach-500)"/>'
+        + '</svg>';
+    }
+    if (state === 'locked') {
+      return '<svg class="jp-parts__big-chest jp-parts__big-chest--locked" viewBox="0 0 96 96" width="96" height="96" fill="none" aria-hidden="true">'
+        + '<ellipse class="jp-chest-shadow" cx="48" cy="84" rx="32" ry="6.5" fill="var(--jp-chest-shadow)"/>'
+        + '<path d="M18 46C18 29 30 22 48 22s30 7 30 24H18z" fill="var(--jp-c-slate-100)" stroke="var(--jp-c-slate-500)" stroke-width="2.4" stroke-linejoin="round"/>'
+        + '<rect x="18" y="45" width="60" height="33" rx="7" fill="var(--jp-c-slate-100)" stroke="var(--jp-c-slate-500)" stroke-width="2.4"/>'
+        + '<path d="M19.5 61h57M33 24v54M63 24v54" stroke="var(--jp-c-slate-500)" stroke-width="1.8" stroke-linecap="round" stroke-opacity="0.5"/>'
+        + '<path d="M43 44v-4.2a5 5 0 0 1 10 0V44" stroke="var(--jp-c-slate-500)" stroke-width="2.5" stroke-linecap="round"/>'
+        + '<rect x="39" y="44" width="18" height="16" rx="4" fill="var(--jp-white)" stroke="var(--jp-c-slate-500)" stroke-width="2.2"/>'
+        + '<circle cx="48" cy="50.8" r="2" fill="var(--jp-c-slate-500)"/>'
+        + '<path d="M48 52.8v3" stroke="var(--jp-c-slate-500)" stroke-width="2" stroke-linecap="round"/>'
+        + '</svg>';
+    }
+    return '<svg class="jp-parts__big-chest jp-parts__big-chest--current" viewBox="0 0 96 96" width="96" height="96" fill="none" aria-hidden="true">'
+      + '<ellipse class="jp-chest-shadow" cx="48" cy="84" rx="34" ry="7" fill="var(--jp-chest-shadow)"/>'
+      + '<path class="jp-chest-lid" d="M18 46C18 29 30 22 48 22s30 7 30 24H18z" fill="var(--jp-c-peach-500)" stroke="var(--jp-chest-outline)" stroke-width="2.5" stroke-linejoin="round"/>'
+      + '<path d="M25 38c5-7.5 13.5-11.5 23-11.5S66 30.5 71 38" stroke="var(--jp-c-peach-100)" stroke-width="2.4" stroke-linecap="round" stroke-opacity="0.78"/>'
+      + '<path d="M33 23.5v22M63 23.5v22" stroke="var(--jp-c-peach-100)" stroke-width="3" stroke-linecap="round"/>'
+      + '<rect x="18" y="45" width="60" height="33" rx="7" fill="var(--jp-c-peach-500)" stroke="var(--jp-chest-outline)" stroke-width="2.5"/>'
+      + '<rect x="21" y="48" width="54" height="11" rx="3" fill="var(--jp-c-peach-100)" fill-opacity="0.38"/>'
+      + '<path d="M19.5 61h57" stroke="var(--jp-chest-outline)" stroke-width="2"/>'
+      + '<rect x="30" y="45" width="6" height="33" rx="1.5" fill="var(--jp-c-peach-100)" stroke="var(--jp-chest-outline)" stroke-width="1.8"/>'
+      + '<rect x="60" y="45" width="6" height="33" rx="1.5" fill="var(--jp-c-peach-100)" stroke="var(--jp-chest-outline)" stroke-width="1.8"/>'
+      + '<rect x="41" y="39" width="14" height="17" rx="4" fill="var(--jp-c-peach-100)" stroke="var(--jp-chest-outline)" stroke-width="2.3"/>'
+      + '<circle cx="48" cy="46.2" r="2.2" fill="var(--jp-chest-outline)"/>'
+      + '<path d="M48 48.4v3.4" stroke="var(--jp-chest-outline)" stroke-width="2" stroke-linecap="round"/>'
       + '</svg>';
   }
 
-  /* Large tab icons for the unified top banner (book, brush, scroll) */
   function tabBannerIconSvg(sceneKey) {
     if (sceneKey === 'kanji') {
-      // Calligraphy brush (bút lông)
-      return '<svg class="jp-parts__banner-svg" viewBox="0 0 28 28" fill="none" aria-hidden="true">'
-        + '<path d="M20.5 4.5l3 3-9.5 9.5-3.5.5.5-3.5 9.5-9.5z" fill="var(--jp-primary-soft)" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'
-        + '<path d="M11 17.5c-2.2.5-3.8 2.2-4.5 4.5 2.5.2 4.5-1 5.2-3.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
-        + '<path d="M6 23.5h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+      return '<svg class="jp-parts__banner-svg jp-morph-icon jp-morph-icon--brush" viewBox="0 0 28 28" fill="none" aria-hidden="true">'
+        + '<path class="jp-morph-stroke" d="M19.8 4.8l3.4 3.4-9.2 9.2-3.8.6.6-3.8 9-9.4z" fill="currentColor" fill-opacity="0.14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+        + '<path class="jp-morph-stroke" d="M10.8 18c-2 .5-3.5 2-4.2 4.2 2.4.2 4.2-1 4.9-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'
+        + '<path class="jp-morph-detail" d="M6.5 23.5h13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'
         + '</svg>';
     }
     if (sceneKey === 'grammar') {
-      // Scroll (cuộn giấy)
-      return '<svg class="jp-parts__banner-svg" viewBox="0 0 28 28" fill="none" aria-hidden="true">'
-        + '<rect x="6" y="5" width="16" height="18" rx="3" fill="var(--jp-primary-soft)" stroke="currentColor" stroke-width="2"/>'
-        + '<path d="M9.5 10.5h9M9.5 14.5h9M9.5 18.5h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+      return '<svg class="jp-parts__banner-svg jp-morph-icon jp-morph-icon--scroll" viewBox="0 0 28 28" fill="none" aria-hidden="true">'
+        + '<rect class="jp-morph-stroke" x="6.5" y="5" width="15" height="18" rx="3" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-width="1.8"/>'
+        + '<path class="jp-morph-detail" d="M10 10.5h8M10 14.5h8M10 18.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'
         + '</svg>';
     }
-    // Open book (sách)
-    return '<svg class="jp-parts__banner-svg" viewBox="0 0 28 28" fill="none" aria-hidden="true">'
-      + '<path d="M4.5 7.5c3-1 6.5-.5 9.5 1.5 3-2 6.5-2.5 9.5-1.5v13c-3-1-6.5-.5-9.5 1.5-3-2-6.5-2.5-9.5-1.5v-13z" fill="var(--jp-primary-soft)" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'
-      + '<path d="M14 9v13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+    return '<svg class="jp-parts__banner-svg jp-morph-icon jp-morph-icon--book" viewBox="0 0 28 28" fill="none" aria-hidden="true">'
+      + '<path class="jp-book__page-l" d="M14 8.2C11.4 6.6 8 6.2 4.8 7v12.8c3.2-.8 6.6-.4 9.2 1.2" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+      + '<path class="jp-book__page-r" d="M14 8.2c2.6-1.6 6-2 9.2-1.2v12.8c-3.2-.8-6.6-.4-9.2 1.2" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+      + '<path d="M14 8.2V21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'
       + '</svg>';
   }
 
   function svgListIcon() {
-    return '<svg class="jp-parts__btn-ic" viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true">'
-      + '<path d="M6 5h10M6 10h10M6 15h10M3 5h.01M3 10h.01M3 15h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+    return '<svg class="jp-parts__btn-ic jp-morph-icon jp-morph-icon--list" viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true">'
+      + '<path class="jp-morph-detail" d="M6.5 5.5h9.5M6.5 10h9.5M6.5 14.5h9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'
+      + '<circle cx="3.5" cy="5.5" r="1" fill="currentColor"/><circle cx="3.5" cy="10" r="1" fill="currentColor"/><circle cx="3.5" cy="14.5" r="1" fill="currentColor"/>'
       + '</svg>';
   }
 
+  function svgChevron(dir) {
+    var d = dir === 'left' ? 'M11.5 4.5L6.5 9.5L11.5 14.5' : 'M7.5 4.5L12.5 9.5L7.5 14.5';
+    return '<svg class="jp-morph-icon jp-morph-icon--chevron jp-morph-icon--chevron-' + dir + '" viewBox="0 0 18 18" width="16" height="16" fill="none" aria-hidden="true">'
+      + '<path class="jp-chevron__head" d="' + d + '" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+      + '</svg>';
+  }
+
+  function svgHorizonFlag() {
+    return '<svg class="jp-morph-icon jp-morph-icon--flag" viewBox="0 0 20 20" width="18" height="18" fill="none" aria-hidden="true">'
+      + '<path d="M4.5 3.5v13M4.5 4.2h10l-2.2 3.4 2.2 3.4h-10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>'
+      + '</svg>';
+  }
+
+  /* Round 6 Item 2: Lively backdrop with slow clouds (~60s/cycle), sky pattern (stars on grammar, sakura on kanji, breeze on vocab),
+   * and multi-layer hills using the harmonious 100/500 palette variables */
   function smallCloudSvg(cls) {
-    return '<svg class="jp-parts__cloud ' + cls + '" viewBox="0 0 96 38" fill="none" aria-hidden="true">'
-      + '<path d="M18 32h60a11 11 0 000-22 16 16 0 00-30-6 13 13 0 00-30 28z" fill="currentColor"/>'
+    return '<svg class="jp-parts__cloud ' + cls + '" viewBox="0 0 128 52" fill="none" aria-hidden="true">'
+      + '<path d="M26 42h76a13 13 0 0 0 1.5-25.9A20 20 0 0 0 66 8a17 17 0 0 0-31.2 6.8A14.5 14.5 0 0 0 26 42z"'
+      + ' fill="var(--jp-cloud-fill)" stroke="var(--jp-cloud-stroke)" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>'
       + '</svg>';
   }
 
   function sceneBackdropHtml(sceneKey) {
     return '<div class="jp-parts__backdrop jp-parts__backdrop--' + esc(sceneKey) + '" aria-hidden="true">'
-      + '<div class="jp-parts__sky-pattern"></div>'
+      + '<div class="jp-parts__sky-pattern jp-parts__sky-pattern--' + esc(sceneKey) + '"></div>'
       + '<div class="jp-parts__clouds">'
       + smallCloudSvg('jp-parts__cloud--1')
       + smallCloudSvg('jp-parts__cloud--2')
       + smallCloudSvg('jp-parts__cloud--3')
       + smallCloudSvg('jp-parts__cloud--4')
       + '</div>'
-      + '<svg class="jp-parts__hills" viewBox="0 0 1200 140" preserveAspectRatio="none">'
-      + '<path class="jp-parts__hill jp-parts__hill--far" d="M0 78 Q240 24 520 68 T1040 52 L1200 66 L1200 140 L0 140 Z"/>'
-      + '<path class="jp-parts__hill jp-parts__hill--mid" d="M0 96 Q320 48 660 92 T1200 74 L1200 140 L0 140 Z"/>'
-      + '<path class="jp-parts__hill jp-parts__hill--near" d="M0 114 Q260 82 580 112 T1200 98 L1200 140 L0 140 Z"/>'
+      + '<svg class="jp-parts__hills" viewBox="0 0 1200 150" preserveAspectRatio="none">'
+      + '<path class="jp-parts__hill jp-parts__hill--far" d="M0 78 Q240 22 520 68 T1040 50 L1200 66 L1200 150 L0 150 Z"/>'
+      + '<path class="jp-parts__hill jp-parts__hill--mid" d="M0 98 Q320 46 660 94 T1200 74 L1200 150 L0 150 Z"/>'
+      + '<path class="jp-parts__hill jp-parts__hill--near" d="M0 118 Q260 84 580 116 T1200 100 L1200 150 L0 150 Z"/>'
       + '</svg>'
       + '</div>';
   }
 
-  /* Decorative side SVGs use CSS variables (--jp-deco-*) so they adapt to dark mode */
-  function sideDecoSvg(index) {
+  /* Round 6 Bổ sung 3: Decorative side vignettes & Weekly themed scenes in a unified thin-rounded style
+   * using ONLY shade 100 & 500 palette tokens (no dark 900 blocks on light backgrounds) */
+  function sideDecoSvg(index, sceneKey) {
     var kind = index % 4;
+    if (sceneKey === 'grammar' && kind === 0) {
+      return '<svg class="jp-parts__deco-svg" viewBox="0 0 88 68" fill="none" aria-hidden="true">'
+        + '<ellipse cx="44" cy="58" rx="30" ry="5" fill="var(--jp-tab-100)"/>'
+        + '<path d="M24 16l2.4 4.8 5.2.8-3.8 3.6.9 5.2-4.7-2.5-4.7 2.5.9-5.2-3.8-3.6 5.2-.8L24 16z" fill="var(--jp-c-peach-100)" stroke="var(--jp-tab-500)" stroke-width="1.75" stroke-linejoin="round"/>'
+        + '<path d="M58 24l1.8 3.6 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4-2.9-2.8 4-.6L58 24z" fill="var(--jp-tab-100)" stroke="var(--jp-tab-500)" stroke-width="1.75" stroke-linejoin="round"/>'
+        + '<path d="M18 52c16-9 36-9 52 0" stroke="var(--jp-tab-500)" stroke-width="1.75" stroke-linecap="round"/>'
+        + '</svg>';
+    }
     if (kind === 0) {
-      return '<svg class="jp-parts__deco-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
-        + '<circle cx="12" cy="7" r="3.6" fill="var(--jp-deco-petal-1)"/><circle cx="17" cy="10.5" r="3.6" fill="var(--jp-deco-petal-2)"/>'
-        + '<circle cx="15" cy="16.5" r="3.6" fill="var(--jp-deco-petal-1)"/><circle cx="9" cy="16.5" r="3.6" fill="var(--jp-deco-petal-2)"/>'
-        + '<circle cx="7" cy="10.5" r="3.6" fill="var(--jp-deco-petal-1)"/><circle cx="12" cy="12" r="2.2" fill="var(--jp-chest-band)"/>'
+      /* Soft sakura blossom branch */
+      return '<svg class="jp-parts__deco-svg" viewBox="0 0 88 68" fill="none" aria-hidden="true">'
+        + '<ellipse cx="44" cy="58" rx="28" ry="5" fill="var(--jp-c-mauve-100)"/>'
+        + '<circle cx="34" cy="22" r="6.5" fill="var(--jp-c-mauve-100)" stroke="var(--jp-c-mauve-500)" stroke-width="1.75"/>'
+        + '<circle cx="43" cy="28" r="6.5" fill="var(--jp-c-mauve-100)" stroke="var(--jp-c-mauve-500)" stroke-width="1.75"/>'
+        + '<circle cx="39" cy="37" r="6.5" fill="var(--jp-c-mauve-100)" stroke="var(--jp-c-mauve-500)" stroke-width="1.75"/>'
+        + '<circle cx="28" cy="35" r="6.5" fill="var(--jp-c-mauve-100)" stroke="var(--jp-c-mauve-500)" stroke-width="1.75"/>'
+        + '<circle cx="26" cy="26" r="6.5" fill="var(--jp-c-mauve-100)" stroke="var(--jp-c-mauve-500)" stroke-width="1.75"/>'
+        + '<circle cx="34.5" cy="30" r="3" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-peach-500)" stroke-width="1.5"/>'
+        + '<circle cx="60" cy="42" r="5" fill="var(--jp-c-mauve-100)" stroke="var(--jp-c-mauve-500)" stroke-width="1.6"/>'
         + '</svg>';
     }
     if (kind === 1) {
-      return '<svg class="jp-parts__deco-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
-        + '<rect x="10.5" y="16.5" width="3" height="5" rx="1" fill="var(--jp-chest-stroke)"/>'
-        + '<polygon points="12,3.5 5,12.5 19,12.5" fill="var(--jp-deco-leaf-1)"/>'
-        + '<polygon points="12,8 4,17.5 20,17.5" fill="var(--jp-deco-leaf-2)"/>'
+      /* Layered rounded cedar & pine trees (using 100/500 shades only) */
+      return '<svg class="jp-parts__deco-svg" viewBox="0 0 88 68" fill="none" aria-hidden="true">'
+        + '<ellipse cx="44" cy="58" rx="32" ry="5.5" fill="var(--jp-c-mint-100)"/>'
+        + '<path d="M32 42v14M58 45v11" stroke="var(--jp-c-peach-500)" stroke-width="2.2" stroke-linecap="round"/>'
+        + '<path d="M32 14L17 33h30L32 14z" fill="var(--jp-c-mint-100)" stroke="var(--jp-c-mint-500)" stroke-width="1.75" stroke-linejoin="round"/>'
+        + '<path d="M32 24L15 44h34L32 24z" fill="var(--jp-c-mint-100)" stroke="var(--jp-c-mint-500)" stroke-width="1.75" stroke-linejoin="round"/>'
+        + '<circle cx="58" cy="36" r="10.5" fill="var(--jp-c-teal-100)" stroke="var(--jp-c-teal-500)" stroke-width="1.75"/>'
         + '</svg>';
     }
     if (kind === 2) {
-      return '<svg class="jp-parts__deco-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
-        + '<line x1="12" y1="2" x2="12" y2="5.5" stroke="var(--jp-chest-stroke)" stroke-width="1.6"/>'
-        + '<rect x="8.5" y="5.5" width="7" height="2" rx="1" fill="var(--jp-chest-stroke)"/>'
-        + '<ellipse cx="12" cy="12" rx="5" ry="5.5" fill="var(--jp-deco-lantern)" stroke="var(--jp-chest-stroke)" stroke-width="1.2"/>'
-        + '<rect x="8.5" y="17" width="7" height="2" rx="1" fill="var(--jp-chest-stroke)"/>'
+      /* Warm Chochin lantern (100/500 shades only) */
+      return '<svg class="jp-parts__deco-svg" viewBox="0 0 88 68" fill="none" aria-hidden="true">'
+        + '<ellipse cx="44" cy="59" rx="26" ry="4.5" fill="var(--jp-c-peach-100)"/>'
+        + '<path d="M26 11h32M42 11v6" stroke="var(--jp-c-purple-500)" stroke-width="1.75" stroke-linecap="round"/>'
+        + '<rect x="34" y="17" width="16" height="3.5" rx="1.75" fill="var(--jp-c-purple-100)" stroke="var(--jp-c-purple-500)" stroke-width="1.6"/>'
+        + '<ellipse cx="42" cy="31" rx="12" ry="12.5" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-peach-500)" stroke-width="1.75"/>'
+        + '<path d="M31 27h22M31 35h22" stroke="var(--jp-c-peach-500)" stroke-width="1.5" stroke-linecap="round"/>'
+        + '<rect x="35" y="42.5" width="14" height="3.5" rx="1.75" fill="var(--jp-c-purple-100)" stroke="var(--jp-c-purple-500)" stroke-width="1.6"/>'
+        + '<path d="M42 46v7" stroke="var(--jp-c-peach-500)" stroke-width="1.75" stroke-linecap="round"/>'
         + '</svg>';
     }
-    return '<svg class="jp-parts__deco-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
-      + '<path d="M3 9h18M5 9v11M19 9v11M2 6c6 1.8 14 1.8 20 0" stroke="var(--jp-deco-torii)" stroke-width="2" stroke-linecap="round"/>'
+    /* Torii gate with soft sun disc */
+    return '<svg class="jp-parts__deco-svg" viewBox="0 0 88 68" fill="none" aria-hidden="true">'
+      + '<ellipse cx="44" cy="58" rx="32" ry="5" fill="var(--jp-c-coral-100)"/>'
+      + '<circle cx="44" cy="34" r="14" fill="var(--jp-c-peach-100)"/>'
+      + '<path d="M18 20c16 3.5 36 3.5 52 0" stroke="var(--jp-c-coral-500)" stroke-width="2.4" stroke-linecap="round"/>'
+      + '<path d="M22 27h44M29 21v34M59 21v34" stroke="var(--jp-c-coral-500)" stroke-width="2" stroke-linecap="round"/>'
       + '</svg>';
   }
 
+  function detectWeekTheme(weekObj, sceneKey) {
+    if (sceneKey === 'kanji') return (weekObj.weekNum % 2 === 1) ? 'brush' : 'torii';
+    if (sceneKey === 'grammar') return (weekObj.weekNum % 2 === 1) ? 'stars' : 'bridge';
+    var blob = '';
+    list(weekObj && weekObj.parts).forEach(function (p) {
+      if (!p) return;
+      blob += ' ' + (p.topic || '') + ' ' + (p.title || '') + ' ' + (p.name || '');
+      list(p.items).slice(0, 6).forEach(function (it) {
+        if (it) blob += ' ' + (it.topic || '') + ' ' + (it.meaning || '') + ' ' + (it.meaningVi || '');
+      });
+    });
+    var s = blob.toLowerCase();
+    if (/gia đình|nhà|bố|mẹ|anh|chị|em|ông|bà|phòng|family|house|home/.test(s)) return 'house';
+    if (/ăn|uống|ẩm thực|cơm|trà|món|bữa|nhà hàng|quán|food|drink|meal/.test(s)) return 'food';
+    if (/trường|học|lớp|sách|giáo viên|sinh viên|bài|thi|school|study|book/.test(s)) return 'school';
+    if (/đi|tàu|ga|xe|du lịch|đường|phố|sân bay|travel|train|station/.test(s)) return 'travel';
+    if (/mua|bán|cửa hàng|siêu thị|tiền|áo|quần|shop|store/.test(s)) return 'shop';
+    var cycle = ['house', 'food', 'school', 'travel', 'shop'];
+    return cycle[((weekObj && weekObj.weekNum) ? weekObj.weekNum - 1 : 0) % cycle.length];
+  }
+
+  function weekThemeSceneHtml(weekObj, sceneKey, side) {
+    var theme = detectWeekTheme(weekObj, sceneKey);
+    var svg = '';
+    var caption = '';
+    if (theme === 'house') {
+      caption = 'Gia đình & Nhà cửa';
+      svg = '<svg class="jp-parts__week-scene-svg jp-parts__scene-svg" viewBox="0 0 112 78" fill="none" aria-hidden="true">'
+        + '<ellipse cx="56" cy="68" rx="46" ry="6.5" fill="var(--jp-tab-100)"/>'
+        + '<circle cx="84" cy="20" r="7" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-peach-500)" stroke-width="1.5"/>'
+        + '<rect x="24" y="36" width="48" height="31" rx="5" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-peach-500)" stroke-width="1.75"/>'
+        + '<path d="M17 37C26 29 37 20 48 14c2.8-1.5 5.2-1.5 8 0 11 6 22 15 23 23H17z" fill="var(--jp-c-coral-100)" stroke="var(--jp-c-coral-500)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>'
+        + '<path d="M38 15h20" stroke="var(--jp-c-coral-500)" stroke-width="2" stroke-linecap="round"/>'
+        + '<circle cx="48" cy="26.5" r="4" fill="var(--jp-white)" stroke="var(--jp-c-coral-500)" stroke-width="1.6"/>'
+        + '<rect x="42.5" y="46" width="11" height="21" rx="2.5" fill="var(--jp-white)" stroke="var(--jp-c-peach-500)" stroke-width="1.75"/>'
+        + '<path d="M48 46v21M42.5 54h11" stroke="var(--jp-c-peach-500)" stroke-width="1.35"/>'
+        + '<rect x="29" y="44" width="9" height="9" rx="2" fill="var(--jp-c-sky-100)" stroke="var(--jp-c-sky-500)" stroke-width="1.6"/>'
+        + '<rect x="58" y="44" width="9" height="9" rx="2" fill="var(--jp-c-sky-100)" stroke="var(--jp-c-sky-500)" stroke-width="1.6"/>'
+        + '<path d="M86 50v17" stroke="var(--jp-c-peach-500)" stroke-width="2" stroke-linecap="round"/>'
+        + '<circle cx="86" cy="42" r="9.5" fill="var(--jp-c-mint-100)" stroke="var(--jp-c-mint-500)" stroke-width="1.75"/>'
+        + '<circle cx="92" cy="46" r="6.5" fill="var(--jp-c-mint-100)" stroke="var(--jp-c-mint-500)" stroke-width="1.6"/>'
+        + '</svg>';
+    } else if (theme === 'food') {
+      caption = 'Ẩm thực & Ăn uống';
+      svg = '<svg class="jp-parts__week-scene-svg jp-parts__scene-svg" viewBox="0 0 112 78" fill="none" aria-hidden="true">'
+        + '<ellipse cx="56" cy="68" rx="46" ry="6.5" fill="var(--jp-tab-100)"/>'
+        + '<path d="M24 38h44M26 33.5h40" stroke="var(--jp-c-peach-500)" stroke-width="1.75" stroke-linecap="round"/>'
+        + '<path d="M28 43c0-8.5 7.5-14 17-14s17 5.5 17 14H28z" fill="var(--jp-white)" stroke="var(--jp-c-indigo-500)" stroke-width="1.75" stroke-linejoin="round"/>'
+        + '<path d="M24 43h42c-2 14-9.5 21-21 21S26 57 24 43z" fill="var(--jp-c-coral-100)" stroke="var(--jp-c-coral-500)" stroke-width="1.75" stroke-linejoin="round"/>'
+        + '<rect x="37" y="64" width="16" height="3.5" rx="1.75" fill="var(--jp-c-coral-100)" stroke="var(--jp-c-coral-500)" stroke-width="1.5"/>'
+        + '<rect x="74" y="44" width="17" height="20" rx="4" fill="var(--jp-c-mint-100)" stroke="var(--jp-c-mint-500)" stroke-width="1.75"/>'
+        + '<path d="M74 50h17" stroke="var(--jp-c-mint-500)" stroke-width="1.4"/>'
+        + '<path d="M38 23c0-3.5 2.5-4.5 2.5-8M48 22c0-3.5 2.5-4.5 2.5-8M82.5 39c0-3 2-4 2-6.5" stroke="var(--jp-tab-500)" stroke-width="1.6" stroke-linecap="round"/>'
+        + '</svg>';
+    } else if (theme === 'school') {
+      caption = 'Trường học & Từ mới';
+      svg = '<svg class="jp-parts__week-scene-svg jp-parts__scene-svg" viewBox="0 0 112 78" fill="none" aria-hidden="true">'
+        + '<ellipse cx="56" cy="68" rx="46" ry="6.5" fill="var(--jp-tab-100)"/>'
+        + '<rect x="22" y="33" width="52" height="34" rx="4.5" fill="var(--jp-c-indigo-100)" stroke="var(--jp-c-indigo-500)" stroke-width="1.75"/>'
+        + '<path d="M16 34L48 16l32 18H16z" fill="var(--jp-c-purple-100)" stroke="var(--jp-c-purple-500)" stroke-width="1.75" stroke-linejoin="round"/>'
+        + '<circle cx="48" cy="27.5" r="5" fill="var(--jp-white)" stroke="var(--jp-c-indigo-500)" stroke-width="1.6"/>'
+        + '<path d="M48 25v2.8l2 1.2" stroke="var(--jp-c-indigo-500)" stroke-width="1.5" stroke-linecap="round"/>'
+        + '<rect x="42.5" y="49" width="11" height="18" rx="2" fill="var(--jp-white)" stroke="var(--jp-c-indigo-500)" stroke-width="1.6"/>'
+        + '<rect x="28" y="40" width="8" height="7" rx="1.5" fill="var(--jp-white)" stroke="var(--jp-c-indigo-500)" stroke-width="1.5"/>'
+        + '<rect x="60" y="40" width="8" height="7" rx="1.5" fill="var(--jp-white)" stroke="var(--jp-c-indigo-500)" stroke-width="1.5"/>'
+        + '<path d="M88 50v17" stroke="var(--jp-c-peach-500)" stroke-width="2" stroke-linecap="round"/>'
+        + '<circle cx="88" cy="41" r="9.5" fill="var(--jp-c-mauve-100)" stroke="var(--jp-c-mauve-500)" stroke-width="1.75"/>'
+        + '</svg>';
+    } else if (theme === 'travel') {
+      caption = 'Đi lại & Hành trình';
+      svg = '<svg class="jp-parts__week-scene-svg jp-parts__scene-svg" viewBox="0 0 112 78" fill="none" aria-hidden="true">'
+        + '<ellipse cx="56" cy="68" rx="46" ry="6.5" fill="var(--jp-tab-100)"/>'
+        + '<path d="M16 62L46 20l30 42H16z" fill="var(--jp-c-sky-100)" stroke="var(--jp-c-sky-500)" stroke-width="1.75" stroke-linejoin="round"/>'
+        + '<path d="M36.5 33.5L46 20l9.5 13.5-4.8-2.6-4.7 3.6-4.7-3.6-4.8 2.6z" fill="var(--jp-white)" stroke="var(--jp-c-sky-500)" stroke-width="1.5" stroke-linejoin="round"/>'
+        + '<rect x="30" y="48" width="64" height="17" rx="6" fill="var(--jp-c-indigo-100)" stroke="var(--jp-c-indigo-500)" stroke-width="1.75"/>'
+        + '<rect x="37" y="52" width="10" height="6.5" rx="1.5" fill="var(--jp-white)" stroke="var(--jp-c-indigo-500)" stroke-width="1.4"/>'
+        + '<rect x="52" y="52" width="10" height="6.5" rx="1.5" fill="var(--jp-white)" stroke="var(--jp-c-indigo-500)" stroke-width="1.4"/>'
+        + '<rect x="67" y="52" width="10" height="6.5" rx="1.5" fill="var(--jp-white)" stroke="var(--jp-c-indigo-500)" stroke-width="1.4"/>'
+        + '</svg>';
+    } else if (theme === 'shop') {
+      caption = 'Đời sống & Phố phường';
+      svg = '<svg class="jp-parts__week-scene-svg jp-parts__scene-svg" viewBox="0 0 112 78" fill="none" aria-hidden="true">'
+        + '<ellipse cx="56" cy="68" rx="46" ry="6.5" fill="var(--jp-tab-100)"/>'
+        + '<rect x="24" y="30" width="52" height="37" rx="4.5" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-peach-500)" stroke-width="1.75"/>'
+        + '<rect x="20" y="25" width="60" height="12" rx="3.5" fill="var(--jp-c-purple-100)" stroke="var(--jp-c-purple-500)" stroke-width="1.75"/>'
+        + '<path d="M35 25v12M50 25v12M65 25v12" stroke="var(--jp-c-purple-500)" stroke-width="1.6"/>'
+        + '<rect x="32" y="44" width="16" height="23" rx="2.5" fill="var(--jp-white)" stroke="var(--jp-c-peach-500)" stroke-width="1.6"/>'
+        + '<rect x="54" y="44" width="14" height="12" rx="2" fill="var(--jp-c-sky-100)" stroke="var(--jp-c-sky-500)" stroke-width="1.6"/>'
+        + '<ellipse cx="89" cy="43" rx="6.5" ry="8.5" fill="var(--jp-c-coral-100)" stroke="var(--jp-c-coral-500)" stroke-width="1.6"/>'
+        + '</svg>';
+    } else if (theme === 'brush' || theme === 'torii') {
+      caption = 'Nét chữ Kanji';
+      svg = '<svg class="jp-parts__week-scene-svg jp-parts__scene-svg" viewBox="0 0 112 78" fill="none" aria-hidden="true">'
+        + '<ellipse cx="56" cy="68" rx="46" ry="6.5" fill="var(--jp-c-mauve-100)"/>'
+        + '<circle cx="84" cy="26" r="8" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-peach-500)" stroke-width="1.6"/>'
+        + '<path d="M22 25c16 3.8 44 3.8 60 0" stroke="var(--jp-c-mauve-500)" stroke-width="2.4" stroke-linecap="round"/>'
+        + '<path d="M27 33h50M34 26v40M70 26v40" stroke="var(--jp-c-mauve-500)" stroke-width="2" stroke-linecap="round"/>'
+        + '</svg>';
+    } else {
+      caption = 'Cấu trúc & Ngữ cảnh';
+      svg = '<svg class="jp-parts__week-scene-svg jp-parts__scene-svg" viewBox="0 0 112 78" fill="none" aria-hidden="true">'
+        + '<ellipse cx="56" cy="68" rx="46" ry="6.5" fill="var(--jp-c-teal-100)"/>'
+        + '<path d="M18 58c20-16 56-16 76 0" stroke="var(--jp-c-teal-500)" stroke-width="2.4" stroke-linecap="round"/>'
+        + '<path d="M30 51v14M48 46v16M64 46v16M82 51v14" stroke="var(--jp-c-teal-500)" stroke-width="1.8" stroke-linecap="round"/>'
+        + '<path d="M32 20l1.8 3.6 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4-2.9-2.8 4-.6L32 20z" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-teal-500)" stroke-width="1.5" stroke-linejoin="round"/>'
+        + '<path d="M80 16l1.5 3.1 3.4.5-2.5 2.4.6 3.4-3-1.6-3 1.6.6-3.4-2.5-2.4 3.4-.5L80 16z" fill="var(--jp-c-peach-100)" stroke="var(--jp-c-teal-500)" stroke-width="1.5" stroke-linejoin="round"/>'
+        + '</svg>';
+    }
+    return '<div class="jp-parts__week-scene jp-parts__week-scene--' + side + '" aria-hidden="true">'
+      + svg
+      + '<span class="jp-parts__week-scene-cap">' + esc(caption) + '</span>'
+      + '</div>';
+  }
+
+  /* Round 6 Item 3c: Large decorative week signpost at the margin ("Tuần 2 · 12/11–18/11"), non-clickable */
+  function weekSignpostHtml(weekObj, side) {
+    return '<div class="jp-parts__week-sign jp-parts__week-sign--' + side + '" aria-hidden="true">'
+      + '<span class="jp-parts__week-sign-post"></span>'
+      + '<span class="jp-parts__week-sign-board">'
+      + '<strong class="jp-parts__week-sign-title">Tuần ' + esc(weekObj.weekNum) + '</strong>'
+      + '<span class="jp-parts__week-sign-dates">' + esc(weekObj.dateRange) + '</span>'
+      + '</span>'
+      + '</div>';
+  }
+
+  /* Round 6 Item 1d: 1 side Kitsu per week, pose varies by week */
+  function weekSideKitsuHtml(weekNum, side) {
+    var k = SIDE_KITSUS[(Math.max(1, Number(weekNum) || 1) - 1) % SIDE_KITSUS.length];
+    return '<span class="jp-parts__mascot jp-parts__mascot--side jp-parts__mascot--' + side + '" aria-hidden="true">'
+      + '<img class="jp-parts__mascot-img" src="' + k.src + '" width="56" height="56" loading="lazy" alt="' + esc(k.alt) + '"/>'
+      + '<span class="jp-parts__mascot-speech jp-parts__mascot-speech--sm">' + esc(k.say) + '</span>'
+      + '</span>';
+  }
+
+  /* Round 6 Item 4d: 6px connecting curve */
   function curveSvg(fromPos, toPos, isDone, isActiveRun, isCompact) {
-    var x1 = WAVE_X[fromPos] || 210;
-    var x2 = WAVE_X[toPos] || 210;
+    var x1 = WAVE_X[fromPos] || 240;
+    var x2 = WAVE_X[toPos] || 240;
     var cls = 'jp-parts__curve' + (isDone ? ' jp-parts__curve--done' : '')
       + (isActiveRun ? ' jp-parts__curve--run' : '')
       + (isCompact ? ' jp-parts__curve--compact' : '');
-    return '<svg class="' + cls + '" viewBox="0 0 420 62" preserveAspectRatio="none" aria-hidden="true">'
+    return '<svg class="' + cls + '" viewBox="0 0 480 62" preserveAspectRatio="none" aria-hidden="true">'
       + '<path class="jp-parts__curve-track" d="M' + x1 + ' 2 C' + x1 + ' 32, ' + x2 + ' 30, ' + x2 + ' 60" fill="none"'
-      + ' stroke="currentColor" stroke-width="6" stroke-linecap="round"' + (isDone && !isActiveRun ? '' : ' stroke-dasharray="8 8"') + '/>'
+      + ' stroke="currentColor" stroke-width="6" stroke-linecap="round"' + (isDone && !isActiveRun ? '' : ' stroke-dasharray="9 9"') + '/>'
       + '</svg>';
   }
 
@@ -244,14 +480,14 @@
   }
 
   function bannerProgressRingHtml(learnedNum, totalNum, pct) {
-    var r = 21;
+    var r = 20;
     var c = 2 * Math.PI * r;
     var offset = (c - (pct / 100) * c).toFixed(1);
     return '<div class="jp-parts__banner-progress" aria-label="Tiến độ đã học ' + esc(learnedNum) + '/' + esc(totalNum) + '">'
       + '<span class="jp-parts__banner-ring" aria-hidden="true">'
-      + '<svg viewBox="0 0 52 52" width="52" height="52">'
-      + '<circle class="jp-parts__banner-ring-bg" cx="26" cy="26" r="' + r + '" fill="none" stroke-width="4.5"/>'
-      + '<circle class="jp-parts__banner-ring-fg" cx="26" cy="26" r="' + r + '" fill="none" stroke-width="4.5"'
+      + '<svg viewBox="0 0 48 48" width="48" height="48">'
+      + '<circle class="jp-parts__banner-ring-bg" cx="24" cy="24" r="' + r + '" fill="none" stroke-width="3.5"/>'
+      + '<circle class="jp-parts__banner-ring-fg" cx="24" cy="24" r="' + r + '" fill="none" stroke-width="3.5"'
       + ' stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + offset + '" stroke-linecap="round"/>'
       + '</svg>'
       + '<strong class="jp-parts__banner-pct">' + pct + '%</strong>'
@@ -264,11 +500,13 @@
   }
 
   function wordPillHtml(it) {
-    var rd = it.reading && it.reading !== it.label ? it.reading : '';
+    var label = (it && (it.label || it.text || it.expression || '')) || '';
+    var rd = it && it.reading && it.reading !== label ? it.reading : '';
+    var mean = (it && (it.meaning || it.meaningVi || '')) || '';
     return '<li class="jp-parts__word-pill">'
       + (rd ? '<span class="jp-parts__pill-rd" lang="ja">' + esc(rd) + '</span>' : '<span class="jp-parts__pill-rd" aria-hidden="true">&nbsp;</span>')
-      + '<span class="jp-parts__pill-ja" lang="ja">' + esc(it.label) + '</span>'
-      + (it.meaning ? '<span class="jp-parts__pill-mean">' + esc(it.meaning) + '</span>' : '')
+      + '<span class="jp-parts__pill-ja" lang="ja">' + esc(label) + '</span>'
+      + (mean ? '<span class="jp-parts__pill-mean">' + esc(mean) + '</span>' : '')
       + '</li>';
   }
 
@@ -297,33 +535,24 @@
     }).join('') + '</div>';
   }
 
+  /* Round 6 Item 1a: Animated Kitsu beside Today's node with speech bubble */
   function kitsuBesideTodayHtml(isTodayDone, labelSide) {
-    var src = isTodayDone ? '/images/mascots/kitsu/kitsu-celebrate-30.webp' : '/images/mascots/kitsu/kitsu-waving.svg';
+    var src = isTodayDone ? '/images/mascots/kitsu/kitsu-celebrate-30.webp' : '/images/mascots/kitsu/kitsu-cheer-30.webp';
     var say = isTodayDone ? 'Đã xong! Bấm xem lại' : 'Bấm vào đây để học';
     var sideCls = labelSide === 'left' ? 'jp-parts__mascot--right' : 'jp-parts__mascot--left';
     return '<span class="jp-parts__mascot jp-parts__mascot--today ' + sideCls + '">'
       + '<span class="jp-parts__mascot-speech">' + esc(say) + '</span>'
-      + '<img class="jp-parts__mascot-img" src="' + src + '" width="52" height="52" loading="lazy" alt="Kitsu"/>'
+      + '<img class="jp-parts__mascot-img" src="' + src + '" width="72" height="72" loading="lazy" alt="Kitsu"/>'
       + '</span>';
   }
 
-  function kitsuSideHtml(weekNum, pos) {
-    var k = SIDE_KITSUS[(weekNum - 1) % SIDE_KITSUS.length];
-    var side = pos === 'left' ? 'right' : 'left';
-    return '<span class="jp-parts__mascot jp-parts__mascot--side jp-parts__mascot--' + side + '">'
-      + '<img class="jp-parts__mascot-img" src="' + k.src + '" width="44" height="44" loading="lazy" alt="' + esc(k.alt) + '"/>'
-      + '<span class="jp-parts__mascot-speech jp-parts__mascot-speech--sm">' + esc(k.say) + '</span>'
-      + '</span>';
-  }
-
-  /* Round 4 Item 2: Place popover to the left or right of the node where space is available */
   function popoverSideForPos(pos) {
     return pos === 'right' ? 'left' : 'right';
   }
 
   function partPopoverHtml(p, unit, tabKey, pos, pillsExpanded) {
-    var items = list(p.items);
-    var n = items.length;
+    var items = list(p.items).length ? list(p.items) : list(p.preview);
+    var n = Number(p.totalCount) || items.length || 10;
     var status = String(p.status || 'NEXT');
     var isToday = status === 'TODAY';
     var isTodayDone = status === 'TODAY_DONE';
@@ -333,18 +562,22 @@
 
     var mascotSrc = '/images/mascots/kitsu/kitsu-encouraging.webp';
     var statusLabel = 'Hôm nay';
+    var statusIcon = svgStar();
     if (isTodayDone) {
       mascotSrc = '/images/mascots/kitsu/kitsu-celebrate-30.webp';
-      statusLabel = 'Đã xong hôm nay';
+      statusLabel = 'Đã học hôm nay';
+      statusIcon = svgMedal('jp-parts__pop-pill-ic');
     } else if (isDone) {
       mascotSrc = '/images/mascots/kitsu/kitsu-cheer-30.webp';
       statusLabel = 'Đã học';
+      statusIcon = svgMedal('jp-parts__pop-pill-ic');
     } else if (!isToday) {
       mascotSrc = '/images/mascots/kitsu/kitsu-thinking-30.webp';
       statusLabel = 'Sắp tới';
+      statusIcon = svgLock();
     }
-    var dateStr = p.day ? dayLabel(p.day) : '';
-    var doneItems = (isDone || isTodayDone) ? n : 0;
+    var dateStr = p.day ? dayLabel(p.day) : (p.date ? dayLabel(p.date) : '');
+    var doneItems = (isDone || isTodayDone) ? n : Math.min(n, Math.max(0, Number(p.learnedCount) || 0));
 
     var actions = '';
     if (isToday) {
@@ -352,7 +585,8 @@
         + ' data-mode="SPLIT" data-tab-key="' + esc(tabKey) + '">Học phần này</button>';
     } else if (isTodayDone || isDone) {
       var first = items[0];
-      actions = (first ? '<button type="button" class="jp-btn jp-btn--primary jp-parts__pop-main-btn" data-parts-relearn="' + esc(first.code)
+      var firstCode = (first && first.code) || p.firstItemCode || '';
+      actions = (firstCode ? '<button type="button" class="jp-btn jp-btn--primary jp-parts__pop-main-btn" data-parts-relearn="' + esc(firstCode)
         + '" data-parts-count="' + n + '">Học lại phần này</button>' : '')
         + (p.day ? '<a class="jp-btn jp-btn--sm" href="/learning/jlpt/day?d=' + esc(p.day) + '">Kết quả lần trước</a>' : '');
     } else {
@@ -363,10 +597,10 @@
       + ' data-parts-popover="part-' + esc(p.index) + '" role="dialog" aria-label="Chi tiết Phần ' + esc(p.index) + '">'
       + '<span class="jp-parts__popover-arrow" aria-hidden="true"></span>'
       + '<div class="jp-parts__pop-head">'
-      + '<img class="jp-parts__pop-kitsu" src="' + mascotSrc + '" width="56" height="56" alt="Kitsu"/>'
+      + '<img class="jp-parts__pop-kitsu" src="' + mascotSrc + '" width="48" height="48" alt="Kitsu"/>'
       + '<div class="jp-parts__pop-meta">'
       + '<div class="jp-parts__pop-badges">'
-      + '<span class="jp-parts__pop-pill jp-parts__pop-pill--' + tone + '">' + esc(statusLabel) + '</span>'
+      + '<span class="jp-parts__pop-pill jp-parts__pop-pill--' + tone + '">' + statusIcon + '<span>' + esc(statusLabel) + '</span></span>'
       + (dateStr ? '<span class="jp-parts__pop-date">' + esc(dateStr) + '</span>' : '')
       + '</div>'
       + '<h3 class="jp-parts__pop-title">Phần ' + esc(p.index) + ' · ' + n + ' ' + esc(unit) + '</h3>'
@@ -390,7 +624,8 @@
     var mascotSrc = unlocked
       ? '/images/mascots/kitsu/kitsu-celebrate-30.webp'
       : '/images/mascots/kitsu/kitsu-cheer-30.webp';
-    var statusLabel = unlocked ? 'Rương đã mở ✓' : 'Mốc kiểm tra tuần';
+    var statusLabel = unlocked ? 'Đã nhận cúp tuần' : 'Mốc kiểm tra tuần';
+    var statusIcon = unlocked ? svgTrophyCup('jp-parts__pop-pill-ic') : svgChestClosed();
     var partPills = [];
     for (var idx = m.fromIndex; idx <= m.toIndex; idx++) {
       partPills.push('<li class="jp-parts__word-pill"><span class="jp-parts__pill-rd">Chặng tuần ' + esc(m.weekNum) + '</span>'
@@ -402,10 +637,10 @@
       + ' data-parts-popover="milestone-' + esc(m.weekNum) + '" role="dialog" aria-label="Rương tuần ' + esc(m.weekNum) + '">'
       + '<span class="jp-parts__popover-arrow" aria-hidden="true"></span>'
       + '<div class="jp-parts__pop-head">'
-      + '<img class="jp-parts__pop-kitsu" src="' + mascotSrc + '" width="56" height="56" alt="Kitsu"/>'
+      + '<img class="jp-parts__pop-kitsu" src="' + mascotSrc + '" width="48" height="48" alt="Kitsu"/>'
       + '<div class="jp-parts__pop-meta">'
       + '<div class="jp-parts__pop-badges">'
-      + '<span class="jp-parts__pop-pill jp-parts__pop-pill--' + tone + '">' + esc(statusLabel) + '</span>'
+      + '<span class="jp-parts__pop-pill jp-parts__pop-pill--' + tone + '">' + statusIcon + '<span>' + esc(statusLabel) + '</span></span>'
       + (m.dateRange ? '<span class="jp-parts__pop-date">' + esc(m.dateRange) + '</span>' : '')
       + '</div>'
       + '<h3 class="jp-parts__pop-title">Kiểm tra tuần ' + esc(m.weekNum) + ' · Phần ' + esc(m.fromIndex) + '–' + esc(m.toIndex) + '</h3>'
@@ -423,9 +658,9 @@
       + '</div>';
   }
 
-  function partNodeHtml(p, unit, tabKey, pos, nextPos, hasNext, nextStatus, stepIdx, weekObj, isSelected, pillsExpanded, isFirstInWeek) {
+  function partNodeHtml(p, unit, tabKey, pos, nextPos, hasNext, nextStatus, stepIdx, weekObj, isSelected, pillsExpanded, isFirstInWeek, globalStepIdx) {
     var items = list(p.items);
-    var n = items.length;
+    var n = Number(p.totalCount) || items.length || 10;
     var status = String(p.status || 'NEXT');
     var isToday = status === 'TODAY';
     var isTodayDone = status === 'TODAY_DONE';
@@ -436,39 +671,56 @@
     var when = isToday ? 'Hôm nay' : (isTodayDone ? 'Đã xong hôm nay'
       : (isDone ? (p.day ? dayLabel(p.day) : 'Đã học') : 'Sắp tới'));
     var stepMod = isTodayDone ? 'today-done' : status.toLowerCase();
-    var icon = (isDone || isTodayDone) ? svgCheck() : (isToday ? svgStar() : svgLock());
+    var icon = (isDone || isTodayDone) ? svgMedal() : (isToday ? svgStar() : svgLock());
     var bubble = isToday
       ? '<span class="jp-parts__bubble">Bắt đầu</span>'
       : (isTodayDone ? '<span class="jp-parts__bubble jp-parts__bubble--done">Đã xong</span>' : '');
 
     var labelSide = pos === 'right' ? 'left' : 'right';
+    var signSide = (weekObj.weekNum % 2 === 1) ? 'left' : 'right';
+    var sceneSide = signSide === 'left' ? 'right' : 'left';
 
-    var mascotHtml = '';
-    if (isToday || isTodayDone) {
-      mascotHtml = kitsuBesideTodayHtml(isTodayDone, labelSide);
-    } else if (!isUpcomingWeek && stepIdx === 2) {
-      mascotHtml = kitsuSideHtml(weekObj.weekNum, pos);
+    /* Side margin ornaments per week:
+     * - Step 0 in week (isFirstInWeek): decorative Week Signpost ("Tuần X · dd/mm–dd/mm")
+     * - Step 1 in week: Weekly themed miniature scene (house / food / school / travel / shop / torii / stars)
+     * - Step 3 in week: Weekly side Kitsu (1 per week, pose varies by week)
+     * - Other steps: small tree / lantern / sakura / torii deco */
+    var marginExtras = '';
+    var kitsuStepIdx = weekObj.parts && weekObj.parts.length >= 4 ? 3 : Math.max(0, (weekObj.parts ? weekObj.parts.length : 1) - 1);
+    if (isFirstInWeek) {
+      marginExtras += weekSignpostHtml(weekObj, signSide);
+      if (weekObj.parts && weekObj.parts.length === 1) {
+        marginExtras += weekThemeSceneHtml(weekObj, tabKey, sceneSide);
+      }
+    }
+    if (stepIdx === 1) {
+      marginExtras += weekThemeSceneHtml(weekObj, tabKey, sceneSide);
+    }
+    if (stepIdx === kitsuStepIdx && (!isToday && !isTodayDone || kitsuStepIdx === 0)) {
+      var kitsuSide = (stepIdx === 1) ? signSide : sceneSide;
+      marginExtras += weekSideKitsuHtml(weekObj.weekNum, kitsuSide);
+    } else if (stepIdx === 2 || stepIdx === 4) {
+      var decoSide = (globalStepIdx % 2 === 0) ? 'left' : 'right';
+      marginExtras += '<span class="jp-parts__deco jp-parts__deco--' + decoSide + '" aria-hidden="true">'
+        + sideDecoSvg(globalStepIdx, tabKey) + '</span>';
     }
 
-    var decoSide = pos === 'left' ? 'right' : 'left';
-    var decoHtml = '<span class="jp-parts__deco jp-parts__deco--' + decoSide + '" aria-hidden="true">' + sideDecoSvg(weekObj.weekNum + stepIdx) + '</span>';
+    var mascotHtml = (isToday || isTodayDone) ? kitsuBesideTodayHtml(isTodayDone, labelSide) : '';
 
     var isLeadingToToday = (isDone || isTodayDone) && (nextStatus === 'TODAY' || nextStatus === 'TODAY_DONE' || isToday);
     var connector = hasNext ? curveSvg(pos, nextPos, isDone || isTodayDone, isLeadingToToday, isPastWeek) : '';
     var selectKey = 'part-' + p.index;
     var weekAnchorAttr = isFirstInWeek ? ' data-parts-week-anchor="' + weekObj.weekNum + '"' : '';
 
-    // Round 4 Item 1: Upcoming weeks are dimmed locked coins, not clickable, with hover tooltip
     if (isUpcomingWeek) {
       var tipText = 'Mở vào tuần ' + weekObj.dateRange;
       return '<li class="jp-parts__step jp-parts__step--next jp-parts__step--upcoming-week jp-parts__step--pos-' + pos + '"'
         + weekAnchorAttr + ' style="--step-i:' + stepIdx + '">'
-        + decoHtml
         + '<div class="jp-parts__node-row">'
+        + marginExtras
         + '<div class="jp-parts__head jp-parts__head--locked" aria-disabled="true" title="' + esc(tipText) + '">'
         + '<span class="jp-parts__node-wrap">'
         + '<span class="jp-parts__orb jp-parts__orb--next" aria-hidden="true">'
-        + '<span class="jp-parts__orb-shine"></span>'
         + svgLock()
         + '<span class="jp-parts__orb-num">' + esc(p.index) + '</span>'
         + '</span>'
@@ -493,15 +745,14 @@
       + weekAnchorAttr
       + (isToday || isTodayDone ? ' data-parts-today="true"' : '')
       + ' style="--step-i:' + stepIdx + '">'
-      + decoHtml
       + '<div class="jp-parts__node-row">'
+      + marginExtras
       + '<button type="button" class="jp-parts__head' + (isSelected ? ' is-selected' : '') + '"'
       + ' data-parts-node="' + esc(selectKey) + '" data-parts-select="' + esc(selectKey) + '"'
       + ' aria-expanded="' + (isSelected ? 'true' : 'false') + '">'
       + '<span class="jp-parts__node-wrap">'
       + bubble
       + '<span class="jp-parts__orb jp-parts__orb--' + stepMod + '" aria-hidden="true">'
-      + '<span class="jp-parts__orb-shine"></span>'
       + icon
       + '<span class="jp-parts__orb-num">' + esc(p.index) + '</span>'
       + '</span>'
@@ -522,11 +773,13 @@
     var unlocked = !!m.unlocked;
     var isPastWeek = weekObj.state === 'past';
     var isUpcomingWeek = weekObj.state === 'upcoming';
-    var stateCls = unlocked ? 'jp-parts__milestone--unlocked' : 'jp-parts__milestone--locked';
-    var chestSvg = unlocked ? svgChestOpen() : svgChestClosed();
+    var isOpenChest = unlocked || isPastWeek;
+    var chestState = isUpcomingWeek ? 'locked' : (isOpenChest ? 'open' : 'current');
+    var stateCls = isOpenChest ? 'jp-parts__milestone--unlocked' : 'jp-parts__milestone--locked';
+    var chestSvg = svgBigChest(chestState);
     var labelSide = pos === 'right' ? 'left' : 'right';
     var selectKey = 'milestone-' + m.weekNum;
-    var connector = hasNext ? curveSvg(pos, nextPos, unlocked, false, isPastWeek) : '';
+    var connector = hasNext ? curveSvg(pos, nextPos, isOpenChest, false, isPastWeek) : '';
 
     if (isUpcomingWeek) {
       var tipText = 'Mở vào tuần ' + weekObj.dateRange;
@@ -535,10 +788,8 @@
         + '<div class="jp-parts__node-row">'
         + '<div class="jp-parts__head jp-parts__milestone-head jp-parts__head--locked" aria-disabled="true" title="' + esc(tipText) + '">'
         + '<span class="jp-parts__node-wrap">'
-        + '<span class="jp-parts__orb jp-parts__orb--milestone" aria-hidden="true">'
-        + '<span class="jp-parts__orb-shine"></span>'
+        + '<span class="jp-parts__orb jp-parts__orb--milestone jp-parts__orb--chest-locked" aria-hidden="true">'
         + chestSvg
-        + '<span class="jp-parts__orb-lock">' + svgLock() + '</span>'
         + '</span>'
         + '</span>'
         + '<span class="jp-parts__label jp-parts__label--' + labelSide + '">'
@@ -555,7 +806,7 @@
     var popHtml = isSelected ? milestonePopoverHtml(m, pos) : '';
 
     return '<li class="jp-parts__step jp-parts__step--milestone ' + stateCls
-      + (isPastWeek ? ' jp-parts__step--past-week' : '')
+      + (isPastWeek ? ' jp-parts__step--past-week' : ' jp-parts__step--current-week')
       + ' jp-parts__step--pos-' + pos
       + (isSelected ? ' is-selected' : '') + '" style="--step-i:' + stepIdx + '">'
       + '<div class="jp-parts__node-row">'
@@ -563,13 +814,12 @@
       + ' data-parts-node="' + esc(selectKey) + '" data-parts-select="' + esc(selectKey) + '"'
       + ' aria-expanded="' + (isSelected ? 'true' : 'false') + '">'
       + '<span class="jp-parts__node-wrap">'
-      + '<span class="jp-parts__orb jp-parts__orb--milestone" aria-hidden="true">'
-      + '<span class="jp-parts__orb-shine"></span>'
+      + '<span class="jp-parts__orb jp-parts__orb--milestone ' + (isOpenChest ? 'jp-parts__orb--chest-open' : 'jp-parts__orb--chest-current') + '" aria-hidden="true">'
       + chestSvg
       + '</span>'
       + '</span>'
       + '<span class="jp-parts__label jp-parts__label--' + labelSide + '">'
-      + '<span class="jp-parts__no">Rương tuần ' + esc(m.weekNum) + '</span>'
+      + '<span class="jp-parts__no">' + (isOpenChest ? 'Rương tuần ' : 'Rương tuần ') + esc(m.weekNum) + '</span>'
       + '<span class="jp-parts__when">Phần ' + esc(m.fromIndex) + '–' + esc(m.toIndex) + '</span>'
       + '</span>'
       + '</button>'
@@ -583,15 +833,12 @@
     if (remainingWeeks <= 0) return '';
     return '<li class="jp-parts__step jp-parts__step--horizon" aria-disabled="true">'
       + '<div class="jp-parts__horizon" role="note">'
-      + '<span class="jp-parts__horizon-icon" aria-hidden="true">' + sideDecoSvg(3) + '</span>'
+      + '<span class="jp-parts__horizon-icon" aria-hidden="true">' + svgHorizonFlag() + '</span>'
       + '<span class="jp-parts__horizon-text">… còn ' + esc(remainingWeeks) + ' tuần nữa</span>'
       + '</div>'
       + '</li>';
   }
 
-  /**
-   * Kept for backwards compatibility (`window.JpathParts.weeklyHtml`).
-   */
   function weeklyHtml(week) {
     var days = list(week).filter(function (d) { return d && d.kind !== 'REST'; });
     if (!days.length) {
@@ -725,7 +972,6 @@
     }
 
     var focusedWeek = Math.min(currentWeekNum, Math.max(1, o.focusedWeek || currentWeekNum));
-    // Round 4 Item 2: By default, no popover is open on initial load so today's node is never covered
     var activeKey = o.selectedKey != null ? String(o.selectedKey) : '';
     var pillsExpanded = !!o.pillsExpanded;
 
@@ -734,8 +980,7 @@
     var pct = totalNum > 0 ? Math.min(100, Math.round((learnedNum / totalNum) * 100)) : 0;
     var est = estimateText(d, o);
 
-    // Round 4 Item 5: Unified sticky Tab Banner on top of the map
-    var bannerHtml = '<header class="jp-parts__banner jp-parts__bar" aria-label="Thông tin bản đồ ' + esc(t[2]) + '">'
+    var bannerHtml = '<header class="jp-parts__banner jp-parts__bar jp-parts__banner--' + esc(sceneKey) + '" data-tab-scene="' + esc(sceneKey) + '" aria-label="Thông tin bản đồ ' + esc(t[2]) + '">'
       + '<div class="jp-parts__banner-top">'
       + '<div class="jp-parts__banner-left">'
       + '<span class="jp-parts__banner-icon" aria-hidden="true">' + tabBannerIconSvg(sceneKey) + '</span>'
@@ -750,26 +995,25 @@
       + '<div class="jp-parts__banner-right">'
       + '<div class="jp-parts__week-nav" role="group" aria-label="Chọn tuần học">'
       + '<button type="button" class="jp-parts__week-btn" data-parts-week-nav="prev"'
-      + (focusedWeek <= 1 ? ' disabled' : '') + ' aria-label="Tuần trước">‹</button>'
+      + (focusedWeek <= 1 ? ' disabled' : '') + ' aria-label="Tuần trước">' + svgChevron('left') + '</button>'
       + '<span class="jp-parts__week-ind">Tuần <strong>' + focusedWeek + '/' + totalWeeks + '</strong></span>'
       + '<button type="button" class="jp-parts__week-btn" data-parts-week-nav="next"'
-      + (focusedWeek >= currentWeekNum ? ' disabled' : '') + ' aria-label="Tuần tiếp theo">›</button>'
+      + (focusedWeek >= currentWeekNum ? ' disabled' : '') + ' aria-label="Tuần tiếp theo">' + svgChevron('right') + '</button>'
       + '</div>'
       + '</div>'
       + '</div>'
       + '<div class="jp-parts__banner-sub">'
       + '<div class="jp-parts__legend" aria-label="Chú giải trạng thái">'
-      + '<span class="jp-parts__legend-pill jp-parts__legend-pill--done"><span class="jp-parts__legend-ic">✓</span>Đã học</span>'
-      + '<span class="jp-parts__legend-pill jp-parts__legend-pill--today"><span class="jp-parts__legend-ic">★</span>Hôm nay</span>'
-      + '<span class="jp-parts__legend-pill jp-parts__legend-pill--next"><span class="jp-parts__legend-ic">🔒</span>Sắp tới</span>'
-      + '<span class="jp-parts__legend-pill jp-parts__legend-pill--chest"><span class="jp-parts__legend-ic">🎁</span>Rương tuần</span>'
+      + '<span class="jp-parts__legend-pill jp-parts__legend-pill--done"><span class="jp-parts__legend-ic">' + svgMedal('jp-parts__legend-svg') + '</span>Đã học</span>'
+      + '<span class="jp-parts__legend-pill jp-parts__legend-pill--today"><span class="jp-parts__legend-ic">' + svgStar() + '</span>Hôm nay</span>'
+      + '<span class="jp-parts__legend-pill jp-parts__legend-pill--next"><span class="jp-parts__legend-ic">' + svgLock() + '</span>Sắp tới</span>'
+      + '<span class="jp-parts__legend-pill jp-parts__legend-pill--chest"><span class="jp-parts__legend-ic">' + svgTrophyCup('jp-parts__legend-svg') + '</span>Rương / Cúp tuần</span>'
       + '</div>'
       + '<button type="button" class="jp-btn jp-parts__all-btn" data-parts-all aria-expanded="false">'
       + svgListIcon() + '<span>Xem toàn bộ danh sách</span></button>'
       + '</div>'
       + '</header>';
 
-    // Round 4 Item 1: Continuous winding road through past weeks, current week, and up to 2 upcoming weeks
     var maxVisibleWeek = Math.min(totalWeeks, currentWeekNum + UPCOMING_WEEKS_SHOWN);
     var remainingWeeks = Math.max(0, totalWeeks - maxVisibleWeek);
     var flatSteps = [];
@@ -805,7 +1049,7 @@
       if (cur.kind === 'part') {
         var pKey = 'part-' + cur.part.index;
         var isSel = activeKey === pKey;
-        mapItemsHtml += partNodeHtml(cur.part, t[1], sceneKey, pos, nextPos, hasNext, nextStatus, cur.stepInWeek, cur.weekObj, isSel, isSel && pillsExpanded, cur.isFirstInWeek);
+        mapItemsHtml += partNodeHtml(cur.part, t[1], sceneKey, pos, nextPos, hasNext, nextStatus, cur.stepInWeek, cur.weekObj, isSel, isSel && pillsExpanded, cur.isFirstInWeek, s);
       } else {
         var mKey = cur.milestone.key;
         var mSel = activeKey === mKey;
@@ -821,7 +1065,52 @@
       + '<ol class="jp-parts__list jp-parts__map">' + mapItemsHtml + '</ol>'
       + '</div>';
 
-    return '<div class="jp-parts__container">' + bannerHtml + stageHtml + '</div>';
+    return '<div class="jp-parts__container" data-tab-scene="' + esc(sceneKey) + '">' + bannerHtml + stageHtml + '</div>';
+  }
+
+  /* Round 6 Bổ sung 1: Keep popover strictly inside viewport & below sticky banner so it is never covered */
+  function adjustPopoverInViewport(partsEl) {
+    if (!partsEl || !root || !root.document) return;
+    var pop = partsEl.querySelector('[data-parts-popover]');
+    if (!pop || typeof pop.getBoundingClientRect !== 'function') return;
+    var vw = Number(root.innerWidth) || 1280;
+    var vh = Number(root.innerHeight) || 760;
+    if (vw <= 640) return;
+
+    pop.style.setProperty('--pop-shift-y', '0px');
+    var arrow = pop.querySelector('.jp-parts__popover-arrow');
+    if (arrow) arrow.style.setProperty('--arrow-shift-y', '0px');
+
+    var banner = partsEl.querySelector('.jp-parts__banner');
+    var bannerBottom = 64;
+    if (banner && typeof banner.getBoundingClientRect === 'function') {
+      var bRect = banner.getBoundingClientRect();
+      if (bRect.bottom > 0 && bRect.top < vh * 0.45) {
+        bannerBottom = Math.max(bannerBottom, bRect.bottom);
+      }
+    }
+    var minTop = Math.min(vh * 0.42, bannerBottom + 10);
+    var maxBottom = vh - 14;
+    var rect = pop.getBoundingClientRect();
+    var shiftY = 0;
+
+    if (rect.top < minTop) {
+      shiftY = Math.round(minTop - rect.top);
+    } else if (rect.bottom > maxBottom) {
+      shiftY = -Math.round(rect.bottom - maxBottom);
+      if (rect.top + shiftY < minTop) {
+        shiftY = Math.round(minTop - rect.top);
+      }
+    }
+
+    if (shiftY !== 0) {
+      pop.style.setProperty('--pop-shift-y', shiftY + 'px');
+      if (arrow) {
+        var maxArrowShift = Math.max(0, Math.floor((rect.height || 220) / 2) - 22);
+        var arrowShift = Math.max(-maxArrowShift, Math.min(maxArrowShift, -shiftY));
+        arrow.style.setProperty('--arrow-shift-y', arrowShift + 'px');
+      }
+    }
   }
 
   function triggerWeeklyCheck(wk, client) {
@@ -875,6 +1164,14 @@
         activePartsEl.__renderCurrent();
       }
     });
+    if (typeof root.addEventListener === 'function') {
+      var onScrollOrResize = function () {
+        var activePartsEl = root.document && root.document.querySelector('[data-slot="parts"]');
+        if (activePartsEl && activePartsEl.__selectedKey) adjustPopoverInViewport(activePartsEl);
+      };
+      root.addEventListener('scroll', onScrollOrResize, { passive: true });
+      root.addEventListener('resize', onScrollOrResize, { passive: true });
+    }
   }
 
   function prefersReducedMotion() {
@@ -919,6 +1216,12 @@
       if (allBtn && partsEl.__allOpen) {
         allBtn.setAttribute('aria-expanded', 'true');
         allBtn.innerHTML = svgListIcon() + '<span>Ẩn danh sách đầy đủ</span>';
+      }
+      if (partsEl.__selectedKey) {
+        adjustPopoverInViewport(partsEl);
+        if (root && typeof root.requestAnimationFrame === 'function') {
+          root.requestAnimationFrame(function () { adjustPopoverInViewport(partsEl); });
+        }
       }
     }
     partsEl.__renderCurrent = renderCurrent;
@@ -1023,7 +1326,6 @@
         if (weeks[i].isCurrent) { curW = weeks[i].weekNum; break; }
       }
       partsEl.__focusedWeek = curW;
-      // Round 4 Item 2: Do not open popover automatically on load
       partsEl.__selectedKey = '';
       partsEl.__pillsExpanded = false;
       renderCurrent();
@@ -1042,5 +1344,11 @@
     });
   }
 
-  return { partsHtml: partsHtml, weeklyHtml: weeklyHtml, savedNoticeHtml: savedNoticeHtml, mount: mount };
+  return {
+    partsHtml: partsHtml,
+    weeklyHtml: weeklyHtml,
+    savedNoticeHtml: savedNoticeHtml,
+    adjustPopoverInViewport: adjustPopoverInViewport,
+    mount: mount
+  };
 });

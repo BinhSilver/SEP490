@@ -192,3 +192,133 @@
   .jp-confirm-pace__text { font-size: 1.7em; }
   .jp-confirm-submit .jp-confirm-btn { min-height: 56px; }
 }
+
+/* 06/11 Lượt 6 — Bổ sung 2: Xác nhận lộ trình JLPT vừa 1 màn hình, tiêu đề 26-28px, Kitsu đổi dáng theo bước, ô chọn tím nhạt */
+.jp-confirm {
+  max-width: 980px;
+  gap: 14px;
+  padding-top: 10px;
+  padding-bottom: 24px;
+}
+.jp-confirm__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.jp-confirm__head-text {
+  display: grid;
+  gap: 4px;
+}
+.jp-confirm__title {
+  font-size: clamp(24px, 2.2vw, 28px);
+  line-height: 1.25;
+}
+.jp-confirm__lead {
+  font-size: .94em;
+}
+.jp-confirm__mascot {
+  flex: 0 0 68px;
+  width: 68px;
+  height: 68px;
+  border-radius: 16px;
+  background: var(--jp-c-purple-100);
+  border: 1px solid color-mix(in srgb, var(--jp-c-purple-500) 24%, var(--jp-line));
+  display: grid;
+  place-items: center;
+}
+.jp-confirm__fox {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  display: none;
+  animation: jpSurveyKitsuBob 2.6s ease-in-out infinite;
+}
+.jp-confirm__fox--step1 { display: block; }
+.jp-confirm:has(.jp-wizard__step[data-jp-wizard-step="Nhịp học"]:not([hidden])) .jp-confirm__fox--step1,
+.jp-confirm:has(.jp-wizard__step[data-jp-wizard-step="Cách học"]:not([hidden])) .jp-confirm__fox--step1 {
+  display: none;
+}
+.jp-confirm:has(.jp-wizard__step[data-jp-wizard-step="Nhịp học"]:not([hidden])) .jp-confirm__fox--step2,
+.jp-confirm:has(.jp-wizard__step[data-jp-wizard-step="Cách học"]:not([hidden])) .jp-confirm__fox--step3 {
+  display: block;
+}
+
+.jp-wizard__head {
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.jp-wizard__count {
+  display: inline-flex;
+  align-self: start;
+  width: max-content;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+  font-size: .82em;
+  font-weight: 700;
+}
+.jp-wizard__step {
+  gap: 16px;
+}
+.jp-confirm .jp-confirm-card {
+  gap: 10px;
+  padding: 0 0 14px;
+}
+.jp-confirm-card__title {
+  font-size: 1.15em;
+}
+.jp-confirm-input {
+  min-height: 42px;
+  padding: 6px 12px;
+  border-width: 1px;
+  border-radius: 12px;
+}
+.jp-confirm-sliders {
+  gap: 12px;
+}
+.jp-confirm-slider__input {
+  min-height: 32px;
+  accent-color: var(--jp-c-purple-500);
+}
+.jp-confirm-pace {
+  padding: 12px 16px;
+  border-radius: 14px;
+  border-left: 4px solid var(--jp-c-purple-500);
+  background: var(--jp-c-purple-100);
+}
+.jp-confirm-pace__text {
+  font-size: clamp(1.15em, 1.8vw, 1.35em);
+}
+.jp-confirm-mode {
+  min-height: 92px;
+  padding: 14px 16px;
+  border: 1px solid var(--jp-line);
+  border-radius: 16px;
+  background: var(--jp-surface);
+  transition: border-color .18s ease, background-color .18s ease;
+}
+.jp-confirm-mode:has(.jp-confirm-mode__input:checked) {
+  border: 1.5px solid var(--jp-c-purple-500);
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+}
+.jp-confirm-btn--primary,
+.jp-wizard__foot .jp-btn--primary {
+  border-color: var(--jp-c-purple-500);
+  background: var(--jp-c-purple-500);
+  color: var(--jp-white);
+  border-radius: 999px;
+}
+.jp-confirm-submit .jp-confirm-btn {
+  min-height: 48px;
+  border-radius: 999px;
+}
+.jp-wizard__foot {
+  position: sticky;
+  bottom: 8px;
+  z-index: 20;
+  background: color-mix(in srgb, var(--jp-surface) 92%, transparent);
+  backdrop-filter: blur(6px);
+}

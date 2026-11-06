@@ -10,8 +10,15 @@
       th:attr="data-source=${source},data-attempt-id=${assessmentAttemptId}">
     <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Tạo lộ trình')}"></th:block>
     <header class="jp-confirm__header">
-        <h1 class="jp-confirm__title">Xác nhận lộ trình JLPT</h1>
-        <p class="jp-confirm__lead">Kiểm tra và chỉnh lại trước khi tạo. Chỉnh ở đây không tính vào số lần chỉnh.</p>
+        <div class="jp-confirm__head-text">
+            <h1 class="jp-confirm__title">Xác nhận lộ trình JLPT</h1>
+            <p class="jp-confirm__lead">Kiểm tra và chỉnh lại trước khi tạo. Chỉnh ở đây không tính vào số lần chỉnh.</p>
+        </div>
+        <div class="jp-confirm__mascot" aria-hidden="true">
+            <img class="jp-confirm__fox jp-confirm__fox--step1" src="/images/mascots/kitsu/kitsu-announcing.webp" alt="" width="60" height="60">
+            <img class="jp-confirm__fox jp-confirm__fox--step2" src="/images/mascots/kitsu/kitsu-thinking-30.webp" alt="" width="60" height="60">
+            <img class="jp-confirm__fox jp-confirm__fox--step3" src="/images/mascots/kitsu/kitsu-cheer-30.webp" alt="" width="60" height="60">
+        </div>
     </header>
 
     <p class="jp-confirm__alert" role="alert" data-role="error" hidden></p>

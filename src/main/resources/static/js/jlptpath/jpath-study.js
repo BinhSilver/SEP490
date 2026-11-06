@@ -59,6 +59,10 @@
   function has(v) { return v !== null && v !== undefined && v !== ''; }
   function list(v) { return Array.isArray(v) ? v : []; }
   function isCheck(card) { return !!card && !!CHECK_KINDS[card.kind]; }
+  function isFlippable(card) {
+    return !!card && !isCheck(card) && card.kind !== 'RETYPE' && card.itemType !== 'GRAMMAR'
+      && (card.kind === 'REVIEW' || card.kind === 'NEW');
+  }
 
   // ---- labels ---------------------------------------------------------------------------------------------
 
@@ -173,27 +177,37 @@
     return html ? '<div class="jp-study-flags">' + html + '</div>' : '';
   }
 
+  function extrasWrap(html) {
+    return html ? '<div class="jp-study-extras">' + html + '</div>' : '';
+  }
+
   function vocabBody(card, flipped) {
     var word = line('jp-study-word jp-ja', esc(card.expression));
     var reading = line('jp-study-reading jp-ja', esc(card.reading));
     var romaji = has(card.romaji) ? '<div class="jp-romaji">' + esc(card.romaji) + '</div>' : '';
     var meaning = line('jp-study-meaning', esc(card.meaning));
+    if (card.kind === 'RETYPE') return '<div class="jp-study-core">' + word + meaning + '</div>';
+    if (!flipped) {
+      var topicFront = card.kind === 'NEW' && has(card.topic)
+        ? '<div class="jp-study-label">Chủ đề · ' + esc(card.topic) + '</div>' : '';
+      return '<div class="jp-study-core">' + topicFront + word + '</div>';
+    }
     if (card.kind === 'NEW') {
       var html = '';
-      if (has(card.meaning)) html += '<div class="jp-study-label">Ý NGHĨA</div>' + meaning;
-      if (has(card.topic)) html += '<div class="jp-study-label">CHỦ ĐỀ · ' + esc(String(card.topic).toUpperCase()) + '</div>';
-      return html + word + reading + romaji + examplesHtml(card) + mnemonicHtml(card);
+      if (has(card.meaning)) html += '<div class="jp-study-label">Ý nghĩa</div>' + meaning;
+      if (has(card.topic)) html += '<div class="jp-study-label">Chủ đề · ' + esc(card.topic) + '</div>';
+      return '<div class="jp-study-core">' + html + word + reading + romaji + '</div>'
+        + extrasWrap(examplesHtml(card) + mnemonicHtml(card));
     }
-    if (card.kind === 'RETYPE') return word + meaning;
-    if (!flipped) return word;
-    return word + reading + romaji + meaning + examplesHtml(card) + mnemonicHtml(card)
-      + (card.hard ? wordListHtml(card.confusables, 'Dễ nhầm với', 'jp-study-confusables') : '');
+    var conf = card.hard ? wordListHtml(card.confusables, 'Dễ nhầm với', 'jp-study-confusables') : '';
+    return '<div class="jp-study-core">' + word + reading + romaji + meaning + '</div>'
+      + extrasWrap(examplesHtml(card) + mnemonicHtml(card) + conf);
   }
 
   function kanjiBody(card, flipped) {
     var k = card.kanji || {};
     var glyph = line('jp-study-glyph jp-kanji', esc(card.expression));
-    if (card.kind !== 'NEW' && !flipped) return glyph;
+    if (!flipped) return '<div class="jp-study-core">' + glyph + '</div>';
     var html = glyph;
     if (has(k.hanViet)) html += '<div class="jp-study-hanviet">' + esc(String(k.hanViet).toUpperCase()) + '</div>';
     html += line('jp-study-meaning', esc(card.meaning));
@@ -201,10 +215,10 @@
     if (k.strokeCount !== null && k.strokeCount !== undefined && !isNaN(Number(k.strokeCount))) {
       html += '<div class="jp-study-muted">' + esc(Number(k.strokeCount)) + ' nét</div>';
     }
-    html += wordListHtml(card.compounds, 'Từ ghép', 'jp-study-compounds');
-    html += examplesHtml(card) + mnemonicHtml(card);
-    if (card.hard) html += wordListHtml(card.confusables, 'Dễ nhầm với', 'jp-study-confusables');
-    return html;
+    var extras = wordListHtml(card.compounds, 'Từ ghép', 'jp-study-compounds')
+      + examplesHtml(card) + mnemonicHtml(card)
+      + (card.hard ? wordListHtml(card.confusables, 'Dễ nhầm với', 'jp-study-confusables') : '');
+    return '<div class="jp-study-core">' + html + '</div>' + extrasWrap(extras);
   }
 
   function grammarBody(card) {
@@ -214,15 +228,16 @@
     html += chipsHtml(g.formation);
     html += line('jp-study-usage', esc(g.usage));
     html += line('jp-study-muted', esc(g.nuance));
-    return html + examplesHtml(card) + mnemonicHtml(card);
+    return '<div class="jp-study-core">' + html + '</div>' + extrasWrap(examplesHtml(card) + mnemonicHtml(card));
   }
 
   function kanaBody(card, flipped) {
     var k = card.kana || {};
     var glyph = line('jp-study-glyph jp-kanji', esc(has(k.kana) ? k.kana : card.expression));
-    if (card.kind !== 'NEW' && !flipped) return glyph;
+    if (!flipped) return '<div class="jp-study-core">' + glyph + '</div>';
     var romaji = has(k.romaji) ? k.romaji : card.romaji;
-    return glyph + line('jp-study-reading', esc(romaji)) + mnemonicHtml(card);
+    return '<div class="jp-study-core">' + glyph + line('jp-study-reading', esc(romaji)) + '</div>'
+      + extrasWrap(mnemonicHtml(card));
   }
 
   function retypeHtml(state) {
@@ -243,14 +258,21 @@
       return '<div class="jp-study-card jp-study-card--check"><p class="jp-study-muted" role="status">Đang mở bài kiểm tra…</p></div>';
     }
     var type = card.itemType;
+    var flippable = isFlippable(card);
+    var isFlipped = !!flipped;
+    var everFlipped = !!(isFlipped || (state && state.flippedOnce));
+    var flipCount = state && typeof state.flipCount === 'number' ? state.flipCount : (isFlipped ? 1 : 0);
     var body;
-    if (type === 'KANJI') body = kanjiBody(card, flipped);
+    if (type === 'KANJI') body = kanjiBody(card, isFlipped);
     else if (type === 'GRAMMAR') body = grammarBody(card);
-    else if (type === 'KANA') body = kanaBody(card, flipped);
-    else body = vocabBody(card, flipped);
+    else if (type === 'KANA') body = kanaBody(card, isFlipped);
+    else body = vocabBody(card, isFlipped);
     if (card.kind === 'RETYPE') body += retypeHtml(state);
-    var newOrFlipped = card.kind === 'NEW' || !!flipped;
     var attrs = ' data-jp-code="' + esc(card.code) + '"';
+    if (flippable) {
+      attrs += ' data-jp-flippable="true" data-flip-state="' + (isFlipped ? 'back' : 'front') + '"';
+      if (flipCount > 0) attrs += ' data-flip-anim="' + (isFlipped ? 'to-back' : 'to-front') + '"';
+    }
     if (has(card.code) && has(type)) {
       attrs += ' data-jpath-report="' + attrJson({ targetType: type, targetCode: card.code, pageContext: PAGE_CONTEXT }) + '"';
       if (type === 'VOCAB' || type === 'KANJI') attrs += ' data-jpath-writing="' + attrJson({ itemType: type, code: card.code }) + '"';
@@ -259,16 +281,16 @@
       ? '<p class="jp-study-skip">Đã biết từ này? <button type="button" class="jp-link-btn" data-jp-skip>Bỏ qua (kiểm 1 câu)</button></p>'
       : '';
     var kindCls = esc(String(card.kind || '').toLowerCase());
-    var stateCls = card.kind === 'REVIEW' ? (flipped ? ' jp-study-card--flipped' : ' jp-study-card--front')
-      : (newOrFlipped ? ' jp-study-card--flipped' : '');
+    var stateCls = flippable ? (isFlipped ? ' jp-study-card--flipped' : ' jp-study-card--front') : '';
     var typeCls = has(type) ? ' jp-study-card--type-' + esc(String(type).toLowerCase()) : '';
-    var faceTag = card.kind === 'REVIEW'
-      ? (flipped
-        ? '<span class="jp-study-face-tag jp-study-face-tag--back" data-label="Mặt sau · Giải nghĩa &amp; ví dụ" aria-hidden="true"></span>'
-        : '<span class="jp-study-face-tag jp-study-face-tag--front" data-label="Mặt trước · Nhớ lại nghĩa &amp; cách đọc" aria-hidden="true"></span>')
-      : (card.kind === 'NEW' ? '<span class="jp-study-face-tag jp-study-face-tag--new" data-label="Mục mới" aria-hidden="true"></span>' : '');
-    var flipCue = card.kind === 'REVIEW' && !flipped
-      ? '<span class="jp-study-flip-cue" data-jp-flip data-label="Chạm hoặc bấm Space để lật thẻ" aria-hidden="true"><svg class="jp-study-flip-cue__icon" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0 1 10.2-4.2L16 7.5M16 4v3.5h-3.5M16 10a6 6 0 0 1-10.2 4.2L4 12.5M4 16v-3.5h3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+    var faceTag = flippable
+      ? (isFlipped
+        ? '<span class="jp-study-face-tag jp-study-face-tag--back" data-label="' + (card.kind === 'NEW' ? 'Mặt sau · Ý nghĩa, cách đọc &amp; ví dụ' : 'Mặt sau · Giải nghĩa &amp; ví dụ') + '" aria-hidden="true"></span>'
+        : '<span class="jp-study-face-tag jp-study-face-tag--front" data-label="' + (card.kind === 'NEW' ? 'Mặt trước · Chạm hoặc bấm Space để lật thẻ' : 'Mặt trước · Nhớ lại nghĩa &amp; cách đọc') + '" aria-hidden="true"></span>')
+      : '';
+    var cueLabel = isFlipped ? 'Xem mặt trước (Space)' : 'Lật thẻ (Space)';
+    var flipCue = flippable
+      ? '<span class="jp-study-flip-cue" data-jp-flip data-label="' + esc(cueLabel) + '" aria-hidden="true"><svg class="jp-study-flip-cue__icon" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0 1 10.2-4.2L16 7.5M16 4v3.5h-3.5M16 10a6 6 0 0 1-10.2 4.2L4 12.5M4 16v-3.5h3.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
       : '';
     var mImg = '/images/mascots/kitsu/kitsu-thinking-30.webp';
     var mSpeech = 'Thử nhớ lại xem nào!';
@@ -283,15 +305,19 @@
         mImg = '/images/mascots/kitsu/kitsu-thinking-30.webp'; mSpeech = 'Gõ lại cách đọc nào!'; mMood = 'think';
       }
     } else if (card.kind === 'NEW') {
-      mImg = '/images/mascots/kitsu/kitsu-encouraging.webp'; mSpeech = 'Cùng ghi nhớ mục mới nhé!'; mMood = 'encourage';
-    } else if (flipped) {
+      if (isFlipped) {
+        mImg = '/images/mascots/kitsu/kitsu-cheer-30.webp'; mSpeech = 'Cùng ghi nhớ mục mới nhé!'; mMood = 'ok';
+      } else {
+        mImg = '/images/mascots/kitsu/kitsu-encouraging.webp'; mSpeech = 'Chạm thẻ để xem nghĩa nhé!'; mMood = 'encourage';
+      }
+    } else if (isFlipped) {
       mImg = '/images/mascots/kitsu/kitsu-cheer-30.webp'; mSpeech = 'Đối chiếu đáp án nhé!'; mMood = 'ok';
     }
     var mascot = '<div class="jp-study-mascot jp-study-mascot--' + mMood + '" aria-hidden="true">'
       + '<img class="jp-study-mascot__img" src="' + mImg + '" alt="" width="56" height="56" loading="eager">'
       + '<span class="jp-study-mascot__bubble" data-speech="' + esc(mSpeech) + '"></span></div>';
     return '<article class="jp-study-card jp-study-card--' + kindCls + stateCls + typeCls + '"' + attrs + '>'
-      + '<div class="jp-study-card__top">' + mascot + headChips(card, newOrFlipped) + toolsHtml(card, display) + '</div>'
+      + '<div class="jp-study-card__top">' + mascot + headChips(card, everFlipped) + toolsHtml(card, display) + '</div>'
       + '<div class="jp-study-face">' + faceTag + body + flipCue + '</div>'
       + '</article>' + skip;
   }
@@ -314,21 +340,32 @@
       + '<span class="jp-rate__label">Tiếp</span>' + hint('phím Enter') + '</button>');
   }
 
+  function flipButtonHtml(flipped) {
+    var label = flipped ? 'Xem mặt trước (Space)' : 'Lật thẻ (Space)';
+    var ico = '<svg class="jp-i jp-i--morph-flip" viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true">'
+      + '<path d="M4 10a6 6 0 0 1 10.2-4.2L16 7.5M16 4v3.5h-3.5M16 10a6 6 0 0 1-10.2 4.2L4 12.5M4 16v-3.5h3.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    return '<button type="button" class="jp-rate jp-rate--flip" data-jp-flip>'
+      + ico + '<span class="jp-rate__label">' + esc(label) + '</span></button>';
+  }
+
   function ratingButtonsHtml(card, flipped, state) {
     if (!card || isCheck(card)) return '';
     if (card.kind === 'RETYPE') return state && state.retype && state.retype.done ? nextButton() : '';
     if (card.itemType === 'GRAMMAR') return nextButton();
-    if (card.kind === 'NEW') {
-      return bar('jp-rate-bar--two', RATINGS.NEW.map(function (r, i) { return rateButton(r, i, null); }).join(''));
+    var everFlipped = !!(flipped || (state && state.flippedOnce));
+    if (!everFlipped) {
+      return bar('jp-rate-bar--flip', flipButtonHtml(false));
     }
-    if (!flipped) {
-      return bar('jp-rate-bar--flip', '<button type="button" class="jp-rate jp-rate--flip" data-jp-flip>'
-        + '<span class="jp-rate__label">Lật thẻ (Space)</span></button>');
+    var flipBar = bar('jp-rate-bar--flip jp-rate-bar--flip-inline', flipButtonHtml(!!flipped));
+    if (card.kind === 'NEW') {
+      return '<div class="jp-rate-stack">' + flipBar
+        + bar('jp-rate-bar--two', RATINGS.NEW.map(function (r, i) { return rateButton(r, i, null); }).join('')) + '</div>';
     }
     var days = card.intervalDays || {};
-    return bar('jp-rate-bar--four', RATINGS.REVIEW.map(function (r, i) {
-      return rateButton(r, i, intervalLabel(r, days[r]));
-    }).join(''));
+    return '<div class="jp-rate-stack">' + flipBar
+      + bar('jp-rate-bar--four', RATINGS.REVIEW.map(function (r, i) {
+        return rateButton(r, i, intervalLabel(r, days[r]));
+      }).join('')) + '</div>';
   }
 
   // ---- step bar -------------------------------------------------------------------------------------------
@@ -379,11 +416,12 @@
     }
     if (card.itemType === 'GRAMMAR' || card.kind === 'RETYPE') return null;
     if (key === ' ' || key === 'Spacebar') {
-      return card.kind === 'REVIEW' && !c.flipped ? { type: 'FLIP' } : null;
+      return isFlippable(card) ? { type: 'FLIP' } : null;
     }
     var n = /^[1-4]$/.test(String(key)) ? Number(key) - 1 : -1;
     if (n < 0) return null;
-    var choices = card.kind === 'NEW' ? RATINGS.NEW : (c.flipped ? RATINGS.REVIEW : []);
+    var everFlipped = !!(c.flipped || c.flippedOnce);
+    var choices = !everFlipped ? [] : (card.kind === 'NEW' ? RATINGS.NEW : RATINGS.REVIEW);
     return n < choices.length ? { type: 'RATE', rating: choices[n] } : null;
   }
 
@@ -445,8 +483,8 @@
     var position = Number(s.position) || 0;
     var total = Number(s.total);
     return { session: s, sessionId: s.sessionId, tab: s.tab, status: s.status, cards: cards, position: position,
-      total: isNaN(total) ? position + cards.length : total, flipped: false, retype: null, repeats: repeats,
-      lastType: null, deferred: null };
+      total: isNaN(total) ? position + cards.length : total, flipped: false, flippedOnce: false, flipCount: 0,
+      retype: null, repeats: repeats, lastType: null, deferred: null };
   }
 
   function withFlow(flow, changes) { return Object.assign({}, flow, changes); }
@@ -485,8 +523,8 @@
 
   function advance(flow) {
     var c = flow.cards[0];
-    var next = withFlow(flow, { cards: flow.cards.slice(1), position: flow.position + 1, flipped: false, retype: null,
-      lastType: c && c.itemType ? c.itemType : flow.lastType });
+    var next = withFlow(flow, { cards: flow.cards.slice(1), position: flow.position + 1, flipped: false,
+      flippedOnce: false, flipCount: 0, retype: null, lastType: c && c.itemType ? c.itemType : flow.lastType });
     var effect = stepEffect(next);
     return effect ? { flow: next, effect: effect } : { flow: next };
   }
@@ -506,7 +544,9 @@
     var c = flow.cards[0];
     switch (a.type) {
       case 'FLIP':
-        return c && c.kind === 'REVIEW' && !flow.flipped ? { flow: withFlow(flow, { flipped: true }) } : { flow: flow };
+        return isFlippable(c)
+          ? { flow: withFlow(flow, { flipped: !flow.flipped, flippedOnce: true, flipCount: (flow.flipCount || 0) + 1 }) }
+          : { flow: flow };
       case 'RATE': {
         if (!c || a.code !== c.code || isCheck(c) || c.itemType === 'GRAMMAR' || c.kind === 'RETYPE') return { flow: flow };
         var allowed = c.kind === 'NEW' ? RATINGS.NEW : RATINGS.REVIEW;
@@ -554,6 +594,8 @@
         var cur = nf.cards[0];
         if (c && cur && nf.position === flow.position && cur.code === c.code && cur.kind === c.kind) {
           nf.flipped = flow.flipped;
+          nf.flippedOnce = flow.flippedOnce;
+          nf.flipCount = flow.flipCount;
         }
         nf.lastType = flow.lastType;
         if (nf.status === 'COMPLETED' || !cur) return { flow: nf, effect: stepEffect(nf) || { navigate: DONE_URL } };
@@ -850,14 +892,14 @@
     } else if (unavailable(c)) {
       body = '<article class="jp-study-card"><p class="jp-study-muted">Mục này đang được cập nhật nội dung.</p></article>';
     } else {
-      body = cardHtml(c, page.display, f.flipped, { retype: f.retype });
+      body = cardHtml(c, page.display, f.flipped, { retype: f.retype, flippedOnce: f.flippedOnce, flipCount: f.flipCount });
     }
     var hint = c.kind === 'NEW' && swipeRating(c, 'RIGHT') && shouldShowSwipeHint(page.display, coarsePointer())
       ? swipeHintHtml() : '';
     el.innerHTML = banner + stepsHtml(s.steps, s.minutesLeft, s.tab)
       + '<div class="jp-study-main">' + body + '<div class="jp-study-inline-check"'
       + ' data-jp-inline-check hidden></div></div>' + hint
-      + ratingButtonsHtml(c, f.flipped, { retype: f.retype })
+      + ratingButtonsHtml(c, f.flipped, { retype: f.retype, flippedOnce: f.flippedOnce, flipCount: f.flipCount })
       + '<p class="jp-study-status" role="status" aria-live="polite" data-jp-status>' + esc(page.notice) + '</p>';
     if (page.blocked) {
       Array.prototype.forEach.call(el.querySelectorAll('.jp-rate-bar button, .jp-retype button'), function (b) {
@@ -938,6 +980,13 @@
       page.controls.set(page.display);
       page.saver.save({ swipeHintDone: true });
       draw(page);
+      return;
+    }
+    var cardEl = t.closest('.jp-study-card[data-jp-flippable="true"]');
+    if (cardEl && !t.closest('button, a, input, textarea, select, details, summary, [data-jp-control], [data-jp-retype], ruby')) {
+      var sel = '';
+      try { sel = String(page.doc && page.doc.getSelection ? page.doc.getSelection() : ''); } catch (e) { sel = ''; }
+      if (!sel || !sel.trim()) flip(page);
     }
   }
 
@@ -974,8 +1023,9 @@
     if (ev.repeat) return;
     if (root.JpathDialog && root.JpathDialog.isOpen && root.JpathDialog.isOpen()) return;
     var f = page.flow;
-    var act = keyAction(ev.key, { card: current(page), flipped: !!(f && f.flipped), inputFocused: isTyping(page.doc),
-      modifier: !!(ev.ctrlKey || ev.metaKey || ev.altKey), retypeDone: !!(f && f.retype && f.retype.done) });
+    var act = keyAction(ev.key, { card: current(page), flipped: !!(f && f.flipped), flippedOnce: !!(f && f.flippedOnce),
+      inputFocused: isTyping(page.doc), modifier: !!(ev.ctrlKey || ev.metaKey || ev.altKey),
+      retypeDone: !!(f && f.retype && f.retype.done) });
     if (!act) return;
     ev.preventDefault();
     if (act.type === 'AUDIO') playCurrent(page);

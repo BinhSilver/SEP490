@@ -152,116 +152,103 @@
 .jp-side-tiles--summary { max-width: none; }
 @media (max-width: 640px) { .jp-side-summary { font-size: 1.2em; } }
 
-/* 06/11 day detail page (jpath-day.js) — Lượt 4: Phối màu tông tím chủ đạo + Chế độ tối chuyển dần .6s ease */
+/* 06/11 day detail page (jpath-day.js) — Lượt 5: Phối màu hài hòa với tím (--jp-c-*) + Tối giản */
 :root,
 .jp-page {
-  --jp-dayd-banner-bg: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 52%, #fae8ff 100%);
-  --jp-dayd-banner-border: #d8b4fe;
-  --jp-dayd-sky-1: #ede9fe;
-  --jp-dayd-sky-2: #f5f3ff;
-  --jp-dayd-sky-3: #fae8ff;
-  --jp-dayd-sun: #e9d5ff;
-  --jp-dayd-cloud: #ffffff;
-  --jp-dayd-hill-back-1: #c4b5fd;
-  --jp-dayd-hill-back-2: #ddd6fe;
-  --jp-dayd-hill-front-1: #a78bfa;
-  --jp-dayd-hill-front-2: #c4b5fd;
-  --jp-dayd-surface: #ffffff;
-  --jp-dayd-ink: #1e1b2e;
-  --jp-dayd-muted: #645b7c;
-  --jp-dayd-line: #e4ddf3;
-  --jp-dayd-done-bg: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%);
-  --jp-dayd-done-border: #ede9fe;
-  --jp-dayd-done-rim: #4c1d95;
-  --jp-dayd-cur-bg: linear-gradient(180deg, #d8b4fe 0%, #9333ea 100%);
-  --jp-dayd-cur-border: #faf5ff;
-  --jp-dayd-cur-rim: #581c87;
-  --jp-dayd-cur-halo: rgb(168 85 247 / 30%);
-  --jp-dayd-next-bg: linear-gradient(180deg, #f5f3ff 0%, #ddd6fe 100%);
-  --jp-dayd-next-border: #e9d5ff;
-  --jp-dayd-next-rim: #a78bfa;
-  --jp-dayd-next-ink: #645b7c;
-  --jp-dayd-pill-done-bg: #ede9fe;
-  --jp-dayd-pill-done-ink: #5b21b6;
-  --jp-dayd-pill-done-border: #c4b5fd;
-  --jp-dayd-pill-cur-bg: #fae8ff;
-  --jp-dayd-pill-cur-ink: #7e22ce;
-  --jp-dayd-pill-cur-border: #e9d5ff;
+  --jp-c-purple-900: #4c1d95;
+  --jp-c-purple-500: #6d28d9;
+  --jp-c-purple-100: #f3e8ff;
+  --jp-c-peach-900: #78350f;
+  --jp-c-peach-500: #d97706;
+  --jp-c-peach-100: #fffbeb;
+  --jp-c-coral-900: #7f1d1d;
+  --jp-c-coral-500: #dc2626;
+  --jp-c-coral-100: #fef2f2;
+  --jp-c-slate-900: #0f172a;
+  --jp-c-slate-500: #64748b;
+  --jp-c-slate-100: #f8fafc;
+  --jp-white: #ffffff;
+
+  --jp-dayd-banner-bg: var(--jp-white);
+  --jp-dayd-banner-border: color-mix(in srgb, var(--jp-c-purple-500) 28%, var(--jp-c-purple-100));
+  --jp-dayd-sky-1: var(--jp-white);
+  --jp-dayd-sky-2: var(--jp-c-purple-100);
+  --jp-dayd-sky-3: var(--jp-c-purple-100);
+  --jp-dayd-sun: transparent;
+  --jp-dayd-cloud: transparent;
+  --jp-dayd-hill-back-1: color-mix(in srgb, var(--jp-c-purple-500) 10%, transparent);
+  --jp-dayd-hill-back-2: color-mix(in srgb, var(--jp-c-purple-500) 14%, transparent);
+  --jp-dayd-hill-front-1: color-mix(in srgb, var(--jp-c-purple-500) 16%, transparent);
+  --jp-dayd-hill-front-2: color-mix(in srgb, var(--jp-c-purple-500) 10%, transparent);
+  --jp-dayd-surface: var(--jp-white);
+  --jp-dayd-ink: var(--jp-c-slate-900);
+  --jp-dayd-muted: var(--jp-c-slate-500);
+  --jp-dayd-line: color-mix(in srgb, var(--jp-c-slate-500) 22%, var(--jp-c-slate-100));
+  --jp-dayd-done-bg: var(--jp-c-purple-500);
+  --jp-dayd-done-border: var(--jp-c-purple-100);
+  --jp-dayd-cur-bg: var(--jp-c-purple-500);
+  --jp-dayd-cur-border: var(--jp-c-purple-100);
+  --jp-dayd-cur-halo: color-mix(in srgb, var(--jp-c-purple-500) 22%, transparent);
+  --jp-dayd-next-bg: var(--jp-c-slate-100);
+  --jp-dayd-next-border: var(--jp-dayd-line);
+  --jp-dayd-next-ink: var(--jp-c-slate-500);
+  --jp-dayd-pill-done-bg: var(--jp-c-peach-100);
+  --jp-dayd-pill-done-ink: var(--jp-c-peach-900);
+  --jp-dayd-pill-done-border: color-mix(in srgb, var(--jp-c-peach-500) 35%, var(--jp-c-peach-100));
+  --jp-dayd-pill-cur-bg: var(--jp-c-purple-100);
+  --jp-dayd-pill-cur-ink: var(--jp-c-purple-900);
+  --jp-dayd-pill-cur-border: color-mix(in srgb, var(--jp-c-purple-500) 35%, var(--jp-c-purple-100));
 }
 
 html[data-theme="dark"],
 html.dark,
 html[data-theme="dark"] .jp-page,
 html.dark .jp-page {
-  --jp-dayd-banner-bg: linear-gradient(135deg, #1b1530 0%, #241d3a 52%, #2e2249 100%);
-  --jp-dayd-banner-border: #5b468a;
-  --jp-dayd-sky-1: #1b1530;
-  --jp-dayd-sky-2: #231b3d;
-  --jp-dayd-sky-3: #2d2149;
-  --jp-dayd-sun: #7c3aed;
-  --jp-dayd-cloud: #3b305c;
-  --jp-dayd-hill-back-1: #4c3d73;
-  --jp-dayd-hill-back-2: #352b54;
-  --jp-dayd-hill-front-1: #6d28d9;
-  --jp-dayd-hill-front-2: #4c1d95;
-  --jp-dayd-surface: #241d3a;
-  --jp-dayd-ink: #f3f0ff;
-  --jp-dayd-muted: #b8b0d0;
-  --jp-dayd-line: #3f3460;
-  --jp-dayd-done-bg: linear-gradient(180deg, #9333ea 0%, #7c3aed 100%);
-  --jp-dayd-done-border: #c4b5fd;
-  --jp-dayd-done-rim: #3b0764;
-  --jp-dayd-cur-bg: linear-gradient(180deg, #e879f9 0%, #9333ea 100%);
-  --jp-dayd-cur-border: #fae8ff;
-  --jp-dayd-cur-rim: #4c1d95;
-  --jp-dayd-cur-halo: rgb(192 132 252 / 34%);
-  --jp-dayd-next-bg: linear-gradient(180deg, #352c50 0%, #261f3d 100%);
-  --jp-dayd-next-border: #473b68;
-  --jp-dayd-next-rim: #171226;
-  --jp-dayd-next-ink: #9ca3af;
-  --jp-dayd-pill-done-bg: #362859;
-  --jp-dayd-pill-done-ink: #e9d5ff;
-  --jp-dayd-pill-done-border: #6d28d9;
-  --jp-dayd-pill-cur-bg: #44265e;
-  --jp-dayd-pill-cur-ink: #f5d0fe;
-  --jp-dayd-pill-cur-border: #9333ea;
+  --jp-c-purple-900: #e9d5ff;
+  --jp-c-purple-500: #a78bfa;
+  --jp-c-purple-100: #2e1d59;
+  --jp-c-peach-900: #fef3c7;
+  --jp-c-peach-500: #fbbf24;
+  --jp-c-peach-100: #3d2c19;
+  --jp-c-coral-900: #fee2e2;
+  --jp-c-coral-500: #f87171;
+  --jp-c-coral-100: #3f1d28;
+  --jp-c-slate-900: #f1f5f9;
+  --jp-c-slate-500: #94a3b8;
+  --jp-c-slate-100: #1e293b;
+  --jp-white: #181528;
+
+  --jp-dayd-banner-bg: var(--jp-c-slate-100);
+  --jp-dayd-surface: var(--jp-c-slate-100);
+  --jp-dayd-ink: var(--jp-c-slate-900);
+  --jp-dayd-muted: var(--jp-c-slate-500);
+  --jp-dayd-line: color-mix(in srgb, var(--jp-c-slate-500) 28%, var(--jp-c-slate-100));
+  --jp-dayd-next-bg: var(--jp-white);
 }
 
 @media (prefers-color-scheme: dark) {
   html:not([data-theme="light"]):not(.light),
   html:not([data-theme="light"]):not(.light) .jp-page {
-    --jp-dayd-banner-bg: linear-gradient(135deg, #1b1530 0%, #241d3a 52%, #2e2249 100%);
-    --jp-dayd-banner-border: #5b468a;
-    --jp-dayd-sky-1: #1b1530;
-    --jp-dayd-sky-2: #231b3d;
-    --jp-dayd-sky-3: #2d2149;
-    --jp-dayd-sun: #7c3aed;
-    --jp-dayd-cloud: #3b305c;
-    --jp-dayd-hill-back-1: #4c3d73;
-    --jp-dayd-hill-back-2: #352b54;
-    --jp-dayd-hill-front-1: #6d28d9;
-    --jp-dayd-hill-front-2: #4c1d95;
-    --jp-dayd-surface: #241d3a;
-    --jp-dayd-ink: #f3f0ff;
-    --jp-dayd-muted: #b8b0d0;
-    --jp-dayd-line: #3f3460;
-    --jp-dayd-done-bg: linear-gradient(180deg, #9333ea 0%, #7c3aed 100%);
-    --jp-dayd-done-border: #c4b5fd;
-    --jp-dayd-done-rim: #3b0764;
-    --jp-dayd-cur-bg: linear-gradient(180deg, #e879f9 0%, #9333ea 100%);
-    --jp-dayd-cur-border: #fae8ff;
-    --jp-dayd-cur-rim: #4c1d95;
-    --jp-dayd-cur-halo: rgb(192 132 252 / 34%);
-    --jp-dayd-next-bg: linear-gradient(180deg, #352c50 0%, #261f3d 100%);
-    --jp-dayd-next-border: #473b68;
-    --jp-dayd-next-rim: #171226;
-    --jp-dayd-next-ink: #9ca3af;
-    --jp-dayd-pill-done-bg: #362859;
-    --jp-dayd-pill-done-ink: #e9d5ff;
-    --jp-dayd-pill-done-border: #6d28d9;
-    --jp-dayd-pill-cur-bg: #44265e;
-    --jp-dayd-pill-cur-ink: #f5d0fe;
-    --jp-dayd-pill-cur-border: #9333ea;
+    --jp-c-purple-900: #e9d5ff;
+    --jp-c-purple-500: #a78bfa;
+    --jp-c-purple-100: #2e1d59;
+    --jp-c-peach-900: #fef3c7;
+    --jp-c-peach-500: #fbbf24;
+    --jp-c-peach-100: #3d2c19;
+    --jp-c-coral-900: #fee2e2;
+    --jp-c-coral-500: #f87171;
+    --jp-c-coral-100: #3f1d28;
+    --jp-c-slate-900: #f1f5f9;
+    --jp-c-slate-500: #94a3b8;
+    --jp-c-slate-100: #1e293b;
+    --jp-white: #181528;
+
+    --jp-dayd-banner-bg: var(--jp-c-slate-100);
+    --jp-dayd-surface: var(--jp-c-slate-100);
+    --jp-dayd-ink: var(--jp-c-slate-900);
+    --jp-dayd-muted: var(--jp-c-slate-500);
+    --jp-dayd-line: color-mix(in srgb, var(--jp-c-slate-500) 28%, var(--jp-c-slate-100));
+    --jp-dayd-next-bg: var(--jp-white);
   }
 }
 
@@ -283,7 +270,6 @@ html.dark .jp-page {
     transform .15s ease;
 }
 
-/* Override inline SVG scenery colors via CSS variables */
 #jpDaySky stop:nth-child(1) { stop-color: var(--jp-dayd-sky-1); }
 #jpDaySky stop:nth-child(2) { stop-color: var(--jp-dayd-sky-2); }
 #jpDaySky stop:nth-child(3) { stop-color: var(--jp-dayd-sky-3); }
@@ -295,10 +281,10 @@ html.dark .jp-page {
 .jp-dayd__scenery > g:first-of-type { fill: var(--jp-dayd-cloud); }
 
 .jp-dayd__banner {
-  position: relative; overflow: hidden; margin: 0 0 18px; border-radius: 18px;
-  border: 1.5px solid var(--jp-dayd-banner-border);
+  position: relative; overflow: hidden; margin: 0 0 18px; border-radius: 16px;
+  border: 1px solid var(--jp-dayd-banner-border);
   background: var(--jp-dayd-banner-bg);
-  box-shadow: 0 6px 18px rgb(88 56 142 / 8%);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
 }
 .jp-dayd__scenery {
   position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; display: block;
@@ -307,95 +293,68 @@ html.dark .jp-page {
 .jp-dayd__week-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); align-items: start; }
 .jp-dayd__step {
   position: relative; display: flex; flex-direction: column; align-items: center; text-align: center;
-  animation: jpDayPopIn .36s cubic-bezier(.22, 1, .36, 1) backwards;
-  animation-delay: calc(var(--jp-step-idx, 0) * 45ms);
 }
 .jp-dayd__step::before {
-  content: ""; position: absolute; top: 28px; left: -50%; right: 50%; height: 4px; border-radius: 999px;
-  background: rgb(167 139 250 / 38%); z-index: 0;
+  content: ""; position: absolute; top: 26px; left: -50%; right: 50%; height: 3px; border-radius: 999px;
+  background: var(--jp-dayd-line); z-index: 0;
 }
 .jp-dayd__step:first-child::before { display: none; }
-.jp-dayd__step.is-past::before { background: linear-gradient(90deg, #8b5cf6, #6d28d9); }
-.jp-dayd__step.is-current::before { background: linear-gradient(90deg, #6d28d9, #a855f7); }
+.jp-dayd__step.is-past::before,
+.jp-dayd__step.is-current::before { background: var(--jp-c-purple-500); }
 .jp-dayd__node {
   position: relative; z-index: 1; display: inline-flex; flex-direction: column; align-items: center; gap: 6px;
   color: var(--jp-dayd-ink); text-decoration: none; font: inherit;
 }
 .jp-dayd__circle {
   position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  width: 56px; height: 56px; border-radius: 50%;
-  border: 2px solid var(--jp-dayd-next-border);
+  width: 52px; height: 52px; border-radius: 50%;
+  border: 1.5px solid var(--jp-dayd-next-border);
   background: var(--jp-dayd-next-bg);
   color: var(--jp-dayd-next-ink);
-  box-shadow: 0 4px 0 var(--jp-dayd-next-rim), 0 6px 12px rgb(15 23 42 / 12%);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
 }
-/* Past / Completed days: deep purple 3D coin */
 .jp-dayd__node.is-past .jp-dayd__circle,
 .jp-dayd__node.is-done:not(.is-current) .jp-dayd__circle {
   border-color: var(--jp-dayd-done-border);
   background: var(--jp-dayd-done-bg);
-  color: #ffffff;
-  box-shadow: 0 4px 0 var(--jp-dayd-done-rim), 0 6px 12px rgb(91 33 182 / 24%);
+  color: var(--jp-white);
 }
-/* Today when viewing another day: soft violet ring on coin */
 .jp-dayd__node.is-today:not(.is-current) .jp-dayd__circle {
   border-color: var(--jp-dayd-cur-border);
-  box-shadow: 0 4px 0 var(--jp-dayd-done-rim), 0 0 0 3px var(--jp-dayd-cur-halo);
+  box-shadow: 0 0 0 3px var(--jp-dayd-cur-halo);
 }
-/* Currently viewed day: glowing violet-orchid 3D coin with gentle bounce */
 .jp-dayd__node.is-current .jp-dayd__circle {
-  width: 62px; height: 62px; margin-top: -3px;
+  width: 58px; height: 58px; margin-top: -3px;
   border-color: var(--jp-dayd-cur-border);
   background: var(--jp-dayd-cur-bg);
-  color: #ffffff;
-  text-shadow: 0 1px 1px rgb(76 29 149 / 45%);
-  box-shadow: 0 5px 0 var(--jp-dayd-cur-rim), 0 0 0 6px var(--jp-dayd-cur-halo), 0 8px 18px rgb(126 34 206 / 32%);
-  animation: jpDayCoinBounce 2.2s ease-in-out infinite;
+  color: var(--jp-white);
+  box-shadow: 0 0 0 5px var(--jp-dayd-cur-halo), 0 1px 2px rgb(0 0 0 / 8%);
 }
 a.jp-dayd__node:hover .jp-dayd__circle {
   transform: translateY(-2px);
-  filter: brightness(1.05);
-}
-a.jp-dayd__node:active .jp-dayd__circle,
-a.jp-dayd__node.is-current:active .jp-dayd__circle {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 var(--jp-dayd-done-rim), 0 2px 4px rgb(15 23 42 / 15%);
-  animation: none;
-}
-a.jp-dayd__node.is-current:active .jp-dayd__circle {
-  box-shadow: 0 1px 0 var(--jp-dayd-cur-rim), 0 0 0 4px var(--jp-dayd-cur-halo);
 }
 a.jp-dayd__node:focus-visible { outline: none; }
-a.jp-dayd__node:focus-visible .jp-dayd__circle { outline: 3px solid var(--jp-primary); outline-offset: 4px; }
-/* Future days: lavender-grey locked coin */
-.jp-dayd__node.is-future { opacity: .65; cursor: not-allowed; }
-.jp-dayd__node.is-future .jp-dayd__circle {
-  border-color: var(--jp-dayd-next-border);
-  background: var(--jp-dayd-next-bg);
-  color: var(--jp-dayd-next-ink);
-  box-shadow: 0 3px 0 var(--jp-dayd-next-rim);
-}
-.jp-dayd__wd { font-size: .8rem; font-weight: 800; line-height: 1.1; letter-spacing: .02em; }
-.jp-dayd__dm { font-size: .7rem; font-weight: 600; opacity: .94; line-height: 1.1; }
+a.jp-dayd__node:focus-visible .jp-dayd__circle { outline: 3px solid var(--jp-c-purple-500); outline-offset: 4px; }
+.jp-dayd__node.is-future { opacity: .6; cursor: not-allowed; }
+.jp-dayd__wd { font-size: .78rem; font-weight: 700; line-height: 1.1; }
+.jp-dayd__dm { font-size: .68rem; font-weight: 600; opacity: .94; line-height: 1.1; }
 .jp-dayd__node-tick,
 .jp-dayd__node-lockwrap {
   position: absolute; right: -4px; bottom: -4px; display: inline-grid; place-items: center;
-  width: 21px; height: 21px; border-radius: 50%; border: 2px solid var(--jp-dayd-surface);
-  box-shadow: 0 2px 4px rgb(15 23 42 / 18%);
+  width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--jp-dayd-surface);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 10%);
 }
-.jp-dayd__node-tick { background: #6d28d9; color: #ffffff; }
-.jp-dayd__node.is-current .jp-dayd__node-tick { background: #9333ea; }
-.jp-dayd__node-lockwrap { background: #756b93; color: #ffffff; }
+.jp-dayd__node-tick { background: var(--jp-c-peach-100); color: var(--jp-c-peach-900); border-color: var(--jp-c-peach-500); }
+.jp-dayd__node-lockwrap { background: var(--jp-c-slate-100); color: var(--jp-c-slate-500); border-color: var(--jp-dayd-line); }
 .jp-dayd__node-mark,
-.jp-dayd__node-lock { width: 12px; height: 12px; display: block; }
+.jp-dayd__node-lock { width: 11px; height: 11px; display: block; }
 .jp-dayd__today-tag {
   display: inline-block; padding: 2px 8px; border-radius: 999px;
   background: var(--jp-dayd-surface); color: var(--jp-dayd-pill-cur-ink); border: 1px solid var(--jp-dayd-pill-cur-border);
-  box-shadow: 0 2px 4px rgb(109 40 217 / 12%);
-  font-size: .68rem; font-weight: 800; line-height: 1.3; white-space: nowrap;
+  font-size: .68rem; font-weight: 700; line-height: 1.3; white-space: nowrap;
 }
 .jp-dayd__node.is-current .jp-dayd__today-tag {
-  background: #7e22ce; color: #ffffff; border-color: var(--jp-dayd-cur-border);
+  background: var(--jp-c-purple-500); color: var(--jp-white); border-color: var(--jp-dayd-cur-border);
 }
 
 /* Header & Hero Row with Kitsu mascot companion */
@@ -409,44 +368,38 @@ a.jp-dayd__node:focus-visible .jp-dayd__circle { outline: 3px solid var(--jp-pri
 .jp-dayd__sum { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; color: var(--jp-dayd-muted); }
 .jp-dayd__badge {
   display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 999px;
-  background: var(--jp-dayd-surface); color: var(--jp-dayd-muted); font-size: .88rem; font-weight: 700;
+  background: var(--jp-dayd-surface); color: var(--jp-dayd-muted); font-size: .86rem; font-weight: 600;
   border: 1px solid var(--jp-dayd-line);
 }
 .jp-dayd__badge .jp-dayd__node-mark { width: 14px; height: 14px; }
-.jp-dayd__badge--done {
+.jp-dayd__badge--done,
+.jp-dayd__badge--cp {
   background: var(--jp-dayd-pill-done-bg); color: var(--jp-dayd-pill-done-ink); border: 1px solid var(--jp-dayd-pill-done-border);
 }
 .jp-dayd__badge--pending {
   background: var(--jp-dayd-pill-cur-bg); color: var(--jp-dayd-pill-cur-ink); border: 1px solid var(--jp-dayd-pill-cur-border);
 }
-.jp-dayd__badge--cp {
-  background: var(--jp-dayd-pill-done-bg);
-  color: var(--jp-dayd-pill-done-ink); border: 1px solid var(--jp-dayd-pill-done-border); font-weight: 800;
-  box-shadow: 0 2px 0 color-mix(in srgb, var(--jp-primary) 28%, transparent);
-}
 
 /* Kitsu companion + speech bubble */
 .jp-dayd__mascot {
   display: inline-flex; align-items: center; gap: 10px;
-  padding: 6px 14px 6px 8px; border-radius: 16px;
+  padding: 6px 14px 6px 8px; border-radius: 14px;
   background: var(--jp-dayd-surface);
-  border: 1.5px solid var(--jp-dayd-banner-border);
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-primary) 20%, transparent);
+  border: 1px solid var(--jp-dayd-banner-border);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
   max-width: 100%;
 }
 .jp-dayd__mascot-img {
-  width: 64px; height: 64px; object-fit: contain; flex: none;
-  filter: drop-shadow(0 3px 5px rgb(88 56 142 / 16%));
-  animation: jpDayMascotFloat 2.6s ease-in-out infinite;
+  width: 60px; height: 60px; object-fit: contain; flex: none;
 }
 .jp-dayd__speech {
   position: relative; display: grid; gap: 2px; min-width: 0;
 }
 .jp-dayd__speech-main {
-  margin: 0; font-size: .92rem; font-weight: 700; color: var(--jp-dayd-ink); line-height: 1.35;
+  margin: 0; font-size: .9rem; font-weight: 600; color: var(--jp-dayd-ink); line-height: 1.35;
 }
 .jp-dayd__mascot-sub {
-  font-size: .8rem; font-weight: 600; color: var(--jp-danger, #e11d48); line-height: 1.3;
+  font-size: .8rem; font-weight: 600; color: var(--jp-c-coral-500); line-height: 1.3;
 }
 
 /* Flat sections & items */
@@ -454,27 +407,26 @@ a.jp-dayd__node:focus-visible .jp-dayd__circle { outline: 3px solid var(--jp-pri
 .jp-dayd__h {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px;
   margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--jp-dayd-line);
-  font-size: 1.02rem; font-weight: 700; color: var(--jp-dayd-ink);
+  font-size: 1rem; font-weight: 700; color: var(--jp-dayd-ink);
 }
-.jp-dayd__meta { font-weight: 500; font-size: .92rem; color: var(--jp-dayd-muted); }
-.jp-dayd__bad { color: var(--jp-danger, #e11d48); font-weight: 600; font-size: .9rem; }
+.jp-dayd__meta { font-weight: 500; font-size: .9rem; color: var(--jp-dayd-muted); }
+.jp-dayd__bad { color: var(--jp-c-coral-500); font-weight: 600; font-size: .88rem; }
 .jp-dayd__list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .jp-dayd__item {
   display: inline-flex; flex-direction: column; align-items: center; min-width: 64px; padding: 8px 12px;
   border: 1px solid var(--jp-dayd-line); border-radius: 10px; background: var(--jp-dayd-surface); font: inherit; color: var(--jp-dayd-ink);
 }
 button.jp-dayd__item { cursor: pointer; }
-button.jp-dayd__item:hover { border-color: var(--jp-primary); }
-.jp-dayd__item.is-wrong { border-color: #e11d48; background: color-mix(in srgb, #e11d48 12%, var(--jp-dayd-surface)); }
-.jp-dayd__ja { font-size: 1.22rem; font-weight: 600; line-height: 1.3; }
+button.jp-dayd__item:hover { border-color: var(--jp-c-purple-500); }
+.jp-dayd__item.is-wrong { border-color: var(--jp-c-coral-500); background: var(--jp-c-coral-100); }
+.jp-dayd__ja { font-size: 1.2rem; font-weight: 600; line-height: 1.3; }
 .jp-dayd__rd { font-size: .84rem; color: var(--jp-dayd-muted); line-height: 1.3; }
 .jp-dayd__wrong-dot {
-  width: 7px; height: 7px; border-radius: 50%; background: #e11d48;
+  width: 7px; height: 7px; border-radius: 50%; background: var(--jp-c-coral-500);
   flex: none; align-self: center; margin-left: auto;
 }
 .jp-dayd__actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 10px; padding-top: 10px; border-top: 1px solid var(--jp-dayd-line); }
 .jp-day__link { color: inherit; text-decoration: none; display: block; }
-/* 05/11 day page: flat rows like the study parts, fewer boxes */
 .jp-dayd__list.jp-parts__items { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 2px 20px; }
 .jp-dayd__list.jp-parts__items > li { padding: 0; border-radius: 0; background: none; }
 .jp-dayd__list .jp-dayd__item {
@@ -484,64 +436,41 @@ button.jp-dayd__item:hover { border-color: var(--jp-primary); }
   transition: background-color .15s ease, color .15s ease;
 }
 .jp-dayd__list button.jp-dayd__item:hover {
-  background: color-mix(in srgb, var(--jp-primary-soft) 55%, transparent);
-  border-bottom-color: var(--jp-primary);
+  background: var(--jp-c-purple-100);
+  border-bottom-color: var(--jp-c-purple-500);
 }
 .jp-dayd__list button.jp-dayd__item:focus-visible {
-  outline: 2px solid var(--jp-primary); outline-offset: 1px; border-radius: 6px;
+  outline: 2px solid var(--jp-c-purple-500); outline-offset: 1px; border-radius: 6px;
 }
 .jp-dayd__list .jp-dayd__item.is-wrong {
-  background: color-mix(in srgb, #e11d48 12%, transparent);
-  color: #e11d48;
-  border-bottom-color: color-mix(in srgb, #e11d48 45%, var(--jp-dayd-line));
+  background: var(--jp-c-coral-100);
+  color: var(--jp-c-coral-900);
+  border-bottom-color: var(--jp-c-coral-500);
 }
-.jp-dayd__list .jp-dayd__item.is-wrong .jp-dayd__rd { color: color-mix(in srgb, #e11d48 80%, var(--jp-dayd-ink)); }
+.jp-dayd__list .jp-dayd__item.is-wrong .jp-dayd__rd { color: var(--jp-c-coral-900); }
 .jp-dayd__quiz { margin: 0; }
 .jp-dayd__quiz > summary { list-style: none; display: inline-flex; cursor: pointer; }
 .jp-dayd__quiz > summary::-webkit-details-marker { display: none; }
 .jp-dayd__quiz ul {
   list-style: none; margin: 10px 0; padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 8px 18px;
-  border-left: 3px solid var(--jp-primary); background: var(--jp-dayd-surface); border-radius: 0 8px 8px 0;
+  border-left: 3px solid var(--jp-c-purple-500); background: var(--jp-dayd-surface); border-radius: 0 8px 8px 0;
 }
 .jp-parts__pager { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
 .jp-parts__pg { min-width: 36px; min-height: 36px; padding: 0 10px; border: 1px solid var(--jp-dayd-line); border-radius: 8px; background: none; font: inherit; cursor: pointer; }
-.jp-parts__pg.is-on { background: var(--jp-primary); border-color: var(--jp-primary); color: #fff; }
+.jp-parts__pg.is-on { background: var(--jp-c-purple-500); border-color: var(--jp-c-purple-500); color: var(--jp-white); }
 .jp-parts__pg[disabled] { opacity: .4; cursor: default; }
 .jp-parts__pginfo { margin-left: 6px; color: var(--jp-dayd-muted); font-size: .9em; }
-
-@keyframes jpDayCoinBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-@keyframes jpDayMascotFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-@keyframes jpDayPopIn {
-  0% { opacity: 0; transform: translateY(6px) scale(.92); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
-}
 
 @media (max-width: 640px) {
   .jp-dayd__banner { border-radius: 14px; margin-bottom: 14px; }
   .jp-dayd__week { padding: 12px 4px 12px; }
   .jp-dayd__step::before { top: 20px; height: 3px; }
-  .jp-dayd__circle {
-    width: 40px; height: 40px; border-width: 1.5px;
-    box-shadow: 0 3px 0 var(--jp-dayd-next-rim);
-  }
-  .jp-dayd__node.is-past .jp-dayd__circle,
-  .jp-dayd__node.is-done:not(.is-current) .jp-dayd__circle {
-    box-shadow: 0 3px 0 var(--jp-dayd-done-rim);
-  }
-  .jp-dayd__node.is-current .jp-dayd__circle {
-    width: 44px; height: 44px; margin-top: -2px;
-    box-shadow: 0 4px 0 var(--jp-dayd-cur-rim), 0 0 0 3px var(--jp-dayd-cur-halo);
-  }
+  .jp-dayd__circle { width: 40px; height: 40px; }
+  .jp-dayd__node.is-current .jp-dayd__circle { width: 44px; height: 44px; margin-top: -2px; }
   .jp-dayd__wd { font-size: .68rem; }
   .jp-dayd__dm { font-size: .58rem; }
   .jp-dayd__today-tag { font-size: .56rem; padding: 1px 4px; }
-  .jp-dayd__node-tick, .jp-dayd__node-lockwrap { width: 15px; height: 15px; right: -2px; bottom: -2px; border-width: 1.5px; }
+  .jp-dayd__node-tick, .jp-dayd__node-lockwrap { width: 15px; height: 15px; right: -2px; bottom: -2px; }
   .jp-dayd__node-mark, .jp-dayd__node-lock { width: 9px; height: 9px; }
   .jp-dayd__mascot { width: 100%; box-sizing: border-box; padding: 6px 10px; }
   .jp-dayd__mascot-img { width: 52px; height: 52px; }
@@ -549,9 +478,6 @@ button.jp-dayd__item:hover { border-color: var(--jp-primary); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .jp-dayd__step,
-  .jp-dayd__node.is-current .jp-dayd__circle,
-  .jp-dayd__mascot-img { animation: none; }
   .jp-dayd__banner,
   .jp-dayd__circle,
   .jp-dayd__mascot,
@@ -560,6 +486,36 @@ button.jp-dayd__item:hover { border-color: var(--jp-primary); }
   .jp-dayd__scenery circle,
   .jp-dayd__scenery g,
   .jp-dayd__list .jp-dayd__item { transition: none !important; }
-  a.jp-dayd__node:hover .jp-dayd__circle,
-  a.jp-dayd__node:active .jp-dayd__circle { transform: none; }
+  a.jp-dayd__node:hover .jp-dayd__circle { transform: none; }
+}
+
+/* 06/11 Lượt 6: Trang chi tiết ngày vừa một màn hình (1280x760), nút chính dính đáy & Kitsu động */
+.jp-dayd {
+  gap: 10px;
+}
+.jp-dayd__hero {
+  padding: 10px 14px;
+}
+.jp-dayd__mascot-img {
+  width: 52px;
+  height: 52px;
+  animation: jpDayMascotFloat 2.8s ease-in-out infinite;
+}
+.jp-dayd__actions {
+  position: sticky;
+  bottom: 8px;
+  z-index: 25;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--jp-side-surface) 92%, transparent);
+  backdrop-filter: blur(6px);
+}
+@keyframes jpDayMascotFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jp-dayd__mascot-img {
+    animation: none !important;
+  }
 }
