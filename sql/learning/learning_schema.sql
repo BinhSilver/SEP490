@@ -2169,6 +2169,18 @@ CREATE TABLE IF NOT EXISTS cpath_user_goal_test (
     CONSTRAINT fk_cpath_goal_test_path FOREIGN KEY (path_id) REFERENCES cpath_user_path(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 07/11: Sổ tay giao tiếp — từ, mẫu câu, câu thoại trả lời sai ở kiểm tra tuần; đúng lại thì ra khỏi sổ.
+CREATE TABLE IF NOT EXISTS cpath_user_note (
+    path_id BIGINT UNSIGNED NOT NULL,
+    item_code VARCHAR(40) NOT NULL,         -- cpath_item.code, or <situation>-L<order> for a learner line
+    kind VARCHAR(8) NOT NULL,               -- ITEM | LINE
+    wrong_count SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+    added_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (path_id, item_code),
+    CONSTRAINT chk_cpath_note_kind CHECK (kind IN ('ITEM','LINE')),
+    CONSTRAINT fk_cpath_note_path FOREIGN KEY (path_id) REFERENCES cpath_user_path(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 DROP PROCEDURE IF EXISTS jlas_ls_check;
 DROP PROCEDURE IF EXISTS jlas_ls_modify_column;
 DROP PROCEDURE IF EXISTS jlas_ls_add_column;

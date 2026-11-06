@@ -12,6 +12,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 @ConditionalOnProperty(name = "learning.comm-path.enabled", havingValue = "true")
 public class CpathPageController {
 
+    private final CpathService service;
+
+    public CpathPageController(CpathService service) {
+        this.service = service;
+    }
+
+    /** Owner 06/11: certificate of a passed goal AI call, on the project's shared certificate page. */
+    @GetMapping("/learning/comm/certificate")
+    public String certificate(@org.springframework.security.core.annotation.AuthenticationPrincipal
+                              com.jlas.auth.security.UserPrincipal user, Model model) {
+        if (user == null) return "redirect:/login";
+        java.util.Optional<java.util.Map<String, Object>> c = service.certificate(user.userId());
+        if (c.isEmpty()) return "redirect:/learning/comm/path";
+        model.addAttribute("targetLevel", "Giao tiếp · " + c.get().get("nameVi"));
+        model.addAttribute("completedAt", c.get().get("takenAt"));
+        return "learning/certificate";
+    }
+
     @GetMapping("/learning/comm/survey")
     public String survey() {
         return "cpath/survey";
@@ -33,6 +51,11 @@ public class CpathPageController {
     public String situationByQuery(@RequestParam(name = "id", required = false) String id, Model model) {
         model.addAttribute("situationId", id);
         return "cpath/situation";
+    }
+
+    @GetMapping("/learning/comm/notebook")
+    public String notebook() {
+        return "cpath/notebook";
     }
 
     @GetMapping("/learning/comm/weekly")

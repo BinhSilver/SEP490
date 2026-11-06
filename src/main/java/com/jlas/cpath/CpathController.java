@@ -117,6 +117,11 @@ public class CpathController {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.weekly(user.userId())));
     }
 
+    @GetMapping("/notebook")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> notebook(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.notebook(user.userId())));
+    }
+
     @PostMapping("/weekly")
     public ResponseEntity<ApiResponse<Map<String, Object>>> submitWeekly(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody(required = false) Map<String, Object> body) {

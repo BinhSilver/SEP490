@@ -377,6 +377,10 @@ public class CpathService {
                 goalTest != null && Boolean.TRUE.equals(goalTest.get("passed")) ? "DONE" : "NEXT", goalTest == null ? null : goalTest.get("score"));
         goalNode.put("url", scenarioUrl(db.queryForList("SELECT test_scenario_slug FROM cpath_goal WHERE code = ?", String.class,
                 p.get("goal_code")).stream().findFirst().orElse(null)));
+        Map<String, Object> gt = goalTest(userId);
+        goalNode.put("retryAt", gt.get("retryAt"));
+        goalNode.put("weakTopics", gt.get("weakTopics"));
+        goalNode.put("certificateUrl", gt.get("certificateUrl"));
         items.add(goalNode);
 
         // weeks: from the first planned / learned situation on, perWeek situations a week; later weeks are LOCKED
@@ -791,6 +795,14 @@ public class CpathService {
             Object given = answers.get(q.id());
             boolean ok = given != null && num(given) == q.answer();
             if (ok) correct++;
+            // Sổ tay: a miss goes in (or counts again), a right answer takes it out
+            Long pid = ((Number) path.get("id")).longValue();
+            if (ok) {
+                db.update("DELETE FROM cpath_user_note WHERE path_id = ? AND item_code = ?", pid, q.id());
+            } else {
+                db.update("INSERT INTO cpath_user_note (path_id, item_code, kind) VALUES (?,?,?) "
+                        + "ON DUPLICATE KEY UPDATE wrong_count = wrong_count + 1", pid, q.id(), q.id().matches(".*-L\\d+$") ? "LINE" : "ITEM");
+            }
             Map<String, Object> r = new LinkedHashMap<>();
             r.put("id", q.id());
             r.put("ja", q.ja());
@@ -834,6 +846,12 @@ public class CpathService {
         m.put("passed", last != null && Boolean.TRUE.equals(last.get("passed")));
         m.put("retryAt", last != null && !Boolean.TRUE.equals(last.get("passed")) && last.get("taken_at") != null
                 ? dateTimeOf(last.get("taken_at")).plusHours(24).toString() : null);
+        boolean passed = last != null && Boolean.TRUE.equals(last.get("passed"));
+        m.put("certificateUrl", passed ? "/learning/comm/certificate" : null);
+        // not passed yet: the topics to work on (not passed, weakest speaking first), at most 3
+        m.put("weakTopics", passed ? List.of() : db.queryForList("SELECT t.name_vi FROM cpath_topic t LEFT JOIN cpath_user_topic u "
+                + "ON u.topic_code = t.code AND u.path_id = ? WHERE t.goal_code = ? AND u.passed_at IS NULL "
+                + "ORDER BY COALESCE(u.speak_best, -1), t.sort_order LIMIT 3", String.class, p.get("id"), p.get("goal_code")));
         return m;
     }
 
@@ -854,9 +872,54 @@ public class CpathService {
             int score = ((Number) rows.get(0).get("overall_score")).intValue();
             db.update("INSERT INTO cpath_user_goal_test (path_id, conversation_session_id, score, passed) VALUES (?,?,?,?)",
                     pathId, session, score, score >= GOAL_TEST_PASS);
-            if (score >= GOAL_TEST_PASS) db.update("UPDATE cpath_user_path SET status = 'DONE' WHERE id = ?", pathId);
+            // the path stays open (map, review, certificate); the pass gives the goal's big reward once
+            if (score >= GOAL_TEST_PASS) {
+                award(userId, GOAL_CP, REF_GOAL, pathId, "Đạt bài test giao tiếp với AI");
+            }
         }
         return goalTest(userId);
+    }
+
+    /** Sổ tay of the main path: missed words, phrases and learner lines, most missed first. */
+    @Transactional(readOnly = true)
+    public Map<String, Object> notebook(Long userId) {
+        Map<String, Object> p = requirePath(userId);
+        Long pathId = ((Number) p.get("id")).longValue();
+        List<Map<String, Object>> rows = new ArrayList<>(db.queryForList("SELECT n.item_code id, n.kind, n.wrong_count, i.ja, i.reading, i.vi, i.audio_path, "
+                + "COALESCE(i.situation_code, NULL) situation FROM cpath_user_note n JOIN cpath_item i ON i.code = n.item_code "
+                + "WHERE n.path_id = ? AND n.kind = 'ITEM'", pathId));
+        rows.addAll(db.queryForList("SELECT n.item_code id, n.kind, n.wrong_count, l.ja, NULL reading, l.vi, l.audio_path, l.situation_code situation "
+                + "FROM cpath_user_note n JOIN cpath_line l ON CONCAT(l.situation_code, '-L', l.line_order) = n.item_code "
+                + "WHERE n.path_id = ? AND n.kind = 'LINE'", pathId));
+        rows.sort((a, b) -> num(b.get("wrong_count")) - num(a.get("wrong_count")));
+        List<Map<String, Object>> out = new ArrayList<>();
+        for (Map<String, Object> r : rows) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("id", r.get("id"));
+            m.put("kind", r.get("kind"));
+            m.put("ja", r.get("ja"));
+            m.put("reading", r.get("reading"));
+            m.put("vi", r.get("vi"));
+            m.put("audioUrl", url((String) r.get("audio_path")));
+            m.put("situation", r.get("situation"));
+            m.put("wrongCount", num(r.get("wrong_count")));
+            out.add(m);
+        }
+        return Map.of("items", out, "total", out.size());
+    }
+
+    static final int GOAL_CP = 20;
+    static final String REF_GOAL = "CPATH_GOAL";
+
+    /** The newest passed goal test of the learner (any of their paths): goal name and when, for the certificate. */
+    @Transactional(readOnly = true)
+    public java.util.Optional<Map<String, Object>> certificate(Long userId) {
+        List<Map<String, Object>> rows = db.queryForList("SELECT g.name_vi, t.taken_at FROM cpath_user_goal_test t "
+                + "JOIN cpath_user_path p ON p.id = t.path_id JOIN cpath_goal g ON g.code = p.goal_code "
+                + "WHERE p.user_id = ? AND t.passed = 1 ORDER BY t.taken_at DESC LIMIT 1", userId);
+        if (rows.isEmpty()) return java.util.Optional.empty();
+        return java.util.Optional.of(Map.of("nameVi", String.valueOf(rows.get(0).get("name_vi")),
+                "takenAt", dateTimeOf(rows.get(0).get("taken_at"))));
     }
 
     // ---------------------------------------------------------------------------------------------- helpers
