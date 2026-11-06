@@ -19,6 +19,10 @@
         </div>
         <p class="jp-side__status" role="status" data-role="status">Đang tải…</p>
         <div class="jp-side-tiles jp-side-tiles--summary" data-role="summary" aria-label="Số liệu chính"></div>
+        <section class="jp-side-card" aria-labelledby="jpsEntryTitle" data-jpath-entry hidden>
+            <h2 id="jpsEntryTitle">Đầu vào</h2>
+            <div data-role="entry"></div>
+        </section>
         <section class="jp-side-card" aria-labelledby="jpsHeatTitle">
             <div class="jp-side-month-head">
                 <h2 id="jpsHeatTitle">Lịch học</h2>
@@ -55,6 +59,7 @@
 </main>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
 <script th:src="@{/js/jlptpath/jpath-stats.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-entry.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
 </html>

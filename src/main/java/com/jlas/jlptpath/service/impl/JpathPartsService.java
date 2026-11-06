@@ -49,6 +49,57 @@ public class JpathPartsService {
     }
 
     private static final int MAX_QUEUE = 5000;
+    private static final List<String> LEVEL_ORDER = List.of("N5", "N4", "N3", "N2", "N1");
+
+    /** Owner 06/11 warm-up: offered in the first days of a newly opened level above N5, on the level below. */
+    public record Warmup(boolean offer, String level, String lowerLevel, LocalDate openedOn) {
+    }
+
+    static final int WARMUP_DAYS = 3;
+
+    /** Owner 06/11: the Smart Test result the path was made from, for the "Đầu vào" block of the Stats page. */
+    public record EntryResult(boolean fromSmartTest, String abilityBand, String estimatedLevel, Integer vocabScore,
+                              Integer kanjiScore, Integer grammarScore, boolean partial, LocalDate pathCreatedOn,
+                              String openLevel) {
+    }
+
+    private org.springframework.beans.factory.ObjectProvider<JpathSmartTestReader> smartTests;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    void setSmartTests(org.springframework.beans.factory.ObjectProvider<JpathSmartTestReader> smartTests) {
+        this.smartTests = smartTests;
+    }
+
+    @Transactional(readOnly = true)
+    public EntryResult entryResult(Long userId) {
+        JpathUserPath path = paths.findFirstByUserIdAndStatusOrderByIdDesc(userId, JpathPathStatus.ACTIVE).orElse(null);
+        if (path == null) return new EntryResult(false, null, null, null, null, null, false, null, null);
+        LocalDate created = path.getCreatedAt() == null ? null : path.getCreatedAt().toLocalDate();
+        JpathSmartTestReader reader = smartTests == null ? null : smartTests.getIfAvailable();
+        if (path.getAssessmentAttemptId() == null || reader == null) {
+            return new EntryResult(false, null, null, null, null, null, false, created, path.getOpenLevel());
+        }
+        try {
+            com.jlas.jlptpath.dto.JpathSmartTestSnapshot s = reader.read(userId, path.getAssessmentAttemptId());
+            return new EntryResult(true, s.abilityBand(), s.estimatedLevel(), s.vocabScore(), s.kanjiScore(),
+                    s.grammarScore(), s.partial(), created, path.getOpenLevel());
+        } catch (RuntimeException e) {
+            return new EntryResult(false, null, null, null, null, null, false, created, path.getOpenLevel());
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public Warmup warmup(Long userId) {
+        JpathUserPath path = paths.findFirstByUserIdAndStatusOrderByIdDesc(userId, JpathPathStatus.ACTIVE).orElse(null);
+        if (path == null) return new Warmup(false, null, null, null);
+        String level = path.getOpenLevel();
+        int at = LEVEL_ORDER.indexOf(level);
+        JpathUserLevel row = levels.findById(new JpathUserLevelId(path.getId(), level)).orElse(null);
+        if (at <= 0 || row == null || row.getOpenedAt() == null) return new Warmup(false, level, null, null);
+        LocalDate opened = row.getOpenedAt().toLocalDate();
+        boolean recent = !clock.today(userId).isAfter(opened.plusDays(WARMUP_DAYS - 1));
+        return new Warmup(recent, level, LEVEL_ORDER.get(at - 1), opened);
+    }
 
     private final JpathUserPathRepository paths;
     private final JpathUserLevelRepository levels;

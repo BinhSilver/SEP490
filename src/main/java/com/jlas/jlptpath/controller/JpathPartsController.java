@@ -21,6 +21,18 @@ public class JpathPartsController {
 
     private final JpathPartsService partsService;
 
+    /** Owner 06/11: whether to offer the short warm-up on the level below the newly opened one. */
+    @GetMapping("/warmup")
+    public ResponseEntity<ApiResponse<JpathPartsService.Warmup>> warmup(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", partsService.warmup(user.userId())));
+    }
+
+    /** Owner 06/11: the Smart Test result the active path was made from ("Đầu vào" on the Stats page). */
+    @GetMapping("/entry-result")
+    public ResponseEntity<ApiResponse<JpathPartsService.EntryResult>> entryResult(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", partsService.entryResult(user.userId())));
+    }
+
     @GetMapping("/parts")
     public ResponseEntity<ApiResponse<JpathPartsService.Parts>> parts(@AuthenticationPrincipal UserPrincipal user,
             @RequestParam String tab) {
