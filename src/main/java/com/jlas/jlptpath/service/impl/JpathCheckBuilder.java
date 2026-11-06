@@ -675,7 +675,31 @@ public class JpathCheckBuilder {
 
         boolean clashes(Card o) {
             return meaningKey.equals(o.meaningKey) || ja.equals(o.ja) || vi.equals(o.vi)
-                    || same(normExpr, o.normExpr) || same(normRead, o.normRead);
+                    || same(normExpr, o.normExpr) || same(normRead, o.normRead)
+                    || nested(core(vi), core(o.vi)) || nested(normRead, o.normRead);
+        }
+
+        /** Meaning without notes in brackets, polite "ạ", punctuation and case: "chào buổi sáng ạ (lịch sự)" -> "chào buổi sáng". */
+        static String core(String v) {
+            if (v == null) {
+                return "";
+            }
+            String t = v.toLowerCase(java.util.Locale.ROOT).replaceAll("\\([^)]*\\)|\\[[^]]*]", " ")
+                    .replaceAll("[\\p{Punct}\\u3000-\\u303F]", " ").replaceAll("\\s+", " ").trim();
+            return t.replaceAll("(\\s(ạ|à|nhé|nha))+$", "").trim();
+        }
+
+        /** One side is the other plus extra words (e.g. おはよう / おはようございます): too close to tell apart. */
+        private static boolean nested(String a, String b) {
+            if (a == null || b == null || a.isEmpty() || b.isEmpty()) {
+                return false;
+            }
+            if (a.equals(b)) {
+                return true;
+            }
+            String s = a.length() < b.length() ? a : b;
+            String l = a.length() < b.length() ? b : a;
+            return s.codePointCount(0, s.length()) >= 2 && l.startsWith(s);
         }
 
         /** A safe audio path exists (the same check the play URL uses). */
