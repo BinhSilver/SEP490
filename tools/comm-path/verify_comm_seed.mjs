@@ -304,6 +304,14 @@ function assertColLen(table, col, value) {
   check('cpath_situation scenario_slug all unique', slugs.size === 106, `${slugs.size} slugs`);
 }
 
+// audio_path: every row has one (all goals have a manifest now) and the mp3 is on disk under data/content-audio/.
+let audioRows = 0, audioMissing = 0;
+function checkAudio(label, ap) {
+  audioRows++;
+  if (ap === null) { audioMissing++; check(`${label} audio_path set`, false, 'NULL'); return; }
+  if (!existsSync(path.join(ROOT, 'data/content-audio', ap))) { audioMissing++; check(`${label} audio file exists`, false, ap); }
+}
+
 // lines
 {
   const rows = rowsOf('cpath_line');
@@ -314,8 +322,7 @@ function assertColLen(table, col, value) {
     seen.add(key);
     const ok = ['speaker', 'learner', 'ja', 'furigana', 'vi', 'seed_version'].every((k) => s(r[k]) === e[k]);
     if (!ok) check(`cpath_line ${key} matches source`, false);
-    // audio_path must be NULL while manifest is absent
-    if (s(r.audio_path) !== null) check(`cpath_line ${key} audio_path NULL`, false, `got ${s(r.audio_path)}`);
+    checkAudio(`cpath_line ${key}`, s(r.audio_path));
   }
   check('cpath_line unique & complete', seen.size === 722, `unique=${seen.size}`);
 }
@@ -332,7 +339,7 @@ function assertColLen(table, col, value) {
     if (e.kind === 'WORD') words++; else phrases++;
     const ok = ['kind', 'topic_code', 'situation_code', 'sort_order', 'ja', 'reading', 'vi', 'note_vi', 'seed_version'].every((k) => s(r[k]) === e[k]);
     if (!ok) check(`cpath_item ${code} matches source`, false);
-    if (s(r.audio_path) !== null) check(`cpath_item ${code} audio_path NULL`, false, `got ${s(r.audio_path)}`);
+    checkAudio(`cpath_item ${code}`, s(r.audio_path));
   }
   check('cpath_item unique & complete', seen.size === 1185, `unique=${seen.size}`);
   check('cpath_item kind split 880/305', words === 880 && phrases === 305, `WORD=${words} PHRASE=${phrases}`);
