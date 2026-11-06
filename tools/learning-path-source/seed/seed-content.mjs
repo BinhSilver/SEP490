@@ -307,7 +307,8 @@ export function releaseVerdict(level, tables, { visibleVocab = new Set(), kanjiW
   const kanji = ofLevel(tables.kanji);
   const grammar = ofLevel(tables.grammar);
 
-  add('DRAFT_ITEMS', [...vocab, ...kanji, ...grammar].filter((r) => r.status === 'DRAFT').length);
+  // Owner 07/11: DRAFT items (blocking errors) are left out of the path, they no longer hold the level back.
+  // They stay hidden (not VISIBLE) and are not checked below.
 
   const examplesOf = new Map();
   for (const e of ofLevel(tables.example)) {
