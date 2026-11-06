@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Học Tình huống Giao tiếp - JLAS', null)}">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Học Tình huống Giao tiếp - JLAS</title>
+    <link rel="stylesheet" href="../../static/css/tokens.css" />
+    <link rel="stylesheet" href="../../static/css/base.css" />
+    <link rel="stylesheet" href="../../static/css/layout.css" />
+    <link rel="stylesheet" href="../../static/css/learning-v2-tokens.css" />
+    <link rel="stylesheet" href="../../static/css/pages/jpath-base.css" />
+    <link rel="stylesheet" href="../../static/css/pages/jpath-nav.css" />
+    <link rel="stylesheet" href="../../static/css/pages/jpath-study.css" />
+    <link rel="stylesheet" href="../../static/css/pages/jpath-check.css" />
+    <link rel="stylesheet" href="../../static/css/pages/cpath.css" />
+</head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-study')}"></th:block>
+<link rel="stylesheet" href="../../static/css/pages/jpath-check.css" th:href="@{/css/pages/jpath-check.css(v=${jpathAssetVersion})}" />
+<link rel="stylesheet" href="../../static/css/pages/cpath.css" th:href="@{/css/pages/cpath.css(v=${jpathAssetVersion})}" />
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page cp-page" data-inline-dictionary>
+    <nav class="jp-crumbs jp-ws__crumbs" aria-label="Bạn đang ở">
+        <ol class="jp-crumbs__list">
+            <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/">Trang chủ</a></li>
+            <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="path.html?mock=1" th:href="@{/learning/comm/path}">Lộ trình giao tiếp</a></li>
+            <li class="jp-crumbs__item"><span class="jp-crumbs__here" aria-current="page">Tình huống 4 bước</span></li>
+        </ol>
+    </nav>
+    <div id="cpathSituationRoot" aria-busy="true" aria-live="polite" th:attr="data-situation-id=${situationId}">
+        <p class="jp-path__loading" role="status">Đang tải tình huống hội thoại…</p>
+    </div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}">
+    <script src="../../static/js/jlptpath/jpath-api.js"></script>
+</th:block>
+<script src="../../static/js/jlptpath/jpath-display.js" th:src="@{/js/jlptpath/jpath-display.js(v=${jpathAssetVersion})}"></script>
+<script src="../../static/js/jlptpath/jpath-furigana.js" th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>
+<script src="../../static/js/cpath/cpath-mock.js" th:src="@{/js/cpath/cpath-mock.js(v=${jpathAssetVersion})}"></script>
+<script src="../../static/js/cpath/cpath-situation.js" th:src="@{/js/cpath/cpath-situation.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

@@ -1,0 +1,1261 @@
+/* ==========================================================================
+   cpath.css — Giao diện Lộ trình Giao tiếp (Đợt 2)
+   Dùng chung bảng màu 9 họ cùng sắc độ (--jp-c-<tên>-{900,500,100}) của lộ trình JLPT,
+   hỗ trợ chế độ sáng/tối mượt (.6s ease), vừa 1 màn hình ở 1280×760, 1920×1080, 375×812,
+   tắt toàn bộ hoạt ảnh khi prefers-reduced-motion: reduce.
+   ========================================================================== */
+
+:root,
+.cp-page {
+  --jp-c-purple-900: #260b5c;
+  --jp-c-purple-500: #5521b5;
+  --jp-c-purple-100: #e3d6ff;
+
+  --jp-c-indigo-900: #1d145c;
+  --jp-c-indigo-500: #3f30b8;
+  --jp-c-indigo-100: #dcdafa;
+
+  --jp-c-mauve-900: #3d0d66;
+  --jp-c-mauve-500: #7222b8;
+  --jp-c-mauve-100: #ebd6ff;
+
+  --jp-c-teal-900: #134e4a;
+  --jp-c-teal-500: #0d9488;
+  --jp-c-teal-100: #f0fdfa;
+
+  --jp-c-sky-900: #0c4a6e;
+  --jp-c-sky-500: #0284c7;
+  --jp-c-sky-100: #f0f9ff;
+
+  --jp-c-mint-900: #14532d;
+  --jp-c-mint-500: #15803d;
+  --jp-c-mint-100: #f0fdf4;
+
+  --jp-c-coral-900: #7f1d1d;
+  --jp-c-coral-500: #dc2626;
+  --jp-c-coral-100: #fef2f2;
+
+  --jp-c-peach-900: #78350f;
+  --jp-c-peach-500: #d97706;
+  --jp-c-peach-100: #fffbeb;
+
+  --jp-c-slate-900: #0f172a;
+  --jp-c-slate-500: #64748b;
+  --jp-c-slate-100: #f8fafc;
+
+  --jp-white: #ffffff;
+  --cp-surface: var(--jp-white);
+  --cp-surface-soft: var(--jp-c-slate-100);
+  --cp-ink: var(--jp-c-slate-900);
+  --cp-muted: var(--jp-c-slate-500);
+  --cp-line: color-mix(in srgb, var(--jp-c-slate-500) 22%, var(--jp-c-slate-100));
+  --cp-primary: var(--jp-c-purple-500);
+  --cp-primary-soft: var(--jp-c-purple-100);
+  --cp-primary-ink: var(--jp-c-purple-900);
+}
+
+html[data-theme="dark"],
+html.dark,
+html[data-theme="dark"] .cp-page,
+html.dark .cp-page {
+  --jp-c-purple-900: #e9d5ff;
+  --jp-c-purple-500: #a78bfa;
+  --jp-c-purple-100: #2e1d59;
+
+  --jp-c-indigo-900: #e0e7ff;
+  --jp-c-indigo-500: #818cf8;
+  --jp-c-indigo-100: #1e224d;
+
+  --jp-c-mauve-900: #f5d0fe;
+  --jp-c-mauve-500: #e879f9;
+  --jp-c-mauve-100: #3b1c47;
+
+  --jp-c-teal-900: #ccfbf1;
+  --jp-c-teal-500: #2dd4bf;
+  --jp-c-teal-100: #133638;
+
+  --jp-c-sky-900: #e0f2fe;
+  --jp-c-sky-500: #38bdf8;
+  --jp-c-sky-100: #132d46;
+
+  --jp-c-mint-900: #dcfce7;
+  --jp-c-mint-500: #4ade80;
+  --jp-c-mint-100: #143524;
+
+  --jp-c-coral-900: #fee2e2;
+  --jp-c-coral-500: #f87171;
+  --jp-c-coral-100: #3f1d28;
+
+  --jp-c-peach-900: #fef3c7;
+  --jp-c-peach-500: #fbbf24;
+  --jp-c-peach-100: #3d2c19;
+
+  --jp-c-slate-900: #f1f5f9;
+  --jp-c-slate-500: #94a3b8;
+  --jp-c-slate-100: #1e293b;
+
+  --jp-white: #181528;
+  --cp-surface: var(--jp-c-slate-100);
+  --cp-surface-soft: var(--jp-white);
+  --cp-ink: var(--jp-c-slate-900);
+  --cp-muted: var(--jp-c-slate-500);
+  --cp-line: color-mix(in srgb, var(--jp-c-slate-500) 28%, var(--jp-c-slate-100));
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]):not(.light),
+  html:not([data-theme="light"]):not(.light) .cp-page {
+    --jp-c-purple-900: #e9d5ff;
+    --jp-c-purple-500: #a78bfa;
+    --jp-c-purple-100: #2e1d59;
+
+    --jp-c-indigo-900: #e0e7ff;
+    --jp-c-indigo-500: #818cf8;
+    --jp-c-indigo-100: #1e224d;
+
+    --jp-c-mauve-900: #f5d0fe;
+    --jp-c-mauve-500: #e879f9;
+    --jp-c-mauve-100: #3b1c47;
+
+    --jp-c-teal-900: #ccfbf1;
+    --jp-c-teal-500: #2dd4bf;
+    --jp-c-teal-100: #133638;
+
+    --jp-c-sky-900: #e0f2fe;
+    --jp-c-sky-500: #38bdf8;
+    --jp-c-sky-100: #132d46;
+
+    --jp-c-mint-900: #dcfce7;
+    --jp-c-mint-500: #4ade80;
+    --jp-c-mint-100: #143524;
+
+    --jp-c-coral-900: #fee2e2;
+    --jp-c-coral-500: #f87171;
+    --jp-c-coral-100: #3f1d28;
+
+    --jp-c-peach-900: #fef3c7;
+    --jp-c-peach-500: #fbbf24;
+    --jp-c-peach-100: #3d2c19;
+
+    --jp-c-slate-900: #f1f5f9;
+    --jp-c-slate-500: #94a3b8;
+    --jp-c-slate-100: #1e293b;
+
+    --jp-white: #181528;
+    --cp-surface: var(--jp-c-slate-100);
+    --cp-surface-soft: var(--jp-white);
+    --cp-ink: var(--jp-c-slate-900);
+    --cp-muted: var(--jp-c-slate-500);
+    --cp-line: color-mix(in srgb, var(--jp-c-slate-500) 28%, var(--jp-c-slate-100));
+  }
+}
+
+/* Chuyển màu mượt .6s ease khi bật/tắt chế độ sáng/tối */
+.cp-page,
+.cp-card,
+.cp-survey__card,
+.cp-pill,
+.cp-step-tab,
+.cp-line,
+.cp-option,
+.cp-speak-box,
+.cp-secondary-card {
+  transition:
+    background-color .6s ease,
+    background .6s ease,
+    color .6s ease,
+    border-color .6s ease,
+    box-shadow .6s ease;
+}
+
+/* ==========================================================================
+   1. TRANG KHẢO SÁT GIAO TIẾP (survey.html — 5 bước, vừa 1 màn hình)
+   ========================================================================== */
+.cp-survey-wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 12px 16px 24px;
+  box-sizing: border-box;
+}
+
+.cp-survey__card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  border-radius: 12px;
+  padding: 18px 24px 20px;
+  box-shadow: 0 4px 18px rgb(0 0 0 / 5%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cp-survey__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cp-survey__progress {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cp-survey__bar {
+  flex: 1 1 auto;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--jp-c-purple-100);
+  overflow: hidden;
+}
+
+.cp-survey__bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--jp-c-purple-500);
+  transition: width .28s ease;
+}
+
+.cp-survey__step-num {
+  flex: 0 0 auto;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+  font-size: .8rem;
+  font-weight: 600;
+}
+
+.cp-survey__dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cp-survey__dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid var(--cp-line);
+  background: var(--cp-surface-soft);
+  color: var(--cp-muted);
+  font-size: .76rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.cp-survey__dot.is-active {
+  background: var(--jp-c-purple-500);
+  color: #ffffff;
+  border-color: var(--jp-c-purple-500);
+}
+.cp-survey__dot.is-done {
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+  border-color: color-mix(in srgb, var(--jp-c-purple-500) 40%, transparent);
+}
+
+.cp-survey__head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--jp-c-purple-100) 55%, var(--cp-surface));
+  border: 1px solid color-mix(in srgb, var(--jp-c-purple-500) 22%, var(--cp-line));
+}
+
+.cp-survey__kitsu {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  flex-shrink: 0;
+  animation: jp-parts-kitsu-bob 2.8s ease-in-out infinite;
+}
+
+.cp-survey__titles {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cp-survey__title {
+  margin: 0;
+  font-size: clamp(22px, 2.2vw, 27px);
+  font-weight: 600;
+  line-height: 1.22;
+  color: var(--cp-ink);
+}
+
+.cp-survey__sub {
+  margin: 0;
+  font-size: .88rem;
+  color: var(--cp-muted);
+  line-height: 1.35;
+}
+
+.cp-survey__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.cp-survey__grid--topics {
+  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+  max-height: min(44vh, 310px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.cp-pill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  color: var(--cp-ink);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: transform .15s ease, border-color .15s ease, background-color .15s ease;
+}
+.cp-pill:hover:not(:disabled) {
+  border-color: var(--jp-c-purple-500);
+  transform: translateY(-1px);
+}
+.cp-pill.is-selected,
+.cp-pill[aria-pressed="true"],
+.cp-pill[aria-checked="true"] {
+  background: var(--jp-c-purple-100);
+  border-color: var(--jp-c-purple-500);
+  color: var(--jp-c-purple-900);
+}
+.cp-pill.is-locked {
+  cursor: default;
+  background: color-mix(in srgb, var(--jp-c-purple-100) 72%, var(--cp-surface));
+  border-color: var(--jp-c-purple-500);
+}
+
+.cp-pill__icon {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-500);
+  display: inline-grid;
+  place-items: center;
+}
+.cp-pill.is-selected .cp-pill__icon {
+  background: var(--jp-c-purple-500);
+  color: #ffffff;
+}
+
+.cp-pill__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.cp-pill__label {
+  font-size: .95rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.cp-pill__desc {
+  font-size: .78rem;
+  color: var(--cp-muted);
+  line-height: 1.25;
+}
+.cp-pill.is-selected .cp-pill__desc {
+  color: var(--jp-c-purple-900);
+  opacity: .85;
+}
+
+.cp-pill__check {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--cp-line);
+  display: inline-grid;
+  place-items: center;
+  color: transparent;
+  background: var(--cp-surface);
+}
+.cp-pill.is-selected .cp-pill__check {
+  background: var(--jp-c-purple-500);
+  border-color: var(--jp-c-purple-500);
+  color: #ffffff;
+}
+
+/* Bước 5: Chọn số tình huống mỗi ngày, ngày nghỉ, hạn muốn xong */
+.cp-pace-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.cp-rest-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cp-rest-chip {
+  min-width: 52px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid var(--cp-line);
+  background: var(--cp-surface);
+  color: var(--cp-ink);
+  font: inherit;
+  font-size: .86rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.cp-rest-chip[aria-pressed="true"] {
+  background: var(--jp-c-purple-100);
+  border-color: var(--jp-c-purple-500);
+  color: var(--jp-c-purple-900);
+}
+
+.cp-survey__row {
+  display: grid;
+  gap: 6px;
+}
+.cp-survey__label {
+  font-size: .86rem;
+  font-weight: 500;
+  color: var(--cp-ink);
+}
+.cp-survey__date-input {
+  max-width: 240px;
+  min-height: 40px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--cp-line);
+  background: var(--cp-surface);
+  color: var(--cp-ink);
+  font: inherit;
+}
+
+.cp-survey__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--cp-line);
+  position: sticky;
+  bottom: 0;
+  background: var(--cp-surface);
+  z-index: 5;
+}
+
+.cp-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 22px;
+  border-radius: 12px;
+  border: 0;
+  background: var(--jp-c-purple-500);
+  color: #ffffff;
+  font: inherit;
+  font-size: .94rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--jp-c-purple-500) 28%, transparent);
+  transition: transform .15s ease, filter .15s ease;
+}
+.cp-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+.cp-btn-primary:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.cp-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 42px;
+  padding: 7px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--cp-line);
+  background: var(--cp-surface);
+  color: var(--cp-ink);
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.cp-btn-ghost:hover:not(:disabled) {
+  background: var(--jp-c-purple-100);
+  border-color: var(--jp-c-purple-500);
+  color: var(--jp-c-purple-900);
+}
+
+/* ==========================================================================
+   2. TRANG BẢN ĐỒ LỘ TRÌNH GIAO TIẾP (path.html)
+   ========================================================================== */
+.cp-secondary-card {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  display: grid;
+  gap: 6px;
+}
+.cp-secondary-card__tag {
+  font-size: .72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--jp-c-purple-500);
+}
+.cp-secondary-card__name {
+  font-size: .95rem;
+  font-weight: 500;
+  color: var(--cp-ink);
+}
+
+.cp-today-extra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--jp-c-mint-100) 75%, var(--cp-surface));
+  border: 1px solid color-mix(in srgb, var(--jp-c-mint-500) 32%, var(--cp-line));
+}
+
+/* Nút tròn Bài nhập vai cuối chủ đề (TOPIC_TEST — biểu tượng micro) */
+.jp-parts__orb--topic-test {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: var(--jp-c-mauve-100);
+  color: var(--jp-c-mauve-900);
+  border: 1px solid var(--jp-c-mauve-500);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--jp-c-mauve-500) 20%, transparent);
+}
+.jp-parts__orb--topic-test.is-done {
+  background: var(--jp-c-mauve-500);
+  color: #ffffff;
+  border-color: var(--jp-c-mauve-100);
+}
+
+/* Mốc cuối mục tiêu: Bài test với AI (GOAL_TEST) */
+.jp-parts__orb--goal-test {
+  width: 96px;
+  height: 96px;
+  border-radius: 0;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* ==========================================================================
+   3. TRANG TÌNH HUỐNG 4 BƯỚC (situation.html — vừa 1 màn hình)
+   ========================================================================== */
+.cp-sit-shell {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 8px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cp-sit-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 4%);
+}
+
+.cp-sit-head-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.cp-sit-topic-badge {
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+  font-size: .75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.cp-sit-title {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 600;
+  color: var(--cp-ink);
+  line-height: 1.25;
+}
+
+.cp-sit-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 6px;
+  border-radius: 12px;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+}
+
+.cp-step-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--cp-muted);
+  font: inherit;
+  font-size: .84rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.cp-step-tab:hover {
+  background: var(--cp-surface-soft);
+  color: var(--cp-ink);
+}
+.cp-step-tab.is-active {
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+  border-color: color-mix(in srgb, var(--jp-c-purple-500) 38%, transparent);
+}
+.cp-step-tab.is-done {
+  color: var(--jp-c-mint-900);
+}
+.cp-step-tab__num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--cp-surface-soft);
+  color: var(--cp-ink);
+  font-size: .74rem;
+  font-weight: 600;
+  display: inline-grid;
+  place-items: center;
+}
+.cp-step-tab.is-active .cp-step-tab__num {
+  background: var(--jp-c-purple-500);
+  color: #ffffff;
+}
+.cp-step-tab.is-done .cp-step-tab__num {
+  background: var(--jp-c-mint-500);
+  color: #ffffff;
+}
+
+.cp-sit-stage {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 5%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 410px;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+/* Bước 1: Thẻ từ & mẫu câu lật 2 chiều */
+.cp-deck-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.cp-deck-tabs {
+  display: inline-flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-line);
+}
+.cp-deck-tab {
+  padding: 5px 14px;
+  border-radius: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--cp-muted);
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.cp-deck-tab.is-active {
+  background: var(--jp-c-purple-500);
+  color: #ffffff;
+}
+
+.cp-flashcard {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 240px;
+  padding: 20px 24px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--cp-surface) 0%, color-mix(in srgb, var(--jp-c-purple-100) 42%, var(--cp-surface)) 100%);
+  border: 1px solid color-mix(in srgb, var(--jp-c-purple-500) 28%, var(--cp-line));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+.cp-flashcard__tag {
+  font-size: .74rem;
+  font-weight: 500;
+  padding: 2px 10px;
+  border-radius: 6px;
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+}
+.cp-flashcard__ja {
+  font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+  font-weight: 600;
+  color: var(--cp-ink);
+  line-height: 1.3;
+}
+.cp-flashcard__rd {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--jp-c-purple-500);
+}
+.cp-flashcard__vi {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--jp-c-purple-900);
+}
+.cp-flashcard__note {
+  max-width: 56ch;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: var(--cp-surface);
+  color: var(--cp-muted);
+  font-size: .86rem;
+  line-height: 1.4;
+}
+.cp-flashcard__hint {
+  font-size: .78rem;
+  color: var(--cp-muted);
+}
+
+/* Bước 2: Nghe hội thoại từng câu (rê chuột hiện bản dịch) */
+.cp-listen-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--cp-surface-soft);
+}
+.cp-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cp-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-line);
+}
+.cp-line.is-learner {
+  background: color-mix(in srgb, var(--jp-c-purple-100) 58%, var(--cp-surface));
+  border-color: color-mix(in srgb, var(--jp-c-purple-500) 32%, var(--cp-line));
+}
+.cp-line.is-playing {
+  border-color: var(--jp-c-purple-500);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--jp-c-purple-500) 20%, transparent);
+}
+.cp-line__speaker {
+  flex: 0 0 auto;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--cp-ink);
+}
+.cp-line.is-learner .cp-line__speaker {
+  background: var(--jp-c-purple-500);
+  color: #ffffff;
+  border-color: var(--jp-c-purple-500);
+}
+.cp-line__content {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.cp-line__ja {
+  font-size: 1.04rem;
+  font-weight: 500;
+  color: var(--cp-ink);
+  line-height: 1.55;
+}
+.cp-line__vi {
+  font-size: .86rem;
+  color: var(--cp-muted);
+  line-height: 1.35;
+  transition: opacity .18s ease, filter .18s ease;
+}
+/* Khi tắt hiển thị bản dịch toàn cục, rê chuột hoặc focus vào câu vẫn hiện bản dịch */
+.cp-translation-hover .cp-line__vi {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity .18s ease, max-height .18s ease;
+}
+.cp-translation-hover .cp-line:hover .cp-line__vi,
+.cp-translation-hover .cp-line:focus-within .cp-line__vi,
+.cp-translation-hover .cp-line.is-vi-peek .cp-line__vi {
+  opacity: 1;
+  max-height: 60px;
+}
+
+.cp-audio-btn {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--cp-line);
+  background: var(--cp-surface);
+  color: var(--jp-c-purple-500);
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+}
+.cp-audio-btn:hover {
+  background: var(--jp-c-purple-100);
+  border-color: var(--jp-c-purple-500);
+}
+
+/* Bước 3: Nhập vai chọn câu (1 trong 3 câu + giải thích whyVi) */
+.cp-roleplay-context {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-line);
+}
+.cp-options {
+  display: grid;
+  gap: 8px;
+}
+.cp-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--cp-line);
+  background: var(--cp-surface);
+  color: var(--cp-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cp-option:hover:not(:disabled) {
+  border-color: var(--jp-c-purple-500);
+  background: color-mix(in srgb, var(--jp-c-purple-100) 40%, var(--cp-surface));
+}
+.cp-option.is-correct {
+  background: var(--jp-c-mint-100);
+  border-color: var(--jp-c-mint-500);
+  color: var(--jp-c-mint-900);
+}
+.cp-option.is-wrong {
+  background: var(--jp-c-coral-100);
+  border-color: var(--jp-c-coral-500);
+  color: var(--jp-c-coral-900);
+}
+.cp-why-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--jp-c-purple-100);
+  border: 1px solid color-mix(in srgb, var(--jp-c-purple-500) 35%, transparent);
+  color: var(--jp-c-purple-900);
+  font-size: .88rem;
+  line-height: 1.4;
+}
+
+/* Bước 4: Luyện nói câu của リン */
+.cp-speak-box {
+  display: grid;
+  gap: 10px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-line);
+}
+.cp-speak-target.is-hidden-text .cp-speak-target__ja {
+  filter: blur(7px);
+  user-select: none;
+}
+.cp-speak-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.cp-rec-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--jp-c-purple-500);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.cp-rec-btn.is-recording {
+  background: var(--jp-c-coral-500);
+}
+.cp-rec-btn:disabled {
+  opacity: .52;
+  cursor: not-allowed;
+}
+.cp-attempts-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+  font-size: .78rem;
+  font-weight: 500;
+}
+.cp-mic-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--jp-c-peach-100);
+  border: 1px solid var(--jp-c-peach-500);
+  color: var(--jp-c-peach-900);
+  font-size: .86rem;
+  font-weight: 600;
+}
+.cp-score-recognized {
+  font-size: .88rem;
+  color: var(--cp-ink);
+}
+.cp-score-feedback {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--cp-ink);
+  line-height: 1.38;
+}
+.cp-today-extra--exhausted {
+  justify-content: center;
+  background: var(--jp-c-purple-100);
+  border-color: color-mix(in srgb, var(--jp-c-purple-500) 35%, var(--cp-line));
+  color: var(--jp-c-purple-900);
+}
+.cp-score-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+}
+.cp-score-panel.is-pass {
+  border-color: var(--jp-c-mint-500);
+  background: var(--jp-c-mint-100);
+}
+.cp-score-panel.is-retry {
+  border-color: var(--jp-c-peach-500);
+  background: var(--jp-c-peach-100);
+}
+.cp-score-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.cp-score-word {
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: .86rem;
+  font-weight: 500;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+}
+.cp-score-word.is-good {
+  color: var(--jp-c-mint-900);
+  border-color: var(--jp-c-mint-500);
+}
+.cp-score-word.is-low {
+  color: var(--jp-c-coral-900);
+  border-color: var(--jp-c-coral-500);
+}
+
+.cp-sit-foot {
+  position: sticky;
+  bottom: 8px;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 8%);
+}
+
+/* Màn hình vừa 1280×760 */
+@media (max-height: 800px) {
+  .cp-survey-wrap { padding-top: 6px; padding-bottom: 10px; }
+  .cp-survey__card { padding: 14px 18px; gap: 10px; }
+  .cp-survey__head { padding: 8px 12px; }
+  .cp-pill { padding: 9px 12px; }
+  .cp-sit-stage { min-height: 340px; padding: 12px 16px; }
+  .cp-flashcard { min-height: 195px; padding: 14px 18px; }
+}
+
+/* Điện thoại (375×812) */
+@media (max-width: 640px) {
+  .cp-sit-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cp-pace-grid { grid-template-columns: minmax(0, 1fr); }
+  .cp-survey__foot,
+  .cp-sit-foot {
+    position: sticky;
+    bottom: 0;
+    border-radius: 12px 12px 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-page *,
+  .cp-survey__kitsu,
+  .cp-survey__bar-fill {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* === ROUND 7 UI POLISH === */
+/* Communication path Round 7 overrides */
+.cp-step-tab {
+  border: 1px solid var(--jp-line) !important;
+  font-weight: 400 !important;
+  box-shadow: none !important;
+}
+
+.cp-step-tab.is-active {
+  border-color: color-mix(in srgb, var(--jp-primary) 35%, var(--jp-line)) !important;
+  background: var(--jp-primary-soft) !important;
+  color: var(--jp-primary) !important;
+  font-weight: 500 !important;
+}
+
+.cp-step-tab__num {
+  width: auto !important;
+  height: auto !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+  font-size: .82rem !important;
+  font-weight: 500 !important;
+  padding: 0 !important;
+}
+
+.cp-survey__dot {
+  border-width: 1px !important;
+}
+
+.cp-option {
+  border: 1px solid var(--jp-line) !important;
+  font-weight: 400 !important;
+  box-shadow: none !important;
+}
+
+.cp-option.is-correct,
+.cp-option.is-wrong {
+  border-width: 1px !important;
+  font-weight: 500 !important;
+}
+
+.cp-btn-primary,
+.cp-btn-ghost {
+  border-width: 1px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+
+.cp-roleplay-review {
+  margin: 8px 0;
+}
+
+/* === ROUND 8 CPATH POLISH === */
+.cp-sit-shell {
+  max-width: 1000px !important;
+  width: 100% !important;
+}
+.cp-survey__kitsu,
+.cp-page .jp-today__kitsu-img {
+  width: 76px !important;
+  height: 76px !important;
+}
+.cp-survey__card,
+.cp-sit-stage,
+.cp-flashcard,
+.cp-speak-card,
+.cp-done-card {
+  border-radius: 12px !important;
+}
+.cp-btn,
+.cp-chip,
+.cp-step-tab,
+.cp-option,
+.cp-line,
+.cp-listen-bar {
+  border-radius: 8px !important;
+}
+.cp-option {
+  min-height: 64px !important;
+  padding: 12px 18px !important;
+  font-size: 1.08rem !important;
+}
+
+/* === ROUND 8 VIVID PURPLE BOOST === */
+:root,
+.jp-page,
+.jp-path,
+.jp-study,
+.jp-check,
+.jp-check-page,
+.cp-page {
+  --jp-c-purple-900: #260b5c !important;
+  --jp-c-purple-500: #5521b5 !important;
+  --jp-c-purple-100: #e3d6ff !important;
+
+  --jp-c-indigo-900: #1d145c !important;
+  --jp-c-indigo-500: #3f30b8 !important;
+  --jp-c-indigo-100: #dcdafa !important;
+
+  --jp-c-mauve-900: #3d0d66 !important;
+  --jp-c-mauve-500: #7222b8 !important;
+  --jp-c-mauve-100: #ebd6ff !important;
+
+  --jp-primary: #5521b5 !important;
+  --jp-primary-soft: #e3d6ff !important;
+  --cp-done: #5521b5 !important;
+  --cp-done-soft: #d9c7ff !important;
+  --cp-done-ring: rgba(85, 33, 181, 0.42) !important;
+}
+
+html[data-theme="dark"],
+html.dark,
+html[data-theme="dark"] .jp-page,
+html.dark .jp-page,
+html[data-theme="dark"] .jp-path,
+html.dark .jp-path,
+html[data-theme="dark"] .jp-study,
+html.dark .jp-study,
+html[data-theme="dark"] .jp-check,
+html.dark .jp-check,
+html[data-theme="dark"] .cp-page,
+html.dark .cp-page {
+  --jp-c-purple-900: #f3e8ff !important;
+  --jp-c-purple-500: #9f67ff !important;
+  --jp-c-purple-100: #321a66 !important;
+
+  --jp-c-indigo-900: #e0e7ff !important;
+  --jp-c-indigo-500: #818cf8 !important;
+  --jp-c-indigo-100: #23205c !important;
+
+  --jp-c-mauve-900: #fae8ff !important;
+  --jp-c-mauve-500: #c084fc !important;
+  --jp-c-mauve-100: #421959 !important;
+
+  --jp-primary: #9f67ff !important;
+  --jp-primary-soft: #321a66 !important;
+  --cp-done: #9f67ff !important;
+  --cp-done-soft: rgba(159, 103, 255, 0.24) !important;
+}
+
+/* 07/11: narrow screens — the topic badge sits above the title instead of over it */
+@media (max-width: 640px) {
+  .cp-sit-head-info { flex-wrap: wrap; align-items: flex-start; }
+  .cp-sit-topic-badge { white-space: normal; }
+  .cp-sit-title { flex: 1 1 100%; }
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Kiểm tra tuần Giao tiếp - JLAS', null)}">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kiểm tra tuần Giao tiếp - JLAS</title>
+</head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-check')}"></th:block>
+<link rel="stylesheet" th:href="@{/css/pages/jpath-path.css(v=${jpathAssetVersion})}" />
+<link rel="stylesheet" th:href="@{/css/pages/cpath.css(v=${jpathAssetVersion})}" />
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page cp-page" data-inline-dictionary>
+    <div class="jp-ws jp-ws--focus">
+        <nav class="jp-crumbs jp-ws__crumbs" aria-label="Bạn đang ở">
+            <ol class="jp-crumbs__list">
+                <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/">Trang chủ</a></li>
+                <li class="jp-crumbs__item"><a class="jp-crumbs__link" th:href="@{/learning/comm/path}">Lộ trình giao tiếp</a></li>
+                <li class="jp-crumbs__item"><span class="jp-crumbs__here" aria-current="page">Kiểm tra tuần</span></li>
+            </ol>
+        </nav>
+        <div class="jp-ws__main">
+            <div id="cpathWeeklyRoot" class="jp-check-page" aria-live="polite">
+                <p class="jp-status" role="status">Đang tải bài kiểm tra tuần…</p>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/cpath/cpath-weekly.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

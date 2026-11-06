@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Sổ tay Giao tiếp - JLAS', null)}">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sổ tay Giao tiếp - JLAS</title>
+</head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-side')}"></th:block>
+<link rel="stylesheet" th:href="@{/css/pages/jpath-path.css(v=${jpathAssetVersion})}" />
+<link rel="stylesheet" th:href="@{/css/pages/cpath.css(v=${jpathAssetVersion})}" />
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page jp-side cp-page" data-inline-dictionary>
+    <div class="jp-ws jp-ws--norail">
+        <nav class="jp-crumbs jp-ws__crumbs" aria-label="Bạn đang ở">
+            <ol class="jp-crumbs__list">
+                <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/">Trang chủ</a></li>
+                <li class="jp-crumbs__item"><a class="jp-crumbs__link" th:href="@{/learning/comm/path}">Lộ trình giao tiếp</a></li>
+                <li class="jp-crumbs__item"><span class="jp-crumbs__here" aria-current="page">Sổ tay</span></li>
+            </ol>
+        </nav>
+        <aside class="jp-ws__side" aria-label="Điều hướng lộ trình giao tiếp">
+            <nav class="jp-sidenav" aria-label="Trang của lộ trình">
+                <p class="jp-sidenav__title">Lộ trình Giao tiếp</p>
+                <a class="jp-sidenav__link" th:href="@{/learning/comm/path}">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-route"/></svg> Bản đồ tuần
+                </a>
+                <a class="jp-sidenav__link" th:href="@{/learning/comm/day}">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-history"/></svg> Chi tiết ngày
+                </a>
+                <a class="jp-sidenav__link" th:href="@{/learning/comm/survey}">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-settings"/></svg> Khảo sát mục tiêu
+                </a>
+                <a class="jp-sidenav__link" th:href="@{/learning/comm/notebook}" aria-current="page">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-notebook"/></svg> Sổ tay
+                </a>
+            </nav>
+        </aside>
+        <div class="jp-ws__main">
+            <h1 class="jp-page-head__title">Sổ tay giao tiếp</h1>
+            <p class="jp-side__note">Từ, mẫu câu và câu thoại bạn trả lời sai ở kiểm tra tuần. Trả lời đúng ở lần kiểm tra sau thì mục tự ra khỏi sổ.</p>
+            <div id="cpathNotebookRoot" aria-live="polite">
+                <p class="jp-status" role="status">Đang tải sổ tay…</p>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/cpath/cpath-notebook.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>
