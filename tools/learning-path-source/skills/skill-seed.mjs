@@ -27,7 +27,7 @@ export const SKILL_TABLES = {
     pk: ['code'], cc: true,
     cols: ['code', 'type_code', 'level', 'skill', 'sort_order', 'passage_ja', 'passage_vi', 'script_json', 'script_vi',
       'image_description_vi', 'new_words_json', 'char_count', 'question_count', 'audio_path', 'audio_sha256',
-      'audio_seconds', ...CC],
+      'audio_seconds', 'translation_json', ...CC],
   },
   jpath_skill_question: {
     pk: ['code'], cc: true,
@@ -97,6 +97,7 @@ function setRow(level, set, sortOrder, typeByCode, audio, status) {
     audio_path: a ? a.audio_path : null,
     audio_sha256: a ? a.audio_sha256 : null,
     audio_seconds: a ? a.audio_seconds : null,
+    translation_json: set.translation ? json(set.translation) : null,
     status,
     authored: 1,
     seed_version: null,

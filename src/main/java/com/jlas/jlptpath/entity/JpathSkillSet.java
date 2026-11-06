@@ -87,6 +87,11 @@ public class JpathSkillSet {
     @Column(name = "audio_seconds")
     private Integer audioSeconds;
 
+    /** Owner 06/11: {questions_vi, lines_vi | sentences} for the practice page's translations (null when none). */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "translation_json", columnDefinition = "json")
+    private String translationJson;
+
     @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 12)

@@ -217,12 +217,26 @@
       }).join('') + '</div>';
   }
 
+  /**
+   * Owner 06/11: per-set translations from GET /skills/sets/{code}/translation ({questions_vi, lines_vi | sentences}),
+   * cached per set; null while not loaded or when the set has none (the page then falls back to the old split).
+   */
+  var TR = {};
+  function trOf(set) { return set && TR[set.code] ? TR[set.code] : null; }
+
   /** The source to study: the reading passage, or the Listening player + the dialogue once it is revealed. */
   function setSource(set, graded, viOn, token) {
+    var tr = trOf(set);
     if (set.skill === 'LISTENING') {
       var player = set.audioSlot != null
         ? '<div data-skill-player data-src="' + esc(audioUrl(token, set.audioSlot)) + '"></div>' : '';
-      return player + (graded && set.revealed ? senListHtml(zipScript(set.script, set.scriptVi), true, viOn) : '');
+      var lines = tr && Array.isArray(tr.lines_vi)
+        ? list(set.script).map(function (l, i) { return { speaker: l.speaker, ja: l.ja, vi: tr.lines_vi[i] || '' }; })
+        : zipScript(set.script, set.scriptVi);
+      return player + (graded && set.revealed ? senListHtml(lines, true, viOn) : '');
+    }
+    if (tr && Array.isArray(tr.sentences)) {
+      return senListHtml(tr.sentences.map(function (x) { return { ja: x.ja, vi: graded && set.revealed ? x.vi : '' }; }), false, viOn);
     }
     return senListHtml(zipJaVi(set.passageJa, graded && set.revealed ? set.passageVi : null), false, viOn);
   }
@@ -266,7 +280,7 @@
         cls = ' class="is-picked"';
       }
       return '<button type="button"' + cls + (ctx.graded ? ' disabled' : '') + ' data-answer-option="'
-        + esc(o.id) + '" lang="ja">' + esc(o.label) + '</button>';
+        + esc(o.id) + '"><span lang="ja">' + esc(o.label) + '</span><!--opt' + list(q.options).indexOf(o) + '--></button>';
     }).join('');
     var verdict = '';
     if (ctx.graded && a) {
@@ -275,9 +289,18 @@
         : '<span class="jp-side-miss">' + icon('circle-x') + ' Sai.</span>')
         + (ctx.showExplain && a.explanation ? ' ' + esc(a.explanation) : '') + '</p>';
     }
+    var qv = ctx.viOn && ctx.qvi ? ctx.qvi[q.id] : null;
+    if (qv && Array.isArray(qv.options_vi)) {
+      opts = list(q.options).map(function (o, k) {
+        return '<span class="jp-skill-opt-vi">' + esc(qv.options_vi[k] || '') + '</span>';
+      }).reduce(function (html, vi, k) {
+        return html.replace('<!--opt' + k + '-->', vi);
+      }, opts);
+    }
     return '<div class="jp-skill-q" data-question="' + esc(q.id) + '">'
       + '<p class="jp-skill-q__no">問' + esc(no) + '</p>'
       + '<p lang="ja">' + esc(q.prompt) + '</p>'
+      + (qv && qv.question_vi ? '<p class="jp-skill-q__vi">' + esc(qv.question_vi) + '</p>' : '')
       + '<div class="jp-skill-q__options">' + opts + '</div>' + verdict + '</div>';
   }
 
@@ -315,7 +338,11 @@
     var graded = setDone(set, st.answered);
     var report = attrJson({ targetType: 'SKILL_SET', targetCode: set.code, pageContext: 'SKILL_SESSION' });
     var ctx = { token: view.token, questions: st.questions, answered: st.answered, picks: st.picks || {},
-      graded: graded, showExplain: !!st.showExplain, viOn: !!st.viOn };
+      graded: graded, showExplain: !!st.showExplain, viOn: !!st.viOn, qvi: {} };
+    var trq = trOf(set);
+    if (trq && Array.isArray(trq.questions_vi)) {
+      list(set.questionIds).forEach(function (qid, k) { if (trq.questions_vi[k]) ctx.qvi[qid] = trq.questions_vi[k]; });
+    }
     var skillName = set.skill === 'LISTENING' ? 'Nghe' : 'Đọc';
     var head = '<p class="jp-skill-context" role="status">' + esc(dayLabel()) + ' · ' + esc(skillName)
       + ' · Bài ' + (index + 1) + '/' + total + '</p>';
@@ -424,6 +451,13 @@
       var ps = practiceState(state.view);
       var set = ps.sets[state.current];
       if (!set) { return submitPractice(); }
+      if (set.code && !(set.code in TR)) {
+        TR[set.code] = null;
+        Promise.resolve(api.get(BASE + '/skills/sets/' + encodeURIComponent(set.code) + '/translation')).then(function (t) {
+          TR[set.code] = t || null;
+          if (t) renderPractice();
+        }, function () { /* keep the old split */ });
+      }
       body.innerHTML = practiceHtml(set, state.view, state.current, {
         token: ps.token, questions: ps.questions, answered: ps.answered,
         picks: state.picks, showExplain: state.showExplain, viOn: state.viOn });
@@ -510,7 +544,8 @@
         state.viOn = !state.viOn;
         var btn = body.querySelector('[data-skill-tool="translate"]');
         if (btn) btn.setAttribute('aria-pressed', state.viOn ? 'true' : 'false');
-        body.querySelectorAll('.jp-sen-list').forEach(function (el) { el.classList.toggle('is-vi', state.viOn); });
+        // owner 06/11: the questions and options get their translation too, so the set is drawn again
+        renderPractice();
       }
     }
 

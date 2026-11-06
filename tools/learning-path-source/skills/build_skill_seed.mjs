@@ -38,6 +38,16 @@ export function buildSkillSeed(level, {
   const errors = [];
   const inputs = loadLevelInputs(level);
   const { accepted, excluded } = checkLevel(level, inputs);
+  // owner 06/11: per-set translations (questions + options, listening lines, reading sentences) written outside the
+  // bank in data/learning-path/skills/translations/<L>/<file>.json, keyed by set id
+  const trDir = path.join(SKILLS_DIR, 'translations', level);
+  if (existsSync(trDir)) {
+    const tr = new Map();
+    for (const f of readdirSync(trDir).filter((f) => f.endsWith('.json'))) {
+      for (const [id, t] of Object.entries(JSON.parse(readFileSync(path.join(trDir, f), 'utf8')))) tr.set(id, t);
+    }
+    for (const set of accepted) if (tr.has(set.id)) set.translation = tr.get(set.id);
+  }
   const rawById = new Map(inputs.sets.map((s) => [s.id, s]));
   const excludedSets = excluded.map((e) => rawById.get(e.id)).filter((s) => s && s.type_code && s.id);
   const { rows: blanks, empty } = dictationBlanks(accepted.filter((s) => Array.isArray(s.dictation)), levelVocab(level));

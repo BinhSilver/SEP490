@@ -1875,6 +1875,7 @@ CREATE TABLE IF NOT EXISTS jpath_skill_set (
     audio_path VARCHAR(255) NULL,
     audio_sha256 CHAR(64) NULL,
     audio_seconds SMALLINT UNSIGNED NULL,
+    translation_json JSON NULL,
     status VARCHAR(12) NOT NULL DEFAULT 'DRAFT',
     report_hidden TINYINT(1) NOT NULL DEFAULT 0,
     authored TINYINT(1) NOT NULL DEFAULT 0,
@@ -2033,6 +2034,8 @@ CALL jlas_ls_check('jpath_grammar_question', 'chk_jpath_grammar_question_bank', 
     'bank IN (''CHECK'',''ORDER'',''FILL'',''EXTRA'',''SITU'')');
 CALL jlas_ls_check('jpath_grammar_question', 'chk_jpath_grammar_question_type', 'SITUATION', NULL,
     'question_type IN (''FILL'',''ORDER_STAR'',''MEANING'',''ERROR'',''ORDER'',''FILL_TEXT'',''SITUATION'')');
+-- 06/11: bản dịch câu hỏi, lựa chọn, từng câu bài đọc / từng dòng bài nghe (trang luyện Đọc · Nghe).
+CALL jlas_ls_add_column('jpath_skill_set', 'translation_json', 'JSON NULL AFTER audio_seconds');
 
 DROP PROCEDURE IF EXISTS jlas_ls_check;
 DROP PROCEDURE IF EXISTS jlas_ls_modify_column;

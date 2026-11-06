@@ -33,6 +33,22 @@ public class JpathPartsController {
         return ResponseEntity.ok(ApiResponse.ok("OK", partsService.entryResult(user.userId())));
     }
 
+    private final com.jlas.jlptpath.repository.JpathSkillSetRepository skillSets;
+    private static final com.fasterxml.jackson.databind.ObjectMapper JSON = new com.fasterxml.jackson.databind.ObjectMapper();
+
+    /** Owner 06/11: translations of one Đọc · Nghe set (question + options, listening lines or reading sentences). */
+    @GetMapping("/skills/sets/{code}/translation")
+    @SuppressWarnings("unchecked")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> setTranslation(
+            @AuthenticationPrincipal UserPrincipal user, @org.springframework.web.bind.annotation.PathVariable String code) {
+        // a plain Map: the MVC JSON writer serialises it as the stored object
+        java.util.Map<String, Object> node = skillSets.findById(code)
+                .map(com.jlas.jlptpath.entity.JpathSkillSet::getTranslationJson)
+                .map(t -> { try { return (java.util.Map<String, Object>) JSON.readValue(t, java.util.Map.class); } catch (Exception e) { return null; } })
+                .orElse(null);
+        return ResponseEntity.ok(ApiResponse.ok("OK", node));
+    }
+
     @GetMapping("/parts")
     public ResponseEntity<ApiResponse<JpathPartsService.Parts>> parts(@AuthenticationPrincipal UserPrincipal user,
             @RequestParam String tab) {
