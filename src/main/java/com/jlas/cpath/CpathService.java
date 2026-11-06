@@ -44,6 +44,53 @@ public class CpathService {
         this.clock = clock;
     }
 
+    /** Owner 19/10: 2 CP once per situation, on the first time all 4 steps are done. */
+    static final int SITUATION_CP = 2;
+    static final String REF_SITUATION = "CPATH_SITUATION";
+    private org.springframework.beans.factory.ObjectProvider<com.jlas.mission.service.CreditAwardService> awards;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    void setAwards(org.springframework.beans.factory.ObjectProvider<com.jlas.mission.service.CreditAwardService> awards) {
+        this.awards = awards;
+    }
+
+    /** The date of a DATETIME column value (the driver gives LocalDateTime or Timestamp). */
+    static LocalDate dateOf(Object v) {
+        if (v instanceof java.time.LocalDateTime t) return t.toLocalDate();
+        if (v instanceof java.sql.Timestamp t) return t.toLocalDateTime().toLocalDate();
+        return null;
+    }
+
+    /** Stable numeric reference of a situation code for the CP ledger (its unique key drops a repeat award). */
+    static long situationRef(String code) {
+        java.util.zip.CRC32 crc = new java.util.zip.CRC32();
+        crc.update(code.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        return crc.getValue();
+    }
+
+    /** Queues the situation CP in this transaction and applies the learner's open awards after commit. */
+    private int awardSituation(Long userId, String code, String titleVi) {
+        com.jlas.mission.service.CreditAwardService credit = awards == null ? null : awards.getIfAvailable();
+        if (credit == null) return 0;
+        credit.enqueue(userId, SITUATION_CP,
+                com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason.STUDY_REWARD, REF_SITUATION,
+                situationRef(code), "Hoàn thành tình huống giao tiếp " + (titleVi == null ? code : titleVi), null, null, null);
+        if (org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive()) {
+            org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+                    new org.springframework.transaction.support.TransactionSynchronization() {
+                        @Override
+                        public void afterCommit() {
+                            try {
+                                credit.applyOpenAwards(userId);
+                            } catch (RuntimeException ignored) {
+                                // stays queued; the retry job applies it
+                            }
+                        }
+                    });
+        }
+        return SITUATION_CP;
+    }
+
     // ------------------------------------------------------------------------------------------------- goals
 
     @Transactional(readOnly = true)
@@ -440,7 +487,13 @@ public class CpathService {
                     num(body.get("score")), pathId, code);
         }
         boolean all = doneSteps.containsAll(STEPS);
+        int cp = 0;
         if (all) {
+            if (row.get("done_at") == null) {
+                String title = db.queryForList("SELECT title_vi FROM cpath_situation WHERE code = ?", String.class, code)
+                        .stream().findFirst().orElse(null);
+                cp = awardSituation(userId, code, title);
+            }
             db.update("UPDATE cpath_user_situation SET done_at = COALESCE(done_at, CURRENT_TIMESTAMP(6)) WHERE path_id = ? AND situation_code = ?", pathId, code);
             updateTopic(pathId, code);
         }
@@ -449,7 +502,7 @@ public class CpathService {
         for (String x : STEPS) steps.put(x.toLowerCase(Locale.ROOT), doneSteps.contains(x));
         out.put("steps", steps);
         out.put("situationDone", all);
-        out.put("cp", 0);
+        out.put("cp", cp);
         return out;
     }
 
@@ -494,7 +547,11 @@ public class CpathService {
             sc.put("speak", r.get("speak_best"));
             scores.add(sc);
         }
-        return Map.of("day", day.toString(), "situations", situations, "scores", scores, "cp", 0);
+        // CP of the day: the situations first finished on that day (2 CP each, owner 19/10)
+        long finished = rows.stream().filter(r -> r.get("done_at") != null
+                && day.equals(dateOf(r.get("done_at")))).count();
+        return Map.of("day", day.toString(), "situations", situations, "scores", scores,
+                "cp", (int) finished * SITUATION_CP);
     }
 
     // --------------------------------------------------------------------------------------------- goal test
