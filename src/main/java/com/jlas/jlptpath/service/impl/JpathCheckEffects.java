@@ -179,7 +179,7 @@ public class JpathCheckEffects {
                 reevaluate(userId);
                 advance = true;
             }
-            case TOPIC_KNOWN -> {
+            case TOPIC_KNOWN, WEEK_KNOWN -> {
                 if (Boolean.TRUE.equals(s.passed())) {
                     applyTopic(userId, set, s);
                     reevaluate(userId);
@@ -249,20 +249,24 @@ public class JpathCheckEffects {
         return new Applied(cp, advance(session, set.getToken()), credit);
     }
 
-    /** Topic check applied: right items KNOWN (TOPIC_CHECK) and counted; items not asked wait for a review. */
+    /**
+     * Topic / week check applied: right items KNOWN (TOPIC_CHECK) and counted; items not asked wait for a review.
+     * A topic check is always Từ vựng; a week check (owner 06/11) uses its tab's item type.
+     */
     private void applyTopic(Long userId, JpathCheckSet set, Scored s) {
+        JpathItemType type = set.getKind() == JpathCheckKind.WEEK_KNOWN ? itemType(set) : JpathItemType.VOCAB;
         for (String code : s.itemCodes()) {
             if (!s.wrongCodes().contains(code)) {
-                JpathUserItem row = items.ensureRow(userId, JpathItemType.VOCAB, code, set.getLevel());
+                JpathUserItem row = items.ensureRow(userId, type, code, set.getLevel());
                 items.markKnown(row, TOPIC_CHECK);
                 items.count(row);
             }
         }
         for (String code : s.pendingCodes()) {
-            if (userItems.findByUserIdAndItemTypeAndItemCode(userId, JpathItemType.VOCAB, code).isPresent()) {
+            if (userItems.findByUserIdAndItemTypeAndItemCode(userId, type, code).isPresent()) {
                 continue;
             }
-            JpathUserItem row = items.ensureRow(userId, JpathItemType.VOCAB, code, set.getLevel());
+            JpathUserItem row = items.ensureRow(userId, type, code, set.getLevel());
             row.setFirstLearnedAt(clock.localNow(userId));
             row.setKnownSource(JpathItemStateMachine.TOPIC_PENDING);
             userItems.save(row);

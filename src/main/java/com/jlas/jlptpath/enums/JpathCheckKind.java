@@ -5,5 +5,7 @@ public enum JpathCheckKind {
     MICRO_CHECK, GROUP_EXERCISE, SKIP_ONE, TOPIC_KNOWN, FREE_QUIZ, CONFUSABLE, KANA_ROW, GRAMMAR_PRACTICE,
     GRAMMAR_EXTRA, GRAMMAR_REVIEW,
     /** Plan 3 skill tools: strategy lesson check, practice sets, dictation, timed section practice. */
-    SKILL_LESSON, SKILL_PRACTICE, SKILL_DICTATION, SKILL_SECTION
+    SKILL_LESSON, SKILL_PRACTICE, SKILL_DICTATION, SKILL_SECTION,
+    /** Owner 06/11: "Tôi biết tuần này" — skip the next study week of a tab (Smart Test Căn bản or better). */
+    WEEK_KNOWN
 }

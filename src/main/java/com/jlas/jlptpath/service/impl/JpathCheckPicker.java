@@ -151,6 +151,40 @@ public class JpathCheckPicker {
                 .toList());
     }
 
+    /** Questions of one "Tôi biết tuần này" check (owner 06/11). */
+    static final int WEEK_MAX = 20;
+
+    /**
+     * "Tôi biết tuần này": min(20, n) questions over the coming week's items of one tab ({@code codes}, in queue
+     * order); the items not asked are {@code pending} (TOPIC_PEND rows when the check applies, like a topic check).
+     */
+    Built week(Long userId, JpathTab tab, String level, List<String> codes, boolean timerOn, long seed) {
+        if (codes == null || codes.isEmpty()) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Không còn tuần nào để kiểm.");
+        }
+        BuiltCheck check = switch (sliderType(tab)) {
+            case VOCAB -> {
+                List<JpathVocabulary> words = content.vocabs(codes).stream().filter(content::learnable).toList();
+                yield builder.quiz(words, vocabPool(userId, List.of(), level, words),
+                        Math.min(WEEK_MAX, words.size()), JpathQuizDirection.MIXED, timerOn, seed);
+            }
+            case KANJI -> {
+                List<JpathKanji> kanji = content.kanjis(codes).stream().filter(content::learnable).toList();
+                yield builder.quiz(kanji, kanjiPool(userId, level, kanji), Math.min(WEEK_MAX, kanji.size()),
+                        JpathQuizDirection.JA_VI, timerOn, seed);
+            }
+            default -> {
+                Map<String, Integer> checkCounts = content.visibleCheckCounts(level);
+                List<JpathGrammar> patterns = content.grammars(codes).stream()
+                        .filter(g -> content.learnable(g, checkCounts.getOrDefault(g.getCode(), 0))).toList();
+                yield grammar(patterns, Set.of(), Math.min(WEEK_MAX, patterns.size()), timerOn, seed);
+            }
+        };
+        requireQuestions(check);
+        Set<String> asked = new HashSet<>(check.itemCodes());
+        return new Built(check, codes.stream().filter(c -> !asked.contains(c)).toList());
+    }
+
     // ---- free quiz / redo ----------------------------------------------------------------------------------
 
     /** count ∈ {5, 10, 20}; null = 10; anything else → VALIDATION_FAILED. */

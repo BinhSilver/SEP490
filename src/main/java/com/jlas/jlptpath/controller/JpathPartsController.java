@@ -33,6 +33,29 @@ public class JpathPartsController {
         return ResponseEntity.ok(ApiResponse.ok("OK", partsService.entryResult(user.userId())));
     }
 
+    private final com.jlas.jlptpath.service.JpathCheckService checkService;
+
+    /** Owner 06/11 "Tôi biết tuần này" of one tab: offered or not, and how many items the week holds (no codes). */
+    public record WeekSkipView(boolean offer, String tab, String level, int items) {
+    }
+
+    @GetMapping("/week-skip")
+    public ResponseEntity<ApiResponse<WeekSkipView>> weekSkip(@AuthenticationPrincipal UserPrincipal user,
+            @RequestParam String tab) {
+        JpathPartsService.WeekSkip w = partsService.weekSkip(user.userId(), JpathTab.valueOf(tab.trim().toUpperCase(Locale.ROOT)));
+        return ResponseEntity.ok(ApiResponse.ok("OK", new WeekSkipView(w.offer(), w.tab(), w.level(), w.items())));
+    }
+
+    /** Issues the week check (WEEK_KNOWN); the page opens it like any other check. */
+    @org.springframework.web.bind.annotation.PostMapping("/week-skip/{tab}/check")
+    public ResponseEntity<ApiResponse<com.jlas.jlptpath.dto.JpathCheckView>> weekSkipCheck(
+            @AuthenticationPrincipal UserPrincipal user, @org.springframework.web.bind.annotation.PathVariable String tab) {
+        com.jlas.jlptpath.dto.JpathCheckIssueRequest request = new com.jlas.jlptpath.dto.JpathCheckIssueRequest(
+                com.jlas.jlptpath.enums.JpathCheckKind.WEEK_KNOWN, JpathTab.valueOf(tab.trim().toUpperCase(Locale.ROOT)),
+                null, null, null, null, null, null, null, null, null, null);
+        return ResponseEntity.ok(ApiResponse.ok("OK", checkService.issue(user.userId(), request)));
+    }
+
     private final com.jlas.jlptpath.repository.JpathSkillSetRepository skillSets;
     private static final com.fasterxml.jackson.databind.ObjectMapper JSON = new com.fasterxml.jackson.databind.ObjectMapper();
 

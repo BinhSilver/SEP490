@@ -135,7 +135,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             JpathCheckKind.GRAMMAR_PRACTICE, JpathCheckKind.GRAMMAR_REVIEW);
     private static final Set<JpathCheckKind> FREE_KINDS = EnumSet.of(JpathCheckKind.SKIP_ONE,
             JpathCheckKind.TOPIC_KNOWN, JpathCheckKind.FREE_QUIZ, JpathCheckKind.CONFUSABLE,
-            JpathCheckKind.GRAMMAR_PRACTICE, JpathCheckKind.GRAMMAR_EXTRA);
+            JpathCheckKind.GRAMMAR_PRACTICE, JpathCheckKind.GRAMMAR_EXTRA, JpathCheckKind.WEEK_KNOWN);
     /** Plan 3 skill checks: no item rows, no plan, their own session page. */
     static final Set<JpathCheckKind> SKILL_KINDS = EnumSet.of(JpathCheckKind.SKILL_PRACTICE,
             JpathCheckKind.SKILL_DICTATION, JpathCheckKind.SKILL_SECTION);
@@ -221,6 +221,13 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     private final Path audioRoot;
     // Plan 3 skill checks (SKILL_*): looked up when used, the skill services sit above this one
     private final ObjectProvider<JpathSkillPracticeService> skillPractice;
+    // Owner 06/11 week skip: the coming week of a tab comes from the parts view (looked up when used)
+    private ObjectProvider<JpathPartsService> partsService;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    void setPartsService(ObjectProvider<JpathPartsService> partsService) {
+        this.partsService = partsService;
+    }
 
     public JpathCheckServiceImpl(JpathCheckSetRepository checks, JpathUserPathRepository paths,
                                  JpathUserLevelRepository levels, JpathStudySessionRepository sessions,
@@ -472,6 +479,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 }
                 level = level == null ? open : level;
             }
+            case WEEK_KNOWN -> {
+                JpathCheckPicker.sliderType(tab);
+                level = open;
+            }
             case FREE_QUIZ -> {
                 JpathCheckPicker.sliderType(tab);
                 count = JpathCheckPicker.quizSize(r.count());
@@ -540,6 +551,14 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             case SKIP_ONE -> picker.skipOne(userId, JpathCheckPicker.sliderType(spec.tab()),
                     spec.step() != null ? spec.step().itemCode() : r.itemCode(), timerOn, seed);
             case TOPIC_KNOWN -> picker.topic(userId, spec.level(), r.topicKey(), timerOn, seed);
+            case WEEK_KNOWN -> {
+                JpathPartsService parts = partsService == null ? null : partsService.getIfAvailable();
+                JpathPartsService.WeekSkip w = parts == null ? null : parts.weekSkip(userId, spec.tab());
+                if (w == null || !w.offer()) {
+                    throw new ApiException(ErrorCode.VALIDATION_FAILED, "Bài kiểm tra bỏ qua tuần chưa mở cho bạn.");
+                }
+                yield picker.week(userId, spec.tab(), spec.level(), w.codes(), timerOn, seed);
+            }
             case FREE_QUIZ -> picker.freeQuiz(userId, spec.tab(), spec.level(), open, e.topicKey(), e.unitNo(),
                     e.source(), e.count(), e.direction(), timerOn, seed);
             case CONFUSABLE -> picker.confusable(userId, spec.tab(), open, seed);
@@ -1013,7 +1032,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             case MICRO_CHECK -> total > 0;
             case KANA_ROW -> total > 0 && correct * 100L >= (long) JpathCheckSizing.PASS_PERCENT * total;
             case SKIP_ONE -> total > 0 && correct == total;
-            case TOPIC_KNOWN -> total > 0 && correct * 10L >= 9L * total;
+            case TOPIC_KNOWN, WEEK_KNOWN -> total > 0 && correct * 10L >= 9L * total;
             // Plan 3 #40: a section passes at a shown (rounded) 32% — the floor 19 of 60 is 31.7% → 32%
             case SKILL_SECTION -> total > 0
                     && Math.round(100.0 * correct / total) >= com.jlas.jlptpath.util.JpathSkillPolicy.SECTION_PASS_PCT;

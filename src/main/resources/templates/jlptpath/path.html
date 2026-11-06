@@ -32,6 +32,7 @@
             </div>
             <section class="jp-path__today" data-slot="today"></section>
             <section class="jp-path__warmup" data-slot="warmup" hidden></section>
+            <section class="jp-path__warmup" data-slot="week-skip" hidden></section>
             <div class="jp-path__stage" data-region="stage"></div>
             <details class="jp-path__pace" data-part="pace">
                 <summary class="jp-path__pace-head">Điều chỉnh nhịp học</summary>
@@ -57,6 +58,7 @@
 <script th:src="@{/js/jlptpath/jpath-lists.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-parts.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-warmup.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-week-skip.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-tour.js(v=${jpathAssetVersion})}"></script>
 <!-- Plan 3: the Đọc · Nghe tab (loaded before jpath-path.js, which calls it). -->
 <script th:src="@{/js/jlptpath/jpath-mock-card.js(v=${jpathAssetVersion})}"></script>

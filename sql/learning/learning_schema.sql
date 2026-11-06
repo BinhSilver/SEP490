@@ -1734,7 +1734,7 @@ CREATE TABLE IF NOT EXISTS jpath_check_set (
     KEY idx_jpath_check_session (user_id, session_id, kind, status),
     KEY idx_jpath_check_submitted (user_id, submitted_at),
     CONSTRAINT fk_jpath_check_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT chk_jpath_check_kind CHECK (kind IN ('MICRO_CHECK','GROUP_EXERCISE','SKIP_ONE','TOPIC_KNOWN','FREE_QUIZ','CONFUSABLE','KANA_ROW','GRAMMAR_PRACTICE','GRAMMAR_EXTRA','GRAMMAR_REVIEW','SKILL_LESSON','SKILL_PRACTICE','SKILL_DICTATION','SKILL_SECTION')),
+    CONSTRAINT chk_jpath_check_kind CHECK (kind IN ('MICRO_CHECK','GROUP_EXERCISE','SKIP_ONE','TOPIC_KNOWN','FREE_QUIZ','CONFUSABLE','KANA_ROW','GRAMMAR_PRACTICE','GRAMMAR_EXTRA','GRAMMAR_REVIEW','SKILL_LESSON','SKILL_PRACTICE','SKILL_DICTATION','SKILL_SECTION','WEEK_KNOWN')),
     CONSTRAINT chk_jpath_check_status CHECK (status IN ('ISSUED','SUBMITTED','EXPIRED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2027,6 +2027,9 @@ CALL jlas_ls_add_column('jpath_grammar', 'parent_code', 'VARCHAR(24) NULL AFTER 
 -- Kế hoạch 3: 4 kind câu kỹ năng và 2 đích báo sai mới (thay CHECK khi mệnh đề thiếu giá trị cuối; chỉ nới).
 CALL jlas_ls_check('jpath_check_set', 'chk_jpath_check_kind', 'SKILL_SECTION', NULL,
     'kind IN (''MICRO_CHECK'',''GROUP_EXERCISE'',''SKIP_ONE'',''TOPIC_KNOWN'',''FREE_QUIZ'',''CONFUSABLE'',''KANA_ROW'',''GRAMMAR_PRACTICE'',''GRAMMAR_EXTRA'',''GRAMMAR_REVIEW'',''SKILL_LESSON'',''SKILL_PRACTICE'',''SKILL_DICTATION'',''SKILL_SECTION'')');
+-- 07/11: bài kiểm tra bỏ qua tuần (WEEK_KNOWN) cho người vào từ Smart Test mức Căn bản trở lên (chỉ nới).
+CALL jlas_ls_check('jpath_check_set', 'chk_jpath_check_kind', 'WEEK_KNOWN', NULL,
+    'kind IN (''MICRO_CHECK'',''GROUP_EXERCISE'',''SKIP_ONE'',''TOPIC_KNOWN'',''FREE_QUIZ'',''CONFUSABLE'',''KANA_ROW'',''GRAMMAR_PRACTICE'',''GRAMMAR_EXTRA'',''GRAMMAR_REVIEW'',''SKILL_LESSON'',''SKILL_PRACTICE'',''SKILL_DICTATION'',''SKILL_SECTION'',''WEEK_KNOWN'')');
 CALL jlas_ls_check('jpath_content_report', 'chk_jpath_report_target_type', 'SKILL_QUESTION', NULL,
     'target_type IN (''VOCAB'',''KANJI'',''GRAMMAR'',''KANA'',''EXAMPLE'',''QUESTION'',''SKILL_SET'',''SKILL_QUESTION'')');
 -- 05/11: câu hỏi ngữ pháp kiểu đề theo tình huống (nhóm SITU, loại SITUATION; chỉ nới).

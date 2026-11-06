@@ -101,6 +101,48 @@ public class JpathPartsService {
         return new Warmup(recent, level, LEVEL_ORDER.get(at - 1), opened);
     }
 
+    /**
+     * Owner 06/11 "Tôi biết tuần này": offered to a learner whose path came from a Smart Test at Căn bản or better,
+     * in the first {@link #WEEK_SKIP_WEEKS} weeks of the open level. {@code codes} = the next week of the tab (the
+     * coming {@link #WEEK_PARTS} parts); ≥ 90% on the check counts the week as known (topic-check rules).
+     */
+    public record WeekSkip(boolean offer, String tab, String level, int items, List<String> codes) {
+    }
+
+    /** Parts of one map week (jpath-parts.js WEEK_SPAN). */
+    static final int WEEK_PARTS = 7;
+    /** Weeks of a level the skip check is offered in. */
+    static final int WEEK_SKIP_WEEKS = 4;
+    private static final List<String> SKIP_BANDS = List.of("Căn bản", "Thành thạo");
+
+    @Transactional(readOnly = true)
+    public WeekSkip weekSkip(Long userId, JpathTab tab) {
+        String tabName = tab == null ? null : tab.name();
+        JpathUserPath path = paths.findFirstByUserIdAndStatusOrderByIdDesc(userId, JpathPathStatus.ACTIVE).orElse(null);
+        String band = path == null ? null : path.getSmartAbilityBand();
+        if (path == null || band == null || SKIP_BANDS.stream().noneMatch(band::contains)) {
+            return new WeekSkip(false, tabName, path == null ? null : path.getOpenLevel(), 0, List.of());
+        }
+        Parts p = parts(userId, tab);
+        int firstNext = -1;
+        for (int i = 0; i < p.parts().size(); i++) {
+            if ("NEXT".equals(p.parts().get(i).status())) {
+                firstNext = i;
+                break;
+            }
+        }
+        if (firstNext < 0 || firstNext >= WEEK_PARTS * WEEK_SKIP_WEEKS) {
+            return new WeekSkip(false, tabName, p.level(), 0, List.of());
+        }
+        // the rest of the map week the first coming part sits in (a whole week when the week has not started)
+        int weekEnd = (firstNext / WEEK_PARTS + 1) * WEEK_PARTS;
+        List<String> codes = new ArrayList<>();
+        for (int i = firstNext; i < Math.min(p.parts().size(), weekEnd); i++) {
+            p.parts().get(i).items().forEach(it -> codes.add(it.code()));
+        }
+        return new WeekSkip(!codes.isEmpty(), tabName, p.level(), codes.size(), codes);
+    }
+
     private final JpathUserPathRepository paths;
     private final JpathUserLevelRepository levels;
     private final JpathUserItemRepository userItems;
