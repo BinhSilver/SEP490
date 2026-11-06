@@ -2037,6 +2037,135 @@ CALL jlas_ls_check('jpath_grammar_question', 'chk_jpath_grammar_question_type', 
 -- 06/11: bản dịch câu hỏi, lựa chọn, từng câu bài đọc / từng dòng bài nghe (trang luyện Đọc · Nghe).
 CALL jlas_ls_add_column('jpath_skill_set', 'translation_json', 'JSON NULL AFTER audio_seconds');
 
+-- ==== 06/11 Lộ trình giao tiếp (đợt 2) ====
+-- [JLAS-W0108] Phase 2 communication path tables (owner 06/11). Content (cpath_goal … cpath_line) comes from
+-- data/learning-path/communication-compiled/<GOAL>.json through the seed; learner tables are written by the app.
+
+CREATE TABLE IF NOT EXISTS cpath_goal (
+    code VARCHAR(16) NOT NULL,              -- TRAVEL | DAILY_LIFE | BA | WORK
+    name_vi VARCHAR(120) NOT NULL,
+    sort_order TINYINT UNSIGNED NOT NULL,
+    fields_json JSON NULL,                  -- WORK: [{code,labelVi,topicCodes}]
+    test_scenario_slug VARCHAR(120) NULL,   -- kaiwa scenario of the goal test (cpath-test-…)
+    seed_version VARCHAR(16) NULL,
+    PRIMARY KEY (code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cpath_topic (
+    code VARCHAR(32) NOT NULL,
+    goal_code VARCHAR(16) NOT NULL,
+    sort_order SMALLINT UNSIGNED NOT NULL,
+    level VARCHAR(2) NULL,
+    name_ja VARCHAR(120) NULL,
+    name_vi VARCHAR(160) NOT NULL,
+    seed_version VARCHAR(16) NULL,
+    PRIMARY KEY (code),
+    KEY idx_cpath_topic_goal (goal_code, sort_order),
+    CONSTRAINT fk_cpath_topic_goal FOREIGN KEY (goal_code) REFERENCES cpath_goal(code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cpath_situation (
+    code VARCHAR(24) NOT NULL,              -- dialogue id, e.g. TRV-01
+    topic_code VARCHAR(32) NOT NULL,
+    sort_order SMALLINT UNSIGNED NOT NULL,
+    level VARCHAR(2) NULL,
+    title_ja VARCHAR(200) NULL,
+    title_vi VARCHAR(200) NULL,
+    situation_vi VARCHAR(1000) NULL,
+    challenge_json JSON NULL,               -- role-play turns {learnerSpeaker, turns:[{line, distractors:[{ja,vi,furigana}], why_vi}]}
+    scenario_slug VARCHAR(120) NULL,        -- kaiwa scenario for "Nói chuyện tự do với AI" (cpath-…)
+    seed_version VARCHAR(16) NULL,
+    PRIMARY KEY (code),
+    KEY idx_cpath_situation_topic (topic_code, sort_order),
+    CONSTRAINT fk_cpath_situation_topic FOREIGN KEY (topic_code) REFERENCES cpath_topic(code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cpath_line (
+    situation_code VARCHAR(24) NOT NULL,
+    line_order SMALLINT UNSIGNED NOT NULL,
+    speaker VARCHAR(40) NOT NULL,
+    learner TINYINT(1) NOT NULL DEFAULT 0,   -- speaker = リン
+    ja VARCHAR(500) NOT NULL,
+    furigana VARCHAR(800) NULL,
+    vi VARCHAR(500) NULL,
+    audio_path VARCHAR(255) NULL,
+    seed_version VARCHAR(16) NULL,
+    PRIMARY KEY (situation_code, line_order),
+    CONSTRAINT fk_cpath_line_situation FOREIGN KEY (situation_code) REFERENCES cpath_situation(code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cpath_item (
+    code VARCHAR(32) NOT NULL,              -- word id (TRV-001) or phrase id (TRV-01-P01)
+    kind VARCHAR(8) NOT NULL,               -- WORD | PHRASE
+    topic_code VARCHAR(32) NOT NULL,
+    situation_code VARCHAR(24) NULL,        -- phrases: the situation that uses it
+    sort_order SMALLINT UNSIGNED NOT NULL,
+    ja VARCHAR(255) NOT NULL,
+    reading VARCHAR(255) NULL,
+    vi VARCHAR(500) NULL,
+    note_vi VARCHAR(500) NULL,
+    audio_path VARCHAR(255) NULL,
+    seed_version VARCHAR(16) NULL,
+    PRIMARY KEY (code),
+    KEY idx_cpath_item_topic (topic_code, kind, sort_order),
+    CONSTRAINT chk_cpath_item_kind CHECK (kind IN ('WORD','PHRASE'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- learner side (written by the app, never by the seed)
+CREATE TABLE IF NOT EXISTS cpath_user_path (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED NOT NULL,
+    goal_code VARCHAR(16) NOT NULL,
+    role VARCHAR(10) NOT NULL,              -- MAIN | SECONDARY
+    status VARCHAR(10) NOT NULL,            -- ACTIVE | PAUSED | DONE
+    self_level VARCHAR(16) NOT NULL,        -- BEGINNER | ELEMENTARY | INTERMEDIATE
+    fields_json JSON NULL,
+    priority_topics_json JSON NULL,
+    daily_situations TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    rest_days VARCHAR(40) NULL,
+    finish_date DATE NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    KEY idx_cpath_user_path_user (user_id, status),
+    CONSTRAINT chk_cpath_user_path_role CHECK (role IN ('MAIN','SECONDARY')),
+    CONSTRAINT chk_cpath_user_path_status CHECK (status IN ('ACTIVE','PAUSED','DONE'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cpath_user_situation (
+    path_id BIGINT UNSIGNED NOT NULL,
+    situation_code VARCHAR(24) NOT NULL,
+    study_day DATE NULL,                    -- the day it was planned / learned
+    steps_done VARCHAR(40) NOT NULL DEFAULT '',  -- comma list of WORDS,LISTEN,ROLEPLAY,SPEAK
+    roleplay_correct TINYINT UNSIGNED NULL,
+    roleplay_total TINYINT UNSIGNED NULL,
+    speak_best SMALLINT UNSIGNED NULL,      -- best mean line score 0–100
+    done_at DATETIME(6) NULL,
+    PRIMARY KEY (path_id, situation_code),
+    CONSTRAINT fk_cpath_user_situation_path FOREIGN KEY (path_id) REFERENCES cpath_user_path(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cpath_user_topic (
+    path_id BIGINT UNSIGNED NOT NULL,
+    topic_code VARCHAR(32) NOT NULL,
+    quiz_best SMALLINT UNSIGNED NULL,       -- %
+    speak_best SMALLINT UNSIGNED NULL,      -- 0–100
+    passed_at DATETIME(6) NULL,             -- quiz ≥ 80 and speak ≥ 70
+    PRIMARY KEY (path_id, topic_code),
+    CONSTRAINT fk_cpath_user_topic_path FOREIGN KEY (path_id) REFERENCES cpath_user_path(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cpath_user_goal_test (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    path_id BIGINT UNSIGNED NOT NULL,
+    conversation_session_id BIGINT UNSIGNED NULL,  -- kaiwa conversation_session.id (read only)
+    score SMALLINT UNSIGNED NULL,
+    passed TINYINT(1) NULL,
+    taken_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    KEY idx_cpath_goal_test_path (path_id, taken_at),
+    CONSTRAINT fk_cpath_goal_test_path FOREIGN KEY (path_id) REFERENCES cpath_user_path(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 DROP PROCEDURE IF EXISTS jlas_ls_check;
 DROP PROCEDURE IF EXISTS jlas_ls_modify_column;
 DROP PROCEDURE IF EXISTS jlas_ls_add_column;
