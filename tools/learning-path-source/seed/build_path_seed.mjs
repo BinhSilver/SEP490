@@ -186,7 +186,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   }
   // The base block (levels, kana) belongs to seed-sql.mjs; say so when it is stale, since its planned counts follow compiled.
   const common = learningDataFile(ROOT);
-  if (existsSync(common) && !readFileSync(common, 'utf8').includes(renderBaseBlock(ROOT))) {
+  // A Windows checkout (core.autocrlf) holds the file with CRLF: compare without line-ending differences.
+  const lf = (t) => t.replace(/\r\n/g, '\n');
+  if (existsSync(common) && !lf(readFileSync(common, 'utf8')).includes(lf(renderBaseBlock(ROOT)))) {
     console.error(`${BASE_MARKER} is stale: run node tools/learning-path-source/seed/seed-sql.mjs`);
     if (check && out.exitCode === 0) process.exit(1);
   }
