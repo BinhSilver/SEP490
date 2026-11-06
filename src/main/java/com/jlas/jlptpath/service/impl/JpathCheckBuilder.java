@@ -676,7 +676,17 @@ public class JpathCheckBuilder {
         boolean clashes(Card o) {
             return meaningKey.equals(o.meaningKey) || ja.equals(o.ja) || vi.equals(o.vi)
                     || same(normExpr, o.normExpr) || same(normRead, o.normRead)
-                    || nested(core(vi), core(o.vi)) || nested(normRead, o.normRead);
+                    || nested(core(vi), core(o.vi)) || nested(normRead, o.normRead)
+                    || sameSenseGroup(this, o);
+        }
+
+        /**
+         * Near-synonyms written differently (じゃ、また / さようなら both "tạm biệt"; ありがとう / どうも): a learner cannot
+         * tell which one is meant, so two cards of one everyday group never meet as answer and distractor.
+         */
+        static boolean sameSenseGroup(Card a, Card b) {
+            String ga = JpathSenseGroups.of(a.normRead, a.normExpr, core(a.vi));
+            return ga != null && ga.equals(JpathSenseGroups.of(b.normRead, b.normExpr, core(b.vi)));
         }
 
         /** Meaning without notes in brackets, polite "ạ", punctuation and case: "chào buổi sáng ạ (lịch sự)" -> "chào buổi sáng". */
