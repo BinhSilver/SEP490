@@ -49,7 +49,18 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
     const previous = existsSync(manifestFile) ? JSON.parse(readFileSync(manifestFile, 'utf8')) : [];
     const done = [];
     for (const [voice, list] of [[FEMALE, plan.female], [MALE, plan.male]]) {
-      const made = await synthesizeAll(list, { limit, dryRun, voice, manifest: previous, rootDir: ROOT });
+      let made;
+      try {
+        made = await synthesizeAll(list, { limit, dryRun, voice, manifest: previous, rootDir: ROOT });
+      } catch (err) {
+        if (!dryRun && err.partial?.length) {
+          const byFile = new Map(previous.map(e => [e.file, e]));
+          for (const e of [...done, ...err.partial]) byFile.set(e.file, e);
+          mkdirSync(path.dirname(manifestFile), { recursive: true });
+          writeFileSync(manifestFile, JSON.stringify([...byFile.values()].sort((a, b) => (a.file < b.file ? -1 : 1)), null, 1) + '\n');
+        }
+        throw err;
+      }
       done.push(...made);
     }
     if (!dryRun) {

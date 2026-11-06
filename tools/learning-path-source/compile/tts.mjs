@@ -97,6 +97,7 @@ export async function synthesizeAll(plan, {
   let requestCount = 0;
   const made = new Map((previous ?? []).map(e => [e.file, e]));
 
+  try {
   for (const item of selected) {
     const absFile = path.resolve(rootDir, item.file);
     // A file is reused only when the manifest says it was made from this exact text.
@@ -141,6 +142,11 @@ export async function synthesizeAll(plan, {
     manifest.push({ id: item.id, file: item.file, sha256: sha256(buf), bytes: buf.length, text_sha256: item.sha_text });
     if (requestCount % 100 === 0) logger(`TTS: ${requestCount} files synthesized`);
   }
+  } catch (err) {
+    // Keep what was made so a retry reuses it instead of synthesizing it again.
+    err.partial = manifest;
+    throw err;
+  }
 
   return Object.assign(manifest, { files: manifest.length, chars: totalChars });
 }
@@ -181,7 +187,16 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
     : argv.includes('--required-first') ? [...full.filter(required), ...full.filter(it => !required(it))] : full;
   const file = audioManifestFile(level);
   const previous = existsSync(file) ? readJson(file).items : [];
-  const manifest = await synthesizeAll(plan, { limit, dryRun, manifest: previous });
+  let manifest;
+  try {
+    manifest = await synthesizeAll(plan, { limit, dryRun, manifest: previous });
+  } catch (err) {
+    if (!dryRun && err.partial?.length) {
+      writeOrCheck(file, { level, items: mergeManifest(previous, err.partial) }, false);
+      console.log(`${level}: saved ${err.partial.length} entries before the error`);
+    }
+    throw err;
+  }
   if (!dryRun) {
     // A full run lists exactly the plan; a limited one keeps the entries it did not touch.
     const items = limit != null ? mergeManifest(previous, manifest) : [...manifest];
