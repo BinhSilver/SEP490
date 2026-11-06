@@ -536,22 +536,52 @@ public class CpathService {
         Long pathId = ((Number) p.get("id")).longValue();
         List<Map<String, Object>> rows = db.queryForList("SELECT u.*, s.title_vi, s.title_ja, s.topic_code FROM cpath_user_situation u "
                 + "JOIN cpath_situation s ON s.code = u.situation_code WHERE u.path_id = ? AND u.study_day = ? ORDER BY s.sort_order", pathId, day);
+        // Shape read by cpath-day.js: status DONE|TODAY, steps {words, listen, roleplay, speak}, topicNameVi, score;
+        // scores = one row per scored part of a situation {labelVi, score, noteVi}.
+        Map<String, String> topicNames = new LinkedHashMap<>();
+        for (Map<String, Object> t : db.queryForList("SELECT code, name_vi FROM cpath_topic")) {
+            topicNames.put(String.valueOf(t.get("code")), t.get("name_vi") == null ? null : String.valueOf(t.get("name_vi")));
+        }
         List<Map<String, Object>> situations = new ArrayList<>();
         List<Map<String, Object>> scores = new ArrayList<>();
         for (Map<String, Object> r : rows) {
-            situations.add(Map.of("id", r.get("situation_code"), "titleVi", String.valueOf(r.get("title_vi")),
-                    "topicCode", r.get("topic_code"), "steps", String.valueOf(r.get("steps_done")), "done", r.get("done_at") != null));
-            Map<String, Object> sc = new LinkedHashMap<>();
-            sc.put("id", r.get("situation_code"));
-            sc.put("roleplay", r.get("roleplay_total") == null ? null : num(r.get("roleplay_correct")) + "/" + num(r.get("roleplay_total")));
-            sc.put("speak", r.get("speak_best"));
-            scores.add(sc);
+            Set<String> done = new LinkedHashSet<>(List.of(String.valueOf(r.get("steps_done")).split(",")));
+            Map<String, Object> steps = new LinkedHashMap<>();
+            for (String x : STEPS) steps.put(x.toLowerCase(Locale.ROOT), done.contains(x));
+            Integer roleplayPct = r.get("roleplay_total") == null || num(r.get("roleplay_total")) == 0 ? null
+                    : Math.round(100f * num(r.get("roleplay_correct")) / num(r.get("roleplay_total")));
+            Integer speak = r.get("speak_best") == null ? null : num(r.get("speak_best"));
+            Map<String, Object> s = new LinkedHashMap<>();
+            s.put("id", r.get("situation_code"));
+            s.put("titleVi", String.valueOf(r.get("title_vi")));
+            s.put("topicCode", r.get("topic_code"));
+            s.put("topicNameVi", topicNames.get(String.valueOf(r.get("topic_code"))));
+            s.put("status", r.get("done_at") != null ? "DONE" : "TODAY");
+            s.put("steps", steps);
+            s.put("score", speak != null ? speak : roleplayPct);
+            situations.add(s);
+            String title = String.valueOf(r.get("title_vi"));
+            if (roleplayPct != null) {
+                scores.add(scoreRow("Nhập vai · " + title, roleplayPct,
+                        num(r.get("roleplay_correct")) + "/" + num(r.get("roleplay_total")) + " lượt trả lời đúng"));
+            }
+            if (speak != null) {
+                scores.add(scoreRow("Luyện nói · " + title, speak, "Điểm phát âm cao nhất"));
+            }
         }
         // CP of the day: the situations first finished on that day (2 CP each, owner 19/10)
         long finished = rows.stream().filter(r -> r.get("done_at") != null
                 && day.equals(dateOf(r.get("done_at")))).count();
         return Map.of("day", day.toString(), "situations", situations, "scores", scores,
                 "cp", (int) finished * SITUATION_CP);
+    }
+
+    private static Map<String, Object> scoreRow(String labelVi, int score, String noteVi) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("labelVi", labelVi);
+        m.put("score", score);
+        m.put("noteVi", noteVi);
+        return m;
     }
 
     // --------------------------------------------------------------------------------------------- goal test
