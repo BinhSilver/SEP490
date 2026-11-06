@@ -35,6 +35,11 @@ public class CpathPageController {
         return "cpath/situation";
     }
 
+    @GetMapping("/learning/comm/weekly")
+    public String weekly() {
+        return "cpath/weekly";
+    }
+
     @GetMapping("/learning/comm/day")
     public String day() {
         return "cpath/day";

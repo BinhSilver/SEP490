@@ -110,4 +110,16 @@ public class CpathController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> checkGoalTest(@AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.checkGoalTest(user.userId())));
     }
+
+    /** Owner 06/11: the weekly test of the communication path (questions without answers). */
+    @GetMapping("/weekly")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> weekly(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.weekly(user.userId())));
+    }
+
+    @PostMapping("/weekly")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> submitWeekly(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.submitWeekly(user.userId(), body)));
+    }
 }

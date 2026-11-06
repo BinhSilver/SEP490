@@ -61,6 +61,12 @@ public class CpathService {
         return null;
     }
 
+    static java.time.LocalDateTime dateTimeOf(Object v) {
+        if (v instanceof java.time.LocalDateTime t) return t;
+        if (v instanceof java.sql.Timestamp t) return t.toLocalDateTime();
+        return java.time.LocalDateTime.now();
+    }
+
     /** Stable numeric reference of a situation code for the CP ledger (its unique key drops a repeat award). */
     static long situationRef(String code) {
         java.util.zip.CRC32 crc = new java.util.zip.CRC32();
@@ -68,13 +74,26 @@ public class CpathService {
         return crc.getValue();
     }
 
-    /** Queues the situation CP in this transaction and applies the learner's open awards after commit. */
+    /** Owner 06/11 rewards like JLPT: a whole study day, a passed topic (the big one), a passed weekly test. */
+    static final int DAY_CP = 2;
+    static final int TOPIC_CP = 5;
+    static final int WEEK_CP = 2;
+    static final String REF_DAY = "CPATH_DAY";
+    static final String REF_TOPIC = "CPATH_TOPIC";
+    static final String REF_WEEK = "CPATH_WEEK";
+
     private int awardSituation(Long userId, String code, String titleVi) {
+        return award(userId, SITUATION_CP, REF_SITUATION, situationRef(code),
+                "Hoàn thành tình huống giao tiếp " + (titleVi == null ? code : titleVi));
+    }
+
+    /** Queues CP in this transaction (the ledger key drops a repeat) and applies the open awards after commit. */
+    private int award(Long userId, int amount, String refType, long refId, String note) {
         com.jlas.mission.service.CreditAwardService credit = awards == null ? null : awards.getIfAvailable();
         if (credit == null) return 0;
-        credit.enqueue(userId, SITUATION_CP,
-                com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason.STUDY_REWARD, REF_SITUATION,
-                situationRef(code), "Hoàn thành tình huống giao tiếp " + (titleVi == null ? code : titleVi), null, null, null);
+        credit.enqueue(userId, amount,
+                com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason.STUDY_REWARD, refType,
+                refId, note, null, null, null);
         if (org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive()) {
             org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
                     new org.springframework.transaction.support.TransactionSynchronization() {
@@ -88,7 +107,7 @@ public class CpathService {
                         }
                     });
         }
-        return SITUATION_CP;
+        return amount;
     }
 
     // ------------------------------------------------------------------------------------------------- goals
@@ -133,6 +152,14 @@ public class CpathService {
         return Map.of("pathId", id, "role", role);
     }
 
+    /** The active path (main or secondary) whose goal holds the situation; the main path otherwise. */
+    Long pathIdForSituation(Long userId, String code) {
+        List<Long> ids = db.queryForList("SELECT p.id FROM cpath_user_path p JOIN cpath_topic t ON t.goal_code = p.goal_code "
+                + "JOIN cpath_situation s ON s.topic_code = t.code WHERE p.user_id = ? AND p.status = 'ACTIVE' AND s.code = ? "
+                + "ORDER BY p.role = 'MAIN' DESC, p.id DESC LIMIT 1", Long.class, userId, code);
+        return ids.isEmpty() ? mainPathId(userId) : ids.get(0);
+    }
+
     Long mainPathId(Long userId) {
         List<Long> ids = db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE' "
                 + "ORDER BY id DESC LIMIT 1", Long.class, userId);
@@ -163,7 +190,8 @@ public class CpathService {
             allowed = new LinkedHashSet<>();
             for (Object d : defs) {
                 Map<String, Object> f = (Map<String, Object>) d;
-                if ("OFFICE".equals(f.get("code")) || fields.contains(f.get("code"))) {
+                // the office field is always in (owner 06/11); its code may carry a prefix (JLAS-WORK-INDUSTRY-OFFICE)
+                if (String.valueOf(f.get("code")).endsWith("OFFICE") || fields.contains(f.get("code"))) {
                     for (Object c : (List<Object>) f.getOrDefault("topicCodes", List.of())) allowed.add(String.valueOf(c));
                 }
             }
@@ -267,7 +295,21 @@ public class CpathService {
         m.put("week", week(userId, p, prog));
         m.put("today", Map.of("situations", today(userId, p), "weeklyTestDay", weeklyTestDay(userId, p)));
         Map<String, Object> sec = pathRow(userId, "SECONDARY");
-        m.put("secondary", sec == null ? null : Map.of("goal", sec.get("goal_code"), "nameVi", sec.get("name_vi")));
+        if (sec == null) {
+            m.put("secondary", null);
+        } else {
+            // the secondary goal is free study (owner 31/10): its progress and the next situation to open
+            Map<String, Map<String, Object>> secProg = progressOf(((Number) sec.get("id")).longValue());
+            List<Map<String, Object>> secOrder = orderedSituations(sec);
+            Map<String, Object> next = secOrder.stream().filter(x -> !done(secProg.get(x.get("code")))).findFirst().orElse(null);
+            Map<String, Object> sm = new LinkedHashMap<>();
+            sm.put("goal", sec.get("goal_code"));
+            sm.put("nameVi", sec.get("name_vi"));
+            sm.put("doneSituations", secOrder.stream().filter(x -> done(secProg.get(x.get("code")))).count());
+            sm.put("totalSituations", secOrder.size());
+            sm.put("next", next == null ? null : Map.of("id", next.get("code"), "titleVi", String.valueOf(next.get("title_vi"))));
+            m.put("secondary", sm);
+        }
         return m;
     }
 
@@ -323,13 +365,19 @@ public class CpathService {
             boolean lastOfTopic = i == order.size() - 1 || !s.get("topic_code").equals(order.get(i + 1).get("topic_code"));
             if (lastOfTopic) {
                 Map<String, Object> t = topicRows.get(s.get("topic_code"));
-                items.add(item("TOPIC_TEST", s.get("topic_code"), "Nhập vai: " + s.get("topic_name"), null, s.get("topic_code"),
-                        s.get("topic_name"), t != null && t.get("passed_at") != null ? "DONE" : "NEXT", t == null ? null : t.get("speak_best")));
+                Map<String, Object> node = item("TOPIC_TEST", s.get("topic_code"), "Nhập vai: " + s.get("topic_name"), null, s.get("topic_code"),
+                        s.get("topic_name"), t != null && t.get("passed_at") != null ? "DONE" : "NEXT", t == null ? null : t.get("speak_best"));
+                node.put("targetSituation", weakestSituation(order, prog, (String) s.get("topic_code")));
+                node.put("quizBest", t == null ? null : t.get("quiz_best"));
+                items.add(node);
             }
         }
         Map<String, Object> goalTest = lastGoalTest(pathId);
-        items.add(item("GOAL_TEST", p.get("goal_code"), "Bài test với AI", null, null, null,
-                goalTest != null && Boolean.TRUE.equals(goalTest.get("passed")) ? "DONE" : "NEXT", goalTest == null ? null : goalTest.get("score")));
+        Map<String, Object> goalNode = item("GOAL_TEST", p.get("goal_code"), "Bài test với AI", null, null, null,
+                goalTest != null && Boolean.TRUE.equals(goalTest.get("passed")) ? "DONE" : "NEXT", goalTest == null ? null : goalTest.get("score"));
+        goalNode.put("url", scenarioUrl(db.queryForList("SELECT test_scenario_slug FROM cpath_goal WHERE code = ?", String.class,
+                p.get("goal_code")).stream().findFirst().orElse(null)));
+        items.add(goalNode);
 
         // weeks: from the first planned / learned situation on, perWeek situations a week; later weeks are LOCKED
         List<Map<String, Object>> weeks = new ArrayList<>();
@@ -360,6 +408,26 @@ public class CpathService {
             weeks.get(w).put("to", start.plusWeeks(w).plusDays(6).toString());
         }
         return Map.of("weeks", weeks, "currentWeek", current);
+    }
+
+    /**
+     * The situation of a topic to practise for the topic check: the first one not done, else the one with the lowest
+     * speaking (no score counts lowest), else the lowest role-play.
+     */
+    private static String weakestSituation(List<Map<String, Object>> order, Map<String, Map<String, Object>> prog, String topic) {
+        String best = null;
+        long bestKey = Long.MAX_VALUE;
+        for (Map<String, Object> s : order) {
+            if (!topic.equals(s.get("topic_code"))) continue;
+            Map<String, Object> p = prog.get(s.get("code"));
+            if (!done(p)) return (String) s.get("code");
+            long speak = p.get("speak_best") == null ? -1 : num(p.get("speak_best"));
+            long rp = p.get("roleplay_total") == null || num(p.get("roleplay_total")) == 0 ? 0
+                    : 100L * num(p.get("roleplay_correct")) / num(p.get("roleplay_total"));
+            long key = speak * 1000 + rp;
+            if (key < bestKey) { bestKey = key; best = (String) s.get("code"); }
+        }
+        return best;
     }
 
     private static Map<String, Object> week(int index, List<Map<String, Object>> items) {
@@ -469,7 +537,7 @@ public class CpathService {
     public Map<String, Object> step(Long userId, String code, String step, Map<String, Object> body) {
         String st = step == null ? "" : step.toUpperCase(Locale.ROOT);
         if (!STEPS.contains(st)) throw new ApiException(ErrorCode.VALIDATION_FAILED, "Bước không hợp lệ.");
-        Long pathId = mainPathId(userId);
+        Long pathId = pathIdForSituation(userId, code);
         if (pathId == null) throw new ApiException(ErrorCode.NOT_FOUND, "Bạn chưa có lộ trình giao tiếp.");
         db.update("INSERT IGNORE INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, code, clock.today(userId));
         Map<String, Object> row = progressOf(pathId).get(code);
@@ -494,8 +562,21 @@ public class CpathService {
                         .stream().findFirst().orElse(null);
                 cp = awardSituation(userId, code, title);
             }
+            boolean first = row.get("done_at") == null;
             db.update("UPDATE cpath_user_situation SET done_at = COALESCE(done_at, CURRENT_TIMESTAMP(6)) WHERE path_id = ? AND situation_code = ?", pathId, code);
-            updateTopic(pathId, code);
+            String passedTopic = updateTopic(pathId, code);
+            if (passedTopic != null) {
+                cp += award(userId, TOPIC_CP, REF_TOPIC, situationRef(passedTopic), "Đạt chủ đề giao tiếp " + passedTopic);
+            }
+            if (first) {
+                // the whole day: every situation planned for today is done
+                LocalDate today = clock.today(userId);
+                Integer open = db.queryForObject("SELECT COUNT(*) FROM cpath_user_situation WHERE path_id = ? AND study_day = ? AND done_at IS NULL",
+                        Integer.class, pathId, today);
+                if (open != null && open == 0) {
+                    cp += award(userId, DAY_CP, REF_DAY, today.toEpochDay(), "Xong ngày học giao tiếp " + today);
+                }
+            }
         }
         Map<String, Object> out = new LinkedHashMap<>();
         Map<String, Object> steps = new LinkedHashMap<>();
@@ -506,8 +587,11 @@ public class CpathService {
         return out;
     }
 
-    /** A topic passes when all its situations are done, role-play ≥ 80 % overall and speaking ≥ 70 on average. */
-    private void updateTopic(Long pathId, String situation) {
+    /**
+     * A topic passes when all its situations are done, role-play ≥ 80 % overall and speaking ≥ 70 on average.
+     * Returns the topic code when this call passed it for the first time (its CP), else null.
+     */
+    private String updateTopic(Long pathId, String situation) {
         String topic = db.queryForObject("SELECT topic_code FROM cpath_situation WHERE code = ?", String.class, situation);
         List<Map<String, Object>> rows = db.queryForList("SELECT s.code, u.done_at, u.roleplay_correct, u.roleplay_total, u.speak_best "
                 + "FROM cpath_situation s LEFT JOIN cpath_user_situation u ON u.situation_code = s.code AND u.path_id = ? WHERE s.topic_code = ?",
@@ -522,10 +606,13 @@ public class CpathService {
         Integer quiz = total == 0 ? null : Math.round(100f * correct / total);
         Integer speak = speakN == 0 ? null : Math.round((float) speakSum / speakN);
         boolean passed = allDone && quiz != null && quiz >= ROLEPLAY_PASS && speak != null && speak >= SPEAK_PASS;
+        Integer before = db.queryForObject("SELECT COUNT(*) FROM cpath_user_topic WHERE path_id = ? AND topic_code = ? AND passed_at IS NOT NULL",
+                Integer.class, pathId, topic);
         db.update("INSERT INTO cpath_user_topic (path_id, topic_code, quiz_best, speak_best, passed_at) VALUES (?,?,?,?,?) "
                 + "ON DUPLICATE KEY UPDATE quiz_best = VALUES(quiz_best), speak_best = VALUES(speak_best), "
                 + "passed_at = COALESCE(passed_at, VALUES(passed_at))", pathId, topic, quiz, speak,
                 passed ? java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()) : null);
+        return passed && (before == null || before == 0) ? topic : null;
     }
 
     // -------------------------------------------------------------------------------------------------- day
@@ -572,8 +659,9 @@ public class CpathService {
         // CP of the day: the situations first finished on that day (2 CP each, owner 19/10)
         long finished = rows.stream().filter(r -> r.get("done_at") != null
                 && day.equals(dateOf(r.get("done_at")))).count();
+        boolean dayDone = !rows.isEmpty() && rows.stream().allMatch(r -> r.get("done_at") != null);
         return Map.of("day", day.toString(), "situations", situations, "scores", scores,
-                "cp", (int) finished * SITUATION_CP);
+                "cp", (int) finished * SITUATION_CP + (dayDone && finished > 0 ? DAY_CP : 0));
     }
 
     private static Map<String, Object> scoreRow(String labelVi, int score, String noteVi) {
@@ -581,6 +669,148 @@ public class CpathService {
         m.put("labelVi", labelVi);
         m.put("score", score);
         m.put("noteVi", noteVi);
+        return m;
+    }
+
+    // ------------------------------------------------------------------------------------------- weekly test
+
+    static final int WEEKLY_MAX = 10;
+    static final int WEEKLY_PASS = 80;
+
+    /** One weekly question: the Japanese of a word, phrase or learner line, 4 Vietnamese meanings. */
+    private record WeeklyQ(String id, String ja, String reading, String audio, List<String> options, int answer) {
+    }
+
+    /**
+     * Owner 06/11 weekly test, like the JLPT path: up to 10 questions on what was studied this week (words and
+     * phrases of the week's situations, learner lines of situations spoken under 70 first). Opens on the week's test
+     * day; ≥ 80% gives the week's CP once. The questions are rebuilt from a seed of user + week, never stored.
+     */
+    private List<WeeklyQ> weeklyQuestions(Long userId, Map<String, Object> path, LocalDate monday) {
+        Long pathId = ((Number) path.get("id")).longValue();
+        LocalDate today = clock.today(userId);
+        List<Map<String, Object>> studied = db.queryForList("SELECT u.situation_code, u.speak_best, s.topic_code FROM cpath_user_situation u "
+                + "JOIN cpath_situation s ON s.code = u.situation_code WHERE u.path_id = ? AND u.study_day BETWEEN ? AND ? "
+                + "AND u.steps_done <> ''", pathId, monday, today);
+        if (studied.isEmpty()) return List.of();
+        List<String> sits = studied.stream().map(r -> (String) r.get("situation_code")).toList();
+        Set<String> topics = new LinkedHashSet<>(studied.stream().map(r -> (String) r.get("topic_code")).toList());
+        String in = String.join(",", java.util.Collections.nCopies(sits.size(), "?"));
+        String tin = String.join(",", java.util.Collections.nCopies(topics.size(), "?"));
+        List<Object> args = new ArrayList<>(sits);
+        args.addAll(topics);
+        List<Map<String, Object>> pool = new ArrayList<>(db.queryForList("SELECT code id, ja, reading, vi, audio_path FROM cpath_item "
+                + "WHERE vi IS NOT NULL AND (situation_code IN (" + in + ") OR (kind = 'WORD' AND topic_code IN (" + tin + ")))", args.toArray()));
+        // learner lines of situations spoken under 70 (or not scored) come first
+        List<String> weak = studied.stream().filter(r -> r.get("speak_best") == null || num(r.get("speak_best")) < SPEAK_PASS)
+                .map(r -> (String) r.get("situation_code")).toList();
+        List<Map<String, Object>> lines = new ArrayList<>();
+        if (!weak.isEmpty()) {
+            String win = String.join(",", java.util.Collections.nCopies(weak.size(), "?"));
+            lines.addAll(db.queryForList("SELECT CONCAT(situation_code, '-L', line_order) id, ja, NULL reading, vi, audio_path FROM cpath_line "
+                    + "WHERE learner = 1 AND vi IS NOT NULL AND situation_code IN (" + win + ")", weak.toArray()));
+        }
+        java.util.Random rnd = new java.util.Random(userId * 31 + monday.toEpochDay());
+        java.util.Collections.shuffle(pool, rnd);
+        java.util.Collections.shuffle(lines, rnd);
+        List<Map<String, Object>> asked = new ArrayList<>(lines.subList(0, Math.min(3, lines.size())));
+        for (Map<String, Object> m : pool) {
+            if (asked.size() >= WEEKLY_MAX) break;
+            asked.add(m);
+        }
+        // distractors of the same kind: a sentence among sentences (other learner lines of the goal), a word among words
+        List<String> itemVi = new ArrayList<>();
+        for (Map<String, Object> m : pool) itemVi.add(String.valueOf(m.get("vi")));
+        List<String> lineVi = lines.isEmpty() ? List.of() : db.queryForList("SELECT l.vi FROM cpath_line l JOIN cpath_situation s ON s.code = l.situation_code "
+                + "JOIN cpath_topic t ON t.code = s.topic_code WHERE l.learner = 1 AND l.vi IS NOT NULL AND t.goal_code = ?", String.class, path.get("goal_code"));
+        Set<Object> lineIds = new java.util.HashSet<>();
+        for (Map<String, Object> m : lines) lineIds.add(m.get("id"));
+        List<WeeklyQ> out = new ArrayList<>();
+        for (Map<String, Object> m : asked) {
+            String right = String.valueOf(m.get("vi"));
+            List<String> opts = new ArrayList<>();
+            opts.add(right);
+            List<String> others = new ArrayList<>(new LinkedHashSet<>(lineIds.contains(m.get("id")) ? lineVi : itemVi));
+            java.util.Collections.shuffle(others, rnd);
+            for (String o : others) {
+                if (opts.size() >= 4) break;
+                if (!o.equalsIgnoreCase(right) && opts.stream().noneMatch(x -> x.equalsIgnoreCase(o))) opts.add(o);
+            }
+            if (opts.size() < 2) continue;
+            java.util.Collections.shuffle(opts, rnd);
+            out.add(new WeeklyQ(String.valueOf(m.get("id")), String.valueOf(m.get("ja")),
+                    m.get("reading") == null ? null : String.valueOf(m.get("reading")), url((String) m.get("audio_path")),
+                    opts, opts.indexOf(right)));
+        }
+        return out;
+    }
+
+    private boolean weeklyPassed(Long userId, LocalDate monday) {
+        Integer n = db.queryForObject("SELECT COUNT(*) FROM pending_credit_award WHERE user_id = ? AND reference_type = ? AND reference_id = ?",
+                Integer.class, userId, REF_WEEK, monday.toEpochDay());
+        return n != null && n > 0;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> weekly(Long userId) {
+        Map<String, Object> path = requirePath(userId);
+        LocalDate today = clock.today(userId);
+        LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        String testDay = weeklyTestDay(userId, path);
+        boolean open = testDay == null || !today.isBefore(LocalDate.parse(testDay));
+        List<WeeklyQ> qs = open ? weeklyQuestions(userId, path, monday) : List.of();
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("weekStart", monday.toString());
+        m.put("testDay", testDay);
+        m.put("open", open);
+        m.put("passScore", WEEKLY_PASS);
+        m.put("passed", weeklyPassed(userId, monday));
+        m.put("questions", qs.stream().map(q -> {
+            Map<String, Object> x = new LinkedHashMap<>();
+            x.put("id", q.id());
+            x.put("ja", q.ja());
+            x.put("reading", q.reading());
+            x.put("audioUrl", q.audio());
+            x.put("options", q.options());
+            return x;
+        }).toList());
+        return m;
+    }
+
+    @Transactional
+    public Map<String, Object> submitWeekly(Long userId, Map<String, Object> body) {
+        Map<String, Object> path = requirePath(userId);
+        LocalDate today = clock.today(userId);
+        LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        List<WeeklyQ> qs = weeklyQuestions(userId, path, monday);
+        if (qs.isEmpty()) throw new ApiException(ErrorCode.VALIDATION_FAILED, "Tuần này chưa có nội dung để kiểm tra.");
+        Map<String, Object> answers = body != null && body.get("answers") instanceof Map<?, ?> a ? (Map<String, Object>) a : Map.of();
+        int correct = 0;
+        List<Map<String, Object>> review = new ArrayList<>();
+        for (WeeklyQ q : qs) {
+            Object given = answers.get(q.id());
+            boolean ok = given != null && num(given) == q.answer();
+            if (ok) correct++;
+            Map<String, Object> r = new LinkedHashMap<>();
+            r.put("id", q.id());
+            r.put("ja", q.ja());
+            r.put("correct", ok);
+            r.put("answer", q.options().get(q.answer()));
+            review.add(r);
+        }
+        int score = Math.round(100f * correct / qs.size());
+        boolean pass = score >= WEEKLY_PASS;
+        int cp = 0;
+        if (pass && !weeklyPassed(userId, monday)) {
+            cp = award(userId, WEEK_CP, REF_WEEK, monday.toEpochDay(), "Đạt kiểm tra tuần giao tiếp " + monday);
+        }
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("score", score);
+        m.put("correct", correct);
+        m.put("total", qs.size());
+        m.put("passed", pass);
+        m.put("cp", cp);
+        m.put("review", review);
         return m;
     }
 
@@ -603,7 +833,7 @@ public class CpathService {
         m.put("lastScore", last == null ? null : last.get("score"));
         m.put("passed", last != null && Boolean.TRUE.equals(last.get("passed")));
         m.put("retryAt", last != null && !Boolean.TRUE.equals(last.get("passed")) && last.get("taken_at") != null
-                ? ((java.sql.Timestamp) last.get("taken_at")).toLocalDateTime().plusHours(24).toString() : null);
+                ? dateTimeOf(last.get("taken_at")).plusHours(24).toString() : null);
         return m;
     }
 
