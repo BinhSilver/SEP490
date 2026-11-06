@@ -284,10 +284,17 @@
     }).join('');
     var verdict = '';
     if (ctx.graded && a) {
-      verdict = '<p class="jp-skill-explain" role="status">' + (a.correct
+      var pickedOpt = list(q.options).filter(function (o) { return o && o.id === a.value; })[0];
+      var rightOpt = list(q.options).filter(function (o) { return o && o.id === a.correctValue; })[0];
+      var pickedLbl = pickedOpt ? pickedOpt.label : 'Chưa chọn';
+      var rightLbl = rightOpt ? rightOpt.label : '';
+      verdict = '<div class="jp-skill-explain" role="status">' + (a.correct
         ? '<span class="jp-side-ok">' + icon('circle-check') + ' Đúng.</span>'
-        : '<span class="jp-side-miss">' + icon('circle-x') + ' Sai.</span>')
-        + (ctx.showExplain && a.explanation ? ' ' + esc(a.explanation) : '') + '</p>';
+        : '<div class="jp-review__rows">'
+          + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn chọn</span><span class="jp-review__val" lang="ja">' + esc(pickedLbl) + '</span>' + icon('circle-x') + '</div>'
+          + '<div class="jp-review__row jp-review__row--answer jp-ok"><span class="jp-review__tag">Đáp án</span><span class="jp-review__val" lang="ja">' + esc(rightLbl) + '</span>' + icon('circle-check') + '</div>'
+          + '</div>')
+        + (ctx.showExplain && a.explanation ? '<p class="jp-skill-explain__note">' + esc(a.explanation) + '</p>' : '') + '</div>';
     }
     var qv = ctx.viOn && ctx.qvi ? ctx.qvi[q.id] : null;
     if (qv && Array.isArray(qv.options_vi)) {

@@ -50,7 +50,7 @@
 .jp-hero-card__face[aria-pressed="true"] .jp-hero-card__reading { display: none; }
 .jp-hero-card__face[aria-pressed="true"] .jp-hero-card__meaning { display: block; }
 .jp-btn {
-  min-height: 44px; padding: 10px 18px; border: 1.5px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
+  min-height: 44px; padding: 10px 18px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
   background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-weight: 600; cursor: pointer;
 }
 .jp-btn--primary { background: var(--jp-primary); border-color: var(--jp-primary); color: var(--jp-surface); }
@@ -59,7 +59,7 @@
 /* tabs */
 .jp-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--jp-line); }
 .jp-tab {
-  flex: 0 0 auto; min-height: 44px; padding: 8px 14px; border: 0; border-bottom: 3px solid transparent;
+  flex: 0 0 auto; min-height: 44px; padding: 8px 14px; border: 0; border-bottom: 1px solid transparent;
   background: transparent; color: var(--jp-muted); font: inherit; font-weight: 600; cursor: pointer; white-space: nowrap;
 }
 .jp-tab--active { color: var(--jp-primary); border-bottom-color: var(--jp-primary); }
@@ -71,7 +71,7 @@
 
 /* stage + week */
 .jp-stage { margin: 0; line-height: 1.6; }
-.jp-stage__step--now { font-weight: 700; color: var(--jp-primary); }
+.jp-stage__step--now { font-weight: 500; color: var(--jp-primary); }
 .jp-stage__days { color: var(--jp-muted); }
 .jp-week { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
 .jp-day {
@@ -81,7 +81,7 @@
 .jp-day--skill { background: var(--jp-primary-soft); }
 .jp-day--rest { color: var(--jp-muted); }
 .jp-day--done { color: var(--jp-ok); font-weight: 600; }
-.jp-day--today { border: 2px solid var(--jp-primary); font-weight: 700; }
+.jp-day--today { border: 1px solid var(--jp-primary); font-weight: 500; }
 
 /* levels */
 .jp-level-bar { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; grid-template-columns: repeat(5, minmax(0, 1fr)); }
@@ -89,8 +89,8 @@
   display: grid; gap: 4px; align-content: start; padding: 8px 6px; border: 1px solid var(--jp-line);
   border-radius: var(--jp-radius-interactive); text-align: center; font-size: 11px; line-height: 1.35;
 }
-.jp-level-cell__name { font-size: 1.4em; font-weight: 700; }
-.jp-level-cell--open { border: 2px solid var(--jp-primary); background: var(--jp-primary-soft); }
+.jp-level-cell__name { font-size: 1.4em; font-weight: 500; }
+.jp-level-cell--open { border: 1px solid var(--jp-primary); background: var(--jp-primary-soft); }
 .jp-level-cell--passed { color: var(--jp-ok); }
 .jp-level-cell--locked, .jp-level-cell--coming_soon { color: var(--jp-muted); }
 .jp-level-cell__note { color: var(--jp-muted); }
@@ -102,7 +102,7 @@
 
 /* numbers */
 .jp-stat__title { margin: 0; font-size: .95em; color: var(--jp-muted); }
-.jp-stat__value { font-size: 1.4em; font-weight: 700; }
+.jp-stat__value { font-size: 1.4em; font-weight: 500; }
 .jp-stat__sub { color: var(--jp-muted); font-size: .92em; }
 .jp-skills { grid-column: 1 / -1; }
 
@@ -110,7 +110,7 @@
 .jp-tab__later { margin-left: 4px; color: var(--jp-muted); font-size: .75em; font-weight: 500; }
 .jp-day--review { background: var(--jp-surface); border-style: dashed; }
 .jp-path .jp-warn { color: var(--jp-warn); font-weight: 600; }
-.jp-slider__value { font-weight: 700; }
+.jp-slider__value { font-weight: 500; }
 .jp-slider__range { width: 100%; min-height: 44px; accent-color: var(--jp-primary); }
 .jp-slider__range:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
 .jp-slider__bounds { display: flex; justify-content: space-between; font-size: .85em; }
@@ -124,8 +124,8 @@
 .jp-chip { padding: 2px 10px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-chip); font-size: .9em; }
 .jp-modes { display: grid; gap: 10px; }
 .jp-mode { display: grid; gap: 4px; padding: 10px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive); }
-.jp-mode.jp-suggested { border: 2px solid var(--jp-primary); background: var(--jp-primary-soft); }
-.jp-mode__tag { color: var(--jp-primary); font-size: .85em; font-weight: 700; }
+.jp-mode.jp-suggested { border: 1px solid var(--jp-primary); background: var(--jp-primary-soft); }
+.jp-mode__tag { color: var(--jp-primary); font-size: .85em; font-weight: 500; }
 .jp-today__hint { display: grid; gap: 6px; padding: 10px; border-radius: var(--jp-radius-interactive); background: var(--jp-primary-soft); }
 .jp-warnings { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
 .jp-warning { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -149,7 +149,7 @@
    The drawer and the quiz dialog are appended to <body>, so their rules are not scoped to .jp-path. */
 .jp-path__list { display: grid; gap: 12px; }
 .jp-list-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.jp-seg { display: inline-flex; border: 1.5px solid var(--jp-line); border-radius: var(--jp-radius-interactive); overflow: hidden; }
+.jp-seg { display: inline-flex; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive); overflow: hidden; }
 .jp-seg__btn {
   min-height: 44px; padding: 8px 14px; border: 0; background: var(--jp-surface); color: var(--jp-ink);
   font: inherit; font-weight: 600; cursor: pointer;
@@ -176,7 +176,7 @@
   text-align: left; cursor: pointer;
 }
 .jp-topic-card__open:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
-.jp-topic-card__title { font-weight: 700; }
+.jp-topic-card__title { font-weight: 500; }
 .jp-topic-card__count, .jp-topic-card__sub { color: var(--jp-muted); font-size: .9em; }
 .jp-topic-card__sub, .jp-topic-card__done { margin: 0; }
 .jp-topic-card__done { color: var(--jp-ok); font-weight: 600; min-height: 44px; display: flex; align-items: center; }
@@ -190,7 +190,7 @@
 .jp-field--grow { flex: 1 1 200px; }
 .jp-field__label { color: var(--jp-muted); font-size: .85em; }
 .jp-input {
-  box-sizing: border-box; width: 100%; min-height: 44px; padding: 8px 10px; border: 1.5px solid var(--jp-line);
+  box-sizing: border-box; width: 100%; min-height: 44px; padding: 8px 10px; border: 1px solid var(--jp-line);
   border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink); font: inherit;
 }
 .jp-input:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 1px; }
@@ -264,7 +264,7 @@
 .jp-fieldset legend { padding: 0; margin-bottom: 4px; font-weight: 600; }
 .jp-choices { display: flex; flex-wrap: wrap; gap: 6px; }
 .jp-choice {
-  display: inline-flex; gap: 6px; align-items: center; min-height: 44px; padding: 0 12px; border: 1.5px solid var(--jp-line);
+  display: inline-flex; gap: 6px; align-items: center; min-height: 44px; padding: 0 12px; border: 1px solid var(--jp-line);
   border-radius: var(--jp-radius-interactive); cursor: pointer;
 }
 .jp-choice input { accent-color: var(--jp-primary); }
@@ -321,7 +321,7 @@
 .jp-dot { display: inline-block; width: .7em; height: .7em; border-radius: 50%; vertical-align: middle; flex: 0 0 auto; }
 .jp-dot-known { background: var(--jp-ok); }
 .jp-dot-learning { background: var(--jp-primary); }
-.jp-dot-new { background: transparent; border: 1.5px solid var(--jp-muted); box-sizing: border-box; }
+.jp-dot-new { background: transparent; border: 1px solid var(--jp-muted); box-sizing: border-box; }
 .jp-gunit { display: grid; gap: 6px; }
 .jp-gunit__title { margin: 8px 0 0; font-size: 1em; }
 .jp-gunit__count { color: var(--jp-muted); font-size: .85em; font-weight: 400; }
@@ -331,7 +331,7 @@
   border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface);
   color: var(--jp-ink); font: inherit; text-align: left; cursor: pointer;
 }
-.jp-grow--open { border: 2px solid var(--jp-primary); }
+.jp-grow--open { border: 1px solid var(--jp-primary); }
 .jp-grow:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
 .jp-grow__text { flex: 1 1 auto; }
 .jp-grow__mark { color: var(--jp-muted); }
@@ -466,13 +466,13 @@
 .jp-stage__days { margin: 0; color: var(--jp-muted); font-size: .92em; }
 .jp-path .jp-week { display: flex; flex-wrap: wrap; gap: 6px; }
 .jp-path .jp-day {
-  flex: 0 0 auto; min-width: 46px; padding: 6px 10px; border: 1px solid transparent; border-radius: 999px;
+  flex: 0 0 auto; min-width: 46px; padding: 6px 10px; border: 1px solid transparent; border-radius: 8px;
   background: var(--jp-primary-soft); font-size: .88em; font-weight: 600; color: var(--jp-muted);
 }
 .jp-path .jp-day--skill { background: var(--jp-primary-soft); color: var(--jp-primary); }
 .jp-path .jp-day--rest { background: transparent; border-color: var(--jp-line); }
 .jp-path .jp-day--done { color: var(--jp-ok); }
-.jp-path .jp-day--today { border: 2px solid var(--jp-primary); color: var(--jp-ink); background: var(--jp-surface); }
+.jp-path .jp-day--today { border: 1px solid var(--jp-primary); color: var(--jp-ink); background: var(--jp-surface); }
 
 /* today: the one panel of the page, it carries the main action */
 .jp-path .jp-today {
@@ -547,7 +547,7 @@
 .jp-lesson-page { max-width: 1100px; }
 .jp-lesson-root { gap: 24px; }
 .jp-lesson { gap: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
-.jp-lesson__eyebrow { margin-bottom: 10px !important; color: var(--jp-primary); font-size: .88em; font-weight: 700; letter-spacing: .02em; }
+.jp-lesson__eyebrow { margin-bottom: 10px !important; color: var(--jp-primary); font-size: .88em; font-weight: 500; letter-spacing: .02em; }
 .jp-lesson__pattern { margin: 0 0 26px; font-size: clamp(2.4em, 5vw, 3.5em); line-height: 1.35; overflow-wrap: anywhere; }
 .jp-lesson__part { gap: 10px; padding: 22px 0; border-top: 1px solid var(--jp-line); }
 .jp-lesson__label { font-size: .88em; letter-spacing: 0; text-transform: none; }
@@ -623,7 +623,7 @@
   font-weight: 600; color: var(--jp-muted);
 }
 .jp-path__pace-head::-webkit-details-marker { display: none; }
-.jp-path__pace-head::after { content: ""; width: 14px; height: 14px; flex: none; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) scale(.65); }
+.jp-path__pace-head::after { content: ""; width: 14px; height: 14px; flex: none; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(45deg) scale(.65); }
 .jp-path__pace[open] > .jp-path__pace-head::after { transform: rotate(225deg) scale(.65); }
 .jp-path__pace-head:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: -3px; }
 .jp-path__pace .jp-path__slider { padding: 4px 0 18px; max-width: 560px; }
@@ -650,7 +650,7 @@
 .jp-path .jp-sidenav { padding-top: 14px; border-top: 1px solid var(--jp-line); }
 @media (max-width: 899px) {
   .jp-path__side .jp-extra__list:not(.jp-extra__list--pages) { display: flex; overflow-x: auto; gap: 6px; }
-  .jp-path__side .jp-extra__link { white-space: nowrap; border: 1px solid var(--jp-line); border-radius: 999px; }
+  .jp-path__side .jp-extra__link { white-space: nowrap; border: 1px solid var(--jp-line); border-radius: 8px; }
 }
 
 /* Compact overview: one visible action, short list previews and an optional detail layer. */
@@ -701,7 +701,7 @@
 .jp-lesson__formula .jp-struct__chip { padding: 6px 14px; border: 1px solid var(--jp-line); border-radius: 8px;
   background: var(--jp-surface); font-weight: 600; }
 .jp-lesson__formula .jp-struct__chip--fixed { border-color: var(--jp-primary); background: var(--jp-primary); color: var(--jp-surface); }
-.jp-lesson__formula .jp-struct__plus { font-weight: 700; color: var(--jp-primary); }
+.jp-lesson__formula .jp-struct__plus { font-weight: 500; color: var(--jp-primary); }
 .jp-unitbar { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 4px; }
 .jp-unitbar__dot { width: 18px; height: 6px; border-radius: 3px; background: var(--jp-line); }
 .jp-unitbar__dot.is-past { background: var(--jp-primary-soft); box-shadow: inset 0 0 0 1px var(--jp-primary); }
@@ -713,7 +713,7 @@
 .jp-lesson__examples .jp-example { padding: 16px 0; }
 .jp-lesson__examples .jp-ex-ja { font-size: 1.3em; line-height: 1.9; }
 .jp-lesson__examples .jp-ex-vi { margin-top: 2px; color: var(--jp-muted); transition: filter .2s ease, opacity .2s ease; }
-mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color: var(--jp-primary); font-weight: 700;
+mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color: var(--jp-primary); font-weight: 500;
   box-shadow: inset 0 -0.42em 0 var(--jp-primary-soft); }
 .jp-lesson__examples.is-vi-hidden .jp-ex-vi { filter: blur(6px); opacity: .55; cursor: pointer; user-select: none; }
 .jp-lesson__examples.is-vi-hidden .jp-example { cursor: pointer; }
@@ -749,7 +749,7 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 .jp-drawer__id { display: grid; gap: 6px; min-width: 0; }
 .jp-drawer__title { margin: 0; font-size: clamp(3.2em, 7vw, 5.2em); line-height: 1.1; overflow-wrap: anywhere; }
 .jp-drawer__reading { font-size: 1.35em; }
-.jp-drawer__meaning { font-size: 1.25em; font-weight: 700; }
+.jp-drawer__meaning { font-size: 1.25em; font-weight: 500; }
 .jp-drawer__id .jp-btn { justify-self: start; }
 .jp-drawer__top .jp-facts { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 18px; align-content: start; }
 .jp-drawer__top .jp-facts dd { margin: 0; font-size: 1.08em; }
@@ -786,8 +786,8 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 .jp-path__stage .jp-weekguide, .jp-path__stage .jp-weekguide__why { grid-column: 1 / -1; }
 
 /* 04/11 "Hôm nay của bạn": the day's kind as a tag, the reason under it, a skill day as a task list */
-.jp-today__kind { display: inline-block; margin-left: 8px; padding: 2px 10px; border-radius: 999px; background: var(--jp-surface);
-  color: var(--jp-primary); font-size: .62em; font-weight: 700; vertical-align: middle; }
+.jp-today__kind { display: inline-block; margin-left: 8px; padding: 2px 10px; border-radius: 6px; background: var(--jp-surface);
+  color: var(--jp-primary); font-size: .62em; font-weight: 500; vertical-align: middle; }
 .jp-today__why { margin: 2px 0 6px; color: var(--jp-muted); font-size: .92em; }
 .jp-todo { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
 .jp-todo__item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 12px 14px;
@@ -797,7 +797,7 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
   background: var(--jp-primary-soft); color: var(--jp-primary); font-size: 1.1em; }
 .jp-todo__text { display: grid; gap: 2px; min-width: 0; }
 .jp-todo__sub { color: var(--jp-muted); font-size: .88em; }
-.jp-todo__done { display: inline-flex; align-items: center; gap: 6px; color: var(--jp-ok); font-weight: 700; white-space: nowrap; }
+.jp-todo__done { display: inline-flex; align-items: center; gap: 6px; color: var(--jp-ok); font-weight: 500; white-space: nowrap; }
 .jp-todo__item .jp-btn { min-height: 44px; white-space: nowrap; }
 @media (max-width: 640px) {
   .jp-todo__item { grid-template-columns: auto minmax(0, 1fr); }
@@ -881,7 +881,7 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 .jp-path .jp-todo__item .jp-btn { width: 150px; justify-content: center; min-height: 40px; padding: 6px 12px; }
 .jp-path .jp-todo__done { width: 150px; justify-content: center; }
 .jp-today__side { display: grid; gap: 10px; padding: 14px 16px; }
-.jp-today__side::before { content: "Tiến trình"; color: var(--jp-muted); font-size: .78em; font-weight: 700; letter-spacing: .05em;
+.jp-today__side::before { content: "Tiến trình"; color: var(--jp-muted); font-size: .78em; font-weight: 500; letter-spacing: .05em;
   text-transform: uppercase; }
 .jp-today__side .jp-stepper--vertical .jp-step { padding-bottom: 12px; gap: 10px; grid-template-columns: 28px minmax(0, 1fr); }
 .jp-today__side .jp-stepper--vertical .jp-step__mark { width: 28px; height: 28px; font-size: .82em; }
@@ -921,7 +921,7 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 .jp-path .jp-list-results > .jp-list-bar:first-child { grid-column: 2; grid-row: 1; margin: 0; justify-self: end; }
 .jp-path .jp-list-results > .jp-pager { justify-self: center; margin-top: 6px; }
 .jp-path .jp-table { width: 100%; border-collapse: collapse; }
-.jp-path .jp-table th { padding: 8px 12px; font-size: .78em; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+.jp-path .jp-table th { padding: 8px 12px; font-size: .78em; font-weight: 500; letter-spacing: .04em; text-transform: uppercase;
   color: var(--jp-muted); text-align: left; border-bottom: 1px solid var(--jp-line); }
 .jp-path .jp-table td { padding: 8px 12px; vertical-align: middle; border-bottom: 1px solid var(--jp-line); }
 .jp-path .jp-table td:first-child { font-size: 1.15em; }
@@ -951,18 +951,18 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 :root,
 .jp-page,
 .jp-path {
-  /* 9 Harmonious Color Families (Light Mode) */
-  --jp-c-purple-900: #4c1d95;
-  --jp-c-purple-500: #6d28d9;
-  --jp-c-purple-100: #f3e8ff;
+  /* 9 Harmonious Color Families (Light Mode — Softened Wisteria & Periwinkle) */
+  --jp-c-purple-900: #260b5c;
+  --jp-c-purple-500: #5521b5;
+  --jp-c-purple-100: #e3d6ff;
 
-  --jp-c-indigo-900: #312e81;
-  --jp-c-indigo-500: #4f46e5;
-  --jp-c-indigo-100: #eef2ff;
+  --jp-c-indigo-900: #1d145c;
+  --jp-c-indigo-500: #3f30b8;
+  --jp-c-indigo-100: #dcdafa;
 
-  --jp-c-mauve-900: #701a75;
-  --jp-c-mauve-500: #a21caf;
-  --jp-c-mauve-100: #fae8ff;
+  --jp-c-mauve-900: #3d0d66;
+  --jp-c-mauve-500: #7222b8;
+  --jp-c-mauve-100: #ebd6ff;
 
   --jp-c-teal-900: #134e4a;
   --jp-c-teal-500: #0d9488;
@@ -1019,16 +1019,16 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
   --jp-scene-kanji-hill-near: color-mix(in srgb, var(--jp-c-mauve-500) 12%, transparent);
   --jp-scene-grammar-hill-near: color-mix(in srgb, var(--jp-c-teal-500) 12%, transparent);
 
-  /* Clean flat node tokens */
-  --jp-coin-done-bg: var(--jp-c-purple-500);
-  --jp-coin-done-border: var(--jp-c-purple-100);
+  /* Clean flat node tokens (softened so Done is light lavender and Today is gentle wisteria) */
+  --jp-coin-done-bg: color-mix(in srgb, var(--jp-c-purple-500) 92%, var(--jp-r4-surface));
+  --jp-coin-done-border: var(--jp-c-purple-900);
   --jp-coin-done-pill-bg: var(--jp-c-peach-100);
   --jp-coin-done-pill-ink: var(--jp-c-peach-900);
   --jp-coin-done-pill-border: color-mix(in srgb, var(--jp-c-peach-500) 40%, var(--jp-c-peach-100));
 
   --jp-coin-today-bg: var(--jp-c-purple-500);
   --jp-coin-today-border: var(--jp-c-purple-100);
-  --jp-coin-today-halo: color-mix(in srgb, var(--jp-c-purple-500) 20%, transparent);
+  --jp-coin-today-halo: color-mix(in srgb, var(--jp-c-purple-500) 16%, transparent);
   --jp-coin-today-pill-bg: var(--jp-c-purple-100);
   --jp-coin-today-pill-ink: var(--jp-c-purple-900);
   --jp-coin-today-pill-border: color-mix(in srgb, var(--jp-c-purple-500) 35%, var(--jp-c-purple-100));
@@ -1243,7 +1243,7 @@ html.dark .jp-path {
   display: grid;
   gap: 14px;
   padding: 20px 22px;
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--jp-r4-today-bg);
   border: 1px solid var(--jp-r4-today-border);
   box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
@@ -1261,7 +1261,7 @@ html.dark .jp-path {
   flex: 0 0 66px;
   width: 66px;
   min-height: 70px;
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--jp-r4-surface);
   border: 1px solid var(--jp-r4-today-border);
   box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
@@ -1275,7 +1275,7 @@ html.dark .jp-path {
 }
 .jp-today__cal-month {
   font-size: .7rem;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--jp-c-purple-900);
   background: var(--jp-c-purple-100);
   border-radius: 6px;
@@ -1284,7 +1284,7 @@ html.dark .jp-path {
 }
 .jp-today__cal-day {
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.1;
   color: var(--jp-c-purple-500);
   margin: 2px 0 1px;
@@ -1311,7 +1311,7 @@ html.dark .jp-path {
 .jp-path .jp-today .jp-section-title {
   margin: 0;
   font-size: 1.3rem;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--jp-r4-ink);
 }
 .jp-today__badge--done {
@@ -1319,12 +1319,12 @@ html.dark .jp-path {
   align-items: center;
   gap: 5px;
   padding: 3px 11px;
-  border-radius: 999px;
+  border-radius: 6px;
   background: var(--jp-coin-done-pill-bg);
   color: var(--jp-coin-done-pill-ink);
   border: 1px solid var(--jp-coin-done-pill-border);
   font-size: .78rem;
-  font-weight: 700;
+  font-weight: 500;
 }
 .jp-today__subtitle {
   margin: 0;
@@ -1420,7 +1420,7 @@ html.dark .jp-path {
   display: grid;
   place-items: center;
   font-size: .68rem;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--jp-tab-900);
 }
 .jp-today__ring.is-done .jp-today__ring-txt svg {
@@ -1486,15 +1486,15 @@ html.dark .jp-path {
   gap: 4px 8px;
   font-size: .84rem;
 }
-.jp-today__weekly-info strong { color: var(--jp-r4-ink); font-weight: 700; }
+.jp-today__weekly-info strong { color: var(--jp-r4-ink); font-weight: 500; }
 .jp-today__weekly-info span { color: var(--jp-r4-muted); font-size: .8rem; }
 .jp-today__weekly-countdown {
   display: inline-block;
   padding: 1px 8px;
-  border-radius: 999px;
+  border-radius: 6px;
   background: var(--jp-r4-weekly-chip-bg);
   color: var(--jp-r4-weekly-chip-ink) !important;
-  font-weight: 700;
+  font-weight: 500;
   font-size: .75rem !important;
 }
 .jp-today__weekly-btns {
@@ -1521,7 +1521,7 @@ html.dark .jp-path {
 .jp-today__side::before {
   content: "Tiến trình";
   font-size: .76rem;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--jp-r4-muted);
   white-space: nowrap;
 }
@@ -1598,7 +1598,7 @@ html.dark .jp-path {
   display: grid;
   gap: 10px;
   padding: 14px 18px;
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--jp-r4-surface-elevated);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -1647,7 +1647,7 @@ html.dark .jp-path {
 .jp-parts__title {
   margin: 0;
   font-size: 1.12rem;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--jp-r4-ink);
   line-height: 1.25;
 }
@@ -1667,7 +1667,7 @@ html.dark .jp-path {
 }
 .jp-parts__banner-center {
   padding: 4px 12px 4px 6px;
-  border-radius: 999px;
+  border-radius: 6px;
   background: var(--jp-r4-surface-soft);
   border: 1px solid var(--jp-r4-line);
 }
@@ -1695,7 +1695,7 @@ html.dark .jp-path {
   display: grid;
   place-items: center;
   font-size: .72rem;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--jp-tab-900);
 }
 .jp-parts__banner-ring-meta,
@@ -1707,7 +1707,7 @@ html.dark .jp-path {
 .jp-parts__banner-ring-meta strong,
 .jp-parts__banner-frac {
   font-size: .86rem;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--jp-r4-ink);
 }
 .jp-parts__banner-ring-meta span,
@@ -1727,7 +1727,7 @@ html.dark .jp-path {
   align-items: center;
   gap: 6px;
   padding: 4px 6px;
-  border-radius: 999px;
+  border-radius: 8px;
   background: var(--jp-tab-100);
   border: 1px solid color-mix(in srgb, var(--jp-tab-500) 32%, var(--jp-tab-100));
 }
@@ -1745,7 +1745,7 @@ html.dark .jp-path {
   background: var(--jp-r4-surface);
   color: var(--jp-tab-500);
   font-size: .95rem;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1;
   cursor: pointer;
   display: inline-grid;
@@ -1783,7 +1783,7 @@ html.dark .jp-path {
   align-items: center;
   gap: 5px;
   padding: 3px 10px;
-  border-radius: 999px;
+  border-radius: 6px;
   font-size: .75rem;
   font-weight: 600;
   white-space: nowrap;
@@ -1822,7 +1822,7 @@ html.dark .jp-path {
   gap: 6px;
   min-height: 34px;
   padding: 5px 12px;
-  border-radius: 999px;
+  border-radius: 8px;
   border: 1px solid var(--jp-r4-line);
   background: var(--jp-r4-surface);
   color: var(--jp-c-purple-500);
@@ -2024,12 +2024,12 @@ html.dark .jp-path {
   padding: 6px 14px;
   border-radius: 12px;
   background: var(--jp-r4-surface);
-  border: 2px solid color-mix(in srgb, var(--jp-tab-500) 45%, var(--jp-r4-line));
+  border: 1px solid color-mix(in srgb, var(--jp-tab-500) 45%, var(--jp-r4-line));
   box-shadow: 0 2px 6px rgb(0 0 0 / 7%);
 }
 .jp-parts__week-sign-title {
   font-size: .82rem;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--jp-tab-900);
   line-height: 1.15;
 }
@@ -2072,13 +2072,13 @@ html.dark .jp-path {
   position: static;
   margin-top: 2px;
   padding: 2px 9px;
-  border-radius: 999px;
+  border-radius: 6px;
   background: color-mix(in srgb, var(--jp-r4-surface) 90%, var(--jp-tab-100));
   border: 1px solid color-mix(in srgb, var(--jp-tab-500) 24%, var(--jp-r4-line));
   color: var(--jp-tab-900);
   font-size: .7rem;
   line-height: 1.25;
-  font-weight: 700;
+  font-weight: 500;
   white-space: nowrap;
   text-align: center;
 }
@@ -2265,13 +2265,13 @@ html.dark .jp-path {
   left: 50%;
   transform: translateX(-50%);
   padding: 4px 12px;
-  border-radius: 999px;
+  border-radius: 12px;
   background: var(--jp-coin-today-badge-bg);
   color: var(--jp-white);
   font-size: .76rem;
-  font-weight: 700;
+  font-weight: 500;
   white-space: nowrap;
-  border: 1.5px solid var(--jp-r4-surface);
+  border: 1px solid var(--jp-r4-surface);
   box-shadow: 0 2px 6px rgb(0 0 0 / 10%);
   z-index: 4;
 }
@@ -2316,12 +2316,12 @@ html.dark .jp-path {
   padding: 0 6px;
   border-radius: 999px;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 22px;
   text-align: center;
   background: var(--jp-r4-surface);
   color: var(--jp-r4-ink);
-  border: 2px solid var(--jp-r4-line);
+  border: 1px solid var(--jp-r4-line);
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   box-sizing: border-box;
   z-index: 2;
@@ -2330,7 +2330,7 @@ html.dark .jp-path {
 .jp-parts__orb--done {
   background: var(--jp-coin-done-bg);
   color: var(--jp-white);
-  border: 2.5px solid var(--jp-coin-done-border);
+  border: 1px solid var(--jp-coin-done-border);
 }
 .jp-parts__orb--done .jp-parts__orb-num {
   border-color: var(--jp-c-peach-500);
@@ -2344,7 +2344,7 @@ html.dark .jp-path {
   height: 100px;
   background: var(--jp-coin-today-bg);
   color: var(--jp-white);
-  border: 3px solid var(--jp-coin-today-border);
+  border: 1px solid var(--jp-coin-today-border);
   box-shadow: 0 0 0 6px var(--jp-coin-today-halo), 0 4px 14px rgb(0 0 0 / 12%);
   animation: jp-parts-today-pulse 2.4s ease-in-out infinite;
 }
@@ -2364,7 +2364,7 @@ html.dark .jp-path {
 .jp-parts__orb--next {
   background: var(--jp-coin-next-bg);
   color: var(--jp-coin-next-ink);
-  border: 2px solid var(--jp-coin-next-border);
+  border: 1px solid var(--jp-coin-next-border);
 }
 
 /* Round 6 Bổ sung 3: Rương tuần to (~96px) đứng trực tiếp trên đường đi, bỏ khung ô vuông bao ngoài */
@@ -2421,7 +2421,7 @@ html.dark .jp-path {
 }
 .jp-parts__label--right { left: calc(100% + 14px); align-items: flex-start; text-align: left; }
 .jp-parts__label--left { right: calc(100% + 14px); align-items: flex-end; text-align: right; }
-.jp-parts__no { font-weight: 700; font-size: 15px; color: var(--jp-r4-ink); line-height: 1.25; }
+.jp-parts__no { font-weight: 500; font-size: 15px; color: var(--jp-r4-ink); line-height: 1.25; }
 .jp-parts__head.is-selected .jp-parts__no { color: var(--jp-c-purple-500); }
 .jp-parts__when { font-size: 13px; font-weight: 600; color: var(--jp-r4-muted); line-height: 1.25; }
 .jp-parts__step--done .jp-parts__when { color: var(--jp-c-peach-900); }
@@ -2447,11 +2447,11 @@ html.dark .jp-path {
 .jp-parts__mascot-speech {
   margin-bottom: 3px;
   padding: 3px 10px;
-  border-radius: 999px;
+  border-radius: 12px;
   background: var(--jp-r4-surface);
   color: var(--jp-r4-ink);
   font-size: .74rem;
-  font-weight: 700;
+  font-weight: 500;
   white-space: nowrap;
   border: 1px solid var(--jp-coin-today-pill-border);
   box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
@@ -2466,8 +2466,8 @@ html.dark .jp-path {
   color: var(--jp-curve-default);
   pointer-events: none;
 }
-.jp-parts__curve--done { color: var(--jp-tab-500); }
-.jp-parts__curve--run { color: var(--jp-tab-500); }
+.jp-parts__curve--done { color: color-mix(in srgb, var(--jp-tab-500) 58%, var(--jp-c-purple-100)); }
+.jp-parts__curve--run { color: color-mix(in srgb, var(--jp-tab-500) 64%, var(--jp-c-purple-100)); }
 
 /* --- Morphicons-style Thin Rounded SVG Micro-interactions (150-300ms, 1 play) --- */
 .jp-morph-medal__shackle,
@@ -2602,11 +2602,11 @@ html.dark .jp-path {
   max-height: min(70vh, 500px);
   margin: 12px auto 4px;
   padding: 14px 16px 14px;
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--jp-r4-surface);
   color: var(--jp-r4-ink);
   border: 1px solid var(--jp-r4-line);
-  border-top: 4px solid var(--jp-c-slate-500);
+  border-top: 1px solid var(--jp-c-slate-500);
   box-shadow: 0 12px 32px rgb(0 0 0 / 14%);
   display: flex;
   flex-direction: column;
@@ -2711,9 +2711,9 @@ html.dark .jp-path {
   align-items: center;
   gap: 4px;
   padding: 2px 9px;
-  border-radius: 999px;
+  border-radius: 6px;
   font-size: .72rem;
-  font-weight: 700;
+  font-weight: 500;
   border: 1px solid transparent;
 }
 .jp-parts__pop-pill svg {
@@ -2743,7 +2743,7 @@ html.dark .jp-path {
 .jp-parts__pop-title {
   margin: 0;
   font-size: .96rem;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--jp-r4-ink);
   line-height: 1.25;
 }
@@ -2811,7 +2811,7 @@ html.dark .jp-path {
 }
 .jp-parts__pill-ja {
   font-size: 1.02rem;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.25;
   color: var(--jp-r4-ink);
   max-width: 100%;
@@ -2842,7 +2842,7 @@ html.dark .jp-path {
   color: var(--jp-c-purple-900);
   font: inherit;
   font-size: .84rem;
-  font-weight: 700;
+  font-weight: 500;
   cursor: pointer;
 }
 .jp-parts__more-pills:hover { text-decoration: underline; }
@@ -2897,7 +2897,7 @@ html.dark .jp-path {
   display: grid;
   place-items: center;
   font-size: .64rem;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--jp-r4-ink);
 }
 .jp-parts__pop-ring.is-done .jp-parts__pop-ring-txt svg {
@@ -2911,9 +2911,9 @@ html.dark .jp-path {
   margin: 0 auto 12px;
   max-width: 1100px;
   padding: 12px 18px;
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--jp-r4-surface);
-  border: 1.5px solid var(--jp-c-purple-500);
+  border: 1px solid var(--jp-c-purple-500);
   color: var(--jp-r4-ink);
   display: flex;
   align-items: center;
@@ -2948,7 +2948,7 @@ html.dark .jp-path {
   animation: jp-parts-kitsu-bob 1.2s ease-in-out 1;
 }
 .jp-saved-note__body { display: grid; gap: 2px; position: relative; z-index: 1; }
-.jp-saved-note__title { font-size: .98rem; font-weight: 700; color: var(--jp-r4-ink); }
+.jp-saved-note__title { font-size: .98rem; font-weight: 500; color: var(--jp-r4-ink); }
 .jp-saved-note__text { font-size: .88rem; font-weight: 500; color: var(--jp-r4-muted); }
 
 /* Khối "Hôm nay của bạn" gọn trong 1 màn hình ở 1280×760 */
@@ -3011,7 +3011,7 @@ html.dark .jp-path {
   .jp-today__kitsu { justify-self: start; }
 
   .jp-parts__banner { position: static; padding: 12px 14px; }
-  .jp-parts__stage { padding: 18px 8px 40px; border-radius: 16px; overflow: hidden; }
+  .jp-parts__stage { padding: 18px 8px 40px; border-radius: 12px; overflow: hidden; }
   .jp-parts__list { --wave-offset: 54px; }
   .jp-parts__node-row { min-height: 78px; }
   .jp-parts__orb { width: 70px; height: 70px; }
@@ -3038,7 +3038,7 @@ html.dark .jp-path {
     max-width: 100%;
     max-height: 72vh;
     margin: 0;
-    border-radius: 18px 18px 0 0;
+    border-radius: 12px 12px 0 0;
     z-index: 80;
     box-shadow: 0 -6px 24px rgb(0 0 0 / 18%);
     transform: none !important;
@@ -3094,4 +3094,512 @@ html.dark .jp-path {
   .jp-parts__head:hover .jp-parts__orb {
     transform: none !important;
   }
+}
+
+/* === ROUND 7 UI POLISH === */
+/* Item 4: Circular "Hôm nay" stamp with % progress ring, rising water, Japanese date */
+.jp-today .jp-today__cal {
+  position: relative;
+  width: 78px !important;
+  height: 78px !important;
+  min-width: 78px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  border: 0 !important;
+  background: var(--jp-surface) !important;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: none !important;
+}
+
+.jp-today__cal-water {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: color-mix(in srgb, var(--jp-c-purple-500, #5521b5) 14%, transparent);
+  transition: height .4s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.jp-today__cal-wave {
+  position: absolute;
+  left: -25%;
+  right: -25%;
+  top: -4px;
+  height: 8px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--jp-c-purple-500, #5521b5) 18%, transparent);
+  animation: jpCalWave 4.5s ease-in-out infinite alternate;
+}
+
+@keyframes jpCalWave {
+  0% { transform: translateX(-6px) scaleY(0.85); }
+  100% { transform: translateX(6px) scaleY(1.15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jp-today__cal-wave {
+    animation: none !important;
+  }
+  .jp-today__cal-water {
+    transition: none !important;
+  }
+}
+
+.jp-today__cal-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.jp-today__cal-ring-bg {
+  fill: none;
+  stroke: var(--jp-line);
+  stroke-width: 1.5;
+}
+
+.jp-today__cal-ring-fg {
+  fill: none;
+  stroke: var(--jp-c-purple-500, var(--jp-primary));
+  stroke-width: 2;
+  stroke-linecap: round;
+  transition: stroke-dashoffset .4s ease;
+}
+
+.jp-today__cal-inner {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.1;
+  text-align: center;
+  padding: 4px;
+}
+
+.jp-today__cal-day {
+  font-size: 1.3rem !important;
+  font-weight: 500 !important;
+  color: var(--jp-ink) !important;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.jp-today__cal-jp {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+  font-size: .68rem;
+  font-weight: 400;
+  color: var(--jp-muted);
+}
+
+.jp-today__cal-kanji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  border: 1px solid var(--jp-line);
+  border-radius: 4px;
+  font-size: .64rem;
+  font-weight: 500;
+  color: var(--jp-primary);
+  background: color-mix(in srgb, var(--jp-surface) 80%, transparent);
+}
+
+.jp-today__cal-dow {
+  font-size: .6rem !important;
+  font-weight: 400 !important;
+  color: var(--jp-subtle) !important;
+  margin-top: 1px;
+}
+
+/* Item 5 & 7.3 & 7.4: Stage progress bar — no circle around step numbers, hide unlock note until hover */
+.jp-stage .jp-step__mark,
+.jp-stage-line .jp-step__mark {
+  width: auto !important;
+  height: auto !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--jp-muted) !important;
+  font-size: .82rem !important;
+  font-weight: 500 !important;
+  padding: 0 !important;
+}
+
+.jp-stage .jp-step--now .jp-step__mark,
+.jp-stage .jp-step--current .jp-step__mark,
+.jp-stage-line .jp-step--current .jp-step__mark {
+  color: var(--jp-primary) !important;
+}
+
+.jp-stage .jp-step--done .jp-step__mark,
+.jp-stage-line .jp-step--done .jp-step__mark {
+  color: var(--jp-ok) !important;
+}
+
+.jp-stage .jp-step + .jp-step::before,
+.jp-stage-line .jp-step + .jp-step::before {
+  height: 1px !important;
+}
+
+.jp-stage .jp-step--todo .jp-step__sub--tip,
+.jp-stage-line .jp-step--todo .jp-step__sub--tip,
+.jp-level-cell--locked .jp-level-cell__note,
+.jp-tab--locked .jp-tab__later,
+.jp-parts__step--upcoming-week .jp-parts__when {
+  display: none !important;
+}
+
+/* Dark mode support for circular calendar */
+html[data-theme="dark"] .jp-today .jp-today__cal,
+html.dark .jp-today .jp-today__cal {
+  background: var(--jp-surface) !important;
+}
+
+html[data-theme="dark"] .jp-today__cal-water,
+html.dark .jp-today__cal-water {
+  background: color-mix(in srgb, var(--jp-primary) 22%, transparent);
+}
+
+/* === ROUND 8 PATH POLISH === */
+/* Item 1: Richer purple & high-contrast Done nodes/curves/badges in Light & Dark modes */
+:root,
+.jp-page,
+.jp-path {
+  --jp-c-purple-900: #260b5c;
+  --jp-c-purple-500: #5521b5;
+  --jp-c-purple-100: #e3d6ff;
+  --jp-primary: var(--jp-c-purple-500);
+  --jp-primary-soft: var(--jp-c-purple-100);
+  --jp-coin-done-bg: color-mix(in srgb, var(--jp-c-purple-500) 92%, var(--jp-r4-surface));
+  --jp-coin-done-border: var(--jp-c-purple-900);
+  --jp-coin-done-pill-bg: color-mix(in srgb, var(--jp-c-purple-500) 22%, var(--jp-c-purple-100));
+  --jp-coin-done-pill-ink: var(--jp-c-purple-900);
+  --jp-coin-done-pill-border: color-mix(in srgb, var(--jp-c-purple-500) 52%, var(--jp-c-purple-100));
+}
+
+html[data-theme="dark"],
+html.dark,
+html[data-theme="dark"] .jp-page,
+html.dark .jp-page,
+html[data-theme="dark"] .jp-path,
+html.dark .jp-path {
+  --jp-c-purple-900: #ede9fe;
+  --jp-c-purple-500: #9f7aea;
+  --jp-c-purple-100: #2d1b54;
+  --jp-coin-done-bg: color-mix(in srgb, var(--jp-c-purple-500) 76%, #1e1b38);
+  --jp-coin-done-border: #c4b5fd;
+  --jp-coin-done-pill-bg: color-mix(in srgb, var(--jp-c-purple-500) 28%, #1e1b38);
+  --jp-coin-done-pill-ink: #f3e8ff;
+  --jp-coin-done-pill-border: color-mix(in srgb, var(--jp-c-purple-500) 64%, #1e1b38);
+}
+
+.jp-parts__orb--done {
+  background: var(--jp-coin-done-bg) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--jp-coin-done-border) !important;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--jp-c-purple-500) 26%, transparent) !important;
+}
+.jp-parts__orb--done .jp-parts__orb-num {
+  background: var(--jp-r4-surface) !important;
+  color: var(--jp-c-purple-900) !important;
+  border: 1px solid var(--jp-c-purple-500) !important;
+}
+.jp-parts__curve--done {
+  color: color-mix(in srgb, var(--jp-tab-500) 86%, var(--jp-c-purple-900)) !important;
+}
+.jp-parts__curve--run {
+  color: var(--jp-tab-500) !important;
+}
+.jp-today__badge--done,
+.jp-parts__pop-pill--done,
+.jp-parts__legend-pill--done {
+  background: var(--jp-coin-done-pill-bg) !important;
+  color: var(--jp-coin-done-pill-ink) !important;
+  border: 1px solid var(--jp-coin-done-pill-border) !important;
+}
+.jp-parts__step--done .jp-parts__when {
+  color: var(--jp-c-purple-900) !important;
+}
+
+/* Item 2: Kitsu mascot 1.5-2x larger (72px-88px), speech bubble neatly beside */
+.jp-today__kitsu {
+  gap: 10px !important;
+}
+.jp-today__kitsu-img {
+  width: 76px !important;
+  height: 76px !important;
+}
+.jp-today__kitsu-bubble {
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  font-size: .8rem !important;
+  max-width: 190px !important;
+}
+.jp-parts__mascot--today {
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+.jp-parts__mascot--today.jp-parts__mascot--left {
+  right: calc(100% + 18px) !important;
+  bottom: 4px !important;
+  flex-direction: row-reverse !important;
+}
+.jp-parts__mascot--today.jp-parts__mascot--right {
+  left: calc(100% + 18px) !important;
+  bottom: 4px !important;
+}
+.jp-parts__mascot--today .jp-parts__mascot-img {
+  width: 84px !important;
+  height: 84px !important;
+}
+.jp-parts__mascot--side .jp-parts__mascot-img {
+  width: 72px !important;
+  height: 72px !important;
+}
+.jp-parts__mascot-speech {
+  margin-bottom: 0 !important;
+  border-radius: 8px !important;
+  padding: 5px 11px !important;
+  font-size: .78rem !important;
+}
+.jp-parts__pop-head {
+  grid-template-columns: 68px minmax(0, 1fr) auto !important;
+  gap: 12px !important;
+}
+.jp-parts__pop-kitsu {
+  width: 68px !important;
+  height: 68px !important;
+  border-radius: 8px !important;
+}
+.jp-saved-note__kitsu {
+  width: 76px !important;
+  height: 76px !important;
+}
+
+/* Item 3: Remove outer box/border/background around "Tiến trình" bar (.jp-today__side) */
+.jp-today__side {
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Item 4: Circular "Hôm nay" stamp — minimalist (06 + 11月 金), no box on 金, 2-layer phase-shifted SVG waves */
+.jp-today .jp-today__cal {
+  width: 76px !important;
+  height: 76px !important;
+  min-width: 76px !important;
+  min-height: 76px !important;
+  border-radius: 50% !important;
+}
+.jp-today__cal-water {
+  background: color-mix(in srgb, var(--jp-c-purple-500) 22%, transparent) !important;
+}
+.jp-today__cal-waves {
+  position: absolute;
+  left: 0;
+  top: -10px;
+  width: 200%;
+  height: 12px;
+  display: block;
+  pointer-events: none;
+}
+.jp-today__cal-wave-back {
+  fill: color-mix(in srgb, var(--jp-c-purple-500) 16%, transparent);
+  animation: jpCalWaveDriftBack 8s ease-in-out infinite alternate;
+}
+.jp-today__cal-wave-front {
+  fill: color-mix(in srgb, var(--jp-c-purple-500) 26%, transparent);
+  animation: jpCalWaveDriftFront 6s ease-in-out infinite alternate;
+}
+@keyframes jpCalWaveDriftBack {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-38%); }
+}
+@keyframes jpCalWaveDriftFront {
+  0% { transform: translateX(-35%); }
+  100% { transform: translateX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jp-today__cal-wave-back,
+  .jp-today__cal-wave-front {
+    animation: none !important;
+  }
+}
+.jp-today__cal-day {
+  font-size: 1.42rem !important;
+  font-weight: 500 !important;
+  line-height: 1.05 !important;
+}
+.jp-today__cal-jp {
+  margin-top: 2px !important;
+  font-size: .72rem !important;
+  color: var(--jp-muted) !important;
+  gap: 3px !important;
+}
+.jp-today__cal-kanji {
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font-size: inherit !important;
+  font-weight: 500 !important;
+  color: var(--jp-primary) !important;
+}
+.jp-today__cal-dow {
+  display: none !important;
+}
+
+/* Item 7: Less rounded border-radius (6px-8px for buttons/pills/badges, 10px-12px for cards/stages) */
+.jp-path .jp-today,
+.jp-parts__banner,
+.jp-parts__stage,
+.jp-parts__popover,
+.jp-saved-note,
+.jp-path .jp-list-head,
+.jp-lesson__hero,
+.jp-drawer__top {
+  border-radius: 12px !important;
+}
+.jp-path .jp-today__pill.jp-todo__item,
+.jp-today__weekly,
+.jp-parts__banner-icon,
+.jp-parts__week-sign-board,
+.jp-parts__word-pill,
+.jp-todo__item {
+  border-radius: 10px !important;
+}
+.jp-btn,
+.jp-today__badge--done,
+.jp-today__weekly-countdown,
+.jp-parts__banner-center,
+.jp-parts__week-nav,
+.jp-parts__legend-pill,
+.jp-parts__all-btn,
+.jp-parts__week-scene-cap,
+.jp-parts__horizon,
+.jp-parts__bubble,
+.jp-parts__pop-pill,
+.jp-parts__lock-tip,
+.jp-path .jp-day,
+.jp-today__kind,
+.jp-chip,
+.jp-state,
+.jp-struct__chip {
+  border-radius: 8px !important;
+}
+
+/* === ROUND 8 VIVID PURPLE BOOST === */
+:root,
+.jp-page,
+.jp-path,
+.jp-study,
+.jp-check,
+.jp-check-page,
+.cp-page {
+  --jp-c-purple-900: #260b5c !important;
+  --jp-c-purple-500: #5521b5 !important;
+  --jp-c-purple-100: #e3d6ff !important;
+
+  --jp-c-indigo-900: #1d145c !important;
+  --jp-c-indigo-500: #3f30b8 !important;
+  --jp-c-indigo-100: #dcdafa !important;
+
+  --jp-c-mauve-900: #3d0d66 !important;
+  --jp-c-mauve-500: #7222b8 !important;
+  --jp-c-mauve-100: #ebd6ff !important;
+
+  --jp-primary: #5521b5 !important;
+  --jp-primary-soft: #e3d6ff !important;
+  --cp-done: #5521b5 !important;
+  --cp-done-soft: #d9c7ff !important;
+  --cp-done-ring: rgba(85, 33, 181, 0.42) !important;
+}
+
+html[data-theme="dark"],
+html.dark,
+html[data-theme="dark"] .jp-page,
+html.dark .jp-page,
+html[data-theme="dark"] .jp-path,
+html.dark .jp-path,
+html[data-theme="dark"] .jp-study,
+html.dark .jp-study,
+html[data-theme="dark"] .jp-check,
+html.dark .jp-check,
+html[data-theme="dark"] .cp-page,
+html.dark .cp-page {
+  --jp-c-purple-900: #f3e8ff !important;
+  --jp-c-purple-500: #9f67ff !important;
+  --jp-c-purple-100: #321a66 !important;
+
+  --jp-c-indigo-900: #e0e7ff !important;
+  --jp-c-indigo-500: #818cf8 !important;
+  --jp-c-indigo-100: #23205c !important;
+
+  --jp-c-mauve-900: #fae8ff !important;
+  --jp-c-mauve-500: #c084fc !important;
+  --jp-c-mauve-100: #421959 !important;
+
+  --jp-primary: #9f67ff !important;
+  --jp-primary-soft: #321a66 !important;
+  --cp-done: #9f67ff !important;
+  --cp-done-soft: rgba(159, 103, 255, 0.24) !important;
+}
+
+/* Map & Today purple contrast boost */
+.jp-path .jp-today {
+  border-color: color-mix(in srgb, var(--jp-c-purple-500) 40%, var(--jp-c-purple-100)) !important;
+}
+.jp-today__cal-ring-fg {
+  stroke: var(--jp-c-purple-500) !important;
+  stroke-width: 2.4 !important;
+}
+.jp-today__cal-water {
+  background: color-mix(in srgb, var(--jp-c-purple-500) 22%, transparent) !important;
+}
+.jp-today__cal-wave-back {
+  fill: color-mix(in srgb, var(--jp-c-purple-500) 18%, transparent) !important;
+}
+.jp-today__cal-wave-front {
+  fill: color-mix(in srgb, var(--jp-c-purple-500) 28%, transparent) !important;
+}
+.jp-parts__orb--done {
+  background: var(--jp-tab-500, #5521b5) !important;
+  color: #ffffff !important;
+  border: 1.5px solid var(--jp-tab-900, #260b5c) !important;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--jp-tab-500, #5521b5) 34%, transparent) !important;
+}
+.jp-parts__orb--today,
+.jp-parts__orb--today-done {
+  background: var(--jp-c-purple-500) !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--jp-c-purple-500) 26%, transparent), 0 6px 16px color-mix(in srgb, var(--jp-c-purple-500) 35%, transparent) !important;
+}
+.jp-parts__curve--done,
+.jp-parts__curve--run {
+  color: var(--jp-tab-500, #5521b5) !important;
+  opacity: 1 !important;
+}
+.jp-today__badge--done,
+.jp-parts__pop-pill--done,
+.jp-parts__legend-pill--done {
+  background: var(--jp-c-purple-100) !important;
+  color: var(--jp-c-purple-900) !important;
+  border: 1px solid color-mix(in srgb, var(--jp-c-purple-500) 60%, var(--jp-c-purple-100)) !important;
 }

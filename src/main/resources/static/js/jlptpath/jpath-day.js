@@ -26,6 +26,9 @@
   var WEEKDAY_SHORT = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
   var WRITABLE = { VOCAB: 1, KANJI: 1, KANA: 1 };
   var KITSU_BASE = '/images/mascots/kitsu/';
+  var SVG_PRINT = '<svg class="jp-ic" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7" rx="1"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/></svg>';
+  var SVG_PEN = '<svg class="jp-ic" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.5 7.5"/></svg>';
+  var SVG_REFRESH = '<svg class="jp-ic" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-15-6.7L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15 6.7L21 16"/><path d="M16 16h5v5"/></svg>';
   var SVG_CHECK = '<svg class="jp-dayd__node-mark" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.2L6.6 11.3L12.5 5.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var SVG_LOCK = '<svg class="jp-dayd__node-lock" viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="7.5" width="9" height="6.5" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 7.5V5.6a2.5 2.5 0 0 1 5 0v1.9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
   var SVG_SCENERY = '<svg class="jp-dayd__scenery" viewBox="0 0 800 140" preserveAspectRatio="none" aria-hidden="true">'
@@ -239,14 +242,14 @@
         + reviewed.map(itemHtml).join('') + '</ul></section>';
     }
     html += '<div class="jp-dayd__actions">'
-      + (wrongAll.length ? '<a class="jp-btn jp-btn--primary" href="/learning/jlpt/notebook">Ôn lại ' + wrongAll.length + ' mục sai</a>' : '')
+      + (wrongAll.length ? '<a class="jp-btn jp-btn--primary" href="/learning/jlpt/notebook">' + SVG_REFRESH + '<span>Ôn lại ' + wrongAll.length + ' mục sai</span></a>' : '')
       + (day === today ? '<button type="button" class="jp-btn" data-jpath-writing="' + esc(JSON.stringify({ today: 'KANJI' }))
-        + '">Luyện viết kanji hôm nay</button>' : '')
+        + '">' + SVG_PEN + '<span>Luyện viết kanji hôm nay</span></button>' : '')
       + '<button type="button" class="jp-btn" data-jpath-print="' + esc(JSON.stringify({ scope: 'DAY', tab: 'KANJI', day: day }))
-      + '">In bảng kanji ngày này</button>'
+      + '">' + SVG_PRINT + '<span>In bảng kanji ngày này</span></button>'
       + '<button type="button" class="jp-btn" data-jpath-print="' + esc(JSON.stringify({ scope: 'DAY', tab: 'VOCAB', day: day }))
-      + '">In bảng từ vựng ngày này</button>'
-      + '<a class="jp-btn" href="/learning">Về lộ trình</a></div>'
+      + '">' + SVG_PRINT + '<span>In bảng từ vựng ngày này</span></button>'
+      + '<a class="jp-link-btn jp-dayd__back" href="/learning">Về lộ trình</a></div>'
       + '<p class="jp-side__note">Bấm vào một từ hay chữ để luyện viết. Mục màu đỏ là mục sai hoặc chọn "Chưa nhớ".</p>';
     return html;
   }

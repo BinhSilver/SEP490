@@ -54,7 +54,8 @@
   var KIND_TITLE = Object.freeze({
     MICRO_CHECK: 'Micro-check', GROUP_EXERCISE: 'Bài tập nhóm', SKIP_ONE: 'Kiểm 1 câu',
     TOPIC_KNOWN: 'Tôi biết chủ đề này', FREE_QUIZ: 'Quiz tự do', CONFUSABLE: 'Phân biệt chữ dễ nhầm',
-    KANA_ROW: 'Kiểm hàng chữ', GRAMMAR_PRACTICE: 'Luyện ngay', GRAMMAR_EXTRA: 'Luyện thêm', GRAMMAR_REVIEW: 'Ôn ngữ pháp'
+    KANA_ROW: 'Kiểm hàng chữ', GRAMMAR_PRACTICE: 'Luyện ngay', GRAMMAR_EXTRA: 'Luyện thêm', GRAMMAR_REVIEW: 'Ôn ngữ pháp',
+    WEEK_KNOWN: 'Tôi biết tuần này'
   });
   var DIRECTION_LABEL = { JA_VI: 'NHẬT → VIỆT · CHỌN NGHĨA ĐÚNG', VI_JA: 'VIỆT → NHẬT · CHỌN TỪ ĐÚNG' };
   var MSG_NOT_FOUND = 'Không tìm thấy bài kiểm tra này.';
@@ -340,13 +341,13 @@
       var sel = isLeft ? st.selLeft === o.id : st.selRight === o.id;
       var cls = 'jp-pair' + (matched ? ' jp-ok' : '') + (flash ? ' jp-bad' : '') + (sel ? ' jp-sel' : '');
       return '<button type="button" class="' + cls + '" data-board="' + esc(bid) + '" data-' + side + '="' + esc(o.id) + '"'
-        + (isLeft ? ' lang="ja"' : '') + ' aria-pressed="' + (sel ? 'true' : 'false') + '"' + (matched ? ' disabled' : '')
-        + '>' + esc(o.label) + (matched ? ' ' + icon('circle-check') : '') + (flash ? ' ' + icon('circle-x') : '') + '</button>';
+        + ' aria-pressed="' + (sel ? 'true' : 'false') + '"' + (matched ? ' disabled' : '')
+        + '>' + (isLeft ? '<span lang="ja">' + esc(o.label) + '</span>' : esc(o.label)) + (matched ? ' ' + icon('circle-check') : '') + (flash ? ' ' + icon('circle-x') : '') + '</button>';
     }
-    return '<div class="jp-board" data-board-id="' + esc(bid) + '">'
+    return '<div class="jp-board" data-board-id="' + esc(bid) + '" title="' + esc(BOARD_HINT) + '">'
       + '<div class="jp-board__col" role="group" aria-label="Cột trái">' + (q.board.left || []).map(function (o) { return cell('left', o); }).join('') + '</div>'
       + '<div class="jp-board__col" role="group" aria-label="Cột phải">' + (q.board.right || []).map(function (o) { return cell('right', o); }).join('') + '</div>'
-      + '</div><p class="jp-check__hint">' + esc(BOARD_HINT) + '</p>';
+      + '</div>';
   }
 
   function compareHtml(c) {
@@ -368,16 +369,30 @@
     return html + '<button type="button" class="jp-btn jp-btn--primary jp-check__next" data-action="next">Tiếp ' + icon('arrow-right') + '</button>';
   }
 
-  function promptHtml(q) {
-    var label = DIRECTION_LABEL[q.direction] || q.instructionVi || '';
+  function cleanDirectionLabel(q) {
+    var raw = DIRECTION_LABEL[q.direction] || q.instructionVi || '';
+    if (!raw) return '';
+    if (has(q.prompt)) {
+      var p = String(q.prompt).trim();
+      if (p && raw.indexOf(p) >= 0) {
+        raw = raw.replace(p, '').replace(/[:：·-–—]+s*$/, '').trim();
+      }
+    }
+    return raw;
+  }
+
+  function promptHtml(q, omitDir) {
+    var label = omitDir ? '' : cleanDirectionLabel(q);
     var ja = q.direction !== 'VI_JA';
     var html = '<div class="jp-check__prompt jp-card">';
     if (label) html += '<div class="jp-check__dir">' + esc(label) + '</div>';
     if (q.type === 'AUDIO_MCQ' && q.audioSlot != null) {
-      html += '<button type="button" class="jp-check__play" data-action="play-audio" aria-label="Nghe">' + icon('play') + '</button>';
+      html += '<button type="button" class="jp-check__play" data-action="play-audio" aria-label="Nghe phát âm">' + icon('volume-2') + '</button>';
     }
     if (has(q.prompt)) {
-      html += '<div class="jp-check__text"' + (ja ? ' lang="ja"' : '') + '>' + (ja ? jaHtml(q.prompt, q.promptFurigana) : esc(q.prompt)) + '</div>';
+      var rawLen = String(q.prompt || '').trim().length;
+      var sizeCls = rawLen > 12 ? ' jp-check__text--long' : (rawLen > 6 ? ' jp-check__text--mid' : ' jp-check__text--short');
+      html += '<div class="jp-check__text' + sizeCls + '"' + (ja ? ' lang="ja"' : '') + '>' + (ja ? jaHtml(q.prompt, q.promptFurigana) : esc(q.prompt)) + '</div>';
     }
     return html + '</div>';
   }
@@ -461,9 +476,10 @@
         mood = 'bad';
       }
     }
-    return '<div class="jp-check__mascot jp-check__mascot--' + mood + '" aria-hidden="true">'
-      + '<img class="jp-check__mascot-img" src="' + img + '" alt="" width="56" height="56" loading="eager">'
-      + '<span class="jp-check__mascot-bubble" data-speech="' + esc(speech) + '"></span></div>';
+    return '<div class="jp-check__head"><div class="jp-check__mascot jp-check__mascot--' + mood + '" aria-hidden="true">'
+      + '<img class="jp-check__mascot-img" src="' + img + '" alt="" width="76" height="76" loading="eager">'
+      + '<span class="jp-check__mascot-bubble" data-speech="' + esc(speech) + '"></span></div>'
+      + '<span class="jp-check__flag-slot" data-report-slot></span></div>';
   }
 
   function questionHtml(q, qs, display) {
@@ -569,7 +585,7 @@
     var names = items.map(function (w) { return w.expression || w.code || ''; }).join(', ');
     var suffix = '';
     // Free quiz misses go the same way as a micro-check's (Task 38: wrongInCheck(QUIZ); grammar never the notebook).
-    if (kind !== 'GROUP_EXERCISE' && kind !== 'TOPIC_KNOWN') {
+    if (kind !== 'GROUP_EXERCISE' && kind !== 'TOPIC_KNOWN' && kind !== 'WEEK_KNOWN') {
       var vk = items.some(function (w) { return w.itemType === 'VOCAB' || w.itemType === 'KANJI'; });
       var review = items.some(function (w) { return w.itemType !== 'KANA'; });
       if (vk) suffix = ' → đã vào Ôn lại và Sổ tay';
@@ -621,6 +637,12 @@
         + '<p class="jp-result__title" id="jp-result-title" tabindex="-1">' + (ok
           ? esc('Bạn đúng ' + r.correct + '/' + r.total + ' câu: các từ trả lời đúng đã vào Đã biết, các từ chưa hỏi tới sẽ được ôn sớm để xác nhận.')
           : esc('Bạn đúng ' + r.correct + '/' + r.total + ' câu nên chưa đổi gì; cứ học chủ đề này như bình thường.')) + '</p>';
+    } else if (kind === 'WEEK_KNOWN') {
+      var wk = r.passed === true;
+      html += '<div class="jp-result__score' + (wk ? ' jp-ok' : '') + '">' + esc(pct) + '%</div>'
+        + '<p class="jp-result__title" id="jp-result-title" tabindex="-1">' + (wk
+          ? esc('Bạn đúng ' + r.correct + '/' + r.total + ' câu: tuần này được bỏ qua. Mục trả lời đúng vào Đã biết, mục chưa hỏi tới sẽ được ôn sớm để xác nhận.')
+          : esc('Bạn đúng ' + r.correct + '/' + r.total + ' câu, chưa tới 90% nên tuần này vẫn học như bình thường.')) + '</p>';
     } else if (kind === 'FREE_QUIZ') {
       html += '<div class="jp-result__score">' + esc(pct) + '%</div>'
         + '<p class="jp-result__title" id="jp-result-title" tabindex="-1">Đúng ' + esc(r.correct) + '/' + esc(r.total) + ' câu. Quiz tự do không tính tiến độ và CP.</p>';
@@ -662,12 +684,13 @@
   function reviewWrongHtml(check, state) {
     var answered = {};
     ((check && check.answered) || []).forEach(function (a) { answered[a.questionId] = a; });
+    var boardNotes = [];
     var html = '';
     questionsOf(check).forEach(function (q) {
       if (isBoard(q)) {
         var b = state && state.boards[q.board.boardId];
         var errors = b ? b.errors : ((answered[q.id] || {}).errors || 0);
-        if (errors > 0) html += '<li class="jp-review__item"><p>Bảng nối: ' + esc(errors) + ' lần chọn sai</p></li>';
+        if (errors > 0) boardNotes.push('<p class="jp-review__board-note">Bảng nối: ' + esc(errors) + ' lần chọn sai</p>');
         return;
       }
       var a = (state && state.answers[q.id]) || answered[q.id];
@@ -675,24 +698,43 @@
       var report = a.report || (answered[q.id] && answered[q.id].report);
       html += '<li class="jp-review__item"' + (report && report.targetType && report.targetCode ? ' data-jpath-report="'
         + esc(JSON.stringify({ targetType: report.targetType, targetCode: report.targetCode, pageContext: 'CHECK_REVIEW' })) + '"' : '') + '>';
-      html += promptHtml(q).replace(/<button[^>]*data-action="play-audio"[^>]*>[\s\S]*?<\/button>/, '');
+      html += '<div class="jp-review__head"><span class="jp-review__dir">' + esc(cleanDirectionLabel(q) || 'Xem lại câu sai') + '</span><span class="jp-review__flag-slot" data-report-slot></span></div>';
+      html += promptHtml(q, true).replace(/<button[^>]*data-action="play-audio"[^>]*>[\s\S]*?<\/button>/, '');
       if (q.type === 'ORDER') {
-        html += '<p>Bạn xếp: <span lang="ja">' + esc(String(a.value || '').split(',').map(function (p) { return optionLabel(q, p); }).join(' '))
-          + '</span></p><p>Đáp án: <span lang="ja">' + esc(String(a.correctValue || '').split(',').map(function (p) { return optionLabel(q, p); }).join(' ')) + '</span></p>';
+        var pickedOrd = String(a.value || '').split(',').filter(Boolean).map(function (p) { return optionLabel(q, p); }).join(' ') || '—';
+        var rightOrd = String(a.correctValue || '').split(',').filter(Boolean).map(function (p) { return optionLabel(q, p); }).join(' ');
+        html += '<div class="jp-review__rows">'
+          + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn xếp</span><span class="jp-review__val" lang="ja">' + esc(pickedOrd) + '</span>' + icon('circle-x') + '</div>'
+          + '<div class="jp-review__row jp-review__row--answer jp-ok"><span class="jp-review__tag">Đáp án</span><span class="jp-review__val" lang="ja">' + esc(rightOrd) + '</span>' + icon('circle-check') + '</div>'
+          + '</div>';
       } else if (q.type === 'FILL_TEXT') {
-        html += '<p>Bạn điền: <span lang="ja">' + esc(a.value) + '</span></p><p>Đáp án: <span lang="ja">' + esc(a.correctValue) + '</span></p>';
+        html += '<div class="jp-review__rows">'
+          + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn điền</span><span class="jp-review__val" lang="ja">' + esc(a.value || '—') + '</span>' + icon('circle-x') + '</div>'
+          + '<div class="jp-review__row jp-review__row--answer jp-ok"><span class="jp-review__tag">Đáp án</span><span class="jp-review__val" lang="ja">' + esc(a.correctValue || '') + '</span>' + icon('circle-check') + '</div>'
+          + '</div>';
       } else {
-        html += '<ul class="jp-review__options">' + (q.options || []).map(function (o) {
-          var cls = 'jp-check-opt' + (o.id === a.correctValue ? ' jp-ok' : (o.id === a.value ? ' jp-bad' : ''));
-          return '<li class="' + cls + '">' + esc(o.label) + (o.id === a.correctValue ? ' ' + icon('circle-check') : (o.id === a.value ? ' ' + icon('circle-x') : '')) + '</li>';
-        }).join('') + '</ul>';
-        if (a.value === null || a.value === undefined) html += '<p>Hết giờ.</p>';
+        var pickedLbl = (a.value === null || a.value === undefined) ? 'Hết giờ' : (optionLabel(q, a.value) || String(a.value || '—'));
+        var rightLbl = optionLabel(q, a.correctValue) || String(a.correctValue || '');
+        html += '<div class="jp-review__rows">'
+          + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn chọn</span><span class="jp-review__val" lang="ja">' + esc(pickedLbl) + '</span>' + icon('circle-x') + '</div>'
+          + '<div class="jp-review__row jp-review__row--answer jp-ok"><span class="jp-review__tag">Đáp án</span><span class="jp-review__val" lang="ja">' + esc(rightLbl) + '</span>' + icon('circle-check') + '</div>'
+          + '</div>';
+        if ((q.options || []).length > 2) {
+          html += '<details class="jp-review__more"><summary class="jp-link-btn">Xem cả câu</summary><ul class="jp-review__options">' + (q.options || []).map(function (o) {
+            var cls = 'jp-check-opt' + (o.id === a.correctValue ? ' jp-ok' : (o.id === a.value ? ' jp-bad' : ''));
+            var oJa = /[\u3040-\u30ff\u4e00-\u9fff]/.test(String(o.label || ''));
+            return '<li class="' + cls + '"><span' + (oJa ? ' lang="ja"' : '') + '>' + esc(o.label) + '</span>' + (o.id === a.correctValue ? ' ' + icon('circle-check') : (o.id === a.value ? ' ' + icon('circle-x') : '')) + '</li>';
+          }).join('') + '</ul></details>';
+        }
       }
       if (has(a.explanation)) html += '<p class="jp-check__explain">' + esc(a.explanation) + '</p>';
       html += '</li>';
     });
-    if (!html) return '<p class="jp-status">Không có câu sai.</p>';
-    return '<section class="jp-review" aria-label="Câu sai"><h2 class="jp-review__title">Câu sai</h2><ol class="jp-review__list">' + html + '</ol></section>';
+    if (!boardNotes.length && !html) return '<p class="jp-status">Không có câu sai.</p>';
+    return '<section class="jp-review" aria-label="Câu sai"><h2 class="jp-review__title">Câu sai</h2>'
+      + boardNotes.join('')
+      + (html ? '<ol class="jp-review__list">' + html + '</ol>' : '')
+      + '</section>';
   }
 
   function wrongCardsHtml(result) {
@@ -1091,6 +1133,16 @@
     var d = doc || (root && root.document);
     var el = d && d.getElementById && d.getElementById('jpathCheckRoot');
     if (!el) return null;
+    if (d && d.querySelector && root && root.location) {
+      var exitLink = d.querySelector('[data-check-exit]');
+      if (exitLink) {
+        var backUrl = nextHref(null, root.location.search);
+        exitLink.setAttribute('href', backUrl);
+        if (/\/learning\/jlpt\/study/.test(backUrl)) {
+          exitLink.textContent = '← Quay lại buổi học';
+        }
+      }
+    }
     return mount(el, el.getAttribute('data-check-token') || '', {});
   }
 

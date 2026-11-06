@@ -196,8 +196,8 @@
     var note = String(c.note || '').trim();
     if (state === 'LOCKED') note = note.replace(/^Xem trước\s*·\s*/, '');
     if (note && note !== said) sub += '<span class="jp-level-cell__note">' + esc(note) + '</span>';
-    return '<li class="jp-step jp-step--' + step + ' jp-level-cell jp-level-cell--' + esc(state.toLowerCase()) + '"'
-      + (state === 'OPEN' ? ' aria-current="step"' : '') + '><span class="jp-step__mark" aria-hidden="true">' + mark
+    var tipAttr = (state === 'LOCKED' && note && note !== said) ? ' data-tip="' + esc(note) + '" title="' + esc(note) + '"' : '';
+    return '<li class="jp-step jp-step--' + step + ' jp-level-cell jp-level-cell--' + esc(state.toLowerCase()) + '"' + (state === 'OPEN' ? ' aria-current="step"' : '') + tipAttr + '><span class="jp-step__mark" aria-hidden="true">' + mark
       + '</span><span class="jp-step__body"><span class="jp-level-cell__name">' + name
       + '</span>' + sub + '</span></li>';
   }
@@ -226,10 +226,12 @@
     });
     var marks = steps.map(function (st, i) {
       var mark = st.state === 'done' ? icon('check') : String(i + 1);
+      var isTodo = st.state === 'todo';
+      var tipAttr = (isTodo && st.sub) ? ' data-tip="' + esc(st.sub) + '" title="' + esc(st.sub) + '" tabindex="0"' : '';
       return '<li class="jp-step jp-step--' + st.state + ' jp-stage__step' + (st.state === 'now' ? ' jp-stage__step--now' : '') + '"'
-        + (st.state === 'now' ? ' aria-current="step"' : '') + '><span class="jp-step__mark" aria-hidden="true">' + mark
+        + (st.state === 'now' ? ' aria-current="step"' : '') + tipAttr + '><span class="jp-step__mark" aria-hidden="true">' + mark
         + '</span><span class="jp-step__body"><span class="jp-step__label">' + esc(st.label) + '</span>'
-        + (st.sub ? '<span class="jp-step__sub">' + esc(st.sub) + '</span>' : '') + '</span></li>';
+        + (st.sub ? '<span class="jp-step__sub' + (isTodo ? ' jp-step__sub--tip' : '') + '">' + esc(st.sub) + '</span>' : '') + '</span></li>';
     }).join('');
     return '<div class="jp-stage"><h2 class="jp-sr">Chặng ' + esc(p.openLevel) + '</h2>'
       + '<ol class="jp-stepper jp-stage__steps" aria-label="' + esc('Chặng ' + (p.openLevel || '')) + '">' + marks + '</ol>'

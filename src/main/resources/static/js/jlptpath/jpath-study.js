@@ -118,10 +118,10 @@
     var html = '';
     if (has(card.audioUrl)) {
       html += '<button type="button" class="jp-study-icon" data-jp-audio="' + esc(card.audioUrl)
-        + '" aria-label="Nghe phát âm">' + icon('play') + '</button>';
+        + '" aria-label="Nghe phát âm">' + icon('volume-2') + '</button>';
     }
     if (card.itemType === 'VOCAB' || card.itemType === 'KANJI') html += D().controlsHtml(display);
-    return html ? '<div class="jp-study-tools">' + html + '</div>' : '';
+    return '<div class="jp-study-tools">' + html + '</div>';
   }
 
   /**
@@ -153,21 +153,23 @@
       : '<svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-' + name + '"></use></svg>';
   }
 
-  function kanjiReadingsHtml(k) {
-    var all = list(k.readingsOn).concat(list(k.readingsKun)).filter(has);
+  function kanjiReadingsHtml(k, strokeCount) {
+    var onList = list(k.readingsOn).filter(has);
+    var kunList = list(k.readingsKun).filter(has);
     var levels = list(k.levelReadings);
-    var main = [];
-    var other = [];
-    all.forEach(function (r) {
-      var bold = F().kanjiReadingHtml(r, levels);
-      if (bold.indexOf('<b>') === 0) main.push(bold); else other.push(F().kanjiReadingHtml(r, null));
-    });
-    var html = main.length ? '<div class="jp-study-readings jp-ja">' + main.join('、') + '</div>' : '';
-    if (other.length) {
-      html += '<details class="jp-study-more"><summary>Xem thêm</summary><div class="jp-ja">' + other.join('、')
-        + '</div></details>';
+    var groups = [];
+    if (onList.length) {
+      groups.push('<span class="jp-study-reading-group"><span class="jp-study-reading-tag">On</span><span class="jp-ja">'
+        + onList.map(function (r) { return F().kanjiReadingHtml(r, levels); }).join('、') + '</span></span>');
     }
-    return html;
+    if (kunList.length) {
+      groups.push('<span class="jp-study-reading-group"><span class="jp-study-reading-tag">Kun</span><span class="jp-ja">'
+        + kunList.map(function (r) { return F().kanjiReadingHtml(r, levels); }).join('、') + '</span></span>');
+    }
+    if (strokeCount !== null && strokeCount !== undefined && !isNaN(Number(strokeCount))) {
+      groups.push('<span class="jp-study-strokes">' + esc(Number(strokeCount)) + ' nét</span>');
+    }
+    return groups.length ? '<div class="jp-study-readings">' + groups.join('') + '</div>' : '';
   }
 
   function headChips(card, flippedOrNew) {
@@ -177,8 +179,9 @@
     return html ? '<div class="jp-study-flags">' + html + '</div>' : '';
   }
 
-  function extrasWrap(html) {
-    return html ? '<div class="jp-study-extras">' + html + '</div>' : '';
+  function extrasWrap(html, forceContainer) {
+    if (!html && !forceContainer) return '';
+    return '<div class="jp-study-extras">' + (html || '') + '</div>';
   }
 
   function vocabBody(card, flipped) {
@@ -197,11 +200,11 @@
       if (has(card.meaning)) html += '<div class="jp-study-label">Ý nghĩa</div>' + meaning;
       if (has(card.topic)) html += '<div class="jp-study-label">Chủ đề · ' + esc(card.topic) + '</div>';
       return '<div class="jp-study-core">' + html + word + reading + romaji + '</div>'
-        + extrasWrap(examplesHtml(card) + mnemonicHtml(card));
+        + extrasWrap(examplesHtml(card) + mnemonicHtml(card), true);
     }
     var conf = card.hard ? wordListHtml(card.confusables, 'Dễ nhầm với', 'jp-study-confusables') : '';
     return '<div class="jp-study-core">' + word + reading + romaji + meaning + '</div>'
-      + extrasWrap(examplesHtml(card) + mnemonicHtml(card) + conf);
+      + extrasWrap(examplesHtml(card) + mnemonicHtml(card) + conf, true);
   }
 
   function kanjiBody(card, flipped) {
@@ -211,14 +214,11 @@
     var html = glyph;
     if (has(k.hanViet)) html += '<div class="jp-study-hanviet">' + esc(String(k.hanViet).toUpperCase()) + '</div>';
     html += line('jp-study-meaning', esc(card.meaning));
-    html += kanjiReadingsHtml(k);
-    if (k.strokeCount !== null && k.strokeCount !== undefined && !isNaN(Number(k.strokeCount))) {
-      html += '<div class="jp-study-muted">' + esc(Number(k.strokeCount)) + ' nét</div>';
-    }
+    html += kanjiReadingsHtml(k, k.strokeCount);
     var extras = wordListHtml(card.compounds, 'Từ ghép', 'jp-study-compounds')
       + examplesHtml(card) + mnemonicHtml(card)
       + (card.hard ? wordListHtml(card.confusables, 'Dễ nhầm với', 'jp-study-confusables') : '');
-    return '<div class="jp-study-core">' + html + '</div>' + extrasWrap(extras);
+    return '<div class="jp-study-core">' + html + '</div>' + extrasWrap(extras, true);
   }
 
   function grammarBody(card) {
@@ -228,7 +228,7 @@
     html += chipsHtml(g.formation);
     html += line('jp-study-usage', esc(g.usage));
     html += line('jp-study-muted', esc(g.nuance));
-    return '<div class="jp-study-core">' + html + '</div>' + extrasWrap(examplesHtml(card) + mnemonicHtml(card));
+    return '<div class="jp-study-core">' + html + '</div>' + extrasWrap(examplesHtml(card) + mnemonicHtml(card), true);
   }
 
   function kanaBody(card, flipped) {
@@ -271,7 +271,6 @@
     var attrs = ' data-jp-code="' + esc(card.code) + '"';
     if (flippable) {
       attrs += ' data-jp-flippable="true" data-flip-state="' + (isFlipped ? 'back' : 'front') + '"';
-      if (flipCount > 0) attrs += ' data-flip-anim="' + (isFlipped ? 'to-back' : 'to-front') + '"';
     }
     if (has(card.code) && has(type)) {
       attrs += ' data-jpath-report="' + attrJson({ targetType: type, targetCode: card.code, pageContext: PAGE_CONTEXT }) + '"';
@@ -285,13 +284,10 @@
     var typeCls = has(type) ? ' jp-study-card--type-' + esc(String(type).toLowerCase()) : '';
     var faceTag = flippable
       ? (isFlipped
-        ? '<span class="jp-study-face-tag jp-study-face-tag--back" data-label="' + (card.kind === 'NEW' ? 'Mặt sau · Ý nghĩa, cách đọc &amp; ví dụ' : 'Mặt sau · Giải nghĩa &amp; ví dụ') + '" aria-hidden="true"></span>'
-        : '<span class="jp-study-face-tag jp-study-face-tag--front" data-label="' + (card.kind === 'NEW' ? 'Mặt trước · Chạm hoặc bấm Space để lật thẻ' : 'Mặt trước · Nhớ lại nghĩa &amp; cách đọc') + '" aria-hidden="true"></span>')
+        ? '<span class="jp-study-face-tag jp-study-face-tag--back" data-label="Mặt sau · Chạm vào thẻ hoặc nhấn phím Space để xem lại mặt trước" aria-hidden="true"></span>'
+        : '<span class="jp-study-face-tag jp-study-face-tag--front" data-label="Mặt trước · Chạm vào thẻ hoặc nhấn phím Space để lật xem nghĩa" aria-hidden="true"></span>')
       : '';
-    var cueLabel = isFlipped ? 'Xem mặt trước (Space)' : 'Lật thẻ (Space)';
-    var flipCue = flippable
-      ? '<span class="jp-study-flip-cue" data-jp-flip data-label="' + esc(cueLabel) + '" aria-hidden="true"><svg class="jp-study-flip-cue__icon" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0 1 10.2-4.2L16 7.5M16 4v3.5h-3.5M16 10a6 6 0 0 1-10.2 4.2L4 12.5M4 16v-3.5h3.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
-      : '';
+    var flipCue = '';
     var mImg = '/images/mascots/kitsu/kitsu-thinking-30.webp';
     var mSpeech = 'Thử nhớ lại xem nào!';
     var mMood = 'think';
@@ -306,15 +302,15 @@
       }
     } else if (card.kind === 'NEW') {
       if (isFlipped) {
-        mImg = '/images/mascots/kitsu/kitsu-cheer-30.webp'; mSpeech = 'Cùng ghi nhớ mục mới nhé!'; mMood = 'ok';
+        mImg = '/images/mascots/kitsu/kitsu-cheer-30.webp'; mSpeech = 'Cùng ghi nhớ mục mới nhé!'; mMood = 'flip';
       } else {
         mImg = '/images/mascots/kitsu/kitsu-encouraging.webp'; mSpeech = 'Chạm thẻ để xem nghĩa nhé!'; mMood = 'encourage';
       }
     } else if (isFlipped) {
-      mImg = '/images/mascots/kitsu/kitsu-cheer-30.webp'; mSpeech = 'Đối chiếu đáp án nhé!'; mMood = 'ok';
+      mImg = '/images/mascots/kitsu/kitsu-cheer-30.webp'; mSpeech = 'Đối chiếu đáp án nhé!'; mMood = 'flip';
     }
     var mascot = '<div class="jp-study-mascot jp-study-mascot--' + mMood + '" aria-hidden="true">'
-      + '<img class="jp-study-mascot__img" src="' + mImg + '" alt="" width="56" height="56" loading="eager">'
+      + '<img class="jp-study-mascot__img" src="' + mImg + '" alt="" width="76" height="76" loading="eager">'
       + '<span class="jp-study-mascot__bubble" data-speech="' + esc(mSpeech) + '"></span></div>';
     return '<article class="jp-study-card jp-study-card--' + kindCls + stateCls + typeCls + '"' + attrs + '>'
       + '<div class="jp-study-card__top">' + mascot + headChips(card, everFlipped) + toolsHtml(card, display) + '</div>'
@@ -356,16 +352,13 @@
     if (!everFlipped) {
       return bar('jp-rate-bar--flip', flipButtonHtml(false));
     }
-    var flipBar = bar('jp-rate-bar--flip jp-rate-bar--flip-inline', flipButtonHtml(!!flipped));
     if (card.kind === 'NEW') {
-      return '<div class="jp-rate-stack">' + flipBar
-        + bar('jp-rate-bar--two', RATINGS.NEW.map(function (r, i) { return rateButton(r, i, null); }).join('')) + '</div>';
+      return '<div class="jp-rate-stack">' + bar('jp-rate-bar--two', RATINGS.NEW.map(function (r, i) { return rateButton(r, i, null); }).join('')) + '</div>';
     }
     var days = card.intervalDays || {};
-    return '<div class="jp-rate-stack">' + flipBar
-      + bar('jp-rate-bar--four', RATINGS.REVIEW.map(function (r, i) {
-        return rateButton(r, i, intervalLabel(r, days[r]));
-      }).join('')) + '</div>';
+    return '<div class="jp-rate-stack">' + bar('jp-rate-bar--four', RATINGS.REVIEW.map(function (r, i) {
+      return rateButton(r, i, intervalLabel(r, days[r]));
+    }).join('')) + '</div>';
   }
 
   // ---- step bar -------------------------------------------------------------------------------------------

@@ -40,8 +40,8 @@
   }
 
   function toggleHtml(on) {
-    return '<button type="button" class="jp-furi-toggle" data-furi-toggle aria-pressed="' + (on ? 'true' : 'false') + '">'
-      + icon('languages') + '<span>Furigana</span><span class="jp-furi-toggle__state">' + (on ? 'Bật' : 'Tắt') + '</span></button>';
+    return '<button type="button" class="jp-furi-toggle jp-btn" data-furi-toggle aria-pressed="' + (on ? 'true' : 'false') + '">'
+      + icon('languages') + '<span class="jp-furi-toggle__label">Furigana</span><span class="jp-furi-toggle__state">' + (on ? 'Bật' : 'Tắt') + '</span></button>';
   }
 
   function onlyText(el) {
@@ -80,17 +80,27 @@
     var busy = false;
     var again = false;
 
-    var slot = d.slot || rootEl.querySelector('.jp-page-head') || rootEl;
+    var slot = d.slot || (rootEl.querySelector && (rootEl.querySelector('[data-jpath-furi-slot]') || rootEl.querySelector('.jp-page-head'))) || rootEl;
     var holder = doc && doc.createElement ? doc.createElement('div') : null;
     if (holder) {
       holder.className = 'jp-furi-toggle-wrap';
       holder.innerHTML = toggleHtml(on);
-      slot.appendChild(holder);
+      var exitLink = slot.querySelector && slot.querySelector('[data-check-exit]');
+      if (exitLink && slot.insertBefore) slot.insertBefore(holder, exitLink);
+      else slot.appendChild(holder);
     }
 
     function paint() {
-      if (on) rootEl.classList.remove('jp-furigana-off');
-      else rootEl.classList.add('jp-furigana-off');
+      if (on) {
+        rootEl.classList.remove('jp-furigana-off');
+        if (rootEl.querySelectorAll) {
+          Array.prototype.forEach.call(rootEl.querySelectorAll('.jp-furigana-off'), function (n) {
+            if (n && n.classList) n.classList.remove('jp-furigana-off');
+          });
+        }
+      } else {
+        rootEl.classList.add('jp-furigana-off');
+      }
       var btn = holder && holder.querySelector('[data-furi-toggle]');
       if (btn) {
         btn.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -149,6 +159,10 @@
         timer = root.setTimeout(annotate, 60);
       }).observe(rootEl, { childList: true, subtree: true });
     }
+    rootEl.addEventListener('jpath:rendered', function () {
+      paint();
+      annotate();
+    });
     paint();
     var first = annotate();
     return { annotate: annotate, isOn: function () { return on; }, ready: first };

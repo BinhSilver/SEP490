@@ -98,7 +98,7 @@
 /* segmented switch (range / item type) reads like tabs */
 .jp-side__range { gap: 0; margin: 0; border-bottom: 1px solid var(--jp-line); }
 .jp-side__range .jp-side-btn {
-  min-height: 44px; padding: 8px 18px; border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: transparent;
+  min-height: 44px; padding: 8px 18px; border: 0; border-bottom: 1px solid transparent; border-radius: 0; background: transparent;
   color: var(--jp-muted); font-weight: 600;
 }
 .jp-side__range .jp-side-btn[aria-pressed="true"] { border-bottom-color: var(--jp-primary); background: transparent; color: var(--jp-primary); }
@@ -144,7 +144,7 @@
 }
 
 /* 04/11 polish round 4: thống kê, lịch sử và sổ tay */
-.jp-side-summary { margin: 0; padding: 14px 0; border-bottom: 1px solid var(--jp-line); font-size: 1.45em; font-weight: 700; color: var(--jp-ink); }
+.jp-side-summary { margin: 0; padding: 14px 0; border-bottom: 1px solid var(--jp-line); font-size: 1.45em; font-weight: 500; color: var(--jp-ink); }
 .jp-side-card { border: 0; border-bottom: 1px solid var(--jp-line); border-radius: 0; box-shadow: none; }
 .jp-bank-row, .jp-side-day__btn { min-height: 56px; }
 .jp-side__range { flex-wrap: wrap; }
@@ -155,9 +155,9 @@
 /* 06/11 day detail page (jpath-day.js) — Lượt 5: Phối màu hài hòa với tím (--jp-c-*) + Tối giản */
 :root,
 .jp-page {
-  --jp-c-purple-900: #4c1d95;
-  --jp-c-purple-500: #6d28d9;
-  --jp-c-purple-100: #f3e8ff;
+  --jp-c-purple-900: #260b5c;
+  --jp-c-purple-500: #5521b5;
+  --jp-c-purple-100: #e3d6ff;
   --jp-c-peach-900: #78350f;
   --jp-c-peach-500: #d97706;
   --jp-c-peach-100: #fffbeb;
@@ -184,11 +184,11 @@
   --jp-dayd-ink: var(--jp-c-slate-900);
   --jp-dayd-muted: var(--jp-c-slate-500);
   --jp-dayd-line: color-mix(in srgb, var(--jp-c-slate-500) 22%, var(--jp-c-slate-100));
-  --jp-dayd-done-bg: var(--jp-c-purple-500);
-  --jp-dayd-done-border: var(--jp-c-purple-100);
+  --jp-dayd-done-bg: color-mix(in srgb, var(--jp-c-purple-500) 22%, var(--jp-dayd-surface));
+  --jp-dayd-done-border: color-mix(in srgb, var(--jp-c-purple-500) 50%, var(--jp-c-purple-100));
   --jp-dayd-cur-bg: var(--jp-c-purple-500);
   --jp-dayd-cur-border: var(--jp-c-purple-100);
-  --jp-dayd-cur-halo: color-mix(in srgb, var(--jp-c-purple-500) 22%, transparent);
+  --jp-dayd-cur-halo: color-mix(in srgb, var(--jp-c-purple-500) 16%, transparent);
   --jp-dayd-next-bg: var(--jp-c-slate-100);
   --jp-dayd-next-border: var(--jp-dayd-line);
   --jp-dayd-next-ink: var(--jp-c-slate-500);
@@ -281,7 +281,7 @@ html.dark .jp-page {
 .jp-dayd__scenery > g:first-of-type { fill: var(--jp-dayd-cloud); }
 
 .jp-dayd__banner {
-  position: relative; overflow: hidden; margin: 0 0 18px; border-radius: 16px;
+  position: relative; overflow: hidden; margin: 0 0 18px; border-radius: 12px;
   border: 1px solid var(--jp-dayd-banner-border);
   background: var(--jp-dayd-banner-bg);
   box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
@@ -308,7 +308,7 @@ html.dark .jp-page {
 .jp-dayd__circle {
   position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
   width: 52px; height: 52px; border-radius: 50%;
-  border: 1.5px solid var(--jp-dayd-next-border);
+  border: 1px solid var(--jp-dayd-next-border);
   background: var(--jp-dayd-next-bg);
   color: var(--jp-dayd-next-ink);
   box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
@@ -317,7 +317,7 @@ html.dark .jp-page {
 .jp-dayd__node.is-done:not(.is-current) .jp-dayd__circle {
   border-color: var(--jp-dayd-done-border);
   background: var(--jp-dayd-done-bg);
-  color: var(--jp-white);
+  color: var(--jp-c-purple-900);
 }
 .jp-dayd__node.is-today:not(.is-current) .jp-dayd__circle {
   border-color: var(--jp-dayd-cur-border);
@@ -336,12 +336,12 @@ a.jp-dayd__node:hover .jp-dayd__circle {
 a.jp-dayd__node:focus-visible { outline: none; }
 a.jp-dayd__node:focus-visible .jp-dayd__circle { outline: 3px solid var(--jp-c-purple-500); outline-offset: 4px; }
 .jp-dayd__node.is-future { opacity: .6; cursor: not-allowed; }
-.jp-dayd__wd { font-size: .78rem; font-weight: 700; line-height: 1.1; }
+.jp-dayd__wd { font-size: .78rem; font-weight: 500; line-height: 1.1; }
 .jp-dayd__dm { font-size: .68rem; font-weight: 600; opacity: .94; line-height: 1.1; }
 .jp-dayd__node-tick,
 .jp-dayd__node-lockwrap {
   position: absolute; right: -4px; bottom: -4px; display: inline-grid; place-items: center;
-  width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--jp-dayd-surface);
+  width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--jp-dayd-surface);
   box-shadow: 0 1px 2px rgb(0 0 0 / 10%);
 }
 .jp-dayd__node-tick { background: var(--jp-c-peach-100); color: var(--jp-c-peach-900); border-color: var(--jp-c-peach-500); }
@@ -349,9 +349,9 @@ a.jp-dayd__node:focus-visible .jp-dayd__circle { outline: 3px solid var(--jp-c-p
 .jp-dayd__node-mark,
 .jp-dayd__node-lock { width: 11px; height: 11px; display: block; }
 .jp-dayd__today-tag {
-  display: inline-block; padding: 2px 8px; border-radius: 999px;
+  display: inline-block; padding: 2px 8px; border-radius: 6px;
   background: var(--jp-dayd-surface); color: var(--jp-dayd-pill-cur-ink); border: 1px solid var(--jp-dayd-pill-cur-border);
-  font-size: .68rem; font-weight: 700; line-height: 1.3; white-space: nowrap;
+  font-size: .68rem; font-weight: 500; line-height: 1.3; white-space: nowrap;
 }
 .jp-dayd__node.is-current .jp-dayd__today-tag {
   background: var(--jp-c-purple-500); color: var(--jp-white); border-color: var(--jp-dayd-cur-border);
@@ -367,7 +367,7 @@ a.jp-dayd__node:focus-visible .jp-dayd__circle { outline: 3px solid var(--jp-c-p
 .jp-dayd__hero-info { flex: 1 1 260px; min-width: 0; display: grid; gap: 10px; }
 .jp-dayd__sum { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; color: var(--jp-dayd-muted); }
 .jp-dayd__badge {
-  display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 6px;
   background: var(--jp-dayd-surface); color: var(--jp-dayd-muted); font-size: .86rem; font-weight: 600;
   border: 1px solid var(--jp-dayd-line);
 }
@@ -383,7 +383,7 @@ a.jp-dayd__node:focus-visible .jp-dayd__circle { outline: 3px solid var(--jp-c-p
 /* Kitsu companion + speech bubble */
 .jp-dayd__mascot {
   display: inline-flex; align-items: center; gap: 10px;
-  padding: 6px 14px 6px 8px; border-radius: 14px;
+  padding: 6px 14px 6px 8px; border-radius: 12px;
   background: var(--jp-dayd-surface);
   border: 1px solid var(--jp-dayd-banner-border);
   box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
@@ -407,7 +407,7 @@ a.jp-dayd__node:focus-visible .jp-dayd__circle { outline: 3px solid var(--jp-c-p
 .jp-dayd__h {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px;
   margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--jp-dayd-line);
-  font-size: 1rem; font-weight: 700; color: var(--jp-dayd-ink);
+  font-size: 1rem; font-weight: 500; color: var(--jp-dayd-ink);
 }
 .jp-dayd__meta { font-weight: 500; font-size: .9rem; color: var(--jp-dayd-muted); }
 .jp-dayd__bad { color: var(--jp-c-coral-500); font-weight: 600; font-size: .88rem; }
@@ -453,7 +453,7 @@ button.jp-dayd__item:hover { border-color: var(--jp-c-purple-500); }
 .jp-dayd__quiz > summary::-webkit-details-marker { display: none; }
 .jp-dayd__quiz ul {
   list-style: none; margin: 10px 0; padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 8px 18px;
-  border-left: 3px solid var(--jp-c-purple-500); background: var(--jp-dayd-surface); border-radius: 0 8px 8px 0;
+  border-left: 1px solid var(--jp-c-purple-500); background: var(--jp-dayd-surface); border-radius: 0 8px 8px 0;
 }
 .jp-parts__pager { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
 .jp-parts__pg { min-width: 36px; min-height: 36px; padding: 0 10px; border: 1px solid var(--jp-dayd-line); border-radius: 8px; background: none; font: inherit; cursor: pointer; }
@@ -462,7 +462,7 @@ button.jp-dayd__item:hover { border-color: var(--jp-c-purple-500); }
 .jp-parts__pginfo { margin-left: 6px; color: var(--jp-dayd-muted); font-size: .9em; }
 
 @media (max-width: 640px) {
-  .jp-dayd__banner { border-radius: 14px; margin-bottom: 14px; }
+  .jp-dayd__banner { border-radius: 12px; margin-bottom: 14px; }
   .jp-dayd__week { padding: 12px 4px 12px; }
   .jp-dayd__step::before { top: 20px; height: 3px; }
   .jp-dayd__circle { width: 40px; height: 40px; }
@@ -506,7 +506,7 @@ button.jp-dayd__item:hover { border-color: var(--jp-c-purple-500); }
   bottom: 8px;
   z-index: 25;
   padding: 8px 12px;
-  border-radius: 14px;
+  border-radius: 12px;
   background: color-mix(in srgb, var(--jp-side-surface) 92%, transparent);
   backdrop-filter: blur(6px);
 }
@@ -518,4 +518,137 @@ button.jp-dayd__item:hover { border-color: var(--jp-c-purple-500); }
   .jp-dayd__mascot-img {
     animation: none !important;
   }
+}
+
+/* === ROUND 7 UI POLISH === */
+/* Item 3: Day detail Japanese items never break mid-word */
+.jp-dayd__list.jp-parts__items {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px 16px !important;
+}
+
+.jp-dayd__list .jp-dayd__item {
+  width: auto !important;
+  max-width: 100%;
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  border: 1px solid var(--jp-line) !important;
+  border-radius: 8px;
+  padding: 5px 10px !important;
+  background: var(--jp-surface);
+}
+
+.jp-dayd__ja,
+.jp-dayd__rd {
+  word-break: keep-all !important;
+  overflow-wrap: normal !important;
+  font-weight: 500 !important;
+}
+
+/* Item 3: Bottom action row unified into 3 styles */
+.jp-dayd__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--jp-line);
+}
+
+.jp-dayd__actions .jp-btn {
+  min-height: 38px;
+  padding: 6px 14px;
+  font-weight: 500;
+}
+
+.jp-dayd__actions .jp-dayd__back {
+  margin-left: auto;
+}
+
+/* === ROUND 8 SIDE POLISH === */
+.jp-dayd__mascot-img {
+  width: 80px !important;
+  height: 80px !important;
+}
+.jp-dayd__mascot-speech,
+.jp-nb-card,
+.jp-nb-filter,
+.jp-nb-search,
+.jp-dayd__stat,
+.jp-dayd__section,
+.jp-mock-card {
+  border-radius: 10px !important;
+}
+.jp-drawer__head .jp-report-btn--inline,
+.jp-lesson__head .jp-report-btn--inline {
+  position: static !important;
+  margin-left: auto !important;
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  border-radius: 8px !important;
+}
+.jp-drawer__head .jp-report-btn--inline + .jp-drawer__x {
+  margin-left: 6px !important;
+}
+
+/* === ROUND 8 VIVID PURPLE BOOST === */
+:root,
+.jp-page,
+.jp-path,
+.jp-study,
+.jp-check,
+.jp-check-page,
+.cp-page {
+  --jp-c-purple-900: #260b5c !important;
+  --jp-c-purple-500: #5521b5 !important;
+  --jp-c-purple-100: #e3d6ff !important;
+
+  --jp-c-indigo-900: #1d145c !important;
+  --jp-c-indigo-500: #3f30b8 !important;
+  --jp-c-indigo-100: #dcdafa !important;
+
+  --jp-c-mauve-900: #3d0d66 !important;
+  --jp-c-mauve-500: #7222b8 !important;
+  --jp-c-mauve-100: #ebd6ff !important;
+
+  --jp-primary: #5521b5 !important;
+  --jp-primary-soft: #e3d6ff !important;
+  --cp-done: #5521b5 !important;
+  --cp-done-soft: #d9c7ff !important;
+  --cp-done-ring: rgba(85, 33, 181, 0.42) !important;
+}
+
+html[data-theme="dark"],
+html.dark,
+html[data-theme="dark"] .jp-page,
+html.dark .jp-page,
+html[data-theme="dark"] .jp-path,
+html.dark .jp-path,
+html[data-theme="dark"] .jp-study,
+html.dark .jp-study,
+html[data-theme="dark"] .jp-check,
+html.dark .jp-check,
+html[data-theme="dark"] .cp-page,
+html.dark .cp-page {
+  --jp-c-purple-900: #f3e8ff !important;
+  --jp-c-purple-500: #9f67ff !important;
+  --jp-c-purple-100: #321a66 !important;
+
+  --jp-c-indigo-900: #e0e7ff !important;
+  --jp-c-indigo-500: #818cf8 !important;
+  --jp-c-indigo-100: #23205c !important;
+
+  --jp-c-mauve-900: #fae8ff !important;
+  --jp-c-mauve-500: #c084fc !important;
+  --jp-c-mauve-100: #421959 !important;
+
+  --jp-primary: #9f67ff !important;
+  --jp-primary-soft: #321a66 !important;
+  --cp-done: #9f67ff !important;
+  --cp-done-soft: rgba(159, 103, 255, 0.24) !important;
 }

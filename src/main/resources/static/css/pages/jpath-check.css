@@ -3,7 +3,7 @@
 
 /* Buttons and inputs for pages that do not load jpath-path.css (same look as there). */
 .jp-check-page .jp-btn, .jp-check .jp-btn {
-  min-height: 44px; padding: 10px 18px; border: 1.5px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
+  min-height: 44px; padding: 10px 18px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
   background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-weight: 600; cursor: pointer;
   text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
 }
@@ -16,7 +16,7 @@
   font-weight: 600; text-decoration: underline; cursor: pointer;
 }
 .jp-check-page .jp-input, .jp-check .jp-input {
-  box-sizing: border-box; width: 100%; min-height: 44px; padding: 8px 10px; border: 1.5px solid var(--jp-line);
+  box-sizing: border-box; width: 100%; min-height: 44px; padding: 8px 10px; border: 1px solid var(--jp-line);
   border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink); font: inherit;
 }
 .jp-check-page .jp-card, .jp-check .jp-card {
@@ -45,23 +45,23 @@
 .jp-board { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .jp-board__col { display: grid; gap: 8px; align-content: start; }
 .jp-pair {
-  min-height: 48px; padding: 8px 10px; border: 1.5px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
+  min-height: 48px; padding: 8px 10px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
   background: var(--jp-surface); color: var(--jp-ink); font: inherit; text-align: center; cursor: pointer;
   overflow-wrap: anywhere; transition: background-color .15s ease, border-color .15s ease;
 }
 .jp-pair[lang="ja"] { font-size: 1.15em; }
-.jp-pair.jp-sel { border: 2px solid var(--jp-primary); background: var(--jp-primary-soft); }
+.jp-pair.jp-sel { border: 1px solid var(--jp-primary); background: var(--jp-primary-soft); }
 .jp-pair.jp-ok {
-  border: 2px solid var(--jp-ok); background: color-mix(in srgb, var(--jp-ok) 16%, var(--jp-surface)); color: var(--jp-ink);
+  border: 1px solid var(--jp-ok); background: color-mix(in srgb, var(--jp-ok) 16%, var(--jp-surface)); color: var(--jp-ink);
   cursor: default;
 }
-.jp-pair.jp-bad { border: 2px solid var(--jp-danger); background: var(--jp-danger-soft); animation: jp-check-flash .6s ease; }
+.jp-pair.jp-bad { border: 1px solid var(--jp-danger); background: var(--jp-danger-soft); animation: jp-check-flash .6s ease; }
 @keyframes jp-check-flash { 0%, 100% { transform: none; } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
 
 /* quiz */
-.jp-check__prompt { display: grid; justify-items: center; gap: 8px; text-align: center; border-radius: 16px; }
+.jp-check__prompt { display: grid; justify-items: center; gap: 8px; text-align: center; border-radius: 12px; }
 .jp-check__dir { font-size: .75em; letter-spacing: 1px; color: var(--jp-muted); }
-.jp-check__text { font-size: 1.3em; font-weight: 700; line-height: 1.6; }
+.jp-check__text { font-size: 1.3em; font-weight: 500; line-height: 1.6; }
 .jp-check__text[lang="ja"] { font-size: 1.5em; }
 .jp-check__play {
   min-width: 56px; min-height: 56px; border: 0; border-radius: 50%; background: var(--jp-primary); color: var(--jp-surface);
@@ -70,18 +70,18 @@
 .jp-check__options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .jp-check-opt {
   display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 52px; padding: 10px;
-  border: 1.5px solid var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface);
+  border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface);
   color: var(--jp-ink); font: inherit; cursor: pointer; overflow-wrap: anywhere;
 }
 .jp-check-opt[lang="ja"] { font-size: 1.15em; }
 .jp-check-opt[disabled] { cursor: default; }
-.jp-check-opt.jp-ok { border: 2px solid var(--jp-ok); background: color-mix(in srgb, var(--jp-ok) 16%, var(--jp-surface)); }
-.jp-check-opt.jp-bad { border: 2px solid var(--jp-danger); background: var(--jp-danger-soft); }
+.jp-check-opt.jp-ok { border: 1px solid var(--jp-ok); background: color-mix(in srgb, var(--jp-ok) 16%, var(--jp-surface)); }
+.jp-check-opt.jp-bad { border: 1px solid var(--jp-danger); background: var(--jp-danger-soft); }
 .jp-key {
   min-width: 1.4em; padding: 0 4px; border: 1px solid var(--jp-line); border-radius: 4px; color: var(--jp-muted);
   font-size: .75em; line-height: 1.4;
 }
-.jp-check__feedback { font-weight: 700; }
+.jp-check__feedback { font-weight: 500; }
 .jp-check__feedback.jp-ok { color: var(--jp-ok); }
 .jp-check__feedback.jp-bad { color: var(--jp-danger); }
 .jp-check__explain { margin: 0; line-height: 1.5; }
@@ -91,19 +91,19 @@
   display: grid; gap: 2px; padding: 10px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
   background: var(--jp-surface); text-align: center;
 }
-.jp-compare__ja { font-size: 1.3em; font-weight: 700; }
+.jp-compare__ja { font-size: 1.3em; font-weight: 500; }
 .jp-compare__reading, .jp-compare__meaning { color: var(--jp-muted); font-size: .9em; }
 
 /* order and fill */
 .jp-order__slots, .jp-order__pool { display: flex; flex-wrap: wrap; gap: 8px; min-height: 52px; align-items: center; }
 .jp-order__slots {
-  padding: 8px; border: 1.5px dashed var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface);
+  padding: 8px; border: 1px dashed var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface);
 }
 .jp-order__slots.jp-ok { border-color: var(--jp-ok); }
 .jp-order__slots.jp-bad { border-color: var(--jp-danger); }
 .jp-order__empty { color: var(--jp-muted); font-size: .9em; }
 .jp-order__piece {
-  min-height: 44px; padding: 6px 12px; border: 1.5px solid var(--jp-line); border-radius: var(--jp-radius-chip);
+  min-height: 44px; padding: 6px 12px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-chip);
   background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-size: 1.1em; cursor: pointer;
 }
 .jp-order__piece[disabled] { opacity: .4; cursor: default; }
@@ -126,8 +126,8 @@
 }
 
 /* result and wrong-answer review (Task 49) */
-.jp-result { display: grid; gap: 8px; justify-items: center; text-align: center; border-radius: 16px; }
-.jp-result__score { font-size: 2.2em; font-weight: 800; line-height: 1.1; color: var(--jp-ink); }
+.jp-result { display: grid; gap: 8px; justify-items: center; text-align: center; border-radius: 12px; }
+.jp-result__score { font-size: 2.2em; font-weight: 600; line-height: 1.1; color: var(--jp-ink); }
 .jp-result__score.jp-ok { color: var(--jp-ok); }
 .jp-result__score.jp-bad { color: var(--jp-danger); }
 .jp-result__title { margin: 0; font-size: 1em; font-weight: 400; line-height: 1.5; }
@@ -149,7 +149,7 @@
 .jp-review__card {
   display: grid; gap: 2px; padding: 10px 12px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
 }
-.jp-review__ja { font-size: 1.3em; font-weight: 700; }
+.jp-review__ja { font-size: 1.3em; font-weight: 500; }
 .jp-review__reading, .jp-review__meaning { color: var(--jp-muted); }
 /* "Xem lại thẻ các mục sai" dialog (JpathDialog appends to <body>; same look as the path page dialogs). */
 .jp-dialog-backdrop:has(.jp-review__cards) {
@@ -161,12 +161,12 @@
   color: var(--jp-ink);
 }
 .jp-dialog-backdrop:has(.jp-review__cards) .jp-btn {
-  min-height: 44px; padding: 10px 18px; border: 1.5px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
+  min-height: 44px; padding: 10px 18px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
   background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-weight: 600; cursor: pointer;
 }
 
 /* "Xong hôm nay" (done.html, Task 53) */
-.jp-done { display: grid; gap: 10px; justify-items: center; text-align: center; border-radius: 16px; }
+.jp-done { display: grid; gap: 10px; justify-items: center; text-align: center; border-radius: 12px; }
 .jp-done__title { margin: 0; font-size: 1.5em; }
 .jp-done__counts, .jp-done__level, .jp-done__wrong, .jp-done__hint, .jp-done p { margin: 0; }
 .jp-done__stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0; padding: 0; list-style: none; }
@@ -177,7 +177,7 @@
 .jp-done__cp { color: var(--jp-ok); border-color: var(--jp-ok); }
 .jp-done__extra { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .jp-done__chip {
-  min-height: 44px; padding: 8px 14px; border: 1.5px solid var(--jp-primary); border-radius: var(--jp-radius-chip);
+  min-height: 44px; padding: 8px 14px; border: 1px solid var(--jp-primary); border-radius: var(--jp-radius-chip);
   background: var(--jp-primary-soft); color: var(--jp-ink); font: inherit; cursor: pointer;
 }
 .jp-done__chip[disabled] { opacity: .55; cursor: wait; }
@@ -230,7 +230,7 @@
 .jp-done { gap: 20px; }
 .jp-done__title { font-size: clamp(2em, 4vw, 3em); }
 .jp-done__stats { gap: 16px 24px; }
-.jp-done__stat { border: 0; border-bottom: 2px solid var(--jp-line); border-radius: 0; padding: 8px 4px; background: transparent; }
+.jp-done__stat { border: 0; border-bottom: 1px solid var(--jp-line); border-radius: 0; padding: 8px 4px; background: transparent; }
 .jp-done__cp { border-color: var(--jp-ok); }
 .jp-done__actions { width: 100%; gap: 10px; margin-top: 10px; }
 .jp-done__actions .jp-btn { min-height: 52px; }
@@ -304,9 +304,9 @@ ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid
 
 /* 05/11 Việc 2: Lựa chọn đúng xanh nảy nhẹ, sai đỏ rung ngang & Màn kết thúc phần có hiệu ứng chúc mừng (<= 1.2s) */
 .jp-check__prompt.jp-card {
-  border: 1.5px solid var(--jp-line);
-  border-top: 4px solid var(--jp-primary);
-  border-radius: 18px;
+  border: 1px solid var(--jp-line);
+  border-top: 1px solid var(--jp-primary);
+  border-radius: 12px;
   background: linear-gradient(180deg, var(--jp-surface) 0%, color-mix(in srgb, var(--jp-primary-soft) 35%, var(--jp-surface)) 100%);
   box-shadow: 0 10px 26px -10px color-mix(in srgb, var(--jp-primary) 15%, transparent);
 }
@@ -321,10 +321,10 @@ ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid
   box-shadow: 0 5px 12px color-mix(in srgb, var(--jp-primary) 14%, transparent);
 }
 .jp-check-opt.jp-ok, .jp-pair.jp-ok {
-  border: 2px solid var(--jp-ok);
+  border: 1px solid var(--jp-ok);
   background: color-mix(in srgb, var(--jp-ok) 15%, var(--jp-surface));
   color: var(--jp-ink);
-  font-weight: 700;
+  font-weight: 500;
   box-shadow: 0 4px 14px color-mix(in srgb, var(--jp-ok) 22%, transparent);
   animation: jp-ok-bounce .42s cubic-bezier(.34, 1.56, .64, 1) 1 both;
 }
@@ -337,10 +337,10 @@ ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid
   color: var(--jp-ok);
 }
 .jp-check-opt.jp-bad, .jp-pair.jp-bad {
-  border: 2px solid var(--jp-danger);
+  border: 1px solid var(--jp-danger);
   background: color-mix(in srgb, var(--jp-danger) 14%, var(--jp-surface));
   color: var(--jp-ink);
-  font-weight: 700;
+  font-weight: 500;
   box-shadow: 0 4px 14px color-mix(in srgb, var(--jp-danger) 18%, transparent);
   animation: jp-bad-shake .46s ease-in-out 1 both;
 }
@@ -353,12 +353,12 @@ ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid
   color: var(--jp-danger);
 }
 .jp-order__slots.jp-ok {
-  border: 2px solid var(--jp-ok);
+  border: 1px solid var(--jp-ok);
   background: color-mix(in srgb, var(--jp-ok) 12%, var(--jp-surface));
   animation: jp-ok-bounce .42s cubic-bezier(.34, 1.56, .64, 1) 1 both;
 }
 .jp-order__slots.jp-bad {
-  border: 2px solid var(--jp-danger);
+  border: 1px solid var(--jp-danger);
   background: color-mix(in srgb, var(--jp-danger) 12%, var(--jp-surface));
   animation: jp-bad-shake .46s ease-in-out 1 both;
 }
@@ -387,7 +387,7 @@ ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid
   gap: 8px;
   padding: 10px 14px;
   border-radius: 12px;
-  font-weight: 700;
+  font-weight: 500;
 }
 .jp-check__feedback::before {
   display: inline-flex;
@@ -398,11 +398,11 @@ ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid
   flex: 0 0 22px;
   border-radius: 50%;
   font-size: .82em;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1;
 }
 .jp-check__feedback.jp-ok {
-  border: 1.5px solid color-mix(in srgb, var(--jp-ok) 45%, var(--jp-line));
+  border: 1px solid color-mix(in srgb, var(--jp-ok) 45%, var(--jp-line));
   background: color-mix(in srgb, var(--jp-ok) 14%, var(--jp-surface));
   color: var(--jp-ok);
   animation: jp-ok-bounce .36s cubic-bezier(.34, 1.56, .64, 1) 1 both;
@@ -413,7 +413,7 @@ ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid
   color: var(--jp-surface);
 }
 .jp-check__feedback.jp-bad {
-  border: 1.5px solid color-mix(in srgb, var(--jp-danger) 45%, var(--jp-line));
+  border: 1px solid color-mix(in srgb, var(--jp-danger) 45%, var(--jp-line));
   background: color-mix(in srgb, var(--jp-danger) 12%, var(--jp-surface));
   color: var(--jp-danger);
   animation: jp-bad-shake .42s ease-in-out 1 both;
@@ -431,9 +431,9 @@ ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid
   justify-items: center;
   text-align: center;
   gap: 12px;
-  border: 1.5px solid var(--jp-line);
-  border-top: 4px solid var(--jp-primary);
-  border-radius: 20px;
+  border: 1px solid var(--jp-line);
+  border-top: 1px solid var(--jp-primary);
+  border-radius: 12px;
   background: linear-gradient(180deg, color-mix(in srgb, var(--jp-primary-soft) 50%, var(--jp-surface)) 0%, var(--jp-surface) 65%);
   box-shadow: 0 14px 36px -12px color-mix(in srgb, var(--jp-primary) 18%, transparent);
 }
@@ -562,9 +562,9 @@ ul.jp-done__wrong li { padding: 4px 12px; border-radius: 99px; border: 1px solid
 :root,
 .jp-page,
 .jp-check {
-  --jp-c-purple-900: #4c1d95;
-  --jp-c-purple-500: #6d28d9;
-  --jp-c-purple-100: #f3e8ff;
+  --jp-c-purple-900: #260b5c;
+  --jp-c-purple-500: #5521b5;
+  --jp-c-purple-100: #e3d6ff;
   --jp-c-mint-900: #14532d;
   --jp-c-mint-500: #15803d;
   --jp-c-mint-100: #f0fdf4;
@@ -761,7 +761,7 @@ html.dark .jp-check {
   align-items: center;
   padding: 5px 14px;
   border: 1px solid color-mix(in srgb, var(--jp-c-purple-500) 40%, var(--jp-check-line));
-  border-radius: 999px;
+  border-radius: 12px;
   background: var(--jp-c-purple-100);
   color: var(--jp-c-purple-900);
   font-size: .85em;
@@ -840,4 +840,559 @@ html.dark .jp-check {
   .jp-check__mascot-img {
     animation: none !important;
   }
+}
+
+/* 06/11 Lượt 7: Đồng bộ khung thẻ trang Kiểm tra với trang Học thẻ, sửa nút Furigana & nút Nghe tròn chuẩn */
+.jp-check-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding-top: 12px;
+  padding-bottom: 24px;
+}
+
+.jp-check-topBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin: 0 0 12px;
+}
+.jp-check-topBar .jp-crumbs {
+  margin: 0;
+}
+.jp-check-topBar__actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+.jp-check-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--jp-check-line);
+  background: var(--jp-check-surface);
+  color: var(--jp-c-purple-900);
+  font-size: .82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color .15s ease, border-color .15s ease;
+}
+.jp-check-back:hover {
+  border-color: var(--jp-c-purple-500);
+  background: var(--jp-c-purple-100);
+}
+
+/* Khung thẻ bài kiểm tra đồng bộ với thẻ học (.jp-study-card) */
+.jp-check {
+  display: grid;
+  gap: 16px;
+  padding: 20px 24px 22px;
+  border: 1px solid var(--jp-check-line);
+  border-top: 1px solid var(--jp-c-purple-500);
+  border-radius: 12px;
+  background: var(--jp-check-surface);
+  box-shadow: 0 8px 24px -8px rgb(74 55 122 / 10%), 0 2px 6px rgb(15 23 42 / 4%);
+}
+.jp-study-inline-check .jp-check {
+  padding: 16px 18px;
+}
+
+.jp-check__head {
+  padding-top: 0;
+  padding-bottom: 4px;
+}
+.jp-check__title {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--jp-check-ink);
+}
+.jp-check__bar {
+  height: 7px;
+  border-radius: 999px;
+  background: var(--jp-c-purple-100);
+}
+.jp-check__bar span {
+  background: var(--jp-c-purple-500);
+}
+
+/* Khung câu hỏi & nút phát âm thanh bài Nghe tròn chuẩn 56x56 (không bị kéo dọc thành hình bầu dục) */
+.jp-check__prompt.jp-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 120px;
+  padding: 20px 24px;
+  border: 1px solid color-mix(in srgb, var(--jp-c-purple-500) 24%, var(--jp-check-line));
+  border-top: 1px solid var(--jp-c-purple-500);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--jp-c-purple-100) 50%, var(--jp-check-surface));
+  box-shadow: none;
+  text-align: center;
+}
+.jp-check__dir {
+  font-size: .78rem;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: var(--jp-c-purple-900);
+}
+.jp-check__play {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  min-height: 56px;
+  max-width: 56px;
+  max-height: 56px;
+  flex: 0 0 56px;
+  aspect-ratio: 1 / 1;
+  align-self: center;
+  justify-self: center;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--jp-c-purple-500) 25%, var(--jp-white));
+  border-radius: 50%;
+  background: var(--jp-c-purple-500);
+  color: var(--jp-white);
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--jp-c-purple-500) 45%, transparent);
+  transition: transform .15s ease, background-color .15s ease, box-shadow .15s ease;
+}
+.jp-check__play:hover {
+  transform: scale(1.05);
+  background: var(--jp-c-purple-900);
+}
+.jp-check__play:active {
+  transform: scale(.97);
+}
+.jp-check__play .jp-i {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  display: block;
+}
+
+/* Các ô nối từ & lựa chọn gọn gàng, cân đối */
+.jp-board {
+  gap: 10px 14px;
+}
+.jp-pair {
+  min-height: 46px;
+  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.jp-check__options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+.jp-check-opt {
+  min-height: 50px;
+  padding: 10px 14px;
+}
+
+@media (max-width: 640px) {
+  .jp-check {
+    padding: 16px 14px;
+  }
+  .jp-check__options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* === ROUND 7 UI POLISH === */
+/* Item 1: Compact wrong-answer card & report flag cleanly inside top-right corner */
+.jp-review__board-note {
+  margin: 0 0 10px;
+  font-size: .84rem;
+  font-weight: 400;
+  color: var(--jp-muted);
+}
+
+.jp-review__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jp-review__item {
+  position: relative;
+  padding: 12px 40px 12px 14px !important;
+  border: 1px solid var(--jp-line) !important;
+  border-radius: 10px !important;
+  background: var(--jp-surface) !important;
+  box-shadow: none !important;
+}
+
+.jp-review__item .jp-report-btn {
+  position: absolute !important;
+  top: 10px !important;
+  right: 10px !important;
+  width: 26px !important;
+  height: 26px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  z-index: 2;
+}
+
+.jp-review__item .jp-report-btn:hover {
+  border-color: var(--jp-line) !important;
+  background: var(--jp-surface-2) !important;
+}
+
+.jp-review__prompt {
+  margin: 0 0 8px !important;
+  font-size: .92rem !important;
+  font-weight: 500 !important;
+  color: var(--jp-ink);
+  line-height: 1.4;
+}
+
+.jp-review__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.jp-review__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--jp-line);
+  font-size: .88rem;
+  font-weight: 400 !important;
+  line-height: 1.35;
+}
+
+.jp-review__row--picked {
+  border-color: color-mix(in srgb, var(--jp-bad) 32%, var(--jp-line)) !important;
+  background: color-mix(in srgb, var(--jp-bad-soft) 55%, var(--jp-surface)) !important;
+  color: var(--jp-ink) !important;
+}
+
+.jp-review__row--answer {
+  border-color: color-mix(in srgb, var(--jp-ok) 35%, var(--jp-line)) !important;
+  background: color-mix(in srgb, var(--jp-ok-soft) 55%, var(--jp-surface)) !important;
+  color: var(--jp-ink) !important;
+}
+
+.jp-review__row .jp-review__tag {
+  flex-shrink: 0;
+  min-width: 64px;
+  font-size: .76rem;
+  font-weight: 500;
+  color: var(--jp-muted);
+}
+
+.jp-review__row--picked .jp-review__tag {
+  color: var(--jp-bad);
+}
+
+.jp-review__row--answer .jp-review__tag {
+  color: var(--jp-ok);
+}
+
+.jp-review__row .jp-review__val {
+  flex: 1 1 auto;
+  font-weight: 400 !important;
+  color: var(--jp-ink);
+}
+
+.jp-review__row .jp-ic {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.jp-review__row--picked .jp-ic {
+  color: var(--jp-bad);
+}
+
+.jp-review__row--answer .jp-ic {
+  color: var(--jp-ok);
+}
+
+.jp-review__more {
+  margin-top: 6px;
+}
+
+.jp-review__more > summary {
+  list-style: none;
+  font-size: .8rem;
+}
+
+.jp-review__more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.jp-review__more .jp-review__options {
+  margin-top: 6px;
+}
+
+/* Item 2: Question options & pair buttons thin 1px border and font-weight <= 500 */
+.jp-check-opt,
+.jp-pair {
+  border-width: 1px !important;
+  font-weight: 400 !important;
+  box-shadow: none !important;
+}
+
+.jp-check-opt.is-picked,
+.jp-check-opt.jp-ok,
+.jp-check-opt.jp-bad,
+.jp-pair.is-picked,
+.jp-pair.is-done,
+.jp-pair.is-wrong {
+  border-width: 1px !important;
+  font-weight: 500 !important;
+}
+
+/* === ROUND 8 CHECK POLISH === */
+/* Item 9: Widen check page container from 720px to 1000px */
+.jp-check-page,
+.jp-check {
+  max-width: 1000px !important;
+  width: 100% !important;
+}
+
+/* Item 2 & 12: Question header row with 76px Kitsu on left and report flag slot on right */
+.jp-check__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.jp-check__mascot {
+  gap: 10px !important;
+}
+.jp-check__mascot-img {
+  width: 76px !important;
+  height: 76px !important;
+}
+.jp-check__mascot-bubble {
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  font-size: 13px !important;
+}
+.jp-celebrate__mascot {
+  width: 88px !important;
+  height: 88px !important;
+}
+.jp-celebrate__bubble {
+  border-radius: 8px !important;
+}
+
+/* Item 7: Less rounded border-radius (8px for options/buttons, 12px for prompt/result cards) */
+.jp-check__prompt.jp-card,
+.jp-result.jp-card,
+.jp-review__item {
+  border-radius: 12px !important;
+}
+.jp-check-opt,
+.jp-pair,
+.jp-order__piece,
+.jp-order__slots,
+.jp-check__feedback,
+.jp-review__row,
+.jp-review__card {
+  border-radius: 8px !important;
+}
+
+/* Item 9: Taller matching pairs & answer options with larger Kanji/Japanese text (28px) */
+.jp-board {
+  gap: 14px !important;
+}
+.jp-board__col {
+  gap: 10px !important;
+}
+.jp-pair {
+  min-height: 64px !important;
+  padding: 12px 18px !important;
+  font-size: 1.05rem !important;
+}
+.jp-pair span[lang="ja"] {
+  font-family: "Klee One", "Noto Sans JP", sans-serif;
+  font-size: 1.65rem !important;
+  font-weight: 500 !important;
+  line-height: 1.25 !important;
+}
+.jp-check__options {
+  gap: 10px !important;
+}
+.jp-check-opt {
+  min-height: 64px !important;
+  padding: 12px 18px !important;
+  font-size: 1.05rem !important;
+}
+.jp-check-opt span[lang="ja"] {
+  font-family: "Klee One", "Noto Sans JP", sans-serif;
+  font-size: 1.65rem !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+}
+
+/* Item 10: Dynamic font size in prompt box by text length */
+.jp-check__prompt.jp-card {
+  padding: 24px 28px !important;
+}
+.jp-check__text--short {
+  font-size: clamp(2rem, 3.6vw, 2.35rem) !important;
+  line-height: 1.35 !important;
+}
+.jp-check__text--mid {
+  font-size: clamp(1.6rem, 2.8vw, 1.9rem) !important;
+  line-height: 1.45 !important;
+}
+.jp-check__text--long {
+  font-size: clamp(1.35rem, 2.2vw, 1.5rem) !important;
+  line-height: 1.65 !important;
+  text-align: left !important;
+  max-width: 68ch !important;
+  margin: 0 auto !important;
+}
+
+/* Item 11: Speaker icon in audio question play button */
+.jp-check__play .jp-i {
+  width: 26px !important;
+  height: 26px !important;
+}
+
+/* Item 12: Wrong-answer review card header row + soft red 1px border & tint for wrong picked row/option */
+.jp-review__item {
+  position: relative;
+  display: grid !important;
+  gap: 10px !important;
+  padding: 16px 18px !important;
+}
+.jp-review__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 32px;
+}
+.jp-review__dir {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--jp-muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.jp-review__head .jp-report-btn,
+.jp-check__head .jp-report-btn,
+.jp-review__item .jp-report-btn--inline {
+  position: static !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid var(--jp-line) !important;
+  border-radius: 8px !important;
+  background: var(--jp-surface) !important;
+  color: var(--jp-muted) !important;
+  display: inline-grid !important;
+  place-items: center !important;
+}
+.jp-review__item .jp-check__prompt.jp-card {
+  padding: 14px 18px !important;
+  margin: 0 !important;
+}
+.jp-review__row--picked,
+.jp-review__row--picked.jp-bad {
+  background: var(--jp-c-coral-100, #fef2f2) !important;
+  border: 1px solid color-mix(in srgb, var(--jp-c-coral-500, #dc2626) 42%, var(--jp-line)) !important;
+  color: var(--jp-c-coral-900, #7f1d1d) !important;
+}
+.jp-review__row--answer,
+.jp-review__row--answer.jp-ok {
+  background: var(--jp-c-mint-100, #f0fdf4) !important;
+  border: 1px solid color-mix(in srgb, var(--jp-c-mint-500, #15803d) 42%, var(--jp-line)) !important;
+  color: var(--jp-c-mint-900, #14532d) !important;
+}
+.jp-review__options .jp-check-opt.jp-bad,
+.jp-check-opt.jp-bad {
+  background: var(--jp-c-coral-100, #fef2f2) !important;
+  border: 1px solid color-mix(in srgb, var(--jp-c-coral-500, #dc2626) 45%, var(--jp-line)) !important;
+  color: var(--jp-c-coral-900, #7f1d1d) !important;
+  box-shadow: none !important;
+}
+.jp-review__options .jp-check-opt.jp-ok,
+.jp-check-opt.jp-ok {
+  background: var(--jp-c-mint-100, #f0fdf4) !important;
+  border: 1px solid color-mix(in srgb, var(--jp-c-mint-500, #15803d) 45%, var(--jp-line)) !important;
+  color: var(--jp-c-mint-900, #14532d) !important;
+  box-shadow: none !important;
+}
+
+/* === ROUND 8 VIVID PURPLE BOOST === */
+:root,
+.jp-page,
+.jp-path,
+.jp-study,
+.jp-check,
+.jp-check-page,
+.cp-page {
+  --jp-c-purple-900: #260b5c !important;
+  --jp-c-purple-500: #5521b5 !important;
+  --jp-c-purple-100: #e3d6ff !important;
+
+  --jp-c-indigo-900: #1d145c !important;
+  --jp-c-indigo-500: #3f30b8 !important;
+  --jp-c-indigo-100: #dcdafa !important;
+
+  --jp-c-mauve-900: #3d0d66 !important;
+  --jp-c-mauve-500: #7222b8 !important;
+  --jp-c-mauve-100: #ebd6ff !important;
+
+  --jp-primary: #5521b5 !important;
+  --jp-primary-soft: #e3d6ff !important;
+  --cp-done: #5521b5 !important;
+  --cp-done-soft: #d9c7ff !important;
+  --cp-done-ring: rgba(85, 33, 181, 0.42) !important;
+}
+
+html[data-theme="dark"],
+html.dark,
+html[data-theme="dark"] .jp-page,
+html.dark .jp-page,
+html[data-theme="dark"] .jp-path,
+html.dark .jp-path,
+html[data-theme="dark"] .jp-study,
+html.dark .jp-study,
+html[data-theme="dark"] .jp-check,
+html.dark .jp-check,
+html[data-theme="dark"] .cp-page,
+html.dark .cp-page {
+  --jp-c-purple-900: #f3e8ff !important;
+  --jp-c-purple-500: #9f67ff !important;
+  --jp-c-purple-100: #321a66 !important;
+
+  --jp-c-indigo-900: #e0e7ff !important;
+  --jp-c-indigo-500: #818cf8 !important;
+  --jp-c-indigo-100: #23205c !important;
+
+  --jp-c-mauve-900: #fae8ff !important;
+  --jp-c-mauve-500: #c084fc !important;
+  --jp-c-mauve-100: #421959 !important;
+
+  --jp-primary: #9f67ff !important;
+  --jp-primary-soft: #321a66 !important;
+  --cp-done: #9f67ff !important;
+  --cp-done-soft: rgba(159, 103, 255, 0.24) !important;
 }

@@ -158,9 +158,9 @@
       var on = def.mode === suggested;
       var out = '<div class="jp-mode' + (on ? ' jp-suggested' : '') + '">'
         + '<button type="button" class="jp-btn' + (on ? ' jp-btn--primary jp-suggested' : '') + '" data-action="start-mode" data-mode="' + def.mode
-        + '"' + (def.mode === 'SPLIT' ? ' data-tab-key="' + esc(splitTab) + '"' : '') + '>' + esc(def.label) + '</button>'
-        + (on ? '<span class="jp-mode__tag">Gợi ý cho bạn</span>' : '')
-        + '<p class="jp-muted">' + esc(def.desc) + '</p>';
+        + '"' + (def.mode === 'SPLIT' ? ' data-tab-key="' + esc(splitTab) + '"' : '')
+        + ' data-tip="' + esc(def.desc) + '" title="' + esc(def.desc) + '">' + esc(def.label) + '</button>'
+        + (on ? '<span class="jp-mode__tag">Gợi ý cho bạn</span>' : '');
       if (def.mode !== (p.mode || 'COMBINED')) {
         out += '<button type="button" class="jp-link-btn" data-action="default-mode" data-mode="' + def.mode + '">'
           + 'Đặt làm cách học mặc định</button>';
@@ -207,22 +207,50 @@
       + '</span>';
   }
 
-  function calendarStampHtml(iso) {
+  function computeTodayPct(t) {
+    if (!t) return 0;
+    if (t.allDone) return 100;
+    var tabs = list(t.tabs).filter(function (x) { return x && x.tab !== 'SKILL' && num(x.newTarget) > 0; });
+    if (!tabs.length) return 0;
+    var done = 0;
+    var total = 0;
+    tabs.forEach(function (x) {
+      var tg = num(x.newTarget);
+      total += tg;
+      done += Math.min(tg, Math.max(0, num(x.newDone)));
+    });
+    return total > 0 ? Math.max(0, Math.min(100, Math.round((done * 100) / total))) : 0;
+  }
+
+  function calendarStampHtml(iso, t) {
     var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
     if (!m) {
-      return '<div class="jp-today__cal" aria-hidden="true">'
-        + '<span class="jp-today__cal-month">Hôm nay</span>'
-        + '<strong class="jp-today__cal-day">•</strong>'
-        + '<span class="jp-today__cal-dow">JLPT</span>'
-        + '</div>';
+      var now = new Date();
+      m = ['', String(now.getFullYear()), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')];
     }
     var dowIdx = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDay();
     var dow = VI_WEEKDAY_SHORT[dowIdx] || '';
+    var kanjiDow = ['日', '月', '火', '水', '木', '金', '土'][dowIdx] || '日';
     var monthNum = +m[2];
-    return '<div class="jp-today__cal" aria-label="' + esc(VI_WEEKDAY_FULL[dowIdx] + ', ngày ' + m[3] + ' tháng ' + monthNum) + '">'
-      + '<span class="jp-today__cal-month">Th ' + esc(monthNum) + '</span>'
+    var pct = computeTodayPct(t);
+    var r = 34;
+    var circum = (2 * Math.PI * r).toFixed(1);
+    var offset = (circum * (1 - pct / 100)).toFixed(1);
+    var tip = VI_WEEKDAY_FULL[dowIdx] + ', ngày ' + m[3] + '/' + m[2] + ' (' + monthNum + '月 ' + kanjiDow + ') · hoàn thành ' + pct + '%';
+    return '<div class="jp-today__cal" data-pct="' + pct + '" data-tip="' + esc(tip) + '" title="' + esc(tip) + '" aria-label="' + esc(tip) + '">'
+      + '<div class="jp-today__cal-water" style="height:' + pct + '%" aria-hidden="true">'
+      + '<svg class="jp-today__cal-waves" viewBox="0 0 160 20" preserveAspectRatio="none" aria-hidden="true">'
+      + '<path class="jp-today__cal-wave-back" d="M0,10 C20,16 40,4 60,10 C80,16 100,4 120,10 C140,16 150,7 160,10 L160,20 L0,20 Z"></path>'
+      + '<path class="jp-today__cal-wave-front" d="M0,11 C25,4 50,17 80,11 C110,5 135,17 160,11 L160,20 L0,20 Z"></path>'
+      + '</svg></div>'
+      + '<svg class="jp-today__cal-ring" viewBox="0 0 76 76" aria-hidden="true">'
+      + '<circle class="jp-today__cal-ring-bg" cx="38" cy="38" r="' + r + '"></circle>'
+      + '<circle class="jp-today__cal-ring-fg" cx="38" cy="38" r="' + r + '" stroke-dasharray="' + circum + '" stroke-dashoffset="' + offset + '"></circle>'
+      + '</svg>'
+      + '<div class="jp-today__cal-inner">'
       + '<strong class="jp-today__cal-day">' + esc(m[3]) + '</strong>'
-      + '<span class="jp-today__cal-dow">' + esc(dow) + '</span>'
+      + '<span class="jp-today__cal-jp" lang="ja">' + esc(monthNum + '月') + ' <span class="jp-today__cal-kanji">' + kanjiDow + '</span></span>'
+      + '</div>'
       + '</div>';
   }
 
@@ -254,9 +282,9 @@
         + { VOCAB: 'Từ vựng', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp' }[tk] + '</button>';
     }).join('') + '</div>';
     if (!days.length) {
-      return '<div class="jp-today__weekly">'
+      return '<div class="jp-today__weekly" data-tip="10 câu mỗi kỹ năng trong 7 ngày qua" title="10 câu mỗi kỹ năng trong 7 ngày qua">'
         + '<span class="jp-today__weekly-icon">' + chestMiniSvg() + '</span>'
-        + '<div class="jp-today__weekly-info"><strong>Kiểm tra tuần</strong><span>10 câu mỗi kỹ năng trong 7 ngày qua</span></div>'
+        + '<div class="jp-today__weekly-info"><strong>Kiểm tra tuần</strong></div>'
         + btns + '</div>';
     }
     var last = days[days.length - 1];
@@ -272,9 +300,9 @@
         + '</div>'
         + '</div>';
     }
-    return '<div class="jp-today__weekly jp-today__weekly--due">'
+    return '<div class="jp-today__weekly jp-today__weekly--due" data-tip="10 câu mỗi kỹ năng đã học trong tuần" title="10 câu mỗi kỹ năng đã học trong tuần">'
       + '<span class="jp-today__weekly-icon">' + chestMiniSvg() + '</span>'
-      + '<div class="jp-today__weekly-info"><strong>Kiểm tra tuần · Hôm nay</strong><span>10 câu mỗi kỹ năng đã học trong tuần</span></div>'
+      + '<div class="jp-today__weekly-info"><strong>Kiểm tra tuần · Hôm nay</strong></div>'
       + btns + '</div>';
   }
 
@@ -325,9 +353,9 @@
   }
 
   function studyDayHtml(t) {
+    var tip = 'Ôn thẻ đến hạn rồi học mới liền một lượt';
     return '<div class="jp-today__go">'
-      + '<button type="button" class="jp-btn jp-btn--primary jp-btn--lg" data-action="start-mode" data-mode="COMBINED">Học hôm nay</button>'
-      + '<span class="jp-today__go-meta">Ôn thẻ đến hạn rồi học mới liền một lượt</span>'
+      + '<button type="button" class="jp-btn jp-btn--primary jp-btn--lg" data-action="start-mode" data-mode="COMBINED" data-tip="' + esc(tip) + '" title="' + esc(tip) + '">Học hôm nay</button>'
       + '</div>'
       + studyPillsHtml(t);
   }
@@ -406,7 +434,7 @@
     }
     return '<div class="jp-today__kitsu" aria-hidden="true">'
       + '<span class="jp-today__kitsu-bubble">' + esc(say) + '</span>'
-      + '<img class="jp-today__kitsu-img" src="' + src + '" width="64" height="64" loading="lazy" alt=""/>'
+      + '<img class="jp-today__kitsu-img" src="' + src + '" width="76" height="76" loading="lazy" alt=""/>'
       + '</div>';
   }
 
@@ -420,7 +448,7 @@
 
     var html = '<section class="jp-card jp-today" data-tour="today" aria-labelledby="jp-today-title">'
       + '<div class="jp-today__top">'
-      + calendarStampHtml(t.day)
+      + calendarStampHtml(t.day, t)
       + '<div class="jp-today__lead">'
       + '<div class="jp-today__title-row">'
       + '<h2 class="jp-section-title" id="jp-today-title">Hôm nay của bạn</h2>'
@@ -456,9 +484,9 @@
         + '<p class="jp-alert" role="alert" data-part="today-error" hidden></p>' + end;
     }
     if (t.kind === 'REVIEW_ONLY') {
+      var revTip = 'Hôm nay là ngày ôn: chỉ ôn ' + reviewDue(t) + ' thẻ, không học mới.';
       return html + '<div class="jp-today__go">'
-        + '<button type="button" class="jp-btn jp-btn--primary jp-btn--lg" data-action="start-mode" data-mode="COMBINED">Bắt đầu ôn</button>'
-        + '<span class="jp-today__go-meta">' + esc('Hôm nay là ngày ôn: chỉ ôn ' + reviewDue(t) + ' thẻ, không học mới.') + '</span>'
+        + '<button type="button" class="jp-btn jp-btn--primary jp-btn--lg" data-action="start-mode" data-mode="COMBINED" data-tip="' + esc(revTip) + '" title="' + esc(revTip) + '">Bắt đầu ôn</button>'
         + '</div>' + missed + end;
     }
     if (t.kanaPhase) {

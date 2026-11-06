@@ -851,7 +851,13 @@
         control.type = 'button';
         control.className = 'jp-writing-btn';
         control.textContent = trigger.today ? 'Luyện viết hôm nay' : 'Luyện viết';
-        el.appendChild(control);
+        var extraSlot = el.querySelector('.jp-study-extras') || el.querySelector('[data-writing-slot]');
+        if (extraSlot) extraSlot.appendChild(control);
+        else var extraSlot = el.querySelector('.jp-study-extras') || el.querySelector('[data-writing-slot]');
+        if (extraSlot) extraSlot.appendChild(control);
+        else var extraSlot = el.querySelector('.jp-study-extras') || el.querySelector('[data-writing-slot]');
+        if (extraSlot) extraSlot.appendChild(control);
+        else el.appendChild(control);
       }
       control.addEventListener('click', function (ev) {
         if (ev && typeof ev.preventDefault === 'function') ev.preventDefault();

@@ -23,6 +23,10 @@
             <h2 id="jpsEntryTitle">Đầu vào</h2>
             <div data-role="entry"></div>
         </section>
+        <section class="jp-side-card" aria-labelledby="jpsCommTitle" data-cpath-stats hidden>
+            <h2 id="jpsCommTitle">Lộ trình giao tiếp</h2>
+            <div data-role="comm"></div>
+        </section>
         <section class="jp-side-card" aria-labelledby="jpsHeatTitle">
             <div class="jp-side-month-head">
                 <h2 id="jpsHeatTitle">Lịch học</h2>
@@ -60,6 +64,7 @@
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
 <script th:src="@{/js/jlptpath/jpath-stats.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-entry.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/cpath/cpath-stats.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
 </html>

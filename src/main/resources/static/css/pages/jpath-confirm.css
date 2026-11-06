@@ -15,7 +15,7 @@
   display: grid; gap: 12px; padding: 18px; border: 1px solid var(--jp-line);
   border-radius: var(--jp-radius-panel); background: var(--jp-surface); overflow-wrap: anywhere;
 }
-.jp-confirm-card--notice { border-color: var(--jp-warn); border-width: 2px; }
+.jp-confirm-card--notice { border-color: var(--jp-warn); border-width: 1px; }
 .jp-confirm-card__title { margin: 0; font-size: 1.1em; }
 .jp-confirm-card p { margin: 0; line-height: 1.5; }
 
@@ -34,7 +34,7 @@
 .jp-confirm-field__row { display: flex; flex-wrap: wrap; gap: 8px; }
 .jp-confirm-field__row .jp-confirm-input { flex: 1 1 150px; }
 .jp-confirm-input {
-  box-sizing: border-box; width: 100%; min-height: 44px; padding: 8px 10px; border: 1.5px solid var(--jp-line);
+  box-sizing: border-box; width: 100%; min-height: 44px; padding: 8px 10px; border: 1px solid var(--jp-line);
   border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink); font: inherit;
 }
 .jp-confirm-input:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
@@ -43,25 +43,25 @@
 .jp-confirm-slider { display: grid; gap: 6px; }
 .jp-confirm-slider__head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .jp-confirm-slider__label { font-weight: 600; }
-.jp-confirm-slider__value { font-weight: 700; color: var(--jp-primary); }
+.jp-confirm-slider__value { font-weight: 500; color: var(--jp-primary); }
 .jp-confirm-slider__input { width: 100%; min-height: 44px; margin: 0; accent-color: var(--jp-primary); }
 .jp-confirm-slider__input:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
 .jp-confirm-slider__foot { color: var(--jp-muted); font-size: .88em; min-height: 1.2em; }
 .jp-confirm-minutes { font-weight: 600; }
 .jp-confirm-minutes--over { color: var(--jp-warn); }
 
-.jp-confirm-pace { border-width: 2px; }
+.jp-confirm-pace { border-width: 1px; }
 .jp-confirm-pace[data-tone="ok"] { border-color: var(--jp-ok); }
 .jp-confirm-pace[data-tone="warn"] { border-color: var(--jp-warn); }
 .jp-confirm-pace[data-tone="block"] { border-color: var(--jp-danger); background: var(--jp-danger-soft); }
-.jp-confirm-pace__text { font-weight: 700; }
+.jp-confirm-pace__text { font-weight: 500; }
 .jp-confirm-pace[data-tone="block"] .jp-confirm-pace__text { color: var(--jp-danger); }
 .jp-confirm-warnings { display: grid; gap: 4px; margin: 0; padding-left: 20px; line-height: 1.5; }
 .jp-confirm-suggestions { display: grid; gap: 8px; }
 .jp-confirm-suggestions__title { font-weight: 600; }
 .jp-confirm-suggestions__list { display: flex; flex-wrap: wrap; gap: 8px; }
 .jp-confirm-suggestion {
-  min-height: 44px; padding: 8px 14px; border: 1.5px solid var(--jp-primary); border-radius: var(--jp-radius-interactive);
+  min-height: 44px; padding: 8px 14px; border: 1px solid var(--jp-primary); border-radius: var(--jp-radius-interactive);
   background: var(--jp-surface); color: var(--jp-primary); font: inherit; font-weight: 600; cursor: pointer; text-align: left;
 }
 .jp-confirm-suggestion:hover { background: var(--jp-primary-soft); }
@@ -72,23 +72,23 @@
   display: flex; gap: 10px; align-items: flex-start; padding: 12px; border: 1px solid var(--jp-line);
   border-radius: var(--jp-radius-interactive); background: var(--jp-surface); cursor: pointer;
 }
-.jp-confirm-mode--suggested { border: 2px solid var(--jp-primary); }
+.jp-confirm-mode--suggested { border: 1px solid var(--jp-primary); }
 .jp-confirm-mode:has(.jp-confirm-mode__input:checked) { background: var(--jp-primary-soft); }
 .jp-confirm-mode__input { width: 20px; height: 20px; margin: 2px 0 0; flex: none; accent-color: var(--jp-primary); }
 .jp-confirm-mode__input:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
 .jp-confirm-mode__body { display: grid; gap: 4px; }
-.jp-confirm-mode__title { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-weight: 700; }
+.jp-confirm-mode__title { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-weight: 500; }
 .jp-confirm-mode__badge {
   padding: 2px 8px; border-radius: var(--jp-radius-chip); background: var(--jp-primary-soft); color: var(--jp-primary);
-  font-size: .78em; font-weight: 700;
+  font-size: .78em; font-weight: 500;
 }
 .jp-confirm-mode__text { font-size: .92em; line-height: 1.5; }
 .jp-confirm-mode__reason { font-size: .85em; color: var(--jp-primary); }
 
 .jp-confirm-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .jp-confirm-btn {
-  min-height: 44px; padding: 10px 18px; border: 1.5px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
-  background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-weight: 700; cursor: pointer;
+  min-height: 44px; padding: 10px 18px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
+  background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-weight: 500; cursor: pointer;
 }
 .jp-confirm-btn--small { padding: 8px 12px; font-weight: 600; }
 .jp-confirm-btn--primary { border-color: var(--jp-primary); background: var(--jp-primary); color: var(--jp-surface); }
@@ -130,7 +130,7 @@
 .jp-wizard__head .jp-stepper { max-width: 840px; }
 .jp-wizard__step { gap: 34px; }
 .jp-confirm .jp-confirm-card { gap: 18px; padding: 0 0 30px; border-bottom: 1px solid var(--jp-line); }
-.jp-confirm .jp-confirm-card--notice { padding-left: 16px; border-left: 3px solid var(--jp-warn); }
+.jp-confirm .jp-confirm-card--notice { padding-left: 16px; border-left: 1px solid var(--jp-warn); }
 .jp-confirm-card__title { font-size: 1.45em; line-height: 1.35; }
 .jp-confirm-scores { gap: 12px; }
 .jp-confirm-score { padding: 16px 12px; }
@@ -153,7 +153,7 @@
 .jp-confirm-suggestions__list { gap: 10px; }
 .jp-confirm-modes { gap: 16px; }
 .jp-confirm-mode { min-height: 132px; padding: 20px; gap: 16px; align-items: flex-start; }
-.jp-confirm-mode:has(.jp-confirm-mode__input:checked) { border: 2px solid var(--jp-primary); background: var(--jp-primary-soft); }
+.jp-confirm-mode:has(.jp-confirm-mode__input:checked) { border: 1px solid var(--jp-primary); background: var(--jp-primary-soft); }
 .jp-confirm-mode:focus-within { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
 .jp-confirm-mode__title { font-size: 1.15em; }
 .jp-confirm-mode__text { font-size: 1em; }
@@ -181,8 +181,8 @@
 /* 04/11 polish round 4: wizard tạo lộ trình */
 .jp-confirm { max-width: 1280px; }
 .jp-wizard__step { width: 100%; min-width: 0; }
-.jp-confirm-pace { padding: 22px 26px; border: 1px solid var(--jp-line); border-left: 4px solid var(--jp-primary); border-radius: 8px; background: var(--jp-primary-soft); }
-.jp-confirm-pace__text { font-size: clamp(1.8em, 3vw, 2.4em); font-weight: 700; }
+.jp-confirm-pace { padding: 22px 26px; border: 1px solid var(--jp-line); border-left: 1px solid var(--jp-primary); border-radius: 8px; background: var(--jp-primary-soft); }
+.jp-confirm-pace__text { font-size: clamp(1.8em, 3vw, 2.4em); font-weight: 500; }
 .jp-confirm-mode { border-radius: 8px; background: var(--jp-surface); }
 .jp-confirm-mode:has(.jp-confirm-mode__input:checked) { border-color: var(--jp-primary); background: var(--jp-primary-soft); }
 .jp-confirm-submit .jp-confirm-btn { min-height: 60px; font-size: 1.15em; }
@@ -221,7 +221,7 @@
   flex: 0 0 68px;
   width: 68px;
   height: 68px;
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--jp-c-purple-100);
   border: 1px solid color-mix(in srgb, var(--jp-c-purple-500) 24%, var(--jp-line));
   display: grid;
@@ -253,11 +253,11 @@
   align-self: start;
   width: max-content;
   padding: 2px 10px;
-  border-radius: 999px;
+  border-radius: 6px;
   background: var(--jp-c-purple-100);
   color: var(--jp-c-purple-900);
   font-size: .82em;
-  font-weight: 700;
+  font-weight: 500;
 }
 .jp-wizard__step {
   gap: 16px;
@@ -284,8 +284,8 @@
 }
 .jp-confirm-pace {
   padding: 12px 16px;
-  border-radius: 14px;
-  border-left: 4px solid var(--jp-c-purple-500);
+  border-radius: 12px;
+  border-left: 1px solid var(--jp-c-purple-500);
   background: var(--jp-c-purple-100);
 }
 .jp-confirm-pace__text {
@@ -295,12 +295,12 @@
   min-height: 92px;
   padding: 14px 16px;
   border: 1px solid var(--jp-line);
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--jp-surface);
   transition: border-color .18s ease, background-color .18s ease;
 }
 .jp-confirm-mode:has(.jp-confirm-mode__input:checked) {
-  border: 1.5px solid var(--jp-c-purple-500);
+  border: 1px solid var(--jp-c-purple-500);
   background: var(--jp-c-purple-100);
   color: var(--jp-c-purple-900);
 }
@@ -309,11 +309,11 @@
   border-color: var(--jp-c-purple-500);
   background: var(--jp-c-purple-500);
   color: var(--jp-white);
-  border-radius: 999px;
+  border-radius: 8px;
 }
 .jp-confirm-submit .jp-confirm-btn {
   min-height: 48px;
-  border-radius: 999px;
+  border-radius: 8px;
 }
 .jp-wizard__foot {
   position: sticky;
