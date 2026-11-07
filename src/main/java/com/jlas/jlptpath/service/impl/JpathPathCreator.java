@@ -255,7 +255,9 @@ public class JpathPathCreator {
             case FROM_ZERO -> {
                 // owner 07/11: "studied but does not remember kana" also starts without Smart Test
                 boolean neverStudied = FROM_ZERO.equals(survey.getSelfReportedLevel())
-                        || preference.map(p -> !p.isStudiedBefore() || p.getKanaChoice() == JpathKanaChoice.REVIEW).orElse(false);
+                        || preference.map(p -> !p.isStudiedBefore()).orElse(false)
+                        || (preference.map(p -> p.getKanaChoice() == JpathKanaChoice.REVIEW).orElse(false)
+                            && smartTests.latest(userId).isEmpty());
                 if (!neverStudied) {
                     throw new ApiException(ErrorCode.VALIDATION_FAILED,
                             "Bạn đã từng học tiếng Nhật, hãy bắt đầu bằng Smart Test.");

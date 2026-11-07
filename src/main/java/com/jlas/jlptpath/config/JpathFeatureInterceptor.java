@@ -27,7 +27,7 @@ public class JpathFeatureInterceptor implements HandlerInterceptor {
             "/admin/system/learning-path-report");
 
     private static final String CONFIG_PATH = "/api/learning/jlpt/config";
-    private static final String FALLBACK_PAGE = "/learning/path";
+    private static final String FALLBACK_PAGE = "/survey";
 
     private final JpathFeature feature;
 

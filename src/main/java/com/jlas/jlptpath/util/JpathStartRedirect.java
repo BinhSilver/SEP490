@@ -20,13 +20,14 @@ public final class JpathStartRedirect {
 
     public static String resolve(StartState state) {
         if (!state.enabled()) {
-            return "/learning/path";
+            return "/survey";
         }
         if (!state.surveyDone()) {
             return "/survey";
         }
         if (!"JLPT".equals(state.goal())) {
-            return "/learning/path";
+            // another goal: /learning opens its own path (communication path)
+            return "/learning";
         }
         if (state.pathStatus() == JpathPathStatus.ACTIVE) {
             return "/learning";

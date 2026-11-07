@@ -861,78 +861,9 @@
       // through the old entry questions below.
       var jpathUrl = window.JpathSurveyFlow && window.JpathSurveyFlow.smartTestHandoffUrl(jpathConfig, state.goal, state.attemptId);
       if (jpathUrl) return window.location.assign(jpathUrl);
-      if (!state.attemptId) return;
-      var targetLevel = state.result && String(state.result.targetLevel || '').toUpperCase();
-      var assessedLevel = state.result && String(state.result.estimatedOverallLevel || '').toUpperCase();
-      var entryQuestions = null;
-      if (state.goal !== 'BA') {
-        try {
-          entryQuestions = await api('/api/learning/paths/entry-questions?assessmentAttemptId=' + encodeURIComponent(state.attemptId));
-        if (entryQuestions) entryQuestions.assessmentAttemptId = state.attemptId;
-        } catch (error) { showError(error.message); return; }
-      }
-      // An unfinished test has its own questions; the result-based choices below need a finished test.
-      var unfinished = Boolean(entryQuestions && entryQuestions.partial);
-      var needsReviewChoice = !unfinished && Boolean(state.result && state.result.requiresTargetConfirmation &&
-        levelValue[assessedLevel] && levelValue[targetLevel] && levelValue[assessedLevel] > levelValue[targetLevel]);
-      var reviewStartLevel = null;
-      var discrepancyChoice = null;
-      // Owner 2026-10-27 (R1): the server's "học lại" notice replaces the lower-result and UNKNOWN-far questions below
-      // (sending their discrepancyChoice with it is refused).
-      var hasNotice = Boolean(entryQuestions && entryQuestions.notice);
-      var route = window.SmartTestResultRoute && !unfinished ? window.SmartTestResultRoute.notice(state.result) : { kind: null };
-      if (route.blockCreate) return;
-      if (route.kind === 'UNKNOWN_FAR' && !hasNotice) {
-        // Owner 2026-10-21 (OD-35): no self-declared level to fall back to — accept the chain or pick another target.
-        var agreed = await askConfirmation('Học từ ' + route.stages[0] + ' lên ' + targetLevel + '?',
-          'Smart Test ước lượng bạn ở ' + assessedLevel + '. Lộ trình sẽ đi lần lượt ' + route.stages.join(' → ') +
-          '; mục tiêu ' + targetLevel + ' giữ nguyên. Nếu muốn mục tiêu gần hơn, hãy chọn "Thực hiện khảo sát mới".',
-          'Tạo lộ trình');
-        if (!agreed) return;
-        discrepancyChoice = 'ACCEPT_RECOMMENDATION';
-      }
-      if (!hasNotice && !unfinished && !discrepancyChoice && !needsReviewChoice && isLowerThanSelfReport(state.result)) {
-        var selfLevel = String(state.result.selfReportedLevel || '').toUpperCase();
-        var choicePicker = document.getElementById('discrepancyPicker');
-        choicePicker.querySelector('[data-discrepancy-accept]').textContent =
-          'Củng cố nền từ ' + assessedLevel + ' rồi đi tiếp tới ' + targetLevel + ' (khuyến nghị)';
-        choicePicker.querySelector('[data-discrepancy-decline]').textContent =
-          'Giữ theo khảo sát: ' + selfLevel + ' → ' + targetLevel + ' (có thể hụt nền tảng)';
-        choicePicker.querySelector('input[value="ACCEPT_RECOMMENDATION"]').checked = true;
-        choicePicker.hidden = false;
-        var confirmed = await askConfirmation('Kết quả thấp hơn mức tự khai',
-          'Smart Test ước lượng bạn ở ' + assessedLevel + ', thấp hơn mức tự khai ' + selfLevel + '. Mục tiêu ' + targetLevel +
-          ' được giữ nguyên; hãy chọn cách bắt đầu. Bạn có thể học mọi phần theo nhịp của mình.', 'Tạo lộ trình');
-        choicePicker.hidden = true;
-        if (!confirmed) return;
-        discrepancyChoice = choicePicker.querySelector('input[name="discrepancyChoice"]:checked').value;
-      }
-      if (needsReviewChoice) {
-        var picker = document.getElementById('reviewStartPicker');
-        var select = document.getElementById('reviewStartLevel');
-        Array.from(select.options).forEach(function (option) {
-          option.hidden = option.disabled = levelValue[option.value] > levelValue[targetLevel];
-        });
-        select.value = 'N5';
-        picker.hidden = false;
-        var accepted = await askConfirmation('Chọn cấp bắt đầu ôn',
-          'Smart Test ước lượng bạn ở ' + assessedLevel + ', còn target bạn chọn là ' + targetLevel +
-          '. Hãy chọn cấp bắt đầu. Lộ trình sẽ đi lần lượt đến target; kết quả Smart Test không thay đổi.', 'Tạo lộ trình');
-        picker.hidden = true;
-        if (!accepted) return;
-        reviewStartLevel = select.value;
-      }
-      // Owner 2026-10-25: the server's entry questions (kana known? solid at a level? review mistakes? study again?).
-      var entry; try { entry = await askEntryQuestions(entryQuestions); } catch (error) { showError(error.message); return; }
-      if (entry === null) return;
-      var destination = state.goal === 'BA'
-        ? '/learning/goals/BA/survey?assessmentAttemptId=' + state.attemptId
-        : '/learning/path?assessmentAttemptId=' + state.attemptId +
-          (entry.kanaKnown !== null ? '&kanaKnown=' + entry.kanaKnown : '') +
-          (entry.entryChoice ? '&entryChoice=' + encodeURIComponent(entry.entryChoice) : '') +
-          (reviewStartLevel ? '&reviewStartLevel=' + encodeURIComponent(reviewStartLevel) : '') +
-          (discrepancyChoice ? '&discrepancyChoice=' + encodeURIComponent(discrepancyChoice) : '');
-      window.location.assign(destination);
+      // [JLAS-W0108] Owner 07/11: only the new paths remain; /learning/path hands a Smart Test to the JLPT confirmation.
+      if (state.attemptId) return window.location.assign('/learning/path?assessmentAttemptId=' + encodeURIComponent(state.attemptId));
+      return window.location.assign('/learning');
     });
   }
 

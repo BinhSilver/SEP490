@@ -38,7 +38,8 @@ public class JpathEntryPageController {
                 model.addAttribute("jpathTopic", topic != null && TOPIC.matcher(topic).matches() ? topic : null);
                 return "jlptpath/path";
             default:
-                return "redirect:/learning/path";
+                // [JLAS-W0108] Owner 07/11: no old path any more; no survey (or no path goal) starts at the survey
+                return "redirect:/survey";
         }
     }
 
