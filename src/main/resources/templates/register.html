@@ -46,7 +46,7 @@
                                 <div class="input-wrap">
                                     <i class="fa-regular fa-calendar input-wrap__icon" aria-hidden="true"></i>
                                     <input id="dateOfBirth" name="dateOfBirth" type="date"
-                                           class="input input--with-icon" required min="1900-01-01"
+                                           class="input input--with-icon" required
                                            autocomplete="bday" aria-describedby="dateOfBirthError"/>
                                 </div>
                                 <p id="dateOfBirthError" class="field__error" aria-live="polite"></p>
@@ -84,10 +84,10 @@
                                 </button>
                             </div>
                             <ul id="passwordRules" class="password-rules" aria-label="Yêu cầu mật khẩu">
-                                <li data-password-rule="length"><i class="fa-solid fa-circle" aria-hidden="true"></i> Từ 8 đến 100 ký tự</li>
-                                <li data-password-rule="case"><i class="fa-solid fa-circle" aria-hidden="true"></i> Có chữ hoa và chữ thường</li>
-                                <li data-password-rule="number"><i class="fa-solid fa-circle" aria-hidden="true"></i> Có ít nhất một chữ số</li>
-                                <li data-password-rule="special"><i class="fa-solid fa-circle" aria-hidden="true"></i> Có ít nhất một ký tự đặc biệt</li>
+                                <li data-password-rule="length"><i class="fa-solid fa-circle" aria-hidden="true"></i> <span class="password-rule__full">Từ 8 đến 100 ký tự</span><span class="password-rule__short">Từ 8–100 ký tự</span></li>
+                                <li data-password-rule="case"><i class="fa-solid fa-circle" aria-hidden="true"></i> <span class="password-rule__full">Có chữ hoa và chữ thường</span><span class="password-rule__short">Chữ hoa và thường</span></li>
+                                <li data-password-rule="number"><i class="fa-solid fa-circle" aria-hidden="true"></i> <span class="password-rule__full">Có ít nhất một chữ số</span><span class="password-rule__short">Có chữ số</span></li>
+                                <li data-password-rule="special"><i class="fa-solid fa-circle" aria-hidden="true"></i> <span class="password-rule__full">Có ít nhất một ký tự đặc biệt</span><span class="password-rule__short">Có ký tự đặc biệt</span></li>
                             </ul>
                             <p id="passwordError" class="field__error" aria-live="polite"></p>
                         </div>
@@ -164,7 +164,7 @@
 <div th:replace="~{fragments/components/toast :: toast-host}"></div>
 <script th:src="@{/js/components.js}"></script>
 <script th:src="@{/js/pages/auth-common.js}"></script>
-<script th:src="@{/js/components/date-wheel.js?v=20261102-wheel2}"></script>
-<script th:src="@{/js/pages/register.js}"></script>
+<script th:src="@{/js/components/date-wheel.js?v=20261105-age-range}"></script>
+<script th:src="@{/js/pages/register.js(v=20261105-age-range)}"></script>
 </body>
 </html>

@@ -147,7 +147,7 @@
                             <div class="field">
                                 <label class="field__label" for="dateOfBirth">Ngày sinh</label>
                                 <div>
-                                    <input class="input" id="dateOfBirth" type="date" min="1900-01-01" autocomplete="bday" aria-describedby="dateOfBirthHint"/>
+                                    <input class="input" id="dateOfBirth" type="date" autocomplete="bday" aria-describedby="dateOfBirthHint"/>
                                 </div>
                                 <p class="field__hint" id="dateOfBirthHint">Chỉ đặt được một lần. Cần đổi, hãy liên hệ quản trị viên.</p>
                             </div>
@@ -552,10 +552,10 @@
 </script>
 <script th:src="@{/js/pages/profile-navigation.js?v=20261011-mobile-popup}"></script>
 <script defer th:src="@{/js/pages/profile-usage.js?v=20261103-auto}"></script>
-<script th:src="@{/js/components/date-wheel.js?v=20261102-wheel2}"></script>
+<script th:src="@{/js/components/date-wheel.js?v=20261105-age-range}"></script>
 <script>
 (function () {
-    var dateOfBirthWheel = DateWheel.attach(document.getElementById('dateOfBirth'), { popover: true });
+    var dateOfBirthWheel = DateWheel.attachBirthDate(document.getElementById('dateOfBirth'), { popover: true });
     if (typeof JlasAuth === 'undefined') {
         console.error('JlasAuth missing — /js/auth-session.js failed to load');
         document.body.insertAdjacentHTML('afterbegin',

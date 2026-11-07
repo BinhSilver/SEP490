@@ -195,7 +195,7 @@ public class AuthServiceImpl implements AuthService {
 
     private static void requirePlausibleBirthDate(LocalDate dateOfBirth) {
         if (!BirthDates.isPlausible(dateOfBirth, BirthDates.today())) {
-            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Ngày sinh không hợp lệ.");
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, BirthDates.OUT_OF_RANGE);
         }
     }
 

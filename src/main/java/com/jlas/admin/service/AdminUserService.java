@@ -153,7 +153,7 @@ public class AdminUserService {
     public AdminUserView changeBirthDate(Long actorId, Long id, LocalDate dateOfBirth, String reason) {
         reason = validateReason(reason);
         if (dateOfBirth != null && !BirthDates.isPlausible(dateOfBirth, BirthDates.today())) {
-            throw new ApiException(ErrorCode.BAD_REQUEST, "Ngày sinh không hợp lệ.");
+            throw new ApiException(ErrorCode.BAD_REQUEST, BirthDates.OUT_OF_RANGE);
         }
         User user = users.findForUpdate(id).orElseThrow(AdminUserService::notFound);
         LocalDate before = user.getDateOfBirth();
