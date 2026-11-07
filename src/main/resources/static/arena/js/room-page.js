@@ -16,6 +16,7 @@
   var dialogPicker = null;
   var countdownTimer = null;
   var skinPicker = null;
+  var vsSkinPicker = null;
   var returnedFromMatch = new URLSearchParams(window.location.search).get('fromMatch') === '1';
   arena.phoneMedia.addEventListener('change', render);
 
@@ -119,6 +120,13 @@
       document.body.classList.add('is-vs-room');
       document.title = room.gameName + ' · Ghép trận nhanh - JLAS';
       window.JlasVsRoom.render(room);
+      var vsSkinRoot = el.vs.querySelector('[data-vs-skins]');
+      var skinGame = room.gameType === 'NEKO_CATCH' || room.gameType === 'AIR_DEFENSE';
+      if (vsSkinRoot && skinGame && !vsSkinPicker) vsSkinPicker = window.JlasRoomSkins.mount(vsSkinRoot, room.gameType, function (busy) {
+        state.skinBusy = busy;
+        window.JlasVsRoom.setBusy(busy); // keeps Ready disabled while a purchase is in flight
+      });
+      if (vsSkinPicker) vsSkinPicker.setDisabled(room.status !== 'WAITING' || !!(me() && me().ready));
       renderCountdown(room);
       return;
     }

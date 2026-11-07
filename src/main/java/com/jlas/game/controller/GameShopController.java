@@ -3,6 +3,7 @@ package com.jlas.game.controller;
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.security.UserPrincipal;
 import com.jlas.game.dto.ShopDtos.ShopView;
+import com.jlas.game.service.GameService;
 import com.jlas.game.service.GameShopService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class GameShopController {
     private final GameShopService shopService;
+    private final GameService gameService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<ShopView>> shop(@AuthenticationPrincipal UserPrincipal user) {
@@ -28,13 +30,17 @@ public class GameShopController {
     @PostMapping("/items/{code}/buy")
     public ResponseEntity<ApiResponse<ShopView>> buy(@PathVariable String code,
                                                      @AuthenticationPrincipal UserPrincipal user) {
-        return ok(shopService.buy(user.userId(), code));
+        ShopView view = shopService.buy(user.userId(), code);
+        gameService.skinChanged(user.userId());
+        return ok(view);
     }
 
     @PostMapping("/items/{code}/equip")
     public ResponseEntity<ApiResponse<ShopView>> equip(@PathVariable String code,
                                                        @AuthenticationPrincipal UserPrincipal user) {
-        return ok(shopService.equip(user.userId(), code));
+        ShopView view = shopService.equip(user.userId(), code);
+        gameService.skinChanged(user.userId());
+        return ok(view);
     }
 
     private static <T> ResponseEntity<ApiResponse<T>> ok(T data) {

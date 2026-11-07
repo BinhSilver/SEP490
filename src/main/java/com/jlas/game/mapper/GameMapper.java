@@ -7,13 +7,18 @@ import com.jlas.game.dto.GameDtos.RoomPlayerView;
 import com.jlas.game.dto.GameDtos.RoomView;
 import com.jlas.game.dto.GameDtos.SessionInfoView;
 import com.jlas.game.dto.GameDtos.SessionPlayerView;
+import com.jlas.game.dto.GameDtos.SkinLook;
+import com.jlas.game.enums.GameType;
 import com.jlas.game.runtime.ArenaEventHub;
 import com.jlas.game.runtime.GameRoom;
 import com.jlas.game.runtime.GameSession;
 import com.jlas.game.runtime.QuickDraft;
 import com.jlas.game.runtime.RoomPlayer;
 import com.jlas.game.runtime.RoomRegistry;
+import com.jlas.game.service.GameShopService;
+import com.jlas.game.service.GameSkinCatalogService;
 import com.jlas.game.util.GameRules;
+import com.jlas.game.util.GameShopCatalog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +31,8 @@ import java.util.List;
 public class GameMapper {
 
     private final ArenaEventHub hub;
+    private final GameShopService shop;
+    private final GameSkinCatalogService skins;
 
     public RoomView toRoomView(GameRoom room) {
         List<RoomPlayerView> players = room.orderedPlayers().stream()
@@ -81,6 +88,17 @@ public class GameMapper {
         boolean ready = player.isReady() || (host && !room.isQuickMatch());
         return new RoomPlayerView(player.getUserId(), player.getDisplayName(), player.getAvatarUrl(),
                 player.getSlot(), host, ready, hub.isOnline(player.getUserId()), player.getAvatarFrame(),
-                player.getNameStyle());
+                player.getNameStyle(), skinOf(player.getUserId(), room.getGameType()));
+    }
+
+    /** Read on every view rather than snapshotted at join, because a player may change skin while waiting. */
+    private SkinLook skinOf(long userId, GameType gameType) {
+        if (!GameShopCatalog.SHOP_GAMES.contains(gameType)) {
+            return null;
+        }
+        String code = shop.equippedCode(userId, gameType);
+        return code == null ? null : skins.find(code)
+                .map(item -> new SkinLook(item.code(), item.name(), item.image(), item.renderCode(), item.packPath()))
+                .orElse(null);
     }
 }

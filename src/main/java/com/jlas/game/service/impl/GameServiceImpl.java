@@ -740,6 +740,11 @@ public class GameServiceImpl implements GameService {
         }
     }
 
+    @Override
+    public void skinChanged(long userId) {
+        rooms.roomOf(userId).ifPresent(this::broadcastRoom);
+    }
+
     /** Mất kết nối quá thời gian chờ khi đang ở phòng chờ thì rời phòng (đang trong trận thì giữ). */
     private void dropIfStillOffline(long userId) {
         if (hub.isOnline(userId)) {

@@ -95,8 +95,7 @@
         // Leave room for the card's selection/focus outline at both ports.
         const x1 = source.x + source.width + 6, y1 = source.y + source.height / 2;
         const x2 = target.x - 6, y2 = target.y + target.height / 2;
-        const bend = (x2 - x1) / 2;
-        return `M ${x1} ${y1} C ${x1 + bend} ${y1}, ${x2 - bend} ${y2}, ${x2} ${y2}`;
+        return `M ${x1} ${y1} L ${x2} ${y2}`;
     }
     return { fromDependencies, fromPaths, layout, connector };
 });

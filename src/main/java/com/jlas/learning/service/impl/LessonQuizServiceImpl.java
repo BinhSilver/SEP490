@@ -219,6 +219,57 @@ public class LessonQuizServiceImpl implements LessonQuizService {
 
     @Override
     @Transactional
+    public QuizSubmitResponse finishForDemo(Long userId, Long attemptId, boolean correct) {
+        AssessmentAttempt attempt = ownedAttemptForUpdate(userId, attemptId);
+        if (!STATUS_IN_PROGRESS.equals(attempt.getStatus())) {
+            throw new ApiException(ErrorCode.CONFLICT, "Quiz has already been submitted.");
+        }
+        Map<Long, AssessmentAnswer> recorded = new HashMap<>();
+        answerRepository.findWithQuestionByAttemptId(attemptId)
+                .forEach(answer -> recorded.put(answer.getQuestion().getId(), answer));
+        for (AssessmentQuizQuestion link : questionsOfAttempt(attemptId)) {
+            AssessmentQuestion question = link.getQuestion();
+            AssessmentAnswer answer = recorded.get(question.getId());
+            if (answer == null) {
+                answer = AssessmentAnswer.builder().attempt(attempt).question(question).build();
+            }
+            boolean choice = MULTIPLE_CHOICE.equals(question.getQuestionType());
+            int right = correctOptionIndex(question);
+            int options = optionsOf(question).size();
+            // a wrong choice is any other option the learner can see
+            Integer picked = !choice ? null : correct ? (right > 0 ? right : null) : (options < 2 ? null : right == 1 ? 2 : 1);
+            answer.setSelectedOption(picked);
+            answer.setAnswerText(!FILL_BLANK.equals(question.getQuestionType()) ? null
+                    : correct ? question.getAnswerText() : "demo-sai");
+            answer.setIsCorrect(correct);
+            answer.setAnsweredAt(LocalDateTime.now());
+            answerRepository.save(answer);
+        }
+        return submit(userId, attemptId, new QuizSubmitRequest(List.of()));
+    }
+
+    @Override
+    @Transactional
+    public long secondsLeftForDemo(Long userId, Long attemptId, int seconds) {
+        AssessmentAttempt attempt = ownedAttemptForUpdate(userId, attemptId);
+        AssessmentQuiz quiz = attemptDetailRepository.findWithQuizByAttemptId(attemptId)
+                .map(AssessmentQuizAttempt::getQuiz).orElse(null);
+        if (!isTimed(quiz) || !STATUS_IN_PROGRESS.equals(attempt.getStatus())) {
+            throw new ApiException(ErrorCode.CONFLICT, "Only an open timed test has a clock.");
+        }
+        int left = Math.max(1, Math.min(UNIT_FINAL_TIME_LIMIT_SECONDS, seconds));
+        LocalDateTime startedAt = LocalDateTime.now().minusSeconds(UNIT_FINAL_TIME_LIMIT_SECONDS - left);
+        // started_at is not updatable through the entity mapping, so the column is set directly
+        em.createNativeQuery("UPDATE assessment_attempt SET started_at = ?1 WHERE id = ?2")
+                .setParameter(1, startedAt)
+                .setParameter(2, attemptId)
+                .executeUpdate();
+        em.refresh(attempt);
+        return secondsLeft(attempt);
+    }
+
+    @Override
+    @Transactional
     public void abandon(Long userId, Long attemptId) {
         AssessmentAttempt attempt = ownedAttemptForUpdate(userId, attemptId);
         if (STATUS_IN_PROGRESS.equals(attempt.getStatus())) {
