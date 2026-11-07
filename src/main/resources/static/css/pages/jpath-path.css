@@ -3632,6 +3632,8 @@ html.dark .cp-page {
 }
 
 .jp-parts__label {
+  /* an absolutely placed label shrinks to its narrowest word without a width: keep the line, wrap only past 195px */
+  width: max-content;
   max-width: 195px;
   white-space: normal;
 }

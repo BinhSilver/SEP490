@@ -110,7 +110,7 @@ public class CpathController {
     @GetMapping("/day")
     public ResponseEntity<ApiResponse<Map<String, Object>>> day(@AuthenticationPrincipal UserPrincipal user,
             @RequestParam(name = "d", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate d) {
-        return ResponseEntity.ok(ApiResponse.ok("OK", service.day(user.userId(), d == null ? LocalDate.now() : d)));
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.day(user.userId(), d)));
     }
 
     @GetMapping("/goal-test")

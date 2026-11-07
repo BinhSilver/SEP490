@@ -255,122 +255,79 @@
       + '</div>';
   }
 
-  /* 1. Khối "Hôm nay của bạn" (.jp-today) */
+  /* 1. Khối "Hôm nay của bạn" (owner 08/11: gọn, không bày vẽ; ngày theo đồng hồ của app, không theo trình duyệt) */
+  var DOW_VI = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
+
+  function isoDay(d) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(d || ''));
+    return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : null;
+  }
+
   function todayBlockHtml(pathData, state) {
     var d = pathData || {};
     var st = state || {};
     var todayObj = d.today || {};
     var situations = list(todayObj.situations);
-    var now = new Date();
-    var monthLabel = 'THÁNG ' + (now.getMonth() + 1);
-    var dayNum = String(now.getDate()).padStart(2, '0');
-    var dowNames = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
-    var dowLabel = dowNames[now.getDay()];
+    var dayIso = String(todayObj.date || '').slice(0, 10);
+    var day = isoDay(dayIso);
+    var dateLine = day ? DOW_VI[day.getDay()] + ', ' + String(day.getDate()).padStart(2, '0') + '/'
+      + String(day.getMonth() + 1).padStart(2, '0') : '';
 
-    var allDone = situations.length > 0 && situations.every(function (s) {
-      return s.status === 'DONE' || s.status === 'TODAY_DONE';
-    });
-    var firstActive = situations.filter(function (s) { return s.status !== 'DONE' && s.status !== 'TODAY_DONE'; })[0] || situations[0];
-    var mainSitHref = firstActive ? pageUrl('situation', { id: firstActive.id }) : pageUrl('path');
+    var isDone = function (s) { return s.status === 'DONE' || s.status === 'TODAY_DONE'; };
+    var doneCount = situations.filter(isDone).length;
+    var allDone = situations.length > 0 && doneCount === situations.length;
+    var firstActive = situations.filter(function (s) { return !isDone(s); })[0] || null;
 
-    var pillsHtml = situations.map(function (s, idx) {
-      var isDone = s.status === 'DONE' || s.status === 'TODAY_DONE';
-      var sitHref = pageUrl('situation', { id: s.id });
-      var tLabel = topicLabel(s.topicCode);
-      return '<li class="jp-today__pill jp-todo__item' + (isDone ? ' is-done' : '') + '" data-pill-tab="vocab">'
-        + '<span class="jp-today__pill-icon" aria-hidden="true">' + (isDone ? svgMedal() : svgDialogueBubble()) + '</span>'
-        + '<div class="jp-today__pill-body">'
-        + '<div class="jp-today__pill-head">'
-        + '<strong class="jp-today__pill-title">Tình huống ' + (idx + 1) + ': ' + esc(s.titleVi) + '</strong>'
-        + '<span class="jp-today__pill-count">' + esc(tLabel) + '</span>'
-        + '</div>'
-        + '<div class="jp-today__pill-bar"><div class="jp-today__pill-fill" style="width:' + (isDone ? 100 : 35) + '%"></div></div>'
-        + '</div>'
-        + (isDone
-          ? '<a class="jp-btn jp-btn--sm" href="' + esc(sitHref) + '">Ôn lại</a>'
-          : '<a class="jp-btn jp-btn--primary jp-btn--sm" href="' + esc(sitHref) + '">Học hôm nay</a>')
-        + '</li>';
+    var items = situations.map(function (s, idx) {
+      var done = isDone(s);
+      return '<li class="cp-today__item' + (done ? ' is-done' : '') + '">'
+        + '<span class="cp-today__icon" aria-hidden="true">' + (done ? svgMedal() : svgDialogueBubble()) + '</span>'
+        + '<span class="cp-today__text"><strong>' + esc(s.titleVi) + '</strong>'
+        + '<span>' + esc(topicLabel(s.topicCode)) + ' · Tình huống ' + (idx + 1) + '</span></span>'
+        + '<a class="jp-btn jp-btn--sm' + (done ? '' : ' jp-btn--primary') + '" href="' + esc(pageUrl('situation', { id: s.id })) + '">'
+        + (done ? 'Ôn lại' : 'Học') + '</a></li>';
     }).join('');
 
-    var weeklyDayStr = todayObj.weeklyTestDay ? fmtShortDate(todayObj.weeklyTestDay) : 'Cuối tuần';
-    var todayIsoStr = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-    var weeklyOpen = !todayObj.weeklyTestDay || String(todayObj.weeklyTestDay) <= todayIsoStr;
-    var weeklyHtml = '<div class="jp-today__weekly">'
-      + '<div class="jp-today__weekly-head">'
-      + '<span class="jp-today__weekly-chip">Kiểm tra tuần</span>'
+    var body;
+    if (situations.length) {
+      body = '<ul class="cp-today__list">' + items + '</ul>';
+    } else {
+      body = '<p class="cp-today__empty">' + (todayObj.restDay
+        ? 'Hôm nay là ngày nghỉ của bạn. Muốn học thêm thì bấm "Học thêm 1 tình huống".'
+        : 'Hôm nay chưa có tình huống mới. Bạn có thể học thêm 1 tình huống hoặc ôn lại bài cũ.') + '</p>';
+    }
+
+    var extra = '';
+    if (!situations.length || allDone) {
+      extra = st.extraExhausted
+        ? '<p class="cp-today__empty" role="status" data-cp-extra-exhausted>Bạn đã học hết các tình huống của mục tiêu này.</p>'
+        : '<button type="button" class="jp-btn" data-cp-add-extra>+ Học thêm 1 tình huống</button>';
+    }
+
+    var weeklyOpen = !todayObj.weeklyTestDay || (dayIso && String(todayObj.weeklyTestDay).slice(0, 10) <= dayIso);
+    var reviewHref = pageUrl('weekly') + (pageUrl('weekly').indexOf('?') >= 0 ? '&' : '?') + 'mode=review';
+    var actions = '<div class="cp-today__actions">'
+      + extra
+      + '<a class="jp-btn" href="' + esc(reviewHref) + '" title="Từ và mẫu câu đến lượt ôn và mục trong Sổ tay">Ôn tập hôm nay</a>'
       + (weeklyOpen
-        ? '<a class="jp-btn jp-btn--sm" href="' + esc(pageUrl('weekly')) + '">Làm bài kiểm tra tuần</a>'
-        : '<span class="jp-today__weekly-time">Mở vào ' + esc(weeklyDayStr) + '</span>')
-      + '</div>'
-      + '<p class="jp-today__weekly-desc">Ôn lại các từ, mẫu câu và câu hội thoại dưới 70 điểm trong tuần.</p>'
-      + '</div>'
-      + '<div class="jp-today__weekly">'
-      + '<div class="jp-today__weekly-head"><span class="jp-today__weekly-chip">Ôn tập</span>'
-      + '<a class="jp-btn jp-btn--sm" href="' + esc(pageUrl('weekly')) + (pageUrl('weekly').indexOf('?') >= 0 ? '&' : '?') + 'mode=review">Ôn tập hôm nay</a></div>'
-      + '<p class="jp-today__weekly-desc">Từ và mẫu câu đến lượt ôn (sau 1, 3, 7, 14, 30 ngày) và mục trong Sổ tay.</p>'
+        ? '<a class="jp-btn" href="' + esc(pageUrl('weekly')) + '">Kiểm tra tuần</a>'
+        : '<span class="cp-today__muted">Kiểm tra tuần mở ' + esc(fmtShortDate(todayObj.weeklyTestDay)) + '</span>')
       + '</div>';
 
-    var extraHtml = allDone
-      ? (st.extraExhausted
-        ? '<div class="cp-today-extra cp-today-extra--exhausted" role="status" data-cp-extra-exhausted>'
-          + '<strong>Đã học hết tình huống</strong>'
-          + '</div>'
-        : '<div class="cp-today-extra">'
-          + '<span><strong>Bạn đã hoàn thành hết tình huống hôm nay!</strong> Muốn bứt tốc thêm không?</span>'
-          + '<button type="button" class="cp-btn-primary" data-cp-add-extra>+ Học thêm 1 tình huống</button>'
-          + '</div>')
+    var lead = situations.length
+      ? (allDone ? 'Đã xong ' + doneCount + '/' + situations.length + ' tình huống hôm nay.'
+        : doneCount + '/' + situations.length + ' tình huống đã xong.')
       : '';
 
-    var kitsuFile = allDone ? 'kitsu-celebrate-30.webp' : 'kitsu-cheer-30.webp';
-    var kitsuSay = allDone
-      ? 'Tuyệt vời! Bạn đã xong bài giao tiếp hôm nay rồi!'
-      : 'Hôm nay mình cùng đóng vai リン trong ' + situations.length + ' tình huống nhé!';
-
-    var doneSits = situations.filter(function (s) { return s.status === 'DONE' || s.status === 'TODAY_DONE'; }).length;
-    var pctToday = situations.length > 0 ? Math.max(0, Math.min(100, Math.round((doneSits * 100) / situations.length))) : 0;
-    var circum = 232.5;
-    var offsetToday = (circum * (1 - pctToday / 100)).toFixed(1);
-    var monthNum = now.getMonth() + 1;
-    var kanjiDow = ['日', '月', '火', '水', '木', '金', '土'][now.getDay()] || '日';
-    var doneSits = situations.filter(function (s) { return s.status === 'DONE' || s.status === 'TODAY_DONE'; }).length;
-    var pctToday = situations.length > 0 ? Math.max(0, Math.min(100, Math.round((doneSits * 100) / situations.length))) : 0;
-    var circum = 232.5;
-    var offsetToday = (circum * (1 - pctToday / 100)).toFixed(1);
-    var monthNum = now.getMonth() + 1;
-    var kanjiDow = ['日', '月', '火', '水', '木', '金', '土'][now.getDay()] || '日';
-    var doneSits = situations.filter(function (s) { return s.status === 'DONE' || s.status === 'TODAY_DONE'; }).length;
-    var pctToday = situations.length > 0 ? Math.max(0, Math.min(100, Math.round((doneSits * 100) / situations.length))) : 0;
-    var circum = 232.5;
-    var offsetToday = (circum * (1 - pctToday / 100)).toFixed(1);
-    var monthNum = now.getMonth() + 1;
-    var kanjiDow = ['日', '月', '火', '水', '木', '金', '土'][now.getDay()] || '日';
-    return '<section class="jp-today" aria-label="Hôm nay của bạn">'
-      + '<div class="jp-today__top">'
-      + '<div class="jp-today__cal" data-pct="' + pctToday + '" aria-label="Lịch hôm nay · hoàn thành ' + pctToday + '%">'
-      + '<span class="jp-today__cal-water" style="height:' + pctToday + '%" aria-hidden="true"><span class="jp-today__cal-wave"></span></span>'
-      + '<svg class="jp-today__cal-ring" viewBox="0 0 80 80" aria-hidden="true">'
-      + '<circle class="jp-today__cal-ring-bg" cx="40" cy="40" r="37"></circle>'
-      + '<circle class="jp-today__cal-ring-fg" cx="40" cy="40" r="37" stroke-dasharray="' + circum + '" stroke-dashoffset="' + offsetToday + '"></circle>'
-      + '</svg>'
-      + '<div class="jp-today__cal-inner">'
-      + '<strong class="jp-today__cal-day">' + esc(dayNum) + '</strong>'
-      + '<span class="jp-today__cal-jp" lang="ja"><span class="jp-today__cal-month">' + monthNum + '月</span><span class="jp-today__cal-kanji">' + kanjiDow + '</span></span>'
-      + '<span class="jp-today__cal-dow">' + esc(dowLabel) + '</span>'
-      + '</div>'
-      + '</div>'
-      + '<div class="jp-today__lead">'
-      + '<h1 class="jp-section-title">Hôm nay của bạn <span class="jp-today__kind">' + esc(d.nameVi || 'Giao tiếp') + '</span></h1>'
-      + '<p class="jp-today__why">Mỗi tình huống gồm 4 bước ngắn: Từ & mẫu câu · Nghe · Nhập vai · Nói.</p>'
-      + '</div>'
-      + '<div class="jp-today__kitsu">'
-      + '<img class="jp-today__kitsu-img" src="' + esc(kitsuSrc(kitsuFile)) + '" width="76" height="76" alt="Kitsu" />'
-      + '<span class="jp-today__kitsu-bubble">' + esc(kitsuSay) + '</span>'
-      + '</div>'
-      + '<a class="cp-btn-primary" href="' + esc(mainSitHref) + '">' + (!firstActive ? 'Xem lộ trình' : allDone ? 'Ôn lại hôm nay' : 'Học hôm nay ›') + '</a>'
-      + '</div>'
-      + '<ul class="jp-today__pills jp-todo">' + pillsHtml + '</ul>'
-      + extraHtml
-      + weeklyHtml
+    return '<section class="jp-today cp-today" aria-label="Hôm nay của bạn">'
+      + '<header class="cp-today__head">'
+      + '<div><h1 class="jp-section-title">Hôm nay của bạn</h1>'
+      + '<p class="cp-today__meta">' + esc(dateLine) + (dateLine ? ' · ' : '') + esc(d.nameVi || 'Giao tiếp')
+      + (lead ? ' · ' + esc(lead) : '') + '</p></div>'
+      + (firstActive ? '<a class="cp-btn-primary" href="' + esc(pageUrl('situation', { id: firstActive.id })) + '">Học tiếp ›</a>' : '')
+      + '</header>'
+      + body
+      + actions
       + '</section>';
   }
 
@@ -777,8 +734,14 @@
       if (dailyBtn && root.JpathApi.send) {
         var n = Number(dailyBtn.getAttribute('data-cp-daily'));
         Promise.resolve(root.JpathApi.send('PUT', '/api/learning/comm/path/daily', { dailySituations: n })).then(function () {
-          pathData.dailySituations = n;
-          return root.JpathApi.get('/api/learning/comm/map').then(function (m) { mapData = m || mapData; renderAll(); });
+          // today's plan and the map both change with the pace: reload both
+          return Promise.all([root.JpathApi.get('/api/learning/comm/path'), root.JpathApi.get('/api/learning/comm/map')])
+            .then(function (res) {
+              pathData = res[0] || pathData;
+              lastPathData = pathData;
+              mapData = res[1] || mapData;
+              renderAll();
+            });
         }).catch(function (error) { showActionError(error, function () { dailyBtn.click(); }); });
         return;
       }
@@ -816,6 +779,7 @@
     ]).then(function (res) {
       if (!res[0] || !res[1]) throw new Error('Dữ liệu lộ trình chưa đầy đủ.');
       pathData = res[0];
+      lastPathData = pathData;
       mapData = res[1];
       if (res[2] && Array.isArray(mapData.weeks)) {
         mapData.weeks.forEach(function (week) {

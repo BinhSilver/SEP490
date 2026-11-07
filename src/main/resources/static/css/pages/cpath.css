@@ -1338,3 +1338,50 @@ html.dark .cp-page {
   .cp-survey__top { flex-wrap: wrap; }
   .cp-survey__card { padding: 14px 14px 16px; }
 }
+
+/* [JLAS-W0108] 08/11 owner: calmer "Hôm nay", side card and the JLPT switch notice. Theme variables only. */
+.cp-today { display: grid; gap: 14px; padding: 18px 20px; }
+.cp-today__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.cp-today__head .jp-section-title { margin: 0; }
+.cp-today__meta { margin: 4px 0 0; color: var(--cp-muted); font-size: .92rem; }
+.cp-today__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.cp-today__item { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border: 1px solid var(--cp-line); border-radius: 12px; background: var(--cp-surface); }
+.cp-today__item.is-done { background: var(--cp-surface-soft); }
+.cp-today__icon { display: inline-flex; color: var(--jp-c-purple-500); }
+.cp-today__text { display: grid; gap: 2px; min-width: 0; }
+.cp-today__text strong { color: var(--cp-ink); overflow-wrap: anywhere; }
+.cp-today__text span { color: var(--cp-muted); font-size: .88rem; }
+.cp-today__empty { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--cp-surface-soft); color: var(--cp-ink); }
+.cp-today__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.cp-today__muted { color: var(--cp-muted); font-size: .9rem; }
+
+.cp-goal-card { display: grid; gap: 8px; padding: 14px; border: 1px solid var(--cp-line); border-radius: 12px; background: var(--cp-surface); }
+.cp-goal-card__tag { font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--jp-c-purple-500); }
+.cp-goal-card__name { color: var(--cp-ink); font-size: 1.05rem; }
+.cp-goal-card__meta { color: var(--cp-muted); font-size: .88rem; }
+.cp-goal-card__progress { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; color: var(--cp-ink); text-decoration: none; font-size: .9rem; }
+.cp-goal-card__progress:hover span:first-child, .cp-goal-card__progress:focus-visible span:first-child { text-decoration: underline; }
+.cp-goal-card__bar { grid-column: 1 / -1; height: 6px; border-radius: 999px; background: var(--cp-surface-soft); overflow: hidden; }
+.cp-goal-card__bar span { display: block; height: 100%; background: var(--jp-c-purple-500); }
+.cp-goal-card__pace { display: flex; align-items: center; gap: 6px; color: var(--cp-muted); font-size: .88rem; }
+.cp-seg { min-width: 40px; min-height: 40px; border: 1px solid var(--cp-line); border-radius: 8px; background: var(--cp-surface);
+  color: var(--cp-ink); font-weight: 700; cursor: pointer; }
+.cp-seg[aria-pressed="true"] { background: var(--jp-c-purple-500); border-color: var(--jp-c-purple-500); color: var(--jp-white); }
+.cp-seg:focus-visible { outline: 2px solid var(--jp-c-purple-500); outline-offset: 2px; }
+.cp-goal-card__sec { display: grid; gap: 4px; padding-top: 8px; border-top: 1px solid var(--cp-line); }
+.cp-goal-card__link { color: var(--jp-c-purple-500); font-size: .9rem; }
+
+.cp-switch { display: grid; gap: 10px; margin-bottom: 14px; padding: 16px 18px; border: 1px solid var(--jp-c-purple-500);
+  border-radius: 12px; background: var(--cp-surface); color: var(--cp-ink); }
+.cp-switch__title { margin: 0; font-size: 1.05rem; }
+.cp-switch p { margin: 0; }
+.cp-switch__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+button.jp-sidenav__link { width: 100%; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; }
+
+@media (max-width: 600px) {
+  .cp-today { padding: 14px; }
+  .cp-today__item { grid-template-columns: 28px 1fr; }
+  .cp-today__item .jp-btn { grid-column: 1 / -1; justify-self: stretch; text-align: center; }
+  .cp-today__head .cp-btn-primary { width: 100%; text-align: center; }
+}

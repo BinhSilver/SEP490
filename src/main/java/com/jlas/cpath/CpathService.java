@@ -300,7 +300,14 @@ public class CpathService {
         m.put("progress", Map.of("doneSituations", doneCount, "totalSituations", order.size(),
                 "passedTopics", passed == null ? 0 : passed, "totalTopics", topics.size()));
         m.put("week", week(userId, p, prog));
-        m.put("today", Map.of("situations", today(userId, p), "weeklyTestDay", weeklyTestDay(userId, p)));
+        // the learner day of the app clock (never the browser's), and whether it is a rest day
+        LocalDate learnerToday = clock.today(userId);
+        Map<String, Object> todayMap = new LinkedHashMap<>();
+        todayMap.put("date", learnerToday.toString());
+        todayMap.put("restDay", isRest(p, learnerToday));
+        todayMap.put("situations", today(userId, p));
+        todayMap.put("weeklyTestDay", weeklyTestDay(userId, p));
+        m.put("today", todayMap);
         Map<String, Object> sec = pathRow(userId, "SECONDARY");
         if (sec == null) {
             m.put("secondary", null);
@@ -667,7 +674,9 @@ public class CpathService {
     // -------------------------------------------------------------------------------------------------- day
 
     @Transactional(readOnly = true)
-    public Map<String, Object> day(Long userId, LocalDate day) {
+    public Map<String, Object> day(Long userId, LocalDate requested) {
+        // the app's learner day, never the server's calendar
+        LocalDate day = requested == null ? clock.today(userId) : requested;
         Map<String, Object> p = requirePath(userId);
         Long pathId = ((Number) p.get("id")).longValue();
         List<Map<String, Object>> rows = db.queryForList("SELECT u.*, s.title_vi, s.title_ja, s.topic_code FROM cpath_user_situation u "
@@ -996,7 +1005,32 @@ public class CpathService {
     public Map<String, Object> setDaily(Long userId, Map<String, Object> body) {
         Map<String, Object> path = requirePath(userId);
         int daily = body != null && num(body.get("dailySituations")) == 2 ? 2 : 1;
-        db.update("UPDATE cpath_user_path SET daily_situations = ? WHERE id = ?", daily, path.get("id"));
+        Long pathId = ((Number) path.get("id")).longValue();
+        db.update("UPDATE cpath_user_path SET daily_situations = ? WHERE id = ?", daily, pathId);
+        // today's plan follows the new pace: fewer drops only situations not started yet, more adds the next ones
+        LocalDate day = clock.today(userId);
+        List<Map<String, Object>> planned = db.queryForList("SELECT situation_code, steps_done, done_at FROM cpath_user_situation "
+                + "WHERE path_id = ? AND study_day = ? ORDER BY situation_code", pathId, day);
+        int keep = planned.size();
+        for (int i = planned.size() - 1; i >= 0 && keep > daily; i--) {
+            Map<String, Object> r = planned.get(i);
+            boolean started = r.get("done_at") != null || (r.get("steps_done") != null && !String.valueOf(r.get("steps_done")).isBlank());
+            if (!started) {
+                db.update("DELETE FROM cpath_user_situation WHERE path_id = ? AND situation_code = ? AND study_day = ?",
+                        pathId, r.get("situation_code"), day);
+                keep--;
+            }
+        }
+        if (!planned.isEmpty() && keep < daily && !isRest(path, day)) {
+            Map<String, Map<String, Object>> prog = progressOf(pathId);
+            for (Map<String, Object> s : orderedSituations(path)) {
+                if (keep >= daily) break;
+                if (!prog.containsKey(s.get("code"))) {
+                    db.update("INSERT INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, s.get("code"), day);
+                    keep++;
+                }
+            }
+        }
         return Map.of("dailySituations", daily);
     }
 
@@ -1090,7 +1124,7 @@ public class CpathService {
         Map<String, Object> last = lastGoalTest(((Number) p.get("id")).longValue());
         if (last == null) return true;
         if (num(last.get("passed")) != 0 || Boolean.TRUE.equals(last.get("passed"))) return false;
-        return !java.time.LocalDateTime.now().isBefore(dateTimeOf(last.get("taken_at")).plusHours(24));
+        return !clock.now().isBefore(dateTimeOf(last.get("taken_at")).plusHours(24));
     }
 
     @Transactional
