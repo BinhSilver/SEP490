@@ -36,7 +36,7 @@
         + ' · sai ' + esc(x.wrongCount) + ' lần</span></div>'
         + (x.reading && x.reading !== x.ja ? '<div class="cp-survey__sub" lang="ja">' + esc(x.reading) + '</div>' : '')
         + '<div class="cp-survey__sub">' + esc(x.vi) + '</div></div>'
-        + (x.audioUrl ? '<button type="button" class="jp-btn jp-btn--sm" data-note-play="' + esc(x.audioUrl) + '">Nghe</button>' : '')
+        + (x.audioUrl ? '<button type="button" class="jp-btn jp-btn--sm" data-note-play="' + esc(x.audioUrl) + '" aria-label="Nghe phát âm ' + esc(x.ja) + '">Nghe</button>' : '')
         + (x.situation ? '<a class="cp-btn-ghost" href="/learning/comm/situation/' + encodeURIComponent(x.situation) + '">Mở tình huống</a>' : '')
         + '</li>';
     }).join('') + '</ul>';
@@ -50,14 +50,22 @@
       if (b && root.Audio) {
         try { new root.Audio(b.getAttribute('data-note-play')).play(); } catch (e) { /* no audio */ }
       }
+      var retry = ev.target && ev.target.closest && ev.target.closest('[data-note-retry]');
+      if (retry) load();
     });
-    return Promise.resolve(client.get('/api/learning/comm/notebook')).then(function (d) {
-      el.innerHTML = listHtml(d);
-    }, function (e) {
-      el.innerHTML = e && e.status === 404
-        ? '<p class="jp-side__note">Bạn chưa có lộ trình giao tiếp. <a href="/learning/comm/survey">Làm khảo sát</a> để bắt đầu.</p>'
-        : '<p class="jp-alert" role="alert">Chưa tải được sổ tay. Tải lại trang hoặc thử lại sau.</p>';
-    });
+    function load() {
+      if (el.setAttribute) el.setAttribute('aria-busy', 'true');
+      return Promise.resolve(client.get('/api/learning/comm/notebook')).then(function (d) {
+        if (el.setAttribute) el.setAttribute('aria-busy', 'false');
+        el.innerHTML = listHtml(d);
+      }, function (e) {
+        if (el.setAttribute) el.setAttribute('aria-busy', 'false');
+        el.innerHTML = e && e.status === 404
+          ? '<p class="jp-side__note">Bạn chưa có lộ trình giao tiếp. <a href="/learning/comm/survey">Làm khảo sát</a> để bắt đầu.</p>'
+          : '<p class="jp-alert" role="alert">Chưa tải được sổ tay. <button type="button" class="jp-btn" data-note-retry>Thử lại</button></p>';
+      });
+    }
+    return load();
   }
 
   return { listHtml: listHtml, mount: mount };

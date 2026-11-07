@@ -271,6 +271,9 @@
     var attrs = ' data-jp-code="' + esc(card.code) + '"';
     if (flippable) {
       attrs += ' data-jp-flippable="true" data-flip-state="' + (isFlipped ? 'back' : 'front') + '"';
+      if (flipCount > 0 && (!state || state.justFlipped !== false)) {
+        attrs += ' data-flip-anim="' + (isFlipped ? 'to-back' : 'to-front') + '"';
+      }
     }
     if (has(card.code) && has(type)) {
       attrs += ' data-jpath-report="' + attrJson({ targetType: type, targetCode: card.code, pageContext: PAGE_CONTEXT }) + '"';
@@ -757,6 +760,7 @@
       }
     }
     var changed = r.flow !== page.flow;
+    if (changed && action && action.type === 'FLIP') page.justFlipped = true;
     page.flow = r.flow;
     if (changed) draw(page);
     if (r.event) page.queue.flush().then(function (res) { afterFlush(page, res); }, function () {});
@@ -885,7 +889,8 @@
     } else if (unavailable(c)) {
       body = '<article class="jp-study-card"><p class="jp-study-muted">Mục này đang được cập nhật nội dung.</p></article>';
     } else {
-      body = cardHtml(c, page.display, f.flipped, { retype: f.retype, flippedOnce: f.flippedOnce, flipCount: f.flipCount });
+      body = cardHtml(c, page.display, f.flipped, { retype: f.retype, flippedOnce: f.flippedOnce, flipCount: f.flipCount, justFlipped: !!page.justFlipped });
+      page.justFlipped = false;
     }
     var hint = c.kind === 'NEW' && swipeRating(c, 'RIGHT') && shouldShowSwipeHint(page.display, coarsePointer())
       ? swipeHintHtml() : '';

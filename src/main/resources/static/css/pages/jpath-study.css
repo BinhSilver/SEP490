@@ -1194,21 +1194,26 @@ html.dark .jp-study {
   padding-bottom: 18px;
 }
 
-/* Không dùng hiệu ứng lật 3D mỗi lần bấm nút công cụ hay lật thẻ */
+/* Bật lại hiệu ứng lật 3D thẻ học (Task 4), tự động tắt khi prefers-reduced-motion: reduce */
 .jp-study-main {
-  perspective: none;
+  perspective: 1100px;
 }
-.jp-study-card,
-.jp-study-card--review.jp-study-card--flipped,
-.jp-study-card--review.jp-study-card--front,
-.jp-study-card--new,
-.jp-study-card[data-flip-anim],
-.jp-study-card[data-flip-anim="to-back"],
-.jp-study-card[data-flip-anim="to-front"],
-.jp-study-card--review .jp-study-face {
-  animation: none !important;
-  transform: none !important;
-  transform-style: flat;
+.jp-study-card {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .jp-study-main {
+    perspective: none !important;
+  }
+  .jp-study-card,
+  .jp-study-card[data-flip-anim],
+  .jp-study-card[data-flip-anim="to-back"],
+  .jp-study-card[data-flip-anim="to-front"] {
+    animation: none !important;
+    transform: none !important;
+    transform-style: flat !important;
+  }
 }
 
 /* Phối màu mặt sau đồng bộ tím dịu / theo loại mục, bỏ hoàn toàn viền và nhãn xanh đậm thô */
@@ -1496,10 +1501,10 @@ html.dark .jp-study-steps__line .jp-step--active {
 .jp-study-tools .jp-report-btn,
 .jp-study-card .jp-report-btn--inline {
   position: static !important;
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-  min-height: 32px !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
   margin: 0 !important;
   padding: 0 !important;
   border: 1px solid var(--jp-line) !important;
@@ -1509,6 +1514,12 @@ html.dark .jp-study-steps__line .jp-step--active {
   display: inline-grid !important;
   place-items: center !important;
   flex-shrink: 0 !important;
+}
+.jp-study-icon,
+.jp-study .jp-display-btn {
+  min-width: 40px !important;
+  min-height: 40px !important;
+  height: 40px !important;
 }
 .jp-study-tools .jp-report-btn:hover,
 .jp-study-card .jp-report-btn--inline:hover {
@@ -1579,8 +1590,8 @@ html.dark .jp-study-steps__line .jp-step--active {
   align-items: center !important;
   justify-content: center !important;
   gap: 6px !important;
-  min-height: 36px !important;
-  height: 36px !important;
+  min-height: 40px !important;
+  height: 40px !important;
   padding: 0 14px !important;
   margin: 0 !important;
   width: auto !important;
@@ -1659,20 +1670,30 @@ html[data-theme="dark"] .jp-check,
 html.dark .jp-check,
 html[data-theme="dark"] .cp-page,
 html.dark .cp-page {
-  --jp-c-purple-900: #f3e8ff !important;
-  --jp-c-purple-500: #9f67ff !important;
-  --jp-c-purple-100: #321a66 !important;
+  --jp-c-slate-900: var(--text, #f5eef8) !important;
+  --jp-c-slate-500: var(--muted, #d9c9df) !important;
+  --jp-c-slate-100: var(--surface, #2e2035) !important;
+  --jp-white: var(--surface, #2e2035) !important;
 
-  --jp-c-indigo-900: #e0e7ff !important;
-  --jp-c-indigo-500: #818cf8 !important;
-  --jp-c-indigo-100: #23205c !important;
+  --jp-study-surface: var(--surface, #2e2035) !important;
+  --jp-study-ink: var(--text, #f5eef8) !important;
+  --jp-study-muted: var(--muted, #d9c9df) !important;
+  --jp-study-line: var(--border, #563a5e) !important;
+
+  --jp-c-purple-900: var(--text, #f5eef8) !important;
+  --jp-c-purple-500: #b37cf5 !important;
+  --jp-c-purple-100: var(--surface-2, #382840) !important;
+
+  --jp-c-indigo-900: #e9d8fd !important;
+  --jp-c-indigo-500: #9f7aea !important;
+  --jp-c-indigo-100: #332348 !important;
 
   --jp-c-mauve-900: #fae8ff !important;
-  --jp-c-mauve-500: #c084fc !important;
-  --jp-c-mauve-100: #421959 !important;
+  --jp-c-mauve-500: #d69ef8 !important;
+  --jp-c-mauve-100: #3d2449 !important;
 
-  --jp-primary: #9f67ff !important;
-  --jp-primary-soft: #321a66 !important;
-  --cp-done: #9f67ff !important;
-  --cp-done-soft: rgba(159, 103, 255, 0.24) !important;
+  --jp-primary: #b37cf5 !important;
+  --jp-primary-soft: var(--surface-2, #382840) !important;
+  --cp-done: #b37cf5 !important;
+  --cp-done-soft: rgba(179, 124, 245, 0.24) !important;
 }

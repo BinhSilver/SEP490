@@ -1,16 +1,19 @@
 /* [JLAS-W0108] JLPT path base styles. Pages colour only through --jp-*; each maps to a Learning V2 --lp-* alias
    or, where V2 has none (ok, warn), to the shared theme-aware --color-* token, so light/dark follow tokens.css. */
 :root {
-  --jp-canvas: var(--lp-canvas);
-  --jp-surface: var(--lp-surface);
-  --jp-ink: var(--lp-ink);
-  --jp-muted: var(--lp-muted);
-  --jp-primary: var(--lp-purple);
+  --jp-canvas: var(--bg, var(--lp-canvas));
+  --jp-surface: var(--surface, var(--lp-surface));
+  --jp-surface-2: var(--surface-2, var(--lp-purple-soft));
+  --jp-ink: var(--text, var(--lp-ink));
+  --jp-muted: var(--muted, var(--lp-muted));
+  --jp-primary: var(--lp-purple, var(--accent));
   --jp-primary-soft: var(--lp-purple-soft);
-  --jp-line: var(--lp-line);
-  --jp-danger: var(--lp-danger);
-  --jp-danger-soft: var(--lp-danger-soft);
+  --jp-primary-hover: var(--accent-hover, #481a9e);
+  --jp-line: var(--border, var(--lp-line));
+  --jp-danger: var(--lp-danger, var(--color-error));
+  --jp-danger-soft: var(--lp-danger-soft, var(--color-error-container));
   --jp-ok: var(--color-success);
+  --jp-ok-soft: var(--color-success-container, #e8f8f0);
   --jp-warn: var(--color-tertiary);
   /* Dialog backdrop: a dimming layer toward black, so it stays dark in both light and dark themes. */
   --jp-overlay: rgb(0 0 0 / 50%);
@@ -358,7 +361,7 @@ html.dark .jp-furi-toggle {
   }
 }
 
-/* === ROUND 8 VIVID PURPLE BOOST === */
+/* === ROUND 8 VIVID PURPLE BOOST & ROUND 9 PLUM DARK THEME + RESPONSIVE/A11Y === */
 :root,
 .jp-page,
 .jp-path,
@@ -380,11 +383,13 @@ html.dark .jp-furi-toggle {
 
   --jp-primary: #5521b5 !important;
   --jp-primary-soft: #e3d6ff !important;
+  --jp-primary-hover: #441994 !important;
   --cp-done: #5521b5 !important;
   --cp-done-soft: #d9c7ff !important;
   --cp-done-ring: rgba(85, 33, 181, 0.42) !important;
 }
 
+/* Match develop's "plum" dark mode via theme-bridge.css (--bg, --surface, --surface-2, --text, --muted, --border, --accent) */
 html[data-theme="dark"],
 html.dark,
 html[data-theme="dark"] .jp-page,
@@ -395,22 +400,107 @@ html[data-theme="dark"] .jp-study,
 html.dark .jp-study,
 html[data-theme="dark"] .jp-check,
 html.dark .jp-check,
+html[data-theme="dark"] .jp-check-page,
+html.dark .jp-check-page,
 html[data-theme="dark"] .cp-page,
 html.dark .cp-page {
-  --jp-c-purple-900: #f3e8ff !important;
-  --jp-c-purple-500: #9f67ff !important;
-  --jp-c-purple-100: #321a66 !important;
+  --lp-canvas: var(--bg, #231829);
+  --lp-surface: var(--surface, #2e2035);
+  --lp-ink: var(--text, #f5eef8);
+  --lp-muted: var(--muted, #d9c9df);
+  --lp-line: var(--border, #563a5e);
+  --lp-purple: var(--accent, #dcaee8);
+  --lp-purple-soft: var(--surface-2, #382840);
+  --lp-danger: var(--color-error, #f5b5b5);
+  --lp-danger-soft: var(--color-error-container, #4e2328);
 
-  --jp-c-indigo-900: #e0e7ff !important;
-  --jp-c-indigo-500: #818cf8 !important;
-  --jp-c-indigo-100: #23205c !important;
+  --jp-canvas: var(--bg, #231829) !important;
+  --jp-surface: var(--surface, #2e2035) !important;
+  --jp-surface-2: var(--surface-2, #382840) !important;
+  --jp-white: var(--surface, #2e2035) !important;
+  --jp-ink: var(--text, #f5eef8) !important;
+  --jp-muted: var(--muted, #d9c9df) !important;
+  --jp-line: var(--border, #563a5e) !important;
+
+  --jp-c-slate-900: var(--text, #f5eef8) !important;
+  --jp-c-slate-500: var(--muted, #d9c9df) !important;
+  --jp-c-slate-100: var(--surface, #2e2035) !important;
+
+  --jp-c-purple-900: var(--text, #f5eef8) !important;
+  --jp-c-purple-500: #b37cf5 !important;
+  --jp-c-purple-100: var(--surface-2, #382840) !important;
+
+  --jp-c-indigo-900: #e9d8fd !important;
+  --jp-c-indigo-500: #9f7aea !important;
+  --jp-c-indigo-100: #332348 !important;
 
   --jp-c-mauve-900: #fae8ff !important;
-  --jp-c-mauve-500: #c084fc !important;
-  --jp-c-mauve-100: #421959 !important;
+  --jp-c-mauve-500: #d69ef8 !important;
+  --jp-c-mauve-100: #3d2449 !important;
 
-  --jp-primary: #9f67ff !important;
-  --jp-primary-soft: #321a66 !important;
-  --cp-done: #9f67ff !important;
-  --cp-done-soft: rgba(159, 103, 255, 0.24) !important;
+  --jp-primary: #b37cf5 !important;
+  --jp-primary-soft: var(--surface-2, #382840) !important;
+  --jp-primary-hover: var(--accent, #dcaee8) !important;
+  --cp-done: #b37cf5 !important;
+  --cp-done-soft: rgba(179, 124, 245, 0.24) !important;
+}
+
+/* Minimum 40px touch target for all path buttons & controls (Task 2) + keyboard focus-visible (Task 5) */
+.jp-btn,
+.jp-side-btn,
+.jp-furi-toggle {
+  min-height: 40px;
+}
+
+.jp-page button:focus-visible,
+.jp-page a:focus-visible,
+.jp-page summary:focus-visible,
+.jp-page input:focus-visible,
+.jp-page select:focus-visible,
+.jp-page textarea:focus-visible,
+.jp-page [tabindex]:focus-visible,
+.cp-page button:focus-visible,
+.cp-page a:focus-visible,
+.cp-page summary:focus-visible,
+.cp-page input:focus-visible,
+.cp-page select:focus-visible,
+.cp-page [tabindex]:focus-visible {
+  outline: 2px solid var(--jp-primary);
+  outline-offset: 2px;
+}
+
+/* Prevent horizontal overflow at 768px tablet and 375px mobile (Task 2) */
+.jp-page,
+.cp-page {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .jp-page,
+  .cp-page {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+/* Shared Empty / Loading / Error states (Task 3) */
+.jp-state-box,
+.cp-state-box {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 24px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--jp-line);
+  background: var(--jp-surface);
+  color: var(--jp-ink);
+}
+.jp-state-box p,
+.cp-state-box p {
+  margin: 0;
+  max-width: 48ch;
+  line-height: 1.5;
+  color: var(--jp-muted);
 }

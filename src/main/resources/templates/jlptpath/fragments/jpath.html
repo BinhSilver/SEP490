@@ -6,12 +6,12 @@
 <th:block th:fragment="assets(pageCss)">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&amp;display=swap" />
     <link rel="stylesheet" th:href="@{/css/learning-v2-tokens.css(v=${jpathAssetVersion})}" />
-    <link rel="stylesheet" th:href="@{/css/pages/jpath-base.css(v=${jpathAssetVersion})}" />
-    <link rel="stylesheet" th:href="@{/css/pages/jpath-extras.css(v=${jpathAssetVersion})}" />
+    <link rel="stylesheet" th:href="@{/css/pages/jpath-base.css(v='20261107-r9')}" />
+    <link rel="stylesheet" th:href="@{/css/pages/jpath-extras.css(v='20261107-r9')}" />
     <!-- Workspace layout + navigation kit (breadcrumbs, stepper, progress, flow buttons, pager, accordion, toc). -->
     <link rel="stylesheet" th:href="@{/css/pages/jpath-nav.css(v=${jpathAssetVersion})}" />
     <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
-          th:href="@{${'/css/pages/' + pageCss + '.css'}(v=${jpathAssetVersion})}" />
+          th:href="@{${'/css/pages/' + pageCss + '.css'}(v='20261107-r9')}" />
 </th:block>
 
 <th:block th:fragment="scripts">

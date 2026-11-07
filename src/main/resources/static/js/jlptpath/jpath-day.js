@@ -262,13 +262,21 @@
     var m = /[?&]d=(\d{4}-\d{2}-\d{2})/.exec(String(root.location && root.location.search || ''));
     var day = m ? m[1] : today;
     if (day > today) day = today;
-    root.JpathApi.get(BASE + '/history/' + day).then(function (d) {
-      el.innerHTML = dayHtml(d, day, today);
-      if (root.JpathPrint && root.JpathPrint.bind) root.JpathPrint.bind(el);
-      if (root.JpathWriting && root.JpathWriting.bind) root.JpathWriting.bind(el);
-    }, function () {
-      el.innerHTML = '<p class="jp-alert" role="alert">Chưa tải được ngày này. Thử lại sau.</p>';
-    });
+    function load() {
+      if (el.setAttribute) el.setAttribute('aria-busy', 'true');
+      root.JpathApi.get(BASE + '/history/' + day).then(function (d) {
+        if (el.setAttribute) el.setAttribute('aria-busy', 'false');
+        el.innerHTML = dayHtml(d, day, today);
+        if (root.JpathPrint && root.JpathPrint.bind) root.JpathPrint.bind(el);
+        if (root.JpathWriting && root.JpathWriting.bind) root.JpathWriting.bind(el);
+      }, function () {
+        if (el.setAttribute) el.setAttribute('aria-busy', 'false');
+        el.innerHTML = '<p class="jp-alert" role="alert">Chưa tải được ngày này. <button type="button" class="jp-btn" data-day-retry>Thử lại</button></p>';
+        var retry = el.querySelector && el.querySelector('[data-day-retry]');
+        if (retry) retry.addEventListener('click', load);
+      });
+    }
+    load();
   }
 
   return { dayHtml: dayHtml, shift: shift, weekDays: weekDays, mount: mount };

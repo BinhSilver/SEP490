@@ -1196,7 +1196,7 @@ html.dark .cp-page {
   font-size: 1.08rem !important;
 }
 
-/* === ROUND 8 VIVID PURPLE BOOST === */
+/* === ROUND 8 VIVID PURPLE BOOST & ROUND 9 PLUM DARK THEME + 3D FLIP + RESPONSIVE === */
 :root,
 .jp-page,
 .jp-path,
@@ -1235,27 +1235,106 @@ html[data-theme="dark"] .jp-check,
 html.dark .jp-check,
 html[data-theme="dark"] .cp-page,
 html.dark .cp-page {
-  --jp-c-purple-900: #f3e8ff !important;
-  --jp-c-purple-500: #9f67ff !important;
-  --jp-c-purple-100: #321a66 !important;
+  --jp-c-slate-900: var(--text, #f5eef8) !important;
+  --jp-c-slate-500: var(--muted, #d9c9df) !important;
+  --jp-c-slate-100: var(--surface, #2e2035) !important;
+  --jp-white: var(--surface, #2e2035) !important;
 
-  --jp-c-indigo-900: #e0e7ff !important;
-  --jp-c-indigo-500: #818cf8 !important;
-  --jp-c-indigo-100: #23205c !important;
+  --cp-surface: var(--surface, #2e2035) !important;
+  --cp-surface-soft: var(--surface-2, #382840) !important;
+  --cp-ink: var(--text, #f5eef8) !important;
+  --cp-muted: var(--muted, #d9c9df) !important;
+  --cp-line: var(--border, #563a5e) !important;
+
+  --jp-c-purple-900: var(--text, #f5eef8) !important;
+  --jp-c-purple-500: #b37cf5 !important;
+  --jp-c-purple-100: var(--surface-2, #382840) !important;
+
+  --jp-c-indigo-900: #e9d8fd !important;
+  --jp-c-indigo-500: #9f7aea !important;
+  --jp-c-indigo-100: #332348 !important;
 
   --jp-c-mauve-900: #fae8ff !important;
-  --jp-c-mauve-500: #c084fc !important;
-  --jp-c-mauve-100: #421959 !important;
+  --jp-c-mauve-500: #d69ef8 !important;
+  --jp-c-mauve-100: #3d2449 !important;
 
-  --jp-primary: #9f67ff !important;
-  --jp-primary-soft: #321a66 !important;
-  --cp-done: #9f67ff !important;
-  --cp-done-soft: rgba(159, 103, 255, 0.24) !important;
+  --jp-primary: #b37cf5 !important;
+  --jp-primary-soft: var(--surface-2, #382840) !important;
+  --cp-done: #b37cf5 !important;
+  --cp-done-soft: rgba(179, 124, 245, 0.24) !important;
+}
+
+/* Task 4: 3D Flip for communication flashcard (.cp-flashcard), auto-disabled on prefers-reduced-motion */
+.cp-sit-stage {
+  perspective: 1100px;
+}
+.cp-flashcard {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+.cp-flashcard.is-flipped {
+  animation: cpCardFlipToBack 260ms cubic-bezier(.22, .85, .32, 1) 1 both;
+}
+.cp-flashcard:not(.is-flipped) {
+  animation: cpCardFlipToFront 240ms cubic-bezier(.22, .85, .32, 1) 1 both;
+}
+@keyframes cpCardFlipToBack {
+  0% { transform: rotateY(-88deg) scale(.98); opacity: .55; }
+  100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+}
+@keyframes cpCardFlipToFront {
+  0% { transform: rotateY(88deg) scale(.98); opacity: .55; }
+  100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cp-sit-stage {
+    perspective: none !important;
+  }
+  .cp-flashcard,
+  .cp-flashcard.is-flipped,
+  .cp-flashcard:not(.is-flipped) {
+    animation: none !important;
+    transform: none !important;
+    transform-style: flat !important;
+  }
+}
+
+/* Task 2: Minimum 40px buttons & controls + 375px/768px responsive */
+.cp-survey__dot {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+}
+.cp-audio-btn {
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+}
+.cp-deck-tab,
+.cp-rest-chip,
+.cp-step-tab,
+.cp-btn-primary,
+.cp-btn-ghost,
+.cp-rec-btn {
+  min-height: 40px !important;
 }
 
 /* 07/11: narrow screens — the topic badge sits above the title instead of over it */
+@media (max-width: 768px) {
+  .cp-sit-shell {
+    padding: 8px 12px 16px !important;
+  }
+  .cp-sit-stage {
+    max-height: none !important;
+  }
+}
 @media (max-width: 640px) {
   .cp-sit-head-info { flex-wrap: wrap; align-items: flex-start; }
   .cp-sit-topic-badge { white-space: normal; }
   .cp-sit-title { flex: 1 1 100%; }
+  .cp-survey__top { flex-wrap: wrap; }
+  .cp-survey__card { padding: 14px 14px 16px; }
 }

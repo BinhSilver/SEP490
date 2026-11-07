@@ -86,16 +86,16 @@ html.dark .jp-confirm {
   --jp-c-sky-900: #e0f2fe;
   --jp-c-sky-500: #38bdf8;
   --jp-c-sky-100: #152c44;
-  --jp-c-slate-900: #f1f5f9;
-  --jp-c-slate-500: #94a3b8;
-  --jp-c-slate-100: #1e293b;
-  --jp-white: #181528;
+  --jp-c-slate-900: var(--text, #f5eef8);
+  --jp-c-slate-500: var(--muted, #d9c9df);
+  --jp-c-slate-100: var(--surface, #2e2035);
+  --jp-white: var(--surface, #2e2035);
 
-  --jp-survey-bg: #110e1c;
-  --jp-survey-surface: var(--jp-c-slate-100);
-  --jp-survey-ink: var(--jp-c-slate-900);
-  --jp-survey-muted: var(--jp-c-slate-500);
-  --jp-survey-line: color-mix(in srgb, var(--jp-c-slate-500) 28%, var(--jp-c-slate-100));
+  --jp-survey-bg: var(--bg, #231829);
+  --jp-survey-surface: var(--surface, #2e2035);
+  --jp-survey-ink: var(--text, #f5eef8);
+  --jp-survey-muted: var(--muted, #d9c9df);
+  --jp-survey-line: var(--border, #563a5e);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -287,8 +287,10 @@ html.dark .jp-confirm {
   margin-bottom: 16px !important;
 }
 .survey-back {
-  width: 36px !important;
-  height: 36px !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
   border: 1px solid var(--jp-survey-line) !important;
   border-radius: 50% !important;
   background: var(--jp-survey-surface) !important;
