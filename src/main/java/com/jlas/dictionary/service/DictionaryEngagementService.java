@@ -27,7 +27,7 @@ public class DictionaryEngagementService {
     private final UserRepository users;
     private final JdbcTemplate jdbc;
 
-    public record NotebookSummary(Long id, String name, String type, long wordCount) {}
+    public record NotebookSummary(Long id, String name, String type, long wordCount, long kanjiCount) {}
     public record NotebookEntry(Long vocabularyId, String expression, String reading, String meaning,
                                 String exampleJa, String exampleVi, Integer repetitions,
                                 java.time.LocalDateTime createdAt) {}
@@ -85,7 +85,7 @@ public class DictionaryEngagementService {
     @Transactional
     public List<NotebookSummary> notebooks(Long userId) {
         ensureDefaultNotebooks(userId);
-        return jdbc.query("SELECT n.id,n.name,n.notebook_type,COUNT(e.vocabulary_id) FROM user_notebook n LEFT JOIN user_notebook_entry e ON e.notebook_id=n.id WHERE n.user_id=? GROUP BY n.id,n.name,n.notebook_type ORDER BY n.id", (rs, row) -> new NotebookSummary(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getLong(4)), userId);
+        return jdbc.query("SELECT n.id,n.name,n.notebook_type,(SELECT COUNT(*) FROM user_notebook_entry e WHERE e.notebook_id=n.id),(SELECT COUNT(*) FROM user_notebook_kanji k WHERE k.notebook_id=n.id) FROM user_notebook n WHERE n.user_id=? ORDER BY n.id", (rs, row) -> new NotebookSummary(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getLong(4), rs.getLong(5)), userId);
     }
 
     @Transactional
@@ -119,6 +119,7 @@ public class DictionaryEngagementService {
         if (jdbc.queryForObject("SELECT COUNT(*) FROM user_notebook WHERE id=? AND user_id=? AND notebook_type IN ('PERSONAL','WEAKNESS')", Integer.class, notebookId, userId) == 0)
             throw new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy sổ tay mặc định.");
         jdbc.update("DELETE FROM user_notebook_entry WHERE notebook_id=?", notebookId);
+        jdbc.update("DELETE FROM user_notebook_kanji WHERE notebook_id=?", notebookId);
     }
 
     @Transactional(readOnly = true)

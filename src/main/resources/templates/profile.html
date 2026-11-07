@@ -19,6 +19,10 @@
                 </button>
             </div>
             <h2 class="profile-sidebar__name" data-user-name>Tài khoản</h2>
+            <button type="button" class="btn btn--secondary btn--sm profile-sidebar__frame-btn" data-cosmetics-open
+                    aria-haspopup="dialog" aria-controls="profileCosmeticsModal">
+                <span class="material-symbols-outlined" aria-hidden="true">filter_frames</span> Đổi khung viền
+            </button>
             <div class="profile-progress">
                 <div class="profile-progress__label">
                     <span>Mức độ hoàn thiện hồ sơ</span>
@@ -34,9 +38,10 @@
             <button type="button" class="profile-nav__item profile-nav__item--outlined is-active" data-tab="overview">
                 <span class="material-symbols-outlined">person</span> Tổng quan hồ sơ
             </button>
-            <a th:href="@{/goals}" class="profile-nav__item profile-nav__item--outlined">
-                        <i class="fa-solid fa-fire" aria-hidden="true"></i> Mục tiêu &amp; chuỗi ngày
-            </a>
+            <button type="button" class="profile-nav__item profile-nav__item--outlined" data-usage-open
+                    aria-haspopup="dialog" aria-controls="profileUsageModal">
+                <span class="material-symbols-outlined">monitoring</span> Mức sử dụng
+            </button>
             <div class="profile-security-flyout">
                 <button type="button" class="profile-nav__item profile-security-flyout__trigger"
                         aria-haspopup="menu" aria-expanded="false" aria-controls="sidebarSecurityMenu">
@@ -68,7 +73,8 @@
     <div class="profile-main">
         <div class="profile-mobile-tabs">
             <button type="button" class="profile-nav__item profile-nav__item--outlined is-active" data-tab="overview">Tổng quan</button>
-            <a th:href="@{/goals}" class="profile-nav__item profile-nav__item--outlined">Mục tiêu &amp; chuỗi ngày</a>
+            <button type="button" class="profile-nav__item profile-nav__item--outlined" data-usage-open
+                    aria-haspopup="dialog" aria-controls="profileUsageModal">Mức sử dụng</button>
             <div class="profile-security-flyout profile-security-flyout--mobile">
                 <button type="button" class="profile-nav__item profile-security-flyout__trigger"
                         aria-haspopup="menu" aria-expanded="false" aria-controls="mobileSecurityMenu">
@@ -139,6 +145,13 @@
                                 </select>
                             </div>
                             <div class="field">
+                                <label class="field__label" for="dateOfBirth">Ngày sinh</label>
+                                <div>
+                                    <input class="input" id="dateOfBirth" type="date" autocomplete="bday" aria-describedby="dateOfBirthHint"/>
+                                </div>
+                                <p class="field__hint" id="dateOfBirthHint">Chỉ đặt được một lần. Cần đổi, hãy liên hệ quản trị viên.</p>
+                            </div>
+                            <div class="field">
                                 <label class="field__label" for="japaneseLevel">Mục tiêu trình độ JLPT</label>
                                 <select class="select" id="japaneseLevel">
                                     <option value="UNKNOWN">Chưa xác định</option>
@@ -197,41 +210,6 @@
                     <div class="status-row">
                         <span>Hạn dùng gói cao cấp</span>
                         <strong id="stPremium">—</strong>
-                    </div>
-                </div>
-
-                <!-- Khung avatar + màu tên: mua ở Cửa hàng, chọn ở đây (js/pages/profile-cosmetics.js) -->
-                <div class="profile-card profile-cosmetics" id="profileCosmeticsCard">
-                    <div class="profile-card__head profile-card__head--actions">
-                        <div class="profile-card__head-left">
-                            <div>
-                                <h2 class="profile-card__title">Khung avatar &amp; màu tên</h2>
-                            </div>
-                        </div>
-                        <a class="btn btn--secondary btn--sm" th:href="@{/games/shop(game='FRAMES')}">
-                            <span class="material-symbols-outlined" aria-hidden="true">storefront</span> Cửa hàng
-                        </a>
-                    </div>
-                    <div class="profile-cosmetics__body">
-                        <div class="profile-cosmetics__preview" aria-label="Xem trước">
-                            <div class="profile-cosmetics__avatar" data-cosmetics-preview>
-                                <div class="user-avatar profile-cosmetics__avatar-img" data-user-avatar>
-                                    <span class="user-avatar__initials">?</span>
-                                </div>
-                            </div>
-                            <strong class="profile-cosmetics__name" data-cosmetics-name>Tài khoản</strong>
-                            <span class="profile-cosmetics__trying" aria-hidden="true">Xem thử</span>
-                        </div>
-                        <div class="profile-cosmetics__pickers">
-                            <h3 class="profile-cosmetics__label">Khung</h3>
-                            <div class="profile-cosmetics__frames" data-cosmetics-frames role="radiogroup" aria-label="Chọn khung avatar"></div>
-                            <h3 class="profile-cosmetics__label">Màu tên</h3>
-                            <div class="profile-cosmetics__names" data-cosmetics-names role="radiogroup" aria-label="Chọn màu tên"></div>
-                            <div class="profile-cosmetics__actions">
-                                <button type="button" class="btn btn--primary" data-cosmetics-save disabled>Lưu khung &amp; màu tên</button>
-                                <p class="profile-cosmetics__status" data-cosmetics-status role="status">Đang tải…</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -506,6 +484,64 @@
     </div>
 </main>
 
+<!-- Popup khung avatar + màu tên, mở từ nút "Đổi khung viền" dưới tên (js/pages/profile-cosmetics.js) -->
+<div class="profile-modal" id="profileCosmeticsModal" hidden>
+    <div class="profile-modal__backdrop" data-cosmetics-close></div>
+    <div class="profile-card profile-cosmetics profile-modal__dialog profile-modal__dialog--wide" id="profileCosmeticsCard"
+         role="dialog" aria-modal="true" aria-labelledby="profileCosmeticsTitle">
+        <div class="profile-card__head profile-card__head--actions">
+            <div class="profile-card__head-left">
+                <div>
+                    <h2 class="profile-card__title" id="profileCosmeticsTitle">Khung avatar &amp; màu tên</h2>
+                </div>
+            </div>
+            <button type="button" class="profile-modal__close" data-cosmetics-close aria-label="Đóng">
+                <span class="material-symbols-outlined" aria-hidden="true">close</span>
+            </button>
+        </div>
+        <div class="profile-cosmetics__body">
+            <div class="profile-cosmetics__preview" aria-label="Xem trước">
+                <div class="profile-cosmetics__avatar" data-cosmetics-preview>
+                    <div class="user-avatar profile-cosmetics__avatar-img" data-user-avatar>
+                        <span class="user-avatar__initials">?</span>
+                    </div>
+                </div>
+                <strong class="profile-cosmetics__name" data-cosmetics-name>Tài khoản</strong>
+                <span class="profile-cosmetics__trying" aria-hidden="true">Xem thử</span>
+            </div>
+            <div class="profile-cosmetics__pickers">
+                <h3 class="profile-cosmetics__label">Khung</h3>
+                <div class="profile-cosmetics__frames" data-cosmetics-frames role="radiogroup" aria-label="Chọn khung avatar"></div>
+                <h3 class="profile-cosmetics__label">Màu tên</h3>
+                <div class="profile-cosmetics__names" data-cosmetics-names role="radiogroup" aria-label="Chọn màu tên"></div>
+                <div class="profile-cosmetics__actions">
+                    <button type="button" class="btn btn--primary" data-cosmetics-save disabled>Lưu khung &amp; màu tên</button>
+                    <p class="profile-cosmetics__status" data-cosmetics-status role="status">Đang tải…</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Popup mức sử dụng theo gói: AI Call, chấm phát âm, tra từ nhanh (js/pages/profile-usage.js) -->
+<div class="profile-modal" id="profileUsageModal" hidden>
+    <div class="profile-modal__backdrop" data-usage-close></div>
+    <div class="profile-card profile-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="profileUsageTitle">
+        <div class="profile-card__head profile-modal__head">
+            <div class="profile-card__icon" style="background:rgba(33,112,228,0.12)">
+                <span class="material-symbols-outlined">monitoring</span>
+            </div>
+            <h2 class="profile-card__title" id="profileUsageTitle">Mức sử dụng hôm nay</h2>
+            <button type="button" class="profile-modal__close" data-usage-close aria-label="Đóng">
+                <span class="material-symbols-outlined" aria-hidden="true">close</span>
+            </button>
+        </div>
+        <div class="profile-usage__body" data-usage-body>
+            <p class="profile-empty">Đang tải…</p>
+        </div>
+    </div>
+</div>
+
 <div th:replace="~{fragments/components/toast :: toast-host}"></div>
 <script th:src="@{/js/components.js}"></script>
 <script th:if="${googleClientId != null and !#strings.isEmpty(googleClientId) and !#strings.contains(googleClientId, 'your-google-client-id')}"
@@ -515,8 +551,11 @@
     window.INITIAL_SECURITY_SECTION = /*[[${securitySection}]]*/ 'home';
 </script>
 <script th:src="@{/js/pages/profile-navigation.js?v=20261011-mobile-popup}"></script>
+<script defer th:src="@{/js/pages/profile-usage.js?v=20261103-auto}"></script>
+<script th:src="@{/js/components/date-wheel.js?v=20261105-age-range}"></script>
 <script>
 (function () {
+    var dateOfBirthWheel = DateWheel.attachBirthDate(document.getElementById('dateOfBirth'), { popover: true });
     if (typeof JlasAuth === 'undefined') {
         console.error('JlasAuth missing — /js/auth-session.js failed to load');
         document.body.insertAdjacentHTML('afterbegin',
@@ -561,6 +600,7 @@
         document.getElementById('fullName').value = user.fullName || '';
         document.getElementById('phoneNumber').value = user.phoneNumber || '';
         document.getElementById('gender').value = user.gender || '';
+        dateOfBirthWheel.set(user.dateOfBirth || '', !!user.dateOfBirth);
         document.getElementById('japaneseLevel').value = user.japaneseLevel || 'UNKNOWN';
         document.getElementById('jlptSealLevel').textContent = user.japaneseLevel && user.japaneseLevel !== 'UNKNOWN'
             ? user.japaneseLevel : '—';
@@ -718,11 +758,19 @@
                 fullName: document.getElementById('fullName').value.trim(),
                 phoneNumber: document.getElementById('phoneNumber').value.trim(),
                 gender: document.getElementById('gender').value || 'PREFER_NOT_TO_SAY',
+                // Empty keeps the stored date; the server ignores a resend of the same date.
+                dateOfBirth: document.getElementById('dateOfBirth').value || undefined,
                 japaneseLevel: document.getElementById('japaneseLevel').value || 'UNKNOWN',
                 avatar: document.getElementById('avatarUrl').value.trim()
             };
             if (!body.fullName || body.fullName.length < 2) {
                 if (window.JlasUI) JlasUI.showAlert(alertEl, 'Vui lòng nhập họ và tên (tối thiểu 2 ký tự)', 'error');
+                btn.disabled = false;
+                btn.textContent = 'Lưu thay đổi';
+                return;
+            }
+            if (dateOfBirthWheel.isPartial()) {
+                if (window.JlasUI) JlasUI.showAlert(alertEl, 'Vui lòng chọn đủ ngày, tháng và năm sinh', 'error');
                 btn.disabled = false;
                 btn.textContent = 'Lưu thay đổi';
                 return;
@@ -809,9 +857,9 @@
 <script th:src="@{/js/components/retention-reward.js?v=20260903-motion}"></script>
 <script th:src="@{/js/pages/retention-demo.js?v=13-live}"></script>
 <script th:src="@{/js/components/reward-fx.js?v=20260927c}"></script>
-<script th:src="@{/js/pages/profile-retention.js?v=20260927j}"></script>
+<script th:src="@{/js/pages/profile-retention.js?v=20261031-pro-cp}"></script>
 <script th:src="@{/js/pages/profile-account.js?v=20261012-profile-summary}"></script>
-<script th:src="@{/js/pages/profile-cosmetics.js?v=20261014-trybuy}"></script>
-<script th:src="@{/js/jlab-base-shell.js?v=20261013-reward-styles}"></script>
+<script th:src="@{/js/pages/profile-cosmetics.js?v=20261031-popup}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=20261105-nav}"></script>
 </body>
 </html>

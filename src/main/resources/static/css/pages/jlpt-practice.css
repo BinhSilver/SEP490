@@ -87,3 +87,251 @@
 #practiceFurigana:focus-visible { outline:3px solid #baa0e4; outline-offset:3px; }
 @media(max-width:760px) { .jlpt-practice-runner>header { grid-template-columns:auto minmax(0,1fr) auto; gap:10px; }.jlpt-practice-runner>header>.jlpt-practice-progress { display:block; grid-column:2/-1; width:100%; }.jlpt-practice-runner>header>#practiceFurigana { font-size:11px; padding:6px 8px; gap:6px; } }
 @media(prefers-reduced-motion:reduce) { .jp-furigana-switch>i>b { transition:none; } }
+
+/* Plum palette for the practice page and its question states. */
+html[data-theme="dark"] #jlabBasePage.jlpt-practice-body {
+  --dm-feature-ink: var(--dark-ink);
+  --dm-feature-muted: var(--dark-muted);
+  --dm-feature-surface: var(--dark-surface);
+  --dm-feature-soft: var(--dark-soft);
+  --dm-feature-accent: var(--dark-accent);
+  --dm-feature-success: var(--dark-success);
+  --dm-feature-success-bg: var(--dark-success-bg);
+  --dm-feature-success-line: var(--dark-success-line);
+  --dm-feature-danger: var(--dark-danger);
+  --dm-feature-danger-bg: var(--dark-danger-bg);
+  --dm-feature-danger-line: var(--dark-danger-line);
+  --practice: var(--dark-accent);
+  --practice-soft: var(--dark-soft);
+  --line: var(--dark-line);
+  --color-background: var(--dark-bg);
+  --color-surface-lowest: var(--dark-surface);
+  --color-surface-mid: var(--dark-raised);
+  --color-on-surface: var(--dark-ink);
+  --color-on-surface-variant: var(--dark-muted);
+  --jlab-base-page-background: var(--color-background);
+  color: var(--color-on-surface);
+  color-scheme: dark;
+}
+html[data-theme="dark"] .jlpt-practice-page {
+  --jp-input-line: var(--dark-input-line);
+  --jp-on-action: var(--dark-on-button);
+  --jp-action-hover: var(--dark-accent-hover);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(
+  .jlpt-practice-hero,
+  .jlpt-practice-question h2,
+  .jlpt-practice-runner>header div strong,
+  .jp-session-card dd,
+  .jlpt-practice-segment__text p
+) {
+  color: var(--color-on-surface);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(
+  .jp-back,
+  .jp-eyebrow,
+  .jp-hero-copy>p,
+  .jp-hero-tags>span,
+  .jp-paper small,
+  .jp-paper>span,
+  .jp-paper footer,
+  .jlpt-filter-block>strong>small,
+  .jp-step,
+  .jlpt-practice-type small,
+  .jp-session-card>p,
+  .jp-session-card dt,
+  .jp-session-note p,
+  .jlpt-practice-meta,
+  .jlpt-practice-instruction,
+  .jlpt-practice-actions>span,
+  .jp-score-ring small,
+  .jlpt-practice-result p,
+  .jlpt-practice-segment__text small,
+  .jlpt-practice-transcript__translation,
+  .jlpt-practice-audio__bar>time,
+  .jlpt-sentence-order__empty
+),
+html[data-theme="dark"] :is(#practiceLevels button, #practiceSections button small) {
+  color: var(--color-on-surface-variant);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(
+  .jlpt-practice-hero h1 em,
+  .jp-paper b,
+  .jp-art-star,
+  .jp-session-note,
+  .jlpt-practice-runner>header div span,
+  .jp-score-ring strong,
+  .jp-result-symbol,
+  .jlpt-practice-speaker,
+  .jlpt-practice-transcript time,
+  .jlpt-practice-audio button.jlpt-practice-segment__time,
+  .jp-back:hover
+) {
+  color: var(--practice);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(
+  .jp-paper,
+  .jp-session-card,
+  .jlpt-filter-block button,
+  .jlpt-practice-choice,
+  .jlpt-practice-result,
+  .jlpt-practice-actions button,
+  .jlpt-practice-question>footer button,
+  .jlpt-practice-result button,
+  .jlpt-practice-transcript
+) {
+  background: var(--color-surface-lowest);
+  border-color: var(--line);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(
+  .jlpt-filter-block button,
+  .jlpt-practice-actions button,
+  .jlpt-practice-question>footer button,
+  .jlpt-practice-result button
+) {
+  color: var(--color-on-surface);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(
+  .jp-paper-back,
+  .jp-paper-progress,
+  .jp-session-level,
+  .jlpt-practice-type span,
+  .jlpt-practice-choice b,
+  .jlpt-practice-progress,
+  .jlpt-practice-runner>header>button,
+  .jlpt-practice-segment.is-active,
+  .jlpt-practice-transcript__translation
+) {
+  background: var(--practice-soft);
+  color: var(--color-on-surface-variant);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(
+  .jp-session-level,
+  .jlpt-practice-runner>header>button,
+  .jlpt-practice-question>footer button:last-child,
+  #practiceExplain
+) {
+  color: var(--practice);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(.jp-paper-progress i, .jlpt-practice-progress i) {
+  background: var(--practice);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(.jp-skill-icon, #practiceSections [data-section] .jp-skill-icon) {
+  background: var(--practice-soft);
+  color: var(--practice);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(#practiceLevels, #practiceSections) button.is-active,
+html[data-theme="dark"] .jlpt-practice-page .jlpt-practice-choice:has(input:checked):not(.is-correct, .is-wrong) {
+  background: var(--practice-soft);
+  border-color: var(--practice);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(#practiceLevels, #practiceSections) button.is-active {
+  color: var(--practice);
+  box-shadow: 0 0 0 2px var(--practice-soft);
+}
+html[data-theme="dark"] .jlpt-practice-page .jlpt-practice-type.is-active {
+  background: var(--practice-soft) !important;
+  border-color: var(--practice) !important;
+  color: var(--practice);
+  box-shadow: 0 0 0 1px var(--practice-soft);
+}
+html[data-theme="dark"] .jlpt-practice-page .jlpt-practice-type.is-active span {
+  background: var(--color-surface-mid);
+  color: var(--practice);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(
+  .jp-paper,
+  .jlpt-practice-passage,
+  .jlpt-practice-passage td,
+  .jlpt-practice-passage th,
+  .jlpt-practice-transcript__translation,
+  .jlpt-practice-segment,
+  .jlpt-practice-segment__text small
+) {
+  border-color: var(--line);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(.jlpt-practice-passage, .jlpt-practice-audio, .jlpt-practice-setup select) {
+  background: var(--color-surface-mid);
+  color: var(--color-on-surface);
+}
+html[data-theme="dark"] .jlpt-practice-page .jlpt-practice-setup select {
+  --color-surface-lowest: var(--dark-raised);
+  --color-surface-low: var(--dark-raised);
+  --color-outline-variant: var(--jp-input-line);
+  --color-primary: var(--practice);
+  --color-focus: var(--practice);
+  --focus-ring: 0 0 0 3px var(--practice);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(.jlpt-practice-audio__bar>button, .jlpt-sentence-order__reveal) {
+  background: var(--color-surface-lowest);
+  border-color: var(--practice);
+  color: var(--practice);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(
+  .jlpt-practice-setup footer button,
+  .jlpt-practice-actions #practiceCheck,
+  .jlpt-practice-result button:first-child,
+  .jlpt-practice-audio button.jlpt-practice-audio__play,
+  .jlpt-practice-choice:has(input:checked) b
+) {
+  background: var(--practice);
+  border-color: var(--practice);
+  color: var(--jp-on-action);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(
+  .jlpt-practice-setup footer button,
+  .jlpt-practice-actions #practiceCheck,
+  .jlpt-practice-result button:first-child,
+  .jlpt-practice-audio button.jlpt-practice-audio__play
+):hover:not(:disabled) {
+  background: var(--jp-action-hover);
+  border-color: var(--jp-action-hover);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(
+  .jlpt-practice-audio__bar button[aria-pressed=true],
+  .jlpt-practice-audio__bar button:not(.jlpt-practice-audio__play):hover,
+  .jlpt-sentence-order__reveal:hover,
+  .jlpt-filter-block button:hover:not(.is-active),
+  .jlpt-practice-choice:hover:not(.is-correct, .is-wrong),
+  .jlpt-practice-question>footer button:hover:not(:disabled),
+  .jlpt-practice-result button:not(:first-child):hover
+),
+html[data-theme="dark"] .jlpt-practice-page #practiceExplain:hover {
+  background: var(--practice-soft);
+  border-color: var(--practice);
+}
+html[data-theme="dark"] .jlpt-practice-page .jlpt-practice-audio__bar>input { accent-color: var(--practice); }
+html[data-theme="dark"] .jlpt-practice-page :is(.jlpt-practice-notice, .jlpt-practice-meta span:last-child) {
+  background: var(--dark-warning-bg);
+  color: var(--dark-warning);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(
+  .jlpt-practice-choice.is-correct,
+  .jlpt-sentence-order__piece.is-correct,
+  .jlpt-practice-explanation
+) {
+  background: var(--dark-success-bg);
+  border-color: var(--dark-success-line);
+  color: var(--dark-success);
+}
+html[data-theme="dark"] .jlpt-practice-page :is(.jlpt-practice-choice.is-wrong, .jlpt-sentence-order__piece.is-wrong) {
+  background: var(--dark-danger-bg);
+  border-color: var(--dark-danger-line);
+  color: var(--dark-danger);
+}
+html[data-theme="dark"] .jlpt-practice-page .jp-score-ring {
+  background:
+    linear-gradient(var(--color-surface-lowest), var(--color-surface-lowest)) padding-box,
+    conic-gradient(var(--practice) 0%, var(--jp-action-hover) var(--jp-score, 0%), var(--practice-soft) var(--jp-score, 0%), var(--practice-soft) 100%) border-box;
+}
+html[data-theme="dark"] .jlpt-practice-page :is(#practiceResultDetail, .jlpt-practice-setup>footer label) {
+  color: var(--color-on-surface-variant);
+}
+html[data-theme="dark"] .jlpt-practice-page .jp-furigana-switch>i { background: var(--jp-input-line); }
+html[data-theme="dark"] .jlpt-practice-page .jp-furigana-switch.is-active>i { background: var(--practice); }
+html[data-theme="dark"] .jlpt-practice-page .jp-furigana-switch>i>b { background: var(--jp-on-action); }
+html[data-theme="dark"] .jlpt-practice-page :is(button, a, select):focus-visible,
+html[data-theme="dark"] .jlpt-practice-page .jlpt-practice-choice:has(input:focus-visible) {
+  outline-color: var(--practice);
+}
+html[data-theme="dark"] .jlpt-practice-page ::selection { background: var(--dark-selection); color: var(--color-on-surface); }

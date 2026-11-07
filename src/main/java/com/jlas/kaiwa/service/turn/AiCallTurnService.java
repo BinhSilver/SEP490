@@ -103,6 +103,13 @@ public class AiCallTurnService {
             ChatTurnResponse response = conversationService.chat(
                     request.getSessionId(), request.getMessage().trim(), request.getFreeChatSettings());
             response.setChargeType(turn.getChargeType().name());
+            response.setCreditPerTurn(quota.creditPerTurn());
+            try {
+                response.setQuotaTurnsLeft(quota.turnsLeft(user));
+            } catch (RuntimeException unavailable) {
+                // Only the "turns left" hint: never fail (and refund) a turn the AI already answered over it.
+                log.warn("AI Call turns left not computed for user {}: {}", user.userId(), unavailable.getMessage());
+            }
             if (StringUtils.hasText(response.getError())) {
                 // AI/mạng lỗi: câu trả lời dự phòng vẫn hiện, nhưng lượt này không bị tính.
                 boolean refunded = fail(turn.getId(), "AI_ERROR", null);

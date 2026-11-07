@@ -104,19 +104,19 @@ html[data-theme="dark"] #jlabBaseBrandLogo { filter:brightness(2.5); }
 html[data-theme="dark"] #jlabBaseHeader,
 html[data-theme="dark"] #jlabBaseBottomNav,
 html[data-theme="dark"] #jlabBaseBottomNavToggle {
-  --color-primary: #c084fc;
-  --color-primary-container: #a855f7;
-  --color-on-primary: #20102e;
-  --color-primary-fixed: #292239;
-  --color-surface-lowest: #171b26;
-  --color-surface: #10131d;
-  --color-surface-low: #10131d;
-  --color-surface-mid: #202534;
-  --color-surface-high: #2a3041;
-  --color-surface-container: #202534;
-  --color-on-surface: #f5f6fa;
-  --color-on-surface-variant: #a0aec0;
-  --color-outline-variant: #2b3040;
+  --color-primary: var(--dark-accent);
+  --color-primary-container: var(--dark-button-hover);
+  --color-on-primary: var(--dark-on-button);
+  --color-primary-fixed: var(--dark-soft);
+  --color-surface-lowest: var(--dark-surface);
+  --color-surface: var(--dark-bg);
+  --color-surface-low: var(--dark-bg);
+  --color-surface-mid: var(--dark-raised);
+  --color-surface-high: var(--dark-soft);
+  --color-surface-container: var(--dark-raised);
+  --color-on-surface: var(--dark-ink);
+  --color-on-surface-variant: var(--dark-muted);
+  --color-outline-variant: var(--dark-line);
 }
 
 #jlabBaseHeader :is(#jlabBaseExamsMenu,#jlabBaseToolsMenu,#jlabBaseAccountMenu,#jlabBaseNotificationPanel) {
@@ -272,6 +272,87 @@ html[data-theme="dark"] #jlabBaseBottomNavToggle {
   background: var(--color-primary, #4f378a);
 }
 
+/* Hover của nav chính giống nhau trên mọi trang: chỉ đổi màu chữ. Mỗi trang nạp CSS khác nhau (header.css,
+   platform-nav.css, CSS riêng của Flashcard/AI Call), nên các rule này dùng id để thắng. */
+#jlabBasePrimaryNav > a,
+#jlabBasePrimaryNav > .dropdown > button {
+  font: 500 0.875rem/1.2 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  transition: color 180ms ease, background-color 180ms ease;
+}
+
+#jlabBasePrimaryNav > .dropdown > button {
+  border-radius: 6px;
+}
+
+#jlabBasePrimaryNav > a:hover,
+#jlabBasePrimaryNav > a[aria-current="page"],
+#jlabBasePrimaryNav > .dropdown > button:hover {
+  color: var(--color-primary, #4f378a) !important;
+}
+
+/* flashcard/styles.css ép a, span, button đậm 600 !important cho cả trang. */
+#jlabBasePrimaryNav > a,
+#jlabBasePrimaryNav > a span,
+#jlabBasePrimaryNav > .dropdown > button,
+#jlabBasePrimaryNav > .dropdown > button span {
+  font-weight: 500 !important;
+}
+
+/* platform-nav.css thêm gạch chân trắng khi hover và width: 0 cho ::after: gạch chân chỉ dành cho mục đang chọn. */
+#jlabBasePrimaryNav > a:not([aria-current="page"])::after {
+  content: none;
+}
+
+#jlabBasePrimaryNav > a[aria-current="page"]::after {
+  width: auto;
+  transition: none;
+}
+
+/* Nút menu chứa trang đang mở cũng có gạch chân như link đang chọn. */
+#jlabBasePrimaryNav > .dropdown > button[aria-current="page"] {
+  position: relative;
+}
+
+#jlabBasePrimaryNav > .dropdown > button[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 1px;
+  left: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--color-primary, #4f378a);
+}
+
+/* Mục trong menu thả xuống: hover và mục đang chọn có nền tím nhạt trên mọi trang. platform-nav.css ép nền trong suốt
+   và gạch chân cho mọi thẻ a trong nav, nên phải dùng !important. */
+#jlabBasePrimaryNav [role="menuitem"] {
+  color: var(--color-on-surface-variant, #494551) !important;
+}
+
+#jlabBasePrimaryNav [role="menuitem"],
+#jlabBaseAccountMenu [role="menuitem"] {
+  border-radius: 9px;
+  transition: color 180ms ease, background-color 180ms ease;
+}
+
+#jlabBasePrimaryNav [role="menuitem"],
+#jlabBasePrimaryNav [role="menuitem"] span,
+#jlabBaseAccountMenu [role="menuitem"],
+#jlabBaseAccountMenu [role="menuitem"] span {
+  font-weight: 500 !important;
+}
+
+#jlabBasePrimaryNav [role="menuitem"]:not([aria-disabled="true"]):hover,
+#jlabBasePrimaryNav [role="menuitem"][aria-current="page"] {
+  color: var(--color-primary, #4f378a) !important;
+  background: var(--color-primary-fixed, #e9ddff) !important;
+}
+
+#jlabBasePrimaryNav [role="menuitem"]::after {
+  content: none;
+}
+
 #jlabBaseToolsWrapper,
 #jlabBaseNotificationWrapper,
 #jlabBaseAccountWrapper {
@@ -321,6 +402,9 @@ html[data-theme="dark"] #jlabBaseBottomNavToggle {
 #jlabBaseProfileLink:focus-visible,
 #jlabBaseMyLearningPathLink:focus-visible,
 #jlabBaseStreakLink:focus-visible,
+#jlabBaseNotebookLink:focus-visible,
+#jlabBasePremiumLink:focus-visible,
+#jlabBaseCreditsLink:focus-visible,
 #jlabBaseAdminLink:focus-visible,
 #jlabBaseSecurityLink:focus-visible {
   outline: 2px solid var(--color-primary, #4f378a);
@@ -378,6 +462,7 @@ html[data-theme="dark"] #jlabBaseBottomNavToggle {
 
 #jlabBaseToolsMenu[hidden],
 #jlabBaseAccountMenu[hidden],
+#jlabBasePremiumLink[hidden],
 #jlabBaseNotificationPanel[hidden],
 #jlabBaseGuestActions[hidden],
 #jlabBaseUserActions[hidden],
@@ -399,6 +484,9 @@ html[data-theme="dark"] #jlabBaseBottomNavToggle {
 #jlabBaseProfileLink,
 #jlabBaseMyLearningPathLink,
 #jlabBaseStreakLink,
+#jlabBaseNotebookLink,
+#jlabBasePremiumLink,
+#jlabBaseCreditsLink,
 #jlabBaseAdminLink,
 #jlabBaseSecurityLink,
 #jlabBaseLogoutButton {
@@ -430,6 +518,9 @@ html[data-theme="dark"] #jlabBaseBottomNavToggle {
 #jlabBaseProfileLink:hover,
 #jlabBaseMyLearningPathLink:hover,
 #jlabBaseStreakLink:hover,
+#jlabBaseNotebookLink:hover,
+#jlabBasePremiumLink:hover,
+#jlabBaseCreditsLink:hover,
 #jlabBaseAdminLink:hover,
 #jlabBaseSecurityLink:hover,
 #jlabBaseLogoutButton:hover,
@@ -441,6 +532,9 @@ html[data-theme="dark"] #jlabBaseBottomNavToggle {
 #jlabBaseLearnPathItem[aria-current="page"],
 #jlabBaseMyLearningPathLink[aria-current="page"],
 #jlabBaseStreakLink[aria-current="page"],
+#jlabBaseNotebookLink[aria-current="page"],
+#jlabBasePremiumLink[aria-current="page"],
+#jlabBaseCreditsLink[aria-current="page"],
 #jlabBaseAdminLink[aria-current="page"],
 #jlabBaseExamJlptItem[aria-current="page"],
 #jlabBaseExamJlptPracticeItem[aria-current="page"] {
@@ -1268,7 +1362,9 @@ html[data-theme="dark"] #jlabBaseNotificationList .jlab-notif__time {
     background: var(--color-primary-fixed);
   }
 
-  #jlabBasePrimaryNav > a::after {
+  #jlabBasePrimaryNav > a::after,
+  #jlabBasePrimaryNav > a[aria-current="page"]::after,
+  #jlabBasePrimaryNav > .dropdown > button[aria-current="page"]::after {
     content: none;
   }
 
@@ -1452,12 +1548,12 @@ html[data-theme="dark"] #jlabBaseSanctionDialog > div {
   border-color: var(--color-outline-variant);
 }
 html[data-theme="dark"] #jlabBaseSanctionDialog a {
-  background: #7335a6;
-  color: #f8fafc;
+  background: var(--dark-button);
+  color: var(--dark-on-button);
 }
 html[data-theme="dark"] #jlabBaseSanctionBanner a {
-  background: #7335a6;
-  color: #f8fafc;
+  background: var(--dark-button);
+  color: var(--dark-on-button);
 }
 html[data-theme="dark"] #jlabBaseSanctionDialog button {
   background: var(--color-surface-low);

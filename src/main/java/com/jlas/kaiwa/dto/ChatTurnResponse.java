@@ -40,6 +40,15 @@ public class ChatTurnResponse {
     private int creditCharged;
     /** Lượt lỗi nên phút/CP đã được hoàn lại. */
     private boolean chargeRefunded;
+    /** Lượt miễn phí còn lại trước khi phải trả CP; null = không giới hạn. Trang báo trước khi sắp hết. */
+    private Integer quotaTurnsLeft;
+    /** Giá một lượt khi đã hết hạn mức, để popup báo trước số CP. */
+    private int creditPerTurn;
+
+    public Integer getQuotaTurnsLeft() { return quotaTurnsLeft; }
+    public void setQuotaTurnsLeft(Integer quotaTurnsLeft) { this.quotaTurnsLeft = quotaTurnsLeft; }
+    public int getCreditPerTurn() { return creditPerTurn; }
+    public void setCreditPerTurn(int creditPerTurn) { this.creditPerTurn = creditPerTurn; }
 
     public Long getSessionId() { return sessionId; }
     public void setSessionId(Long sessionId) { this.sessionId = sessionId; }

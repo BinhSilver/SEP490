@@ -10,6 +10,7 @@ import com.jlas.auth.repository.PremiumPlanRepository;
 import com.jlas.auth.repository.RoleRepository;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.common.util.BirthDates;
 import com.jlas.notification.service.UserNotificationPort;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -20,12 +21,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @Service
@@ -139,6 +142,33 @@ public class AdminUserService {
         // Authorities are rebuilt from the database on every request, so the change applies immediately.
         audit.record(actorId, "USER_ROLE_CHANGE", "USER", id.toString(), reason, "SUCCESS",
                 Map.of("before", Map.of("role", before), "after", Map.of("role", roleName)));
+        return AdminUserView.from(user, true, LocalDateTime.now());
+    }
+
+    /**
+     * Learners set their birth date once (it decides which age-rated Shadowing videos they may open); fixing a
+     * wrong date, or clearing it so the learner is asked again, goes through here and the audit log.
+     */
+    @Transactional
+    public AdminUserView changeBirthDate(Long actorId, Long id, LocalDate dateOfBirth, String reason) {
+        reason = validateReason(reason);
+        if (dateOfBirth != null && !BirthDates.isPlausible(dateOfBirth, BirthDates.today())) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, BirthDates.OUT_OF_RANGE);
+        }
+        User user = users.findForUpdate(id).orElseThrow(AdminUserService::notFound);
+        LocalDate before = user.getDateOfBirth();
+        // Plain validation error, not an audited rejection: that audit row would reference the row locked above.
+        if (Objects.equals(before, dateOfBirth)) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Ngày sinh mới trùng với ngày sinh hiện tại.");
+        }
+        user.setDateOfBirth(dateOfBirth);
+        // HashMap: a cleared or missing date is a null value, which Map.of rejects.
+        Map<String, Object> beforeValue = new LinkedHashMap<>();
+        beforeValue.put("dateOfBirth", before == null ? null : before.toString());
+        Map<String, Object> afterValue = new LinkedHashMap<>();
+        afterValue.put("dateOfBirth", dateOfBirth == null ? null : dateOfBirth.toString());
+        audit.record(actorId, "USER_BIRTH_DATE_CHANGE", "USER", id.toString(), reason, "SUCCESS",
+                Map.of("before", beforeValue, "after", afterValue));
         return AdminUserView.from(user, true, LocalDateTime.now());
     }
 

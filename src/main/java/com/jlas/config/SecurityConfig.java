@@ -53,6 +53,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Arena SSE completes through an async dispatch of an authenticated request.
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
+                        .requestMatchers("/admin/kanji-map", "/api/admin/kanji-map/**").hasRole("CONTENT_CREATOR")
                         .requestMatchers("/admin/jlpt", "/admin/jlpt/**", "/api/admin/jlpt/**")
                         .hasRole("CONTENT_CREATOR")
                         .requestMatchers("/admin/verb-practice", "/api/admin/verb-practice/**")
@@ -71,6 +72,7 @@ public class SecurityConfig {
                         .hasAnyRole("MODERATOR", "ADMIN")
                         .requestMatchers("/", "/premium", "/credits", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error").permitAll()
+                        .requestMatchers("/dictionary/kanji-map", "/dictionary/kanji-map.html").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
                                 "/arena/js/**", "/arena/images/**", "/arena/app/**", "/arena/audio/memory/**",
                                 "/videos/**", "/voices/**", "/audio/**", "/JLPT/**", "/flashcard/**", "/shadowing/css/**",

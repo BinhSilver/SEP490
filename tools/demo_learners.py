@@ -1,8 +1,9 @@
-"""Shared, deterministic demo learner identities for every engagement seed (Shadowing, Flashcard).
+"""Shared, deterministic demo learner identities for the engagement seeds (Shadowing).
 
 One list of full names (data/shadowing/demo_engagement.json -> "learners") becomes one set of
-accounts, so the same person comments on a video and owns/rates a flashcard set. Email and
-username are the name without diacritics plus a stable number, e.g. nguyenminhkhoi27@gmail.com.
+accounts. Email and username are the name without diacritics plus a stable number,
+e.g. nguyenminhkhoi27@gmail.com. The flashcard sets these learners once owned are retired by
+tools/flashcard_textbook (data/flashcard_textbook/retired_community_sets.json).
 
 The accounts are seeded without a password, unverified and LOCAL; seeds refuse to adopt an
 existing login-capable account with the same email. legacy_* is the earlier reserved

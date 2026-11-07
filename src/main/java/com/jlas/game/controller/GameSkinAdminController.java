@@ -4,6 +4,7 @@ import com.jlas.auth.dto.ApiResponse;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.game.enums.GameType;
+import com.jlas.game.enums.SkinTier;
 import com.jlas.game.service.GameSkinCatalogService;
 import com.jlas.game.service.GameSkinPackService;
 import com.jlas.game.service.GameSkinCatalogService.SkinInput;
@@ -63,6 +64,11 @@ public class GameSkinAdminController {
     }
 
     @GetMapping public ResponseEntity<ApiResponse<List<ShopItem>>> all() { return ok(catalog.all()); }
+    /** Bậc trang phục cho form admin: mã, tên hiển thị và giá CP đi kèm. */
+    public record TierView(String code, String label, int price) { }
+    @GetMapping("/tiers") public ResponseEntity<ApiResponse<List<TierView>>> tiers() {
+        return ok(java.util.Arrays.stream(SkinTier.values()).map(tier -> new TierView(tier.name(), tier.label(), tier.price())).toList());
+    }
     @GetMapping("/renderers") public ResponseEntity<ApiResponse<List<ShopItem>>> renderers() {
         return ok(GameShopCatalog.SHOP_GAMES.stream().flatMap(game -> GameShopCatalog.items(game).stream()).toList());
     }

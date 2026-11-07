@@ -3,6 +3,7 @@ package com.jlas.auth.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -29,6 +30,8 @@ public class UserResponse {
     private String phoneNumber;
 
     private String gender;
+
+    private LocalDate dateOfBirth;
 
     private String loginType;
 

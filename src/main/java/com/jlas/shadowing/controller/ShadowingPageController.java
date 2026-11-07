@@ -1,8 +1,10 @@
 package com.jlas.shadowing.controller;
 
+import com.jlas.auth.security.CurrentUser;
 import com.jlas.shadowing.dto.GenreOption;
 import com.jlas.shadowing.model.ShadowingGenre;
 import com.jlas.shadowing.model.Video;
+import com.jlas.shadowing.service.ShadowingPracticeService;
 import com.jlas.shadowing.service.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,6 +21,7 @@ import java.util.List;
 public class ShadowingPageController {
 
     @Autowired private VideoService videoService;
+    @Autowired private ShadowingPracticeService practiceService;
 
     /** Genre choices for the library filter, upload form and editor. */
     @ModelAttribute("shadowingGenres")
@@ -81,6 +84,9 @@ public class ShadowingPageController {
     @GetMapping("/shadowing/exercise/{sessionId}")
     public String exercise(@PathVariable Long sessionId, Model model) {
         model.addAttribute("sessionId", sessionId);
+        // The age-rating dialog needs the session's video; only the learner who owns the session gets it.
+        CurrentUser.currentUserId().flatMap(userId -> practiceService.ownedSessionVideoId(userId, sessionId))
+                .ifPresent(videoId -> model.addAttribute("videoId", videoId));
         return "shadowing/exercise";
     }
 
@@ -91,7 +97,9 @@ public class ShadowingPageController {
         if (!"shadowing".equalsIgnoreCase(mode)) {
             return "redirect:/shadowing/practice/" + id;
         }
-        model.addAttribute("canEditVideo", videoService.canEdit(videoService.getVideo(id)));
+        Video video = videoService.getVideo(id);
+        model.addAttribute("canEditVideo", videoService.canEdit(video));
+        model.addAttribute("canRateAge", videoService.canRateAge(video));
         model.addAttribute("videoId", id);
         return "shadowing/player";
     }

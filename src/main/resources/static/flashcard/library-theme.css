@@ -86,7 +86,8 @@
   min-height: 44px;
   align-items: center;
   gap: 10px;
-  padding-inline: 14px;
+  margin: 0;
+  padding-inline: 14px 4px;
   color: var(--fc-on-variant);
   background: var(--fc-surface-low);
   border: 0;
@@ -136,6 +137,29 @@
 #jlabBasePage.flashcard-page--library #jlabBaseContent #lib-search:focus-visible {
   outline: none;
   box-shadow: none;
+}
+/* Magnifier on the right submits the search (Enter does too). */
+#jlabBasePage.flashcard-page--library .lib-search__submit {
+  display: grid;
+  flex: 0 0 40px;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: var(--fc-on-variant);
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: color .15s ease, background-color .15s ease;
+}
+#jlabBasePage.flashcard-page--library .lib-search__submit:hover {
+  color: var(--fc-primary);
+  background: rgba(70,72,212,.09);
+}
+#jlabBasePage.flashcard-page--library .lib-search__submit:focus-visible {
+  outline: 2px solid var(--fc-primary);
+  outline-offset: 2px;
 }
 
 #jlabBasePage.flashcard-page--library .lib-sort-field {
@@ -1039,6 +1063,10 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--library .folder-filter.is-
 html[data-theme="dark"] #jlabBasePage.flashcard-page--library .folder-icon-btn:hover {
     background: var(--dm-flashcard-action)
 }
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-search__submit:hover {
+    color: var(--dm-flashcard-accent);
+    background: var(--dm-flashcard-accent-soft)
+}
 html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-search:focus-within {
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.30)
 }
@@ -1223,3 +1251,39 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-context-menu 
 /* Heart toggle on set cards; filled and tinted once the set is a favorite. */
 #jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .lib-favorite.is-favorite,
 #jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .lib-favorite.is-favorite i { color: var(--color-error, #e5484d); }
+
+/* "Lịch sử" tab: one heading per day of visits, a clear-all button; the list is always newest visit first. */
+#jlabBasePage.flashcard-page--library .lib-history-day {
+  grid-column: 1 / -1;
+  margin: 8px 0 -4px;
+  color: var(--fc-on-surface);
+  font-size: 16px;
+  font-weight: 700;
+}
+#jlabBasePage.flashcard-page--library .lib-history-day:first-child { margin-top: 0; }
+#jlabBasePage.flashcard-page--library .library-content.is-history .lib-sort-field { display: none; }
+#jlabBasePage.flashcard-page--library .lib-history-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  margin-left: auto;
+  margin-right: 12px;
+  padding: 8px 14px;
+  color: var(--fc-on-variant);
+  background: transparent;
+  border: 1px solid var(--fc-outline-soft);
+  border-radius: 10px;
+  font: 600 14px/1 var(--font-body, sans-serif);
+  cursor: pointer;
+}
+#jlabBasePage.flashcard-page--library .lib-history-clear[hidden] { display: none; }
+#jlabBasePage.flashcard-page--library .lib-history-clear:hover { color: var(--fc-error); border-color: var(--fc-error); }
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-history-day { color: var(--dm-flashcard-ink); }
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-history-clear { color: var(--dm-flashcard-muted); border-color: var(--dm-flashcard-line); }
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-history-clear:hover { color: var(--dm-flashcard-danger); border-color: var(--dm-flashcard-danger-line); }
+#jlabBasePage.flashcard-page--library .library-content.is-history .lib-toolbar { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 900px) {
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .library-content.is-history .lib-toolbar { grid-template-columns: minmax(0, 1fr) 44px; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-history-clear { margin-right: 8px; padding-inline: 10px; }
+}

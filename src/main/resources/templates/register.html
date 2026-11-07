@@ -40,18 +40,31 @@
                             <p id="emailError" class="field__error" aria-live="polite"></p>
                         </div>
 
-                        <div class="field">
-                            <label for="level" class="field__label">Trình độ tiếng Nhật hiện tại</label>
-                            <div class="input-wrap">
-                                <i class="fa-solid fa-graduation-cap input-wrap__icon" aria-hidden="true"></i>
-                                <select id="level" name="level" class="select select--with-icon">
-                                    <option value="UNKNOWN">Mình chưa xác định</option>
-                                    <option value="N5">N5 — Sơ cấp</option>
-                                    <option value="N4">N4 — Cơ bản</option>
-                                    <option value="N3">N3 — Trung cấp</option>
-                                    <option value="N2">N2 — Trung cao cấp</option>
-                                    <option value="N1">N1 — Cao cấp</option>
-                                </select>
+                        <div class="form__grid form__grid--2">
+                            <div class="field">
+                                <label for="dateOfBirth" class="field__label">Ngày sinh</label>
+                                <div class="input-wrap">
+                                    <i class="fa-regular fa-calendar input-wrap__icon" aria-hidden="true"></i>
+                                    <input id="dateOfBirth" name="dateOfBirth" type="date"
+                                           class="input input--with-icon" required
+                                           autocomplete="bday" aria-describedby="dateOfBirthError"/>
+                                </div>
+                                <p id="dateOfBirthError" class="field__error" aria-live="polite"></p>
+                            </div>
+
+                            <div class="field">
+                                <label for="level" class="field__label">Trình độ tiếng Nhật hiện tại</label>
+                                <div class="input-wrap">
+                                    <i class="fa-solid fa-graduation-cap input-wrap__icon" aria-hidden="true"></i>
+                                    <select id="level" name="level" class="select select--with-icon">
+                                        <option value="UNKNOWN">Mình chưa xác định</option>
+                                        <option value="N5">N5 — Sơ cấp</option>
+                                        <option value="N4">N4 — Cơ bản</option>
+                                        <option value="N3">N3 — Trung cấp</option>
+                                        <option value="N2">N2 — Trung cao cấp</option>
+                                        <option value="N1">N1 — Cao cấp</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
@@ -70,13 +83,13 @@
                                     <i class="fa-regular fa-eye" aria-hidden="true"></i>
                                 </button>
                             </div>
-                            <p id="passwordError" class="field__error" aria-live="polite"></p>
                             <ul id="passwordRules" class="password-rules" aria-label="Yêu cầu mật khẩu">
-                                <li data-password-rule="length"><i class="fa-solid fa-circle" aria-hidden="true"></i> Từ 8 đến 100 ký tự</li>
-                                <li data-password-rule="case"><i class="fa-solid fa-circle" aria-hidden="true"></i> Có chữ hoa và chữ thường</li>
-                                <li data-password-rule="number"><i class="fa-solid fa-circle" aria-hidden="true"></i> Có ít nhất một chữ số</li>
-                                <li data-password-rule="special"><i class="fa-solid fa-circle" aria-hidden="true"></i> Có ít nhất một ký tự đặc biệt</li>
+                                <li data-password-rule="length"><i class="fa-solid fa-circle" aria-hidden="true"></i> <span class="password-rule__full">Từ 8 đến 100 ký tự</span><span class="password-rule__short">Từ 8–100 ký tự</span></li>
+                                <li data-password-rule="case"><i class="fa-solid fa-circle" aria-hidden="true"></i> <span class="password-rule__full">Có chữ hoa và chữ thường</span><span class="password-rule__short">Chữ hoa và thường</span></li>
+                                <li data-password-rule="number"><i class="fa-solid fa-circle" aria-hidden="true"></i> <span class="password-rule__full">Có ít nhất một chữ số</span><span class="password-rule__short">Có chữ số</span></li>
+                                <li data-password-rule="special"><i class="fa-solid fa-circle" aria-hidden="true"></i> <span class="password-rule__full">Có ít nhất một ký tự đặc biệt</span><span class="password-rule__short">Có ký tự đặc biệt</span></li>
                             </ul>
+                            <p id="passwordError" class="field__error" aria-live="polite"></p>
                         </div>
 
                         <div class="field">
@@ -151,6 +164,7 @@
 <div th:replace="~{fragments/components/toast :: toast-host}"></div>
 <script th:src="@{/js/components.js}"></script>
 <script th:src="@{/js/pages/auth-common.js}"></script>
-<script th:src="@{/js/pages/register.js}"></script>
+<script th:src="@{/js/components/date-wheel.js?v=20261105-age-range}"></script>
+<script th:src="@{/js/pages/register.js(v=20261105-age-range)}"></script>
 </body>
 </html>

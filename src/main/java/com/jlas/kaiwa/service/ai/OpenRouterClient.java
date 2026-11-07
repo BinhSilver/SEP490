@@ -1,5 +1,6 @@
 package com.jlas.kaiwa.service.ai;
 
+import com.jlas.common.ai.AiUsageRecorder;
 import com.jlas.kaiwa.config.OpenRouterConfig;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -22,11 +23,17 @@ public class OpenRouterClient {
 
     private static final Logger log = LoggerFactory.getLogger(OpenRouterClient.class);
 
+    /** ai_usage_log feature names: the NPC reply of a turn, and the helpers (furigana, translation, suggestions). */
+    static final String FEATURE_REPLY = "AI_CALL_REPLY";
+    static final String FEATURE_HELPER = "AI_CALL_HELPER";
+
     private final OpenRouterConfig config;
     private final RestTemplate restTemplate;
+    private final AiUsageRecorder usage;
 
-    public OpenRouterClient(OpenRouterConfig config) {
+    public OpenRouterClient(OpenRouterConfig config, AiUsageRecorder usage) {
         this.config = config;
+        this.usage = usage;
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(15_000);
         factory.setReadTimeout(60_000);
@@ -102,6 +109,7 @@ public class OpenRouterClient {
                 throw new IllegalStateException("OpenRouter error: " + responseBody.get("error"));
             }
 
+            usage.recordOpenRouter(graph || structured ? FEATURE_REPLY : FEATURE_HELPER, config.getModel(), responseBody);
             String content = extractGraphContent(responseBody);
             if (content == null || content.isBlank()) {
                 throw new IllegalStateException("OpenRouter message content empty (model may be thinking-only or wrong id: "

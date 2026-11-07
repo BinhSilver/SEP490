@@ -11,11 +11,13 @@
     <link rel="stylesheet" href="/css/theme-bridge.css">
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/shadowing/css/styles.css">
-    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260928-preparation-separated">
-    <link rel="stylesheet" href="/css/pages/shadowing-preparation.css?v=20261012-manual-questions">
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261105-plum">
+    <link rel="stylesheet" href="/css/pages/shadowing-preparation.css?v=20261105-plum">
     <link rel="stylesheet" href="/css/jlab-base-shell.css">
     <link rel="icon" href="/images/jlab.png" type="image/png">
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+    <link rel="stylesheet" href="/css/components/date-wheel.css?v=20261102-wheel2">
+    <link rel="stylesheet" href="/shadowing/css/age-gate.css?v=20261102-wheel2">
 </head>
 <body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing page-shadowing-preparation">
 <div id="jlabBaseShellMount"></div>
@@ -221,6 +223,9 @@
 <script src="/js/auth-session.js"></script>
 <script src="/js/jlab-base-shell.js"></script>
 <script src="/shadowing/js/client.js?v=20260712"></script>
+<div th:replace="~{shadowing/fragments/age-gate :: dialog(${videoId})}"></div>
+<script src="/js/components/date-wheel.js?v=20261105-age-range"></script>
+<script src="/shadowing/js/age-gate.js?v=20261105-age-range"></script>
 <script src="/shadowing/js/confirm-modal.js?v=20260829"></script>
 <script src="/shadowing/js/preparation-preflight.js?v=20261009-preflight-dialog"></script>
 <script src="/shadowing/js/manual-questions.js?v=20261012"></script>

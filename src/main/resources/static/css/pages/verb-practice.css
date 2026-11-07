@@ -114,3 +114,181 @@
 .verb-page #jlabBaseContent{padding-top:14px}
 .vp-hero{padding-top:18px;padding-bottom:22px}
 @media(max-width:620px){.verb-page #jlabBaseContent{padding-top:12px}}
+
+/* Plum palette for setup, practice, and results. */
+html[data-theme="dark"] .verb-page {
+  --vp-ink: var(--dark-ink);
+  --vp-muted: var(--dark-muted);
+  --vp-purple: var(--dark-accent);
+  --vp-line: var(--dark-line);
+  --vp-soft: var(--dark-soft);
+  --vp-bg: var(--dark-bg);
+  --vp-card: var(--dark-surface);
+  --vp-raised: var(--dark-raised);
+  --vp-input-line: var(--dark-input-line);
+  --vp-action-hover: var(--dark-accent-hover);
+  --color-background: var(--vp-bg);
+  --jlab-base-page-background: var(--vp-bg);
+  color-scheme: dark;
+}
+html[data-theme="dark"] .verb-page :is(.vp-card, .vp-mode, .vp-paper-front, .vp-floating-pill, .vp-ring>div, .vp-resume button, .vp-choice) {
+  background: var(--vp-card);
+  border-color: var(--vp-line);
+  color: var(--vp-ink);
+}
+html[data-theme="dark"] .verb-page :is(
+  .vp-dialog,
+  .vp-rule-columns details,
+  .vp-context,
+  .vp-filter-row select,
+  .vp-question-card input[type=text]
+) {
+  background: var(--vp-raised);
+  color: var(--vp-ink);
+}
+html[data-theme="dark"] .verb-page :is(.vp-filter-row select, .vp-question-card input[type=text]) {
+  border-color: var(--vp-input-line);
+  caret-color: var(--vp-purple);
+}
+html[data-theme="dark"] .verb-page .vp-filter-row select {
+  --color-surface-lowest: var(--vp-raised);
+  --color-on-surface: var(--vp-ink);
+  --color-outline-variant: var(--vp-input-line);
+  --color-primary: var(--vp-purple);
+  --focus-ring: 0 0 0 3px var(--vp-purple);
+}
+html[data-theme="dark"] .verb-page :is(.vp-paper footer, .vp-filter-row, .vp-launch, .vp-result-row, .vp-rule-content, .vp-rule-form-columns tr+tr) {
+  border-color: var(--vp-line);
+}
+html[data-theme="dark"] .verb-page :is(
+  .vp-hero h1,
+  .vp-question-center h2,
+  .vp-context p,
+  .vp-results h1,
+  .vp-result-row b,
+  .vp-rule-columns summary,
+  .vp-rule-columns summary>span,
+  .vp-rule-form-columns td,
+  .vp-rule-note b
+) {
+  color: var(--vp-ink);
+}
+html[data-theme="dark"] .verb-page :is(
+  .vp-eyebrow,
+  .vp-kicker,
+  .vp-hero-tags,
+  .vp-paper small,
+  .vp-paper footer,
+  .vp-floating-pill,
+  .vp-step,
+  .vp-filter-row label,
+  .vp-form-category,
+  .vp-form-chips span,
+  .vp-reading-toggle,
+  .vp-launch small,
+  .vp-ring small,
+  .vp-today-body p,
+  .vp-weak-item>div,
+  .vp-weak-item b,
+  .vp-rule-intro,
+  .vp-rule-columns summary>span small,
+  .vp-rule-columns summary>b,
+  .vp-rule-content p,
+  .vp-rule-content>small,
+  .vp-rule-form-columns th,
+  .vp-rule-form-columns td small,
+  .vp-rule-note,
+  .vp-session-progress>div:first-child,
+  .vp-question-instruction,
+  .vp-reading,
+  .vp-meaning,
+  .vp-context small,
+  .vp-input-hint,
+  .vp-text-button,
+  .vp-back,
+  .vp-feedback small,
+  .vp-play-foot,
+  .vp-result-row small,
+  .vp-result-metrics span,
+  .vp-dialog p
+) {
+  color: var(--vp-muted);
+}
+html[data-theme="dark"] .verb-page .vp-question-card input::placeholder { color: var(--vp-muted); }
+html[data-theme="dark"] .verb-page :is(.vp-muted, .vp-mode small, .vp-rule-lead) { color: var(--vp-muted); }
+html[data-theme="dark"] .verb-page :is(
+  .vp-paper [lang=ja]>span,
+  .vp-paper b,
+  .vp-spark,
+  .vp-hero-tags i,
+  .vp-mode-check,
+  .vp-label-row button,
+  .vp-question-instruction strong,
+  .vp-ring strong,
+  .vp-result-spark,
+  .vp-result-metrics strong,
+  .vp-result-row p,
+  .vp-resume button,
+  .vp-rule-example i,
+  .vp-rule-form-columns h3
+) {
+  color: var(--vp-purple);
+}
+html[data-theme="dark"] .verb-page .vp-hero h1 em {
+  background-image: linear-gradient(100deg, var(--vp-purple), var(--vp-action-hover));
+}
+html[data-theme="dark"] .verb-page :is(.vp-mini-kanji, .vp-icon, .vp-soft-label, .vp-context mark, .vp-choice span, .vp-rule-example),
+html[data-theme="dark"] .verb-page .vp-rule-columns summary::after {
+  background: var(--vp-soft);
+  color: var(--vp-purple);
+}
+html[data-theme="dark"] .verb-page :is(.vp-paper-back, .vp-progress-track, .vp-resume, .vp-rule-note) {
+  background: var(--vp-soft);
+  border-color: var(--vp-line);
+  color: var(--vp-muted);
+}
+html[data-theme="dark"] .verb-page :is(.vp-kicker>span, .vp-progress-track i) { background: var(--vp-purple); }
+html[data-theme="dark"] .verb-page .vp-ring {
+  background: conic-gradient(from -90deg, var(--vp-purple) 0%, var(--vp-action-hover) var(--percent), var(--vp-soft) var(--percent));
+}
+html[data-theme="dark"] .verb-page :is(.vp-form-chips span, .vp-rule-columns details) { border-color: var(--vp-line); }
+html[data-theme="dark"] .verb-page :is(.vp-mode:hover, .vp-rule-columns details[open]) { border-color: var(--vp-purple); }
+html[data-theme="dark"] .verb-page :is(
+  .vp-mode[aria-pressed=true],
+  .vp-form-chips input:checked+span,
+  .vp-choice[aria-pressed=true]:not(.is-correct, .is-wrong),
+  .vp-button.secondary,
+  .vp-resume button:hover,
+  .vp-choice:hover:not(.is-correct, .is-wrong)
+) {
+  background: var(--vp-soft);
+  border-color: var(--vp-purple);
+  color: var(--vp-purple);
+}
+html[data-theme="dark"] .verb-page .vp-mode[aria-pressed=true] { box-shadow: 0 0 0 2px var(--vp-soft); }
+html[data-theme="dark"] .verb-page .vp-toggle-track { background: var(--vp-input-line); }
+html[data-theme="dark"] .verb-page .vp-reading-toggle input:checked~.vp-toggle-track { background: var(--vp-purple); }
+html[data-theme="dark"] .verb-page .vp-toggle-track::after { background: var(--vp-bg); }
+html[data-theme="dark"] .verb-page .vp-button.primary {
+  background: var(--vp-purple);
+  color: var(--vp-bg);
+}
+html[data-theme="dark"] .verb-page .vp-button.primary:hover:not(:disabled) { background: var(--vp-action-hover); }
+html[data-theme="dark"] .verb-page :is(.vp-feedback, .vp-choice.is-correct, .vp-check) {
+  background: var(--dark-success-bg);
+  border-color: var(--dark-success-line);
+  color: var(--dark-success);
+}
+html[data-theme="dark"] .verb-page :is(.vp-feedback.wrong, .vp-choice.is-wrong, .vp-notice, .vp-timer.urgent) {
+  background: var(--dark-danger-bg);
+  border-color: var(--dark-danger-line);
+  color: var(--dark-danger);
+}
+html[data-theme="dark"] .verb-page :is(.vp-feedback-icon, .vp-feedback.wrong .vp-feedback-icon) { background: var(--vp-bg); }
+html[data-theme="dark"] .verb-page :is(.vp-result-row.is-wrong>span, .vp-result-row del) { color: var(--dark-danger); }
+html[data-theme="dark"] .verb-page :is(.vp-result-row:not(.is-wrong)>span, .vp-floating-pill i) { color: var(--dark-success); }
+html[data-theme="dark"] .verb-page .vp-timer:not(.urgent) { background: var(--dark-warning-bg); color: var(--dark-warning); }
+html[data-theme="dark"] .verb-page :is(button, input, select, summary):focus-visible,
+html[data-theme="dark"] .verb-page .vp-form-chips input:focus-visible+span,
+html[data-theme="dark"] .verb-page .vp-reading-toggle input:focus-visible~.vp-toggle-track { outline-color: var(--vp-purple); }
+html[data-theme="dark"] .verb-page :is(.vp, .vp-dialog) ::selection { background: var(--dark-selection); color: var(--vp-ink); }

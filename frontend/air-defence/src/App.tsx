@@ -72,11 +72,6 @@ function formatClock(ms: number): string {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-function initialOf(name: string | null | undefined): string {
-  const trimmed = (name || "").trim();
-  return trimmed ? trimmed.charAt(0).toUpperCase() : "?";
-}
-
 // ============================================================
 // ORBITAL KANA — Shared Design Atoms
 // ============================================================
@@ -181,7 +176,7 @@ function OkBadge({
   }[variant];
 
   return (
-    <span className={cls} style={variant === "error" ? { background: "var(--ok-error)", color: "#fff" } : {}}>
+    <span className={cls} style={variant === "error" ? { background: "var(--ok-error)", color: "var(--ok-on-error, #fff)" } : {}}>
       {children}
     </span>
   );
@@ -190,44 +185,6 @@ function OkBadge({
 // ============================================================
 // BATTLE SCREEN HELPERS (dark mode — PixiJS wrapper)
 // ============================================================
-function BattleStat({ label, value, tone }: { label: string; value: string | number; tone?: string }) {
-  return (
-    <div style={{ minWidth: 0 }}>
-      <p style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.16em", color: "#94a3b8", textTransform: "uppercase", margin: 0 }}>{label}</p>
-      <p style={{ fontFamily: "Inter", fontSize: 18, fontWeight: 600, color: tone || "var(--battle-cyan)", margin: 0 }}>{value}</p>
-    </div>
-  );
-}
-
-function BattlePanel({ children, className = "", style = {} }: { children: ReactNode; className?: string; style?: CSSProperties }) {
-  return <div className={`battle-panel rounded-2xl ${className}`} style={style}>{children}</div>;
-}
-
-function BattlePill({ children, tone = "cyan" }: { children: ReactNode; tone?: "cyan" | "amber" | "violet" | "rose" }) {
-  const colors: Record<string, { border: string; bg: string; color: string }> = {
-    cyan:   { border: "rgba(85,244,255,.3)",   bg: "rgba(85,244,255,.1)",   color: "var(--battle-cyan)"   },
-    amber:  { border: "rgba(255,200,87,.3)",   bg: "rgba(255,200,87,.1)",   color: "var(--battle-amber)"  },
-    violet: { border: "rgba(169,121,255,.3)",  bg: "rgba(169,121,255,.1)",  color: "var(--battle-violet)" },
-    rose:   { border: "rgba(255,109,134,.3)",  bg: "rgba(255,109,134,.1)",  color: "var(--battle-rose)"   },
-  };
-  const c = colors[tone];
-  return (
-    <span
-      style={{
-        display: "inline-flex", alignItems: "center",
-        borderRadius: 9999, border: `1px solid ${c.border}`,
-        background: c.bg, color: c.color,
-        padding: "0 10px",
-        fontFamily: "monospace", fontSize: 9, letterSpacing: "0.12em",
-        fontWeight: 700, textTransform: "uppercase",
-        whiteSpace: "nowrap",
-      }}
-    >
-      {children}
-    </span>
-  );
-}
-
 function BattleAction({
   children,
   onClick,
@@ -856,75 +813,6 @@ export function AugmentDraft({ preview }: { preview?: { sound: (action:string) =
 }
 
 // ============================================================
-// HUD đối thủ (đối kháng) — từ state.players + AIR_PROGRESS + SESSION_PRESENCE
-// ============================================================
-function OpponentBar({ opponent, inboundBoss }: { opponent: AirPlayerView | null; inboundBoss: boolean }) {
-  if (!opponent) {
-    return (
-      <BattlePanel style={{ flexShrink: 0, padding: "8px 16px", fontFamily: "monospace", fontSize: 11, color: "#94a3b8" }}>
-        Đang chờ thông tin đối thủ…
-      </BattlePanel>
-    );
-  }
-  const pct = opponent.maxHp > 0 ? Math.max(0, Math.min(100, (opponent.hp / opponent.maxHp) * 100)) : 0;
-  const down = opponent.finished && !opponent.alive;
-  const hpColor = pct > 50 ? "var(--battle-cyan)" : pct > 25 ? "var(--battle-amber)" : "var(--battle-rose)";
-
-  return (
-    <BattlePanel style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: "8px 16px", flexWrap: "wrap" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: "1 1 320px" }} aria-label={`Đối thủ ${opponent.displayName}`}>
-        {opponent.avatarUrl ? (
-          <img
-            src={opponent.avatarUrl}
-            alt=""
-            style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(169,121,255,.5)", flexShrink: 0, opacity: opponent.online ? 1 : 0.5 }}
-          />
-        ) : (
-          <span style={{
-            width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
-            background: "rgba(169,121,255,.2)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontWeight: 700, fontSize: 13, color: "var(--battle-violet)",
-            opacity: opponent.online ? 1 : 0.5,
-          }}>{initialOf(opponent.displayName)}</span>
-        )}
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-            <span style={{ fontWeight: 700, fontSize: 13, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 220 }}>
-              {opponent.displayName}
-            </span>
-            <span style={{ fontFamily: "monospace", fontSize: 9, color: "#94a3b8" }}>ĐỐI THỦ</span>
-            {!opponent.online && <BattlePill tone="amber">Mất kết nối</BattlePill>}
-            {down && <BattlePill tone="rose">Hành tinh thất thủ</BattlePill>}
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
-            <div
-              role="meter"
-              aria-label="Máu hành tinh đối thủ"
-              aria-valuemin={0}
-              aria-valuemax={opponent.maxHp}
-              aria-valuenow={opponent.hp}
-              style={{ flex: 1, maxWidth: 260, height: 6, borderRadius: 9999, background: "rgba(255,255,255,.1)", overflow: "hidden" }}
-            >
-              <div style={{ height: "100%", width: `${pct}%`, background: hpColor, transition: "width .3s" }} />
-            </div>
-            <span style={{ fontFamily: "monospace", fontSize: 10, fontWeight: 700, color: hpColor }}>
-              MÁU {opponent.hp}/{opponent.maxHp}
-            </span>
-          </div>
-        </div>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-        <BattleStat label="ĐIỂM" value={opponent.score.toLocaleString()} tone="var(--battle-violet)" />
-        <BattleStat label="ĐỢT" value={opponent.wave} tone="var(--battle-violet)" />
-        <BattleStat label="COMBO" value={`×${opponent.combo}`} tone="var(--battle-violet)" />
-        {inboundBoss && <BattlePill tone="rose"><i className="fa-solid fa-triangle-exclamation" aria-hidden="true" /> TRÙM ĐANG TỚI</BattlePill>}
-      </div>
-    </BattlePanel>
-  );
-}
-
-// ============================================================
 // Đồng hồ đối kháng: endsAt - serverNow(); tới 0 thì dừng mô phỏng
 // ============================================================
 function useTimeLeft(endsAt: number | null): number | null {
@@ -1065,10 +953,8 @@ function Battle() {
       <BattleHud match={match} wave={wave} timeLeft={timeLeft} score={score} combo={combo}
         credits={creditsEarned} hp={hp} maxHp={maxHp} shield={shield} charge={hyperBeamCharge}
         disabled={inputDisabled || introActive} ship={playerSpaceshipCode()} liveStatus={liveStatus}
-        bgm={bgmEnabled} onMusic={toggleBgm} onMenu={openSettings} onBeam={fireHyperBeam} />
-
-      {/* PvP opponent bar */}
-      {match.versus && <OpponentBar opponent={opponent} inboundBoss={inboundBoss} />}
+        bgm={bgmEnabled} onMusic={toggleBgm} onMenu={openSettings} onBeam={fireHyperBeam}
+        opponent={opponent} inboundBoss={inboundBoss} />
 
       {/* Canvas */}
       <div className={`ad-battle-viewport ${hpPct <= 25 ? "is-low-hp" : ""} ${beamReady ? "is-super-ready" : ""} is-beam-${hyperBeamPhase}`}>
@@ -1234,7 +1120,7 @@ function ResultLineRow({ line, meId }: { line: ResultLine; meId: number }) {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
-        <span style={{ fontWeight: 800, fontSize: 14, width: 28, color: line.rank === 1 ? "#9a6400" : "var(--ok-on-surface-variant)" }}>
+        <span style={{ fontWeight: 800, fontSize: 14, width: 28, color: line.rank === 1 ? "var(--ok-rank-first, #9a6400)" : "var(--ok-on-surface-variant)" }}>
           #{line.rank}
         </span>
         <div style={{ minWidth: 0 }}>
@@ -1347,7 +1233,7 @@ function ResultScreen() {
           <OkCard className="ad-result-hero" style={{ marginBottom: 24, position: "relative", overflow: "hidden" }}>
             <div style={{
               position: "absolute", inset: 0,
-              background: "linear-gradient(180deg, rgba(233,221,255,.2) 0%, transparent 60%)",
+              background: "linear-gradient(180deg, var(--ok-hero-glow, rgba(233,221,255,.2)) 0%, transparent 60%)",
               pointerEvents: "none",
             }} />
             <div style={{ position: "relative", textAlign: "center" }}>

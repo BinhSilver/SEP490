@@ -10,14 +10,17 @@
     <link rel="stylesheet" href="/css/tokens.css"/>
     <link rel="stylesheet" href="/css/theme-bridge.css"/>
     <link rel="stylesheet" href="/css/base.css"/>
-    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261025-comments">
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261105-plum">
     <link rel="icon" href="/images/jlab.png" type="image/png"/>
-    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261015-rescore"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261105-plum"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
     <link rel="stylesheet" href="/shadowing/css/responsive-player.css?v=20261012-practice-mobile">
     <link rel="stylesheet" href="/shadowing/css/focus-mode.css?v=20261012-shadowing-focus">
-    <link rel="stylesheet" href="/css/components/inline-dictionary.css?v=20261030-merge"/>
+    <link rel="stylesheet" href="/css/components/inline-dictionary.css?v=20261103-auto"/>
+    <link rel="stylesheet" href="/css/components/cp-confirm.css?v=20261031-pro-cp"/>
+    <link rel="stylesheet" href="/css/components/date-wheel.css?v=20261102-wheel2">
+    <link rel="stylesheet" href="/shadowing/css/age-gate.css?v=20261102-wheel2">
 </head>
 <body data-mobile-adapt="owned" id="jlabBasePage" class="page-player page-shadowing page-shadowing-player">
     <div id="jlabBaseShellMount"></div>
@@ -46,6 +49,7 @@
                     <span class="badge badge-lesson" id="lesson-views-badge"><i class="fa-solid fa-eye"></i> 0 lượt xem</span>
                     <span class="badge badge-lesson badge-green" id="lesson-duration-badge"><i class="fa-regular fa-clock"></i> — phút</span>
                     <span class="badge badge-lesson" id="lesson-category-badge"><i class="fa-solid fa-folder"></i> Hàng ngày</span>
+                    <span class="badge badge-lesson badge-age" id="lesson-age-badge" hidden></span>
                 </div>
             </div>
         </header>
@@ -137,6 +141,16 @@
                     <button onclick="window.location.href='/shadowing'" class="text-link">
                         Thư viện
                     </button>
+                    <span th:if="${canRateAge}" class="age-rating-control">
+                        <label for="age-rating-select"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> Độ tuổi</label>
+                        <select id="age-rating-select" class="form-input form-select" aria-describedby="age-rating-status">
+                            <option value="0">Mọi lứa tuổi</option>
+                            <option value="13">13+</option>
+                            <option value="16">16+</option>
+                            <option value="18">18+</option>
+                        </select>
+                        <span id="age-rating-status" class="caption" aria-live="polite"></span>
+                    </span>
                 </div>
 
                 <!-- BR — Self-recording UI: thu giọng đọc theo phụ đề + nghe lại -->
@@ -231,18 +245,23 @@
     </main>
 
     <script src="/js/auth-session.js"></script>
-    <script defer src="/js/inline-dictionary.js?v=20261030-merge"></script>
+    <script src="/js/components/cp-auto-pay.js?v=20261103-auto"></script>
+    <script defer src="/js/inline-dictionary.js?v=20261103-auto"></script>
+    <script src="/js/components/cp-confirm.js?v=20261103-auto"></script>
     <script src="/js/jlab-base-shell.js"></script>
     <script src="/shadowing/js/client.js?v=20260712"></script>
+    <div th:replace="~{shadowing/fragments/age-gate :: dialog(${videoId})}"></div>
+    <script src="/js/components/date-wheel.js?v=20261105-age-range"></script>
+    <script src="/shadowing/js/age-gate.js?v=20261105-age-range"></script>
     <script src="/shadowing/js/confirm-modal.js?v=20260718"></script>
-    <script src="/shadowing/js/recorder.js?v=20261014-extra3s-label"></script>
+    <script src="/shadowing/js/recorder.js?v=20261103-auto"></script>
     <script src="/shadowing/js/watch-tracker.js?v=20260929-view-30s"></script>
     <script src="/shadowing/js/subtitle-display.js?v=20261012-7"></script>
     <script src="/shadowing/js/media-actions.js?v=20261012-1"></script>
     <script src="/shadowing/js/focus-mode.js?v=20261012-focus-romaji"></script>
     <script src="/shadowing/js/listen-record.js?v=20261012-mic-tools"></script>
     <script src="/shadowing/js/youtube-media.js?v=20261021-yt"></script>
-    <script src="/shadowing/js/app.js?v=20261025-comments"></script>
+    <script src="/shadowing/js/app.js?v=20261101-age-gate"></script>
     <script src="/shadowing/js/video-report.js?v=20261021-report-3"></script>
     <script src="/shadowing/js/player-timeline.js?v=20261012-mic-tools"></script>
     <script src="/shadowing/js/player-mobile.js?v=20261012-5"></script>

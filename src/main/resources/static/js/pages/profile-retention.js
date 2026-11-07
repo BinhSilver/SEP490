@@ -364,7 +364,10 @@
         ADMIN_DEDUCT: 'Quản trị viên trừ CP',
         CREDIT_PURCHASE: 'Mua CP',
         REFUND: 'Hoàn điểm',
-        GAME_ITEM_PURCHASE: 'Mua đồ trong Trò chơi'
+        GAME_ITEM_PURCHASE: 'Mua đồ trong Trò chơi',
+        AI_CALL_TURN: 'Lượt AI Call',
+        QUICK_LOOKUP_PACK: 'Mua lượt tra từ nhanh',
+        PRONUNCIATION_CHECK: 'Chấm phát âm'
     };
 
     async function loadCreditHistory() {
@@ -407,7 +410,18 @@
         renderGoal(data.dailyGoal);
         renderStreak(data.streak);
         renderMissions(data.missions);
+        renderEarnCap(data);
         renderCheer(data);
+    }
+
+    /** "CP từ học tập hôm nay: 25/40": study rewards stop adding CP once the daily cap is reached. */
+    function renderEarnCap(data) {
+        var label = byId('earnCapToday');
+        if (!label || !data.dailyEarnCap) return;
+        var earned = Math.min(Number(data.earnedToday) || 0, data.dailyEarnCap);
+        label.textContent = 'CP từ học tập hôm nay: ' + earned + '/' + data.dailyEarnCap;
+        label.classList.toggle('is-full', earned >= data.dailyEarnCap);
+        label.hidden = false;
     }
 
     /** Kitsu's line on the goals page: the most useful next step for today. */
@@ -532,8 +546,13 @@
                     { method: 'POST' });
                 if (result.alreadyClaimed) {
                     notify('Phần thưởng này đã được nhận trước đó.', 'info');
-                } else if (window.RewardFX) {
-                    await RewardFX.claim(result);
+                } else {
+                    if (result.capReached) {
+                        notify(result.rewardPoints > 0
+                            ? 'Bạn nhận ' + result.rewardPoints + ' CP, chạm giới hạn CP từ học tập hôm nay.'
+                            : 'Hôm nay bạn đã nhận đủ CP từ học tập. Nhiệm vụ vẫn được ghi nhận.', 'info');
+                    }
+                    if (result.rewardPoints > 0 && window.RewardFX) await RewardFX.claim(result);
                 }
                 lastClaimed = button.dataset.missionCode;
                 await loadDashboard({ quiet: true });

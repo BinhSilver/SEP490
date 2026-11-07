@@ -1,0 +1,45 @@
+/*
+ * For a page with no dark block of its own: @import this at the top of the page stylesheet.
+ * Maps the shared --color-* tokens onto the palette in dark-palette.css, without touching other pages.
+ */
+html[data-theme="dark"] body {
+  --color-background: var(--dark-bg);
+  --color-surface: var(--dark-bg);
+  --color-surface-lowest: var(--dark-surface);
+  --color-surface-low: var(--dark-surface);
+  --color-surface-mid: var(--dark-raised);
+  --color-surface-high: var(--dark-soft);
+  --color-surface-container: var(--dark-raised);
+  --color-surface-container-high: var(--dark-soft);
+  --color-surface-variant: var(--dark-soft);
+  --color-on-surface: var(--dark-ink);
+  --color-on-surface-variant: var(--dark-muted);
+  --color-secondary: var(--dark-muted);
+  --color-outline: var(--dark-faint);
+  --color-outline-variant: var(--dark-line);
+  --color-primary: var(--dark-button);
+  --color-primary-container: var(--dark-button-hover);
+  --color-on-primary: var(--dark-on-button);
+  --color-on-primary-container: var(--dark-on-button);
+  --color-primary-fixed: var(--dark-soft);
+  --color-on-primary-fixed: var(--dark-ink);
+  --color-secondary-container: var(--dark-soft);
+  --color-secondary-fixed: var(--dark-soft);
+  --color-success: var(--dark-success);
+  --color-success-bg: var(--dark-success-bg);
+  --color-error: var(--dark-danger);
+  --color-error-container: var(--dark-danger-bg);
+  --color-on-error-container: var(--dark-danger);
+  --color-tertiary: var(--dark-warning);
+  --color-tertiary-container: var(--dark-warning-bg);
+  --color-on-tertiary-container: var(--dark-warning);
+  --color-focus: var(--dark-focus);
+  --focus-ring: 0 0 0 3px var(--dark-focus-ring);
+  --jlab-base-page-background: var(--dark-bg);
+  --bg-gradient-static: var(--dark-bg);
+  --bg-gradient-animated: var(--dark-bg);
+}
+html[data-theme="dark"] body :is(.input, .select, .textarea) {
+  border-color: var(--dark-input-line);
+  background: var(--dark-input);
+}

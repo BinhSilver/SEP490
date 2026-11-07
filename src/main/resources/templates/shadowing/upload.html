@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="/css/tokens.css"/>
     <link rel="stylesheet" href="/css/theme-bridge.css"/>
     <link rel="stylesheet" href="/css/base.css"/>
-    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261017-genres">
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261105-plum">
     <link rel="icon" href="/images/jlab.png" type="image/png"/>
     <link rel="stylesheet" href="/css/pages/shadowing.css"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
@@ -84,6 +84,15 @@
                             <option value="en">Tiếng Anh</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label" for="file-min-age-select">Độ tuổi</label>
+                        <select id="file-min-age-select" class="form-input form-select">
+                            <option value="0" selected>Mọi lứa tuổi</option>
+                            <option value="13">13+</option>
+                            <option value="16">16+</option>
+                            <option value="18">18+</option>
+                        </select>
+                    </div>
                 </div>
 
                 <label class="form-check furigana-option" for="file-furigana-check">
@@ -151,6 +160,16 @@
                                 <option value="en">Tiếng Anh</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label class="form-label" for="yt-min-age-select">Độ tuổi</label>
+                            <select id="yt-min-age-select" class="form-input form-select" aria-describedby="yt-min-age-hint">
+                                <option value="0" selected>Mọi lứa tuổi</option>
+                                <option value="13">13+</option>
+                                <option value="16">16+</option>
+                                <option value="18">18+</option>
+                            </select>
+                            <p id="yt-min-age-hint" class="caption" hidden></p>
+                        </div>
                     </div>
 
                     <label class="form-check furigana-option" for="yt-furigana-check">
@@ -170,6 +189,6 @@
     <script src="/js/jlab-base-shell.js"></script>
     <script src="/shadowing/js/client.js?v=20261017-genres"></script>
     <script src="/shadowing/js/confirm-modal.js?v=20260718"></script>
-    <script src="/shadowing/js/upload.js?v=20261017-genres"></script>
+    <script src="/shadowing/js/upload.js?v=20261101-age-gate"></script>
 </body>
 </html>

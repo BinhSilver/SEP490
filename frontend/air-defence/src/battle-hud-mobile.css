@@ -24,6 +24,20 @@
   .ad-battle .ad-hud__fields { grid-area: 2 / 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 9px; line-height: 1.5; }
   .ad-battle .ad-hud__connection { grid-area: 3 / 1 / auto / -1; }
   .ad-battle .ad-hud__actions, .ad-battle .ad-status-rail { display: none; }
+  /* Versus keeps the comparison; the beam already sits in the top readouts. */
+  .ad-battle .ad-status-rail.is-duel { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 8px; min-height: 0; }
+  .ad-battle .ad-status-rail.is-duel .ad-super { display: none; }
+  .ad-duel-side__head { gap: 5px; margin-bottom: 4px; }
+  .ad-duel-side__avatar { display: none; }
+  /* Status tags shrink to their icon so the name and health stay readable. */
+  .ad-duel-tag { padding: 1px 4px; }
+  .ad-duel-tag > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .ad-duel-side__name, .ad-duel-side__hp { font-size: 11px; }
+  .ad-duel-side__stats { gap: 8px; margin-top: 4px; }
+  .ad-duel-side__stats > div:not(:first-child) { display: none; }
+  .ad-duel-side__stats dd { font-size: 12px; }
+  .ad-duel__versus b { font-size: 12px; }
+  .ad-duel__versus small { display: none; }
 
   .ad-battle .ad-hud__readouts {
     display: grid;

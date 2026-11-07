@@ -1,3 +1,4 @@
+@import url("../controls.css");
 /* Goals page (templates/goals.html): daily goal, streak, missions, CP history, target dialog, demo panel. */
 
 .goals-page {
@@ -111,6 +112,10 @@
 }
 .goals-retention-status.is-complete,
 .gp-chip.is-complete { background: var(--gp-green-soft); color: var(--gp-green); }
+
+/* Daily study-CP cap under the missions title. */
+.gp-earn-cap { display: block; margin-top: 2px; font-size: 12.5px; font-weight: 600; color: var(--gp-violet); }
+.gp-earn-cap.is-full { color: var(--gp-green); }
 
 /* ---------- Today: ring + metrics ---------- */
 .gp-today__body {
@@ -741,28 +746,28 @@ html:not(.rfx-full-motion) .gp-mission-list .retention-mission__action .btn { an
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
 html[data-theme="dark"] {
-  --dm-goals-bg: #0b0d13;
-  --dm-goals-surface: #171b26;
-  --dm-goals-raised: #252c39;
-  --dm-goals-ink: #f8fafc;
-  --dm-goals-muted: #b2bfd2;
-  --dm-goals-line: #40485d;
-  --dm-goals-accent: #c084fc;
-  --dm-goals-action: #7335a6;
-  --dm-goals-accent-soft: #2a203d;
-  --dm-goals-on-accent: #211b34;
-  --dm-goals-success: #8eddb6;
-  --dm-goals-success-bg: #1b3d32;
-  --dm-goals-success-line: #43816b;
-  --dm-goals-danger: #ffb4bd;
-  --dm-goals-danger-bg: #452832;
-  --dm-goals-danger-line: #96616d;
-  --dm-goals-warning: #f3d28a;
-  --dm-goals-warning-bg: #403522;
-  --dm-goals-warning-line: #947a46;
-  --dm-goals-pink: #f4aed2;
-  --dm-goals-pink-bg: #432d40;
-  --dm-goals-pink-line: #88637b;
+  --dm-goals-bg: var(--dark-bg);
+  --dm-goals-surface: var(--dark-surface);
+  --dm-goals-raised: var(--dark-raised);
+  --dm-goals-ink: var(--dark-ink);
+  --dm-goals-muted: var(--dark-muted);
+  --dm-goals-line: var(--dark-line);
+  --dm-goals-accent: var(--dark-accent);
+  --dm-goals-action: var(--dark-button);
+  --dm-goals-accent-soft: var(--dark-soft);
+  --dm-goals-on-accent: var(--dark-on-button);
+  --dm-goals-success: var(--dark-success);
+  --dm-goals-success-bg: var(--dark-success-bg);
+  --dm-goals-success-line: var(--dark-success-line);
+  --dm-goals-danger: var(--dark-danger);
+  --dm-goals-danger-bg: var(--dark-danger-bg);
+  --dm-goals-danger-line: var(--dark-danger-line);
+  --dm-goals-warning: var(--dark-warning);
+  --dm-goals-warning-bg: var(--dark-warning-bg);
+  --dm-goals-warning-line: var(--dark-warning-line);
+  --dm-goals-pink: var(--dark-pink);
+  --dm-goals-pink-bg: var(--dark-pink-bg);
+  --dm-goals-pink-line: var(--dark-pink-line);
 }
 html[data-theme="dark"] .goals-page {
     --gp-ink: var(--dm-goals-ink);
@@ -938,11 +943,11 @@ html[data-theme="dark"] .gp-target input[type="range"] {
     background: linear-gradient(90deg, var(--t-color) var(--fill, 0%), var(--dm-goals-accent-soft) var(--fill, 0%))
 }
 html[data-theme="dark"] .gp-target input[type="range"]::-webkit-slider-thumb {
-    border: 4px solid var(--dm-goals-line);
+    border: 4px solid var(--dark-input-line);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.37)
 }
 html[data-theme="dark"] .gp-target input[type="range"]::-moz-range-thumb {
-    border: 4px solid var(--dm-goals-line);
+    border: 4px solid var(--dark-input-line);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.37)
 }
 html[data-theme="dark"] .gp-ghost-btn {
@@ -954,7 +959,7 @@ html[data-theme="dark"] .gp-ghost-btn:hover {
 }
 html[data-theme="dark"] .gp-primary-btn {
     background: linear-gradient(135deg, var(--dm-goals-action), var(--dm-goals-action));
-    color: var(--dm-goals-ink);
+    color:var(--dark-on-button);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.42)
 }
 html[data-theme="dark"] .gp :focus-visible,
@@ -985,10 +990,10 @@ html[data-theme="dark"] .mission-demo__status {
 }
 
 /* Dark interaction and state pairs for this page. */
-html[data-theme="dark"] .goals-page{--color-background:var(--dm-goals-bg);--color-surface:var(--dm-goals-bg);--color-surface-lowest:var(--dm-goals-surface);--color-surface-low:var(--dm-goals-raised);--color-surface-mid:var(--dm-goals-raised);--color-surface-high:var(--dm-goals-raised);--color-surface-container:var(--dm-goals-raised);--color-surface-container-high:var(--dm-goals-raised);--color-on-surface:var(--dm-goals-ink);--color-on-surface-variant:var(--dm-goals-muted);--color-secondary:var(--dm-goals-muted);--color-outline:var(--dm-goals-muted);--color-outline-variant:var(--dm-goals-line);--color-primary:var(--dm-goals-accent);--color-primary-container:var(--dm-goals-action);--color-on-primary:var(--dm-goals-on-accent);--color-on-primary-container:var(--dm-goals-ink);--color-primary-fixed:var(--dm-goals-accent-soft);--color-on-primary-fixed:var(--dm-goals-accent);--color-secondary-container:var(--dm-goals-accent-soft);--color-secondary-fixed:var(--dm-goals-accent-soft);--color-success:var(--dm-goals-success);--color-success-bg:var(--dm-goals-success-bg);--color-error:var(--dm-goals-danger);--color-error-container:var(--dm-goals-danger-bg);--color-on-error-container:var(--dm-goals-danger);--color-tertiary:var(--dm-goals-warning);--color-tertiary-container:var(--dm-goals-warning-bg);--color-on-tertiary-container:var(--dm-goals-warning);--color-focus:var(--dm-goals-accent);--jlab-base-page-background:var(--dm-goals-bg);--gp-ink:var(--dm-goals-ink);--gp-muted:var(--dm-goals-muted);--gp-orange:#ffb58d;--gp-blue:#a9ceff;--gp-shadow:0 8px 24px #0003;}
+html[data-theme="dark"] .goals-page{--color-background:var(--dm-goals-bg);--color-surface:var(--dm-goals-bg);--color-surface-lowest:var(--dm-goals-surface);--color-surface-low:var(--dm-goals-raised);--color-surface-mid:var(--dm-goals-raised);--color-surface-high:var(--dm-goals-raised);--color-surface-container:var(--dm-goals-raised);--color-surface-container-high:var(--dm-goals-raised);--color-on-surface:var(--dm-goals-ink);--color-on-surface-variant:var(--dm-goals-muted);--color-secondary:var(--dm-goals-muted);--color-outline:var(--dm-goals-muted);--color-outline-variant:var(--dm-goals-line);--color-primary:var(--dm-goals-accent);--color-primary-container:var(--dm-goals-action);--color-on-primary:var(--dm-goals-on-accent);--color-on-primary-container:var(--dark-on-button);--color-primary-fixed:var(--dm-goals-accent-soft);--color-on-primary-fixed:var(--dm-goals-accent);--color-secondary-container:var(--dm-goals-accent-soft);--color-secondary-fixed:var(--dm-goals-accent-soft);--color-success:var(--dm-goals-success);--color-success-bg:var(--dm-goals-success-bg);--color-error:var(--dm-goals-danger);--color-error-container:var(--dm-goals-danger-bg);--color-on-error-container:var(--dm-goals-danger);--color-tertiary:var(--dm-goals-warning);--color-tertiary-container:var(--dm-goals-warning-bg);--color-on-tertiary-container:var(--dm-goals-warning);--color-focus:var(--dm-goals-accent);--jlab-base-page-background:var(--dm-goals-bg);--gp-ink:var(--dm-goals-ink);--gp-muted:var(--dm-goals-muted);--gp-orange:#ffb58d;--gp-blue:#a9ceff;--gp-shadow:0 8px 24px #0003;}
 html[data-theme="dark"] .gp-ring .ring-track{stroke:var(--dm-goals-raised);}
 html[data-theme="dark"] :is(.gp-modal,.gp-dialog){color:var(--dm-goals-ink);}
-html[data-theme="dark"] .gp-dialog input{background:var(--dm-goals-surface);color:var(--dm-goals-ink);border-color:var(--dm-goals-line);}
+html[data-theme="dark"] .gp-dialog input{background:var(--dark-input);color:var(--dm-goals-ink);border-color:var(--dark-input-line);}
 
 /* Entry to the Kana Connect daily challenge page, below the daily missions. */
 .gp-kana-entry {
@@ -1008,6 +1013,5 @@ html[data-theme="dark"] .gp-dialog input{background:var(--dm-goals-surface);colo
 .gp-kana-entry__text small { color: var(--gp-muted); font-size: 12.5px; }
 .gp-kana-entry__cta { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; background: #6544cf; color: #fff; font-size: 13px; font-weight: 700; }
 html[data-theme="dark"] .gp-kana-entry { background: var(--dm-goals-raised); border-color: var(--dm-goals-accent); }
-/* White on deep violet stays readable in dark mode (about 6:1). */
-html[data-theme="dark"] .gp-kana-entry__icon, html[data-theme="dark"] .gp-kana-entry__cta { background: #6544cf; color: #ffffff; }
+html[data-theme="dark"] .gp-kana-entry__icon, html[data-theme="dark"] .gp-kana-entry__cta { background: var(--dark-button); color: var(--dark-on-button); }
 @media (max-width: 420px) { .gp-kana-entry { grid-template-columns: 40px minmax(0, 1fr); } .gp-kana-entry__cta { grid-column: 1 / -1; justify-content: center; } }

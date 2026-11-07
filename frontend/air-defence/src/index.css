@@ -677,6 +677,31 @@ button { cursor: pointer; }
 .ad-super > strong small { font-size:10px; }
 .ad-super.is-ready { color:#e2d8ff; background:#a979ff18; border-color:#b79affaa; box-shadow:0 0 20px #a979ff1f; }
 .ad-super.is-ready .ad-super__track > span { background:#d2bfff; }
+/* Versus: both players on one rail, the same readouts side by side. */
+.ad-status-rail.is-duel { grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) minmax(170px,240px); gap:20px; }
+.ad-duel-side { --side-color:#55f4ff; min-width:0; }
+.ad-duel-side--rival { --side-color:#a979ff; }
+.ad-duel-side.is-low { --side-color:#ff6d86; }
+.ad-duel-side.is-offline { opacity:.6; }
+.ad-duel-side__head { display:flex; align-items:center; gap:8px; min-width:0; margin-bottom:6px; }
+.ad-duel-side__avatar { position:relative; display:grid; place-items:center; flex:none; width:22px; height:22px; border-radius:50%; overflow:hidden; background:color-mix(in srgb,var(--side-color) 22%,transparent); color:var(--side-color); font:700 11px Inter,sans-serif; }
+.ad-duel-side__avatar img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.ad-duel-side__name { min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font:700 13px Inter,sans-serif; color:#eef7ff; }
+.ad-duel-side__hp { margin-left:auto; flex:none; font:600 13px Inter,sans-serif; font-variant-numeric:tabular-nums; color:#eef7ff; }
+.ad-duel-side__hp small { color:#94a3b8; font-size:10px; }
+.ad-duel-side .ad-health__track > span { background:var(--side-color); }
+.ad-duel-side__stats { display:flex; gap:16px; margin:6px 0 0; }
+.ad-duel-side__stats > div { display:flex; align-items:baseline; gap:5px; }
+.ad-duel-side__stats dt { font:500 10px Inter,sans-serif; color:#94a3b8; }
+.ad-duel-side__stats dd { margin:0; font:700 13px Inter,sans-serif; font-variant-numeric:tabular-nums; color:var(--side-color); }
+.ad-duel-side__stats .is-shield dd, .ad-duel-side__stats .is-shield dt { color:#ffc857; }
+.ad-duel-tag { display:inline-flex; align-items:center; gap:4px; flex:none; padding:1px 6px; border:1px solid currentColor; border-radius:999px; font:600 10px/1.5 Inter,sans-serif; white-space:nowrap; }
+.ad-duel-tag.is-amber { color:#ffc857; }
+.ad-duel-tag.is-rose { color:#ff6d86; }
+.ad-duel-side--waiting { margin:0; font:500 12px Inter,sans-serif; color:#94a3b8; }
+.ad-duel__versus { display:grid; justify-items:center; gap:2px; }
+.ad-duel__versus b { font:800 14px Inter,sans-serif; letter-spacing:.08em; color:#eef7ff; }
+.ad-duel__versus small { font:500 10px Inter,sans-serif; color:#94a3b8; white-space:nowrap; }
 .ad-battle-viewport { position:relative; flex:1; min-height:0; width:100%; isolation:isolate; }
 .ad-battle-viewport::after { content:""; position:absolute; inset:0; border-radius:16px; pointer-events:none; z-index:8; box-shadow:inset 0 0 70px #00000088; transition:box-shadow .4s; }
 .ad-battle-viewport.is-super-ready::after { box-shadow:inset 0 0 80px #a979ff22; }
@@ -757,3 +782,25 @@ html[data-theme="dark"] .ok-badge-success {background:#1b3e33;color:#8fe2bb;}
 html[data-theme="dark"] .ok-btn-primary {background:#4668a5;color:#edf4fc;}
 html[data-theme="dark"] .ok-btn-primary:hover {background:#5679b8;}
 html[data-theme="dark"] .ok-btn-danger {background:#88394c;color:#fff0f3;}
+
+/* Results follow the site's plum dark palette. The --dark-* roles come from css/dark-palette.css, which the
+   board loads through arena/css/voice.css. Scoped to the results page: the augment draft shares these tokens
+   but sits over the battle, which keeps its night palette. */
+html[data-theme="dark"] .ad-app:has(> .ok-page) {
+ --ok-background:var(--dark-bg); --ok-surface-white:var(--dark-surface); --ok-surface-low:var(--dark-raised);
+ --ok-surface-container:var(--dark-line); --ok-surface-container-high:var(--dark-soft);
+ --ok-on-surface:var(--dark-ink); --ok-on-surface-variant:var(--dark-muted); --ok-outline-variant:var(--dark-line);
+ --ok-primary:var(--dark-accent); --ok-primary-container:var(--dark-accent); --ok-on-primary:var(--dark-on-button);
+ --ok-primary-fixed:var(--dark-soft); --ok-primary-fixed-dim:var(--dark-line);
+ --ok-secondary:var(--dark-pink); --ok-secondary-fixed:var(--dark-soft); --ok-on-secondary-fixed-variant:var(--dark-ink);
+ --ok-tertiary-fixed:var(--dark-warning-bg); --ok-on-tertiary-fixed:var(--dark-warning);
+ --ok-tertiary-fixed-dim:var(--dark-warning); --ok-tertiary-container:var(--dark-warning);
+ --ok-error:var(--dark-danger); --ok-on-error:var(--dark-bg); --ok-error-container:var(--dark-danger-bg); --ok-on-error-container:var(--dark-danger);
+ --ok-success:var(--dark-success); --ok-rank-first:var(--dark-warning); --ok-hero-glow:rgb(220 174 232 / 10%);
+ --ok-shadow-1:0 6px 22px var(--dark-shadow); --ok-shadow-2:0 14px 34px var(--dark-shadow);
+}
+html[data-theme="dark"] .ad-app:has(> .ok-page) .ok-btn-primary {background:var(--dark-button);color:var(--dark-on-button);box-shadow:0 2px 8px var(--dark-shadow);}
+html[data-theme="dark"] .ad-app:has(> .ok-page) .ok-btn-primary:hover {background:var(--dark-button-hover);}
+html[data-theme="dark"] .ad-app:has(> .ok-page) .ok-btn-secondary {background:var(--dark-button-light);color:var(--dark-on-button);}
+html[data-theme="dark"] .ad-app:has(> .ok-page) .ok-btn-secondary:hover {background:var(--dark-button-light-hover);}
+html[data-theme="dark"] .ad-app:has(> .ok-page) .ok-badge-success {background:var(--dark-success-bg);color:var(--dark-success);}

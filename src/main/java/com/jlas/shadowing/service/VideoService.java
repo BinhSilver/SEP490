@@ -21,6 +21,7 @@ import com.jlas.shadowing.repository.ShadowingQuestionBankRepository;
 import com.jlas.shadowing.repository.VideoWatchSessionRepository;
 import com.jlas.shadowing.util.NullSafe;
 import com.jlas.shadowing.util.ShadowingModerationState;
+import com.jlas.shadowing.util.VideoAgeRatings;
 import com.jlas.shadowing.util.VideoOwnership;
 import com.jlas.shadowing.util.LibraryFilters;
 import com.jlas.shadowing.util.LibraryPopularity;
@@ -56,6 +57,7 @@ public class VideoService {
     @Autowired private VideoFavoriteRepository favoriteRepository;
     @Autowired private VideoWatchSessionRepository watchSessionRepository;
     @Autowired private VideoViewRepository videoViews;
+    @Autowired private com.jlas.common.history.ViewHistoryRepository viewHistory;
     @Autowired private ShadowingLibraryCatalog libraryCatalog;
     @Autowired private ShadowingVideoTags videoTags;
     @Autowired private ShadowingQuestionBankRepository questionBank;
@@ -65,6 +67,7 @@ public class VideoService {
     @Autowired private VideoModerationService videoModerationService;
     @Autowired private UserActionPolicyPort actionPolicy;
     @Autowired private ApplicationEventPublisher eventPublisher;
+    @Autowired private ShadowingAgeGate ageGate;
 
     @Value("${upload.path.video}")
     private String videoDir;
@@ -93,31 +96,32 @@ public class VideoService {
     @Transactional
     public Video uploadVideo(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage) throws Exception {
-        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, false, null);
+        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, false, null, null);
     }
 
     @Transactional
     public Video uploadVideo(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage,
                              Boolean generateFurigana) throws Exception {
-        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, generateFurigana, null);
+        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, generateFurigana, null, null);
     }
 
     @Transactional
     public Video uploadVideo(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage,
-                             Boolean generateFurigana, List<String> genres) throws Exception {
-        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, generateFurigana, genres);
+                             Boolean generateFurigana, List<String> genres, Integer minAge) throws Exception {
+        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, generateFurigana, genres, minAge);
     }
 
     private Video uploadVideoInternal(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage,
-                             Boolean generateFurigana, List<String> genres) throws Exception {
+                             Boolean generateFurigana, List<String> genres, Integer minAge) throws Exception {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Vui lòng chọn file video hoặc âm thanh.");
         }
-        // Checked before the file is stored, so an invalid genre never leaves an orphan upload.
+        // Checked before the file is stored, so an invalid genre or age rating never leaves an orphan upload.
         List<Tag> genreTags = videoTags.genreTags(genres);
+        Integer ageRating = VideoAgeRatings.parse(minAge);
 
         String originalFilename = file.getOriginalFilename();
         String extension = resolveExtension(originalFilename, file.getContentType());
@@ -169,6 +173,7 @@ public class VideoService {
         Long ownerId = CurrentUser.currentUserId().orElse(null);
         video.setOwnerId(ownerId);
         video.setVisibility(VideoVisibility.PRIVATE);
+        video.setMinAge(ageRating);
         if (category != null && !category.isBlank()) {
             video.setTags(resolveCategory(category));
         } else if (tagNames != null && !tagNames.isEmpty()) {
@@ -238,7 +243,7 @@ public class VideoService {
     }
 
     public List<Subtitle> getSubtitles(Long videoId) {
-        getVideo(videoId);
+        getVideoForViewing(videoId);
         return subtitleRepository.findByVideoIdOrderBySortOrderAscStartTimeAsc(videoId);
     }
 
@@ -361,15 +366,36 @@ public class VideoService {
             String sort, String scope, String status, boolean favorites, int page, int size) {
         Long me = CurrentUser.currentUserId().orElse(null);
         String client = me == null ? null : String.valueOf(me);
+        Map<Long, LocalDateTime> viewed = "history".equals(scope) && me != null
+                ? viewHistory.recent(me, com.jlas.common.history.ViewHistoryRepository.Item.SHADOWING_VIDEO) : Map.of();
         return libraryCatalog.videos(query, category, genre, level, sort, scope, status, favorites, me, page, size)
                 .map(entry -> {
                     VideoSummaryDto dto = getSummary(entry.id(), client);
+                    dto.setViewedAt(viewed.get(entry.id()));
                     dto.setAvgRating(entry.metrics().ratingCount() > 0 ? entry.metrics().averageRating() : null);
                     dto.setRatingCount((int) Math.min(Integer.MAX_VALUE, entry.metrics().ratingCount()));
                     dto.setViewCount((int) Math.min(Integer.MAX_VALUE, entry.metrics().views()));
                     dto.setEstimatedLevel(entry.level());
                     return dto;
                 });
+    }
+
+    /** Lịch sử: người đã đăng nhập mở trang luyện một video có thật thì ghi lại lần ghé. */
+    public void recordVisit(Long videoId) {
+        CurrentUser.currentUserId().filter(me -> videoRepository.existsById(videoId))
+                .ifPresent(me -> viewHistory.record(me, com.jlas.common.history.ViewHistoryRepository.Item.SHADOWING_VIDEO, videoId));
+    }
+
+    public void removeHistory(Long videoId) {
+        viewHistory.remove(requireLogin(), com.jlas.common.history.ViewHistoryRepository.Item.SHADOWING_VIDEO, videoId);
+    }
+
+    public void clearHistory() {
+        viewHistory.clear(requireLogin(), com.jlas.common.history.ViewHistoryRepository.Item.SHADOWING_VIDEO);
+    }
+
+    private static Long requireLogin() {
+        return CurrentUser.currentUserId().orElseThrow(() -> new ApiException(ErrorCode.UNAUTHORIZED, "Vui lòng đăng nhập"));
     }
 
     private static boolean isPublicReady(Video v) {
@@ -384,7 +410,7 @@ public class VideoService {
         return true;
     }
 
-    private static boolean isModerator() {
+    static boolean isModerator() {
         return CurrentUser.hasRole("ROLE_MODERATOR") || CurrentUser.hasRole("ROLE_ADMIN")
                 || CurrentUser.hasRole("ROLE_SUPER_ADMIN");
     }
@@ -475,6 +501,22 @@ public class VideoService {
         return video;
     }
 
+    /**
+     * {@link #getVideo} plus the age rating: for everything that plays or teaches the video. Thumbnails, titles,
+     * status and the server-rendered pages keep using {@link #getVideo}, so a rated video stays visible.
+     */
+    public Video getVideoForViewing(Long id) {
+        Video video = getVideo(id);
+        requireAgeAllowed(video);
+        return video;
+    }
+
+    public void requireAgeAllowed(Video video) {
+        // Unrated videos (every video from before age ratings) need no birth-date lookup.
+        if (video.getMinAge() == null) return;
+        ageGate.requireAllowed(video, CurrentUser.currentUserId().orElse(null));
+    }
+
     /** Summary used by public playlist/detail pages. */
     public VideoSummaryDto getSummary(Long id, String clientId) {
         Video video = getVideo(id);
@@ -522,7 +564,31 @@ public class VideoService {
                 // keep current
             }
         }
+        if (req.getMinAge() != null) video.setMinAge(resolveMinAge(req.getMinAge()));
         return NullSafe.ref(videoRepository.save(video));
+    }
+
+    /** Owner, or a moderator reviewing the video from the player page, may change its age rating. */
+    public boolean canRateAge(Video video) {
+        return VideoOwnership.canEdit(video) || isModerator();
+    }
+
+    @Transactional
+    public Video setAgeRating(Long id, Integer minAge) {
+        Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
+        if (!canRateAge(video)) {
+            throw new ApiException(ErrorCode.FORBIDDEN, "Chỉ chủ video hoặc người kiểm duyệt mới đổi được nhãn độ tuổi.");
+        }
+        video.setMinAge(resolveMinAge(minAge));
+        return NullSafe.ref(videoRepository.save(video));
+    }
+
+    private static Integer resolveMinAge(Integer minAge) {
+        try {
+            return VideoAgeRatings.parse(minAge);
+        } catch (IllegalArgumentException e) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, e.getMessage());
+        }
     }
 
     @Transactional
@@ -728,6 +794,7 @@ public class VideoService {
         dto.setSubtitleCount(subtitleRepository.findByVideoIdOrderBySortOrderAscStartTimeAsc(v.getId()).size());
         dto.setOwnerId(v.getOwnerId());
         dto.setVisibility(v.getVisibility() != null ? v.getVisibility().name() : VideoVisibility.PRIVATE.name());
+        dto.setMinAge(v.getMinAge());
         dto.setOwnedByMe(currentUserId != null && currentUserId.equals(v.getOwnerId()));
         dto.setViewCount(videoViews.viewCount(v.getId()));
         dto.setAvgRating(ratingRepository.averageByVideoId(v.getId()));

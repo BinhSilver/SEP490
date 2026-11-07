@@ -5,6 +5,7 @@ import com.jlas.auth.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -34,6 +35,8 @@ public class AdminUserView {
     private String gender;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String japaneseLevel;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private LocalDate dateOfBirth;
 
     public static final String FREE_PLAN = "FREE";
 
@@ -54,6 +57,7 @@ public class AdminUserView {
                 .lockedReason(detail ? user.getLockedReason() : null)
                 .premiumPlanName(detail && user.getPremiumPlan() != null ? user.getPremiumPlan().getName() : null)
                 .phoneNumber(detail ? user.getPhoneNumber() : null).gender(detail ? user.getGender() : null)
-                .japaneseLevel(detail ? user.getJapaneseLevel() : null).build();
+                .japaneseLevel(detail ? user.getJapaneseLevel() : null)
+                .dateOfBirth(detail ? user.getDateOfBirth() : null).build();
     }
 }

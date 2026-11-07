@@ -45,12 +45,32 @@ public class OnyomiPageController {
             return "redirect:" + COURSE;
         }
         if (LOCKED.equals(lesson.status())) {
-            return "redirect:" + COURSE + "?locked=lesson";
+            return "redirect:" + COURSE + lockedLesson(user, id);
         }
         model.addAttribute("lesson", lesson);
         model.addAttribute("pageTitle", "Bài " + lesson.order() + ": " + lesson.title() + " - Onyomi - JLAS");
         model.addAttribute("layoutMode", "app");
         return "learning/onyomi/lesson";
+    }
+
+    /** The practice quiz on its own page; the lesson page only teaches and links here. */
+    @GetMapping("/lessons/{id}/practice")
+    public String lessonPractice(@PathVariable("id") Long id, @AuthenticationPrincipal UserPrincipal user,
+                                 Model model) {
+        OnyomiLessonView lesson = courseService.lesson(user.userId(), id).orElse(null);
+        if (lesson == null) {
+            return "redirect:" + COURSE;
+        }
+        if (LOCKED.equals(lesson.status())) {
+            return "redirect:" + COURSE + lockedLesson(user, id);
+        }
+        if (lesson.practiceQuestionCount() == 0) {
+            return "redirect:" + COURSE + "/lessons/" + id;
+        }
+        model.addAttribute("lesson", lesson);
+        model.addAttribute("pageTitle", "Luyện tập bài " + lesson.order() + ": " + lesson.title() + " - Onyomi - JLAS");
+        model.addAttribute("layoutMode", "app");
+        return "learning/onyomi/practice";
     }
 
     @GetMapping("/rules/{id}")
@@ -60,7 +80,7 @@ public class OnyomiPageController {
             return "redirect:" + COURSE;
         }
         if (LOCKED.equals(page.lessonStatus())) {
-            return "redirect:" + COURSE + "?locked=lesson";
+            return "redirect:" + COURSE + lockedLesson(user, page.lessonId());
         }
         model.addAttribute("page", page);
         model.addAttribute("pageTitle", page.rule().title() + " - Onyomi - JLAS");
@@ -76,7 +96,7 @@ public class OnyomiPageController {
             return "redirect:" + COURSE;
         }
         if (!stage.unlocked()) {
-            return "redirect:" + COURSE + "?locked=final";
+            return "redirect:" + COURSE + lockedFinal(user);
         }
         model.addAttribute("stage", stage);
         model.addAttribute("pageTitle", "Kiểm tra cuối giai đoạn " + stage.stageOrder() + " - Onyomi - JLAS");
@@ -93,11 +113,20 @@ public class OnyomiPageController {
             return "redirect:" + COURSE;
         }
         if (!stage.unlocked()) {
-            return "redirect:" + COURSE + "?locked=final";
+            return "redirect:" + COURSE + lockedFinal(user);
         }
         model.addAttribute("stage", stage);
         model.addAttribute("pageTitle", "Làm bài kiểm tra giai đoạn " + stage.stageOrder() + " - Onyomi - JLAS");
         model.addAttribute("layoutMode", "app");
         return "learning/onyomi/final-test";
+    }
+
+    /** A lesson past the free ones says "Pro", one not reached yet says "finish the previous lesson". */
+    private String lockedLesson(UserPrincipal user, Long lessonId) {
+        return courseService.isLessonProLocked(user.userId(), lessonId) ? "?locked=pro" : "?locked=lesson";
+    }
+
+    private String lockedFinal(UserPrincipal user) {
+        return courseService.hasFullAccess(user.userId()) ? "?locked=final" : "?locked=pro";
     }
 }
