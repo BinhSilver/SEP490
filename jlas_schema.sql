@@ -3884,4 +3884,123 @@ CREATE TABLE IF NOT EXISTS verb_practice_progress (
     CONSTRAINT fk_verb_progress_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [JLAS-KANJI-MAP] Relational source catalog.
+CREATE TABLE IF NOT EXISTS user_kanji_mastery (
+    user_id BIGINT UNSIGNED NOT NULL,
+    kanji_character VARCHAR(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    mastered_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id, kanji_character),
+    CONSTRAINT fk_kanji_mastery_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanji_map_content (
+    kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    content_json LONGTEXT NOT NULL,
+    version BIGINT NOT NULL DEFAULT 1,
+    updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_by BIGINT NOT NULL,
+    PRIMARY KEY (kanji_character),
+    CONSTRAINT chk_kanji_map_content_version CHECK (version > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanji_map_dataset (
+    id SMALLINT NOT NULL PRIMARY KEY,
+    graph_version INT NOT NULL,
+    source_sha256 CHAR(64) NOT NULL,
+    sources_json LONGTEXT NOT NULL,
+    node_count INT NOT NULL,
+    CONSTRAINT chk_kanji_map_dataset_singleton CHECK (id = 1)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanji_map_node (
+    kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL PRIMARY KEY,
+    source_order INT NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    is_kanji BOOLEAN NOT NULL,
+    is_radical BOOLEAN NOT NULL,
+    radical_number INT NULL,
+    jlpt_level VARCHAR(2) NULL,
+    han_viet VARCHAR(255) NULL,
+    meaning_vi TEXT NULL,
+    meaning_vi_source VARCHAR(100) NULL,
+    meaning_vi_source_url VARCHAR(1000) NULL,
+    memory_hint TEXT NULL,
+    stroke_count INT NULL,
+    parent_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+    parent_relation VARCHAR(30) NULL,
+    radical_name_vi VARCHAR(100) NULL,
+    radical_base VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+    is_radical_variant BOOLEAN NOT NULL DEFAULT FALSE,
+    KEY idx_kanji_map_level (is_active, jlpt_level),
+    CONSTRAINT fk_kanji_map_parent FOREIGN KEY (parent_character) REFERENCES kanji_map_node(kanji_character),
+    CONSTRAINT fk_kanji_map_radical_base FOREIGN KEY (radical_base) REFERENCES kanji_map_node(kanji_character),
+    CONSTRAINT chk_kanji_map_node_level CHECK (jlpt_level IS NULL OR jlpt_level IN ('N1','N2','N3','N4','N5'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanji_map_reading (
+    kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    reading_type VARCHAR(3) NOT NULL,
+    reading_order INT NOT NULL,
+    reading_text VARCHAR(100) NOT NULL,
+    PRIMARY KEY (kanji_character, reading_type, reading_order),
+    CONSTRAINT fk_kanji_map_reading_node FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character) ON DELETE CASCADE,
+    CONSTRAINT chk_kanji_map_reading_type CHECK (reading_type IN ('ON','KUN'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanji_map_gloss (
+    kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    gloss_order INT NOT NULL,
+    meaning_en TEXT NOT NULL,
+    PRIMARY KEY (kanji_character, gloss_order),
+    CONSTRAINT fk_kanji_map_gloss_node FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanji_map_radical_alias (
+    kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    alias_order INT NOT NULL,
+    alias_text VARCHAR(100) NOT NULL,
+    PRIMARY KEY (kanji_character, alias_order),
+    CONSTRAINT fk_kanji_map_alias_node FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanji_map_component (
+    kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    component_order INT NOT NULL,
+    component_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    original_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+    position_code VARCHAR(30) NULL,
+    is_partial BOOLEAN NOT NULL,
+    PRIMARY KEY (kanji_character, component_order),
+    KEY idx_kanji_map_component_character (component_character),
+    CONSTRAINT fk_kanji_map_component_owner FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character) ON DELETE CASCADE,
+    CONSTRAINT fk_kanji_map_component_target FOREIGN KEY (component_character) REFERENCES kanji_map_node(kanji_character)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanji_map_stroke (
+    kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    stroke_order INT NOT NULL,
+    path_data TEXT NOT NULL,
+    PRIMARY KEY (kanji_character, stroke_order),
+    CONSTRAINT fk_kanji_map_stroke_node FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS user_notebook_kanji (
+    notebook_id BIGINT NOT NULL,
+    kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    saved_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    -- [JLAS-KANJI-MAP] Review progress stays with this Kanji in this notebook.
+    first_seen_at DATETIME NULL,
+    last_reviewed_at DATETIME NULL,
+    due_at DATETIME NULL,
+    ease_factor DECIMAL(4,2) NOT NULL DEFAULT 2.50,
+    repetitions INT NOT NULL DEFAULT 0,
+    interval_days INT NOT NULL DEFAULT 0,
+    PRIMARY KEY (notebook_id, kanji_character),
+    KEY idx_notebook_kanji_due (notebook_id, due_at),
+    CONSTRAINT fk_notebook_kanji_book FOREIGN KEY (notebook_id) REFERENCES user_notebook(id) ON DELETE CASCADE,
+    CONSTRAINT fk_notebook_kanji_node FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-NOTEBOOK] End of Kanji update.
+
 -- End of canonical schema.

@@ -1,5 +1,6 @@
-(function () {
+window.AdminShell.ready.then(function (allowed) {
   'use strict';
+  if (!allowed) return;
   var $ = function (id) { return document.getElementById(id); };
   var state = { verbs: [], contexts: [], forms: [], dirty: false, tab: 'verbs', verbPage: 0, contextPage: 0 };
   var pageSizes = { verbs: 10, contexts: 10 };
@@ -189,4 +190,4 @@
   ['contextSearch', 'contextLevelFilter', 'contextFormFilter'].forEach(function (id) { $(id).addEventListener('input', function () { state.contextPage = 0; renderContexts(); }); });
   window.addEventListener('beforeunload', function (event) { if (state.dirty) { event.preventDefault(); event.returnValue = ''; } });
   load();
-})();
+});
