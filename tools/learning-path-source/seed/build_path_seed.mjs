@@ -68,7 +68,7 @@ export function buildSeed(level, {
     if (bytes) sources.set(l, { compiled: JSON.parse(bytes.toString('utf8')), bytes });
   }
   const knownCodes = new Map();
-  for (const [l, { compiled: c }] of sources) for (const item of [...(c.vocabulary ?? []), ...(c.kanji ?? [])]) knownCodes.set(item.id, l);
+  for (const [l, { compiled: c }] of sources) for (const item of [...(c.vocabulary ?? []), ...(c.kanji ?? []), ...(c.grammar ?? [])]) knownCodes.set(item.id, l);
   const lower = [...sources.entries()].filter(([l]) => LEVEL_RANK[l] < LEVEL_RANK[level]);
   const lowerLevels = lower.map(([, s]) => s.compiled);
 
