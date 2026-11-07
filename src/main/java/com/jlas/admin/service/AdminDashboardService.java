@@ -2,6 +2,7 @@ package com.jlas.admin.service;
 
 import com.jlas.admin.dto.AdminAuditLogView;
 import com.jlas.admin.dto.AdminUserView;
+import com.jlas.admin.enums.SystemConfigKey;
 import com.jlas.admin.repository.AdminAuditLogRepository;
 import com.jlas.admin.repository.AdminPaymentRepository;
 import com.jlas.admin.repository.AdminUserRepository;
@@ -34,6 +35,7 @@ public class AdminDashboardService {
     private final PremiumPlanRepository plans;
     private final AdminPaymentRepository payments;
     private final AdminAuditLogRepository logs;
+    private final SystemConfigService config;
 
     public record Revenue(String currency, long count, BigDecimal amount) {
     }
@@ -74,6 +76,12 @@ public class AdminDashboardService {
                             int premiumYear, List<MonthRevenue> premiumByMonth) {
     }
 
+    /** The requested period, or {@code dashboard.default_period} when the request names none. */
+    public Period period(String requested) {
+        return Period.parse(requested == null || requested.isBlank()
+                ? config.value(SystemConfigKey.DASHBOARD_DEFAULT_PERIOD) : requested);
+    }
+
     public Dashboard summary(Period period) {
         LocalDateTime now = LocalDateTime.now();
         Map<String, Long> byRole = new TreeMap<>();
@@ -88,7 +96,8 @@ public class AdminDashboardService {
         var sellable = plans.findAll().stream()
                 .filter(p -> !AdminUserView.FREE_PLAN.equalsIgnoreCase(p.getName())).toList();
         long onSale = sellable.stream().filter(p -> Boolean.TRUE.equals(p.getIsActive())).count();
-        List<AdminAuditLogView> recent = logs.findAll(PageRequest.of(0, 8,
+        int recentLimit = config.intValue(SystemConfigKey.DASHBOARD_RECENT_ACTIONS_LIMIT);
+        List<AdminAuditLogView> recent = logs.findAll(PageRequest.of(0, recentLimit,
                 Sort.by(Sort.Direction.DESC, "createdAt", "id"))).map(AdminAuditLogView::from).getContent();
         LocalDateTime yearStart = now.toLocalDate().withDayOfYear(1).atStartOfDay();
         List<MonthRevenue> premiumByMonth = payments.premiumPaidByMonth(yearStart, now.plusSeconds(1)).stream()

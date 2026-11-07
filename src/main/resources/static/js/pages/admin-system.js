@@ -32,7 +32,15 @@
     var s = PAYMENT_STATUS[status] || [status, ''];
     return '<span class="adm-badge' + (s[1] ? ' adm-badge--' + s[1] : '') + '">' + A.esc(s[0]) + '</span>';
   }
-  var MAX_GRANT_DAYS = 365;
+  /** premium.max_manual_grant_days, read from the settings API each time the grant dialog opens. */
+  var maxGrantDays = 365;
+
+  async function grantDayLimit() {
+    var item = (await A.api.get(API + '/configs')).filter(function (c) {
+      return c.key === 'premium.max_manual_grant_days';
+    })[0];
+    return item ? Number(item.value) : maxGrantDays;
+  }
 
   function roleLabel(role) { return ROLE_NAMES[role] || A.ROLE_LABELS[role] || role || '—'; }
 
@@ -142,7 +150,9 @@
         var u = rows[id];
         var plans;
         try {
-          plans = await grantablePlans();
+          var loaded = await Promise.all([grantablePlans(), grantDayLimit()]);
+          plans = loaded[0];
+          maxGrantDays = loaded[1];
         } catch (e) {
           A.toast(e.message, 'error');
           return;
@@ -165,13 +175,13 @@
                 return '<option value="' + p.id + '" data-days="' + p.durationDays + '">' + A.esc(p.name) + ' · ' +
                   p.durationDays + ' ngày</option>';
               }).join('') + '</select></div>' +
-            '<div class="field"><label class="field__label" for="admDays">Số ngày (1–' + MAX_GRANT_DAYS + ')</label>' +
-              '<input class="input" id="admDays" inputmode="numeric" maxlength="3" value="' +
-                Math.min(plans[0].durationDays, MAX_GRANT_DAYS) + '"></div>',
+            '<div class="field"><label class="field__label" for="admDays">Số ngày (1–' + maxGrantDays + ')</label>' +
+              '<input class="input" id="admDays" inputmode="numeric" maxlength="' + String(maxGrantDays).length +
+                '" value="' + Math.min(plans[0].durationDays, maxGrantDays) + '"></div>',
           collect: function (modal) {
             var days = Number(modal.querySelector('#admDays').value);
-            if (!Number.isInteger(days) || days < 1 || days > MAX_GRANT_DAYS) {
-              return { error: 'Số ngày phải từ 1 đến ' + MAX_GRANT_DAYS + '.' };
+            if (!Number.isInteger(days) || days < 1 || days > maxGrantDays) {
+              return { error: 'Số ngày phải từ 1 đến ' + maxGrantDays + '.' };
             }
             return reasonLength(modal) || { planId: Number(modal.querySelector('#admPlanSelect').value), durationDays: days };
           }
@@ -194,7 +204,7 @@
         if (event.target.id !== 'admPlanSelect') return;
         var days = event.target.selectedOptions[0].dataset.days;
         var input = document.getElementById('admDays');
-        if (input && days) input.value = Math.min(Number(days), MAX_GRANT_DAYS);
+        if (input && days) input.value = Math.min(Number(days), maxGrantDays);
       });
       document.addEventListener('focusin', function (event) {
         if (event.target.id === 'admDays' && !event.target.dataset.digits) {
@@ -534,6 +544,8 @@
     { key: '30d', label: '30 ngày qua', revenue: 'Doanh thu 30 ngày', compare: 'so với 30 ngày trước đó' },
     { key: '7d', label: '7 ngày', revenue: 'Doanh thu 7 ngày', compare: 'so với 7 ngày trước đó' }
   ];
+  /** periodStats.period (server enum) → the key above. */
+  var PERIOD_KEYS = { YEAR: 'year', DAYS_30: '30d', DAYS_7: '7d' };
   var TARGET_TYPES = { USER: 'Người dùng', PREMIUM_PLAN: 'Gói Premium', COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP' };
 
   function numberVi(n) { return Number(n || 0).toLocaleString('vi-VN'); }
@@ -791,13 +803,14 @@
     subtitle: '',
     render: async function (root) {
       document.body.classList.add('dashboard-view');
-      var period = 'year';
-      try { period = sessionStorage.getItem('jlas-admin-dashboard-period') || 'year'; } catch (ignored) { /* private mode */ }
+      // Only a period the viewer picked is remembered; otherwise the server applies dashboard.default_period.
+      var period = null;
+      try { period = sessionStorage.getItem('jlas-admin-dashboard-period'); } catch (ignored) { /* private mode */ }
 
       async function draw() {
         root.setAttribute('aria-busy', 'true');
         var results = await Promise.allSettled([
-          A.api.get(API + '/dashboard?period=' + encodeURIComponent(period)),
+          A.api.get(API + '/dashboard' + (period ? '?period=' + encodeURIComponent(period) : '')),
           A.api.get('/api/admin/moderation/overview')
         ]);
         root.removeAttribute('aria-busy');
@@ -806,7 +819,9 @@
             (results[0].reason && results[0].reason.message) || 'Vui lòng tải lại trang.');
           return;
         }
-        root.innerHTML = dashboardHtml(results[0].value, results[1].status === 'fulfilled' ? results[1].value : null, period);
+        var d = results[0].value;
+        period = PERIOD_KEYS[d.periodStats && d.periodStats.period] || period || 'year';
+        root.innerHTML = dashboardHtml(d, results[1].status === 'fulfilled' ? results[1].value : null, period);
       }
 
       root.addEventListener('click', function (event) {

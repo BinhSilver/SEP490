@@ -163,6 +163,18 @@ CREATE TABLE admin_audit_chain (
 
 INSERT IGNORE INTO admin_audit_chain (id) VALUES (1);
 
+-- [JLAS2-51] Cau hinh he thong: chi luu gia tri ghi de cua cac khoa trong SystemConfigKey (code).
+-- Khong co dong = dung mac dinh; config_value NULL = da khoi phuc mac dinh (giu dong de version tiep tuc tang).
+CREATE TABLE system_config (
+    config_key VARCHAR(80) NOT NULL,
+    config_value VARCHAR(1000) NULL,
+    updated_by BIGINT UNSIGNED NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    version BIGINT NOT NULL DEFAULT 0,
+    PRIMARY KEY (config_key),
+    CONSTRAINT fk_system_config_updated_by FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 INSERT IGNORE INTO roles (name, description) VALUES ('SUPER_ADMIN', 'System Admin');
 
 -- Lich su thanh toan premium.
