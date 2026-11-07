@@ -505,7 +505,8 @@
             '<label class="adm-inline">Đến <input class="input" type="date" name="to"></label></div>' +
           '<button type="button" class="btn btn--secondary btn--sm" data-integrity>' +
             '<i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Kiểm tra toàn vẹn</button>' +
-        '</form><div data-integrity-result aria-live="polite"></div><div data-list></div>';
+        // min-width:0: #admContent is a grid; without it the 9-column table widens the page instead of scrolling.
+        '</form><div data-integrity-result aria-live="polite"></div><div data-list style="min-width:0"></div>';
       var form = root.querySelector('[data-filters]');
       // Address-bar filters are applied after the popover is built, so "Đặt lại" still clears them.
       var filters = A.filterPopover(form);
@@ -562,10 +563,10 @@
                   '<td class="adm-nowrap">' + (a.actorRole ? A.esc(roleLabel(a.actorRole)) : '<span class="adm-muted">—</span>') + '</td>' +
                   '<td>' + A.esc(ACTIONS[a.action] || a.action) + '</td>' +
                   '<td>' + A.esc(A.typeLabel(a.targetType)) + (a.targetId ? ' #' + A.esc(a.targetId) : '') + '</td>' +
-                  '<td>' + A.esc(a.reason || '—') + '</td>' +
+                  '<td style="min-width:180px">' + A.esc(a.reason || '—') + '</td>' +
                   '<td>' + (a.result === 'SUCCESS' ? '<span class="adm-badge adm-badge--ok">Thành công</span>'
                     : '<span class="adm-badge adm-badge--warn">Bị từ chối</span>') + '</td>' +
-                  '<td>' + changesCell(a) + '</td>' +
+                  '<td style="min-width:240px">' + changesCell(a) + '</td>' +
                   '<td class="adm-nowrap">' + (a.ipAddress ? '<code>' + A.esc(a.ipAddress) + '</code>' : '<span class="adm-muted">—</span>') + '</td></tr>';
               }).join('') + '</tbody></table></div>'
             : A.empty('fa-inbox', 'Chưa có bản ghi nào')) +
