@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head th:replace="~{fragments/head :: standard(${pageTitle}, 'onyomi')}"></head>
+<body data-mobile-adapt="owned" id="jlabBasePage" class="app-body onyomi-body">
+<div id="jlabBaseShellMount"></div>
+
+<!-- The lesson's practice quiz on its own page; the lesson page links here. The attempt opens on load
+     and resumes after a reload, because the learner already chose to start on the lesson page. -->
+<main id="jlabBaseContent" class="oy-page" th:with="done=${lesson.status == 'COMPLETED'}">
+    <div class="oy-practice">
+        <nav class="oy-breadcrumb" aria-label="Breadcrumb">
+            <a th:href="@{/learning/onyomi}">Onyomi</a>
+            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            <a th:href="@{/learning/onyomi/lessons/{id}(id=${lesson.lessonId})}"
+               th:text="'Giai đoạn ' + ${lesson.stageOrder} + ' · Bài ' + ${lesson.order}">Bài 1</a>
+            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            <span aria-current="page">Luyện tập</span>
+        </nav>
+
+        <header class="oy-practice__head">
+            <div>
+                <h1 th:text="'Luyện tập: ' + ${lesson.title}">Luyện tập: Âm đầu C, K, QU → K</h1>
+                <p th:unless="${done}">Đạt từ 60% để hoàn thành bài.</p>
+                <p th:if="${done and lesson.bestScore != null}" th:text="'Điểm cao nhất: ' + ${lesson.bestScore} + '%'">Điểm cao nhất: 80%</p>
+            </div>
+            <span data-lesson-status class="oy-pill"
+                  th:classappend="${done} ? 'oy-pill--done' : 'oy-pill--active'"
+                  th:text="${done} ? 'Hoàn thành' : 'Đang học'">Đang học</span>
+        </header>
+
+        <div class="oy-quiz" data-onyomi-quiz data-kind="practice" data-autostart
+             th:data-start-url="@{/api/learning/quizzes/lessons/{id}/start(id=${lesson.lessonId})}"
+             th:data-next-url="${lesson.lastInStage ? '/learning/onyomi/stages/' + lesson.unitId + '/final' : (lesson.next != null ? '/learning/onyomi/lessons/' + lesson.next.lessonId : '/learning/onyomi')}"
+             th:data-next-label="${lesson.lastInStage ? 'Sang bài kiểm tra giai đoạn' : (lesson.next != null ? 'Sang bài tiếp theo' : 'Về lộ trình')}"
+             th:data-back-url="@{/learning/onyomi/lessons/{id}(id=${lesson.lessonId})}"
+             data-back-label="Về bài học">
+            <div class="oy-panel oy-quiz__state">Đang tải…</div>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/pages/onyomi-page.js(v=20261107-practice-page)}"></script>
+<script th:src="@{/js/pages/onyomi-quiz.js(v=20261106-demo-panel)}"></script>
+<script th:src="@{/js/pages/onyomi-demo-panel.js(v=20261106-demo-panel)}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

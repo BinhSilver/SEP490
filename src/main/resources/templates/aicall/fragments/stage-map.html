@@ -12,8 +12,8 @@
     </header>
     <p class="stage-review-notice" th:if="${progress.reviewer}"><i class="fa-solid fa-lock-open" aria-hidden="true"></i> Kiểm tra nội dung: mọi màn được mở cho CONTENT_CREATOR và ADMIN. Lượt kiểm tra không cộng vào tiến trình học.</p>
     <div class="stage-map-frame">
-    <div class="stage-map-viewport" tabindex="0" aria-label="Bản đồ mở khóa màn, cuộn ngang để xem tiếp">
-        <div class="stage-map-space"><div class="stage-map-canvas"><svg class="stage-map-edges" aria-hidden="true"></svg>
+    <div class="stage-map-viewport" tabindex="0" aria-label="Bản đồ các màn. Kéo để di chuyển, lăn chuột hoặc dùng các nút để thu phóng.">
+        <div class="stage-map-canvas"><svg class="stage-map-edges" aria-hidden="true"></svg>
             <div th:each="view : ${progress.stages}" class="stage-card" th:classappend="'stage-card--'+${view.status}" role="group"
                     th:attr="data-stage=${view.definition.code},data-tier=${view.definition.tier},data-row=${view.definition.row},data-title=${view.definition.title},data-status=${view.status},data-status-label=${view.statusLabel},data-prerequisites=${#strings.listJoin(view.definition.prerequisites, ',')},data-requires=${#strings.listJoin(view.prerequisiteTitles, ' • ')},data-resume=${view.resumeSession},data-attempts=${view.attempts},data-score=${view.bestScore}">
                 <button type="button" class="stage-card-select" data-stage-select aria-pressed="false">
@@ -24,15 +24,22 @@
                 <a class="stage-card-detail" th:href="@{/scenario/{id}(id=${progress.scenario.id},stage=${view.definition.code})} + '#case-context-heading'">Xem bối cảnh và mục tiêu</a>
                 <span hidden data-stage-story><span th:each="step : ${view.story}" th:attr="data-story-code=${step.code},data-story-title=${step.title},data-story-summary=${step.summary},data-story-icon=${step.icon},data-story-ending=${step.ending},data-story-speaker=${step.speakerName}"></span></span>
             </div>
-        </div></div>
+        </div>
     </div>
         <div class="stage-map-zoom" role="group" aria-label="Thu phóng bản đồ">
             <button type="button" data-stage-zoom="in" aria-label="Phóng to bản đồ" title="Phóng to bản đồ"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
             <button type="button" data-stage-zoom="out" aria-label="Thu nhỏ bản đồ" title="Thu nhỏ bản đồ"><i class="fa-solid fa-minus" aria-hidden="true"></i></button>
+            <button type="button" data-stage-view="fit" aria-label="Xem toàn bộ bản đồ" title="Xem toàn bộ bản đồ"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
+            <button type="button" data-stage-view="home" aria-label="Về màn đang chọn" title="Về màn đang chọn"><i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i></button>
+            <button type="button" data-stage-view="fullscreen" aria-label="Toàn màn hình" title="Toàn màn hình"><i class="fa-solid fa-up-right-and-down-left-from-center" aria-hidden="true"></i></button>
         </div>
+        <div class="stage-map-footer"><span>Kéo để di chuyển · Lăn chuột để thu phóng</span><output data-stage-zoom-value aria-label="Mức thu phóng">100%</output></div>
     </div>
     <section class="stage-story" aria-label="Diễn biến đầy đủ của nhánh đã chọn">
-        <h3><i class="fa-solid fa-route" aria-hidden="true"></i> <span data-stage-story-title>Câu chuyện của nhánh này</span></h3>
+        <div class="stage-story-head">
+            <h3><i class="fa-solid fa-route" aria-hidden="true"></i> <span data-stage-story-title>Câu chuyện của nhánh này</span></h3>
+            <a class="stage-story-detail" data-stage-detail href="#">Xem bối cảnh và mục tiêu</a>
+        </div>
         <div class="stage-story-viewport" tabindex="0" aria-label="Các bước từ mở đầu đến kết thúc, cuộn ngang để xem tiếp"><ol data-stage-story-steps></ol></div>
     </section>
 </section>

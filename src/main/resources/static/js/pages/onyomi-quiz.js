@@ -4,6 +4,8 @@
  * and holds the back / forward buttons, so the learner can move freely (the arrow keys work too) and
  * leave a question for later; its "Xem kết quả" button appears once every question is answered, and
  * "Làm lại" drops the attempt (ungraded, through /attempts/{id}/abandon) to start a new one.
+ * On phones (see onyomi.css) that panel is a popup opened from a button beside the progress bar, and
+ * "Xem kết quả" moves out of it, under the question.
  *
  * Mounts on every [data-onyomi-quiz] element:
  *   data-start-url   POST endpoint that opens (or resumes) an attempt
@@ -20,6 +22,9 @@
  *
  * Each answer is checked (and recorded) through /api/learning/quizzes/attempts/{id}/answers, so it
  * cannot be changed afterwards: going back to an answered question shows its answer and explanation.
+ *
+ * window.JlasOnyomiQuiz lets the demo panel (onyomi-demo-panel.js, mission.dev-tools only) drive the
+ * open attempt: finish it right or wrong, start a new one, and move the clock or the leave count of a test.
  */
 (function () {
   'use strict';
@@ -56,7 +61,7 @@
     var exam = { on: false, deadline: 0, timer: null, startedAt: 0, leaves: 0, limit: 3, lastLeave: 0,
                  fullscreen: false, reason: '', confirmSubmit: false, channel: null,
                  tab: Math.random().toString(36).slice(2), lastReport: {} };
-    var state = { attemptId: null, questions: [], index: 0, feedback: {}, busy: false, cardHeight: 0, confirmRestart: false };
+    var state = { attemptId: null, questions: [], index: 0, feedback: {}, busy: false, cardHeight: 0, confirmRestart: false, popupOpen: false };
 
     // `running` widens the quiz to make room for the question list next to the question
     function paint(html, running) {
@@ -178,20 +183,50 @@
           (i === state.index ? ' aria-current="step"' : '') +
           ' aria-label="Câu ' + (i + 1) + ', ' + status + '">' + (i + 1) + '</button>';
       }).join('');
-      return '<aside class="oy-panel oy-quiz__side" aria-label="Danh sách câu hỏi">' +
+      var finish = '<button class="oy-button oy-button--primary oy-quiz__finish" type="button" data-action="submit">' +
+        '<span>Xem kết quả</span></button>';
+      return '<div class="oy-quiz__backdrop" data-action="popup-close"></div>' +
+        '<aside class="oy-panel oy-quiz__side oy-quiz__side--popup" aria-label="Danh sách câu hỏi">' +
         '<p class="oy-quiz__side-title">Câu hỏi</p>' +
+        '<button class="oy-quiz__popup-close" type="button" data-action="popup-close" aria-label="Đóng">' +
+        '<i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
         '<nav class="oy-quiz__steps" aria-label="Chọn câu hỏi">' + steps + '</nav>' +
         '<div class="oy-quiz__nav">' +
-        '<button class="oy-button" type="button" data-action="prev"' + (state.index === 0 ? ' disabled' : '') + '>' +
+        '<button class="oy-button" type="button" data-action="prev" aria-label="Câu trước"' + (state.index === 0 ? ' disabled' : '') + '>' +
         '<i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>Câu trước</span></button>' +
-        '<button class="oy-button" type="button" data-action="forward"' + (state.index === total - 1 ? ' disabled' : '') + '>' +
+        '<button class="oy-button" type="button" data-action="forward" aria-label="Câu sau"' + (state.index === total - 1 ? ' disabled' : '') + '>' +
         '<span>Câu sau</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>' +
         restartHtml(total - left) + '</div>' +
-        (left
-          ? '<p class="oy-quiz__left">Còn ' + left + ' câu chưa làm</p>'
-          : '<button class="oy-button oy-button--primary oy-quiz__finish" type="button" data-action="submit">' +
-            '<span>Xem kết quả</span></button>') +
-        '</aside>';
+        (left ? '<p class="oy-quiz__left">Còn ' + left + ' câu chưa làm</p>' : finish) +
+        '</aside>' +
+        (left ? '' : finish.replace('oy-quiz__finish"', 'oy-quiz__finish oy-quiz__finish--page"'));
+    }
+
+    // Phones only: the button that opens it and the CSS that makes it a popup exist only below 640px.
+    function syncPopup(animate) {
+      var side = root.querySelector('.oy-quiz__side--popup');
+      var backdrop = root.querySelector('.oy-quiz__backdrop');
+      document.body.classList.toggle('oy-quiz-popup-open', state.popupOpen);
+      if (!side || !backdrop) return;
+      side.classList.toggle('is-open', state.popupOpen);
+      side.classList.toggle('is-opening', state.popupOpen && !!animate);
+      backdrop.classList.toggle('is-open', state.popupOpen);
+      if (state.popupOpen) {
+        side.setAttribute('role', 'dialog');
+        side.setAttribute('aria-modal', 'true');
+      } else {
+        side.removeAttribute('role');
+        side.removeAttribute('aria-modal');
+      }
+      var opener = root.querySelector('.oy-quiz__popup-open');
+      if (opener) opener.setAttribute('aria-expanded', String(state.popupOpen));
+    }
+
+    function setPopup(open, focusSelector) {
+      state.popupOpen = open;
+      syncPopup(open);
+      var target = focusSelector && root.querySelector(focusSelector);
+      if (target) target.focus({ preventScroll: true });
     }
 
     // Exam: no "Làm lại" (it would reset the clock); "Nộp bài" any time, asking first while questions are left.
@@ -229,7 +264,7 @@
     // "Làm lại" drops this attempt for a new one; once something is answered it asks first, in place
     function restartHtml(done) {
       if (!state.confirmRestart) {
-        return '<button class="oy-button oy-quiz__restart" type="button" data-action="restart">' +
+        return '<button class="oy-button oy-quiz__restart" type="button" data-action="restart" aria-label="Làm lại">' +
           '<i class="fa-solid fa-rotate-right" aria-hidden="true"></i><span>Làm lại</span></button>';
       }
       return '<div class="oy-quiz__confirm" role="group" aria-labelledby="oy-restart-' + config.kind + '">' +
@@ -252,18 +287,25 @@
       paint('<div class="oy-quiz__layout">' + panel('oy-quiz__card',
         '<div class="oy-quiz__top"><span>Câu ' + (state.index + 1) + ' / ' + total + '</span>' +
         '<div class="oy-progress" aria-hidden="true"><div class="oy-progress__fill" style="width:' +
-        Math.round(done * 100 / total) + '%"></div></div></div>' +
+        Math.round(done * 100 / total) + '%"></div></div>' +
+        '<button class="oy-button oy-quiz__popup-open" type="button" data-action="popup-open" aria-haspopup="dialog"' +
+        ' aria-expanded="false" aria-label="Danh sách câu hỏi"><i class="fa-solid fa-table-cells-large" aria-hidden="true"></i></button></div>' +
         (question.focus ? '<div class="oy-quiz__focus" lang="ja">' + escapeHtml(question.focus) + '</div>' : '') +
         '<p class="oy-quiz__question">' + escapeHtml(question.questionText) + '</p>' +
         (question.questionType === 'FILL_BLANK' ? typingHtml(question, feedback) : optionsHtml(question, feedback)) +
         (feedback ? feedbackHtml(feedback) : hintHtml()) +
         '<p class="oy-quiz__alert" role="alert" hidden></p>') +
         sideHtml() + '</div>', true);
+      syncPopup(false);
       holdCardHeight();
+      // the results button is in the panel on a wide screen, under the question on a phone
+      var submitButton = Array.prototype.filter.call(root.querySelectorAll('[data-action="submit"]'), function (button) {
+        return button.offsetParent !== null;
+      })[0];
       var focusTarget = (focusSelector && root.querySelector(focusSelector)) ||
         (focusSelector && root.querySelector('[data-action="go"][aria-current]')) ||
         (feedback
-          ? root.querySelector('[data-action="submit"]') ||
+          ? submitButton ||
             root.querySelector('[data-action="forward"]:not(:disabled)') ||
             root.querySelector('[data-action="go"][aria-current]')
           : root.querySelector('.oy-quiz__input'));
@@ -334,6 +376,7 @@
 
     async function start() {
       if (!window.JlasAuth || !window.JlasAuth.requireLogin()) return;
+      setPopup(false);
       if (config.exam) enterFullscreen();
       paintState('Đang mở bài…');
       try {
@@ -427,6 +470,7 @@
     // drops the open attempt on the server, then starts again: a new attempt with a new set of questions
     async function restart() {
       state.confirmRestart = false;
+      setPopup(false);
       paintState('Đang mở lượt mới…');
       try {
         var response = await fetch('/api/learning/quizzes/attempts/' + state.attemptId + '/abandon', {
@@ -481,18 +525,96 @@
           return;
         }
         if (config.exam) await loadDetails();
-        paintResult(body.data);
-        if (body.data.passed) {
-          root.dispatchEvent(new CustomEvent('onyomi:quiz-passed', {
-            bubbles: true,
-            detail: { kind: config.kind, score: Number(body.data.scorePercent) }
-          }));
-        }
-        if (window.RewardFX) window.RewardFX.checkPending();
+        showSubmitted(body.data);
       } catch (error) {
         paintState('Không thể kết nối tới máy chủ. Vui lòng thử lại.', 'submit');
       }
     }
+
+    function showSubmitted(result) {
+      paintResult(result);
+      if (result.passed) {
+        root.dispatchEvent(new CustomEvent('onyomi:quiz-passed', {
+          bubbles: true,
+          detail: { kind: config.kind, score: Number(result.scorePercent) }
+        }));
+      }
+      if (window.RewardFX) window.RewardFX.checkPending();
+    }
+
+    // ── Demo panel (mission.dev-tools) ──────────────────────────────────────────────────────────
+    async function demoPost(path, payload) {
+      var response = await fetch('/api/dev/onyomi/attempts/' + state.attemptId + path, {
+        method: 'POST',
+        headers: window.JlasAuth.authHeaders(),
+        body: JSON.stringify(payload || {})
+      });
+      var body = await readBody(response);
+      if (!response.ok || body.success === false) throw new Error(body.message || ('HTTP ' + response.status));
+      return body.data;
+    }
+
+    function openAttempt() {
+      if (!state.attemptId || state.busy || !root.querySelector('.oy-quiz__layout')) {
+        throw new Error('Chưa có lượt làm bài đang mở.');
+      }
+    }
+
+    // the server answers every question (right or wrong) and submits; the review shows what it recorded
+    async function demoFinish(correct) {
+      openAttempt();
+      setPopup(false);
+      state.busy = true;
+      var result;
+      try {
+        result = await demoPost('/finish', { correct: correct });
+      } finally {
+        state.busy = false;
+      }
+      if (config.exam) examStop();
+      exam.confirmSubmit = false;
+      await loadDetails();
+      if (state.details) {
+        state.feedback = {};
+        Object.keys(state.details).forEach(function (id) {
+          var d = state.details[id];
+          state.feedback[id] = { correct: d.isCorrect === true, correctAnswerText: d.correctAnswerText, explanation: d.explanation };
+        });
+      }
+      showSubmitted(result);
+      return result;
+    }
+
+    async function demoNewAttempt() {
+      openAttempt();
+      if (config.exam) examStop();
+      await restart();
+    }
+
+    async function demoSecondsLeft(seconds) {
+      openAttempt();
+      if (!config.exam || !exam.on) throw new Error('Chỉ dùng trong bài kiểm tra đang chạy.');
+      var data = await demoPost('/seconds-left', { seconds: seconds });
+      exam.deadline = Date.now() + data.secondsLeft * 1000;
+      tick();
+      return data.secondsLeft;
+    }
+
+    async function demoLeave() {
+      openAttempt();
+      if (!config.exam || !exam.on) throw new Error('Chỉ dùng trong bài kiểm tra đang chạy.');
+      exam.lastLeave = 0;
+      await leave('TAB_HIDDEN');
+      return exam.leaves;
+    }
+
+    window.JlasOnyomiQuiz = {
+      exam: config.exam,
+      finish: demoFinish,
+      newAttempt: demoNewAttempt,
+      secondsLeft: demoSecondsLeft,
+      leave: demoLeave
+    };
 
     // Graded answers of the submitted attempt (correct answer + explanation); the exam hides them until now.
     async function loadDetails() {
@@ -583,8 +705,12 @@
         case 'prev': goTo(state.index - 1, '[data-action="prev"]:not(:disabled)'); break;
         case 'forward': goTo(state.index + 1, '[data-action="forward"]:not(:disabled)'); break;
         case 'go':
+          state.popupOpen = false;   // picking a question shows it; the arrows leave the popup open to keep stepping
           goTo(Number(action.dataset.index), '[data-action="go"][data-index="' + action.dataset.index + '"]');
+          syncPopup(false);
           break;
+        case 'popup-open': setPopup(true, '.oy-quiz__popup-close'); break;
+        case 'popup-close': setPopup(false, '.oy-quiz__popup-open'); break;
         case 'submit': submit(); break;
         case 'submit-ask': exam.confirmSubmit = true; paintQuestion('[data-action="submit-cancel"]'); break;
         case 'submit-cancel': exam.confirmSubmit = false; paintQuestion('[data-action="submit-ask"]'); break;
@@ -604,6 +730,11 @@
       if (event.key === 'Escape' && state.confirmRestart && root.querySelector('.oy-quiz__confirm')) {
         event.preventDefault();
         askRestart(false);
+        return;
+      }
+      if (event.key === 'Escape' && state.popupOpen) {
+        event.preventDefault();
+        setPopup(false, '.oy-quiz__popup-open');
         return;
       }
       // ← / → step between questions, except while typing an answer

@@ -12,23 +12,16 @@
 }(typeof window !== 'undefined' ? window : globalThis, function (root) {
   'use strict';
   const GATE_CODES = new Set(['BIRTH_DATE_REQUIRED', 'AGE_RESTRICTED']);
-  const EARLIEST = '1900-01-01';
 
   function isGateCode(code) {
     return GATE_CODES.has(code);
   }
 
-  function todayIso(now) {
-    const date = now || new Date();
-    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-'
-      + String(date.getDate()).padStart(2, '0');
-  }
-
   /** yyyy-mm-dd strings compare like dates; the server checks the same range again. */
-  function birthDateError(value, today) {
+  function birthDateError(value, bounds) {
     if (!value) return 'Vui lòng nhập ngày sinh.';
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || value < EARLIEST || value > (today || todayIso())) {
-      return 'Ngày sinh chưa hợp lệ.';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || value < bounds.min || value > bounds.max) {
+      return 'Tuổi phải từ 6 đến 120.';
     }
     return '';
   }
@@ -67,7 +60,6 @@
     back.textContent = 'Hủy';
     form.hidden = false;
     submit.hidden = false;
-    input.max = todayIso();
     open();
   }
 
@@ -93,7 +85,7 @@
   async function saveBirthDate(event) {
     event.preventDefault();
     const value = input.value;
-    const invalid = input.validity.badInput ? 'Ngày sinh chưa hợp lệ.' : birthDateError(value);
+    const invalid = input.validity.badInput ? 'Ngày sinh chưa hợp lệ.' : birthDateError(value, input);
     setError(invalid);
     if (invalid) {
       input.focus();
@@ -129,11 +121,11 @@
     // Chrome ignores the cancel veto until the page has had a user gesture, hence the reopen on close.
     dialog.addEventListener('cancel', event => event.preventDefault());
     dialog.addEventListener('close', open);
-    wheel = root.DateWheel?.attach(input);
+    wheel = root.DateWheel?.attachBirthDate(input);
     form.addEventListener('submit', saveBirthDate);
-    input.addEventListener('change', () => { if (input.getAttribute('aria-invalid') === 'true') setError(birthDateError(input.value)); });
+    input.addEventListener('change', () => { if (input.getAttribute('aria-invalid') === 'true') setError(birthDateError(input.value, input)); });
     accessError().then(body => { if (body) show(body); }).catch(() => { /* the page shows its own load error */ });
   }
 
-  return { isGateCode, birthDateError, todayIso };
+  return { isGateCode, birthDateError };
 }));

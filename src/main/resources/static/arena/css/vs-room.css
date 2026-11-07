@@ -1,0 +1,1096 @@
+/*
+ * Màn đối đầu của phòng ghép trận nhanh (vs-room.js).
+ * Sân khấu luôn là đêm màu mận ở cả hai chế độ sáng/tối, nên chỉ đặt màu một lần ở .vs.
+ * Bên trái (người chơi slot 0) màu chàm, bên phải (slot 1) màu hồng đào; vàng chỉ dành cho lượt đang diễn ra.
+ * Điểm nhấn duy nhất: con dấu đỏ đóng lên bảng tên khi người chơi bấm Sẵn sàng.
+ */
+body.is-vs-room .ar-page {
+  padding: 0;
+}
+
+.vs {
+  --st-bg: #1c1220;
+  --st-surface: #2a1d31;
+  --st-raised: #36273f;
+  --st-line: #573f61;
+  --st-ink: #f5eef8;
+  --st-muted: #cbb8d3;
+  --st-left: #8ea6ff;
+  --st-left-deep: #28325f;
+  --st-right: #ff8fae;
+  --st-right-deep: #55203a;
+  --st-gold: #f3d28a;
+  --st-on-gold: #2a1d05;
+  --st-ok: #8eddb6;
+  --st-bad: #ffb4ab;
+  --st-action: #dcaee8;
+  --st-action-hover: #ead0f2;
+  --st-on-action: #231829;
+  --st-seal: #e0564c;
+  --st-serif: "Noto Serif JP", "Yu Mincho", serif;
+
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  min-height: calc(100dvh - var(--header-height, 64px) - 8px);
+  overflow: hidden;
+  padding: 20px clamp(16px, 3vw, 40px) 24px;
+  background:
+    linear-gradient(90deg, rgb(142 166 255 / 9%), transparent 34%, transparent 66%, rgb(255 143 174 / 9%)),
+    var(--st-bg);
+  color: var(--st-ink);
+  font-family: var(--ar-display);
+  isolation: isolate;
+}
+
+/* ── Đầu trang ───────────────────────────────────────────────────────────── */
+.vs__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+/* .vs prefix: .ar-page h1 in arena.css would otherwise paint it with the light page ink. */
+.vs .vs__title {
+  margin: 0;
+  color: var(--st-ink);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.vs__deck {
+  margin: 4px 0 0;
+  color: var(--st-muted);
+  font-size: 0.9375rem;
+}
+
+.vs__deck strong {
+  color: var(--st-ink);
+  font-weight: 600;
+}
+
+.vs__conn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--st-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* ── Các bước chọn cài đặt: một dải nối liền vì đây thật sự là trình tự ─── */
+.vs__steps {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 0;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vs__step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--st-muted);
+  font-size: 0.8125rem;
+  line-height: 1.3;
+}
+
+.vs__step + .vs__step::before {
+  content: "";
+  flex: none;
+  width: clamp(16px, 3vw, 40px);
+  height: 2px;
+  margin-right: 2px;
+  border-radius: 2px;
+  background: var(--st-line);
+}
+
+.vs__step.is-done + .vs__step::before {
+  background: var(--st-ok);
+}
+
+.vs__step b {
+  display: block;
+  color: var(--st-ink);
+  font-weight: 700;
+}
+
+.vs__step em {
+  display: block;
+  font-style: normal;
+}
+
+.vs__step em small {
+  color: var(--st-muted);
+  font-size: inherit;
+  opacity: 0.8;
+}
+
+.vs__step-no {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--st-line);
+  border-radius: 50%;
+  color: var(--st-muted);
+  font-weight: 700;
+}
+
+.vs__step.is-current .vs__step-no {
+  border-color: var(--st-gold);
+  background: var(--st-gold);
+  color: var(--st-on-gold);
+}
+
+.vs__step.is-done .vs__step-no {
+  border-color: var(--st-ok);
+  background: transparent;
+  color: var(--st-ok);
+}
+
+/* ── Sân khấu: hai nhân vật và vòng xoáy ở giữa ──────────────────────────── */
+.vs__stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 340px) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 280px;
+  transition: grid-template-columns 500ms var(--ar-ease);
+}
+
+/* Mỗi bên: nhân vật, ngay dưới là bảng tên của người chơi bên đó. */
+.vs__side {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.vs__hero {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin: 0;
+}
+
+/* Bóng đổ dưới chân để nhân vật đứng trên sàn thay vì trôi giữa nền. */
+.vs__hero::after {
+  content: "";
+  position: absolute;
+  bottom: 2%;
+  left: 50%;
+  width: min(60%, 180px);
+  height: 16px;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 38%);
+  filter: blur(6px);
+  transform: translateX(-50%);
+  animation: vs-shadow 5s ease-in-out infinite;
+}
+
+.vs__hero img {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 290px);
+  height: auto;
+  max-height: 290px;
+  object-fit: contain;
+  animation: vs-float 5s ease-in-out infinite;
+  transition: max-height 500ms var(--ar-ease);
+}
+
+.vs__hero--right img,
+.vs__hero--right::after {
+  animation-delay: -2.5s;
+}
+
+/* The player's own skin (character-skin-preview.js), sized and floating like the painted hero it replaces. */
+.vs__skin {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  /* A fixed size: the sprite-drawn default plane has no intrinsic width, so a percentage would collapse to 0. */
+  width: 260px;
+  max-width: 100%;
+  aspect-ratio: 1;
+  animation: vs-float 5s ease-in-out infinite;
+  transition: width 500ms var(--ar-ease);
+}
+.vs__hero--right .vs__skin { animation-delay: -2.5s; }
+.vs__skin > .ar-character-art { width: 100%; }
+.vs__skin > .ar-plane-fly { width: 62%; }
+.vs__skin > .ar-sprite--cat { width: 92%; }
+.vs[data-game="AIR_DEFENSE"] .vs__skin { width: 200px; }
+.vs[data-game="AIR_DEFENSE"] .vs__skin canvas { image-rendering: pixelated; }
+/* Cats face right; the right-hand one turns to face its opponent, as the painted heroes do. */
+.vs[data-game="NEKO_CATCH"] .vs__hero--right .vs__skin { scale: -1 1; }
+
+.vs[data-game="AIR_DEFENSE"] .vs__hero img {
+  width: 150px;
+  image-rendering: pixelated;
+}
+
+.vs__core {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  perspective: 900px;
+}
+
+.vs__vortex {
+  position: absolute;
+  inset: 0;
+}
+
+.vs__vortex i {
+  position: absolute;
+  inset: calc(var(--i, 0) * 9%);
+  border-radius: 50%;
+  background: conic-gradient(from calc(var(--i, 0) * 70deg), transparent 0 14%, var(--st-left) 22% 34%, transparent 42% 64%,
+    var(--st-right) 72% 84%, transparent 92%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+  opacity: calc(0.85 - var(--i, 0) * 0.15);
+  animation: vs-spin calc(9s + var(--i, 0) * 3s) linear infinite;
+}
+
+.vs__vortex i:nth-child(1) { --i: 0; }
+.vs__vortex i:nth-child(2) { --i: 1; animation-direction: reverse; }
+.vs__vortex i:nth-child(3) { --i: 2; }
+.vs__vortex i:nth-child(4) { --i: 3; animation-direction: reverse; }
+.vs__vortex i:nth-child(5) { display: none; }
+
+/* Chữ VS chia đôi màu theo hai bên, nét đặc, không hiệu ứng kim loại. */
+.vs__mark {
+  position: relative;
+  z-index: 2;
+  display: block;
+  background: linear-gradient(90deg, var(--st-left) 50%, var(--st-right) 50%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font: 900 clamp(4rem, 9vw, 6.5rem) / 1 var(--st-serif);
+  letter-spacing: -0.02em;
+  transition: opacity 400ms var(--ar-ease), transform 400ms var(--ar-ease);
+}
+
+.vs.is-intro .vs__mark {
+  animation: vs-slam 800ms var(--ar-ease) both;
+}
+
+.vs__mark.is-dim {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+/* ── Đồng xu: mỗi người một đồng; mặt cáo = thắng, mặt JLAS = thua ───────── */
+.vs__coins {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(18px, 4vw, 44px);
+}
+
+.vs__coin {
+  --coin: 112px;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: var(--coin);
+  transition: transform 450ms var(--ar-ease), opacity 450ms var(--ar-ease), filter 450ms var(--ar-ease);
+}
+
+.vs__coin.is-winner {
+  transform: scale(1.14);
+}
+
+.vs__coin.is-loser {
+  opacity: 0.45;
+  transform: scale(0.86);
+  filter: grayscale(0.5);
+}
+
+.vs__coin-inner {
+  position: relative;
+  width: var(--coin);
+  height: var(--coin);
+  transform-style: preserve-3d;
+}
+
+.vs__coin-inner.is-flipping {
+  animation: vs-flip 1.9s cubic-bezier(0.2, 0.75, 0.25, 1) forwards;
+}
+
+.vs__coin--right .vs__coin-inner.is-flipping {
+  animation-delay: 90ms;
+}
+
+.vs__coin-inner.is-landed {
+  transform: rotateY(var(--flip-end, 1800deg));
+}
+
+/* Viền bạc + lòng vàng có vân chấm, giống đồng xu đúc. */
+.vs__coin-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, transparent 0 66%, rgb(110 72 0 / 45%) 67%, transparent 69.5%),
+    radial-gradient(circle, rgb(255 255 255 / 22%) 0 0.8px, transparent 1.3px) 0 0 / 5px 5px,
+    radial-gradient(circle at 34% 28%, #fff4c7 0, #f6d36a 28%, #d9a520 62%, #a8740c 100%);
+  box-shadow:
+    0 0 0 4px #eef1f5,
+    0 0 0 6px #9aa3af,
+    0 0 0 7px #5f6773,
+    inset 0 0 0 3px rgb(255 255 255 / 35%),
+    inset 0 -8px 14px rgb(90 55 0 / 35%),
+    0 12px 28px rgb(0 0 0 / 50%);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.vs__coin-face--jlas {
+  transform: rotateY(180deg);
+  gap: 2px;
+}
+
+/* Khắc nổi: bóng sáng dưới, bóng tối trên (filter ở lớp ngoài vì mask cắt mất filter của chính nó). */
+.vs__coin-emboss {
+  display: block;
+  width: 70%;
+  aspect-ratio: 1;
+  filter: drop-shadow(0 1px 0 rgb(255 244 200 / 90%)) drop-shadow(0 -1px 0 rgb(80 48 0 / 55%));
+}
+
+.vs__coin-fox {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #9a6a00, #5c3a00);
+  -webkit-mask: url("/arena/images/vs/coin-fox.png") center / contain no-repeat;
+  mask: url("/arena/images/vs/coin-fox.png") center / contain no-repeat;
+}
+
+.vs__coin-face--jlas b {
+  color: #7a5200;
+  font: 900 calc(var(--coin) * 0.26) / 1 var(--ar-display);
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 0 rgb(255 244 200 / 95%), 0 -1px 0 rgb(70 40 0 / 50%);
+}
+
+.vs__coin-face--jlas small {
+  color: #8a5e00;
+  font-size: calc(var(--coin) * 0.09);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-shadow: 0 1px 0 rgb(255 244 200 / 80%);
+}
+
+.vs__coin-name {
+  max-width: 140px;
+  overflow: hidden;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--st-left-deep);
+  color: var(--st-ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vs__coin--right .vs__coin-name {
+  background: var(--st-right-deep);
+}
+
+.vs__coin.is-winner .vs__coin-name {
+  background: var(--st-gold);
+  color: var(--st-on-gold);
+}
+
+/* ── Dòng thông báo và bảng chọn ─────────────────────────────────────────── */
+.vs__banner {
+  justify-self: center;
+  width: min(760px, 100%);
+  margin-top: 8px;
+  padding: 10px 16px;
+  color: var(--st-ink);
+  font-size: 1.0625rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.vs__banner:empty {
+  display: none;
+}
+
+.vs__banner b {
+  color: var(--st-gold);
+  font-weight: 700;
+}
+
+.vs__banner em {
+  display: inline-block;
+  min-width: 3.2em;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: var(--st-raised);
+  color: var(--st-ink);
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+.vs__banner em:empty {
+  display: none;
+}
+
+.vs__panel {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+/* Dialogs on the stage (skin picker, purchase confirmation): the shared .ar-dialog / .ar-btn read --ar-* tokens,
+   so they are pointed at the stage palette instead of the light page they were drawn for. */
+.vs .ar-dialog {
+  --ar-paper: var(--st-surface);
+  --ar-paper-2: var(--st-surface);
+  --ar-ink: var(--st-ink);
+  --ar-muted: var(--st-muted);
+  --ar-line: var(--st-line);
+  --ar-line-strong: var(--st-line);
+  --ar-accent: var(--st-action);
+  --ar-accent-soft: var(--st-raised);
+  --ar-on-accent: var(--st-on-action);
+}
+.vs .ar-dialog::backdrop { background: rgb(10 6 14 / 62%); }
+.vs .ar-dialog .ar-btn--primary { --btn-line: color-mix(in srgb, var(--st-action) 55%, #000); }
+
+.vs__skins-dialog { width: min(720px, calc(100% - 24px)); padding: 18px 20px 20px; }
+.vs__skins-close { position: absolute; top: 12px; right: 12px; }
+.vs .vs__skins { margin: 0; }
+.vs .vs__skins > header { padding-right: 56px; min-height: 44px; }
+.vs .vs__skins h2 { margin: 0; font-size: 1.125rem; color: var(--st-ink); }
+.vs .vs__skins output { color: var(--st-gold); }
+.vs .vs__skins .ar-room-skins__list { flex-wrap: wrap; overflow: visible; margin-top: 12px; padding: 0; }
+.vs .vs__skins .ar-room-skins__item { border-color: var(--st-line); background: var(--st-raised); color: var(--st-ink); }
+.vs .vs__skins .ar-room-skins__item span { color: var(--st-muted); }
+.vs .vs__skins .ar-room-skins__item.is-selected { border-color: var(--st-action); background: var(--st-action); color: var(--st-on-action); }
+.vs .vs__skins .ar-room-skins__item.is-selected span { color: var(--st-on-action); }
+.vs .vs__skins .ar-room-skins__item:focus-visible { outline-color: var(--st-action); }
+.vs .vs__skins .ar-error-text { color: var(--st-bad); }
+
+.vs__note {
+  margin: 0;
+  color: var(--st-muted);
+  font-size: 0.875rem;
+}
+
+.vs__options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  width: min(900px, 100%);
+}
+
+.vs__option {
+  display: grid;
+  gap: 2px;
+  min-width: 150px;
+  min-height: 56px;
+  padding: 10px 16px;
+  border: 1px solid var(--st-line);
+  border-radius: 12px;
+  background: var(--st-surface);
+  color: var(--st-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 140ms var(--ar-ease), background-color 140ms var(--ar-ease);
+}
+
+.vs__option b {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.vs__option small {
+  color: var(--st-muted);
+  font-size: 0.8125rem;
+}
+
+.vs__option em {
+  color: var(--st-gold);
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.vs__option:hover {
+  border-color: var(--st-gold);
+  background: var(--st-raised);
+}
+
+.vs__option:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+/* Cặp hỏi – đáp: hai ô chọn thay cho cả lưới nút. */
+.vs__pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: end;
+  gap: 12px;
+  width: min(620px, 100%);
+}
+
+.vs__field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.vs__field > span {
+  color: var(--st-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/*
+ * Ô chọn chung của site (inputs.css, base.css, controls.css) dùng !important với 3 id giả, nên ở đây phải mạnh hơn
+ * một bậc. Chỉ có đúng một viền: khi focus thì viền đổi màu và dày thêm vào trong, không thêm outline hay vòng sáng bên ngoài.
+ */
+html:not(#_):not(#_):not(#_):not(#_) .vs .vs__field select {
+  width: 100%;
+  min-width: 0;
+  min-height: 50px;
+  padding: 13px 40px 13px 14px !important;
+  border: 1px solid var(--st-line) !important;
+  border-radius: 12px !important;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23f5eef8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+      right 16px center / 12px 8px no-repeat,
+    var(--st-surface) !important;
+  box-shadow: none !important;
+  outline: none !important;
+  color: var(--st-ink) !important;
+  font: 700 1rem / 1.2 var(--ar-display);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+html:not(#_):not(#_):not(#_):not(#_) .vs .vs__field select:hover {
+  border-color: var(--st-muted) !important;
+}
+
+html:not(#_):not(#_):not(#_):not(#_) .vs .vs__field select:focus {
+  border-color: var(--st-gold) !important;
+  box-shadow: inset 0 0 0 1px var(--st-gold) !important;
+}
+
+html:not(#_):not(#_):not(#_):not(#_) .vs .vs__field select option {
+  padding: 10px 12px;
+  background-color: var(--st-surface) !important;
+  color: var(--st-ink) !important;
+}
+
+/* Trình duyệt hỗ trợ ô chọn tuỳ biến (Chrome/Edge mới): danh sách thả xuống cùng màu sân khấu, bỏ nền xanh của hệ điều hành. */
+@supports (appearance: base-select) {
+  html:not(#_):not(#_):not(#_):not(#_) .vs .vs__field select,
+  .vs .vs__field select::picker(select) {
+    appearance: base-select;
+  }
+
+  .vs .vs__field select::picker-icon {
+    display: none;
+  }
+
+  .vs .vs__field select::picker(select) {
+    margin-top: 6px;
+    padding: 6px;
+    border: 1px solid var(--st-line);
+    border-radius: 12px;
+    background: var(--st-surface);
+    box-shadow: 0 16px 32px rgb(0 0 0 / 45%);
+  }
+
+  html:not(#_):not(#_):not(#_):not(#_) .vs .vs__field select option {
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  html:not(#_):not(#_):not(#_):not(#_) .vs .vs__field select option:is(:hover, :focus-visible) {
+    background-color: var(--st-raised) !important;
+    outline: none;
+  }
+
+  html:not(#_):not(#_):not(#_):not(#_) .vs .vs__field select option:checked {
+    background-color: var(--st-raised) !important;
+    color: var(--st-gold) !important;
+  }
+
+  .vs .vs__field select option::checkmark {
+    display: none;
+  }
+}
+
+.vs__pair-arrow {
+  display: grid;
+  place-items: center;
+  height: 50px;
+  color: var(--st-muted);
+}
+
+.vs__pair-meta {
+  margin: 0;
+  color: var(--st-muted);
+  font-size: 0.875rem;
+}
+
+.vs__pair-meta b {
+  color: var(--st-ink);
+}
+
+.vs__pair-meta em {
+  margin-left: 6px;
+  color: var(--st-gold);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.vs__timer {
+  width: min(420px, 90%);
+  height: 4px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--st-raised);
+}
+
+.vs__timer i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--st-gold);
+  transition: width 200ms linear;
+}
+
+.vs__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.vs__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 24px;
+  border: 1px solid var(--st-line);
+  border-radius: 12px;
+  background: var(--st-surface);
+  color: var(--st-ink);
+  font: 700 0.9375rem / 1 var(--ar-display);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 140ms var(--ar-ease), border-color 140ms var(--ar-ease);
+}
+
+/* a:hover của base.css mạnh hơn .vs__btn nên phải ghi lại màu chữ. */
+.vs__btn:hover {
+  border-color: var(--st-muted);
+  background: var(--st-raised);
+  color: var(--st-ink);
+}
+
+.vs__btn--primary,
+.vs__btn--primary:hover {
+  border-color: transparent;
+  color: var(--st-on-action);
+}
+
+.vs__btn--primary {
+  min-width: 180px;
+  background: var(--st-action);
+}
+
+.vs__btn--primary:hover {
+  background: var(--st-action-hover);
+}
+
+.vs__btn--ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--st-muted);
+}
+
+.vs__btn--ghost:hover {
+  border-color: transparent;
+  background: transparent;
+  color: var(--st-ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.vs__btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.vs__option:focus-visible,
+.vs__btn:focus-visible {
+  outline: 2px solid var(--st-gold);
+  outline-offset: 3px;
+}
+
+/* Cài đặt đã chốt: một dải liền, mỗi ô ngăn bằng một vạch đứng. */
+.vs__summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--st-line);
+  border-radius: 12px;
+  background: var(--st-surface);
+  list-style: none;
+}
+
+.vs__summary li {
+  display: grid;
+  gap: 3px;
+  padding: 10px 18px;
+}
+
+.vs__summary li + li {
+  border-left: 1px solid var(--st-line);
+}
+
+.vs__summary span {
+  color: var(--st-muted);
+  font-size: 0.75rem;
+}
+
+.vs__summary b {
+  color: var(--st-ink);
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+/* ── Bảng tên hai người chơi (dưới nhân vật) ─────────────────────────────── */
+.vs__plate {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  width: min(100%, 340px);
+  min-width: 0;
+  min-height: 76px;
+  padding: 10px 14px;
+  border: 1px solid var(--st-line);
+  border-top: 3px solid var(--st-left);
+  border-radius: 14px;
+  background: var(--st-surface);
+}
+
+.vs__plate--right {
+  border-top-color: var(--st-right);
+}
+
+.vs__plate--right .vs__avatar,
+.vs__plate--right .vs__avatar-host {
+  order: 3;
+}
+
+.vs__plate--right .vs__who {
+  order: 2;
+  text-align: right;
+}
+
+.vs__plate--right .vs__seal {
+  order: 1;
+}
+
+.vs__avatar {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  border: 2px solid var(--st-left);
+  border-radius: 50%;
+  background: var(--st-left-deep);
+  color: var(--st-ink);
+  font: 700 1.1rem / 1 var(--ar-display);
+}
+
+.vs__plate--right .vs__avatar {
+  border-color: var(--st-right);
+  background: var(--st-right-deep);
+}
+
+.vs__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vs__who {
+  min-width: 0;
+}
+
+.vs__who strong {
+  display: block;
+  overflow: hidden;
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vs__who span {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-top: 4px;
+}
+
+.vs__plate--right .vs__who span {
+  justify-content: flex-end;
+}
+
+.vs__tag {
+  color: var(--st-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.vs__tag--me {
+  padding: 0 8px;
+  border: 1px solid var(--st-line);
+  border-radius: 6px;
+  color: var(--st-ink);
+}
+
+.vs__tag--ok { color: var(--st-ok); }
+.vs__tag--bad { color: var(--st-bad); }
+
+/* Con dấu Sẵn sàng: vòng đôi màu son, chữ 済 (đã xong). */
+.vs__seal {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border: 3px double var(--st-seal);
+  border-radius: 50%;
+  color: var(--st-seal);
+  font: 700 1.6rem / 1 var(--st-serif);
+  transform: rotate(var(--seal-tilt, -12deg));
+}
+
+.vs__plate--right .vs__seal {
+  --seal-tilt: 10deg;
+}
+
+.vs__seal.is-stamping {
+  animation: vs-stamp 420ms cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+
+.vs__seal-slot {
+  width: 58px;
+  height: 58px;
+}
+
+@keyframes vs-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes vs-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes vs-shadow {
+  0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.7; transform: translateX(-50%) scale(0.86); }
+}
+
+@keyframes vs-slam {
+  0% { opacity: 0; transform: scale(2.2); }
+  60% { opacity: 1; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes vs-flip {
+  0% { transform: translateY(0) rotateY(0deg); }
+  45% { transform: translateY(-80px) rotateY(calc(var(--flip-end, 1800deg) * 0.55)); }
+  100% { transform: translateY(0) rotateY(var(--flip-end, 1800deg)); }
+}
+
+@keyframes vs-stamp {
+  0% { opacity: 0; transform: rotate(var(--seal-tilt, -12deg)) scale(1.8); }
+  70% { opacity: 1; transform: rotate(var(--seal-tilt, -12deg)) scale(0.92); }
+  100% { opacity: 1; transform: rotate(var(--seal-tilt, -12deg)) scale(1); }
+}
+
+/* Sau màn chào: thu sân khấu theo chiều cao màn hình để bảng chọn + bảng tên cùng nằm trong khung nhìn. */
+.vs.is-compact .vs__stage {
+  grid-template-columns: minmax(0, 1fr) clamp(170px, 26vh, 300px) minmax(0, 1fr);
+  min-height: 0;
+}
+
+.vs.is-compact .vs__hero img {
+  max-height: clamp(110px, 22vh, 220px);
+}
+
+.vs.is-compact .vs__skin {
+  width: clamp(110px, 22vh, 220px);
+}
+
+.vs.is-compact[data-game="AIR_DEFENSE"] .vs__skin {
+  width: clamp(110px, 21vh, 200px);
+}
+
+.vs.is-compact[data-game="AIR_DEFENSE"] .vs__hero img {
+  width: clamp(80px, 16vh, 150px);
+}
+
+.vs.is-compact .vs__mark {
+  font-size: clamp(3rem, 8vh, 5.5rem);
+}
+
+@media (max-width: 860px) {
+  .vs__stage {
+    grid-template-columns: minmax(0, 1fr) minmax(170px, 240px) minmax(0, 1fr);
+    min-height: 220px;
+  }
+
+  .vs__hero img,
+  .vs.is-compact .vs__hero img {
+    max-height: min(180px, 26vh);
+  }
+
+  .vs .vs__skin,
+  .vs.is-compact .vs__skin {
+    width: min(180px, 26vh);
+  }
+}
+
+/* ── Điện thoại: tiêu đề → các bước → hai bảng tên → VS / đồng xu → thông báo → lựa chọn ── */
+@media (max-width: 640px) {
+  .vs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: auto;
+    padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .vs .vs__top { order: 1; flex-wrap: nowrap; align-items: center; }
+  .vs .vs__top > div { min-width: 0; }
+  .vs .vs__title { font-size: 1.25rem; }
+  .vs .vs__deck { overflow: hidden; margin: 2px 0 0; font-size: 0.8125rem; text-overflow: ellipsis; white-space: nowrap; }
+  .vs .vs__conn { flex: none; font-size: 0.75rem; }
+
+  .vs .vs__steps {
+    order: 2;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    margin: 0 -16px;
+    padding: 2px 16px 4px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+  .vs .vs__steps::-webkit-scrollbar { display: none; }
+  .vs .vs__step { flex: none; scroll-snap-align: start; }
+  .vs .vs__step em small { display: none; }
+
+  .vs .vs__plate,
+  .vs .vs__plate--right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .vs .vs__plate > *,
+  .vs .vs__plate--right > * { order: 0; }
+  .vs .vs__who { width: 100%; text-align: center; }
+  .vs .vs__who strong { font-size: 0.9375rem; }
+  .vs .vs__who span,
+  .vs .vs__plate--right .vs__who span { justify-content: center; }
+  .vs .vs__avatar { width: 52px; height: 52px; }
+  /* Khung tràn 25% quanh avatar 52px; người không khung cũng chừa như vậy để hai avatar thẳng hàng. */
+  .vs .vs__avatar-host { margin: 13px 0 7px; }
+  .vs .vs__seal { position: absolute; top: 8px; right: 8px; width: 44px; height: 44px; font-size: 1.2rem; }
+  .vs .vs__plate--right .vs__seal { right: auto; left: 8px; }
+  .vs .vs__seal-slot { display: none; }
+
+  /* Ẩn hình nhân vật, giữ hai bảng tên thành một hàng phía trên VS. */
+  .vs .vs__stage,
+  .vs.is-compact .vs__stage {
+    order: 3;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "left right" "core core";
+    align-items: stretch;
+    gap: 8px;
+    min-height: 0;
+  }
+  .vs .vs__side { align-content: stretch; }
+  .vs .vs__side--left { grid-area: left; }
+  .vs .vs__side--right { grid-area: right; }
+  .vs .vs__hero { display: none; }
+  .vs .vs__core { grid-area: core; justify-self: center; width: 140px; height: 140px; }
+  .vs .vs__mark,
+  .vs.is-compact .vs__mark { font-size: 3.2rem; }
+  .vs .vs__coin { --coin: 74px; }
+  .vs .vs__coins { gap: 18px; }
+
+  .vs .vs__banner { order: 5; width: 100%; margin: 0; padding: 4px 0; font-size: 1rem; }
+  .vs .vs__panel { order: 6; margin: 0; }
+  .vs .vs__options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+  .vs .vs__option { min-width: 0; padding: 12px 10px; }
+  .vs .vs__pair { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .vs .vs__pair-arrow { display: none; }
+  .vs .vs__summary { width: 100%; }
+  .vs .vs__summary li { flex: 1 1 50%; }
+  .vs .vs__summary li + li { border-left: 0; }
+  .vs > * { min-width: 0; max-width: 100%; }
+  .vs .vs__actions { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; }
+  .vs .vs__btn { min-width: 0; padding: 12px; line-height: 1.25; white-space: normal; text-align: center; }
+}

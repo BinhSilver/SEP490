@@ -66,18 +66,12 @@
     return FULL_NAME_PATTERN.test(value);
   }
 
-  function todayIso() {
-    var now = new Date();
-    return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-'
-      + String(now.getDate()).padStart(2, '0');
-  }
-
   /** yyyy-mm-dd strings compare like dates; the server checks the same range again. */
   function dateOfBirthError() {
     var value = dateOfBirthInput.value;
     if (dateOfBirthInput.validity.badInput) return 'Ngày sinh chưa hợp lệ.';
     if (!value) return 'Vui lòng nhập ngày sinh.';
-    if (value < dateOfBirthInput.min || value > todayIso()) return 'Ngày sinh chưa hợp lệ.';
+    if (value < dateOfBirthInput.min || value > dateOfBirthInput.max) return 'Tuổi phải từ 6 đến 120.';
     return '';
   }
 
@@ -247,8 +241,7 @@
     if (!emailInput.validity.valid) JLabAuth.setFieldError('email', 'Email chưa đúng định dạng.');
     else JLabAuth.setFieldError('email', '');
   });
-  dateOfBirthInput.max = todayIso();
-  DateWheel.attach(dateOfBirthInput, { popover: true });
+  DateWheel.attachBirthDate(dateOfBirthInput, { popover: true });
   dateOfBirthInput.addEventListener('change', function () {
     if (dateOfBirthInput.value || dateOfBirthInput.getAttribute('aria-invalid') === 'true') {
       JLabAuth.setFieldError('dateOfBirth', dateOfBirthError());

@@ -1,6 +1,6 @@
 import type {CSSProperties} from 'react';
 import {playerShipName, type MatchInfo} from './game/useAirDefenseStore';
-import type {LiveStatus} from './game/arenaTypes';
+import type {AirPlayerView, LiveStatus} from './game/arenaTypes';
 import './battle-hud-mobile.css';
 
 const GAUGE_CIRCUMFERENCE = 2 * Math.PI * 19;
@@ -22,6 +22,36 @@ interface HudProps {
   match: MatchInfo; wave: number; timeLeft: number | null; score: number; combo: number; credits: number;
   hp: number; maxHp: number; shield: number; charge: number; disabled: boolean; ship: string;
   liveStatus: LiveStatus; bgm: boolean; onMusic: () => void; onMenu: () => void; onBeam: () => void;
+  /** Versus only: null while the opponent's state has not arrived yet. */
+  opponent?: AirPlayerView | null; inboundBoss?: boolean;
+}
+
+function initialOf(name: string): string { return name.trim().charAt(0).toUpperCase() || '?'; }
+
+/** One player's side of the versus rail. Both sides show the same readouts, so they compare at a glance. */
+function DuelSide(p: {side: 'me' | 'rival'; name: string; avatarUrl?: string | null; hp: number; maxHp: number;
+  score: number; wave: number; combo: number; shield?: number; offline?: boolean; down?: boolean; boss?: boolean}) {
+  const pct = Math.max(0, Math.min(100, p.hp / Math.max(1, p.maxHp) * 100));
+  const health = Math.max(0, Math.round(p.hp));
+  const who = p.side === 'me' ? 'của bạn' : `của ${p.name}`;
+  return <div className={`ad-duel-side ad-duel-side--${p.side} ${pct <= 25 ? 'is-low' : ''} ${p.offline ? 'is-offline' : ''}`}>
+    <div className="ad-duel-side__head">
+      <span className="ad-duel-side__avatar" aria-hidden="true">{initialOf(p.name)}
+        {p.avatarUrl && <img src={p.avatarUrl} alt="" onError={(e) => { e.currentTarget.hidden = true; }}/>}</span>
+      <span className="ad-duel-side__name" title={p.name}>{p.name}</span>
+      {p.offline && <span className="ad-duel-tag is-amber" title="Mất kết nối"><i className="fa-solid fa-link-slash" aria-hidden="true"/><span>Mất kết nối</span></span>}
+      {p.down && <span className="ad-duel-tag is-rose" title="Phòng tuyến thất thủ"><i className="fa-solid fa-skull" aria-hidden="true"/><span>Thất thủ</span></span>}
+      {p.boss && <span className="ad-duel-tag is-rose" title="Trùm đang tới"><i className="fa-solid fa-triangle-exclamation" aria-hidden="true"/><span>Trùm đang tới</span></span>}
+      <strong className="ad-duel-side__hp">{health}<small> / {p.maxHp}</small></strong>
+    </div>
+    <div className="ad-health__track" role="meter" aria-label={`Máu phòng tuyến ${who}`} aria-valuemin={0} aria-valuemax={p.maxHp} aria-valuenow={health}><span style={{width: `${pct}%`}}/></div>
+    <dl className="ad-duel-side__stats">
+      <div><dt>Điểm</dt><dd>{Math.round(p.score)}</dd></div>
+      <div><dt>Đợt</dt><dd>{p.wave}</dd></div>
+      <div><dt>Combo</dt><dd>×{p.combo}</dd></div>
+      {!!p.shield && <div className="is-shield"><dt><i className="fa-solid fa-shield-halved" aria-hidden="true"/> Giáp</dt><dd>{p.shield}</dd></div>}
+    </dl>
+  </div>;
 }
 export function BattleHud(p: HudProps) {
   const ready = p.charge >= 100;
@@ -33,6 +63,10 @@ export function BattleHud(p: HudProps) {
   const clock = `${Math.floor(seconds / 60).toString().padStart(2,'0')}:${(seconds % 60).toString().padStart(2,'0')}`;
   const tier = p.combo >= 30 ? 'legend' : p.combo >= 10 ? 'hot' : p.combo >= 5 ? 'warm' : 'base';
   const canPause = p.match.playMode === 'SOLO' && p.match.endsAt === null;
+  const superButton = <button type="button" className={`ad-super ${ready ? 'is-ready' : ''}`} onClick={p.onBeam} disabled={!ready || p.disabled} aria-label={ready ? 'Siêu pháo sẵn sàng — bấm Shift để bắn' : `Siêu pháo đang nạp ${Math.round(p.charge)} phần trăm`} title="Bắn siêu pháo · Shift" style={{'--charge':`${p.charge}%`} as CSSProperties}>
+    <span className="ad-super__title"><i className="fa-solid fa-bolt" aria-hidden="true"/> {ready ? 'Siêu pháo sẵn sàng' : 'Siêu pháo'}<kbd>Shift</kbd></span>
+    <span className="ad-super__track" role="meter" aria-label="Năng lượng siêu pháo" aria-valuemin={0} aria-valuemax={100} aria-valuenow={p.charge}><span/></span><strong>{Math.round(p.charge)}<small>%</small></strong>
+  </button>;
   return <>
     <header className="ad-hud">
       <div className="ad-hud__mission">
@@ -72,17 +106,31 @@ export function BattleHud(p: HudProps) {
         <button type="button" className="ad-icon-button" onClick={p.onMenu} aria-label="Cài đặt âm thanh và hình ảnh" title="Cài đặt"><i className="fa-solid fa-gear" aria-hidden="true"/></button>
       </div>
     </header>
-    <div className="ad-status-rail">
+    {p.match.versus ? <div className="ad-status-rail is-duel">
+      <DuelSide side="me" name="Bạn" hp={p.hp} maxHp={p.maxHp} score={p.score} wave={p.wave} combo={p.combo} shield={p.shield}/>
+      <div className="ad-duel__versus" role="status" aria-live="polite">
+        <b aria-hidden="true">VS</b>
+        {p.opponent && <small>{lead(p.score - p.opponent.score)}</small>}
+      </div>
+      {p.opponent
+        ? <DuelSide side="rival" name={p.opponent.displayName} avatarUrl={p.opponent.avatarUrl} hp={p.opponent.hp} maxHp={p.opponent.maxHp}
+            score={p.opponent.score} wave={p.opponent.wave} combo={p.opponent.combo} offline={!p.opponent.online}
+            down={p.opponent.finished && !p.opponent.alive} boss={p.inboundBoss}/>
+        : <p className="ad-duel-side ad-duel-side--waiting">Đang chờ thông tin đối thủ…</p>}
+      {superButton}
+    </div> : <div className="ad-status-rail">
       <div className={`ad-health ${hpPct <= 25 ? 'is-low' : ''}`}>
         <div className="ad-health__caption"><span><i className="fa-solid fa-heart" aria-hidden="true"/> Phòng tuyến</span><strong>{Math.max(0, Math.round(p.hp))}<small> / {p.maxHp}</small></strong></div>
         <div role="meter" aria-label="Máu hành tinh của bạn" aria-valuemin={0} aria-valuemax={p.maxHp} aria-valuenow={Math.max(0,Math.round(p.hp))} className="ad-health__track"><span style={{width:`${hpPct}%`}}/></div>
         {p.shield > 0 && <span className="ad-health__shield"><i className="fa-solid fa-shield-halved" aria-hidden="true"/> Giáp {p.shield}</span>}
       </div>
       <div className="ad-ship-name"><i className="fa-solid fa-jet-fighter" aria-hidden="true"/>{SHIP_NAMES[p.ship] || playerShipName() || 'Chiến cơ'}</div>
-      <button type="button" className={`ad-super ${ready ? 'is-ready' : ''}`} onClick={p.onBeam} disabled={!ready || p.disabled} aria-label={ready ? 'Siêu pháo sẵn sàng — bấm Shift để bắn' : `Siêu pháo đang nạp ${Math.round(p.charge)} phần trăm`} title="Bắn siêu pháo · Shift" style={{'--charge':`${p.charge}%`} as CSSProperties}>
-        <span className="ad-super__title"><i className="fa-solid fa-bolt" aria-hidden="true"/> {ready ? 'Siêu pháo sẵn sàng' : 'Siêu pháo'}<kbd>Shift</kbd></span>
-        <span className="ad-super__track" role="meter" aria-label="Năng lượng siêu pháo" aria-valuemin={0} aria-valuemax={100} aria-valuenow={p.charge}><span/></span><strong>{Math.round(p.charge)}<small>%</small></strong>
-      </button>
-    </div>
+      {superButton}
+    </div>}
   </>;
+}
+
+function lead(diff: number): string {
+  if (diff === 0) return 'Ngang điểm';
+  return `${diff > 0 ? 'Dẫn' : 'Kém'} ${Math.abs(Math.round(diff))} điểm`;
 }

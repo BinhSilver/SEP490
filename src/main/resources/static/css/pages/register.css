@@ -80,6 +80,10 @@ body.page-register-body::before {
   text-align: center;
 }
 
+.page-register-body .password-rule__short {
+  display: none;
+}
+
 .page-register-body .password-rules .is-valid {
   color: var(--color-success);
 }
@@ -153,8 +157,17 @@ body.page-register-body::before {
 }
 
 @media (max-width: 520px) {
+  /* Two rules per row on phones: the short labels keep each one on a single line. */
   .page-register-body .password-rules {
-    grid-template-columns: 1fr;
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+
+  .page-register-body .password-rule__full {
+    display: none;
+  }
+
+  .page-register-body .password-rule__short {
+    display: inline;
   }
 
   .page-register-body .otp-inputs {

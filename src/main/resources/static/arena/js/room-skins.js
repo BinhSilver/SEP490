@@ -24,9 +24,12 @@
           + items().map(function (item) {
             var label = item.equipped ? 'Đang dùng' : item.owned ? 'Dùng' : shop.balance < item.price
               ? 'Thiếu ' + money(item.price - shop.balance) + ' CP' : 'Mua · ' + money(item.price) + ' CP';
+            // Same animated preview as the shop; a plane's image is a 4×4 atlas, never shown whole.
+            var picture = global.JlasCharacterSkins ? global.JlasCharacterSkins.art(item, gameType)
+              : '<img src="' + esc(item.image) + '" alt="" loading="lazy">';
             return '<button type="button" class="ar-room-skins__item' + (item.equipped ? ' is-selected' : '')
               + '" data-skin="' + esc(item.code) + '" aria-pressed="' + item.equipped + '">'
-              + '<img src="' + esc(item.image) + '" alt="" loading="lazy"><strong>' + esc(item.name)
+              + '<span class="ar-room-skins__art" aria-hidden="true">' + picture + '</span><strong>' + esc(item.name)
               + '</strong><span>' + esc(label) + '</span></button>';
           }).join('') + '</div>' : '<p class="ar-muted">Đang tải skin…</p>')
         + (error ? '<p class="ar-error-text" role="alert">' + esc(error) + '</p><button type="button" class="ar-btn ar-btn--sm" data-skin-retry>Thử lại</button>' : '')
@@ -35,6 +38,7 @@
         + '<div class="ar-dialog__foot"><button type="button" class="ar-btn" data-skin-cancel>Hủy</button>'
         + '<button type="button" class="ar-btn ar-btn--primary" data-skin-confirm>Mua và dùng</button></div></dialog>';
       if (root.querySelector('.ar-room-skins__list')) root.querySelector('.ar-room-skins__list').scrollLeft = left;
+      if (global.JlasCharacterSkins) global.JlasCharacterSkins.mount(root);
       syncDisabled();
     }
     function load() {

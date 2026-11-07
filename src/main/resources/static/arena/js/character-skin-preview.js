@@ -115,5 +115,42 @@
   }
   document.addEventListener('visibilitychange', refresh);
   motion.addEventListener('change', refresh);
-  window.JlasCharacterSkins = { supports: function (code) { return Object.prototype.hasOwnProperty.call(names, code); }, mount: mount };
+  function supports(code) { return Object.prototype.hasOwnProperty.call(names, code); }
+  var ANIM = '/arena/images/shop/anim/';
+  function esc(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+  }
+  /**
+   * Markup for a skin's animated preview, shared by the shop, the room skin picker and the VS screen.
+   * item: { code, name, image, renderCode, packPath }. Call mount() on its container once it is in the page.
+   */
+  function art(item, gameType) {
+    var renderer = item.renderCode || item.code;
+    // Gói skin tải lên: ảnh đại diện (đã là một khung, nên không dùng cách cắt atlas 4×4 của .ar-spaceship-art)
+    // trong lúc tải, rồi chuyển động idle vẽ từ chính gói.
+    if (renderer === 'PACK' && item.packPath) {
+      return '<span class="ar-character-art"><img src="' + esc(item.image) + '" alt="" loading="lazy" data-character-fallback>'
+        + '<canvas width="256" height="256" hidden data-skin-pack="' + esc(item.packPath) + '" data-skin-game="' + (gameType === 'AIR_DEFENSE' ? 'ship' : 'cat')
+        + '" role="img" aria-label="' + esc(item.name) + '"></canvas></span>';
+    }
+    if (renderer === 'CUSTOM') return '<img src="' + esc(item.image) + '" alt="' + esc(item.name) + '" loading="lazy" style="width:100%;height:100%;object-fit:contain">';
+    if (supports(renderer)) {
+      return '<span class="ar-character-art' + (gameType === 'AIR_DEFENSE' ? ' ar-spaceship-art' : '') + '"><img src="' + esc(item.image) + '" alt="" loading="lazy" data-character-fallback>'
+        + '<canvas width="256" height="256" hidden data-character-skin="' + esc(renderer)
+        + '" role="img" aria-label="' + esc(item.name) + '"></canvas></span>';
+    }
+    if (gameType === 'AIR_DEFENSE') {
+      return '<span class="ar-plane-fly" role="img" aria-label="' + esc(item.name) + '">'
+        + '<span class="ar-sprite ar-sprite--plane" style="background-image:url(' + ANIM + esc(renderer) + '.png)"></span>'
+        + '<span class="ar-sprite ar-sprite--exhaust" style="background-image:url(' + ANIM + 'exhaust.png)"></span></span>';
+    }
+    if (gameType === 'NEKO_CATCH') {
+      return '<span class="ar-sprite ar-sprite--cat" role="img" aria-label="' + esc(item.name) + '"'
+        + ' style="background-image:url(' + ANIM + esc(renderer) + '.webp)"></span>';
+    }
+    return '<img src="' + esc(item.image) + '" alt="' + esc(item.name) + '" loading="lazy">';
+  }
+  window.JlasCharacterSkins = { supports: supports, mount: mount, art: art };
 }());
