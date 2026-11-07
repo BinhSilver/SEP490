@@ -3,6 +3,7 @@ package com.jlas.admin.controller;
 import com.jlas.admin.dto.AdminPage;
 import com.jlas.admin.dto.AdminPaymentView;
 import com.jlas.admin.service.AdminDashboardService;
+import com.jlas.admin.service.AdminKpiCatalog;
 import com.jlas.admin.service.AdminPaymentService;
 import com.jlas.auth.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /** System Admin dashboard and read-only payment lookup. */
 @RestController
@@ -25,6 +27,12 @@ public class AdminDashboardController {
     @GetMapping("/dashboard")
     public ApiResponse<AdminDashboardService.Dashboard> dashboard(@RequestParam(required = false) String period) {
         return ApiResponse.ok("Tổng quan hệ thống", dashboard.summary(dashboard.period(period)));
+    }
+
+    /** [JLAS2-51] Source table, filter, formula and period of every dashboard figure. */
+    @GetMapping("/dashboard/kpi-sources")
+    public ApiResponse<List<AdminKpiCatalog.KpiSource>> kpiSources() {
+        return ApiResponse.ok("Nguồn chỉ số Tổng quan", AdminKpiCatalog.ALL);
     }
 
     @GetMapping("/payments")

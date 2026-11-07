@@ -73,8 +73,14 @@ public class AdminDashboardService {
                             List<Revenue> paidLast30Days, List<AdminAuditLogView> recentActions,
                             List<ProductRevenue> paidByProductLast30Days, BigDecimal discountLast30Days,
                             PeriodStats periodStats, List<YearCount> registrationsByYear,
-                            int premiumYear, List<MonthRevenue> premiumByMonth) {
+                            int premiumYear, List<MonthRevenue> premiumByMonth,
+                            long pendingPaymentsOverdue, int pendingAlertMinutes, LocalDateTime generatedAt,
+                            List<AdminKpiCatalog.KpiSource> kpiSources, List<AdminAuditLogView> configChanges) {
     }
+
+    /** [JLAS2-51] Audit actions shown in the "recent configuration changes" card. */
+    static final List<String> CONFIG_ACTIONS = List.of("CONFIG_UPDATE", "CONFIG_RESET");
+    static final int CONFIG_CHANGES_LIMIT = 5;
 
     /** The requested period, or {@code dashboard.default_period} when the request names none. */
     public Period period(String requested) {
@@ -103,11 +109,18 @@ public class AdminDashboardService {
         List<MonthRevenue> premiumByMonth = payments.premiumPaidByMonth(yearStart, now.plusSeconds(1)).stream()
                 .map(row -> new MonthRevenue(((Number) row[0]).intValue(), (String) row[1], (Long) row[2], (BigDecimal) row[3]))
                 .toList();
+        int alertMinutes = config.intValue(SystemConfigKey.PAYMENT_PENDING_ALERT_MINUTES);
+        List<AdminAuditLogView> configChanges = logs.findAll(
+                (root, query, cb) -> root.get("action").in(CONFIG_ACTIONS),
+                PageRequest.of(0, CONFIG_CHANGES_LIMIT, Sort.by(Sort.Direction.DESC, "createdAt", "id")))
+                .map(AdminAuditLogView::from).getContent();
         return new Dashboard(users.count(), byRole, users.countByLockedAtIsNotNull(), users.countByIsVerifiedFalse(),
                 users.countByCreatedAtGreaterThanEqual(now.minusDays(7)),
                 users.countByCreatedAtGreaterThanEqual(now.minusDays(30)),
                 users.countActivePremium(now), onSale, sellable.size() - onSale, byStatus, paid, recent, byProduct, discounts,
-                periodStats(period, now), registrationsByYear(now.toLocalDate()), now.getYear(), premiumByMonth);
+                periodStats(period, now), registrationsByYear(now.toLocalDate()), now.getYear(), premiumByMonth,
+                payments.countPendingCreatedBefore(now.minusMinutes(alertMinutes)), alertMinutes, now,
+                AdminKpiCatalog.ALL, configChanges);
     }
 
     private PeriodStats periodStats(Period period, LocalDateTime now) {

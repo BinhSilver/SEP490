@@ -16,8 +16,23 @@
     PREMIUM_PLAN_DEACTIVATE: 'Ngừng bán gói', PREMIUM_PLAN_ACTIVATE: 'Mở bán gói',
     COUPON_CREATE: 'Tạo mã giảm giá', COUPON_UPDATE: 'Sửa mã giảm giá', COUPON_ACTIVE: 'Bật/tắt mã giảm giá',
     COUPON_DELETE: 'Xoá mã giảm giá', CREDIT_PACKAGE_CREATE: 'Tạo gói CP', CREDIT_PACKAGE_UPDATE: 'Sửa gói CP',
-    CREDIT_PACKAGE_ACTIVE: 'Bật/tắt gói CP', CREDIT_PACKAGE_DELETE: 'Xoá gói CP'
+    CREDIT_PACKAGE_ACTIVE: 'Bật/tắt gói CP', CREDIT_PACKAGE_DELETE: 'Xoá gói CP',
+    CONFIG_UPDATE: 'Sửa cấu hình', CONFIG_RESET: 'Khôi phục cấu hình'
   };
+
+  /** "key: old → new" (HTML) for a CONFIG_* audit entry; the rejection message when it was refused. */
+  function configChange(entry) {
+    var c = {};
+    try { c = JSON.parse(entry.changesJson || '{}') || {}; } catch (ignored) { /* shown as the key only */ }
+    var key = '<code>' + A.esc(entry.targetId || '') + '</code>';
+    if (c.rejection) {
+      return key + ': ' + A.esc(c.rejection) +
+        ('attempted' in c ? ' <span class="adm-muted">(giá trị gửi: ' + A.esc(c.attempted == null ? '—' : c.attempted) + ')</span>' : '');
+    }
+    var show = function (v) { return A.esc(v == null || v === '' ? '—' : v); };
+    return key + ': ' + show(c.before) + ' → ' + show(c.after) +
+      (entry.action === 'CONFIG_RESET' ? ' <span class="adm-muted">(mặc định)</span>' : '');
+  }
   var PAYMENT_STATUS = {
     PENDING: ['Đang chờ', 'warn'], PAID: ['Đã thanh toán', 'ok'], FAILED: ['Thất bại', 'danger'],
     CANCELLED: ['Đã huỷ', ''], EXPIRED: ['Hết hạn', ''], REFUNDED: ['Đã hoàn tiền', '']
@@ -546,7 +561,8 @@
   ];
   /** periodStats.period (server enum) → the key above. */
   var PERIOD_KEYS = { YEAR: 'year', DAYS_30: '30d', DAYS_7: '7d' };
-  var TARGET_TYPES = { USER: 'Người dùng', PREMIUM_PLAN: 'Gói Premium', COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP' };
+  var TARGET_TYPES = { USER: 'Người dùng', PREMIUM_PLAN: 'Gói Premium', COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP',
+    SYSTEM_CONFIG: 'Cấu hình hệ thống' };
 
   function numberVi(n) { return Number(n || 0).toLocaleString('vi-VN'); }
 
@@ -639,12 +655,19 @@
     var monthBarMax = 150;
 
     var recent = d.recentActions || [];
+    var configChanges = d.configChanges || [];
+    var overdue = Number(d.pendingPaymentsOverdue || 0);
+    // Server clock (HH:mm:ss of generatedAt), so the time matches the figures whatever the viewer's time zone.
+    var generatedAt = String(d.generatedAt || '').slice(11, 19);
 
     return '<div class="st-dashboard">' +
       '<header class="st-topbar">' +
         '<div class="st-topbar__left"><div class="st-topbar__title-wrap"><span class="st-topbar__dot"></span>' +
           '<h1 class="st-topbar__title">Tổng quan hệ thống</h1></div></div>' +
         '<div class="st-topbar__actions">' +
+          '<span class="st-updated" aria-live="polite">Cập nhật lúc ' + A.esc(generatedAt || '—') + '</span>' +
+          '<button type="button" class="st-icon-btn" data-refresh title="Làm mới số liệu" aria-label="Làm mới số liệu">' +
+            '<span class="material-symbols-outlined" style="font-size:20px;" aria-hidden="true">refresh</span></button>' +
           '<div class="st-segmented" role="tablist" aria-label="Khoảng thời gian">' +
             PERIODS.map(function (x) {
               return '<button type="button" role="tab" class="st-segmented__btn' + (x.key === period ? ' active' : '') +
@@ -661,18 +684,26 @@
 
       '<div class="st-grid-kpi">' +
         kpiCard('Tổng người dùng', 'group', 'purple', numberVi(d.totalUsers),
-          growthPill(stats.newUsers, stats.newUsersPrevious, p.compare, '+' + numberVi(stats.newUsers) + ' người mới')) +
+          growthPill(stats.newUsers, stats.newUsersPrevious, p.compare, '+' + numberVi(stats.newUsers) + ' người mới'),
+          ['totalUsers', 'periodStats.newUsers']) +
         kpiCard(p.revenue, 'credit_card', 'purple', revenueText,
-          growthPill(revenueNow, revenueBefore, p.compare, '')) +
+          growthPill(revenueNow, revenueBefore, p.compare, ''), ['periodStats.paid']) +
         kpiCard('Giao dịch đang chờ', 'hourglass_empty', 'amber', numberVi(pending) + ' giao dịch',
-          pending ? '<span class="st-pill st-pill--amber">Cần xác nhận</span>' : '<span class="st-pill st-pill--neutral">Không có</span>') +
+          pending ? '<span class="st-pill st-pill--amber">Cần xác nhận</span>' : '<span class="st-pill st-pill--neutral">Không có</span>',
+          ['paymentsByStatus']) +
+        kpiCard('Giao dịch chờ quá ' + numberVi(d.pendingAlertMinutes) + ' phút', 'schedule', 'amber',
+          numberVi(overdue) + ' giao dịch',
+          overdue ? '<a class="st-pill st-pill--amber" href="/admin/system/payments">Cần kiểm tra</a>'
+            : '<span class="st-pill st-pill--neutral">Không có</span>', ['pendingPaymentsOverdue']) +
         kpiCard('Kiểm duyệt chờ xử lý', 'verified', 'purple', modCount == null ? '—' : numberVi(modCount) + ' mục',
-          modCount ? '<span class="st-pill st-pill--purple">Cần xử lý</span>' : '<span class="st-pill st-pill--neutral">Đã xử lý hết</span>') +
+          modCount ? '<span class="st-pill st-pill--purple">Cần xử lý</span>' : '<span class="st-pill st-pill--neutral">Đã xử lý hết</span>',
+          ['moderationPending']) +
       '</div>' +
 
       '<div class="st-card">' +
         '<div class="st-card__header"><div class="st-card__title-group"><div class="st-card__title-row">' +
           '<span class="st-square-mark"></span><h2 class="st-card__title">Số lượng người đăng ký mới mỗi năm</h2>' +
+          sourceButton(['registrationsByYear'], 'Người đăng ký mới mỗi năm') +
         '</div></div></div>' +
         '<div class="st-annual-chart">' +
           '<div class="st-annual-chart__gridlines">' +
@@ -695,8 +726,9 @@
 
       '<div class="st-grid-trio">' +
         '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;"><div>' +
-          '<div class="st-card__header"><div class="st-card__title-group">' +
-            '<h2 class="st-card__title">Số lượng người đăng ký Premium mỗi tháng (' + A.esc(d.premiumYear) + ')</h2></div>' +
+          '<div class="st-card__header"><div class="st-card__title-group"><div class="st-card__title-row">' +
+            '<h2 class="st-card__title">Số lượng người đăng ký Premium mỗi tháng (' + A.esc(d.premiumYear) + ')</h2>' +
+            sourceButton(['premiumByMonth'], 'Đăng ký Premium mỗi tháng') + '</div></div>' +
             '<span class="st-pill st-pill--purple">Tổng ' + numberVi(premiumTotal) + ' lượt</span>' +
           '</div>' +
           '<div class="st-monthly-chart"><div class="st-monthly-chart__bars">' +
@@ -714,8 +746,9 @@
         '</div></div>' +
 
         '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;"><div>' +
-          '<div class="st-card__header"><div class="st-card__title-group">' +
-            '<h2 class="st-card__title" style="font-size:15px;">Tỉ lệ Premium / Miễn phí</h2></div></div>' +
+          '<div class="st-card__header"><div class="st-card__title-group"><div class="st-card__title-row">' +
+            '<h2 class="st-card__title" style="font-size:15px;">Tỉ lệ Premium / Miễn phí</h2>' +
+            sourceButton(['premiumActive', 'usersByRole'], 'Tỉ lệ Premium / Miễn phí') + '</div></div></div>' +
           '<div class="st-donut-wrap"><div class="st-donut"><svg viewBox="0 0 160 160">' +
             '<circle cx="80" cy="80" r="62" fill="none" stroke="#EEF5F7" stroke-width="18"></circle>' +
             '<circle cx="80" cy="80" r="62" fill="none" stroke="#4F378A" stroke-width="18" stroke-dasharray="' + premiumLen + ' ' + donutCirc + '" stroke-dashoffset="0" stroke-linecap="round"></circle>' +
@@ -729,8 +762,9 @@
         '</div></div>' +
 
         '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;"><div>' +
-          '<div class="st-card__header"><div class="st-card__title-group">' +
-            '<h2 class="st-card__title" style="font-size:15px;">Giao dịch</h2></div></div>' +
+          '<div class="st-card__header"><div class="st-card__title-group"><div class="st-card__title-row">' +
+            '<h2 class="st-card__title" style="font-size:15px;">Giao dịch</h2>' +
+            sourceButton(['paymentsByStatus'], 'Giao dịch') + '</div></div></div>' +
           '<div class="st-tx-health__val-row"><span class="st-tx-health__pct">' + txDonePct + '%</span>' +
             (txTotal === 0 ? '' : txDonePct >= 90
               ? '<span class="st-pill st-pill--growth" style="padding:2px 8px; font-size:10px;">Hoàn tất chuẩn</span>'
@@ -755,7 +789,9 @@
       '</div>' +
 
       '<div class="st-card"><div>' +
-        '<div class="st-card__header"><div class="st-card__title-group"><h2 class="st-card__title">Thao tác quản trị gần đây</h2></div>' +
+        '<div class="st-card__header"><div class="st-card__title-group"><div class="st-card__title-row">' +
+          '<h2 class="st-card__title">Thao tác quản trị gần đây</h2>' +
+          sourceButton(['recentActions'], 'Thao tác quản trị gần đây') + '</div></div>' +
           '<a class="st-pill st-pill--neutral" href="/admin/system/audit">Xem nhật ký</a></div>' +
         (recent.length ? '<div class="st-table-wrap"><table class="st-table"><thead><tr>' +
             '<th>Thời gian</th><th>Người thao tác</th><th>Hành động</th><th>Đối tượng</th><th style="text-align:right;">Trạng thái</th>' +
@@ -776,14 +812,54 @@
           '</tbody></table></div>'
           : A.empty('fa-clock-rotate-left', 'Chưa có thao tác quản trị', 'Các thao tác như khoá tài khoản, sửa gói sẽ hiện ở đây.')) +
       '</div></div>' +
+
+      '<div class="st-card"><div>' +
+        '<div class="st-card__header"><div class="st-card__title-group"><div class="st-card__title-row">' +
+          '<h2 class="st-card__title">Cấu hình thay đổi gần đây</h2>' +
+          sourceButton(['configChanges'], 'Cấu hình thay đổi gần đây') + '</div></div>' +
+          '<a class="st-pill st-pill--neutral" href="/admin/system/audit?targetType=SYSTEM_CONFIG">Xem trong nhật ký</a></div>' +
+        (configChanges.length ? '<ul class="st-config-list">' + configChanges.map(function (r) {
+            return '<li class="st-config-list__item">' +
+              '<span class="st-config-list__time">' + A.esc(actionTime(r.createdAt)) + '</span>' +
+              '<span class="st-config-list__what"><strong>' + A.esc(ACTIONS[r.action] || r.action) + '</strong> · ' +
+                configChange(r) + '</span>' +
+              '<span class="st-config-list__who">' + A.esc(r.actorEmail || ('#' + r.actorId)) +
+                (r.result === 'SUCCESS' ? '' : ' · <span class="st-pill st-pill--amber">Bị từ chối</span>') + '</span>' +
+            '</li>';
+          }).join('') + '</ul>'
+          : A.empty('fa-sliders', 'Chưa có thay đổi cấu hình', 'Các lần sửa hoặc khôi phục cấu hình hệ thống sẽ hiện ở đây.')) +
+      '</div></div>' +
     '</div>';
   }
 
-  function kpiCard(label, icon, tone, value, pill) {
-    return '<div class="st-card st-kpi-card"><div class="st-kpi-card__top"><span class="st-kpi-card__label">' + A.esc(label) + '</span>' +
+  function kpiCard(label, icon, tone, value, pill, sources) {
+    return '<div class="st-card st-kpi-card"><div class="st-kpi-card__top"><span class="st-kpi-card__label">' + A.esc(label) +
+      sourceButton(sources, label) + '</span>' +
       '<div class="st-kpi-card__icon-wrap st-kpi-card__icon-wrap--' + tone + '"><span class="material-symbols-outlined" style="font-size:20px;">' + icon + '</span></div></div>' +
       '<div class="st-kpi-card__val-block"><div class="st-kpi-card__value">' + value + '</div>' +
       '<div class="st-kpi-card__pill-wrap">' + pill + '</div></div></div>';
+  }
+
+  /** ⓘ button; {@code keys} are kpiSources keys from AdminKpiCatalog, shown in a popover on click. */
+  function sourceButton(keys, label) {
+    return '<button type="button" class="st-info-btn" data-kpi-sources="' + A.esc(keys.join(',')) + '" aria-expanded="false"' +
+      ' aria-label="Nguồn số liệu: ' + A.esc(label) + '" title="Nguồn số liệu">' +
+      '<span class="material-symbols-outlined" aria-hidden="true">info</span></button>';
+  }
+
+  function sourcePopoverHtml(keys, sources) {
+    var byKey = {};
+    (sources || []).forEach(function (s) { byKey[s.key] = s; });
+    var items = keys.map(function (k) { return byKey[k]; }).filter(Boolean);
+    return '<div class="st-source-pop__head"><strong>Nguồn số liệu</strong>' +
+        '<button type="button" class="st-source-pop__close" data-close-sources aria-label="Đóng">×</button></div>' +
+      (items.length ? items.map(function (s) {
+        return '<div class="st-source-pop__item"><div class="st-source-pop__label">' + A.esc(s.label) + '</div><dl>' +
+          '<dt>Bảng nguồn</dt><dd><code>' + A.esc(s.sourceTables) + '</code></dd>' +
+          '<dt>Điều kiện lọc</dt><dd>' + A.esc(s.filter) + '</dd>' +
+          '<dt>Công thức</dt><dd><code>' + A.esc(s.formula) + '</code></dd>' +
+          '<dt>Kỳ tính</dt><dd>' + A.esc(s.period) + '</dd></dl></div>';
+      }).join('') : '<p class="st-source-pop__empty">Chưa có mô tả nguồn cho chỉ số này.</p>');
   }
 
   function legendItem(color, label, count, pct, tone) {
@@ -820,11 +896,75 @@
           return;
         }
         var d = results[0].value;
+        sources = d.kpiSources || [];
         period = PERIOD_KEYS[d.periodStats && d.periodStats.period] || period || 'year';
+        closeSources();
         root.innerHTML = dashboardHtml(d, results[1].status === 'fulfilled' ? results[1].value : null, period);
       }
 
+      // ── KPI source popover: one at a time, attached to <body> so card overflow cannot clip it.
+      var sources = [];
+      var pop = null, popOwner = null;
+
+      function closeSources() {
+        if (pop) pop.remove();
+        if (popOwner) popOwner.setAttribute('aria-expanded', 'false');
+        pop = null;
+        popOwner = null;
+      }
+
+      function openSources(button) {
+        closeSources();
+        pop = document.createElement('div');
+        pop.className = 'st-source-pop';
+        pop.setAttribute('role', 'dialog');
+        pop.setAttribute('aria-label', button.getAttribute('aria-label'));
+        pop.innerHTML = sourcePopoverHtml(button.dataset.kpiSources.split(','), sources);
+        document.body.appendChild(pop);
+        var box = button.getBoundingClientRect();
+        var width = pop.offsetWidth;
+        // Keep a 16px gutter on narrow screens.
+        var left = Math.max(16, Math.min(box.left, window.innerWidth - width - 16));
+        var top = box.bottom + 8;
+        if (top + pop.offsetHeight > window.innerHeight - 16) top = Math.max(16, box.top - pop.offsetHeight - 8);
+        pop.style.left = left + 'px';
+        pop.style.top = top + 'px';
+        popOwner = button;
+        button.setAttribute('aria-expanded', 'true');
+        pop.querySelector('[data-close-sources]').focus({ preventScroll: true });
+      }
+
+      document.addEventListener('click', function (event) {
+        if (!pop) return;
+        if (event.target.closest('[data-close-sources]')) {
+          var owner = popOwner;
+          closeSources();
+          if (owner) owner.focus();
+          return;
+        }
+        if (!pop.contains(event.target) && !event.target.closest('[data-kpi-sources]')) closeSources();
+      });
+      document.addEventListener('keydown', function (event) {
+        if (event.key !== 'Escape' || !pop) return;
+        var owner = popOwner;
+        closeSources();
+        if (owner) owner.focus();
+      });
+      window.addEventListener('scroll', function (event) {
+        if (pop && !pop.contains(event.target)) closeSources();
+      }, true);
+      window.addEventListener('resize', closeSources);
+
       root.addEventListener('click', function (event) {
+        var info = event.target.closest('[data-kpi-sources]');
+        if (info) {
+          if (popOwner === info) closeSources(); else openSources(info);
+          return;
+        }
+        if (event.target.closest('[data-refresh]')) {
+          draw();
+          return;
+        }
         var button = event.target.closest('[data-period]');
         if (!button || button.dataset.period === period) return;
         period = button.dataset.period;

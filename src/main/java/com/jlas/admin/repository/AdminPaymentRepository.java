@@ -26,6 +26,10 @@ public interface AdminPaymentRepository extends JpaRepository<Payment, Long>, Jp
     @Query("select p.status, count(p) from Payment p group by p.status")
     List<Object[]> countByStatus();
 
+    /** [JLAS2-51] Payments still PENDING that were created before {@code before}. */
+    @Query("select count(p) from Payment p where p.status = 'PENDING' and p.createdAt < :before")
+    long countPendingCreatedBefore(@Param("before") LocalDateTime before);
+
     /** [currency, paid count, paid total] for payments completed since {@code from}. */
     @Query("select p.currency, count(p), sum(p.amountPaid) from Payment p"
             + " where p.status = 'PAID' and p.paidAt >= :from group by p.currency")
