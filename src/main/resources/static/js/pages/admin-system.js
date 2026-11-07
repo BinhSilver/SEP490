@@ -1,4 +1,5 @@
-/* System Admin sections (JLAS2-51/49): dashboard, accounts, Premium plans, payment lookup and the audit log. */
+/* System Admin sections (JLAS2-51/49): dashboard, accounts, Premium plans, payment lookup, the audit log,
+   runtime settings and the read-only permission matrix. */
 (function () {
   'use strict';
 
@@ -410,7 +411,10 @@
   });
 
   // ── Audit log ──────────────────────────────────────────────────────────
-  function changesCell(json) {
+  function changesCell(entry) {
+    // Settings: "key: old → new", or the rejection with the value that was sent.
+    if (String(entry.action || '').indexOf('CONFIG_') === 0) return configChange(entry);
+    var json = entry.changesJson;
     if (!json) return '<span class="adm-muted">—</span>';
     var c;
     try { c = JSON.parse(json); } catch (e) { return '<code>' + A.esc(json) + '</code>'; }
@@ -467,58 +471,102 @@
     return '<code>' + A.esc(json) + '</code>';
   }
 
+  // Target types and actor roles the audit API filters on (AdminAuditService.TARGET_TYPES / ACTOR_ROLES).
+  var AUDIT_TARGETS = ['USER', 'PREMIUM_PLAN', 'COUPON', 'CREDIT_PACKAGE', 'SYSTEM_CONFIG'];
+  var AUDIT_ROLES = ['ADMIN', 'MODERATOR', 'CONTENT_CREATOR', 'LEARNER'];
+  /** Filters that may come from the address bar, e.g. /admin/system/audit?targetType=SYSTEM_CONFIG. */
+  var AUDIT_FILTERS = ['q', 'action', 'result', 'actorRole', 'targetType', 'actorId', 'targetId', 'from', 'to'];
+
   A.section('system-audit', {
-    subtitle: 'Thao tác của Quản trị hệ thống: ai làm, lúc nào, với đối tượng nào, vì sao và kết quả. Dữ liệu nhạy cảm đã được che.',
+    subtitle: 'Thao tác của Quản trị hệ thống: ai làm, vai trò gì, từ IP nào, lúc nào, với đối tượng nào, vì sao và kết quả. ' +
+      'Dữ liệu nhạy cảm đã được che; mỗi bản ghi được nối chuỗi băm để phát hiện sửa hoặc xoá.',
     render: async function (root) {
       var page = 0;
       root.innerHTML =
-        '<form class="adm-toolbar" data-filters novalidate>' +
+        '<form class="adm-toolbar" data-filters novalidate role="search">' +
+          '<input class="input" type="search" name="q" maxlength="100" placeholder="Email người thao tác hoặc lý do"' +
+            ' aria-label="Tìm theo email người thao tác hoặc lý do">' +
+          '<button type="submit" class="btn btn--secondary btn--sm">Tìm</button>' +
           '<select class="select" name="action" aria-label="Hành động"><option value="">Mọi hành động</option>' +
             Object.keys(ACTIONS).map(function (k) { return '<option value="' + k + '">' + ACTIONS[k] + '</option>'; }).join('') +
           '</select>' +
           '<select class="select" name="result" aria-label="Kết quả"><option value="">Mọi kết quả</option>' +
             '<option value="SUCCESS">Thành công</option><option value="REJECTED">Bị từ chối</option></select>' +
+          '<select class="select" name="actorRole" aria-label="Vai trò người thao tác"><option value="">Mọi vai trò</option>' +
+            AUDIT_ROLES.map(function (r) { return '<option value="' + r + '">' + A.esc(roleLabel(r)) + '</option>'; }).join('') +
+          '</select>' +
+          '<select class="select" name="targetType" aria-label="Loại đối tượng"><option value="">Mọi đối tượng</option>' +
+            AUDIT_TARGETS.map(function (t) { return '<option value="' + t + '">' + A.esc(A.typeLabel(t)) + '</option>'; }).join('') +
+          '</select>' +
           '<input class="input" name="actorId" inputmode="numeric" maxlength="12" placeholder="Mã người thao tác" aria-label="Mã người thao tác" data-in-filter="Người thao tác">' +
-          '<select class="select" name="targetType" aria-label="Loại đối tượng"><option value="USER">Người dùng</option>' +
-            '<option value="PREMIUM_PLAN">Gói Premium</option></select>' +
-          '<input class="input" name="targetId" inputmode="numeric" maxlength="12" placeholder="Mã đối tượng" aria-label="Mã đối tượng" data-in-filter="Mã đối tượng">' +
+          '<input class="input" name="targetId" maxlength="64" placeholder="Mã đối tượng hoặc khoá cấu hình" aria-label="Mã đối tượng" data-in-filter="Mã đối tượng">' +
           '<div class="adm-filter-range" data-in-filter="Khoảng thời gian">' +
             '<label class="adm-inline">Từ <input class="input" type="date" name="from"></label>' +
             '<label class="adm-inline">Đến <input class="input" type="date" name="to"></label></div>' +
-        '</form><div data-list></div>';
+          '<button type="button" class="btn btn--secondary btn--sm" data-integrity>' +
+            '<i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Kiểm tra toàn vẹn</button>' +
+        '</form><div data-integrity-result aria-live="polite"></div><div data-list></div>';
       var form = root.querySelector('[data-filters]');
-      A.filterPopover(form);
+      // Address-bar filters are applied after the popover is built, so "Đặt lại" still clears them.
+      var filters = A.filterPopover(form);
+      var query = new URLSearchParams(window.location.search);
+      AUDIT_FILTERS.forEach(function (k) {
+        var value = query.get(k);
+        if (value == null || !form.elements[k]) return;
+        form.elements[k].value = value;
+        // A value the select does not offer leaves it on "all".
+        if (form.elements[k].tagName === 'SELECT' && form.elements[k].value !== value) form.elements[k].value = '';
+      });
+      if (filters) filters.sync();
       A.digitsOnly(form.elements.actorId);
-      A.digitsOnly(form.elements.targetId);
+
+      function auditParams() {
+        var params = new URLSearchParams();
+        ['q', 'action', 'result', 'actorRole', 'targetType', 'actorId', 'targetId'].forEach(function (k) {
+          var value = form.elements[k].value.trim();
+          if (value) params.set(k, value);
+        });
+        // The API takes ISO date-times; whole days are inclusive.
+        if (form.elements.from.value) params.set('from', form.elements.from.value + 'T00:00:00');
+        if (form.elements.to.value) params.set('to', form.elements.to.value + 'T23:59:59.999');
+        return params;
+      }
+
+      /** Keeps the address bar in step with the filters, so a filtered view can be shared or reloaded. */
+      function syncAddress() {
+        var shown = new URLSearchParams();
+        AUDIT_FILTERS.forEach(function (k) {
+          var value = form.elements[k].value.trim();
+          if (value) shown.set(k, value);
+        });
+        var search = shown.toString();
+        window.history.replaceState(null, '', window.location.pathname + (search ? '?' + search : ''));
+      }
 
       async function load() {
         var list = root.querySelector('[data-list]');
         list.innerHTML = A.loading();
-        var params = new URLSearchParams({ page: page, size: 30 });
-        ['action', 'result', 'actorId'].forEach(function (k) { if (form.elements[k].value) params.set(k, form.elements[k].value); });
-        if (form.elements.targetId.value) {
-          params.set('targetType', form.elements.targetType.value);
-          params.set('targetId', form.elements.targetId.value);
-        }
-        // The API takes ISO date-times; whole days are inclusive.
-        if (form.elements.from.value) params.set('from', form.elements.from.value + 'T00:00:00');
-        if (form.elements.to.value) params.set('to', form.elements.to.value + 'T23:59:59.999');
+        var params = auditParams();
+        params.set('page', page);
+        params.set('size', 30);
         try {
           var data = await A.api.get(API + '/audit-logs?' + params.toString());
           list.innerHTML = (data.items.length ?
             '<div class="adm-table-wrap"><table class="adm-table"><thead><tr>' +
-              '<th scope="col">Thời gian</th><th scope="col">Người thao tác</th><th scope="col">Hành động</th>' +
-              '<th scope="col">Đối tượng</th><th scope="col">Lý do</th><th scope="col">Kết quả</th>' +
-              '<th scope="col">Thay đổi</th></tr></thead><tbody>' +
+              '<th scope="col">Thời gian</th><th scope="col">Người thao tác</th><th scope="col">Vai trò</th>' +
+              '<th scope="col">Hành động</th><th scope="col">Đối tượng</th><th scope="col">Lý do</th>' +
+              '<th scope="col">Kết quả</th><th scope="col">Thay đổi</th><th scope="col">IP</th></tr></thead><tbody>' +
               data.items.map(function (a) {
                 return '<tr><td class="adm-muted adm-nowrap">' + A.date(a.createdAt) + '</td>' +
                   '<td><span class="adm-user"><strong>' + A.esc(a.actorEmail) + '</strong><span class="adm-muted">#' + a.actorId + '</span></span></td>' +
+                  '<td class="adm-nowrap">' + (a.actorRole ? A.esc(roleLabel(a.actorRole)) : '<span class="adm-muted">—</span>') + '</td>' +
                   '<td>' + A.esc(ACTIONS[a.action] || a.action) + '</td>' +
                   '<td>' + A.esc(A.typeLabel(a.targetType)) + (a.targetId ? ' #' + A.esc(a.targetId) : '') + '</td>' +
                   '<td>' + A.esc(a.reason || '—') + '</td>' +
                   '<td>' + (a.result === 'SUCCESS' ? '<span class="adm-badge adm-badge--ok">Thành công</span>'
                     : '<span class="adm-badge adm-badge--warn">Bị từ chối</span>') + '</td>' +
-                  '<td>' + changesCell(a.changesJson) + '</td></tr>';
+                  '<td>' + changesCell(a) + '</td>' +
+                  '<td class="adm-nowrap">' + (a.ipAddress ? '<code>' + A.esc(a.ipAddress) + '</code>' : '<span class="adm-muted">—</span>') + '</td></tr>';
               }).join('') + '</tbody></table></div>'
             : A.empty('fa-inbox', 'Chưa có bản ghi nào')) +
             pager(page, data.totalPages);
@@ -527,14 +575,266 @@
         }
       }
 
-      form.addEventListener('submit', function (event) { event.preventDefault(); page = 0; load(); });
+      async function checkIntegrity(button) {
+        var box = root.querySelector('[data-integrity-result]');
+        button.disabled = true;
+        box.innerHTML = '<p class="adm-muted">Đang kiểm tra chuỗi nhật ký…</p>';
+        try {
+          var r = await A.api.get(API + '/audit-logs/integrity');
+          box.innerHTML = '<div class="adm-panel" role="status">' + (r.valid
+            ? '<span class="adm-badge adm-badge--ok"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Toàn vẹn</span> ' +
+              'Đã kiểm tra ' + A.esc(numberVi(r.checked)) + ' bản ghi, không phát hiện sửa hoặc xoá' +
+              (r.legacyUnhashed ? ' (' + A.esc(numberVi(r.legacyUnhashed)) + ' bản ghi cũ ghi trước khi có chuỗi băm).' : '.')
+            : '<span class="adm-badge adm-badge--danger"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Phát hiện sai lệch</span> ' +
+              'Bản ghi đầu tiên bị ảnh hưởng: <strong>#' + A.esc(r.firstBrokenId) + '</strong>. ' + A.esc(r.reason || '')) +
+            '</div>';
+        } catch (e) {
+          box.innerHTML = '';
+          A.toast(e.message, 'error');
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      form.addEventListener('submit', function (event) { event.preventDefault(); page = 0; syncAddress(); load(); });
       root.addEventListener('click', function (event) {
+        var integrity = event.target.closest('[data-integrity]');
+        if (integrity) { checkIntegrity(integrity); return; }
         var button = event.target.closest('[data-page]');
         if (!button) return;
         page += Number(button.dataset.page);
         load();
       });
       await load();
+    }
+  });
+
+  // ── System settings ────────────────────────────────────────────────────
+  /** Display names of enum values; anything else is shown as stored. */
+  var CONFIG_VALUE_LABELS = { 'dashboard.default_period': { year: 'Năm nay', '30d': '30 ngày qua', '7d': '7 ngày' } };
+
+  function configValueText(c, value) {
+    var labels = CONFIG_VALUE_LABELS[c.key] || {};
+    return value == null || value === '' ? '—' : labels[value] ? labels[value] + ' (' + value + ')' : String(value);
+  }
+
+  function configChoices(c) {
+    return c.type === 'BOOLEAN' ? ['true', 'false'] : c.allowedValues || [];
+  }
+
+  function configConstraint(c) {
+    if (c.type === 'INT') return 'Số nguyên từ ' + c.min + ' đến ' + c.max;
+    if (c.type === 'ENUM') return 'Một trong: ' + configChoices(c).join(', ');
+    if (c.type === 'BOOLEAN') return 'true hoặc false';
+    return 'Tối đa 1000 ký tự';
+  }
+
+  /** Same rules as SystemConfigKey.normalize on the server: null when valid, else the message. */
+  function configError(c, raw) {
+    var text = String(raw == null ? '' : raw).trim();
+    if (!text) return 'Vui lòng nhập giá trị.';
+    if (c.type === 'INT') {
+      if (!/^-?\d{1,10}$/.test(text)) return 'Giá trị phải là số nguyên.';
+      var n = Number(text);
+      if (n < c.min || n > c.max) return 'Giá trị phải từ ' + c.min + ' đến ' + c.max + '.';
+    } else if (c.type === 'ENUM' || c.type === 'BOOLEAN') {
+      if (configChoices(c).indexOf(text) < 0) return 'Giá trị phải là một trong: ' + configChoices(c).join(', ') + '.';
+    } else if (text.length > 1000) {
+      return 'Giá trị tối đa 1000 ký tự.';
+    }
+    return null;
+  }
+
+  function configRow(c) {
+    return '<tr><td><strong>' + A.esc(c.label) + '</strong><br><code class="adm-muted">' + A.esc(c.key) + '</code>' +
+        '<br><span class="adm-muted">' + A.esc(c.description) + '</span></td>' +
+      '<td class="adm-nowrap"><strong>' + A.esc(configValueText(c, c.value)) + '</strong><br>' +
+        (c.overridden ? '<span class="adm-badge adm-badge--warn">Đã ghi đè</span>' : '<span class="adm-badge">Mặc định</span>') + '</td>' +
+      '<td class="adm-nowrap">' + A.esc(configValueText(c, c.defaultValue)) + '</td>' +
+      '<td>' + A.esc(configConstraint(c)) + '</td>' +
+      '<td>' + (c.updatedAt ? A.esc(c.updatedBy || '—') + '<br><span class="adm-muted">' + A.date(c.updatedAt) + '</span>'
+        : '<span class="adm-muted">Chưa sửa</span>') + '</td>' +
+      '<td class="adm-nowrap"><button type="button" class="btn btn--secondary btn--sm" data-config-edit="' + A.esc(c.key) + '">Sửa</button> ' +
+        '<button type="button" class="btn btn--secondary btn--sm" data-config-reset="' + A.esc(c.key) + '"' +
+          (c.overridden ? '' : ' disabled title="Đang dùng giá trị mặc định"') + '>Khôi phục mặc định</button></td></tr>';
+  }
+
+  A.section('system-config', {
+    subtitle: 'Giá trị hệ thống dùng lúc chạy, có hiệu lực ngay sau khi lưu. Mỗi lần sửa hoặc khôi phục cần lý do và được ghi vào ' +
+      'Nhật ký quản trị; nếu người khác vừa sửa trước, thao tác bị từ chối để không ghi đè.',
+    render: async function (root) {
+      var items = {};
+      root.innerHTML = '<div data-configs></div>' +
+        '<section class="adm-panel" aria-labelledby="admIntegrationsTitle">' +
+          '<h2 class="adm-panel__title" id="admIntegrationsTitle">Tích hợp</h2>' +
+          '<p class="adm-muted">Chỉ đọc. Khoá bí mật nằm trong biến môi trường hoặc application-local.yaml; ' +
+            'trang này chỉ cho biết đã cấu hình hay chưa, không hiện giá trị.</p>' +
+          '<div data-integrations></div></section>';
+
+      async function load() {
+        var box = root.querySelector('[data-configs]');
+        box.innerHTML = A.loading();
+        try {
+          var list = await A.api.get(API + '/configs');
+          items = {};
+          var groups = [];
+          list.forEach(function (c) {
+            items[c.key] = c;
+            if (groups.indexOf(c.group) < 0) groups.push(c.group);
+          });
+          box.innerHTML = groups.map(function (g) {
+            return '<section class="adm-panel"><h2 class="adm-panel__title">' + A.esc(g) + '</h2>' +
+              '<div class="adm-table-wrap"><table class="adm-table"><thead><tr>' +
+                '<th scope="col">Cấu hình</th><th scope="col">Giá trị hiện tại</th><th scope="col">Mặc định</th>' +
+                '<th scope="col">Ràng buộc</th><th scope="col">Sửa gần nhất</th><th scope="col">Thao tác</th>' +
+              '</tr></thead><tbody>' +
+                list.filter(function (c) { return c.group === g; }).map(configRow).join('') +
+              '</tbody></table></div></section>';
+          }).join('');
+        } catch (e) {
+          box.innerHTML = A.empty('fa-circle-exclamation', 'Không tải được cấu hình', e.message);
+        }
+      }
+
+      async function loadIntegrations() {
+        var box = root.querySelector('[data-integrations]');
+        box.innerHTML = A.loading();
+        try {
+          var list = await A.api.get(API + '/configs/integrations');
+          box.innerHTML = '<div class="adm-table-wrap"><table class="adm-table"><thead><tr>' +
+              '<th scope="col">Tích hợp</th><th scope="col">Khoá cấu hình</th><th scope="col">Trạng thái</th><th scope="col">Giá trị</th>' +
+            '</tr></thead><tbody>' + list.map(function (i) {
+              return '<tr><td>' + A.esc(i.label) + '</td><td><code>' + A.esc(i.key) + '</code></td>' +
+                '<td>' + (i.configured ? '<span class="adm-badge adm-badge--ok">Đã cấu hình</span>'
+                  : '<span class="adm-badge adm-badge--warn">Chưa cấu hình</span>') + '</td>' +
+                '<td>' + (i.configured ? '<code>' + A.esc(i.value) + '</code>' : '<span class="adm-muted">—</span>') + '</td></tr>';
+            }).join('') + '</tbody></table></div>';
+        } catch (e) {
+          box.innerHTML = A.empty('fa-circle-exclamation', 'Không tải được trạng thái tích hợp', e.message);
+        }
+      }
+
+      /** A 409 means someone saved in between: tell the admin and show the fresh values. */
+      async function save(call, done) {
+        try {
+          await call();
+          A.toast(done, 'success');
+        } catch (e) {
+          if (e.status === 409) A.toast('Cấu hình vừa được người khác thay đổi, đã tải lại.', 'warning');
+          else A.toast(e.message, 'error');
+        }
+        await load();
+      }
+
+      async function edit(key) {
+        var c = items[key];
+        if (!c) return;
+        var field = c.type === 'ENUM' || c.type === 'BOOLEAN'
+          ? '<select class="select" id="admConfigValue" data-autofocus>' + configChoices(c).map(function (v) {
+              return '<option value="' + A.esc(v) + '"' + (v === c.value ? ' selected' : '') + '>' +
+                A.esc(configValueText(c, v)) + '</option>';
+            }).join('') + '</select>'
+          : '<input class="input" id="admConfigValue" data-autofocus aria-describedby="admConfigError"' +
+              (c.type === 'INT' ? ' inputmode="numeric" maxlength="' + String(Math.max(Math.abs(c.min), Math.abs(c.max))).length + '"'
+                : ' maxlength="1000"') + ' value="' + A.esc(c.value) + '">';
+        var pending = A.decide({
+          title: 'Sửa cấu hình "' + c.label + '"?',
+          message: A.esc(c.description) + ' Hiện tại: <strong>' + A.esc(configValueText(c, c.value)) + '</strong>; mặc định: ' +
+            A.esc(configValueText(c, c.defaultValue)) + '.',
+          confirmText: 'Lưu cấu hình', maxLength: 500,
+          placeholder: 'Lý do (ít nhất 5 ký tự), lưu vào nhật ký quản trị',
+          extraHtml: '<div class="field"><label class="field__label" for="admConfigValue">Giá trị mới ' +
+              '<span class="adm-muted">(' + A.esc(configConstraint(c)) + ')</span></label>' + field +
+            '<p class="adm-error" id="admConfigError" aria-live="polite"></p></div>',
+          collect: function (modal) {
+            var value = modal.querySelector('#admConfigValue').value.trim();
+            var error = configError(c, value);
+            if (error) return { error: error };
+            if (value === c.value) return { error: 'Giá trị mới trùng giá trị hiện tại.' };
+            return reasonLength(modal) || { value: value };
+          }
+        });
+        // The dialog is in the page as soon as decide() returns: validate while typing.
+        var input = document.getElementById('admConfigValue');
+        if (input) {
+          if (c.type === 'INT' && c.min >= 0) A.digitsOnly(input);
+          input.addEventListener('input', function () {
+            var message = configError(c, input.value);
+            document.getElementById('admConfigError').textContent = message || '';
+            input.setAttribute('aria-invalid', message ? 'true' : 'false');
+          });
+        }
+        var decision = await pending;
+        if (!decision) return;
+        await save(function () {
+          return A.api.put(API + '/configs/' + encodeURIComponent(key),
+            { value: decision.extra.value, version: c.version, reason: decision.reason });
+        }, 'Đã lưu cấu hình');
+      }
+
+      async function reset(key) {
+        var c = items[key];
+        if (!c) return;
+        var decision = await A.decide({
+          title: 'Khôi phục "' + c.label + '" về mặc định?',
+          message: 'Giá trị <strong>' + A.esc(configValueText(c, c.value)) + '</strong> sẽ trở về mặc định <strong>' +
+            A.esc(configValueText(c, c.defaultValue)) + '</strong> ngay sau khi lưu.',
+          confirmText: 'Khôi phục mặc định', maxLength: 500,
+          placeholder: 'Lý do (ít nhất 5 ký tự), lưu vào nhật ký quản trị',
+          collect: function (modal) { return reasonLength(modal); }
+        });
+        if (!decision) return;
+        await save(function () {
+          return A.api.post(API + '/configs/' + encodeURIComponent(key) + '/reset', { reason: decision.reason, version: c.version });
+        }, 'Đã khôi phục mặc định');
+      }
+
+      root.addEventListener('click', function (event) {
+        var editButton = event.target.closest('[data-config-edit]');
+        if (editButton) { edit(editButton.dataset.configEdit); return; }
+        var resetButton = event.target.closest('[data-config-reset]');
+        if (resetButton && !resetButton.disabled) reset(resetButton.dataset.configReset);
+      });
+      await Promise.all([load(), loadIntegrations()]);
+    }
+  });
+
+  // ── Permission matrix (read-only) ──────────────────────────────────────
+  A.section('system-permissions', {
+    subtitle: 'Ai được dùng khu vực quản trị nào, theo đúng quy tắc bảo mật đang chạy. Chỉ đọc: vai trò của từng tài khoản ' +
+      'được đổi ở trang Người dùng.',
+    render: async function (root) {
+      root.innerHTML = A.loading();
+      try {
+        var m = await A.api.get(API + '/permissions');
+        var cells = {};
+        m.cells.forEach(function (c) { cells[c.role + '|' + c.group] = c; });
+        root.innerHTML =
+          '<div class="adm-table-wrap"><table class="adm-table"><caption class="adm-muted">' +
+              'Mỗi ô được kiểm bằng một API đọc (GET); rê chuột vào ô để xem API đó.</caption><thead><tr><th scope="col">Vai trò</th>' +
+            m.groups.map(function (g) { return '<th scope="col" title="' + A.esc(g.description) + '">' + A.esc(g.label) + '</th>'; }).join('') +
+            '</tr></thead><tbody>' +
+            m.roles.map(function (r) {
+              return '<tr><th scope="row">' + A.esc(roleLabel(r)) + '<br><code class="adm-muted">' + A.esc(r) + '</code></th>' +
+                m.groups.map(function (g) {
+                  var c = cells[r + '|' + g.key];
+                  return '<td title="GET ' + A.esc(c.endpoint) + '">' + (c.allowed
+                    ? '<span class="adm-badge adm-badge--ok">✓ Được phép</span>'
+                    : '<span class="adm-badge adm-badge--danger">✗ Không</span>') + '</td>';
+                }).join('') + '</tr>';
+            }).join('') + '</tbody></table></div>' +
+          '<section class="adm-panel"><h2 class="adm-panel__title">Các nhóm quyền và API đại diện</h2>' +
+            '<div class="adm-table-wrap"><table class="adm-table"><thead><tr><th scope="col">Nhóm</th><th scope="col">Bao gồm</th>' +
+              '<th scope="col">API kiểm tra (GET, chỉ đọc)</th></tr></thead><tbody>' +
+              m.groups.map(function (g) {
+                return '<tr><td><strong>' + A.esc(g.label) + '</strong></td><td>' + A.esc(g.description) + '</td><td>' +
+                  g.endpoints.map(function (e) { return '<code>' + A.esc(e) + '</code>'; }).join('<br>') + '</td></tr>';
+              }).join('') + '</tbody></table></div></section>' +
+          '<p class="adm-muted">Không có kế thừa vai trò: Quản trị viên không tự có quyền của Người biên soạn và ngược lại. ' +
+            'Đổi vai trò của một tài khoản ở <a href="/admin/system/users">trang Người dùng</a>.</p>';
+      } catch (e) {
+        root.innerHTML = A.empty('fa-circle-exclamation', 'Không tải được bảng phân quyền', e.message);
+      }
     }
   });
 
