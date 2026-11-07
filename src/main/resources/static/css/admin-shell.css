@@ -1,13 +1,13 @@
 body.admin-portal {
   margin: 0;
-  padding: 24px 24px 32px 284px;
+  padding: 76px 24px 32px 284px;
   background: var(--color-surface, #f4fafd);
   color: var(--color-on-surface, #161d1f);
   font-family: var(--font-body, Inter, sans-serif);
 }
 .admin-portal [hidden] { display: none !important; }
 .admin-topbar {
-  display: none;
+  display: flex;
   position: fixed;
   z-index: 30;
   inset: 0 0 auto 260px;
@@ -47,6 +47,8 @@ body.admin-portal {
 }
 .admin-sidebar__info { display: flex; flex-direction: column; min-width: 0; font-size: 13px; }
 .admin-sidebar__info span:first-child { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-theme-control { display: flex; align-items: center; flex: 0 0 auto; margin-left: auto; }
+.admin-theme-control .theme-switch { margin-right: 0; }
 .admin-role { color: var(--color-on-surface-variant); font-size: 12px; }
 .admin-logout {
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
