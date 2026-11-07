@@ -331,6 +331,11 @@
     // [JLAS-W0108] JLPT path on: the path's own start route decides (confirm FROM_ZERO, resume, …).
     if (afterSurveyTarget) return window.location.assign(afterSurveyTarget);
     if (savedSurvey && savedSurvey.goal !== 'JLPT') {
+      // [JLAS-W0108] communication path on (flag learning.comm-path.enabled): its own survey and circle map
+      try {
+        var cg = await fetch('/api/learning/comm/goals', { headers: window.JlasAuth && window.JlasAuth.authHeaders ? window.JlasAuth.authHeaders() : {} });
+        if (cg.ok) return window.location.assign('/learning/comm/survey?goal=' + encodeURIComponent(savedSurvey.goal));
+      } catch (ignore) { /* flag off: old goal survey */ }
       return window.location.assign('/learning/goals/' + encodeURIComponent(savedSurvey.goal) + '/survey');
     }
     try { await api('/api/learning/paths/from-zero', { method: 'POST', body: '{}' }); } catch (error) { showError(error.message); return; }

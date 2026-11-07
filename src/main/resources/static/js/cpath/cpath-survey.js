@@ -548,6 +548,14 @@
 
     root.JpathApi.get('/api/learning/comm/goals').then(function (data) {
       goalsData = Array.isArray(data) && data.length ? data : (root.CpathMock ? root.CpathMock.GOALS_DATA : []);
+      // ?goal= from the general survey (BA/TRAVEL/DAILY_LIFE) preselects the matching goal
+      var want = null;
+      try { want = new root.URLSearchParams(String(root.location.search || '')).get('goal'); } catch (e) { want = null; }
+      if (want) {
+        var has = function (c) { return goalsData.some(function (g) { return g.goal === c; }); };
+        if (!has(want) && want === 'BA' && has('WORK')) want = 'WORK';
+        if (has(want)) state.goal = want;
+      }
       syncDefaultTopics();
       render();
     }, function () {
