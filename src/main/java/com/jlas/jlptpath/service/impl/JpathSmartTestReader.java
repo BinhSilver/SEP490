@@ -88,8 +88,36 @@ public class JpathSmartTestReader {
         List<SmartTestResponse.SkillResultView> skills = result.skills() == null ? List.of() : result.skills();
         return new JpathSmartTestSnapshot(attempt.getId(), attempt.getStatus(), response.goal(), result.abilityBand(),
                 result.estimatedOverallLevel(), score(skills, "VOCABULARY"), score(skills, "KANJI"),
-                score(skills, "GRAMMAR"), result.partial());
+                score(skills, "GRAMMAR"), result.partial(), modeScore(skills, "VOCABULARY"),
+                modeScore(skills, "KANJI"), modeScore(skills, "GRAMMAR"));
     }
+
+    private static final List<String> LEVEL_ORDER = List.of("N5", "N4", "N3", "N2", "N1");
+
+    /**
+     * E2E-005: the combined/split suggestion compares skills on one scale. A skill one level higher counts 100 points
+     * more; mastery (% right inside the questions of that skill) only separates skills at the same level. Vocabulary,
+     * kanji and grammar all at the same level and band score the same, so they are never "far apart".
+     */
+    static Integer modeScore(List<SmartTestResponse.SkillResultView> skills, String skill) {
+        Integer mastery = score(skills, skill);
+        SmartTestResponse.SkillResultView view = skills.stream().filter(s -> skill.equals(s.skill()))
+                .findFirst().orElse(null);
+        if (mastery == null || view == null) {
+            return mastery;
+        }
+        int level = LEVEL_ORDER.indexOf(view.estimatedLevel());
+        if (level < 0) {
+            return mastery;
+        }
+        boolean sameTier = skills.stream()
+                .filter(s -> MODE_SKILLS.contains(s.skill()) && s.masteryScore() != null)
+                .allMatch(s -> java.util.Objects.equals(s.estimatedLevel(), view.estimatedLevel())
+                        && java.util.Objects.equals(s.abilityBand(), view.abilityBand()));
+        return level * 100 + (sameTier ? 0 : mastery);
+    }
+
+    private static final List<String> MODE_SKILLS = List.of("VOCABULARY", "KANJI", "GRAMMAR");
 
     private static Integer score(List<SmartTestResponse.SkillResultView> skills, String skill) {
         return skills.stream()

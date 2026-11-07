@@ -175,8 +175,8 @@ public class JpathPathServiceImpl implements JpathPathService {
 
         JpathModeSuggestion suggestion = summary == null
                 ? JpathModeRule.suggest(minutes, null, null, null, false)
-                : JpathModeRule.suggest(minutes, summary.vocabScore(), summary.kanjiScore(), summary.grammarScore(),
-                        true);
+                : JpathModeRule.suggest(minutes, snapshot.modeVocab(), snapshot.modeKanji(),
+                        snapshot.modeGrammar(), true);
         JpathSliderValues sliders = JpathPacingEngine.recommend(openLevel, minutes);
         LocalDate today = clock.today(userId);
         LocalDate surveyExam = survey.map(UserLearningSurvey::getExamDate).orElse(null);

@@ -144,8 +144,8 @@ public class JpathPathCreator {
 
         boolean kanaTab = JpathPathRules.kanaTab(preference, source);
         JpathModeSuggestion suggestion = withResult
-                ? JpathModeRule.suggest(minutes, snapshot.vocabScore(), snapshot.kanjiScore(),
-                        snapshot.grammarScore(), true)
+                ? JpathModeRule.suggest(minutes, snapshot.modeVocab(), snapshot.modeKanji(),
+                        snapshot.modeGrammar(), true)
                 : JpathModeRule.suggest(minutes, null, null, null, false);
         int kanaRowsLeft = kanaTab ? kanaRowsLeft(userId) : 0;
         JpathPaceView pace = paceService.pace(userId, new JpathPaceService.Query(today, openLevel, targetLevel, exam,
