@@ -3805,3 +3805,23 @@ html.dark .cp-page {
   .jp-path .jp-today__top .jp-today__kitsu-bubble { display: none !important; }
   .jp-path .jp-modes { grid-template-columns: 1fr !important; }
 }
+.jp-path .jp-today .jp-today__top .jp-today__kitsu .jp-today__kitsu-img {
+  width: 84px !important;
+  height: 84px !important;
+  max-width: none !important;
+  object-fit: contain !important;
+  animation: jp-kitsu-bob 3.2s ease-in-out infinite !important;
+}
+.jp-path .jp-today .jp-today__top .jp-today__kitsu .jp-today__kitsu-bubble {
+  border-radius: 18px 18px 4px 18px !important;
+  background: var(--jp-c-purple-50, #f4f0ff) !important;
+  border: 0 !important;
+  color: var(--jp-c-purple-900, #3b2a7a) !important;
+  font-weight: 600 !important;
+  padding: 10px 14px !important;
+  box-shadow: 0 2px 8px rgba(80, 60, 160, .08) !important;
+}
+@keyframes jp-kitsu-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@media (prefers-reduced-motion: reduce) {
+  .jp-path .jp-today .jp-today__top .jp-today__kitsu .jp-today__kitsu-img { animation: none !important; }
+}
