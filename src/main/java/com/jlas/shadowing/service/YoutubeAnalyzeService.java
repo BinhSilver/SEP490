@@ -1,6 +1,7 @@
 package com.jlas.shadowing.service;
 
 import com.jlas.shadowing.dto.YoutubeAnalyzeResultDto;
+import com.jlas.shadowing.util.VideoAgeRatings;
 import com.jlas.shadowing.util.youtube.TranslationTrack;
 import com.jlas.shadowing.util.youtube.YoutubeUrlValidator;
 
@@ -43,6 +44,7 @@ public class YoutubeAnalyzeService {
         // Videos are played through YouTube's embed; one its owner does not allow to embed is downloaded instead.
         // Only an explicit false counts; a missing field is treated as embeddable.
         dto.setEmbeddable(!(root.path("playable_in_embed").isBoolean() && !root.path("playable_in_embed").asBoolean()));
+        dto.setYoutubeMinAge(VideoAgeRatings.fromYoutubeAgeLimit(root.path("age_limit").asInt(0)));
         dto.setUrl(normalized);
         dto.setTitle(root.path("title").asText("YouTube Video"));
         dto.setDuration((int) Math.round(root.path("duration").asDouble(0)));

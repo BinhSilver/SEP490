@@ -30,6 +30,20 @@ export const GAME_EFFECTS:Record<PreviewGame,PreviewEffect[]> = {
   ],
 };
 
-export function effectGroups(game:PreviewGame) {
-  return [...new Set(GAME_EFFECTS[game].map(effect=>effect.group))];
+/**
+ * Xem theo một skin (popup ở trang admin "Trang phục game"): chỉ những hiệu ứng thật sự đổi theo skin.
+ * Máy bay: thân máy bay (bay, bắn, trúng đạn), đạn và vũ khí, siêu pháo, quầng năng lượng khi có khiên, khung nổ của skin.
+ * Mèo: các hành động của nhân vật. Địch, boss, combo, chuyển đợt, vật phẩm, lõi bổ trợ, chữ trên HUD và nhạc
+ * giống nhau với mọi skin nên không lặp lại ở đây.
+ */
+const SKIN_EFFECTS:Record<'air'|'cat',string[]> = {
+  air: ['idle','fire','impact','explode','hit','shield','shield_block','defeat','charge','beam','beam_cooldown'],
+  cat: ['idle','run_right','run_left','lobby','catch_success','catch_wrong','win','lose'],
+};
+export function previewEffects(game:PreviewGame, skinOnly:boolean):PreviewEffect[] {
+  return skinOnly && game!=='memory' ? GAME_EFFECTS[game].filter(effect=>SKIN_EFFECTS[game].includes(effect.id)) : GAME_EFFECTS[game];
+}
+
+export function effectGroups(effects:PreviewEffect[]) {
+  return [...new Set(effects.map(effect=>effect.group))];
 }

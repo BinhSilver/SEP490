@@ -17,19 +17,26 @@
   --kc-podium: linear-gradient(135deg, #7c5cff 0%, #b04cf0 100%);
   display: grid; gap: 18px; min-width: 0;
 }
-html[data-theme="dark"] .kc {
-  --kc-accent-ink: var(--gp-violet);
-  --kc-wall: #34313d;
-  --kc-frame-edge: #5d586a;
+html[data-theme="dark"] :is(.kc, .kc-tut) {
+  --kc-accent-ink: var(--dark-accent);
+  --kc-wall: var(--dark-raised);
+  --kc-frame-edge: var(--dark-line);
   --kc-cell: var(--gp-card);
   --kc-grid: rgba(255, 255, 255, .09);
   --kc-found: #9cbd2c;
   --kc-found-edge: #c4e05a;
   --kc-found-ink: #172005;
-  --kc-active: rgba(142, 111, 240, .38);
-  --kc-active-edge: #a68cff;
+  --kc-active: rgb(220 174 232 / 30%);
+  --kc-active-edge: var(--dark-accent);
   --kc-slot: rgba(255, 255, 255, .1);
+  --kc-podium: linear-gradient(135deg, var(--dark-line) 0%, var(--dark-soft) 100%);
 }
+html[data-theme="dark"] .kc-tut__btn {
+  border-color: var(--dark-button);
+  color: var(--dark-on-button);
+  background: var(--dark-button);
+}
+html[data-theme="dark"] .kc-tut-num { fill: var(--dark-button); stroke: var(--dark-on-button); }
 .kc [hidden] { display: none !important; }
 .kc-intro { margin: 4px 0 0; color: var(--gp-muted); font-size: 13px; }
 
@@ -108,7 +115,7 @@ html[data-theme="dark"] .kc {
   content: ""; position: absolute; top: 3px; right: 5px; width: 6px; height: 6px; border-radius: 50%; background: var(--kc-found-edge);
 }
 .kc-progress { font-variant-numeric: tabular-nums; }
-/* Hint: one kana a minute, counting down while it is closed. */
+/* Hint: opens every 30 seconds of play, counting down while it is closed; pressed, it lets the learner pick a slot. */
 .kc-hint {
   display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--kc-active-edge); border-radius: 999px;
   background: var(--kc-active); color: var(--kc-accent-ink); font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer;
@@ -117,6 +124,15 @@ html[data-theme="dark"] .kc {
 .kc-hint:hover:not(:disabled) { background: var(--kc-accent-ink); color: #fff; }
 .kc-hint:disabled { cursor: default; opacity: .6; }
 .kc-hint:focus-visible { outline: 3px solid var(--kc-accent-ink); outline-offset: 2px; }
+.kc-hint[aria-pressed="true"] { background: var(--kc-accent-ink); color: #fff; }
+/* Picking a hint: each empty slot of an unsolved word is a button that opens the kana in it. */
+.kc-slot.is-pickable, .kc-tut-slot.is-pickable {
+  padding: 0; border: 1.5px dashed var(--kc-active-edge); background: var(--kc-cell); cursor: pointer;
+  animation: kc-pick 1.4s ease-in-out infinite;
+}
+.kc-slot.is-pickable:hover, .kc-slot.is-pickable:focus-visible,
+.kc-tut-slot.is-pickable:hover, .kc-tut-slot.is-pickable:focus-visible { border-style: solid; background: var(--kc-active); outline: none; }
+@keyframes kc-pick { 50% { box-shadow: 0 0 0 3px var(--kc-active); } }
 .kc-word:not(.is-found) .kc-slot.is-hint { background: var(--kc-active); color: var(--kc-accent-ink); box-shadow: inset 0 0 0 1.5px var(--kc-active-edge); }
 
 .kc-frame { grid-area: board; padding: 10px; border: 2px solid var(--kc-frame-edge); border-radius: 16px; background: var(--kc-wall); }

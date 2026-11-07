@@ -13,15 +13,57 @@ import java.util.List;
 @Repository
 public interface VocabularyGlossRepository extends JpaRepository<VocabularyGloss, Long> {
 
+    @Query(value = "select s.vocabulary_id as vocabularyId, g.gloss_text as glossText "
+            + "from vocabulary_sense s join vocabulary_gloss g on g.sense_id = s.id "
+            + "where s.vocabulary_id in (:ids) and g.language_code in ('vie', 'vi') "
+            + "order by s.vocabulary_id, s.sense_order, g.id", nativeQuery = true)
+    List<VietnameseGlossRow> findVietnameseGlosses(@Param("ids") List<Long> ids);
+
+    interface VietnameseGlossRow {
+        Long getVocabularyId();
+        String getGlossText();
+    }
+
     /** Load gloss của nhiều sense cùng lúc, tránh N+1 khi map danh sách kết quả search. */
     List<VocabularyGloss> findBySense_IdIn(List<Long> senseIds);
 
+    // Các tier tìm theo nghĩa dưới đây so khớp đúng dấu tiếng Việt (utf8mb4_0900_as_ci): collation
+    // mặc định unicode_ci coi "an", "ăn", "ân" là như nhau. Điều kiện theo collation cột đứng trước
+    // để MySQL dùng index idx_vocabulary_gloss_text, sau đó mới lọc lại đúng dấu.
+
+    /** Gloss trùng khớp hoàn toàn với từ cần tìm, ví dụ "ăn" -> 食べる. */
+    @Query(value = "select s.vocabulary_id from vocabulary_gloss g "
+            + "join vocabulary_sense s on s.id = g.sense_id "
+            + "join vocabulary_entry ve on ve.id = s.vocabulary_id "
+            + "where g.language_code in ('vie', 'vi', 'eng', 'en') and g.gloss_text = :text "
+            + "and g.gloss_text collate utf8mb4_0900_as_ci = :text "
+            + "and ve.dictionary_status = 'PUBLISHED' "
+            + "group by s.vocabulary_id order by s.vocabulary_id asc", nativeQuery = true)
+    List<Long> findVocabularyIdsByGlossExact(@Param("text") String text, Pageable pageable);
+
+    /** Gloss bắt đầu bằng từ cần tìm. Tham số đã escape ký tự đại diện của LIKE. */
+    @Query(value = "select s.vocabulary_id from vocabulary_gloss g "
+            + "join vocabulary_sense s on s.id = g.sense_id "
+            + "join vocabulary_entry ve on ve.id = s.vocabulary_id "
+            + "where g.language_code in ('vie', 'vi', 'eng', 'en') "
+            + "and g.gloss_text like concat(:prefix, '%') "
+            + "and g.gloss_text collate utf8mb4_0900_as_ci like concat(:prefix, '%') "
+            + "and ve.dictionary_status = 'PUBLISHED' "
+            + "group by s.vocabulary_id order by s.vocabulary_id asc", nativeQuery = true)
+    List<Long> findVocabularyIdsByGlossPrefix(@Param("prefix") String likeEscapedPrefix, Pageable pageable);
+
     /**
-     * Tier tìm kiếm cuối cùng (fallback) khi query không phải Kanji/Kana/Romaji: tìm theo nghĩa.
-     * Chỉ được gọi khi các tier ưu tiên cao hơn chưa đủ kết quả (xem DictionaryServiceImpl).
+     * Gloss chứa từ cần tìm ở đầu một từ ("ăn" khớp "đồ ăn" nhưng không khớp "khăn"). Đây là tier
+     * quét toàn bảng duy nhất: STRAIGHT_JOIN buộc đọc gloss trước (nếu không MySQL duyệt sense theo
+     * thứ tự id rồi tra gloss từng dòng, chậm ~10 lần), và LIKE theo collation cột lọc thô trước khi
+     * phải chuyển collation để so đúng dấu.
      */
-    @Query("select distinct g.sense.vocabularyEntry.id from VocabularyGloss g "
-            + "where lower(g.glossText) like lower(concat('%', :text, '%')) "
-            + "and g.sense.vocabularyEntry.dictionaryStatus = 'PUBLISHED'")
-    List<Long> findVocabularyIdsByGlossContaining(@Param("text") String text, Pageable pageable);
+    @Query(value = "select s.vocabulary_id from vocabulary_gloss g "
+            + "straight_join vocabulary_sense s on s.id = g.sense_id "
+            + "straight_join vocabulary_entry ve on ve.id = s.vocabulary_id "
+            + "where g.gloss_text like concat('%', :word, '%') "
+            + "and concat(' ', g.gloss_text) collate utf8mb4_0900_as_ci like concat('% ', :word, '%') "
+            + "and ve.dictionary_status = 'PUBLISHED' "
+            + "group by s.vocabulary_id order by s.vocabulary_id asc", nativeQuery = true)
+    List<Long> findVocabularyIdsByGlossWord(@Param("word") String likeEscapedWord, Pageable pageable);
 }

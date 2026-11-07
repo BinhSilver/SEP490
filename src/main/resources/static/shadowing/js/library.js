@@ -15,7 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const clientId = getClientId();
 
-    let currentScope = 'public'; // public | my | favorites
+    let currentScope = 'public'; // public | my | favorites | history
+    const historyClear = document.getElementById('history-clear');
     let currentStatus = '';     // '' | READY | DRAFT | PROCESSING | FAILED
     let allVideos = [];
     let searchTimer = null;
@@ -42,8 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
     scopeBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const scope = btn.dataset.scope;
-            if (scope === 'my' && !isLoggedIn()) {
-                showToast('Đăng nhập để xem video của bạn');
+            if ((scope === 'my' || scope === 'history') && !isLoggedIn()) {
+                showToast(scope === 'my' ? 'Đăng nhập để xem video của bạn' : 'Đăng nhập để xem lịch sử');
                 setTimeout(() => { location.href = '/login'; }, 500);
                 return;
             }
@@ -58,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const initial = new URLSearchParams(window.location?.search || '');
     const initialScope = initial.get('scope');
-    if ((initialScope === 'my' && isLoggedIn()) || initialScope === 'favorites') {
+    if (((initialScope === 'my' || initialScope === 'history') && isLoggedIn()) || initialScope === 'favorites') {
         currentScope = initialScope;
         scopeBtns.forEach(b => b.classList.toggle('active', b.dataset.scope === initialScope));
         statusTabs.hidden = initialScope !== 'my';
@@ -92,6 +93,32 @@ document.addEventListener('DOMContentLoaded', () => {
     genreFilter?.addEventListener('change', reloadVisibleVideos);
     levelFilter?.addEventListener('change', reloadVisibleVideos);
 
+    /** "Hôm nay" / "Hôm qua" / ngày cụ thể của một lần ghé. */
+    function historyDay(value) {
+        const start = new Date(value);
+        start.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const diff = Math.round((today - start) / 86400000);
+        if (diff === 0) return 'Hôm nay';
+        if (diff === 1) return 'Hôm qua';
+        return start.toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    historyClear?.addEventListener('click', async () => {
+        const confirmed = await showConfirm({
+            title: 'Xoá toàn bộ lịch sử?',
+            message: 'Danh sách video bạn đã mở sẽ bị xoá. Tiến độ luyện tập vẫn được giữ.',
+            confirmText: 'Xoá',
+            cancelText: 'Hủy',
+            variant: 'danger'
+        });
+        if (!confirmed) return;
+        const res = await fetch('/api/videos/history', { method: 'DELETE', headers: authHeaders() });
+        if (res.ok) loadVideos(1);
+        else showToast('Không xoá được lịch sử');
+    });
+
     async function loadVideos(page = 1) {
         const version = ++loadVersion;
         const q = (searchInput?.value || '').trim();
@@ -110,6 +137,8 @@ document.addEventListener('DOMContentLoaded', () => {
             params.set('favoritesOnly', 'true');
         } else if (currentScope === 'my') {
             params.set('scope', 'my');
+        } else if (currentScope === 'history') {
+            params.set('scope', 'history');
         } else {
             params.set('scope', 'public');
         }
@@ -195,9 +224,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const videos = allVideos;
 
         videoGrid.innerHTML = '';
+        if (historyClear) historyClear.hidden = currentScope !== 'history' || !videos.length;
         if (videoEmptyState) videoEmptyState.hidden = true;
         if (!videos.length) {
             const emptyContent = {
+                history: {
+                    title: 'Kitsu-chan chưa thấy lịch sử',
+                    message: 'Video bạn mở để luyện sẽ hiện ở đây, lần gần nhất ở trên.',
+                    action: 'Khám phá video công khai',
+                    href: '/shadowing'
+                },
                 favorites: {
                     title: 'Kitsu-chan chưa thấy video yêu thích',
                     message: 'Khi gặp bài luyện hay, hãy bấm ngôi sao để lưu lại tại đây.',
@@ -227,7 +263,19 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        let lastDay = null;
         videos.forEach(v => {
+            // Lịch sử: một dòng tiêu đề mỗi ngày ghé, như lịch sử YouTube.
+            if (currentScope === 'history' && v.viewedAt) {
+                const day = historyDay(v.viewedAt);
+                if (day !== lastDay) {
+                    const heading = document.createElement('h3');
+                    heading.className = 'history-day';
+                    heading.textContent = day;
+                    videoGrid.appendChild(heading);
+                }
+                lastDay = day;
+            }
             const card = document.createElement('div');
             card.className = 'store-utility-card video-card';
 
@@ -249,20 +297,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const levelBadge = v.estimatedLevel
                 ? `<span class="card-level-badge" title="Cấp độ JLPT">${esc(v.estimatedLevel)}</span>`
                 : '';
+            const minAge = Number(v.minAge) || 0;
+            const ageBadge = minAge
+                ? `<span class="card-age-badge" title="Dành cho người từ ${minAge} tuổi trở lên">${minAge}+</span>`
+                : '';
             const canManage = !!v.ownedByMe;
 
             card.innerHTML = `
                 <div class="video-card-thumb">
                     ${thumbHtml}
                     ${levelBadge}
+                    ${ageBadge}
                     <button class="card-fav-btn ${v.favorited ? 'favorited' : ''}" title="Yêu thích">
                         <i class="${v.favorited ? 'fa-solid' : 'fa-regular'} fa-star"></i>
                     </button>
                 </div>
                 <div class="video-card-title">${esc(v.title)}</div>
                 <div class="video-card-meta">
-                    ${statusBadge}
-                    ${canManage || currentScope === 'public' ? visBadge : ''}
+                    ${currentScope === 'my' ? statusBadge + visBadge : ''}
                     <span class="badge badge-category"><i class="fa-solid fa-folder"></i> ${esc(category)}</span>
                     <span class="badge badge-lesson"><i class="fa-solid fa-closed-captioning"></i> ${v.subtitleCount || 0} câu</span>
                 </div>
@@ -280,6 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="card-actions">
                     <button class="text-link card-open-btn" title="Mở bài học" aria-label="Mở bài học"><i class="fa-solid fa-play"></i></button>
                     <button class="text-link card-share-btn" title="Chia sẻ" aria-label="Chia sẻ"><i class="fa-solid fa-share-nodes"></i></button>
+                    ${currentScope === 'history' ? '<button class="text-link card-history-remove-btn" title="Xoá khỏi lịch sử" aria-label="Xoá khỏi lịch sử"><i class="fa-solid fa-xmark"></i></button>' : ''}
                     <button class="text-link card-vis-btn" title="${v.visibility === 'PUBLIC' ? 'Đặt riêng tư' : 'Đặt công khai'}" aria-label="${v.visibility === 'PUBLIC' ? 'Đặt riêng tư' : 'Đặt công khai'}" ${canManage ? '' : 'style="display:none"'}>
                         <i class="fa-solid fa-eye"></i>
                     </button>
@@ -296,6 +349,12 @@ document.addEventListener('DOMContentLoaded', () => {
             card.querySelector('.card-open-btn').addEventListener('click', e => { e.stopPropagation(); navigate(v); });
             card.querySelector('.card-fav-btn').addEventListener('click', e => toggleFavorite(e, v, e.currentTarget));
             card.querySelector('.card-share-btn').addEventListener('click', e => shareCard(e, v));
+            card.querySelector('.card-history-remove-btn')?.addEventListener('click', async e => {
+                e.stopPropagation();
+                const res = await fetch('/api/videos/history/' + v.id, { method: 'DELETE', headers: authHeaders() });
+                if (res.ok) loadVideos(currentPage);
+                else showToast('Không xoá được khỏi lịch sử');
+            });
 
             const visBtn = card.querySelector('.card-vis-btn');
             if (visBtn && canManage) {

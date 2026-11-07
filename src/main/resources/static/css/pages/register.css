@@ -1,3 +1,4 @@
+@import url("../controls.css");
 @import url("./auth.css");
 
 /* Keep the registration page background animated like the learning pages. */
@@ -173,26 +174,26 @@ body.page-register-body::before {
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
 html[data-theme="dark"] {
-  --dm-auth-bg: #0b0d13;
-  --dm-auth-surface: #171b26;
-  --dm-auth-raised: #242a39;
-  --dm-auth-ink: #f8fafc;
-  --dm-auth-muted: #b2bfd2;
-  --dm-auth-line: #40485d;
-  --dm-auth-accent: #c084fc;
-  --dm-auth-action: #7335a6;
-  --dm-auth-accent-soft: #2a203d;
-  --dm-auth-on-accent: #211b34;
-  --dm-auth-success: #8eddb6;
-  --dm-auth-success-bg: #1b3d32;
-  --dm-auth-success-line: #43816b;
-  --dm-auth-danger: #ffb4bd;
-  --dm-auth-danger-bg: #452832;
-  --dm-auth-danger-line: #96616d;
-  --dm-auth-warning: #f3d28a;
-  --dm-auth-warning-bg: #403522;
-  --dm-auth-warning-line: #947a46;
-  --dm-auth-pink: #f4aed2;
-  --dm-auth-pink-bg: #432d40;
-  --dm-auth-pink-line: #88637b;
+  --dm-auth-bg: var(--dark-bg);
+  --dm-auth-surface: var(--dark-surface);
+  --dm-auth-raised: var(--dark-raised);
+  --dm-auth-ink: var(--dark-ink);
+  --dm-auth-muted: var(--dark-muted);
+  --dm-auth-line: var(--dark-line);
+  --dm-auth-accent: var(--dark-accent);
+  --dm-auth-action: var(--dark-button);
+  --dm-auth-accent-soft: var(--dark-soft);
+  --dm-auth-on-accent: var(--dark-on-button);
+  --dm-auth-success: var(--dark-success);
+  --dm-auth-success-bg: var(--dark-success-bg);
+  --dm-auth-success-line: var(--dark-success-line);
+  --dm-auth-danger: var(--dark-danger);
+  --dm-auth-danger-bg: var(--dark-danger-bg);
+  --dm-auth-danger-line: var(--dark-danger-line);
+  --dm-auth-warning: var(--dark-warning);
+  --dm-auth-warning-bg: var(--dark-warning-bg);
+  --dm-auth-warning-line: var(--dark-warning-line);
+  --dm-auth-pink: var(--dark-pink);
+  --dm-auth-pink-bg: var(--dark-pink-bg);
+  --dm-auth-pink-line: var(--dark-pink-line);
 }

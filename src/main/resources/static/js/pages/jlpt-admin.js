@@ -3,7 +3,7 @@ window.AdminShell.ready.then(function (allowed) {
   if (!allowed) return;
 
   var API = '/api/admin/jlpt';
-  var state = { exams: [], activeCode: null, content: null, treeFilter: 'all', editingExamCode: null, editingQuestion: null, pendingAction: null };
+  var state = { exams: [], activeCode: null, content: null, treeFilter: 'all', editingExamCode: null, editingQuestion: null, pendingAction: null, importFile: null, importPreview: null };
   var $ = function (id) { return document.getElementById(id); };
 
   bindEvents();
@@ -16,7 +16,7 @@ window.AdminShell.ready.then(function (allowed) {
   function api(path, options) {
     options = options || {};
     var headers = window.JlasAuth && typeof JlasAuth.authHeaders === 'function' ? JlasAuth.authHeaders() : {};
-    if (options.body) headers['Content-Type'] = 'application/json';
+    if (options.body && !(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
     options.headers = Object.assign(headers, options.headers || {});
     return fetch(API + path, options).then(function (response) {
       return response.json().catch(function () { return {}; }).then(function (body) {
@@ -48,9 +48,18 @@ window.AdminShell.ready.then(function (allowed) {
   function countQuestions(content) { return allQuestions(content).length; }
 
   function bindEvents() {
+    if (window.Admin && window.Admin.filterPopover) {
+      window.Admin.filterPopover(document.querySelector('.jlpt-admin__filters'));
+      window.Admin.filterPopover(document.querySelector('.jlpt-admin__question-toolbar'));
+    }
     document.querySelectorAll('[data-dialog-close]').forEach(function (button) { button.addEventListener('click', function () { var dialog = button.closest('dialog'); if (dialog) dialog.close('cancel'); }); });
     $('examSearch').addEventListener('input', renderCatalog); $('levelFilter').addEventListener('change', renderCatalog); $('statusFilter').addEventListener('change', renderCatalog);
     $('createExamButton').addEventListener('click', function () { openExamDialog(); });
+    $('importExamButton').addEventListener('click', openImportDialog);
+    $('downloadImportTemplate').addEventListener('click', downloadImportTemplate);
+    $('importFile').addEventListener('change', resetImportPreview);
+    $('previewImportButton').addEventListener('click', previewImport);
+    $('submitImportButton').addEventListener('click', submitImport);
     $('examList').addEventListener('click', function (event) {
       var button = event.target.closest('[data-exam-action]'); if (!button) return;
       var exam = state.exams.find(function (item) { return item.code === button.dataset.examCode; }); if (!exam) return;
@@ -66,6 +75,92 @@ window.AdminShell.ready.then(function (allowed) {
     $('questionSection').addEventListener('change', function () { populateMondai(this.value); }); $('questionForm').addEventListener('submit', saveQuestion); $('deleteQuestionButton').addEventListener('click', requestDeleteQuestion);
     $('questionList').addEventListener('click', handleQuestionAction);
     $('confirmDialog').addEventListener('close', function () { var action = this.returnValue === 'confirm' ? state.pendingAction : null; state.pendingAction = null; if (action) Promise.resolve(action()).catch(function (error) { toast(error.message); }); });
+  }
+
+  function openImportDialog() {
+    $('importForm').reset();
+    resetImportPreview();
+    $('importDialog').showModal();
+  }
+
+  function resetImportPreview() {
+    state.importFile = null;
+    state.importPreview = null;
+    $('importPreview').hidden = true;
+    $('importPreview').innerHTML = '';
+    $('submitImportButton').disabled = true;
+  }
+
+  function selectedImportFile() {
+    var file = $('importFile').files[0];
+    if (!file) toast('Hãy chọn file .xlsx.');
+    return file;
+  }
+
+  function importFormData(file) {
+    var data = new FormData();
+    data.append('file', file);
+    return data;
+  }
+
+  function previewImport() {
+    var file = selectedImportFile();
+    if (!file) return;
+    resetImportPreview();
+    var button = $('previewImportButton');
+    button.disabled = true;
+    api('/import/preview', { method: 'POST', body: importFormData(file) }).then(function (preview) {
+      state.importFile = file;
+      state.importPreview = preview;
+      renderImportPreview(preview);
+      $('submitImportButton').disabled = !!(preview.errors || []).length;
+    }).catch(function (error) { toast(error.message); }).finally(function () { button.disabled = false; });
+  }
+
+  function renderImportPreview(preview) {
+    var errors = preview.errors || [], warnings = preview.warnings || [];
+    var summary = '<strong>' + esc(preview.code || 'Chưa nhận được mã đề') + '</strong> · ' + esc(preview.title || '') +
+      '<div class="jlpt-admin-import__stats"><span>' + Number(preview.mondaiCount || 0) + ' 問題</span><span>' + Number(preview.passageCount || 0) + ' bài đọc</span><span>' + Number(preview.questionCount || 0) + ' câu hỏi</span></div>';
+    var issues = function (items, kind) {
+      if (!items.length) return '';
+      return '<h4>' + (kind === 'error' ? 'Lỗi cần sửa' : 'Lưu ý') + ' (' + items.length + ')</h4><ul class="jlpt-admin-import__issues is-' + kind + '">' +
+        items.slice(0, 30).map(function (item) { return '<li><b>' + esc(item.sheet) + (item.row ? ' · dòng ' + Number(item.row) : '') + '</b>: ' + esc(item.message) + '</li>'; }).join('') +
+        (items.length > 30 ? '<li>… và ' + (items.length - 30) + ' mục khác.</li>' : '') + '</ul>';
+    };
+    $('importPreview').innerHTML = summary + '<p class="jlpt-admin-import__result ' + (errors.length ? 'is-error' : 'is-ready') + '">' +
+      (errors.length ? 'File chưa thể import.' : 'File hợp lệ. Có thể tạo đề bản nháp.') + '</p>' + issues(errors, 'error') + issues(warnings, 'warning');
+    $('importPreview').hidden = false;
+  }
+
+  function submitImport() {
+    var file = $('importFile').files[0], preview = state.importPreview;
+    if (!file || file !== state.importFile || !preview || (preview.errors || []).length) {
+      toast('Hãy kiểm tra file Excel trước khi import.');
+      return;
+    }
+    confirmAction('Import đề ' + preview.code + '?',
+      'Sẽ tạo ' + preview.questionCount + ' câu hỏi trong đề bản nháp. Bạn có thể rà soát và biên tập trước khi phát hành.',
+      function () {
+        $('submitImportButton').disabled = true;
+        return api('/import', { method: 'POST', body: importFormData(file) }).then(function (exam) {
+          $('importDialog').close();
+          return loadCatalog().then(function () { toast('Đã import đề ' + exam.code + ' thành bản nháp.'); return openWorkspace(exam.code); });
+        }).finally(function () { $('submitImportButton').disabled = false; });
+      }, { confirmLabel: 'Tạo bản nháp' });
+  }
+
+  function downloadImportTemplate() {
+    var button = $('downloadImportTemplate');
+    button.disabled = true;
+    var headers = window.JlasAuth && typeof JlasAuth.authHeaders === 'function' ? JlasAuth.authHeaders() : {};
+    fetch(API + '/import/template', { headers: headers }).then(function (response) {
+      if (!response.ok) return response.json().catch(function () { return {}; }).then(function (body) { throw new Error(body.message || 'Không tải được file mẫu.'); });
+      return response.blob();
+    }).then(function (blob) {
+      var url = URL.createObjectURL(blob), link = document.createElement('a');
+      link.href = url; link.download = 'jlpt-import-template.xlsx'; document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }).catch(function (error) { toast(error.message); }).finally(function () { button.disabled = false; });
   }
 
   function renderCatalog() {
@@ -92,7 +187,7 @@ window.AdminShell.ready.then(function (allowed) {
           var key = question.passage ? 'passage:' + question.passage.sourceId : 'question:' + question.id;
           if (!byKey[key]) { byKey[key] = { id: key, passage: question.passage ? (question.passage.html || question.passage.ja || '') : null, questions: [] }; groups.push(byKey[key]); }
           var transcript = question.audioClip ? (question.audioClip.transcript || []) : [];
-          byKey[key].questions.push({ id: question.id, number: question.number, type: question.questionType || mondai.format || 'OTHER', prompt: question.html || question.text || '', choices: (question.options || []).map(function (option) { return { id: option.number, content: option.html || option.text || '' }; }), correctChoice: question.correctOption, correctOrder: question.correctOrder, score: question.score, imageRef: question.imageUrl, hasImage: !!question.imageUrl, sourcePage: question.sourcePage, explanation: question.explanation, scriptText: transcript.map(function (segment) { return segment.ja || ''; }).filter(Boolean).join('\n'), scriptTranslation: transcript.map(function (segment) { return segment.vi || ''; }).filter(Boolean).join('\n'), audioRequired: !!question.audioClip || !!mondai.audioUrl, audioUrl: question.audioClip ? question.audioClip.audioUrl : '', audioStart: question.audioClip ? question.audioClip.start : '', audioEnd: question.audioClip ? question.audioClip.end : '' });
+          byKey[key].questions.push({ id: question.id, number: question.number, type: question.questionType || mondai.format || 'OTHER', prompt: question.html || question.text || '', choices: (question.options || []).map(function (option) { return { id: option.number, content: option.html || option.text || '' }; }), correctChoice: question.correctOption, correctOrder: question.correctOrder, score: question.score, imageRef: question.imageUrl, hasImage: !!question.imageUrl, sourcePage: question.sourcePage, explanation: question.explanation, targetVocabularyId: question.targetVocabularyId, scriptText: transcript.map(function (segment) { return segment.ja || ''; }).filter(Boolean).join('\n'), scriptTranslation: transcript.map(function (segment) { return segment.vi || ''; }).filter(Boolean).join('\n'), audioRequired: !!question.audioClip || !!mondai.audioUrl, audioUrl: question.audioClip ? question.audioClip.audioUrl : '' });
         });
         return { id: mondai.id, number: mondai.number, type: mondai.format, nameJa: '問題' + mondai.number, nameVi: mondai.format || 'Nội dung', instructionJa: stripHtml(mondai.instructionHtml || ''), groups: groups };
       }) };
@@ -160,7 +255,7 @@ window.AdminShell.ready.then(function (allowed) {
   function openQuestionDialog(ref) {
     state.editingQuestion = ref || null; var form = $('questionForm'); form.reset(); $('questionDialogTitle').textContent = ref ? 'Sửa câu ' + ref.question.number : 'Thêm câu hỏi'; $('deleteQuestionButton').hidden = !ref;
     var location = ref || selectedTreeLocation(), section = ref ? ref.section : state.content.sections[location.sectionIndex], mondai = ref ? ref.mondai : section.mondai[location.mondaiIndex]; populateQuestionSelectors(section && section.id, mondai && mondai.id);
-    if (ref) { var q = ref.question; form.elements.number.value = q.number; form.elements.type.value = q.type || ref.mondai.type || ''; form.elements.prompt.value = q.prompt || ''; form.elements.passage.value = typeof ref.group.passage === 'string' ? ref.group.passage : ''; (q.choices || []).slice(0, 4).forEach(function (choice, index) { form.elements['choice' + (index + 1)].value = choice.content || ''; }); form.elements.correctChoice.value = q.correctChoice == null ? '' : q.correctChoice; form.elements.correctOrder.value = (q.correctOrder || []).join(','); form.elements.imageRef.value = q.imageRef || ''; form.elements.sourcePage.value = q.sourcePage || ''; form.elements.explanation.value = q.explanation || ''; form.elements.scriptText.value = q.scriptText || ''; form.elements.scriptTranslation.value = q.scriptTranslation || ''; form.elements.audioUrl.value = q.audioUrl || ''; form.elements.audioStart.value = q.audioStart === '' ? '' : q.audioStart; form.elements.audioEnd.value = q.audioEnd === '' ? '' : q.audioEnd; }
+    if (ref) { var q = ref.question; form.elements.number.value = q.number; form.elements.type.value = q.type || ref.mondai.type || ''; form.elements.prompt.value = q.prompt || ''; form.elements.passage.value = typeof ref.group.passage === 'string' ? ref.group.passage : ''; (q.choices || []).slice(0, 4).forEach(function (choice, index) { form.elements['choice' + (index + 1)].value = choice.content || ''; }); form.elements.correctChoice.value = q.correctChoice == null ? '' : q.correctChoice; form.elements.correctOrder.value = (q.correctOrder || []).join(','); form.elements.imageRef.value = q.imageRef || ''; form.elements.sourcePage.value = q.sourcePage || ''; form.elements.targetVocabularyId.value = q.targetVocabularyId || ''; form.elements.explanation.value = q.explanation || ''; form.elements.scriptText.value = q.scriptText || ''; form.elements.scriptTranslation.value = q.scriptTranslation || ''; form.elements.audioUrl.value = q.audioUrl || ''; }
     else { form.elements.number.value = allQuestions(state.content).reduce(function (max, row) { return Math.max(max, Number(row.question.number) || 0); }, 0) + 1; form.elements.type.value = section && section.id === 'listening' ? 'LISTENING_TASK_BASED' : section && section.id === 'grammar_reading' ? 'GRAMMAR_FORM' : 'KANJI_READING'; }
     form.querySelector('.jlpt-admin-media-section').open = !!(ref && (ref.question.imageRef || ref.question.audioUrl || ref.question.scriptText || ref.question.scriptTranslation));
     $('questionDialog').showModal();
@@ -168,7 +263,7 @@ window.AdminShell.ready.then(function (allowed) {
 
   function saveQuestion(event) {
     event.preventDefault(); var data = Object.fromEntries(new FormData(event.currentTarget).entries());
-    var payload = { mondaiId: Number(data.mondaiIndex), number: Number(data.number), type: data.type.trim().toUpperCase(), prompt: data.prompt.trim(), passage: data.passage.trim() || null, choices: [data.choice1, data.choice2, data.choice3, data.choice4].map(function (value) { return value.trim(); }), correctChoice: data.correctChoice ? Number(data.correctChoice) : null, correctOrder: data.correctOrder.trim() ? data.correctOrder.trim().split(/[,，\s]+/).map(Number) : null, score: 1, imageUrl: data.imageRef.trim() || null, sourcePage: data.sourcePage ? Number(data.sourcePage) : null, explanation: data.explanation.trim() || null, scriptText: data.scriptText.trim() || null, scriptTranslation: data.scriptTranslation.trim() || null, audioUrl: data.audioUrl.trim() || null, audioStart: data.audioStart ? Number(data.audioStart) : null, audioEnd: data.audioEnd ? Number(data.audioEnd) : null }, ref = state.editingQuestion;
+    var payload = { mondaiId: Number(data.mondaiIndex), number: Number(data.number), type: data.type.trim().toUpperCase(), prompt: data.prompt.trim(), passage: data.passage.trim() || null, choices: [data.choice1, data.choice2, data.choice3, data.choice4].map(function (value) { return value.trim(); }), correctChoice: data.correctChoice ? Number(data.correctChoice) : null, correctOrder: data.correctOrder.trim() ? data.correctOrder.trim().split(/[,，\s]+/).map(Number) : null, score: 1, imageUrl: data.imageRef.trim() || null, sourcePage: data.sourcePage ? Number(data.sourcePage) : null, targetVocabularyId: data.targetVocabularyId ? Number(data.targetVocabularyId) : null, explanation: data.explanation.trim() || null, scriptText: data.scriptText.trim() || null, scriptTranslation: data.scriptTranslation.trim() || null, audioUrl: data.audioUrl.trim() || null }, ref = state.editingQuestion;
     if (payload.correctOrder && (payload.correctOrder.length !== 4 || new Set(payload.correctOrder).size !== 4 || payload.correctOrder.some(function (n) { return !Number.isInteger(n) || n < 1 || n > 4; }) || payload.type !== 'SENTENCE_COMPOSITION')) { toast('Thứ tự đúng cần đủ 1, 2, 3, 4, mỗi số một lần, cho dạng SENTENCE_COMPOSITION.'); return; }
     confirmAction(ref ? 'Lưu thay đổi câu ' + ref.question.number + '?' : 'Thêm câu hỏi mới?', ref ? 'Nội dung, đáp án và media của câu hỏi sẽ được cập nhật.' : 'Câu ' + payload.number + ' sẽ được thêm vào 問題 đã chọn.', function () {
       return (ref ? api('/questions/' + ref.question.id, { method: 'PUT', body: JSON.stringify(payload) }) : api('/exams/' + encodeURIComponent(state.activeCode) + '/questions', { method: 'POST', body: JSON.stringify(payload) })).then(function () { $('questionDialog').close(); return refreshActive(); }).then(function () { toast(ref ? 'Đã cập nhật câu hỏi.' : 'Đã thêm câu hỏi.'); });

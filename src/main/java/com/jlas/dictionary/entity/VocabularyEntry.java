@@ -42,6 +42,10 @@ public class VocabularyEntry {
     @Column(name = "reading_romaji", length = 255)
     private String readingRomaji;
 
+    /** Âm Hán Việt của cả từ, ví dụ 学校 -> HỌC HIỆU. */
+    @Column(name = "han_viet", length = 255)
+    private String hanViet;
+
     /** Nghĩa tóm tắt cho nội dung giáo trình. */
     @Column(name = "meaning", columnDefinition = "TEXT")
     private String meaning;

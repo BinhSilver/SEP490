@@ -198,6 +198,36 @@ class SeedBootstrapTest(unittest.TestCase):
             with self.assertRaisesRegex(BootstrapError, "kanji/"):
                 extract_zip_safely(archive, root / "assets" / "kanjivg")
 
+    def test_extra_stroke_order_zip_extracts_root_level_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            archive = root / "stroke-order-extra.zip"
+            destination = root / "assets" / "stroke-order-extra"
+            with zipfile.ZipFile(archive, "w") as stream:
+                stream.writestr("09f2f.svg", "<svg/>")
+                stream.writestr("README.md", "# readme")
+                stream.writestr("ARPHICPL.TXT", "licence")
+
+            extracted = extract_zip_safely(
+                archive, destination, 3, root_folder=None,
+                allowed_suffixes=(".svg", ".md", ".txt"),
+            )
+
+            self.assertEqual(3, extracted)
+            self.assertTrue((destination / "09f2f.svg").is_file())
+            self.assertTrue((destination / "ARPHICPL.TXT").is_file())
+
+    def test_extra_stroke_order_zip_rejects_nested_or_unexpected_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in ("nested/09f2f.svg", "run.exe"):
+                archive = root / "extra.zip"
+                with zipfile.ZipFile(archive, "w") as stream:
+                    stream.writestr(name, "x")
+                with self.assertRaisesRegex(BootstrapError, "ZIP root"):
+                    extract_zip_safely(archive, root / "assets" / "extra", root_folder=None,
+                                       allowed_suffixes=(".svg", ".md", ".txt"))
+
 
 if __name__ == "__main__":
     unittest.main()

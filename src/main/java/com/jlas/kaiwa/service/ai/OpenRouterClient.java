@@ -1,5 +1,6 @@
 package com.jlas.kaiwa.service.ai;
 
+import com.jlas.common.ai.AiUsageRecorder;
 import com.jlas.kaiwa.config.OpenRouterConfig;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -22,11 +23,17 @@ public class OpenRouterClient {
 
     private static final Logger log = LoggerFactory.getLogger(OpenRouterClient.class);
 
+    /** ai_usage_log feature names: the NPC reply of a turn, and the helpers (furigana, translation, suggestions). */
+    static final String FEATURE_REPLY = "AI_CALL_REPLY";
+    static final String FEATURE_HELPER = "AI_CALL_HELPER";
+
     private final OpenRouterConfig config;
     private final RestTemplate restTemplate;
+    private final AiUsageRecorder usage;
 
-    public OpenRouterClient(OpenRouterConfig config) {
+    public OpenRouterClient(OpenRouterConfig config, AiUsageRecorder usage) {
         this.config = config;
+        this.usage = usage;
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(15_000);
         factory.setReadTimeout(60_000);
@@ -61,7 +68,8 @@ public class OpenRouterClient {
         body.put("messages", messages);
         body.put("temperature", 0.6);
         body.put("max_tokens", structured ? 2048 : 900);
-        body.put("reasoning", Map.of("effort", "low", "exclude", true));
+        Map<String, Object> reasoning = reasoning(config.getReasoningEffort());
+        if (reasoning != null) body.put("reasoning", reasoning);
         if (structured) body.put("response_format", Map.of("type", "json_object"));
         if (graph) {
             // Leave room for reasoning plus the full control object. Reasoning
@@ -70,6 +78,8 @@ public class OpenRouterClient {
             body.put("reasoning", Map.of("effort", "low", "exclude", true));
             body.put("response_format", graphResponseFormat());
         }
+        String providerSort = config.getProviderSort();
+        if (providerSort != null && !providerSort.isBlank()) body.put("provider", Map.of("sort", providerSort.trim()));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
@@ -79,6 +89,7 @@ public class OpenRouterClient {
         headers.set("HTTP-Referer", config.getSiteUrl());
         headers.set("X-Title", config.getSiteName());
 
+        long started = System.nanoTime();
         try {
             // Read as String first so UTF-8 Japanese is preserved, then parse lightly via Map via Jackson-less extract
             ResponseEntity<String> rawResponse = exchangeWithRetry(
@@ -98,12 +109,15 @@ public class OpenRouterClient {
                 throw new IllegalStateException("OpenRouter error: " + responseBody.get("error"));
             }
 
+            usage.recordOpenRouter(graph || structured ? FEATURE_REPLY : FEATURE_HELPER, config.getModel(), responseBody);
             String content = extractGraphContent(responseBody);
             if (content == null || content.isBlank()) {
                 throw new IllegalStateException("OpenRouter message content empty (model may be thinking-only or wrong id: "
                         + config.getModel() + ")");
             }
-            log.info("OpenRouter OK model={} chars={}", config.getModel(), content.length());
+            // provider: which host OpenRouter routed to, so a slow turn can be traced to it
+            log.info("OpenRouter OK model={} provider={} ms={} chars={}", config.getModel(), responseBody.get("provider"),
+                    (System.nanoTime() - started) / 1_000_000, content.length());
             return content.trim();
         } catch (HttpStatusCodeException e) {
             String bodyStr = e.getResponseBodyAsString();
@@ -142,6 +156,12 @@ public class OpenRouterClient {
             if (cause instanceof java.io.IOException) ioFailure = true;
         }
         return ioFailure;
+    }
+
+    /** The reasoning parameter for an effort; null ("off" or empty) leaves it out of the request. */
+    static Map<String, Object> reasoning(String effort) {
+        if (effort == null || effort.isBlank() || "off".equalsIgnoreCase(effort.trim())) return null;
+        return Map.of("effort", effort.trim().toLowerCase(), "exclude", true);
     }
 
     static Map<String, Object> graphResponseFormat() {

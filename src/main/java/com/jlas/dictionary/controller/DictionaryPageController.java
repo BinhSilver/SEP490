@@ -21,6 +21,14 @@ public class DictionaryPageController {
     private static final String SKILL_ONYOMI = "ONYOMI";
 
     private final LessonRepository lessonRepository;
+    private final com.jlas.flashcard.repository.FlashcardTextbookLinks flashcardLinks;
+
+    @GetMapping({"/search", "/search/{tab:word|kanji|example|grammar|japanese}",
+            "/search/{tab:word|kanji|example|grammar|japanese}/{query}",
+            "/search/grammar_details/{id}"})
+    public String page() {
+        return "forward:/dictionary/index.html";
+    }
 
     @GetMapping("/textbooks")
     public String textbooks(Model model) {
@@ -99,6 +107,12 @@ public class DictionaryPageController {
         model.addAttribute("layoutMode", "app");
         model.addAttribute("textbookId", textbookId);
         model.addAttribute("lessonId", lessonId);
+        // Bộ flashcard sinh từ chính bài này (phần Từ vựng / Hán tự), nếu có.
+        var links = flashcardLinks.forLesson(lessonId);
+        model.addAttribute("flashcardLinks", links);
+        // Nút "Ôn tập bằng Flashcard" ở tab Từ vựng mở thẳng bộ từ vựng của bài.
+        model.addAttribute("flashcardVocabSetId", links.stream().filter(link -> !link.kanji())
+                .map(com.jlas.flashcard.repository.FlashcardTextbookLinks.Link::setId).findFirst().orElse(null));
         return "textbooks/lesson";
     }
 }

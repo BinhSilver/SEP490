@@ -59,8 +59,15 @@ def iter_jmdict(path: str | Path) -> Iterator[VocabularyRecord | InvalidRecord]:
         _release_element(element)
 
 
-def iter_kanjidic2(path: str | Path) -> Iterator[KanjiRecord | InvalidRecord]:
-    """Yield the Joyo subset of KANJIDIC2 without retaining the full XML tree."""
+def iter_kanjidic2(
+    path: str | Path, include_non_joyo: bool = False
+) -> Iterator[KanjiRecord | InvalidRecord]:
+    """Yield KANJIDIC2 characters without retaining the full XML tree.
+
+    By default only the Joyo subset is imported. ``include_non_joyo`` imports every
+    character so each Kanji used by dictionary vocabulary has readings, stroke
+    count and radical data (the Japanese-Vietnamese vocabulary uses ~5,000 Kanji).
+    """
 
     context = etree.iterparse(
         str(Path(path)), events=("end",), tag="character", no_network=True, huge_tree=True
@@ -69,7 +76,7 @@ def iter_kanjidic2(path: str | Path) -> Iterator[KanjiRecord | InvalidRecord]:
     for _, element in context:
         character_number += 1
         grade = _positive_int(_text(element.find("misc/grade")))
-        if grade not in _JOYO_GRADES:
+        if not include_non_joyo and grade not in _JOYO_GRADES:
             _release_element(element)
             continue
         fallback_id = _text(element.find("literal")) or f"character-{character_number}"
@@ -79,6 +86,11 @@ def iter_kanjidic2(path: str | Path) -> Iterator[KanjiRecord | InvalidRecord]:
             )
         except RecordValidationError as error:
             record = InvalidRecord(error.record_id, str(error))
+        # CJK compatibility ideographs (U+F900...) NFKC-normalize to a unified ideograph
+        # that has its own entry; importing them would overwrite that row's Unicode code.
+        if isinstance(record, KanjiRecord) and record.literal != chr(int(record.unicode_code, 16)):
+            _release_element(element)
+            continue
         yield record
         _release_element(element)
 

@@ -3,6 +3,7 @@ package com.jlas.learning.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jlas.auth.service.PremiumAccess;
 import com.jlas.common.security.ContentReviewAccess;
 import com.jlas.assessment.entity.AssessmentQuestion;
 import com.jlas.assessment.entity.ConversionRule;
@@ -57,6 +58,7 @@ public class OnyomiCourseServiceImpl implements OnyomiCourseService {
     private static final String BREAKDOWN_WORD = " · ";
     private final OnyomiCourseRepository repository;
     private final ObjectMapper objectMapper;
+    private final PremiumAccess premiumAccess;
 
     @Override
     public OnyomiCourseView course(Long userId) {
@@ -79,7 +81,7 @@ public class OnyomiCourseServiceImpl implements OnyomiCourseService {
                                 .toList(),
                         stage.completedLessons(),
                         new OnyomiCourseView.FinalTest(stage.finalQuizId(), stage.finalUnlocked(),
-                                stage.finalPassed(), percent(stage.finalBest()))))
+                                stage.finalPassed(), percent(stage.finalBest()), !course.fullAccess())))
                 .toList();
         int total = course.lessons().size();
         int completed = (int) course.lessons().stream().filter(LessonState::completed).count();
@@ -89,7 +91,7 @@ public class OnyomiCourseServiceImpl implements OnyomiCourseService {
                 .findFirst()
                 .orElse(null);
         return new OnyomiCourseView(stages, total, completed, total == 0 ? 0 : Math.round(completed * 100f / total),
-                current, course.unrestricted());
+                current, course.unrestricted(), course.fullAccess(), FREE_LESSONS);
     }
 
     @Override
@@ -191,6 +193,16 @@ public class OnyomiCourseServiceImpl implements OnyomiCourseService {
     }
 
     @Override
+    public boolean isLessonProLocked(Long userId, Long lessonId) {
+        return load(userId).lesson(lessonId).map(LessonState::proLocked).orElse(false);
+    }
+
+    @Override
+    public boolean hasFullAccess(Long userId) {
+        return ContentReviewAccess.allowed(userId) || premiumAccess.isActive(userId);
+    }
+
+    @Override
     public boolean isCourseLesson(Long lessonId) {
         return lessonId != null && repository.countCourseLesson(lessonId) > 0;
     }
@@ -198,12 +210,15 @@ public class OnyomiCourseServiceImpl implements OnyomiCourseService {
     /**
      * Reads the course in order together with the learner's progress, and works out what is unlocked.
      * A content reviewer gets every lesson and final test unlocked; their progress is still recorded.
+     * Without Pro only the first {@link #FREE_LESSONS} lessons open and no final test does; progress made
+     * while on Pro is kept and shows again when Pro is renewed.
      */
     private Course load(Long userId) {
         boolean unrestricted = ContentReviewAccess.allowed(userId);
+        boolean fullAccess = unrestricted || premiumAccess.isActive(userId);
         List<Lesson> lessons = repository.findCourseLessons();
         if (lessons.isEmpty()) {
-            return new Course(List.of(), List.of(), Map.of(), unrestricted);
+            return new Course(List.of(), List.of(), Map.of(), unrestricted, fullAccess);
         }
         List<Long> lessonIds = lessons.stream().map(Lesson::getId).toList();
         Map<Long, List<Lesson>> lessonsByUnit = groupBy(lessons, lesson -> lesson.getUnit().getId());
@@ -249,8 +264,11 @@ public class OnyomiCourseServiceImpl implements OnyomiCourseService {
             for (Lesson lesson : unitLessons) {
                 String lessonProgress = progress.get(lesson.getId());
                 boolean completed = PROGRESS_COMPLETED.equals(lessonProgress);
+                boolean proLocked = !fullAccess && ordered.size() >= FREE_LESSONS;
                 OnyomiLessonStatus status;
-                if (completed) {
+                if (proLocked) {
+                    status = OnyomiLessonStatus.LOCKED;
+                } else if (completed) {
                     status = OnyomiLessonStatus.COMPLETED;
                 } else if (!previousCompleted) {
                     status = OnyomiLessonStatus.LOCKED;
@@ -261,7 +279,7 @@ public class OnyomiCourseServiceImpl implements OnyomiCourseService {
                 }
                 Long practice = practiceQuiz.get(lesson.getId());
                 LessonState state = new LessonState(lesson, status, practice == null ? null : bestScores.get(practice),
-                        practice);
+                        practice, completed, proLocked);
                 states.add(state);
                 ordered.add(state);
                 previousCompleted = completed || unrestricted;
@@ -271,11 +289,12 @@ public class OnyomiCourseServiceImpl implements OnyomiCourseService {
             Long finalId = finalQuiz.get(unit.getId());
             BigDecimal finalBest = finalId == null ? null : bestScores.get(finalId);
             boolean finalPassed = finalBest != null && finalBest.compareTo(PASS_MARK) >= 0;
-            stages.add(new StageState(unit, states, finalId, finalBest, allCompleted || unrestricted, finalPassed));
+            stages.add(new StageState(unit, states, finalId, finalBest, (allCompleted || unrestricted) && fullAccess,
+                    finalPassed));
             // the next stage opens once this stage's final test is passed, or without one once every lesson is done
             stageOpen = finalId != null ? finalPassed : allCompleted;
         }
-        return new Course(stages, ordered, questionCounts, unrestricted);
+        return new Course(stages, ordered, questionCounts, unrestricted, fullAccess);
     }
 
 
@@ -302,7 +321,8 @@ public class OnyomiCourseServiceImpl implements OnyomiCourseService {
         }
         Lesson lesson = state.lesson();
         return new OnyomiCourseView.LessonCard(lesson.getId(), lesson.getOrderIndex(), lesson.getTitle(),
-                lesson.getDescription(), state.status().name(), percent(state.bestScore()), sounds, labels);
+                lesson.getDescription(), state.status().name(), percent(state.bestScore()), sounds, labels,
+                state.proLocked());
     }
 
     private List<OnyomiLessonView.Rule> ruleViews(List<ConversionRule> rules) {
@@ -421,12 +441,12 @@ public class OnyomiCourseServiceImpl implements OnyomiCourseService {
         return groups;
     }
 
-    /** One lesson and where the learner stands on it; {@code bestScore} is on its practice quiz. */
+    /**
+     * One lesson and where the learner stands on it; {@code bestScore} is on its practice quiz.
+     * {@code completed} is the recorded progress, kept even while {@code proLocked} hides the lesson.
+     */
     private record LessonState(Lesson lesson, OnyomiLessonStatus status, BigDecimal bestScore,
-                               Long practiceQuizId) {
-        boolean completed() {
-            return status == OnyomiLessonStatus.COMPLETED;
-        }
+                               Long practiceQuizId, boolean completed, boolean proLocked) {
     }
 
     /** One stage; its final test is unlocked once every lesson is completed. */
@@ -440,9 +460,10 @@ public class OnyomiCourseServiceImpl implements OnyomiCourseService {
     /**
      * The course in order; {@code questionCounts} maps quiz id to its number of questions and
      * {@code unrestricted} is set for a content reviewer, who has everything unlocked.
+     * {@code fullAccess} is Pro or a content reviewer: past the free lessons and into the final tests.
      */
     private record Course(List<StageState> stages, List<LessonState> lessons, Map<Long, Long> questionCounts,
-                          boolean unrestricted) {
+                          boolean unrestricted, boolean fullAccess) {
         List<Long> lessonIds() {
             return lessons.stream().map(state -> state.lesson().getId()).toList();
         }

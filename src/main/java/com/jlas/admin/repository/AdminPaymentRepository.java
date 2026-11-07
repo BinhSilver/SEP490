@@ -34,4 +34,15 @@ public interface AdminPaymentRepository extends JpaRepository<Payment, Long>, Jp
     @Query("select p.productType, p.currency, count(p), sum(p.amountPaid), sum(p.discountAmount) from Payment p"
             + " where p.status = 'PAID' and p.paidAt >= :from group by p.productType, p.currency")
     List<Object[]> paidByProductSince(@Param("from") LocalDateTime from);
+
+    /** [currency, paid count, paid total] for payments completed in [{@code from}, {@code to}). */
+    @Query("select p.currency, count(p), sum(p.amountPaid) from Payment p"
+            + " where p.status = 'PAID' and p.paidAt >= :from and p.paidAt < :to group by p.currency")
+    List<Object[]> paidBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    /** [month 1-12, currency, Premium purchases, paid total] for Premium payments completed in [from, to). */
+    @Query("select month(p.paidAt), p.currency, count(p), sum(p.amountPaid) from Payment p"
+            + " where p.status = 'PAID' and p.productType = 'PREMIUM' and p.paidAt >= :from and p.paidAt < :to"
+            + " group by month(p.paidAt), p.currency")
+    List<Object[]> premiumPaidByMonth(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 }

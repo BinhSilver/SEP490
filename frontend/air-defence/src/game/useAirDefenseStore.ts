@@ -24,7 +24,7 @@ import type {
   ResultSummary,
 } from "./arenaTypes";
 import { postAttack, postKill, serverNow } from "./arenaClient";
-import { spaceshipName } from "./spaceshipSprites";
+import { registerSpaceshipPack, spaceshipName } from "./spaceshipSprites";
 
 /** Skin chỉ đổi hình; mọi máy bay có cùng chỉ số khởi đầu. */
 export const DEFAULT_SHIP = GAME_CONFIG.SHIPS[0];
@@ -34,14 +34,31 @@ let planeSprite = DEFAULT_SHIP.spritePath;
 let planeSkinCode = 'plane-blue';
 
 let customPlane = false;
+/** Bộ vũ khí (đạn, siêu pháo) theo máy bay gốc nào; máy bay dùng gói skin mượn bộ admin chọn. */
+let weaponSkinCode = 'plane-blue';
+let shipName = '';
 export function isCustomPlaneSkin(): boolean { return customPlane; }
-export function setPlaneSkin(code: string | null | undefined, renderCode?: string, image?: string) {
+export function setPlaneSkin(code: string | null | undefined, renderCode?: string, image?: string,
+  packPath?: string | null, weaponTheme?: string | null, name?: string | null) {
+  shipName = name || '';
+  if (renderCode === 'PACK' && packPath && code) {
+    customPlane = false;
+    registerSpaceshipPack(code, packPath);
+    planeSkinCode = code;
+    planeSprite = DEFAULT_SHIP.spritePath;
+    weaponSkinCode = weaponTheme ? `plane-${weaponTheme}` : 'plane-blue';
+    return;
+  }
   customPlane = renderCode === 'CUSTOM' && !!image;
   const renderer = renderCode || code;
   planeSkinCode = customPlane ? (code || 'CUSTOM') : renderer && (spaceshipName(renderer) || GAME_CONFIG.PLANE_SPRITES[renderer]) ? renderer : 'plane-blue';
   planeSprite = customPlane ? image! : (renderer && GAME_CONFIG.PLANE_SPRITES[renderer]) || DEFAULT_SHIP.spritePath;
+  weaponSkinCode = planeSkinCode;
 }
 export function playerSpaceshipCode(): string { return planeSkinCode; }
+export function playerWeaponCode(): string { return weaponSkinCode; }
+/** Tên trang phục đang dùng (để HUD hiện tên máy bay dùng gói skin). */
+export function playerShipName(): string { return shipName; }
 
 export function playerPlaneSprite(): string {
   return planeSprite;

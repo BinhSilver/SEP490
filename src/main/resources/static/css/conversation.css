@@ -1,3 +1,4 @@
+@import url("./controls.css");
 :root {
   /* JLAS index tokens — Tokyo Night Sakura */
   --bg: transparent;
@@ -829,6 +830,9 @@ body:not(.mode-free-chat) .cv-compose {
 .quota-usage { display: grid; gap: 4px; margin: 12px 0 0; padding-left: 18px; color: var(--text); font-size: .9rem; }
 .quota-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 .quota-actions [hidden] { display: none; }
+.quota-auto { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0 0; color: var(--text); font-size: .85rem; }
+.quota-auto[hidden] { display: none; }
+.quota-auto input { margin-top: 3px; }
 .quota-actions .button-primary,
 .quota-actions .button-secondary {
   display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 999px;
@@ -855,7 +859,9 @@ body.mode-free-chat .cv-sidebar {
 .freechat-settings-grid .freechat-field, .tts-settings--compact .freechat-field { margin: 0; min-width: 0; }
 .freechat-field select { min-height: 44px; font: inherit; color: var(--text); }
 .tts-settings--compact .btn-tts-test { grid-column: 1 / -1; min-height: 44px; }
-.freechat-topic-dropdown { margin-top: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.freechat-topic-dropdown { position: relative; margin-top: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+/* The open card rises above the cards after it, so the floating topic list is not covered. */
+.side-card:has(> .freechat-topic-dropdown[open]) { position: relative; z-index: 5; }
 .freechat-topic-dropdown summary {
   min-height: 44px; padding: 10px; display: flex; align-items: center; gap: 8px;
   cursor: pointer; list-style: none; color: var(--text); font-size: .85rem; font-weight: 600;
@@ -864,7 +870,16 @@ body.mode-free-chat .cv-sidebar {
 .freechat-topic-dropdown summary > span:first-child { flex: 1; }
 #fcTopicSummary { color: var(--muted); font-size: .75rem; }
 .freechat-topic-dropdown[open] summary i { transform: rotate(180deg); }
-.freechat-topic-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 8px; padding: 4px 10px 10px; }
+/* Floats over the cards below instead of pushing them down. */
+.freechat-topic-options {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 30;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 8px; padding: 8px 10px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+  box-shadow: 0 12px 32px rgba(22, 29, 31, .16);
+  animation: freechat-topic-in .16s ease-out;
+}
+@keyframes freechat-topic-in { from { opacity: 0; transform: translateY(-4px); } }
+html[data-theme="dark"] .freechat-topic-options { box-shadow: 0 14px 30px rgba(0, 0, 0, .36); }
 .freechat-topic-options label { display: flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; font-size: .85rem; color: var(--text); }
 .freechat-topic-options input { accent-color: var(--accent); width: 18px; height: 18px; }
 .freechat-topic-options label:has(input:disabled) { cursor: default; }
@@ -1012,28 +1027,28 @@ body.mode-free-chat .toggle-list .switch.on::after { left: 22px; }
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
 html[data-theme="dark"] {
-  --dm-ai-bg: #0b0d13;
-  --dm-ai-surface: #12151f;
-  --dm-ai-raised: #1e2332;
-  --dm-ai-ink: #f8fafc;
-  --dm-ai-muted: #b2bfd2;
-  --dm-ai-line: #394155;
-  --dm-ai-accent: #c084fc;
-  --dm-ai-action: #7335a6;
-  --dm-ai-accent-soft: #281d3a;
-  --dm-ai-on-accent: #211b34;
-  --dm-ai-success: #8eddb6;
-  --dm-ai-success-bg: #1b3d32;
-  --dm-ai-success-line: #43816b;
-  --dm-ai-danger: #ffb4bd;
-  --dm-ai-danger-bg: #452832;
-  --dm-ai-danger-line: #96616d;
-  --dm-ai-warning: #f3d28a;
-  --dm-ai-warning-bg: #403522;
-  --dm-ai-warning-line: #947a46;
-  --dm-ai-pink: #f4aed2;
-  --dm-ai-pink-bg: #432d40;
-  --dm-ai-pink-line: #88637b;
+  --dm-ai-bg: var(--dark-bg);
+  --dm-ai-surface: var(--dark-surface);
+  --dm-ai-raised: var(--dark-raised);
+  --dm-ai-ink: var(--dark-ink);
+  --dm-ai-muted: var(--dark-muted);
+  --dm-ai-line: var(--dark-line);
+  --dm-ai-accent: var(--dark-accent);
+  --dm-ai-action: var(--dark-button);
+  --dm-ai-accent-soft: var(--dark-soft);
+  --dm-ai-on-accent: var(--dark-on-button);
+  --dm-ai-success: var(--dark-success);
+  --dm-ai-success-bg: var(--dark-success-bg);
+  --dm-ai-success-line: var(--dark-success-line);
+  --dm-ai-danger: var(--dark-danger);
+  --dm-ai-danger-bg: var(--dark-danger-bg);
+  --dm-ai-danger-line: var(--dark-danger-line);
+  --dm-ai-warning: var(--dark-warning);
+  --dm-ai-warning-bg: var(--dark-warning-bg);
+  --dm-ai-warning-line: var(--dark-warning-line);
+  --dm-ai-pink: var(--dark-pink);
+  --dm-ai-pink-bg: var(--dark-pink-bg);
+  --dm-ai-pink-line: var(--dark-pink-line);
 }
 html[data-theme="dark"] {
     --surface: var(--dm-ai-surface);
@@ -1176,15 +1191,15 @@ html[data-theme="dark"] .suggest-chip {
     color: var(--dm-ai-ink)
 }
 html[data-theme="dark"] .compose-row input {
-    border: 1px solid var(--dm-ai-line);
-    background: var(--dm-ai-surface);
+    border: 1px solid var(--dark-input-line);
+    background: var(--dark-input);
     color: var(--dm-ai-ink)
 }
 html[data-theme="dark"] .compose-row input::placeholder {
     color: var(--dm-ai-ink)
 }
 html[data-theme="dark"] .compose-row input:focus {
-    background: var(--dm-ai-surface)
+    background: var(--dark-input)
 }
 html[data-theme="dark"] .btn-send,
 html[data-theme="dark"] .btn-mic {
@@ -1302,13 +1317,13 @@ html[data-theme="dark"] #btnSaveFlashcard i {
     color: var(--dm-ai-accent) !important
 }
 html[data-theme="dark"] #btnSaveFlashcard:hover {
-    background: linear-gradient(135deg, var(--dm-ai-raised), var(--dm-ai-action)) !important;
-    border-color: var(--dm-ai-line) !important;
-    color: var(--dm-ai-ink) !important;
+    background: var(--dark-button-hover) !important;
+    border-color: var(--dark-button-hover) !important;
+    color: var(--dark-on-button) !important;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.50) !important
 }
 html[data-theme="dark"] #btnSaveFlashcard:hover i {
-    color: var(--dm-ai-ink) !important
+    color: var(--dark-on-button) !important
 }
 html[data-theme="dark"] .complete-overlay {
     background: var(--dm-ai-accent-soft)
@@ -1383,7 +1398,7 @@ html[data-theme="dark"] #btnSaveFlashcard {
 }
 html[data-theme="dark"] #btnSaveFlashcard:hover,
 html[data-theme="dark"] #btnSaveFlashcard:hover i {
-    color: var(--dm-ai-ink) !important
+    color: var(--dark-on-button) !important
 }
 html[data-theme="dark"] #quotaModal .modal,
 html[data-theme="dark"] #muteModal .modal {
@@ -1397,14 +1412,20 @@ html[data-theme="dark"] .quota-actions .button-primary:hover {
 }
 
 /* Dark interaction and state pairs for this page. */
-html[data-theme="dark"]{--color-background:var(--dm-ai-bg);--color-surface:var(--dm-ai-bg);--color-surface-lowest:var(--dm-ai-surface);--color-surface-low:var(--dm-ai-raised);--color-surface-mid:var(--dm-ai-raised);--color-surface-high:var(--dm-ai-raised);--color-surface-container:var(--dm-ai-raised);--color-surface-container-high:var(--dm-ai-raised);--color-on-surface:var(--dm-ai-ink);--color-on-surface-variant:var(--dm-ai-muted);--color-secondary:var(--dm-ai-muted);--color-outline:var(--dm-ai-muted);--color-outline-variant:var(--dm-ai-line);--color-primary:var(--dm-ai-accent);--color-primary-container:var(--dm-ai-action);--color-on-primary:var(--dm-ai-on-accent);--color-on-primary-container:var(--dm-ai-ink);--color-primary-fixed:var(--dm-ai-accent-soft);--color-on-primary-fixed:var(--dm-ai-accent);--color-secondary-container:var(--dm-ai-accent-soft);--color-secondary-fixed:var(--dm-ai-accent-soft);--color-success:var(--dm-ai-success);--color-success-bg:var(--dm-ai-success-bg);--color-error:var(--dm-ai-danger);--color-error-container:var(--dm-ai-danger-bg);--color-on-error-container:var(--dm-ai-danger);--color-tertiary:var(--dm-ai-warning);--color-tertiary-container:var(--dm-ai-warning-bg);--color-on-tertiary-container:var(--dm-ai-warning);--color-focus:var(--dm-ai-accent);--jlab-base-page-background:var(--dm-ai-bg);--bg:var(--dm-ai-bg);--bg-base:var(--dm-ai-bg);--surface:var(--dm-ai-surface);--bg-surface:var(--dm-ai-surface);--surface-2:var(--dm-ai-raised);--bg-elevated:var(--dm-ai-raised);--text:var(--dm-ai-ink);--text-primary:var(--dm-ai-ink);--text-secondary:var(--dm-ai-muted);--text-muted:var(--dm-ai-muted);--muted:var(--dm-ai-muted);--accent:var(--dm-ai-accent);--accent-2:var(--dm-ai-action);--accent-soft:var(--dm-ai-accent-soft);--success:var(--dm-ai-success);--danger:var(--dm-ai-danger);--user-bubble:#342b4f;}
-html[data-theme="dark"] :is(.btn-primary,.btn-send){background:var(--dm-ai-action)!important;color:var(--dm-ai-ink)!important;}
-html[data-theme="dark"] :is(.btn-primary,.btn-send):hover{background:#8065ca!important;}
+html[data-theme="dark"]{--color-background:var(--dm-ai-bg);--color-surface:var(--dm-ai-bg);--color-surface-lowest:var(--dm-ai-surface);--color-surface-low:var(--dm-ai-raised);--color-surface-mid:var(--dm-ai-raised);--color-surface-high:var(--dm-ai-raised);--color-surface-container:var(--dm-ai-raised);--color-surface-container-high:var(--dm-ai-raised);--color-on-surface:var(--dm-ai-ink);--color-on-surface-variant:var(--dm-ai-muted);--color-secondary:var(--dm-ai-muted);--color-outline:var(--dm-ai-muted);--color-outline-variant:var(--dm-ai-line);--color-primary:var(--dm-ai-accent);--color-primary-container:var(--dm-ai-action);--color-on-primary:var(--dm-ai-on-accent);--color-on-primary-container:var(--dark-on-button);--color-primary-fixed:var(--dm-ai-accent-soft);--color-on-primary-fixed:var(--dm-ai-accent);--color-secondary-container:var(--dm-ai-accent-soft);--color-secondary-fixed:var(--dm-ai-accent-soft);--color-success:var(--dm-ai-success);--color-success-bg:var(--dm-ai-success-bg);--color-error:var(--dm-ai-danger);--color-error-container:var(--dm-ai-danger-bg);--color-on-error-container:var(--dm-ai-danger);--color-tertiary:var(--dm-ai-warning);--color-tertiary-container:var(--dm-ai-warning-bg);--color-on-tertiary-container:var(--dm-ai-warning);--color-focus:var(--dm-ai-accent);--jlab-base-page-background:var(--dm-ai-bg);--bg:var(--dm-ai-bg);--bg-base:var(--dm-ai-bg);--surface:var(--dm-ai-surface);--bg-surface:var(--dm-ai-surface);--surface-2:var(--dm-ai-raised);--bg-elevated:var(--dm-ai-raised);--text:var(--dm-ai-ink);--text-primary:var(--dm-ai-ink);--text-secondary:var(--dm-ai-muted);--text-muted:var(--dm-ai-muted);--muted:var(--dm-ai-muted);--accent:var(--dm-ai-accent);--accent-2:var(--dm-ai-action);--accent-soft:var(--dm-ai-accent-soft);--success:var(--dm-ai-success);--danger:var(--dm-ai-danger);--user-bubble:var(--dark-soft);}
+html[data-theme="dark"] :is(.btn-primary,.btn-send){background:var(--dm-ai-action)!important;color:var(--dark-on-button)!important;}
+html[data-theme="dark"] :is(.btn-primary,.btn-send):hover{background:var(--dark-button-hover)!important;}
 html[data-theme="dark"] .mode-card{background-color:var(--dm-ai-surface);}
 html[data-theme="dark"] .mode-card :is(h3,.jp,.mode-desc){color:var(--dm-ai-ink);}
 html[data-theme="dark"] .word-modal{background:var(--dm-ai-surface);color:var(--dm-ai-ink);}
 html[data-theme="dark"] body:not(.mode-free-chat) .cv-main{background-color:var(--dm-ai-bg)!important;background-image:linear-gradient(90deg,rgba(17,25,39,.92),rgba(17,25,39,.78)),var(--scenario-chat-background-image,none)!important;}
 html[data-theme="dark"] .cv-messages{background:rgba(26,38,56,.9)!important;}
 html[data-theme="dark"] .cv-messages .bubble{background:var(--dm-ai-raised)!important;}
-html[data-theme="dark"] .msg-row.user .bubble{background:#342b4f!important;}
+html[data-theme="dark"] .msg-row.user .bubble{background:var(--dark-soft)!important;}
 html[data-theme="dark"] .msg-row .token:hover{background:var(--dm-ai-accent-soft);color:var(--dm-ai-accent);}
+
+/* AI Tán Gẫu: the read-only notice of a session from an earlier day. */
+.freechat-past { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 6px 0 0; color: var(--color-on-surface-variant); font-size: .85rem; }
+.freechat-past a { color: var(--color-primary); font-weight: 700; }
+html[data-theme="dark"] .freechat-past { color: var(--dm-ai-muted); }
+html[data-theme="dark"] .freechat-past a { color: var(--dm-ai-accent); }

@@ -19,7 +19,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Kiểm tra kho audio giáo trình lúc ứng dụng sẵn sàng. Kho mặc định là data/content-audio/ trong repo; nếu
+ * Kiểm tra kho audio giáo trình lúc ứng dụng sẵn sàng. Kho mặc định là data/content-audio/ (không nằm trong git:
+ * tải gói audio trên Google Drive của nhóm rồi giải nén vào đó); nếu thiếu hoặc
  * thư mục sai (chạy app ngoài thư mục gốc, CONTENT_AUDIO_PATH cũ còn sót, lồng thêm một lớp thư mục...) thì
  * audio trả 404 mà không có lỗi nào. Lớp này đối chiếu content_audio.audio_url với file trên đĩa và ghi cảnh báo rõ ràng.
  * Chỉ ghi log, không chặn khởi động.
@@ -66,17 +67,18 @@ public class ContentAudioStartupCheck {
             return new Result(root, 0, List.of(), null, 0);
         }
         if (!Files.isDirectory(root)) {
-            log.warn("Kho audio giáo trình KHÔNG tồn tại: {} — {} file audio sẽ trả 404. Audio nằm sẵn trong repo "
-                    + "ở data/content-audio/: pull lại code, chạy app từ thư mục gốc project và xoá CONTENT_AUDIO_PATH "
-                    + "khỏi application-local.yaml nếu có.", root, urls.size());
+            log.warn("Kho audio giáo trình KHÔNG tồn tại: {} — {} file audio sẽ trả 404. Audio không nằm trong git: "
+                    + "tải gói audio trên Google Drive của nhóm, giải nén vào data/content-audio/, chạy app từ thư mục "
+                    + "gốc project và xoá CONTENT_AUDIO_PATH khỏi application-local.yaml nếu có.", root, urls.size());
             return new Result(root, urls.size(), urls.stream().limit(SAMPLE_LIMIT).toList(), null, 0);
         }
 
         List<String> missing = urls.stream().filter(url -> !exists(root, url)).toList();
         int pointers = countLfsPointers(root, urls.stream().filter(url -> exists(root, url)).toList());
         if (pointers > 0) {
-            log.warn("Audio chưa được tải từ Git LFS — chạy: git lfs install && git lfs pull "
-                    + "({}/{} file kiểm tra mẫu tại {} chỉ là pointer LFS, audio sẽ không phát được).",
+            log.warn("Audio là pointer Git LFS cũ, không phải file thật — tải gói audio trên Google Drive của nhóm "
+                    + "và giải nén đè vào data/content-audio/ ({}/{} file kiểm tra mẫu tại {} chỉ là pointer LFS, "
+                    + "audio sẽ không phát được).",
                     pointers, Math.min(LFS_SAMPLE_LIMIT, urls.size() - missing.size()), root);
         }
         if (missing.isEmpty()) {
@@ -91,7 +93,7 @@ public class ContentAudioStartupCheck {
                     + "Chuyển nội dung lên một cấp hoặc đặt CONTENT_AUDIO_PATH={} — hiện thiếu {}/{} file.",
                     nestedRoot, root, nestedRoot, missing.size(), urls.size());
         } else {
-            log.warn("Kho audio giáo trình thiếu {}/{} file tại {} (chưa pull đủ data/content-audio/ hoặc seed mới hơn audio). "
+            log.warn("Kho audio giáo trình thiếu {}/{} file tại {} (gói audio trên Google Drive cũ hơn seed, hoặc giải nén chưa đủ). "
                     + "Ví dụ: {}", missing.size(), urls.size(), root, samples);
         }
         return new Result(root, missing.size(), samples, nestedRoot, pointers);

@@ -2,6 +2,7 @@ package com.jlas.mission.dto;
 
 import com.jlas.mission.util.KanaPuzzle.Cell;
 import com.jlas.mission.util.MultiWordPuzzleGenerator.Solution;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
@@ -23,6 +24,8 @@ public final class KanaChallengeDtos {
     /** One revealed kana of an unsolved word: slot index within the word and its kana. */
     public record HintView(long wordId, int index, String kana) {}
     public record HintRequest(@NotNull Long challengeId) {}
+    /** The empty slot to open: a word on the board and the kana position inside it (0-based). */
+    public record HintPick(@NotNull Long challengeId, @NotNull Long wordId, @NotNull @Min(0) Integer index) {}
     public record Attempt(@NotNull Long challengeId,
                           @NotNull @Size(min = 2, max = 12) List<@NotNull Integer> path) {}
     public record Result(boolean correct, Today challenge) {}

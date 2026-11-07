@@ -8,4 +8,6 @@ public class CommentRequest {
     private String displayName;
     private String content;
     private Integer rating;
+    /** Comment being answered; a reply to a reply joins the same top-level thread. */
+    private Long parentId;
 }

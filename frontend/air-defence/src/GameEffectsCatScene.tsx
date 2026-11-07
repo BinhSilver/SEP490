@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CatSpriteSheet, CAT_SKINS, type CatSkinId } from '../../neko-catch/src/graphics/CatSpriteSheet';
+import { CatSpriteSheet, skinVisual, type CatSkinId } from '../../neko-catch/src/graphics/CatSpriteSheet';
 import { SpriteRenderer } from '../../neko-catch/src/graphics/SpriteRenderer';
 import { ParallaxBackground } from '../../neko-catch/src/graphics/ParallaxBackground';
 import { ParticleSystem } from '../../neko-catch/src/graphics/ParticleSystem';
@@ -19,7 +19,8 @@ export function CatScene({skin,action,audio}:{skin:CatSkinId;action:string;audio
     if(action==='countdown') {for(let n=3;n>=0;n--)later(()=>{setStep(n);audio.playEffect('cat',n?'countdown':'go');},(3-n)*700);}
     else if(!action.startsWith('pickup_'))audio.playEffect('cat',action);
     const state=(['idle','run_right','run_left','catch_success','catch_wrong','win','lose'].includes(action)?action:'idle') as CatPlayer['state'];
-    const cat:CatPlayer={x:320,y:310,width:110,height:skin>=3?88:110,speed:0,state,frameIndex:0,
+    // Nhân vật người / kaiju (gốc 3+ hoặc gói skin) thấp hơn mèo; trang phục cửa hàng theo nhân vật nó dùng lại.
+    const cat:CatPlayer={x:320,y:310,width:110,height:skinVisual(skin).skin>=3?88:110,speed:0,state,frameIndex:0,
       basketWidth:70,basketHeight:32,basketOffsetX:0,basketOffsetY:-8,shieldActive:action==='shield'||action==='shield_block'};
     const particles=new ParticleSystem(),background=new ParallaxBackground();
     const floats:{text:string;color:string;y:number;born:number}[]=[];
@@ -70,7 +71,7 @@ export function CatScene({skin,action,audio}:{skin:CatSkinId;action:string;audio
   },[skin,action,audio]);
   return <div className="ge-cat-scene">
     {action==='lobby'?<LobbyCat skinId={skin} className="ge-lobby-cat" forceMotion/>:
-      action==='win'&&skin===1?<CowboyVictoryScene forceMotion/>:<canvas ref={ref} width={640} height={420} aria-label={`${CAT_SKINS[skin].name}: ${action}`} />}
+      action==='win'&&skinVisual(skin).skin===1?<CowboyVictoryScene forceMotion/>:<canvas ref={ref} width={640} height={420} aria-label={`${skinVisual(skin).name}: ${action}`} />}
     {(action==='countdown'||action==='go')&&<div className="ge-scene-overlay"><strong>{action==='go'?'GO!':step||'GO!'}</strong></div>}
     {action==='reveal'&&<div className="ge-feedback ge-feedback--answer">Đáp án đúng: 学校 · trường học</div>}
     {(action==='freeze'||action==='pickup_freeze')&&<div className="ge-feedback ge-feedback--ice">ĐÓNG BĂNG · 2s</div>}

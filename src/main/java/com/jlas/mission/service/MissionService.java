@@ -37,8 +37,10 @@ public class MissionService {
         ZoneId zone = zones.zoneOf(userId);
         LocalDate today = clock.today(zone);
         StreakResponse streak = streaks.refresh(userId);
+        UserCreditService.EarnCapStatus cap = credits.earnCapStatus(userId);
         return new MissionDashboardResponse(today, zone.getId(), credits.balance(userId),
-                dailyGoal.progress(userId, today), streak, missions.list(userId, today), awards.openAwards(userId));
+                dailyGoal.progress(userId, today), streak, missions.list(userId, today), awards.openAwards(userId),
+                cap.earnedToday(), cap.dailyCap());
     }
 
     public MissionSummaryResponse summary(Long userId) {

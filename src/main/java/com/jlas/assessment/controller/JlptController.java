@@ -8,6 +8,9 @@ import com.jlas.assessment.dto.JlptFuriganaResponse;
 import com.jlas.assessment.dto.JlptExplanationResponse;
 import com.jlas.assessment.dto.JlptPracticeQuestionResponse;
 import com.jlas.assessment.dto.JlptPracticeTypeResponse;
+import com.jlas.assessment.dto.JlptWrongAnswerRequest;
+import com.jlas.assessment.service.impl.JlptWeaknessNotebookService;
+import com.jlas.auth.security.UserPrincipal;
 import com.jlas.assessment.service.JlptExplanationService;
 import com.jlas.assessment.service.JlptFuriganaService;
 import com.jlas.assessment.service.JlptService;
@@ -18,6 +21,9 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,6 +43,7 @@ public class JlptController {
     private final JlptService service;
     private final JlptExplanationService explanationService;
     private final JlptFuriganaService furiganaService;
+    private final JlptWeaknessNotebookService weaknessNotebook;
 
     @GetMapping("/exams")
     public ApiResponse<List<JlptExamSummaryResponse>> exams(
@@ -65,6 +72,15 @@ public class JlptController {
         return ApiResponse.ok("Đã tạo bộ câu luyện tập.", service.practiceQuestions(level, section, type, limit));
     }
 
+    @PostMapping("/practice/wrong-vocabulary")
+    public ApiResponse<Boolean> saveWrongVocabulary(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody JlptWrongAnswerRequest request) {
+        if (principal == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Vui lòng đăng nhập để lưu từ vào sổ tay.");
+        boolean saved = weaknessNotebook.recordWrongAnswer(principal.userId(), request.questionId(), request.selectedOption());
+        return ApiResponse.ok(saved ? "Đã thêm từ Goi vào sổ tay điểm yếu." : "Câu này chưa có từ mục tiêu để lưu.", saved);
+    }
+
     @PostMapping("/explanations")
     public ApiResponse<JlptExplanationResponse> explanation(
             @Valid @RequestBody JlptExplanationRequest request) {
@@ -77,4 +93,5 @@ public class JlptController {
         return ApiResponse.ok("Đã tạo Furigana.",
                 new JlptFuriganaResponse(furiganaService.annotate(request.texts())));
     }
+
 }

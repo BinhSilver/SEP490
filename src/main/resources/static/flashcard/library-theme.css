@@ -68,29 +68,13 @@
 #jlabBasePage.flashcard-page--library .folder-icon-btn:hover { color: var(--fc-primary); background: rgba(70,72,212,.09); }
 #jlabBasePage.flashcard-page--library .folder-icon-btn--danger:hover { color: var(--fc-error); background: var(--fc-error-soft); }
 
-#jlabBasePage.flashcard-page--library .lib-control-dock {
-  position: relative;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 18px;
-  margin: 0 0 28px;
-  padding: 8px;
-  background: rgba(255,255,255,.96);
-  border: 1px solid rgba(199,196,215,.35);
-  border-radius: var(--fc-radius-md);
-  box-shadow: 0 8px 24px rgba(33,49,69,.12);
-  backdrop-filter: blur(14px);
-}
-
 #jlabBasePage.flashcard-page--library .lib-toolbar {
   display: grid;
   align-items: center;
   grid-template-columns: minmax(280px, 1fr) 210px;
   gap: 14px;
   width: 100%;
-  margin: 0;
+  margin: 0 0 28px;
   padding: 0;
   background: transparent;
   border: 0;
@@ -102,7 +86,8 @@
   min-height: 44px;
   align-items: center;
   gap: 10px;
-  padding-inline: 14px;
+  margin: 0;
+  padding-inline: 14px 4px;
   color: var(--fc-on-variant);
   background: var(--fc-surface-low);
   border: 0;
@@ -152,6 +137,29 @@
 #jlabBasePage.flashcard-page--library #jlabBaseContent #lib-search:focus-visible {
   outline: none;
   box-shadow: none;
+}
+/* Magnifier on the right submits the search (Enter does too). */
+#jlabBasePage.flashcard-page--library .lib-search__submit {
+  display: grid;
+  flex: 0 0 40px;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: var(--fc-on-variant);
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: color .15s ease, background-color .15s ease;
+}
+#jlabBasePage.flashcard-page--library .lib-search__submit:hover {
+  color: var(--fc-primary);
+  background: rgba(70,72,212,.09);
+}
+#jlabBasePage.flashcard-page--library .lib-search__submit:focus-visible {
+  outline: 2px solid var(--fc-primary);
+  outline-offset: 2px;
 }
 
 #jlabBasePage.flashcard-page--library .lib-sort-field {
@@ -1000,7 +1008,6 @@
 
 @media (max-width: 1000px) {
   #jlabBasePage.flashcard-page--library .lib-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  #jlabBasePage.flashcard-page--library .lib-control-dock { align-items: stretch; flex-direction: column; }
   #jlabBasePage.flashcard-page--library .lib-toolbar { width: 100%; }
 }
 
@@ -1010,12 +1017,10 @@
 
 @media (max-width: 720px) {
   #jlabBasePage.flashcard-page--library .library-content { padding-inline: 16px; }
-  #jlabBasePage.flashcard-page--library .lib-control-dock {
-    margin-bottom: 32px;
-  }
   #jlabBasePage.flashcard-page--library .lib-toolbar {
     grid-template-columns: 1fr;
     width: 100%;
+    margin-bottom: 32px;
   }
   #jlabBasePage.flashcard-page--library .lib-grid { grid-template-columns: 1fr; }
 }
@@ -1058,10 +1063,9 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--library .folder-filter.is-
 html[data-theme="dark"] #jlabBasePage.flashcard-page--library .folder-icon-btn:hover {
     background: var(--dm-flashcard-action)
 }
-html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-control-dock {
-    background: var(--dm-flashcard-surface);
-    border: 1px solid var(--dm-flashcard-line);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24)
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-search__submit:hover {
+    color: var(--dm-flashcard-accent);
+    background: var(--dm-flashcard-accent-soft)
 }
 html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-search:focus-within {
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.30)
@@ -1204,14 +1208,13 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-context-menu 
 @media (max-width: 900px) {
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library #jlabBaseContent .fc-stitch-sidebar { display: none; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .library-content { padding: 16px 16px 32px !important; }
-  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-control-dock { display: grid; gap: 10px; }
-  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-toolbar { grid-template-columns: minmax(0, 1fr) 96px 44px; gap: 8px; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-toolbar { grid-template-columns: minmax(0, 1fr) 96px 44px; gap: 8px; margin-bottom: 10px; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library :is(.lib-search, .lib-sort-field) { min-width: 0; width: 100%; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-search { padding-inline: 10px; gap: 8px; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-sort-field .field-select { min-height: 48px; padding: 8px 4px 8px 8px; font-size: 14px !important; text-overflow: ellipsis; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .library-create-btn { display: grid; place-items: center; width: 44px; min-width: 44px; height: 48px; padding: 0; border-radius: 10px; font-size: 20px; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library :is(.library-create-btn > span, .library-results-heading, .lib-empty > a) { display: none; }
-  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-mobile-filters { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 8px; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-mobile-filters { position: relative; z-index: 20; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 8px; margin-bottom: 20px; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library #lib-scope-filter,
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown > summary {
     min-width: 0; width: 100%; min-height: 48px; padding: 10px 8px;
@@ -1234,4 +1237,53 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-context-menu 
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown .folder-row { grid-template-columns: minmax(0, 1fr) 44px 44px; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown .folder-icon-btn { width: 44px; height: 44px; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown .folder-list { max-height: none; overflow: visible; }
+}
+
+/* "Ôn hôm nay" tab (?tab=review): the SRS panel takes the place of the set list. On phones the source
+   picker stays so the learner can switch back; everything that filters or lists sets is hidden. */
+#jlabBasePage.flashcard-page--library .library-content.is-review > :not(.lib-mobile-filters):not(#library-review),
+#jlabBasePage.flashcard-page--library .library-content.is-review #lib-folder-filter { display: none !important; }
+#jlabBasePage.flashcard-page--library .library-content > #library-review { max-width: none; margin: 0; padding: 0 0 48px; }
+@media (max-width: 900px) {
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .library-content.is-review .lib-mobile-filters { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Heart toggle on set cards; filled and tinted once the set is a favorite. */
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .lib-favorite.is-favorite,
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .lib-favorite.is-favorite i { color: var(--color-error, #e5484d); }
+
+/* "Lịch sử" tab: one heading per day of visits, a clear-all button; the list is always newest visit first. */
+#jlabBasePage.flashcard-page--library .lib-history-day {
+  grid-column: 1 / -1;
+  margin: 8px 0 -4px;
+  color: var(--fc-on-surface);
+  font-size: 16px;
+  font-weight: 700;
+}
+#jlabBasePage.flashcard-page--library .lib-history-day:first-child { margin-top: 0; }
+#jlabBasePage.flashcard-page--library .library-content.is-history .lib-sort-field { display: none; }
+#jlabBasePage.flashcard-page--library .lib-history-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  margin-left: auto;
+  margin-right: 12px;
+  padding: 8px 14px;
+  color: var(--fc-on-variant);
+  background: transparent;
+  border: 1px solid var(--fc-outline-soft);
+  border-radius: 10px;
+  font: 600 14px/1 var(--font-body, sans-serif);
+  cursor: pointer;
+}
+#jlabBasePage.flashcard-page--library .lib-history-clear[hidden] { display: none; }
+#jlabBasePage.flashcard-page--library .lib-history-clear:hover { color: var(--fc-error); border-color: var(--fc-error); }
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-history-day { color: var(--dm-flashcard-ink); }
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-history-clear { color: var(--dm-flashcard-muted); border-color: var(--dm-flashcard-line); }
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-history-clear:hover { color: var(--dm-flashcard-danger); border-color: var(--dm-flashcard-danger-line); }
+#jlabBasePage.flashcard-page--library .library-content.is-history .lib-toolbar { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 900px) {
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .library-content.is-history .lib-toolbar { grid-template-columns: minmax(0, 1fr) 44px; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-history-clear { margin-right: 8px; padding-inline: 10px; }
 }

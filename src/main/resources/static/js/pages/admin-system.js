@@ -4,15 +4,19 @@
 
   var A = window.Admin;
   var API = '/api/admin/system';
-  var ROLE_NAMES = { LEARNER: 'Học viên', CONTENT_CREATOR: 'Content Creator' };
+  var ROLE_NAMES = { LEARNER: 'Học viên', CONTENT_CREATOR: 'Người biên soạn' };
   // Roles a System Admin may assign (server enforces the same list). Premium is a plan, not a role.
   var ASSIGNABLE = ['LEARNER', 'CONTENT_CREATOR', 'MODERATOR', 'ADMIN'];
   var STATUS = { ACTIVE: 'Đang hoạt động', LOCKED: 'Đã khoá' };
   var ACTIONS = {
     USER_LOCK: 'Khoá tài khoản', USER_UNLOCK: 'Mở khoá tài khoản',
     USER_ROLE_CHANGE: 'Đổi vai trò', PREMIUM_GRANT: 'Cấp Premium thủ công', USER_CREDIT_ADJUST: 'Điều chỉnh CP',
+    USER_BIRTH_DATE_CHANGE: 'Sửa ngày sinh',
     PREMIUM_PLAN_CREATE: 'Tạo gói Premium', PREMIUM_PLAN_UPDATE: 'Sửa gói Premium',
-    PREMIUM_PLAN_DEACTIVATE: 'Ngừng bán gói', PREMIUM_PLAN_ACTIVATE: 'Mở bán gói'
+    PREMIUM_PLAN_DEACTIVATE: 'Ngừng bán gói', PREMIUM_PLAN_ACTIVATE: 'Mở bán gói',
+    COUPON_CREATE: 'Tạo mã giảm giá', COUPON_UPDATE: 'Sửa mã giảm giá', COUPON_ACTIVE: 'Bật/tắt mã giảm giá',
+    COUPON_DELETE: 'Xoá mã giảm giá', CREDIT_PACKAGE_CREATE: 'Tạo gói CP', CREDIT_PACKAGE_UPDATE: 'Sửa gói CP',
+    CREDIT_PACKAGE_ACTIVE: 'Bật/tắt gói CP', CREDIT_PACKAGE_DELETE: 'Xoá gói CP'
   };
   var PAYMENT_STATUS = {
     PENDING: ['Đang chờ', 'warn'], PAID: ['Đã thanh toán', 'ok'], FAILED: ['Thất bại', 'danger'],
@@ -66,7 +70,7 @@
       var rows = {};
       var detailId = null;
       root.innerHTML =
-        '<form class="adm-toolbar adm-panel" data-filters novalidate>' +
+        '<form class="adm-toolbar" data-filters novalidate>' +
           '<input class="input" type="search" name="q" maxlength="100" placeholder="Email, tên đăng nhập hoặc họ tên" aria-label="Tìm người dùng">' +
           '<select class="select" name="role" aria-label="Vai trò"><option value="">Mọi vai trò</option>' +
             ASSIGNABLE.map(function (r) {
@@ -74,11 +78,11 @@
             }).join('') + '</select>' +
           '<select class="select" name="status" aria-label="Trạng thái"><option value="">Mọi trạng thái</option>' +
             '<option value="ACTIVE">' + STATUS.ACTIVE + '</option><option value="LOCKED">' + STATUS.LOCKED + '</option></select>' +
-          '<select class="select" name="premium" aria-label="Premium"><option value="">Free và Premium</option>' +
+          '<select class="select" name="premium" aria-label="Premium"><option value="">Miễn phí và Premium</option>' +
             '<option value="true">Premium còn hạn</option><option value="false">Không có Premium</option></select>' +
-          '<button type="submit" class="btn btn--primary btn--sm"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Lọc</button>' +
         '</form><div data-detail></div><div data-list></div>';
       var form = root.querySelector('[data-filters]');
+      A.filterPopover(form);
 
       function statusBadge(u) {
         return u.locked ? '<span class="adm-badge adm-badge--danger">' + STATUS.LOCKED + '</span>'
@@ -87,7 +91,7 @@
 
       function premiumCell(u) {
         return u.premiumActive ? '<span class="adm-badge adm-badge--warn">Đến ' + A.date(u.premiumExpiredAt) + '</span>'
-          : '<span class="adm-muted">Free</span>';
+          : '<span class="adm-muted">Miễn phí</span>';
       }
 
       function lockButton(u) {
@@ -212,21 +216,20 @@
           rows = {};
           data.items.forEach(function (u) { rows[u.id] = u; });
           list.innerHTML = (data.items.length ?
-            '<p class="adm-muted">' + data.totalElements + ' tài khoản</p>' +
             '<div class="adm-table-wrap"><table class="adm-table"><thead><tr>' +
               '<th scope="col">Người dùng</th><th scope="col">Vai trò</th><th scope="col">Trạng thái</th>' +
               '<th scope="col">Premium</th><th scope="col">CP</th><th scope="col">Đăng nhập gần nhất</th>' +
               '<th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead><tbody>' +
               data.items.map(function (u) {
-                return '<tr><td><span class="adm-user"><strong>' + A.esc(u.fullName || u.username || u.email) + '</strong>' +
-                    '<span class="adm-muted">' + A.esc(u.email) + ' · #' + u.id + '</span></span></td>' +
+                return '<tr class="adm-row-link" data-detail-id="' + u.id + '" tabindex="0">' +
+                  '<td class="adm-user"><strong>' + A.esc(u.fullName || u.username || u.email) + '</strong>' +
+                    '<span class="adm-muted">' + A.esc(u.email) + ' · #' + u.id + '</span></td>' +
                   '<td>' + A.esc(roleLabel(u.role)) + '</td>' +
                   '<td>' + statusBadge(u) + '</td>' +
                   '<td>' + premiumCell(u) + '</td>' +
                   '<td>' + (u.creditBalance == null ? '—' : u.creditBalance) + '</td>' +
                   '<td class="adm-muted">' + A.date(u.lastLoginAt) + '</td>' +
-                  '<td class="adm-nowrap"><button type="button" class="btn btn--secondary btn--sm" data-detail-id="' + u.id + '">Chi tiết</button> ' +
-                    lockButton(u) + '</td></tr>';
+                  '<td class="adm-nowrap">' + lockButton(u) + '</td></tr>';
               }).join('') + '</tbody></table></div>'
             : A.empty('fa-user-slash', 'Không có tài khoản phù hợp', 'Thử bỏ bớt điều kiện lọc.')) +
             pager(page, data.totalPages);
@@ -247,8 +250,9 @@
             ['Xác thực email', u.verified ? 'Đã xác thực' : 'Chưa xác thực'],
             ['Trạng thái', u.locked ? STATUS.LOCKED + ' lúc ' + A.date(u.lockedAt) : STATUS.ACTIVE],
             ['Lý do khoá', u.lockedReason],
-            ['Premium', u.premiumActive ? (u.premiumPlanName || 'Premium') + ' đến ' + A.date(u.premiumExpiredAt) : 'Free'],
+            ['Premium', u.premiumActive ? (u.premiumPlanName || 'Premium') + ' đến ' + A.date(u.premiumExpiredAt) : 'Miễn phí'],
             ['Số dư CP', u.creditBalance], ['Điện thoại', u.phoneNumber], ['Trình độ', u.japaneseLevel],
+            ['Ngày sinh', birthDateText(u.dateOfBirth)],
             ['Ngày tạo', A.date(u.createdAt)], ['Đăng nhập gần nhất', A.date(u.lastLoginAt)]
           ];
           box.innerHTML = '<section class="adm-panel" aria-label="Chi tiết tài khoản">' +
@@ -258,6 +262,7 @@
             }).join('') + '</dl>' +
             '<p class="adm-toolbar">' + lockButton(u) + manageButtons(u) +
               '<button type="button" class="btn btn--secondary btn--sm" data-adjust="' + u.id + '">Điều chỉnh CP</button>' +
+              '<button type="button" class="btn btn--secondary btn--sm" data-birth-date="' + u.id + '">Sửa ngày sinh</button>' +
               '<button type="button" class="btn btn--secondary btn--sm" data-close-detail>Đóng</button></p>' +
           '</section>';
           rows[u.id] = u;
@@ -310,18 +315,70 @@
         } catch (e) { A.toast(e.message, 'error'); }
       }
 
+      function birthDateText(iso) {
+        return iso ? iso.split('-').reverse().join('/') : 'Chưa có';
+      }
+
+      // Learners set their birth date once; a wrong one is fixed here, or cleared so they are asked again.
+      async function changeBirthDate(id) {
+        var u = rows[id];
+        var current = u.dateOfBirth || '';
+        var now = new Date();
+        var today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' +
+          String(now.getDate()).padStart(2, '0');
+        var decision = await A.decide({
+          title: 'Sửa ngày sinh của ' + (u.fullName || u.email) + '?',
+          message: 'Hiện tại: ' + A.esc(birthDateText(u.dateOfBirth)) + '. Ngày sinh quyết định video Shadowing có ' +
+            'nhãn độ tuổi nào người dùng được xem. Để trống để xoá: người dùng sẽ được hỏi lại khi mở video có nhãn.',
+          confirmText: 'Lưu ngày sinh', maxLength: 500,
+          placeholder: 'Lý do (ít nhất 5 ký tự), lưu vào nhật ký quản trị',
+          extraHtml: '<div class="field"><label class="field__label" for="admBirthDate">Ngày sinh mới</label>' +
+            '<input class="input" id="admBirthDate" type="date" min="1900-01-01" max="' + today + '" value="' +
+              A.esc(current) + '" data-autofocus></div>',
+          collect: function (modal) {
+            var input = modal.querySelector('#admBirthDate');
+            var value = input.value;
+            if (input.validity.badInput || (value && (value < '1900-01-01' || value > today))) {
+              return { error: 'Ngày sinh chưa hợp lệ.' };
+            }
+            if (value === current) return { error: 'Ngày sinh mới trùng với ngày sinh hiện tại.' };
+            return reasonLength(modal) || { dateOfBirth: value || null };
+          }
+        });
+        if (!decision) return;
+        try {
+          await A.api.post(API + '/users/' + id + '/birth-date', {
+            dateOfBirth: decision.extra.dateOfBirth, reason: decision.reason
+          });
+          A.toast('Đã cập nhật ngày sinh', 'success');
+        } catch (e) {
+          A.toast(e.message, 'error');
+        }
+        await load();
+        await showDetail(id);
+      }
+
       form.addEventListener('submit', function (event) { event.preventDefault(); page = 0; load(); });
       root.addEventListener('click', function (event) {
         var target = event.target;
         var el;
         if ((el = target.closest('[data-page]'))) { page += Number(el.dataset.page); load(); return; }
-        if ((el = target.closest('[data-detail-id]'))) { showDetail(Number(el.dataset.detailId)); return; }
         if ((el = target.closest('[data-lock]'))) { setLocked(Number(el.dataset.lock), true); return; }
         if ((el = target.closest('[data-unlock]'))) { setLocked(Number(el.dataset.unlock), false); return; }
         if ((el = target.closest('[data-role-change]'))) { changeRole(Number(el.dataset.roleChange)); return; }
         if ((el = target.closest('[data-grant]'))) { grantPremium(Number(el.dataset.grant)); return; }
         if ((el = target.closest('[data-adjust]'))) { adjustCredits(Number(el.dataset.adjust)); return; }
+        if ((el = target.closest('[data-birth-date]'))) { changeBirthDate(Number(el.dataset.birthDate)); return; }
+        // Checked after the row's own buttons so "Khoá"/"Mở khoá" inside a row don't also open the detail.
+        if ((el = target.closest('[data-detail-id]'))) { showDetail(Number(el.dataset.detailId)); return; }
         if (target.closest('[data-close-detail]')) { detailId = null; root.querySelector('[data-detail]').innerHTML = ''; }
+      });
+      root.addEventListener('keydown', function (event) {
+        var row = event.target.closest && event.target.closest('tr[data-detail-id]');
+        if (row && event.target === row && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault();
+          showDetail(Number(row.dataset.detailId));
+        }
       });
       await load();
     }
@@ -334,6 +391,17 @@
     try { c = JSON.parse(json); } catch (e) { return '<code>' + A.esc(json) + '</code>'; }
     var to = ' <span class="adm-muted">thành</span> ';
     if (c.rejection) return A.esc(c.rejection);
+    // CP adjustment: {amount, before, after} are plain balances.
+    if (typeof c.amount === 'number' && typeof c.before === 'number') {
+      return A.esc(c.before.toLocaleString('vi-VN')) + ' CP' + to + A.esc(c.after.toLocaleString('vi-VN')) + ' CP' +
+        '<br><span class="adm-muted">' + (c.amount > 0 ? '+' : '') + A.esc(c.amount.toLocaleString('vi-VN')) + ' CP</span>';
+    }
+    // Coupon / CP package created or deleted ({code} / {name}), switched on or off ({active}).
+    if (!c.before && !c.after) {
+      if ('code' in c) return 'Mã: ' + A.esc(c.code);
+      if ('name' in c) return 'Gói: ' + A.esc(c.name);
+      if ('active' in c) return c.active ? 'Bật' : 'Tắt';
+    }
     if (c.before && c.after && c.before.status && c.after.status) {
       return A.esc(STATUS[c.before.status] || c.before.status) + to + A.esc(STATUS[c.after.status] || c.after.status);
     }
@@ -345,8 +413,21 @@
       return A.esc(was) + to + A.esc(c.after.plan + ' đến ' + A.date(c.after.expiresAt)) +
         '<br><span class="adm-muted">+' + A.esc(c.durationDays) + ' ngày' + (c.stacked ? ', cộng dồn' : '') + '</span>';
     }
-    if (c.before && c.after && 'active' in c.after) {
+    if (c.before && c.after && 'active' in c.after && Object.keys(c.after).length === 1) {
       return (c.before.active ? 'Đang bán' : 'Ngừng bán') + to + (c.after.active ? 'Đang bán' : 'Ngừng bán');
+    }
+    // Coupon / CP package edits: list only the fields that changed.
+    if (c.before && c.after && typeof c.after === 'object' && !('durationDays' in c.after)) {
+      var labels = { code: 'Mã', name: 'Tên', description: 'Mô tả', price: 'Giá', creditAmount: 'Số CP',
+        discountType: 'Kiểu giảm', discountValue: 'Mức giảm', maxDiscount: 'Giảm tối đa', minOrderAmount: 'Đơn tối thiểu',
+        appliesTo: 'Áp dụng cho', startsAt: 'Bắt đầu', endsAt: 'Kết thúc', usageLimit: 'Lượt dùng tối đa',
+        perUserLimit: 'Lượt mỗi người', active: 'Trạng thái', dateOfBirth: 'Ngày sinh' };
+      var show = function (k, v) { return v == null ? '—' : k === 'active' ? (v ? 'Bật' : 'Tắt') : v; };
+      var changed = Object.keys(c.after).filter(function (k) { return String(c.before[k]) !== String(c.after[k]); });
+      if (!changed.length) return '<span class="adm-muted">Không đổi</span>';
+      return changed.map(function (k) {
+        return A.esc(labels[k] || k) + ': ' + A.esc(show(k, c.before[k])) + to + A.esc(show(k, c.after[k]));
+      }).join('<br>');
     }
     if (c.after && 'durationDays' in c.after) {
       var fields = { name: 'Tên', description: 'Mô tả', price: 'Giá', durationDays: 'Số ngày' };
@@ -366,21 +447,22 @@
     render: async function (root) {
       var page = 0;
       root.innerHTML =
-        '<form class="adm-toolbar adm-panel" data-filters novalidate>' +
+        '<form class="adm-toolbar" data-filters novalidate>' +
           '<select class="select" name="action" aria-label="Hành động"><option value="">Mọi hành động</option>' +
             Object.keys(ACTIONS).map(function (k) { return '<option value="' + k + '">' + ACTIONS[k] + '</option>'; }).join('') +
           '</select>' +
           '<select class="select" name="result" aria-label="Kết quả"><option value="">Mọi kết quả</option>' +
             '<option value="SUCCESS">Thành công</option><option value="REJECTED">Bị từ chối</option></select>' +
-          '<input class="input" name="actorId" inputmode="numeric" maxlength="12" placeholder="Mã người thao tác" aria-label="Mã người thao tác">' +
+          '<input class="input" name="actorId" inputmode="numeric" maxlength="12" placeholder="Mã người thao tác" aria-label="Mã người thao tác" data-in-filter="Người thao tác">' +
           '<select class="select" name="targetType" aria-label="Loại đối tượng"><option value="USER">Người dùng</option>' +
             '<option value="PREMIUM_PLAN">Gói Premium</option></select>' +
-          '<input class="input" name="targetId" inputmode="numeric" maxlength="12" placeholder="Mã đối tượng" aria-label="Mã đối tượng">' +
-          '<label class="adm-inline">Từ <input class="input" type="date" name="from"></label>' +
-          '<label class="adm-inline">Đến <input class="input" type="date" name="to"></label>' +
-          '<button type="submit" class="btn btn--primary btn--sm">Lọc</button>' +
+          '<input class="input" name="targetId" inputmode="numeric" maxlength="12" placeholder="Mã đối tượng" aria-label="Mã đối tượng" data-in-filter="Mã đối tượng">' +
+          '<div class="adm-filter-range" data-in-filter="Khoảng thời gian">' +
+            '<label class="adm-inline">Từ <input class="input" type="date" name="from"></label>' +
+            '<label class="adm-inline">Đến <input class="input" type="date" name="to"></label></div>' +
         '</form><div data-list></div>';
       var form = root.querySelector('[data-filters]');
+      A.filterPopover(form);
       A.digitsOnly(form.elements.actorId);
       A.digitsOnly(form.elements.targetId);
 
@@ -446,63 +528,296 @@
       }).join('') + '</tbody></table>' : A.empty('fa-inbox', 'Chưa có dữ liệu')) + '</section>';
   }
 
+  // ── Dashboard: every figure comes from GET /api/admin/system/dashboard?period=… ─────────────────
+  var PERIODS = [
+    { key: 'year', label: 'Năm nay', revenue: 'Doanh thu năm nay', compare: 'so với cùng kỳ năm trước' },
+    { key: '30d', label: '30 ngày qua', revenue: 'Doanh thu 30 ngày', compare: 'so với 30 ngày trước đó' },
+    { key: '7d', label: '7 ngày', revenue: 'Doanh thu 7 ngày', compare: 'so với 7 ngày trước đó' }
+  ];
+  var TARGET_TYPES = { USER: 'Người dùng', PREMIUM_PLAN: 'Gói Premium', COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP' };
+
+  function numberVi(n) { return Number(n || 0).toLocaleString('vi-VN'); }
+
+  /** Sum of one currency (the first one listed, VND in practice) so two periods can be compared. */
+  function revenueOf(list, currency) {
+    return (list || []).filter(function (r) { return r.currency === currency; })
+      .reduce(function (sum, r) { return sum + Number(r.amount || 0); }, 0);
+  }
+
+  /**
+   * Growth pill, e.g. "+51 người mới · +89,3%" or "+12,4% tăng trưởng"; the comparison period is in the tooltip.
+   * No percentage when the previous period had nothing to compare with.
+   */
+  function growthPill(current, previous, compare, prefix) {
+    var pct = previous ? Math.round((current - previous) / previous * 1000) / 10 : null;
+    var pctText = pct == null ? '' : (pct >= 0 ? '+' : '') + pct.toLocaleString('vi-VN') + '%';
+    var text = prefix ? prefix + (pctText ? ' · ' + pctText : '') : (pctText ? pctText + ' tăng trưởng' : '');
+    if (!text || (!current && pct == null)) return '<span class="st-pill st-pill--neutral">Chưa có dữ liệu kỳ trước</span>';
+    return '<span class="st-pill ' + (pct != null && pct < 0 ? 'st-pill--amber' : 'st-pill--growth') + '" title="' +
+      A.esc(pctText ? pctText + ' ' + compare : compare) + '">' + A.esc(text) + '</span>';
+  }
+
+  /** Smallest 1/2/5 × 10^n step that splits {@code max} into at most five gridlines. */
+  function niceScale(max) {
+    if (max <= 0) return 5;
+    var raw = max / 5, magnitude = Math.pow(10, Math.floor(Math.log10(raw)));
+    var step = [1, 2, 5, 10].map(function (m) { return m * magnitude; }).filter(function (s) { return s >= raw; })[0];
+    return step * 5;
+  }
+
+  function actionTime(value) {
+    if (!value) return '—';
+    var at = new Date(value), now = new Date();
+    var time = at.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    var yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+    if (at.toDateString() === now.toDateString()) return time + ' - Hôm nay';
+    if (at.toDateString() === yesterday.toDateString()) return 'Hôm qua, ' + time.slice(0, 5);
+    return at.toLocaleDateString('vi-VN') + ' ' + time.slice(0, 5);
+  }
+
+  function initials(email) {
+    var name = String(email || '?').split('@')[0].replace(/[^a-zA-Z0-9]/g, ' ').trim().split(/\s+/);
+    return ((name[0] || '?')[0] + (name[1] ? name[1][0] : (name[0] || '?').slice(1, 2))).toUpperCase();
+  }
+
+  function dashboardHtml(d, moderation, period) {
+    var p = PERIODS.filter(function (x) { return x.key === period; })[0];
+    var stats = d.periodStats || {};
+    var currency = ((stats.paid || [])[0] || (stats.paidPrevious || [])[0] || { currency: 'VND' }).currency;
+    var revenueNow = revenueOf(stats.paid, currency), revenueBefore = revenueOf(stats.paidPrevious, currency);
+    var revenueText = (stats.paid || []).length
+      ? stats.paid.map(function (r) { return money(r.amount, r.currency); }).join(' + ') : money(0, currency);
+    var byStatus = d.paymentsByStatus || {};
+    var txOf = function (key) { return Number(byStatus[key] || 0); };
+    var pending = txOf('PENDING');
+    var modCount = moderation ? moderation.pendingQueue + moderation.pendingAppeals + moderation.pendingContributions : null;
+
+    // Premium / Free among learners only (staff roles are left out).
+    var learnerTotal = Number((d.usersByRole || {}).LEARNER || 0);
+    var premiumActive = Math.min(learnerTotal, Number(d.premiumActive || 0));
+    var freeCount = Math.max(0, learnerTotal - premiumActive);
+    var premiumPct = learnerTotal > 0 ? Math.round(premiumActive / learnerTotal * 1000) / 10 : 0;
+    var freePct = learnerTotal > 0 ? Math.round(1000 - premiumPct * 10) / 10 : 0;
+    var donutCirc = 389.55;
+    var premiumLen = (premiumPct / 100 * donutCirc).toFixed(2);
+    var freeLen = (freePct / 100 * donutCirc).toFixed(2);
+
+    // Transaction health (cancelled and expired count as not completed; refunds are left out).
+    var txDone = txOf('PAID'), txPending = pending, txFailed = txOf('FAILED') + txOf('CANCELLED') + txOf('EXPIRED');
+    var txTotal = txDone + txPending + txFailed;
+    var txPct = function (n) { return txTotal > 0 ? Math.round(n / txTotal * 1000) / 10 : 0; };
+    var txDonePct = txPct(txDone), txPendingPct = txPct(txPending), txFailedPct = txPct(txFailed);
+
+    // Registrations per year.
+    var years = d.registrationsByYear || [];
+    var yearMax = niceScale(Math.max.apply(null, years.map(function (y) { return y.count; }).concat([0])));
+    var yearBarMax = 236;
+
+    // Premium purchases per month of the current year.
+    var months = [];
+    for (var m = 1; m <= 12; m++) months.push({ month: m, count: 0, amounts: {} });
+    (d.premiumByMonth || []).forEach(function (r) {
+      var slot = months[r.month - 1];
+      slot.count += r.count;
+      slot.amounts[r.currency] = (slot.amounts[r.currency] || 0) + Number(r.amount || 0);
+    });
+    var monthMax = Math.max.apply(null, months.map(function (x) { return x.count; }).concat([0]));
+    var premiumTotal = months.reduce(function (n, x) { return n + x.count; }, 0);
+    var currentMonth = new Date().getMonth() + 1;
+    var monthBarMax = 150;
+
+    var recent = d.recentActions || [];
+
+    return '<div class="st-dashboard">' +
+      '<header class="st-topbar">' +
+        '<div class="st-topbar__left"><div class="st-topbar__title-wrap"><span class="st-topbar__dot"></span>' +
+          '<h1 class="st-topbar__title">Tổng quan hệ thống</h1></div></div>' +
+        '<div class="st-topbar__actions">' +
+          '<div class="st-segmented" role="tablist" aria-label="Khoảng thời gian">' +
+            PERIODS.map(function (x) {
+              return '<button type="button" role="tab" class="st-segmented__btn' + (x.key === period ? ' active' : '') +
+                '" aria-selected="' + (x.key === period) + '" data-period="' + x.key + '">' + x.label + '</button>';
+            }).join('') +
+          '</div>' +
+          '<a class="st-icon-btn" href="/admin/moderation/queue" title="' +
+            (modCount ? modCount + ' mục đang chờ kiểm duyệt' : 'Không có mục chờ kiểm duyệt') + '">' +
+            '<span class="material-symbols-outlined" style="font-size:20px;">notifications</span>' +
+            (modCount ? '<span class="st-badge-dot"></span>' : '') +
+          '</a>' +
+        '</div>' +
+      '</header>' +
+
+      '<div class="st-grid-kpi">' +
+        kpiCard('Tổng người dùng', 'group', 'purple', numberVi(d.totalUsers),
+          growthPill(stats.newUsers, stats.newUsersPrevious, p.compare, '+' + numberVi(stats.newUsers) + ' người mới')) +
+        kpiCard(p.revenue, 'credit_card', 'purple', revenueText,
+          growthPill(revenueNow, revenueBefore, p.compare, '')) +
+        kpiCard('Giao dịch đang chờ', 'hourglass_empty', 'amber', numberVi(pending) + ' giao dịch',
+          pending ? '<span class="st-pill st-pill--amber">Cần xác nhận</span>' : '<span class="st-pill st-pill--neutral">Không có</span>') +
+        kpiCard('Kiểm duyệt chờ xử lý', 'verified', 'purple', modCount == null ? '—' : numberVi(modCount) + ' mục',
+          modCount ? '<span class="st-pill st-pill--purple">Cần xử lý</span>' : '<span class="st-pill st-pill--neutral">Đã xử lý hết</span>') +
+      '</div>' +
+
+      '<div class="st-card">' +
+        '<div class="st-card__header"><div class="st-card__title-group"><div class="st-card__title-row">' +
+          '<span class="st-square-mark"></span><h2 class="st-card__title">Số lượng người đăng ký mới mỗi năm</h2>' +
+        '</div></div></div>' +
+        '<div class="st-annual-chart">' +
+          '<div class="st-annual-chart__gridlines">' +
+            [5, 4, 3, 2, 1, 0].map(function (i) {
+              return '<div class="st-gridline-row"><span class="st-gridline-val">' + numberVi(yearMax / 5 * i) + '</span></div>';
+            }).join('') +
+          '</div>' +
+          '<div class="st-annual-chart__bars">' +
+            years.map(function (y, i) {
+              var last = i === years.length - 1;
+              return '<div class="st-annual-col' + (last ? ' st-annual-col--peak' : '') + '" title="' + y.year + ': ' + numberVi(y.count) + ' người đăng ký">' +
+                '<span class="st-annual-col__num"' + (last ? ' style="color:var(--st-primary-container); font-weight:700;"' : '') + '>' + numberVi(y.count) + '</span>' +
+                '<div class="st-annual-col__bar" style="height:' + Math.round(y.count / yearMax * yearBarMax) + 'px;"></div>' +
+                '<span class="st-annual-col__year">' + y.year + (last ? ' (Hiện tại)' : '') + '</span>' +
+              '</div>';
+            }).join('') +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="st-grid-trio">' +
+        '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;"><div>' +
+          '<div class="st-card__header"><div class="st-card__title-group">' +
+            '<h2 class="st-card__title">Số lượng người đăng ký Premium mỗi tháng (' + A.esc(d.premiumYear) + ')</h2></div>' +
+            '<span class="st-pill st-pill--purple">Tổng ' + numberVi(premiumTotal) + ' lượt</span>' +
+          '</div>' +
+          '<div class="st-monthly-chart"><div class="st-monthly-chart__bars">' +
+            months.map(function (x) {
+              var amounts = Object.keys(x.amounts).map(function (c) { return money(x.amounts[c], c); }).join(' + ') || money(0, currency);
+              var cls = x.count > 0 && x.count === monthMax ? ' st-monthly-col--max' : (x.month === currentMonth ? ' st-monthly-col--highlight' : '');
+              return '<div class="st-monthly-col' + cls + '">' +
+                '<div class="st-bar-tooltip"><span class="st-bar-tooltip__title">Tháng ' + x.month + '</span>' +
+                  '<span class="st-bar-tooltip__detail">' + numberVi(x.count) + ' lượt • ' + amounts + '</span></div>' +
+                '<div class="st-monthly-col__bar" style="height:' + (monthMax ? Math.round(x.count / monthMax * monthBarMax) : 0) + 'px;"></div>' +
+                '<span class="st-monthly-col__label">T' + x.month + '</span>' +
+              '</div>';
+            }).join('') +
+          '</div></div>' +
+        '</div></div>' +
+
+        '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;"><div>' +
+          '<div class="st-card__header"><div class="st-card__title-group">' +
+            '<h2 class="st-card__title" style="font-size:15px;">Tỉ lệ Premium / Miễn phí</h2></div></div>' +
+          '<div class="st-donut-wrap"><div class="st-donut"><svg viewBox="0 0 160 160">' +
+            '<circle cx="80" cy="80" r="62" fill="none" stroke="#EEF5F7" stroke-width="18"></circle>' +
+            '<circle cx="80" cy="80" r="62" fill="none" stroke="#4F378A" stroke-width="18" stroke-dasharray="' + premiumLen + ' ' + donutCirc + '" stroke-dashoffset="0" stroke-linecap="round"></circle>' +
+            '<circle cx="80" cy="80" r="62" fill="none" stroke="#EAB308" stroke-width="18" stroke-dasharray="' + freeLen + ' ' + donutCirc + '" stroke-dashoffset="-' + premiumLen + '" stroke-linecap="round"></circle>' +
+          '</svg><div class="st-donut__center"><span class="st-donut__center-num">' + numberVi(learnerTotal) + '</span>' +
+            '<span class="st-donut__center-label">Học viên</span></div></div></div>' +
+        '</div>' +
+        '<div class="st-legend-list">' +
+          legendItem('#4F378A', 'Premium', premiumActive, premiumPct, 'purple') +
+          legendItem('#EAB308', 'Miễn phí', freeCount, freePct, 'amber') +
+        '</div></div>' +
+
+        '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;"><div>' +
+          '<div class="st-card__header"><div class="st-card__title-group">' +
+            '<h2 class="st-card__title" style="font-size:15px;">Giao dịch</h2></div></div>' +
+          '<div class="st-tx-health__val-row"><span class="st-tx-health__pct">' + txDonePct + '%</span>' +
+            (txTotal === 0 ? '' : txDonePct >= 90
+              ? '<span class="st-pill st-pill--growth" style="padding:2px 8px; font-size:10px;">Hoàn tất chuẩn</span>'
+              : '<span class="st-pill st-pill--amber" style="padding:2px 8px; font-size:10px;">Cần kiểm tra</span>') +
+          '</div>' +
+          '<div class="st-seg-bar">' +
+            [['green', 'Hoàn tất', txDonePct], ['amber', 'Đang chờ', txPendingPct], ['red', 'Thất bại', txFailedPct]]
+              .filter(function (s) { return s[2] > 0; })
+              .map(function (s) {
+                return '<div class="st-seg-bar__slice st-seg-bar__slice--' + s[0] + '" style="flex:' + s[2] + ' 1 0;" title="' + s[1] + ': ' + s[2] + '%"></div>';
+              }).join('') +
+          '</div>' +
+          '<div class="st-status-boxes">' +
+            statusBox('#006947', 'Hoàn tất', '', txDone, txDonePct) +
+            statusBox('#F5A400', 'Đang chờ', '#B45309', txPending, txPendingPct) +
+            statusBox('#BA1A1A', 'Thất bại', '#BA1A1A', txFailed, txFailedPct) +
+          '</div></div>' +
+          '<a class="st-btn-outline-wide" href="/admin/system/payments">' +
+            '<span class="material-symbols-outlined" style="font-size:16px;">account_balance_wallet</span>' +
+            '<span>Kiểm tra cổng thanh toán</span></a>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="st-card"><div>' +
+        '<div class="st-card__header"><div class="st-card__title-group"><h2 class="st-card__title">Thao tác quản trị gần đây</h2></div>' +
+          '<a class="st-pill st-pill--neutral" href="/admin/system/audit">Xem nhật ký</a></div>' +
+        (recent.length ? '<div class="st-table-wrap"><table class="st-table"><thead><tr>' +
+            '<th>Thời gian</th><th>Người thao tác</th><th>Hành động</th><th>Đối tượng</th><th style="text-align:right;">Trạng thái</th>' +
+          '</tr></thead><tbody>' +
+          recent.map(function (r, i) {
+            var badge = ['purple', 'green', 'amber'][i % 3];
+            var ok = r.result === 'SUCCESS';
+            return '<tr>' +
+              '<td style="color:var(--st-outline); white-space:nowrap;">' + A.esc(actionTime(r.createdAt)) + '</td>' +
+              '<td style="white-space:nowrap;"><div class="st-table-user"><span class="st-avatar-badge st-avatar-badge--' + badge + '">' +
+                A.esc(initials(r.actorEmail)) + '</span><span style="font-weight:500;">' + A.esc(r.actorEmail || ('#' + r.actorId)) + '</span></div></td>' +
+              '<td style="font-weight:500;">' + A.esc(ACTIONS[r.action] || r.action) + '</td>' +
+              '<td style="color:var(--st-on-surface-variant);">' + A.esc(TARGET_TYPES[r.targetType] || r.targetType) +
+                (r.targetId ? ' #' + A.esc(r.targetId) : '') + (r.reason ? ' · ' + A.esc(r.reason) : '') + '</td>' +
+              '<td style="text-align:right; white-space:nowrap;"><span class="st-pill ' + (ok ? 'st-pill--growth">Thành công' : 'st-pill--amber">Bị từ chối') + '</span></td>' +
+            '</tr>';
+          }).join('') +
+          '</tbody></table></div>'
+          : A.empty('fa-clock-rotate-left', 'Chưa có thao tác quản trị', 'Các thao tác như khoá tài khoản, sửa gói sẽ hiện ở đây.')) +
+      '</div></div>' +
+    '</div>';
+  }
+
+  function kpiCard(label, icon, tone, value, pill) {
+    return '<div class="st-card st-kpi-card"><div class="st-kpi-card__top"><span class="st-kpi-card__label">' + A.esc(label) + '</span>' +
+      '<div class="st-kpi-card__icon-wrap st-kpi-card__icon-wrap--' + tone + '"><span class="material-symbols-outlined" style="font-size:20px;">' + icon + '</span></div></div>' +
+      '<div class="st-kpi-card__val-block"><div class="st-kpi-card__value">' + value + '</div>' +
+      '<div class="st-kpi-card__pill-wrap">' + pill + '</div></div></div>';
+  }
+
+  function legendItem(color, label, count, pct, tone) {
+    return '<div class="st-legend-item"><div class="st-legend-item__left"><span class="st-legend-dot" style="background:' + color + ';"></span>' +
+      '<span>' + label + '</span></div><div class="st-legend-item__right"><span>' + numberVi(count) + '</span>' +
+      '<span class="st-pill st-pill--' + tone + '" style="padding:1px 6px; font-size:10px;">' + pct + '%</span></div></div>';
+  }
+
+  function statusBox(dot, label, color, count, pct) {
+    return '<div class="st-status-box"><div class="st-status-box__left">' +
+      '<span style="width:7px; height:7px; border-radius:50%; background:' + dot + '; display:inline-block;"></span><span>' + label + '</span></div>' +
+      '<div class="st-status-box__right"><span' + (color ? ' style="color:' + color + ';"' : '') + '>' + numberVi(count) + ' gd</span>' +
+      '<span class="st-status-box__sub">(' + pct + '%)</span></div></div>';
+  }
+
   A.section('system-dashboard', {
-    subtitle: 'Toàn cảnh tài khoản, Premium, gói bán, thanh toán và việc kiểm duyệt đang chờ.',
+    subtitle: '',
     render: async function (root) {
-      var d = await A.api.get(API + '/dashboard');
-      var moderation = null;
-      try { moderation = await A.api.get('/api/admin/moderation/overview'); } catch (ignored) { /* optional */ }
-      var pending = d.paymentsByStatus.PENDING || 0;
-      var revenue = d.paidLast30Days.length
-        ? d.paidLast30Days.map(function (r) { return money(r.amount, r.currency); }).join(' + ') : '0';
-      var paidCount = d.paidLast30Days.reduce(function (n, r) { return n + r.count; }, 0);
-      root.innerHTML =
-        '<div class="adm-stats">' +
-          stat('/admin/system/users', 'fa-users', 'Tài khoản', d.totalUsers,
-            '+' + d.newUsersLast7Days + ' trong 7 ngày, +' + d.newUsersLast30Days + ' trong 30 ngày') +
-          stat('/admin/system/users', 'fa-crown', 'Premium còn hạn', d.premiumActive, '') +
-          stat('/admin/system/users', 'fa-lock', 'Tài khoản bị khoá', d.lockedUsers,
-            d.unverifiedUsers + ' tài khoản chưa xác thực email') +
-          stat('/admin/system/plans', 'fa-tags', 'Gói đang bán', d.plansOnSale,
-            d.plansStopped ? d.plansStopped + ' gói ngừng bán' : '') +
-          stat('/admin/system/payments', 'fa-receipt', 'Doanh thu 30 ngày', revenue, paidCount + ' giao dịch thành công') +
-          stat('/admin/system/payments?productType=PREMIUM', 'fa-crown', 'Premium 30 ngày',
-            (d.paidByProductLast30Days || []).filter(function (r) { return r.productType === 'PREMIUM'; })
-              .map(function (r) { return money(r.amount, r.currency); }).join(' + ') || '0', '') +
-          stat('/admin/system/payments?productType=CREDIT', 'fa-coins', 'CP 30 ngày',
-            (d.paidByProductLast30Days || []).filter(function (r) { return r.productType === 'CREDIT'; })
-              .map(function (r) { return money(r.amount, r.currency); }).join(' + ') || '0', '') +
-          stat('/admin/system/payments', 'fa-tag', 'Đã giảm giá 30 ngày', money(d.discountLast30Days, 'VND'), '') +
-          stat('/admin/system/payments', 'fa-hourglass-half', 'Giao dịch đang chờ', pending, '') +
-        '</div>' +
-        (moderation ? '<h2 class="adm-panel__title adm-section-title">Kiểm duyệt đang chờ</h2><div class="adm-stats">' +
-          stat('/admin/moderation/queue', 'fa-robot', 'Hàng đợi AI', moderation.pendingQueue, '') +
-          stat('/admin/moderation/appeals', 'fa-scale-balanced', 'Kháng nghị chờ', moderation.pendingAppeals, '') +
-          stat('/admin/moderation/dictionary', 'fa-book', 'Đóng góp từ điển chờ', moderation.pendingContributions, '') +
-          stat('/admin/moderation/sanctions', 'fa-user-lock', 'Chế tài đang hiệu lực', moderation.activeSanctions, '') +
-        '</div>' : '') +
-        '<div class="adm-grid-2 adm-section-gap">' +
-          countTable('Tài khoản theo vai trò', Object.keys(d.usersByRole).map(function (r) {
-            return [A.esc(roleLabel(r)), d.usersByRole[r]];
-          })) +
-          countTable('Giao dịch theo trạng thái', Object.keys(d.paymentsByStatus).map(function (s) {
-            return [paymentBadge(s), d.paymentsByStatus[s]];
-          })) +
-        '</div>' +
-        '<section class="adm-panel adm-section-gap"><h2 class="adm-panel__title">Thao tác quản trị gần đây</h2>' +
-          (d.recentActions.length ? '<div class="adm-table-wrap"><table class="adm-table"><thead><tr>' +
-            '<th scope="col">Thời gian</th><th scope="col">Người thao tác</th><th scope="col">Hành động</th>' +
-            '<th scope="col">Đối tượng</th><th scope="col">Kết quả</th></tr></thead><tbody>' +
-            d.recentActions.map(function (a) {
-              return '<tr><td class="adm-muted adm-nowrap">' + A.date(a.createdAt) + '</td><td>' + A.esc(a.actorEmail) + '</td>' +
-                '<td>' + A.esc(ACTIONS[a.action] || a.action) + '</td>' +
-                '<td>' + A.esc(A.typeLabel(a.targetType)) + (a.targetId ? ' #' + A.esc(a.targetId) : '') + '</td>' +
-                '<td>' + (a.result === 'SUCCESS' ? '<span class="adm-badge adm-badge--ok">Thành công</span>'
-                  : '<span class="adm-badge adm-badge--warn">Bị từ chối</span>') + '</td></tr>';
-            }).join('') + '</tbody></table></div>' +
-            '<p><a class="adm-link" href="/admin/system/audit">Xem toàn bộ nhật ký quản trị</a></p>'
-            : A.empty('fa-inbox', 'Chưa có thao tác nào')) +
-        '</section>';
+      document.body.classList.add('dashboard-view');
+      var period = 'year';
+      try { period = sessionStorage.getItem('jlas-admin-dashboard-period') || 'year'; } catch (ignored) { /* private mode */ }
+
+      async function draw() {
+        root.setAttribute('aria-busy', 'true');
+        var results = await Promise.allSettled([
+          A.api.get(API + '/dashboard?period=' + encodeURIComponent(period)),
+          A.api.get('/api/admin/moderation/overview')
+        ]);
+        root.removeAttribute('aria-busy');
+        if (results[0].status !== 'fulfilled') {
+          root.innerHTML = A.empty('fa-circle-exclamation', 'Không tải được tổng quan hệ thống',
+            (results[0].reason && results[0].reason.message) || 'Vui lòng tải lại trang.');
+          return;
+        }
+        root.innerHTML = dashboardHtml(results[0].value, results[1].status === 'fulfilled' ? results[1].value : null, period);
+      }
+
+      root.addEventListener('click', function (event) {
+        var button = event.target.closest('[data-period]');
+        if (!button || button.dataset.period === period) return;
+        period = button.dataset.period;
+        try { sessionStorage.setItem('jlas-admin-dashboard-period', period); } catch (ignored) { /* private mode */ }
+        draw();
+      });
+      root.innerHTML = A.loading();
+      await draw();
     }
   });
 
@@ -642,7 +957,8 @@
       subtitle: coupon ? 'Quản lý mã giảm giá.' : 'Quản lý gói CP.',
       render: async function (root) {
         var rows = {};
-        root.innerHTML = '<button class="btn btn--primary" type="button" data-create>Tạo mới</button><div data-list></div>';
+        root.innerHTML = '<p class="adm-toolbar"><button class="btn btn--primary btn--sm" type="button" data-create>' +
+          '<i class="fa-solid fa-plus" aria-hidden="true"></i> ' + (coupon ? 'Tạo mã giảm giá' : 'Tạo gói CP') + '</button></p><div data-list></div>';
         async function load() {
           var items = await A.api.get(endpoint);
           rows = {}; items.forEach(function (p) { rows[p.id] = p; });
@@ -723,17 +1039,18 @@
     render: async function (root) {
       var page = 0;
       root.innerHTML =
-        '<form class="adm-toolbar adm-panel" data-filters novalidate>' +
+        '<form class="adm-toolbar" data-filters novalidate>' +
           '<input class="input" type="search" name="q" maxlength="100" placeholder="Mã đơn, mã giao dịch, email hoặc họ tên" aria-label="Tìm giao dịch">' +
           '<select class="select" name="status" aria-label="Trạng thái"><option value="">Mọi trạng thái</option>' +
             Object.keys(PAYMENT_STATUS).map(function (k) { return '<option value="' + k + '">' + PAYMENT_STATUS[k][0] + '</option>'; }).join('') +
           '</select>' +
           '<select class="select" name="productType" aria-label="Sản phẩm"><option value="">Mọi sản phẩm</option><option value="PREMIUM">Premium</option><option value="CREDIT">CP</option></select>' +
-          '<label class="adm-inline">Từ <input class="input" type="date" name="from"></label>' +
-          '<label class="adm-inline">Đến <input class="input" type="date" name="to"></label>' +
-          '<button type="submit" class="btn btn--primary btn--sm"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Lọc</button>' +
+          '<div class="adm-filter-range" data-in-filter="Khoảng thời gian">' +
+            '<label class="adm-inline">Từ <input class="input" type="date" name="from"></label>' +
+            '<label class="adm-inline">Đến <input class="input" type="date" name="to"></label></div>' +
         '</form><div data-detail></div><div data-list></div>';
       var form = root.querySelector('[data-filters]');
+      A.filterPopover(form);
 
       async function load() {
         var list = root.querySelector('[data-list]');

@@ -34,9 +34,6 @@ public class JlptExam {
     @Column(name = "exam_month")
     private Byte examMonth;
 
-    @Column(name = "source_name", length = 100)
-    private String sourceName;
-
     @Column(name = "source_url", length = 500)
     private String sourceUrl;
 

@@ -88,8 +88,8 @@ upload:
 
 # Audio giáo trình số hoá (content_audio.audio_url là đường dẫn tương đối trong thư mục này).
 # Khác với upload.path.audio (audio người dùng tải lên). Phục vụ tại /uploads/content-audio/**.
-# Mặc định là data/content-audio/ (commit sẵn trong repo, tính từ thư mục gốc project) nên pull về là có,
-# không cần khai báo CONTENT_AUDIO_PATH.
+# Mặc định là data/content-audio/ (tính từ thư mục gốc project). Thư mục này không nằm trong git: tải gói audio
+# trên Google Drive của nhóm rồi giải nén vào đó, không cần khai báo CONTENT_AUDIO_PATH.
 content:
   audio:
     path: ${CONTENT_AUDIO_PATH:data/content-audio/}
@@ -144,6 +144,9 @@ openrouter:
     url: ${OPENROUTER_SITE_URL:http://localhost:8080}
     name: ${OPENROUTER_SITE_NAME:JLAS}
   model: ${OPENROUTER_MODEL:openai/gpt-4o-mini}
+  # AI Call turns: reasoning effort (none/minimal/low/...; off = no reasoning parameter) and provider sort.
+  reasoning-effort: ${OPENROUTER_REASONING_EFFORT:low}
+  provider-sort: ${OPENROUTER_PROVIDER_SORT:}
   shadowing:
     model: ${OPENROUTER_SHADOWING_MODEL:${openrouter.model}}
     max-tokens: ${OPENROUTER_SHADOWING_MAX_TOKENS:8192}
@@ -179,13 +182,15 @@ aicall:
   runtime:
     ttl-minutes: ${AICALL_RUNTIME_TTL_MINUTES:120}
     max-sessions: ${AICALL_RUNTIME_MAX_SESSIONS:10000}
-  # Con số tạm, giữ cấu hình được cho tới khi team chốt. premium-monthly-minutes = 0 là không giới hạn.
+  # Kế hoạch Pro/CP (doc-huy/ke-hoach-kinh-doanh-pro-cp-huy.md, mục 2): 1 lượt = 0,2 phút, hết hạn mức 10 CP/lượt.
+  # Trần tháng giữ chi phí AI tối đa không quá nửa giá gói. premium-monthly-minutes = 0 là không giới hạn.
   quota:
-    free-daily-minutes: ${AICALL_FREE_DAILY_MINUTES:5}
-    free-monthly-minutes: ${AICALL_FREE_MONTHLY_MINUTES:300}
-    premium-daily-minutes: ${AICALL_PREMIUM_DAILY_MINUTES:30}
-    premium-monthly-minutes: ${AICALL_PREMIUM_MONTHLY_MINUTES:0}
+    free-daily-minutes: ${AICALL_FREE_DAILY_MINUTES:3}
+    free-monthly-minutes: ${AICALL_FREE_MONTHLY_MINUTES:15}
+    premium-daily-minutes: ${AICALL_PREMIUM_DAILY_MINUTES:10}
+    premium-monthly-minutes: ${AICALL_PREMIUM_MONTHLY_MINUTES:40}
     minutes-per-turn: ${AICALL_MINUTES_PER_TURN:0.2}
+    credit-per-turn: ${AICALL_CREDIT_PER_TURN:10}
 
 azure:
   speech:
@@ -196,6 +201,17 @@ azure:
       max-audio-bytes: ${AZURE_SPEECH_MAX_AUDIO_BYTES:5242880}
       max-audio-seconds: ${AZURE_SPEECH_MAX_AUDIO_SECONDS:30}
       requests-per-minute: ${AZURE_SPEECH_REQUESTS_PER_MINUTE:20}
+    tts:
+      key: ${AZURE_SPEECH_TTS_KEY:${azure.speech.pronunciation.key}}
+      region: ${AZURE_SPEECH_TTS_REGION:${azure.speech.pronunciation.region}}
+      voice: ${AZURE_SPEECH_TTS_VOICE:ja-JP-NanamiNeural}
+      output-format: ${AZURE_SPEECH_TTS_OUTPUT_FORMAT:audio-24khz-48kbitrate-mono-mp3}
+
+dictionary:
+  tts:
+    cache-dir: ${DICTIONARY_TTS_CACHE_DIR:uploads/tts-cache}
+    max-chars: ${DICTIONARY_TTS_MAX_CHARS:200}
+    requests-per-minute: ${DICTIONARY_TTS_REQUESTS_PER_MINUTE:30}
 
 pronunciation:
   storage:

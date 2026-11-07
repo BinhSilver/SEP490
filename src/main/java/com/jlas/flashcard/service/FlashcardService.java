@@ -7,6 +7,11 @@ import org.springframework.web.multipart.MultipartFile;
 public interface FlashcardService {
     PageResponse<SetSummaryDto> publicSets(String title, String sort, int page, int size, Long userId);
     PageResponse<SetSummaryDto> mySets(String title, String sort, int page, int size, Long folderId, Long userId);
+    PageResponse<SetSummaryDto> favoriteSets(String title, String sort, int page, int size, Long userId);
+    /** Tab Lịch sử: bộ người dùng đã mở và vẫn xem được, lần mở gần nhất trước. */
+    PageResponse<SetSummaryDto> historySets(String title, int page, int size, Long userId);
+    void removeHistory(Long setId, Long userId);
+    void clearHistory(Long userId);
     SetDetailDto set(Long id, Long userId); SetDetailDto create(SetRequest request, Long userId);
     SetDetailDto update(Long id, SetRequest request, Long userId); void delete(Long id, Long userId);
     SetDetailDto createDraft(DraftRequest request, Long userId); SetDetailDto updateDraft(Long id, DraftRequest request, Long userId);

@@ -1,0 +1,139 @@
+/*
+ * One look for buttons, selects and inputs on the Albazzz pages. Change a size or radius here, not on a page.
+ * Imported only by those pages' stylesheets, so other pages keep their own controls.
+ *
+ * The older page styles set these properties with ids and !important, so this file has to outrank them:
+ * the repeated :not(#_) only raises specificity and matches every element. Colours in dark mode come from
+ * dark-palette.css. Controls with a job of their own (icon buttons, chips, OTP boxes) are left out on purpose.
+ */
+
+/* Buttons: size and shape. */
+html:not(#_):not(#_):not(#_) :is(.btn, .button-primary, .button-secondary, .ar-btn, .oy-button, .gp-primary-btn, .gp-soft-btn, .gp-ghost-btn) {
+  box-sizing: border-box !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-radius: 10px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 20px !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+html:not(#_):not(#_):not(#_) :is(.btn, .button-primary, .button-secondary, .ar-btn, .oy-button, .gp-primary-btn, .gp-soft-btn):not(.btn--sm, .btn-sm, .ar-btn--sm, .btn--ghost, .btn-ghost) {
+  height: auto !important;
+  min-height: 44px !important;
+  padding: 10px 24px !important;
+}
+html:not(#_):not(#_):not(#_) :is(.btn--ghost, .btn-ghost, .gp-ghost-btn):not(.btn--sm, .btn-sm) {
+  height: auto !important;
+  min-height: 44px !important;
+  padding: 10px 12px !important;
+}
+html:not(#_):not(#_):not(#_) :is(.btn--sm, .btn-sm, .ar-btn--sm) {
+  height: auto !important;
+  min-height: 36px !important;
+  padding: 6px 14px !important;
+  font-size: 13px !important;
+  line-height: 18px !important;
+}
+html:not(#_):not(#_):not(#_) a:is(.btn, .button-primary, .button-secondary, .ar-btn, .oy-button):not([hidden]) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+html:not(#_):not(#_):not(#_) :is(.btn, .button-primary, .button-secondary, .ar-btn, .oy-button, .gp-primary-btn, .gp-soft-btn):disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Main button. */
+html:not(#_):not(#_):not(#_) :is(.btn--primary, .button-primary, .ar-btn--primary, .oy-button--primary, .btn-primary, .gp-primary-btn):not(.confirm-modal-danger) {
+  border-color: var(--color-primary) !important;
+  color: var(--color-on-primary) !important;
+  background: var(--color-primary) !important;
+  box-shadow: none !important;
+}
+html:not(#_):not(#_):not(#_) :is(.btn--primary, .button-primary, .ar-btn--primary, .oy-button--primary, .btn-primary, .gp-primary-btn):not(.confirm-modal-danger, :disabled):hover {
+  border-color: var(--color-primary-container) !important;
+  background: var(--color-primary-container) !important;
+}
+html[data-theme="dark"]:not(#_):not(#_):not(#_) :is(.btn--primary, .button-primary, .ar-btn--primary, .oy-button--primary, .btn-primary, .gp-primary-btn):not(.confirm-modal-danger) {
+  border-color: var(--dark-button) !important;
+  color: var(--dark-on-button) !important;
+  background: var(--dark-button) !important;
+}
+html[data-theme="dark"]:not(#_):not(#_):not(#_) :is(.btn--primary, .button-primary, .ar-btn--primary, .oy-button--primary, .btn-primary, .gp-primary-btn):not(.confirm-modal-danger, :disabled):hover {
+  border-color: var(--dark-button-hover) !important;
+  background: var(--dark-button-hover) !important;
+}
+
+/* Secondary button: no fill, so it does not compete with the main one. */
+html:not(#_):not(#_):not(#_) :is(.btn--secondary, .button-secondary, .btn-secondary, .gp-soft-btn, .ar-btn:not(.ar-btn--primary, .ar-btn--ok, .ar-btn--dark, .ar-btn--danger), .oy-button:not(.oy-button--primary)) {
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+html:not(#_):not(#_):not(#_) :is(.btn--secondary, .button-secondary, .btn-secondary, .gp-soft-btn, .ar-btn:not(.ar-btn--primary, .ar-btn--ok, .ar-btn--dark, .ar-btn--danger), .oy-button:not(.oy-button--primary)):not(:disabled):hover {
+  background: var(--color-primary-fixed) !important;
+}
+html[data-theme="dark"]:not(#_):not(#_):not(#_) :is(.btn--secondary, .button-secondary, .btn-secondary, .gp-soft-btn, .ar-btn:not(.ar-btn--primary, .ar-btn--ok, .ar-btn--dark, .ar-btn--danger), .oy-button:not(.oy-button--primary)) {
+  border-color: var(--dark-muted) !important;
+  color: var(--dark-accent) !important;
+}
+html[data-theme="dark"]:not(#_):not(#_):not(#_) :is(.btn--secondary, .button-secondary, .btn-secondary, .gp-soft-btn, .ar-btn:not(.ar-btn--primary, .ar-btn--ok, .ar-btn--dark, .ar-btn--danger), .oy-button:not(.oy-button--primary)):not(:disabled):hover {
+  background: var(--dark-soft) !important;
+}
+
+/* The Kana Connect tutorial's main button. */
+html:not(#_):not(#_):not(#_) .kc-tut__btn {
+  box-sizing: border-box !important;
+  min-height: 44px !important;
+  padding: 10px 24px !important;
+  border-radius: 10px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 20px !important;
+}
+
+/* Selects and inputs: size and shape. 16px text stops phones zooming in on focus. */
+html:not(#_):not(#_):not(#_) :is(.input, .form-input, .search-input, .ar-input, .oy-quiz__input, .select, .form-select, .ar-select, #jlabBaseContent select):not(textarea, .otp-digit, .otp-input, .ar-input--code) {
+  box-sizing: border-box !important;
+  height: auto !important;
+  min-height: 48px !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  padding-block: 11px !important;
+}
+html:not(#_):not(#_):not(#_) :is(.input, .form-input, .search-input, .ar-input, .oy-quiz__input):not(textarea, select, .otp-digit, .otp-input, .ar-input--code, .input--with-icon, .input--with-action) {
+  padding-inline: 16px !important;
+}
+html:not(#_):not(#_):not(#_) :is(.select, .form-select, .ar-select, #jlabBaseContent select):not(.select--with-icon) {
+  padding-left: 16px !important;
+}
+html:not(#_):not(#_):not(#_) textarea:is(.input, .form-input, .textarea) {
+  border-radius: 8px !important;
+  font-size: 16px !important;
+}
+
+/* Selects and inputs: dark colours. Focus and errors come after, so they still show. */
+html[data-theme="dark"]:not(#_):not(#_):not(#_) :is(.input, .form-input, .search-input, .ar-input, .oy-quiz__input, .select, .form-select, .ar-select, #jlabBaseContent select, textarea.form-input, textarea.input, .textarea):not(.otp-digit, .otp-input) {
+  border-color: var(--dark-input-line) !important;
+  color: var(--dark-ink) !important;
+  background-color: var(--dark-input) !important;
+}
+html[data-theme="dark"]:not(#_):not(#_):not(#_) :is(.input, .form-input, .search-input, .ar-input, .oy-quiz__input, .select, .form-select, .ar-select, #jlabBaseContent select, textarea.form-input, textarea.input, .textarea):focus {
+  border-color: var(--dark-focus) !important;
+  box-shadow: 0 0 0 3px var(--dark-focus-ring) !important;
+}
+html[data-theme="dark"]:not(#_):not(#_):not(#_) .has-error :is(.input, .form-input, .select, .form-select),
+html[data-theme="dark"]:not(#_):not(#_):not(#_) :is(.input, .form-input, .select, .form-select, .search-input, .ar-input)[aria-invalid="true"] {
+  border-color: var(--dark-danger) !important;
+}
+html[data-theme="dark"]:not(#_):not(#_):not(#_) :is(.input, .form-input, .search-input, .ar-input, .oy-quiz__input, textarea.form-input, textarea.input, .textarea)::placeholder {
+  color: var(--dark-muted) !important;
+  opacity: 1;
+}

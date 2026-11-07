@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.LockModeType;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 /**
@@ -40,4 +41,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select u from User u where u.id = :userId")
     Optional<User> findForCreditUpdate(@Param("userId") Long userId);
+
+    /** Only the birth date, for Shadowing age ratings: video streaming asks often and needs nothing else. */
+    @Query("select u.dateOfBirth from User u where u.id = :userId")
+    Optional<LocalDate> findDateOfBirthById(@Param("userId") Long userId);
 }

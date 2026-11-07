@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!videoIdInput) return;
 
     const videoId = videoIdInput.value;
+    // Lịch sử: mở trình phát một video là một lần ghé (bỏ qua khi chưa đăng nhập hay lỗi mạng).
+    fetch('/api/videos/' + encodeURIComponent(videoId) + '/visit', { method: 'POST', headers: headers() }).catch(() => {});
     const playerContainer = document.getElementById('player-container');
     const video = document.getElementById('main-video');
     const subtitleList = document.getElementById('subtitle-list');
@@ -25,6 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const lessonDurationBadge = document.getElementById('lesson-duration-badge');
     const lessonCategoryBadge = document.getElementById('lesson-category-badge');
     const lessonViewsBadge = document.getElementById('lesson-views-badge');
+    const lessonAgeBadge = document.getElementById('lesson-age-badge');
+    const ageRatingSelect = document.getElementById('age-rating-select');
+    const ageRatingStatus = document.getElementById('age-rating-status');
     const transcriptCount = document.getElementById('transcript-count');
     const favoriteBtn = document.getElementById('favorite-btn');
     const shareBtn = document.getElementById('share-btn');
@@ -54,6 +59,41 @@ document.addEventListener('DOMContentLoaded', () => {
             ? `/api/videos/${videoId}/stream?access_token=${encodeURIComponent(t)}`
             : `/api/videos/${videoId}/stream`;
     }
+
+    /** Age badge for everyone; the picker exists only for the owner and moderators (canRateAge). */
+    function applyAgeRating(minAge) {
+        const age = Number(minAge) || 0;
+        if (lessonAgeBadge) {
+            lessonAgeBadge.hidden = !age;
+            lessonAgeBadge.textContent = age ? age + '+' : '';
+            lessonAgeBadge.title = age ? `Dành cho người từ ${age} tuổi trở lên` : '';
+        }
+        if (ageRatingSelect) {
+            ageRatingSelect.value = String(age);
+            ageRatingSelect.dataset.saved = String(age);
+        }
+    }
+
+    ageRatingSelect?.addEventListener('change', async () => {
+        ageRatingSelect.disabled = true;
+        ageRatingStatus.textContent = 'Đang lưu…';
+        try {
+            const res = await fetch(`/api/videos/${videoId}/age-rating`, {
+                method: 'PUT',
+                headers: headers(),
+                body: JSON.stringify({ minAge: Number(ageRatingSelect.value) })
+            });
+            const body = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(body.message || body.error || 'Chưa lưu được nhãn độ tuổi.');
+            applyAgeRating(body.minAge);
+            ageRatingStatus.textContent = 'Đã lưu';
+        } catch (e) {
+            ageRatingSelect.value = ageRatingSelect.dataset.saved || '0';
+            ageRatingStatus.textContent = e.message;
+        } finally {
+            ageRatingSelect.disabled = false;
+        }
+    });
 
     let videoMeta = null;
     let isFavorited = false;
@@ -203,40 +243,170 @@ document.addEventListener('DOMContentLoaded', () => {
         return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     }
 
+    /** Reactions a learner can leave on a comment (same list as CommentThreadRepository.REACTIONS). */
+    const COMMENT_REACTIONS = [
+        { key: 'LIKE', emoji: '👍', label: 'Thích' },
+        { key: 'LOVE', emoji: '❤️', label: 'Yêu thích' },
+        { key: 'HAHA', emoji: '😂', label: 'Haha' },
+        { key: 'WOW', emoji: '😮', label: 'Wow' },
+        { key: 'SAD', emoji: '😢', label: 'Buồn' },
+        { key: 'CLAP', emoji: '👏', label: 'Hoan hô' }
+    ];
+    const reactionOf = key => COMMENT_REACTIONS.find(r => r.key === key);
+
     function renderComments(comments) {
         if (!commentList) return;
         commentList.innerHTML = '';
-        if (commentCountEl) commentCountEl.textContent = `(${comments.length})`;
+        const total = comments.reduce((n, c) => n + 1 + (c.replies || []).length, 0);
+        if (commentCountEl) commentCountEl.textContent = `(${total})`;
         if (!comments.length) {
             commentList.innerHTML = '<p class="caption">Chưa có bình luận. Hãy là người đầu tiên!</p>';
             return;
         }
         comments.forEach(c => {
-            const item = document.createElement('div');
-            item.className = 'comment-item';
-            item.innerHTML = `
-                <div class="comment-item-header">
-                    ${commentAvatar(c)}
-                    <strong${c.nameStyle && /^[a-z]+$/.test(c.nameStyle) ? ` data-name-style="${c.nameStyle}"` : ''}>${escHtml(c.displayName || 'Người dùng')}</strong>
-                    <span class="caption">${formatCommentDate(c.createdAt)}</span>
-                    ${c.own ? '<button class="text-link comment-delete-btn" style="color:var(--red);font-size:13px;">Xóa</button>' : ''}
-                </div>
-                <p class="comment-content">${escHtml(c.content)}</p>
-            `;
-            if (c.rating) {
-                const ratingWrap = document.createElement('div');
-                ratingWrap.className = 'comment-rating';
-                ratingWrap.appendChild(renderStars(c.rating, false));
-                item.insertBefore(ratingWrap, item.querySelector('.comment-content'));
-            }
-            item.querySelector('.comment-delete-btn')?.addEventListener('click', async () => {
-                await fetch(`/api/comments/${c.id}?clientId=${clientId}`, { method: 'DELETE' });
-                loadComments();
-            });
-            commentList.appendChild(item);
+            const thread = document.createElement('div');
+            thread.className = 'comment-thread';
+            thread.appendChild(commentItem(c, c));
+            const replies = document.createElement('div');
+            replies.className = 'comment-replies';
+            (c.replies || []).forEach(reply => replies.appendChild(commentItem(reply, c)));
+            thread.appendChild(replies);
+            commentList.appendChild(thread);
         });
         if (window.JlasAvatarFrame) window.JlasAvatarFrame.mountAll(commentList);
     }
+
+    /** One comment (top-level or reply) with its reactions, "Trả lời" and, for the author, "Xóa". */
+    function commentItem(c, root) {
+        const item = document.createElement('div');
+        item.className = 'comment-item' + (c.parentId ? ' comment-item--reply' : '');
+        item.dataset.commentId = c.id;
+        item.innerHTML = `
+            <div class="comment-item-header">
+                ${commentAvatar(c)}
+                <strong${c.nameStyle && /^[a-z]+$/.test(c.nameStyle) ? ` data-name-style="${c.nameStyle}"` : ''}>${escHtml(c.displayName || 'Người dùng')}</strong>
+                <span class="caption">${formatCommentDate(c.createdAt)}</span>
+                ${c.own ? '<button class="text-link comment-delete-btn" style="color:var(--red);font-size:13px;">Xóa</button>' : ''}
+            </div>
+            <p class="comment-content">${escHtml(c.content)}</p>
+            <div class="comment-actions">
+                <div class="comment-react">
+                    <button type="button" class="comment-action comment-react-btn" aria-haspopup="true" aria-expanded="false"></button>
+                    <div class="comment-react-picker" role="group" aria-label="Thả cảm xúc" hidden>
+                        ${COMMENT_REACTIONS.map(r => `<button type="button" data-reaction="${r.key}" title="${r.label}" aria-label="${r.label}">${r.emoji}</button>`).join('')}
+                    </div>
+                </div>
+                <button type="button" class="comment-action comment-reply-btn">Trả lời</button>
+                <span class="comment-reaction-summary"></span>
+            </div>
+        `;
+        if (c.rating && !c.parentId) {
+            const ratingWrap = document.createElement('div');
+            ratingWrap.className = 'comment-rating';
+            ratingWrap.appendChild(renderStars(c.rating, false));
+            item.insertBefore(ratingWrap, item.querySelector('.comment-content'));
+        }
+        paintReactions(item, c.reactions || {}, c.myReaction || null);
+
+        const reactBtn = item.querySelector('.comment-react-btn');
+        const picker = item.querySelector('.comment-react-picker');
+        const togglePicker = open => {
+            picker.hidden = !open;
+            reactBtn.setAttribute('aria-expanded', String(open));
+        };
+        // Click toggles the picker; picking a reaction again removes it (handled by the server).
+        reactBtn.addEventListener('click', () => togglePicker(picker.hidden));
+        picker.addEventListener('click', async event => {
+            const button = event.target.closest('[data-reaction]');
+            if (!button) return;
+            togglePicker(false);
+            const res = await fetch(`/api/comments/${c.id}/reactions`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reaction: button.dataset.reaction })
+            });
+            if (!res.ok) {
+                showAlert({ title: 'Lỗi', message: 'Không thả được cảm xúc. Thử lại sau.', variant: 'error' });
+                return;
+            }
+            const data = await res.json();
+            paintReactions(item, data.reactions || {}, data.myReaction || null);
+        });
+        item.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && !picker.hidden) { togglePicker(false); reactBtn.focus(); }
+        });
+
+        item.querySelector('.comment-reply-btn').addEventListener('click', () => {
+            // A reply to a reply goes into the same thread and starts with @name, like comments under a post.
+            openReplyForm(root, c.parentId ? `@${c.displayName || 'Người dùng'} ` : '');
+        });
+        item.querySelector('.comment-delete-btn')?.addEventListener('click', async () => {
+            await fetch(`/api/comments/${c.id}?clientId=${clientId}`, { method: 'DELETE' });
+            loadComments();
+        });
+        return item;
+    }
+
+    function paintReactions(item, reactions, mine) {
+        const button = item.querySelector('.comment-react-btn');
+        const chosen = reactionOf(mine);
+        button.textContent = chosen ? `${chosen.emoji} ${chosen.label}` : '👍 Thích';
+        button.classList.toggle('is-active', Boolean(chosen));
+        item.querySelectorAll('.comment-react-picker [data-reaction]').forEach(b => {
+            b.setAttribute('aria-pressed', String(b.dataset.reaction === mine));
+        });
+        const total = Object.values(reactions).reduce((n, v) => n + Number(v || 0), 0);
+        const top = Object.entries(reactions).sort((a, b) => b[1] - a[1]).slice(0, 3)
+            .map(([key]) => reactionOf(key)?.emoji || '').join('');
+        const summary = item.querySelector('.comment-reaction-summary');
+        summary.textContent = total ? `${top} ${total}` : '';
+        summary.title = Object.entries(reactions).map(([key, n]) => `${reactionOf(key)?.label || key}: ${n}`).join(' · ');
+    }
+
+    /** Inline reply box under a thread; one open at a time. */
+    function openReplyForm(root, prefill) {
+        commentList.querySelectorAll('.comment-reply-form').forEach(form => form.remove());
+        const thread = commentList.querySelector(`.comment-item[data-comment-id="${root.id}"]`)?.closest('.comment-thread');
+        if (!thread) return;
+        const form = document.createElement('div');
+        form.className = 'comment-reply-form';
+        form.innerHTML = `
+            <textarea class="form-input" rows="2" placeholder="Trả lời ${escHtml(root.displayName || 'bình luận')}..."></textarea>
+            <div class="comment-reply-form__actions">
+                <button type="button" class="text-link comment-reply-cancel">Hủy</button>
+                <button type="button" class="button-primary btn-sm comment-reply-send"><i class="fa-solid fa-paper-plane"></i> Trả lời</button>
+            </div>
+        `;
+        thread.appendChild(form);
+        const input = form.querySelector('textarea');
+        input.value = prefill;
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+        form.querySelector('.comment-reply-cancel').addEventListener('click', () => form.remove());
+        form.querySelector('.comment-reply-send').addEventListener('click', async () => {
+            const content = input.value.trim();
+            if (!content) return;
+            const res = await fetch(`/api/videos/${videoId}/comments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ clientId, content, parentId: root.id })
+            });
+            if (!res.ok) {
+                showAlert({ title: 'Lỗi', message: 'Không thể gửi trả lời. Thử lại sau.', variant: 'error' });
+                return;
+            }
+            loadComments();
+        });
+    }
+
+    // Clicking anywhere else closes an open reaction picker.
+    document.addEventListener('click', event => {
+        if (!commentList || event.target.closest('.comment-react')) return;
+        commentList.querySelectorAll('.comment-react-picker:not([hidden])').forEach(picker => {
+            picker.hidden = true;
+            picker.previousElementSibling?.setAttribute('aria-expanded', 'false');
+        });
+    });
 
     /**
      * Ảnh đại diện người bình luận + khung avatar mua ở Cửa hàng. Khung được gắn bởi avatar-frame.js
@@ -333,15 +503,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cat = extractCategory(videoMeta);
                 if (lessonCategoryBadge) lessonCategoryBadge.innerHTML = `<i class="fa-solid fa-folder"></i> ${getCategoryLabel(cat)}`;
                 if (lessonViewsBadge) lessonViewsBadge.innerHTML = `<i class="fa-solid fa-eye"></i> ${videoMeta.viewCount || 0} lượt xem`;
+                applyAgeRating(videoMeta.minAge);
                 applyAudioMode(videoMeta);
             } else {
                 mountMediaEngine(false);
                 if (videoResponse.status === 401 || videoResponse.status === 403) {
                     const err = await videoResponse.json().catch(() => ({}));
                     const msg = err.message || err.error || 'Video riêng tư hoặc chưa xuất bản. Đăng nhập bằng tài khoản chủ sở hữu để xem.';
-                    if (typeof showAlert === 'function') {
+                    // Age-rated video: age-gate.js shows its own dialog (birth date or age notice) instead.
+                    const ageGated = window.ShadowingAgeGate?.isGateCode(err.code);
+                    if (!ageGated && typeof showAlert === 'function') {
                         await showAlert({ title: 'Không xem được video', message: msg, variant: 'error' });
-                    } else {
+                    } else if (!ageGated) {
                         console.warn(msg);
                     }
                 }
@@ -452,10 +625,11 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             div.addEventListener('click', event => {
                 if (event.target.closest('[data-action]')) return;
+                // Highlighting words to look them up (js/inline-dictionary.js) must not jump the video.
+                if (!window.getSelection().isCollapsed) return;
                 playSentence(index);
             });
             bindSubtitleActions(div, sub, index);
-            makeWordsClickable(div.querySelector('.sub-jp'));
             subtitleList.appendChild(div);
         });
         window.dispatchEvent(new CustomEvent('shadowing:subtitles-rendered'));
@@ -464,51 +638,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function formatFurigana(text) {
         return window.ShadowingSubtitleDisplay.furigana(text);
-    }
-
-    function makeWordsClickable(el) {
-        if (!el) return;
-        el.querySelectorAll('ruby').forEach(ruby => {
-            ruby.style.cursor = 'pointer';
-            ruby.addEventListener('click', e => {
-                e.stopPropagation();
-                lookupWord(ruby.childNodes[0].textContent);
-            });
-        });
-    }
-
-    async function lookupWord(word) {
-        document.querySelectorAll('.dict-popup, .dict-overlay').forEach(e => e.remove());
-        const overlay = document.createElement('div');
-        overlay.className = 'dict-overlay';
-        overlay.onclick = () => { overlay.remove(); popup.remove(); };
-        document.body.appendChild(overlay);
-
-        const popup = document.createElement('div');
-        popup.className = 'dict-popup';
-        popup.style.top = '50%';
-        popup.style.left = '50%';
-        popup.style.transform = 'translate(-50%, -50%)';
-        popup.innerHTML = '<p>Đang tra...</p>';
-        document.body.appendChild(popup);
-
-        try {
-            const res = await fetch(`/api/dictionary?q=${encodeURIComponent(word)}`);
-            const data = await res.json();
-            let html = `<h4>${word}</h4>`;
-            if (data.results?.length) {
-                data.results.forEach(r => {
-                    html += `<div class="reading">${r.reading || r.word}</div><ul>`;
-                    (r.meanings || []).slice(0, 3).forEach(m => html += `<li>${m}</li>`);
-                    html += '</ul>';
-                });
-            } else {
-                html += '<p class="caption">Không tìm thấy.</p>';
-            }
-            popup.innerHTML = html;
-        } catch {
-            popup.innerHTML = '<p>Lỗi tra từ.</p>';
-        }
     }
 
     furiganaToggleBtn.addEventListener('click', () => {
@@ -776,7 +905,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentActiveIndex !== index) return;
             viewerJapanese.innerHTML = formatFurigana(sub.furigana || sub.text);
             viewerTranslation.textContent = sub.translation || '';
-            makeWordsClickable(viewerJapanese);
             viewerJapanese.classList.remove('viewer-fade');
             viewerTranslation.classList.remove('viewer-fade');
             fitSubtitleViewer();

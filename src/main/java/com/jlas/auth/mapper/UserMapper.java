@@ -41,6 +41,7 @@ public class UserMapper {
                 .avatar(user.getAvatarUrl())
                 .phoneNumber(user.getPhoneNumber())
                 .gender(user.getGender())
+                .dateOfBirth(user.getDateOfBirth())
                 .loginType(user.getLoginType())
                 .googleLinked(user.getGoogleId() != null && !user.getGoogleId().isBlank())
                 .hasPassword(user.getPasswordHash() != null && !user.getPasswordHash().isBlank())

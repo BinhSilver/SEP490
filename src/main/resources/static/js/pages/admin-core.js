@@ -22,18 +22,19 @@
       { key: 'content-jlpt', label: 'Đề thi JLPT', icon: 'fa-file-pen', href: '/admin/jlpt', roles: ['CONTENT_CREATOR'] },
       { key: 'content-kanji-map', label: 'Lược đồ Kanji', icon: 'fa-diagram-project', href: '/admin/kanji-map', roles: ['CONTENT_CREATOR'] }
     ] },
-    { title: 'Quản trị hệ thống', items: [
+    { title: 'Quản lý tài khoản', items: [
       { key: 'system-users', label: 'Người dùng', icon: 'fa-users', href: '/admin/system/users', roles: SYSTEM },
+      { key: 'system-audit', label: 'Nhật ký quản trị', icon: 'fa-clipboard-list', href: '/admin/system/audit', roles: SYSTEM }
+    ] },
+    { title: 'Kinh doanh', items: [
       { key: 'system-plans', label: 'Gói Premium', icon: 'fa-crown', href: '/admin/system/plans', roles: SYSTEM },
       { key: 'system-coupons', label: 'Mã giảm giá', icon: 'fa-tags', href: '/admin/system/coupons', roles: SYSTEM },
       { key: 'system-credit-packages', label: 'Gói CP', icon: 'fa-coins', href: '/admin/system/credit-packages', roles: SYSTEM },
-      { key: 'system-payments', label: 'Thanh toán', icon: 'fa-receipt', href: '/admin/system/payments', roles: SYSTEM },
-      { key: 'system-audit', label: 'Nhật ký quản trị', icon: 'fa-clipboard-list', href: '/admin/system/audit', roles: SYSTEM }
+      { key: 'system-payments', label: 'Thanh toán', icon: 'fa-receipt', href: '/admin/system/payments', roles: SYSTEM }
     ] },
     { title: 'Trò chơi', items: [
       { key: 'game-skins', label: 'Trang phục game', icon: 'fa-shirt', href: '/admin/game-skins', roles: ADMINS },
-      { key: 'avatar-frames', label: 'Khung avatar', icon: 'fa-crown', href: '/admin/avatar-frames', roles: ADMINS },
-      { key: 'game-effects', label: 'Xem hiệu ứng game', icon: 'fa-gamepad', href: '/admin/game-effects', roles: MODERATION }
+      { key: 'avatar-frames', label: 'Khung avatar', icon: 'fa-crown', href: '/admin/avatar-frames', roles: ADMINS }
     ] },
     { title: 'Kiểm duyệt', items: [
       { key: 'reports', label: 'Báo cáo nội dung', icon: 'fa-flag', href: '/admin/moderation/reports', roles: MODERATION, badge: 'pendingReports' },
@@ -263,6 +264,149 @@
     });
   }
 
+  /**
+   * Collapses a toolbar's <select> filters behind one "Lọc" button with a popover of chip
+   * choices (single-select per group) — same UX as the Shadowing library filter. The real
+   * <select> elements stay in the DOM (hidden) as the source of truth, so a section's existing
+   * reads and handlers keep working. Chips are a draft until "Áp dụng": inside a <form> it submits
+   * the form; in a plain toolbar it writes the selects and fires their 'change' events.
+   */
+  function filterPopover(container) {
+    var isForm = container.tagName === 'FORM';
+    // Selects become chip groups; elements marked data-in-filter="Legend" (date ranges, id inputs…) move into the popup as-is.
+    var items = Array.prototype.filter.call(container.querySelectorAll('select, [data-in-filter]'), function (el) {
+      return el.hasAttribute('data-in-filter') || !el.closest('[data-in-filter]');
+    });
+    if (!items.length) return null;
+    var toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'adm-filter-toggle';
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.innerHTML = '<i class="fa-solid fa-sliders" aria-hidden="true"></i><span>Lọc</span>' +
+      '<span class="adm-filter-count" hidden></span>';
+    var panel = document.createElement('div');
+    panel.className = 'adm-filter-panel';
+    panel.hidden = true;
+    panel.innerHTML = '<div class="adm-filter-panel__head"><strong>Lọc</strong>' +
+      '<button type="button" class="adm-filter-reset">Đặt lại</button>' +
+      '<button type="button" class="adm-filter-close" aria-label="Đóng bộ lọc"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>';
+    var count = toggle.querySelector('.adm-filter-count');
+    var wrap = document.createElement('div');
+    wrap.className = 'adm-filter';
+    wrap.appendChild(toggle);
+    wrap.appendChild(panel);
+    items[0].parentNode.insertBefore(wrap, items[0]);
+    var groups = [], fields = [];
+    items.forEach(function (el) {
+      var fieldset = document.createElement('fieldset');
+      var legend = document.createElement('legend');
+      fieldset.appendChild(legend);
+      panel.appendChild(fieldset);
+      if (el.tagName !== 'SELECT' || el.hasAttribute('data-in-filter')) {
+        legend.textContent = el.getAttribute('data-in-filter');
+        fieldset.className = 'adm-filter-field';
+        fieldset.appendChild(el);
+        var inner = el.matches('input, select') ? [el] : Array.prototype.slice.call(el.querySelectorAll('input, select'));
+        inner.forEach(function (input) { fields.push({ input: input, defaultValue: input.value }); });
+        return;
+      }
+      var select = el;
+      select.hidden = true;
+      select.tabIndex = -1;
+      legend.textContent = select.getAttribute('aria-label') || select.name;
+      var choices = document.createElement('div');
+      choices.className = 'adm-filter-choices';
+      var radioName = 'adm-filter-' + (++filterSeq);
+      var inputs = Array.prototype.map.call(select.options, function (option) {
+        var label = document.createElement('label');
+        var input = document.createElement('input');
+        input.type = 'radio';
+        input.name = radioName;
+        input.value = option.value;
+        var text = document.createElement('span');
+        text.textContent = option.textContent;
+        label.appendChild(input);
+        label.appendChild(text);
+        choices.appendChild(label);
+        return input;
+      });
+      fieldset.appendChild(choices);
+      groups.push({ select: select, inputs: inputs, defaultValue: select.value });
+    });
+    var footer = document.createElement('div');
+    footer.className = 'adm-filter-panel__foot';
+    var apply = document.createElement('button');
+    apply.type = isForm ? 'submit' : 'button';
+    apply.className = 'btn btn--primary btn--sm';
+    apply.textContent = 'Áp dụng';
+    footer.appendChild(apply);
+    panel.appendChild(footer);
+
+    // Chips show the applied values again; unapplied picks are dropped.
+    function paint() {
+      groups.forEach(function (g) {
+        g.inputs.forEach(function (input) { input.checked = input.value === g.select.value; });
+      });
+    }
+    function sync() {
+      var active = groups.filter(function (g) { return g.select.value !== g.defaultValue; }).length +
+        fields.filter(function (f) { return f.input.value !== f.defaultValue; }).length;
+      count.textContent = String(active);
+      count.hidden = active === 0;
+      toggle.setAttribute('aria-label', active ? 'Lọc, ' + active + ' điều kiện đang áp dụng' : 'Lọc');
+    }
+    /** Writes the picked chips into the selects; returns the selects whose value changed. */
+    function commit() {
+      var changed = [];
+      groups.forEach(function (g) {
+        var picked = g.inputs.filter(function (input) { return input.checked; })[0];
+        if (picked && picked.value !== g.select.value) { g.select.value = picked.value; changed.push(g.select); }
+      });
+      sync();
+      return changed;
+    }
+    function close(restoreFocus) {
+      panel.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+      paint();
+      if (restoreFocus) toggle.focus();
+    }
+    toggle.addEventListener('click', function () {
+      if (!panel.hidden) { close(false); return; }
+      paint();
+      panel.hidden = false;
+      toggle.setAttribute('aria-expanded', 'true');
+    });
+    panel.querySelector('.adm-filter-close').addEventListener('click', function () { close(true); });
+    // "Đặt lại" only resets the draft; the user still confirms with "Áp dụng".
+    panel.querySelector('.adm-filter-reset').addEventListener('click', function () {
+      groups.forEach(function (g) {
+        g.inputs.forEach(function (input) { input.checked = input.value === g.defaultValue; });
+      });
+      fields.forEach(function (f) { f.input.value = f.defaultValue; });
+    });
+    if (isForm) {
+      // Capture phase: the selects must hold the picked values before the section's own submit handler reads them.
+      container.addEventListener('submit', function () { commit(); close(false); }, true);
+    } else {
+      apply.addEventListener('click', function () {
+        commit().forEach(function (select) { select.dispatchEvent(new Event('change', { bubbles: true })); });
+        close(true);
+      });
+    }
+    document.addEventListener('pointerdown', function (event) {
+      if (!panel.hidden && !panel.contains(event.target) && !toggle.contains(event.target)) close(false);
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !panel.hidden) close(true);
+    });
+
+    paint();
+    sync();
+    return { sync: function () { paint(); sync(); } };
+  }
+  var filterSeq = 0;
+
   function empty(icon, title, text) {
     return '<div class="adm-empty"><i class="fa-solid ' + icon + '" aria-hidden="true"></i><strong>' + esc(title) +
       '</strong>' + (text ? '<span>' + esc(text) + '</span>' : '') + '</div>';
@@ -322,6 +466,7 @@
     digitsOnly: digitsOnly,
     empty: empty,
     loading: loading,
+    filterPopover: filterPopover,
     sanctionOptions: sanctionOptions,
     parseSanction: parseSanction,
     sanctionLabel: sanctionLabel,

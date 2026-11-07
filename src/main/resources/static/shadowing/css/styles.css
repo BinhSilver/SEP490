@@ -2725,35 +2725,6 @@ rt {
 .form-select { appearance: auto; }
 .form-actions { display: flex; gap: var(--space-sm); justify-content: flex-end; margin-top: var(--space-lg); }
 
-/* Dictionary */
-.dict-popup {
-    position: fixed;
-    z-index: 2000;
-    background: var(--color-card);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-xl);
-    padding: var(--space-lg);
-    max-width: 360px;
-    box-shadow: var(--shadow-card-hover);
-}
-
-.dict-popup h4 {
-    margin: 0 0 var(--space-sm);
-    font-size: 18px;
-    font-weight: 700;
-}
-
-.dict-popup .reading { color: var(--color-text-secondary); font-size: 14px; }
-.dict-popup ul { margin: var(--space-sm) 0 0; padding-left: 18px; font-size: 14px; }
-
-.dict-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1999;
-    background: rgba(17, 24, 39, 0.18);
-    backdrop-filter: blur(2px);
-}
-
 /* Confirm modal */
 body.confirm-modal-open { overflow: hidden; }
 
@@ -3739,6 +3710,25 @@ body.confirm-modal-open { overflow: hidden; }
     color: var(--color-text);
 }
 
+/* Threads: replies sit indented under their comment; reactions and "Trả lời" under each comment. */
+.comment-thread { display: flex; flex-direction: column; gap: var(--space-sm); }
+.comment-replies { display: flex; flex-direction: column; gap: var(--space-sm); margin-left: 28px; padding-left: var(--space-md); border-left: 2px solid var(--color-divider); }
+.comment-replies:empty { display: none; }
+.comment-item--reply { padding: var(--space-sm) var(--space-md); }
+.comment-actions { display: flex; align-items: center; gap: var(--space-md); margin-top: var(--space-xs); flex-wrap: wrap; }
+.comment-action { padding: 2px 0; border: 0; background: none; color: var(--color-text-secondary); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.comment-action:hover, .comment-action.is-active { color: var(--color-primary); }
+.comment-react { position: relative; }
+.comment-react-picker { position: absolute; bottom: calc(100% + 6px); left: -6px; z-index: 5; display: flex; gap: 2px; padding: 4px 6px; background: var(--color-card); border: 1px solid var(--color-divider); border-radius: 999px; box-shadow: 0 6px 20px rgba(0, 0, 0, .15); }
+.comment-react-picker[hidden] { display: none; }
+.comment-react-picker button { width: 34px; height: 34px; border: 0; border-radius: 50%; background: none; font-size: 20px; line-height: 1; cursor: pointer; transition: transform .15s ease; }
+.comment-react-picker button:hover, .comment-react-picker button:focus-visible { transform: scale(1.25); }
+.comment-react-picker button[aria-pressed="true"] { background: var(--color-primary-soft); }
+.comment-reaction-summary { margin-left: auto; color: var(--color-text-secondary); font-size: 13px; }
+.comment-reply-form { margin-left: 28px; padding-left: var(--space-md); display: flex; flex-direction: column; gap: var(--space-xs); }
+.comment-reply-form textarea { resize: vertical; min-height: 56px; }
+.comment-reply-form__actions { display: flex; justify-content: flex-end; align-items: center; gap: var(--space-md); }
+
 /* =============================================================================
    MEDIA ENGINE — <video> ngoài layout visual (mặc định ẩn cho đến khi mount video)
    ============================================================================= */
@@ -4027,28 +4017,28 @@ textarea.is-invalid {
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
 html[data-theme="dark"] {
-  --dm-shadowing-bg: #0b1017;
-  --dm-shadowing-surface: #141c27;
-  --dm-shadowing-raised: #222e3b;
-  --dm-shadowing-ink: #f8fafc;
-  --dm-shadowing-muted: #b4c3d3;
-  --dm-shadowing-line: #405468;
-  --dm-shadowing-accent: #c084fc;
-  --dm-shadowing-action: #7335a6;
-  --dm-shadowing-accent-soft: #28223c;
-  --dm-shadowing-on-accent: #211b34;
-  --dm-shadowing-success: #8eddb6;
-  --dm-shadowing-success-bg: #1b3d32;
-  --dm-shadowing-success-line: #43816b;
-  --dm-shadowing-danger: #ffb4bd;
-  --dm-shadowing-danger-bg: #452832;
-  --dm-shadowing-danger-line: #96616d;
-  --dm-shadowing-warning: #f3d28a;
-  --dm-shadowing-warning-bg: #403522;
-  --dm-shadowing-warning-line: #947a46;
-  --dm-shadowing-pink: #f4aed2;
-  --dm-shadowing-pink-bg: #432d40;
-  --dm-shadowing-pink-line: #88637b;
+  --dm-shadowing-bg: var(--dark-bg);
+  --dm-shadowing-surface: var(--dark-surface);
+  --dm-shadowing-raised: var(--dark-raised);
+  --dm-shadowing-ink: var(--dark-ink);
+  --dm-shadowing-muted: var(--dark-muted);
+  --dm-shadowing-line: var(--dark-line);
+  --dm-shadowing-accent: var(--dark-accent);
+  --dm-shadowing-action: var(--dark-button);
+  --dm-shadowing-accent-soft: var(--dark-soft);
+  --dm-shadowing-on-accent: var(--dark-on-button);
+  --dm-shadowing-success: var(--dark-success);
+  --dm-shadowing-success-bg: var(--dark-success-bg);
+  --dm-shadowing-success-line: var(--dark-success-line);
+  --dm-shadowing-danger: var(--dark-danger);
+  --dm-shadowing-danger-bg: var(--dark-danger-bg);
+  --dm-shadowing-danger-line: var(--dark-danger-line);
+  --dm-shadowing-warning: var(--dark-warning);
+  --dm-shadowing-warning-bg: var(--dark-warning-bg);
+  --dm-shadowing-warning-line: var(--dark-warning-line);
+  --dm-shadowing-pink: var(--dark-pink);
+  --dm-shadowing-pink-bg: var(--dark-pink-bg);
+  --dm-shadowing-pink-line: var(--dark-pink-line);
 }
 html[data-theme="dark"] {
     --color-bg: var(--dm-shadowing-bg);
@@ -4425,7 +4415,7 @@ html[data-theme="dark"] .editor-layout.audio-mode .video-container::before {
 html[data-theme="dark"] .form-input.is-invalid,
 html[data-theme="dark"] input.is-invalid,
 html[data-theme="dark"] textarea.is-invalid {
-    border-color: var(--dm-shadowing-danger-line) !important;
+    border-color: var(--dark-input-line) !important;
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.30) !important
 }
 html[data-theme="dark"] .btn-recording {
@@ -4458,3 +4448,34 @@ html[data-theme="dark"] .btn-recording {
 .badge-genre { background: transparent; color: var(--color-text-secondary); box-shadow: inset 0 0 0 1px var(--color-border); }
 .video-card-genres { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .video-card-genres .badge { white-space: nowrap; }
+
+/* "Lịch sử" tab: one heading per day of visits and a clear-all button; newest visit first. */
+.video-grid > .history-day {
+    grid-column: 1 / -1;
+    margin: 8px 0 -4px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+.video-grid > .history-day:first-child { margin-top: 0; }
+.history-clear-btn {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: start;
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px 14px;
+    color: inherit;
+    background: transparent;
+    border: 1px solid currentColor;
+    border-radius: 10px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: .8;
+    cursor: pointer;
+}
+.history-clear-btn[hidden] { display: none; }
+.history-clear-btn:hover { color: var(--red); opacity: 1; }

@@ -11,6 +11,8 @@
   'use strict';
   var popup;
   var requestNumber = 0;
+  // "Không hỏi lại hôm nay" (js/components/cp-auto-pay.js).
+  var AUTO_PAY = 'quickLookup';
 
   function escapeHtml(value) {
     return String(value == null ? '' : value).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -73,8 +75,39 @@
     var response = window.JlasAuth && window.JlasAuth.authFetch
       ? await window.JlasAuth.authFetch(url, options || {}) : await fetch(url, options || {});
     var payload = await response.json();
-    if (!response.ok || !payload.success) throw new Error(payload.message || 'Không thể tra từ lúc này.');
+    if (!response.ok || !payload.success) {
+      var error = new Error(payload.message || 'Không thể tra từ lúc này.');
+      error.code = payload.code;
+      throw error;
+    }
     return payload.data;
+  }
+
+  /**
+   * Hết lượt tra từ nhanh: báo trước số CP sẽ trừ và số dư sau khi mua, hoặc số CP còn thiếu.
+   * {@code allowance} is GET /api/dictionary/inline/allowance.
+   */
+  function paywallMarkup(allowance) {
+    var price = allowance.packPrice;
+    var balance = allowance.creditBalance;
+    var enough = balance >= price;
+    var detail = enough
+      ? 'Mua ' + allowance.packLookups + ' lượt tra: <strong>' + price + ' CP</strong>. Số dư: ' + balance + ' CP → ' + (balance - price) + ' CP.'
+      : 'Mua ' + allowance.packLookups + ' lượt tra cần ' + price + ' CP. Bạn có ' + balance + ' CP, còn thiếu <strong>' + (price - balance) + ' CP</strong>.';
+    var buy = enough
+      ? '<button type="button" data-inline-buy>Mua ' + allowance.packLookups + ' lượt (' + price + ' CP)</button>'
+      : '<a href="/credits">Nạp CP</a>';
+    var auto = typeof window !== 'undefined' ? window.JlasCpAutoPay : null;
+    var capNote = auto && auto.capReached(AUTO_PAY)
+      ? '<p class="inline-dict__hint">Đã tự dùng đủ ' + auto.DAILY_CAP + ' CP hôm nay nên cần xác nhận lại.</p>' : '';
+    var autoOption = auto && enough
+      ? '<label class="inline-dict__auto"><input type="checkbox" data-inline-auto> Không hỏi lại hôm nay (tự mua khi hết lượt, tối đa '
+        + auto.DAILY_CAP + ' CP/ngày)</label>' : '';
+    return '<div class="inline-dict__paywall"><strong>Bạn đã hết lượt tra từ nhanh</strong><p>' + detail + '</p>' + capNote +
+      '<p class="inline-dict__hint">Tài khoản Pro tra từ không giới hạn. Tra lại một từ trong cùng ngày không tốn lượt.</p></div>' +
+      autoOption +
+      '<div class="inline-dict__actions">' + buy + '<a href="/premium">Nâng cấp Pro</a></div>' +
+      '<p class="inline-dict__status" role="status" aria-live="polite"></p>';
   }
 
   function ensurePopup() {
@@ -89,6 +122,8 @@
     popup.tabIndex = -1;
     document.body.appendChild(popup);
     popup.addEventListener('click', function (event) {
+      var buyButton = event.target.closest('[data-inline-buy]');
+      if (buyButton) { buyPack(buyButton); return; }
       var notebookButton = event.target.closest('[data-inline-notebook-open]');
       if (notebookButton) { openNotebooks(notebookButton); return; }
       var save = event.target.closest('[data-inline-save]');
@@ -253,11 +288,88 @@
     var panel = ensurePopup();
     if (matchMedia('(max-width: 640px)').matches) { panel.style.left = ''; panel.style.top = ''; return; }
     var left = Math.min(window.innerWidth - 340, Math.max(12, rect.left + rect.width / 2 - 160));
-    var top = rect.bottom + 10;
+    // Below the selection when it fits, otherwise above it (e.g. Shadowing subtitles near the bottom);
+    // if neither side fits, keep the whole panel on screen.
+    var height = panel.offsetHeight, margin = 12, gap = 10;
+    var top = rect.bottom + gap;
+    if (top + height > window.innerHeight - margin) {
+      top = rect.top - gap - height >= margin ? rect.top - gap - height
+        : Math.max(margin, window.innerHeight - margin - height);
+    }
     panel.style.left = left + 'px'; panel.style.top = top + 'px';
   }
 
   function close() { if (popup) popup.hidden = true; }
+
+  // The text and place of the lookup that hit the paywall, retried after buying a pack.
+  var pendingLookup = null;
+
+  function showPanel(markup, rect) {
+    var panel = ensurePopup();
+    // In native fullscreen (Shadowing focus mode) only the fullscreen element renders.
+    var host = document.fullscreenElement || document.body;
+    if (panel.parentNode !== host) host.appendChild(panel);
+    panel.innerHTML = markup; panel.hidden = false; position(rect);
+    panel.focus({ preventScroll: true });
+    return panel;
+  }
+
+  async function lookupText(text, rect, chargeNote) {
+    var current = ++requestNumber;
+    try {
+      var word = await request('/api/dictionary/inline?q=' + encodeURIComponent(text));
+      if (current !== requestNumber) return;
+      var panel = showPanel(popupMarkup(word), rect);
+      var saveButton = panel.querySelector('[data-inline-save]');
+      saveButton.serverSaved = word.saved === true;
+      if (chargeNote) panel.querySelector('.inline-dict__status').textContent = chargeNote;
+    } catch (error) {
+      if (current !== requestNumber || error.code !== 'QUICK_LOOKUP_EXHAUSTED') { close(); return; }
+      var auto = window.JlasCpAutoPay;
+      if (!chargeNote && auto && auto.covers(AUTO_PAY)) {
+        try {
+          var pack = await request('/api/dictionary/inline/pack', { method: 'POST' });
+          auto.add(AUTO_PAY, pack.packPrice);
+          var paid = auto.state(AUTO_PAY);
+          await lookupText(text, rect, '−' + pack.packPrice + ' CP: đã tự mua ' + pack.packLookups
+            + ' lượt tra (tự dùng hôm nay: ' + paid.spent + '/' + paid.cap + ' CP)');
+          return;
+        } catch (buyError) {
+          // Không đủ CP: tắt tự mua và hiện bảng mua để báo số còn thiếu.
+          auto.disable(AUTO_PAY);
+        }
+      }
+      try {
+        var allowance = await request('/api/dictionary/inline/allowance');
+        if (current !== requestNumber) return;
+        pendingLookup = { text: text, rect: rect };
+        showPanel(paywallMarkup(allowance), rect);
+      } catch (ignored) { close(); }
+    }
+  }
+
+  async function buyPack(button) {
+    var status = popup.querySelector('.inline-dict__status');
+    var autoBox = popup.querySelector('[data-inline-auto]');
+    var auto = window.JlasCpAutoPay;
+    button.disabled = true;
+    try {
+      var pack = await request('/api/dictionary/inline/pack', { method: 'POST' });
+      if (auto) {
+        if (autoBox && autoBox.checked) {
+          auto.enable(AUTO_PAY, pack.packPrice);
+          auto.add(AUTO_PAY, pack.packPrice);
+        } else {
+          auto.disable(AUTO_PAY);
+        }
+      }
+      if (pendingLookup) await lookupText(pendingLookup.text, pendingLookup.rect);
+      pendingLookup = null;
+    } catch (error) {
+      button.disabled = false;
+      if (status) status.textContent = error.message;
+    }
+  }
 
   async function lookupSelection() {
     var selection = window.getSelection && window.getSelection();
@@ -265,20 +377,7 @@
     var text = normalizeSelection(rangeText(selection.getRangeAt(0)));
     var node = selection.anchorNode && (selection.anchorNode.nodeType === 3 ? selection.anchorNode.parentElement : selection.anchorNode);
     if (!isEligibleNode(node, text)) return;
-    var rect = selection.getRangeAt(0).getBoundingClientRect();
-    var current = ++requestNumber;
-    try {
-      var word = await request('/api/dictionary/inline?q=' + encodeURIComponent(text));
-      if (current !== requestNumber) return;
-      var panel = ensurePopup();
-      // In native fullscreen (Shadowing focus mode) only the fullscreen element renders.
-      var host = document.fullscreenElement || document.body;
-      if (panel.parentNode !== host) host.appendChild(panel);
-      panel.innerHTML = popupMarkup(word); panel.hidden = false; position(rect);
-      var saveButton = panel.querySelector('[data-inline-save]');
-      saveButton.serverSaved = word.saved === true;
-      panel.focus({ preventScroll: true });
-    } catch (error) { close(); }
+    await lookupText(text, selection.getRangeAt(0).getBoundingClientRect());
   }
 
   // Clicks and keys inside the popup (e.g. "Lưu từ") must not look the still-selected text up again:
@@ -302,5 +401,5 @@
   }
 
   return { escapeHtml: escapeHtml, normalizeSelection: normalizeSelection, rangeText: rangeText, isEligibleNode: isEligibleNode,
-    popupMarkup: popupMarkup, saveButtonMarkup: saveButtonMarkup, syncSaved: syncSaved, setSaved: setSaved, mount: mount };
+    popupMarkup: popupMarkup, paywallMarkup: paywallMarkup, saveButtonMarkup: saveButtonMarkup, syncSaved: syncSaved, setSaved: setSaved, mount: mount };
 });

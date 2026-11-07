@@ -1,5 +1,6 @@
 package com.jlas.shadowing.repository;
 
+import com.jlas.common.history.ViewHistoryRepository;
 import com.jlas.shadowing.dto.LibraryPageDto;
 import com.jlas.shadowing.dto.SeriesSummaryDto;
 import com.jlas.shadowing.util.LibraryFilters;
@@ -78,9 +79,17 @@ public class ShadowingLibraryCatalog {
         Set<Long> favoriteIds = favorites && userId != null ? new HashSet<>(jdbc.queryForList(
                 "SELECT video_id FROM video_user_state WHERE user_id=? AND is_favorite=1", Long.class, userId)) : Set.of();
         Set<String> categories = LibraryFilters.values(category), levels = LibraryFilters.values(level);
+        // Lịch sử: video đã mở và vẫn xem được (công khai hoặc của mình), lần mở gần nhất trước.
+        boolean history = "history".equals(scope);
+        Map<Long, LocalDateTime> viewed = history && userId != null
+                ? new ViewHistoryRepository(jdbc).recent(userId, ViewHistoryRepository.Item.SHADOWING_VIDEO) : Map.of();
+        Comparator<Entry> order = history
+                ? Comparator.comparing((Entry v) -> viewed.get(v.id()), Comparator.reverseOrder())
+                : order(sort, Entry::metrics, Entry::duration, Entry::title, Entry::createdAt, Entry::id, catalog.caps());
         List<Entry> filtered = catalog.entries().stream()
                 .filter(v -> !com.jlas.shadowing.util.ShadowingModerationState.isRemoved(v.moderation()))
-                .filter(v -> "my".equals(scope) ? userId != null && Objects.equals(userId, v.ownerId())
+                .filter(v -> history ? viewed.containsKey(v.id()) && (v.publicReady() || Objects.equals(userId, v.ownerId()))
+                        : "my".equals(scope) ? userId != null && Objects.equals(userId, v.ownerId())
                         : "all".equals(scope) ? v.publicReady() || userId != null && Objects.equals(userId, v.ownerId()) : v.publicReady())
                 .filter(v -> status == null || status.isBlank() || status.equals(v.status()))
                 .filter(v -> matches == null || matches.contains(v.id()))
@@ -88,7 +97,7 @@ public class ShadowingLibraryCatalog {
                 .filter(v -> categories.isEmpty() || v.tags().stream().anyMatch(t -> categories.contains(t.toLowerCase(Locale.ROOT))))
                 .filter(v -> v.genres().containsAll(genres))
                 .filter(v -> levels.isEmpty() || v.level() != null && levels.contains(v.level().toLowerCase(Locale.ROOT)))
-                .sorted(order(sort, Entry::metrics, Entry::duration, Entry::title, Entry::createdAt, Entry::id, catalog.caps()))
+                .sorted(order)
                 .toList();
         return LibraryPageDto.from(filtered, page, size);
     }

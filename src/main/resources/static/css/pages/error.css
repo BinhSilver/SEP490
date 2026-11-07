@@ -1,3 +1,4 @@
+@import url("../controls.css");
 .error-page {
             display: grid;
             min-height: 100vh;
@@ -36,14 +37,14 @@
 
 /* Error/forbidden pages own their dark surface and guide bubble. */
 html[data-theme="dark"] .error-page {
-  --error-bg: #0b0d13;
-  --error-surface: #12151f;
-  --error-raised: #1e2332;
-  --error-ink: #f8fafc;
-  --error-muted: #b2bfd2;
-  --error-line: #394155;
-  --error-accent: #c084fc;
-  --error-action: #7335a6;
+  --error-bg: var(--dark-bg);
+  --error-surface: var(--dark-surface);
+  --error-raised: var(--dark-raised);
+  --error-ink: var(--dark-ink);
+  --error-muted: var(--dark-muted);
+  --error-line: var(--dark-line);
+  --error-accent: var(--dark-accent);
+  --error-action: var(--dark-button);
   --jlab-base-page-background: var(--error-bg);
   background: var(--error-bg);
   color: var(--error-ink);
@@ -53,5 +54,5 @@ html[data-theme="dark"] .error-card__code { color:var(--error-accent); }
 html[data-theme="dark"] #errorKitsuGuide .kitsu-guide__bubble { background:var(--error-raised); color:var(--error-ink); border-color:var(--error-line); }
 html[data-theme="dark"] #errorKitsuGuide .kitsu-guide__title { color:var(--error-accent); }
 html[data-theme="dark"] .error-card p { color:var(--error-muted); }
-html[data-theme="dark"] .error-card .btn--primary { color:var(--error-ink)!important; background:var(--error-action)!important; }
+html[data-theme="dark"] .error-card .btn--primary { color:var(--dark-on-button)!important; background:var(--error-action)!important; }
 html[data-theme="dark"] .error-card .btn--ghost { color:var(--error-muted)!important; }

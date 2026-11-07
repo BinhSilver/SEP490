@@ -2,7 +2,14 @@
 
 Tài liệu này dành cho thành viên nhận source code từ Git và cần một database
 có đầy đủ dữ liệu Dictionary/Kanji để phát triển hoặc kiểm thử các chức năng
-khác. Không cần chạy lại quá trình import JMdict kéo dài khoảng 40 phút.
+khác. Dữ liệu là **từ điển Nhật-Việt** (Mazii, 278.131 từ có âm Hán Việt) và
+13.033 Kanji có âm Hán Việt/nghĩa tiếng Việt. Không cần chạy lại các bước import
+trong `docs/dictionary-import.md`.
+
+> **Đã từng nạp bản Nhật-Anh cũ (snapshot `JLAS2-19-2026-09-16`)?** Database
+> `jlas_dictionary_test` cũ không khớp snapshot mới nên bootstrap sẽ báo
+> `dictionary database is partially populated`. Chạy một lần với `--replace`
+> (xem mục 12) để xóa và nạp lại bản Nhật-Việt.
 
 ## 0. Chạy nhanh sau khi `git pull`
 
@@ -22,9 +29,9 @@ $env:DB_PASSWORD = '<mật khẩu MySQL local>'
 .\.venv\Scripts\python.exe scripts/dictionary_import/seed_bootstrap.py
 ```
 
-Lệnh cuối cùng, `seed_bootstrap.py`, là file duy nhất cần chạy. Hai file
-`data/dictionary-seed/jlas-dictionary-test-seed-20260916.sql.gz` và
-`data/dictionary-seed/kanjivg-r20250816.zip` chỉ là **dữ liệu đầu vào** mà
+Lệnh cuối cùng, `seed_bootstrap.py`, là file duy nhất cần chạy. Các file
+`data/dictionary-seed/jlas-dictionary-test-seed-20261016.sql.gz`,
+`data/dictionary-seed/kanjivg-r20250816.zip` và `data/dictionary-seed/stroke-order-extra.zip` chỉ là **dữ liệu đầu vào** mà
 script này tự đọc, tự verify checksum, tự giải nén và tự import — không tự tay
 `mysql < ...` file `.sql.gz`, không tự giải nén file `.zip` bằng tay. Ba dòng
 đầu (`python -m venv`, `pip install`) chỉ cần làm một lần trên mỗi máy; các
@@ -40,8 +47,8 @@ bước, cách kiểm tra và xử lý lỗi nằm ở các mục bên dưới.
 Sau khi làm hết các bước, máy local sẽ có:
 
 - Database MySQL `jlas_dictionary_test`.
-- 109 bảng và 4 view của ứng dụng.
-- Dữ liệu đầy đủ của 16 bảng Dictionary/Kanji.
+- 111 bảng và 4 view của ứng dụng.
+- Dữ liệu đầy đủ của 18 bảng Dictionary/Kanji (gồm cả dữ liệu tra Kanji theo bộ thủ).
 - 11.661 file KanjiVG SVG tại
   `src/main/resources/static/assets/kanjivg/kanji`.
 - Không có dữ liệu tài khoản, hồ sơ người dùng, tiến trình học hoặc dữ liệu
@@ -52,12 +59,13 @@ các chức năng cần dữ liệu Kanji và từ vựng.
 
 ## 2. Dữ liệu được phân phối như thế nào
 
-Repository chứa hai artifact thông qua Git LFS:
+Repository chứa ba artifact thông qua Git LFS:
 
 | Artifact | Nội dung | Kích thước mong đợi |
 |---|---|---:|
-| `data/dictionary-seed/jlas-dictionary-test-seed-20260916.sql.gz` | Schema ứng dụng và dữ liệu của 16 bảng Dictionary/Kanji | 45.488.556 byte |
+| `data/dictionary-seed/jlas-dictionary-test-seed-20261016.sql.gz` | Schema ứng dụng và dữ liệu của 18 bảng Dictionary/Kanji | 37.374.389 byte |
 | `data/dictionary-seed/kanjivg-r20250816.zip` | 11.661 file KanjiVG SVG | 22.803.150 byte |
+| `data/dictionary-seed/stroke-order-extra.zip` | SVG thứ tự nét cho 113 Kanji hiếm KanjiVG không có | 157.108 byte |
 
 Thông tin checksum, phiên bản nguồn và số dòng mong đợi nằm trong
 `data/dictionary-seed/manifest.json`.
@@ -97,7 +105,7 @@ Nếu chưa clone repository:
 git lfs install
 git clone https://github.com/BinhSilver/SEP490.git
 cd SEP490
-git checkout feat/JLAS2-19-dictionary-kanji-base-data-import-log
+git checkout feat/JLAS2-34-dictionary-search
 git lfs pull
 ```
 
@@ -106,12 +114,12 @@ Nếu đã clone repository:
 ```powershell
 git lfs install
 git fetch origin
-git checkout feat/JLAS2-19-dictionary-kanji-base-data-import-log
-git pull origin feat/JLAS2-19-dictionary-kanji-base-data-import-log
+git checkout feat/JLAS2-34-dictionary-search
+git pull origin feat/JLAS2-34-dictionary-search
 git lfs pull
 ```
 
-Kiểm tra Git LFS đã tải đủ hai artifact:
+Kiểm tra Git LFS đã tải đủ ba artifact:
 
 ```powershell
 git lfs ls-files
@@ -120,8 +128,9 @@ git lfs ls-files
 Kết quả phải chứa:
 
 ```text
-data/dictionary-seed/jlas-dictionary-test-seed-20260916.sql.gz
+data/dictionary-seed/jlas-dictionary-test-seed-20261016.sql.gz
 data/dictionary-seed/kanjivg-r20250816.zip
+data/dictionary-seed/stroke-order-extra.zip
 ```
 
 ## 5. Kiểm tra file tải về
@@ -129,14 +138,14 @@ data/dictionary-seed/kanjivg-r20250816.zip
 ### 5.1. Kiểm tra kích thước
 
 ```powershell
-(Get-Item 'data/dictionary-seed/jlas-dictionary-test-seed-20260916.sql.gz').Length
+(Get-Item 'data/dictionary-seed/jlas-dictionary-test-seed-20261016.sql.gz').Length
 (Get-Item 'data/dictionary-seed/kanjivg-r20250816.zip').Length
 ```
 
 Kết quả mong đợi:
 
 ```text
-45488556
+37374389
 22803150
 ```
 
@@ -151,7 +160,7 @@ git lfs pull
 
 ```powershell
 Get-FileHash `
-  'data/dictionary-seed/jlas-dictionary-test-seed-20260916.sql.gz' `
+  'data/dictionary-seed/jlas-dictionary-test-seed-20261016.sql.gz' `
   -Algorithm SHA256
 
 Get-FileHash `
@@ -162,7 +171,7 @@ Get-FileHash `
 Checksum mong đợi:
 
 ```text
-SQL:     28F4F1EDFAB533684956380338C41C8FAE7A4993893802B39B6D90E43EC430A2
+SQL:     ABEED9B0F70A0071ED92C4A0DD391EFFF39A6B0D6DF9EC9672781AADDFB9173F
 KanjiVG: 0BC52E07D13F74F74753CDB63E8991381352CFC59C33504A35E2B7C1EACF98D2
 ```
 
@@ -221,9 +230,10 @@ Kết quả thành công có dạng:
 {
   "status": "INSTALLED",
   "database": "jlas_dictionary_test",
-  "snapshot": "JLAS2-19-2026-09-16",
+  "snapshot": "JLAS2-34-ja-vi-2026-10-16",
   "dictionary_tables": 16,
   "kanjivg_files": 11661,
+  "stroke_order_extra_files": 115,
   "asset_target": ".../src/main/resources/static/assets/kanjivg"
 }
 ```
@@ -231,8 +241,8 @@ Kết quả thành công có dạng:
 Chỉ khi toàn bộ kiểm tra sau thành công, bootstrap mới trả `INSTALLED`:
 
 - Hai artifact đúng kích thước và SHA-256.
-- Database có đúng 113 schema object: 109 bảng và 4 view.
-- 16 bảng Dictionary/Kanji có đúng số dòng trong manifest.
+- Database có đúng 115 schema object: 111 bảng và 4 view.
+- 18 bảng Dictionary/Kanji có đúng số dòng trong manifest.
 - Các bảng nghiệp vụ ngoài Dictionary/Kanji có 0 dòng.
 - KanjiVG có đúng 11.661 SVG và không chứa đường dẫn ZIP không an toàn.
 
@@ -280,22 +290,24 @@ Kết quả mong đợi:
 
 | Bảng | Số dòng |
 |---|---:|
-| `dictionary_source` | 3 |
-| `dictionary_import_batch` | 6 |
-| `radical` | 198 |
-| `kanji` | 2.136 |
-| `kanji_reading` | 9.207 |
-| `vocabulary_entry` | 216.403 |
-| `vocabulary_external_reference` | 218.779 |
-| `vocabulary_reading` | 35.884 |
-| `vocabulary_variant` | 54.832 |
-| `vocabulary_sense` | 672.010 |
-| `vocabulary_gloss` | 1.444.700 |
-| `dictionary_part_of_speech` | 83 |
-| `sense_part_of_speech` | 916.717 |
-| `dictionary_domain` | 96 |
-| `sense_domain` | 34.481 |
-| `vocabulary_kanji` | 456.010 |
+| `dictionary_source` | 5 |
+| `dictionary_import_batch` | 17 |
+| `radical` | 214 |
+| `kanji` | 13.033 |
+| `kanji_reading` | 40.397 |
+| `vocabulary_entry` | 278.131 |
+| `vocabulary_external_reference` | 278.131 |
+| `vocabulary_reading` | 0 |
+| `vocabulary_variant` | 0 |
+| `vocabulary_sense` | 347.161 |
+| `vocabulary_gloss` | 347.161 |
+| `dictionary_part_of_speech` | 85 |
+| `sense_part_of_speech` | 237.963 |
+| `dictionary_domain` | 0 |
+| `sense_domain` | 0 |
+| `vocabulary_kanji` | 505.412 |
+| `kanji_component` | 253 |
+| `kanji_component_map` | 54.321 |
 
 Xem thử nội dung thật:
 
@@ -428,13 +440,17 @@ Kiểm tra số file:
 Kết quả phải là `11661`. Nếu thiếu, chạy lại bootstrap; quá trình thay thế cây
 asset là nguyên tử nên không để lại file cũ hoặc cây dữ liệu dở dang.
 
+Thứ tự nét của 113 Kanji hiếm mà KanjiVG không có được bootstrap giải nén từ
+`data/dictionary-seed/stroke-order-extra.zip` vào
+`src/main/resources/static/assets/stroke-order-extra`.
+
 ## 14. Lệnh cho Linux/macOS
 
 Các bước tương đương trên Bash:
 
 ```bash
 git lfs install
-git checkout feat/JLAS2-19-dictionary-kanji-base-data-import-log
+git checkout feat/JLAS2-34-dictionary-search
 git pull
 git lfs pull
 
@@ -458,9 +474,9 @@ export SPRING_DATASOURCE_PASSWORD="$DB_PASSWORD"
 
 ## 15. Checklist bàn giao
 
-- [ ] Checkout đúng nhánh `feat/JLAS2-19-dictionary-kanji-base-data-import-log`.
+- [ ] Checkout đúng nhánh `feat/JLAS2-34-dictionary-search`.
 - [ ] `git lfs pull` chạy thành công.
-- [ ] SQL gzip có kích thước 45.488.556 byte.
+- [ ] SQL gzip có kích thước 37.374.389 byte.
 - [ ] KanjiVG ZIP có kích thước 22.803.150 byte.
 - [ ] MySQL Server đang chạy.
 - [ ] Python dependencies đã được cài trong `.venv`.

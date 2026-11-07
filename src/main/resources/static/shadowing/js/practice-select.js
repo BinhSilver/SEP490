@@ -3,6 +3,8 @@
 
   const videoId = document.getElementById('practice-video-id')?.value;
   if (!videoId) return;
+  // Lịch sử: mở trang luyện một video là một lần ghé (bỏ qua khi chưa đăng nhập hay lỗi mạng).
+  fetch('/api/videos/' + encodeURIComponent(videoId) + '/visit', { method: 'POST', headers: headers() }).catch(() => {});
 
   const title = document.getElementById('practice-video-title');
   const countLabel = document.getElementById('practice-subtitle-count');

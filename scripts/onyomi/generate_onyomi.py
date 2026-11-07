@@ -7,8 +7,8 @@ The lint splits every Hán Việt syllable into initial / rhyme / final and chec
 really belongs to its rule, and that its reading has the shape the rule teaches. Questions are
 generated deterministically (fixed seed), so re-running gives the same SQL.
 
-Every question has the same shape: read an example word ("Từ 外国 (nước ngoài) đọc là gì?"), four
-readings in hiragana that differ only in the kanji the rule is about. Each lesson gets a LESSON quiz
+Every question has the same shape: read an example word from its Hán Việt ("Từ 外国 (Ngoại Quốc) đọc
+là gì?"), four readings in hiragana that differ only in the kanji the rule is about. Each lesson gets a LESSON quiz
 of these questions, one per example and exception; each unit gets a UNIT_FINAL quiz drawn from the
 LESSON quizzes of its lessons. The old compound-word quizzes ("Ghép từ", RULE_PRACTICE) are removed.
 The Onyomi section of sql/seeds/jlas_seed_all.sql is refreshed with the same SQL.
@@ -300,7 +300,53 @@ def lint(data):
             for predicted in exc.predicted:
                 if to_katakana(predicted) in {exc.kana, *exc.alt_kana}:
                     errors.append(where + ': distractor %s is a real reading' % predicted)
+    # every question shows the Hán Việt of its word, so every kanji of every word needs one
+    sources = rule_kanji(data['rules'])
+    used = set()
+    for rule in data['rules']:
+        for ex in rule['examples_'] + rule['practice_'] + rule['exceptions_']:
+            if not ex.word:
+                continue
+            where = '%s %s (%s) word %s' % (rule['code'], ex.kanji, ex.hv, ex.word)
+            used.update(ch for ch in ex.word if ch not in sources)
+            syllables = han_viet_of(ex.word, data, sources)
+            if syllables is None:
+                errors.append(where + ': no Hán Việt for %s; add it to han_viet'
+                              % ''.join(ch for ch in ex.word if ch not in sources and ch not in data.get('han_viet', {})))
+            elif len(syllables) != len(ex.word):
+                errors.append(where + ': word_han_viet %r must have one syllable per kanji' % ' '.join(syllables))
+            elif ex.kanji in ex.word and syllables[ex.word.index(ex.kanji)] != ex.hv:
+                errors.append(where + ': the word gives %s the Hán Việt %s' % (ex.kanji, syllables[ex.word.index(ex.kanji)]))
+    for ch in data.get('han_viet', {}):
+        if ch in sources:
+            errors.append('han_viet %s: already the kanji of a rule (%s); use word_han_viet for a word that reads it differently'
+                          % (ch, sources[ch].hv))
+        elif ch not in used:
+            errors.append('han_viet %s: no example word uses it' % ch)
     return errors, warnings
+
+
+def rule_kanji(rules):
+    """Each kanji the rules teach, with its entry: examples first, then exceptions, then practice kanji."""
+    sources = {}
+    for rule in rules:
+        for ex in rule['examples_']:
+            sources.setdefault(ex.kanji, ex)
+        for exc in rule['exceptions_']:
+            sources.setdefault(exc.kanji, exc)
+    for rule in rules:
+        for ex in rule['practice_']:
+            sources.setdefault(ex.kanji, ex)
+    return sources
+
+
+def han_viet_of(word, data, sources):
+    """The Hán Việt of a word, one syllable per kanji (高校 → ['Cao', 'Hiệu']): its own entry in
+    word_han_viet, else each kanji's from its rule or from han_viet. None when a kanji has neither."""
+    if word in data.get('word_han_viet', {}):
+        return data['word_han_viet'][word].split(' ')
+    syllables = [sources[ch].hv if ch in sources else data.get('han_viet', {}).get(ch) for ch in word]
+    return None if None in syllables else syllables
 
 
 # ── Questions ───────────────────────────────────────────────────────────────
@@ -417,11 +463,15 @@ def word_options(parts, index, traps, rng):
     return to_hiragana(right), options, correct
 
 
-def word_breakdown(word, parts, meaning, sources):
+def word_breakdown(word, parts, meaning, syllables):
     """外国 = 外 (Ngoại → がい) + 国 (Quốc → こく) → がいこく: nước ngoài."""
-    steps = ' + '.join('%s (%s → %s)' % (ch, sources[ch].hv, to_hiragana(part)) if ch in sources
-                       else '%s (%s)' % (ch, to_hiragana(part)) for ch, part in zip(word, parts))
+    steps = ' + '.join('%s (%s → %s)' % (ch, hv, to_hiragana(part)) for ch, hv, part in zip(word, syllables, parts))
     return '%s = %s → %s: %s.' % (word, steps, to_hiragana(''.join(parts)), meaning)
+
+
+def word_prompt(word, syllables):
+    """The question asks for the reading from the Hán Việt the rules start from, not from the meaning."""
+    return 'Từ %s (%s) đọc là gì?' % (word, ' '.join(syllables))
 
 
 def word_question(rule, ex, data, all_readings, sources, rng):
@@ -448,14 +498,15 @@ def word_question(rule, ex, data, all_readings, sources, rng):
     if built is None:
         return None
     answer, options, correct = built
-    explanation = ' '.join([word_breakdown(ex.word, parts, ex.meaning, sources),
+    syllables = han_viet_of(ex.word, data, sources)
+    explanation = ' '.join([word_breakdown(ex.word, parts, ex.meaning, syllables),
                             '%s (%s) → %s theo quy tắc %s: %s' % (ex.kanji, ex.hv, to_hiragana(ex.kana),
                                                                   rule['title'], rule['description'])] + notes)
-    text = 'Từ %s (%s) đọc là gì?' % (ex.word, ex.meaning)
+    text = word_prompt(ex.word, syllables)
     return Question(rule, ex, 'WORD', 'MEDIUM', text, answer, explanation, options, correct)
 
 
-def exception_question(rule, exc, sources, rng):
+def exception_question(rule, exc, data, sources, rng):
     """The same question for an exception's word; the wrong readings are what the rule would predict."""
     parts = word_parts(exc.word_reading)
     index = exc.word.index(exc.kanji)
@@ -465,14 +516,15 @@ def exception_question(rule, exc, sources, rng):
     if built is None:
         return None
     answer, options, correct = built
+    syllables = han_viet_of(exc.word, data, sources)
     explanation = '%s %s (%s) là ngoại lệ của quy tắc %s: %s' % (
-        word_breakdown(exc.word, parts, exc.meaning, sources), exc.kanji, exc.hv, rule['title'], exc.note)
+        word_breakdown(exc.word, parts, exc.meaning, syllables), exc.kanji, exc.hv, rule['title'], exc.note)
     fake = Example(rule, [exc.kanji, exc.hv, exc.romaji, exc.alts, exc.word, exc.word_reading, exc.meaning, 'N3'])
     # the lesson page lists a rule's exceptions straight from this context
     context = {'type': 'EXCEPTION', 'rule': rule['code'], 'kanji': exc.kanji, 'hanViet': exc.hv,
                'reading': exc.kana, 'romaji': to_romaji(exc.kana), 'note': exc.note, 'word': exc.word,
                'wordReading': answer, 'meaning': exc.meaning}
-    text = 'Từ %s (%s) đọc là gì?' % (exc.word, exc.meaning)
+    text = word_prompt(exc.word, syllables)
     return Question(rule, fake, 'EXCEPTION', 'HARD', text, answer, explanation, options, correct, context)
 
 
@@ -673,15 +725,7 @@ def build_sql(data):
     w('')
 
     # questions: one per example, exception and practice kanji, all reading an example word
-    sources = {}
-    for rule in rules:
-        for ex in rule['examples_']:
-            sources.setdefault(ex.kanji, ex)
-        for exc in rule['exceptions_']:
-            sources.setdefault(exc.kanji, exc)
-    for rule in rules:
-        for ex in rule['practice_']:
-            sources.setdefault(ex.kanji, ex)
+    sources = rule_kanji(rules)
     # the practice kanji shuffle their options with their own generator, so adding some leaves the others as they are
     practice_rng = random.Random(PRACTICE_SEED)
     questions, skipped = [], []
@@ -690,7 +734,7 @@ def build_sql(data):
             question = word_question(rule, ex, data, all_readings, sources, rng)
             (questions if question else skipped).append(question or '%s %s' % (rule['code'], ex.kanji))
         for exc in rule['exceptions_']:
-            question = exception_question(rule, exc, sources, rng)
+            question = exception_question(rule, exc, data, sources, rng)
             (questions if question else skipped).append(question or '%s %s (ngoại lệ)' % (rule['code'], exc.kanji))
     for rule in rules:
         for ex in rule['practice_']:

@@ -143,15 +143,21 @@
   });
 
   // ── Shared renderer for review_case queues (AI queue and dictionary) ────
-  function queueCard(item, extra) {
+  /** collapsible: only the header shows; a click on it reveals the rest (see bindExpand). */
+  function queueCard(item, extra, collapsible) {
     var confidence = Number.isFinite(Number(item.confidence)) ? Math.round(Number(item.confidence) * 100) + '%' : null;
-    return '<article class="adm-card" data-id="' + item.id + '" data-target="' + item.targetId + '">' +
+    var summary =
       '<div class="adm-card__head">' +
         '<span class="adm-badge">' + A.esc(A.typeLabel(item.targetType)) + '</span>' +
         (confidence ? '<span class="adm-badge adm-badge--warn">Độ tin cậy AI ' + confidence + '</span>' : '') +
         '<span class="adm-muted">#' + item.id + ' · ' + A.date(item.createdAt) + '</span>' +
       '</div>' +
-      (item.titleSnapshot ? '<h3 class="adm-card__title">' + A.esc(item.titleSnapshot) + '</h3>' : '') +
+      (item.titleSnapshot ? '<h3 class="adm-card__title">' + A.esc(item.titleSnapshot) + '</h3>' : '');
+    return '<article class="adm-card' + (collapsible ? ' adm-card--collapsible' : '') + '" data-id="' + item.id + '" data-target="' + item.targetId + '">' +
+      (collapsible
+        ? '<button type="button" class="adm-card__summary" data-expand aria-expanded="false">' + summary +
+            '<i class="fa-solid fa-chevron-down adm-card__chevron" aria-hidden="true"></i></button><div class="adm-card__body" hidden>'
+        : summary) +
       (item.contentPreview ? '<p class="adm-card__preview jp">' + A.highlighted(item.contentPreview, item.highlights) + '</p>' : '') +
       (item.summary ? '<p class="adm-muted">Lý do gắn cờ: ' + A.esc(item.summary) + '</p>' : '') +
       A.flaggedTerms(item.highlights) +
@@ -161,7 +167,21 @@
         : link(item.targetUrl, 'Xem nội dung')) + '</p>' +
       (item.targetType === 'USER_AVATAR' ? '<img class="adm-avatar-preview" alt="Ảnh đại diện đang chờ kiểm duyệt" hidden>' : '') +
       '<div class="adm-card__actions" data-actions></div>' +
+      (collapsible ? '</div>' : '') +
     '</article>';
+  }
+
+  /** Toggles collapsible cards; onFirstOpen(card) runs once per card (e.g. to load its details). */
+  function bindExpand(root, onFirstOpen) {
+    root.addEventListener('click', function (event) {
+      var toggle = event.target.closest('[data-expand]');
+      if (!toggle) return;
+      var card = toggle.closest('.adm-card');
+      var open = toggle.getAttribute('aria-expanded') !== 'true';
+      toggle.setAttribute('aria-expanded', String(open));
+      card.querySelector('.adm-card__body').hidden = !open;
+      if (open && !card.dataset.loaded) { card.dataset.loaded = '1'; onFirstOpen(card); }
+    });
   }
 
   function bindQueue(root, ctx, labels, emptyText) {
@@ -225,8 +245,9 @@
         root.innerHTML = A.empty('fa-circle-check', 'Hàng đợi trống');
         return;
       }
-      root.innerHTML = '<div class="adm-cards">' + items.map(function (i) { return queueCard(i); }).join('') + '</div>';
+      root.innerHTML = '<div class="adm-cards">' + items.map(function (i) { return queueCard(i, '', true); }).join('') + '</div>';
       root.querySelectorAll('[data-actions]').forEach(function (el) { el.innerHTML = actionButtons(QUEUE_LABELS); });
+      bindExpand(root, function () {});
       bindQueue(root, ctx, QUEUE_LABELS, 'Hàng đợi trống');
     }
   });
@@ -263,9 +284,10 @@
         return;
       }
       root.innerHTML = '<div class="adm-cards">' + items.map(function (i) {
-        return queueCard(i, '<div data-detail>' + A.loading() + '</div>');
+        return queueCard(i, '<div data-detail>' + A.loading() + '</div>', true);
       }).join('') + '</div>';
-      root.querySelectorAll('.adm-card').forEach(async function (card) {
+      // Details are fetched when a contribution is opened, not for the whole list up front.
+      bindExpand(root, async function (card) {
         var box = card.querySelector('[data-detail]');
         try {
           box.innerHTML = detailHtml(await A.api.get(API + '/dictionary/entries/' + card.dataset.target));
@@ -286,13 +308,19 @@
     render: async function (root, ctx) {
       var status = 'OPEN';
       root.innerHTML =
-        '<div class="adm-tabs" role="tablist" aria-label="Lọc trạng thái">' +
+        '<div class="adm-toolbar" data-filter-bar>' +
+          '<select class="select" data-status-filter aria-label="Trạng thái">' +
           ['OPEN', 'APPROVED', 'REJECTED', ''].map(function (s) {
-            return '<button type="button" class="adm-tab" role="tab" data-status="' + s + '" aria-selected="' + (s === status) + '">' +
-              (s ? APPEAL_STATUS[s] : 'Tất cả') + '</button>';
+            return '<option value="' + s + '"' + (s === status ? ' selected' : '') + '>' + (s ? APPEAL_STATUS[s] : 'Tất cả') + '</option>';
           }).join('') +
-        '</div><div data-list></div>';
+          '</select></div><div data-list></div>';
       var list = root.querySelector('[data-list]');
+      A.filterPopover(root.querySelector('[data-filter-bar]'));
+      bindExpand(root, function () {});
+      root.querySelector('[data-status-filter]').addEventListener('change', function (event) {
+        status = event.target.value;
+        load();
+      });
 
       async function load() {
         list.innerHTML = A.loading();
@@ -300,13 +328,14 @@
           var items = await A.api.get(API + '/appeals' + (status ? '?status=' + status : ''));
           list.innerHTML = items.length ? '<div class="adm-cards">' + items.map(function (a) {
             var open = a.status === 'OPEN';
-            return '<article class="adm-card" data-id="' + a.id + '">' +
-              '<div class="adm-card__head">' +
+            return '<article class="adm-card adm-card--collapsible" data-id="' + a.id + '">' +
+              '<button type="button" class="adm-card__summary" data-expand aria-expanded="false"><div class="adm-card__head">' +
                 '<span class="adm-badge' + (open ? ' adm-badge--warn' : a.status === 'APPROVED' ? ' adm-badge--ok' : '') + '">' +
                   A.esc(APPEAL_STATUS[a.status] || a.status) + '</span>' +
                 '<span class="adm-badge">' + A.esc(a.sanctionType === 'BAN' ? 'Khoá tài khoản' : 'Cấm bình luận') + '</span>' +
                 '<span class="adm-muted">Đơn #' + a.id + ' · Người dùng #' + (a.requesterUserId || '—') + ' · ' + A.date(a.createdAt) + '</span>' +
-              '</div>' +
+              '</div><i class="fa-solid fa-chevron-down adm-card__chevron" aria-hidden="true"></i></button>' +
+              '<div class="adm-card__body" hidden>' +
               '<p class="adm-card__preview">' + A.esc(a.reason) + '</p>' +
               (a.evidenceUrl ? '<p>' + link(a.evidenceUrl, 'Bằng chứng đính kèm') + '</p>' : '') +
               (a.evidenceFile ? '<p><button type="button" class="btn btn--secondary btn--sm" data-evidence="' + a.id +
@@ -317,6 +346,7 @@
                 '<button type="button" class="btn btn--primary btn--sm" data-approve="true"><i class="fa-solid fa-check" aria-hidden="true"></i> Chấp nhận, gỡ chế tài</button>' +
                 '<button type="button" class="btn btn--secondary btn--sm" data-approve="false"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Từ chối</button>' +
               '</div>' : '') +
+              '</div>' +
             '</article>';
           }).join('') + '</div>' : A.empty('fa-inbox', 'Không có đơn nào');
         } catch (error) {
@@ -327,13 +357,6 @@
       root.onclick = async function (event) {
         var evidence = event.target.closest('[data-evidence]');
         if (evidence) { await downloadEvidence(evidence); return; }
-        var tab = event.target.closest('.adm-tab');
-        if (tab) {
-          status = tab.dataset.status;
-          root.querySelectorAll('.adm-tab').forEach(function (t) { t.setAttribute('aria-selected', String(t === tab)); });
-          load();
-          return;
-        }
         var button = event.target.closest('[data-approve]');
         if (!button) return;
         var id = button.closest('.adm-card').dataset.id;

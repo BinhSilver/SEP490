@@ -120,6 +120,13 @@
   /** Ảnh xem trước chuyển động; không có dải ảnh cho game khác thì dùng ảnh tĩnh. */
   function art(item, gameType) {
     var renderer = item.renderCode || item.code;
+    // Gói skin tải lên: ảnh đại diện (đã là một khung, nên không dùng cách cắt atlas 4×4 của .ar-spaceship-art)
+    // trong lúc tải, rồi chuyển động idle vẽ từ chính gói.
+    if (renderer === 'PACK' && item.packPath) {
+      return '<span class="ar-character-art"><img src="' + esc(item.image) + '" alt="" loading="lazy" data-character-fallback>'
+        + '<canvas width="256" height="256" hidden data-skin-pack="' + esc(item.packPath) + '" data-skin-game="' + (gameType === 'AIR_DEFENSE' ? 'ship' : 'cat')
+        + '" role="img" aria-label="' + esc(item.name) + '"></canvas></span>';
+    }
     if (renderer === 'CUSTOM') return '<img src="' + esc(item.image) + '" alt="' + esc(item.name) + '" loading="lazy" style="width:100%;height:100%;object-fit:contain">';
     if (window.JlasCharacterSkins && window.JlasCharacterSkins.supports(renderer)) {
       return '<span class="ar-character-art' + (gameType === 'AIR_DEFENSE' ? ' ar-spaceship-art' : '') + '"><img src="' + esc(item.image) + '" alt="" loading="lazy" data-character-fallback>'
@@ -136,6 +143,13 @@
         + ' style="background-image:url(' + ANIM + esc(renderer) + '.webp)"></span>';
     }
     return '<img src="' + esc(item.image) + '" alt="' + esc(item.name) + '" loading="lazy">';
+  }
+
+  /** Nhãn bậc trên ảnh: Thường / Hiếm / Huyền thoại; trang phục mặc định ghi "Mặc định". */
+  function tierBadge(item) {
+    if (item.starter) return '<span class="ar-shop-tier ar-shop-tier--starter">Mặc định</span>';
+    if (!item.tier) return '';
+    return '<span class="ar-shop-tier ar-shop-tier--' + esc(item.tier.toLowerCase()) + '">' + esc(item.tierLabel || item.tier) + '</span>';
   }
 
   function card(item, balance, gameType) {
@@ -156,8 +170,8 @@
       price = '<span class="ar-shop-item__price"><span class="ar-coin" aria-hidden="true"></span>' + item.price + ' CP</span>';
       action = '<button type="button" class="ar-btn ar-btn--block" disabled>Cần thêm ' + (item.price - balance) + ' CP</button>';
     }
-    return '<article class="ar-shop-item' + (item.equipped ? ' is-equipped' : '') + '">'
-      + '<figure class="ar-shop-item__art">' + art(item, gameType) + '</figure>'
+    return '<article class="ar-shop-item' + (item.equipped ? ' is-equipped' : '') + (item.tier ? ' ar-shop-item--' + esc(item.tier.toLowerCase()) : '') + '">'
+      + '<figure class="ar-shop-item__art">' + tierBadge(item) + art(item, gameType) + '</figure>'
       + '<div class="ar-shop-item__body">'
       + '<h2>' + esc(item.name) + '</h2>'
       + '<p class="ar-shop-item__desc">' + esc(item.description) + '</p>'
