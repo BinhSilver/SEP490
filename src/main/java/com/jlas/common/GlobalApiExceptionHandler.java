@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -65,6 +66,14 @@ public class GlobalApiExceptionHandler {
     ResponseEntity<ApiResponse<Void>> unreadableBody(HttpMessageNotReadableException exception) {
         return ResponseEntity.badRequest()
                 .body(ApiResponse.fail("Dữ liệu gửi lên không đúng định dạng.", "MALFORMED_REQUEST", null));
+    }
+
+    /** [JLAS-W0108] E2E-014: a path/query value of the wrong type (e.g. ".../undefined/result") answers 400 in the
+     * shared envelope instead of Spring's default error body with a stack trace. */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    ResponseEntity<ApiResponse<Void>> typeMismatch(MethodArgumentTypeMismatchException exception) {
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.fail("Đường dẫn hoặc tham số không hợp lệ.", "INVALID_REQUEST", null));
     }
 
     /** File vượt spring.servlet.multipart.max-file-size / max-request-size: bị chặn trước khi tới controller. */
