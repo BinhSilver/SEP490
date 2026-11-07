@@ -155,7 +155,7 @@ const kichban = {};
 for (const g of GOALS) {
   const p = path.join(ROOT, 'data/learning-path/communication-compiled', `${g}.json`);
   compiled[g] = { buf: readFileSync(p), data: readJson(p) };
-  kichban[g] = readJson(path.join(ROOT, 'target/ai-moi-kich-ban/out', `${g}.json`));
+  kichban[g] = readJson(path.join(ROOT, 'data/learning-path/comm-aicall', `${g}.json`));
 }
 
 const expected = buildExpected();

@@ -1,7 +1,7 @@
 // [JLAS-W0108] Phase 2: communication path + AI-call scenario seed (owner 06/11).
 //
 // Reads the compiled communication content (data/learning-path/communication-compiled/<GOAL>.json), the AI-call
-// scenarios (target/ai-moi-kich-ban/out/<GOAL>.json) and the optional TTS audio manifest
+// scenarios (data/learning-path/comm-aicall/<GOAL>.json) and the optional TTS audio manifest
 // (data/learning-path/audio/comm-<GOAL>.json), then writes sql/learning/learning_data_comm.sql with two regions:
 //
 //   a. -- BEGIN GENERATED cpath ... -- END GENERATED cpath
@@ -91,7 +91,7 @@ function main() {
     const compiledPath = path.join(ROOT, 'data/learning-path/communication-compiled', `${g}.json`);
     const buf = readFileSync(compiledPath);
     goals.push({ goal: g, buf, compiled: JSON.parse(buf.toString('utf8')), seedVersion: seedVersionOf(buf) });
-    kichban.set(g, readJson(path.join(ROOT, 'target/ai-moi-kich-ban/out', `${g}.json`)));
+    kichban.set(g, readJson(path.join(ROOT, 'data/learning-path/comm-aicall', `${g}.json`)));
   }
 
   // ---- header -----------------------------------------------------------------------------
