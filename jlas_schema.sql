@@ -136,6 +136,12 @@ CREATE TABLE admin_audit_log (
     result VARCHAR(20) NOT NULL,
     changes_json TEXT NULL,
     created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    -- [JLAS2-51] Vai tro + IP luc thao tac; chuoi bam SHA-256 (row_hash noi voi prev_hash cua dong truoc).
+    -- Dong cu chua co hash (truoc migration 070) duoc coi la legacy khi kiem tra toan ven.
+    actor_role VARCHAR(50) NULL,
+    ip_address VARCHAR(64) NULL,
+    prev_hash CHAR(64) NULL,
+    row_hash CHAR(64) NULL,
     PRIMARY KEY (id),
     KEY idx_admin_audit_created (created_at),
     KEY idx_admin_audit_actor_created (actor_user_id, created_at),
@@ -144,6 +150,18 @@ CREATE TABLE admin_audit_log (
     CONSTRAINT fk_admin_audit_actor FOREIGN KEY (actor_user_id) REFERENCES users(id),
     CONSTRAINT chk_admin_audit_result CHECK (result IN ('SUCCESS','REJECTED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS2-51] Dau chuoi bam cua admin_audit_log: mot dong duy nhat, khoa moi lan ghi audit.
+-- Khong co FK toi admin_audit_log de viec xoa dong cuoi van phat hien duoc (so voi last_log_id).
+CREATE TABLE admin_audit_chain (
+    id TINYINT NOT NULL,
+    last_log_id BIGINT UNSIGNED NULL,
+    last_hash CHAR(64) NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT chk_admin_audit_chain_single CHECK (id = 1)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO admin_audit_chain (id) VALUES (1);
 
 INSERT IGNORE INTO roles (name, description) VALUES ('SUPER_ADMIN', 'System Admin');
 
