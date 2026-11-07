@@ -180,7 +180,7 @@ public class CpathRoleplayService {
             }
         }
         int choiceScore = Math.round(100f * correct / choiceTotal);
-        int speakCount = speakingScores.size();
+        int speakCount = (int) qs.stream().filter(q -> q.speaking() && speakingScores.get(q.id()) != null).count();
         int speakScore = speakCount == 0 ? 0 : Math.round((float) speakSum / speakCount);
         int score = speakCount == 0 ? choiceScore : Math.round((choiceScore + speakScore) / 2f);
         boolean passed = score >= ("topic".equals(scope) ? 80 : 70);

@@ -164,9 +164,14 @@ public class CpathController {
             throw new com.jlas.common.exception.ApiException(com.jlas.common.exception.ErrorCode.VALIDATION_FAILED,
                     "Thiếu bản ghi âm của câu nói.");
         Map<String, Integer> scores = new LinkedHashMap<>();
-        for (int i = 0; i < clips.size(); i++) {
-            JpathSpeakResult result = speak.score(user.userId(), spoken.get(i).replyJa(), clips.get(i));
-            scores.put(spoken.get(i).id(), result.pronunciation() == null ? 0 : (int) Math.round(result.pronunciation()));
+        try {
+            for (int i = 0; i < clips.size(); i++) {
+                JpathSpeakResult result = speak.score(user.userId(), spoken.get(i).replyJa(), clips.get(i));
+                if (result.pronunciation() == null) throw new IllegalStateException("Speech score unavailable");
+                scores.put(spoken.get(i).id(), (int) Math.round(result.pronunciation()));
+            }
+        } catch (RuntimeException scoringFailure) {
+            scores.clear();
         }
         return roleplay.submit(user.userId(), scope, code, answers, scores);
     }

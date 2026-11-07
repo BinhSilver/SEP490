@@ -138,8 +138,17 @@ public class CpathService {
         int daily = num(req.get("dailySituations")) == 2 ? 2 : 1;
         List<Object> rest = req.get("restDays") instanceof List<?> l ? (List<Object>) l : List.of();
         Object finish = req.get("finishDate");
+        List<Long> resumable = db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' AND goal_code = ? AND status IN ('ACTIVE','PAUSED') ORDER BY CASE WHEN status = 'ACTIVE' THEN 0 ELSE 1 END, id DESC LIMIT 1", Long.class, userId, goal);
+        if (!resumable.isEmpty()) {
+            Long resumeId = resumable.get(0);
+            db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE' AND id <> ?", userId, resumeId);
+            db.update("UPDATE cpath_user_path SET status = 'ACTIVE', self_level = ?, priority_topics_json = COALESCE(?, priority_topics_json), daily_situations = COALESCE(?, daily_situations), rest_days = COALESCE(?, rest_days), finish_date = COALESCE(?, finish_date) WHERE id = ?", level, req.containsKey("priorityTopics") ? json(req.get("priorityTopics")) : null, req.containsKey("dailySituations") ? daily : null, req.containsKey("restDays") ? String.join(",", rest.stream().map(String::valueOf).toList()) : null, finish == null || finish.toString().isBlank() ? null : finish.toString(), resumeId);
+            return Map.of("pathId", resumeId, "role", "MAIN");
+        }
         Long main = mainPathId(userId);
-        String role = main == null ? "MAIN" : "SECONDARY";
+        String requestedRole = str(req.get("role"));
+        String role = "SECONDARY".equals(requestedRole) && main != null ? "SECONDARY" : "MAIN";
+        if ("MAIN".equals(role)) db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE'", userId);
         if (main != null) {
             // a second goal replaces the earlier secondary one (owner 06/11: one main + one secondary)
             db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'SECONDARY' AND status = 'ACTIVE'", userId);
@@ -258,6 +267,7 @@ public class CpathService {
             m.put("titleVi", s.get("title_vi"));
             m.put("titleJa", s.get("title_ja"));
             m.put("topicCode", s.get("topic_code"));
+            m.put("topicName", s.get("topic_name"));
             m.put("status", done(prog.get(s.get("code"))) ? "DONE" : "TODAY");
             out.add(m);
         }
@@ -496,6 +506,7 @@ public class CpathService {
             w.put("audioUrl", url(rs.getString("audio_path")));
             return w;
         }, topic));
+        m.put("vocab", m.get("words"));
         m.put("phrases", db.query("SELECT * FROM cpath_item WHERE kind = 'PHRASE' AND situation_code = ? ORDER BY sort_order", (rs, i) -> {
             Map<String, Object> w = new LinkedHashMap<>();
             w.put("id", rs.getString("code"));
@@ -605,6 +616,7 @@ public class CpathService {
         for (String x : STEPS) steps.put(x.toLowerCase(Locale.ROOT), doneSteps.contains(x));
         out.put("steps", steps);
         out.put("situationDone", all);
+        out.put("speakBest", "SPEAK".equals(st) ? verifiedSituationSpeak(pathId, code) : null);
         out.put("cp", cp);
         return out;
     }
@@ -614,8 +626,7 @@ public class CpathService {
                 + "FROM cpath_line l LEFT JOIN cpath_user_weak_speech w ON w.path_id = ? "
                 + "AND w.line_id = CONCAT(l.situation_code, '-L', l.line_order) "
                 + "WHERE l.situation_code = ? AND l.learner = 1", pathId, situation);
-        int total = num(row.get("total"));
-        if (total == 0 || num(row.get("scored")) != total || row.get("mean_score") == null) return null;
+        if (num(row.get("scored")) == 0 || row.get("mean_score") == null) return null;
         return Math.round(((Number) row.get("mean_score")).floatValue());
     }
 
@@ -718,7 +729,7 @@ public class CpathService {
         long finished = rows.stream().filter(r -> r.get("done_at") != null
                 && day.equals(dateOf(r.get("done_at")))).count();
         boolean dayDone = !rows.isEmpty() && rows.stream().allMatch(r -> r.get("done_at") != null);
-        return Map.of("day", day.toString(), "situations", situations, "scores", scores,
+        return Map.of("day", day.toString(), "today", clock.today(userId).toString(), "situations", situations, "scores", scores,
                 "cp", (int) finished * SITUATION_CP + (dayDone && finished > 0 ? DAY_CP : 0));
     }
 

@@ -17,7 +17,8 @@ public class LegacyLearningRedirectController {
             "/learning/path/gate-quiz", "/learning/path/flashcard-quiz",
             "/learning/v2/vocabulary", "/learning/v2/kanji", "/learning/v2/foundation", "/learning/v2/grammar",
             "/learning/v2/dialogue", "/learning/v2/reading", "/learning/v2/listening", "/learning/v2/certificate",
-            "/learning/warm-up/flashcard", "/learning/stages/{stageId}/complete", "/learning/stages/{stageId}/final-quiz",
+            "/learning/warm-up", "/learning/warm-up/flashcard", "/learning/stages/{stageId}", "/learning/stages/{stageId}/complete",
+            "/learning/stages/{stageId}/final-quiz",
             "/learning/certificate/{pathId}", "/learning/goals/{goalCode}/survey"})
     public String toLearning() {
         return LEARNING;
