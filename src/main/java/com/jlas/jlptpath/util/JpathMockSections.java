@@ -7,7 +7,7 @@ import java.util.Locale;
 /**
  * [JLAS-W0108] Policy #43 — maps a Mock exam part code ({@code JlptExamResponse.Part.code()}, the key of
  * {@code JlptMockResultResponse.sections()}) to a path section, case-insensitively, and gives the advice for a weak section.
- * Real codes on jlas_mirai (Plan 3 Task 1): {@code vocabulary}, {@code grammar_reading}, {@code listening}.
+ * Real codes in the content database (Plan 3 Task 1): {@code vocabulary}, {@code grammar_reading}, {@code listening}.
  */
 public final class JpathMockSections {
 
