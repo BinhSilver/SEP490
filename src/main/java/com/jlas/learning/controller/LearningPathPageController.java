@@ -38,7 +38,9 @@ public class LearningPathPageController {
             @RequestParam(required = false) String discrepancyChoice,
             @RequestParam(required = false) String kanaKnown,
             @RequestParam(required = false) String entryChoice) {
-        if (jpathEntryRouter.route(userId(principal)) != JpathEntryRoute.LEGACY) {
+        JpathEntryRoute route = jpathEntryRouter.route(userId(principal));
+        if (route == JpathEntryRoute.COMM) return "redirect:/learning/comm";
+        if (route != JpathEntryRoute.LEGACY) {
             // [JLAS-W0108] The JLPT path confirms a Smart Test result on its own entry page.
             return assessmentAttemptId == null ? "redirect:/learning"
                     : "redirect:/learning/jlpt/confirm?source=SMART_TEST&assessmentAttemptId=" + assessmentAttemptId;
@@ -64,7 +66,9 @@ public class LearningPathPageController {
 
     @GetMapping("/learning/path/v2")
     public String interactiveLearningPath(@AuthenticationPrincipal UserPrincipal principal, Model model) {
-        if (jpathEntryRouter.route(userId(principal)) == JpathEntryRoute.JPATH_PAGE) return "redirect:/learning";
+        JpathEntryRoute route = jpathEntryRouter.route(userId(principal));
+        if (route == JpathEntryRoute.COMM) return "redirect:/learning/comm";
+        if (route == JpathEntryRoute.JPATH_PAGE) return "redirect:/learning";
         model.addAttribute("layoutMode", "app");
         return "learning/interactive-path";
     }

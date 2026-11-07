@@ -6,6 +6,8 @@ public enum JpathEntryRoute {
     JPATH_PAGE,
     /** JLPT goal but no ACTIVE path (none, paused or archived only): go to the entry flow. */
     JPATH_START,
+    /** Communication goal (BA, TRAVEL, DAILY_LIFE) with {@code learning.comm-path.enabled}: the communication path. */
+    COMM,
     /** Flag off, no survey or another goal: keep the old learning path. */
     LEGACY
 }

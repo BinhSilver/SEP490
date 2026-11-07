@@ -19,6 +19,10 @@ public class JpathEntryRouterImpl implements JpathEntryRouter {
     private final JpathFeature feature;
     private final JpathUserPathRepository paths;
     private final UserLearningSurveyRepository surveys;
+    /** [JLAS-W0108] Owner 07/11: with the communication path on, its goals never fall back to the old path. */
+    @org.springframework.beans.factory.annotation.Value("${learning.comm-path.enabled:false}")
+    private boolean commPathEnabled;
+    private static final java.util.Set<String> COMM_GOALS = java.util.Set.of("BA", "TRAVEL", "DAILY_LIFE", "WORK");
 
     public JpathEntryRouterImpl(JpathFeature feature, JpathUserPathRepository paths,
             UserLearningSurveyRepository surveys) {
@@ -30,12 +34,15 @@ public class JpathEntryRouterImpl implements JpathEntryRouter {
     @Override
     @Transactional(readOnly = true)
     public JpathEntryRoute route(Long userId) {
-        if (userId == null || !feature.enabled()) {
+        if (userId == null || (!feature.enabled() && !commPathEnabled)) {
             return JpathEntryRoute.LEGACY;
         }
-        boolean jlptGoal = surveys.findById(userId).map(UserLearningSurvey::getGoal)
-                .map(goal -> JLPT_GOAL.equalsIgnoreCase(goal.trim())).orElse(false);
-        if (!jlptGoal) {
+        String goal = surveys.findById(userId).map(UserLearningSurvey::getGoal)
+                .map(g -> g.trim().toUpperCase(java.util.Locale.ROOT)).orElse(null);
+        if (commPathEnabled && goal != null && COMM_GOALS.contains(goal)) {
+            return JpathEntryRoute.COMM;
+        }
+        if (!feature.enabled() || !JLPT_GOAL.equals(goal)) {
             return JpathEntryRoute.LEGACY;
         }
         return paths.existsByUserIdAndStatus(userId, JpathPathStatus.ACTIVE)

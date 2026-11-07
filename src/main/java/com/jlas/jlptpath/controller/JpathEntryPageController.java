@@ -30,6 +30,8 @@ public class JpathEntryPageController {
         switch (router.route(user == null ? null : user.userId())) {
             case JPATH_START:
                 return "redirect:/learning/jlpt/start";
+            case COMM:
+                return "redirect:/learning/comm";
             case JPATH_PAGE:
                 model.addAttribute("layoutMode", "app");
                 model.addAttribute("jpathTab", tabOrNull(tab));
