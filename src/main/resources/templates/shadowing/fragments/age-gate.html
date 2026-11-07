@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Mở bởi /shadowing/js/age-gate.js khi video có nhãn độ tuổi mà tài khoản chưa có ngày sinh hoặc chưa đủ tuổi. -->
+<dialog th:fragment="dialog(videoId)" id="age-gate-dialog" class="age-gate-dialog" tabindex="-1" th:attr="data-video-id=${videoId}"
+        aria-labelledby="age-gate-title" aria-describedby="age-gate-description">
+    <div class="age-gate-mascot" aria-hidden="true">
+        <img src="/images/mascots/kitsu/kitsu-thinking-30.webp" width="160" height="160" alt="">
+    </div>
+    <h2 id="age-gate-title">Video có giới hạn độ tuổi</h2>
+    <p id="age-gate-description" hidden></p>
+    <form id="age-gate-form" class="age-gate-form" novalidate hidden>
+        <label for="age-gate-birth">Ngày sinh</label>
+        <input id="age-gate-birth" type="date" min="1900-01-01" required autocomplete="bday"
+               aria-describedby="age-gate-error">
+        <p id="age-gate-error" class="age-gate-error" aria-live="polite"></p>
+    </form>
+    <div class="age-gate-actions">
+        <a href="/shadowing" class="age-gate-back">Hủy</a>
+        <button type="submit" form="age-gate-form" class="age-gate-submit" hidden>Xác nhận</button>
+    </div>
+</dialog>
+</body>
+</html>

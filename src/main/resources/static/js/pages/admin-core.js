@@ -21,7 +21,9 @@
     { title: 'Quản lý nội dung', items: [
       { key: 'content-textbooks', label: 'Giáo trình và bài học', icon: 'fa-book-open', href: '/textbooks/manage', roles: ['CONTENT_CREATOR'] },
       { key: 'content-jlpt', label: 'Đề thi JLPT', icon: 'fa-file-pen', href: '/admin/jlpt', roles: ['CONTENT_CREATOR'] },
-      { key: 'content-jpath-reports', label: 'Báo sai lộ trình', icon: 'fa-flag', href: '/admin/learning-path/reports', roles: ['CONTENT_CREATOR', 'ADMIN'] }
+      { key: 'content-jpath-reports', label: 'Báo sai lộ trình', icon: 'fa-flag', href: '/admin/learning-path/reports', roles: ['CONTENT_CREATOR', 'ADMIN'] },
+      { key: 'content-verb-practice', label: 'Luyện chia động từ', icon: 'fa-language', href: '/admin/verb-practice', roles: ['CONTENT_CREATOR'] },
+      { key: 'content-kanji-map', label: 'Lược đồ Kanji', icon: 'fa-diagram-project', href: '/admin/kanji-map', roles: ['CONTENT_CREATOR'] }
     ] },
     { title: 'Quản lý tài khoản', items: [
       { key: 'system-users', label: 'Người dùng', icon: 'fa-users', href: '/admin/system/users', roles: SYSTEM },

@@ -12,10 +12,13 @@ public final class ShopDtos {
     }
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
-    /** {@code packPath}: thư mục gói skin (khi renderCode = PACK); {@code weaponTheme}: bộ vũ khí máy bay mượn. */
+    /**
+     * {@code packPath}: thư mục gói skin (khi renderCode = PACK); {@code weaponTheme}: bộ vũ khí máy bay mượn.
+     * {@code tier} / {@code tierLabel}: bậc COMMON / RARE / LEGENDARY và tên hiển thị (Thường / Hiếm / Huyền thoại).
+     */
     public record ShopItemView(String code, String name, String description, int price, String image,
                                boolean starter, boolean owned, boolean equipped, long id, String renderCode,
-                               String packPath, String weaponTheme) {
+                               String packPath, String weaponTheme, String tier, String tierLabel) {
     }
 
     @JsonInclude(JsonInclude.Include.ALWAYS)

@@ -182,13 +182,15 @@ aicall:
   runtime:
     ttl-minutes: ${AICALL_RUNTIME_TTL_MINUTES:120}
     max-sessions: ${AICALL_RUNTIME_MAX_SESSIONS:10000}
-  # Con số tạm, giữ cấu hình được cho tới khi team chốt. premium-monthly-minutes = 0 là không giới hạn.
+  # Kế hoạch Pro/CP (doc-huy/ke-hoach-kinh-doanh-pro-cp-huy.md, mục 2): 1 lượt = 0,2 phút, hết hạn mức 10 CP/lượt.
+  # Trần tháng giữ chi phí AI tối đa không quá nửa giá gói. premium-monthly-minutes = 0 là không giới hạn.
   quota:
-    free-daily-minutes: ${AICALL_FREE_DAILY_MINUTES:5}
-    free-monthly-minutes: ${AICALL_FREE_MONTHLY_MINUTES:300}
-    premium-daily-minutes: ${AICALL_PREMIUM_DAILY_MINUTES:30}
-    premium-monthly-minutes: ${AICALL_PREMIUM_MONTHLY_MINUTES:0}
+    free-daily-minutes: ${AICALL_FREE_DAILY_MINUTES:3}
+    free-monthly-minutes: ${AICALL_FREE_MONTHLY_MINUTES:15}
+    premium-daily-minutes: ${AICALL_PREMIUM_DAILY_MINUTES:10}
+    premium-monthly-minutes: ${AICALL_PREMIUM_MONTHLY_MINUTES:40}
     minutes-per-turn: ${AICALL_MINUTES_PER_TURN:0.2}
+    credit-per-turn: ${AICALL_CREDIT_PER_TURN:10}
 
 azure:
   speech:

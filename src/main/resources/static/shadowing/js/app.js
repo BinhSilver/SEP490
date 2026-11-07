@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!videoIdInput) return;
 
     const videoId = videoIdInput.value;
+    // Lịch sử: mở trình phát một video là một lần ghé (bỏ qua khi chưa đăng nhập hay lỗi mạng).
+    fetch('/api/videos/' + encodeURIComponent(videoId) + '/visit', { method: 'POST', headers: headers() }).catch(() => {});
     const playerContainer = document.getElementById('player-container');
     const video = document.getElementById('main-video');
     const subtitleList = document.getElementById('subtitle-list');
@@ -25,6 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const lessonDurationBadge = document.getElementById('lesson-duration-badge');
     const lessonCategoryBadge = document.getElementById('lesson-category-badge');
     const lessonViewsBadge = document.getElementById('lesson-views-badge');
+    const lessonAgeBadge = document.getElementById('lesson-age-badge');
+    const ageRatingSelect = document.getElementById('age-rating-select');
+    const ageRatingStatus = document.getElementById('age-rating-status');
     const transcriptCount = document.getElementById('transcript-count');
     const favoriteBtn = document.getElementById('favorite-btn');
     const shareBtn = document.getElementById('share-btn');
@@ -54,6 +59,41 @@ document.addEventListener('DOMContentLoaded', () => {
             ? `/api/videos/${videoId}/stream?access_token=${encodeURIComponent(t)}`
             : `/api/videos/${videoId}/stream`;
     }
+
+    /** Age badge for everyone; the picker exists only for the owner and moderators (canRateAge). */
+    function applyAgeRating(minAge) {
+        const age = Number(minAge) || 0;
+        if (lessonAgeBadge) {
+            lessonAgeBadge.hidden = !age;
+            lessonAgeBadge.textContent = age ? age + '+' : '';
+            lessonAgeBadge.title = age ? `Dành cho người từ ${age} tuổi trở lên` : '';
+        }
+        if (ageRatingSelect) {
+            ageRatingSelect.value = String(age);
+            ageRatingSelect.dataset.saved = String(age);
+        }
+    }
+
+    ageRatingSelect?.addEventListener('change', async () => {
+        ageRatingSelect.disabled = true;
+        ageRatingStatus.textContent = 'Đang lưu…';
+        try {
+            const res = await fetch(`/api/videos/${videoId}/age-rating`, {
+                method: 'PUT',
+                headers: headers(),
+                body: JSON.stringify({ minAge: Number(ageRatingSelect.value) })
+            });
+            const body = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(body.message || body.error || 'Chưa lưu được nhãn độ tuổi.');
+            applyAgeRating(body.minAge);
+            ageRatingStatus.textContent = 'Đã lưu';
+        } catch (e) {
+            ageRatingSelect.value = ageRatingSelect.dataset.saved || '0';
+            ageRatingStatus.textContent = e.message;
+        } finally {
+            ageRatingSelect.disabled = false;
+        }
+    });
 
     let videoMeta = null;
     let isFavorited = false;
@@ -463,15 +503,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cat = extractCategory(videoMeta);
                 if (lessonCategoryBadge) lessonCategoryBadge.innerHTML = `<i class="fa-solid fa-folder"></i> ${getCategoryLabel(cat)}`;
                 if (lessonViewsBadge) lessonViewsBadge.innerHTML = `<i class="fa-solid fa-eye"></i> ${videoMeta.viewCount || 0} lượt xem`;
+                applyAgeRating(videoMeta.minAge);
                 applyAudioMode(videoMeta);
             } else {
                 mountMediaEngine(false);
                 if (videoResponse.status === 401 || videoResponse.status === 403) {
                     const err = await videoResponse.json().catch(() => ({}));
                     const msg = err.message || err.error || 'Video riêng tư hoặc chưa xuất bản. Đăng nhập bằng tài khoản chủ sở hữu để xem.';
-                    if (typeof showAlert === 'function') {
+                    // Age-rated video: age-gate.js shows its own dialog (birth date or age notice) instead.
+                    const ageGated = window.ShadowingAgeGate?.isGateCode(err.code);
+                    if (!ageGated && typeof showAlert === 'function') {
                         await showAlert({ title: 'Không xem được video', message: msg, variant: 'error' });
-                    } else {
+                    } else if (!ageGated) {
                         console.warn(msg);
                     }
                 }

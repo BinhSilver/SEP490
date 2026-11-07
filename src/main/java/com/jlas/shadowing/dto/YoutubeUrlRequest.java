@@ -11,4 +11,6 @@ public class YoutubeUrlRequest {
     private String targetLanguage;
     /** When false (default), skip AI furigana to speed up long imports. */
     private Boolean generateFurigana;
+    /** Age rating 13, 16 or 18; 0 or null = all ages. Never lower than YouTube's own age restriction. */
+    private Integer minAge;
 }

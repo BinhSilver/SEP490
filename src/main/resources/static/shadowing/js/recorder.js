@@ -720,6 +720,34 @@
     setDetailsVisible(card, addToHistory !== false);
   }
 
+  // "Không hỏi lại hôm nay" on the CP popup (js/components/cp-auto-pay.js).
+  const AUTO_PAY = 'pronunciation';
+  function autoPayCovers() {
+    return !!window.JlasCpAutoPay && window.JlasCpAutoPay.covers(AUTO_PAY);
+  }
+
+  async function confirmCreditCheck() {
+    let quota = {};
+    try {
+      const response = await fetch('/api/pronunciation/quota', { headers: authHeaders() });
+      if (response.ok) quota = await response.json();
+    } catch (ignored) { /* the popup still shows the price */ }
+    const price = quota.creditPrice || 5;
+    if (!window.JlasCpConfirm) return { confirmed: false, option: false, price: price };
+    const auto = window.JlasCpAutoPay;
+    const choice = await window.JlasCpConfirm.open({
+      title: 'Hết lượt chấm miễn phí hôm nay',
+      message: (auto && auto.capReached(AUTO_PAY) ? 'Đã tự dùng đủ ' + auto.DAILY_CAP + ' CP hôm nay nên cần xác nhận lại. ' : '')
+        + 'Bạn đã dùng ' + (quota.usedToday != null ? quota.usedToday : '') + '/' + (quota.dailyLimit || '')
+        + ' lượt chấm hôm nay. Chấm câu này bằng CP?',
+      cost: price,
+      balance: quota.creditBalance,
+      confirmLabel: 'Chấm bằng ' + price + ' CP',
+      option: auto ? 'Không hỏi lại hôm nay (tự dùng CP, tối đa ' + auto.DAILY_CAP + ' CP/ngày)' : ''
+    });
+    return Object.assign(choice, { price: price });
+  }
+
   async function assess(card) {
     const state = stateFor(card);
     if (state.assessing) return state.assessing;
@@ -756,17 +784,43 @@
     const controller = new AbortController();
     const requestTimeout = setTimeout(() => controller.abort(), 60000);
     try {
-      const form = new FormData();
-      const extension = state.blob.type.includes('ogg') ? 'ogg' : state.blob.type.includes('mp4') ? 'm4a' : 'webm';
-      form.append('subtitleId', String(state.context.subtitleId));
-      form.append('audio', state.blob, 'shadowing-recording.' + extension);
-      const response = await fetch('/api/pronunciation/assess', {
-        method: 'POST',
-        headers: authHeaders(),
-        body: form,
-        signal: controller.signal
-      });
-      const result = await response.json().catch(() => ({}));
+      const send = function (useCredit) {
+        const form = new FormData();
+        const extension = state.blob.type.includes('ogg') ? 'ogg' : state.blob.type.includes('mp4') ? 'm4a' : 'webm';
+        form.append('subtitleId', String(state.context.subtitleId));
+        form.append('audio', state.blob, 'shadowing-recording.' + extension);
+        if (useCredit) form.append('useCredit', 'true');
+        return fetch('/api/pronunciation/assess', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: form,
+          signal: controller.signal
+        });
+      };
+      let response = await send(autoPayCovers());
+      let result = await response.json().catch(() => ({}));
+      // Hết lượt chấm miễn phí hôm nay: báo trước số CP rồi mới chấm bằng CP.
+      if (response.status === 402 && result.code === 'PRONUNCIATION_QUOTA_EXCEEDED') {
+        const choice = await confirmCreditCheck();
+        if (!choice.confirmed) {
+          if (scoreButton) {
+            scoreButton.disabled = false;
+            scoreButton.textContent = 'Chấm';
+          }
+          const message = result.message || 'Bạn đã hết lượt chấm phát âm miễn phí hôm nay';
+          setStatus(card, message);
+          return { status: 'error', message };
+        }
+        if (window.JlasCpAutoPay) {
+          if (choice.option) window.JlasCpAutoPay.enable(AUTO_PAY, choice.price);
+          else window.JlasCpAutoPay.disable(AUTO_PAY);
+        }
+        response = await send(true);
+        result = await response.json().catch(() => ({}));
+      }
+      if (response.status === 402 && result.code === 'INSUFFICIENT_CREDIT' && window.JlasCpAutoPay) {
+        window.JlasCpAutoPay.disable(AUTO_PAY);
+      }
       if (!response.ok) {
         console.error('[Pronunciation] assessment request failed', {
           subtitleId: state.context.subtitleId,
@@ -776,7 +830,9 @@
         throw new Error(result.message || result.error || ('Chấm phát âm thất bại (HTTP ' + response.status + ')'));
       }
       renderAttempt(card, result);
-      setStatus(card, 'Đã chấm xong câu #' + state.context.sentenceNumber);
+      if (result.creditCharged > 0 && window.JlasCpAutoPay) window.JlasCpAutoPay.add(AUTO_PAY, result.creditCharged);
+      setStatus(card, 'Đã chấm xong câu #' + state.context.sentenceNumber
+        + (result.creditCharged > 0 ? ' · −' + result.creditCharged + ' CP' : ''));
       return { status: 'completed', attempt: result };
     } catch (error) {
       console.error('[Pronunciation] assessment failed', {

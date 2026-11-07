@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: standard('Quản lý luyện chia động từ - JLAS', 'verb-practice-admin')}"></head>
-<body id="jlabBasePage" class="app-body verb-admin-body">
-<div id="jlabBaseShellMount"></div>
-<main id="jlabBaseContent" class="verb-admin">
+<head th:replace="~{fragments/admin-head :: head('Quản lý luyện chia động từ - JLAS', 'verb-practice-admin')}"></head>
+<body id="jlabBasePage" class="admin-portal verb-admin-body">
+<div id="adminShellMount"></div>
+<main id="jlabBaseContent" class="verb-admin" hidden>
     <header class="verb-admin__hero">
         <div><span class="verb-admin__eyebrow">NGƯỜI BIÊN SOẠN · KHO NỘI DUNG</span><h1>Luyện chia động từ</h1><p>Biên tập động từ và câu ngữ cảnh đang dùng trong các vòng luyện tập.</p></div>
         <div class="verb-admin__actions"><button id="reloadButton" class="verb-button is-light" type="button">Tải lại</button><button id="saveButton" class="verb-button is-primary" type="button" disabled>Lưu thay đổi</button></div>
@@ -38,5 +38,7 @@
 </div><footer><button id="deleteContext" class="verb-button is-danger" type="button" hidden>Xóa câu</button><span></span><button class="verb-button is-light" type="button" data-close>Hủy</button><button class="verb-button is-primary" type="submit">Hoàn tất</button></footer></form></dialog>
 <dialog id="confirmDialog" class="verb-confirm"><form method="dialog"><img src="/images/kitsu.png" alt="Linh vật Kitsu"/><h2 id="confirmTitle">Xác nhận xóa</h2><p id="confirmText"></p><footer><button class="verb-button is-light" value="cancel">Quay lại</button><button id="confirmDelete" class="verb-button is-danger" value="confirm">Xóa</button></footer></form></dialog>
 <div id="adminToast" class="verb-toast" role="status" aria-live="polite" hidden></div>
-<script th:src="@{/js/jlab-base-shell.js?v=7}"></script><script th:src="@{/js/pages/verb-practice-admin.js?v=2}"></script>
+<script th:src="@{/js/pages/admin-core.js(v=20261107-creator-nav)}"></script>
+<script th:src="@{/js/admin-shell.js(v=20261107-theme)}"></script>
+<script th:src="@{/js/pages/verb-practice-admin.js(v=20261107-portal)}"></script>
 </body></html>

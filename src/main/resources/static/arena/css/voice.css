@@ -1,3 +1,4 @@
+@import url("/css/dark-palette.css");
 .arena-voice {
   position: fixed;
   z-index: 2147483000;
@@ -44,28 +45,28 @@
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
 html[data-theme="dark"] {
-  --dm-arena-bg: #0b0d13;
-  --dm-arena-surface: #151a28;
-  --dm-arena-raised: #232b3d;
-  --dm-arena-ink: #f8fafc;
-  --dm-arena-muted: #b2bfd2;
-  --dm-arena-line: #414c65;
-  --dm-arena-accent: #c084fc;
-  --dm-arena-action: #7335a6;
-  --dm-arena-accent-soft: #2b2140;
-  --dm-arena-on-accent: #211b34;
-  --dm-arena-success: #8eddb6;
-  --dm-arena-success-bg: #1b3d32;
-  --dm-arena-success-line: #43816b;
-  --dm-arena-danger: #ffb4bd;
-  --dm-arena-danger-bg: #452832;
-  --dm-arena-danger-line: #96616d;
-  --dm-arena-warning: #f3d28a;
-  --dm-arena-warning-bg: #403522;
-  --dm-arena-warning-line: #947a46;
-  --dm-arena-pink: #f4aed2;
-  --dm-arena-pink-bg: #432d40;
-  --dm-arena-pink-line: #88637b;
+  --dm-arena-bg: var(--dark-bg);
+  --dm-arena-surface: var(--dark-surface);
+  --dm-arena-raised: var(--dark-raised);
+  --dm-arena-ink: var(--dark-ink);
+  --dm-arena-muted: var(--dark-muted);
+  --dm-arena-line: var(--dark-line);
+  --dm-arena-accent: var(--dark-accent);
+  --dm-arena-action: var(--dark-button);
+  --dm-arena-accent-soft: var(--dark-soft);
+  --dm-arena-on-accent: var(--dark-on-button);
+  --dm-arena-success: var(--dark-success);
+  --dm-arena-success-bg: var(--dark-success-bg);
+  --dm-arena-success-line: var(--dark-success-line);
+  --dm-arena-danger: var(--dark-danger);
+  --dm-arena-danger-bg: var(--dark-danger-bg);
+  --dm-arena-danger-line: var(--dark-danger-line);
+  --dm-arena-warning: var(--dark-warning);
+  --dm-arena-warning-bg: var(--dark-warning-bg);
+  --dm-arena-warning-line: var(--dark-warning-line);
+  --dm-arena-pink: var(--dark-pink);
+  --dm-arena-pink-bg: var(--dark-pink-bg);
+  --dm-arena-pink-line: var(--dark-pink-line);
 }
 html[data-theme="dark"] .arena-voice {
     border: 1px solid var(--dm-arena-line);

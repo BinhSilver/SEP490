@@ -3,6 +3,7 @@ package com.jlas.game.util;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.game.enums.GameType;
+import com.jlas.game.enums.SkinTier;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,13 +20,16 @@ public final class GameShopCatalog {
      * {@code renderCode}: mã chuyển động có sẵn trong game, {@code PACK} = gói skin admin tải lên ({@code packPath}),
      * {@code CUSTOM} = ảnh tĩnh (kiểu cũ, chỉ còn cho trang phục đã tạo trước đây).
      * {@code weaponTheme}: máy bay dùng gói skin mượn bộ vũ khí của máy bay gốc nào (null = vũ khí mặc định).
+     * {@code tier}: bậc Thường / Hiếm / Huyền thoại, quyết định giá ({@link SkinTier}).
      */
     public record ShopItem(long id, String code, GameType gameType, String name, String description, int price,
                            String image, boolean starter, String renderCode, boolean active, boolean deleted,
-                           String packPath, String weaponTheme) {
-        public ShopItem(long id, String code, GameType gameType, String name, String description, int price,
+                           String packPath, String weaponTheme, SkinTier tier) {
+        /** A built-in skin: its price follows its tier, and the starter skin is free. */
+        public ShopItem(long id, String code, GameType gameType, String name, String description, SkinTier tier,
                         String image, boolean starter) {
-            this(id, code, gameType, name, description, price, image, starter, code, true, false, null, null);
+            this(id, code, gameType, name, description, tier.priceFor(starter), image, starter, code, true, false,
+                    null, null, tier);
         }
     }
 
@@ -34,33 +38,33 @@ public final class GameShopCatalog {
 
     private static final List<ShopItem> ITEMS = List.of(
             new ShopItem(1101, "cat-classic", GameType.NEKO_CATCH, "Mèo cam",
-                    "Mèo cam!", 0, "/arena/images/shop/cat-classic.webp", true),
+                    "Mèo cam!", SkinTier.COMMON, "/arena/images/shop/cat-classic.webp", true),
             new ShopItem(1102, "cat-cowboy", GameType.NEKO_CATCH, "Mèo cao bồi",
-                    "Có phải mèo đi hia không?", 150, "/arena/images/shop/cat-cowboy.webp", false),
+                    "Có phải mèo đi hia không?", SkinTier.COMMON, "/arena/images/shop/cat-cowboy.webp", false),
             new ShopItem(1103, "cat-wizard", GameType.NEKO_CATCH, "Mèo phù thủy",
-                    "Úm ba la xì bùa!", 200, "/arena/images/shop/cat-wizard.webp", false),
+                    "Úm ba la xì bùa!", SkinTier.COMMON, "/arena/images/shop/cat-wizard.webp", false),
             new ShopItem(1104, "cat-godzilla", GameType.NEKO_CATCH, "Godzilla",
-                    "ROAAAR!", 200,
+                    "ROAAAR!", SkinTier.RARE,
                     "/arena/app/neko/sprites/portraits/godzilla.png", false),
             new ShopItem(1105, "cat-ronova", GameType.NEKO_CATCH, "Ronova",
-                    "Ronovaaaaaaaaa!", 200,
+                    "Ronovaaaaaaaaa!", SkinTier.RARE,
                     "/arena/app/neko/sprites/portraits/ronova.png", false),
             new ShopItem(1106, "cat-zenitsu", GameType.NEKO_CATCH, "Zenitsu",
-                    "Hơi thở của Sấm Sét!", 200,
+                    "Hơi thở của Sấm Sét!", SkinTier.LEGENDARY,
                     "/arena/app/neko/sprites/portraits/zenitsu.png", false),
             new ShopItem(1107, "cat-tanjiro", GameType.NEKO_CATCH, "Tanjiro",
-                    "Hãy đợi đó, Muzan!", 200,
+                    "Hãy đợi đó, Muzan!", SkinTier.LEGENDARY,
                     "/arena/app/neko/sprites/portraits/tanjiro.png", false),
             new ShopItem(1201, "plane-blue", GameType.AIR_DEFENSE, "Máy bay xanh",
-                    "Máy bay mặc định.", 0, "/arena/images/shop/plane-blue.png", true),
+                    "Máy bay mặc định.", SkinTier.COMMON, "/arena/images/shop/plane-blue.png", true),
             new ShopItem(1206, "plane-halo-fighter", GameType.AIR_DEFENSE, "Thiên Luân Phán Xét",
-                    "Một vòng sáng xuất hiện giữa bóng tối — không phải bình minh, mà là phán quyết.", 200, "/arena/app/air-defense/assets/space/skins/halo-fighter/body.png", false),
+                    "Một vòng sáng xuất hiện giữa bóng tối — không phải bình minh, mà là phán quyết.", SkinTier.RARE, "/arena/app/air-defense/assets/space/skins/halo-fighter/body.png", false),
             new ShopItem(1207, "plane-aegis-frame", GameType.AIR_DEFENSE, "Vệ Thần Thiên Giới",
-                    "Thiên giới không cần quân đoàn. Một mình ta đã là quân đoàn.", 200, "/arena/app/air-defense/assets/space/skins/aegis-frame/body.png", false),
+                    "Thiên giới không cần quân đoàn. Một mình ta đã là quân đoàn.", SkinTier.RARE, "/arena/app/air-defense/assets/space/skins/aegis-frame/body.png", false),
             new ShopItem(1208, "plane-split-core", GameType.AIR_DEFENSE, "Vệ Binh Tinh Tú",
-                    "Giữa hàng tỷ ngôi sao, chỉ có một ánh sáng không bao giờ tắt.", 200, "/arena/app/air-defense/assets/space/skins/split-core/body.png", false),
+                    "Giữa hàng tỷ ngôi sao, chỉ có một ánh sáng không bao giờ tắt.", SkinTier.LEGENDARY, "/arena/app/air-defense/assets/space/skins/split-core/body.png", false),
             new ShopItem(1209, "plane-void-blade", GameType.AIR_DEFENSE, "Tử Thần",
-                    "Kẻ địch gọi nó là bóng ma. Những người sống sót gọi nó bằng một cái tên khác: Tử Thần.", 200, "/arena/app/air-defense/assets/space/skins/void-blade/body.png", false)
+                    "Kẻ địch gọi nó là bóng ma. Những người sống sót gọi nó bằng một cái tên khác: Tử Thần.", SkinTier.LEGENDARY, "/arena/app/air-defense/assets/space/skins/void-blade/body.png", false)
     );
 
     /** Thứ tự các mục trong cửa hàng; game khác (Lật thẻ) chưa có món nào. */

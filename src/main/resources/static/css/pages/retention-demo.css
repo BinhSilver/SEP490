@@ -1,3 +1,4 @@
+@import url("../controls.css");
 :root {
     --demo-ink: #17202b;
     --demo-muted: #76808c;
@@ -276,28 +277,28 @@ body.retention-demo-body {
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
 html[data-theme="dark"] {
-  --dm-retention-bg: #100e16;
-  --dm-retention-surface: #1c1825;
-  --dm-retention-raised: #2b2537;
-  --dm-retention-ink: #f8f2fc;
-  --dm-retention-muted: #c1b6d0;
-  --dm-retention-line: #4c405e;
-  --dm-retention-accent: #d0a1ff;
-  --dm-retention-action: #7335a6;
-  --dm-retention-accent-soft: #302140;
-  --dm-retention-on-accent: #211b34;
-  --dm-retention-success: #8eddb6;
-  --dm-retention-success-bg: #1b3d32;
-  --dm-retention-success-line: #43816b;
-  --dm-retention-danger: #ffb4bd;
-  --dm-retention-danger-bg: #452832;
-  --dm-retention-danger-line: #96616d;
-  --dm-retention-warning: #f3d28a;
-  --dm-retention-warning-bg: #403522;
-  --dm-retention-warning-line: #947a46;
-  --dm-retention-pink: #f4aed2;
-  --dm-retention-pink-bg: #432d40;
-  --dm-retention-pink-line: #88637b;
+  --dm-retention-bg: var(--dark-bg);
+  --dm-retention-surface: var(--dark-surface);
+  --dm-retention-raised: var(--dark-raised);
+  --dm-retention-ink: var(--dark-ink);
+  --dm-retention-muted: var(--dark-muted);
+  --dm-retention-line: var(--dark-line);
+  --dm-retention-accent: var(--dark-accent);
+  --dm-retention-action: var(--dark-button);
+  --dm-retention-accent-soft: var(--dark-soft);
+  --dm-retention-on-accent: var(--dark-on-button);
+  --dm-retention-success: var(--dark-success);
+  --dm-retention-success-bg: var(--dark-success-bg);
+  --dm-retention-success-line: var(--dark-success-line);
+  --dm-retention-danger: var(--dark-danger);
+  --dm-retention-danger-bg: var(--dark-danger-bg);
+  --dm-retention-danger-line: var(--dark-danger-line);
+  --dm-retention-warning: var(--dark-warning);
+  --dm-retention-warning-bg: var(--dark-warning-bg);
+  --dm-retention-warning-line: var(--dark-warning-line);
+  --dm-retention-pink: var(--dark-pink);
+  --dm-retention-pink-bg: var(--dark-pink-bg);
+  --dm-retention-pink-line: var(--dark-pink-line);
 }
 html[data-theme="dark"] {
     --demo-ink: var(--dm-retention-ink);
@@ -656,7 +657,7 @@ html[data-theme="dark"] :is(.demo-workspace, .demo-onboarding, .demo-screen) {
 }
 html[data-theme="dark"] :is(.demo-button--primary, .demo-next, .demo-brand__mark) {
   background: var(--dm-retention-action);
-  color: var(--dm-retention-ink);
+  color:var(--dark-on-button);
 }
 html[data-theme="dark"] .demo-button--quiet {
   background: var(--dm-retention-raised);

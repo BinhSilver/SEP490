@@ -11,5 +11,7 @@ public record MissionDashboardResponse(
         DailyGoalProgress dailyGoal,
         StreakResponse streak,
         List<MissionItemResponse> missions,
-        int pendingRewards) {
+        int pendingRewards,
+        long earnedToday,
+        int dailyEarnCap) {
 }

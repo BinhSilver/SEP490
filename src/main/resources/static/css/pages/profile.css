@@ -1,3 +1,4 @@
+@import url("../controls.css");
 /* Profile account area — based on design.txt */
 
 .page-profile {
@@ -186,6 +187,139 @@
   background: var(--color-primary);
   border-radius: var(--radius-full);
   transition: width 0.3s ease;
+}
+
+/* Mức sử dụng hôm nay (js/pages/profile-usage.js): một dòng mỗi hạn mức, thanh đỏ khi đã hết lượt miễn phí. */
+.profile-usage__summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.profile-usage__balance {
+  color: var(--color-secondary);
+  font-size: var(--text-sm);
+}
+
+.profile-usage__row {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-outline-variant, rgba(0, 0, 0, 0.08));
+}
+
+.profile-usage__row:last-of-type {
+  border-bottom: 0;
+}
+
+.profile-usage__line {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.profile-usage__bar {
+  height: 6px;
+  margin-top: 6px;
+  background: var(--color-surface-high);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.profile-usage__fill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+.profile-usage__fill.is-full {
+  background: var(--color-error, #ba1a1a);
+}
+
+.profile-usage__detail {
+  margin: 4px 0 0;
+  color: var(--color-secondary);
+  font-size: 12px;
+}
+
+.profile-usage__auto-off {
+  padding: 0;
+  border: 0;
+  color: var(--color-primary);
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.profile-usage__upgrade {
+  margin-top: var(--space-3);
+}
+
+/* Popup trong trang hồ sơ: "Mức sử dụng" (menu) và "Khung avatar & màu tên" (nút "Đổi khung viền" dưới tên). */
+.profile-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.profile-modal[hidden] {
+  display: none;
+}
+
+.profile-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.profile-modal__dialog {
+  position: relative;
+  width: min(440px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  margin: 0;
+}
+
+.profile-modal__dialog--wide {
+  width: min(760px, 100%);
+}
+
+.profile-modal__head {
+  align-items: center;
+}
+
+.profile-modal__close {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  margin-left: auto;
+  border: 0;
+  border-radius: var(--radius-full);
+  color: var(--color-secondary);
+  background: transparent;
+  cursor: pointer;
+}
+
+.profile-card__head--actions .profile-modal__close {
+  margin-left: 0;
+}
+
+.profile-modal__close:hover {
+  background: var(--color-surface-high);
+}
+
+.profile-sidebar__frame-btn {
+  margin: 4px auto 0;
 }
 
 .profile-nav {
@@ -1837,28 +1971,28 @@
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
 html[data-theme="dark"] {
-  --dm-profile-bg: #0b0d13;
-  --dm-profile-surface: #171b26;
-  --dm-profile-raised: #242a39;
-  --dm-profile-ink: #f8fafc;
-  --dm-profile-muted: #b2bfd2;
-  --dm-profile-line: #40485d;
-  --dm-profile-accent: #c084fc;
-  --dm-profile-action: #7335a6;
-  --dm-profile-accent-soft: #2a203d;
-  --dm-profile-on-accent: #211b34;
-  --dm-profile-success: #8eddb6;
-  --dm-profile-success-bg: #1b3d32;
-  --dm-profile-success-line: #43816b;
-  --dm-profile-danger: #ffb4bd;
-  --dm-profile-danger-bg: #452832;
-  --dm-profile-danger-line: #96616d;
-  --dm-profile-warning: #f3d28a;
-  --dm-profile-warning-bg: #403522;
-  --dm-profile-warning-line: #947a46;
-  --dm-profile-pink: #f4aed2;
-  --dm-profile-pink-bg: #432d40;
-  --dm-profile-pink-line: #88637b;
+  --dm-profile-bg: var(--dark-bg);
+  --dm-profile-surface: var(--dark-surface);
+  --dm-profile-raised: var(--dark-raised);
+  --dm-profile-ink: var(--dark-ink);
+  --dm-profile-muted: var(--dark-muted);
+  --dm-profile-line: var(--dark-line);
+  --dm-profile-accent: var(--dark-accent);
+  --dm-profile-action: var(--dark-button);
+  --dm-profile-accent-soft: var(--dark-soft);
+  --dm-profile-on-accent: var(--dark-on-button);
+  --dm-profile-success: var(--dark-success);
+  --dm-profile-success-bg: var(--dark-success-bg);
+  --dm-profile-success-line: var(--dark-success-line);
+  --dm-profile-danger: var(--dark-danger);
+  --dm-profile-danger-bg: var(--dark-danger-bg);
+  --dm-profile-danger-line: var(--dark-danger-line);
+  --dm-profile-warning: var(--dark-warning);
+  --dm-profile-warning-bg: var(--dark-warning-bg);
+  --dm-profile-warning-line: var(--dark-warning-line);
+  --dm-profile-pink: var(--dark-pink);
+  --dm-profile-pink-bg: var(--dark-pink-bg);
+  --dm-profile-pink-line: var(--dark-pink-line);
 }
 html[data-theme="dark"] .profile-sidebar {
     background: var(--dm-profile-surface)
@@ -1882,11 +2016,11 @@ html[data-theme="dark"] #retentionCelebrationCard {
 }
 
 /* Dark interaction and state pairs for this page. */
-html[data-theme="dark"] .page-profile-body{--color-background:var(--dm-profile-bg);--color-surface:var(--dm-profile-bg);--color-surface-lowest:var(--dm-profile-surface);--color-surface-low:var(--dm-profile-raised);--color-surface-mid:var(--dm-profile-raised);--color-surface-high:var(--dm-profile-raised);--color-surface-container:var(--dm-profile-raised);--color-surface-container-high:var(--dm-profile-raised);--color-on-surface:var(--dm-profile-ink);--color-on-surface-variant:var(--dm-profile-muted);--color-secondary:var(--dm-profile-muted);--color-outline:var(--dm-profile-muted);--color-outline-variant:var(--dm-profile-line);--color-primary:var(--dm-profile-accent);--color-primary-container:var(--dm-profile-action);--color-on-primary:var(--dm-profile-on-accent);--color-on-primary-container:var(--dm-profile-ink);--color-primary-fixed:var(--dm-profile-accent-soft);--color-on-primary-fixed:var(--dm-profile-accent);--color-secondary-container:var(--dm-profile-accent-soft);--color-secondary-fixed:var(--dm-profile-accent-soft);--color-success:var(--dm-profile-success);--color-success-bg:var(--dm-profile-success-bg);--color-error:var(--dm-profile-danger);--color-error-container:var(--dm-profile-danger-bg);--color-on-error-container:var(--dm-profile-danger);--color-tertiary:var(--dm-profile-warning);--color-tertiary-container:var(--dm-profile-warning-bg);--color-on-tertiary-container:var(--dm-profile-warning);--color-focus:var(--dm-profile-accent);--jlab-base-page-background:var(--dm-profile-bg);}
+html[data-theme="dark"] .page-profile-body{--color-background:var(--dm-profile-bg);--color-surface:var(--dm-profile-bg);--color-surface-lowest:var(--dm-profile-surface);--color-surface-low:var(--dm-profile-raised);--color-surface-mid:var(--dm-profile-raised);--color-surface-high:var(--dm-profile-raised);--color-surface-container:var(--dm-profile-raised);--color-surface-container-high:var(--dm-profile-raised);--color-on-surface:var(--dm-profile-ink);--color-on-surface-variant:var(--dm-profile-muted);--color-secondary:var(--dm-profile-muted);--color-outline:var(--dm-profile-muted);--color-outline-variant:var(--dm-profile-line);--color-primary:var(--dm-profile-accent);--color-primary-container:var(--dm-profile-action);--color-on-primary:var(--dm-profile-on-accent);--color-on-primary-container:var(--dark-on-button);--color-primary-fixed:var(--dm-profile-accent-soft);--color-on-primary-fixed:var(--dm-profile-accent);--color-secondary-container:var(--dm-profile-accent-soft);--color-secondary-fixed:var(--dm-profile-accent-soft);--color-success:var(--dm-profile-success);--color-success-bg:var(--dm-profile-success-bg);--color-error:var(--dm-profile-danger);--color-error-container:var(--dm-profile-danger-bg);--color-on-error-container:var(--dm-profile-danger);--color-tertiary:var(--dm-profile-warning);--color-tertiary-container:var(--dm-profile-warning-bg);--color-on-tertiary-container:var(--dm-profile-warning);--color-focus:var(--dm-profile-accent);--jlab-base-page-background:var(--dm-profile-bg);}
 html[data-theme="dark"] .page-profile :is(.profile-main,.profile-sidebar){background:var(--dm-profile-bg);}
 html[data-theme="dark"] .page-profile .profile-card{background:var(--dm-profile-surface);}
 html[data-theme="dark"] .page-profile :is(.profile-chip,.profile-option){border-color:var(--dm-profile-line);}
-html[data-theme="dark"] .page-profile .btn--primary{background:var(--dm-profile-action)!important;color:var(--dm-profile-ink)!important;}
+html[data-theme="dark"] .page-profile .btn--primary{background:var(--dm-profile-action)!important;color:var(--dark-on-button)!important;}
 
 /* Desktop sidebar: plain items like "Gói cao cấp"; only the current section keeps its highlight. */
 @media (min-width: 768px) {

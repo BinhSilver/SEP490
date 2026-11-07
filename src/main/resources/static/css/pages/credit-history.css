@@ -1,3 +1,4 @@
+@import url("../controls.css");
 @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
 
 #jlabBasePage.credit-history-page { background: #ffffff; }
@@ -58,28 +59,28 @@
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
 html[data-theme="dark"] {
-  --dm-progress-bg: #0b0d13;
-  --dm-progress-surface: #171b26;
-  --dm-progress-raised: #242a39;
-  --dm-progress-ink: #f8fafc;
-  --dm-progress-muted: #b2bfd2;
-  --dm-progress-line: #40485d;
-  --dm-progress-accent: #c084fc;
-  --dm-progress-action: #7335a6;
-  --dm-progress-accent-soft: #2a203d;
-  --dm-progress-on-accent: #211b34;
-  --dm-progress-success: #8eddb6;
-  --dm-progress-success-bg: #1b3d32;
-  --dm-progress-success-line: #43816b;
-  --dm-progress-danger: #ffb4bd;
-  --dm-progress-danger-bg: #452832;
-  --dm-progress-danger-line: #96616d;
-  --dm-progress-warning: #f3d28a;
-  --dm-progress-warning-bg: #403522;
-  --dm-progress-warning-line: #947a46;
-  --dm-progress-pink: #f4aed2;
-  --dm-progress-pink-bg: #432d40;
-  --dm-progress-pink-line: #88637b;
+  --dm-progress-bg: var(--dark-bg);
+  --dm-progress-surface: var(--dark-surface);
+  --dm-progress-raised: var(--dark-raised);
+  --dm-progress-ink: var(--dark-ink);
+  --dm-progress-muted: var(--dark-muted);
+  --dm-progress-line: var(--dark-line);
+  --dm-progress-accent: var(--dark-accent);
+  --dm-progress-action: var(--dark-button);
+  --dm-progress-accent-soft: var(--dark-soft);
+  --dm-progress-on-accent: var(--dark-on-button);
+  --dm-progress-success: var(--dark-success);
+  --dm-progress-success-bg: var(--dark-success-bg);
+  --dm-progress-success-line: var(--dark-success-line);
+  --dm-progress-danger: var(--dark-danger);
+  --dm-progress-danger-bg: var(--dark-danger-bg);
+  --dm-progress-danger-line: var(--dark-danger-line);
+  --dm-progress-warning: var(--dark-warning);
+  --dm-progress-warning-bg: var(--dark-warning-bg);
+  --dm-progress-warning-line: var(--dark-warning-line);
+  --dm-progress-pink: var(--dark-pink);
+  --dm-progress-pink-bg: var(--dark-pink-bg);
+  --dm-progress-pink-line: var(--dark-pink-line);
 }
 html[data-theme="dark"] #jlabBasePage.credit-history-page {
     background: var(--dm-progress-surface)
@@ -148,6 +149,6 @@ html[data-theme="dark"] #jlabBaseContent .credit-history-page__error {
 }
 
 /* Dark interaction and state pairs for this page. */
-html[data-theme="dark"] .credit-history-page{--color-background:var(--dm-progress-bg);--color-surface:var(--dm-progress-bg);--color-surface-lowest:var(--dm-progress-surface);--color-surface-low:var(--dm-progress-raised);--color-surface-mid:var(--dm-progress-raised);--color-surface-high:var(--dm-progress-raised);--color-surface-container:var(--dm-progress-raised);--color-surface-container-high:var(--dm-progress-raised);--color-on-surface:var(--dm-progress-ink);--color-on-surface-variant:var(--dm-progress-muted);--color-secondary:var(--dm-progress-muted);--color-outline:var(--dm-progress-muted);--color-outline-variant:var(--dm-progress-line);--color-primary:var(--dm-progress-accent);--color-primary-container:var(--dm-progress-action);--color-on-primary:var(--dm-progress-on-accent);--color-on-primary-container:var(--dm-progress-ink);--color-primary-fixed:var(--dm-progress-accent-soft);--color-on-primary-fixed:var(--dm-progress-accent);--color-secondary-container:var(--dm-progress-accent-soft);--color-secondary-fixed:var(--dm-progress-accent-soft);--color-success:var(--dm-progress-success);--color-success-bg:var(--dm-progress-success-bg);--color-error:var(--dm-progress-danger);--color-error-container:var(--dm-progress-danger-bg);--color-on-error-container:var(--dm-progress-danger);--color-tertiary:var(--dm-progress-warning);--color-tertiary-container:var(--dm-progress-warning-bg);--color-on-tertiary-container:var(--dm-progress-warning);--color-focus:var(--dm-progress-accent);--jlab-base-page-background:var(--dm-progress-bg);}
-html[data-theme="dark"] #jlabBaseContent .credit-history-page__filters button:is(.is-active,:hover){background:var(--dm-progress-action);color:var(--dm-progress-ink);}
+html[data-theme="dark"] .credit-history-page{--color-background:var(--dm-progress-bg);--color-surface:var(--dm-progress-bg);--color-surface-lowest:var(--dm-progress-surface);--color-surface-low:var(--dm-progress-raised);--color-surface-mid:var(--dm-progress-raised);--color-surface-high:var(--dm-progress-raised);--color-surface-container:var(--dm-progress-raised);--color-surface-container-high:var(--dm-progress-raised);--color-on-surface:var(--dm-progress-ink);--color-on-surface-variant:var(--dm-progress-muted);--color-secondary:var(--dm-progress-muted);--color-outline:var(--dm-progress-muted);--color-outline-variant:var(--dm-progress-line);--color-primary:var(--dm-progress-accent);--color-primary-container:var(--dm-progress-action);--color-on-primary:var(--dm-progress-on-accent);--color-on-primary-container:var(--dark-on-button);--color-primary-fixed:var(--dm-progress-accent-soft);--color-on-primary-fixed:var(--dm-progress-accent);--color-secondary-container:var(--dm-progress-accent-soft);--color-secondary-fixed:var(--dm-progress-accent-soft);--color-success:var(--dm-progress-success);--color-success-bg:var(--dm-progress-success-bg);--color-error:var(--dm-progress-danger);--color-error-container:var(--dm-progress-danger-bg);--color-on-error-container:var(--dm-progress-danger);--color-tertiary:var(--dm-progress-warning);--color-tertiary-container:var(--dm-progress-warning-bg);--color-on-tertiary-container:var(--dm-progress-warning);--color-focus:var(--dm-progress-accent);--jlab-base-page-background:var(--dm-progress-bg);}
+html[data-theme="dark"] #jlabBaseContent .credit-history-page__filters button:is(.is-active,:hover){background:var(--dm-progress-action);color:var(--dark-on-button);}
 #jlabBaseContent :is(.credit-history-page__empty,.credit-history-page__error)[hidden]{display:none!important;}

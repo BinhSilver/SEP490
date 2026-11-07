@@ -31,12 +31,14 @@ public class CreditAwardWorker {
         if (simulateFailure) {
             throw new IllegalStateException("Simulated credit service failure");
         }
-        credits.earn(award.userId(), award.amount(), CreditReason.valueOf(award.reason()),
+        var result = credits.earn(award.userId(), award.amount(), CreditReason.valueOf(award.reason()),
                 award.referenceType(), award.referenceId(), award.note());
         awards.markCompleted(awardId);
-        if (award.celebrationKind() != null) {
+        // The daily earn cap can cut a study award to 0: nothing to celebrate then.
+        int granted = result.applied() ? result.amount() : award.amount();
+        if (award.celebrationKind() != null && granted > 0) {
             celebrations.add(award.userId(), "award:" + awardId, award.celebrationKind(),
-                    award.celebrationTitle(), award.amount(), award.streak());
+                    award.celebrationTitle(), granted, award.streak());
         }
     }
 

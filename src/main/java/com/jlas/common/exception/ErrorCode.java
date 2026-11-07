@@ -12,6 +12,10 @@ public enum ErrorCode {
     AICALL_STAGE_LOCKED(HttpStatus.FORBIDDEN, "Bạn cần hoàn thành các màn trước để mở màn này."),
     AICALL_FREE_CHAT_NEW_DAY(HttpStatus.CONFLICT, "Đã sang ngày mới, chuyển sang cuộc trò chuyện hôm nay."),
     ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên."),
+    /** Video Shadowing có nhãn độ tuổi mà tài khoản chưa có ngày sinh: trang hiện hộp nhập ngày sinh. */
+    BIRTH_DATE_REQUIRED(HttpStatus.FORBIDDEN, "Vui lòng nhập ngày sinh để xem video có giới hạn độ tuổi."),
+    /** Người xem chưa đủ tuổi tối thiểu của video Shadowing (video.min_age). */
+    AGE_RESTRICTED(HttpStatus.FORBIDDEN, "Bạn chưa đủ tuổi để xem video này."),
     NOT_FOUND(HttpStatus.NOT_FOUND, "Resource not found"),
     CONFLICT(HttpStatus.CONFLICT, "Conflict"),
     PENDING_VERIFICATION(HttpStatus.CONFLICT, "Email is pending verification"),
@@ -19,6 +23,10 @@ public enum ErrorCode {
     CONTENT_PENDING_REVIEW(HttpStatus.BAD_REQUEST, "Content requires review before publishing"),
     TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "Too many requests"),
     INSUFFICIENT_CREDIT(HttpStatus.PAYMENT_REQUIRED, "Not enough credits"),
+    /** Hết lượt tra từ nhanh: mua thêm lượt bằng CP hoặc nâng cấp Pro. */
+    QUICK_LOOKUP_EXHAUSTED(HttpStatus.PAYMENT_REQUIRED, "Bạn đã hết lượt tra từ nhanh."),
+    /** Hết lượt chấm phát âm miễn phí hôm nay: dùng CP hoặc nâng cấp Pro. */
+    PRONUNCIATION_QUOTA_EXCEEDED(HttpStatus.PAYMENT_REQUIRED, "Bạn đã hết lượt chấm phát âm miễn phí hôm nay."),
     PAYLOAD_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "Payload quá lớn"),
     /** [JLAS2-XX] Ảnh tải lên sai định dạng hoặc nội dung không phải ảnh thật (magic bytes không khớp). */
     INVALID_IMAGE(HttpStatus.BAD_REQUEST, "Ảnh chỉ nhận định dạng JPG, PNG hoặc WEBP"),

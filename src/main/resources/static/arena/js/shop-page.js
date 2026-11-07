@@ -145,6 +145,13 @@
     return '<img src="' + esc(item.image) + '" alt="' + esc(item.name) + '" loading="lazy">';
   }
 
+  /** Nhãn bậc trên ảnh: Thường / Hiếm / Huyền thoại; trang phục mặc định ghi "Mặc định". */
+  function tierBadge(item) {
+    if (item.starter) return '<span class="ar-shop-tier ar-shop-tier--starter">Mặc định</span>';
+    if (!item.tier) return '';
+    return '<span class="ar-shop-tier ar-shop-tier--' + esc(item.tier.toLowerCase()) + '">' + esc(item.tierLabel || item.tier) + '</span>';
+  }
+
   function card(item, balance, gameType) {
     var price;
     var action;
@@ -163,8 +170,8 @@
       price = '<span class="ar-shop-item__price"><span class="ar-coin" aria-hidden="true"></span>' + item.price + ' CP</span>';
       action = '<button type="button" class="ar-btn ar-btn--block" disabled>Cần thêm ' + (item.price - balance) + ' CP</button>';
     }
-    return '<article class="ar-shop-item' + (item.equipped ? ' is-equipped' : '') + '">'
-      + '<figure class="ar-shop-item__art">' + art(item, gameType) + '</figure>'
+    return '<article class="ar-shop-item' + (item.equipped ? ' is-equipped' : '') + (item.tier ? ' ar-shop-item--' + esc(item.tier.toLowerCase()) : '') + '">'
+      + '<figure class="ar-shop-item__art">' + tierBadge(item) + art(item, gameType) + '</figure>'
       + '<div class="ar-shop-item__body">'
       + '<h2>' + esc(item.name) + '</h2>'
       + '<p class="ar-shop-item__desc">' + esc(item.description) + '</p>'

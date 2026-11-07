@@ -110,8 +110,9 @@ public class DailyMissionServiceImpl implements DailyMissionService {
         }
         CreditResult result = credits.earn(userId, reward, reasonOf(definition), REF_USER_MISSION, mission.getId(),
                 definition.getTitle());
-        return new ClaimMissionResponse(definition.getCode(), definition.getTitle(), reward, !result.applied(),
-                result.balance());
+        int granted = result.applied() ? result.amount() : reward;
+        return new ClaimMissionResponse(definition.getCode(), definition.getTitle(), granted, !result.applied(),
+                result.balance(), result.applied() && granted < reward);
     }
 
     @Override
