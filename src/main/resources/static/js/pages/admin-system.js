@@ -21,18 +21,73 @@
     CONFIG_UPDATE: 'Sửa cấu hình', CONFIG_RESET: 'Khôi phục cấu hình'
   };
 
-  /** "key: old → new" (HTML) for a CONFIG_* audit entry; the rejection message when it was refused. */
+  // ── Setting labels: pages show the Vietnamese label, the key only in a tooltip ──
+  /** Display names of stored values; anything else is shown as stored. */
+  var CONFIG_VALUE_LABELS = {
+    'dashboard.default_period': { year: 'Năm', '30d': '30 ngày', '7d': '7 ngày' }
+  };
+  var BOOLEAN_LABELS = { 'true': 'Bật', 'false': 'Tắt' };
+  /** key → label, filled from GET /configs (System Admin only, like every page that uses it). */
+  var configLabels = {};
+  var configLabelsLoading = null;
+
+  function loadConfigLabels() {
+    if (!configLabelsLoading) {
+      configLabelsLoading = A.api.get(API + '/configs').then(function (list) {
+        rememberConfigLabels(list);
+        return configLabels;
+      }, function () {
+        configLabelsLoading = null; // keys are shown instead; try again on the next page load
+        return configLabels;
+      });
+    }
+    return configLabelsLoading;
+  }
+
+  function rememberConfigLabels(list) {
+    (list || []).forEach(function (c) { configLabels[c.key] = c.label; });
+  }
+
+  function configLabel(key) { return configLabels[key] || key || ''; }
+
+  function configValueText(key, value) {
+    if (value == null || value === '') return '—';
+    var labels = CONFIG_VALUE_LABELS[key] || {};
+    return labels[value] || BOOLEAN_LABELS[value] || String(value);
+  }
+
+  /** Setting label with its key as the tooltip. */
+  function configName(key) {
+    return '<span title="' + A.esc(key) + '">' + A.esc(configLabel(key)) + '</span>';
+  }
+
+  /** "Label: old → new" (HTML) for a CONFIG_* audit entry; the rejection message when it was refused. */
   function configChange(entry) {
     var c = {};
-    try { c = JSON.parse(entry.changesJson || '{}') || {}; } catch (ignored) { /* shown as the key only */ }
-    var key = '<code>' + A.esc(entry.targetId || '') + '</code>';
+    try { c = JSON.parse(entry.changesJson || '{}') || {}; } catch (ignored) { /* shown as the label only */ }
+    var key = entry.targetId || '';
+    var show = function (v) {
+      return '<span title="' + A.esc(v == null ? '' : v) + '">' + A.esc(configValueText(key, v)) + '</span>';
+    };
     if (c.rejection) {
-      return key + ': ' + A.esc(c.rejection) +
-        ('attempted' in c ? ' <span class="adm-muted">(giá trị gửi: ' + A.esc(c.attempted == null ? '—' : c.attempted) + ')</span>' : '');
+      return configName(key) + ': ' + A.esc(c.rejection) +
+        ('attempted' in c ? ' <span class="adm-muted">(giá trị gửi: ' + show(c.attempted) + ')</span>' : '');
     }
-    var show = function (v) { return A.esc(v == null || v === '' ? '—' : v); };
-    return key + ': ' + show(c.before) + ' → ' + show(c.after) +
+    return configName(key) + ': ' + show(c.before) + ' → ' + show(c.after) +
       (entry.action === 'CONFIG_RESET' ? ' <span class="adm-muted">(mặc định)</span>' : '');
+  }
+
+  /** Target column: settings by label (key in the tooltip); other types keep "Type #id". */
+  function targetText(entry, typeName) {
+    if (entry.targetType === 'SYSTEM_CONFIG' && entry.targetId) {
+      return A.esc(typeName) + ' · ' + configName(entry.targetId);
+    }
+    return A.esc(typeName) + (entry.targetId ? ' #' + A.esc(entry.targetId) : '');
+  }
+
+  /** The IPv6 loopback, as the servlet reports it, in its short form; other addresses as stored. */
+  function ipText(ip) {
+    return ip === '0:0:0:0:0:0:0:1' ? '::1' : ip;
   }
   var PAYMENT_STATUS = {
     PENDING: ['Đang chờ', 'warn'], PAID: ['Đã thanh toán', 'ok'], FAILED: ['Thất bại', 'danger'],
@@ -551,7 +606,8 @@
         params.set('page', page);
         params.set('size', 30);
         try {
-          var data = await A.api.get(API + '/audit-logs?' + params.toString());
+          var loaded = await Promise.all([A.api.get(API + '/audit-logs?' + params.toString()), loadConfigLabels()]);
+          var data = loaded[0];
           list.innerHTML = (data.items.length ?
             '<div class="adm-table-wrap"><table class="adm-table"><thead><tr>' +
               '<th scope="col">Thời gian</th><th scope="col">Người thao tác</th><th scope="col">Vai trò</th>' +
@@ -562,12 +618,13 @@
                   '<td><span class="adm-user"><strong>' + A.esc(a.actorEmail) + '</strong><span class="adm-muted">#' + a.actorId + '</span></span></td>' +
                   '<td class="adm-nowrap">' + (a.actorRole ? A.esc(roleLabel(a.actorRole)) : '<span class="adm-muted">—</span>') + '</td>' +
                   '<td>' + A.esc(ACTIONS[a.action] || a.action) + '</td>' +
-                  '<td>' + A.esc(A.typeLabel(a.targetType)) + (a.targetId ? ' #' + A.esc(a.targetId) : '') + '</td>' +
+                  '<td style="min-width:200px">' + targetText(a, A.typeLabel(a.targetType)) + '</td>' +
                   '<td style="min-width:180px">' + A.esc(a.reason || '—') + '</td>' +
                   '<td>' + (a.result === 'SUCCESS' ? '<span class="adm-badge adm-badge--ok">Thành công</span>'
                     : '<span class="adm-badge adm-badge--warn">Bị từ chối</span>') + '</td>' +
                   '<td style="min-width:240px">' + changesCell(a) + '</td>' +
-                  '<td class="adm-nowrap">' + (a.ipAddress ? '<code>' + A.esc(a.ipAddress) + '</code>' : '<span class="adm-muted">—</span>') + '</td></tr>';
+                  '<td class="adm-nowrap">' + (a.ipAddress ? '<code title="' + A.esc(a.ipAddress) + '">' + A.esc(ipText(a.ipAddress)) + '</code>'
+                    : '<span class="adm-muted">—</span>') + '</td></tr>';
               }).join('') + '</tbody></table></div>'
             : A.empty('fa-inbox', 'Chưa có bản ghi nào')) +
             pager(page, data.totalPages);
@@ -611,23 +668,23 @@
   });
 
   // ── System settings ────────────────────────────────────────────────────
-  /** Display names of enum values; anything else is shown as stored. */
-  var CONFIG_VALUE_LABELS = { 'dashboard.default_period': { year: 'Năm nay', '30d': '30 ngày qua', '7d': '7 ngày' } };
-
-  function configValueText(c, value) {
-    var labels = CONFIG_VALUE_LABELS[c.key] || {};
-    return value == null || value === '' ? '—' : labels[value] ? labels[value] + ' (' + value + ')' : String(value);
-  }
-
   function configChoices(c) {
     return c.type === 'BOOLEAN' ? ['true', 'false'] : c.allowedValues || [];
   }
 
+  function configChoiceLabels(c) {
+    return configChoices(c).map(function (v) { return configValueText(c.key, v); }).join(', ');
+  }
+
   function configConstraint(c) {
     if (c.type === 'INT') return 'Số nguyên từ ' + c.min + ' đến ' + c.max;
-    if (c.type === 'ENUM') return 'Một trong: ' + configChoices(c).join(', ');
-    if (c.type === 'BOOLEAN') return 'true hoặc false';
+    if (c.type === 'ENUM' || c.type === 'BOOLEAN') return 'Một trong: ' + configChoiceLabels(c);
     return 'Tối đa 1000 ký tự';
+  }
+
+  /** A value by its label, the stored value as the tooltip. */
+  function configValueHtml(c, value) {
+    return '<span title="' + A.esc(value == null ? '' : value) + '">' + A.esc(configValueText(c.key, value)) + '</span>';
   }
 
   /** Same rules as SystemConfigKey.normalize on the server: null when valid, else the message. */
@@ -639,7 +696,7 @@
       var n = Number(text);
       if (n < c.min || n > c.max) return 'Giá trị phải từ ' + c.min + ' đến ' + c.max + '.';
     } else if (c.type === 'ENUM' || c.type === 'BOOLEAN') {
-      if (configChoices(c).indexOf(text) < 0) return 'Giá trị phải là một trong: ' + configChoices(c).join(', ') + '.';
+      if (configChoices(c).indexOf(text) < 0) return 'Giá trị phải là một trong: ' + configChoiceLabels(c) + '.';
     } else if (text.length > 1000) {
       return 'Giá trị tối đa 1000 ký tự.';
     }
@@ -647,11 +704,11 @@
   }
 
   function configRow(c) {
-    return '<tr><td><strong>' + A.esc(c.label) + '</strong><br><code class="adm-muted">' + A.esc(c.key) + '</code>' +
+    return '<tr><td><strong title="' + A.esc(c.key) + '">' + A.esc(c.label) + '</strong>' +
         '<br><span class="adm-muted">' + A.esc(c.description) + '</span></td>' +
-      '<td class="adm-nowrap"><strong>' + A.esc(configValueText(c, c.value)) + '</strong><br>' +
+      '<td class="adm-nowrap"><strong>' + configValueHtml(c, c.value) + '</strong><br>' +
         (c.overridden ? '<span class="adm-badge adm-badge--warn">Đã ghi đè</span>' : '<span class="adm-badge">Mặc định</span>') + '</td>' +
-      '<td class="adm-nowrap">' + A.esc(configValueText(c, c.defaultValue)) + '</td>' +
+      '<td class="adm-nowrap">' + configValueHtml(c, c.defaultValue) + '</td>' +
       '<td>' + A.esc(configConstraint(c)) + '</td>' +
       '<td>' + (c.updatedAt ? A.esc(c.updatedBy || '—') + '<br><span class="adm-muted">' + A.date(c.updatedAt) + '</span>'
         : '<span class="adm-muted">Chưa sửa</span>') + '</td>' +
@@ -677,6 +734,7 @@
         box.innerHTML = A.loading();
         try {
           var list = await A.api.get(API + '/configs');
+          rememberConfigLabels(list);
           items = {};
           var groups = [];
           list.forEach(function (c) {
@@ -703,9 +761,9 @@
         try {
           var list = await A.api.get(API + '/configs/integrations');
           box.innerHTML = '<div class="adm-table-wrap"><table class="adm-table"><thead><tr>' +
-              '<th scope="col">Tích hợp</th><th scope="col">Khoá cấu hình</th><th scope="col">Trạng thái</th><th scope="col">Giá trị</th>' +
+              '<th scope="col">Tích hợp</th><th scope="col">Trạng thái</th><th scope="col">Giá trị</th>' +
             '</tr></thead><tbody>' + list.map(function (i) {
-              return '<tr><td>' + A.esc(i.label) + '</td><td><code>' + A.esc(i.key) + '</code></td>' +
+              return '<tr><td title="' + A.esc(i.key) + '">' + A.esc(i.label) + '</td>' +
                 '<td>' + (i.configured ? '<span class="adm-badge adm-badge--ok">Đã cấu hình</span>'
                   : '<span class="adm-badge adm-badge--warn">Chưa cấu hình</span>') + '</td>' +
                 '<td>' + (i.configured ? '<code>' + A.esc(i.value) + '</code>' : '<span class="adm-muted">—</span>') + '</td></tr>';
@@ -733,15 +791,15 @@
         var field = c.type === 'ENUM' || c.type === 'BOOLEAN'
           ? '<select class="select" id="admConfigValue" data-autofocus>' + configChoices(c).map(function (v) {
               return '<option value="' + A.esc(v) + '"' + (v === c.value ? ' selected' : '') + '>' +
-                A.esc(configValueText(c, v)) + '</option>';
+                A.esc(configValueText(c.key, v)) + '</option>';
             }).join('') + '</select>'
           : '<input class="input" id="admConfigValue" data-autofocus aria-describedby="admConfigError"' +
               (c.type === 'INT' ? ' inputmode="numeric" maxlength="' + String(Math.max(Math.abs(c.min), Math.abs(c.max))).length + '"'
                 : ' maxlength="1000"') + ' value="' + A.esc(c.value) + '">';
         var pending = A.decide({
           title: 'Sửa cấu hình "' + c.label + '"?',
-          message: A.esc(c.description) + ' Hiện tại: <strong>' + A.esc(configValueText(c, c.value)) + '</strong>; mặc định: ' +
-            A.esc(configValueText(c, c.defaultValue)) + '.',
+          message: A.esc(c.description) + ' Hiện tại: <strong>' + A.esc(configValueText(c.key, c.value)) + '</strong>; mặc định: ' +
+            A.esc(configValueText(c.key, c.defaultValue)) + '.',
           confirmText: 'Lưu cấu hình', maxLength: 500,
           placeholder: 'Lý do (ít nhất 5 ký tự), lưu vào nhật ký quản trị',
           extraHtml: '<div class="field"><label class="field__label" for="admConfigValue">Giá trị mới ' +
@@ -778,8 +836,8 @@
         if (!c) return;
         var decision = await A.decide({
           title: 'Khôi phục "' + c.label + '" về mặc định?',
-          message: 'Giá trị <strong>' + A.esc(configValueText(c, c.value)) + '</strong> sẽ trở về mặc định <strong>' +
-            A.esc(configValueText(c, c.defaultValue)) + '</strong> ngay sau khi lưu.',
+          message: 'Giá trị <strong>' + A.esc(configValueText(c.key, c.value)) + '</strong> sẽ trở về mặc định <strong>' +
+            A.esc(configValueText(c.key, c.defaultValue)) + '</strong> ngay sau khi lưu.',
           confirmText: 'Khôi phục mặc định', maxLength: 500,
           placeholder: 'Lý do (ít nhất 5 ký tự), lưu vào nhật ký quản trị',
           collect: function (modal) { return reasonLength(modal); }
@@ -816,20 +874,20 @@
             m.groups.map(function (g) { return '<th scope="col" title="' + A.esc(g.description) + '">' + A.esc(g.label) + '</th>'; }).join('') +
             '</tr></thead><tbody>' +
             m.roles.map(function (r) {
-              return '<tr><th scope="row">' + A.esc(roleLabel(r)) + '<br><code class="adm-muted">' + A.esc(r) + '</code></th>' +
+              return '<tr><th scope="row" title="' + A.esc(r) + '">' + A.esc(roleLabel(r)) + '</th>' +
                 m.groups.map(function (g) {
                   var c = cells[r + '|' + g.key];
-                  return '<td title="GET ' + A.esc(c.endpoint) + '">' + (c.allowed
+                  var apis = 'API kiểm tra: ' + g.endpoints.map(function (e) { return 'GET ' + e; }).join(', ');
+                  return '<td title="' + A.esc(apis) + '">' + (c.allowed
                     ? '<span class="adm-badge adm-badge--ok">✓ Được phép</span>'
                     : '<span class="adm-badge adm-badge--danger">✗ Không</span>') + '</td>';
                 }).join('') + '</tr>';
             }).join('') + '</tbody></table></div>' +
-          '<section class="adm-panel"><h2 class="adm-panel__title">Các nhóm quyền và API đại diện</h2>' +
+          '<section class="adm-panel"><h2 class="adm-panel__title">Các nhóm quyền</h2>' +
             '<div class="adm-table-wrap"><table class="adm-table"><thead><tr><th scope="col">Nhóm</th><th scope="col">Bao gồm</th>' +
-              '<th scope="col">API kiểm tra (GET, chỉ đọc)</th></tr></thead><tbody>' +
+              '</tr></thead><tbody>' +
               m.groups.map(function (g) {
-                return '<tr><td><strong>' + A.esc(g.label) + '</strong></td><td>' + A.esc(g.description) + '</td><td>' +
-                  g.endpoints.map(function (e) { return '<code>' + A.esc(e) + '</code>'; }).join('<br>') + '</td></tr>';
+                return '<tr><td><strong>' + A.esc(g.label) + '</strong></td><td>' + A.esc(g.description) + '</td></tr>';
               }).join('') + '</tbody></table></div></section>' +
           '<p class="adm-muted">Không có kế thừa vai trò: Quản trị viên không tự có quyền của Người biên soạn và ngược lại. ' +
             'Đổi vai trò của một tài khoản ở <a href="/admin/system/users">trang Người dùng</a>.</p>';
@@ -1105,8 +1163,8 @@
               '<td style="white-space:nowrap;"><div class="st-table-user"><span class="st-avatar-badge st-avatar-badge--' + badge + '">' +
                 A.esc(initials(r.actorEmail)) + '</span><span style="font-weight:500;">' + A.esc(r.actorEmail || ('#' + r.actorId)) + '</span></div></td>' +
               '<td style="font-weight:500;">' + A.esc(ACTIONS[r.action] || r.action) + '</td>' +
-              '<td style="color:var(--st-on-surface-variant);">' + A.esc(TARGET_TYPES[r.targetType] || r.targetType) +
-                (r.targetId ? ' #' + A.esc(r.targetId) : '') + (r.reason ? ' · ' + A.esc(r.reason) : '') + '</td>' +
+              '<td style="color:var(--st-on-surface-variant);">' + targetText(r, TARGET_TYPES[r.targetType] || r.targetType) +
+                (r.reason ? ' · ' + A.esc(r.reason) : '') + '</td>' +
               '<td style="text-align:right; white-space:nowrap;"><span class="st-pill ' + (ok ? 'st-pill--growth">Thành công' : 'st-pill--amber">Bị từ chối') + '</span></td>' +
             '</tr>';
           }).join('') +
@@ -1188,7 +1246,8 @@
         root.setAttribute('aria-busy', 'true');
         var results = await Promise.allSettled([
           A.api.get(API + '/dashboard' + (period ? '?period=' + encodeURIComponent(period) : '')),
-          A.api.get('/api/admin/moderation/overview')
+          A.api.get('/api/admin/moderation/overview'),
+          loadConfigLabels()
         ]);
         root.removeAttribute('aria-busy');
         if (results[0].status !== 'fulfilled') {
