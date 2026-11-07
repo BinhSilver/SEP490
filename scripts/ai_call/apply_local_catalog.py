@@ -18,8 +18,11 @@ def main():
     parser.add_argument('--apply',action='store_true')
     args=parser.parse_args()
     groups=validate(json.loads((ROOT/'data/ai-call/catalog.json').read_text(encoding='utf-8'))['scenarios'])
+    roots_count=len(groups)
+    total_cases=sum(len(g['cases']) for g in groups)
+    legacy_count=total_cases-roots_count
     if not args.apply:
-        print('Validated 14 roots and 28 legacy cases. Use --apply to update the local database.')
+        print(f'Validated {roots_count} roots and {legacy_count} legacy cases. Use --apply to update the local database.')
         return
     import yaml
     config=yaml.safe_load((ROOT/'src/main/resources/application-local.yaml').read_text(encoding='utf-8'))
@@ -43,6 +46,8 @@ def main():
             slugs.append(slug)
     (folder/'slugs.txt').write_text('\n'.join(slugs),encoding='utf-8')
     driver=Path.home()/'.m2/repository/com/mysql/mysql-connector-j/9.4.0/mysql-connector-j-9.4.0.jar'
+    env['AICALL_EXPECTED_ROOTS']=str(roots_count)
+    env['AICALL_EXPECTED_SLUGS']=str(len(slugs))
     subprocess.run(['java','-cp',str(driver),str(ROOT/'scripts/ai_call/ApplyLocalCatalog.java')],cwd=ROOT,env=env,check=True)
 
 if __name__=='__main__':main()

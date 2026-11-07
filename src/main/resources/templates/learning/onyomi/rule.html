@@ -87,14 +87,14 @@
             <a class="oy-button" th:href="@{/learning/onyomi/lessons/{id}(id=${page.lessonId})}">
                 <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Về bài học
             </a>
-            <a class="oy-button oy-button--primary" th:href="${'/learning/onyomi/lessons/' + page.lessonId + '#s-quiz'}">
+            <a class="oy-button oy-button--primary" th:href="@{/learning/onyomi/lessons/{id}/practice(id=${page.lessonId})}">
                 <i class="fa-solid fa-circle-question" aria-hidden="true"></i> Luyện tập bài này
             </a>
         </div>
     </div>
 </main>
 
-<script th:src="@{/js/pages/onyomi-page.js(v=20261025-noprogress)}"></script>
+<script th:src="@{/js/pages/onyomi-page.js(v=20261107-practice-page)}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
 </html>

@@ -14,6 +14,9 @@
   const PAGE_STEP = 5;
   // The year column opens with its label just above this year, so most learners scroll only a few rows.
   const OPENING_YEAR = 2005;
+  // Same ages as com.jlas.common.util.BirthDates.
+  const MIN_AGE = 6;
+  const MAX_AGE = 120;
 
   const pad = value => String(value).padStart(2, '0');
 
@@ -24,6 +27,19 @@
 
   function toIso(day, month, year) {
     return day && month && year ? `${year}-${pad(month)}-${pad(day)}` : '';
+  }
+
+  /** Oldest and newest birth dates (yyyy-mm-dd) for an age from MIN_AGE to MAX_AGE today. */
+  function birthBounds(now = new Date()) {
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const dayIn = target => Math.min(now.getDate(), daysInMonth(target, month));
+    // Someone turning MAX_AGE + 1 today is too old, so the oldest allowed birthday is the day after.
+    const oldest = new Date(year - MAX_AGE - 1, month - 1, dayIn(year - MAX_AGE - 1) + 1);
+    return {
+      min: toIso(oldest.getDate(), oldest.getMonth() + 1, oldest.getFullYear()),
+      max: toIso(dayIn(year - MIN_AGE), month, year - MIN_AGE)
+    };
   }
 
   function displayText(day, month, year) {
@@ -144,7 +160,8 @@
   function attach(input, options = {}) {
     const document = input.ownerDocument;
     const firstYear = Number((input.min || '1900').slice(0, 4));
-    const years = range(new Date().getFullYear(), firstYear, -1);
+    const lastYear = input.max ? Number(input.max.slice(0, 4)) : new Date().getFullYear();
+    const years = range(lastYear, firstYear, -1);
     let trigger = null;
     let setOpen = () => {};
 
@@ -228,6 +245,14 @@
         columns[0].limit(daysInMonth(year, month));
         columns[0].setValue(day || 0);
         update();
+        // A date stored before the current age range has no row: still show it, it just cannot be chosen again.
+        if (iso && input.value !== iso) {
+          input.value = iso;
+          if (trigger) {
+            trigger.textContent = displayText(day, month, year);
+            trigger.classList.remove('is-empty');
+          }
+        }
         if (trigger) {
           trigger.disabled = !!locked;
           if (locked) setOpen(false);
@@ -241,5 +266,11 @@
     };
   }
 
-  return { attach, daysInMonth, toIso, displayText };
+  /** attach for a birth date: the wheels and the input's min/max only offer the accepted ages. */
+  function attachBirthDate(input, options) {
+    Object.assign(input, birthBounds());
+    return attach(input, options);
+  }
+
+  return { attach, attachBirthDate, birthBounds, daysInMonth, toIso, displayText };
 }));

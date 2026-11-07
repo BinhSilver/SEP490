@@ -44,6 +44,9 @@ public interface GameService {
 
     void cancelQuickMatch(long userId);
 
+    /** The user equipped another skin: resend their waiting room so the opponent sees it. */
+    void skinChanged(long userId);
+
     /** Người giữ quyền chọn (sau khi tung đồng xu) chọn giá trị cho cài đặt đang tới lượt. */
     RoomView draftChoose(long userId, String roomId, DraftChoiceRequest request);
 

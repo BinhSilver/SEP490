@@ -9,7 +9,9 @@ class ApplyLocalCatalog {
     public static void main(String[] args) throws Exception {
         Path input=Path.of("target/ai-call-catalog-update");
         var slugs=Files.readAllLines(input.resolve("slugs.txt"));
-        if(slugs.size()!=42 || new HashSet<>(slugs).size()!=42)throw new IllegalStateException("Expected 42 unique slugs");
+        int expectedSlugs = System.getenv("AICALL_EXPECTED_SLUGS") != null ? Integer.parseInt(System.getenv("AICALL_EXPECTED_SLUGS")) : slugs.size();
+        int expectedRoots = System.getenv("AICALL_EXPECTED_ROOTS") != null ? Integer.parseInt(System.getenv("AICALL_EXPECTED_ROOTS")) : -1;
+        if(slugs.isEmpty() || slugs.size()!=expectedSlugs || new HashSet<>(slugs).size()!=slugs.size())throw new IllegalStateException("Expected "+expectedSlugs+" unique slugs");
         var columns=List.of("title","variant_title","description","background","flow_json","learning_content_json","thumbnail_url");
         Path backup=Path.of("target/ai-call-before-"+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")));
         try(var db=DriverManager.getConnection(System.getenv("AICALL_DB_URL"),System.getenv("AICALL_DB_USER"),System.getenv("AICALL_DB_PASSWORD"))) {
@@ -40,11 +42,11 @@ class ApplyLocalCatalog {
                         update.setLong(columns.size()+1,id);
                         if(update.executeUpdate()!=1)throw new IllegalStateException("Expected one row: "+slug);
                     }
-                    if(roots!=14)throw new IllegalStateException("Expected 14 existing roots");
+                    if(expectedRoots != -1 && roots != expectedRoots)throw new IllegalStateException("Expected "+expectedRoots+" existing roots");
                     Files.write(backup.resolve("ids.tsv"),manifest);
                     Files.write(input.resolve("ids.tsv"),manifest);
                 }
-                db.commit();System.out.println("Updated content of 42 existing scenarios (14 roots); IDs and sessions preserved. Backup: "+backup);
+                db.commit();System.out.println("Updated content of "+slugs.size()+" existing scenarios ("+roots+" roots); IDs and sessions preserved. Backup: "+backup);
             } catch(Exception e){db.rollback();throw e;}
         }
     }

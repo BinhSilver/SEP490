@@ -138,7 +138,12 @@ public final class GameDtos {
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
     public record RoomPlayerView(long userId, String displayName, String avatarUrl, int slot, boolean host,
-                                 boolean ready, boolean online, String avatarFrame, String nameStyle) {
+                                 boolean ready, boolean online, String avatarFrame, String nameStyle, SkinLook skin) {
+    }
+
+    /** The character or plane a player has equipped for the room's game; null for games without skins. */
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    public record SkinLook(String code, String name, String image, String renderCode, String packPath) {
     }
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
