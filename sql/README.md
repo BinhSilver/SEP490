@@ -35,10 +35,10 @@ scoped, rerunnable backfill over a full seed.
 
 The Learning flow (Smart Test survey, learning path, goal curriculum, jpath) keeps
 one schema file, `learning/learning_schema.sql` (every Learning table, column, index,
-FK and CHECK; re-runnable, upgrades older Learning tables in place), and its seed rows
-split by JLPT level: `learning/learning_data_common.sql`, then `learning_data_N5.sql`
-… `learning_data_N1.sql` (each re-runnable and under 50 MB). Run the schema, then the
-data files in that order, after the normal base seeds. They replace the former Learning
+FK and CHECK; re-runnable, upgrades older Learning tables in place), and one data file,
+`learning/learning_data.sql` (JLPT path N5-N1 and the communication path; re-runnable,
+stored with Git LFS: run `git lfs pull` after pulling). Run the schema, then the data
+file, after the normal base seeds. They replace the former Learning
 migrations 004-012, 014, 015, 022 and seeds `learning_owned.sql` /
 `learning_owned_part2.sql`. New Learning tables and data go into these files, not
 into `migrations/` or `seeds/`. See `learning/README.md`; verify with

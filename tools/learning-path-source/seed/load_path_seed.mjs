@@ -118,9 +118,9 @@ const LEARNING_FILE = /^learning_data_(?:common|N[1-5])\.sql$/;
 /** Throws unless `file` is <root>/sql/learning/learning_data_common.sql or learning_data_N1..N5.sql. */
 export function assertLearningDataFile(file, root = ROOT) {
   const abs = path.resolve(root, String(file));
-  const dir = path.resolve(root, 'sql/learning');
+  const dir = path.resolve(root, 'sql/learning/parts');
   if (path.dirname(abs) !== dir || !LEARNING_FILE.test(path.basename(abs))) {
-    throw new Error(`${file} is not a Learning data file (sql/learning/learning_data_common.sql or learning_data_N1..N5.sql)`);
+    throw new Error(`${file} is not a Learning data file (sql/learning/parts/learning_data_common.sql or learning_data_N1..N5.sql)`);
   }
   return abs;
 }

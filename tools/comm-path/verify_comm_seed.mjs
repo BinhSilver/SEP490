@@ -20,7 +20,7 @@ const LEARNER = 'リン';
 const VALID_CATEGORY_CODES = ['food-drink', 'introduction', 'daily-life', 'transport', 'shopping', 'health-service', 'work-study', 'travel'];
 const SCORING_RULE_CODES = ['grammar_accuracy', 'vocabulary_usage', 'mission_completion', 'naturalness'];
 
-const SQL_FILE = path.join(ROOT, 'sql/learning', 'learning_data_comm.sql');
+const SQL_FILE = path.join(ROOT, 'sql/learning/parts', 'learning_data_comm.sql');
 const SCHEMA_FILE = path.join(ROOT, 'target', 'cpath-schema.sql');
 const KAIWA_SCHEMA_FILE = path.join(ROOT, 'jlas_schema.sql');
 const MAX_FILE_BYTES = 20 * 1024 * 1024;

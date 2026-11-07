@@ -352,7 +352,7 @@ const VALIDATOR = `DELIMITER //\nDROP PROCEDURE IF EXISTS jlas_validate_comm_pat
 export async function writeCommunicationPathSeed(root = ROOT, { check = false } = {}) {
   const canonical = await readLearningContent(root);
   const generated = renderCommunicationPathSeed(canonical);
-  const seedPath = path.join(root, 'sql/learning/learning_data_common.sql');
+  const seedPath = path.join(root, 'sql/learning/parts/learning_data_common.sql');
   const original = await fs.readFile(seedPath, 'utf8');
   const start = original.indexOf(BEGIN);
   const finish = start < 0 ? -1 : original.indexOf(END, start);

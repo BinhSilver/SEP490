@@ -251,7 +251,7 @@ function main() {
   line('COMMIT;');
   line('');
 
-  const target = path.join(ROOT, 'sql/learning', 'learning_data_comm.sql');
+  const target = path.join(ROOT, 'sql/learning/parts', 'learning_data_comm.sql');
   mkdirSync(path.dirname(target), { recursive: true });
   writeFileSync(target, out.join('\n'));
   console.log(`wrote ${target}`);

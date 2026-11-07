@@ -9,7 +9,7 @@ export const JPATH_BEGIN = '-- BEGIN GENERATED jpath';
 /** The data file of a JLPT level, or the common file when no level is given. */
 export function learningDataFile(root, level = null) {
   if (level && !LEVELS.includes(level)) throw new Error(`Unknown JLPT level ${level}`);
-  return path.join(root, 'sql/learning', level ? `learning_data_${level}.sql` : 'learning_data_common.sql');
+  return path.join(root, 'sql/learning/parts', level ? `learning_data_${level}.sql` : 'learning_data_common.sql');
 }
 
 /** Marker of the part of a multi-level section that belongs to one level. */

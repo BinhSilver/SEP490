@@ -41,7 +41,7 @@ const readIf = (file) => (existsSync(file) ? readFileSync(file) : null);
  */
 export function buildSeed(level, {
   compiledDir = 'data/learning-path/compiled', audioDir = 'data/learning-path/audio', audioRoot = 'data/content-audio',
-  editsDir = 'data/learning-path/edits', outDir = 'sql/learning', reportDir = 'target', check = false,
+  editsDir = 'data/learning-path/edits', outDir = 'sql/learning/parts', reportDir = 'target', check = false,
 } = {}) {
   if (!LEVELS.includes(level)) throw new Error(`Unknown JLPT level ${level}`);
   const errors = [];

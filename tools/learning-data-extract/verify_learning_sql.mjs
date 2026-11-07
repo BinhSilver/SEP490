@@ -9,7 +9,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 // GitHub's 50 MB warning limit; the checks below read the data files as one text in run order.
 const migrationFile = path.join(root, 'sql/learning/learning_schema.sql');
 export const DATA_LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'];
-export const SEED_FILES = ['sql/learning/learning_data_common.sql', ...DATA_LEVELS.map((level) => `sql/learning/learning_data_${level}.sql`)];
+export const SEED_FILES = ['sql/learning/parts/learning_data_common.sql', ...DATA_LEVELS.map((level) => `sql/learning/parts/learning_data_${level}.sql`)];
 export const MAX_SEED_PART_BYTES = 50 * 1024 * 1024;
 export function readLearningSeed(base = root) {
   return SEED_FILES.map((file) => fs.readFileSync(path.join(base, file), 'utf8')).join('\n');

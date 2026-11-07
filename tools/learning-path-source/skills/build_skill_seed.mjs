@@ -32,7 +32,7 @@ function bankSha(level) {
  * @returns {{ok, drift, file, report, errors}}
  */
 export function buildSkillSeed(level, {
-  audioDir = 'data/learning-path/audio', audioRoot = 'data/content-audio', outDir = 'sql/learning', check = false,
+  audioDir = 'data/learning-path/audio', audioRoot = 'data/content-audio', outDir = 'sql/learning/parts', check = false,
 } = {}) {
   if (!LEVELS.includes(level)) throw new Error(`Unknown JLPT level ${level}`);
   const errors = [];
