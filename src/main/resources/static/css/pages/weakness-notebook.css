@@ -200,3 +200,179 @@
   .notebook-ratings { gap: 6px; }
   .notebook-ratings button { min-height: 68px; padding: 9px 3px; }
 }
+
+/* Plum palette for notebook lists, dialogs, and review cards. */
+html[data-theme="dark"] #jlabBasePage:has(#notebookApp) {
+  --color-background: var(--dark-bg);
+  --jlab-base-page-background: var(--color-background);
+}
+html[data-theme="dark"] .notebook-page {
+  --nb-bg: var(--dark-bg);
+  --nb-card: var(--dark-surface);
+  --nb-raised: var(--dark-raised);
+  --nb-soft: var(--dark-soft);
+  --nb-line: var(--dark-line);
+  --nb-field-line: var(--dark-input-line);
+  --nb-ink: var(--dark-ink);
+  --nb-muted: var(--dark-muted);
+  --nb-action: var(--dark-accent);
+  --nb-action-hover: var(--dark-accent-hover);
+  --color-on-surface: var(--nb-ink);
+  --color-on-surface-variant: var(--nb-muted);
+  --color-surface-lowest: var(--nb-card);
+  --color-surface: var(--nb-bg);
+  --color-outline-variant: var(--nb-line);
+  --color-primary: var(--nb-action);
+  --color-on-primary: var(--nb-bg);
+  --color-primary-fixed: var(--nb-soft);
+  color-scheme: dark;
+}
+html[data-theme="dark"] .notebook-page :is(.notebook-primary, .notebook-study-launch) {
+  background: var(--nb-action);
+  color: var(--nb-bg);
+}
+html[data-theme="dark"] .notebook-page :is(.notebook-primary, .notebook-study-launch):hover:not(:disabled) {
+  background: var(--nb-action-hover);
+}
+html[data-theme="dark"] .notebook-page :is(
+  .notebook-learning-progress,
+  .notebook-entry,
+  .notebook-card,
+  .notebook-card-corner,
+  .notebook-ratings button,
+  .notebook-study-done,
+  .notebook-entry-filters button,
+  .notebook-kanji-study button
+) {
+  background: var(--nb-card);
+  border-color: var(--nb-line);
+  color: var(--nb-ink);
+}
+html[data-theme="dark"] .notebook-page .notebook-study { background: var(--nb-bg); }
+html[data-theme="dark"] .notebook-dialog::backdrop { background: rgb(0 0 0 / 50%); }
+html[data-theme="dark"] .notebook-page :is(.notebook-dialog, .notebook-sort-menu, .notebook-study-options-panel) {
+  background: var(--nb-raised);
+  border-color: var(--nb-line);
+}
+html[data-theme="dark"] .notebook-page :is(.notebook-search input, .notebook-dialog input, .notebook-study-limit select) {
+  background: var(--nb-raised);
+  border-color: var(--nb-field-line);
+  color: var(--nb-ink);
+  caret-color: var(--nb-action);
+}
+html[data-theme="dark"] .notebook-page .notebook-study-limit select {
+  --color-surface-lowest: var(--nb-raised);
+  --color-surface-low: var(--nb-raised);
+  --color-outline-variant: var(--nb-field-line);
+  --color-focus: var(--nb-action);
+  --focus-ring: 0 0 0 3px var(--nb-action);
+}
+html[data-theme="dark"] .notebook-page input::placeholder { color: var(--nb-muted); }
+html[data-theme="dark"] .notebook-page :is(
+  .notebook-book-icon,
+  .notebook-detail-icon,
+  .notebook-vocabulary-heading strong span,
+  .notebook-entry-kind,
+  .notebook-entry-example,
+  .notebook-card-example,
+  .notebook-kanji-readings-grid>div,
+  .notebook-kanji-memory,
+  .notebook-progress-track,
+  .notebook-study-progress
+),
+html[data-theme="dark"] .notebook-page #notebookKanjiStrokes {
+  background: var(--nb-soft);
+  color: var(--nb-muted);
+}
+html[data-theme="dark"] .notebook-page :is(
+  .notebook-book-icon,
+  .notebook-detail-icon,
+  .notebook-vocabulary-heading strong span,
+  .notebook-entry-actions a:hover,
+  .notebook-entry-actions button:hover,
+  .notebook-back:hover
+),
+html[data-theme="dark"] .notebook-page #notebookCardReading {
+  color: var(--nb-action);
+}
+html[data-theme="dark"] .notebook-page :is(
+  .notebook-detail-title h1,
+  .notebook-progress-heading,
+  .notebook-progress-legend b,
+  .notebook-entry-term,
+  .notebook-entry-example [lang=ja],
+  .notebook-study-topbar h1,
+  .notebook-study-limit,
+  .notebook-card-face strong,
+  .notebook-card-example [lang=ja],
+  .notebook-kanji-study,
+  .notebook-kanji-readings-grid p,
+  .notebook-kanji-structure h2
+),
+html[data-theme="dark"] .notebook-page #notebookCardMeaning {
+  color: var(--nb-ink);
+}
+html[data-theme="dark"] .notebook-page :is(
+  .notebook-book-arrow,
+  .notebook-back,
+  .notebook-detail-title p,
+  .notebook-manage button,
+  .notebook-progress-heading small,
+  .notebook-progress-heading>span,
+  .notebook-progress-legend,
+  .notebook-vocabulary-heading,
+  .notebook-sort>button,
+  .notebook-entry-reading,
+  .notebook-entry-meaning,
+  .notebook-entry-chevron,
+  .notebook-entry-actions a,
+  .notebook-entry-actions button,
+  .notebook-study-back,
+  .notebook-study-options summary,
+  .notebook-study-options-panel p,
+  .notebook-study-progress-row>span,
+  .notebook-study-count,
+  .notebook-card-face small,
+  .notebook-card-hint,
+  .notebook-ratings small,
+  .notebook-kanji-readings-grid small
+) {
+  color: var(--nb-muted);
+}
+html[data-theme="dark"] .notebook-page :is(
+  .notebook-manage button:hover,
+  .notebook-sort>button:hover,
+  .notebook-study-back:hover,
+  .notebook-study-options summary:hover,
+  .notebook-card-corner:hover,
+  .notebook-ratings button:hover,
+  .notebook-entry-filters button[aria-pressed=true],
+  .notebook-entry-filters button:hover,
+  .notebook-kanji-study button:hover
+) {
+  background: var(--nb-soft);
+  border-color: var(--nb-action);
+  color: var(--nb-action);
+}
+html[data-theme="dark"] .notebook-page :is(.notebook-book:hover, .notebook-card:hover, .notebook-kanji-memory) {
+  border-color: var(--nb-action);
+}
+html[data-theme="dark"] .notebook-page .notebook-kanji-explore { border-color: var(--nb-line); }
+html[data-theme="dark"] .notebook-page :is(.notebook-progress-track span, .notebook-study-progress span) { background: var(--nb-action); }
+html[data-theme="dark"] .notebook-page .notebook-notice { background: var(--dark-warning-bg); border-color: var(--dark-warning-line); color: var(--dark-warning); }
+html[data-theme="dark"] .notebook-page .notebook-sort-menu button { color: var(--nb-muted) !important; }
+html[data-theme="dark"] .notebook-page .notebook-sort-menu button:is(:hover, [aria-pressed=true]) {
+  background: var(--nb-soft) !important;
+  color: var(--nb-action) !important;
+}
+html[data-theme="dark"] .notebook-page :is(.notebook-status-deep, .notebook-entry-dot--deep) { --status-color: var(--dark-success); }
+html[data-theme="dark"] .notebook-page :is(.notebook-status-good, .notebook-entry-dot--good) { --status-color: var(--dark-accent); }
+html[data-theme="dark"] .notebook-page :is(.notebook-status-learning, .notebook-entry-dot--learning) { --status-color: var(--dark-warning); }
+html[data-theme="dark"] .notebook-page :is(.notebook-status-new, .notebook-entry-dot--new) { --status-color: var(--dark-faint); }
+html[data-theme="dark"] .notebook-ratings [data-rating="AGAIN"] { --rating-color: var(--dark-danger); }
+html[data-theme="dark"] .notebook-ratings [data-rating="HARD"] { --rating-color: var(--dark-warning); }
+html[data-theme="dark"] .notebook-ratings [data-rating="GOOD"] { --rating-color: var(--dark-success); }
+html[data-theme="dark"] .notebook-ratings [data-rating="EASY"] { --rating-color: var(--dark-accent); }
+html[data-theme="dark"] .notebook-page #notebookKanjiStrokes path { stroke: var(--nb-ink); }
+html[data-theme="dark"] .notebook-page :is(button, a, input, select, summary):focus-visible { outline-color: var(--nb-action); }
+html[data-theme="dark"] .notebook-page ::selection { background: var(--dark-selection); color: var(--nb-ink); }

@@ -381,3 +381,86 @@
   .km-map-footer output { background:var(--km-canvas); padding:2px 5px; font-size:9px; }
   .km-detail { top:40%; left:8px; right:8px; bottom:70px; padding:12px 16px 22px; }
 }
+
+/* Plum palette for the atlas, controls, and study dialogs. */
+html[data-theme="dark"] .km-page {
+  --km-bg: var(--dark-bg);
+  --km-panel: var(--dark-surface);
+  --km-raised: var(--dark-raised);
+  --km-soft: var(--dark-soft);
+  --km-line: var(--dark-line);
+  --km-field-line: var(--dark-input-line);
+  --km-ink: var(--dark-ink);
+  --km-muted: var(--dark-muted);
+  --km-primary: var(--dark-accent);
+  --km-on-primary: var(--dark-on-button);
+  --km-on-soft: var(--dark-ink);
+  --color-background: var(--km-bg);
+  --jlab-base-page-background: var(--km-bg);
+  color-scheme: dark;
+}
+html[data-theme="dark"] .km-workspace {
+  --km-canvas: var(--dark-bg);
+  --km-grid: var(--dark-raised);
+  --km-edge: var(--dark-input-line);
+  --km-route: var(--dark-accent);
+  --km-map-text: var(--dark-muted);
+  --km-card: var(--dark-surface);
+  --km-card-ink: var(--dark-ink);
+  --km-card-muted: var(--dark-muted);
+}
+html[data-theme="dark"] .km-workspace.is-map-light {
+  --km-canvas: var(--dark-surface);
+  --km-grid: var(--dark-soft);
+  --km-edge: var(--dark-faint);
+  --km-card: var(--dark-raised);
+}
+html[data-theme="dark"] .km-page :is(.km-filters, .km-detail, .km-dialog) { background: var(--km-raised); }
+html[data-theme="dark"] .km-page :is(input:not([type=radio]), select) {
+  background: var(--km-raised);
+  border-color: var(--km-field-line);
+  caret-color: var(--km-primary);
+}
+html[data-theme="dark"] .km-page select {
+  --color-surface-lowest: var(--km-raised);
+  --color-surface-low: var(--km-raised);
+  --color-on-surface: var(--km-ink);
+  --color-outline-variant: var(--km-field-line);
+  --color-primary: var(--km-primary);
+  --color-focus: var(--km-primary);
+  --focus-ring: 0 0 0 3px var(--km-primary);
+}
+html[data-theme="dark"] .km-page input::placeholder { color: var(--km-muted); }
+html[data-theme="dark"] .km-page :is(.km-primary, .km-atlas-actions .km-study-trigger):hover:not(:disabled) {
+  background: var(--dark-accent-hover);
+  border-color: var(--dark-accent-hover);
+  color: var(--km-on-primary);
+  filter: none;
+}
+html[data-theme="dark"] .km-page :is(.km-level-badge, .km-dot-kanji, .km-dot-component) {
+  background: var(--km-soft);
+  color: var(--km-ink);
+  border-color: var(--km-field-line);
+}
+html[data-theme="dark"] .km-page .km-live-dot { background: var(--dark-success); }
+html[data-theme="dark"] .km-page .km-line-sample { border-color: var(--km-field-line); }
+html[data-theme="dark"] .km-page .km-study-answers .is-correct {
+  background: var(--dark-success-bg);
+  border-color: var(--dark-success-line);
+  color: var(--dark-success);
+}
+html[data-theme="dark"] .km-page .km-study-answers .is-wrong {
+  background: var(--dark-danger-bg);
+  border-color: var(--dark-danger-line);
+  color: var(--dark-danger);
+}
+html[data-theme="dark"] .km-page :is(.km-error, .km-dialog .km-answer-wrong) { color: var(--dark-danger); }
+html[data-theme="dark"] .km-page .km-dialog .km-answer-correct { color: var(--dark-success); }
+html[data-theme="dark"] .km-page .km-notebook-dialog::backdrop { background: rgb(0 0 0 / 56%); }
+html[data-theme="dark"] .km-page ::selection { background: var(--dark-selection); color: var(--km-ink); }
+
+html[data-theme="dark"] .km-stroke-wrap svg {
+  background-image:
+    linear-gradient(90deg, transparent 49.5%, var(--km-line) 49.5%, var(--km-line) 50.5%, transparent 50.5%),
+    linear-gradient(transparent 49.5%, var(--km-line) 49.5%, var(--km-line) 50.5%, transparent 50.5%);
+}

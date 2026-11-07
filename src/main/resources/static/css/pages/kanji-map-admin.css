@@ -41,9 +41,9 @@
 .kma-pagination { padding:16px 24px; display:flex; align-items:center; justify-content:space-between; gap:12px; border-top:1px solid var(--kma-line); color:var(--kma-muted); font-size:11px; }
 .kma-pagination>div { display:flex; align-items:center; gap:14px; }
 .kma-notice { padding:12px 16px; border:1px solid var(--kma-primary); border-radius:10px; background:var(--kma-soft); color:var(--color-on-primary-fixed,#462968); margin-bottom:18px; font-size:12px; line-height:1.7; }
-.kma-notice.is-error { border-color:#bd5a5a; background:#fff1f1; color:#8f2929; }
+.kma-notice.is-error { border-color:var(--dm-feature-danger-line, #bd5a5a); background:var(--dm-feature-danger-bg, #fff1f1); color:var(--dm-feature-danger, #8f2929); }
 .kma-dialog,.kma-confirm { padding:0; width:min(960px,calc(100vw - 32px)); max-height:90dvh; overflow-y:auto; border:1px solid var(--kma-line); border-radius:18px; background:var(--kma-panel); }
-.kma-dialog::backdrop,.kma-confirm::backdrop { background:#21182e80; }
+.kma-dialog::backdrop,.kma-confirm::backdrop { background:var(--dm-feature-backdrop, #21182e80); }
 .kma-editor-head { padding:20px 24px; border-bottom:1px solid var(--kma-line); }
 .kma-editor-head h2 { margin-top:6px; }
 .kma-editor-head button { font-size:22px; min-width:36px; padding:3px; }
@@ -98,4 +98,89 @@
   .kma-table-wrap td .kma-button { padding:8px; min-height:34px; font-size:11px; }
   .kma-table-name { overflow-wrap:anywhere; }
   .kma-editor-footer>.kma-button { flex:1; min-width:0; white-space:normal; font-size:11px; padding:10px; }
+}
+
+/* Plum palette for this feature. Light colors remain as fallbacks. */
+html[data-theme="dark"] #jlabBasePage.kma-body {
+  --dm-feature-background: var(--dark-bg);
+  --dm-feature-surface: var(--dark-surface);
+  --dm-feature-raised: var(--dark-raised);
+  --dm-feature-soft: var(--dark-soft);
+  --dm-feature-ink: var(--dark-ink);
+  --dm-feature-muted: var(--dark-muted);
+  --dm-feature-subtle: var(--dark-faint);
+  --dm-feature-backdrop: rgb(0 0 0 / 56%);
+
+  --dm-feature-line: var(--dark-line);
+  --dm-feature-field: var(--dark-input-line);
+  --dm-feature-accent: var(--dark-accent);
+  --dm-feature-accent-hover: var(--dark-accent-hover);
+  --dm-feature-on-accent: var(--dark-on-button);
+  --dm-feature-success: var(--dark-success);
+  --dm-feature-success-bg: var(--dark-success-bg);
+  --dm-feature-success-line: var(--dark-success-line);
+  --dm-feature-danger: var(--dark-danger);
+  --dm-feature-danger-bg: var(--dark-danger-bg);
+  --dm-feature-danger-line: var(--dark-danger-line);
+  --dm-feature-warning: var(--dark-warning);
+  --dm-feature-warning-bg: var(--dark-warning-bg);
+  --dm-feature-warning-line: var(--dark-warning-line);
+  --color-background: var(--dm-feature-background);
+  --color-surface: var(--dm-feature-background);
+  --color-surface-lowest: var(--dm-feature-surface);
+  --color-surface-low: var(--dm-feature-surface);
+  --color-surface-mid: var(--dm-feature-raised);
+  --color-surface-high: var(--dm-feature-soft);
+  --color-surface-container: var(--dm-feature-raised);
+  --color-surface-container-low: var(--dm-feature-surface);
+  --color-surface-container-high: var(--dm-feature-soft);
+  --color-surface-variant: var(--dm-feature-soft);
+  --color-on-surface: var(--dm-feature-ink);
+  --color-on-surface-variant: var(--dm-feature-muted);
+  --color-secondary: var(--dm-feature-muted);
+  --color-outline: var(--dm-feature-subtle);
+  --color-outline-variant: var(--dm-feature-line);
+  --color-primary: var(--dm-feature-accent);
+  --color-primary-container: var(--dm-feature-accent-hover);
+  --color-on-primary: var(--dm-feature-on-accent);
+  --color-on-primary-container: var(--dm-feature-on-accent);
+  --color-primary-fixed: var(--dm-feature-soft);
+  --color-on-primary-fixed: var(--dm-feature-ink);
+  --color-focus: var(--dm-feature-accent);
+  --color-success: var(--dm-feature-success);
+  --color-success-bg: var(--dm-feature-success-bg);
+  --color-error: var(--dm-feature-danger);
+  --color-error-container: var(--dm-feature-danger-bg);
+  --color-on-error-container: var(--dm-feature-danger);
+  --color-tertiary: var(--dm-feature-warning);
+  --color-tertiary-container: var(--dm-feature-warning-bg);
+  --jlab-base-page-background: var(--dm-feature-background);
+  --kma-primary: var(--dm-feature-accent);
+  --kma-soft: var(--dm-feature-soft);
+  --kma-ink: var(--dm-feature-ink);
+  --kma-muted: var(--dm-feature-muted);
+  --kma-line: var(--dm-feature-line);
+  --kma-panel: var(--dm-feature-surface);
+  --focus-ring: 0 0 0 3px var(--dm-feature-accent);
+  color: var(--dm-feature-ink);
+}
+html[data-theme="dark"] #jlabBasePage.kma-body :is(input:not([type="radio"], [type="checkbox"], [type="range"]), select, textarea) {
+  --color-surface-lowest: var(--dm-feature-raised);
+  --color-outline-variant: var(--dm-feature-field);
+  background-color: var(--dm-feature-raised);
+  border-color: var(--dm-feature-field);
+  color: var(--dm-feature-ink);
+  caret-color: var(--dm-feature-accent);
+}
+html[data-theme="dark"] #jlabBasePage.kma-body :is(button, a, input, select, textarea, summary):focus-visible {
+  outline-color: var(--dm-feature-accent);
+}
+html[data-theme="dark"] #jlabBasePage.kma-body ::selection { background: var(--dark-selection); color: var(--dm-feature-ink); }
+
+html[data-theme="dark"] #jlabBasePage.kma-body::before {
+  background: var(--dm-feature-background) !important;
+}
+
+html[data-theme="dark"] #jlabBasePage.kma-body :is(input, textarea)::placeholder {
+  color: var(--dm-feature-muted);
 }

@@ -58,7 +58,7 @@
     return span;
   }
   function placeSwitch(button) {
-    var actions = document.getElementById('jlabBaseActions');
+    var actions = document.getElementById('jlabBaseActions') || document.getElementById('adminShellThemeMount');
     var parent = actions || document.body;
     if (button.parentNode !== parent || (actions && parent.firstChild !== button)) {
       if (actions) parent.insertBefore(button, parent.firstChild);

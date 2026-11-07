@@ -12,7 +12,8 @@
     '<header class="admin-topbar"><button id="adminShellToggle" class="admin-menu-button" type="button" ' +
     'aria-label="Mở menu quản trị" aria-controls="adminShellSidebar" aria-expanded="false">' +
     '<i class="fa-solid fa-bars" aria-hidden="true"></i></button>' +
-    '<span id="adminShellTitle">Quản trị J-LAS</span></header>' +
+    '<span id="adminShellTitle">Quản trị J-LAS</span>' +
+    '<div id="adminShellThemeMount" class="admin-theme-control"></div></header>' +
     '<aside id="adminShellSidebar" class="admin-sidebar" aria-label="Quản trị J-LAS">' +
     '<div class="admin-brand"><img src="/images/jlab.png" alt="" width="36" height="36">' +
     '<strong>J-LAS <span>Cổng quản trị</span></strong></div>' +
