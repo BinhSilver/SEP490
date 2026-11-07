@@ -3742,3 +3742,66 @@ html.dark .cp-page {
   border-radius: 8px !important;
   box-shadow: none !important;
 }
+
+/* 4. [JLAS-W0108] 08/11: tidy "Hôm nay của bạn" — Kitsu beside the title, two mode buttons in one row,
+      suggestion note under them, weekly check and progress stacked as full-width rows */
+.jp-path .jp-today__top {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+}
+.jp-path .jp-today__lead { flex: 1 1 auto !important; min-width: 0 !important; }
+.jp-path .jp-today__top .jp-today__kitsu {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-left: auto !important;
+  flex: 0 1 auto !important;
+  position: static !important;
+}
+.jp-path .jp-today__top .jp-today__kitsu-img { width: 56px !important; height: 56px !important; }
+.jp-path .jp-today__top .jp-today__kitsu-bubble {
+  position: relative !important;
+  order: -1 !important;
+  max-width: 220px !important;
+  font-size: .82rem !important;
+  padding: 8px 12px !important;
+  border-radius: 12px !important;
+  background: var(--jp-r4-surface-soft) !important;
+  border: 1px solid var(--jp-r4-line) !important;
+}
+.jp-path .jp-modes {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px 12px !important;
+  align-items: start !important;
+}
+.jp-path .jp-mode {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 6px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+.jp-path .jp-mode > .jp-btn { width: 100% !important; min-height: 44px !important; justify-content: center !important; }
+.jp-path .jp-mode__tag,
+.jp-path .jp-mode > .jp-link-btn { align-self: center !important; font-size: .8rem !important; }
+.jp-path .jp-modes .jp-why {
+  grid-column: 1 / -1 !important;
+  margin: 2px 0 0 !important;
+  font-size: .82rem !important;
+}
+.jp-path .jp-today__bottom {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+}
+.jp-path .jp-today__bottom > * { width: 100% !important; max-width: none !important; margin: 0 !important; }
+@media (max-width: 640px) {
+  .jp-path .jp-today__top .jp-today__kitsu-bubble { display: none !important; }
+  .jp-path .jp-modes { grid-template-columns: 1fr !important; }
+}

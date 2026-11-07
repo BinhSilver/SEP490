@@ -457,13 +457,13 @@
       + '<p class="jp-today__subtitle">' + esc(dayLine(t)) + '</p>'
       + (x.why ? '<p class="jp-today__why">' + esc(x.why) + '</p>' : '')
       + '</div>'
+      + todayKitsuHtml(t)
       + '</div>'
       + '<div class="jp-today__body"><div class="jp-today__main">';
 
     var foot = '<div class="jp-today__bottom">'
       + weeklyBox
       + (compactSide ? '<aside class="jp-today__side" aria-label="Tiến trình">' + compactSide + '</aside>' : '')
-      + todayKitsuHtml(t)
       + '</div>';
     var end = '</div></div>' + foot + '</section>';
     var missed = t.skillDayMissed ? '<p class="jp-warn">Tuần này bạn còn thiếu ngày kỹ năng.</p>' : '';
