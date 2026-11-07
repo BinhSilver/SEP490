@@ -11,7 +11,6 @@
   var FRAMES = 'FRAMES';
   var SLUGS = { NEKO_CATCH: 'neko', AIR_DEFENSE: 'air-defense', MEMORY_MATCH: 'memory', FRAMES: 'frames' };
   /** Dải ảnh hoạt hình (make_shop_anim): mèo đứng yên 6 khung, máy bay nghiêng 8 khung + lửa đuôi. */
-  var ANIM = '/arena/images/shop/anim/';
 
   var el = {
     tabs: document.querySelector('[data-shop-tabs]'),
@@ -117,32 +116,9 @@
       + '</div></article>';
   }
 
-  /** Ảnh xem trước chuyển động; không có dải ảnh cho game khác thì dùng ảnh tĩnh. */
+  /** Ảnh xem trước chuyển động (character-skin-preview.js, dùng chung với phòng đấu). */
   function art(item, gameType) {
-    var renderer = item.renderCode || item.code;
-    // Gói skin tải lên: ảnh đại diện (đã là một khung, nên không dùng cách cắt atlas 4×4 của .ar-spaceship-art)
-    // trong lúc tải, rồi chuyển động idle vẽ từ chính gói.
-    if (renderer === 'PACK' && item.packPath) {
-      return '<span class="ar-character-art"><img src="' + esc(item.image) + '" alt="" loading="lazy" data-character-fallback>'
-        + '<canvas width="256" height="256" hidden data-skin-pack="' + esc(item.packPath) + '" data-skin-game="' + (gameType === 'AIR_DEFENSE' ? 'ship' : 'cat')
-        + '" role="img" aria-label="' + esc(item.name) + '"></canvas></span>';
-    }
-    if (renderer === 'CUSTOM') return '<img src="' + esc(item.image) + '" alt="' + esc(item.name) + '" loading="lazy" style="width:100%;height:100%;object-fit:contain">';
-    if (window.JlasCharacterSkins && window.JlasCharacterSkins.supports(renderer)) {
-      return '<span class="ar-character-art' + (gameType === 'AIR_DEFENSE' ? ' ar-spaceship-art' : '') + '"><img src="' + esc(item.image) + '" alt="" loading="lazy" data-character-fallback>'
-        + '<canvas width="256" height="256" hidden data-character-skin="' + esc(renderer)
-        + '" role="img" aria-label="' + esc(item.name) + '"></canvas></span>';
-    }
-    if (gameType === 'AIR_DEFENSE') {
-      return '<span class="ar-plane-fly" role="img" aria-label="' + esc(item.name) + '">'
-        + '<span class="ar-sprite ar-sprite--plane" style="background-image:url(' + ANIM + esc(renderer) + '.png)"></span>'
-        + '<span class="ar-sprite ar-sprite--exhaust" style="background-image:url(' + ANIM + 'exhaust.png)"></span></span>';
-    }
-    if (gameType === 'NEKO_CATCH') {
-      return '<span class="ar-sprite ar-sprite--cat" role="img" aria-label="' + esc(item.name) + '"'
-        + ' style="background-image:url(' + ANIM + esc(renderer) + '.webp)"></span>';
-    }
-    return '<img src="' + esc(item.image) + '" alt="' + esc(item.name) + '" loading="lazy">';
+    return window.JlasCharacterSkins.art(item, gameType);
   }
 
   /** Nhãn bậc trên ảnh: Thường / Hiếm / Huyền thoại; trang phục mặc định ghi "Mặc định". */
