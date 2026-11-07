@@ -1131,7 +1131,16 @@
       else wk.disabled = false;
     }, function (e) {
       wk.disabled = false;
-      wk.insertAdjacentHTML('afterend', '<span class="jp-parts__err">' + esc((e && e.message) || 'Chưa mở được bài kiểm tra.') + '</span>');
+      // one message per button (not one more line per click); "nothing learned yet" said plainly
+      var box = wk.parentNode && wk.parentNode.querySelector('.jp-parts__err[data-for="' + tab + '"]');
+      if (!box) {
+        wk.insertAdjacentHTML('afterend', '<span class="jp-parts__err" role="status" data-for="' + esc(tab) + '"></span>');
+        box = wk.parentNode.querySelector('.jp-parts__err[data-for="' + tab + '"]');
+      }
+      var notYet = e && (e.status === 409 || e.code === 'JPATH_CONTENT_NOT_LEARNABLE');
+      var name = tab === 'KANJI' ? 'Kanji' : tab === 'GRAMMAR' ? 'ngữ pháp' : 'từ vựng';
+      box.textContent = notYet ? 'Tuần này bạn chưa học mục ' + name + ' nào. Học trước rồi kiểm tra nhé.'
+        : ((e && e.message) || 'Chưa mở được bài kiểm tra. Thử lại sau.');
     });
   }
 
