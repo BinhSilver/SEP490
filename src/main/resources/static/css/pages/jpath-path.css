@@ -3700,3 +3700,199 @@ html.dark .cp-page {
     left: calc(100% + 6px) !important;
   }
 }
+
+/* [JLAS-W0108] 08/11 owner: calm & clean JLPT path layout matching communication path */
+
+/* 1. Khối "Hôm nay của bạn" (.jp-today): phẳng, ít hộp màu, bỏ sóng nước & Kitsu phụ, 1 nút chính nổi bật */
+.jp-path .jp-today {
+  background: var(--jp-r4-surface) !important;
+  border: 1px solid var(--jp-r4-line) !important;
+  border-radius: 12px !important;
+  padding: 18px 20px !important;
+  box-shadow: none !important;
+  gap: 14px !important;
+}
+.jp-path .jp-today__top {
+  gap: 14px !important;
+  align-items: center !important;
+}
+.jp-path .jp-today__cal {
+  width: 56px !important;
+  height: 56px !important;
+  background: var(--jp-r4-surface-soft) !important;
+  box-shadow: none !important;
+}
+.jp-path .jp-today__cal-water {
+  display: none !important;
+}
+.jp-path .jp-today__cal-day {
+  font-size: 1.15rem !important;
+  font-weight: 600 !important;
+}
+.jp-path .jp-today__cal-jp {
+  font-size: .64rem !important;
+}
+.jp-path .jp-today__kitsu {
+  display: none !important;
+}
+.jp-path .jp-today__pills {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.jp-path .jp-today__pill.jp-todo__item,
+.jp-path .jp-today__pill.jp-todo__item[data-pill-tab] {
+  background: var(--jp-r4-surface) !important;
+  border: 1px solid var(--jp-r4-line) !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  box-shadow: none !important;
+}
+.jp-path .jp-today__pill.jp-todo__item.is-done,
+.jp-path .jp-today__pill.jp-todo__item[data-pill-tab].is-done {
+  background: var(--jp-r4-surface-soft) !important;
+  border-color: var(--jp-r4-line) !important;
+}
+.jp-path .jp-today__pill .jp-btn:not([data-mode="COMBINED"]) {
+  background: var(--jp-r4-surface) !important;
+  border: 1px solid var(--jp-r4-line) !important;
+  color: var(--jp-r4-ink) !important;
+  box-shadow: none !important;
+}
+.jp-path .jp-today__pill .jp-btn:not([data-mode="COMBINED"]):hover {
+  background: var(--jp-r4-surface-soft) !important;
+  border-color: var(--jp-c-purple-500) !important;
+}
+.jp-path .jp-today__bottom {
+  padding-top: 12px !important;
+  border-top: 1px solid var(--jp-r4-line) !important;
+  gap: 12px !important;
+}
+.jp-path .jp-today__weekly,
+.jp-path .jp-today__weekly--due,
+.jp-path .jp-today__weekly--upcoming {
+  background: var(--jp-r4-surface-soft) !important;
+  border: 1px solid var(--jp-r4-line) !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  box-shadow: none !important;
+}
+.jp-path .jp-today__weekly-icon {
+  width: 28px !important;
+  height: 28px !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+.jp-path .jp-today__side {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+/* 2. Bản đồ lộ trình (.jp-parts): bỏ mây, đồi, chấm nền, biển gỗ, cảnh phụ; mặt phẳng êm, nhãn không ngắt chữ */
+.jp-parts__sky-pattern,
+.jp-parts__cloud,
+.jp-parts__hills,
+.jp-parts__week-scene,
+.jp-parts__deco,
+.jp-parts__mascot--side,
+.jp-parts__week-sign-post {
+  display: none !important;
+}
+.jp-parts__banner {
+  background: var(--jp-r4-surface) !important;
+  border: 1px solid var(--jp-r4-line) !important;
+  border-radius: 12px !important;
+  padding: 14px 18px !important;
+  box-shadow: none !important;
+}
+.jp-parts__stage {
+  background: var(--jp-r4-surface) !important;
+  border: 1px solid var(--jp-r4-line) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  padding: 24px 20px 36px !important;
+}
+.jp-parts__legend {
+  padding-top: 10px !important;
+  border-top: 1px solid var(--jp-r4-line) !important;
+  gap: 14px !important;
+}
+.jp-parts__legend-pill,
+.jp-parts__legend-pill--done,
+.jp-parts__legend-pill--today,
+.jp-parts__legend-pill--open {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 2px 4px !important;
+  color: var(--jp-r4-muted) !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+.jp-parts__week-sign {
+  margin-bottom: 4px !important;
+}
+.jp-parts__week-sign-board {
+  background: var(--jp-r4-surface-soft) !important;
+  border: 1px solid var(--jp-r4-line) !important;
+  border-radius: 999px !important;
+  padding: 5px 14px !important;
+  box-shadow: none !important;
+}
+.jp-parts__orb:not(.jp-parts__orb--goal-test) {
+  width: 72px !important;
+  height: 72px !important;
+  box-shadow: none !important;
+}
+.jp-parts__orb--today,
+.jp-parts__orb--today-done {
+  width: 80px !important;
+  height: 80px !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--jp-c-purple-500) 20%, transparent) !important;
+  animation: none !important;
+}
+.jp-parts__orb--today::after,
+.jp-parts__orb--today-done::after {
+  display: none !important;
+}
+.jp-parts__label {
+  width: max-content !important;
+  max-width: 210px !important;
+  word-break: keep-all !important;
+  overflow-wrap: break-word !important;
+  line-height: 1.3 !important;
+}
+.jp-parts__label-main {
+  font-size: .88rem !important;
+  font-weight: 500 !important;
+  color: var(--jp-r4-ink) !important;
+}
+.jp-parts__label-sub {
+  font-size: .78rem !important;
+  color: var(--jp-r4-muted) !important;
+}
+
+/* 3. Thanh trái (.jp-path__side) và thẻ chủ đề/thanh kéo (.jp-topic-card, .jp-slider-card): gọn, 1 viền mảnh */
+.jp-path .jp-path__side .jp-sidenav,
+.jp-path .jp-path__side .jp-levels--side,
+.jp-path .jp-slider-card,
+.jp-path .jp-topic-card {
+  background: var(--jp-r4-surface) !important;
+  border: 1px solid var(--jp-r4-line) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+.jp-path .jp-topic-card {
+  padding: 14px 16px !important;
+  gap: 10px !important;
+}
+.jp-path .jp-topic-card:hover {
+  border-color: var(--jp-c-purple-500) !important;
+  transform: none !important;
+}
+.jp-path .jp-level-cell {
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}

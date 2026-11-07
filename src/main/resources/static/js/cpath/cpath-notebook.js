@@ -37,7 +37,7 @@
         + (x.reading && x.reading !== x.ja ? '<div class="cp-survey__sub" lang="ja">' + esc(x.reading) + '</div>' : '')
         + '<div class="cp-survey__sub">' + esc(x.vi) + '</div></div>'
         + (x.audioUrl ? '<button type="button" class="jp-btn jp-btn--sm" data-note-play="' + esc(x.audioUrl) + '" aria-label="Nghe phát âm ' + esc(x.ja) + '">Nghe</button>' : '')
-        + (x.situation ? '<a class="cp-btn-ghost" href="/learning/comm/situation/' + encodeURIComponent(x.situation) + '">Mở tình huống</a>' : '')
+        + (x.situation ? '<a class="cp-btn-ghost" href="/learning/comm/situation?id=' + encodeURIComponent(x.situation) + '">Mở tình huống</a>' : '')
         + '</li>';
     }).join('') + '</ul>';
   }
