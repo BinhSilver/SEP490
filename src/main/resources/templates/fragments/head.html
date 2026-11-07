@@ -45,7 +45,7 @@
 
     <!-- Page-specific CSS (optional) -->
     <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
-        th:href="@{'/css/pages/' + ${pageCss} + '.css?v=' + ${pageCss == 'weakness-notebook' ? '20261021-notebook-sort-menu' : (pageCss == 'home' ? '20261105-plum' : (pageCss == 'arena' ? '20261105-plum' : (pageCss == 'login' ? '20261103-login-plum-night' : (pageCss == 'profile' ? '20261103-auto' : (pageCss == 'onyomi' ? '20261105-plum' : '20261105-plum')))))}}" />
+        th:href="@{'/css/pages/' + ${pageCss} + '.css?v=' + ${pageCss == 'weakness-notebook' ? '20261021-notebook-sort-menu' : (pageCss == 'home' ? '20261105-plum' : (pageCss == 'arena' ? '20261106-plane-still' : (pageCss == 'login' ? '20261103-login-plum-night' : (pageCss == 'profile' ? '20261103-auto' : (pageCss == 'onyomi' ? '20261106-demo-panel' : '20261105-plum')))))}}" />
     <link th:if="${pageCss == 'jlpt'}" rel="stylesheet" th:href="@{/css/pages/jlpt.css?v=5}" />
     <link th:if="${pageCss == 'profile'}" rel="stylesheet" th:href="@{/css/pages/retention-demo.css?v=20261105-plum}" />
     <link th:if="${pageCss == 'register' or pageCss == 'profile'}" rel="stylesheet" th:href="@{/css/components/date-wheel.css?v=20261102-wheel2}" />
@@ -64,7 +64,7 @@
     <script th:src="@{/js/components/cp-auto-pay.js(v=20261103-auto)}"></script>
     <script defer th:src="@{/js/inline-dictionary.js(v=20261103-auto)}"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
-    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2" />
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261107-onyomi-mobile" />
 </head>
 
 <!-- Compact feature-module head (aicall / learning / etc.) -->
@@ -101,7 +101,7 @@
     <script th:src="@{/js/components/cp-auto-pay.js(v=20261103-auto)}"></script>
     <script defer th:src="@{/js/inline-dictionary.js(v=20261103-auto)}"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
-    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2" />
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261107-onyomi-mobile" />
 </head>
 
 </html>

@@ -53,6 +53,26 @@ public class OnyomiPageController {
         return "learning/onyomi/lesson";
     }
 
+    /** The practice quiz on its own page; the lesson page only teaches and links here. */
+    @GetMapping("/lessons/{id}/practice")
+    public String lessonPractice(@PathVariable("id") Long id, @AuthenticationPrincipal UserPrincipal user,
+                                 Model model) {
+        OnyomiLessonView lesson = courseService.lesson(user.userId(), id).orElse(null);
+        if (lesson == null) {
+            return "redirect:" + COURSE;
+        }
+        if (LOCKED.equals(lesson.status())) {
+            return "redirect:" + COURSE + lockedLesson(user, id);
+        }
+        if (lesson.practiceQuestionCount() == 0) {
+            return "redirect:" + COURSE + "/lessons/" + id;
+        }
+        model.addAttribute("lesson", lesson);
+        model.addAttribute("pageTitle", "Luyện tập bài " + lesson.order() + ": " + lesson.title() + " - Onyomi - JLAS");
+        model.addAttribute("layoutMode", "app");
+        return "learning/onyomi/practice";
+    }
+
     @GetMapping("/rules/{id}")
     public String rule(@PathVariable("id") Long id, @AuthenticationPrincipal UserPrincipal user, Model model) {
         OnyomiRulePageView page = courseService.rule(user.userId(), id).orElse(null);

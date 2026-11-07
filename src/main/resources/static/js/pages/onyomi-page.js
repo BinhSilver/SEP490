@@ -1,6 +1,7 @@
 /**
- * Behaviour shared by the Onyomi pages: Japanese read-aloud buttons, the lesson sidebar that follows
- * the section in view, the flashcard deck, and links that open once a quiz is passed.
+ * Behaviour shared by the Onyomi pages: Japanese read-aloud buttons, folding stages on the path page,
+ * the lesson sidebar that follows the section in view, the flashcard deck, and links that open once a
+ * quiz is passed.
  */
 (function () {
   'use strict';
@@ -18,6 +19,14 @@
   document.addEventListener('click', function (event) {
     var button = event.target.closest('[data-speak]');
     if (button) speak(button.dataset.speak);
+  });
+
+  /* Path page on phones: a stage's lessons stay folded until its header is tapped. */
+  document.addEventListener('click', function (event) {
+    var toggle = event.target.closest('.oy-stage__toggle');
+    if (!toggle) return;
+    var open = toggle.closest('.oy-stage').classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', String(open));
   });
 
   /* Sidebar: highlight the section currently in view. */

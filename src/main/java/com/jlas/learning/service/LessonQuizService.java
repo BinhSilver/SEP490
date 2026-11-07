@@ -49,6 +49,19 @@ public interface LessonQuizService {
     QuizSubmitResponse submit(Long userId, Long attemptId, QuizSubmitRequest request);
 
     /**
+     * Demo tools only: records every question of the open attempt as answered right (or wrong), replacing
+     * answers already given, then submits it the normal way, so progress and unlocks follow as after a real
+     * attempt.
+     */
+    QuizSubmitResponse finishForDemo(Long userId, Long attemptId, boolean correct);
+
+    /**
+     * Demo tools only: moves the start of an open timed attempt so that {@code seconds} are left on its clock.
+     * Returns the seconds left.
+     */
+    long secondsLeftForDemo(Long userId, Long attemptId, int seconds);
+
+    /**
      * Drops an unfinished attempt (marks it ABANDONED, ungraded), so starting the quiz again opens a new
      * attempt instead of resuming it. An attempt that is no longer IN_PROGRESS is left as it is.
      */
