@@ -28,9 +28,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.jlas.jlptpath.service.JpathClock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,7 +57,8 @@ public class JpathSpeakService {
     private final ObjectMapper json;
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
     private final Map<String, Integer> used = new ConcurrentHashMap<>();
-    private Supplier<LocalDate> today = LocalDate::now;
+    /** E2E-002: the daily limit follows the learner's study day by the app clock (LocalDate.now() only without one). */
+    private Function<Long, LocalDate> today = userId -> LocalDate.now();
 
     public JpathSpeakService(AzureSpeechPronunciationConfig config, FfmpegService ffmpeg, ObjectMapper json) {
         this.config = config;
@@ -62,8 +66,15 @@ public class JpathSpeakService {
         this.json = json;
     }
 
+    @Autowired
+    public JpathSpeakService(AzureSpeechPronunciationConfig config, FfmpegService ffmpeg, ObjectMapper json,
+                             JpathClock clock) {
+        this(config, ffmpeg, json);
+        this.today = clock::today;
+    }
+
     void setToday(Supplier<LocalDate> today) {
-        this.today = today;
+        this.today = userId -> today.get();
     }
 
     /** Scored attempts left today. */
@@ -74,7 +85,8 @@ public class JpathSpeakService {
     /** Counts one attempt; false once the day's limit is used up. */
     boolean take(Long userId) {
         String k = key(userId);
-        used.keySet().removeIf(x -> !x.endsWith("|" + today.get()));
+        String day = "|" + today.apply(userId);
+        used.keySet().removeIf(x -> x.startsWith(userId + "|") && !x.endsWith(day));
         int[] ok = { 0 };
         used.compute(k, (x, n) -> {
             int c = n == null ? 0 : n;
@@ -86,7 +98,7 @@ public class JpathSpeakService {
     }
 
     private String key(Long userId) {
-        return userId + "|" + today.get();
+        return userId + "|" + today.apply(userId);
     }
 
     public JpathSpeakResult score(Long userId, String text, MultipartFile audio) {

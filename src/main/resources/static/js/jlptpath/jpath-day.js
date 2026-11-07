@@ -258,13 +258,16 @@
     var doc = root && root.document;
     var el = doc && doc.getElementById && doc.getElementById('jpathDayRoot');
     if (!el || !root.JpathApi) return;
+    // E2E-002: "today" is the learner's study day by the app clock, sent with every day detail; the browser date is
+    // only the first guess (a learner moved to a later day would otherwise be pushed back to the browser's today).
     var today = iso(new Date(Date.now() - new Date().getTimezoneOffset() * 60000));
     var m = /[?&]d=(\d{4}-\d{2}-\d{2})/.exec(String(root.location && root.location.search || ''));
     var day = m ? m[1] : today;
-    if (day > today) day = today;
     function load() {
       if (el.setAttribute) el.setAttribute('aria-busy', 'true');
       root.JpathApi.get(BASE + '/history/' + day).then(function (d) {
+        if (d && d.today) today = String(d.today);
+        if (day > today) { day = today; load(); return; }
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
         el.innerHTML = dayHtml(d, day, today);
         if (root.JpathPrint && root.JpathPrint.bind) root.JpathPrint.bind(el);

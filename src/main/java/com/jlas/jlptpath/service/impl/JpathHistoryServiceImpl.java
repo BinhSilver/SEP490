@@ -153,7 +153,7 @@ public class JpathHistoryServiceImpl implements JpathHistoryService {
                     reviewed.getOrDefault(day, 0), plan != null && plan.getAllDoneAt() != null, cpOf(plan),
                     checks.getOrDefault(day, List.of())));
         }
-        return new JpathHistoryView(start, end, out);
+        return new JpathHistoryView(start, end, out, today);
     }
 
     @Override
@@ -190,10 +190,11 @@ public class JpathHistoryServiceImpl implements JpathHistoryService {
                     lastAction.get(key), lastRating.get(key), lastCorrect.get(key)));
         }
         List<JpathDayItemView> wrongItems = wrong.stream().map(items::get).toList();
-        KindResolver kinds = kindResolver(userId, clock.today(userId));
+        LocalDate today = clock.today(userId);
+        KindResolver kinds = kindResolver(userId, today);
         return new JpathDayDetailView(day, kinds.kind(day, plan), plan != null && plan.getAllDoneAt() != null,
                 cpOf(plan), List.copyOf(items.values()), checksByDay(userId, day, day).getOrDefault(day, List.of()),
-                wrongItems);
+                wrongItems, today);
     }
 
     // ---- stats -------------------------------------------------------------------------------------------------

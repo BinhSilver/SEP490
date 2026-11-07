@@ -135,14 +135,27 @@
       if (typeof detail.scrollIntoView === 'function') detail.scrollIntoView({ block: 'nearest' });
     }
 
+    var serverToday = null;
+
     function load(range) {
       main.querySelectorAll('[data-range]').forEach(function (b) {
         b.setAttribute('aria-pressed', String(b.getAttribute('data-range') === String(range)));
       });
-      var to = new Date();
-      var from = new Date(to.getFullYear(), to.getMonth(), to.getDate() - (range - 1));
       status.textContent = 'Đang tải…';
-      return api.get(BASE + '/history?from=' + isoDay(from) + '&to=' + isoDay(to)).then(function (h) {
+      // E2E-002: the range ends at the learner's study day by the app clock. Until the first answer tells it, ask
+      // without dates (the server ends at its today) and ask again when that default is not this range.
+      var query = '';
+      if (serverToday) {
+        var p = serverToday.split('-');
+        var to = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+        var from = new Date(to.getFullYear(), to.getMonth(), to.getDate() - (range - 1));
+        query = '?from=' + isoDay(from) + '&to=' + isoDay(to);
+      }
+      return api.get(BASE + '/history' + query).then(function (h) {
+        if (!query && h && h.today) {
+          serverToday = String(h.today);
+          return load(range);
+        }
         days = (h && Array.isArray(h.days)) ? h.days : [];
         page = 0;
         draw();
