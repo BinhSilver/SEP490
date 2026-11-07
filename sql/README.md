@@ -40,7 +40,7 @@ FK and CHECK; re-runnable, upgrades older Learning tables in place), and six dat
 `_comm` (communication path); all re-runnable and stored with Git LFS (run `git lfs pull`
 after pulling). Run the schema, then the data files in that order, after the normal
 base seeds and migrations. They replace the former Learning
-migrations 004-012, 014, 015, 022 and seeds `learning_owned.sql` /
+migrations 004-015, 022 and seeds `learning_owned.sql` /
 `learning_owned_part2.sql`. New Learning tables and data go into these files, not
 into `migrations/` or `seeds/`. See `learning/README.md`; verify with
 `node tools/learning-data-extract/verify_learning_sql.mjs`.
