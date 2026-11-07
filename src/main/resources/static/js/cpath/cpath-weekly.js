@@ -19,7 +19,9 @@
 })(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : null), function (root) {
   'use strict';
 
-  var BASE = '/api/learning/comm/weekly';
+  // ?mode=review: today's spaced review (same page, no CP); otherwise the weekly test
+  var REVIEW = !!(root && root.location && /[?&]mode=review/.test(String(root.location.search || '')));
+  var BASE = REVIEW ? '/api/learning/comm/review' : '/api/learning/comm/weekly';
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -58,11 +60,11 @@
     return '<section class="jp-result" aria-labelledby="cpWeeklyResult">'
       + '<div class="jp-result__score' + (ok ? ' jp-ok' : '') + '">' + esc(r.score) + '%</div>'
       + '<h2 id="cpWeeklyResult" class="jp-result__title" tabindex="-1">'
-      + esc(ok ? ('Đạt kiểm tra tuần: đúng ' + r.correct + '/' + r.total + ' câu.' + (r.cp ? (' +' + r.cp + ' CP.') : ''))
+      + esc(REVIEW ? ('Ôn xong: đúng ' + r.correct + '/' + r.total + ' câu. Mục sai đã vào Sổ tay.') : ok ? ('Đạt kiểm tra tuần: đúng ' + r.correct + '/' + r.total + ' câu.' + (r.cp ? (' +' + r.cp + ' CP.') : ''))
         : ('Đúng ' + r.correct + '/' + r.total + ' câu, cần từ 80% để đạt. Ôn lại các câu sai rồi làm lại nhé.')) + '</h2>'
       + '<ul class="jp-review">' + rows + '</ul>'
       + '<div class="jp-result__actions">'
-      + (ok ? '' : '<button type="button" class="jp-btn" data-weekly-retry>Làm lại</button>')
+      + (ok || REVIEW ? '' : '<button type="button" class="jp-btn" data-weekly-retry>Làm lại</button>')
       + '<a class="cp-btn-primary" href="/learning/comm/path">Về lộ trình giao tiếp</a></div>'
       + '</section>';
   }
@@ -107,7 +109,7 @@
           return;
         }
         if (!(state.data.questions || []).length) {
-          el.innerHTML = infoHtml('Tuần này bạn chưa học tình huống nào nên chưa có bài kiểm tra.');
+          el.innerHTML = infoHtml(REVIEW ? 'Hôm nay chưa có mục cần ôn. Quay lại sau khi học xong tình huống.' : 'Tuần này bạn chưa học tình huống nào nên chưa có bài kiểm tra.');
           return;
         }
         show();

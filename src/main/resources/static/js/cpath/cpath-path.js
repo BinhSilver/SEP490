@@ -312,6 +312,11 @@
         : '<span class="jp-today__weekly-time">Mở vào ' + esc(weeklyDayStr) + '</span>')
       + '</div>'
       + '<p class="jp-today__weekly-desc">Ôn lại các từ, mẫu câu và câu hội thoại dưới 70 điểm trong tuần.</p>'
+      + '</div>'
+      + '<div class="jp-today__weekly">'
+      + '<div class="jp-today__weekly-head"><span class="jp-today__weekly-chip">Ôn tập</span>'
+      + '<a class="jp-btn jp-btn--sm" href="' + esc(pageUrl('weekly')) + (pageUrl('weekly').indexOf('?') >= 0 ? '&' : '?') + 'mode=review">Ôn tập hôm nay</a></div>'
+      + '<p class="jp-today__weekly-desc">Từ và mẫu câu đến lượt ôn (sau 1, 3, 7, 14, 30 ngày) và mục trong Sổ tay.</p>'
       + '</div>';
 
     var extraHtml = allDone
@@ -637,6 +642,12 @@
       + '<span class="cp-secondary-card__tag">Lộ trình chính</span>'
       + '<strong class="cp-secondary-card__name">' + esc(p.nameVi || 'Du lịch Nhật Bản') + '</strong>'
       + '<span class="jp-survey__sub">' + esc(LEVEL_VI[p.selfLevel] || 'Sơ cấp') + ' · ' + esc(p.dailySituations || 2) + ' tình huống/ngày</span>'
+      + '<div class="jp-side__range" role="group" aria-label="Số tình huống mỗi ngày">'
+      + [1, 2].map(function (n) {
+        return '<button type="button" class="jp-side-btn" data-cp-daily="' + n + '" aria-pressed="'
+          + (Number(p.dailySituations) === n ? 'true' : 'false') + '">' + n + ' tình huống/ngày</button>';
+      }).join('')
+      + '</div>'
       + (sec
         ? '<hr style="border:0;border-top:1px solid var(--cp-line);margin:6px 0;" />'
           + '<span class="cp-secondary-card__tag">Lộ trình phụ (Học tự do)</span>'
@@ -741,6 +752,16 @@
         if (anchor && typeof anchor.scrollIntoView === 'function') {
           anchor.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+        return;
+      }
+
+      var dailyBtn = t.closest('[data-cp-daily]');
+      if (dailyBtn && root.JpathApi.send) {
+        var n = Number(dailyBtn.getAttribute('data-cp-daily'));
+        Promise.resolve(root.JpathApi.send('PUT', '/api/learning/comm/path/daily', { dailySituations: n })).then(function () {
+          pathData.dailySituations = n;
+          return root.JpathApi.get('/api/learning/comm/map').then(function (m) { mapData = m || mapData; renderAll(); });
+        }).catch(function () { /* stays as it was */ });
         return;
       }
 

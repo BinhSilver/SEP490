@@ -749,6 +749,135 @@ public class CpathService {
         return out;
     }
 
+    // ------------------------------------------------------------------------------------------- daily review
+
+    /** Days after a situation's first completion on which its words and phrases come back (spaced review). */
+    static final List<Integer> REVIEW_DAYS = List.of(1, 3, 7, 14, 30);
+    static final int REVIEW_MAX = 10;
+
+    /**
+     * Owner 06/11 "từ và mẫu câu vào lượt ôn": today's review = the Sổ tay entries first, then the words and phrases
+     * of situations finished 1, 3, 7, 14 or 30 days ago. Same question shape as the weekly test; a miss goes to the
+     * Sổ tay, a right answer takes it out. Not counted in progress, no CP.
+     */
+    private List<WeeklyQ> reviewQuestions(Long userId, Map<String, Object> path) {
+        Long pathId = ((Number) path.get("id")).longValue();
+        LocalDate today = clock.today(userId);
+        List<Map<String, Object>> asked = new ArrayList<>();
+        asked.addAll(db.queryForList("SELECT i.code id, i.ja, i.reading, i.vi, i.audio_path FROM cpath_user_note n JOIN cpath_item i "
+                + "ON i.code = n.item_code WHERE n.path_id = ? AND n.kind = 'ITEM' AND i.vi IS NOT NULL ORDER BY n.wrong_count DESC", pathId));
+        List<Map<String, Object>> noteLines = db.queryForList("SELECT CONCAT(l.situation_code, '-L', l.line_order) id, l.ja, NULL reading, l.vi, l.audio_path "
+                + "FROM cpath_user_note n JOIN cpath_line l ON CONCAT(l.situation_code, '-L', l.line_order) = n.item_code "
+                + "WHERE n.path_id = ? AND n.kind = 'LINE' AND l.vi IS NOT NULL", pathId);
+        asked.addAll(noteLines);
+        List<String> due = new ArrayList<>();
+        for (Map<String, Object> r : db.queryForList("SELECT situation_code, done_at FROM cpath_user_situation WHERE path_id = ? AND done_at IS NOT NULL", pathId)) {
+            LocalDate d = dateOf(r.get("done_at"));
+            if (d != null && REVIEW_DAYS.contains((int) java.time.temporal.ChronoUnit.DAYS.between(d, today))) due.add((String) r.get("situation_code"));
+        }
+        if (!due.isEmpty()) {
+            String in = String.join(",", java.util.Collections.nCopies(due.size(), "?"));
+            List<Map<String, Object>> fresh = new ArrayList<>(db.queryForList("SELECT i.code id, i.ja, i.reading, i.vi, i.audio_path FROM cpath_item i "
+                    + "WHERE i.vi IS NOT NULL AND (i.situation_code IN (" + in + ") OR (i.kind = 'WORD' AND i.topic_code IN "
+                    + "(SELECT topic_code FROM cpath_situation WHERE code IN (" + in + "))))", java.util.stream.Stream.concat(due.stream(), due.stream()).toArray()));
+            java.util.Collections.shuffle(fresh, new java.util.Random(userId * 17 + today.toEpochDay()));
+            Set<Object> seen = new java.util.HashSet<>();
+            for (Map<String, Object> m : asked) seen.add(m.get("id"));
+            for (Map<String, Object> m : fresh) if (seen.add(m.get("id"))) asked.add(m);
+        }
+        if (asked.size() > REVIEW_MAX) asked = new ArrayList<>(asked.subList(0, REVIEW_MAX));
+        if (asked.isEmpty()) return List.of();
+        List<String> itemVi = db.queryForList("SELECT i.vi FROM cpath_item i JOIN cpath_topic t ON t.code = i.topic_code WHERE t.goal_code = ? AND i.vi IS NOT NULL",
+                String.class, path.get("goal_code"));
+        List<String> lineVi = db.queryForList("SELECT l.vi FROM cpath_line l JOIN cpath_situation s ON s.code = l.situation_code "
+                + "JOIN cpath_topic t ON t.code = s.topic_code WHERE l.learner = 1 AND l.vi IS NOT NULL AND t.goal_code = ?", String.class, path.get("goal_code"));
+        java.util.Random rnd = new java.util.Random(userId * 13 + today.toEpochDay());
+        List<WeeklyQ> out = new ArrayList<>();
+        for (Map<String, Object> m : asked) {
+            String right = String.valueOf(m.get("vi"));
+            boolean line = String.valueOf(m.get("id")).matches(".*-L\\d+$");
+            List<String> others = new ArrayList<>(new LinkedHashSet<>(line ? lineVi : itemVi));
+            java.util.Collections.shuffle(others, rnd);
+            List<String> opts = new ArrayList<>();
+            opts.add(right);
+            for (String o : others) {
+                if (opts.size() >= 4) break;
+                if (!o.equalsIgnoreCase(right) && opts.stream().noneMatch(x -> x.equalsIgnoreCase(o))) opts.add(o);
+            }
+            if (opts.size() < 2) continue;
+            java.util.Collections.shuffle(opts, rnd);
+            out.add(new WeeklyQ(String.valueOf(m.get("id")), String.valueOf(m.get("ja")),
+                    m.get("reading") == null ? null : String.valueOf(m.get("reading")), url((String) m.get("audio_path")), opts, opts.indexOf(right)));
+        }
+        return out;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> review(Long userId) {
+        Map<String, Object> path = requirePath(userId);
+        List<WeeklyQ> qs = reviewQuestions(userId, path);
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("open", true);
+        m.put("passScore", WEEKLY_PASS);
+        m.put("questions", qs.stream().map(q -> {
+            Map<String, Object> x = new LinkedHashMap<>();
+            x.put("id", q.id());
+            x.put("ja", q.ja());
+            x.put("reading", q.reading());
+            x.put("audioUrl", q.audio());
+            x.put("options", q.options());
+            return x;
+        }).toList());
+        return m;
+    }
+
+    @Transactional
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> submitReview(Long userId, Map<String, Object> body) {
+        Map<String, Object> path = requirePath(userId);
+        Long pid = ((Number) path.get("id")).longValue();
+        List<WeeklyQ> qs = reviewQuestions(userId, path);
+        if (qs.isEmpty()) throw new ApiException(ErrorCode.VALIDATION_FAILED, "Hôm nay chưa có mục cần ôn.");
+        Map<String, Object> answers = body != null && body.get("answers") instanceof Map<?, ?> a ? (Map<String, Object>) a : Map.of();
+        int correct = 0;
+        List<Map<String, Object>> review = new ArrayList<>();
+        for (WeeklyQ q : qs) {
+            Object given = answers.get(q.id());
+            boolean ok = given != null && num(given) == q.answer();
+            if (ok) {
+                correct++;
+                db.update("DELETE FROM cpath_user_note WHERE path_id = ? AND item_code = ?", pid, q.id());
+            } else {
+                db.update("INSERT INTO cpath_user_note (path_id, item_code, kind) VALUES (?,?,?) ON DUPLICATE KEY UPDATE wrong_count = wrong_count + 1",
+                        pid, q.id(), q.id().matches(".*-L\\d+$") ? "LINE" : "ITEM");
+            }
+            Map<String, Object> r = new LinkedHashMap<>();
+            r.put("id", q.id());
+            r.put("ja", q.ja());
+            r.put("correct", ok);
+            r.put("answer", q.options().get(q.answer()));
+            review.add(r);
+        }
+        int score = Math.round(100f * correct / qs.size());
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("score", score);
+        m.put("correct", correct);
+        m.put("total", qs.size());
+        m.put("passed", score >= WEEKLY_PASS);
+        m.put("cp", 0);
+        m.put("review", review);
+        return m;
+    }
+
+    /** Owner 06/11 slider: 1 or 2 situations a day, changed after the survey; today's plan keeps what it holds. */
+    @Transactional
+    public Map<String, Object> setDaily(Long userId, Map<String, Object> body) {
+        Map<String, Object> path = requirePath(userId);
+        int daily = body != null && num(body.get("dailySituations")) == 2 ? 2 : 1;
+        db.update("UPDATE cpath_user_path SET daily_situations = ? WHERE id = ?", daily, path.get("id"));
+        return Map.of("dailySituations", daily);
+    }
+
     private boolean weeklyPassed(Long userId, LocalDate monday) {
         Integer n = db.queryForObject("SELECT COUNT(*) FROM pending_credit_award WHERE user_id = ? AND reference_type = ? AND reference_id = ?",
                 Integer.class, userId, REF_WEEK, monday.toEpochDay());

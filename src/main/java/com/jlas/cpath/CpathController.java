@@ -117,6 +117,25 @@ public class CpathController {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.weekly(user.userId())));
     }
 
+    /** Owner 06/11: today's spaced review of words, phrases and Sổ tay entries (no CP, not in progress). */
+    @GetMapping("/review")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> review(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.review(user.userId())));
+    }
+
+    @PostMapping("/review")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> submitReview(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.submitReview(user.userId(), body)));
+    }
+
+    /** The slider: 1 or 2 situations a day. */
+    @org.springframework.web.bind.annotation.PutMapping("/path/daily")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> setDaily(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã đổi số tình huống mỗi ngày.", service.setDaily(user.userId(), body)));
+    }
+
     @GetMapping("/notebook")
     public ResponseEntity<ApiResponse<Map<String, Object>>> notebook(@AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.notebook(user.userId())));
