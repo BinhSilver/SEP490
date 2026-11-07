@@ -3825,3 +3825,14 @@ html.dark .cp-page {
 @media (prefers-reduced-motion: reduce) {
   .jp-path .jp-today .jp-today__top .jp-today__kitsu .jp-today__kitsu-img { animation: none !important; }
 }
+/* [JLAS-W0108] 08/11: map Kitsu keep their real size (the today one was squeezed to 32px wide) */
+.jp-parts__mascot .jp-parts__mascot-img {
+  flex: 0 0 auto !important;
+  max-width: none !important;
+  object-fit: contain !important;
+}
+.jp-parts__mascot--today .jp-parts__mascot-img { width: 84px !important; height: 84px !important; }
+.jp-parts__mascot--side .jp-parts__mascot-img { width: 72px !important; height: 72px !important; }
+@media (max-width: 480px) {
+  .jp-parts__mascot--today .jp-parts__mascot-img { width: 52px !important; height: 52px !important; }
+}

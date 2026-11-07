@@ -699,6 +699,8 @@
     if (stepIdx === kitsuStepIdx && (!isToday && !isTodayDone || kitsuStepIdx === 0)) {
       var kitsuSide = (stepIdx === 1) ? signSide : sceneSide;
       marginExtras += weekSideKitsuHtml(weekObj.weekNum, kitsuSide);
+    } else if (stepIdx === 5 && !isToday && !isTodayDone) {
+      marginExtras += weekSideKitsuHtml(Number(weekObj.weekNum || 1) + 3, signSide);
     } else if (stepIdx === 2 || stepIdx === 4) {
       var decoSide = (globalStepIdx % 2 === 0) ? 'left' : 'right';
       marginExtras += '<span class="jp-parts__deco jp-parts__deco--' + decoSide + '" aria-hidden="true">'
