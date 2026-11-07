@@ -3701,10 +3701,44 @@ html.dark .cp-page {
   }
 }
 
-/* [JLAS-W0108] 08/11: map labels keep whole words (no mid-word breaks) */
+/* [JLAS-W0108] 08/11 owner: calm & clean JLPT path layout matching communication path */
+
 .jp-parts__label {
-  width: max-content;
-  max-width: 210px;
-  word-break: keep-all;
-  overflow-wrap: break-word;
+  width: max-content !important;
+  max-width: 210px !important;
+  word-break: keep-all !important;
+  overflow-wrap: break-word !important;
+  line-height: 1.3 !important;
+}
+.jp-parts__label-main {
+  font-size: .88rem !important;
+  font-weight: 500 !important;
+  color: var(--jp-r4-ink) !important;
+}
+.jp-parts__label-sub {
+  font-size: .78rem !important;
+  color: var(--jp-r4-muted) !important;
+}
+
+/* 3. Thanh trái (.jp-path__side) và thẻ chủ đề/thanh kéo (.jp-topic-card, .jp-slider-card): gọn, 1 viền mảnh */
+.jp-path .jp-path__side .jp-sidenav,
+.jp-path .jp-path__side .jp-levels--side,
+.jp-path .jp-slider-card,
+.jp-path .jp-topic-card {
+  background: var(--jp-r4-surface) !important;
+  border: 1px solid var(--jp-r4-line) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+.jp-path .jp-topic-card {
+  padding: 14px 16px !important;
+  gap: 10px !important;
+}
+.jp-path .jp-topic-card:hover {
+  border-color: var(--jp-c-purple-500) !important;
+  transform: none !important;
+}
+.jp-path .jp-level-cell {
+  border-radius: 8px !important;
+  box-shadow: none !important;
 }
