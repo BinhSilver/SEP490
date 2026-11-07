@@ -2,6 +2,7 @@ package com.jlas.admin.service;
 
 import com.jlas.admin.dto.AdminAuditLogView;
 import com.jlas.admin.dto.AdminUserView;
+import com.jlas.admin.enums.SystemConfigKey;
 import com.jlas.admin.repository.AdminAuditLogRepository;
 import com.jlas.admin.repository.AdminPaymentRepository;
 import com.jlas.admin.repository.AdminUserRepository;
@@ -34,6 +35,7 @@ public class AdminDashboardService {
     private final PremiumPlanRepository plans;
     private final AdminPaymentRepository payments;
     private final AdminAuditLogRepository logs;
+    private final SystemConfigService config;
 
     public record Revenue(String currency, long count, BigDecimal amount) {
     }
@@ -71,7 +73,19 @@ public class AdminDashboardService {
                             List<Revenue> paidLast30Days, List<AdminAuditLogView> recentActions,
                             List<ProductRevenue> paidByProductLast30Days, BigDecimal discountLast30Days,
                             PeriodStats periodStats, List<YearCount> registrationsByYear,
-                            int premiumYear, List<MonthRevenue> premiumByMonth) {
+                            int premiumYear, List<MonthRevenue> premiumByMonth,
+                            long pendingPaymentsOverdue, int pendingAlertMinutes, LocalDateTime generatedAt,
+                            List<AdminKpiCatalog.KpiSource> kpiSources, List<AdminAuditLogView> configChanges) {
+    }
+
+    /** [JLAS2-51] Audit actions shown in the "recent configuration changes" card. */
+    static final List<String> CONFIG_ACTIONS = List.of("CONFIG_UPDATE", "CONFIG_RESET");
+    static final int CONFIG_CHANGES_LIMIT = 5;
+
+    /** The requested period, or {@code dashboard.default_period} when the request names none. */
+    public Period period(String requested) {
+        return Period.parse(requested == null || requested.isBlank()
+                ? config.value(SystemConfigKey.DASHBOARD_DEFAULT_PERIOD) : requested);
     }
 
     public Dashboard summary(Period period) {
@@ -88,17 +102,25 @@ public class AdminDashboardService {
         var sellable = plans.findAll().stream()
                 .filter(p -> !AdminUserView.FREE_PLAN.equalsIgnoreCase(p.getName())).toList();
         long onSale = sellable.stream().filter(p -> Boolean.TRUE.equals(p.getIsActive())).count();
-        List<AdminAuditLogView> recent = logs.findAll(PageRequest.of(0, 8,
+        int recentLimit = config.intValue(SystemConfigKey.DASHBOARD_RECENT_ACTIONS_LIMIT);
+        List<AdminAuditLogView> recent = logs.findAll(PageRequest.of(0, recentLimit,
                 Sort.by(Sort.Direction.DESC, "createdAt", "id"))).map(AdminAuditLogView::from).getContent();
         LocalDateTime yearStart = now.toLocalDate().withDayOfYear(1).atStartOfDay();
         List<MonthRevenue> premiumByMonth = payments.premiumPaidByMonth(yearStart, now.plusSeconds(1)).stream()
                 .map(row -> new MonthRevenue(((Number) row[0]).intValue(), (String) row[1], (Long) row[2], (BigDecimal) row[3]))
                 .toList();
+        int alertMinutes = config.intValue(SystemConfigKey.PAYMENT_PENDING_ALERT_MINUTES);
+        List<AdminAuditLogView> configChanges = logs.findAll(
+                (root, query, cb) -> root.get("action").in(CONFIG_ACTIONS),
+                PageRequest.of(0, CONFIG_CHANGES_LIMIT, Sort.by(Sort.Direction.DESC, "createdAt", "id")))
+                .map(AdminAuditLogView::from).getContent();
         return new Dashboard(users.count(), byRole, users.countByLockedAtIsNotNull(), users.countByIsVerifiedFalse(),
                 users.countByCreatedAtGreaterThanEqual(now.minusDays(7)),
                 users.countByCreatedAtGreaterThanEqual(now.minusDays(30)),
                 users.countActivePremium(now), onSale, sellable.size() - onSale, byStatus, paid, recent, byProduct, discounts,
-                periodStats(period, now), registrationsByYear(now.toLocalDate()), now.getYear(), premiumByMonth);
+                periodStats(period, now), registrationsByYear(now.toLocalDate()), now.getYear(), premiumByMonth,
+                payments.countPendingCreatedBefore(now.minusMinutes(alertMinutes)), alertMinutes, now,
+                AdminKpiCatalog.ALL, configChanges);
     }
 
     private PeriodStats periodStats(Period period, LocalDateTime now) {
