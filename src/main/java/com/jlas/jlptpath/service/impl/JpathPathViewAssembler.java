@@ -220,7 +220,7 @@ public class JpathPathViewAssembler {
         String condition = switch (state) {
             case PASSED -> "Bạn đã vượt qua " + level + ".";
             case OPEN -> "Bạn đang học " + level + ".";
-            case LOCKED -> "Đậu Thi thử JLPT " + open + " để mở " + level;
+            case LOCKED -> "Đậu Thi thử JLPT " + previous(level) + " để mở " + level;
             case COMING_SOON -> "Cấp " + level + " sắp có.";
         };
         int currentPercent = path.isPresent() ? JpathTabCount.levelPercent(tabCounts.read(userId, open)) : 0;
@@ -241,7 +241,7 @@ public class JpathPathViewAssembler {
                         ? cell(level, state, tabCounts.read(userId, level), "Đã vượt qua")
                         : new JpathLevelCell(level, state, 0, catalog.info(level).vocabCount(), 0, "Đã vượt qua"));
                 case LOCKED -> cells.add(new JpathLevelCell(level, state, 0, catalog.info(level).vocabCount(), 0,
-                        "Xem trước · Thi thử " + open + " để mở"));
+                        "Xem trước · Thi thử " + previous(level) + " để mở"));
                 case COMING_SOON -> cells.add(new JpathLevelCell(level, state, 0, catalog.info(level).vocabCount(),
                         0, "Sắp có"));
             }
@@ -255,6 +255,12 @@ public class JpathPathViewAssembler {
         return new JpathLevelCell(level, state, (int) vocab.counted(), (int) vocab.total(),
                 JpathTabCount.levelPercent(counts),
                 note);
+    }
+
+    /** E2E-006: a locked level opens after the mock test of the level right before it (N3 ← N4, N2 ← N3). */
+    private static String previous(String level) {
+        int index = LEVELS.indexOf(level);
+        return index > 0 ? LEVELS.get(index - 1) : level;
     }
 
     /** Below the open level PASSED, the open level OPEN, above it LOCKED when released, else COMING_SOON. */

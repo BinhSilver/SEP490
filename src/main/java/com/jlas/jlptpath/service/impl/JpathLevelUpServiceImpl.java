@@ -245,8 +245,18 @@ public class JpathLevelUpServiceImpl implements JpathLevelUpService {
         return readTx.execute(status -> {
             JpathUserPath path = activePath(userId);
             String lvl = normalize(level);
-            JpathUserLevel row = levels.findById(new JpathUserLevelId(path.getId(), lvl))
-                    .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy cấp này trong lộ trình."));
+            Optional<JpathUserLevel> found = levels.findById(new JpathUserLevelId(path.getId(), lvl));
+            if (found.isEmpty()) {
+                // E2E-006: a level below the open level was passed by the placement (Smart Test) and has no row;
+                // the path shows it as "Đã vượt qua", so its summary answers instead of 404.
+                if (LEVELS.indexOf(lvl) >= LEVELS.indexOf(path.getOpenLevel())) {
+                    throw new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy cấp này trong lộ trình.");
+                }
+                JpathLevelSummaryReader.Counts c = summaries.read(userId, lvl);
+                return new JpathLevelSummary(lvl, c.known(), c.learned(), c.accuracyPct(), c.studyDays(), c.weak(),
+                        null, null, path.getOpenLevel(), false, false, List.of());
+            }
+            JpathUserLevel row = found.get();
             boolean passed = row.getStage() == JpathStage.PASSED;
             Integer mockScore = row.getMockAttemptId() == null ? null
                     : results.findById(row.getMockAttemptId()).map(JpathMockResult::getScorePct).orElse(null);
