@@ -1,4 +1,7 @@
-/* cpath-survey.js — Khảo sát đầu vào 5 bước cho Lộ trình Giao tiếp (survey.html).
+/* cpath-survey.js — Khảo sát đầu vào của Lộ trình Giao tiếp (survey.html).
+ * [JLAS-W0108] Owner 07/11: mỗi thông tin hỏi 1 lần. Mục tiêu đã chọn ở khảo sát chung (?goal=) thì bỏ bước mục tiêu.
+ * "Công việc" gộp 2 mục tiêu dữ liệu: IT / BrSE (goal BA) và Văn phòng, Nhà máy, Dịch vụ (goal WORK), chọn ở bước lĩnh vực.
+ * Bước hiện ra tuỳ mục tiêu: [mục tiêu] -> [lĩnh vực, chỉ Công việc] -> chủ đề ưu tiên -> trình độ -> nhịp học.
  * Dạng UMD: window.CpathSurvey, dùng chung window.JpathApi.get / .send.
  * Mỗi bước vừa trọn 1 màn hình, Kitsu đổi dáng theo từng bước.
  */
@@ -55,38 +58,67 @@
     'SERVICE-BOOKING': 'Đặt bàn & đặt phòng'
   };
 
-  var STEP_META = [
-    {
-      step: 1,
+  var STEP_META = {
+    goal: {
       kitsu: 'kitsu-cheer-30.webp',
       title: 'Bạn muốn học giao tiếp tiếng Nhật cho mục tiêu nào?',
-      sub: 'Mục tiêu chọn ở đây sẽ là lộ trình chính. Các mục tiêu khác có thể học tự do thêm trong Cài đặt.'
+      sub: 'Mục tiêu chọn ở đây sẽ là lộ trình chính. Mục tiêu khác có thể học tự do thêm trong Cài đặt.'
     },
-    {
-      step: 2,
+    field: {
       kitsu: 'kitsu-thinking-30.webp',
-      title: 'Chọn ngành công việc của bạn (1–2 ngành)',
-      sub: 'Ngành Văn phòng chung luôn có sẵn để đảm bảo nền tảng giao tiếp nơi làm việc.'
+      title: 'Bạn làm việc trong lĩnh vực nào?',
+      sub: 'IT / BrSE là lộ trình riêng. Với Văn phòng, Nhà máy, Dịch vụ: Văn phòng chung luôn có, chọn thêm tối đa 2 lĩnh vực.'
     },
-    {
-      step: 3,
+    topics: {
       kitsu: 'kitsu-thinking-30.webp',
       title: 'Bạn muốn ưu tiên những chủ đề nào trước?',
-      sub: 'Chọn một hoặc nhiều chủ đề bạn cần dùng sớm nhất — hệ thống sẽ xếp lên đầu lộ trình.'
+      sub: 'Chủ đề được chọn sẽ xếp lên đầu lộ trình. Các chủ đề còn lại vẫn học sau.'
     },
-    {
-      step: 4,
+    level: {
       kitsu: 'kitsu-cheer-30.webp',
-      title: 'Tự đánh giá mức độ giao tiếp hiện tại của bạn',
-      sub: 'Không cần làm bài kiểm tra đầu vào — lộ trình sẽ điều chỉnh hỗ trợ phiên âm và tốc độ nghe phù hợp.'
+      title: 'Bạn giao tiếp tiếng Nhật ở mức nào?',
+      sub: 'Không cần làm bài kiểm tra. Lộ trình chỉnh phiên âm và tốc độ nghe theo mức bạn chọn.'
     },
-    {
-      step: 5,
+    pace: {
       kitsu: 'kitsu-celebrate-30.webp',
-      title: 'Chọn nhịp học mỗi ngày và lịch nghỉ trong tuần',
-      sub: 'Mỗi chủ đề gồm 3 tình huống thực tế với 4 bước: Từ & mẫu câu · Nghe · Nhập vai · Nói.'
+      title: 'Chọn nhịp học mỗi ngày và ngày nghỉ',
+      sub: 'Mỗi tình huống có 4 bước: Từ & mẫu câu · Nghe · Nhập vai · Nói.'
     }
-  ];
+  };
+
+  // "Công việc" in the UI: goal BA (IT / BrSE topics) or WORK (office + industries)
+  var JOB = 'JOB';
+  var IT_FIELD = 'IT_BRSE';
+  var BA_TOPICS = ['PM', 'COM', 'REQ', 'DEV', 'TEST', 'BUG', 'OPS'];
+  function isJob(goal) { return goal === 'BA' || goal === 'WORK' || goal === JOB; }
+  function isOffice(code) { return /OFFICE$/.test(String(code || '')); }
+
+  /** The goal cards: Du lịch, Đời sống and one "Công việc" card standing for BA + WORK. */
+  function displayGoals(goals) {
+    var list = (goals || []).filter(function (g) { return !isJob(g.goal); });
+    var jobs = (goals || []).filter(function (g) { return isJob(g.goal); });
+    if (jobs.length) {
+      list.push({ goal: JOB, nameVi: 'Công việc', topicCount: jobs.reduce(function (n, g) { return n + (g.topicCount || 0); }, 0) });
+    }
+    return list;
+  }
+
+  /** The field cards of "Công việc": the WORK industries (server codes) plus IT / BrSE. */
+  function jobFields(goals) {
+    var work = (goals || []).filter(function (g) { return g.goal === 'WORK'; })[0];
+    var list = (work && Array.isArray(work.fields) ? work.fields : []).slice();
+    if ((goals || []).some(function (g) { return g.goal === 'BA'; })) {
+      list.push({ code: IT_FIELD, labelVi: 'IT / BrSE', topicCodes: BA_TOPICS });
+    }
+    return list;
+  }
+
+  /** The steps this learner sees, in order. */
+  function steps(state) {
+    var out = state.presetGoal ? [] : ['goal'];
+    if (isJob(state.goal)) out.push('field');
+    return out.concat(['topics', 'level', 'pace']);
+  }
 
   var SELF_LEVELS = [
     {
@@ -123,9 +155,6 @@
   }
 
   function kitsuImgSrc(file) {
-    if (root && root.CpathMock && typeof root.CpathMock.kitsuSrc === 'function') {
-      return root.CpathMock.kitsuSrc(file);
-    }
     return '/images/mascots/kitsu/' + file;
   }
 
@@ -159,39 +188,23 @@
   }
 
   function topicLabel(code) {
-    if (root && root.CpathMock && root.CpathMock.TOPIC_LABELS && root.CpathMock.TOPIC_LABELS[code]) {
-      return root.CpathMock.TOPIC_LABELS[code];
-    }
     return TOPIC_LABELS_FALLBACK[code] || code;
   }
 
   function getAvailableTopics(goals, state) {
-    var goalObj = (goals || []).filter(function (g) { return g.goal === state.goal; })[0];
-    if (!goalObj) return [];
     var codes = [];
-    var fields = Array.isArray(goalObj.fields) ? goalObj.fields : [];
-    if (state.goal === 'WORK') {
-      var activeFields = ['OFFICE'].concat(state.fields.filter(function (f) { return f !== 'OFFICE'; }));
-      fields.forEach(function (f) {
-        if (activeFields.indexOf(f.code) >= 0 && Array.isArray(f.topicCodes)) {
-          f.topicCodes.forEach(function (tc) {
-            if (codes.indexOf(tc) < 0) codes.push(tc);
-          });
-        }
+    var add = function (list) { (list || []).forEach(function (c) { if (codes.indexOf(c) < 0) codes.push(c); }); };
+    if (state.goal === 'BA') {
+      add(BA_TOPICS);
+    } else if (state.goal === 'WORK') {
+      jobFields(goals).forEach(function (f) {
+        if (f.code !== IT_FIELD && (isOffice(f.code) || state.fields.indexOf(f.code) >= 0)) add(f.topicCodes);
       });
-    } else {
-      fields.forEach(function (f) {
-        if (Array.isArray(f.topicCodes)) {
-          f.topicCodes.forEach(function (tc) {
-            if (codes.indexOf(tc) < 0) codes.push(tc);
-          });
-        }
-      });
-    }
-    if (!codes.length) {
-      if (state.goal === 'TRAVEL') codes = ['AIR', 'TRAIN', 'HOTEL', 'FOOD', 'SHOP', 'TROUBLE'];
-      else if (state.goal === 'DAILY_LIFE') codes = ['HOME', 'MARKET', 'PUBLIC', 'HEALTH', 'SCHOOL', 'SOCIAL', 'TIME'];
-      else codes = ['OFFICE-GREETING', 'OFFICE-REPORT', 'OFFICE-LEAVE', 'OFFICE-PHONE', 'OFFICE-MEETING'];
+      if (!codes.length) add(['OFFICE-GREETING', 'OFFICE-REPORT', 'OFFICE-LEAVE', 'OFFICE-PHONE', 'OFFICE-MEETING']);
+    } else if (state.goal === 'TRAVEL') {
+      add(['AIR', 'TRAIN', 'HOTEL', 'FOOD', 'SHOP', 'TROUBLE']);
+    } else if (state.goal === 'DAILY_LIFE') {
+      add(['HOME', 'MARKET', 'PUBLIC', 'HEALTH', 'SCHOOL', 'SOCIAL', 'TIME']);
     }
     return codes.map(function (c) {
       return { code: c, labelVi: topicLabel(c) };
@@ -199,8 +212,9 @@
   }
 
   function buildPayload(state) {
+    // WORK sends the server's field codes; the office field is always part of the path (server side)
     var fields = state.goal === 'WORK'
-      ? ['OFFICE'].concat((state.fields || []).filter(function (f) { return f !== 'OFFICE'; }).slice(0, 2))
+      ? (state.fields || []).filter(function (f) { return f !== IT_FIELD && !isOffice(f); }).slice(0, 2)
       : [];
     var payload = {
       goal: state.goal,
@@ -215,27 +229,29 @@
   }
 
   function surveyHtml(goals, state) {
-    var step = state.step || 1;
-    var meta = STEP_META[step - 1] || STEP_META[0];
-    var pct = Math.round((step / 5) * 100);
+    var list = steps(state);
+    var step = Math.max(1, Math.min(list.length, state.step || 1));
+    var kind = list[step - 1];
+    var total = list.length;
+    var meta = STEP_META[kind];
+    var pct = Math.round((step / total) * 100);
 
-    var dotsHtml = STEP_META.map(function (m) {
-      var cls = 'cp-survey__dot' + (m.step === step ? ' is-active' : (m.step < step ? ' is-done' : ''));
-      return '<button type="button" class="' + cls + '" data-cp-step-jump="' + m.step + '" aria-label="Bước ' + m.step + '">'
-        + m.step + '</button>';
+    var dotsHtml = list.map(function (k, i) {
+      var n = i + 1;
+      var cls = 'cp-survey__dot' + (n === step ? ' is-active' : (n < step ? ' is-done' : ''));
+      return '<button type="button" class="' + cls + '" data-cp-step-jump="' + n + '" aria-label="Bước ' + n + '"'
+        + (n === step ? ' aria-current="step"' : '') + '>' + n + '</button>';
     }).join('');
 
     var bodyHtml = '';
-    if (step === 1) {
-      var goalCards = (goals || []).map(function (g) {
-        var sel = state.goal === g.goal;
+    if (kind === 'goal') {
+      var goalCards = displayGoals(goals).map(function (g) {
+        var sel = g.goal === JOB ? isJob(state.goal) : state.goal === g.goal;
         var desc = g.goal === 'TRAVEL'
           ? (g.topicCount + ' chủ đề · Sân bay, tàu điện, khách sạn, ăn uống, mua sắm')
           : (g.goal === 'DAILY_LIFE'
             ? (g.topicCount + ' chủ đề · Nhà cửa, siêu thị, hành chính, bệnh viện, trường học')
-            : (g.goal === 'BA'
-              ? (g.topicCount + ' chủ đề · Quản lý dự án, yêu cầu & thiết kế, lập trình, kiểm thử, vận hành')
-              : (g.topicCount + ' chủ đề · Văn phòng chung, Nhà máy, Dịch vụ')));
+            : (g.topicCount + ' chủ đề · IT / BrSE, Văn phòng, Nhà máy, Dịch vụ'));
         return '<button type="button" class="cp-pill' + (sel ? ' is-selected' : '') + '"'
           + ' data-cp-goal="' + esc(g.goal) + '" aria-pressed="' + (sel ? 'true' : 'false') + '">'
           + '<span class="cp-pill__icon">' + svgGoalIcon(g.goal) + '</span>'
@@ -247,46 +263,26 @@
           + '</button>';
       }).join('');
       bodyHtml = '<div class="cp-survey__grid" role="group" aria-label="Chọn mục tiêu giao tiếp">' + goalCards + '</div>';
-    } else if (step === 2) {
-      var workGoal = (goals || []).filter(function (g) { return g.goal === 'WORK'; })[0];
-      var workFields = (workGoal && Array.isArray(workGoal.fields)) ? workGoal.fields : [
-        { code: 'OFFICE', labelVi: 'Văn phòng chung', topicCodes: ['OFFICE-GREETING', 'OFFICE-REPORT', 'OFFICE-LEAVE', 'OFFICE-PHONE', 'OFFICE-MEETING'] },
-        { code: 'IT_BRSE', labelVi: 'IT / BrSE', topicCodes: ['REQ', 'DEV', 'TEST', 'BUG', 'OPS', 'PM', 'COM'] },
-        { code: 'FACTORY', labelVi: 'Nhà máy / Sản xuất', topicCodes: ['FACTORY-SAFETY', 'FACTORY-SHIFT', 'FACTORY-INSTRUCTION', 'FACTORY-ERROR', 'FACTORY-5S'] },
-        { code: 'SERVICE', labelVi: 'Dịch vụ / Khách sạn', topicCodes: ['SERVICE-RECEPTION', 'SERVICE-PRODUCT', 'SERVICE-PAYMENT', 'SERVICE-COMPLAINT', 'SERVICE-BOOKING'] }
-      ];
-      if (state.goal !== 'WORK') {
-        var curGoalName = state.goal === 'TRAVEL' ? 'Du lịch' : 'Đời sống';
-        bodyHtml = '<div class="cp-survey__row">'
-          + '<div class="cp-pill is-selected is-locked" aria-disabled="true">'
-          + '<span class="cp-pill__icon">' + svgGoalIcon(state.goal) + '</span>'
+    } else if (kind === 'field') {
+      var fieldCards = jobFields(goals).map(function (f) {
+        var it = f.code === IT_FIELD;
+        var office = isOffice(f.code);
+        var sel = it ? state.goal === 'BA' : (state.goal === 'WORK' && (office || state.fields.indexOf(f.code) >= 0));
+        var count = Array.isArray(f.topicCodes) ? f.topicCodes.length : 5;
+        var sub = it ? (count + ' chủ đề · Dự án, yêu cầu, lập trình, kiểm thử, vận hành')
+          : (office ? ('Luôn có khi chọn Văn phòng, Nhà máy, Dịch vụ · ' + count + ' chủ đề') : (count + ' chủ đề chuyên ngành'));
+        return '<button type="button" class="cp-pill' + (sel ? ' is-selected' : '') + '"'
+          + ' data-cp-field="' + esc(f.code) + '" aria-pressed="' + (sel ? 'true' : 'false') + '">'
+          + '<span class="cp-pill__icon">' + svgGoalIcon('WORK') + '</span>'
           + '<span class="cp-pill__body">'
-          + '<span class="cp-pill__label">Mục tiêu ' + esc(curGoalName) + ' (Không chia theo ngành công việc)</span>'
-          + '<span class="cp-pill__desc">Bước chọn ngành áp dụng khi chọn mục tiêu Công việc. Bạn có thể bấm Tiếp tục để chọn chủ đề ưu tiên, hoặc đổi sang Công việc bên dưới.</span>'
+          + '<span class="cp-pill__label">' + esc(f.labelVi) + '</span>'
+          + '<span class="cp-pill__desc">' + esc(sub) + '</span>'
           + '</span>'
           + '<span class="cp-pill__check">' + svgCheck() + '</span>'
-          + '</div>'
-          + '</div>';
-      } else {
-        var fieldCards = workFields.map(function (f) {
-          var isOffice = f.code === 'OFFICE';
-          var sel = isOffice || state.fields.indexOf(f.code) >= 0;
-          var count = Array.isArray(f.topicCodes) ? f.topicCodes.length : 5;
-          var sub = isOffice ? ('Luôn có sẵn · ' + count + ' chủ đề nền tảng') : (count + ' chủ đề chuyên ngành (chọn tối đa 2 ngành)');
-          return '<button type="button" class="cp-pill' + (sel ? ' is-selected' : '') + (isOffice ? ' is-locked' : '') + '"'
-            + ' data-cp-field="' + esc(f.code) + '"' + (isOffice ? ' aria-disabled="true"' : '')
-            + ' aria-pressed="' + (sel ? 'true' : 'false') + '">'
-            + '<span class="cp-pill__icon">' + svgGoalIcon('WORK') + '</span>'
-            + '<span class="cp-pill__body">'
-            + '<span class="cp-pill__label">' + esc(f.labelVi) + '</span>'
-            + '<span class="cp-pill__desc">' + esc(sub) + '</span>'
-            + '</span>'
-            + '<span class="cp-pill__check">' + svgCheck() + '</span>'
-            + '</button>';
-        }).join('');
-        bodyHtml = '<div class="cp-survey__grid" role="group" aria-label="Chọn ngành công việc">' + fieldCards + '</div>';
-      }
-    } else if (step === 3) {
+          + '</button>';
+      }).join('');
+      bodyHtml = '<div class="cp-survey__grid" role="group" aria-label="Chọn lĩnh vực công việc">' + fieldCards + '</div>';
+    } else if (kind === 'topics') {
       var topics = getAvailableTopics(goals, state);
       var topicBtns = topics.map(function (t) {
         var sel = state.priorityTopics.indexOf(t.code) >= 0;
@@ -307,7 +303,7 @@
         + '</button>'
         + '</div>'
         + '<div class="cp-survey__grid cp-survey__grid--topics" role="group" aria-label="Chủ đề ưu tiên">' + topicBtns + '</div>';
-    } else if (step === 4) {
+    } else if (kind === 'level') {
       var lvCards = SELF_LEVELS.map(function (lv) {
         var sel = state.selfLevel === lv.code;
         return '<button type="button" class="cp-pill' + (sel ? ' is-selected' : '') + '"'
@@ -357,7 +353,7 @@
     var prevBtn = step > 1
       ? '<button type="button" class="cp-btn-ghost" data-cp-prev>‹ Quay lại</button>'
       : '<span></span>';
-    var nextBtn = step < 5
+    var nextBtn = step < total
       ? '<button type="button" class="cp-btn-primary" data-cp-next>Tiếp tục ›</button>'
       : '<button type="button" class="cp-btn-primary" data-cp-submit' + (state.submitting ? ' disabled' : '') + '>'
         + (state.submitting ? 'Đang tạo lộ trình…' : 'Bắt đầu lộ trình giao tiếp') + '</button>';
@@ -366,7 +362,7 @@
       + '<div class="cp-survey__top">'
       + '<div class="cp-survey__progress" aria-label="Tiến độ khảo sát">'
       + '<div class="cp-survey__bar"><div class="cp-survey__bar-fill" style="width:' + pct + '%"></div></div>'
-      + '<span class="cp-survey__step-num">' + step + '/5</span>'
+      + '<span class="cp-survey__step-num">' + step + '/' + total + '</span>'
       + '</div>'
       + '<div class="cp-survey__dots">' + dotsHtml + '</div>'
       + '</div>'
@@ -391,8 +387,9 @@
     var state = {
       step: 1,
       goal: 'TRAVEL',
-      fields: ['OFFICE', 'IT_BRSE'],
-      priorityTopics: ['AIR', 'TRAIN'],
+      presetGoal: false,
+      fields: [],
+      priorityTopics: [],
       selfLevel: 'ELEMENTARY',
       dailySituations: 2,
       restDays: ['SUN'],
@@ -422,7 +419,7 @@
 
       var jumpBtn = t.closest('[data-cp-step-jump]');
       if (jumpBtn) {
-        state.step = Math.max(1, Math.min(5, Number(jumpBtn.getAttribute('data-cp-step-jump')) || 1));
+        state.step = Math.max(1, Math.min(steps(state).length, Number(jumpBtn.getAttribute('data-cp-step-jump')) || 1));
         state.errorMsg = '';
         render();
         return;
@@ -430,7 +427,11 @@
 
       var goalBtn = t.closest('[data-cp-goal]');
       if (goalBtn) {
-        state.goal = goalBtn.getAttribute('data-cp-goal') || 'TRAVEL';
+        var picked = goalBtn.getAttribute('data-cp-goal') || 'TRAVEL';
+        // "Công việc" starts on WORK (office only); the field step picks IT / BrSE or the industries
+        if (picked === JOB) { if (!isJob(state.goal)) { state.goal = 'WORK'; state.fields = []; } }
+        else state.goal = picked;
+        state.priorityTopics = [];
         syncDefaultTopics();
         render();
         return;
@@ -439,19 +440,22 @@
       var fieldBtn = t.closest('[data-cp-field]');
       if (fieldBtn) {
         var fCode = fieldBtn.getAttribute('data-cp-field');
-        if (fCode && fCode !== 'OFFICE') {
-          var extra = state.fields.filter(function (x) { return x !== 'OFFICE'; });
+        if (fCode === IT_FIELD) {
+          state.goal = 'BA';
+          state.fields = [];
+        } else if (fCode && !isOffice(fCode)) {
+          var extra = state.goal === 'WORK' ? state.fields.slice() : [];
+          state.goal = 'WORK';
           var idx = extra.indexOf(fCode);
-          if (idx >= 0) {
-            extra.splice(idx, 1);
-          } else {
-            if (extra.length >= 2) extra.shift();
-            extra.push(fCode);
-          }
-          state.fields = ['OFFICE'].concat(extra);
-          syncDefaultTopics();
-          render();
+          if (idx >= 0) extra.splice(idx, 1);
+          else { if (extra.length >= 2) extra.shift(); extra.push(fCode); }
+          state.fields = extra;
+        } else {
+          state.goal = 'WORK';
         }
+        state.priorityTopics = [];
+        syncDefaultTopics();
+        render();
         return;
       }
 
@@ -498,23 +502,20 @@
         return;
       }
 
-      // step 2 (industries) only applies to a goal that has industries (Công việc); the others skip it
-      var noFields = function () {
-        var g = (goalsData || []).filter(function (x) { return x.goal === state.goal; })[0];
-        return !(g && g.fields && g.fields.length);
-      };
-
       if (t.closest('[data-cp-prev]')) {
         state.step = Math.max(1, state.step - 1);
-        if (state.step === 2 && noFields()) state.step = 1;
         state.errorMsg = '';
         render();
         return;
       }
 
       if (t.closest('[data-cp-next]')) {
-        state.step = Math.min(5, state.step + 1);
-        if (state.step === 2 && noFields()) state.step = 3;
+        if (steps(state)[state.step - 1] === 'topics' && !state.priorityTopics.length) {
+          state.errorMsg = 'Chọn ít nhất 1 chủ đề để xếp lên đầu lộ trình.';
+          render();
+          return;
+        }
+        state.step = Math.min(steps(state).length, state.step + 1);
         state.errorMsg = '';
         render();
         return;
@@ -527,10 +528,7 @@
         render();
         var payload = buildPayload(state);
         root.JpathApi.send('POST', '/api/learning/comm/path', payload).then(function () {
-          var nextHref = (root.CpathMock && typeof root.CpathMock.pageUrl === 'function')
-            ? root.CpathMock.pageUrl('path')
-            : '/learning/comm/path';
-          if (root.location) root.location.href = nextHref;
+          if (root.location) root.location.href = '/learning/comm/path';
         }, function (err) {
           state.submitting = false;
           state.errorMsg = (err && err.message) ? err.message : 'Chưa tạo được lộ trình. Vui lòng thử lại.';
@@ -546,29 +544,39 @@
       }
     });
 
+    function failLoad() {
+      el.setAttribute('aria-busy', 'false');
+      el.innerHTML = '<section class="cp-survey__card"><p class="jp-alert" role="alert">Chưa tải được danh sách mục tiêu.</p>'
+        + '<p><button type="button" class="cp-btn-primary" data-cp-reload>Thử lại</button></p></section>';
+    }
+    el.addEventListener('click', function (ev) {
+      if (ev.target && ev.target.closest && ev.target.closest('[data-cp-reload]') && root.location) root.location.reload();
+    });
+
     root.JpathApi.get('/api/learning/comm/goals').then(function (data) {
-      goalsData = Array.isArray(data) && data.length ? data : (root.CpathMock ? root.CpathMock.GOALS_DATA : []);
-      // ?goal= from the general survey (BA/TRAVEL/DAILY_LIFE) preselects the matching goal
+      goalsData = Array.isArray(data) ? data : [];
+      if (!goalsData.length) { failLoad(); return; }
+      // ?goal= from the general survey (BA = "Công việc", TRAVEL, DAILY_LIFE): that goal is not asked again
       var want = null;
       try { want = new root.URLSearchParams(String(root.location.search || '')).get('goal'); } catch (e) { want = null; }
-      if (want) {
-        var has = function (c) { return goalsData.some(function (g) { return g.goal === c; }); };
-        if (!has(want) && want === 'BA' && has('WORK')) want = 'WORK';
-        if (has(want)) state.goal = want;
+      var has = function (c) { return goalsData.some(function (g) { return g.goal === c; }); };
+      if (want && isJob(want) && (has('WORK') || has('BA'))) {
+        state.goal = has('WORK') ? 'WORK' : 'BA';
+        state.presetGoal = true;
+      } else if (want && has(want)) {
+        state.goal = want;
+        state.presetGoal = true;
       }
       syncDefaultTopics();
       render();
-    }, function () {
-      goalsData = root.CpathMock ? root.CpathMock.GOALS_DATA : [];
-      syncDefaultTopics();
-      render();
-    });
+    }, failLoad);
 
     // a learner who already has a main goal adds a secondary one here (free study, no daily plan)
     Promise.resolve(root.JpathApi.get('/api/learning/comm/path')).then(function (p) {
       if (!p || !p.goal) return;
-      STEP_META[0].title = 'Thêm mục tiêu phụ để học tự do';
-      STEP_META[0].sub = 'Lộ trình chính (' + (p.nameVi || p.goal) + ') vẫn giữ nguyên lịch học hằng ngày. '
+      state.presetGoal = false;
+      STEP_META.goal.title = 'Thêm mục tiêu phụ để học tự do';
+      STEP_META.goal.sub = 'Lộ trình chính (' + (p.nameVi || p.goal) + ') vẫn giữ nguyên lịch học hằng ngày. '
         + 'Mục tiêu phụ không giao bài theo ngày, bạn học khi muốn; chọn mục tiêu phụ mới sẽ thay mục tiêu phụ cũ.';
       render();
     }, function () { /* no main goal yet: this survey makes it */ });
@@ -578,6 +586,8 @@
     surveyHtml: surveyHtml,
     buildPayload: buildPayload,
     getAvailableTopics: getAvailableTopics,
+    steps: steps,
+    displayGoals: displayGoals,
     mount: mount
   };
 });

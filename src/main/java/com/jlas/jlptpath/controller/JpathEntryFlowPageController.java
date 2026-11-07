@@ -86,8 +86,12 @@ public class JpathEntryFlowPageController {
 
     private static JpathStartRedirect.StartState startState(JpathEntryStatusView status) {
         JpathEntryStatusView.SmartTest smartTest = status.smartTest();
+        // [JLAS-W0108] Owner 07/11: who studied but does not remember kana skips Smart Test like a beginner
+        // (they cannot read it): the start route treats them as not studied, the path starts at N5 with kana review.
+        // An existing Smart Test attempt still wins: its result is used.
+        Boolean studied = "REVIEW".equals(status.kanaChoice()) && smartTest == null ? Boolean.FALSE : status.studiedBefore();
         return new JpathStartRedirect.StartState(true, status.surveyDone(), status.goal(), status.preferenceDone(),
-                status.studiedBefore(), status.pathStatus(), smartTest == null ? null : smartTest.attemptId(),
+                studied, status.pathStatus(), smartTest == null ? null : smartTest.attemptId(),
                 smartTest == null ? null : smartTest.status());
     }
 

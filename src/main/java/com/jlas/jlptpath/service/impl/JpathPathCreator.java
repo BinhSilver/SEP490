@@ -17,6 +17,7 @@ import com.jlas.jlptpath.entity.JpathUserLevel;
 import com.jlas.jlptpath.entity.JpathUserPath;
 import com.jlas.jlptpath.entity.JpathUserSettings;
 import com.jlas.jlptpath.enums.JpathEntrySource;
+import com.jlas.jlptpath.enums.JpathKanaChoice;
 import com.jlas.jlptpath.enums.JpathPathStatus;
 import com.jlas.jlptpath.enums.JpathSliderKind;
 import com.jlas.jlptpath.enums.JpathStage;
@@ -252,8 +253,9 @@ public class JpathPathCreator {
             }
             case ABANDONED_TEST -> attemptId != null ? smartTests.read(userId, attemptId) : null;
             case FROM_ZERO -> {
+                // owner 07/11: "studied but does not remember kana" also starts without Smart Test
                 boolean neverStudied = FROM_ZERO.equals(survey.getSelfReportedLevel())
-                        || preference.map(p -> !p.isStudiedBefore()).orElse(false);
+                        || preference.map(p -> !p.isStudiedBefore() || p.getKanaChoice() == JpathKanaChoice.REVIEW).orElse(false);
                 if (!neverStudied) {
                     throw new ApiException(ErrorCode.VALIDATION_FAILED,
                             "Bạn đã từng học tiếng Nhật, hãy bắt đầu bằng Smart Test.");

@@ -27,8 +27,12 @@
     return Boolean(config && config.enabled);
   }
 
-  function visibleSteps(answers, jpathOn) {
+  // [JLAS-W0108] Owner 07/11: a communication goal is asked once here; its own survey asks the rest.
+  var COMM_GOALS = ['BA', 'TRAVEL', 'DAILY_LIFE'];
+
+  function visibleSteps(answers, jpathOn, commOn) {
     var a = answers || {};
+    if (jpathOn && commOn && COMM_GOALS.indexOf(a.goal) >= 0) return ['goal'];
     var studied = a.studied === 'YES';
     var steps;
     if (!jpathOn) {
@@ -97,6 +101,8 @@
     // Preflight C8: a learner whose path is ACTIVE/PAUSED does not retake Smart Test.
     if (keepsPath(pathStatus)) return '/learning/jlpt/start';
     if (survey.selfReportedLevel === 'FROM_ZERO') return '/learning/jlpt/start';
+    // owner 07/11: studied but does not remember kana -> no Smart Test (it cannot be read), start at N5 with kana review
+    if (context && context.kanaChoice === 'REVIEW') return '/learning/jlpt/start';
     // ?edit=days came from the start route (no entry answers yet): an existing Smart Test attempt goes back there
     // (→ confirm) instead of starting a new attempt. ?edit=1 after a restart still offers a fresh Smart Test.
     var c = context || {};

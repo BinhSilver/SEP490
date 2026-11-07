@@ -22,6 +22,8 @@
   var Flow = window.JpathSurveyFlow;
   var jpathConfig = { enabled: false };
   var jpathOn = false;
+  // [JLAS-W0108] Communication path on (its goals API answers): BA/TRAVEL/DAILY_LIFE leave after the goal step.
+  var commOn = false;
   var entryStatus = null;
   var afterSurveyTarget = null;
   var dayPicker = null;
@@ -46,7 +48,7 @@
   function visibleSlides() {
     var goal = checkedValue('goal');
     var studied = checkedValue('studied');
-    var steps = Flow ? Flow.visibleSteps({ goal: goal, studied: studied }, jpathOn) : legacySteps(goal, studied);
+    var steps = Flow ? Flow.visibleSteps({ goal: goal, studied: studied }, jpathOn, commOn) : legacySteps(goal, studied);
     return steps.map(function (step) {
       return slides.filter(function (slide) { return slide.dataset.surveyStep === step; })[0];
     }).filter(Boolean);
@@ -178,16 +180,24 @@
   function showError(message) { notice.textContent = message || 'Không thể tạo bài kiểm tra. Vui lòng thử lại.'; notice.hidden = false; }
   async function api(url, options) { var response = await fetch(url, Object.assign({ headers: window.JlasAuth.authHeaders() }, options || {})); var payload; try { payload = await response.json(); } catch (ignore) { payload = null; } if (!response.ok || !payload || !payload.success) throw new Error(payload && payload.message ? payload.message : 'Không thể kết nối tới máy chủ.'); return payload.data; }
 
-  function showInvitation(survey) {
+  function showInvitation(survey, justSaved) {
     savedSurvey = survey;
+    if (commOn && survey && (survey.goal === 'BA' || survey.goal === 'TRAVEL' || survey.goal === 'DAILY_LIFE')) {
+      // no in-between screen: a new answer opens the communication survey, a returning learner their path
+      window.location.assign(justSaved ? '/learning/comm/survey?goal=' + encodeURIComponent(survey.goal) : '/learning/comm');
+      return;
+    }
     var fromZero = survey.selfReportedLevel === 'FROM_ZERO';
     // [JLAS-W0108] BA/TRAVEL/DAILY_LIFE are survey-only (owner decision 2026-10-14); none may offer Smart Test.
     var surveyOnlyGoal = survey.goal === 'BA' || survey.goal === 'TRAVEL' || survey.goal === 'DAILY_LIFE';
     var pathStatus = entryStatus ? entryStatus.pathStatus : null;
     afterSurveyTarget = jpathOn && Flow ? Flow.afterSurveyUrl(jpathConfig, survey, pathStatus, {
       edit: editParam,
-      smartTestStatus: entryStatus && entryStatus.smartTest ? entryStatus.smartTest.status : null
+      smartTestStatus: entryStatus && entryStatus.smartTest ? entryStatus.smartTest.status : null,
+      kanaChoice: checkedValue('kanaChoice') || (entryStatus ? entryStatus.kanaChoice : null)
     }) : null;
+    // owner 07/11: kana not remembered -> no Smart Test (it cannot be read), the path starts at N5 with kana review
+    if (checkedValue('kanaChoice') === 'REVIEW' || (entryStatus && entryStatus.kanaChoice === 'REVIEW')) fromZero = true;
     var keepsPath = Boolean(afterSurveyTarget) && Flow.keepsPath(pathStatus);
     var resumesSmartTest = Boolean(afterSurveyTarget) && !keepsPath && !fromZero;
     var needsPathOnly = fromZero || surveyOnlyGoal || Boolean(afterSurveyTarget);
@@ -330,16 +340,8 @@
     if (!noTest) return window.location.assign('/');
     // [JLAS-W0108] JLPT path on: the path's own start route decides (confirm FROM_ZERO, resume, …).
     if (afterSurveyTarget) return window.location.assign(afterSurveyTarget);
-    if (savedSurvey && savedSurvey.goal !== 'JLPT') {
-      // [JLAS-W0108] communication path on (flag learning.comm-path.enabled): its own survey and circle map
-      try {
-        var cg = await fetch('/api/learning/comm/goals', { headers: window.JlasAuth && window.JlasAuth.authHeaders ? window.JlasAuth.authHeaders() : {} });
-        if (cg.ok) return window.location.assign('/learning/comm/survey?goal=' + encodeURIComponent(savedSurvey.goal));
-      } catch (ignore) { /* flag off: old goal survey */ }
-      return window.location.assign('/learning/goals/' + encodeURIComponent(savedSurvey.goal) + '/survey');
-    }
-    try { await api('/api/learning/paths/from-zero', { method: 'POST', body: '{}' }); } catch (error) { showError(error.message); return; }
-    window.location.assign('/learning/path');
+    // [JLAS-W0108] Owner 07/11: only the new paths remain; /learning routes to the JLPT or communication path.
+    window.location.assign('/learning');
   });
   function openWizard(startStep) {
     if (savedSurvey) fillSurvey(savedSurvey);
@@ -400,7 +402,7 @@
       if (preference) {
         entryStatus = await api('/api/learning/jlpt/entry-preferences', { method: 'PUT', body: JSON.stringify(preference) });
       }
-      showInvitation(data.survey);
+      showInvitation(data.survey, true);
     }
     catch (error) {
       var msg = error && error.message ? error.message : '';
@@ -443,10 +445,13 @@
   }
   function loadJpathConfig() {
     if (!Flow) return Promise.resolve();
+    var comm = fetch('/api/learning/comm/goals', { headers: window.JlasAuth.authHeaders() })
+      .then(function (r) { commOn = r.ok; }, function () { commOn = false; });
     return api('/api/learning/jlpt/config').then(function (config) {
       if (config) jpathConfig = config;
     }).catch(function () { jpathConfig = { enabled: false }; }).then(function () {
       jpathOn = Boolean(jpathConfig && jpathConfig.enabled);
+      return comm;
     });
   }
 
