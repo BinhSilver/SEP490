@@ -1,4 +1,5 @@
-/* System Admin sections (JLAS2-51/49): dashboard, accounts, Premium plans, payment lookup and the audit log. */
+/* System Admin sections (JLAS2-51/49): dashboard, accounts, Premium plans, payment lookup, the audit log,
+   runtime settings and the read-only permission matrix. */
 (function () {
   'use strict';
 
@@ -16,8 +17,78 @@
     PREMIUM_PLAN_DEACTIVATE: 'Ngừng bán gói', PREMIUM_PLAN_ACTIVATE: 'Mở bán gói',
     COUPON_CREATE: 'Tạo mã giảm giá', COUPON_UPDATE: 'Sửa mã giảm giá', COUPON_ACTIVE: 'Bật/tắt mã giảm giá',
     COUPON_DELETE: 'Xoá mã giảm giá', CREDIT_PACKAGE_CREATE: 'Tạo gói CP', CREDIT_PACKAGE_UPDATE: 'Sửa gói CP',
-    CREDIT_PACKAGE_ACTIVE: 'Bật/tắt gói CP', CREDIT_PACKAGE_DELETE: 'Xoá gói CP'
+    CREDIT_PACKAGE_ACTIVE: 'Bật/tắt gói CP', CREDIT_PACKAGE_DELETE: 'Xoá gói CP',
+    CONFIG_UPDATE: 'Sửa cấu hình', CONFIG_RESET: 'Khôi phục cấu hình'
   };
+
+  // ── Setting labels: pages show the Vietnamese label, the key only in a tooltip ──
+  /** Display names of stored values; anything else is shown as stored. */
+  var CONFIG_VALUE_LABELS = {
+    'dashboard.default_period': { year: 'Năm', '30d': '30 ngày', '7d': '7 ngày' }
+  };
+  var BOOLEAN_LABELS = { 'true': 'Bật', 'false': 'Tắt' };
+  /** key → label, filled from GET /configs (System Admin only, like every page that uses it). */
+  var configLabels = {};
+  var configLabelsLoading = null;
+
+  function loadConfigLabels() {
+    if (!configLabelsLoading) {
+      configLabelsLoading = A.api.get(API + '/configs').then(function (list) {
+        rememberConfigLabels(list);
+        return configLabels;
+      }, function () {
+        configLabelsLoading = null; // keys are shown instead; try again on the next page load
+        return configLabels;
+      });
+    }
+    return configLabelsLoading;
+  }
+
+  function rememberConfigLabels(list) {
+    (list || []).forEach(function (c) { configLabels[c.key] = c.label; });
+  }
+
+  function configLabel(key) { return configLabels[key] || key || ''; }
+
+  function configValueText(key, value) {
+    if (value == null || value === '') return '—';
+    var labels = CONFIG_VALUE_LABELS[key] || {};
+    return labels[value] || BOOLEAN_LABELS[value] || String(value);
+  }
+
+  /** Setting label with its key as the tooltip. */
+  function configName(key) {
+    return '<span title="' + A.esc(key) + '">' + A.esc(configLabel(key)) + '</span>';
+  }
+
+  /** "Label: old → new" (HTML) for a CONFIG_* audit entry; the rejection message when it was refused. */
+  function configChange(entry) {
+    var c = {};
+    try { c = JSON.parse(entry.changesJson || '{}') || {}; } catch (ignored) { /* shown as the label only */ }
+    var key = entry.targetId || '';
+    var show = function (v) {
+      return '<span title="' + A.esc(v == null ? '' : v) + '">' + A.esc(configValueText(key, v)) + '</span>';
+    };
+    if (c.rejection) {
+      return configName(key) + ': ' + A.esc(c.rejection) +
+        ('attempted' in c ? ' <span class="adm-muted">(giá trị gửi: ' + show(c.attempted) + ')</span>' : '');
+    }
+    return configName(key) + ': ' + show(c.before) + ' → ' + show(c.after) +
+      (entry.action === 'CONFIG_RESET' ? ' <span class="adm-muted">(mặc định)</span>' : '');
+  }
+
+  /** Target column: settings by label (key in the tooltip); other types keep "Type #id". */
+  function targetText(entry, typeName) {
+    if (entry.targetType === 'SYSTEM_CONFIG' && entry.targetId) {
+      return A.esc(typeName) + ' · ' + configName(entry.targetId);
+    }
+    return A.esc(typeName) + (entry.targetId ? ' #' + A.esc(entry.targetId) : '');
+  }
+
+  /** The IPv6 loopback, as the servlet reports it, in its short form; other addresses as stored. */
+  function ipText(ip) {
+    return ip === '0:0:0:0:0:0:0:1' ? '::1' : ip;
+  }
   var PAYMENT_STATUS = {
     PENDING: ['Đang chờ', 'warn'], PAID: ['Đã thanh toán', 'ok'], FAILED: ['Thất bại', 'danger'],
     CANCELLED: ['Đã huỷ', ''], EXPIRED: ['Hết hạn', ''], REFUNDED: ['Đã hoàn tiền', '']
@@ -32,7 +103,15 @@
     var s = PAYMENT_STATUS[status] || [status, ''];
     return '<span class="adm-badge' + (s[1] ? ' adm-badge--' + s[1] : '') + '">' + A.esc(s[0]) + '</span>';
   }
-  var MAX_GRANT_DAYS = 365;
+  /** premium.max_manual_grant_days, read from the settings API each time the grant dialog opens. */
+  var maxGrantDays = 365;
+
+  async function grantDayLimit() {
+    var item = (await A.api.get(API + '/configs')).filter(function (c) {
+      return c.key === 'premium.max_manual_grant_days';
+    })[0];
+    return item ? Number(item.value) : maxGrantDays;
+  }
 
   function roleLabel(role) { return ROLE_NAMES[role] || A.ROLE_LABELS[role] || role || '—'; }
 
@@ -142,7 +221,9 @@
         var u = rows[id];
         var plans;
         try {
-          plans = await grantablePlans();
+          var loaded = await Promise.all([grantablePlans(), grantDayLimit()]);
+          plans = loaded[0];
+          maxGrantDays = loaded[1];
         } catch (e) {
           A.toast(e.message, 'error');
           return;
@@ -165,13 +246,13 @@
                 return '<option value="' + p.id + '" data-days="' + p.durationDays + '">' + A.esc(p.name) + ' · ' +
                   p.durationDays + ' ngày</option>';
               }).join('') + '</select></div>' +
-            '<div class="field"><label class="field__label" for="admDays">Số ngày (1–' + MAX_GRANT_DAYS + ')</label>' +
-              '<input class="input" id="admDays" inputmode="numeric" maxlength="3" value="' +
-                Math.min(plans[0].durationDays, MAX_GRANT_DAYS) + '"></div>',
+            '<div class="field"><label class="field__label" for="admDays">Số ngày (1–' + maxGrantDays + ')</label>' +
+              '<input class="input" id="admDays" inputmode="numeric" maxlength="' + String(maxGrantDays).length +
+                '" value="' + Math.min(plans[0].durationDays, maxGrantDays) + '"></div>',
           collect: function (modal) {
             var days = Number(modal.querySelector('#admDays').value);
-            if (!Number.isInteger(days) || days < 1 || days > MAX_GRANT_DAYS) {
-              return { error: 'Số ngày phải từ 1 đến ' + MAX_GRANT_DAYS + '.' };
+            if (!Number.isInteger(days) || days < 1 || days > maxGrantDays) {
+              return { error: 'Số ngày phải từ 1 đến ' + maxGrantDays + '.' };
             }
             return reasonLength(modal) || { planId: Number(modal.querySelector('#admPlanSelect').value), durationDays: days };
           }
@@ -194,7 +275,7 @@
         if (event.target.id !== 'admPlanSelect') return;
         var days = event.target.selectedOptions[0].dataset.days;
         var input = document.getElementById('admDays');
-        if (input && days) input.value = Math.min(Number(days), MAX_GRANT_DAYS);
+        if (input && days) input.value = Math.min(Number(days), maxGrantDays);
       });
       document.addEventListener('focusin', function (event) {
         if (event.target.id === 'admDays' && !event.target.dataset.digits) {
@@ -385,7 +466,10 @@
   });
 
   // ── Audit log ──────────────────────────────────────────────────────────
-  function changesCell(json) {
+  function changesCell(entry) {
+    // Settings: "key: old → new", or the rejection with the value that was sent.
+    if (String(entry.action || '').indexOf('CONFIG_') === 0) return configChange(entry);
+    var json = entry.changesJson;
     if (!json) return '<span class="adm-muted">—</span>';
     var c;
     try { c = JSON.parse(json); } catch (e) { return '<code>' + A.esc(json) + '</code>'; }
@@ -442,58 +526,105 @@
     return '<code>' + A.esc(json) + '</code>';
   }
 
+  // Target types and actor roles the audit API filters on (AdminAuditService.TARGET_TYPES / ACTOR_ROLES).
+  var AUDIT_TARGETS = ['USER', 'PREMIUM_PLAN', 'COUPON', 'CREDIT_PACKAGE', 'SYSTEM_CONFIG'];
+  var AUDIT_ROLES = ['ADMIN', 'MODERATOR', 'CONTENT_CREATOR', 'LEARNER'];
+  /** Filters that may come from the address bar, e.g. /admin/system/audit?targetType=SYSTEM_CONFIG. */
+  var AUDIT_FILTERS = ['q', 'action', 'result', 'actorRole', 'targetType', 'actorId', 'targetId', 'from', 'to'];
+
   A.section('system-audit', {
-    subtitle: 'Thao tác của Quản trị hệ thống: ai làm, lúc nào, với đối tượng nào, vì sao và kết quả. Dữ liệu nhạy cảm đã được che.',
+    subtitle: 'Thao tác của Quản trị hệ thống: ai làm, vai trò gì, từ IP nào, lúc nào, với đối tượng nào, vì sao và kết quả. ' +
+      'Dữ liệu nhạy cảm đã được che; mỗi bản ghi được nối chuỗi băm để phát hiện sửa hoặc xoá.',
     render: async function (root) {
       var page = 0;
       root.innerHTML =
-        '<form class="adm-toolbar" data-filters novalidate>' +
+        '<form class="adm-toolbar" data-filters novalidate role="search">' +
+          '<input class="input" type="search" name="q" maxlength="100" placeholder="Email người thao tác hoặc lý do"' +
+            ' aria-label="Tìm theo email người thao tác hoặc lý do">' +
+          '<button type="submit" class="btn btn--secondary btn--sm">Tìm</button>' +
           '<select class="select" name="action" aria-label="Hành động"><option value="">Mọi hành động</option>' +
             Object.keys(ACTIONS).map(function (k) { return '<option value="' + k + '">' + ACTIONS[k] + '</option>'; }).join('') +
           '</select>' +
           '<select class="select" name="result" aria-label="Kết quả"><option value="">Mọi kết quả</option>' +
             '<option value="SUCCESS">Thành công</option><option value="REJECTED">Bị từ chối</option></select>' +
+          '<select class="select" name="actorRole" aria-label="Vai trò người thao tác"><option value="">Mọi vai trò</option>' +
+            AUDIT_ROLES.map(function (r) { return '<option value="' + r + '">' + A.esc(roleLabel(r)) + '</option>'; }).join('') +
+          '</select>' +
+          '<select class="select" name="targetType" aria-label="Loại đối tượng"><option value="">Mọi đối tượng</option>' +
+            AUDIT_TARGETS.map(function (t) { return '<option value="' + t + '">' + A.esc(A.typeLabel(t)) + '</option>'; }).join('') +
+          '</select>' +
           '<input class="input" name="actorId" inputmode="numeric" maxlength="12" placeholder="Mã người thao tác" aria-label="Mã người thao tác" data-in-filter="Người thao tác">' +
-          '<select class="select" name="targetType" aria-label="Loại đối tượng"><option value="USER">Người dùng</option>' +
-            '<option value="PREMIUM_PLAN">Gói Premium</option></select>' +
-          '<input class="input" name="targetId" inputmode="numeric" maxlength="12" placeholder="Mã đối tượng" aria-label="Mã đối tượng" data-in-filter="Mã đối tượng">' +
+          '<input class="input" name="targetId" maxlength="64" placeholder="Mã đối tượng hoặc khoá cấu hình" aria-label="Mã đối tượng" data-in-filter="Mã đối tượng">' +
           '<div class="adm-filter-range" data-in-filter="Khoảng thời gian">' +
             '<label class="adm-inline">Từ <input class="input" type="date" name="from"></label>' +
             '<label class="adm-inline">Đến <input class="input" type="date" name="to"></label></div>' +
-        '</form><div data-list></div>';
+          '<button type="button" class="btn btn--secondary btn--sm" data-integrity>' +
+            '<i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Kiểm tra toàn vẹn</button>' +
+        // min-width:0: #admContent is a grid; without it the 9-column table widens the page instead of scrolling.
+        '</form><div data-integrity-result aria-live="polite"></div><div data-list style="min-width:0"></div>';
       var form = root.querySelector('[data-filters]');
-      A.filterPopover(form);
+      // Address-bar filters are applied after the popover is built, so "Đặt lại" still clears them.
+      var filters = A.filterPopover(form);
+      var query = new URLSearchParams(window.location.search);
+      AUDIT_FILTERS.forEach(function (k) {
+        var value = query.get(k);
+        if (value == null || !form.elements[k]) return;
+        form.elements[k].value = value;
+        // A value the select does not offer leaves it on "all".
+        if (form.elements[k].tagName === 'SELECT' && form.elements[k].value !== value) form.elements[k].value = '';
+      });
+      if (filters) filters.sync();
       A.digitsOnly(form.elements.actorId);
-      A.digitsOnly(form.elements.targetId);
+
+      function auditParams() {
+        var params = new URLSearchParams();
+        ['q', 'action', 'result', 'actorRole', 'targetType', 'actorId', 'targetId'].forEach(function (k) {
+          var value = form.elements[k].value.trim();
+          if (value) params.set(k, value);
+        });
+        // The API takes ISO date-times; whole days are inclusive.
+        if (form.elements.from.value) params.set('from', form.elements.from.value + 'T00:00:00');
+        if (form.elements.to.value) params.set('to', form.elements.to.value + 'T23:59:59.999');
+        return params;
+      }
+
+      /** Keeps the address bar in step with the filters, so a filtered view can be shared or reloaded. */
+      function syncAddress() {
+        var shown = new URLSearchParams();
+        AUDIT_FILTERS.forEach(function (k) {
+          var value = form.elements[k].value.trim();
+          if (value) shown.set(k, value);
+        });
+        var search = shown.toString();
+        window.history.replaceState(null, '', window.location.pathname + (search ? '?' + search : ''));
+      }
 
       async function load() {
         var list = root.querySelector('[data-list]');
         list.innerHTML = A.loading();
-        var params = new URLSearchParams({ page: page, size: 30 });
-        ['action', 'result', 'actorId'].forEach(function (k) { if (form.elements[k].value) params.set(k, form.elements[k].value); });
-        if (form.elements.targetId.value) {
-          params.set('targetType', form.elements.targetType.value);
-          params.set('targetId', form.elements.targetId.value);
-        }
-        // The API takes ISO date-times; whole days are inclusive.
-        if (form.elements.from.value) params.set('from', form.elements.from.value + 'T00:00:00');
-        if (form.elements.to.value) params.set('to', form.elements.to.value + 'T23:59:59.999');
+        var params = auditParams();
+        params.set('page', page);
+        params.set('size', 30);
         try {
-          var data = await A.api.get(API + '/audit-logs?' + params.toString());
+          var loaded = await Promise.all([A.api.get(API + '/audit-logs?' + params.toString()), loadConfigLabels()]);
+          var data = loaded[0];
           list.innerHTML = (data.items.length ?
             '<div class="adm-table-wrap"><table class="adm-table"><thead><tr>' +
-              '<th scope="col">Thời gian</th><th scope="col">Người thao tác</th><th scope="col">Hành động</th>' +
-              '<th scope="col">Đối tượng</th><th scope="col">Lý do</th><th scope="col">Kết quả</th>' +
-              '<th scope="col">Thay đổi</th></tr></thead><tbody>' +
+              '<th scope="col">Thời gian</th><th scope="col">Người thao tác</th><th scope="col">Vai trò</th>' +
+              '<th scope="col">Hành động</th><th scope="col">Đối tượng</th><th scope="col">Lý do</th>' +
+              '<th scope="col">Kết quả</th><th scope="col">Thay đổi</th><th scope="col">IP</th></tr></thead><tbody>' +
               data.items.map(function (a) {
                 return '<tr><td class="adm-muted adm-nowrap">' + A.date(a.createdAt) + '</td>' +
                   '<td><span class="adm-user"><strong>' + A.esc(a.actorEmail) + '</strong><span class="adm-muted">#' + a.actorId + '</span></span></td>' +
+                  '<td class="adm-nowrap">' + (a.actorRole ? A.esc(roleLabel(a.actorRole)) : '<span class="adm-muted">—</span>') + '</td>' +
                   '<td>' + A.esc(ACTIONS[a.action] || a.action) + '</td>' +
-                  '<td>' + A.esc(A.typeLabel(a.targetType)) + (a.targetId ? ' #' + A.esc(a.targetId) : '') + '</td>' +
-                  '<td>' + A.esc(a.reason || '—') + '</td>' +
+                  '<td style="min-width:200px">' + targetText(a, A.typeLabel(a.targetType)) + '</td>' +
+                  '<td style="min-width:180px">' + A.esc(a.reason || '—') + '</td>' +
                   '<td>' + (a.result === 'SUCCESS' ? '<span class="adm-badge adm-badge--ok">Thành công</span>'
                     : '<span class="adm-badge adm-badge--warn">Bị từ chối</span>') + '</td>' +
-                  '<td>' + changesCell(a.changesJson) + '</td></tr>';
+                  '<td style="min-width:240px">' + changesCell(a) + '</td>' +
+                  '<td class="adm-nowrap">' + (a.ipAddress ? '<code title="' + A.esc(a.ipAddress) + '">' + A.esc(ipText(a.ipAddress)) + '</code>'
+                    : '<span class="adm-muted">—</span>') + '</td></tr>';
               }).join('') + '</tbody></table></div>'
             : A.empty('fa-inbox', 'Chưa có bản ghi nào')) +
             pager(page, data.totalPages);
@@ -502,14 +633,267 @@
         }
       }
 
-      form.addEventListener('submit', function (event) { event.preventDefault(); page = 0; load(); });
+      async function checkIntegrity(button) {
+        var box = root.querySelector('[data-integrity-result]');
+        button.disabled = true;
+        box.innerHTML = '<p class="adm-muted">Đang kiểm tra chuỗi nhật ký…</p>';
+        try {
+          var r = await A.api.get(API + '/audit-logs/integrity');
+          box.innerHTML = '<div class="adm-panel" role="status">' + (r.valid
+            ? '<span class="adm-badge adm-badge--ok"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Toàn vẹn</span> ' +
+              'Đã kiểm tra ' + A.esc(numberVi(r.checked)) + ' bản ghi, không phát hiện sửa hoặc xoá' +
+              (r.legacyUnhashed ? ' (' + A.esc(numberVi(r.legacyUnhashed)) + ' bản ghi cũ ghi trước khi có chuỗi băm).' : '.')
+            : '<span class="adm-badge adm-badge--danger"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Phát hiện sai lệch</span> ' +
+              'Bản ghi đầu tiên bị ảnh hưởng: <strong>#' + A.esc(r.firstBrokenId) + '</strong>. ' + A.esc(r.reason || '')) +
+            '</div>';
+        } catch (e) {
+          box.innerHTML = '';
+          A.toast(e.message, 'error');
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      form.addEventListener('submit', function (event) { event.preventDefault(); page = 0; syncAddress(); load(); });
       root.addEventListener('click', function (event) {
+        var integrity = event.target.closest('[data-integrity]');
+        if (integrity) { checkIntegrity(integrity); return; }
         var button = event.target.closest('[data-page]');
         if (!button) return;
         page += Number(button.dataset.page);
         load();
       });
       await load();
+    }
+  });
+
+  // ── System settings ────────────────────────────────────────────────────
+  function configChoices(c) {
+    return c.type === 'BOOLEAN' ? ['true', 'false'] : c.allowedValues || [];
+  }
+
+  function configChoiceLabels(c) {
+    return configChoices(c).map(function (v) { return configValueText(c.key, v); }).join(', ');
+  }
+
+  function configConstraint(c) {
+    if (c.type === 'INT') return 'Số nguyên từ ' + c.min + ' đến ' + c.max;
+    if (c.type === 'ENUM' || c.type === 'BOOLEAN') return 'Một trong: ' + configChoiceLabels(c);
+    return 'Tối đa 1000 ký tự';
+  }
+
+  /** A value by its label, the stored value as the tooltip. */
+  function configValueHtml(c, value) {
+    return '<span title="' + A.esc(value == null ? '' : value) + '">' + A.esc(configValueText(c.key, value)) + '</span>';
+  }
+
+  /** Same rules as SystemConfigKey.normalize on the server: null when valid, else the message. */
+  function configError(c, raw) {
+    var text = String(raw == null ? '' : raw).trim();
+    if (!text) return 'Vui lòng nhập giá trị.';
+    if (c.type === 'INT') {
+      if (!/^-?\d{1,10}$/.test(text)) return 'Giá trị phải là số nguyên.';
+      var n = Number(text);
+      if (n < c.min || n > c.max) return 'Giá trị phải từ ' + c.min + ' đến ' + c.max + '.';
+    } else if (c.type === 'ENUM' || c.type === 'BOOLEAN') {
+      if (configChoices(c).indexOf(text) < 0) return 'Giá trị phải là một trong: ' + configChoiceLabels(c) + '.';
+    } else if (text.length > 1000) {
+      return 'Giá trị tối đa 1000 ký tự.';
+    }
+    return null;
+  }
+
+  function configRow(c) {
+    return '<tr><td><strong title="' + A.esc(c.key) + '">' + A.esc(c.label) + '</strong>' +
+        '<br><span class="adm-muted">' + A.esc(c.description) + '</span></td>' +
+      '<td class="adm-nowrap"><strong>' + configValueHtml(c, c.value) + '</strong><br>' +
+        (c.overridden ? '<span class="adm-badge adm-badge--warn">Đã ghi đè</span>' : '<span class="adm-badge">Mặc định</span>') + '</td>' +
+      '<td class="adm-nowrap">' + configValueHtml(c, c.defaultValue) + '</td>' +
+      '<td>' + A.esc(configConstraint(c)) + '</td>' +
+      '<td>' + (c.updatedAt ? A.esc(c.updatedBy || '—') + '<br><span class="adm-muted">' + A.date(c.updatedAt) + '</span>'
+        : '<span class="adm-muted">Chưa sửa</span>') + '</td>' +
+      '<td class="adm-nowrap"><button type="button" class="btn btn--secondary btn--sm" data-config-edit="' + A.esc(c.key) + '">Sửa</button> ' +
+        '<button type="button" class="btn btn--secondary btn--sm" data-config-reset="' + A.esc(c.key) + '"' +
+          (c.overridden ? '' : ' disabled title="Đang dùng giá trị mặc định"') + '>Khôi phục mặc định</button></td></tr>';
+  }
+
+  A.section('system-config', {
+    subtitle: 'Giá trị hệ thống dùng lúc chạy, có hiệu lực ngay sau khi lưu. Mỗi lần sửa hoặc khôi phục cần lý do và được ghi vào ' +
+      'Nhật ký quản trị; nếu người khác vừa sửa trước, thao tác bị từ chối để không ghi đè.',
+    render: async function (root) {
+      var items = {};
+      root.innerHTML = '<div data-configs></div>' +
+        '<section class="adm-panel" aria-labelledby="admIntegrationsTitle">' +
+          '<h2 class="adm-panel__title" id="admIntegrationsTitle">Tích hợp</h2>' +
+          '<p class="adm-muted">Chỉ đọc. Khoá bí mật nằm trong biến môi trường hoặc application-local.yaml; ' +
+            'trang này chỉ cho biết đã cấu hình hay chưa, không hiện giá trị.</p>' +
+          '<div data-integrations></div></section>';
+
+      async function load() {
+        var box = root.querySelector('[data-configs]');
+        box.innerHTML = A.loading();
+        try {
+          var list = await A.api.get(API + '/configs');
+          rememberConfigLabels(list);
+          items = {};
+          var groups = [];
+          list.forEach(function (c) {
+            items[c.key] = c;
+            if (groups.indexOf(c.group) < 0) groups.push(c.group);
+          });
+          box.innerHTML = groups.map(function (g) {
+            return '<section class="adm-panel"><h2 class="adm-panel__title">' + A.esc(g) + '</h2>' +
+              '<div class="adm-table-wrap"><table class="adm-table"><thead><tr>' +
+                '<th scope="col">Cấu hình</th><th scope="col">Giá trị hiện tại</th><th scope="col">Mặc định</th>' +
+                '<th scope="col">Ràng buộc</th><th scope="col">Sửa gần nhất</th><th scope="col">Thao tác</th>' +
+              '</tr></thead><tbody>' +
+                list.filter(function (c) { return c.group === g; }).map(configRow).join('') +
+              '</tbody></table></div></section>';
+          }).join('');
+        } catch (e) {
+          box.innerHTML = A.empty('fa-circle-exclamation', 'Không tải được cấu hình', e.message);
+        }
+      }
+
+      async function loadIntegrations() {
+        var box = root.querySelector('[data-integrations]');
+        box.innerHTML = A.loading();
+        try {
+          var list = await A.api.get(API + '/configs/integrations');
+          box.innerHTML = '<div class="adm-table-wrap"><table class="adm-table"><thead><tr>' +
+              '<th scope="col">Tích hợp</th><th scope="col">Trạng thái</th><th scope="col">Giá trị</th>' +
+            '</tr></thead><tbody>' + list.map(function (i) {
+              return '<tr><td title="' + A.esc(i.key) + '">' + A.esc(i.label) + '</td>' +
+                '<td>' + (i.configured ? '<span class="adm-badge adm-badge--ok">Đã cấu hình</span>'
+                  : '<span class="adm-badge adm-badge--warn">Chưa cấu hình</span>') + '</td>' +
+                '<td>' + (i.configured ? '<code>' + A.esc(i.value) + '</code>' : '<span class="adm-muted">—</span>') + '</td></tr>';
+            }).join('') + '</tbody></table></div>';
+        } catch (e) {
+          box.innerHTML = A.empty('fa-circle-exclamation', 'Không tải được trạng thái tích hợp', e.message);
+        }
+      }
+
+      /** A 409 means someone saved in between: tell the admin and show the fresh values. */
+      async function save(call, done) {
+        try {
+          await call();
+          A.toast(done, 'success');
+        } catch (e) {
+          if (e.status === 409) A.toast('Cấu hình vừa được người khác thay đổi, đã tải lại.', 'warning');
+          else A.toast(e.message, 'error');
+        }
+        await load();
+      }
+
+      async function edit(key) {
+        var c = items[key];
+        if (!c) return;
+        var field = c.type === 'ENUM' || c.type === 'BOOLEAN'
+          ? '<select class="select" id="admConfigValue" data-autofocus>' + configChoices(c).map(function (v) {
+              return '<option value="' + A.esc(v) + '"' + (v === c.value ? ' selected' : '') + '>' +
+                A.esc(configValueText(c.key, v)) + '</option>';
+            }).join('') + '</select>'
+          : '<input class="input" id="admConfigValue" data-autofocus aria-describedby="admConfigError"' +
+              (c.type === 'INT' ? ' inputmode="numeric" maxlength="' + String(Math.max(Math.abs(c.min), Math.abs(c.max))).length + '"'
+                : ' maxlength="1000"') + ' value="' + A.esc(c.value) + '">';
+        var pending = A.decide({
+          title: 'Sửa cấu hình "' + c.label + '"?',
+          message: A.esc(c.description) + ' Hiện tại: <strong>' + A.esc(configValueText(c.key, c.value)) + '</strong>; mặc định: ' +
+            A.esc(configValueText(c.key, c.defaultValue)) + '.',
+          confirmText: 'Lưu cấu hình', maxLength: 500,
+          placeholder: 'Lý do (ít nhất 5 ký tự), lưu vào nhật ký quản trị',
+          extraHtml: '<div class="field"><label class="field__label" for="admConfigValue">Giá trị mới ' +
+              '<span class="adm-muted">(' + A.esc(configConstraint(c)) + ')</span></label>' + field +
+            '<p class="adm-error" id="admConfigError" aria-live="polite"></p></div>',
+          collect: function (modal) {
+            var value = modal.querySelector('#admConfigValue').value.trim();
+            var error = configError(c, value);
+            if (error) return { error: error };
+            if (value === c.value) return { error: 'Giá trị mới trùng giá trị hiện tại.' };
+            return reasonLength(modal) || { value: value };
+          }
+        });
+        // The dialog is in the page as soon as decide() returns: validate while typing.
+        var input = document.getElementById('admConfigValue');
+        if (input) {
+          if (c.type === 'INT' && c.min >= 0) A.digitsOnly(input);
+          input.addEventListener('input', function () {
+            var message = configError(c, input.value);
+            document.getElementById('admConfigError').textContent = message || '';
+            input.setAttribute('aria-invalid', message ? 'true' : 'false');
+          });
+        }
+        var decision = await pending;
+        if (!decision) return;
+        await save(function () {
+          return A.api.put(API + '/configs/' + encodeURIComponent(key),
+            { value: decision.extra.value, version: c.version, reason: decision.reason });
+        }, 'Đã lưu cấu hình');
+      }
+
+      async function reset(key) {
+        var c = items[key];
+        if (!c) return;
+        var decision = await A.decide({
+          title: 'Khôi phục "' + c.label + '" về mặc định?',
+          message: 'Giá trị <strong>' + A.esc(configValueText(c.key, c.value)) + '</strong> sẽ trở về mặc định <strong>' +
+            A.esc(configValueText(c.key, c.defaultValue)) + '</strong> ngay sau khi lưu.',
+          confirmText: 'Khôi phục mặc định', maxLength: 500,
+          placeholder: 'Lý do (ít nhất 5 ký tự), lưu vào nhật ký quản trị',
+          collect: function (modal) { return reasonLength(modal); }
+        });
+        if (!decision) return;
+        await save(function () {
+          return A.api.post(API + '/configs/' + encodeURIComponent(key) + '/reset', { reason: decision.reason, version: c.version });
+        }, 'Đã khôi phục mặc định');
+      }
+
+      root.addEventListener('click', function (event) {
+        var editButton = event.target.closest('[data-config-edit]');
+        if (editButton) { edit(editButton.dataset.configEdit); return; }
+        var resetButton = event.target.closest('[data-config-reset]');
+        if (resetButton && !resetButton.disabled) reset(resetButton.dataset.configReset);
+      });
+      await Promise.all([load(), loadIntegrations()]);
+    }
+  });
+
+  // ── Permission matrix (read-only) ──────────────────────────────────────
+  A.section('system-permissions', {
+    subtitle: 'Ai được dùng khu vực quản trị nào, theo đúng quy tắc bảo mật đang chạy. Chỉ đọc: vai trò của từng tài khoản ' +
+      'được đổi ở trang Người dùng.',
+    render: async function (root) {
+      root.innerHTML = A.loading();
+      try {
+        var m = await A.api.get(API + '/permissions');
+        var cells = {};
+        m.cells.forEach(function (c) { cells[c.role + '|' + c.group] = c; });
+        root.innerHTML =
+          '<div class="adm-table-wrap"><table class="adm-table"><caption class="adm-muted">' +
+              'Mỗi ô được kiểm bằng một API đọc (GET); rê chuột vào ô để xem API đó.</caption><thead><tr><th scope="col">Vai trò</th>' +
+            m.groups.map(function (g) { return '<th scope="col" title="' + A.esc(g.description) + '">' + A.esc(g.label) + '</th>'; }).join('') +
+            '</tr></thead><tbody>' +
+            m.roles.map(function (r) {
+              return '<tr><th scope="row" title="' + A.esc(r) + '">' + A.esc(roleLabel(r)) + '</th>' +
+                m.groups.map(function (g) {
+                  var c = cells[r + '|' + g.key];
+                  var apis = 'API kiểm tra: ' + g.endpoints.map(function (e) { return 'GET ' + e; }).join(', ');
+                  return '<td title="' + A.esc(apis) + '">' + (c.allowed
+                    ? '<span class="adm-badge adm-badge--ok">✓ Được phép</span>'
+                    : '<span class="adm-badge adm-badge--danger">✗ Không</span>') + '</td>';
+                }).join('') + '</tr>';
+            }).join('') + '</tbody></table></div>' +
+          '<section class="adm-panel"><h2 class="adm-panel__title">Các nhóm quyền</h2>' +
+            '<div class="adm-table-wrap"><table class="adm-table"><thead><tr><th scope="col">Nhóm</th><th scope="col">Bao gồm</th>' +
+              '</tr></thead><tbody>' +
+              m.groups.map(function (g) {
+                return '<tr><td><strong>' + A.esc(g.label) + '</strong></td><td>' + A.esc(g.description) + '</td></tr>';
+              }).join('') + '</tbody></table></div></section>' +
+          '<p class="adm-muted">Không có kế thừa vai trò: Quản trị viên không tự có quyền của Người biên soạn và ngược lại. ' +
+            'Đổi vai trò của một tài khoản ở <a href="/admin/system/users">trang Người dùng</a>.</p>';
+      } catch (e) {
+        root.innerHTML = A.empty('fa-circle-exclamation', 'Không tải được bảng phân quyền', e.message);
+      }
     }
   });
 
@@ -534,7 +918,10 @@
     { key: '30d', label: '30 ngày qua', revenue: 'Doanh thu 30 ngày', compare: 'so với 30 ngày trước đó' },
     { key: '7d', label: '7 ngày', revenue: 'Doanh thu 7 ngày', compare: 'so với 7 ngày trước đó' }
   ];
-  var TARGET_TYPES = { USER: 'Người dùng', PREMIUM_PLAN: 'Gói Premium', COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP' };
+  /** periodStats.period (server enum) → the key above. */
+  var PERIOD_KEYS = { YEAR: 'year', DAYS_30: '30d', DAYS_7: '7d' };
+  var TARGET_TYPES = { USER: 'Người dùng', PREMIUM_PLAN: 'Gói Premium', COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP',
+    SYSTEM_CONFIG: 'Cấu hình hệ thống' };
 
   function numberVi(n) { return Number(n || 0).toLocaleString('vi-VN'); }
 
@@ -627,12 +1014,19 @@
     var monthBarMax = 150;
 
     var recent = d.recentActions || [];
+    var configChanges = d.configChanges || [];
+    var overdue = Number(d.pendingPaymentsOverdue || 0);
+    // Server clock (HH:mm:ss of generatedAt), so the time matches the figures whatever the viewer's time zone.
+    var generatedAt = String(d.generatedAt || '').slice(11, 19);
 
     return '<div class="st-dashboard">' +
       '<header class="st-topbar">' +
         '<div class="st-topbar__left"><div class="st-topbar__title-wrap"><span class="st-topbar__dot"></span>' +
           '<h1 class="st-topbar__title">Tổng quan hệ thống</h1></div></div>' +
         '<div class="st-topbar__actions">' +
+          '<span class="st-updated" aria-live="polite">Cập nhật lúc ' + A.esc(generatedAt || '—') + '</span>' +
+          '<button type="button" class="st-icon-btn" data-refresh title="Làm mới số liệu" aria-label="Làm mới số liệu">' +
+            '<span class="material-symbols-outlined" style="font-size:20px;" aria-hidden="true">refresh</span></button>' +
           '<div class="st-segmented" role="tablist" aria-label="Khoảng thời gian">' +
             PERIODS.map(function (x) {
               return '<button type="button" role="tab" class="st-segmented__btn' + (x.key === period ? ' active' : '') +
@@ -649,18 +1043,26 @@
 
       '<div class="st-grid-kpi">' +
         kpiCard('Tổng người dùng', 'group', 'purple', numberVi(d.totalUsers),
-          growthPill(stats.newUsers, stats.newUsersPrevious, p.compare, '+' + numberVi(stats.newUsers) + ' người mới')) +
+          growthPill(stats.newUsers, stats.newUsersPrevious, p.compare, '+' + numberVi(stats.newUsers) + ' người mới'),
+          ['totalUsers', 'periodStats.newUsers']) +
         kpiCard(p.revenue, 'credit_card', 'purple', revenueText,
-          growthPill(revenueNow, revenueBefore, p.compare, '')) +
+          growthPill(revenueNow, revenueBefore, p.compare, ''), ['periodStats.paid']) +
         kpiCard('Giao dịch đang chờ', 'hourglass_empty', 'amber', numberVi(pending) + ' giao dịch',
-          pending ? '<span class="st-pill st-pill--amber">Cần xác nhận</span>' : '<span class="st-pill st-pill--neutral">Không có</span>') +
+          pending ? '<span class="st-pill st-pill--amber">Cần xác nhận</span>' : '<span class="st-pill st-pill--neutral">Không có</span>',
+          ['paymentsByStatus']) +
+        kpiCard('Giao dịch chờ quá ' + numberVi(d.pendingAlertMinutes) + ' phút', 'schedule', 'amber',
+          numberVi(overdue) + ' giao dịch',
+          overdue ? '<a class="st-pill st-pill--amber" href="/admin/system/payments">Cần kiểm tra</a>'
+            : '<span class="st-pill st-pill--neutral">Không có</span>', ['pendingPaymentsOverdue']) +
         kpiCard('Kiểm duyệt chờ xử lý', 'verified', 'purple', modCount == null ? '—' : numberVi(modCount) + ' mục',
-          modCount ? '<span class="st-pill st-pill--purple">Cần xử lý</span>' : '<span class="st-pill st-pill--neutral">Đã xử lý hết</span>') +
+          modCount ? '<span class="st-pill st-pill--purple">Cần xử lý</span>' : '<span class="st-pill st-pill--neutral">Đã xử lý hết</span>',
+          ['moderationPending']) +
       '</div>' +
 
       '<div class="st-card">' +
         '<div class="st-card__header"><div class="st-card__title-group"><div class="st-card__title-row">' +
           '<span class="st-square-mark"></span><h2 class="st-card__title">Số lượng người đăng ký mới mỗi năm</h2>' +
+          sourceButton(['registrationsByYear'], 'Người đăng ký mới mỗi năm') +
         '</div></div></div>' +
         '<div class="st-annual-chart">' +
           '<div class="st-annual-chart__gridlines">' +
@@ -683,8 +1085,9 @@
 
       '<div class="st-grid-trio">' +
         '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;"><div>' +
-          '<div class="st-card__header"><div class="st-card__title-group">' +
-            '<h2 class="st-card__title">Số lượng người đăng ký Premium mỗi tháng (' + A.esc(d.premiumYear) + ')</h2></div>' +
+          '<div class="st-card__header"><div class="st-card__title-group"><div class="st-card__title-row">' +
+            '<h2 class="st-card__title">Số lượng người đăng ký Premium mỗi tháng (' + A.esc(d.premiumYear) + ')</h2>' +
+            sourceButton(['premiumByMonth'], 'Đăng ký Premium mỗi tháng') + '</div></div>' +
             '<span class="st-pill st-pill--purple">Tổng ' + numberVi(premiumTotal) + ' lượt</span>' +
           '</div>' +
           '<div class="st-monthly-chart"><div class="st-monthly-chart__bars">' +
@@ -702,8 +1105,9 @@
         '</div></div>' +
 
         '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;"><div>' +
-          '<div class="st-card__header"><div class="st-card__title-group">' +
-            '<h2 class="st-card__title" style="font-size:15px;">Tỉ lệ Premium / Miễn phí</h2></div></div>' +
+          '<div class="st-card__header"><div class="st-card__title-group"><div class="st-card__title-row">' +
+            '<h2 class="st-card__title" style="font-size:15px;">Tỉ lệ Premium / Miễn phí</h2>' +
+            sourceButton(['premiumActive', 'usersByRole'], 'Tỉ lệ Premium / Miễn phí') + '</div></div></div>' +
           '<div class="st-donut-wrap"><div class="st-donut"><svg viewBox="0 0 160 160">' +
             '<circle cx="80" cy="80" r="62" fill="none" stroke="#EEF5F7" stroke-width="18"></circle>' +
             '<circle cx="80" cy="80" r="62" fill="none" stroke="#4F378A" stroke-width="18" stroke-dasharray="' + premiumLen + ' ' + donutCirc + '" stroke-dashoffset="0" stroke-linecap="round"></circle>' +
@@ -717,8 +1121,9 @@
         '</div></div>' +
 
         '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;"><div>' +
-          '<div class="st-card__header"><div class="st-card__title-group">' +
-            '<h2 class="st-card__title" style="font-size:15px;">Giao dịch</h2></div></div>' +
+          '<div class="st-card__header"><div class="st-card__title-group"><div class="st-card__title-row">' +
+            '<h2 class="st-card__title" style="font-size:15px;">Giao dịch</h2>' +
+            sourceButton(['paymentsByStatus'], 'Giao dịch') + '</div></div></div>' +
           '<div class="st-tx-health__val-row"><span class="st-tx-health__pct">' + txDonePct + '%</span>' +
             (txTotal === 0 ? '' : txDonePct >= 90
               ? '<span class="st-pill st-pill--growth" style="padding:2px 8px; font-size:10px;">Hoàn tất chuẩn</span>'
@@ -743,7 +1148,9 @@
       '</div>' +
 
       '<div class="st-card"><div>' +
-        '<div class="st-card__header"><div class="st-card__title-group"><h2 class="st-card__title">Thao tác quản trị gần đây</h2></div>' +
+        '<div class="st-card__header"><div class="st-card__title-group"><div class="st-card__title-row">' +
+          '<h2 class="st-card__title">Thao tác quản trị gần đây</h2>' +
+          sourceButton(['recentActions'], 'Thao tác quản trị gần đây') + '</div></div>' +
           '<a class="st-pill st-pill--neutral" href="/admin/system/audit">Xem nhật ký</a></div>' +
         (recent.length ? '<div class="st-table-wrap"><table class="st-table"><thead><tr>' +
             '<th>Thời gian</th><th>Người thao tác</th><th>Hành động</th><th>Đối tượng</th><th style="text-align:right;">Trạng thái</th>' +
@@ -756,22 +1163,62 @@
               '<td style="white-space:nowrap;"><div class="st-table-user"><span class="st-avatar-badge st-avatar-badge--' + badge + '">' +
                 A.esc(initials(r.actorEmail)) + '</span><span style="font-weight:500;">' + A.esc(r.actorEmail || ('#' + r.actorId)) + '</span></div></td>' +
               '<td style="font-weight:500;">' + A.esc(ACTIONS[r.action] || r.action) + '</td>' +
-              '<td style="color:var(--st-on-surface-variant);">' + A.esc(TARGET_TYPES[r.targetType] || r.targetType) +
-                (r.targetId ? ' #' + A.esc(r.targetId) : '') + (r.reason ? ' · ' + A.esc(r.reason) : '') + '</td>' +
+              '<td style="color:var(--st-on-surface-variant);">' + targetText(r, TARGET_TYPES[r.targetType] || r.targetType) +
+                (r.reason ? ' · ' + A.esc(r.reason) : '') + '</td>' +
               '<td style="text-align:right; white-space:nowrap;"><span class="st-pill ' + (ok ? 'st-pill--growth">Thành công' : 'st-pill--amber">Bị từ chối') + '</span></td>' +
             '</tr>';
           }).join('') +
           '</tbody></table></div>'
           : A.empty('fa-clock-rotate-left', 'Chưa có thao tác quản trị', 'Các thao tác như khoá tài khoản, sửa gói sẽ hiện ở đây.')) +
       '</div></div>' +
+
+      '<div class="st-card"><div>' +
+        '<div class="st-card__header"><div class="st-card__title-group"><div class="st-card__title-row">' +
+          '<h2 class="st-card__title">Cấu hình thay đổi gần đây</h2>' +
+          sourceButton(['configChanges'], 'Cấu hình thay đổi gần đây') + '</div></div>' +
+          '<a class="st-pill st-pill--neutral" href="/admin/system/audit?targetType=SYSTEM_CONFIG">Xem trong nhật ký</a></div>' +
+        (configChanges.length ? '<ul class="st-config-list">' + configChanges.map(function (r) {
+            return '<li class="st-config-list__item">' +
+              '<span class="st-config-list__time">' + A.esc(actionTime(r.createdAt)) + '</span>' +
+              '<span class="st-config-list__what"><strong>' + A.esc(ACTIONS[r.action] || r.action) + '</strong> · ' +
+                configChange(r) + '</span>' +
+              '<span class="st-config-list__who">' + A.esc(r.actorEmail || ('#' + r.actorId)) +
+                (r.result === 'SUCCESS' ? '' : ' · <span class="st-pill st-pill--amber">Bị từ chối</span>') + '</span>' +
+            '</li>';
+          }).join('') + '</ul>'
+          : A.empty('fa-sliders', 'Chưa có thay đổi cấu hình', 'Các lần sửa hoặc khôi phục cấu hình hệ thống sẽ hiện ở đây.')) +
+      '</div></div>' +
     '</div>';
   }
 
-  function kpiCard(label, icon, tone, value, pill) {
-    return '<div class="st-card st-kpi-card"><div class="st-kpi-card__top"><span class="st-kpi-card__label">' + A.esc(label) + '</span>' +
+  function kpiCard(label, icon, tone, value, pill, sources) {
+    return '<div class="st-card st-kpi-card"><div class="st-kpi-card__top"><span class="st-kpi-card__label">' + A.esc(label) +
+      sourceButton(sources, label) + '</span>' +
       '<div class="st-kpi-card__icon-wrap st-kpi-card__icon-wrap--' + tone + '"><span class="material-symbols-outlined" style="font-size:20px;">' + icon + '</span></div></div>' +
       '<div class="st-kpi-card__val-block"><div class="st-kpi-card__value">' + value + '</div>' +
       '<div class="st-kpi-card__pill-wrap">' + pill + '</div></div></div>';
+  }
+
+  /** ⓘ button; {@code keys} are kpiSources keys from AdminKpiCatalog, shown in a popover on click. */
+  function sourceButton(keys, label) {
+    return '<button type="button" class="st-info-btn" data-kpi-sources="' + A.esc(keys.join(',')) + '" aria-expanded="false"' +
+      ' aria-label="Nguồn số liệu: ' + A.esc(label) + '" title="Nguồn số liệu">' +
+      '<span class="material-symbols-outlined" aria-hidden="true">info</span></button>';
+  }
+
+  function sourcePopoverHtml(keys, sources) {
+    var byKey = {};
+    (sources || []).forEach(function (s) { byKey[s.key] = s; });
+    var items = keys.map(function (k) { return byKey[k]; }).filter(Boolean);
+    return '<div class="st-source-pop__head"><strong>Nguồn số liệu</strong>' +
+        '<button type="button" class="st-source-pop__close" data-close-sources aria-label="Đóng">×</button></div>' +
+      (items.length ? items.map(function (s) {
+        return '<div class="st-source-pop__item"><div class="st-source-pop__label">' + A.esc(s.label) + '</div><dl>' +
+          '<dt>Bảng nguồn</dt><dd><code>' + A.esc(s.sourceTables) + '</code></dd>' +
+          '<dt>Điều kiện lọc</dt><dd>' + A.esc(s.filter) + '</dd>' +
+          '<dt>Công thức</dt><dd><code>' + A.esc(s.formula) + '</code></dd>' +
+          '<dt>Kỳ tính</dt><dd>' + A.esc(s.period) + '</dd></dl></div>';
+      }).join('') : '<p class="st-source-pop__empty">Chưa có mô tả nguồn cho chỉ số này.</p>');
   }
 
   function legendItem(color, label, count, pct, tone) {
@@ -791,14 +1238,16 @@
     subtitle: '',
     render: async function (root) {
       document.body.classList.add('dashboard-view');
-      var period = 'year';
-      try { period = sessionStorage.getItem('jlas-admin-dashboard-period') || 'year'; } catch (ignored) { /* private mode */ }
+      // Only a period the viewer picked is remembered; otherwise the server applies dashboard.default_period.
+      var period = null;
+      try { period = sessionStorage.getItem('jlas-admin-dashboard-period'); } catch (ignored) { /* private mode */ }
 
       async function draw() {
         root.setAttribute('aria-busy', 'true');
         var results = await Promise.allSettled([
-          A.api.get(API + '/dashboard?period=' + encodeURIComponent(period)),
-          A.api.get('/api/admin/moderation/overview')
+          A.api.get(API + '/dashboard' + (period ? '?period=' + encodeURIComponent(period) : '')),
+          A.api.get('/api/admin/moderation/overview'),
+          loadConfigLabels()
         ]);
         root.removeAttribute('aria-busy');
         if (results[0].status !== 'fulfilled') {
@@ -806,10 +1255,76 @@
             (results[0].reason && results[0].reason.message) || 'Vui lòng tải lại trang.');
           return;
         }
-        root.innerHTML = dashboardHtml(results[0].value, results[1].status === 'fulfilled' ? results[1].value : null, period);
+        var d = results[0].value;
+        sources = d.kpiSources || [];
+        period = PERIOD_KEYS[d.periodStats && d.periodStats.period] || period || 'year';
+        closeSources();
+        root.innerHTML = dashboardHtml(d, results[1].status === 'fulfilled' ? results[1].value : null, period);
       }
 
+      // ── KPI source popover: one at a time, attached to <body> so card overflow cannot clip it.
+      var sources = [];
+      var pop = null, popOwner = null;
+
+      function closeSources() {
+        if (pop) pop.remove();
+        if (popOwner) popOwner.setAttribute('aria-expanded', 'false');
+        pop = null;
+        popOwner = null;
+      }
+
+      function openSources(button) {
+        closeSources();
+        pop = document.createElement('div');
+        pop.className = 'st-source-pop';
+        pop.setAttribute('role', 'dialog');
+        pop.setAttribute('aria-label', button.getAttribute('aria-label'));
+        pop.innerHTML = sourcePopoverHtml(button.dataset.kpiSources.split(','), sources);
+        document.body.appendChild(pop);
+        var box = button.getBoundingClientRect();
+        var width = pop.offsetWidth;
+        // Keep a 16px gutter on narrow screens.
+        var left = Math.max(16, Math.min(box.left, window.innerWidth - width - 16));
+        var top = box.bottom + 8;
+        if (top + pop.offsetHeight > window.innerHeight - 16) top = Math.max(16, box.top - pop.offsetHeight - 8);
+        pop.style.left = left + 'px';
+        pop.style.top = top + 'px';
+        popOwner = button;
+        button.setAttribute('aria-expanded', 'true');
+        pop.querySelector('[data-close-sources]').focus({ preventScroll: true });
+      }
+
+      document.addEventListener('click', function (event) {
+        if (!pop) return;
+        if (event.target.closest('[data-close-sources]')) {
+          var owner = popOwner;
+          closeSources();
+          if (owner) owner.focus();
+          return;
+        }
+        if (!pop.contains(event.target) && !event.target.closest('[data-kpi-sources]')) closeSources();
+      });
+      document.addEventListener('keydown', function (event) {
+        if (event.key !== 'Escape' || !pop) return;
+        var owner = popOwner;
+        closeSources();
+        if (owner) owner.focus();
+      });
+      window.addEventListener('scroll', function (event) {
+        if (pop && !pop.contains(event.target)) closeSources();
+      }, true);
+      window.addEventListener('resize', closeSources);
+
       root.addEventListener('click', function (event) {
+        var info = event.target.closest('[data-kpi-sources]');
+        if (info) {
+          if (popOwner === info) closeSources(); else openSources(info);
+          return;
+        }
+        if (event.target.closest('[data-refresh]')) {
+          draw();
+          return;
+        }
         var button = event.target.closest('[data-period]');
         if (!button || button.dataset.period === period) return;
         period = button.dataset.period;

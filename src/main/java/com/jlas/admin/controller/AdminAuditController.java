@@ -18,14 +18,21 @@ import java.time.LocalDateTime;
 public class AdminAuditController {
     private final AdminAuditService audit;
 
+    /** {@code q}: part of the actor's email or of the reason; {@code size} above 100 is rejected. */
     @GetMapping
     public ApiResponse<AdminPage<AdminAuditLogView>> list(@RequestParam(required = false) Long actorId,
+            @RequestParam(required = false) String q, @RequestParam(required = false) String actorRole,
             @RequestParam(required = false) String action, @RequestParam(required = false) String targetType,
             @RequestParam(required = false) String targetId, @RequestParam(required = false) String result,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
-        return ApiResponse.ok("Nhật ký quản trị",
-                AdminPage.from(audit.list(actorId, action, targetType, targetId, result, from, to, page, size)));
+        return ApiResponse.ok("Nhật ký quản trị", AdminPage.from(audit.list(actorId, q, actorRole, action, targetType,
+                targetId, result, from, to, page, size)));
+    }
+
+    @GetMapping("/integrity")
+    public ApiResponse<AdminAuditService.Integrity> integrity() {
+        return ApiResponse.ok("Kiểm tra toàn vẹn nhật ký", audit.verifyIntegrity());
     }
 }

@@ -1,6 +1,7 @@
 package com.jlas.admin.service;
 
 import com.jlas.admin.dto.AdminUserView;
+import com.jlas.admin.enums.SystemConfigKey;
 import com.jlas.admin.repository.AdminUserRepository;
 import com.jlas.auth.entity.PremiumPlan;
 import com.jlas.auth.entity.Role;
@@ -37,7 +38,6 @@ import java.util.Set;
 public class AdminUserService {
     /** Roles a System Admin may assign: learner, content creator, moderator, System Admin. */
     static final Set<String> ASSIGNABLE_ROLES = Set.of("LEARNER", "CONTENT_CREATOR", "MODERATOR", "ADMIN");
-    static final int MAX_GRANT_DAYS = 365;
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
 
     private final AdminUserRepository users;
@@ -46,6 +46,7 @@ public class AdminUserService {
     private final PremiumPlanRepository plans;
     private final AdminAuditService audit;
     private final UserNotificationPort notifications;
+    private final SystemConfigService config;
 
     public Page<AdminUserView> list(String q, String role, String status, Boolean premium, int page, int size) {
         if (status != null && !status.equals("ACTIVE") && !status.equals("LOCKED")) {
@@ -179,8 +180,9 @@ public class AdminUserService {
     @Transactional
     public AdminUserView grantPremium(Long actorId, Long id, Long planId, Integer durationDays, String reason) {
         reason = validateReason(reason);
-        if (durationDays == null || durationDays < 1 || durationDays > MAX_GRANT_DAYS) {
-            throw new ApiException(ErrorCode.BAD_REQUEST, "Số ngày phải từ 1 đến " + MAX_GRANT_DAYS + ".");
+        int maxDays = config.intValue(SystemConfigKey.PREMIUM_MAX_MANUAL_GRANT_DAYS);
+        if (durationDays == null || durationDays < 1 || durationDays > maxDays) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Số ngày phải từ 1 đến " + maxDays + ".");
         }
         PremiumPlan plan = planId == null ? null : plans.findById(planId).orElse(null);
         if (plan == null || AdminUserView.FREE_PLAN.equalsIgnoreCase(plan.getName())) {

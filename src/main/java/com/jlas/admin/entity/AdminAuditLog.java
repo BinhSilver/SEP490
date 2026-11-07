@@ -45,9 +45,19 @@ public class AdminAuditLog {
     private String changesJson;
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+    // [JLAS2-51] Who and from where, plus the hash chain that makes edits and deletions detectable.
+    @Column(name = "actor_role", length = 50)
+    private String actorRole;
+    @Column(name = "ip_address", length = 64)
+    private String ipAddress;
+    @Column(name = "prev_hash", length = 64)
+    private String prevHash;
+    @Column(name = "row_hash", length = 64)
+    private String rowHash;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        // The audit service sets it before hashing; overwriting it here would break the stored hash.
+        if (createdAt == null) createdAt = LocalDateTime.now();
     }
 }
