@@ -117,7 +117,7 @@
   function steps(state) {
     var out = state.presetGoal ? [] : ['goal'];
     if (isJob(state.goal)) out.push('field');
-    return out.concat(['topics', 'level', 'pace']);
+    return out.concat(['topics', 'level'], state.secondaryPath ? [] : ['pace']);
   }
 
   var SELF_LEVELS = [
@@ -218,6 +218,7 @@
       : [];
     var payload = {
       goal: state.goal,
+      role: state.secondaryPath ? 'SECONDARY' : 'MAIN',
       fields: fields,
       priorityTopics: (state.priorityTopics || []).slice(),
       selfLevel: state.selfLevel || 'ELEMENTARY',
@@ -560,6 +561,7 @@
       var want = null;
       try { want = new root.URLSearchParams(String(root.location.search || '')).get('goal'); } catch (e) { want = null; }
       var has = function (c) { return goalsData.some(function (g) { return g.goal === c; }); };
+      function applyPresetGoal() {
       if (want && isJob(want) && (has('WORK') || has('BA'))) {
         state.goal = has('WORK') ? 'WORK' : 'BA';
         state.presetGoal = true;
@@ -569,11 +571,23 @@
       }
       syncDefaultTopics();
       render();
+      }
+      applyPresetGoal();
+      if (!want) {
+        Promise.resolve(root.JpathApi.get('/api/assessment/survey')).then(function (survey) {
+          var savedSurvey = survey && (survey.survey || (survey.data && survey.data.survey));
+          var saved = savedSurvey && savedSurvey.goal;
+          if (!saved) return;
+          want = saved;
+          applyPresetGoal();
+        }).catch(function () {});
+      }
     }, failLoad);
 
     // a learner who already has a main goal adds a secondary one here (free study, no daily plan)
     Promise.resolve(root.JpathApi.get('/api/learning/comm/path')).then(function (p) {
       if (!p || !p.goal) return;
+      state.secondaryPath = true;
       state.presetGoal = false;
       STEP_META.goal.title = 'Thêm mục tiêu phụ để học tự do';
       STEP_META.goal.sub = 'Lộ trình chính (' + (p.nameVi || p.goal) + ') vẫn giữ nguyên lịch học hằng ngày. '

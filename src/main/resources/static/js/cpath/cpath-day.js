@@ -214,16 +214,21 @@
     var el = targetEl || (doc && doc.getElementById && doc.getElementById('cpathDayRoot'));
     if (!el || !root.JpathApi) return;
 
-    var today = toIso(new Date(Date.now() - new Date().getTimezoneOffset() * 60000));
+    // the learner day comes from the server (app clock), never from the browser's calendar (E2E-002)
     var search = (root && root.location && root.location.search) ? String(root.location.search) : '';
     var m = /[?&]d=(\d{4}-\d{2}-\d{2})/.exec(search);
-    var day = m ? m[1] : today;
-    if (day > today) day = today;
+    var day = m ? m[1] : null;
 
     function load() {
       if (el.setAttribute) el.setAttribute('aria-busy', 'true');
-      root.JpathApi.get('/api/learning/comm/day?d=' + encodeURIComponent(day)).then(function (data) {
+      root.JpathApi.get('/api/learning/comm/day' + (day ? '?d=' + encodeURIComponent(day) : '')).then(function (data) {
         if (!data) throw new Error('Chưa tải được dữ liệu ngày học.');
+        var today = String(data.today || data.day || '').slice(0, 10);
+        if (!day || day > today) {
+          // no day asked, or a day after today: show today
+          if (day && day > today) { day = today; load(); return; }
+          day = String(data.day || today).slice(0, 10);
+        }
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
         el.innerHTML = dayHtml(data, day, today);
       }).catch(function (error) {

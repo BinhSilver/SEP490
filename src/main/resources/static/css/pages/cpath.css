@@ -1346,6 +1346,15 @@ html.dark .cp-page {
 .cp-today__item.is-done {
   background: var(--cp-surface-soft);
 }
+.cp-today__item .jp-btn--primary {
+  background: var(--cp-surface) !important;
+  color: var(--jp-c-purple-500) !important;
+  border: 1px solid var(--jp-c-purple-500) !important;
+  box-shadow: none !important;
+}
+.cp-today__item .jp-btn--primary:hover {
+  background: var(--cp-surface-soft) !important;
+}
 .cp-today__icon {
   display: inline-flex;
   align-items: center;
@@ -1623,3 +1632,14 @@ button.jp-sidenav__link {
     max-width: calc(100vw - 32px);
   }
 }
+
+/* [JLAS-W0108] 08/11 owner: Kitsu back on the "Hôm nay" card */
+.cp-today__head { flex-wrap: wrap; }
+.cp-today__lead { flex: 1 1 220px; min-width: 0; }
+.cp-today__kitsu { display: flex; align-items: center; gap: 10px; flex: 0 1 340px; }
+.cp-today__kitsu img { flex: 0 0 auto; width: 64px; height: 64px; }
+.cp-today__bubble { position: relative; padding: 8px 12px; border: 1px solid var(--jp-c-purple-500); border-radius: 12px;
+  background: var(--cp-surface); color: var(--cp-ink); font-size: .9rem; line-height: 1.35; }
+.cp-today__bubble::before { content: ""; position: absolute; left: -7px; top: 50%; width: 12px; height: 12px; transform: translateY(-50%) rotate(45deg);
+  background: var(--cp-surface); border-left: 1px solid var(--jp-c-purple-500); border-bottom: 1px solid var(--jp-c-purple-500); }
+@media (max-width: 600px) { .cp-today__kitsu { flex-basis: 100%; } .cp-today__kitsu img { width: 52px; height: 52px; } }

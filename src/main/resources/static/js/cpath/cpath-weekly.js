@@ -252,7 +252,7 @@
             : result.passed ? 'Đã đạt bài nhập vai' : result.missingSpeak
               ? 'Đã đạt bài nhập vai; chủ đề còn thiếu điểm nói' : 'Chưa đạt bài nhập vai') + '</h2>'
           + '<p>Chọn câu: ' + esc(result.choiceScore) + '%.'
-          + (scope === 'situation' ? '' : result.speakingSkipped ? ' Bạn đã bỏ qua phần nói vì không dùng micro; điểm chỉ tính phần chọn câu.'
+          + (scope === 'situation' ? '' : result.speakingSkipped ? ' Chưa chấm phần nói; điểm chỉ tính phần chọn câu.'
             : ' Nói: ' + esc(result.speakingScore) + '%.') + '</p>'
           + '<p>' + (result.cp ? '+' + esc(result.cp) + ' CP.' : 'Bài này không cộng thêm CP.') + '</p>'
           + (scope === 'goal' && result.passed ? '<nav aria-label="Bước học tiếp"><h3>Gợi ý bước tiếp</h3>'

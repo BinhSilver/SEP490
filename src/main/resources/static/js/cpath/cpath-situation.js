@@ -486,8 +486,8 @@
     var pathHref = pageUrl('path');
     var skippedNote = (state.lastSpeakBody && state.lastSpeakBody.skippedMic)
       ? '<p class="cp-survey__sub">Đã bỏ qua phần nói. Tình huống vẫn tính xong, chủ đề cần điểm nói để đạt; bạn luyện nói lại lúc nào cũng được.</p>'
-      : (state.lastSpeakBody && typeof state.lastSpeakBody.score === 'number'
-        ? '<p class="cp-survey__sub">Điểm nói thấp nhất các câu trong tình huống: <strong>' + esc(state.lastSpeakBody.score) + '/100</strong>.</p>'
+      : (state.lastSpeakBody && typeof state.lastSpeakBody.speakBest === 'number'
+        ? '<p class="cp-survey__sub">Điểm nói trung bình các câu đã chấm: <strong>' + esc(state.lastSpeakBody.speakBest) + '/100</strong>.</p>'
         : '');
     return '<div class="cp-sit-stage" style="align-items:center;justify-content:center;text-align:center;">'
       + '<img src="' + esc(kitsuSrc('kitsu-celebrate-30.webp')) + '" width="78" height="78" alt="Kitsu chúc mừng" />'
@@ -644,8 +644,8 @@
       if (skippedAny || !scores.length) {
         return { skippedMic: true };
       }
-      var minScore = Math.min.apply(null, scores);
-      return { score: minScore };
+      var average = scores.reduce(function (sum, score) { return sum + score; }, 0) / scores.length;
+      return { clientAverage: Math.round(average) };
     }
 
     function submitStep(stepKey, nextStepKey) {
@@ -671,6 +671,7 @@
           }
           // CP comes only from the server (2 CP the first time all 4 steps are done)
           if (res && typeof res.cp === 'number') state.awardedCp = res.cp;
+          if (stepKey === 'SPEAK' && res) state.lastSpeakBody = { skippedMic: res.speakBest == null, speakBest: res.speakBest };
           var missing = STEPS_ORDER.filter(function (k) { return !(sitData.steps || {})[k.toLowerCase()]; });
           if (missing.length === 0 && (stepKey === 'SPEAK' || (res && res.situationDone))) {
             state.missingNote = '';

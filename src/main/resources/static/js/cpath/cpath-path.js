@@ -283,7 +283,7 @@
       return '<li class="cp-today__item' + (done ? ' is-done' : '') + '">'
         + '<span class="cp-today__icon" aria-hidden="true">' + (done ? svgMedal() : svgDialogueBubble()) + '</span>'
         + '<span class="cp-today__text"><strong>' + esc(s.titleVi) + '</strong>'
-        + '<span>' + esc(topicLabel(s.topicCode)) + ' · Tình huống ' + (idx + 1) + '</span></span>'
+        + '<span>' + esc(topicLabel(s.topicCode, s.topicName)) + ' · Tình huống ' + (idx + 1) + '</span></span>'
         + '<a class="jp-btn jp-btn--sm' + (done ? '' : ' jp-btn--primary') + '" href="' + esc(pageUrl('situation', { id: s.id })) + '">'
         + (done ? 'Ôn lại' : 'Học') + '</a></li>';
     }).join('');
@@ -319,11 +319,20 @@
         : doneCount + '/' + situations.length + ' tình huống đã xong.')
       : '';
 
+    // Kitsu stays (owner 08/11); its line always matches the day: rest day, nothing planned, done, or what is left
+    var left = situations.length - doneCount;
+    var kitsuFile = allDone ? 'kitsu-celebrate-30.webp' : (situations.length ? 'kitsu-cheer-30.webp' : 'kitsu-resting-30.webp');
+    var kitsuSay = !situations.length
+      ? (todayObj.restDay ? 'Hôm nay nghỉ ngơi nhé! Muốn thì học thêm 1 tình huống.' : 'Hôm nay chưa có tình huống mới, mình ôn lại bài cũ nhé!')
+      : (allDone ? 'Tuyệt vời! Bạn đã xong bài giao tiếp hôm nay rồi!'
+        : 'Còn ' + left + ' tình huống hôm nay, mình cùng đóng vai リン nhé!');
     return '<section class="jp-today cp-today" aria-label="Hôm nay của bạn">'
       + '<header class="cp-today__head">'
-      + '<div><h1 class="jp-section-title">Hôm nay của bạn</h1>'
+      + '<div class="cp-today__lead"><h1 class="jp-section-title">Hôm nay của bạn</h1>'
       + '<p class="cp-today__meta">' + esc(dateLine) + (dateLine ? ' · ' : '') + esc(d.nameVi || 'Giao tiếp')
       + (lead ? ' · ' + esc(lead) : '') + '</p></div>'
+      + '<div class="cp-today__kitsu"><img src="' + esc(kitsuSrc(kitsuFile)) + '" width="64" height="64" alt="" />'
+      + '<span class="cp-today__bubble">' + esc(kitsuSay) + '</span></div>'
       + (firstActive ? '<a class="cp-btn-primary" href="' + esc(pageUrl('situation', { id: firstActive.id })) + '">Học tiếp ›</a>' : '')
       + '</header>'
       + body
@@ -423,6 +432,8 @@
       marginExtras += weekThemeSceneHtml(weekObj, sceneSide);
     } else if (stepInWeek === 2) {
       marginExtras += weekSideKitsuHtml(weekObj.index, signSide);
+    } else if (stepInWeek === 4) {
+      marginExtras += weekSideKitsuHtml(weekObj.index + 3, sceneSide);
     }
 
     var connector = hasNext ? curveSvg(pos, nextPos, isDone, isToday, isPastWeek) : '';
@@ -448,7 +459,7 @@
     }
 
     var whenText = item.type === 'TOPIC_TEST'
-      ? ('Cuối chủ đề · ' + (item.score != null ? (item.score + ' điểm') : 'Cần ≥ 70 điểm'))
+      ? ('Cuối chủ đề · ' + (item.score != null ? (item.score + '%') : 'Cần ≥ 80%'))
       : (item.type === 'GOAL_TEST'
         ? 'Kiểm tra tổng hợp cuối mục tiêu'
         : (topicLabel(item.topicCode, item.topicNameVi) + (item.score != null ? (' · ' + item.score + 'đ') : '')));
@@ -591,32 +602,68 @@
       + '</div>';
   }
 
+  /* Khối lộ trình chính / phụ ở thanh trái (owner 08/11: gọn, một hàng chọn nhịp, link chữ thay vì nút to) */
   function sideGoalHtml(pathData) {
     var p = pathData || {};
     var sec = p.secondary;
     var progress = p.progress || {};
-    return '<div class="cp-secondary-card">'
-      + '<span class="cp-secondary-card__tag">Lộ trình chính</span>'
-      + '<strong class="cp-secondary-card__name">' + esc(p.nameVi || 'Lộ trình giao tiếp') + '</strong>'
-      + '<span class="jp-survey__sub">' + esc(LEVEL_VI[p.selfLevel] || 'Sơ cấp') + ' · ' + esc(p.dailySituations || 2) + ' tình huống/ngày</span>'
-      + '<a class="cp-btn-ghost" href="/learning/comm/certificate">Chứng nhận · '
-      + esc(progress.passedTopics || 0) + '/' + esc(progress.totalTopics || 0) + ' chủ đề</a>'
-      + '<div class="jp-side__range" role="group" aria-label="Số tình huống mỗi ngày">'
+    var passed = Number(progress.passedTopics || 0);
+    var total = Number(progress.totalTopics || 0);
+    var pct = total ? Math.round(100 * passed / total) : 0;
+    return '<div class="cp-goal-card">'
+      + '<span class="cp-goal-card__tag">Lộ trình chính</span>'
+      + '<strong class="cp-goal-card__name">' + esc(p.nameVi || 'Lộ trình giao tiếp') + '</strong>'
+      + '<span class="cp-goal-card__meta">' + esc(LEVEL_VI[p.selfLevel] || 'Sơ cấp') + '</span>'
+      + '<a class="cp-goal-card__progress" href="/learning/comm/certificate" title="Xem chứng nhận">'
+      + '<span>Chứng nhận</span><span>' + passed + '/' + total + ' chủ đề</span>'
+      + '<span class="cp-goal-card__bar" aria-hidden="true"><span style="width:' + pct + '%"></span></span></a>'
+      + '<div class="cp-goal-card__pace" role="group" aria-label="Số tình huống mỗi ngày">'
+      + '<span>Mỗi ngày</span>'
       + [1, 2].map(function (n) {
-        return '<button type="button" class="jp-side-btn" data-cp-daily="' + n + '" aria-pressed="'
-          + (Number(p.dailySituations) === n ? 'true' : 'false') + '">' + n + ' tình huống/ngày</button>';
+        return '<button type="button" class="cp-seg" data-cp-daily="' + n + '" aria-pressed="'
+          + (Number(p.dailySituations) === n ? 'true' : 'false') + '">' + n + '</button>';
       }).join('')
-      + '</div>'
+      + '<span>tình huống</span></div>'
       + (sec
-        ? '<hr style="border:0;border-top:1px solid var(--cp-line);margin:6px 0;" />'
-          + '<span class="cp-secondary-card__tag">Lộ trình phụ (Học tự do)</span>'
-          + '<strong class="cp-secondary-card__name">' + esc(sec.nameVi) + '</strong>'
-          + (sec.totalSituations ? '<span class="jp-survey__sub">' + esc(sec.doneSituations || 0) + '/' + esc(sec.totalSituations) + ' tình huống</span>' : '')
-          + (sec.next ? '<a class="cp-btn-ghost" href="' + esc(pageUrl('situation', { id: sec.next.id })) + '">Học tiếp: ' + esc(sec.next.titleVi) + '</a>' : '')
+        ? '<div class="cp-goal-card__sec"><span class="cp-goal-card__tag">Lộ trình phụ · học tự do</span>'
+          + '<strong class="cp-goal-card__name">' + esc(sec.nameVi) + '</strong>'
+          + (sec.totalSituations ? '<span class="cp-goal-card__meta">' + esc(sec.doneSituations || 0) + '/' + esc(sec.totalSituations) + ' tình huống</span>' : '')
+          + (sec.next ? '<a class="cp-goal-card__link" href="' + esc(pageUrl('situation', { id: sec.next.id })) + '">Học tiếp: ' + esc(sec.next.titleVi) + '</a>' : '')
+          + '</div>'
         : '')
-      + '<a class="cp-btn-ghost" style="margin-top:4px;" href="' + esc(pageUrl('survey')) + '">'
-      + (sec ? 'Đổi mục tiêu phụ' : 'Thêm mục tiêu phụ') + '</a>'
       + '</div>';
+  }
+
+  /** The last /path response, for the "Lộ trình JLPT" notice in the side nav. */
+  var lastPathData = null;
+
+  /** "Lộ trình JLPT" from the communication path: the main goal is communication, so say so and offer the switch. */
+  function jlptSwitchHtml(pathData) {
+    var name = (pathData && pathData.nameVi) || 'Giao tiếp';
+    return '<div class="cp-switch" role="dialog" aria-modal="false" aria-labelledby="cpSwitchTitle" data-cp-switch>'
+      + '<h2 id="cpSwitchTitle" class="cp-switch__title" tabindex="-1">Chuyển sang lộ trình JLPT?</h2>'
+      + '<p>Lộ trình chính của bạn đang là <strong>' + esc(name) + '</strong>. Đổi mục tiêu chính sang JLPT để học theo lộ trình JLPT; '
+      + 'tiến độ giao tiếp vẫn được giữ và bạn có thể quay lại bất cứ lúc nào.</p>'
+      + '<div class="cp-switch__actions"><a class="cp-btn-primary" href="/survey?edit=goal">Đổi sang JLPT</a>'
+      + '<button type="button" class="jp-btn" data-cp-switch-close>Ở lại</button></div></div>';
+  }
+
+  function bindJlptSwitch() {
+    if (!root || !root.document || root.__cpSwitchBound) return;
+    root.__cpSwitchBound = true;
+    root.document.addEventListener('click', function (ev) {
+      var t = ev.target;
+      if (!t || !t.closest) return;
+      var open = root.document.querySelector('[data-cp-switch]');
+      if (t.closest('[data-cp-switch-close]')) { if (open) open.remove(); return; }
+      if (!t.closest('[data-cp-to-jlpt]')) return;
+      ev.preventDefault();
+      if (open) { open.remove(); return; }
+      var holder = root.document.querySelector('[data-slot="today"]') || root.document.body;
+      holder.insertAdjacentHTML('afterbegin', jlptSwitchHtml(lastPathData));
+      var title = root.document.getElementById('cpSwitchTitle');
+      if (title && title.focus) title.focus();
+    });
   }
 
   function adjustPopoverInViewport(containerEl) {
@@ -665,6 +712,7 @@
     var doc = root && root.document;
     var rootEl = doc && doc.getElementById && doc.getElementById('cpathPathRoot');
     if (!rootEl || !root.JpathApi) return;
+    bindJlptSwitch();
 
     var todaySlot = rootEl.querySelector('[data-slot="today"]');
     var mapSlot = rootEl.querySelector('[data-slot="parts"]');
@@ -805,7 +853,13 @@
     }).catch(function (e) {
       // no communication path yet: the survey makes one
       if (e && e.status === 404) {
-        root.location.replace(pageUrl('survey'));
+        Promise.resolve(root.JpathApi.get('/api/assessment/survey')).then(function (survey) {
+          var savedSurvey = survey && (survey.survey || (survey.data && survey.data.survey));
+          var goal = savedSurvey && savedSurvey.goal;
+          root.location.replace(pageUrl('survey', goal ? { goal: goal } : {}));
+        }).catch(function () {
+          root.location.replace(pageUrl('survey'));
+        });
         return;
       }
       if (mapSlot) {
