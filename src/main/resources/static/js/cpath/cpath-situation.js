@@ -37,16 +37,10 @@
   function list(v) { return Array.isArray(v) ? v : []; }
 
   function kitsuSrc(file) {
-    if (root && root.CpathMock && typeof root.CpathMock.kitsuSrc === 'function') {
-      return root.CpathMock.kitsuSrc(file);
-    }
     return '/images/mascots/kitsu/' + file;
   }
 
   function pageUrl(page, params) {
-    if (root && root.CpathMock && typeof root.CpathMock.pageUrl === 'function') {
-      return root.CpathMock.pageUrl(page, params);
-    }
     var base = '/learning/comm/' + page;
     var q = [];
     if (params) {
@@ -488,10 +482,10 @@
 
   /* Màn hình hoàn thành cả 4 bước: hiện nút "Nói chuyện tự do với AI" (aiCallUrl) và "Về lộ trình" */
   function renderDoneScreen(sit, state) {
-    var aiHref = (sit && sit.aiCallUrl) ? sit.aiCallUrl : ('/aicall?scenario=' + encodeURIComponent(sit.id || 'TRV-05'));
+    var aiHref = sit && sit.aiCallUrl;
     var pathHref = pageUrl('path');
     var skippedNote = (state.lastSpeakBody && state.lastSpeakBody.skippedMic)
-      ? '<p class="cp-survey__sub">Bạn đã bỏ qua phần chấm micro nên tình huống được tính hoàn thành nhưng chưa tính điểm đạt chủ đề.</p>'
+      ? '<p class="cp-survey__sub">Đã bỏ qua phần nói. Tình huống vẫn tính xong, chủ đề cần điểm nói để đạt; bạn luyện nói lại lúc nào cũng được.</p>'
       : (state.lastSpeakBody && typeof state.lastSpeakBody.score === 'number'
         ? '<p class="cp-survey__sub">Điểm nói thấp nhất các câu trong tình huống: <strong>' + esc(state.lastSpeakBody.score) + '/100</strong>.</p>'
         : '');
@@ -502,7 +496,8 @@
       + (state.awardedCp ? (' và nhận được <strong>+' + esc(state.awardedCp) + ' CP</strong>') : '') + '.</p>'
       + skippedNote
       + '<div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:8px;">'
-      + '<a class="cp-btn-primary" href="' + esc(aiHref) + '">Nói chuyện tự do với AI</a>'
+      + (aiHref ? '<a class="cp-btn-primary" href="' + esc(aiHref) + '">Nói chuyện tự do với AI</a>' : '')
+      + '<a class="cp-btn-ghost" href="/learning/comm/weekly?mode=quick&amp;code=' + encodeURIComponent(sit.id) + '">Luyện nhanh</a>'
       + '<a class="cp-btn-ghost" href="' + esc(pathHref) + '">Về lộ trình</a>'
       + '</div>'
       + '</div>';
@@ -562,7 +557,11 @@
 
     var search = (root && root.location && root.location.search) ? String(root.location.search) : '';
     var mId = /[?&]id=([^&#]+)/.exec(search);
-    var sitId = mId ? decodeURIComponent(mId[1]) : (el.getAttribute('data-situation-id') || 'TRV-05');
+    var sitId = mId ? decodeURIComponent(mId[1]) : el.getAttribute('data-situation-id');
+    if (!sitId) {
+      el.innerHTML = '<p class="jp-alert" role="alert">Thiếu mã tình huống. Vui lòng quay lại lộ trình.</p>';
+      return;
+    }
 
     var sitData = null;
     var recorder = null;
@@ -702,6 +701,7 @@
       }
       var fd = new FormData();
       fd.append('text', target.ja || '');
+      if (target.order != null) fd.append('lineId', sitData.id + '-L' + target.order);
       if (blob) {
         fd.append('audio', blob, 'speech.webm');
       }
@@ -978,17 +978,18 @@
       });
     }
 
-    root.JpathApi.get('/api/learning/comm/situations/' + encodeURIComponent(sitId)).then(function (data) {
-      sitData = data || (root.CpathMock && root.CpathMock.SITUATIONS_DB['TRV-05']);
-      render();
-    }, function () {
-      if (root.CpathMock && root.CpathMock.SITUATIONS_DB) {
-        sitData = root.CpathMock.SITUATIONS_DB['TRV-05'];
+    function load() {
+      root.JpathApi.get('/api/learning/comm/situations/' + encodeURIComponent(sitId)).then(function (data) {
+        if (!data) throw new Error('Không có dữ liệu tình huống.');
+        sitData = data;
         render();
-      } else {
-        el.innerHTML = '<p class="jp-alert" role="alert">Không tải được tình huống. Tải lại trang hoặc thử lại sau.</p>';
-      }
-    });
+      }).catch(function (error) {
+        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(error && error.message || 'Không tải được tình huống.')
+          + ' <button type="button" class="jp-btn" data-cp-retry>Thử lại</button></p>';
+        el.querySelector('[data-cp-retry]').addEventListener('click', load);
+      });
+    }
+    load();
   }
 
   return {

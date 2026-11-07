@@ -37,16 +37,10 @@
   function list(v) { return Array.isArray(v) ? v : []; }
 
   function kitsuSrc(file) {
-    if (root && root.CpathMock && typeof root.CpathMock.kitsuSrc === 'function') {
-      return root.CpathMock.kitsuSrc(file);
-    }
     return '/images/mascots/kitsu/' + file;
   }
 
   function pageUrl(page, params) {
-    if (root && root.CpathMock && typeof root.CpathMock.pageUrl === 'function') {
-      return root.CpathMock.pageUrl(page, params);
-    }
     var base = '/learning/comm/' + page;
     var q = [];
     if (params) {
@@ -226,11 +220,21 @@
     var day = m ? m[1] : today;
     if (day > today) day = today;
 
-    root.JpathApi.get('/api/learning/comm/day?d=' + encodeURIComponent(day)).then(function (data) {
-      el.innerHTML = dayHtml(data, day, today);
-    }, function () {
-      el.innerHTML = '<p class="jp-alert" role="alert">Chưa tải được chi tiết ngày. Tải lại trang hoặc thử lại sau.</p>';
-    });
+    function load() {
+      if (el.setAttribute) el.setAttribute('aria-busy', 'true');
+      root.JpathApi.get('/api/learning/comm/day?d=' + encodeURIComponent(day)).then(function (data) {
+        if (!data) throw new Error('Chưa tải được dữ liệu ngày học.');
+        if (el.setAttribute) el.setAttribute('aria-busy', 'false');
+        el.innerHTML = dayHtml(data, day, today);
+      }).catch(function (error) {
+        if (el.setAttribute) el.setAttribute('aria-busy', 'false');
+        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(error && error.message || 'Chưa tải được chi tiết ngày.')
+          + ' <button type="button" class="jp-btn" data-cp-retry>Thử lại</button></p>';
+        var retry = el.querySelector('[data-cp-retry]');
+        if (retry) retry.addEventListener('click', load);
+      });
+    }
+    load();
   }
 
   return {

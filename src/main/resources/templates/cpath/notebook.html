@@ -6,8 +6,8 @@
     <title>Sổ tay Giao tiếp - JLAS</title>
 </head>
 <th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-side')}"></th:block>
-<link rel="stylesheet" th:href="@{/css/pages/jpath-path.css(v='20261107-r9')}" />
-<link rel="stylesheet" th:href="@{/css/pages/cpath.css(v='20261107-r9')}" />
+<link rel="stylesheet" th:href="@{/css/pages/jpath-path.css(v=${jpathAssetVersion})}" />
+<link rel="stylesheet" th:href="@{/css/pages/cpath.css(v=${jpathAssetVersion})}" />
 <body id="jlabBasePage" class="app-body jp-body">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-side cp-page" data-inline-dictionary>
@@ -46,7 +46,7 @@
     </div>
 </main>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
-<script th:src="@{/js/cpath/cpath-notebook.js(v='20261107-r9')}"></script>
+<script th:src="@{/js/cpath/cpath-notebook.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
 </html>

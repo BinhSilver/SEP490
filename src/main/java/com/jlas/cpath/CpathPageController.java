@@ -24,10 +24,16 @@ public class CpathPageController {
                               com.jlas.auth.security.UserPrincipal user, Model model) {
         if (user == null) return "redirect:/login";
         java.util.Optional<java.util.Map<String, Object>> c = service.certificate(user.userId());
-        if (c.isEmpty()) return "redirect:/learning/comm/path";
-        model.addAttribute("targetLevel", "Giao tiếp · " + c.get().get("nameVi"));
-        model.addAttribute("completedAt", c.get().get("takenAt"));
-        return "learning/certificate";
+        java.util.Map<String, Object> path = service.path(user.userId());
+        @SuppressWarnings("unchecked") java.util.Map<String, Object> progress = (java.util.Map<String, Object>) path.get("progress");
+        model.addAttribute("earned", c.isPresent());
+        model.addAttribute("targetLevel", c.isPresent() ? "Giao tiếp · " + c.get().get("nameVi") : "Giao tiếp · " + path.get("nameVi"));
+        model.addAttribute("completedAt", c.isPresent() ? c.get().get("takenAt") : null);
+        String goal = c.isPresent() ? String.valueOf(c.get().get("goal")) : String.valueOf(path.get("goal"));
+        model.addAttribute("workGoal", "WORK".equals(goal) || "BA".equals(goal));
+        model.addAttribute("passedTopics", progress.get("passedTopics"));
+        model.addAttribute("totalTopics", progress.get("totalTopics"));
+        return "cpath/certificate";
     }
 
     @GetMapping("/learning/comm/survey")

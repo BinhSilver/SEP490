@@ -42,16 +42,10 @@
   function list(v) { return Array.isArray(v) ? v : []; }
 
   function kitsuSrc(file) {
-    if (root && root.CpathMock && typeof root.CpathMock.kitsuSrc === 'function') {
-      return root.CpathMock.kitsuSrc(file);
-    }
     return '/images/mascots/kitsu/' + file;
   }
 
   function pageUrl(page, params) {
-    if (root && root.CpathMock && typeof root.CpathMock.pageUrl === 'function') {
-      return root.CpathMock.pageUrl(page, params);
-    }
     var base = '/learning/comm/' + page;
     var q = [];
     if (params) {
@@ -64,9 +58,6 @@
 
   function topicLabel(code, fallbackName) {
     if (fallbackName) return fallbackName;
-    if (root && root.CpathMock && root.CpathMock.TOPIC_LABELS && root.CpathMock.TOPIC_LABELS[code]) {
-      return root.CpathMock.TOPIC_LABELS[code];
-    }
     return code || 'Chủ đề giao tiếp';
   }
 
@@ -280,7 +271,7 @@
       return s.status === 'DONE' || s.status === 'TODAY_DONE';
     });
     var firstActive = situations.filter(function (s) { return s.status !== 'DONE' && s.status !== 'TODAY_DONE'; })[0] || situations[0];
-    var mainSitHref = pageUrl('situation', { id: firstActive ? firstActive.id : 'TRV-05' });
+    var mainSitHref = firstActive ? pageUrl('situation', { id: firstActive.id }) : pageUrl('path');
 
     var pillsHtml = situations.map(function (s, idx) {
       var isDone = s.status === 'DONE' || s.status === 'TODAY_DONE';
@@ -375,7 +366,7 @@
       + '<img class="jp-today__kitsu-img" src="' + esc(kitsuSrc(kitsuFile)) + '" width="76" height="76" alt="Kitsu" />'
       + '<span class="jp-today__kitsu-bubble">' + esc(kitsuSay) + '</span>'
       + '</div>'
-      + '<a class="cp-btn-primary" href="' + esc(mainSitHref) + '">' + (allDone ? 'Ôn lại hôm nay' : 'Học hôm nay ›') + '</a>'
+      + '<a class="cp-btn-primary" href="' + esc(mainSitHref) + '">' + (!firstActive ? 'Xem lộ trình' : allDone ? 'Ôn lại hôm nay' : 'Học hôm nay ›') + '</a>'
       + '</div>'
       + '<ul class="jp-today__pills jp-todo">' + pillsHtml + '</ul>'
       + extraHtml
@@ -406,20 +397,20 @@
         + '<li class="jp-parts__word-pill"><span class="jp-parts__pill-rd">Bước 4</span><strong class="jp-parts__pill-ja">Luyện nói</strong><span class="jp-parts__pill-mean">Chấm phát âm từng câu</span></li>'
         + '</ul>';
     } else if (item.type === 'TOPIC_TEST') {
-      // the topic passes from its situations' scores: open the situation that needs work most
-      actionHref = item.targetSituation ? pageUrl('situation', { id: item.targetSituation }) : pageUrl('path');
-      actionLabel = isDone ? 'Ôn lại chủ đề' : 'Luyện tình huống cần cải thiện';
-      stepsSummary = '<p class="jp-parts__pop-desc">Chủ đề đạt khi xong cả 3 tình huống, nhập vai đúng từ <strong>80%</strong> và điểm nói trung bình từ <strong>70</strong>.'
-        + (item.quizBest != null ? ' Nhập vai hiện tại: <strong>' + esc(item.quizBest) + '%</strong>.' : '')
-        + (item.score != null ? ' Điểm nói: <strong>' + esc(item.score) + '</strong>.' : '') + '</p>';
+      actionHref = pageUrl('weekly') + '?mode=topic&code=' + encodeURIComponent(item.topicCode);
+      actionLabel = isDone ? 'Luyện lại chủ đề' : 'Làm bài nhập vai chủ đề';
+      stepsSummary = '<p class="jp-parts__pop-desc">Chủ đề đạt khi bài nhập vai từ <strong>80%</strong> và điểm nói trung bình của mọi tình huống từ <strong>70</strong>.</p>'
+        + (item.missingRoleplay ? '<p class="jp-parts__pop-desc">Còn thiếu: bài nhập vai chủ đề từ 80%.</p>' : '')
+        + (item.missingSpeak ? '<p class="jp-parts__pop-desc">Còn thiếu: điểm nói trung bình từ 70; hãy luyện nói các tình huống trong chủ đề.</p>' : '')
+        + (item.missingSpeak && item.targetSituation ? '<p><a href="' + esc(pageUrl('situation', { id: item.targetSituation })) + '">Đến tình huống cần luyện nói</a></p>' : '');
     } else {
       var retryLater = item.retryAt && String(item.retryAt) > new Date().toISOString().slice(0, 19);
       if (item.certificateUrl) {
         actionHref = item.certificateUrl;
         actionLabel = 'Xem chứng nhận';
       } else {
-        actionHref = item.url || pageUrl('path');
-        actionLabel = !item.url ? 'Bài test với AI chưa sẵn sàng' : (retryLater ? 'Thử lại sau 24 giờ' : 'Vào Bài test với AI');
+        actionHref = retryLater ? pageUrl('path') : (item.aiAvailable ? item.url : (item.fallbackUrl || pageUrl('weekly') + '?mode=fallback'));
+        actionLabel = retryLater ? 'Thử lại sau 24 giờ' : (item.aiAvailable ? 'Vào Bài test với AI' : 'Làm bài nhập vai thay thế');
       }
       var weak = (item.weakTopics || []).filter(Boolean);
       stepsSummary = '<p class="jp-parts__pop-desc">Cuộc gọi theo kịch bản tổng hợp của toàn bộ mục tiêu. Đạt từ <strong>70 điểm</strong> để nhận chứng nhận hoàn thành lộ trình.</p>'
@@ -427,6 +418,11 @@
         + (!item.certificateUrl && item.score != null ? '<p class="jp-parts__pop-desc">Lần trước: <strong>' + esc(item.score) + '</strong> điểm.'
           + (item.retryAt ? ' Thử lại từ ' + esc(String(item.retryAt).slice(11, 16) + ' ' + fmtShortDate(String(item.retryAt).slice(0, 10))) + '.' : '') + '</p>' : '')
         + (!item.certificateUrl && weak.length ? '<p class="jp-parts__pop-desc">Nên ôn trước: ' + esc(weak.join(', ')) + '.</p>' : '');
+      if (item.certificateUrl) {
+        stepsSummary += '<nav aria-label="Bước học tiếp"><p><a href="/learning/comm/survey">Chọn mục tiêu giao tiếp khác</a></p>'
+          + (item.id === 'WORK' || item.id === 'BA' ? '<p><a href="/learning/comm/survey?goal=WORK">Chọn lĩnh vực Công việc khác</a></p>' : '')
+          + '<p><a href="/learning/jlpt/start">Bắt đầu lộ trình JLPT</a></p></nav>';
+      }
     }
 
     return '<div class="jp-parts__popover ' + sideCls + ' ' + toneCls + '" data-parts-popover role="dialog" aria-label="' + esc(item.titleVi) + '">'
@@ -597,6 +593,9 @@
       + '</div>'
       + '</div>'
       + '<div class="jp-parts__banner-sub">'
+      + '<details class="cp-goal-switch"><summary class="jp-btn">Đổi / thêm mục tiêu</summary>'
+      + '<a href="/survey?edit=goal">Đổi mục tiêu chính</a> · '
+      + '<a href="/learning/comm/survey">Thêm mục tiêu phụ</a></details>'
       + '<div class="jp-parts__legend" aria-label="Chú giải bản đồ">'
       + '<span class="jp-parts__legend-pill jp-parts__legend-pill--done"><span class="jp-parts__legend-ic">' + svgMedal('jp-parts__legend-svg') + '</span>Đã học</span>'
       + '<span class="jp-parts__legend-pill jp-parts__legend-pill--today"><span class="jp-parts__legend-ic">' + svgStar() + '</span>Hôm nay</span>'
@@ -638,10 +637,13 @@
   function sideGoalHtml(pathData) {
     var p = pathData || {};
     var sec = p.secondary;
+    var progress = p.progress || {};
     return '<div class="cp-secondary-card">'
       + '<span class="cp-secondary-card__tag">Lộ trình chính</span>'
-      + '<strong class="cp-secondary-card__name">' + esc(p.nameVi || 'Du lịch Nhật Bản') + '</strong>'
+      + '<strong class="cp-secondary-card__name">' + esc(p.nameVi || 'Lộ trình giao tiếp') + '</strong>'
       + '<span class="jp-survey__sub">' + esc(LEVEL_VI[p.selfLevel] || 'Sơ cấp') + ' · ' + esc(p.dailySituations || 2) + ' tình huống/ngày</span>'
+      + '<a class="cp-btn-ghost" href="/learning/comm/certificate">Chứng nhận · '
+      + esc(progress.passedTopics || 0) + '/' + esc(progress.totalTopics || 0) + ' chủ đề</a>'
       + '<div class="jp-side__range" role="group" aria-label="Số tình huống mỗi ngày">'
       + [1, 2].map(function (n) {
         return '<button type="button" class="jp-side-btn" data-cp-daily="' + n + '" aria-pressed="'
@@ -714,6 +716,22 @@
     var pathData = null;
     var mapData = null;
 
+    function showActionError(error, retry) {
+      var slot = todaySlot || mapSlot;
+      if (!slot) return;
+      var alert = doc.createElement('p');
+      alert.className = 'jp-alert';
+      alert.setAttribute('role', 'alert');
+      alert.textContent = error && error.message || 'Không thực hiện được thao tác.';
+      var button = doc.createElement('button');
+      button.type = 'button';
+      button.className = 'jp-btn';
+      button.textContent = 'Thử lại';
+      button.addEventListener('click', function () { alert.remove(); retry(); });
+      alert.appendChild(button);
+      slot.prepend(alert);
+    }
+
     function renderAll() {
       rootEl.setAttribute('aria-busy', 'false');
       if (sideSlot && pathData) sideSlot.innerHTML = sideGoalHtml(pathData);
@@ -761,7 +779,7 @@
         Promise.resolve(root.JpathApi.send('PUT', '/api/learning/comm/path/daily', { dailySituations: n })).then(function () {
           pathData.dailySituations = n;
           return root.JpathApi.get('/api/learning/comm/map').then(function (m) { mapData = m || mapData; renderAll(); });
-        }).catch(function () { /* stays as it was */ });
+        }).catch(function (error) { showActionError(error, function () { dailyBtn.click(); }); });
         return;
       }
 
@@ -778,9 +796,9 @@
               state.extraExhausted = true;
               renderAll();
             }
-          }, function () {
-            state.extraExhausted = true;
-            renderAll();
+          }, function (error) {
+            extraBtn.disabled = false;
+            showActionError(error, function () { extraBtn.click(); });
           });
         return;
       }
@@ -793,10 +811,22 @@
 
     Promise.all([
       root.JpathApi.get('/api/learning/comm/path'),
-      root.JpathApi.get('/api/learning/comm/map')
+      root.JpathApi.get('/api/learning/comm/map'),
+      root.JpathApi.get('/api/learning/comm/goal-test').catch(function () { return null; })
     ]).then(function (res) {
-      pathData = res[0] || {};
-      mapData = res[1] || { weeks: [], currentWeek: 1 };
+      if (!res[0] || !res[1]) throw new Error('Dữ liệu lộ trình chưa đầy đủ.');
+      pathData = res[0];
+      mapData = res[1];
+      if (res[2] && Array.isArray(mapData.weeks)) {
+        mapData.weeks.forEach(function (week) {
+          (week.items || []).forEach(function (item) {
+            if (item.type === 'GOAL_TEST') {
+              item.aiAvailable = res[2].aiAvailable;
+              item.fallbackUrl = res[2].fallbackUrl;
+            }
+          });
+        });
+      }
       state.focusedWeek = Number(mapData.currentWeek) || 1;
       renderAll();
       // a goal AI call taken since the last visit: read its score (kaiwa, read only) and redraw when it passed
@@ -808,14 +838,16 @@
           return null;
         }).catch(function () { /* no score yet */ });
       }
-    }, function (e) {
+    }).catch(function (e) {
       // no communication path yet: the survey makes one
       if (e && e.status === 404) {
         root.location.replace(pageUrl('survey'));
         return;
       }
       if (mapSlot) {
-        mapSlot.innerHTML = '<p class="jp-alert" role="alert">Không tải được lộ trình giao tiếp. Tải lại trang hoặc thử lại sau.</p>';
+        mapSlot.innerHTML = '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Không tải được lộ trình giao tiếp.')
+          + ' <button type="button" class="jp-btn" data-cp-retry>Thử lại</button></p>';
+        mapSlot.querySelector('[data-cp-retry]').addEventListener('click', function () { root.location.reload(); });
       }
     });
   }
