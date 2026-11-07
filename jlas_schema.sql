@@ -3886,7 +3886,7 @@ CREATE TABLE IF NOT EXISTS verb_practice_progress (
 
 -- [JLAS2-37] Community Hub: trang thai cong dong, danh gia, binh luan, bao cao.
 -- Bang goc (flashcard_set, video...) la nguon su that; community_content chi luu trang thai + bo dem,
--- dong tao theo nhu cau (khong co dong = PUBLISHED, bo dem = 0). Migration: sql/migrations/067_community_hub.sql.
+-- dong tao theo nhu cau (khong co dong = PUBLISHED, bo dem = 0). Migration: sql/migrations/069_community_hub.sql.
 
 CREATE TABLE IF NOT EXISTS community_content (
     id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,

@@ -1,7 +1,7 @@
 -- [JLAS2-37] J-LAS Community Hub demo fixtures, MySQL 8.0.21+, UTF-8.
 -- SYNTHETIC DEMO DATA: rating, binh luan va bao cao duoi day la du lieu mau de demo/kiem thu, khong phai
 -- hoat dong that cua nguoi hoc. Khong nap tren production.
--- Can co truoc: jlas_schema.sql (hoac migration 067_community_hub.sql) va cac tai khoan seed trong
+-- Can co truoc: jlas_schema.sql (hoac migration 069_community_hub.sql) va cac tai khoan seed trong
 -- sql/seeds/jlas_seed_all.sql: demo@jlab.local, content@jlab.local, admin@jlab.local,
 -- learner.clean@jlas.local. Tai khoan nao khong co thi cac dong lien quan tu bo qua.
 -- Khong co dinh id. Chay lai an toan: bo flashcard mau nhan dien theo (owner, title); rating upsert theo
