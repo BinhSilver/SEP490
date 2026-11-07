@@ -43,7 +43,8 @@ export const TABLES = {
       'options_json', 'answer_index', 'pieces_json', 'answer_order_json', 'answer_text', 'accept_json', 'explanation_vi',
       'status', 'authored', 'seed_version'],
   },
-  confusable_pair: { sql: 'jpath_confusable_pair', pk: ['item_type', 'code_a', 'code_b'], cols: ['item_type', 'code_a', 'code_b', 'level'] },
+  confusable_pair: { sql: 'jpath_confusable_pair', pk: ['item_type', 'code_a', 'code_b'],
+    cols: ['item_type', 'code_a', 'code_b', 'level', 'diff_vi', 'examples_json', 'question_json'] },
 };
 
 /** Report/edit target type → table key (KANA rows belong to the base seed and are never edited here). */
@@ -161,6 +162,31 @@ function questionRows(g, seedVersion) {
  * Pairs of this level's items, plus pairs that lower-level items point at this level's items: a pair is stored at the
  * higher level, so this level's run (which deletes its pairs first) must write it back even when only the lower item lists it.
  */
+/**
+ * [JLAS-W0108] Owner 07/11: authored confusable pairs (vocabulary, kanji, grammar) and grammar "related" links of one
+ * level, from data/learning-path/confusables/<LEVEL>.json when it exists. A pair is kept only when both codes are known.
+ */
+export function readConfusables(level, file = path.join(ROOT, 'data/learning-path/confusables', `${level}.json`)) {
+  if (!existsSync(file)) return { pairs: [], related: [] };
+  const data = JSON.parse(readFileSync(file, 'utf8'));
+  return { pairs: Array.isArray(data.pairs) ? data.pairs : [], related: Array.isArray(data.related) ? data.related : [] };
+}
+
+function authoredPairRows(pairs, levelOf, level) {
+  const out = [];
+  for (const p of pairs) {
+    const type = String(p.type || '').toUpperCase();
+    if (!['VOCAB', 'KANJI', 'GRAMMAR'].includes(type) || !p.a || !p.b || p.a === p.b) continue;
+    if (!levelOf(p.a) || !levelOf(p.b)) continue;
+    const [a, b] = p.a < p.b ? [p.a, p.b] : [p.b, p.a];
+    const hi = [levelOf(a), levelOf(b), level].reduce((x, y) => (LEVEL_RANK[y] > LEVEL_RANK[x] ? y : x));
+    out.push({ item_type: type, code_a: a, code_b: b, level: hi, diff_vi: p.diffVi ?? null,
+      examples_json: jsonOrNull(Array.isArray(p.examples) && p.examples.length ? p.examples : null),
+      question_json: jsonOrNull(p.question ?? null) });
+  }
+  return out;
+}
+
 function confusableRows(itemType, items, lowerItems, levelOf) {
   const pairs = new Map();
   const own = new Set(items.map((item) => item.id));
@@ -172,7 +198,8 @@ function confusableRows(itemType, items, lowerItems, levelOf) {
       if (!otherLevel) continue;
       const [a, b] = item.id < other ? [item.id, other] : [other, item.id];
       const level = LEVEL_RANK[otherLevel] > LEVEL_RANK[item.level] ? otherLevel : item.level;
-      pairs.set(`${a}|${b}`, { item_type: itemType, code_a: a, code_b: b, level });
+      pairs.set(`${a}|${b}`, { item_type: itemType, code_a: a, code_b: b, level, diff_vi: null, examples_json: null,
+        question_json: null });
     }
   }
   return [...pairs.values()];
@@ -183,7 +210,8 @@ function confusableRows(itemType, items, lowerItems, levelOf) {
  * (Map code → level, or a Set of codes of this level) limits confusable pairs to items that exist. `lowerLevels` = the
  * compiled sources of lower levels: their confusable links to this level's items are written by this level's run too.
  */
-export function buildLevelRows(compiled, { seedVersion, audio = new Map(), knownCodes = new Map(), lowerLevels = [] } = {}) {
+export function buildLevelRows(compiled, { seedVersion, audio = new Map(), knownCodes = new Map(), lowerLevels = [],
+  confusables = readConfusables(compiled.level) } = {}) {
   const level = compiled.level;
   const levelOf = (code) => (knownCodes instanceof Map ? knownCodes.get(code) : knownCodes.has(code) ? level : undefined);
   const vocab = compiled.vocabulary ?? [];
@@ -220,11 +248,19 @@ export function buildLevelRows(compiled, { seedVersion, audio = new Map(), known
   const kanji_compound = kanji.flatMap((k) => (k.compound_ids ?? []).filter((code) => linkable.has(code)).slice(0, 5)
     .map((code, i) => ({ kanji_code: k.id, vocab_code: code, sort_order: i + 1 })));
 
+  // authored "related" links fill grammar points that have none (codes must exist)
+  const relatedOf = new Map();
+  for (const r of confusables.related ?? []) {
+    const own = grammar.find((g) => g.id === r.grammar);
+    const codes = (r.relatedCodes ?? []).filter((c) => c !== r.grammar && levelOf(c));
+    if (own && !(own.related_ids ?? []).length && codes.length) relatedOf.set(r.grammar, codes);
+  }
   const grammarRows = grammar.map((g) => ({
     code: g.id, level: g.level, unit_no: g.unit_no, sort_order: g.order, priority: g.priority ?? g.order, pattern: g.pattern,
     pattern_variants_json: jsonOrNull(g.pattern_variants), family_key: g.family_key, meaning_vi: g.meaning_vi ?? null,
     formation: g.formation ?? null, usage_vi: g.usage_vi ?? null, nuance_vi: g.nuance_vi ?? null,
-    common_mistakes_vi: g.common_mistakes_vi ?? null, related_codes_json: jsonOrNull(g.related_ids),
+    common_mistakes_vi: g.common_mistakes_vi ?? null,
+    related_codes_json: jsonOrNull(relatedOf.get(g.id) ?? g.related_ids),
     // a secondary pattern is attached to its main one (shown in the main lesson, never learned on its own)
     parent_code: g.grammar_role === 'SECONDARY' && g.parent_id ? g.parent_id : null, status: g.status,
     authored: itemAuthored(g.provenance), seed_version: seedVersion,
@@ -236,8 +272,16 @@ export function buildLevelRows(compiled, { seedVersion, audio = new Map(), known
     ...grammar.flatMap((g) => exampleRows('GRAMMAR', g, audio, seedVersion)),
   ];
   const grammar_question = grammar.flatMap((g) => questionRows(g, seedVersion));
-  const confusable_pair = [...confusableRows('VOCAB', vocab, lowerOf('vocabulary'), levelOf),
-    ...confusableRows('KANJI', kanji, lowerOf('kanji'), levelOf)];
+  const byKey = new Map();
+  for (const row of [...confusableRows('VOCAB', vocab, lowerOf('vocabulary'), levelOf),
+    ...confusableRows('KANJI', kanji, lowerOf('kanji'), levelOf),
+    ...authoredPairRows(confusables.pairs ?? [], levelOf, level)]) {
+    const key = `${row.item_type}|${row.code_a}|${row.code_b}`;
+    const old = byKey.get(key);
+    // an authored pair adds its explanation to a pair the compiled source already lists
+    byKey.set(key, old ? { ...old, ...Object.fromEntries(Object.entries(row).filter(([, v]) => v !== null)) } : row);
+  }
+  const confusable_pair = [...byKey.values()];
 
   const tables = { topic, grammar_unit, vocabulary, kanji: kanjiRows, kanji_compound, grammar: grammarRows, example,
     grammar_question, confusable_pair };

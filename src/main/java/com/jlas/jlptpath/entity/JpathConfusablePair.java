@@ -16,7 +16,7 @@ import lombok.Setter;
 
 /**
  * [JLAS-W0108] Pair of easily confused items (jpath_confusable_pair); codeA &lt; codeB, level = the higher level of the
- * two. itemType is VOCAB or KANJI.
+ * two. itemType is VOCAB, KANJI or GRAMMAR.
  */
 @Entity
 @Table(name = "jpath_confusable_pair")
@@ -39,4 +39,16 @@ public class JpathConfusablePair {
 
     @Column(name = "level", nullable = false, length = 2)
     private String level;
+
+    /** Owner 07/11: how the two differ (Vietnamese), mainly for grammar pairs. */
+    @Column(name = "diff_vi", length = 600)
+    private String diffVi;
+
+    /** [{code, ja, vi}] contrasting examples. */
+    @Column(name = "examples_json", columnDefinition = "json")
+    private String examplesJson;
+
+    /** {ja, options[], answer, explainVi}: one choose-the-pattern question. */
+    @Column(name = "question_json", columnDefinition = "json")
+    private String questionJson;
 }

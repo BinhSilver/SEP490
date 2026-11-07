@@ -34,13 +34,32 @@
       + '<span>' + esc(s.meaning) + '</span></div>';
   }
 
+  /** Owner 07/11: how the two differ, contrasting examples and one choose-the-pattern question (grammar pairs). */
+  function details(p, i) {
+    var out = p.diffVi ? '<p class="jp-pair__diff">' + esc(p.diffVi) + '</p>' : '';
+    var ex = Array.isArray(p.examples) ? p.examples : [];
+    if (ex.length) {
+      out += '<ul class="jp-pair__examples">' + ex.map(function (x) {
+        return '<li><span lang="ja">' + esc(x.ja) + '</span><span>' + esc(x.vi) + '</span></li>';
+      }).join('') + '</ul>';
+    }
+    var q = p.question;
+    if (q && q.ja && Array.isArray(q.options)) {
+      out += '<div class="jp-pair__quiz" data-quiz="' + i + '"><p lang="ja">' + esc(q.ja) + '</p><div class="jp-pair__opts">'
+        + q.options.map(function (o, k) {
+          return '<button type="button" class="jp-btn" data-quiz-pick="' + k + '" lang="ja">' + esc(o) + '</button>';
+        }).join('') + '</div><p class="jp-pair__answer" role="status" hidden></p></div>';
+    }
+    return out;
+  }
+
   /** Two items side by side, with the number of wrong answers when there are some. */
-  function pairMarkup(p) {
+  function pairMarkup(p, i) {
     if (!p) return '';
     var kanji = p.itemType === 'KANJI';
     return '<li class="jp-pair">' + side(p.a, kanji) + '<span class="jp-pair__vs" aria-hidden="true">≠</span>'
       + side(p.b, kanji) + (Number(p.wrongCount) > 0 ? '<span class="jp-pair__wrong">' + esc(p.wrongCount)
-        + ' lần nhầm</span>' : '') + '</li>';
+        + ' lần nhầm</span>' : '') + details(p, i) + '</li>';
   }
 
   var mounted = false;
@@ -58,6 +77,7 @@
     var pager = main.querySelector('[data-role="pager"]');
     var tab = 'VOCAB';
     var pairs = [];
+    var shown = [];
     var page = 0;
 
     function draw() {
@@ -71,7 +91,8 @@
       });
       var pages = Math.max(1, Math.ceil(filtered.length / 20));
       page = Math.min(page, pages - 1);
-      list.innerHTML = filtered.slice(page * 20, page * 20 + 20).map(pairMarkup).join('');
+      shown = filtered.slice(page * 20, page * 20 + 20);
+      list.innerHTML = shown.map(pairMarkup).join('');
       pager.hidden = pages <= 1;
       pager.querySelector('[data-page="prev"]').disabled = page === 0;
       pager.querySelector('[data-page="next"]').disabled = page + 1 >= pages;
@@ -88,6 +109,8 @@
       api.get(BASE + '/confusables?tab=' + tab).then(function (result) {
         pairs = Array.isArray(result) ? result : [];
         page = 0;
+        // grammar pairs are practised inline (each pair has its own question); the 10-question check is for words
+        start.hidden = tab === 'GRAMMAR';
         start.disabled = !pairs.length;
         draw();
       }, function (err) { status.textContent = (err && err.message) || 'Không tải được các cặp dễ nhầm.'; });
@@ -96,6 +119,19 @@
     main.addEventListener('click', function (e) {
       var t = e.target.closest('[data-tab]');
       if (t) { tab = t.getAttribute('data-tab'); search.value = ''; load(); return; }
+      var pick = e.target.closest('[data-quiz-pick]');
+      if (pick) {
+        var box = pick.closest('[data-quiz]');
+        var p = shown[Number(box.getAttribute('data-quiz'))];
+        var k = Number(pick.getAttribute('data-quiz-pick'));
+        var ok = p && p.question && k === Number(p.question.answer);
+        box.querySelectorAll('[data-quiz-pick]').forEach(function (b) { b.disabled = true; });
+        var ans = box.querySelector('.jp-pair__answer');
+        ans.hidden = false;
+        ans.textContent = (ok ? 'Đúng. ' : 'Chưa đúng. Đáp án: ' + (p.question.options[p.question.answer] || '') + '. ')
+          + (p.question.explainVi || '');
+        return;
+      }
       var pg = e.target.closest('[data-page]');
       if (pg) { page += pg.getAttribute('data-page') === 'next' ? 1 : -1; draw(); return; }
       if (e.target.closest('[data-role="start"]') && !start.disabled) {

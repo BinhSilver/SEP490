@@ -72,7 +72,8 @@ public class JpathConfusableServiceImpl implements JpathConfusableService {
             JpathConfusableSide b = sides.get(p.getCodeB());
             if (a != null && b != null) {
                 out.add(new JpathConfusablePairView(type.name(), a, b,
-                        wrong.getOrDefault(p.getCodeA(), 0) + wrong.getOrDefault(p.getCodeB(), 0)));
+                        wrong.getOrDefault(p.getCodeA(), 0) + wrong.getOrDefault(p.getCodeB(), 0),
+                        p.getDiffVi(), parse(p.getExamplesJson()), parse(p.getQuestionJson())));
             }
         }
         out.sort(Comparator.comparingInt(JpathConfusablePairView::wrongCount).reversed()
@@ -88,6 +89,10 @@ public class JpathConfusableServiceImpl implements JpathConfusableService {
                 out.put(v.getCode(), new JpathConfusableSide(v.getCode(), v.getExpression(), v.getReading(),
                         v.getMeaningVi()));
             }
+        } else if (type == JpathItemType.GRAMMAR) {
+            for (var g : content.grammars(codes)) {
+                out.put(g.getCode(), new JpathConfusableSide(g.getCode(), g.getPattern(), null, g.getMeaningVi()));
+            }
         } else {
             for (JpathKanji k : content.kanjis(codes)) {
                 out.put(k.getCode(), new JpathConfusableSide(k.getCode(), k.getCharacter(),
@@ -102,8 +107,20 @@ public class JpathConfusableServiceImpl implements JpathConfusableService {
         return switch (t) {
             case "VOCAB" -> JpathItemType.VOCAB;
             case "KANJI" -> JpathItemType.KANJI;
+            case "GRAMMAR" -> JpathItemType.GRAMMAR;
             default -> throw new ApiException(ErrorCode.VALIDATION_FAILED, "Tab không hợp lệ.");
         };
+    }
+
+    private static Object parse(String json) {
+        if (json == null || json.isBlank()) {
+            return null;
+        }
+        try {
+            return JSON.readValue(json, Object.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static List<String> readings(String json) {

@@ -27,7 +27,7 @@ export const LIMITS = {
   'jpath_grammar_question.explanation_vi': 1000, 'jpath_grammar_question.status': 12,
   'jpath_grammar_question.seed_version': 16,
   'jpath_confusable_pair.item_type': 8, 'jpath_confusable_pair.code_a': 24, 'jpath_confusable_pair.code_b': 24,
-  'jpath_confusable_pair.level': 2,
+  'jpath_confusable_pair.level': 2, 'jpath_confusable_pair.diff_vi': 600,
   'jpath_kana_row.code': 24, 'jpath_kana_row.script': 8, 'jpath_kana_row.title_vi': 60, 'jpath_kana_row.row_kind': 10,
   'jpath_kana.code': 24, 'jpath_kana.row_code': 24, 'jpath_kana.script': 8, 'jpath_kana.kana': 4, 'jpath_kana.romaji': 8,
 };
