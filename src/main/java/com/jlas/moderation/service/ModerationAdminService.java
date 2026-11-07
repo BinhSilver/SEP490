@@ -1,5 +1,7 @@
 package com.jlas.moderation.service;
 
+import com.jlas.admin.enums.SystemConfigKey;
+import com.jlas.admin.service.SystemConfigService;
 import com.jlas.auth.entity.User;
 import com.jlas.auth.repository.UserRepository;
 import com.jlas.common.exception.ApiException;
@@ -22,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ModerationAdminService {
     public static final int WORD_CONTRIBUTION_REWARD = 10;
-    /** Approved contributions paid per contributor per day; later approvals that day earn no CP. */
-    static final int WORD_CONTRIBUTION_DAILY_PAID = 3;
     public static final String WORD_CONTRIBUTION = "WORD_CONTRIBUTION";
 
     private final ReviewCaseRepository reviewCases;
@@ -33,6 +33,11 @@ public class ModerationAdminService {
     private final ModerationAuditService audit;
     private final ContentModerationService scanner;
     private final ModerationNotifier notifier;
+    /**
+     * [JLAS2-51] Approved contributions paid per contributor per day ({@code moderation.word_contribution_daily_paid});
+     * later approvals that day earn no CP.
+     */
+    private final SystemConfigService config;
 
     /** AI-flagged content only; dictionary contributions have their own page. */
     @Transactional(readOnly = true)
@@ -85,7 +90,8 @@ public class ModerationAdminService {
         Long creditedTo = null;
         if (approve && dictionary && item.getOwnerUser() != null) {
             Long contributor = item.getOwnerUser().getId();
-            if (credits.countEarnedToday(contributor, CreditReason.WORD_CONTRIBUTION_REWARD) < WORD_CONTRIBUTION_DAILY_PAID) {
+            if (credits.countEarnedToday(contributor, CreditReason.WORD_CONTRIBUTION_REWARD)
+                    < config.intValue(SystemConfigKey.MODERATION_WORD_CONTRIBUTION_DAILY_PAID)) {
                 creditedTo = contributor;
                 credits.earn(creditedTo, WORD_CONTRIBUTION_REWARD,
                         CreditReason.WORD_CONTRIBUTION_REWARD,

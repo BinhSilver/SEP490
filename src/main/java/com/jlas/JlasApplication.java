@@ -12,6 +12,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 		"com.jlas.auth.entity",
 		"com.jlas.conjugation",
 		"com.jlas.billing.entity",
+		"com.jlas.community.entity",
 		"com.jlas.dictionary.entity",
 		"com.jlas.flashcard.entity",
 		"com.jlas.game.entity",

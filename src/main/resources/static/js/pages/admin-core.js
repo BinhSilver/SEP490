@@ -26,7 +26,11 @@
       { key: 'content-kanji-map', label: 'Lược đồ Kanji', icon: 'fa-diagram-project', href: '/admin/kanji-map', roles: ['CONTENT_CREATOR'] }
     ] },
     { title: 'Quản lý tài khoản', items: [
-      { key: 'system-users', label: 'Người dùng', icon: 'fa-users', href: '/admin/system/users', roles: SYSTEM },
+      { key: 'system-users', label: 'Người dùng', icon: 'fa-users', href: '/admin/system/users', roles: SYSTEM }
+    ] },
+    { title: 'Hệ thống', items: [
+      { key: 'system-config', label: 'Cấu hình hệ thống', icon: 'fa-sliders', href: '/admin/system/config', roles: SYSTEM },
+      { key: 'system-permissions', label: 'Phân quyền', icon: 'fa-user-shield', href: '/admin/system/permissions', roles: SYSTEM },
       { key: 'system-audit', label: 'Nhật ký quản trị', icon: 'fa-clipboard-list', href: '/admin/system/audit', roles: SYSTEM }
     ] },
     { title: 'Kinh doanh', items: [
@@ -57,7 +61,7 @@
     VIDEO_COMMENT: 'Bình luận video', WORD_CONTRIBUTION: 'Đóng góp từ vựng', LESSON: 'Bài học',
     SCENARIO: 'Kịch bản', TEXTBOOK: 'Giáo trình', USER: 'Người dùng', USER_SANCTION: 'Chế tài',
     APPEAL: 'Kháng nghị', DENYLIST_TERM: 'Từ khoá cấm', PREMIUM_PLAN: 'Gói Premium',
-    COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP'
+    COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP', SYSTEM_CONFIG: 'Cấu hình hệ thống'
   };
 
   // ── Auth & API ─────────────────────────────────────────────────────────
