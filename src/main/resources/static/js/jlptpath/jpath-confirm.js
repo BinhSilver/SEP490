@@ -115,6 +115,22 @@
     return Math.max(b.min, Math.min(b.max, value));
   }
 
+  var DAY_VI = { MON: 'T2', TUE: 'T3', WED: 'T4', THU: 'T5', FRI: 'T6', SAT: 'T7', SUN: 'CN' };
+
+  /** One line with what the survey already answered (owner 07/11: not asked again; "Đổi" opens the fields). */
+  function planSummary(state) {
+    if (!state) return '';
+    var parts = [];
+    if (state.targetLevel) parts.push('Mục tiêu ' + state.targetLevel);
+    parts.push(state.examDate ? 'Thi ' + formatDate(state.examDate) : 'Chưa có ngày thi');
+    if (state.dailyMinutes) parts.push(state.dailyMinutes + ' phút/ngày');
+    var skill = list(state.skillDays).map(function (d) { return DAY_VI[d] || d; });
+    if (skill.length) parts.push('Kỹ năng ' + skill.join(', '));
+    var rest = list(state.restDays).map(function (d) { return DAY_VI[d] || d; });
+    if (rest.length) parts.push('Nghỉ ' + rest.join(', '));
+    return parts.join(' · ');
+  }
+
   function recommend(minutes, bounds) {
     var out = {};
     SLIDERS.forEach(function (s) {
@@ -335,6 +351,15 @@
       exam.max = limits.max;
       exam.addEventListener('change', function () { change(with_(state, { examDate: exam.value || '' })); });
       part('exam-clear').addEventListener('click', function () { change(with_(state, { examDate: '' })); });
+      var planEdit = el.querySelector('[data-role="plan-edit"]');
+      var planFields = el.querySelector('[data-role="plan-fields"]');
+      if (planEdit && planFields) {
+        planEdit.addEventListener('click', function () {
+          planFields.hidden = !planFields.hidden;
+          planEdit.setAttribute('aria-expanded', String(!planFields.hidden));
+          planEdit.textContent = planFields.hidden ? 'Đổi' : 'Thu gọn';
+        });
+      }
 
       var minutes = part('minutes');
       minutes.textContent = '';
@@ -428,6 +453,15 @@
       part('exam').value = state.examDate || '';
       part('exam-clear').hidden = !state.examDate;
       part('minutes').value = String(state.dailyMinutes);
+      var summary = el.querySelector('[data-role="plan-summary"]');
+      if (summary) summary.textContent = planSummary(state);
+      // something still missing (e.g. the two skill days): open the fields instead of hiding the problem
+      var fieldsBox = el.querySelector('[data-role="plan-fields"]');
+      if (fieldsBox && fieldsBox.hidden && (!state.targetLevel || list(state.skillDays).length !== 2)) {
+        fieldsBox.hidden = false;
+        var editBtn = el.querySelector('[data-role="plan-edit"]');
+        if (editBtn) { editBtn.setAttribute('aria-expanded', 'true'); editBtn.textContent = 'Thu gọn'; }
+      }
 
       SLIDERS.forEach(function (s) {
         var input = el.querySelector('[data-slider="' + s.key + '"]');

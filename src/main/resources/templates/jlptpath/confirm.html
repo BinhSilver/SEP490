@@ -51,6 +51,12 @@
             <p class="jp-confirm-plan__level">Cấp bắt đầu: <strong data-role="open-level"></strong></p>
             <p class="jp-confirm-plan__note" data-role="level-note" hidden></p>
             <p class="jp-confirm-plan__note" data-role="kana-note" hidden>Có tab Chữ cái: học bảng chữ cái trước.</p>
+            <!-- [JLAS-W0108] Owner 07/11: the survey answers are not asked again; one summary line, "Đổi" opens the fields -->
+            <div class="jp-confirm-field__row">
+                <p class="jp-confirm-plan__summary" data-role="plan-summary" aria-live="polite"></p>
+                <button type="button" class="jp-confirm-btn jp-confirm-btn--small" data-role="plan-edit" aria-expanded="false">Đổi</button>
+            </div>
+            <div data-role="plan-fields" hidden>
             <div class="jp-confirm-fields">
                 <label class="jp-confirm-field">
                     <span class="jp-confirm-field__label">Cấp mục tiêu</span>
@@ -69,6 +75,7 @@
                 </label>
             </div>
             <div class="jp-confirm-days" data-role="days"></div>
+            </div>
         </section>
 
         </div>
