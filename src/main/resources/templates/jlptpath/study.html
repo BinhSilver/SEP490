@@ -5,7 +5,7 @@
      under a card use the check styles. -->
 <head th:replace="~{fragments/head :: standard('Học thẻ - JLAS', null)}"></head>
 <th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-study')}"></th:block>
-<link rel="stylesheet" th:href="@{/css/pages/jpath-check.css(v='20261107-r9')}" />
+<link rel="stylesheet" th:href="@{/css/pages/jpath-check.css(v=${jpathAssetVersion})}" />
 <body id="jlabBasePage" class="app-body jp-body">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-study" data-inline-dictionary>
@@ -25,7 +25,7 @@
 <script th:src="@{/js/jlptpath/jpath-offline-queue.js(v=${jpathAssetVersion})}"></script>
 <!-- "Bỏ qua (kiểm 1 câu)" draws its one-question check under the card with jpath-check.js. -->
 <script th:src="@{/js/jlptpath/jpath-check.js(v=${jpathAssetVersion})}"></script>
-<script th:src="@{/js/jlptpath/jpath-study.js(v='20261107-r9')}"></script>
+<script th:src="@{/js/jlptpath/jpath-study.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
 </html>

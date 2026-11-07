@@ -3,7 +3,7 @@
 <!-- [JLAS-W0108] Settings page of the JLPT path; jpath-settings.js fills it from GET /api/learning/jlpt/settings. -->
 <head th:replace="~{fragments/head :: standard('Cài đặt lộ trình JLPT - JLAS', null)}"></head>
 <th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-settings')}"></th:block>
-<link rel="stylesheet" th:href="@{/css/pages/jpath-day-picker.css(v='20261107-r9')}" />
+<link rel="stylesheet" th:href="@{/css/pages/jpath-day-picker.css(v=${jpathAssetVersion})}" />
 <body id="jlabBasePage" class="app-body jp-body">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-settings" data-inline-dictionary data-jpath-settings>

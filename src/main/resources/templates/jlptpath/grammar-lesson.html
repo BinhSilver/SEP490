@@ -5,7 +5,7 @@
 <head th:replace="~{fragments/head :: standard('Bài ngữ pháp - JLAS', null)}"></head>
 <th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-path')}"></th:block>
 <!-- Inline grammar practice (Luyện ngay) draws a check with jpath-check.js. -->
-<link rel="stylesheet" th:href="@{/css/pages/jpath-check.css(v='20261107-r9')}" />
+<link rel="stylesheet" th:href="@{/css/pages/jpath-check.css(v=${jpathAssetVersion})}" />
 <body id="jlabBasePage" class="app-body jp-body">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-path jp-lesson-page" data-inline-dictionary>
