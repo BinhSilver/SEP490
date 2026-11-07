@@ -35,7 +35,14 @@ public class NotebookStudyController {
     @PostMapping("/{vocabularyId}")
     public ApiResponse<NotebookStudyService.Schedule> rate(@AuthenticationPrincipal UserPrincipal user,
             @PathVariable Long notebookId, @PathVariable Long vocabularyId, @RequestBody RatingRequest request) {
-        return ApiResponse.ok("Đã cập nhật lịch ôn", service.rate(userId(user), notebookId, vocabularyId, request.rating()));
+        return ApiResponse.ok("Đã cập nhật lịch ôn", service.rate(userId(user), notebookId, vocabularyId, request == null ? null : request.rating()));
+    }
+
+    @PostMapping("/kanji/{character}")
+    public ApiResponse<NotebookStudyService.Schedule> rateKanji(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable Long notebookId, @PathVariable String character, @RequestBody RatingRequest request) {
+        return ApiResponse.ok("Đã cập nhật lịch ôn Kanji", service.rateKanji(userId(user), notebookId, character,
+                request == null ? null : request.rating()));
     }
 
     private static Long userId(UserPrincipal user) {
