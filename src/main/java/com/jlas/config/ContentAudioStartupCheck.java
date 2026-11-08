@@ -33,6 +33,8 @@ public class ContentAudioStartupCheck {
     /** Số file tối đa đọc thử để phát hiện pointer Git LFS. */
     static final int LFS_SAMPLE_LIMIT = 50;
     private static final long LFS_POINTER_MAX_BYTES = 1024;
+    /** audio_url "tts:ja-JP": trình duyệt tự đọc bằng giọng máy (InteractiveDialogueServiceImpl), không có file trên đĩa. */
+    static final String TTS_PREFIX = "tts:";
     private static final byte[] LFS_POINTER_PREFIX =
             "version https://git-lfs.github.com/spec/v1".getBytes(StandardCharsets.US_ASCII);
 
@@ -61,7 +63,10 @@ public class ContentAudioStartupCheck {
     /** Kết quả kiểm tra; trả về để test được mà không cần đọc log. */
     Result check() {
         Path root = Paths.get(contentAudioDirectory).toAbsolutePath().normalize();
-        List<String> urls = contentAudioRepository.findDistinctAudioUrls();
+        // Bỏ audio đọc bằng giọng máy: "tts:..." không phải đường dẫn, trên Windows dấu ":" làm Path.resolve ném lỗi
+        // và huỷ cả lượt kiểm tra; trên Linux thì bị báo nhầm là thiếu file.
+        List<String> urls = contentAudioRepository.findDistinctAudioUrls().stream()
+                .filter(url -> url == null || !url.startsWith(TTS_PREFIX)).toList();
         if (urls.isEmpty()) {
             log.info("Kho audio giáo trình: bảng content_audio trống, bỏ qua kiểm tra ({})", root);
             return new Result(root, 0, List.of(), null, 0);

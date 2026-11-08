@@ -93,9 +93,21 @@ public class AiCallReferenceDataInitializer implements ApplicationRunner {
     }
 
     private void seedScenarioBackgrounds() {
+        // Scenario backgrounds moved from PNG (~2MB) to WebP (~100KB); repoint databases seeded before the switch.
         jdbcTemplate.update("""
                 UPDATE scenario
-                SET thumbnail_url = CONCAT('/images/scenarios/', slug, '.png')
+                SET thumbnail_url = CONCAT(SUBSTRING(thumbnail_url, 1, CHAR_LENGTH(thumbnail_url) - 4), '.webp')
+                WHERE thumbnail_url LIKE '/images/scenarios/%.png'
+                """);
+        jdbcTemplate.update("""
+                UPDATE scenario
+                SET flow_json = CAST(REGEXP_REPLACE(CAST(flow_json AS CHAR),
+                        '(/images/scenarios/[a-z0-9-]+)\\\\.png', '$1.webp') AS JSON)
+                WHERE CAST(flow_json AS CHAR) LIKE '%/images/scenarios/%.png%'
+                """);
+        jdbcTemplate.update("""
+                UPDATE scenario
+                SET thumbnail_url = CONCAT('/images/scenarios/', slug, '.webp')
                 WHERE slug IN (
                     'restaurant-order-and-pay', 'first-meeting-introduction',
                     'station-directions-and-transfer', 'convenience-store-checkout',

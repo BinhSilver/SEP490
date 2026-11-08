@@ -201,16 +201,16 @@ ON DUPLICATE KEY UPDATE
 -- Mỗi kịch bản dùng một ảnh nền minh họa riêng trên trang hội thoại.
 UPDATE scenario
 SET thumbnail_url = CASE id
-    WHEN 1 THEN '/images/scenarios/restaurant-order-and-pay.png'
-    WHEN 2 THEN '/images/scenarios/first-meeting-introduction.png'
-    WHEN 3 THEN '/images/scenarios/station-directions-and-transfer.png'
-    WHEN 4 THEN '/images/scenarios/convenience-store-checkout.png'
-    WHEN 5 THEN '/images/scenarios/clothes-shopping-size-fitting.png'
-    WHEN 6 THEN '/images/scenarios/clinic-appointment.png'
-    WHEN 7 THEN '/images/scenarios/pharmacy-cold-medicine.png'
-    WHEN 8 THEN '/images/scenarios/office-reschedule-meeting.png'
-    WHEN 9 THEN '/images/scenarios/school-absence-and-homework.png'
-    WHEN 10 THEN '/images/scenarios/hotel-check-in.png'
+    WHEN 1 THEN '/images/scenarios/restaurant-order-and-pay.webp'
+    WHEN 2 THEN '/images/scenarios/first-meeting-introduction.webp'
+    WHEN 3 THEN '/images/scenarios/station-directions-and-transfer.webp'
+    WHEN 4 THEN '/images/scenarios/convenience-store-checkout.webp'
+    WHEN 5 THEN '/images/scenarios/clothes-shopping-size-fitting.webp'
+    WHEN 6 THEN '/images/scenarios/clinic-appointment.webp'
+    WHEN 7 THEN '/images/scenarios/pharmacy-cold-medicine.webp'
+    WHEN 8 THEN '/images/scenarios/office-reschedule-meeting.webp'
+    WHEN 9 THEN '/images/scenarios/school-absence-and-homework.webp'
+    WHEN 10 THEN '/images/scenarios/hotel-check-in.webp'
     ELSE thumbnail_url
 END
 WHERE id BETWEEN 1 AND 10;

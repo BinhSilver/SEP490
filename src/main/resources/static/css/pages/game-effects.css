@@ -145,3 +145,23 @@ html[data-theme="dark"] .game-effects-page .ge-feedback--danger {
     color: var(--dm-admin-ink);
     background: var(--dm-admin-danger-bg)
 }
+
+/* Admin preview controls and overlays follow the shared plum dark palette. */
+html[data-theme="dark"] .game-effects-page { background: var(--dark-bg); color: var(--dark-ink); }
+html[data-theme="dark"] .game-effects-page :is(.ge-stage-section, .ge-controls) { background: var(--dark-surface); border-color: var(--dark-line); }
+html[data-theme="dark"] .game-effects-page .ge-games { border-color: var(--dark-line); }
+html[data-theme="dark"] .game-effects-page .ge-games button { color: var(--dark-muted); }
+html[data-theme="dark"] .game-effects-page .ge-games button[aria-pressed="true"] { background: var(--dark-soft); color: var(--dark-accent); }
+html[data-theme="dark"] .game-effects-page .ge-viewer button:hover { background: var(--dark-raised); }
+html[data-theme="dark"] .game-effects-page .ge-games button[aria-pressed="true"]:hover { background: var(--dark-soft); }
+html[data-theme="dark"] .game-effects-page .ge-field select { background: var(--dark-input); border-color: var(--dark-input-line); color: var(--dark-ink); }
+html[data-theme="dark"] .game-effects-page .ge-replay { color: var(--dark-accent); }
+html[data-theme="dark"] .game-effects-page :is(button, select, input):focus-visible { outline-color: var(--dark-focus); }
+html[data-theme="dark"] .game-effects-page .ge-stage { background: var(--dark-bg); }
+html[data-theme="dark"] .game-effects-page .ge-stage--cat { background: radial-gradient(ellipse at 50% 65%, var(--dark-soft), var(--dark-bg) 65%); }
+html[data-theme="dark"] .game-effects-page .ge-scene-overlay { background: rgb(35 24 41 / 80%); color: var(--dark-ink); }
+html[data-theme="dark"] .game-effects-page .ge-scene-overlay button { background: var(--dark-button); color: var(--dark-on-button); }
+html[data-theme="dark"] .game-effects-page .ge-scene-overlay button:hover { background: var(--dark-button-hover); }
+html[data-theme="dark"] .game-effects-page .ge-feedback { background: var(--dark-warning-bg); color: var(--dark-warning); }
+html[data-theme="dark"] .game-effects-page .ge-feedback--ice { background: var(--dark-soft); color: var(--dark-ink); }
+html[data-theme="dark"] .game-effects-page .ge-feedback--danger { background: var(--dark-danger-bg); color: var(--dark-danger); }

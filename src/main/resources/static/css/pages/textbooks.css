@@ -1,4 +1,5 @@
 /* Trang duyệt giáo trình số hoá: /textbooks, /textbooks/{id}, /textbooks/{id}/lessons/{id}
+@import url("../dark-page.css");
    Dùng token trong tokens.css; shell (header/nav) do jlab-base-shell.js dựng. */
 
 /* Chữ Hán trên thumbnail giáo trình tự sinh (unicode-range: trình duyệt chỉ tải nhóm glyph cần dùng). */
@@ -1776,3 +1777,29 @@
   .editor-main .tb-learner-link { flex: 1 1 auto; }
   .editor-main .tb-hero-links { width: 100%; }
 }
+
+/* Plum dark mode */
+html[data-theme="dark"] .textbook-thumb__badge--level { background: var(--dark-raised); color: var(--dark-ink); box-shadow: 0 1px 2px var(--dark-shadow); }
+html[data-theme="dark"] .textbook-thumb { background: var(--dark-raised); }
+html[data-theme="dark"] .textbook-thumb__kanji { color: var(--dark-accent); }
+html[data-theme="dark"] .practice-q__option.is-correct .practice-q__option-no,
+html[data-theme="dark"] .practice-q__option.is-wrong .practice-q__option-no,
+html[data-theme="dark"] .manage-main .manage-chip.is-on { color: var(--dark-on-button); }
+html[data-theme="dark"] .manage-main .manage-bulkbar__result.is-error { background: var(--dark-danger-bg); color: var(--dark-danger); }
+html[data-theme="dark"] .manage-main .manage-filters-toggle__count { color: var(--dark-on-button); }
+html[data-theme="dark"] .manage-main .manage-hit { background: var(--dark-warning-bg); color: var(--dark-warning); }
+html[data-theme="dark"] .kana-fc-overlay { background: var(--dark-shadow); }
+html[data-theme="dark"] .manage-main .manage-bulkbar { box-shadow: 0 8px 28px var(--dark-shadow); }
+html[data-theme="dark"] .editor-dlg__btn--danger { color: var(--dark-on-button); }
+html[data-theme="dark"] .manage-modal__backdrop,
+html[data-theme="dark"] .editor-dlg__backdrop,
+html[data-theme="dark"] .manage-main .manage-filters-backdrop:not([hidden]) { background: var(--dark-shadow); }
+html[data-theme="dark"] .manage-modal__panel,
+html[data-theme="dark"] .editor-dlg { box-shadow: 0 18px 50px var(--dark-shadow); }
+@media (max-width: 760px) {
+  html[data-theme="dark"] .manage-main .manage-filters { box-shadow: -12px 0 32px var(--dark-shadow); }
+}
+html[data-theme="dark"] :is(.manage-input, .manage-select) { background: var(--dark-input); border-color: var(--dark-input-line); color: var(--dark-ink); }
+html[data-theme="dark"] .manage-main :is(input, select, textarea) { caret-color: var(--dark-accent); }
+html[data-theme="dark"] .manage-main :is(input, select, textarea):-webkit-autofill { -webkit-text-fill-color: var(--dark-ink); box-shadow: 0 0 0 1000px var(--dark-input) inset; }
+html[data-theme="dark"] ::selection { background: var(--dark-selection); color: var(--dark-ink); }

@@ -2,10 +2,12 @@ package com.jlas.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.nio.file.Paths;
+import java.time.Duration;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -32,8 +34,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // Every upload gets a new u<id>-<uuid> name and files are never overwritten, so browsers may keep them.
         registry.addResourceHandler("/uploads/avatar/**")
-                .addResourceLocations(avatarLocation);
+                .addResourceLocations(avatarLocation)
+                .setCacheControl(CacheControl.maxAge(Duration.ofDays(365)).cachePublic());
         registry.addResourceHandler("/uploads/flashcard/**")
                 .addResourceLocations(flashcardLocation);
         // Audio giáo trình số hoá [JLAS-W0080]: content_audio.audio_url tương đối trong content.audio.path
