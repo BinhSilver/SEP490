@@ -34,6 +34,20 @@ spring:
   jackson:
     default-property-inclusion: non_null
 
+  # Static: links rendered through Thymeleaf @{} under /css and /js get a content hash in the URL
+  # (base-<md5>.css) and are cached for a year by StaticAssetCacheFilter. Every other static URL is
+  # revalidated (304 when unchanged), so a plain href or an ES-module import never serves a stale file.
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          no-cache: true
+      chain:
+        strategy:
+          content:
+            enabled: true
+            paths: /css/**,/js/**
+
   # Giới hạn chung cho multipart; application-local.yaml có thể đặt lại (ví dụ 100MB cho video shadowing).
   # Từng tính năng vẫn tự kiểm giới hạn riêng (avatar/thumbnail giáo trình 2MB).
   servlet:
@@ -46,6 +60,11 @@ spring:
 server:
   port: 8080
   forward-headers-strategy: none
+  # Spring serves .js as text/javascript, so it must be listed next to application/javascript.
+  compression:
+    enabled: true
+    min-response-size: 1024
+    mime-types: text/html,text/css,text/javascript,application/javascript,application/json,text/plain,text/xml,application/xml,image/svg+xml
 
 game:
   voice:

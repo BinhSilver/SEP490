@@ -235,7 +235,7 @@ public class ConversationPageController {
         String backgroundUrl = freeChat ? null : SceneImageSupport.current(session, scenarioContent);
         if (!freeChat && (backgroundUrl == null || backgroundUrl.isBlank())
                 && scenario.getSlug() != null && !scenario.getSlug().isBlank()) {
-            backgroundUrl = "/images/scenarios/" + scenario.getSlug() + ".png";
+            backgroundUrl = "/images/scenarios/" + scenario.getSlug() + ".webp";
         }
         model.addAttribute("scenarioBackgroundUrl", freeChat ? "" : backgroundUrl);
         return "aicall/conversation";

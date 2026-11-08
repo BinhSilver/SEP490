@@ -18,8 +18,8 @@
     <link rel="stylesheet" th:href="@{/css/components/forms.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/toast.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/theme-switch.css}"/>
-    <link rel="stylesheet" th:href="@{'/css/pages/' + ${pageCss} + '.css' + ${pageCss == 'jlpt-admin' or pageCss == 'kanji-map-admin' or pageCss == 'verb-practice-admin' ? '?v=20261107-portal' : ''}}"/>
-    <link rel="stylesheet" th:href="@{/css/admin-shell.css(v=20261107-theme)}"/>
+    <link rel="stylesheet" th:href="@{'/css/pages/' + ${pageCss} + '.css' + ${(pageCss == 'admin') ? '?v=20261108-admin-bg' : ((pageCss == 'textbooks' or pageCss == 'jpath-admin') ? '?v=20261108-plum' : ((pageCss == 'jlpt-admin' or pageCss == 'kanji-map-admin' or pageCss == 'verb-practice-admin') ? '?v=20261107-portal' : ''))}}"/>
+    <link rel="stylesheet" th:href="@{/css/admin-shell.css(v=20261108-admin-bg)}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
     <script th:src="@{/js/auth-session.js(v=20261013portal)}"></script>
     <script th:src="@{/js/components.js}"></script>
