@@ -226,6 +226,11 @@
     return 'unknown';
   }
 
+  function isIos() {
+    return /iP(hone|od|ad)/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+
   /**
    * Gán giọng cho từng vai của bài (ổn định: cùng vai → cùng giọng, cùng pitch/rate trong suốt bài).
    * Với mỗi vai: hồ sơ theo voice_code → ứng viên = giọng đúng giới tính (+ giọng không rõ giới tính),
@@ -237,7 +242,7 @@
     var usage = {};
     (lesson.dialogueRoles || []).forEach(function (role) {
       var profile = VOICE_PROFILES[role.voiceCode] || DEFAULT_PROFILE;
-      var pool = jaVoices.filter(function (v) { var g = voiceGender(v); return g === profile.gender || g === 'unknown'; });
+      var pool = isIos() ? [jaVoice] : jaVoices.filter(function (v) { var g = voiceGender(v); return g === profile.gender || g === 'unknown'; });
       if (pool.length === 0) pool = jaVoices;
       var pick = pool[0];
       pool.forEach(function (v) { if ((usage[v.name] || 0) < (usage[pick.name] || 0)) pick = v; });
@@ -293,19 +298,30 @@
     if (!jaVoice || !text) { btn.hidden = true; return; }
     // Lời thoại: giọng + pitch/rate theo vai (roleVoices); mục khác: giọng mặc định, đọc chậm vừa.
     var rv = roleVoices[btn.getAttribute('data-role-id')];
-    try {
-      var u = new SpeechSynthesisUtterance(text);
-      u.voice = rv ? rv.voice : jaVoice;
-      u.lang = u.voice.lang || 'ja-JP';
-      u.rate = rv ? rv.rate : (NEW_UI ? 0.85 : 0.9);
-      u.pitch = rv ? rv.pitch : 1.0;
-      btn.classList.add('is-playing', 'is-tts');
-      btn.title = 'Giọng máy (' + u.voice.name + (rv ? ', vai ' + rv.code + ' pitch ' + rv.pitch + ' rate ' + rv.rate : '') + ')';
-      u.onend = u.onerror = function () { if (currentBtn === btn) stopCurrent(); };
-      window.speechSynthesis.speak(u);
-    } catch (e) {
-      stopCurrent();
+    var isRoleVoice = !!rv && rv.voice !== jaVoice;
+    var retried = false;
+    function speak(voice) {
+      try {
+        var u = new SpeechSynthesisUtterance(text);
+        u.voice = voice;
+        u.lang = voice.lang || 'ja-JP';
+        u.rate = rv ? rv.rate : (NEW_UI ? 0.85 : 0.9);
+        u.pitch = rv ? rv.pitch : 1.0;
+        btn.classList.add('is-playing', 'is-tts');
+        btn.title = 'Giọng máy (' + voice.name + (rv ? ', vai ' + rv.code + ' pitch ' + rv.pitch + ' rate ' + rv.rate : '') + ')';
+        u.onend = function () { if (currentBtn === btn) stopCurrent(); };
+        u.onerror = function () {
+          if (isRoleVoice && !retried && currentBtn === btn) {
+            retried = true;
+            speak(jaVoice);
+          } else if (currentBtn === btn) stopCurrent();
+        };
+        window.speechSynthesis.speak(u);
+      } catch (e) {
+        stopCurrent();
+      }
     }
+    speak(rv ? rv.voice : jaVoice);
   }
 
   function playFile(src, text, btn) {
