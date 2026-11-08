@@ -1,6 +1,8 @@
 package com.jlas.config;
 
 import com.jlas.auth.security.JwtAuthenticationFilter;
+import com.jlas.moderation.security.BanEnforcementFilter;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,38 +30,72 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final BanEnforcementFilter banEnforcementFilter;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.disable())
+                        .addHeaderWriter((request, response) -> {
+                            // Only this admin preview can be embedded by the same website.
+                            boolean preview = request.getRequestURI().equals(
+                                    request.getContextPath() + "/admin/game-effects/preview");
+                            response.setHeader("X-Frame-Options", preview ? "SAMEORIGIN" : "DENY");
+                        }))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(errors -> errors
                         .authenticationEntryPoint((request, response, exception) ->
                                 handleUnauthenticated(request, response))
                         .accessDeniedHandler((request, response, exception) ->
-                                writeSecurityError(response, HttpServletResponse.SC_FORBIDDEN,
-                                        "Bạn không có quyền thực hiện thao tác này.", "FORBIDDEN")))
+                                handleAccessDenied(request, response)))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/moderation.html", "/api/admin/moderation/**")
-                        .hasAnyRole("MODERATOR", "ADMIN", "SUPER_ADMIN")
-                        .requestMatchers("/", "/login", "/register", "/forgot-password", "/verify-email",
-                                "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/retention-demo", "/error").permitAll()
+                        // Arena SSE completes through an async dispatch of an authenticated request.
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
+                        .requestMatchers("/admin/kanji-map", "/api/admin/kanji-map/**").hasRole("CONTENT_CREATOR")
+                        .requestMatchers("/admin/jlpt", "/admin/jlpt/**", "/api/admin/jlpt/**")
+                        .hasRole("CONTENT_CREATOR")
+                        .requestMatchers("/admin/verb-practice", "/api/admin/verb-practice/**")
+                        .hasRole("CONTENT_CREATOR")
+                        // JLAS2-51: System Admin area; moderators have no access.
+                        .requestMatchers("/admin/system", "/admin/system/**", "/api/admin/system/**")
+                        .hasRole("ADMIN")
+                        // System Admin also runs moderation (incl. sanctions); MODERATOR has moderation only.
+                        .requestMatchers("/admin", "/admin/").hasAnyRole("MODERATOR", "ADMIN")
+                        // JLAS-W0250: shared admin workspace; each API narrows access further.
+                        .requestMatchers("/admin/game-skins", "/api/admin/game-skins", "/api/admin/game-skins/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/admin/avatar-frames", "/api/admin/avatar-frames", "/api/admin/avatar-frames/**")
+                        .hasRole("ADMIN")
+                        // [JLAS-W0108] Báo sai lộ trình JLPT: hàng chờ người biên soạn.
+                        .requestMatchers("/admin/learning-path", "/admin/learning-path/**", "/api/admin/learning-path/**")
+                        .hasAnyRole("CONTENT_CREATOR", "ADMIN")
+                        .requestMatchers("/admin/**", "/api/admin/moderation/**")
+                        .hasAnyRole("MODERATOR", "ADMIN")
+                        .requestMatchers("/", "/premium", "/credits", "/login", "/register", "/forgot-password", "/verify-email",
+                                "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error").permitAll()
+                        .requestMatchers("/dictionary/kanji-map", "/dictionary/kanji-map.html").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
-                                "/videos/**", "/voices/**", "/flashcard/**", "/shadowing/css/**",
+                                "/arena/js/**", "/arena/images/**", "/arena/app/**", "/arena/audio/memory/**",
+                                "/videos/**", "/voices/**", "/audio/**", "/JLPT/**", "/flashcard/**", "/shadowing/css/**",
                                 "/shadowing/js/**", "/shadowing/icon/**",
                                 "/uploads/**", "/favicon.ico", "/*.png", "/*.svg", "/*.webp").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/refresh",
                                 "/api/auth/logout", "/api/auth/verify-email", "/api/auth/resend-verification",
                                 "/api/auth/forgot-password", "/api/auth/verify-reset-otp", "/api/auth/reset-password", "/api/auth/google").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/dictionary/**", "/api/assessment/**",
+                        .requestMatchers(HttpMethod.GET, "/api/learning/lessons/*/quiz").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/premium/plans", "/api/credits/packages", "/api/dictionary/**", "/api/assessment/**",
                                 "/api/learning/curriculum", "/api/learning/lessons/**",
                                 "/api/flashcards/public", "/api/flashcards/*", "/api/flashcards/*/comments").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                        // Danh mục hiển thị khung avatar: khung hiện cả ở trang không cần đăng nhập.
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/avatar-frames").permitAll()
                         .requestMatchers("/appeal.html", "/api/appeals/**", "/api/credits/**").authenticated()
+                        .requestMatchers("/api/mission/kana-connect/**").authenticated()
                         .requestMatchers(
                                 "/shadowing", "/shadowing/", "/shadowing/upload",
-                                "/shadowing/create/**", "/shadowing/editor/**", "/shadowing/practice/**",
+                                "/shadowing/create/**", "/shadowing/editor/**", "/shadowing/prepare/**", "/shadowing/practice/**",
                                 "/shadowing/exercise/**", "/shadowing/player/**", "/shadowing/series/**",
                                 "/shadowing/conversation/**", "/create/**", "/editor/**", "/player/**",
                                 "/api/videos/**", "/api/series/**", "/api/youtube/**",
@@ -68,6 +104,7 @@ public class SecurityConfig {
                         .authenticated()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(banEnforcementFilter, JwtAuthenticationFilter.class)
                 .build();
     }
 
@@ -85,8 +122,28 @@ public class SecurityConfig {
                 + "\",\"data\":null,\"errors\":null,\"code\":\"" + code + "\"}");
     }
 
+    /** Pages get the designed error page (templates/error.html, 403 branch); APIs keep the JSON body. */
+    private static void handleAccessDenied(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        if (!request.getRequestURI().startsWith("/api/")) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+        writeSecurityError(response, HttpServletResponse.SC_FORBIDDEN,
+                "Bạn không có quyền thực hiện thao tác này.", "FORBIDDEN");
+    }
+
     private static void handleUnauthenticated(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
+        if (Boolean.TRUE.equals(request.getAttribute(JwtAuthenticationFilter.ACCOUNT_LOCKED_ATTRIBUTE))) {
+            if (request.getRequestURI().startsWith("/api/")) {
+                writeSecurityError(response, HttpServletResponse.SC_FORBIDDEN,
+                        "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.", "ACCOUNT_LOCKED");
+            } else {
+                response.sendRedirect("/login?locked=1");
+            }
+            return;
+        }
         if (!request.getRequestURI().startsWith("/api/")) {
             String returnUrl = request.getRequestURI();
             if (request.getQueryString() != null && !request.getQueryString().isBlank()) {

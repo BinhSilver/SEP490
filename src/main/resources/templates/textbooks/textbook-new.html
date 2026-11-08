@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<!-- [JLAS2-17] Cổng quản trị (giống manage.html): admin-head + #adminShellMount; main hiện khi AdminShell xác nhận quyền. -->
+<head th:replace="~{fragments/admin-head :: head('Tạo giáo trình - JLAS', 'textbooks')}"></head>
+
+<body id="jlabBasePage" class="admin-portal page-textbooks">
+
+    <div id="adminShellMount"></div>
+
+    <!-- [JLAS2-17] Trang tạo giáo trình 3 bước (thay modal "Thêm giáo trình"). Style: css/pages/admin-create.css
+         (scope .admin-create-page); logic: js/pages/admin-create.js. API: POST /api/dictionary/textbooks + upload thumbnail. -->
+    <link rel="stylesheet" th:href="@{/css/pages/admin-create.css(v=20261017ap)}" />
+
+    <main id="jlabBaseContent" class="app-main textbooks-main admin-create-page" hidden data-create="textbook">
+        <nav class="textbooks-breadcrumb" aria-label="Breadcrumb">
+            <a th:href="@{/textbooks/manage}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Quản lý nội dung</a>
+            <span aria-hidden="true">/</span>
+            <span>Tạo giáo trình</span>
+        </nav>
+
+        <header class="ac-head">
+            <h1 class="ac-head__title">Tạo giáo trình</h1>
+            <p class="ac-head__desc">Ba bước ngắn: thông tin, ảnh bìa, xem lại. Giáo trình mới được lưu ở trạng thái Nháp.</p>
+        </header>
+
+        <div class="ac-denied" id="acDenied" role="alert" hidden>
+            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+            Chỉ tài khoản người biên soạn nội dung (CONTENT_CREATOR) mới tạo được giáo trình.
+        </div>
+
+        <!-- Stepper + thanh tiến độ, nội dung từng bước, cột xem trước: do admin-create.js vẽ -->
+        <div id="acRoot"></div>
+    </main>
+
+    <div th:replace="~{fragments/components/toast :: toast-host}"></div>
+
+    <script th:src="@{/js/pages/admin-core.js(v=20261107-system-admin)}"></script>
+    <script th:src="@{/js/admin-shell.js(v=20261107-theme)}"></script>
+    <script th:src="@{/js/pages/admin-create.js(v=20261017ap)}"></script>
+
+</body>
+
+</html>

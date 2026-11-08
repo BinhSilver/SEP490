@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この部屋は冬になると寒くてかなわない。",
+       "ja_furigana": "この部屋(へや)は冬(ふゆ)になると寒(さむ)くてかなわない。",
+       "vi": "Căn phòng này cứ đến mùa đông là lạnh không chịu nổi."
+      },
+      {
+       "ja": "電車が毎朝混んでいてかなわない。",
+       "ja_furigana": "電車(でんしゃ)が毎朝(まいあさ)混(こ)んでいてかなわない。",
+       "vi": "Tàu điện sáng nào cũng đông, thật không chịu nổi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "隣の工事がうるさくてかなわない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công trình bên cạnh ồn không chịu nổi."
+     },
+     {
+      "ja": "この部屋、蒸し暑くてかなわないね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Căn phòng này oi bức chịu không nổi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 隣の工事がうるさくてかなわない。",
+     "FURIGANA_MISSING: この部屋、蒸し暑くてかなわないね。"
+    ],
+    "formation": "V-て / Aい(〜くて) / Aな(で) + かなわない",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả cảm giác “không chịu nổi/vô cùng khó chịu/phiền toái” của người nói trước một nguyên nhân nào đó. Chỉ dùng với ý nghĩa tiêu cực/than phiền. Mạnh hơn ～てしょうがない/～てたまらない khi phàn nàn. Thường đi với tính từ như うるさい／暑い／迷惑だ／不便だ／くさい…, hoặc nguyên nhân cụ thể: 人が多くてかなわない.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không chịu được..., phát bực...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Khẩu ngữ than phiền mạnh; tránh dùng trong văn phong lịch sự hướng lên trên trừ khi điều chỉnh: ～てかないません（hiếm, cổ). Thực tế dùng かなわない. Chủ thể là người nói hoặc suy đoán gần; không gán cho người khác nếu không có dấu hiệu cảm nhận của họ. Hay đi kèm nguyên nhân rõ, giúp câu tự nhiên hơn: 風が強くてかなわない／匂いがきつくてかなわない. [6. Ghi chú mở rộng] “かなわない” gốc là “không địch nổi/không chịu nổi”, thường viết kana. Dạng “～てはかなわない” cũng gặp trong văn viết: そんなことをされてはかなわない（không thể chịu nổi nếu bị làm thế). Tránh dùng với ý tích cực: ×嬉しくてかなわない（thay bằng たまらない/しょうがない). [7. Biến thể & cụm cố định] うるさくてかなわない／暑くてかなわない／寒くてかなわない 迷惑でかなわない／不便でかなわない／くさくてかなわない ～られてかなわない（bị động gây khó chịu）：批判されてかなわない [8. Lỗi thường gặp & bẫy JLPT] Dùng với tính từ tích cực: ×楽しくてかなわない → sai sắc thái. Không nêu nguyên nhân rõ, câu dễ mơ hồ: nên thêm tác nhân/hoàn cảnh “隣の犬が…” Gán cảm xúc người khác trực tiếp: ×彼は暑くてかなわないと思う → nếu đoán, thêm ようだ／らしい."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2b051357d3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大阪をはじめとして、西日本の各地で雨が強まっている。",
+       "ja_furigana": "大阪(おおさか)をはじめとして、西日本(にしにほん)の各地(かくち)で雨(あめ)が強(つよ)まっている。",
+       "vi": "Bắt đầu từ Osaka, mưa đang mạnh lên ở nhiều nơi miền Tây Nhật Bản."
+      },
+      {
+       "ja": "部長をはじめとして、課の全員が残業した。",
+       "ja_furigana": "部長(ぶちょう)をはじめとして、課(か)の全員(ぜんいん)が残業(ざんぎょう)した。",
+       "vi": "Bắt đầu từ trưởng phòng, toàn bộ nhân viên trong ban đều làm thêm giờ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "東京をはじめとして、各地で桜が見頃を迎えている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bắt đầu từ Tokyo, nhiều nơi hoa anh đào đang vào độ đẹp nhất."
+     },
+     {
+      "ja": "社長をはじめとして、多くの関係者が出席した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đứng đầu là giám đốc, nhiều người liên quan đã tham dự."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 東京をはじめとして、各地で桜が見頃を迎えている。",
+     "FURIGANA_MISSING: 社長をはじめとして、多くの関係者が出席した。"
+    ],
+    "formation": "N + をはじめとして",
+    "locked_fields": [],
+    "meaning_vi": "“Bắt đầu từ N, bao gồm cả những đối tượng khác cùng loại.” Nhấn điểm khởi nguồn/điển hình (N) rồi mở rộng phạm vi rộng hơn. Phong cách thông tin chính thức: phát biểu, báo cáo, bài báo.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Lấy... làm đầu, tiêu biểu",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt đầu câu để dẫn vào phạm vi tổng quát hơn. Trang trọng hơn “〜をはじめ,” nhưng nghĩa cơ bản giống; chọn theo văn cảnh. N phải là phần tử tiêu biểu/đại diện của một tập hợp lớn hơn. Thường đi kèm các danh từ chỉ địa danh, chức danh, nhóm người, hạng mục. [6. Ghi chú mở rộng] Trong bản tin địa phương: 地名 + をはじめとして/に, rất thường gặp. Khi N là người bậc trên (社長・校長), tạo sắc thái kính trọng lịch sự. Không dùng để liệt kê đầy đủ; ám chỉ còn nhiều thành phần khác. [7. Biến thể & cụm cố định] Nをはじめとして、〜 Nをはじめ、〜 NをはじめとするN (xem mục 276) [8. Lỗi thường gặp & bẫy JLPT] Nhầm với “〜をはじめに(して)”: cái này chỉ trình tự “bắt đầu bằng ... làm trước”. Dùng khi không có phạm vi mở rộng: × 社長をはじめとして、社長が来た。 Chọn chủ thể không tiêu biểu: dùng N quá nhỏ/lẻ sẽ không tự nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5105240a2a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "意外なことに、彼はもう全部覚えてしまった。",
+       "ja_furigana": "意外(いがい)なことに、彼(かれ)はもう全部(ぜんぶ)覚(おぼ)えてしまった。",
+       "vi": "Điều bất ngờ là anh ấy đã nhớ hết rồi."
+      },
+      {
+       "ja": "ありがたいことに、雨がやんで青空が見えてきた。",
+       "ja_furigana": "ありがたいことに、雨(あめ)がやんで青空(あおぞら)が見(み)えてきた。",
+       "vi": "Thật may là mưa đã tạnh và bầu trời xanh đã hiện ra."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "うれしいことに、第一志望の大学に合格した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thật vui là tôi đã đỗ trường nguyện vọng một."
+     },
+     {
+      "ja": "残念なことに、会議は延期になった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thật tiếc là cuộc họp đã bị hoãn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: うれしいことに、第一志望の大学に合格した。",
+     "FURIGANA_MISSING: 残念なことに、会議は延期になった。"
+    ],
+    "formation": "Vた / Aい / Aな + ことに",
+    "locked_fields": [],
+    "meaning_vi": "～ことに: “Thật là … thay/Thật … là” — đưa cảm xúc/đánh giá chủ quan của người nói ở đầu câu, làm khung cảm thán trang trọng/viết. Đi với tính từ/động từ biểu thị cảm xúc/đánh giá: うれしい・残念だ・残念ながら（khác)・困る・驚く・ありがたい・幸いだ・面白い・不思議だ. Nhấn mạnh mức độ cảm xúc của người nói đối với nội dung theo sau. Phong cách trang trọng hơn so với て嬉しい/てよかった.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Thật là..., vô cùng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường đứng đầu câu/mệnh đề, sau đó là sự việc khách quan. Tạo giọng văn trang trọng, lịch sự; phù hợp viết luận, thuyết trình. Không dùng cho mệnh lệnh/ý chí trực tiếp. Dùng để bộc lộ cảm xúc trước khi mô tả sự việc. Với Aな cần “な”: 残念なことに／幸いなことに. [6. Ghi chú mở rộng] “驚いたことに/困ったことに/面白いことに/皮肉なことに” là cụm hay gặp trong văn viết. Đặt giữa câu cũng được khi mệnh đề phụ: 彼が来なかったのは、残念なことに、連絡が取れなかったからだ。 Với Vた + ことに: động từ nên là loại biểu thị cảm xúc trải nghiệm (驚く・困る), không phải động từ hành động thông thường. [7. Biến thể & cụm cố định] ありがたいことに／幸いなことに（may mắn, biết ơn） 残念なことに／困ったことに（tiếc, khổ nỗi） 驚いたことに／不思議なことに／面白いことに（ngạc nhiên, lạ thay） 皮肉なことに（trớ trêu thay） [8. Lỗi thường gặp & bẫy JLPT] Bỏ “な” với Aな: “残念ことに” → sai; đúng: 残念なことに. Dùng với tính từ không mang sắc thái cảm xúc (例: 高いことに) → gượng. Chọn tính từ đánh giá/cảm xúc. Kết hợp với mệnh lệnh/ý chí: “うれしいことに、行きましょう” → không tự nhiên. Nên tách cảm xúc và đề nghị bằng cấu trúc khác. JLPT: nhận diện vị trí đầu câu và tính từ cảm xúc để chọn 〜ことに thay vì 〜てうれしい/〜とは."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-989fe1ee06"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "数学をはじめ、理科の科目はどれも難しい。",
+       "ja_furigana": "数学(すうがく)をはじめ、理科(りか)の科目(かもく)はどれも難(むずか)しい。",
+       "vi": "Bắt đầu từ toán, các môn khoa học tự nhiên đều khó."
+      },
+      {
+       "ja": "社長をはじめ、役員の皆さんが会議に出た。",
+       "ja_furigana": "社長(しゃちょう)をはじめ、役員(やくいん)の皆(みな)さんが会議(かいぎ)に出(で)た。",
+       "vi": "Đứng đầu là giám đốc, các thành viên ban lãnh đạo đều dự họp."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "社長をはじめ、役員の皆様にご出席いただきました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đứng đầu là giám đốc, các lãnh đạo đã có mặt."
+     },
+     {
+      "ja": "日本をはじめ、世界各国で支持を集めている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không chỉ ở Nhật mà còn được ủng hộ trên khắp thế giới."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 社長をはじめ、役員の皆様にご出席いただきました。",
+     "FURIGANA_MISSING: 日本をはじめ、世界各国で支持を集めている。"
+    ],
+    "formation": "N + をはじめ",
+    "locked_fields": [],
+    "meaning_vi": "Nêu một ví dụ tiêu biểu “đứng đầu” rồi hàm ý còn nhiều đối tượng tương tự khác. Sắc thái trang trọng, hay dùng trong bài viết, phát biểu, tin tức. Không dùng khi chỉ có duy nhất N đó; phải có ngầm định thêm các mục khác. N có thể là người, tổ chức, địa điểm, hạng mục: 社長／日本／東京／数学など。",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tiêu biểu là..., điển hình...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Vị trí thường ở đầu câu, tạo trường ngữ cảnh “tiêu biểu + mở rộng”. Trang trọng hơn など・とか; phù hợp văn bản chính thức, báo chí. Đi với danh từ đếm được hoặc phạm trù có nhiều phần tử. Tránh dùng khi liệt kê đầy đủ; mẫu này hàm ý còn nữa, không toàn bộ. [6. Ghi chú mở rộng] Cụm thường gặp: 日本をはじめ、〜各国／社長をはじめ、〜関係者／Aをはじめ、B・Cが。 Về ngữ điệu: ngắt nhẹ sau をはじめ khi nói. Trong tiêu đề/bản tin thích hợp cho giọng điệu trang trọng súc tích. [7. Biến thể & cụm cố định] Nをはじめ (trạng ngữ) Nをはじめとして (trạng ngữ, trang trọng hơn) NをはじめとするN (định ngữ) [8. Lỗi thường gặp & bẫy JLPT] Dùng khi chỉ có một phần tử: × 日本をはじめ、参加国は日本だけ。 Sai phân biệt với “〜をはじめに(して)”: mẫu này nói về thứ tự bắt đầu làm gì (khác nghĩa). Sai vị trí: thường đặt đầu câu; nếu giữa câu cần bảo đảm vẫn là trạng ngữ rõ ràng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7969c3eeb3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "新しい空港の建設計画をめぐって、市民の意見が分かれた。",
+       "ja_furigana": "新(あたら)しい空港(くうこう)の建設計画(けんせつけいかく)をめぐって、市民(しみん)の意見(いけん)が分(わ)かれた。",
+       "vi": "Xoay quanh kế hoạch xây sân bay mới, ý kiến của người dân chia rẽ."
+      },
+      {
+       "ja": "土地の使い方をめぐって、家族の間で争いが起きた。",
+       "ja_furigana": "土地(とち)の使(つか)い方(かた)をめぐって、家族(かぞく)の間(あいだ)で争(あらそ)いが起(お)きた。",
+       "vi": "Xoay quanh cách sử dụng đất, trong gia đình đã nổ ra tranh chấp."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "遺産をめぐって兄弟が対立している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh em đang đối đầu xoay quanh chuyện thừa kế."
+     },
+     {
+      "ja": "新工場の建設計画をめぐって、住民の間で賛否が分かれている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xoay quanh kế hoạch xây nhà máy mới, dân cư chia thành phe tán thành và phản đối."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 遺産をめぐって兄弟が対立している。",
+     "FURIGANA_MISSING: 新工場の建設計画をめぐって、住民の間で賛否が分かれている。"
+    ],
+    "formation": "N + をめぐって / をめぐる + N",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả sự việc “xoay quanh” một chủ đề/vấn đề làm trung tâm, liên quan nhiều phía, thường có tranh luận, đối lập, đồn đoán, thương lượng. Hàm ý phạm vi rộng (xã hội, tổ chức, nhiều bên tham gia) hơn các mẫu trung tính như ～について/～に関して. Đi kèm tự nhiên với các động từ/biểu hiện: 議論する, 争う, 対立する, 賛否が分かれる, 噂が広まる, 交渉する, 訴訟になる, 騒動になる, 世論が割れる. Về sắc thái: trang trọng, văn viết/báo chí; tránh dùng cho chuyện nhỏ, cá nhân hằng ngày nếu không có yếu tố “đa phía”. Không đặt trước mệnh đề (clause); thành tố trước を là danh từ thuần.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Xoay quanh..., liên quan đến...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi có nhiều ý kiến/nhóm lợi ích khác nhau liên quan đến một chủ đề trung tâm. Thường dùng trong tin tức, báo cáo, văn phong khách quan; tạo cảm giác “vấn đề xã hội”. Không tự nhiên nếu dùng cho hành động mang tính cá nhân nhỏ lẻ (ví dụ: 昼ご飯をめぐって友達と話す → nên dùng について). Không đi trực tiếp trước danh từ (NをめぐるN mới là hình thái bổ nghĩa). Chủ thể thường là số nhiều/không xác định (人々/住民/関係者/世論), hoặc tổ chức/nhà nước. [6. Ghi chú mở rộng] Thường thấy trong tiêu đề báo: ～をめぐり (dạng liên dụng 連用形 của ～をめぐる) cũng dùng tương đương ～をめぐって trong tiêu đề. Ngữ cảm “đa phương” khiến câu khách quan hơn, phù hợp văn phong phân tích, bình luận. Không nên dùng với chủ đề không có “độ nóng” hay tranh luận (vd: 趣味をめぐって → nghe gượng nếu không có mâu thuẫn). [7. Biến thể & cụm cố định] ～をめぐって/～を巡って（cả hai chính tả đều dùng được） ～をめぐるＮ（dạng bổ nghĩa danh từ; xem mục riêng） Collocation tự nhiên: ～をめぐって 議論する／論争になる／対立する／争う 賛否が分かれる／世論が割れる 交渉する／訴訟に発展する／騒動になる 噂が飛び交う／報道が相次ぐ [8. Lỗi thường gặp & bẫy JLPT] Lẫn lộn với ～について: đề bài JLPT hay kiểm tra sắc thái “đối lập/đa phía”. Chọn ～をめぐって khi có từ khóa 賛否/対立/論争. Dùng ～をめぐって để bổ nghĩa danh từ là sai: 環境問題をめぐって議論 → đúng; 環境問題をめぐって議論「×」(làm modifier). Phải dùng ～をめぐる議論. Đặt sau mệnh đề là sai: 「人々が関心を持っていることをめぐって」→ phải rút gọn còn danh từ: 「関心事をめぐって」. Dùng cho chuyện vặt vãnh đời thường → nghe cường điệu, không tự nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c76fe64627"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "急に雨が降ってきたため、試合を中止する次第です。",
+       "ja_furigana": "急(きゅう)に雨(あめ)が降(ふ)ってきたため、試合(しあい)を中止(ちゅうし)する次第(しだい)です。",
+       "vi": "Vì trời bỗng đổ mưa nên chúng tôi đành phải hủy trận đấu."
+      },
+      {
+       "ja": "皆様のご協力のおかげで、無事に終えることができた次第です。",
+       "ja_furigana": "皆様(みなさま)のご協力(きょうりょく)のおかげで、無事(ぶじ)に終(お)えることができた次第(しだい)です。",
+       "vi": "Nhờ sự hợp tác của mọi người, chúng tôi đã có thể hoàn thành một cách suôn sẻ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "このたび担当が替りましたので、あいさつに伺った次第です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lần này thay đổi người phụ trách vì thế mà đã đến chào hỏi."
+     },
+     {
+      "ja": "日時の変更について、改めてお知らせする次第です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Về việc thay đổi ngày giờ, tôi sẽ thông báo vào lúc khác."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: このたび担当が替りましたので、あいさつに伺った次第です。",
+     "FURIGANA_MISSING: 日時の変更について、改めてお知らせする次第です。"
+    ],
+    "formation": "Vる / Vた + 次第です",
+    "locked_fields": [],
+    "meaning_vi": "Với lý do, Có nghĩa là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜伺った次第です",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Giải thích lý do hoặc sự tình rằng “vì vậy mà có kết quả thế này”. Sử dụng trong văn trịnh trọng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1579654620"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この教科書は小学生向けに書かれている。",
+       "ja_furigana": "この教科書(きょうかしょ)は小学生(しょうがくせい)向(む)けに書(か)かれている。",
+       "vi": "Cuốn sách giáo khoa này được viết dành cho học sinh tiểu học."
+      },
+      {
+       "ja": "大人向けの映画なので、子どもには少し難しい。",
+       "ja_furigana": "大人(おとな)向(む)けの映画(えいが)なので、子(こ)どもには少(すこ)し難(むずか)しい。",
+       "vi": "Vì là phim dành cho người lớn nên trẻ con hơi khó hiểu."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "それは、初心者向けの教科書です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sách giáo khoa này dành cho người mới bắt đầu."
+     },
+     {
+      "ja": "この製品の生産は、国内向けも、海外輸出向けも、ともに増加した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Việc sản xuất sản phẩm này, hướng đến quốc nội cũng như hướng đến xuất khảu nước ngoài đều tăng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: それは、初心者向けの教科書です。",
+     "FURIGANA_MISSING: この製品の生産は、国内向けも、海外輸出向けも、ともに増加した。"
+    ],
+    "formation": "N + 向け / N + 向けの + N",
+    "locked_fields": [],
+    "meaning_vi": "Dành cho ～; thích hợp với",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜初心者向け",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "N向け: lấy danh từ làm đối đượng. Đã đặc biệt làm thích hợp cho ～. N向き: đúng, thích hợp với."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-07f80398b3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅行に行けるかどうかは、お金次第だ。",
+       "ja_furigana": "旅行(りょこう)に行(い)けるかどうかは、お金(かね)次第(しだい)だ。",
+       "vi": "Có đi du lịch được hay không là tùy vào tiền."
+      },
+      {
+       "ja": "この仕事の結果は、君の努力次第で変わる。",
+       "ja_furigana": "この仕事(しごと)の結果(けっか)は、君(きみ)の努力(どりょく)次第(しだい)で変(か)わる。",
+       "vi": "Kết quả công việc này sẽ thay đổi tùy vào nỗ lực của cậu."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "花火大会は天気次第で中止になる場合もあります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lễ hội pháo hoa thì có cả trường hợp tạm dừng tùy thuộc vào thời tiết."
+     },
+     {
+      "ja": "仕事は紹介するが、うまくいくかどうかは本人次第だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giới thiệu công việc đấy nhưng mà làm giỏi hay không là tùy thuộc vào chính bản thân người đó."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 花火大会は天気次第で中止になる場合もあります。",
+     "FURIGANA_MISSING: 仕事は紹介するが、うまくいくかどうかは本人次第だ。"
+    ],
+    "formation": "N + 次第で / N + 次第だ",
+    "locked_fields": [],
+    "meaning_vi": "Tùy thuộc…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜天気次第で",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu đạt ý tuỳ thuộc vào ～ mà đưa ra quyết định cho một việc nào đó, hoặc trong trường hợp của sự việc nào đó thì cũng có chuyện là ～"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-87c31ec63d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "部長が戻り次第、すぐに会議を始めます。",
+       "ja_furigana": "部長(ぶちょう)が戻(もど)り次第(しだい)、すぐに会議(かいぎ)を始(はじ)めます。",
+       "vi": "Ngay khi trưởng phòng quay lại, chúng tôi sẽ bắt đầu họp."
+      },
+      {
+       "ja": "結果が出次第、電話で連絡します。",
+       "ja_furigana": "結果(けっか)が出(で)次第(しだい)、電話(でんわ)で連絡(れんらく)します。",
+       "vi": "Ngay khi có kết quả, tôi sẽ liên lạc qua điện thoại."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "では、田中が戻り次第、お電話させます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vậy thì, ngay khi anh Tanaka quay lại tôi sẽ bảo gọi điện."
+     },
+     {
+      "ja": "決まり次第、ご連絡いたします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngay khi quyết định, tôi sẽ liên lạc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: では、田中が戻り次第、お電話させます。",
+     "FURIGANA_MISSING: 決まり次第、ご連絡いたします。"
+    ],
+    "formation": "Vます + 次第",
+    "locked_fields": [],
+    "meaning_vi": "Ngay khi…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜戻り次第",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Thường sử dụng khi muốn truyền đạt ý chí sẽ làm một việc ngay sau khi ～ xảy ra."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-94b3a55d55"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お菓子は子どもたちが全部食べきってしまった。",
+       "ja_furigana": "お菓子(かし)は子(こ)どもたちが全部(ぜんぶ)食(た)べきってしまった。",
+       "vi": "Bánh kẹo đã bị bọn trẻ ăn hết sạch."
+      },
+      {
+       "ja": "この本は一日で読みきれるほど薄い。",
+       "ja_furigana": "この本(ほん)は一日(いちにち)で読(よ)みきれるほど薄(うす)い。",
+       "vi": "Cuốn sách này mỏng đến mức đọc hết trong một ngày."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "A: あのー、『ABC』の5月号はありますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A: ừ... Có số tháng 5 của 'ABC' không ạ?"
+     },
+     {
+      "ja": "B: すみません、売りきれてしまったんです。明日、また入ります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "B: Xin lỗi, đã bán hết rồi. Ngày mai sẽ về hàng lại."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: A: あのー、『ABC』の5月号はありますか。",
+     "FURIGANA_MISSING: B: すみません、売りきれてしまったんです。明日、また入ります。"
+    ],
+    "formation": "Vます + きれる",
+    "locked_fields": [],
+    "meaning_vi": "Làm hết sạch, dùng hết hoàn toàn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜きれる",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-88b94d86c1"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-042"
+}

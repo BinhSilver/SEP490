@@ -13,10 +13,11 @@
   var backToRegisterBtn = document.getElementById('backToRegisterBtn');
   var fullNameInput = document.getElementById('fullName');
   var emailInput = document.getElementById('email');
+  var dateOfBirthInput = document.getElementById('dateOfBirth');
   var passwordInput = document.getElementById('password');
   var confirmPasswordInput = document.getElementById('confirmPassword');
   var otpDigits = Array.from(document.querySelectorAll('.otp-digit'));
-  var REGISTER_FIELDS = ['fullName', 'email', 'password', 'confirmPassword'];
+  var REGISTER_FIELDS = ['fullName', 'email', 'dateOfBirth', 'password', 'confirmPassword'];
   var FULL_NAME_PATTERN = /^\p{Script=Latin}[\p{Script=Latin}\p{M}]*(?: \p{Script=Latin}[\p{Script=Latin}\p{M}]*)*$/u;
   var PASSWORD_RULES = {
     length: function (value) { return value.length >= 8 && value.length <= 100; },
@@ -65,6 +66,15 @@
     return FULL_NAME_PATTERN.test(value);
   }
 
+  /** yyyy-mm-dd strings compare like dates; the server checks the same range again. */
+  function dateOfBirthError() {
+    var value = dateOfBirthInput.value;
+    if (dateOfBirthInput.validity.badInput) return 'Ngày sinh chưa hợp lệ.';
+    if (!value) return 'Vui lòng nhập ngày sinh.';
+    if (value < dateOfBirthInput.min || value > dateOfBirthInput.max) return 'Tuổi phải từ 6 đến 120.';
+    return '';
+  }
+
   function validateRegistration() {
     JLabAuth.clearFieldErrors(REGISTER_FIELDS);
     var fullName = fullNameInput.value.trim();
@@ -82,10 +92,11 @@
     } else if (!emailInput.validity.valid) {
       JLabAuth.setFieldError('email', 'Email chưa đúng định dạng.');
     }
+    JLabAuth.setFieldError('dateOfBirth', dateOfBirthError());
     if (!passwordInput.value) {
       JLabAuth.setFieldError('password', 'Vui lòng tạo mật khẩu.');
     } else if (!isPasswordStrong(passwordInput.value)) {
-      JLabAuth.setFieldError('password', 'Mật khẩu chưa đáp ứng đủ các yêu cầu bên dưới.');
+      JLabAuth.setFieldError('password', 'Mật khẩu chưa đáp ứng đủ các yêu cầu bên trên.');
     }
     if (!confirmPasswordInput.value) {
       JLabAuth.setFieldError('confirmPassword', 'Vui lòng nhập lại mật khẩu.');
@@ -192,7 +203,7 @@
     if (passwordInput.getAttribute('aria-invalid') !== 'true') return;
     if (!passwordInput.value) JLabAuth.setFieldError('password', 'Vui lòng tạo mật khẩu.');
     else if (!isPasswordStrong(passwordInput.value)) {
-      JLabAuth.setFieldError('password', 'Mật khẩu chưa đáp ứng đủ các yêu cầu bên dưới.');
+      JLabAuth.setFieldError('password', 'Mật khẩu chưa đáp ứng đủ các yêu cầu bên trên.');
     } else JLabAuth.setFieldError('password', '');
   });
   confirmPasswordInput.addEventListener('input', function () {
@@ -229,6 +240,12 @@
     if (!email) return;
     if (!emailInput.validity.valid) JLabAuth.setFieldError('email', 'Email chưa đúng định dạng.');
     else JLabAuth.setFieldError('email', '');
+  });
+  DateWheel.attachBirthDate(dateOfBirthInput, { popover: true });
+  dateOfBirthInput.addEventListener('change', function () {
+    if (dateOfBirthInput.value || dateOfBirthInput.getAttribute('aria-invalid') === 'true') {
+      JLabAuth.setFieldError('dateOfBirth', dateOfBirthError());
+    }
   });
 
   otpDigits.forEach(function (input, index) {
@@ -271,7 +288,8 @@
           email: targetEmail,
           password: passwordInput.value,
           confirmPassword: confirmPasswordInput.value,
-          japaneseLevel: document.getElementById('level').value
+          japaneseLevel: document.getElementById('level').value,
+          dateOfBirth: dateOfBirthInput.value
         })
       });
       var json = await JLabAuth.readJson(response);

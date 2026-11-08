@@ -1,7 +1,9 @@
 package com.jlas.shadowing.controller;
 
 import com.jlas.common.exception.ApiException;
+import com.jlas.auth.dto.ApiResponse;
 import com.jlas.shadowing.dto.*;
+import com.jlas.shadowing.model.ShadowingGenre;
 import com.jlas.shadowing.model.Subtitle;
 import com.jlas.shadowing.model.Video;
 import com.jlas.shadowing.service.VideoService;
@@ -15,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,10 +34,32 @@ public class VideoController {
             @RequestParam(required = false) String tag,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String clientId,
-            @RequestParam(required = false, defaultValue = "newest") String sort,
+            @RequestParam(required = false, defaultValue = "popular") String sort,
             @RequestParam(required = false) Boolean favoritesOnly,
-            @RequestParam(required = false, defaultValue = "public") String scope) {
-        return ResponseEntity.ok(videoService.search(q, tag, category, clientId, sort, favoritesOnly, scope));
+            @RequestParam(required = false, defaultValue = "public") String scope,
+            @RequestParam(required = false) String level) {
+        return ResponseEntity.ok(videoService.search(q, tag, category, clientId, sort, favoritesOnly, scope, level));
+    }
+
+    @GetMapping("/library")
+    public ResponseEntity<ApiResponse<LibraryPageDto<VideoSummaryDto>>> library(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String genre,
+            @RequestParam(required = false) String level,
+            @RequestParam(defaultValue = "popular") String sort,
+            @RequestParam(defaultValue = "public") String scope,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "false") boolean favoritesOnly,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        return ResponseEntity.ok(ApiResponse.ok("Thư viện video", videoService.searchPage(q, category, genre, level,
+                sort, scope, status, favoritesOnly, page, size)));
+    }
+
+    @GetMapping("/genres")
+    public ResponseEntity<List<GenreOption>> getGenres() {
+        return ResponseEntity.ok(Arrays.stream(ShadowingGenre.values()).map(GenreOption::of).toList());
     }
 
     @GetMapping("/categories")
@@ -49,10 +74,13 @@ public class VideoController {
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "tags", required = false) List<String> tags,
+            @RequestParam(value = "genres", required = false) List<String> genres,
             @RequestParam(value = "targetLanguage", defaultValue = "vi") String targetLanguage,
-            @RequestParam(value = "generateFurigana", required = false, defaultValue = "false") Boolean generateFurigana) {
+            @RequestParam(value = "generateFurigana", required = false, defaultValue = "false") Boolean generateFurigana,
+            @RequestParam(value = "minAge", required = false) Integer minAge) {
         try {
-            Video video = videoService.uploadVideo(file, thumbnail, title, category, tags, targetLanguage, generateFurigana);
+            Video video = videoService.uploadVideo(file, thumbnail, title, category, tags, targetLanguage,
+                    generateFurigana, genres, minAge);
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
                     "id", video.getId(),
                     "status", video.getStatus().name(),
@@ -66,9 +94,50 @@ public class VideoController {
         }
     }
 
+    /** Trang luyện vừa mở video này: ghi vào Lịch sử của người đang đăng nhập. */
+    @PostMapping("/{id}/visit")
+    public ResponseEntity<Void> visit(@PathVariable Long id) {
+        videoService.recordVisit(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/history/{id}")
+    public ResponseEntity<Void> removeHistory(@PathVariable Long id) {
+        videoService.removeHistory(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/history")
+    public ResponseEntity<Void> clearHistory() {
+        videoService.clearHistory();
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Video> getVideo(@PathVariable Long id) {
-        return ResponseEntity.ok(videoService.getVideo(id));
+        return ResponseEntity.ok(videoService.getVideoForViewing(id));
+    }
+
+    public record AgeRatingRequest(Integer minAge) { }
+
+    /** Owner or moderator sets the age rating from the player page: 13, 16 or 18; 0 or null = all ages. */
+    @PutMapping("/{id}/age-rating")
+    public ResponseEntity<Video> setAgeRating(@PathVariable Long id, @RequestBody AgeRatingRequest request) {
+        return ResponseEntity.ok(videoService.setAgeRating(id, request.minAge()));
+    }
+
+    /** Lets a lesson page check the age rating before it loads: 204, or the error (BIRTH_DATE_REQUIRED…). */
+    @GetMapping("/{id}/access")
+    public ResponseEntity<Void> access(@PathVariable Long id) {
+        videoService.getVideoForViewing(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /** Library card data for one video (level, tags, counts, rating), for the practice page header. */
+    @GetMapping("/{id}/summary")
+    public ResponseEntity<VideoSummaryDto> getSummary(@PathVariable Long id,
+                                                      @RequestParam(required = false) String clientId) {
+        return ResponseEntity.ok(videoService.getSummary(id, clientId));
     }
 
     @GetMapping("/{id}/status")
@@ -115,6 +184,24 @@ public class VideoController {
         return ResponseEntity.ok(Map.of("message", "Retry started"));
     }
 
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<?> cancel(@PathVariable Long id) {
+        videoService.cancelProcessing(id);
+        return ResponseEntity.ok(Map.of("message", "Đã dừng xử lý bài học."));
+    }
+
+    @PostMapping("/{id}/resume")
+    public ResponseEntity<?> resume(@PathVariable Long id) {
+        videoService.resumeProcessing(id);
+        return ResponseEntity.ok(Map.of("message", "Đang tiếp tục xử lý từ bước đã lưu."));
+    }
+
+    @PostMapping("/{id}/abandon")
+    public ResponseEntity<?> abandon(@PathVariable Long id) {
+        videoService.abandonProcessing(id);
+        return ResponseEntity.ok(Map.of("message", "Đã bỏ tiến trình. Bản nháp vẫn được giữ lại để tạo lại từ đầu."));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         videoService.deleteVideo(id);
@@ -123,7 +210,12 @@ public class VideoController {
 
     @GetMapping("/{id}/stream")
     public ResponseEntity<Resource> streamVideo(@PathVariable Long id) {
-        Video video = videoService.getVideo(id);
+        Video video = videoService.getVideoForViewing(id);
+        // Embeddable YouTube videos are played through the YouTube embed; the server never serves a copy of them.
+        // Only uploads and YouTube videos that cannot be embedded (playback mode FILE) are streamed from file.
+        if (video.getVideoPath() == null || video.getVideoPath().isBlank() || video.isYoutubeEmbed()) {
+            return ResponseEntity.notFound().build();
+        }
         File file = new File(video.getVideoPath());
         if (!file.exists()) return ResponseEntity.notFound().build();
         Resource resource = new FileSystemResource(file);
@@ -154,7 +246,9 @@ public class VideoController {
         if (!file.exists()) return ResponseEntity.notFound().build();
         Resource resource = new FileSystemResource(file);
         MediaType mediaType = resolveThumbnailMediaType(file.getName().toLowerCase());
+        // Thư viện hiển thị nhiều thumbnail mỗi trang; cho trình duyệt giữ lại thay vì tải lại mỗi lần đổi tab.
         return ResponseEntity.ok()
+                .cacheControl(org.springframework.http.CacheControl.maxAge(java.time.Duration.ofHours(1)).cachePrivate())
                 .contentType(Objects.requireNonNull(mediaType))
                 .body(resource);
     }

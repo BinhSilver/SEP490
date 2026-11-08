@@ -1,0 +1,2074 @@
+{
+ "header": {
+  "instructions": "check_bank ≥ 8 câu, mỗi dạng FILL/ORDER_STAR/MEANING/ERROR ≥ 2: {type, prompt_ja, options[4], answer_index, explanation_vi}; order_items 2 {pieces[], answer_order[]}; fill_items 2 {sentence_ja với ＿＿, answer}; extra_practice 3 (cùng dạng check_bank). Đáp án nhiễu không được cũng đúng."
+ },
+ "items": [
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "コーヒーと こうちゃと（　　）が いいですか。",
+      "options": [
+       "だれ",
+       "いつ",
+       "どちら",
+       "どこ"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Chọn giữa hai thứ → どちらが いいですか."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "トイレは（　　）ですか。—あちらです。",
+      "options": [
+       "いくら",
+       "だれ",
+       "どちら",
+       "いつ"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Hỏi phía/nơi chốn lịch sự → どちらですか."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "りんごと みかんと ★ ＿＿ ＿＿ ＿＿。",
+      "options": [
+       "好き",
+       "が",
+       "どちら",
+       "ですか"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: りんごとみかんとどちらが好きですか。 A と B と どちらが 〜ですか = A và B, cái nào… hơn."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "すみません、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "エレベーターは",
+       "どちら",
+       "ありますか",
+       "に"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: すみません、エレベーターはどちらにありますか。 どちらに ありますか = ở phía nào (lịch sự)."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "山と 海と、どちらが 好きですか。",
+      "options": [
+       "Bạn đã đi núi hay đi biển?",
+       "Núi và biển, bạn thích bên nào hơn?",
+       "Bạn thích cả núi lẫn biển à?",
+       "Núi và biển ở đâu?"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "どちらが = bên nào (giữa hai lựa chọn)."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "お国は どちらですか。",
+      "options": [
+       "Quê bạn ở nước nào ạ?",
+       "Đất nước bạn thế nào?",
+       "Bạn thích nước nào?",
+       "Bạn sẽ đi nước nào?"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "どちら là cách hỏi lịch sự thay cho どこ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "お手洗いは どちらですか。",
+       "どちらの 店に 行きますか。",
+       "どちらは 安いですか。",
+       "東京と 大阪と どちらが 大きいですか。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Từ để hỏi không đi với は: どちらが 安いですか."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "電車と バスと どちらが 早いですか。",
+       "うけつけは どちらですか。",
+       "どちら 本が いいですか。",
+       "どちらが 先生の かばんですか。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đứng trước danh từ phải có の: どちらの 本."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "ですか",
+       "田中さんの",
+       "どちらの",
+       "かばんが"
+      ],
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "translation_vi": "Cái cặp nào là của anh Tanaka?"
+     },
+     {
+      "pieces": [
+       "どちら",
+       "お手洗いは",
+       "ですか"
+      ],
+      "answer_order": [
+       1,
+       0,
+       2
+      ],
+      "translation_vi": "Nhà vệ sinh ở phía nào ạ?"
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "夏と 冬と ＿＿ が 好きですか。—夏の ほうが 好きです。",
+      "answer": "どちら",
+      "translation_vi": "Mùa hè và mùa đông, bạn thích mùa nào hơn? — Tôi thích mùa hè hơn."
+     },
+     {
+      "sentence_ja": "東京と 大阪と ＿＿ が 大きいですか。",
+      "answer": "どちら",
+      "translation_vi": "Tokyo và Osaka, thành phố nào lớn hơn?"
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "A：あの 二つの かばん、（　　）を 買いますか。B：大きい ほうを 買います。",
+      "options": [
+       "だれ",
+       "いつ",
+       "どちら",
+       "どこ"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Chọn một trong hai → どちら."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "どちらへ 行きますか。",
+      "options": [
+       "Bạn đi bằng gì ạ?",
+       "Bạn đi khi nào ạ?",
+       "Bạn đi đâu vậy ạ?",
+       "Bạn đi với ai ạ?"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "どちらへ = đi đâu (lịch sự)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "バスと 電車と ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "の",
+       "どちら",
+       "早いですか",
+       "ほうが"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: バスと電車とどちらのほうが早いですか。 どちらの ほうが = bên nào… hơn."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "コーヒーと紅茶、どちらが好きですか。",
+      "vi": "Bạn thích cà phê hay trà (cái nào)?"
+     },
+     {
+      "ja": "会議室はどちらですか。",
+      "vi": "Phòng họp ở đâu ạ? (lịch sự)"
+     }
+    ],
+    "meaning_vi": "Nghĩa cốt lõi: “cái nào/đằng nào/ở đâu” mang sắc thái lịch sự. Dùng phổ biến cho lựa chọn giữa hai phương án. Với nhiều hơn hai, chuẩn mực dùng どれ/どの; tuy nhiên trong hội thoại lịch sự どちら vẫn có thể dùng, nhưng ở JLPT N5 nên ưu tiên quy tắc “2 lựa chọn”. Hỏi vị trí/địa điểm một cách lịch sự: どこ → どちら (トイレはどちらですか). Hỏi thuộc về bên nào/đơn vị nào: どちらの + N (どちらの会社ですか). Khi hỏi về người một cách rất lịch sự: どちら様ですか (Ai đấy ạ?).",
+    "pattern": "Bên nào",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-786d7f35b0"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "（　　）人が 田中さんですか。",
+      "options": [
+       "どこ",
+       "どれ",
+       "どの",
+       "なに"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đứng trước danh từ dùng どの: どの 人."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "駅まで（　　）くらい かかりますか。",
+      "options": [
+       "なん",
+       "どこ",
+       "どの",
+       "どう"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "どのくらい = khoảng bao lâu/bao nhiêu."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "あなたの",
+       "どの",
+       "かさが",
+       "ですか"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: どのかさがあなたのですか。 どの + N が 〜ですか = N nào là…."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "来て",
+       "ですか",
+       "日本へ",
+       "どのくらい"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 日本へ来てどのくらいですか。 どのくらい = bao lâu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "どの 人が 先生ですか。",
+      "options": [
+       "Người nào là thầy giáo?",
+       "Thầy giáo là người như thế nào?",
+       "Ai là học sinh?",
+       "Thầy giáo ở đâu?"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "どの + N = N nào (trong số nhiều)."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "毎日 どのくらい べんきょうしますか。",
+      "options": [
+       "Mỗi ngày bạn học với ai?",
+       "Mỗi ngày bạn học khoảng bao lâu?",
+       "Mỗi ngày bạn học ở đâu?",
+       "Mỗi ngày bạn học môn gì?"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "どのくらい hỏi mức độ, thời gian."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "どの かさが あなたのですか。",
+       "どのが あなたの かさですか。",
+       "どの 店で 買いましたか。",
+       "どれが あなたの かさですか。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "どの không đứng một mình; không có danh từ thì dùng どれ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "どの バスに のりますか。",
+       "どのくらい かかりますか。",
+       "どの へやに 入りますか。",
+       "どれ 人が 山田さんですか。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Trước danh từ phải dùng どの: どの 人."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "バスに",
+       "どの",
+       "のりますか"
+      ],
+      "answer_order": [
+       1,
+       0,
+       2
+      ],
+      "translation_vi": "Bạn sẽ lên xe buýt nào?"
+     },
+     {
+      "pieces": [
+       "ですか",
+       "田中さんは",
+       "人",
+       "どの"
+      ],
+      "answer_order": [
+       1,
+       3,
+       2,
+       0
+      ],
+      "translation_vi": "Anh Tanaka là người nào?"
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "＿＿ 人が 山田さんですか。—あの めがねの 人です。",
+      "answer": "どの",
+      "translation_vi": "Người nào là anh Yamada? — Người đeo kính kia."
+     },
+     {
+      "sentence_ja": "＿＿ かさが 田中さんのですか。—その 黒い かさです。",
+      "answer": "どの",
+      "translation_vi": "Cái ô nào là của anh Tanaka? — Cái ô đen đó."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "（　　）が あなたの かばんですか。",
+      "options": [
+       "どれ",
+       "なん",
+       "どう",
+       "どの"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Không có danh từ theo sau thì dùng どれ; どの phải đi với danh từ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "どの いすに すわっても いいです。",
+      "options": [
+       "Ghế nào là của bạn?",
+       "Không được ngồi ghế nào.",
+       "Hãy ngồi vào cái ghế đó.",
+       "Ngồi ghế nào cũng được."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "どの + N + に + V-ても いい = N nào cũng được."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "バスは ＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "あと",
+       "来ますか",
+       "で",
+       "どのくらい"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: バスはあとどのくらいで来ますか。 あと どのくらいで = còn khoảng bao lâu nữa."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "どの本が一番おもしろいですか。",
+      "vi": "Cuốn sách nào thú vị nhất?"
+     },
+     {
+      "ja": "どの部屋ですか。",
+      "vi": "Là phòng nào vậy?"
+     }
+    ],
+    "meaning_vi": "“どの + N” hỏi xác định một danh từ cụ thể trong số nhiều lựa chọn: “Nào …?”. “どのくらい/どのぐらい” hỏi mức độ, thời gian, số lượng: “bao nhiêu/bao lâu”. Không đứng một mình; nếu không có danh từ, dùng どれ (cái nào). Với nguồn gốc/sở thuộc, どこのN thường tự nhiên hơn: どこの国／どこの会社.",
+    "pattern": "Cái nào (danh từ)",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-e9737e8107"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "きのうは（　　）行きませんでした。",
+      "options": [
+       "どこへ",
+       "どこへも",
+       "どこかへ",
+       "どこでも"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Không đi đâu cả → どこへも + phủ định."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "日曜日は どこ（　　）行かないで、うちに いました。",
+      "options": [
+       "でも",
+       "へは",
+       "がも",
+       "へも"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "どこ + へ + も = どこへも."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "あしたは 雨ですから、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "も",
+       "行きません",
+       "へ",
+       "どこ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: あしたは雨ですから、どこへも行きません。 どこへも 行きません = không đi đâu cả."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "きのうは ＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "どこへも",
+       "行かないで",
+       "休みました",
+       "うちで"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: きのうはどこへも行かないでうちで休みました。 どこへも 行かないで = không đi đâu mà…."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "夏休みは どこへも 行きませんでした。",
+      "options": [
+       "Kỳ nghỉ hè tôi đi rất nhiều nơi.",
+       "Kỳ nghỉ hè tôi không đi đâu cả.",
+       "Kỳ nghỉ hè tôi đã đi đâu đó.",
+       "Kỳ nghỉ hè bạn đi đâu?"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "どこへも + phủ định = không đi đâu cả."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "きょうは どこへも 出かけたくないです。",
+      "options": [
+       "Hôm nay tôi không thể đi đâu.",
+       "Hôm nay tôi muốn đi đâu đó.",
+       "Hôm nay đi đâu cũng được.",
+       "Hôm nay tôi không muốn ra ngoài đâu cả."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "どこへも + Vたくない = không muốn đi đâu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "どこかへ 行きたいです。",
+       "どこへも 行きます。",
+       "あしたは どこへも 行きません。",
+       "きのうは どこへも 出かけませんでした。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "どこへも luôn đi với phủ định."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "日曜日は どこへも 行きませんでした。",
+       "どこもへ 行きません。",
+       "どこへも 出かけないで ください。",
+       "どこにも 行きません。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Thứ tự đúng là どこ + へ + も."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "行きませんでした",
+       "どこへも",
+       "日曜日は"
+      ],
+      "answer_order": [
+       2,
+       1,
+       0
+      ],
+      "translation_vi": "Chủ nhật tôi không đi đâu cả."
+     },
+     {
+      "pieces": [
+       "どこへも",
+       "出かけません",
+       "きょうは"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Hôm nay tôi không ra ngoài đâu cả."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "きのうは どこ＿＿ 行きませんでした。",
+      "answer": "へも",
+      "translation_vi": "Hôm qua tôi không đi đâu cả."
+     },
+     {
+      "sentence_ja": "きょうは どこへも ＿＿ません。（行く）",
+      "answer": "行き",
+      "translation_vi": "Hôm nay tôi không đi đâu cả."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "A：休みの 日に どこかへ 行きましたか。B：いいえ、（　　）行きませんでした。",
+      "options": [
+       "どこが",
+       "どこでも",
+       "どこへも",
+       "どこかへ"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Trả lời phủ định → どこへも 行きませんでした."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "どこへも 行かないで、うちで 本を 読みました。",
+      "options": [
+       "Tôi muốn đi đâu đó để đọc sách.",
+       "Tôi đọc sách ở khắp nơi.",
+       "Tôi đi đâu đó rồi về nhà đọc sách.",
+       "Tôi không đi đâu cả mà ở nhà đọc sách."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "どこへも 行かないで = không đi đâu mà…."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "どこへも 行きたくないです。",
+       "あした どこへも 行きました。",
+       "きのうは どこにも 行きませんでした。",
+       "どこかへ 行きませんか。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "どこへも phải đi với phủ định: 行きません."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "休みの日はどこへも行きません。",
+      "vi": "Ngày nghỉ tôi không đi đâu cả."
+     },
+     {
+      "ja": "台風だから、今日はどこへも出かけません。",
+      "vi": "Vì bão nên hôm nay tôi không ra ngoài đi đâu cả."
+     }
+    ],
+    "meaning_vi": "Dùng để phủ định chuyển động đến bất kỳ nơi nào: không đi/không đến đâu cả. Trợ từ へ nêu rõ hướng/đích đến; vì thế どこへも hợp nhất với động từ chuyển động. Ý nghĩa tương tự どこにも（行きません）, khác ở điểm nhấn: に = “tại/đến”, へ = “hướng tới”.",
+    "pattern": "Không đi đâu cả",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-ef9ab35cc5"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "夜 おそいですから、店は（　　）あいて いません。",
+      "options": [
+       "どこか",
+       "どこへ",
+       "どこも",
+       "どこでも"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Không chỗ nào… → どこも + phủ định."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "この 町の レストランは（　　）高くないです。",
+      "options": [
+       "どこも",
+       "どこか",
+       "どこへも",
+       "どこで"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "どこも + tính từ phủ định = chỗ nào cũng không…."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "もう 夜 おそいですから、 ＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "あいて",
+       "いません",
+       "店は",
+       "どこも"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: もう夜おそいですから、店はどこもあいていません。 N は どこも + phủ định."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "きょうは 雨で、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "どこも",
+       "いません",
+       "こうえんは",
+       "人が"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: きょうは雨で、こうえんはどこも人がいません。 どこも 人が いません = chỗ nào cũng không có người."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この へんの ホテルは どこも 高くないです。",
+      "options": [
+       "Quanh đây không có khách sạn nào.",
+       "Khách sạn quanh đây chỗ nào cũng không đắt.",
+       "Khách sạn nào ở quanh đây đắt?",
+       "Khách sạn quanh đây chỗ nào cũng đắt."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "どこも + phủ định = không chỗ nào."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "きのうの 夜は どこも あいて いませんでした。",
+      "options": [
+       "Tối qua tôi không đi đâu cả.",
+       "Tối qua không có chỗ nào mở cửa.",
+       "Tối qua có một chỗ nào đó mở cửa.",
+       "Tối qua chỗ nào cũng mở cửa."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "どこも あいて いませんでした = không chỗ nào mở."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "店は どこでも あいて いません。",
+       "この 町の 店は どこも しずかです。",
+       "どこも 人が いませんでした。",
+       "日曜日は どこも 休みです。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Phủ định toàn bộ dùng どこも; どこでも đi với khẳng định."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この へんは どこも 高いです。",
+       "どこもの 店が しまって います。",
+       "どこの 店も しまって います。",
+       "どこも さむくないです。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Không nói どこもの; phải là どこの 店も."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "どこも",
+       "町の",
+       "店は",
+       "高くないです",
+       "この"
+      ],
+      "answer_order": [
+       4,
+       1,
+       2,
+       0,
+       3
+      ],
+      "translation_vi": "Cửa hàng ở thị trấn này chỗ nào cũng không đắt."
+     },
+     {
+      "pieces": [
+       "いません",
+       "どこも",
+       "日曜日は",
+       "あいて",
+       "ぎんこうは"
+      ],
+      "answer_order": [
+       2,
+       4,
+       1,
+       3,
+       0
+      ],
+      "translation_vi": "Chủ nhật ngân hàng chỗ nào cũng đóng cửa."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "もう 11時です。店は ＿＿ あいて いません。",
+      "answer": "どこも",
+      "translation_vi": "Đã 11 giờ rồi. Cửa hàng chỗ nào cũng đóng."
+     },
+     {
+      "sentence_ja": "この へんの レストランは どこ＿＿ 高くないです。",
+      "answer": "も",
+      "translation_vi": "Nhà hàng quanh đây chỗ nào cũng không đắt."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "日曜日の 駅の 前は（　　）人が 多いです。",
+      "options": [
+       "どこか",
+       "どこに",
+       "どこへも",
+       "どこも"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Với khẳng định, どこも = chỗ nào cũng."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "どこも にぎやかですね。",
+      "options": [
+       "Không có chỗ nào nhộn nhịp cả.",
+       "Có một chỗ nào đó nhộn nhịp.",
+       "Chỗ nào nhộn nhịp vậy?",
+       "Chỗ nào cũng nhộn nhịp nhỉ."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "どこも = chỗ nào cũng."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "夜 おそいですから、 ＿＿ ＿＿ ＿＿ ★ しまって います。",
+      "options": [
+       "へんの",
+       "この",
+       "どこも",
+       "店は"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 夜おそいですから、このへんの店はどこもしまっています。 N は どこも 〜 = N chỗ nào cũng…."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "もう夜遅いので、店はどこも開いていません。",
+      "vi": "Đã khuya nên chẳng cửa hàng nào mở."
+     },
+     {
+      "ja": "この町には静かな所がどこもありません。",
+      "vi": "Ở thị trấn này không có nơi nào yên tĩnh."
+     }
+    ],
+    "meaning_vi": "Nghĩa với phủ định: “không nơi nào …”, bao quát toàn bộ phạm vi địa điểm. Thường dùng để mô tả tình trạng chung: mở/đóng, có/không, đông/vắng, còn/hết… Với khẳng định, どこも = “ở đâu cũng …”. Tuy nhiên mục này tập trung vào mẫu phủ định どこも～ません. Với động từ chuyển động, どこも行きません nghe tự nhiên trong hội thoại nhưng thi JLPT ưu tiên どこへも/どこにも行きません.",
+    "pattern": "Không nơi nào",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-53e50fc60e"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "かぎが（　　）ありません。",
+      "options": [
+       "どこに",
+       "どこにも",
+       "どこかに",
+       "どこでも"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Không có ở đâu cả → どこにも + phủ định."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "田中さんは どこ（　　）いません。",
+      "options": [
+       "かに",
+       "でも",
+       "もに",
+       "にも"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "どこ + に + も = どこにも."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "私の めがねが ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "に",
+       "どこ",
+       "も",
+       "ありません"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 私のめがねがどこにもありません。 どこにも ありません = không có ở đâu cả."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "これは ＿＿ ＿＿ ★ ＿＿ です。",
+      "options": [
+       "売って",
+       "いない",
+       "本",
+       "どこにも"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: これはどこにも売っていない本です。 どこにも 売って いない = không bán ở đâu cả."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "ねこが どこにも いません。",
+      "options": [
+       "Con mèo đang ở đâu đó.",
+       "Con mèo ở khắp nơi.",
+       "Không thấy con mèo ở đâu cả.",
+       "Con mèo ở đâu vậy?"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "どこにも いません = không có ở đâu cả."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "きのうは どこにも 行きませんでした。",
+      "options": [
+       "Hôm qua bạn đã đi đâu?",
+       "Hôm qua tôi đi khắp nơi.",
+       "Hôm qua tôi không đi đâu cả.",
+       "Hôm qua tôi đã đi đâu đó."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "どこにも 行きません = không đi đâu cả."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "山田さんは どこにも いません。",
+       "かさが どこにも あります。",
+       "どこにも 行きたくないです。",
+       "ペンが どこにも ありません。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "どこにも luôn đi với phủ định."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "どこにも 売って いません。",
+       "子どもが どこにも いません。",
+       "しゅうまつは どこにも 出かけませんでした。",
+       "どこもに いません。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng là どこ + に + も."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "かぎが",
+       "どこにも",
+       "私の",
+       "ありません"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1,
+       3
+      ],
+      "translation_vi": "Chìa khóa của tôi không thấy ở đâu cả."
+     },
+     {
+      "pieces": [
+       "どこにも",
+       "田中さんは",
+       "いませんでした"
+      ],
+      "answer_order": [
+       1,
+       0,
+       2
+      ],
+      "translation_vi": "Anh Tanaka không có ở đâu cả."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "へやを 見ましたが、かぎは ＿＿ ありません。",
+      "answer": "どこにも",
+      "translation_vi": "Tôi đã xem khắp phòng nhưng chìa khóa không có ở đâu cả."
+     },
+     {
+      "sentence_ja": "日曜日は どこに＿＿ 行きませんでした。",
+      "answer": "も",
+      "translation_vi": "Chủ nhật tôi không đi đâu cả."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "子どもが（　　）いません。",
+      "options": [
+       "どこにも",
+       "どこでも",
+       "どこへ",
+       "どこかに"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Không thấy ở đâu cả → どこにも いません."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "その くつは どこにも 売って いません。",
+      "options": [
+       "Đôi giày đó không bán ở đâu cả.",
+       "Đôi giày đó bán ở đâu?",
+       "Tôi đã bán đôi giày đó rồi.",
+       "Đôi giày đó bán ở khắp nơi."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "どこにも + phủ định = không… ở đâu cả."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "母は どこにも いません。",
+       "どこにも 出かけないで ください。",
+       "どこにも 行きます。",
+       "ペンは どこにも ありませんでした。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "どこにも phải đi với phủ định."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "今日はどこにも行きません。",
+      "vi": "Hôm nay tôi không đi đâu cả."
+     },
+     {
+      "ja": "財布がどこにもありません。",
+      "vi": "Không thấy ví ở đâu cả."
+     }
+    ],
+    "meaning_vi": "Nghĩa: “không … ở đâu cả”, phủ định toàn bộ phạm vi địa điểm. Dùng với động từ chuyển động (行く/来る/出かける), động từ tồn tại/tìm kiếm (ある/いる/見つかる/売る…). に nhấn “ở (nơi) nào”/“tại nơi nào”; へ nhấn “hướng/đích đến”. Phong cách: ません (lịch sự), ない (thân mật). JLPT chấp nhận cả hai.",
+    "pattern": "Không ở đâu cả",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-054fc1320d"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "トイレは（　　）ですか。",
+      "options": [
+       "だれ",
+       "どこ",
+       "なに",
+       "いつ"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Hỏi nơi chốn → どこですか."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "あなたの かさは（　　）に ありますか。",
+      "options": [
+       "どこ",
+       "いつ",
+       "だれ",
+       "どう"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Hỏi vị trí đồ vật → どこに ありますか."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "これは ＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "くつ",
+       "ですか",
+       "どこ",
+       "の"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: これはどこのくつですか。 どこの + N = N của nơi/hãng nào."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "その 店は ＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "に",
+       "どこ",
+       "ありますか",
+       "駅の"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: その店は駅のどこにありますか。 駅の どこに = ở chỗ nào trong nhà ga."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "どこの 国から 来ましたか。",
+      "options": [
+       "Bạn đến bằng gì?",
+       "Bạn đến khi nào?",
+       "Bạn sẽ đi nước nào?",
+       "Bạn đến từ nước nào?"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "どこの + N = N nào (xuất xứ)."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "しゅうまつは どこへ 行きましたか。",
+      "options": [
+       "Cuối tuần bạn đi với ai?",
+       "Cuối tuần bạn đã đi đâu?",
+       "Cuối tuần bạn sẽ đi đâu?",
+       "Cuối tuần bạn có đi đâu không?"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "どこへ 行きましたか = đã đi đâu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "どこで 食べましょうか。",
+       "田中さんは どこに いますか。",
+       "駅は どこに いますか。",
+       "トイレは どこですか。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Vật/nơi chốn dùng あります: 駅は どこに ありますか."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "かばんは どこに ありますか。",
+       "ねこは どこに ありますか。",
+       "どこへ 行きますか。",
+       "これは どこの カメラですか。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Con vật dùng います: ねこは どこに いますか."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "ですか",
+       "すみません、",
+       "どこ",
+       "トイレは"
+      ],
+      "answer_order": [
+       1,
+       3,
+       2,
+       0
+      ],
+      "translation_vi": "Xin lỗi, nhà vệ sinh ở đâu?"
+     },
+     {
+      "pieces": [
+       "ありますか",
+       "うちは",
+       "どこに",
+       "田中さんの"
+      ],
+      "answer_order": [
+       3,
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Nhà anh Tanaka ở đâu?"
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "A：＿＿ で 昼ごはんを 食べますか。B：しょくどうで 食べます。",
+      "answer": "どこ",
+      "translation_vi": "A: Bạn ăn trưa ở đâu? B: Tôi ăn ở nhà ăn."
+     },
+     {
+      "sentence_ja": "あなたの かばんは どこに ＿＿か。",
+      "answer": "あります",
+      "translation_vi": "Cặp của bạn ở đâu?"
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "妹は 今（　　）に いますか。—へやに います。",
+      "options": [
+       "どこ",
+       "だれ",
+       "いくつ",
+       "なに"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Hỏi vị trí người → どこに いますか."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "これは どこの 時計ですか。",
+      "options": [
+       "Đồng hồ này giá bao nhiêu?",
+       "Đồng hồ này ở đâu?",
+       "Đây là đồng hồ của ai?",
+       "Đây là đồng hồ của nước/hãng nào?"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "どこの + N hỏi xuất xứ, hãng."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "どこで 買いましたか。",
+       "どこが 行きますか。",
+       "どこから 来ましたか。",
+       "駅は どこですか。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Hỏi nơi đến phải dùng どこへ／どこに 行きますか."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "駅はどこにありますか。",
+      "vi": "Nhà ga ở đâu?"
+     },
+     {
+      "ja": "先生はどこにいますか。",
+      "vi": "Thầy cô ở đâu?"
+     }
+    ],
+    "meaning_vi": "どこ là nghi vấn từ “ở đâu”, kết hợp với tiểu từ để hỏi vị trí, nơi diễn ra, hướng, xuất phát, điểm đến. どこのN hỏi xuất xứ/thuộc về của danh từ: “N của nơi nào/hãng nào”. Phân biệt あります (vô tri) và います (hữu tri) khi hỏi vị trí.",
+    "pattern": "Ở đâu",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-2aad5619c3"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この カードは（　　）使う ことが できます。",
+      "options": [
+       "どこでも",
+       "どこか",
+       "どこにも",
+       "どこへ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Ở đâu cũng dùng được → どこでも + khẳng định."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "日本の コンビニは（　　）ありますね。",
+      "options": [
+       "どこへも",
+       "どこでに",
+       "どこにも",
+       "どこにでも"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Có ở khắp nơi → どこにでも あります; どこにも cần phủ định."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "日曜日は ひまですから、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "へ",
+       "どこ",
+       "行きます",
+       "でも"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 日曜日はひまですから、どこへでも行きます。 どこへでも 行きます = đi đâu cũng được."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "この ペンは ＿＿ ＿＿ ★ ＿＿ できます。",
+      "options": [
+       "でも",
+       "買う",
+       "どこ",
+       "ことが"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: このペンはどこでも買うことができます。 どこでも 買う ことが できます = mua ở đâu cũng được."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "どこでも すわって ください。",
+      "options": [
+       "Hãy ngồi ở chỗ đó.",
+       "Bạn ngồi chỗ nào cũng được.",
+       "Bạn sẽ ngồi ở đâu?",
+       "Đừng ngồi chỗ nào cả."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "どこでも = bất cứ đâu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "私は どこでも ねる ことが できます。",
+      "options": [
+       "Tôi không thể ngủ ở đâu cả.",
+       "Tôi có thể ngủ ở bất cứ đâu.",
+       "Tôi muốn ngủ ở đâu đó.",
+       "Bạn ngủ ở đâu?"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "どこでも + Vる ことが できます = ở đâu cũng có thể…."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "どこでも いいですよ。",
+       "どこへでも 行きます。",
+       "この 水は どこでも 買う ことが できます。",
+       "どこでも 行きませんでした。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "“Không đi đâu cả” phải là どこへも 行きませんでした."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "あなたと どこへでも 行きます。",
+       "どこでも 売って います。",
+       "どこでもへ 行きたいです。",
+       "ここでは どこでも しゃしんを とっても いいです。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: どこ + へ + でも → どこへでも."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "います",
+       "この",
+       "パンは",
+       "どこでも",
+       "売って"
+      ],
+      "answer_order": [
+       1,
+       2,
+       3,
+       4,
+       0
+      ],
+      "translation_vi": "Loại bánh mì này ở đâu cũng có bán."
+     },
+     {
+      "pieces": [
+       "でも",
+       "どこ",
+       "いいですから",
+       "すわって",
+       "ください"
+      ],
+      "answer_order": [
+       1,
+       0,
+       2,
+       3,
+       4
+      ],
+      "translation_vi": "Chỗ nào cũng được, mời bạn ngồi."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "この ペンは ＿＿ 買う ことが できます。",
+      "answer": "どこでも",
+      "translation_vi": "Cây bút này mua ở đâu cũng được."
+     },
+     {
+      "sentence_ja": "すわる ところは どこ＿＿ いいですよ。",
+      "answer": "でも",
+      "translation_vi": "Chỗ ngồi thì chỗ nào cũng được."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "A：どこで 会いましょうか。B：私は（　　）いいですよ。",
+      "options": [
+       "どこでも",
+       "どこか",
+       "どこにも",
+       "どこへも"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Chỗ nào cũng được → どこでも いいです."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "犬は どこへでも 私と いっしょに 行きます。",
+      "options": [
+       "Con chó đi đâu vậy?",
+       "Con chó đi đâu đó một mình.",
+       "Con chó không đi đâu cả.",
+       "Con chó tôi đi đâu cũng đi cùng tôi."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "どこへでも = đi đến bất cứ đâu."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "（　　）でも いいですから、近くの 店に 入りましょう。",
+      "options": [
+       "だれ",
+       "いくら",
+       "どこ",
+       "なに"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Nói về nơi chốn → どこでも いい."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "このカードはどこでも使えます。",
+      "vi": "Thẻ này dùng được ở bất cứ đâu."
+     },
+     {
+      "ja": "休みならどこへでも行きたいです。",
+      "vi": "Nếu nghỉ, tôi muốn đi đâu cũng được."
+     }
+    ],
+    "meaning_vi": "Biểu thị phạm vi không hạn chế: “ở bất cứ đâu cũng…”. Thường đi với khẳng định, khả năng, cho phép, mệnh lệnh nhẹ: 使える／行ける／入れる／座ってください. Khi nhấn hướng, dùng どこへでも／どこにでも; nếu không cần nhấn, どこでも vẫn tự nhiên. Không dùng để phủ định toàn phần (khi muốn “không ở đâu cả” phải là どこにも～ません).",
+    "pattern": "Ở đâu cũng",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-0007a9b1b6"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "夏休みに（　　）へ 行きたいです。",
+      "options": [
+       "だれか",
+       "どこか",
+       "どこも",
+       "どこでも"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Một nơi nào đó chưa định → どこかへ."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "その 人とは（　　）で 会いましたね。",
+      "options": [
+       "どこにも",
+       "どこへ",
+       "どこか",
+       "どこも"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Gặp ở một nơi nào đó → どこかで."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "あの 人に ＿＿ ＿＿ ★ ＿＿ ね。",
+      "options": [
+       "会いました",
+       "で",
+       "どこ",
+       "か"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: あの人にどこかで会いましたね。 どこかで = ở đâu đó (nơi diễn ra hành động)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "かぎを ＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "か",
+       "おきました",
+       "どこ",
+       "に"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: かぎをどこかにおきました。 どこかに おきました = để ở đâu đó."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "どこかで 昼ごはんを 食べましょう。",
+      "options": [
+       "Mình ăn trưa ở đâu đó nhé.",
+       "Ở đâu mình cũng ăn trưa.",
+       "Mình ăn trưa ở đâu?",
+       "Mình không ăn trưa ở đâu cả."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "どこかで = ở một nơi nào đó."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "どこかに ペンが ありませんか。",
+      "options": [
+       "Không có bút ở đâu cả.",
+       "Ở đâu đó có cây bút nào không?",
+       "Bút ở đâu vậy?",
+       "Chỗ nào cũng có bút."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "どこかに + ありませんか = ở đâu đó có… không."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "かさを どこかに わすれました。",
+       "どこかで 休みましょう。",
+       "どこかへ 行きませんでした。",
+       "どこかへ 行きませんか。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "“Không đi đâu cả” phải nói どこへも 行きませんでした."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "しゅうまつは どこかへ 行きましたか。",
+       "どこかに ねこが います。",
+       "どこかで 会いましょう。",
+       "しゅうまつは どこかを 行きました。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Đi đến đâu đó dùng へ: どこかへ 行きました."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "お茶を",
+       "飲みませんか",
+       "どこかで"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Mình uống trà ở đâu đó nhé?"
+     },
+     {
+      "pieces": [
+       "おきました",
+       "どこかに",
+       "かぎを"
+      ],
+      "answer_order": [
+       2,
+       1,
+       0
+      ],
+      "translation_vi": "Tôi đã để chìa khóa ở đâu đó."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "日曜日に ＿＿ へ 出かけませんか。",
+      "answer": "どこか",
+      "translation_vi": "Chủ nhật mình đi đâu đó chơi nhé?"
+     },
+     {
+      "sentence_ja": "この 人は どこ＿＿ 見ました。",
+      "answer": "かで",
+      "translation_vi": "Người này tôi đã gặp ở đâu đó."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "かさを（　　）に わすれました。",
+      "options": [
+       "どこか",
+       "どこへ",
+       "どこも",
+       "どこでも"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Quên ở một nơi không rõ → どこかに."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "どこか しずかな ところで 話しましょう。",
+      "options": [
+       "Không có chỗ nào yên tĩnh.",
+       "Chỗ nào yên tĩnh vậy?",
+       "Ở đâu cũng yên tĩnh.",
+       "Mình nói chuyện ở một chỗ nào đó yên tĩnh nhé."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "どこか + Aな ところ = một chỗ… nào đó."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "どこかで 見ましたね。",
+       "どこかに あると 思います。",
+       "どこかへ 行きたいです。",
+       "どこかも 行きません。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Không có dạng どこかも; phủ định toàn bộ là どこへも."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "週末はどこかへ行きましたか。",
+      "vi": "Cuối tuần bạn đã đi đâu đó chưa?"
+     },
+     {
+      "ja": "財布をどこかに忘れました。",
+      "vi": "Tôi quên ví ở đâu đó."
+     }
+    ],
+    "meaning_vi": "Nghĩa chính: “đâu đó, nơi nào đó” – người nói không (hoặc không muốn) chỉ định địa điểm cụ thể. Sắc thái mơ hồ, lịch sự/nhẹ nhàng khi đề nghị: dùng trong lời mời, gợi ý kế hoạch chung. Kết hợp linh hoạt với trợ từ chỉ nơi chốn: に／へ (đích/điểm đến), で (nơi diễn ra hành động), の (bổ nghĩa danh từ). Khác với “どこでも” (bất cứ đâu – bao hàm toàn bộ) và “どこにも～ません” (không … ở đâu cả – phủ định toàn phần). Nghĩa mở rộng thường gặp (ngữ cảm): どこかおかしい／変だ = “có gì đó lạ”.",
+    "pattern": "Ở đâu đó",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-b9c46937cc"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "すみません、（　　）ですか。—田中です。",
+      "options": [
+       "いつ",
+       "なん",
+       "どなた",
+       "どこ"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Hỏi lịch sự “ai” → どなたですか."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "あの 方は（　　）ですか。",
+      "options": [
+       "どなた",
+       "いつ",
+       "どれ",
+       "なん"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Hỏi về người một cách lịch sự → どなた."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "これは ★ ＿＿ ＿＿ ＿＿。",
+      "options": [
+       "ですか",
+       "かさ",
+       "どなた",
+       "の"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: これはどなたのかさですか。 どなたの + N = N của vị nào."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "すみません、 ＿＿ ＿＿ ★ ＿＿ いませんか。",
+      "options": [
+       "わかる",
+       "どなたか",
+       "方は",
+       "日本語が"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: すみません、どなたか日本語がわかる方はいませんか。 どなたか = vị nào đó (lịch sự của だれか)."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "どなたが 田中さんですか。",
+      "options": [
+       "Anh Tanaka ở đâu ạ?",
+       "Vị nào là anh Tanaka ạ?",
+       "Anh Tanaka là người thế nào ạ?",
+       "Anh Tanaka đi với ai ạ?"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "どなたが = vị nào (chủ ngữ)."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "どなたでも 入る ことが できます。",
+      "options": [
+       "Có vị nào đó đã vào.",
+       "Ai đã vào vậy?",
+       "Không ai được vào.",
+       "Vị nào cũng có thể vào."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "どなたでも = bất kỳ vị nào."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "これは どなたの 本ですか。",
+       "あの 方は どなたですか。",
+       "どなたは 山田先生ですか。",
+       "どなたに 聞きましたか。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Từ để hỏi không đi với は: どなたが."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "どなたも 来ませんでした。",
+       "どなたも 来ました。",
+       "どなたか いませんか。",
+       "どなたでも どうぞ。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "どなたも đi với phủ định."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "どなた",
+       "ですか",
+       "しつれいですが、"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Xin lỗi, xin hỏi ông/bà là ai ạ?"
+     },
+     {
+      "pieces": [
+       "方は",
+       "どなた",
+       "ですか",
+       "あの"
+      ],
+      "answer_order": [
+       3,
+       0,
+       1,
+       2
+      ],
+      "translation_vi": "Vị kia là ai ạ?"
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "これは どなた＿＿ 本ですか。",
+      "answer": "の",
+      "translation_vi": "Đây là sách của vị nào ạ?"
+     },
+     {
+      "sentence_ja": "どなた＿＿ 入っても いいですよ。",
+      "answer": "でも",
+      "translation_vi": "Vị nào vào cũng được ạ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "（電話で）もしもし、（　　）ですか。",
+      "options": [
+       "どこ",
+       "なに",
+       "いつ",
+       "どなた"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Hỏi người gọi là ai (lịch sự) → どなたですか."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "どなたか いませんか。",
+      "options": [
+       "Ai đang ở đây vậy?",
+       "Có vị nào ở đây không ạ?",
+       "Mọi người đều ở đây.",
+       "Không có ai cả."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "どなたか = vị nào đó."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "どなたか 来ましたか。",
+       "どなたが 先生ですか。",
+       "どなたと 話しましたか。",
+       "どなたか 来ませんでした。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "“Không ai đến” phải là どなたも 来ませんでした."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "受付の方はどなたですか。",
+      "vi": "Người ở quầy tiếp tân là ai ạ? · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "meaning_vi": "“どなた” = “ai” ở mức lịch sự/kính trọng; dùng với người lạ, khách, sếp. Các biến thể nghĩa: どなたか (ai đó), どなたでも (ai cũng), どなたも〜ません (không ai). Kết hợp tự nhiên với kính ngữ: いらっしゃる／お〜になる khi nói về chủ thể là khách. Thường dùng trong thoại điện thoại, lễ tân, cửa hàng, bệnh viện.",
+    "pattern": "Vị nào (lịch sự)",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-352c73f66e"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "あしたも 学校へ（　　）なりませんか。",
+      "options": [
+       "行かなければ",
+       "行かないで",
+       "行きなければ",
+       "行かなくて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Hỏi có phải làm không → Vない bỏ い + ければ なりませんか."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "パスポートは（　　）か。—いいえ、いりません。",
+      "options": [
+       "いれます",
+       "いります",
+       "あります",
+       "います"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Hỏi có cần không → いりますか."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "この 手紙は ＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "書かなければ",
+       "英語で",
+       "なりません",
+       "か"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: この手紙は英語で書かなければなりませんか。 書かなければ なりませんか = có phải viết không."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "この こうえんに 入る とき、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "が",
+       "いります",
+       "か",
+       "お金"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: このこうえんに入るとき、お金がいりますか。 N が いりますか = có cần N không."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "ここに 名前を 書かなければ なりませんか。",
+      "options": [
+       "Tôi viết tên vào đây được không?",
+       "Tôi có phải viết tên vào đây không?",
+       "Đừng viết tên vào đây.",
+       "Tôi đã viết tên vào đây rồi."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Vなければ なりませんか = có phải… không."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "かさは いりますか。",
+      "options": [
+       "Ô ở đâu?",
+       "Bạn mượn ô được không?",
+       "Bạn có cần ô không?",
+       "Bạn có ô không?"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "いりますか = có cần không."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "あした 来なくければ なりませんか。",
+       "パスポートは いりますか。",
+       "早く 帰らなければ なりませんか。",
+       "くすりを 飲まなければ なりませんか。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "来る → 来ない → 来なければ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "じしょは いりますか。",
+       "お金は いりますか。",
+       "じしょは いますか。",
+       "これは 出さなければ なりませんか。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Hỏi có cần đồ vật dùng いりますか; います chỉ người/con vật."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "土曜日も",
+       "行かなければ",
+       "なりませんか",
+       "会社へ"
+      ],
+      "answer_order": [
+       0,
+       3,
+       1,
+       2
+      ],
+      "translation_vi": "Thứ bảy cũng phải đi làm à?"
+     },
+     {
+      "pieces": [
+       "じしょは",
+       "いりますか",
+       "この",
+       "テストに"
+      ],
+      "answer_order": [
+       2,
+       3,
+       0,
+       1
+      ],
+      "translation_vi": "Bài kiểm tra này có cần từ điển không?"
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "あしたも 早く 起き＿＿ なりませんか。",
+      "answer": "なければ",
+      "translation_vi": "Ngày mai cũng phải dậy sớm à?"
+     },
+     {
+      "sentence_ja": "A：かさは ＿＿か。B：いいえ、いりません。",
+      "answer": "いります",
+      "translation_vi": "A: Bạn có cần ô không? B: Không, tôi không cần."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "A：くすりを 飲まなければ なりませんか。B：いいえ、（　　）。",
+      "options": [
+       "飲まなくて いいですか",
+       "飲まなくても いいです",
+       "飲まなければ なります",
+       "飲みなくても いいです"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Trả lời “không cần” → Vなくても いいです."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "あした 何か 持って 来なければ なりませんか。",
+      "options": [
+       "Ngày mai bạn mang gì đến?",
+       "Ngày mai đừng mang gì cả.",
+       "Ngày mai tôi muốn mang thứ gì đó.",
+       "Ngày mai tôi có phải mang theo gì không?"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Vなければ なりませんか = có phải… không."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この 本は かえさなければ なりますか。",
+       "ここで くつを ぬがなければ なりませんか。",
+       "毎日 来なければ なりませんか。",
+       "お金は いりますか。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Mẫu cố định là なければ なりません(か), không nói なりますか."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "ねつが ありますから びょういんへ いかなければ なりませんか。",
+      "vi": "Vì bị sốt nên có phải đi bệnh viện không?"
+     }
+    ],
+    "meaning_vi": "Hỏi có phải làm không\nThêm か vào cuối; hỏi đồ vật cần hay không thì dùng いりますか.",
+    "pattern": "〜なければ なりませんか / 〜は いりますか",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-05589d014f"
+  }
+ ],
+ "kind": "GRAMMAR_BANK",
+ "level": "N5",
+ "packet_id": "GRAMMAR_BANK-032"
+}

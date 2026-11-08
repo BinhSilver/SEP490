@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <script src="/js/theme-init.js"></script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Xem hiệu ứng game | JLAS</title>
+  <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
+  <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
+  <link rel="stylesheet" th:href="@{/arena/app/air-defense/air-defense-app.css(v='20261106-result')}"/>
+  <link rel="stylesheet" th:href="@{/arena/app/memory/memory-app.css}"/>
+  <link rel="stylesheet" th:href="@{/css/pages/game-effects.css}"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+</head>
+<body data-mobile-adapt="owned" class="game-effects-page">
+  <div id="game-effects-root"></div>
+  <!-- Canonical entry URL: Pixi's renderer chunks share this module. -->
+  <script type="module" th:src="@{/arena/app/air-defense/air-defense-app.js(v='20261106-result')}"></script>
+</body>
+</html>

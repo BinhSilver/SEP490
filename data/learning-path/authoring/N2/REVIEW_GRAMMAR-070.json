@@ -1,0 +1,581 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜恐れがある",
+     "examples": [
+      {
+       "ja": "川の水が増えて、家が流される恐れがある。",
+       "ja_furigana": "川(かわ)の水(みず)が増(ふ)えて、家(いえ)が流(なが)される恐(おそ)れがある。",
+       "vi": "Nước sông dâng cao, có nguy cơ nhà bị cuốn trôi."
+      },
+      {
+       "ja": "雪で道が閉じて、バスが止まる恐れがある。",
+       "ja_furigana": "雪(ゆき)で道(みち)が閉(と)じて、バスが止(と)まる恐(おそ)れがある。",
+       "vi": "Tuyết làm đường bị đóng, có nguy cơ xe buýt ngừng chạy."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn và sửa mẫu bị lỗi"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "地震の際には、窓ガラスが割れたり壁が倒れたりする恐れがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lúc động đất e là cửa sổ kính sẽ vỡ, tường sẽ vỡ."
+     },
+     {
+      "ja": "台風１９号は今夜、四国に上陸の恐れがあります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "E là cơn bão số 19 sẽ đổ bộ lên Shikoku."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 地震の際には、窓ガラスが割れたり壁が倒れたりする恐れがある。",
+     "FURIGANA_MISSING: 台風１９号は今夜、四国に上陸の恐れがあります。"
+    ],
+    "formation": "Vる・Vない + 恐れがある; N の + 恐れがある",
+    "locked_fields": [],
+    "meaning_vi": "Có sự lo lắng là ～, e là ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜倒れたりするがある",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả tình trạng sự việc diễn ra có chiều hướng xấu. Câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-58f168ed90"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "値段が高ければいいというものでもない。",
+       "ja_furigana": "値段(ねだん)が高(たか)ければいいというものでもない。",
+       "vi": "Không thể nói cứ giá cao là tốt."
+      },
+      {
+       "ja": "人気があれば売れるというものでもない。",
+       "ja_furigana": "人気(にんき)があれば売(う)れるというものでもない。",
+       "vi": "Không thể nói cứ nổi tiếng là bán được."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "何でも多ければいいというものでもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không thể nói cái gì nhiều cũng tốt."
+     },
+     {
+      "ja": "お金があれば幸せだというものでもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không thể nói có tiền là hạnh phúc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 何でも多ければいいというものでもない。",
+     "FURIGANA_MISSING: お金があれば幸せだというものでもない。"
+    ],
+    "formation": "〜ば／〜たら + thể thường + というものでもない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể nói rằng ～, không thể nói chắc rằng ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜多ければいいというものでもない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi phủ định một phần sự việc, rằng không nhất định lúc nào cũng nói là ～ Câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1df3051bf2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この映画は本当の事件をもとに作られた。",
+       "ja_furigana": "この映画(えいが)は本当(ほんとう)の事件(じけん)をもとに作(つく)られた。",
+       "vi": "Bộ phim này được làm dựa trên một vụ việc có thật."
+      },
+      {
+       "ja": "アンケートの結果をもとに、新しいメニューを考えた。",
+       "ja_furigana": "アンケートの結果(けっか)をもとに、新(あたら)しいメニューを考(かんが)えた。",
+       "vi": "Dựa trên kết quả khảo sát, chúng tôi đã nghĩ ra thực đơn mới."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この小説は事実をもとに書かれた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuốn tiểu thuyết này được viết dựa vào sự thật."
+     },
+     {
+      "ja": "失敗をものにして発明する。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phát minh dựa trên những lần thất bại."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この小説は事実をもとに書かれた。",
+     "FURIGANA_MISSING: 失敗をものにして発明する。"
+    ],
+    "formation": "N + をもとに（して）",
+    "locked_fields": [],
+    "meaning_vi": "Dựa trên, căn cứ trên ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜事実をもとに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Lấy ～ làm cơ sở, tài liệu cho phán đoán."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-309b2fd8a8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "転勤をきっかけに、家族で引っ越した。",
+       "ja_furigana": "転勤(てんきん)をきっかけに、家族(かぞく)で引(ひ)っ越(こ)した。",
+       "vi": "Nhân dịp chuyển công tác, cả gia đình tôi đã chuyển nhà."
+      },
+      {
+       "ja": "子どもの誕生をきっかけに、たばこをやめた。",
+       "ja_furigana": "子(こ)どもの誕生(たんじょう)をきっかけに、たばこをやめた。",
+       "vi": "Nhân dịp con chào đời, tôi đã bỏ thuốc lá."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "大学入学をきっかけに引っ越す。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân dịp nhập trường đại học chuyển nhà luôn."
+     },
+     {
+      "ja": "病気をきっかけに酒をやめた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sẵn dịp bị bệnh bỏ rượu luôn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 大学入学をきっかけに引っ越す。",
+     "FURIGANA_MISSING: 病気をきっかけに酒をやめた。"
+    ],
+    "formation": "N + をきっかけに（して）; Vる・Vた + のをきっかけに",
+    "locked_fields": [],
+    "meaning_vi": "Nhân cơ hội, nhân dịp một sự việc nào đó.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜入学をきっかけに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu thị rằng từ một việc ngẫu nhiên mà có gì đó bắt đầu, thay đổi. ＊「契機に、契機として、契機にして」 là cách nói cứng của 「をきっかけに」"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-add37ef85c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お降りの際は、足もとにご注意ください。",
+       "ja_furigana": "お降(お)りの際(さい)は、足(あし)もとにご注意(ちゅうい)ください。",
+       "vi": "Khi xuống xe, xin chú ý dưới chân."
+      },
+      {
+       "ja": "図書館を利用する際は、受付で名前を書きます。",
+       "ja_furigana": "図書館(としょかん)を利用(りよう)する際(さい)は、受付(うけつけ)で名前(なまえ)を書(か)きます。",
+       "vi": "Khi sử dụng thư viện, bạn ghi tên ở quầy tiếp nhận."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "受験の際に、写真が必要です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lúc nhập viện hình là cần thiết."
+     },
+     {
+      "ja": "申し込んだ際、住所を間違って書いてしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lúc đăng ký đã ghi nhầm mất địa chỉ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 受験の際に、写真が必要です。",
+     "FURIGANA_MISSING: 申し込んだ際、住所を間違って書いてしまった。"
+    ],
+    "formation": "Vる・Vた + 際（に）; N の + 際（に）",
+    "locked_fields": [],
+    "meaning_vi": "Khi ～，lúc ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜受験の際に",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách nói cứng của 「とき」「～あたり」"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ce4c20df32"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "工事中につき、この道は通れません。",
+       "ja_furigana": "工事中(こうじちゅう)につき、この道(みち)は通(とお)れません。",
+       "vi": "Do đang thi công nên không thể đi qua con đường này."
+      },
+      {
+       "ja": "本日は都合により休業につき、ご了承ください。",
+       "ja_furigana": "本日(ほんじつ)は都合(つごう)により休業(きゅうぎょう)につき、ご了承(りょうしょう)ください。",
+       "vi": "Hôm nay do có việc nên cửa hàng nghỉ, mong quý khách thông cảm."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この機械はただ今調整中につき、ご使用になれません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái máy này vì bây giờ đang điều chỉnh nên không thể sử dụng."
+     },
+     {
+      "ja": "本日は祭日につき、休業させていただきます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay vì là ngày lễ nên được nghỉ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この機械はただ今調整中につき、ご使用になれません。",
+     "FURIGANA_MISSING: 本日は祭日につき、休業させていただきます。"
+    ],
+    "formation": "N + につき",
+    "locked_fields": [],
+    "meaning_vi": "Vì ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜調整中につき",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Câu văn cứng. Thường được sử dụng trong các tình huống trịnh trọng hay trong văn thư."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ecc2ed7ae6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町の人口は減る一方だ。",
+       "ja_furigana": "この町(まち)の人口(じんこう)は減(へ)る一方(いっぽう)だ。",
+       "vi": "Dân số thị trấn này ngày càng giảm."
+      },
+      {
+       "ja": "野菜の値段は上がる一方だ。",
+       "ja_furigana": "野菜(やさい)の値段(ねだん)は上(あ)がる一方(いっぽう)だ。",
+       "vi": "Giá rau cứ tăng mãi."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "人口は都市部に集中する一方だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dân số ngày càng tập trung về đô thị."
+     },
+     {
+      "ja": "円安の影響で、輸入価格は上昇する一方だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Do yen yếu, giá nhập khẩu cứ tăng mãi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 人口は都市部に集中する一方だ。",
+     "FURIGANA_MISSING: 円安の影響で、輸入価格は上昇する一方だ。"
+    ],
+    "formation": "Vる + 一方だ",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị sự biến đổi tiếp diễn theo một hướng (tăng/giảm) mà khó đảo ngược: “ngày càng …”, “càng lúc càng …”. Thường đi với động từ chỉ thay đổi không chủ ý: 増える, 減る, 悪化する, 高まる, 進む, 広がる, 深まる… Sắc thái khách quan, nhiều trong tin tức/báo cáo; thường mang cảm giác bất an khi là xu hướng xấu.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Càng ngày càng..., tiếp tục...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi người nói quan sát một xu thế dài hạn, không phải thay đổi tức thời. Ít dùng với động từ chủ ý (買う, 作る…). Nếu dùng, phải mang nghĩa tổng quát, khó kiểm soát. Phù hợp văn viết, tin tức. Trong văn nói thường dùng “どんどん/ますます + V-ていく”. [6. Ghi chú mở rộng] Nhiều khi đi kèm biểu thức thời gian/điều kiện để nêu nguyên nhân bối cảnh: 〜の影響で、〜一方だ。 Với xu hướng tốt vẫn dùng được: 売上は伸びる一方だ（trung tính/trang trọng). Dễ kết hợp với đồ thị/số liệu: 増加傾向にあり、今後も拡大する一方だ。 [7. Biến thể & cụm cố định] 悪化する一方だ／増える一方だ／広がる一方だ 減少の一方だ（danh hóa, văn viết) ～の傾向が強まる一方だ [8. Lỗi thường gặp & bẫy JLPT] Dùng với động từ chủ ý cụ thể: “買う一方だ” → không tự nhiên. Mô tả sự kiện tức thời: “雨が降った一方だ” → sai. Phải là xu hướng. Nhầm với “一方” (đối chiếu). “一方だ” không dùng để so sánh hai mặt. Dùng quá mức với nghĩa tích cực mạnh → nghe cứng; cân nhắc “ますます/どんどん”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d4ea861151"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この寺は国で最も古い建物とされる。",
+       "ja_furigana": "この寺(てら)は国(くに)で最(もっと)も古(ふる)い建物(たてもの)とされる。",
+       "vi": "Ngôi chùa này được coi là công trình cổ nhất cả nước."
+      },
+      {
+       "ja": "この料理はこの町の名物とされている。",
+       "ja_furigana": "この料理(りょうり)はこの町(まち)の名物(めいぶつ)とされている。",
+       "vi": "Món ăn này được xem là đặc sản của thị trấn."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この地域は地震の危険度が高いとされる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khu vực này được cho là có mức độ nguy hiểm động đất cao."
+     },
+     {
+      "ja": "彼はAI分野の第一人者とされている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy được xem là người tiên phong trong lĩnh vực AI."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この地域は地震の危険度が高いとされる。",
+     "FURIGANA_MISSING: 彼はAI分野の第一人者とされている。"
+    ],
+    "formation": "thể thường + とされる／とされている",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả sự đánh giá/chuẩn mực/quan điểm được nhiều người hoặc giới chuyên môn chấp nhận: “được coi là/được cho là”. Sắc thái khách quan, phi chủ thể rõ ràng; người nói không chịu trách nhiệm cá nhân cho đánh giá đó. Khác mức độ: - とされる: kết luận/định danh phổ biến (thường trong văn viết, hàn lâm, pháp lý, báo chí). - とされている: trạng thái nhận định chung đang tồn tại, mềm hơn một chút. Có thể đi kèm nguồn: 専門家によって／法律上／一般には + 〜とされる.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Được coi là..., được xem là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn giữ thái độ trung lập, không khẳng định tuyệt đối; thích hợp cho báo cáo, luận văn, tin tức. Thêm nguồn/tiêu chí làm rõ căn cứ: 一般には／法律上は／統計的には／専門家の間では + 〜とされる. Không dùng cho ý kiến rất cá nhân; khi chủ quan, dùng と思う／と考える phù hợp hơn. [6. Ghi chú mở rộng] Tiêu đề báo hay lược bỏ chủ ngữ: 「世界最古とされる洞窟を発見」 → “Phát hiện hang động được cho là cổ nhất thế giới”. Trong học thuật, kết hợp với 出典/調査名 để tăng độ tin cậy: 「〜とされる（Smith, 2021）」. Dạng phủ định hiếm: 〜とはされない（“không được coi là”） khi loại trừ trong pháp lý/quy định. [7. Biến thể & cụm cố định] 一般に／通説では／慣例上／法律上 + 〜とされる 世界最大級とされる〜／歴史的価値が高いとされる〜 犯人とされる男／原因とされる物質 〜とされているが、異論もある（đưa phản biện) [8. Lỗi thường gặp & bẫy JLPT] Nhầm sắc thái: とされる ≠ と言われている. Câu hỏi JLPT hay hỏi sự khách quan; chọn とされる khi văn phong trang trọng/học thuật. Bỏ quên ている: Khi nhấn trạng thái chung kéo dài → ưu tiên とされている. Dùng cho ý kiến cá nhân → sai phong cách. Cá nhân nên dùng と思う／と考える. Định ngữ: N + とされる + N là cấu trúc báo chí; đừng chèn だ trước とされる trong định ngữ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5073933611"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この薬はよく効く一方で、副作用も強い。",
+       "ja_furigana": "この薬(くすり)はよく効(き)く一方(いっぽう)で、副作用(ふくさよう)も強(つよ)い。",
+       "vi": "Loại thuốc này tác dụng tốt, nhưng mặt khác tác dụng phụ cũng mạnh."
+      },
+      {
+       "ja": "彼は仕事は速い一方、ミスも多い。",
+       "ja_furigana": "彼(かれ)は仕事(しごと)は速(はや)い一方(いっぽう)、ミスも多(おお)い。",
+       "vi": "Anh ấy làm việc nhanh, ngược lại cũng hay mắc lỗi."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この制度は公平な一方、手続きが複雑だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chế độ này tuy công bằng nhưng thủ tục lại phức tạp."
+     },
+     {
+      "ja": "都市は便利な一方で、自然が少ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thành phố một mặt tiện lợi, mặt khác ít thiên nhiên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この制度は公平な一方、手続きが複雑だ。",
+     "FURIGANA_MISSING: 都市は便利な一方で、自然が少ない。"
+    ],
+    "formation": "thể thường（Aな・N + である） + 一方（で）",
+    "locked_fields": [],
+    "meaning_vi": "Nêu hai mặt/khía cạnh đối lập hoặc khác nhau của cùng một vấn đề/chủ thể: “một mặt …, mặt khác …”. Đối chiếu hai hiện tượng/nhóm: “trong khi … thì …”. Không nhất thiết phủ định nhau hoàn toàn, chỉ nhấn mạnh sự tương phản. “その一方で” dùng như cụm chuyển ý ở câu sau, thêm thông tin trái chiều để cân bằng lập luận. Sắc thái trang trọng, thường dùng trong báo chí, báo cáo, nghị luận. Lưu ý phân biệt với “一方だ” (tiến triển một chiều); “一方” ở đây KHÔNG mang nghĩa “ngày càng”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Một mặt..., ngược lại...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để cân bằng thông tin, thể hiện cái nhìn đa chiều; hợp với văn phong khách quan. Nên dùng khi hai mệnh đề có cùng chủ đề hoặc cùng phạm vi so sánh/đối chiếu. “その一方で” đứng đầu câu sau để nêu mặt khác, tránh lặp lại chủ ngữ. Không dùng “一方” để liệt kê thuần túy; phải có đối chiếu/khác biệt nhất định. [6. Ghi chú mở rộng] Có thể dùng “一方、…” ở đầu câu mới khi hai mệnh đề đã rõ ràng chủ thể. Trong báo cáo, “A。一方で、B。” giúp làm rõ lập luận đa chiều, tránh thiên kiến. Không nên dùng để nêu hệ quả trực tiếp (vì → nên); hãy dùng để đối chiếu hai thực tế. [7. Biến thể & cụm cố định] その一方で、… 一方では～一方で（…） 名詞 + である一方で（…） 文末 dùng “一方だ” là mẫu khác nghĩa, tránh nhầm. [8. Lỗi thường gặp & bẫy JLPT] Nhầm với “一方だ” khi muốn nói “ngày càng”. “一方” (đối chiếu) không diễn tả xu hướng. Bỏ “で” sau “一方” khi nối: “一方、” và “一方で、” đều đúng; chọn phù hợp ngữ cảnh. Dùng khi hai mệnh đề không có liên hệ chủ đề → câu trở nên rời rạc, mất logic. Dùng như nguyên nhân-kết quả → sai sắc thái; “一方” là đối chiếu, không phải nguyên nhân."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cd5c0b6668"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私はラジオを通じて、この歌を知った。",
+       "ja_furigana": "私(わたし)はラジオを通(つう)じて、この歌(うた)を知(し)った。",
+       "vi": "Tôi biết bài hát này qua đài phát thanh."
+      },
+      {
+       "ja": "ボランティア活動を通して、多くの友人ができた。",
+       "ja_furigana": "ボランティア活動(かつどう)を通(とお)して、多(おお)くの友人(ゆうじん)ができた。",
+       "vi": "Nhờ hoạt động tình nguyện, tôi đã có nhiều bạn."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "インターネットを通じて情報を集める。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thu thập thông tin thông qua internet."
+     },
+     {
+      "ja": "留学を通して多くのことを学んだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã học được nhiều điều thông qua du học."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: インターネットを通じて情報を集める。",
+     "FURIGANA_MISSING: 留学を通して多くのことを学んだ。"
+    ],
+    "formation": "N + を通じて／を通して",
+    "locked_fields": [],
+    "meaning_vi": "Thông qua/trung gian N: dùng N làm kênh/phương tiện để thực hiện điều gì. Trong suốt (toàn thời kỳ) N: một trạng thái/hoạt động tiếp diễn suốt khoảng thời gian N. “を通じて” hơi trang trọng hơn “を通して”; cái sau thường gợi ý quá trình/kinh nghiệm cụ thể.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Thông qua..., suốt...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng cho kênh truyền đạt (人・媒体・制度・経験) hoặc toàn kỳ thời gian (日・年・季節). Sắc thái trung tính đến trang trọng, hay dùng trong bài viết, tin tức. “を通じて” thiên về kết quả thông qua kênh; “を通して” thiên về trải nghiệm/quá trình. [6. Ghi chú mở rộng] Khi chỉ thời gian, các cụm thường gặp: 一年を通じて, 通年で, 通期で. Trong quan hệ: 人脈/紹介/代理店を通じて → nhấn “qua trung gian”. Với dữ liệu/truyền thông: メディア/SNS/広告を通じて → kênh truyền tải. [7. Biến thể & cụm cố định] N + を通じて／を通して／を介して（trang trọng hơn） 一年を通じて, 通年で販売, 四季を通じて 友人を通じて紹介, 取引先を通じて連絡 [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～によって (nguyên nhân/bị động): “TVによって伝えられた” có thể mơ hồ; tự nhiên hơn “TVを通じて”. Dùng “通して” khi muốn nhấn “toàn kỳ”: nên chọn “通じて” cho sắc thái trang trọng ổn định trong JLPT. Gắn với động từ yêu cầu tác nhân cụ thể: “先生を通じて教える” mơ hồ; nên là “先生を通じて知らせる/紹介される”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b39e066f65"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-070"
+}

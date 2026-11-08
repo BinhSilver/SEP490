@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Nội dung ôn tập JLPT - JLAS', 'jlpt-study')}"></head>
+<body id="jlabBasePage" class="app-body">
+<div id="jlabBaseShellMount"></div>
+<main class="js-study-page" id="jlptStudyApp" data-inline-dictionary>
+    <header class="js-study-heading"><a id="studyBack" href="/jlpt" aria-label="Quay lại">←</a><div><h1 id="studyTitle">Đang tải đề JLPT…</h1><p id="studySubtitle"></p></div></header>
+    <p id="studyNotice" role="status" hidden></p>
+    <section id="studyOverview" hidden>
+        <div class="js-study-layout">
+            <section><h2>ĐỀ THI <span id="studyDuration"></span></h2><div id="studyParts" class="js-study-panel"></div><a id="studyExam" class="js-study-button" href="#">Luyện tập toàn bộ đề</a></section>
+            <aside><h2>ÔN TẬP</h2><div class="js-study-review">
+                <article class="js-study-box"><h3>▤ Từ vựng trong đề</h3><p id="studyWordCount">Đang tải…</p><a id="studyVocabularyLink" class="js-study-button" href="#">Xem danh sách từ</a></article>
+                <article class="js-study-box"><h3>▣ Ngữ pháp trong đề</h3><p id="studyGrammarCount">Đang tải…</p><a id="studyGrammarLink" class="js-study-button grammar" href="#">Xem danh sách mẫu</a></article>
+            </div></aside>
+        </div>
+    </section>
+    <section id="studyListView" hidden>
+        <form class="js-study-filters" id="studyFilters" role="search"><label><span class="js-study-sr">Tìm nội dung</span><input type="search" id="studyQuery" placeholder="Tìm theo từ, cách đọc hoặc nghĩa…" maxlength="200"></label></form>
+        <div id="studyEntries" class="js-study-panel" aria-live="polite"></div>
+    </section>
+</main>
+<script th:src="@{/js/jlab-base-shell.js?v=20261107-nav}"></script>
+<script th:src="@{/js/pages/jlpt-study.js?v=4}"></script>
+</body>
+</html>

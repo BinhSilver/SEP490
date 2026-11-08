@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.LockModeType;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 /**
@@ -19,6 +20,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
+    /** Serializes credential linking and password-reset challenge issuance/consumption. */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select u from User u where u.email = :email")
+    Optional<User> findForAuthentication(@Param("email") String email);
+
     Optional<User> findByUsername(String username);
 
     Optional<User> findByGoogleId(String googleId);
@@ -27,7 +33,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByUsername(String username);
 
+    /** Serializes avatar/profile changes and appeal creation for a user. */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select u from User u where u.id = :userId")
+    Optional<User> findForProfileUpdate(@Param("userId") Long userId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select u from User u where u.id = :userId")
     Optional<User> findForCreditUpdate(@Param("userId") Long userId);
+
+    /** Only the birth date, for Shadowing age ratings: video streaming asks often and needs nothing else. */
+    @Query("select u.dateOfBirth from User u where u.id = :userId")
+    Optional<LocalDate> findDateOfBirthById(@Param("userId") Long userId);
 }

@@ -1,0 +1,602 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "海の近くはあたたかいのに対して、山はまだ寒い。",
+       "ja_furigana": "海(うみ)の近(ちか)くはあたたかいのに対(たい)して、山(やま)はまだ寒(さむ)い。",
+       "vi": "Gần biển ấm còn trên núi vẫn lạnh.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "父は朝早く起きるのに対して、母は夜おそくまで起きている。",
+       "ja_furigana": "父(ちち)は朝(あさ)早(はや)く起(お)きるのに対(たい)して、母(はは)は夜(よる)おそくまで起(お)きている。",
+       "vi": "Bố dậy sớm vào buổi sáng, còn mẹ thì thức đến khuya.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "怒りっぽいのに対して",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngược lại với tính dễ nóng giận"
+     },
+     {
+      "ja": "東京ではそばが人気があるのに対して、大阪ではうどんが人気がある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ở Tokyo soba được yêu thích, ngược lại thì ở Osaka udon được yêu thích."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 怒りっぽいのに対して",
+     "FURIGANA_MISSING: 東京ではそばが人気があるのに対して、大阪ではうどんが人気がある。"
+    ],
+    "formation": "V / Aい / Aな(な)・N(な / である) + のに対して",
+    "locked_fields": [],
+    "meaning_vi": "So sánh hai sự vật đối lập nhau.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜のに対して(対比)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-75fad5bfef"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "兄の靴がない。もう出かけたらしい。",
+       "ja_furigana": "兄(あに)の靴(くつ)がない。もう出(で)かけたらしい。",
+       "vi": "Không thấy giày anh trai, hình như anh đã ra ngoài.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "道がぬれている。夜の間に雨が降ったらしい。",
+       "ja_furigana": "道(みち)がぬれている。夜(よる)の間(あいだ)に雨(あめ)が降(ふ)ったらしい。",
+       "vi": "Đường ướt. Hình như đêm qua trời mưa.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "倒れてしまったらしい",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hình như anh ấy bị ngã"
+     },
+     {
+      "ja": "最近、田中さんはいつもニコニコしている。うわさによると、彼女ができたらしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gần đây, Tanaka thường xuyên cười tủm tỉm. Theo như lời đồn thì hình như anh ấy đã có bạn gái."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 倒れてしまったらしい",
+     "FURIGANA_MISSING: 最近、田中さんはいつもニコニコしている。うわさによると、彼女ができたらしい。"
+    ],
+    "formation": "V / Aい / Aな・N + らしい",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả sự phỏng đoán có căn cứ mang tính khách quan.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜らしい(推測)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-29eb1f0b95"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "もしも雪が降っても、駅まで歩きます。",
+       "ja_furigana": "もしも雪(ゆき)が降(ふ)っても、駅(えき)まで歩(ある)きます。",
+       "vi": "Dù có tuyết, tôi vẫn đi bộ tới ga.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "もしも生まれ変われるなら、鳥になりたい。",
+       "ja_furigana": "もしも生(う)まれ変(か)われるなら、鳥(とり)になりたい。",
+       "vi": "Giả sử được sinh ra lần nữa, tôi muốn làm chim.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "もしも生まれ変われるなら、男になりたい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giả sử được sinh ra lần nữa, tôi muốn là con trai"
+     },
+     {
+      "ja": "もしも地震が起きても、この家、丈夫だから倒れないでしょう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù động đất có xảy ra thì căn nhà này rất vững chắc nên sẽ không thể đổ được"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: もしも生まれ変われるなら、男になりたい。",
+     "FURIGANA_MISSING: もしも地震が起きても、この家、丈夫だから倒れないでしょう。"
+    ],
+    "formation": "もし(も) + V / Aい / Aな・N + なら",
+    "locked_fields": [],
+    "meaning_vi": "Giả sử, nếu….thì/ thì cũng",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜もしも生まれ変われるなら",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng cho trường hợp đưa ra điều kiện giả định"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0be87f8ebd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "もし車が使えたとしても、電車で行く。",
+       "ja_furigana": "もし車(くるま)が使(つか)えたとしても、電車(でんしゃ)で行(い)く。",
+       "vi": "Giả sử dùng được ô tô tôi vẫn đi tàu.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "もし時間があったとしても、その映画は見ないと思う。",
+       "ja_furigana": "もし時間(じかん)があったとしても、その映画(えいが)は見(み)ないと思(おも)う。",
+       "vi": "Giả sử có thời gian thì tôi nghĩ cũng sẽ không xem bộ phim đó.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "もし休みが取れたとしても、旅行に行かないつもりです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giả sử đã lấy được kỳ nghĩ thì cũng không đi du lịch"
+     },
+     {
+      "ja": "もし、お金がたくさんあったとしても、そんなものは買わない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giả sử có nhiều tiền thì cũng không mua cái đó"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: もし休みが取れたとしても、旅行に行かないつもりです。",
+     "FURIGANA_MISSING: もし、お金がたくさんあったとしても、そんなものは買わない。"
+    ],
+    "formation": "(もし) + V-た / Aい / Aな・N(だ) + としても",
+    "locked_fields": [],
+    "meaning_vi": "Giả sử là….thì cũng",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜もし休みがたとしても",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi nói đến giả định mang tính khả thi thấp"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a7000dfa5f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "もし鍵を持っていたなら、部屋に入れたはずだ。",
+       "ja_furigana": "もし鍵(かぎ)を持(も)っていたなら、部屋(へや)に入(い)れたはずだ。",
+       "vi": "Nếu có chìa thì hẳn đã vào phòng được.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "もしあの電車に乗っていたなら、間に合ったのに。",
+       "ja_furigana": "もしあの電車(でんしゃ)に乗(の)っていたなら、間(ま)に合(あ)ったのに。",
+       "vi": "Giả sử đã lên chuyến tàu đó thì đã kịp rồi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "もし試験を受けていたなら、合格していたと思う。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giả sử tham gia thi thì tôi nghĩ tôi đã đậu rồi"
+     },
+     {
+      "ja": "もし彼が社長でなかったなら、会社はつぶれていたと思う。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu anh ấy không phải là giám đốc thì công ty đã sụp đổ rồi"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: もし試験を受けていたなら、合格していたと思う。",
+     "FURIGANA_MISSING: もし彼が社長でなかったなら、会社はつぶれていたと思う。"
+    ],
+    "formation": "もし + V-ていたなら / V-たなら",
+    "locked_fields": [],
+    "meaning_vi": "Giả sử là…thì….",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜もし受験していたなら",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi muốn đưa ra giả thuyết về một sự việc không có thật và hệ quả của sự việc không có thật đó"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-25155c1410"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "週末は家で本を読むことにしています。",
+       "ja_furigana": "週末(しゅうまつ)は家(いえ)で本(ほん)を読(よ)むことにしています。",
+       "vi": "Cuối tuần tôi có thói quen đọc sách ở nhà.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "毎晩、寝る前に十分体をのばすことにしている。",
+       "ja_furigana": "毎晩(まいばん)、寝(ね)る前(まえ)に十分(じゅっぷん)体(からだ)をのばすことにしている。",
+       "vi": "Tối nào trước khi ngủ tôi cũng duy trì giãn cơ mười phút.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "昼食はいつもパンにしています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bữa trưa tôi luôn ăn bánh mì。"
+     },
+     {
+      "ja": "寝る前に必ず日記を書くことにしている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi luôn viết nhật ký trước khi đi ngủ。"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 昼食はいつもパンにしています。",
+     "FURIGANA_MISSING: 寝る前に必ず日記を書くことにしている。"
+    ],
+    "formation": "N + にしている / V-る・V-ない + ことにしている",
+    "locked_fields": [],
+    "meaning_vi": "Duy trì điều mình đã quyết định",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜している・〜ことにしている",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "決めたことを続けている Duy trì điều mình đã quyết định Ví dụ: 1. 昼食はいつもパンにしています。 Bữa trưa tôi luôn ăn bánh mì。 2. 寝る前に必ず日記を書くことにしている。 Tôi luôn viết nhật ký trước khi đi ngủ。 3. レジ袋はもらわないことにしている。 Tôi không nhận túi nilon khi mua hàng。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-137b6cd3e0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "明日の集合は駅前になることになっている。",
+       "ja_furigana": "明日(あした)の集合(しゅうごう)は駅前(えきまえ)になることになっている。",
+       "vi": "Đã định ngày mai tập trung trước ga.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "この会社では、毎週月曜日に会議をすることになっている。",
+       "ja_furigana": "この会社(かいしゃ)では、毎週(まいしゅう)月曜日(げつようび)に会議(かいぎ)をすることになっている。",
+       "vi": "Ở công ty này, theo quy định thứ Hai hằng tuần đều họp.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "毎年、花見の会場は桜公園になっています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hàng năm, địa điểm xem hoa là Công viên Sakura。"
+     },
+     {
+      "ja": "この会社では制服を着ることになっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ở công ty này quy định phải mặc đồng phục."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 毎年、花見の会場は桜公園になっています。",
+     "FURIGANA_MISSING: この会社では制服を着ることになっている。"
+    ],
+    "formation": "N + になっている / V-る・V-ない + ことになっている",
+    "locked_fields": [],
+    "meaning_vi": "Sự duy trì những gì đã được quyết định",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜になっている・〜ことになっている",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "決まったことが続いている（決まり・予定） Sự duy trì những gì đã được quyết định Ví dụ: 1. 毎年、花見の会場は桜公園になっています。 Hàng năm, địa điểm xem hoa là Công viên Sakura。 2. この会社では制服を着ることになっている。 Ở công ty này quy định phải mặc đồng phục. 3. 学生は車で通学できないことになっている。 Học sinh không được phép đi học bằng ô tô. 4. 明日、社長は9時の便で中国に行くことになっている Ngày mai, giám đốc sẽ đi Trung Quốc bằng chuyến bay lúc 9 giờ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3aaef74b0c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夜になると、この道は暗くなる。",
+       "ja_furigana": "夜(よる)になると、この道(みち)は暗(くら)くなる。",
+       "vi": "Đến đêm con đường này tối đi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "毎日練習して、泳ぐのが上手になった。",
+       "ja_furigana": "毎日(まいにち)練習(れんしゅう)して、泳(およ)ぐのが上手(じょうず)になった。",
+       "vi": "Nhờ luyện tập mỗi ngày mà tôi bơi giỏi lên.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "大きいケーキが半分になった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chiếc bánh lớn đã được chia làm hai。"
+     },
+     {
+      "ja": "小魚をよく食べたので、骨が上部になった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì ăn kỹ cá nhỏ nên xương đã nằm ở phía trên。"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 大きいケーキが半分になった。",
+     "FURIGANA_MISSING: 小魚をよく食べたので、骨が上部になった。"
+    ],
+    "formation": "Aい(bỏ い) + くなる / Aな・N + になる / V-る + ことになる",
+    "locked_fields": [],
+    "meaning_vi": "Trạng thái bị thay đổi",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜になる・〜くなる",
+    "pattern_variants": [
+     "〜になる・〜ことになる"
+    ],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "状態が変わる Trạng thái bị thay đổi Ví dụ: 1. 大きいケーキが半分になった。 Chiếc bánh lớn đã được chia làm hai。 2. 小魚をよく食べたので、骨が上部になった。 Vì ăn kỹ cá nhỏ nên xương đã nằm ở phía trên。 3. 電気を消したので、部屋が暗くなった。 Vì đã tắt đèn nên phòng trở nên tối。 4. 最近、この川では魚があまり釣れなくなった。 Gần đây, ở con sông này cá ít bắt được。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-15b1dbcd6f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今日は日曜日だから、学校は休みのはずだ。",
+       "ja_furigana": "今日(きょう)は日曜日(にちようび)だから、学校(がっこう)は休(やす)みのはずだ。",
+       "vi": "Hôm nay chủ nhật nên trường hẳn nghỉ.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "手紙は昨日出したから、もう届いているはずだ。",
+       "ja_furigana": "手紙(てがみ)は昨日(きのう)出(だ)したから、もう届(とど)いているはずだ。",
+       "vi": "Thư gửi từ hôm qua nên chắc chắn đã đến rồi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今日は祝日のはずだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay lẽ ra là ngày lễ."
+     },
+     {
+      "ja": "彼はもう駅に着いているはずだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy hẳn đã đến ga rồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今日は祝日のはずだ。",
+     "FURIGANA_MISSING: 彼はもう駅に着いているはずだ。"
+    ],
+    "formation": "V / Aい / Aな(な) / N(の) + はずだ",
+    "locked_fields": [],
+    "meaning_vi": "- Nghĩa: “Chắc hẳn/đúng ra là… (theo lẽ thường, theo kế hoạch, theo lý do)”. Mức độ tin chắc cao hơn だろう/でしょう, dựa trên cơ sở rõ ràng (thông tin, lịch trình, logic). - Sắc thái: Khẳng định có cơ sở. Khi dùng phủ định ～はずがない thì là phủ định mạnh vì trái với lẽ thường/căn cứ. - Thời: ～はずだった diễn tả “đáng lẽ/đã dự định”, hay dùng kèm が／のに để nêu kết quả trái. - Kết hợp: Dùng được với ある/いる/可能・受身・使役, v.v.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chắc chắn là, đáng lẽ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Cơ sở suy luận cần rõ (thời khóa biểu, lời ai đó, kinh nghiệm). Trang nhã hơn khi nói lịch sự: ～はずです／～はずでしょう（nhẹ hơn）. Biểu thị mâu thuẫn: ～はずなのに + kết quả trái kỳ vọng. Phủ định mạnh: ～はずがない ＞ ～ないはずだ về sắc thái phủ định. Tránh dùng để yêu cầu/mệnh lệnh; đây là phán đoán, không phải ý chí. [6. Ghi chú mở rộng] N + の + はずだ là dạng chuẩn; tránh dùng N + はずだ (thiếu の) trong văn viết nghiêm túc. “来るはずだった” diễn tả kỳ vọng tại thời điểm quá khứ; “来たはずだ” là suy đoán chắc đã xảy ra. ～はずがない nhấn mạnh phủ định dựa trên lẽ thường/điều đã biết; mạnh hơn ～ないはずだ. Trong lịch sự: ～のはずです/～のはずではありません dùng trong công việc, email. [7. Biến thể & cụm cố định] ～はずがない／～はずはない（phủ định mạnh） ～はずだった（が／のに）（đáng lẽ đã… nhưng） ～はずなのに（trái kỳ vọng） Nのはずだ／Aなはずだ／Aいはずだ／V-普はずだ（bộ khung đầy đủ） [8. Lỗi thường gặp & bẫy JLPT] Sai hạt nối với danh từ: dùng Nのはずだ chứ không phải Nはずだ. Lẫn với だろう/でしょう: đề bài cần “có cơ sở chắc chắn” → chọn ～はずだ. Nhầm quá khứ: 来るはずだった（kỳ vọng trong quá khứ）≠ 来たはずだ（suy đoán đã xảy ra）. Ghép với mệnh lệnh/yêu cầu là không tự nhiên: × 来るはずだ、来なさい。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9e5e216609"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "兄は家を出たきり、まだ帰らない。",
+       "ja_furigana": "兄(あに)は家(いえ)を出(で)たきり、まだ帰(かえ)らない。",
+       "vi": "Anh trai rời nhà rồi đến giờ vẫn chưa về.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "祖父は去年入院したきり、家に戻っていない。",
+       "ja_furigana": "祖父(そふ)は去年(きょねん)入院(にゅういん)したきり、家(いえ)に戻(もど)っていない。",
+       "vi": "Ông tôi nhập viện từ năm ngoái rồi cứ thế chưa về nhà.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "このチケットは一度きりしか使えない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vé này chỉ dùng được đúng một lần."
+     },
+     {
+      "ja": "彼は出張に行ったきり、連絡をよこさない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy đi công tác rồi từ đó không liên lạc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: このチケットは一度きりしか使えない。",
+     "FURIGANA_MISSING: 彼は出張に行ったきり、連絡をよこさない。"
+    ],
+    "formation": "N / Số từ + きり / V-た + きり",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ/duy nhất: Giới hạn số lượng/đối tượng ở đúng mức được nêu (mang sắc thái thu hẹp, đôi khi tiếc nuối). Kể từ khi V rồi (mãi) không…: Mô tả tình trạng sau quá khứ kéo dài đến hiện tại, thường đi kèm phủ định ở vế sau. Khẩu ngữ っきり: tự nhiên trong hội thoại, thân mật; きり trang trọng/trung tính hơn. Thường gắn với cặp 夫婦きり, 二人きり, 子どもきり v.v. để nhấn mạnh chỉ có đúng nhóm đó.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chỉ, kể từ khi... thì không",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Vた + きり: vế sau thường là phủ định hoặc trạng thái duy trì (～ない/～ていない/～まま). “Chỉ/duy nhất”: có thể kèm しか～ない để nhấn mạnh hơn (一度きりしか～ない). っきり: dùng với người thân/ bạn bè; tránh trong văn bản trang trọng. Khác “だけ”: きり nhấn mạnh sự hạn chế chặt hơn, cảm giác “chỉ vậy thôi, không hơn”. [6. Ghi chú mở rộng] Vたきり có thể đi với “そのまま” hàm ý mặc nhiên tiếp diễn: 出たきり（そのまま）帰らない. “N + きりで” đôi khi rút gọn “で”: 夫婦きり暮らしている（＝夫婦きりで暮らしている） trong khẩu ngữ. Trong tiêu đề/quảng cáo, 一度きり nhấn mạnh tính “cơ hội có một không hai”. [7. Biến thể & cụm cố định] ～っきり（khẩu ngữ） 二人きり／夫婦きり／本人きり 一度きり／今回きり Vたきり～ない [8. Lỗi thường gặp & bẫy JLPT] Dùng きり với hiện tại cho nghĩa “kể từ khi”: phải là Vたきり, không phải Vるきり. Nhầm きり với だけ: trong đề JLPT, きり thường gắn cảm giác hạn hẹp/duy nhất mạnh hơn. Quên phủ định ở vế sau với Vたきり khi muốn nói “từ đó không …”: cần ～ない/～ていない. Nhầm きり với っぱなし: っぱなし nói “để nguyên”, không mang nghĩa “kể từ khi”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2ecd65de48"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-065"
+}

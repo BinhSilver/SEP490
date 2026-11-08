@@ -1,0 +1,597 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "道は広ければ広いほど歩きやすい。",
+       "ja_furigana": "道(みち)は広(ひろ)ければ広(ひろ)いほど歩(ある)きやすい。",
+       "vi": "Đường càng rộng càng dễ đi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "この本は読めば読むほどおもしろくなる。",
+       "ja_furigana": "この本(ほん)は読(よ)めば読(よ)むほどおもしろくなる。",
+       "vi": "Cuốn sách này càng đọc càng thấy hay.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼のことを知れば知るほど好きになる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Càng hiểu về anh ấy thì lại càng thích"
+     },
+     {
+      "ja": "荷物は少なければ少ないほどいい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đồ đạc càng ít càng tốt"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼のことを知れば知るほど好きになる。",
+     "FURIGANA_MISSING: 荷物は少なければ少ないほどいい。"
+    ],
+    "formation": "V-ば + V-る + ほど / Aい(ければ) + Aい + ほど",
+    "locked_fields": [],
+    "meaning_vi": "Càng….càng….",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜知ればほど",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để thể hiện mức độ kết quả càng tăng khi đặc tính của sự vật càng tăng"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e6e24dea5d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母のスープはおどろくほど温かかった。",
+       "ja_furigana": "母(はは)のスープはおどろくほど温(あたた)かかった。",
+       "vi": "Súp của mẹ ấm đến mức khiến tôi ngạc nhiên.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "昨日は声が出なくなるくらい笑った。",
+       "ja_furigana": "昨日(きのう)は声(こえ)が出(で)なくなるくらい笑(わら)った。",
+       "vi": "Hôm qua tôi cười đến mức không ra tiếng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "それは米粒くらいの大きさです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái đó có độ lớn cỡ hạt gạo"
+     },
+     {
+      "ja": "この洗剤は、おもしろいほど汚れが落ちる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Loại nước tẩy này làm vết bẩn trôi đi đến kinh ngạc"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: それは米粒くらいの大きさです。",
+     "FURIGANA_MISSING: この洗剤は、おもしろいほど汚れが落ちる。"
+    ],
+    "formation": "N + くらい / ぐらい / ほど (chỉ mức độ / kích thước ví von)",
+    "locked_fields": [],
+    "meaning_vi": "Đến cỡ, đến mức, cỡ",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜米粒くらい/米粒ほど",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nói đến mức độ, quy mô dùng so sánh với sự vật, sự việc"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e994a20dd2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "仕事が忙しい人ほど、休む時間が大事だ。",
+       "ja_furigana": "仕事(しごと)が忙(いそが)しい人(ひと)ほど、休(やす)む時間(じかん)が大事(だいじ)だ。",
+       "vi": "Càng bận rộn, thời gian nghỉ càng quan trọng.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "子どもは小さいほど、よく寝る。",
+       "ja_furigana": "子(こ)どもは小(ちい)さいほど、よく寝(ね)る。",
+       "vi": "Trẻ con càng nhỏ thì ngủ càng nhiều.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "若い人ほど朝寝坊をする。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phía người trẻ thường ngủ nướng hơn"
+     },
+     {
+      "ja": "伝統的なものは、古いほど価値がある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Những đồ truyền thống thì phía cổ có giá trị hơn"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 若い人ほど朝寝坊をする。",
+     "FURIGANA_MISSING: 伝統的なものは、古いほど価値がある。"
+    ],
+    "formation": "Aい / Aな(な) / N + ほど + V / A",
+    "locked_fields": [],
+    "meaning_vi": "Phía, bên…(hơn)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜若い人ほど",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nói đến một phía, một bên nào đó thì sẽ có đặc điểm hơn/kém hơn như thế nào"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0fd582beaf"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "花の色の明るさが気に入った。",
+       "ja_furigana": "花(はな)の色(いろ)の明(あか)るさが気(き)に入(い)った。",
+       "vi": "Tôi thích độ tươi sáng của màu hoa.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "この川の深さは、二メートルぐらいだ。",
+       "ja_furigana": "この川(かわ)の深(ふか)さは、二(に)メートルぐらいだ。",
+       "vi": "Độ sâu của con sông này khoảng hai mét.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "部屋の広さ",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Độ rộng của phòng"
+     },
+     {
+      "ja": "エアコンを買う前に、部屋の広さを調べておこう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trước khi mua điều hòa, phải đo độ rộng của phòng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 部屋の広さ",
+     "FURIGANA_MISSING: エアコンを買う前に、部屋の広さを調べておこう。"
+    ],
+    "formation": "Aい(bỏ い) + さ / Aな + さ",
+    "locked_fields": [],
+    "meaning_vi": "Danh từ được tạo thành từ tính từ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜さ(形容詞の名詞化)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c097fac367"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "水を少し飲むだけでいいよ。",
+       "ja_furigana": "水(みず)を少(すこ)し飲(の)むだけでいいよ。",
+       "vi": "Chỉ cần uống chút nước là được.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "名前を書くだけでいいですよ。",
+       "ja_furigana": "名前(なまえ)を書(か)くだけでいいですよ。",
+       "vi": "Chỉ cần viết tên là được.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "見るだけでいい",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ nhìn thôi cũng được"
+     },
+     {
+      "ja": "この宿題だけでいいから、教えてくれない？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ bài tập này thôi cũng được, chỉ giúp tôi được không?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 見るだけでいい",
+     "FURIGANA_MISSING: この宿題だけでいいから、教えてくれない？"
+    ],
+    "formation": "V-る / N + だけでいい",
+    "locked_fields": [],
+    "meaning_vi": "Đưa ra các điều nhò bé, rồi biểu thị tâm trạng “chỉ thế thôi cũng không sao”",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜だけでいい",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "文章 さくらさんに、明日一緒に新しい部屋をチェック①（a.してほしいと b.してほしいように）言われた。部屋を②（a.選ぶ b.選び）際は、その部屋➂（a.だけに b.だけで）なく、周りの環境もよくチェックしなければならない。特に、安全な所どうかは、女性に④（a.よって b.とって）とても大切だ。さくらさんは明日⑤（a.こそ b.うちに）部屋を決めたいと思っているようだが、しっかりチェックしたほうがいい。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bad83fbe43"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店では魚だけでなく野菜も買える。",
+       "ja_furigana": "この店(みせ)では魚(さかな)だけでなく野菜(やさい)も買(か)える。",
+       "vi": "Ở quán này mua được cả cá lẫn rau.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "田中さんは英語だけでなく、中国語も話せる。",
+       "ja_furigana": "田中(たなか)さんは英語(えいご)だけでなく、中国語(ちゅうごくご)も話(はな)せる。",
+       "vi": "Anh Tanaka không chỉ nói được tiếng Anh mà còn cả tiếng Trung.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "部屋だけでなく",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không chỉ có phòng"
+     },
+     {
+      "ja": "飛行機だけでなく船にも乗った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi không chỉ đi máy bay mà còn đi thuyền."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 部屋だけでなく",
+     "FURIGANA_MISSING: 飛行機だけでなく船にも乗った。"
+    ],
+    "formation": "N / V / A + だけでなく / ばかりでなく",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị khi muốn nói rằng “không chỉ ~ mà còn ~”",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜だけでなく/〜ばかりでなく",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a4e32d9445"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅までの道を教えてもらえるかな。",
+       "ja_furigana": "駅(えき)までの道(みち)を教(おし)えてもらえるかな。",
+       "vi": "Cậu chỉ đường tới ga cho tôi được chứ?",
+       "role": "MAIN"
+      },
+      {
+       "ja": "ちょっとこの箱を持ってもらえない？",
+       "ja_furigana": "ちょっとこの箱(はこ)を持(も)ってもらえない？",
+       "vi": "Cầm giúp mình cái hộp này một chút được không?",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "手伝ってもらえない（かな）？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn có thể giúp tôi không?"
+     },
+     {
+      "ja": "宿題が分からないんだけど、ちょっと教えてもらえる？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi không hiểu bài tập về nhà, bạn có thể chỉ tôi một chút được không?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 手伝ってもらえない（かな）？",
+     "FURIGANA_MISSING: 宿題が分からないんだけど、ちょっと教えてもらえる？"
+    ],
+    "formation": "V-て + もらえない(かな / かしら)",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị cách nhờ vả suồng sả (Khi nhờ gia đình hay bạn thân)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜てもらえない(かな)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fb7acd5cd2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "もう店が閉まったなら、待っても仕方がない。",
+       "ja_furigana": "もう店(みせ)が閉(し)まったなら、待(ま)っても仕方(しかた)がない。",
+       "vi": "Quán đóng rồi thì chờ cũng vô ích.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "終わったことを考えても仕方がない。",
+       "ja_furigana": "終(お)わったことを考(かんが)えても仕方(しかた)がない。",
+       "vi": "Có nghĩ về chuyện đã qua cũng chẳng được gì.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "行っても仕方（が）ない",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đành phải đi"
+     },
+     {
+      "ja": "電車が止まったのなら、遅れても仕方（が）ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu tàu đã dừng thì đành đến muộn thôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 行っても仕方（が）ない",
+     "FURIGANA_MISSING: 電車が止まったのなら、遅れても仕方（が）ない。"
+    ],
+    "formation": "V-ても / Aい(くても) + 仕方(が)ない / しょうがない",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị cảm xúc chấp nhận kết quả mà không vừa ý.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ても仕方(が)ない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-32d85583a0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "朝食とは、朝に食べる食事のことだ。",
+       "ja_furigana": "朝食(ちょうしょく)とは、朝(あさ)に食(た)べる食事(しょくじ)のことだ。",
+       "vi": "“Bữa sáng” là bữa ăn vào buổi sáng.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "「花見」とは、さくらを見ながら楽しむことだ。",
+       "ja_furigana": "「花見(はなみ)」とは、さくらを見(み)ながら楽(たの)しむことだ。",
+       "vi": "\"Hanami\" là việc vừa ngắm hoa anh đào vừa vui chơi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "デジカメとは",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dejikame là..."
+     },
+     {
+      "ja": "デジカメとは、デジタルカメラ（のこと）だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dejikame là máy ảnh kĩ thuật số."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [],
+    "formation": "N + と(いうの)は",
+    "locked_fields": [],
+    "meaning_vi": "Định nghĩa cái đó là cái như thế nào. Ý nghĩa của ~ là...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜と(いうの)は",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-848b0979af"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "週末は本を読むとか、散歩するとかします。",
+       "ja_furigana": "週末(しゅうまつ)は本(ほん)を読(よ)むとか、散歩(さんぽ)するとかします。",
+       "vi": "Cuối tuần tôi đọc sách hoặc đi dạo.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "果物は、りんごとかみかんとかが好きです。",
+       "ja_furigana": "果物(くだもの)は、りんごとかみかんとかが好(す)きです。",
+       "vi": "Về hoa quả thì tôi thích kiểu như táo, quýt.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "本だなとかテーブルとか",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Như là giá sách, cái bàn,..."
+     },
+     {
+      "ja": "本だなとか、テーブルとか、必要なものがたくさんある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có nhiều thứ cần thiết như là giá sách, cái bàn,.."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 本だなとかテーブルとか",
+     "FURIGANA_MISSING: 本だなとか、テーブルとか、必要なものがたくさんある。"
+    ],
+    "formation": "N1 + とか + N2 (とか)",
+    "locked_fields": [],
+    "meaning_vi": "Biểu hiện văn nói đưa ra các ví dụ tương thích.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜とか(...とか)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "復習3 正しいほうを選びなさい。 １．この病気を治す (a.には b.では）、手術が必要だ。 ２．がんばった（a.こそ b.からこそ）、いい結果が出せたんだよ。 ３．お湯をわかす (a.のに b.というのは）、いつも電気ポットを使っている。 ４．いい人生 (a.とは b.には）、どんな人生だろうか。 ５．勉強しないんだから、成績が悪い（a.のに b.のも）あたりまえだ。 ６．ご入場（a.に b.の）際に、これを見せてください。 ７．この辞書で、意味だけじゃなくアクセント (a.のも b.も）調べられる。 ８．「お元気そうですね」「そちら（a.こそ b.とか）お元気そうで、よかったです」 ９．「２年ぶりに田中さんに会ったよ」「へえ。住所（a.とか b.とは）、聞いた？」 １０．宿題がないという(a.のは b.のに）、勉強しなくてもいいということかな？ １１．その仕事をするかどうかは、時給(a.に b.で）よります。 １２．ちょっと(a.で b.では）いいから、宿題を見せてくれない？ １３．スポーツは、見るだけ（a.で b.に）なく、自分でするともっと楽しい。 プラス３"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3509ff8144"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-055"
+}

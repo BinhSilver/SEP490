@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi"><head>
+    <script src="/js/theme-init.js"></script>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Lịch sử luyện AI Call · JLAS</title>
+    <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/tokens.css}"/><link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/><link rel="stylesheet" th:href="@{/css/base.css}"/><link rel="stylesheet" th:href="@{/css/app.css}"/><link rel="stylesheet" th:href="@{/css/aicall-tree.css}"/><link rel="stylesheet" th:href="@{/css/aicall-cases.css}"/><link rel="stylesheet" th:href="@{/css/aicall-stages.css}"/><link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+</head><body data-mobile-adapt="owned" id="jlabBasePage"><div id="jlabBaseShellMount"></div><main id="jlabBaseContent" class="aicall-case-page">
+    <section class="container" style="padding:36px 0 64px;max-width:1000px">
+        <h1><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Lịch sử luyện hội thoại</h1><p th:if="${#lists.isEmpty(attempts)}" class="stage-review-notice">Bạn chưa có lượt luyện nào. Chọn màn đầu tiên trên lộ trình để bắt đầu.</p>
+        <ol class="stage-history"><li th:each="attempt : ${attempts}" class="stage-history-row">
+            <div><span class="stage-history-label" th:text="${attempt.contentReview ? 'Kiểm tra nội dung' : attempt.stagePassed ? 'Đã vượt màn' : attempt.status.name()=='IN_PROGRESS' ? 'Đang luyện' : attempt.stageCode != null ? 'Chưa vượt màn' : 'Đã kết thúc'}"></span><h2 th:text="${stageTitles[attempt.id]}"></h2><p th:text="${attempt.scenario.catalogTitle}"></p><p><time th:text="${#temporals.format(attempt.startedAt,'dd/MM/yyyy HH:mm')}"></time><span th:if="${attempt.overallScore != null}" th:text="' · '+${attempt.overallScore}+'/100'"></span><span th:if="${attempt.durationSeconds != null}" th:text="' · '+${attempt.durationSeconds}+' giây'"></span></p></div>
+            <a th:href="${attempt.status.name()=='IN_PROGRESS' ? '/conversation/'+attempt.id : '/conversation/'+attempt.id+'/result'}"><span th:text="${attempt.status.name()=='IN_PROGRESS'?'Tiếp tục':'Xem kết quả'}"></span></a>
+        </li></ol>
+    </section></main><script th:src="@{/js/auth-session.js}"></script><script th:src="@{/js/jlab-base-shell.js}"></script>
+</body></html>

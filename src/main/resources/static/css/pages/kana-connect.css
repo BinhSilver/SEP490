@@ -1,0 +1,353 @@
+/* Kana Connect daily challenge page (Wend-style board), reusing the Goals page tokens and cards. */
+.kc {
+  --kc-accent-ink: #6544cf;
+  --kc-wall: #d8d3cb;
+  --kc-frame-edge: #8e8981;
+  --kc-cell: #ffffff;
+  --kc-grid: #e6e2dc;
+  --kc-found: #b5d33f;
+  --kc-found-edge: #8cad22;
+  --kc-found-ink: #26330a;
+  --kc-active: #e4dafd;
+  --kc-active-edge: #8e6ff0;
+  --kc-slot: #e9e5df;
+  --kc-gold: #f2b416;
+  --kc-silver: #b9c2cc;
+  --kc-bronze: #e08a3c;
+  --kc-podium: linear-gradient(135deg, #7c5cff 0%, #b04cf0 100%);
+  display: grid; gap: 18px; min-width: 0;
+}
+html[data-theme="dark"] :is(.kc, .kc-tut) {
+  --kc-accent-ink: var(--dark-accent);
+  --kc-wall: var(--dark-raised);
+  --kc-frame-edge: var(--dark-line);
+  --kc-cell: var(--gp-card);
+  --kc-grid: rgba(255, 255, 255, .09);
+  --kc-found: #9cbd2c;
+  --kc-found-edge: #c4e05a;
+  --kc-found-ink: #172005;
+  --kc-active: rgb(220 174 232 / 30%);
+  --kc-active-edge: var(--dark-accent);
+  --kc-slot: rgba(255, 255, 255, .1);
+  --kc-podium: linear-gradient(135deg, var(--dark-line) 0%, var(--dark-soft) 100%);
+}
+html[data-theme="dark"] .kc-tut__btn {
+  border-color: var(--dark-button);
+  color: var(--dark-on-button);
+  background: var(--dark-button);
+}
+html[data-theme="dark"] .kc-tut-num { fill: var(--dark-button); stroke: var(--dark-on-button); }
+.kc [hidden] { display: none !important; }
+.kc-intro { margin: 4px 0 0; color: var(--gp-muted); font-size: 13px; }
+
+/* Page header: back to the missions, title, today's progress and the level picker. */
+.kc-hero { display: grid; gap: 14px; }
+.kc-hero__row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 20px; }
+.kc-hero h1 { margin: 0; font-size: 24px; line-height: 1.2; color: var(--gp-ink); }
+.kc-hero .kc-levels { justify-content: flex-start; margin: 0; }
+.kc-panel { padding: 22px; }
+
+/* Top 5: rank 1 in the middle, 2 and 3 beside it, 4 and 5 on the outside. */
+.kc-podium-card { padding: 18px 22px 22px; }
+.kc-podium-card .kc-rank__head h2 { margin: 0; font-size: 16px; color: var(--gp-ink); }
+.kc-podium-card .kc-rank__head h2 i { color: var(--kc-gold); margin-right: 4px; }
+.kc-podium-level { color: var(--kc-accent-ink); }
+.kc-podium {
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: end; gap: 10px;
+  margin: 10px 0 0; padding: 26px 16px 18px; border-radius: 18px; background: var(--kc-podium); list-style: none;
+}
+.kc-podium__spot { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; text-align: center; color: #fff; }
+.kc-podium__face { position: relative; display: block; }
+.kc-podium__avatar {
+  display: grid; place-items: center; width: 58px; height: 58px; overflow: hidden; border: 3px solid rgba(255, 255, 255, .85);
+  border-radius: 50%; background: #fff; color: #6544cf; font-size: 18px; font-weight: 800; box-shadow: 0 6px 16px rgba(30, 10, 80, .25);
+}
+.kc-podium__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.kc-podium__badge {
+  position: absolute; right: -4px; bottom: -4px; display: grid; place-items: center; width: 22px; height: 22px;
+  border: 2px solid #fff; border-radius: 50%; background: #6544cf; color: #fff; font-size: 11px; font-weight: 800;
+}
+.kc-podium__crown { position: absolute; top: -20px; left: 50%; z-index: 1; transform: translateX(-50%) rotate(-8deg); font-size: 20px; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .25)); }
+.kc-podium__name { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.kc-podium__title { max-width: 100%; padding: 2px 8px; border-radius: 999px; background: rgba(255, 255, 255, .18); font-size: 11px; font-weight: 700; line-height: 1.4; cursor: help; }
+.kc-podium__time { font-size: 12px; font-variant-numeric: tabular-nums; opacity: .9; }
+.kc-podium__spot.is-rank1 .kc-podium__avatar { width: 92px; height: 92px; border-color: var(--kc-gold); font-size: 28px; }
+.kc-podium__spot.is-rank1 .kc-podium__crown { top: -30px; font-size: 30px; color: var(--kc-gold); }
+.kc-podium__spot.is-rank1 .kc-podium__badge { width: 26px; height: 26px; background: var(--kc-gold); color: #4a3500; font-size: 13px; }
+.kc-podium__spot.is-rank1 .kc-podium__name { font-size: 15px; }
+.kc-podium__spot.is-rank1 .kc-podium__title { background: var(--kc-gold); color: #4a3500; }
+.kc-podium__spot.is-rank2 .kc-podium__avatar, .kc-podium__spot.is-rank3 .kc-podium__avatar { width: 72px; height: 72px; font-size: 22px; }
+.kc-podium__spot.is-rank2 .kc-podium__avatar { border-color: var(--kc-silver); }
+.kc-podium__spot.is-rank2 .kc-podium__crown { top: -24px; font-size: 24px; color: var(--kc-silver); }
+.kc-podium__spot.is-rank2 .kc-podium__badge { background: var(--kc-silver); color: #33393f; }
+.kc-podium__spot.is-rank3 .kc-podium__avatar { border-color: var(--kc-bronze); }
+.kc-podium__spot.is-rank3 .kc-podium__crown { top: -24px; font-size: 24px; color: var(--kc-bronze); }
+.kc-podium__spot.is-rank3 .kc-podium__badge { background: var(--kc-bronze); color: #4a2508; }
+.kc-podium__spot.is-empty { opacity: .55; }
+.kc-podium__spot.is-empty .kc-podium__avatar { background: rgba(255, 255, 255, .2); border-style: dashed; color: #fff; }
+.kc-podium__spot.is-me .kc-podium__name:not([data-name-style]) { padding: 0 8px; border-radius: 999px; background: #fff; color: #6544cf; }
+/* Tên có màu (mua ở Cửa hàng): nền trắng sẽ đè mất gradient chữ, nên chỉ viền trắng để đánh dấu "bạn". */
+.kc-podium__spot.is-me .kc-podium__name[data-name-style] { padding: 0 8px; border-radius: 999px; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .85); }
+
+/* Desktop: board on the left, word slots on the right. */
+.kc-play {
+  display: grid; align-items: start; justify-content: center; gap: 14px 48px;
+  grid-template-columns: minmax(0, 440px) minmax(260px, max-content);
+  /* Flexible rows above and below keep the side column vertically centred on the board. */
+  grid-template-rows: 1fr auto auto auto 1fr;
+  grid-template-areas: "board ." "board meta" "board sel" "board words" "board .";
+  max-width: 960px; margin: 0 auto;
+}
+.kc-meta { grid-area: meta; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; font-size: 13px; color: var(--gp-muted); }
+.kc-clock { display: inline-flex; align-items: center; gap: 6px; color: var(--gp-ink); font-weight: 600; }
+.kc-clock time { font-variant-numeric: tabular-nums; }
+
+/* Level picker: shared daily boards N5..N1 and a mixed board. */
+.kc-levels { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin: 0 auto 18px; }
+.kc-levels button {
+  position: relative; min-width: 48px; padding: 7px 12px; border: 1px solid var(--gp-line); border-radius: 999px;
+  background: var(--gp-card); color: var(--gp-muted); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.kc-levels button:hover { border-color: var(--kc-active-edge); color: var(--kc-accent-ink); }
+.kc-levels button[aria-pressed="true"] { border-color: var(--kc-accent-ink); background: var(--kc-accent-ink); color: #fff; }
+/* Dot marks the learner's learning-path level, which opens first. */
+.kc-levels button.is-default::after {
+  content: ""; position: absolute; top: 3px; right: 5px; width: 6px; height: 6px; border-radius: 50%; background: var(--kc-found-edge);
+}
+.kc-progress { font-variant-numeric: tabular-nums; }
+/* Hint: opens every 30 seconds of play, counting down while it is closed; pressed, it lets the learner pick a slot. */
+.kc-hint {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--kc-active-edge); border-radius: 999px;
+  background: var(--kc-active); color: var(--kc-accent-ink); font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+.kc-hint:hover:not(:disabled) { background: var(--kc-accent-ink); color: #fff; }
+.kc-hint:disabled { cursor: default; opacity: .6; }
+.kc-hint:focus-visible { outline: 3px solid var(--kc-accent-ink); outline-offset: 2px; }
+.kc-hint[aria-pressed="true"] { background: var(--kc-accent-ink); color: #fff; }
+/* Picking a hint: each empty slot of an unsolved word is a button that opens the kana in it. */
+.kc-slot.is-pickable, .kc-tut-slot.is-pickable {
+  padding: 0; border: 1.5px dashed var(--kc-active-edge); background: var(--kc-cell); cursor: pointer;
+  animation: kc-pick 1.4s ease-in-out infinite;
+}
+.kc-slot.is-pickable:hover, .kc-slot.is-pickable:focus-visible,
+.kc-tut-slot.is-pickable:hover, .kc-tut-slot.is-pickable:focus-visible { border-style: solid; background: var(--kc-active); outline: none; }
+@keyframes kc-pick { 50% { box-shadow: 0 0 0 3px var(--kc-active); } }
+.kc-word:not(.is-found) .kc-slot.is-hint { background: var(--kc-active); color: var(--kc-accent-ink); box-shadow: inset 0 0 0 1.5px var(--kc-active-edge); }
+
+.kc-frame { grid-area: board; padding: 10px; border: 2px solid var(--kc-frame-edge); border-radius: 16px; background: var(--kc-wall); }
+.kc-board {
+  position: relative; display: grid; width: 100%; aspect-ratio: 1;
+  grid-template-columns: repeat(var(--grid-size), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--grid-size), minmax(0, 1fr));
+  touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.kc-tile, .kc-wall { min-width: 0; min-height: 0; }
+.kc-wall { background: var(--kc-wall); }
+.kc-tile {
+  display: flex; align-items: center; justify-content: center; position: relative; padding: 0; margin: 0;
+  border: 0; border-radius: 0; box-shadow: inset 0 0 0 .5px var(--kc-grid), 0 0 0 .5px var(--kc-grid);
+  background: var(--kc-cell); color: var(--gp-ink);
+  font-family: "Yu Gothic", "Meiryo", sans-serif; font-size: clamp(18px, 4.6vw, 26px); font-weight: 600;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.kc-tile.is-compound { font-size: clamp(13px, 3.2vw, 19px); letter-spacing: -.04em; }
+.kc-tile span { position: relative; z-index: 3; pointer-events: none; }
+.kc-tile.is-solved { color: var(--kc-found-ink); }
+.kc-tile:disabled { cursor: default; }
+.kc-tile:focus-visible { outline: 3px solid var(--kc-accent-ink); outline-offset: -3px; }
+.kc button:focus-visible { outline: 3px solid var(--gp-violet); outline-offset: 2px; }
+
+/* Path "snake": a thick rounded stroke under the letters plus reading-direction chevrons. */
+.kc-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.kc-lines polyline { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.kc-snake__edge { stroke-width: 80; }
+.kc-snake__fill { stroke-width: 72; }
+.kc-snake--found .kc-snake__edge { stroke: var(--kc-found-edge); }
+.kc-snake--found .kc-snake__fill { stroke: var(--kc-found); }
+.kc-snake--active .kc-snake__edge { stroke: var(--kc-active-edge); }
+.kc-snake--active .kc-snake__fill { stroke: var(--kc-active); }
+.kc-snake__arrow { fill: none; stroke: var(--kc-found-ink); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; opacity: .7; }
+.kc-snake--active .kc-snake__arrow { stroke: var(--kc-accent-ink); }
+
+.kc-selection {
+  grid-area: sel; min-height: 34px; margin: 0; font-family: "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 20px; font-weight: 600; letter-spacing: .06em; color: var(--kc-accent-ink); overflow-wrap: anywhere;
+}
+
+/* Word slots: one row of small squares per word, filled in once found. */
+.kc-words { grid-area: words; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.kc-word { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; min-width: 0; }
+.kc-slots { display: flex; gap: 4px; }
+.kc-slot {
+  display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 7px;
+  background: var(--kc-slot); color: var(--kc-found-ink);
+  font-family: "Yu Gothic", "Meiryo", sans-serif; font-size: 15px; font-weight: 700;
+}
+.kc-slot.is-compound { font-size: 11px; letter-spacing: -.06em; }
+.kc-word.is-found .kc-slot { background: var(--kc-found); box-shadow: inset 0 0 0 1.5px var(--kc-found-edge); }
+.kc-gloss { font-size: 12px; color: var(--gp-muted); line-height: 1.4; overflow-wrap: anywhere; }
+.kc-gloss strong { margin-right: 4px; font-family: "Yu Gothic", "Meiryo", sans-serif; font-size: 14px; color: var(--gp-ink); }
+
+/* Today's ranking for the board on screen. */
+.kc-rank__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.kc-rank__head span { font-size: 12px; color: var(--gp-muted); }
+.kc-rank__me { margin: 12px 0 0; text-align: center; font-size: 12px; font-weight: 700; color: var(--kc-accent-ink); }
+
+.kc-message { margin: 12px 0 0; color: var(--gp-muted); font-size: 13px; line-height: 1.6; }
+.kc-message:empty { display: none; }
+.kc-message.is-error { color: var(--color-danger, #b9324b); }
+.kc .gp-soft-btn { color: var(--kc-accent-ink); }
+html:not([data-theme="dark"]) .kc .gp-primary-btn { background: var(--kc-accent-ink); }
+
+@media (max-width: 640px) {
+  .kc-hero h1 { font-size: 20px; }
+  .kc-panel { padding: 16px 12px; }
+  .kc-podium-card { padding: 14px 12px 16px; }
+  .kc-podium { gap: 4px; padding: 30px 6px 14px; }
+  .kc-podium__avatar { width: 44px; height: 44px; font-size: 14px; }
+  .kc-podium__spot.is-rank1 .kc-podium__avatar { width: 68px; height: 68px; font-size: 22px; }
+  .kc-podium__spot.is-rank2 .kc-podium__avatar, .kc-podium__spot.is-rank3 .kc-podium__avatar { width: 54px; height: 54px; font-size: 17px; }
+  .kc-podium__name { font-size: 11px; }
+  .kc-podium__spot.is-rank1 .kc-podium__name { font-size: 12px; }
+  .kc-podium__title { padding: 1px 5px; font-size: 9.5px; white-space: normal; }
+  .kc-podium__time { font-size: 11px; }
+}
+
+/* Mobile: clock bar, full-width board, then the staggered word slots (like Wend). */
+@media (max-width: 760px) {
+  .kc-play { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-template-areas: "meta" "board" "sel" "words"; gap: 12px; }
+  .kc-levels { margin-bottom: 14px; }
+  .kc-levels button { min-width: 0; padding: 6px 11px; }
+  .kc-frame { width: 100%; max-width: 460px; justify-self: center; padding: 8px; border-radius: 14px; }
+  .kc-selection { min-height: 28px; text-align: center; font-size: 18px; }
+  .kc-words { align-items: center; gap: 8px; }
+  .kc-word { justify-content: center; }
+  .kc-word:nth-child(odd) { transform: translateX(-12px); }
+  .kc-word:nth-child(even) { transform: translateX(12px); }
+  .kc-slot { width: 26px; height: 26px; border-radius: 6px; font-size: 13px; }
+  .kc-gloss { flex-basis: 100%; text-align: center; }
+}
+@media (max-width: 380px) {
+  .kc-slot { width: 22px; height: 22px; font-size: 12px; }
+  .kc-word:nth-child(n) { transform: none; }
+}
+@media (max-width: 400px) {
+  .kc-podium__avatar { width: 38px; height: 38px; border-width: 2px; font-size: 12px; }
+  .kc-podium__spot.is-rank1 .kc-podium__avatar { width: 58px; height: 58px; font-size: 18px; }
+  .kc-podium__spot.is-rank2 .kc-podium__avatar, .kc-podium__spot.is-rank3 .kc-podium__avatar { width: 46px; height: 46px; font-size: 15px; }
+  .kc-podium__badge { width: 18px; height: 18px; font-size: 10px; }
+}
+
+/* ---------- "Cách chơi" button and beginner tutorial popup ---------- */
+.kc-help-btn {
+  display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border: 1px solid var(--kc-active-edge); border-radius: 999px;
+  background: var(--gp-card); color: var(--kc-accent-ink); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.kc-help-btn:hover { background: var(--kc-active); }
+.kc-help-btn:focus-visible { outline: 3px solid var(--kc-accent-ink); outline-offset: 2px; }
+
+.kc-tut {
+  width: min(520px, calc(100vw - 32px)); max-height: calc(100vh - 32px); padding: 0; border: 1px solid var(--gp-line);
+  border-radius: 20px; background: var(--gp-card); color: var(--gp-ink); box-shadow: 0 24px 60px rgba(20, 10, 60, .28); overflow: auto;
+}
+.kc-tut::backdrop { background: rgba(14, 10, 30, .55); }
+.kc-tut__head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 0; }
+.kc-tut__step { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--kc-accent-ink); }
+.kc-tut__close { display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 50%; background: transparent; color: var(--gp-muted); font-size: 16px; cursor: pointer; }
+.kc-tut__close:hover { background: var(--kc-slot); color: var(--gp-ink); }
+.kc-tut__title { margin: 6px 20px 10px; font-size: 21px; line-height: 1.25; }
+.kc-tut__body { display: grid; gap: 14px; padding: 0 20px; }
+.kc-tut__foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px 20px; }
+.kc-tut__dots { display: flex; gap: 6px; }
+.kc-tut__dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--kc-slot); }
+.kc-tut__dots i.is-on { width: 22px; border-radius: 999px; background: var(--kc-accent-ink); }
+.kc-tut__actions { display: flex; gap: 8px; }
+.kc-tut__btn { padding: 10px 18px; border: 1px solid var(--kc-accent-ink); border-radius: 999px; background: #6544cf; color: #ffffff; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+.kc-tut__btn:hover { filter: brightness(1.08); }
+.kc-tut__btn--ghost { background: transparent; color: var(--kc-accent-ink); }
+.kc-tut__btn:focus-visible, .kc-tut__close:focus-visible { outline: 3px solid var(--kc-accent-ink); outline-offset: 2px; }
+
+.kc-tut-lead { margin: 0; color: var(--gp-muted); font-size: 14.5px; line-height: 1.6; }
+.kc-tut-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.kc-tut-list li { display: grid; grid-template-columns: 34px minmax(0, 1fr); align-items: start; gap: 10px; font-size: 14px; line-height: 1.55; }
+.kc-tut-list i { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--kc-active); color: var(--kc-accent-ink); font-size: 15px; }
+.kc-tut-list b { color: var(--gp-ink); }
+.kc-tut-note { min-height: 22px; margin: 0; font-size: 13.5px; color: var(--gp-muted); }
+.kc-tut-note.is-good { color: var(--kc-found-edge); font-weight: 700; }
+html:not([data-theme="dark"]) .kc-tut-note.is-good { color: #4f6b12; }
+
+/* Practice board: same look as the real one, on a small 3 x 2 grid. */
+.kc-tut-practice { display: grid; justify-items: center; gap: 10px; }
+.kc-tut-board {
+  display: grid; grid-template-columns: repeat(3, 64px); grid-template-rows: repeat(3, 64px); padding: 8px;
+  border: 2px solid var(--kc-frame-edge); border-radius: 14px; background: var(--kc-wall); touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.kc-tut-cell, .kc-tut-wall { min-width: 0; }
+.kc-tut-wall { background: var(--kc-wall); }
+.kc-tut-cell {
+  display: grid; place-items: center; padding: 0; border: 0; box-shadow: inset 0 0 0 .5px var(--kc-grid), 0 0 0 .5px var(--kc-grid);
+  background: var(--kc-cell); color: var(--gp-ink); font-family: "Yu Gothic", "Meiryo", sans-serif; font-size: 26px; font-weight: 600; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; transition: background-color 120ms;
+}
+.kc-tut-cell.is-selected { background: var(--kc-active); color: var(--kc-accent-ink); }
+.kc-tut-cell.is-found { background: var(--kc-found); color: var(--kc-found-ink); cursor: default; }
+.kc-tut-cell:focus-visible { outline: 3px solid var(--kc-accent-ink); outline-offset: -3px; }
+.kc-tut-cell.is-static { width: 56px; height: 56px; border-radius: 10px; cursor: default; }
+.kc-tut-cell.is-compound { font-size: 19px; letter-spacing: -.04em; }
+.kc-tut-words { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; justify-items: center; }
+.kc-tut-word { display: flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 6px 10px; }
+.kc-tut-gloss { font-size: 13px; color: var(--gp-muted); }
+.kc-tut-gloss strong { margin-right: 4px; font-family: "Yu Gothic", "Meiryo", sans-serif; font-size: 15px; color: var(--gp-ink); }
+
+.kc-tut-slots { display: inline-flex; gap: 4px; }
+.kc-tut-slot {
+  display: grid; place-items: center; width: 30px; height: 30px; border-radius: 7px; background: var(--kc-slot);
+  color: var(--kc-found-ink); font-family: "Yu Gothic", "Meiryo", sans-serif; font-size: 15px; font-weight: 700;
+}
+.kc-tut-slot.is-compound { font-size: 11px; letter-spacing: -.06em; }
+.kc-tut-slot.is-filled { background: var(--kc-found); box-shadow: inset 0 0 0 1.5px var(--kc-found-edge); }
+.is-hint-demo .kc-tut-slot.is-filled { background: var(--kc-active); color: var(--kc-accent-ink); box-shadow: inset 0 0 0 1.5px var(--kc-active-edge); }
+
+.kc-tut-example { display: grid; gap: 12px; }
+.kc-tut-compound { display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: 12px; background: var(--kc-slot); }
+.kc-tut-caption { font-size: 13.5px; color: var(--gp-ink); line-height: 1.5; }
+.kc-tut-hint { display: grid; gap: 10px; }
+.kc-tut-hint__row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 14px; border-radius: 12px; background: var(--kc-slot); }
+
+@media (max-width: 420px) {
+  .kc-tut__title { font-size: 18px; }
+  .kc-tut-board { grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 56px); }
+  .kc-tut-stage { grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 56px); }
+  .kc-tut__foot { flex-wrap: wrap; }
+}
+
+/* Bending-path demo: the path draws itself over a 3 x 3 board, letters stay on top. */
+.kc-tut-bend { display: grid; justify-items: center; gap: 10px; }
+.kc-tut-board.is-demo { display: block; }
+.kc-tut-stage { position: relative; display: grid; grid-template-columns: repeat(3, 64px); grid-template-rows: repeat(3, 64px); }
+.kc-tut-cell.is-demo { cursor: default; }
+.kc-tut-letter { position: relative; z-index: 2; }
+.kc-tut-cell.is-on-path { color: var(--kc-accent-ink); }
+.kc-tut-path { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: visible; }
+.kc-tut-path polyline { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; animation: kc-tut-draw 3.2s ease-in-out infinite; }
+.kc-tut-path__edge { stroke: var(--kc-active-edge); stroke-width: 74; }
+.kc-tut-path__fill { stroke: var(--kc-active); stroke-width: 66; }
+.kc-tut-num { fill: #6544cf; stroke: #ffffff; stroke-width: 2.5; }
+.kc-tut-num-text { fill: #ffffff; font: 800 15px "Be Vietnam Pro", system-ui, sans-serif; text-anchor: middle; }
+@keyframes kc-tut-draw { 0% { stroke-dashoffset: 1; } 55%, 85% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 1; } }
+.kc-tut-rules { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; justify-self: stretch; }
+.kc-tut-rules li { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.kc-tut-rules i { display: grid; place-items: center; flex: none; width: 24px; height: 24px; border-radius: 50%; font-size: 12px; }
+.kc-tut-rules .is-yes i { background: var(--kc-found); color: var(--kc-found-ink); }
+.kc-tut-rules .is-no i { background: #fde2e4; color: #b42318; }
+.kc-tut-rules b { color: var(--gp-ink); }
+@media (max-width: 420px) { .kc-tut-stage { grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 56px); } }
+
+/* Khung avatar trên bục (components/avatar-frame.css): bỏ viền riêng khi có khung; huy hiệu hạng + vương miện nằm trên khung. */
+.af-host.has-frame > .kc-podium__avatar { border: 0; box-shadow: none; }
+.kc-podium__badge, .kc-podium__crown { z-index: 3; }
+/* Khung tràn 25% cỡ avatar: chừa chỗ để không đè lên tên (58px → 15px, hạng 2–3 72px → 18px, hạng 1 92px → 23px). */
+.kc-podium .af-host.has-frame { margin: 15px 0; }
+.kc-podium__spot.is-rank2 .af-host.has-frame, .kc-podium__spot.is-rank3 .af-host.has-frame { margin: 18px 0; }
+.kc-podium__spot.is-rank1 .af-host.has-frame { margin: 23px 0; }

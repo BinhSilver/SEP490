@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FlashcardModerationTargetHandler implements ModerationTargetHandler {
     private final FlashcardSetRepository sets;
+    private final com.jlas.flashcard.repository.FlashcardCardRepository cards;
     private final ContentCommentRepository comments;
 
     @Override
@@ -29,13 +30,13 @@ public class FlashcardModerationTargetHandler implements ModerationTargetHandler
     public ModerationTargetSnapshot snapshot(String targetType, Long targetId) {
         if ("FLASHCARD_SET".equals(targetType)) {
             return sets.findById(targetId)
-                    .map(set -> new ModerationTargetSnapshot(set.getDescription(),
-                            "/flashcard/set.html?id=" + set.getId()))
+                    .map(set -> new ModerationTargetSnapshot(preview(set),
+                            "/flashcard/study.html?setId=" + set.getId()))
                     .orElseGet(ModerationTargetSnapshot::empty);
         }
         return comments.findById(targetId)
                 .map(comment -> new ModerationTargetSnapshot(comment.getContent(),
-                        "/flashcard/set.html?id=" + comment.getTargetId()))
+                        "/flashcard/study.html?setId=" + comment.getTargetId()))
                 .orElseGet(ModerationTargetSnapshot::empty);
     }
 
@@ -59,6 +60,19 @@ public class FlashcardModerationTargetHandler implements ModerationTargetHandler
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Bình luận không còn tồn tại"));
         comment.setIsHidden(!approve);
         comments.save(comment);
+    }
+
+    private String preview(FlashcardSet set) {
+        StringBuilder text = new StringBuilder(set.getTitle() == null ? "" : set.getTitle());
+        if (set.getDescription() != null) text.append('\n').append(set.getDescription());
+        for (var card : cards.findBySetIdOrderByPositionAscIdAsc(set.getId())) {
+            text.append('\n');
+            for (String part : new String[] {card.getFront(), card.getReading(), card.getMeaning(),
+                    card.getBack(), card.getHanViet(), card.getExampleJa(), card.getExampleVi()}) {
+                if (part != null && !part.isBlank()) text.append(part).append(' ');
+            }
+        }
+        return text.toString();
     }
 
     private static String fallback(String value, String defaultValue) {

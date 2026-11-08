@@ -34,7 +34,7 @@ public class KanjiReading {
     @Column(name = "reading_text", nullable = false, length = 100)
     private String readingText;
 
-    /** 1 nếu là cách đọc thường dùng. */
+    /** 1 nếu là cách đọc nên học trước — suy từ thứ tự trong KANJIDIC2, không phải thống kê tần suất. */
     @Column(name = "is_common", nullable = false)
     @Builder.Default
     private Boolean isCommon = false;

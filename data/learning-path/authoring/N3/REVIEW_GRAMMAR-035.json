@@ -1,0 +1,586 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "集合の時間、それと場所も知らせてね。",
+       "ja_furigana": "集合(しゅうごう)の時間(じかん)、それと場所(ばしょ)も知(し)らせてね。",
+       "vi": "Nhớ báo cả giờ tập trung lẫn địa điểm nhé.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "牛乳を買ってきて。それと、パンもお願い。",
+       "ja_furigana": "牛乳(ぎゅうにゅう)を買(か)ってきて。それと、パンもお願(ねが)い。",
+       "vi": "Mua sữa về nhé. Thêm nữa, nhờ mua cả bánh mì.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "パン、それとコーヒーをください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Làm ơn cho bánh mì, và thêm cà phê nữa."
+     },
+     {
+      "ja": "住所それと電話番号を教えてください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vui lòng cho biết địa chỉ và số điện thoại."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 住所それと電話番号を教えてください。"
+    ],
+    "formation": "N1、+ それと + N2 / Câu 1。+ それと、+ Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Liên từ khẩu ngữ mang nghĩa “và/ngoài ra”, dùng để bổ sung mục hoặc thông tin tiếp theo. Sắc thái hội thoại, mềm hơn そして; có thể dùng như câu rẽ hướng nhẹ “à, còn…”. Khi liệt kê danh từ, “それと” tách các mục tương đối độc lập; không nhấn mạnh trình tự thời gian như それから.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Và còn, thêm nữa",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thân mật, tự nhiên trong hội thoại hàng ngày. Dùng đầu câu để thêm thông tin chợt nhớ ra, chuyển ý nhẹ nhàng. Trong văn bản trang trọng, thay bằng そして/または/および/ならびに tùy ngữ cảnh. [6. Ghi chú mở rộng] Trong liệt kê dài, “A、B、それとC” làm nổi bật mục cuối như “và thêm C nữa”. Có thể mang sắc thái “nhớ ra” thông tin phụ trong hội thoại. Khi cần tính chính xác pháp lý/kỹ thuật, tránh それと, dùng および/並びに. [7. Biến thể & cụm cố định] それとこれと（cái đó và cái này） それとこれとは話が別だ（hai chuyện khác nhau） それと同時に（đồng thời với đó） それと、～（đầu câu, chuyển ý nhẹ） [8. Lỗi thường gặp & bẫy JLPT] Dùng それと để biểu thị nguyên nhân-kết quả: ×雨。それと中止になった → nên dùng それで/そのため. Dùng trong văn bản trang trọng như báo cáo/điều lệ → không phù hợp; thay bằng および/ならびに/また. Nhầm với それから (trình tự thời gian) và それに (bổ sung kèm đánh giá tích cực); JLPT hay kiểm tra sắc thái này."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-17336f9ab3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "兄の靴がない。ということは、出かけたんだ。",
+       "ja_furigana": "兄(あに)の靴(くつ)がない。ということは、出(で)かけたんだ。",
+       "vi": "Không thấy giày anh, nghĩa là anh đã ra ngoài.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "店の電気が消えている。ということは、今日は休みだね。",
+       "ja_furigana": "店(みせ)の電気(でんき)が消(き)えている。ということは、今日(きょう)は休(やす)みだね。",
+       "vi": "Đèn cửa hàng tắt rồi. Vậy tức là hôm nay nghỉ nhỉ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "明日は台風が来るらしい。ということは、学校は休みになるかもしれない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe nói mai bão đến. Nếu vậy thì có thể trường sẽ nghỉ."
+     },
+     {
+      "ja": "彼からまだ連絡がない。ということは、間に合わないのだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vẫn chưa có liên lạc từ anh ấy. Tức là chắc sẽ không kịp."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 明日は台風が来るらしい。ということは、学校は休みになるかもしれない。",
+     "FURIGANA_MISSING: 彼からまだ連絡がない。ということは、間に合わないのだろう。"
+    ],
+    "formation": "Câu 1。+ ということは、+ Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "“Nếu vậy thì/Tức là”: dựa trên thông tin ngay trước để suy ra kết luận tạm thời. Hai bước: nêu dữ kiện (S1) → khớp mô hình → rút ra kết luận (S2). Sắc thái logic; có thể dùng để xác nhận hiểu của người nói với người nghe.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vậy tức là, nghĩa là",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt đầu câu suy luận; thường kèm các kết thúc: ～ということだ／わけだ／ことになる／のね／よね. Dùng lịch sự để xác nhận: “ということは、～という理解でよろしいでしょうか。” Không dùng để nêu nguyên nhân; nó dùng để rút ra hệ quả từ thông tin đã có. [6. Ghi chú mở rộng] Hữu ích trong họp để xác nhận: “Aということは、Bですね。” tránh hiểu nhầm. Trong văn viết, sau ということは thường gắn kết luận khái quát: ～ということだ／ことになる. Độ chắc chắn của S2 phụ thuộc độ đáng tin của S1; có thể thêm かもしれない／だろう để giảm chắc chắn. [7. Biến thể & cụm cố định] ということは、～ということだ／わけだ／ことになる ということは、～ですね／でよろしいでしょうか (xác nhận lịch sự) Dạng nội tâm: ～か。ということは、～か。 (độc thoại suy luận) [8. Lỗi thường gặp & bẫy JLPT] Dùng như từ nối nguyên nhân → sai; nó là suy luận/hệ quả, không phải lý do trực tiếp. Nhầm với つまり: bài đọc yêu cầu “tóm tắt” chọn つまり; yêu cầu “suy ra” chọn ということは. Bỏ qua mức độ chắc chắn: khi dữ kiện không chắc, cần だろう／かもしれない sau S2."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-009c3989a4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この道を選んだ。というのは、駅まで近いからだ。",
+       "ja_furigana": "この道(みち)を選(えら)んだ。というのは、駅(えき)まで近(ちか)いからだ。",
+       "vi": "Tôi chọn đường này vì gần ga.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "今日は早く帰ります。というのは、母が病気なんです。",
+       "ja_furigana": "今日(きょう)は早(はや)く帰(かえ)ります。というのは、母(はは)が病気(びょうき)なんです。",
+       "vi": "Hôm nay tôi về sớm. Lý do là mẹ tôi bị ốm.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この制度は来年から見直される。というのは、現状に合わなくなっているからだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chế độ này sẽ được xem xét lại từ năm sau. Bởi vì nó không còn phù hợp với tình hình hiện tại."
+     },
+     {
+      "ja": "SDGsというのは、持続可能な開発目標のことだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "SDGs là các Mục tiêu Phát triển Bền vững."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この制度は来年から見直される。というのは、現状に合わなくなっているからだ。",
+     "FURIGANA_MISSING: SDGsというのは、持続可能な開発目標のことだ。"
+    ],
+    "formation": "Câu 1。+ というのは、+ Câu 2 + からだ",
+    "locked_fields": [],
+    "meaning_vi": "Giải thích/định nghĩa: Là cách “nói rõ” nội dung vừa nêu ở câu trước. Thường đi với のことだ／ということだ. Cho lý do: Nêu nguyên nhân mang tính kết luận cho mệnh đề trước. Hay đi kèm からだ／ためだ để chốt lý do. Phạm vi tham chiếu: というのは thường quy chiếu trực tiếp tới toàn bộ câu trước (A)。Có thể dùng この/その＋話/件 để làm rõ. Sắc thái: Tính chất logic, khách quan, dùng nhiều trong báo chí, thảo luận, báo cáo, bài thuyết trình.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vì, lý do là",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sau というのは thường có dấu phẩy để tách phần giải thích. Khi giải thích lý do, nên kết bằng からだ／ためだ để rõ mối quan hệ nhân quả. Dùng để định nghĩa: XというのはYのことだ → ngắn gọn, trang trọng, hay thấy trong giáo trình, bài báo. Khẩu ngữ: っていうのは → nhẹ nhàng, phù hợp hội thoại, blog. Không dùng というのは ở cuối câu; luôn theo sau là mệnh đề giải thích. [6. Ghi chú mở rộng] Thay vì からだ có thể dùng わけだ/ためだ/にほかならない để tăng sắc thái kết luận. Nếu phần giải thích dài, nên ngắt câu và dùng dấu phẩy sau というのは để dễ đọc. Trong văn nói, có thể rút gọn というのは thành つーのは/てのは (rất khẩu ngữ), tránh dùng trong thi JLPT. [7. Biến thể & cụm cố định] っていうのは…（口語） XというのはYのことだ（mẫu định nghĩa kinh điển） …というのは、～からだ／ためだ（mẫu nêu lý do） XとはYのことだ（biến thể trang trọng dùng とは） なぜかというと／というのは（cặp thay thế khi giải thích lý do） [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ということは: というのは giải thích A; ということは suy ra B từ A. Bỏ quên からだ/ためだ khi nêu lý do khiến câu thiếu lực kết luận. Đặt というのは ở cuối câu (sai); phải theo sau là mệnh đề giải thích. Viết liền không phẩy: “というのはB…” vẫn chấp nhận, nhưng nên có dấu phẩy cho rõ nghĩa trong bài thi đọc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-35093db56f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "バスがすぐ来る。早く行かないと。",
+       "ja_furigana": "バスがすぐ来(く)る。早(はや)く行(い)かないと。",
+       "vi": "Xe buýt sắp đến; phải đi nhanh thôi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "明日は試験だ。今夜は勉強しないと。",
+       "ja_furigana": "明日(あした)は試験(しけん)だ。今夜(こんや)は勉強(べんきょう)しないと。",
+       "vi": "Mai thi rồi. Tối nay phải học thôi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "明日は早く出かけるから、もう寝ないと。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngày mai vì đi ra ngoài sớm nên không ngủ sớm là không được rồi. (Phải ngủ)."
+     },
+     {
+      "ja": "試験まであと1ヶ月だ。がんばって勉強しないと。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Còn một tháng nửa là đến kỳ thi. Không cố gắng học là không xong đâu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 明日は早く出かけるから、もう寝ないと。",
+     "FURIGANA_MISSING: 試験まであと1ヶ月だ。がんばって勉強しないと。"
+    ],
+    "formation": "V(bỏ ない) + ないと (khẩu ngữ của 〜ないといけない)",
+    "locked_fields": [],
+    "meaning_vi": "Phải, bắt buộc (làm gì…) / Nếu không làm gì đó thì…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜もう寝ないと",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nói đến những hành động bản thân nhận thức là phải làm, bắt buộc làm, không làm không được (cách nói cảm thán rút gọn của なければなりません)"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7f0677923b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "その紙はあとで読むから取っといて。",
+       "ja_furigana": "その紙(かみ)はあとで読(よ)むから取(と)っといて。",
+       "vi": "Tờ giấy ấy tôi đọc sau, giữ lại nhé.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "友達が来るから、部屋をかたづけとこう。",
+       "ja_furigana": "友達(ともだち)が来(く)るから、部屋(へや)をかたづけとこう。",
+       "vi": "Bạn sắp đến nên mình dọn phòng sẵn đã.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "テストで間違ったところを、ノートに書いとこう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Viết lại vào vở những chỗ sai trong bài kiểm tra"
+     },
+     {
+      "ja": "これ洗濯しといて。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giặt sẵn cái này đi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: テストで間違ったところを、ノートに書いとこう。",
+     "FURIGANA_MISSING: これ洗濯しといて。"
+    ],
+    "formation": "V-て + おく → V-とく / V-どく (khẩu ngữ)",
+    "locked_fields": [],
+    "meaning_vi": "Làm sẵn, làm trước việc gì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜書いとく",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Đây là cách nói ngắn gọn của Vておく. Vておく có 3 ý nghĩa: Chuẩn bị sẵn trước một việc gì đó. Xử lý công viêc. Giữ nguyên hiện trạng. Tham khảo các mẫu ngữ pháp có sử dụng Vておく: Xem"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7668304e0b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "寒いから、窓を閉めちゃおう。",
+       "ja_furigana": "寒(さむ)いから、窓(まど)を閉(し)めちゃおう。",
+       "vi": "Trời lạnh, đóng cửa sổ lại thôi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "おいしくて、全部一人で食べちゃった。",
+       "ja_furigana": "おいしくて、全部(ぜんぶ)一人(ひとり)で食(た)べちゃった。",
+       "vi": "Ngon quá nên tôi lỡ ăn hết một mình mất rồi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「あれ？ここにあったチョコレートは？」 「あ、食べちゃった。いけなかった？」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ủa? Socola mới ở đây đâu rồi? A, ăn mất rồi. Không được hả?"
+     },
+     {
+      "ja": "試験が終わった！今日は飲んじゃおう！",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kỳ thi kết thúc rồi! Hôm nay hãy đi uống thôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「あれ？ここにあったチョコレートは？」 「あ、食べちゃった。いけなかった？」",
+     "FURIGANA_MISSING: 試験が終わった！今日は飲んじゃおう！"
+    ],
+    "formation": "V-て + しまう → V-ちゃう / V-じゃう (khẩu ngữ)",
+    "locked_fields": [],
+    "meaning_vi": "Làm gì đó mất rồi.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜食べちゃった",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Đây là cách nói ngắn gọn của Vてしまう. Vてしまう có 3 ý nghĩa: Đã hoàn thành xong một viêc gì đó. Đang làm lỡ dở một việc gì đó. Lỡ, tiếc nuối về sự việc đã xảy ra Tham khảo các mẫu ngữ pháp có sử dụng Vてしまう: Xem"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e380cdc179"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今ちょうど荷物を運ぶところだ。",
+       "ja_furigana": "今(いま)ちょうど荷物(にもつ)を運(はこ)ぶところだ。",
+       "vi": "Tôi vừa chuẩn bị mang hành lý.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今から出かけるところです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bây giờ tôi chuẩn bị ra ngoài. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今から出かけるところです。"
+    ],
+    "formation": "V-る / V-ている / V-た + ところだ / ところ(へ・に・を)",
+    "locked_fields": [],
+    "meaning_vi": "Ngay trước khi~ (①)/ Trong khi đang ~ (②)/ Ngay sau khi (③④).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ところだ・〜ところ(+助詞)...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［動］辞書形/ている/た形＋ところだ・ところ（＋助詞） Ngay trước khi~ (①)/ Trong khi đang ~ (②)/ Ngay sau khi (③④). Trong câu, tùy thuộc vào động từ đứng sau mà trợ từ đi kèm thay đổi theo các dạng như \"ところを／ところで／ところへ／v.v. \". Ví dụ: 1. ロケットは間もなく飛び立つところです。緊張の瞬間です。 Tên lửa sắp sửa cất cánh. Đây là một khoảnh khắc căng thẳng. 2. 試験中、となりの人の答えを見ているところを先生に注意された。 Trong giờ thi, tôi đã bị thầy cô nhắc vì đang nhìn bài người bên cạnh. 3. 楽しみにしていたテレビドラマが始まったところで電話が鳴った。 Khi bộ phim truyền hình mà tôi mong đợi vừa bắt đầu thì điện thoại reo. 4. ケーキが出来上がったところへ子どもたちが帰ってきた。 Vừa khi chiếc bánh vừa nướng xong, các con đã về nhà."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-107979e78f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "父が仕事でいない間、兄が店を開けていた。",
+       "ja_furigana": "父(ちち)が仕事(しごと)でいない間(ま)、兄(あに)が店(みせ)を開(あ)けていた。",
+       "vi": "Khi bố đi làm vắng, anh mở cửa hàng.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "夏休みの間、ずっと祖母の家にいた。",
+       "ja_furigana": "夏休(なつやす)みの間(あいだ)、ずっと祖母(そぼ)の家(いえ)にいた。",
+       "vi": "Suốt kỳ nghỉ hè, tôi ở nhà bà.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "お母さんが昼寝をしている間、子供たちはテレビを見ていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong lúc mẹ đang ngủ trưa, các con đã xem tivi."
+     },
+     {
+      "ja": "私が旅行で留守番の間、うちの犬の世話をお願いできないでしょうか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong thời gian tôi đi du lịch vắng nhà, liệu bạn có thể giúp chăm sóc con chó nhà tôi được không?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: お母さんが昼寝をしている間、子供たちはテレビを見ていた。",
+     "FURIGANA_MISSING: 私が旅行で留守番の間、うちの犬の世話をお願いできないでしょうか。"
+    ],
+    "formation": "V-ている / N + の + 間(あいだ)、ずっと〜",
+    "locked_fields": [],
+    "meaning_vi": "Trong khi trạng thái ~ đang tiếp diễn thì một trạng thái … được thực hiện/ được diễn ra suốt thời gian đó.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜間・・・:「〜の状態が続いているとき、ずっと...する・ずっと...の状態だ。」〜は継続的なことを表す言葉。...継続的なことを表す文。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[名]の・[動]辞書形/ている/ない形 ＋間・間に Trong khi trạng thái ~ đang tiếp diễn thì một trạng thái … được thực hiện/ được diễn ra suốt thời gian đó. ~ là từ ngữ thể hiện sự việc được duy trì trong khoảng thời gian dài nhất định. … cũng là câu văn thể hiện sự việc được duy trì trong khoảng thời gian dài nhất định. ～間に・・・：「～の状態が続いているとき、 …する・…が起こる。」 ～は継続的なことを表す言葉。…は瞬間的なことを表す文。 Trong khi trạng thái ~ đang tiếp diễn thì thực hiện …/… xảy ra. ~ là từ ngữ thể hiện sự việc được duy trì trong khoảng thời gian dài nhất định. … là câu văn thể hiện sự việc diễn ra trong khoảng thời gian ngắn. Ví dụ: 1. お母さんが昼寝をしている間、子供たちはテレビを見ていた。 Trong lúc mẹ đang ngủ trưa, các con đã xem tivi. 2. 私が旅行で留守番の間、うちの犬の世話をお願いできないでしょうか。 Trong thời gian tôi đi du lịch vắng nhà, liệu bạn có thể giúp chăm sóc con chó nhà tôi được không? 3. お母さんが昼寝をしている間に、子供たちは遊びに出かけた。 Trong lúc mẹ ngủ trưa, các con đã ra ngoài đi chơi. 4. 私が旅行で留守番の間に、庭に草がたくさん生えてしまった。 Trong thời gian tôi đi du lịch vắng nhà, cỏ đã mọc rất nhiều trong vườn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-72df43bfc5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夜中に大きな音を出して、隣の人に怒られた。",
+       "ja_furigana": "夜中(やちゅう)に大(おお)きな音(おと)を出(だ)して、隣(となり)の人(ひと)に怒(おこ)られた。",
+       "vi": "Tôi gây tiếng động giữa đêm và bị hàng xóm mắng.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "大事な手紙を弟に読まれてしまった。",
+       "ja_furigana": "大事(だいじ)な手紙(てがみ)を弟(おとうと)に読(よ)まれてしまった。",
+       "vi": "Lá thư quan trọng đã bị em trai tôi đọc mất.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "母に怒られる",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bị mẹ nổi giận"
+     },
+     {
+      "ja": "夜遅く家に帰ったら、母に怒られた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì trở về nhà vào đêm muộn nên bị mẹ nổi giận."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 母に怒られる",
+     "FURIGANA_MISSING: 夜遅く家に帰ったら、母に怒られた。"
+    ],
+    "formation": "N1 + は + N2 + に + V(thể bị động: 〜れる / 〜られる)",
+    "locked_fields": [],
+    "meaning_vi": "Biểu hiện bị động",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜(ら)れる(受身)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "書く→書かれる 言う→言われる 見る→みられる する→される くる→こられる"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-84cf001794"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ここに自転車を置いたらだめだよ。",
+       "ja_furigana": "ここに自転車(じてんしゃ)を置(お)いたらだめだよ。",
+       "vi": "Không được để xe đạp ở đây đâu.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "授業中に寝ちゃだめだよ。",
+       "ja_furigana": "授業中(じゅぎょうちゅう)に寝(ね)ちゃだめだよ。",
+       "vi": "Không được ngủ trong giờ học đâu.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "買ったらだめ／買ってはだめ／買っちゃだめ",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không được mua"
+     },
+     {
+      "ja": "そんな高い服を買ったら／買っちゃ、お金がなくなるよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không được mưa bộ đồ đắt như thế, hết tiền đó."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 買ったらだめ／買ってはだめ／買っちゃだめ",
+     "FURIGANA_MISSING: そんな高い服を買ったら／買っちゃ、お金がなくなるよ。"
+    ],
+    "formation": "V-たら + だめ / V-ては + だめ / V-ちゃ + だめ",
+    "locked_fields": [],
+    "meaning_vi": "Cách nói thông thường của 「～てはいけません」",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜たらだめ/〜てはだめ/〜ちゃだめ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "復習4 正しいほうを選びなさい。 １．だれもいないと、電気が（a.消えます b.消える） ２．いい会社に（a.就職の b.就職できます）ように。 ３．日本人の友達に日本語の宿題を（a.チェックさせた b.チェックしてもらった）。 ４．先生は学生にレポートを（a.書かせた b.書かれた）。 ５．危ないから、夜、暗い道を一人で（a.歩い b.歩き）ちゃだめだよ。 ６．そんな小さい声(a.だら b.じゃ）、聞こえない。 ７．いい仕事をして、両親を（a.喜ばせたい b.喜びたい）。 復習5 ⬜の中から選んで書きなさい。 ようだようなように １．先生にあす、早く来る（）言われた。 ２．水泳やランニングの（）スポーツは、体にいい。 ３．あの人はいばっていて、まるで社長の（）。 ４．一人暮らしをはじめて、料理ができる（）なった。 ５．このタバコの自動販売機は、カードがないと、タバコが買えない（）なっている。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-815146d970"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-035"
+}

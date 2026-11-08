@@ -1,0 +1,720 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "睡眠時間と引き換えに、試験に合格した。",
+       "ja_furigana": "睡眠時間(すいみんじかん)と引(ひ)き換(か)えに、試験(しけん)に合格(ごうかく)した。",
+       "vi": "Tôi đã thi đỗ để đổi lấy thời gian ngủ."
+      },
+      {
+       "ja": "彼は健康と引き換えに、出世を手に入れた。",
+       "ja_furigana": "彼(かれ)は健康(けんこう)と引(ひ)き換(か)えに、出世(しゅっせ)を手(て)に入(い)れた。",
+       "source": "AI",
+       "vi": "Anh ấy đánh đổi sức khỏe để có được sự thăng tiến."
+      },
+      {
+       "ja": "現金と引き換えに、商品をお渡しします。",
+       "ja_furigana": "現金(げんきん)と引(ひ)き換(か)えに、商品(しょうひん)をお渡(わた)しします。",
+       "source": "AI",
+       "vi": "Chúng tôi sẽ giao hàng khi nhận tiền mặt."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Hai vế là thứ cụ thể có thể trao đổi hoặc đánh đổi, không dùng cho quan hệ nguyên nhân kết quả thông thường. Khác 〜かわりに (thay cho, bù lại, nhẹ nhàng hơn) và 〜と交換に (đổi vật lấy vật).",
+    "examples": [
+     {
+      "ja": "自由と引き換えに安定を得た。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "彼は健康と引き換えに、出世を手に入れた。",
+      "ja_furigana": "彼(かれ)は健康(けんこう)と引(ひ)き換(か)えに、出世(しゅっせ)を手(て)に入(い)れた。",
+      "source": "AI",
+      "vi": "Anh ấy đánh đổi sức khỏe để có được sự thăng tiến."
+     },
+     {
+      "ja": "現金と引き換えに、商品をお渡しします。",
+      "ja_furigana": "現金(げんきん)と引(ひ)き換(か)えに、商品(しょうひん)をお渡(わた)しします。",
+      "source": "AI",
+      "vi": "Chúng tôi sẽ giao hàng khi nhận tiền mặt."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 自由と引き換えに安定を得た。",
+     "FURIGANA_MISSING: 自由と引き換えに安定を得た。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + と引き換えに",
+    "locked_fields": [],
+    "meaning_vi": "Đổi lấy — Đánh đổi cái này để lấy cái kia.",
+    "nuance_vi": "Văn nói lẫn văn viết; trao đổi hai thứ, dùng cả trường hợp đánh đổi (mất cái này để được cái kia) lẫn nhận cái này khi giao cái kia.",
+    "order_items": [],
+    "pattern": "N + と引き換えに",
+    "pattern_variants": [],
+    "unit_no": 17,
+    "unit_title_vi": "Đánh đổi, bằng phương tiện",
+    "usage_vi": "Khác にひきかえ (trái ngược hẳn). Hai mẫu gần giống chữ nhưng khác nghĩa hoàn toàn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-53bf6265b4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "故郷の景色を、一日たりとも忘れたことはない。",
+       "ja_furigana": "故郷(こきょう)の景色(けしき)を、一日(いちにち)たりとも忘(わす)れたことはない。",
+       "vi": "Cảnh quê hương, dù một ngày tôi cũng chưa từng quên."
+      },
+      {
+       "ja": "試験中は、一秒たりとも気を抜けない。",
+       "ja_furigana": "試験中(しけんちゅう)は、一秒(いちびょう)たりとも気(き)を抜(ぬ)けない。",
+       "source": "AI",
+       "vi": "Trong lúc thi, tôi không thể lơ là dù chỉ một giây."
+      },
+      {
+       "ja": "不正は一円たりとも許されない。",
+       "ja_furigana": "不正(ふせい)は一円(いちえん)たりとも許(ゆる)されない。",
+       "source": "AI",
+       "vi": "Gian lận dù chỉ một yên cũng không được tha thứ."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ đứng sau số lượng 'một' (一秒, 一円, 一人) và vế sau bắt buộc là phủ định; không dùng với số lớn hơn 1. Khác 〜なりとも (dù chỉ một chút cũng được, khẳng định, khiêm nhường).",
+    "examples": [
+     {
+      "ja": "一日たりとも忘れたことはない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "試験中は、一秒たりとも気を抜けない。",
+      "ja_furigana": "試験中(しけんちゅう)は、一秒(いちびょう)たりとも気(き)を抜(ぬ)けない。",
+      "source": "AI",
+      "vi": "Trong lúc thi, tôi không thể lơ là dù chỉ một giây."
+     },
+     {
+      "ja": "不正は一円たりとも許されない。",
+      "ja_furigana": "不正(ふせい)は一円(いちえん)たりとも許(ゆる)されない。",
+      "source": "AI",
+      "vi": "Gian lận dù chỉ một yên cũng không được tha thứ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 一日たりとも忘れたことはない。",
+     "FURIGANA_MISSING: 一日たりとも忘れたことはない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "数量詞（一 + 助数詞）+ たりとも + 否定",
+    "locked_fields": [],
+    "meaning_vi": "Dù chỉ một cũng không — Phủ định tuyệt đối, dù mức nhỏ nhất cũng không.",
+    "nuance_vi": "Văn viết, trang trọng, giọng quyết liệt; nhấn mạnh dù là đơn vị nhỏ nhất cũng không cho phép hoặc không có, luôn đi với dạng phủ định.",
+    "order_items": [],
+    "pattern": "Lượng từ + たりとも",
+    "pattern_variants": [],
+    "unit_no": 8,
+    "unit_title_vi": "Nhấn mạnh cả trường hợp cực đoan",
+    "usage_vi": "Vế sau bắt buộc phủ định. Hay gặp: 一日たりとも, 一円たりとも."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2136a88b44"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "調査の進み具合いかんによっては、日程を変える。",
+       "ja_furigana": "調査(ちょうさ)の進(すす)み具合(ぐあい)いかんによっては、日程(にってい)を変(か)える。",
+       "vi": "Tùy tiến độ điều tra mà chúng tôi có thể thay đổi lịch trình."
+      },
+      {
+       "ja": "説明の内容いかんによっては、取引を中止せざるを得ない。",
+       "ja_furigana": "説明(せつめい)の内容(ないよう)いかんによっては、取引(とりひき)を中止(ちゅうし)せざるを得(え)ない。",
+       "source": "AI",
+       "vi": "Tùy nội dung giải trình, có thể chúng tôi buộc phải đình chỉ giao dịch."
+      },
+      {
+       "ja": "天候いかんによっては、イベントを延期します。",
+       "ja_furigana": "天候(てんこう)いかんによっては、イベントを延期(えんき)します。",
+       "source": "AI",
+       "vi": "Tùy vào thời tiết, chúng tôi có thể hoãn sự kiện."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau là khả năng (〜こともある, 〜かもしれない), không phải khẳng định chắc chắn. Khác いかんによらず/いかんにかかわらず (bất kể): いかんによっては tùy tình hình mà thay đổi, nên N phải là yếu tố có thể biến động.",
+    "examples": [
+     {
+      "ja": "結果いかんによっては計画を見直す。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "説明の内容いかんによっては、取引を中止せざるを得ない。",
+      "ja_furigana": "説明(せつめい)の内容(ないよう)いかんによっては、取引(とりひき)を中止(ちゅうし)せざるを得(え)ない。",
+      "source": "AI",
+      "vi": "Tùy nội dung giải trình, có thể chúng tôi buộc phải đình chỉ giao dịch."
+     },
+     {
+      "ja": "天候いかんによっては、イベントを延期します。",
+      "ja_furigana": "天候(てんこう)いかんによっては、イベントを延期(えんき)します。",
+      "source": "AI",
+      "vi": "Tùy vào thời tiết, chúng tôi có thể hoãn sự kiện."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 結果いかんによっては計画を見直す。",
+     "FURIGANA_MISSING: 結果いかんによっては計画を見直す。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N（の）+ いかんによっては",
+    "locked_fields": [],
+    "meaning_vi": "Tuỳ vào mà có thể — Kết quả thay đổi tuỳ theo yếu tố đó.",
+    "nuance_vi": "Văn viết, trang trọng; nêu một khả năng kết quả hoặc hành động có thể thay đổi tùy theo N, vế sau thường là 'có thể...'.",
+    "order_items": [],
+    "pattern": "N + いかんによっては",
+    "pattern_variants": [],
+    "unit_no": 10,
+    "unit_title_vi": "Nhấn mạnh nguyên nhân, điều kiện",
+    "usage_vi": "Cùng họ với いかんで. Trang trọng, hay gặp trong thông báo."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1dc7f7c74d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "わざわざ来ていただくには及びません。",
+       "ja_furigana": "わざわざ来(き)ていただくには及(およ)びません。",
+       "vi": "Không cần phải vất vả đến tận nơi đâu ạ."
+      },
+      {
+       "ja": "大した怪我ではないので、見舞いに来るには及びません。",
+       "ja_furigana": "大(たい)した怪我(けが)ではないので、見舞(みま)いに来(く)るには及(およ)びません。",
+       "source": "AI",
+       "vi": "Vết thương không đáng kể nên anh chị không cần đến thăm đâu."
+      },
+      {
+       "ja": "料理の腕では、母にはとても及ばない。",
+       "ja_furigana": "料理(りょうり)の腕(うで)では、母(はは)にはとても及(およ)ばない。",
+       "source": "AI",
+       "vi": "Về tay nghề nấu ăn, tôi không thể sánh nổi với mẹ."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Nghĩa 'không cần' đi với động từ (行くには及ばない), nghĩa 'không bằng' đi với danh từ chỉ đối tượng so sánh (母には及ばない). Khác 〜までもない (cũng 'không cần', hơi nhấn 'rõ ràng rồi nên không cần').",
+    "examples": [
+     {
+      "ja": "ご心配には及びません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "大した怪我ではないので、見舞いに来るには及びません。",
+      "ja_furigana": "大(たい)した怪我(けが)ではないので、見舞(みま)いに来(く)るには及(およ)びません。",
+      "source": "AI",
+      "vi": "Vết thương không đáng kể nên anh chị không cần đến thăm đâu."
+     },
+     {
+      "ja": "料理の腕では、母にはとても及ばない。",
+      "ja_furigana": "料理(りょうり)の腕(うで)では、母(はは)にはとても及(およ)ばない。",
+      "source": "AI",
+      "vi": "Về tay nghề nấu ăn, tôi không thể sánh nổi với mẹ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: ご心配には及びません。",
+     "FURIGANA_MISSING: ご心配には及びません。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる / N + には及ばない",
+    "locked_fields": [],
+    "meaning_vi": "Không cần phải, không bằng — Không cần thiết làm việc đó, hoặc không sánh bằng.",
+    "nuance_vi": "Văn nói lẫn văn viết; hai nghĩa chính: 'không cần phải làm' (nhẹ nhàng, lịch sự) và 'không sánh bằng' (so sánh, đi với N).",
+    "order_items": [],
+    "pattern": "N / V từ điển + には及ばない",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": "Đánh giá, giá trị",
+    "usage_vi": "Hai nghĩa: 心配には及ばない (khỏi lo) và 彼には及ばない (không bằng anh ấy)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3fced588e4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "残業までして、何とか仕事を終わらせた。",
+       "ja_furigana": "残業(ざんぎょう)までして、何(なん)とか仕事(しごと)を終(お)わらせた。",
+       "vi": "Tôi làm thêm giờ đến mức ấy để cố hoàn thành công việc."
+      },
+      {
+       "ja": "徹夜までして仕上げた資料なのに、評価されなかった。",
+       "ja_furigana": "徹夜(てつや)までして仕上(しあ)げた資料(しりょう)なのに、評価(ひょうか)されなかった。",
+       "source": "AI",
+       "vi": "Tài liệu thức trắng đêm mới làm xong mà lại không được đánh giá cao."
+      },
+      {
+       "ja": "友人を裏切ってまでして手に入れた地位に、意味はない。",
+       "ja_furigana": "友人(ゆうじん)を裏切(うらぎ)ってまでして手(て)に入(い)れた地位(ちい)に、意味(いみ)はない。",
+       "source": "AI",
+       "vi": "Địa vị có được bằng cách phản bội bạn bè thì chẳng có ý nghĩa gì."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Phần đứng trước là việc đáng ngạc nhiên hoặc hy sinh lớn, không dùng với việc nhẹ nhàng. Dạng V-てまで và V-てまでして cùng nghĩa; N まで cũng dùng được (徹夜まで). Vế sau là mục đích cần đạt.",
+    "examples": [
+     {
+      "ja": "借金までして車を買った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "徹夜までして仕上げた資料なのに、評価されなかった。",
+      "ja_furigana": "徹夜(てつや)までして仕上(しあ)げた資料(しりょう)なのに、評価(ひょうか)されなかった。",
+      "source": "AI",
+      "vi": "Tài liệu thức trắng đêm mới làm xong mà lại không được đánh giá cao."
+     },
+     {
+      "ja": "友人を裏切ってまでして手に入れた地位に、意味はない。",
+      "ja_furigana": "友人(ゆうじん)を裏切(うらぎ)ってまでして手(て)に入(い)れた地位(ちい)に、意味(いみ)はない。",
+      "source": "AI",
+      "vi": "Địa vị có được bằng cách phản bội bạn bè thì chẳng có ý nghĩa gì."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 借金までして車を買った。",
+     "FURIGANA_MISSING: 借金までして車を買った。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て / N + までして",
+    "locked_fields": [],
+    "meaning_vi": "Đến mức phải — Làm đến cả việc cực đoan đó để đạt mục đích.",
+    "nuance_vi": "Văn nói lẫn văn viết; làm đến cả việc cực đoan hay hy sinh lớn để đạt mục đích, người nói thường đánh giá việc đó là quá đáng hoặc đáng nể.",
+    "order_items": [],
+    "pattern": "V-て / N + までして",
+    "pattern_variants": [],
+    "unit_no": 17,
+    "unit_title_vi": "Đánh đổi, bằng phương tiện",
+    "usage_vi": "Thường kèm đánh giá tiêu cực về sự thái quá."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ed72e08347"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "届くはずの荷物が、まだ来ない。",
+       "ja_furigana": "届(とど)くはずの荷物(にもつ)が、まだ来(こ)ない。",
+       "vi": "Kiện hàng lẽ ra đã phải đến mà vẫn chưa thấy."
+      },
+      {
+       "ja": "机の上に置いたはずの鍵が見当たらない。",
+       "ja_furigana": "机(つくえ)の上(うえ)に置(お)いたはずの鍵(かぎ)が見当(みあ)たらない。",
+       "source": "AI",
+       "vi": "Chìa khóa lẽ ra đã để trên bàn mà tôi không thấy đâu."
+      },
+      {
+       "ja": "完璧に準備したはずの発表で、緊張して頭が真っ白になった。",
+       "ja_furigana": "完璧(かんぺき)に準備(じゅんび)したはずの発表(はっぴょう)で、緊張(きんちょう)して頭(あたま)が真(ま)っ白(しろ)になった。",
+       "source": "AI",
+       "vi": "Bài thuyết trình vốn đã chuẩn bị hoàn hảo mà tôi lại căng thẳng đến mức đầu óc trống rỗng."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Phải có danh từ đi sau, và vế sau thường là thực tế trái với kỳ vọng. Khác 〜はずだ (kết luận 'chắc chắn là') đứng cuối câu; はずの dùng để định ngữ.",
+    "examples": [
+     {
+      "ja": "来るはずの人がまだ来ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "机の上に置いたはずの鍵が見当たらない。",
+      "ja_furigana": "机(つくえ)の上(うえ)に置(お)いたはずの鍵(かぎ)が見当(みあ)たらない。",
+      "source": "AI",
+      "vi": "Chìa khóa lẽ ra đã để trên bàn mà tôi không thấy đâu."
+     },
+     {
+      "ja": "完璧に準備したはずの発表で、緊張して頭が真っ白になった。",
+      "ja_furigana": "完璧(かんぺき)に準備(じゅんび)したはずの発表(はっぴょう)で、緊張(きんちょう)して頭(あたま)が真(ま)っ白(しろ)になった。",
+      "source": "AI",
+      "vi": "Bài thuyết trình vốn đã chuẩn bị hoàn hảo mà tôi lại căng thẳng đến mức đầu óc trống rỗng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 来るはずの人がまだ来ない。",
+     "FURIGANA_MISSING: 来るはずの人がまだ来ない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる / Vた / Vない / Aい / Aな / N の + はずの + N",
+    "locked_fields": [],
+    "meaning_vi": "Lẽ ra phải, vốn dĩ — Dạng định ngữ của はずだ, đứng trước danh từ.",
+    "nuance_vi": "Văn nói lẫn văn viết; bổ nghĩa danh từ phía sau, nói điều lẽ ra phải như vậy theo kỳ vọng nhưng thực tế khác, thường kèm bất ngờ hoặc nghi ngờ.",
+    "order_items": [],
+    "pattern": "V từ điển + はずの",
+    "pattern_variants": [],
+    "unit_no": 18,
+    "unit_title_vi": "Bổ nghĩa, tình huống",
+    "usage_vi": "Thường kèm ý trái với thực tế: 来るはずの人が来ない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cd24635624"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お疲れのところを、長々と話してすみません。",
+       "ja_furigana": "お疲(つか)れのところを、長々(ながなが)と話(はな)してすみません。",
+       "vi": "Xin lỗi vì đã nói chuyện dài dòng lúc anh chị đang mệt."
+      },
+      {
+       "ja": "お休みのところを申し訳ありませんが、少しお時間をいただけますか。",
+       "ja_furigana": "お休(やす)みのところを申(もう)し訳(わけ)ありませんが、少(すこ)しお時間(じかん)をいただけますか。",
+       "source": "AI",
+       "vi": "Xin lỗi đã làm phiền lúc anh chị đang nghỉ, cho tôi xin một chút thời gian được không ạ?"
+      },
+      {
+       "ja": "危ないところを助けていただき、ありがとうございました。",
+       "ja_furigana": "危(あぶ)ないところを助(たす)けていただき、ありがとうございました。",
+       "source": "AI",
+       "vi": "Cảm ơn anh chị đã cứu giúp tôi lúc nguy hiểm."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ dùng với lời nói lịch sự, theo sau là các biểu hiện như 申し訳ありません, ありがとうございます, お願いします; không dùng để tường thuật bình thường. Khác 〜ところに/ところで (chỉ thời điểm).",
+    "examples": [
+     {
+      "ja": "お忙しいところをありがとうございます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "お休みのところを申し訳ありませんが、少しお時間をいただけますか。",
+      "ja_furigana": "お休(やす)みのところを申(もう)し訳(わけ)ありませんが、少(すこ)しお時間(じかん)をいただけますか。",
+      "source": "AI",
+      "vi": "Xin lỗi đã làm phiền lúc anh chị đang nghỉ, cho tôi xin một chút thời gian được không ạ?"
+     },
+     {
+      "ja": "危ないところを助けていただき、ありがとうございました。",
+      "ja_furigana": "危(あぶ)ないところを助(たす)けていただき、ありがとうございました。",
+      "source": "AI",
+      "vi": "Cảm ơn anh chị đã cứu giúp tôi lúc nguy hiểm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: お忙しいところをありがとうございます。",
+     "FURIGANA_MISSING: お忙しいところをありがとうございます。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Nの / 普通形 + ところを",
+    "locked_fields": [],
+    "meaning_vi": "Trong lúc đang mà — Lời xin lỗi vì làm phiền người khác đúng lúc họ bận.",
+    "nuance_vi": "Văn nói lịch sự hoặc văn viết thư từ; dùng khi xin lỗi, cảm ơn hay nhờ vả, nhấn mạnh rằng đối phương đang trong tình huống bận hoặc khó khăn.",
+    "order_items": [],
+    "pattern": "N の / Thể thường + ところを",
+    "pattern_variants": [],
+    "unit_no": 18,
+    "unit_title_vi": "Bổ nghĩa, tình huống",
+    "usage_vi": "Cụm lễ nghi hay gặp: お忙しいところを, お休みのところを."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-60e64f7984"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この絵は、何度見ても鑑賞に堪える作品だ。",
+       "ja_furigana": "この絵(え)は、何度(なんど)見(み)ても鑑賞(かんしょう)に堪(た)える作品(さくひん)だ。",
+       "vi": "Bức tranh này là tác phẩm xem bao nhiêu lần vẫn đáng thưởng thức."
+      },
+      {
+       "ja": "この古い名作映画は、今見ても十分に鑑賞に堪える。",
+       "ja_furigana": "この古(ふる)い名作映画(めいさくえいが)は、今(いま)見(み)ても十分(じゅうぶん)に鑑賞(かんしょう)に堪(た)える。",
+       "source": "AI",
+       "vi": "Bộ phim kinh điển cũ này, giờ xem lại vẫn hoàn toàn đáng xem."
+      },
+      {
+       "ja": "彼の論文は、専門家の批評に堪える内容だ。",
+       "ja_furigana": "彼(かれ)の論文(ろんぶん)は、専門家(せんもんか)の批評(ひひょう)に堪(た)える内容(ないよう)だ。",
+       "source": "AI",
+       "vi": "Luận văn của anh ấy có nội dung chịu được sự phê bình của chuyên gia."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng khẳng định để khen; dạng phủ định に堪えない có nghĩa khác (không chịu nổi / vô cùng). Khác に値する (xứng đáng) ở chỗ に堪える nhấn 'chịu được sự thử thách'. Cũng có thể viết 耐える nhưng ở mẫu này thường viết 堪える.",
+    "examples": [
+     {
+      "ja": "この作品は鑑賞に堪える。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "この古い名作映画は、今見ても十分に鑑賞に堪える。",
+      "ja_furigana": "この古(ふる)い名作映画(めいさくえいが)は、今(いま)見(み)ても十分(じゅうぶん)に鑑賞(かんしょう)に堪(た)える。",
+      "source": "AI",
+      "vi": "Bộ phim kinh điển cũ này, giờ xem lại vẫn hoàn toàn đáng xem."
+     },
+     {
+      "ja": "彼の論文は、専門家の批評に堪える内容だ。",
+      "ja_furigana": "彼(かれ)の論文(ろんぶん)は、専門家(せんもんか)の批評(ひひょう)に堪(た)える内容(ないよう)だ。",
+      "source": "AI",
+      "vi": "Luận văn của anh ấy có nội dung chịu được sự phê bình của chuyên gia."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: この作品は鑑賞に堪える。",
+     "FURIGANA_MISSING: この作品は鑑賞に堪える。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N / Vる + に堪える",
+    "locked_fields": [],
+    "meaning_vi": "Đáng để, chịu được — Có đủ giá trị để làm việc đó.",
+    "nuance_vi": "Văn viết, trang trọng; đánh giá tích cực rằng vật hay tác phẩm có đủ giá trị hoặc độ bền để chịu được việc đó (鑑賞, 批評, 使用).",
+    "order_items": [],
+    "pattern": "V từ điển + に堪える",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": "Đánh giá, giá trị",
+    "usage_vi": "Hay gặp: 鑑賞に堪える, 読むに堪える. Phủ định là に堪えない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4312a5c796"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "年齢のいかんにかかわらず、参加を認めます。",
+       "ja_furigana": "年齢(ねんれい)のいかんにかかわらず、参加(さんか)を認(みと)めます。",
+       "vi": "Bất kể độ tuổi, chúng tôi đều chấp nhận tham gia."
+      },
+      {
+       "ja": "国籍のいかんにかかわらず、誰でも利用できます。",
+       "ja_furigana": "国籍(こくせき)のいかんにかかわらず、誰(だれ)でも利用(りよう)できます。",
+       "source": "AI",
+       "vi": "Bất kể quốc tịch, ai cũng có thể sử dụng."
+      },
+      {
+       "ja": "経験のいかんにかかわらず、やる気のある人を歓迎します。",
+       "ja_furigana": "経験(けいけん)のいかんにかかわらず、やる気(き)のある人(ひと)を歓迎(かんげい)します。",
+       "source": "AI",
+       "vi": "Bất kể kinh nghiệm, chúng tôi hoan nghênh những người có tinh thần cầu tiến."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "N phải là yếu tố có nhiều trạng thái (理由, 結果, 経験); không dùng với danh từ không biến đổi. Khác 〜いかんによっては (tùy vào) và 〜にかかわらず (đứng trực tiếp sau danh từ hay từ trái nghĩa, dùng tự nhiên hơn).",
+    "examples": [
+     {
+      "ja": "理由のいかんにかかわらず返金はできません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "国籍のいかんにかかわらず、誰でも利用できます。",
+      "ja_furigana": "国籍(こくせき)のいかんにかかわらず、誰(だれ)でも利用(りよう)できます。",
+      "source": "AI",
+      "vi": "Bất kể quốc tịch, ai cũng có thể sử dụng."
+     },
+     {
+      "ja": "経験のいかんにかかわらず、やる気のある人を歓迎します。",
+      "ja_furigana": "経験(けいけん)のいかんにかかわらず、やる気(き)のある人(ひと)を歓迎(かんげい)します。",
+      "source": "AI",
+      "vi": "Bất kể kinh nghiệm, chúng tôi hoan nghênh những người có tinh thần cầu tiến."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 理由のいかんにかかわらず返金はできません。",
+     "FURIGANA_MISSING: 理由のいかんにかかわらず返金はできません。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N（の）+ いかんにかかわらず",
+    "locked_fields": [],
+    "meaning_vi": "Bất kể như thế nào — Không phụ thuộc vào yếu tố đó.",
+    "nuance_vi": "Văn viết, trang trọng, thường dùng trong quy định, thông báo; nghĩa 'bất kể N ra sao', kết luận không thay đổi.",
+    "order_items": [],
+    "pattern": "N + いかんにかかわらず",
+    "pattern_variants": [],
+    "unit_no": 3,
+    "unit_title_vi": "Bất kể, dù là",
+    "usage_vi": "Đồng nghĩa いかんによらず. Trang trọng, hay gặp trong điều khoản."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2bd2d88400"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女の集中力をもってすれば、この難問も解けるだろう。",
+       "ja_furigana": "彼女(かのじょ)の集中力(しゅうちゅうりょく)をもってすれば、この難問(なんもん)も解(と)けるだろう。",
+       "vi": "Với sự tập trung của cô ấy, bài toán khó này hẳn cũng giải được."
+      },
+      {
+       "ja": "最新の技術をもってすれば、この病気も治せるかもしれない。",
+       "ja_furigana": "最新(さいしん)の技術(ぎじゅつ)をもってすれば、この病気(びょうき)も治(なお)せるかもしれない。",
+       "source": "AI",
+       "vi": "Nếu dùng kỹ thuật mới nhất thì có lẽ bệnh này cũng chữa được."
+      },
+      {
+       "ja": "田中さんの交渉力をもってすれば、この契約もまとまるだろう。",
+       "ja_furigana": "田中(たなか)さんの交渉力(こうしょうりょく)をもってすれば、この契約(けいやく)もまとまるだろう。",
+       "source": "AI",
+       "vi": "Với khả năng đàm phán của anh Tanaka, hợp đồng này hẳn sẽ thành."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "N là năng lực, kỹ thuật, phương tiện có giá trị; không dùng với đồ vật tầm thường. Khác 〜をもって (bằng, vào lúc) vì có すれば nên đi với vế sau mang tính khả năng, không phải hành động thực tế đã xảy ra.",
+    "examples": [
+     {
+      "ja": "彼の実力をもってすれば、優勝も可能だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "最新の技術をもってすれば、この病気も治せるかもしれない。",
+      "ja_furigana": "最新(さいしん)の技術(ぎじゅつ)をもってすれば、この病気(びょうき)も治(なお)せるかもしれない。",
+      "source": "AI",
+      "vi": "Nếu dùng kỹ thuật mới nhất thì có lẽ bệnh này cũng chữa được."
+     },
+     {
+      "ja": "田中さんの交渉力をもってすれば、この契約もまとまるだろう。",
+      "ja_furigana": "田中(たなか)さんの交渉力(こうしょうりょく)をもってすれば、この契約(けいやく)もまとまるだろう。",
+      "source": "AI",
+      "vi": "Với khả năng đàm phán của anh Tanaka, hợp đồng này hẳn sẽ thành."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 彼の実力をもってすれば、優勝も可能だ。",
+     "FURIGANA_MISSING: 彼の実力をもってすれば、優勝も可能だ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + をもってすれば",
+    "locked_fields": [],
+    "meaning_vi": "Nếu dùng thì — Với năng lực hoặc phương tiện đó thì việc gì cũng được.",
+    "nuance_vi": "Văn viết, trang trọng; 'nếu dùng N (năng lực, phương tiện) thì', vế sau là khả năng hay kết quả tốt, thường nhấn sức mạnh của N.",
+    "order_items": [],
+    "pattern": "N + をもってすれば",
+    "pattern_variants": [],
+    "unit_no": 17,
+    "unit_title_vi": "Đánh đổi, bằng phương tiện",
+    "usage_vi": "Luôn mang ý tin tưởng vào năng lực. Vế sau thường tích cực."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b8afbf51ce"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-013"
+}

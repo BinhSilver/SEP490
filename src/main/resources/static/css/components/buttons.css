@@ -96,3 +96,8 @@
 .btn--block {
   width: 100%;
 }
+
+/* A darker hover fill needs its container foreground, not the primary foreground. */
+html[data-theme="dark"] .btn--primary:hover {
+  color: var(--color-on-primary-container) !important;
+}

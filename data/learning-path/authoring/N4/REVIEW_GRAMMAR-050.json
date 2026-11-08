@@ -1,0 +1,739 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\")."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私は人前で話すのが下手です。",
+       "ja_furigana": "私(わたし)は人前(ひとまえ)で話(はな)すのが下手(へた)です。",
+       "vi": "Tôi nói trước đám đông rất kém."
+      },
+      {
+       "ja": "弟は部屋を片づけるのが下手です。",
+       "ja_furigana": "弟(おとうと)は部屋(へや)を片(かた)づけるのが下手(へた)です。",
+       "vi": "Em trai tôi dọn phòng rất vụng."
+      },
+      {
+       "ja": "私は歌を歌うのが下手です。",
+       "ja_furigana": "私(わたし)は歌(うた)を歌(うた)うのが下手(へた)です。",
+       "vi": "Tôi hát kém lắm."
+      }
+     ]
+    },
+    "note": "lượt 2: dịch lại câu 3"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「の」: V-る + のが下手です: kém, vụng trong việc đó. Nghĩa: Bố tôi nấu ăn dở.",
+      "options": [
+       "ても",
+       "ながら",
+       "たら",
+       "の"
+      ],
+      "prompt_ja": "父は料理を作る（　　）が下手です。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「の」: V-る + のが下手です: kém, vụng trong việc đó. Nghĩa: Tôi viết chữ đẹp rất kém.",
+      "options": [
+       "ても",
+       "の",
+       "たら",
+       "ながら"
+      ],
+      "prompt_ja": "私は字をきれいに書く（　　）が下手です。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 弟は部屋を片づけるのが下手です。 (Em trai tôi dọn phòng rất vụng.). Mảnh ở ô ★ là 「片づけるのが」.",
+      "options": [
+       "片づけるのが",
+       "弟は",
+       "部屋を",
+       "下手です"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 姉は車を運転するのが下手です。 (Chị tôi lái xe kém.). Mảnh ở ô ★ là 「運転するのが」.",
+      "options": [
+       "運転するのが",
+       "車を",
+       "下手です",
+       "姉は"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu dùng mẫu のが下手(へた) (kém, vụng về trong việc làm gì đó): \"Tôi nói trước đám đông rất kém.\"",
+      "options": [
+       "Tôi nói trước đám đông rất kém.",
+       "Dạo này con tôi đã tự dậy một mình.",
+       "Hai người còn lại sẽ đến vào ngày mai.",
+       "Anh Tanaka vẫn còn là sinh viên ạ?"
+      ],
+      "prompt_ja": "私は人前で話すのが下手です。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu dùng mẫu のが下手(へた) (kém, vụng về trong việc làm gì đó): \"Tôi hát dở.\"",
+      "options": [
+       "Muộn rồi, đi ngủ sớm đi.",
+       "Hãy chọn một đáp án đúng.",
+       "Tôi uống thuốc. Thế là hết đau.",
+       "Tôi hát dở."
+      ],
+      "prompt_ja": "私は歌を歌うのが下手です。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "「私は人前で話すが下手です。」 sai: trước が下手 phải có の. Câu đúng: 私は人前で話すのが下手です。",
+      "options": [
+       "父は料理を作るのが下手です。",
+       "姉は車を運転するのが下手です。",
+       "私は人前で話すのが下手です。",
+       "私は人前で話すが下手です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "「弟は部屋を片づけるのを下手です。」 sai: 下手 đi với が, không đi với を. Câu đúng: 弟は部屋を片づけるのが下手です。",
+      "options": [
+       "私は字をきれいに書くのが下手です。",
+       "弟は部屋を片づけるのが下手です。",
+       "私は歌を歌うのが下手です。",
+       "弟は部屋を片づけるのを下手です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Quên の sau động từ (sai: 話すが下手です) hoặc dùng を thay cho が (sai: 話すのを下手です).",
+    "examples": [
+     {
+      "ja": "私は人前で話すのが下手です。",
+      "ja_furigana": "私(わたし)は人前(ひとまえ)で話(はな)すのが下手(へた)です。",
+      "source": "AI",
+      "vi": "Tôi nói trước đám đông rất kém."
+     },
+     {
+      "ja": "弟は部屋を片づけるのが下手です。",
+      "ja_furigana": "弟(おとうと)は部屋(へや)を片(かた)づけるのが下手(へた)です。",
+      "source": "AI",
+      "vi": "Em trai tôi dọn phòng rất vụng."
+     },
+     {
+      "ja": "私は歌を歌うのが下手です。",
+      "ja_furigana": "私(わたし)は歌(うた)を歌(うた)うのが下手(へた)です。",
+      "source": "AI",
+      "vi": "Tôi hát dở."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「の」: V-る + のが下手です: kém, vụng trong việc đó. Nghĩa: Chị tôi lái xe kém.",
+      "options": [
+       "の",
+       "ても",
+       "ながら",
+       "たら"
+      ],
+      "prompt_ja": "姉は車を運転する（　　）が下手です。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu dùng mẫu のが下手(へた) (kém, vụng về trong việc làm gì đó): \"Bố tôi nấu ăn dở.\"",
+      "options": [
+       "Tôi vẫn chưa quyết định chọn chiếc túi nào.",
+       "Lịch trình tiếp theo vẫn chưa quyết định.",
+       "Bố tôi nấu ăn dở.",
+       "Bánh tôi ăn một nửa, nửa còn lại để mai ăn."
+      ],
+      "prompt_ja": "父は料理を作るのが下手です。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「姉は車を運転しますのが下手です。」 sai: trước の dùng thể từ điển. Câu đúng: 姉は車を運転するのが下手です。",
+      "options": [
+       "弟は部屋を片づけるのが下手です。",
+       "姉は車を運転しますのが下手です。",
+       "私は字をきれいに書くのが下手です。",
+       "私は人前で話すのが下手です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "の",
+      "sentence_ja": "弟は部屋を片づける＿＿が下手です。",
+      "translation_vi": "Em trai tôi dọn phòng rất vụng."
+     },
+     {
+      "answer": "の",
+      "sentence_ja": "私は歌を歌う＿＿が下手です。",
+      "translation_vi": "Tôi hát dở."
+     }
+    ],
+    "findings": [],
+    "formation": "V-る + のが下手(だ/です)",
+    "locked_fields": [],
+    "meaning_vi": "Kém, vụng về trong việc làm gì đó.",
+    "nuance_vi": "Thường dùng để tự nhận về mình một cách khiêm tốn; nói thẳng người khác 下手 nghe thiếu lịch sự.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       2,
+       0
+      ],
+      "pieces": [
+       "下手です。",
+       "私は",
+       "話すのが",
+       "人前で"
+      ],
+      "translation_vi": "Tôi nói trước đám đông rất kém."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "下手です。",
+       "歌うのが",
+       "私は",
+       "歌を"
+      ],
+      "translation_vi": "Tôi hát dở."
+     }
+    ],
+    "pattern": "のが下手(へた)",
+    "pattern_variants": [],
+    "second_pass": true,
+    "unit_no": 38,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi nhận xét (thường là tự nhận về bản thân) rằng mình làm việc gì đó chưa khéo, chưa giỏi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8e84674a02"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "台所からいいにおいがします。",
+       "ja_furigana": "台所(だいどころ)からいいにおいがします。",
+       "vi": "Từ bếp có mùi thơm."
+      },
+      {
+       "ja": "このスープは変な味がします。",
+       "ja_furigana": "このスープは変(へん)な味(あじ)がします。",
+       "vi": "Món súp này có vị lạ."
+      },
+      {
+       "ja": "外で大きな音がしました。",
+       "ja_furigana": "外(そと)で大(おお)きな音(おと)がしました。",
+       "vi": "Ngoài kia vừa có một tiếng động to."
+      }
+     ]
+    },
+    "note": "lượt 2: dịch lại câu 3"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「が」: N (mùi, vị, âm thanh) + がします: cảm nhận được bằng giác quan. Nghĩa: Đâu đó có tiếng trẻ con.",
+      "options": [
+       "を",
+       "へ",
+       "で",
+       "が"
+      ],
+      "prompt_ja": "どこかで子どもの声（　　）します。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「が」: N (mùi, vị, âm thanh) + がします: cảm nhận được bằng giác quan. Nghĩa: Bông hoa này có mùi rất ngọt.",
+      "options": [
+       "で",
+       "へ",
+       "が",
+       "を"
+      ],
+      "prompt_ja": "この花はとても甘いにおい（　　）します。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: このスープは変な味がします。 (Món súp này có vị lạ.). Mảnh ở ô ★ là 「変な味が」.",
+      "options": [
+       "します",
+       "スープは",
+       "変な味が",
+       "この"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: あしたは雨が降るような気がします。 (Tôi có cảm giác ngày mai trời sẽ mưa.). Mảnh ở ô ★ là 「降るような気が」.",
+      "options": [
+       "降るような気が",
+       "雨が",
+       "します",
+       "あしたは"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu dùng mẫu 〜がする (có (mùi, vị, tiếng...), cảm thấy..): \"Từ bếp có mùi thơm.\"",
+      "options": [
+       "Xem phim một mình thì buồn.",
+       "Ngài có thể nói to hơn một chút được không ạ?",
+       "Từ bếp có mùi thơm.",
+       "Anh Kim đọc được báo tiếng Nhật."
+      ],
+      "prompt_ja": "台所からいいにおいがします。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu dùng mẫu 〜がする (có (mùi, vị, tiếng...), cảm thấy..): \"Bên ngoài có tiếng động lớn.\"",
+      "options": [
+       "Bạn uống được một chút rượu Nhật không?",
+       "Ở Nhật tôi đã có nhiều bạn.",
+       "Sở thích của tôi là xem phim.",
+       "Bên ngoài có tiếng động lớn."
+      ],
+      "prompt_ja": "外で大きな音がしました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「台所からいいにおいをします。」 sai: cảm nhận mùi dùng N + がします, không dùng を. Câu đúng: 台所からいいにおいがします。",
+      "options": [
+       "台所からいいにおいをします。",
+       "あしたは雨が降るような気がします。",
+       "どこかで子どもの声がします。",
+       "台所からいいにおいがします。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "「外で大きな音をしました。」 sai: âm thanh nghe thấy đi với が (音がする). Câu đúng: 外で大きな音がしました。",
+      "options": [
+       "このスープは変な味がします。",
+       "外で大きな音がしました。",
+       "外で大きな音をしました。",
+       "この花はとても甘いにおいがします。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng を thay cho が (sai: いいにおいをします; đúng: いいにおいがします) hoặc dùng với danh từ không phải cảm giác (sai: 花がします).",
+    "examples": [
+     {
+      "ja": "台所からいいにおいがします。",
+      "ja_furigana": "台所(だいどころ)からいいにおいがします。",
+      "source": "AI",
+      "vi": "Từ bếp có mùi thơm."
+     },
+     {
+      "ja": "このスープは変な味がします。",
+      "ja_furigana": "このスープは変(へん)な味(あじ)がします。",
+      "source": "AI",
+      "vi": "Món súp này có vị lạ."
+     },
+     {
+      "ja": "外で大きな音がしました。",
+      "ja_furigana": "外(そと)で大(おお)きな音(おと)がしました。",
+      "source": "AI",
+      "vi": "Bên ngoài có tiếng động lớn."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「が」: N (mùi, vị, âm thanh) + がします: cảm nhận được bằng giác quan. Nghĩa: Tôi có cảm giác ngày mai trời sẽ mưa.",
+      "options": [
+       "を",
+       "で",
+       "へ",
+       "が"
+      ],
+      "prompt_ja": "あしたは雨が降るような気（　　）します。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu dùng mẫu 〜がする (có (mùi, vị, tiếng...), cảm thấy..): \"Đâu đó có tiếng trẻ con.\"",
+      "options": [
+       "Đâu đó có tiếng trẻ con.",
+       "Người kia không chừng là anh trai của anh Tanaka.",
+       "Từ trên tòa nhà này nhìn rõ cả thị trấn.",
+       "Uống thuốc này thì sẽ hạ sốt."
+      ],
+      "prompt_ja": "どこかで子どもの声がします。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「この花はとても甘いにおいでします。」 sai: dùng が trước します. Câu đúng: この花はとても甘いにおいがします。",
+      "options": [
+       "このスープは変な味がします。",
+       "この花はとても甘いにおいでします。",
+       "この花はとても甘いにおいがします。",
+       "台所からいいにおいがします。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "が",
+      "sentence_ja": "このスープは変な味＿＿します。",
+      "translation_vi": "Món súp này có vị lạ."
+     },
+     {
+      "answer": "が",
+      "sentence_ja": "外で大きな音＿＿しました。",
+      "translation_vi": "Bên ngoài có tiếng động lớn."
+     }
+    ],
+    "findings": [],
+    "formation": "N (におい / 味 / 音 / 声 / 気) + がする",
+    "locked_fields": [],
+    "meaning_vi": "có (mùi; vị; tiếng...)",
+    "nuance_vi": "Người cảm nhận là người nói; thứ được cảm nhận đi với が.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       2,
+       3,
+       0
+      ],
+      "pieces": [
+       "します。",
+       "台所から",
+       "いい",
+       "においが"
+      ],
+      "translation_vi": "Từ bếp có mùi thơm."
+     },
+     {
+      "answer_order": [
+       3,
+       0,
+       1,
+       2
+      ],
+      "pieces": [
+       "大きな",
+       "音が",
+       "しました。",
+       "外で"
+      ],
+      "translation_vi": "Bên ngoài có tiếng động lớn."
+     }
+    ],
+    "pattern": "〜がする",
+    "pattern_variants": [
+     "がする"
+    ],
+    "second_pass": true,
+    "unit_no": 47,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả việc cảm nhận được mùi, vị, âm thanh, giọng nói qua giác quan, hoặc một cảm giác mơ hồ (気がする)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0692bb540e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "雨が降っていました。それで、試合は中止になりました。",
+       "ja_furigana": "雨(あめ)が降(ふ)っていました。それで、試合(しあい)は中止(ちゅうし)になりました。",
+       "vi": "Trời mưa. Vì thế trận đấu bị hủy."
+      },
+      {
+       "ja": "頭が痛かったです。それで、早く帰りました。",
+       "ja_furigana": "頭(あたま)が痛(いた)かったです。それで、早(はや)く帰(かえ)りました。",
+       "vi": "Tôi bị đau đầu, nên đã về sớm."
+      },
+      {
+       "ja": "電車が止まりました。それで、遅れたんです。",
+       "ja_furigana": "電車(でんしゃ)が止(と)まりました。それで、遅(おく)れたんです。",
+       "vi": "Tàu dừng chạy. Vì thế tôi đến muộn."
+      }
+     ],
+     "pattern": "それで"
+    },
+    "note": "lượt 2: mẫu là tiếng Việt; dịch lại câu 2"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Nguyên nhân → kết quả: それで. Nghĩa: Hôm qua rất lạnh. Vì thế tôi bị cảm.",
+      "options": [
+       "でも",
+       "それで",
+       "では",
+       "けれど"
+      ],
+      "prompt_ja": "きのうはとても寒かったです。（　　）、かぜをひいてしまいました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "それで: kết quả đã xảy ra. Nghĩa: Xe buýt không đến. Vì thế tôi đi taxi.",
+      "options": [
+       "それで",
+       "けれど",
+       "でも",
+       "では"
+      ],
+      "prompt_ja": "バスが来ませんでした。（　　）、タクシーで行きました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 道がこんでいました。それで会議に遅れてしまいました。 (Đường đông. Vì thế tôi đến họp muộn.) Mảnh ở ô ★ là 「遅れて」.",
+      "options": [
+       "それで",
+       "しまいました",
+       "会議に",
+       "遅れて"
+      ],
+      "prompt_ja": "道がこんでいました。 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 財布を忘れました。それで友達にお金を借りました。 (Tôi quên ví. Vì thế tôi mượn tiền bạn.) Mảnh ở ô ★ là 「お金を」.",
+      "options": [
+       "お金を",
+       "それで",
+       "友達に",
+       "借りました"
+      ],
+      "prompt_ja": "財布を忘れました。 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu này nghĩa là: \"Trời mưa. Vì thế trận đấu bị hủy.\"",
+      "options": [
+       "Trời mưa nhưng trận đấu vẫn diễn ra.",
+       "Trời mưa. Vì thế trận đấu bị hủy.",
+       "Trận đấu bị hủy nên trời mưa.",
+       "Trời mưa rồi sau đó trận đấu bắt đầu."
+      ],
+      "prompt_ja": "雨が降っていました。それで、試合は中止になりました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu này nghĩa là: \"Tôi bị đau đầu. Vì thế tôi về sớm.\"",
+      "options": [
+       "Tôi bị đau đầu nhưng vẫn ở lại.",
+       "Tôi về sớm nên bị đau đầu.",
+       "Tôi bị đau đầu. Vì thế tôi về sớm.",
+       "Tôi bị đau đầu, rồi sau đó đi làm."
+      ],
+      "prompt_ja": "頭が痛かったです。それで、早く帰りました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai: それで không dùng với lời rủ; dùng だから. Sửa: 雨が降っています。だから、家にいましょう。",
+      "options": [
+       "雨が降っていました。それで、試合は中止になりました。",
+       "電車が止まりました。それで、遅れたんです。",
+       "雨が降っています。それで、家にいましょう。",
+       "バスが来ませんでした。それで、タクシーで行きました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai: kết quả tự nhiên dùng それで; それでも là \"dù vậy\". Sửa: かぜをひきました。それで、学校を休みました。",
+      "options": [
+       "かぜをひきました。それでも、学校を休みました。",
+       "頭が痛かったです。それで、早く帰りました。",
+       "きのうはとても寒かったです。それで、かぜをひいてしまいました。",
+       "道がこんでいました。それで会議に遅れてしまいました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng それで với câu mệnh lệnh/rủ (×それで、家にいましょう → だから); nhầm với それでも (dù vậy) hoặc それから (rồi sau đó).",
+    "examples": [
+     {
+      "ja": "雨が降っていました。それで、試合は中止になりました。",
+      "ja_furigana": "雨(あめ)が降(ふ)っていました。それで、試合(しあい)は中止(ちゅうし)になりました。",
+      "source": "AI",
+      "vi": "Trời mưa. Vì thế trận đấu bị hủy."
+     },
+     {
+      "ja": "頭が痛かったです。それで、早く帰りました。",
+      "ja_furigana": "頭(あたま)が痛(いた)かったです。それで、早(はや)く帰(かえ)りました。",
+      "source": "AI",
+      "vi": "Tôi bị đau đầu. Vì thế tôi về sớm."
+     },
+     {
+      "ja": "電車が止まりました。それで、遅れたんです。",
+      "ja_furigana": "電車(でんしゃ)が止(と)まりました。それで、遅(おく)れたんです。",
+      "source": "AI",
+      "vi": "Tàu dừng chạy. Vì thế tôi đến muộn."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "それで. Nghĩa: Tôi thích văn hóa Nhật. Vì thế tôi đang học tiếng Nhật.",
+      "options": [
+       "けれど",
+       "でも",
+       "では",
+       "それで"
+      ],
+      "prompt_ja": "日本の文化が好きです。（　　）、日本語を勉強しています。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu này nghĩa là: \"Tàu dừng chạy. Vì thế tôi đến muộn.\"",
+      "options": [
+       "Tàu dừng chạy nhưng tôi vẫn đến kịp.",
+       "Tôi đến muộn rồi tàu mới dừng.",
+       "Tàu dừng chạy, sau đó tôi về nhà.",
+       "Tàu dừng chạy. Vì thế tôi đến muộn."
+      ],
+      "prompt_ja": "電車が止まりました。それで、遅れたんです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai: それで không dùng với lời nhờ, mệnh lệnh; dùng だから. Sửa: 時間がありません。だから、急いでください。",
+      "options": [
+       "きのうはとても寒かったです。それで、かぜをひいてしまいました。",
+       "時間がありません。それで、急いでください。",
+       "道がこんでいました。それで会議に遅れてしまいました。",
+       "雨が降っていました。それで、試合は中止になりました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "それで",
+      "sentence_ja": "きのうはとても寒かったです。＿＿、かぜをひいてしまいました。",
+      "translation_vi": "Hôm qua rất lạnh. Vì thế tôi bị cảm."
+     },
+     {
+      "answer": "それで",
+      "sentence_ja": "バスが来ませんでした。＿＿、タクシーで行きました。",
+      "translation_vi": "Xe buýt không đến. Vì thế tôi đi taxi."
+     }
+    ],
+    "findings": [],
+    "formation": "Câu 1 (nguyên nhân)。それで、câu 2 (kết quả)",
+    "locked_fields": [],
+    "meaning_vi": "vì thế …; cho nên …",
+    "nuance_vi": "それで kể kết quả tự nhiên đã xảy ra; câu sau không dùng mệnh lệnh, lời rủ, lời nhờ (khi đó dùng だから). Trong hội thoại, それで？ còn dùng để giục kể tiếp (\"rồi sao?\").",
+    "order_items": [
+     {
+      "answer_order": [
+       0,
+       2,
+       3,
+       1
+      ],
+      "pieces": [
+       "道がこんでいました。それで",
+       "しまいました",
+       "会議に",
+       "遅れて"
+      ],
+      "translation_vi": "Đường đông. Vì thế tôi đến họp muộn."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0,
+       3
+      ],
+      "pieces": [
+       "お金を",
+       "財布を忘れました。それで",
+       "友達に",
+       "借りました"
+      ],
+      "translation_vi": "Tôi quên ví. Vì thế tôi mượn tiền bạn."
+     }
+    ],
+    "pattern": "Và vì thế..., do đó...",
+    "pattern_variants": [],
+    "second_pass": true,
+    "unit_no": 28,
+    "unit_title_vi": "Vừa làm vừa và liệt kê lý do",
+    "usage_vi": "Đứng đầu câu thứ hai, nối nguyên nhân với kết quả đã xảy ra: 雨が降っていました。それで、試合は中止になりました; 頭が痛かったです。それで、早く帰りました."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c832b95f60"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N4",
+ "packet_id": "REVIEW_GRAMMAR-050"
+}

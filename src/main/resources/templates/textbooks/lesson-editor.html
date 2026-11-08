@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/admin-head :: head('Biên soạn bài học - JLAS', 'textbooks')}"></head>
+
+<body id="jlabBasePage" class="admin-portal page-textbooks">
+
+    <div id="adminShellMount"></div>
+
+    <main id="jlabBaseContent" class="app-main textbooks-main editor-main" th:attr="data-lesson-id=${lessonId}" hidden>
+        <nav class="textbooks-breadcrumb" aria-label="Breadcrumb">
+            <a th:href="@{/textbooks/manage}"><i class="fa-solid fa-pen-ruler" aria-hidden="true"></i> Quản lý nội dung</a>
+            <span aria-hidden="true">/</span>
+            <span id="breadcrumbLesson">…</span>
+        </nav>
+
+        <header class="textbooks-hero textbooks-hero--compact" id="editorHeader" hidden>
+            <p class="textbooks-hero__eyebrow" id="editorContext"></p>
+            <!-- [JLAS2-17] Lối về trang học viên + xem trước bài (tab mới); href bài do lesson-editor.js điền khi có textbookId -->
+            <div class="tb-hero-row">
+                <h1 class="textbooks-hero__title" id="editorTitle"></h1>
+                <div class="tb-hero-links">
+                    <a class="manage-btn tb-learner-link" id="editorPreviewLesson" href="#" target="_blank" rel="noopener" hidden>
+                        <i class="fa-solid fa-eye" aria-hidden="true"></i> Xem trước bài này
+                    </a>
+                    <a class="manage-btn tb-learner-link" th:href="@{/textbooks}" target="_blank" rel="noopener"
+                       aria-label="Xem trang học viên: danh sách giáo trình (mở tab mới)">
+                        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Xem trang học viên
+                    </a>
+                </div>
+            </div>
+            <div class="textbooks-hero__meta" id="editorMeta"></div>
+        </header>
+
+        <!-- Dải cảnh báo khi giáo trình đã lưu trữ: mọi thao tác bị khoá, backend cũng trả 409 -->
+        <div id="editorLocked" class="alert alert--warning" role="status" hidden></div>
+
+        <div id="editorLoading" class="textbooks-loading">
+            <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+            <span>Đang tải nội dung bài học…</span>
+        </div>
+
+        <!-- Lỗi 400/409 hiện ở đây và NẰM LẠI; toast tự tắt sau 4,5 giây là quá ngắn để đọc -->
+        <div id="editorError" class="alert alert--error" role="alert"></div>
+
+        <!-- Nhập cả bài từ Excel: tất cả hoặc không, kết quả (hoặc danh sách dòng lỗi) nằm lại bên dưới -->
+        <div class="editor-import" id="editorImport" hidden>
+            <div class="editor-import__text">
+                <strong>Nhập từ Excel</strong>
+                <span class="editor-panel__hint">Từ vựng, ngữ pháp + câu ví dụ, hội thoại, kanji trong một file .xlsx.
+                    File có dòng lỗi thì không nhập gì cả.</span>
+            </div>
+            <div class="editor-import__actions">
+                <button type="button" class="manage-btn" data-action="download-template">
+                    <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i> Tải file mẫu
+                </button>
+                <button type="button" class="manage-btn manage-btn--primary" data-action="import-excel">
+                    <i class="fa-solid fa-file-import" aria-hidden="true"></i> Import Excel
+                </button>
+                <input type="file" id="importFileInput" accept=".xlsx" hidden>
+            </div>
+        </div>
+        <div id="importResult" class="editor-import-result" role="status" hidden></div>
+
+        <!--
+          Mỗi loại nội dung là một tab + một panel cùng data-*. Thêm loại mới chỉ cần thêm một
+          <button data-tab="x"> và một <section data-panel="x">, không phải sửa khung:
+          js/pages/lesson-editor.js dò tab theo thuộc tính, không hardcode danh sách.
+        -->
+        <div class="lesson-tabs" role="tablist" aria-label="Loại nội dung" id="editorTabs" hidden>
+            <button type="button" class="lesson-tab is-active" role="tab" data-tab="grammar" aria-selected="true">
+                <i class="fa-solid fa-diagram-project" aria-hidden="true"></i>
+                Ngữ pháp <span class="lesson-tab__count" id="countGrammar">0</span>
+            </button>
+            <button type="button" class="lesson-tab" role="tab" data-tab="vocab" aria-selected="false">
+                <i class="fa-solid fa-language" aria-hidden="true"></i>
+                Từ vựng <span class="lesson-tab__count" id="countVocab">0</span>
+            </button>
+            <button type="button" class="lesson-tab" role="tab" data-tab="kanji" aria-selected="false">
+                <i class="fa-solid fa-pen-nib" aria-hidden="true"></i>
+                Kanji <span class="lesson-tab__count" id="countKanji">0</span>
+            </button>
+            <button type="button" class="lesson-tab" role="tab" data-tab="dialogue" aria-selected="false">
+                <i class="fa-solid fa-comments" aria-hidden="true"></i>
+                Hội thoại <span class="lesson-tab__count" id="countDialogue">0</span>
+            </button>
+        </div>
+
+        <section class="lesson-panel editor-panel" role="tabpanel" data-panel="grammar" id="panelGrammar" hidden>
+            <div class="editor-panel__bar">
+                <p class="editor-panel__hint">
+                    Mỗi mẫu ngữ pháp hiện kèm câu ví dụ của chính nó, để viết ví dụ cho khớp mẫu.
+                </p>
+                <button type="button" class="manage-btn manage-btn--primary" data-action="add-grammar">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i> Thêm mẫu ngữ pháp
+                </button>
+            </div>
+            <div id="grammarList" class="editor-list"></div>
+        </section>
+
+        <section class="lesson-panel editor-panel" role="tabpanel" data-panel="vocab" id="panelVocab" hidden>
+            <div class="editor-panel__bar">
+                <p class="editor-panel__hint">
+                    Chọn từ có sẵn trong từ điển để gắn vào bài. Gỡ từ chỉ bỏ nó khỏi bài này.
+                    Chưa có từ cần dùng thì tạo từ mới (ở trạng thái nháp, không lẫn vào tra cứu từ điển).
+                </p>
+                <button type="button" class="manage-btn manage-btn--primary" data-action="create-vocab">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i> Tạo từ mới
+                </button>
+            </div>
+            <div class="editor-vocab">
+                <div class="editor-vocab__picked">
+                    <h2 class="editor-section-title">Từ của bài <span class="lesson-tab__count" id="countPicked">0</span></h2>
+                    <div id="lessonVocabList" class="editor-list"></div>
+                </div>
+                <div class="editor-vocab__search">
+                    <h2 class="editor-section-title">Tìm trong từ điển</h2>
+                    <input type="search" id="vocabSearchInput" class="manage-input"
+                           placeholder="Gõ chữ Hán, kana hoặc romaji…" autocomplete="off">
+                    <p class="editor-panel__hint" id="vocabSearchMeta">Gõ để tìm trong kho từ vựng.</p>
+                    <div id="vocabSearchResults" class="editor-list"></div>
+                    <div class="editor-pager" id="vocabPager" hidden>
+                        <button type="button" class="manage-btn" data-action="vocab-prev">Trang trước</button>
+                        <span id="vocabPageLabel"></span>
+                        <button type="button" class="manage-btn" data-action="vocab-next">Trang sau</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lesson-panel editor-panel" role="tabpanel" data-panel="kanji" id="panelKanji" hidden>
+            <div class="editor-panel__bar">
+                <p class="editor-panel__hint">
+                    Kanji trong từ vựng của bài tự hiện cho học viên. Gắn thêm chữ ở đây khi bài cần dạy chữ
+                    không nằm trong từ vựng; gỡ ở đây không ảnh hưởng tới từ điển.
+                </p>
+            </div>
+            <form class="editor-kanji-form" id="kanjiForm" novalidate>
+                <input type="text" id="kanjiInput" class="manage-input" maxlength="200" lang="ja"
+                       placeholder="Gõ một hoặc nhiều chữ, ví dụ: 学生日本" autocomplete="off">
+                <button type="submit" class="manage-btn manage-btn--primary" data-requires-unlock="1">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i> Gắn vào bài
+                </button>
+            </form>
+            <h2 class="editor-section-title">Gắn tay <span class="lesson-tab__count" id="countManualKanji">0</span></h2>
+            <div id="manualKanjiList" class="editor-kanji-grid"></div>
+            <h2 class="editor-section-title">Từ từ vựng của bài <span class="lesson-tab__count" id="countDerivedKanji">0</span></h2>
+            <p class="editor-panel__hint">Muốn bỏ một chữ ở nhóm này thì gỡ từ chứa nó ở tab Từ vựng.</p>
+            <div id="derivedKanjiList" class="editor-kanji-grid"></div>
+        </section>
+
+        <section class="lesson-panel editor-panel" role="tabpanel" data-panel="dialogue" id="panelDialogue" hidden>
+            <div class="editor-panel__bar">
+                <p class="editor-panel__hint">
+                    Khai báo vai trước, rồi tạo đoạn hội thoại và thêm lời theo thứ tự nói.
+                </p>
+                <button type="button" class="manage-btn manage-btn--primary" data-action="add-scene">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i> Thêm đoạn hội thoại
+                </button>
+            </div>
+            <div class="editor-dialogue">
+                <div class="editor-dialogue__roles">
+                    <div class="editor-panel__bar">
+                        <h2 class="editor-section-title">Vai <span class="lesson-tab__count" id="countRoles">0</span></h2>
+                        <button type="button" class="manage-btn" data-action="add-role">
+                            <i class="fa-solid fa-user-plus" aria-hidden="true"></i> Thêm vai
+                        </button>
+                    </div>
+                    <div id="roleList" class="editor-list"></div>
+                </div>
+                <div class="editor-dialogue__scenes">
+                    <div id="sceneList" class="editor-list"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Form dùng chung cho mẫu ngữ pháp và câu ví dụ; rộng hơn modal của màn quản lý vì có trường dài -->
+    <div class="manage-modal" id="editorModal" hidden>
+        <div class="manage-modal__backdrop" data-close="1"></div>
+        <div class="manage-modal__panel manage-modal__panel--wide" role="dialog" aria-modal="true"
+             aria-labelledby="editorModalTitle">
+            <h2 class="manage-modal__title" id="editorModalTitle">…</h2>
+            <form id="editorForm" class="manage-form" novalidate>
+                <div id="editorFormFields"></div>
+                <p class="manage-form__error" id="editorFormError" hidden></p>
+                <div class="manage-form__actions">
+                    <button type="button" class="manage-btn" data-close="1">Huỷ</button>
+                    <button type="submit" class="manage-btn manage-btn--primary" id="editorSubmitBtn">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- [JLAS2-17] Hộp xác nhận dùng chung (import, chưa lưu, xoá) — lesson-editor.js dựng nội dung -->
+    <div class="editor-dlg-host" id="editorDialog" hidden></div>
+
+    <div th:replace="~{fragments/components/toast :: toast-host}"></div>
+
+    <script th:src="@{/js/pages/admin-core.js(v=20261107-system-admin)}"></script>
+    <script th:src="@{/js/admin-shell.js(v=20261107-theme)}"></script>
+    <script th:src="@{/js/pages/lesson-editor.js(v=20261018tts)}"></script>
+
+</body>
+
+</html>

@@ -1,5 +1,6 @@
 package com.jlas.shadowing.dto;
 
+import com.jlas.shadowing.model.ProcessingStep;
 import com.jlas.shadowing.model.VideoStatus;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -12,9 +13,11 @@ public class VideoSummaryDto {
     private VideoStatus status;
     private String thumbnailPath;
     private Double duration;
+    private ProcessingStep processingStep;
     private Integer progressPercent;
     private List<String> tags;
     private String category;
+    private List<GenreOption> genres = List.of();
     private String estimatedLevel;
     private String levelSource;
     private LocalDateTime createdAt;
@@ -27,5 +30,9 @@ public class VideoSummaryDto {
     private long commentCount;
     private Long ownerId;
     private String visibility;
+    /** Nhãn độ tuổi (13, 16, 18); null = mọi lứa tuổi. */
+    private Integer minAge;
     private boolean ownedByMe;
+    /** Lần gần nhất người dùng mở video này; chỉ có ở tab Lịch sử. */
+    private LocalDateTime viewedAt;
 }

@@ -1,0 +1,154 @@
+@import url("../controls.css");
+/* Notification history page. Scoped to #jlabBaseContent; the shell owns the nav. */
+
+#jlabBasePage.page-notifications {
+  background: var(--color-surface, #f4fafd);
+  color: var(--color-on-surface, #161d1f);
+}
+
+#jlabBaseContent .ntf-page {
+  width: min(760px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 64px;
+  display: grid;
+  gap: 16px;
+  font-family: "Inter", var(--font-body);
+}
+
+#jlabBaseContent .ntf-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+#jlabBaseContent .ntf-title { margin: 0; font: 700 clamp(26px, 3vw, 34px)/1.2 "Hanken Grotesk", var(--font-headline); }
+#jlabBaseContent .ntf-subtitle { margin: 4px 0 0; color: var(--color-on-surface-variant); font-size: 14px; }
+
+#jlabBaseContent .ntf-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  justify-self: start;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-high);
+}
+
+#jlabBaseContent .ntf-tab {
+  padding: 6px 16px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#jlabBaseContent .ntf-tab[aria-selected="true"] { background: var(--color-surface-lowest); color: var(--color-primary); box-shadow: 0 1px 4px rgba(22, 29, 31, 0.1); }
+#jlabBaseContent .ntf-tab:focus-visible { outline: 2px solid var(--color-primary); }
+
+#jlabBaseContent .ntf-list {
+  overflow: hidden;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-lowest);
+}
+
+#jlabBaseContent .ntf-item {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: start;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  color: inherit;
+  text-decoration: none;
+}
+
+#jlabBaseContent .ntf-item:last-child { border-bottom: 0; }
+#jlabBaseContent a.ntf-item:hover { background: var(--color-surface-low); }
+#jlabBaseContent .ntf-item.is-unread { background: #f7f2ff; }
+#jlabBaseContent .ntf-item:focus-visible { outline: 2px solid var(--color-primary); outline-offset: -2px; }
+
+#jlabBaseContent .ntf-item__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-primary-fixed);
+  color: var(--color-primary);
+}
+
+#jlabBaseContent .ntf-item__body { min-width: 0; display: grid; gap: 4px; }
+#jlabBaseContent .ntf-item__body strong { font-size: 15px; }
+#jlabBaseContent .ntf-item__body p { margin: 0; color: var(--color-on-surface-variant); font-size: 14px; line-height: 1.5; }
+#jlabBaseContent .ntf-item__body time { color: var(--color-outline); font-size: 12px; }
+
+#jlabBaseContent .ntf-item__mark {
+  padding: 4px 10px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-lowest);
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#jlabBaseContent .ntf-item__mark:hover,
+#jlabBaseContent .ntf-item__mark:focus-visible { background: var(--color-primary-fixed); outline: none; }
+
+#jlabBaseContent .ntf-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 48px 16px;
+  color: var(--color-on-surface-variant);
+  text-align: center;
+}
+
+#jlabBaseContent .ntf-empty i { font-size: 32px; color: var(--color-outline); }
+#jlabBaseContent .ntf-pager { display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 14px; }
+#jlabBaseContent .ntf-pager[hidden] { display: none; }
+#jlabBaseContent .ntf-note { margin: 0; color: var(--color-outline); font-size: 12px; text-align: center; }
+
+@media (max-width: 560px) {
+  #jlabBaseContent .ntf-item { grid-template-columns: 36px minmax(0, 1fr); }
+  #jlabBaseContent .ntf-item__mark { grid-column: 2; justify-self: start; }
+}
+
+/* Page-owned dark mode: css/pages/notifications.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-admin-bg: var(--dark-bg);
+  --dm-admin-surface: var(--dark-surface);
+  --dm-admin-raised: var(--dark-raised);
+  --dm-admin-ink: var(--dark-ink);
+  --dm-admin-muted: var(--dark-muted);
+  --dm-admin-line: var(--dark-line);
+  --dm-admin-accent: var(--dark-accent);
+  --dm-admin-action: var(--dark-button);
+  --dm-admin-accent-soft: var(--dark-soft);
+  --dm-admin-on-accent: var(--dark-on-button);
+  --dm-admin-success: var(--dark-success);
+  --dm-admin-success-bg: var(--dark-success-bg);
+  --dm-admin-success-line: var(--dark-success-line);
+  --dm-admin-danger: var(--dark-danger);
+  --dm-admin-danger-bg: var(--dark-danger-bg);
+  --dm-admin-danger-line: var(--dark-danger-line);
+  --dm-admin-warning: var(--dark-warning);
+  --dm-admin-warning-bg: var(--dark-warning-bg);
+  --dm-admin-warning-line: var(--dark-warning-line);
+  --dm-admin-pink: var(--dark-pink);
+  --dm-admin-pink-bg: var(--dark-pink-bg);
+  --dm-admin-pink-line: var(--dark-pink-line);
+}
+html[data-theme="dark"] #jlabBaseContent .ntf-tab[aria-selected="true"] {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22)
+}
+html[data-theme="dark"] #jlabBaseContent .ntf-item.is-unread {
+    background: var(--dm-admin-accent-soft)
+}
+
+/* Dark interaction and state pairs for this page. */
+html[data-theme="dark"] .page-notifications{--color-background:var(--dm-admin-bg);--color-surface:var(--dm-admin-bg);--color-surface-lowest:var(--dm-admin-surface);--color-surface-low:var(--dm-admin-raised);--color-surface-mid:var(--dm-admin-raised);--color-surface-high:var(--dm-admin-raised);--color-surface-container:var(--dm-admin-raised);--color-surface-container-high:var(--dm-admin-raised);--color-on-surface:var(--dm-admin-ink);--color-on-surface-variant:var(--dm-admin-muted);--color-secondary:var(--dm-admin-muted);--color-outline:var(--dm-admin-muted);--color-outline-variant:var(--dm-admin-line);--color-primary:var(--dm-admin-accent);--color-primary-container:var(--dm-admin-action);--color-on-primary:var(--dm-admin-on-accent);--color-on-primary-container:var(--dark-on-button);--color-primary-fixed:var(--dm-admin-accent-soft);--color-on-primary-fixed:var(--dm-admin-accent);--color-secondary-container:var(--dm-admin-accent-soft);--color-secondary-fixed:var(--dm-admin-accent-soft);--color-success:var(--dm-admin-success);--color-success-bg:var(--dm-admin-success-bg);--color-error:var(--dm-admin-danger);--color-error-container:var(--dm-admin-danger-bg);--color-on-error-container:var(--dm-admin-danger);--color-tertiary:var(--dm-admin-warning);--color-tertiary-container:var(--dm-admin-warning-bg);--color-on-tertiary-container:var(--dm-admin-warning);--color-focus:var(--dm-admin-accent);--jlab-base-page-background:var(--dm-admin-bg);}
+html[data-theme="dark"] .page-notifications .btn--primary{background:var(--dm-admin-action)!important;color:var(--dark-on-button)!important;}
+html[data-theme="dark"] .page-notifications .btn--primary:hover{background:var(--dark-button-hover)!important;}

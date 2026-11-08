@@ -88,19 +88,30 @@
     --z-overlay: 500;
 }
 
-@media (prefers-reduced-motion: reduce) {
-    :root {
-        --dur-fast: 1ms;
-        --dur-base: 1ms;
-        --dur-slow: 1ms;
-        --dur-cinematic: 1ms;
-    }
 
-    *,
-    *::before,
-    *::after {
-        animation-duration: 1ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 1ms !important;
-    }
+/* Arena shell uses the same obsidian/purple hierarchy as Learning Path (110f0bf). */
+html[data-theme="dark"] {
+  --bg-base: var(--dark-bg);
+  --bg-deep: var(--dark-bg);
+  --surface-1: var(--dark-surface);
+  --surface-2: var(--dark-raised);
+  --surface-3: var(--dark-soft);
+  --surface-glass: #171b26eb;
+  --border-subtle: var(--dark-line);
+  --border-strong: var(--dark-muted);
+  --text-hi: var(--dark-ink);
+  --text-mid: var(--dark-muted);
+  --text-low: var(--dark-faint);
+  --sakura-500: var(--dark-button);
+  --sakura-400: #a855f7;
+  --sakura-300: var(--dark-accent);
+  --sakura-glow: #a855f724;
+  --cyan-400: var(--dark-muted);
+  --cyan-glow: #a3e63512;
+  --gold-400: var(--dark-warning);
+  --success: #a3e635;
+  --warning: var(--dark-warning);
+  --danger: var(--dark-danger);
+  --color-background: var(--dark-bg);
+  --jlab-base-page-background: var(--dark-bg);
 }

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tạo bài học | JLAS Shadowing</title>
@@ -9,23 +10,19 @@
     <link rel="stylesheet" href="/css/tokens.css"/>
     <link rel="stylesheet" href="/css/theme-bridge.css"/>
     <link rel="stylesheet" href="/css/base.css"/>
-    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20260830-kitsu-mascot">
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261105-plum">
     <link rel="icon" href="/images/jlab.png" type="image/png"/>
     <link rel="stylesheet" href="/css/pages/shadowing.css"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-<body id="jlabBasePage" class="page-shadowing page-shadowing-create">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing page-shadowing-create">
     <div id="jlabBaseShellMount"></div>
 
     <main id="jlabBaseContent" class="container">
         <section>
             <header class="section-header">
                 <h1 class="hero-display">Tạo bài học mới.</h1>
-                <p class="caption" style="margin-top:8px;opacity:0.9">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    Nội dung công khai sẽ được kiểm tra an toàn
-                    (không chứa dung khiêu dâm, thù ghét, bạo lực…).
-                </p>
             </header>
 
             <div class="create-mode-tabs" role="tablist">
@@ -67,7 +64,7 @@
 
                 <div class="create-shared-options">
                     <div class="form-group">
-                        <label class="form-label" for="file-category-select">Thể loại</label>
+                        <label class="form-label" for="file-category-select">Hình thức</label>
                         <select id="file-category-select" class="form-input form-select">
                             <option value="Podcast">Podcast</option>
                             <option value="Anime">Anime</option>
@@ -79,6 +76,7 @@
                             <option value="JLPT">JLPT</option>
                         </select>
                     </div>
+                    <div class="form-group create-genres" th:replace="~{shadowing/genre-picker :: picker('file-genres')}"></div>
                     <div class="form-group">
                         <label class="form-label" for="file-lang-select">Dịch sang</label>
                         <select id="file-lang-select" class="form-input form-select">
@@ -86,11 +84,20 @@
                             <option value="en">Tiếng Anh</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label" for="file-min-age-select">Độ tuổi</label>
+                        <select id="file-min-age-select" class="form-input form-select">
+                            <option value="0" selected>Mọi lứa tuổi</option>
+                            <option value="13">13+</option>
+                            <option value="16">16+</option>
+                            <option value="18">18+</option>
+                        </select>
+                    </div>
                 </div>
 
                 <label class="form-check furigana-option" for="file-furigana-check">
                     <input type="checkbox" id="file-furigana-check">
-                    <span><strong>Tạo furigana + dịch bằng AI</strong> — chậm, <em>tối đa 20 phút</em>. Tắt = không gọi AI, không giới hạn 20 phút (chỉ file/STT).</span>
+                        <span><strong>Tạo furigana + dịch bằng AI</strong></span>
                 </label>
 
                 <div class="form-actions">
@@ -105,7 +112,6 @@
                 <div class="youtube-url-field">
                     <label class="form-label" for="youtube-url-input"><i class="fa-brands fa-youtube"></i> Dán link YouTube</label>
                     <input type="url" id="youtube-url-input" class="form-input" placeholder="https://www.youtube.com/watch?v=... hoặc https://youtu.be/...">
-                    <p class="caption">Hỗ trợ youtube.com/watch, youtu.be, shorts. Phân tích trước — chỉ tải khi bạn xác nhận.</p>
                 </div>
 
                 <div class="form-actions youtube-analyze-actions">
@@ -125,7 +131,7 @@
                     </div>
 
                     <div id="language-check-panel" class="language-check-panel" hidden aria-live="polite">
-                        <img id="language-check-mascot" src="/images/kitsu.png" alt="Kitsu-chan">
+                        <img id="language-check-mascot" src="/images/mascots/kitsu/kitsu-crying-30.webp" alt="Kitsu-chan">
                         <div>
                             <strong id="language-check-title">Kiểm tra ngôn ngữ</strong>
                             <p id="language-check-message"></p>
@@ -134,7 +140,7 @@
 
                     <div class="create-shared-options">
                         <div class="form-group">
-                            <label class="form-label" for="yt-category-select">Thể loại</label>
+                            <label class="form-label" for="yt-category-select">Hình thức</label>
                             <select id="yt-category-select" class="form-input form-select">
                                 <option value="Podcast">Podcast</option>
                                 <option value="Anime">Anime</option>
@@ -146,6 +152,7 @@
                                 <option value="JLPT">JLPT</option>
                             </select>
                         </div>
+                        <div class="form-group create-genres" th:replace="~{shadowing/genre-picker :: picker('yt-genres')}"></div>
                         <div class="form-group">
                             <label class="form-label" for="yt-lang-select">Dịch sang</label>
                             <select id="yt-lang-select" class="form-input form-select">
@@ -153,11 +160,21 @@
                                 <option value="en">Tiếng Anh</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label class="form-label" for="yt-min-age-select">Độ tuổi</label>
+                            <select id="yt-min-age-select" class="form-input form-select" aria-describedby="yt-min-age-hint">
+                                <option value="0" selected>Mọi lứa tuổi</option>
+                                <option value="13">13+</option>
+                                <option value="16">16+</option>
+                                <option value="18">18+</option>
+                            </select>
+                            <p id="yt-min-age-hint" class="caption" hidden></p>
+                        </div>
                     </div>
 
                     <label class="form-check furigana-option" for="yt-furigana-check">
                         <input type="checkbox" id="yt-furigana-check">
-                        <span><strong>Tạo furigana + dịch bằng AI</strong> — mặc định tắt. Tắt = chỉ dùng phụ đề YouTube, <em>không gọi AI</em>.</span>
+                        <span><strong>Tạo furigana + dịch bằng AI</strong></span>
                     </label>
 
                     <div class="form-actions">
@@ -170,8 +187,8 @@
 
     <script src="/js/auth-session.js"></script>
     <script src="/js/jlab-base-shell.js"></script>
-    <script src="/shadowing/js/client.js?v=20260718"></script>
+    <script src="/shadowing/js/client.js?v=20261017-genres"></script>
     <script src="/shadowing/js/confirm-modal.js?v=20260718"></script>
-    <script src="/shadowing/js/upload.js?v=20260830-kitsu-wording"></script>
+    <script src="/shadowing/js/upload.js?v=20261101-age-gate"></script>
 </body>
 </html>

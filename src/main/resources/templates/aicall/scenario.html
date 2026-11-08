@@ -1,178 +1,106 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title th:text="${scenario.title} + ' · Kịch bản'">Kịch bản</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap"
-        rel="stylesheet" />
-    <link rel="stylesheet" th:href="@{/css/tokens.css}" />
-    <link rel="stylesheet" th:href="@{/css/theme-bridge.css}" />
-    <link rel="stylesheet" th:href="@{/css/base.css}" />
-    <link rel="stylesheet" th:href="@{/css/app.css}" />
-    <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}" />
+    <script src="/js/theme-init.js"></script>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${selectedStageTitle != null ? selectedStageTitle : scenario.variantTitle} + ' · AI Call'">Trường hợp luyện tập</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
+    <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
+    <link rel="stylesheet" th:href="@{/css/base.css}"/>
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+    <link rel="stylesheet" th:href="@{/css/aicall-tree.css}"/>
+    <link rel="stylesheet" th:href="@{/css/aicall-cases.css(v='20261105-plum')}"/>
+    <link rel="stylesheet" th:href="@{/css/aicall-stages.css(v='20261105-map2')}"/>
+    <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-
-<body id="jlabBasePage">
-    <div id="jlabBaseShellMount"></div>
-    <main id="jlabBaseContent">
-
-    <header class="page-header container">
-        <div class="meta" style="margin-bottom:8px">
-            <span class="badge" th:text="${scenario.jlptLevel}">N5</span>
-            <span class="badge" th:text="${scenario.difficulty}">Dễ</span>
-            <span class="badge"><i class="fa-solid fa-clock"></i>
-                <span th:text="${scenario.estimatedMinutes}">5</span> phút
-            </span>
-            <span class="badge" th:text="${scenario.category.title}">Chủ đề</span>
-        </div>
-        <h1 th:text="${scenario.title}">Tên kịch bản</h1>
-        <p th:text="${scenario.description}">Mô tả</p>
-        <p style="margin-top:12px">
-            <a class="btn btn-ghost" th:href="@{/category/{id}(id=${scenario.category.id})}">
-                <i class="fa-solid fa-arrow-left"></i> Quay lại chủ đề
-            </a>
-        </p>
-    </header>
-
-    <section class="container detail-layout">
-        <div style="display:grid;gap:16px">
-            <div class="panel" th:if="${context != null}">
-                <h3><i class="fa-solid fa-map"></i> Bối cảnh</h3>
-                <p th:text="${context.background}"></p>
-                <div class="kv" style="margin-top:12px">
-                    <div><span>Địa điểm</span><strong th:text="${context.location}">—</strong></div>
-                    <div><span>Thời điểm</span><strong th:text="${context.time}">—</strong></div>
+<body data-mobile-adapt="owned" id="jlabBasePage">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="aicall-case-page">
+    <div class="container case-content">
+        <p th:if="${lockedNotice}" class="stage-review-notice" role="status"><i class="fa-solid fa-lock" aria-hidden="true"></i> Màn này chưa mở. Hãy hoàn thành các màn nối vào nó trước.</p>
+        <th:block th:if="${progression != null and selectedStage == null}"><section th:replace="~{aicall/fragments/stage-map :: map(${progression})}"></section></th:block>
+        <section class="case-flow-section" aria-labelledby="case-flow-heading" th:unless="${graph != null or #lists.isEmpty(states)}">
+            <h2 id="case-flow-heading" class="case-section-heading"><span class="case-heading-icon"><i class="fa-solid fa-route" aria-hidden="true"></i></span> Diễn biến</h2>
+            <ol class="case-flow">
+                <li th:each="state, step : ${states}">
+                    <span class="case-flow-icon"><i aria-hidden="true" th:class="${stateIcons[state.code]}"></i><span class="case-step" th:text="${step.count}">1</span></span>
+                    <span class="case-flow-title" th:text="${state.name}">Hỏi món thay thế</span>
+                </li>
+            </ol>
+        </section>
+        <div class="case-layout" th:if="${selectedStage != null or progression == null}">
+            <div class="case-main">
+                <section class="case-context" th:if="${context != null}" aria-labelledby="case-context-heading">
+                    <h2 id="case-context-heading" class="case-section-heading"><span class="case-heading-icon"><i class="fa-regular fa-map" aria-hidden="true"></i></span> Bối cảnh</h2>
+                    <p class="case-background" th:if="${context.background}" th:text="${context.background}"></p>
+                    <dl class="case-location">
+                        <div th:if="${context.location}"><dt><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Địa điểm</dt><dd th:text="${context.location}"></dd></div>
+                        <div th:if="${context.time}"><dt><i class="fa-regular fa-sun" aria-hidden="true"></i> Thời điểm</dt><dd th:text="${context.time}"></dd></div>
+                    </dl>
+                </section>
+                <section class="case-objectives" aria-labelledby="case-objectives-heading" th:unless="${#lists.isEmpty(objectives)}">
+                    <h2 id="case-objectives-heading" class="case-section-heading"><span class="case-heading-icon"><i class="fa-solid fa-bullseye" aria-hidden="true"></i></span> Bạn cần làm</h2>
+                    <ol class="case-goals">
+                        <li th:each="objective, step : ${objectives}">
+                            <span class="case-goal-icon"><i aria-hidden="true" th:class="${objectiveIcons[objective.code]}"></i><span class="case-step" th:text="${step.count}">1</span></span>
+                            <div><h3 th:text="${objective.title}">Hỏi món thay thế</h3><p th:if="${objective.description}" th:text="${objective.description}"></p><span class="case-optional" th:unless="${objective.required}">Tùy chọn</span></div>
+                        </li>
+                    </ol>
+                </section>
+                <section class="case-resources" aria-labelledby="case-resources-heading">
+                    <h2 id="case-resources-heading" class="case-section-heading"><span class="case-heading-icon"><i class="fa-solid fa-book-open" aria-hidden="true"></i></span> Từ vựng và ngữ pháp</h2>
+                    <details class="case-resource" th:unless="${#lists.isEmpty(vocabulary)}">
+                        <summary><span class="case-resource-icon"><i class="fa-solid fa-book-bookmark" aria-hidden="true"></i></span><span>Từ vựng</span><i class="fa-solid fa-chevron-down case-resource-chevron" aria-hidden="true"></i></summary>
+                        <ul class="case-resource-list case-vocabulary">
+                            <li th:each="word : ${vocabulary}">
+                                <div class="case-word-term">
+                                    <span class="case-word-label"><i class="fa-solid fa-bookmark" aria-hidden="true"></i> Từ vựng</span>
+                                    <strong lang="ja" th:text="${word.wordJa}"></strong>
+                                </div>
+                                <dl class="case-word-details">
+                                    <div th:if="${word.reading}"><dt><i class="fa-solid fa-book-open" aria-hidden="true"></i> Cách đọc</dt><dd class="case-reading" lang="ja" th:text="${word.reading}"></dd></div>
+                                    <div><dt><i class="fa-solid fa-language" aria-hidden="true"></i> Nghĩa</dt><dd th:text="${word.meaning}"></dd></div>
+                                    <div th:if="${word.exampleJa}"><dt><i class="fa-solid fa-quote-left" aria-hidden="true"></i> Ví dụ</dt><dd class="case-word-example" lang="ja" th:text="${word.exampleJa}"></dd></div>
+                                </dl>
+                            </li>
+                        </ul>
+                    </details>
+                    <details class="case-resource" th:unless="${#lists.isEmpty(grammar)}">
+                        <summary><span class="case-resource-icon"><i class="fa-solid fa-language" aria-hidden="true"></i></span><span>Ngữ pháp</span><i class="fa-solid fa-chevron-down case-resource-chevron" aria-hidden="true"></i></summary>
+                        <ul class="case-resource-list">
+                            <li th:each="pattern : ${grammar}"><strong lang="ja" th:text="${pattern.pattern}"></strong><p th:text="${pattern.explanation}"></p><p class="case-example" lang="ja" th:if="${pattern.exampleJa}" th:text="${pattern.exampleJa}"></p></li>
+                        </ul>
+                    </details>
+                </section>
+            </div>
+            <aside class="case-practice" aria-labelledby="case-practice-heading" th:with="selectedView=${progression != null ? progression.stages.^[definition.code == #vars.selectedStage] : null}">
+                <div class="case-practice-inner">
+                    <div class="case-coach-icon" aria-hidden="true"><i class="fa-solid fa-headset"></i></div>
+                    <h2 id="case-practice-heading">Luyện trường hợp này</h2>
+                    <p class="case-selected-title" data-stage-selected-title th:attr="data-scenario=${progression != null ? progression.scenario.id : scenario.id}" th:text="${selectedStageTitle != null ? selectedStageTitle : scenario.variantTitle}">Món muốn gọi đã hết</p>
+                    <dl class="case-roles">
+                        <div><dt><i class="fa-regular fa-user" aria-hidden="true"></i> Bạn đóng vai</dt><dd th:text="${scenario.userRole != null ? scenario.userRole.name : 'Người học'}">Khách dùng bữa</dd></div>
+                        <div><dt><i class="fa-solid fa-users" aria-hidden="true"></i> Nhân vật AI</dt>
+                            <dd th:if="${#lists.isEmpty(scenarioSpeakers)}" th:text="${scenario.aiRole != null ? scenario.aiRole.name : 'Người đối thoại'}">Nhân viên nhà hàng</dd>
+                            <dd th:each="actor : ${scenarioSpeakers}" th:text="${actor.name}">Nhân viên phục vụ</dd>
+                        </div>
+                    </dl>
+                    <a class="case-start" data-stage-start th:attr="data-scenario=${progression != null ? progression.scenario.id : scenario.id}" th:if="${selectedView == null or selectedView.status != 'locked'}" th:href="${selectedView != null and selectedView.resumeSession != null ? '/conversation/' + selectedView.resumeSession : '/scenario/' + (progression != null ? progression.scenario.id : scenario.id) + '/start' + (selectedStage != null ? '?stage=' + selectedStage : '')}"><i class="fa-solid fa-microphone-lines" aria-hidden="true"></i> <span data-stage-start-label th:text="${selectedView != null and selectedView.resumeSession != null ? 'Tiếp tục hội thoại' : 'Bắt đầu hội thoại'}">Bắt đầu hội thoại</span></a>
+                    <a class="case-sample-open case-sample-direct" data-stage-sample th:if="${hasSample}" th:attr="data-scenario=${scenario.id}" th:href="@{/scenario/{id}/sample(id=${scenario.id},stage=${selectedStage})}"><i class="fa-solid fa-comments" aria-hidden="true"></i> <span>Xem hội thoại mẫu</span></a>
+                    <p class="stage-locked-message" th:if="${selectedView != null and selectedView.status == 'locked'}"><i class="fa-solid fa-lock" aria-hidden="true"></i> Hoàn thành màn trước để mở khóa</p>
                 </div>
-                <p style="margin-top:10px;color:var(--muted)" th:if="${context.cultureNote}"
-                    th:text="${context.cultureNote}"></p>
-            </div>
-            <div class="panel">
-                <h3><i class="fa-solid fa-bullseye"></i> Nhiệm vụ (ミッション)</h3>
-                <ul class="list-clean">
-                    <li th:each="m : ${missions}">
-                        <strong th:text="${m.title}">Nhiệm vụ (ミッション)</strong>
-                        <span class="badge" th:text="${m.required ? 'Bắt buộc' : 'Tuỳ chọn'}">Bắt buộc</span>
-                        <div style="color:var(--muted)" th:text="${m.description}"></div>
-                    </li>
-                </ul>
-            </div>
-            <div class="panel">
-                <h3><i class="fa-solid fa-list-check"></i> Mục tiêu chi tiết</h3>
-                <ul class="list-clean">
-                    <li th:each="o : ${objectives}">
-                        <strong th:text="${o.title}">title</strong>
-                        <span class="badge" th:text="${o.required ? 'Bắt buộc' : 'Tùy chọn'}">Bắt buộc</span>
-                        <div style="color:var(--muted);margin-top:4px" th:if="${o.description}"
-                            th:text="${o.description}"></div>
-                    </li>
-                </ul>
-            </div>
-            <div class="panel">
-                <h3><i class="fa-solid fa-book"></i> Từ vựng</h3>
-                <ul class="list-clean">
-                    <li th:each="v : ${vocabulary}">
-                        <strong class="jp" th:text="${v.wordJa}"></strong>
-                        <span class="badge jp" th:if="${v.reading}" th:text="${v.reading}"></span>
-                        — <span th:text="${v.meaning}"></span>
-                        <div class="jp" style="color:var(--accent);margin-top:4px" th:if="${v.exampleJa}"
-                            th:text="${v.exampleJa}"></div>
-                    </li>
-                </ul>
-            </div>
-            <div class="panel">
-                <h3><i class="fa-solid fa-language"></i> Ngữ pháp</h3>
-                <ul class="list-clean">
-                    <li th:each="g : ${grammar}">
-                        <strong class="jp" th:text="${g.pattern}"></strong>
-                        <div th:text="${g.explanation}"></div>
-                        <div class="jp" style="color:var(--accent);margin-top:4px" th:if="${g.exampleJa}"
-                            th:text="${g.exampleJa}"></div>
-                    </li>
-                </ul>
-            </div>
-            <div class="panel" th:if="${dialogues != null && !#lists.isEmpty(dialogues)}">
-                <h3><i class="fa-solid fa-comment-dots"></i> Hội thoại mẫu</h3>
-                <ul class="list-clean">
-                    <li th:each="d : ${dialogues}">
-                        <span class="badge" th:text="${d.speaker == 'ai' ? 'AI' : 'Bạn'}"></span>
-                        <span class="jp" th:text="${d.contentJa}"></span>
-                        <div style="color:var(--muted);margin-top:4px" th:if="${d.translation}"
-                            th:text="${d.translation}"></div>
-                    </li>
-                </ul>
-            </div>
+            </aside>
         </div>
-        <aside style="display:grid;gap:16px;align-content:start">
-            <div class="panel">
-                <h3><i class="fa-solid fa-masks-theater"></i> Vai trò</h3>
-                <div class="kv">
-                    <div><span>AI đóng vai</span><strong
-                            th:text="${scenario.aiRole != null ? scenario.aiRole.name : '—'}">AI</strong></div>
-                    <div><span>Bạn đóng vai</span><strong
-                            th:text="${scenario.userRole != null ? scenario.userRole.name : '—'}">Bạn</strong></div>
-                </div>
-                <p style="margin-top:10px;color:var(--muted);font-size:.9rem" th:if="${scenario.aiRole != null}"
-                    th:text="${scenario.aiRole.personality}"></p>
-                <a class="btn btn-primary btn-block" style="margin-top:18px"
-                    th:href="@{/scenario/{id}/start(id=${scenario.id})}">
-                    <i class="fa-solid fa-play"></i> Bắt đầu hội thoại
-                </a>
-            </div>
-            <div class="panel">
-                <h3><i class="fa-solid fa-diagram-project"></i> Luồng hội thoại</h3>
-                <ul class="list-clean">
-                    <li th:each="st : ${states}">
-                        <strong><span th:text="${st.displayOrder + '. '}">Bước </span>
-                            <span th:switch="${st.name}">
-                                <span th:case="'Greeting'">Chào hỏi (あいさつ)</span>
-                                <span th:case="'Order'">Gọi món (注文)</span>
-                                <span th:case="'Drink'">Đồ uống (飲み物)</span>
-                                <span th:case="'Payment'">Thanh toán (お会計)</span>
-                                <span th:case="'Ending'">Kết thúc (終了)</span>
-                                <span th:case="'Intro'">Giới thiệu (自己紹介)</span>
-                                <span th:case="'Mission'">Nhiệm vụ (ミッション)</span>
-                                <span th:case="*" th:text="${st.name}"></span>
-                            </span>
-                        </strong>
-                        <div style="color:var(--muted)" th:text="${st.description}"></div>
-                    </li>
-                </ul>
-            </div>
-            <div class="panel">
-                <h3><i class="fa-solid fa-lightbulb"></i> Gợi ý</h3>
-                <ul class="list-clean">
-                    <li th:each="h : ${hints}">
-                        <strong th:text="${h.title}">Gợi ý</strong>
-                        <div th:text="${h.content}"></div>
-                    </li>
-                </ul>
-            </div>
-            <div class="panel" th:if="${endings != null && !#lists.isEmpty(endings)}">
-                <h3><i class="fa-solid fa-flag-checkered"></i> Kết thúc</h3>
-                <ul class="list-clean">
-                    <li th:each="e : ${endings}">
-                        <span class="badge" th:switch="${e.condition}">
-                            <span th:case="'mission_completed'">Hoàn thành nhiệm vụ (ミッション完了)</span>
-                            <span th:case="*" th:text="${e.condition}"></span>
-                        </span>
-                         <span th:switch="${e.nextAction}">
-                            <span th:case="'show_result'">Hiển thị kết quả (結果を表示)</span>
-                            <span th:case="*" th:text="${e.nextAction}"></span>
-                        </span>
-                        <div class="jp" th:text="${e.aiMessage}"></div>
-                    </li>
-                </ul>
-            </div>
-        </aside>
-    </section>
-    </main>
-    <script th:src="@{/js/auth-session.js}"></script>
-    <script th:src="@{/js/jlab-base-shell.js}"></script>
+    </div>
+</main>
+<script th:src="@{/js/auth-session.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/pages/aicall-branch-tree.js(v='20261105-map2')}" defer></script>
+<script th:src="@{/js/pages/aicall-stage-map.js(v='20261105-map2')}" defer></script>
 </body>
-
 </html>

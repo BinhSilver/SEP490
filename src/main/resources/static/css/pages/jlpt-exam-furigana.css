@@ -1,0 +1,82 @@
+.jlpt-exam-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.jlpt-exam-header-actions > .jlpt-furigana-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 30px;
+    padding: 3px 4px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--color-on-surface-variant);
+    font: 700 12px var(--font-body);
+    cursor: pointer;
+}
+
+.jlpt-furigana-switch > i {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 21px;
+    border-radius: 999px;
+    background: var(--dm-feature-soft, #b9c0c8);
+    box-shadow: inset 0 0 0 1px rgba(40, 48, 58, .08);
+    transition: background .18s ease;
+}
+
+.jlpt-furigana-switch > i > b {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: var(--dm-feature-surface, #fff);
+    box-shadow: 0 1px 3px rgba(25, 38, 52, .28);
+    transition: transform .18s ease;
+}
+
+.jlpt-furigana-switch.is-active > i {
+    background: var(--dm-feature-accent, #2196f3);
+}
+
+.jlpt-furigana-switch.is-active > i > b {
+    transform: translateX(15px);
+}
+
+.jlpt-furigana-switch:focus-visible {
+    outline: 2px solid var(--dm-feature-accent, #2196f3);
+    outline-offset: 3px;
+}
+
+.jlpt-exam-page ruby {
+    ruby-align: center;
+}
+
+.jlpt-exam-page ruby rp {
+    display: none;
+}
+
+.jlpt-exam-page:not(.is-furigana-on) ruby rt {
+    display: none;
+}
+
+.jlpt-exam-page ruby rt {
+    color: var(--dm-feature-muted, #695182);
+    font: 600 .54em/1.15 "Noto Sans JP", sans-serif;
+    letter-spacing: .01em;
+}
+
+@media (max-width: 600px) {
+    .jlpt-exam-header-actions {
+        grid-column: 2;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+}

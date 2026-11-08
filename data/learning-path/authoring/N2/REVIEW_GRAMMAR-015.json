@@ -1,0 +1,722 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この歌は、古い物語をもとに作られた。",
+       "ja_furigana": "この歌(うた)は、古(ふる)い物語(ものがたり)をもとに作(つく)られた。",
+       "vi": "Bài hát này được sáng tác dựa trên một câu chuyện cổ."
+      },
+      {
+       "ja": "昨日の会議をもとに、新しい計画を作った。",
+       "ja_furigana": "昨日(きのう)の会議(かいぎ)をもとに、新(あたら)しい計画(けいかく)を作(つく)った。",
+       "vi": "Dựa trên cuộc họp hôm qua, chúng tôi đã lập kế hoạch mới."
+      },
+      {
+       "ja": "学生の意見をもとに、授業の進め方を見直した。",
+       "ja_furigana": "学生(がくせい)の意見(いけん)をもとに、授業(じゅぎょう)の進(すす)め方(かた)を見直(みなお)した。",
+       "source": "AI",
+       "vi": "Dựa trên ý kiến của sinh viên, chúng tôi đã xem lại cách tiến hành giờ học."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép sách; thêm furigana + bản dịch"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay nhầm với 〜のもとで (dưới sự chỉ đạo, trong điều kiện). Danh từ trước もとに phải là tư liệu, thông tin chứ không phải người đứng đầu.",
+    "examples": [
+     {
+      "ja": "この小説は実話をもとに書かれた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuốn tiểu thuyết này được viết dựa trên chuyện có thật."
+     },
+     {
+      "ja": "アンケート結果をもとにサービスを改善した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dựa trên kết quả khảo sát, đã cải thiện dịch vụ."
+     },
+     {
+      "ja": "学生の意見をもとに、授業の進め方を見直した。",
+      "ja_furigana": "学生(がくせい)の意見(いけん)をもとに、授業(じゅぎょう)の進(すす)め方(かた)を見直(みなお)した。",
+      "source": "AI",
+      "vi": "Dựa trên ý kiến của sinh viên, chúng tôi đã xem lại cách tiến hành giờ học."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この小説は実話をもとに書かれた。",
+     "FURIGANA_MISSING: アンケート結果をもとにサービスを改善した。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + をもとに(して); N + をもとにした + N",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả lấy N làm “cơ sở, chất liệu, nguồn tư liệu” để tạo ra, phát triển, đánh giá, quyết định điều gì đó mới. Thường dùng với hành động sáng tạo, thiết kế, cải tiến, phân tích, đánh giá. So với ～に基づいて: ～をもとに nhấn vào “chất liệu/nguồn tham khảo” linh hoạt; không nhất thiết là quy tắc chính thức. Không dùng cho nghĩa “dưới sự bảo trợ/giám sát” (dùng ～のもとで/～のもとに).",
+    "nuance_vi": "Lấy N làm nguồn, chất liệu hay cơ sở tham khảo để tạo ra, cải tiến, đánh giá thứ mới. Khác に基づいて (dựa trên quy tắc, căn cứ chính thức) ở chỗ linh hoạt hơn.",
+    "order_items": [],
+    "pattern": "Dựa trên...",
+    "pattern_variants": [],
+    "unit_no": 8,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thân thiện cả văn nói lẫn văn viết; thiên về văn bản chuyên môn khi đi với dữ liệu, tiêu chuẩn. Khi nhấn tiến trình/biện pháp, có thể dùng biến thể dài hơn: ～をもとにして. Thường đi với động từ: 作る, つくる, まとめる, 判断する, 設計する, 改善する, 再現する, 予測する, 推定する. “Nguồn” có thể là dữ liệu, kinh nghiệm, câu chuyện, quy định, bản mẫu, bản đồ, kết quả nghiên cứu,... [6. Ghi chú mở rộng] Chính tả: “元” thiên về “nguồn gốc/chất liệu ban đầu”; “基” thiên về “cơ sở/tiêu chuẩn”. Trong thực tế thường viết kana “をもとに” để trung hòa. Với phán đoán/đánh giá, “Nをもとに判断/評価/分類する” là cụm thông dụng. Trong sáng tạo nghệ thuật: 「実在の事件をもとにした映画」 xuất hiện rất nhiều. [7. Biến thể & cụm cố định] ～をもとにして（dài hơn; nhấn tiến trình, xem mục 280） ～をもとにしたＮ（dạng bổ nghĩa: 実話をもとにした小説） Collocation: 作る／制作する／編纂する／設計する／判断する／分析する／推定する／再現する／改良する + ～をもとに [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～のもとで (under). Đề hay gài “指導者のもとで” vs “指導者をもとに”. Chỉ ～のもとで mới đúng nghĩa “dưới”. Dùng ～に基づいて khi có “quy tắc/tiêu chuẩn/luật” rõ ràng; chọn ～をもとに khi chỉ là dữ liệu/chất liệu mềm. Không dùng cho nghĩa “dựa vào thể lực/tiền bạc” theo kiểu nương tựa → dùng ～に頼って/～を頼りに."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e3638c550a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "少し手伝っていただければ十分です。わざわざ来ていただくには及びません。",
+       "ja_furigana": "少(すこ)し手伝(てつだ)っていただければ十分(じゅうぶん)です。わざわざ来(き)ていただくには及(およ)びません。",
+       "vi": "Chỉ cần bạn giúp một chút là đủ, không cần phải đến tận nơi đâu."
+      },
+      {
+       "ja": "ご心配には及びません。私がしっかりやります。",
+       "ja_furigana": "ご心配(しんぱい)には及びません。私(わたし)がしっかりやります。",
+       "vi": "Anh/chị không cần phải lo. Tôi sẽ làm cẩn thận."
+      },
+      {
+       "ja": "これくらいのけがなら、わざわざ病院へ行くには及ばないでしょう。",
+       "ja_furigana": "これくらいのけがなら、わざわざ病院(びょういん)へ行(い)くには及(およ)ばないでしょう。",
+       "source": "AI",
+       "vi": "Vết thương cỡ này thì chắc không cần phải cất công đến bệnh viện."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu hội thoại chép sách thành câu đầy đủ; thêm furigana + bản dịch"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay nhầm với 〜に及ばない (không bằng, không sánh được); chỉ khác trợ từ は nhưng nghĩa hoàn toàn khác. Mẫu này không dùng cho việc của chính mình.",
+    "examples": [
+     {
+      "ja": "A: 先日お借りした傘を今日お返しに参りたいのですが、ご都合はいかがでしょうか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A: Tôi muốn hôm nay trả lại chiếc ô đã mượn hôm trước. Anh/chị có tiện không ạ?"
+     },
+     {
+      "ja": "B: それには及びませんよ。また、いらっしゃるときにお持ちください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "B: Không cần phải như vậy đâu. Lần sau đến thì mang theo cũng được."
+     },
+     {
+      "ja": "これくらいのけがなら、わざわざ病院へ行くには及ばないでしょう。",
+      "ja_furigana": "これくらいのけがなら、わざわざ病院(びょういん)へ行(い)くには及(およ)ばないでしょう。",
+      "source": "AI",
+      "vi": "Vết thương cỡ này thì chắc không cần phải cất công đến bệnh viện."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: A: 先日お借りした傘を今日お返しに参りたいのですが、ご都合はいかがでしょうか。",
+     "FURIGANA_MISSING: B: それには及びませんよ。また、いらっしゃるときにお持ちください。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる / N + には及ばない",
+    "locked_fields": [],
+    "meaning_vi": "Không cần phải…; không đến mức phải…",
+    "nuance_vi": "Nói với người khác rằng không cần phải làm đến mức đó, thường để an ủi hoặc từ chối nhẹ lời cảm ơn, lời xin lỗi; hơi trang trọng như お礼には及びません.",
+    "order_items": [],
+    "pattern": "〜には及ばない",
+    "pattern_variants": [],
+    "unit_no": 24,
+    "unit_title_vi": null,
+    "usage_vi": "B: いえいえ、それには及びませんよ。お薬で治りますから。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4e40720b25"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "電車が急に止まったはずみで、立っていた人が倒れた。",
+       "ja_furigana": "電車(でんしゃ)が急(きゅう)に止(と)まったはずみで、立(た)っていた人(ひと)が倒(たお)れた。",
+       "vi": "Do tàu đột ngột dừng, người đang đứng bị ngã."
+      },
+      {
+       "ja": "階段でつまずいたはずみで、持っていたお皿を割ってしまった。",
+       "ja_furigana": "階段(かいだん)でつまずいたはずみで、持(も)っていたお皿(さら)を割(わ)ってしまった。",
+       "source": "AI",
+       "vi": "Do vấp ở cầu thang, tôi lỡ làm vỡ chiếc đĩa đang cầm."
+      },
+      {
+       "ja": "肩がぶつかったはずみで、彼のコーヒーがこぼれた。",
+       "ja_furigana": "肩(かた)がぶつかったはずみで、彼(かれ)のコーヒーがこぼれた。",
+       "source": "AI",
+       "vi": "Do vai va vào nhau, cà phê của anh ấy bị đổ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng với việc làm có chủ ý (×はずみで勉強した). Vế trước là một động tác, va chạm cụ thể; vế sau là hậu quả như 落とす, 割る, こぼれる.",
+    "examples": [
+     {
+      "ja": "転んだはずみで手をついた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "階段でつまずいたはずみで、持っていたお皿を割ってしまった。",
+      "ja_furigana": "階段(かいだん)でつまずいたはずみで、持(も)っていたお皿(さら)を割(わ)ってしまった。",
+      "source": "AI",
+      "vi": "Do vấp ở cầu thang, tôi lỡ làm vỡ chiếc đĩa đang cầm."
+     },
+     {
+      "ja": "肩がぶつかったはずみで、彼のコーヒーがこぼれた。",
+      "ja_furigana": "肩(かた)がぶつかったはずみで、彼(かれ)のコーヒーがこぼれた。",
+      "source": "AI",
+      "vi": "Do vai va vào nhau, cà phê của anh ấy bị đổ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 転んだはずみで手をついた。",
+     "FURIGANA_MISSING: 転んだはずみで手をついた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vた + はずみで; N の + はずみで",
+    "locked_fields": [],
+    "meaning_vi": "Do lỡ đà, trong lúc vô ý — Việc xảy ra ngoài ý muốn do một động tác bất chợt.",
+    "nuance_vi": "Do đà hay do một cú tác động nhất thời mà một việc ngoài ý muốn xảy ra; vế sau là việc không chủ ý, thường mang tính tiếc nuối. Gần với 拍子に.",
+    "order_items": [],
+    "pattern": "N + のはずみで",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": null,
+    "usage_vi": "Hay gặp: 勢いのはずみで, 何かのはずみで."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-dfcbabddef"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "経済上の理由から、会社は工場を閉めた。",
+       "ja_furigana": "経済(けいざい)上(じょう)の理由(りゆう)から、会社(かいしゃ)は工場(こうじょう)を閉(し)めた。",
+       "vi": "Vì lý do kinh tế, công ty đã đóng cửa nhà máy."
+      },
+      {
+       "ja": "安全上の理由で、このドアは夜になると閉まります。",
+       "ja_furigana": "安全上(あんぜんじょう)の理由(りゆう)で、このドアは夜(よる)になると閉(し)まります。",
+       "source": "AI",
+       "vi": "Vì lý do an toàn, cánh cửa này sẽ đóng khi trời tối."
+      },
+      {
+       "ja": "立場上、私はこの問題について何も言えません。",
+       "ja_furigana": "立場(たちば)上(じょう)、私(わたし)はこの問題(もんだい)について何(なに)も言(い)えません。",
+       "source": "AI",
+       "vi": "Vì vị trí của mình, tôi không thể nói gì về vấn đề này."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay đọc nhầm là うえ, hoặc gắn với danh từ bất kỳ. Chỉ dùng với danh từ chỉ lĩnh vực, phương diện; không nhầm với Vた + 上で (sau khi).",
+    "examples": [
+     {
+      "ja": "健康上の理由で退職しました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "安全上の理由で、このドアは夜になると閉まります。",
+      "ja_furigana": "安全上(あんぜんじょう)の理由(りゆう)で、このドアは夜(よる)になると閉(し)まります。",
+      "source": "AI",
+      "vi": "Vì lý do an toàn, cánh cửa này sẽ đóng khi trời tối."
+     },
+     {
+      "ja": "立場上、私はこの問題について何も言えません。",
+      "ja_furigana": "立場(たちば)上(じょう)、私(わたし)はこの問題(もんだい)について何(なに)も言(い)えません。",
+      "source": "AI",
+      "vi": "Vì vị trí của mình, tôi không thể nói gì về vấn đề này."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 健康上の理由で退職しました。",
+     "FURIGANA_MISSING: 健康上の理由で退職しました。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + 上(じょう); N + 上の + N",
+    "locked_fields": [],
+    "meaning_vi": "Về mặt — Xét trên phương diện nào đó.",
+    "nuance_vi": "Xét về mặt, về phương diện N; hay gặp ở các từ như 健康上, 仕事上, 法律上, 安全上, 立場上. Văn viết hoặc lời nói trang trọng, đọc là じょう.",
+    "order_items": [],
+    "pattern": "N + 上",
+    "pattern_variants": [],
+    "unit_no": 17,
+    "unit_title_vi": null,
+    "usage_vi": "Đọc là じょう: 法律上, 健康上, 仕事上. Không nhầm với 上で (sau khi)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bb43bfae7b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "安いにせよ高いにせよ、まず試してみよう。",
+       "ja_furigana": "安(やす)いにせよ高(たか)いにせよ、まず試(ため)してみよう。",
+       "vi": "Dù rẻ hay đắt, trước hết cứ thử xem."
+      },
+      {
+       "ja": "事情があったにせよ、約束を守らなかったのは良くない。",
+       "ja_furigana": "事情(じじょう)があったにせよ、約束(やくそく)を守(まも)らなかったのは良(よ)くない。",
+       "source": "AI",
+       "vi": "Dù có lý do đi nữa thì việc không giữ lời hứa vẫn là không tốt."
+      },
+      {
+       "ja": "忙しいにしろ、連絡くらいはしてほしかった。",
+       "ja_furigana": "忙(いそが)しいにしろ、連絡(れんらく)くらいはしてほしかった。",
+       "source": "AI",
+       "vi": "Dù có bận đi nữa thì tôi cũng muốn bạn liên lạc một chút."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay để vế sau chỉ là một sự việc đơn thuần. Vế sau phải là phán đoán, yêu cầu, bất kể điều kiện. Danh từ và tính từ な bỏ だ.",
+    "examples": [
+     {
+      "ja": "理由が何にせよ、遅刻は遅刻だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "事情があったにせよ、約束を守らなかったのは良くない。",
+      "ja_furigana": "事情(じじょう)があったにせよ、約束(やくそく)を守(まも)らなかったのは良(よ)くない。",
+      "source": "AI",
+      "vi": "Dù có lý do đi nữa thì việc không giữ lời hứa vẫn là không tốt."
+     },
+     {
+      "ja": "忙しいにしろ、連絡くらいはしてほしかった。",
+      "ja_furigana": "忙(いそが)しいにしろ、連絡(れんらく)くらいはしてほしかった。",
+      "source": "AI",
+      "vi": "Dù có bận đi nữa thì tôi cũng muốn bạn liên lạc một chút."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 理由が何にせよ、遅刻は遅刻だ。",
+     "FURIGANA_MISSING: 理由が何にせよ、遅刻は遅刻だ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường / N + にしろ / にせよ",
+    "locked_fields": [],
+    "meaning_vi": "Dù là — Giống にしても nhưng văn viết và cứng hơn.",
+    "nuance_vi": "Nhượng bộ: 'dù là, cho dù', vế sau là nhận định hay đòi hỏi vẫn đúng như vậy; văn viết, cứng hơn にしても. Hay đi với 何、どんな hoặc nhắc lại hai vế đối lập.",
+    "order_items": [],
+    "pattern": "Thể thường / N + にしろ / にせよ",
+    "pattern_variants": [
+     "〜にしろ/せよ/しても"
+    ],
+    "unit_no": 15,
+    "unit_title_vi": null,
+    "usage_vi": "Hay dùng cặp: いずれにせよ (dù thế nào đi nữa)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4f77441a6c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼が怒った。というのは、約束を破られたからだ。",
+       "ja_furigana": "彼(かれ)が怒(おこ)った。というのは、約束(やくそく)を破(やぶ)られたからだ。",
+       "vi": "Anh ấy nổi giận. Sở dĩ vậy là vì bị thất hứa."
+      },
+      {
+       "ja": "今回の旅行には行けません。というのは、その日に試験があるからです。",
+       "ja_furigana": "今回(こんかい)の旅行(りょこう)には行(い)けません。というのは、その日(ひ)に試験(しけん)があるからです。",
+       "source": "AI",
+       "vi": "Tôi không đi chuyến du lịch lần này được. Sở dĩ thế là vì hôm đó có kỳ thi."
+      },
+      {
+       "ja": "「ホームシック」というのは、家や家族に会いたくなる気持ちのことです。",
+       "ja_furigana": "「ホームシック」というのは、家(いえ)や家族(かぞく)に会(あ)いたくなる気持(きも)ちのことです。",
+       "source": "AI",
+       "vi": "Homesick là cảm giác muốn được gặp lại nhà và gia đình."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng thay cho から trong một câu và quên kết thúc bằng 〜からだ. Không nhầm với というと (nhắc đến thì liên tưởng) hay ということは (nghĩa là).",
+    "examples": [
+     {
+      "ja": "行けません。というのは急用ができたからです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "今回の旅行には行けません。というのは、その日に試験があるからです。",
+      "ja_furigana": "今回(こんかい)の旅行(りょこう)には行(い)けません。というのは、その日(ひ)に試験(しけん)があるからです。",
+      "source": "AI",
+      "vi": "Tôi không đi chuyến du lịch lần này được. Sở dĩ thế là vì hôm đó có kỳ thi."
+     },
+     {
+      "ja": "「ホームシック」というのは、家や家族に会いたくなる気持ちのことです。",
+      "ja_furigana": "「ホームシック」というのは、家(いえ)や家族(かぞく)に会(あ)いたくなる気持(きも)ちのことです。",
+      "source": "AI",
+      "vi": "Homesick là cảm giác muốn được gặp lại nhà và gia đình."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 行けません。というのは急用ができたからです。",
+     "FURIGANA_MISSING: 行けません。というのは急用ができたからです。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + というのは + 〜からだ / 〜ためだ; N + というのは",
+    "locked_fields": [],
+    "meaning_vi": "Sở dĩ là vì, cái gọi là — Giải thích lý do hoặc định nghĩa một khái niệm.",
+    "nuance_vi": "Dùng để giải thích lý do cho câu vừa nói (sở dĩ là vì), thường đứng đầu câu mới; còn dùng để định nghĩa một từ. Hơi trang trọng hơn なぜなら trong lời nói.",
+    "order_items": [],
+    "pattern": "Thể thường + というのは",
+    "pattern_variants": [],
+    "unit_no": 13,
+    "unit_title_vi": null,
+    "usage_vi": "というのは〜からだ là cấu trúc giải thích lý do rất hay gặp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f121d4f779"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "やると決めた以上、途中でやめるわけにはいかない。",
+       "ja_furigana": "やると決(き)めた以上(いじょう)、途中(とちゅう)でやめるわけにはいかない。",
+       "vi": "Đã quyết làm thì không thể bỏ dở giữa chừng."
+      },
+      {
+       "ja": "学生である以上、まず勉強を一番に考えるべきだ。",
+       "ja_furigana": "学生(がくせい)である以上(いじょう)、まず勉強(べんきょう)を一番(いちばん)に考(かんが)えるべきだ。",
+       "source": "AI",
+       "vi": "Đã là học sinh thì trước hết phải đặt việc học lên đầu tiên."
+      },
+      {
+       "ja": "日本で働く以上は、日本のルールを守らなければならない。",
+       "ja_furigana": "日本(にほん)で働(はたら)く以上(いじょう)は、日本(にほん)のルールを守(まも)らなければならない。",
+       "source": "AI",
+       "vi": "Đã làm việc ở Nhật thì phải tuân thủ quy tắc của Nhật."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay để vế sau là sự thật khách quan không có nghĩa vụ hay ý chí. Danh từ cần thêm である (学生である以上), không nhầm với 以上 (trên mức).",
+    "examples": [
+     {
+      "ja": "約束した以上、守らなければならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "学生である以上、まず勉強を一番に考えるべきだ。",
+      "ja_furigana": "学生(がくせい)である以上(いじょう)、まず勉強(べんきょう)を一番(いちばん)に考(かんが)えるべきだ。",
+      "source": "AI",
+      "vi": "Đã là học sinh thì trước hết phải đặt việc học lên đầu tiên."
+     },
+     {
+      "ja": "日本で働く以上は、日本のルールを守らなければならない。",
+      "ja_furigana": "日本(にほん)で働(はたら)く以上(いじょう)は、日本(にほん)のルールを守(まも)らなければならない。",
+      "source": "AI",
+      "vi": "Đã làm việc ở Nhật thì phải tuân thủ quy tắc của Nhật."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 約束した以上、守らなければならない。",
+     "FURIGANA_MISSING: 約束した以上、守らなければならない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + 以上(は); Aな / N + である + 以上(は)",
+    "locked_fields": [],
+    "meaning_vi": "Đã thì phải — Đã ở trong tình huống đó thì đương nhiên phải làm theo.",
+    "nuance_vi": "Đã ở trong tình huống, vị trí đó thì đương nhiên phải làm điều tương ứng; vế sau là nghĩa vụ, quyết tâm. Gần からには nhưng hơi cứng, mang tính lý lẽ.",
+    "order_items": [],
+    "pattern": "Thể thường + 以上(は)",
+    "pattern_variants": [
+     "〜以上は)/上は"
+    ],
+    "unit_no": 17,
+    "unit_title_vi": null,
+    "usage_vi": "Vế sau thường là ý chí, nghĩa vụ hoặc khuyên nhủ. Gần với からには."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f668f8f016"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "店に電話したところ、今日は休みだと言われた。",
+       "ja_furigana": "店(みせ)に電話(でんわ)したところ、今日(きょう)は休(やす)みだと言(い)われた。",
+       "vi": "Gọi điện đến quán thì được nói hôm nay nghỉ."
+      },
+      {
+       "ja": "駅員に聞いたところ、この電車は終点まで行かないと分かった。",
+       "ja_furigana": "駅員(えきいん)に聞(き)いたところ、この電車(でんしゃ)は終点(しゅうてん)まで行(い)かないと分(わ)かった。",
+       "source": "AI",
+       "vi": "Khi hỏi nhân viên nhà ga, tôi mới biết chuyến tàu này không đi đến ga cuối."
+      },
+      {
+       "ja": "先生に相談したところ、くわしく説明してくださった。",
+       "ja_furigana": "先生(せんせい)に相談(そうだん)したところ、くわしく説明(せつめい)してくださった。",
+       "source": "AI",
+       "vi": "Khi tôi xin ý kiến thầy, thầy đã giải thích chi tiết cho tôi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay để vế sau là ý chí, mệnh lệnh. Không nhầm với 〜たところだ (vừa mới làm xong); đây là mẫu nối hai vế.",
+    "examples": [
+     {
+      "ja": "問い合わせたところ、在庫があるとのことだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "駅員に聞いたところ、この電車は終点まで行かないと分かった。",
+      "ja_furigana": "駅員(えきいん)に聞(き)いたところ、この電車(でんしゃ)は終点(しゅうてん)まで行(い)かないと分(わ)かった。",
+      "source": "AI",
+      "vi": "Khi hỏi nhân viên nhà ga, tôi mới biết chuyến tàu này không đi đến ga cuối."
+     },
+     {
+      "ja": "先生に相談したところ、くわしく説明してくださった。",
+      "ja_furigana": "先生(せんせい)に相談(そうだん)したところ、くわしく説明(せつめい)してくださった。",
+      "source": "AI",
+      "vi": "Khi tôi xin ý kiến thầy, thầy đã giải thích chi tiết cho tôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 問い合わせたところ、在庫があるとのことだった。",
+     "FURIGANA_MISSING: 問い合わせたところ、在庫があるとのことだった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vた + ところ",
+    "locked_fields": [],
+    "meaning_vi": "Khi làm thử thì — Làm một việc rồi phát hiện ra kết quả, thường bất ngờ.",
+    "nuance_vi": "Làm thử một việc rồi phát hiện ra kết quả, thường là sự thật bất ngờ; vế sau là sự việc đã xảy ra, không do ý chí. Hay dùng khi hỏi, thử, kiểm tra.",
+    "order_items": [],
+    "pattern": "V-た + ところ",
+    "pattern_variants": [],
+    "unit_no": 3,
+    "unit_title_vi": null,
+    "usage_vi": "Khác với たら ở chỗ たところ là văn viết và chỉ dùng cho việc đã xảy ra."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e30085d13c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "長い間さがしていた本を、ついに見つけた。",
+       "ja_furigana": "長(なが)い間(あいだ)さがしていた本(ほん)を、ついに見(み)つけた。",
+       "vi": "Cuối cùng tôi đã tìm được cuốn sách tôi tìm bấy lâu."
+      },
+      {
+       "ja": "彼は何度も試合に出たが、ついに一度も勝てなかった。",
+       "ja_furigana": "彼(かれ)は何度(なんど)も試合(しあい)に出(で)たが、ついに一度(いちど)も勝(か)てなかった。",
+       "source": "AI",
+       "vi": "Anh ấy ra trận nhiều lần nhưng rốt cuộc không thắng được lần nào."
+      },
+      {
+       "ja": "一年間努力して、私はついに日本語能力試験に合格した。",
+       "ja_furigana": "一年間(いちねんかん)努力(どりょく)して、私(わたし)はついに日本語能力試験(にほんごのうりょくしけん)に合格(ごうかく)した。",
+       "source": "AI",
+       "vi": "Sau một năm nỗ lực, cuối cùng tôi cũng đỗ kỳ thi năng lực tiếng Nhật."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách (quá ngắn); thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng với ý chí của người nói hoặc việc xảy ra nhanh. Khi đi với phủ định, ついに〜なかった nghĩa là 'rốt cuộc vẫn không'.",
+    "examples": [
+     {
+      "ja": "ついに完成した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "彼は何度も試合に出たが、ついに一度も勝てなかった。",
+      "ja_furigana": "彼(かれ)は何度(なんど)も試合(しあい)に出(で)たが、ついに一度(いちど)も勝(か)てなかった。",
+      "source": "AI",
+      "vi": "Anh ấy ra trận nhiều lần nhưng rốt cuộc không thắng được lần nào."
+     },
+     {
+      "ja": "一年間努力して、私はついに日本語能力試験に合格した。",
+      "ja_furigana": "一年間(いちねんかん)努力(どりょく)して、私(わたし)はついに日本語能力試験(にほんごのうりょくしけん)に合格(ごうかく)した。",
+      "source": "AI",
+      "vi": "Sau một năm nỗ lực, cuối cùng tôi cũng đỗ kỳ thi năng lực tiếng Nhật."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: ついに完成した。",
+     "FURIGANA_MISSING: ついに完成した。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "ついに + V (thể quá khứ) / ついに + Vなかった",
+    "locked_fields": [],
+    "meaning_vi": "Cuối cùng thì — Sau thời gian dài chờ đợi thì cũng xảy ra.",
+    "nuance_vi": "Cuối cùng thì, sau một thời gian dài hoặc nhiều diễn biến thì điều đó cũng xảy ra, tốt hay xấu đều được. Khác やっと (thở phào sau mong đợi) và とうとう (thường điều không mong).",
+    "order_items": [],
+    "pattern": "ついに + V",
+    "pattern_variants": [],
+    "unit_no": 20,
+    "unit_title_vi": null,
+    "usage_vi": "Kết quả có thể tốt hoặc xấu. Khác とうとう ở chỗ ついに trang trọng hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ecd465b37a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "商品によっては、来週値上げになるものもある。",
+       "ja_furigana": "商品(しょうひん)によっては、来週(らいしゅう)値上(ねあ)げになるものもある。",
+       "vi": "Tùy mặt hàng, có loại sẽ tăng giá từ tuần sau."
+      },
+      {
+       "ja": "国によっては、日曜日が休みではないところもある。",
+       "ja_furigana": "国(くに)によっては、日曜日(にちようび)が休(やす)みではないところもある。",
+       "source": "AI",
+       "vi": "Tùy từng nước, cũng có nơi chủ nhật không phải là ngày nghỉ."
+      },
+      {
+       "ja": "天気によっては、明日のイベントは中止になるかもしれません。",
+       "ja_furigana": "天気(てんき)によっては、明日(あした)のイベントは中止(ちゅうし)になるかもしれません。",
+       "source": "AI",
+       "vi": "Tùy thời tiết, sự kiện ngày mai có thể bị hủy."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay nhầm với によって (tùy theo N mà khác nhau, áp dụng cho tất cả) trong khi によっては chỉ nêu một số trường hợp. Danh từ phải có nhiều khả năng (人, 国, 場合, 天気).",
+    "examples": [
+     {
+      "ja": "人によっては辛く感じるかもしれない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "国によっては、日曜日が休みではないところもある。",
+      "ja_furigana": "国(くに)によっては、日曜日(にちようび)が休(やす)みではないところもある。",
+      "source": "AI",
+      "vi": "Tùy từng nước, cũng có nơi chủ nhật không phải là ngày nghỉ."
+     },
+     {
+      "ja": "天気によっては、明日のイベントは中止になるかもしれません。",
+      "ja_furigana": "天気(てんき)によっては、明日(あした)のイベントは中止(ちゅうし)になるかもしれません。",
+      "source": "AI",
+      "vi": "Tùy thời tiết, sự kiện ngày mai có thể bị hủy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 人によっては辛く感じるかもしれない。",
+     "FURIGANA_MISSING: 人によっては辛く感じるかもしれない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + によっては",
+    "locked_fields": [],
+    "meaning_vi": "Tuỳ trường hợp có khi — Trong một số trường hợp thì khác đi.",
+    "nuance_vi": "Tùy trường hợp, tùy người, tùy nơi mà có khi khác đi; N là loại có nhiều trường hợp khác nhau, vế sau hay có こともある, かもしれない.",
+    "order_items": [],
+    "pattern": "N + によっては",
+    "pattern_variants": [],
+    "unit_no": 9,
+    "unit_title_vi": null,
+    "usage_vi": "Khác によって (tuỳ theo, nêu quy luật chung) ở chỗ によっては chỉ nói về một phần."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2a477664d5"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-015"
+}

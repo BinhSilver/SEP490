@@ -1,0 +1,3372 @@
+{
+ "header": {
+  "instructions": "check_bank ≥ 8 câu, mỗi dạng FILL/ORDER_STAR/MEANING/ERROR ≥ 2: {type, prompt_ja, options[4], answer_index, explanation_vi}; order_items 2 {pieces[], answer_order[]}; fill_items 2 {sentence_ja với ＿＿, answer}; extra_practice 3 (cùng dạng check_bank). Đáp án nhiễu không được cũng đúng."
+ },
+ "items": [
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "説明書に書いてある（　　）組み立てた。",
+      "options": [
+       "とおりに",
+       "最中に",
+       "とたんに",
+       "ついでに"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「とおりに」. 「Vる／Vた／Nの ＋ とおり（に）」: làm đúng như điều đã nói, đã thấy hoặc đã được hướng dẫn. 「最中に／とたんに／ついでに」 không nối với 〜てある và không mang nghĩa 'đúng như'. Câu đầy đủ: 説明書に書いてあるとおりに組み立てた。 (Tôi đã lắp ráp đúng như sách hướng dẫn ghi)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "この字は見本の（　　）書いてください。",
+      "options": [
+       "最中に",
+       "とおりに",
+       "とたんに",
+       "ついでに"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「とおりに」. 「Vる／Vた／Nの ＋ とおり（に）」: làm đúng như điều đã nói, đã thấy hoặc đã được hướng dẫn. 「最中に／とたんに／ついでに」 không nối với 〜てある và không mang nghĩa 'đúng như'. Câu đầy đủ: この字は見本のとおりに書いてください。 (Hãy viết chữ này đúng theo mẫu)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "料理教室では、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "火で十分煮た",
+       "とおりに、",
+       "弱い",
+       "レシピに書いてある"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: レシピに書いてある → とおりに、 → 弱い → 火で十分煮た. Câu: 料理教室では、レシピに書いてあるとおりに、弱い火で十分煮た。 (Ở lớp nấu ăn, tôi đã ninh kỹ bằng lửa nhỏ đúng như công thức ghi). ★ = 「弱い」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "駅までは、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "橋を渡って行った",
+       "友達がかいた地図の",
+       "とおりに、",
+       "長い"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 友達がかいた地図の → とおりに、 → 長い → 橋を渡って行った. Câu: 駅までは、友達がかいた地図のとおりに、長い橋を渡って行った。 (Tôi đi đến ga đúng theo bản đồ bạn vẽ, băng qua một cây cầu dài). ★ = 「長い」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "説明書に書いてあるとおりに組み立てた。",
+      "options": [
+       "Tôi đã lắp ráp đúng như sách hướng dẫn ghi.",
+       "Tôi đã lắp ráp khác với sách hướng dẫn.",
+       "Trong phòng này được uống nước đấy.",
+       "Còn đủ thời gian nên không cần vội đâu."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「Vる／Vた／Nの ＋ とおり（に）」: làm đúng như điều đã nói, đã thấy hoặc đã được hướng dẫn. Câu này nghĩa là: “Tôi đã lắp ráp đúng như sách hướng dẫn ghi.”. Phương án “Tôi đã lắp ráp khác với sách hướng dẫn.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この字は見本のとおりに書いてください。",
+      "options": [
+       "Ở cửa hàng này, giá thay đổi tùy theo ngày.",
+       "Hãy viết chữ này đúng theo mẫu.",
+       "Hãy viết chữ này theo cách bạn thích.",
+       "Bài này khó quá nên không ai trả lời được."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「Vる／Vた／Nの ＋ とおり（に）」: làm đúng như điều đã nói, đã thấy hoặc đã được hướng dẫn. Câu này nghĩa là: “Hãy viết chữ này đúng theo mẫu.”. Phương án “Hãy viết chữ này theo cách bạn thích.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "説明書に書いてあるとおりに組み立てた。",
+       "この字は見本のとおりに書いてください。",
+       "料理教室では、レシピに書いてあるのとおりに、弱い火で十分煮た。",
+       "駅までは、友達がかいた地図のとおりに、長い橋を渡って行った。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「料理教室では、レシピに書いてあるのとおりに、弱い火で十分煮た。」 — Động từ nối trực tiếp: 「書いてあるとおりに」; chỉ danh từ mới cần の. Ba câu còn lại dùng đúng mẫu 〜とおりに."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "説明書に書いてあるとおりに組み立てた。",
+       "この字は見本のとおりに書いてください。",
+       "料理教室では、レシピに書いてあるとおりに、弱い火で十分煮た。",
+       "駅までは、友達がかいた地図とおりに、長い橋を渡って行った。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「駅までは、友達がかいた地図とおりに、長い橋を渡って行った。」 — Danh từ cần の (地図のとおりに) hoặc nói 「地図どおりに」; 「地図とおりに」 là sai. Ba câu còn lại dùng đúng mẫu 〜とおりに."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "とおりに",
+       "料理を作った。",
+       "母が教えた"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Tôi nấu ăn đúng như mẹ đã dạy."
+     },
+     {
+      "pieces": [
+       "駅まで歩きました。",
+       "地図の",
+       "とおりに"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Tôi đã đi bộ đến ga đúng theo bản đồ."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "説明書に書いてある＿＿組み立てた。",
+      "answer": "とおりに",
+      "accept": [
+       "通りに",
+       "とおり"
+      ],
+      "translation_vi": "Tôi đã lắp ráp đúng như sách hướng dẫn ghi."
+     },
+     {
+      "sentence_ja": "この字は見本の＿＿書いてください。",
+      "answer": "とおりに",
+      "accept": [
+       "通りに",
+       "とおり"
+      ],
+      "translation_vi": "Hãy viết chữ này đúng theo mẫu."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "料理教室では、レシピに書いてある（　　）、弱い火で十分煮た。",
+      "options": [
+       "最中に",
+       "とおりに",
+       "とたんに",
+       "ついでに"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「とおりに」. 「Vる／Vた／Nの ＋ とおり（に）」: làm đúng như điều đã nói, đã thấy hoặc đã được hướng dẫn. 「最中に／とたんに／ついでに」 không nối với 〜てある và không mang nghĩa 'đúng như'. Câu đầy đủ: 料理教室では、レシピに書いてあるとおりに、弱い火で十分煮た。 (Ở lớp nấu ăn, tôi đã ninh kỹ bằng lửa nhỏ đúng như công thức ghi)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "駅までは、友達がかいた地図の（　　）、長い橋を渡って行った。",
+      "options": [
+       "最中に",
+       "とたんに",
+       "とおりに",
+       "ついでに"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「とおりに」. 「Vる／Vた／Nの ＋ とおり（に）」: làm đúng như điều đã nói, đã thấy hoặc đã được hướng dẫn. 「最中に／とたんに／ついでに」 không nối với 〜てある và không mang nghĩa 'đúng như'. Câu đầy đủ: 駅までは、友達がかいた地図のとおりに、長い橋を渡って行った。 (Tôi đi đến ga đúng theo bản đồ bạn vẽ, băng qua một cây cầu dài)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "説明書に書いてあってとおりに組み立てた。",
+       "この字は見本のとおりに書いてください。",
+       "料理教室では、レシピに書いてあるとおりに、弱い火で十分煮た。",
+       "駅までは、友達がかいた地図のとおりに、長い橋を渡って行った。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「説明書に書いてあってとおりに組み立てた。」 — とおりに không đi sau thể て; đúng là 「書いてあるとおりに」. Ba câu còn lại dùng đúng mẫu 〜とおりに."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "先生が言ったとおりにやってみます。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Đúng như, theo như — Làm giống hệt như điều đã nói, đã thấy hoặc đã hướng dẫn.",
+    "pattern": "V từ điển / V-た / N の + とおりに",
+    "pattern_variants": [
+     "〜とおりだ・とおり(に)...・〜どおりだ・〜どおり(に)...",
+     "〜とおり(に)/〜どおり(に)",
+     "〜とおり(に)"
+    ],
+    "source_questions": [
+     {
+      "answer_ja": "説明書に書いてあるとおりに組み立てた。",
+      "answer_vi": "Tôi lắp ráp đúng như sách hướng dẫn.",
+      "chapter": 17,
+      "context_vi": "Hoàn thành câu: Tôi lắp ráp đúng như sách hướng dẫn.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "「とおりに」 diễn đạt Đúng như, theo như — Làm giống hệt như điều đã nói, đã thấy hoặc đã hướng dẫn. Các lựa chọn 「せいで」 và 「かわりに」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-a70f2e3119",
+      "id": "LP-GRAMC-N3-C17-a70f2e3119-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "せいで",
+       "とおりに",
+       "かわりに",
+       "たびに"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V từ điển / V-た / N の + とおりに",
+      "prompt_ja": "説明書に書いてある[ ]組み立てた。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "母が教えたとおりに料理を作った。",
+      "answer_vi": "Tôi nấu đúng như mẹ dạy.",
+      "chapter": 17,
+      "context_vi": "Sắp xếp thành câu: Tôi nấu đúng như mẹ dạy.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「V từ điển / V-た / N の + とおりに」 với nghĩa Đúng như, theo như — Làm giống hệt như điều đã nói, đã thấy hoặc đã hướng dẫn.",
+      "goal": "JLPT",
+      "grammar_id": "JG-a70f2e3119",
+      "id": "LP-GRAMC-N3-C17-a70f2e3119-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "料理を",
+       "作った。",
+       "母が教えたとおりに"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V từ điển / V-た / N の + とおりに",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "この字は見本のとおりに、書いてください。",
+      "answer_vi": "Hãy viết chữ này theo đúng mẫu.",
+      "chapter": 2,
+      "context_vi": "Hoàn thành câu: Hãy viết chữ này theo đúng mẫu.",
+      "correct_index": 3,
+      "correct_order": null,
+      "explanation_vi": "Mẫu 「とおりに」 diễn đạt làm đúng theo mẫu đã cho. Trong câu này: Hãy viết chữ này theo đúng mẫu.",
+      "goal": "JLPT",
+      "grammar_id": "JG-0a86dda3a5",
+      "id": "LP-GRAMC-N3-C02-0a86dda3a5-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "たびに",
+       "せいで",
+       "とおりに",
+       "ついでに"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～とおりだ・とおり（に）…・～どおりだ・～どおり（に）…",
+      "prompt_ja": "この字は見本の[ ]、書いてください。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "地図のとおりに駅まで歩きました。",
+      "answer_vi": "Tôi đã đi bộ đến ga đúng theo bản đồ.",
+      "chapter": 2,
+      "context_vi": "Làm theo bản đồ",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "とおりに nêu cách làm theo mẫu đã cho Ghép các mảnh theo thứ tự để tạo câu hoàn chỉnh.",
+      "goal": "JLPT",
+      "grammar_id": "JG-0a86dda3a5",
+      "id": "LP-GRAMC-N3-C02-0a86dda3a5-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "駅まで",
+       "歩きました。",
+       "地図のとおりに"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～とおりだ・とおり（に）…・～どおりだ・～どおり（に）…",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "本に書いてあるとおりに作りました。",
+      "answer_vi": "Tôi đã làm đúng như sách viết.",
+      "chapter": 3,
+      "context_vi": "Làm theo sách",
+      "correct_index": 1,
+      "correct_order": null,
+      "explanation_vi": "とおりに chỉ làm theo nội dung mẫu; ついでに là nhân tiện.",
+      "goal": "JLPT",
+      "grammar_id": "JG-61203c362a",
+      "id": "LP-GRAMC-N3-C03-61203c362a-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "とおりに",
+       "ついでに",
+       "たびに",
+       "せいで"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～とおり（に）／～どおり（に）",
+      "prompt_ja": "本に書いてある[ ]作りました。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "説明のとおりに機械を動かしてください。",
+      "answer_vi": "Hãy vận hành máy đúng như hướng dẫn.",
+      "chapter": 3,
+      "context_vi": "Đi theo lời hướng dẫn",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "とおりに chỉ làm theo nội dung mẫu Ghép các mảnh theo thứ tự để tạo câu hoàn chỉnh.",
+      "goal": "JLPT",
+      "grammar_id": "JG-61203c362a",
+      "id": "LP-GRAMC-N3-C03-61203c362a-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "機械を",
+       "動かしてください。",
+       "説明のとおりに"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～とおり（に）／～どおり（に）",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "説明されたとおりにやってみてください。",
+      "answer_vi": "Hãy thử làm theo đúng như đã được giải thích.",
+      "chapter": 9,
+      "context_vi": "Trong tình huống: Hãy thử làm theo đúng như đã được giải thích.",
+      "correct_index": 4,
+      "correct_order": null,
+      "explanation_vi": "とおりに diễn đạt Biểu hiện ý nghĩa theo như ~. ために và たびに không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-0cd4eb086f",
+      "id": "LP-GRAMC-N3-C09-0cd4eb086f-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "ために",
+       "たびに",
+       "かわりに",
+       "とおりに"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～とおり（に）",
+      "prompt_ja": "説明された[ ]やってみてください。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "地図に書いてあるとおりに歩けば着きます。",
+      "answer_vi": "Đi theo đúng bản đồ là sẽ đến nơi.",
+      "chapter": 9,
+      "context_vi": "Sắp xếp câu để diễn đạt: Đi theo đúng bản đồ là sẽ đến nơi.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 地図に書いてあるとおりに歩けば着きます。; mẫu ～とおり（に） diễn đạt Biểu hiện ý nghĩa theo như ~.",
+      "goal": "JLPT",
+      "grammar_id": "JG-0cd4eb086f",
+      "id": "LP-GRAMC-N3-C09-0cd4eb086f-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "歩けば",
+       "着きます。",
+       "地図に書いてあるとおりに"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～とおり（に）",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-a70f2e3119"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "ここは病院なので、写真を（　　）はいけない。",
+      "options": [
+       "撮って",
+       "撮る",
+       "撮り",
+       "撮った"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「撮って」. 「Vて＋もいい」: được phép làm; 「Vて＋はいけない」: không được làm (cấm). Cả hai đều đi sau thể て. はいけない／もいい đi sau thể て (撮って); thể từ điển, thể ます bỏ ます, thể た đều không nối được. Câu đầy đủ: ここは病院なので、写真を撮ってはいけない。 (Đây là bệnh viện nên không được chụp ảnh)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "この部屋では水を（　　）もいいですよ。",
+      "options": [
+       "飲む",
+       "飲んで",
+       "飲み",
+       "飲んだ"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「飲んで」. 「Vて＋もいい」: được phép làm; 「Vて＋はいけない」: không được làm (cấm). Cả hai đều đi sau thể て. もいい đi sau thể て: 飲んでもいい; các dạng khác không nối được. Câu đầy đủ: この部屋では水を飲んでもいいですよ。 (Trong phòng này được uống nước đấy)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "この美術館では、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "使わないでください",
+       "もいいですが、",
+       "フラッシュは",
+       "写真を撮って"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 写真を撮って → もいいですが、 → フラッシュは → 使わないでください. Câu: この美術館では、写真を撮ってもいいですが、フラッシュは使わないでください。 (Ở bảo tàng mỹ thuật này được chụp ảnh nhưng xin đừng dùng đèn flash). ★ = 「フラッシュは」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "図書館では、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "声で話した",
+       "大きな声で話して",
+       "はいけないので、",
+       "小さな"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 大きな声で話して → はいけないので、 → 小さな → 声で話した. Câu: 図書館では、大きな声で話してはいけないので、小さな声で話した。 (Ở thư viện không được nói to nên tôi đã nói nhỏ). ★ = 「小さな」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "ここは病院なので、写真を撮ってはいけない。",
+      "options": [
+       "Đây là bệnh viện nên không được chụp ảnh.",
+       "Đây là bệnh viện nên được chụp ảnh thoải mái.",
+       "Tùy theo mùa mà các món ăn bày bán ở cửa hàng thay đổi.",
+       "Sáng nay tôi ăn quá nhiều bánh mì nên bụng khó chịu."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「Vて＋もいい」: được phép làm; 「Vて＋はいけない」: không được làm (cấm). Cả hai đều đi sau thể て. Câu này nghĩa là: “Đây là bệnh viện nên không được chụp ảnh.”. Phương án “Đây là bệnh viện nên được chụp ảnh thoải mái.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この部屋では水を飲んでもいいですよ。",
+      "options": [
+       "Hễ mùa xuân đến thì hoa nở.",
+       "Trong phòng này được uống nước đấy.",
+       "Trong phòng này không được uống nước.",
+       "Vì sức khỏe, tôi cố gắng ngày nào cũng ngủ sớm."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「Vて＋もいい」: được phép làm; 「Vて＋はいけない」: không được làm (cấm). Cả hai đều đi sau thể て. Câu này nghĩa là: “Trong phòng này được uống nước đấy.”. Phương án “Trong phòng này không được uống nước.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "ここは病院なので、写真を撮ってはいけない。",
+       "この部屋では水を飲んでもいいですよ。",
+       "この美術館では、写真を撮るもいいですが、フラッシュは使わないでください。",
+       "図書館では、大きな声で話してはいけないので、小さな声で話した。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「この美術館では、写真を撮るもいいですが、フラッシュは使わないでください。」 — もいい đi sau thể て: 「撮ってもいい」. Ba câu còn lại dùng đúng mẫu Vてもいい／Vてはいけない."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "ここは病院なので、写真を撮ってはいけない。",
+       "この部屋では水を飲んでもいいですよ。",
+       "この美術館では、写真を撮ってもいいですが、フラッシュは使わないでください。",
+       "図書館では、大きな声で話すはいけないので、小さな声で話した。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「図書館では、大きな声で話すはいけないので、小さな声で話した。」 — はいけない đi sau thể て: 「話してはいけない」. Ba câu còn lại dùng đúng mẫu Vてもいい／Vてはいけない."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "水を飲んでも",
+       "いいですよ。",
+       "この部屋では"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Trong phòng này được uống nước đấy."
+     },
+     {
+      "pieces": [
+       "いけない。",
+       "ここでは",
+       "写真を撮っては"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Ở đây không được chụp ảnh."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "ここは病院なので、写真を＿＿はいけない。",
+      "answer": "撮って",
+      "translation_vi": "Đây là bệnh viện nên không được chụp ảnh."
+     },
+     {
+      "sentence_ja": "この部屋では水を＿＿もいいですよ。",
+      "answer": "飲んで",
+      "translation_vi": "Trong phòng này được uống nước đấy."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この美術館では、写真を（　　）もいいですが、フラッシュは使わないでください。",
+      "options": [
+       "撮る",
+       "撮って",
+       "撮り",
+       "撮った"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「撮って」. 「Vて＋もいい」: được phép làm; 「Vて＋はいけない」: không được làm (cấm). Cả hai đều đi sau thể て. はいけない／もいい đi sau thể て (撮って); thể từ điển, thể ます bỏ ます, thể た đều không nối được. Câu đầy đủ: この美術館では、写真を撮ってもいいですが、フラッシュは使わないでください。 (Ở bảo tàng mỹ thuật này được chụp ảnh nhưng xin đừng dùng đèn flash)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "図書館では、大きな声で（　　）はいけないので、小さな声で話した。",
+      "options": [
+       "話す",
+       "話し",
+       "話して",
+       "話した"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「話して」. 「Vて＋もいい」: được phép làm; 「Vて＋はいけない」: không được làm (cấm). Cả hai đều đi sau thể て. はいけない đi sau thể て: 話してはいけない. Câu đầy đủ: 図書館では、大きな声で話してはいけないので、小さな声で話した。 (Ở thư viện không được nói to nên tôi đã nói nhỏ)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "ここは病院なので、写真を撮ってはいけます。",
+       "この部屋では水を飲んでもいいですよ。",
+       "この美術館では、写真を撮ってもいいですが、フラッシュは使わないでください。",
+       "図書館では、大きな声で話してはいけないので、小さな声で話した。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「ここは病院なので、写真を撮ってはいけます。」 — Không có dạng 「はいけます」; cấm phải nói 「はいけません／はいけない」. Ba câu còn lại dùng đúng mẫu Vてもいい／Vてはいけない."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "ここに座ってもいいですか。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Được phép, không được phép — Cho phép hoặc cấm đoán.",
+    "pattern": "V-て + もいい / V-て + はいけない",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "ここでは写真を撮ってはいけない。",
+      "answer_vi": "Ở đây không được chụp ảnh.",
+      "chapter": 17,
+      "context_vi": "Hoàn thành câu: Ở đây không được chụp ảnh.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "「てはいけない」 diễn đạt Được phép, không được phép — Cho phép hoặc cấm đoán. Các lựa chọn 「てもいい」 và 「てみる」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-62f5485bf6",
+      "id": "LP-GRAMC-N3-C17-62f5485bf6-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "てもいい",
+       "てはいけない",
+       "てみる",
+       "ておく"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V-て + もいい / V-て + はいけない",
+      "prompt_ja": "ここでは写真を撮っ[ ]。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "この部屋では水を飲んでもいいですよ。",
+      "answer_vi": "Trong phòng này có thể uống nước.",
+      "chapter": 17,
+      "context_vi": "Sắp xếp thành câu: Trong phòng này có thể uống nước.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「V-て + もいい / V-て + はいけない」 với nghĩa Được phép, không được phép — Cho phép hoặc cấm đoán.",
+      "goal": "JLPT",
+      "grammar_id": "JG-62f5485bf6",
+      "id": "LP-GRAMC-N3-C17-62f5485bf6-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "水を飲んでも",
+       "いいですよ。",
+       "この部屋では"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V-て + もいい / V-て + はいけない",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-62f5485bf6"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "もう準備したから、心配する（　　）。",
+      "options": [
+       "ことはない",
+       "ものはない",
+       "ことはいない",
+       "ことにない"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「ことはない」. 「Vる＋ことはない」: không cần phải làm (dùng để trấn an, khuyên nhủ người nghe). Mẫu cố định là 「Vる＋ことはない」; 「ものはない」「ことはいない」「ことにない」 đều sai. Câu đầy đủ: もう準備したから、心配することはない。 (Đã chuẩn bị rồi nên không cần lo lắng)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "時間は十分あるから、急ぐ（　　）よ。",
+      "options": [
+       "ものはない",
+       "ことはない",
+       "ことはいない",
+       "ことにない"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「ことはない」. 「Vる＋ことはない」: không cần phải làm (dùng để trấn an, khuyên nhủ người nghe). Mẫu cố định là 「Vる＋ことはない」; 「ものはない」「ことはいない」「ことにない」 đều sai. Câu đầy đủ: 時間は十分あるから、急ぐことはないよ。 (Còn đủ thời gian nên không cần vội đâu)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "小さなミスだから、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "声で言ってくれた",
+       "ことはないと、",
+       "優しい",
+       "そんなに気にする"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: そんなに気にする → ことはないと、 → 優しい → 声で言ってくれた. Câu: 小さなミスだから、そんなに気にすることはないと、優しい声で言ってくれた。 (Anh ấy nói bằng giọng dịu dàng rằng lỗi nhỏ thôi, không cần bận tâm nhiều thế). ★ = 「優しい」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "電話で聞けば分かるので、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "番号を調べた",
+       "わざわざ店まで行く",
+       "ことはないと思って、",
+       "店の"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: わざわざ店まで行く → ことはないと思って、 → 店の → 番号を調べた. Câu: 電話で聞けば分かるので、わざわざ店まで行くことはないと思って、店の番号を調べた。 (Hỏi qua điện thoại là biết nên tôi nghĩ không cần cất công đến tận cửa hàng, và đã tra số điện thoại của cửa hàng). ★ = 「店の」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "もう準備したから、心配することはない。",
+      "options": [
+       "Đã chuẩn bị rồi nên không cần lo lắng.",
+       "Đã chuẩn bị rồi nhưng vẫn phải lo lắng.",
+       "Bài này khó quá nên không ai trả lời được.",
+       "Hễ ấn nút này thì cửa sẽ mở."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「Vる＋ことはない」: không cần phải làm (dùng để trấn an, khuyên nhủ người nghe). Câu này nghĩa là: “Đã chuẩn bị rồi nên không cần lo lắng.”. Phương án “Đã chuẩn bị rồi nhưng vẫn phải lo lắng.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "時間は十分あるから、急ぐことはないよ。",
+      "options": [
+       "Tôi cố gắng hạn chế ăn đồ ngọt hết mức có thể.",
+       "Còn đủ thời gian nên không cần vội đâu.",
+       "Không còn thời gian nên phải vội lên.",
+       "Tìm được đường tắt nên tôi không phải đi bộ lâu."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「Vる＋ことはない」: không cần phải làm (dùng để trấn an, khuyên nhủ người nghe). Câu này nghĩa là: “Còn đủ thời gian nên không cần vội đâu.”. Phương án “Không còn thời gian nên phải vội lên.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "もう準備したから、心配することはない。",
+       "時間は十分あるから、急ぐことはないよ。",
+       "小さなミスだから、そんなに気にするのことはないと、優しい声で言ってくれた。",
+       "電話で聞けば分かるので、わざわざ店まで行くことはないと思って、店の番号を調べた。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「小さなミスだから、そんなに気にするのことはないと、優しい声で言ってくれた。」 — Động từ nối trực tiếp với こと: 「気にすることはない」, không thêm の. Ba câu còn lại dùng đúng mẫu Vる＋ことはない."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "もう準備したから、心配することはない。",
+       "時間は十分あるから、急ぐことはないよ。",
+       "小さなミスだから、そんなに気にすることはないと、優しい声で言ってくれた。",
+       "電話で聞けば分かるので、わざわざ店まで行きことはないと思って、店の番号を調べた。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「電話で聞けば分かるので、わざわざ店まで行きことはないと思って、店の番号を調べた。」 — こと đi sau thể từ điển: 「行くことはない」. Ba câu còn lại dùng đúng mẫu Vる＋ことはない."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "急ぐことは",
+       "ないよ。",
+       "時間は十分ある。"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Còn đủ thời gian, không cần vội đâu."
+     },
+     {
+      "pieces": [
+       "ことはない。",
+       "もう準備したから、",
+       "心配する"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Đã chuẩn bị rồi nên không cần lo lắng."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "もう準備したから、心配する＿＿。",
+      "answer": "ことはない",
+      "accept": [
+       "ことない",
+       "必要はない"
+      ],
+      "translation_vi": "Đã chuẩn bị rồi nên không cần lo lắng."
+     },
+     {
+      "sentence_ja": "時間は十分あるから、急ぐ＿＿よ。",
+      "answer": "ことはない",
+      "accept": [
+       "ことない",
+       "必要はない"
+      ],
+      "translation_vi": "Còn đủ thời gian nên không cần vội đâu."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "小さなミスだから、そんなに気にする（　　）と、優しい声で言ってくれた。",
+      "options": [
+       "ものはない",
+       "ことはない",
+       "ことはいない",
+       "ことにない"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「ことはない」. 「Vる＋ことはない」: không cần phải làm (dùng để trấn an, khuyên nhủ người nghe). Mẫu cố định là 「Vる＋ことはない」; 「ものはない」「ことはいない」「ことにない」 đều sai. Câu đầy đủ: 小さなミスだから、そんなに気にすることはないと、優しい声で言ってくれた。 (Anh ấy nói bằng giọng dịu dàng rằng lỗi nhỏ thôi, không cần bận tâm nhiều thế)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "電話で聞けば分かるので、わざわざ店まで行く（　　）と思って、店の番号を調べた。",
+      "options": [
+       "ものはない",
+       "ことはいない",
+       "ことはない",
+       "ことにない"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「ことはない」. 「Vる＋ことはない」: không cần phải làm (dùng để trấn an, khuyên nhủ người nghe). Mẫu cố định là 「Vる＋ことはない」; 「ものはない」「ことはいない」「ことにない」 đều sai. Câu đầy đủ: 電話で聞けば分かるので、わざわざ店まで行くことはないと思って、店の番号を調べた。 (Hỏi qua điện thoại là biết nên tôi nghĩ không cần cất công đến tận cửa hàng, và đã tra số điện thoại của cửa hàng)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "もう準備したから、心配してことはない。",
+       "時間は十分あるから、急ぐことはないよ。",
+       "小さなミスだから、そんなに気にすることはないと、優しい声で言ってくれた。",
+       "電話で聞けば分かるので、わざわざ店まで行くことはないと思って、店の番号を調べた。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「もう準備したから、心配してことはない。」 — ことはない đi sau thể từ điển: 「心配することはない」. Ba câu còn lại dùng đúng mẫu Vる＋ことはない."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "心配することはないよ。ちゃんと準備してきたから。",
+      "vi": "Không cần lo đâu. Tôi đã chuẩn bị kỹ rồi."
+     },
+     {
+      "ja": "焦ることはない。計画どおりに進めよう。",
+      "vi": "Không cần vội. Hãy tiến hành theo kế hoạch."
+     }
+    ],
+    "meaning_vi": "Dùng để trấn an/khuyên nhủ: “không cần phải …”. Sắc thái khách quan hơn ～なくてもいい, trang trọng hơn trong văn viết. Cũng có thể diễn tả thói quen phủ định mạnh: “tôi không bao giờ …”. Cần ngữ cảnh thói quen/hành vi chung. Không dùng để nói “không nên” (cảnh báo đạo đức) → dùng ～べきではない.",
+    "pattern": "Không cần phải...",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "もう準備したから、心配することはない。",
+      "answer_vi": "Chuẩn bị rồi nên không cần lo.",
+      "chapter": 18,
+      "context_vi": "Hoàn thành câu: Chuẩn bị rồi nên không cần lo.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "「ことはない」 diễn đạt Dùng để trấn an/khuyên nhủ: “không cần phải …”. Sắc thái khách quan hơn ～なくてもいい, trang trọng hơn trong văn viết. Cũng có thể diễn tả thói quen phủ định mạnh: “tôi không bao giờ …”. Cần ngữ cảnh thói quen/hành vi chung. Không dùng để nói “không nên” (cảnh báo đạo đức) → dùng ～べきではない. Các lựa chọn 「べきではない」 và 「わけにはいかない」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-be0276bdca",
+      "id": "LP-GRAMC-N3-C18-be0276bdca-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "べきではない",
+       "ことはない",
+       "わけにはいかない",
+       "ことになる"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "Không cần phải…",
+      "prompt_ja": "もう準備したから、心配する[ ]。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "時間は十分ある。急ぐことはないよ。",
+      "answer_vi": "Còn đủ thời gian, không cần vội.",
+      "chapter": 18,
+      "context_vi": "Sắp xếp thành câu: Còn đủ thời gian, không cần vội.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「Không cần phải…」 với nghĩa Dùng để trấn an/khuyên nhủ: “không cần phải …”. Sắc thái khách quan hơn ～なくてもいい, trang trọng hơn trong văn viết. Cũng có thể diễn tả thói quen phủ định mạnh: “tôi không bao giờ …”. Cần ngữ cảnh thói quen/hành vi chung. Không dùng để nói “không nên” (cảnh báo đạo đức) → dùng ～べきではない.",
+      "goal": "JLPT",
+      "grammar_id": "JG-be0276bdca",
+      "id": "LP-GRAMC-N3-C18-be0276bdca-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "急ぐことは",
+       "ないよ。",
+       "時間は十分ある。"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "Không cần phải…",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-be0276bdca"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "季節（　　）、店に並ぶ食べ物が変わる。",
+      "options": [
+       "によって",
+       "に反して",
+       "にかわって",
+       "をこめて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「によって」. 「N ＋ によって」: tùy theo N mà khác nhau (cũng dùng chỉ phương tiện, hoặc người thực hiện trong câu bị động). 'Thay đổi tùy theo' dùng 「によって」; 「に反して」 (trái với), 「にかわって」 (thay cho), 「をこめて」 (gửi gắm) không hợp nghĩa. Câu đầy đủ: 季節によって、店に並ぶ食べ物が変わる。 (Tùy theo mùa mà các món ăn bày bán ở cửa hàng thay đổi)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "この店では、日（　　）値段が変わります。",
+      "options": [
+       "に反して",
+       "によって",
+       "にかわって",
+       "をこめて"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「によって」. 「N ＋ によって」: tùy theo N mà khác nhau (cũng dùng chỉ phương tiện, hoặc người thực hiện trong câu bị động). 'Thay đổi tùy theo' dùng 「によって」; 「に反して」 (trái với), 「にかわって」 (thay cho), 「をこめて」 (gửi gắm) không hợp nghĩa. Câu đầy đủ: この店では、日によって値段が変わります。 (Ở cửa hàng này, giá thay đổi tùy theo ngày)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "この町では、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "曜日が違う",
+       "によって、",
+       "ごみを出す",
+       "住んでいる地域"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 住んでいる地域 → によって、 → ごみを出す → 曜日が違う. Câu: この町では、住んでいる地域によって、ごみを出す曜日が違う。 (Ở thị trấn này, ngày đổ rác khác nhau tùy theo khu vực sinh sống). ★ = 「ごみを出す」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "同じ料理でも、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "味が変わる",
+       "作る人",
+       "によって、",
+       "スープの"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 作る人 → によって、 → スープの → 味が変わる. Câu: 同じ料理でも、作る人によって、スープの味が変わる。 (Cùng một món nhưng tùy người nấu mà vị nước súp thay đổi). ★ = 「スープの」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "季節によって、店に並ぶ食べ物が変わる。",
+      "options": [
+       "Tùy theo mùa mà các món ăn bày bán ở cửa hàng thay đổi.",
+       "Mùa nào thì các món ăn ở cửa hàng cũng giống nhau.",
+       "Vì sức khỏe, tôi cố gắng ngày nào cũng ngủ sớm.",
+       "Bạn đã trả trước nên tôi không phải trả."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「N ＋ によって」: tùy theo N mà khác nhau (cũng dùng chỉ phương tiện, hoặc người thực hiện trong câu bị động). Câu này nghĩa là: “Tùy theo mùa mà các món ăn bày bán ở cửa hàng thay đổi.”. Phương án “Mùa nào thì các món ăn ở cửa hàng cũng giống nhau.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この店では、日によって値段が変わります。",
+      "options": [
+       "Đồ uống thì tôi chọn trà.",
+       "Ở cửa hàng này, giá thay đổi tùy theo ngày.",
+       "Ở cửa hàng này, giá ngày nào cũng như nhau.",
+       "Chúng ta cùng bàn về kế hoạch du lịch nhé."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「N ＋ によって」: tùy theo N mà khác nhau (cũng dùng chỉ phương tiện, hoặc người thực hiện trong câu bị động). Câu này nghĩa là: “Ở cửa hàng này, giá thay đổi tùy theo ngày.”. Phương án “Ở cửa hàng này, giá ngày nào cũng như nhau.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "季節によって、店に並ぶ食べ物が変わる。",
+       "この店では、日によって値段が変わります。",
+       "この町では、住んでいる地域をよって、ごみを出す曜日が違う。",
+       "同じ料理でも、作る人によって、スープの味が変わる。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「この町では、住んでいる地域をよって、ごみを出す曜日が違う。」 — Mẫu dùng trợ từ に: 「地域によって」. Ba câu còn lại dùng đúng mẫu Nによって."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "季節によって、店に並ぶ食べ物が変わる。",
+       "この店では、日によって値段が変わります。",
+       "この町では、住んでいる地域によって、ごみを出す曜日が違う。",
+       "同じ料理でも、作る人のによって、スープの味が変わる。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「同じ料理でも、作る人のによって、スープの味が変わる。」 — Danh từ nối trực tiếp với によって, không thêm の. Ba câu còn lại dùng đúng mẫu Nによって."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "によって、",
+       "好きな色が違う。",
+       "人"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Tùy người mà màu yêu thích khác nhau."
+     },
+     {
+      "pieces": [
+       "景色が変わります。",
+       "この町は季節",
+       "によって、"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Thị trấn này thay đổi cảnh sắc tùy theo mùa."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "季節＿＿、店に並ぶ食べ物が変わる。",
+      "answer": "によって",
+      "accept": [
+       "により"
+      ],
+      "translation_vi": "Tùy theo mùa mà các món ăn bày bán ở cửa hàng thay đổi."
+     },
+     {
+      "sentence_ja": "この店では、日＿＿値段が変わります。",
+      "answer": "によって",
+      "accept": [
+       "により"
+      ],
+      "translation_vi": "Ở cửa hàng này, giá thay đổi tùy theo ngày."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この町では、住んでいる地域（　　）、ごみを出す曜日が違う。",
+      "options": [
+       "に反して",
+       "によって",
+       "にかわって",
+       "をこめて"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「によって」. 「N ＋ によって」: tùy theo N mà khác nhau (cũng dùng chỉ phương tiện, hoặc người thực hiện trong câu bị động). 'Thay đổi tùy theo' dùng 「によって」; 「に反して」 (trái với), 「にかわって」 (thay cho), 「をこめて」 (gửi gắm) không hợp nghĩa. Câu đầy đủ: この町では、住んでいる地域によって、ごみを出す曜日が違う。 (Ở thị trấn này, ngày đổ rác khác nhau tùy theo khu vực sinh sống)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "同じ料理でも、作る人（　　）、スープの味が変わる。",
+      "options": [
+       "に反して",
+       "にかわって",
+       "によって",
+       "をこめて"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「によって」. 「N ＋ によって」: tùy theo N mà khác nhau (cũng dùng chỉ phương tiện, hoặc người thực hiện trong câu bị động). 'Thay đổi tùy theo' dùng 「によって」; 「に反して」 (trái với), 「にかわって」 (thay cho), 「をこめて」 (gửi gắm) không hợp nghĩa. Câu đầy đủ: 同じ料理でも、作る人によって、スープの味が変わる。 (Cùng một món nhưng tùy người nấu mà vị nước súp thay đổi)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "季節によると、店に並ぶ食べ物が変わる。",
+       "この店では、日によって値段が変わります。",
+       "この町では、住んでいる地域によって、ごみを出す曜日が違う。",
+       "同じ料理でも、作る人によって、スープの味が変わる。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「季節によると、店に並ぶ食べ物が変わる。」 — 「によると」 là 'theo (nguồn tin)'; 'thay đổi tùy theo' phải dùng 「によって」. Ba câu còn lại dùng đúng mẫu Nによって."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "国によって習慣が違います。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Tuỳ theo, bởi, nhờ vào — Nêu sự khác nhau tuỳ trường hợp, nêu phương tiện, hoặc nêu chủ thể trong câu bị động.",
+    "pattern": "N + によって",
+    "pattern_variants": [
+     "〜によって...・〜によっては...",
+     "〜によって...・〜による (A)",
+     "〜によって...・〜による (B)",
+     "〜によって (A)",
+     "〜によって (B)",
+     "〜によって (C)"
+    ],
+    "source_questions": [
+     {
+      "answer_ja": "季節によって、食べ物が変わる。",
+      "answer_vi": "Thức ăn thay đổi tùy mùa.",
+      "chapter": 18,
+      "context_vi": "Hoàn thành câu: Thức ăn thay đổi tùy mùa.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "「によって」 diễn đạt Tuỳ theo, bởi, nhờ vào — Nêu sự khác nhau tuỳ trường hợp, nêu phương tiện, hoặc nêu chủ thể trong câu bị động. Các lựa chọn 「に反して」 và 「にかわって」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-a7fab6d0f9",
+      "id": "LP-GRAMC-N3-C18-a7fab6d0f9-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "に反して",
+       "によって",
+       "にかわって",
+       "をこめて"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "N + によって",
+      "prompt_ja": "季節[ ]、食べ物が変わる。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "人によって好きな色が違う。",
+      "answer_vi": "Màu yêu thích khác nhau tùy người.",
+      "chapter": 18,
+      "context_vi": "Sắp xếp thành câu: Màu yêu thích khác nhau tùy người.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「N + によって」 với nghĩa Tuỳ theo, bởi, nhờ vào — Nêu sự khác nhau tuỳ trường hợp, nêu phương tiện, hoặc nêu chủ thể trong câu bị động.",
+      "goal": "JLPT",
+      "grammar_id": "JG-a7fab6d0f9",
+      "id": "LP-GRAMC-N3-C18-a7fab6d0f9-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "好きな色が",
+       "違う。",
+       "人によって"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "N + によって",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "この店では、日によってねだんが変わります。",
+      "answer_vi": "Ở cửa hàng này, giá thay đổi tùy ngày.",
+      "chapter": 2,
+      "context_vi": "Điền vào chỗ trống: Ở cửa hàng này, giá thay đổi tùy ngày.",
+      "correct_index": 3,
+      "correct_order": null,
+      "explanation_vi": "によって chỉ sự thay đổi tùy yếu tố.",
+      "goal": "JLPT",
+      "grammar_id": "JG-33b2f83bdc",
+      "id": "LP-GRAMC-N3-C02-33b2f83bdc-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "のせいで",
+       "のついでに",
+       "によって",
+       "のおかげで"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～によって…・～によっては…",
+      "prompt_ja": "この店では、日[ ]ねだんが変わります。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "この町は季節によって景色が変わります。",
+      "answer_vi": "Cảnh sắc thị trấn này thay đổi tùy mùa.",
+      "chapter": 2,
+      "context_vi": "Thời tiết theo mùa",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "によって chỉ sự khác biệt tùy yếu tố Ghép các mảnh theo thứ tự để tạo câu hoàn chỉnh.",
+      "goal": "JLPT",
+      "grammar_id": "JG-33b2f83bdc",
+      "id": "LP-GRAMC-N3-C02-33b2f83bdc-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "季節によって",
+       "景色が変わります。",
+       "この町は"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～によって…・～によっては…",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "強い風によって、木が倒れた。",
+      "answer_vi": "Do gió mạnh, cây đã đổ.",
+      "chapter": 5,
+      "context_vi": "Điền vào chỗ trống: Do gió mạnh, cây đã đổ.",
+      "correct_index": 1,
+      "correct_order": null,
+      "explanation_vi": "によって nêu nguyên nhân cây đổ.",
+      "goal": "JLPT",
+      "grammar_id": "JG-fac4ab47c4",
+      "id": "LP-GRAMC-N3-C05-fac4ab47c4-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "によって",
+       "にとって",
+       "に関して",
+       "に比べて"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～によって…・～による (A)",
+      "prompt_ja": "強い風[ ]、木が倒れた。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "強い風によって木が倒れた。",
+      "answer_vi": "Cây đổ do gió mạnh.",
+      "chapter": 5,
+      "context_vi": "Sắp xếp câu để diễn đạt: Cây đổ do gió mạnh.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 強い風によって木が倒れた。; mẫu ～によって…・～による (A) diễn đạt ~ là nguyên nhân xảy ra kết quả….",
+      "goal": "JLPT",
+      "grammar_id": "JG-fac4ab47c4",
+      "id": "LP-GRAMC-N3-C05-fac4ab47c4-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "木が",
+       "倒れた。",
+       "強い風によって"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～によって…・～による (A)",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "練習によって、発音がよくなった。",
+      "answer_vi": "Nhờ luyện tập, phát âm đã tốt lên.",
+      "chapter": 5,
+      "context_vi": "Điền vào chỗ trống: Nhờ luyện tập, phát âm đã tốt lên.",
+      "correct_index": 3,
+      "correct_order": null,
+      "explanation_vi": "によって chỉ phương tiện tạo ra kết quả.",
+      "goal": "JLPT",
+      "grammar_id": "JG-a810056c4b",
+      "id": "LP-GRAMC-N3-C05-a810056c4b-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "に関して",
+       "に比べて",
+       "によって",
+       "にとって"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～によって…・～による (B)",
+      "prompt_ja": "練習[ ]、発音がよくなった。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "工夫によって仕事の時間を短くできた。",
+      "answer_vi": "Nhờ cải tiến, chúng tôi rút ngắn được thời gian làm việc.",
+      "chapter": 5,
+      "context_vi": "Sắp xếp câu để diễn đạt: Nhờ cải tiến, chúng tôi rút ngắn được thời gian làm việc.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 工夫によって仕事の時間を短くできた。; mẫu ～によって…・～による (B) diễn đạt Làm …bằng phương pháp ~..",
+      "goal": "JLPT",
+      "grammar_id": "JG-a810056c4b",
+      "id": "LP-GRAMC-N3-C05-a810056c4b-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "仕事の時間を",
+       "短くできた。",
+       "工夫によって"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～によって…・～による (B)",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "この絵は学生によって描かれた。",
+      "answer_vi": "Bức tranh này do học sinh vẽ.",
+      "chapter": 18,
+      "context_vi": "Hoàn thành câu: Bức tranh này do học sinh vẽ.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "「によって」 diễn đạt … là câu bị động. ~ là người thực hiện hành động đó. Với chủ ngữ là bất động vật, によってđược sử dụng trong câu bị động khi muốn đề cập đến người thực hiện hành động. Các lựa chọn 「にかわって」 và 「に反して」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-da5cc5f626",
+      "id": "LP-GRAMC-N3-C18-da5cc5f626-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "にかわって",
+       "によって",
+       "に反して",
+       "にともなって"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～によって (A)",
+      "prompt_ja": "この絵は学生[ ]描かれた。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "この歌は若い人によって作られた。",
+      "answer_vi": "Bài hát này do người trẻ sáng tác.",
+      "chapter": 18,
+      "context_vi": "Sắp xếp thành câu: Bài hát này do người trẻ sáng tác.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～によって (A)」 với nghĩa … là câu bị động. ~ là người thực hiện hành động đó. Với chủ ngữ là bất động vật, によってđược sử dụng trong câu bị động khi muốn đề cập đến người thực hiện hành động.",
+      "goal": "JLPT",
+      "grammar_id": "JG-da5cc5f626",
+      "id": "LP-GRAMC-N3-C18-da5cc5f626-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "若い人によって",
+       "作られた。",
+       "この歌は"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～によって (A)",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "人によって、考え方が違う。",
+      "answer_vi": "Cách nghĩ khác nhau tùy người.",
+      "chapter": 18,
+      "context_vi": "Hoàn thành câu: Cách nghĩ khác nhau tùy người.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "「によって」 diễn đạt Cảm nhận khác nhau tùy theo từng người. Các lựa chọn 「に反して」 và 「にかわって」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-e833d9c306",
+      "id": "LP-GRAMC-N3-C18-e833d9c306-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "に反して",
+       "によって",
+       "にかわって",
+       "をこめて"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～によって (B)",
+      "prompt_ja": "人[ ]、考え方が違う。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "住む場所によって家の形も変わる。",
+      "answer_vi": "Hình dáng nhà thay đổi tùy nơi ở.",
+      "chapter": 18,
+      "context_vi": "Sắp xếp thành câu: Hình dáng nhà thay đổi tùy nơi ở.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～によって (B)」 với nghĩa Cảm nhận khác nhau tùy theo từng người.",
+      "goal": "JLPT",
+      "grammar_id": "JG-e833d9c306",
+      "id": "LP-GRAMC-N3-C18-e833d9c306-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "家の形も",
+       "変わる。",
+       "住む場所によって"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～によって (B)",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "料金が上がったことによって、客が減った。",
+      "answer_vi": "Việc tăng giá đã làm giảm số khách.",
+      "chapter": 18,
+      "context_vi": "Hoàn thành câu: Việc tăng giá đã làm giảm số khách.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "「によって」 diễn đạt Việc tăng giá cước taxi đã làm giảm số khách sử dụng. Các lựa chọn 「に反して」 và 「にかわって」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-4b7973f21f",
+      "id": "LP-GRAMC-N3-C18-4b7973f21f-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "に反して",
+       "によって",
+       "にかわって",
+       "をこめて"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～によって (C)",
+      "prompt_ja": "料金が上がったこと[ ]、客が減った。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "大雨によって電車が止まった。",
+      "answer_vi": "Tàu dừng vì mưa lớn.",
+      "chapter": 18,
+      "context_vi": "Sắp xếp thành câu: Tàu dừng vì mưa lớn.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～によって (C)」 với nghĩa Việc tăng giá cước taxi đã làm giảm số khách sử dụng.",
+      "goal": "JLPT",
+      "grammar_id": "JG-4b7973f21f",
+      "id": "LP-GRAMC-N3-C18-4b7973f21f-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "電車が",
+       "止まった。",
+       "大雨によって"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～によって (C)",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-a7fab6d0f9"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "今朝はパンを（　　）、お腹が苦しい。",
+      "options": [
+       "食べすぎて",
+       "食べるすぎて",
+       "食べてすぎて",
+       "食べたすぎて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「食べすぎて」. 「Vます／Aい bỏ い／Aな ＋ すぎる」: quá mức, vượt mức hợp lý (thường mang nghĩa không tốt). すぎる nối với thể ます bỏ ます: 食べすぎる; thể từ điển, thể て, thể た không nối được. Câu đầy đủ: 今朝はパンを食べすぎて、お腹が苦しい。 (Sáng nay tôi ăn quá nhiều bánh mì nên bụng khó chịu)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "この問題は（　　）、だれも答えられなかった。",
+      "options": [
+       "難しいすぎて",
+       "難しすぎて",
+       "難しくすぎて",
+       "難しさすぎて"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「難しすぎて」. 「Vます／Aい bỏ い／Aな ＋ すぎる」: quá mức, vượt mức hợp lý (thường mang nghĩa không tốt). Tính từ い bỏ い + すぎる: 難しすぎる; các dạng còn lại sai cách nối. Câu đầy đủ: この問題は難しすぎて、だれも答えられなかった。 (Bài này khó quá nên không ai trả lời được)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "夕食の後で、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "薬を飲んだ",
+       "すぎたので、",
+       "お腹の",
+       "ケーキを食べ"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: ケーキを食べ → すぎたので、 → お腹の → 薬を飲んだ. Câu: 夕食の後で、ケーキを食べすぎたので、お腹の薬を飲んだ。 (Sau bữa tối tôi ăn quá nhiều bánh ngọt nên đã uống thuốc đau bụng). ★ = 「お腹の」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "このかばんは＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "かばんを買った",
+       "派手",
+       "すぎるから、",
+       "黒い"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 派手 → すぎるから、 → 黒い → かばんを買った. Câu: このかばんは派手すぎるから、黒いかばんを買った。 (Chiếc túi này lòe loẹt quá nên tôi đã mua chiếc túi màu đen). ★ = 「黒い」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "今朝はパンを食べすぎて、お腹が苦しい。",
+      "options": [
+       "Sáng nay tôi ăn quá nhiều bánh mì nên bụng khó chịu.",
+       "Sáng nay tôi ăn ít bánh mì nên bụng đói.",
+       "Tìm được đường tắt nên tôi không phải đi bộ lâu.",
+       "Quà sinh nhật thì tôi đã chọn chiếc túi màu đỏ."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「Vます／Aい bỏ い／Aな ＋ すぎる」: quá mức, vượt mức hợp lý (thường mang nghĩa không tốt). Câu này nghĩa là: “Sáng nay tôi ăn quá nhiều bánh mì nên bụng khó chịu.”. Phương án “Sáng nay tôi ăn ít bánh mì nên bụng đói.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この問題は難しすぎて、だれも答えられなかった。",
+      "options": [
+       "Tôi đã nói chuyện với bạn về đồ ăn Nhật Bản.",
+       "Bài này khó quá nên không ai trả lời được.",
+       "Bài này dễ nên ai cũng trả lời được.",
+       "Hãy viết chữ này đúng theo mẫu."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「Vます／Aい bỏ い／Aな ＋ すぎる」: quá mức, vượt mức hợp lý (thường mang nghĩa không tốt). Câu này nghĩa là: “Bài này khó quá nên không ai trả lời được.”. Phương án “Bài này dễ nên ai cũng trả lời được.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "今朝はパンを食べすぎて、お腹が苦しい。",
+       "この問題は難しすぎて、だれも答えられなかった。",
+       "夕食の後で、ケーキを食べるすぎたので、お腹の薬を飲んだ。",
+       "このかばんは派手すぎるから、黒いかばんを買った。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「夕食の後で、ケーキを食べるすぎたので、お腹の薬を飲んだ。」 — すぎる nối với thể ます bỏ ます: 「食べすぎた」. Ba câu còn lại dùng đúng mẫu 〜すぎる."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "今朝はパンを食べすぎて、お腹が苦しい。",
+       "この問題は難しすぎて、だれも答えられなかった。",
+       "夕食の後で、ケーキを食べすぎたので、お腹の薬を飲んだ。",
+       "このかばんは派手なすぎるから、黒いかばんを買った。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「このかばんは派手なすぎるから、黒いかばんを買った。」 — Tính từ な bỏ な: 「派手すぎる」. Ba câu còn lại dùng đúng mẫu 〜すぎる."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "飲み",
+       "すぎた。",
+       "試験の前にコーヒーを"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Trước kỳ thi tôi đã uống quá nhiều cà phê."
+     },
+     {
+      "pieces": [
+       "すぎた。",
+       "今朝はパンを",
+       "食べ"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Sáng nay tôi đã ăn quá nhiều bánh mì."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "今朝はパンを＿＿、お腹が苦しい。",
+      "answer": "食べすぎて",
+      "translation_vi": "Sáng nay tôi ăn quá nhiều bánh mì nên bụng khó chịu."
+     },
+     {
+      "sentence_ja": "この問題は＿＿、だれも答えられなかった。",
+      "answer": "難しすぎて",
+      "translation_vi": "Bài này khó quá nên không ai trả lời được."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "夕食の後で、ケーキを（　　）ので、お腹の薬を飲んだ。",
+      "options": [
+       "食べるすぎた",
+       "食べすぎた",
+       "食べてすぎた",
+       "食べたすぎた"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「食べすぎた」. 「Vます／Aい bỏ い／Aな ＋ すぎる」: quá mức, vượt mức hợp lý (thường mang nghĩa không tốt). すぎる nối với thể ます bỏ ます: 食べすぎる; thể từ điển, thể て, thể た không nối được. Câu đầy đủ: 夕食の後で、ケーキを食べすぎたので、お腹の薬を飲んだ。 (Sau bữa tối tôi ăn quá nhiều bánh ngọt nên đã uống thuốc đau bụng)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "このかばんは（　　）から、黒いかばんを買った。",
+      "options": [
+       "派手なすぎる",
+       "派手にすぎる",
+       "派手すぎる",
+       "派手だすぎる"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「派手すぎる」. 「Vます／Aい bỏ い／Aな ＋ すぎる」: quá mức, vượt mức hợp lý (thường mang nghĩa không tốt). Tính từ な bỏ な + すぎる: 派手すぎる. Câu đầy đủ: このかばんは派手すぎるから、黒いかばんを買った。 (Chiếc túi này lòe loẹt quá nên tôi đã mua chiếc túi màu đen)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この問題は難しいすぎて、だれも答えられなかった。",
+       "この問題は難しすぎて、だれも答えられなかった。",
+       "夕食の後で、ケーキを食べすぎたので、お腹の薬を飲んだ。",
+       "このかばんは派手すぎるから、黒いかばんを買った。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「この問題は難しいすぎて、だれも答えられなかった。」 — Tính từ い bỏ い: 「難しすぎて」. Ba câu còn lại dùng đúng mẫu 〜すぎる."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "昨日は飲みすぎました。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Quá mức — Vượt quá mức hợp lý, hầu như luôn mang nghĩa không tốt.",
+    "pattern": "V thể ます (bỏ ます) / A bỏ い + すぎる",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "今朝はパンを食べすぎた。",
+      "answer_vi": "Sáng nay tôi đã ăn quá nhiều bánh mì.",
+      "chapter": 18,
+      "context_vi": "Hoàn thành câu để diễn đạt: Sáng nay tôi đã ăn quá nhiều bánh mì.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "Chọn phương án đúng để hoàn thành câu. Mẫu 「V thể ます (bỏ ます) / A bỏ い + すぎる」 được dùng trong câu 「今朝はパンを食べすぎた。」, nghĩa là: Sáng nay tôi đã ăn quá nhiều bánh mì.",
+      "goal": "JLPT",
+      "grammar_id": "JG-2e4cce32a2",
+      "id": "LP-GRAMC-N3-C18-2e4cce32a2-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "始めた",
+       "すぎた",
+       "続けた",
+       "終わった"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V thể ます (bỏ ます) / A bỏ い + すぎる",
+      "prompt_ja": "今朝はパンを食べ[ ]。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "試験の前にコーヒーを飲みすぎた。",
+      "answer_vi": "Trước kỳ thi tôi đã uống quá nhiều cà phê.",
+      "chapter": 18,
+      "context_vi": "Sắp xếp câu để diễn đạt: Trước kỳ thi tôi đã uống quá nhiều cà phê.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo thứ tự để tạo câu đúng. Mẫu 「V thể ます (bỏ ます) / A bỏ い + すぎる」 được dùng trong câu 「試験の前にコーヒーを飲みすぎた。」, nghĩa là: Trước kỳ thi tôi đã uống quá nhiều cà phê.",
+      "goal": "JLPT",
+      "grammar_id": "JG-2e4cce32a2",
+      "id": "LP-GRAMC-N3-C18-2e4cce32a2-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "コーヒーを",
+       "飲みすぎた。",
+       "試験の前に"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V thể ます (bỏ ます) / A bỏ い + すぎる",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-2e4cce32a2"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "春になる（　　）、花が咲く。",
+      "options": [
+       "と",
+       "ばかりに",
+       "ために",
+       "くせに"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「と」. 「Vる／Vない ＋ と」: hễ A thì B (kết quả tất yếu, tự nhiên); vế sau không dùng ý chí, mệnh lệnh, yêu cầu. Điều kiện tất yếu 'hễ… thì…' dùng 「と」; 「ばかりに」 (chỉ vì), 「ために」 (để／vì), 「くせに」 (trách móc) không hợp nghĩa. Câu đầy đủ: 春になると、花が咲く。 (Hễ mùa xuân đến thì hoa nở)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "このボタンを押す（　　）、ドアが開きます。",
+      "options": [
+       "ばかりに",
+       "と",
+       "ために",
+       "くせに"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「と」. 「Vる／Vない ＋ と」: hễ A thì B (kết quả tất yếu, tự nhiên); vế sau không dùng ý chí, mệnh lệnh, yêu cầu. Điều kiện tất yếu 'hễ… thì…' dùng 「と」; 「ばかりに」 (chỉ vì), 「ために」 (để／vì), 「くせに」 (trách móc) không hợp nghĩa. Câu đầy đủ: このボタンを押すと、ドアが開きます。 (Hễ ấn nút này thì cửa sẽ mở)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "まっすぐ行って、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "建物が見えます",
+       "と、",
+       "白い",
+       "あの角を右に曲がる"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: あの角を右に曲がる → と、 → 白い → 建物が見えます. Câu: まっすぐ行って、あの角を右に曲がると、白い建物が見えます。 (Đi thẳng rồi rẽ phải ở góc kia thì sẽ thấy một tòa nhà màu trắng). ★ = 「白い」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "この機械は、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "ランプがつかない",
+       "お金を入れない",
+       "と、",
+       "緑の"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: お金を入れない → と、 → 緑の → ランプがつかない. Câu: この機械は、お金を入れないと、緑のランプがつかない。 (Cái máy này nếu không bỏ tiền vào thì đèn xanh không sáng). ★ = 「緑の」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "春になると、花が咲く。",
+      "options": [
+       "Hễ mùa xuân đến thì hoa nở.",
+       "Mùa xuân đến nhưng hoa không nở.",
+       "Chúng ta cùng bàn về kế hoạch du lịch nhé.",
+       "Tôi đã lắp ráp đúng như sách hướng dẫn ghi."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「Vる／Vない ＋ と」: hễ A thì B (kết quả tất yếu, tự nhiên); vế sau không dùng ý chí, mệnh lệnh, yêu cầu. Câu này nghĩa là: “Hễ mùa xuân đến thì hoa nở.”. Phương án “Mùa xuân đến nhưng hoa không nở.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "このボタンを押すと、ドアが開きます。",
+      "options": [
+       "Đây là bệnh viện nên không được chụp ảnh.",
+       "Hễ ấn nút này thì cửa sẽ mở.",
+       "Dù ấn nút này thì cửa cũng không mở.",
+       "Đã chuẩn bị rồi nên không cần lo lắng."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「Vる／Vない ＋ と」: hễ A thì B (kết quả tất yếu, tự nhiên); vế sau không dùng ý chí, mệnh lệnh, yêu cầu. Câu này nghĩa là: “Hễ ấn nút này thì cửa sẽ mở.”. Phương án “Dù ấn nút này thì cửa cũng không mở.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "春になると、花が咲く。",
+       "このボタンを押すと、ドアが開きます。",
+       "まっすぐ行って、あの角を右に曲がったと、白い建物が見えます。",
+       "この機械は、お金を入れないと、緑のランプがつかない。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「まっすぐ行って、あの角を右に曲がったと、白い建物が見えます。」 — と đi sau thể từ điển hoặc thể ない, không đi sau thể た. Ba câu còn lại dùng đúng mẫu Vる／Vない＋と."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "春になると、花が咲く。",
+       "このボタンを押すと、ドアが開きます。",
+       "まっすぐ行って、あの角を右に曲がると、白い建物が見えます。",
+       "この機械は、お金を入れないと、緑のランプをつけてください。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「この機械は、お金を入れないと、緑のランプをつけてください。」 — Vế sau của 「と」 không dùng yêu cầu như 〜てください (nên dùng 〜たら). Ba câu còn lại dùng đúng mẫu Vる／Vない＋と."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "と、",
+       "ドアが開く。",
+       "ボタンを押す"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Hễ ấn nút thì cửa mở."
+     },
+     {
+      "pieces": [
+       "花が咲く。",
+       "春になる",
+       "と、"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Hễ mùa xuân đến thì hoa nở."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "春になる＿＿、花が咲く。",
+      "answer": "と",
+      "translation_vi": "Hễ mùa xuân đến thì hoa nở."
+     },
+     {
+      "sentence_ja": "このボタンを押す＿＿、ドアが開きます。",
+      "answer": "と",
+      "translation_vi": "Hễ ấn nút này thì cửa sẽ mở."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "まっすぐ行って、あの角を右に曲がる（　　）、白い建物が見えます。",
+      "options": [
+       "ばかりに",
+       "と",
+       "ために",
+       "くせに"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「と」. 「Vる／Vない ＋ と」: hễ A thì B (kết quả tất yếu, tự nhiên); vế sau không dùng ý chí, mệnh lệnh, yêu cầu. Điều kiện tất yếu 'hễ… thì…' dùng 「と」; 「ばかりに」 (chỉ vì), 「ために」 (để／vì), 「くせに」 (trách móc) không hợp nghĩa. Câu đầy đủ: まっすぐ行って、あの角を右に曲がると、白い建物が見えます。 (Đi thẳng rồi rẽ phải ở góc kia thì sẽ thấy một tòa nhà màu trắng)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "この機械は、お金を入れない（　　）、緑のランプがつかない。",
+      "options": [
+       "ばかりに",
+       "ために",
+       "と",
+       "くせに"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「と」. 「Vる／Vない ＋ と」: hễ A thì B (kết quả tất yếu, tự nhiên); vế sau không dùng ý chí, mệnh lệnh, yêu cầu. Điều kiện tất yếu 'hễ… thì…' dùng 「と」; 「ばかりに」 (chỉ vì), 「ために」 (để／vì), 「くせに」 (trách móc) không hợp nghĩa. Câu đầy đủ: この機械は、お金を入れないと、緑のランプがつかない。 (Cái máy này nếu không bỏ tiền vào thì đèn xanh không sáng)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "春になりと、花が咲く。",
+       "このボタンを押すと、ドアが開きます。",
+       "まっすぐ行って、あの角を右に曲がると、白い建物が見えます。",
+       "この機械は、お金を入れないと、緑のランプがつかない。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「春になりと、花が咲く。」 — と đi sau thể từ điển: 「春になると」. Ba câu còn lại dùng đúng mẫu Vる／Vない＋と."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "春になると、桜が咲きます。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Hễ là, cứ là — Điều kiện tất yếu: cứ xảy ra A thì B luôn xảy ra.",
+    "pattern": "V từ điển / V-ない + と",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "春になると、花が咲く。",
+      "answer_vi": "Cứ đến mùa xuân thì hoa nở.",
+      "chapter": 18,
+      "context_vi": "Hoàn thành câu: Cứ đến mùa xuân thì hoa nở.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "「と」 diễn đạt Hễ là, cứ là — Điều kiện tất yếu: cứ xảy ra A thì B luôn xảy ra. Các lựa chọn 「ので」 và 「ために」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-18074c7b7e",
+      "id": "LP-GRAMC-N3-C18-18074c7b7e-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "ので",
+       "と",
+       "ために",
+       "せいで"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V từ điển / V-ない + と",
+      "prompt_ja": "春になる[ ]、花が咲く。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "ボタンを押すとドアが開く。",
+      "answer_vi": "Cứ ấn nút là cửa mở.",
+      "chapter": 18,
+      "context_vi": "Sắp xếp thành câu: Cứ ấn nút là cửa mở.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「V từ điển / V-ない + と」 với nghĩa Hễ là, cứ là — Điều kiện tất yếu: cứ xảy ra A thì B luôn xảy ra.",
+      "goal": "JLPT",
+      "grammar_id": "JG-18074c7b7e",
+      "id": "LP-GRAMC-N3-C18-18074c7b7e-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "ドアが",
+       "開く。",
+       "ボタンを押すと"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V từ điển / V-ない + と",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-18074c7b7e"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "健康のために、毎日早く（　　）ようにしている。",
+      "options": [
+       "寝る",
+       "寝て",
+       "寝ます",
+       "寝れ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「寝る」. 「Vる／Vない ＋ ようにしている」: cố gắng duy trì một thói quen đều đặn (không chỉ một lần). ようにしている đi sau thể từ điển (寝る) hoặc thể ない; thể て, thể ます, 「寝れ」 không nối được. Câu đầy đủ: 健康のために、毎日早く寝るようにしている。 (Vì sức khỏe, tôi cố gắng ngày nào cũng ngủ sớm)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "甘いものはなるべく（　　）ようにしている。",
+      "options": [
+       "食べなくて",
+       "食べない",
+       "食べないで",
+       "食べません"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「食べない」. 「Vる／Vない ＋ ようにしている」: cố gắng duy trì một thói quen đều đặn (không chỉ một lần). Thể ない nguyên dạng + ようにしている; 「食べなくて／食べないで／食べません」 không nối được. Câu đầy đủ: 甘いものはなるべく食べないようにしている。 (Tôi cố gắng hạn chế ăn đồ ngọt hết mức có thể)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "健康のために、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "体になった",
+       "ようにしているので、",
+       "疲れにくい",
+       "毎朝三十分歩く"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 毎朝三十分歩く → ようにしているので、 → 疲れにくい → 体になった. Câu: 健康のために、毎朝三十分歩くようにしているので、疲れにくい体になった。 (Vì sức khỏe tôi cố gắng sáng nào cũng đi bộ 30 phút nên cơ thể đã ít mệt hơn). ★ = 「疲れにくい」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "試験に向けて、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "単語も読めるようになった",
+       "毎日漢字を十個覚える",
+       "ようにしているから、",
+       "新しい"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 毎日漢字を十個覚える → ようにしているから、 → 新しい → 単語も読めるようになった. Câu: 試験に向けて、毎日漢字を十個覚えるようにしているから、新しい単語も読めるようになった。 (Hướng tới kỳ thi, tôi cố mỗi ngày nhớ 10 chữ Hán nên đã đọc được cả từ mới). ★ = 「新しい」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "健康のために、毎日早く寝るようにしている。",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng ngày nào cũng ngủ sớm.",
+       "Vì sức khỏe, thỉnh thoảng tôi mới ngủ sớm.",
+       "Hãy viết chữ này đúng theo mẫu.",
+       "Trong phòng này được uống nước đấy."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「Vる／Vない ＋ ようにしている」: cố gắng duy trì một thói quen đều đặn (không chỉ một lần). Câu này nghĩa là: “Vì sức khỏe, tôi cố gắng ngày nào cũng ngủ sớm.”. Phương án “Vì sức khỏe, thỉnh thoảng tôi mới ngủ sớm.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "甘いものはなるべく食べないようにしている。",
+      "options": [
+       "Còn đủ thời gian nên không cần vội đâu.",
+       "Tôi cố gắng hạn chế ăn đồ ngọt hết mức có thể.",
+       "Tôi ăn đồ ngọt mỗi ngày mà không để ý gì.",
+       "Ở cửa hàng này, giá thay đổi tùy theo ngày."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「Vる／Vない ＋ ようにしている」: cố gắng duy trì một thói quen đều đặn (không chỉ một lần). Câu này nghĩa là: “Tôi cố gắng hạn chế ăn đồ ngọt hết mức có thể.”. Phương án “Tôi ăn đồ ngọt mỗi ngày mà không để ý gì.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "健康のために、毎日早く寝るようにしている。",
+       "甘いものはなるべく食べないようにしている。",
+       "健康のために、毎朝三十分歩きようにしているので、疲れにくい体になった。",
+       "試験に向けて、毎日漢字を十個覚えるようにしているから、新しい単語も読めるようになった。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「健康のために、毎朝三十分歩きようにしているので、疲れにくい体になった。」 — ようにしている đi sau thể từ điển: 「歩くようにしている」. Ba câu còn lại dùng đúng mẫu Vる／Vない＋ようにしている."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "健康のために、毎日早く寝るようにしている。",
+       "甘いものはなるべく食べないようにしている。",
+       "健康のために、毎朝三十分歩くようにしているので、疲れにくい体になった。",
+       "試験に向けて、毎日漢字を十個覚えてようにしているから、新しい単語も読めるようになった。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「試験に向けて、毎日漢字を十個覚えてようにしているから、新しい単語も読めるようになった。」 — Không dùng thể て; phải là 「覚えるようにしている」. Ba câu còn lại dùng đúng mẫu Vる／Vない＋ようにしている."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "食べるように",
+       "している。",
+       "毎朝野菜を"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Sáng nào tôi cũng cố ăn rau."
+     },
+     {
+      "pieces": [
+       "している。",
+       "夜は早く",
+       "寝るように"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Buổi tối tôi cố gắng ngủ sớm."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "健康のために、毎日早く＿＿ようにしている。",
+      "answer": "寝る",
+      "translation_vi": "Vì sức khỏe, tôi cố gắng ngày nào cũng ngủ sớm."
+     },
+     {
+      "sentence_ja": "甘いものはなるべく＿＿ようにしている。",
+      "answer": "食べない",
+      "translation_vi": "Tôi cố gắng hạn chế ăn đồ ngọt hết mức có thể."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "健康のために、毎朝三十分（　　）ようにしているので、疲れにくい体になった。",
+      "options": [
+       "歩いて",
+       "歩く",
+       "歩きます",
+       "歩け"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「歩く」. 「Vる／Vない ＋ ようにしている」: cố gắng duy trì một thói quen đều đặn (không chỉ một lần). ようにしている đi sau thể từ điển 「歩く」. Câu đầy đủ: 健康のために、毎朝三十分歩くようにしているので、疲れにくい体になった。 (Vì sức khỏe tôi cố gắng sáng nào cũng đi bộ 30 phút nên cơ thể đã ít mệt hơn)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "試験に向けて、毎日漢字を十個（　　）ようにしているから、新しい単語も読めるようになった。",
+      "options": [
+       "覚えて",
+       "覚えます",
+       "覚える",
+       "覚えれ"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「覚える」. 「Vる／Vない ＋ ようにしている」: cố gắng duy trì một thói quen đều đặn (không chỉ một lần). ようにしている đi sau thể từ điển 「覚える」. Câu đầy đủ: 試験に向けて、毎日漢字を十個覚えるようにしているから、新しい単語も読めるようになった。 (Hướng tới kỳ thi, tôi cố mỗi ngày nhớ 10 chữ Hán nên đã đọc được cả từ mới)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "甘いものはなるべく食べないのようにしている。",
+       "甘いものはなるべく食べないようにしている。",
+       "健康のために、毎朝三十分歩くようにしているので、疲れにくい体になった。",
+       "試験に向けて、毎日漢字を十個覚えるようにしているから、新しい単語も読めるようになった。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「甘いものはなるべく食べないのようにしている。」 — Thể ない nối trực tiếp: 「食べないようにしている」. Ba câu còn lại dùng đúng mẫu Vる／Vない＋ようにしている."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "毎日、少し日本語を読むようにしています。",
+      "vi": "Tôi cố gắng đọc tiếng Nhật một chút mỗi ngày. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "meaning_vi": "Đang duy trì thói quen — Nhấn mạnh việc cố gắng duy trì đều đặn, không chỉ một lần.",
+    "pattern": "V từ điển + ようにしている",
+    "pattern_variants": [
+     "〜ようにする・〜ようにしている",
+     "〜ようにする B・〜ようにしている"
+    ],
+    "source_questions": [
+     {
+      "answer_ja": "毎日早く寝るようにしている。",
+      "answer_vi": "Tôi cố duy trì ngủ sớm mỗi ngày.",
+      "chapter": 18,
+      "context_vi": "Hoàn thành câu: Tôi cố duy trì ngủ sớm mỗi ngày.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "「ようにしている」 diễn đạt Đang duy trì thói quen — Nhấn mạnh việc cố gắng duy trì đều đặn, không chỉ một lần. Các lựa chọn 「ことがある」 và 「わけではない」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-3c9ed8e61c",
+      "id": "LP-GRAMC-N3-C18-3c9ed8e61c-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "ことがある",
+       "ようにしている",
+       "わけではない",
+       "はずがない"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V từ điển + ようにしている",
+      "prompt_ja": "毎日早く寝る[ ]。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "毎朝野菜を食べるようにしている。",
+      "answer_vi": "Tôi cố ăn rau mỗi sáng.",
+      "chapter": 18,
+      "context_vi": "Sắp xếp thành câu: Tôi cố ăn rau mỗi sáng.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「V từ điển + ようにしている」 với nghĩa Đang duy trì thói quen — Nhấn mạnh việc cố gắng duy trì đều đặn, không chỉ một lần.",
+      "goal": "JLPT",
+      "grammar_id": "JG-3c9ed8e61c",
+      "id": "LP-GRAMC-N3-C18-3c9ed8e61c-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "野菜を食べるように",
+       "している。",
+       "毎朝"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V từ điển + ようにしている",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "毎朝歩くようにしている。",
+      "answer_vi": "Tôi cố duy trì đi bộ mỗi sáng.",
+      "chapter": 15,
+      "context_vi": "Hoàn thành câu: Tôi cố duy trì đi bộ mỗi sáng.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "「ようにして」 diễn đạt Cố gắng làm/ không làm ~. Các lựa chọn 「ようになって」 và 「わけにして」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-30b8ffe3ef",
+      "id": "LP-GRAMC-N3-C15-30b8ffe3ef-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "ようになって",
+       "ようにして",
+       "わけにして",
+       "ことにして"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～ようにする・～ようにしている",
+      "prompt_ja": "毎朝歩く[ ]いる。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "夜は早く寝るようにしている。",
+      "answer_vi": "Tôi cố gắng ngủ sớm mỗi tối.",
+      "chapter": 15,
+      "context_vi": "Sắp xếp thành câu: Tôi cố gắng ngủ sớm mỗi tối.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～ようにする・～ようにしている」 với nghĩa Cố gắng làm/ không làm ~.",
+      "goal": "JLPT",
+      "grammar_id": "JG-30b8ffe3ef",
+      "id": "LP-GRAMC-N3-C15-30b8ffe3ef-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "早く寝るように",
+       "している。",
+       "夜は"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～ようにする・～ようにしている",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "知らない言葉は辞書で調べるようにしている。",
+      "answer_vi": "Tôi cố tra từ điển khi gặp từ chưa biết.",
+      "chapter": 25,
+      "context_vi": "Hoàn thành câu: Tôi cố tra từ điển khi gặp từ chưa biết.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "Mẫu 「ようにしている」 diễn đạt nỗ lực duy trì thói quen. Trong câu này: Tôi cố tra từ điển khi gặp từ chưa biết.",
+      "goal": "JLPT",
+      "grammar_id": "JG-04c3c5469b",
+      "id": "LP-GRAMC-N3-C25-04c3c5469b-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "ことになっている",
+       "ようにしている",
+       "わけではない",
+       "はずがない"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～ようにする B・～ようにしている",
+      "prompt_ja": "知らない言葉は辞書で調べる[ ]。",
+      "type": "FILL"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-3c9ed8e61c"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "友達が先に払ってくれたので、私は（　　）ずにすんだ。",
+      "options": [
+       "払わ",
+       "払い",
+       "払う",
+       "払って"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「払わ」. 「Vない bỏ ない ＋ ずにすむ」 (する → せずにすむ): may mắn không phải làm việc đáng lẽ phải làm. ずに nối với thể ない bỏ ない: 払わない → 払わずにすんだ; các dạng khác không nối được. Câu đầy đủ: 友達が先に払ってくれたので、私は払わずにすんだ。 (Bạn đã trả trước nên tôi không phải trả)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "近道を見つけたので、長い時間（　　）ずにすんだ。",
+      "options": [
+       "歩き",
+       "歩か",
+       "歩く",
+       "歩いて"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「歩か」. 「Vない bỏ ない ＋ ずにすむ」 (する → せずにすむ): may mắn không phải làm việc đáng lẽ phải làm. ずに nối với thể ない bỏ ない: 歩かない → 歩かずにすんだ. Câu đầy đủ: 近道を見つけたので、長い時間歩かずにすんだ。 (Tìm được đường tắt nên tôi không phải đi bộ lâu)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "友達が手伝ってくれて、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "箱も早く片づいた",
+       "ずにすんだので、",
+       "重い",
+       "一人で荷物を運ば"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 一人で荷物を運ば → ずにすんだので、 → 重い → 箱も早く片づいた. Câu: 友達が手伝ってくれて、一人で荷物を運ばずにすんだので、重い箱も早く片づいた。 (Bạn giúp nên tôi không phải tự mình chuyển đồ, cả những thùng nặng cũng dọn xong nhanh). ★ = 「重い」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "駅まで車で送ってもらったので、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "靴がぬれなかった",
+       "雨の中を歩か",
+       "ずにすんで、",
+       "新しい"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 雨の中を歩か → ずにすんで、 → 新しい → 靴がぬれなかった. Câu: 駅まで車で送ってもらったので、雨の中を歩かずにすんで、新しい靴がぬれなかった。 (Được chở đến ga bằng ô tô nên tôi không phải đi bộ dưới mưa, đôi giày mới không bị ướt). ★ = 「新しい」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "友達が先に払ってくれたので、私は払わずにすんだ。",
+      "options": [
+       "Bạn đã trả trước nên tôi không phải trả.",
+       "Bạn đã trả trước nhưng tôi vẫn phải trả.",
+       "Đã chuẩn bị rồi nên không cần lo lắng.",
+       "Tùy theo mùa mà các món ăn bày bán ở cửa hàng thay đổi."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「Vない bỏ ない ＋ ずにすむ」 (する → せずにすむ): may mắn không phải làm việc đáng lẽ phải làm. Câu này nghĩa là: “Bạn đã trả trước nên tôi không phải trả.”. Phương án “Bạn đã trả trước nhưng tôi vẫn phải trả.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "近道を見つけたので、長い時間歩かずにすんだ。",
+      "options": [
+       "Sáng nay tôi ăn quá nhiều bánh mì nên bụng khó chịu.",
+       "Tìm được đường tắt nên tôi không phải đi bộ lâu.",
+       "Không tìm được đường tắt nên tôi phải đi bộ lâu.",
+       "Hễ mùa xuân đến thì hoa nở."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「Vない bỏ ない ＋ ずにすむ」 (する → せずにすむ): may mắn không phải làm việc đáng lẽ phải làm. Câu này nghĩa là: “Tìm được đường tắt nên tôi không phải đi bộ lâu.”. Phương án “Không tìm được đường tắt nên tôi phải đi bộ lâu.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "友達が先に払ってくれたので、私は払わずにすんだ。",
+       "近道を見つけたので、長い時間歩かずにすんだ。",
+       "友達が手伝ってくれて、一人で荷物を運びずにすんだので、重い箱も早く片づいた。",
+       "駅まで車で送ってもらったので、雨の中を歩かずにすんで、新しい靴がぬれなかった。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「友達が手伝ってくれて、一人で荷物を運びずにすんだので、重い箱も早く片づいた。」 — ずに nối với thể ない bỏ ない: 運ばない → 「運ばずに」. Ba câu còn lại dùng đúng mẫu Vずにすむ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "友達が先に払ってくれたので、私は払わずにすんだ。",
+       "近道を見つけたので、長い時間歩かずにすんだ。",
+       "友達が手伝ってくれて、一人で荷物を運ばずにすんだので、重い箱も早く片づいた。",
+       "駅まで車で送ってもらったので、雨の中を歩かないずにすんで、新しい靴がぬれなかった。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「駅まで車で送ってもらったので、雨の中を歩かないずにすんで、新しい靴がぬれなかった。」 — Phải bỏ ない: 「歩かずにすんで」. Ba câu còn lại dùng đúng mẫu Vずにすむ."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "長く歩かずに",
+       "すんだ。",
+       "近道を見つけて、"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Tìm được đường tắt nên không phải đi bộ lâu."
+     },
+     {
+      "pieces": [
+       "ずにすんだ。",
+       "友達が払ってくれたので、",
+       "私は払わ"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Bạn đã trả nên tôi không phải trả."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "友達が先に払ってくれたので、私は＿＿ずにすんだ。",
+      "answer": "払わ",
+      "translation_vi": "Bạn đã trả trước nên tôi không phải trả."
+     },
+     {
+      "sentence_ja": "近道を見つけたので、長い時間＿＿ずにすんだ。",
+      "answer": "歩か",
+      "translation_vi": "Tìm được đường tắt nên tôi không phải đi bộ lâu."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "友達が手伝ってくれて、一人で荷物を（　　）ずにすんだので、重い箱も早く片づいた。",
+      "options": [
+       "運び",
+       "運ば",
+       "運ぶ",
+       "運んで"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「運ば」. 「Vない bỏ ない ＋ ずにすむ」 (する → せずにすむ): may mắn không phải làm việc đáng lẽ phải làm. ずに nối với thể ない bỏ ない: 運ばない → 運ばずに. Câu đầy đủ: 友達が手伝ってくれて、一人で荷物を運ばずにすんだので、重い箱も早く片づいた。 (Bạn giúp nên tôi không phải tự mình chuyển đồ, cả những thùng nặng cũng dọn xong nhanh)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "駅まで車で送ってもらったので、雨の中を（　　）ずにすんで、新しい靴がぬれなかった。",
+      "options": [
+       "歩き",
+       "歩く",
+       "歩か",
+       "歩いて"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「歩か」. 「Vない bỏ ない ＋ ずにすむ」 (する → せずにすむ): may mắn không phải làm việc đáng lẽ phải làm. ずに nối với thể ない bỏ ない: 払わない → 払わずにすんだ; các dạng khác không nối được. Câu đầy đủ: 駅まで車で送ってもらったので、雨の中を歩かずにすんで、新しい靴がぬれなかった。 (Được chở đến ga bằng ô tô nên tôi không phải đi bộ dưới mưa, đôi giày mới không bị ướt)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "友達が先に払ってくれたので、私は払うずにすんだ。",
+       "近道を見つけたので、長い時間歩かずにすんだ。",
+       "友達が手伝ってくれて、一人で荷物を運ばずにすんだので、重い箱も早く片づいた。",
+       "駅まで車で送ってもらったので、雨の中を歩かずにすんで、新しい靴がぬれなかった。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「友達が先に払ってくれたので、私は払うずにすんだ。」 — Không dùng thể từ điển; đúng là 「払わずにすんだ」. Ba câu còn lại dùng đúng mẫu Vずにすむ."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "友達が車を出してくれたので、歩かずにすんだ。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Không phải, thoát khỏi việc — May mắn không phải làm việc đáng lẽ phải làm.",
+    "pattern": "V-ない bỏ ない + ずにすむ",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "友達が先に払ってくれたので、私は払わずにすんだ。",
+      "answer_vi": "Bạn đã trả trước nên tôi không phải trả.",
+      "chapter": 18,
+      "context_vi": "Hoàn thành câu: Bạn đã trả trước nên tôi không phải trả.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "「ずにすんだ」 diễn đạt Không phải, thoát khỏi việc — May mắn không phải làm việc đáng lẽ phải làm. Các lựa chọn 「ないですんだ」 và 「ずにした」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-33d9824746",
+      "id": "LP-GRAMC-N3-C18-33d9824746-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "ないですんだ",
+       "ずにすんだ",
+       "ずにした",
+       "なくていた"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V-ない bỏ ない + ずにすむ",
+      "prompt_ja": "友達が先に払ってくれたので、私は払わ[ ]。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "近道を見つけて長く歩かずにすんだ。",
+      "answer_vi": "Tìm được đường tắt nên không phải đi bộ lâu.",
+      "chapter": 18,
+      "context_vi": "Sắp xếp thành câu: Tìm được đường tắt nên không phải đi bộ lâu.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「V-ない bỏ ない + ずにすむ」 với nghĩa Không phải, thoát khỏi việc — May mắn không phải làm việc đáng lẽ phải làm.",
+      "goal": "JLPT",
+      "grammar_id": "JG-33d9824746",
+      "id": "LP-GRAMC-N3-C18-33d9824746-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "長く歩かずに",
+       "すんだ。",
+       "近道を見つけて"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V-ない bỏ ない + ずにすむ",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-33d9824746"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "飲み物はお茶（　　）。",
+      "options": [
+       "にします",
+       "にあります",
+       "にいます",
+       "でします"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「にします」. 「N ＋ にする」: chọn, quyết định lấy một thứ trong các lựa chọn. Chọn lựa dùng 「Nにする」; 「にあります／にいます」 chỉ nơi chốn, 「でします」 sai trợ từ. Câu đầy đủ: 飲み物はお茶にします。 (Đồ uống thì tôi chọn trà)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "誕生日のプレゼントは、赤いかばん（　　）。",
+      "options": [
+       "にあった",
+       "にした",
+       "にいた",
+       "をした"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「にした」. 「N ＋ にする」: chọn, quyết định lấy một thứ trong các lựa chọn. Chọn quà dùng 「Nにした」; 「にあった／にいた」 chỉ sự tồn tại, 「をした」 sai trợ từ. Câu đầy đủ: 誕生日のプレゼントは、赤いかばんにした。 (Quà sinh nhật thì tôi đã chọn chiếc túi màu đỏ)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "迷ったけれど、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "切符を予約した",
+       "にしたので、",
+       "新幹線の",
+       "旅行先は京都"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 旅行先は京都 → にしたので、 → 新幹線の → 切符を予約した. Câu: 迷ったけれど、旅行先は京都にしたので、新幹線の切符を予約した。 (Phân vân mãi nhưng tôi đã chọn Kyoto làm nơi du lịch nên đã đặt vé tàu Shinkansen). ★ = 「新幹線の」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "飲み物は、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "ジュースは頼まなかった",
+       "温かいコーヒー",
+       "にしたので、",
+       "冷たい"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 温かいコーヒー → にしたので、 → 冷たい → ジュースは頼まなかった. Câu: 飲み物は、温かいコーヒーにしたので、冷たいジュースは頼まなかった。 (Đồ uống tôi chọn cà phê nóng nên không gọi nước ép lạnh). ★ = 「冷たい」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "飲み物はお茶にします。",
+      "options": [
+       "Đồ uống thì tôi chọn trà.",
+       "Đồ uống thì tôi không chọn trà.",
+       "Ở cửa hàng này, giá thay đổi tùy theo ngày.",
+       "Bài này khó quá nên không ai trả lời được."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「N ＋ にする」: chọn, quyết định lấy một thứ trong các lựa chọn. Câu này nghĩa là: “Đồ uống thì tôi chọn trà.”. Phương án “Đồ uống thì tôi không chọn trà.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "誕生日のプレゼントは、赤いかばんにした。",
+      "options": [
+       "Hễ ấn nút này thì cửa sẽ mở.",
+       "Quà sinh nhật thì tôi đã chọn chiếc túi màu đỏ.",
+       "Quà sinh nhật thì tôi vẫn chưa chọn được.",
+       "Tôi cố gắng hạn chế ăn đồ ngọt hết mức có thể."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「N ＋ にする」: chọn, quyết định lấy một thứ trong các lựa chọn. Câu này nghĩa là: “Quà sinh nhật thì tôi đã chọn chiếc túi màu đỏ.”. Phương án “Quà sinh nhật thì tôi vẫn chưa chọn được.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "飲み物はお茶にします。",
+       "誕生日のプレゼントは、赤いかばんにした。",
+       "迷ったけれど、旅行先は京都をしたので、新幹線の切符を予約した。",
+       "飲み物は、温かいコーヒーにしたので、冷たいジュースは頼まなかった。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「迷ったけれど、旅行先は京都をしたので、新幹線の切符を予約した。」 — Chọn lựa dùng trợ từ に: 「京都にした」. Ba câu còn lại dùng đúng mẫu Nにする."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "飲み物はお茶にします。",
+       "誕生日のプレゼントは、赤いかばんにした。",
+       "迷ったけれど、旅行先は京都にしたので、新幹線の切符を予約した。",
+       "飲み物は、温かいコーヒーにいたので、冷たいジュースは頼まなかった。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「飲み物は、温かいコーヒーにいたので、冷たいジュースは頼まなかった。」 — Chọn lựa là 「Nにする」, không dùng 「にいる」. Ba câu còn lại dùng đúng mẫu Nにする."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "うどんに",
+       "した。",
+       "昼ご飯は"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Bữa trưa tôi đã chọn mì udon."
+     },
+     {
+      "pieces": [
+       "した。",
+       "プレゼントは",
+       "赤いかばんに"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Quà tôi đã chọn chiếc túi màu đỏ."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "飲み物はお茶＿＿。",
+      "answer": "にします",
+      "translation_vi": "Đồ uống thì tôi chọn trà."
+     },
+     {
+      "sentence_ja": "誕生日のプレゼントは、赤いかばん＿＿。",
+      "answer": "にした",
+      "translation_vi": "Quà sinh nhật thì tôi đã chọn chiếc túi màu đỏ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "迷ったけれど、旅行先は京都（　　）ので、新幹線の切符を予約した。",
+      "options": [
+       "にあった",
+       "にした",
+       "にいた",
+       "をした"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「にした」. 「N ＋ にする」: chọn, quyết định lấy một thứ trong các lựa chọn. Chọn lựa dùng 「Nにする」; 「にあります／にいます」 chỉ nơi chốn, 「でします」 sai trợ từ. Câu đầy đủ: 迷ったけれど、旅行先は京都にしたので、新幹線の切符を予約した。 (Phân vân mãi nhưng tôi đã chọn Kyoto làm nơi du lịch nên đã đặt vé tàu Shinkansen)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "飲み物は、温かいコーヒー（　　）ので、冷たいジュースは頼まなかった。",
+      "options": [
+       "にあった",
+       "にいた",
+       "にした",
+       "をした"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「にした」. 「N ＋ にする」: chọn, quyết định lấy một thứ trong các lựa chọn. Chọn lựa dùng 「Nにする」; 「にあります／にいます」 chỉ nơi chốn, 「でします」 sai trợ từ. Câu đầy đủ: 飲み物は、温かいコーヒーにしたので、冷たいジュースは頼まなかった。 (Đồ uống tôi chọn cà phê nóng nên không gọi nước ép lạnh)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "飲み物はお茶をします。",
+       "誕生日のプレゼントは、赤いかばんにした。",
+       "迷ったけれど、旅行先は京都にしたので、新幹線の切符を予約した。",
+       "飲み物は、温かいコーヒーにしたので、冷たいジュースは頼まなかった。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「飲み物はお茶をします。」 — Phải là 「お茶にします」 (trợ từ に). Ba câu còn lại dùng đúng mẫu Nにする."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "私はコーヒーにします。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Chọn, quyết định lấy — Chọn một phương án trong nhiều lựa chọn.",
+    "pattern": "N + にする",
+    "pattern_variants": [
+     "〜にする・〜くする",
+     "〜にする・〜ことにする"
+    ],
+    "source_questions": [
+     {
+      "answer_ja": "飲み物はお茶にします。",
+      "answer_vi": "Tôi chọn trà làm đồ uống.",
+      "chapter": 19,
+      "context_vi": "Trong tình huống: Tôi chọn trà làm đồ uống.",
+      "correct_index": 4,
+      "correct_order": null,
+      "explanation_vi": "にします diễn đạt Chọn, quyết định lấy. にあります và にいます không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-7ca767f564",
+      "id": "LP-GRAMC-N3-C19-7ca767f564-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "にあります",
+       "にいます",
+       "になります",
+       "にします"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "N + にする",
+      "prompt_ja": "飲み物はお茶[ ]。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "昼ご飯はうどんにした。",
+      "answer_vi": "Tôi chọn mì udon cho bữa trưa.",
+      "chapter": 19,
+      "context_vi": "Sắp xếp câu để diễn đạt: Tôi chọn mì udon cho bữa trưa.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 昼ご飯はうどんにした。; mẫu N + にする diễn đạt Chọn, quyết định lấy.",
+      "goal": "JLPT",
+      "grammar_id": "JG-7ca767f564",
+      "id": "LP-GRAMC-N3-C19-7ca767f564-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "うどんに",
+       "した。",
+       "昼ご飯は"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "N + にする",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "部屋を明るくした。",
+      "answer_vi": "Tôi làm căn phòng sáng hơn.",
+      "chapter": 23,
+      "context_vi": "Hoàn thành câu: Tôi làm căn phòng sáng hơn.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "「くした」 diễn đạt Làm thay đổi trạng thái Các lựa chọn 「になった」 và 「でなった」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-8e1491f08f",
+      "id": "LP-GRAMC-N3-C23-8e1491f08f-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "になった",
+       "くした",
+       "でなった",
+       "くなった"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～にする・～くする",
+      "prompt_ja": "部屋を明る[ ]。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "私は髪を短くした。",
+      "answer_vi": "Tôi cắt tóc ngắn.",
+      "chapter": 23,
+      "context_vi": "Sắp xếp thành câu: Tôi cắt tóc ngắn.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～にする・～くする」 với nghĩa Làm thay đổi trạng thái",
+      "goal": "JLPT",
+      "grammar_id": "JG-8e1491f08f",
+      "id": "LP-GRAMC-N3-C23-8e1491f08f-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "短く",
+       "した。",
+       "私は髪を"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～にする・～くする",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "私はお茶にする。",
+      "answer_vi": "Tôi chọn trà.",
+      "chapter": 23,
+      "context_vi": "Hoàn thành câu: Tôi chọn trà.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "「にする」 diễn đạt Quyết định Các lựa chọn 「になる」 và 「にしたいだ」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-61f47b1b68",
+      "id": "LP-GRAMC-N3-C23-61f47b1b68-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "になる",
+       "にする",
+       "にしたいだ",
+       "のする"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～にする・～ことにする",
+      "prompt_ja": "私はお茶[ ]。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "今年は日本語を毎日勉強することにした。",
+      "answer_vi": "Năm nay tôi quyết định học tiếng Nhật mỗi ngày.",
+      "chapter": 23,
+      "context_vi": "Sắp xếp thành câu: Năm nay tôi quyết định học tiếng Nhật mỗi ngày.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～にする・～ことにする」 với nghĩa Quyết định",
+      "goal": "JLPT",
+      "grammar_id": "JG-61f47b1b68",
+      "id": "LP-GRAMC-N3-C23-61f47b1b68-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "日本語を毎日勉強する",
+       "ことにした。",
+       "今年は"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～にする・～ことにする",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-7ca767f564"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "旅行の予定（　　）話し合おう。",
+      "options": [
+       "について",
+       "に反して",
+       "にとって",
+       "に比べて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Đáp án 「について」. 「N ＋ について」: về, liên quan đến (chủ đề của việc nói, viết, suy nghĩ, điều tra). Chủ đề của 話し合う dùng 「について」; 「に反して／にとって／に比べて」 (trái với / đối với / so với) không hợp nghĩa. Câu đầy đủ: 旅行の予定について話し合おう。 (Chúng ta cùng bàn về kế hoạch du lịch nhé)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "友達と日本の食べ物（　　）話した。",
+      "options": [
+       "に反して",
+       "について",
+       "にとって",
+       "に比べて"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「について」. 「N ＋ について」: về, liên quan đến (chủ đề của việc nói, viết, suy nghĩ, điều tra). Chủ đề của 話し合う dùng 「について」; 「に反して／にとって／に比べて」 (trái với / đối với / so với) không hợp nghĩa. Câu đầy đủ: 友達と日本の食べ物について話した。 (Tôi đã nói chuyện với bạn về đồ ăn Nhật Bản)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "授業の後で、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "先生に聞いた",
+       "について、",
+       "担任の",
+       "明日の試験"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 明日の試験 → について、 → 担任の → 先生に聞いた. Câu: 授業の後で、明日の試験について、担任の先生に聞いた。 (Sau giờ học, tôi đã hỏi thầy chủ nhiệm về bài kiểm tra ngày mai). ★ = 「担任の」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "この本には、＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "説明が書いてある",
+       "この町の歴史",
+       "について、",
+       "詳しい"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: この町の歴史 → について、 → 詳しい → 説明が書いてある. Câu: この本には、この町の歴史について、詳しい説明が書いてある。 (Trong cuốn sách này có giải thích chi tiết về lịch sử của thị trấn này). ★ = 「詳しい」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "旅行の予定について話し合おう。",
+      "options": [
+       "Chúng ta cùng bàn về kế hoạch du lịch nhé.",
+       "Chúng ta đi du lịch theo đúng kế hoạch nhé.",
+       "Hễ mùa xuân đến thì hoa nở.",
+       "Vì sức khỏe, tôi cố gắng ngày nào cũng ngủ sớm."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "「N ＋ について」: về, liên quan đến (chủ đề của việc nói, viết, suy nghĩ, điều tra). Câu này nghĩa là: “Chúng ta cùng bàn về kế hoạch du lịch nhé.”. Phương án “Chúng ta đi du lịch theo đúng kế hoạch nhé.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "友達と日本の食べ物について話した。",
+      "options": [
+       "Bạn đã trả trước nên tôi không phải trả.",
+       "Tôi đã nói chuyện với bạn về đồ ăn Nhật Bản.",
+       "Tôi đã ăn đồ ăn Nhật Bản cùng bạn.",
+       "Đồ uống thì tôi chọn trà."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "「N ＋ について」: về, liên quan đến (chủ đề của việc nói, viết, suy nghĩ, điều tra). Câu này nghĩa là: “Tôi đã nói chuyện với bạn về đồ ăn Nhật Bản.”. Phương án “Tôi đã ăn đồ ăn Nhật Bản cùng bạn.” sai nội dung; hai phương án còn lại không liên quan đến câu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "旅行の予定について話し合おう。",
+       "友達と日本の食べ物について話した。",
+       "授業の後で、明日の試験をついて、担任の先生に聞いた。",
+       "この本には、この町の歴史について、詳しい説明が書いてある。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu sai: 「授業の後で、明日の試験をついて、担任の先生に聞いた。」 — Mẫu dùng trợ từ に: 「試験について」. Ba câu còn lại dùng đúng mẫu Nについて."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "旅行の予定について話し合おう。",
+       "友達と日本の食べ物について話した。",
+       "授業の後で、明日の試験について、担任の先生に聞いた。",
+       "この本には、この町の歴史のについて、詳しい説明が書いてある。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu sai: 「この本には、この町の歴史のについて、詳しい説明が書いてある。」 — Danh từ nối trực tiếp với について, không thêm の. Ba câu còn lại dùng đúng mẫu Nについて."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "について",
+       "友達と話した。",
+       "旅行の計画"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Tôi đã nói chuyện với bạn về kế hoạch du lịch."
+     },
+     {
+      "pieces": [
+       "レポートを書いた。",
+       "日本の文化",
+       "について"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Tôi đã viết báo cáo về văn hóa Nhật Bản."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "旅行の予定＿＿話し合おう。",
+      "answer": "について",
+      "accept": [
+       "に関して"
+      ],
+      "translation_vi": "Chúng ta cùng bàn về kế hoạch du lịch nhé."
+     },
+     {
+      "sentence_ja": "友達と日本の食べ物＿＿話した。",
+      "answer": "について",
+      "accept": [
+       "に関して"
+      ],
+      "translation_vi": "Tôi đã nói chuyện với bạn về đồ ăn Nhật Bản."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "授業の後で、明日の試験（　　）、担任の先生に聞いた。",
+      "options": [
+       "に反して",
+       "について",
+       "にとって",
+       "に比べて"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đáp án 「について」. 「N ＋ について」: về, liên quan đến (chủ đề của việc nói, viết, suy nghĩ, điều tra). Chủ đề của 話し合う dùng 「について」; 「に反して／にとって／に比べて」 (trái với / đối với / so với) không hợp nghĩa. Câu đầy đủ: 授業の後で、明日の試験について、担任の先生に聞いた。 (Sau giờ học, tôi đã hỏi thầy chủ nhiệm về bài kiểm tra ngày mai)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "この本には、この町の歴史（　　）、詳しい説明が書いてある。",
+      "options": [
+       "に反して",
+       "にとって",
+       "について",
+       "に比べて"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đáp án 「について」. 「N ＋ について」: về, liên quan đến (chủ đề của việc nói, viết, suy nghĩ, điều tra). Chủ đề của 話し合う dùng 「について」; 「に反して／にとって／に比べて」 (trái với / đối với / so với) không hợp nghĩa. Câu đầy đủ: この本には、この町の歴史について、詳しい説明が書いてある。 (Trong cuốn sách này có giải thích chi tiết về lịch sử của thị trấn này)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "旅行の予定にとって話し合おう。",
+       "友達と日本の食べ物について話した。",
+       "授業の後で、明日の試験について、担任の先生に聞いた。",
+       "この本には、この町の歴史について、詳しい説明が書いてある。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu sai: 「旅行の予定にとって話し合おう。」 — 「にとって」 là 'đối với'; chủ đề bàn bạc phải dùng 「について」. Ba câu còn lại dùng đúng mẫu Nについて."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "日本の文化について発表します。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Về, liên quan đến — Nêu chủ đề của việc nói, nghe, viết, suy nghĩ hay điều tra.",
+    "pattern": "N + について",
+    "pattern_variants": [
+     "〜について/〜につき",
+     "〜について...",
+     "〜について"
+    ],
+    "source_questions": [
+     {
+      "answer_ja": "旅行の予定について話し合おう。",
+      "answer_vi": "Chúng ta bàn về kế hoạch du lịch nhé.",
+      "chapter": 19,
+      "context_vi": "Trong tình huống: Chúng ta bàn về kế hoạch du lịch nhé.",
+      "correct_index": 3,
+      "correct_order": null,
+      "explanation_vi": "について diễn đạt Về, liên quan đến. に比べて và に加えて không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-90fc35416c",
+      "id": "LP-GRAMC-N3-C19-90fc35416c-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "に加えて",
+       "にとって",
+       "について",
+       "に比べて"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "N + について",
+      "prompt_ja": "旅行の予定[ ]話し合おう。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "旅行の計画について友達と話した。",
+      "answer_vi": "Tôi đã bàn với bạn về kế hoạch du lịch.",
+      "chapter": 19,
+      "context_vi": "Sắp xếp câu để diễn đạt: Tôi đã bàn với bạn về kế hoạch du lịch.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo thứ tự để tạo câu đúng. Mẫu 「N + について」 được dùng trong câu 「旅行の計画について友達と話した。」, nghĩa là: Tôi đã bàn với bạn về kế hoạch du lịch.",
+      "goal": "JLPT",
+      "grammar_id": "JG-90fc35416c",
+      "id": "LP-GRAMC-N3-C19-90fc35416c-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "友達と",
+       "話した。",
+       "旅行の計画について"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "N + について",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "友だちと日本の食べ物について話した。",
+      "answer_vi": "Tôi đã nói với bạn về đồ ăn Nhật Bản.",
+      "chapter": 4,
+      "context_vi": "Điền vào chỗ trống: Tôi đã nói với bạn về đồ ăn Nhật Bản.",
+      "correct_index": 4,
+      "correct_order": null,
+      "explanation_vi": "について nêu chủ đề được nói đến.",
+      "goal": "JLPT",
+      "grammar_id": "JG-4d9cf59afe",
+      "id": "LP-GRAMC-N3-C04-4d9cf59afe-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "に比べて",
+       "に加えて",
+       "に対して",
+       "について"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～について／～につき",
+      "prompt_ja": "友だちと日本の食べ物[ ]話した。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "旅行の予定について友達と話し合った。",
+      "answer_vi": "Tôi bàn với bạn về kế hoạch du lịch.",
+      "chapter": 4,
+      "context_vi": "Sắp xếp câu để diễn đạt: Tôi bàn với bạn về kế hoạch du lịch.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 旅行の予定について友達と話し合った。; mẫu ～について／～につき diễn đạt Về …; liên quan đến ….",
+      "goal": "JLPT",
+      "grammar_id": "JG-4d9cf59afe",
+      "id": "LP-GRAMC-N3-C04-4d9cf59afe-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "友達と",
+       "話し合った。",
+       "旅行の予定について"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～について／～につき",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "旅行の計画について話し合った。",
+      "answer_vi": "Chúng tôi bàn về kế hoạch du lịch.",
+      "chapter": 18,
+      "context_vi": "Hoàn thành câu: Chúng tôi bàn về kế hoạch du lịch.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "「について」 diễn đạt Làm … về nội dung ~/ có liên quan đến ~. Các lựa chọn 「にかわって」 và 「をこめて」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-425064091c",
+      "id": "LP-GRAMC-N3-C18-425064091c-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "にかわって",
+       "について",
+       "をこめて",
+       "にともなって"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～について…",
+      "prompt_ja": "旅行の計画[ ]話し合った。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "この本について感想を書いた。",
+      "answer_vi": "Tôi viết cảm tưởng về cuốn sách này.",
+      "chapter": 18,
+      "context_vi": "Sắp xếp thành câu: Tôi viết cảm tưởng về cuốn sách này.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～について…」 với nghĩa Làm … về nội dung ~/ có liên quan đến ~.",
+      "goal": "JLPT",
+      "grammar_id": "JG-425064091c",
+      "id": "LP-GRAMC-N3-C18-425064091c-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "感想を",
+       "書いた。",
+       "この本について"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～について…",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "この町の歴史について調べている。",
+      "answer_vi": "Tôi đang tìm hiểu lịch sử thành phố này.",
+      "chapter": 19,
+      "context_vi": "Trong tình huống: Tôi đang tìm hiểu lịch sử thành phố này.",
+      "correct_index": 4,
+      "correct_order": null,
+      "explanation_vi": "について diễn đạt Liên quan đến ~, về ~. に比べて và に加えて không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-5d8618e957",
+      "id": "LP-GRAMC-N3-C19-5d8618e957-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "に比べて",
+       "に加えて",
+       "にとって",
+       "について"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～について",
+      "prompt_ja": "この町の歴史[ ]調べている。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "試験について先生と話した。",
+      "answer_vi": "Tôi đã nói với thầy về kỳ thi.",
+      "chapter": 19,
+      "context_vi": "Sắp xếp câu để diễn đạt: Tôi đã nói với thầy về kỳ thi.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 試験について先生と話した。; mẫu ～について diễn đạt Liên quan đến ~, về ~.",
+      "goal": "JLPT",
+      "grammar_id": "JG-5d8618e957",
+      "id": "LP-GRAMC-N3-C19-5d8618e957-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "先生と",
+       "話した。",
+       "試験について"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～について",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-90fc35416c"
+  }
+ ],
+ "kind": "GRAMMAR_BANK",
+ "level": "N3",
+ "packet_id": "GRAMMAR_BANK-017"
+}

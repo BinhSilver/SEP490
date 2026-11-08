@@ -1,0 +1,1094 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "まさか、この町で彼女に会うとは思わなかった。",
+       "ja_furigana": "まさか、この町(まち)で彼女(かのじょ)に会(あ)うとは思(おも)わなかった。",
+       "vi": "Không ngờ lại gặp cô ấy ở thị trấn này."
+      },
+      {
+       "ja": "あの無口な山田さんが司会を務めるとは、誰も思っていなかった。",
+       "ja_furigana": "あの無口(むくち)な山田(やまだ)さんが司会(しかい)を務(つと)めるとは、誰(だれ)も思(おも)っていなかった。",
+       "source": "AI",
+       "vi": "Không ai nghĩ anh Yamada ít nói đó lại làm người dẫn chương trình."
+      },
+      {
+       "ja": "民主主義とは、国民が主権を持つ政治のあり方のことである。",
+       "ja_furigana": "民主主義(みんしゅしゅぎ)とは、国民(こくみん)が主権(しゅけん)を持(も)つ政治(せいじ)のあり方(かた)のことである。",
+       "source": "AI",
+       "vi": "Dân chủ là cách thức chính trị mà người dân nắm chủ quyền."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「とは」: thể thường + とは, lược vế sau, bày tỏ sự kinh ngạc về điều không ngờ. からには, ものの, 以上 đều cần vế sau nên không kết câu được. Nghĩa: Không ngờ anh Tanaka nghiêm túc như thế lại ăn cắp tiền công ty.",
+      "options": [
+       "からには",
+       "とは",
+       "ものの",
+       "以上"
+      ],
+      "prompt_ja": "まさかあの真面目な田中さんが、会社のお金を盗む（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「とは」: N + とは 〜のことだ dùng để nêu định nghĩa. Nghĩa: 'Blog' là thứ giống như nhật ký được công khai trên mạng internet.",
+      "options": [
+       "だけに",
+       "にしては",
+       "からして",
+       "とは"
+      ],
+      "prompt_ja": "「ブログ」（　　）、インターネット上で公開する日記のようなもののことだ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 十年ぶりに会った友だちがもう三人の子どもの親だとは驚いた。 (Người bạn mười năm mới gặp lại đã là bố của ba đứa con, tôi thật ngạc nhiên.). Mảnh ở ô ★ là 「とは」.",
+      "options": [
+       "驚いた",
+       "とは",
+       "もう",
+       "三人の子どもの親だ"
+      ],
+      "prompt_ja": "十年ぶりに会った友だちが＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 「猫舌」とは熱い食べ物が苦手なことだ。 ('Lưỡi mèo' là việc không ăn được đồ nóng.). Mảnh ở ô ★ là 「熱い食べ物が」.",
+      "options": [
+       "苦手な",
+       "ことだ",
+       "熱い食べ物が",
+       "とは"
+      ],
+      "prompt_ja": "「猫舌」＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu dùng mẫu 〜とは (thế mà lại, bày tỏ kinh ngạc): \"Luyện tập nhiều đến thế mà lại thua ngay vòng một, thật không ngờ.\"",
+      "options": [
+       "Luyện tập nhiều đến thế mà lại thua ngay vòng một, thật không ngờ.",
+       "Vì luyện tập nhiều nên thắng vòng một là đương nhiên.",
+       "Nếu luyện tập nhiều hơn thì đã không thua ở vòng một.",
+       "Thua ở vòng một nên phải luyện tập nhiều hơn."
+      ],
+      "prompt_ja": "あんなに練習したのに一回戦で負けるとは。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu dùng mẫu N + とは (cái gọi là..., nêu định nghĩa): \"'Nhất kỳ nhất hội' có nghĩa là trân trọng cuộc gặp gỡ chỉ có một lần trong đời.\"",
+      "options": [
+       "'Nhất kỳ nhất hội' là câu nói chỉ dùng trong lễ hội.",
+       "'Nhất kỳ nhất hội' có nghĩa là trân trọng cuộc gặp gỡ chỉ có một lần trong đời.",
+       "Tôi không biết 'nhất kỳ nhất hội' có nghĩa là gì.",
+       "Cả đời chỉ nên gặp mỗi người một lần."
+      ],
+      "prompt_ja": "「一期一会」とは、一生に一度の出会いを大切にするという意味だ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "「彼が会社を辞めるだとは思わなかった。」 sai: động từ ở thể thường nối thẳng với とは, không thêm だ. Câu đúng: 彼が会社を辞めるとは思わなかった。",
+      "options": [
+       "あの無口な山田さんが司会をするとは、誰も思わなかった。",
+       "「猫舌」とは、熱い食べ物が苦手なことだ。",
+       "彼が会社を辞めるだとは思わなかった。",
+       "あんなに練習したのに一回戦で負けるとは。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「彼女がプロの歌手なとは知らなかった。」 sai: trước とは danh từ để nguyên hoặc ở thể thường N だ, không dùng な. Câu đúng: 彼女がプロの歌手だとは知らなかった。",
+      "options": [
+       "彼女がプロの歌手なとは知らなかった。",
+       "まさか自分が宝くじに当たるとは。",
+       "「ブログ」とは、インターネット上で公開する日記のようなものだ。",
+       "十年ぶりに会った友だちがもう親だとは驚いた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Khi bày tỏ ngạc nhiên, vế sau thường được lược đi hay là 〜とは思わなかった, 信じられない, 驚いた. Đừng nhầm với trợ từ と + は thông thường; nghĩa định nghĩa thì thường kết thúc bằng のことだ.",
+    "examples": [
+     {
+      "ja": "彼が辞めるとは思わなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "あの無口な山田さんが司会を務めるとは、誰も思っていなかった。",
+      "ja_furigana": "あの無口(むくち)な山田(やまだ)さんが司会(しかい)を務(つと)めるとは、誰(だれ)も思(おも)っていなかった。",
+      "source": "AI",
+      "vi": "Không ai nghĩ anh Yamada ít nói đó lại làm người dẫn chương trình."
+     },
+     {
+      "ja": "民主主義とは、国民が主権を持つ政治のあり方のことである。",
+      "ja_furigana": "民主主義(みんしゅしゅぎ)とは、国民(こくみん)が主権(しゅけん)を持(も)つ政治(せいじ)のあり方(かた)のことである。",
+      "source": "AI",
+      "vi": "Dân chủ là cách thức chính trị mà người dân nắm chủ quyền."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「とは」: thể thường + とは nêu điều đáng kinh ngạc rồi vế sau bày tỏ cảm xúc (本当にすごい). Nghĩa: Chỉ một năm mà tiếng Nhật giỏi đến thế này, thật là đáng nể.",
+      "options": [
+       "ものの",
+       "からには",
+       "とは",
+       "ばかりに"
+      ],
+      "prompt_ja": "たった一年で日本語がこんなに上手になる（　　）、本当にすごい。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu dùng mẫu 〜とは (thế mà lại, bày tỏ kinh ngạc): \"Không ngờ chính mình lại trúng xổ số.\"",
+      "options": [
+       "Tôi chắc chắn mình sẽ trúng xổ số.",
+       "Tôi chưa bao giờ mua vé xổ số.",
+       "Nếu trúng xổ số thì tôi sẽ rất vui.",
+       "Không ngờ chính mình lại trúng xổ số."
+      ],
+      "prompt_ja": "まさか自分が宝くじに当たるとは。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「日本へ行くとは、パスポートが必要だ。」 sai: とは dùng để bày tỏ kinh ngạc hoặc nêu định nghĩa, không mang nghĩa điều kiện 'nếu'. Câu đúng: 日本へ行くには、パスポートが必要だ。",
+      "options": [
+       "あの優しい課長があんなに怒るとは驚いた。",
+       "日本へ行くとは、パスポートが必要だ。",
+       "「リモートワーク」とは、会社以外の場所で働くことだ。",
+       "まさか自分が宝くじに当たるとは。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "なんて"
+      ],
+      "answer": "とは",
+      "sentence_ja": "あの優しい課長が、あんなに怒る＿＿驚いた。",
+      "translation_vi": "Tôi ngạc nhiên vì trưởng nhóm hiền lành đó lại nổi giận đến thế."
+     },
+     {
+      "accept": [
+       "というのは",
+       "って"
+      ],
+      "answer": "とは",
+      "sentence_ja": "「リモートワーク」＿＿、会社以外の場所で働くことだ。",
+      "translation_vi": "'Làm việc từ xa' là làm việc ở nơi khác ngoài công ty."
+     }
+    ],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 彼が辞めるとは思わなかった。",
+     "FURIGANA_MISSING: 彼が辞めるとは思わなかった。"
+    ],
+    "formation": "Thể thường + とは; N + とは",
+    "locked_fields": [],
+    "meaning_vi": "Thế mà lại, cái gọi là — Bày tỏ kinh ngạc, hoặc nêu định nghĩa.",
+    "nuance_vi": "Dùng cả văn nói lẫn viết; bày tỏ sự kinh ngạc về điều không ngờ, hoặc nêu định nghĩa dạng 'N là…'.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       0,
+       1
+      ],
+      "pieces": [
+       "とは",
+       "思わなかった。",
+       "こんなに",
+       "雪が積もる"
+      ],
+      "translation_vi": "Tôi không ngờ tuyết lại dày đến thế này."
+     },
+     {
+      "answer_order": [
+       2,
+       1,
+       3,
+       0
+      ],
+      "pieces": [
+       "ことである。",
+       "一年中",
+       "常夏とは",
+       "夏のような気候が続く"
+      ],
+      "translation_vi": "'Thường hạ' là việc khí hậu như mùa hè kéo dài suốt cả năm."
+     }
+    ],
+    "pattern": "とは",
+    "pattern_variants": [
+     "N + とは"
+    ],
+    "unit_no": 19,
+    "unit_title_vi": null,
+    "usage_vi": "Nghĩa kinh ngạc thường bỏ lửng cuối câu. Nghĩa định nghĩa hay gặp trong từ điển."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-faea0bfbce"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "皆様のご健康とご活躍を願ってやみません。",
+       "ja_furigana": "皆様(みなさま)のご健康(けんこう)とご活躍(かつやく)を願(ねが)ってやみません。",
+       "vi": "Tôi tha thiết cầu chúc mọi người sức khỏe và thành công."
+      },
+      {
+       "ja": "故郷の復興が一日も早く進むことを願ってやまない。",
+       "ja_furigana": "故郷(こきょう)の復興(ふっこう)が一日(いちにち)も早(はや)く進(すす)むことを願(ねが)ってやまない。",
+       "source": "AI",
+       "vi": "Tôi tha thiết mong sự phục hưng của quê hương tiến triển càng sớm càng tốt."
+      },
+      {
+       "ja": "私が尊敬してやまない先生が、今年で退職される。",
+       "ja_furigana": "私(わたし)が尊敬(そんけい)してやまない先生(せんせい)が、今年(ことし)で退職(たいしょく)される。",
+       "source": "AI",
+       "vi": "Thầy giáo mà tôi luôn kính trọng sẽ nghỉ hưu vào năm nay."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「てやみません」: V-て + やみません là dạng lịch sự của てやまない, diễn tả mong ước tha thiết không dứt, hay dùng ở cuối thư, bài phát biểu. Nghĩa: Tôi xin chân thành cầu chúc quý vị luôn mạnh khỏe và thành công.",
+      "options": [
+       "てなりません",
+       "てかまいません",
+       "てやみません",
+       "てたまりません"
+      ],
+      "prompt_ja": "皆様のご健康とご活躍を心よりお祈りし（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「願ってやまない」: hình thức đúng là V-て + やまない; các phương án kia sai cách nối hoặc ở dạng khẳng định. Nghĩa: Tôi tha thiết mong người dân thị trấn này được sống trong hòa bình.",
+      "options": [
+       "願ってやまない",
+       "願うにやまない",
+       "願ってやむ",
+       "願わずやまない"
+      ],
+      "prompt_ja": "私は、この町の人々が平和に暮らせることを（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 彼は今でも亡くなった恩師を尊敬してやまない。 (Đến giờ anh ấy vẫn luôn kính trọng người thầy đã khuất.). Mảnh ở ô ★ là 「尊敬して」.",
+      "options": [
+       "やまない",
+       "尊敬して",
+       "恩師を",
+       "亡くなった"
+      ],
+      "prompt_ja": "彼は今でも＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 子どもたちの未来が明るいものであることを信じてやまない。 (Tôi luôn tin tha thiết rằng tương lai của bọn trẻ sẽ tươi sáng.). Mảnh ở ô ★ là 「あることを」.",
+      "options": [
+       "信じて",
+       "やまない",
+       "あることを",
+       "明るいもので"
+      ],
+      "prompt_ja": "子どもたちの未来が＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu dùng mẫu 〜てやまない (tình cảm mạnh, không dứt): \"Đây là bản nhạc nổi tiếng được nhiều người yêu mến không dứt.\"",
+      "options": [
+       "Đây là bản nhạc mà nhiều người đã thôi không còn yêu thích.",
+       "Đây là bản nhạc nổi tiếng được nhiều người yêu mến không dứt.",
+       "Nhiều người muốn bản nhạc này ngừng phát.",
+       "Đây là bản nhạc mà tôi không thể ngừng nghe."
+      ],
+      "prompt_ja": "これは多くの人に愛されてやまない名曲だ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu dùng mẫu 〜てやまない (tình cảm mạnh, không dứt), dạng lịch sự 〜てやみません: \"Tôi tha thiết mong quý vị ngày càng phát triển.\"",
+      "options": [
+       "Tôi không mong quý vị phát triển thêm nữa.",
+       "Quý vị đã phát triển đến mức không thể hơn được nữa.",
+       "Tôi đã ngừng mong ước cho sự phát triển của quý vị.",
+       "Tôi tha thiết mong quý vị ngày càng phát triển."
+      ],
+      "prompt_ja": "皆様のますますのご発展を願ってやみません。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「私は毎朝コーヒーを飲んでやまない。」 sai: てやまない chỉ đi với động từ tình cảm, mong ước (願う, 祈る, 愛する, 尊敬する), không dùng cho hành động thường ngày. Câu đúng: 私は毎朝コーヒーを飲まずにはいられない。",
+      "options": [
+       "私は毎朝コーヒーを飲んでやまない。",
+       "故郷の復興が早く進むことを願ってやまない。",
+       "私が尊敬してやまない先生が今年退職される。",
+       "子どもたちの未来が明るいことを信じてやまない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "「私は彼の成功を祈るやまない。」 sai: trước やまない phải là thể て. Câu đúng: 私は彼の成功を祈ってやまない。",
+      "options": [
+       "皆様のご健康を心よりお祈りしてやみません。",
+       "多くの人に愛されてやまない名曲だ。",
+       "彼は亡くなった恩師を今でも尊敬してやまない。",
+       "私は彼の成功を祈るやまない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Chỉ đi với động từ cảm xúc hay mong muốn (願う, 祈る, 愛する, 尊敬する), không dùng với hành động thường (sai: 食べてやまない). Chủ yếu dùng cho ngôi thứ nhất.",
+    "examples": [
+     {
+      "ja": "ご成功を願ってやみません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "故郷の復興が一日も早く進むことを願ってやまない。",
+      "ja_furigana": "故郷(こきょう)の復興(ふっこう)が一日(いちにち)も早(はや)く進(すす)むことを願(ねが)ってやまない。",
+      "source": "AI",
+      "vi": "Tôi tha thiết mong sự phục hưng của quê hương tiến triển càng sớm càng tốt."
+     },
+     {
+      "ja": "私が尊敬してやまない先生が、今年で退職される。",
+      "ja_furigana": "私(わたし)が尊敬(そんけい)してやまない先生(せんせい)が、今年(ことし)で退職(たいしょく)される。",
+      "source": "AI",
+      "vi": "Thầy giáo mà tôi luôn kính trọng sẽ nghỉ hưu vào năm nay."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「てやまない」: V-て + やまない bổ nghĩa cho 作家, chỉ tình cảm yêu mến kéo dài không dứt. Nghĩa: Nhà văn luôn được đông đảo độc giả yêu mến đã qua đời hôm qua.",
+      "options": [
+       "に足る",
+       "てやまない",
+       "極まりない",
+       "といったらない"
+      ],
+      "prompt_ja": "多くの読者に愛され（　　）作家が、昨日亡くなった。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu dùng mẫu 〜てやまない (tình cảm mạnh, không dứt): \"Cô ấy luôn tin chắc rằng giấc mơ của mình một ngày nào đó sẽ thành hiện thực.\"",
+      "options": [
+       "Cô ấy luôn tin chắc rằng giấc mơ của mình một ngày nào đó sẽ thành hiện thực.",
+       "Cô ấy đã thôi tin vào giấc mơ của mình.",
+       "Cô ấy không dám nói với ai về giấc mơ của mình.",
+       "Giấc mơ của cô ấy đã thành hiện thực từ lâu."
+      ],
+      "prompt_ja": "彼女は、自分の夢がいつか叶うと信じてやまなかった。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "「昨日は友だちと映画を見てやまなかった。」 sai: てやまない không đi với hành động cụ thể như 見る, chỉ dùng cho tình cảm, mong ước kéo dài. Câu đúng: 昨日は友だちと映画を見た。",
+      "options": [
+       "私は友人の早い回復を願ってやまない。",
+       "母は息子の無事を信じてやまなかった。",
+       "昨日は友だちと映画を見てやまなかった。",
+       "私が愛してやまないふるさとの海は今日も美しい。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "やまない",
+       "止みません"
+      ],
+      "answer": "やみません",
+      "sentence_ja": "皆様のご健康を心よりお祈りして＿＿。",
+      "translation_vi": "Tôi xin chân thành cầu chúc quý vị luôn mạnh khỏe."
+     },
+     {
+      "answer": "て",
+      "sentence_ja": "母は、息子が無事に帰ってくることを信じ＿＿やまなかった。",
+      "translation_vi": "Mẹ đã luôn tin chắc rằng con trai sẽ trở về bình an."
+     }
+    ],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: ご成功を願ってやみません。",
+     "FURIGANA_MISSING: ご成功を願ってやみません。"
+    ],
+    "formation": "V-て + やまない (願う, 祈る, 信じる, 期待する, 尊敬する...)",
+    "locked_fields": [],
+    "meaning_vi": "Không ngừng, tha thiết — Tình cảm mạnh mẽ kéo dài không dứt.",
+    "nuance_vi": "Văn viết hoặc lời nói trang trọng; diễn tả tình cảm mạnh mẽ của người nói kéo dài không dứt, dạng lịch sự là 〜てやみません.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       1,
+       0
+      ],
+      "pieces": [
+       "やまない。",
+       "願って",
+       "友人の早い回復を"
+      ],
+      "translation_vi": "Tôi tha thiết mong bạn mình sớm bình phục."
+     },
+     {
+      "answer_order": [
+       3,
+       0,
+       1,
+       2,
+       4
+      ],
+      "pieces": [
+       "愛して",
+       "やまない",
+       "ふるさとの海は",
+       "私が",
+       "今日も美しい。"
+      ],
+      "translation_vi": "Biển quê hương mà tôi luôn yêu tha thiết hôm nay vẫn đẹp."
+     }
+    ],
+    "pattern": "〜て止(や)まない",
+    "pattern_variants": [
+     "V-て + やまない",
+     "〜てやまない"
+    ],
+    "unit_no": 20,
+    "unit_title_vi": null,
+    "usage_vi": "Chỉ dùng với động từ chỉ cảm xúc: 願う, 愛する, 期待する."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-05dee881b7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "被災地の映像を見て、涙を禁じ得なかった。",
+       "ja_furigana": "被災地(ひさいち)の映像(えいぞう)を見(み)て、涙(なみだ)を禁(きん)じ得(え)なかった。",
+       "vi": "Xem cảnh quay vùng thiên tai, tôi không kìm được nước mắt."
+      },
+      {
+       "ja": "被害者の話を聞き、怒りを禁じ得なかった。",
+       "ja_furigana": "被害者(ひがいしゃ)の話(はなし)を聞(き)き、怒(いか)りを禁(きん)じ得(え)なかった。",
+       "source": "AI",
+       "vi": "Nghe câu chuyện của nạn nhân, tôi không kìm được cơn giận."
+      },
+      {
+       "ja": "彼の最後のスピーチには、会場の誰もが涙を禁じ得なかった。",
+       "ja_furigana": "彼(かれ)の最後(さいご)のスピーチには、会場(かいじょう)の誰(だれ)もが涙(なみだ)を禁(きん)じ得(え)なかった。",
+       "source": "AI",
+       "vi": "Trước bài phát biểu cuối cùng của anh ấy, ai trong hội trường cũng không cầm được nước mắt."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ đi sau danh từ chỉ cảm xúc hay phản ứng như 涙, 怒り, 同情, 驚き. Đừng nhầm với 禁ずる (cấm). So với ずにはいられない thì cứng hơn và thiên về văn viết.",
+    "examples": [
+     {
+      "ja": "その話を聞いて涙を禁じ得なかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "被害者の話を聞き、怒りを禁じ得なかった。",
+      "ja_furigana": "被害者(ひがいしゃ)の話(はなし)を聞(き)き、怒(いか)りを禁(きん)じ得(え)なかった。",
+      "source": "AI",
+      "vi": "Nghe câu chuyện của nạn nhân, tôi không kìm được cơn giận."
+     },
+     {
+      "ja": "彼の最後のスピーチには、会場の誰もが涙を禁じ得なかった。",
+      "ja_furigana": "彼(かれ)の最後(さいご)のスピーチには、会場(かいじょう)の誰(だれ)もが涙(なみだ)を禁(きん)じ得(え)なかった。",
+      "source": "AI",
+      "vi": "Trước bài phát biểu cuối cùng của anh ấy, ai trong hội trường cũng không cầm được nước mắt."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: その話を聞いて涙を禁じ得なかった。",
+     "FURIGANA_MISSING: その話を聞いて涙を禁じ得なかった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + を禁じ得ない (怒り, 涙, 同情, 驚き, 笑い...)",
+    "locked_fields": [],
+    "meaning_vi": "Không kìm được — Không thể nén được cảm xúc trào lên.",
+    "nuance_vi": "Văn viết, trang trọng; diễn tả cảm xúc tự nhiên dâng lên mạnh đến mức không thể kìm nén.",
+    "order_items": [],
+    "pattern": "を禁(きん)じ得(え)ない",
+    "pattern_variants": [
+     "N + を禁じ得ない",
+     "〜を禁じ得ない"
+    ],
+    "unit_no": 20,
+    "unit_title_vi": null,
+    "usage_vi": "Chỉ dùng với danh từ chỉ cảm xúc: 涙, 怒り, 同情. Văn viết trang trọng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1f6e8dbd43"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大雨で、祭りは延期を余儀なくされた。",
+       "ja_furigana": "大雨(おおあめ)で、祭(まつ)りは延期(えんき)を余儀(よぎ)なくされた。",
+       "vi": "Vì mưa lớn, lễ hội buộc phải hoãn lại."
+      },
+      {
+       "ja": "不況の影響で、多くの中小企業が事業の縮小を余儀なくされた。",
+       "ja_furigana": "不況(ふきょう)の影響(えいきょう)で、多(おお)くの中小企業(ちゅうしょうきぎょう)が事業(じぎょう)の縮小(しゅくしょう)を余儀(よぎ)なくされた。",
+       "source": "AI",
+       "vi": "Do ảnh hưởng của suy thoái, nhiều doanh nghiệp vừa và nhỏ buộc phải thu hẹp kinh doanh."
+      },
+      {
+       "ja": "彼は病気のため、長年続けた仕事を辞めることを余儀なくされた。",
+       "ja_furigana": "彼(かれ)は病気(びょうき)のため、長年(ながねん)続(つづ)けた仕事(しごと)を辞(や)めることを余儀(よぎ)なくされた。",
+       "source": "AI",
+       "vi": "Vì bệnh tật, anh ấy buộc phải nghỉ công việc đã làm nhiều năm."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không dùng cho việc tự nguyện; nguyên nhân phải là hoàn cảnh bên ngoài. Dạng bị động され là cố định; nếu chủ ngữ là tác nhân gây ra thì dùng を余儀なくさせる.",
+    "examples": [
+     {
+      "ja": "台風で試合は中止を余儀なくされた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "不況の影響で、多くの中小企業が事業の縮小を余儀なくされた。",
+      "ja_furigana": "不況(ふきょう)の影響(えいきょう)で、多(おお)くの中小企業(ちゅうしょうきぎょう)が事業(じぎょう)の縮小(しゅくしょう)を余儀(よぎ)なくされた。",
+      "source": "AI",
+      "vi": "Do ảnh hưởng của suy thoái, nhiều doanh nghiệp vừa và nhỏ buộc phải thu hẹp kinh doanh."
+     },
+     {
+      "ja": "彼は病気のため、長年続けた仕事を辞めることを余儀なくされた。",
+      "ja_furigana": "彼(かれ)は病気(びょうき)のため、長年(ながねん)続(つづ)けた仕事(しごと)を辞(や)めることを余儀(よぎ)なくされた。",
+      "source": "AI",
+      "vi": "Vì bệnh tật, anh ấy buộc phải nghỉ công việc đã làm nhiều năm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 台風で試合は中止を余儀なくされた。",
+     "FURIGANA_MISSING: 台風で試合は中止を余儀なくされた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + を余儀なくされる; Vる + ことを余儀なくされる",
+    "locked_fields": [],
+    "meaning_vi": "Buộc phải, đành phải — Do hoàn cảnh ngoài ý muốn mà buộc phải chấp nhận.",
+    "nuance_vi": "Văn viết, báo chí; do hoàn cảnh bên ngoài nên buộc phải chấp nhận điều ngoài ý muốn, chủ thể là người chịu tác động.",
+    "order_items": [],
+    "pattern": "を余儀(よぎ)なくされる",
+    "pattern_variants": [
+     "N + を余儀なくされる",
+     "〜を余儀なくされる/させる"
+    ],
+    "unit_no": 20,
+    "unit_title_vi": null,
+    "usage_vi": "Chủ ngữ là người chịu đựng. Dạng chủ động を余儀なくさせる = buộc ai đó phải."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4ff9faacdc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この役を演じられるのは、彼女をおいてほかにいない。",
+       "ja_furigana": "この役(やく)を演(えん)じられるのは、彼女(かのじょ)をおいてほかにいない。",
+       "vi": "Người có thể đóng vai này thì ngoài cô ấy ra không còn ai."
+      },
+      {
+       "ja": "この難しい交渉を成功させられるのは、山田さんをおいてほかにいない。",
+       "ja_furigana": "この難(むずか)しい交渉(こうしょう)を成功(せいこう)させられるのは、山田(やまだ)さんをおいてほかにいない。",
+       "source": "AI",
+       "vi": "Người có thể làm cho cuộc đàm phán khó này thành công thì ngoài anh Yamada ra không còn ai."
+      },
+      {
+       "ja": "日本の伝統文化を海外に広める役を任せるなら、彼女をおいて適任者はいない。",
+       "ja_furigana": "日本(にほん)の伝統文化(でんとうぶんか)を海外(かいがい)に広(ひろ)める役(やく)を任(まか)せるなら、彼女(かのじょ)をおいて適任者(てきにんしゃ)はいない。",
+       "source": "AI",
+       "vi": "Nếu giao vai trò quảng bá văn hóa truyền thống Nhật Bản ra nước ngoài thì ngoài cô ấy ra không có người thích hợp."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau phải là phủ định (いない, ない, 考えられない), không dùng khẳng định. Chỉ dùng với người hay vật phù hợp nhất; khác 以外 là cách nói trung tính, không nhấn mạnh sự duy nhất.",
+    "examples": [
+     {
+      "ja": "この仕事を任せられるのは、彼をおいてほかにいない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "この難しい交渉を成功させられるのは、山田さんをおいてほかにいない。",
+      "ja_furigana": "この難(むずか)しい交渉(こうしょう)を成功(せいこう)させられるのは、山田(やまだ)さんをおいてほかにいない。",
+      "source": "AI",
+      "vi": "Người có thể làm cho cuộc đàm phán khó này thành công thì ngoài anh Yamada ra không còn ai."
+     },
+     {
+      "ja": "日本の伝統文化を海外に広める役を任せるなら、彼女をおいて適任者はいない。",
+      "ja_furigana": "日本(にほん)の伝統文化(でんとうぶんか)を海外(かいがい)に広(ひろ)める役(やく)を任(まか)せるなら、彼女(かのじょ)をおいて適任者(てきにんしゃ)はいない。",
+      "source": "AI",
+      "vi": "Nếu giao vai trò quảng bá văn hóa truyền thống Nhật Bản ra nước ngoài thì ngoài cô ấy ra không có người thích hợp."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: この仕事を任せられるのは、彼をおいてほかにいない。",
+     "FURIGANA_MISSING: この仕事を任せられるのは、彼をおいてほかにいない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + をおいて (ほかに) + Vない",
+    "locked_fields": [],
+    "meaning_vi": "Ngoài ra không còn ai khác — Chỉ có duy nhất đối tượng đó là xứng đáng, không có lựa chọn thứ hai.",
+    "nuance_vi": "Văn viết, trang trọng; chỉ duy nhất N là phù hợp, ngoài ra không còn lựa chọn nào khác; vế sau luôn là phủ định.",
+    "order_items": [],
+    "pattern": "N + をおいて",
+    "pattern_variants": [],
+    "unit_no": 9,
+    "unit_title_vi": "Duy nhất, chỉ còn cách",
+    "usage_vi": "Vế sau bắt buộc phủ định: をおいて〜ない. Luôn mang nghĩa đánh giá cao."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ad914becd3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "調査の結果を踏まえて、新しい方針を決めた。",
+       "ja_furigana": "調査(ちょうさ)の結果(けっか)を踏(ふ)まえて、新(あたら)しい方針(ほうしん)を決(き)めた。",
+       "vi": "Dựa trên kết quả điều tra, chúng tôi quyết định phương châm mới."
+      },
+      {
+       "ja": "顧客の意見を踏まえて、新製品のデザインを一部変更した。",
+       "ja_furigana": "顧客(こきゃく)の意見(いけん)を踏(ふ)まえて、新製品(しんせいひん)のデザインを一部(いちぶ)変更(へんこう)した。",
+       "source": "AI",
+       "vi": "Dựa trên ý kiến của khách hàng, chúng tôi đã thay đổi một phần thiết kế sản phẩm mới."
+      },
+      {
+       "ja": "過去の災害の教訓を踏まえて、避難計画の見直しが行われた。",
+       "ja_furigana": "過去(かこ)の災害(さいがい)の教訓(きょうくん)を踏(ふ)まえて、避難計画(ひなんけいかく)の見直(みなお)しが行(おこな)われた。",
+       "source": "AI",
+       "vi": "Dựa trên bài học từ các thiên tai trước đây, kế hoạch sơ tán đã được xem xét lại."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau thường là kế hoạch, đề xuất, quyết định, không dùng cho hành động ngẫu nhiên. Khác に基づいて (dựa theo cơ sở, quy tắc): を踏まえて nhấn mạnh việc cân nhắc kết quả hay tình hình đã có.",
+    "examples": [
+     {
+      "ja": "前回の反省を踏まえて計画を練り直した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "顧客の意見を踏まえて、新製品のデザインを一部変更した。",
+      "ja_furigana": "顧客(こきゃく)の意見(いけん)を踏(ふ)まえて、新製品(しんせいひん)のデザインを一部(いちぶ)変更(へんこう)した。",
+      "source": "AI",
+      "vi": "Dựa trên ý kiến của khách hàng, chúng tôi đã thay đổi một phần thiết kế sản phẩm mới."
+     },
+     {
+      "ja": "過去の災害の教訓を踏まえて、避難計画の見直しが行われた。",
+      "ja_furigana": "過去(かこ)の災害(さいがい)の教訓(きょうくん)を踏(ふ)まえて、避難計画(ひなんけいかく)の見直(みなお)しが行(おこな)われた。",
+      "source": "AI",
+      "vi": "Dựa trên bài học từ các thiên tai trước đây, kế hoạch sơ tán đã được xem xét lại."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 前回の反省を踏まえて計画を練り直した。",
+     "FURIGANA_MISSING: 前回の反省を踏まえて計画を練り直した。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + を踏まえて; Thể thường + ことを踏まえて",
+    "locked_fields": [],
+    "meaning_vi": "Dựa trên, căn cứ vào — Lấy kết quả hoặc bài học trước làm nền để tiến hành bước tiếp.",
+    "nuance_vi": "Văn viết, công việc trang trọng; lấy sự việc, ý kiến hay kết quả làm nền tảng để cân nhắc rồi tiến hành bước tiếp theo.",
+    "order_items": [],
+    "pattern": "N + を踏まえて",
+    "pattern_variants": [],
+    "unit_no": 2,
+    "unit_title_vi": "Dựa trên, căn cứ vào",
+    "usage_vi": "Trang trọng, hay dùng trong họp hành: 結果を踏まえて, 反省を踏まえて."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a4fac6dbdc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "柄にもなく、料理に挑戦してみた。",
+       "ja_furigana": "柄(がら)にもなく、料理(りょうり)に挑戦(ちょうせん)してみた。",
+       "vi": "Trái với bản tính, tôi thử sức nấu ăn."
+      },
+      {
+       "ja": "柄にもなく詩を書いてみたが、友だちに笑われてしまった。",
+       "ja_furigana": "柄(がら)にもなく詩(し)を書(か)いてみたが、友(とも)だちに笑(わら)われてしまった。",
+       "source": "AI",
+       "vi": "Trái với tính cách của mình, tôi thử làm thơ nhưng bị bạn bè cười."
+      },
+      {
+       "ja": "部長らしくもない、細かいミスで部下を厳しく叱るなんて。",
+       "ja_furigana": "部長(ぶちょう)らしくもない、細(こま)かいミスで部下(ぶか)を厳(きび)しく叱(しか)るなんて。",
+       "source": "AI",
+       "vi": "Chẳng giống trưởng phòng chút nào, lại mắng cấp dưới nặng nề vì lỗi nhỏ."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Hay dịch nhầm là 'hoàn toàn không có'; thực ra nghĩa là 'không giống với con người vốn có'. らしくもない gắn sau danh từ chỉ người (彼らしくもない), 柄にもなく đi trước vế chỉ hành động.",
+    "examples": [
+     {
+      "ja": "柄にもなく緊張してしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "柄にもなく詩を書いてみたが、友だちに笑われてしまった。",
+      "ja_furigana": "柄(がら)にもなく詩(し)を書(か)いてみたが、友(とも)だちに笑(わら)われてしまった。",
+      "source": "AI",
+      "vi": "Trái với tính cách của mình, tôi thử làm thơ nhưng bị bạn bè cười."
+     },
+     {
+      "ja": "部長らしくもない、細かいミスで部下を厳しく叱るなんて。",
+      "ja_furigana": "部長(ぶちょう)らしくもない、細(こま)かいミスで部下(ぶか)を厳(きび)しく叱(しか)るなんて。",
+      "source": "AI",
+      "vi": "Chẳng giống trưởng phòng chút nào, lại mắng cấp dưới nặng nề vì lỗi nhỏ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 柄にもなく緊張してしまった。",
+     "FURIGANA_MISSING: 柄にもなく緊張してしまった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "柄にもなく + V / A; N + らしくもない",
+    "locked_fields": [],
+    "meaning_vi": "Chẳng có chút nào — Phủ định tuyệt đối sự tồn tại của tính chất nào đó.",
+    "nuance_vi": "Dùng khi hành vi trái với tính cách hay vị thế vốn có của người đó; có thể dùng để tự giễu mình hoặc ngạc nhiên về người khác.",
+    "order_items": [],
+    "pattern": "柄にもなく / らしくもない",
+    "pattern_variants": [],
+    "unit_no": 14,
+    "unit_title_vi": "Biểu đạt đặc biệt, văn cổ",
+    "usage_vi": "Cụm hay gặp: 柄にもない (không hợp với mình), 柄にもなく."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4e4984d193"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先生とて、分からないことはあるものだ。",
+       "ja_furigana": "先生(せんせい)とて、分(わ)からないことはあるものだ。",
+       "vi": "Dù là thầy cô thì cũng có điều không biết."
+      },
+      {
+       "ja": "いくら親しい友人とて、金銭の貸し借りには慎重になるべきだ。",
+       "ja_furigana": "いくら親(した)しい友人(ゆうじん)とて、金銭(きんせん)の貸(か)し借(か)りには慎重(しんちょう)になるべきだ。",
+       "source": "AI",
+       "vi": "Dù là bạn thân đi nữa thì vẫn nên thận trọng trong việc vay mượn tiền bạc."
+      },
+      {
+       "ja": "医者とて人間だから、病気になることもある。",
+       "ja_furigana": "医者(いしゃ)とて人間(にんげん)だから、病気(びょうき)になることもある。",
+       "source": "AI",
+       "vi": "Dù là bác sĩ thì cũng là con người nên cũng có lúc bị bệnh."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Rất ít dùng trong hội thoại hiện đại. Đừng nhầm với とて nghĩa 'nghĩ rằng… mà' trong văn cổ hay với からとて. Ở đây chỉ đi sau danh từ, vế sau thường mang ý ngoại lệ không tồn tại.",
+    "examples": [
+     {
+      "ja": "私とて同じ気持ちだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "いくら親しい友人とて、金銭の貸し借りには慎重になるべきだ。",
+      "ja_furigana": "いくら親(した)しい友人(ゆうじん)とて、金銭(きんせん)の貸(か)し借(か)りには慎重(しんちょう)になるべきだ。",
+      "source": "AI",
+      "vi": "Dù là bạn thân đi nữa thì vẫn nên thận trọng trong việc vay mượn tiền bạc."
+     },
+     {
+      "ja": "医者とて人間だから、病気になることもある。",
+      "ja_furigana": "医者(いしゃ)とて人間(にんげん)だから、病気(びょうき)になることもある。",
+      "source": "AI",
+      "vi": "Dù là bác sĩ thì cũng là con người nên cũng có lúc bị bệnh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 私とて同じ気持ちだ。",
+     "FURIGANA_MISSING: 私とて同じ気持ちだ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + とて; N + とて + Vない",
+    "locked_fields": [],
+    "meaning_vi": "Dù là cũng — Ngay cả trường hợp đó cũng không ngoại lệ, văn cổ.",
+    "nuance_vi": "Văn viết cổ, cứng; nhượng bộ theo kiểu 'ngay cả là N thì cũng', thường gặp trong văn chương và lời nói trang trọng.",
+    "order_items": [],
+    "pattern": "N + とて",
+    "pattern_variants": [],
+    "unit_no": 8,
+    "unit_title_vi": "Nhấn mạnh cả trường hợp cực đoan",
+    "usage_vi": "Rất trang trọng và cổ. Gần といえども nhưng ngắn hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ffffd49942"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "現場の状況に即した判断が求められる。",
+       "ja_furigana": "現場(げんば)の状況(じょうきょう)に即(そく)した判断(はんだん)が求(もと)められる。",
+       "vi": "Cần có phán đoán bám sát tình hình thực tế hiện trường."
+      },
+      {
+       "ja": "会社の就業規則に即して、懲戒処分が決定された。",
+       "ja_furigana": "会社(かいしゃ)の就業規則(しゅうぎょうきそく)に即(そく)して、懲戒処分(ちょうかいしょぶん)が決定(けってい)された。",
+       "source": "AI",
+       "vi": "Việc xử lý kỷ luật được quyết định bám sát nội quy lao động của công ty."
+      },
+      {
+       "ja": "子どもの発達段階に即して、教材の内容を工夫している。",
+       "ja_furigana": "子(こ)どもの発達段階(はったつだんかい)に即(そく)して、教材(きょうざい)の内容(ないよう)を工夫(くふう)している。",
+       "source": "AI",
+       "vi": "Chúng tôi chăm chút nội dung giáo trình sao cho sát với giai đoạn phát triển của trẻ."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dễ nhầm với に基づいて (dựa trên nền tảng) hay に沿って (đi theo đường lối); に即して nhấn mạnh bám sát đối tượng cụ thể. Không dùng với danh từ trừu tượng thiếu cụ thể.",
+    "examples": [
+     {
+      "ja": "実情に即した対策が必要だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "会社の就業規則に即して、懲戒処分が決定された。",
+      "ja_furigana": "会社(かいしゃ)の就業規則(しゅうぎょうきそく)に即(そく)して、懲戒処分(ちょうかいしょぶん)が決定(けってい)された。",
+      "source": "AI",
+      "vi": "Việc xử lý kỷ luật được quyết định bám sát nội quy lao động của công ty."
+     },
+     {
+      "ja": "子どもの発達段階に即して、教材の内容を工夫している。",
+      "ja_furigana": "子(こ)どもの発達段階(はったつだんかい)に即(そく)して、教材(きょうざい)の内容(ないよう)を工夫(くふう)している。",
+      "source": "AI",
+      "vi": "Chúng tôi chăm chút nội dung giáo trình sao cho sát với giai đoạn phát triển của trẻ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 実情に即した対策が必要だ。",
+     "FURIGANA_MISSING: 実情に即した対策が必要だ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + に即して; N + に即した + N",
+    "locked_fields": [],
+    "meaning_vi": "Sát với, theo đúng — Bám sát thực tế hoặc quy định mà xử lý.",
+    "nuance_vi": "Văn viết, công việc; xử lý hay phán đoán bám sát thực tế, quy định hay luật lệ, thường đi với 実態, 現実, 規則, 事実.",
+    "order_items": [],
+    "pattern": "N + に即して",
+    "pattern_variants": [
+     "〜に即して"
+    ],
+    "unit_no": 2,
+    "unit_title_vi": "Dựa trên, căn cứ vào",
+    "usage_vi": "Hay đi với 実情, 事実, 法律. Khác に沿って ở chỗ に即して bám vào nội dung cụ thể."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5c48712a01"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "辞書なしでは、この文章を読めない。",
+       "ja_furigana": "辞書(じしょ)なしでは、この文章(ぶんしょう)を読(よ)めない。",
+       "vi": "Không có từ điển thì tôi không đọc được đoạn văn này."
+      },
+      {
+       "ja": "今の時代、スマートフォンなしでは生活が成り立たないと感じる人も多い。",
+       "ja_furigana": "今(いま)の時代(じだい)、スマートフォンなしでは生活(せいかつ)が成(な)り立(た)たないと感(かん)じる人(ひと)も多(おお)い。",
+       "source": "AI",
+       "vi": "Thời nay có nhiều người cảm thấy không có điện thoại thông minh thì cuộc sống không thể duy trì."
+      },
+      {
+       "ja": "彼の助けなしでは、この企画は実現しなかっただろう。",
+       "ja_furigana": "彼(かれ)の助(たす)けなしでは、この企画(きかく)は実現(じつげん)しなかっただろう。",
+       "source": "AI",
+       "vi": "Nếu không có sự giúp đỡ của anh ấy, kế hoạch này chắc đã không thành hiện thực."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau phải là phủ định hay khả năng phủ định (できない, 考えられない). Đừng nhầm với なしで (mà không có: 傘なしで出かけた) vốn không cần vế sau phủ định.",
+    "examples": [
+     {
+      "ja": "眼鏡なしでは何も見えない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "今の時代、スマートフォンなしでは生活が成り立たないと感じる人も多い。",
+      "ja_furigana": "今(いま)の時代(じだい)、スマートフォンなしでは生活(せいかつ)が成(な)り立(た)たないと感(かん)じる人(ひと)も多(おお)い。",
+      "source": "AI",
+      "vi": "Thời nay có nhiều người cảm thấy không có điện thoại thông minh thì cuộc sống không thể duy trì."
+     },
+     {
+      "ja": "彼の助けなしでは、この企画は実現しなかっただろう。",
+      "ja_furigana": "彼(かれ)の助(たす)けなしでは、この企画(きかく)は実現(じつげん)しなかっただろう。",
+      "source": "AI",
+      "vi": "Nếu không có sự giúp đỡ của anh ấy, kế hoạch này chắc đã không thành hiện thực."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 眼鏡なしでは何も見えない。",
+     "FURIGANA_MISSING: 眼鏡なしでは何も見えない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + なしでは; Vる + ことなしでは",
+    "locked_fields": [],
+    "meaning_vi": "Nếu thiếu thì không — Không có cái đó thì không thể tiến hành.",
+    "nuance_vi": "Dùng cả văn nói lẫn văn viết; nếu thiếu N thì không thể, vế sau là phủ định hay khả năng phủ định, khẩu ngữ hơn なくして.",
+    "order_items": [],
+    "pattern": "N + なしでは",
+    "pattern_variants": [],
+    "unit_no": 5,
+    "unit_title_vi": "Nếu không có thì không thể",
+    "usage_vi": "Thân mật hơn なくして. Vế sau bắt buộc phủ định."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-89ec3d8e50"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-007"
+}

@@ -33,6 +33,14 @@ public class ContentVocabulary {
             foreignKey = @ForeignKey(name = "fk_content_vocab_vocabulary"))
     private VocabularyEntry vocabularyEntry;
 
+    /** Optional learning presentation attached to this lesson link, not to the canonical dictionary row. */
+    @Column(name = "learning_meaning_vi", columnDefinition = "TEXT")
+    private String learningMeaningVi;
+    @Column(name = "learning_example_ja", columnDefinition = "TEXT")
+    private String learningExampleJa;
+    @Column(name = "learning_example_vi", columnDefinition = "TEXT")
+    private String learningExampleVi;
+
     // -----------------------------------------------------------------------
 
     @Embeddable

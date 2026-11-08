@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会場には、学生をはじめ、多くの人が集まった。",
+       "ja_furigana": "会場(かいじょう)には、学生(がくせい)をはじめ、多(おお)くの人(ひと)が集(あつ)まった。",
+       "vi": "Tại hội trường, nhiều người đã tập hợp, tiêu biểu là các sinh viên."
+      },
+      {
+       "ja": "この店は、パンをはじめ、どの商品も安い。",
+       "ja_furigana": "この店(みせ)は、パンをはじめ、どの商品(しょうひん)も安(やす)い。",
+       "vi": "Quán này, tiêu biểu là bánh mì, món nào cũng rẻ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この町では、駅前広場をはじめ、市内の三つの会場で夏祭りが開かれる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ở thị trấn này, lễ hội mùa hè được tổ chức tại ba địa điểm, tiêu biểu là quảng trường trước ga."
+     },
+     {
+      "ja": "田中教授をはじめとして、多くの研究者が調査に参加した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhiều nhà nghiên cứu, đứng đầu là Giáo sư Tanaka, đã tham gia cuộc khảo sát."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この町では、駅前広場をはじめ、市内の三つの会場で夏祭りが開かれる。",
+     "FURIGANA_MISSING: 田中教授をはじめとして、多くの研究者が調査に参加した。"
+    ],
+    "formation": "N + をはじめ(として)",
+    "locked_fields": [],
+    "meaning_vi": "Bắt đầu từ, tiêu biểu là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Bắt đầu từ, tiêu biểu là",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu một thành viên tiêu biểu rồi mở rộng phạm vi sang những thành viên cùng nhóm. Cách dùng: Dùng mẫu này khi nêu một thành viên tiêu biểu trước, rồi mở rộng sang cả nhóm cùng loại. Danh từ đứng trước をはじめ phải thực sự thuộc phạm vi được nói đến và thường là ví dụ nổi bật, quen thuộc hoặc có vai trò trung tâm. Sau をはじめ có thể là một mệnh đề; をはじめとして nhấn mạnh rõ hơn điểm khởi đầu của phép liệt kê. Dạng をはじめとする đứng trước danh từ để bổ nghĩa cho chính nhóm sự vật được khái quát. Sắc thái: Mang sắc thái liệt kê có tổ chức, thường gặp trong giới thiệu, báo cáo và văn viết; không đơn thuần có nghĩa là hành động “bắt đầu”. Lưu ý: Danh từ được nêu trước phải là một bộ phận tiêu biểu của nhóm phía sau. Khi bổ nghĩa trực tiếp cho danh từ, dùng をはじめとする, không dùng をはじめの."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-06a98d763c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先着五十名に限り、記念品を差し上げます。",
+       "ja_furigana": "先着(せんちゃく)五十名(ごじゅうめい)に限(かぎ)り、記念品(きねんひん)を差(さ)し上(あ)げます。",
+       "vi": "Chỉ dành cho 50 người đến trước, chúng tôi tặng quà kỷ niệm."
+      },
+      {
+       "ja": "この席は、お年寄りと体の不自由な方に限ります。",
+       "ja_furigana": "この席(せき)は、お年寄(としよ)りと体(からだ)の不自由(ふじゆう)な方(かた)に限(かぎ)ります。",
+       "vi": "Ghế này chỉ dành cho người già và người khuyết tật."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "本日に限り、入場料は無料です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ riêng hôm nay, phí vào cửa được miễn."
+     },
+     {
+      "ja": "この資料室は登録した研究者に限り利用できます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phòng tư liệu này chỉ dành cho các nhà nghiên cứu đã đăng ký."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 本日に限り、入場料は無料です。",
+     "FURIGANA_MISSING: この資料室は登録した研究者に限り利用できます。"
+    ],
+    "formation": "N + に限り / に限って",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ giới hạn ở",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chỉ giới hạn ở",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Giới hạn đối tượng, thời gian hoặc điều kiện được áp dụng vào một phạm vi duy nhất. Cách dùng: Mẫu này xác định rõ rằng quyền lợi, quy định hay hành động chỉ áp dụng cho danh từ đứng trước に限り. Đối tượng có thể là một ngày, một nhóm người, một số lượng hoặc điều kiện tham gia. Phần sau thường nêu sự cho phép, ưu đãi, tiếp nhận hay ngoại lệ dành riêng cho phạm vi ấy. So với だけ, に限り nghe như một điều khoản chính thức và thường được dùng trong thông báo của cơ quan, cửa hàng hoặc ban tổ chức. Sắc thái: Mang sắc thái trang trọng, dứt khoát và khách quan, thích hợp với biển báo, quy định, quảng cáo hoặc thông báo công khai. Lưu ý: Nối trực tiếp với danh từ bằng に; không dùng を限り cho nghĩa giới hạn đối tượng này. Không phù hợp nếu chỉ muốn nói “chỉ” một cách thân mật trong hội thoại thường ngày."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-87ce8debbb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私が生きている限り、この店を守り続ける。",
+       "ja_furigana": "私(わたし)が生(い)きている限(かぎ)り、この店(みせ)を守(まも)り続(つづ)ける。",
+       "vi": "Chừng nào tôi còn sống, tôi sẽ tiếp tục bảo vệ quán này."
+      },
+      {
+       "ja": "学生である限り、勉学を一番にすべきだ。",
+       "ja_furigana": "学生(がくせい)である限(かぎ)り、勉学(べんがく)を一番(いちばん)にすべきだ。",
+       "vi": "Chừng nào còn là học sinh thì nên đặt việc học lên hàng đầu."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "約束した限りは、最後まで責任を持つ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một khi đã hứa thì tôi sẽ chịu trách nhiệm đến cùng."
+     },
+     {
+      "ja": "この町に住んでいる限り、車がなくても困らない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chừng nào còn sống ở thị trấn này thì không có ô tô cũng không bất tiện."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 約束した限りは、最後まで責任を持つ。",
+     "FURIGANA_MISSING: この町に住んでいる限り、車がなくても困らない。"
+    ],
+    "formation": "Vる・Vた・Vている・Vない + 限り(は)",
+    "locked_fields": [],
+    "meaning_vi": "Chừng nào còn; một khi đã",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chừng nào còn; một khi đã",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Đặt một trạng thái làm điều kiện còn hiệu lực cho kết luận, ý chí hoặc nghĩa vụ ở vế sau. Cách dùng: Dùng khi kết quả ở vế sau tiếp tục đúng trong toàn bộ thời gian điều kiện ở vế trước còn tồn tại. Với 限りは, người nói thường nhấn mạnh trách nhiệm, quyết tâm hoặc kết luận tất yếu dựa trên điều kiện ấy. Sau dạng phủ định 〜ない限り, mẫu mang nghĩa “nếu không… thì không” hoặc “trừ khi…”. Đây là quan hệ điều kiện có ranh giới rõ, không chỉ đơn thuần mô tả hai hành động xảy ra đồng thời. Sắc thái: Sắc thái logic và mạnh; 限りは thường thể hiện lập trường hay cam kết rõ hơn 限り không có は. Lưu ý: Danh từ thường cần である trước 限り; không nối trực tiếp bằng の ở nghĩa điều kiện này. Vế sau phải là kết quả còn phụ thuộc vào việc điều kiện trước tiếp tục tồn tại."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f18c11ffd0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "食べられるだけ食べて、ゆっくり休んでください。",
+       "ja_furigana": "食(た)べられるだけ食(た)べて、ゆっくり休(やす)んでください。",
+       "vi": "Hãy ăn bao nhiêu tùy sức rồi nghỉ ngơi thoải mái."
+      },
+      {
+       "ja": "お金があるだけ使ってしまった。",
+       "ja_furigana": "お金(かね)があるだけ使(つか)ってしまった。",
+       "vi": "Tôi đã tiêu hết chừng nào tiền có."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "必要な資料は持てるだけ持ってきてください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hãy mang tới nhiều tài liệu cần thiết nhất trong khả năng bạn có thể mang."
+     },
+     {
+      "ja": "休みの日は、目覚ましをかけずに寝たいだけ寝た。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngày nghỉ tôi không đặt báo thức và ngủ thỏa thích."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 必要な資料は持てるだけ持ってきてください。",
+     "FURIGANA_MISSING: 休みの日は、目覚ましをかけずに寝たいだけ寝た。"
+    ],
+    "formation": "Vる(可能形も可) + だけ",
+    "locked_fields": [],
+    "meaning_vi": "Hết mức có thể, bao nhiêu tùy ý",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hết mức có thể, bao nhiêu tùy ý",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả thực hiện một hành động đến lượng hoặc mức mà khả năng hay mong muốn cho phép. Cách dùng: Ngoài nghĩa giới hạn cơ bản là “chỉ”, だけ còn diễn tả mức tối đa khi theo sau động từ khả năng, ý muốn hoặc từ chỉ lượng cần thiết. Cấu trúc VるだけV lặp lại động từ để nhấn mạnh làm được bao nhiêu thì làm bấy nhiêu; Vたいだけ cho phép thỏa mãn mong muốn đến mức tùy ý. Mức cụ thể do khả năng, nhu cầu hoặc ý muốn trong ngữ cảnh quyết định, vì vậy không nhất thiết là một lượng khách quan cố định. Sắc thái: Tự nhiên trong hội thoại và trung tính về thái độ; có thể mang cảm giác tự do lựa chọn hơn 〜限り. Lưu ý: Ở nghĩa mức tối đa, だけ phải gắn với từ thể hiện khả năng, mong muốn hoặc lượng cần thiết. Không thêm な sau tính từ đuôi たい trước だけ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f005657f80"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "力の限り、声を出して助けを呼んだ。",
+       "ja_furigana": "力(ちから)の限(かぎ)り、声(こえ)を出(だ)して助(たす)けを呼(よ)んだ。",
+       "vi": "Tôi đã dốc hết sức gọi to cầu cứu."
+      },
+      {
+       "ja": "できる限り、家族と過ごす時間を作りたい。",
+       "ja_furigana": "できる限(かぎ)り、家族(かぞく)と過(す)ごす時間(じかん)を作(つく)りたい。",
+       "vi": "Tôi muốn dành thời gian cho gia đình nhiều nhất có thể."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "できる限り早く結果をお知らせします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chúng tôi sẽ thông báo kết quả sớm nhất có thể."
+     },
+     {
+      "ja": "選手たちは力の限り走り、最後まで諦めなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Các vận động viên đã chạy hết sức và không bỏ cuộc cho đến cuối."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: できる限り早く結果をお知らせします。",
+     "FURIGANA_MISSING: 選手たちは力の限り走り、最後まで諦めなかった。"
+    ],
+    "formation": "Vる / Nの + 限り",
+    "locked_fields": [],
+    "meaning_vi": "Hết mức, trong phạm vi tối đa",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hết mức, trong phạm vi tối đa",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả việc tận dụng toàn bộ khả năng, sức lực hoặc phạm vi có thể. Cách dùng: Ở cách dùng chỉ mức tối đa, 限り đặt ra ranh giới cao nhất của khả năng, tri thức, sức lực hoặc điều kiện hiện có. Những tổ hợp quen thuộc như できる限り, 可能な限り và 力の限り cho biết người thực hiện không giữ lại phần nào trong phạm vi ấy. Dạng Vる限りのN bổ nghĩa cho danh từ, mang nghĩa toàn bộ N mà chủ thể có thể đạt tới. Trọng tâm là tận dụng hết giới hạn, không phải điều kiện “chừng nào còn”. Sắc thái: Có sắc thái quyết tâm hoặc nỗ lực trọn mức, thường trang trọng hơn cách nói dùng だけ. Lưu ý: Thường kết hợp với động từ chỉ khả năng hoặc danh từ như 力, 声, 命; không tự nhiên với mọi danh từ. Không chèn の sau động từ trong các cụm như できる限り."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f891c7fdbd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は、店の名前からして面白い。",
+       "ja_furigana": "この店(みせ)は、店(みせ)の名前(なまえ)からして面白(おもしろ)い。",
+       "vi": "Quán này, ngay từ cái tên cũng đã thú vị."
+      },
+      {
+       "ja": "彼の話は、声の大きさからして信じられなかった。",
+       "ja_furigana": "彼(かれ)の話(はなし)は、声(こえ)の大(おお)きさからして信(しん)じられなかった。",
+       "vi": "Câu chuyện của anh ta, ngay từ độ lớn của giọng nói đã khó tin."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼の説明は、最初の数字からして間違っていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phần giải thích của anh ấy sai ngay từ con số đầu tiên."
+     },
+     {
+      "ja": "玄関の飾りからして、この店は細部にこだわっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xét ngay từ đồ trang trí ở lối vào cũng thấy cửa hàng này chăm chút từng chi tiết."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼の説明は、最初の数字からして間違っていた。",
+     "FURIGANA_MISSING: 玄関の飾りからして、この店は細部にこだわっている。"
+    ],
+    "formation": "N + からして",
+    "locked_fields": [],
+    "meaning_vi": "Ngay từ, xét ngay ở",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Ngay từ, xét ngay ở",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Lấy một dấu hiệu nổi bật làm căn cứ để đánh giá rằng toàn thể cũng có đặc điểm tương tự. Cách dùng: Mẫu này chọn một chi tiết làm căn cứ đầu tiên cho nhận xét về toàn bộ sự việc. Chi tiết ấy thường đã đủ gây ấn tượng hoặc cho thấy kết luận chung, tương đương “ngay từ… đã…”. Người nói có thể bắt đầu từ dấu hiệu dễ thấy như thái độ, cách trình bày hay vẻ ngoài. Ngoài cách suy luận từ một bộ phận, mẫu còn có thể nêu thành viên đầu tiên trong một chuỗi mà ngay thành viên đó đã đáng chú ý. Sắc thái: Thường chứa đánh giá chủ quan và hay xuất hiện trong nhận xét tiêu cực, nhưng vẫn dùng được cho đánh giá tích cực nếu ngữ cảnh rõ. Lưu ý: Thường gắn với danh từ chỉ dấu hiệu, bộ phận hoặc điểm quan sát được. Không nhầm Nからして với mệnh đề nguyên nhân dùng から."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-afa0ccc3ab"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会議は五時間にわたって続いた。",
+       "ja_furigana": "会議(かいぎ)は五時間(ごじかん)にわたって続(つづ)いた。",
+       "vi": "Cuộc họp kéo dài suốt năm tiếng."
+      },
+      {
+       "ja": "台風の被害は広い地域にわたって広がった。",
+       "ja_furigana": "台風(たいふう)の被害(ひがい)は広(ひろ)い地域(ちいき)にわたって広(ひろ)がった。",
+       "vi": "Thiệt hại do bão lan rộng trên một phạm vi lớn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "三日間にわたって、町の文化祭が行われた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lễ hội văn hóa của thị trấn đã diễn ra suốt ba ngày."
+     },
+     {
+      "ja": "大雨の影響は沿岸部の広い範囲にわたって確認された。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ảnh hưởng của mưa lớn được ghi nhận trên một vùng rộng dọc bờ biển."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 三日間にわたって、町の文化祭が行われた。",
+     "FURIGANA_MISSING: 大雨の影響は沿岸部の広い範囲にわたって確認された。"
+    ],
+    "formation": "N + にわたって / にわたる + N",
+    "locked_fields": [],
+    "meaning_vi": "Suốt, trên khắp phạm vi",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Suốt, trên khắp phạm vi",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả một sự việc trải dài trên toàn bộ khoảng thời gian, không gian hoặc phạm vi. Cách dùng: Dùng khi một trạng thái hay hoạt động bao phủ trọn một phạm vi có độ dài hoặc bề rộng rõ rệt. Phạm vi ấy có thể là thời gian, khu vực, số lần, lĩnh vực hay nhiều hạng mục. にわたって đứng trước mệnh đề, にわたり là dạng trang trọng thường gặp trong văn viết, còn にわたる bổ nghĩa cho danh từ. Mẫu này chú ý đến độ trải rộng liên tục hoặc tổng thể, chứ không chỉ nêu điểm bắt đầu và kết thúc. Sắc thái: Có sắc thái trang trọng, khách quan; thường dùng trong tin tức, báo cáo, mô tả khảo sát hoặc sự kiện quy mô lớn. Lưu ý: Danh từ trước にわたって phải biểu thị một phạm vi có thể trải rộng, không phải một thời điểm đơn lẻ. Khi đứng trước danh từ, đổi thành にわたる."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-39ded058ba"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この地方は一年を通じて雨が多い。",
+       "ja_furigana": "この地方(ちほう)は一年(いちねん)を通(つう)じて雨(あめ)が多(おお)い。",
+       "vi": "Vùng này mưa nhiều suốt cả năm."
+      },
+      {
+       "ja": "友人を通して、この家を紹介してもらった。",
+       "ja_furigana": "友人(ゆうじん)を通(とお)して、この家(いえ)を紹介(しょうかい)してもらった。",
+       "vi": "Tôi được một người bạn giới thiệu cho ngôi nhà này."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この島では一年を通じて穏やかな風が吹く。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trên hòn đảo này có gió nhẹ suốt cả năm."
+     },
+     {
+      "ja": "共通の友人を通して、設計者を紹介してもらった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi được giới thiệu với nhà thiết kế thông qua một người bạn chung."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この島では一年を通じて穏やかな風が吹く。",
+     "FURIGANA_MISSING: 共通の友人を通して、設計者を紹介してもらった。"
+    ],
+    "formation": "N + を通じて / を通して",
+    "locked_fields": [],
+    "meaning_vi": "Thông qua; trong suốt",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Thông qua; trong suốt",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Chỉ phương tiện hoặc trung gian dẫn đến kết quả, đồng thời có thể chỉ toàn bộ một khoảng thời gian. Cách dùng: Hai dạng này diễn tả kết quả đạt được thông qua một người, tổ chức, trải nghiệm hoặc kênh trung gian. Chúng cũng dùng với danh từ thời gian để nói một trạng thái kéo dài xuyên suốt toàn kỳ. を通じて thường trang trọng và thiên về mối liên hệ trừu tượng; を通して dễ xuất hiện hơn khi hình dung một con đường hoặc người trung gian cụ thể. Trong nhiều ngữ cảnh hai dạng thay thế được nhau, nhưng lựa chọn còn tùy sắc thái của câu. Sắc thái: Nhấn mạnh quá trình kết nối gián tiếp hoặc sự xuyên suốt, không chỉ đơn thuần nêu công cụ trực tiếp để thực hiện hành động. Lưu ý: Danh từ chỉ phương tiện phải đóng vai trò kênh hay trung gian; dụng cụ trực tiếp thường đi với で. Ở nghĩa thời gian, mẫu thường đi với khoảng trọn vẹn như 一年, 四季 hoặc 生涯."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9e1fa79a9d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "家族だからこそ、言いにくいことも話せる。",
+       "ja_furigana": "家族(かぞく)だからこそ、言(い)いにくいことも話(はな)せる。",
+       "vi": "Chính vì là gia đình nên mới có thể nói cả những điều khó nói."
+      },
+      {
+       "ja": "苦労したからこそ、人の痛みが分かる。",
+       "ja_furigana": "苦労(くろう)したからこそ、人(ひと)の痛(いた)みが分(わ)かる。",
+       "vi": "Chính vì đã từng vất vả nên mới hiểu được nỗi đau của người khác."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "苦しかったからこそ、今の喜びがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chính vì đã khổ cực nên mới có niềm vui hiện tại."
+     },
+     {
+      "ja": "あなたが大切だからこそ、厳しく注意するのです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chính vì coi trọng bạn nên tôi mới nhắc nhở nghiêm khắc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 苦しかったからこそ、今の喜びがある。",
+     "FURIGANA_MISSING: あなたが大切だからこそ、厳しく注意するのです。"
+    ],
+    "formation": "普通形 + からこそ / N + だからこそ",
+    "locked_fields": [],
+    "meaning_vi": "Nhấn mạnh nguyên nhân mang tính quyết định: “chính vì A nên mới B”. Hàm ý nếu không có A thì khó đạt/không có B; thể hiện lập luận, biện minh mạnh mẽ. Thường dùng để phản biện, khuyến khích, hoặc nêu giá trị tích cực của yếu tố A (nhiều khi A là nghịch cảnh).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chính vì...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để nhấn mạnh mối quan hệ nhân quả mạnh; phù hợp trong thuyết phục, động viên. Thường đi với từ nhấn mạnh: こそ, まさに, 強く, むしろ (nghịch lý tích cực). Trước からこそ có thể là mệnh đề, hoặc N/na＋だ（＝だからこそ）. Dùng trong cả nói và viết; tự nhiên trong diễn văn, quảng bá, khẩu hiệu. [6. Ghi chú mở rộng] Mang tính nhấn mạnh lập luận phản trực giác: “chính vì khó nên mới đáng làm”. Khi nhấn mạnh từ “だ” trước からこそ, thường rút gọn thành だからこそ trong văn nói. Phối hợp tốt với đối lập: AからこそB、AなのにB（逆説）, tạo tính thuyết phục. [7. Biến thể & cụm cố định] だからこそ（biến thể khi trước là N/na） 今／こんな時／あなたにだからこそ～ 親だからこそ言える／プロだからこそできる [8. Lỗi thường gặp & bẫy JLPT] Không nhấn đúng trọng tâm A là nguyên nhân quyết định, làm câu mất lực: A phải là điều kiện then chốt. Dùng からこそ cho lý do hiển nhiên/nhẹ (ví dụ: “雨からこそ傘をさす”): thừa nhấn mạnh, nghe kỳ. Quên chuyển だ＋から→だからこそ sau N/na. Lẫn với ～ので và ～から trong câu hỏi JLPT về sắc thái nhấn mạnh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f14c832a6a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "有名な店が、いつもおいしいというものでもない。",
+       "ja_furigana": "有名(ゆうめい)な店(みせ)が、いつもおいしいというものでもない。",
+       "vi": "Không phải quán nổi tiếng thì lúc nào cũng ngon."
+      },
+      {
+       "ja": "日本語が話せるからといって、教えられるというものでもない。",
+       "ja_furigana": "日本語(にほんご)が話(はな)せるからといって、教(おし)えられるというものでもない。",
+       "vi": "Không phải cứ nói được tiếng Nhật là dạy được."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "値段が安ければ良いというものでもない。品質も大事だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không phải cứ rẻ là tốt; chất lượng cũng quan trọng."
+     },
+     {
+      "ja": "速ければいいというものでもない。安全性が最優先だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không phải cứ nhanh là được. An toàn mới là ưu tiên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 値段が安ければ良いというものでもない。品質も大事だ。",
+     "FURIGANA_MISSING: 速ければいいというものでもない。安全性が最優先だ。"
+    ],
+    "formation": "普通形(Aな:〜(だ)・N:〜(だ)) + というものでもない",
+    "locked_fields": [],
+    "meaning_vi": "“Không phải cứ… là … đâu”: Phản biện quan điểm đơn giản hóa (giá rẻ, nhanh, nhiều… là tốt). Ngữ dụng: Dùng trong lập luận, giải thích, phê bình. Thường đi với từ đánh giá như いい／十分／大丈夫／完璧. Tính chuẩn mực: Ngụ ý “điều kiện A chỉ là một phần; cần yếu tố khác”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không phải cứ... là được",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt sau một mệnh đề điều kiện “～ば/～であれば/～なら”. Trước đó thường là tiêu chí đơn lẻ. Âm điệu phản biện, nhẹ nhàng nhưng mang tính chỉ dẫn/chuẩn hóa. Hay đi kèm cặp đối lập ở vế sau để nêu tiêu chí đúng: ～も必要だ／～こそ重要だ。 [6. Ghi chú mở rộng] Dễ kết hợp với cặp tính từ đối lập: 速い・安全、安い・品質、高い・価値、量・質. Trong văn viết, trước mẫu này hay dùng cấu trúc danh hóa: ～であるからといって… nhưng giữ “～というものでもない” để chốt luận. [7. Biến thể & cụm cố định] ～というものではない: Biến thể không “も”, sắc thái phê phán thẳng hơn. Cụm đi kèm: 「～ならいいというものでもない」「～であれば十分というものでもない」。 [8. Lỗi thường gặp & bẫy JLPT] Bỏ điều kiện ば: “安いというものでもない” không sai nhưng thiếu đối chiếu; đề thi thường cần “安ければ”. Dùng với sự thật hiển nhiên: “酸素がなければ生きられるというものでもない” là sai logic. Trộn lẫn với “とは限らない”: Cả hai phủ định khái quát, nhưng đề JLPT đòi đúng sắc thái “chuẩn mực/tiêu chí đơn nhất”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f5e07d3a9a"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-027"
+}

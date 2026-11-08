@@ -7,6 +7,11 @@ import org.springframework.web.multipart.MultipartFile;
 public interface FlashcardService {
     PageResponse<SetSummaryDto> publicSets(String title, String sort, int page, int size, Long userId);
     PageResponse<SetSummaryDto> mySets(String title, String sort, int page, int size, Long folderId, Long userId);
+    PageResponse<SetSummaryDto> favoriteSets(String title, String sort, int page, int size, Long userId);
+    /** Tab Lịch sử: bộ người dùng đã mở và vẫn xem được, lần mở gần nhất trước. */
+    PageResponse<SetSummaryDto> historySets(String title, int page, int size, Long userId);
+    void removeHistory(Long setId, Long userId);
+    void clearHistory(Long userId);
     SetDetailDto set(Long id, Long userId); SetDetailDto create(SetRequest request, Long userId);
     SetDetailDto update(Long id, SetRequest request, Long userId); void delete(Long id, Long userId);
     SetDetailDto createDraft(DraftRequest request, Long userId); SetDetailDto updateDraft(Long id, DraftRequest request, Long userId);
@@ -14,7 +19,9 @@ public interface FlashcardService {
     FolderDto updateFolder(Long id, FolderRequest request, Long userId); void deleteFolder(Long id, Long userId);
     SetDetailDto moveToFolder(Long setId, MoveFolderRequest request, Long userId);
     SetDetailDto cloneSet(Long id, Long userId); SetDetailDto importText(ImportRequest request, Long userId);
+    ExportFileDto export(Long id, String format, boolean includeHanViet, Long userId); ImportFileResponse importFile(MultipartFile file, Long userId);
     SyncPreviewResponse syncPreview(Long id, Long userId); SyncResponse sync(Long id, Long userId);
+    List<EnrichResponse> generateImportCards(String text);
     ImportHanVietResponse enrichImport(String text); EnrichResponse enrich(String term);
     List<EnrichResponse> enrichBatch(List<String> terms); CardDto enrichCard(Long cardId, Long userId);
     List<CardDto> enrichCards(BatchHanVietRequest request, Long userId);

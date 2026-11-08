@@ -1,0 +1,2611 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "父は小さな店を経営している。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Bố tôi điều hành một cửa hàng nhỏ."
+      },
+      {
+       "ja": "祖父が経営していた旅館を、今は兄が続けている。",
+       "ja_furigana": "祖父(そふ)が経営(けいえい)していた旅館(りょかん)を、今(いま)は兄(あに)が続(つづ)けている。",
+       "vi": "Nhà trọ mà ông tôi từng kinh doanh, nay anh trai tôi tiếp tục điều hành.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "会社の経営がうまくいかなくて、社長はなやんでいる。",
+       "ja_furigana": "会社(かいしゃ)の経営(けいえい)がうまくいかなくて、社長(しゃちょう)はなやんでいる。",
+       "vi": "Việc kinh doanh của công ty không suôn sẻ nên giám đốc đang phiền lòng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "kinh doanh, điều hành",
+    "examples": [
+     {
+      "ja": "父は小さな店を経営している。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Bố tôi điều hành một cửa hàng nhỏ."
+     },
+     {
+      "ja": "父はスーパーを経営している",
+      "ja_furigana": "父(ちち)はスーパーを経営(けいえい)している",
+      "source": "VNJPCLUB",
+      "vi": "Bố tôi đang quản lí một siêu thị."
+     },
+     {
+      "ja": "父は化粧品会社を経営している。",
+      "ja_furigana": "父(ちち)は化粧品(けしょうひん)会社(かいしゃ)を経営(けいえい)している。",
+      "source": "VNJPCLUB",
+      "vi": "Bố tôi đang kinh doanh công ty mỹ phẩm."
+     }
+    ],
+    "expression": "経営＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 父は小さな店を経営している。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "kinh doanh; điều hành; quản lý",
+    "mnemonic_vi": "経 là điều hành, 営 là kinh doanh; quản lý cả cửa hàng.",
+    "reading": "けいえい＜する＞",
+    "romaji": "keiei<suru>",
+    "topic_vi": "Là công việc như thế nào?",
+    "twins": [],
+    "variants": [
+     "経営"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6e96d60b49"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅で新しい店の広告を見た。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi thấy quảng cáo cửa hàng mới ở ga."
+      },
+      {
+       "ja": "テレビの広告で見たお菓子を、子どもが欲しがった。",
+       "ja_furigana": "テレビの広告(こうこく)で見(み)たお菓子(かし)を、子(こ)どもが欲(ほ)しがった。",
+       "vi": "Con tôi đòi món bánh mà nó thấy trên quảng cáo tivi.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "店の広告を作って、駅前で配った。",
+       "ja_furigana": "店(みせ)の広告(こうこく)を作(つく)って、駅前(えきまえ)で配(くば)った。",
+       "vi": "Tôi làm tờ quảng cáo cho cửa hàng rồi phát ở trước nhà ga.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "quảng cáo",
+    "examples": [
+     {
+      "ja": "駅で新しい店の広告を見た。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi thấy quảng cáo cửa hàng mới ở ga."
+     },
+     {
+      "ja": "｛新聞／雑誌｝に新製品の広告がのっていた",
+      "ja_furigana": "｛新聞(しんぶん)／雑誌(ざっし)｝に新製品(しんせいひん)の広告(こうこく)がのっていた",
+      "source": "VNJPCLUB",
+      "vi": "Đăng quảng cáo sản phẩm mới trên báo, tạp chí."
+     },
+     {
+      "ja": "広告を見て、このカメラを買った。",
+      "ja_furigana": "広告(こうこく)を見(み)て、このカメラを買(か)った。",
+      "source": "VNJPCLUB",
+      "vi": "Vì xem quảng cáo nên tôi đã mua chiếc máy ảnh này."
+     }
+    ],
+    "expression": "広告＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 駅で新しい店の広告を見た。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "quảng cáo",
+    "mnemonic_vi": "広 là rộng, 告 là báo; đưa tin sản phẩm cho nhiều người.",
+    "reading": "こうこく＜する＞",
+    "romaji": "koukoku<suru>",
+    "topic_vi": "Là công việc như thế nào?",
+    "twins": [],
+    "variants": [
+     "広告"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c41548b2ca"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "乗りこした分を、駅の機械で精算した。",
+       "ja_furigana": "乗(の)りこした分(ぶん)を、駅(えき)の機械(きかい)で精算(せいさん)した。",
+       "vi": "Tôi thanh toán phần tiền vé đi quá ga bằng máy ở nhà ga.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "出張の交通費を、会社で精算してもらった。",
+       "ja_furigana": "出張(しゅっちょう)の交通費(こうつうひ)を、会社(かいしゃ)で精算(せいさん)してもらった。",
+       "vi": "Tôi được công ty quyết toán tiền đi lại khi đi công tác.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Sự điều chỉnh, cân bằng chính xác",
+    "examples": [
+     {
+      "ja": "切符の清算をする。",
+      "ja_furigana": "切符(きっぷ)の清算(せいさん)をする。",
+      "source": "VNJPCLUB",
+      "vi": "Thanh toán vé"
+     },
+     {
+      "ja": "「一人がまとめて払って、後からみんなで清算しよう。」",
+      "ja_furigana": "「一人(ひとり)がまとめて払(はら)って、後(あと)からみんなで清算(せいさん)しよう。」",
+      "source": "VNJPCLUB",
+      "vi": "Một người trả trước, sau đó sẽ chia ra để thanh toán."
+     }
+    ],
+    "expression": "精算＜する＞",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 切符の清算をする。 → 清,算",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 「一人がまとめて払って、後からみんなで清算しよう。」 → 清,算"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "thanh toán; quyết toán",
+    "mnemonic_vi": "精 là tính kỹ, 算 là tính; đối chiếu từng khoản để quyết toán.",
+    "reading": "せいさん＜する＞",
+    "romaji": "seisan<suru>",
+    "topic_vi": "Là công việc như thế nào?",
+    "twins": [],
+    "variants": [
+     "精算"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4f673e7872"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会議の日程が決まったら、すぐに連絡します。",
+       "ja_furigana": "会議(かいぎ)の日程(にってい)が決(き)まったら、すぐに連絡(れんらく)します。",
+       "vi": "Khi lịch họp được quyết định, tôi sẽ liên lạc ngay.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "三日間の旅行の日程を、ノートに書いた。",
+       "ja_furigana": "三日間(みっかかん)の旅行(りょこう)の日程(にってい)を、ノートに書(か)いた。",
+       "vi": "Tôi ghi lịch trình chuyến du lịch ba ngày vào sổ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lịch trình theo ngày",
+    "examples": [
+     {
+      "ja": "急な用事で、旅行の日程を変えた。",
+      "ja_furigana": "急(きゅう)な用事(ようじ)で、旅行(りょこう)の日程(にってい)を変(か)えた。",
+      "source": "VNJPCLUB",
+      "vi": "Vì việc gấp nên đã thay đổi lịch trình chuyến đi."
+     },
+     {
+      "ja": "仕事の日程がぎっしり詰まっている。",
+      "ja_furigana": "仕事(しごと)の日程(にってい)がぎっしり詰(つ)まっている。",
+      "source": "VNJPCLUB",
+      "vi": "Lịch làm việc kín mít."
+     }
+    ],
+    "expression": "日程",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "lịch trình theo ngày; lịch trình; kế hoạch",
+    "mnemonic_vi": "日 là ngày, 程 là chặng; lịch trình chia công việc theo ngày.",
+    "reading": "にってい",
+    "romaji": "nittei",
+    "topic_vi": "Là công việc như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d02b8b586e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "こんざつをさけるため、昼休みの時間を三十分ずらした。",
+       "ja_furigana": "こんざつをさけるため、昼休(ひるやす)みの時間(じかん)を三十分(さんじゅっぷん)ずらした。",
+       "vi": "Để tránh đông đúc, tôi dời giờ nghỉ trưa đi ba mươi phút.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "めがねを少し下にずらして、新聞を読んだ。",
+       "ja_furigana": "めがねを少(すこ)し下(した)にずらして、新聞(しんぶん)を読(よ)んだ。",
+       "vi": "Tôi trễ kính xuống một chút để đọc báo.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "重いたなを、二人で少しずつずらした。",
+       "ja_furigana": "重(おも)いたなを、二人(ふたり)で少(すこ)しずつずらした。",
+       "vi": "Hai người chúng tôi dịch dần cái kệ nặng sang.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 3 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "xê dịch, dời lệch đi",
+    "examples": [
+     {
+      "ja": "机を少しずらして床を掃除した。",
+      "ja_furigana": "机(つくえ)を少(すこ)しずらして床(ゆか)を掃除(そうじ)した。",
+      "source": "VNJPCLUB",
+      "vi": "Dịch cái bàn ra một chút để lau sàn."
+     },
+     {
+      "ja": "帽子を斜めにずらしてかぶった。",
+      "ja_furigana": "帽子(ぼうし)を斜(なな)めにずらしてかぶった。",
+      "source": "VNJPCLUB",
+      "vi": "Đội mũ lệch sang một chút."
+     },
+     {
+      "ja": "旅行の予定を１週間ずらした。",
+      "ja_furigana": "旅行(りょこう)の予定(よてい)を１週間(しゅうかん)ずらした。",
+      "source": "VNJPCLUB",
+      "vi": "Dời lịch du lịch đi 1 tuần."
+     }
+    ],
+    "expression": "ずらす",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "xê dịch; dời lệch đi; rời ra",
+    "mnemonic_vi": "Đẩy cuộc hẹn sang một giờ khác; ずらす là dời lệch.",
+    "reading": "ずらす",
+    "romaji": "zurasu",
+    "topic_vi": "Là công việc như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7a06f59eb6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "雨で遠足が延期になった。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Buổi dã ngoại bị hoãn vì mưa."
+      },
+      {
+       "ja": "社長の都合で、会議が来週に延期された。",
+       "ja_furigana": "社長(しゃちょう)の都合(つごう)で、会議(かいぎ)が来週(らいしゅう)に延期(えんき)された。",
+       "vi": "Vì giám đốc bận nên cuộc họp bị hoãn sang tuần sau.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "試験の延期が決まって、学生たちはほっとした。",
+       "ja_furigana": "試験(しけん)の延期(えんき)が決(き)まって、学生(がくせい)たちはほっとした。",
+       "vi": "Kỳ thi được quyết định hoãn lại, sinh viên ai nấy thở phào.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hoãn lại",
+    "examples": [
+     {
+      "ja": "雨で遠足が延期になった。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Buổi dã ngoại bị hoãn vì mưa."
+     },
+     {
+      "ja": "母が入院したので、旅行を延期した。",
+      "ja_furigana": "母(はは)が入院(にゅういん)したので、旅行(りょこう)を延期(えんき)した。",
+      "source": "VNJPCLUB",
+      "vi": "Vì mẹ tôi nằm viện nên tôi đã hoãn chuyến đi du lịch."
+     },
+     {
+      "ja": "大雨のため、運動会は1週間後に延期された。",
+      "ja_furigana": "大雨(おおあめ)のため、運動会(うんどうかい)は1週間(しゅうかん)後(ご)に延期(えんき)された。",
+      "source": "VNJPCLUB",
+      "vi": "Vì mưa lớn nên hội thao bị hoãn 1 tuần."
+     }
+    ],
+    "expression": "延期＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 雨で遠足が延期になった。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "hoãn lại; hoãn; trì hoãn",
+    "mnemonic_vi": "延 là kéo dài, 期 là thời điểm; dời ngày họp sang tuần sau.",
+    "reading": "えんき＜する＞",
+    "romaji": "enki<suru>",
+    "topic_vi": "Là công việc như thế nào?",
+    "twins": [],
+    "variants": [
+     "延期"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-56553a8228"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "友達と協力して部屋を片づけた。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi hợp tác với bạn để dọn phòng."
+      },
+      {
+       "ja": "町の人たちが協力して、川のごみをひろった。",
+       "ja_furigana": "町(まち)の人(ひと)たちが協力(きょうりょく)して、川(かわ)のごみをひろった。",
+       "vi": "Người dân thị trấn cùng hợp sức nhặt rác ở sông.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "リンさんの協力のおかげで、発表の準備が早く終わった。",
+       "ja_furigana": "リンさんの協力(きょうりょく)のおかげで、発表(はっぴょう)の準備(じゅんび)が早(はや)く終(お)わった。",
+       "vi": "Nhờ có Linh giúp sức, việc chuẩn bị thuyết trình xong sớm.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hợp tác",
+    "examples": [
+     {
+      "ja": "友達と協力して部屋を片づけた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi hợp tác với bạn để dọn phòng."
+     },
+     {
+      "ja": "家族で協力して祖母の介護をした",
+      "ja_furigana": "家族(かぞく)で協力(きょうりょく)して祖母(そぼ)の介護(かいご)をした",
+      "source": "VNJPCLUB",
+      "vi": "Gia đình cùng đồng lòng chăm sóc bà."
+     },
+     {
+      "ja": "「アンケート調査にご協力ください」",
+      "ja_furigana": "「アンケート調査(ちょうさ)にご協力(きょうりょく)ください」",
+      "source": "VNJPCLUB",
+      "vi": "Xin hãy hợp tác trong cuộc điều tra trưng cầu ý kiến."
+     }
+    ],
+    "expression": "協力＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 友達と協力して部屋を片づけた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "hợp tác; hiệp lực; hợp lực",
+    "mnemonic_vi": "協 là cùng chung, 力 là sức; nhiều người hợp sức làm việc.",
+    "reading": "きょうりょく＜する＞",
+    "romaji": "kyouryoku<suru>",
+    "topic_vi": "Là công việc như thế nào?",
+    "twins": [],
+    "variants": [
+     "協力"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d899d8107e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "長い説明を省略した。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi lược bỏ phần giải thích dài."
+      },
+      {
+       "ja": "時間がないので、あいさつは省略します。",
+       "ja_furigana": "時間(じかん)がないので、あいさつは省略(しょうりゃく)します。",
+       "vi": "Vì không có thời gian, xin lược bỏ phần chào hỏi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lược bỏ",
+    "examples": [
+     {
+      "ja": "長い説明を省略した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi lược bỏ phần giải thích dài."
+     },
+     {
+      "ja": "くわしい説明を省略して簡単に話す",
+      "ja_furigana": "くわしい説明(せつめい)を省略(しょうりゃく)して簡単(かんたん)に話(はな)す",
+      "source": "VNJPCLUB",
+      "vi": "Lược bớt những chi tiết hãy nói thật đơn giản."
+     }
+    ],
+    "expression": "省略＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 長い説明を省略した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "lược bỏ; giản lược; rút gọn",
+    "mnemonic_vi": "省 là bớt, 略 là lược; cắt bớt phần rườm rà.",
+    "reading": "しょうりゃく＜する＞",
+    "romaji": "shouryaku<suru>",
+    "topic_vi": "Là công việc như thế nào?",
+    "twins": [],
+    "variants": [
+     "省略"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-fc4e7afd37"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "箱を高く積むと危ない。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Xếp hộp cao thì nguy hiểm."
+      },
+      {
+       "ja": "外国で経験を積んでから、国に帰りたい。",
+       "ja_furigana": "外国(がいこく)で経験(けいけん)を積(つ)んでから、国(くに)に帰(かえ)りたい。",
+       "vi": "Tôi muốn tích lũy kinh nghiệm ở nước ngoài rồi mới về nước.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "船に車をたくさん積んで、港を出た。",
+       "ja_furigana": "船(ふね)に車(くるま)をたくさん積(つ)んで、港(みなと)を出(で)た。",
+       "vi": "Con tàu chất đầy ô tô rồi rời cảng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chất đống; tích luỹ",
+    "examples": [
+     {
+      "ja": "箱を高く積むと危ない。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Xếp hộp cao thì nguy hiểm."
+     },
+     {
+      "ja": "机の上に本がたくさん積んである",
+      "ja_furigana": "机(つくえ)の上(うえ)に本(ほん)がたくさん積(つ)んである",
+      "source": "VNJPCLUB",
+      "vi": "Có rất nhiều sách chồng chất lên nhau trên bàn làm việc."
+     },
+     {
+      "ja": "レンガを積んで家をつくる",
+      "ja_furigana": "レンガを積(つ)んで家(いえ)をつくる",
+      "source": "VNJPCLUB",
+      "vi": "Xây nhà bằng cách xếp gạch chồng chất lên nhau."
+     }
+    ],
+    "expression": "積む",
+    "findings": [
+     "FURIGANA_MISSING: 箱を高く積むと危ない。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chất đống; tích luỹ; chất lên",
+    "mnemonic_vi": "Các hộp đặt chồng từng tầng; 積む là chất đống.",
+    "reading": "つむ",
+    "romaji": "tsumu",
+    "topic_vi": "Là công việc như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-48aa41764b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "子どもの成長は早い。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Trẻ em lớn rất nhanh."
+      },
+      {
+       "ja": "庭にうえた木が、三年で大きく成長した。",
+       "ja_furigana": "庭(にわ)にうえた木(き)が、三年(さんねん)で大(おお)きく成長(せいちょう)した。",
+       "vi": "Cái cây trồng trong vườn đã lớn hẳn sau ba năm.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "失敗から学んで、人は成長する。",
+       "ja_furigana": "失敗(しっぱい)から学(まな)んで、人(ひと)は成長(せいちょう)する。",
+       "vi": "Con người trưởng thành nhờ học hỏi từ thất bại.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sự trưởng thành, tăng trưởng",
+    "examples": [
+     {
+      "ja": "子どもの成長は早い。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Trẻ em lớn rất nhanh."
+     },
+     {
+      "ja": "子どもの成長を喜ぶ",
+      "ja_furigana": "子(こ)どもの成長(せいちょう)を喜(よろこ)ぶ",
+      "source": "VNJPCLUB",
+      "vi": "Vui mừng về sự trưởng thành của đứa con."
+     },
+     {
+      "ja": "りっぱな大人に成長する",
+      "ja_furigana": "りっぱな大人(おとな)に成長(せいちょう)する",
+      "source": "VNJPCLUB",
+      "vi": "Trưởng thành thành người chững chạc."
+     }
+    ],
+    "expression": "成長＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 子どもの成長は早い。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "sự trưởng thành; tăng trưởng; sinh trưởng",
+    "mnemonic_vi": "成 là thành, 長 là lớn; cây non cao dần là trưởng thành.",
+    "reading": "せいちょう＜する＞",
+    "romaji": "seichou<suru>",
+    "topic_vi": "Là công việc như thế nào?",
+    "twins": [],
+    "variants": [
+     "成長",
+     "成長（する）"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7c35e1cfb3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夏休みにアルバイトで稼ぐ。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi kiếm tiền bằng việc làm thêm dịp hè."
+      },
+      {
+       "ja": "兄は東京で働いて、家族のために稼いでいる。",
+       "ja_furigana": "兄(あに)は東京(とうきょう)で働(はたら)いて、家族(かぞく)のために稼(かせ)いでいる。",
+       "vi": "Anh trai tôi làm việc ở Tokyo, kiếm tiền lo cho gia đình.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "旅行のお金を稼ぐために、週末も働いた。",
+       "ja_furigana": "旅行(りょこう)のお金(かね)を稼(かせ)ぐために、週末(しゅうまつ)も働(はたら)いた。",
+       "vi": "Để kiếm tiền đi du lịch, tôi làm việc cả cuối tuần.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "kiếm tiền; làm việc để kiếm sống",
+    "examples": [
+     {
+      "ja": "夏休みにアルバイトで稼ぐ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi kiếm tiền bằng việc làm thêm dịp hè."
+     },
+     {
+      "ja": "大学年代はアルバイトで学費を稼いだ。",
+      "ja_furigana": "大学(だいがく)年代(ねんだい)はアルバイトで学費(がくひ)を稼(かせ)いだ。",
+      "source": "VNJPCLUB",
+      "vi": "Thời đại học tôi làm thêm để kiếm học phí."
+     },
+     {
+      "ja": "1日1万円稼ぐのは大変だ。",
+      "ja_furigana": "1日(にち)1万(まん)円(えん)稼(かせ)ぐのは大変(たいへん)だ。",
+      "source": "VNJPCLUB",
+      "vi": "Kiếm 1 vạn yên/ngày là vất vả lắm."
+     }
+    ],
+    "expression": "稼ぐ",
+    "findings": [
+     "FURIGANA_MISSING: 夏休みにアルバイトで稼ぐ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "kiếm tiền; làm việc để kiếm sống",
+    "mnemonic_vi": "Đi làm thêm cuối tuần để kiếm tiền; 稼ぐ là kiếm sống.",
+    "reading": "かせぐ",
+    "romaji": "kasegu",
+    "topic_vi": "Là công việc như thế nào?",
+    "twins": [],
+    "variants": [
+     "かせぐ"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-10279ca352"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "画面の文字が小さすぎる。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Chữ trên màn hình quá nhỏ."
+      },
+      {
+       "ja": "スマホを落として、画面が割れてしまった。",
+       "ja_furigana": "スマホを落(お)として、画面(がめん)が割(わ)れてしまった。",
+       "vi": "Tôi làm rơi điện thoại nên màn hình bị vỡ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "màn hình",
+    "examples": [
+     {
+      "ja": "画面の文字が小さすぎる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Chữ trên màn hình quá nhỏ."
+     },
+     {
+      "ja": "パソコンの画面をずっと見ていると、目が疲れる",
+      "ja_furigana": "パソコンの画面(がめん)をずっと見(み)ていると、目(め)が疲(つか)れる",
+      "source": "VNJPCLUB",
+      "vi": "Cứ nhìn suốt vào màn hình máy tính thì sẽ mỏi mắt."
+     }
+    ],
+    "expression": "画面",
+    "findings": [
+     "FURIGANA_MISSING: 画面の文字が小さすぎる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "màn hình; màn ảnh",
+    "mnemonic_vi": "画 là hình, 面 là mặt; hình hiện trên mặt màn hình.",
+    "reading": "がめん",
+    "romaji": "gamen",
+    "topic_vi": "Bằng máy vi tính",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a7ce84acb5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "電波が弱くて受信できない。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Sóng yếu nên không thể thu tín hiệu."
+      },
+      {
+       "ja": "夜中に、知らない人からのメールを受信した。",
+       "ja_furigana": "夜中(よなか)に、知(し)らない人(ひと)からのメールを受信(じゅしん)した。",
+       "vi": "Nửa đêm tôi nhận được email từ một người lạ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Sự tiếp nhận tín hiệu",
+    "examples": [
+     {
+      "ja": "電波が弱くて受信できない。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Sóng yếu nên không thể thu tín hiệu."
+     },
+     {
+      "ja": "受信したメールは全部とってある。",
+      "ja_furigana": "受信(じゅしん)したメールは全部(ぜんぶ)とってある。",
+      "source": "VNJPCLUB",
+      "vi": "Tất cả những mail đã nhận đều được lưu giữ lại."
+     }
+    ],
+    "expression": "受信＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 電波が弱くて受信できない。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "sự tiếp nhận tín hiệu; nhận tín hiệu; thư",
+    "mnemonic_vi": "受 là nhận, 信 là tin; hộp thư nhận email mới.",
+    "reading": "じゅしん＜する＞",
+    "romaji": "jushin<suru>",
+    "topic_vi": "Bằng máy vi tính",
+    "twins": [],
+    "variants": [
+     "受信"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ee14628ee0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "写真の送信に時間がかかる。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Gửi ảnh mất thời gian."
+      },
+      {
+       "ja": "まちがえて、書きかけのメールを送信してしまった。",
+       "ja_furigana": "まちがえて、書(か)きかけのメールを送信(そうしん)してしまった。",
+       "vi": "Tôi lỡ tay gửi đi email đang viết dở.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Gửi",
+    "examples": [
+     {
+      "ja": "写真の送信に時間がかかる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Gửi ảnh mất thời gian."
+     },
+     {
+      "ja": "メールは、送信するまえにチェックすること。",
+      "ja_furigana": "メールは、送信(そうしん)するまえにチェックすること。",
+      "source": "VNJPCLUB",
+      "vi": "Trước khi gửi mail hãy kiểm tra lại."
+     }
+    ],
+    "expression": "送信＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 写真の送信に時間がかかる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "gửi; gửi dữ liệu; tin nhắn",
+    "mnemonic_vi": "送 là gửi đi, 信 là tin; bấm nút gửi email.",
+    "reading": "そうしん＜する＞",
+    "romaji": "soushin<suru>",
+    "topic_vi": "Bằng máy vi tính",
+    "twins": [],
+    "variants": [
+     "送信"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-760c5ce0b6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "友達からの返信を待つ。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi đợi hồi âm của bạn."
+      },
+      {
+       "ja": "返信が遅くなって、すみません。",
+       "ja_furigana": "返信(へんしん)が遅(おそ)くなって、すみません。",
+       "vi": "Xin lỗi vì đã trả lời muộn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Trả lời, hồi âm",
+    "examples": [
+     {
+      "ja": "友達からの返信を待つ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đợi hồi âm của bạn."
+     },
+     {
+      "ja": "友達からメールに返信した。",
+      "ja_furigana": "友達(ともだち)からメールに返信(へんしん)した。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã trả lời mail của người bạn."
+     }
+    ],
+    "expression": "返信＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 友達からの返信を待つ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "trả lời; hồi âm; trả lời thư",
+    "mnemonic_vi": "返 là trả lại, 信 là tin; hồi âm email vừa nhận.",
+    "reading": "へんしん＜する＞",
+    "romaji": "henshin<suru>",
+    "topic_vi": "Bằng máy vi tính",
+    "twins": [],
+    "variants": [
+     "返信"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-af6e93606a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "手紙のやり取りが続いた。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Chúng tôi tiếp tục trao đổi thư."
+      },
+      {
+       "ja": "留学している友達と、毎週写真をやり取りしている。",
+       "ja_furigana": "留学(りゅうがく)している友達(ともだち)と、毎週(まいしゅう)写真(しゃしん)をやり取(と)りしている。",
+       "vi": "Tuần nào tôi cũng trao đổi ảnh với người bạn đang du học.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "店員とお客さんのやり取りを聞いて、けいごを勉強した。",
+       "ja_furigana": "店員(てんいん)とお客(きゃく)さんのやり取(と)りを聞(き)いて、けいごを勉強(べんきょう)した。",
+       "vi": "Nghe cuộc trao đổi giữa nhân viên và khách, tôi học được kính ngữ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "trao đổi",
+    "examples": [
+     {
+      "ja": "手紙のやり取りが続いた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Chúng tôi tiếp tục trao đổi thư."
+     },
+     {
+      "ja": "友だちとメールはやりとりする",
+      "ja_furigana": "友(とも)だちとメールはやりとりする",
+      "source": "VNJPCLUB",
+      "vi": "Trao đổi mail với bạn bè."
+     },
+     {
+      "ja": "情報のやりとり",
+      "ja_furigana": "情報(じょうほう)のやりとり",
+      "source": "VNJPCLUB",
+      "vi": "Trao đổi thông tin."
+     }
+    ],
+    "expression": "やり取り＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 手紙のやり取りが続いた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "trao đổi",
+    "mnemonic_vi": "Một người gửi, người kia đáp; やり取り là trao đổi qua lại.",
+    "reading": "やりとり＜する＞",
+    "romaji": "yaritori<suru>",
+    "topic_vi": "Bằng máy vi tính",
+    "twins": [],
+    "variants": [
+     "やり取り"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6aecc4d8aa"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "答えをもう一度見直す。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi xem lại đáp án một lần nữa."
+      },
+      {
+       "ja": "電気代が高いので、家での使い方を見直した。",
+       "ja_furigana": "電気代(でんきだい)が高(たか)いので、家(いえ)での使(つか)い方(かた)を見直(みなお)した。",
+       "vi": "Tiền điện cao nên tôi xem lại cách sử dụng điện ở nhà.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "料理が上手な夫を見直した。",
+       "ja_furigana": "料理(りょうり)が上手(じょうず)な夫(おっと)を見直(みなお)した。",
+       "vi": "Thấy chồng nấu ăn giỏi, tôi đánh giá anh ấy cao hơn hẳn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "xem lại; đánh giá lại cao hơn",
+    "examples": [
+     {
+      "ja": "答えをもう一度見直す。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi xem lại đáp án một lần nữa."
+     },
+     {
+      "ja": "書いた答えに間違いがないか、見直した。",
+      "ja_furigana": "書(か)いた答(こた)えに間違(まちが)いがないか、見直(みなお)した。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi kiểm tra lại những câu trả lời đã viết có sai hay không."
+     },
+     {
+      "ja": "「テストを出す前に、もう一度見直しなさい」",
+      "ja_furigana": "「テストを出(だ)す前(まえ)に、もう一度(いちど)見直(みなお)しなさい」",
+      "source": "VNJPCLUB",
+      "vi": "“Trước khi nộp bài kiểm tra, hãy xem lại một lần nữa.”"
+     }
+    ],
+    "expression": "見直す",
+    "findings": [
+     "FURIGANA_MISSING: 答えをもう一度見直す。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "xem lại; đánh giá lại cao hơn; nhìn lại",
+    "mnemonic_vi": "見 là xem, 直 là sửa; đọc lại bài trước khi nộp.",
+    "reading": "みなおす",
+    "romaji": "minaosu",
+    "topic_vi": "Bằng máy vi tính",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ca747ef22d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会議の時間を変更した。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi đã đổi giờ họp."
+      },
+      {
+       "ja": "雨のため、運動会の場所を体育館に変更した。",
+       "ja_furigana": "雨(あめ)のため、運動会(うんどうかい)の場所(ばしょ)を体育館(たいいくかん)に変更(へんこう)した。",
+       "vi": "Do trời mưa, địa điểm hội thao được đổi sang nhà thể chất.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "パスワードを変更すると、メールで知らせが来る。",
+       "ja_furigana": "パスワードを変更(へんこう)すると、メールで知(し)らせが来(く)る。",
+       "vi": "Khi đổi mật khẩu sẽ có thông báo gửi qua email.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thay đổi",
+    "examples": [
+     {
+      "ja": "会議の時間を変更した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đã đổi giờ họp."
+     },
+     {
+      "ja": "｛予定／計画／進路 …｝の変更を行う",
+      "ja_furigana": "｛予定(よてい)／計画(けいかく)／進路(しんろ) …｝の変更(へんこう)を行(おこな)う",
+      "source": "VNJPCLUB",
+      "vi": "Tiến hành thay đổi {dự định/ kế hoạch / lộ trình…}."
+     },
+     {
+      "ja": "旅行先を沖縄から北海道に変更する",
+      "ja_furigana": "旅行(りょこう)先(さき)を沖縄(おきなわ)から北海道(ほっかいどう)に変更(へんこう)する",
+      "source": "VNJPCLUB",
+      "vi": "Vừa thay đổi địa điểm đi du lịch từ Okinawa sang thành Hokkaido."
+     }
+    ],
+    "expression": "変更＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 会議の時間を変更した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "thay đổi; thay đỏi; đổi",
+    "mnemonic_vi": "変 là biến, 更 là đổi thêm; đổi giờ họp sang chiều.",
+    "reading": "へんこう＜する＞",
+    "romaji": "henkou<suru>",
+    "topic_vi": "Bằng máy vi tính",
+    "twins": [],
+    "variants": [
+     "変更",
+     "変更（する）"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-eaa8cdc028"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大事な写真を保存した。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi đã lưu những bức ảnh quan trọng."
+      },
+      {
+       "ja": "作ったカレーを小さい箱に分けて、れいとうこで保存した。",
+       "ja_furigana": "作(つく)ったカレーを小(ちい)さい箱(はこ)に分(わ)けて、れいとうこで保存(ほぞん)した。",
+       "vi": "Tôi chia cà ri đã nấu vào các hộp nhỏ để bảo quản trong ngăn đá.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "この古い家は、町のたからとして大切に保存されている。",
+       "ja_furigana": "この古(ふる)い家(いえ)は、町(まち)のたからとして大切(たいせつ)に保存(ほぞん)されている。",
+       "vi": "Ngôi nhà cổ này được bảo tồn cẩn thận như báu vật của thị trấn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bảo quản, lưu lại",
+    "examples": [
+     {
+      "ja": "大事な写真を保存した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đã lưu những bức ảnh quan trọng."
+     },
+     {
+      "ja": "食料の保存",
+      "ja_furigana": "食料(しょくりょう)の保存(ほぞん)",
+      "source": "VNJPCLUB",
+      "vi": "Bảo quản thực phẩm."
+     },
+     {
+      "ja": "パソコンにデータを保存する",
+      "ja_furigana": "パソコンにデータを保存(ほぞん)する",
+      "source": "VNJPCLUB",
+      "vi": "Lưu dữ liệu vào máy tính."
+     }
+    ],
+    "expression": "保存＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 大事な写真を保存した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bảo quản; lưu lại; lưu",
+    "mnemonic_vi": "保 là giữ, 存 là còn; bấm lưu để tệp không mất.",
+    "reading": "ほぞん＜する＞",
+    "romaji": "hozon<suru>",
+    "topic_vi": "Bằng máy vi tính",
+    "twins": [],
+    "variants": [
+     "保存",
+     "保存（する）"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-275fe10789"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅の写真をブログに載せた。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi đăng ảnh chuyến đi lên blog."
+      },
+      {
+       "ja": "山田さんのブログを読んで、その町に行きたくなった。",
+       "ja_furigana": "山田(やまだ)さんのブログを読(よ)んで、その町(まち)に行(い)きたくなった。",
+       "vi": "Đọc blog của anh Yamada, tôi muốn đến thị trấn đó.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "毎日ブログを書くのは、思ったより大変だ。",
+       "ja_furigana": "毎日(まいにち)ブログを書(か)くのは、思(おも)ったより大変(たいへん)だ。",
+       "vi": "Viết blog mỗi ngày vất vả hơn tôi nghĩ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "blog",
+    "examples": [
+     {
+      "ja": "旅の写真をブログに載せた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đăng ảnh chuyến đi lên blog."
+     },
+     {
+      "ja": "彼は毎日の出来事をブログに乗せている。",
+      "ja_furigana": "彼(かれ)は毎日(まいにち)の出来事(できごと)をブログに乗(の)せている。",
+      "source": "VNJPCLUB",
+      "vi": "Anh ấy đaăng những việc hằng ngày lên trang cá nhân."
+     },
+     {
+      "ja": "友達がブログを始めて、おいしいレストランのことばかり書いている。",
+      "ja_furigana": "友達(ともだち)がブログを始(はじ)めて、おいしいレストランのことばかり書(か)いている。",
+      "source": "VNJPCLUB",
+      "vi": "Bạn tôi bắt đầu viết blog và chỉ toàn viết về những nhà hàng ngon."
+     }
+    ],
+    "expression": "ブログ",
+    "findings": [
+     "FURIGANA_MISSING: 旅の写真をブログに載せた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "trang cá nhân; blog",
+    "mnemonic_vi": "Những bài viết cá nhân đăng theo ngày trên mạng là ブログ.",
+    "reading": "ぶろぐ",
+    "romaji": "burogu",
+    "topic_vi": "Bằng máy vi tính",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-bc39aec717"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "パソコンのマウスが動かない。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Chuột máy tính không hoạt động."
+      },
+      {
+       "ja": "新しいマウスは、線がなくて使いやすい。",
+       "ja_furigana": "新(あたら)しいマウスは、線(せん)がなくて使(つか)いやすい。",
+       "vi": "Con chuột mới không có dây nên rất dễ dùng.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "マウスを使いすぎて、手首が痛くなった。",
+       "ja_furigana": "マウスを使(つか)いすぎて、手首(てくび)が痛(いた)くなった。",
+       "vi": "Dùng chuột quá nhiều nên cổ tay tôi bị đau.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "con chuột máy tính",
+    "examples": [
+     {
+      "ja": "パソコンのマウスが動かない。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Chuột máy tính không hoạt động."
+     },
+     {
+      "ja": "商品を選んで、マウスをクリックした。",
+      "ja_furigana": "商品(しょうひん)を選(えら)んで、マウスをクリックした。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã chon hàng hóa và nhấn chuột."
+     },
+     {
+      "ja": "マウスの調子が悪くなったのは、裏にごみがたまっていたからでした。",
+      "ja_furigana": "マウスの調子(ちょうし)が悪(わる)くなったのは、裏(うら)にごみがたまっていたからでした。",
+      "source": "VNJPCLUB",
+      "vi": "Chuột máy tính hoạt động không tốt là do bụi bẩn tích tụ ở mặt dưới."
+     }
+    ],
+    "expression": "マウス",
+    "findings": [
+     "FURIGANA_MISSING: パソコンのマウスが動かない。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chuột; chuột (máy tính); con chuột máy tính",
+    "mnemonic_vi": "Bàn tay đẩy con chuột máy tính để di chuyển mũi tên.",
+    "reading": "まうす",
+    "romaji": "mausu",
+    "topic_vi": "Bằng máy vi tính",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ebe145d22d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "画面のボタンをクリックした。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi nhấp nút trên màn hình."
+      },
+      {
+       "ja": "まちがえて、広告をクリックしてしまった。",
+       "ja_furigana": "まちがえて、広告(こうこく)をクリックしてしまった。",
+       "vi": "Tôi lỡ nhấp nhầm vào quảng cáo.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Kích vào",
+    "examples": [
+     {
+      "ja": "画面のボタンをクリックした。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi nhấp nút trên màn hình."
+     },
+     {
+      "ja": "ここをクリックすると、字が大きくなる。",
+      "ja_furigana": "ここをクリックすると、字(じ)が大(おお)きくなる。",
+      "source": "VNJPCLUB",
+      "vi": "Cứ kích vào đây thì chữ sẽ to ra."
+     }
+    ],
+    "expression": "クリック＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 画面のボタンをクリックした。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "kích vào; nhấp chuột",
+    "mnemonic_vi": "Ngón tay bấm nút chuột một cái tách: クリック.",
+    "reading": "くりっく＜する＞",
+    "romaji": "kurikku<suru>",
+    "topic_vi": "Bằng máy vi tính",
+    "twins": [],
+    "variants": [
+     "クリック",
+     "クリック（する）"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1afc506d21"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "地図をダウンロードした。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi đã tải bản đồ xuống."
+      },
+      {
+       "ja": "授業のしりょうは、学校のホームページからダウンロードできる。",
+       "ja_furigana": "授業(じゅぎょう)のしりょうは、学校(がっこう)のホームページからダウンロードできる。",
+       "vi": "Tài liệu của giờ học có thể tải về từ trang web của trường.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tải xuống",
+    "examples": [
+     {
+      "ja": "地図をダウンロードした。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đã tải bản đồ xuống."
+     },
+     {
+      "ja": "好きな音楽をダウンロードした。",
+      "ja_furigana": "好(す)きな音楽(おんがく)をダウンロードした。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã tải các bản nhạc mà tôi yêu thích."
+     }
+    ],
+    "expression": "ダウンロード＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 地図をダウンロードした。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tải về; tải; tải xuống",
+    "mnemonic_vi": "Dữ liệu từ mạng đi xuống máy mình; ダウンロード là tải về.",
+    "reading": "だうんろーど＜する＞",
+    "romaji": "daunroodo<suru>",
+    "topic_vi": "Bằng máy vi tính",
+    "twins": [],
+    "variants": [
+     "ダウンロード"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-db10035222"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅行の日にちを決めよう。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Hãy quyết định ngày đi du lịch."
+      },
+      {
+       "ja": "パーティーの日にちが変わったら、教えてください。",
+       "ja_furigana": "パーティーの日(ひ)にちが変(か)わったら、教(おし)えてください。",
+       "vi": "Nếu ngày tổ chức tiệc thay đổi thì hãy báo cho tôi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Ngày giờ",
+    "examples": [
+     {
+      "ja": "旅行の日にちを決めよう。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hãy quyết định ngày đi du lịch."
+     },
+     {
+      "ja": "旅行に行く日にちを決めた。",
+      "ja_furigana": "旅行(りょこう)に行(い)く日(ひ)にちを決(き)めた。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã quyết định ngày đi du lịch."
+     }
+    ],
+    "expression": "日にち",
+    "findings": [
+     "FURIGANA_MISSING: 旅行の日にちを決めよう。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "ngày giờ",
+    "mnemonic_vi": "日 là ngày; đánh dấu một ngày cụ thể trên lịch.",
+    "reading": "ひにち",
+    "romaji": "hinichi",
+    "topic_vi": "Du lịch",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8f1e88f527"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "日帰りで海へ遊びに行く。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi đi biển chơi rồi về trong ngày."
+      },
+      {
+       "ja": "日帰りの出張だったので、とても疲れた。",
+       "ja_furigana": "日帰(ひがえ)りの出張(しゅっちょう)だったので、とても疲(つか)れた。",
+       "vi": "Chuyến công tác đi về trong ngày nên tôi rất mệt.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "日帰りでおんせんに入れるホテルを探した。",
+       "ja_furigana": "日帰(ひがえ)りでおんせんに入(はい)れるホテルを探(さが)した。",
+       "vi": "Tôi tìm một khách sạn có thể tắm suối nước nóng đi về trong ngày.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đi về trong ngày",
+    "examples": [
+     {
+      "ja": "日帰りで海へ遊びに行く。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đi biển chơi rồi về trong ngày."
+     },
+     {
+      "ja": "両親は日帰りの旅行に出かけた。",
+      "ja_furigana": "両親(りょうしん)は日帰(ひがえ)りの旅行(りょこう)に出(で)かけた。",
+      "source": "VNJPCLUB",
+      "vi": "Bố mẹ tôi đã đi du lịch trong một ngày."
+     },
+     {
+      "ja": "日光は東京から日帰りで行けます。",
+      "ja_furigana": "日光(にっこう)は東京(とうきょう)から日帰(ひがえ)りで行(い)けます。",
+      "source": "VNJPCLUB",
+      "vi": "Từ Tokyo có thể đi Nikko về trong ngày."
+     }
+    ],
+    "expression": "日帰り",
+    "findings": [
+     "FURIGANA_MISSING: 日帰りで海へ遊びに行く。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đi về trong ngày",
+    "mnemonic_vi": "日 là ngày, 帰り là về; sáng đi chiều về trong ngày.",
+    "reading": "ひがえり",
+    "romaji": "higaeri",
+    "topic_vi": "Du lịch",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a1127a8001"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "京都に三日間滞在した。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi ở Kyoto ba ngày."
+      },
+      {
+       "ja": "ホテルに滞在している間、毎朝海のそばを散歩した。",
+       "ja_furigana": "ホテルに滞在(たいざい)している間(あいだ)、毎朝(まいあさ)海(うみ)のそばを散歩(さんぽ)した。",
+       "vi": "Trong thời gian ở khách sạn, sáng nào tôi cũng đi dạo bên bờ biển.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "ビザがあれば、九十日まで滞在できる。",
+       "ja_furigana": "ビザがあれば、九十日(きゅうじゅうにち)まで滞在(たいざい)できる。",
+       "vi": "Nếu có visa thì có thể lưu lại tối đa chín mươi ngày.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lưu lại, ở lại",
+    "examples": [
+     {
+      "ja": "京都に三日間滞在した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi ở Kyoto ba ngày."
+     },
+     {
+      "ja": "今回の海外出張は、約1か月の滞在になる予定だ。",
+      "ja_furigana": "今回(こんかい)の海外(かいがい)出張(しゅっちょう)は、約(やく)1か月(げつ)の滞在(たいざい)になる予定(よてい)だ。",
+      "source": "VNJPCLUB",
+      "vi": "Chuyến công tác nước ngoài này dự kiến ở lại khoảng 1 tháng."
+     },
+     {
+      "ja": "多くの芸術家がパリに滞在する。",
+      "ja_furigana": "多(おお)くの芸術家(げいじゅつか)がパリに滞在(たいざい)する。",
+      "source": "VNJPCLUB",
+      "vi": "Nhiều nghệ sĩ lưu trú ở Paris."
+     }
+    ],
+    "expression": "滞在＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 京都に三日間滞在した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "lưu lại; ở lại; ở",
+    "mnemonic_vi": "滞 là lưu lại, 在 là ở; ở lại một thành phố nhiều ngày.",
+    "reading": "たいざい＜する＞",
+    "romaji": "taizai<suru>",
+    "topic_vi": "Du lịch",
+    "twins": [],
+    "variants": [
+     "滞在"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-cee08621c8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "地域の団体が掃除をした。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Một đoàn thể địa phương đã dọn vệ sinh."
+      },
+      {
+       "ja": "団体で予約すると、料金が安くなる。",
+       "ja_furigana": "団体(だんたい)で予約(よやく)すると、料金(りょうきん)が安(やす)くなる。",
+       "vi": "Đặt chỗ theo đoàn thì giá sẽ rẻ hơn.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "この団体は、困っている子どもたちを助ける活動をしている。",
+       "ja_furigana": "この団体(だんたい)は、困(こま)っている子(こ)どもたちを助(たす)ける活動(かつどう)をしている。",
+       "vi": "Tổ chức này hoạt động giúp đỡ trẻ em có hoàn cảnh khó khăn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đoàn thể",
+    "examples": [
+     {
+      "ja": "地域の団体が掃除をした。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Một đoàn thể địa phương đã dọn vệ sinh."
+     },
+     {
+      "ja": "博物館で団体のチケットを買う",
+      "ja_furigana": "博物館(はくぶつかん)で団体(だんたい)のチケットを買(か)う",
+      "source": "VNJPCLUB",
+      "vi": "Tôi mua vé theo nhóm vào tham quan viện bảo tàng."
+     },
+     {
+      "ja": "サッカーや野球は団体でするスポーツだ。",
+      "ja_furigana": "サッカーや野球(やきゅう)は団体(だんたい)でするスポーツだ。",
+      "source": "VNJPCLUB",
+      "vi": "Bóng đá và bóng chày là môn thể thao tập thể."
+     }
+    ],
+    "expression": "団体",
+    "findings": [
+     "FURIGANA_MISSING: 地域の団体が掃除をした。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đoàn thể; nhóm",
+    "mnemonic_vi": "団 là nhóm, 体 là một khối; nhiều người đi chung thành đoàn.",
+    "reading": "だんたい",
+    "romaji": "dantai",
+    "topic_vi": "Du lịch",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a5753add5c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "春のツアーに参加した。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi tham gia chuyến đi vào mùa xuân."
+      },
+      {
+       "ja": "料理を作る体験ができるツアーを申し込んだ。",
+       "ja_furigana": "料理(りょうり)を作(つく)る体験(たいけん)ができるツアーを申(もう)し込(こ)んだ。",
+       "vi": "Tôi đăng ký một tour có trải nghiệm nấu ăn.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "ツアーなら、ホテルも食事も全部ついている。",
+       "ja_furigana": "ツアーなら、ホテルも食事(しょくじ)も全部(ぜんぶ)ついている。",
+       "vi": "Nếu đi tour thì đã có sẵn cả khách sạn lẫn bữa ăn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Tua, chuyến đi",
+    "examples": [
+     {
+      "ja": "春のツアーに参加した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi tham gia chuyến đi vào mùa xuân."
+     },
+     {
+      "ja": "海外旅行のツアーに参加した。",
+      "ja_furigana": "海外(かいがい)旅行(りょこう)のツアーに参加(さんか)した。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã tham gia vào tua du lịch nước ngoài."
+     },
+     {
+      "ja": "バスツアーで静岡県に桜を見に行った。",
+      "ja_furigana": "バスツアーで静岡県(しずおかけん)に桜(さくら)を見(み)に行(い)った。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã đi tour bằng xe buýt đến tỉnh Shizuoka để ngắm hoa anh đào."
+     }
+    ],
+    "expression": "ツアー",
+    "findings": [
+     "FURIGANA_MISSING: 春のツアーに参加した。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: バスツアーで静岡県に桜を見に行った。 → 岡"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tua; chuyến đi",
+    "mnemonic_vi": "Xe đưa khách qua nhiều điểm theo lịch: ツアー là chuyến tham quan.",
+    "reading": "つあー",
+    "romaji": "tsuaa",
+    "topic_vi": "Du lịch",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2eb79773ac"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "家族と町を観光した。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi tham quan thành phố cùng gia đình."
+      },
+      {
+       "ja": "この町には、観光の仕事をしている人が多い。",
+       "ja_furigana": "この町(まち)には、観光(かんこう)の仕事(しごと)をしている人(ひと)が多(おお)い。",
+       "vi": "Ở thị trấn này có nhiều người làm nghề du lịch.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "雨だったので、観光をやめてホテルで休んだ。",
+       "ja_furigana": "雨(あめ)だったので、観光(かんこう)をやめてホテルで休(やす)んだ。",
+       "vi": "Trời mưa nên chúng tôi bỏ đi tham quan, nghỉ ở khách sạn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tham quan, du lịch",
+    "examples": [
+     {
+      "ja": "家族と町を観光した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi tham quan thành phố cùng gia đình."
+     },
+     {
+      "ja": "「来日の目的は観光です」",
+      "ja_furigana": "「来日(らいにち)の目的(もくてき)は観光(かんこう)です」",
+      "source": "VNJPCLUB",
+      "vi": "Mục đích đến Nhật Bản là du lịch."
+     },
+     {
+      "ja": "先週、京都を観光してまわった",
+      "ja_furigana": "先週(せんしゅう)、京都(きょうと)を観光(かんこう)してまわった",
+      "source": "VNJPCLUB",
+      "vi": "Tuần trước, tôi đã đi tham quan ở Kyoto."
+     }
+    ],
+    "expression": "観光＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 家族と町を観光した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tham quan; du lịch",
+    "mnemonic_vi": "観 là ngắm, 光 là cảnh sáng; đi ngắm các điểm du lịch.",
+    "reading": "かんこう＜する＞",
+    "romaji": "kankou<suru>",
+    "topic_vi": "Du lịch",
+    "twins": [],
+    "variants": [
+     "観光"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f89ec9ac31"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅行の費用を計算した。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi tính chi phí chuyến đi."
+      },
+      {
+       "ja": "引っこしの費用は、会社が出してくれる。",
+       "ja_furigana": "引(ひ)っこしの費用(ひよう)は、会社(かいしゃ)が出(だ)してくれる。",
+       "vi": "Chi phí chuyển nhà được công ty chi trả.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "車を持つと、いろいろな費用がかかる。",
+       "ja_furigana": "車(くるま)を持(も)つと、いろいろな費用(ひよう)がかかる。",
+       "vi": "Có ô tô thì tốn đủ thứ chi phí.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chi phí",
+    "examples": [
+     {
+      "ja": "旅行の費用を計算した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi tính chi phí chuyến đi."
+     },
+     {
+      "ja": "旅行の不要を計算した。",
+      "ja_furigana": "旅行(りょこう)の不要(ふよう)を計算(けいさん)した。",
+      "source": "VNJPCLUB",
+      "vi": "Chúng tôi đã tính chi phí đi du lịch."
+     },
+     {
+      "ja": "旅行の費用をためる。",
+      "ja_furigana": "旅行(りょこう)の費用(ひよう)をためる。",
+      "source": "VNJPCLUB",
+      "vi": "Dành dụm tiền cho chi phí du lịch."
+     }
+    ],
+    "expression": "費用",
+    "findings": [
+     "FURIGANA_MISSING: 旅行の費用を計算した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chi phí; chi phí nói chung; khoản chi phục vụ công việc",
+    "mnemonic_vi": "費 là khoản chi, 用 là việc dùng; tiền cần cho chuyến đi.",
+    "reading": "ひよう",
+    "romaji": "hiyou",
+    "topic_vi": "Du lịch",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a6e5b57568"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅行の予算を決めた。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi quyết định ngân sách du lịch."
+      },
+      {
+       "ja": "結婚式の予算は、二人で相談して決めた。",
+       "ja_furigana": "結婚式(けっこんしき)の予算(よさん)は、二人(ふたり)で相談(そうだん)して決(き)めた。",
+       "vi": "Ngân sách đám cưới do hai người bàn bạc rồi quyết định.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "町の予算が足りなくて、新しい図書館の計画が止まった。",
+       "ja_furigana": "町(まち)の予算(よさん)が足(た)りなくて、新(あたら)しい図書館(としょかん)の計画(けいかく)が止(と)まった。",
+       "vi": "Ngân sách thị trấn không đủ nên kế hoạch xây thư viện mới bị dừng lại.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ngân sách",
+    "examples": [
+     {
+      "ja": "旅行の予算を決めた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi quyết định ngân sách du lịch."
+     },
+     {
+      "ja": "1万円の予算でテーブルを探した。",
+      "ja_furigana": "1万円(まんえん)の予算(よさん)でテーブルを探(さが)した。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã tìm được chiếc bàn trong tầm giá 10 nghìn yên."
+     },
+     {
+      "ja": "来年度の予算を立てる。",
+      "ja_furigana": "来年度(らいねんど)の予算(よさん)を立(た)てる。",
+      "source": "VNJPCLUB",
+      "vi": "Lập ngân sách cho năm sau."
+     }
+    ],
+    "expression": "予算",
+    "findings": [
+     "FURIGANA_MISSING: 旅行の予算を決めた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "ngân sách; dự toán",
+    "mnemonic_vi": "予 là trước, 算 là tính; số tiền dự tính trước khi đi.",
+    "reading": "よさん",
+    "romaji": "yosan",
+    "topic_vi": "Du lịch",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4b2d28a2ae"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "八時に駅前で集合しよう。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tám giờ tập trung trước ga nhé."
+      },
+      {
+       "ja": "遠足の日は、七時半に校庭に集合だ。",
+       "ja_furigana": "遠足(えんそく)の日(ひ)は、七時半(しちじはん)に校庭(こうてい)に集合(しゅうごう)だ。",
+       "vi": "Ngày dã ngoại, 7 giờ rưỡi tập trung ở sân trường.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "全員が集合したら、バスが出発します。",
+       "ja_furigana": "全員(ぜんいん)が集合(しゅうごう)したら、バスが出発(しゅっぱつ)します。",
+       "vi": "Khi mọi người đã tập hợp đủ, xe buýt sẽ khởi hành.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tập hợp",
+    "examples": [
+     {
+      "ja": "八時に駅前で集合しよう。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tám giờ tập trung trước ga nhé."
+     },
+     {
+      "ja": "明日は10時に駅前集合してください。",
+      "ja_furigana": "明日(あす)は10時(じ)に駅前(えきまえ)集合(しゅうごう)してください。",
+      "source": "VNJPCLUB",
+      "vi": "Ngày mai hãy tập tung vào trước nhà ga vào lúc 10 giờ."
+     },
+     {
+      "ja": "「面接を受ける人は、予定時間の30分前に会場に集合してください」",
+      "ja_furigana": "「面接(めんせつ)を受(う)ける人(ひと)は、予定(よてい)時間(じかん)の30分(ぷん)前(まえ)に会場(かいじょう)に集合(しゅうごう)してください」",
+      "source": "VNJPCLUB",
+      "vi": "Ai tham gia phỏng vấn vui lòng tập trung trước giờ hẹn 30 phút."
+     }
+    ],
+    "expression": "集合＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 八時に駅前で集合しよう。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tập hợp; tập trung",
+    "mnemonic_vi": "集 là gom, 合 là cùng chỗ; cả nhóm tập trung ở cổng ga.",
+    "reading": "しゅうごう＜する＞",
+    "romaji": "shuugou<suru>",
+    "topic_vi": "Du lịch",
+    "twins": [],
+    "variants": [
+     "集合",
+     "集合（する）"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-36fcd510a3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ホテルでチェックインを済ませた。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi đã làm thủ tục nhận phòng khách sạn."
+      },
+      {
+       "ja": "このホテルのチェックインは、午後三時からです。",
+       "ja_furigana": "このホテルのチェックインは、午後(ごご)三時(さんじ)からです。",
+       "vi": "Khách sạn này nhận phòng từ 3 giờ chiều.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Vào(thủ tục vào khách sạn, thủ tục lên máy bay)",
+    "examples": [
+     {
+      "ja": "ホテルでチェックインを済ませた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đã làm thủ tục nhận phòng khách sạn."
+     },
+     {
+      "ja": "空港でチェックインの手続きをする。",
+      "ja_furigana": "空港(くうこう)でチェックインの手続(てつづ)きをする。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi sẽ làm thủ tục bay tại sân bay."
+     }
+    ],
+    "expression": "チェックイン＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: ホテルでチェックインを済ませた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "vào(thủ tục vào khách sạn; thủ tục lên máy bay)",
+    "mnemonic_vi": "Đưa hộ chiếu ở quầy để nhận phòng: チェックイン.",
+    "reading": "ちぇっくいん＜する＞",
+    "romaji": "chekkuin<suru>",
+    "topic_vi": "Du lịch",
+    "twins": [],
+    "variants": [
+     "チェックイン"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-bb1e687325"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "船が岸に近づく。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Thuyền tới gần bờ."
+      },
+      {
+       "ja": "試験の日が近づいて、だんだん不安になってきた。",
+       "ja_furigana": "試験(しけん)の日(ひ)が近(ちか)づいて、だんだん不安(ふあん)になってきた。",
+       "vi": "Ngày thi đến gần, tôi dần thấy lo lắng.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "知らない犬には、急に近づかないほうがいい。",
+       "ja_furigana": "知(し)らない犬(いぬ)には、急(きゅう)に近(ちか)づかないほうがいい。",
+       "vi": "Không nên đột ngột lại gần con chó lạ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lại gần",
+    "examples": [
+     {
+      "ja": "船が岸に近づく。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Thuyền tới gần bờ."
+     },
+     {
+      "ja": "目的地｛が／に｝近づいてきた",
+      "ja_furigana": "目的地(もくてきち)｛が／に｝近(ちか)づいてきた",
+      "source": "VNJPCLUB",
+      "vi": "Dần tiến gần địa điểm đích."
+     },
+     {
+      "ja": "台風が日本列島に近づく",
+      "ja_furigana": "台風(たいふう)が日本(にほん)列島(れっとう)に近(ちか)づく",
+      "source": "VNJPCLUB",
+      "vi": "Cơn bão sắp đến quần đảo Nhật Bản."
+     }
+    ],
+    "expression": "近づく",
+    "findings": [
+     "FURIGANA_MISSING: 船が岸に近づく。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "lại gần; đến gần; tiến gần thông thường",
+    "mnemonic_vi": "近 là gần; mỗi bước đi làm khoảng cách ngắn lại.",
+    "reading": "ちかづく",
+    "romaji": "chikazuku",
+    "topic_vi": "Du lịch",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f8203ed06f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "予約を取り消すなら電話して。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Nếu hủy đặt chỗ thì hãy gọi điện."
+      },
+      {
+       "ja": "一度言ったことは、取り消せない。",
+       "ja_furigana": "一度(いちど)言(い)ったことは、取(と)り消(け)せない。",
+       "vi": "Lời đã nói ra thì không rút lại được.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "ルールを守らなかった選手は、きろくを取り消された。",
+       "ja_furigana": "ルールを守(まも)らなかった選手(せんしゅ)は、きろくを取(と)り消(け)された。",
+       "vi": "Vận động viên không tuân thủ luật đã bị hủy thành tích.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "huỷ bỏ, rút lại",
+    "examples": [
+     {
+      "ja": "予約を取り消すなら電話して。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Nếu hủy đặt chỗ thì hãy gọi điện."
+     },
+     {
+      "ja": "ホテルの予約を取り消した。",
+      "ja_furigana": "ホテルの予約(よやく)を取(と)り消(け)した。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã hủy đặt phòng khách sạn."
+     },
+     {
+      "ja": "仕事が忙しくなり、飛行機の予約を取り消した。",
+      "ja_furigana": "仕事(しごと)が忙(いそが)しくなり、飛行機(ひこうき)の予約(よやく)を取(と)り消(け)した。",
+      "source": "VNJPCLUB",
+      "vi": "Công việc bận quá nên tôi đã hủy đặt vé máy bay."
+     }
+    ],
+    "expression": "取り消す",
+    "findings": [
+     "FURIGANA_MISSING: 予約を取り消すなら電話して。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "huỷ bỏ; rút lại; hủy",
+    "mnemonic_vi": "取 là lấy, 消 là xóa; gạch bỏ đặt phòng đã đăng ký.",
+    "reading": "とりけす",
+    "romaji": "torikesu",
+    "topic_vi": "Du lịch",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-70a55858f6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "注文に飲み物を追加した。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi gọi thêm đồ uống vào đơn hàng."
+      },
+      {
+       "ja": "会議のしりょうに、新しいデータを追加した。",
+       "ja_furigana": "会議(かいぎ)のしりょうに、新(あたら)しいデータを追加(ついか)した。",
+       "vi": "Tôi bổ sung dữ liệu mới vào tài liệu họp.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "旅行のメンバーが二人追加になった。",
+       "ja_furigana": "旅行(りょこう)のメンバーが二人(ふたり)追加(ついか)になった。",
+       "vi": "Đoàn du lịch có thêm hai thành viên.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bổ sung",
+    "examples": [
+     {
+      "ja": "注文に飲み物を追加した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi gọi thêm đồ uống vào đơn hàng."
+     },
+     {
+      "ja": "飲み物の注文を2人追加した。",
+      "ja_furigana": "飲(の)み物(もの)の注文(ちゅうもん)を2人(ひと)追加(ついか)した。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã gọi thêm hai suất đồ uống."
+     },
+     {
+      "ja": "飲み会でビールを追加する。",
+      "ja_furigana": "飲(の)み会(かい)でビールを追加(ついか)する。",
+      "source": "VNJPCLUB",
+      "vi": "Gọi thêm bia ở buổi nhậu."
+     }
+    ],
+    "expression": "追加＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 注文に飲み物を追加した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bổ sung; thêm; thêm vào",
+    "mnemonic_vi": "追 là theo sau, 加 là thêm; thêm một người vào danh sách.",
+    "reading": "ついか＜する＞",
+    "romaji": "tsuika<suru>",
+    "topic_vi": "Du lịch",
+    "twins": [],
+    "variants": [
+     "追加"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2ab7996f5d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅行の持ち物を確認した。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi kiểm tra đồ mang theo khi đi du lịch."
+      },
+      {
+       "ja": "持ち物には、全部名前を書いておきましょう。",
+       "ja_furigana": "持(も)ち物(もの)には、全部(ぜんぶ)名前(なまえ)を書(か)いておきましょう。",
+       "vi": "Hãy ghi tên lên tất cả đồ dùng mang theo.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Vật dụng mang theo, đồ mang theo",
+    "examples": [
+     {
+      "ja": "旅行の持ち物を確認した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi kiểm tra đồ mang theo khi đi du lịch."
+     },
+     {
+      "ja": "出発の前に、空港で持ち物を検査された。",
+      "ja_furigana": "出発(しゅっぱつ)の前(まえ)に、空港(くうこう)で持(も)ち物(もの)を検査(けんさ)された。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi bị kiểm tra hành lí mang theo ở sân bay trước giờ xuất phát."
+     }
+    ],
+    "expression": "持ち物",
+    "findings": [
+     "FURIGANA_MISSING: 旅行の持ち物を確認した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "vật dụng mang theo; đồ mang theo",
+    "mnemonic_vi": "持 là mang, 物 là đồ; kiểm tra vật dụng mang theo trước khi đi.",
+    "reading": "もちもの",
+    "romaji": "mochimono",
+    "topic_vi": "Du lịch",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-73c1de48a8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "日本との時差は二時間だ。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Chênh lệch múi giờ với Nhật là hai tiếng."
+      },
+      {
+       "ja": "時差のせいで、着いた日の夜はなかなか眠れなかった。",
+       "ja_furigana": "時差(じさ)のせいで、着(つ)いた日(ひ)の夜(よる)はなかなか眠(ねむ)れなかった。",
+       "vi": "Vì chênh lệch múi giờ mà đêm hôm đến nơi tôi mãi không ngủ được.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chênh lệch múi giờ",
+    "examples": [
+     {
+      "ja": "日本との時差は二時間だ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Chênh lệch múi giờ với Nhật là hai tiếng."
+     },
+     {
+      "ja": "日本と私の国の時差は2時間だ。",
+      "ja_furigana": "日本(にほん)と私(わたし)の国(くに)の時差(じさ)は2時間(じかん)だ。",
+      "source": "VNJPCLUB",
+      "vi": "Thời gian chênh lệch giữa Nhật Bản và nước tôi là 2 tiếng."
+     }
+    ],
+    "expression": "時差",
+    "findings": [
+     "FURIGANA_MISSING: 日本との時差は二時間だ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chênh lệch múi giờ; múi giờ chênh lệch",
+    "mnemonic_vi": "時 là giờ, 差 là chênh; hai nước lệch nhau nhiều giờ.",
+    "reading": "じさ",
+    "romaji": "jisa",
+    "topic_vi": "Du lịch",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6c0c2f4509"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "来日してから日本語を学んだ。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Sau khi đến Nhật tôi học tiếng Nhật."
+      },
+      {
+       "ja": "有名な歌手が来日して、東京でコンサートを開く。",
+       "ja_furigana": "有名(ゆうめい)な歌手(かしゅ)が来日(らいにち)して、東京(とうきょう)でコンサートを開(ひら)く。",
+       "vi": "Một ca sĩ nổi tiếng sang Nhật và tổ chức buổi hòa nhạc ở Tokyo.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đến Nhật Bản",
+    "examples": [
+     {
+      "ja": "来日してから日本語を学んだ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Sau khi đến Nhật tôi học tiếng Nhật."
+     },
+     {
+      "ja": "来月、両親が来日する。",
+      "ja_furigana": "来月(らいげつ)、両親(りょうしん)が来日(らいにち)する。",
+      "source": "VNJPCLUB",
+      "vi": "Tháng sau, bố mẹ tôi sẽ đến Nhật."
+     }
+    ],
+    "expression": "来日＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 来日してから日本語を学んだ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đến Nhật Bản; Sang Nhật; đến Nhật",
+    "mnemonic_vi": "来 là đến, 日 là Nhật Bản; bay sang Nhật.",
+    "reading": "らいにち＜する＞",
+    "romaji": "rainichi<suru>",
+    "topic_vi": "Du lịch",
+    "twins": [],
+    "variants": [
+     "来日"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-648f9cc63e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の活躍が楽しみだ。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi mong chờ sự thể hiện của anh ấy."
+      },
+      {
+       "ja": "山田さんは、えいぎょうの仕事で活躍している。",
+       "ja_furigana": "山田(やまだ)さんは、えいぎょうの仕事(しごと)で活躍(かつやく)している。",
+       "vi": "Anh Yamada đang làm việc rất nổi bật ở bộ phận kinh doanh.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "この大学を出た人たちは、世界中で活躍している。",
+       "ja_furigana": "この大学(だいがく)を出(で)た人(ひと)たちは、世界中(せかいじゅう)で活躍(かつやく)している。",
+       "vi": "Những người tốt nghiệp trường này đang tỏa sáng khắp thế giới.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hoạt động sôi nổi, toả sáng",
+    "examples": [
+     {
+      "ja": "彼の活躍が楽しみだ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi mong chờ sự thể hiện của anh ấy."
+     },
+     {
+      "ja": "NARUTO選手の活躍を期待する",
+      "ja_furigana": "NARUTO選手(せんしゅ)の活躍(かつやく)を期待(きたい)する",
+      "source": "VNJPCLUB",
+      "vi": "Tôi kì vọng vào màn trình diễn của tuyển thủ Tanaka."
+     },
+     {
+      "ja": "友だちは運動会で大活躍した",
+      "ja_furigana": "友(とも)だちは運動会(うんどうかい)で大(だい)活躍(かつやく)した",
+      "source": "VNJPCLUB",
+      "vi": "Bạn của tôi đã thi đấu đại thành công trong đại hội thể thao."
+     }
+    ],
+    "expression": "活躍＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 彼の活躍が楽しみだ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "hoạt động sôi nổi; toả sáng; hoạt động nổi bật",
+    "mnemonic_vi": "活 là hoạt động, 躍 là bật lên; cầu thủ chơi nổi bật trên sân.",
+    "reading": "かつやく＜する＞",
+    "romaji": "katsuyaku<suru>",
+    "topic_vi": "Thể thao",
+    "twins": [],
+    "variants": [
+     "活躍"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-cc6e3f1f94"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N3",
+ "packet_id": "REVIEW_VOCAB-010"
+}

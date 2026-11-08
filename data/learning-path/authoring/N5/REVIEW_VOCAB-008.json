@@ -1,0 +1,1739 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "パソコンは何台いりますか。",
+       "ja_furigana": "パソコンは何台(なんだい)いりますか。",
+       "vi": "Cần bao nhiêu chiếc máy tính?"
+      }
+     ]
+    },
+    "note": "viết Kanji như giáo trình; ĐỀ XUẤT chữ 何台 — chưa ghi vì bộ dựng đổi id mục Mirai khi sửa chữ/cách đọc và làm mất nội dung"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "パソコンは何だいいりますか。",
+      "ja_furigana": "パソコンは何(なん)だいいりますか。",
+      "source": "CLAUDE",
+      "vi": "Cần bao nhiêu chiếc máy tính?"
+     }
+    ],
+    "expression": "何だい",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mấy chiếc (đếm máy móc và xe)",
+    "mnemonic_vi": "何 (mấy) + 台 \"đài\" (chiếc máy, chiếc xe): なんだい = mấy chiếc.",
+    "reading": "なんだい",
+    "romaji": "nandai",
+    "topic_vi": "Có bao nhiêu cái?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2c3e3b59c6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "昼休みは何時からですか。",
+       "ja_furigana": "昼休(ひるやす)みは何時(なんじ)からですか。",
+       "vi": "Giờ nghỉ trưa bắt đầu lúc mấy giờ?"
+      }
+     ]
+    },
+    "note": "viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-78d764e0c6"
+    ],
+    "dictionary_meaning": "mấy giờ",
+    "examples": [
+     {
+      "ja": "ひるやすみは なんじ ですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giờ nghỉ trưa là mấy giờ?"
+     }
+    ],
+    "expression": "何時",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mấy giờ",
+    "mnemonic_vi": "何 (mấy) + 時 \"thời\" (giờ): なんじ = mấy giờ (thời điểm). Khác 何時間 là mấy tiếng đồng hồ.",
+    "reading": "なんじ",
+    "romaji": "nanji",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f8553a5f15"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "mấy phút",
+    "examples": [
+     {
+      "ja": "駅まで何分かかりますか。",
+      "ja_furigana": "駅(えき)まで何分(なんぷん)かかりますか。",
+      "source": "CLAUDE",
+      "vi": "Đến nhà ga mất mấy phút?"
+     }
+    ],
+    "expression": "何分",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mấy phút",
+    "mnemonic_vi": "何 (mấy) + 分 \"phân\" (phút): なんぷん = mấy phút; ふん biến thành ぷん sau なん.",
+    "reading": "なんぷん",
+    "romaji": "nanpun",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3b7aac0fb4"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-809895ad99"
+    ],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "東京は今、夜の10時です。",
+      "ja_furigana": "東京(とうきょう)は今(いま)、夜(よる)の10時(じ)です。",
+      "source": "CLAUDE",
+      "vi": "Ở Tokyo bây giờ là 10 giờ tối."
+     }
+    ],
+    "expression": "〜時",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "~ giờ",
+    "mnemonic_vi": "時 \"thời\" đọc じ = giờ: 3じ = 3 giờ (thời điểm). Khác 〜時間 (じかん) là số tiếng.",
+    "reading": "〜じ",
+    "romaji": "〜ji",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e53618f06f"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "駅まで歩いて5分です。",
+      "ja_furigana": "駅(えき)まで歩(ある)いて5分(ふん)です。",
+      "source": "CLAUDE",
+      "vi": "Đi bộ đến nhà ga mất 5 phút."
+     }
+    ],
+    "expression": "〜分",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "~ phút",
+    "mnemonic_vi": "分 \"phân\" = phút; đọc ふん hoặc ぷん tùy số: 1ぷん, 2ふん, 3ぷん, 5ふん...",
+    "reading": "〜ふん",
+    "romaji": "〜fun",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-5d1db6aa61"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-36278d27f5"
+    ],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "毎晩11時ごろ寝ます。",
+      "ja_furigana": "毎晩(まいばん)11時(じ)ごろ寝(ね)ます。",
+      "source": "CLAUDE",
+      "vi": "Tối nào tôi cũng ngủ khoảng 11 giờ."
+     }
+    ],
+    "expression": "〜ごろ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "vào khoảng ~ (giờ)",
+    "mnemonic_vi": "ごろ = khoảng (một thời điểm): 7じごろ = khoảng 7 giờ. Còn khoảng thời lượng, số lượng thì dùng ぐらい.",
+    "reading": "〜ごろ",
+    "romaji": "〜goro",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-af9c259b2e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "buổi sáng (trước 12 giờ trưa); sáng",
+     "examples": [
+      {
+       "ja": "午前十時に会議があります。",
+       "ja_furigana": "午前(ごぜん)十時(じゅうじ)に会議(かいぎ)があります。",
+       "vi": "10 giờ sáng có cuộc họp."
+      },
+      {
+       "ja": "午前中は図書館にいます。",
+       "ja_furigana": "午前中(ごぜんちゅう)は図書館(としょかん)にいます。",
+       "vi": "Buổi sáng tôi ở thư viện."
+      }
+     ]
+    },
+    "note": "nghĩa lặp, lỗi gõ \"buối\"; viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "buổi sáng (trước trưa)",
+    "examples": [
+     {
+      "ja": "ごぜんの かいぎは じゅういちじからです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuộc họp buổi sáng từ 11 giờ."
+     },
+     {
+      "ja": "ごぜん中は図書館にいます。",
+      "ja_furigana": "ごぜん中(ちゅう)は図書館(としょかん)にいます。",
+      "source": "CLAUDE",
+      "vi": "Buổi sáng tôi ở thư viện."
+     }
+    ],
+    "expression": "午前",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "buổi sáng (trước trưa); buổi sáng; buối sáng",
+    "mnemonic_vi": "午前 Hán Việt \"ngọ tiền\": trước giờ ngọ (giữa trưa) = buổi sáng, AM.",
+    "reading": "ごぜん",
+    "romaji": "gozen",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [
+     "ごぜん"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-38d323fe35"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "buổi chiều (sau 12 giờ trưa); chiều",
+     "examples": [
+      {
+       "ja": "午後3時にお茶を飲みましょう。",
+       "ja_furigana": "午後(ごご)3時(じ)にお茶(ちゃ)を飲(の)みましょう。",
+       "vi": "Ba giờ chiều chúng ta uống trà nhé."
+      }
+     ]
+    },
+    "note": "nghĩa lặp; じゅぎょう trên N5"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "buổi chiều (sau trưa)",
+    "examples": [
+     {
+      "ja": "ごごの じゅぎょうは にじからです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tiết học buổi chiều từ 2 giờ."
+     },
+     {
+      "ja": "ごご3時にお茶を飲みましょう。",
+      "ja_furigana": "ごご3時(じ)にお茶(ちゃ)を飲(の)みましょう。",
+      "source": "CLAUDE",
+      "vi": "Ba giờ chiều chúng ta uống trà nhé."
+     }
+    ],
+    "expression": "午後",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "buổi chiều (sau trưa); buổi chiều",
+    "mnemonic_vi": "午後 Hán Việt \"ngọ hậu\": sau giờ ngọ (giữa trưa) = buổi chiều, PM.",
+    "reading": "ごご",
+    "romaji": "gogo",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [
+     "ごご"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e876400d5f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今は何時ですか。",
+       "ja_furigana": "今(いま)は何時(なんじ)ですか。",
+       "vi": "Bây giờ là mấy giờ?"
+      },
+      {
+       "ja": "今、ばんごはんを食べています。",
+       "ja_furigana": "今(いま)、ばんごはんを食(た)べています。",
+       "vi": "Bây giờ tôi đang ăn tối."
+      }
+     ]
+    },
+    "note": "viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bây giờ",
+    "examples": [
+     {
+      "ja": "いまは なんじ ですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bây giờ là mấy giờ?"
+     },
+     {
+      "ja": "いま、ばんごはんを食べています。",
+      "ja_furigana": "いま、ばんごはんを食(た)べています。",
+      "source": "CLAUDE",
+      "vi": "Bây giờ tôi đang ăn tối."
+     }
+    ],
+    "expression": "今",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "bây giờ",
+    "mnemonic_vi": "今 \"kim\" như \"hiện kim, kim thời\": いま = bây giờ.",
+    "reading": "いま",
+    "romaji": "ima",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [
+     "いま"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-69092788da"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-af9c259b2e"
+    ],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "家から学校まで30分ぐらいです。",
+      "ja_furigana": "家(いえ)から学校(がっこう)まで30分(ぷん)ぐらいです。",
+      "source": "CLAUDE",
+      "vi": "Từ nhà đến trường mất khoảng 30 phút."
+     }
+    ],
+    "expression": "〜ぐらい",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "khoảng ~; chừng ~",
+    "mnemonic_vi": "ぐらい = khoảng (thời lượng, số lượng): 2じかんぐらい = khoảng 2 tiếng. Giờ cụ thể thì dùng ごろ.",
+    "reading": "〜ぐらい",
+    "romaji": "〜gurai",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "trợ từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-36278d27f5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日2時間勉強します。",
+       "ja_furigana": "毎日(まいにち)2時間(じかん)勉強(べんきょう)します。",
+       "vi": "Mỗi ngày tôi học 2 tiếng."
+      }
+     ]
+    },
+    "note": "viết 勉強"
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-e53618f06f"
+    ],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "毎日2時間べんきょうします。",
+      "ja_furigana": "毎日(まいにち)2時間(じかん)べんきょうします。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi học 2 tiếng."
+     }
+    ],
+    "expression": "〜時間",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "~ tiếng; ~ giờ (độ dài thời gian)",
+    "mnemonic_vi": "時間 \"thời gian\" = tiếng đồng hồ: 2じかん = 2 tiếng, khác 2じ (2 giờ).",
+    "reading": "〜じかん",
+    "romaji": "〜jikan",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-809895ad99"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-f8553a5f15"
+    ],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "毎晩何時間寝ますか。",
+      "ja_furigana": "毎晩(まいばん)何時間(なんじかん)寝(ね)ますか。",
+      "source": "CLAUDE",
+      "vi": "Mỗi tối bạn ngủ mấy tiếng?"
+     }
+    ],
+    "expression": "何時間",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mấy tiếng; bao lâu (tính bằng giờ)",
+    "mnemonic_vi": "何 (mấy) + 時間 (tiếng): なんじかん = mấy tiếng đồng hồ, khác なんじ (mấy giờ).",
+    "reading": "なんじかん",
+    "romaji": "nanjikan",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-78d764e0c6"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "授業は9時からです。",
+      "ja_furigana": "授業(じゅぎょう)は9時(じ)からです。",
+      "source": "CLAUDE",
+      "vi": "Giờ học bắt đầu từ 9 giờ."
+     }
+    ],
+    "expression": "〜から",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "từ ~",
+    "mnemonic_vi": "から = từ (điểm bắt đầu): 9じから = từ 9 giờ. Đi đôi với まで (đến).",
+    "reading": "〜から",
+    "romaji": "〜kara",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "trợ từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-570c1ddbfc"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-581d6323ca"
+    ],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "銀行は3時までです。",
+      "ja_furigana": "銀行(ぎんこう)は3時(じ)までです。",
+      "source": "CLAUDE",
+      "vi": "Ngân hàng mở cửa đến 3 giờ."
+     }
+    ],
+    "expression": "〜まで",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đến ~; cho tới ~",
+    "mnemonic_vi": "まで = đến (điểm kết thúc): 5じまで = đến 5 giờ; から〜まで = từ ... đến ....",
+    "reading": "〜まで",
+    "romaji": "〜made",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "trợ từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c9ffcee64d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "友だちに花をあげます。",
+       "ja_furigana": "友(とも)だちに花(はな)をあげます。",
+       "vi": "Tôi tặng hoa cho bạn."
+      }
+     ]
+    },
+    "note": "viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bạn bè",
+    "examples": [
+     {
+      "ja": "ともだちに はなを あげます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi tặng hoa cho bạn."
+     }
+    ],
+    "expression": "友だち",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "bạn bè",
+    "mnemonic_vi": "友 \"hữu\" (bằng hữu) + だち: ともだち = bạn bè.",
+    "reading": "ともだち",
+    "romaji": "tomodachi",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-5def7d3420"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "kiểu gì; loại nào; ra sao",
+     "examples": [
+      {
+       "ja": "東京はどんな町ですか。",
+       "ja_furigana": "東京(とうきょう)はどんな町(まち)ですか。",
+       "vi": "Tokyo là thành phố như thế nào?"
+      }
+     ]
+    },
+    "note": "nghĩa lặp; câu cũ quá ngắn"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thế nào, kiểu gì",
+    "examples": [
+     {
+      "ja": "どんな まちですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đó là thành phố như thế nào?"
+     }
+    ],
+    "expression": "どんな",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "thế nào; kiểu gì; như thế nào",
+    "mnemonic_vi": "どんな + danh từ = ~ như thế nào: どんな ひと = người thế nào; ど mang ý hỏi.",
+    "reading": "どんな",
+    "romaji": "donna",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "đại từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-40e8aba688"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あの人は先生じゃありません。",
+       "ja_furigana": "あの人(ひと)は先生(せんせい)じゃありません。",
+       "vi": "Người kia không phải giáo viên."
+      },
+      {
+       "ja": "駅の前に人がたくさんいます。",
+       "ja_furigana": "駅(えき)の前(まえ)に人(ひと)がたくさんいます。",
+       "vi": "Trước nhà ga có nhiều người."
+      }
+     ]
+    },
+    "note": "câu VNJPCLUB (という, 裕福) quá cấp"
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-bad270907b"
+    ],
+    "dictionary_meaning": "người",
+    "examples": [
+     {
+      "ja": "あのひとは せんせいじゃ ありません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người kia không phải giáo viên."
+     },
+     {
+      "ja": "「佐藤さんという人から電話がありましたよ」",
+      "ja_furigana": "「佐藤(さとう)さんという人(ひと)から電話(でんわ)がありましたよ」",
+      "source": "VNJPCLUB",
+      "vi": "Có người tên Sato gọi điện đấy ạ."
+     },
+     {
+      "ja": "この店は裕福な人達が買い物に来る。",
+      "ja_furigana": "この店(みせ)は裕福(ゆうふく)な人(ひと)達(たち)が買(か)い物(もの)に来(く)る。",
+      "source": "VNJPCLUB",
+      "vi": "Những người giàu họ đến cửa hàng đó để mua sắm."
+     }
+    ],
+    "expression": "人",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "người",
+    "mnemonic_vi": "人 \"nhân\": hình người đứng dang hai chân, đọc ひと. Đừng lẫn với 入 (vào) có nét trái ngắn hơn.",
+    "reading": "ひと",
+    "romaji": "hito",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-be230491c3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "日本で親切な友だちがたくさんできました。",
+       "ja_furigana": "日本(にほん)で親切(しんせつ)な友(とも)だちがたくさんできました。",
+       "vi": "Ở Nhật tôi đã có nhiều người bạn tốt bụng."
+      }
+     ]
+    },
+    "note": "giáo trình N5 viết 親切; ĐỀ XUẤT chữ 親切な — chưa ghi vì bộ dựng đổi id mục Mirai khi sửa chữ/cách đọc và làm mất nội dung"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "日本でしんせつな友だちがたくさんできました。",
+      "ja_furigana": "日本(にほん)でしんせつな友(とも)だちがたくさんできました。",
+      "source": "CLAUDE",
+      "vi": "Ở Nhật tôi đã có nhiều người bạn tốt bụng."
+     }
+    ],
+    "expression": "しんせつな",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tốt bụng; tử tế; thân thiện",
+    "mnemonic_vi": "親切 Hán Việt \"thân thiết\": người thân thiết thì hay tử tế, nên しんせつな = tốt bụng.",
+    "reading": "しんせつな",
+    "romaji": "shinsetsuna",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c641c0108f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "expression": "みんな",
+     "meaning_vi": "mọi người; tất cả",
+     "examples": [
+      {
+       "ja": "みんなで昼ごはんを食べましょう。",
+       "ja_furigana": "みんなで昼(ひる)ごはんを食(た)べましょう。",
+       "vi": "Mọi người cùng ăn trưa nhé."
+      },
+      {
+       "ja": "クラスのみんなは日本語が上手です。",
+       "ja_furigana": "クラスのみんなは日本語(にほんご)が上手(じょうず)です。",
+       "vi": "Mọi người trong lớp đều giỏi tiếng Nhật."
+      }
+     ]
+    },
+    "note": "みんな viết kana; câu cũ dùng 〜てある, 片づける (trên N5)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "mọi người; tất cả",
+    "examples": [
+     {
+      "ja": "かみに みんなで つかってくださいと かいて あります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trên tờ giấy ghi là xin mọi người cùng dùng."
+     },
+     {
+      "ja": "皆で部屋を片づけた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Mọi người cùng dọn phòng."
+     }
+    ],
+    "expression": "皆",
+    "findings": [
+     "FURIGANA_MISSING: 皆で部屋を片づけた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "mọi người; các bạn; tất cả",
+    "mnemonic_vi": "みんな nghe như \"mình nà\": cả bọn mình = mọi người, tất cả.",
+    "reading": "みんな",
+    "romaji": "minna",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [
+     "みんな"
+    ],
+    "word_type_label": "đại từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-595e7bcdbb"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "母はいつも元気な人です。",
+      "ja_furigana": "母(はは)はいつも元気(げんき)な人(ひと)です。",
+      "source": "CLAUDE",
+      "vi": "Mẹ tôi là người lúc nào cũng tràn đầy sức sống."
+     }
+    ],
+    "expression": "元気な",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "khỏe mạnh; hăng hái",
+    "mnemonic_vi": "元気 Hán Việt \"nguyên khí\": khí lực dồi dào = khỏe khoắn, hăng hái.",
+    "reading": "げんきな",
+    "romaji": "genkina",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-555140f94b"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "公園にきれいな花があります。",
+      "ja_furigana": "公園(こうえん)にきれいな花(はな)があります。",
+      "source": "CLAUDE",
+      "vi": "Trong công viên có những bông hoa đẹp."
+     }
+    ],
+    "expression": "きれいな",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "xinh; đẹp; sạch sẽ",
+    "mnemonic_vi": "きれい viết 綺麗 \"ỷ lệ\" (đẹp lộng lẫy): きれいな = đẹp, sạch. Là tính từ な dù kết thúc bằng い.",
+    "reading": "きれいな",
+    "romaji": "kireina",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c3a73d6e6d"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đẹp trai",
+    "examples": [
+     {
+      "ja": "あのハンサムな人は兄だ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Người đẹp trai kia là anh tôi."
+     }
+    ],
+    "expression": "ハンサムな",
+    "findings": [
+     "FURIGANA_MISSING: あのハンサムな人は兄だ。"
+    ],
+    "locked_fields": [
+     "examples"
+    ],
+    "meaning_vi": "đẹp trai",
+    "mnemonic_vi": "ハンサム = handsome, đẹp trai; dùng như tính từ な: ハンサムな ひと.",
+    "reading": "はんさむな",
+    "romaji": "hansamuna",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2587b0d8cd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "expression": "かわいい"
+    },
+    "note": "giáo trình N5 viết かわいい"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "dễ thương",
+    "examples": [
+     {
+      "ja": "このねこはとてもかわいいです。",
+      "ja_furigana": "このねこはとてもかわいいです。",
+      "source": "CLAUDE",
+      "vi": "Con mèo này rất dễ thương."
+     }
+    ],
+    "expression": "可愛い",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "dễ thương",
+    "mnemonic_vi": "かわいい = dễ thương; \"ka-oai-i\" như tiếng kêu \"oa, cưng quá!\".",
+    "reading": "かわいい",
+    "romaji": "kawaii",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [
+     "かわいい"
+    ],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-800aa9de90"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "ngầu; bảnh bao; đẹp trai",
+     "examples": [
+      {
+       "ja": "兄の新しい車はかっこいいです。",
+       "ja_furigana": "兄(あに)の新(あたら)しい車(くるま)はかっこいいです。",
+       "vi": "Chiếc xe mới của anh trai tôi rất ngầu."
+      }
+     ]
+    },
+    "note": "các câu VNJPCLUB (先輩, 夢を追いかける…) quá cấp, quá dài"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "phong độ,ngầu",
+    "examples": [
+     {
+      "ja": "あの先輩は、かっこいいので人気がある",
+      "ja_furigana": "あの先輩(せんぱい)は、かっこいいので人気(にんき)がある",
+      "source": "VNJPCLUB",
+      "vi": "Thầy giáo đó bảnh bao nên được hâm mộ."
+     },
+     {
+      "ja": "サッカーでかっこよくゴールを決めた",
+      "ja_furigana": "サッカーでかっこよくゴールを決(き)めた",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã ghi bàn thắng rất đẹp trong trậ bóng đá."
+     },
+     {
+      "ja": "年を取っても自分の夢を追いかけるのは、かっこいい生き方だと思う",
+      "ja_furigana": "年(とし)を取(と)っても自分(じぶん)の夢(ゆめ)を追(お)いかけるのは、かっこいい生(い)き方(かた)だと思(おも)う",
+      "source": "VNJPCLUB",
+      "vi": "Dù có tuổi nhưng vẫn theo đuổi ước mơ bản thân, thì tôi nghĩ đó là cách sống tốt."
+     }
+    ],
+    "expression": "かっこいい",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đẹp trai; dễ nhìn; bảnh bao",
+    "mnemonic_vi": "格好 (かっこう: dáng vẻ) + いい (tốt) = dáng đẹp, ngầu.",
+    "reading": "かっこいい",
+    "romaji": "kakkoii",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a4fc95b601"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "妹はとても頭がいいです。",
+       "ja_furigana": "妹(いもうと)はとても頭(あたま)がいいです。",
+       "vi": "Em gái tôi rất thông minh."
+      },
+      {
+       "ja": "かれはとても頭がいいです。",
+       "ja_furigana": "かれはとても頭(あたま)がいいです。",
+       "vi": "Anh ấy rất thông minh."
+      }
+     ]
+    },
+    "note": "viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Thông minh",
+    "examples": [
+     {
+      "ja": "いもうとはとてもあたまがいいです。",
+      "ja_furigana": "いもうとはとてもあたまがいいです。",
+      "source": "CLAUDE",
+      "vi": "Em gái tôi rất thông minh."
+     },
+     {
+      "ja": "かれはとても頭がいいです。",
+      "ja_furigana": "かれはとても頭(あたま)がいいです。",
+      "source": "CLAUDE",
+      "vi": "Anh ấy rất thông minh."
+     }
+    ],
+    "expression": "頭がいい",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "thông minh",
+    "mnemonic_vi": "あたま (cái đầu) + が + いい (tốt): đầu óc tốt = thông minh.",
+    "reading": "あたまがいい",
+    "romaji": "atamagaii",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [
+     "あたまがいい"
+    ],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-26db5a04de"
+  },
+  {
+   "answer": {
+    "fix": {
+     "expression": "やさしい",
+     "meaning_vi": "hiền; tốt bụng; dịu dàng",
+     "examples": [
+      {
+       "ja": "母はとてもやさしい人です。",
+       "ja_furigana": "母(はは)はとてもやさしい人(ひと)です。",
+       "vi": "Mẹ tôi là người rất hiền."
+      }
+     ],
+     "mnemonic_vi": "やさしい (優しい) = hiền: 優 \"ưu\" như \"ưu ái\", người hiền luôn ưu ái người khác."
+    },
+    "note": "chủ đề tả người nên là 優しい (hiền); 易しい (dễ) là từ đồng âm bị ghép nhầm, các câu VNJPCLUB lại là たやすい — nên tách thành mục riêng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Dễ dàng",
+    "examples": [
+     {
+      "ja": "ひとは やさしいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Con người thì hiền lành."
+     },
+     {
+      "ja": "毎日運動した方がいいとわかってはいても、実行するのはたやすいことではない。",
+      "ja_furigana": "毎日運動(まいにちうんどう)した方(ほう)がいいとわかってはいても、実行(じっこう)するのはたやすいことではない。",
+      "source": "VNJPCLUB",
+      "vi": "Ngay cả khi biết rằng nên tập thể dục mỗi ngày nhưng việc thực hiện lại không hề dễ dàng."
+     },
+     {
+      "ja": "私はなかなか身に付けられない技術を、友人はたやすく身に付けてしまった。",
+      "ja_furigana": "私(わたし)はなかなか身(み)に付(つ)けられない技術(ぎじゅつ)を、友人(ゆうじん)はたやすく身(み)に付(つ)けてしまった。",
+      "source": "VNJPCLUB",
+      "vi": "Bạn bè dễ dàng học những kỹ năng mà chính tôi lại không thể học được."
+     }
+    ],
+    "expression": "易しい",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "dễ; hiền; hiền lành",
+    "mnemonic_vi": "優しい \"ưu\" = hiền; 易しい \"dị\" = dễ, cùng đọc やさしい: người hiền thì dễ gần.",
+    "reading": "やさしい",
+    "romaji": "yasashii",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [
+     "やさしい",
+     "優しい"
+    ],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e0130c2823"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sự hài hước",
+    "examples": [
+     {
+      "ja": "先生の話にはユーモアがある。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Lời thầy nói có nét hài hước."
+     },
+     {
+      "ja": "ユーモアがある彼はクラスの人気者だ",
+      "ja_furigana": "ユーモアがある彼(かれ)はクラスの人気者(にんきもの)だ",
+      "source": "VNJPCLUB",
+      "vi": "Anh ấy có sự hài hước và được yêu quý trong lớp."
+     },
+     {
+      "ja": "旅行の話を、ユーモアたっぷりに話す",
+      "ja_furigana": "旅行(りょこう)の話(はなし)を、ユーモアたっぷりに話(はな)す",
+      "source": "VNJPCLUB",
+      "vi": "Kể chuyện chuyến đi du lịch đầy ắp sự hài hước."
+     }
+    ],
+    "expression": "ユーモア",
+    "findings": [
+     "FURIGANA_MISSING: 先生の話にはユーモアがある。"
+    ],
+    "locked_fields": [
+     "examples"
+    ],
+    "meaning_vi": "sự hài hước; hài hước",
+    "mnemonic_vi": "ユーモア = humor, sự hài hước; đọc \"Yū-mô-a\".",
+    "reading": "ゆーもあ",
+    "romaji": "yuumoa",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9c73712f9a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟は背が高いです。",
+       "ja_furigana": "弟(おとうと)は背(せ)が高(たか)いです。",
+       "vi": "Em trai tôi cao."
+      }
+     ]
+    },
+    "note": "viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Lưng; chiều cao",
+    "examples": [
+     {
+      "ja": "おとうとはせが高いです。",
+      "ja_furigana": "おとうとはせが高(たか)いです。",
+      "source": "CLAUDE",
+      "vi": "Em trai tôi cao."
+     }
+    ],
+    "expression": "背",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "lưng; chiều cao",
+    "mnemonic_vi": "背 \"bối\" (lưng): せ = lưng, chiều cao; せが たかい = người cao.",
+    "reading": "せ",
+    "romaji": "se",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [
+     "せ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b50462952f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "cao; đắt",
+     "examples": [
+      {
+       "ja": "あの高い人は私の兄です。",
+       "ja_furigana": "あの高(たか)い人(ひと)は私(わたし)の兄(あに)です。",
+       "vi": "Người cao kia là anh trai tôi."
+      },
+      {
+       "ja": "この車はとても高いです。",
+       "ja_furigana": "この車(くるま)はとても高(たか)いです。",
+       "vi": "Chiếc xe này rất đắt."
+      }
+     ]
+    },
+    "note": "nghĩa lạc; chủ đề tả người nên \"cao\" trước"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đắt",
+    "examples": [
+     {
+      "ja": "この たかい くるまは いくらですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chiếc xe ô tô đắt tiền này giá bao nhiêu?"
+     }
+    ],
+    "expression": "高い",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đắt; cao; khả năng hoặc mức đánh giá cao",
+    "mnemonic_vi": "高 \"cao\": chữ 高 như tòa tháp nhiều tầng. たかい = cao; giá cao tức là đắt.",
+    "reading": "たかい",
+    "romaji": "takai",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b0484daccc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "thấp"
+    },
+    "note": "lỗi nguồn: \"mức độ hoặc ý thức thấp\" lệch nghĩa N5"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Mức độ hoặc ý thức thấp",
+    "examples": [
+     {
+      "ja": "このつくえは少しひくいです。",
+      "ja_furigana": "このつくえは少(すこ)しひくいです。",
+      "source": "CLAUDE",
+      "vi": "Cái bàn này hơi thấp."
+     }
+    ],
+    "expression": "低い",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mức độ hoặc ý thức thấp",
+    "mnemonic_vi": "低い có 低 \"đê\" (thấp): ひくい = thấp, đối lập たかい. Lưu ý: \"rẻ\" là やすい chứ không phải ひくい.",
+    "reading": "ひくい",
+    "romaji": "hikui",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [
+     "ひくい"
+    ],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a97abe70f2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "mắt"
+    },
+    "note": "\"cách nhìn; thứ tự\" là nghĩa mở rộng/hậu tố, không thuộc chủ đề"
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-e907dfa0ec"
+    ],
+    "dictionary_meaning": "Mắt",
+    "examples": [
+     {
+      "ja": "かのじょは目がきれいです。",
+      "ja_furigana": "かのじょは目(め)がきれいです。",
+      "source": "CLAUDE",
+      "vi": "Cô ấy có đôi mắt đẹp."
+     }
+    ],
+    "expression": "目",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mắt; cách nhìn; thứ tự",
+    "mnemonic_vi": "目 \"mục\" (mục kích): hình con mắt dựng đứng, đọc め. Đừng lẫn với 日 (mặt trời) ít hơn một nét ngang.",
+    "reading": "め",
+    "romaji": "me",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-15470cc284"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "to; lớn",
+     "examples": [
+      {
+       "ja": "私の学校はとても大きいです。",
+       "ja_furigana": "私(わたし)の学校(がっこう)はとても大(おお)きいです。",
+       "vi": "Trường tôi rất lớn."
+      }
+     ]
+    },
+    "note": "bỏ nghĩa trừu tượng; viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-447cbe6d27"
+    ],
+    "dictionary_meaning": "to, lớn",
+    "examples": [
+     {
+      "ja": "がっこうは おおきいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trường học thì lớn."
+     }
+    ],
+    "expression": "大きい",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "to; lớn; có ảnh hưởng hoặc quy mô đáng kể",
+    "mnemonic_vi": "大 \"đại\": người dang rộng hai tay = to lớn, đọc おおきい. Dễ lẫn với おおい (多い: nhiều).",
+    "reading": "おおきい",
+    "romaji": "ookii",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-79e4c9400f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "nhỏ; bé",
+     "examples": [
+      {
+       "ja": "私のへやは小さいです。",
+       "ja_furigana": "私(わたし)のへやは小(ちい)さいです。",
+       "vi": "Phòng tôi nhỏ."
+      }
+     ]
+    },
+    "note": "bỏ \"hạn hẹp\"; viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-1fb5b6cd93"
+    ],
+    "dictionary_meaning": "nhỏ, bé",
+    "examples": [
+     {
+      "ja": "へやは ちいさいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Căn phòng thì nhỏ."
+     }
+    ],
+    "expression": "小さい",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nhỏ; bé; hạn hẹp",
+    "mnemonic_vi": "小 \"tiểu\": ba nét nhỏ xíu = bé, đọc ちいさい. Đừng lẫn với 少ない (ít) có thêm nét phẩy.",
+    "reading": "ちいさい",
+    "romaji": "chiisai",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9ce452f885"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-f0f7c33a85"
+    ],
+    "dictionary_meaning": "tóc",
+    "examples": [
+     {
+      "ja": "妹は髪が長いです。",
+      "ja_furigana": "妹(いもうと)は髪(かみ)が長(なが)いです。",
+      "source": "VNJPCLUB",
+      "vi": "Em gái tôi có mái tóc dài."
+     }
+    ],
+    "expression": "髪",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tóc",
+    "mnemonic_vi": "髪 âm PHÁT, như \"lý phát\" (cắt tóc), có bộ TIÊU 髟 (tóc dài): かみ là tóc.",
+    "reading": "かみ",
+    "romaji": "kami",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [
+     "かみ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7179f9ee1f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "dài; lâu",
+     "examples": [
+      {
+       "ja": "昨日の会議は長かったです。",
+       "ja_furigana": "昨日(きのう)の会議(かいぎ)は長(なが)かったです。",
+       "vi": "Cuộc họp hôm qua dài."
+      }
+     ]
+    },
+    "note": "nghĩa lạc; viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "dài",
+    "examples": [
+     {
+      "ja": "きのうの かいぎは ながかったです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuộc họp hôm qua dài."
+     }
+    ],
+    "expression": "長い",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "dài; xét về dài hạn",
+    "mnemonic_vi": "長 \"trường\" như \"trường kỳ\": ながい = dài; \"na-gai\" kéo dài giọng như sợi dây dài.",
+    "reading": "ながい",
+    "romaji": "nagai",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-66183e8498"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "ngắn",
+     "examples": [
+      {
+       "ja": "この道はその道より短いです。",
+       "ja_furigana": "この道(みち)はその道(みち)より短(みじか)いです。",
+       "vi": "Con đường này ngắn hơn con đường đó."
+      },
+      {
+       "ja": "夏は短いズボンをはきます。",
+       "ja_furigana": "夏(なつ)は短(みじか)いズボンをはきます。",
+       "vi": "Mùa hè tôi mặc quần ngắn."
+      }
+     ]
+    },
+    "note": "\"thiếu kiên nhẫn; nóng tính\" là nghĩa của 気が短い; viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ngắn",
+    "examples": [
+     {
+      "ja": "この みちは その みちより みじかいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Con đường này ngắn hơn con đường đó."
+     },
+     {
+      "ja": "夏はみじかいズボンをはきます。",
+      "ja_furigana": "夏(なつ)はみじかいズボンをはきます。",
+      "source": "CLAUDE",
+      "vi": "Mùa hè tôi mặc quần ngắn."
+     }
+    ],
+    "expression": "短い",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "ngắn; thiếu kiên nhẫn; nóng tính",
+    "mnemonic_vi": "短い có 短 \"đoản\" (ngắn): みじかい = ngắn, đối lập ながい.",
+    "reading": "みじかい",
+    "romaji": "mijikai",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [
+     "みじかい"
+    ],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-bf7558f0ff"
+  },
+  {
+   "answer": {
+    "fix": {
+     "word_type_label": "danh từ",
+     "mnemonic_vi": "服 \"phục\" như \"y phục\", \"đồng phục\": ふく = quần áo.",
+     "examples": [
+      {
+       "ja": "新しい服を買いました。",
+       "ja_furigana": "新(あたら)しい服(ふく)を買(か)いました。",
+       "vi": "Tôi đã mua quần áo mới."
+      },
+      {
+       "ja": "この服はとてもきれいです。",
+       "ja_furigana": "この服(ふく)はとてもきれいです。",
+       "vi": "Bộ quần áo này rất đẹp."
+      }
+     ]
+    },
+    "note": "thiếu loại từ, mẹo nhớ; câu cũ thể sai khiến (N4)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "quần áo",
+    "examples": [
+     {
+      "ja": "むすめに ふくを えらばせて あげます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi cho con gái tự chọn quần áo."
+     }
+    ],
+    "expression": "服",
+    "findings": [
+     "WORD_TYPE_MISSING: 服|ふく",
+     "MNEMONIC_MISSING: 服|ふく"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "quần áo",
+    "mnemonic_vi": null,
+    "reading": "ふく",
+    "romaji": "fuku",
+    "topic_vi": "Mặc áo",
+    "twins": [],
+    "variants": [
+     "ふく"
+    ],
+    "word_type_label": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-31e24abcdb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このサイズはあいますか。",
+       "ja_furigana": "このサイズはあいますか。",
+       "vi": "Cỡ này có vừa không?"
+      },
+      {
+       "ja": "服を買うとき、サイズを見ます。",
+       "ja_furigana": "服(ふく)を買(か)うとき、サイズを見(み)ます。",
+       "vi": "Tôi xem kích cỡ khi mua quần áo."
+      }
+     ]
+    },
+    "note": "bỏ câu だけど (văn nói N4)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cỡ",
+    "examples": [
+     {
+      "ja": "サイズは あいますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kích cỡ có vừa không?"
+     },
+     {
+      "ja": "服を買うとき、サイズを見ます。",
+      "ja_furigana": "服(ふく)を買(か)うとき、サイズを見(み)ます。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi xem kích cỡ khi mua quần áo."
+     },
+     {
+      "ja": "色が好きだけど、サイズが合わない。",
+      "ja_furigana": "色(いろ)が好(す)きだけど、サイズが合(あ)わない。",
+      "source": "VNJPCLUB",
+      "vi": "Màu sắc thì tôi thích nhưng kích cỡ thì không vừa."
+     }
+    ],
+    "expression": "サイズ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cỡ; kích cỡ; kích thước",
+    "mnemonic_vi": "サイズ = size, kích cỡ; đọc \"Sa-i-zu\".",
+    "reading": "さいず",
+    "romaji": "saizu",
+    "topic_vi": "Mặc áo",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2e7d0ee232"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "đẹp tuyệt; dễ thương; hay"
+    },
+    "note": "nghĩa trùng nguồn ngoài (MIRAI_SIMILAR) → viết lại; giáo trình N5 viết kana; ĐỀ XUẤT chữ すてきな — chưa ghi vì bộ dựng đổi id mục Mirai khi sửa chữ/cách đọc và làm mất nội dung"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "すてきなぼうしですね。",
+      "ja_furigana": "すてきなぼうしですね。",
+      "source": "CLAUDE",
+      "vi": "Cái mũ đẹp quá nhỉ."
+     }
+    ],
+    "expression": "素敵な",
+    "findings": [
+     "MIRAI_SIMILAR: meaning"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tuyệt; đẹp; hay ho",
+    "mnemonic_vi": "すてきな = tuyệt, đẹp; \"su-tê-ki\" như \"stylish\": trông thật sành điệu.",
+    "reading": "すてきな",
+    "romaji": "sutekina",
+    "topic_vi": "Mặc áo",
+    "twins": [],
+    "variants": [
+     "すてきな"
+    ],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-106f5ace13"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thiết kế",
+    "examples": [
+     {
+      "ja": "このかばんはデザインが新しい。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Chiếc túi này có thiết kế mới."
+     },
+     {
+      "ja": "あのドレスは色もデザインもいい",
+      "ja_furigana": "あのドレスは色(いろ)もデザインもいい",
+      "source": "VNJPCLUB",
+      "vi": "Bộ trang phục kia màu cũng như thiết kế đều đẹp."
+     },
+     {
+      "ja": "おしゃれなデザインのブーツ",
+      "ja_furigana": "おしゃれなデザインのブーツ",
+      "source": "VNJPCLUB",
+      "vi": "Đôi giày boot có thiết kế rất thời trang."
+     }
+    ],
+    "expression": "デザイン",
+    "findings": [
+     "FURIGANA_MISSING: このかばんはデザインが新しい。"
+    ],
+    "locked_fields": [
+     "examples"
+    ],
+    "meaning_vi": "thiết kế",
+    "mnemonic_vi": "デザイン = design, thiết kế; đọc \"Đê-za-in\".",
+    "reading": "でざいん",
+    "romaji": "dezain",
+    "topic_vi": "Mặc áo",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7cba9b7e35"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N5",
+ "packet_id": "REVIEW_VOCAB-008"
+}

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head th:replace="~{fragments/head :: standard(${pageTitle}, 'onyomi')}"></head>
+<body data-mobile-adapt="owned" id="jlabBasePage" class="app-body onyomi-body oy-exam-body">
+<div id="jlabBaseShellMount"></div>
+
+<!-- The stage final test on its own page (design: stitch_j_las_onyomi_stage_assessment). Timed on the server
+     (10 minutes) and watched: onyomi-quiz.js in exam mode drives the clock, the leave counter and the warning. -->
+<main id="jlabBaseContent" class="oy-page oy-exam">
+    <header class="oy-exam__bar">
+        <div class="oy-exam__bar-inner">
+            <div class="oy-exam__id">
+                <span class="oy-exam__badge" aria-hidden="true"><i class="fa-solid fa-graduation-cap"></i></span>
+                <div>
+                    <span class="oy-eyebrow"><i class="fa-solid fa-feather-pointed" aria-hidden="true"></i>
+                        <span th:text="'Kiểm tra cuối giai đoạn ' + ${stage.stageOrder}">Kiểm tra cuối giai đoạn 1</span></span>
+                    <h1 th:text="${stage.stageTitle}">Giai đoạn 1: Âm đầu</h1>
+                </div>
+            </div>
+            <div class="oy-exam__tools">
+                <span class="oy-exam__timer" data-exam-timer hidden role="timer" aria-label="Thời gian còn lại">
+                    <i class="fa-regular fa-clock" aria-hidden="true"></i><span data-exam-time>10:00</span>
+                </span>
+                <span class="oy-exam__leaves" data-exam-leaves hidden title="Số lần rời khỏi bài / giới hạn">
+                    <i class="fa-regular fa-eye" aria-hidden="true"></i> Rời bài <b>0/3</b>
+                </span>
+                <a class="oy-exam__exit" data-exam-exit
+                   th:href="@{/learning/onyomi/stages/{id}/final(id=${stage.unitId})}"
+                   title="Câu đã trả lời được lưu; đồng hồ vẫn chạy khi bạn rời trang">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i><span>Thoát</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="oy-exam__body">
+        <div class="oy-quiz oy-quiz--exam" data-onyomi-quiz data-kind="final" data-variant="exam"
+             th:data-start-url="@{/api/learning/quizzes/units/{id}/final/start(id=${stage.unitId})}"
+             th:data-next-url="${stage.nextStageLesson != null ? '/learning/onyomi/lessons/' + stage.nextStageLesson.lessonId : '/learning/onyomi'}"
+             th:data-next-label="${stage.nextStageLesson != null ? 'Sang giai đoạn ' + stage.nextStageLesson.stageOrder : 'Về lộ trình'}"
+             th:data-back-url="@{/learning/onyomi/stages/{id}/final(id=${stage.unitId})}"
+             data-back-label="Về trang giai đoạn">
+            <div class="oy-panel oy-quiz__state">Đang tải…</div>
+        </div>
+    </div>
+
+    <div class="oy-exam__warning" data-exam-warning hidden role="alertdialog" aria-modal="true"
+         aria-labelledby="oy-exam-warning-title" aria-describedby="oy-exam-warning-text">
+        <div class="oy-exam__warning-box">
+            <span class="oy-exam__warning-icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>
+            <h2 id="oy-exam-warning-title">Bạn đã rời khỏi bài</h2>
+            <p id="oy-exam-warning-text" data-exam-warning-text></p>
+            <button class="oy-button oy-button--primary" type="button" data-exam-resume>
+                <i class="fa-solid fa-expand" aria-hidden="true"></i><span>Quay lại làm bài</span>
+            </button>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/pages/onyomi-quiz.js(v=20261106-demo-panel)}"></script>
+<script th:src="@{/js/pages/onyomi-demo-panel.js(v=20261106-demo-panel)}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

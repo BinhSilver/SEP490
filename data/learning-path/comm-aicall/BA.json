@@ -1,0 +1,4835 @@
+{
+ "roles": [
+  {
+   "code": "cpath-khach-hang-nhat",
+   "name": "Khách hàng Nhật",
+   "role_kind": "AI",
+   "description": "Người phụ trách phía khách hàng Nhật, trao đổi yêu cầu, tiến độ, kết quả và phê duyệt công việc.",
+   "personality": "Lịch sự, cẩn thận, hay xác nhận lại số liệu và yêu cầu báo cáo rõ ràng, đúng hạn.",
+   "speech_style": "Dùng です・ます, thỉnh thoảng dùng kính ngữ; câu ngắn, rõ ý, không quá khó."
+  },
+  {
+   "code": "cpath-truong-nhom-ky-thuat",
+   "name": "Trưởng nhóm kỹ thuật",
+   "role_kind": "AI",
+   "description": "Trưởng nhóm kỹ thuật phía khách hàng, review mã nguồn và đưa góp ý cụ thể, có dẫn chứng.",
+   "personality": "Kỹ tính, thẳng thắn nhưng ôn hòa, mong muốn mã nguồn sạch và dễ bảo trì.",
+   "speech_style": "Dùng です・ます, nêu từng điểm góp ý rõ ràng, không gay gắt."
+  },
+  {
+   "code": "cpath-quan-ly-du-an",
+   "name": "Quản lý dự án",
+   "role_kind": "AI",
+   "description": "Quản lý dự án nội bộ, nhận báo cáo tiến độ và kết quả, giao việc tiếp theo cho đồng nghiệp.",
+   "personality": "Thân thiện, gần gũi với đồng nghiệp, chủ động hỏi rõ số liệu và kế hoạch.",
+   "speech_style": "Dùng です・ます với đồng nghiệp, câu ngắn, động viên và hỏi đúng trọng tâm."
+  },
+  {
+   "code": "cpath-brse",
+   "name": "Kỹ sư cầu nối (BrSE)",
+   "role_kind": "LEARNER",
+   "description": "Người học đóng vai BrSE, làm đầu mối giữa đội phát triển Việt Nam và khách hàng Nhật."
+  }
+ ],
+ "scenarios": [
+  {
+   "situation_id": "BRSE-01",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-01",
+    "title": "Chào hỏi lần đầu gặp khách hàng",
+    "location": "Phòng họp tại văn phòng khách hàng",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "JIKO",
+       "type": "MISSION",
+       "title": "Tự giới thiệu",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "申します|担当いたします|ブリッジSE|初めまして"
+        }
+       ],
+       "description": "Chào lần đầu, nói tên công ty và vai trò BrSE của mình.",
+       "displayOrder": 1
+      },
+      {
+       "code": "MEISHI",
+       "type": "MISSION",
+       "title": "Trao danh thiếp",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "名刺|よろしくお願いいたします|よろしくお願いします"
+        }
+       ],
+       "description": "Đưa danh thiếp và nói mong được giúp đỡ.",
+       "displayOrder": 2
+      },
+      {
+       "code": "KENJO",
+       "type": "MISSION",
+       "title": "Đáp lời khen khiêm tốn",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "勉強中|ありがとうございます|参加しておりました"
+        }
+       ],
+       "description": "Đáp lời khen tiếng Nhật và kể kinh nghiệm làm với khách Nhật.",
+       "displayOrder": 3
+      },
+      {
+       "code": "MADOGUCHI",
+       "type": "MISSION",
+       "title": "Nhận vai trò đầu mối",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "窓口|ご連絡ください|進捗|ダナン"
+        }
+       ],
+       "description": "Xác nhận đội ở Đà Nẵng và mời khách liên lạc bất cứ lúc nào.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "GREETING",
+       "name": "Chào hỏi",
+       "next": "INTRO",
+       "prompt": "Chào khách và mời người học giới thiệu bản thân.",
+       "allowedGoalCodes": [
+        "JIKO"
+       ],
+       "suggestedReplies": [
+        "初めまして。VJソリューションズのグエンと申します。",
+        "本プロジェクトでブリッジSEを担当いたします。"
+       ]
+      },
+      {
+       "code": "INTRO",
+       "name": "Trao danh thiếp",
+       "next": "SMALLTALK",
+       "prompt": "Đưa danh thiếp và hỏi thêm về người học.",
+       "allowedGoalCodes": [
+        "MEISHI"
+       ],
+       "suggestedReplies": [
+        "こちら、私の名刺です。",
+        "どうぞよろしくお願いいたします。"
+       ],
+       "transitionText": "Sau khi tự giới thiệu…"
+      },
+      {
+       "code": "SMALLTALK",
+       "name": "Khen tiếng Nhật",
+       "next": "ROLE",
+       "prompt": "Khen tiếng Nhật và hỏi kinh nghiệm làm với khách Nhật.",
+       "allowedGoalCodes": [
+        "KENJO"
+       ],
+       "suggestedReplies": [
+        "まだまだ勉強中です。",
+        "以前、日本のお客様向けのプロジェクトに参加しておりました。"
+       ],
+       "transitionText": "Sau khi trao danh thiếp…"
+      },
+      {
+       "code": "ROLE",
+       "name": "Xác nhận đầu mối",
+       "next": "END",
+       "prompt": "Hỏi về đội phát triển và xác nhận người học là đầu mối liên lạc.",
+       "allowedGoalCodes": [
+        "MADOGUCHI"
+       ],
+       "suggestedReplies": [
+        "ダナンに十名のチームがおります。",
+        "私が窓口となって、仕様の確認や進捗のご報告をさせていただきます。",
+        "何かございましたら、いつでもご連絡ください。"
+       ],
+       "transitionText": "Sau khi trò chuyện…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Hoàn thành chào hỏi",
+       "message": "本日はありがとうございました。今後ともよろしくお願いいたします。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "GREETING"
+    },
+    "background": "Bạn là BrSE dự án, lần đầu đến văn phòng khách hàng Nhật trong buổi kick-off và cần giới thiệu bản thân.",
+    "difficulty": "EASY",
+    "jlpt_level": "N3",
+    "description": "Bạn giới thiệu bản thân, trao danh thiếp, đáp lời khen và nhận vai trò đầu mối liên lạc với khách hàng.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 7,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "〜と申します",
+       "example": "VJソリューションズのグエンと申します。",
+       "explanation": "Cách tự giới thiệu khiêm nhường, lịch sự hơn 〜です."
+      },
+      {
+       "pattern": "〜を担当いたします",
+       "example": "本プロジェクトでブリッジSEを担当いたします。",
+       "explanation": "Nói rõ vai trò mình phụ trách trong dự án."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N3",
+       "term": "名刺",
+       "reading": "めいし",
+       "meaning": "danh thiếp",
+       "example": "こちら、私の名刺です。"
+      },
+      {
+       "jlpt": "N3",
+       "term": "窓口",
+       "reading": "まどぐち",
+       "meaning": "đầu mối liên lạc",
+       "example": "私が窓口となって対応いたします。"
+      },
+      {
+       "jlpt": "N3",
+       "term": "担当",
+       "reading": "たんとう",
+       "meaning": "phụ trách",
+       "example": "私がブリッジSEを担当いたします。"
+      },
+      {
+       "jlpt": "N3",
+       "term": "進捗",
+       "reading": "しんちょく",
+       "meaning": "tiến độ",
+       "example": "進捗をご報告いたします。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "初めまして。ミライテックの田中です。",
+       "speaker": "ai",
+       "translation": "Xin chào, tôi là Tanaka của Miraitech."
+      },
+      {
+       "text": "初めまして。VJソリューションズのグエンと申します。本プロジェクトでブリッジSEを担当いたします。",
+       "speaker": "learner",
+       "translation": "Xin chào, tôi là Nguyễn của VJ Solutions. Tôi sẽ phụ trách vai trò BrSE cho dự án này."
+      },
+      {
+       "text": "グエンさんは日本語がお上手ですね。",
+       "speaker": "ai",
+       "translation": "Anh Nguyễn nói tiếng Nhật giỏi quá."
+      },
+      {
+       "text": "ありがとうございます。まだまだ勉強中です。",
+       "speaker": "learner",
+       "translation": "Cảm ơn anh. Tôi vẫn còn đang học."
+      },
+      {
+       "text": "開発チームはダナンにあるんですよね。",
+       "speaker": "ai",
+       "translation": "Đội phát triển ở Đà Nẵng phải không?"
+      },
+      {
+       "text": "はい、ダナンに十名のチームがおります。私が窓口となって対応いたします。",
+       "speaker": "learner",
+       "translation": "Vâng, ở Đà Nẵng có đội 10 người. Tôi sẽ làm đầu mối."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-02",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-02",
+    "title": "Nghe điện thoại khi người được tìm vắng mặt",
+    "location": "Văn phòng, qua điện thoại",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "UKETSUKE",
+       "type": "MISSION",
+       "title": "Nhận cuộc gọi",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "お電話ありがとうございます|でございます|VJソリューションズ"
+        }
+       ],
+       "description": "Chào đầu máy, nói tên công ty và tên mình.",
+       "displayOrder": 1
+      },
+      {
+       "code": "FUKUSHU",
+       "type": "MISSION",
+       "title": "Đáp lời chào",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "こちらこそ|お世話になっております"
+        }
+       ],
+       "description": "Đáp lại lời chào cố định của khách.",
+       "displayOrder": 2
+      },
+      {
+       "code": "RUSU",
+       "type": "MISSION",
+       "title": "Báo PM vắng mặt",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "会議中|申し訳ございません|終わる予定です"
+        }
+       ],
+       "description": "Báo PM đang họp và giờ dự kiến xong.",
+       "displayOrder": 3
+      },
+      {
+       "code": "DENGON",
+       "type": "MISSION",
+       "title": "Nhận lời nhắn",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "申し伝えます|折り返し|承りました"
+        }
+       ],
+       "description": "Đề nghị chuyển lời, nhắc lại nội dung và số điện thoại.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "PICKUP",
+       "name": "Nhận cuộc gọi",
+       "next": "GREETING",
+       "prompt": "Chào khách, xưng tên công ty và tên mình.",
+       "allowedGoalCodes": [
+        "UKETSUKE"
+       ],
+       "suggestedReplies": [
+        "お電話ありがとうございます。VJソリューションズのグエンでございます。"
+       ]
+      },
+      {
+       "code": "GREETING",
+       "name": "Chào hỏi qua điện thoại",
+       "next": "ABSENT",
+       "prompt": "Đáp lại lời chào và hỏi khách cần gặp ai.",
+       "allowedGoalCodes": [
+        "FUKUSHU"
+       ],
+       "suggestedReplies": [
+        "こちらこそ、いつもお世話になっております。"
+       ],
+       "transitionText": "Sau khi khách xưng danh…"
+      },
+      {
+       "code": "ABSENT",
+       "name": "Báo vắng mặt",
+       "next": "MESSAGE",
+       "prompt": "Báo PM đang họp và đề nghị nhắn gọi lại.",
+       "allowedGoalCodes": [
+        "RUSU"
+       ],
+       "suggestedReplies": [
+        "申し訳ございません。ファムはただいま会議中でございます。",
+        "会議が終わり次第、折り返しお電話を差し上げるよう、申し伝えましょうか。"
+       ],
+       "transitionText": "Sau khi khách hỏi tìm PM…"
+      },
+      {
+       "code": "MESSAGE",
+       "name": "Nhận lời nhắn",
+       "next": "END",
+       "prompt": "Ghi lời nhắn, xin số điện thoại và đọc lại để xác nhận.",
+       "allowedGoalCodes": [
+        "DENGON"
+       ],
+       "suggestedReplies": [
+        "かしこまりました。明日のリリースの件ですね。",
+        "私、グエンが承りました。",
+        "失礼いたします。"
+       ],
+       "transitionText": "Sau khi khách cho lời nhắn…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Nhận lời nhắn xong",
+       "message": "かしこまりました。確かに申し伝えます。失礼いたします。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "PICKUP"
+    },
+    "background": "Khách hàng Nhật gọi điện tìm PM (anh Phạm) nhưng PM đang họp, bạn là người bắt máy và nhận lời nhắn.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N2",
+    "description": "Bạn chào đầu máy, báo PM đang họp, ghi lời nhắn và số điện thoại, rồi xác nhận lại trước khi cúp máy.",
+    "time_of_day": "Buổi chiều",
+    "estimated_minutes": 8,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "〜はただいま〜中でございます",
+       "example": "ファムはただいま会議中でございます。",
+       "explanation": "Báo người được tìm đang bận; với khách bên ngoài thì gọi đồng nghiệp mình không kèm さん."
+      },
+      {
+       "pattern": "私、〇〇が承りました",
+       "example": "私、グエンが承りました。",
+       "explanation": "Câu kết chuẩn khi nhận lời nhắn qua điện thoại."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "折り返し",
+       "reading": "おりかえし",
+       "meaning": "gọi lại",
+       "example": "折り返しお電話いたします。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "申し伝える",
+       "reading": "もうしつたえる",
+       "meaning": "chuyển lời (khiêm nhường)",
+       "example": "確かに申し伝えます。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "承る",
+       "reading": "うけたまわる",
+       "meaning": "nhận lời (khiêm nhường)",
+       "example": "私、グエンが承りました。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "念のため",
+       "reading": "ねんのため",
+       "meaning": "để chắc chắn",
+       "example": "念のため、お電話番号をお伺いしてもよろしいでしょうか。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "お電話ありがとうございます。VJソリューションズのグエンでございます。",
+       "speaker": "ai",
+       "translation": "Cảm ơn quý khách đã gọi. Nguyễn của VJ Solutions xin nghe."
+      },
+      {
+       "text": "プロジェクトマネージャーのファムさんはいらっしゃいますか。",
+       "speaker": "ai",
+       "translation": "Anh Phạm, quản lý dự án, có ở đó không?"
+      },
+      {
+       "text": "申し訳ございません。ファムはただいま会議中でございます。11時には終わる予定です。",
+       "speaker": "learner",
+       "translation": "Thành thật xin lỗi, anh Phạm hiện đang họp. Dự kiến 11 giờ sẽ xong."
+      },
+      {
+       "text": "会議が終わり次第、折り返しお電話を差し上げるよう、申し伝えましょうか。",
+       "speaker": "learner",
+       "translation": "Tôi nhắn anh ấy họp xong sẽ gọi lại cho anh nhé?"
+      },
+      {
+       "text": "はい、お願いします。明日のリリースの件でご相談したいことがあると伝えてください。",
+       "speaker": "ai",
+       "translation": "Vâng, nhờ anh. Anh nhắn giúp là tôi muốn trao đổi về đợt release ngày mai."
+      },
+      {
+       "text": "かしこまりました。明日のリリースの件ですね。私、グエンが承りました。失礼いたします。",
+       "speaker": "learner",
+       "translation": "Tôi hiểu rồi. Về đợt release ngày mai ạ. Tôi là Nguyễn đã nhận lời nhắn. Xin phép anh."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-09",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-09",
+    "title": "Nhờ khách hàng hỗ trợ",
+    "location": "Văn phòng, qua điện thoại",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "ONEGAI",
+       "type": "MISSION",
+       "title": "Mở lời nhờ vả",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "一つお願いがあるのですが|お願い"
+        }
+       ],
+       "description": "Nói mình có một việc muốn nhờ.",
+       "displayOrder": 1
+      },
+      {
+       "code": "HAIKEI",
+       "type": "MISSION",
+       "title": "Nêu bối cảnh",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "結合テスト|アカウント|発行されておりません"
+        }
+       ],
+       "description": "Trình bày tuần sau bắt đầu test tích hợp mà chưa có tài khoản test.",
+       "displayOrder": 2
+      },
+      {
+       "code": "KIGEN",
+       "type": "MISSION",
+       "title": "Đề nghị hạn và số lượng",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "金曜日|5名分|可能でしょうか"
+        }
+       ],
+       "description": "Nhờ cấp 5 tài khoản trước thứ Sáu.",
+       "displayOrder": 3
+      },
+      {
+       "code": "KANSHA",
+       "type": "MISSION",
+       "title": "Cảm ơn khi khách nhận",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "ありがとうございます|お手数をおかけしますが"
+        }
+       ],
+       "description": "Cảm ơn và nói làm phiền khách.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "REQUEST",
+       "name": "Mở lời nhờ vả",
+       "next": "CONTEXT",
+       "prompt": "Hỏi xem người học muốn nhờ gì.",
+       "allowedGoalCodes": [
+        "ONEGAI"
+       ],
+       "suggestedReplies": [
+        "田中様、一つお願いがあるのですが。"
+       ]
+      },
+      {
+       "code": "CONTEXT",
+       "name": "Nêu bối cảnh",
+       "next": "DEADLINE",
+       "prompt": "Hỏi rõ tình hình test và tài khoản.",
+       "allowedGoalCodes": [
+        "HAIKEI"
+       ],
+       "suggestedReplies": [
+        "来週から結合テストを始める予定なのですが、テスト用のアカウントがまだ発行されておりません。"
+       ],
+       "transitionText": "Sau khi khách hỏi việc gì…"
+      },
+      {
+       "code": "DEADLINE",
+       "name": "Đề nghị hạn cụ thể",
+       "next": "THANKS",
+       "prompt": "Xác nhận hạn và số lượng tài khoản cần cấp.",
+       "allowedGoalCodes": [
+        "KIGEN"
+       ],
+       "suggestedReplies": [
+        "お忙しいところ恐縮ですが、金曜日までに5名分発行していただくことは可能でしょうか。"
+       ],
+       "transitionText": "Sau khi khách nhận lời xem xét…"
+      },
+      {
+       "code": "THANKS",
+       "name": "Cảm ơn",
+       "next": "END",
+       "prompt": "Khách nhận làm trong hôm nay, mời người học cảm ơn.",
+       "allowedGoalCodes": [
+        "KANSHA"
+       ],
+       "suggestedReplies": [
+        "ありがとうございます。お手数をおかけしますが、よろしくお願いいたします。"
+       ],
+       "transitionText": "Sau khi khách hẹn hôm nay sẽ sắp xếp…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Nhờ khách hỗ trợ xong",
+       "message": "ありがとうございます。よろしくお願いいたします。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "REQUEST"
+    },
+    "background": "Sắp tới test tích hợp nhưng khách chưa cấp tài khoản test, bạn cần nhờ khách chuẩn bị kịp thời hạn.",
+    "difficulty": "EASY",
+    "jlpt_level": "N3",
+    "description": "Bạn mở lời nhờ vả, nêu bối cảnh, đề nghị số lượng và hạn cụ thể, rồi cảm ơn khi khách nhận làm.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "〜していただくことは可能でしょうか",
+       "example": "金曜日までに5名分発行していただくことは可能でしょうか。",
+       "explanation": "Nhờ vả lịch sự, kèm hạn chót và số lượng rõ ràng."
+      },
+      {
+       "pattern": "お手数をおかけしますが",
+       "example": "お手数をおかけしますが、よろしくお願いいたします。",
+       "explanation": "Cách nói khi làm phiền người khác giúp mình."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N3",
+       "term": "発行",
+       "reading": "はっこう",
+       "meaning": "cấp phát",
+       "example": "テスト用のアカウントを発行していただけますか。"
+      },
+      {
+       "jlpt": "N3",
+       "term": "結合テスト",
+       "reading": "けつごうテスト",
+       "meaning": "kiểm thử tích hợp",
+       "example": "来週から結合テストを始める予定です。"
+      },
+      {
+       "jlpt": "N3",
+       "term": "手配",
+       "reading": "てはい",
+       "meaning": "sắp xếp, lo liệu",
+       "example": "今日中に手配します。"
+      },
+      {
+       "jlpt": "N3",
+       "term": "恐縮",
+       "reading": "きょうしゅく",
+       "meaning": "lấy làm ngại, áy náy",
+       "example": "お忙しいところ恐縮ですが、よろしくお願いいたします。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "田中様、一つお願いがあるのですが。",
+       "speaker": "learner",
+       "translation": "Anh Tanaka, tôi có một việc muốn nhờ."
+      },
+      {
+       "text": "はい、何でしょう。",
+       "speaker": "ai",
+       "translation": "Vâng, việc gì vậy?"
+      },
+      {
+       "text": "来週から結合テストを始める予定なのですが、テスト用のアカウントがまだ発行されておりません。",
+       "speaker": "learner",
+       "translation": "Tuần sau chúng tôi dự định bắt đầu test tích hợp, nhưng tài khoản test vẫn chưa được cấp."
+      },
+      {
+       "text": "お忙しいところ恐縮ですが、金曜日までに5名分発行していただくことは可能でしょうか。",
+       "speaker": "learner",
+       "translation": "Biết anh đang bận, nhưng trước thứ Sáu anh có thể cấp giúp 5 tài khoản được không ạ?"
+      },
+      {
+       "text": "ああ、すみません、忘れていました。今日中に手配します。",
+       "speaker": "ai",
+       "translation": "À, xin lỗi, tôi quên mất. Trong hôm nay tôi sẽ sắp xếp."
+      },
+      {
+       "text": "ありがとうございます。お手数をおかけしますが、よろしくお願いいたします。",
+       "speaker": "learner",
+       "translation": "Cảm ơn anh. Làm phiền anh, rất mong anh giúp đỡ."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-03",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-03",
+    "title": "Xác nhận điểm chưa rõ trong đặc tả",
+    "location": "Phòng họp trực tuyến",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "SHITSUMON",
+       "type": "MISSION",
+       "title": "Xin phép hỏi",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "確認させていただきたい|仕様書|よろしいでしょうか"
+        }
+       ],
+       "description": "Mở lời muốn xác nhận một điểm trong đặc tả.",
+       "displayOrder": 1
+      },
+      {
+       "code": "SHITEKI",
+       "type": "MISSION",
+       "title": "Chỉ rõ điểm thiếu",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "画面設計書|ロック|解除方法|記載"
+        }
+       ],
+       "description": "Nêu vị trí và điều còn thiếu trong tài liệu.",
+       "displayOrder": 2
+      },
+      {
+       "code": "SENTAKU",
+       "type": "MISSION",
+       "title": "Đưa phương án chọn",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "自動で解除|手動で解除|どちらをご想定でしょうか"
+        }
+       ],
+       "description": "Đưa hai cách mở khóa để khách chọn.",
+       "displayOrder": 3
+      },
+      {
+       "code": "KAKUNIN",
+       "type": "MISSION",
+       "title": "Nhắc lại để chốt",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "ということでよろしいでしょうか|自動解除|手動解除"
+        }
+       ],
+       "description": "Nhắc lại đúng cả hai yêu cầu để xác nhận.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "ASK",
+       "name": "Xin phép hỏi",
+       "next": "POINT",
+       "prompt": "Cho phép người học đặt câu hỏi.",
+       "allowedGoalCodes": [
+        "SHITSUMON"
+       ],
+       "suggestedReplies": [
+        "仕様書の件で一点確認させていただきたいのですが、今お時間よろしいでしょうか。"
+       ]
+      },
+      {
+       "code": "POINT",
+       "name": "Chỉ rõ điểm thiếu",
+       "next": "OPTION",
+       "prompt": "Xác nhận vị trí và điều còn thiếu.",
+       "allowedGoalCodes": [
+        "SHITEKI"
+       ],
+       "suggestedReplies": [
+        "画面設計書の3ページ目、ログイン画面についてです。ロックの解除方法について記載がございません。"
+       ],
+       "transitionText": "Sau khi khách đồng ý nghe…"
+      },
+      {
+       "code": "OPTION",
+       "name": "Đưa phương án chọn",
+       "next": "CONFIRM",
+       "prompt": "Đưa phương án và hỏi khách muốn chọn cách nào.",
+       "allowedGoalCodes": [
+        "SENTAKU"
+       ],
+       "suggestedReplies": [
+        "一定時間が経過したら自動で解除する方式と、管理者が手動で解除する方式が考えられますが、どちらをご想定でしょうか。"
+       ],
+       "transitionText": "Sau khi khách nhận ra chỗ thiếu…"
+      },
+      {
+       "code": "CONFIRM",
+       "name": "Nhắc lại để chốt",
+       "next": "END",
+       "prompt": "Nhắc lại đúng cả hai yêu cầu để khách xác nhận.",
+       "allowedGoalCodes": [
+        "KAKUNIN"
+       ],
+       "suggestedReplies": [
+        "30分後の自動解除と、管理者による手動解除の両方を実装する、ということでよろしいでしょうか。"
+       ],
+       "transitionText": "Sau khi khách chọn phương án…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Chốt xong điểm đặc tả",
+       "message": "ありがとうございます。認識齟齬を防ぐため、本日中にQ&A表に記載してお送りいたします。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "ASK"
+    },
+    "background": "Bạn phát hiện tài liệu đặc tả thiếu cách mở khóa tài khoản và cần hỏi lại khách hàng.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N2",
+    "description": "Bạn xin phép hỏi, chỉ rõ vị trí và điểm còn thiếu, đưa phương án cho khách chọn rồi nhắc lại để chốt.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 7,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "〜について記載がございません",
+       "example": "ロックの解除方法について記載がございません。",
+       "explanation": "Nêu khách quan điều còn thiếu trong tài liệu."
+      },
+      {
+       "pattern": "〜ということでよろしいでしょうか",
+       "example": "30分後の自動解除と管理者による手動解除の両方を実装する、ということでよろしいでしょうか。",
+       "explanation": "Nhắc lại để chốt, kỹ năng cốt lõi của BrSE."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "仕様書",
+       "reading": "しようしょ",
+       "meaning": "tài liệu đặc tả",
+       "example": "仕様書の件で確認させていただきたいのですが。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "画面設計書",
+       "reading": "がめんせっけいしょ",
+       "meaning": "tài liệu thiết kế màn hình",
+       "example": "画面設計書の3ページ目をご覧ください。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "解除",
+       "reading": "かいじょ",
+       "meaning": "mở khóa, hủy bỏ",
+       "example": "30分後に自動で解除します。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "認識齟齬",
+       "reading": "にんしきそご",
+       "meaning": "hiểu sai lệch giữa hai bên",
+       "example": "認識齟齬を防ぐため、Q&A表に記載します。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "田中様、仕様書の件で一点確認させていただきたいのですが、今お時間よろしいでしょうか。",
+       "speaker": "learner",
+       "translation": "Anh Tanaka, tôi muốn xác nhận một điểm trong tài liệu đặc tả, bây giờ anh có tiện không ạ?"
+      },
+      {
+       "text": "画面設計書の3ページ目、ログイン画面についてです。パスワードを5回間違えるとアカウントをロックすると書かれていますが、ロックの解除方法について記載がございません。",
+       "speaker": "learner",
+       "translation": "Về màn hình đăng nhập ở trang 3. Tài liệu ghi nhập sai mật khẩu 5 lần sẽ khóa tài khoản, nhưng không ghi cách mở khóa."
+      },
+      {
+       "text": "ああ、そこは抜けていましたね。",
+       "speaker": "ai",
+       "translation": "À, chỗ đó bị sót thật."
+      },
+      {
+       "text": "一定時間が経過したら自動で解除する方式と、管理者が手動で解除する方式が考えられますが、どちらをご想定でしょうか。",
+       "speaker": "learner",
+       "translation": "Có thể tự động mở khóa sau một khoảng thời gian, hoặc để quản trị viên mở khóa thủ công. Anh đang hình dung theo cách nào ạ?"
+      },
+      {
+       "text": "30分後に自動で解除する形でお願いします。管理者による解除も、念のため入れておいてください。",
+       "speaker": "ai",
+       "translation": "Làm theo kiểu tự động mở khóa sau 30 phút. Cho thêm cả chức năng quản trị viên mở khóa để phòng hờ."
+      },
+      {
+       "text": "承知いたしました。30分後の自動解除と、管理者による手動解除の両方を実装する、ということでよろしいでしょうか。",
+       "speaker": "learner",
+       "translation": "Tôi hiểu rồi. Vậy là triển khai cả tự động mở khóa sau 30 phút lẫn quản trị viên mở khóa thủ công, đúng không ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-07",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-07",
+    "title": "Xử lý yêu cầu thay đổi đặc tả",
+    "location": "Phòng họp trực tuyến",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "SAIKAKUNIN",
+       "type": "MISSION",
+       "title": "Nhắc lại yêu cầu",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "CSV出力機能|追加|画面|項目"
+        }
+       ],
+       "description": "Nhắc lại đúng chức năng xuất CSV và hỏi rõ phạm vi.",
+       "displayOrder": 1
+      },
+      {
+       "code": "HANIGAI",
+       "type": "MISSION",
+       "title": "Nói rõ ngoài phạm vi",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "開発範囲外|工数|見積もらせていただきたい"
+        }
+       ],
+       "description": "Nói rõ việc nằm ngoài phạm vi và xin ước tính công số.",
+       "displayOrder": 2
+      },
+      {
+       "code": "YOTEI",
+       "type": "MISSION",
+       "title": "Hẹn gửi ước tính",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "明日中|見積もりをご提出|相談"
+        }
+       ],
+       "description": "Hẹn trao đổi đội phát triển rồi gửi ước tính, kèm bàn phạm vi release.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "REQ",
+       "name": "Nhận yêu cầu",
+       "next": "DETAIL",
+       "prompt": "Khách nêu yêu cầu thêm chức năng xuất CSV, mời người học hỏi rõ.",
+       "allowedGoalCodes": [
+        "SAIKAKUNIN"
+       ],
+       "suggestedReplies": [
+        "CSV出力機能の追加ですね。対象となる画面とデータの項目を教えていただけますか。"
+       ]
+      },
+      {
+       "code": "DETAIL",
+       "name": "Làm rõ phạm vi",
+       "next": "SCOPE",
+       "prompt": "Khách mô tả màn hình và dữ liệu, mời người học nói rõ phạm vi công việc.",
+       "allowedGoalCodes": [
+        "HANIGAI"
+       ],
+       "suggestedReplies": [
+        "現在の開発範囲外の作業となりますので、工数とスケジュールへの影響を見積もらせていただきたいと思います。"
+       ],
+       "transitionText": "Sau khi khách mô tả yêu cầu…"
+      },
+      {
+       "code": "SCOPE",
+       "name": "Hẹn gửi ước tính",
+       "next": "END",
+       "prompt": "Khách hỏi mất bao lâu, mời người học hẹn gửi ước tính và bàn phạm vi release.",
+       "allowedGoalCodes": [
+        "YOTEI"
+       ],
+       "suggestedReplies": [
+        "開発チームと確認のうえ、明日中に見積もりをご提出いたします。",
+        "今回のリリースに含めるか、次回に回すかもご相談させてください。"
+       ],
+       "transitionText": "Sau khi khách hỏi mất bao lâu…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Hẹn gửi ước tính xong",
+       "message": "承知いたしました。明日中に見積もりをご提出いたします。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "REQ"
+    },
+    "background": "Khách hàng muốn thêm chức năng xuất CSV ngoài phạm vi, bạn cần làm rõ yêu cầu và đề nghị ước tính công số.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N2",
+    "description": "Bạn nhắc lại đúng yêu cầu, hỏi rõ màn hình và trường dữ liệu, nói rõ đây là việc ngoài phạm vi rồi hẹn gửi ước tính.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 7,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "開発範囲外の作業となりますので",
+       "example": "現在の開発範囲外の作業となりますので、見積もらせていただきたいと思います。",
+       "explanation": "Nói rõ ngay từ đầu để tránh bị hiểu là làm miễn phí."
+      },
+      {
+       "pattern": "〜のうえ",
+       "example": "開発チームと確認のうえ、見積もりをご提出いたします。",
+       "explanation": "Nghĩa là 'sau khi ~', rất hay gặp trong email công việc (N2)."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "工数",
+       "reading": "こうすう",
+       "meaning": "công số (man-day, man-hour)",
+       "example": "工数を見積もらせていただきたいと思います。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "見積もり",
+       "reading": "みつもり",
+       "meaning": "ước tính, báo giá",
+       "example": "明日中に見積もりをご提出いたします。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "追加",
+       "reading": "ついか",
+       "meaning": "thêm",
+       "example": "CSV出力機能を追加してほしいとのことですね。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "範囲外",
+       "reading": "はんいがい",
+       "meaning": "ngoài phạm vi",
+       "example": "現在の開発範囲外の作業となります。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "実は、ユーザーから要望があって、CSVでデータを出力する機能を追加してほしいんです。",
+       "speaker": "ai",
+       "translation": "Thật ra người dùng có yêu cầu, tôi muốn thêm chức năng xuất dữ liệu ra CSV."
+      },
+      {
+       "text": "CSV出力機能の追加ですね。対象となる画面とデータの項目を教えていただけますか。",
+       "speaker": "learner",
+       "translation": "Thêm chức năng xuất CSV ạ. Anh cho tôi biết màn hình và các trường dữ liệu cần xuất được không?"
+      },
+      {
+       "text": "注文一覧の画面で、表示されている項目をそのまま出力できればいいです。",
+       "speaker": "ai",
+       "translation": "Ở màn hình danh sách đơn hàng, xuất nguyên các cột đang hiển thị là được."
+      },
+      {
+       "text": "承知いたしました。ただ、現在の開発範囲外の作業となりますので、工数とスケジュールへの影響を見積もらせていただきたいと思います。",
+       "speaker": "learner",
+       "translation": "Tôi hiểu rồi. Tuy nhiên đây là công việc ngoài phạm vi phát triển hiện tại, nên chúng tôi xin phép ước tính công số và ảnh hưởng tới lịch trình."
+      },
+      {
+       "text": "どのくらいかかりそうですか。",
+       "speaker": "ai",
+       "translation": "Có vẻ mất khoảng bao lâu?"
+      },
+      {
+       "text": "開発チームと確認のうえ、明日中に見積もりをご提出いたします。今回のリリースに含めるか、次回に回すかもご相談させてください。",
+       "speaker": "learner",
+       "translation": "Sau khi trao đổi với đội phát triển, trong ngày mai tôi sẽ gửi bản ước tính. Đồng thời cho tôi trao đổi luôn việc đưa vào đợt release này hay dời sang đợt sau."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-15",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-15",
+    "title": "Xác nhận yêu cầu",
+    "location": "Phòng họp tại văn phòng khách hàng",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "KAKUNIN",
+       "type": "MISSION",
+       "title": "Mở đầu xác nhận",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "確認したいのですが|新しい要件|要件"
+        }
+       ],
+       "description": "Nói rõ muốn xác nhận yêu cầu mới.",
+       "displayOrder": 1
+      },
+      {
+       "code": "YUSEN",
+       "type": "MISSION",
+       "title": "Hỏi độ ưu tiên",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "優先度|高いですか"
+        }
+       ],
+       "description": "Hỏi độ ưu tiên của chức năng có cao không.",
+       "displayOrder": 2
+      },
+      {
+       "code": "SHIRYO",
+       "type": "MISSION",
+       "title": "Nhờ gửi đặc tả",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "仕様書|いただけますか|来週までに"
+        }
+       ],
+       "description": "Nhờ khách gửi tài liệu đặc tả trước hạn cụ thể.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "TOPIC",
+       "name": "Mở đầu",
+       "next": "PRIORITY",
+       "prompt": "Khách hỏi lại nội dung, mời người học nêu chủ đề cần xác nhận.",
+       "allowedGoalCodes": [
+        "KAKUNIN"
+       ],
+       "suggestedReplies": [
+        "新しい要件について確認したいのですが。"
+       ]
+      },
+      {
+       "code": "PRIORITY",
+       "name": "Hỏi độ ưu tiên",
+       "next": "DOC",
+       "prompt": "Mời người học hỏi độ ưu tiên của chức năng.",
+       "allowedGoalCodes": [
+        "YUSEN"
+       ],
+       "suggestedReplies": [
+        "この機能の優先度は高いですか。"
+       ],
+       "transitionText": "Sau khi khách hỏi là gì…"
+      },
+      {
+       "code": "DOC",
+       "name": "Nhờ gửi đặc tả",
+       "next": "END",
+       "prompt": "Khách nói muốn đưa vào release tháng sau, mời người học nhờ gửi đặc tả đúng hạn.",
+       "allowedGoalCodes": [
+        "SHIRYO"
+       ],
+       "suggestedReplies": [
+        "では、仕様書を来週までにいただけますか。"
+       ],
+       "transitionText": "Sau khi khách xác nhận ưu tiên cao…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Xác nhận yêu cầu xong",
+       "message": "ありがとうございます。よろしくお願いします。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "TOPIC"
+    },
+    "background": "Bạn họp với khách hàng Nhật để làm rõ một yêu cầu mới và nhờ gửi tài liệu đặc tả đúng hạn.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N2",
+    "description": "Bạn mở đầu việc muốn xác nhận, hỏi độ ưu tiên của chức năng, rồi nhờ khách gửi đặc tả trước tuần sau.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "〜について確認したいのですが",
+       "example": "新しい要件について確認したいのですが。",
+       "explanation": "Mở đầu cuộc trao đổi công việc."
+      },
+      {
+       "pattern": "〜までにいただけますか",
+       "example": "仕様書を来週までにいただけますか。",
+       "explanation": "Nhờ đối tác gửi tài liệu đúng hạn."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "要件",
+       "reading": "ようけん",
+       "meaning": "yêu cầu",
+       "example": "新しい要件について確認したいのですが。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "優先度",
+       "reading": "ゆうせんど",
+       "meaning": "độ ưu tiên",
+       "example": "この機能の優先度は高いですか。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "仕様書",
+       "reading": "しようしょ",
+       "meaning": "tài liệu đặc tả",
+       "example": "仕様書を来週までにいただけますか。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "リリース",
+       "reading": "リリース",
+       "meaning": "phát hành",
+       "example": "来月のリリースに入れたいです。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "田中さん、新しい要件について確認したいのですが。",
+       "speaker": "learner",
+       "translation": "Anh Tanaka, tôi muốn xác nhận về yêu cầu mới ạ."
+      },
+      {
+       "text": "はい、何でしょうか。",
+       "speaker": "ai",
+       "translation": "Vâng, là gì ạ?"
+      },
+      {
+       "text": "この機能の優先度は高いですか。",
+       "speaker": "learner",
+       "translation": "Độ ưu tiên của chức năng này có cao không ạ?"
+      },
+      {
+       "text": "はい、来月のリリースに入れたいです。",
+       "speaker": "ai",
+       "translation": "Có, chúng tôi muốn đưa vào bản phát hành tháng sau."
+      },
+      {
+       "text": "では、仕様書を来週までにいただけますか。",
+       "speaker": "learner",
+       "translation": "Vậy anh gửi tài liệu đặc tả cho tôi trước tuần sau được không ạ?"
+      },
+      {
+       "text": "分かりました。水曜日までに送ります。",
+       "speaker": "ai",
+       "translation": "Được ạ. Tôi sẽ gửi trước thứ Tư."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-04",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-04",
+    "title": "Báo cáo tiến độ trong họp định kỳ",
+    "location": "Phòng họp trực tuyến",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "HOUKOKU",
+       "type": "MISSION",
+       "title": "Mở đầu báo cáo",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "進捗をご報告いたします|報告"
+        }
+       ],
+       "description": "Nói sẽ báo cáo tiến độ tuần này.",
+       "displayOrder": 1
+      },
+      {
+       "code": "KANRYOU",
+       "type": "MISSION",
+       "title": "Báo hạng mục đã xong",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "予定どおり完了|単体テスト|実施中"
+        }
+       ],
+       "description": "Nêu hạng mục hoàn thành đúng kế hoạch.",
+       "displayOrder": 2
+      },
+      {
+       "code": "CHITAI",
+       "type": "MISSION",
+       "title": "Báo hạng mục chậm",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "仕様確認|70%程度|とどまっております"
+        }
+       ],
+       "description": "Nêu hạng mục chậm cùng nguyên nhân và mức độ.",
+       "displayOrder": 3
+      },
+      {
+       "code": "MITOOSHI",
+       "type": "MISSION",
+       "title": "Nêu dự báo và rủi ro",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "見込み|リスク|ご報告いたします"
+        }
+       ],
+       "description": "Nêu dự báo bắt kịp kèm rủi ro và hẹn báo lại.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "OPEN",
+       "name": "Mở đầu báo cáo",
+       "next": "GOOD",
+       "prompt": "Mời người học bắt đầu báo cáo tiến độ.",
+       "allowedGoalCodes": [
+        "HOUKOKU"
+       ],
+       "suggestedReplies": [
+        "それでは、今週の進捗をご報告いたします。"
+       ]
+      },
+      {
+       "code": "GOOD",
+       "name": "Báo tin tốt",
+       "next": "DELAY",
+       "prompt": "Mời người học nêu hạng mục đã hoàn thành.",
+       "allowedGoalCodes": [
+        "KANRYOU"
+       ],
+       "suggestedReplies": [
+        "会員登録機能は予定どおり完了し、現在、単体テストを実施中です。"
+       ],
+       "transitionText": "Sau khi mở đầu…"
+      },
+      {
+       "code": "DELAY",
+       "name": "Báo hạng mục chậm",
+       "next": "RISK",
+       "prompt": "Mời người học nêu hạng mục chậm và nguyên nhân.",
+       "allowedGoalCodes": [
+        "CHITAI"
+       ],
+       "suggestedReplies": [
+        "決済機能については、外部APIの仕様確認に時間がかかったため、進捗は予定の70%程度にとどまっております。"
+       ],
+       "transitionText": "Sau khi báo hạng mục xong…"
+      },
+      {
+       "code": "RISK",
+       "name": "Nêu dự báo và rủi ro",
+       "next": "END",
+       "prompt": "Khách hỏi ảnh hưởng lịch trình, mời người học nêu dự báo và hẹn báo lại.",
+       "allowedGoalCodes": [
+        "MITOOSHI"
+       ],
+       "suggestedReplies": [
+        "来週の作業で遅れを取り戻せる見込みです。",
+        "APIの接続テストで問題が出た場合は、2日ほど遅れる可能性がございます。",
+        "水曜日の時点で状況を確認し、改めてご報告いたします。"
+       ],
+       "transitionText": "Sau khi khách hỏi ảnh hưởng…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Báo cáo tiến độ xong",
+       "message": "ありがとうございます。状況が分かりました。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "OPEN"
+    },
+    "background": "BrSE báo cáo tiến độ tuần, trong đó có một hạng mục đang chậm, cần nêu rõ và hẹn báo lại.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N2",
+    "description": "Bạn báo hạng mục đã xong, nêu hạng mục chậm cùng nguyên nhân và dự báo, rồi hẹn mốc kiểm tra lại.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 8,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "〜程度にとどまっております",
+       "example": "進捗は予定の70%程度にとどまっております。",
+       "explanation": "Báo tin chậm một cách khách quan, không than phiền."
+      },
+      {
+       "pattern": "〜見込みです",
+       "example": "来週の作業で遅れを取り戻せる見込みです。",
+       "explanation": "Nêu dự báo; luôn kèm điều kiện rủi ro, đừng hứa chắc."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "進捗",
+       "reading": "しんちょく",
+       "meaning": "tiến độ",
+       "example": "今週の進捗をご報告いたします。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "予定どおり",
+       "reading": "よていどおり",
+       "meaning": "đúng kế hoạch",
+       "example": "予定どおり完了しました。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "見込み",
+       "reading": "みこみ",
+       "meaning": "dự kiến, khả năng",
+       "example": "遅れを取り戻せる見込みです。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "リスク",
+       "reading": "リスク",
+       "meaning": "rủi ro",
+       "example": "リスクがはっきりした時点で教えてください。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "それでは、今週の進捗をご報告いたします。",
+       "speaker": "learner",
+       "translation": "Sau đây tôi xin báo cáo tiến độ tuần này."
+      },
+      {
+       "text": "会員登録機能は予定どおり完了し、現在、単体テストを実施中です。",
+       "speaker": "learner",
+       "translation": "Chức năng đăng ký thành viên đã hoàn thành đúng kế hoạch, hiện đang chạy unit test."
+      },
+      {
+       "text": "一方、決済機能については、外部APIの仕様確認に時間がかかったため、進捗は予定の70%程度にとどまっております。",
+       "speaker": "learner",
+       "translation": "Ngược lại, chức năng thanh toán mất thời gian xác nhận đặc tả API bên ngoài nên tiến độ mới đạt khoảng 70% kế hoạch."
+      },
+      {
+       "text": "全体のスケジュールには影響がありそうですか。",
+       "speaker": "ai",
+       "translation": "Có ảnh hưởng tới lịch trình tổng thể không?"
+      },
+      {
+       "text": "現時点では、来週の作業で遅れを取り戻せる見込みです。ただ、APIの接続テストで問題が出た場合は、2日ほど遅れる可能性がございます。",
+       "speaker": "learner",
+       "translation": "Hiện tại dự kiến tuần sau sẽ bắt kịp. Tuy nhiên, nếu test kết nối API phát sinh vấn đề thì có khả năng chậm khoảng 2 ngày."
+      },
+      {
+       "text": "承知いたしました。水曜日の時点で状況を確認し、改めてご報告いたします。",
+       "speaker": "learner",
+       "translation": "Vâng. Đến thứ Tư tôi sẽ kiểm tra tình hình và báo cáo lại."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-05",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-05",
+    "title": "Báo chậm bàn giao và xin lỗi",
+    "location": "Phòng họp trực tuyến",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "MAE",
+       "type": "MISSION",
+       "title": "Mở đầu báo tin xấu",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "申し上げにくいのですが|報告がございます"
+        }
+       ],
+       "description": "Mở đầu bằng cụm đệm khi sắp báo tin khó nói.",
+       "displayOrder": 1
+      },
+      {
+       "code": "SHOUCHI",
+       "type": "MISSION",
+       "title": "Xin lỗi chân thành",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "申し訳ございません|ご迷惑をおかけして"
+        }
+       ],
+       "description": "Xin lỗi vì gây phiền phức.",
+       "displayOrder": 2
+      },
+      {
+       "code": "GENIN",
+       "type": "MISSION",
+       "title": "Nêu nguyên nhân và biện pháp",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "原因|影響範囲|チェックリスト|徹底いたします"
+        }
+       ],
+       "description": "Nêu nguyên nhân và biện pháp phòng tái phát cụ thể.",
+       "displayOrder": 3
+      },
+      {
+       "code": "TEIAN",
+       "type": "MISSION",
+       "title": "Đưa phương án bàn giao",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "納品可能|毎日|ご報告いたします"
+        }
+       ],
+       "description": "Đưa phương án bàn giao từng phần và xác nhận báo cáo hằng ngày.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "BADNEWS",
+       "name": "Mở đầu báo tin xấu",
+       "next": "APOLOGY",
+       "prompt": "Khách hỏi có chuyện gì, mời người học báo lùi ngày bàn giao.",
+       "allowedGoalCodes": [
+        "MAE"
+       ],
+       "suggestedReplies": [
+        "大変申し上げにくいのですが、テスト工程の件でご報告がございます。"
+       ]
+      },
+      {
+       "code": "APOLOGY",
+       "name": "Xin lỗi",
+       "next": "CAUSE",
+       "prompt": "Khách tỏ ra khó xử, mời người học xin lỗi.",
+       "allowedGoalCodes": [
+        "SHOUCHI"
+       ],
+       "suggestedReplies": [
+        "ご迷惑をおかけして、誠に申し訳ございません。"
+       ],
+       "transitionText": "Sau khi khách bày tỏ khó xử…"
+      },
+      {
+       "code": "CAUSE",
+       "name": "Nêu nguyên nhân và biện pháp",
+       "next": "PLAN",
+       "prompt": "Mời người học nêu nguyên nhân và biện pháp phòng tái phát.",
+       "allowedGoalCodes": [
+        "GENIN"
+       ],
+       "suggestedReplies": [
+        "原因は、仕様変更の影響範囲の調査が不十分だったことです。",
+        "今後は、変更のたびに影響範囲をチェックリストで確認するよう、チームで徹底いたします。"
+       ],
+       "transitionText": "Sau khi xin lỗi…"
+      },
+      {
+       "code": "PLAN",
+       "name": "Đưa phương án bàn giao",
+       "next": "END",
+       "prompt": "Khách hỏi có thể bàn giao một phần không, mời người học đưa phương án và xác nhận báo cáo hằng ngày.",
+       "allowedGoalCodes": [
+        "TEIAN"
+       ],
+       "suggestedReplies": [
+        "ログイン機能と会員管理機能であれば、15日に納品可能です。",
+        "毎日夕方に進捗をメールでご報告いたします。"
+       ],
+       "transitionText": "Sau khi khách hỏi bàn giao từng phần…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Chốt phương án bàn giao",
+       "message": "では、それでお願いします。修正の状況は毎日共有してください。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "BADNEWS"
+    },
+    "background": "Test tích hợp phát sinh nhiều lỗi, bạn phải báo lùi ngày bàn giao, nêu nguyên nhân và biện pháp phòng tái phát.",
+    "difficulty": "HARD",
+    "jlpt_level": "N2",
+    "description": "Bạn mở đầu báo tin xấu, xin lỗi, nêu nguyên nhân và biện pháp, rồi đưa phương án bàn giao từng phần.",
+    "time_of_day": "Buổi chiều",
+    "estimated_minutes": 8,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "大変申し上げにくいのですが",
+       "example": "大変申し上げにくいのですが、テスト工程の件でご報告がございます。",
+       "explanation": "Mở đầu trước khi báo tin xấu."
+      },
+      {
+       "pattern": "〜させていただけないでしょうか",
+       "example": "納品日を当初の15日から18日に変更させていただけないでしょうか。",
+       "explanation": "Xin phép ở mức lịch sự cao khi nhờ khách chấp thuận thay đổi."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "納期",
+       "reading": "のうき",
+       "meaning": "hạn bàn giao",
+       "example": "納品日を変更させていただけないでしょうか。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "納品",
+       "reading": "のうひん",
+       "meaning": "bàn giao sản phẩm",
+       "example": "15日に納品可能です。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "原因",
+       "reading": "げんいん",
+       "meaning": "nguyên nhân",
+       "example": "原因は、影響範囲の調査が不十分だったことです。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "影響範囲",
+       "reading": "えいきょうはんい",
+       "meaning": "phạm vi ảnh hưởng",
+       "example": "影響範囲をチェックリストで確認します。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "田中様、大変申し上げにくいのですが、テスト工程の件でご報告がございます。",
+       "speaker": "learner",
+       "translation": "Anh Tanaka, thật khó nói nhưng tôi có việc cần báo cáo về giai đoạn test."
+      },
+      {
+       "text": "結合テストで想定以上の不具合が見つかり、修正に時間を要しております。そのため、納品日を当初の15日から18日に変更させていただけないでしょうか。",
+       "speaker": "learner",
+       "translation": "Test tích hợp phát hiện nhiều lỗi hơn dự kiến, việc sửa đang tốn thời gian. Vì vậy, cho phép chúng tôi lùi ngày bàn giao từ ngày 15 sang ngày 18 được không ạ?"
+      },
+      {
+       "text": "3日遅れですか。こちらもユーザーへの説明があるので、正直困りますね。",
+       "speaker": "ai",
+       "translation": "Chậm 3 ngày à. Bên tôi còn phải giải thích với người dùng, nói thật là khó xử."
+      },
+      {
+       "text": "ご迷惑をおかけして、誠に申し訳ございません。",
+       "speaker": "learner",
+       "translation": "Chúng tôi thành thật xin lỗi vì đã gây phiền phức."
+      },
+      {
+       "text": "原因は、仕様変更の影響範囲の調査が不十分だったことです。今後は、変更のたびに影響範囲をチェックリストで確認するよう、チームで徹底いたします。",
+       "speaker": "learner",
+       "translation": "Nguyên nhân là việc khảo sát phạm vi ảnh hưởng của thay đổi đặc tả chưa đầy đủ. Từ nay, mỗi lần thay đổi, cả đội sẽ kiểm tra phạm vi ảnh hưởng bằng checklist một cách triệt để."
+      },
+      {
+       "text": "はい、ログイン機能と会員管理機能であれば、15日に納品可能です。残りの機能を18日に納品する形でいかがでしょうか。",
+       "speaker": "learner",
+       "translation": "Vâng, nếu là chức năng đăng nhập và quản lý thành viên thì ngày 15 có thể bàn giao. Phần còn lại bàn giao ngày 18, anh thấy thế nào ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-08",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-08",
+    "title": "Sắp xếp lịch họp",
+    "location": "Văn phòng, qua điện thoại",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "TSUGOU",
+       "type": "MISSION",
+       "title": "Hỏi lịch khách",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "ご都合はいかがでしょうか|レビュー会議"
+        }
+       ],
+       "description": "Nêu mục đích và hỏi lịch của khách.",
+       "displayOrder": 1
+      },
+      {
+       "code": "TEIAN",
+       "type": "MISSION",
+       "title": "Đề xuất mốc giờ",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "木曜日の15時|はいかがでしょうか"
+        }
+       ],
+       "description": "Đề xuất 15 giờ thứ Năm đúng lịch khách rảnh.",
+       "displayOrder": 2
+      },
+      {
+       "code": "JISA",
+       "type": "MISSION",
+       "title": "Nêu chênh lệch múi giờ",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "日本時間|ベトナムは13時"
+        }
+       ],
+       "description": "Nêu giờ Việt Nam khi biết 15 giờ Nhật.",
+       "displayOrder": 3
+      },
+      {
+       "code": "SHIRYOU",
+       "type": "MISSION",
+       "title": "Hẹn gửi link và tài liệu",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "URL|資料|前日までにお送り"
+        }
+       ],
+       "description": "Hẹn gửi link họp và tài liệu trước một ngày.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "ASK",
+       "name": "Hỏi lịch khách",
+       "next": "PROPOSE",
+       "prompt": "Khách cho biết lịch rảnh, mời người học đề xuất mốc giờ.",
+       "allowedGoalCodes": [
+        "TSUGOU"
+       ],
+       "suggestedReplies": [
+        "来週、要件定義のレビュー会議をお願いしたいのですが、ご都合はいかがでしょうか。"
+       ]
+      },
+      {
+       "code": "PROPOSE",
+       "name": "Đề xuất mốc giờ",
+       "next": "TIMEZONE",
+       "prompt": "Mời người học đề xuất mốc giờ nằm trong lịch khách đã nêu.",
+       "allowedGoalCodes": [
+        "TEIAN"
+       ],
+       "suggestedReplies": [
+        "では、木曜日の15時からはいかがでしょうか。1時間ほどを予定しております。"
+       ],
+       "transitionText": "Sau khi khách nêu lịch rảnh…"
+      },
+      {
+       "code": "TIMEZONE",
+       "name": "Nêu chênh lệch múi giờ",
+       "next": "SEND",
+       "prompt": "Mời người học giải thích múi giờ để đội Việt Nam tham gia được.",
+       "allowedGoalCodes": [
+        "JISA"
+       ],
+       "suggestedReplies": [
+        "日本時間の15時ですと、ベトナムは13時になりますので、開発チームも参加できます。"
+       ],
+       "transitionText": "Sau khi khách đồng ý giờ…"
+      },
+      {
+       "code": "SEND",
+       "name": "Hẹn gửi link và tài liệu",
+       "next": "END",
+       "prompt": "Khách muốn nhận tài liệu trước, mời người học hẹn gửi.",
+       "allowedGoalCodes": [
+        "SHIRYOU"
+       ],
+       "suggestedReplies": [
+        "後ほど、会議のURLと資料をお送りいたします。",
+        "かしこまりました。前日までにお送りいたします。"
+       ],
+       "transitionText": "Sau khi chốt lịch…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Chốt lịch họp xong",
+       "message": "かしこまりました。前日までに資料をお送りいたします。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "ASK"
+    },
+    "background": "Bạn muốn xin một buổi họp review định nghĩa yêu cầu, có tính tới chênh lệch múi giờ Nhật - Việt.",
+    "difficulty": "EASY",
+    "jlpt_level": "N3",
+    "description": "Bạn hỏi lịch khách, đề xuất mốc giờ hợp lệ, ghi rõ múi giờ rồi hẹn gửi link họp và tài liệu trước.",
+    "time_of_day": "Buổi chiều",
+    "estimated_minutes": 7,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "ご都合はいかがでしょうか",
+       "example": "来週、レビュー会議をお願いしたいのですが、ご都合はいかがでしょうか。",
+       "explanation": "Hỏi lịch của khách một cách lịch sự."
+      },
+      {
+       "pattern": "日本時間の〜",
+       "example": "日本時間の15時ですと、ベトナムは13時になります。",
+       "explanation": "Luôn ghi rõ múi giờ; Việt Nam chậm hơn Nhật 2 tiếng."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N3",
+       "term": "都合",
+       "reading": "つごう",
+       "meaning": "lịch rảnh, tiện",
+       "example": "ご都合はいかがでしょうか。"
+      },
+      {
+       "jlpt": "N3",
+       "term": "要件定義",
+       "reading": "ようけんていぎ",
+       "meaning": "định nghĩa yêu cầu",
+       "example": "要件定義のレビュー会議をお願いしたいのですが。"
+      },
+      {
+       "jlpt": "N3",
+       "term": "事前",
+       "reading": "じぜん",
+       "meaning": "trước, trước khi",
+       "example": "資料は事前にいただけると助かります。"
+      },
+      {
+       "jlpt": "N3",
+       "term": "前日",
+       "reading": "ぜんじつ",
+       "meaning": "một ngày trước đó",
+       "example": "前日までにお送りいたします。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "来週、要件定義のレビュー会議をお願いしたいのですが、ご都合はいかがでしょうか。",
+       "speaker": "learner",
+       "translation": "Tuần sau tôi muốn xin một buổi họp review định nghĩa yêu cầu, lịch của anh thế nào ạ?"
+      },
+      {
+       "text": "来週ですか。火曜と木曜の午後なら空いています。",
+       "speaker": "ai",
+       "translation": "Tuần sau à. Chiều thứ Ba và thứ Năm thì tôi rảnh."
+      },
+      {
+       "text": "ありがとうございます。では、木曜日の15時からはいかがでしょうか。1時間ほどを予定しております。",
+       "speaker": "learner",
+       "translation": "Cảm ơn anh. Vậy từ 15 giờ thứ Năm có được không ạ? Dự kiến khoảng 1 tiếng."
+      },
+      {
+       "text": "日本時間の15時ですと、ベトナムは13時になりますので、開発チームも参加できます。",
+       "speaker": "learner",
+       "translation": "15 giờ giờ Nhật là 13 giờ ở Việt Nam, nên đội phát triển cũng tham gia được."
+      },
+      {
+       "text": "資料は事前にいただけると助かります。",
+       "speaker": "ai",
+       "translation": "Nếu gửi tài liệu trước thì tốt quá."
+      },
+      {
+       "text": "かしこまりました。前日までにお送りいたします。",
+       "speaker": "learner",
+       "translation": "Vâng. Tôi sẽ gửi trước một ngày."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-10",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-10",
+    "title": "Chốt nội dung cuối buổi họp",
+    "location": "Phòng họp trực tuyến",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "KETTEI",
+       "type": "MISSION",
+       "title": "Xác nhận nội dung quyết định",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "決定事項|確認させていただきます|自動で解除"
+        }
+       ],
+       "description": "Nêu từng điểm đã chốt kèm ai làm, khi nào.",
+       "displayOrder": 1
+      },
+      {
+       "code": "GIJIROKU",
+       "type": "MISSION",
+       "title": "Hẹn gửi biên bản",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "議事録|本日中|ご指摘ください"
+        }
+       ],
+       "description": "Hẹn soạn và gửi biên bản, mời khách chỉ ra nếu sai.",
+       "displayOrder": 2
+      },
+      {
+       "code": "KANSHA",
+       "type": "MISSION",
+       "title": "Cảm ơn và kết thúc",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "ありがとうございました|お時間をいただき"
+        }
+       ],
+       "description": "Cảm ơn khách đã dành thời gian ở thể quá khứ lịch sự.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "SUMMARY",
+       "name": "Xác nhận nội dung",
+       "next": "MINUTES",
+       "prompt": "Mời người học nhắc lại các nội dung đã quyết định.",
+       "allowedGoalCodes": [
+        "KETTEI"
+       ],
+       "suggestedReplies": [
+        "最後に、本日の決定事項を確認させていただきます。",
+        "一点目、アカウントのロックは30分後に自動で解除します。二点目、CSV出力機能の見積もりを、明日中に弊社から提出いたします。"
+       ]
+      },
+      {
+       "code": "MINUTES",
+       "name": "Hẹn gửi biên bản",
+       "next": "CLOSE",
+       "prompt": "Khách xác nhận đúng, mời người học hẹn gửi biên bản.",
+       "allowedGoalCodes": [
+        "GIJIROKU"
+       ],
+       "suggestedReplies": [
+        "議事録は本日中に作成して共有いたします。内容に相違がございましたら、ご指摘ください。"
+       ],
+       "transitionText": "Sau khi khách xác nhận nội dung…"
+      },
+      {
+       "code": "CLOSE",
+       "name": "Cảm ơn và kết thúc",
+       "next": "END",
+       "prompt": "Mời người học cảm ơn khách và kết thúc buổi họp.",
+       "allowedGoalCodes": [
+        "KANSHA"
+       ],
+       "suggestedReplies": [
+        "本日はお忙しいところ、お時間をいただきありがとうございました。"
+       ],
+       "transitionText": "Sau khi khách nhờ gửi biên bản…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Kết thúc họp xong",
+       "message": "こちらこそ、ありがとうございました。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "SUMMARY"
+    },
+    "background": "Cuối buổi họp, bạn cần nhắc lại các quyết định, hẹn gửi biên bản và cảm ơn khách đã dành thời gian.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N2",
+    "description": "Bạn xác nhận từng nội dung đã quyết định, hẹn gửi biên bản trong hôm nay và kết thúc họp lịch sự.",
+    "time_of_day": "Buổi chiều",
+    "estimated_minutes": 7,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "〜を確認させていただきます",
+       "example": "本日の決定事項を確認させていただきます。",
+       "explanation": "Thói quen bắt buộc của BrSE trước khi kết thúc họp."
+      },
+      {
+       "pattern": "相違がございましたら、ご指摘ください",
+       "example": "内容に相違がございましたら、ご指摘ください。",
+       "explanation": "Mời khách phản hồi nếu biên bản có chỗ sai lệch."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "決定事項",
+       "reading": "けっていじこう",
+       "meaning": "nội dung đã quyết định",
+       "example": "本日の決定事項を確認させていただきます。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "議事録",
+       "reading": "ぎじろく",
+       "meaning": "biên bản cuộc họp",
+       "example": "議事録は本日中に作成して共有いたします。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "相違",
+       "reading": "そうい",
+       "meaning": "sai lệch",
+       "example": "内容に相違がございましたら、ご指摘ください。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "弊社",
+       "reading": "へいしゃ",
+       "meaning": "công ty chúng tôi (khiêm nhường)",
+       "example": "見積もりを、明日中に弊社から提出いたします。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "最後に、本日の決定事項を確認させていただきます。",
+       "speaker": "learner",
+       "translation": "Cuối cùng, cho phép tôi xác nhận lại các nội dung đã quyết định hôm nay."
+      },
+      {
+       "text": "一点目、アカウントのロックは30分後に自動で解除します。二点目、CSV出力機能の見積もりを、明日中に弊社から提出いたします。",
+       "speaker": "learner",
+       "translation": "Thứ nhất, tài khoản bị khóa sẽ tự động mở sau 30 phút. Thứ hai, trong ngày mai công ty chúng tôi sẽ gửi bản ước tính chức năng xuất CSV."
+      },
+      {
+       "text": "はい、それで合っています。",
+       "speaker": "ai",
+       "translation": "Vâng, đúng như vậy."
+      },
+      {
+       "text": "議事録は本日中に作成して共有いたします。内容に相違がございましたら、ご指摘ください。",
+       "speaker": "learner",
+       "translation": "Trong hôm nay tôi sẽ soạn biên bản họp và chia sẻ. Nếu nội dung có chỗ sai lệch, mong anh chỉ ra giúp."
+      },
+      {
+       "text": "本日はお忙しいところ、お時間をいただきありがとうございました。",
+       "speaker": "learner",
+       "translation": "Cảm ơn anh hôm nay đã dành thời gian dù rất bận."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-11",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-truong-nhom-ky-thuat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-11",
+    "title": "Tiếp nhận góp ý code review",
+    "location": "Phòng họp trực tuyến",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "UKETSUKE",
+       "type": "MISSION",
+       "title": "Đón nhận góp ý",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "ありがとうございます|お願いいたします"
+        }
+       ],
+       "description": "Cảm ơn và mời đối phương nói tiếp.",
+       "displayOrder": 1
+      },
+      {
+       "code": "LOG",
+       "type": "MISSION",
+       "title": "Nhận lỗi thiếu log",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "ご指摘ありがとうございます|ログを出力|修正いたします"
+        }
+       ],
+       "description": "Nhận góp ý và nói sẽ sửa để ghi log trong xử lý ngoại lệ.",
+       "displayOrder": 2
+      },
+      {
+       "code": "KYOUTSUU",
+       "type": "MISSION",
+       "title": "Đồng ý gom code chung",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "おっしゃるとおりです|共通のバリデーションクラス|回帰テスト"
+        }
+       ],
+       "description": "Đồng ý gom vào class validation chung và chạy test hồi quy.",
+       "displayOrder": 3
+      },
+      {
+       "code": "SAIREVIEW",
+       "type": "MISSION",
+       "title": "Hẹn sửa và xin review lại",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "本日中に修正|再レビューを依頼"
+        }
+       ],
+       "description": "Hẹn sửa trong hôm nay và gửi yêu cầu review lại.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "FEEDBACK",
+       "name": "Nhận góp ý",
+       "next": "LOGFIX",
+       "prompt": "Đưa góp ý đầu tiên về việc thiếu log, mời người học tiếp nhận.",
+       "allowedGoalCodes": [
+        "UKETSUKE"
+       ],
+       "suggestedReplies": [
+        "ありがとうございます。お願いいたします。"
+       ]
+      },
+      {
+       "code": "LOGFIX",
+       "name": "Nhận lỗi thiếu log",
+       "next": "REFACTOR",
+       "prompt": "Mời người học xác nhận cách sửa lỗi thiếu log.",
+       "allowedGoalCodes": [
+        "LOG"
+       ],
+       "suggestedReplies": [
+        "ご指摘ありがとうございます。例外処理の中でログを出力するよう修正いたします。"
+       ],
+       "transitionText": "Sau khi nhận góp ý…"
+      },
+      {
+       "code": "REFACTOR",
+       "name": "Gom code trùng lặp",
+       "next": "DONE",
+       "prompt": "Góp ý gom đoạn kiểm tra đầu vào dùng chung, mời người học đồng ý.",
+       "allowedGoalCodes": [
+        "KYOUTSUU"
+       ],
+       "suggestedReplies": [
+        "おっしゃるとおりです。共通のバリデーションクラスにまとめます。",
+        "影響範囲を確認したうえで、既存画面の回帰テストも実施いたします。"
+       ],
+       "transitionText": "Sau khi sửa phần log…"
+      },
+      {
+       "code": "DONE",
+       "name": "Hẹn sửa và xin review lại",
+       "next": "END",
+       "prompt": "Khách dặn sửa xong thì xin review lại, mời người học hẹn thời gian.",
+       "allowedGoalCodes": [
+        "SAIREVIEW"
+       ],
+       "suggestedReplies": [
+        "承知いたしました。本日中に修正して、再レビューを依頼いたします。"
+       ],
+       "transitionText": "Sau khi thống nhất cách sửa…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Tiếp nhận góp ý xong",
+       "message": "お願いします。修正が終わったら、再レビューを依頼してください。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "FEEDBACK"
+    },
+    "background": "Trưởng nhóm kỹ thuật phía khách hàng review pull request và đưa góp ý, bạn tiếp nhận và hẹn sửa.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N2",
+    "description": "Bạn cảm ơn góp ý, nhận lỗi thiếu log, đồng ý gom code trùng lặp và hẹn sửa xong rồi xin review lại.",
+    "time_of_day": "Buổi chiều",
+    "estimated_minutes": 8,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "ご指摘ありがとうございます",
+       "example": "ご指摘ありがとうございます。例外処理の中でログを出力するよう修正いたします。",
+       "explanation": "Câu mở đầu chuẩn khi nhận góp ý, kể cả khi chưa đồng ý hoàn toàn."
+      },
+      {
+       "pattern": "〜たうえで",
+       "example": "影響範囲を確認したうえで、回帰テストも実施いたします。",
+       "explanation": "Nhấn mạnh làm bước kiểm tra trước, rồi mới làm bước tiếp theo (N2)."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "例外処理",
+       "reading": "れいがいしょり",
+       "meaning": "xử lý ngoại lệ",
+       "example": "例外処理の中でログを出力します。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "共通化",
+       "reading": "きょうつうか",
+       "meaning": "gom thành dùng chung",
+       "example": "同じ入力チェックを共通化できませんか。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "回帰テスト",
+       "reading": "かいきテスト",
+       "meaning": "kiểm thử hồi quy",
+       "example": "既存画面の回帰テストも実施いたします。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "レビュー",
+       "reading": "レビュー",
+       "meaning": "review",
+       "example": "修正が終わったら、再レビューを依頼してください。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "プルリクエストを確認しました。何点か指摘があります。",
+       "speaker": "ai",
+       "translation": "Tôi đã xem pull request. Có vài điểm cần góp ý."
+      },
+      {
+       "text": "ありがとうございます。お願いいたします。",
+       "speaker": "learner",
+       "translation": "Cảm ơn anh. Anh cứ nói ạ."
+      },
+      {
+       "text": "まず、ログイン処理で例外が発生した場合、エラーログが出力されていません。",
+       "speaker": "ai",
+       "translation": "Trước tiên, khi xử lý đăng nhập phát sinh ngoại lệ thì không có log lỗi nào được ghi ra."
+      },
+      {
+       "text": "ご指摘ありがとうございます。例外処理の中でログを出力するよう修正いたします。",
+       "speaker": "learner",
+       "translation": "Cảm ơn anh đã chỉ ra. Tôi sẽ sửa để ghi log trong phần xử lý ngoại lệ."
+      },
+      {
+       "text": "それから、同じ入力チェックが3つの画面に書かれていますね。共通化できませんか。",
+       "speaker": "ai",
+       "translation": "Ngoài ra, cùng một đoạn kiểm tra đầu vào được viết ở 3 màn hình. Gom lại dùng chung được không?"
+      },
+      {
+       "text": "おっしゃるとおりです。共通のバリデーションクラスにまとめます。影響範囲を確認したうえで、既存画面の回帰テストも実施いたします。",
+       "speaker": "learner",
+       "translation": "Anh nói đúng ạ. Tôi sẽ gom vào một class validation dùng chung. Sau khi xác nhận phạm vi ảnh hưởng, tôi sẽ chạy cả test hồi quy cho các màn hình hiện có."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-16",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-quan-ly-du-an",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-16",
+    "title": "Báo cáo tiến độ",
+    "location": "Văn phòng, nói chuyện với PM",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "HOUKOKU",
+       "type": "MISSION",
+       "title": "Mở đầu báo cáo",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "進捗をご報告します|開発"
+        }
+       ],
+       "description": "Nói rõ mình báo cáo tiến độ phát triển.",
+       "displayOrder": 1
+      },
+      {
+       "code": "SHURYOU",
+       "type": "MISSION",
+       "title": "Nêu việc đã xong",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "実装が終わりました|完了"
+        }
+       ],
+       "description": "Nêu phần đã hoàn thành.",
+       "displayOrder": 2
+      },
+      {
+       "code": "TSUGI",
+       "type": "MISSION",
+       "title": "Nêu việc sắp làm",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "APIの連携に入ります|明日から"
+        }
+       ],
+       "description": "Nêu kế hoạch tiếp theo là kết nối API.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "REPORT",
+       "name": "Mở đầu báo cáo",
+       "next": "DONE",
+       "prompt": "PM mời báo cáo, mời người học nêu việc đã hoàn thành.",
+       "allowedGoalCodes": [
+        "HOUKOKU"
+       ],
+       "suggestedReplies": [
+        "ファムさん、開発の進捗をご報告します。"
+       ]
+      },
+      {
+       "code": "DONE",
+       "name": "Nêu việc đã xong",
+       "next": "NEXT",
+       "prompt": "Mời người học nói việc đã hoàn thành.",
+       "allowedGoalCodes": [
+        "SHURYOU"
+       ],
+       "suggestedReplies": [
+        "昨日までに画面の実装が終わりました。"
+       ],
+       "transitionText": "Sau khi mở đầu…"
+      },
+      {
+       "code": "NEXT",
+       "name": "Nêu việc sắp làm",
+       "next": "END",
+       "prompt": "PM hỏi việc tiếp theo, mời người học nêu kế hoạch.",
+       "allowedGoalCodes": [
+        "TSUGI"
+       ],
+       "suggestedReplies": [
+        "明日からAPIの連携に入ります。"
+       ],
+       "transitionText": "Sau khi báo việc đã xong…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Báo cáo tiến độ xong",
+       "message": "分かりました。何か問題があれば教えてください。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "REPORT"
+    },
+    "background": "Bạn báo cáo tiến độ phát triển cho PM nội bộ (anh Phạm).",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N2",
+    "description": "Bạn mở đầu báo cáo, nêu việc đã xong và việc sắp làm, rồi nhận lời báo khi có vấn đề.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "〜の進捗をご報告します",
+       "example": "開発の進捗をご報告します。",
+       "explanation": "Mở đầu báo cáo tiến độ."
+      },
+      {
+       "pattern": "〜に入ります",
+       "example": "明日からAPIの連携に入ります。",
+       "explanation": "Nói việc sắp bắt đầu làm."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "実装",
+       "reading": "じっそう",
+       "meaning": "hiện thực hóa, viết code",
+       "example": "画面の実装が終わりました。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "進捗",
+       "reading": "しんちょく",
+       "meaning": "tiến độ",
+       "example": "開発の進捗をご報告します。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "連携",
+       "reading": "れんけい",
+       "meaning": "kết nối, liên kết",
+       "example": "明日からAPIの連携に入ります。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "順調",
+       "reading": "じゅんちょう",
+       "meaning": "thuận lợi",
+       "example": "順調ですね。次は何をしますか。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "ファムさん、開発の進捗をご報告します。",
+       "speaker": "learner",
+       "translation": "Anh Phạm, tôi báo cáo tiến độ phát triển ạ."
+      },
+      {
+       "text": "お願いします。",
+       "speaker": "ai",
+       "translation": "Vâng, anh báo cáo đi."
+      },
+      {
+       "text": "昨日までに画面の実装が終わりました。",
+       "speaker": "learner",
+       "translation": "Đến hôm qua đã xong phần lập trình màn hình ạ."
+      },
+      {
+       "text": "順調ですね。次は何をしますか。",
+       "speaker": "ai",
+       "translation": "Thuận lợi nhỉ. Tiếp theo anh làm gì ạ?"
+      },
+      {
+       "text": "明日からAPIの連携に入ります。",
+       "speaker": "learner",
+       "translation": "Từ mai tôi bắt đầu kết nối API ạ."
+      },
+      {
+       "text": "分かりました。何か問題があれば教えてください。",
+       "speaker": "ai",
+       "translation": "Được ạ. Có vấn đề gì thì báo tôi."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-17",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-17",
+    "title": "Xác nhận môi trường phát triển",
+    "location": "Văn phòng, qua điện thoại",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "SETSUZOKU",
+       "type": "MISSION",
+       "title": "Hỏi địa chỉ kết nối",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "接続先|教えてください|API"
+        }
+       ],
+       "description": "Hỏi địa chỉ kết nối API dùng cho phát triển.",
+       "displayOrder": 1
+      },
+      {
+       "code": "NINSHOU",
+       "type": "MISSION",
+       "title": "Hỏi cách lấy khóa xác thực",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "認証キー|どこで取得できますか"
+        }
+       ],
+       "description": "Hỏi nơi lấy khóa xác thực.",
+       "displayOrder": 2
+      },
+      {
+       "code": "YAKUSOKU",
+       "type": "MISSION",
+       "title": "Hẹn liên lạc lại",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "接続できたら|連絡します"
+        }
+       ],
+       "description": "Hẹn liên lạc lại khi kết nối được.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "ASK",
+       "name": "Hỏi địa chỉ kết nối",
+       "next": "KEY",
+       "prompt": "Khách nói đã gửi URL qua email, mời người học hỏi tiếp khóa xác thực.",
+       "allowedGoalCodes": [
+        "SETSUZOKU"
+       ],
+       "suggestedReplies": [
+        "開発用のAPIの接続先を教えてください。"
+       ]
+      },
+      {
+       "code": "KEY",
+       "name": "Hỏi cách lấy khóa xác thực",
+       "next": "CONTACT",
+       "prompt": "Mời người học hỏi nơi lấy khóa xác thực.",
+       "allowedGoalCodes": [
+        "NINSHOU"
+       ],
+       "suggestedReplies": [
+        "認証キーはどこで取得できますか。"
+       ],
+       "transitionText": "Sau khi khách cho URL…"
+      },
+      {
+       "code": "CONTACT",
+       "name": "Hẹn liên lạc lại",
+       "next": "END",
+       "prompt": "Khách nói cấp được trên màn hình quản trị, mời người học hẹn liên lạc lại.",
+       "allowedGoalCodes": [
+        "YAKUSOKU"
+       ],
+       "suggestedReplies": [
+        "分かりました。接続できたらまた連絡します。"
+       ],
+       "transitionText": "Sau khi khách hướng dẫn…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Xác nhận môi trường xong",
+       "message": "よろしくお願いします。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "ASK"
+    },
+    "background": "Bạn cần hỏi khách hàng về địa chỉ kết nối API dùng cho phát triển.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N2",
+    "description": "Bạn hỏi địa chỉ kết nối API, hỏi cách lấy khóa xác thực rồi hẹn liên lạc lại khi kết nối được.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "〜を教えてください",
+       "example": "開発用のAPIの接続先を教えてください。",
+       "explanation": "Xin thông tin kỹ thuật."
+      },
+      {
+       "pattern": "〜はどこで取得できますか",
+       "example": "認証キーはどこで取得できますか。",
+       "explanation": "Hỏi cách lấy thông tin."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "接続先",
+       "reading": "せつぞくさき",
+       "meaning": "địa chỉ kết nối",
+       "example": "APIの接続先を教えてください。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "認証キー",
+       "reading": "にんしょうキー",
+       "meaning": "khóa xác thực",
+       "example": "認証キーはどこで取得できますか。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "取得",
+       "reading": "しゅとく",
+       "meaning": "lấy, nhận",
+       "example": "認証キーを取得できますか。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "テスト環境",
+       "reading": "テストかんきょう",
+       "meaning": "môi trường kiểm thử",
+       "example": "テスト環境のURLをメールで送りました。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "田中さん、開発用のAPIの接続先を教えてください。",
+       "speaker": "learner",
+       "translation": "Anh Tanaka, cho tôi xin địa chỉ kết nối API dùng cho phát triển ạ."
+      },
+      {
+       "text": "はい、テスト環境のURLをメールで送りました。",
+       "speaker": "ai",
+       "translation": "Vâng, tôi đã gửi URL môi trường kiểm thử qua email rồi."
+      },
+      {
+       "text": "認証キーはどこで取得できますか。",
+       "speaker": "learner",
+       "translation": "Khóa xác thực lấy ở đâu được ạ?"
+      },
+      {
+       "text": "管理画面で発行できます。",
+       "speaker": "ai",
+       "translation": "Có thể cấp trên màn hình quản trị ạ."
+      },
+      {
+       "text": "分かりました。接続できたらまた連絡します。",
+       "speaker": "learner",
+       "translation": "Tôi hiểu rồi. Kết nối được tôi sẽ liên lạc lại ạ."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-12",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-12",
+    "title": "Báo cáo kết quả kiểm thử",
+    "location": "Phòng họp trực tuyến",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "SUUJI",
+       "type": "MISSION",
+       "title": "Báo số liệu test",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "全420件|合格|不合格|消化"
+        }
+       ],
+       "description": "Báo số case đã thực hiện, đạt và không đạt khớp nhau.",
+       "displayOrder": 1
+      },
+      {
+       "code": "NOKORI",
+       "type": "MISSION",
+       "title": "Giải thích case chưa chạy",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "外部システム|検証環境|準備でき次第"
+        }
+       ],
+       "description": "Giải thích 8 case còn lại chưa chạy được vì thiếu môi trường đối tác.",
+       "displayOrder": 2
+      },
+      {
+       "code": "UCHIWAKE",
+       "type": "MISSION",
+       "title": "Nêu chi tiết case không đạt",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "重大度|高|再テスト"
+        }
+       ],
+       "description": "Nêu chi tiết mức độ và ưu tiên sửa lỗi mức cao.",
+       "displayOrder": 3
+      },
+      {
+       "code": "EVIDENCE",
+       "type": "MISSION",
+       "title": "Hẹn gửi evidence",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "報告書|エビデンス|本日中にお送り"
+        }
+       ],
+       "description": "Hẹn gửi báo cáo và bằng chứng trong hôm nay.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "NUMBERS",
+       "name": "Báo số liệu test",
+       "next": "REMAIN",
+       "prompt": "Mời người học báo số liệu case đã chạy, đạt và không đạt.",
+       "allowedGoalCodes": [
+        "SUUJI"
+       ],
+       "suggestedReplies": [
+        "テストケース全420件のうち412件を消化し、合格は398件、不合格は14件でした。"
+       ]
+      },
+      {
+       "code": "REMAIN",
+       "name": "Giải thích case chưa chạy",
+       "next": "DETAIL",
+       "prompt": "Khách hỏi 8 case còn lại, mời người học giải thích.",
+       "allowedGoalCodes": [
+        "NOKORI"
+       ],
+       "suggestedReplies": [
+        "外部システムとの接続が必要なケースで、先方の検証環境が準備でき次第、実施する予定です。"
+       ],
+       "transitionText": "Sau khi báo số liệu…"
+      },
+      {
+       "code": "DETAIL",
+       "name": "Nêu chi tiết case không đạt",
+       "next": "SEND",
+       "prompt": "Khách hỏi chi tiết 14 case không đạt, mời người học nêu phân loại.",
+       "allowedGoalCodes": [
+        "UCHIWAKE"
+       ],
+       "suggestedReplies": [
+        "重大度「高」が2件、「中」が5件、「低」が7件です。",
+        "「高」の2件は明日までに修正し、再テストいたします。"
+       ],
+       "transitionText": "Sau khi giải thích case chưa chạy…"
+      },
+      {
+       "code": "SEND",
+       "name": "Hẹn gửi evidence",
+       "next": "END",
+       "prompt": "Khách yêu cầu gửi kèm bằng chứng, mời người học hẹn gửi.",
+       "allowedGoalCodes": [
+        "EVIDENCE"
+       ],
+       "suggestedReplies": [
+        "かしこまりました。テスト結果報告書とエビデンスをまとめて、本日中にお送りいたします。"
+       ],
+       "transitionText": "Sau khi khách yêu cầu evidence…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Báo cáo kết quả test xong",
+       "message": "わかりました。エビデンスも一緒に送ってください。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "NUMBERS"
+    },
+    "background": "Kết thúc đợt test tích hợp, bạn báo cáo số liệu và kế hoạch xử lý các case không đạt.",
+    "difficulty": "HARD",
+    "jlpt_level": "N2",
+    "description": "Bạn báo số liệu test khớp nhau, giải thích case chưa chạy, nêu chi tiết case không đạt và hẹn gửi evidence.",
+    "time_of_day": "Buổi chiều",
+    "estimated_minutes": 8,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "全〜件のうち〜件を消化し",
+       "example": "テストケース全420件のうち412件を消化し、合格は398件、不合格は14件でした。",
+       "explanation": "Cách báo số liệu test chuẩn trong dự án Nhật."
+      },
+      {
+       "pattern": "〜次第",
+       "example": "先方の検証環境が準備でき次第、実施する予定です。",
+       "explanation": "Nghĩa là 'ngay khi ~', dùng khi việc của mình phụ thuộc vào bên khác (N2)."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "消化",
+       "reading": "しょうか",
+       "meaning": "thực hiện xong (test case)",
+       "example": "412件を消化しました。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "不合格",
+       "reading": "ふごうかく",
+       "meaning": "không đạt",
+       "example": "不合格は14件でした。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "内訳",
+       "reading": "うちわけ",
+       "meaning": "chi tiết phân loại",
+       "example": "不合格の14件の内訳を教えてください。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "エビデンス",
+       "reading": "エビデンス",
+       "meaning": "bằng chứng (ảnh chụp, log)",
+       "example": "エビデンスも一緒に送ってください。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "結合テストの結果をご報告いたします。",
+       "speaker": "learner",
+       "translation": "Tôi xin báo cáo kết quả test tích hợp."
+      },
+      {
+       "text": "テストケース全420件のうち412件を消化し、合格は398件、不合格は14件でした。",
+       "speaker": "learner",
+       "translation": "Trong tổng số 420 test case, đã thực hiện 412 case, đạt 398 case và không đạt 14 case."
+      },
+      {
+       "text": "残りの8件はどうなっていますか。",
+       "speaker": "ai",
+       "translation": "Còn 8 case còn lại thì sao?"
+      },
+      {
+       "text": "外部システムとの接続が必要なケースで、先方の検証環境が準備でき次第、実施する予定です。",
+       "speaker": "learner",
+       "translation": "Đó là các case cần kết nối với hệ thống bên ngoài, chúng tôi sẽ thực hiện ngay khi môi trường staging phía đối tác sẵn sàng."
+      },
+      {
+       "text": "不合格の14件の内訳を教えてください。",
+       "speaker": "ai",
+       "translation": "Cho tôi biết chi tiết 14 case không đạt."
+      },
+      {
+       "text": "重大度「高」が2件、「中」が5件、「低」が7件です。「高」の2件は明日までに修正し、再テストいたします。",
+       "speaker": "learner",
+       "translation": "Mức độ nghiêm trọng 'cao' 2 case, 'trung bình' 5 case, 'thấp' 7 case. 2 case mức 'cao' sẽ được sửa và test lại trước ngày mai."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-18",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-quan-ly-du-an",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-18",
+    "title": "Báo cáo kết quả kiểm thử",
+    "location": "Văn phòng, nói chuyện với PM",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "HOUKOKU",
+       "type": "MISSION",
+       "title": "Mở đầu báo cáo",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "結合テストの結果をご報告します"
+        }
+       ],
+       "description": "Nói rõ mình báo cáo kết quả kiểm thử tích hợp.",
+       "displayOrder": 1
+      },
+      {
+       "code": "SUUJI",
+       "type": "MISSION",
+       "title": "Báo số ca đạt và không đạt",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "五十のテストケース|四十八件が合格"
+        }
+       ],
+       "description": "Nêu số ca đạt trong tổng số ca kiểm thử.",
+       "displayOrder": 2
+      },
+      {
+       "code": "GENIN",
+       "type": "MISSION",
+       "title": "Nêu trạng thái từng ca lỗi",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "修正済み|調査中"
+        }
+       ],
+       "description": "Nêu một ca đã sửa xong, một ca đang điều tra.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "REPORT",
+       "name": "Mở đầu báo cáo",
+       "next": "NUMBERS",
+       "prompt": "PM hỏi kết quả, mời người học báo số ca đạt.",
+       "allowedGoalCodes": [
+        "HOUKOKU"
+       ],
+       "suggestedReplies": [
+        "ファムさん、結合テストの結果をご報告します。"
+       ]
+      },
+      {
+       "code": "NUMBERS",
+       "name": "Báo số ca đạt",
+       "next": "CAUSE",
+       "prompt": "Mời người học nêu số ca đạt và không đạt.",
+       "allowedGoalCodes": [
+        "SUUJI"
+       ],
+       "suggestedReplies": [
+        "五十のテストケースのうち、四十八件が合格しました。"
+       ],
+       "transitionText": "Sau khi mở đầu…"
+      },
+      {
+       "code": "CAUSE",
+       "name": "Nêu trạng thái từng ca lỗi",
+       "next": "END",
+       "prompt": "PM hỏi nguyên nhân, mời người học nêu trạng thái từng ca lỗi.",
+       "allowedGoalCodes": [
+        "GENIN"
+       ],
+       "suggestedReplies": [
+        "一件は修正済みです。もう一件は調査中です。"
+       ],
+       "transitionText": "Sau khi báo số liệu…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Báo cáo kết quả test xong",
+       "message": "分かりました。今日中に結果を共有してください。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "REPORT"
+    },
+    "background": "Bạn báo cáo kết quả kiểm thử tích hợp cho PM nội bộ (anh Phạm).",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N2",
+    "description": "Bạn báo số ca đạt và không đạt, nêu trạng thái từng ca lỗi rồi nhận lời chia sẻ kết quả trong hôm nay.",
+    "time_of_day": "Buổi chiều",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "〜の結果をご報告します",
+       "example": "結合テストの結果をご報告します。",
+       "explanation": "Mở đầu báo cáo kết quả."
+      },
+      {
+       "pattern": "〜中です",
+       "example": "もう一件は調査中です。",
+       "explanation": "Nói trạng thái đang diễn ra."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "結合テスト",
+       "reading": "けつごうテスト",
+       "meaning": "kiểm thử tích hợp",
+       "example": "結合テストの結果をご報告します。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "合格",
+       "reading": "ごうかく",
+       "meaning": "đạt",
+       "example": "四十八件が合格しました。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "不合格",
+       "reading": "ふごうかく",
+       "meaning": "không đạt",
+       "example": "不合格は二件ですね。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "調査中",
+       "reading": "ちょうさちゅう",
+       "meaning": "đang điều tra",
+       "example": "もう一件は調査中です。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "ファムさん、結合テストの結果をご報告します。",
+       "speaker": "learner",
+       "translation": "Anh Phạm, tôi báo cáo kết quả kiểm thử tích hợp ạ."
+      },
+      {
+       "text": "結果はどうでしたか。",
+       "speaker": "ai",
+       "translation": "Kết quả thế nào ạ?"
+      },
+      {
+       "text": "五十のテストケースのうち、四十八件が合格しました。",
+       "speaker": "learner",
+       "translation": "Trong năm mươi ca kiểm thử, bốn mươi tám ca đạt ạ."
+      },
+      {
+       "text": "不合格は二件ですね。原因は分かりましたか。",
+       "speaker": "ai",
+       "translation": "Hai ca không đạt nhỉ. Đã biết nguyên nhân chưa ạ?"
+      },
+      {
+       "text": "一件は修正済みです。もう一件は調査中です。",
+       "speaker": "learner",
+       "translation": "Một ca đã sửa xong. Ca còn lại đang điều tra ạ."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-19",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-19",
+    "title": "Xác nhận ca kiểm thử",
+    "location": "Văn phòng, qua điện thoại",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "KAKUNIN",
+       "type": "MISSION",
+       "title": "Nhờ xác nhận danh sách",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "テストケースの一覧|確認していただけますか"
+        }
+       ],
+       "description": "Nhờ khách xác nhận danh sách ca kiểm thử.",
+       "displayOrder": 1
+      },
+      {
+       "code": "FUSOKU",
+       "type": "MISSION",
+       "title": "Hỏi hạng mục còn thiếu",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "不足している項目|ありますか"
+        }
+       ],
+       "description": "Hỏi có hạng mục nào còn thiếu không.",
+       "displayOrder": 2
+      },
+      {
+       "code": "TSUIKA",
+       "type": "MISSION",
+       "title": "Nhận bổ sung ca thiếu",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "追加します|そのケース"
+        }
+       ],
+       "description": "Nhận lời bổ sung ca còn thiếu.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "CONFIRM",
+       "name": "Nhờ xác nhận danh sách",
+       "next": "MISSING",
+       "prompt": "Khách nhận lời xem, mời người học hỏi hạng mục còn thiếu.",
+       "allowedGoalCodes": [
+        "KAKUNIN"
+       ],
+       "suggestedReplies": [
+        "テストケースの一覧を確認していただけますか。"
+       ]
+      },
+      {
+       "code": "MISSING",
+       "name": "Hỏi hạng mục còn thiếu",
+       "next": "ADD",
+       "prompt": "Mời người học hỏi có hạng mục nào thiếu không.",
+       "allowedGoalCodes": [
+        "FUSOKU"
+       ],
+       "suggestedReplies": [
+        "不足している項目はありますか。"
+       ],
+       "transitionText": "Sau khi khách nhận lời xem…"
+      },
+      {
+       "code": "ADD",
+       "name": "Nhận bổ sung ca thiếu",
+       "next": "END",
+       "prompt": "Khách nói thiếu ca màn hình lỗi, mời người học nhận bổ sung.",
+       "allowedGoalCodes": [
+        "TSUIKA"
+       ],
+       "suggestedReplies": [
+        "では、そのケースを追加します。"
+       ],
+       "transitionText": "Sau khi khách chỉ ra chỗ thiếu…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Xác nhận ca kiểm thử xong",
+       "message": "お願いします。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "CONFIRM"
+    },
+    "background": "Bạn nhờ khách hàng rà soát danh sách ca kiểm thử và bổ sung hạng mục còn thiếu.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N2",
+    "description": "Bạn nhờ khách xác nhận danh sách, hỏi hạng mục còn thiếu rồi nhận bổ sung ca màn hình lỗi.",
+    "time_of_day": "Buổi chiều",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "〜を確認していただけますか",
+       "example": "テストケースの一覧を確認していただけますか。",
+       "explanation": "Nhờ đối tác rà soát tài liệu."
+      },
+      {
+       "pattern": "〜はありますか",
+       "example": "不足している項目はありますか。",
+       "explanation": "Hỏi về tình trạng thiếu đủ."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "テストケース",
+       "reading": "テストケース",
+       "meaning": "ca kiểm thử",
+       "example": "テストケースの一覧を確認していただけますか。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "一覧",
+       "reading": "いちらん",
+       "meaning": "danh sách",
+       "example": "テストケースの一覧を確認します。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "不足",
+       "reading": "ふそく",
+       "meaning": "thiếu",
+       "example": "不足している項目はありますか。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "追加",
+       "reading": "ついか",
+       "meaning": "thêm",
+       "example": "そのケースを追加します。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "田中さん、テストケースの一覧を確認していただけますか。",
+       "speaker": "learner",
+       "translation": "Anh Tanaka, anh xác nhận giúp tôi danh sách ca kiểm thử được không ạ?"
+      },
+      {
+       "text": "はい、拝見します。",
+       "speaker": "ai",
+       "translation": "Vâng, tôi xem ạ."
+      },
+      {
+       "text": "不足している項目はありますか。",
+       "speaker": "learner",
+       "translation": "Có hạng mục nào còn thiếu không ạ?"
+      },
+      {
+       "text": "エラー画面のケースが足りないようです。",
+       "speaker": "ai",
+       "translation": "Hình như ca cho màn hình lỗi còn thiếu ạ."
+      },
+      {
+       "text": "では、そのケースを追加します。",
+       "speaker": "learner",
+       "translation": "Vậy tôi sẽ bổ sung ca đó ạ."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-06",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-06",
+    "title": "Tiếp nhận báo lỗi từ khách hàng",
+    "location": "Phòng họp trực tuyến",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "UKETSUKE",
+       "type": "MISSION",
+       "title": "Cảm ơn và hỏi bước tái hiện",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "ご報告ありがとうございます|再現手順を教えていただけますか"
+        }
+       ],
+       "description": "Cảm ơn báo lỗi và hỏi các bước tái hiện.",
+       "displayOrder": 1
+      },
+      {
+       "code": "KIRIWAKE",
+       "type": "MISSION",
+       "title": "Khoanh vùng điều kiện lỗi",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "長音|正常に表示されますか"
+        }
+       ],
+       "description": "Nhắc lại điều kiện gây lỗi và hỏi điều kiện khác.",
+       "displayOrder": 2
+      },
+      {
+       "code": "YAKUSOKU",
+       "type": "MISSION",
+       "title": "Hẹn thời gian phản hồi",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "調査を依頼|17時までに|ご連絡いたします"
+        }
+       ],
+       "description": "Hẹn báo nguyên nhân và hướng xử lý trước giờ cụ thể.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "REPRO",
+       "name": "Hỏi bước tái hiện",
+       "next": "ISOLATE",
+       "prompt": "Khách báo lỗi, mời người học cảm ơn và hỏi bước tái hiện.",
+       "allowedGoalCodes": [
+        "UKETSUKE"
+       ],
+       "suggestedReplies": [
+        "ご報告ありがとうございます。恐れ入りますが、再現手順を教えていただけますか。"
+       ]
+      },
+      {
+       "code": "ISOLATE",
+       "name": "Khoanh vùng điều kiện lỗi",
+       "next": "COMMIT",
+       "prompt": "Khách mô tả điều kiện lỗi, mời người học khoanh vùng.",
+       "allowedGoalCodes": [
+        "KIRIWAKE"
+       ],
+       "suggestedReplies": [
+        "長音を含む場合ですね。ほかの条件では正常に表示されますか。"
+       ],
+       "transitionText": "Sau khi khách cho bước tái hiện…"
+      },
+      {
+       "code": "COMMIT",
+       "name": "Hẹn thời gian phản hồi",
+       "next": "END",
+       "prompt": "Khách xác nhận điều kiện khác vẫn bình thường, mời người học hẹn phản hồi.",
+       "allowedGoalCodes": [
+        "YAKUSOKU"
+       ],
+       "suggestedReplies": [
+        "すぐに開発チームに調査を依頼し、本日の17時までに原因と対応方針をご連絡いたします。"
+       ],
+       "transitionText": "Sau khi khoanh vùng xong…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Tiếp nhận báo lỗi xong",
+       "message": "わかりました。お願いします。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "REPRO"
+    },
+    "background": "Khách phát hiện lỗi tìm kiếm trên môi trường staging, bạn hỏi bước tái hiện và hẹn thời gian phản hồi.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N2",
+    "description": "Bạn cảm ơn báo lỗi, hỏi điều kiện tái hiện, khoanh vùng rồi hẹn báo nguyên nhân trước giờ cụ thể.",
+    "time_of_day": "Buổi chiều",
+    "estimated_minutes": 8,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "再現手順を教えていただけますか",
+       "example": "恐れ入りますが、再現手順を教えていただけますか。",
+       "explanation": "Câu đầu tiên luôn phải hỏi khi nhận báo lỗi."
+      },
+      {
+       "pattern": "〜までに原因と対応方針をご連絡いたします",
+       "example": "本日の17時までに原因と対応方針をご連絡いたします。",
+       "explanation": "Luôn hẹn mốc thời gian cụ thể, không nói chung chung."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "再現手順",
+       "reading": "さいげんてじゅん",
+       "meaning": "các bước tái hiện lỗi",
+       "example": "再現手順を教えていただけますか。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "長音",
+       "reading": "ちょうおん",
+       "meaning": "trường âm",
+       "example": "長音を含むキーワードで検索すると、結果が0件になります。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "調査",
+       "reading": "ちょうさ",
+       "meaning": "điều tra",
+       "example": "すぐに開発チームに調査を依頼します。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "対応方針",
+       "reading": "たいおうほうしん",
+       "meaning": "hướng xử lý",
+       "example": "原因と対応方針をご連絡いたします。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "グエンさん、検証環境で確認していたら、検索結果が正しく表示されないんですが。",
+       "speaker": "ai",
+       "translation": "Anh Nguyễn, tôi kiểm tra trên môi trường staging thì thấy kết quả tìm kiếm hiển thị không đúng."
+      },
+      {
+       "text": "ご報告ありがとうございます。恐れ入りますが、再現手順を教えていただけますか。",
+       "speaker": "learner",
+       "translation": "Cảm ơn anh đã báo. Phiền anh cho tôi biết các bước tái hiện lỗi được không ạ?"
+      },
+      {
+       "text": "商品名に長音記号の「ー」を含むキーワードで検索すると、結果が0件になります。",
+       "speaker": "ai",
+       "translation": "Tìm bằng từ khóa có dấu trường âm 「ー」 trong tên sản phẩm thì kết quả ra 0."
+      },
+      {
+       "text": "長音を含む場合ですね。ほかの条件では正常に表示されますか。",
+       "speaker": "learner",
+       "translation": "Trường hợp có trường âm ạ. Với điều kiện khác thì hiển thị bình thường chứ ạ?"
+      },
+      {
+       "text": "はい、それ以外は問題ありません。",
+       "speaker": "ai",
+       "translation": "Vâng, ngoài trường hợp đó thì không có vấn đề gì."
+      },
+      {
+       "text": "承知いたしました。すぐに開発チームに調査を依頼し、本日の17時までに原因と対応方針をご連絡いたします。",
+       "speaker": "learner",
+       "translation": "Tôi hiểu rồi. Tôi sẽ nhờ đội phát triển điều tra ngay, trước 17 giờ hôm nay sẽ báo anh nguyên nhân và hướng xử lý."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-20",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-20",
+    "title": "Báo cáo sự cố",
+    "location": "Văn phòng, qua điện thoại",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "HOUKOKU",
+       "type": "MISSION",
+       "title": "Báo sự cố",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "障害が発生しました|本番環境"
+        }
+       ],
+       "description": "Báo sự cố xảy ra trên môi trường production.",
+       "displayOrder": 1
+      },
+      {
+       "code": "JIKOKU",
+       "type": "MISSION",
+       "title": "Nêu thời điểm bắt đầu",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "九時ごろ|原因を調査しています"
+        }
+       ],
+       "description": "Nêu giờ bắt đầu và tình trạng đang điều tra.",
+       "displayOrder": 2
+      },
+      {
+       "code": "EIKYOU",
+       "type": "MISSION",
+       "title": "Nêu phạm vi ảnh hưởng",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "ログイン機能|回避策"
+        }
+       ],
+       "description": "Nêu chức năng bị ảnh hưởng và biện pháp tạm thời.",
+       "displayOrder": 3
+      },
+      {
+       "code": "FUKKYUU",
+       "type": "MISSION",
+       "title": "Nêu dự kiến khôi phục",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "明日の朝まで|復旧する予定"
+        }
+       ],
+       "description": "Nêu dự kiến khôi phục trước sáng mai.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "ALERT",
+       "name": "Báo sự cố",
+       "next": "TIME",
+       "prompt": "Khách hỏi từ khi nào, mời người học nêu thời điểm bắt đầu.",
+       "allowedGoalCodes": [
+        "HOUKOKU"
+       ],
+       "suggestedReplies": [
+        "田中さん、本番環境で障害が発生しました。"
+       ]
+      },
+      {
+       "code": "TIME",
+       "name": "Nêu thời điểm bắt đầu",
+       "next": "IMPACT",
+       "prompt": "Mời người học nêu giờ bắt đầu và tình trạng điều tra.",
+       "allowedGoalCodes": [
+        "JIKOKU"
+       ],
+       "suggestedReplies": [
+        "今朝九時ごろからです。現在、原因を調査しています。"
+       ],
+       "transitionText": "Sau khi khách hỏi từ khi nào…"
+      },
+      {
+       "code": "IMPACT",
+       "name": "Nêu phạm vi ảnh hưởng",
+       "next": "RECOVERY",
+       "prompt": "Khách hỏi phạm vi ảnh hưởng, mời người học nêu chức năng bị ảnh hưởng.",
+       "allowedGoalCodes": [
+        "EIKYOU"
+       ],
+       "suggestedReplies": [
+        "ログイン機能に影響しています。回避策を準備します。"
+       ],
+       "transitionText": "Sau khi nêu thời điểm…"
+      },
+      {
+       "code": "RECOVERY",
+       "name": "Nêu dự kiến khôi phục",
+       "next": "END",
+       "prompt": "Khách hỏi dự kiến khôi phục, mời người học nêu thời điểm.",
+       "allowedGoalCodes": [
+        "FUKKYUU"
+       ],
+       "suggestedReplies": [
+        "明日の朝までには復旧する予定です。"
+       ],
+       "transitionText": "Sau khi nêu phạm vi…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Báo cáo sự cố xong",
+       "message": "分かりました。復旧の見込みを教えてください。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "ALERT"
+    },
+    "background": "Bạn báo sự cố production cho khách và trả lời các câu hỏi về thời điểm, phạm vi ảnh hưởng.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N2",
+    "description": "Bạn báo sự cố rõ môi trường, nêu thời điểm bắt đầu, phạm vi ảnh hưởng và dự kiến khôi phục.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 7,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "〜で障害が発生しました",
+       "example": "本番環境で障害が発生しました。",
+       "explanation": "Thông báo sự cố."
+      },
+      {
+       "pattern": "〜を調査しています",
+       "example": "現在、原因を調査しています。",
+       "explanation": "Nói đang tìm nguyên nhân."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "障害",
+       "reading": "しょうがい",
+       "meaning": "sự cố",
+       "example": "本番環境で障害が発生しました。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "本番環境",
+       "reading": "ほんばんかんきょう",
+       "meaning": "môi trường production",
+       "example": "本番環境で障害が発生しました。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "影響",
+       "reading": "えいきょう",
+       "meaning": "ảnh hưởng",
+       "example": "ログイン機能に影響しています。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "復旧",
+       "reading": "ふっきゅう",
+       "meaning": "khôi phục",
+       "example": "明日の朝までには復旧する予定です。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "田中さん、本番環境で障害が発生しました。",
+       "speaker": "learner",
+       "translation": "Anh Tanaka, sự cố đã xảy ra trên môi trường chính thức ạ."
+      },
+      {
+       "text": "いつからですか。",
+       "speaker": "ai",
+       "translation": "Từ khi nào ạ?"
+      },
+      {
+       "text": "今朝九時ごろからです。現在、原因を調査しています。",
+       "speaker": "learner",
+       "translation": "Từ khoảng chín giờ sáng nay. Hiện chúng tôi đang điều tra nguyên nhân ạ."
+      },
+      {
+       "text": "影響範囲はどのくらいですか。",
+       "speaker": "ai",
+       "translation": "Phạm vi ảnh hưởng khoảng bao nhiêu ạ?"
+      },
+      {
+       "text": "ログイン機能に影響しています。回避策を準備します。",
+       "speaker": "learner",
+       "translation": "Ảnh hưởng tới chức năng đăng nhập. Chúng tôi sẽ chuẩn bị biện pháp tạm thời ạ."
+      },
+      {
+       "text": "明日の朝までには復旧する予定です。",
+       "speaker": "learner",
+       "translation": "Dự kiến sẽ khôi phục trước sáng mai ạ."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-21",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-quan-ly-du-an",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-21",
+    "title": "Báo cáo hoàn tất sửa lỗi",
+    "location": "Văn phòng, nói chuyện với PM",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "HOUKOKU",
+       "type": "MISSION",
+       "title": "Báo đã sửa xong",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "修正が完了しました|障害"
+        }
+       ],
+       "description": "Nói rõ việc sửa lỗi của sự cố đã hoàn tất.",
+       "displayOrder": 1
+      },
+      {
+       "code": "SAIHATSU",
+       "type": "MISSION",
+       "title": "Khẳng định không tái phát",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "ありません|回帰テスト|合格"
+        }
+       ],
+       "description": "Khẳng định không tái phát và nêu bằng chứng test.",
+       "displayOrder": 2
+      },
+      {
+       "code": "HANEIKI",
+       "type": "MISSION",
+       "title": "Nhận lời triển khai",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "承知しました|反映します"
+        }
+       ],
+       "description": "Nhận lời triển khai lên production trong hôm nay.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "DONE",
+       "name": "Báo đã sửa xong",
+       "next": "NORISK",
+       "prompt": "PM hỏi nguy cơ tái phát, mời người học khẳng định không còn.",
+       "allowedGoalCodes": [
+        "HOUKOKU"
+       ],
+       "suggestedReplies": [
+        "ファムさん、先日の障害の修正が完了しました。"
+       ]
+      },
+      {
+       "code": "NORISK",
+       "name": "Khẳng định không tái phát",
+       "next": "DEPLOY",
+       "prompt": "Mời người học khẳng định không tái phát và nêu bằng chứng test.",
+       "allowedGoalCodes": [
+        "SAIHATSU"
+       ],
+       "suggestedReplies": [
+        "ありません。回帰テストも全て合格しました。"
+       ],
+       "transitionText": "Sau khi báo sửa xong…"
+      },
+      {
+       "code": "DEPLOY",
+       "name": "Nhận lời triển khai",
+       "next": "END",
+       "prompt": "PM giao triển khai lên production, mời người học nhận lời và nêu thời điểm.",
+       "allowedGoalCodes": [
+        "HANEIKI"
+       ],
+       "suggestedReplies": [
+        "承知しました。今夜中に反映します。"
+       ],
+       "transitionText": "Sau khi khẳng định không tái phát…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Báo hoàn tất sửa lỗi xong",
+       "message": "反映後、また結果を教えてください。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "DONE"
+    },
+    "background": "Bạn báo đã sửa xong lỗi của sự cố hôm trước và xin xác nhận triển khai.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N2",
+    "description": "Bạn báo đã sửa xong, khẳng định không tái phát, nhận lời triển khai tối nay và báo kết quả sau.",
+    "time_of_day": "Buổi chiều",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "〜が完了しました",
+       "example": "先日の障害の修正が完了しました。",
+       "explanation": "Báo cáo việc đã xong."
+      },
+      {
+       "pattern": "〜の恐れはありますか",
+       "example": "再発の恐れはありますか。",
+       "explanation": "Hỏi về rủi ro."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "修正",
+       "reading": "しゅうせい",
+       "meaning": "sửa",
+       "example": "障害の修正が完了しました。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "再発",
+       "reading": "さいはつ",
+       "meaning": "tái phát",
+       "example": "再発の恐れはありません。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "回帰テスト",
+       "reading": "かいきテスト",
+       "meaning": "kiểm thử hồi quy",
+       "example": "回帰テストも全て合格しました。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "反映",
+       "reading": "はんえい",
+       "meaning": "triển khai, phản ánh",
+       "example": "本番環境への反映をお願いします。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "ファムさん、先日の障害の修正が完了しました。",
+       "speaker": "learner",
+       "translation": "Anh Phạm, việc sửa lỗi của sự cố hôm trước đã hoàn tất ạ."
+      },
+      {
+       "text": "お疲れさまです。再発の恐れはありますか。",
+       "speaker": "ai",
+       "translation": "Vất vả rồi. Có nguy cơ tái phát không ạ?"
+      },
+      {
+       "text": "ありません。回帰テストも全て合格しました。",
+       "speaker": "learner",
+       "translation": "Không ạ. Kiểm thử hồi quy cũng đạt toàn bộ rồi ạ."
+      },
+      {
+       "text": "では、本番環境への反映をお願いします。",
+       "speaker": "ai",
+       "translation": "Vậy anh triển khai lên môi trường chính thức nhé."
+      },
+      {
+       "text": "承知しました。今夜中に反映します。",
+       "speaker": "learner",
+       "translation": "Tôi rõ rồi ạ. Tối nay tôi sẽ triển khai."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-13",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-13",
+    "title": "Báo cáo sơ bộ sự cố production",
+    "location": "Văn phòng, qua điện thoại",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "SHIKYUU",
+       "type": "MISSION",
+       "title": "Báo gấp sự cố",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "至急ご報告いたします|障害が発生|決済処理"
+        }
+       ],
+       "description": "Báo gấp sự cố production kèm thời điểm và hiện tượng.",
+       "displayOrder": 1
+      },
+      {
+       "code": "EIKYOU",
+       "type": "MISSION",
+       "title": "Nêu mức ảnh hưởng",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "3割|エラー|ユーザー"
+        }
+       ],
+       "description": "Nêu khoảng 30% lượt thanh toán bị lỗi.",
+       "displayOrder": 2
+      },
+      {
+       "code": "SETTEI",
+       "type": "MISSION",
+       "title": "Nêu giả thuyết nguyên nhân",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "設定ファイル|可能性が高い|調査中"
+        }
+       ],
+       "description": "Nêu khả năng cao liên quan file cấu hình đợt release.",
+       "displayOrder": 3
+      },
+      {
+       "code": "SHOUNIN",
+       "type": "MISSION",
+       "title": "Xin phê duyệt rollback",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "承認|30分以内|リリース前の状態"
+        }
+       ],
+       "description": "Xin phê duyệt đưa về trạng thái trước release trong 30 phút.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "URGENT",
+       "name": "Báo gấp sự cố",
+       "next": "IMPACT",
+       "prompt": "Khách hỏi mức ảnh hưởng, mời người học nêu số liệu.",
+       "allowedGoalCodes": [
+        "SHIKYUU"
+       ],
+       "suggestedReplies": [
+        "至急ご報告いたします。本日10時頃から、本番環境で決済処理がエラーになる障害が発生しております。"
+       ]
+      },
+      {
+       "code": "IMPACT",
+       "name": "Nêu mức ảnh hưởng",
+       "next": "CAUSE",
+       "prompt": "Mời người học nêu mức ảnh hưởng tới người dùng.",
+       "allowedGoalCodes": [
+        "EIKYOU"
+       ],
+       "suggestedReplies": [
+        "現時点で、決済を試みたユーザーのうち約3割がエラーになっております。"
+       ],
+       "transitionText": "Sau khi khách hỏi ảnh hưởng…"
+      },
+      {
+       "code": "CAUSE",
+       "name": "Nêu giả thuyết nguyên nhân",
+       "next": "ROLLBACK",
+       "prompt": "Mời người học nêu giả thuyết nguyên nhân khi chưa chắc chắn.",
+       "allowedGoalCodes": [
+        "SETTEI"
+       ],
+       "suggestedReplies": [
+        "原因は調査中ですが、今朝のリリースで更新した設定ファイルが関係している可能性が高いと見ております。"
+       ],
+       "transitionText": "Sau khi nêu mức ảnh hưởng…"
+      },
+      {
+       "code": "ROLLBACK",
+       "name": "Xin phê duyệt rollback",
+       "next": "END",
+       "prompt": "Khách hỏi có quay lại ngay được không, mời người học xin phê duyệt.",
+       "allowedGoalCodes": [
+        "SHOUNIN"
+       ],
+       "suggestedReplies": [
+        "暫定対応として、30分以内にリリース前の状態に戻す予定です。ご承認いただけますでしょうか。"
+       ],
+       "transitionText": "Sau khi khách hỏi khả năng quay lại…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Xin phê duyệt rollback xong",
+       "message": "お願いします。すぐに進めてください。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "URGENT"
+    },
+    "background": "Production gặp sự cố sau đợt release buổi sáng, bạn gọi báo khách ngay và xin phê duyệt rollback.",
+    "difficulty": "HARD",
+    "jlpt_level": "N2",
+    "description": "Bạn báo gấp, nêu mức ảnh hưởng và giả thuyết nguyên nhân, rồi xin phê duyệt rollback trong 30 phút.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 8,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "至急ご報告いたします",
+       "example": "至急ご報告いたします。本番環境で決済処理がエラーになる障害が発生しております。",
+       "explanation": "Mở đầu cuộc gọi báo sự cố, đi thẳng vào việc."
+      },
+      {
+       "pattern": "〜可能性が高いと見ております",
+       "example": "今朝のリリースで更新した設定ファイルが関係している可能性が高いと見ております。",
+       "explanation": "Nêu giả thuyết khi chưa chắc chắn, tránh khẳng định sai."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "障害",
+       "reading": "しょうがい",
+       "meaning": "sự cố",
+       "example": "決済処理がエラーになる障害が発生しております。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "暫定対応",
+       "reading": "ざんていたいおう",
+       "meaning": "xử lý tạm thời",
+       "example": "暫定対応として、30分以内にリリース前の状態に戻す予定です。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "承認",
+       "reading": "しょうにん",
+       "meaning": "phê duyệt",
+       "example": "ご承認いただけますでしょうか。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "設定ファイル",
+       "reading": "せっていファイル",
+       "meaning": "file cấu hình",
+       "example": "設定ファイルが関係している可能性が高いと見ております。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "田中様、至急ご報告いたします。本日10時頃から、本番環境で決済処理がエラーになる障害が発生しております。",
+       "speaker": "learner",
+       "translation": "Anh Tanaka, tôi xin báo cáo gấp. Từ khoảng 10 giờ hôm nay, môi trường production đang gặp sự cố xử lý thanh toán bị lỗi."
+      },
+      {
+       "text": "えっ、ユーザーへの影響はどのくらいですか。",
+       "speaker": "ai",
+       "translation": "Hả, ảnh hưởng tới người dùng cỡ nào?"
+      },
+      {
+       "text": "現時点で、決済を試みたユーザーのうち約3割がエラーになっております。",
+       "speaker": "learner",
+       "translation": "Hiện tại, khoảng 30% người dùng thực hiện thanh toán bị lỗi."
+      },
+      {
+       "text": "原因は調査中ですが、今朝のリリースで更新した設定ファイルが関係している可能性が高いと見ております。",
+       "speaker": "learner",
+       "translation": "Nguyên nhân đang được điều tra, nhưng chúng tôi cho rằng khả năng cao liên quan tới file cấu hình được cập nhật trong đợt release sáng nay."
+      },
+      {
+       "text": "すぐに戻せますか。",
+       "speaker": "ai",
+       "translation": "Quay lại ngay được không?"
+      },
+      {
+       "text": "はい。暫定対応として、30分以内にリリース前の状態に戻す予定です。ご承認いただけますでしょうか。",
+       "speaker": "learner",
+       "translation": "Vâng. Để xử lý tạm thời, chúng tôi dự định đưa về trạng thái trước release trong vòng 30 phút. Anh có thể phê duyệt được không ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-14",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-14",
+    "title": "Xác nhận lần cuối trước release",
+    "location": "Phòng họp trực tuyến",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "KAKUNIN",
+       "type": "MISSION",
+       "title": "Mở đầu xác nhận cuối",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "最終確認をさせていただきます|リリース"
+        }
+       ],
+       "description": "Mở đầu buổi xác nhận cuối cùng cho đợt release.",
+       "displayOrder": 1
+      },
+      {
+       "code": "TEISHI",
+       "type": "MISSION",
+       "title": "Báo thời gian dừng dịch vụ",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "サービスを停止|22時|掲載"
+        }
+       ],
+       "description": "Báo dừng dịch vụ khoảng 1 giờ và nhờ khách thông báo người dùng.",
+       "displayOrder": 2
+      },
+      {
+       "code": "ROLLBACK",
+       "type": "MISSION",
+       "title": "Nêu phương án rollback",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "切り戻し|元のバージョン|判断の期限"
+        }
+       ],
+       "description": "Nêu phương án quay về bản cũ và hạn ra quyết định.",
+       "displayOrder": 3
+      },
+      {
+       "code": "HOUKOKU",
+       "type": "MISSION",
+       "title": "Hẹn báo kết quả",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "結果をメールでご報告"
+        }
+       ],
+       "description": "Hẹn báo kết quả qua email sau khi làm xong.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "CONFIRM",
+       "name": "Mở đầu xác nhận cuối",
+       "next": "STOP",
+       "prompt": "Mời người học nhắc lịch release và khung giờ làm.",
+       "allowedGoalCodes": [
+        "KAKUNIN"
+       ],
+       "suggestedReplies": [
+        "明日のリリースに向けて、最終確認をさせていただきます。",
+        "作業は明日の22時から24時を予定しております。"
+       ]
+      },
+      {
+       "code": "STOP",
+       "name": "Báo thời gian dừng dịch vụ",
+       "next": "FALLBACK",
+       "prompt": "Khách hỏi dịch vụ có dừng không, mời người học báo thời gian dừng.",
+       "allowedGoalCodes": [
+        "TEISHI"
+       ],
+       "suggestedReplies": [
+        "22時から約1時間、サービスを停止いたします。",
+        "停止のお知らせを、本日中にユーザーへ掲載していただけますでしょうか。"
+       ],
+       "transitionText": "Sau khi nhắc lịch…"
+      },
+      {
+       "code": "FALLBACK",
+       "name": "Nêu phương án rollback",
+       "next": "REPORT",
+       "prompt": "Mời người học nêu phương án rollback và hạn quyết định.",
+       "allowedGoalCodes": [
+        "ROLLBACK"
+       ],
+       "suggestedReplies": [
+        "万が一問題が発生した場合は、切り戻し手順に従って元のバージョンに戻します。",
+        "判断の期限は23時30分とさせていただきます。"
+       ],
+       "transitionText": "Sau khi khách nhận thông báo người dùng…"
+      },
+      {
+       "code": "REPORT",
+       "name": "Hẹn báo kết quả",
+       "next": "END",
+       "prompt": "Khách dặn có gì cứ liên lạc, mời người học hẹn báo kết quả.",
+       "allowedGoalCodes": [
+        "HOUKOKU"
+       ],
+       "suggestedReplies": [
+        "かしこまりました。作業完了後、結果をメールでご報告いたします。"
+       ],
+       "transitionText": "Sau khi chốt phương án…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Xác nhận trước release xong",
+       "message": "了解です。何かあったら、夜中でも連絡してください。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "CONFIRM"
+    },
+    "background": "Trước ngày release, bạn xác nhận lịch làm, thời gian dừng dịch vụ và phương án rollback với khách.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N2",
+    "description": "Bạn nhắc lịch release, báo thời gian dừng dịch vụ, nêu phương án rollback và hẹn báo kết quả.",
+    "time_of_day": "Buổi tối",
+    "estimated_minutes": 7,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "〜に向けて",
+       "example": "明日のリリースに向けて、最終確認をさせていただきます。",
+       "explanation": "Nghĩa là 'chuẩn bị cho ~', ngữ pháp N2."
+      },
+      {
+       "pattern": "万が一",
+       "example": "万が一問題が発生した場合は、切り戻し手順に従って元のバージョンに戻します。",
+       "explanation": "Dùng khi nói về rủi ro, nghe chuyên nghiệp hơn もし."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "リリース",
+       "reading": "リリース",
+       "meaning": "phát hành (release)",
+       "example": "明日のリリースに向けて、最終確認をさせていただきます。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "停止",
+       "reading": "ていし",
+       "meaning": "dừng",
+       "example": "22時から約1時間、サービスを停止いたします。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "切り戻し",
+       "reading": "きりもどし",
+       "meaning": "rollback, quay về bản cũ",
+       "example": "切り戻し手順に従って元のバージョンに戻します。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "判断の期限",
+       "reading": "はんだんのきげん",
+       "meaning": "thời hạn ra quyết định",
+       "example": "判断の期限は23時30分とさせていただきます。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "明日のリリースに向けて、最終確認をさせていただきます。",
+       "speaker": "learner",
+       "translation": "Tôi xin xác nhận lần cuối cho đợt release ngày mai."
+      },
+      {
+       "text": "リリース手順書は昨日お送りしたとおりで、作業は明日の22時から24時を予定しております。",
+       "speaker": "learner",
+       "translation": "Tài liệu thao tác release như đã gửi hôm qua, dự kiến làm từ 22 giờ đến 24 giờ ngày mai."
+      },
+      {
+       "text": "作業中、サービスは止まりますか。",
+       "speaker": "ai",
+       "translation": "Trong lúc làm, dịch vụ có bị dừng không?"
+      },
+      {
+       "text": "はい、22時から約1時間、サービスを停止いたします。停止のお知らせを、本日中にユーザーへ掲載していただけますでしょうか。",
+       "speaker": "learner",
+       "translation": "Vâng, dịch vụ sẽ dừng khoảng 1 tiếng từ 22 giờ. Anh có thể đăng thông báo dừng dịch vụ tới người dùng trong hôm nay được không ạ?"
+      },
+      {
+       "text": "万が一問題が発生した場合は、切り戻し手順に従って元のバージョンに戻します。判断の期限は23時30分とさせていただきます。",
+       "speaker": "learner",
+       "translation": "Nếu chẳng may có vấn đề, chúng tôi sẽ quay về phiên bản cũ theo quy trình rollback. Thời hạn ra quyết định là 23 giờ 30."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "BRSE-22",
+   "goal_test": false,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-brse-22",
+    "title": "Báo cáo phát hành",
+    "location": "Văn phòng, qua điện thoại",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "HOUKOKU",
+       "type": "MISSION",
+       "title": "Báo phát hành xong",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "リリースが完了しました|新バージョン"
+        }
+       ],
+       "description": "Báo phiên bản mới đã phát hành hoàn tất.",
+       "displayOrder": 1
+      },
+      {
+       "code": "ANZEN",
+       "type": "MISSION",
+       "title": "Khẳng định hệ thống ổn",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "監視システム|異常はありません"
+        }
+       ],
+       "description": "Khẳng định hệ thống giám sát không có bất thường.",
+       "displayOrder": 2
+      },
+      {
+       "code": "BACKUP",
+       "type": "MISSION",
+       "title": "Xác nhận đã sao lưu",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "バックアップ|リリース前に完了"
+        }
+       ],
+       "description": "Xác nhận đã sao lưu trước khi phát hành.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "RELEASED",
+       "name": "Báo phát hành xong",
+       "next": "STABLE",
+       "prompt": "Khách hỏi vận hành có vấn đề gì không, mời người học khẳng định ổn.",
+       "allowedGoalCodes": [
+        "HOUKOKU"
+       ],
+       "suggestedReplies": [
+        "田中さん、新バージョンのリリースが完了しました。"
+       ]
+      },
+      {
+       "code": "STABLE",
+       "name": "Khẳng định hệ thống ổn",
+       "next": "BACKUP",
+       "prompt": "Mời người học khẳng định hệ thống giám sát không có bất thường.",
+       "allowedGoalCodes": [
+        "ANZEN"
+       ],
+       "suggestedReplies": [
+        "はい、監視システムでも異常はありません。"
+       ],
+       "transitionText": "Sau khi báo phát hành xong…"
+      },
+      {
+       "code": "BACKUP",
+       "name": "Xác nhận đã sao lưu",
+       "next": "END",
+       "prompt": "Khách hỏi đã sao lưu chưa, mời người học xác nhận.",
+       "allowedGoalCodes": [
+        "BACKUP"
+       ],
+       "suggestedReplies": [
+        "はい、リリース前に完了しています。"
+       ],
+       "transitionText": "Sau khi khẳng định hệ thống ổn…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Báo cáo phát hành xong",
+       "message": "安心しました。引き続きよろしくお願いします。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "RELEASED"
+    },
+    "background": "Bạn thông báo đã phát hành phiên bản mới và xác nhận trạng thái vận hành cho khách.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N2",
+    "description": "Bạn báo phát hành xong, khẳng định hệ thống ổn định và đã sao lưu trước khi phát hành.",
+    "time_of_day": "Buổi tối",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "〜が完了しました",
+       "example": "新バージョンのリリースが完了しました。",
+       "explanation": "Báo cáo việc triển khai xong."
+      },
+      {
+       "pattern": "〜は取得済みですか",
+       "example": "バックアップは取得済みですか。",
+       "explanation": "Xác nhận việc đã thực hiện."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "リリース",
+       "reading": "リリース",
+       "meaning": "phát hành (release)",
+       "example": "新バージョンのリリースが完了しました。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "監視システム",
+       "reading": "かんしシステム",
+       "meaning": "hệ thống giám sát",
+       "example": "監視システムでも異常はありません。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "バックアップ",
+       "reading": "バックアップ",
+       "meaning": "sao lưu",
+       "example": "バックアップは取得済みですか。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "異常",
+       "reading": "いじょう",
+       "meaning": "bất thường",
+       "example": "監視システムでも異常はありません。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "田中さん、新バージョンのリリースが完了しました。",
+       "speaker": "learner",
+       "translation": "Anh Tanaka, việc phát hành phiên bản mới đã hoàn tất ạ."
+      },
+      {
+       "text": "ありがとうございます。動作は問題ないですか。",
+       "speaker": "ai",
+       "translation": "Cảm ơn anh. Vận hành có vấn đề gì không ạ?"
+      },
+      {
+       "text": "はい、監視システムでも異常はありません。",
+       "speaker": "learner",
+       "translation": "Vâng, hệ thống giám sát cũng không có gì bất thường ạ."
+      },
+      {
+       "text": "バックアップは取得済みですか。",
+       "speaker": "ai",
+       "translation": "Đã sao lưu dữ liệu chưa ạ?"
+      },
+      {
+       "text": "はい、リリース前に完了しています。",
+       "speaker": "learner",
+       "translation": "Vâng, đã hoàn tất trước khi phát hành ạ."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": null,
+   "goal_test": true,
+   "category_code": "introduction",
+   "ai_role_code": "cpath-khach-hang-nhat",
+   "learner_role_code": "cpath-brse",
+   "scenario": {
+    "slug": "cpath-test-ba",
+    "title": "Tổng hợp giao tiếp công việc BrSE",
+    "location": "Phòng họp trực tuyến",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "AISATSU",
+       "type": "MISSION",
+       "title": "Chào hỏi và giới thiệu",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "申します|担当いたします|ブリッジSE|初めまして"
+        }
+       ],
+       "description": "Chào lần đầu và nói vai trò BrSE của mình.",
+       "displayOrder": 1
+      },
+      {
+       "code": "SHIYOU",
+       "type": "MISSION",
+       "title": "Xác nhận điểm chưa rõ trong đặc tả",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "確認させていただきたい|仕様書|ということでよろしいでしょうか"
+        }
+       ],
+       "description": "Chỉ rõ điểm thiếu và nhắc lại để chốt.",
+       "displayOrder": 2
+      },
+      {
+       "code": "SHINCHOKU",
+       "type": "MISSION",
+       "title": "Báo cáo tiến độ",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "進捗をご報告|予定どおり|見込み"
+        }
+       ],
+       "description": "Nêu hạng mục xong và hạng mục chậm kèm dự báo.",
+       "displayOrder": 3
+      },
+      {
+       "code": "TESUTO",
+       "type": "MISSION",
+       "title": "Báo cáo kết quả test",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "テストケース|合格|不合格"
+        }
+       ],
+       "description": "Báo số ca đạt/không đạt khớp nhau.",
+       "displayOrder": 4
+      },
+      {
+       "code": "BUG",
+       "type": "MISSION",
+       "title": "Tiếp nhận báo lỗi",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "再現手順|調査|ご連絡いたします"
+        }
+       ],
+       "description": "Hỏi bước tái hiện và hẹn giờ phản hồi.",
+       "displayOrder": 5
+      },
+      {
+       "code": "RELEASE",
+       "type": "MISSION",
+       "title": "Xác nhận lần cuối trước release",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "リリース|サービスを停止|切り戻し"
+        }
+       ],
+       "description": "Báo thời gian dừng dịch vụ và phương án rollback.",
+       "displayOrder": 6
+      }
+     ],
+     "states": [
+      {
+       "code": "GREETING",
+       "name": "Chào hỏi và giới thiệu",
+       "next": "SPEC",
+       "prompt": "Chào khách và mời người học giới thiệu bản thân.",
+       "allowedGoalCodes": [
+        "AISATSU"
+       ],
+       "suggestedReplies": [
+        "初めまして。VJソリューションズのグエンと申します。本プロジェクトでブリッジSEを担当いたします。"
+       ]
+      },
+      {
+       "code": "SPEC",
+       "name": "Xác nhận đặc tả",
+       "next": "PROGRESS",
+       "prompt": "Mời người học nêu điểm cần xác nhận trong đặc tả.",
+       "allowedGoalCodes": [
+        "SHIYOU"
+       ],
+       "suggestedReplies": [
+        "仕様書の件で一点確認させていただきたいのですが。",
+        "30分後の自動解除と、管理者による手動解除の両方を実装する、ということでよろしいでしょうか。"
+       ],
+       "transitionText": "Sau khi chào hỏi…"
+      },
+      {
+       "code": "PROGRESS",
+       "name": "Báo cáo tiến độ",
+       "next": "TEST",
+       "prompt": "Mời người học báo tiến độ tuần, gồm hạng mục xong và hạng mục chậm.",
+       "allowedGoalCodes": [
+        "SHINCHOKU"
+       ],
+       "suggestedReplies": [
+        "今週の進捗をご報告いたします。",
+        "会員登録機能は予定どおり完了しました。",
+        "決済機能は進捗が予定の70%程度にとどまっておりますが、来週の作業で遅れを取り戻せる見込みです。"
+       ],
+       "transitionText": "Sau khi chốt đặc tả…"
+      },
+      {
+       "code": "TEST",
+       "name": "Báo cáo kết quả test",
+       "next": "BUG",
+       "prompt": "Mời người học báo số liệu kết quả kiểm thử.",
+       "allowedGoalCodes": [
+        "TESUTO"
+       ],
+       "suggestedReplies": [
+        "テストケース全420件のうち412件を消化し、合格は398件、不合格は14件でした。"
+       ],
+       "transitionText": "Sau khi báo tiến độ…"
+      },
+      {
+       "code": "BUG",
+       "name": "Tiếp nhận báo lỗi",
+       "next": "RELEASE",
+       "prompt": "Khách báo lỗi mới, mời người học hỏi bước tái hiện và hẹn phản hồi.",
+       "allowedGoalCodes": [
+        "BUG"
+       ],
+       "suggestedReplies": [
+        "ご報告ありがとうございます。再現手順を教えていただけますか。",
+        "本日の17時までに原因と対応方針をご連絡いたします。"
+       ],
+       "transitionText": "Sau khi báo kết quả test…"
+      },
+      {
+       "code": "RELEASE",
+       "name": "Xác nhận trước release",
+       "next": "END",
+       "prompt": "Mời người học xác nhận lịch release và phương án rollback.",
+       "allowedGoalCodes": [
+        "RELEASE"
+       ],
+       "suggestedReplies": [
+        "明日のリリースに向けて、最終確認をさせていただきます。",
+        "22時から約1時間、サービスを停止いたします。",
+        "万が一問題が発生した場合は、切り戻し手順に従って元のバージョンに戻します。"
+       ],
+       "transitionText": "Sau khi xử lý báo lỗi…"
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Hoàn thành tổng hợp công việc",
+       "message": "ありがとうございました。引き続きよろしくお願いいたします。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "GREETING"
+    },
+    "background": "Một ngày làm việc tổng hợp: bạn gặp khách hàng, xác nhận đặc tả, báo tiến độ và kết quả test, tiếp nhận báo lỗi rồi chốt kế hoạch release.",
+    "difficulty": "HARD",
+    "jlpt_level": "N2",
+    "description": "Cuộc gọi tổng hợp đi qua nhiều chủ đề chính của mục tiêu BrSE: chào hỏi, xác nhận đặc tả, báo tiến độ, kết quả test, xử lý lỗi và xác nhận release.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 14,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "pattern": "〜ということでよろしいでしょうか",
+       "example": "30分後の自動解除と、管理者による手動解除の両方を実装する、ということでよろしいでしょうか。",
+       "explanation": "Nhắc lại để chốt, kỹ năng cốt lõi của BrSE."
+      },
+      {
+       "pattern": "〜可能性が高いと見ております",
+       "example": "今朝のリリースで更新した設定ファイルが関係している可能性が高いと見ております。",
+       "explanation": "Nêu giả thuyết khi chưa chắc chắn, tránh khẳng định sai."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N2",
+       "term": "進捗",
+       "reading": "しんちょく",
+       "meaning": "tiến độ",
+       "example": "今週の進捗をご報告いたします。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "仕様書",
+       "reading": "しようしょ",
+       "meaning": "tài liệu đặc tả",
+       "example": "仕様書の件で確認させていただきたいのですが。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "合格",
+       "reading": "ごうかく",
+       "meaning": "đạt",
+       "example": "合格は398件でした。"
+      },
+      {
+       "jlpt": "N2",
+       "term": "再現手順",
+       "reading": "さいげんてじゅん",
+       "meaning": "các bước tái hiện lỗi",
+       "example": "再現手順を教えていただけますか。"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "初めまして。VJソリューションズのグエンと申します。本プロジェクトでブリッジSEを担当いたします。",
+       "speaker": "learner",
+       "translation": "Xin chào, tôi là Nguyễn của VJ Solutions. Tôi sẽ phụ trách vai trò BrSE cho dự án này."
+      },
+      {
+       "text": "ミライテックの田中です。よろしくお願いします。",
+       "speaker": "ai",
+       "translation": "Tôi là Tanaka của Miraitech. Rất mong được hợp tác."
+      },
+      {
+       "text": "仕様書の件で一点確認させていただきたいのですが、ロックの解除方法について記載がございません。30分後の自動解除と、管理者による手動解除の両方を実装する、ということでよろしいでしょうか。",
+       "speaker": "learner",
+       "translation": "Tôi muốn xác nhận một điểm trong tài liệu đặc tả: không ghi cách mở khóa. Vậy là triển khai cả tự động mở khóa sau 30 phút lẫn quản trị viên mở khóa thủ công, đúng không ạ?"
+      },
+      {
+       "text": "はい、それで結構です。",
+       "speaker": "ai",
+       "translation": "Vâng, như vậy là được."
+      },
+      {
+       "text": "今週の進捗をご報告いたします。会員登録機能は予定どおり完了しました。決済機能は進捗が予定の70%程度にとどまっておりますが、来週の作業で遅れを取り戻せる見込みです。",
+       "speaker": "learner",
+       "translation": "Tôi xin báo cáo tiến độ tuần. Chức năng đăng ký đã xong đúng kế hoạch. Chức năng thanh toán mới đạt khoảng 70% nhưng tuần sau sẽ bắt kịp."
+      },
+      {
+       "text": "テストケース全420件のうち412件を消化し、合格は398件、不合格は14件でした。",
+       "speaker": "learner",
+       "translation": "Trong tổng số 420 test case, đã thực hiện 412 case, đạt 398 case và không đạt 14 case."
+      },
+      {
+       "text": "検証環境で、検索結果が正しく表示されないんですが。",
+       "speaker": "ai",
+       "translation": "Trên môi trường staging, kết quả tìm kiếm hiển thị không đúng."
+      },
+      {
+       "text": "ご報告ありがとうございます。再現手順を教えていただけますか。本日の17時までに原因と対応方針をご連絡いたします。",
+       "speaker": "learner",
+       "translation": "Cảm ơn anh đã báo. Anh cho tôi biết các bước tái hiện lỗi được không ạ? Trước 17 giờ hôm nay tôi sẽ báo nguyên nhân và hướng xử lý."
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

@@ -1,3 +1,4 @@
+@import url("../controls.css");
 :root {
     --demo-ink: #17202b;
     --demo-muted: #76808c;
@@ -271,19 +272,394 @@ body.retention-demo-body {
   .demo-fox--reminder { left: 27px; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .demo-stage,
-  .demo-stage *,
-  .demo-stage::before,
-  .demo-stage::after {
-    animation: none !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
 
-  .demo-stage .scene-run *,
-  .demo-stage .scene-settled * {
-    opacity: 1 !important;
-    transform: none !important;
-  }
+/* Page-owned dark mode: css/pages/retention-demo.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-retention-bg: var(--dark-bg);
+  --dm-retention-surface: var(--dark-surface);
+  --dm-retention-raised: var(--dark-raised);
+  --dm-retention-ink: var(--dark-ink);
+  --dm-retention-muted: var(--dark-muted);
+  --dm-retention-line: var(--dark-line);
+  --dm-retention-accent: var(--dark-accent);
+  --dm-retention-action: var(--dark-button);
+  --dm-retention-accent-soft: var(--dark-soft);
+  --dm-retention-on-accent: var(--dark-on-button);
+  --dm-retention-success: var(--dark-success);
+  --dm-retention-success-bg: var(--dark-success-bg);
+  --dm-retention-success-line: var(--dark-success-line);
+  --dm-retention-danger: var(--dark-danger);
+  --dm-retention-danger-bg: var(--dark-danger-bg);
+  --dm-retention-danger-line: var(--dark-danger-line);
+  --dm-retention-warning: var(--dark-warning);
+  --dm-retention-warning-bg: var(--dark-warning-bg);
+  --dm-retention-warning-line: var(--dark-warning-line);
+  --dm-retention-pink: var(--dark-pink);
+  --dm-retention-pink-bg: var(--dark-pink-bg);
+  --dm-retention-pink-line: var(--dark-pink-line);
+}
+html[data-theme="dark"] {
+    --demo-ink: var(--dm-retention-ink);
+    --demo-muted: var(--dm-retention-muted);
+    --demo-orange: var(--dm-retention-warning);
+    --demo-orange-dark: var(--dm-retention-warning);
+    --demo-cream: var(--dm-retention-warning-bg);
+    --demo-lilac: var(--dm-retention-accent-soft);
+    --demo-blue: var(--dm-retention-accent);
+    --demo-line: var(--dm-retention-line)
+}
+html[data-theme="dark"] body.retention-demo-body {
+    background: var(--dm-retention-warning-bg)
+}
+html[data-theme="dark"] .demo-noise {
+    background-image: radial-gradient(var(--dm-retention-raised) 0.7px, transparent .7px)
+}
+html[data-theme="dark"] .demo-brand small {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .demo-brand__mark {
+    color: var(--dm-retention-ink)
+}
+html[data-theme="dark"] .demo-header__status {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .demo-header__status span,
+html[data-theme="dark"] .demo-stage__caption span {
+    background: var(--dm-retention-success-bg);
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.25)
+}
+html[data-theme="dark"] .demo-intro__lead {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .demo-feature-list span {
+    background: var(--dm-retention-warning-bg)
+}
+html[data-theme="dark"] .demo-feature-list p {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .demo-button--primary {
+    color: var(--dm-retention-ink);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.23)
+}
+html[data-theme="dark"] .demo-button--quiet {
+    color: var(--dm-retention-muted);
+    background: var(--dm-retention-surface)
+}
+html[data-theme="dark"] .demo-button--quiet.is-playing {
+    background: var(--dm-retention-warning-bg);
+    border-color: var(--dm-retention-warning-line)
+}
+html[data-theme="dark"] .demo-hint {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .demo-hint i {
+    color: var(--dm-retention-warning)
+}
+html[data-theme="dark"] .demo-workspace {
+    box-shadow: 0 24px 54px rgba(0, 0, 0, 0.25)
+}
+html[data-theme="dark"] .demo-onboarding {
+    background: var(--dm-retention-warning-bg);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.20)
+}
+html[data-theme="dark"] .demo-progress button {
+    background: var(--dm-retention-raised)
+}
+html[data-theme="dark"] .demo-progress button.is-active::after {
+    background: var(--dm-retention-surface)
+}
+html[data-theme="dark"] .demo-step-counter {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .scene-art--check {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.39);
+    color: var(--dm-retention-on-accent)
+}
+html[data-theme="dark"] .scene-art--check b {
+    background: var(--dm-retention-warning-bg)
+}
+html[data-theme="dark"] .scene-art--flame {
+    color: var(--dm-retention-danger);
+    background: var(--dm-retention-warning-bg)
+}
+html[data-theme="dark"] .flame-ring {
+    border: 1px solid var(--dm-retention-warning-line)
+}
+html[data-theme="dark"] .scene-art--flame b {
+    background: var(--dm-retention-warning-bg)
+}
+html[data-theme="dark"] .scene-number + h2 {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .scene-meter {
+    background: var(--dm-retention-warning-bg)
+}
+html[data-theme="dark"] .scene-meter span {
+    background: linear-gradient(90deg, var(--dm-retention-warning-bg), var(--dm-retention-danger-bg))
+}
+html[data-theme="dark"] .demo-scene small {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .week-strip span {
+    color: var(--dm-retention-muted);
+    border: 1px solid var(--dm-retention-warning-line)
+}
+html[data-theme="dark"] .week-strip i {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .week-strip .is-done {
+    color: var(--dm-retention-warning);
+    background: var(--dm-retention-warning-bg);
+    border-color: var(--dm-retention-warning-line)
+}
+html[data-theme="dark"] .week-strip .is-done i {
+    color: var(--dm-retention-danger)
+}
+html[data-theme="dark"] .week-strip .is-today {
+    box-shadow: 0 7px 14px rgba(0, 0, 0, 0.36);
+    color: var(--dm-retention-on-accent)
+}
+html[data-theme="dark"] .week-strip .is-today i {
+    color: var(--dm-retention-ink)
+}
+html[data-theme="dark"] .scene-art--target,
+html[data-theme="dark"] .scene-art--path {
+    background: var(--dm-retention-accent-soft)
+}
+html[data-theme="dark"] .scene-art--target {
+    color: var(--dm-retention-accent);
+    background: var(--dm-retention-accent-soft)
+}
+html[data-theme="dark"] .goal-options button {
+    color: var(--dm-retention-muted);
+    border: 1px solid var(--dm-retention-warning-line);
+    background: var(--dm-retention-surface)
+}
+html[data-theme="dark"] .goal-options button:hover,
+html[data-theme="dark"] .goal-options button.is-selected {
+    border-color: var(--dm-retention-danger-line);
+    background: var(--dm-retention-warning-bg);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.21)
+}
+html[data-theme="dark"] .goal-options em {
+    color: var(--dm-retention-warning)
+}
+html[data-theme="dark"] .path-line {
+    background: linear-gradient(90deg, var(--dm-retention-danger-bg) 35%, var(--dm-retention-warning-bg) 35%)
+}
+html[data-theme="dark"] .milestone-path b {
+    color: var(--dm-retention-muted);
+    border: 3px solid var(--dm-retention-warning-line);
+    background: var(--dm-retention-warning-bg)
+}
+html[data-theme="dark"] .milestone-path b.is-complete {
+    color: var(--dm-retention-on-accent)
+}
+html[data-theme="dark"] .milestone-path i {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .scene-art--freeze {
+    color: var(--dm-retention-accent);
+    background: var(--dm-retention-accent-soft)
+}
+html[data-theme="dark"] .scene-art--freeze::after {
+    border: 1px dashed var(--dm-retention-line)
+}
+html[data-theme="dark"] .freeze-number {
+    color: var(--dm-retention-accent)
+}
+html[data-theme="dark"] .freeze-card {
+    color: var(--dm-retention-muted);
+    border: 1px solid var(--dm-retention-line);
+    background: var(--dm-retention-accent-soft)
+}
+html[data-theme="dark"] .freeze-card i {
+    color: var(--dm-retention-accent)
+}
+html[data-theme="dark"] .freeze-card b {
+    color: var(--dm-retention-success)
+}
+html[data-theme="dark"] .scene-art--trophy {
+    color: var(--dm-retention-warning);
+    background: var(--dm-retention-warning-bg)
+}
+html[data-theme="dark"] .leaderboard > div {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .leaderboard__you {
+    color: var(--dm-retention-muted) !important;
+    border: 1px solid var(--dm-retention-warning-line);
+    background: var(--dm-retention-warning-bg);
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.20)
+}
+html[data-theme="dark"] .leaderboard b {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .leaderboard em {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .rank-avatar {
+    color: var(--dm-retention-ink)
+}
+html[data-theme="dark"] .rank-avatar--pink {
+    background: var(--dm-retention-pink-bg)
+}
+html[data-theme="dark"] .rank-avatar--blue {
+    background: var(--dm-retention-action)
+}
+html[data-theme="dark"] .rank-avatar--yellow {
+    background: var(--dm-retention-warning-bg)
+}
+html[data-theme="dark"] .scene-art--clock {
+    color: var(--dm-retention-accent);
+    background: var(--dm-retention-accent-soft)
+}
+html[data-theme="dark"] .demo-time-field {
+    color: var(--dm-retention-muted);
+    border: 1px solid var(--dm-retention-line);
+    background: var(--dm-retention-surface)
+}
+html[data-theme="dark"] .demo-time-field i {
+    color: var(--dm-retention-accent)
+}
+html[data-theme="dark"] .demo-time-field input {
+    background: var(--dm-retention-accent-soft)
+}
+html[data-theme="dark"] .done-note {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .done-note i {
+    color: var(--dm-retention-warning)
+}
+html[data-theme="dark"] .demo-onboarding__footer {
+    border-top: 1px solid var(--dm-retention-warning-line)
+}
+html[data-theme="dark"] .demo-onboarding__footer > span {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .demo-back {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .demo-next {
+    color: var(--dm-retention-ink);
+    box-shadow: 0 7px 14px rgba(0, 0, 0, 0.25)
+}
+html[data-theme="dark"] .demo-stage__caption {
+    color: var(--dm-retention-muted)
+}
+html[data-theme="dark"] .result-progress {
+    background: var(--dm-retention-raised)
+}
+html[data-theme="dark"] .result-progress span {
+    background: linear-gradient(90deg, var(--dm-retention-warning-bg), var(--dm-retention-danger-bg))
+}
+html[data-theme="dark"] .scene-rewards span {
+    color: var(--dm-retention-muted);
+    border: 1px solid var(--dm-retention-warning-line);
+    background: var(--dm-retention-surface)
+}
+html[data-theme="dark"] .scene-rewards span:nth-child(1) {
+    color: var(--dm-retention-warning);
+    border-color: var(--dm-retention-warning-line);
+    background: var(--dm-retention-warning-bg)
+}
+html[data-theme="dark"] .scene-rewards span:nth-child(2) {
+    color: var(--dm-retention-accent);
+    border-color: var(--dm-retention-line);
+    background: var(--dm-retention-accent-soft)
+}
+html[data-theme="dark"] .scene-rewards span:nth-child(3) {
+    color: var(--dm-retention-accent);
+    border-color: var(--dm-retention-line);
+    background: var(--dm-retention-accent-soft)
+}
+html[data-theme="dark"] .streak-speech,
+html[data-theme="dark"] .goal-speech {
+    color: var(--dm-retention-muted);
+    border: 1px solid var(--dm-retention-warning-line);
+    background: var(--dm-retention-surface);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16)
+}
+html[data-theme="dark"] .streak-speech::after {
+    border-right: 1px solid var(--dm-retention-warning-line);
+    border-bottom: 1px solid var(--dm-retention-warning-line);
+    background: var(--dm-retention-surface)
+}
+html[data-theme="dark"] .goal-illustration {
+    color: var(--dm-retention-danger)
+}
+html[data-theme="dark"] .goal-flame {
+    color: var(--dm-retention-danger)
+}
+html[data-theme="dark"] .timeline-duo > i {
+    color: var(--dm-retention-danger)
+}
+html[data-theme="dark"] .leaderboard--scroll {
+    border: 1px solid var(--dm-retention-warning-line);
+    background: var(--dm-retention-surface);
+    box-shadow: 0 11px 23px rgba(0, 0, 0, 0.19)
+}
+html[data-theme="dark"] .reminder-heading {
+    color: var(--dm-retention-success)
+}
+html[data-theme="dark"] .reminder-world {
+    background: linear-gradient(var(--dm-retention-accent-soft) 0 55%, var(--dm-retention-action) 55%);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.29), inset 0 0 0 5px rgba(0, 0, 0, 0.50)
+}
+html[data-theme="dark"] .reminder-sun {
+    background: var(--dm-retention-warning-bg);
+    box-shadow: 0 0 0 7px rgba(0, 0, 0, 0.27)
+}
+html[data-theme="dark"] .reminder-cloud {
+    background: var(--dm-retention-surface)
+}
+html[data-theme="dark"] .reminder-cloud::before {
+    background: var(--dm-retention-surface)
+}
+html[data-theme="dark"] .reminder-hill--one {
+    background: var(--dm-retention-action)
+}
+html[data-theme="dark"] .reminder-hill--two {
+    background: var(--dm-retention-action)
+}
+html[data-theme="dark"] .reminder-clock {
+    border: 5px solid var(--dm-retention-line);
+    background: var(--dm-retention-warning-bg);
+    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.27)
+}
+html[data-theme="dark"] .reminder-clock::before,
+html[data-theme="dark"] .reminder-clock::after {
+    background: var(--dm-retention-raised)
+}
+html[data-theme="dark"] .reminder-clock i {
+    background: var(--dm-retention-danger-bg)
+}
+html[data-theme="dark"] .done-note {
+    background: var(--dm-retention-accent-soft);
+    color: var(--dm-retention-success)
+}
+html[data-theme="dark"] .path-line {
+    background: var(--dm-retention-warning-bg)
+}
+html[data-theme="dark"] .demo-scene.scene-run[data-demo-scene="3"] .milestone-path b.is-complete {
+    box-shadow: 0 7px 18px rgba(0, 0, 0, 0.38)
+}
+
+/* The warm demo keeps its accents on neutral night surfaces. */
+html[data-theme="dark"] .retention-demo-body {
+  --demo-cream: var(--dm-retention-surface);
+}
+html[data-theme="dark"] :is(.demo-workspace, .demo-onboarding, .demo-screen) {
+  background: var(--dm-retention-surface);
+  color: var(--dm-retention-ink);
+}
+html[data-theme="dark"] :is(.demo-button--primary, .demo-next, .demo-brand__mark) {
+  background: var(--dm-retention-action);
+  color:var(--dark-on-button);
+}
+html[data-theme="dark"] .demo-button--quiet {
+  background: var(--dm-retention-raised);
+  color: var(--dm-retention-muted);
 }

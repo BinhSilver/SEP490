@@ -14,6 +14,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -22,12 +23,24 @@ public class AppealService {
     private final UserSanctionRepository sanctions;
     private final UserRepository users;
     private final UserSanctionService sanctionService;
+    private final ModerationAuditService audit;
+    private final ModerationNotifier notifier;
+    private final AppealAttachmentStorage attachments;
 
     @Transactional
     public AppealView submit(Long userId, Long sanctionId, String reason, String evidenceUrl) {
-        if (reason == null || reason.isBlank()) {
-            throw new ApiException(ErrorCode.BAD_REQUEST, "Lý do không được để trống");
+        return submit(userId, sanctionId, reason, evidenceUrl, null);
+    }
+
+    @Transactional
+    public AppealView submit(Long userId, Long sanctionId, String reason, String evidenceUrl,
+                             MultipartFile file) {
+        if (reason == null || reason.trim().length() < 20 || reason.length() > 1000) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Lý do cần từ 20 đến 1000 ký tự");
         }
+        String link = validateEvidenceUrl(evidenceUrl);
+        User requester = users.findForProfileUpdate(userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy người dùng"));
         reviewCases.findFirstByCaseTypeAndRequesterUserIdAndStatusOrderByCreatedAtDesc(
                 "APPEAL", userId, "OPEN").ifPresent(existing -> {
                     throw new ApiException(ErrorCode.CONFLICT,
@@ -35,8 +48,6 @@ public class AppealService {
                 });
 
         UserSanction sanction = sanctionService.activeSanction(sanctionId, userId);
-        User requester = users.findById(userId)
-                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy người dùng"));
         ReviewCase appeal = ReviewCase.builder()
                 .caseType("APPEAL")
                 .targetType("USER_SANCTION")
@@ -45,9 +56,16 @@ public class AppealService {
                 .ownerUser(requester)
                 .titleSnapshot(sanction.getSanctionType() + " sanction")
                 .reason(reason.trim())
-                .evidenceUrl(trimToNull(evidenceUrl))
+                .evidenceUrl(link)
                 .status("OPEN")
                 .build();
+        if (file != null) {
+            var stored = attachments.store(file);
+            appeal.setEvidenceFileKey(stored.key());
+            appeal.setEvidenceFileName(stored.name());
+            appeal.setEvidenceFileType(stored.contentType());
+            appeal.setEvidenceFileSize(stored.size());
+        }
         return view(reviewCases.save(appeal));
     }
 
@@ -65,24 +83,30 @@ public class AppealService {
 
     @Transactional
     public AppealView resolve(Long appealId, Long reviewerId, boolean approve, String note) {
-        ReviewCase appeal = reviewCases.findById(appealId)
+        ReviewCase appeal = reviewCases.findForDecisionUpdate(appealId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy đơn kháng nghị"));
         if (!"APPEAL".equals(appeal.getCaseType()) || !"OPEN".equals(appeal.getStatus())) {
             throw new ApiException(ErrorCode.CONFLICT, "Đơn đã được xử lý hoặc không hợp lệ");
         }
+        String why = ModerationAuditService.requireReason(note);
         User reviewer = users.findById(reviewerId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy reviewer"));
         if (approve) {
             UserSanction sanction = sanctions.findById(appeal.getTargetId())
                     .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy chế tài"));
-            sanction.setRevokedAt(LocalDateTime.now());
-            sanctions.save(sanction);
+            if (sanction.getRevokedAt() == null) {
+                sanctionService.revoke(sanction.getId(), reviewerId, why, appeal.getId());
+            }
         }
         appeal.setReviewer(reviewer);
         appeal.setStatus(approve ? "APPROVED" : "REJECTED");
         appeal.setResolutionType(approve ? "REVOKE_SANCTION" : "KEEP_SANCTION");
-        appeal.setResolutionNote(trimToNull(note));
+        appeal.setResolutionNote(why);
         appeal.setResolvedAt(LocalDateTime.now());
+        audit.record(reviewerId, new ModerationAuditService.Entry(approve ? "APPEAL_APPROVE" : "APPEAL_REJECT",
+                "APPEAL", appeal.getId(), "OPEN", appeal.getStatus(), why, appeal.getId()));
+        notifier.appealResolved(appeal.getRequesterUser() == null ? null : appeal.getRequesterUser().getId(),
+                appeal.getId(), approve, why);
         return view(reviewCases.save(appeal));
     }
 
@@ -95,7 +119,34 @@ public class AppealService {
                 value.getRequesterUser() == null ? null : value.getRequesterUser().getId(),
                 value.getTargetId(), sanctionType, value.getReason(), value.getEvidenceUrl(),
                 value.getStatus(), value.getReviewer() == null ? null : value.getReviewer().getId(),
-                value.getResolutionNote(), value.getCreatedAt(), value.getResolvedAt());
+                value.getResolutionNote(), value.getCreatedAt(), value.getResolvedAt(),
+                value.getEvidenceFileKey() == null ? null : new AppealView.EvidenceFile(
+                        value.getEvidenceFileName(), value.getEvidenceFileType(), value.getEvidenceFileSize(),
+                        "/api/appeals/" + value.getId() + "/file"));
+    }
+
+    @Transactional(readOnly = true)
+    public ReviewCase attachment(Long appealId, Long userId, boolean reviewer) {
+        ReviewCase value = reviewCases.findById(appealId)
+                .filter(v -> "APPEAL".equals(v.getCaseType()) && v.getEvidenceFileKey() != null)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy file đính kèm"));
+        if (!reviewer && (value.getRequesterUser() == null || !userId.equals(value.getRequesterUser().getId()))) {
+            throw new ApiException(ErrorCode.FORBIDDEN, "Bạn không có quyền xem file kháng nghị này");
+        }
+        return value;
+    }
+
+    private static String validateEvidenceUrl(String value) {
+        String link = trimToNull(value);
+        if (link == null) return null;
+        try {
+            var uri = java.net.URI.create(link);
+            if (link.length() > 500 || !("https".equalsIgnoreCase(uri.getScheme()) || "http".equalsIgnoreCase(uri.getScheme()))
+                    || uri.getHost() == null || uri.getUserInfo() != null) throw new IllegalArgumentException();
+            return link;
+        } catch (IllegalArgumentException e) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Liên kết bằng chứng phải là URL http:// hoặc https:// hợp lệ");
+        }
     }
 
     private static String trimToNull(String value) {

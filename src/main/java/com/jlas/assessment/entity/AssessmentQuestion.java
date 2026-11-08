@@ -1,17 +1,25 @@
 package com.jlas.assessment.entity;
 
+import com.jlas.dictionary.entity.GrammarPoint;
+import com.jlas.dictionary.entity.Outcome;
 import com.jlas.dictionary.entity.Tag;
+import com.jlas.dictionary.entity.VocabularyEntry;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Ngân hàng câu hỏi dùng chung cho Amon, JLPT mock test và Smart Test.
  * Table: assessment_question
  */
 @Entity
-@Table(name = "assessment_question")
+@Table(name = "assessment_question", uniqueConstraints =
+        @UniqueConstraint(name = "uk_assessment_question_source_code", columnNames = "source_code"))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,6 +30,10 @@ public class AssessmentQuestion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /** [JLAS-W0108] Stable workbook/import key; null for legacy assessment-bank rows. */
+    @Column(name = "source_code", length = 100)
+    private String sourceCode;
 
     /** Chỉ dùng khi câu hỏi gắn rule Amon. */
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,6 +46,39 @@ public class AssessmentQuestion {
     @JoinColumn(name = "knowledge_tag_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_assessment_question_knowledge"))
     private Tag knowledgeTag;
+
+    /** [JLAS2-24] Mẫu ngữ pháp CHÍNH — chỉ câu GRAMMAR; dùng để gom điểm yếu theo mẫu. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "grammar_point_id",
+            foreignKey = @ForeignKey(name = "fk_assessment_question_grammar"))
+    private GrammarPoint grammarPoint;
+
+    /** [JLAS2-24] Mẫu ngữ pháp PHỤ — chỉ để hiển thị, không tính điểm. */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "question_grammar_point",
+            joinColumns = @JoinColumn(name = "question_id",
+                    foreignKey = @ForeignKey(name = "fk_qgp_question")),
+            inverseJoinColumns = @JoinColumn(name = "grammar_point_id",
+                    foreignKey = @ForeignKey(name = "fk_qgp_grammar")))
+    private Set<GrammarPoint> grammarPoints = new LinkedHashSet<>();
+
+    /** [JLAS-W0108] Topic câu hỏi (tag_type='TOPIC') — chỉ Reading/Listening; JLPT listening = NULL. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "topic_tag_id",
+            foreignKey = @ForeignKey(name = "fk_assessment_question_topic"))
+    private Tag topicTag;
+
+    /** [JLAS-W0108] Outcome câu hỏi (READING/LISTENING) — cầu nối identity yếu. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "outcome_id",
+            foreignKey = @ForeignKey(name = "fk_assessment_question_outcome"))
+    private Outcome outcome;
+
+    /** [JLAS-W0091] Từ vựng cụ thể câu KANJI/VOCABULARY hỏi tới (nullable; chỉ KANJI/VOCABULARY). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vocabulary_entry_id",
+            foreignKey = @ForeignKey(name = "fk_assessment_question_vocabulary"))
+    private VocabularyEntry vocabularyEntry;
 
     /** VOCABULARY/GRAMMAR/READING/LISTENING/KANJI. */
     @Column(name = "skill", nullable = false, length = 20)
@@ -93,6 +138,7 @@ public class AssessmentQuestion {
     @Column(name = "explanation", columnDefinition = "TEXT")
     private String explanation;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "context_json", columnDefinition = "json")
     private String contextJson;
 

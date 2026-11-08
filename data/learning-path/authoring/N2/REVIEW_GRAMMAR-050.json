@@ -1,0 +1,582 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "電話番号がわからないので、連絡しようがない。",
+       "ja_furigana": "電話番号(でんわばんごう)がわからないので、連絡(れんらく)しようがない。",
+       "vi": "Vì không biết số điện thoại nên không có cách nào liên lạc được."
+      },
+      {
+       "ja": "ボタンが壊れていて、直しようがない。",
+       "ja_furigana": "ボタンが壊(こわ)れていて、直(なお)しようがない。",
+       "vi": "Cái nút bị hỏng nên không có cách nào sửa được."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "記録が一切残っていないので、当時の経緯は確かめようがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì không còn bất kỳ ghi chép nào nên không có cách xác minh diễn biến lúc đó."
+     },
+     {
+      "ja": "送り主の名前も住所もなく、荷物を返送しようがなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không có cả tên lẫn địa chỉ người gửi nên đã không có cách gửi trả bưu kiện."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 記録が一切残っていないので、当時の経緯は確かめようがない。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 記録が一切残っていないので、当時の経緯は確かめようがない。 → 経緯",
+     "FURIGANA_MISSING: 送り主の名前も住所もなく、荷物を返送しようがなかった。"
+    ],
+    "formation": "Vます + ようがない",
+    "locked_fields": [],
+    "meaning_vi": "Không có cách nào",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không có cách nào",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả hoàn toàn không có phương pháp hoặc căn cứ để thực hiện một việc. Cách dùng: 〜ようがない cho biết dù có muốn thực hiện, chủ thể cũng không tìm được phương pháp, phương tiện hay căn cứ cần thiết. Động từ bỏ ます rồi thêm ようがない: 調べます thành 調べようがない, します thành しようがない. Với danh từ hành động, có thể nói 推測のしようがない. Mẫu không đơn thuần nói việc khó; nó phủ định ngay khả năng tìm ra cách làm trong tình huống hiện tại. Dạng quá khứ là 〜ようがなかった. Sắc thái: Nhấn mạnh tình trạng bế tắc khách quan và kết luận mạnh rằng không có cách nào tiến hành. Lưu ý: Phải dùng gốc dạng ます, không đặt ようがない sau động từ dạng từ điển. Nếu có phương pháp nhưng người nói bị cấm hoặc ngại làm, nên dùng 〜わけにはいかない thay vì mẫu này."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1ba0a6c8c9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お客さんが次々に来て、昼ご飯を食べるどころではない。",
+       "ja_furigana": "お客(きゃく)さんが次々(つぎつぎ)に来(き)て、昼(ひる)ご飯(はん)を食(た)べるどころではない。",
+       "vi": "Khách đến liên tục nên chẳng còn tâm trí đâu mà ăn trưa."
+      },
+      {
+       "ja": "給料が下がって、旅行どころではない。",
+       "ja_furigana": "給料(きゅうりょう)が下(さ)がって、旅行(りょこう)どころではない。",
+       "vi": "Lương bị giảm nên chẳng còn tâm trí đâu mà đi du lịch."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "締め切り直前にデータが消え、休憩するどころではなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dữ liệu bị mất ngay trước hạn chót nên hoàn toàn không phải lúc nghỉ ngơi."
+     },
+     {
+      "ja": "家族が救急搬送されたと聞き、旅行の準備どころではなくなった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe tin người nhà được đưa đi cấp cứu, tôi không còn tâm trí chuẩn bị chuyến đi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 締め切り直前にデータが消え、休憩するどころではなかった。",
+     "FURIGANA_MISSING: 家族が救急搬送されたと聞き、旅行の準備どころではなくなった。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 家族が救急搬送されたと聞き、旅行の準備どころではなくなった。 → 搬送"
+    ],
+    "formation": "N / Vる + どころではない",
+    "locked_fields": [],
+    "meaning_vi": "Không phải lúc để, không còn tâm trí",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không phải lúc để, không còn tâm trí",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Cho biết hoàn cảnh cấp bách khiến một việc hoàn toàn không thể được nghĩ tới hoặc thực hiện. Cách dùng: 〜どころではない phủ nhận mạnh rằng tình hình thực tế hoàn toàn không cho phép làm hoặc nghĩ đến việc được nêu trước nó. Người nói có thể vốn định nghỉ ngơi, vui chơi hay bàn một kế hoạch, nhưng sự cố, áp lực hoặc nhiệm vụ cấp bách khiến việc đó trở nên xa vời. Dạng どころじゃない là khẩu ngữ. Mẫu cũng dùng với danh từ để nói “không phải lúc cho chuyện ấy”. Nó nhấn mạnh chênh lệch giữa điều được nhắc đến và hoàn cảnh nghiêm trọng hiện tại. Sắc thái: Mang cảm giác khẩn cấp, bận rộn hoặc rối ren; mức phủ định mạnh hơn câu đơn giản できない. Lưu ý: Động từ đứng trước dùng dạng từ điển, không dùng dạng lịch sự ます. Không nhầm với 〜どころか, mẫu dùng để bác bỏ một mức độ rồi nêu thực tế còn khác xa hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-be94efc142"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大切な会議があるので、今日は休むわけにはいかない。",
+       "ja_furigana": "大切(たいせつ)な会議(かいぎ)があるので、今日(きょう)は休(やす)むわけにはいかない。",
+       "vi": "Vì có cuộc họp quan trọng nên hôm nay tôi không thể nghỉ được."
+      },
+      {
+       "ja": "せっかく始めたことだから、途中でやめるわけにはいかない。",
+       "ja_furigana": "せっかく始(はじ)めたことだから、途中(とちゅう)でやめるわけにはいかない。",
+       "vi": "Đã bắt đầu rồi thì không thể bỏ dở giữa chừng được."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "明日は試験があるので、誘われても夜更かしするわけにはいかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì ngày mai có kỳ thi nên dù được rủ tôi cũng không thể thức khuya."
+     },
+     {
+      "ja": "この仕事を任された以上、途中で投げ出すわけにはいかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã được giao công việc này thì tôi không thể bỏ dở giữa chừng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 明日は試験があるので、誘われても夜更かしするわけにはいかない。",
+     "FURIGANA_MISSING: この仕事を任された以上、途中で投げ出すわけにはいかない。"
+    ],
+    "formation": "Vる + わけにはいかない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể làm vì hoàn cảnh",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không thể làm vì hoàn cảnh",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả một hành động không thể chọn vì trách nhiệm, chuẩn mực xã hội hoặc hoàn cảnh. Cách dùng: Mẫu này nói rằng về mặt khả năng có thể làm, nhưng người nói không thể chọn hành động ấy vì trách nhiệm, quan hệ xã hội, đạo đức hoặc hoàn cảnh. V辞書形 + わけにはいかない nghĩa là “không thể làm”; Vない形 + わけにはいかない tạo nghĩa “không thể không làm”, tức buộc phải làm. Dạng có も thường nhấn mạnh rằng ngay cả lựa chọn đó cũng không chấp nhận được hoặc người nói đang cân nhắc giữa các phương án khó. Sắc thái: Thể hiện sự tự kiềm chế hoặc nghĩa vụ do hoàn cảnh, không phải sự bất lực về năng lực; sắc thái も có phần mềm và cân nhắc hơn. Lưu ý: Không dùng để nói đơn thuần rằng cơ thể, kỹ năng hoặc điều kiện vật lý khiến hành động bất khả thi. Với dạng phủ định đứng trước, phải hiểu toàn cụm là nghĩa bắt buộc làm, tránh dịch từng phần máy móc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7daefb7d4e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "忙しくて、あの映画は最後まで見ずじまいだった。",
+       "ja_furigana": "忙(いそが)しくて、あの映画(えいが)は最後(さいご)まで見(み)ずじまいだった。",
+       "vi": "Vì bận nên tôi đã không xem hết được bộ phim đó."
+      },
+      {
+       "ja": "彼に本当のことを言おうと思ったが、言えずじまいだった。",
+       "ja_furigana": "彼(かれ)に本当(ほんとう)のことを言(い)おうと思(おも)ったが、言(い)えずじまいだった。",
+       "vi": "Tôi định nói sự thật với anh ấy nhưng rốt cuộc đã không nói được."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "旅行中は予定が合わず、昔の友人には会わずじまいだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong chuyến đi lịch trình không khớp nên rốt cuộc tôi không gặp được người bạn cũ."
+     },
+     {
+      "ja": "気になっていた料理を注文しようと思ったが、売り切れで食べずじまいになった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi định gọi món ăn mình quan tâm, nhưng vì hết hàng nên cuối cùng không được ăn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 旅行中は予定が合わず、昔の友人には会わずじまいだった。",
+     "FURIGANA_MISSING: 気になっていた料理を注文しようと思ったが、売り切れで食べずじまいになった。"
+    ],
+    "formation": "Vない + ずじまい (する → せずじまい)",
+    "locked_fields": [],
+    "meaning_vi": "Rốt cuộc không làm",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Rốt cuộc không làm",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Cho biết đến cuối một khoảng thời gian hay cơ hội, việc dự định vẫn không được thực hiện. Cách dùng: 〜ずじまいだ diễn tả một việc từng định làm, có cơ hội làm hoặc đáng lẽ nên làm nhưng cuối cùng vẫn không thực hiện trước khi tình huống kết thúc. Động từ chuyển sang dạng ず tương ứng với phủ định: 買わない thành 買わずじまい, 食べない thành 食べずじまい; riêng する thành せずじまい. Mẫu không chỉ ghi nhận “không làm” mà nhìn lại toàn bộ kết cục, thường kèm sự tiếc nuối, bỏ lỡ hoặc cảm giác việc ấy vẫn dang dở. Sắc thái: Có sắc thái hồi tưởng và thường hơi đáng tiếc; じまい gợi rằng cơ hội hoặc giai đoạn liên quan đã khép lại. Lưu ý: Với する phải dùng せずじまい, không dùng しずじまい. Không dùng cho một hành động đơn giản chưa làm nhưng vẫn còn nguyên cơ hội và chưa có cảm giác kết thúc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-79761dc2ba"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "どの店も満員で、さんざん歩き回ったあげく、家に帰ることになった。",
+       "ja_furigana": "どの店(みせ)も満員(まんいん)で、さんざん歩(ある)き回(まわ)ったあげく、家(いえ)に帰(かえ)ることになった。",
+       "vi": "Quán nào cũng kín khách, lang thang mãi rốt cuộc đành về nhà."
+      },
+      {
+       "ja": "迷いに迷ったあげく、古い車を買うことにした。",
+       "ja_furigana": "迷(まよ)いに迷(まよ)ったあげく、古(ふる)い車(くるま)を買(か)うことにした。",
+       "vi": "Sau khi do dự rất nhiều, cuối cùng tôi quyết định mua chiếc xe cũ."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "何度も条件を交渉したあげく、契約そのものを見送ることになった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau nhiều lần thương lượng điều kiện, rốt cuộc chúng tôi phải hoãn cả hợp đồng."
+     },
+     {
+      "ja": "三時間も道を探し回ったあげく、出発地点に戻ってしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau ba giờ đi khắp nơi tìm đường, rốt cuộc tôi lại quay về điểm xuất phát."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 何度も条件を交渉したあげく、契約そのものを見送ることになった。",
+     "FURIGANA_MISSING: 三時間も道を探し回ったあげく、出発地点に戻ってしまった。"
+    ],
+    "formation": "Vた / Nの + あげく(に)",
+    "locked_fields": [],
+    "meaning_vi": "Sau cùng, rốt cuộc",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Sau cùng, rốt cuộc",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu kết cục sau một quá trình dài, nhiều lần hoặc vất vả, thường là kết quả không tốt. Cách dùng: 〜あげく trình bày kết quả cuối cùng sau khi một hành động kéo dài, lặp đi lặp lại hoặc gây nhiều khó khăn. Quá trình phía trước thường là suy nghĩ, tranh luận, tìm kiếm hay thử nhiều cách; kết cục phía sau hay không như mong đợi, vô ích hoặc đáng thất vọng. Dạng あげくに cũng được dùng. Mẫu không thích hợp chỉ vì hai sự việc nối tiếp nhau trong thời gian ngắn; cần có cảm giác đã trải qua một chặng đường đáng kể trước khi đi đến kết quả. Sắc thái: Thường mang đánh giá tiêu cực hoặc mệt mỏi của người nói, dù về ngữ pháp không tuyệt đối cấm kết quả tích cực. Lưu ý: Động từ đứng trước phải ở dạng た; danh từ phải nối bằng の. Cần có quá trình kéo dài hay nhiều bước, không dùng cho một hành động đơn lẻ vừa xảy ra."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4a10cfe951"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "長い話し合いの末、新しい計画が決まった。",
+       "ja_furigana": "長(なが)い話(はな)し合(あ)いの末(すえ)、新(あたら)しい計画(けいかく)が決(き)まった。",
+       "vi": "Sau một cuộc thảo luận dài, kế hoạch mới đã được quyết định."
+      },
+      {
+       "ja": "何度も失敗した末に、この方法にたどり着いた。",
+       "ja_furigana": "何度(なんど)も失敗(しっぱい)した末(すえ)に、この方法(ほうほう)にたどり着(つ)いた。",
+       "vi": "Sau nhiều lần thất bại, cuối cùng tôi đã tìm ra cách này."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "家族と何度も話し合った末に、地方で働くことを決めた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau nhiều lần bàn bạc với gia đình, tôi đã quyết định làm việc ở địa phương."
+     },
+     {
+      "ja": "十年にわたる研究の末、新しい治療法の手がかりが見つかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau mười năm nghiên cứu, người ta đã tìm thấy manh mối cho phương pháp điều trị mới."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 家族と何度も話し合った末に、地方で働くことを決めた。",
+     "FURIGANA_MISSING: 十年にわたる研究の末、新しい治療法の手がかりが見つかった。"
+    ],
+    "formation": "Vた / Nの + 末(に)",
+    "locked_fields": [],
+    "meaning_vi": "Sau cùng, sau một quá trình",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Sau cùng, sau một quá trình",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu quyết định hoặc kết quả đạt được sau một quá trình dài và nhiều cân nhắc. Cách dùng: 〜末（に） cho biết một kết quả, lựa chọn hoặc phát hiện xuất hiện sau quá trình dài gồm suy nghĩ, thảo luận, nỗ lực hay thử nghiệm. Động từ trước mẫu dùng dạng た; danh từ nối bằng の. Kết quả có thể tốt hoặc xấu, nhưng thường mang ý đó là điểm kết thúc của cả quá trình. に có thể lược bỏ trong nhiều câu. Mẫu hợp với lời kể hoặc văn viết trang trọng và không dùng cho một chuỗi hành động rất ngắn, không đáng kể. Sắc thái: Tương đối trung tính và trang trọng, làm nổi bật công sức hoặc thời gian trước khi đạt đến kết luận cuối. Lưu ý: Đòi hỏi một quá trình có độ dài hoặc mức cân nhắc đáng kể. Không dùng Nしたの末; phải chọn Vた末 hoặc Nの末."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e39cb33460"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "友だちに電話したところ、彼はもう家を出たあとだった。",
+       "ja_furigana": "友(とも)だちに電話(でんわ)したところ、彼(かれ)はもう家(いえ)を出(で)たあとだった。",
+       "vi": "Khi tôi gọi điện cho bạn thì được biết anh ấy đã ra khỏi nhà rồi."
+      },
+      {
+       "ja": "店に電話で聞いたところ、その商品はもう売り切れだった。",
+       "ja_furigana": "店(みせ)に電話(でんわ)で聞(き)いたところ、その商品(しょうひん)はもう売(う)り切(き)れだった。",
+       "vi": "Khi tôi gọi điện hỏi cửa hàng thì được biết món hàng đó đã bán hết."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "新しい洗剤を少量試したところ、古い汚れまできれいに落ちた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi thử một ít chất tẩy mới, ngay cả vết bẩn cũ cũng sạch."
+     },
+     {
+      "ja": "受付で確認したところ、申込書はすでに届いているとのことだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi xác nhận ở quầy tiếp tân, tôi được biết đơn đăng ký đã đến rồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 新しい洗剤を少量試したところ、古い汚れまできれいに落ちた。",
+     "FURIGANA_MISSING: 受付で確認したところ、申込書はすでに届いているとのことだった。"
+    ],
+    "formation": "Vた + ところ",
+    "locked_fields": [],
+    "meaning_vi": "Sau khi thử thì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Sau khi thử thì",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu kết quả hoặc thông tin mới được phát hiện sau khi thực hiện một hành động. Cách dùng: 〜たところ diễn tả người nói thực hiện một hành động như kiểm tra, hỏi, thử hoặc quan sát, rồi nhận được một kết quả hay phát hiện mới. Vế sau thường không phải hành động đã định sẵn mà là thông tin được biết nhờ hành động ở trước. Mẫu có thể dùng trong báo cáo tương đối trang trọng, chẳng hạn 問い合わせたところ. Quan hệ thời gian giữa hai vế thường gần nhau, nhưng trọng tâm không nằm ở “sau đó” mà ở kết quả phát hiện. Sắc thái: Tạo cảm giác báo cáo khách quan về điều đã thử và kết quả thực tế, đôi khi kết quả khác dự đoán. Lưu ý: Động từ trước ところ phải ở dạng た. Không dùng để nối hai hành động chủ ý theo trình tự thông thường nếu vế sau không phải kết quả hay phát hiện."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e28a463b97"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "寝ぼうして、大事な会議に遅れるところだった。",
+       "ja_furigana": "寝(ね)ぼうして、大事(だいじ)な会議(かいぎ)に遅(おく)れるところだった。",
+       "vi": "Tôi ngủ quên, suýt nữa thì đến muộn cuộc họp quan trọng."
+      },
+      {
+       "ja": "階段で足をすべらせて、もう少しで転ぶところだった。",
+       "ja_furigana": "階段(かいだん)で足(あし)をすべらせて、もう少(すこ)しで転(ころ)ぶところだった。",
+       "vi": "Tôi trượt chân trên cầu thang, suýt nữa thì ngã."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "自転車が急に飛び出し、もう少しでぶつかるところだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chiếc xe đạp đột ngột lao ra, tôi suýt nữa thì va phải."
+     },
+     {
+      "ja": "確認せずに操作していたら、大切な記録を全部消すところだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu cứ thao tác mà không kiểm tra, tôi đã suýt xóa hết dữ liệu quan trọng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 自転車が急に飛び出し、もう少しでぶつかるところだった。",
+     "FURIGANA_MISSING: 確認せずに操作していたら、大切な記録を全部消すところだった。"
+    ],
+    "formation": "Vる + ところだった",
+    "locked_fields": [],
+    "meaning_vi": "Suýt nữa thì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Suýt nữa thì",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả một sự việc gần xảy ra nhưng cuối cùng đã được tránh hoặc không thành. Cách dùng: V辞書形 + ところだった cho biết một sự việc đã tiến rất gần đến lúc xảy ra nhưng trên thực tế không xảy ra hoặc được ngăn kịp thời. Câu thường đi với もう少しで, 危うく hoặc một điều kiện như 〜なければ để làm rõ khoảng cách rất nhỏ giữa thực tế và kết quả giả định. Mẫu hay kể về tai nạn, sai sót hay việc quên làm gì đó. Cần phân biệt với Vたところだった, có thể mang nghĩa “đúng lúc vừa mới làm xong”. Sắc thái: Thường chứa cảm giác nhẹ nhõm, hoảng hốt hoặc tiếc vì một kết quả đã ở rất gần. Lưu ý: Ở nghĩa “suýt”, động từ chỉ sự việc chưa xảy ra dùng dạng từ điển, không dùng dạng た. Ngữ cảnh phải cho thấy kết quả cuối cùng đã không xảy ra; nếu đã xảy ra thì mẫu này không phù hợp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a13e452e06"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "何時間も待ったあげく、店は開かなかった。",
+       "ja_furigana": "何時間(なんじかん)も待(ま)ったあげく、店(みせ)は開(あ)かなかった。",
+       "vi": "Sau khi chờ mấy tiếng đồng hồ, cuối cùng cửa hàng vẫn không mở."
+      },
+      {
+       "ja": "何度も電話をかけ直したあげく、やっと担当者と話すことができた。",
+       "ja_furigana": "何度(なんど)も電話(でんわ)をかけ直(なお)したあげく、やっと担当者(たんとうしゃ)と話(はな)すことができた。",
+       "vi": "Sau khi gọi lại rất nhiều lần, cuối cùng tôi cũng nói chuyện được với người phụ trách."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "散々探し回ったあげく、結局サイズが合う靴は見つからなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tìm khắp nơi, cuối cùng cũng không tìm được đôi giày vừa."
+     },
+     {
+      "ja": "何社も面接を受けたあげく、どこにも採用されなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phỏng vấn nhiều công ty, rốt cuộc không đậu nơi nào."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 散々探し回ったあげく、結局サイズが合う靴は見つからなかった。",
+     "FURIGANA_MISSING: 何社も面接を受けたあげく、どこにも採用されなかった。"
+    ],
+    "formation": "Vた / Nの + あげく(に)",
+    "locked_fields": [],
+    "meaning_vi": "- Nhấn rằng việc “kéo dài, vất vả” góp phần tạo nên cảm giác phí công khi kết cục không đạt như mong đợi. - Tác dụng tu từ: gợi cảm xúc chán nản, mệt mỏi, tăng sức nặng cho kết luận.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cuối cùng thì..., rốt cuộc...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Tăng tính “vất vả” bằng các phó từ: 散々／さんざん, いろいろ, 長時間, 何度も. Văn nói cũng dùng được, nhưng phù hợp văn tường thuật/lập luận. [6. Ghi chú mở rộng] Khi muốn trung tính hơn, ưu tiên ～た末に／～た結果. Chủ ngữ thông thường là người; nếu là vật/tổ chức, cần ngữ cảnh nhân hoá quá trình. [7. Biến thể & cụm cố định] 悩んだあげく／相談のあげく／検討のあげく／議論のあげく／交渉のあげく 長考のあげく／長時間のあげく [8. Lỗi thường gặp & bẫy JLPT] Bỏ た: “悩むあげく” sai; phải “悩んだあげく”. Dùng với sự kiện chớp nhoáng: “行ったあげく” cho một lần đi ngắn thường không hợp (trừ khi hàm quá trình dài)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b42b83a1ea"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "父は若いころに一度外国へ行ったきり、二度と行っていない。",
+       "ja_furigana": "父(ちち)は若(わか)いころに一度(いちど)外国(がいこく)へ行(い)ったきり、二度(にど)と行(い)っていない。",
+       "vi": "Bố tôi chỉ đi nước ngoài một lần hồi trẻ và từ đó không đi nữa."
+      },
+      {
+       "ja": "この店には去年の秋に一度来たきりで、その後は来ていない。",
+       "ja_furigana": "この店(みせ)には去年(きょねん)の秋(あき)に一度(いちど)来(き)たきりで、その後(あと)は来(き)ていない。",
+       "vi": "Tôi chỉ đến quán này một lần vào mùa thu năm ngoái và sau đó không đến nữa."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は去年家を出たきり、一度も戻っていない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy rời nhà từ năm ngoái đến giờ vẫn chưa về lần nào."
+     },
+     {
+      "ja": "一度会ったきりで、あの人とは連絡を取っていない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ gặp một lần, từ đó không liên lạc với người đó."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は去年家を出たきり、一度も戻っていない。",
+     "FURIGANA_MISSING: 一度会ったきりで、あの人とは連絡を取っていない。"
+    ],
+    "formation": "Vた + きり",
+    "locked_fields": [],
+    "meaning_vi": "“Từ sau khi A, (điều kỳ vọng) đã không xảy ra nữa” → nhấn mạnh sự gián đoạn kéo dài. Thường đi kèm phủ định (～ない／～ていない) ở vế sau. Nếu không phủ định, sắc thái vẫn là “chỉ có lần đó” → ít tự nhiên hơn trong nghĩa này. Tập trung vào tính “duy nhất, một lần” của hành động trong quá khứ và hệ quả kéo dài đến nay. Hay dùng trong văn nói miêu tả tình trạng liên lạc, gặp gỡ, trở về, biến chuyển.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Kể từ khi..., suốt (không đổi)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường dùng với mốc sự kiện cá nhân (liên lạc, quay lại, gặp mặt, học hành...). Sắc thái: hơi tiêu cực/tiếc nuối hoặc khách quan “từ đó về sau thì hết”. Thời gian: kéo dài cho đến hiện tại quan sát; tương đương “kể từ khi A thì vẫn...”. [6. Ghi chú mở rộng] Trong hội thoại, っきり phổ biến hơn きり khi theo sau động từ. 寝たきり là cụm cố định nghĩa “nằm liệt giường”, mang tính miêu tả y tế-xã hội. Văn viết có thể thấy ～たきりだ／～たきりで (rút gọn chủ vị) để nhấn trạng thái kéo dài. [7. Biến thể & cụm cố định] V-たっきり（口語）: sắc thái thân mật. それっきり／これっきり／あれっきり: “từ đó về sau thì hết/không còn”. 寝たきり・座りっぱなし: cụm trạng thái cố định (lưu ý khác với ～っぱなし). [8. Lỗi thường gặp & bẫy JLPT] Bỏ ない ở vế sau làm sai nghĩa chính: 連絡したきり。× → 連絡したきり（連絡が）来ない。/ 連絡していない。 Nhầm với ～て以来: nếu có hàm ý “đáng ra phải... nhưng không”, ưu tiên dùng ～たきり. Dùng cho sự kiện lặp lại tự nhiên (mặt trời mọc/lặn) là không tự nhiên. Nhầm ～っきり nghĩa “chỉ”: 会ったっきり＝会って以来（không gặp nữa), khác với 一回だけ会った."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-553e8e206d"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-050"
+}

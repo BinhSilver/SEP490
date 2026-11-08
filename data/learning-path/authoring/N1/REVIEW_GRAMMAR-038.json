@@ -1,0 +1,581 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼はテレビをつけっぱなしで寝てしまった。",
+       "ja_furigana": "彼(かれ)はテレビをつけっぱなしで寝(ね)てしまった。",
+       "vi": "Anh ấy để tivi bật rồi ngủ quên."
+      },
+      {
+       "ja": "水道を出しっぱなしにしないでください。",
+       "ja_furigana": "水道(すいどう)を出(だ)しっぱなしにしないでください。",
+       "vi": "Xin đừng để vòi nước chảy suốt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "実験室の水道を出しっぱなしにしたまま昼休みに入るな、と掲示してある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bảng ghi rõ: đừng để vòi phòng thí nghiệm chảy rồi đi nghỉ trưa."
+     },
+     {
+      "ja": "改修工事の説明会で、住民は二時間立ちっぱなしだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ở buổi giải thích công trình cải tạo, cư dân phải đứng suốt hai tiếng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Để nguyên / ... suốt không dừng",
+     "FURIGANA_MISSING: 実験室の水道を出しっぱなしにしたまま昼休みに入るな、と掲示してある。",
+     "FURIGANA_MISSING: 改修工事の説明会で、住民は二時間立ちっぱなしだった。"
+    ],
+    "formation": "Vます + っぱなし(だ/にする)",
+    "locked_fields": [],
+    "meaning_vi": "Để nguyên / … suốt không dừng",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Để nguyên / ... suốt không dừng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả để một trạng thái không thu xếp lại, hoặc cứ tiếp diễn một hành động mà không ngớt; thường mang ý phàn nàn. Cách dùng: 「っぱなし」 gắn vào thân ます của động từ và có hai hướng nghĩa chính. Một là để nguyên trạng thái đáng ra phải thu dọn, tắt, trả lại: vòi nước, tài liệu, cửa, thiết bị. Hai là một hành động cứ kéo dài, người chịu cuộc cảm thấy mệt hoặc bất tiện: đứng suốt, chờ suốt, khóc suốt. Cả hai hướng đều nghiêng về đánh giá tiêu cực hoặc ít nhất là không thoải mái. Có thể kết thúc bằng 「だ」 hoặc dùng 「っぱなしにする／にされる」。 Khẩu ngữ hơn 「たまま」, hay gặp trong nhắc nhở nội bộ, đời sống chung. Sắc thái: Sắc thái phàn nàn, nhắc nhở. 「立ちっぱなし」 nhấn mạnh sự kéo dài gây mệt. 「出しっぱなし」 nhấn mạnh sự thiếu ý tứ vì không trả về chỗ cũ. Không trang trọng bằng văn hành chính. Lưu ý: Dùng thân ます, không dùng từ điển hay た形 trực tiếp trước 「っぱなし」。 Ít dùng cho hành động tích cực được chủ động duy trì như một chiến lược; khi đó 「続ける」 tự nhiên hơn. Ngữ vực thân mật đến trung tính; tránh trong văn bản pháp lý, công văn trang trọng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-98d93a4460"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "問題がここまで大きくなるに至って、ようやく対策が始まった。",
+       "ja_furigana": "問題(もんだい)がここまで大(おお)きくなるに至(いた)って、ようやく対策(たいさく)が始(はじ)まった。",
+       "vi": "Đến khi vấn đề trở nên lớn đến mức này, biện pháp mới bắt đầu được triển khai."
+      },
+      {
+       "ja": "倒産の危機に至っても、社長は方針を変えなかった。",
+       "ja_furigana": "倒産(とうさん)の危機(きき)に至(いた)っても、社長(しゃちょう)は方針(ほうしん)を変(か)えなかった。",
+       "vi": "Dù đã đến bờ vực phá sản, giám đốc vẫn không đổi phương châm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "排水基準の超過が地域紙に載るに至って、工場長は測定データの改ざんを認めた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đến khi việc vượt chuẩn xả thải lên báo địa phương, giám đốc nhà máy mới thừa nhận đã sửa số liệu đo."
+     },
+     {
+      "ja": "実習生が三度連続で手順を誤るに至っても、指導担当はマニュアルの改訂に動かなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù thực tập sinh đã sai quy trình ba lần liên tiếp, người hướng dẫn vẫn không chịu sửa sổ tay."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 排水基準の超過が地域紙に載るに至って、工場長は測定データの改ざんを認めた。",
+     "FURIGANA_MISSING: 実習生が三度連続で手順を誤るに至っても、指導担当はマニュアルの改訂に動かなかった。"
+    ],
+    "formation": "Vる + に至って; Vる + に至っては; Vる + に至っても",
+    "locked_fields": [],
+    "meaning_vi": "Đến giai đoạn… / Dù đã đến giai đoạn ấy…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đến giai đoạn... / Dù đã đến giai đoạn ấy...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Dùng khi một quá trình đã tiến tới mức muộn hoặc nghiêm trọng; dạng 「に至っても」 nhấn mạnh dù đã đến mức đó vẫn không đổi. Cách dùng: Mẫu 「〜に至って」 đặt hành động hoặc nhận thức vào thời điểm một tình huống đã tiến triển đến mức không thể bỏ qua nữa. Người nói thường hàm ý lẽ ra phải xử lý sớm hơn, và chỉ đến giai đoạn này mới có phản ứng. 「〜に至っても」 giữ ý đã đến mức ấy nhưng thêm sắc thái nhượng bộ: dù tình thế đã nghiêm trọng, thái độ hoặc kết quả vẫn không đổi. Cả hai dạng mang tính văn viết, phù hợp báo cáo, bình luận chính sách, biên bản họp hơn là chuyện trò hàng ngày. Sắc thái: Ngữ vực trang trọng, thiên về phê bình hoặc tổng kết quá trình. 「に至って」 hay đi với 「ようやく」「初めて」 khi muốn nói chỉ đến lúc ấy mới hành động. 「に至っても」 mang sắc thái trách móc, ngạc nhiên trước sự trì hoãn hoặc ngoan cố. Lưu ý: Không dùng cho việc đến một địa điểm theo nghĩa vật lý (đến ga, đến văn phòng); cần 「に着く／に来る」。 Ít xuất hiện trong khẩu ngữ thân mật; nghe nặng nề nếu kể chuyện vặt. Đừng tráo với 「に至っては」: cái sau nêu trường hợp cực đoan trong một loạt ví dụ, không phải mốc thời điểm của quá trình."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ca9dae32af"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "一分たりとも無駄にできない。",
+       "ja_furigana": "一分(いっぷん)たりとも無駄(むだ)にできない。",
+       "vi": "Không thể lãng phí dù chỉ một phút."
+      },
+      {
+       "ja": "一円たりとも無駄にしない。",
+       "ja_furigana": "一円(いちえん)たりとも無駄(むだ)にしない。",
+       "vi": "Không lãng phí dù chỉ một yên."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "分水ゲートの監視では、一瞬たりとも水位記録から目を離してはならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi giám sát cửa phân nước, không được rời mắt khỏi nhật ký mực nước dù chỉ một thoáng."
+     },
+     {
+      "ja": "補助金の使途は、一円たりとも目的外に回してはならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công năng trợ cấp không được chuyển ra ngoài mục đích dù chỉ một yên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 分水ゲートの監視では、一瞬たりとも水位記録から目を離してはならない。",
+     "FURIGANA_MISSING: 補助金の使途は、一円たりとも目的外に回してはならない。"
+    ],
+    "formation": "一 + 助数詞 + たりとも + Vない",
+    "locked_fields": [],
+    "meaning_vi": "Dù chỉ một… cũng không",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù chỉ một... cũng không",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Phủ định nhấn mạnh: ngay cả một đơn vị nhỏ nhất cũng không được phép hoặc không xảy ra. Cách dùng: 「たりとも」 đi sau một đơn vị đếm, gần như luôn là 「一＋量詞」, rồi bắt buộc có phủ định ở sau. Mục đích là siết chặt mức độ: không được bỏ sót dù chỉ một giây, một đồng, một thùng, một âm. Hay xuất hiện trong quy định, lời dặn nghiêm, tuyên bố trách nhiệm, không phải câu kể xuề xòa. Vì tính nhấn mạnh cao, dùng khi người nói muốn loại trừ hoàn toàn ngoại lệ. Không dùng ở câu khẳng định và hiếm khi đi với số lớn hơn một. Sắc thái: Trang trọng, tuyệt đối, đôi khi mang sắc lệnh hoặc tự răn. Mạnh hơn 「も…ない」 thông thường vì gắn với đơn vị nhỏ nhất như biểu tượng của “không một chút nào”. Lưu ý: Phải có phủ định (ない、ぬ、まい、禁止のな…). Không nói 「一分たりとも待つ」。 Gần như chỉ kết hợp với 「一」 hoặc từ chỉ lượng cực nhỏ (一瞬、少したりとも). Không dùng như 「たり〜たり」 liệt kê hành động luân phiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e180c567fd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "その結末は、想像だにしなかった。",
+       "ja_furigana": "その結末(けつまつ)は、想像(そうぞう)だにしなかった。",
+       "vi": "Cái kết ấy là điều tôi không thể tưởng tượng nổi."
+      },
+      {
+       "ja": "あの事故は、思い出すだに恐ろしい。",
+       "ja_furigana": "あの事故(じこ)は、思(おも)い出(だ)すだに恐(おそ)ろしい。",
+       "vi": "Vụ tai nạn ấy chỉ nghĩ lại thôi đã thấy rùng mình."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "夜勤明けに同じ手順を最初からやり直すなど、想像だにしなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi không thể tưởng tượng nổi là sau ca đêm còn phải làm lại quy trình từ đầu."
+     },
+     {
+      "ja": "古文書の虫損は、見るだに修復の急を告げていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỗ mối mọt trên cổ thư, chỉ nhìn thôi cũng thấy việc phục chế đã cấp."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 夜勤明けに同じ手順を最初からやり直すなど、想像だにしなかった。",
+     "FURIGANA_MISSING: 古文書の虫損は、見るだに修復の急を告げていた。"
+    ],
+    "formation": "Vる/N + だに + Vない",
+    "locked_fields": [],
+    "meaning_vi": "Dù chỉ… cũng (văn viết cổ)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù chỉ... cũng (văn viết cổ)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Mẫu văn viết, hơi cổ: dù chỉ nghĩ tới, nhìn thấy, nghe thôi cũng đủ; thường đi với phủ định hoặc cảm thán mạnh. Cách dùng: 「だに」 là lớp ngôn ngữ văn viết, kế thừa cách nói cổ, không còn tự do kết hợp với mọi động từ như 「すら」. Các cụm vẫn sống trong tiếng hiện đại gồm 「想像だにしない」「思いだにしない」「夢にだに思わなかった」「一顧だにしない」「微動だにしない」「見るだに」「聞くだに」。 Nghĩa chung là dù chỉ làm việc tối thiểu ấy (nghĩ, nhìn, nghe) cũng đủ để thấy mức độ, hoặc thậm chí không thèm làm việc tối thiểu ấy. Dùng trong văn xuôi, bình luận, tường thuật cảm xúc mạnh; đưa vào hội thoại văn phòng sẽ lệch giọng. Sắc thái: Văn chương, trang trọng, đôi khi khoa trương. 「想像だにしなかった」 nhấn mạnh sự việc nằm ngoài mọi dự liệu. 「一顧だにしない」 tỏ thái độ coi thường, lạnh nhạt. Không trung tính. Lưu ý: Không sản sinh tự do; hãy bám các kết hợp đã ổn định, tránh ghép tùy tiện kiểu 「食べるだに」。 Thường cần phủ định hoặc tính từ đánh giá ngay sau đó. Không dùng trong nói chuyện hàng ngày; sẽ nghe giả cổ hoặc đùa giọng văn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-69bda4214f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お金を使いすぎて、月末には借金する始末だ。",
+       "ja_furigana": "お金(かね)を使(つか)いすぎて、月末(げつまつ)には借金(しゃっきん)する始末(しまつ)だ。",
+       "vi": "Tiêu quá tay, đến cuối tháng rơi vào cảnh phải vay nợ."
+      },
+      {
+       "ja": "寝坊して、約束に遅刻する始末だ。",
+       "ja_furigana": "寝坊(ねぼう)して、約束(やくそく)に遅刻(ちこく)する始末(しまつ)だ。",
+       "vi": "Ngủ quên, kết cục còn đến trễ cuộc hẹn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "校正を急いだあまり、見出しの固有名詞を取り違える始末だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì hấp tấp hiệu đính, kết cục lại lấy nhầm tên riêng trên tiêu đề."
+     },
+     {
+      "ja": "鍵の所在を共有しなかったので、夜間に守衛を呼び出す始末だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì không chia sẻ chỗ để chìa khóa, kết cục phải gọi bảo vệ giữa đêm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 校正を急いだあまり、見出しの固有名詞を取り違える始末だ。",
+     "FURIGANA_MISSING: 鍵の所在を共有しなかったので、夜間に守衛を呼び出す始末だ。"
+    ],
+    "formation": "Vる + 始末だ",
+    "locked_fields": [],
+    "meaning_vi": "Kết cục ra nông nỗi…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Kết cục ra nông nỗi...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Tóm lại hậu quả đáng tiếc, đáng trách sau chuỗi buông lỏng hoặc sai sót; người nói không hài lòng. Cách dùng: 「始末だ」 dùng để kết lại một chuỗi sự việc bằng kết cục tiêu cực mà người nói cho là hệ quả tất yếu của thái độ, thói quen hoặc quản lý kém. Thường đi sau phần kể đã nhắc, đã khuyên, cuối cùng vẫn ra nông nỗi này. Bản thân 「始末」 vốn có nghĩa thu xếp việc, nhưng trong mẫu này luôn nhuốm ý chê, thất vọng. Có thể dùng 「この始末だ」 để chỉ tình trạng trước mắt như minh chứng. Không dùng khi kết quả là tích cực hoặc trung lập. Sắc thái: Cảm xúc trách móc, không trung lập. Dùng được trong nói và viết, nhưng nói thẳng vào mặt cấp trên thì mất lịch sự. Người nói thường đứng ở vị trí người chứng kiến hoặc người chịu hậu quả. Lưu ý: Chỉ cho kết cục xấu; không kết hợp với động từ mang nghĩa thành công, tiến bộ. Thường là từ điển của động từ (辞書形), không dùng 「た形＋始末だ」 như nghĩa hoàn thành tích cực. Không nhầm với việc thu xếp công việc theo nghĩa 「後始末をする」。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6ece96f6a2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ベテランにして、この問題は解けなかった。",
+       "ja_furigana": "ベテランにして、この問題(もんだい)は解(と)けなかった。",
+       "vi": "Ngay cả người lão luyện cũng không giải được bài toán này."
+      },
+      {
+       "ja": "四十歳にして、初めて海外旅行をした。",
+       "ja_furigana": "四十歳(よんじゅっさい)にして、初(はじ)めて海外旅行(かいがいりょこう)をした。",
+       "vi": "Đến 40 tuổi, tôi mới lần đầu đi du lịch nước ngoài."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ベテランの調律師にして、あの湿気の多いホールでは音の安定に苦慮するという。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngay cả thợ chỉnh piano lão luyện cũng nói khó giữ âm ổn định ở hội trường ẩm ấy."
+     },
+     {
+      "ja": "着任三年にして、課の文書規則を一新した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mới nhậm chức được ba năm, người ấy đã đổi mới quy tắc văn bản của phòng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ベテランの調律師にして、あの湿気の多いホールでは音の安定に苦慮するという。",
+     "FURIGANA_MISSING: 着任三年にして、課の文書規則を一新した。"
+    ],
+    "formation": "N + にして",
+    "locked_fields": [],
+    "meaning_vi": "Ngay cả… / Ở cái mốc… / Vừa là…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Ngay cả... / Ở cái mốc... / Vừa là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Mẫu đa nghĩa: ngay cả người ở tầm ấy; ở cái tuổi hay cái mốc ấy; vừa mang thân phận A vừa là B. Cách dùng: 「にして」 ở N1 chủ yếu gặp ba hướng. Thứ nhất, sau danh từ chỉ người hoặc tầm mức: ngay cả chuyên gia, ngay cả thợ lâu năm vẫn thấy khó, hàm ý X vốn phải làm được. Thứ hai, sau tuổi tác hoặc mốc thời gian: ở năm thứ ba nhậm chức, ở tuổi bốn mươi, đánh dấu thời điểm được nhấn. Thứ ba, 「AにしてB」 nối hai thân phận song song: vừa là bác sĩ lâm sàng vừa viết dịch tễ. Ngoài ra có cụm quen 「一瞬にして」 nghĩa trong chớp mắt. Cần tách khỏi 「にしては」 (xét ra là X thì lại khác dự kiến), vì đó là mẫu khác. Sắc thái: Văn viết, trang trọng, đôi khi hơi cổ. Hướng “ngay cả X” mang sắc thái kinh ngạc hoặc kính trọng. Hướng song thân phận mang sắc đánh giá cô đọng, hay dùng trong giới thiệu, nhận xét. 「一瞬にして」 giàu hình ảnh, nhấn sự biến đổi đột ngột. Lưu ý: Đừng nhầm với 「にしては」: 「にしては」 nghĩa xét theo tư cách/tầm X thì… (thường trái kỳ vọng). Không phải mọi 「に＋して」 của する đều là mẫu này. Hướng song thân phận cần hai danh từ cùng cấp; không dùng cho hành động."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0e93433c36"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この大木は高さ二十メートルからある。",
+       "ja_furigana": "この大木(たいぼく)は高(たか)さ二十(にじゅう)メートルからある。",
+       "vi": "Cây cổ thụ này cao đến 20 mét."
+      },
+      {
+       "ja": "あの宝石は百万円からするそうだ。",
+       "ja_furigana": "あの宝石(ほうせき)は百万円(ひゃくまんえん)からするそうだ。",
+       "vi": "Nghe nói viên đá quý đó giá đến cả triệu yên."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "書庫の移動には二十キロからある箱を何十個も運ぶ必要がある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chuyển kho sách phải khiêng hàng chục thùng nặng tới hai mươi kilô."
+     },
+     {
+      "ja": "特注の顕微鏡は一台八十万円からする。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kính hiển vi đặt riêng một máy đã tới tám mươi vạn yên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 書庫の移動には二十キロからある箱を何十個も運ぶ必要がある。",
+     "FURIGANA_MISSING: 特注の顕微鏡は一台八十万円からする。"
+    ],
+    "formation": "数量詞 + からある/からする + N",
+    "locked_fields": [],
+    "meaning_vi": "Tới / Đến tận (số lượng lớn)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tới / Đến tận (số lượng lớn)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nhấn mạnh khối lượng, giá trị hoặc số người lớn hơn mức tưởng tượng thông thường. Cách dùng: Ba biến thể cùng ý nhấn “tới mức ấy, không phải ít”. 「からある」 đi với khối lượng, chiều dài, trọng lượng, số đồ vật: thùng hai mươi kilô, phiến đá mười lăm kilô. 「からする」 đi với tiền: một ống kính đã mười hai vạn yên. 「からの」 đi với số người: ba trăm người tham dự. Người nói không nêu số liệu trung tính mà muốn người nghe cảm nhận độ lớn, độ nặng, độ đắt. Thường làm định ngữ trước danh từ. Không dùng cho số nhỏ hoặc khi không có ý nhấn mạnh. Sắc thái: Cảm thán về quy mô. Không phải ước lượng mơ hồ kiểu 「くらい」; số được nêu như mức tối thiểu gây ấn tượng. Văn nói–viết đều dùng được, hay gặp khi giải thích khó khăn thực tế (vận chuyển, ngân sách, chỗ ngồi). Lưu ý: Chọn đúng nhánh: tiền dùng 「からする」, người dùng 「からの」, khối/kích thước dùng 「からある」。 Cần số lượng cụ thể; không nói 「多いからある」。 Không dùng khi số liệu nhỏ hoặc khi chỉ tường thuật trung lập không nhấn mạnh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c99117ab09"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "長い話し合いの末、ようやく合意に至った。",
+       "ja_furigana": "長(なが)い話(はな)し合(あ)いの末(すえ)、ようやく合意(ごうい)に至(いた)った。",
+       "vi": "Sau hồi bàn bạc dài, cuối cùng đã đi đến thỏa thuận."
+      },
+      {
+       "ja": "何度も失敗を重ね、ついに成功に至った。",
+       "ja_furigana": "何度(なんど)も失敗(しっぱい)を重(かさ)ね、ついに成功(せいこう)に至(いた)った。",
+       "vi": "Chồng chất nhiều lần thất bại, cuối cùng đã đạt được thành công."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "数度の交渉を経て、ようやく合意に至った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau nhiều lần đàm phán, cuối cùng đã đi đến thỏa thuận."
+     },
+     {
+      "ja": "感染が全身に広がり、残念ながら死亡に至った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhiễm trùng lan khắp cơ thể, đáng tiếc đã dẫn đến tử vong."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 数度の交渉を経て、ようやく合意に至った。",
+     "FURIGANA_MISSING: 感染が全身に広がり、残念ながら死亡に至った。"
+    ],
+    "formation": "N + に至る; Vる + に至る",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả quá trình tích lũy/diễn biến và kết cục cuối cùng “đi đến/đạt đến”. Thường dùng trong văn viết, tin tức, báo cáo. Hay đi với kết quả tiêu cực (死亡・中止・破綻) nhưng cũng có thể trung tính/tích cực (合意・実用化・採用)。 Sắc thái khách quan, mô tả kết quả sau nhiều yếu tố/diễn tiến; tránh dùng cảm xúc trực tiếp của người nói.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dẫn đến...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi nhấn mạnh kết quả cuối và hàm ý có quá trình dẫn đến đó. Phong cách trang trọng/khách quan: báo cáo, văn bản hành chính, tin tức. Chủ ngữ thường là tổ chức/sự kiện; người nói lùi cảm xúc bản thân. Với hành vi cá nhân, dùng khi muốn khách quan hóa: 私的な事情により辞職に至った。 [6. Ghi chú mở rộng] 「至る」 là động từ trang trọng “đến, đạt đến”. Dạng quá khứ 「至った」 chốt kết quả đã xảy ra. Thường đi kèm cụm danh hóa nguyên nhân: ～が原因で／～の結果、～に至った。 Tiêu đề báo chí hay rút gọn hiện tại: 死亡に至る、合意に至る（mang nghĩa tường thuật, không phải tương lai). [7. Biến thể & cụm cố định] 死亡／重体／破綻／中止／辞任 + に至った 合意／採用／妥結／実用化／完成 + に至った 不作為／判断ミスが ～ に至った要因 ～に至る経緯／～に至るまでの流れ [8. Lỗi thường gặp & bẫy JLPT] Dùng cho cảm xúc cá nhân trực tiếp → không tự nhiên: ×うれしくて笑うに至った → nên dùng đơn giản: 笑うようになった。 Nhầm với 「～に至るまで」 (phạm vi) → không diễn tả kết quả. Bỏ mất sắc thái trang trọng: trong hội thoại thân mật, dùng 「結局～になった」 tự nhiên hơn. JLPT N1: Nhận diện khi đi với danh từ kết cục nặng (死亡・破綻) và văn phong báo cáo."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f392459d3a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "安全を無視することは、許すべからざる行為だ。",
+       "ja_furigana": "安全(あんぜん)を無視(むし)することは、許(ゆる)すべからざる行為(こうい)だ。",
+       "vi": "Coi thường an toàn là hành vi không thể dung thứ."
+      },
+      {
+       "ja": "水は生きるために欠くべからざるものだ。",
+       "ja_furigana": "水(みず)は生(い)きるために欠(か)くべからざるものだ。",
+       "vi": "Nước là thứ không thể thiếu để sống."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "無実の人を罪に問うことは、許すべからざる行為だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Buộc tội người vô tội là hành vi không thể dung thứ."
+     },
+     {
+      "ja": "研究におけるデータ改ざんは、看過すべからざる問題である。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gian lận dữ liệu trong nghiên cứu là vấn đề không thể bỏ qua."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 無実の人を罪に問うことは、許すべからざる行為だ。",
+     "FURIGANA_MISSING: 研究におけるデータ改ざんは、看過すべからざる問題である。"
+    ],
+    "formation": "Vる + べからざる + N",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa A (phổ biến): “Không được/không nên V; V là điều không thể chấp nhận” → sắc thái phán xét đạo đức, pháp lý, quy tắc. Nghĩa B (quán ngữ): với 欠くべからざる + N = “không thể thiếu/thiết yếu” (đảo nghĩa do phủ định của “欠く”). Đây là hình thức văn ngôn, dùng nhiều trong bài viết học thuật, báo chí nghiêm túc, phát biểu chính trị, quy định.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Điều không được phép...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để bổ nghĩa danh từ, tạo cảm giác nghiêm trọng, trang trọng, văn viết. Nghĩa cấm đoán/phán xét (許すべからざる, 容認すべからざる, 許容すべからざる) và nghĩa thiết yếu (欠くべからざる) cần phân biệt theo động từ. Không dùng trong hội thoại thường nhật; thay bằng ～てはいけない/～べきではない cho văn nói. [6. Ghi chú mở rộng] Các tổ hợp tự nhiên: 許すべからざる罪/暴挙, 看過すべからざる事実/不正, 容認すべからざる差別, 忘却すべからざる教訓. Với サ変, dạng “すべからざる” phổ biến hơn “するべからざる”. Ví dụ: 看過すべからざる, 容認すべからざる. Trong tiêu đề báo, có thể lược bỏ trợ từ để tăng tính hàm súc: “許すべからざる虚偽、明るみに”. [7. Biến thể & cụm cố định] 欠くべからざる + N (要素/条件/資質/存在/パートナー): quán ngữ chỉ “thiết yếu”. 看過すべからざる + N (事実/問題/兆候): “không thể làm ngơ”. 許すべからざる + N (犯罪/暴力/発言): “không thể dung thứ”. [8. Lỗi thường gặp & bẫy JLPT] Nhầm nghĩa “không thể thiếu” là nghĩa chung: chỉ đúng với 欠くべからざる. Dùng như vị ngữ độc lập: × これは許すべからざる。 → Cần có danh từ: 許すべからざる行為だ。 Dùng trong hội thoại đời thường khiến câu quá cứng; nên thay bằng ～てはいけない/～べきではない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a807cd7ca2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "それは政治家にあるまじき発言だ。",
+       "ja_furigana": "それは政治家(せいじか)にあるまじき発言(はつげん)だ。",
+       "vi": "Đó là phát ngôn không xứng đáng với một chính trị gia."
+      },
+      {
+       "ja": "生徒を差別するなど、教師にあるまじき行為だ。",
+       "ja_furigana": "生徒(せいと)を差別(さべつ)するなど、教師(きょうし)にあるまじき行為(こうい)だ。",
+       "vi": "Phân biệt đối xử học sinh là hành vi không xứng đáng với một giáo viên."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "教師にあるまじき発言だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đó là phát ngôn không thể chấp nhận đối với một giáo viên."
+     },
+     {
+      "ja": "医者にあるまじきミスが起きた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã xảy ra một sai sót không xứng đáng với một bác sĩ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 教師にあるまじき発言だ。",
+     "FURIGANA_MISSING: 医者にあるまじきミスが起きた。"
+    ],
+    "formation": "N + にあるまじき + N",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị hành vi/thái độ “không thể chấp nhận, không xứng đáng” với vị trí, nghề nghiệp, chuẩn mực đạo đức. Phê phán nặng, thường thấy trong tin tức, quy tắc đạo đức, phát ngôn chính thức. N1 là vai trò: 教師・医者・公務員・親・学生・政治家・社会人… N2 là 発言・行為・態度・ミス・不祥事 v.v.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không đáng với...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Cực kỳ trang trọng và phê phán; tránh dùng trong giao tiếp thân mật trừ khi nhấn mạnh đạo đức. Hay kết hợp với các danh từ chỉ “hành vi”: 行為・発言・態度・振る舞い・不祥事・ミス. Thường đứng ngay trước danh từ bị đánh giá: N1にあるまじきN2. Ngữ cảm cổ điển (あるまじき) tạo ấn tượng quy phạm mạnh, đôi khi nghe “nặng lời”. [6. Ghi chú mở rộng] Gốc cổ ngữ “あるまじき” = あるべからざる; cùng trường nghĩa cấm kỵ đạo đức. Được ưa dùng trong tiêu đề báo chí để nhấn mạnh mức độ nghiêm trọng. Có thể dùng tự phê bình nhưng dễ gây ấn tượng kịch tính: 私も教師にあるまじき言動をしてしまった。 [7. Biến thể & cụm cố định] 教師にあるまじき発言／公務員にあるまじき不祥事 人としてあるまじき行為／親としてあるまじき態度 社会人にあるまじきミス／政治家にあるまじき対応 [8. Lỗi thường gặp & bẫy JLPT] Sai trật tự: × あるまじき教師の発言 → ○ 教師にあるまじき発言. Dùng với đối tượng không phải “vai trò/thân phận”: × 天気にあるまじき → không phù hợp. Nhầm mức độ với ～にふさわしくない: あるまじき mạnh hơn, mang tính lên án đạo đức. Thiếu danh từ sau あるまじき làm câu cụt: cần N2 như 行為・発言 để hoàn chỉnh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bacda60924"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-038"
+}

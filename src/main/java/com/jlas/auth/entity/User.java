@@ -2,7 +2,9 @@ package com.jlas.auth.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -11,6 +13,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "users")
+@DynamicUpdate
 @Getter
 @Setter
 @NoArgsConstructor
@@ -64,6 +67,10 @@ public class User {
     @Column(name = "gender", length = 20)
     private String gender;
 
+    /** Ngày sinh; NULL với tài khoản cũ và tài khoản Google (được hỏi khi mở video có nhãn độ tuổi). */
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
+
     @Column(name = "japanese_level", length = 10)
     private String japaneseLevel;
 
@@ -88,6 +95,12 @@ public class User {
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
+
+    @Column(name = "locked_at")
+    private LocalDateTime lockedAt;
+
+    @Column(name = "locked_reason", length = 500)
+    private String lockedReason;
 
     @PrePersist
     protected void onCreate() {

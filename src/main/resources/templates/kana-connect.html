@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <script src="/js/theme-init.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kana Connect · Thử thách hằng ngày · J-LAB</title>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" th:href="@{/css/tokens.css}" />
+    <link rel="stylesheet" th:href="@{/css/theme-bridge.css}" />
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css}" />
+    <link rel="stylesheet" th:href="@{/css/pages/goals-mission.css?v=20261105-plum}" />
+    <link rel="stylesheet" th:href="@{/css/components/avatar-frame.css?v=20261021-catalog}" />
+    <link rel="stylesheet" th:href="@{/css/pages/kana-connect.css?v=20261105-plum}" />
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}" />
+    <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+</head>
+<body data-mobile-adapt="owned" id="jlabBasePage" class="goals-page kana-page">
+    <div id="jlabBaseShellMount"></div>
+    <main id="jlabBaseContent">
+        <div id="kanaChallenge" class="gp kc">
+            <header class="kc-hero">
+                <div class="kc-hero__row">
+                    <div class="gp-card__title">
+                        <span class="gp-card__icon gp-card__icon--violet"><i class="fa-solid fa-puzzle-piece" aria-hidden="true"></i></span>
+                        <div>
+                            <h1>Thử thách hằng ngày</h1>
+                            <p class="kc-intro">Kana Connect · cùng một bàn cho mọi người, đổi mới mỗi ngày</p>
+                        </div>
+                    </div>
+                    <button type="button" id="kanaHelp" class="kc-help-btn" aria-haspopup="dialog" aria-controls="kanaTutorial"><i class="fa-regular fa-circle-question" aria-hidden="true"></i> Cách chơi</button>
+                </div>
+                <div id="kanaLevels" class="kc-levels" role="group" aria-label="Chọn cấp độ bàn chơi">
+                    <button type="button" data-level="N5" aria-pressed="false">N5</button>
+                    <button type="button" data-level="N4" aria-pressed="false">N4</button>
+                    <button type="button" data-level="N3" aria-pressed="false">N3</button>
+                    <button type="button" data-level="N2" aria-pressed="false">N2</button>
+                    <button type="button" data-level="N1" aria-pressed="false">N1</button>
+                    <button type="button" data-level="MIX" aria-pressed="false">Trộn</button>
+                </div>
+            </header>
+
+            <section class="gp-card kc-podium-card" aria-labelledby="kanaPodiumTitle">
+                <div class="kc-rank__head">
+                    <h2 id="kanaPodiumTitle"><i class="fa-solid fa-trophy" aria-hidden="true"></i> Top 5 hôm nay <span id="kanaPodiumLevel" class="kc-podium-level"></span></h2>
+                    <span id="kanaRankCount"></span>
+                </div>
+                <ol id="kanaPodium" class="kc-podium" aria-label="5 người giải nhanh nhất"></ol>
+                <p id="kanaRankMe" class="kc-rank__me" hidden></p>
+            </section>
+
+            <section id="kanaPanel" class="gp-card kc-panel" aria-label="Bàn chơi Kana Connect">
+                <div id="kanaPlay" class="kc-play" hidden>
+                    <div class="kc-meta">
+                        <span class="kc-clock"><i class="fa-regular fa-clock" aria-hidden="true"></i><time id="kanaClock" aria-label="Thời gian chơi">00:00</time></span>
+                        <span id="kanaWordProgress" class="kc-progress" aria-live="polite"></span>
+                        <button type="button" id="kanaHint" class="kc-hint" disabled><i class="fa-regular fa-lightbulb" aria-hidden="true"></i> <span id="kanaHintLabel">Gợi ý</span></button>
+                    </div>
+                    <div class="kc-frame">
+                        <div id="kanaBoard" class="kc-board" role="group" aria-label="Nối các ô kana liền kề để tìm từ. Kéo hoặc chạm để chọn; dùng phím Tab, mũi tên và Enter với bàn phím." hidden></div>
+                    </div>
+                    <p id="kanaSelected" class="kc-selection" lang="ja" aria-live="polite"></p>
+                    <ul id="kanaWords" class="kc-words" aria-label="Các từ cần tìm" aria-live="polite"></ul>
+                </div>
+                <p id="kanaMessage" class="kc-message" role="status" aria-live="polite"></p>
+                <button type="button" id="kanaRetry" class="gp-soft-btn" hidden><i class="fa-solid fa-rotate" aria-hidden="true"></i> Tải thử thách hôm nay</button>
+            </section>
+
+            <!-- Beginner tutorial: opens on the first visit, then from "Cách chơi". Steps are built by kana-tutorial.js. -->
+            <dialog id="kanaTutorial" class="kc-tut" aria-labelledby="kanaTutTitle">
+                <header class="kc-tut__head">
+                    <span id="kanaTutStep" class="kc-tut__step"></span>
+                    <button type="button" class="kc-tut__close" data-tut-close aria-label="Đóng hướng dẫn"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                </header>
+                <h2 id="kanaTutTitle" class="kc-tut__title"></h2>
+                <div id="kanaTutBody" class="kc-tut__body"></div>
+                <footer class="kc-tut__foot">
+                    <div id="kanaTutDots" class="kc-tut__dots" aria-hidden="true"></div>
+                    <div class="kc-tut__actions">
+                        <button type="button" id="kanaTutBack" class="kc-tut__btn kc-tut__btn--ghost">Quay lại</button>
+                        <button type="button" id="kanaTutNext" class="kc-tut__btn">Tiếp</button>
+                    </div>
+                </footer>
+            </dialog>
+        </div>
+    </main>
+
+    <script th:src="@{/js/components/avatar-frame.js?v=20261021-catalog}"></script>
+    <script th:src="@{/js/auth-session.js}"></script>
+    <script th:src="@{/js/jlab-base-shell.js?v=20261107-nav}"></script>
+    <script th:src="@{/js/pages/kana-connect-engine.js?v=20261013-hint1}"></script>
+    <script th:src="@{/js/pages/kana-connect.js?v=20261028-hint-pick}"></script>
+    <script th:src="@{/js/pages/kana-tutorial.js?v=20261028-hint-pick}"></script>
+    <script th:src="@{/js/pages/kana-demo-panel.js?v=20261028-hint30}"></script>
+</body>
+</html>

@@ -3,6 +3,7 @@ package com.jlas.auth.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -30,6 +31,8 @@ public class UserResponse {
 
     private String gender;
 
+    private LocalDate dateOfBirth;
+
     private String loginType;
 
     private Boolean googleLinked;
@@ -49,4 +52,10 @@ public class UserResponse {
     private LocalDateTime premiumExpiredAt;
 
     private LocalDateTime createdAt;
+
+    /** Mã khung avatar đang dùng (vd. frame-cosmic); null = không khung. */
+    private String avatarFrame;
+
+    /** Mã màu tên đang dùng (vd. cosmic); null = màu mặc định. */
+    private String nameStyle;
 }

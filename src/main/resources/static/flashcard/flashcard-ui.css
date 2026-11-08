@@ -1,29 +1,31 @@
 /* Stitch: JLAS Flashcard UI Redesign — Komorebi Professional.
  * Feature-scoped so the shared JLAS navigation remains untouched. */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
 
 #jlabBasePage.flashcard-page #jlabBaseContent,
 #jlabBasePage.flashcard-page > .modal-backdrop,
-#jlabBasePage.flashcard-page > .toast {
-  --fc-surface: #f8f9ff;
+#jlabBasePage.flashcard-page > .toast,
+#jlabBasePage.flashcard-page > .fc-folder-dialog {
+  --fc-surface: #ffffff;
   --fc-surface-lowest: #ffffff;
-  --fc-surface-low: #eff4ff;
-  --fc-surface-mid: #e5eeff;
-  --fc-surface-high: #dce9ff;
-  --fc-on-surface: #0b1c30;
-  --fc-on-variant: #464554;
-  --fc-outline: #767586;
-  --fc-outline-soft: #dce3f0;
-  --fc-primary: #4648d4;
-  --fc-primary-hover: #3739bd;
-  --fc-primary-soft: #e1e0ff;
-  --fc-primary-soft-2: #dbe2fa;
-  --fc-success: #006c49;
-  --fc-success-strong: #00885d;
-  --fc-success-soft: #d8f8e9;
+  --fc-surface-low: #eef5f7;
+  --fc-surface-mid: #eef5f7;
+  --fc-surface-high: #e9ddff;
+  --fc-on-surface: #161d1f;
+  --fc-on-variant: #494551;
+  --fc-outline: #79747e;
+  --fc-outline-soft: #cbc4d2;
+  --fc-primary: #4f378a;
+  --fc-primary-hover: #6750a4;
+  --fc-primary-soft: #e9ddff;
+  --fc-primary-soft-2: #eef5f7;
+  --fc-success: #006947;
+  --fc-success-strong: #006947;
+  --fc-success-soft: #e8f5e9;
   --fc-error: #ba1a1a;
   --fc-error-soft: #ffdad6;
-  --fc-shadow: 0 4px 20px rgba(73, 75, 214, .07);
-  --fc-shadow-hover: 0 14px 34px rgba(73, 75, 214, .14);
+  --fc-shadow: 0 4px 20px rgba(0, 0, 0, .04), 0 2px 6px rgba(0, 0, 0, .02);
+  --fc-shadow-hover: 0 16px 32px -12px rgba(0, 0, 0, .14);
   --fc-radius-sm: 8px;
   --fc-radius-md: 12px;
   --fc-radius-lg: 16px;
@@ -34,8 +36,10 @@
   min-height: calc(100vh - var(--header-height));
   color: var(--fc-on-surface);
   background: var(--fc-surface) !important;
-  font-family: "Inter", var(--font-body);
+  font-family: "Plus Jakarta Sans", var(--font-body);
 }
+
+#jlabBasePage.flashcard-page { background: #ffffff; }
 
 #jlabBasePage.flashcard-page--library #jlabBaseContent,
 #jlabBasePage.flashcard-page--editor #jlabBaseContent,
@@ -146,7 +150,7 @@
   color: #fff !important;
   background: var(--fc-primary) !important;
   border-color: var(--fc-primary) !important;
-  box-shadow: 0 5px 14px rgba(70, 72, 212, .2) !important;
+  box-shadow: 0 5px 14px rgba(79, 55, 138, .2) !important;
 }
 
 #jlabBasePage.flashcard-page #jlabBaseContent .btn-primary:hover,
@@ -154,7 +158,7 @@
   color: #fff !important;
   background: var(--fc-primary-hover) !important;
   border-color: var(--fc-primary-hover) !important;
-  box-shadow: 0 8px 18px rgba(70, 72, 212, .25) !important;
+  box-shadow: 0 8px 18px rgba(79, 55, 138, .25) !important;
   transform: translateY(-1px);
 }
 
@@ -216,7 +220,7 @@
 
 #jlabBasePage.flashcard-page #jlabBaseContent :focus-visible,
 #jlabBasePage.flashcard-page > .modal-backdrop :focus-visible {
-  outline: 3px solid rgba(70, 72, 212, .22);
+  outline: 3px solid rgba(79, 55, 138, .22);
   outline-offset: 2px;
 }
 
@@ -264,15 +268,14 @@
   margin-bottom: 40px;
   padding: 48px max(48px, calc((100vw - 1184px) / 2));
   overflow: hidden;
-  background:
-    radial-gradient(circle at 85% 10%, rgba(255,255,255,.55), transparent 28%),
-    linear-gradient(135deg, #d4e1ff, #e1e7ff 55%, #d8edfa);
-  border: 0;
+  background: var(--fc-surface-low);
+  border: 1px solid var(--fc-outline-soft);
   border-radius: 0;
-  box-shadow: none;
+  box-shadow: var(--fc-shadow);
 }
 
 #jlabBasePage.flashcard-page--set .set-hero::after {
+  display: none;
   position: absolute;
   right: 5%;
   bottom: -55%;
@@ -454,13 +457,138 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  #jlabBasePage.flashcard-page #jlabBaseContent *,
-  #jlabBasePage.flashcard-page #jlabBaseContent *::before,
-  #jlabBasePage.flashcard-page #jlabBaseContent *::after {
-    scroll-behavior: auto !important;
-    transition-duration: .01ms !important;
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-  }
+
+/* Shared folder form: top-layer dialog keeps focus inside and the page inert. */
+#jlabBasePage.flashcard-page > .fc-folder-dialog {
+  box-sizing: border-box;
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--fc-outline-soft);
+  border-radius: var(--fc-radius-xl);
+  color: var(--fc-on-surface);
+  background: var(--fc-surface);
+  box-shadow: 0 24px 72px rgba(22,29,31,.2);
+  font-family: "Plus Jakarta Sans", var(--font-body);
+}
+.fc-folder-dialog::backdrop { background: rgba(22,29,31,.45); }
+.fc-folder-dialog__header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 24px 12px; }
+.fc-folder-dialog__header h2 { margin: 0; font-size: 22px; line-height: 1.4; }
+.fc-folder-dialog__close { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; color: var(--fc-on-variant); background: transparent; cursor: pointer; }
+.fc-folder-dialog__close:hover { background: var(--fc-primary-soft); }
+.fc-folder-dialog__body { padding: 4px 24px 20px; }
+.fc-folder-dialog__body label { display: block; margin-bottom: 8px; font-size: 16px; font-weight: 600; }
+#jlabBasePage .fc-folder-dialog input { box-sizing: border-box; display: block; width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid var(--fc-outline-soft); border-radius: var(--fc-radius-sm); color: var(--fc-on-surface); background: var(--fc-surface-lowest); font: inherit; font-size: 16px; }
+#jlabBasePage .fc-folder-dialog input[aria-invalid="true"] { border-color: var(--fc-error); }
+.fc-folder-dialog__body p { margin: 8px 0 0; font-size: 14px; line-height: 1.5; color: var(--fc-on-variant); }
+.fc-folder-dialog__body .fc-folder-dialog__error { color: var(--fc-error); }
+.fc-folder-dialog__footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px 24px; }
+.fc-folder-dialog__button { min-height: 44px; padding: 10px 18px; border: 1px solid var(--fc-outline-soft); border-radius: var(--fc-radius-sm); background: var(--fc-surface-lowest); color: var(--fc-on-surface); font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; }
+.fc-folder-dialog__button:hover { background: var(--fc-primary-soft); }
+.fc-folder-dialog__button--primary { border-color: var(--fc-primary); background: var(--fc-primary); color: #fff; }
+.fc-folder-dialog__button--primary:hover { background: var(--fc-primary-hover); }
+.fc-folder-dialog :focus-visible { outline: 3px solid var(--fc-primary); outline-offset: 3px; }
+@media (max-width: 480px) {
+  .fc-folder-dialog__header, .fc-folder-dialog__body, .fc-folder-dialog__footer { padding-left: 20px; padding-right: 20px; }
+}
+
+/* Page-owned dark mode: flashcard/flashcard-ui.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-flashcard-bg: #0b0d13;
+  --dm-flashcard-surface: #171b26;
+  --dm-flashcard-raised: #232938;
+  --dm-flashcard-ink: #f8fafc;
+  --dm-flashcard-muted: #b2bfd2;
+  --dm-flashcard-line: #40485d;
+  --dm-flashcard-accent: #c084fc;
+  --dm-flashcard-action: #7335a6;
+  --dm-flashcard-accent-soft: #2a203d;
+  --dm-flashcard-on-accent: #211b34;
+  --dm-flashcard-success: #8eddb6;
+  --dm-flashcard-success-bg: #1b3d32;
+  --dm-flashcard-success-line: #43816b;
+  --dm-flashcard-danger: #ffb4bd;
+  --dm-flashcard-danger-bg: #452832;
+  --dm-flashcard-danger-line: #96616d;
+  --dm-flashcard-warning: #f3d28a;
+  --dm-flashcard-warning-bg: #403522;
+  --dm-flashcard-warning-line: #947a46;
+  --dm-flashcard-pink: #f4aed2;
+  --dm-flashcard-pink-bg: #432d40;
+  --dm-flashcard-pink-line: #88637b;
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page #jlabBaseContent,
+html[data-theme="dark"] #jlabBasePage.flashcard-page > .modal-backdrop,
+html[data-theme="dark"] #jlabBasePage.flashcard-page > .toast,
+html[data-theme="dark"] #jlabBasePage.flashcard-page > .fc-folder-dialog {
+    --fc-surface: var(--dm-flashcard-surface);
+    --fc-surface-lowest: var(--dm-flashcard-surface);
+    --fc-surface-low: var(--dm-flashcard-raised);
+    --fc-surface-mid: var(--dm-flashcard-raised);
+    --fc-surface-high: var(--dm-flashcard-raised);
+    --fc-on-surface: var(--dm-flashcard-ink);
+    --fc-on-variant: var(--dm-flashcard-muted);
+    --fc-outline: var(--dm-flashcard-muted);
+    --fc-outline-soft: var(--dm-flashcard-line);
+    --fc-primary: var(--dm-flashcard-accent);
+    --fc-primary-hover: var(--dm-flashcard-action);
+    --fc-primary-soft: var(--dm-flashcard-accent-soft);
+    --fc-primary-soft-2: var(--dm-flashcard-accent-soft);
+    --fc-success: var(--dm-flashcard-success);
+    --fc-success-strong: var(--dm-flashcard-success);
+    --fc-success-soft: var(--dm-flashcard-success-bg);
+    --fc-error: var(--dm-flashcard-danger);
+    --fc-error-soft: var(--dm-flashcard-danger-bg);
+    --fc-shadow: 0 4px 20px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.14);
+    --fc-shadow-hover: 0 16px 32px -12px rgba(0, 0, 0, 0.26)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page {
+    background: var(--dm-flashcard-surface)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page #jlabBaseContent .btn-primary,
+html[data-theme="dark"] #jlabBasePage.flashcard-page #jlabBaseContent .btn--primary {
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.32) !important;
+    color: var(--dm-flashcard-on-accent) !important
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page #jlabBaseContent .btn-primary:hover,
+html[data-theme="dark"] #jlabBasePage.flashcard-page #jlabBaseContent .btn--primary:hover {
+    color: var(--dm-flashcard-ink) !important;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.37) !important
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page #jlabBaseContent .card,
+html[data-theme="dark"] #jlabBasePage.flashcard-page > .modal-backdrop .modal {
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page #jlabBaseContent :focus-visible,
+html[data-theme="dark"] #jlabBasePage.flashcard-page > .modal-backdrop :focus-visible {
+    outline: 3px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--set .set-hero::after {
+    color: var(--dm-flashcard-accent)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--quiz .sidebar {
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--quiz .ai-panel {
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page > .fc-folder-dialog {
+    box-shadow: 0 24px 72px rgba(0, 0, 0, 0.32)
+}
+html[data-theme="dark"] .fc-folder-dialog__button--primary {
+    color: var(--dm-flashcard-on-accent)
+}
+
+/* Dark interaction and state pairs for this page. */
+html[data-theme="dark"] #jlabBasePage.flashcard-page :is(#jlabBaseContent,.modal-backdrop,.toast,.fc-folder-dialog){--fc-surface:var(--dm-flashcard-surface);--fc-surface-lowest:var(--dm-flashcard-surface);--fc-surface-low:var(--dm-flashcard-raised);--fc-surface-mid:var(--dm-flashcard-raised);--fc-surface-high:var(--dm-flashcard-accent-soft);--fc-on-surface:var(--dm-flashcard-ink);--fc-on-variant:var(--dm-flashcard-muted);--fc-outline:var(--dm-flashcard-muted);--fc-outline-soft:var(--dm-flashcard-line);--fc-primary:var(--dm-flashcard-accent);--fc-primary-hover:var(--dm-flashcard-action);--fc-primary-soft:var(--dm-flashcard-accent-soft);--fc-primary-soft-2:var(--dm-flashcard-raised);--fc-success:var(--dm-flashcard-success);--fc-success-strong:var(--dm-flashcard-success);--fc-success-soft:var(--dm-flashcard-success-bg);--fc-error:var(--dm-flashcard-danger);--fc-error-soft:var(--dm-flashcard-danger-bg);}
+html[data-theme="dark"] #jlabBasePage.flashcard-page :is(.fc-button--primary,.btn--primary){background:var(--dm-flashcard-action)!important;color:var(--dm-flashcard-ink)!important;}
+
+/* Sidebar thư viện: nhãn số thẻ đến hạn cạnh "Ôn hôm nay". */
+#jlabBasePage.flashcard-page .fc-srs-due-badge {
+  margin-left: auto; min-width: 22px; padding: 1px 7px; border-radius: 999px; text-align: center;
+  background: var(--color-error, #ba1a1a); color: var(--color-on-error, #fff); font-size: .72rem; font-weight: 700;
 }

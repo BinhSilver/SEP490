@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tra cứu từ điển · JLAS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/theme-bridge.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components/buttons.css" />
+  <link rel="stylesheet" href="/css/components/cards.css" />
+  <link rel="stylesheet" href="/css/components/inputs.css" />
+  <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261103-nav-hover-2" />
+  <link rel="icon" href="/images/jlab.png" type="image/png" />
+  <link rel="stylesheet" href="/dictionary/css/dictionary-ui.css?v=20261030-5" />
+</head>
+<body id="jlabBasePage" class="dictionary-page">
+  <div id="jlabBaseShellMount"></div>
+
+  <main id="jlabBaseContent" class="app-main">
+    <div class="container dict-container">
+      <section id="dict-search-zone" class="dict-search-zone dict-search-card">
+        <div id="dict-hero" class="dict-hero">
+          <span class="dict-hero__eyebrow"><i class="fa-solid fa-circle dict-dot"></i> Hệ thống tra cứu Nhật ngữ</span>
+          <h1 class="dict-hero__title">Từ điển Nhật ngữ</h1>
+          <p class="dict-hero__subtitle">Tra cứu từ vựng, Hán tự và nghĩa tiếng Việt</p>
+        </div>
+
+        <div class="dict-search-toolbar">
+          <div class="dict-search-bar">
+            <i class="fa-solid fa-magnifying-glass dict-search-bar__icon" aria-hidden="true"></i>
+            <input id="dict-search-input" class="dict-search-bar__input" type="search"
+                   placeholder="Nhập Kanji, Hiragana, Katakana, Romaji hoặc từ vựng..." autocomplete="off" autofocus />
+            <button type="button" id="dict-search-clear" class="dict-search-icon-btn dict-search-clear"
+                    aria-label="Xóa từ khóa" hidden><i class="fa-solid fa-xmark"></i></button>
+            <ul id="dict-suggest" class="dict-suggest" hidden role="listbox"></ul>
+          </div>
+          <div class="dict-search-bar__actions">
+            <button type="button" id="dict-open-handwriting" class="dict-search-icon-btn"
+                    title="Viết tay" aria-label="Viết tay"><i class="fa-solid fa-pen-nib"></i></button>
+            <button type="button" id="dict-mode-radical" class="dict-search-icon-btn"
+                    title="Tra theo bộ thủ" aria-label="Tra theo bộ thủ"><i class="fa-solid fa-shapes"></i></button>
+          </div>
+        </div>
+
+        <nav id="dict-tabs" class="dict-tabs" role="tablist" aria-label="Loại từ điển">
+          <button type="button" class="dict-tab" data-tab="word" role="tab">Từ vựng</button>
+          <button type="button" class="dict-tab" data-tab="kanji" role="tab">Hán tự</button>
+          <button type="button" class="dict-tab" data-tab="example" role="tab">Mẫu câu</button>
+          <button type="button" class="dict-tab" data-tab="grammar" role="tab">Ngữ pháp</button>
+          <button type="button" class="dict-tab" data-tab="japanese" role="tab">Nhật - Nhật</button>
+        </nav>
+      </section>
+
+      <section id="dict-home-panels" class="dict-home-panels">
+        <div class="dict-home-panel">
+          <div class="dict-panel-heading">
+            <span>Tra cứu gần đây</span>
+          </div>
+          <div id="dict-recent-list" class="dict-recent-grid"></div>
+          <p id="dict-recent-empty" class="dict-detail__empty" hidden>Đăng nhập để lưu và đồng bộ lịch sử tra cứu của bạn.</p>
+        </div>
+        <div class="dict-home-panel dict-home-panel--placeholder">
+          <div class="dict-panel-heading">
+            <span>Từ vựng mỗi ngày</span>
+            <span class="dict-badge dict-badge--outline">Sắp ra mắt</span>
+          </div>
+          <p class="dict-detail__empty">Gợi ý một từ vựng mới mỗi ngày kèm ví dụ và phát âm — tính năng đang được phát triển.</p>
+        </div>
+      </section>
+
+      <p id="dict-status" class="dict-status" hidden><i class="fa-solid fa-spinner fa-spin"></i> Đang tìm kiếm...</p>
+      <div id="dict-results-layout" class="dict-results-layout" hidden>
+        <section id="dict-detail-pane" class="dict-detail-pane"></section>
+        <aside id="dict-other-results" class="dict-panel" hidden>
+          <h2>Kết quả khác</h2>
+          <div id="dict-vocab-list" class="dict-vocab-list"></div>
+          <button id="dict-load-more" type="button" class="btn btn--secondary dict-load-more" hidden>Xem thêm</button>
+        </aside>
+      </div>
+    </div>
+  </main>
+  <!-- Giữ navbar dùng chung; modal viết tay lấy bố cục từ prototype screen_05. -->
+  <div id="dict-handwriting-modal" class="modal-backdrop dict-modal-backdrop" aria-hidden="true">
+    <div class="dict-modal" role="dialog" aria-modal="true" aria-labelledby="dict-modal-title">
+      <div class="dict-modal__header">
+        <div>
+          <div class="dict-modal__system-label">
+            <span class="dict-modal__status-dot" aria-hidden="true"></span>
+            Hệ thống nhập Kanji
+          </div>
+          <h2 id="dict-modal-title">Vẽ một chữ Kanji</h2>
+          <p class="dict-modal__hint">Vẽ từng nét trong khung để chọn ký tự cần tra cứu.</p>
+        </div>
+        <button type="button" class="dict-modal__close" data-modal-close aria-label="Đóng">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="dict-modal__drawing-section">
+        <div class="dict-modal__canvas-stage">
+          <div class="dict-modal__grid" aria-hidden="true"></div>
+          <span class="dict-modal__canvas-label">Canvas 360 × 360</span>
+          <span id="dict-hw-stroke-count" class="dict-modal__stroke-count">0 nét</span>
+          <canvas id="dict-handwriting-canvas" width="360" height="360"
+                  aria-label="Khung vẽ chữ Kanji"></canvas>
+        </div>
+
+        <div class="dict-modal__toolbar" aria-label="Công cụ vẽ">
+          <button type="button" id="dict-hw-undo" class="dict-modal__tool-button">
+            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Hoàn tác
+          </button>
+          <button type="button" id="dict-hw-clear" class="dict-modal__tool-button">
+            <i class="fa-regular fa-trash-can" aria-hidden="true"></i> Xóa hết
+          </button>
+        </div>
+      </div>
+
+      <div class="dict-modal__candidates-section">
+        <div class="dict-modal__section-heading">
+          <span>Ứng viên nhận diện</span>
+          <span>Khớp nhất ở đầu</span>
+        </div>
+        <p id="dict-hw-status" class="dict-handwriting-status" role="status">Vẽ một nét để xem gợi ý.</p>
+        <div id="dict-hw-candidates" class="dict-handwriting-candidates" aria-label="Chọn Kanji cần tìm" aria-live="polite"></div>
+      </div>
+
+      <div class="dict-modal__footer">
+        <p><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Nhận diện theo hình dạng nét, không cần đúng thứ tự nét; vẽ dở vẫn có gợi ý.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tra Kanji theo bộ thủ: chọn một hoặc nhiều bộ phận, Kanji chứa tất cả bộ phận đó hiện bên dưới. -->
+  <div id="dict-radical-modal" class="modal-backdrop dict-modal-backdrop" aria-hidden="true">
+    <div class="dict-modal dict-radical-modal" role="dialog" aria-modal="true" aria-labelledby="dict-radical-title">
+      <div class="dict-modal__header">
+        <div>
+          <div class="dict-modal__system-label">
+            <span class="dict-modal__status-dot" aria-hidden="true"></span>
+            Hệ thống nhập Kanji
+          </div>
+          <h2 id="dict-radical-title">Tra Kanji theo bộ thủ</h2>
+          <p class="dict-modal__hint">Chọn một hoặc nhiều bộ thủ có trong chữ cần tìm.</p>
+        </div>
+        <button type="button" class="dict-modal__close" data-modal-close aria-label="Đóng">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="dict-radical-modal__selection">
+        <div id="dict-radical-selected" class="dict-radical-selected" aria-live="polite"></div>
+        <button type="button" id="dict-radical-clear" class="dict-modal__tool-button" hidden>
+          <i class="fa-regular fa-trash-can" aria-hidden="true"></i> Bỏ chọn
+        </button>
+      </div>
+
+      <div class="dict-modal__candidates-section">
+        <div class="dict-modal__section-heading">
+          <span>Kanji phù hợp</span>
+          <span id="dict-radical-count"></span>
+        </div>
+        <p id="dict-radical-status" class="dict-handwriting-status" role="status">Chọn bộ thủ để xem Kanji.</p>
+        <div id="dict-radical-results" class="dict-radical-results" aria-label="Chọn Kanji cần tìm"></div>
+      </div>
+
+      <div class="dict-modal__candidates-section dict-radical-modal__picker">
+        <div class="dict-modal__section-heading">
+          <span>Bộ thủ</span>
+          <span>Theo số nét</span>
+        </div>
+        <input id="dict-radical-filter" class="dict-radical-filter" type="search"
+               placeholder="Lọc theo tên bộ thủ, ví dụ: nhân, thuỷ, mộc" autocomplete="off"
+               aria-label="Lọc bộ thủ theo tên">
+        <div id="dict-radical-picker" class="dict-radical-picker" aria-label="Danh sách bộ thủ"></div>
+      </div>
+
+      <div class="dict-modal__footer">
+        <p><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Bộ thủ bị làm mờ là không còn chữ nào chứa cùng các bộ thủ đã chọn.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/auth-session.js"></script>
+  <script src="/dictionary/js/stroke-order.js"></script>
+  <script src="/dictionary/js/romaji.js"></script>
+    <!-- handwriting.js: b?ng v? Kanji b?ng canvas, t?ch kh?i dictionary-page.js -->
+  <script src="/dictionary/js/handwriting-core.js?v=20260920-1"></script>
+  <script src="/dictionary/js/handwriting.js?v=20260920-1"></script>
+  <script src="/dictionary/js/radical.js?v=20261016-1"></script>
+  <script src="/js/jlab-base-shell.js?v=20261105-nav"></script>
+  <script src="/js/components.js"></script>
+  <script src="/dictionary/js/api-client.js?v=20261030-3"></script>
+  <script src="/dictionary/js/ja-render.js?v=20261030-4"></script>
+  <script src="/dictionary/js/conjugation.js?v=20261030-2"></script>
+  <script src="/dictionary/js/mock-data.js?v=20261030-2"></script>
+  <script src="/dictionary/js/dictionary-page.js?v=20261030-6"></script>
+</body>
+</html>

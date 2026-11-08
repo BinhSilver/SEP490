@@ -2,6 +2,7 @@
   'use strict';
 
   var redirectingAuthenticatedUser = false;
+  var LOCKED_MESSAGE = 'Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.';
 
   function loginRedirectTarget() {
     return window.JLabAuth && typeof JLabAuth.getSafeRedirect === 'function'
@@ -28,8 +29,14 @@
     });
   }
 
-  redirectIfAlreadyAuthenticated();
+  // A locked account is sent here as /login?locked=1: drop its stale session so the form stays usable.
+  var lockedRedirect = new URLSearchParams(window.location.search).get('locked') === '1';
+  if (lockedRedirect && window.JlasAuth) JlasAuth.clearSession();
+
+  // Hết hạn access token thì server đưa về đây; nếu refresh token còn hạn, phiên được làm mới rồi quay lại trang cũ.
+  ((window.JlasAuth && JlasAuth.ready) || Promise.resolve()).then(redirectIfAlreadyAuthenticated);
   window.addEventListener('pageshow', redirectIfAlreadyAuthenticated);
+  if (lockedRedirect && window.JlasUI) JlasUI.toast(LOCKED_MESSAGE, 'error');
 
   var form = document.getElementById('loginForm');
   var submitBtn = document.getElementById('submitBtn');
@@ -79,8 +86,26 @@
 
   updatePasswordRules();
 
+  function validateField(fieldId) {
+    var message = '';
+    if (fieldId === 'email') {
+      if (!emailInput.value.trim()) message = 'Vui lòng nhập email.';
+      else if (!hasLoginEmail()) message = 'Email không hợp lệ. Ví dụ: ban@example.com';
+    } else if (!hasLoginPassword()) {
+      message = 'Vui lòng nhập mật khẩu.';
+    }
+    JLabAuth.setFieldError(fieldId, message);
+    return !message;
+  }
+
   function validateForm() {
-    return hasLoginEmail() && hasLoginPassword();
+    var valid = true;
+    FIELD_IDS.forEach(function (fieldId) {
+      touched[fieldId] = true;
+      if (!validateField(fieldId)) valid = false;
+    });
+    if (!valid) JLabAuth.focusFirstInvalid(FIELD_IDS);
+    return valid;
   }
 
   function showUnverifiedAlert(email) {
@@ -92,6 +117,7 @@
   }
 
   function lockLoginButton(seconds) {
+    JLabAuth.setButtonLoading(submitBtn, false, 'Đang đăng nhập…', 'Đăng nhập');
     loginLockedUntil = Date.now() + seconds * 1000;
     window.clearInterval(loginLockTimer);
 
@@ -126,6 +152,11 @@
 
   function finishLogin(data) {
     JLabAuth.saveSession(data);
+    if (window.matchMedia('(max-width: 900px)').matches) {
+      window.location.replace(loginRedirectTarget());
+      return;
+    }
+
     var seconds = 3;
     var getMessage = function (sec) {
       return 'Đăng nhập thành công! Tự động chuyển hướng sau ' + sec + 's...';
@@ -205,24 +236,36 @@
       auto_select: false
     });
     var container = document.getElementById('googleBtnContainer');
-    var containerWidth = Math.floor(container.getBoundingClientRect().width);
-    google.accounts.id.renderButton(container, {
-      type: 'standard',
-      theme: 'outline',
-      size: 'large',
-      text: 'continue_with',
-      shape: 'pill',
-      // Google giới hạn nút standard tối đa 400px; lấy đúng chiều rộng
-      // vùng form để nút thẳng hàng với input và nút Đăng nhập.
-      width: Math.max(200, Math.min(containerWidth || 400, 400))
-    });
+    var lastRender = '';
+    function renderGoogleButton() {
+      var containerWidth = Math.floor(container.getBoundingClientRect().width);
+      if (containerWidth <= 0) return;
+      var width = Math.min(containerWidth, 400);
+      var text = containerWidth < 280 ? 'signin' : 'signin_with';
+      var theme = 'outline';
+      var renderKey = width + ':' + text + ':' + theme;
+      if (renderKey === lastRender) return;
+      lastRender = renderKey;
+      google.accounts.id.renderButton(container, {
+        type: 'standard',
+        theme: theme,
+        size: 'large',
+        text: text,
+        shape: 'pill',
+        width: width
+      });
+    }
+    renderGoogleButton();
+    if (window.ResizeObserver) {
+      new window.ResizeObserver(renderGoogleButton).observe(container);
+    }
   }
 
   emailInput.addEventListener('input', function () {
-    touched.email = true;
+    if (touched.email) validateField('email');
   });
   passwordInput.addEventListener('input', function () {
-    touched.password = true;
+    if (touched.password) validateField('password');
     updatePasswordRules();
   });
   ['keydown', 'keyup'].forEach(function (eventName) {
@@ -232,16 +275,18 @@
   });
   emailInput.addEventListener('blur', function () {
     touched.email = true;
+    validateField('email');
   });
   passwordInput.addEventListener('blur', function () {
     touched.password = true;
+    validateField('password');
     updatePasswordRules();
     if (capsLockWarning) capsLockWarning.hidden = true;
   });
 
   form.addEventListener('submit', async function (event) {
     event.preventDefault();
-    if (isLoginLocked()) return;
+    if (isLoginLocked() || submitBtn.disabled) return;
     if (!validateForm()) return;
 
     JLabAuth.setButtonLoading(submitBtn, true, 'Đang đăng nhập…', 'Đăng nhập');
@@ -271,6 +316,7 @@
           || message.toLowerCase().includes('not verified')
           || message.toLowerCase().includes('chưa xác thực');
         if (isUnverified) showUnverifiedAlert(emailInput.value.trim());
+        else if (json.code === 'ACCOUNT_LOCKED') JlasUI.toast(LOCKED_MESSAGE, 'error');
         else if (json.code === 'TOO_MANY_REQUESTS') {
           loginRateLimited = true;
           JlasUI.toast(message, 'error');

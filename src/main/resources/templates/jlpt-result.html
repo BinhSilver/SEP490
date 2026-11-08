@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Kết quả thi thử JLPT - J-LAS', 'jlas-certificates')}"></head>
+<body id="jlabBasePage" class="app-body jlpt-body jrr-body">
+<div id="jlabBaseShellMount"></div>
+<div id="jlptResultRoot" aria-live="polite" aria-busy="true"><main class="jrr-page"><p>Đang tải kết quả thi…</p></main></div>
+<script th:src="@{/js/jlab-base-shell.js?v=20261107-nav}"></script>
+<script th:src="@{/js/pages/jlpt-result.js?v=1}"></script>
+</body>
+</html>

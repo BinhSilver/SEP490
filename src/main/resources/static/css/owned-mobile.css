@@ -1,0 +1,402 @@
+/* Impeccable adapt: only Git-verified pages opt in via data-mobile-adapt.
+ * Keep desktop, shared navigation, gameplay canvases and other authors' pages intact.
+ */
+@media (max-width: 900px) {
+  body[data-mobile-adapt="owned"]:is(.page-login, .page-register-body) #jlabBaseContent h1 {
+    font-size: clamp(22px, 19px + 1vw, 26px) !important;
+    line-height: 1.25 !important;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] {
+    --mobile-gutter: 16px;
+    --mobile-control: 44px;
+    -webkit-tap-highlight-color: transparent;
+    scroll-padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] #jlabBaseContent {
+    min-width: 0;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] #jlabBaseContent h1:not(.home-hero__title) {
+    font-size: clamp(20px, 17px + 1vw, 26px) !important;
+    line-height: 1.25 !important;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] #jlabBaseContent h2 {
+    font-size: clamp(18px, 16px + .6vw, 22px) !important;
+    line-height: 1.3 !important;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] #jlabBaseContent h3 {
+    font-size: clamp(16px, 14px + .6vw, 18px) !important;
+    line-height: 1.35 !important;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] #jlabBaseContent :is(p, .ar-btn, .oy-button, .btn, .button-primary, .button-secondary, .tab-btn) {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] #jlabBaseContent :is(.bubble-text, .bubble-text--tokens > .token-fragment, .bubble-text--tokens > ruby) {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] [hidden] {
+    display: none !important;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] #jlabBaseContent :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]), select, textarea) {
+    min-width: 0;
+    max-width: 100%;
+    min-height: 48px;
+    font-size: 16px;
+    caret-color: var(--color-primary);
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] #jlabBaseContent :is(button, .btn, .button-primary, .oy-button, .ar-btn, .tab-btn, .adm-nav__link, .profile-nav__item):not([hidden]) {
+    min-height: var(--mobile-control);
+    touch-action: manipulation;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] #jlabBaseContent :is(input, textarea)::placeholder {
+    color: var(--color-on-surface-variant);
+    opacity: 1;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] #jlabBaseContent :is(h1, h2, h3) {
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] #jlabBaseContent :is(button, a, input, select, textarea, summary):focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] #jlabBaseContent ::selection {
+    color: var(--color-on-primary-container);
+    background: var(--color-primary-container);
+  }
+
+  /* Flashcard: keep the library destinations available when the desktop rail goes away. */
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page .fc-stitch-sidebar {
+    position: static;
+    display: block;
+    width: auto;
+    margin: 0 var(--mobile-gutter) 16px;
+    padding: 8px 0;
+    overflow: visible;
+    border: 0;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page .fc-stitch-sidebar__label {
+    display: none;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page .fc-stitch-sidebar__nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page .fc-stitch-sidebar__nav :is(a, .fc-stitch-sidebar__item) {
+    flex: 1 1 130px;
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page .fc-stitch-sidebar__item[aria-disabled="true"] {
+    display: none;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page .folder-list {
+    max-height: 180px;
+    overflow-y: auto;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-toolbar {
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .library-results-heading {
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library :is(.btn--primary, .btn-primary):hover {
+    color: var(--color-on-primary);
+    background: var(--color-primary);
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--editor .editor-meta--sheet .editor-meta__top-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--editor :is(.editor-meta__folder, .editor-meta__privacy, .editor-folder-control, .editor-folder-control .input-wrap) {
+    min-width: 0;
+    width: 100%;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--editor .editor-folder-control {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px;
+    gap: 8px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--editor .editor-toolbar--sheet {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* AI Call: preserve the illustrations, place readable copy on a calm surface. */
+  #jlabBasePage[data-mobile-adapt="owned"].page-mode-select #jlabBaseContent {
+    justify-content: flex-start;
+    padding: 20px var(--mobile-gutter) 28px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-mode-select .mode-grid {
+    width: 100%;
+    max-width: 680px;
+    gap: 16px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-mode-select #jlabBaseContent .mode-card {
+    position: relative;
+    isolation: isolate;
+    min-height: 0;
+    padding: 24px 20px;
+    border-radius: 16px;
+    background-size: cover;
+    background-position: center;
+    text-align: left;
+    gap: 8px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-mode-select .mode-card::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: inherit;
+    background: color-mix(in srgb, var(--color-surface-lowest) 88%, transparent);
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-mode-select .mode-card .cat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    font-size: 24px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-mode-select #jlabBaseContent .mode-card :is(h3, .jp, .mode-desc, .badge) {
+    color: var(--color-on-surface);
+    text-shadow: none;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-mode-select .mode-card h3 {
+    margin-block: 8px 6px;
+    font-size: 24px;
+    line-height: 1.25;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-mode-select .mode-card .mode-desc {
+    margin-block: 12px 16px;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] .cv-main-top {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] .cv-header-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] :is(.topic-row, .stage-history-row) {
+    min-width: 0;
+    gap: 10px;
+  }
+
+  /* Shadowing: search first, then compact filters and horizontally scrollable tabs. */
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-library .search-bar {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 0;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-library .search-input {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    padding-inline: 14px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-library .search-bar select {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 10px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-library .search-bar #sort-select {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-library .library-navigation {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    margin-block: 16px 24px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-library :is(.library-tabs-scope, .library-tabs-status) {
+    grid-column: 1;
+    grid-row: auto;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-outline-variant) transparent;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-library .library-tabs .tab-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-library .library-tabs__actions {
+    grid-column: 1;
+    grid-row: auto;
+    justify-content: flex-end;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-library .library-tabs__actions .button-icon-circular {
+    width: 44px;
+    height: 44px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-editor :is(.editor-toolbar, .editor-toolbar-actions) {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* The existing Game and Onyomi flows keep their own information architecture. */
+  #jlabBasePage[data-mobile-adapt="owned"].arena-body :is(.ar-game-card__body, .ar-step) {
+    padding: 18px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].arena-body .ar-game-card__actions {
+    gap: 8px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].onyomi-body .oy-stage__head {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].onyomi-body .oy-pill {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] .stitch-progress-page__heatmap {
+    grid-template-columns: 24px minmax(0, 1fr);
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] .stitch-progress-page__heatmap-grid {
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-outline-variant) transparent;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-progress .progress-stat-body {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-progress .progress-stat-label {
+    white-space: normal;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] .ntf-header {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] :is(.ntf-item__title, .ntf-item__body) {
+    overflow-wrap: anywhere;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] .adm-nav__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] .adm-nav__link {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 640px) {
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-progress #progress-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-progress .progress-stat-body {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-progress .progress-stat-label {
+    font-size: 14px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-progress .progress-stat-value {
+    font-size: 24px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-progress .progress-stat-note {
+    font-size: 12px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].arena-body .ar-game-card__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].arena-body .ar-game-card__actions > :last-child {
+    grid-column: 1 / -1;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] .ntf-header > button {
+    width: 100%;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] :is(dialog[open], .modal-backdrop > .modal) {
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 112px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}

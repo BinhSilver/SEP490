@@ -1,7 +1,9 @@
 package com.jlas.auth.dto;
 
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 import lombok.Data;
+import lombok.ToString;
 
 @Data
 public class UpdateProfileRequest {
@@ -16,6 +18,10 @@ public class UpdateProfileRequest {
 
     @Size(max = 20)
     private String gender;
+
+    /** Chỉ đặt được khi tài khoản chưa có ngày sinh; gửi lại đúng ngày đã lưu thì bỏ qua. */
+    @ToString.Exclude
+    private LocalDate dateOfBirth;
 
     @Size(max = 10)
     private String japaneseLevel;

@@ -1,0 +1,579 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この部屋は、ほとんど物置も同然だ。",
+       "ja_furigana": "この部屋(へや)は、ほとんど物置(ものおき)も同然(どうぜん)だ。",
+       "vi": "Căn phòng này gần như chẳng khác gì nhà kho."
+      },
+      {
+       "ja": "あの二人は、もう夫婦も同然だ。",
+       "ja_furigana": "あの二人(ふたり)は、もう夫婦(ふうふ)も同然(どうぜん)だ。",
+       "vi": "Hai người đó bây giờ chẳng khác gì vợ chồng."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "幼なじみで、彼は私にとって家族も同然だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì là bạn thuở nhỏ, với tôi anh ấy chẳng khác gì gia đình."
+     },
+     {
+      "ja": "この値段なら、タダも同然だよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Với mức giá này thì chẳng khác gì miễn phí."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 幼なじみで、彼は私にとって家族も同然だ。",
+     "FURIGANA_MISSING: この値段なら、タダも同然だよ。"
+    ],
+    "formation": "N / Vた + も同然だ",
+    "locked_fields": [],
+    "meaning_vi": "Nêu sự tương đương gần như hoàn toàn giữa A và B: AはBも同然だ = A gần như là B. Với Vた: nhấn mạnh “kết quả coi như đã xảy ra”, dù trên thực tế có thể chưa hoàn toàn xảy ra (ví dụ: 負けたも同然だ = thua là cái chắc/không khác gì đã thua). Tính chủ quan cao: người nói đánh giá dựa trên chuẩn thường tình, kinh nghiệm, hoặc cảm xúc. Có thể mang sắc thái cường điệu để thuyết phục hoặc than vãn (死んだも同然だ = coi như chết rồi).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hầu như..., chẳng khác gì...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn nhấn mạnh mức độ gần như tương đương, thường kèm cảm xúc (ngạc nhiên, than thở, phán đoán chắc chắn). Hay xuất hiện với các danh từ biểu thị cực đoan: 無一文, タダ, 死, 廃墟, 失業, 致命傷,… để tăng sức nặng. Trong văn trang trọng, có thể thay bằng ～に等しい (nghiêm túc, khách quan hơn). Trước “も同然だ” thường là N hoặc Vた; trường hợp tính từ hiếm, thường chuyển hóa qua N (例: 貧乏も同然だ). Không dùng khi mức độ tương đương yếu; khi đó chọn 「ようなものだ／と言ってもいい」. [6. Ghi chú mở rộng] “同然” là danh từ Hán Nhật mang nghĩa “giống hệt/đương nhiên”, đứng độc lập cũng có thể dùng trong văn viết: 同然の扱い. Với Vた, nét nghĩa “coi như đã…” dễ gây cảm giác bi quan/định đoạt sớm; chú ý ngữ cảnh để không thô. Kết hợp với lượng từ cường điệu: ゼロも同然, 無意味も同然, 無駄も同然 tăng tính nhấn mạnh. Trong tiêu đề báo chí: 「値上げは増税も同然」 dùng để tạo lập luận mạnh. [7. Biến thể & cụm cố định] N + も同然のN: 形式も同然の手続き（thủ tục gần như trên danh nghĩa） N + 同然だ（không có も）: 文脈によって dùng ngắn gọn trong văn viết (trang trọng hơn chút) ゼロ／無／無意味 + も同然: ゼロも同然の効果 死んだも同然／終わったも同然: cụm cố định mang sắc thái rất mạnh [8. Lỗi thường gặp & bẫy JLPT] Sai kết hợp với tính từ: × 寒いも同然だ → nên chuyển thành 名詞化: × 寒さも同然だ → dùng mẫu khác “寒いようなものだ”. Nhầm với ～に違いない: “も同然だ” là so sánh mức độ, không phải suy đoán chắc chắn. Dùng khi mức độ tương đương yếu → không tự nhiên. Hãy chọn ～ようなものだ/～と言ってもいい. JLPT: dễ nhầm với ～に等しい (trang trọng) và ～同様だ (nhấn tương đồng chung chung). Phân biệt sắc thái chủ quan mạnh của “も同然”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-04786086c7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の話は、うそでもなんでもない。本当のことだ。",
+       "ja_furigana": "彼(かれ)の話(はなし)は、うそでもなんでもない。本当(ほんとう)のことだ。",
+       "vi": "Chuyện anh ấy nói không phải là bịa hay gì đâu. Đó là sự thật."
+      },
+      {
+       "ja": "この問題は、難しくもなんでもない。",
+       "ja_furigana": "この問題(もんだい)は、難(むずか)しくもなんでもない。",
+       "vi": "Bài này chẳng khó tí nào."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "心配しないで。病気でもなんでもないよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đừng lo. Không phải bệnh tật gì đâu."
+     },
+     {
+      "ja": "この店、安くもなんでもないのに、いつも混んでいる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quán này chẳng rẻ chút nào mà lúc nào cũng đông."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 心配しないで。病気でもなんでもないよ。",
+     "FURIGANA_MISSING: この店、安くもなんでもないのに、いつも混んでいる。"
+    ],
+    "formation": "N・Aな + でもなんでもない / Aい(〜く) + もなんでもない",
+    "locked_fields": [],
+    "meaning_vi": "Cụm phủ định nhấn mạnh: “chẳng phải … hay gì hết”, “không hề … chút nào”. Dạng “Nでもなんでもない” rất thường dùng; “Nもなんでもない” cũng thấy nhưng ít phổ biến hơn, sắc thái thẳng/bộc trực. Với tính từ, cấu trúc nhấn mạnh mức độ “hoàn toàn không”: 高くもなんでもない（chẳng hề đắt）, 怖くもなんでもない（chẳng sợ tí nào）.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không hề..., chẳng... chút nào",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Khẩu ngữ, trực diện; có thể mang cảm giác phủ nhận mạnh/khá thô. Trong văn trang trọng nên cân nhắc. “でも” mang nghĩa “hay gì đó tương tự”, tăng độ bao phủ phủ định; “も” nhấn mạnh “ngay cả … cũng không”. Thường dùng để trấn an, bác bỏ hiểu lầm, hay phản bác ý kiến. [6. Ghi chú mở rộng] Dạng nhấn mạnh kép “XでもYでもなんでもない” để phủ định toàn bộ lựa chọn: 若さでも実力でもなんでもない. Với i-tính từ, có biến thể tự nhiên hơn ở một số vùng: ～くもなんともない (～なんともない mang nghĩa “chẳng sao cả”). Trong hội thoại, ngữ điệu rơi mạnh ở cuối tăng sắc thái bác bỏ. [7. Biến thể & cụm cố định] N + でもなんでもない（thông dụng nhất） Aい（bỏ い）+ くもなんでもない／くもなんともない Aな + でもなんでもない たいしたことでもなんでもない（chẳng có gì to tát） [8. Lỗi thường gặp & bẫy JLPT] Dùng “Nもなんでもない” ở nơi trang trọng gây cảm giác thô; nên chuyển sang “Nではない／Nとは言えない”. Nhầm với “なんでもない” đơn lẻ nghĩa “không có gì/không sao”: 痛くもなんでもない（chẳng đau tí nào） khác với なんでもない（không sao）。 Thi JLPT hay kiểm tra nhận biết phạm vi phủ định rộng do “でも”: so với 全然～ない, mức phủ định liệt kê đa lựa chọn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-dc51996a36"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お酒は飲まなくはないが、あまり好きではない。",
+       "ja_furigana": "お酒(さけ)は飲(の)まなくはないが、あまり好(す)きではない。",
+       "vi": "Rượu thì không phải là tôi không uống, nhưng không thích lắm."
+      },
+      {
+       "ja": "彼の言うことも、わからなくはない。",
+       "ja_furigana": "彼(かれ)の言(い)うことも、わからなくはない。",
+       "vi": "Điều anh ấy nói cũng không phải là tôi không hiểu."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "行けなくはないけど、今日は準備が必要だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không phải là không đi được, nhưng hôm nay cần chuẩn bị."
+     },
+     {
+      "ja": "この価格なら、買わなくはない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu với mức giá này thì cũng không phải là không mua."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 行けなくはないけど、今日は準備が必要だ。",
+     "FURIGANA_MISSING: この価格なら、買わなくはない。"
+    ],
+    "formation": "Vない → Vなく + はない / Aくない → Aくなく + はない",
+    "locked_fields": [],
+    "meaning_vi": "“Không phải là không…”, tức là thừa nhận một phần/miễn cưỡng/điều kiện kèm theo. Sắc thái nước đôi, tránh khẳng định dứt khoát; thường ngụ ý “cũng được, nhưng…/cũng có, song…”. Ý nghĩa phụ thuộc mạnh vào ngữ điệu và mệnh đề theo sau (nhượng bộ, điều kiện, hạn chế).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không phải là không..., cũng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Hay đi kèm các từ nối/định ngữ thể hiện điều kiện: けど／が／なら／とはいえ. Thường dùng để lịch sự từ chối/nhận lời dè dặt: “可能だが積極的ではない”. Với Adj-i, hình thức dài “〜くなくはない” thuận JLPT nhưng khẩu ngữ có xu hướng dùng まあ/別に để diễn đạt tương tự. [6. Ghi chú mở rộng] Ngữ điệu lên giọng ở cuối làm tăng cảm giác “có thể lắm”, xuống giọng làm tăng “miễn cưỡng”. Kết hợp với điều kiện “〜次第で／〜条件なら” để làm rõ giới hạn: 手伝わなくはないが、時間次第だ。 Na/N bắt buộc “でなくはない”; bỏ で là sai ngữ pháp. [7. Biến thể & cụm cố định] V-ない + なくはない／なくもない／ないことはない Adj-i（く） + なくはない（例：悪くなくはない／高くなくはない） Na/N + でなくはない（例：簡単でなくはない／可能でなくはない） [8. Lỗi thường gặp & bẫy JLPT] Quên “で” với Na/N: “静かでなくはない”. Nhầm với “〜くはない” (chỉ nhấn mạnh phần đối lập) vs “〜くなくはない” (kép phủ định). Ví dụ: 高くはない ≠ 高くなくはない. Dùng để khẳng định mạnh → sai sắc thái (mẫu này không dứt khoát). Câu hỏi bẫy JLPT: chọn giữa なくはない／ないことはない／なくもない; lưu ý mức độ chắc chắn và văn phong."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-46486bf266"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "試験の前は、遊びどころではない。",
+       "ja_furigana": "試験(しけん)の前(まえ)は、遊(あそ)びどころではない。",
+       "vi": "Trước kỳ thi thì không phải lúc đi chơi."
+      },
+      {
+       "ja": "給料が下がって、旅行どころではない。",
+       "ja_furigana": "給料(きゅうりょう)が下(さ)がって、旅行(りょこう)どころではない。",
+       "vi": "Lương bị giảm nên chẳng còn tâm trí đi du lịch."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "台風が来ていて、今日は花見どころではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì bão đang đến, hôm nay không phải lúc đi ngắm hoa."
+     },
+     {
+      "ja": "締め切り前で、映画を見ているどころではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sắp đến hạn nộp nên không có thời gian xem phim đâu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 台風が来ていて、今日は花見どころではない。",
+     "FURIGANA_MISSING: 締め切り前で、映画を見ているどころではない。"
+    ],
+    "formation": "N / Vる + どころではない",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa 1 (phổ biến): Không phải lúc/không có điều kiện để làm ~ vì hoàn cảnh không cho phép. Mang sắc thái gấp gáp, bận rộn, tình hình nghiêm trọng. Nghĩa 2: “Xa với ~ / không phải là ~ chút nào”, nhấn mạnh mức độ vượt xa kỳ vọng hay trái ngược hoàn toàn. Khác với phủ định đơn thuần, ～どころではない đặt trọng tâm vào “bối cảnh/sự tình không cho phép” hoặc “mức độ khác xa”. Thường đi kèm những danh từ mang tính tình huống: 暇, 冗談, 笑い事, 花見, 旅行, ボーナス…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không phải lúc..., không thể...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nghĩa 1 thường đi với Vる/Vている và danh từ chỉ hoạt động: 遊ぶ、休む、旅行、花見… Nghĩa 2 nhấn mạnh sự nghiêm trọng/vượt xa mức bình thường: 痛いどころではない, ミスどころではない… Sắc thái khẩu ngữ mạnh; trong văn viết trang trọng vẫn dùng được. Không kết hợp với ý chí/ra lệnh cho người nghe theo sau; chủ yếu là nhận định khách quan về hoàn cảnh. [6. Ghi chú mở rộng] Nếu muốn nhấn mạnh thời điểm cấp bách, dùng quá khứ: ～どころではなかった. Với danh từ trừu tượng: 笑い事どころではない, 人手不足どころではない… rất tự nhiên trong tin tức. Trong hội thoại thân mật có thể rút gọn: ～どころじゃない. [7. Biến thể & cụm cố định] ～どころじゃない（khẩu ngữ） ～どころの騒ぎではない（nhấn mạnh cực độ） Vているどころではない（đang/định làm ~ nhưng không phải lúc） 笑い事どころではない／冗談どころではない（cụm thường gặp） [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～どころか: nếu có hai vế đối lập rõ ràng, dùng どころか; nếu chỉ nói “không phải lúc/xa với ~”, dùng どころではない. Gắn sai dạng động từ: Vる/Vている đều được, nhưng tình huống “đang làm ~ thì không phải lúc” thường dùng Vている. Dùng cho ý chí người nghe là sai: × 遊ぶどころではないから、遊びなさい. Lạm dụng với tính từ -na: dùng với danh từ/biểu đạt tình huống tự nhiên hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3c8dcb4ee8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この雨、もう少し弱まらないものか。",
+       "ja_furigana": "この雨(あめ)、もう少(すこ)し弱(よわ)まらないものか。",
+       "vi": "Cơn mưa này không thể yếu bớt chút nào được sao."
+      },
+      {
+       "ja": "バスがもう少し早く来ないものか。",
+       "ja_furigana": "バスがもう少(すこ)し早(はや)く来(こ)ないものか。",
+       "vi": "Ước gì xe buýt đến sớm hơn một chút."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この渋滞、どうにかならないものか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ùn tắc này không thể làm gì được sao?"
+     },
+     {
+      "ja": "予算は厳しいが、品質だけはどうにか落とさないものか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngân sách eo hẹp nhưng liệu có cách nào không làm giảm chất lượng không?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この渋滞、どうにかならないものか。",
+     "FURIGANA_MISSING: 予算は厳しいが、品質だけはどうにか落とさないものか。"
+    ],
+    "formation": "Vない + ものか",
+    "locked_fields": [],
+    "meaning_vi": "- Diễn tả mong muốn mạnh mẽ: “Không thể (tìm cách) … sao?”, “Liệu có cách nào … không?”. Thường dùng khi việc đó khó, ngoài tầm kiểm soát người nói. - Sắc thái là than phiền/tiếc nuối + hy vọng tìm giải pháp. Mức độ mong cầu cao hơn các mẫu hỏi ý kiến thông thường. - Dùng với: động từ thể khả năng (できる/られる), hoặc てもらう (mong được người khác làm). Cụm cố định どうにかならないものか nhấn mạnh “không có cách xoay xở sao?”. - “ものか” ở đây là tiểu từ nhấn mạnh nghi vấn phản tu từ (rhetorical), có thể thay bằng “ものだろうか” để giảm sắc thái bức bối.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không thể nào... được sao?",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi người nói bức bách, mong muốn thay đổi tình trạng xấu; thường là vấn đề chung/công việc. Trang trọng hơn khi dùng ないものだろうか; thẳng, hơi gắt khi dùng ないものか. Thường kết hợp với từ chỉ mức độ “どうにか/なんとか/せめて”. “どうにか” trung tính, “なんとか” khẩu ngữ hơn. Chủ thể thực hiện hành động thường không phải chỉ riêng người nói; hàm ý cần “tìm cách”. Không dùng cho yêu cầu trực tiếp nhỏ nhặt; dùng cho việc khó/đã thử mà chưa được. [6. Ghi chú mở rộng] - “どうにか” và “なんとか” đa số hoán đổi được; “どうにか” nghe trung tính/viết, “なんとか” khẩu ngữ mạnh cảm xúc. - Hình thức lịch sự/viết: ～ないものだろうか ＞ ～ないだろうか ＞ ～ないものか (mạnh). Chọn theo mối quan hệ và bối cảnh. - Có thể thêm せめて để giảm phạm vi mong cầu: せめて納期だけでも守れないものだろうか。 [7. Biến thể & cụm cố định] どうにかならないものか (cụm cố định, rất thường dùng) どうにか（して）～ないものだろうか (lịch sự, mềm hơn) ～てもらえないものか／～ていただけないものか (nhờ vả với sắc thái bức bối) なんとか～ないものか (biến thể với なんとか) [8. Lỗi thường gặp & bẫy JLPT] Dùng với việc dễ/nhỏ nhặt → nghe quá nghiêm trọng. Nên dùng ～てくれない？ thay vì ～ないものか. Nhầm chủ thể: Mẫu này không nhấn mạnh “tôi sẽ làm” mà là “có cách/ai đó/điều kiện nào đó để…”. Bỏ “khả năng” của động từ: ưu tiên V-られない/できない. Ví dụ: ×増やさないものか → nên: 増やせないものか. Nhầm với phủ định đơn thuần: ～ないものか là nghi vấn mong muốn, không phải khẳng định “không …”. Trong bài thi, đáp án lịch sự thường là ～ないものだろうか khi bối cảnh trang trọng (công văn, đề xuất)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8f2d14cce6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日残業するくらいなら、給料が少なくても楽な仕事を選びたい。",
+       "ja_furigana": "毎日(まいにち)残業(ざんぎょう)するくらいなら、給料(きゅうりょう)が少(すく)なくても楽(らく)な仕事(しごと)を選(えら)びたい。",
+       "vi": "Nếu phải làm thêm giờ mỗi ngày thì tôi thà chọn công việc nhàn dù lương thấp hơn."
+      },
+      {
+       "ja": "一人で行くくらいなら、家にいたほうがましだ。",
+       "ja_furigana": "一人(ひとり)で行(い)くくらいなら、家(いえ)にいたほうがましだ。",
+       "vi": "Nếu phải đi một mình thì tôi thà ở nhà còn hơn."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あんな人に頭を下げるくらいなら、辞めたほうがましだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu phải cúi đầu trước người như thế thì thà nghỉ còn hơn."
+     },
+     {
+      "ja": "うそをつくくらいなら、黙っていたほうがいい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu phải nói dối thì im lặng còn tốt hơn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あんな人に頭を下げるくらいなら、辞めたほうがましだ。",
+     "FURIGANA_MISSING: うそをつくくらいなら、黙っていたほうがいい。"
+    ],
+    "formation": "Vる + くらいなら + 〜ほうがましだ",
+    "locked_fields": [],
+    "meaning_vi": "Nếu phải làm A (điều không mong muốn/đáng chê) thì thà chọn B (phương án ít tệ hơn, chấp nhận được). Thể hiện so sánh mang đánh giá chủ quan, thường có sắc thái tiêu cực với vế A. Vế B hay đi với ましだ/ほうがいい/いっそ～ để nhấn “ít tệ hơn”. Dùng cho lời khuyên, bộc lộ quan điểm, không dùng để mô tả sự thật đã xảy ra.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu phải... thì thà...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhất mạnh thái độ “thà… còn hơn…”, mang cảm xúc rõ, đôi khi dứt khoát. Vế A là tình huống giả định khó chấp nhận; vế B là lựa chọn thay thế ít tệ. Hợp với lời khuyên/cảnh báo nhẹ trong hội thoại; không dùng cho sự kiện quá khứ đã xong. Thường kết hợp まだ・いっそ để tăng sắc thái. [6. Ghi chú mở rộng] Thường dùng để tăng tính kịch tính trong lựa chọn: 死ぬくらいなら、逃げたほうがいい。 Vế B đôi khi là lựa chọn “cực đoan” để nhấn mạnh thái độ dứt khoát. Khi muốn trung tính hơn, cân nhắc ～よりは…ほうがいい. [7. Biến thể & cụm cố định] V-る + くらいなら／ぐらいなら …くらいなら、まだ～ほうがましだ …くらいなら、いっそ～ほうがいい するくらいなら／言うくらいなら／待つくらいなら（các động từ thường gặp） [8. Lỗi thường gặp & bẫy JLPT] Cho vế B là sự thật đã xảy ra (“…đã … rồi”) → sai dụng ý; mẫu này nêu lựa chọn/đánh giá, không tường thuật. Thiếu cụm đánh giá ở vế B (ましだ/ほうがいい) khiến câu mơ hồ. Nhầm với ～ほどなら (mức độ so sánh) → khác chức năng. Dùng cho hành vi tích cực ở vế A (không có sắc thái tiêu cực) → giảm tự nhiên của câu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-35cf97357f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "こんなに準備したのだから、失敗するわけがない。",
+       "ja_furigana": "こんなに準備(じゅんび)したのだから、失敗(しっぱい)するわけがない。",
+       "vi": "Đã chuẩn bị kỹ thế này thì không đời nào thất bại."
+      },
+      {
+       "ja": "あの静かな人が、そんな大きな声を出すわけがない。",
+       "ja_furigana": "あの静(しず)かな人(ひと)が、そんな大(おお)きな声(こえ)を出(だ)すわけがない。",
+       "vi": "Người trầm tính đó không đời nào nói to như vậy."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "うちの子がそんなことをするわけがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Con nhà tôi không lý gì làm điều như thế."
+     },
+     {
+      "ja": "ほめられて、うれしくないわけがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Được khen không có lý gì không vui."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: うちの子がそんなことをするわけがない。"
+    ],
+    "formation": "thể thường + わけがない",
+    "locked_fields": [],
+    "meaning_vi": "Không có lý gì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜するわけがない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* Aなだな OK： Vている／Vていた／Vられる／Vさせる Dùng để nhấn mạnh tính phủ định của sự việc/ vấn đề đó là không có khả năng, không có cơ sở lý do để thực hiện. Biểu thị phán đoán mang tính chủ quan của người nói."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-38bafd9f2c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "すべての学生が試験を心配しているわけではない。",
+       "ja_furigana": "すべての学生(がくせい)が試験(しけん)を心配(しんぱい)しているわけではない。",
+       "vi": "Không phải sinh viên nào cũng lo lắng về kỳ thi."
+      },
+      {
+       "ja": "高い物がいつもいいわけではない。",
+       "ja_furigana": "高(たか)い物(もの)がいつもいいわけではない。",
+       "vi": "Đồ đắt không phải lúc nào cũng tốt."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ほしくないわけではないけれど、お金がないから買えないんです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không phải là không muốn nhưng vì không có tiền nên không thể mua."
+     },
+     {
+      "ja": "テレビはつけてあるが、見ているわけでもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mở tivi đấy nhưng không hẳn là xem."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ほしくないわけではないけれど、お金がないから買えないんです。",
+     "FURIGANA_MISSING: テレビはつけてあるが、見ているわけでもない。"
+    ],
+    "formation": "thể thường + わけではない",
+    "locked_fields": [],
+    "meaning_vi": "Không nhất thiết là ～, không phải là ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ほしくないわけではない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* Aなだな OK： Vている／Vていた／Vられる／Vさせる Dùng để phủ định chỉ 1(phủ định đơn) phát ngôn hay thực trạng, thực tế đang được đề cập. Biểu thị thực tế khách quan, dựa trên yếu tố khách quan mà đưa ra ý phủ định."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a4d30b8914"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "電気がついている。誰かが家にいるわけだ。",
+       "ja_furigana": "電気(でんき)がついている。誰(だれ)かが家(いえ)にいるわけだ。",
+       "vi": "Đèn đang bật. Thảo nào có ai đó ở nhà."
+      },
+      {
+       "ja": "三年も日本に住んでいたら、日本語が上手になるわけだ。",
+       "ja_furigana": "三年(さんねん)も日本(にほん)に住(す)んでいたら、日本語(にほんご)が上手(じょうず)になるわけだ。",
+       "vi": "Sống ở Nhật những ba năm thì đương nhiên tiếng Nhật giỏi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "寒いわけだ。雪が降っている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì lạnh đấy. Tuyết đang rơi kìa."
+     },
+     {
+      "ja": "定価が１万円で、２割引きだから８千円になるわけだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giá đã định là 1 vạn yên, vì giảm 20 phần trăm nên trở thành 8 ngàn yên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 寒いわけだ。雪が降っている。",
+     "FURIGANA_MISSING: 定価が１万円で、２割引きだから８千円になるわけだ。"
+    ],
+    "formation": "thể thường + わけだ",
+    "locked_fields": [],
+    "meaning_vi": "Đương nhiên là, nghĩa là…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜寒いわけだ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* Aなだな OK： Vている／Vていた／Vられる／Vさせる Dùng trong trường hợp biểu thị ý muốn nói một việc trở nên như thế là đương nhiên vì đã có nguyên nhân, lý do trước đó. Hoặc khi muốn nói rằng đương nhiên sẽ có kết quả như thế vì đi theo trình tự, hướng đi, sự thật, tình huống nào đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a1ee437b6c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "長い間考えた末、会社をやめることにした。",
+       "ja_furigana": "長(なが)い間(あいだ)考(かんが)えた末(すえ)、会社(かいしゃ)をやめることにした。",
+       "vi": "Sau khi suy nghĩ rất lâu, tôi quyết định nghỉ việc ở công ty."
+      },
+      {
+       "ja": "何度も話し合った末に、やっと答えが出た。",
+       "ja_furigana": "何度(なんど)も話(はな)し合(あ)った末(すえ)に、やっと答(こた)えが出(で)た。",
+       "vi": "Sau nhiều lần bàn bạc, cuối cùng cũng có câu trả lời."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "悩んだ末、進学ではなく就職することにした。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi suy nghĩ kĩ, đã quyết định đi làm mà không học lên."
+     },
+     {
+      "ja": "住民との話し合いの末、その建物の建設は中止となった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi thảo luận với người dân thì việc xây dựng tòa nhà đó bị tạm dừng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 悩んだ末、進学ではなく就職することにした。",
+     "FURIGANA_MISSING: 住民との話し合いの末、その建物の建設は中止となった。"
+    ],
+    "formation": "Vた / N の + 末",
+    "locked_fields": [],
+    "meaning_vi": "Rất lâu sau khi ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜悩んだ末",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sau khi trải qua một quá trình nào đó, cuối cùng đã. Thường dùng trong văn viết, thể hiện câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-30bba04021"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-035"
+}

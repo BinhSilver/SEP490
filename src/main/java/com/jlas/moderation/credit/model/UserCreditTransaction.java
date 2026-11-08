@@ -11,10 +11,22 @@ public final class UserCreditTransaction {
         QUIZ_REWARD,
         SHADOWING_REWARD,
         STREAK_MILESTONE_REWARD,
+        DAILY_GOAL_REWARD,
         STREAK_FREEZE,
         VIDEO_UNLOCK,
         ADMIN_GRANT,
+        ADMIN_DEDUCT,
+        CREDIT_PURCHASE,
         WORD_CONTRIBUTION_REWARD,
-        REFUND
+        REFUND,
+        /** A dictionary approval was revised to rejected; the reward is taken back. */
+        WORD_CONTRIBUTION_REVOKED,
+        GAME_ITEM_PURCHASE,
+        /** Một lượt AI Call trả bằng CP sau khi hết hạn mức (JLAS-W0199); lỗi AI thì hoàn bằng REFUND. */
+        AI_CALL_TURN,
+        /** Gói lượt tra từ nhanh (bôi đen để tra) cho tài khoản không có Pro. */
+        QUICK_LOOKUP_PACK,
+        /** Một lần chấm phát âm sau khi hết lượt miễn phí trong ngày; lỗi chấm thì hoàn bằng REFUND. */
+        PRONUNCIATION_CHECK
     }
 }

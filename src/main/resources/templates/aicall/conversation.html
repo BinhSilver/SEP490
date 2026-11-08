@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title th:text="${freeChat} ? 'Trò Chuyện AI · Hội thoại' : (${scenario.title} + ' · Hội thoại')">Hội thoại</title>
@@ -9,19 +10,23 @@
     <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
     <link rel="stylesheet" th:href="@{/css/base.css}"/>
-    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20260907-2')}"/>
+    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20261105-plum')}"/>
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/cards.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/inputs.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/forms.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/dropdowns.css}"/>
+    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261103-auto)}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}"/>
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261103-nav-hover-2')}"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-<body id="jlabBasePage" th:class="${freeChat} ? 'mode-free-chat show-feedback' : 'show-furigana show-feedback show-suggestions'"
+<body data-mobile-adapt="owned" id="jlabBasePage" th:class="${freeChat} ? 'mode-free-chat show-feedback' : 'show-furigana show-feedback show-suggestions'"
       th:attr="data-session-id=${chatSession.id},
                data-scenario-id=${scenario.id},
                data-free-chat=${freeChat},
+               data-has-cast=${hasCast},
+               data-teacher-voice=${hasTeacherVoice},
                data-ended=${inProgress != true},
                data-scenario-url=${freeChat} ? @{/ai-call} : @{/scenario/{id}(id=${scenario.id})},
                data-category-url=${freeChat} ? @{/ai-call} : @{/category/{id}(id=${scenario.category.id})},
@@ -36,24 +41,33 @@
     <section class="cv-main" aria-label="Hội thoại">
         <div class="cv-main-top">
             <div>
-                <h1 th:text="${freeChat} ? 'Trò Chuyện AI' : ${scenario.title}">Kịch bản</h1>
-                <div class="sub">
-                    <span th:if="${freeChat}">Trò chuyện tự do với người Nhật</span>
-                    <th:block th:unless="${freeChat}">
-                        <span th:text="${aiRoleName}">AI</span> · Bạn: <span th:text="${userRoleName}">Học viên</span>
-                    </th:block>
+                <h1 th:text="${freeChat} ? 'Trò Chuyện AI' : (${stageDefinition != null ? stageDefinition.title : scenario.title})">Kịch bản</h1>
+                <p th:if="${chatSession.contentReview}" class="badge">Kiểm tra nội dung — không cộng vào tiến trình học</p>
+                <p class="freechat-past" th:if="${freeChat and !inProgress}">
+                    <span th:text="'Phiên ' + ${#temporals.format(chatSession.startedAt, 'dd/MM')} + ' đã kết thúc, chỉ xem lại.'">Phiên 28/10 đã kết thúc, chỉ xem lại.</span>
+                    <a th:href="@{/ai-call/free-chat/start}">Về cuộc trò chuyện hôm nay</a>
+                </p>
+                <div class="sub" th:unless="${freeChat}">
+                        <span data-current-speaker th:text="${aiRoleName}">AI</span> · Bạn: <span th:text="${userRoleName}">Học viên</span>
                 </div>
             </div>
-            <div class="cv-header-actions">
-                <span class="badge badge-blue" id="stateBadge" th:text="${currentStateName}">State</span>
-            </div>
+            <button type="button" class="cv-settings-trigger" id="btnConversationSettings"
+                    aria-haspopup="dialog" aria-controls="conversationSettingsDialog" aria-expanded="false" hidden>
+                <i class="fa-solid fa-sliders" aria-hidden="true"></i> Cài đặt
+            </button>
         </div>
 
-        <div class="cv-messages" id="chatMessages" role="log" aria-live="polite" aria-relevant="additions">
+        <div class="cv-messages" id="chatMessages" data-inline-dictionary role="log" aria-live="polite" aria-relevant="additions">
             <th:block th:each="m : ${messages}">
+            <div class="scene-transition" role="separator" th:if="${sceneTransitionByMessageId[m.id] != null}">
+                <span><i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    <th:block th:text="${sceneTransitionByMessageId[m.id]}">Chuyển cảnh…</th:block>
+                </span>
+            </div>
             <div
                  th:class="'msg-row ' + ${m.role}"
                  th:attr="data-role=${m.role}, data-text=${m.content},
+                          data-message-id=${m.id}, data-speaker-code=${speakerByMessageId[m.id] != null ? speakerByMessageId[m.id].code : null},
                           data-ruby-done=${furiganaCompleteByMessageId[m.id] == true} ? '1' : null">
                 <div class="avatar">
                     <span th:if="${m.role == 'assistant'}">AI</span>
@@ -61,7 +75,7 @@
                 </div>
                 <div class="msg-col">
                     <div class="msg-meta">
-                        <strong th:if="${m.role == 'assistant'}" th:text="${aiRoleName}">Vai AI</strong>
+                        <strong th:if="${m.role == 'assistant'}" th:text="${speakerByMessageId[m.id] != null ? speakerByMessageId[m.id].name : legacyAiRoleName}">Vai AI</strong>
                         <strong th:unless="${m.role == 'assistant'}">
                             <span>Bạn</span><span th:unless="${freeChat}"> · </span><span th:unless="${freeChat}" th:text="${userRoleName}">Vai người học</span>
                         </strong>
@@ -86,12 +100,10 @@
                                                data-jlpt=${token.jlptLevel}"
                                       th:text="${token.surface}"></span></th:block>
                         </div>
-                        <div class="translation-line" hidden th:unless="${freeChat}"></div>
+                        <div class="translation-line" hidden></div>
                         <div class="bubble-tools" th:if="${m.role == 'assistant'}">
                             <button type="button" class="tool-chip btn-tts" title="Phát âm"><i class="fa-solid fa-volume-high"></i> Phát</button>
                             <button type="button" class="tool-chip btn-copy" title="Sao chép"><i class="fa-solid fa-copy"></i> Chép</button>
-                            <button type="button" class="tool-chip btn-ruby" title="Furigana" th:unless="${freeChat}"><i class="fa-solid fa-language"></i> あ</button>
-                            <button type="button" class="tool-chip btn-tr" title="Dịch Việt" th:unless="${freeChat}"><i class="fa-solid fa-globe"></i> Việt</button>
                         </div>
                     </div>
                     <details class="feedback-card has-content" open
@@ -106,12 +118,6 @@
                         <div class="reason" th:text="${turnFeedback.reason}"></div>
                     </details>
                 </div>
-            </div>
-            <div class="scene-transition" role="separator"
-                 th:if="${sceneTransitionByMessageId[m.id] != null}">
-                <span><i class="fa-regular fa-clock" aria-hidden="true"></i>
-                    <th:block th:text="${sceneTransitionByMessageId[m.id]}">Chuyển cảnh…</th:block>
-                </span>
             </div>
             </th:block>
         </div>
@@ -141,14 +147,15 @@
                     <i class="fa-solid fa-microphone"></i>
                 </button>
                 <input type="text" id="messageInput"
-                       th:placeholder="${freeChat} ? 'Nói gì cũng được…' : 'Nhập tiếng Nhật…'"
+                       placeholder="Nhập tiếng Nhật…"
                        autocomplete="off"
-                       th:disabled="${inProgress != true}" aria-label="Ô nhập tin nhắn"/>
+                       th:disabled="${inProgress != true}" aria-label="Ô nhập tin nhắn tiếng Nhật" aria-describedby="composeError"/>
                 <button type="button" class="btn-send" id="btnSend" th:disabled="${inProgress != true}"
                         aria-label="Gửi">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </div>
+            <p id="composeError" class="compose-error" role="alert" hidden></p>
         </div>
     </section>
 
@@ -181,20 +188,20 @@
             </ul>
         </div>
 
-        <div class="side-card">
+        <div class="side-card" data-conversation-settings>
             <h3><i class="fa-solid fa-sliders"></i> Công cụ học</h3>
             <div class="toggle-list">
                 <div class="toggle-row"><span>Hiện Furigana</span><button type="button" class="switch on" data-toggle="furigana" aria-pressed="true"></button></div>
                 <div class="toggle-row"><span>Hiện bản dịch Việt</span><button type="button" class="switch" data-toggle="translation" aria-pressed="false"></button></div>
-                <div class="toggle-row"><span>Hiện phản hồi AI</span><button type="button" class="switch on" data-toggle="feedback" aria-pressed="true"></button></div>
+                <div class="toggle-row"><span>Hiện phản hồi AI</span><button type="button" class="switch on" data-toggle="feedback" aria-pressed="true" aria-label="Hiện phản hồi sửa lỗi"></button></div>
                 <div class="toggle-row"><span>Gợi ý trả lời</span><button type="button" class="switch on" data-toggle="suggestions" aria-pressed="true"></button></div>
-                <div class="toggle-row"><span>Tự phát âm AI</span><button type="button" class="switch" data-toggle="autoplay" aria-pressed="false"></button></div>
-                <div class="toggle-row"><span>Tự cuộn chat</span><button type="button" class="switch on" data-toggle="autoscroll" aria-pressed="true"></button></div>
+                <div class="toggle-row"><span>Tự phát âm AI</span><button type="button" class="switch" data-toggle="autoplay" aria-pressed="false" aria-label="Tự phát âm AI"></button></div>
+                <div class="toggle-row"><span>Tự cuộn chat</span><button type="button" class="switch on" data-toggle="autoscroll" aria-pressed="true" aria-label="Tự cuộn chat"></button></div>
             </div>
             <div class="tts-settings" id="ttsSettings">
                 <div class="tts-field">
-                    <span>Giọng đọc</span>
-                    <div class="tts-gender-row" role="group" aria-label="Chọn giọng nam hoặc nữ">
+                    <span th:text="${hasTeacherVoice} ? 'Giọng giáo viên' : 'Giọng đọc'">Giọng đọc</span>
+                    <div class="tts-gender-row" th:if="${!hasCast || hasTeacherVoice}" role="group" aria-label="Chọn giọng nam hoặc nữ">
                         <button type="button" class="tts-gender-btn" id="btnTtsFemale" data-gender="female" aria-pressed="true">
                             <i class="fa-solid fa-venus"></i> Nữ
                         </button>
@@ -243,36 +250,9 @@
 
     <!-- Trò chuyện tự do: cài đặt prompt và công cụ giọng nói -->
     <aside class="cv-sidebar" aria-label="Công cụ thoại" th:if="${freeChat}">
-        <div class="side-card freechat-drive-card">
-            <h3><i class="fa-solid fa-bullseye"></i> AI chủ động dẫn dắt</h3>
-            <p class="freechat-hint" title="Khi bật, AI sẽ chủ động giữ cho cuộc trò chuyện luôn tự nhiên, không bị ngắt quãng và có thể gợi mở chủ đề mới dựa trên sở thích của bạn.">
-                Khi bật, AI giữ hội thoại trôi chảy và có thể gợi chủ đề theo sở thích của bạn.
-            </p>
-            <div class="toggle-list">
-                <div class="toggle-row">
-                    <span>Bật AI chủ động</span>
-                    <button type="button" class="switch on" id="btnConversationActive" data-freechat-toggle="conversationActive" aria-pressed="true" title="Khi bật, AI sẽ chủ động giữ cho cuộc trò chuyện luôn tự nhiên, không bị ngắt quãng và có thể gợi mở chủ đề mới dựa trên sở thích của bạn."></button>
-                </div>
-            </div>
-        </div>
-
-        <div class="side-card" id="favoriteTopicsCard">
-            <h3><i class="fa-solid fa-heart"></i> Chủ đề yêu thích</h3>
-            <p class="freechat-hint">Chọn chủ đề để AI ưu tiên gợi khi hội thoại chậm lại.</p>
-            <div class="topic-chip-row" id="favoriteTopicChips" role="group" aria-label="Chủ đề yêu thích">
-                <button type="button" class="topic-chip" data-topic="Anime">Anime</button>
-                <button type="button" class="topic-chip" data-topic="Travel">Du lịch</button>
-                <button type="button" class="topic-chip" data-topic="Technology">Công nghệ</button>
-                <button type="button" class="topic-chip" data-topic="Music">Âm nhạc</button>
-                <button type="button" class="topic-chip" data-topic="Food">Ẩm thực</button>
-                <button type="button" class="topic-chip" data-topic="Sports">Thể thao</button>
-                <button type="button" class="topic-chip" data-topic="Movies">Phim</button>
-                <button type="button" class="topic-chip" data-topic="Games">Game</button>
-            </div>
-        </div>
-
-        <div class="side-card">
+        <div class="side-card" data-conversation-settings>
             <h3><i class="fa-solid fa-user-gear"></i> Phong cách AI</h3>
+            <div class="freechat-settings-grid">
             <label class="freechat-field" for="fcPersonality">Tính cách
                 <select id="fcPersonality">
                     <option value="friendly">Thân thiện</option>
@@ -291,16 +271,16 @@
                     <option value="n3" selected>N3</option>
                     <option value="n2">N2</option>
                     <option value="n1">N1</option>
-                    <option value="native">Native</option>
+                    <option value="native">Người bản xứ</option>
                 </select>
             </label>
             <label class="freechat-field" for="fcStyle">Giọng nói
                 <select id="fcStyle">
-                    <option value="casual" selected>Casual</option>
+                    <option value="casual" selected>Thân mật</option>
                     <option value="polite">Lịch sự</option>
-                    <option value="keigo">Keigo</option>
-                    <option value="osaka">Osaka</option>
-                    <option value="anime">Anime</option>
+                    <option value="keigo">Kính ngữ (Keigo)</option>
+                    <option value="osaka">Giọng Osaka</option>
+                    <option value="anime">Kiểu anime</option>
                 </select>
             </label>
             <label class="freechat-field" for="fcInitiative">Mức chủ động
@@ -310,43 +290,68 @@
                     <option value="high">Cao</option>
                 </select>
             </label>
+            </div>
+            <details class="freechat-topic-dropdown" id="favoriteTopicsCard">
+                <summary><span>Chủ đề yêu thích</span><span id="fcTopicSummary">Chưa chọn</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+                <div class="freechat-topic-options" role="group" aria-label="Chủ đề yêu thích">
+                    <label><input type="checkbox" data-topic="Anime"/><span>Anime</span></label>
+                    <label><input type="checkbox" data-topic="Travel"/><span>Du lịch</span></label>
+                    <label><input type="checkbox" data-topic="Technology"/><span>Công nghệ</span></label>
+                    <label><input type="checkbox" data-topic="Music"/><span>Âm nhạc</span></label>
+                    <label><input type="checkbox" data-topic="Food"/><span>Ẩm thực</span></label>
+                    <label><input type="checkbox" data-topic="Sports"/><span>Thể thao</span></label>
+                    <label><input type="checkbox" data-topic="Movies"/><span>Phim</span></label>
+                    <label><input type="checkbox" data-topic="Games"/><span>Game</span></label>
+                </div>
+            </details>
         </div>
 
-        <div class="side-card">
+        <div class="side-card" data-conversation-settings>
             <h3><i class="fa-solid fa-sliders"></i> Công cụ</h3>
             <div class="toggle-list">
-                <div class="toggle-row"><span>Hiện phản hồi sửa lỗi</span><button type="button" class="switch on" data-toggle="feedback" aria-pressed="true"></button></div>
-                <div class="toggle-row"><span>Tự phát âm AI</span><button type="button" class="switch" data-toggle="autoplay" aria-pressed="false"></button></div>
-                <div class="toggle-row"><span>Tự cuộn chat</span><button type="button" class="switch on" data-toggle="autoscroll" aria-pressed="true"></button></div>
+                <div class="toggle-row"><span>AI chủ động</span><button type="button" class="switch on" id="btnConversationActive" data-freechat-toggle="conversationActive" aria-pressed="true" aria-label="AI chủ động dẫn dắt"></button></div>
+                <div class="toggle-row"><span>Hiện Furigana</span><button type="button" class="switch on" data-toggle="furigana" aria-pressed="true" aria-label="Hiện Furigana"></button></div>
+                <div class="toggle-row"><span>Hiện bản dịch Việt</span><button type="button" class="switch" data-toggle="translation" aria-pressed="false" aria-label="Hiện bản dịch Việt"></button></div>
+                <div class="toggle-row"><span>Hiện phản hồi sửa lỗi</span><button type="button" class="switch on" data-toggle="feedback" aria-pressed="true" aria-label="Hiện phản hồi sửa lỗi"></button></div>
+                <div class="toggle-row"><span>Tự phát âm AI</span><button type="button" class="switch" data-toggle="autoplay" aria-pressed="false" aria-label="Tự phát âm AI"></button></div>
+                <div class="toggle-row"><span>Tự cuộn chat</span><button type="button" class="switch on" data-toggle="autoscroll" aria-pressed="true" aria-label="Tự cuộn chat"></button></div>
             </div>
-            <div class="tts-settings" id="ttsSettings">
-                <div class="tts-field">
-                    <span>Giọng đọc</span>
-                    <div class="tts-gender-row" role="group" aria-label="Chọn giọng nam hoặc nữ">
-                        <button type="button" class="tts-gender-btn" id="btnTtsFemale" data-gender="female" aria-pressed="true">
-                            <i class="fa-solid fa-venus"></i> Nữ
-                        </button>
-                        <button type="button" class="tts-gender-btn" id="btnTtsMale" data-gender="male" aria-pressed="false">
-                            <i class="fa-solid fa-mars"></i> Nam
-                        </button>
-                    </div>
-                </div>
-                <label class="tts-field" for="ttsRateRange">
-                    <span>Tốc độ: <strong id="ttsRateLabel">1.0×</strong></span>
-                    <input type="range" id="ttsRateRange" min="0.5" max="1.5" step="0.1" value="1" aria-label="Tốc độ đọc"/>
+            <div class="tts-settings tts-settings--compact" id="ttsSettings">
+                <label class="freechat-field" for="ttsGenderSelect">Giọng đọc
+                    <select id="ttsGenderSelect"><option value="female">Nữ</option><option value="male">Nam</option></select>
+                </label>
+                <label class="freechat-field" for="ttsRateRange">Tốc độ
+                    <select id="ttsRateRange" aria-label="Tốc độ đọc">
+                        <option value="0.5">0.5×</option>
+                        <option value="0.6">0.6×</option>
+                        <option value="0.7">0.7×</option>
+                        <option value="0.8">0.8×</option>
+                        <option value="0.9">0.9×</option>
+                        <option value="1" selected>1.0×</option>
+                        <option value="1.1">1.1×</option>
+                        <option value="1.2">1.2×</option>
+                        <option value="1.3">1.3×</option>
+                        <option value="1.4">1.4×</option>
+                        <option value="1.5">1.5×</option>
+                    </select>
                 </label>
                 <button type="button" class="btn-tts-test" id="btnTtsTest" title="Thử giọng đang chọn">
                     <i class="fa-solid fa-volume-high"></i> Thử giọng
                 </button>
             </div>
         </div>
-        <div class="side-card">
-            <a class="btn btn-ghost btn-block" th:href="@{/ai-call}" style="width:100%; background: transparent !important; border: 1px solid rgba(255, 255, 255, 0.3) !important; color: #ffffff !important;">
-                <i class="fa-solid fa-house"></i> Về chọn chế độ
-            </a>
-        </div>
     </aside>
 </main>
+
+<dialog class="cv-settings-dialog" id="conversationSettingsDialog" aria-labelledby="conversationSettingsTitle">
+    <div class="cv-settings-dialog__header">
+        <h2 id="conversationSettingsTitle">Cài đặt</h2>
+        <button type="button" class="cv-settings-close" id="btnCloseConversationSettings" aria-label="Đóng cài đặt">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+    </div>
+    <div class="cv-settings-dialog__body" id="conversationSettingsContent"></div>
+</dialog>
 
 <div class="word-modal-backdrop" id="wordModal" role="dialog" aria-modal="true" aria-labelledby="wordModalTitle" th:unless="${freeChat}">
     <div class="word-modal">
@@ -397,8 +402,13 @@
     <div class="modal-body">
       <p id="quotaMessage" class="muted">Bạn đã dùng hết thời lượng hội thoại miễn phí hôm nay.</p>
       <ul class="quota-usage" id="quotaUsage"></ul>
+      <label class="quota-auto" id="quotaAutoWrap" hidden>
+        <input type="checkbox" id="quotaAutoCredit">
+        <span>Không hỏi lại hôm nay (tự dùng CP, tối đa <span id="quotaAutoCap">100</span> CP/ngày)</span>
+      </label>
       <div class="quota-actions">
-        <button class="button-secondary btn-sm" id="btnQuotaBuy"><i class="fa-solid fa-coins"></i> Mua thêm Credit</button>
+        <button class="button-primary btn-sm" id="btnQuotaUseCredit" hidden><i class="fa-solid fa-coins"></i> Dùng CP cho lượt này</button>
+        <button class="button-secondary btn-sm" id="btnQuotaBuy"><i class="fa-solid fa-coins"></i> Nạp CP</button>
         <button class="button-primary btn-sm" id="btnQuotaUpgrade"><i class="fa-solid fa-crown"></i> Nâng cấp Premium</button>
       </div>
     </div>
@@ -416,8 +426,12 @@
   </div>
 </div>
 <script th:src="@{/js/auth-session.js}"></script>
+<script th:src="@{/js/components/cp-auto-pay.js(v=20261103-auto)}"></script>
+<script defer th:src="@{/js/inline-dictionary.js(v=20261103-auto)}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 <script src="/js/audio-visualizer.js"></script>
-<script th:src="@{/js/conversation.js(v='20260907-1')}"></script>
+<script src="/js/pages/aicall-scene-image.js?v=20261002"></script>
+<script th:src="@{/js/conversation.js(v='20261103-auto')}"></script>
+<script src="/js/conversation-settings.js?v=20261009-composer-fix"></script>
 </body>
 </html>

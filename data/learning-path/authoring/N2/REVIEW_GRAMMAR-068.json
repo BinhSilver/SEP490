@@ -1,0 +1,581 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "約束を守らないのは失礼というものだ。",
+       "ja_furigana": "約束(やくそく)を守(まも)らないのは失礼(しつれい)というものだ。",
+       "vi": "Không giữ lời hứa là điều thất lễ."
+      },
+      {
+       "ja": "こんなに待たせるのはひどいというものだ。",
+       "ja_furigana": "こんなに待(ま)たせるのはひどいというものだ。",
+       "vi": "Bắt người ta chờ lâu thế này thì thật quá đáng."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今日中にこれを全部終わらせるのは無理というものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hoàn thành hết cái này nội trong ngày hôm nay là điều không thể."
+     },
+     {
+      "ja": "夜中に電話をしてくるのは非常識というものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gọi điện thoại lúc nửa đêm là điều vô ý thức."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今日中にこれを全部終わらせるのは無理というものだ。",
+     "FURIGANA_MISSING: 夜中に電話をしてくるのは非常識というものだ。"
+    ],
+    "formation": "N・Aな（だ bỏ đi） + というものだ; thể thường + というものだ",
+    "locked_fields": [],
+    "meaning_vi": "đương nhiên ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜無理というものだ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu thị cách nghĩ và cảm giác của người nói rằng việc đó là đương nhiên"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a0505a008a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "年の初めには、一年の目標を立てるものだ。",
+       "ja_furigana": "年(とし)の初(はじ)めには、一年(いちねん)の目標(もくひょう)を立(た)てるものだ。",
+       "vi": "Đầu năm người ta thường đặt ra mục tiêu cho cả năm."
+      },
+      {
+       "ja": "一度は海外で暮らしてみたいものだ。",
+       "ja_furigana": "一度(いちど)は海外(かいがい)で暮(く)らしてみたいものだ。",
+       "vi": "Tôi thật mong có lần được sống ở nước ngoài."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "薬は苦いものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thuốc đắng quá đi thôi."
+     },
+     {
+      "ja": "あなたの国へ行ってみたいものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi muốn thử đến nước của bạn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 薬は苦いものだ。",
+     "FURIGANA_MISSING: あなたの国へ行ってみたいものだ。"
+    ],
+    "formation": "Vる・Vた・Aい・Aな + ものだ; Vたい + ものだ",
+    "locked_fields": [],
+    "meaning_vi": "（1）đương nhiên ～ （2）thật là, biết bao…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜薬は苦いものだ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "（1）Nói về thứ được coi là tự nhiên, thường thức （2）Thể hiện cảm xúc mạnh, mong muốn, cảm thán, thở dài * ～もんだ: dùng trong văn nói."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d5d113f074"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あんな人に二度と頼むものか。",
+       "ja_furigana": "あんな人(ひと)に二度(にど)と頼(たの)むものか。",
+       "vi": "Đời nào tôi lại nhờ người như thế lần nữa."
+      },
+      {
+       "ja": "こんな難しい問題、だれが解けるものか。",
+       "ja_furigana": "こんな難(むずか)しい問題(もんだい)、だれが解(と)けるものか。",
+       "vi": "Bài khó thế này thì ai mà giải được."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あんな店、二度と行くものか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái quán như kia tôi quyết không đến lần thứ hai."
+     },
+     {
+      "ja": "元気なもんか。くたくただよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không khỏe rồi. Mệt quá nè."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あんな店、二度と行くものか。",
+     "FURIGANA_MISSING: 元気なもんか。くたくただよ。"
+    ],
+    "formation": "Vる・Aい + ものか; Aな・N + なものか",
+    "locked_fields": [],
+    "meaning_vi": "tuyệt đối không ～, không hề ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜行くものか",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu thị ý phủ định mạnh. 「～もんか」、「～もんですか」 được sử dụng trong văn nói hoặc thân mật."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-55a083d20a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私は友達を通じて今の仕事を知った。",
+       "ja_furigana": "私(わたし)は友達(ともだち)を通(つう)じて今(いま)の仕事(しごと)を知(し)った。",
+       "vi": "Tôi biết công việc hiện tại qua một người bạn."
+      },
+      {
+       "ja": "この一年を通じて、多くのことを学んだ。",
+       "ja_furigana": "この一年(いちねん)を通(つう)じて、多(おお)くのことを学(まな)んだ。",
+       "vi": "Suốt một năm qua, tôi đã học được nhiều điều."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "友人を通じて彼と知り合った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã biết anh ấy thông qua bạn thân."
+     },
+     {
+      "ja": "テレビのニュースを通じてその事件を知った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã biết vụ việc đó thông qua tin tức tivi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 友人を通じて彼と知り合った。",
+     "FURIGANA_MISSING: テレビのニュースを通じてその事件を知った。"
+    ],
+    "formation": "N + を通じて",
+    "locked_fields": [],
+    "meaning_vi": "thông qua ～; suốt ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜友人を通じて",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng khi nêu lên việc thiết lập một mối quan hệ hay truyền tải thông tin, liên lạc gì đó, có được nhờ thông qua một trung gian. Khi đề cập đến 1 khoảng thời gian liên tục không ngắt quãng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2c7c981848"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私は地図を頼りに、山の道を歩いた。",
+       "ja_furigana": "私(わたし)は地図(ちず)を頼(たよ)りに、山(やま)の道(みち)を歩(ある)いた。",
+       "vi": "Tôi dựa vào bản đồ mà đi trên đường núi."
+      },
+      {
+       "ja": "星を頼りに、船は港へ戻った。",
+       "ja_furigana": "星(ほし)を頼(たよ)りに、船(ふね)は港(みなと)へ戻(もど)った。",
+       "vi": "Dựa vào những vì sao, con thuyền quay về bến cảng."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "地図を頼りに、友達に教えてもらったレストランにた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhờ vào bản đồ mà đến được nhà hàng bạn chỉ."
+     },
+     {
+      "ja": "祖父はつえを頼りにして歩いている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ông tôi đi bộ nhờ vào gậy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 地図を頼りに、友達に教えてもらったレストランにた。",
+     "FURIGANA_MISSING: 祖父はつえを頼りにして歩いている。"
+    ],
+    "formation": "N + を頼りに／を頼りにして",
+    "locked_fields": [],
+    "meaning_vi": "dựa vào, nhờ vào ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜地図を頼りに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn đạt ý thực hiện hành động nào đó nhờ vào sự trợ giúp của ～"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f7645a8972"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母に感謝の気持ちをこめて、手紙を書いた。",
+       "ja_furigana": "母(はは)に感謝(かんしゃ)の気持(きも)ちをこめて、手紙(てがみ)を書(か)いた。",
+       "vi": "Tôi viết thư cho mẹ với cả lòng biết ơn."
+      },
+      {
+       "ja": "心をこめて作った料理だから、おいしいはずだ。",
+       "ja_furigana": "心(こころ)をこめて作(つく)った料理(りょうり)だから、おいしいはずだ。",
+       "vi": "Vì là món ăn làm bằng cả tấm lòng nên chắc chắn ngon."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "感謝の気持ちをこめて編んだマフラーです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đây là khăn choàng cổ được đã đan tràn đầy cảm xúc biết ơn."
+     },
+     {
+      "ja": "愛をこめてカードを贈る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gửi thiệp tràn đầy tình yêu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 感謝の気持ちをこめて編んだマフラーです。",
+     "FURIGANA_MISSING: 愛をこめてカードを贈る。"
+    ],
+    "formation": "N + をこめて",
+    "locked_fields": [],
+    "meaning_vi": "Dồn cả, với tất cả, chứa chan ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜感謝の気持ちをこめて",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Gửi gắm tâm tư, tình cảm, cảm xúc vào một việc gì đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e4602a0acc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町は駅を中心に広がってきた。",
+       "ja_furigana": "この町(まち)は駅(えき)を中心(ちゅうしん)に広(ひろ)がってきた。",
+       "vi": "Thị trấn này mở rộng lấy nhà ga làm trung tâm."
+      },
+      {
+       "ja": "会議では、ごみ問題を中心に話し合った。",
+       "ja_furigana": "会議(かいぎ)では、ごみ問題(もんだい)を中心(ちゅうしん)に話(はな)し合(あ)った。",
+       "vi": "Trong cuộc họp, chúng tôi bàn chủ yếu về vấn đề rác thải."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "東京を中心に関東地方は台風の影響が強くなっています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ảnh hưởng của bão trở nên mạnh khu vực Kanto đặc biệt là Tokyo."
+     },
+     {
+      "ja": "この店はスキー用品を中心としたスポーツ専門店です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tiệm này là tiệm chuyên bàn đồ thể thao đặc biệt là dụng cụ trượt tuyết."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 東京を中心に関東地方は台風の影響が強くなっています。",
+     "FURIGANA_MISSING: この店はスキー用品を中心としたスポーツ専門店です。"
+    ],
+    "formation": "N + を中心に／を中心として",
+    "locked_fields": [],
+    "meaning_vi": "đặc biệt là ～ , chủ yếu là ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜東京を中心に",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng chỉ sự vật/ hiện tượng gì đó là trung tâm/ là điểm quan trọng cần chú ý nhất trong một phạm vi nào đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6b29eee486"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅行のお金を借りようか借りまいか、一晩考えた。",
+       "ja_furigana": "旅行(りょこう)のお金(かね)を借(か)りようか借(か)りまいか、一晩(ひとばん)考(かんが)えた。",
+       "vi": "Tôi đã suy nghĩ cả đêm không biết có nên vay tiền đi du lịch hay không."
+      },
+      {
+       "ja": "この話を彼に伝えようか伝えまいか、迷っている。",
+       "ja_furigana": "この話(はなし)を彼(かれ)に伝(つた)えようか伝(つた)えまいか、迷(まよ)っている。",
+       "vi": "Tôi đang phân vân không biết có nên kể chuyện này cho anh ấy hay không."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "高いから、買おうか買うまいか迷ったけど、これから一生使えると思って買うことにした。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì mắc nên tôi phân vân có nên mua hay không, nhưng nghĩ rằng sẽ dùng được cả đời nên đã quyết định mua."
+     },
+     {
+      "ja": "１時間しか眠る時間がなかったので、寝ようか寝まいか迷ったが、結局寝なかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ có một giờ để ngủ, tôi phân vân có nên ngủ hay không, nhưng cuối cùng đã không ngủ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 高いから、買おうか買うまいか迷ったけど、これから一生使えると思って買うことにした。",
+     "FURIGANA_MISSING: １時間しか眠る時間がなかったので、寝ようか寝まいか迷ったが、結局寝なかった。"
+    ],
+    "formation": "V意向形 + か + Vる + まいか（Vない + まいか）",
+    "locked_fields": [],
+    "meaning_vi": "Phân vân không biết nên làm hay không làm.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜(よ)うか〜まいか",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4a6c07992b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お金を借りてまでして、高い車を買いたくない。",
+       "ja_furigana": "お金(かね)を借(か)りてまでして、高(たか)い車(くるま)を買(か)いたくない。",
+       "vi": "Tôi không muốn vay tiền chỉ để mua xe đắt tiền."
+      },
+      {
+       "ja": "寝る時間をけずってまでして、ゲームをしたくない。",
+       "ja_furigana": "寝(ね)る時間(じかん)をけずってまでして、ゲームをしたくない。",
+       "vi": "Tôi không muốn cắt cả giờ ngủ để chơi game."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「あの店、すごい行列だね」「ほんとだ。でも私は、並んでまでしてラーメンを食べたいと思わないなあ」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "「Quán kia xếp hàng dài thật đấy」「Đúng vậy. Nhưng tôi thì không muốn đến mức phải xếp hàng để ăn ramen」"
+     },
+     {
+      "ja": "友達はやせるためにご飯を抜いたりしてるけど、私はそこまでしてやせたいと思わない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn tôi bỏ bữa để giảm cân, nhưng tôi thì không muốn giảm cân đến mức đó."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「あの店、すごい行列だね」「ほんとだ。でも私は、並んでまでしてラーメンを食べたいと思わないなあ」",
+     "FURIGANA_MISSING: 友達はやせるためにご飯を抜いたりしてるけど、私はそこまでしてやせたいと思わない。"
+    ],
+    "formation": "V-て + まで（して）; N + までして",
+    "locked_fields": [],
+    "meaning_vi": "Đến mức phải làm cả việc cực đoan nào đó để đạt mục đích.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜までして",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ca9fc5549d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私の知る限りでは、この店がいちばん安い。",
+       "ja_furigana": "私(わたし)の知(し)る限(かぎ)りでは、この店(みせ)がいちばん安(やす)い。",
+       "vi": "Theo hiểu biết của tôi, cửa hàng này rẻ nhất."
+      },
+      {
+       "ja": "見た限りでは、彼はまだ元気そうだった。",
+       "ja_furigana": "見(み)た限(かぎ)りでは、彼(かれ)はまだ元気(げんき)そうだった。",
+       "vi": "Theo như tôi thấy, anh ấy trông vẫn còn khỏe."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "日本文化の研究に関しては、私の知る限りでは、この大学が一番です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Về nghiên cứu văn hóa Nhật Bản, theo tôi biết thì trường đại học này là tốt nhất."
+     },
+     {
+      "ja": "入院患者への電話の取り次ぎは午前9時から午後9時までです。ただし緊急の場合は、この限りではありません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Việc chuyển cuộc gọi đến bệnh nhân đang nằm viện được thực hiện từ 9 giờ sáng đến 9 giờ tối. Tuy nhiên trong trường hợp khẩn cấp thì không bị giới hạn như vậy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 日本文化の研究に関しては、私の知る限りでは、この大学が一番です。",
+     "FURIGANA_MISSING: 入院患者への電話の取り次ぎは午前9時から午後9時までです。ただし緊急の場合は、この限りではありません。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 入院患者への電話の取り次ぎは午前9時から午後9時までです。ただし緊急の場合は、この限りではありません。 → 緊急"
+    ],
+    "formation": "Vる・Vた + 限りでは; N + の限りでは",
+    "locked_fields": [],
+    "meaning_vi": "Trong phạm vi mà mình biết hoặc thấy được thì.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜限りでは",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-694f29171d"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-068"
+}

@@ -1,6 +1,7 @@
 package com.jlas.shadowing.service;
 
 import com.jlas.shadowing.dto.YoutubeAnalyzeResultDto;
+import com.jlas.shadowing.util.VideoAgeRatings;
 import com.jlas.shadowing.util.youtube.TranslationTrack;
 import com.jlas.shadowing.util.youtube.YoutubeUrlValidator;
 
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class YoutubeAnalyzeService {
 
     @Autowired private YoutubeService youtubeService;
+    @Autowired private ShadowingTakedownService takedownService;
 
     @Value("${youtube.max.duration.no-subtitle.seconds:300}")
     private int maxDurationNoSubtitleSeconds;
@@ -26,6 +28,10 @@ public class YoutubeAnalyzeService {
         YoutubeUrlValidator.requireValid(rawUrl);
         String normalized = YoutubeUrlValidator.normalizeWatchUrl(rawUrl);
         String videoId = YoutubeUrlValidator.extractVideoId(rawUrl).orElseThrow();
+        if (takedownService.isBlockedYoutube(videoId)) {
+            throw new IllegalArgumentException("Video này đã bị gỡ vì vi phạm bản quyền hoặc quy định cộng đồng "
+                    + "nên không thể thêm vào Shadowing.");
+        }
 
         JsonNode root = youtubeService.dumpJson(normalized);
 
@@ -35,6 +41,10 @@ public class YoutubeAnalyzeService {
 
         YoutubeAnalyzeResultDto dto = new YoutubeAnalyzeResultDto();
         dto.setYoutubeVideoId(videoId);
+        // Videos are played through YouTube's embed; one its owner does not allow to embed is downloaded instead.
+        // Only an explicit false counts; a missing field is treated as embeddable.
+        dto.setEmbeddable(!(root.path("playable_in_embed").isBoolean() && !root.path("playable_in_embed").asBoolean()));
+        dto.setYoutubeMinAge(VideoAgeRatings.fromYoutubeAgeLimit(root.path("age_limit").asInt(0)));
         dto.setUrl(normalized);
         dto.setTitle(root.path("title").asText("YouTube Video"));
         dto.setDuration((int) Math.round(root.path("duration").asDouble(0)));

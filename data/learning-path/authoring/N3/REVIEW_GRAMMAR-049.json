@@ -1,0 +1,575 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "車で行くとしたら、何時に出ますか。",
+       "ja_furigana": "車(くるま)で行(い)くとしたら、何(なん)時(じ)に出(で)ますか。",
+       "vi": "Nếu đi bằng xe thì mấy giờ xuất phát?",
+       "role": "MAIN"
+      },
+      {
+       "ja": "一年休めるとしたら、世界を旅行したい。",
+       "ja_furigana": "一年(いちねん)休(やす)めるとしたら、世界(せかい)を旅行(りょこう)したい。",
+       "vi": "Nếu được nghỉ một năm thì tôi muốn đi du lịch khắp thế giới.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "その話が本当だとしたら、うれしいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu câu chuyện đó là thật thì tôi vui lắm"
+     },
+     {
+      "ja": "飛行機で行くとしたら、いくらぐらいかかりますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu đi bằng máy bay thì mất bao nhiêu?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: その話が本当だとしたら、うれしいです。",
+     "FURIGANA_MISSING: 飛行機で行くとしたら、いくらぐらいかかりますか。"
+    ],
+    "formation": "V / Aい / Aな(だ)・N(だ) + としたら",
+    "locked_fields": [],
+    "meaning_vi": "Nếu là, nếu…thì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜本当だとしたら",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng cho các câu điều kiện"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-20225ffe0e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あの店、何時に閉まるんだっけ。",
+       "ja_furigana": "あの店(みせ)、何(なん)時(じ)に閉(し)まるんだっけ。",
+       "vi": "Quán đó đóng lúc mấy giờ ấy nhỉ?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "次の休みは何曜日だっけ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kỳ nghỉ tới là thứ mấy nhỉ? · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 次の休みは何曜日だっけ。"
+    ],
+    "formation": "V-た / Aい(かった) / Aな・N(だ / だった) + っけ",
+    "locked_fields": [],
+    "meaning_vi": "Xác nhận thông tin",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜っけ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để hỏi lại nhằm xác nhận thông tin đã biết hoặc đã nghe. Dùng để nhớ lại chuyện đã xảy ra trong quá khứ. 1) Dễ nhầm 2 cách dùng của ～っけ. → Một là hỏi lại để xác nhận; hai là tự nhớ lại (hồi tưởng). 2) Chỉ dùng trong khẩu ngữ. → Hay gặp trong hội thoại, không dùng trong văn viết trang trọng. 3) Thường đi với dạng quá khứ hoặc nội dung đã biết. → Dùng khi người nói “biết rồi nhưng quên/không chắc”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b36edcf068"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "鍵がないから、部屋に入りようがない。",
+       "ja_furigana": "鍵(かぎ)がないから、部屋(へや)に入(はい)りようがない。",
+       "vi": "Không có chìa nên chẳng thể vào phòng.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "住所が分からないので、手紙の出しようがない。",
+       "ja_furigana": "住所(じゅうしょ)が分(わ)からないので、手紙(てがみ)の出(だ)しようがない。",
+       "vi": "Không biết địa chỉ nên không có cách nào gửi thư.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "手紙に彼の住所が書いてない。これでは返事の出しようがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trên lá thư không ghi địa chỉ của anh ta. Vì thế không thể trả lời được."
+     },
+     {
+      "ja": "とても悲しそうだったので、慰めようがなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi buồn đến nỗi không gì có thể an ủi được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 手紙に彼の住所が書いてない。これでは返事の出しようがない。",
+     "FURIGANA_MISSING: とても悲しそうだったので、慰めようがなかった。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: とても悲しそうだったので、慰めようがなかった。 → 慰め"
+    ],
+    "formation": "V(bỏ ます) + ようがない",
+    "locked_fields": [],
+    "meaning_vi": "Không có cách nào để …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ようがない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả không có phương pháp hay cách nào để thực hiện hành động. 1) Dễ nhầm với ～できない. → ～ようがない là “không có cách nào để…”, nhấn mạnh không tồn tại phương pháp. 2) Hay dùng khi thiếu thông tin/cách giải. → Thường kèm cảm giác bó tay. 3) Không dùng khi chỉ “không muốn/không định”. → Nếu là ý chí, dùng mẫu phủ định ý định khác."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6e6beb773d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "父に駅まで送ってもらいたい。",
+       "ja_furigana": "父(ちち)に駅(えき)まで送(おく)ってもらいたい。",
+       "vi": "Tôi muốn bố đưa đến ga.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "友達に話を聞いてもらいたいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi muốn được bạn lắng nghe. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 友達に話を聞いてもらいたいです。"
+    ],
+    "formation": "V-て + もらいたい / V-て + いただきたい / V-て + ほしい",
+    "locked_fields": [],
+    "meaning_vi": "Muốn( ai đó) làm hay không làm ~.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜てもらいたい・〜てただきたい・〜てほしい",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［動］て形/ない形 ＋ で ＋ もらいたい・いただきたい・ほしい Muốn( ai đó) làm hay không làm ~. Giống như ví dụ ①③⑤có những trường hợp đối phương được yêu cầu thực hiện hành động không rõ ràng, cụ thể là ai. Trong trường hợp nói trực tiếp với đối phương thì thì ý nghĩa của cấu trúc này tương tự như cấu trúc ～てください／～ないでください. Ví dụ: 1. 誰かに自分の悩みを聞いてもらいたいと思うことがあります。 Có lúc tôi muốn có ai đó lắng nghe những băn khoăn của mình。 2. この書類、ちょっと見ていただきたいんですが。 Tài liệu này、tôi muốn nhờ anh/chị xem qua một chút。 3. この仕事は誰にも手伝ってもらいたくない。自分一人でやりたい。 Công việc này tôi không muốn nhờ ai giúp。Tôi muốn tự làm một mình。 4. ずっとぼくのそばにいてほしい。遠くへ行かないでほしい。 Mong em sẽ luôn ở bên cạnh tôi。Đừng đi nơi xa。 5. これ以上この村の自然環境を壊さないでほしい。 Xin đừng phá hủy môi trường tự nhiên của làng này thêm nữa。 6. 年を取った親にはもう無理をしてほしくない。 Tôi không muốn cha mẹ đã lớn tuổi phải cố gắng quá sức nữa。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-56106408b7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "子どものころ、よく庭でむしを探したものだ。",
+       "ja_furigana": "子(こ)どものころ、よく庭(にわ)でむしを探(さが)したものだ。",
+       "vi": "Hồi bé tôi thường tìm côn trùng trong vườn.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "若いころは、よく友だちと朝まで話したものだ。",
+       "ja_furigana": "若(わか)いころは、よく友(とも)だちと朝(あさ)まで話(はな)したものだ。",
+       "vi": "Hồi trẻ tôi thường nói chuyện với bạn bè đến sáng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "子どものころはよく川で遊んだものだ",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thời còn nhỏ thường chơi đùa ở con sông"
+     },
+     {
+      "ja": "学生時代は毎日図書館へ通ったものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thời học sinh mỗi ngày đều tới thư viện"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 子どものころはよく川で遊んだものだ",
+     "FURIGANA_MISSING: 学生時代は毎日図書館へ通ったものだ。"
+    ],
+    "formation": "よく + V-た + ものだ",
+    "locked_fields": [],
+    "meaning_vi": "Đã thường làm gì/ không làm gì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜よく遊んだものだ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nhắc đến những việc trong quá khứ. Thường là thói quen, những hành động thường xuyên. Nhấn mạnh về kỷ niệm, hồi ức"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f339938845"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大事な書類はなくさないようにすべきだ。",
+       "ja_furigana": "大事(だいじ)な書類(しょるい)はなくさないようにすべきだ。",
+       "vi": "Nên cẩn thận để không mất giấy tờ quan trọng.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "人との約束は、きちんと守るべきだ。",
+       "ja_furigana": "人(ひと)との約束(やくそく)は、きちんと守(まも)るべきだ。",
+       "vi": "Lời hứa với người khác thì nên giữ đúng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "約束は守るべきだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lời hứa là phải giữ"
+     },
+     {
+      "ja": "おもちゃは、まず安全であるべきだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đồ chơi trước hết phải an toàn"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 約束は守るべきだ。",
+     "FURIGANA_MISSING: おもちゃは、まず安全であるべきだ。"
+    ],
+    "formation": "V-る + べきだ (する → すべき / するべき)",
+    "locked_fields": [],
+    "meaning_vi": "Phải, nên làm gì/ không làm gì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜守るべきだ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để thể hiện việc ở một tình huống nào đó thì phải (mang ý bắt buộc) thực hiện /không thực hành động nào đó. Nếu không làm được thì không thể chấp nhận được ở vị trí đó, tình huống đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9f3f74055f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今日は日曜日だから、学校は開いていないはずだ。",
+       "ja_furigana": "今日(きょう)は日曜日(にちようび)だから、学校(がっこう)は開(ひら)いていないはずだ。",
+       "vi": "Hôm nay chủ nhật nên trường hẳn không mở.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "田中さんは今旅行中だから、家にいないはずだ。",
+       "ja_furigana": "田中(たなか)さんは今(いま)旅行中(りょこうちゅう)だから、家(いえ)にいないはずだ。",
+       "vi": "Anh Tanaka đang đi du lịch nên chắc chắn không có ở nhà.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "田中さんは今、旅行中だから、家にいないはずだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tanaka bây giờ đang đi du lịch nên chắc không có ở nhà"
+     },
+     {
+      "ja": "まじめな田中さんが、無断で休むはずがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người chăm chỉ Tanaka chắc chắn không nghỉ đột xuất không báo trước"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 田中さんは今、旅行中だから、家にいないはずだ。",
+     "FURIGANA_MISSING: まじめな田中さんが、無断で休むはずがない。"
+    ],
+    "formation": "V-る / V-ない / Aい / Aな(な) / N(の) + はずだ",
+    "locked_fields": [],
+    "meaning_vi": "Chắn chắn là/ chắn chắn không",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜家にいないはずだ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng thể hiện ý khẳng định của người nói dựa trên một căn cứ nào đó. Riêng cụm “はずがない” mang ý nghĩa phủ định mạnh hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-128f2aa353"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "青い靴を買うつもりでしたが、赤い靴にした。",
+       "ja_furigana": "青(あお)い靴(くつ)を買(か)うつもりでしたが、赤(あか)い靴(くつ)にした。",
+       "vi": "Tôi định mua giày xanh nhưng cuối cùng chọn màu đỏ.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "今日は早く帰るつもりでしたが、仕事が終わらなかった。",
+       "ja_furigana": "今日(きょう)は早(はや)く帰(かえ)るつもりでしたが、仕事(しごと)が終(お)わらなかった。",
+       "vi": "Hôm nay tôi định về sớm nhưng công việc chưa xong.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "昨日は買い物に行くつもりでしたが、頭が痛かったのでずっと家にいました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngày hôm qua đã định đi mua sắm như vì đau đầu nên cứ ở nhà suốt luôn"
+     },
+     {
+      "ja": "お菓子を食べないつもりでしたが、つい食べてしまいました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã định không ăn kẹo nhưng mà cuối cùng đã ăn mất tiêu"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 昨日は買い物に行くつもりでしたが、頭が痛かったのでずっと家にいました。",
+     "FURIGANA_MISSING: お菓子を食べないつもりでしたが、つい食べてしまいました。"
+    ],
+    "formation": "V-る + つもりだったが / つもりでしたが",
+    "locked_fields": [],
+    "meaning_vi": "Đã dự định làm gì/ không làm gì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜行くつもりでした",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nói đến một dự định, ý định thực hiện một hành động nào đó trong quá khứ nhưng sau đó lại không thực hiện như vậy"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f3cf9c1a22"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅へ行くついでに、友達を迎えに行った。",
+       "ja_furigana": "駅(えき)へ行(い)くついでに、友達(ともだち)を迎(むか)えに行(い)った。",
+       "vi": "Nhân ra ga, tôi đón luôn bạn.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "散歩のついでに、パンを買ってきた。",
+       "ja_furigana": "散歩(さんぽ)のついでに、パンを買(か)ってきた。",
+       "vi": "Nhân tiện đi dạo, tôi mua bánh mì về.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "散歩のついでに、この手紙を出してきてくれませんか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân tiện đi dạo thì có thể gửi lá thư này đi giúp được không?"
+     },
+     {
+      "ja": "郵便局へ行ったついでに、はがきを買ってきた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân tiện đi đến bưu điện đã mua bưu thiếp về."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 散歩のついでに、この手紙を出してきてくれませんか。",
+     "FURIGANA_MISSING: 郵便局へ行ったついでに、はがきを買ってきた。"
+    ],
+    "formation": "N + の + ついでに / V-る・V-た + ついでに",
+    "locked_fields": [],
+    "meaning_vi": "Nhân tiện (làm gì) thì …..",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜散歩のついでに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Một hành động chính nào đó đang thực hiện thì nhân tiện đó thực hiện thêm một hành động phụ khác"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8f95fbe4ac"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店に来るたびに、新しい花がある。",
+       "ja_furigana": "この店(みせ)に来(く)るたびに、新(あたら)しい花(はな)がある。",
+       "vi": "Mỗi lần đến quán này đều thấy hoa mới.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "祖母の家へ行くたびに、おかしをもらう。",
+       "ja_furigana": "祖母(そぼ)の家(いえ)へ行(い)くたびに、おかしをもらう。",
+       "vi": "Mỗi lần đến nhà bà, tôi lại được cho bánh kẹo.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "買い物のたびに、袋をたくさんもらう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mỗi khi mua sắm thường nhận được nhiều túi"
+     },
+     {
+      "ja": "この曲を聞くたびに、ふるさとを思い出す。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mỗi lần nghe khúc nhạc này tôi lại nhớ về quê hương"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 買い物のたびに、袋をたくさんもらう。",
+     "FURIGANA_MISSING: この曲を聞くたびに、ふるさとを思い出す。"
+    ],
+    "formation": "N + の + たびに / V-る + たびに",
+    "locked_fields": [],
+    "meaning_vi": "Mỗi khi, mỗi lần",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜買い物のたびに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp nhắc đến một sự việc thường xảy ra mỗi khi có 1 tình huống cụ thể nào đó"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5dd715ff5e"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-049"
+}

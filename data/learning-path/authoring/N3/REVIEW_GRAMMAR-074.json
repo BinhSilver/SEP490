@@ -1,0 +1,75 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "財布には百円しか入っていなかった。",
+       "ja_furigana": "財布(さいふ)には百円(ひゃくえん)しか入(はい)っていなかった。",
+       "vi": "Trong ví chỉ có mỗi 100 yên.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "試験まであと三日しか残っていません。",
+       "ja_furigana": "試験(しけん)まであと三日(みっか)しか残(のこ)っていません。",
+       "role": "EXTRA",
+       "source": "AI",
+       "vi": "Chỉ còn lại đúng 3 ngày nữa là đến kỳ thi."
+      },
+      {
+       "ja": "バスがないから駅まで歩いて行くしかない。",
+       "ja_furigana": "バスがないから駅(えき)まで歩(ある)いて行(い)くしかない。",
+       "role": "EXTRA",
+       "source": "AI",
+       "vi": "Vì không có xe buýt nên đành phải đi bộ ra ga thôi."
+      }
+     ]
+    },
+    "note": "viết lại câu 1 (quá giống nguồn ngoài)"
+   },
+   "context": {
+    "pattern": "N + しか + phủ định"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2c669647e1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "風のせいで、庭の花が全部倒れた。",
+       "ja_furigana": "風(かぜ)のせいで、庭(にわ)の花(はな)が全部(ぜんぶ)倒(たお)れた。",
+       "role": "MAIN",
+       "source": "AI",
+       "vi": "Vì gió, hoa trong vườn đổ hết."
+      },
+      {
+       "ja": "ねぼうしたせいで、朝ご飯を食べる時間がなかった。",
+       "ja_furigana": "ねぼうしたせいで、朝(あさ)ご飯(はん)を食(た)べる時間(じかん)がなかった。",
+       "vi": "Tại ngủ quên mà tôi không có thời gian ăn sáng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "viết lại câu 2 (quá giống nguồn ngoài)"
+   },
+   "context": {
+    "pattern": "Tại, vì (kết quả xấu)"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-925c6812cc"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-074"
+}

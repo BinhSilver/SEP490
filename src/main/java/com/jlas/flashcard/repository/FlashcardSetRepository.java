@@ -29,5 +29,21 @@ public interface FlashcardSetRepository extends JpaRepository<FlashcardSet, Long
     Page<FlashcardSet> findMine(@Param("ownerId") Long ownerId, @Param("title") String title,
                                 @Param("folderId") Long folderId, Pageable pageable);
 
+    /** Sets the user marked as favorite and can still open: their own, or public and published. */
+    @Query(value = """
+            select set from FlashcardSet set, FlashcardUserSetState state
+            where state.set = set and state.user.id = :userId and state.isFavorite = true
+              and set.deletedAt is null
+              and (set.owner.id = :userId or (set.visibility = 'PUBLIC' and set.draft = false))
+              and (:title is null or lower(set.title) like lower(concat('%', :title, '%')))
+            """, countQuery = """
+            select count(set) from FlashcardSet set, FlashcardUserSetState state
+            where state.set = set and state.user.id = :userId and state.isFavorite = true
+              and set.deletedAt is null
+              and (set.owner.id = :userId or (set.visibility = 'PUBLIC' and set.draft = false))
+              and (:title is null or lower(set.title) like lower(concat('%', :title, '%')))
+            """)
+    Page<FlashcardSet> findFavorites(@Param("userId") Long userId, @Param("title") String title, Pageable pageable);
+
     long countByFolderIdAndDeletedAtIsNull(Long folderId);
 }

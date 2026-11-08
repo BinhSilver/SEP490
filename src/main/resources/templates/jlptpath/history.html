@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] History page of the JLPT path; jpath-history.js fills it from GET /api/learning/jlpt/history
+     (?day=YYYY-MM-DD opens that day from GET /history/{day}). "Làm lại" issues a FREE_QUIZ redo of a check. -->
+<head th:replace="~{fragments/head :: standard('Lịch sử học - JLAS', null)}"></head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-side')}"></th:block>
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page jp-side" data-inline-dictionary data-jpath-history>
+<div class="jp-ws jp-ws--norail">
+    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Lịch sử học')}"></th:block>
+    <aside class="jp-ws__side" aria-label="Điều hướng lộ trình">
+        <th:block th:replace="~{jlptpath/fragments/jpath :: sidenav('/learning/jlpt/history')}"></th:block>
+    </aside>
+    <div class="jp-ws__main">
+        <header class="jp-page-head"><h1 class="jp-page-head__title jp-side__title">Lịch sử học</h1></header>
+        <p class="jp-side-summary" data-role="summary" aria-live="polite"></p>
+        <div class="jp-side__range" role="group" aria-label="Khoảng thời gian">
+            <button type="button" class="jp-side-btn" data-range="14" aria-pressed="true">14 ngày</button>
+            <button type="button" class="jp-side-btn" data-range="30" aria-pressed="false">30 ngày</button>
+        </div>
+        <label class="jp-side__note">Tìm ngày hoặc loại ngày <input type="search" data-role="search" autocomplete="off"></label>
+        <p class="jp-side__status" role="status" data-role="status">Đang tải…</p>
+        <section class="jp-side-card" data-role="detail" hidden aria-live="polite"></section>
+        <ul class="jp-side-days" data-role="days"></ul>
+        <nav class="jp-side__pager" data-role="pager" aria-label="Trang" hidden>
+            <button type="button" class="jp-side-btn" data-page="prev">Trước</button>
+            <span data-role="page"></span>
+            <button type="button" class="jp-side-btn" data-page="next">Sau</button>
+        </nav>
+    </div>
+</div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlptpath/jpath-history.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

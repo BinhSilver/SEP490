@@ -1,0 +1,582 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "本日をもって、この店は閉店いたします。",
+       "ja_furigana": "本日(ほんじつ)をもって、この店(みせ)は閉店(へいてん)いたします。",
+       "vi": "Lấy hôm nay làm mốc, cửa hàng này xin đóng cửa."
+      },
+      {
+       "ja": "合格の知らせは、メールをもってお伝えします。",
+       "ja_furigana": "合格(ごうかく)の知(し)らせは、メールをもってお伝(つた)えします。",
+       "vi": "Chúng tôi sẽ thông báo kết quả trúng tuyển bằng email."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "本日をもって退職いたします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi xin nghỉ việc kể từ hôm nay."
+     },
+     {
+      "ja": "結果はメールをもってご連絡いたします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kết quả sẽ được thông báo bằng email."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 本日をもって退職いたします。",
+     "FURIGANA_MISSING: 結果はメールをもってご連絡いたします。"
+    ],
+    "formation": "N + をもって",
+    "locked_fields": [],
+    "meaning_vi": "Phương tiện/cách thức: “bằng/qua/nhờ” trong văn bản chính thức, thông báo, hợp đồng. Mốc thời gian hiệu lực: “kể từ/đến” để tuyên bố bắt đầu/kết thúc. Tiêu chuẩn/đối đãi: xác định cái gì được xem là… Chú ý phân biệt với ～をもってしても (mẫu khác, mang nghĩa nhượng bộ mạnh).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Lấy... làm mốc",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Rất trang trọng; dùng nhiều trong văn bản hành chính, doanh nghiệp, phát biểu. Khi dùng nghĩa “mốc thời gian”, thường đi với thông báo đóng/mở, bổ nhiệm, kết thúc. Nghĩa “bằng phương tiện”: ưu tiên danh từ trừu tượng/định danh (書面、文書、メール、愛、誠意、熱意、誠心誠意). [6. Ghi chú mở rộng] Kanji 以て cũng thấy trong văn cổ/biểu tượng: ～を以て（＝をもって）. “身をもって” là quán ngữ: 自ら体験して (tự thân trải nghiệm). Trong nghi thức: “これをもちまして” mở/đóng lời phát biểu rất tự nhiên. [7. Biến thể & cụm cố định] これをもって／これをもちまして: công thức kết/khai mạc. 書面をもって通知する／文書をもって回答する: cụm pháp lý. 身をもって示す／身をもって知る: thành ngữ. 電話をもっての問い合わせは受け付けません: N をもっての N. [8. Lỗi thường gặp & bẫy JLPT] Nhầm ～をもって với ～によって trong câu khẩu ngữ → nghe cứng hoặc sách vở quá. Dùng ～をもって khi chủ ngữ là người nói trong hội thoại thông thường → thiếu tự nhiên; thay bằng ～で/～で. Nhầm với ～をもってしても: JLPT hay gài câu phủ định bắt buộc với しても."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-eb0427240c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は座るなり、いびきをかき始めた。",
+       "ja_furigana": "彼(かれ)は座(すわ)るなり、いびきをかき始(はじ)めた。",
+       "vi": "Vừa ngồi xuống, anh ấy đã bắt đầu ngáy."
+      },
+      {
+       "ja": "彼女は手紙を開けるなり、涙を流した。",
+       "ja_furigana": "彼女(かのじょ)は手紙(てがみ)を開(あ)けるなり、涙(なみだ)を流(なが)した。",
+       "vi": "Vừa mở thư, cô ấy đã rơi nước mắt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は部屋に入るなり、大きなため息をついた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta vừa bước vào phòng đã thở dài một tiếng lớn."
+     },
+     {
+      "ja": "電話の声を聞くなり、彼女は顔色を変えた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vừa nghe giọng điện thoại, cô ấy đã biến sắc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は部屋に入るなり、大きなため息をついた。",
+     "FURIGANA_MISSING: 電話の声を聞くなり、彼女は顔色を変えた。"
+    ],
+    "formation": "Vる + なり; Vた + なり",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả hai sự việc liên tiếp xảy ra gần như đồng thời: “vừa/đúng lúc V thì…”. Sắc thái: văn viết, trang trọng hơn hội thoại thông thường; thường đi với kết quả bất ngờ, ngoài dự đoán. Hạn chế: Thường không dùng cho thói quen lặp lại; thích hợp cho sự kiện đơn lẻ, đột phát.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Ngay sau khi...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mạnh tính “ngay lập tức” và yếu tố bất ngờ/không chuẩn bị. Câu sau thường là hành động/dấu hiệu cảm xúc xảy ra tức thì (叫ぶ, 泣き出す, 笑う, 驚く…). Hạn chế dùng với mệnh lệnh/ý hướng của người nói; thiên về miêu tả sự việc đã xảy ra. Thời quá khứ thường dùng ở mệnh đề sau (～た／～てしまった／～出した). [6. Ghi chú mở rộng] Vるなり có sắc thái hơi cổ/văn học; phù hợp bài thi đọc hiểu, văn luận. Tránh dùng cho tương lai/ý chí: × 着くなり、連絡します (nên dùng ～たら／～次第で). Nhiều tài liệu yêu cầu cùng chủ ngữ; khi khác chủ ngữ, ưu tiên mẫu khác như ～や否や／～かと思うと. [7. Biến thể & cụm cố định] 見るなり叫ぶ／聞くなり泣き出す／帰るなり寝る ～なり～なり（khác nghĩa: “hoặc… hoặc…”, không nhầm lẫn） ～や否や／～が早いか: cặp song hành hay so sánh trong đề JLPT [8. Lỗi thường gặp & bẫy JLPT] Đổi chủ ngữ giữa hai mệnh đề: × 先生が入るなり、学生は立った → nên dùng ～や否や／～かと思うと. Dùng cho thói quen: × 帰るなり、テレビを見る (thói quen nên dùng と/たら/といつも). Dùng cho mệnh lệnh/ý chí: × 着くなり、電話して (không tự nhiên; dùng ～たら／～次第に電話する)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0285bc04d7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "古びた写真がアルバムに残っていた。",
+       "ja_furigana": "古(ふる)びた写真(しゃしん)がアルバムに残(のこ)っていた。",
+       "vi": "Những tấm ảnh cũ kỹ còn lại trong album."
+      },
+      {
+       "ja": "彼は田舎びた話し方をするが、心は温かい。",
+       "ja_furigana": "彼(かれ)は田舎(いなか)びた話(はな)し方(かた)をするが、心(こころ)は温(あたた)かい。",
+       "vi": "Anh ấy nói chuyện hơi quê mùa nhưng lòng rất ấm áp."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "古びた本が棚に並んでいる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Những cuốn sách cũ kỹ xếp trên kệ."
+     },
+     {
+      "ja": "田舎びた服装だが、彼の個性に合っている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trang phục hơi quê mùa nhưng hợp với cá tính anh ấy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 古びた本が棚に並んでいる。",
+     "FURIGANA_MISSING: 田舎びた服装だが、彼の個性に合っている。"
+    ],
+    "formation": "N/Aい語幹 + びる; N/Aい語幹 + びた + N",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị “mang vẻ/thoáng nét/pha chút …”, thiên về ấn tượng bề ngoài hoặc phong vị. Sắc thái có thể tích cực (大人びた = chín chắn), trung tính (昔びた = mang hơi hướng xưa) hoặc tiêu cực (田舎びた = quê mùa, 古びた = cũ kỹ). Thường dùng ở vị trí bổ nghĩa danh từ. Khi làm vị ngữ, dùng “～びている”. Tính năng sản sinh có giới hạn: chỉ một số kết hợp tự nhiên, không gắn bừa với mọi danh từ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có vẻ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đa phần dùng để tu sức danh từ: 古びた町並み／大人びた顔立ち／田舎びた店。 Khi muốn miêu tả trạng thái hiện tại: ～びている (このホテルは古びている)。 Sắc thái văn viết, gợi hình; thường dùng trong văn học, phê bình, miêu tả. Mang tính đánh giá chủ quan dựa trên cảm nhận bề ngoài. [6. Ghi chú mở rộng] Nhiều tổ hợp là quen dùng/cố định: 古びた／田舎びた／大人びた／昔びた／場末びた／芝居びた。 “～びた” là liên định quá khứ nhưng không phải “quá khứ thời gian”; chỉ là hình thức bổ nghĩa. Muốn nói thì quá khứ, dùng “～びていた”。 Với từ trung tính/tích cực: 大人びた (khen), với từ đánh giá xấu: 田舎びた (hơi chê). [7. Biến thể & cụm cố định] 古びた町／古びたホテル／古びた表現 大人びた顔／大人びたふるまい 田舎びた店／田舎びたデザイン 昔びた語り口／場末びたスナック [8. Lỗi thường gặp & bẫy JLPT] Hiểu nhầm “～びた” là thì quá khứ: không phải. Nó là dạng bổ nghĩa của ～びる. Gắn bừa “～びた” với mọi danh từ: nhiều tổ hợp không tự nhiên (×ITびたパソコン). Dùng “～びた” làm vị ngữ trần: nên dùng “～びている/～びていた” khi kết câu. Nhầm với ～っぽい: ～っぽい khẩu ngữ và rộng nghĩa hơn, không thay thế nhau mọi trường hợp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0bc2ddba7a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お礼かたがた、ご挨拶に伺いました。",
+       "ja_furigana": "お礼(れい)かたがた、ご挨拶(あいさつ)に伺(うかが)いました。",
+       "vi": "Nhân tiện bày tỏ lời cảm ơn, tôi đến chào hỏi."
+      },
+      {
+       "ja": "ご報告かたがた、近況をお伝えします。",
+       "ja_furigana": "ご報告(ほうこく)かたがた、近況(きんきょう)をお伝(つた)えします。",
+       "vi": "Nhân tiện báo cáo, tôi xin thông báo tình hình gần đây."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "新年のご挨拶かたがた、本日伺いました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay tôi đến nhân tiện chúc Tết."
+     },
+     {
+      "ja": "お礼かたがた、成果をご報告申し上げます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân tiện bày tỏ lời cảm ơn, xin báo cáo kết quả."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 新年のご挨拶かたがた、本日伺いました。",
+     "FURIGANA_MISSING: お礼かたがた、成果をご報告申し上げます。"
+    ],
+    "formation": "N + かたがた",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “nhân tiện, đồng thời với mục đích N” theo cách nói nghi thức, lịch sự cao. Ngữ cảnh: thư từ, diễn văn, thông báo trang trọng; khi đến thăm ai đó một cách lễ phép. Chủ thể thường là người nói/nhóm người nói trong lời xã giao, nhưng cũng có thể dùng để thuật lại hành động của người thứ ba khi ngữ cảnh và quan hệ kính ngữ rõ ràng. Danh từ đi trước thường là các danh từ mang tính xã giao: ご挨拶, お礼, お詫び, ご報告, ご連絡, 見学.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đồng thời... / Nhân tiện...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng, lịch sự; phù hợp văn bản công ty, thư mời, bài phát biểu. Thường đi kèm kính ngữ: 伺う, 参る, 申し上げる, 拝見する, 致します. Hướng đến hành động di chuyển/ghé thăm/trao đổi có tính xã giao. [6. Ghi chú mở rộng] Đặt N có tính “mục đích lịch sự” phía trước để thể hiện phép tắc và lý do chính đáng cho việc ghé thăm/liên lạc. Hiệu quả khi viết email công việc: 「ご報告かたがた資料を送付いたします」。 Tránh lạm dụng trong hội thoại đời thường để không gây cảm giác kiểu cách quá mức. [7. Biến thể & cụm cố định] ご挨拶かたがた お礼かたがた お詫びかたがた ご報告かたがた 見学かたがた [8. Lỗi thường gặp & bẫy JLPT] Dùng với động từ thông tục, thiếu kính ngữ: không tự nhiên trong phong cách của 「かたがた」. Không phải chỉ dùng cho người nói. Có thể thuật lại người thứ ba, nhưng cần giữ đúng điểm nhìn, quan hệ kính ngữ và văn phong trang trọng. Nhầm lẫn với 「がてら」: 「かたがた」 trang trọng, mang tính xã giao; 「がてら」 thường nhật. Gắn với N không phù hợp (N đời thường): như 「ゲームかたがた」 là kỳ cục."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4df1deb334"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "初めての失敗は、落ち込むにはあたらない。",
+       "ja_furigana": "初(はじ)めての失敗(しっぱい)は、落(お)ち込(こ)むにはあたらない。",
+       "vi": "Thất bại đầu tiên thì không đáng phải buồn bã."
+      },
+      {
+       "ja": "彼の成功は、驚くにはあたらない。",
+       "ja_furigana": "彼(かれ)の成功(せいこう)は、驚(おどろ)くにはあたらない。",
+       "vi": "Thành công của anh ấy thì không có gì phải ngạc nhiên."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "新人が時間をかけるのは驚くにはあたらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Việc người mới làm mất thời gian là điều không có gì phải ngạc nhiên."
+     },
+     {
+      "ja": "彼のミスは非難するにはあたらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lỗi của anh ấy không đáng để chỉ trích."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 新人が時間をかけるのは驚くにはあたらない。",
+     "FURIGANA_MISSING: 彼のミスは非難するにはあたらない。"
+    ],
+    "formation": "N + にはあたらない; Vる + にはあたらない",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: Không đến mức phải…, không đáng để… (đánh giá mức độ là “không cần thiết”). Hai hướng nghĩa phổ biến: Không đáng ngạc nhiên/chê trách/lo lắng: 驚く・非難する・心配するにはあたらない。 Không đáng khen quá mức: 称賛するにはあたらない。 Sắc thái: Trang trọng, khách quan, hay dùng trong bình luận, tin tức, báo cáo.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không đáng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để điều chỉnh mức độ phản ứng/đánh giá: “không nên phản ứng quá mức”. Phổ biến với các động từ đánh giá/cảm xúc: 驚く, 憤る, 心配する, 非難する, 称賛する, 絶賛する. Thường đứng cuối câu hoặc trước から／ので để đưa ra kết luận/khuyến nghị nhẹ. [6. Ghi chú mở rộng] Có thể dùng định ngữ: 驚くにはあたらない出来事 (sự việc không đáng ngạc nhiên). Với danh từ: 非難にはあたらない／称賛にはあたらない — thường gặp trong văn bản pháp lý, luận. Sắc thái không phải cấm đoán, chỉ là “đánh giá mức độ không cần thiết”. [7. Biến thể & cụm cố định] 驚くにはあたらない／非難するにはあたらない／称賛するにはあたらない／心配するにはあたらない 大げさに騒ぐにはあたらない／責め立てるにはあたらない N＋にはあたらない（非難・違法・犯罪にはあたらない） [8. Lỗi thường gặp & bẫy JLPT] Hiểu thành “không được V”: sai. Đây là đánh giá mức độ, không phải cấm đoán. Dùng với hành động cụ thể không mang tính đánh giá: × 走るにはあたらない (thiếu tự nhiên). Nhầm với ～までもない: mẫu đó thiên về “khỏi cần thực hiện hành động”; ～にはあたらない thiên về “không đáng để phản ứng/đánh giá như vậy”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7932222b32"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の失望は、想像に難くない。",
+       "ja_furigana": "彼(かれ)の失望(しつぼう)は、想像(そうぞう)に難(かた)くない。",
+       "vi": "Nỗi thất vọng của anh ấy thì không khó để hình dung."
+      },
+      {
+       "ja": "被災者の苦しみは、察するに難くない。",
+       "ja_furigana": "被災者(ひさいしゃ)の苦(くる)しみは、察(さっ)するに難(かた)くない。",
+       "vi": "Nỗi khổ của người bị nạn thì không khó để thấu hiểu."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "被災者の不安は想像に難くない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nỗi bất an của người bị nạn không khó để tưởng tượng."
+     },
+     {
+      "ja": "突然の解雇が彼に与えた衝撃は察するに難くない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không khó để cảm nhận cú sốc mà việc sa thải đột ngột gây ra cho anh ấy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 被災者の不安は想像に難くない。",
+     "FURIGANA_MISSING: 突然の解雇が彼に与えた衝撃は察するに難くない。"
+    ],
+    "formation": "N + に難くない; Vる + に難くない",
+    "locked_fields": [],
+    "meaning_vi": "Khẳng định “không khó” theo nghĩa suy đoán/đồng cảm: dễ dàng tưởng tượng/hiểu/nhận thấy. Không dùng cho thao tác thể chất cụ thể (“không khó để nâng 50kg”) → không phù hợp. Sắc thái văn viết, lịch sự, thường thể hiện sự thấu hiểu hoặc đánh giá.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không khó để...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt trước danh từ trừu tượng: 想像・理解・推測・察知 + に難くない。 Thường dùng ở cuối câu/phần nhận định trong bài viết phân tích, báo cáo. Hàm ý đồng cảm/đánh giá lý trí, không bộc lộ cảm xúc quá trực tiếp. [6. Ghi chú mở rộng] Cấu trúc thường gặp: 「N（抽象）＋は／が＋N（tri nhận）＋に難くない」. Tránh dùng trong hội thoại thân mật thường ngày; có thể thay bằng すぐ分かる／容易に想像できる. Nhấn mạnh đồng cảm: 前置きにとても／大いにを thêm vào thường không cần thiết vì đã trang trọng. [7. Biến thể & cụm cố định] 想像に難くない／理解に難くない／察するに難くない／推測に難くない 結果は目に浮かぶ（cách nói trung tính tương đương nghĩa) 疑う余地はない（khác sắc thái: chắc chắn, không phải “không khó để…”） [8. Lỗi thường gặp & bẫy JLPT] Dùng cho hành động thể chất cụ thể → không phù hợp: ×50kgを持ち上げるに難くない。 Lẫn với ～に違いない (khẳng định mạnh) → sai sắc thái suy luận nhẹ. Bỏ mất danh từ tri nhận phía trước → câu gượng: ×彼の気持ちはに難くない → phải là 彼の気持ちは想像に難くない。 JLPT N1: Nhận diện collocation “想像/理解/察する + に難くない”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d15716c1c2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は先生ぶって、何でも説明したがる。",
+       "ja_furigana": "彼(かれ)は先生(せんせい)ぶって、何(なん)でも説明(せつめい)したがる。",
+       "vi": "Anh ta làm ra vẻ thầy giáo, cái gì cũng muốn giải thích."
+      },
+      {
+       "ja": "あいつは金持ちぶっているけど、実は借金だらけだ。",
+       "ja_furigana": "あいつは金持(かねも)ちぶっているけど、実(じつ)は借金(しゃっきん)だらけだ。",
+       "vi": "Gã đó làm ra vẻ giàu có, chứ thực ra ngập trong nợ nần."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "先輩ぶってあれこれ命令するな。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đừng có làm ra vẻ đàn anh mà sai bảo này nọ."
+     },
+     {
+      "ja": "大人ぶっていても、内心は不安なんだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù có làm ra vẻ người lớn, trong lòng chắc vẫn bất an."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Làm bộ...",
+     "FURIGANA_MISSING: 先輩ぶってあれこれ命令するな。",
+     "FURIGANA_MISSING: 大人ぶっていても、内心は不安なんだろう。"
+    ],
+    "formation": "N + ぶって + V",
+    "locked_fields": [],
+    "meaning_vi": "Dạng te-form của ～ぶる, dùng để nối mệnh đề: “ra vẻ/giả bộ … và (rồi) …”. Hàm ý phê phán/mỉa mai hành vi “đóng vai”. Mạnh hơn ～ふりをして về sắc thái chê. Thường xuất hiện trong hội thoại, diễn tả thái độ cư xử/giọng điệu của đối phương.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Làm bộ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt trước động từ/chủ ngữ hành động tiếp theo: N + ぶって + V. “～ぶっている” nhấn mạnh trạng thái kéo dài hoặc thói quen ra vẻ. Mang sắc thái chê bai; cân nhắc lịch sự/quan hệ xã hội khi dùng trực tiếp. [6. Ghi chú mở rộng] “知ったかぶって” đến từ “知ったかぶる” (ra vẻ biết, thực ra không biết); là cụm thường gặp với sắc thái chế nhạo. Hay đi với danh từ chỉ vai/địa vị: 先生／専門家／先輩／上司／有名人／被害者など。 Trong văn nói, “～ぶってさ…” dùng để mở đầu lời chê trách, mang sắc thái thân mật. [7. Biến thể & cụm cố định] 先輩ぶって注意する／先生ぶって説明する 知ったかぶって語る／正義ぶって非難する 大人ぶって振る舞う／上品ぶって装う 被害者ぶって泣く／弱者ぶって支援を求める [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～ふりをして: đề bài JLPT hay kiểm tra sắc thái chê của ～ぶって. Dùng “～ぶって” với i-tính từ chưa danh từ hóa (×賢いぶって → 賢いふりをして/賢そうぶって). Quên chia ～ぶる theo ngữ cảnh thời: kể hiện trạng nên dùng ～ぶっている, không phải lúc nào cũng ～ぶって."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9943860b58"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は文化人ぶった話し方をする。",
+       "ja_furigana": "彼(かれ)は文化人(ぶんかじん)ぶった話(はな)し方(かた)をする。",
+       "vi": "Anh ta nói chuyện ra vẻ trí thức."
+      },
+      {
+       "ja": "彼女の上品ぶった態度が鼻につく。",
+       "ja_furigana": "彼女(かのじょ)の上品(じょうひん)ぶった態度(たいど)が鼻(はな)につく。",
+       "vi": "Thái độ làm bộ thanh lịch của cô ấy khiến người ta khó chịu."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は大人ぶった話し方をする。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cậu ấy nói chuyện ra vẻ người lớn."
+     },
+     {
+      "ja": "上品ぶった態度がかえって不自然だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thái độ làm bộ thanh lịch lại thành thiếu tự nhiên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Làm như...",
+     "FURIGANA_MISSING: 彼は大人ぶった話し方をする。",
+     "FURIGANA_MISSING: 上品ぶった態度がかえって不自然だ。"
+    ],
+    "formation": "N + ぶった + N",
+    "locked_fields": [],
+    "meaning_vi": "～ぶった diễn tả việc một người cố tỏ ra có đặc điểm, địa vị hoặc phong thái nào đó. Người nói thường cảm thấy vẻ ấy là cố ý, không hoàn toàn tự nhiên hoặc có phần kiểu cách.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Làm như...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường bổ nghĩa cho 態度、話し方、口調、顔、表情. Sắc thái thường là chê nhẹ, mỉa mai hoặc nghi ngờ tính chân thật; cần thận trọng khi dùng trực tiếp với người khác. [6. Ghi chú mở rộng] 大人ぶった話し方 hàm ý “cố nói ra vẻ người lớn”, còn 大人びた話し方 chỉ cách nói tự nhiên có vẻ trưởng thành. Trong ～ぶった＋N, dạng た tạo trạng thái bổ nghĩa và không nhất thiết chỉ một hành động đã kết thúc trong quá khứ. [7. Biến thể & cụm cố định] 大人ぶった態度 上品ぶった話し方 専門家ぶった口調 平気ぶった顔 [8. Lỗi thường gặp & bẫy JLPT] Nhầm ～ぶった với ～びた: mẫu đầu nhấn sự làm bộ, mẫu sau thường miêu tả đặc điểm tự nhiên. Hiểu た chỉ là quá khứ: trong ～ぶった＋N, nó tạo dạng bổ nghĩa mang trạng thái “ra vẻ”. Dùng với người đối diện có thể mang tính chế giễu hoặc xúc phạm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d01126affa"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "疲れすぎて、立つにも立てない。",
+       "ja_furigana": "疲(つか)れすぎて、立(た)つにも立(た)てない。",
+       "vi": "Mệt quá, muốn đứng cũng không đứng nổi."
+      },
+      {
+       "ja": "声がかすれて、話すにも話せない。",
+       "ja_furigana": "声(こえ)がかすれて、話(はな)すにも話(はな)せない。",
+       "vi": "Giọng khản đặc, muốn nói cũng không nói được."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "忙しすぎて、休むにも休めない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bận quá nên muốn nghỉ cũng không nghỉ được."
+     },
+     {
+      "ja": "電車が止まっていて、帰るにも帰れない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tàu dừng nên muốn về cũng không thể về."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 忙しすぎて、休むにも休めない。",
+     "FURIGANA_MISSING: 電車が止まっていて、帰るにも帰れない。"
+    ],
+    "formation": "Vる + にも + V可能形の否定",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “Dù muốn/cho dù có định V cũng không thể V” vì lý do khách quan (bận, hoàn cảnh, quy định, tâm lý bị kìm nén…). Cấu trúc nhấn mạnh ý chí bị cản trở: vế 1 nêu “ý định”, vế 2 khẳng định “bất khả thi”. Ngữ dụng: than phiền, giải thích lý do, diễn đạt tình thế tiến thoái lưỡng nan.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Muốn... cũng không được",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Mẫu: Vる + にも + thể khả năng phủ định của cùng động từ (hoặc できない với サ変). Nhấn “ý chí có nhưng bị cản trở”. Thường dùng ngôi thứ nhất, hoặc mô tả tình trạng chung. Sắc thái than thở, bất lực; trang trọng hơn so với VたくてもVられない. Lý do cản trở thường được nêu trước hoặc sau câu (bằng 〜ので/〜から/〜せいで/状況描写). [6. Ghi chú mở rộng] Tổ hợp điển hình, tự nhiên: 泣くにも泣けない・笑うにも笑えない・休むにも休めない・帰るにも帰れない. Văn nói có thể dùng “ら抜き” (食べれない/来れない), nhưng bài thi/JLPT ưu tiên dạng chuẩn 食べられない/来られない. Có thể kèm lý do trước: 事情があって、出席するにもできない。 [7. Biến thể & cụm cố định] 泣くにも泣けない, 休むにも休めない, 帰るにも帰れない: cụm thành ngữ hóa, dùng rất thường. サ変: 参加するにもできない／対応するにもできない: dùng できない là tự nhiên nhất. Văn phong cổ trang trọng: 〜れぬ (例: 帰るにも帰れぬ) có thể gặp trong văn chương. [8. Lỗi thường gặp & bẫy JLPT] Dùng sai thể khả năng: × 行くにも行かれない → phải là 行くにも行けない. Nhầm với “Vるにも … (không biết cách)”: hãy nhìn vế sau. Nếu là khả năng phủ định cùng động từ → mẫu 167. Dùng với mệnh lệnh/đề nghị là sai ngữ dụng: × 行くにも行けないから、行け！ Bỏ “も”: × 帰るに帰れない → trong mẫu này “にも” là bắt buộc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-699a01827a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "娘はすっかり大人びてきた。",
+       "ja_furigana": "娘(むすめ)はすっかり大人(おとな)びてきた。",
+       "vi": "Con gái tôi đã trở nên rất chín chắn."
+      },
+      {
+       "ja": "この家もだいぶ古びてきた。",
+       "ja_furigana": "この家(いえ)もだいぶ古(ふる)びてきた。",
+       "vi": "Căn nhà này cũng đã khá cũ kỹ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "娘は急に大人びてきた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Con gái bỗng trở nên chín chắn."
+     },
+     {
+      "ja": "この椅子は年数がたって古びている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái ghế này theo năm tháng đã trở nên cũ kỹ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 娘は急に大人びてきた。",
+     "FURIGANA_MISSING: この椅子は年数がたって古びている。"
+    ],
+    "formation": "N/Aい語幹 + びる; N + びてくる",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị sự “trở nên có vẻ/pha chất …” về bề ngoài, phong vị hoặc cảm giác. Thường là nội động từ, không có tân ngữ trực tiếp. Giá trị đánh giá: có thể tích cực (大人びる = chín chắn), hoặc hơi tiêu cực (田舎びる = quê mùa; 古びる = trở nên cũ kỹ). Không phải mọi danh từ đều kết hợp tự nhiên với ～びる; phần lớn là tổ hợp quen dùng.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Ra vẻ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Diễn tả thay đổi/đặc trưng bề ngoài hoặc không khí: ～びてくる／～びている. Tính văn viết/miêu tả; trong khẩu ngữ thường thay bằng ～っぽくなる ở một số ngữ cảnh. Sắc thái “trông như/vẻ như”, không hàm “giả bộ” mạnh như ～ぶる. [6. Ghi chú mở rộng] Một số từ gốc là i-tính từ chuyển hóa: 古い→古びる; phần khác là danh từ: 大人→大人びる, 田舎→田舎びる. Thường viết bằng kana; ít khi có kanji riêng cho “びる”. Không dùng với mọi danh từ: chọn các tổ hợp tự nhiên, quen dùng. [7. Biến thể & cụm cố định] 大人びる／古びる／田舎びる／昔びる ～びてくる (trở nên dần dần), ～びている (đang mang vẻ) [8. Lỗi thường gặp & bẫy JLPT] Nhầm “～びる” với “～ぶる”: ～ぶる là “làm bộ/ra vẻ”, sắc thái chê trách; ～びる là “mang vẻ/trở nên”. Dùng với tân ngữ trực tiếp: đa phần là nội động từ, không đi với を. Tự chế tổ hợp không tự nhiên (×都会びる言い方 → nên dùng: 都会的な言い方/洗練された言い方)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-26c19c3dd0"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-039"
+}

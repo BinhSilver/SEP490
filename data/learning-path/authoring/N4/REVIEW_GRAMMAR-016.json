@@ -1,0 +1,4287 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "so sánh hai hay nhiều thứ; cái này hơn cái kia; … nhất",
+     "formation": "A は B より + tính từ; A と B と どちらが + tính từ か; N の中で 何/どこ/だれ が いちばん + tính từ か",
+     "usage_vi": "So sánh hai thứ: 兄は私より背が高いです. Hỏi chọn giữa hai thứ dùng どちら: バスと電車とどちらが速いですか — trả lời 電車のほうが速いです. Từ ba thứ trở lên dùng いちばん với 何/どこ/だれ: 果物の中で何がいちばん好きですか.",
+     "nuance_vi": "Hỏi giữa hai thứ luôn dùng どちら (kể cả người, nơi chốn); từ ba thứ trở lên không dùng どちら. Trả lời câu どちら dùng 〜のほうが.",
+     "common_mistakes_vi": "Dùng どちら cho ba thứ trở lên (×家族の中でどちらが…); dùng ほど trong câu khẳng định (×あの部屋ほど広いです → より).",
+     "examples": [
+      {
+       "ja": "兄は私より背が高いです。",
+       "ja_furigana": "兄(あに)は私(わたし)より背(せ)が高(たか)いです。",
+       "vi": "Anh trai tôi cao hơn tôi."
+      },
+      {
+       "ja": "バスと電車とどちらが速いですか。",
+       "ja_furigana": "バスと電車(でんしゃ)とどちらが速(はや)いですか。",
+       "vi": "Xe buýt và tàu điện, cái nào nhanh hơn?"
+      },
+      {
+       "ja": "果物の中でりんごがいちばん好きです。",
+       "ja_furigana": "果物(くだもの)の中(なか)でりんごがいちばん好(す)きです。",
+       "vi": "Trong các loại hoa quả tôi thích táo nhất."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "今日は昨日＿＿暑いです。",
+       "answer": "より",
+       "translation_vi": "Hôm nay nóng hơn hôm qua."
+      },
+      {
+       "sentence_ja": "「コーヒーと紅茶と、どちらが好きですか」「紅茶の＿＿が好きです」",
+       "answer": "ほう",
+       "translation_vi": "\"Cà phê và trà, bạn thích cái nào hơn?\" \"Tôi thích trà hơn.\""
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "東京は大阪",
+        "より",
+        "が多いです",
+        "人"
+       ],
+       "answer_order": [
+        0,
+        1,
+        3,
+        2
+       ],
+       "translation_vi": "Tokyo đông người hơn Osaka."
+      },
+      {
+       "pieces": [
+        "いちばん好きですか",
+        "の中で",
+        "スポーツ",
+        "何が"
+       ],
+       "answer_order": [
+        2,
+        1,
+        3,
+        0
+       ],
+       "translation_vi": "Trong các môn thể thao, bạn thích môn nào nhất?"
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "今日は昨日（　　）暑いです。",
+       "options": [
+        "でも",
+        "ほど",
+        "より",
+        "ほう"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "A は B より + tính từ. Nghĩa: Hôm nay nóng hơn hôm qua."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "「コーヒーと紅茶と、どちらが好きですか」「紅茶の（　　）が好きです」",
+       "options": [
+        "より",
+        "いちばん",
+        "ほど",
+        "ほう"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Trả lời câu どちら: N の ほうが. Nghĩa: \"Cà phê và trà, bạn thích cái nào hơn?\" \"Tôi thích trà hơn.\""
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "東京は ＿＿ ★ ＿＿ ＿＿。",
+       "options": [
+        "大阪",
+        "より",
+        "が多いです",
+        "人"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 東京は大阪より人が多いです。 (Tokyo đông người hơn Osaka.) Mảnh ở ô ★ là 「より」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "いちばん好きですか",
+        "の中で",
+        "スポーツ",
+        "何が"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: スポーツの中で何がいちばん好きですか。 (Trong các môn thể thao, bạn thích môn nào nhất?) Mảnh ở ô ★ là 「何が」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "兄は私より背が高いです。",
+       "options": [
+        "Anh trai tôi cao hơn tôi.",
+        "Anh trai tôi không cao lắm.",
+        "Tôi cao hơn anh trai.",
+        "Anh trai tôi cao bằng tôi."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Anh trai tôi cao hơn tôi.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "バスと電車とどちらが速いですか。",
+       "options": [
+        "Xe buýt nhanh hơn tàu điện.",
+        "Tàu điện chạy nhanh nhất.",
+        "Xe buýt và tàu điện, cái nào nhanh hơn?",
+        "Đi xe buýt hay tàu điện đều nhanh."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Xe buýt và tàu điện, cái nào nhanh hơn?\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "兄は私より背が高いです。",
+        "果物の中でりんごがいちばん好きです。",
+        "家族の中でどちらがいちばん背が高いですか。",
+        "「コーヒーと紅茶と、どちらが好きですか」「紅茶のほうが好きです」"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: từ ba người trở lên dùng だれ, không dùng どちら. Sửa: 家族の中でだれがいちばん背が高いですか。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "夏と冬とどれが好きですか。",
+        "バスと電車とどちらが速いですか。",
+        "今日は昨日より暑いです。",
+        "東京は大阪より人が多いです。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: hỏi chọn giữa hai thứ dùng どちら. Sửa: 夏と冬とどちらが好きですか。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "クラスの中で、リンさんが（　　）上手です。",
+       "options": [
+        "ほう",
+        "いちばん",
+        "より",
+        "どちら"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Trong nhóm + いちばん: nhất. Nghĩa: Trong lớp, bạn Linh giỏi nhất."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "果物の中でりんごがいちばん好きです。",
+       "options": [
+        "Táo đắt nhất trong các loại hoa quả.",
+        "Trong các loại hoa quả tôi thích táo nhất.",
+        "Tôi không thích táo lắm.",
+        "Tôi thích hoa quả hơn táo."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Trong các loại hoa quả tôi thích táo nhất.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "今日は昨日より暑いです。",
+        "この部屋はあの部屋ほど広いです。",
+        "東京は大阪より人が多いです。",
+        "兄は私より背が高いです。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: ほど đi với phủ định (ほど広くない); so sánh hơn dùng より. Sửa: この部屋はあの部屋より広いです。"
+      }
+     ]
+    },
+    "note": "meaning cũ quá ngắn, usage dán lẫn tiếng Nhật và dịch ngược nghĩa (どちら); ví dụ 1 dùng tên 吉田/鈴木, ví dụ 3 lệch mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「より」 theo mẫu 比較 (Dùng khi so sánh 2 sự vật.). Nghĩa cả câu: Anh Yoshida cao hơn anh Suzuki.",
+      "options": [
+       "まま",
+       "てある",
+       "やすい",
+       "より"
+      ],
+      "prompt_ja": "吉田さんは鈴木さん（　　）背が高いです。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc 比較 (Dùng khi so sánh 2 sự vật.), chỗ trống cần điền 「より」. Nghĩa: Điểm bài kiểm tra lần này tệ hơn lần trước.",
+      "options": [
+       "より",
+       "とおり",
+       "てみる",
+       "にくい"
+      ],
+      "prompt_ja": "今度のテストの点は前の点（　　）悪かったです。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 吉田さんは鈴木さんより背が高いです。 (Anh Yoshida cao hơn anh Suzuki.). Theo cấu trúc 比較, mảnh đứng ở vị trí ★ là 「背が」.",
+      "options": [
+       "吉田さんは",
+       "背が",
+       "鈴木さんより",
+       "高いです"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 今度のテストの点は前の点より悪かったです。 (Điểm bài kiểm tra lần này tệ hơn lần trước.). Theo cấu trúc 比較, mảnh đứng ở vị trí ★ là 「テストの点は」.",
+      "options": [
+       "前の点より",
+       "今度の",
+       "悪かったです",
+       "テストの点は"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mẫu 比較 có nghĩa là \"Dùng khi so sánh 2 sự vật.\". Câu này dịch là: \"Anh Yoshida cao hơn anh Suzuki.\"",
+      "options": [
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Anh Yoshida cao hơn anh Suzuki.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua."
+      ],
+      "prompt_ja": "吉田さんは鈴木さんより背が高いです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu 比較 (Dùng khi so sánh 2 sự vật.), câu trên có nghĩa là: \"Điểm bài kiểm tra lần này tệ hơn lần trước.\"",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Điểm bài kiểm tra lần này tệ hơn lần trước.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày."
+      ],
+      "prompt_ja": "今度のテストの点は前の点より悪かったです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu 比較). Câu đúng: 吉田さんは鈴木さんより背が高いです。",
+      "options": [
+       "今度のテストの点は前の点より悪かったです。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "吉田さんは鈴木さんより背が高いですますだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: 今度のテストの点は前の点より悪かったです。",
+      "options": [
+       "吉田さんは鈴木さんより背が高いです。",
+       "今度のテストの点はを前の点より悪かったです。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"比較\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "吉田さんは鈴木さんより背が高いです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh Yoshida cao hơn anh Suzuki."
+     },
+     {
+      "ja": "今度のテストの点は前の点より悪かったです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Điểm bài kiểm tra lần này tệ hơn lần trước."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「ています」 theo cấu trúc 比較 (Dùng khi so sánh 2 sự vật.). Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "ておく",
+       "ています",
+       "ていく",
+       "ようだ"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu 比較 (Dùng khi so sánh 2 sự vật.), câu này nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "吉田さんは鈴木さんより背が高いです。",
+       "今度のテストの点は前の点より悪かったです。",
+       "毎日まじめにを日本語を勉強しています。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "より",
+      "sentence_ja": "吉田さんは鈴木さん＿＿背が高いです。",
+      "translation_vi": "Anh Yoshida cao hơn anh Suzuki."
+     },
+     {
+      "answer": "より",
+      "sentence_ja": "今度のテストの点は前の点＿＿悪かったです。",
+      "translation_vi": "Điểm bài kiểm tra lần này tệ hơn lần trước."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 吉田さんは鈴木さんより背が高いです。",
+     "FURIGANA_MISSING: 今度のテストの点は前の点より悪かったです。"
+    ],
+    "formation": "Cấu trúc: 比較",
+    "locked_fields": [],
+    "meaning_vi": "Dùng khi so sánh 2 sự vật.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"比較\".",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "背が",
+       "吉田さんは",
+       "高いです",
+       "鈴木さんより"
+      ],
+      "translation_vi": "Anh Yoshida cao hơn anh Suzuki."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "テストの点は",
+       "悪かったです",
+       "今度の",
+       "前の点より"
+      ],
+      "translation_vi": "Điểm bài kiểm tra lần này tệ hơn lần trước."
+     }
+    ],
+    "pattern": "比較",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Quyết định và so sánh",
+    "usage_vi": "二つものを比較する文では、疑問詞はいつも「どちら」は使えない。 Đối với câu so sánh 2 vật thì thường dùng từ để hỏi là 「どちら」, khi phải chọn lựa 3 vật trở lên thì không thể sử dụng 「どちら」 1. 「日本料理の中で、何がいちばん好きですか」 「Trong các món ăn Nhật bản thì bạn thích món gì nhất」 2. 「温泉に行こうと思っています。どこがいいでしょうか」 「Tôi định đi suối nước nóng. Đi ở chỗ nào thì tốt ?」 3. 「今度、いっしょに食事に行きましょう。いつがいいですか」 「Lần này cùng nhau ăn cơm nhé. Lúc nào thì được.」 4. 「ビール、日本酒、ワイン、どれがいい？」「ビール」 「Bia, rượu nhật hay rượu vang loại nào thì được.」「Bia」"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2ddd4be2e1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "bị bắt (phải) làm …; bị người khác bắt …",
+     "formation": "Nhóm I: う → あ + せられる hoặc あ + される (飲む → 飲まされる; đuôi す chỉ có 話させられる); nhóm II: bỏ る + させられる (食べる → 食べさせられる); する → させられる; くる → こさせられる",
+     "usage_vi": "Chủ ngữ (thường là người nói) bị người khác bắt làm việc mình không muốn; người bắt đi với に: 私は母に野菜を食べさせられました; 子どものころ、毎日ピアノを練習させられました.",
+     "nuance_vi": "Luôn mang cảm giác không muốn, bị ép. Dạng rút gọn 〜される chỉ dùng cho nhóm I (trừ động từ đuôi す).",
+     "common_mistakes_vi": "Nhầm với thể sai khiến (mình bắt người khác) hoặc thể bị động; rút gọn sai với nhóm II (×食べさされる) hay đuôi す (×話さされる).",
+     "examples": [
+      {
+       "ja": "私は母に野菜を食べさせられました。",
+       "ja_furigana": "私(わたし)は母(はは)に野菜(やさい)を食(た)べさせられました。",
+       "vi": "Tôi bị mẹ bắt ăn rau."
+      },
+      {
+       "ja": "子どものころ、毎日ピアノを練習させられました。",
+       "ja_furigana": "子(こ)どものころ、毎日(まいにち)ピアノを練習(れんしゅう)させられました。",
+       "vi": "Hồi nhỏ ngày nào tôi cũng bị bắt tập piano."
+      },
+      {
+       "ja": "部長にお酒を飲まされました。",
+       "ja_furigana": "部長(ぶちょう)にお酒(さけ)を飲(の)まされました。",
+       "vi": "Tôi bị trưởng phòng bắt uống rượu."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "きのうは、先生に一時間も＿＿。",
+       "answer": "待たされました",
+       "translation_vi": "Hôm qua tôi bị thầy bắt chờ những một tiếng."
+      },
+      {
+       "sentence_ja": "弟は母に部屋をそうじ＿＿。",
+       "answer": "させられました",
+       "translation_vi": "Em trai bị mẹ bắt dọn phòng."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "食べさせられました",
+        "私は母にきらいな",
+        "を",
+        "野菜"
+       ],
+       "answer_order": [
+        1,
+        3,
+        2,
+        0
+       ],
+       "translation_vi": "Tôi bị mẹ bắt ăn món rau mình ghét."
+      },
+      {
+       "pieces": [
+        "練習を",
+        "させられました",
+        "の",
+        "子どものころ、毎日ピアノ"
+       ],
+       "answer_order": [
+        3,
+        2,
+        0,
+        1
+       ],
+       "translation_vi": "Hồi nhỏ ngày nào tôi cũng bị bắt tập piano."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "きのうは、先生に一時間も（　　）。",
+       "options": [
+        "待ちさせられました",
+        "待たされました",
+        "待たせました",
+        "待たられました"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Bị bắt chờ: 待つ → 待たされる. Nghĩa: Hôm qua tôi bị thầy bắt chờ những một tiếng."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "弟は母に部屋をそうじ（　　）。",
+       "options": [
+        "さされました",
+        "しられました",
+        "させられました",
+        "させされました"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "する → させられる: bị bắt làm. Nghĩa: Em trai bị mẹ bắt dọn phòng."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "私は母に ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "食べさせられました",
+        "きらいな",
+        "を",
+        "野菜"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 私は母にきらいな野菜を食べさせられました。 (Tôi bị mẹ bắt ăn món rau mình ghét.) Mảnh ở ô ★ là 「を」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "子どものころ、毎日 ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "練習を",
+        "させられました",
+        "の",
+        "ピアノ"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: 子どものころ、毎日ピアノの練習をさせられました。 (Hồi nhỏ ngày nào tôi cũng bị bắt tập piano.) Mảnh ở ô ★ là 「練習を」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "私は母に野菜を食べさせられました。",
+       "options": [
+        "Tôi được mẹ khen vì ăn rau.",
+        "Tôi bắt mẹ ăn rau.",
+        "Mẹ nấu rau cho tôi ăn.",
+        "Tôi bị mẹ bắt ăn rau."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Tôi bị mẹ bắt ăn rau.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "部長にお酒を飲まされました。",
+       "options": [
+        "Trưởng phòng không cho tôi uống rượu.",
+        "Tôi bắt trưởng phòng uống rượu.",
+        "Tôi bị trưởng phòng bắt uống rượu.",
+        "Tôi uống rượu cùng trưởng phòng."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Tôi bị trưởng phòng bắt uống rượu.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "子どものころ、毎日ピアノを練習させられました。",
+        "きのうは、先生に一時間も待たされました。",
+        "私は母に野菜を食べさされました。",
+        "私は母にきらいな野菜を食べさせられました。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: nhóm II không có dạng rút gọn; đúng là 食べさせられる. Sửa: 私は母に野菜を食べさせられました。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "先生に作文を書かさせられました。",
+        "子どものころ、毎日ピアノを練習させられました。",
+        "きのうは、先生に一時間も待たされました。",
+        "私は母にきらいな野菜を食べさせられました。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: 書く (nhóm I) → 書かせられる hoặc 書かされる. Sửa: 先生に作文を書かされました。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "子どものとき、毎晩母に歯をみがか（　　）。",
+       "options": [
+        "さされました",
+        "られました",
+        "されました",
+        "させされました"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Nhóm I rút gọn: みがく → みがかされる. Nghĩa: Hồi nhỏ tối nào tôi cũng bị mẹ bắt đánh răng."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "子どものころ、毎日ピアノを練習させられました。",
+       "options": [
+        "Hồi nhỏ tôi rất thích tập piano.",
+        "Hồi nhỏ tôi bắt em tập piano mỗi ngày.",
+        "Hồi nhỏ ngày nào tôi cũng bị bắt tập piano.",
+        "Hồi nhỏ tôi chưa từng tập piano."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Hồi nhỏ ngày nào tôi cũng bị bắt tập piano.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "きのうは、先生に一時間も待たされました。",
+        "私は部長に国の話を話さされました。",
+        "私は母にきらいな野菜を食べさせられました。",
+        "私は母に野菜を食べさせられました。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: động từ đuôi す không rút gọn; đúng là 話させられる. Sửa: 私は部長に国の話を話させられました。"
+      }
+     ]
+    },
+    "note": "lỗi nguồn: ví dụ gốc là dòng tiêu đề 使役受け身の形２, thiếu câu; thay cả mảng examples. pattern hiển thị trộn tiếng Việt; meaning cũ chỉ là nhãn bảng; ví dụ 2 và 3 cũ là thể sai khiến, không phải bị động sai khiến; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「形２」 theo mẫu sai khiến 〜させられる – 受身使役形 ((Dạng nguyên thể) (Dạng bị động sai khiến - 1)). Nghĩa cả câu: (Dạng bị động sai khiến - 2)",
+      "options": [
+       "ている",
+       "すぎる",
+       "形２",
+       "のに"
+      ],
+      "prompt_ja": "使役受け身の（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc sai khiến 〜させられる – 受身使役形 ((Dạng nguyên thể) (Dạng bị động sai khiến - 1)), chỗ trống cần điền 「ました」. Nghĩa: Mẹ đã bắt em trai dọn dẹp phòng.",
+      "options": [
+       "てくる",
+       "そうだ",
+       "ので",
+       "ました"
+      ],
+      "prompt_ja": "母は弟に部屋を掃除させ（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 使役受け身の形２。 ((Dạng bị động sai khiến - 2)). Theo cấu trúc sai khiến 〜させられる – 受身使役形, mảnh đứng ở vị trí ★ là 「身の」.",
+      "options": [
+       "形２",
+       "受け",
+       "身の",
+       "使役"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 母は弟に部屋を掃除させました。 (Mẹ đã bắt em trai dọn dẹp phòng.). Theo cấu trúc sai khiến 〜させられる – 受身使役形, mảnh đứng ở vị trí ★ là 「部屋を」.",
+      "options": [
+       "母は弟に",
+       "掃除させ",
+       "部屋を",
+       "ました"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Mẫu sai khiến 〜させられる – 受身使役形 có nghĩa là \"(Dạng nguyên thể) (Dạng bị động sai khiến - 1)\". Câu này dịch là: \"(Dạng bị động sai khiến - 2)\"",
+      "options": [
+       "(Dạng bị động sai khiến - 2)",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng."
+      ],
+      "prompt_ja": "使役受け身の形２。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu sai khiến 〜させられる – 受身使役形 ((Dạng nguyên thể) (Dạng bị động sai khiến - 1)), câu trên có nghĩa là: \"Mẹ đã bắt em trai dọn dẹp phòng.\"",
+      "options": [
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Mẹ đã bắt em trai dọn dẹp phòng.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "prompt_ja": "母は弟に部屋を掃除させました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu sai khiến 〜させられる – 受身使役形). Câu đúng: 使役受け身の形２。",
+      "options": [
+       "母は弟に部屋を掃除させました。",
+       "先生は学生に自由に意見を言わせた。",
+       "使役受け身の形２ますだ。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc sai khiến 〜させられる – 受身使役形. Câu đúng: 母は弟に部屋を掃除させました。",
+      "options": [
+       "母は弟に部屋をが掃除させました。",
+       "使役受け身の形２。",
+       "先生は学生に自由に意見を言わせた。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"sai khiến 〜させられる – 受身使役形\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "使役受け身の形２",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "(Dạng bị động sai khiến - 2)"
+     },
+     {
+      "ja": "母は弟に部屋を掃除させました。",
+      "ja_furigana": "母(はは)は弟(おとうと)に部屋(へや)を掃除(そうじ)させました。",
+      "source": "CLAUDE",
+      "vi": "Mẹ đã bắt em trai dọn dẹp phòng."
+     },
+     {
+      "ja": "先生は学生に自由に意見を言わせた。",
+      "ja_furigana": "先生(せんせい)は学生(がくせい)に自由(じゆう)に意見(いけん)を言(い)わせた。",
+      "source": "CLAUDE",
+      "vi": "Thầy giáo cho sinh viên tự do nêu ý kiến."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「わせた」 theo cấu trúc sai khiến 〜させられる – 受身使役形 ((Dạng nguyên thể) (Dạng bị động sai khiến - 1)). Nghĩa: Thầy giáo cho sinh viên tự do nêu ý kiến.",
+      "options": [
+       "わせた",
+       "にくい",
+       "かもしれない",
+       "たら"
+      ],
+      "prompt_ja": "先生は学生に自由に意見を言（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu sai khiến 〜させられる – 受身使役形 ((Dạng nguyên thể) (Dạng bị động sai khiến - 1)), câu này nghĩa là: \"Thầy giáo cho sinh viên tự do nêu ý kiến.\"",
+      "options": [
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Thầy giáo cho sinh viên tự do nêu ý kiến."
+      ],
+      "prompt_ja": "先生は学生に自由に意見を言わせた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 先生は学生に自由に意見を言わせた。",
+      "options": [
+       "使役受け身の形２。",
+       "先生は学生にを自由に意見を言わせた。",
+       "母は弟に部屋を掃除させました。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "形２",
+      "sentence_ja": "使役受け身の＿＿。",
+      "translation_vi": "(Dạng bị động sai khiến - 2)"
+     },
+     {
+      "answer": "ました",
+      "sentence_ja": "母は弟に部屋を掃除させ＿＿。",
+      "translation_vi": "Mẹ đã bắt em trai dọn dẹp phòng."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 使役受け身の形２"
+    ],
+    "formation": "Cấu trúc: sai khiến 〜させられる – 受身使役形",
+    "locked_fields": [],
+    "meaning_vi": "(Dạng nguyên thể) (Dạng bị động sai khiến - 1)",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"sai khiến 〜させられる – 受身使役形\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "受け",
+       "形２",
+       "使役",
+       "身の"
+      ],
+      "translation_vi": "(Dạng bị động sai khiến - 2)"
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "ました",
+       "掃除させ",
+       "母は弟に",
+       "部屋を"
+      ],
+      "translation_vi": "Mẹ đã bắt em trai dọn dẹp phòng."
+     }
+    ],
+    "pattern": "sai khiến 〜させられる – 受身使役形",
+    "pattern_variants": [],
+    "unit_no": 48,
+    "unit_title_vi": "Thể sai khiến và bị động sai khiến",
+    "usage_vi": "Nội dung グループ 辞書形 → 使役受け身の形１ (Dạng nguyên thể) (Dạng bị động sai khiến - 1) 使役受け身の形２ (Dạng bị động sai khiến - 2) I -u → -a される *1 はらう → はらわされる 聞く → 聞かされる 急ぐ → 急がされる 話す → ＿＿＿＿*2 立つ → 立たされる 運ぶ → 運ばされる 飲む → 飲まされる すわる → すわらされる ‐a せられる はらわせられる 聞かせられる 急がせられる 話させられる 立たせられる 運ばせられる 飲ませられる すわらせられる II 着る → いる → 着させられる いさせられる ねる → 考える → ねさせられる 考えさせられる III する → 来る → させられる 来させられる *1 Động từ nhóm I hay được chia ở dạng bị động sai khiến 1 (-aされる) hơn. *2 Tuy nhiên những động từ ở dạng nguyên thể có kết thúc bằng す(như はなす, だす, おす, v.v.) và những động từ nhóm II, nhóm III thì không có dạng \"-a される\"."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e390e2acba"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "có … sẵn (ai đó đã làm và để đó)",
+     "formation": "N が + V-て (tha động từ) + あります",
+     "usage_vi": "Tả kết quả còn lại của việc ai đó cố ý làm từ trước; người nói chỉ thấy kết quả, không nói ai làm: 机の上にお茶が置いてあります; かべに地図がはってあります.",
+     "nuance_vi": "Khác 〜ています với tự động từ (tả trạng thái tự nhiên): てあります luôn ngụ ý có người cố ý làm, dù không nói ra là ai.",
+     "common_mistakes_vi": "Dùng tự động từ (×ドアが閉まってあります → 閉めてあります); chia sai thể て (×書きてあります).",
+     "examples": [
+      {
+       "ja": "机の上にお茶が置いてあります。",
+       "ja_furigana": "机(つくえ)の上(うえ)にお茶(ちゃ)が置(お)いてあります。",
+       "vi": "Trên bàn có để sẵn trà."
+      },
+      {
+       "ja": "かべに地図がはってあります。",
+       "ja_furigana": "かべに地図(ちず)がはってあります。",
+       "vi": "Trên tường có dán bản đồ."
+      },
+      {
+       "ja": "冷蔵庫にビールが冷やしてあります。",
+       "ja_furigana": "冷蔵庫(れいぞうこ)にビールが冷(ひ)やしてあります。",
+       "vi": "Trong tủ lạnh có bia ướp lạnh sẵn."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "窓のそばに花が＿＿あります。",
+       "answer": "かざって",
+       "translation_vi": "Bên cửa sổ có bày sẵn hoa."
+      },
+      {
+       "sentence_ja": "ドアにかぎが＿＿ありますから、入れません。",
+       "answer": "かけて",
+       "translation_vi": "Cửa đã bị khóa sẵn nên không vào được."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "あります",
+        "が",
+        "並べて",
+        "テーブルの上にお皿"
+       ],
+       "answer_order": [
+        3,
+        1,
+        2,
+        0
+       ],
+       "translation_vi": "Trên bàn có xếp sẵn đĩa."
+      },
+      {
+       "pieces": [
+        "書いてあります",
+        "カレンダーに旅行",
+        "日が",
+        "の"
+       ],
+       "answer_order": [
+        1,
+        3,
+        2,
+        0
+       ],
+       "translation_vi": "Trên lịch có ghi sẵn ngày đi du lịch."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "窓のそばに花が（　　）あります。",
+       "options": [
+        "かざって",
+        "かざり",
+        "かざる",
+        "かざった"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Tha động từ かざる → かざって + あります. Nghĩa: Bên cửa sổ có bày sẵn hoa."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "ドアにかぎが（　　）ありますから、入れません。",
+       "options": [
+        "かかって",
+        "かけて",
+        "かけ",
+        "かかり"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Tha động từ かける → かけてあります. Nghĩa: Cửa đã bị khóa sẵn nên không vào được."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "テーブルの上に ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "あります",
+        "が",
+        "並べて",
+        "お皿"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: テーブルの上にお皿が並べてあります。 (Trên bàn có xếp sẵn đĩa.) Mảnh ở ô ★ là 「並べて」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "カレンダーに ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "書いてあります",
+        "旅行",
+        "日が",
+        "の"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: カレンダーに旅行の日が書いてあります。 (Trên lịch có ghi sẵn ngày đi du lịch.) Mảnh ở ô ★ là 「日が」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "机の上にお茶が置いてあります。",
+       "options": [
+        "Tôi đang uống trà ở bàn.",
+        "Hãy để trà lên bàn.",
+        "Trên bàn không có trà.",
+        "Trên bàn có để sẵn trà."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Trên bàn có để sẵn trà.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "かべに地図がはってあります。",
+       "options": [
+        "Tôi sẽ dán bản đồ lên tường.",
+        "Trên tường có dán bản đồ.",
+        "Trên tường không có gì cả.",
+        "Tôi đang nhìn bản đồ trên tường."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Trên tường có dán bản đồ.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "机の上にお茶が置いてあります。",
+        "冷蔵庫にビールが冷やしてあります。",
+        "ドアが閉まってあります。",
+        "ドアにかぎがかけてありますから、入れません。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: 閉まる là tự động từ; có người đóng sẵn thì dùng 閉めてあります. Sửa: ドアが閉めてあります。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "黒板に名前が書きてあります。",
+        "かべに地図がはってあります。",
+        "窓のそばに花がかざってあります。",
+        "テーブルの上にお皿が並べてあります。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai cách chia: 書く → 書いて. Sửa: 黒板に名前が書いてあります。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "会議室にいすが（　　）あります。",
+       "options": [
+        "並んで",
+        "並ぶ",
+        "並べ",
+        "並べて"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Tha động từ 並べる → 並べてあります. Nghĩa: Trong phòng họp có xếp sẵn ghế."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "冷蔵庫にビールが冷やしてあります。",
+       "options": [
+        "Trong tủ lạnh có bia ướp lạnh sẵn.",
+        "Tủ lạnh bị hỏng nên bia không lạnh.",
+        "Tôi đang uống bia lạnh.",
+        "Hãy cho bia vào tủ lạnh."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Trong tủ lạnh có bia ướp lạnh sẵn.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "窓のそばに花がかざってあります。",
+        "かべにポスターがはってています。",
+        "テーブルの上にお皿が並べてあります。",
+        "机の上にお茶が置いてあります。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: có người dán sẵn dùng はってあります. Sửa: かべにポスターがはってあります。"
+      }
+     ]
+    },
+    "note": "nuance/common_mistakes là văn mẫu; ví dụ 1 viết kana thuần, câu 2 trùng mục khác; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「が」 theo mẫu N が V-て あります (Ai đó đã bày sẵn từ trước). Nghĩa cả câu: Có trà đã được đặt sẵn trên bàn làm việc.",
+      "options": [
+       "ようだ",
+       "が",
+       "から",
+       "と"
+      ],
+      "prompt_ja": "つくえに おちゃ（　　） おいて あります。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc N が V-て あります (Ai đó đã bày sẵn từ trước), chỗ trống cần điền 「が」. Nghĩa: Trên bàn có đặt sẵn quyển sách.",
+      "options": [
+       "らしい",
+       "ても",
+       "が",
+       "しか"
+      ],
+      "prompt_ja": "机の上に本（　　）置いてあります。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: つくえに おちゃが おいて あります。 (Có trà đã được đặt sẵn trên bàn làm việc.). Theo cấu trúc N が V-て あります, mảnh đứng ở vị trí ★ là 「 おいて 」.",
+      "options": [
+       " おちゃが",
+       "あります",
+       "つくえに",
+       " おいて "
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 机の上に本が置いてあります。 (Trên bàn có đặt sẵn quyển sách.). Theo cấu trúc N が V-て あります, mảnh đứng ở vị trí ★ là 「上に本が」.",
+      "options": [
+       "あります",
+       "上に本が",
+       "置いて",
+       "机の"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Mẫu N が V-て あります có nghĩa là \"Ai đó đã bày sẵn từ trước\". Câu này dịch là: \"Có trà đã được đặt sẵn trên bàn làm việc.\"",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Có trà đã được đặt sẵn trên bàn làm việc."
+      ],
+      "prompt_ja": "つくえに おちゃが おいて あります。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu N が V-て あります (Ai đó đã bày sẵn từ trước), câu trên có nghĩa là: \"Trên bàn có đặt sẵn quyển sách.\"",
+      "options": [
+       "Trên bàn có đặt sẵn quyển sách.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh."
+      ],
+      "prompt_ja": "机の上に本が置いてあります。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu N が V-て あります). Câu đúng: つくえに おちゃが おいて あります。",
+      "options": [
+       "机の上に本が置いてあります。",
+       "つくえに おちゃが おいて ありますますだ。",
+       "壁に地図がはってあります。",
+       "ホテルはもう予約してあります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu N が V-て あります). Câu đúng: 机の上に本が置いてあります。",
+      "options": [
+       "つくえに おちゃが おいて あります。",
+       "壁に地図がはってあります。",
+       "ホテルはもう予約してあります。",
+       "机の上に本が置いてありますですます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"N が V-て あります\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "つくえに おちゃが おいて あります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có trà đã được đặt sẵn trên bàn làm việc."
+     },
+     {
+      "ja": "机の上に本が置いてあります。",
+      "ja_furigana": "机(つくえ)の上(うえ)に本(ほん)が置(お)いてあります。",
+      "source": "CLAUDE",
+      "vi": "Trên bàn có đặt sẵn quyển sách."
+     },
+     {
+      "ja": "壁に地図がはってあります。",
+      "ja_furigana": "壁(かべ)に地図(ちず)がはってあります。",
+      "source": "CLAUDE",
+      "vi": "Trên tường có dán sẵn bản đồ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「が」 theo cấu trúc N が V-て あります (Ai đó đã bày sẵn từ trước). Nghĩa: Trên tường có dán sẵn bản đồ.",
+      "options": [
+       "ので",
+       "ば",
+       "くらい",
+       "が"
+      ],
+      "prompt_ja": "壁に地図（　　）はってあります。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu N が V-て あります (Ai đó đã bày sẵn từ trước), câu này nghĩa là: \"Trên tường có dán sẵn bản đồ.\"",
+      "options": [
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Trên tường có dán sẵn bản đồ.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng."
+      ],
+      "prompt_ja": "壁に地図がはってあります。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 壁に地図がはってあります。",
+      "options": [
+       "壁にを地図がはってあります。",
+       "つくえに おちゃが おいて あります。",
+       "机の上に本が置いてあります。",
+       "部屋の窓が開けてあります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "が",
+      "sentence_ja": "つくえに おちゃ＿＿ おいて あります。",
+      "translation_vi": "Có trà đã được đặt sẵn trên bàn làm việc."
+     },
+     {
+      "answer": "が",
+      "sentence_ja": "机の上に本＿＿置いてあります。",
+      "translation_vi": "Trên bàn có đặt sẵn quyển sách."
+     }
+    ],
+    "findings": [],
+    "formation": "N が V-て あります",
+    "locked_fields": [],
+    "meaning_vi": "Ai đó đã bày sẵn từ trước\nCó người làm rồi để đấy, giờ mình thấy kết quả: つくえに メモが おいて あります.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"N が V-て あります\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "あります",
+       " おいて ",
+       "つくえに",
+       " おちゃが"
+      ],
+      "translation_vi": "Có trà đã được đặt sẵn trên bàn làm việc."
+     },
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "置いて",
+       "机の",
+       "あります",
+       "上に本が"
+      ],
+      "translation_vi": "Trên bàn có đặt sẵn quyển sách."
+     }
+    ],
+    "pattern": "N が V-て あります",
+    "pattern_variants": [],
+    "unit_no": 30,
+    "unit_title_vi": "Trạng thái chuẩn bị sẵn",
+    "usage_vi": "Khác với て います tả trạng thái tự nhiên. て あります luôn ngụ ý có người cố ý làm, dù không nói ra là ai."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9a62125855"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "… đã được (làm) sẵn chưa?; hỏi việc chuẩn bị",
+     "formation": "N は + V-て + ありますか",
+     "usage_vi": "Hỏi xem thứ cần đã được chuẩn bị sẵn chưa: 飲み物はもう買ってありますか; ホテルは予約してありますか. Trả lời: はい、もう買ってあります / いいえ、まだです.",
+     "nuance_vi": "Hỏi về kết quả chuẩn bị, không hỏi ai làm; muốn hỏi người làm thì dùng だれが〜ましたか.",
+     "common_mistakes_vi": "Ghép thừa (×予約していてありますか); dùng tự động từ (×窓は開いてありますか → 開けてありますか).",
+     "examples": [
+      {
+       "ja": "飲み物はもう買ってありますか。",
+       "ja_furigana": "飲(の)み物(もの)はもう買(か)ってありますか。",
+       "vi": "Đồ uống đã mua sẵn chưa?"
+      },
+      {
+       "ja": "ホテルは予約してありますか。",
+       "ja_furigana": "ホテルは予約(よやく)してありますか。",
+       "vi": "Khách sạn đã được đặt chưa?"
+      },
+      {
+       "ja": "会議の部屋はもう準備してありますか。",
+       "ja_furigana": "会議(かいぎ)の部屋(へや)はもう準備(じゅんび)してありますか。",
+       "vi": "Phòng họp đã chuẩn bị sẵn chưa?"
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "「パーティーのケーキは＿＿ありますか」「はい、もう注文してあります」",
+       "answer": "注文して",
+       "translation_vi": "\"Bánh cho bữa tiệc đã đặt sẵn chưa?\" \"Rồi, đã đặt rồi.\""
+      },
+      {
+       "sentence_ja": "「切符は＿＿ありますか」「いいえ、まだです」",
+       "answer": "買って",
+       "translation_vi": "\"Vé đã mua sẵn chưa?\" \"Chưa.\""
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "予約して",
+        "ありますか",
+        "は",
+        "旅行のホテル"
+       ],
+       "answer_order": [
+        3,
+        2,
+        0,
+        1
+       ],
+       "translation_vi": "Khách sạn cho chuyến du lịch đã đặt sẵn chưa?"
+      },
+      {
+       "pieces": [
+        "用意してありますか",
+        "もう",
+        "お客さんの飲み物",
+        "は"
+       ],
+       "answer_order": [
+        2,
+        3,
+        1,
+        0
+       ],
+       "translation_vi": "Đồ uống cho khách đã chuẩn bị sẵn chưa?"
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "「パーティーのケーキは（　　）ありますか」「はい、もう注文してあります」",
+       "options": [
+        "注文し",
+        "注文する",
+        "注文して",
+        "注文した"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Hỏi việc chuẩn bị: V-て ありますか. Nghĩa: \"Bánh cho bữa tiệc đã đặt sẵn chưa?\" \"Rồi, đã đặt rồi.\""
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "「切符は（　　）ありますか」「いいえ、まだです」",
+       "options": [
+        "買った",
+        "買う",
+        "買い",
+        "買って"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "V-て (買って) + ありますか. Nghĩa: \"Vé đã mua sẵn chưa?\" \"Chưa.\""
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "旅行の ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "予約して",
+        "ありますか",
+        "は",
+        "ホテル"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: 旅行のホテルは予約してありますか。 (Khách sạn cho chuyến du lịch đã đặt sẵn chưa?) Mảnh ở ô ★ là 「予約して」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "お客さんの ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "用意してありますか",
+        "もう",
+        "飲み物",
+        "は"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: お客さんの飲み物はもう用意してありますか。 (Đồ uống cho khách đã chuẩn bị sẵn chưa?) Mảnh ở ô ★ là 「もう」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "飲み物はもう買ってありますか。",
+       "options": [
+        "Hãy mua đồ uống đi.",
+        "Đồ uống đã mua sẵn chưa?",
+        "Bạn đã uống đồ uống chưa?",
+        "Đồ uống mua ở đâu vậy?"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Đồ uống đã mua sẵn chưa?\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "ホテルは予約してありますか。",
+       "options": [
+        "Khách sạn đã hết phòng chưa?",
+        "Khách sạn đã được đặt chưa?",
+        "Tôi sẽ đặt khách sạn.",
+        "Khách sạn này có đẹp không?"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Khách sạn đã được đặt chưa?\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "飲み物はもう買ってありますか。",
+        "「パーティーのケーキは注文してありますか」「はい、もう注文してあります」",
+        "ホテルは予約していてありますか。",
+        "旅行のホテルは予約してありますか。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: ghép thừa いて; đúng là 予約してありますか. Sửa: ホテルは予約してありますか。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "窓は開いてありますか。",
+        "ホテルは予約してありますか。",
+        "「パーティーのケーキは注文してありますか」「はい、もう注文してあります」",
+        "旅行のホテルは予約してありますか。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: 開く là tự động từ; hỏi có người mở sẵn chưa dùng 開けてありますか. Sửa: 窓は開けてありますか。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "「部屋のそうじは（　　）ありますか」「はい、きのうしました」",
+       "options": [
+        "して",
+        "する",
+        "した",
+        "し"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "そうじ + して + ありますか. Nghĩa: \"Phòng đã dọn sẵn chưa?\" \"Rồi, hôm qua dọn rồi.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "会議の部屋はもう準備してありますか。",
+       "options": [
+        "Phòng họp ở đâu?",
+        "Hãy chuẩn bị phòng họp.",
+        "Ai đã chuẩn bị phòng họp?",
+        "Phòng họp đã chuẩn bị sẵn chưa?"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Phòng họp đã chuẩn bị sẵn chưa?\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "「パーティーのケーキは注文してありますか」「はい、もう注文してあります」",
+        "お弁当は作りてありますか。",
+        "旅行のホテルは予約してありますか。",
+        "飲み物はもう買ってありますか。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai cách chia: 作る → 作って. Sửa: お弁当は作ってありますか。"
+      }
+     ]
+    },
+    "note": "ví dụ 2 và 3 cũ là câu khẳng định, không phải câu hỏi; nuance/common_mistakes là văn mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「は」 theo mẫu N は V-て ありますか (Hỏi đã bày sẵn chưa). Nghĩa cả câu: Tài liệu đã chuẩn bị sẵn chưa?",
+      "options": [
+       "は",
+       "たら",
+       "だけ",
+       "し"
+      ],
+      "prompt_ja": "しりょう（　　） じゅんびして ありますか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc N は V-て ありますか (Hỏi đã bày sẵn chưa), chỗ trống cần điền 「てあります」. Nghĩa: Trên bàn có đặt sẵn quyển sách.",
+      "options": [
+       "なら",
+       "てあります",
+       "ほど",
+       "てもいい"
+      ],
+      "prompt_ja": "机の上に本が置い（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: しりょうは じゅんびして ありますか。 (Tài liệu đã chuẩn bị sẵn chưa?). Theo cấu trúc N は V-て ありますか, mảnh đứng ở vị trí ★ là 「あり」.",
+      "options": [
+       "あり",
+       "しりょうは",
+       "ますか",
+       " じゅんびして "
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 机の上に本が置いてあります。 (Trên bàn có đặt sẵn quyển sách.). Theo cấu trúc N は V-て ありますか, mảnh đứng ở vị trí ★ là 「上に本が」.",
+      "options": [
+       "上に本が",
+       "あります",
+       "机の",
+       "置いて"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mẫu N は V-て ありますか có nghĩa là \"Hỏi đã bày sẵn chưa\". Câu này dịch là: \"Tài liệu đã chuẩn bị sẵn chưa?\"",
+      "options": [
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Tài liệu đã chuẩn bị sẵn chưa?",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "prompt_ja": "しりょうは じゅんびして ありますか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu N は V-て ありますか (Hỏi đã bày sẵn chưa), câu trên có nghĩa là: \"Trên bàn có đặt sẵn quyển sách.\"",
+      "options": [
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Trên bàn có đặt sẵn quyển sách."
+      ],
+      "prompt_ja": "机の上に本が置いてあります。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu N は V-て ありますか). Câu đúng: しりょうは じゅんびして ありますか。",
+      "options": [
+       "しりょうは じゅんびして ありますかますだ。",
+       "机の上に本が置いてあります。",
+       "壁に地図がはってあります。",
+       "ホテルはもう予約してあります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu N は V-て ありますか). Câu đúng: 机の上に本が置いてあります。",
+      "options": [
+       "しりょうは じゅんびして ありますか。",
+       "壁に地図がはってあります。",
+       "机の上に本が置いてありますですます。",
+       "ホテルはもう予約してあります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"N は V-て ありますか\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "しりょうは じゅんびして ありますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tài liệu đã chuẩn bị sẵn chưa?"
+     },
+     {
+      "ja": "机の上に本が置いてあります。",
+      "ja_furigana": "机(つくえ)の上(うえ)に本(ほん)が置(お)いてあります。",
+      "source": "CLAUDE",
+      "vi": "Trên bàn có đặt sẵn quyển sách."
+     },
+     {
+      "ja": "壁に地図がはってあります。",
+      "ja_furigana": "壁(かべ)に地図(ちず)がはってあります。",
+      "source": "CLAUDE",
+      "vi": "Trên tường có dán sẵn bản đồ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「は」 theo cấu trúc N は V-て ありますか (Hỏi đã bày sẵn chưa). Nghĩa: Trên tường có dán sẵn bản đồ.",
+      "options": [
+       "しか",
+       "とか",
+       "は",
+       "ところ"
+      ],
+      "prompt_ja": "壁に地図が（　　）ってあります。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu N は V-て ありますか (Hỏi đã bày sẵn chưa), câu này nghĩa là: \"Trên tường có dán sẵn bản đồ.\"",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Trên tường có dán sẵn bản đồ.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày."
+      ],
+      "prompt_ja": "壁に地図がはってあります。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 壁に地図がはってあります。",
+      "options": [
+       "しりょうは じゅんびして ありますか。",
+       "机の上に本が置いてあります。",
+       "部屋の窓が開けてあります。",
+       "壁にを地図がはってあります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "は",
+      "sentence_ja": "しりょう＿＿ じゅんびして ありますか。",
+      "translation_vi": "Tài liệu đã chuẩn bị sẵn chưa?"
+     },
+     {
+      "answer": "てあります",
+      "sentence_ja": "机の上に本が置い＿＿。",
+      "translation_vi": "Trên bàn có đặt sẵn quyển sách."
+     }
+    ],
+    "findings": [],
+    "formation": "N は V-て ありますか",
+    "locked_fields": [],
+    "meaning_vi": "Hỏi đã bày sẵn chưa\nHỏi xem thứ cần đã được chuẩn bị chưa: しりょうは じゅんびして ありますか.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"N は V-て ありますか\".",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "あり",
+       "しりょうは",
+       "ますか",
+       " じゅんびして "
+      ],
+      "translation_vi": "Tài liệu đã chuẩn bị sẵn chưa?"
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "上に本が",
+       "あります",
+       "机の",
+       "置いて"
+      ],
+      "translation_vi": "Trên bàn có đặt sẵn quyển sách."
+     }
+    ],
+    "pattern": "N は V-て ありますか",
+    "pattern_variants": [],
+    "unit_no": 30,
+    "unit_title_vi": "Trạng thái chuẩn bị sẵn",
+    "usage_vi": "Hỏi về kết quả nhìn thấy được. Muốn hỏi ai làm thì đổi sang だれが ～ましたか."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-757a1b5489"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "người nào đó đã làm …; nói rõ người làm thay cho 〜てあります",
+     "formation": "(người) が + N を + V ました (hoặc N は + người が + V ました)",
+     "usage_vi": "Khi cần nói rõ ai đã làm việc chuẩn bị thì không dùng 〜てあります mà dùng câu tha động từ bình thường: いすは部長が並べました; 会議の準備は田中さんがしました.",
+     "nuance_vi": "〜てあります không nhắc người làm (chỉ thấy kết quả); câu \"người が N を V ました\" nhấn vào người làm.",
+     "common_mistakes_vi": "Ghép người làm vào câu 〜てあります (×田中さんが並べてあります); dùng が cho tân ngữ (×電気が消しました).",
+     "examples": [
+      {
+       "ja": "いすは部長が並べました。",
+       "ja_furigana": "いすは部長(ぶちょう)が並(なら)べました。",
+       "vi": "Ghế là trưởng phòng đã xếp."
+      },
+      {
+       "ja": "会議の準備は田中さんがしました。",
+       "ja_furigana": "会議(かいぎ)の準備(じゅんび)は田中(たなか)さんがしました。",
+       "vi": "Việc chuẩn bị cuộc họp là anh Tanaka làm."
+      },
+      {
+       "ja": "この料理は母が作りました。",
+       "ja_furigana": "この料理(りょうり)は母(はは)が作(つく)りました。",
+       "vi": "Món ăn này là mẹ tôi nấu."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "「だれが窓を開けましたか」「私＿＿開けました」",
+       "answer": "が",
+       "translation_vi": "\"Ai đã mở cửa sổ?\" \"Tôi mở.\""
+      },
+      {
+       "sentence_ja": "この写真は兄が＿＿。",
+       "answer": "撮りました",
+       "translation_vi": "Bức ảnh này là anh tôi chụp."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "このいすは、きのう田中",
+        "さん",
+        "並べました",
+        "が"
+       ],
+       "answer_order": [
+        0,
+        1,
+        3,
+        2
+       ],
+       "translation_vi": "Những cái ghế này là anh Tanaka xếp hôm qua."
+      },
+      {
+       "pieces": [
+        "作りました",
+        "このケーキは母",
+        "自分で",
+        "が"
+       ],
+       "answer_order": [
+        1,
+        3,
+        2,
+        0
+       ],
+       "translation_vi": "Cái bánh này mẹ tôi tự làm."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "「だれが窓を開けましたか」「私（　　）開けました」",
+       "options": [
+        "が",
+        "を",
+        "で",
+        "に"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Trả lời だれが: người làm + が. Nghĩa: \"Ai đã mở cửa sổ?\" \"Tôi mở.\""
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "この写真は兄が（　　）。",
+       "options": [
+        "撮りました",
+        "撮りませんか",
+        "撮ってあります",
+        "撮られました"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Nói rõ người làm: N が V ました. Nghĩa: Bức ảnh này là anh tôi chụp."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "このいすは、きのう ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "田中",
+        "さん",
+        "並べました",
+        "が"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: このいすは、きのう田中さんが並べました。 (Những cái ghế này là anh Tanaka xếp hôm qua.) Mảnh ở ô ★ là 「が」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "このケーキは ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "作りました",
+        "母",
+        "自分で",
+        "が"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: このケーキは母が自分で作りました。 (Cái bánh này mẹ tôi tự làm.) Mảnh ở ô ★ là 「自分で」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "いすは部長が並べました。",
+       "options": [
+        "Trưởng phòng ngồi trên ghế.",
+        "Ghế là trưởng phòng đã xếp.",
+        "Ghế đã được xếp sẵn rồi.",
+        "Trưởng phòng bảo tôi xếp ghế."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Ghế là trưởng phòng đã xếp.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "この料理は母が作りました。",
+       "options": [
+        "Món ăn này là mẹ tôi nấu.",
+        "Món ăn này mẹ tôi rất thích.",
+        "Tôi nấu món ăn này cho mẹ.",
+        "Món ăn này mẹ tôi chưa nấu bao giờ."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Món ăn này là mẹ tôi nấu.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "いすは部長が並べました。",
+        "この料理は母が作りました。",
+        "このいすは田中さんが並べてあります。",
+        "この写真は兄が撮りました。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: khi nói rõ người làm thì không dùng てあります. Sửa: このいすは田中さんが並べました。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "だれが電気が消しましたか。",
+        "会議の準備は田中さんがしました。",
+        "「だれが窓を開けましたか」「私が開けました」",
+        "このいすは、きのう田中さんが並べました。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: đồ vật của tha động từ đi với を. Sửa: だれが電気を消しましたか。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "「この絵はだれがかきましたか」「妹（　　）かきました」",
+       "options": [
+        "を",
+        "に",
+        "へ",
+        "が"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Người làm + が. Nghĩa: \"Bức tranh này ai vẽ?\" \"Em gái tôi vẽ.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "会議の準備は田中さんがしました。",
+       "options": [
+        "Tôi chuẩn bị cuộc họp cho anh Tanaka.",
+        "Anh Tanaka chưa chuẩn bị cuộc họp.",
+        "Anh Tanaka không đến cuộc họp.",
+        "Việc chuẩn bị cuộc họp là anh Tanaka làm."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Việc chuẩn bị cuộc họp là anh Tanaka làm.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "「だれが窓を開けましたか」「私が開けました」",
+        "母はケーキが作りました。",
+        "このいすは、きのう田中さんが並べました。",
+        "いすは部長が並べました。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: đồ vật là tân ngữ đi với を. Sửa: 母はケーキを作りました。"
+      }
+     ]
+    },
+    "note": "ví dụ 1 cũ không nói người làm, ví dụ 2 và 3 lệch mẫu; nuance/common_mistakes là văn mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「を」 theo mẫu N を V ました (Nói rõ ai làm việc đó). Nghĩa cả câu: Đã chuẩn bị tài liệu cuộc họp.",
+      "options": [
+       "くらい",
+       "ながら",
+       "まま",
+       "を"
+      ],
+      "prompt_ja": "かいぎの しりょう（　　） じゅんびしました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc N を V ました (Nói rõ ai làm việc đó), chỗ trống cần điền 「を」. Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "を",
+       "ずつ",
+       "ばかり",
+       "とおり"
+      ],
+      "prompt_ja": "毎日まじめに日本語（　　）勉強しています。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: かいぎの しりょうを じゅんびしました。 (Đã chuẩn bị tài liệu cuộc họp.). Theo cấu trúc N を V ました, mảnh đứng ở vị trí ★ là 「 じゅんびし」.",
+      "options": [
+       "かいぎの",
+       " じゅんびし",
+       " しりょうを",
+       "ました"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 毎日まじめに日本語を勉強しています。 (Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.). Theo cấu trúc N を V ました, mảnh đứng ở vị trí ★ là 「日本語を」.",
+      "options": [
+       "勉強して",
+       "毎日まじめに",
+       "います",
+       "日本語を"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mẫu N を V ました có nghĩa là \"Nói rõ ai làm việc đó\". Câu này dịch là: \"Đã chuẩn bị tài liệu cuộc họp.\"",
+      "options": [
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Đã chuẩn bị tài liệu cuộc họp.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh."
+      ],
+      "prompt_ja": "かいぎの しりょうを じゅんびしました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu N を V ました (Nói rõ ai làm việc đó), câu trên có nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu N を V ました). Câu đúng: かいぎの しりょうを じゅんびしました。",
+      "options": [
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "机の上に本が置いてあります。",
+       "かいぎの しりょうを じゅんびしましたますだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc N を V ました. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "かいぎの しりょうを じゅんびしました。",
+       "毎日まじめに日本語をが勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "机の上に本が置いてあります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"N を V ました\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "かいぎの しりょうを じゅんびしました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã chuẩn bị tài liệu cuộc họp."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     },
+     {
+      "ja": "週末は家族と一緒に公園へ行きます。",
+      "ja_furigana": "週末(しゅうまつ)は家族(かぞく)と一緒(いっしょ)に公園(こうえん)へ行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Cuối tuần tôi đi công viên cùng với gia đình."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「ます」 theo cấu trúc N を V ました (Nói rõ ai làm việc đó). Nghĩa: Cuối tuần tôi đi công viên cùng với gia đình.",
+      "options": [
+       "てもいい",
+       "ます",
+       "はず",
+       "ておく"
+      ],
+      "prompt_ja": "週末は家族と一緒に公園へ行き（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu N を V ました (Nói rõ ai làm việc đó), câu này nghĩa là: \"Cuối tuần tôi đi công viên cùng với gia đình.\"",
+      "options": [
+       "Cuối tuần tôi đi công viên cùng với gia đình.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "prompt_ja": "週末は家族と一緒に公園へ行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 週末は家族と一緒に公園へ行きます。",
+      "options": [
+       "かいぎの しりょうを じゅんびしました。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒にを公園へ行きます。",
+       "壁に地図がはってあります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "を",
+      "sentence_ja": "かいぎの しりょう＿＿ じゅんびしました。",
+      "translation_vi": "Đã chuẩn bị tài liệu cuộc họp."
+     },
+     {
+      "answer": "を",
+      "sentence_ja": "毎日まじめに日本語＿＿勉強しています。",
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "findings": [],
+    "formation": "N を V ました",
+    "locked_fields": [],
+    "meaning_vi": "Nói rõ ai làm việc đó\nKhi cần chỉ đích danh người làm thì bỏ て あります đi: いすは ぶちょうが ならべました.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"N を V ました\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       " しりょうを",
+       "ました",
+       "かいぎの",
+       " じゅんびし"
+      ],
+      "translation_vi": "Đã chuẩn bị tài liệu cuộc họp."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "います",
+       "勉強して",
+       "毎日まじめに",
+       "日本語を"
+      ],
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "pattern": "N を V ました",
+    "pattern_variants": [],
+    "unit_no": 30,
+    "unit_title_vi": "Trạng thái chuẩn bị sẵn",
+    "usage_vi": "Câu có を là câu có người làm. Trộn を với て あります là sai."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e9ccbf7acc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "làm … sẵn; làm trước (để chuẩn bị)",
+     "formation": "V-て + おきます (thân mật: 〜とく)",
+     "usage_vi": "Làm sẵn từ bây giờ để chuẩn bị cho việc sau: パーティーの前に飲み物を買っておきます; 旅行の前に切符を買っておきました. Hay đi với 〜前に, 〜までに.",
+     "nuance_vi": "Là việc mình chủ động làm, khác 〜てあります tả cái đã có sẵn. Thân mật: 買っとく.",
+     "common_mistakes_vi": "Dùng thể từ điển (×買うおきます); dùng が như 〜てあります (×飲み物が買っておきます).",
+     "examples": [
+      {
+       "ja": "パーティーの前に飲み物を買っておきます。",
+       "ja_furigana": "パーティーの前(まえ)に飲(の)み物(もの)を買(か)っておきます。",
+       "vi": "Trước bữa tiệc tôi mua sẵn đồ uống."
+      },
+      {
+       "ja": "旅行の前に切符を買っておきました。",
+       "ja_furigana": "旅行(りょこう)の前(まえ)に切符(きっぷ)を買(か)っておきました。",
+       "vi": "Trước chuyến du lịch tôi đã mua sẵn vé."
+      },
+      {
+       "ja": "授業の前に新しい言葉を調べておきます。",
+       "ja_furigana": "授業(じゅぎょう)の前(まえ)に新(あたら)しい言葉(ことば)を調(しら)べておきます。",
+       "vi": "Trước giờ học tôi tra sẵn từ mới."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "お客さんが来る前に、部屋を＿＿おきます。",
+       "answer": "そうじして",
+       "translation_vi": "Trước khi khách đến tôi dọn phòng sẵn."
+      },
+      {
+       "sentence_ja": "明日の会議の前に、この本を読んで＿＿ください。",
+       "answer": "おいて",
+       "translation_vi": "Trước cuộc họp mai hãy đọc sẵn cuốn sách này."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "予約して",
+        "おきます",
+        "を",
+        "旅行の前に、ホテル"
+       ],
+       "answer_order": [
+        3,
+        2,
+        0,
+        1
+       ],
+       "translation_vi": "Trước chuyến đi tôi đặt sẵn khách sạn."
+      },
+      {
+       "pieces": [
+        "出しておきます",
+        "寝る前に、明日",
+        "服を",
+        "着る"
+       ],
+       "answer_order": [
+        1,
+        3,
+        2,
+        0
+       ],
+       "translation_vi": "Trước khi ngủ tôi lấy sẵn quần áo mặc ngày mai."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "お客さんが来る前に、部屋を（　　）おきます。",
+       "options": [
+        "そうじした",
+        "そうじし",
+        "そうじする",
+        "そうじして"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Làm sẵn trước: V-て + おきます. Nghĩa: Trước khi khách đến tôi dọn phòng sẵn."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "明日の会議の前に、この本を読んで（　　）ください。",
+       "options": [
+        "おき",
+        "おいて",
+        "あって",
+        "おく"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Làm sẵn: V-て + おいて + ください. Nghĩa: Trước cuộc họp mai hãy đọc sẵn cuốn sách này."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "旅行の前に、 ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "予約して",
+        "おきます",
+        "を",
+        "ホテル"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: 旅行の前に、ホテルを予約しておきます。 (Trước chuyến đi tôi đặt sẵn khách sạn.) Mảnh ở ô ★ là 「予約して」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "寝る前に、 ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "出しておきます",
+        "明日",
+        "服を",
+        "着る"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 寝る前に、明日着る服を出しておきます。 (Trước khi ngủ tôi lấy sẵn quần áo mặc ngày mai.) Mảnh ở ô ★ là 「服を」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "パーティーの前に飲み物を買っておきます。",
+       "options": [
+        "Trước bữa tiệc tôi mua sẵn đồ uống.",
+        "Sau bữa tiệc tôi sẽ mua đồ uống.",
+        "Ở bữa tiệc có sẵn đồ uống.",
+        "Tôi lỡ mua quá nhiều đồ uống cho bữa tiệc."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Trước bữa tiệc tôi mua sẵn đồ uống.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "旅行の前に切符を買っておきました。",
+       "options": [
+        "Tôi định mua vé sau chuyến du lịch.",
+        "Tôi lỡ làm mất vé trước chuyến đi.",
+        "Trước chuyến du lịch tôi đã mua sẵn vé.",
+        "Trước chuyến du lịch tôi chưa mua vé."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Trước chuyến du lịch tôi đã mua sẵn vé.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "パーティーの前に飲み物を買っておきます。",
+        "授業の前に新しい言葉を調べておきます。",
+        "旅行の前に、地図を買うおきます。",
+        "明日の会議の前に、この本を読んでおいてください。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: trước おく dùng thể て (買って). Sửa: 旅行の前に、地図を買っておきます。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "パーティーの飲み物が買っておきます。",
+        "旅行の前に切符を買っておきました。",
+        "お客さんが来る前に、部屋をそうじしておきます。",
+        "旅行の前に、ホテルを予約しておきます。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: 〜ておきます là việc mình làm, đồ vật đi với を. Sửa: パーティーの飲み物を買っておきます。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "テストの前に、漢字を（　　）おきましょう。",
+       "options": [
+        "覚える",
+        "覚えた",
+        "覚えて",
+        "覚え"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "覚える → 覚えて + おきます. Nghĩa: Trước bài kiểm tra, mình học thuộc sẵn chữ Hán nhé."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "授業の前に新しい言葉を調べておきます。",
+       "options": [
+        "Tôi không biết nghĩa từ mới.",
+        "Sau giờ học tôi tra từ mới.",
+        "Trước giờ học tôi tra sẵn từ mới.",
+        "Trước giờ học thầy giáo dạy từ mới."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Trước giờ học tôi tra sẵn từ mới.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "お客さんが来る前に、部屋をそうじしておきます。",
+        "出かける前に、窓を閉めでおきます。",
+        "旅行の前に、ホテルを予約しておきます。",
+        "パーティーの前に飲み物を買っておきます。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai cách chia: 閉める → 閉めて. Sửa: 出かける前に、窓を閉めておきます。"
+      }
+     ]
+    },
+    "note": "ví dụ 3 cũ có 予習 trên cấp; nuance/common_mistakes là văn mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「おきます」 theo mẫu V-て おきます (Làm trước cho xong việc sau). Nghĩa cả câu: Trước buổi tiệc tôi mua sẵn đồ uống.",
+      "options": [
+       "ところ",
+       "ついでに",
+       "おきます",
+       "ている"
+      ],
+      "prompt_ja": "パーティーの まえに のみものを かって （　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc V-て おきます (Làm trước cho xong việc sau), chỗ trống cần điền 「ておく」. Nghĩa: Tôi mua sẵn vé trước chuyến du lịch.",
+      "options": [
+       "つもり",
+       "てしまう",
+       "てくる",
+       "ておく"
+      ],
+      "prompt_ja": "旅行の前に切符を買っ（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: パーティーの まえに のみものを かって おきます。 (Trước buổi tiệc tôi mua sẵn đồ uống.). Theo cấu trúc V-て おきます, mảnh đứng ở vị trí ★ là 「のを かって 」.",
+      "options": [
+       "おきます",
+       " まえに のみも",
+       "のを かって ",
+       "パーティーの"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 旅行の前に切符を買っておく。 (Tôi mua sẵn vé trước chuyến du lịch.). Theo cấu trúc V-て おきます, mảnh đứng ở vị trí ★ là 「前に」.",
+      "options": [
+       "旅行の",
+       "切符を",
+       "前に",
+       "買っておく"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Mẫu V-て おきます có nghĩa là \"Làm trước cho xong việc sau\". Câu này dịch là: \"Trước buổi tiệc tôi mua sẵn đồ uống.\"",
+      "options": [
+       "Trước buổi tiệc tôi mua sẵn đồ uống.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng."
+      ],
+      "prompt_ja": "パーティーの まえに のみものを かって おきます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu V-て おきます (Làm trước cho xong việc sau), câu trên có nghĩa là: \"Tôi mua sẵn vé trước chuyến du lịch.\"",
+      "options": [
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Tôi mua sẵn vé trước chuyến du lịch.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại."
+      ],
+      "prompt_ja": "旅行の前に切符を買っておく。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu V-て おきます). Câu đúng: パーティーの まえに のみものを かって おきます。",
+      "options": [
+       "旅行の前に切符を買っておく。",
+       "授業の前に予習しておきます。",
+       "パーティーの まえに のみものを かって おきますますだ。",
+       "窓はそのまま開けておきます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc V-て おきます. Câu đúng: 旅行の前に切符を買っておく。",
+      "options": [
+       "旅行の前に切符をが買っておく。",
+       "パーティーの まえに のみものを かって おきます。",
+       "授業の前に予習しておきます。",
+       "窓はそのまま開けておきます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"V-て おきます\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "パーティーの まえに のみものを かって おきます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trước buổi tiệc tôi mua sẵn đồ uống."
+     },
+     {
+      "ja": "旅行の前に切符を買っておく。",
+      "ja_furigana": "旅行(りょこう)の前(まえ)に切符(きっぷ)を買(か)っておく。",
+      "source": "CLAUDE",
+      "vi": "Tôi mua sẵn vé trước chuyến du lịch."
+     },
+     {
+      "ja": "授業の前に予習しておきます。",
+      "ja_furigana": "授業(じゅぎょう)の前(まえ)に予習(よしゅう)しておきます。",
+      "source": "CLAUDE",
+      "vi": "Tôi chuẩn bị bài trước giờ học."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「おきます」 theo cấu trúc V-て おきます (Làm trước cho xong việc sau). Nghĩa: Tôi chuẩn bị bài trước giờ học.",
+      "options": [
+       "おきます",
+       "とおり",
+       "てみる",
+       "にくい"
+      ],
+      "prompt_ja": "授業の前に予習して（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu V-て おきます (Làm trước cho xong việc sau), câu này nghĩa là: \"Tôi chuẩn bị bài trước giờ học.\"",
+      "options": [
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Tôi chuẩn bị bài trước giờ học."
+      ],
+      "prompt_ja": "授業の前に予習しておきます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 授業の前に予習しておきます。",
+      "options": [
+       "パーティーの まえに のみものを かって おきます。",
+       "授業の前にを予習しておきます。",
+       "旅行の前に切符を買っておく。",
+       "会議の資料を準備しておきました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "おきます",
+      "sentence_ja": "パーティーの まえに のみものを かって ＿＿。",
+      "translation_vi": "Trước buổi tiệc tôi mua sẵn đồ uống."
+     },
+     {
+      "answer": "ておく",
+      "sentence_ja": "旅行の前に切符を買っ＿＿。",
+      "translation_vi": "Tôi mua sẵn vé trước chuyến du lịch."
+     }
+    ],
+    "findings": [],
+    "formation": "V-て おきます",
+    "locked_fields": [],
+    "meaning_vi": "Làm trước cho xong việc sau\nLàm sẵn từ giờ để sau đỡ vất: かいぎの まえに しりょうを よんで おきます.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"V-て おきます\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "おきます",
+       "のを かって ",
+       "パーティーの",
+       " まえに のみも"
+      ],
+      "translation_vi": "Trước buổi tiệc tôi mua sẵn đồ uống."
+     },
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "切符を",
+       "旅行の",
+       "買っておく",
+       "前に"
+      ],
+      "translation_vi": "Tôi mua sẵn vé trước chuyến du lịch."
+     }
+    ],
+    "pattern": "V-て おきます",
+    "pattern_variants": [],
+    "unit_no": 30,
+    "unit_title_vi": "Trạng thái chuẩn bị sẵn",
+    "usage_vi": "Hay đi cùng まえに hoặc ～までに. Đây là việc mình chủ động làm, khác hẳn て あります (tả cái đã có sẵn)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ecc9808d85"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "cứ để nguyên …; để (như thế) cho đến lúc dùng",
+     "formation": "V-て + おきます (そのままにしておきます)",
+     "usage_vi": "Cố ý giữ nguyên trạng thái vì lát nữa còn dùng hoặc có lý do: 暑いので、窓を開けておきます; あとで使うから、そのままにしておいてください.",
+     "nuance_vi": "Cùng hình thức với nghĩa \"làm sẵn\". Có そのまま hoặc lý do \"còn dùng\" ở gần thì là nghĩa giữ nguyên. Khác 〜たまま (để nguyên, thường vô ý): 〜ておく là cố ý.",
+     "common_mistakes_vi": "Nhờ giữ nguyên mà dùng 〜てあってください (đúng: 〜ておいてください); dùng tự động từ (×窓を開いておきます).",
+     "examples": [
+      {
+       "ja": "暑いので、窓を開けておきます。",
+       "ja_furigana": "暑(あつ)いので、窓(まど)を開(あ)けておきます。",
+       "vi": "Vì nóng nên tôi cứ để cửa sổ mở."
+      },
+      {
+       "ja": "あとで使うから、そのままにしておいてください。",
+       "ja_furigana": "あとで使(つか)うから、そのままにしておいてください。",
+       "vi": "Lát nữa còn dùng nên cứ để nguyên như thế nhé."
+      },
+      {
+       "ja": "人が来るので、電気をつけておきます。",
+       "ja_furigana": "人(ひと)が来(く)るので、電気(でんき)をつけておきます。",
+       "vi": "Vì có người đến nên tôi để đèn sáng."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "「いすを片づけましょうか」「いいえ、あとで使うから、そのままにして＿＿ください」",
+       "answer": "おいて",
+       "translation_vi": "\"Tôi dọn ghế nhé?\" \"Không, lát nữa còn dùng, cứ để nguyên đi.\""
+      },
+      {
+       "sentence_ja": "寝ている子どもが起きないように、テレビを＿＿おきます。",
+       "answer": "消して",
+       "translation_vi": "Tôi tắt tivi để con đang ngủ không thức giấc."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "を",
+        "暑いから、エアコン",
+        "つけて",
+        "おきます"
+       ],
+       "answer_order": [
+        1,
+        0,
+        2,
+        3
+       ],
+       "translation_vi": "Trời nóng nên tôi cứ để điều hòa bật."
+      },
+      {
+       "pieces": [
+        "しておいてください",
+        "紙は",
+        "そのままに",
+        "あとで使うので、この"
+       ],
+       "answer_order": [
+        3,
+        1,
+        2,
+        0
+       ],
+       "translation_vi": "Lát nữa còn dùng nên cứ để tờ giấy này nguyên như thế."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "「いすを片づけましょうか」「いいえ、あとで使うから、そのままにして（　　）ください」",
+       "options": [
+        "おき",
+        "おいて",
+        "いて",
+        "あって"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Giữ nguyên vì còn dùng: V-て おいて ください. Nghĩa: \"Tôi dọn ghế nhé?\" \"Không, lát nữa còn dùng, cứ để nguyên đi.\""
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "寝ている子どもが起きないように、テレビを（　　）おきます。",
+       "options": [
+        "消え",
+        "消して",
+        "消した",
+        "消す"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "消す → 消して + おきます. Nghĩa: Tôi tắt tivi để con đang ngủ không thức giấc."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "暑いから、 ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "を",
+        "エアコン",
+        "つけて",
+        "おきます"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 暑いから、エアコンをつけておきます。 (Trời nóng nên tôi cứ để điều hòa bật.) Mảnh ở ô ★ là 「つけて」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "あとで使うので、 ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "しておいてください",
+        "紙は",
+        "そのままに",
+        "この"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: あとで使うので、この紙はそのままにしておいてください。 (Lát nữa còn dùng nên cứ để tờ giấy này nguyên như thế.) Mảnh ở ô ★ là 「そのままに」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "暑いので、窓を開けておきます。",
+       "options": [
+        "Cửa sổ đang mở nên nóng.",
+        "Vì nóng nên tôi đóng cửa sổ.",
+        "Vì nóng nên tôi cứ để cửa sổ mở.",
+        "Vì nóng nên cửa sổ tự mở."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Vì nóng nên tôi cứ để cửa sổ mở.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "あとで使うから、そのままにしておいてください。",
+       "options": [
+        "Hãy dùng nó ngay bây giờ.",
+        "Hãy vứt nó đi vì không dùng nữa.",
+        "Lát nữa còn dùng nên cứ để nguyên như thế nhé.",
+        "Lát nữa dùng xong thì cất đi nhé."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Lát nữa còn dùng nên cứ để nguyên như thế nhé.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "暑いので、窓を開けておきます。",
+        "「いすを片づけましょうか」「いいえ、あとで使うから、そのままにしておいてください」",
+        "あとで使うから、そのままにしてあってください。",
+        "暑いから、エアコンをつけておきます。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: lời nhờ giữ nguyên dùng 〜ておいてください. Sửa: あとで使うから、そのままにしておいてください。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "お客さんが来るから、ドアを開けおきます。",
+        "あとで使うから、そのままにしておいてください。",
+        "「いすを片づけましょうか」「いいえ、あとで使うから、そのままにしておいてください」",
+        "暑いから、エアコンをつけておきます。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: thiếu thể て: 開けて + おきます. Sửa: お客さんが来るから、ドアを開けておきます。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "まだ食べるから、お皿はテーブルに（　　）おいて。",
+       "options": [
+        "置く",
+        "置き",
+        "置いた",
+        "置いて"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "置く → 置いて + おく: cứ để đó. Nghĩa: Mình còn ăn nên cứ để đĩa trên bàn nhé."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "人が来るので、電気をつけておきます。",
+       "options": [
+        "Hãy tắt đèn trước khi ra ngoài.",
+        "Vì có người đến nên tôi để đèn sáng.",
+        "Có người đến nên tôi tắt đèn.",
+        "Đèn sáng nên có người đến."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Vì có người đến nên tôi để đèn sáng.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "寝ている子どもが起きないように、テレビを消しておきます。",
+        "暑いので、窓を開いておきます。",
+        "あとで使うので、この紙はそのままにしておいてください。",
+        "人が来るので、電気をつけておきます。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: 開く là tự động từ; cố ý để mở dùng tha động từ 開けて + おきます. Sửa: 暑いので、窓を開けておきます。"
+      }
+     ]
+    },
+    "note": "ví dụ 2 và 3 cũ là nghĩa \"làm sẵn\", lệch nghĩa \"để nguyên\"; nuance/common_mistakes là văn mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「おきます」 theo mẫu V-て おきます (để nguyên) (Cứ để nguyên như thế). Nghĩa cả câu: Lát nữa còn dùng đến nên tôi cứ để nguyên như thế.",
+      "options": [
+       "ておく",
+       "おきます",
+       "ていく",
+       "ようだ"
+      ],
+      "prompt_ja": "あとで つかいますから、そのままに して （　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc V-て おきます (để nguyên) (Cứ để nguyên như thế), chỗ trống cần điền 「ておく」. Nghĩa: Tôi mua sẵn vé trước chuyến du lịch.",
+      "options": [
+       "てある",
+       "やすい",
+       "ておく",
+       "らしい"
+      ],
+      "prompt_ja": "旅行の前に切符を買っ（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: あとで つかいますから、そのままに して おきます。 (Lát nữa còn dùng đến nên tôi cứ để nguyên như thế.). Theo cấu trúc V-て おきます (để nguyên), mảnh đứng ở vị trí ★ là 「そのままに」.",
+      "options": [
+       "いますから、",
+       " して おきます",
+       "あとで つか",
+       "そのままに"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 旅行の前に切符を買っておく。 (Tôi mua sẵn vé trước chuyến du lịch.). Theo cấu trúc V-て おきます (để nguyên), mảnh đứng ở vị trí ★ là 「前に」.",
+      "options": [
+       "買っておく",
+       "前に",
+       "切符を",
+       "旅行の"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Mẫu V-て おきます (để nguyên) có nghĩa là \"Cứ để nguyên như thế\". Câu này dịch là: \"Lát nữa còn dùng đến nên tôi cứ để nguyên như thế.\"",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Lát nữa còn dùng đến nên tôi cứ để nguyên như thế."
+      ],
+      "prompt_ja": "あとで つかいますから、そのままに して おきます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu V-て おきます (để nguyên) (Cứ để nguyên như thế), câu trên có nghĩa là: \"Tôi mua sẵn vé trước chuyến du lịch.\"",
+      "options": [
+       "Tôi mua sẵn vé trước chuyến du lịch.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà."
+      ],
+      "prompt_ja": "旅行の前に切符を買っておく。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu V-て おきます (để nguyên)). Câu đúng: あとで つかいますから、そのままに して おきます。",
+      "options": [
+       "旅行の前に切符を買っておく。",
+       "あとで つかいますから、そのままに して おきますますだ。",
+       "授業の前に予習しておきます。",
+       "窓はそのまま開けておきます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc V-て おきます (để nguyên). Câu đúng: 旅行の前に切符を買っておく。",
+      "options": [
+       "あとで つかいますから、そのままに して おきます。",
+       "授業の前に予習しておきます。",
+       "窓はそのまま開けておきます。",
+       "旅行の前に切符をが買っておく。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"V-て おきます (để nguyên)\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "あとで つかいますから、そのままに して おきます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lát nữa còn dùng đến nên tôi cứ để nguyên như thế."
+     },
+     {
+      "ja": "旅行の前に切符を買っておく。",
+      "ja_furigana": "旅行(りょこう)の前(まえ)に切符(きっぷ)を買(か)っておく。",
+      "source": "CLAUDE",
+      "vi": "Tôi mua sẵn vé trước chuyến du lịch."
+     },
+     {
+      "ja": "授業の前に予習しておきます。",
+      "ja_furigana": "授業(じゅぎょう)の前(まえ)に予習(よしゅう)しておきます。",
+      "source": "CLAUDE",
+      "vi": "Tôi chuẩn bị bài trước giờ học."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「おきます」 theo cấu trúc V-て おきます (để nguyên) (Cứ để nguyên như thế). Nghĩa: Tôi chuẩn bị bài trước giờ học.",
+      "options": [
+       "てくる",
+       "そうだ",
+       "ので",
+       "おきます"
+      ],
+      "prompt_ja": "授業の前に予習して（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu V-て おきます (để nguyên) (Cứ để nguyên như thế), câu này nghĩa là: \"Tôi chuẩn bị bài trước giờ học.\"",
+      "options": [
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Tôi chuẩn bị bài trước giờ học.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng."
+      ],
+      "prompt_ja": "授業の前に予習しておきます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 授業の前に予習しておきます。",
+      "options": [
+       "授業の前にを予習しておきます。",
+       "あとで つかいますから、そのままに して おきます。",
+       "旅行の前に切符を買っておく。",
+       "会議の資料を準備しておきました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "おきます",
+      "sentence_ja": "あとで つかいますから、そのままに して ＿＿。",
+      "translation_vi": "Lát nữa còn dùng đến nên tôi cứ để nguyên như thế."
+     },
+     {
+      "answer": "ておく",
+      "sentence_ja": "旅行の前に切符を買っ＿＿。",
+      "translation_vi": "Tôi mua sẵn vé trước chuyến du lịch."
+     }
+    ],
+    "findings": [],
+    "formation": "V-て おきます (để nguyên)",
+    "locked_fields": [],
+    "meaning_vi": "Cứ để nguyên như thế\nKhông đụng vào, giữ nguyên trạng vì lát nữa còn dùng: まどは あけて おきます.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"V-て おきます (để nguyên)\".",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "そのままに",
+       "あとで つか",
+       " して おきます",
+       "いますから、"
+      ],
+      "translation_vi": "Lát nữa còn dùng đến nên tôi cứ để nguyên như thế."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "前に",
+       "買っておく",
+       "旅行の",
+       "切符を"
+      ],
+      "translation_vi": "Tôi mua sẵn vé trước chuyến du lịch."
+     }
+    ],
+    "pattern": "V-て おきます (để nguyên)",
+    "pattern_variants": [],
+    "unit_no": 30,
+    "unit_title_vi": "Trạng thái chuẩn bị sẵn",
+    "usage_vi": "Cùng hình thức với \"làm trước\". Có そのまま hoặc lý do \"còn dùng\" ở gần thì là nghĩa giữ nguyên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f58998b7e7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "làm cho … (trở nên) …; chỉnh cho …",
+     "formation": "N を + Aい (bỏ い) + くする; N を + Aな + にする; N を + N + にする",
+     "usage_vi": "Người làm thay đổi trạng thái của đồ vật theo ý mình: 部屋をきれいにしました; 音を小さくしてください; かみを短くしました.",
+     "nuance_vi": "する là có người cố ý làm thay đổi (部屋をきれいにする); なる là tự thay đổi (部屋がきれいになる). いい → よくする.",
+     "common_mistakes_vi": "Dùng sai đuôi (×大きいする → 大きくする; ×静かくする → 静かにする); dùng が với する (×部屋がきれいにしました).",
+     "unit_no": 12,
+     "unit_title_vi": "Trạng thái kết quả và biến đổi",
+     "examples": [
+      {
+       "ja": "音を小さくしてください。",
+       "ja_furigana": "音(おと)を小(ちい)さくしてください。",
+       "vi": "Hãy vặn nhỏ tiếng lại."
+      },
+      {
+       "ja": "部屋をきれいにしました。",
+       "ja_furigana": "部屋(へや)をきれいにしました。",
+       "vi": "Tôi đã dọn phòng cho sạch."
+      },
+      {
+       "ja": "かみを短くしました。",
+       "ja_furigana": "かみを短(みじか)くしました。",
+       "vi": "Tôi đã cắt tóc ngắn."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "寒いので、部屋を暖か＿＿してください。",
+       "answer": "く",
+       "translation_vi": "Lạnh quá, hãy làm cho phòng ấm lên."
+      },
+      {
+       "sentence_ja": "赤ちゃんが寝ていますから、静か＿＿してください。",
+       "answer": "に",
+       "translation_vi": "Em bé đang ngủ nên hãy giữ yên lặng."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "を",
+        "大きく",
+        "してください",
+        "テレビの音"
+       ],
+       "answer_order": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "translation_vi": "Hãy vặn to tiếng tivi lên."
+      },
+      {
+       "pieces": [
+        "料理は",
+        "甘くしました",
+        "この",
+        "少し"
+       ],
+       "answer_order": [
+        2,
+        0,
+        3,
+        1
+       ],
+       "translation_vi": "Món ăn này tôi đã nêm ngọt hơn một chút."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "寒いので、部屋を暖か（　　）してください。",
+       "options": [
+        "な",
+        "い",
+        "に",
+        "く"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Tính từ い: 暖かい → 暖かくする. Nghĩa: Lạnh quá, hãy làm cho phòng ấm lên."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "赤ちゃんが寝ていますから、静か（　　）してください。",
+       "options": [
+        "に",
+        "で",
+        "な",
+        "く"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Tính từ な: 静か → 静かにする. Nghĩa: Em bé đang ngủ nên hãy giữ yên lặng."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "テレビの ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "を",
+        "大きく",
+        "してください",
+        "音"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: テレビの音を大きくしてください。 (Hãy vặn to tiếng tivi lên.) Mảnh ở ô ★ là 「大きく」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ＿＿ ★。",
+       "options": [
+        "料理は",
+        "甘くしました",
+        "この",
+        "少し"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: この料理は少し甘くしました。 (Món ăn này tôi đã nêm ngọt hơn một chút.) Mảnh ở ô ★ là 「甘くしました」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "音を小さくしてください。",
+       "options": [
+        "Tiếng đã tự nhỏ đi.",
+        "Tiếng nhỏ quá, không nghe được.",
+        "Hãy vặn to tiếng lên.",
+        "Hãy vặn nhỏ tiếng lại."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Hãy vặn nhỏ tiếng lại.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "部屋をきれいにしました。",
+       "options": [
+        "Phòng tôi đẹp lắm.",
+        "Phòng đã tự sạch rồi.",
+        "Tôi làm bẩn phòng.",
+        "Tôi đã dọn phòng cho sạch."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Tôi đã dọn phòng cho sạch.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "音を小さくしてください。",
+        "かみを短くしました。",
+        "テレビの音を大きいしてください。",
+        "赤ちゃんが寝ていますから、静かにしてください。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: tính từ い bỏ い thêm く: 大きくする. Sửa: テレビの音を大きくしてください。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "教室を静かくしてください。",
+        "部屋をきれいにしました。",
+        "寒いので、部屋を暖かくしてください。",
+        "テレビの音を大きくしてください。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: tính từ な + に: 静かにする. Sửa: 教室を静かにしてください。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "もう少し値段を安（　　）してもらえませんか。",
+       "options": [
+        "に",
+        "い",
+        "さ",
+        "く"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "安い → 安くする. Nghĩa: Có thể giảm giá thêm một chút được không?"
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "かみを短くしました。",
+       "options": [
+        "Tóc tôi đã dài ra.",
+        "Tôi đã cắt tóc ngắn.",
+        "Tôi muốn để tóc dài.",
+        "Tôi để tóc dài ra."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Tôi đã cắt tóc ngắn.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "赤ちゃんが寝ていますから、静かにしてください。",
+        "部屋がきれいにしました。",
+        "この料理は少し甘くしました。",
+        "かみを短くしました。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: có người làm, đồ vật đi với を. Sửa: 部屋をきれいにしました。"
+      }
+     ]
+    },
+    "note": "pattern hiển thị trộn tiếng Việt; unit 44 \"Mức độ quá và cách thức\" không hợp → 12; meaning/usage dài; ví dụ 3 lệch mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「にした」 theo mẫu Adjくする・な-Adjにする – Làm cho trở nên... (Biểu thị hành động làm thay đổi trạng thái/sự vật theo ý chí của con người: “làm cho … trở nên …”, “biến thành …”. する đánh dấu tác nhân chủ động làm thay đổi trạng thái; なる mô tả sự thay đổi từ phía kết quả, dù nguyên nhân có thể là tự nhiên hoặc do con người. Với tính từ -な → Aな + にする: Làm cho đối tượng trở nên như tính chất đó. Ví dụ: 静かにする (làm cho yên tĩnh). Với tính từ -い → Aい + くする: Biến đổi tính chất thông qua tác động. Ví dụ: 暖かくする (làm cho ấm lên).). Nghĩa cả câu: Tôi đã làm cho phòng sạch.",
+      "options": [
+       "にした",
+       "にくい",
+       "かもしれない",
+       "たら"
+      ],
+      "prompt_ja": "部屋をきれい（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc Adjくする・な-Adjにする – Làm cho trở nên... (Biểu thị hành động làm thay đổi trạng thái/sự vật theo ý chí của con người: “làm cho … trở nên …”, “biến thành …”. する đánh dấu tác nhân chủ động làm thay đổi trạng thái; なる mô tả sự thay đổi từ phía kết quả, dù nguyên nhân có thể là tự nhiên hoặc do con người. Với tính từ -な → Aな + にする: Làm cho đối tượng trở nên như tính chất đó. Ví dụ: 静かにする (làm cho yên tĩnh). Với tính từ -い → Aい + くする: Biến đổi tính chất thông qua tác động. Ví dụ: 暖かくする (làm cho ấm lên).), chỗ trống cần điền 「だ」. Nghĩa: Vui lòng tăng âm lượng lên.",
+      "options": [
+       "すぎる",
+       "だ",
+       "のに",
+       "なら"
+      ],
+      "prompt_ja": "音を大きくしてく（　　）さい。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 部屋をきれいにした。 (Tôi đã làm cho phòng sạch.). Theo cấu trúc Adjくする・な-Adjにする – Làm cho trở nên..., mảnh đứng ở vị trí ★ là 「れい」.",
+      "options": [
+       "れい",
+       "部屋",
+       "にした",
+       "をき"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 音を大きくしてください。 (Vui lòng tăng âm lượng lên.). Theo cấu trúc Adjくする・な-Adjにする – Làm cho trở nên..., mảnh đứng ở vị trí ★ là 「大きく」.",
+      "options": [
+       "大きく",
+       "ださい",
+       "音を",
+       "してく"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mẫu Adjくする・な-Adjにする – Làm cho trở nên... có nghĩa là \"Biểu thị hành động làm thay đổi trạng thái/sự vật theo ý chí của con người: “làm cho … trở nên …”, “biến thành …”. する đánh dấu tác nhân chủ động làm thay đổi trạng thái; なる mô tả sự thay đổi từ phía kết quả, dù nguyên nhân có thể là tự nhiên hoặc do con người. Với tính từ -な → Aな + にする: Làm cho đối tượng trở nên như tính chất đó. Ví dụ: 静かにする (làm cho yên tĩnh). Với tính từ -い → Aい + くする: Biến đổi tính chất thông qua tác động. Ví dụ: 暖かくする (làm cho ấm lên).\". Câu này dịch là: \"Tôi đã làm cho phòng sạch.\"",
+      "options": [
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Tôi đã làm cho phòng sạch.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại."
+      ],
+      "prompt_ja": "部屋をきれいにした。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu Adjくする・な-Adjにする – Làm cho trở nên... (Biểu thị hành động làm thay đổi trạng thái/sự vật theo ý chí của con người: “làm cho … trở nên …”, “biến thành …”. する đánh dấu tác nhân chủ động làm thay đổi trạng thái; なる mô tả sự thay đổi từ phía kết quả, dù nguyên nhân có thể là tự nhiên hoặc do con người. Với tính từ -な → Aな + にする: Làm cho đối tượng trở nên như tính chất đó. Ví dụ: 静かにする (làm cho yên tĩnh). Với tính từ -い → Aい + くする: Biến đổi tính chất thông qua tác động. Ví dụ: 暖かくする (làm cho ấm lên).), câu trên có nghĩa là: \"Vui lòng tăng âm lượng lên.\"",
+      "options": [
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vui lòng tăng âm lượng lên."
+      ],
+      "prompt_ja": "音を大きくしてください。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Adjくする・な-Adjにする – Làm cho trở nên...). Câu đúng: 部屋をきれいにした。",
+      "options": [
+       "部屋をきれいにしたますだ。",
+       "音を大きくしてください。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc Adjくする・な-Adjにする – Làm cho trở nên.... Câu đúng: 音を大きくしてください。",
+      "options": [
+       "部屋をきれいにした。",
+       "毎日まじめに日本語を勉強しています。",
+       "音をが大きくしてください。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Adjくする・な-Adjにする – Làm cho trở nên...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "部屋をきれいにした。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã làm cho phòng sạch."
+     },
+     {
+      "ja": "音を大きくしてください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vui lòng tăng âm lượng lên."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「ています」 theo cấu trúc Adjくする・な-Adjにする – Làm cho trở nên... (Biểu thị hành động làm thay đổi trạng thái/sự vật theo ý chí của con người: “làm cho … trở nên …”, “biến thành …”. する đánh dấu tác nhân chủ động làm thay đổi trạng thái; なる mô tả sự thay đổi từ phía kết quả, dù nguyên nhân có thể là tự nhiên hoặc do con người. Với tính từ -な → Aな + にする: Làm cho đối tượng trở nên như tính chất đó. Ví dụ: 静かにする (làm cho yên tĩnh). Với tính từ -い → Aい + くする: Biến đổi tính chất thông qua tác động. Ví dụ: 暖かくする (làm cho ấm lên).). Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "らしい",
+       "ても",
+       "ています",
+       "しか"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu Adjくする・な-Adjにする – Làm cho trở nên... (Biểu thị hành động làm thay đổi trạng thái/sự vật theo ý chí của con người: “làm cho … trở nên …”, “biến thành …”. する đánh dấu tác nhân chủ động làm thay đổi trạng thái; なる mô tả sự thay đổi từ phía kết quả, dù nguyên nhân có thể là tự nhiên hoặc do con người. Với tính từ -な → Aな + にする: Làm cho đối tượng trở nên như tính chất đó. Ví dụ: 静かにする (làm cho yên tĩnh). Với tính từ -い → Aい + くする: Biến đổi tính chất thông qua tác động. Ví dụ: 暖かくする (làm cho ấm lên).), câu này nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "部屋をきれいにした。",
+       "音を大きくしてください。",
+       "わからない言葉を辞書で調べました。",
+       "毎日まじめにを日本語を勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "にした",
+      "sentence_ja": "部屋をきれい＿＿。",
+      "translation_vi": "Tôi đã làm cho phòng sạch."
+     },
+     {
+      "answer": "だ",
+      "sentence_ja": "音を大きくしてく＿＿さい。",
+      "translation_vi": "Vui lòng tăng âm lượng lên."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 部屋をきれいにした。",
+     "FURIGANA_MISSING: 音を大きくしてください。"
+    ],
+    "formation": "Adjくする・な-Adjにする – Làm cho trở nên...",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị hành động làm thay đổi trạng thái/sự vật theo ý chí của con người: “làm cho … trở nên …”, “biến thành …”. する đánh dấu tác nhân chủ động làm thay đổi trạng thái; なる mô tả sự thay đổi từ phía kết quả, dù nguyên nhân có thể là tự nhiên hoặc do con người. Với tính từ -な → Aな + にする: Làm cho đối tượng trở nên như tính chất đó. Ví dụ: 静かにする (làm cho yên tĩnh). Với tính từ -い → Aい + くする: Biến đổi tính chất thông qua tác động. Ví dụ: 暖かくする (làm cho ấm lên).",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Adjくする・な-Adjにする – Làm cho trở nên...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "をき",
+       "にした",
+       "部屋",
+       "れい"
+      ],
+      "translation_vi": "Tôi đã làm cho phòng sạch."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "ださい",
+       "してく",
+       "音を",
+       "大きく"
+      ],
+      "translation_vi": "Vui lòng tăng âm lượng lên."
+     }
+    ],
+    "pattern": "Adjくする・な-Adjにする – Làm cho trở nên...",
+    "pattern_variants": [],
+    "unit_no": 44,
+    "unit_title_vi": "Mức độ quá và cách thức",
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường dùng để yêu cầu, chỉ thị, mô tả hành động làm thay đổi trạng thái. ～にする / ～くする = hành động chủ động. Khác với ～になる / ～くなる (tự nhiên thay đổi): ・部屋がきれいになる → Phòng tự dưng sạch. ・部屋をきれいにする → Tôi làm sạch phòng. Dễ gặp trong đời sống hàng ngày: chỉnh nhiệt độ, âm lượng, ánh sáng, dọn dẹp, trạng thái tâm lý. [6. Ghi chú mở rộng] Thường dùng trong thông báo, nội quy, nhân viên phục vụ, giáo viên… Trong hội thoại thân mật, người nói thường bỏ です/ます: 静かにして! (Im lặng đi!). Hay dùng trong cấu trúc mong muốn: ～ようにする (Cố gắng để… → làm cho thành trạng thái mong muốn). [7. Biến thể & cụm cố định] ～ようにする：Cố gắng làm cho… ～ことにする：Quyết định làm… ～くしておく／～にしておく：Để sẵn trong trạng thái… [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～になる／～くなる → cần nhớ: する = chủ động, なる = tự xảy ra. Với tính từ -い bắt buộc đổi い → く trước khi thêm する: 大きい → 大きくする. Không dùng với động từ, nếu muốn biểu thị “quyết định làm gì” phải dùng: Vる＋ことにする."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bc0c1bda89"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "trở nên …; thành …",
+     "formation": "Aい (bỏ い) + くなる; Aな + になる; N + になる",
+     "usage_vi": "Diễn tả sự thay đổi trạng thái theo thời gian hay hoàn cảnh: 涼しくなりました; 日本語が上手になりました; 春になりました; 大人になったら先生になりたいです.",
+     "nuance_vi": "なる tả sự thay đổi tự diễn ra (không nói ai làm); có người cố ý thay đổi thì dùng する. いい → よくなる.",
+     "common_mistakes_vi": "Dùng sai đuôi (×寒いなる → 寒くなる; ×にぎやかくなる → にぎやかになる); ×いくなる (đúng: よくなる).",
+     "unit_no": 12,
+     "unit_title_vi": "Trạng thái kết quả và biến đổi",
+     "examples": [
+      {
+       "ja": "だんだん涼しくなりました。",
+       "ja_furigana": "だんだん涼(すず)しくなりました。",
+       "vi": "Trời đã mát dần."
+      },
+      {
+       "ja": "日本語が上手になりました。",
+       "ja_furigana": "日本語(にほんご)が上手(じょうず)になりました。",
+       "vi": "Tiếng Nhật đã giỏi lên."
+      },
+      {
+       "ja": "弟は来年大学生になります。",
+       "ja_furigana": "弟(おとうと)は来年(らいねん)大学生(だいがくせい)になります。",
+       "vi": "Năm sau em trai tôi sẽ thành sinh viên."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "薬を飲んで、体がよ＿＿なりました。",
+       "answer": "く",
+       "translation_vi": "Uống thuốc xong người đã khỏe lên."
+      },
+      {
+       "sentence_ja": "部屋がきれい＿＿なりました。",
+       "answer": "に",
+       "translation_vi": "Căn phòng đã trở nên sạch đẹp."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "寒くなりました",
+        "夜が",
+        "十月になって、朝",
+        "と"
+       ],
+       "answer_order": [
+        2,
+        3,
+        1,
+        0
+       ],
+       "translation_vi": "Sang tháng Mười, buổi sáng và buổi tối đã lạnh hơn."
+      },
+      {
+       "pieces": [
+        "毎日練習して、ピアノ",
+        "上手に",
+        "が",
+        "なりました"
+       ],
+       "answer_order": [
+        0,
+        2,
+        1,
+        3
+       ],
+       "translation_vi": "Nhờ luyện tập mỗi ngày, tôi đã chơi piano giỏi lên."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "薬を飲んで、体がよ（　　）なりました。",
+       "options": [
+        "さ",
+        "く",
+        "に",
+        "い"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "いい → よくなる. Nghĩa: Uống thuốc xong người đã khỏe lên."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "部屋がきれい（　　）なりました。",
+       "options": [
+        "な",
+        "に",
+        "く",
+        "で"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Tính từ な + になる. Nghĩa: Căn phòng đã trở nên sạch đẹp."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "十月になって、 ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "寒くなりました",
+        "夜が",
+        "朝",
+        "と"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 十月になって、朝と夜が寒くなりました。 (Sang tháng Mười, buổi sáng và buổi tối đã lạnh hơn.) Mảnh ở ô ★ là 「夜が」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "毎日練習して、 ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "ピアノ",
+        "上手に",
+        "が",
+        "なりました"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 毎日練習して、ピアノが上手になりました。 (Nhờ luyện tập mỗi ngày, tôi đã chơi piano giỏi lên.) Mảnh ở ô ★ là 「上手に」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "だんだん涼しくなりました。",
+       "options": [
+        "Trời vẫn còn nóng.",
+        "Tôi đã làm cho phòng mát.",
+        "Ngày mai trời sẽ mát.",
+        "Trời đã mát dần."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Trời đã mát dần.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "日本語が上手になりました。",
+       "options": [
+        "Tôi đã học tiếng Nhật lâu rồi.",
+        "Tiếng Nhật của tôi còn kém.",
+        "Tôi muốn giỏi tiếng Nhật.",
+        "Tiếng Nhật đã giỏi lên."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Tiếng Nhật đã giỏi lên.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "だんだん涼しくなりました。",
+        "弟は来年大学生になります。",
+        "冬になって、寒いなりました。",
+        "部屋がきれいになりました。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: tính từ い bỏ い thêm く: 寒くなる. Sửa: 冬になって、寒くなりました。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "病気がいくなりました。",
+        "日本語が上手になりました。",
+        "薬を飲んで、体がよくなりました。",
+        "十月になって、朝と夜が寒くなりました。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: いい đổi thành よくなる. Sửa: 病気がよくなりました。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "大人（　　）なったら、先生になりたいです。",
+       "options": [
+        "く",
+        "で",
+        "に",
+        "が"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "N + になる. Nghĩa: Khi lớn lên tôi muốn trở thành giáo viên."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "弟は来年大学生になります。",
+       "options": [
+        "Em trai tôi muốn thành sinh viên.",
+        "Em trai tôi đang là sinh viên.",
+        "Năm sau em trai tôi sẽ thành sinh viên.",
+        "Em trai tôi đã tốt nghiệp đại học."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Năm sau em trai tôi sẽ thành sinh viên.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "薬を飲んで、体がよくなりました。",
+        "この町はにぎやかくなりました。",
+        "十月になって、朝と夜が寒くなりました。",
+        "だんだん涼しくなりました。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: tính từ な + に: にぎやかになる. Sửa: この町はにぎやかになりました。"
+      }
+     ]
+    },
+    "note": "pattern hiển thị trộn tiếng Việt; unit 36 không hợp → 12; meaning/usage dài; ví dụ 3 lệch mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「きた」 theo mẫu Adjくなる・な-Adjになる – Trở nên... (Diễn tả sự thay đổi trạng thái của sự vật/sự việc theo thời gian, hoàn cảnh. Mẫu này mô tả sự thay đổi từ phía chủ thể/trạng thái. Sự thay đổi có thể tự nhiên hoặc là kết quả của hành động con người; câu không tập trung vào tác nhân. Dùng để nói về biến đổi tự nhiên, cảm xúc, thời tiết, tình trạng cơ thể, xã hội…. Dịch tương đương: “trở nên…”, “trở thành…”, “dần dần…”.). Nghĩa cả câu: Trời bắt đầu trở nên mát mẻ.",
+      "options": [
+       "ので",
+       "ば",
+       "くらい",
+       "きた"
+      ],
+      "prompt_ja": "涼しくなって（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc Adjくなる・な-Adjになる – Trở nên... (Diễn tả sự thay đổi trạng thái của sự vật/sự việc theo thời gian, hoàn cảnh. Mẫu này mô tả sự thay đổi từ phía chủ thể/trạng thái. Sự thay đổi có thể tự nhiên hoặc là kết quả của hành động con người; câu không tập trung vào tác nhân. Dùng để nói về biến đổi tự nhiên, cảm xúc, thời tiết, tình trạng cơ thể, xã hội…. Dịch tương đương: “trở nên…”, “trở thành…”, “dần dần…”.), chỗ trống cần điền 「ました」. Nghĩa: Tiếng Nhật của tôi đã trở nên giỏi hơn.",
+      "options": [
+       "ました",
+       "から",
+       "と",
+       "ずつ"
+      ],
+      "prompt_ja": "日本語が上手になり（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 涼しくなってきた。 (Trời bắt đầu trở nên mát mẻ.). Theo cấu trúc Adjくなる・な-Adjになる – Trở nên..., mảnh đứng ở vị trí ★ là 「って」.",
+      "options": [
+       "涼し",
+       "って",
+       "くな",
+       "きた"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 日本語が上手になりました。 (Tiếng Nhật của tôi đã trở nên giỏi hơn.). Theo cấu trúc Adjくなる・な-Adjになる – Trở nên..., mảnh đứng ở vị trí ★ là 「上手に」.",
+      "options": [
+       "なり",
+       "日本語が",
+       "ました",
+       "上手に"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mẫu Adjくなる・な-Adjになる – Trở nên... có nghĩa là \"Diễn tả sự thay đổi trạng thái của sự vật/sự việc theo thời gian, hoàn cảnh. Mẫu này mô tả sự thay đổi từ phía chủ thể/trạng thái. Sự thay đổi có thể tự nhiên hoặc là kết quả của hành động con người; câu không tập trung vào tác nhân. Dùng để nói về biến đổi tự nhiên, cảm xúc, thời tiết, tình trạng cơ thể, xã hội…. Dịch tương đương: “trở nên…”, “trở thành…”, “dần dần…”.\". Câu này dịch là: \"Trời bắt đầu trở nên mát mẻ.\"",
+      "options": [
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Trời bắt đầu trở nên mát mẻ.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà."
+      ],
+      "prompt_ja": "涼しくなってきた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu Adjくなる・な-Adjになる – Trở nên... (Diễn tả sự thay đổi trạng thái của sự vật/sự việc theo thời gian, hoàn cảnh. Mẫu này mô tả sự thay đổi từ phía chủ thể/trạng thái. Sự thay đổi có thể tự nhiên hoặc là kết quả của hành động con người; câu không tập trung vào tác nhân. Dùng để nói về biến đổi tự nhiên, cảm xúc, thời tiết, tình trạng cơ thể, xã hội…. Dịch tương đương: “trở nên…”, “trở thành…”, “dần dần…”.), câu trên có nghĩa là: \"Tiếng Nhật của tôi đã trở nên giỏi hơn.\"",
+      "options": [
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Tiếng Nhật của tôi đã trở nên giỏi hơn.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển."
+      ],
+      "prompt_ja": "日本語が上手になりました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Adjくなる・な-Adjになる – Trở nên...). Câu đúng: 涼しくなってきた。",
+      "options": [
+       "日本語が上手になりました。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "涼しくなってきたますだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu Adjくなる・な-Adjになる – Trở nên...). Câu đúng: 日本語が上手になりました。",
+      "options": [
+       "涼しくなってきた。",
+       "日本語が上手になりましたですます。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Adjくなる・な-Adjになる – Trở nên...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "涼しくなってきた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trời bắt đầu trở nên mát mẻ."
+     },
+     {
+      "ja": "日本語が上手になりました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tiếng Nhật của tôi đã trở nên giỏi hơn."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「ています」 theo cấu trúc Adjくなる・な-Adjになる – Trở nên... (Diễn tả sự thay đổi trạng thái của sự vật/sự việc theo thời gian, hoàn cảnh. Mẫu này mô tả sự thay đổi từ phía chủ thể/trạng thái. Sự thay đổi có thể tự nhiên hoặc là kết quả của hành động con người; câu không tập trung vào tác nhân. Dùng để nói về biến đổi tự nhiên, cảm xúc, thời tiết, tình trạng cơ thể, xã hội…. Dịch tương đương: “trở nên…”, “trở thành…”, “dần dần…”.). Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "なら",
+       "ています",
+       "ほど",
+       "てもいい"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu Adjくなる・な-Adjになる – Trở nên... (Diễn tả sự thay đổi trạng thái của sự vật/sự việc theo thời gian, hoàn cảnh. Mẫu này mô tả sự thay đổi từ phía chủ thể/trạng thái. Sự thay đổi có thể tự nhiên hoặc là kết quả của hành động con người; câu không tập trung vào tác nhân. Dùng để nói về biến đổi tự nhiên, cảm xúc, thời tiết, tình trạng cơ thể, xã hội…. Dịch tương đương: “trở nên…”, “trở thành…”, “dần dần…”.), câu này nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "涼しくなってきた。",
+       "日本語が上手になりました。",
+       "毎日まじめにを日本語を勉強しています。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "きた",
+      "sentence_ja": "涼しくなって＿＿。",
+      "translation_vi": "Trời bắt đầu trở nên mát mẻ."
+     },
+     {
+      "answer": "ました",
+      "sentence_ja": "日本語が上手になり＿＿。",
+      "translation_vi": "Tiếng Nhật của tôi đã trở nên giỏi hơn."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 涼しくなってきた。",
+     "FURIGANA_MISSING: 日本語が上手になりました。"
+    ],
+    "formation": "Adjくなる・な-Adjになる – Trở nên...",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả sự thay đổi trạng thái của sự vật/sự việc theo thời gian, hoàn cảnh. Mẫu này mô tả sự thay đổi từ phía chủ thể/trạng thái. Sự thay đổi có thể tự nhiên hoặc là kết quả của hành động con người; câu không tập trung vào tác nhân. Dùng để nói về biến đổi tự nhiên, cảm xúc, thời tiết, tình trạng cơ thể, xã hội…. Dịch tương đương: “trở nên…”, “trở thành…”, “dần dần…”.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Adjくなる・な-Adjになる – Trở nên...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "きた",
+       "って",
+       "涼し",
+       "くな"
+      ],
+      "translation_vi": "Trời bắt đầu trở nên mát mẻ."
+     },
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "なり",
+       "日本語が",
+       "ました",
+       "上手に"
+      ],
+      "translation_vi": "Tiếng Nhật của tôi đã trở nên giỏi hơn."
+     }
+    ],
+    "pattern": "Adjくなる・な-Adjになる – Trở nên...",
+    "pattern_variants": [],
+    "unit_no": 36,
+    "unit_title_vi": "Mục đích và sự thay đổi khả năng",
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng với Aい → Aくなる: おいしい → おいしくなる (trở nên ngon hơn). Dùng với Aな → Aになる: 元気な → 元気になる (trở nên khỏe mạnh). Sắc thái: trung tính, khách quan – chỉ mô tả sự thay đổi, không mang cảm xúc phán xét hay ra lệnh. Thường gặp trong hội thoại hàng ngày, thời tiết, cảm xúc, trạng thái cơ thể. [6. Ghi chú mở rộng] Trong văn nói, ～くなっちゃった／～になっちゃった diễn tả cảm xúc thân mật. Kết hợp với ていく・てくる để nhấn mạnh sự thay đổi theo thời gian: 暖かくなってきた (dần dần trở nên ấm lên). Nên phân biệt rõ với ～くする／～にする để tránh nhầm chủ động – bị động của trạng thái. [7. Biến thể & cụm cố định] ～くなってくる：Dần trở nên… ～になってしまう：Rốt cuộc lại trở nên… (hơi tiếc nuối). ～なくなる：Không còn… nữa (mẫu phủ định). [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～くする／～にする (người làm) → phải xem hành động tự nhiên hay có tác động. Quên chuyển Aい → Aく: Ví dụ, あついなる (sai) → あつくなる (đúng). JLPT hay kiểm tra cặp: Aくなる ↔ Aくする, Aになる ↔ Aにする."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-86902e5764"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "chọn …; quyết định lấy …",
+     "formation": "N + に + します/する",
+     "usage_vi": "Nói lựa chọn, quyết định của mình, thường khi gọi món, mua hàng, chọn ngày: 私はコーヒーにします; 昼ご飯はカレーにしましょう. Hỏi: 何にしますか.",
+     "nuance_vi": "Lựa chọn do chính mình quyết định; 〜にしませんか để rủ cùng chọn. Khác 〜になります (được quyết định bởi người khác hay hoàn cảnh).",
+     "common_mistakes_vi": "Dùng を hoặc が (×カレーをします; ×何がしますか).",
+     "examples": [
+      {
+       "ja": "私はコーヒーにします。",
+       "ja_furigana": "私(わたし)はコーヒーにします。",
+       "vi": "Tôi chọn cà phê."
+      },
+      {
+       "ja": "昼ご飯はカレーにしましょう。",
+       "ja_furigana": "昼(ひる)ご飯(はん)はカレーにしましょう。",
+       "vi": "Bữa trưa mình ăn cà ri nhé."
+      },
+      {
+       "ja": "旅行は来月にしました。",
+       "ja_furigana": "旅行(りょこう)は来月(らいげつ)にしました。",
+       "vi": "Tôi đã quyết định đi du lịch vào tháng sau."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "「何を飲みますか」「私はお茶＿＿します」",
+       "answer": "に",
+       "translation_vi": "\"Bạn uống gì?\" \"Tôi chọn trà.\""
+      },
+      {
+       "sentence_ja": "パーティーは土曜日に＿＿か。",
+       "answer": "しません",
+       "translation_vi": "Bữa tiệc mình chọn thứ Bảy nhé?"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "に",
+        "デザートは",
+        "します",
+        "アイスクリーム"
+       ],
+       "answer_order": [
+        1,
+        3,
+        0,
+        2
+       ],
+       "translation_vi": "Món tráng miệng tôi chọn kem."
+      },
+      {
+       "pieces": [
+        "な",
+        "にしました",
+        "母の誕生日のプレゼントはきれい",
+        "花"
+       ],
+       "answer_order": [
+        2,
+        0,
+        3,
+        1
+       ],
+       "translation_vi": "Quà sinh nhật mẹ tôi đã chọn hoa đẹp."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "「何を飲みますか」「私はお茶（　　）します」",
+       "options": [
+        "に",
+        "を",
+        "が",
+        "で"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Chọn: N + に + します. Nghĩa: \"Bạn uống gì?\" \"Tôi chọn trà.\""
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "パーティーは土曜日に（　　）か。",
+       "options": [
+        "なりません",
+        "いません",
+        "ありません",
+        "しません"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Rủ chọn: N に しませんか. Nghĩa: Bữa tiệc mình chọn thứ Bảy nhé?"
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "に",
+        "デザートは",
+        "します",
+        "アイスクリーム"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: デザートはアイスクリームにします。 (Món tráng miệng tôi chọn kem.) Mảnh ở ô ★ là 「に」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "母の誕生日のプレゼントは ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "な",
+        "にしました",
+        "きれい",
+        "花"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: 母の誕生日のプレゼントはきれいな花にしました。 (Quà sinh nhật mẹ tôi đã chọn hoa đẹp.) Mảnh ở ô ★ là 「花」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "私はコーヒーにします。",
+       "options": [
+        "Tôi chọn cà phê.",
+        "Tôi đã uống cà phê rồi.",
+        "Tôi pha cà phê.",
+        "Tôi không uống cà phê."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Tôi chọn cà phê.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "旅行は来月にしました。",
+       "options": [
+        "Tôi đã quyết định đi du lịch vào tháng sau.",
+        "Tháng sau tôi đã đi du lịch.",
+        "Tôi đi du lịch vào tháng trước.",
+        "Chuyến du lịch bị hoãn đến tháng sau."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Tôi đã quyết định đi du lịch vào tháng sau.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "私はコーヒーにします。",
+        "旅行は来月にしました。",
+        "私はカレーをします。",
+        "パーティーは土曜日にしませんか。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: lựa chọn dùng に + します. Sửa: 私はカレーにします。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "飲み物は何がしますか。",
+        "昼ご飯はカレーにしましょう。",
+        "「何を飲みますか」「私はお茶にします」",
+        "デザートはアイスクリームにします。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: hỏi chọn gì dùng 何にしますか. Sửa: 飲み物は何にしますか。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "「ご注文は？」「じゃあ、このケーキ（　　）します」",
+       "options": [
+        "と",
+        "に",
+        "が",
+        "を"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Gọi món: N に します. Nghĩa: \"Quý khách gọi gì ạ?\" \"Vậy cho tôi cái bánh này.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "昼ご飯はカレーにしましょう。",
+       "options": [
+        "Hãy nấu cà ri cho bữa trưa.",
+        "Tôi không thích cà ri.",
+        "Bữa trưa hôm qua là cà ri.",
+        "Bữa trưa mình ăn cà ri nhé."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Bữa trưa mình ăn cà ri nhé.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "「何を飲みますか」「私はお茶にします」",
+        "会議は月曜日がしましょう。",
+        "デザートはアイスクリームにします。",
+        "私はコーヒーにします。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: quyết định chọn dùng に. Sửa: 会議は月曜日にしましょう。"
+      }
+     ]
+    },
+    "note": "pattern hiển thị là tiếng Việt (nên là 〜にする); ví dụ 3 cũ là kính ngữ お帰りになる, lệch mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「にする」 theo mẫu Chọn..., quyết định... (Dùng để thể hiện quyết định chọn một thứ trong nhiều lựa chọn. Thường được dùng khi gọi món, mua hàng, chọn phương án, hoặc quyết định cá nhân một cách đơn giản. Dịch tự nhiên: “tôi chọn…”, “tôi sẽ lấy…”, “quyết định là…”. Thường đi kèm với dạng kính ngữ ～にします／～にいたします trong tình huống lịch sự.). Nghĩa cả câu: Bữa trưa tôi chọn cà ri.",
+      "options": [
+       "しか",
+       "とか",
+       "にする",
+       "ところ"
+      ],
+      "prompt_ja": "昼ご飯はカレー（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc Chọn..., quyết định... (Dùng để thể hiện quyết định chọn một thứ trong nhiều lựa chọn. Thường được dùng khi gọi món, mua hàng, chọn phương án, hoặc quyết định cá nhân một cách đơn giản. Dịch tự nhiên: “tôi chọn…”, “tôi sẽ lấy…”, “quyết định là…”. Thường đi kèm với dạng kính ngữ ～にします／～にいたします trong tình huống lịch sự.), chỗ trống cần điền 「ます」. Nghĩa: Món tráng miệng tôi chọn kem.",
+      "options": [
+       "だけ",
+       "し",
+       "つもり",
+       "ます"
+      ],
+      "prompt_ja": "デザートはアイスクリームにし（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 昼ご飯はカレーにする。 (Bữa trưa tôi chọn cà ri.). Theo cấu trúc Chọn..., quyết định..., mảnh đứng ở vị trí ★ là 「レー」.",
+      "options": [
+       "にする",
+       "飯はカ",
+       "レー",
+       "昼ご"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: デザートはアイスクリームにします。 (Món tráng miệng tôi chọn kem.). Theo cấu trúc Chọn..., quyết định..., mảnh đứng ở vị trí ★ là 「アイスクリームに」.",
+      "options": [
+       "デザートは",
+       "し",
+       "アイスクリームに",
+       "ます"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Mẫu Chọn..., quyết định... có nghĩa là \"Dùng để thể hiện quyết định chọn một thứ trong nhiều lựa chọn. Thường được dùng khi gọi món, mua hàng, chọn phương án, hoặc quyết định cá nhân một cách đơn giản. Dịch tự nhiên: “tôi chọn…”, “tôi sẽ lấy…”, “quyết định là…”. Thường đi kèm với dạng kính ngữ ～にします／～にいたします trong tình huống lịch sự.\". Câu này dịch là: \"Bữa trưa tôi chọn cà ri.\"",
+      "options": [
+       "Bữa trưa tôi chọn cà ri.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà."
+      ],
+      "prompt_ja": "昼ご飯はカレーにする。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu Chọn..., quyết định... (Dùng để thể hiện quyết định chọn một thứ trong nhiều lựa chọn. Thường được dùng khi gọi món, mua hàng, chọn phương án, hoặc quyết định cá nhân một cách đơn giản. Dịch tự nhiên: “tôi chọn…”, “tôi sẽ lấy…”, “quyết định là…”. Thường đi kèm với dạng kính ngữ ～にします／～にいたします trong tình huống lịch sự.), câu trên có nghĩa là: \"Món tráng miệng tôi chọn kem.\"",
+      "options": [
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Món tráng miệng tôi chọn kem.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "prompt_ja": "デザートはアイスクリームにします。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Chọn..., quyết định...). Câu đúng: 昼ご飯はカレーにする。",
+      "options": [
+       "デザートはアイスクリームにします。",
+       "先生はもうお帰りになりました。",
+       "昼ご飯はカレーにするますだ。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: デザートはアイスクリームにします。",
+      "options": [
+       "デザートはをアイスクリームにします。",
+       "昼ご飯はカレーにする。",
+       "先生はもうお帰りになりました。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Chọn..., quyết định...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "昼ご飯はカレーにする。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bữa trưa tôi chọn cà ri."
+     },
+     {
+      "ja": "デザートはアイスクリームにします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Món tráng miệng tôi chọn kem."
+     },
+     {
+      "ja": "先生はもうお帰りになりました。",
+      "ja_furigana": "先生(せんせい)はもうお帰(かえ)りになりました。",
+      "source": "CLAUDE",
+      "vi": "Thầy giáo đã về rồi ạ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「ました」 theo cấu trúc Chọn..., quyết định... (Dùng để thể hiện quyết định chọn một thứ trong nhiều lựa chọn. Thường được dùng khi gọi món, mua hàng, chọn phương án, hoặc quyết định cá nhân một cách đơn giản. Dịch tự nhiên: “tôi chọn…”, “tôi sẽ lấy…”, “quyết định là…”. Thường đi kèm với dạng kính ngữ ～にします／～にいたします trong tình huống lịch sự.). Nghĩa: Thầy giáo đã về rồi ạ.",
+      "options": [
+       "ました",
+       "ずつ",
+       "ばかり",
+       "とおり"
+      ],
+      "prompt_ja": "先生はもうお帰りになり（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu Chọn..., quyết định... (Dùng để thể hiện quyết định chọn một thứ trong nhiều lựa chọn. Thường được dùng khi gọi món, mua hàng, chọn phương án, hoặc quyết định cá nhân một cách đơn giản. Dịch tự nhiên: “tôi chọn…”, “tôi sẽ lấy…”, “quyết định là…”. Thường đi kèm với dạng kính ngữ ～にします／～にいたします trong tình huống lịch sự.), câu này nghĩa là: \"Thầy giáo đã về rồi ạ.\"",
+      "options": [
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Thầy giáo đã về rồi ạ."
+      ],
+      "prompt_ja": "先生はもうお帰りになりました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 先生はもうお帰りになりました。",
+      "options": [
+       "昼ご飯はカレーにする。",
+       "先生はもうお帰りにをなりました。",
+       "デザートはアイスクリームにします。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "にする",
+      "sentence_ja": "昼ご飯はカレー＿＿。",
+      "translation_vi": "Bữa trưa tôi chọn cà ri."
+     },
+     {
+      "answer": "ます",
+      "sentence_ja": "デザートはアイスクリームにし＿＿。",
+      "translation_vi": "Món tráng miệng tôi chọn kem."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 昼ご飯はカレーにする。"
+    ],
+    "formation": "Cấu trúc: Chọn..., quyết định...",
+    "locked_fields": [],
+    "meaning_vi": "Dùng để thể hiện quyết định chọn một thứ trong nhiều lựa chọn. Thường được dùng khi gọi món, mua hàng, chọn phương án, hoặc quyết định cá nhân một cách đơn giản. Dịch tự nhiên: “tôi chọn…”, “tôi sẽ lấy…”, “quyết định là…”. Thường đi kèm với dạng kính ngữ ～にします／～にいたします trong tình huống lịch sự.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Chọn..., quyết định...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "レー",
+       "昼ご",
+       "にする",
+       "飯はカ"
+      ],
+      "translation_vi": "Bữa trưa tôi chọn cà ri."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "アイスクリームに",
+       "ます",
+       "デザートは",
+       "し"
+      ],
+      "translation_vi": "Món tráng miệng tôi chọn kem."
+     }
+    ],
+    "pattern": "Chọn..., quyết định...",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Quyết định và so sánh",
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái mềm, tự nhiên, thường dùng trong giao tiếp hàng ngày. ～にする thể hiện “ý chí lựa chọn” mạnh hơn so với ～がいい (thích…). Dùng trong văn lịch sự khi giao tiếp với nhân viên bán hàng, phục vụ, giáo viên, người lạ. Có thể dùng ở dạng đề nghị: ～にしませんか (chúng ta chọn… nhé?). [6. Ghi chú mở rộng] Khi gọi món, コーヒーにします là tự nhiên và đủ lịch sự. コーヒーにいたします có thể dùng khi người nói chủ ý khiêm nhường, nhưng không phải mẫu bắt buộc của khách hàng. Thường dùng kèm với か/かどうか trong câu hỏi chọn lựa: 肉にするか魚にするか迷っている。 Đang phân vân chọn thịt hay cá. Trẻ con khi gọi món hay nói: これにする！ (Con lấy cái này!). [7. Biến thể & cụm cố định] ～にしよう／～にしようか：Quyết định hoặc rủ rê (chọn ~ nhé). ～にします／～にいたします：Dạng lịch sự. どれにする？：Chọn cái nào? ～にしなかった：Đã không chọn… [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～になる → nhớ rằng する = hành động chủ động quyết định. Dùng sai khi nói về hoạt động chứ không phải danh từ: phải dùng ～ことにする (決める). Bỏ に trong cấu trúc → sai ngữ pháp (✕ コーヒーする → ○ コーヒーにする). JLPT N4–N3 thường kiểm tra chênh lệch giữa: Nにする／Nになる／Vことにする／Vことになる."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fa8c43e934"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N4",
+ "packet_id": "REVIEW_GRAMMAR-016"
+}

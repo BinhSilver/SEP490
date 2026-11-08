@@ -1,0 +1,726 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この失敗を契機に、会社の仕事のやり方が変わった。",
+       "ja_furigana": "この失敗(しっぱい)を契機(けいき)に、会社(かいしゃ)の仕事(しごと)のやり方(かた)が変(か)わった。",
+       "vi": "Lấy thất bại này làm bước ngoặt, cách làm việc của công ty đã thay đổi."
+      },
+      {
+       "ja": "昨年の大雨を契機に、町では新しい安全の決まりが作られた。",
+       "ja_furigana": "昨年(さくねん)の大雨(おおあめ)を契機(けいき)に、町(まち)では新(あたら)しい安全(あんぜん)の決(き)まりが作(つく)られた。",
+       "source": "AI",
+       "vi": "Lấy trận mưa lớn năm ngoái làm bước ngoặt, thị trấn đã đặt ra quy định an toàn mới."
+      },
+      {
+       "ja": "結婚を契機に、彼は仕事を変えて、地元に戻った。",
+       "ja_furigana": "結婚(けっこん)を契機(けいき)に、彼(かれ)は仕事(しごと)を変(か)えて、地元(じもと)に戻(もど)った。",
+       "source": "AI",
+       "vi": "Nhân dịp kết hôn, anh ấy đã đổi việc và trở về quê nhà."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng cho việc nhỏ hằng ngày trong hội thoại thân mật (nên dùng きっかけ). Danh từ phải là sự kiện đủ lớn; vế sau là thay đổi quan trọng.",
+    "examples": [
+     {
+      "ja": "この事故を契機に、安全基準が見直された。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "昨年の大雨を契機に、町では新しい安全の決まりが作られた。",
+      "ja_furigana": "昨年(さくねん)の大雨(おおあめ)を契機(けいき)に、町(まち)では新(あたら)しい安全(あんぜん)の決(き)まりが作(つく)られた。",
+      "source": "AI",
+      "vi": "Lấy trận mưa lớn năm ngoái làm bước ngoặt, thị trấn đã đặt ra quy định an toàn mới."
+     },
+     {
+      "ja": "結婚を契機に、彼は仕事を変えて、地元に戻った。",
+      "ja_furigana": "結婚(けっこん)を契機(けいき)に、彼(かれ)は仕事(しごと)を変(か)えて、地元(じもと)に戻(もど)った。",
+      "source": "AI",
+      "vi": "Nhân dịp kết hôn, anh ấy đã đổi việc và trở về quê nhà."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: この事故を契機に、安全基準が見直された。",
+     "FURIGANA_MISSING: この事故を契機に、安全基準が見直された。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + を契機に(して); N + を契機として",
+    "locked_fields": [],
+    "meaning_vi": "Lấy làm bước ngoặt — Giống をきっかけに nhưng trang trọng hơn hẳn.",
+    "nuance_vi": "Lấy một sự kiện làm bước ngoặt dẫn đến thay đổi lớn; trang trọng hơn hẳn をきっかけに, hay thấy trong văn viết, tin tức, phát biểu.",
+    "order_items": [],
+    "pattern": "N + を契機に",
+    "pattern_variants": [
+     "〜を契機に"
+    ],
+    "unit_no": 1,
+    "unit_title_vi": null,
+    "usage_vi": "Văn viết. Hay gặp trong báo cáo và tin tức."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2b9520bd6c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "店の前に長い列ができていることから、人気の店だと分かる。",
+       "ja_furigana": "店(みせ)の前(まえ)に長(なが)い列(れつ)ができていることから、人気(にんき)の店(みせ)だと分(わ)かる。",
+       "vi": "Từ việc trước quán có hàng dài xếp hàng, có thể biết đây là quán nổi tiếng."
+      },
+      {
+       "ja": "庭に足あとが残っていたことから、誰かが入ったと分かった。",
+       "ja_furigana": "庭(にわ)に足(あし)あとが残(のこ)っていたことから、誰(だれ)かが入(はい)ったと分(わ)かった。",
+       "source": "AI",
+       "vi": "Từ việc dấu chân còn lại trong vườn, người ta biết là có ai đó đã vào."
+      },
+      {
+       "ja": "この道は大きな木が多いことから、「みどり通り」と呼ばれている。",
+       "ja_furigana": "この道(みち)は大(おお)きな木(き)が多(おお)いことから、「みどり通(どお)り」と呼(よ)ばれている。",
+       "source": "AI",
+       "vi": "Vì con đường này có nhiều cây to nên được gọi là phố Midori."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng cho nguyên nhân thông thường của hành động. Vế sau phải là suy luận, phán đoán hay cách gọi; không nhầm với ので hay から đơn thuần.",
+    "examples": [
+     {
+      "ja": "窓が割れていることから、泥棒が入ったと分かった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "庭に足あとが残っていたことから、誰かが入ったと分かった。",
+      "ja_furigana": "庭(にわ)に足(あし)あとが残(のこ)っていたことから、誰(だれ)かが入(はい)ったと分(わ)かった。",
+      "source": "AI",
+      "vi": "Từ việc dấu chân còn lại trong vườn, người ta biết là có ai đó đã vào."
+     },
+     {
+      "ja": "この道は大きな木が多いことから、「みどり通り」と呼ばれている。",
+      "ja_furigana": "この道(みち)は大(おお)きな木(き)が多(おお)いことから、「みどり通(どお)り」と呼(よ)ばれている。",
+      "source": "AI",
+      "vi": "Vì con đường này có nhiều cây to nên được gọi là phố Midori."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 窓が割れていることから、泥棒が入ったと分かった。",
+     "FURIGANA_MISSING: 窓が割れていることから、泥棒が入ったと分かった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + ことから (Aな: なこと; N: であること)",
+    "locked_fields": [],
+    "meaning_vi": "Từ việc đó mà — Nêu căn cứ dẫn đến một kết luận hoặc tên gọi.",
+    "nuance_vi": "Nêu căn cứ để suy ra kết luận hoặc nguồn gốc của tên gọi; vế sau là điều được suy đoán, nhận ra hay tên gọi. Văn viết, giải thích.",
+    "order_items": [],
+    "pattern": "Thể thường + ことから",
+    "pattern_variants": [
+     "〜ことから"
+    ],
+    "unit_no": 17,
+    "unit_title_vi": null,
+    "usage_vi": "Hay dùng để giải thích nguồn gốc tên gọi hoặc lý do phán đoán."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-217ba9f715"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私が見た限りでは、みんな元気そうだった。",
+       "ja_furigana": "私(わたし)が見(み)た限(かぎ)りでは、みんな元気(げんき)そうだった。",
+       "vi": "Theo như tôi thấy thì mọi người đều có vẻ khỏe."
+      },
+      {
+       "ja": "私が調べたかぎりでは、この店は味も値段もとてもいい。",
+       "ja_furigana": "私(わたし)が調(しら)べたかぎりでは、この店(みせ)は味(あじ)も値段(ねだん)もとてもいい。",
+       "source": "AI",
+       "vi": "Theo những gì tôi đã tìm hiểu, quán này cả vị lẫn giá đều rất tốt."
+      },
+      {
+       "ja": "聞いたかぎりでは、新しい先生は生徒にとても好かれているそうだ。",
+       "ja_furigana": "聞(き)いたかぎりでは、新(あたら)しい先生(せんせい)は生徒(せいと)にとても好(す)かれているそうだ。",
+       "source": "AI",
+       "vi": "Theo những gì tôi nghe được, thầy giáo mới nghe nói được học sinh rất quý mến."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng vế sau là điều chắc chắn tuyệt đối hoặc nhầm với かぎり (chừng nào còn). Cần có động từ chỉ nhận thức ở vế trước.",
+    "examples": [
+     {
+      "ja": "私が知るかぎりでは、彼は正直な人だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "私が調べたかぎりでは、この店は味も値段もとてもいい。",
+      "ja_furigana": "私(わたし)が調(しら)べたかぎりでは、この店(みせ)は味(あじ)も値段(ねだん)もとてもいい。",
+      "source": "AI",
+      "vi": "Theo những gì tôi đã tìm hiểu, quán này cả vị lẫn giá đều rất tốt."
+     },
+     {
+      "ja": "聞いたかぎりでは、新しい先生は生徒にとても好かれているそうだ。",
+      "ja_furigana": "聞(き)いたかぎりでは、新(あたら)しい先生(せんせい)は生徒(せいと)にとても好(す)かれているそうだ。",
+      "source": "AI",
+      "vi": "Theo những gì tôi nghe được, thầy giáo mới nghe nói được học sinh rất quý mến."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 私が知るかぎりでは、彼は正直な人だ。",
+     "FURIGANA_MISSING: 私が知るかぎりでは、彼は正直な人だ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる / Vた / Vている + かぎりでは; N の + かぎりでは",
+    "locked_fields": [],
+    "meaning_vi": "Theo như mà tôi — Giới hạn phán đoán trong phạm vi thông tin mình có.",
+    "nuance_vi": "Theo phạm vi thông tin, hiểu biết của người nói thì …; hay đi với 見る, 聞く, 知る, 調べる. Vế sau là nhận định giới hạn trong phạm vi đó nên không khẳng định tuyệt đối.",
+    "order_items": [],
+    "pattern": "V từ điển / V-た + かぎりでは",
+    "pattern_variants": [],
+    "unit_no": 5,
+    "unit_title_vi": null,
+    "usage_vi": "Hay đi với 見る, 聞く, 知る, 調べる. Hàm ý có thể chưa đầy đủ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8a0ba93ab4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "不思議なことに、この町では冬にさくらが咲く。",
+       "ja_furigana": "不思議(ふしぎ)なことに、この町(まち)では冬(ふゆ)にさくらが咲(さ)く。",
+       "vi": "Thật lạ là ở thị trấn này hoa anh đào nở vào mùa đông."
+      },
+      {
+       "ja": "残念なことに、楽しみにしていた旅行は雨で中止になった。",
+       "ja_furigana": "残念(ざんねん)なことに、楽(たの)しみにしていた旅行(りょこう)は雨(あめ)で中止(ちゅうし)になった。",
+       "source": "AI",
+       "vi": "Đáng tiếc là chuyến du lịch tôi mong đợi bị hủy vì mưa."
+      },
+      {
+       "ja": "うれしいことに、受けた会社から面接の連絡が来た。",
+       "ja_furigana": "うれしいことに、受(う)けた会社(かいしゃ)から面接(めんせつ)の連絡(れんらく)が来(き)た。",
+       "source": "AI",
+       "vi": "Thật vui là công ty tôi ứng tuyển đã liên lạc mời phỏng vấn."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng với từ không chỉ cảm xúc hoặc nói về cảm xúc của người khác. Cảm xúc ở đây là của người nói; sau ことに phải là sự việc thật.",
+    "examples": [
+     {
+      "ja": "驚いたことに、彼は全部知っていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "残念なことに、楽しみにしていた旅行は雨で中止になった。",
+      "ja_furigana": "残念(ざんねん)なことに、楽(たの)しみにしていた旅行(りょこう)は雨(あめ)で中止(ちゅうし)になった。",
+      "source": "AI",
+      "vi": "Đáng tiếc là chuyến du lịch tôi mong đợi bị hủy vì mưa."
+     },
+     {
+      "ja": "うれしいことに、受けた会社から面接の連絡が来た。",
+      "ja_furigana": "うれしいことに、受(う)けた会社(かいしゃ)から面接(めんせつ)の連絡(れんらく)が来(き)た。",
+      "source": "AI",
+      "vi": "Thật vui là công ty tôi ứng tuyển đã liên lạc mời phỏng vấn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 驚いたことに、彼は全部知っていた。",
+     "FURIGANA_MISSING: 驚いたことに、彼は全部知っていた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Aい / Aな (な) / Vた + ことに",
+    "locked_fields": [],
+    "meaning_vi": "Thật là — Nêu cảm xúc của người nói trước khi kể sự việc.",
+    "nuance_vi": "Nêu cảm xúc của người nói trước rồi mới kể sự việc: 'thật là … là …'; hay gặp 驚いたことに, 残念なことに, うれしいことに. Dùng cả nói lẫn viết.",
+    "order_items": [],
+    "pattern": "A / V-た + ことに",
+    "pattern_variants": [],
+    "unit_no": 26,
+    "unit_title_vi": null,
+    "usage_vi": "Chỉ dùng với từ chỉ cảm xúc: 驚いたことに, 残念なことに, うれしいことに."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0668d251f9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は昼は静かだが、夜となると、とてもにぎやかになる。",
+       "ja_furigana": "この店(みせ)は昼(ひる)は静(しず)かだが、夜(よる)となると、とてもにぎやかになる。",
+       "vi": "Quán này ban ngày yên tĩnh, nhưng đến tối thì rất nhộn nhịp."
+      },
+      {
+       "ja": "一人で食べるとなると、何を作るか迷ってしまう。",
+       "ja_furigana": "一人(ひとり)で食(た)べるとなると、何(なに)を作(つく)るか迷(まよ)ってしまう。",
+       "vi": "Khi phải ăn một mình thì tôi lại phân vân không biết nấu gì."
+      },
+      {
+       "ja": "一人で引っ越しとなると、荷物の片付けが大変だ。",
+       "ja_furigana": "一人(ひとり)で引(ひ)っ越(こ)しとなると、荷物(にもつ)の片付(かたづ)けが大変(たいへん)だ。",
+       "source": "AI",
+       "vi": "Nếu đến mức phải tự chuyển nhà một mình thì việc dọn dẹp đồ đạc sẽ rất vất vả."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép sách; thêm furigana + bản dịch"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng cho sự thật đã biết, hoặc để vế sau là mệnh lệnh. Không nhầm với となれば hay と (điều kiện đơn giản).",
+    "examples": [
+     {
+      "ja": "彼は普段は大人しいけど、ゲームの話となると、急におしゃべりになる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy bình thường trầm lặng nhưng cứ nhắc đến trò chơi là bỗng nhiên trở nên nói nhiều。"
+     },
+     {
+      "ja": "森先生が来られないとなると、日にちを変えたほうがいいね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu thầy Mori không thể đến, thì nên đổi ngày nhỉ。」"
+     },
+     {
+      "ja": "一人で引っ越しとなると、荷物の片付けが大変だ。",
+      "ja_furigana": "一人(ひとり)で引(ひ)っ越(こ)しとなると、荷物(にもつ)の片付(かたづ)けが大変(たいへん)だ。",
+      "source": "AI",
+      "vi": "Nếu đến mức phải tự chuyển nhà một mình thì việc dọn dẹp đồ đạc sẽ rất vất vả."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は普段は大人しいけど、ゲームの話となると、急におしゃべりになる。",
+     "FURIGANA_MISSING: 森先生が来られないとなると、日にちを変えたほうがいいね。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + となると (N: となると)",
+    "locked_fields": [],
+    "meaning_vi": "Khi đến giai đoạn ～ thì nảy sinh tình huống tiếp theo; nếu đúng là tình huống ～ thì có thể suy ra điều tiếp theo.",
+    "nuance_vi": "Khi đi đến giai đoạn, tình huống đó thì xuất hiện thay đổi đặc trưng hoặc có thể suy ra điều tiếp theo; gần とすると nhưng nhấn mạnh sự thay đổi khi trở thành vấn đề thật.",
+    "order_items": [],
+    "pattern": "〜となると",
+    "pattern_variants": [
+     "となると"
+    ],
+    "unit_no": 14,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi chuyển từ việc bàn chung sang một giai đoạn hay trường hợp cụ thể, rồi nêu vấn đề, phản ứng hoặc kết luận phát sinh ở tình huống ấy. 1) Dễ nhầm với ～になると. → ～となると lấy một tình huống cụ thể làm tiền đề rồi suy ra vấn đề, phản ứng hoặc yêu cầu phát sinh từ tình huống ấy. 2) Không chỉ diễn tả thay đổi theo thời gian. → Nếu câu đơn thuần có nghĩa “khi trở thành A thì B” mà không có bước suy luận, ～になると thường tự nhiên hơn. 3) Vế sau hay nêu điều phải cân nhắc. → Các nội dung như chi phí, khó khăn, chuẩn bị hoặc quyết định thường xuất hiện sau ～となると. ～ともなると／なれば Nhấn mạnh một mốc thời gian, cấp bậc, tuổi tác hay vị thế đủ cao để kéo theo một trạng thái đặc trưng. 「ともなれば」 còn có thể nêu một tình huống đặc biệt giả định. 1) Dễ nhầm với ～となると. → ～ともなると／～ともなれば nhấn mạnh một mốc, tuổi, mùa, cấp bậc hoặc vị thế đã đạt mức đặc biệt đáng kể. 2) とも làm sắc thái “đến mức A thì” mạnh hơn. → Vế sau thường nêu trạng thái điển hình hoặc hệ quả được dự đoán ở cấp độ đó. 3) ～ともなれば có thể dùng cho giả định. → Khi nói một tình huống đặc biệt nếu xảy ra, mẫu thường hàm ý người ta sẽ có phản ứng khác thường hoặc nghiêm túc hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2556b5fda7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この電車は八時に来るはずだったが、まだ来ない。",
+       "ja_furigana": "この電車(でんしゃ)は八時(はちじ)に来(く)るはずだったが、まだ来(こ)ない。",
+       "vi": "Chuyến tàu này lẽ ra đến lúc tám giờ, nhưng vẫn chưa đến."
+      },
+      {
+       "ja": "今日の会議は三時に始まるはずだったが、部長が遅れて四時になった。",
+       "ja_furigana": "今日(きょう)の会議(かいぎ)は三時(さんじ)に始(はじ)まるはずだったが、部長(ぶちょう)が遅(おく)れて四時(よじ)になった。",
+       "source": "AI",
+       "vi": "Cuộc họp hôm nay lẽ ra bắt đầu lúc ba giờ, nhưng trưởng phòng đến muộn nên thành bốn giờ."
+      },
+      {
+       "ja": "彼は今日出社するはずだったのに、連絡もなく休んだ。",
+       "ja_furigana": "彼(かれ)は今日(きょう)出社(しゅっしゃ)するはずだったのに、連絡(れんらく)もなく休(やす)んだ。",
+       "source": "AI",
+       "vi": "Lẽ ra hôm nay anh ấy phải đi làm, vậy mà nghỉ không báo gì."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay nhầm với つもりだった (đã định làm) và べきだった (lẽ ra nên làm). はずだった dựa vào căn cứ khách quan hay dự kiến, không nói về ý chí cá nhân.",
+    "examples": [
+     {
+      "ja": "今日着くはずだったのに、まだ届かない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "今日の会議は三時に始まるはずだったが、部長が遅れて四時になった。",
+      "ja_furigana": "今日(きょう)の会議(かいぎ)は三時(さんじ)に始(はじ)まるはずだったが、部長(ぶちょう)が遅(おく)れて四時(よじ)になった。",
+      "source": "AI",
+      "vi": "Cuộc họp hôm nay lẽ ra bắt đầu lúc ba giờ, nhưng trưởng phòng đến muộn nên thành bốn giờ."
+     },
+     {
+      "ja": "彼は今日出社するはずだったのに、連絡もなく休んだ。",
+      "ja_furigana": "彼(かれ)は今日(きょう)出社(しゅっしゃ)するはずだったのに、連絡(れんらく)もなく休(やす)んだ。",
+      "source": "AI",
+      "vi": "Lẽ ra hôm nay anh ấy phải đi làm, vậy mà nghỉ không báo gì."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 今日着くはずだったのに、まだ届かない。",
+     "FURIGANA_MISSING: 今日着くはずだったのに、まだ届かない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる / Vている / Vた + はずだった",
+    "locked_fields": [],
+    "meaning_vi": "Lẽ ra đã phải — Dự định hoặc kỳ vọng nhưng thực tế không xảy ra.",
+    "nuance_vi": "Lẽ ra đã/phải xảy ra theo dự định hay căn cứ nào đó nhưng thực tế khác đi; thể hiện ngạc nhiên hoặc tiếc nuối. Khác つもりだった (ý định của chính người nói).",
+    "order_items": [],
+    "pattern": "V từ điển + はずだった",
+    "pattern_variants": [],
+    "unit_no": 20,
+    "unit_title_vi": null,
+    "usage_vi": "Mang cảm giác tiếc nuối hoặc bất ngờ. Vế sau thường nêu thực tế trái ngược."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8a3b0bdb94"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夏休みに国へ帰るつもりだったが、お金が足りなかった。",
+       "ja_furigana": "夏休(なつやす)みに国(くに)へ帰(かえ)るつもりだったが、お金(かね)が足(た)りなかった。",
+       "vi": "Tôi định về nước vào kỳ nghỉ hè nhưng không đủ tiền."
+      },
+      {
+       "ja": "先月、友だちと旅行に行くつもりだったが、仕事が忙しくてやめた。",
+       "ja_furigana": "先月(せんげつ)、友(とも)だちと旅行(りょこう)に行(い)くつもりだったが、仕事(しごと)が忙(いそが)しくてやめた。",
+       "source": "AI",
+       "vi": "Tháng trước tôi định đi du lịch với bạn nhưng công việc bận nên đã thôi."
+      },
+      {
+       "ja": "昨日は早く寝るつもりだったのに、ゲームをして遅くなってしまった。",
+       "ja_furigana": "昨日(きのう)は早(はや)く寝(ね)るつもりだったのに、ゲームをして遅(おそ)くなってしまった。",
+       "source": "AI",
+       "vi": "Hôm qua tôi định đi ngủ sớm vậy mà chơi game nên thành khuya."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng cho ý định của người khác mà không thêm căn cứ, hoặc nhầm với はずだった (dự kiến khách quan). Vế sau thường có が, のに để nêu thực tế khác.",
+    "examples": [
+     {
+      "ja": "早く帰るつもりだったが、残業になった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "先月、友だちと旅行に行くつもりだったが、仕事が忙しくてやめた。",
+      "ja_furigana": "先月(せんげつ)、友(とも)だちと旅行(りょこう)に行(い)くつもりだったが、仕事(しごと)が忙(いそが)しくてやめた。",
+      "source": "AI",
+      "vi": "Tháng trước tôi định đi du lịch với bạn nhưng công việc bận nên đã thôi."
+     },
+     {
+      "ja": "昨日は早く寝るつもりだったのに、ゲームをして遅くなってしまった。",
+      "ja_furigana": "昨日(きのう)は早(はや)く寝(ね)るつもりだったのに、ゲームをして遅(おそ)くなってしまった。",
+      "source": "AI",
+      "vi": "Hôm qua tôi định đi ngủ sớm vậy mà chơi game nên thành khuya."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 早く帰るつもりだったが、残業になった。",
+     "FURIGANA_MISSING: 早く帰るつもりだったが、残業になった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる / Vない + つもりだった",
+    "locked_fields": [],
+    "meaning_vi": "Đã định nhưng — Ý định trong quá khứ nhưng không thực hiện được.",
+    "nuance_vi": "Trước đây đã có ý định làm gì nhưng rốt cuộc không thực hiện được hoặc kết quả khác; dùng khi nói về ý định của chính mình. Cũng có Vた + つもりだった với nghĩa 'cứ tưởng đã …'.",
+    "order_items": [],
+    "pattern": "V từ điển + つもりだった",
+    "pattern_variants": [],
+    "unit_no": 20,
+    "unit_title_vi": null,
+    "usage_vi": "Dạng khác つもりはなかった = tôi không hề có ý định."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6f1e2ebec5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の言葉が今でも気になってならない。",
+       "ja_furigana": "彼(かれ)の言葉(ことば)が今(いま)でも気(き)になってならない。",
+       "vi": "Đến bây giờ tôi vẫn cứ băn khoăn về lời anh ấy nói."
+      },
+      {
+       "ja": "試験の結果が心配でならなくて、昨日は眠れなかった。",
+       "ja_furigana": "試験(しけん)の結果(けっか)が心配(しんぱい)でならなくて、昨日(きのう)は眠(ねむ)れなかった。",
+       "source": "AI",
+       "vi": "Tôi lo về kết quả kỳ thi đến mức hôm qua không ngủ được."
+      },
+      {
+       "ja": "子どものころの友だちのことが、最近なぜか思い出されてならない。",
+       "ja_furigana": "子(こ)どものころの友(とも)だちのことが、最近(さいきん)なぜか思(おも)い出(だ)されてならない。",
+       "source": "AI",
+       "vi": "Dạo này không hiểu sao tôi cứ nhớ mãi về những người bạn thời thơ ấu."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách (quá ngắn); thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay gắn với động từ ý chí (×食べてならない) hoặc dùng cho cảm xúc của người khác. Chỉ dùng cho cảm giác, cảm xúc của chính người nói.",
+    "examples": [
+     {
+      "ja": "残念でならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "試験の結果が心配でならなくて、昨日は眠れなかった。",
+      "ja_furigana": "試験(しけん)の結果(けっか)が心配(しんぱい)でならなくて、昨日(きのう)は眠(ねむ)れなかった。",
+      "source": "AI",
+      "vi": "Tôi lo về kết quả kỳ thi đến mức hôm qua không ngủ được."
+     },
+     {
+      "ja": "子どものころの友だちのことが、最近なぜか思い出されてならない。",
+      "ja_furigana": "子(こ)どものころの友(とも)だちのことが、最近(さいきん)なぜか思(おも)い出(だ)されてならない。",
+      "source": "AI",
+      "vi": "Dạo này không hiểu sao tôi cứ nhớ mãi về những người bạn thời thơ ấu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 残念でならない。",
+     "FURIGANA_MISSING: 残念でならない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て / Aくて / Aな・N + で + ならない",
+    "locked_fields": [],
+    "meaning_vi": "Cứ mãi, không sao dứt được — Cảm xúc hoặc suy nghĩ tự nhiên trào lên không kiểm soát được.",
+    "nuance_vi": "Cảm xúc hay cảm giác tự nhiên trào lên, không kiềm chế được; hơi cứng, nghiêng về văn viết, hay đi với 気になる, 心配で, 残念で, 思われて. Gần てたまらない nhưng trang trọng hơn.",
+    "order_items": [],
+    "pattern": "V-て / A-くて + ならない",
+    "pattern_variants": [],
+    "unit_no": 25,
+    "unit_title_vi": null,
+    "usage_vi": "Trang trọng hơn たまらない. Hay đi với 気がしてならない, 残念でならない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e53aa76f2f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この部屋は広いというか、がらんとしているというか、落ち着かない。",
+       "ja_furigana": "この部屋(へや)は広(ひろ)いというか、がらんとしているというか、落(お)ち着(つ)かない。",
+       "vi": "Phòng này không biết là rộng hay là trống trải, thật khó chịu."
+      },
+      {
+       "ja": "このスープは辛いというか苦いというか、変な味がする。",
+       "ja_furigana": "このスープは辛(から)いというか苦(にが)いというか、変(へん)な味(あじ)がする。",
+       "vi": "Món súp này không biết là cay hay đắng, có vị lạ."
+      },
+      {
+       "ja": "田中さんは、おもしろい人というか変わった人というか、一緒にいると楽しい。",
+       "ja_furigana": "田中(たなか)さんは、おもしろい人(ひと)というか変(か)わった人(ひと)というか、一緒(いっしょ)にいると楽(たの)しい。",
+       "source": "AI",
+       "vi": "Anh Tanaka là người thú vị hay là người khác thường thì không biết nữa, ở cạnh anh ấy lúc nào cũng vui."
+      }
+     ],
+     "meaning_vi": "Nói là... hay là... — Liệt kê cảm nhận theo ý nghĩ để gọi tên một cảm giác khó diễn tả chính xác."
+    },
+    "note": "viết lại 2 câu chép sách; sửa meaning_vi bị bỏ trống"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng khi muốn khẳng định chắc chắn, trong khi mẫu này là cách nói chưa chắc. Cặp từ hai vế cần gần nghĩa nhau, không phải hai ý đối lập.",
+    "examples": [
+     {
+      "ja": "彼女はかわいいというか子どもっぽいというか、とにかく年よりはずいぶん若く見える。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nói cô ấy là dễ thương hay là giống trẻ con, nhưng dù sao đi nữa dù nhiều tuổi nhưng trông rất trẻ."
+     },
+     {
+      "ja": "「父は曲がったことが大嫌いな人です。くそまじめと言うか融通が利かないと言うか・・・・・」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bố tôi là người rất ghét loanh quanh. Bố vừa cực kỳ nghiêm túc lại vừa cứng nhắc."
+     },
+     {
+      "ja": "田中さんは、おもしろい人というか変わった人というか、一緒にいると楽しい。",
+      "ja_furigana": "田中(たなか)さんは、おもしろい人(ひと)というか変(か)わった人(ひと)というか、一緒(いっしょ)にいると楽(たの)しい。",
+      "source": "AI",
+      "vi": "Anh Tanaka là người thú vị hay là người khác thường thì không biết nữa, ở cạnh anh ấy lúc nào cũng vui."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼女はかわいいというか子どもっぽいというか、とにかく年よりはずいぶん若く見える。",
+     "FURIGANA_MISSING: 「父は曲がったことが大嫌いな人です。くそまじめと言うか融通が利かないと言うか・・・・・」",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 「父は曲がったことが大嫌いな人です。くそまじめと言うか融通が利かないと言うか・・・・・」 → 融通が利",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + というか + thể thường + というか; N + というか + N + というか",
+    "locked_fields": [],
+    "meaning_vi": "Cách kết hợp:",
+    "nuance_vi": "Không biết nên diễn đạt thế nào cho đúng nên đưa ra hai cách nói, thể hiện cảm nhận mơ hồ; khẩu ngữ, ngữ điệu mềm. Vế sau thường là nhận xét tổng quát.",
+    "order_items": [],
+    "pattern": "〜というか・・・というか",
+    "pattern_variants": [],
+    "unit_no": 10,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞／【動詞・イ形容詞・ナ形容詞】の普通形（というか）名詞／【動詞・イ形容詞・ナ形容詞】の普通形（という Ý nghĩa: 思いつくままに評価の言葉を並べる Ví dụ: 1. 彼女はかわいいというか子どもっぽいというか、とにかく年よりはずいぶん若く見える。 Nói cô ấy là dễ thương hay là giống trẻ con, nhưng dù sao đi nữa dù nhiều tuổi nhưng trông rất trẻ. 2. 「父は曲がったことが大嫌いな人です。くそまじめと言うか融通が利かないと言うか・・・・・」 Bố tôi là người rất ghét loanh quanh. Bố vừa cực kỳ nghiêm túc lại vừa cứng nhắc. 3. 「山本のやつ、会社を辞めて自転車で世界一周旅行をするんだって。勇気があると言うか無謀と言うか。でも、ちょっとうらやましいなあ」 Cái tên Yamamoto, nghe nói nghỉ việc cái là đi du lịch bằng xe đạp vòng quanh thế giới. Vừa can đảm lại vừa liều lĩnh. Cơ mà, có chút ghen tị nhỉ!"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fb5bb90c3b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅行に来たつもりで、近くの公園を歩いた。",
+       "ja_furigana": "旅行(りょこう)に来(き)たつもりで、近(ちか)くの公園(こうえん)を歩(ある)いた。",
+       "vi": "Coi như đi du lịch, tôi đi dạo ở công viên gần nhà."
+      },
+      {
+       "ja": "新入社員になったつもりで、もう一度初めから勉強し直すことにした。",
+       "ja_furigana": "新入社員(しんにゅうしゃいん)になったつもりで、もう一度(いちど)初(はじ)めから勉強(べんきょう)し直(なお)すことにした。",
+       "source": "AI",
+       "vi": "Tôi quyết định coi như mình là nhân viên mới, học lại từ đầu."
+      },
+      {
+       "ja": "明日が最後の日のつもりで、今日をむだにしないように過ごしたい。",
+       "ja_furigana": "明日(あした)が最後(さいご)の日(ひ)のつもりで、今日(きょう)をむだにしないように過(す)ごしたい。",
+       "source": "AI",
+       "vi": "Tôi muốn sống hôm nay sao cho không lãng phí, như thể ngày mai là ngày cuối cùng."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; sửa câu AI dùng 駄 ngoài danh sách"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay nhầm với つもりだ (ý định) và つもりが (tưởng là … nhưng thực tế khác). Mẫu này dùng つもりで để nêu tâm thế rồi làm một việc cụ thể.",
+    "examples": [
+     {
+      "ja": "死んだつもりで頑張ります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "新入社員になったつもりで、もう一度初めから勉強し直すことにした。",
+      "ja_furigana": "新入社員(しんにゅうしゃいん)になったつもりで、もう一度(いちど)初(はじ)めから勉強(べんきょう)し直(なお)すことにした。",
+      "source": "AI",
+      "vi": "Tôi quyết định coi như mình là nhân viên mới, học lại từ đầu."
+     },
+     {
+      "ja": "明日が最後の日のつもりで、今日を無駄にしないように過ごしたい。",
+      "ja_furigana": "明日(あした)が最後(さいご)の日(ひ)のつもりで、今日(きょう)を無駄(むだ)にしないように過(す)ごしたい。",
+      "source": "AI",
+      "vi": "Tôi muốn sống hôm nay sao cho không lãng phí, như thể ngày mai là ngày cuối cùng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 死んだつもりで頑張ります。",
+     "FURIGANA_MISSING: 死んだつもりで頑張ります。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vた / Nの + つもりで",
+    "locked_fields": [],
+    "meaning_vi": "Cứ coi như là — Hành động với tâm thế như thể điều đó là thật.",
+    "nuance_vi": "Làm việc gì với tâm thế coi như đã/đang là như vậy; hay dùng khi khuyên bảo hoặc tự nhắc mình lấy hình dung để cố gắng. Vế sau là hành động có chủ ý.",
+    "order_items": [],
+    "pattern": "V-た / N の + つもりで",
+    "pattern_variants": [],
+    "unit_no": 19,
+    "unit_title_vi": null,
+    "usage_vi": "Hay gặp: 死んだつもりで, 新人のつもりで."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d82dc8138b"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-018"
+}

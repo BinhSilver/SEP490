@@ -21,6 +21,7 @@ import com.jlas.auth.security.UserPrincipal;
 import com.jlas.auth.service.AuthService;
 import com.jlas.auth.service.AvatarUploadService;
 import com.jlas.auth.service.AccountSecurityService;
+import com.jlas.auth.service.AuthRequestThrottle;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,7 @@ public class AuthController {
     private final AuthService authService;
     private final AvatarUploadService avatarUploadService;
     private final AccountSecurityService accountSecurityService;
+    private final AuthRequestThrottle requestThrottle;
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest request) {
@@ -75,20 +77,26 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request,
+                                                           HttpServletRequest servletRequest) {
+        requestThrottle.assertPasswordResetSendAllowed(request.getEmail(), clientIp(servletRequest));
         authService.forgotPassword(request);
         return ResponseEntity.ok(ApiResponse.ok(
                 "Nếu email này thuộc một tài khoản, mã OTP đặt lại mật khẩu đã được gửi."));
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request,
+                                                          HttpServletRequest servletRequest) {
+        requestThrottle.assertPasswordResetCheckAllowed(request.getEmail(), clientIp(servletRequest));
         authService.resetPassword(request);
         return ResponseEntity.ok(ApiResponse.ok("Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại."));
     }
 
     @PostMapping("/verify-reset-otp")
-    public ResponseEntity<ApiResponse<Void>> verifyPasswordResetOtp(@Valid @RequestBody VerifyPasswordResetOtpRequest request) {
+    public ResponseEntity<ApiResponse<Void>> verifyPasswordResetOtp(@Valid @RequestBody VerifyPasswordResetOtpRequest request,
+                                                                  HttpServletRequest servletRequest) {
+        requestThrottle.assertPasswordResetCheckAllowed(request.getEmail(), clientIp(servletRequest));
         authService.verifyPasswordResetOtp(request);
         return ResponseEntity.ok(ApiResponse.ok("Mã OTP hợp lệ."));
     }
@@ -177,17 +185,17 @@ public class AuthController {
     }
 
     @PostMapping(value = "/avatar", consumes = "multipart/form-data")
-    public ResponseEntity<ApiResponse<Map<String, String>>> uploadAvatar(
+    public ResponseEntity<ApiResponse<AvatarUploadService.UploadResult>> uploadAvatar(
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestParam("file") MultipartFile file) {
         if (principal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.fail("Unauthorized"));
         }
-        String url = avatarUploadService.store(principal.userId(), file);
-        UpdateProfileRequest update = new UpdateProfileRequest();
-        update.setAvatar(url);
-        authService.updateProfile(principal.userId(), update);
-        return ResponseEntity.ok(ApiResponse.ok("Avatar uploaded", Map.of("avatar", url)));
+        var result = avatarUploadService.store(principal.userId(), file);
+        String message = "SAFE".equals(result.moderationStatus()) ? "Đã cập nhật ảnh đại diện"
+                : "BLOCKED".equals(result.moderationStatus()) ? "Ảnh bị gắn cờ vi phạm, đã chuyển kiểm duyệt viên xem xét"
+                : "Ảnh đang chờ kiểm duyệt; ảnh đại diện hiện tại được giữ nguyên";
+        return ResponseEntity.ok(ApiResponse.ok(message, result));
     }
 
     @PostMapping("/logout")
@@ -237,8 +245,7 @@ public class AuthController {
     }
 
     private static String clientIp(HttpServletRequest request) {
-        String forwarded = request.getHeader("X-Forwarded-For");
-        if (forwarded != null && !forwarded.isBlank()) return forwarded.split(",", 2)[0].trim();
+        // Forwarded headers are untrusted when the app is reached directly (including LAN).
         return request.getRemoteAddr();
     }
 }

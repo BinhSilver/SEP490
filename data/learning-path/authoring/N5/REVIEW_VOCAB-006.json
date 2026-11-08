@@ -1,0 +1,1775 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日ピアノを練習します。",
+       "ja_furigana": "毎日(まいにち)ピアノを練習(れんしゅう)します。",
+       "vi": "Ngày nào tôi cũng tập đàn piano."
+      }
+     ]
+    },
+    "note": "＜する＞ là ký hiệu sách làm romaji hỏng; viết 練習; ĐỀ XUẤT chữ 練習する, đọc れんしゅうする — chưa ghi vì bộ dựng đổi id mục Mirai khi sửa chữ/cách đọc và làm mất nội dung"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "毎日ピアノをれんしゅうします。",
+      "ja_furigana": "毎日(まいにち)ピアノをれんしゅうします。",
+      "source": "CLAUDE",
+      "vi": "Ngày nào tôi cũng tập đàn piano."
+     }
+    ],
+    "expression": "練習＜する＞",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tập luyện; thực hành",
+    "mnemonic_vi": "練習 Hán Việt \"luyện tập\": れん \"luyện\" + しゅう \"tập\".",
+    "reading": "れんしゅう＜する＞",
+    "romaji": "renshuu<suru>",
+    "topic_vi": "Học tập",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm III"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b16cd1ed40"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "bài phát biểu; diễn thuyết"
+    },
+    "note": "\"bài văn\" sai nghĩa; câu đã duyệt/VNJPCLUB (緊張, 結婚式) trên N5 nhưng bị khóa"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bài phát biểu",
+    "examples": [
+     {
+      "ja": "短いスピーチでも緊張した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Dù bài phát biểu ngắn, tôi vẫn hồi hộp."
+     },
+     {
+      "ja": "友達の結婚式でスピーチをした。",
+      "ja_furigana": "友達(ともだち)の結婚式(けっこんしき)でスピーチをした。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã phát biểu tại đám cưới của bạn tôi."
+     }
+    ],
+    "expression": "スピーチ",
+    "findings": [
+     "FURIGANA_MISSING: 短いスピーチでも緊張した。"
+    ],
+    "locked_fields": [
+     "examples"
+    ],
+    "meaning_vi": "bài phát biểu; bài văn; diễn thuyết",
+    "mnemonic_vi": "スピーチ = speech, bài phát biểu; đọc \"Su-pī-chi\".",
+    "reading": "すぴーち",
+    "romaji": "supiichi",
+    "topic_vi": "Học tập",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-25073575da"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "nhớ; học thuộc",
+     "examples": [
+      {
+       "ja": "新しい言葉をおぼえます。",
+       "ja_furigana": "新(あたら)しい言葉(ことば)をおぼえます。",
+       "vi": "Tôi học thuộc từ mới."
+      }
+     ]
+    },
+    "note": "nghĩa sai khuôn; viết 言葉"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nhớ",
+    "examples": [
+     {
+      "ja": "新しいことばをおぼえます。",
+      "ja_furigana": "新(あたら)しいことばをおぼえます。",
+      "source": "CLAUDE",
+      "vi": "Tôi học thuộc từ mới."
+     }
+    ],
+    "expression": "覚える",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nhớ hoặc học thuộc",
+    "mnemonic_vi": "覚える có 覚 \"giác\" (cảm giác, tỉnh giác): おぼえる = ghi nhớ, học thuộc. Đối lập với わすれる (quên).",
+    "reading": "おぼえる",
+    "romaji": "oboeru",
+    "topic_vi": "Học tập",
+    "twins": [],
+    "variants": [
+     "おぼえる"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-dfb8744343"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "quên; để quên"
+    },
+    "note": "\"quên thông thường\" sai khuôn"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "quên",
+    "examples": [
+     {
+      "ja": "電車にかさをわすれました。",
+      "ja_furigana": "電車(でんしゃ)にかさをわすれました。",
+      "source": "CLAUDE",
+      "vi": "Tôi để quên ô trên tàu điện."
+     }
+    ],
+    "expression": "忘れる",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "quên thông thường",
+    "mnemonic_vi": "忘れる có 忘 \"vong\" (lãng quên): 亡 (mất) + 心 (tim), mất khỏi lòng tức là quên.",
+    "reading": "わすれる",
+    "romaji": "wasureru",
+    "topic_vi": "Học tập",
+    "twins": [],
+    "variants": [
+     "わすれる"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c6ffaabbb2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この問題はとてもむずかしいです。",
+       "ja_furigana": "この問題(もんだい)はとてもむずかしいです。",
+       "vi": "Câu hỏi này rất khó."
+      }
+     ]
+    },
+    "note": "câu cũ dùng どう思いますか (N4)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Bài toán, câu hỏi, vấn đề",
+    "examples": [
+     {
+      "ja": "この もんだいを どう おもいますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh nghĩ thế nào về câu hỏi này?"
+     }
+    ],
+    "expression": "問題",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "câu hỏi; vấn đề; bài toán",
+    "mnemonic_vi": "問題 Hán Việt \"vấn đề\": もん \"vấn\" + だい \"đề\" = câu hỏi, vấn đề.",
+    "reading": "もんだい",
+    "romaji": "mondai",
+    "topic_vi": "Học tập",
+    "twins": [],
+    "variants": [
+     "もんだい"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1ce5ade12c"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ví dụ; thường lệ",
+    "examples": [
+     {
+      "ja": "先生は簡単な例を出した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Thầy đưa ra ví dụ đơn giản."
+     },
+     {
+      "ja": "例を出して説明をしてください。",
+      "ja_furigana": "例(れい)を出(だ)して説明(せつめい)をしてください。",
+      "source": "VNJPCLUB",
+      "vi": "Hãy lấy ví dụ và giải thích"
+     },
+     {
+      "ja": "まず、れいを見てください。",
+      "ja_furigana": "まず、れいを見(み)てください。",
+      "source": "CLAUDE",
+      "vi": "Trước tiên, hãy xem ví dụ."
+     }
+    ],
+    "expression": "例",
+    "findings": [
+     "FURIGANA_MISSING: 先生は簡単な例を出した。"
+    ],
+    "locked_fields": [
+     "examples"
+    ],
+    "meaning_vi": "ví dụ; thường lệ",
+    "mnemonic_vi": "例 \"lệ\" như \"tiền lệ\": cái có trước để làm mẫu, tức ví dụ. れい nghe gần \"lệ\".",
+    "reading": "れい",
+    "romaji": "rei",
+    "topic_vi": "Học tập",
+    "twins": [],
+    "variants": [
+     "れい"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a629eeca58"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "テストの紙に問題の答えを書きます。",
+       "ja_furigana": "テストの紙(かみ)に問題(もんだい)の答(こた)えを書(か)きます。",
+       "vi": "Viết câu trả lời của câu hỏi vào giấy kiểm tra."
+      },
+      {
+       "ja": "答えをノートに書いてください。",
+       "ja_furigana": "答(こた)えをノートに書(か)いてください。",
+       "vi": "Hãy viết câu trả lời vào vở."
+      }
+     ]
+    },
+    "note": "viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "câu trả lời",
+    "examples": [
+     {
+      "ja": "テストの紙に問題の答えを書きます。",
+      "ja_furigana": "テストの紙(かみ)に問題(もんだい)の答(こた)えを書(か)きます。",
+      "source": "VNJPCLUB",
+      "vi": "Viết câu trả lời của câu hỏi vào giấy kiểm tra."
+     },
+     {
+      "ja": "こたえをノートに書いてください。",
+      "ja_furigana": "こたえをノートに書(か)いてください。",
+      "source": "CLAUDE",
+      "vi": "Hãy viết câu trả lời vào vở."
+     }
+    ],
+    "expression": "答え",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "câu trả lời",
+    "mnemonic_vi": "答え có 答 \"đáp\" (đáp án): こたえ = câu trả lời, đi đôi với しつもん (câu hỏi).",
+    "reading": "こたえ",
+    "romaji": "kotae",
+    "topic_vi": "Học tập",
+    "twins": [],
+    "variants": [
+     "こたえ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-005b866a02"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "hỏi; đặt câu hỏi",
+     "examples": [
+      {
+       "ja": "先生、質問があります。",
+       "ja_furigana": "先生(せんせい)、質問(しつもん)があります。",
+       "vi": "Thưa thầy, em có câu hỏi ạ."
+      }
+     ]
+    },
+    "note": "nghĩa trùng nguồn ngoài (MIRAI_SIMILAR) → viết lại; ＜する＞ làm romaji hỏng; ĐỀ XUẤT chữ 質問する, đọc しつもんする — chưa ghi vì bộ dựng đổi id mục Mirai khi sửa chữ/cách đọc và làm mất nội dung"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "先生、しつもんがあります。",
+      "ja_furigana": "先生(せんせい)、しつもんがあります。",
+      "source": "CLAUDE",
+      "vi": "Thưa thầy, em có câu hỏi ạ."
+     }
+    ],
+    "expression": "質問＜する＞",
+    "findings": [
+     "MIRAI_SIMILAR: meaning"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "câu hỏi; hỏi",
+    "mnemonic_vi": "質問 Hán Việt \"chất vấn\": しつ \"chất\" + もん \"vấn\" = đặt câu hỏi.",
+    "reading": "しつもん＜する＞",
+    "romaji": "shitsumon<suru>",
+    "topic_vi": "Học tập",
+    "twins": [],
+    "variants": [
+     "しつもん＜する＞"
+    ],
+    "word_type_label": "động từ nhóm III"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-365891a72e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "tham quan (để học hỏi)",
+     "examples": [
+      {
+       "ja": "明日、工場を見学します。",
+       "ja_furigana": "明日(あした)、工場(こうじょう)を見学(けんがく)します。",
+       "vi": "Ngày mai chúng tôi đi tham quan nhà máy."
+      }
+     ]
+    },
+    "note": "<する> làm romaji hỏng; viết Kanji; ĐỀ XUẤT chữ 見学する, đọc けんがくする — chưa ghi vì bộ dựng đổi id mục Mirai khi sửa chữ/cách đọc và làm mất nội dung"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "明日、こうじょうをけんがくします。",
+      "ja_furigana": "明日(あした)、こうじょうをけんがくします。",
+      "source": "CLAUDE",
+      "vi": "Ngày mai chúng tôi đi tham quan nhà máy."
+     }
+    ],
+    "expression": "けんがく<する>",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tham quan; kiến tập",
+    "mnemonic_vi": "見学 Hán Việt \"kiến học\": đến tận nơi xem (見) để học (学) = tham quan học tập.",
+    "reading": "けんがく<する>",
+    "romaji": "kengaku<suru>",
+    "topic_vi": "Học tập",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm III"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4d1774d736"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私の会社は東京にあります。",
+       "ja_furigana": "私(わたし)の会社(かいしゃ)は東京(とうきょう)にあります。",
+       "vi": "Công ty tôi ở Tokyo."
+      }
+     ]
+    },
+    "note": "hai câu trùng ý; viết Kanji"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "công ty",
+    "examples": [
+     {
+      "ja": "わたしの かいしゃは とうきょうです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công ty của tôi ở Tokyo."
+     },
+     {
+      "ja": "私のかいしゃは東京にあります。",
+      "ja_furigana": "私(わたし)のかいしゃは東京(とうきょう)にあります。",
+      "source": "CLAUDE",
+      "vi": "Công ty tôi ở Tokyo."
+     }
+    ],
+    "expression": "会社",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "công ty",
+    "mnemonic_vi": "会社 Hán Việt \"hội xã\": かい \"hội\" + しゃ \"xã\" = công ty.",
+    "reading": "かいしゃ",
+    "romaji": "kaisha",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [
+     "かいしゃ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-efa57a5f7c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "すみません、銀行はどこですか。",
+       "ja_furigana": "すみません、銀行(ぎんこう)はどこですか。",
+       "vi": "Xin lỗi, ngân hàng ở đâu ạ?"
+      }
+     ]
+    },
+    "note": "viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ngân hàng",
+    "examples": [
+     {
+      "ja": "ぎんこうは どこですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngân hàng ở đâu?"
+     }
+    ],
+    "expression": "銀行",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "ngân hàng",
+    "mnemonic_vi": "銀 \"ngân\" (bạc) + 行 \"hàng\" = ngân hàng; ぎん nghe gần \"ngân\".",
+    "reading": "ぎんこう",
+    "romaji": "ginkou",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b682e6964c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母は病院で働いています。",
+       "ja_furigana": "母(はは)は病院(びょういん)で働(はたら)いています。",
+       "vi": "Mẹ tôi làm việc ở bệnh viện."
+      }
+     ]
+    },
+    "note": "giáo trình N5 viết 働く; ĐỀ XUẤT chữ 働く — chưa ghi vì bộ dựng đổi id mục Mirai khi sửa chữ/cách đọc và làm mất nội dung"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "làm việc",
+    "examples": [
+     {
+      "ja": "母はびょういんではたらいています。",
+      "ja_furigana": "母(はは)はびょういんではたらいています。",
+      "source": "CLAUDE",
+      "vi": "Mẹ tôi làm việc ở bệnh viện."
+     }
+    ],
+    "expression": "はたらく",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "làm việc",
+    "mnemonic_vi": "働く: người 亻 + 動 \"động\" = con người hoạt động, tức là làm việc.",
+    "reading": "はたらく",
+    "romaji": "hataraku",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-93b6b0033c"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-1d22b88a73"
+    ],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "明日は会社を休みます。",
+      "ja_furigana": "明日(あした)は会社(かいしゃ)を休(やす)みます。",
+      "source": "CLAUDE",
+      "vi": "Ngày mai tôi nghỉ làm."
+     }
+    ],
+    "expression": "休む",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nghỉ làm; nghỉ học; nghỉ ngơi",
+    "mnemonic_vi": "休 \"hưu\" (nghỉ hưu): người 亻 tựa vào cây 木 để nghỉ. Đừng lẫn với 体 (cơ thể) có 本 thay cho 木.",
+    "reading": "やすむ",
+    "romaji": "yasumu",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-fad458aebb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "休みは土曜日と日曜日です。",
+       "ja_furigana": "休(やす)みは土曜日(どようび)と日曜日(にちようび)です。",
+       "vi": "Ngày nghỉ là thứ Bảy và Chủ nhật."
+      }
+     ]
+    },
+    "note": "viết Kanji thông dụng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ngày nghỉ, giờ nghỉ",
+    "examples": [
+     {
+      "ja": "やすみは どようびから にちようびまで です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngày nghỉ từ thứ Bảy đến Chủ nhật."
+     }
+    ],
+    "expression": "休み",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "ngày nghỉ; giờ nghỉ",
+    "mnemonic_vi": "Danh từ của 休む: やすみ = ngày nghỉ, giờ nghỉ; chữ 休 \"hưu\" là người tựa gốc cây nghỉ ngơi.",
+    "reading": "やすみ",
+    "romaji": "yasumi",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-20fada4edd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "昼休みに昼ごはんを食べます。",
+       "ja_furigana": "昼休(ひるやす)みに昼(ひる)ごはんを食(た)べます。",
+       "vi": "Tôi ăn trưa vào giờ nghỉ trưa."
+      }
+     ]
+    },
+    "note": "bỏ câu toàn kana"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "giờ nghỉ trưa",
+    "examples": [
+     {
+      "ja": "ひるやすみは じゅうにじ です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giờ nghỉ trưa là 12 giờ."
+     },
+     {
+      "ja": "昼休みに昼ごはんを食べます。",
+      "ja_furigana": "昼休(ひるやす)みに昼(ひる)ごはんを食(た)べます。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi ăn trưa vào giờ nghỉ trưa."
+     }
+    ],
+    "expression": "昼休み",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "giờ nghỉ trưa; nghỉ trưa",
+    "mnemonic_vi": "昼 \"trú\" (ban trưa) + 休み (nghỉ) = giờ nghỉ trưa.",
+    "reading": "ひるやすみ",
+    "romaji": "hiruyasumi",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a741731ca8"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "ひまな時、何をしますか。",
+      "ja_furigana": "ひまな時(とき)、何(なに)をしますか。",
+      "source": "CLAUDE",
+      "vi": "Lúc rảnh bạn làm gì?"
+     }
+    ],
+    "expression": "ひまな",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "rảnh; rảnh rỗi",
+    "mnemonic_vi": "暇 \"hạ\" như \"nhàn hạ\": ひまな = rảnh rỗi. \"Hi-ma\" như tiếng cười \"hí ha\" lúc rảnh.",
+    "reading": "ひまな",
+    "romaji": "himana",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-147923e812"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "bận; bận rộn",
+     "examples": [
+      {
+       "ja": "今日は仕事がいそがしいです。",
+       "ja_furigana": "今日(きょう)は仕事(しごと)がいそがしいです。",
+       "vi": "Hôm nay công việc bận rộn."
+      }
+     ]
+    },
+    "note": "\"bận (nói thân)\" lặp; câu cũ gượng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bận",
+    "examples": [
+     {
+      "ja": "いそがしい きんようびは おそく かえりますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vào thứ Sáu bận rộn, bạn có về nhà muộn không?"
+     },
+     {
+      "ja": "きょうは いそがしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay bận."
+     }
+    ],
+    "expression": "忙しい",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "bận; bận (nói thân)",
+    "mnemonic_vi": "忙しい có 忙 \"mang\": 忄 (lòng) + 亡 (mất), bận đến mức như mất cả tâm trí.",
+    "reading": "いそがしい",
+    "romaji": "isogashii",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [
+     "いそがしい"
+    ],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c2c3b7b92d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "金曜日は夜九時までざんぎょうしました。",
+       "ja_furigana": "金曜日(きんようび)は夜(よる)九時(くじ)までざんぎょうしました。",
+       "vi": "Thứ Sáu tôi làm thêm đến 9 giờ tối."
+      }
+     ]
+    },
+    "note": "câu trùng nguồn ngoài (MIRAI_SIMILAR) → viết lại; ＜する＞ làm romaji hỏng; ĐỀ XUẤT chữ 残業する, đọc ざんぎょうする — chưa ghi vì bộ dựng đổi id mục Mirai khi sửa chữ/cách đọc và làm mất nội dung"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "きょうは8時までざんぎょうします。",
+      "ja_furigana": "きょうは8時(じ)までざんぎょうします。",
+      "source": "CLAUDE",
+      "vi": "Hôm nay tôi làm thêm giờ đến 8 giờ."
+     }
+    ],
+    "expression": "残業＜する＞",
+    "findings": [
+     "MIRAI_SIMILAR: example #1"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "làm thêm giờ; tăng ca",
+    "mnemonic_vi": "残業 Hán Việt \"tàn nghiệp\": phần việc (業) còn sót lại (残) = làm thêm giờ.",
+    "reading": "ざんぎょう＜する＞",
+    "romaji": "zangyou<suru>",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [
+     "ざんぎょう＜する＞"
+    ],
+    "word_type_label": "động từ nhóm III"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-5a9ceb6a1e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "来週、大阪へ出張します。",
+       "ja_furigana": "来週(らいしゅう)、大阪(おおさか)へ出張(しゅっちょう)します。",
+       "vi": "Tuần sau tôi đi công tác Osaka."
+      }
+     ]
+    },
+    "note": "＜する＞ làm romaji hỏng; viết 出張; ĐỀ XUẤT chữ 出張する, đọc しゅっちょうする — chưa ghi vì bộ dựng đổi id mục Mirai khi sửa chữ/cách đọc và làm mất nội dung"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "来週、大阪へしゅっちょうします。",
+      "ja_furigana": "来週(らいしゅう)、大阪(おおさか)へしゅっちょうします。",
+      "source": "CLAUDE",
+      "vi": "Tuần sau tôi đi công tác Osaka."
+     }
+    ],
+    "expression": "出張＜する＞",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đi công tác",
+    "mnemonic_vi": "出 \"xuất\" (ra đi) + 張 \"trương\" (mở rộng): đi ra ngoài để mở rộng việc = đi công tác.",
+    "reading": "しゅっちょう＜する＞",
+    "romaji": "shutchou<suru>",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm III"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-96df0674fe"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "văn phòng làm việc",
+    "examples": [
+     {
+      "ja": "じむしょは どこですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Văn phòng làm việc ở đâu?"
+     },
+     {
+      "ja": "事務所は３階です。",
+      "ja_furigana": "事務所(じむしょ)は３階(かい)です。",
+      "source": "VNJPCLUB",
+      "vi": "Văn phòng thì ở tầng 3."
+     }
+    ],
+    "expression": "事務所",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "văn phòng làm việc; văn phòng",
+    "mnemonic_vi": "事務所 Hán Việt \"sự vụ sở\": nơi (所) làm các việc giấy tờ (事務) = văn phòng.",
+    "reading": "じむしょ",
+    "romaji": "jimusho",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [
+     "じむしょ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-cd3584a439"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私の町には大きい工場があります。",
+       "ja_furigana": "私(わたし)の町(まち)には大(おお)きい工場(こうじょう)があります。",
+       "vi": "Ở thị trấn của tôi có một nhà máy lớn."
+      }
+     ]
+    },
+    "note": "bỏ câu thể sai khiến (N4); biến thể \"こうじょ\" là lỗi gõ"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nhà xưởng",
+    "examples": [
+     {
+      "ja": "しんじんを こうじょうに いかせます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi cử người mới đi đến nhà xưởng."
+     },
+     {
+      "ja": "私の町には大きいこうじょうがあります。",
+      "ja_furigana": "私(わたし)の町(まち)には大(おお)きいこうじょうがあります。",
+      "source": "CLAUDE",
+      "vi": "Ở thị trấn của tôi có một nhà máy lớn."
+     }
+    ],
+    "expression": "工場",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nhà xưởng; nhà máy",
+    "mnemonic_vi": "工場 Hán Việt \"công trường\": こう \"công\" + じょう \"trường\" = nhà máy, xưởng.",
+    "reading": "こうじょう",
+    "romaji": "koujou",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [
+     "こうじょ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3b09c4c921"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "受付はどこですか。",
+       "ja_furigana": "受付(うけつけ)はどこですか。",
+       "vi": "Quầy tiếp tân ở đâu?"
+      },
+      {
+       "ja": "受付はあちらです。",
+       "ja_furigana": "受付(うけつけ)はあちらです。",
+       "vi": "Quầy lễ tân ở đằng kia."
+      }
+     ]
+    },
+    "note": "bỏ câu 〜なければなりません (N4)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "quầy tiếp tân",
+    "examples": [
+     {
+      "ja": "うけつけは どこですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quầy tiếp tân ở đâu?"
+     },
+     {
+      "ja": "うけつけへ いかなければ なりません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phải đi đến quầy tiếp nhận."
+     },
+     {
+      "ja": "受付はあちらです。",
+      "ja_furigana": "受付(うけつけ)はあちらです。",
+      "source": "VNJPCLUB",
+      "vi": "Quầy lễ tân thì ở đằng kia."
+     }
+    ],
+    "expression": "受付",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "quầy tiếp tân; quầy tiếp đón; quầy tiếp nhận",
+    "mnemonic_vi": "受付 Hán Việt \"thụ phó\": nơi tiếp nhận (受ける = nhận) khách = quầy lễ tân.",
+    "reading": "うけつけ",
+    "romaji": "uketsuke",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [
+     "うけつけ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3a3027e3e4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会議は何時からですか。",
+       "ja_furigana": "会議(かいぎ)は何時(なんじ)からですか。",
+       "vi": "Cuộc họp bắt đầu lúc mấy giờ?"
+      },
+      {
+       "ja": "午後2時から会議があります。",
+       "ja_furigana": "午後(ごご)2時(じ)から会議(かいぎ)があります。",
+       "vi": "Từ 2 giờ chiều có cuộc họp."
+      }
+     ]
+    },
+    "note": "viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cuộc họp",
+    "examples": [
+     {
+      "ja": "かいぎは なんじ ですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuộc họp là mấy giờ?"
+     },
+     {
+      "ja": "午後2時からかいぎがあります。",
+      "ja_furigana": "午後(ごご)2時(じ)からかいぎがあります。",
+      "source": "CLAUDE",
+      "vi": "Từ 2 giờ chiều có cuộc họp."
+     }
+    ],
+    "expression": "会議",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cuộc họp; họp",
+    "mnemonic_vi": "会議 Hán Việt \"hội nghị\": かい \"hội\" + ぎ \"nghị\" = cuộc họp.",
+    "reading": "かいぎ",
+    "romaji": "kaigi",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [
+     "かいぎ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-34cde18001"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会議室で会議をします。",
+       "ja_furigana": "会議室(かいぎしつ)で会議(かいぎ)をします。",
+       "vi": "Họp ở phòng họp."
+      },
+      {
+       "ja": "会議室はこのへやのとなりです。",
+       "ja_furigana": "会議室(かいぎしつ)はこのへやのとなりです。",
+       "vi": "Phòng họp ở ngay cạnh phòng này."
+      }
+     ]
+    },
+    "note": "viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "phòng họp",
+    "examples": [
+     {
+      "ja": "かいぎしつは どこですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phòng họp ở đâu?"
+     },
+     {
+      "ja": "会議室で会議をします。",
+      "ja_furigana": "会議室(かいぎしつ)で会議(かいぎ)をします。",
+      "source": "VNJPCLUB",
+      "vi": "Họp ở phòng họp."
+     },
+     {
+      "ja": "かいぎしつはこのへやのとなりです。",
+      "ja_furigana": "かいぎしつはこのへやのとなりです。",
+      "source": "CLAUDE",
+      "vi": "Phòng họp ở ngay cạnh phòng này."
+     }
+    ],
+    "expression": "会議室",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "phòng họp",
+    "mnemonic_vi": "会議 \"hội nghị\" + 室 \"thất\" (phòng) = phòng họp.",
+    "reading": "かいぎしつ",
+    "romaji": "kaigishitsu",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [
+     "かいぎしつ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0bdc7a6ab8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この電話は新しいです。",
+       "ja_furigana": "この電話(でんわ)は新(あたら)しいです。",
+       "vi": "Chiếc điện thoại này mới."
+      }
+     ]
+    },
+    "note": "viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "điện thoại",
+    "examples": [
+     {
+      "ja": "この でんわは あたらしい です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chiếc điện thoại này mới."
+     }
+    ],
+    "expression": "電話",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "điện thoại",
+    "mnemonic_vi": "電 \"điện\" + 話 \"thoại\" = điện thoại; でん \"điện\", わ \"thoại\".",
+    "reading": "でんわ",
+    "romaji": "denwa",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7343b06897"
+  },
+  {
+   "answer": {
+    "ok": true,
+    "note": "ngoặc （）trong chữ/cách đọc làm romaji hỏng; ĐỀ XUẤT chữ 電話をかける, đọc でんわをかける — chưa ghi vì bộ dựng đổi id mục Mirai khi sửa chữ/cách đọc và làm mất nội dung"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "母に電話をかけます。",
+      "ja_furigana": "母(はは)に電話(でんわ)をかけます。",
+      "source": "CLAUDE",
+      "vi": "Tôi gọi điện cho mẹ."
+     }
+    ],
+    "expression": "（電話を）かける",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "gọi điện; quay số",
+    "mnemonic_vi": "電話を かける = gọi điện: かける là \"treo, nối\", như nối sợi dây giữa hai người.",
+    "reading": "（でんわを）かける",
+    "romaji": "(denwao)kakeru",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-edaf1a1c55"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Alo",
+    "examples": [
+     {
+      "ja": "もしもし、やまださんですか。",
+      "ja_furigana": "もしもし、やまださんですか。",
+      "source": "CLAUDE",
+      "vi": "A lô, anh Yamada phải không ạ?"
+     }
+    ],
+    "expression": "もしもし",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "alo",
+    "mnemonic_vi": "もしもし = alô; nhấc máy là nói hai lần \"mô-shi mô-shi\".",
+    "reading": "もしもし",
+    "romaji": "moshimoshi",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "thán từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f6822f4b85"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "số máy; số để gọi điện"
+    },
+    "note": "nghĩa gượng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "電話番号を教えてください。",
+      "ja_furigana": "電話番号(でんわばんごう)を教(おし)えてください。",
+      "source": "CLAUDE",
+      "vi": "Hãy cho tôi biết số điện thoại của bạn."
+     }
+    ],
+    "expression": "電話番号",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "số để gọi điện",
+    "mnemonic_vi": "電話 \"điện thoại\" + 番号 \"phiên hiệu\" (con số) = số điện thoại.",
+    "reading": "でんわばんごう",
+    "romaji": "denwabangou",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-eba33bdbca"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "やまださんの住所を知っていますか。",
+       "ja_furigana": "やまださんの住所(じゅうしょ)を知(し)っていますか。",
+       "vi": "Bạn có biết địa chỉ của anh Yamada không?"
+      }
+     ]
+    },
+    "note": "giáo trình N5 viết 知る; ĐỀ XUẤT chữ 知る — chưa ghi vì bộ dựng đổi id mục Mirai khi sửa chữ/cách đọc và làm mất nội dung"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "biết",
+    "examples": [
+     {
+      "ja": "やまださんのじゅうしょをしっていますか。",
+      "ja_furigana": "やまださんのじゅうしょをしっていますか。",
+      "source": "CLAUDE",
+      "vi": "Bạn có biết địa chỉ của anh Yamada không?"
+     }
+    ],
+    "expression": "しる",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "biết",
+    "mnemonic_vi": "知る có 知 \"tri\" (tri thức): しる = biết. Chú ý: \"biết\" nói しっています, \"không biết\" là しりません.",
+    "reading": "しる",
+    "romaji": "shiru",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [
+     "知る"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-52f5a63d2d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あなたの電話番号は何番ですか。",
+       "ja_furigana": "あなたの電話番号(でんわばんごう)は何番(なんばん)ですか。",
+       "vi": "Số điện thoại của bạn là số mấy?"
+      }
+     ]
+    },
+    "note": "viết Kanji; ĐỀ XUẤT chữ 何番 — chưa ghi vì bộ dựng đổi id mục Mirai khi sửa chữ/cách đọc và làm mất nội dung"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "あなたの電話番号は何ばんですか。",
+      "ja_furigana": "あなたの電話番号(でんわばんごう)は何(なん)ばんですか。",
+      "source": "CLAUDE",
+      "vi": "Số điện thoại của bạn là số mấy?"
+     }
+    ],
+    "expression": "何ばん",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "số mấy; số bao nhiêu",
+    "mnemonic_vi": "何 (mấy) + 番 \"phiên\" (số thứ tự): なんばん = số mấy; hỏi số điện thoại, số phòng.",
+    "reading": "なんばん",
+    "romaji": "nanban",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ce627589dd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母はピアノを教えています。",
+       "ja_furigana": "母(はは)はピアノを教(おし)えています。",
+       "vi": "Mẹ tôi dạy đàn piano."
+      }
+     ]
+    },
+    "note": "giáo trình N5 viết 教える; ĐỀ XUẤT chữ 教える — chưa ghi vì bộ dựng đổi id mục Mirai khi sửa chữ/cách đọc và làm mất nội dung"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chỉ, dạy, đào tạo",
+    "examples": [
+     {
+      "ja": "母はピアノをおしえています。",
+      "ja_furigana": "母(はは)はピアノをおしえています。",
+      "source": "CLAUDE",
+      "vi": "Mẹ tôi dạy đàn piano."
+     }
+    ],
+    "expression": "おしえる",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "chỉ; dạy; đào tạo",
+    "mnemonic_vi": "教える có 教 \"giáo\" (giáo viên): おしえる = dạy, chỉ cho người khác.",
+    "reading": "おしえる",
+    "romaji": "oshieru",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [
+     "教える"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-135869207c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "giúp; giúp đỡ; phụ giúp",
+     "examples": [
+      {
+       "ja": "母の料理を手伝います。",
+       "ja_furigana": "母(はは)の料理(りょうり)を手伝(てつだ)います。",
+       "vi": "Tôi phụ mẹ nấu ăn."
+      }
+     ]
+    },
+    "note": "\"cứu giúp\" lệch nghĩa; ひっこし trên N5"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "giúp",
+    "examples": [
+     {
+      "ja": "友だちのひっこしをてつだいます。",
+      "ja_furigana": "友(とも)だちのひっこしをてつだいます。",
+      "source": "CLAUDE",
+      "vi": "Tôi giúp bạn chuyển nhà."
+     }
+    ],
+    "expression": "手伝う",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "giúp đỡ; cứu giúp; phụ giúp",
+    "mnemonic_vi": "手伝う: 手 \"thủ\" (tay) + 伝 \"truyền\": đưa tay truyền sức cho người khác = giúp đỡ.",
+    "reading": "てつだう",
+    "romaji": "tetsudau",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [
+     "てつだう"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6dcb5877ef"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "làm; chế tạo; nấu (món ăn)",
+     "examples": [
+      {
+       "ja": "母は毎晩料理を作ります。",
+       "ja_furigana": "母(はは)は毎晩(まいばん)料理(りょうり)を作(つく)ります。",
+       "vi": "Tối nào mẹ tôi cũng nấu ăn."
+      },
+      {
+       "ja": "日曜日にケーキを作ります。",
+       "ja_furigana": "日曜日(にちようび)にケーキを作(つく)ります。",
+       "vi": "Chủ nhật tôi làm bánh ngọt."
+      }
+     ]
+    },
+    "note": "nghĩa chính trước; ことができる (N4); biến thể \"作る/造る\" lỗi khuôn"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nấu, làm",
+    "examples": [
+     {
+      "ja": "りょうりを つくる ことが できます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi có thể nấu ăn."
+     },
+     {
+      "ja": "日曜日にケーキをつくります。",
+      "ja_furigana": "日曜日(にちようび)にケーキをつくります。",
+      "source": "CLAUDE",
+      "vi": "Chủ nhật tôi làm bánh ngọt."
+     }
+    ],
+    "expression": "作る",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nấu; làm; tạo ra",
+    "mnemonic_vi": "作る có 作 \"tác\" (tác phẩm): つくる = làm ra, chế tạo, nấu món ăn.",
+    "reading": "つくる",
+    "romaji": "tsukuru",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [
+     "つくる",
+     "作る/造る",
+     "造る"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1c0476f473"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この本はとても役に立ちます。",
+       "ja_furigana": "この本(ほん)はとても役(やく)に立(た)ちます。",
+       "vi": "Cuốn sách này rất có ích."
+      },
+      {
+       "ja": "この辞書は勉強に役に立ちます。",
+       "ja_furigana": "この辞書(じしょ)は勉強(べんきょう)に役(やく)に立(た)ちます。",
+       "vi": "Cuốn từ điển này có ích cho việc học."
+      }
+     ]
+    },
+    "note": "câu VNJPCLUB dùng 将来/〜たい quá cấp"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Có ích, có tác dụng",
+    "examples": [
+     {
+      "ja": "将来は、人の役に立つ仕事がしたい。",
+      "ja_furigana": "将来(しょうらい)は、人(ひと)の役(やく)に立(た)つ仕事(しごと)がしたい。",
+      "source": "VNJPCLUB",
+      "vi": "Trong tương lai tôi muốn làm công việc có ích cho mọi người."
+     },
+     {
+      "ja": "この本はとてもやくにたちます。",
+      "ja_furigana": "この本(ほん)はとてもやくにたちます。",
+      "source": "CLAUDE",
+      "vi": "Cuốn sách này rất có ích."
+     }
+    ],
+    "expression": "役に立つ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "có ích; hữu ích; có tác dụng",
+    "mnemonic_vi": "役に立つ: 役 \"dịch\" (vai trò) + 立つ (đứng): đứng đúng vai trò của mình = có ích.",
+    "reading": "やくにたつ",
+    "romaji": "yakunitatsu",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [
+     "やくにたつ"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-48fac3b736"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お仕事は何ですか。",
+       "ja_furigana": "お仕事(しごと)は何(なん)ですか。",
+       "vi": "Anh làm nghề gì?"
+      },
+      {
+       "ja": "毎日六時まで仕事をします。",
+       "ja_furigana": "毎日(まいにち)六時(ろくじ)まで仕事(しごと)をします。",
+       "vi": "Ngày nào tôi cũng làm việc đến 6 giờ."
+      }
+     ]
+    },
+    "note": "viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "công việc, nghề",
+    "examples": [
+     {
+      "ja": "おしごとは なんですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh làm nghề gì?"
+     },
+     {
+      "ja": "あなたのしごとは何ですか。",
+      "ja_furigana": "あなたのしごとは何(なん)ですか。",
+      "source": "CLAUDE",
+      "vi": "Công việc của bạn là gì?"
+     }
+    ],
+    "expression": "仕事",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "công việc; nghề; việc làm",
+    "mnemonic_vi": "仕事 Hán Việt \"sĩ sự\": việc (事) mình phải làm (仕) = công việc.",
+    "reading": "しごと",
+    "romaji": "shigoto",
+    "topic_vi": "Công việc",
+    "twins": [],
+    "variants": [
+     "しごと"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-90b610338d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "兄は会社員で、毎日いそがしいです。",
+       "ja_furigana": "兄(あに)は会社員(かいしゃいん)で、毎日(まいにち)いそがしいです。",
+       "vi": "Anh trai tôi là nhân viên công ty, ngày nào cũng bận."
+      }
+     ]
+    },
+    "note": "câu trùng nguồn ngoài (MIRAI_SIMILAR) → viết lại"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nhân viên công ty",
+    "examples": [
+     {
+      "ja": "ちちは かいしゃいんです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bố tôi là nhân viên công ty."
+     },
+     {
+      "ja": "兄はかいしゃいんです。",
+      "ja_furigana": "兄(あに)はかいしゃいんです。",
+      "source": "CLAUDE",
+      "vi": "Anh trai tôi là nhân viên công ty."
+     }
+    ],
+    "expression": "会社員",
+    "findings": [
+     "MIRAI_SIMILAR: example #1"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "nhân viên công ty",
+    "mnemonic_vi": "会社 \"hội xã\" + 員 \"viên\" = nhân viên công ty.",
+    "reading": "かいしゃいん",
+    "romaji": "kaishain",
+    "topic_vi": "Công việc",
+    "twins": [],
+    "variants": [
+     "かいしゃいん"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3880cfe06d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "姉は銀行員です。",
+       "ja_furigana": "姉(あね)は銀行員(ぎんこういん)です。",
+       "vi": "Chị tôi là nhân viên ngân hàng."
+      }
+     ]
+    },
+    "note": "viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nhân viên ngân hàng",
+    "examples": [
+     {
+      "ja": "あねは ぎんこういんです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chị tôi là nhân viên ngân hàng."
+     }
+    ],
+    "expression": "銀行員",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nhân viên ngân hàng",
+    "mnemonic_vi": "銀行 \"ngân hàng\" + 員 \"viên\" = nhân viên ngân hàng.",
+    "reading": "ぎんこういん",
+    "romaji": "ginkouin",
+    "topic_vi": "Công việc",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-163334da56"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お医者さん、ありがとうございました。",
+       "ja_furigana": "お医者(いしゃ)さん、ありがとうございました。",
+       "vi": "Cảm ơn bác sĩ ạ."
+      }
+     ]
+    },
+    "note": "viết Kanji như giáo trình; ĐỀ XUẤT chữ お医者さん — chưa ghi vì bộ dựng đổi id mục Mirai khi sửa chữ/cách đọc và làm mất nội dung"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "おいしゃさん、ありがとうございました。",
+      "ja_furigana": "おいしゃさん、ありがとうございました。",
+      "source": "CLAUDE",
+      "vi": "Cảm ơn bác sĩ ạ."
+     }
+    ],
+    "expression": "おいしゃさん",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "bác sĩ",
+    "mnemonic_vi": "医者 Hán Việt \"y giả\": người (者) làm nghề y (医) = bác sĩ; thêm お〜さん cho thân thiện.",
+    "reading": "おいしゃさん",
+    "romaji": "oishasan",
+    "topic_vi": "Công việc",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-502c09b150"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-09e1078964"
+    ],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "かんごしさんはとてもしんせつです。",
+      "ja_furigana": "かんごしさんはとてもしんせつです。",
+      "source": "CLAUDE",
+      "vi": "Cô y tá rất tốt bụng."
+     }
+    ],
+    "expression": "かんごしさん",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "y tá; điều dưỡng",
+    "mnemonic_vi": "看護師 Hán Việt \"khán hộ sư\": người trông nom (看) và che chở (護) bệnh nhân = y tá. Khác かいごし (người chăm sóc).",
+    "reading": "かんごしさん",
+    "romaji": "kangoshisan",
+    "topic_vi": "Công việc",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a2d4602ffc"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-a2d4602ffc",
+     "JV-44ac8fd2bf"
+    ],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "この病院にはかいごしさんが5人います。",
+      "ja_furigana": "この病院(びょういん)にはかいごしさんが5人(にん)います。",
+      "source": "CLAUDE",
+      "vi": "Bệnh viện này có 5 nhân viên chăm sóc người bệnh."
+     }
+    ],
+    "expression": "かいごしさん",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nhân viên chăm sóc người già; hộ lý",
+    "mnemonic_vi": "介護士 Hán Việt \"giới hộ sĩ\": người chăm sóc người già, người bệnh tại nhà hay viện dưỡng lão. Chỉ khác かんごし (y tá) ở かい/かん.",
+    "reading": "かいごしさん",
+    "romaji": "kaigoshisan",
+    "topic_vi": "Công việc",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-09e1078964"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N5",
+ "packet_id": "REVIEW_VOCAB-006"
+}

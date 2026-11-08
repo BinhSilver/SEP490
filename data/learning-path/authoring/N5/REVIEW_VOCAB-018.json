@@ -1,0 +1,1827 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {},
+    "note": "[đề xuất chữ hiển thị: 少々お待ちください。 — không ghi vào fix vì id mục sinh từ chữ, đổi chữ sẽ làm mất nội dung đã soạn] cụm thường viết 少々お待ちください (như mẹo nhớ)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "はい、しょうしょうお待ちください。",
+      "ja_furigana": "はい、しょうしょうお待(ま)ちください。",
+      "source": "CLAUDE",
+      "vi": "Vâng, xin quý khách vui lòng đợi một chút."
+     }
+    ],
+    "expression": "しょうしょうおまちください。",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "xin chờ trong giây lát",
+    "mnemonic_vi": "少々 \"thiểu thiểu\" (một chút) + お待ちください (xin đợi) = xin quý khách đợi một chút.",
+    "reading": "しょうしょうおまちください。",
+    "romaji": "shoushouomachikudasai。",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-851f098339"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "はい、カメラですね。どんなのをおさがしですか。",
+       "ja_furigana": null,
+       "vi": "Vâng, máy ảnh ạ. Quý khách đang tìm loại nào ạ?"
+      }
+     ]
+    },
+    "note": "câu cũ có 探 (trên N5) → viết kana; viết lại để không trùng câu Mirai"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "いらっしゃいませ。どんなカメラをお探しですか。",
+      "ja_furigana": "いらっしゃいませ。どんなカメラをお探(さが)しですか。",
+      "source": "CLAUDE",
+      "vi": "Xin chào quý khách. Quý khách đang tìm loại máy ảnh nào ạ?"
+     }
+    ],
+    "expression": "どんなカメラをおさがしですか。",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL: いらっしゃいませ。どんなカメラをお探しですか。 → 探"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "quý khách tìm máy ảnh loại nào ạ",
+    "mnemonic_vi": "どんな (như thế nào) + カメラ + おさがしですか = quý khách tìm loại máy ảnh nào ạ?",
+    "reading": "どんなかめらをおさがしですか。",
+    "romaji": "donnakameraoosagashidesuka。",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1aeac41e79"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "すみません、あのカメラを見せてください。",
+      "ja_furigana": "すみません、あのカメラを見(み)せてください。",
+      "source": "CLAUDE",
+      "vi": "Xin lỗi, cho tôi xem chiếc máy ảnh kia."
+     }
+    ],
+    "expression": "あのカメラを見せてください。",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "làm ơn cho tôi xem máy ảnh đằng kia",
+    "mnemonic_vi": "見せて ください = cho tôi xem: あのカメラ = cái máy ảnh ở đằng kia.",
+    "reading": "あのかめらをみせてください。",
+    "romaji": "anokameraomisetekudasai。",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-de4db5959d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ATMの使いかたを教えてください。",
+       "ja_furigana": "ATMの使(つか)いかたを教(おし)えてください。",
+       "vi": "Hãy chỉ cho tôi cách dùng máy ATM."
+      },
+      {
+       "ja": "この漢字の読みかたがわかりません。",
+       "ja_furigana": "この漢字(かんじ)の読(よ)みかたがわかりません。",
+       "vi": "Tôi không biết cách đọc chữ Hán này."
+      }
+     ]
+    },
+    "note": "viết 使い bằng Kanji; thêm câu"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "ATMのつかいかたを教えてください。",
+      "ja_furigana": "ATMのつかいかたを教(おし)えてください。",
+      "source": "CLAUDE",
+      "vi": "Hãy chỉ cho tôi cách dùng máy ATM."
+     }
+    ],
+    "expression": "〜かた",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cách ~; cách làm ~",
+    "mnemonic_vi": "方 \"phương\" như \"phương pháp\": Vます + かた = cách làm: つかいかた = cách dùng.",
+    "reading": "〜かた",
+    "romaji": "〜kata",
+    "topic_vi": "Máy rút tiền tự động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ae3de945c7"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "おひきだしですか。こちらのATMをどうぞ。",
+      "ja_furigana": "おひきだしですか。こちらのATMをどうぞ。",
+      "source": "CLAUDE",
+      "vi": "Quý khách rút tiền phải không ạ? Mời dùng máy ATM này."
+     }
+    ],
+    "expression": "おひきだしですか。",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "quý khách muốn rút tiền phải không ạ",
+    "mnemonic_vi": "引き出す (kéo ra) nghĩa là rút tiền: おひきだしですか = quý khách rút tiền ạ?",
+    "reading": "おひきだしですか。",
+    "romaji": "ohikidashidesuka。",
+    "topic_vi": "Máy rút tiền tự động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-28d7d8d48f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "現金ではらいます。",
+       "ja_furigana": "現金(げんきん)ではらいます。",
+       "vi": "Tôi trả bằng tiền mặt."
+      },
+      {
+       "ja": "今日は現金がありませんから、カードを使います。",
+       "ja_furigana": "今日(きょう)は現金(げんきん)がありませんから、カードを使(つか)います。",
+       "vi": "Hôm nay tôi không có tiền mặt nên dùng thẻ."
+      }
+     ]
+    },
+    "note": "bỏ 2 câu sách tách chữ và câu có 割引 (trên N5)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tiền mặt",
+    "examples": [
+     {
+      "ja": "すこし げんきんを はらう ことが できます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có thể trả một ít tiền mặt."
+     },
+     {
+      "ja": "げんきんが ない ばあいは、カードを つかいます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu không có tiền mặt, tôi sẽ dùng thẻ."
+     },
+     {
+      "ja": "現金で払うと、5％割引になる。",
+      "ja_furigana": "現金(げんきん)で払(はら)うと、5％割引(わりびき)になる。",
+      "source": "VNJPCLUB",
+      "vi": "Nếu trả bằng tiền mặt thì sẽ được giảm giá 5%."
+     }
+    ],
+    "expression": "現金",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tiền mặt",
+    "mnemonic_vi": "現金 Hán Việt \"hiện kim\" = tiền mặt.",
+    "reading": "げんきん",
+    "romaji": "genkin",
+    "topic_vi": "Máy rút tiền tự động",
+    "twins": [],
+    "variants": [
+     "げんきん"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-836d892891"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "ATMでお金をおろしてから、買い物をします。",
+      "ja_furigana": "ATMでお金(かね)をおろしてから、買(か)い物(もの)をします。",
+      "source": "CLAUDE",
+      "vi": "Tôi rút tiền ở ATM rồi đi mua sắm."
+     }
+    ],
+    "expression": "ATM",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cây ATM; máy rút tiền",
+    "mnemonic_vi": "ATM đọc kiểu Nhật \"ē-tī-emu\" = máy rút tiền tự động.",
+    "reading": "エーティーエム",
+    "romaji": "eeteiiemu",
+    "topic_vi": "Máy rút tiền tự động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-89a09de9a7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "rút (tiền); hạ xuống",
+     "examples": [
+      {
+       "ja": "銀行でお金を下ろします。",
+       "ja_furigana": "銀行(ぎんこう)でお金(かね)を下(お)ろします。",
+       "vi": "Tôi rút tiền ở ngân hàng."
+      },
+      {
+       "ja": "ATMで一万円下ろしました。",
+       "ja_furigana": "ATMで一万円(いちまんえん)下(お)ろしました。",
+       "vi": "Tôi đã rút 10.000 yên ở ATM."
+      }
+     ]
+    },
+    "note": "nghĩa nguồn bị cắt \"cho xuống (tàu\"; chủ đề ATM: \"rút tiền\" lên đầu; câu viết đúng chữ của mục"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Hạ xuống, lấy xuống (từ trên cao)",
+    "examples": [
+     {
+      "ja": "銀行でお金をおろします。",
+      "ja_furigana": "銀行(ぎんこう)でお金(かね)をおろします。",
+      "source": "CLAUDE",
+      "vi": "Tôi rút tiền ở ngân hàng."
+     }
+    ],
+    "expression": "下ろす",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "hạ xuống; rút tiền; cho xuống (tàu",
+    "mnemonic_vi": "下ろす có 下 \"hạ\": おろす = rút tiền, như \"hạ\" tiền từ tài khoản xuống tay.",
+    "reading": "おろす",
+    "romaji": "orosu",
+    "topic_vi": "Máy rút tiền tự động",
+    "twins": [],
+    "variants": [
+     "おろす"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2c7601de64"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "まず、キャッシュカードを入れてください。",
+      "ja_furigana": "まず、キャッシュカードを入(い)れてください。",
+      "source": "CLAUDE",
+      "vi": "Trước tiên, hãy đưa thẻ rút tiền vào."
+     }
+    ],
+    "expression": "まず/キャッシュカード",
+    "findings": [
+     "EXAMPLE_KANA_ABOVE_LEVEL: まず、キャッシュカードを入れてください。 → キャッシュカード"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "trước tiên; thẻ rút tiền",
+    "mnemonic_vi": "まず = trước tiên; キャッシュカード = cash card, thẻ rút tiền: \"trước tiên đưa thẻ vào\".",
+    "reading": "まず/きゃっしゅかーど",
+    "romaji": "mazu/kyasshukaado",
+    "topic_vi": "Máy rút tiền tự động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c0393e2b78"
+  },
+  {
+   "answer": {
+    "fix": {},
+    "note": "[đề xuất chữ hiển thị: つぎに/あんしょうばんごう, đọc つぎに/あんしょうばんごう — không ghi vào fix vì id mục sinh từ chữ, đổi chữ sẽ làm mất nội dung đã soạn] chữ/cách đọc nguồn chứa ngoặc \"[あんしょう]\" (romaji tsugini/[anshou]bangou)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "つぎに、カードのあんしょうばんごうを入れます。",
+      "ja_furigana": "つぎに、カードのあんしょうばんごうを入(い)れます。",
+      "source": "CLAUDE",
+      "vi": "Tiếp theo, nhập mã số bí mật của thẻ."
+     }
+    ],
+    "expression": "つぎに/[あんしょう]ばんごう",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tiếp theo; mã số bí mật",
+    "mnemonic_vi": "つぎに = tiếp theo; 暗証番号 \"ám chứng phiên hiệu\" = mã số bí mật (PIN).",
+    "reading": "つぎに/[あんしょう]ばんごう",
+    "romaji": "tsugini/[anshou]bangou",
+    "topic_vi": "Máy rút tiền tự động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-11b9133f39"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "それから、このボタンをおしてください。",
+      "ja_furigana": "それから、このボタンをおしてください。",
+      "source": "CLAUDE",
+      "vi": "Sau đó, hãy bấm nút này."
+     }
+    ],
+    "expression": "おす/それから",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "ấn; sau đó",
+    "mnemonic_vi": "押す (おす) = ấn, bấm nút; それから = sau đó. Nhớ おす như \"ấn\" thật mạnh.",
+    "reading": "おす/それから",
+    "romaji": "osu/sorekara",
+    "topic_vi": "Máy rút tiền tự động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0d58e1b377"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "きんがくをかくにんして、ボタンをおします。",
+      "ja_furigana": "きんがくをかくにんして、ボタンをおします。",
+      "source": "CLAUDE",
+      "vi": "Kiểm tra số tiền rồi bấm nút."
+     }
+    ],
+    "expression": "きんがく / かくにん<する> / ボタン",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "số tiền; xác nhận; nút bấm",
+    "mnemonic_vi": "金額 \"kim ngạch\" = số tiền; 確認 \"xác nhận\"; ボタン = nút bấm: xác nhận số tiền rồi bấm nút.",
+    "reading": "きんがく / かくにん<する> / ボタン",
+    "romaji": "kingaku / kakunin<suru> / botan",
+    "topic_vi": "Máy rút tiền tự động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ecc765c28c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "ra; đi ra; khởi hành",
+     "examples": [
+      {
+       "ja": "ATMからお金が出ません。",
+       "ja_furigana": "ATMからお金(かね)が出(で)ません。",
+       "vi": "Máy ATM không ra tiền."
+      },
+      {
+       "ja": "毎朝七時に家を出ます。",
+       "ja_furigana": "毎朝(まいあさ)七時(しちじ)に家(いえ)を出(で)ます。",
+       "vi": "Sáng nào tôi cũng ra khỏi nhà lúc 7 giờ."
+      }
+     ]
+    },
+    "note": "nghĩa chính \"ra\" lên đầu, bỏ nghĩa lệch \"có kết quả...\"; câu sách dùng 〜ところ (trên N5)"
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-24ba78dfbc"
+    ],
+    "dictionary_meaning": "rời đi, khởi hành",
+    "examples": [
+     {
+      "ja": "これから でんしゃが でる ところです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tàu điện sắp sửa chạy từ bây giờ."
+     }
+    ],
+    "expression": "出る",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "rời đi; khởi hành; có kết quả hoặc kết luận xuất hiện",
+    "mnemonic_vi": "出 \"xuất\" (xuất phát): でる = ra, đi ra (tự động từ). Khác 出す (だす) là đưa ra, gửi đi.",
+    "reading": "でる",
+    "romaji": "deru",
+    "topic_vi": "Máy rút tiền tự động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-12337f348a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "mnemonic_vi": "変える có 変 \"biến\" (biến đổi): かえる = thay đổi, đổi (tiền, chỗ ngồi, kế hoạch)."
+    },
+    "note": "mẹo nhớ nguồn nhắc đồng âm 帰る và \"con ếch\" → viết theo đúng nghĩa thay đổi; ví dụ khóa dùng 替える/代える/換える (thiếu furigana)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đổi",
+    "examples": [
+     {
+      "ja": "古い電池を新しい物に替える。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi thay pin cũ bằng pin mới."
+     },
+     {
+      "ja": "古い机を新しい机に代える。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi thay bàn cũ bằng bàn mới."
+     },
+     {
+      "ja": "円をドルに換える。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đổi yên sang đô la."
+     }
+    ],
+    "expression": "変える",
+    "findings": [
+     "FURIGANA_MISSING: 古い電池を新しい物に替える。",
+     "FURIGANA_MISSING: 古い机を新しい机に代える。",
+     "FURIGANA_MISSING: 円をドルに換える。"
+    ],
+    "locked_fields": [
+     "examples"
+    ],
+    "meaning_vi": "thay đổi; đổi; đổi vật này lấy vật khác",
+    "mnemonic_vi": "かえる viết 帰る \"quy\" = trở về; viết 変える/換える thì là thay đổi, đổi. Nhớ con ếch (かえる) nhảy về ao.",
+    "reading": "かえる",
+    "romaji": "kaeru",
+    "topic_vi": "Máy rút tiền tự động",
+    "twins": [],
+    "variants": [
+     "かえる",
+     "代える",
+     "換える",
+     "替える"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3d4c1c2e76"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "郵便局で荷物を出します。",
+       "ja_furigana": "郵便局(ゆうびんきょく)で荷物(にもつ)を出(だ)します。",
+       "vi": "Tôi gửi hàng ở bưu điện."
+      },
+      {
+       "ja": "郵便局は駅の前にあります。",
+       "ja_furigana": "郵便局(ゆうびんきょく)は駅(えき)の前(まえ)にあります。",
+       "vi": "Bưu điện ở trước nhà ga."
+      }
+     ]
+    },
+    "note": "câu viết đúng chữ của mục (郵便局); thay câu sách (kana tách chữ, quá đơn) bằng câu tự viết, Kanji N5 thông dụng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bưu điện",
+    "examples": [
+     {
+      "ja": "ゆうびんきょくは どこですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bưu điện ở đâu?"
+     },
+     {
+      "ja": "ゆうびんきょくで切手を買います。",
+      "ja_furigana": "ゆうびんきょくで切手(きって)を買(か)います。",
+      "source": "CLAUDE",
+      "vi": "Tôi mua tem ở bưu điện."
+     }
+    ],
+    "expression": "郵便局",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "bưu điện",
+    "mnemonic_vi": "郵便局 Hán Việt \"bưu tiện cục\" = bưu điện.",
+    "reading": "ゆうびんきょく",
+    "romaji": "yuubinkyoku",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [
+     "ゆうびんきょく"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-49fce5e988"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "手紙をポストに入れました。",
+      "ja_furigana": "手紙(てがみ)をポストに入(い)れました。",
+      "source": "CLAUDE",
+      "vi": "Tôi đã bỏ thư vào hòm thư."
+     }
+    ],
+    "expression": "ポスト",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "hộp thư; thùng thư; hòm thư",
+    "mnemonic_vi": "ポスト = post, thùng thư bên đường.",
+    "reading": "ぽすと",
+    "romaji": "posuto",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6b03351f35"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "喫茶店で手紙を書きます。",
+       "ja_furigana": "喫茶店(きっさてん)で手紙(てがみ)を書(か)きます。",
+       "vi": "Tôi viết thư ở quán cà phê."
+      },
+      {
+       "ja": "母に手紙を書きました。",
+       "ja_furigana": "母(はは)に手紙(てがみ)を書(か)きました。",
+       "vi": "Tôi đã viết thư cho mẹ."
+      }
+     ]
+    },
+    "note": "thay câu sách (kana tách chữ, quá đơn) bằng câu tự viết, Kanji N5 thông dụng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lá thư",
+    "examples": [
+     {
+      "ja": "きっさてんで てがみを かきます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi viết thư ở quán cà phê."
+     }
+    ],
+    "expression": "手紙",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "lá thư; thư (viết tay)",
+    "mnemonic_vi": "手紙 Hán Việt \"thủ chỉ\": tờ giấy (紙) viết tay (手) = lá thư.",
+    "reading": "てがみ",
+    "romaji": "tegami",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [
+     "てがみ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-466fb980f0"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bưu thiếp",
+    "examples": [
+     {
+      "ja": "友だちにはがきを書きました。",
+      "ja_furigana": "友(とも)だちにはがきを書(か)きました。",
+      "source": "CLAUDE",
+      "vi": "Tôi đã viết bưu thiếp cho bạn."
+     }
+    ],
+    "expression": "はがき",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "bưu thiếp",
+    "mnemonic_vi": "葉書 Hán Việt \"diệp thư\": thư viết trên tấm \"lá\" (葉) = bưu thiếp.",
+    "reading": "はがき",
+    "romaji": "hagaki",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c31aaa3892"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thiệp mừng năm mới",
+    "examples": [
+     {
+      "ja": "祖母に年賀状を送った。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi gửi thiệp năm mới cho bà."
+     },
+     {
+      "ja": "毎年、年賀状を100枚だす。",
+      "ja_furigana": "毎年(まいとし)、年賀状(ねんがじょう)を100枚(まい)だす。",
+      "source": "VNJPCLUB",
+      "vi": "Hằng năm tôi đã gửi 100 thiệp chúc tết."
+     },
+     {
+      "ja": "12月に年賀状を書きます。",
+      "ja_furigana": "12月(じゅうにがつ)に年賀状(ねんがじょう)を書(か)きます。",
+      "source": "CLAUDE",
+      "vi": "Tháng 12 tôi viết thiệp chúc mừng năm mới."
+     }
+    ],
+    "expression": "年賀状",
+    "findings": [
+     "FURIGANA_MISSING: 祖母に年賀状を送った。"
+    ],
+    "locked_fields": [
+     "examples"
+    ],
+    "meaning_vi": "thiệp chúc mừng năm mới; thiệp mừng năm mới",
+    "mnemonic_vi": "年賀状 Hán Việt \"niên hạ trạng\": thiếp (状) mừng (賀) năm mới (年).",
+    "reading": "ねんがじょう",
+    "romaji": "nengajou",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [
+     "ねんがじょう"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9362e28737"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "gửi (thư); nộp; đưa ra",
+     "examples": [
+      {
+       "ja": "郵便局で手紙を出します。",
+       "ja_furigana": "郵便局(ゆうびんきょく)で手紙(てがみ)を出(だ)します。",
+       "vi": "Tôi gửi thư ở bưu điện."
+      },
+      {
+       "ja": "先生にレポートを出しました。",
+       "ja_furigana": "先生(せんせい)にレポートを出(だ)しました。",
+       "vi": "Tôi đã nộp báo cáo cho thầy giáo."
+      }
+     ]
+    },
+    "note": "chủ đề Gửi: nghĩa \"gửi (thư)\" lên đầu, bỏ \"phát\"; thay câu sách (kana tách chữ, quá đơn) bằng câu tự viết, Kanji N5 thông dụng"
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-12337f348a"
+    ],
+    "dictionary_meaning": "nộp",
+    "examples": [
+     {
+      "ja": "レポートを だすのを わすれました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã quên nộp báo cáo."
+     }
+    ],
+    "expression": "出す",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nộp; phát",
+    "mnemonic_vi": "出 \"xuất\" + す: だす = đưa ra, gửi (thư), nộp (bài); tha động từ, đi với を. Khác でる (tự đi ra).",
+    "reading": "だす",
+    "romaji": "dasu",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-24ba78dfbc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "日本語でメールを書きます。",
+       "ja_furigana": "日本語(にほんご)でメールを書(か)きます。",
+       "vi": "Tôi viết thư điện tử bằng tiếng Nhật."
+      },
+      {
+       "ja": "友だちにメールを送りました。",
+       "ja_furigana": "友(とも)だちにメールを送(おく)りました。",
+       "vi": "Tôi đã gửi email cho bạn."
+      }
+     ]
+    },
+    "note": "thay câu sách (kana tách chữ, quá đơn) bằng câu tự viết, Kanji N5 thông dụng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thư điện tử",
+    "examples": [
+     {
+      "ja": "にほんごで メールを かきます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi viết thư điện tử bằng tiếng Nhật."
+     }
+    ],
+    "expression": "メール",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "thư điện tử; email",
+    "mnemonic_vi": "メール = mail, thư điện tử; âm \"mai\" kéo dài thành メー. Gửi mail là メールを おくる.",
+    "reading": "めーる",
+    "romaji": "meeru",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8985c4ca3f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "expression": "送る",
+     "meaning_vi": "gửi; tiễn; tặng (quà)"
+    },
+    "note": "chủ đề Gửi + mẹo nhớ là 送る \"gửi\"; nguồn hiện chữ 贈る (tặng); bỏ nghĩa lạ \"xuất gửi hàng\"; ví dụ khóa còn dùng 贈る"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tặng, biếu",
+    "examples": [
+     {
+      "ja": "友達に花を贈る。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi tặng hoa cho bạn."
+     },
+     {
+      "ja": "市は新成人のお祝いに手帳を贈った。",
+      "ja_furigana": "市(し)は新成人(しんせいじん)のお祝(いわ)いに手帳(てちょう)を贈(おく)った。",
+      "source": "VNJPCLUB",
+      "vi": "Thành phố tặng sổ tay để chúc mừng những người mới trưởng thành."
+     },
+     {
+      "ja": "国の家族に写真をおくります。",
+      "ja_furigana": "国(くに)の家族(かぞく)に写真(しゃしん)をおくります。",
+      "source": "CLAUDE",
+      "vi": "Tôi gửi ảnh cho gia đình ở quê nhà."
+     }
+    ],
+    "expression": "贈る",
+    "findings": [
+     "FURIGANA_MISSING: 友達に花を贈る。"
+    ],
+    "locked_fields": [
+     "examples"
+    ],
+    "meaning_vi": "gửi; xuất gửi hàng; tiễn",
+    "mnemonic_vi": "送る có 送 \"tống\" (tống tiễn): おくる = gửi đi, tiễn.",
+    "reading": "おくる",
+    "romaji": "okuru",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [
+     "おくる",
+     "送る"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-36dfef442b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "郵便局で切手を五枚買いました。",
+       "ja_furigana": "郵便局(ゆうびんきょく)で切手(きって)を五枚(ごまい)買(か)いました。",
+       "vi": "Tôi đã mua 5 con tem ở bưu điện."
+      },
+      {
+       "ja": "手紙に切手をはってください。",
+       "ja_furigana": "手紙(てがみ)に切手(きって)をはってください。",
+       "vi": "Hãy dán tem lên thư."
+      }
+     ]
+    },
+    "note": "câu viết đúng chữ của mục (切手, 五枚); bỏ câu sách"
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-e5a3cb52ac"
+    ],
+    "dictionary_meaning": "tem thư",
+    "examples": [
+     {
+      "ja": "もう きってを つかいましたか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã dùng tem thư chưa?"
+     },
+     {
+      "ja": "80円のきってを5まい買います。",
+      "ja_furigana": "80円(えん)のきってを5まい買(か)います。",
+      "source": "CLAUDE",
+      "vi": "Tôi mua 5 con tem loại 80 yên."
+     }
+    ],
+    "expression": "切手",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tem thư",
+    "mnemonic_vi": "切手 Hán Việt \"thiết thủ\" = tem thư. Dễ lẫn với きっぷ (vé tàu), chỉ khác âm cuối.",
+    "reading": "きって",
+    "romaji": "kitte",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [
+     "きって"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3649df8ea7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "sưu tầm; thu thập; gom lại",
+     "examples": [
+      {
+       "ja": "切手を集めるのが好きです。",
+       "ja_furigana": "切手(きって)を集(あつ)めるのが好(す)きです。",
+       "vi": "Tôi thích sưu tầm tem."
+      },
+      {
+       "ja": "みんなのしゅくだいを集めてください。",
+       "ja_furigana": "みんなのしゅくだいを集(あつ)めてください。",
+       "vi": "Hãy thu bài tập của mọi người."
+      }
+     ]
+    },
+    "note": "nghĩa \"thu tập\" không tự nhiên; thay câu sách (kana tách chữ, quá đơn) bằng câu tự viết, Kanji N5 thông dụng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thu tập, tập trung; Gom lại / thu thập có hệ thống",
+    "examples": [
+     {
+      "ja": "きってを あつめる ことが すきです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi thích sưu tầm tem."
+     }
+    ],
+    "expression": "集める",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "sưu tầm; thu tập; tập trung",
+    "mnemonic_vi": "集める có 集 \"tập\" (tập hợp): あつめる = thu thập, sưu tầm.",
+    "reading": "あつめる",
+    "romaji": "atsumeru",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [
+     "あつめる"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3d4978eae5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "封筒に手紙を入れます。",
+       "ja_furigana": "封筒(ふうとう)に手紙(てがみ)を入(い)れます。",
+       "vi": "Tôi cho lá thư vào phong bì."
+      }
+     ]
+    },
+    "note": "câu viết đúng chữ của mục (封筒)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Phong bì",
+    "examples": [
+     {
+      "ja": "ふうとうに手紙を入れます。",
+      "ja_furigana": "ふうとうに手紙(てがみ)を入(い)れます。",
+      "source": "CLAUDE",
+      "vi": "Tôi cho lá thư vào phong bì."
+     }
+    ],
+    "expression": "封筒",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "phong bì",
+    "mnemonic_vi": "封筒 Hán Việt \"phong đồng\": ふう \"phong\" = phong bì.",
+    "reading": "ふうとう",
+    "romaji": "fuutou",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [
+     "ふうとう"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ceb1cabebe"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "外国へ旅行したいです。",
+       "ja_furigana": "外国(がいこく)へ旅行(りょこう)したいです。",
+       "vi": "Tôi muốn đi du lịch nước ngoài."
+      },
+      {
+       "ja": "外国の映画が好きです。",
+       "ja_furigana": "外国(がいこく)の映画(えいが)が好(す)きです。",
+       "vi": "Tôi thích phim nước ngoài."
+      }
+     ]
+    },
+    "note": "câu chính viết đúng chữ của mục (外国, 旅行)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nước ngoài",
+    "examples": [
+     {
+      "ja": "がいこくへりょこうしたいです。",
+      "ja_furigana": "がいこくへりょこうしたいです。",
+      "source": "CLAUDE",
+      "vi": "Tôi muốn đi du lịch nước ngoài."
+     },
+     {
+      "ja": "外国の映画が好きです。",
+      "ja_furigana": "外国(がいこく)の映画(えいが)が好(す)きです。",
+      "source": "CLAUDE",
+      "vi": "Tôi thích phim nước ngoài."
+     }
+    ],
+    "expression": "外国",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nước ngoài",
+    "mnemonic_vi": "外国 Hán Việt \"ngoại quốc\" = nước ngoài.",
+    "reading": "がいこく",
+    "romaji": "gaikoku",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [
+     "がいこく"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d34bc28cba"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "thư gửi đường hàng không; thư máy bay"
+    },
+    "note": "gộp nghĩa trùng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thư gửi bằng đường hàng không",
+    "examples": [
+     {
+      "ja": "エアメールなら、3日ぐらいで届きます。",
+      "ja_furigana": "エアメールなら、3日(みっか)ぐらいで届(とど)きます。",
+      "source": "VNJPCLUB",
+      "vi": "Nếu gửi bằng đường hàng không, thì khoảng 3 ngày sẽ đến nơi."
+     }
+    ],
+    "expression": "エアメール",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "thư gửi bằng đường hàng không; gửi bằng đường hàng không; đường hàng không",
+    "mnemonic_vi": "エア (air: hàng không) + メール (mail: thư) = thư gửi máy bay.",
+    "reading": "えあめーる",
+    "romaji": "eameeru",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-514866aaa8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この荷物を航空便でおねがいします。",
+       "ja_furigana": "この荷物(にもつ)を航空便(こうくうびん)でおねがいします。",
+       "vi": "Xin gửi kiện hàng này bằng đường hàng không."
+      },
+      {
+       "ja": "航空便で国へ手紙を送ります。",
+       "ja_furigana": "航空便(こうくうびん)で国(くに)へ手紙(てがみ)を送(おく)ります。",
+       "vi": "Tôi gửi thư về nước bằng đường hàng không."
+      }
+     ]
+    },
+    "note": "bỏ câu có 小包 (trên N5), câu kana; variants nguồn sai chính tả こうくびん (không phải trường sửa được)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đường hàng không",
+    "examples": [
+     {
+      "ja": "この小包を航空便で出すと、いくらですか。",
+      "ja_furigana": "この小包(こづつみ)を航空便(こうくうびん)で出(だ)すと、いくらですか。",
+      "source": "VNJPCLUB",
+      "vi": "Nếu gửi bưu kiện này bằng đường hàng không thì bao nhiêu tiền ạ?"
+     },
+     {
+      "ja": "このにもつをこうくうびんでおねがいします。",
+      "ja_furigana": "このにもつをこうくうびんでおねがいします。",
+      "source": "CLAUDE",
+      "vi": "Xin gửi kiện hàng này bằng đường hàng không."
+     }
+    ],
+    "expression": "航空便",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "gửi bằng đường hàng không; đường hàng không",
+    "mnemonic_vi": "航空便 Hán Việt \"hàng không tiện\" = gửi theo đường hàng không.",
+    "reading": "こうくうびん",
+    "romaji": "koukuubin",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [
+     "こうくびん"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-98a359236b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ふなびんは安いですが、おそいです。",
+       "ja_furigana": "ふなびんは安(やす)いですが、おそいです。",
+       "vi": "Gửi đường biển thì rẻ nhưng chậm."
+      },
+      {
+       "ja": "船便で本を送った。",
+       "ja_furigana": null,
+       "vi": "Tôi gửi sách bằng đường biển."
+      }
+     ]
+    },
+    "note": "câu chính viết lại (giống nguồn tham khảo)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đường biển (gửi hàng)",
+    "examples": [
+     {
+      "ja": "船便で本を送った。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi gửi sách bằng đường biển."
+     },
+     {
+      "ja": "ふなびんで本をおくります。",
+      "ja_furigana": "ふなびんで本(ほん)をおくります。",
+      "source": "CLAUDE",
+      "vi": "Tôi gửi sách bằng đường biển."
+     }
+    ],
+    "expression": "船便",
+    "findings": [
+     "FURIGANA_MISSING: 船便で本を送った。",
+     "MIRAI_SIMILAR: example #2"
+    ],
+    "locked_fields": [
+     "examples"
+    ],
+    "meaning_vi": "đường biển (gửi hàng); đường biển",
+    "mnemonic_vi": "船 (ふな: thuyền) + 便 (びん: chuyến gửi) = gửi đường biển.",
+    "reading": "ふなびん",
+    "romaji": "funabin",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [
+     "ふなびん"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7fcfe6c091"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この荷物を国へ送りたいです。",
+       "ja_furigana": "この荷物(にもつ)を国(くに)へ送(おく)りたいです。",
+       "vi": "Tôi muốn gửi kiện hàng này về nước."
+      },
+      {
+       "ja": "荷物はこれだけです。",
+       "ja_furigana": "荷物(にもつ)はこれだけです。",
+       "vi": "Hành lý chỉ có chừng này thôi."
+      }
+     ]
+    },
+    "note": "thay câu sách (kana tách chữ, quá đơn) bằng câu tự viết, Kanji N5 thông dụng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hành lý",
+    "examples": [
+     {
+      "ja": "にもつを もちましょうか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Để tôi xách hành lý giúp bạn nhé?"
+     }
+    ],
+    "expression": "荷物",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "hành lý; kiện hàng; đồ đạc",
+    "mnemonic_vi": "荷物 Hán Việt \"hà vật\" = đồ đạc, hành lý, bưu kiện.",
+    "reading": "にもつ",
+    "romaji": "nimotsu",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [
+     "にもつ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2e3230c8c2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "nặng",
+     "examples": [
+      {
+       "ja": "このかばんは重いですね。",
+       "ja_furigana": "このかばんは重(おも)いですね。",
+       "vi": "Cái cặp này nặng nhỉ."
+      },
+      {
+       "ja": "荷物が重いですから、タクシーで帰ります。",
+       "ja_furigana": "荷物(にもつ)が重(おも)いですから、タクシーで帰(かえ)ります。",
+       "vi": "Hành lý nặng nên tôi về bằng taxi."
+      }
+     ]
+    },
+    "note": "nghĩa nguồn lệch (\"trách nhiệm hoặc hậu quả nặng nề\") → \"nặng\"; câu cũ giống câu Mirai"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Trách nhiệm hoặc hậu quả nặng nề",
+    "examples": [
+     {
+      "ja": "このにもつはとてもおもいです。",
+      "ja_furigana": "このにもつはとてもおもいです。",
+      "source": "CLAUDE",
+      "vi": "Kiện hàng này rất nặng."
+     }
+    ],
+    "expression": "重い",
+    "findings": [
+     "MIRAI_SIMILAR: example #1"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "trách nhiệm hoặc hậu quả nặng nề",
+    "mnemonic_vi": "重い có 重 \"trọng\" (trọng lượng): おもい = nặng.",
+    "reading": "おもい",
+    "romaji": "omoi",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [
+     "おもい"
+    ],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-317557bb11"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "軽いかばんがほしいです。",
+       "ja_furigana": "軽(かる)いかばんがほしいです。",
+       "vi": "Tôi muốn có một cái cặp nhẹ."
+      },
+      {
+       "ja": "このカメラは小さくて軽いです。",
+       "ja_furigana": "このカメラは小(ちい)さくて軽(かる)いです。",
+       "vi": "Chiếc máy ảnh này nhỏ và nhẹ."
+      }
+     ]
+    },
+    "note": "[đề xuất chữ hiển thị: 軽い — không ghi vào fix vì id mục sinh từ chữ, đổi chữ sẽ làm mất nội dung đã soạn] かるい thường viết Kanji 軽い"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "かるいかばんがほしいです。",
+      "ja_furigana": "かるいかばんがほしいです。",
+      "source": "CLAUDE",
+      "vi": "Tôi muốn có một cái túi nhẹ."
+     }
+    ],
+    "expression": "かるい",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nhẹ",
+    "mnemonic_vi": "軽い có 軽 \"khinh\" (khinh khí cầu bay nhẹ): かるい = nhẹ.",
+    "reading": "かるい",
+    "romaji": "karui",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8f9f6ac5f2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "expression": "あげる",
+     "meaning_vi": "cho; tặng",
+     "examples": [
+      {
+       "ja": "妹にかばんをあげます。",
+       "ja_furigana": "妹(いもうと)にかばんをあげます。",
+       "vi": "Tôi tặng em gái cái cặp."
+      },
+      {
+       "ja": "友だちに本をあげました。",
+       "ja_furigana": "友(とも)だちに本(ほん)をあげました。",
+       "vi": "Tôi đã tặng bạn một cuốn sách."
+      }
+     ]
+    },
+    "note": "nghĩa nguồn lạc câu \"tặng em gái quần áo\"; あげる (cho, tặng) thường viết kana"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Đạt thành tích; nâng mức",
+    "examples": [
+     {
+      "ja": "いもうとに服をあげます。",
+      "ja_furigana": "いもうとに服(ふく)をあげます。",
+      "source": "CLAUDE",
+      "vi": "Tôi tặng quần áo cho em gái."
+     }
+    ],
+    "expression": "上げる",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tặng em gái quần áo; năng lên; tăng lên",
+    "mnemonic_vi": "あげる = cho, tặng (mình cho người khác); viết 上げる \"thượng\": nâng món quà lên trao cho người.",
+    "reading": "あげる",
+    "romaji": "ageru",
+    "topic_vi": "Quà tặng",
+    "twins": [],
+    "variants": [
+     "あげる"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4db8a79ffa"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "友だちから花をもらいました。",
+       "ja_furigana": "友(とも)だちから花(はな)をもらいました。",
+       "vi": "Tôi được bạn tặng hoa."
+      },
+      {
+       "ja": "父に時計をもらいました。",
+       "ja_furigana": "父(ちち)に時計(とけい)をもらいました。",
+       "vi": "Tôi được bố cho một chiếc đồng hồ."
+      }
+     ]
+    },
+    "note": "[đề xuất chữ hiển thị: もらう, đọc もらう — không ghi vào fix vì id mục sinh từ chữ, đổi chữ sẽ làm mất nội dung đã soạn] chữ/cách đọc nguồn là dạng bị cắt もらい → động từ từ điển もらう"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "友だちから花をもらいました。",
+      "ja_furigana": "友(とも)だちから花(はな)をもらいました。",
+      "source": "CLAUDE",
+      "vi": "Tôi được bạn tặng hoa."
+     }
+    ],
+    "expression": "もらい",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nhận; được nhận",
+    "mnemonic_vi": "もらう = nhận (từ người khác): ともだちに もらいました = tôi nhận từ bạn. \"Mô-ra\" như \"mở ra\" gói quà vừa nhận.",
+    "reading": "もらい",
+    "romaji": "morai",
+    "topic_vi": "Quà tặng",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7728773f6f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "expression": "くれる",
+     "meaning_vi": "(người khác) cho tôi; tặng tôi"
+    },
+    "note": "chủ đề Quà tặng: くれる = người khác cho mình (nguồn ghi \"nhận (tôi)\" và hiện chữ 暮れる \"trời tối\"); ví dụ khóa vẫn là 暮れる \"trời tối\" — cần chủ nguồn thay"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "trời tối; chìm trong đau buồn; bế tắc",
+    "examples": [
+     {
+      "ja": "冬は日が早く暮れる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Mùa đông trời tối sớm."
+     },
+     {
+      "ja": "私が子供のころは、日が暮れるまで外で遊んだ。",
+      "ja_furigana": "私(わたし)が子供(こども)のころは、日(ひ)が暮(く)れるまで外(そと)で遊(あそ)んだ。",
+      "source": "VNJPCLUB",
+      "vi": "Hồi nhỏ, tôi hay đi chơi tới tận trời tối."
+     },
+     {
+      "ja": "間もなく年が暮れる。",
+      "ja_furigana": "間(ま)もなく年(とし)が暮(く)れる。",
+      "source": "VNJPCLUB",
+      "vi": "Chẳng bao lâu nữa là hết năm."
+     }
+    ],
+    "expression": "暮れる",
+    "findings": [
+     "FURIGANA_MISSING: 冬は日が早く暮れる。"
+    ],
+    "locked_fields": [
+     "examples"
+    ],
+    "meaning_vi": "nhận (tôi); mặt trời lặn; trời tối",
+    "mnemonic_vi": "くれる = (người khác) cho tôi; người nhận luôn là mình hoặc người nhà mình.",
+    "reading": "くれる",
+    "romaji": "kureru",
+    "topic_vi": "Quà tặng",
+    "twins": [],
+    "variants": [
+     "くれる",
+     "呉れる"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-629e93b77c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母に誕生日のプレゼントをあげました。",
+       "ja_furigana": "母(はは)に誕生日(たんじょうび)のプレゼントをあげました。",
+       "vi": "Tôi đã tặng quà sinh nhật cho mẹ."
+      },
+      {
+       "ja": "友だちにプレゼントをもらいました。",
+       "ja_furigana": "友(とも)だちにプレゼントをもらいました。",
+       "vi": "Tôi được bạn tặng quà."
+      }
+     ]
+    },
+    "note": "thay câu sách (kana tách chữ, quá đơn) bằng câu tự viết, Kanji N5 thông dụng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "quà tặng",
+    "examples": [
+     {
+      "ja": "だれに プレゼントを あげますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn tặng quà cho ai?"
+     }
+    ],
+    "expression": "プレゼント",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "quà tặng; món quà",
+    "mnemonic_vi": "プレゼント = present, món quà; tặng quà là プレゼントを あげる.",
+    "reading": "ぷれぜんと",
+    "romaji": "purezento",
+    "topic_vi": "Quà tặng",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f951a46e18"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あの店にはいい物がたくさんあります。",
+       "ja_furigana": "あの店(みせ)にはいい物(もの)がたくさんあります。",
+       "vi": "Cửa hàng kia có nhiều đồ tốt."
+      },
+      {
+       "ja": "ほしい物は何ですか。",
+       "ja_furigana": "ほしい物(もの)は何(なん)ですか。",
+       "vi": "Thứ bạn muốn có là gì?"
+      }
+     ]
+    },
+    "note": "câu sách khó hiểu, tách chữ → câu tự viết"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "vật, đồ vật",
+    "examples": [
+     {
+      "ja": "ははが たべない ものは すくない です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thứ mẹ không ăn thì ít."
+     }
+    ],
+    "expression": "物",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đồ; thứ",
+    "mnemonic_vi": "物 \"vật\" (vật chất): もの = đồ vật, thứ.",
+    "reading": "もの",
+    "romaji": "mono",
+    "topic_vi": "Quà tặng",
+    "twins": [],
+    "variants": [
+     "もの"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-613f862f93"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "昨日のパーティーは楽しかったです。",
+       "ja_furigana": "昨日(きのう)のパーティーは楽(たの)しかったです。",
+       "vi": "Bữa tiệc hôm qua rất vui."
+      },
+      {
+       "ja": "週末、友だちの家でパーティーをします。",
+       "ja_furigana": "週末(しゅうまつ)、友(とも)だちの家(いえ)でパーティーをします。",
+       "vi": "Cuối tuần chúng tôi mở tiệc ở nhà bạn."
+      }
+     ]
+    },
+    "note": "câu sách quá dài, tách chữ → câu tự viết"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bữa tiệc",
+    "examples": [
+     {
+      "ja": "きのうの パーティーと せんしゅうの パーティーと どちらが たのしかったですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bữa tiệc hôm qua và bữa tiệc tuần trước, bữa tiệc nào vui hơn?"
+     }
+    ],
+    "expression": "パーティー",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "bữa tiệc; buổi tiệc; liên hoan",
+    "mnemonic_vi": "パーティー = party, bữa tiệc; hai âm kéo dài \"pā-tī\". Mở tiệc là パーティーを する.",
+    "reading": "パーティー",
+    "romaji": "paateii",
+    "topic_vi": "Quà tặng",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0cc075ca31"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "bắt đầu (làm việc gì); khởi đầu",
+     "examples": [
+      {
+       "ja": "では、テストを始めます。",
+       "ja_furigana": "では、テストを始(はじ)めます。",
+       "vi": "Vậy, chúng ta bắt đầu làm bài kiểm tra."
+      },
+      {
+       "ja": "来月から日本語の勉強を始めます。",
+       "ja_furigana": "来月(らいげつ)から日本語(にほんご)の勉強(べんきょう)を始(はじ)めます。",
+       "vi": "Từ tháng sau tôi bắt đầu học tiếng Nhật."
+      }
+     ]
+    },
+    "note": "nghĩa \"chính thức khởi động\" lạ; câu viết đúng chữ 始める"
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-c8067ebb91",
+     "JV-eb8c33adb6"
+    ],
+    "dictionary_meaning": "Bắt đầu",
+    "examples": [
+     {
+      "ja": "では、テストをはじめます。",
+      "ja_furigana": "では、テストをはじめます。",
+      "source": "CLAUDE",
+      "vi": "Vậy, bây giờ chúng ta bắt đầu làm bài kiểm tra."
+     }
+    ],
+    "expression": "始める",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "bắt đầu; chính thức khởi động",
+    "mnemonic_vi": "始める có 始 \"thủy\": はじめる = bắt đầu (làm việc gì), tha động từ đi với を. Khác はじまる (tự bắt đầu).",
+    "reading": "はじめる",
+    "romaji": "hajimeru",
+    "topic_vi": "Quà tặng",
+    "twins": [],
+    "variants": [
+     "はじめる"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4edf738027"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あの人は誰ですか。",
+       "ja_furigana": "あの人(ひと)は誰(だれ)ですか。",
+       "vi": "Người kia là ai vậy?"
+      },
+      {
+       "ja": "このプレゼントは誰からですか。",
+       "ja_furigana": "このプレゼントは誰(だれ)からですか。",
+       "vi": "Món quà này là của ai tặng?"
+      }
+     ]
+    },
+    "note": "câu viết đúng chữ của mục (誰); bỏ câu sách tách chữ"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ai",
+    "examples": [
+     {
+      "ja": "あのひとは だれですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người kia là ai vậy?"
+     }
+    ],
+    "expression": "誰",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "ai",
+    "mnemonic_vi": "だれ = ai; \"đa-rê\" như hỏi \"đứa nào đấy?\".",
+    "reading": "だれ",
+    "romaji": "dare",
+    "topic_vi": "Quà tặng",
+    "twins": [],
+    "variants": [
+     "だれ"
+    ],
+    "word_type_label": "đại từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7db6622174"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N5",
+ "packet_id": "REVIEW_VOCAB-018"
+}

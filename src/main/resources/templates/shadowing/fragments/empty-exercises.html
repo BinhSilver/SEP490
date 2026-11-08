@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<dialog th:fragment="dialog(videoId)" id="practice-empty-dialog" class="practice-empty-dialog"
+        aria-labelledby="practice-empty-title" aria-describedby="practice-empty-description">
+    <div class="practice-empty-mascot" aria-hidden="true">
+        <img src="/images/mascots/kitsu/kitsu-crying-30.webp?v=20261009-native-mascots" width="180" height="180" alt="">
+    </div>
+    <h2 id="practice-empty-title">Chưa có bài tập tạo sẵn</h2>
+    <p id="practice-empty-description">Xin lỗi, hiện chưa có bài tập tạo sẵn cho video này. Vui lòng đợi hoặc bạn có thể đóng góp câu hỏi.</p>
+    <div class="practice-empty-actions">
+        <button type="button" data-empty-dismiss autofocus>Để sau</button>
+        <a th:href="@{/shadowing/prepare/{id}(id=${videoId})}" class="practice-empty-contribute">Đóng góp câu hỏi</a>
+    </div>
+</dialog>
+</body>
+</html>

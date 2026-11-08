@@ -69,6 +69,11 @@
       var r = await fetch(path, { method: 'DELETE', headers: authHeaders() });
       return parse(r);
     },
+    postForm: async function (path, data) {
+      var h = authHeaders(false);
+      delete h['Content-Type'];
+      return parse(await fetch(path, { method: 'POST', headers: h, body: data }));
+    },
     upload: async function (path, file) {
       var fd = new FormData();
       fd.append('file', file);
@@ -76,6 +81,32 @@
       delete h['Content-Type'];
       var r = await fetch(path, { method: 'POST', headers: h, body: fd });
       return parse(r);
+    },
+    /* Fetches a file with the JWT header and saves it; plain links cannot send Authorization. */
+    download: async function (path, fallbackName) {
+      var file = await api.fetchFile(path, fallbackName);
+      api.saveFile(file.blob, file.name);
+      return file.name;
+    },
+    /* Fetches a file without saving it, e.g. to preview it first. Resolves to { blob, name }. */
+    fetchFile: async function (path, fallbackName) {
+      var h = authHeaders(false);
+      delete h['Content-Type'];
+      var r = await fetch(path, { headers: h });
+      if (!r.ok) await parse(r);
+      var disposition = r.headers.get('Content-Disposition') || '';
+      var match = disposition.match(/filename\*=UTF-8''([^;]+)/i) || disposition.match(/filename="?([^";]+)"?/i);
+      return { blob: await r.blob(), name: match ? decodeURIComponent(match[1]) : fallbackName };
+    },
+    saveFile: function (blob, name) {
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.href = url;
+      link.download = name || 'flashcards';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
     }
   };
 

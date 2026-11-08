@@ -1,0 +1,587 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "犬は雨の中へ出ようとしなかった。",
+       "ja_furigana": "犬(いぬ)は雨(あめ)の中(なか)へ出(で)ようとしなかった。",
+       "vi": "Con chó không chịu ra ngoài lúc trời mưa.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "弟はいくら呼んでも、起きようとしなかった。",
+       "ja_furigana": "弟(おとうと)はいくら呼(よ)んでも、起(お)きようとしなかった。",
+       "vi": "Gọi mãi mà em trai tôi vẫn không chịu dậy.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は謝ろうとしない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta chẳng thèm xin lỗi."
+     },
+     {
+      "ja": "子どもが野菜を食べようとしない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đứa trẻ không chịu ăn rau."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は謝ろうとしない。",
+     "FURIGANA_MISSING: 子どもが野菜を食べようとしない。"
+    ],
+    "formation": "V(thể ý chí: 〜う / 〜よう) + としない",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị “không hề có ý định/không thèm/không buồn (thử) làm V”, “không có dấu hiệu sẽ V”. Sắc thái chê trách/bất mãn của người nói, nhất là với chủ thể con người. Cũng dùng được với hiện tượng tự nhiên (không cho thấy dấu hiệu thay đổi). Khác với phủ định đơn thuần, nhấn vào “thiếu nỗ lực/thiếu ý hướng” hơn là kết quả không xảy ra.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không chịu, không định",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường dùng với chủ ngữ ngôi 3 để đánh giá; ngôi 1 dùng được khi tự phê hoặc tường thuật tâm lý. Đi với động từ thể hiện hành vi có ý chí: 話す・食べる・手伝う・謝る... Với hiện tượng tự nhiên: ～やむ／晴れる／止まる + ようとしない → “không có dấu hiệu ...”. “ともしない” tăng độ phủ định, mạnh sắc thái phê phán. [6. Ghi chú mở rộng] Trong văn nói, có thể rút “と” khi lặp nhịp, nhưng chuẩn mực là dùng “としない”. 分かろうとしない là cách nói rất tự nhiên khi phê bình ai đó “không chịu cố hiểu”. Mẫu này có thể biến một kết quả nhận thức thành đối tượng của nỗ lực; không nên cấm toàn bộ động từ như 分かる. Thường đi kèm từ chỉ mức độ: 全然・まったく・少しも + ～ようとしない để tăng sắc thái. [7. Biến thể & cụm cố định] Vようとする（định/đang toan）／Vようとしたら（đúng lúc định thì...） Vようともしない（nhấn mạnh phủ định tuyệt đối） 慌てようとしない／動こうとしない：cụm thường dùng mô tả thái độ. [8. Lỗi thường gặp & bẫy JLPT] Không nên đánh dấu 分かろうとしない là sai. Cần xét liệu câu có thể hiểu là chủ thể không chịu hướng nỗ lực tới kết quả đó hay không. Sai chia ý hướng: 来る→こよう, する→しよう; nhóm 1 phải đổi u→o + う. Nhầm với “つもりがない”: đề bài JLPT hay kiểm tra sắc thái “không thử làm” (ようとしない) vs “không có ý định” (つもりがない). Quên “と”: viết “ようしない” là sai; phải “ようとしない”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-015e239b59"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "もし鍵を持っていたなら、家に入れたのに。",
+       "ja_furigana": "もし鍵(かぎ)を持(も)っていたなら、家(いえ)に入(い)れたのに。",
+       "vi": "Nếu có mang chìa khóa thì đã vào nhà được rồi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "もしあの時かさを持っていたなら、ぬれなかったのに。",
+       "ja_furigana": "もしあの時(とき)かさを持(も)っていたなら、ぬれなかったのに。",
+       "vi": "Nếu lúc đó mà mang ô thì đã không bị ướt rồi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "もし彼が来ていたなら、直接話せたのに。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu anh ấy đã đến thì đã có thể nói chuyện trực tiếp rồi (nhưng thực tế không đến)."
+     },
+     {
+      "ja": "もしあの時もっと勉強していたなら、合格できたかもしれない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu lúc đó học chăm hơn thì có lẽ đã đậu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: もし彼が来ていたなら、直接話せたのに。",
+     "FURIGANA_MISSING: もしあの時もっと勉強していたなら、合格できたかもしれない。"
+    ],
+    "formation": "もし + V-ていたなら / V-たなら、〜のに",
+    "locked_fields": [],
+    "meaning_vi": "Giả định trái sự thật về quá khứ: “Nếu mà đã … (nhưng thực tế không như vậy) thì …”. Thường biểu lộ hối tiếc, tiếc nuối, hay suy luận kết quả có thể đã xảy ra. Vế sau hay dùng với のに／だろう／よかった（のに）／と思う／かもしれない để thể hiện hệ quả giả định. Khác với もし～たら (trung tính), ～たなら nhấn mạnh tính “điều kiện đã không xảy ra”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu đã... thì chắc",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mạnh tính phản thực (counterfactual) của điều kiện; phù hợp để bày tỏ tiếc nuối/giá như. Vế sau thường đi kèm のに／だろう／よかった để biểu đạt cảm xúc và suy luận. Văn nói thường giản lược thành もし～たら; dùng ～たなら khi muốn nhấn mạnh “điều kiện đã không xảy ra”. Với điều kiện hiện tại/tương lai, ～たら／～なら／～ば thường trung tính hơn; ～たなら vẫn dùng được khi muốn nhấn giả định hoặc căn cứ đã đặt ra (dùng もし～たら／～なら／～ば thay thế). [6. Ghi chú mở rộng] Có thể đảo trật tự để nhấn mạnh kết quả trước: 会えたのに、もし彼が来ていたなら。 (văn viết). ～ていたなら nhấn trạng thái kéo dài tại thời điểm quá khứ: 雨がやんでいたなら… “もしも” tăng sắc thái giả định mạnh/xa vời, hay dùng trong cảnh báo/viễn cảnh: もしも地震が起きていたなら… [7. Biến thể & cụm cố định] もし～ていたなら／もし～たのなら／もしも～たならば. Mẫu kết hợp cảm thán: ～たのに／～よかったのに／～だろうに. Thường dùng với あの時／そのとき để neo thời điểm: もしあの時～たなら… [8. Lỗi thường gặp & bẫy JLPT] もし明日雨が降ったなら、行かない có thể dùng cho giả định tương lai, nhất là khi nhấn mạnh điều kiện. 降ったら／降れば thường trung tính và phổ biến hơn trong hội thoại. Không dùng quá khứ ở vế điều kiện: × もし行くなら会えたのに → ✓ もし行ったなら会えたのに. Nhầm với ～ばよかった: ～たなら cần hai vế; ～ばよかった tự thân diễn tả hối hận. JLPT: chú ý sắc thái phản thực và cụm kết thúc のに／だろう／よかった để chọn đúng đáp án."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-305da7cf38"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "薬を飲まないと、熱が下がらないよ。",
+       "ja_furigana": "薬(くすり)を飲(の)まないと、熱(ねつ)が下(さ)がらないよ。",
+       "vi": "Không uống thuốc thì sốt sẽ không hạ đâu.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "早く出ないと、バスに遅れるよ。",
+       "ja_furigana": "早(はや)く出(で)ないと、バスに遅(おく)れるよ。",
+       "vi": "Không đi sớm thì sẽ lỡ xe buýt đấy.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "そろそろ寝ないと。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đến giờ phải ngủ rồi."
+     },
+     {
+      "ja": "提出期限に間に合わせないと。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phải nộp kịp hạn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: そろそろ寝ないと。",
+     "FURIGANA_MISSING: 提出期限に間に合わせないと。"
+    ],
+    "formation": "V(bỏ ない) + ないと / なければ",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa bắt buộc (khẩu ngữ): V-ないと thường là rút gọn của V-ないといけない, vế sau bị lược do hiển nhiên. Nghĩa điều kiện: “nếu không … thì …”, vế sau nêu hệ quả xấu/không mong muốn. Sắc thái: Tự nhiên, đời thường; trong văn viết trang trọng nên dùng dạng đầy đủ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu không... thì",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Khi dùng rút gọn (kết thúc bằng ～ないと。), ngữ cảnh tự suy ra “いけない/だめ”. Với nghĩa điều kiện, vế sau thường mang phủ định/hậu quả: 間に合わない／困る／怒られる… Trang trọng: ưu tiên ～ないといけない／～なければならない trong báo cáo, email công việc. [6. Ghi chú mở rộng] ～ないと có thể diễn cảm giác vội/vắng: ngắt câu ngắn thể hiện “tự nhắc mình”. Động từ phủ định phải ở dạng ない đúng: 行く→行かない、とる→とらない、する→しない、来る→こない。 Trong giao tiếp thân mật, biến thể 〜なきゃ/〜なくちゃ thay 〜ないと với sắc thái mềm hơn. [7. Biến thể & cụm cố định] ～ないといけない／～ないとだめ (bắt buộc chung) ～なければならない／～なくてはならない (rất trang trọng/quy định) ～なきゃ／～なくちゃ (khẩu ngữ rút gọn tương đương) [8. Lỗi thường gặp & bẫy JLPT] Hiểu mọi ～ないと là “phải”: có câu là điều kiện “nếu không… thì…”, cần nhìn vế sau. Với nghĩa điều kiện “nếu không A thì B”, nên nêu vế kết quả. Với nghĩa vụ rút gọn từ ～ないといけない, có thể kết thúc câu bằng ～ないと。. Dùng trong văn bản trang trọng: nên chuyển sang ～ないといけない/～なければならない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cc35bc6c0d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "もし明日晴れたら、庭で昼ご飯を食べよう。",
+       "ja_furigana": "もし明日(あした)晴(は)れたら、庭(にわ)で昼(ひる)ご飯(はん)を食(た)べよう。",
+       "vi": "Nếu mai nắng, ta ăn trưa ngoài vườn nhé.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "もし雨なら、家で本をよみます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu trời mưa thì tôi đọc sách ở nhà. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: もし雨なら、家で本をよみます。"
+    ],
+    "formation": "もし + N / Aな / V・Aい(thể thông thường) + なら",
+    "locked_fields": [],
+    "meaning_vi": "Giả sử/nếu giả định rằng ~ thì…; dùng để nêu hệ quả hoặc lựa chọn dựa trên một giả thuyết. Thường dùng cho tình huống “chưa chắc xảy ra”, thiên về suy đoán, lập kế hoạch, hỏi ý kiến. Thường đi kèm どうする／どうなる／だろう／でしょう／場合は…など. Sắc thái trang trọng hơn なら; ít dùng cho điều kiện đã/đang là sự thật.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu mà, giả sử",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Phù hợp trong thảo luận, lập kế hoạch, giả định khoa học, câu hỏi tình huống. Ít dùng để nói thói quen/điều kiện thực tế. Với điều kiện có thật nên dùng なら/たら. Đứng trước mệnh đề kết luận, thường đi kèm phỏng đoán: ～だろう／かもしれない／と思う. Trang trọng hơn とすれば; mềm hơn とすると (mang sắc thái logic/kỹ thuật hơn). [6. Ghi chú mở rộng] Đầu câu thường thêm もし để rõ sắc thái giả định: もし～としたら. Trong văn viết học thuật, mạch: 前提Aだとしたら→仮説→検証/示唆… Tránh dùng khi điều kiện đã xác thực, vì nghe vòng vo/xa cách. [7. Biến thể & cụm cố định] ～とすれば／～とすると（biến thể gần nghĩa, trang trọng/phân tích hơn） もし～としたら（cụm rất thường gặp） 過去仮定：Aだったとしたら、Bだろう（giả sử quá khứ） [8. Lỗi thường gặp & bẫy JLPT] Dùng ～としたら cho điều kiện chắc chắn: nên thay bằng なら/たら. Quên だ với N/na: × 学生としたら → 〇 学生だとしたら. Nhầm với ～としても (nhượng bộ) trong câu yêu cầu nhấn mạnh “dẫu cho”: chọn ～としても. Sau ～としたら thường theo phỏng đoán/kết luận; tránh nối trực tiếp mệnh lệnh mạnh một cách đột ngột."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9fccac32d0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅行に関する本を図書館で借りた。",
+       "ja_furigana": "旅行(りょこう)に関(かん)する本(ほん)を図書館(としょかん)で借(か)りた。",
+       "vi": "Tôi mượn ở thư viện một cuốn sách về du lịch.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "日本の食べ物に関して、レポートを書いた。",
+       "ja_furigana": "日本(にほん)の食(た)べ物(もの)に関(かん)して、レポートを書(か)いた。",
+       "vi": "Tôi đã viết báo cáo về đồ ăn Nhật Bản.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この問題に関して、ご意見ありませんか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Liên quan đến vấn đề này, anh có ý kiến gì không ạ?"
+     },
+     {
+      "ja": "農業に関する論文を読む。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đọc bài luận liên quan đến nông nghiệp"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この問題に関して、ご意見ありませんか。",
+     "FURIGANA_MISSING: 農業に関する論文を読む。"
+    ],
+    "formation": "N + に関して / N + に関する + N",
+    "locked_fields": [],
+    "meaning_vi": "Liên quan đến",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜この問題に関して",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi nói đến một phần tính chất có liên quan đến vấn đề"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f29d8913bf"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "季節によって、店のメニューが変わります。",
+       "ja_furigana": "季節(きせつ)によって、店(みせ)のメニューが変(か)わります。",
+       "vi": "Thực đơn quán thay đổi theo mùa.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "地震によって、多くの家がこわれた。",
+       "ja_furigana": "地震(じしん)によって、多(おお)くの家(いえ)がこわれた。",
+       "vi": "Do động đất mà nhiều ngôi nhà đã bị hỏng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は努力によって病気を克服した！",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy đã hồi phục chính nhờ sự nỗ lực đấy"
+     },
+     {
+      "ja": "人によって考え方が違います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cách nghĩ khác nhau tùy vào mỗi người"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は努力によって病気を克服した！",
+     "FURIGANA_MISSING: 人によって考え方が違います。"
+    ],
+    "formation": "N + によって / N + による + N",
+    "locked_fields": [],
+    "meaning_vi": "Bằng cách, do, vì, tùy theo",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜努力によって",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để thể hiện phương pháp, nguyên nhân, trường hợp cho từng hành động, sự việc nào đó"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-04e9d717f1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母の話によると、祖父は昔この町に住んでいた。",
+       "ja_furigana": "母(はは)の話(はなし)によると、祖父(そふ)は昔(むかし)この町(まち)に住(す)んでいた。",
+       "vi": "Theo lời mẹ, ngày xưa ông sống ở thị trấn này.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "ニュースによれば、明日は大雪になるそうだ。",
+       "ja_furigana": "ニュースによれば、明日(あした)は大雪(おおゆき)になるそうだ。",
+       "vi": "Theo tin tức thì ngày mai sẽ có tuyết rơi dày.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "天気予報によれば、明日は晴れるらしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Theo dự báo thời tiết thì ngày mai nghe nói sẽ nắng"
+     },
+     {
+      "ja": "さっきの地震はテレビの速報によると震度３だそうだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Động đất mới nãy theo tin nhanh của tivi thì hình như là chấn động 3 đấy"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 天気予報によれば、明日は晴れるらしい。",
+     "FURIGANA_MISSING: さっきの地震はテレビの速報によると震度３だそうだ。"
+    ],
+    "formation": "N + によれば / N + によると",
+    "locked_fields": [],
+    "meaning_vi": "Theo…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜天気予報によれば",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi nói đến một sự việc có nguồn xuất phát từ những gì bản thân nghe được, nhìn thấy,…"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-033fd0dff7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町のれきしについての本を読んだ。",
+       "ja_furigana": "この町(まち)のれきしについての本(ほん)を読(よ)んだ。",
+       "vi": "Tôi đọc sách về lịch sử thị trấn này.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "先生が日本の祭りについて話してくれた。",
+       "ja_furigana": "先生(せんせい)が日本(にほん)の祭(まつ)りについて話(はな)してくれた。",
+       "vi": "Thầy đã kể cho chúng tôi nghe về lễ hội Nhật Bản.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "日本文化について勉強する。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Học về văn hóa Nhật Bản"
+     },
+     {
+      "ja": "「受験についての注意」を読む。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đọc \"Chú ý về việc dự thi\""
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 日本文化について勉強する。",
+     "FURIGANA_MISSING: 「受験についての注意」を読む。"
+    ],
+    "formation": "N + について / N + についての + N",
+    "locked_fields": [],
+    "meaning_vi": "Về….",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜日本文化について",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi nói về một hành động, sự việc tập trung vào vấn đề nào đó"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-039f69db10"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "道が分からないから、人に聞くほかない。",
+       "ja_furigana": "道(みち)が分(わ)からないから、人(ひと)に聞(き)くほかない。",
+       "vi": "Không biết đường nên chỉ còn cách hỏi người khác.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "終電が出てしまったので、歩いて帰るしかない。",
+       "ja_furigana": "終電(しゅうでん)が出(で)てしまったので、歩(ある)いて帰(かえ)るしかない。",
+       "vi": "Chuyến tàu cuối đã đi mất nên chỉ còn cách đi bộ về.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "かさを持っていなかったので、ぬれて帰るしかなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì tôi không mang ô nên chỉ còn cách đội mưa về."
+     },
+     {
+      "ja": "良い大学に入るためには、一生懸命勉強するほかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Để vào được trường đại học tốt, tôi chỉ còn cách học thật chăm chỉ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: かさを持っていなかったので、ぬれて帰るしかなかった。",
+     "FURIGANA_MISSING: 良い大学に入るためには、一生懸命勉強するほかない。"
+    ],
+    "formation": "V-る + しかない / ほかない / よりほかない / ほかしかたがない",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ còn cách …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜しかない/ほかない/よりない/よりほかない/ほかしかたがない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả không còn lựa chọn nào khác ngoài việc làm điều đó: “chỉ còn cách…”. 1) Dễ nhầm với ～しか～ない. → ～しかない／ほかない nhấn mạnh “không còn lựa chọn nào khác”. 2) Mang sắc thái bất đắc dĩ. → Người nói buộc phải chấp nhận phương án đó. 3) Không dùng khi còn nhiều lựa chọn. → Nếu chỉ là hạn chế số lượng, không dùng mẫu này."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-be6f06d6ff"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "椅子に座ったとたん、電話が鳴った。",
+       "ja_furigana": "椅子(いす)に座(すわ)ったとたん、電話(でんわ)が鳴(な)った。",
+       "vi": "Vừa ngồi xuống ghế thì điện thoại reo.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "外に出たとたん、雨が降り始めた。",
+       "ja_furigana": "外(そと)に出(で)たとたん、雨(あめ)が降(ふ)り始(はじ)めた。",
+       "vi": "Vừa bước ra ngoài thì trời bắt đầu mưa.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "一口食べたとたん、まずくて吐き出した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngay khi vừa bỏ vào miệng một miếng, tôi đã nhè ra ngay vì quá tệ."
+     },
+     {
+      "ja": "ボタンを押したとたんに、画面の文字が消えてしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngay khi ấn nút, chữ trên màn hình đã biến mất."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 一口食べたとたん、まずくて吐き出した。",
+     "FURIGANA_MISSING: ボタンを押したとたんに、画面の文字が消えてしまった。"
+    ],
+    "formation": "V-た + とたん(に)",
+    "locked_fields": [],
+    "meaning_vi": "Vừa… thì…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜たとたん(に)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả hai hành động xảy ra gần như đồng thời; hành động sau thường là việc bất ngờ, ngoài dự đoán, xảy ra ngay sau hành động trước. 1) Dễ nhầm với ～たあとで. → ～とたん（に） nhấn mạnh hai hành động xảy ra gần như đồng thời. 2) Vế sau thường là việc bất ngờ, ngoài dự đoán. → Hay mang sắc thái đột ngột, không chủ ý. 3) Không dùng cho hành động có chủ ý ở vế sau. → Nếu là hành động có ý thức, thường dùng ～たあとで."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-52faa1dc6b"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-042"
+}

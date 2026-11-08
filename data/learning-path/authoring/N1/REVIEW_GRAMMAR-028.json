@@ -1,0 +1,583 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "友達が来ようと来まいと、私は予定通り出かける。",
+       "ja_furigana": "友達(ともだち)が来(こ)ようと来(こ)まいと、私(わたし)は予定(よてい)通(どお)り出(で)かける。",
+       "vi": "Dù bạn có đến hay không, tôi vẫn đi như dự định."
+      },
+      {
+       "ja": "彼女が賛成しようとしまいと、計画は進める。",
+       "ja_furigana": "彼女(かのじょ)が賛成(さんせい)しようとしまいと、計画(けいかく)は進(すす)める。",
+       "vi": "Dù cô ấy có đồng ý hay không, kế hoạch vẫn được triển khai."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "出席しようとすまいと、議事録は全委員に送る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù có dự hay không, biên bản vẫn gửi cho toàn thể ủy viên."
+     },
+     {
+      "ja": "信じようが信じまいが、校正履歴はサーバーに残っている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù có tin hay không, lịch sử hiệu đính vẫn còn trên máy chủ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 出席しようとすまいと、議事録は全委員に送る。",
+     "FURIGANA_MISSING: 信じようが信じまいが、校正履歴はサーバーに残っている。"
+    ],
+    "formation": "Vよう + と + Vまい + と",
+    "locked_fields": [],
+    "meaning_vi": "Dù có … hay không",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù có ... hay không",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Dù chủ thể làm hay không làm, sự thật hoặc quy tắc ở vế sau vẫn thế. Cách dùng: Mẫu cặp 意向形 với まい để nói dù có làm hay không làm cũng vậy. Hai động từ thường cùng một gốc; まい là ý chí hoặc phán đoán phủ định. と và が thay được nhau trong cặp này. Vế sau nêu sự thật, quy tắc hoặc hậu quả không phụ thuộc ý muốn. Trang trọng hơn ても〜なくても. Với する dùng しようとすまいと; với 来る dùng 来ようと来まいと. Không trộn hai hành động khác loại. Hay dùng khi thông báo quy định, lịch công việc, hoặc kết luận đã chốt. Đây là cách nói ý muốn cá nhân không làm thay đổi hiện thực đã ấn định. Sắc thái: Giọng dửng dưng có nguyên tắc: muốn hay không không quan trọng. Thường hơi lạnh, hành chính, hoặc kiên định. Không phải khuyến khích người nghe chọn một bên. Lưu ý: Hai vế phải cùng một động từ; không cặp 行こうと食べまいと. する → しようとすまいと; 来る → 来ようと来まいと. Không nhầm すまい với しまい (てしまう)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3bc5fbcb9c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今さら後悔したところで、時間は戻らない。",
+       "ja_furigana": "今(いま)さら後悔(こうかい)したところで、時間(じかん)は戻(もど)らない。",
+       "vi": "Bây giờ có hối hận cũng vô ích, thời gian không quay lại."
+      },
+      {
+       "ja": "慌てて準備したところで、間に合わない。",
+       "ja_furigana": "慌(あわ)てて準備(じゅんび)したところで、間(ま)に合(あ)わない。",
+       "vi": "Có cuống cuồng chuẩn bị cũng không kịp."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今から数値を盛り直したところで、審査委員はグラフの不自然さに気づく。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù bây giờ có chỉnh lại số liệu, hội đồng vẫn nhận ra sự không tự nhiên của biểu đồ."
+     },
+     {
+      "ja": "説明を重ねたところで、欠席者の署名は集まらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù có giải thích thêm, chữ ký của người vắng vẫn không thu đủ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Dù có ... thì cũng vô ích",
+     "FURIGANA_MISSING: 今から数値を盛り直したところで、審査委員はグラフの不自然さに気づく。",
+     "FURIGANA_MISSING: 説明を重ねたところで、欠席者の署名は集まらない。"
+    ],
+    "formation": "Vた + ところで",
+    "locked_fields": [],
+    "meaning_vi": "Dù có … thì cũng vô ích",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù có ... thì cũng vô ích",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Dù giả định đã làm việc ấy, kết quả mong muốn vẫn không tới hoặc chỉ rất hạn chế. Cách dùng: Mẫu nhượng bộ giả định với hàm ý vô ích: dù có làm V đi nữa, kết quả mong muốn cũng không tới, hoặc chỉ đến mức hạn chế. た không phải quá khứ đã xảy ra mà là giả định. Vế sau thường phủ định, 無駄, まい, hoặc đánh giá thấp. Người nói hoài nghi hiệu quả của nỗ lực. Không dùng khi vế sau là kết quả tốt. Khác ても ở chỗ たところで nhấn mạnh tính bất lực, làm cũng bằng không. Cũng khác ところで nghĩa nhân tiện: đó là liên từ chuyển đề, không phải mẫu này. Hay xuất hiện khi can người khác đừng tốn công vào việc đã muộn. Sắc thái: Sắc hoài nghi, can ngăn, đôi khi chán nản. Người nói không phủ nhận khả năng hành động, mà phủ nhận ích lợi. Thường đi với 今さら, どれほど, どんなに để tăng tính vô ích. Lưu ý: Vế sau phải tiêu cực, hạn chế hoặc vô ích; không kết với kết quả tốt. た là giả định, không nhất thiết việc đã xảy ra. Đừng nhầm với ところで 'à này / nhân tiện' hay 'ở chỗ ấy'."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cc17447a2e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "許可なしに部屋に入ってはいけない。",
+       "ja_furigana": "許可(きょか)なしに部屋(へや)に入(はい)ってはいけない。",
+       "vi": "Không có sự cho phép thì không được vào phòng."
+      },
+      {
+       "ja": "努力なしには成功できない。",
+       "ja_furigana": "努力(どりょく)なしには成功(せいこう)できない。",
+       "vi": "Không có nỗ lực thì không thể thành công."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "事前の聞き取りなしに区画割りを決めるわけにはいかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không thể chốt việc chia lô mà không có phỏng vấn trước."
+     },
+     {
+      "ja": "相互チェックなしでは、翻訳原稿を入稿できない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không có kiểm chéo thì không thể nộp bản dịch vào giai đoạn nhập bản."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 事前の聞き取りなしに区画割りを決めるわけにはいかない。",
+     "FURIGANA_MISSING: 相互チェックなしでは、翻訳原稿を入稿できない。"
+    ],
+    "formation": "N + なしに(は) + 〜ない",
+    "locked_fields": [],
+    "meaning_vi": "Không có … thì không thể",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không có ... thì không thể",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Thiếu một yếu tố then chốt thì hành động kia không thành, hoặc bị tiến hành 'trống' yếu tố đó. Cách dùng: Ba biến thể đều nêu sự thiếu vắng của một yếu tố then chốt. なしに có thể chỉ không có hoặc không làm mà vẫn tiến hành, vế sau không nhất thiết phủ định. なしには, なしでは và なくして（は） thường đi với vế sau phủ định hoặc ý không thể: thiếu N thì việc kia không thành. なくして mang sắc văn viết, nghị luận. Danh từ trước mẫu thường là điều kiện, thủ tục, nguồn lực hoặc giá trị trừu tượng như tin cậy, đối thoại, số liệu. Khác với ないで ở chỗ ないで gắn động từ, còn các mẫu này gắn danh từ. Sắc thái: なしに có thể trung tính hoặc chỉ trích thủ tục bị bỏ. なしには／なしでは nhấn mạnh bất khả thi. なくして（は） trang trọng, hay trong lập luận chính sách, học thuật. Người nói coi N là điều kiện nền, không phải chi tiết phụ. Lưu ý: Gắn danh từ, không gắn trực tiếp động từ thể ない. なしには／なくしては thường đòi hỏi vế sau phủ định hoặc ý 'không thể'. なくして thiên văn viết; なしで／なしでは linh hoạt hơn trong lời nói có chừng mực."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-51f95fbbaa"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼に秘密を話したら最後、すぐみんなに広まる。",
+       "ja_furigana": "彼(かれ)に秘密(ひみつ)を話(はな)したら最後(さいご)、すぐみんなに広(ひろ)まる。",
+       "vi": "Một khi đã kể bí mật cho anh ấy thì ngay lập tức lan ra khắp nơi."
+      },
+      {
+       "ja": "ゲームを始めたが最後、止まらなくなる。",
+       "ja_furigana": "ゲームを始(はじ)めたが最後(さいご)、止(と)まらなくなる。",
+       "vi": "Một khi đã bắt đầu chơi game thì không dừng lại được."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "校正用の原本を持ち出したら最後、返却期限を過ぎても誰も催促できない空気になる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một khi đã mang bản gốc hiệu đính ra ngoài, không khí sẽ thành ra dù quá hạn cũng chẳng ai giục trả."
+     },
+     {
+      "ja": "測定器の封印を切ったが最後、その回のデータは比較対象から外さざるを得ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một khi đã cắt niêm phong máy đo, số liệu lần đó buộc phải loại khỏi đối tượng so sánh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 校正用の原本を持ち出したら最後、返却期限を過ぎても誰も催促できない空気になる。",
+     "FURIGANA_MISSING: 測定器の封印を切ったが最後、その回のデータは比較対象から外さざるを得ない。"
+    ],
+    "formation": "Vた + 最後",
+    "locked_fields": [],
+    "meaning_vi": "Một khi đã … thì hết đường gỡ",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Một khi đã ... thì hết đường gỡ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Một khi hành động đã xảy ra, hệ quả tiêu cực sẽ kéo dài và không thu hồi được. Cách dùng: Mẫu たが最後 và たら最後 diễn đạt bước không thể đảo: một khi hành động hay sự cố đã xảy ra, hệ quả tiêu cực sẽ kéo dài, không kiểm soát nổi. Vế sau thường là trạng thái không dừng được, tổn thất, hoặc việc bị lộ. が最後 hơi văn viết hơn; たら最後 gần khẩu ngữ hơn một bậc. Không dùng khi hệ quả là tích cực hoặc trung tính. Đây không phải nối thời gian thuần túy mà là cảnh báo tính không thể thu hồi. Người nói đánh giá bất lợi đối với việc đã lỡ bước đó. Sắc thái: Sắc cảnh báo, than thở hoặc răn đe. Người nói nhìn hành động như cái van đã mở, không khóa lại được. Thường gắn thói quen khó dừng, quy trình không đảo, hoặc rủi ro kỷ luật. Lưu ý: Vế sau phải là hệ quả bất lợi hoặc không kiểm soát được; không dùng cho kết quả tốt. Gắn động từ quá khứ/たら, không gắn danh từ trực tiếp. が最後 hơi trang trọng; たら最後 linh hoạt hơn trong lời nói."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f431cec7f5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅行に行けば行ったで、お金がかかる。",
+       "ja_furigana": "旅行(りょこう)に行(い)けば行(い)ったで、お金(かね)がかかる。",
+       "vi": "Đi du lịch thì cũng có cái của đi du lịch: tốn kém."
+      },
+      {
+       "ja": "引っ越せば引っ越したで、色々な手続きが必要だ。",
+       "ja_furigana": "引(ひ)っ越(こ)せば引(ひ)っ越(こ)したで、色々(いろいろ)な手続(てつづ)きが必要(ひつよう)だ。",
+       "vi": "Chuyển nhà thì cũng có cái của chuyển nhà: đủ thứ thủ tục."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "休館すればしたで、問い合わせのメールが溜まる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu đóng cửa thì lại có cái của đóng cửa: thư hỏi ùn lại."
+     },
+     {
+      "ja": "人数が少なければ少ないで、議論は深くなることもある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu ít người thì cũng có cái của ít người: đôi khi thảo luận lại sâu hơn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 休館すればしたで、問い合わせのメールが溜まる。",
+     "FURIGANA_MISSING: 人数が少なければ少ないで、議論は深くなることもある。"
+    ],
+    "formation": "Vば + Vたで; Aければ + Aかったで",
+    "locked_fields": [],
+    "meaning_vi": "Nếu … thì cũng có cái của đúng …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu ... thì cũng có cái của đúng ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Rơi vào tình huống ấy thì lại có hệ quả hoặc đặc điểm riêng đúng của tình huống ấy. Cách dùng: Mẫu lặp lại cùng một vị ngữ để nói: nếu rơi vào tình huống ấy thì lại có hệ quả hoặc đặc điểm tương ứng của đúng tình huống ấy. Không phải nếu thì tốt, mà là cũng có cái giá hoặc cái lợi riêng của nó. ば〜で, なら〜で, たら〜たで gần nghĩa; なら hay đi với danh từ và tính từ. Thường dùng khi cân nhắc hai mặt, an ủi, hoặc chỉ ra rằng không có lựa chọn nào hoàn toàn sạch. Vị ngữ lặp phải cùng gốc; không nối hai việc khác nhau. Có thể mang sắc trung lập, vừa chấp nhận vừa than. Hay đối chiếu ngầm với tình huống ngược: làm cũng mệt, nghỉ cũng đọng việc. Sắc thái: Sắc 'được cái này mất cái kia'. Có thể an ủi (vắng người thì thảo luận sâu) hoặc than (nghỉ thì việc ùn). Không gay gắt như たが最後; người nói chấp nhận tính hai mặt. Lưu ý: Phải lặp cùng gốc từ; không dùng 行けば休んだで. Với động từ, dạng phổ biến là ば＋たで hoặc たら＋たで (すればしたで, 行ったら行ったで). Không phải mẫu điều kiện dẫn tới kết quả tất yếu một chiều."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3e9918a0e8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日寝坊するようでは、試験に合格できない。",
+       "ja_furigana": "毎日(まいにち)寝坊(ねぼう)するようでは、試験(しけん)に合格(ごうかく)できない。",
+       "vi": "Nếu còn ngủ nướng mỗi ngày thì không thể đỗ kỳ thi."
+      },
+      {
+       "ja": "約束を忘れるようでは、信頼を失う。",
+       "ja_furigana": "約束(やくそく)を忘(わす)れるようでは、信頼(しんらい)を失(うしな)う。",
+       "vi": "Nếu còn quên lời hứa thì sẽ mất lòng tin."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "出典の頁を確認しないようでは、紀要の査読を通る見込みはない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu còn không kiểm tra số trang nguồn, thì khó mà qua được phản biện tập san."
+     },
+     {
+      "ja": "住民説明会で数字を丸めるようでは、合意形成以前の問題だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu còn làm tròn số liệu tại buổi giải thích cho cư dân, thì đó là vấn đề trước cả việc tạo đồng thuận."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 出典の頁を確認しないようでは、紀要の査読を通る見込みはない。",
+     "FURIGANA_MISSING: 住民説明会で数字を丸めるようでは、合意形成以前の問題だ。"
+    ],
+    "formation": "Vない + ようでは",
+    "locked_fields": [],
+    "meaning_vi": "Nếu còn … như thế thì đáng lo",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu còn ... như thế thì đáng lo",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Lấy cách làm hoặc năng lực hiện tại làm bằng chứng để kết luận bất lợi. Cách dùng: Mẫu ようでは lấy cách hành xử hoặc năng lực hiện tại làm bằng chứng để kết luận bất lợi. Nếu còn làm hoặc không làm được như thế, thì hậu quả là không đạt chuẩn, không đáng tin, hoặc tương lai đáng lo. Vế sau gần như luôn tiêu cực: 困る, 話にならない, 一人前とは言えない. Đây là lời nhận xét, phê bình, chứ không phải điều kiện trung tính. Kết nối với động từ thể từ điển hoặc thể phủ định. Không dùng để khen hoặc để mở ra cơ hội tốt. Sắc thái: Giọng giám sát, thầy cô, cấp trên hoặc tự răn. Người nói lấy 'cái cách đang diễn ra' làm triệu chứng của sự thiếu tư cách. Thường nghe như cảnh báo trước khi việc hỏng hẳn. Lưu ý: Vế sau gần như bắt buộc mang đánh giá tiêu cực hoặc lo ngại. Không dùng ようでは để nêu điều kiện dẫn tới kết quả tốt. Hay đi với こんな／そんな để chỉ trích hiện trạng cụ thể."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8e6a656258"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "子供の命がかかっているとあれば、医者は夜中でも駆けつける。",
+       "ja_furigana": "子供(こども)の命(いのち)がかかっているとあれば、医者(いしゃ)は夜中(よなか)でも駆(か)けつける。",
+       "vi": "Nếu là vì tính mạng của đứa trẻ, bác sĩ dù nửa đêm cũng đến ngay."
+      },
+      {
+       "ja": "友達のためとあれば、私も力になる。",
+       "ja_furigana": "友達(ともだち)のためとあれば、私(わたし)も力(ちから)になる。",
+       "vi": "Nếu là vì bạn bè, tôi cũng sẽ ra tay giúp đỡ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "地域資料の散逸を防ぐとあれば、休館日でも整理作業に入る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu là để ngăn tư liệu địa phương thất tán, dù ngày đóng cửa chúng tôi vẫn vào làm việc chỉnh lý."
+     },
+     {
+      "ja": "倫理審査の期限が金曜とあれば、測定データの再集計も辞さない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu hạn chót thẩm định đạo đức là thứ Sáu, chúng tôi cũng không ngại tổng hợp lại số liệu đo."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 地域資料の散逸を防ぐとあれば、休館日でも整理作業に入る。",
+     "FURIGANA_MISSING: 倫理審査の期限が金曜とあれば、測定データの再集計も辞さない。"
+    ],
+    "formation": "Vる + とあれば; N + とあれば",
+    "locked_fields": [],
+    "meaning_vi": "Nếu vì … thì sẵn sàng làm",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu vì ... thì sẵn sàng làm",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Khi điều kiện đủ trọng, người ta chấp nhận làm việc vốn khó, tốn kém hoặc trái lệ thường. Cách dùng: Mẫu này nêu một điều kiện then chốt: nếu vì việc ấy, vì người ấy, hoặc nếu tình thế đã là như vậy, thì chủ thể chấp nhận làm điều vốn phiền, tốn kém hay trái với lệ thường. Vế sau thường là nỗ lực đặc biệt, nhượng bộ lớn hoặc biện pháp khác thường, chứ không phải hệ quả trung tính. Sắc thái trang trọng, hay gặp trong văn viết, phát biểu công vụ và lập luận. Điều kiện phía trước phải đủ trọng để biện minh cho phản ứng mạnh ở vế sau. Không dùng cho giả định vụn vặt kiểu nếu mưa thì mang ô. Sắc thái: Mang sắc quyết tâm, trách nhiệm hoặc hy sinh có chọn lọc. Người nói nhìn điều kiện như lý do chính đáng để phá lệ. Văn phong cứng hơn なら, vốn gần nghị luận và công vụ hơn khẩu ngữ hàng ngày. Lưu ý: Điều kiện phải mang trọng lượng; không dùng cho giả định nhỏ, trung tính. Vế sau thường là hành động đặc biệt hoặc nhượng bộ, không phải mô tả thuần túy. Ít gặp trong trò chuyện thân mật; thiên văn viết và phát biểu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-08796b2699"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "いやな仕事を続けるくらいなら、辞めたほうがいい。",
+       "ja_furigana": "いやな仕事(しごと)を続(つづ)けるくらいなら、辞(や)めたほうがいい。",
+       "vi": "Thà nghỉ việc còn hơn cứ tiếp tục công việc mình ghét."
+      },
+      {
+       "ja": "高いお金を払うくらいなら、自分で作ったほうがいい。",
+       "ja_furigana": "高(たか)いお金(かね)を払(はら)うくらいなら、自分(じぶん)で作(つく)ったほうがいい。",
+       "vi": "Thà tự làm còn hơn bỏ tiền ra mua đắt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "中途半端に改訂するくらいなら、現行版のまま注釈を足した方がいい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thà giữ bản hiện hành và thêm chú thích còn hơn sửa nửa vời."
+     },
+     {
+      "ja": "名義だけ貸すくらいなら、最初から企画に関わらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thà từ đầu không dính vào dự án còn hơn chỉ cho mượn danh nghĩa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Thà ... còn hơn đến mức ...",
+     "FURIGANA_MISSING: 中途半端に改訂するくらいなら、現行版のまま注釈を足した方がいい。",
+     "FURIGANA_MISSING: 名義だけ貸すくらいなら、最初から企画に関わらない。"
+    ],
+    "formation": "Vる + くらいなら",
+    "locked_fields": [],
+    "meaning_vi": "Thà … còn hơn đến mức …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Thà ... còn hơn đến mức ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nếu phải làm X đến mức đáng chê, thà chọn Y dù Y cũng chẳng hoàn hảo. Cách dùng: Mẫu so sánh lựa chọn: nếu phải làm X đến mức ấy, mà X bị đánh giá thấp, nhục, vô ích hoặc nửa vời, thì thà chọn Y. Y không nhất thiết tốt đẹp; chỉ là còn chịu được hơn X. Cảm xúc người nói là từ chối X khá mạnh. Thường gặp 辞書形 + くらいなら, đôi khi そんなNくらいなら. Không dùng khi X vốn đã là lựa chọn hay; điểm nhấn là X tệ đến mức nên đổi hướng. Vế sau hay là 方がいい, ましだ, hoặc một hành động dứt khoát như rút lui, từ chối, làm lại từ đầu. Đây là lập luận cảm tính, thường xuất hiện khi bàn việc nghề nghiệp hoặc trách nhiệm tập thể. Sắc thái: Giọng dứt khoát, có khi gay gắt. Người nói hạ giá X và chọn phương án ít tổn hại danh dự hoặc hiệu quả hơn. Không phải so sánh trung tính kiểu より. Lưu ý: X phải bị xem là kém, vô ích hoặc mất mặt; không dùng khi X vốn tốt. Thường gắn 辞書形; ít gắn た形. Vế sau là lựa chọn thay thế, không phải mô tả mức độ thuần túy như くらいだ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-af21afb1f9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この新製品を皮切りに、会社は海外市場へ進出する。",
+       "ja_furigana": "この新製品(しんせいひん)を皮(かわ)切(き)りに、会社(かいしゃ)は海外市場(かいがいしじょう)へ進出(しんしゅつ)する。",
+       "vi": "Lấy sản phẩm mới này làm bước mở đầu, công ty tiến ra thị trường nước ngoài."
+      },
+      {
+       "ja": "第一回の講座を皮切りに、毎月開催していく。",
+       "ja_furigana": "第一回(だいいっかい)の講座(こうざ)を皮(かわ)切(き)りに、毎月(まいつき)開催(かいさい)していく。",
+       "vi": "Lấy buổi giảng đầu tiên làm khởi đầu, chúng tôi sẽ tổ chức hàng tháng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "大阪公演を皮切りに、全国ツアーがスタートする。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bắt đầu bằng buổi diễn tại Osaka, tour diễn toàn quốc sẽ khởi động."
+     },
+     {
+      "ja": "関西地区を皮切りに、新サービスの提供を始める。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bắt đầu từ khu vực Kansai, chúng tôi bắt đầu cung cấp dịch vụ mới."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 大阪公演を皮切りに、全国ツアーがスタートする。",
+     "FURIGANA_MISSING: 関西地区を皮切りに、新サービスの提供を始める。"
+    ],
+    "formation": "N + を皮切りに(して)",
+    "locked_fields": [],
+    "meaning_vi": "Nêu mốc mở màn cho một chuỗi sự kiện/hoạt động đồng loại về sau. Nhấn tính kế hoạch/lan tỏa theo không gian hoặc thời gian. Thường dùng trong phạm vi tổ chức, sản phẩm, nghệ thuật biểu diễn, chiến dịch cộng đồng.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Bắt đầu từ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng vừa; hợp với văn bản kế hoạch và tin tức. Đầu vào nên là danh từ sự kiện/địa điểm có thể đóng vai trò “mốc đầu”. Nội dung theo sau cần thể hiện sự tiếp diễn/lan tỏa, tránh diễn tả một hành động độc lập duy nhất. [6. Ghi chú mở rộng] Sử dụng hiệu quả trong CV/PR: 「海外展開を皮切りに、売上が拡大」. Trong bản tin sự kiện, ghép với chỉ mục đợt/phase: 第1弾、第1期. [7. Biến thể & cụm cố định] N を皮切りに、～：mẫu chuẩn. この公演を皮切りに、～／国内発売を皮切りに、～：cụm tiêu chuẩn báo chí. Dạng với して: ～を皮切りにして、～. [8. Lỗi thường gặp & bẫy JLPT] Gắn với hành động đơn phát không có tiếp diễn: thiếu tự nhiên. Nhầm “mở màn” với “bước ngoặt”: đề dễ đánh lừa giữa 皮切り và 機. Dùng trước danh từ không phải sự kiện/địa điểm (ví dụ: 能力、気持ち): không hợp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-844fbd9426"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "失敗に失敗を重ねて、ついに成功した。",
+       "ja_furigana": "失敗(しっぱい)に失敗(しっぱい)を重(かさ)ねて、ついに成功(せいこう)した。",
+       "vi": "Chồng chất hết thất bại này đến thất bại khác, cuối cùng đã thành công."
+      },
+      {
+       "ja": "努力に努力を重ねて、夢を実現した。",
+       "ja_furigana": "努力(どりょく)に努力(どりょく)を重(かさ)ねて、夢(ゆめ)を実現(じつげん)した。",
+       "vi": "Chồng chất biết bao nỗ lực, đã biến ước mơ thành hiện thực."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "会議に会議を重ねて、ようやく合意に達した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Họp hết lần này đến lần khác, cuối cùng đã đạt đồng thuận."
+     },
+     {
+      "ja": "実験に実験を重ねて、安全性を確かめた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Qua vô số thí nghiệm, đã xác nhận độ an toàn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Chồng chất...",
+     "FURIGANA_MISSING: 会議に会議を重ねて、ようやく合意に達した。",
+     "FURIGANA_MISSING: 実験に実験を重ねて、安全性を確かめた。"
+    ],
+    "formation": "N + に + N + を重ねて",
+    "locked_fields": [],
+    "meaning_vi": "Nhấn quá trình tích lũy qua lặp lại nhiều lần một hành động/quy trình. Sắc thái trang trọng, phù hợp văn viết, báo cáo, bài nghị luận. Gợi cảm giác nỗ lực kiên trì hoặc chuỗi sự cố liên tiếp (tích cực/tiêu cực).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chồng chất...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Hai danh từ nên là quá trình có tính lặp: 実験・検討・会議・調整・試行・努力・苦労. Sau mệnh đề “～に～を重ねて” thường là kết quả bằng thì quá khứ hoặc ついに／ようやく. Ít dùng trong khẩu ngữ thường ngày; nghe “báo chí/học thuật”. [6. Ghi chú mở rộng] Có thể đảo N2 để tránh lặp đơn điệu: 協議に会議を重ねて (tuy ít gặp hơn). Kết hợp từ chỉ kết cục: ついに／ようやく／その結果／～に至った để hoàn thiện mạch logic. Trong văn sách trắng/chính sách: 検討に検討を重ねて、～を策定した là công thức quen thuộc. [7. Biến thể & cụm cố định] 実験に実験を重ねて／検討に検討を重ねて／会議に会議を重ねて 試行に試行を重ねて／努力に努力を重ねて／苦労に苦労を重ねて 失敗に失敗を重ねて／議論に議論を重ねて [8. Lỗi thường gặp & bẫy JLPT] Dùng với danh từ không lặp được (× 喜びに喜びを重ねて) → chọn danh từ quá trình/hành động. Thiếu kết quả sau mệnh đề khiến câu kém tự nhiên trong văn viết. Nhầm với 何度も: đề thi thích mẫu trang trọng có điệp danh từ. Sai trợ từ: phải là “NにNを重ねて”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-dbc9a674cc"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-028"
+}

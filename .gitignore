@@ -108,6 +108,11 @@ graphify-out/
 .roo/
 .windsurf/
 
+# graphify knowledge graph (generated locally)
+graphify-out/
+.graphify*
+graphify.md
+
 # -----------------------------------------------------------------------
 # ECLIPSE
 # -----------------------------------------------------------------------
@@ -203,6 +208,8 @@ docker-compose.override.yml
 # -----------------------------------------------------------------------
 *.sql.bak
 data_full.sql
+# Local-only demo seed: contains a real bcrypt password hash — never commit/push.
+db/jlas-learning-demo-seed.sql
 .jlas-backups/
 # Keep schema but not data
 # jlas_schema.sql  <- keep this tracked
@@ -227,15 +234,21 @@ yarn-error.log*
 # -----------------------------------------------------------------------
 .venv/
 __pycache__/
+# Maven local repo override (-Dmaven.repo.local=.m2) khi chạy trong sandbox
+.m2/
 *.py[cod]
 dictionary-import-report*.jsonl
 /data/JMdict*
 /data/kanjidic2*
 /data/kanjivg*
+/data/unidic-cwj-*/
+/data/kanjium-master/
 !/data/dictionary-seed/
-!/data/dictionary-seed/jlas-dictionary-test-seed-20260916.sql.gz
+!/data/dictionary-seed/jlas-dictionary-test-seed-*.sql.gz
 !/data/dictionary-seed/kanjivg-r20250816.zip
+!/data/dictionary-seed/stroke-order-extra.zip
 /src/main/resources/static/assets/kanjivg/
+/src/main/resources/static/assets/stroke-order-extra/
 
 # -----------------------------------------------------------------------
 # MISC / TEMP
@@ -261,3 +274,40 @@ uploads/
 
 # Team-only policy document.
 doc/QUY ĐỊNH TEAM_JLAS.docx
+
+# -----------------------------------------------------------------------
+# PERSONAL WORKING NOTES / SPECS / CONTENT DATA (not team deliverables)
+# -----------------------------------------------------------------------
+docs/
+tools/grammar_n1.json
+tools/grammar_n2.json
+tools/grammar_n3.json
+tools/daily_data.json
+tools/it_data.json
+tools/travel_data.json
+tools/kanji_data.json
+tools/tu_vung_N3_N1_duyet.xlsx
+tools/JLAS_tu_vung_nghia_vi_claude_reviewed.json
+
+# Ảnh gốc vẽ tay và script ghép hoạt ảnh mèo ở sảnh (~22MB); game chỉ dùng sprite đã ghép trong
+# static/arena/app/neko. Bản gốc cất ở Drive.
+frontend/neko-catch/art/
+
+# Local project snapshots and generated previews
+/AIcall-before-pull/
+/output/
+/local-db/
+.kilo/
+.kilocode/
+
+# Private avatar submissions and appeal evidence (JLAS-W0250).
+storage/moderation/
+
+# Local consolidated schema and full feature-test seeds
+/sqlrun/
+
+# Local design inspection and generated animation intermediates.
+/.hallmark/
+/data/mascot/*/frames/
+# Audio + page images of the digitised textbooks (~2.4 GB): shared via Google Drive, unzip into data/content-audio/.
+/data/content-audio/

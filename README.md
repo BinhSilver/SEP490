@@ -193,6 +193,90 @@ The `utf8mb4` character set is recommended because the system stores Japanese ch
 * Katakana
 * Other Unicode characters
 
+### Dictionary/Kanji test data
+
+The complete Japanese-Vietnamese Dictionary/Kanji test snapshot is stored with
+Git LFS. Step-by-step setup for team members (data, local config, test account,
+run and troubleshooting) is in
+[`docs/HUONG-DAN-CHAY-DU-AN.md`](docs/HUONG-DAN-CHAY-DU-AN.md); seed details are
+in [`data/dictionary-seed/README.md`](data/dictionary-seed/README.md).
+The snapshot contains no account or user/business rows.
+
+### System Admin (JLAS2-51)
+
+On an existing database, run `sql/migrations/028_system_admin_core.sql` once
+**before starting the app** (`ddl-auto: validate`); it adds the account-lock
+columns, the `admin_audit_log` table and the `SUPER_ADMIN` role. Fresh
+databases get them from `jlas_schema.sql`. Promote the first System Admin:
+
+```sql
+UPDATE users SET role_id = (SELECT id FROM roles WHERE name = 'SUPER_ADMIN')
+WHERE email = '<email>';
+```
+
+Roles (run `sql/migrations/029_merge_admin_roles.sql` once on a database built
+before this change: it moves `ADMIN` accounts to `SUPER_ADMIN` and `CONTENT_ADMIN`
+accounts to `CONTENT_CREATOR`, then removes both old roles):
+
+| Role | Can do |
+|---|---|
+| `LEARNER` | Learning features. Premium is not a role: a learner whose non-FREE plan has not expired. |
+| `CONTENT_CREATOR` | Content tools (textbooks, lessons, JLPT exams) and Onyomi review. |
+| `MODERATOR` | Moderation area `/admin/moderation/**` except user sanctions. |
+| `SUPER_ADMIN` | System Admin area `/admin/system/**` plus all of moderation, including user sanctions. |
+
+System Admin pages live under `/admin/system/**` and APIs under
+`/api/admin/system/**` (`SUPER_ADMIN` only):
+
+- **Dashboard** (`/dashboard`): accounts by role, Premium, locked/unverified
+  accounts, plans on sale, payments by status, paid total for 30 days, moderation
+  backlog and the latest admin actions.
+- **Users** (`/users`): search, lock/unlock, change role, grant Premium manually
+  (days stack on an active period; only plans on sale; no payment is created).
+- **Premium plans** (`/premium-plans`): create, edit, stop/start selling. Plans are
+  never deleted; edits only affect future purchases (payments keep a snapshot).
+  `FREE` is the built-in plan and cannot be changed.
+- **Payments** (`/payments`): read-only search and detail. No refunds or edits.
+- **Audit log** (`/audit-logs`).
+
+Every change needs a reason (5–500 characters) and is written to the audit log,
+including rejected attempts.
+
+Demo data for local testing only (public password `SysAdmin@123`):
+`sql/seeds/demo_system_admin.sql` creates `sysadmin@jlab.local` (SUPER_ADMIN)
+and learner/creator/moderator accounts in different Premium and lock states.
+A fresh database that starts cleanly was built in this order: `jlas_schema.sql`,
+`sql/jlas_migrations_all.sql`, the seeds `seed_data_jlas.sql`, `jlas_seed_all.sql`,
+`questionbank.sql`, `ai_call_scoring_rules.sql`, `demo_content_creator.sql`,
+`seed_data_vnjpclub.sql`, then `src/main/resources/db/migrations/jlpt_full_setup.sql`
+(required: the JLPT entities validate against it) and `demo_system_admin.sql`.
+On a database built from older seeds, also run `sql/migrations/029_merge_admin_roles.sql`.
+
+### Premium checkout with PayOS (JLAS2-49)
+
+On an existing database, run `sql/migrations/030_payos_checkout.sql` once before
+starting the app: it adds the payment-link columns and the `EXPIRED` status to
+`payments`, and turns the seed's placeholder prices into VND (MONTHLY 10000,
+YEARLY 100000; prices that were already edited are left alone).
+Then run the re-runnable `sql/migrations/031_coupons_credit_packages.sql` before
+starting the app to add CP packages, coupons and shared payment snapshots.
+
+Put the PayOS channel keys in the ignored `application-local.yaml` (never commit them):
+
+```yaml
+payos.client-id: '<client id>'
+payos.api-key: '<api key>'
+payos.checksum-key: '<checksum key>'
+# optional: payos.app-base-url (default http://localhost:8080), payos.link-ttl-minutes (15)
+```
+
+Flow (no webhook): `/premium` shows the plans; buying opens a PayOS order and the
+page `/premium/checkout/{orderCode}` shows its QR code. The page only asks the server,
+and the server reads the order from PayOS itself (also every minute in the background
+for buyers who closed the page). Premium is granted once, when PayOS reports the full
+amount as paid; days stack on a running Premium period. `/premium/billing` lists the
+buyer's orders. Plan prices must be whole VND amounts.
+
 ---
 
 ## 7. Application Configuration
@@ -825,6 +909,15 @@ This project is developed by the J-LAS development team as part of a graduation 
 This project is intended for educational and graduation-project purposes.
 
 Unless otherwise specified, the source code should not be redistributed or used commercially without permission from the project team.
+
+---
+
+## 28. Data Sources (Nguồn dữ liệu)
+
+The digitized learning content and Kanji data are third-party data with their own terms. Attribution below is required and must be kept when the data is displayed or redistributed.
+
+* **Textbook content** (50 lessons, N5/N4: vocabulary, example sentences, grammar, dialogues, audio) — crawled from **Sekai Gen**. Seed file: `sql/seeds/seed_data_jlas.sql`, generated by `tools/generate_seed.py` from `data/seed_jlas/`.
+* **Kanji data** (characters, readings, stroke counts, radicals) — **KANJIDIC2**, © [Electronic Dictionary Research and Development Group (EDRDG)](https://www.edrdg.org/), used under the [Creative Commons Attribution-ShareAlike 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/). See the [KANJIDIC project page](https://www.edrdg.org/wiki/index.php/KANJIDIC_Project). Extracted with `extract_kanji_data.py` into `kanji_data_n5n4.json`. The attribution line is shown on the Kanji tab of every lesson page (`templates/textbooks/lesson.html`).
 
 ---
 

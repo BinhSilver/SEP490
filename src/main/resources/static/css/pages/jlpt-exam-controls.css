@@ -1,0 +1,493 @@
+.jlpt-exam-question-meta > div {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.jlpt-exam-header h1 {
+    font-family: var(--font-body);
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+
+/* Separate free practice from the sequential timed test flow. */
+.jlpt-exam-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.jlpt-exam-mode,
+.jlpt-exam-step {
+    display: inline-flex;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: var(--color-primary-fixed);
+    color: var(--color-primary) !important;
+}
+
+.jlpt-exam-timer {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 92px;
+    padding: 8px 11px;
+    border: 1px solid var(--color-outline-variant);
+    border-radius: 10px;
+    background: var(--dm-feature-surface, #fff);
+}
+
+.jlpt-exam-timer .material-symbols-outlined { font-size: 18px; color: var(--color-primary); }
+.jlpt-exam-timer strong { font: 800 14px var(--font-mono); }
+.jlpt-exam-timer.is-warning { border-color: var(--dm-feature-warning-line, #d84c4c); background: var(--dm-feature-warning-bg, #fff0ef); color: var(--dm-feature-warning, #a62f2f); }
+.jlpt-exam-tabs button:disabled { opacity: .42; cursor: not-allowed; }
+.jlpt-exam-sidebar button.is-locked { border-style: dashed; background: var(--dm-feature-soft, #f2eff5); color: var(--dm-feature-muted, #9b94a3); opacity: .62; cursor: not-allowed; }
+.jlpt-exam-announcement { margin: 12px 0 0; padding: 11px 14px; border-radius: 10px; background: var(--dm-feature-soft, #fff3d6); color: var(--dm-feature-warning, #775008); font-size: 12px; font-weight: 700; }
+.jlpt-exam-card > footer > div { display: flex; gap: 9px; }
+.jlpt-exam-card > footer #jlptNext:not(:disabled) { border-color: var(--color-primary); color: var(--color-primary); }
+.jlpt-exam-card > footer .jlpt-exam-submit-mondai { border-color: var(--color-primary); background: var(--color-primary); color: var(--color-on-primary); }
+.is-jlpt-test-mode .jlpt-exam-review { display: none; }
+
+.jlpt-exam-result {
+    width: min(620px, 100%);
+    margin: 60px auto;
+    padding: 48px;
+    text-align: center;
+    border: 1px solid var(--color-outline-variant);
+    border-radius: 22px;
+    background: var(--color-surface-lowest);
+    box-shadow: var(--shadow-2);
+}
+
+.jlpt-exam-result > .material-symbols-outlined { color: var(--dm-feature-success, #318457); font-size: 58px; }
+.jlpt-exam-result > p:first-of-type { margin: 12px 0 5px; color: var(--color-primary); font-size: 11px; font-weight: 800; letter-spacing: .1em; }
+.jlpt-exam-result h2 { margin: 0; font-size: 28px; }
+.jlpt-exam-result > strong { display: block; margin: 25px 0 10px; color: var(--color-primary); font: 800 42px var(--font-mono); }
+.jlpt-exam-result > p { color: var(--color-on-surface-variant); }
+.jlpt-exam-result > div { display: flex; justify-content: center; gap: 10px; margin-top: 26px; }
+.jlpt-exam-result a,
+.jlpt-exam-result button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 16px; border: 1px solid var(--color-primary); border-radius: 10px; background: var(--dm-feature-surface, #fff); color: var(--color-primary); font-weight: 750; text-decoration: none; cursor: pointer; }
+.jlpt-exam-result button { background: var(--color-primary); color: var(--color-on-primary); }
+
+@media (max-width: 600px) {
+    .jlpt-exam-header-actions { grid-column: 1 / -1; justify-content: flex-start; }
+    .jlpt-exam-step { display: none; }
+    .jlpt-exam-card > footer { gap: 10px; }
+    .jlpt-exam-card > footer > div { align-items: stretch; flex-direction: column; }
+    .jlpt-exam-result { margin: 25px auto; padding: 30px 20px; }
+    .jlpt-exam-result > div { flex-direction: column; }
+}
+
+.jlpt-exam-result { width: min(1080px, 100%); font-family: var(--font-body); }
+.jlpt-exam-result h2 { font-family: var(--font-body); font-weight: 800; letter-spacing: -.02em; }
+.jlpt-exam-result > p,
+.jlpt-exam-result > div,
+.jlpt-exam-result__review { font-family: var(--font-body); }
+.jlpt-exam-result__status { display: inline-flex; margin-top: 16px; padding: 7px 11px; border-radius: 999px; font: 800 11px var(--font-body); letter-spacing: .08em; }
+.jlpt-exam-result__status.is-pass { background: var(--dm-feature-success-bg, #dff5e7); color: var(--dm-feature-success, #17663b); }
+.jlpt-exam-result__status.is-fail { background: var(--dm-feature-danger-bg, #ffe5e3); color: var(--dm-feature-danger, #9b2929); }
+.jlpt-exam-result__status.is-partial { background: var(--dm-feature-soft, #eee8fb); color: var(--dm-feature-muted, #514178); }
+.jlpt-exam-result > .jlpt-exam-result__breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 22px 0 4px; }
+.jlpt-exam-result__breakdown > div { display: grid; gap: 4px; padding: 15px; border-radius: 12px; background: var(--color-surface-mid); }
+.jlpt-exam-result__breakdown span { color: var(--color-on-surface-variant); font-size: 10px; font-weight: 800; }
+.jlpt-exam-result__breakdown strong { font: 800 18px var(--font-mono); }
+.jlpt-exam-result__breakdown small { color: var(--color-primary); font: 750 11px var(--font-mono); }
+.jlpt-exam-result__review { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--color-outline-variant); text-align: left; }
+.jlpt-exam-result__review > summary { font-size: 17px; font-weight: 800; cursor: pointer; }
+.jlpt-exam-result__review > p { color: var(--color-on-surface-variant); font-size: 12px; }
+.jlpt-review-filters { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; margin: 18px 0; padding: 14px; border-radius: 12px; background: var(--color-surface-mid); }
+.jlpt-review-filters label { display: grid; gap: 5px; color: var(--color-on-surface-variant); font-size: 11px; font-weight: 750; }
+.jlpt-review-filters select { min-width: 175px; min-height: 40px; padding: 0 10px; border: 1px solid var(--color-outline-variant); border-radius: 9px; background: var(--dm-feature-raised, #fff); color: var(--color-on-surface); font: 650 12px var(--font-body); }
+.jlpt-review-filters > span { margin-left: auto; padding-bottom: 11px; color: var(--color-on-surface-variant); font-size: 11px; font-weight: 700; }
+.jlpt-review-part { margin-top: 30px; }
+.jlpt-review-part > h3 { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 2px solid var(--color-primary); color: var(--color-primary); font-size: 17px; }
+.jlpt-review-part > h3 span { color: var(--color-on-surface-variant); font-size: 11px; }
+.jlpt-review-item { margin: 16px 0; padding: 20px; border: 1px solid var(--color-outline-variant); border-left: 5px solid var(--dm-feature-line, #a39ca8); border-radius: 13px; background: var(--dm-feature-surface, #fff); }
+.jlpt-review-item.is-correct { border-left-color: var(--dm-feature-success-line, #318457); }
+.jlpt-review-item.is-wrong { border-left-color: var(--dm-feature-danger-line, #c55252); }
+.jlpt-review-item > header { display: flex; justify-content: space-between; gap: 12px; }
+.jlpt-review-item > header span { color: var(--color-on-surface-variant); font-size: 11px; font-weight: 750; }
+.jlpt-review-item > header strong { font-size: 12px; }
+.jlpt-review-item.is-correct > header strong { color: var(--dm-feature-success, #247148); }
+.jlpt-review-item.is-wrong > header strong { color: var(--dm-feature-danger, #b23f3f); }
+.jlpt-review-order { padding: 12px 14px; border-radius: 12px; background: var(--dm-feature-soft, #f6f2fb); color: var(--color-on-surface); font: 13px/1.6 var(--font-body); }
+.jlpt-review-order p { margin: 0 0 8px; }
+.jlpt-review-order p:last-child { margin-bottom: 0; }
+.jlpt-review-order ol { display: inline-flex; flex-wrap: wrap; gap: 8px 18px; margin: 6px 0 0; padding-left: 22px; }
+.jlpt-review-item h4 { margin: 16px 0; font-family: "Noto Serif JP", "Noto Serif", serif; font-size: 17px; font-weight: 700; line-height: 1.7; }
+.jlpt-review-passage { margin: 15px 0; padding: 16px; border-radius: 10px; background: var(--color-surface); font-size: 14px; line-height: 1.75; }
+.jlpt-review-image { display: block; max-width: 100%; max-height: 360px; margin: 15px auto; }
+.jlpt-review-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+.jlpt-review-option { display: grid; grid-template-columns: 30px 1fr; align-items: center; gap: 9px; min-height: 50px; padding: 9px 11px; border: 1px solid var(--color-outline-variant); border-radius: 10px; }
+.jlpt-review-option b { display: grid; place-items: center; width: 27px; height: 27px; border-radius: 50%; background: var(--color-surface-mid); font: 750 11px var(--font-mono); }
+.jlpt-review-option span { font-family: "Noto Serif JP", "Noto Serif", serif; font-size: 14px; font-weight: 700; line-height: 1.5; }
+.jlpt-review-option em { grid-column: 2; color: inherit; font-size: 9px; font-style: normal; font-weight: 800; }
+.jlpt-review-option.is-correct { border-color: var(--dm-feature-success-line, #72ae86); background: var(--dm-feature-success-bg, #e9f7ed); color: var(--dm-feature-success, #246440); }
+.jlpt-review-option.is-correct b { background: var(--dm-feature-success-bg, #348556); color: var(--dm-feature-success, #fff); }
+.jlpt-review-option.is-wrong { border-color: var(--dm-feature-danger-line, #da8282); background: var(--dm-feature-danger-bg, #fff0ef); color: var(--dm-feature-danger, #9f3636); }
+.jlpt-review-option.is-wrong b { background: var(--dm-feature-danger-bg, #c34d4d); color: var(--dm-feature-danger, #fff); }
+.jlpt-review-item > button { display: inline-flex; align-items: center; gap: 6px; min-height: 38px; margin-top: 14px; padding: 0 13px; border: 1px solid var(--dm-feature-line, #b7a7db); border-radius: 9px; background: var(--dm-feature-surface, #fff); color: var(--dm-feature-muted, #583b98); font-weight: 750; cursor: pointer; }
+.jlpt-review-item > button .material-symbols-outlined { font-size: 18px; }
+.jlpt-review-explanation { margin-top: 14px; padding: 17px; border: 1px solid var(--dm-feature-line, #9dddb5); border-radius: 11px; background: var(--dm-feature-surface, #f3fbf6); }
+.jlpt-review-explanation strong { color: var(--dm-feature-success, #167444); }
+.jlpt-review-explanation p { margin: 8px 0 0; color: var(--dm-feature-success, #26382e); font-size: 13px; line-height: 1.7; }
+
+@media (max-width: 650px) {
+    .jlpt-exam-result > .jlpt-exam-result__breakdown { grid-template-columns: 1fr; }
+    .jlpt-review-options { grid-template-columns: 1fr; }
+    .jlpt-review-item { padding: 15px; }
+}
+
+.jlpt-submit-dialog { width: min(650px, calc(100% - 28px)); padding: 28px; border: 0; border-radius: 22px; background: var(--color-surface-lowest); color: var(--color-on-surface); box-shadow: 0 30px 90px rgba(35, 24, 50, .3); }
+.jlpt-submit-dialog::backdrop { background: var(--dm-feature-backdrop, rgba(31, 24, 38, .5)); backdrop-filter: blur(5px); }
+.jlpt-submit-dialog[open] { display: grid; grid-template-columns: 150px minmax(0, 1fr); align-items: center; gap: 24px; }
+.jlpt-submit-dialog img { display: block; width: 150px; height: 145px; object-fit: contain; }
+.jlpt-submit-dialog > div > span { color: var(--color-primary); font: 800 10px var(--font-body); letter-spacing: .1em; }
+.jlpt-submit-dialog h2 { margin: 7px 0; font: 800 24px/1.2 var(--font-body); }
+.jlpt-submit-dialog p { margin: 0; color: var(--color-on-surface-variant); font: 13px/1.65 var(--font-body); }
+.jlpt-submit-dialog p strong { color: var(--dm-feature-danger, #b23f3f); font-weight: 850; }
+.jlpt-submit-dialog footer { display: flex; justify-content: flex-end; gap: 9px; margin-top: 22px; }
+.jlpt-submit-dialog footer button { min-height: 41px; padding: 0 14px; border: 1px solid var(--color-outline-variant); border-radius: 9px; background: var(--dm-feature-surface, #fff); color: var(--color-on-surface); font: 750 12px var(--font-body); cursor: pointer; }
+.jlpt-submit-dialog footer button:last-child { border-color: var(--color-primary); background: var(--color-primary); color: var(--color-on-primary); }
+@media (max-width: 560px) { .jlpt-submit-dialog[open] { grid-template-columns: 1fr; text-align: center; } .jlpt-submit-dialog img { width: 110px; height: 100px; margin: 0 auto -8px; } .jlpt-submit-dialog footer { flex-direction: column; } }
+
+.jlpt-exam-question-meta #jlptBookmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 34px;
+    padding: 0 11px;
+    border: 1px solid var(--color-outline-variant);
+    border-radius: 9px;
+    background: var(--dm-feature-surface, #fff);
+    color: var(--color-on-surface-variant);
+    font: 700 12px var(--font-body);
+    cursor: pointer;
+}
+
+.jlpt-exam-question-meta #jlptBookmark .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.jlpt-exam-question-meta #jlptBookmark.is-active {
+    border-color: var(--dm-feature-accent, #d39a32);
+    background: var(--dm-feature-raised, #fff7e4);
+    color: var(--dm-feature-warning, #99620b);
+}
+
+.jlpt-exam-sidebar button.is-marked {
+    border-color: var(--dm-feature-line, #d39a32);
+    background: var(--dm-feature-soft, #fff3d4);
+    color: var(--dm-feature-warning, #88570b);
+    box-shadow: inset 0 -3px 0 #e3a83d;
+}
+
+.jlpt-exam-sidebar button.is-marked.is-current {
+    border-color: var(--dm-feature-accent, #d39a32);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    box-shadow: inset 0 -4px 0 #f2bc55;
+}
+
+.jlpt-exam-choice > span {
+    color: var(--dm-feature-ink, #211b29);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.65;
+}
+
+.jlpt-exam-choice b {
+    color: var(--dm-feature-ink, #342b3d);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.jlpt-exam-choice:has(input:checked) > span,
+.jlpt-exam-choice.is-correct > span,
+.jlpt-exam-choice.is-wrong > span {
+    color: var(--dm-feature-ink, #17121d);
+    font-weight: 650;
+}
+
+.jlpt-exam-filters {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr;
+    gap: 0;
+    margin-bottom: 14px;
+    padding: 4px;
+    border-radius: 10px;
+    background: var(--dm-feature-soft, #edf1f3);
+}
+
+#jlptFilters button {
+    width: 100% !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 0 6px !important;
+    aspect-ratio: auto !important;
+    border: 0 !important;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--dm-feature-muted, #5f5965);
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+#jlptFilters button.is-active {
+    background: var(--dm-feature-raised, #fff);
+    color: var(--dm-feature-ink, #2f2935);
+    box-shadow: 0 1px 3px rgba(37, 31, 43, .12);
+}
+
+.jlpt-exam-sidebar nav button.is-answered {
+    border-color: var(--dm-feature-success-line, #8263ba);
+    background: var(--dm-feature-success-bg, #eee8f8);
+    color: var(--dm-feature-success, #56368e);
+    font-weight: 800;
+}
+
+.jlpt-exam-sidebar nav button.is-answered.is-current {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+}
+
+.jlpt-exam-sidebar nav button.is-answered.is-marked {
+    border-color: var(--dm-feature-success-line, #d39a32);
+    box-shadow: inset 0 -3px 0 #e3a83d;
+}
+
+.jlpt-exam-filter-empty {
+    grid-column: 1 / -1;
+    padding: 18px 4px;
+    color: var(--color-on-surface-variant);
+    font-size: 11px;
+    text-align: center;
+}
+
+.jlpt-exam-audio audio {
+    display: none;
+}
+
+.jlpt-exam-audio__bar .jlpt-exam-audio__play {
+    display: grid;
+    flex: 0 0 42px;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    min-height: 42px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--dm-feature-accent, #2369df);
+    color: var(--dm-feature-on-accent, #fff);
+}
+
+.jlpt-exam-audio__play .material-symbols-outlined {
+    font-size: 25px;
+}
+
+.jlpt-exam-audio__range {
+    flex: 1;
+    min-width: 100px;
+    accent-color: var(--dm-feature-accent, #2369df);
+    cursor: pointer;
+}
+
+.jlpt-exam-audio__time {
+    min-width: 92px;
+    color: var(--dm-feature-muted, #40546e);
+    font: 650 11px var(--font-mono);
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* A reading passage and every question attached to it form one page. */
+.jlpt-exam-instruction {
+    margin-bottom: 16px;
+    padding-bottom: 13px;
+    line-height: 1.65;
+}
+
+.jlpt-exam-passage {
+    margin-bottom: 16px;
+    padding: 19px 21px;
+    color: var(--dm-feature-ink, #211d25);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.72;
+    white-space: normal;
+    overflow-x: auto;
+}
+
+.jlpt-exam-explanation > div p,
+.jlpt-exam-explanation > p {
+    color: var(--dm-feature-success, #1d3025);
+    font-weight: 600;
+}
+
+.jlpt-exam-passage > p,
+.jlpt-exam-passage > div {
+    margin: .55em 0;
+}
+
+.jlpt-exam-passage > :first-child {
+    margin-top: 0;
+}
+
+.jlpt-exam-passage > :last-child {
+    margin-bottom: 0;
+}
+
+.jlpt-exam-passage center {
+    text-align: center;
+}
+
+.jlpt-exam-passage hr {
+    margin: 14px 0;
+    border: 0;
+    border-top: 1px solid var(--dm-feature-line, #cfc5db);
+}
+
+.jlpt-exam-passage table {
+    width: 100%;
+    min-width: 520px;
+    margin: 14px 0;
+    border-collapse: collapse;
+    background: var(--dm-feature-surface, #fff);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.jlpt-exam-passage th,
+.jlpt-exam-passage td {
+    padding: 9px 11px;
+    border: 1px solid var(--dm-feature-line, #bfb4cd);
+    vertical-align: top;
+    text-align: left;
+}
+
+.jlpt-exam-passage th {
+    background: var(--dm-feature-soft, #eee9f5);
+    font-weight: 750;
+    text-align: center;
+}
+
+.jlpt-exam-passage img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 14px auto;
+}
+
+.jlpt-exam-question-group {
+    display: grid;
+    gap: 0;
+}
+
+.jlpt-exam-question-block {
+    padding: 22px 0 25px;
+    border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.jlpt-exam-question-block:first-child {
+    padding-top: 8px;
+}
+
+.jlpt-exam-question-block:last-child {
+    padding-bottom: 4px;
+    border-bottom: 0;
+}
+
+.jlpt-exam-question-block > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    color: var(--color-primary);
+    font-size: 13px;
+}
+
+.jlpt-exam-question-block > header button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--color-outline-variant);
+    border-radius: 8px;
+    background: var(--dm-feature-surface, #fff);
+    color: var(--color-on-surface-variant);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.jlpt-exam-question-block > header button.is-active {
+    border-color: var(--dm-feature-accent, #d4ad43);
+    background: var(--dm-feature-raised, #fff8df);
+    color: var(--dm-feature-warning, #75580a);
+}
+
+.jlpt-exam-question-block .jlpt-exam-question {
+    margin: 12px 0 16px;
+    font-size: clamp(18px, 2.2vw, 24px);
+    line-height: 1.65;
+}
+
+.jlpt-exam-feedback {
+    margin-right: auto;
+    color: var(--color-on-surface-variant);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+@media (max-width: 600px) {
+    .jlpt-exam-question-meta {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .jlpt-exam-question-meta > div {
+        align-items: flex-end;
+        flex-direction: column-reverse;
+        gap: 7px;
+    }
+
+    .jlpt-exam-audio__bar {
+        display: grid;
+        grid-template-columns: 42px minmax(0, 1fr);
+    }
+
+    .jlpt-exam-audio__time {
+        grid-column: 2;
+        text-align: left;
+    }
+
+    .jlpt-exam-question-block {
+        padding: 18px 0 21px;
+    }
+
+    .jlpt-exam-passage {
+        padding: 16px;
+        line-height: 1.65;
+    }
+
+    .jlpt-exam-feedback {
+        margin-right: 0;
+    }
+
+}
+
+/* Plum palette for this feature. Preserve the meaning of answer states. */
+html[data-theme="dark"] .jlpt-exam-choice.is-correct > span {
+    color: var(--dm-feature-success);
+}
+
+html[data-theme="dark"] .jlpt-exam-choice.is-wrong > span {
+    color: var(--dm-feature-danger);
+}

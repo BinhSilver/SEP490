@@ -1,0 +1,587 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "兄はその話をまったく知らない。",
+       "ja_furigana": "兄(あに)はその話(はなし)をまったく知(し)らない。",
+       "vi": "Anh trai hoàn toàn không biết chuyện đó.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "外国語の歌なので、意味がまったくわからない。",
+       "ja_furigana": "外国語(がいこくご)の歌(うた)なので、意味(いみ)がまったくわからない。",
+       "vi": "Vì là bài hát tiếng nước ngoài nên tôi hoàn toàn không hiểu nghĩa.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "私はまったく泳げない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi hoàn toàn không thể bơi được"
+     },
+     {
+      "ja": "彼が怒っている理由は、私にはまったくわからない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lý do anh ấy nổi giận thì với tôi hoàn toàn chẳng hiểu được"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 私はまったく泳げない。",
+     "FURIGANA_MISSING: 彼が怒っている理由は、私にはまったくわからない。"
+    ],
+    "formation": "まったく + V-ない / Aい(くない) / Aな・N(ではない)",
+    "locked_fields": [],
+    "meaning_vi": "Hoàn toàn không",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜まったく泳げない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi khẳng định sự vật, sự việc hoàn toàn không có, không thể xảy ra."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-21f2a903a0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町ではめったに雪が降らない。",
+       "ja_furigana": "この町(まち)ではめったに雪(ゆき)が降(ふ)らない。",
+       "vi": "Thị trấn này hiếm khi có tuyết.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "父が料理をすることは、めったにない。",
+       "ja_furigana": "父(ちち)が料理(りょうり)をすることは、めったにない。",
+       "vi": "Bố tôi hiếm khi nấu ăn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "こんなチャンスはめったにないよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cơ hội thế này là hiếm có lắm đấy"
+     },
+     {
+      "ja": "忙しくてめったに休みが取れない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì bận nên hiếm khi mà nghỉ được"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 忙しくてめったに休みが取れない。"
+    ],
+    "formation": "めったに + V-ない / めったにない + N",
+    "locked_fields": [],
+    "meaning_vi": "Hiếm khi",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜めったにない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Thường dùng trong trường hợp số lượng của sự vật, sự việc rất ít, hầu như hiếm khi có được, xảy ra"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-160a6a7e6c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このお茶は少しも甘くない。",
+       "ja_furigana": "このお茶(ちゃ)は少(すこ)しも甘(あま)くない。",
+       "vi": "Trà này chẳng ngọt chút nào.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "先生の話が速くて、少しもわからなかった。",
+       "ja_furigana": "先生(せんせい)の話(はなし)が速(はや)くて、少(すこ)しもわからなかった。",
+       "vi": "Thầy nói nhanh quá nên tôi chẳng hiểu chút nào.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あの人が話す英語は少しもわからない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thứ tiếng Anh mà người kia nói tôi một chút cũng chẳng hiểu"
+     },
+     {
+      "ja": "スタイルのことは、少しも気にならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Về style thì tôi chẳng quan tâm"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あの人が話す英語は少しもわからない。",
+     "FURIGANA_MISSING: スタイルのことは、少しも気にならない。"
+    ],
+    "formation": "少しも + V-ない",
+    "locked_fields": [],
+    "meaning_vi": "Một chút cũng không, hoàn toàn không",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜少しもわからない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng nhấn mạnh sự phủ định"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1bf878afb2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "父は決して人の悪口を言わない。",
+       "ja_furigana": "父(ちち)は決(けっ)して人(ひと)の悪口(わるぐち)を言(い)わない。",
+       "vi": "Bố tuyệt đối không nói xấu người khác.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "どんなに苦しくても、決してあきらめない。",
+       "ja_furigana": "どんなに苦(くる)しくても、決(けっ)してあきらめない。",
+       "vi": "Dù khổ đến đâu tôi cũng nhất định không bỏ cuộc.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "私は決して夢をあきらめません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi nhất quyết không từ bỏ ước mơ"
+     },
+     {
+      "ja": "「うそは決して申しません。」と彼は言った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy đã nói “Tuyệt đối không nói dối”"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 私は決して夢をあきらめません。",
+     "FURIGANA_MISSING: 「うそは決して申しません。」と彼は言った。"
+    ],
+    "formation": "決して + V-ない",
+    "locked_fields": [],
+    "meaning_vi": "Nhất quyết không, nhất định không, tuyệt đối không",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜決してあきらめない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi muốn thể hiện quyết tâm không thực hiện một hành động nào đó"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5870b97d10"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "もう夜じゃないか。早く帰ろう。",
+       "ja_furigana": "もう夜(よる)じゃないか。早(はや)く帰(かえ)ろう。",
+       "vi": "Đã tối rồi còn gì, về nhanh thôi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "なんだ、田中さんじゃないか。久しぶりだね。",
+       "ja_furigana": "なんだ、田中(たなか)さんじゃないか。久(ひさ)しぶりだね。",
+       "vi": "Ơ, là anh Tanaka đây mà. Lâu rồi không gặp nhỉ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "元気がないじゃない（か）",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn không được khỏe phải không?"
+     },
+     {
+      "ja": "元気がないじゃないか。何かトラブルがあったの？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn không được khỏe phải không? Đã gặp sự cố gì hả?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 元気がないじゃない（か）",
+     "FURIGANA_MISSING: 元気がないじゃないか。何かトラブルがあったの？"
+    ],
+    "formation": "V / Aい / Aな・N + じゃない(か)",
+    "locked_fields": [],
+    "meaning_vi": "Câu hỏi phủ định, là cách nói mang ý nghĩa “ですね”",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜じゃない(か)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "復習1 正しいほうを選びなさい。 １．公園の時計が、動かないままに（a.している b.なっている）。 ２．窓を（a.開けた b.開け）っぱなしにしないで。 ３．これからお風呂に（a.入る b.入った）ところです。 ４．病気の流行は、学校生活に大きな影響を（a.与える b.与え）かねない。 ５．たくさん本を買ったけど、読まない（a.っぱなしに b.ままに）なっている。 ６．そのニュース、私も今、知った（a.まま b.ところ）です。びっくりしました。 ７．彼は忘れっぽいから、書類をなくし（a.っぱなしに b.かねない）。 ８．どうしたの？顔が(a.赤くて b.赤い）じゃない。 復習2 ⬜の中から選んで記号を書きなさい。 a. ところだ b. わけにはいかない c. じゃまい d. っぱなしだ １．約束したことだから、どんなに大変でも、やらない（）。 ２．「テストって、いつだっけ？」「さっき言った（）か。１５日」 ３．お風呂の水が出し（）から、すぐに止めてきて。 ４．今、レポートを書いている（）から、静かにしてくれない。 ２．「テストって、いつだっけ？」「さっき言ったじゃまいか。１５日」 プラス２"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0418acc332"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "子どもに限り、入るのは無料です。",
+       "ja_furigana": "子(こ)どもに限(かぎ)り、入(はい)るのは無料(むりょう)です。",
+       "vi": "Chỉ trẻ em được vào miễn phí.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "今日に限り、コーヒーが百円です。",
+       "ja_furigana": "今日(きょう)に限(かぎ)り、コーヒーが百円(ひゃくえん)です。",
+       "vi": "Chỉ riêng hôm nay, cà phê có giá một trăm yên.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "平日に限り",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ trong những ngày thường"
+     },
+     {
+      "ja": "平日に限り、駐車料金は無料です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phí đỗ xe miễn phí chỉ trong những ngày thường."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 平日に限り",
+     "FURIGANA_MISSING: 平日に限り、駐車料金は無料です。"
+    ],
+    "formation": "N + に限り",
+    "locked_fields": [],
+    "meaning_vi": "Mang ý nghĩa “chỉ trong phạm vi đó thì ~”",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜に限り",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "復習5 正しいほうを選びなさい。 １．彼は、女性 (a.を b.に）限らず男性にも人気がある。 ２．平日は、いつも夜の９時過ぎ (a.まで b.までに）会社にいます。 ３．庭で野菜を作っています。庭といっても、（a.大きい b.小さい）ものですけど。 ４．子供のころはよく、（a.好き b.好きな）だけケーキを食べたいと思った。 ５．料理が得意な彼女 (a.のこと b.の）だから、きっとおいしい料理を作るでしょう。 ６．今週に(a.限り b.限らず）、最近はずっと土曜日に出勤している。 ７．どうぞお好きな（a.だけ b.まで）めしあがってください。 復習6 ⬜の中から選んで記号を書きなさい。 a.までに b.まで c.に限り d.限らず １．料理だけじゃなくて、デザート（）手作りしたの？すごいね。 ２．論文を書き上げて、来週（）提出しなくてはいけない。 ３．ここでは毎週水曜がレデイ―スデイになっていて、女性（）、１０００円で映画が見られるそうです。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3c413fc0e6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この写真は机に置いたままにする。",
+       "ja_furigana": "この写真(しゃしん)は机(つくえ)に置(お)いたままにする。",
+       "vi": "Tôi cứ để tấm ảnh này trên bàn.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "窓は開けたままにしておいてください。",
+       "ja_furigana": "窓(まど)は開(あ)けたままにしておいてください。",
+       "vi": "Hãy cứ để nguyên cửa sổ mở.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "電源を切ったままにする",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giữ nguyên trạng thái tắt nguồn điện."
+     },
+     {
+      "ja": "この鉢植えは、夏の間ずっと外に出したままにしています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chậu cây này để ngoài trời suốt mùa hè."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 電源を切ったままにする",
+     "FURIGANA_MISSING: この鉢植えは、夏の間ずっと外に出したままにしています。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: この鉢植えは、夏の間ずっと外に出したままにしています。 → 鉢植え"
+    ],
+    "formation": "V-た / V-ない / N(の) + ままにする",
+    "locked_fields": [],
+    "meaning_vi": "Giữ nguyên trạng thái không thay đổi.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ままにする",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5f5c652069"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母への話は、言わないままになった。",
+       "ja_furigana": "母(はは)への話(はなし)は、言(い)わないままになった。",
+       "vi": "Chuyện định nói với mẹ rốt cuộc vẫn chưa nói.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "借りた本を、返さないままになっている。",
+       "ja_furigana": "借(か)りた本(ほん)を、返(かえ)さないままになっている。",
+       "vi": "Cuốn sách đã mượn cứ thế vẫn chưa trả.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "会わないままになる",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vẫn chưa gặp được"
+     },
+     {
+      "ja": "彼と会う約束をしたけれど、結局、会わないままになってしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã hứa sẽ gặp anh ấy, nhưng cuối cùng vẫn chưa gặp được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 会わないままになる",
+     "FURIGANA_MISSING: 彼と会う約束をしたけれど、結局、会わないままになってしまった。"
+    ],
+    "formation": "V-た / V-ない + ままになる",
+    "locked_fields": [],
+    "meaning_vi": "Cùng một trạng thái được tiếp diễn mà không có sự thay đổi gì.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ままになる",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-99c9b2b718"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "兄を除いて、家族はみんな早起きだ。",
+       "ja_furigana": "兄(あに)を除(のぞ)いて、家族(かぞく)はみんな早起(はやお)きだ。",
+       "vi": "Trừ anh trai, cả nhà đều dậy sớm.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "日曜日を除いて、毎日開いています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trừ Chủ nhật, cửa hàng mở cửa mỗi ngày. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 日曜日を除いて、毎日開いています。"
+    ],
+    "formation": "N + を除いて(は) / N + を除き",
+    "locked_fields": [],
+    "meaning_vi": "Mang ý nghĩa “~ thì ngoại lệ.”,“Ngoại trừ ~ thì...”",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜を除いて",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2763cd7a75"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この本はいくら読んでもあきない。",
+       "ja_furigana": "この本(ほん)はいくら読(よ)んでもあきない。",
+       "vi": "Cuốn sách này đọc bao nhiêu cũng không chán.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "いくら寝ても、まだ眠い。",
+       "ja_furigana": "いくら寝(ね)ても、まだ眠(ねむ)い。",
+       "vi": "Ngủ bao nhiêu cũng vẫn buồn ngủ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "いくら電話しても",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù gọi điện thoại bao nhiêu lần"
+     },
+     {
+      "ja": "この音楽は、いくら聞いても飽きない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bài nhạc này dù nghe bao nhiêu lần cũng không chán."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: いくら電話しても",
+     "FURIGANA_MISSING: この音楽は、いくら聞いても飽きない。"
+    ],
+    "formation": "いくら + V-ても / Aい(くても) / Aな・N + でも",
+    "locked_fields": [],
+    "meaning_vi": "Dù là điều kiện thế nào đi chăng nữa thì kết quả cũng không thay đổi.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "いくら〜ても",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5567b2a5fd"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-069"
+}

@@ -1,155 +1,272 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Mục tiêu &amp; Chuỗi ngày · J-LAB</title>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&amp;family=Instrument+Serif:ital@0;1&amp;family=Noto+Serif:wght@400;500;600;700&amp;family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&amp;family=Instrument+Sans:ital,wght@0,400..700;1,400..700&amp;family=Instrument+Serif:ital@0;1&amp;family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" th:href="@{/css/tokens.css}" />
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}" />
     <link rel="stylesheet" th:href="@{/css/base.css}" />
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}" />
-    <link rel="stylesheet" th:href="@{/css/pages/goals.css}" />
-    <link rel="stylesheet" th:href="@{/css/pages/goals-retention.css?v=20260903-stitch}" />
-    <link rel="stylesheet" th:href="@{/css/pages/retention-demo.css?v=13}" />
-    <link rel="stylesheet" th:href="@{/css/components/retention-live.css?v=20260903-motion}" />
+    <link rel="stylesheet" th:href="@{/css/components/reward-fx.css?v=20260926y}" />
+    <link rel="stylesheet" th:href="@{/css/pages/goals-mission.css?v=20261105-plum}" />
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}" />
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-<body id="jlabBasePage" class="goals-retention-page">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="goals-page">
     <div id="jlabBaseShellMount"></div>
     <main id="jlabBaseContent">
-        <div id="goalsApp">
-            <div id="retentionLoading" class="goals-retention-loading" hidden>
+        <div id="goalsApp" class="gp">
+            <h1 class="sr-only">Mục tiêu &amp; Chuỗi ngày</h1>
+            <div id="retentionLoading" class="gp-loading" hidden>
                 <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
-                <span>Đang tải hành trình Chuỗi...</span>
+                <span>Đang tải mục tiêu của bạn...</span>
             </div>
             <div id="retentionError" class="alert alert--danger" hidden></div>
 
-            <div id="retentionContent" class="goals-retention-shell">
-                <header class="goals-retention-hero">
-                    <div class="goals-retention-hero__copy">
-                        <div class="goals-retention-hero__mark"><i class="fa-solid fa-fire" aria-hidden="true"></i></div>
-                        <div>
-                            <div class="goals-retention-kicker"><span>J-LAB Retention Engine</span><b></b><span>Học đều mỗi ngày</span></div>
-                            <h1>Mục tiêu &amp; Chuỗi ngày</h1>
-                            <p>Duy trì chuỗi học tập đều đặn, theo dõi tiến độ hằng ngày và tích lũy điểm thưởng để bứt phá năng lực tiếng Nhật.</p>
+            <div id="retentionContent" class="gp-grid">
+                <article id="dailyProgressCard" class="gp-card gp-today">
+                    <div class="gp-card__head">
+                        <div class="gp-card__title">
+                            <span class="gp-card__icon gp-card__icon--violet"><i class="fa-solid fa-bullseye" aria-hidden="true"></i></span>
+                            <div><h2>Tiến độ mục tiêu</h2></div>
                         </div>
+                        <b class="goals-retention-status">Đang thực hiện</b>
                     </div>
-                    <div class="goals-retention-credit">
-                        <span>Tổng điểm tích lũy</span>
-                        <strong><em id="retentionCredit">0</em> <small>điểm</small></strong>
-                        <i class="fa-solid fa-award" aria-hidden="true"></i>
-                    </div>
-                </header>
-
-                <section id="retentionTopGrid" class="goals-retention-topgrid">
-                    <article id="dailyProgressCard" class="goals-retention-card goals-retention-progress-card">
-                        <div class="goals-retention-card__head">
-                            <div><span>Hôm nay</span><h2>Tiến độ mục tiêu</h2></div>
-                            <b class="goals-retention-status">Đang thực hiện</b>
+                    <div class="gp-today__body">
+                        <div id="dailyGoalRing" class="gp-ring" role="progressbar" aria-label="Tiến độ mục tiêu hôm nay" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            <svg viewBox="0 0 120 120" aria-hidden="true">
+                                <defs>
+                                    <linearGradient id="gpRingGradient" x1="0" y1="0" x2="1" y2="1">
+                                        <stop offset="0" stop-color="#8b6cff" />
+                                        <stop offset="1" stop-color="#ff7ab6" />
+                                    </linearGradient>
+                                </defs>
+                                <circle class="ring-track" cx="60" cy="60" r="50" />
+                                <circle class="ring-value" cx="60" cy="60" r="50" />
+                            </svg>
+                            <div><strong id="dailyGoalPercent">0%</strong><span>Hoàn thành</span></div>
+                            <p id="dailyGoalSource" class="gp-goal-source" aria-live="polite"></p>
                         </div>
-                        <div class="goals-retention-progress-body">
-                            <div id="dailyGoalRing" class="goals-retention-rings" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                                <svg viewBox="0 0 120 120" aria-hidden="true">
-                                    <circle class="ring-track ring-track--outer" cx="60" cy="60" r="50" />
-                                    <circle class="ring-value ring-value--outer" cx="60" cy="60" r="50" />
-                                    <circle class="ring-track ring-track--middle" cx="60" cy="60" r="38" />
-                                    <circle class="ring-value ring-value--middle" cx="60" cy="60" r="38" />
-                                    <circle class="ring-track ring-track--inner" cx="60" cy="60" r="26" />
-                                    <circle class="ring-value ring-value--inner" cx="60" cy="60" r="26" />
-                                </svg>
-                                <div><strong id="dailyGoalPercent">0%</strong><span>Hoàn thành</span></div>
+                        <div class="goals-retention-metrics gp-metrics">
+                            <div class="gp-metric gp-metric--vocab">
+                                <span class="gp-metric__icon"><i class="fa-solid fa-book" aria-hidden="true"></i></span>
+                                <span class="gp-metric__label">Từ mới</span>
+                                <strong id="dailyVocabProgress">0/15</strong>
+                                <span class="gp-metric__bar"><i></i></span>
                             </div>
-                            <div class="goals-retention-metrics">
-                                <div><span><i class="fa-solid fa-book" aria-hidden="true"></i> Từ mới</span><strong id="dailyVocabProgress">0/15</strong></div>
-                                <div><span><i class="fa-solid fa-list-check" aria-hidden="true"></i> Trắc nghiệm</span><strong id="dailyQuizProgress">0/1</strong></div>
-                                <div><span><i class="fa-solid fa-clock" aria-hidden="true"></i> Phút học</span><strong id="dailyMinutesProgress">0/20</strong></div>
-                                <div class="goals-retention-mascot-note">
-                                    <div class="goals-retention-mascot"><div th:replace="~{fragments/components/fox-mascot :: foxMascot}"></div></div>
-                                    <p><b>Kitsu-chan</b><br />Cố lên nhé, hôm nay bạn đã bắt đầu rồi!</p>
-                                </div>
+                            <div class="gp-metric gp-metric--quiz">
+                                <span class="gp-metric__icon"><i class="fa-solid fa-list-check" aria-hidden="true"></i></span>
+                                <span class="gp-metric__label">Trắc nghiệm</span>
+                                <strong id="dailyQuizProgress">0/1</strong>
+                                <span class="gp-metric__bar"><i></i></span>
+                            </div>
+                            <div class="gp-metric gp-metric--minutes">
+                                <span class="gp-metric__icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
+                                <span class="gp-metric__label">Phút học</span>
+                                <strong id="dailyMinutesProgress">0/20</strong>
+                                <span class="gp-metric__bar"><i></i></span>
                             </div>
                         </div>
-                    </article>
-
-                    <article id="streakCard" class="goals-retention-card goals-retention-streak-card">
-                        <div class="goals-retention-card__head">
-                            <div><span>Hành trình</span><h2>Chuỗi học tập liên tục</h2></div>
-                            <b class="goals-retention-streak-badge"><i class="fa-solid fa-fire" aria-hidden="true"></i> <strong id="currentStreak">0 ngày</strong></b>
-                        </div>
-                        <div class="goals-retention-streak-main">
-                            <div class="goals-retention-flame"><i class="fa-solid fa-fire" aria-hidden="true"></i></div>
-                            <div><strong id="streakMilestone">Bắt đầu học hôm nay để tạo chuỗi.</strong><p>Chuỗi dài hơn giúp bạn nhận thêm điểm thưởng.</p></div>
-                        </div>
-                        <div id="streakStats" class="goals-retention-stats">
-                            <span><small>Kỷ lục cao nhất</small><strong id="longestStreak">0</strong> ngày</span>
-                            <span><small>Thẻ bảo vệ</small><strong id="freezeCount">0</strong></span>
-                        </div>
-                        <button type="button" class="btn btn--secondary btn--block" id="useFreezeBtn"><i class="fa-solid fa-shield-heart" aria-hidden="true"></i> Bảo vệ chuỗi hôm nay</button>
-                        <button type="button" class="btn btn--ghost btn--block" id="retentionJourneyBtn"><i class="fa-solid fa-route" aria-hidden="true"></i> Xem hành trình Chuỗi</button>
-                    </article>
-                </section>
-
-                <section id="retentionMainGrid" class="goals-retention-main-grid">
-                    <article id="dailyMissionsCard" class="goals-retention-card">
-                        <div class="goals-retention-card__head">
-                            <div><span>Nhiệm vụ</span><h2>Nhiệm vụ nhận điểm</h2></div>
-                            <b class="goals-retention-refresh">Làm mới lúc 00:00</b>
-                        </div>
-                        <div id="dailyMissionList" class="goals-retention-missions" aria-live="polite"></div>
-                    </article>
-
-                    <article id="targetSettingsCard" class="goals-retention-card">
-                        <div class="goals-retention-card__head">
-                            <div><span>Tùy chỉnh</span><h2>Mục tiêu cá nhân</h2></div>
-                            <i class="fa-solid fa-sliders" aria-hidden="true"></i>
-                        </div>
-                        <form id="dailyTargetForm" class="goals-retention-form" novalidate>
-                            <label for="dailyVocabTarget">Từ mới mỗi ngày <output data-for="dailyVocabTarget">15 từ</output></label>
-                            <input id="dailyVocabTarget" type="range" min="5" max="100" step="5" value="15" />
-                            <label for="dailyQuizTarget">Số bài trắc nghiệm <output data-for="dailyQuizTarget">1 bài</output></label>
-                            <input id="dailyQuizTarget" type="range" min="1" max="20" step="1" value="1" />
-                            <label for="dailyStudyMinutes">Thời lượng học mỗi ngày <output data-for="dailyStudyMinutes">20 phút</output></label>
-                            <input id="dailyStudyMinutes" type="range" min="5" max="180" step="5" value="20" />
-                            <button type="submit" class="btn btn--primary btn--block" id="saveTargetBtn"><i class="fa-solid fa-check" aria-hidden="true"></i> Lưu thay đổi</button>
-                        </form>
-                    </article>
-                </section>
-
-                <section id="retentionLeaderboardCard" class="goals-retention-card goals-retention-leaderboard-card" aria-labelledby="retentionLeaderboardTitle">
-                    <div class="goals-retention-card__head">
-                        <div class="goals-retention-leaderboard-title"><div class="goals-retention-trophy"><i class="fa-solid fa-trophy" aria-hidden="true"></i></div><div><span>Cộng đồng J-LAB</span><h2 id="retentionLeaderboardTitle">Bảng xếp hạng điểm tích lũy</h2></div></div>
-                        <p id="retentionLeaderboardMeta">Đang tải thứ hạng của bạn...</p>
                     </div>
-                    <div id="retentionLeaderboardList" class="goals-retention-ranking" aria-live="polite"></div>
-                </section>
+                    <button type="button" class="gp-soft-btn" id="openTargetsBtn" aria-haspopup="dialog">
+                        <i class="fa-solid fa-sliders" aria-hidden="true"></i> Chỉnh mục tiêu mỗi ngày
+                    </button>
+                </article>
 
-                <div id="retentionLiveOnboarding" class="retention-live-onboarding" hidden>
-                    <div class="retention-live-onboarding__backdrop" aria-hidden="true"></div>
-                    <div class="demo-workspace retention-live-onboarding__device">
-                        <div th:replace="~{retention-demo :: retentionOnboarding}"></div>
+                <article id="streakCard" class="gp-card gp-streak">
+                    <div class="gp-card__head">
+                        <div class="gp-card__title">
+                            <span class="gp-card__icon gp-card__icon--orange"><i class="fa-solid fa-fire" aria-hidden="true"></i></span>
+                            <div><h2>Chuỗi học liên tục</h2></div>
+                        </div>
                     </div>
-                </div>
+                    <div class="gp-streak__hero">
+                        <div class="goals-retention-flame gp-flame" aria-hidden="true"></div>
+                        <div class="gp-streak__info">
+                            <strong id="currentStreak" class="gp-streak__count">0 ngày</strong>
+                            <p id="streakMilestone">Hoàn thành mục tiêu hôm nay để bắt đầu chuỗi.</p>
+                            <div class="gp-milestone" aria-hidden="true"><span id="streakMilestoneBar"></span></div>
+                        </div>
+                    </div>
+                    <div id="streakWeek" class="goals-streak-week" aria-label="7 ngày gần nhất"></div>
+                    <div id="streakStats" class="gp-stats">
+                        <span class="gp-stat gp-stat--record">
+                            <i class="fa-solid fa-trophy" aria-hidden="true"></i>
+                            <span><small>Kỷ lục cao nhất</small><b><strong id="longestStreak">0</strong> ngày</b></span>
+                        </span>
+                        <span class="gp-stat gp-stat--shield">
+                            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                            <span><small>Thẻ bảo vệ</small><b><strong id="freezeCount">0</strong></b></span>
+                        </span>
+                    </div>
+                </article>
+
+                <article id="dailyMissionsCard" class="gp-card gp-missions">
+                    <div class="gp-card__head">
+                        <div class="gp-card__title">
+                            <span class="gp-card__icon gp-card__icon--pink"><i class="fa-solid fa-gift" aria-hidden="true"></i></span>
+                            <div><h2>Nhiệm vụ hằng ngày</h2><small id="earnCapToday" class="gp-earn-cap" hidden></small></div>
+                        </div>
+                        <b class="gp-chip" id="missionSummary">0/4</b>
+                    </div>
+                    <div id="dailyMissionList" class="gp-mission-list" aria-live="polite"></div>
+                    <a class="gp-kana-entry" th:href="@{/kana-connect}">
+                        <span class="gp-kana-entry__icon" aria-hidden="true">かな</span>
+                        <span class="gp-kana-entry__text">
+                            <b>Thử thách hằng ngày · Kana Connect</b>
+                            <small>Nối kana tìm 8+ từ, đua top cùng mọi người</small>
+                        </span>
+                        <span class="gp-kana-entry__cta">Chơi</span>
+                    </a>
+                    <p class="gp-card__foot"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Nhiệm vụ mới mỗi ngày lúc 00:00</p>
+                </article>
+
+                <section id="creditHistoryCard" class="gp-card gp-history" aria-labelledby="creditHistoryTitle">
+                    <div class="gp-card__head">
+                        <div class="gp-card__title">
+                            <span class="gp-card__icon gp-card__icon--green"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span>
+                            <div><h2 id="creditHistoryTitle">Lịch sử điểm</h2></div>
+                        </div>
+                    </div>
+                    <div class="gp-history__scroll">
+                        <ol id="creditHistoryList" class="goals-credit-history" aria-live="polite"></ol>
+                    </div>
+                    <div class="gp-earn" aria-labelledby="earnTitle">
+                        <h3 id="earnTitle"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i> Cách nhận thêm CP</h3>
+                        <ul class="gp-earn__list">
+                            <li><i class="fa-solid fa-bullseye" aria-hidden="true"></i><span>Mục tiêu ngày <b>+10 CP</b></span></li>
+                            <li><i class="fa-solid fa-gift" aria-hidden="true"></i><span>Nhiệm vụ <b>tới +45 CP</b></span></li>
+                            <li><i class="fa-solid fa-fire" aria-hidden="true"></i><span>Mốc chuỗi <b>+20 → +100 CP</b></span></li>
+                            <li><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span>Thẻ bảo vệ <b>50 CP / thẻ</b></span></li>
+                        </ul>
+                    </div>
+                </section>
             </div>
         </div>
+
+        <dialog id="targetDialog" class="gp-dialog" aria-labelledby="targetDialogTitle">
+            <form id="dailyTargetForm" class="goals-retention-form gp-targets" novalidate>
+                <header class="gp-dialog__head">
+                    <div>
+                        <h2 id="targetDialogTitle">Mục tiêu mỗi ngày</h2>
+                        <p>Đạt đủ cả 3 chỉ tiêu để nhận thưởng CP và giữ chuỗi.</p>
+                    </div>
+                    <button type="button" class="gp-icon-btn" data-close-dialog aria-label="Đóng"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                </header>
+
+                <div class="gp-presets" role="group" aria-label="Mức gợi ý">
+                    <button type="button" data-preset="10,1,15"><span>🌱</span> Nhẹ nhàng</button>
+                    <button type="button" data-preset="15,2,30"><span>🌤️</span> Vừa sức</button>
+                    <button type="button" data-preset="30,3,60"><span>🔥</span> Chăm chỉ</button>
+                </div>
+
+                <div class="gp-target gp-target--vocab">
+                    <label for="dailyVocabTarget"><i class="fa-solid fa-book" aria-hidden="true"></i> Từ mới mỗi ngày <output data-for="dailyVocabTarget">15 từ</output></label>
+                    <div class="gp-target__control">
+                        <button type="button" class="gp-step" data-step="-1" data-target="dailyVocabTarget" aria-label="Giảm số từ mới">−</button>
+                        <input id="dailyVocabTarget" type="range" min="5" max="100" step="5" value="15" />
+                        <button type="button" class="gp-step" data-step="1" data-target="dailyVocabTarget" aria-label="Tăng số từ mới">+</button>
+                    </div>
+                </div>
+                <div class="gp-target gp-target--quiz">
+                    <label for="dailyQuizTarget"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Số bài trắc nghiệm <output data-for="dailyQuizTarget">1 bài</output></label>
+                    <div class="gp-target__control">
+                        <button type="button" class="gp-step" data-step="-1" data-target="dailyQuizTarget" aria-label="Giảm số bài trắc nghiệm">−</button>
+                        <input id="dailyQuizTarget" type="range" min="1" max="20" step="1" value="1" />
+                        <button type="button" class="gp-step" data-step="1" data-target="dailyQuizTarget" aria-label="Tăng số bài trắc nghiệm">+</button>
+                    </div>
+                </div>
+                <div class="gp-target gp-target--minutes">
+                    <label for="dailyStudyMinutes"><i class="fa-solid fa-clock" aria-hidden="true"></i> Thời lượng học <output data-for="dailyStudyMinutes">20 phút</output></label>
+                    <div class="gp-target__control">
+                        <button type="button" class="gp-step" data-step="-1" data-target="dailyStudyMinutes" aria-label="Giảm thời lượng học">−</button>
+                        <input id="dailyStudyMinutes" type="range" min="5" max="180" step="5" value="20" />
+                        <button type="button" class="gp-step" data-step="1" data-target="dailyStudyMinutes" aria-label="Tăng thời lượng học">+</button>
+                    </div>
+                </div>
+
+                <footer class="gp-dialog__foot">
+                    <button type="button" class="gp-ghost-btn" data-close-dialog>Huỷ</button>
+                    <button type="submit" class="gp-primary-btn" id="saveTargetBtn"><i class="fa-solid fa-check" aria-hidden="true"></i> Lưu mục tiêu</button>
+                </footer>
+            </form>
+        </dialog>
     </main>
 
     <script th:src="@{/js/auth-session.js}"></script>
     <script th:src="@{/js/jlab-base-shell.js}"></script>
-    <script th:src="@{/js/components/retention-reward.js?v=20260903-motion}"></script>
-    <script th:src="@{/js/pages/retention-demo.js?v=13-live}"></script>
-    <script th:src="@{/js/pages/profile-retention.js?v=20260903-retention-stitch}"></script>
+    <script th:src="@{/js/components/reward-fx.js?v=20260927c}"></script>
+    <script th:src="@{/js/pages/profile-retention.js?v=20261031-pro-cp}"></script>
+    <script th:src="@{/js/pages/mission-demo-panel.js?v=20260926k}"></script>
     <script>
-        document.querySelectorAll('.goals-retention-form input[type="range"]').forEach(function (input) {
-            var output = document.querySelector('[data-for="' + input.id + '"]');
-            if (!output) return;
-            var unit = input.id === 'dailyVocabTarget' ? ' từ' : input.id === 'dailyQuizTarget' ? ' bài' : ' phút';
-            var update = function () { output.value = input.value + unit; output.textContent = input.value + unit; };
-            input.addEventListener('input', update);
-            update();
-        });
+        (function () {
+            var units = { dailyVocabTarget: ' từ', dailyQuizTarget: ' bài', dailyStudyMinutes: ' phút' };
+            var ranges = document.querySelectorAll('.goals-retention-form input[type="range"]');
+            ranges.forEach(function (input) {
+                var output = document.querySelector('[data-for="' + input.id + '"]');
+                var update = function () {
+                    var fill = (input.value - input.min) * 100 / (input.max - input.min);
+                    input.style.setProperty('--fill', fill + '%');
+                    if (output) { output.value = input.value + units[input.id]; output.textContent = input.value + units[input.id]; }
+                };
+                input.addEventListener('input', update);
+                update();
+            });
+
+            function setRange(id, value) {
+                var input = document.getElementById(id);
+                input.value = value;
+                input.dispatchEvent(new Event('input'));
+            }
+
+            document.querySelectorAll('.gp-step').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var input = document.getElementById(button.dataset.target);
+                    setRange(input.id, Number(input.value) + Number(button.dataset.step) * Number(input.step));
+                });
+            });
+            document.querySelectorAll('[data-preset]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var values = button.dataset.preset.split(',');
+                    setRange('dailyVocabTarget', values[0]);
+                    setRange('dailyQuizTarget', values[1]);
+                    setRange('dailyStudyMinutes', values[2]);
+                });
+            });
+
+            // The target editor opens as a dialog; closing without saving restores the saved values.
+            var dialog = document.getElementById('targetDialog');
+            var saved = null;
+            document.getElementById('openTargetsBtn').addEventListener('click', function () {
+                saved = Array.prototype.map.call(ranges, function (input) { return input.value; });
+                dialog.showModal();
+            });
+            dialog.addEventListener('close', function () {
+                if (saved && dialog.returnValue !== 'saved') {
+                    ranges.forEach(function (input, index) { setRange(input.id, saved[index]); });
+                }
+                dialog.returnValue = '';
+            });
+            dialog.addEventListener('click', function (event) {
+                if (event.target === dialog || event.target.closest('[data-close-dialog]')) dialog.close();
+            });
+        })();
+        (function () {
+            var list = document.getElementById('creditHistoryList');
+            var box = list.parentNode;
+            function sync() {
+                box.classList.toggle('is-scrollable', list.scrollHeight > list.clientHeight + 2);
+                box.classList.toggle('is-end', list.scrollTop + list.clientHeight >= list.scrollHeight - 2);
+            }
+            list.addEventListener('scroll', sync, { passive: true });
+            new MutationObserver(sync).observe(list, { childList: true });
+            window.addEventListener('resize', sync);
+        })();
         if (typeof JlasAuth !== 'undefined') JlasAuth.requireLogin('/goals');
     </script>
 </body>

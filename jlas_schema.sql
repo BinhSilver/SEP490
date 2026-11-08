@@ -9,6 +9,12 @@
 -- Then load data once:
 --   mysql -u root -p < sql/data_full.sql
 -- =============================================================================
+--
+-- [JLAS2-24] Smart Test: "vừa bài vừa điểm ngữ pháp".
+--   - assessment_question.grammar_point_id : mẫu ngữ pháp CHÍNH (nullable, chỉ GRAMMAR).
+--   - question_grammar_point               : bridge mẫu ngữ pháp PHỤ.
+--   Dữ liệu re-tag câu hỏi nằm ở seed riêng, không trộn vào file schema này.
+-- =============================================================================
 
 CREATE DATABASE IF NOT EXISTS jlas
   CHARACTER SET utf8mb4
@@ -62,6 +68,9 @@ CREATE TABLE roles (
     UNIQUE KEY uk_role_name (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Seed: vai tro mac dinh cho nguoi dung thuong (learner).
+INSERT IGNORE INTO roles (name, description) VALUES ('LEARNER', 'Learner');
+
 -- Goi premium va thoi han su dung.
 CREATE TABLE premium_plans (
     id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -101,6 +110,8 @@ CREATE TABLE users (
     updated_at         DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                        ON UPDATE CURRENT_TIMESTAMP(6),
     last_login_at      DATETIME(6) NULL,
+    locked_at          DATETIME(6) NULL,
+    locked_reason      VARCHAR(500) NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uk_user_email (email),
     UNIQUE KEY uk_user_username (username),
@@ -114,7 +125,101 @@ CREATE TABLE users (
     CONSTRAINT chk_user_credit_balance CHECK (credit_balance >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Nhat ky append-only cho thao tac System Admin (migration 028); changes_json da che du lieu nhay cam.
+CREATE TABLE admin_audit_log (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    actor_user_id BIGINT UNSIGNED NOT NULL,
+    action VARCHAR(50) NOT NULL,
+    target_type VARCHAR(40) NOT NULL,
+    target_id VARCHAR(64) NULL,
+    reason VARCHAR(500) NULL,
+    result VARCHAR(20) NOT NULL,
+    changes_json TEXT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    -- [JLAS2-51] Vai tro + IP luc thao tac; chuoi bam SHA-256 (row_hash noi voi prev_hash cua dong truoc).
+    -- Dong cu chua co hash (truoc migration 070) duoc coi la legacy khi kiem tra toan ven.
+    actor_role VARCHAR(50) NULL,
+    ip_address VARCHAR(64) NULL,
+    prev_hash CHAR(64) NULL,
+    row_hash CHAR(64) NULL,
+    PRIMARY KEY (id),
+    KEY idx_admin_audit_created (created_at),
+    KEY idx_admin_audit_actor_created (actor_user_id, created_at),
+    KEY idx_admin_audit_target (target_type, target_id),
+    KEY idx_admin_audit_action_created (action, created_at),
+    CONSTRAINT fk_admin_audit_actor FOREIGN KEY (actor_user_id) REFERENCES users(id),
+    CONSTRAINT chk_admin_audit_result CHECK (result IN ('SUCCESS','REJECTED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS2-51] Dau chuoi bam cua admin_audit_log: mot dong duy nhat, khoa moi lan ghi audit.
+-- Khong co FK toi admin_audit_log de viec xoa dong cuoi van phat hien duoc (so voi last_log_id).
+CREATE TABLE admin_audit_chain (
+    id TINYINT NOT NULL,
+    last_log_id BIGINT UNSIGNED NULL,
+    last_hash CHAR(64) NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT chk_admin_audit_chain_single CHECK (id = 1)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO admin_audit_chain (id) VALUES (1);
+
+-- [JLAS2-51] Cau hinh he thong: chi luu gia tri ghi de cua cac khoa trong SystemConfigKey (code).
+-- Khong co dong = dung mac dinh; config_value NULL = da khoi phuc mac dinh (giu dong de version tiep tuc tang).
+CREATE TABLE system_config (
+    config_key VARCHAR(80) NOT NULL,
+    config_value VARCHAR(1000) NULL,
+    updated_by BIGINT UNSIGNED NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    version BIGINT NOT NULL DEFAULT 0,
+    PRIMARY KEY (config_key),
+    CONSTRAINT fk_system_config_updated_by FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO roles (name, description) VALUES ('SUPER_ADMIN', 'System Admin');
+
 -- Lich su thanh toan premium.
+-- [JLAS2-51] Goi CP va ma giam gia dung chung cho Premium/CP.
+CREATE TABLE credit_packages (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(500) NULL,
+    credit_amount INT UNSIGNED NOT NULL,
+    price DECIMAL(12,2) NOT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id), UNIQUE KEY uk_credit_package_name (name),
+    CONSTRAINT chk_credit_package_amount CHECK (credit_amount > 0),
+    CONSTRAINT chk_credit_package_price CHECK (price > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE coupons (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    code VARCHAR(40) NOT NULL,
+    description VARCHAR(500) NULL,
+    discount_type VARCHAR(10) NOT NULL,
+    discount_value DECIMAL(12,2) NOT NULL,
+    max_discount DECIMAL(12,2) NULL,
+    min_order_amount DECIMAL(12,2) NULL,
+    applies_to VARCHAR(10) NOT NULL,
+    starts_at DATETIME(6) NULL,
+    ends_at DATETIME(6) NULL,
+    usage_limit INT NULL,
+    per_user_limit INT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id), UNIQUE KEY uk_coupon_code (code),
+    CONSTRAINT chk_coupon_code CHECK (REGEXP_LIKE(code, '^[A-Z0-9_-]{3,40}$', 'c')),
+    CONSTRAINT chk_coupon_type CHECK (discount_type IN ('PERCENT','FIXED')),
+    CONSTRAINT chk_coupon_value CHECK (discount_value > 0 AND (discount_type <> 'PERCENT' OR discount_value BETWEEN 1 AND 100)),
+    CONSTRAINT chk_coupon_max CHECK (max_discount IS NULL OR max_discount > 0),
+    CONSTRAINT chk_coupon_min CHECK (min_order_amount IS NULL OR min_order_amount >= 0),
+    CONSTRAINT chk_coupon_scope CHECK (applies_to IN ('ALL','PREMIUM','CREDIT')),
+    CONSTRAINT chk_coupon_dates CHECK (starts_at IS NULL OR ends_at IS NULL OR ends_at > starts_at),
+    CONSTRAINT chk_coupon_limits CHECK ((usage_limit IS NULL OR usage_limit > 0) AND (per_user_limit IS NULL OR per_user_limit > 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Quan he:
 --   payments.user_id -> users.id: user thuc hien giao dich.
 --   payments.premium_plan_id -> premium_plans.id: goi duoc mua.
@@ -122,17 +227,30 @@ CREATE TABLE users (
 CREATE TABLE payments (
     id                      BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, -- Khoa chinh giao dich noi bo.
     user_id                 BIGINT UNSIGNED NOT NULL,                -- FK -> users.id; nguoi thanh toan.
-    premium_plan_id         BIGINT UNSIGNED NOT NULL,                -- FK -> premium_plans.id; goi duoc mua.
+    premium_plan_id         BIGINT UNSIGNED NULL,                    -- [JLAS2-51] Premium only.
+    product_type            VARCHAR(20) NOT NULL DEFAULT 'PREMIUM', -- [JLAS2-51] PREMIUM/CREDIT.
+    credit_package_id       BIGINT UNSIGNED NULL,
+    credit_amount_snapshot  INT NULL,
+    coupon_id               BIGINT UNSIGNED NULL,
+    coupon_code_snapshot    VARCHAR(40) NULL,
+    original_amount         DECIMAL(12,2) NULL,
+    discount_amount         DECIMAL(12,2) NOT NULL DEFAULT 0,
     provider                VARCHAR(30) NOT NULL,                    -- Cong thanh toan, vi du VNPAY/MOMO.
     order_code              VARCHAR(100) NOT NULL,                   -- Ma don hang gui sang cong thanh toan.
     provider_transaction_id VARCHAR(150) NULL,                       -- Ma giao dich do cong thanh toan tra ve.
-    status                  VARCHAR(20) NOT NULL DEFAULT 'PENDING',  -- PENDING/PAID/FAILED/CANCELLED/REFUNDED.
+    payment_link_id         VARCHAR(100) NULL,                       -- Ma link thanh toan PayOS.
+    checkout_url            VARCHAR(500) NULL,                       -- Trang thanh toan PayOS.
+    qr_code                 VARCHAR(1000) NULL,                      -- Chuoi VietQR de hien ma QR.
+    status                  VARCHAR(20) NOT NULL DEFAULT 'PENDING',  -- PENDING/PAID/FAILED/CANCELLED/EXPIRED/REFUNDED.
     amount_paid             DECIMAL(12,2) NOT NULL,                 -- So tien thuc te user da thanh toan.
     currency                CHAR(3) NOT NULL DEFAULT 'VND',         -- Ma tien te ISO 4217, vi du VND/USD.
     response_code           VARCHAR(50) NULL,                        -- Ma ket qua cuoi cung tu cong thanh toan.
     plan_name_snapshot      VARCHAR(100) NOT NULL,                   -- Ten goi tai luc mua, phuc vu hoa don lich su.
-    duration_days_snapshot  INT UNSIGNED NOT NULL,                   -- So ngay duoc mua tai luc giao dich.
+    duration_days_snapshot  INT UNSIGNED NULL,                       -- [JLAS2-51] Premium only.
     paid_at                 DATETIME(6) NULL,                        -- Thoi diem thanh toan thanh cong.
+    expires_at              DATETIME(6) NULL,                        -- Link thanh toan het han luc nay.
+    checked_at              DATETIME(6) NULL,                        -- Lan gan nhat server hoi PayOS.
+    premium_until           DATETIME(6) NULL,                        -- Premium co hieu luc den dau sau don nay.
     created_at              DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), -- Luc tao payment.
     updated_at              DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                             ON UPDATE CURRENT_TIMESTAMP(6),         -- Luc payment thay doi gan nhat.
@@ -142,14 +260,21 @@ CREATE TABLE payments (
         (provider, provider_transaction_id),                         -- Chong ghi trung callback giao dich.
     KEY idx_payment_user_created (user_id, created_at),              -- Xem lich su thanh toan cua mot user.
     KEY idx_payment_status_created (status, created_at),             -- Loc payment theo trang thai/thoi gian.
+    KEY idx_payment_status_checked (status, checked_at),             -- Doi soat don dang cho voi PayOS.
     CONSTRAINT fk_payment_user FOREIGN KEY (user_id)
         REFERENCES users(id),                                       -- RESTRICT mac dinh de bao toan lich su.
     CONSTRAINT fk_payment_plan FOREIGN KEY (premium_plan_id)
         REFERENCES premium_plans(id),                               -- RESTRICT mac dinh de bao toan lich su.
+    CONSTRAINT fk_payment_credit_package FOREIGN KEY (credit_package_id) REFERENCES credit_packages(id),
+    CONSTRAINT fk_payment_coupon FOREIGN KEY (coupon_id) REFERENCES coupons(id),
     CONSTRAINT chk_payment_status
-        CHECK (status IN ('PENDING','PAID','FAILED','CANCELLED','REFUNDED')),
+        CHECK (status IN ('PENDING','PAID','FAILED','CANCELLED','EXPIRED','REFUNDED')),
     CONSTRAINT chk_payment_amount CHECK (amount_paid >= 0),
-    CONSTRAINT chk_payment_duration CHECK (duration_days_snapshot > 0)
+    CONSTRAINT chk_payment_duration CHECK (duration_days_snapshot IS NULL OR duration_days_snapshot > 0),
+    CONSTRAINT chk_payment_product CHECK (product_type IN ('PREMIUM','CREDIT')),
+    CONSTRAINT chk_payment_product_fields CHECK ((product_type = 'PREMIUM' AND premium_plan_id IS NOT NULL AND duration_days_snapshot > 0 AND credit_package_id IS NULL)
+        OR (product_type = 'CREDIT' AND credit_package_id IS NOT NULL AND credit_amount_snapshot > 0 AND premium_plan_id IS NULL)),
+    CONSTRAINT chk_payment_discount CHECK (discount_amount >= 0 AND (original_amount IS NULL OR original_amount >= amount_paid))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Token xac thuc dung chung cho refresh, verify email va reset password.
@@ -352,7 +477,19 @@ CREATE TABLE tag (
     UNIQUE KEY uk_tag_code (code),
     KEY idx_tag_type_name (tag_type, name),
     CONSTRAINT chk_tag_type
-        CHECK (tag_type IN ('VIDEO','KNOWLEDGE','SITUATION','SKILL'))
+        CHECK (tag_type IN ('VIDEO','KNOWLEDGE','SITUATION','SKILL','TOPIC')) -- [JLAS-W0108] them TOPIC cho topic Reading/Listening.
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] Outcome Reading/Listening (map tu context_json.format cua cau hoi, theo skill).
+CREATE TABLE outcome (
+    id      BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    code    VARCHAR(50)  NOT NULL,   -- READ_MAIN_IDEA / LISTEN_TASK_COMPREHENSION ...
+    name_vi VARCHAR(255) NOT NULL,
+    name_ja VARCHAR(255) NULL,
+    skill   VARCHAR(20)  NOT NULL,   -- READING hoac LISTENING.
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_outcome_code (code),
+    CONSTRAINT chk_outcome_skill CHECK (skill IN ('READING','LISTENING'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Danh muc bo thu Kanji.
@@ -382,7 +519,7 @@ CREATE TABLE radical (
 -- khong tron vao bang cach doc tieng Nhat.
 CREATE TABLE kanji (
     id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, -- Khoa chinh Kanji.
-    `character`    VARCHAR(8) NOT NULL,                      -- Ky tu Kanji duy nhat, vi du 間.
+    `character`    VARCHAR(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL, -- Ky tu Kanji duy nhat, vi du 間.
     unicode_code   VARCHAR(10) NOT NULL,                     -- Ma Unicode, vi du 9593.
     radical_id     SMALLINT UNSIGNED NULL,                   -- FK -> radical.id; bo thu chinh.
     stroke_count   TINYINT UNSIGNED NULL,                    -- Tong so net cua Kanji.
@@ -415,7 +552,10 @@ CREATE TABLE kanji_reading (
     id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, -- Khoa chinh cach doc.
     kanji_id     BIGINT UNSIGNED NOT NULL,                -- FK -> kanji.id; Kanji so huu cach doc.
     reading_type VARCHAR(20) NOT NULL,                     -- ON/KUN/NANORI/OTHER.
-    reading_text VARCHAR(100) NOT NULL,                    -- Noi dung cach doc, vi du カン hoac あいだ.
+    -- [JLAS-W0070] utf8mb4_0900_as_cs: cung ly do voi vocabulary — cach doc Kanji phan
+    -- biet nhau boi dakuten (ダイ/タイ, ジョウ/ショウ, ブン/フン); utf8mb4_unicode_ci coi
+    -- chung la mot nen unique key uk_kanji_reading chan mat 53 cach doc that khi seed.
+    reading_text VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL, -- Noi dung cach doc, vi du カン hoac あいだ.
     is_common    TINYINT(1) NOT NULL DEFAULT 0,            -- 1 neu la cach doc thuong dung.
     PRIMARY KEY (id),
     UNIQUE KEY uk_kanji_reading (kanji_id, reading_type, reading_text), -- Chong trung reading.
@@ -424,6 +564,38 @@ CREATE TABLE kanji_reading (
         REFERENCES kanji(id) ON DELETE CASCADE,            -- Xoa Kanji thi xoa cac reading cua no.
     CONSTRAINT chk_kanji_reading_type
         CHECK (reading_type IN ('ON','KUN','NANORI','OTHER'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Bo phan dung de tra Kanji theo bo thu (multi-radical lookup, du lieu RADKFILE cua EDRDG).
+-- `character` la glyph hien thi (vi du 亻); source_character la ky tu RADKFILE dung thay khi
+-- glyph khong co trong JIS (vi du 化 cho 亻).
+-- Quan he: kanji (N) <-> (N) kanji_component qua kanji_component_map.
+CREATE TABLE kanji_component (
+    id               SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `character`      VARCHAR(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    source_character VARCHAR(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    stroke_count     TINYINT UNSIGNED NOT NULL,
+    radical_id       SMALLINT UNSIGNED NULL,       -- Bo thu Khang Hi tuong ung (lay ten tieng Viet).
+    display_order    SMALLINT UNSIGNED NOT NULL,   -- Thu tu trong RADKFILE (theo so net).
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_kanji_component_character (`character`),
+    UNIQUE KEY uk_kanji_component_source (source_character),
+    KEY idx_kanji_component_order (stroke_count, display_order),
+    CONSTRAINT fk_kanji_component_radical FOREIGN KEY (radical_id)
+        REFERENCES radical(id) ON DELETE SET NULL,
+    CONSTRAINT chk_kanji_component_strokes CHECK (stroke_count > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Kanji chua bo phan nao. Tra nhieu bo phan = giao cac tap kanji_id.
+CREATE TABLE kanji_component_map (
+    kanji_id     BIGINT UNSIGNED NOT NULL,
+    component_id SMALLINT UNSIGNED NOT NULL,
+    PRIMARY KEY (kanji_id, component_id),
+    KEY idx_kanji_component_map_component (component_id, kanji_id),
+    CONSTRAINT fk_kanji_component_map_kanji FOREIGN KEY (kanji_id)
+        REFERENCES kanji(id) ON DELETE CASCADE,
+    CONSTRAINT fk_kanji_component_map_component FOREIGN KEY (component_id)
+        REFERENCES kanji_component(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tu hoan chinh; reading la cach doc CHINH va la nguon furigana uu tien.
@@ -436,10 +608,17 @@ CREATE TABLE kanji_reading (
 CREATE TABLE vocabulary_entry (
     id                    BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, -- Khoa chinh tu vung.
     expression            VARCHAR(255) NOT NULL,                   -- Dang viet, vi du 時間.
-    normalized_expression VARCHAR(255) NOT NULL,                   -- Dang chuan hoa de tim/chong trung.
+    -- [JLAS-W0070] utf8mb4_0900_as_cs: utf8mb4_unicode_ci khong phan biet dau, voi
+    -- tieng Nhat nghia la bo qua dakuten nen MySQL coi mata = mada, dareka = darega,
+    -- ha = ba = pa; unique key uk_vocabulary_normalized chan khong cho luu ca hai tu.
+    normalized_expression VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL, -- Dang chuan hoa de tim/chong trung.
     reading               VARCHAR(255) NOT NULL,                   -- Cach doc chinh, vi du じかん.
-    normalized_reading    VARCHAR(255) NOT NULL,                   -- Cach doc da chuan hoa.
+    -- [JLAS-W0070] utf8mb4_0900_as_cs: utf8mb4_unicode_ci khong phan biet dau, voi
+    -- tieng Nhat nghia la bo qua dakuten nen MySQL coi mata = mada, dareka = darega,
+    -- ha = ba = pa; unique key uk_vocabulary_normalized chan khong cho luu ca hai tu.
+    normalized_reading    VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL, -- Cach doc da chuan hoa.
     reading_romaji        VARCHAR(255) NULL,                       -- Romaji cua cach doc chinh.
+    han_viet              VARCHAR(255) NULL,                       -- Am Han Viet cua ca tu, vi du THOI GIAN.
     meaning               TEXT NULL,                               -- Nghia tom tat cho noi dung giao trinh.
     word_type             VARCHAR(50) NULL,                        -- Tu loai tom tat cho giao trinh.
     jlpt_level            VARCHAR(10) NULL,                        -- Cap JLPT N5..N1.
@@ -456,6 +635,7 @@ CREATE TABLE vocabulary_entry (
     KEY idx_vocabulary_expression (normalized_expression),
     KEY idx_vocabulary_reading (normalized_reading),
     KEY idx_vocabulary_romaji (reading_romaji),
+    KEY idx_vocabulary_han_viet (han_viet),
     KEY idx_vocabulary_jlpt (jlpt_level),
     CONSTRAINT chk_vocabulary_jlpt
         CHECK (jlpt_level IS NULL OR jlpt_level IN ('N5','N4','N3','N2','N1')),
@@ -473,7 +653,10 @@ CREATE TABLE vocabulary_reading (
     id                 BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, -- Khoa chinh reading bo sung.
     vocabulary_id      BIGINT UNSIGNED NOT NULL,                -- FK -> vocabulary_entry.id.
     reading            VARCHAR(255) NOT NULL,                    -- Cach doc khac cua tu.
-    normalized_reading VARCHAR(255) NOT NULL,                    -- Cach doc phu da chuan hoa.
+    -- [JLAS-W0070] utf8mb4_0900_as_cs: utf8mb4_unicode_ci khong phan biet dau, voi
+    -- tieng Nhat nghia la bo qua dakuten nen MySQL coi mata = mada, dareka = darega,
+    -- ha = ba = pa; unique key uk_vocabulary_normalized chan khong cho luu ca hai tu.
+    normalized_reading VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL, -- Cach doc phu da chuan hoa.
     reading_romaji     VARCHAR(255) NULL,                        -- Romaji cua cach doc phu.
     usage_note         VARCHAR(255) NULL,                        -- Ghi chu ngu canh/cach dung cua reading.
     PRIMARY KEY (id),
@@ -489,7 +672,10 @@ CREATE TABLE vocabulary_variant (
     id                    BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     vocabulary_id         BIGINT UNSIGNED NOT NULL,
     variant_expression    VARCHAR(255) NOT NULL,
-    normalized_expression VARCHAR(255) NOT NULL,
+    -- [JLAS-W0070] utf8mb4_0900_as_cs: utf8mb4_unicode_ci khong phan biet dau, voi
+    -- tieng Nhat nghia la bo qua dakuten nen MySQL coi mata = mada, dareka = darega,
+    -- ha = ba = pa; unique key uk_vocabulary_normalized chan khong cho luu ca hai tu.
+    normalized_expression VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
     variant_type          VARCHAR(30) NOT NULL DEFAULT 'OTHER',
     PRIMARY KEY (id),
     UNIQUE KEY uk_vocabulary_variant (vocabulary_id, normalized_expression),
@@ -607,6 +793,120 @@ CREATE TABLE sense_domain (
         REFERENCES dictionary_domain(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Nguon du lieu tu dien/Kanji. Them nguon moi bang du lieu, khong tao bang rieng.
+CREATE TABLE dictionary_source (
+    id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    code         VARCHAR(50) NOT NULL,
+    name         VARCHAR(255) NOT NULL,
+    source_url   VARCHAR(1000) NULL,
+    license_name VARCHAR(255) NULL,
+    license_url  VARCHAR(1000) NULL,
+    is_active    TINYINT(1) NOT NULL DEFAULT 1,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_dictionary_source_code (code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Audit mot lan chay importer. Counter tinh theo source record, khong theo row SQL.
+CREATE TABLE dictionary_import_batch (
+    id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    source_id        BIGINT UNSIGNED NOT NULL,
+    source_version   VARCHAR(255) NULL,
+    source_checksum  CHAR(64) NOT NULL,
+    status           VARCHAR(30) NOT NULL,
+    started_at       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    completed_at     DATETIME(6) NULL,
+    total_records    BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    inserted_records BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    updated_records  BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    skipped_records  BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    failed_records   BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    error_message    VARCHAR(2000) NULL,
+    PRIMARY KEY (id),
+    KEY idx_dictionary_import_identity
+        (source_id, source_version, source_checksum, status),
+    CONSTRAINT fk_dictionary_import_source FOREIGN KEY (source_id)
+        REFERENCES dictionary_source(id),
+    CONSTRAINT chk_dictionary_import_status CHECK
+        (status IN ('RUNNING','COMPLETED','COMPLETED_WITH_ERRORS','FAILED','SKIPPED')),
+    CONSTRAINT chk_dictionary_import_counters CHECK
+        (total_records >= 0 AND inserted_records >= 0 AND updated_records >= 0
+         AND skipped_records >= 0 AND failed_records >= 0),
+    CONSTRAINT chk_dictionary_import_completion CHECK
+        (completed_at IS NULL OR completed_at >= started_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ID on dinh cua vocabulary tai tung nguon; JMdict dung ent_seq.
+CREATE TABLE vocabulary_external_reference (
+    id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    vocabulary_id     BIGINT UNSIGNED NOT NULL,
+    source_id         BIGINT UNSIGNED NOT NULL,
+    external_entry_id VARCHAR(255) NOT NULL,
+    imported_at       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                      ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_vocabulary_external_source (source_id, external_entry_id),
+    KEY idx_vocabulary_external_vocabulary (vocabulary_id),
+    CONSTRAINT fk_vocabulary_external_vocabulary FOREIGN KEY (vocabulary_id)
+        REFERENCES vocabulary_entry(id) ON DELETE CASCADE,
+    CONSTRAINT fk_vocabulary_external_source FOREIGN KEY (source_id)
+        REFERENCES dictionary_source(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE vocabulary_antonym (
+    id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    vocabulary_id    BIGINT UNSIGNED NOT NULL,
+    antonym_text     VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    antonym_reading  VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+    antonym_sense    INT NULL,
+    source_id        BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_vocabulary_antonym (vocabulary_id, antonym_text, antonym_reading),
+    KEY idx_vocabulary_antonym_source (source_id),
+    CONSTRAINT fk_vocabulary_antonym_vocabulary FOREIGN KEY (vocabulary_id)
+        REFERENCES vocabulary_entry(id) ON DELETE CASCADE,
+    CONSTRAINT fk_vocabulary_antonym_source FOREIGN KEY (source_id)
+        REFERENCES dictionary_source(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE vocabulary_pitch_accent (
+    vocabulary_id BIGINT UNSIGNED NOT NULL,
+    accents       VARCHAR(50) NOT NULL,
+    source_id     BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (vocabulary_id),
+    KEY idx_vocabulary_pitch_accent_source (source_id),
+    CONSTRAINT fk_vocabulary_pitch_accent_vocabulary FOREIGN KEY (vocabulary_id)
+        REFERENCES vocabulary_entry(id) ON DELETE CASCADE,
+    CONSTRAINT fk_vocabulary_pitch_accent_source FOREIGN KEY (source_id)
+        REFERENCES dictionary_source(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO dictionary_source
+    (code, name, source_url, license_name, license_url, is_active)
+VALUES
+    ('JMDICT', 'JMdict', 'https://www.edrdg.org/wiki/JMdict-EDICT_Dictionary_Project.html',
+     'Creative Commons Attribution-ShareAlike 4.0',
+     'https://www.edrdg.org/edrdg/licence.html', 1),
+    ('KANJIDIC2', 'KANJIDIC2', 'https://www.edrdg.org/wiki/KANJIDIC_Project.html',
+     'Creative Commons Attribution-ShareAlike 4.0',
+     'https://www.edrdg.org/edrdg/licence.html', 1),
+    ('KANJIVG', 'KanjiVG', 'https://kanjivg.tagaini.net/',
+     'Creative Commons Attribution-ShareAlike 3.0',
+     'https://creativecommons.org/licenses/by-sa/3.0/', 1),
+    ('MAZII_VI', 'Tu dien Nhat - Viet (Mazii, ban Yomitan)',
+     'https://github.com/Buiduyanh20/yomitan-japanese-vietnamese-dictionary',
+     NULL, NULL, 1),
+    ('KANJIDICT_VN', 'Tu dien Han Nom (KanjiDictVN)',
+     'https://github.com/trungnt2910/KanjiDictVN',
+     NULL, NULL, 1),
+    ('RADKFILE', 'RADKFILE/KRADFILE', 'https://www.edrdg.org/krad/kradinf.html',
+     'Creative Commons Attribution-ShareAlike 4.0',
+     'https://www.edrdg.org/edrdg/licence.html', 1),
+    ('UNIDIC_CWJ', '現代書き言葉UniDic 2025.12', 'https://clrd.ninjal.ac.jp/unidic/',
+     'GPL-2.0 / LGPL-2.1 / BSD-3-Clause', NULL, 1),
+    ('KANJIUM', 'Kanjium', 'https://github.com/mifunetoshiro/kanjium',
+     'CC BY-SA 4.0', 'https://creativecommons.org/licenses/by-sa/4.0/', 1);
+
 -- Lich su tra cuu dung chung cho moi truy van tu dien.
 -- Khi user chon Kanji/tu trong hop nhan dien, frontend xoa net ve, dua gia tri
 -- da chon len thanh tim kiem va chay luong tra tu dien; bang nay chi ghi truy
@@ -650,16 +950,29 @@ CREATE TABLE dictionary_favorite (
 -- Dau sach/giao trinh; Amon cung la mot textbook trong cay chung.
 CREATE TABLE textbook (
     id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    source_code VARCHAR(64) NULL, -- [JLAS-W0108] Stable nullable curriculum import key.
     title       VARCHAR(255) NOT NULL,
     description TEXT NULL,
     jlpt_level  VARCHAR(10) NULL,
+    -- [JLAS2-XX] Thumbnail giao trinh (migration 021): anh tai len; NULL thi frontend ve thumbnail tu sinh
+    -- tu thumbnail_kanji (NULL = 日) va theme_color #RRGGBB (NULL = chon theo hash ten giao trinh).
+    thumbnail_url   VARCHAR(500) NULL,
+    thumbnail_kanji VARCHAR(4) NULL,
+    theme_color     VARCHAR(7) NULL,
     status      VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
     version     INT UNSIGNED NOT NULL DEFAULT 1,
+    -- [JLAS-W0108] Co dinh nguon cho Learning Path V2: 1 = textbook nay duoc composer dung de
+    -- sinh lo trinh; 0 (mac dinh) = textbook chi phuc vu trang doc/tra cuu giao trinh, du PUBLISHED
+    -- cung khong bi keo vao lo trinh. Tach data lo trinh khoi sach cua module Textbook ma khong
+    -- nhan doi bang/du lieu (van dung chung vocabulary_entry/kanji/grammar_point).
+    is_learning_path_source TINYINT(1) NOT NULL DEFAULT 0,
     created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     updated_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                 ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
+    UNIQUE KEY uk_textbook_source_code (source_code),
     KEY idx_textbook_status (status, updated_at),
+    KEY idx_textbook_learning_path_source (is_learning_path_source, jlpt_level, status),
     CONSTRAINT chk_textbook_status CHECK (status IN ('DRAFT','PUBLISHED','ARCHIVED')),
     CONSTRAINT chk_textbook_jlpt
         CHECK (jlpt_level IS NULL OR jlpt_level IN ('N5','N4','N3','N2','N1'))
@@ -669,10 +982,12 @@ CREATE TABLE textbook (
 CREATE TABLE unit (
     id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     textbook_id BIGINT UNSIGNED NOT NULL,
+    source_code VARCHAR(64) NULL, -- [JLAS-W0108] Stable within textbook.
     title       VARCHAR(255) NOT NULL,
     description TEXT NULL,
     order_index INT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
+    UNIQUE KEY uk_unit_source_code (textbook_id, source_code),
     UNIQUE KEY uk_unit_order (textbook_id, order_index),
     CONSTRAINT fk_unit_textbook FOREIGN KEY (textbook_id)
         REFERENCES textbook(id) ON DELETE CASCADE
@@ -682,6 +997,7 @@ CREATE TABLE unit (
 CREATE TABLE lesson (
     id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     unit_id           BIGINT UNSIGNED NOT NULL,
+    source_code       VARCHAR(64) NULL, -- [JLAS-W0108] Stable within unit.
     knowledge_tag_id  BIGINT UNSIGNED NOT NULL,  -- Diem kien thuc chinh cho weakness/recommendation.
     title             VARCHAR(255) NOT NULL,
     description       TEXT NULL,
@@ -689,13 +1005,14 @@ CREATE TABLE lesson (
     estimated_minutes INT UNSIGNED NULL,
     lesson_type       VARCHAR(20) NOT NULL,       -- CURRICULUM/AMON/REVIEW.
     skill             VARCHAR(20) NOT NULL,       -- Ky nang/noi dung chinh.
-    situation_tag     VARCHAR(50) NULL,           -- TRAVEL/WORK/FOUNDATION cho goal-based path.
+    situation_tag     VARCHAR(50) NULL,           -- TRAVEL/BA/FOUNDATION cho goal-based path. [JLAS-W0108] WORK da doi thanh BA.
     is_review         TINYINT(1) NOT NULL DEFAULT 0,
     status            VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
     created_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     updated_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                       ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
+    UNIQUE KEY uk_lesson_source_code (unit_id, source_code),
     UNIQUE KEY uk_lesson_unit_order (unit_id, order_index),
     KEY idx_lesson_status_skill (status, skill),
     KEY idx_lesson_knowledge_tag (knowledge_tag_id),
@@ -709,7 +1026,7 @@ CREATE TABLE lesson (
         CHECK (skill IN ('VOCABULARY','GRAMMAR','READING','LISTENING','SPEAKING','ONYOMI','KUNYOMI')),
     CONSTRAINT chk_lesson_status CHECK (status IN ('DRAFT','PUBLISHED','ARCHIVED')),
     CONSTRAINT chk_lesson_situation_tag
-        CHECK (situation_tag IS NULL OR situation_tag IN ('TRAVEL','WORK','FOUNDATION')),
+        CHECK (situation_tag IS NULL OR situation_tag IN ('TRAVEL','BA','FOUNDATION')), -- [JLAS-W0108] WORK -> BA
     CONSTRAINT chk_lesson_minutes CHECK (estimated_minutes IS NULL OR estimated_minutes > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -723,6 +1040,23 @@ CREATE TABLE lesson_tag (
         REFERENCES lesson(id) ON DELETE CASCADE,
     CONSTRAINT fk_lesson_tag_tag FOREIGN KEY (tag_id)
         REFERENCES tag(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Kanji gan tay vao lesson (CONTENT_CREATOR). Trang hoc vien gop voi kanji suy ra tu tu vung
+-- (content_vocabulary -> vocabulary_kanji), khong trung lap.
+CREATE TABLE IF NOT EXISTS lesson_kanji (
+    id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    lesson_id   BIGINT UNSIGNED NOT NULL,
+    kanji_id    BIGINT UNSIGNED NOT NULL,
+    order_index INT UNSIGNED NOT NULL DEFAULT 1,
+    created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_lesson_kanji (lesson_id, kanji_id),
+    KEY idx_lesson_kanji_kanji (kanji_id),
+    CONSTRAINT fk_lesson_kanji_lesson FOREIGN KEY (lesson_id)
+        REFERENCES lesson(id) ON DELETE CASCADE,
+    CONSTRAINT fk_lesson_kanji_kanji FOREIGN KEY (kanji_id)
+        REFERENCES kanji(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Phan noi dung trong lesson.
@@ -745,14 +1079,20 @@ CREATE TABLE content_item (
     id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     section_id      BIGINT UNSIGNED NOT NULL,
     content_type    VARCHAR(20) NOT NULL,    -- READING/GRAMMAR/LISTENING.
+    grammar_point_id BIGINT UNSIGNED NULL,   -- [JLAS-W0070] Cau vi du (GRAMMAR) minh hoa mau ngu phap nao; NULL = khong gan.
+    topic_tag_id     BIGINT UNSIGNED NULL,   -- [JLAS-W0108] Topic (Reading/Listening) cho content-side mapping.
     title           VARCHAR(255) NOT NULL,
     content         MEDIUMTEXT NULL,
     translated_text MEDIUMTEXT NULL,         -- Ban dich cua noi dung co dinh.
     order_index     INT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
     UNIQUE KEY uk_content_item_order (section_id, order_index),
+    KEY idx_content_item_grammar (grammar_point_id),
+    KEY idx_content_item_topic (topic_tag_id),                           -- [JLAS-W0108]
     CONSTRAINT fk_content_item_section FOREIGN KEY (section_id)
         REFERENCES lesson_section(id) ON DELETE CASCADE,
+    CONSTRAINT fk_content_item_topic FOREIGN KEY (topic_tag_id)           -- [JLAS-W0108]
+        REFERENCES tag(id) ON DELETE SET NULL,
     CONSTRAINT chk_content_item_type
         CHECK (content_type IN ('READING','GRAMMAR','LISTENING'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -776,6 +1116,14 @@ CREATE TABLE grammar_point (
         REFERENCES tag(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [JLAS-W0070] FK content_item -> grammar_point dat sau vi content_item duoc tao truoc grammar_point
+-- (dat inline trong CREATE TABLE content_item gay loi 1824: bang tham chieu chua ton tai).
+-- 2493/2498 cau vi du trong du lieu nguon minh hoa mot mau ngu phap cu the; cot noi de giao dien
+-- gom cau vi du vao dung mau thay vi liet ke roi (lap voi vi du cua tung mau).
+ALTER TABLE content_item
+    ADD CONSTRAINT fk_content_item_grammar FOREIGN KEY (grammar_point_id)
+        REFERENCES grammar_point(id) ON DELETE SET NULL;
+
 -- Bridge noi dung lesson voi tu dien tu vung.
 CREATE TABLE content_vocabulary (
     content_item_id BIGINT UNSIGNED NOT NULL,
@@ -786,6 +1134,190 @@ CREATE TABLE content_vocabulary (
         REFERENCES content_item(id) ON DELETE CASCADE,
     CONSTRAINT fk_content_vocab_vocabulary FOREIGN KEY (vocabulary_id)
         REFERENCES vocabulary_entry(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] Identity yeu -> tai nguyen hoc READING/LISTENING (5 doc + 5 nghe warm-up).
+CREATE TABLE resource_mapping (
+    id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    skill             VARCHAR(20)  NOT NULL,   -- READING/LISTENING
+    situation_tag_id  BIGINT UNSIGNED NOT NULL,-- FK -> tag (SITUATION: JLPT/BA/TRAVEL/DAILY_LIFE)
+    outcome_id        BIGINT UNSIGNED NOT NULL,-- FK -> outcome
+    jlpt_level        VARCHAR(10)  NOT NULL,   -- N5..N1 (GHIM level — khong NULL)
+    topic_tag_id      BIGINT UNSIGNED NULL,    -- FK -> tag (TOPIC); NULL = JLPT listening
+    content_item_id   BIGINT UNSIGNED NOT NULL,-- FK -> content_item (READING/LISTENING)
+    reason_code       VARCHAR(50)  NOT NULL,   -- vi sao chon (vd SAME_OUTCOME_DIFF_PASSAGE)
+    blueprint_version VARCHAR(30)  NOT NULL,   -- version blueprint (audit)
+    status            VARCHAR(20)  NOT NULL DEFAULT 'ACTIVE',
+    created_at        DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at        DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                          ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_resource_mapping
+        (skill, situation_tag_id, outcome_id, jlpt_level,
+         (COALESCE(topic_tag_id, 0)), content_item_id),
+    KEY idx_rm_lookup (skill, situation_tag_id, outcome_id, jlpt_level, topic_tag_id, status),
+    KEY idx_rm_content (content_item_id),
+    CONSTRAINT fk_rm_situation FOREIGN KEY (situation_tag_id) REFERENCES tag(id),
+    CONSTRAINT fk_rm_outcome   FOREIGN KEY (outcome_id)       REFERENCES outcome(id),
+    CONSTRAINT fk_rm_topic     FOREIGN KEY (topic_tag_id)     REFERENCES tag(id) ON DELETE SET NULL,
+    CONSTRAINT fk_rm_content   FOREIGN KEY (content_item_id)  REFERENCES content_item(id) ON DELETE CASCADE,
+    CONSTRAINT chk_rm_skill CHECK (skill IN ('READING','LISTENING')),
+    CONSTRAINT chk_rm_level CHECK (jlpt_level IN ('N5','N4','N3','N2','N1'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- #############################################################################
+-- 3b) AUDIO VA CAU TRUC HOI THOAI   [JLAS-W0070]
+-- #############################################################################
+
+-- Bo noi dung so hoa co 33.318 file mp3 (6 giong doc) gan voi tung tu vung,
+-- tung cau vi du va tung loi thoai; hoi thoai con co vai dien, toa do bong bong
+-- va phan tach cau thanh cum kem nghia. Schema cu chi co
+-- assessment_question.audio_url nen khong co cho luu nhung thu nay.
+--
+-- Loi thoai VAN la content_item (content_type = 'LISTENING'); 3 bang dialogue
+-- chi bo sung phan content_item khong chua duoc, khong pha logic hien co.
+
+CREATE TABLE IF NOT EXISTS content_voice (
+    code        VARCHAR(32)  NOT NULL,        -- chuan-nu, chuan-nam, nam-tre, nu-tre, ong-cu, tinh-nghich.
+    name        VARCHAR(100) NOT NULL,
+    gender      VARCHAR(10)  NULL,            -- MALE/FEMALE.
+    description VARCHAR(255) NULL,
+    is_default  TINYINT(1)   NOT NULL DEFAULT 0,
+    PRIMARY KEY (code),
+    CONSTRAINT chk_content_voice_gender
+        CHECK (gender IS NULL OR gender IN ('MALE','FEMALE'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- owner_id la khoa da hinh (tro toi vocabulary_entry hoac content_item tuy
+-- owner_type) nen khong dat duoc FK; rang buoc do importer va service giu.
+-- merged_url/start_ms/end_ms phuc vu phat lien mach tu file gop ca bai.
+CREATE TABLE IF NOT EXISTS content_audio (
+    id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    owner_type  VARCHAR(30)  NOT NULL,        -- VOCABULARY_WORD / CONTENT_ITEM.
+    owner_id    BIGINT UNSIGNED NOT NULL,
+    voice_code  VARCHAR(32)  NOT NULL,
+    audio_url   VARCHAR(500) NOT NULL,        -- duong dan tuong doi trong kho audio.
+    merged_url  VARCHAR(500) NULL,
+    start_ms    INT UNSIGNED NULL,
+    end_ms      INT UNSIGNED NULL,
+    created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_content_audio_owner_voice (owner_type, owner_id, voice_code),
+    KEY idx_content_audio_lookup (owner_type, owner_id),
+    CONSTRAINT fk_content_audio_voice FOREIGN KEY (voice_code)
+        REFERENCES content_voice(code),
+    CONSTRAINT chk_content_audio_owner_type
+        CHECK (owner_type IN ('VOCABULARY_WORD','CONTENT_ITEM')),
+    CONSTRAINT chk_content_audio_range
+        CHECK (start_ms IS NULL OR end_ms IS NULL OR end_ms >= start_ms)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS2-20] Nguon goc noi dung (da hinh, giong content_audio): moi dong ghi mot muc noi dung
+-- (giao trinh/unit/bai/tu vung/mau ngu phap/content_item/kanji/cau hoi) den tu nguon nao,
+-- ma on dinh ben nguon, URL goc va trang thai duyet. entity_id tro toi bang theo entity_type
+-- nen khong dat FK; seed/importer giu rang buoc. Mot muc co the co nhieu dong (vd. tu vung
+-- dung chung giua nhieu sach: moi ma on dinh mot dong). Migration: sql/migrations/018_content_source.sql.
+CREATE TABLE IF NOT EXISTS content_source (
+    id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    entity_type    VARCHAR(30)   NOT NULL,     -- TEXTBOOK/UNIT/LESSON/VOCABULARY/GRAMMAR_POINT/CONTENT_ITEM/KANJI/QUESTION.
+    entity_id      BIGINT UNSIGNED NOT NULL,
+    source_code    VARCHAR(30)   NOT NULL,     -- SEKAI/VNJPCLUB/AI_GENERATED.
+    stable_code    VARCHAR(255)  NOT NULL,     -- Ma on dinh ben nguon, vd. SOMATOME-N2-L001-VOC-001.
+    source_url     VARCHAR(1000) NULL,
+    original_title VARCHAR(500)  NULL,
+    review_status  VARCHAR(20)   NOT NULL DEFAULT 'CHUA_DUYET', -- NGUON/CHUA_DUYET/DA_DUYET.
+    note           VARCHAR(1000) NULL,
+    created_at     DATETIME(6)   NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_content_source_code (source_code, stable_code),
+    KEY idx_content_source_entity (entity_type, entity_id),
+    CONSTRAINT chk_content_source_entity_type
+        CHECK (entity_type IN ('TEXTBOOK','UNIT','LESSON','VOCABULARY','GRAMMAR_POINT',
+                               'CONTENT_ITEM','KANJI','QUESTION')),
+    CONSTRAINT chk_content_source_source_code
+        CHECK (source_code IN ('SEKAI','VNJPCLUB','AI_GENERATED')),
+    CONSTRAINT chk_content_source_review_status
+        CHECK (review_status IN ('NGUON','CHUA_DUYET','DA_DUYET'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS2-17] Anh doan doc do nguoi bien soan tai len / thay / an (migration 022). Khoa theo MA ON DINH cua bai doc
+-- (content_source.stable_code cua content_item READING), KHONG theo id: seed chay lai giu nguyen bang nay va anh.
+-- Khong dat FK (seed xoa/chen lai content_source theo dai id). App doc bang nay truoc, khong co dong thi dung anh seed
+-- (assessment_question.image_url). image_url = /uploads/reading-images/<uuid>.<ext>; NULL + hide_seed_image = 1
+-- nghia la an anh goc, khong thay anh khac. Seed KHONG duoc xoa bang nay.
+CREATE TABLE IF NOT EXISTS reading_image_override (
+    id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    stable_code     VARCHAR(255)  NOT NULL,     -- vd. LUYEN-DOC-N5-L001-RDG-001.
+    image_url       VARCHAR(500)  NULL,
+    hide_seed_image TINYINT(1)    NOT NULL DEFAULT 0,
+    updated_by      BIGINT UNSIGNED NULL,       -- users.id nguoi sua gan nhat (khong FK, chi de doi chieu).
+    created_at      DATETIME(6)   NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at      DATETIME(6)   NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_reading_image_override_code (stable_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS2-17] Anh trang tu vung / ngu phap / kanji (migration 037). Seed vnjpclub ghi tu lesson_nguon.anh_trang theo dai
+-- ID cua seed (xoa / nap lai theo dai). Trang hoc hien o dau tab VOCAB / GRAMMAR / KANJI, bam phong to. image_url tuong
+-- doi trong kho content.audio.path; stable_code = ma trang nguon + so thu tu anh.
+CREATE TABLE IF NOT EXISTS lesson_page_image (
+    id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    lesson_id    BIGINT UNSIGNED NOT NULL,
+    tab          VARCHAR(20)   NOT NULL,       -- VOCAB / GRAMMAR / KANJI.
+    image_url    VARCHAR(500)  NOT NULL,
+    order_index  INT UNSIGNED  NOT NULL DEFAULT 0,
+    stable_code  VARCHAR(255)  NOT NULL,       -- vd. SOMATOME-N3-L001-SRC02-IMG01.
+    created_at   DATETIME(6)   NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_lesson_page_image_code (stable_code),
+    KEY idx_lesson_page_image_lesson (lesson_id, tab, order_index),
+    CONSTRAINT fk_lesson_page_image_lesson FOREIGN KEY (lesson_id) REFERENCES lesson(id) ON DELETE CASCADE,
+    CONSTRAINT chk_lesson_page_image_tab CHECK (tab IN ('VOCAB','GRAMMAR','KANJI'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS dialogue_role (
+    id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    lesson_id   BIGINT UNSIGNED NOT NULL,
+    code        VARCHAR(64)  NOT NULL,        -- ma vai, duy nhat trong pham vi bai.
+    name_vi     VARCHAR(255) NOT NULL,
+    name_ja     VARCHAR(255) NULL,
+    description TEXT NULL,
+    voice_code  VARCHAR(32)  NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_dialogue_role_lesson_code (lesson_id, code),
+    CONSTRAINT fk_dialogue_role_lesson FOREIGN KEY (lesson_id)
+        REFERENCES lesson(id) ON DELETE CASCADE,
+    CONSTRAINT fk_dialogue_role_voice FOREIGN KEY (voice_code)
+        REFERENCES content_voice(code) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS dialogue_line_detail (
+    content_item_id  BIGINT UNSIGNED NOT NULL,
+    dialogue_role_id BIGINT UNSIGNED NULL,
+    scene_code       VARCHAR(64) NULL,
+    bubble_side      VARCHAR(10) NULL,        -- trai/phai.
+    bubble_x         SMALLINT NULL,
+    bubble_y         SMALLINT NULL,
+    PRIMARY KEY (content_item_id),
+    KEY idx_dialogue_line_detail_role (dialogue_role_id),
+    CONSTRAINT fk_dialogue_detail_item FOREIGN KEY (content_item_id)
+        REFERENCES content_item(id) ON DELETE CASCADE,
+    CONSTRAINT fk_dialogue_detail_role FOREIGN KEY (dialogue_role_id)
+        REFERENCES dialogue_role(id) ON DELETE SET NULL,
+    CONSTRAINT chk_dialogue_bubble_side
+        CHECK (bubble_side IS NULL OR bubble_side IN ('trai','phai'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS dialogue_line_chunk (
+    id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    content_item_id BIGINT UNSIGNED NOT NULL,
+    order_index     INT UNSIGNED NOT NULL,
+    surface         VARCHAR(255) NOT NULL,    -- cum tieng Nhat.
+    meaning_vi      VARCHAR(512) NULL,        -- NULL voi dau cau.
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_dialogue_chunk_order (content_item_id, order_index),
+    CONSTRAINT fk_dialogue_chunk_item FOREIGN KEY (content_item_id)
+        REFERENCES content_item(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- #############################################################################
@@ -879,8 +1411,13 @@ CREATE TABLE assessment_quiz (
 -- phu thuoc tung bai nen nam trong assessment_quiz_question.
 CREATE TABLE assessment_question (
     id                  BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    source_code         VARCHAR(100) NULL, -- [JLAS-W0108] Stable workbook/import key.
     conversion_rule_id  BIGINT UNSIGNED NULL,     -- Chi dung khi cau hoi gan rule Amon.
     knowledge_tag_id    BIGINT UNSIGNED NOT NULL, -- Knowledge point chinh de gom weakness.
+    topic_tag_id        BIGINT UNSIGNED NULL,     -- [JLAS-W0108] Topic (Reading/Listening) cho weak evidence.
+    outcome_id          BIGINT UNSIGNED NULL,     -- [JLAS-W0108] Outcome (Reading/Listening) cho weak evidence.
+    grammar_point_id    BIGINT UNSIGNED NULL,     -- [JLAS2-24] Mau ngu phap CHINH (nullable; chi GRAMMAR).
+    vocabulary_entry_id BIGINT UNSIGNED NULL,     -- [JLAS-W0091] Tu vung cu the (nullable; chi KANJI/VOCABULARY).
     skill               VARCHAR(20) NOT NULL DEFAULT 'KANJI',
     jlpt_level          VARCHAR(10) NOT NULL DEFAULT 'N5',
     difficulty          VARCHAR(20) NOT NULL DEFAULT 'MEDIUM',
@@ -906,14 +1443,27 @@ CREATE TABLE assessment_question (
     updated_at          DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                         ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
+    UNIQUE KEY uk_assessment_question_source_code (source_code),
     KEY idx_assessment_question_adaptive
         (skill, jlpt_level, difficulty, is_active),
     KEY idx_assessment_question_rule (conversion_rule_id),
     KEY idx_assessment_question_knowledge (knowledge_tag_id),
+    KEY idx_assessment_question_topic (topic_tag_id),          -- [JLAS-W0108]
+    KEY idx_assessment_question_outcome (outcome_id),          -- [JLAS-W0108]
+    KEY idx_assessment_question_grammar (grammar_point_id),
+    KEY idx_assessment_question_vocab (vocabulary_entry_id),
     CONSTRAINT fk_assessment_question_rule FOREIGN KEY (conversion_rule_id)
         REFERENCES conversion_rule(id) ON DELETE SET NULL,
     CONSTRAINT fk_assessment_question_knowledge FOREIGN KEY (knowledge_tag_id)
         REFERENCES tag(id),
+    CONSTRAINT fk_assessment_question_topic FOREIGN KEY (topic_tag_id)          -- [JLAS-W0108]
+        REFERENCES tag(id) ON DELETE SET NULL,
+    CONSTRAINT fk_assessment_question_outcome FOREIGN KEY (outcome_id)          -- [JLAS-W0108]
+        REFERENCES outcome(id) ON DELETE SET NULL,
+    CONSTRAINT fk_assessment_question_grammar FOREIGN KEY (grammar_point_id)
+        REFERENCES grammar_point(id) ON DELETE SET NULL,
+    CONSTRAINT fk_assessment_question_vocabulary FOREIGN KEY (vocabulary_entry_id)
+        REFERENCES vocabulary_entry(id) ON DELETE SET NULL,
     CONSTRAINT fk_assessment_question_legacy_quiz FOREIGN KEY (quiz_id)
         REFERENCES assessment_quiz(id) ON DELETE SET NULL,
     CONSTRAINT chk_assessment_question_skill
@@ -952,6 +1502,20 @@ CREATE TABLE question_tag (
         REFERENCES assessment_question(id) ON DELETE CASCADE,
     CONSTRAINT fk_question_tag_tag FOREIGN KEY (tag_id)
         REFERENCES tag(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS2-24] Bridge cau hoi -> mau ngu phap PHU (mau chinh nam o
+-- assessment_question.grammar_point_id). Dung cho diem ngu phap, khong phai tag;
+-- knowledge_tag_id + question_tag van giu vai tro tag bai/tag phu nhu cu.
+CREATE TABLE question_grammar_point (
+    question_id      BIGINT UNSIGNED NOT NULL,
+    grammar_point_id BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (question_id, grammar_point_id),
+    KEY idx_question_grammar_point_gp (grammar_point_id),
+    CONSTRAINT fk_qgp_question FOREIGN KEY (question_id)
+        REFERENCES assessment_question(id) ON DELETE CASCADE,
+    CONSTRAINT fk_qgp_grammar FOREIGN KEY (grammar_point_id)
+        REFERENCES grammar_point(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Cap dung cho cau MATCHING.
@@ -1022,55 +1586,159 @@ BEGIN
 END$$
 DELIMITER ;
 
--- De thi JLPT; total_duration va max_score duoc tinh tu cac section de tranh lap.
+-- [JLAS-W0108] JLPT self-assessment catalog. Attempts are client-side/self-assessment in option A;
+-- these tables contain canonical exam content only and match db/migrations/jlpt_full_setup.sql.
 CREATE TABLE jlpt_exam (
-    id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    title         VARCHAR(255) NOT NULL,
-    jlpt_level    VARCHAR(10) NOT NULL,
-    passing_score DECIMAL(6,2) NOT NULL,
-    status        VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
-    created_at    DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-    updated_at    DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
-                  ON UPDATE CURRENT_TIMESTAMP(6),
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    exam_code VARCHAR(30) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    jlpt_level VARCHAR(10) NOT NULL,
+    exam_year SMALLINT UNSIGNED NULL,
+    exam_month TINYINT UNSIGNED NULL,
+    source_url VARCHAR(500) NULL,
+    source_pack_path VARCHAR(500) NULL,
+    passing_score INT UNSIGNED NOT NULL DEFAULT 95,
+    review_status VARCHAR(30) NOT NULL DEFAULT 'UNREVIEWED',
+    review_note TEXT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
-    KEY idx_jlpt_exam_level_status (jlpt_level, status),
-    CONSTRAINT chk_jlpt_exam_level
-        CHECK (jlpt_level IN ('N5','N4','N3','N2','N1')),
-    CONSTRAINT chk_jlpt_exam_passing_score CHECK (passing_score >= 0),
-    CONSTRAINT chk_jlpt_exam_status
-        CHECK (status IN ('DRAFT','PUBLISHED','ARCHIVED'))
+    UNIQUE KEY uk_jlpt_exam_code (exam_code),
+    KEY idx_jlpt_exam_catalog (jlpt_level, status, exam_year, exam_month),
+    CONSTRAINT chk_jlpt_exam_level CHECK (jlpt_level IN ('N1','N2','N3','N4','N5')),
+    CONSTRAINT chk_jlpt_exam_month CHECK (exam_month IS NULL OR exam_month IN (7,12)),
+    CONSTRAINT chk_jlpt_exam_status CHECK (status IN ('DRAFT','PUBLISHED','ARCHIVED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Moi section dung mot assessment_quiz loai JLPT_SECTION lam bo cau hoi.
--- Ten section lay tu assessment_quiz.title, khong luu lap o bang nay.
-CREATE TABLE jlpt_exam_section (
-    id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    exam_id           BIGINT UNSIGNED NOT NULL,
-    quiz_id           BIGINT UNSIGNED NOT NULL,
-    section_type      VARCHAR(30) NOT NULL,
-    duration_minutes  INT UNSIGNED NOT NULL,
-    max_score         DECIMAL(6,2) NOT NULL,
-    min_passing_score DECIMAL(6,2) NOT NULL,
-    order_index       INT UNSIGNED NOT NULL DEFAULT 0,
+CREATE TABLE jlpt_part (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    exam_id BIGINT UNSIGNED NOT NULL,
+    part_code VARCHAR(30) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    duration_minutes SMALLINT UNSIGNED NULL,
+    order_index INT UNSIGNED NOT NULL,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_jlpt_section_order (exam_id, order_index),
-    UNIQUE KEY uk_jlpt_section_quiz (quiz_id),
-    KEY idx_jlpt_section_exam_type (exam_id, section_type),
-    CONSTRAINT fk_jlpt_section_exam FOREIGN KEY (exam_id)
-        REFERENCES jlpt_exam(id),
-    CONSTRAINT fk_jlpt_section_quiz FOREIGN KEY (quiz_id)
-        REFERENCES assessment_quiz(id),
-    CONSTRAINT chk_jlpt_section_type CHECK (
-        section_type IN (
-            'VOCAB_GRAMMAR','READING','LISTENING','LANGUAGE_KNOWLEDGE'
-        )
-    ),
-    CONSTRAINT chk_jlpt_section_duration CHECK (duration_minutes > 0),
-    CONSTRAINT chk_jlpt_section_score CHECK (
-        max_score > 0
-        AND min_passing_score >= 0
-        AND min_passing_score <= max_score
-    )
+    UNIQUE KEY uk_jlpt_part (exam_id, part_code),
+    CONSTRAINT fk_jlpt_part_exam FOREIGN KEY (exam_id)
+        REFERENCES jlpt_exam(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE jlpt_question_type (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    type_code VARCHAR(50) NOT NULL,
+    part_code VARCHAR(30) NOT NULL,
+    name_vi VARCHAR(150) NOT NULL,
+    name_ja VARCHAR(150) NULL,
+    order_index INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jlpt_question_type_code (type_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE jlpt_mondai (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    part_id BIGINT UNSIGNED NOT NULL,
+    mondai_number INT UNSIGNED NOT NULL,
+    format_code VARCHAR(50) NULL,
+    instruction_html MEDIUMTEXT NULL,
+    audio_url VARCHAR(1000) NULL,
+    order_index INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jlpt_mondai (part_id, mondai_number),
+    CONSTRAINT fk_jlpt_mondai_part FOREIGN KEY (part_id)
+        REFERENCES jlpt_part(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE jlpt_passage (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    part_id BIGINT UNSIGNED NOT NULL,
+    source_passage_id BIGINT NULL,
+    passage_ja MEDIUMTEXT NULL,
+    passage_html MEDIUMTEXT NULL,
+    passage_vi MEDIUMTEXT NULL,
+    order_index INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jlpt_passage_source (part_id, source_passage_id),
+    CONSTRAINT fk_jlpt_passage_part FOREIGN KEY (part_id)
+        REFERENCES jlpt_part(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE jlpt_question (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    mondai_id BIGINT UNSIGNED NOT NULL,
+    passage_id BIGINT UNSIGNED NULL,
+    question_type_id BIGINT UNSIGNED NULL,
+    question_number INT UNSIGNED NOT NULL,
+    question_text MEDIUMTEXT NULL,
+    question_furigana MEDIUMTEXT NULL,
+    question_html MEDIUMTEXT NULL,
+    correct_option TINYINT UNSIGNED NULL,
+    correct_order JSON NULL,
+    score DECIMAL(6,2) NULL,
+    image_url VARCHAR(1000) NULL,
+    source_page INT UNSIGNED NULL,
+    explanation MEDIUMTEXT NULL,
+    target_vocabulary_id BIGINT UNSIGNED NULL,
+    order_index INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_jlpt_question_order (mondai_id, order_index),
+    KEY idx_jlpt_question_type (question_type_id),
+    KEY idx_jlpt_question_target_vocabulary (target_vocabulary_id),
+    CONSTRAINT fk_jlpt_question_mondai FOREIGN KEY (mondai_id)
+        REFERENCES jlpt_mondai(id) ON DELETE CASCADE,
+    CONSTRAINT fk_jlpt_question_passage FOREIGN KEY (passage_id)
+        REFERENCES jlpt_passage(id) ON DELETE SET NULL,
+    CONSTRAINT fk_jlpt_question_type FOREIGN KEY (question_type_id)
+        REFERENCES jlpt_question_type(id) ON DELETE SET NULL,
+    CONSTRAINT fk_jlpt_question_target_vocabulary FOREIGN KEY (target_vocabulary_id)
+        REFERENCES vocabulary_entry(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE jlpt_option (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    question_id BIGINT UNSIGNED NOT NULL,
+    option_number TINYINT UNSIGNED NOT NULL,
+    option_text TEXT NULL,
+    option_furigana TEXT NULL,
+    option_html TEXT NULL,
+    order_index INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jlpt_option (question_id, option_number),
+    CONSTRAINT fk_jlpt_option_question FOREIGN KEY (question_id)
+        REFERENCES jlpt_question(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE jlpt_audio_clip (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    mondai_id BIGINT UNSIGNED NOT NULL,
+    question_id BIGINT UNSIGNED NOT NULL,
+    clip_type VARCHAR(20) NOT NULL DEFAULT 'QUESTION',
+    audio_url VARCHAR(1000) NOT NULL,
+    order_index INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jlpt_audio_clip_question (question_id),
+    KEY idx_jlpt_audio_clip_mondai_order (mondai_id, order_index),
+    CONSTRAINT fk_jlpt_audio_clip_mondai FOREIGN KEY (mondai_id)
+        REFERENCES jlpt_mondai(id) ON DELETE CASCADE,
+    CONSTRAINT fk_jlpt_audio_clip_question FOREIGN KEY (question_id)
+        REFERENCES jlpt_question(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE jlpt_transcript_segment (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    mondai_id BIGINT UNSIGNED NOT NULL,
+    audio_clip_id BIGINT UNSIGNED NULL,
+    text_ja TEXT NULL,
+    text_ja_furigana TEXT NULL,
+    text_vi TEXT NULL,
+    order_index INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_jlpt_transcript_mondai_order (mondai_id, order_index),
+    KEY idx_jlpt_transcript_clip_order (audio_clip_id, order_index),
+    CONSTRAINT fk_jlpt_transcript_mondai FOREIGN KEY (mondai_id)
+        REFERENCES jlpt_mondai(id) ON DELETE CASCADE,
+    CONSTRAINT fk_jlpt_transcript_clip FOREIGN KEY (audio_clip_id)
+        REFERENCES jlpt_audio_clip(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Supertype cho moi lan lam bai. Chi luu thuoc tinh chung; quiz/JLPT/Smart
@@ -1127,30 +1795,24 @@ BEGIN
 END$$
 DELIMITER ;
 
--- Thuoc tinh rieng cua lan thi JLPT. Tong diem va pass/fail duoc tinh qua view.
-CREATE TABLE jlpt_exam_attempt (
-    attempt_id BIGINT UNSIGNED NOT NULL,
-    exam_id    BIGINT UNSIGNED NOT NULL,
-    PRIMARY KEY (attempt_id),
-    KEY idx_jlpt_exam_attempt_exam (exam_id, attempt_id),
-    CONSTRAINT fk_jlpt_exam_attempt_attempt FOREIGN KEY (attempt_id)
-        REFERENCES assessment_attempt(id) ON DELETE CASCADE,
-    CONSTRAINT fk_jlpt_exam_attempt_exam FOREIGN KEY (exam_id)
-        REFERENCES jlpt_exam(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Diem tung section. is_passed_section duoc tinh tu score va min_passing_score.
-CREATE TABLE jlpt_section_result (
-    attempt_id BIGINT UNSIGNED NOT NULL,
-    section_id BIGINT UNSIGNED NOT NULL,
-    score      DECIMAL(6,2) NOT NULL DEFAULT 0.00,
-    PRIMARY KEY (attempt_id, section_id),
-    KEY idx_jlpt_section_result_section (section_id, attempt_id),
-    CONSTRAINT fk_jlpt_section_result_attempt FOREIGN KEY (attempt_id)
-        REFERENCES jlpt_exam_attempt(attempt_id) ON DELETE CASCADE,
-    CONSTRAINT fk_jlpt_section_result_section FOREIGN KEY (section_id)
-        REFERENCES jlpt_exam_section(id),
-    CONSTRAINT chk_jlpt_section_result_score CHECK (score >= 0)
+-- [JLAS-W0108] Snapshot khảo sát đầu vào (goal/target_level/self_reported_level + thời lượng học),
+-- là đầu vào cho sinh learning path cá nhân hoá và khởi tạo Smart Test.
+CREATE TABLE user_learning_survey (
+    user_id BIGINT UNSIGNED NOT NULL,
+    goal VARCHAR(30) NOT NULL,
+    target_level VARCHAR(10) NULL,
+    self_reported_level VARCHAR(20) NOT NULL,
+    study_duration_months INT NULL,
+    daily_study_minutes INT NULL,
+    -- [JLAS-W0108] F1-3 (2026-10-27): optional JLPT exam date; a path that cannot finish before it requires CORE words only.
+    exam_date DATE NULL,
+    -- [JLAS-W0108] F1-5 (2026-10-28): up to two JLPT skills to focus on (VOCABULARY, READING, LISTENING), comma-separated;
+    -- they are never trimmed when a path is squeezed by the exam date. NULL: no focus.
+    focus_skills VARCHAR(40) NULL,
+    skills VARCHAR(100) NOT NULL,
+    completed_at DATETIME(6) NOT NULL,
+    PRIMARY KEY (user_id),
+    CONSTRAINT fk_learning_survey_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Profile va ket qua cap cao cua Smart Test; user/status/thoi gian dung tu attempt cha.
@@ -1250,46 +1912,6 @@ BEGIN
 END$$
 DELIMITER ;
 
--- Cac aggregate khong luu lap trong bang; view cung cap shape de code doc nhanh.
-CREATE VIEW v_jlpt_exam_summary AS
-SELECT
-    e.id AS exam_id,
-    COALESCE(SUM(s.duration_minutes), 0) AS total_duration,
-    COALESCE(SUM(s.max_score), 0.00) AS max_score
-FROM jlpt_exam e
-LEFT JOIN jlpt_exam_section s ON s.exam_id = e.id
-GROUP BY e.id;
-
-CREATE VIEW v_jlpt_section_result AS
-SELECT
-    r.attempt_id,
-    r.section_id,
-    r.score,
-    CASE WHEN r.score >= s.min_passing_score THEN 1 ELSE 0 END AS is_passed_section
-FROM jlpt_section_result r
-JOIN jlpt_exam_section s ON s.id = r.section_id;
-
-CREATE VIEW v_jlpt_exam_attempt_summary AS
-SELECT
-    a.attempt_id,
-    a.exam_id,
-    COALESCE(SUM(r.score), 0.00) AS total_score,
-    CASE
-        WHEN COUNT(r.section_id) = COUNT(s.id)
-         AND COALESCE(SUM(r.score), 0.00) >= e.passing_score
-         AND MIN(CASE
-                WHEN r.score IS NOT NULL AND r.score >= s.min_passing_score THEN 1
-                ELSE 0
-             END) = 1
-        THEN 1 ELSE 0
-    END AS is_passed
-FROM jlpt_exam_attempt a
-JOIN jlpt_exam e ON e.id = a.exam_id
-JOIN jlpt_exam_section s ON s.exam_id = e.id
-LEFT JOIN jlpt_section_result r
-    ON r.attempt_id = a.attempt_id AND r.section_id = s.id
-GROUP BY a.attempt_id, a.exam_id, e.passing_score;
-
 CREATE VIEW v_smart_test_session_summary AS
 SELECT
     s.attempt_id,
@@ -1309,43 +1931,246 @@ GROUP BY s.attempt_id;
 -- Lo trinh hoc dai han co version cua user.
 CREATE TABLE user_learning_path (
     id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    -- [JLAS-W0193] Explicit compatibility boundary for legacy and interactive paths.
+    experience_version VARCHAR(30) NOT NULL DEFAULT 'LEGACY_V1',
     user_id      BIGINT UNSIGNED NOT NULL,
     title        VARCHAR(255) NOT NULL,
     goal         VARCHAR(20) NULL,
+    -- [JLAS-W0108] Goal-specific delivery preference; NULL for legacy/JLPT paths.
+    learning_mode VARCHAR(30) NULL,
     target_level VARCHAR(10) NULL,
     current_level VARCHAR(10) NULL,
+    -- [JLAS-W0108] Snapshot nguồn sinh path (survey + Smart Test attempt) + policy version để
+    -- tái sinh path hai pha (warm-up → goal) không mất lịch sử; không FK để tránh vòng tham chiếu.
+    survey_id             BIGINT UNSIGNED NULL,  -- Survey snapshot reference (no FK yet).
+    assessment_attempt_id BIGINT UNSIGNED NULL,  -- Smart Test attempt snapshot (no FK yet).
+    assessment_revision   VARCHAR(50) NULL,
+    policy_version        VARCHAR(100) NULL,
+    minutes_per_day       INT UNSIGNED NULL,
+    coverage_gaps_json    TEXT NULL,             -- JSON array of coverage gaps.
+    -- [JLAS-W0113] Thoi diem vuot gate quiz tong ket warm-up; NULL = chua vuot, chan giai doan theo muc tieu.
+    gate_passed_at        DATETIME(6) NULL,
+    -- [JLAS-W0108] Thời điểm lộ trình hoàn thành (chặng cuối đạt final); NULL = chưa hoàn thành.
+    -- Dùng làm ngày cấp chứng chỉ thành tựu nội bộ, không suy từ updated_at (có thể đổi vì lý do khác).
+    completed_at          DATETIME(6) NULL,
+    -- [JLAS-W0108] Mock Test attempt da xac nhan hoan thanh lo trinh (retry chi hop le voi dung attempt nay).
+    completion_attempt_id BIGINT UNSIGNED NULL,
+    -- [JLAS-W0108] Cache id bo flashcard warm-up gop Kanji+Tu vung sai Smart Test; NULL = chua sinh.
+    -- Soft-link toi flashcard_set (khong FK, giu learning decoupled khoi flashcard).
+    warm_up_flashcard_set_id BIGINT UNSIGNED NULL,
+    -- [JLAS-W0108] P2d — fingerprint membership bo flashcard (identity expression+reading da khu trung,
+    -- sap thu tu). Khac fingerprint hien tai => regenerate bo khi replan them muc yeu moi (muc moi chua
+    -- nho, giu tien do the cu). TEXT vi membership co the dai (nhieu tu yeu).
+    warm_up_flashcard_version TEXT NULL,
+    -- [JLAS-W0108] Kế hoạch lộ trình cá nhân hoá do Gemini sinh (JSON: overview + phases[]);
+    -- NULL = chưa sinh (Gemini lỗi/rate-limit), UI vẫn chạy bình thường không cần narrative.
+    ai_plan_json TEXT NULL,
     status       VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     version      INT UNSIGNED NOT NULL DEFAULT 1,
     created_at   DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     updated_at   DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                  ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
+    -- [JLAS-W0122] Bỏ UNIQUE KEY uk_learning_path_generation (user_id, assessment_attempt_id,
+    -- assessment_revision, policy_version): replan tạo version mới với CÙNG generation identity
+    -- nên key cũ chặn insert bản v2 (hàng SUPERSEDED còn giữ key). Uniqueness giờ do
+    -- uk_learning_path_user_version (user_id, version) + idempotency check tầng service đảm bảo.
+    UNIQUE KEY uk_learning_path_user_version (user_id, version),
     KEY idx_learning_path_user_status (user_id, status, updated_at),
     CONSTRAINT fk_learning_path_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chk_learning_path_goal
-        CHECK (goal IS NULL OR goal IN ('JLPT','TRAVEL','BA','FROM_ZERO')),
-    CONSTRAINT chk_learning_path_status CHECK (status IN ('ACTIVE','SUPERSEDED')),
+        CHECK (goal IS NULL OR goal IN ('JLPT','TRAVEL','DAILY_LIFE','BA','FROM_ZERO')),
+    CONSTRAINT chk_learning_path_mode CHECK (learning_mode IS NULL OR learning_mode IN
+        ('FOUNDATION_FIRST','COMMUNICATION_FIRST','BALANCED')),
+    CONSTRAINT chk_learning_path_status CHECK (status IN ('ACTIVE','SUPERSEDED','COMPLETED')),
+    CONSTRAINT chk_learning_path_experience
+        CHECK (experience_version IN ('LEGACY_V1','INTERACTIVE_V2')),
     CONSTRAINT chk_learning_path_target
         CHECK (target_level IS NULL OR target_level IN ('N5','N4','N3','N2','N1'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] A resumable day package owned by one interactive path.
+CREATE TABLE learning_path_package (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    learning_path_id BIGINT UNSIGNED NOT NULL,
+    source_lesson_id BIGINT UNSIGNED NULL,
+    source_segment_index INT UNSIGNED NOT NULL DEFAULT 1,
+    content_revision VARCHAR(64) NULL,
+    stage_id BIGINT UNSIGNED NULL,
+    phase VARCHAR(20) NOT NULL,
+    day_number INT UNSIGNED NOT NULL,
+    order_index INT UNSIGNED NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'LOCKED',
+    estimated_minutes INT UNSIGNED NOT NULL,
+    started_at DATETIME(6) NULL,
+    completed_at DATETIME(6) NULL,
+    -- [JLAS-W0193] Task 8 — computed package score once completed; NULL until then. Derived from real
+    -- learning_quiz_session correct/total counts, never hard-coded; Dialogue never contributes to it.
+    score_percent INT UNSIGNED NULL,
+    row_version BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    -- [JLAS-W0108] D3-05 (owner 2026-10-24): a JLPT day is filled by minutes, so two chapters may share one day;
+    -- day_number is indexed, no longer unique (migration 052 drops uk_learning_package_path_day on existing DBs).
+    KEY idx_learning_package_path_day (learning_path_id, day_number),
+    UNIQUE KEY uk_learning_package_path_order (learning_path_id, order_index),
+    UNIQUE KEY uk_learning_package_path_source_segment (learning_path_id, source_lesson_id, source_segment_index),
+    KEY idx_learning_package_status (learning_path_id, status, order_index),
+    CONSTRAINT fk_learning_package_path FOREIGN KEY (learning_path_id)
+        REFERENCES user_learning_path(id) ON DELETE CASCADE,
+    CONSTRAINT fk_learning_package_source_lesson FOREIGN KEY (source_lesson_id)
+        REFERENCES lesson(id) ON DELETE RESTRICT,
+    CONSTRAINT chk_learning_package_phase CHECK (phase IN ('WARM_UP','GOAL_LEARNING')),
+    CONSTRAINT chk_learning_package_status CHECK (status IN ('LOCKED','AVAILABLE','IN_PROGRESS','COMPLETED')),
+    CONSTRAINT chk_learning_package_minutes CHECK (estimated_minutes > 0),
+    CONSTRAINT chk_learning_package_score CHECK (score_percent IS NULL OR score_percent BETWEEN 0 AND 100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Lesson trong learning path; cho phep cung lesson xuat hien lai de review.
 CREATE TABLE user_learning_path_item (
     id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     learning_path_id BIGINT UNSIGNED NOT NULL,
-    lesson_id        BIGINT UNSIGNED NOT NULL,
+    package_id BIGINT UNSIGNED NULL,
+    activity_type VARCHAR(20) NULL,
+    activity_state VARCHAR(20) NULL,
+    -- [JLAS-W0125] Ordered skill parts inside a stable package; legacy rows remain part 1.
+    part_index INT UNSIGNED NOT NULL DEFAULT 1,
+    -- [JLAS-W0108] P2c — bài nguồn có thể NULL khi activity trỏ tài nguyên khác (grammar_point /
+    -- vocabulary_entry / reading-listening content_item) mà không cần một lesson_id giả.
+    lesson_id        BIGINT UNSIGNED NULL,
+    -- [JLAS-W0108] Item warm-up trỏ tới đúng kiến thức đã sai (nullable; NULL = cả bài).
+    grammar_point_id  BIGINT UNSIGNED NULL,       -- Warm-up GRAMMAR: mẫu ngữ pháp đã sai.
+    vocabulary_entry_id BIGINT UNSIGNED NULL,     -- Warm-up KANJI/VOCAB: từ vựng đã sai.
     order_index      INT UNSIGNED NOT NULL,
+    -- [JLAS-W0108] P6 — chặng mà activity thuộc về (soft-link id của user_learning_stage);
+    -- NULL cho item cũ (path một cấp trước P6) để giữ tương thích không phá lịch sử.
+    stage_id         BIGINT UNSIGNED NULL,
     reason           TEXT NULL,
-    kind             VARCHAR(20) NOT NULL,       -- CURRICULUM hoac REVIEW.
+    -- [JLAS-W0108] Item hai pha (WARM_UP → GOAL_LEARNING): phase + reason_code + day_number
+    -- sắp lịch lộ trình; kind để NULL cho item hai pha, giữ tương thích item cũ.
+    kind             VARCHAR(20) NULL,           -- CURRICULUM/REVIEW (legacy); NULL for two-phase items.
+    phase            VARCHAR(20) NULL,           -- WARM_UP / GOAL_LEARNING.
+    reason_code      VARCHAR(50) NULL,
+    day_number       INT UNSIGNED NULL,
+    estimated_minutes INT UNSIGNED NULL,
+    matched_tag_codes TEXT NULL,                 -- JSON array of matched knowledge tag codes.
+    -- [JLAS-W0108] P2 — tiến độ độc lập theo activity (không theo source lesson):
+    -- study = nội dung (NOT_STARTED → IN_PROGRESS → STUDIED);
+    -- assessment = đánh giá (NOT_READY/READY → ISSUED → SUBMITTED → PASSED/NEEDS_REVIEW).
+    study_status      VARCHAR(20) NOT NULL DEFAULT 'NOT_STARTED',
+    assessment_status VARCHAR(20) NOT NULL DEFAULT 'NOT_READY',
     PRIMARY KEY (id),
     UNIQUE KEY uk_learning_path_item_order (learning_path_id, order_index),
     KEY idx_learning_path_item_lesson (lesson_id),
+    KEY idx_learning_path_item_grammar (grammar_point_id),
+    KEY idx_learning_path_item_vocab (vocabulary_entry_id),
+    UNIQUE KEY uk_learning_path_item_package_part (package_id, activity_type, part_index),
+    KEY idx_learning_path_item_package_order (package_id, order_index),
     CONSTRAINT fk_learning_path_item_path FOREIGN KEY (learning_path_id)
         REFERENCES user_learning_path(id) ON DELETE CASCADE,
     CONSTRAINT fk_learning_path_item_lesson FOREIGN KEY (lesson_id)
         REFERENCES lesson(id) ON DELETE CASCADE,
-    CONSTRAINT chk_learning_path_item_kind CHECK (kind IN ('CURRICULUM','REVIEW'))
+    CONSTRAINT fk_learning_path_item_grammar FOREIGN KEY (grammar_point_id)
+        REFERENCES grammar_point(id) ON DELETE SET NULL,
+    CONSTRAINT fk_learning_path_item_vocab FOREIGN KEY (vocabulary_entry_id)
+        REFERENCES vocabulary_entry(id) ON DELETE SET NULL,
+    CONSTRAINT fk_learning_path_item_package FOREIGN KEY (package_id)
+        REFERENCES learning_path_package(id) ON DELETE CASCADE,
+    CONSTRAINT chk_learning_path_item_kind CHECK (kind IS NULL OR kind IN ('CURRICULUM','REVIEW')),
+    CONSTRAINT chk_learning_path_item_study_status
+        CHECK (study_status IN ('NOT_STARTED','IN_PROGRESS','STUDIED')),
+    CONSTRAINT chk_learning_path_item_assessment_status
+        CHECK (assessment_status IN ('NOT_READY','READY','ISSUED','SUBMITTED','PASSED','NEEDS_REVIEW')),
+    CONSTRAINT chk_learning_path_item_activity_type CHECK
+        -- [JLAS-W0193] Interactive V2 comprehension activities reference canonical assessment questions.
+        -- [JLAS-W0108] FOUNDATION = bảng chữ cái, chỉ trong package WARM_UP cho người học from-zero.
+        (activity_type IS NULL OR activity_type IN ('VOCABULARY','KANJI','GRAMMAR','DIALOGUE','READING','LISTENING','FOUNDATION')),
+    CONSTRAINT chk_learning_path_item_activity_state CHECK
+        (activity_state IS NULL OR activity_state IN ('LOCKED','STUDYING','CHECK_READY','PASSED','COOLDOWN','COMPLETED'))
+    -- [JLAS-W0108] P2c — KHÔNG đặt CHECK "ít nhất một tham chiếu hợp lệ" (lesson/grammar/vocab) ở đây:
+    -- MySQL 8.0.16+ cấm cột trong CHECK đồng thời nằm trong FK có referential action
+    -- (grammar_point_id / vocabulary_entry_id dùng ON DELETE SET NULL) → lỗi 3823.
+    -- Ràng buộc này do tầng ứng dụng đảm bảo (LearningServiceImpl chọn đúng anchor).
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] Immutable canonical membership; content remains dictionary-owned.
+CREATE TABLE learning_activity_member (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    activity_item_id BIGINT UNSIGNED NOT NULL,
+    member_type VARCHAR(30) NOT NULL,
+    canonical_id BIGINT UNSIGNED NOT NULL,
+    order_index INT UNSIGNED NOT NULL,
+    source_revision VARCHAR(64) NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_activity_member_identity (activity_item_id, member_type, canonical_id),
+    KEY idx_learning_activity_member_order (activity_item_id, order_index),
+    CONSTRAINT fk_learning_activity_member_item FOREIGN KEY (activity_item_id)
+        REFERENCES user_learning_path_item(id) ON DELETE CASCADE,
+    CONSTRAINT chk_learning_activity_member_type CHECK
+        (member_type IN ('VOCABULARY_ENTRY','KANJI','GRAMMAR_POINT','DIALOGUE_LINE','COMPREHENSION_QUESTION',
+            'FOUNDATION_CHARACTER'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] P6 — một chặng (stage) trong lộ trình JLPT nhiều cấp (D5). Mỗi chặng gắn đúng một
+-- cấp mục tiêu, xếp tuần tự theo stage_index; curriculum_version/assessment_cycle riêng từng chặng.
+-- Path một cấp (N5→N4) vẫn có đúng một chặng để giữ cùng contract với path nhiều cấp (N5→N3 = N4 rồi N3).
+CREATE TABLE user_learning_stage (
+    id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    learning_path_id  BIGINT UNSIGNED NOT NULL,
+    level             VARCHAR(30) NOT NULL,       -- JLPT/foundation hoặc communication level theo goal.
+    stage_index       INT UNSIGNED NOT NULL,      -- Thứ tự chặng, bắt đầu từ 0.
+    curriculum_version VARCHAR(100) NULL,         -- Fingerprint bộ sách đã duyệt; P8 ghim manifest thật.
+    assessment_cycle  VARCHAR(50) NULL,           -- Đợt đánh giá cuối chặng; 1 = đợt đầu, tăng khi retest.
+    status            VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    created_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                      ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_stage_order (learning_path_id, stage_index),
+    KEY idx_learning_stage_path (learning_path_id),
+    CONSTRAINT fk_learning_stage_path FOREIGN KEY (learning_path_id)
+        REFERENCES user_learning_path(id) ON DELETE CASCADE,
+    CONSTRAINT chk_learning_stage_level
+        CHECK (level IN ('FOUNDATION','N5','N4','N3','N2','N1',
+            'BASIC','FUNCTIONAL','PROBLEM_SOLVING','FLEXIBLE')),
+    CONSTRAINT chk_learning_stage_status CHECK (status IN ('PENDING','ACTIVE','COMPLETED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] Câu hỏi quiz do Gemini sinh để BÙ phần ngân hàng câu thiếu, scoped theo learning path.
+-- Tách bạch khỏi assessment_question (ngân hàng Smart Test) để không nhiễm nội dung AI vào ngân hàng.
+CREATE TABLE learning_generated_question (
+    id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    learning_path_id BIGINT UNSIGNED NOT NULL,
+    -- Anchor nội dung đã ôn mà câu hỏi bám vào: GRAMMAR_POINT / VOCABULARY_ENTRY / KNOWLEDGE_TAG.
+    anchor_type      VARCHAR(30) NOT NULL,
+    -- Id (số, dạng chuỗi) cho GRAMMAR_POINT/VOCABULARY_ENTRY; code cho KNOWLEDGE_TAG. Soft-link, không FK.
+    anchor_id        VARCHAR(64) NOT NULL,
+    skill            VARCHAR(20) NOT NULL DEFAULT 'GRAMMAR',
+    jlpt_level       VARCHAR(10) NULL,
+    question_text    TEXT NOT NULL,
+    option_1         VARCHAR(255) NOT NULL,
+    option_2         VARCHAR(255) NOT NULL,
+    option_3         VARCHAR(255) NOT NULL,
+    option_4         VARCHAR(255) NOT NULL,
+    correct_option   INT NOT NULL,           -- Chỉ số đáp án đúng từ 1 đến 4.
+    explanation      TEXT NULL,
+    status           VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    created_at       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                     ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    -- Idempotent: mỗi anchor chỉ sinh đúng một câu cho một path (getGateQuiz tái gọi không nhân bản).
+    UNIQUE KEY uk_learning_generated_question (learning_path_id, anchor_type, anchor_id),
+    KEY idx_learning_generated_question_path (learning_path_id),
+    CONSTRAINT fk_learning_generated_question_path FOREIGN KEY (learning_path_id)
+        REFERENCES user_learning_path(id) ON DELETE CASCADE,
+    CONSTRAINT chk_learning_generated_question_correct
+        CHECK (correct_option BETWEEN 1 AND 4),
+    CONSTRAINT chk_learning_generated_question_anchor
+        CHECK (anchor_type IN ('GRAMMAR_POINT','VOCABULARY_ENTRY','KNOWLEDGE_TAG'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Nguon tien do lesson duy nhat, giu mo hinh more.txt.
@@ -1375,30 +2200,260 @@ CREATE TABLE lesson_progress (
 CREATE TABLE user_knowledge_weakness (
     id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id       BIGINT UNSIGNED NOT NULL,
-    tag_id        BIGINT UNSIGNED NOT NULL,
+    tag_id        BIGINT UNSIGNED NULL,        -- [JLAS-W0108] nullable: KANJI/VOCAB key theo canonical_item.
     skill         VARCHAR(20) NULL,            -- Fallback khi chua tim duoc lesson khop tag.
+    jlpt_level    VARCHAR(10) NULL,            -- [JLAS-W0108]
+    topic_tag_id  BIGINT UNSIGNED NULL,        -- [JLAS-W0108]
+    outcome_id    BIGINT UNSIGNED NULL,        -- [JLAS-W0108]
+    canonical_item VARCHAR(255) NULL,          -- [JLAS-W0108] KANJI:<c> / VOCAB:<c> / GP:<id>.
+    wrong_count   INT NOT NULL DEFAULT 0,      -- [JLAS-W0108]
+    mastery_score DECIMAL(5,2) NULL,           -- [JLAS-W0108]
     score_percent DECIMAL(5,2) NULL,
     severity      VARCHAR(30) NOT NULL,
+    status        VARCHAR(20) NOT NULL DEFAULT 'OPEN', -- [JLAS-W0108] OPEN/REVIEWED/MASTERED.
     source        VARCHAR(255) NULL,
     detected_at   DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    last_reviewed_at DATETIME(6) NULL,         -- [JLAS-W0108]
     updated_at    DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                   ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
-    UNIQUE KEY uk_user_knowledge_weakness (user_id, tag_id),
+    UNIQUE KEY uk_user_knowledge_weakness (
+        user_id,
+        (COALESCE(tag_id, 0)),
+        (COALESCE(canonical_item, '')),
+        (COALESCE(jlpt_level, '')),
+        (COALESCE(topic_tag_id, 0)),
+        (COALESCE(outcome_id, 0))
+    ),
     KEY idx_weakness_tag_severity (tag_id, severity),
+    KEY idx_weakness_level (jlpt_level),       -- [JLAS-W0108]
+    KEY idx_weakness_topic (topic_tag_id),     -- [JLAS-W0108]
+    KEY idx_weakness_outcome (outcome_id),     -- [JLAS-W0108]
     CONSTRAINT fk_weakness_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_weakness_tag FOREIGN KEY (tag_id)
         REFERENCES tag(id) ON DELETE CASCADE,
+    CONSTRAINT fk_weakness_topic FOREIGN KEY (topic_tag_id)      -- [JLAS-W0108]
+        REFERENCES tag(id) ON DELETE SET NULL,
+    CONSTRAINT fk_weakness_outcome FOREIGN KEY (outcome_id)      -- [JLAS-W0108]
+        REFERENCES outcome(id) ON DELETE SET NULL,
     CONSTRAINT chk_weakness_score
         CHECK (score_percent IS NULL OR score_percent BETWEEN 0 AND 100),
     CONSTRAINT chk_weakness_severity
         CHECK (severity IN ('WEAK','NEEDS_REINFORCEMENT')),
+    CONSTRAINT chk_weakness_status CHECK (status IN ('OPEN','REVIEWED','MASTERED')), -- [JLAS-W0108]
+    CONSTRAINT chk_weakness_level CHECK (jlpt_level IS NULL OR jlpt_level IN ('N5','N4','N3','N2','N1')), -- [JLAS-W0108]
     CONSTRAINT chk_weakness_skill CHECK (
         skill IS NULL OR skill IN (
-            'VOCABULARY','GRAMMAR','READING','LISTENING','SPEAKING','ONYOMI','KUNYOMI'
+            'VOCABULARY','GRAMMAR','READING','LISTENING','SPEAKING','ONYOMI','KUNYOMI','KANJI' -- [JLAS-W0108] them KANJI
         )
     )
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] Gioi han 5 luot quiz/ngay (gate quiz + lesson quiz); log moi lan nop.
+CREATE TABLE quiz_attempt (
+    id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id      BIGINT UNSIGNED NOT NULL,
+    quiz_type    VARCHAR(20) NOT NULL COMMENT 'GATE/LESSON',
+    lesson_id    BIGINT UNSIGNED NULL COMMENT 'null cho GATE',
+    attempted_at DATETIME(6) NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_quiz_attempt_user (user_id, quiz_type, lesson_id, attempted_at),
+    CONSTRAINT fk_quiz_attempt_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_quiz_attempt_type CHECK (quiz_type IN ('GATE','LESSON'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] Hop dong de thi bat bien: khi phat quiz, server chup snapshot cau hoi + dap an vao session;
+-- luc nop chi cham theo snapshot (mau so = toan bo cau da phat), nop lai tra ket qua da luu, khong ton them luot.
+CREATE TABLE learning_quiz_session (
+    id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id          BIGINT UNSIGNED NOT NULL,
+    -- [JLAS-W0108] Task 10: VARCHAR(30) - LISTENING_MICRO_CHECK (21) and FOUNDATION_MICRO_CHECK (22) did not fit 20.
+    quiz_type        VARCHAR(30) NOT NULL COMMENT 'GATE/LESSON/GRAMMAR/FLASHCARD/*_MICRO_CHECK/PRACTICE_REPLAY',
+    lesson_id        BIGINT UNSIGNED NULL COMMENT 'null cho GATE/GRAMMAR/FLASHCARD',
+    path_id          BIGINT UNSIGNED NULL COMMENT 'null cho LESSON/GRAMMAR',
+    activity_id      BIGINT UNSIGNED NULL COMMENT '[JLAS-W0108] grammarPointId cho GRAMMAR quiz; null cho loai khac',
+    batch_index      INT UNSIGNED NULL COMMENT '[JLAS-W0193] thu tu batch micro-check; null cho quiz legacy',
+    path_version     INT NULL COMMENT 'snapshot version cua lo trinh khi phat GATE quiz',
+    status           VARCHAR(20) NOT NULL DEFAULT 'ISSUED' COMMENT 'ISSUED/SUBMITTED',
+    questions_json   TEXT NOT NULL COMMENT 'JSON mang cau hoi da phat (khong chua dap an)',
+    answer_key_json  TEXT NOT NULL COMMENT 'JSON map questionId -> {correctOption, explanation}',
+    -- [JLAS-W0108] source_snapshot_json: passage/audio dong bang cua batch Reading/Listening; NULL voi loai khac va session cu.
+    source_snapshot_json TEXT NULL,
+    question_count   INT NOT NULL COMMENT 'mau so: tong so cau da phat',
+    correct_count    INT NULL,
+    score_percent    INT NULL,
+    passed           TINYINT(1) NULL,
+    result_json      TEXT NULL COMMENT 'JSON ket qua da cham de tra lai khi nop lai (idempotent)',
+    issued_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    submitted_at     DATETIME(6) NULL,
+    PRIMARY KEY (id),
+    KEY idx_quiz_session_user (user_id, quiz_type, lesson_id, status),
+    CONSTRAINT fk_quiz_session_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    -- [JLAS-W0193] KANJI_MICRO_CHECK (Task 5) va GRAMMAR_MICRO_CHECK (Task 6) duoc them vao day de khop
+    -- dung voi cac quiz_type ma InteractiveStudyEngine da phat sinh; Task 5 tung bo sot KANJI_MICRO_CHECK
+    -- trong CHECK constraint nay (H2 ddl-auto=create-drop sinh schema tu JPA entity, khong tu SQL nay nen
+    -- khong bat duoc bang test) — sua cung migration voi Task 6 vi ca hai deu dung chung constraint.
+    -- [JLAS-W0193] RC Task 6: READING_MICRO_CHECK/LISTENING_MICRO_CHECK bi bo sot cung ly do (RC Task 4 da
+    -- phat sinh cac quiz_type nay qua AssessmentComprehensionContentAdapter.microCheckType(), nhung RC Task 2
+    -- (migration 016) chi mo rong activity_type/member_type, khong mo rong constraint nay) — sua tai day,
+    -- migration 017.
+    -- [JLAS-W0108] FOUNDATION_MICRO_CHECK them cho bang chu cai (InteractiveFoundationServiceImpl).
+    -- [JLAS-W0108] Task 10: PRACTICE_REPLAY = luyen tap lai khong tinh tien do (khong bao gio la micro-check).
+    -- [JLAS-W0108] 2.32 T4: EXTRA_PRACTICE = luyen them tu kho, gan activity Doc/Nghe bat buoc; khong tinh diem/mo khoa/CP.
+    CONSTRAINT chk_quiz_session_type CHECK
+        (quiz_type IN ('GATE','LESSON','GRAMMAR','FLASHCARD','VOCAB_MICRO_CHECK','KANJI_MICRO_CHECK',
+            'GRAMMAR_MICRO_CHECK','READING_MICRO_CHECK','LISTENING_MICRO_CHECK','FOUNDATION_MICRO_CHECK',
+            'PRACTICE_REPLAY','EXTRA_PRACTICE')),
+    CONSTRAINT chk_quiz_session_status CHECK (status IN ('ISSUED','SUBMITTED')),
+    CONSTRAINT chk_quiz_session_score CHECK (score_percent IS NULL OR score_percent BETWEEN 0 AND 100)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] Study session cua mot activity tu vung/Kanji; giu membership revision dang hoc de reload
+-- resume dung session va replan (revision moi) reset sach. "Da nho" la study evidence, khong phai mastery.
+CREATE TABLE learning_study_session (
+    id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    activity_item_id BIGINT UNSIGNED NOT NULL,
+    source_revision  VARCHAR(64) NOT NULL,
+    row_version      BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                     ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_study_session_activity (activity_item_id),
+    CONSTRAINT fk_learning_study_session_item FOREIGN KEY (activity_item_id)
+        REFERENCES user_learning_path_item(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Trang thai flip/remember cua tung membership target trong mot study session.
+CREATE TABLE learning_study_card (
+    id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    study_session_id BIGINT UNSIGNED NOT NULL,
+    canonical_id     BIGINT UNSIGNED NOT NULL,
+    order_index      INT UNSIGNED NOT NULL,
+    flipped          TINYINT(1) NOT NULL DEFAULT 0,
+    remembered       TINYINT(1) NOT NULL DEFAULT 0,
+    flipped_at       DATETIME(6) NULL,
+    remembered_at    DATETIME(6) NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_study_card_identity (study_session_id, canonical_id),
+    KEY idx_learning_study_card_order (study_session_id, order_index),
+    CONSTRAINT fk_learning_study_card_session FOREIGN KEY (study_session_id)
+        REFERENCES learning_study_session(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] Tong ket so luot micro-check theo (activity, batch): 3 luot/cycle, cooldown 60 phut,
+-- bat buoc review truoc cycle moi. Pass quyet dinh o day; snapshot bieu bat bien nam o learning_quiz_session.
+CREATE TABLE learning_micro_check_state (
+    id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    activity_item_id  BIGINT UNSIGNED NOT NULL,
+    batch_index       INT UNSIGNED NOT NULL DEFAULT 0,
+    cycle_number      INT UNSIGNED NOT NULL DEFAULT 1,
+    attempts_used     INT UNSIGNED NOT NULL DEFAULT 0,
+    passed            TINYINT(1) NOT NULL DEFAULT 0,
+    first_score       INT NULL,
+    latest_score      INT NULL,
+    best_score        INT NULL,
+    cooldown_until    DATETIME(6) NULL,
+    review_required   TINYINT(1) NOT NULL DEFAULT 0,
+    row_version       BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                      ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_micro_check_activity_batch (activity_item_id, batch_index),
+    CONSTRAINT fk_learning_micro_check_activity FOREIGN KEY (activity_item_id)
+        REFERENCES user_learning_path_item(id) ON DELETE CASCADE,
+    CONSTRAINT chk_learning_micro_check_attempts CHECK (attempts_used <= 3)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] Task 6 — tien do luyen tap sap xep cau + dien khuyet cua tung grammar point trong mot
+-- activity GRAMMAR. Grammar khong co buoc lat/nho flashcard; bang nay la "cong" rieng cua Grammar ma
+-- InteractiveStudyEngine tham van truoc khi cho phat micro-check (qua InteractiveContentAdapter.
+-- assertPracticeGateSatisfied), thay vi flip/remember cua Vocabulary/Kanji. source_revision di theo
+-- learning_activity_member.source_revision: composer sinh revision moi thi tien do cu bi coi la chua
+-- lam xong voi noi dung moi, khong tu dong mang sang.
+CREATE TABLE learning_grammar_practice_progress (
+    id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    activity_item_id  BIGINT UNSIGNED NOT NULL,
+    grammar_point_id  BIGINT UNSIGNED NOT NULL,
+    source_revision   VARCHAR(64) NOT NULL,
+    ordering_done     TINYINT(1) NOT NULL DEFAULT 0,
+    fill_done         TINYINT(1) NOT NULL DEFAULT 0,
+    ordering_done_at  DATETIME(6) NULL,
+    fill_done_at      DATETIME(6) NULL,
+    row_version       BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                      ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_grammar_practice_identity (activity_item_id, grammar_point_id),
+    CONSTRAINT fk_grammar_practice_activity FOREIGN KEY (activity_item_id)
+        REFERENCES user_learning_path_item(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] Task 7 - bang chung hoan thanh Dialogue: 1 dong/activity DIALOGUE. accumulated_seconds chi
+-- tang bang gia tri server tu tinh (cap 20s/heartbeat, reset chuoi khi khoang cach heartbeat > 30s) - khong
+-- bao gio nhan tong so giay hoac co "completed" tu client. reached_bottom_at la bang chung cuon-den-cuoi
+-- rieng, ghi mot lan qua endpoint /reached-bottom (yeu cau da co it nhat 1 heartbeat truoc do). completed_at
+-- chi duoc set khi ca hai dieu kien (>=180s VA reached_bottom_at khac null) cung dung, va khong bao gio bi
+-- xoa/ghi de sau do. last_heartbeat_token la nonce client-sinh de tu choi mot heartbeat gui lai (replay)
+-- khong cho cong them thoi gian lan thu hai. source_revision di theo learning_activity_member.source_revision
+-- cung quy tac reset-khi-doi-revision nhu learning_grammar_practice_progress.
+CREATE TABLE learning_dialogue_progress (
+    id                     BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    activity_item_id       BIGINT UNSIGNED NOT NULL,
+    source_revision        VARCHAR(64) NOT NULL,
+    accumulated_seconds    INT UNSIGNED NOT NULL DEFAULT 0,
+    last_heartbeat_at      DATETIME(6) NULL,
+    last_heartbeat_token   VARCHAR(80) NULL,
+    reached_bottom_at      DATETIME(6) NULL,
+    completed_at           DATETIME(6) NULL,
+    row_version            BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at             DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at             DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                           ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_dialogue_progress_activity (activity_item_id),
+    CONSTRAINT fk_dialogue_progress_activity FOREIGN KEY (activity_item_id)
+        REFERENCES user_learning_path_item(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] 2026-10-19 (owner C2/C4/G1): J-LAS supplement aids of one communication dialogue lesson, generated
+-- from learning-content.json: furigana per line ({漢字|かな} groups; the base text equals the line), "Từ & cụm từ"
+-- taken from the lines, and the optional "chọn câu đáp đúng" challenge whose answer key never leaves the server.
+-- A content change resets review_status to NEEDS_REVIEW.
+CREATE TABLE learning_dialogue_aid (
+    lesson_id       BIGINT UNSIGNED NOT NULL,
+    aid_json        MEDIUMTEXT NOT NULL,
+    content_sha256  CHAR(64) NOT NULL,
+    source_code     VARCHAR(64) NOT NULL,
+    review_status   VARCHAR(20) NOT NULL DEFAULT 'NEEDS_REVIEW',
+    updated_at      DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                    ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (lesson_id),
+    CONSTRAINT fk_dialogue_aid_lesson FOREIGN KEY (lesson_id)
+        REFERENCES lesson(id) ON DELETE CASCADE,
+    CONSTRAINT chk_dialogue_aid_review
+        CHECK (review_status IN ('NEEDS_REVIEW','APPROVED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] 2026-10-19 (owner G2/G3): first clear of a dialogue lesson's optional challenge. The row is the
+-- idempotency guard for the one-time 2 CP reward; replays never award again.
+CREATE TABLE learning_dialogue_challenge_clear (
+    user_id         BIGINT UNSIGNED NOT NULL,
+    lesson_id       BIGINT UNSIGNED NOT NULL,
+    correct_count   INT UNSIGNED NOT NULL,
+    question_count  INT UNSIGNED NOT NULL,
+    cleared_at      DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id, lesson_id),
+    KEY idx_dialogue_challenge_lesson (lesson_id),
+    CONSTRAINT fk_dialogue_challenge_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_dialogue_challenge_lesson FOREIGN KEY (lesson_id)
+        REFERENCES lesson(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Goi y lesson on tap tu mot weakness.
@@ -1798,7 +2853,7 @@ CREATE TABLE user_notification (
 
 CREATE TABLE content_comment (
     id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    target_type VARCHAR(30) NOT NULL,       -- FLASHCARD_SET/VIDEO/LESSON/SCENARIO/TEXTBOOK.
+    target_type VARCHAR(30) NOT NULL,       -- FLASHCARD_SET/VIDEO/LESSON/SCENARIO/TEXTBOOK/VOCABULARY/KANJI.
     target_id   BIGINT UNSIGNED NOT NULL,
     user_id     BIGINT UNSIGNED NOT NULL,
     content     TEXT NOT NULL,
@@ -1812,7 +2867,21 @@ CREATE TABLE content_comment (
     CONSTRAINT fk_content_comment_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chk_content_comment_target_type
-        CHECK (target_type IN ('FLASHCARD_SET','VIDEO','LESSON','SCENARIO','TEXTBOOK'))
+        CHECK (target_type IN ('FLASHCARD_SET','VIDEO','LESSON','SCENARIO','TEXTBOOK','VOCABULARY','KANJI'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE content_comment_vote (
+    comment_id BIGINT UNSIGNED NOT NULL,
+    user_id    BIGINT UNSIGNED NOT NULL,
+    vote       TINYINT NOT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (comment_id, user_id),
+    KEY idx_content_comment_vote_user (user_id),
+    CONSTRAINT fk_content_comment_vote_comment FOREIGN KEY (comment_id)
+        REFERENCES content_comment(id) ON DELETE CASCADE,
+    CONSTRAINT fk_content_comment_vote_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_content_comment_vote CHECK (vote IN (-1, 1))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Ban dich ben vung cua cau user nhap tu do; khong phai cache TTL.
@@ -1958,6 +3027,11 @@ CREATE TABLE user_credit_transaction (
     note           VARCHAR(200) NULL,
     created_at     DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
+    -- NOTE (JLAS-W0127): Unique backstop so two concurrent awards of the same reference
+    -- cannot double-credit (the app also locks the user row before the idempotency check).
+    -- NULL reference_type/reference_id are treated as distinct, so reason-only awards
+    -- (reference columns NULL) still apply every time.
+    UNIQUE KEY uk_credit_transaction_reference (user_id, reason, reference_type, reference_id),
     KEY idx_credit_user_created (user_id, created_at),
     KEY idx_credit_reference (reference_type, reference_id),
     CONSTRAINT fk_credit_transaction_user FOREIGN KEY (user_id)
@@ -2074,6 +3148,89 @@ CREATE TABLE user_streaks (
     CONSTRAINT chk_user_streak_longest CHECK (longest_streak >= current_streak)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [JLAS-W0194] Idempotent event receipt shared by Daily Goal, mission and streak consumers.
+CREATE TABLE learning_event_receipt (
+    event_id     VARCHAR(120) NOT NULL,
+    user_id      BIGINT UNSIGNED NOT NULL,
+    event_type   VARCHAR(40) NOT NULL,
+    occurred_at  DATETIME(6) NOT NULL,
+    processed_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (event_id),
+    KEY idx_event_receipt_user (user_id, processed_at),
+    CONSTRAINT fk_event_receipt_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0196] IANA timezone that owns the learner's day boundary.
+CREATE TABLE user_time_zone (
+    user_id    BIGINT UNSIGNED NOT NULL,
+    zone_id    VARCHAR(64) NOT NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+               ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id),
+    CONSTRAINT fk_user_time_zone_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0194] Retryable reward outbox; the business reference is the idempotency key.
+CREATE TABLE pending_credit_award (
+    id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id           BIGINT UNSIGNED NOT NULL,
+    amount            INT NOT NULL,
+    reason            VARCHAR(30) NOT NULL,
+    reference_type    VARCHAR(30) NOT NULL,
+    reference_id      BIGINT UNSIGNED NOT NULL,
+    note              VARCHAR(200) NULL,
+    celebration_kind  VARCHAR(30) NULL,
+    celebration_title VARCHAR(160) NULL,
+    streak            INT NULL,
+    attempts          INT NOT NULL DEFAULT 0,
+    last_error         VARCHAR(500) NULL,
+    created_at         DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    next_attempt_at    DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    completed_at      DATETIME(6) NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_pending_award_reference (user_id, reason, reference_type, reference_id),
+    KEY idx_pending_award_due (completed_at, next_attempt_at),
+    CONSTRAINT fk_pending_award_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_pending_award_amount CHECK (amount > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0198] One UI celebration for one completed business event.
+CREATE TABLE reward_celebration (
+    id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id    BIGINT UNSIGNED NOT NULL,
+    event_key  VARCHAR(160) NOT NULL,
+    kind       VARCHAR(30) NOT NULL,
+    title      VARCHAR(160) NOT NULL,
+    amount     INT NOT NULL DEFAULT 0,
+    streak     INT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    seen_at    DATETIME(6) NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_reward_celebration_event (user_id, event_key),
+    KEY idx_reward_celebration_unseen (user_id, seen_at, id),
+    CONSTRAINT fk_reward_celebration_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0194] A missed learner-day can be offered/decided at most once.
+CREATE TABLE streak_freeze_day (
+    user_id        BIGINT UNSIGNED NOT NULL,
+    freeze_date    DATE NOT NULL,
+    status         VARCHAR(20) NOT NULL,
+    streak_at_risk INT NOT NULL DEFAULT 0,
+    source         VARCHAR(20) NULL,
+    offered_at     DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    decided_at     DATETIME(6) NULL,
+    PRIMARY KEY (user_id, freeze_date),
+    CONSTRAINT fk_streak_freeze_day_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_streak_freeze_day_status
+        CHECK (status IN ('OFFERED','USED','DECLINED','EXPIRED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- #############################################################################
 -- 10) GAMES
 -- Game lay cau hoi tu flashcard_card cua flashcard_set duoc chon.
@@ -2102,7 +3259,7 @@ CREATE TABLE game_match (
     CONSTRAINT fk_game_match_winner FOREIGN KEY (winner_user_id)
         REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT chk_game_match_type
-        CHECK (game_type IN ('CANNON_BATTLE','MEMORY_MATCH','AIR_DEFENSE')),
+        CHECK (game_type IN ('CANNON_BATTLE','MEMORY_MATCH','AIR_DEFENSE','NEKO_CATCH')),
     CONSTRAINT chk_game_match_status
         CHECK (status IN ('IN_PROGRESS','COMPLETED','ABORTED')),
     CONSTRAINT chk_game_match_time CHECK (ended_at IS NULL OR ended_at >= started_at)
@@ -2253,6 +3410,31 @@ CREATE TABLE user_permanent_upgrades (
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_user_upgrade_ship FOREIGN KEY (equipped_ship_id)
         REFERENCES air_defense_spaceships(ship_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Cua hang Tro choi (migration 009): trang phuc meo / may bay mua bang CP chung.
+-- Danh muc mon nam trong code (GameShopCatalog); hai bang nay luu mon da mua va mon dang dung.
+-- Mon thuoc game nao suy ra tu item_code qua GameShopCatalog nen user_game_item khong luu game_type (3NF).
+CREATE TABLE user_game_item (
+    user_id      BIGINT UNSIGNED NOT NULL,
+    item_code    VARCHAR(40) NOT NULL,
+    price_paid   INT NOT NULL DEFAULT 0,
+    purchased_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id, item_code),
+    CONSTRAINT fk_user_game_item_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_user_game_item_price CHECK (price_paid >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE user_game_loadout (
+    user_id    BIGINT UNSIGNED NOT NULL,
+    game_type  VARCHAR(20) NOT NULL,
+    item_code  VARCHAR(40) NOT NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+               ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id, game_type),
+    CONSTRAINT fk_user_game_loadout_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================================
@@ -2470,5 +3652,475 @@ CREATE TABLE IF NOT EXISTS shadowing_practice_answer (
     UNIQUE KEY uk_shadowing_practice_answer_attempt (practice_item_id, attempt_number),
     INDEX idx_shadowing_practice_answer_result (answer_result, answered_at)
 );
+
+
+ALTER TABLE learning_generated_question MODIFY correct_option INT NOT NULL;
+
+-- [JLAS-W0108] Goal-specific curriculum and structured survey foundation.
+-- Canonical lessons remain in lesson; these tables only classify and map them.
+CREATE TABLE learning_goal (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    goal_code VARCHAR(30) NOT NULL,
+    display_name_vi VARCHAR(255) NOT NULL,
+    description_vi TEXT NULL,
+    entry_policy VARCHAR(50) NOT NULL,
+    requires_assessment BOOLEAN NOT NULL DEFAULT FALSE,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    external_key VARCHAR(100) NULL,
+    source_code VARCHAR(100) NULL,
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_goal_code (goal_code),
+    UNIQUE KEY uk_learning_goal_external_key (external_key),
+    CONSTRAINT chk_learning_goal_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
+);
+
+CREATE TABLE learning_topic (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    goal_id BIGINT UNSIGNED NOT NULL,
+    parent_topic_id BIGINT UNSIGNED NULL,
+    topic_code VARCHAR(100) NOT NULL,
+    title_vi VARCHAR(255) NOT NULL,
+    title_ja VARCHAR(255) NULL,
+    topic_order INT UNSIGNED NOT NULL,
+    -- [JLAS-W0108] 2026-10-19: approximate JLPT level of a communication dialogue situation (N5..N1);
+    -- NULL for vocabulary topics. Used only to order/label situations easy -> hard, never to lock them.
+    jlpt_level VARCHAR(10) NULL,
+    description TEXT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    external_key VARCHAR(100) NULL,
+    source_code VARCHAR(100) NULL,
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_topic_goal_code (goal_id, topic_code),
+    UNIQUE KEY uk_learning_topic_external_key (external_key),
+    CONSTRAINT fk_learning_topic_goal FOREIGN KEY (goal_id) REFERENCES learning_goal(id) ON DELETE CASCADE,
+    CONSTRAINT fk_learning_topic_parent FOREIGN KEY (parent_topic_id) REFERENCES learning_topic(id) ON DELETE RESTRICT,
+    CONSTRAINT chk_learning_topic_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
+);
+
+CREATE TABLE learning_competency (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    goal_id BIGINT UNSIGNED NOT NULL,
+    competency_code VARCHAR(100) NOT NULL,
+    display_name_vi VARCHAR(255) NOT NULL,
+    description TEXT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    external_key VARCHAR(100) NULL,
+    source_code VARCHAR(100) NULL,
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_competency_goal_code (goal_id, competency_code),
+    UNIQUE KEY uk_learning_competency_external_key (external_key),
+    CONSTRAINT fk_learning_competency_goal FOREIGN KEY (goal_id) REFERENCES learning_goal(id) ON DELETE CASCADE,
+    CONSTRAINT chk_learning_competency_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
+);
+
+CREATE TABLE competency_level (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    level_code VARCHAR(50) NOT NULL,
+    level_order INT UNSIGNED NOT NULL,
+    display_name_vi VARCHAR(255) NOT NULL,
+    description_vi TEXT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_competency_level_code (level_code),
+    UNIQUE KEY uk_competency_level_order (level_order),
+    CONSTRAINT chk_competency_level_code CHECK
+        (level_code IN ('BASIC','FUNCTIONAL','PROBLEM_SOLVING','FLEXIBLE'))
+);
+
+CREATE TABLE learning_topic_level (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    topic_id BIGINT UNSIGNED NOT NULL,
+    competency_level_id BIGINT UNSIGNED NOT NULL,
+    outcome_vi TEXT NOT NULL,
+    recommended_jlpt_level VARCHAR(10) NULL,
+    external_key VARCHAR(100) NULL,
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_topic_competency_level (topic_id, competency_level_id),
+    UNIQUE KEY uk_topic_level_external_key (external_key),
+    CONSTRAINT fk_topic_level_topic FOREIGN KEY (topic_id) REFERENCES learning_topic(id) ON DELETE CASCADE,
+    CONSTRAINT fk_topic_level_level FOREIGN KEY (competency_level_id) REFERENCES competency_level(id) ON DELETE RESTRICT,
+    CONSTRAINT chk_topic_level_jlpt CHECK (recommended_jlpt_level IS NULL OR recommended_jlpt_level IN ('N5','N4','N3','N2','N1')),
+    CONSTRAINT chk_topic_level_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
+);
+
+CREATE TABLE lesson_learning_scope (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    lesson_id BIGINT UNSIGNED NOT NULL,
+    goal_id BIGINT UNSIGNED NOT NULL,
+    topic_id BIGINT UNSIGNED NULL,
+    competency_id BIGINT UNSIGNED NULL,
+    competency_level_id BIGINT UNSIGNED NULL,
+    learning_mode VARCHAR(30) NULL,
+    required BOOLEAN NOT NULL DEFAULT TRUE,
+    scope_order INT UNSIGNED NOT NULL,
+    external_key VARCHAR(100) NULL,
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_lesson_scope_external_key (external_key),
+    KEY idx_lesson_scope_selection (goal_id, topic_id, competency_id, competency_level_id, scope_order),
+    CONSTRAINT fk_lesson_scope_lesson FOREIGN KEY (lesson_id) REFERENCES lesson(id) ON DELETE CASCADE,
+    CONSTRAINT fk_lesson_scope_goal FOREIGN KEY (goal_id) REFERENCES learning_goal(id) ON DELETE CASCADE,
+    CONSTRAINT fk_lesson_scope_topic FOREIGN KEY (topic_id) REFERENCES learning_topic(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_lesson_scope_competency FOREIGN KEY (competency_id) REFERENCES learning_competency(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_lesson_scope_level FOREIGN KEY (competency_level_id) REFERENCES competency_level(id) ON DELETE RESTRICT,
+    CONSTRAINT chk_lesson_scope_target CHECK (topic_id IS NOT NULL OR competency_id IS NOT NULL),
+    CONSTRAINT chk_lesson_scope_mode CHECK (learning_mode IS NULL OR learning_mode IN ('FOUNDATION_FIRST','COMMUNICATION_FIRST','BALANCED')),
+    CONSTRAINT chk_lesson_scope_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
+);
+
+CREATE TABLE lesson_prerequisite (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    prerequisite_code VARCHAR(100) NOT NULL,
+    lesson_id BIGINT UNSIGNED NOT NULL,
+    prerequisite_type VARCHAR(40) NOT NULL,
+    required_lesson_id BIGINT UNSIGNED NULL,
+    required_jlpt_level VARCHAR(10) NULL,
+    required_competency_id BIGINT UNSIGNED NULL,
+    blocking_access BOOLEAN NOT NULL DEFAULT FALSE,
+    warmup_lesson_id BIGINT UNSIGNED NULL,
+    reason_vi TEXT NULL,
+    external_key VARCHAR(100) NULL,
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_lesson_prerequisite_code (prerequisite_code),
+    UNIQUE KEY uk_lesson_prerequisite_external_key (external_key),
+    CONSTRAINT fk_lesson_prerequisite_lesson FOREIGN KEY (lesson_id) REFERENCES lesson(id) ON DELETE CASCADE,
+    CONSTRAINT fk_lesson_prerequisite_required_lesson FOREIGN KEY (required_lesson_id) REFERENCES lesson(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_lesson_prerequisite_competency FOREIGN KEY (required_competency_id) REFERENCES learning_competency(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_lesson_prerequisite_warmup FOREIGN KEY (warmup_lesson_id) REFERENCES lesson(id) ON DELETE RESTRICT,
+    CONSTRAINT chk_lesson_prerequisite_type CHECK (prerequisite_type IN ('HARD_SEQUENCE','RECOMMENDED_FOUNDATION','JIT_WARMUP','OPTIONAL_ENRICHMENT')),
+    CONSTRAINT chk_lesson_prerequisite_jlpt CHECK (required_jlpt_level IS NULL OR required_jlpt_level IN ('N5','N4','N3','N2','N1')),
+    CONSTRAINT chk_lesson_prerequisite_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
+);
+
+CREATE TABLE learning_survey_question (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    goal_id BIGINT UNSIGNED NOT NULL,
+    survey_question_code VARCHAR(100) NOT NULL,
+    question_order INT UNSIGNED NOT NULL,
+    question_vi TEXT NOT NULL,
+    selection_type VARCHAR(20) NOT NULL,
+    required BOOLEAN NOT NULL DEFAULT TRUE,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    external_key VARCHAR(100) NULL,
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_survey_question_code (survey_question_code),
+    UNIQUE KEY uk_survey_question_external_key (external_key),
+    UNIQUE KEY uk_survey_question_order (goal_id, question_order),
+    CONSTRAINT fk_survey_question_goal FOREIGN KEY (goal_id) REFERENCES learning_goal(id) ON DELETE CASCADE,
+    CONSTRAINT chk_survey_selection_type CHECK (selection_type IN ('SINGLE','MULTIPLE')),
+    CONSTRAINT chk_survey_question_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
+);
+
+CREATE TABLE learning_survey_option (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    question_id BIGINT UNSIGNED NOT NULL,
+    survey_option_code VARCHAR(100) NOT NULL,
+    option_order INT UNSIGNED NOT NULL,
+    label_vi VARCHAR(255) NOT NULL,
+    value_code VARCHAR(100) NOT NULL,
+    topic_id BIGINT UNSIGNED NULL,
+    competency_id BIGINT UNSIGNED NULL,
+    learning_mode VARCHAR(30) NULL,
+    external_key VARCHAR(100) NULL,
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_survey_option_code (survey_option_code),
+    UNIQUE KEY uk_survey_option_external_key (external_key),
+    UNIQUE KEY uk_survey_option_order (question_id, option_order),
+    CONSTRAINT fk_survey_option_question FOREIGN KEY (question_id) REFERENCES learning_survey_question(id) ON DELETE CASCADE,
+    CONSTRAINT fk_survey_option_topic FOREIGN KEY (topic_id) REFERENCES learning_topic(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_survey_option_competency FOREIGN KEY (competency_id) REFERENCES learning_competency(id) ON DELETE RESTRICT,
+    CONSTRAINT chk_survey_option_mode CHECK (learning_mode IS NULL OR learning_mode IN ('FOUNDATION_FIRST','COMMUNICATION_FIRST','BALANCED')),
+    CONSTRAINT chk_survey_option_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
+);
+
+CREATE TABLE user_goal_survey_submission (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED NOT NULL,
+    goal_id BIGINT UNSIGNED NOT NULL,
+    learning_mode VARCHAR(30) NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'SUBMITTED',
+    version INT UNSIGNED NOT NULL DEFAULT 1,
+    submitted_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_goal_survey_user_version (user_id, goal_id, version),
+    CONSTRAINT fk_goal_survey_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_goal_survey_goal FOREIGN KEY (goal_id) REFERENCES learning_goal(id) ON DELETE RESTRICT,
+    CONSTRAINT chk_goal_survey_mode CHECK (learning_mode IS NULL OR learning_mode IN ('FOUNDATION_FIRST','COMMUNICATION_FIRST','BALANCED')),
+    CONSTRAINT chk_goal_survey_status CHECK (status IN ('DRAFT','SUBMITTED','SUPERSEDED'))
+);
+
+CREATE TABLE user_goal_survey_selection (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    submission_id BIGINT UNSIGNED NOT NULL,
+    question_id BIGINT UNSIGNED NOT NULL,
+    option_id BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_goal_survey_selection (submission_id, question_id, option_id),
+    CONSTRAINT fk_goal_selection_submission FOREIGN KEY (submission_id) REFERENCES user_goal_survey_submission(id) ON DELETE CASCADE,
+    CONSTRAINT fk_goal_selection_question FOREIGN KEY (question_id) REFERENCES learning_survey_question(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_goal_selection_option FOREIGN KEY (option_id) REFERENCES learning_survey_option(id) ON DELETE RESTRICT
+);
+
+CREATE TABLE assessment_question_usage (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    question_id BIGINT UNSIGNED NOT NULL,
+    usage_code VARCHAR(40) NOT NULL,
+    blueprint_code VARCHAR(100) NULL,
+    section_code VARCHAR(100) NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    effective_from DATETIME(6) NULL,
+    effective_to DATETIME(6) NULL,
+    external_key VARCHAR(100) NOT NULL,
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_assessment_usage_external_key (external_key),
+    KEY idx_assessment_usage_selection (usage_code, blueprint_code, section_code, active),
+    CONSTRAINT fk_assessment_usage_question FOREIGN KEY (question_id) REFERENCES assessment_question(id) ON DELETE CASCADE,
+    CONSTRAINT chk_assessment_usage_code CHECK (usage_code IN ('JLPT_PLACEMENT','JLPT_MOCK_TEST','BRSE_FOUNDATION')),
+    CONSTRAINT chk_assessment_usage_dates CHECK (effective_to IS NULL OR effective_from IS NULL OR effective_to > effective_from),
+    CONSTRAINT chk_assessment_usage_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
+);
+
+-- [JLAS-VERB-PRACTICE] Run once in the existing JLAS database before restarting.
+-- Adds practice history and per-verb/form progress. No existing data is changed.
+CREATE TABLE IF NOT EXISTS verb_practice_session (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    mode VARCHAR(20) NOT NULL,
+    payload LONGTEXT NOT NULL,
+    answered_count INT NOT NULL DEFAULT 0,
+    correct_count INT NOT NULL DEFAULT 0,
+    started_at DATETIME(6) NOT NULL,
+    deadline_at DATETIME(6) NULL,
+    finished_at DATETIME(6) NULL,
+    INDEX idx_verb_session_user_started (user_id, started_at),
+    CONSTRAINT fk_verb_session_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS verb_practice_progress (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    verb_id VARCHAR(40) NOT NULL,
+    form_code VARCHAR(30) NOT NULL,
+    attempts INT NOT NULL DEFAULT 0,
+    correct_count INT NOT NULL DEFAULT 0,
+    needs_review BOOLEAN NOT NULL DEFAULT FALSE,
+    updated_at DATETIME(6) NOT NULL,
+    UNIQUE KEY uk_verb_progress (user_id, verb_id, form_code),
+    CONSTRAINT fk_verb_progress_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS2-37] Community Hub: trang thai cong dong, danh gia, binh luan, bao cao.
+-- Bang goc (flashcard_set, video...) la nguon su that; community_content chi luu trang thai + bo dem,
+-- dong tao theo nhu cau (khong co dong = PUBLISHED, bo dem = 0). Migration: sql/migrations/069_community_hub.sql.
+
+CREATE TABLE IF NOT EXISTS community_content (
+    id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    content_type  VARCHAR(30) NOT NULL,               -- FLASHCARD_SET, SHADOWING_VIDEO
+    content_id    BIGINT UNSIGNED NOT NULL,           -- id trong bang goc cua content_type
+    status        VARCHAR(24) NOT NULL DEFAULT 'PUBLISHED',
+    rating_avg    DECIMAL(3,2) NOT NULL DEFAULT 0.00,
+    rating_count  INT UNSIGNED NOT NULL DEFAULT 0,
+    comment_count INT UNSIGNED NOT NULL DEFAULT 0,    -- binh luan PUBLISHED, chua xoa
+    report_count  INT UNSIGNED NOT NULL DEFAULT 0,    -- tong so bao cao da nhan
+    created_at    DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at    DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_community_content_source (content_type, content_id),
+    KEY idx_community_content_status (status, content_type),
+    CONSTRAINT chk_community_content_status CHECK (status IN ('PUBLISHED','TEMPORARILY_HIDDEN','REMOVED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS community_rating (
+    id                   BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    community_content_id BIGINT UNSIGNED NOT NULL,
+    user_id              BIGINT UNSIGNED NOT NULL,
+    score                TINYINT UNSIGNED NOT NULL,
+    created_at           DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at           DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_community_rating_user (community_content_id, user_id),
+    KEY idx_community_rating_user (user_id),
+    CONSTRAINT fk_community_rating_content FOREIGN KEY (community_content_id)
+        REFERENCES community_content(id) ON DELETE CASCADE,
+    CONSTRAINT fk_community_rating_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_community_rating_score CHECK (score BETWEEN 1 AND 5)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS community_comment (
+    id                   BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    community_content_id BIGINT UNSIGNED NOT NULL,
+    user_id              BIGINT UNSIGNED NOT NULL,
+    body                 VARCHAR(1000) NOT NULL,
+    status               VARCHAR(24) NOT NULL DEFAULT 'PUBLISHED',
+    report_count         INT UNSIGNED NOT NULL DEFAULT 0,
+    deleted_at           DATETIME(6) NULL,             -- xoa mem
+    created_at           DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at           DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    KEY idx_community_comment_content (community_content_id, deleted_at, status, created_at),
+    KEY idx_community_comment_status (status, deleted_at),
+    KEY idx_community_comment_user (user_id),
+    CONSTRAINT fk_community_comment_content FOREIGN KEY (community_content_id)
+        REFERENCES community_content(id) ON DELETE CASCADE,
+    CONSTRAINT fk_community_comment_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_community_comment_status CHECK (status IN ('PUBLISHED','TEMPORARILY_HIDDEN','REMOVED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS community_report (
+    id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    reporter_id     BIGINT UNSIGNED NOT NULL,
+    target_type     VARCHAR(16) NOT NULL,              -- CONTENT -> community_content.id, COMMENT -> community_comment.id
+    target_id       BIGINT UNSIGNED NOT NULL,
+    reason          VARCHAR(24) NOT NULL,
+    note            VARCHAR(500) NULL,
+    status          VARCHAR(12) NOT NULL DEFAULT 'OPEN',
+    resolved_by     BIGINT UNSIGNED NULL,
+    resolved_at     DATETIME(6) NULL,
+    resolution_note VARCHAR(500) NULL,
+    created_at      DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_community_report_once (reporter_id, target_type, target_id),
+    KEY idx_community_report_target (target_type, target_id, status),
+    CONSTRAINT fk_community_report_reporter FOREIGN KEY (reporter_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_community_report_resolver FOREIGN KEY (resolved_by)
+        REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT chk_community_report_target CHECK (target_type IN ('CONTENT','COMMENT')),
+    CONSTRAINT chk_community_report_reason
+        CHECK (reason IN ('SPAM','INAPPROPRIATE','COPYRIGHT','WRONG_CONTENT','OTHER')),
+    CONSTRAINT chk_community_report_status CHECK (status IN ('OPEN','RESOLVED','REJECTED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-KANJI-MAP] Relational source catalog.
+CREATE TABLE IF NOT EXISTS user_kanji_mastery (
+    user_id BIGINT UNSIGNED NOT NULL,
+    kanji_character VARCHAR(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    mastered_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id, kanji_character),
+    CONSTRAINT fk_kanji_mastery_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanji_map_content (
+    kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    content_json LONGTEXT NOT NULL,
+    version BIGINT NOT NULL DEFAULT 1,
+    updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_by BIGINT NOT NULL,
+    PRIMARY KEY (kanji_character),
+    CONSTRAINT chk_kanji_map_content_version CHECK (version > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanji_map_dataset (
+    id SMALLINT NOT NULL PRIMARY KEY,
+    graph_version INT NOT NULL,
+    source_sha256 CHAR(64) NOT NULL,
+    sources_json LONGTEXT NOT NULL,
+    node_count INT NOT NULL,
+    CONSTRAINT chk_kanji_map_dataset_singleton CHECK (id = 1)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanji_map_node (
+    kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL PRIMARY KEY,
+    source_order INT NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    is_kanji BOOLEAN NOT NULL,
+    is_radical BOOLEAN NOT NULL,
+    radical_number INT NULL,
+    jlpt_level VARCHAR(2) NULL,
+    han_viet VARCHAR(255) NULL,
+    meaning_vi TEXT NULL,
+    meaning_vi_source VARCHAR(100) NULL,
+    meaning_vi_source_url VARCHAR(1000) NULL,
+    memory_hint TEXT NULL,
+    stroke_count INT NULL,
+    parent_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+    parent_relation VARCHAR(30) NULL,
+    radical_name_vi VARCHAR(100) NULL,
+    radical_base VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+    is_radical_variant BOOLEAN NOT NULL DEFAULT FALSE,
+    KEY idx_kanji_map_level (is_active, jlpt_level),
+    CONSTRAINT fk_kanji_map_parent FOREIGN KEY (parent_character) REFERENCES kanji_map_node(kanji_character),
+    CONSTRAINT fk_kanji_map_radical_base FOREIGN KEY (radical_base) REFERENCES kanji_map_node(kanji_character),
+    CONSTRAINT chk_kanji_map_node_level CHECK (jlpt_level IS NULL OR jlpt_level IN ('N1','N2','N3','N4','N5'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanji_map_reading (
+    kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    reading_type VARCHAR(3) NOT NULL,
+    reading_order INT NOT NULL,
+    reading_text VARCHAR(100) NOT NULL,
+    PRIMARY KEY (kanji_character, reading_type, reading_order),
+    CONSTRAINT fk_kanji_map_reading_node FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character) ON DELETE CASCADE,
+    CONSTRAINT chk_kanji_map_reading_type CHECK (reading_type IN ('ON','KUN'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanji_map_gloss (
+    kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    gloss_order INT NOT NULL,
+    meaning_en TEXT NOT NULL,
+    PRIMARY KEY (kanji_character, gloss_order),
+    CONSTRAINT fk_kanji_map_gloss_node FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanji_map_radical_alias (
+    kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    alias_order INT NOT NULL,
+    alias_text VARCHAR(100) NOT NULL,
+    PRIMARY KEY (kanji_character, alias_order),
+    CONSTRAINT fk_kanji_map_alias_node FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanji_map_component (
+    kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    component_order INT NOT NULL,
+    component_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    original_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+    position_code VARCHAR(30) NULL,
+    is_partial BOOLEAN NOT NULL,
+    PRIMARY KEY (kanji_character, component_order),
+    KEY idx_kanji_map_component_character (component_character),
+    CONSTRAINT fk_kanji_map_component_owner FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character) ON DELETE CASCADE,
+    CONSTRAINT fk_kanji_map_component_target FOREIGN KEY (component_character) REFERENCES kanji_map_node(kanji_character)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanji_map_stroke (
+    kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    stroke_order INT NOT NULL,
+    path_data TEXT NOT NULL,
+    PRIMARY KEY (kanji_character, stroke_order),
+    CONSTRAINT fk_kanji_map_stroke_node FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS user_notebook_kanji (
+    notebook_id BIGINT NOT NULL,
+    kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    saved_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    -- [JLAS-KANJI-MAP] Review progress stays with this Kanji in this notebook.
+    first_seen_at DATETIME NULL,
+    last_reviewed_at DATETIME NULL,
+    due_at DATETIME NULL,
+    ease_factor DECIMAL(4,2) NOT NULL DEFAULT 2.50,
+    repetitions INT NOT NULL DEFAULT 0,
+    interval_days INT NOT NULL DEFAULT 0,
+    PRIMARY KEY (notebook_id, kanji_character),
+    KEY idx_notebook_kanji_due (notebook_id, due_at),
+    CONSTRAINT fk_notebook_kanji_book FOREIGN KEY (notebook_id) REFERENCES user_notebook(id) ON DELETE CASCADE,
+    CONSTRAINT fk_notebook_kanji_node FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-NOTEBOOK] End of Kanji update.
 
 -- End of canonical schema.

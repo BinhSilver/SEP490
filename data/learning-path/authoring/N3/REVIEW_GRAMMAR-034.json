@@ -1,0 +1,577 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "学校では、試験中は電話を切ることになっています。",
+       "ja_furigana": "学校(がっこう)では、試験(しけん)中(ちゅう)は電話(でんわ)を切(き)ることになっています。",
+       "vi": "Ở trường, giờ thi phải tắt điện thoại theo quy định.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "このりょうでは、夜十時までに帰ることになっている。",
+       "ja_furigana": "このりょうでは、夜(よる)十時(じゅうじ)までに帰(かえ)ることになっている。",
+       "vi": "Ở ký túc xá này, quy định là phải về trước 10 giờ tối.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "本校では、教室では日本語しか話せないことになっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trường tôi quy định trong lớp chỉ được nói tiếng Nhật."
+     },
+     {
+      "ja": "法律では、２０歳未満はお酒を飲んではいけないことになっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Luật quy định người dưới 20 tuổi không được uống rượu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 本校では、教室では日本語しか話せないことになっている。",
+     "FURIGANA_MISSING: 法律では、２０歳未満はお酒を飲んではいけないことになっている。"
+    ],
+    "formation": "V-る / V-ない + ことになっている",
+    "locked_fields": [],
+    "meaning_vi": "Được quy định/được quyết định là…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ことになっている",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng cho việc đã được quyết định hoặc quy định sẵn bởi tổ chức, hoàn cảnh, nội quy hay kế hoạch. Không phụ thuộc vào ý chí của người nói. 1) Dễ nhầm với ～ことにしている. → ～ことになっている là quyết định hoặc quy định do tổ chức, người khác hoặc hoàn cảnh tạo ra. 2) Dễ dịch sai thành “tôi quyết định”. → Mẫu này không nhấn ý chí cá nhân của người nói. 3) Hay gặp trong nội quy, lịch trình, kế hoạch đã sắp xếp sẵn. → Dùng để nói “đã được quyết định như vậy”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b1222b7e32"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "時間があったら、祖母の家にも寄りたい。",
+       "ja_furigana": "時間(じかん)があったら、祖母(そぼ)の家(いえ)にも寄(よ)りたい。",
+       "vi": "Nếu có thời gian tôi muốn ghé nhà bà.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "もし時間があれば、海を見にいきたいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu có thời gian, tôi muốn đi ngắm biển. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: もし時間があれば、海を見にいきたいです。"
+    ],
+    "formation": "V-ば / V-たら / V-る + と + V-たい / いいのに / よかった",
+    "locked_fields": [],
+    "meaning_vi": "Ước/giá mà… (điều trái với hiện tại/không có thật)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ば/たら/と。。。たい/のに/よかったなど",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nói mong ước trái với thực tế hiện tại hoặc điều không có thật. Thường đi với ～ば／～たら／～と…たい／のに／よかった…. Diễn tả sự hối tiếc về quá khứ: “giá mà lúc đó… thì đã…”. Nhấn mạnh cảm giác tiếc nuối đối với việc đã xảy ra. 1) Dễ nhầm với câu điều kiện bình thường. → Mẫu này dùng để nói mong ước trái với hiện tại, điều không xảy ra thật. 2) Chú ý các cụm hay đi kèm ở vế sau. → Thường gặp: ～たい／～のに／～よかった… để thể hiện “giá mà…”. 3) Không dùng khi chỉ nói điều kiện có thể thực hiện ngay. → Nếu là kế hoạch/điều kiện thực tế thì dùng câu điều kiện thông thường, không mang sắc thái “ước”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-26035c6056"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "明日試合があるという知らせを受けた。",
+       "ja_furigana": "明日(あした)試合(しあい)があるという知(し)らせを受(う)けた。",
+       "vi": "Tôi nhận tin rằng ngày mai có trận đấu.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "田中さんが会社をやめるというのは本当ですか。",
+       "ja_furigana": "田中(たなか)さんが会社(かいしゃ)をやめるというのは本当(ほんとう)ですか。",
+       "vi": "Chuyện anh Tanaka nghỉ việc ở công ty là thật sao?",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼が来ないというのは本当ですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "“Việc anh ấy không đến” là thật à?"
+     },
+     {
+      "ja": "彼女が合格したというのを聞いて安心した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe “việc cô ấy đỗ” nên tôi yên tâm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼が来ないというのは本当ですか。",
+     "FURIGANA_MISSING: 彼女が合格したというのを聞いて安心した。"
+    ],
+    "formation": "V / Aい / Aな・N(thể thông thường) + というのは",
+    "locked_fields": [],
+    "meaning_vi": "というの = “という + の”: danh hoá mệnh đề kèm sắc thái giải thích/cảm xúc, mềm hơn ということ. Dùng để làm chủ ngữ, tân ngữ, bổ ngữ; có thể gắn các hư từ/đuôi câu: は／が／を／に／だ／です／か. Đuôi というのだ／です nhấn mạnh, giải thích; というのか có sắc thái ngờ vực/đối chất. というので nêu lý do dựa trên thông tin đã nghe/biết.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cái gọi là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] というの mang màu giải thích/cảm xúc; ということ khách quan, trừu tượng hơn. Ở văn nói thân mật, というの → っていうの; ở văn viết trang trọng, ưu tiên ということ. Với というのか, ngữ điệu quan trọng để thể hiện nghi vấn có phần phản bác. というので thường dùng khi lý do là thông tin gián tiếp (nghe/tin rằng). [6. Ghi chú mở rộng] Thường thấy trong câu cảm thán/đối chất: 何というの？／どういうつもりだというの？ というので ≈ という理由で nhưng nhẹ và khẩu ngữ hơn. Thì/Thể nằm trong mệnh đề trước というの: 来なかったというのを聞いた。 [7. Biến thể & cụm cố định] というのだ／というのです／というのか (khẳng định/lịch sự/nghi vấn phản bác) というのを／というのが／というのに／というので (tân ngữ/chủ ngữ/mặc dù/lý do) Khẩu ngữ: っていうの～ [8. Lỗi thường gặp & bẫy JLPT] Trong văn học thuật, ということ thường phù hợp hơn khi danh hóa nội dung trừu tượng. Tuy nhiên というの không bị cấm tuyệt đối; nó vẫn dùng trong định nghĩa, trích dẫn hoặc khi cần sắc thái giải thích. Gắn です/ます trước というの: 来ますというの (không tự nhiên) → 来るというの. Dùng というのか quá mạnh trong văn lịch sự → dễ mang cảm giác công kích."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cbf8f1d0c7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "「かいがん」というのは海のそばのことです。",
+       "ja_furigana": "「かいがん」というのは海(うみ)のそばのことです。",
+       "vi": "“Kaigan” nghĩa là bờ biển.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「ちゅうしょく」というのは、昼に食べるご飯のことです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "“Bữa trưa” nghĩa là bữa ăn vào buổi trưa. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「ちゅうしょく」というのは、昼に食べるご飯のことです。"
+    ],
+    "formation": "N1 + というのは + N2 + のことだ / V-る + ことだ",
+    "locked_fields": [],
+    "meaning_vi": "Định nghĩa/giải thích khái niệm: AというのはBだ = “cái gọi là A là B”. Giới thiệu lý do: Đặt というのは đầu câu thứ hai để nêu lý do cho câu trước. Sắc thái giải thích, mạch lạc; thường dùng trong thuyết trình, bài viết, hoặc khi muốn làm rõ thuật ngữ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có nghĩa là, là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sau というのは thường là câu định nghĩa, nêu bản chất, hoặc đánh giá khái quát. Khi dùng để đưa lý do, câu sau hay kết thúc bằng からだ／ためだ／わけだ để rõ mối quan hệ nhân quả. Trang trọng hơn っていうのは; thích hợp trong văn bản, bài giảng. Có thể dùng cả với mệnh đề: S(plain) + というのは、～ (việc … thì …). [6. Ghi chú mở rộng] Nêu định nghĩa nên tránh ví dụ quá cụ thể ngay sau というのは; thay vào đó nêu bản chất rồi mới đưa ví dụ. Khi làm lý do, というのは thường mở đầu câu mới, sau dấu chấm hoặc ngắt đoạn. Trong đánh giá phủ định, hay đi với ～にすぎない／～とは限らない／～わけではない. [7. Biến thể & cụm cố định] N + とは (rút gọn trang trọng của というのは) N + というのは～のことだ (định nghĩa: “là việc/điều …”) Khẩu ngữ: N + っていうのは … [8. Lỗi thường gặp & bẫy JLPT] Dùng というと để định nghĩa thay vì というのは → sai chức năng. Quên は: “多様性というのは” → nếu thiếu は, nghĩa không hoàn chỉnh trong vai trò định nghĩa. Biến というのは thành cầu nối dài dòng giữa hai câu không quan hệ lý do/định nghĩa → rườm rà, mất mạch."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ce5cb84bf7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は怒っているというより、心配している。",
+       "ja_furigana": "彼(かれ)は怒(おこ)っているというより、心配(しんぱい)している。",
+       "vi": "Anh ấy lo lắng hơn là tức giận.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "この部屋は広いというより、物が少ないだけだ。",
+       "ja_furigana": "この部屋(へや)は広(ひろ)いというより、物(もの)が少(すく)ないだけだ。",
+       "vi": "Căn phòng này nói là rộng thì không đúng, đúng hơn là chỉ ít đồ thôi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼はリーダーというよりムードメーカーだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy không hẳn là “lãnh đạo” mà đúng hơn là người khuấy động không khí."
+     },
+     {
+      "ja": "この映画は怖いというより悲しい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bộ phim này buồn thì đúng hơn là đáng sợ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼はリーダーというよりムードメーカーだ。",
+     "FURIGANA_MISSING: この映画は怖いというより悲しい。"
+    ],
+    "formation": "N1 / V / A + というより + N2 / V / A",
+    "locked_fields": [],
+    "meaning_vi": "“Nói A thì đúng hơn là B” theo nghĩa đen, nhưng cách dùng thực tế: phủ định/điều chỉnh A và khẳng định B là cách diễn đạt phù hợp hơn. Dịch tự nhiên: “không hẳn là A mà đúng hơn là B”, “thay vì A thì nên nói là B”. A là nhận định/cách gọi chung chung, cũ; B là bản chất/điểm cốt lõi mà người nói muốn nhấn mạnh. Thường mang sắc thái sửa lời, đính chính, đánh giá mang tính chủ quan; mức độ mạnh hơn というか (mang tính đệm lời). Hay dùng trong so sánh tính chất, ấn tượng: “đẹp… hơn là dễ thương”, “nóng… hơn là ấm”. Khi thêm むしろ: tô đậm sự đảo hướng kỳ vọng “đúng ra phải là B”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đúng hơn là, thay vì nói...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để chỉnh lại cách diễn đạt, nhấn mạnh tính phù hợp của B so với A. Sắc thái phản biện nhẹ, lịch sự nếu dùng khéo; thêm むしろ để nhấn mạnh “trái với mong đợi”. Thích hợp mô tả ấn tượng, đánh giá; tránh dùng khi cần phát ngôn trung lập hoàn toàn. Trong văn nói, có thể thay bằng というか (nhẹ hơn) hoặc っていうか (rất khẩu ngữ). [6. Ghi chú mở rộng] Với danh từ/tính từ-na, だ trước というより thường lược; dùng だというより không sai nhưng trang trọng hơn. A có thể khá tiêu cực để làm nền cho B tích cực (hoặc ngược lại) nhằm tạo hiệu ứng tu từ. Trong phản biện lịch sự, có thể mở đầu: どちらかというと/私の印象では…＋B。 [7. Biến thể & cụm cố định] Aというより（は）B Aというより（は）むしろB AというかB（khẩu ngữ nhẹ hơn） 正確に言えば／厳密に言うと（tương tự chức năng đính chính, dùng mở đầu trước B） [8. Lỗi thường gặp & bẫy JLPT] Đảo thứ tự A/B: phải là “AというよりB” (B mới là ý chính). Thêm だ thừa: “先生だというより” không sai nhưng thường “先生というより” tự nhiên hơn. Dùng khi A và B không cùng trục so sánh: nên cùng phạm trù/tính chất để hợp logic. Nhầm với AよりB (so sánh thường) trong câu hỏi JLPT: というより có sắc thái “đính chính diễn đạt”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-51c230e93e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "電車が遅れるそうです。—それならバスに乗ろう。",
+       "ja_furigana": "電車(でんしゃ)が遅(おく)れるそうです。—それならバスに乗(の)ろう。",
+       "vi": "Nghe nói tàu sẽ trễ. Vậy đi xe buýt thôi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "今日は肉がないよ。—それなら、魚にしよう。",
+       "ja_furigana": "今日(きょう)は肉(にく)がないよ。—それなら、魚(さかな)にしよう。",
+       "vi": "Hôm nay hết thịt rồi. — Vậy thì ăn cá đi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "明日休みだよ。— それなら一緒に出かけよう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngày mai được nghỉ đấy. — Nếu vậy thì cùng đi chơi nhé."
+     },
+     {
+      "ja": "もう売り切れです。— それなら予約しておけばよかったね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã bán hết rồi. — Nếu vậy thì đáng lẽ nên đặt trước."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 明日休みだよ。— それなら一緒に出かけよう。",
+     "FURIGANA_MISSING: もう売り切れです。— それなら予約しておけばよかったね。"
+    ],
+    "formation": "Câu 1。+ それなら、+ Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “Nếu vậy thì/đã thế thì...”, dùng khi tiếp nhận thông tin A rồi quyết định/đề xuất B. Chức năng hội thoại: phản hồi, chuyển sang giải pháp, đưa lời khuyên/điều kiện mới. Độ trang trọng: trung tính trong hội thoại; それならば lịch sự hơn; だったら/じゃ(あ) thân mật hơn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu vậy thì...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường đứng đầu câu phản hồi, kèm đề xuất/giải pháp/nhượng bộ. Không dùng đơn thuần chỉ để đối lập; phải có quan hệ điều kiện “nếu A đúng thì B...”. Thân mật: だったら／じゃ(あ); lịch sự: それならば／それでは. [6. Ghi chú mở rộng] Phù hợp trong đàm phán/giải quyết vấn đề vì thể hiện phản ứng linh hoạt. Có thể đi với mệnh lệnh/khuyên nhủ: それなら、やめたほうがいい。 Trong email lịch sự, ưu tiên それでは／それならば. [7. Biến thể & cụm cố định] それならば：lịch sự. それならそれで：“nếu đã vậy thì (hãy làm theo cách tương ứng)”. それならでは（の）：không phải biến thể điều kiện; nghĩa “đặc trưng/độc đáo của...”, cần phân biệt. [8. Lỗi thường gặp & bẫy JLPT] Dùng それなら cho đối lập thuần túy (nên dùng しかし/だが) → sai chức năng. Chọn nhầm với それでは: trong hội thoại tự nhiên, それなら trung tính; それでは trang trọng/hướng dẫn quy trình. B thiếu tính “phản ứng theo A” → câu trở nên rời rạc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8518e884de"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "父の話では、古い橋は今年直すということだ。",
+       "ja_furigana": "父(ちち)の話(はなし)では、古(ふる)い橋(はし)は今年(ことし)直(なお)すということだ。",
+       "vi": "Theo bố, cầu cũ sẽ được sửa năm nay.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "説明によると、この薬は一日三回飲むということだ。",
+       "ja_furigana": "説明(せつめい)によると、この薬(くすり)は一日(いちにち)三回(さんかい)飲(の)むということだ。",
+       "vi": "Theo lời giải thích, thuốc này uống ngày ba lần.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "新聞によると、新しい法律が施行されるということだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Theo báo chí, nghe nói luật mới sẽ được áp dụng."
+     },
+     {
+      "ja": "彼は来週まで日本に滞在するということだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe nói anh ấy sẽ ở Nhật đến tuần sau."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 新聞によると、新しい法律が施行されるということだ。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 新聞によると、新しい法律が施行されるということだ。 → 施行",
+     "FURIGANA_MISSING: 彼は来週まで日本に滞在するということだ。"
+    ],
+    "formation": "V / Aい / Aな(だ)・N(だ) + ということだ",
+    "locked_fields": [],
+    "meaning_vi": "～ということだ có hai cách hiểu chính tùy ngữ cảnh: Truyền đạt thông tin/nghe nói: “nghe nói là…”, “được biết là…”. Người nói không trực tiếp chứng kiến mà tường thuật lại thông tin từ nguồn khác. Kết luận/diễn giải: “tức là…”, “điều đó có nghĩa là…”, dùng để tổng kết nội dung vừa nêu. Trong cả hai trường hợp, mẫu này mang sắc thái khách quan, ít bộc lộ cảm xúc cá nhân, thường gặp trong văn viết, tin tức, giải thích logic.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nghe nói, tức là",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để truyền đạt thông tin gián tiếp từ báo chí, người khác, thông báo chính thức. Dùng để tóm tắt hoặc diễn giải kết luận sau khi trình bày tình huống. Sắc thái trung tính, khách quan; không nhấn mạnh cảm xúc cá nhân. Trong văn nói, có thể dùng để kết câu khi giải thích: “…ということだね”. Không phù hợp với câu mệnh lệnh hay ý chí cá nhân. [6. Ghi chú mở rộng] Trong văn bản học thuật hoặc tin tức, ～ということだ giúp giữ khoảng cách thông tin, tránh khẳng định tuyệt đối. Khi dùng với nghĩa “tức là…”, thường xuất hiện sau dấu ngắt logic hoặc các từ như つまり、要するに. Có thể kết hợp dạng lịch sự: ～ということです trong thuyết trình. [7. Biến thể & cụm cố định] ～ということです: dạng lịch sự, dùng trong thông báo. ～ということになる: dẫn đến kết quả logic (“thành ra là…”). ～ということは: dùng để suy luận (“vậy thì…”). ～ということか: dùng khi xác nhận lại kết luận. [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～そうだ: nếu câu mang nghĩa kết luận/tóm tắt thì không dùng ～そうだ. Nhầm với ～わけだ: ～わけだ mang sắc thái chủ quan, còn ～ということだ trung tính hơn. 行きたいということだ có thể đúng khi tường thuật “(ai đó) muốn đi” hoặc kết luận “tức là muốn đi”. Nó không phù hợp nếu người nói chỉ trực tiếp tuyên bố ý muốn của mình mà không có ngữ cảnh tường thuật/kết luận. Bỏ sai 「だ」 với danh từ/na-adj trong văn viết chuẩn. Trong đọc hiểu JLPT, nếu câu có “theo báo, theo thông báo”, ưu tiên chọn ～ということだ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-21920c21c5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町というと、赤い橋が有名だ。",
+       "ja_furigana": "この町(まち)というと、赤(あか)い橋(はし)が有名(ゆうめい)だ。",
+       "vi": "Nhắc thị trấn này, cây cầu đỏ rất nổi tiếng.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "日本の夏というと、花火を思い出す。",
+       "ja_furigana": "日本(にほん)の夏(なつ)というと、花火(はなび)を思(おも)い出(だ)す。",
+       "vi": "Nhắc đến mùa hè Nhật Bản là tôi nghĩ ngay đến pháo hoa.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "夏というと、海や花火を思い出す。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nói đến mùa hè là nhớ đến biển và pháo hoa."
+     },
+     {
+      "ja": "寿司というと、やっぱり日本でしょう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nói đến sushi thì đương nhiên là Nhật Bản rồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 夏というと、海や花火を思い出す。",
+     "FURIGANA_MISSING: 寿司というと、やっぱり日本でしょう。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 寿司というと、やっぱり日本でしょう。 → 寿,司"
+    ],
+    "formation": "N + というと / といえば / といったら",
+    "locked_fields": [],
+    "meaning_vi": "Liên tưởng/điển hình: từ một từ khóa, nêu điều thường liên tưởng, ví dụ tiêu biểu. Kiểm tra/nhấn lại nội dung: dùng khi muốn xác nhận “nói thế tức là… phải không”. Sắc thái hội thoại; というと nhấn chuyển chủ đề do gợi nhớ từ khóa vừa nêu/nghe thấy.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nhắc đến... thì...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt sau danh từ/chủ đề vừa nghe/thấy để mở ra liên tưởng hoặc xin làm rõ. Thường đi với các động từ liên tưởng: 思い出す・連想する・言えば… Trong xác nhận ý, sau というと thường theo sau mệnh đề hỏi/giải thích. Thân mật hơn といえば về cảm giác hội thoại trực tiếp; というと thiên về “liên tưởng điển hình”. [6. Ghi chú mở rộng] Hay xuất hiện trong hội thoại khi nhận được từ khóa mới: A「留学します。」B「留学というと、どこに？」 Không dùng というと để định nghĩa khái niệm; khi định nghĩa dùng というのは／とは. Trong văn viết, というと thường đi cùng các cụm công thức: 一般に～といえば／～と聞くと～を連想する。 [7. Biến thể & cụm cố định] ～っていうと (khẩu ngữ) N + というと、～を連想する (nói đến N là liên tưởng đến …) ～というと、つまり～ですか (ý là … phải không) [8. Lỗi thường gặp & bẫy JLPT] Dùng というと để nối hai mệnh đề không liên tưởng → gượng gạo. Nên có quan hệ gợi nhớ rõ. Nhầm với というのは để định nghĩa. というと không dùng để định nghĩa thuật ngữ. Nhầm sắc thái với といったら: というと trung tính; といったら mang cảm xúc mạnh/quá mức."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9872db58cd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この道は通行止めだ。つまり駅へは行けない。",
+       "ja_furigana": "この道(みち)は通行止(つうこうど)めだ。つまり駅(えき)へは行(い)けない。",
+       "vi": "Đường này bị chặn, tức không tới ga được.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "山田さんは母の兄の息子、つまり私のいとこだ。",
+       "ja_furigana": "山田(やまだ)さんは母(はは)の兄(あに)の息子(むすこ)、つまり私(わたし)のいとこだ。",
+       "vi": "Anh Yamada là con trai của anh mẹ tôi, tức là anh họ tôi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は父の弟、つまり私の叔父です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy là em trai của bố tôi, tức là chú của tôi."
+     },
+     {
+      "ja": "この店は現金しか使えません。つまり、カードは不可です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cửa hàng này chỉ dùng tiền mặt. Nói cách khác, không dùng thẻ được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は父の弟、つまり私の叔父です。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 彼は父の弟、つまり私の叔父です。 → 叔",
+     "FURIGANA_MISSING: この店は現金しか使えません。つまり、カードは不可です。"
+    ],
+    "formation": "N1、+ つまり + N2 / Câu 1。+ つまり + Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Nói cách khác/diễn giải: Dùng để chuyển từ cách nói A sang cách nói B dễ hiểu hơn. Tóm tắt/kết luận: Chốt ý sau khi trình bày lý do, dữ kiện. Định nghĩa/đồng nhất: “A, tức là B”. Sắc thái diễn ngôn: Dẫn nhập kết luận của người nói; nghe có vẻ logic, mạch lạc.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nói cách khác, tóm lại, tức là",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường đứng đầu câu hoặc giữa câu, trước/sau có dấu phẩy để ngắt ý. Dùng trong cả nói và viết. Trong văn trang trọng, “すなわち/要するに” thay thế tùy ngữ cảnh. Khi nêu kết luận mạnh: つまり～ということだ／わけだ để làm rõ suy luận. Không dùng “つまりに/つまりな” (không phải trợ từ mà là phó từ/marker diễn ngôn). [6. Ghi chú mở rộng] Chính tả “詰まり” (danh từ: tắc nghẽn) khác với “つまり” (phó từ: tóm lại). Trong hội thoại, cả hai phát âm giống, phân biệt bằng ngữ cảnh/chữ Hán. Khi nối liền mạch giải thích: A。つまり、B。Cũng có thể viết A、つまり、B để ngắt câu nhẹ. Kèm “ということだ/わけだ/ってことだ” tạo cảm giác khẳng định kết luận suy ra. [7. Biến thể & cụm cố định] つまり～ということだ／わけだ A、つまり、B（言い換え） つまりのところ（tóm lại mà nói） つまり～だよね（khẩu ngữ xác nhận） [8. Lỗi thường gặp & bẫy JLPT] Nhầm với “結局”: “結局” là kết quả sau quá trình; “つまり” là diễn giải/đồng nhất ý. Bỏ mệnh đề trước khi dùng “つまり”: cần có nội dung A để diễn giải thành B. Dùng “つまりに”: sai ngữ pháp (không chia với trợ từ). Lạm dụng trong văn viết trang trọng: cân nhắc “すなわち/要するに” theo sắc thái."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1190eb20d5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "何度練習しても難しい。それでも続けたい。",
+       "ja_furigana": "何(なん)度(ど)練習(れんしゅう)しても難(むずか)しい。それでも続(つづ)けたい。",
+       "vi": "Tập bao lần vẫn khó, dù vậy tôi muốn tiếp tục.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "雨が強く降っていた。それでも、試合は続いた。",
+       "ja_furigana": "雨(あめ)が強(つよ)く降(ふ)っていた。それでも、試合(しあい)は続(つづ)いた。",
+       "vi": "Mưa rất to. Dù vậy, trận đấu vẫn tiếp tục.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は何度も失敗した。それでも、諦めなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy thất bại nhiều lần. Thế nhưng vẫn không bỏ cuộc."
+     },
+     {
+      "ja": "雨は強く降っていた。それでも、観客は帰らなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mưa rất to. Thế nhưng khán giả vẫn không rời đi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は何度も失敗した。それでも、諦めなかった。",
+     "FURIGANA_MISSING: 雨は強く降っていた。それでも、観客は帰らなかった。"
+    ],
+    "formation": "Câu 1。+ それでも、+ Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả sự nhượng bộ + đối lập: Dù A là trở ngại, khó khăn hoặc điều khiến B khó xảy ra, nhưng kết quả B vẫn xảy ra. Hàm ý cảm xúc: Thường chứa sắc thái kiên trì, ngạc nhiên, thất vọng, hoặc khen ngợi (vì vẫn làm B mặc cho A). Dịch tự nhiên: “Mặc dù vậy…”, “Thế nhưng…”, “Dẫu vậy…”, “Ngay cả thế thì…”. Khác với それが・それで・そこで: それでも nhấn mạnh sự đối lập mạnh giữa kỳ vọng (từ A) và thực tế (B).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tuy vậy, mặc dù thế",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Vị trí: Đứng đầu mệnh đề B sau khi mệnh đề A kết thúc bằng dấu chấm hoặc phẩy. Bắt buộc hai mệnh đề phải có mối quan hệ trái chiều: A khiến ta nghĩ B sẽ không xảy ra, nhưng thực tế B vẫn xảy ra. Sắc thái: Mang tính cảm xúc – ngạc nhiên, thất vọng, thán phục, kiên trì. Phong cách: Dùng trong hội thoại lẫn văn viết; mức độ trang trọng trung tính. [6. Ghi chú mở rộng] Hay dùng trong văn kể chuyện, phát biểu cảm xúc, diễn tả ý chí. Thường đi cùng với các từ nhấn mạnh như それでもなお (thế nhưng vẫn còn…), それでもやっぱり. Có thể dịch linh hoạt: “Thế nhưng”, “Dẫu vậy”, “Ngay cả thế thì…”, “Ấy vậy mà…”. Xuất hiện nhiều trong JLPT N3–N2 phần đọc hiểu và nghe hiểu. [7. Biến thể & cụm cố định] それでもなお：Dẫu vậy mà vẫn… (nhấn mạnh hơn) それでもやっぱり：Thế nhưng rốt cuộc vẫn… それでもいい？：Vậy cũng được chứ? それでもまだ～：Vậy mà vẫn còn… [8. Lỗi thường gặp & bẫy JLPT] Nhầm với それで: それで = “vì thế nên…”, còn それでも = “mặc dù vậy…”. Không có yếu tố đối lập: Sai nếu mệnh đề A và B không trái ngược, hoặc A không gây cản trở cho B. それでも dùng được trong văn viết, kể cả báo cáo, khi cần nêu kết quả trái với điều kiện trước. しかしながら chỉ là lựa chọn trang trọng hơn, không phải sự thay thế bắt buộc. Bỏ dấu phẩy sau それでも trong văn viết: nên viết “それでも、…”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0fc153ca0c"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-034"
+}

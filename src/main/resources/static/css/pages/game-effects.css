@@ -1,0 +1,147 @@
+@import url("../controls.css");
+.game-effects-page { margin:0; background:var(--color-surface,#f4fafd); color:var(--color-on-surface,#191724); font:14px/1.5 Inter,"Segoe UI",sans-serif; }
+.game-effects-page * { box-sizing:border-box; }
+.ge-viewer { width:100%; padding:2px; }
+.ge-games { display:flex; gap:4px; margin-bottom:18px; border-bottom:1px solid var(--color-outline-variant,#ded8ec); padding-bottom:10px; flex-wrap:wrap; }
+.ge-viewer button { min-height:44px; font:inherit; font-weight:600; cursor:pointer; transition:background .16s,color .16s; }
+.ge-games button { padding:10px 16px; border:0; border-radius:8px; color:var(--color-on-surface-variant,#655c76); background:transparent; }
+.ge-games button[aria-pressed=true] { color:var(--color-on-primary-fixed,#281153); background:var(--color-primary-fixed,#e8ddff); }
+.ge-layout { display:grid; grid-template-columns:minmax(0,1fr) 226px; gap:18px; }
+.ge-stage-section { min-width:0; border:1px solid var(--color-outline-variant,#ded8ec); border-radius:14px; overflow:hidden; background:var(--color-surface-lowest,#fff); }
+.ge-stage-header { display:flex; justify-content:space-between; gap:12px; align-items:center; padding:18px 20px; }
+.ge-stage-header h2 { margin:3px 0 0; font-size:19px; font-weight:700; }
+.ge-stage-header div>span { color:var(--color-on-surface-variant,#655c76); font-size:10px; letter-spacing:.14em; font-weight:700; }
+.ge-state { font-size:12px; color:var(--color-primary,#553b89); text-align:right; }
+.ge-stage { height:490px; position:relative; isolation:isolate; background:#070a12; }
+.ge-stage--cat { background:radial-gradient(ellipse at 50% 65%,#292337,#12111b 65%); display:grid; place-items:center; }
+.ge-cat-scene { width:100%; display:grid; place-items:center; }
+.ge-cat-scene>canvas { width:min(100%,480px); height:auto; }
+.ge-lobby-cat { width:280px; height:240px; display:grid; place-items:center; }
+.ge-lobby-cat canvas { max-width:100%; height:240px; }
+.ge-stage-footer { padding:10px 20px; display:flex; align-items:center; justify-content:space-between; color:var(--color-on-surface-variant,#655c76); font-size:12px; }
+.ge-replay { display:flex; align-items:center; gap:7px; background:transparent; color:var(--color-primary,#553b89); border:0; padding:8px; }
+.ge-replay svg { width:18px; height:18px; }
+.ge-controls { min-width:0; }
+.ge-field { display:grid; gap:7px; font-size:12px; font-weight:600; margin-bottom:18px; }
+.ge-field select { width:100%; min-height:44px; padding:10px 28px 10px 10px; border:1px solid var(--color-outline-variant,#ded8ec); border-radius:8px; background:var(--color-surface-lowest,#fff); color:var(--color-on-surface,#191724); font:inherit; }
+.ge-viewer button:hover { background:var(--color-surface-container-high,#eee8f5); }
+.ge-viewer button[aria-pressed=true]:hover { background:var(--color-primary-fixed,#e8ddff); }
+.ge-viewer :is(button,select,input):focus-visible { outline:2px solid var(--color-primary,#553b89); outline-offset:3px; }
+#memory-root.ge-memory-scene { height:100%; min-height:0; width:100%; max-width:none; margin:0; background:transparent; display:grid; place-content:center; gap:35px; padding:24px; text-align:center; color:#fff; }
+.ge-memory-pair { display:grid; grid-template-columns:repeat(2,minmax(0,180px)); gap:20px; perspective:900px; }
+.ge-memory-pair .memory-card { height:130px; width:100%; min-height:0; aspect-ratio:auto; }
+.ge-memory-scene p { font-size:13px; }
+@media(max-width:720px) { .ge-layout { grid-template-columns:1fr; } .ge-stage { height:360px; } .ge-controls { padding:4px; } .ge-stage-header { padding:14px; } .ge-stage-header h2 { font-size:17px; } .ge-memory-pair { gap:10px; } .ge-memory-pair .memory-card { height:110px; } }
+/* The admin preview deliberately demonstrates full motion, including with system reduction enabled. */
+.game-effects-page .animate-combo-splash { animation:combo-splash 1.2s cubic-bezier(0.16,1,0.3,1) forwards!important; }
+.game-effects-page .animate-combo-break { animation:combo-break .6s ease-out forwards!important; }
+.game-effects-page .animate-enemy-combo-pop { animation:enemy-combo-pop 1.4s cubic-bezier(0.16,1,0.3,1) forwards!important; }
+.game-effects-page .animate-screen-shake { animation:screen-rumble .4s cubic-bezier(0.36,.07,.19,.97) both!important; }
+.game-effects-page .animate-ping-dot { animation:pulse-ping 1.2s cubic-bezier(0,0,.2,1) infinite!important; }
+.game-effects-page .animate-bounce { animation:var(--animate-bounce,bounce 1s infinite)!important; }
+.game-effects-page .animate-pulse { animation:var(--animate-pulse,pulse 2s cubic-bezier(.4,0,.6,1) infinite)!important; }
+.game-effects-page .ad-event-shake { animation:ad-shake .2s ease-out 2; }
+.game-effects-page .ad-beam-flare { animation:ad-beam-flash .6s ease-out both; }
+.game-effects-page .memory-card.is-revealed .memory-card__front::after { animation:memory-card-shine .58s .1s ease-out; }
+.game-effects-page .memory-card.has-match-feedback .memory-card__front { animation:memory-match-card .28s cubic-bezier(.22,1,.36,1); }
+.game-effects-page .memory-card.has-mismatch-feedback { animation:memory-wrong-shake .46s ease-in-out; }
+.game-effects-page .memory-card.has-mismatch-feedback .memory-card__front { animation:memory-wrong-flash .62s ease; }
+#jlabBaseContent .adm-layout[data-section="game-effects"] .adm-nav__link[aria-current="page"] { color:var(--color-on-primary-fixed,#281153); }
+@media(max-width:720px) {
+  #jlabBaseContent .adm-layout[data-section="game-effects"] .adm-sidebar { position:static; padding:8px; min-width:0; max-width:100%; }
+  #jlabBaseContent .adm-layout[data-section="game-effects"] .adm-sidebar__head,
+  #jlabBaseContent .adm-layout[data-section="game-effects"] .adm-nav__group { display:none; }
+  #jlabBaseContent .adm-layout[data-section="game-effects"] #admNav { display:flex; gap:6px; overflow-x:auto; }
+  #jlabBaseContent .adm-layout[data-section="game-effects"] .adm-nav__list { display:flex; flex-shrink:0; gap:4px; }
+  #jlabBaseContent .adm-layout[data-section="game-effects"] .adm-nav__link { white-space:nowrap; }
+}
+
+/* Keep original game overlays inside the demo stage. */
+.game-effects-page .ge-stage { position: relative; }
+.game-effects-page .ge-cat-scene { position:relative; width:100%; height:100%; display:grid; place-items:center; }
+.game-effects-page .ge-cat-scene canvas { width:100%; max-width:740px; max-height:100%; object-fit:contain; }
+.game-effects-page .ge-memory-scene { position:relative; width:100%; height:100%; overflow:auto; padding:16px; box-sizing:border-box; }
+.game-effects-page .ge-memory-scene .memory-dice-overlay { position:absolute; inset:0; padding:10px; }
+.game-effects-page .ge-memory-scene .memory-dice-dialog { max-width:540px; padding:16px; }
+.game-effects-page .ge-memory-scene .memory-dice-dialog h2 { font-size:24px; }
+.game-effects-page .ge-memory-scene .memory-dice-countdown { font-size:32px; margin:4px; }
+.game-effects-page .ge-memory-scene .memory-dice-avatar { width:36px; height:36px; }
+.game-effects-page .ge-memory-scene .memory-dice-face { width:64px; height:64px; }
+.game-effects-page .ge-memory-scene .memory-result { width:min(600px,100%); margin:auto; padding:20px; }
+.game-effects-page .ge-memory-turns { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; align-items:center; }
+.game-effects-page .ge-memory-turns .memory-player-panel { width:180px; }
+.game-effects-page .ge-memory-turns p { width:100%; text-align:center; }
+.game-effects-page .ge-scene-overlay { position:absolute; inset:0; display:flex; flex-direction:column; gap:16px; align-items:center; justify-content:center; background:rgba(7,15,35,.55); color:white; }
+.game-effects-page .ge-scene-overlay strong { font-size:clamp(30px,5vw,60px); text-shadow:0 3px 14px #071323; }
+.game-effects-page .ge-scene-overlay button { padding:12px 24px; border-radius:12px; color:#0c1830; background:#fff; border:0; cursor:pointer; min-height:44px; }
+.game-effects-page .ge-feedback { position:absolute; top:16px; left:50%; transform:translateX(-50%); padding:10px 16px; border-radius:12px; background:#10202e; color:#ffdd72; font-weight:800; white-space:nowrap; }
+.game-effects-page .ge-feedback--ice { background:#083b5c; color:#d5f4ff; }
+.game-effects-page .ge-feedback--answer { font-size:16px; white-space:normal; width:max-content; max-width:85%; }
+.game-effects-page .ge-feedback--danger { color:#fff; background:#aa1830; animation:ge-danger .6s infinite alternate; }
+.game-effects-page .ge-augment { position:absolute; inset:0; overflow:auto; }
+@keyframes ge-danger { to { box-shadow:0 0 25px #ff355b; transform:translateX(-50%) scale(1.07); } }
+.game-effects-page .ge-memory-scene .memory-dice-dialog { max-height:100%; overflow:auto; }
+.game-effects-page .ge-memory-scene .memory-dice-subtitle { margin:4px 0 8px; }
+.game-effects-page .ge-memory-scene .memory-dice-countdown { min-height:36px; }
+.game-effects-page .ge-memory-scene .memory-dice-player { padding:8px; gap:4px; }
+.game-effects-page .ge-memory-scene .memory-dice-result { min-height:18px; margin:6px 0; }
+.game-effects-page .ge-memory-turns .memory-player-panel { min-height:0; padding:18px 12px 12px; }
+.game-effects-page .ge-memory-turns .memory-player-panel__turn { margin:0 0 8px; padding:6px; }
+.game-effects-page .ge-memory-turns .memory-player-panel__avatar { width:64px; height:64px; border-width:3px; font-size:22px; }
+.game-effects-page .ge-memory-turns .memory-player-panel h2 { margin:8px 0 4px; }
+.game-effects-page .ge-memory-turns .memory-player-panel__status { margin-bottom:10px; }
+.game-effects-page .ge-memory-turns .memory-player-panel__score { padding:8px; }
+.game-effects-page .ge-memory-turns .memory-player-panel__score strong { font-size:32px; }
+.game-effects-page .ge-memory-scene .memory-result { max-height:100%; overflow:auto; }
+.game-effects-page .ge-memory-scene .memory-result__seal { width:52px; height:52px; margin-bottom:8px; font-size:28px; }
+.game-effects-page .ge-memory-scene .memory-result h2 { font-size:28px; }
+.game-effects-page .ge-memory-scene .memory-result__stats { margin:12px 0; }
+@media(max-width:600px) { .game-effects-page .ge-memory-turns .memory-player-panel { width:125px; padding:10px; } .game-effects-page .ge-memory-scene .memory-dice-dialog { padding:8px; } }
+
+/* Page-owned dark mode: css/pages/game-effects.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-admin-bg: var(--dark-bg);
+  --dm-admin-surface: var(--dark-surface);
+  --dm-admin-raised: var(--dark-raised);
+  --dm-admin-ink: var(--dark-ink);
+  --dm-admin-muted: var(--dark-muted);
+  --dm-admin-line: var(--dark-line);
+  --dm-admin-accent: var(--dark-accent);
+  --dm-admin-action: var(--dark-button);
+  --dm-admin-accent-soft: var(--dark-soft);
+  --dm-admin-on-accent: var(--dark-on-button);
+  --dm-admin-success: var(--dark-success);
+  --dm-admin-success-bg: var(--dark-success-bg);
+  --dm-admin-success-line: var(--dark-success-line);
+  --dm-admin-danger: var(--dark-danger);
+  --dm-admin-danger-bg: var(--dark-danger-bg);
+  --dm-admin-danger-line: var(--dark-danger-line);
+  --dm-admin-warning: var(--dark-warning);
+  --dm-admin-warning-bg: var(--dark-warning-bg);
+  --dm-admin-warning-line: var(--dark-warning-line);
+  --dm-admin-pink: var(--dark-pink);
+  --dm-admin-pink-bg: var(--dark-pink-bg);
+  --dm-admin-pink-line: var(--dark-pink-line);
+}
+html[data-theme="dark"] #memory-root.ge-memory-scene {
+    color: var(--dm-admin-ink)
+}
+html[data-theme="dark"] .game-effects-page .ge-scene-overlay {
+    color: var(--dm-admin-ink)
+}
+html[data-theme="dark"] .game-effects-page .ge-scene-overlay button {
+    color: var(--dm-admin-accent);
+    background: var(--dm-admin-surface)
+}
+html[data-theme="dark"] .game-effects-page .ge-feedback {
+    color: var(--dm-admin-warning)
+}
+html[data-theme="dark"] .game-effects-page .ge-feedback--ice {
+    color: var(--dm-admin-accent)
+}
+html[data-theme="dark"] .game-effects-page .ge-feedback--danger {
+    color: var(--dm-admin-ink);
+    background: var(--dm-admin-danger-bg)
+}

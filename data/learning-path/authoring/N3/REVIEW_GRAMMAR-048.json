@@ -1,0 +1,602 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "いくら忙しくても、朝ご飯は食べます。",
+       "ja_furigana": "いくら忙(いそが)しくても、朝(あさ)ご飯(はん)は食(た)べます。",
+       "vi": "Dù bận mấy tôi vẫn ăn sáng.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "どんなに疲れていても、毎晩日記を書く。",
+       "ja_furigana": "どんなに疲(つか)れていても、毎晩(まいばん)日記(にっき)を書(か)く。",
+       "vi": "Dù mệt đến đâu, tối nào tôi cũng viết nhật ký.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "どんなに疲れていても、約束は守る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù có mệt đến đâu, tôi vẫn giữ lời hứa."
+     },
+     {
+      "ja": "どんなに練習しても、なかなか上達しない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù luyện tập thế nào cũng mãi không tiến bộ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: どんなに疲れていても、約束は守る。",
+     "FURIGANA_MISSING: どんなに練習しても、なかなか上達しない。"
+    ],
+    "formation": "どんなに + V-ても / Aい(くても) / Aな・N + でも",
+    "locked_fields": [],
+    "meaning_vi": "Nhượng bộ cực hạn: “cho dù… đến mức nào đi nữa thì… (kết quả/quan điểm không đổi)”. Nhấn mạnh bằng どんなに: rộng mọi mức độ, mọi cách. Vế sau thường biểu thị kết quả/ý chí/đánh giá không thay đổi, hay mang sắc thái bất biến, khó thay đổi.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù thế nào cũng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mạnh bằng cách thêm いくら／どれほど thay cho どんなに (sắc thái tương tự). Vế sau thường là mệnh đề khẳng định lập trường/ý chí hoặc phán đoán tổng quát. Phù hợp cả văn nói và văn viết; mang sắc thái “bất chấp mọi mức độ”. [6. Ghi chú mở rộng] Có thể lặp: どんなにどんなに… nhưng thường tránh lặp để không nặng nề. Vế sau phủ định không bắt buộc; cả khẳng định và phủ định đều phổ biến tùy nội dung. Kết hợp với động từ khả năng để nhấn “bất kể cố gắng”: どんなに頑張ってもできない。 [7. Biến thể & cụm cố định] どれほど／どれだけ～ても (biến thể gần nghĩa) いくら～ても (nhấn số lượng/chi phí/cường độ) たとえ～ても (thêm sắc thái giả định mạnh) [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～ことか: một bên điều kiện, một bên cảm thán. Chia đúng là Vて＋も → Vても. Vてでも là mẫu khác, nghĩa “dù phải làm V bằng mọi giá/cho dù bằng cách V”, không phải dạng chia cơ bản của どんなに～ても. Bỏ も: phải có “ても/でも”; thiếu “も” là sai cấu trúc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bb71e82491"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "寝る前に水を飲みすぎた。その結果、夜中に起きた。",
+       "ja_furigana": "寝(ね)る前(まえ)に水(みず)を飲(の)みすぎた。その結果(けっか)、夜中(やちゅう)に起(お)きた。",
+       "vi": "Tôi uống quá nhiều nước trước khi ngủ, kết quả là thức dậy giữa đêm.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "毎日漢字を十こ覚えた。その結果、新聞が読めるようになった。",
+       "ja_furigana": "毎日(まいにち)漢字(かんじ)を十(じゅう)こ覚(おぼ)えた。その結果(けっか)、新聞(しんぶん)が読(よ)めるようになった。",
+       "vi": "Mỗi ngày tôi học mười chữ Hán. Kết quả là đã đọc được báo.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "厳しい規制が導入された。その結果、排出量が大幅に減った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quy định nghiêm ngặt được áp dụng. Kết quả là lượng thải giảm mạnh."
+     },
+     {
+      "ja": "十分な準備ができなかった。その結果、試験は不合格だった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không chuẩn bị đầy đủ. Kết quả là trượt kỳ thi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 厳しい規制が導入された。その結果、排出量が大幅に減った。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 厳しい規制が導入された。その結果、排出量が大幅に減った。 → 導入,排",
+     "FURIGANA_MISSING: 十分な準備ができなかった。その結果、試験は不合格だった。"
+    ],
+    "formation": "Câu 1。+ その結果、+ Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "“Kết quả là/Do đó” nhấn mạnh mối quan hệ nhân-quả và thành quả cuối cùng sau một quá trình. Thường dùng trong văn viết, báo cáo, luận văn; sắc thái trang trọng hơn それで/だから. Tiền đề (nguyên nhân, quá trình) cần rõ ràng ở câu/đoạn trước để “その結果” có tham chiếu chính xác. Có thể dùng cho cả kết quả tích cực, tiêu cực, hoặc trung tính.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Kết quả là",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng, hợp văn bản học thuật, báo cáo nghiệp vụ. Thường đặt đầu câu kèm dấu phẩy: “その結果、～”。 Dùng như danh từ để chỉ “kết quả ấy”: gắn は/が/を… Có thể đi kèm “として” để nhấn quan hệ hệ quả: その結果として～。 [6. Ghi chú mở rộng] Khi đoạn văn dài, nên dùng “この/その/前述の結果” để đảm bảo tham chiếu rõ ràng. “～の結果” (kết quả của N/V): 交渉の結果／調査した結果、～（mẫu rất hay dùng). Trong lập luận, kết hợp với “一方で／しかし／つまり” để tạo mạch logic chặt chẽ. [7. Biến thể & cụm cố định] その結果、～ことが分かった。 その結果として、～に至った。 ～の結果、～となった。 上記の結果（trong văn bản kỹ thuật/pháp lý） [8. Lỗi thường gặp & bẫy JLPT] Thiếu tiền đề rõ ràng trước “その結果” → người đọc không biết “kết quả của cái gì”. Nhầm với “そのために” (mục đích) trong câu hỏi đọc hiểu; chú ý ngữ cảnh kết quả vs mục đích. Lặp quá nhiều “その結果” trong cùng đoạn → nên thay thế luân phiên bằng そのため／したがって／結果として. Dùng “結果は” khi thực ra muốn “経過/要因は” → xác định đúng nội dung cần nêu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d02e2fe6d9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町では小さな子どもさえ道を知っている。",
+       "ja_furigana": "この町(まち)では小(ちい)さな子(こ)どもさえ道(みち)を知(し)っている。",
+       "vi": "Ở thị trấn này, ngay cả trẻ nhỏ cũng biết đường.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "忙しくて、水を飲む時間さえなかった。",
+       "ja_furigana": "忙(いそが)しくて、水(みず)を飲(の)む時間(じかん)さえなかった。",
+       "vi": "Bận đến mức ngay cả thời gian uống nước cũng không có.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は忙しすぎて、昼ご飯さえ食べない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy bận đến mức ngay cả bữa trưa cũng không ăn."
+     },
+     {
+      "ja": "子どもでさえ理解できる説明にしてほしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mong hãy giải thích sao cho đến trẻ con cũng hiểu được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は忙しすぎて、昼ご飯さえ食べない。",
+     "FURIGANA_MISSING: 子どもでさえ理解できる説明にしてほしい。"
+    ],
+    "formation": "N + さえ + V / A",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa 1: Nhấn mạnh mức độ “đến cả/ngay cả” một ví dụ cực đoan → nhấn mạnh bất ngờ, ngoài dự đoán. Nghĩa 2: Mẫu điều kiện đủ ～さえ～ば “chỉ cần … là …” → xác định điều kiện tối thiểu để đạt mục tiêu. Vị trí: さえ gắn ngay sau yếu tố được nhấn (danh từ/trợ từ cách; với động từ dùng Vます＋さえすれば). Sắc thái mạnh hơn でも; ですら trang trọng hơn さえ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Ngay cả, thậm chí",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để nhấn mạnh phạm vi ngoại lệ cực đoan, gây bất ngờ. Trong ～さえ～ば, さえ đánh dấu “điều kiện tối thiểu”; dạng này rất hay gặp trong JLPT. Với が/を: thường bỏ đi và gắn さえ trực tiếp sau danh từ. Với に/で/から/へ: giữ trợ từ + さえ. Văn phong: さえ trung tính; ですら trang trọng/văn viết; でも nhẹ hơn. [6. Ghi chú mở rộng] Phạm vi hạt nhân: さえ nhấn chính xác thành phần đứng trước nó; đổi vị trí sẽ đổi trọng tâm. ～てさえいる/～にさえなる tồn tại nhưng ít phổ biến hơn sách giáo khoa; học chắc Nさえ và Vますさえすれば trước. Trong phát âm, さえ thường được nhấn mạnh cao độ để biểu thị sự bất ngờ. [7. Biến thể & cụm cố định] これさえあれば（chỉ cần cái này là…） ～しさえすればいい（chỉ cần làm … là được） 名前さえ～ない（đến cả tên cũng không …） 彼にさえ～ない／～できない ここにさえいれば安心だ [8. Lỗi thường gặp & bẫy JLPT] Sai vị trí さえ: phải đặt ngay sau thành phần được nhấn. 誤）さえ彼に → 正）彼にさえ. Nhầm さえ với だけ: さえ là “ngay cả”, だけ là “chỉ”. Ý nghĩa trái nhau trong nhiều ngữ cảnh. Quên bỏ が/を: 誤）彼をさえ → Thường dùng 彼さえ. Nhầm ～さえ～ば với ～だけで: cả hai đều “chỉ cần”, nhưng ～さえ～ば nhấn điều kiện tối thiểu mạnh hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f8114b2673"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "地図のおかげで、駅まで迷わず行けた。",
+       "ja_furigana": "地図(ちず)のおかげで、駅(えき)まで迷(まよ)わず行(い)けた。",
+       "vi": "Nhờ bản đồ, tôi đến ga không bị lạc.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "先生が説明してくれたおかげで、よく分かった。",
+       "ja_furigana": "先生(せんせい)が説明(せつめい)してくれたおかげで、よく分(わ)かった。",
+       "vi": "Nhờ thầy giải thích mà tôi đã hiểu rõ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "先生のおかげで、第一志望に合格できた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhờ thầy cô mà tôi đỗ nguyện vọng 1."
+     },
+     {
+      "ja": "友だちが手伝ってくれたおかげで、早く終わった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhờ bạn giúp nên xong sớm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 先生のおかげで、第一志望に合格できた。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 先生のおかげで、第一志望に合格できた。 → 志望",
+     "FURIGANA_MISSING: 友だちが手伝ってくれたおかげで、早く終わった。"
+    ],
+    "formation": "N + の + おかげで / V・A(thể thông thường) + おかげで",
+    "locked_fields": [],
+    "meaning_vi": "Nêu nguyên nhân tích cực: “nhờ vào … mà … (kết quả tốt)”. Cũng có thể dùng mỉa mai/tiêu cực trong văn nói: “…のおかげで (trái ý)”, nhưng cẩn thận sắc thái. Mang hàm ý biết ơn đối với người/nguyên nhân giúp đạt kết quả. Sử dụng với người, sự vật, điều kiện, hoàn cảnh đều được nếu mang lại lợi ích.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nhờ (kết quả tốt)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng/lịch sự khi bày tỏ biết ơn: ～おかげです／本当にありがとうございますと併用. Tránh dùng với kết quả xấu trong văn viết trang trọng; khi tiêu cực nên dùng ～せいで. Với sự kiện khách quan tích cực (天気、制度、技術), dùng tự nhiên. 自分のおかげで成功した đúng ngữ pháp, nhưng trong nhiều tình huống dễ nghe như tự đề cao. Khi nói lịch sự hoặc bày tỏ biết ơn, thường nêu sự giúp đỡ của người khác hoặc dùng cách nói khiêm nhường hơn. [6. Ghi chú mở rộng] おかげさまで là câu cửa miệng khi được hỏi thăm: “Nhờ trời/Nhờ mọi người, tôi vẫn khỏe”. Trong phát biểu trang trọng, kết lại bằng ～おかげです để bày tỏ tri ân. Trong văn nói, dùng mỉa mai cần cân đối ngữ cảnh để tránh bất lịch sự. [7. Biến thể & cụm cố định] ～のは（誰／何）のおかげだ／おかげです おかげさまで、～。 みなさんのおかげで助かりました。 ～してくれたおかげで／～のお力おかげで [8. Lỗi thường gặp & bẫy JLPT] Dùng おかげで cho kết quả xấu trong bài viết trang trọng → nên đổi sang せいで. Sai kết hợp: ×親切のおかげで → 〇親切なおかげで. Nhầm sắc thái với ために: đề thi hay hỏi chọn おかげで (tích cực) hay せいで (tiêu cực). 自分のおかげで成功した không phải lỗi ngữ pháp; vấn đề là sắc thái thiếu khiêm nhường nếu không có ngữ cảnh đặc biệt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ab95775ccd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "風のせいで、庭の花が全部倒れた。",
+       "ja_furigana": "風(かぜ)のせいで、庭(にわ)の花(はな)が全部(ぜんぶ)倒(たお)れた。",
+       "vi": "Vì gió, hoa trong vườn đổ hết.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "雨のせいで、運動会が中止になった。",
+       "ja_furigana": "雨(あめ)のせいで、運動会(うんどうかい)が中止(ちゅうし)になった。",
+       "vi": "Tại mưa mà hội thao bị hủy.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "雨のせいで試合が中止になった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì mưa nên trận đấu bị hủy."
+     },
+     {
+      "ja": "彼のミスのせいで、計画が台無しになった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì lỗi của anh ấy mà kế hoạch bị phá hỏng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 雨のせいで試合が中止になった。",
+     "FURIGANA_MISSING: 彼のミスのせいで、計画が台無しになった。"
+    ],
+    "formation": "N + の + せいで / V・A(thể thông thường) + せいで",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị nguyên nhân mang sắc thái tiêu cực, đổ lỗi: “vì/Do … nên (kết quả xấu)”. Người nói thường hàm ý trách móc, than phiền, hoặc cảm nhận tiêu cực về nguyên nhân. So với ～ために/～ので/～から: ～せいで thiên về cảm xúc “tại/bởi vì (đáng trách)”. Thường dùng với N のせいで và Vたせいで khi nguyên nhân đã xảy ra rồi. ～せいか: “chắc là do… hay sao mà…”, thể hiện sự không chắc chắn về nguyên nhân.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tại, vì (kết quả xấu)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn nhấn mạnh “tính tiêu cực” của nguyên nhân hoặc ý trách móc. Tránh dùng với kết quả tích cực; khi kết quả tốt nên dùng ～おかげで. Văn nói lẫn văn viết đều dùng được; trong văn bản trang trọng có thể thay bằng ～ために／～により để trung hòa sắc thái. Thường kết hợp với nguyên nhân cụ thể, rõ ràng (N/V), ít dùng với Aい/Aな. [6. Ghi chú mở rộng] ～せいだ là dạng kết luận: “Là tại…”. ～せいで là liên kết nguyên nhân-kết quả. “気のせい” là quán dụng: “do ảo giác/nhầm tưởng của mình”. Ví dụ: 気のせいかもしれない。 Tránh dùng ～せいで trong văn cảnh cần trung tính (báo cáo, tin tức), vì sắc thái đổ lỗi có thể không phù hợp. [7. Biến thể & cụm cố định] ～のせいだ／～のせいにする（đổ lỗi cho…） ～せいか（không chắc nguyên nhân） 気のせい（chỉ là do cảm giác）／年のせい（tại tuổi tác） 雨のせいで～ばかり（nhấn mạnh hệ quả tiêu cực liên tiếp） [8. Lỗi thường gặp & bẫy JLPT] Quên の: ×雨せいで → ✓雨のせいで. Dùng với kết quả tốt: ×先生のせいで合格した → ✓先生のおかげで合格した. Chọn thì của động từ nguyên nhân: khi nguyên nhân đã xảy ra, ưu tiên Vたせいで. Nhầm với ～ために: JLPT hay hỏi phân biệt sắc thái “đổ lỗi” (せいで) vs “trung tính” (ために). Kết hợp mệnh lệnh/yêu cầu sau せいで nghe không tự nhiên: nên dùng mệnh đề kết quả thực tế."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-925c6812cc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "その店には入らない。だって、お金が足りないもの。",
+       "ja_furigana": "その店(みせ)には入(はい)らない。だって、お金(かね)が足(た)りないもの。",
+       "vi": "Tôi không vào quán đó đâu, vì không đủ tiền.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "宿題はまだだよ。だって、テレビが面白かったから。",
+       "ja_furigana": "宿題(しゅくだい)はまだだよ。だって、テレビが面白(おもしろ)かったから。",
+       "vi": "Bài tập vẫn chưa làm. Tại vì tivi hay quá mà.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "行きたくない。だって、疲れているんだもん。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tớ không muốn đi. Tại vì mệt mà."
+     },
+     {
+      "ja": "今日は無理。だって、約束があるから。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay không được. Bởi vì có hẹn rồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 行きたくない。だって、疲れているんだもん。",
+     "FURIGANA_MISSING: 今日は無理。だって、約束があるから。"
+    ],
+    "formation": "だって + V / Aい / Aな(な)・N(な) + んだもん / んだもの",
+    "locked_fields": [],
+    "meaning_vi": "Giải thích lý do theo cảm xúc/ngụy biện nhẹ: “Tại vì… mà”. Không nhằm lập luận logic chặt, mà thể hiện tâm trạng cá nhân, biện minh. Thường đứng đầu câu, theo sau bằng dấu phẩy; S2 là mệnh đề lý do.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vì... mà, tại vì",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Khẩu ngữ thân mật, thường trong hội thoại bạn bè/gia đình. Kèm んだもん／もの làm tăng sắc thái biện hộ/dễ thương; から trung tính hơn. Tránh dùng mở đầu văn bản trang trọng; nếu cần lý do chuẩn mực dùng ので／ため／だから. [6. Ghi chú mở rộng] Dạng “だってさ” dùng khi trích dẫn tin đồn/lời người khác, không phải lý do. Trong hội thoại lịch sự, có thể đổi sang: 申し訳ありません。忙しいので…。 (tránh だって). Trẻ em và nữ giới hay dùng ～んだもん／もの; nam giới trưởng thành thường bớt dùng để tránh sắc thái trẻ con. [7. Biến thể & cụm cố định] だって、～んだもん／もの だって、～から だってさ (nghe nói là…) [8. Lỗi thường gặp & bẫy JLPT] Dùng だって trong bài luận/thư công việc → không phù hợp; thay bằng ので／ため／理由は～です. Nhầm だって liên kết với だって hạt trợ từ “ngay cả”: nhìn vị trí (đầu câu vs sau danh từ). Kết hợp だって với です／ます gây lệch phong cách: tránh “だって、忙しいですから。” trong tình huống trang trọng. Trong nghe hiểu, だって + んだもん báo hiệu cảm xúc, không phải lý do khách quan."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8933c0df15"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟はまるで先生のように話した。",
+       "ja_furigana": "弟(おとうと)はまるで先生(せんせい)のように話(はな)した。",
+       "vi": "Em trai nói cứ như thầy giáo.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "山田さんは、まるで自分の家にいるように休んでいる。",
+       "ja_furigana": "山田(やまだ)さんは、まるで自分(じぶん)の家(いえ)にいるように休(やす)んでいる。",
+       "vi": "Anh Yamada đang nghỉ ngơi cứ như thể ở nhà mình vậy.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ここから見る夜景はまるで夢のようだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quang cảnh đêm nhìn từ đây cứ như trong mơ."
+     },
+     {
+      "ja": "彼はまるで子どものように喜んだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy vui mừng cứ như trẻ con."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ここから見る夜景はまるで夢のようだ。",
+     "FURIGANA_MISSING: 彼はまるで子どものように喜んだ。"
+    ],
+    "formation": "まるで + N + のようだ / V・A + ようだ",
+    "locked_fields": [],
+    "meaning_vi": "まるで nhấn mạnh mức độ giống/khác thường đến mức “cứ như, hệt như”. Khi đi với ようだ/みたいだ tạo phép so sánh ví von; khi đi với ～ない mang nghĩa “hoàn toàn không”. かのようだ tăng sắc thái giả định, văn viết. まるで + N のようだ: mô tả tổng thể “hệt như N”. まるで + ように/ような: bổ nghĩa cách thức/tính chất. まるで + みたい: khẩu ngữ, thân mật, tần suất cao trong hội thoại.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Y như, giống như",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mạnh so sánh mang tính hình ảnh, giàu cảm xúc; phù hợp văn miêu tả. Với ～かのようだ: sắc thái “dường như”, tránh khẳng định thực tế. Với ～ない: nghĩa “hoàn toàn không” gần まったく/ぜんぜん, nhưng まるで có cảm giác nhấn mạnh mạnh mẽ hơn trong văn viết. ようだ vs みたいだ: ようだ trang trọng/viết; みたいだ thân mật/nói. [6. Ghi chú mở rộng] Cấu trúc phủ định “まるで～ない” thường dùng khi cảm thấy “bất lực/không hiểu/không có”, mang sắc thái mạnh hơn ぜんぜん trong văn viết. Với hình ảnh cụ thể, まるで + N みたい là lựa chọn tự nhiên trong hội thoại thường ngày. Tránh lạm dụng trong văn trang trọng: chọn ようだ/かのようだ cho cân bằng. [7. Biến thể & cụm cố định] まるで別人（のようだ）: như một người khác. まるでダメ: hoàn toàn tệ. まるで役に立たない: hoàn toàn vô dụng. まるで～かのように: cứ như thể ~ (cách thức). [8. Lỗi thường gặp & bẫy JLPT] Dùng まるで với khẳng định nhưng không có ようだ/みたいだ: ×まるで綺麗 → 〇まるで綺麗な絵のようだ. Nhầm まるで～ない với まったく～ない: đều “hoàn toàn không”, nhưng まるで hay đi kèm できない/分からない trong văn nhấn mạnh. Nhầm tính trang trọng: みたいだ mang khẩu ngữ, không phù hợp bài viết học thuật; dùng ようだ/かのようだ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-819f6a37cd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "昨日も待った。それにしても今日は長いね。",
+       "ja_furigana": "昨日(きのう)も待(ま)った。それにしても今日(きょう)は長(なが)いね。",
+       "vi": "Hôm qua cũng đã đợi, vậy mà hôm nay lâu thật.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "雪が降るとは聞いたが、それにしても寒いね。",
+       "ja_furigana": "雪(ゆき)が降(ふ)るとは聞(き)いたが、それにしても寒(さむ)いね。",
+       "vi": "Tôi có nghe là sẽ có tuyết, nhưng dù vậy thì cũng lạnh quá nhỉ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "これは、100円にしても、高いと思う。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái này thậm chí là 100 yên thì cũng là mắc"
+     },
+     {
+      "ja": "遅れるとは聞いていたけど、それにしても田中さん、遅いね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Việc trễ thì tôi đã nghe rồi nhưng mà thậm chí là vậy thì Tanaka cũng trễ nhỉ"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: これは、100円にしても、高いと思う。",
+     "FURIGANA_MISSING: 遅れるとは聞いていたけど、それにしても田中さん、遅いね。"
+    ],
+    "formation": "N + にしても / V・A(thể thông thường) + にしても",
+    "locked_fields": [],
+    "meaning_vi": "Thậm chí là…cũng/ Dẫu là vậy thì…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜100円にしても",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để cường điệu hóa sự việc rằng dù ở mức độ thấp/cao hơn thì cũng không chấp nhận được"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5549bed0c1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "冬にしては、今日はずいぶんあたたかい。",
+       "ja_furigana": "冬(ふゆ)にしては、今日(きょう)はずいぶんあたたかい。",
+       "vi": "So với mùa đông thì hôm nay khá ấm.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "リンさんは外国人にしては、はしの使い方が上手だ。",
+       "ja_furigana": "リンさんは外国人(がいこくじん)にしては、はしの使(つか)い方(かた)が上手(じょうず)だ。",
+       "vi": "Là người nước ngoài mà Linh dùng đũa giỏi thật.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "外国人にしては日本語が上手だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù là người nước ngoài nhưng lại rất giỏi tiếng Nhật"
+     },
+     {
+      "ja": "初めてにしては、よくできました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù là lần đầu nhưng đã làm tốt"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 外国人にしては日本語が上手だ。",
+     "FURIGANA_MISSING: 初めてにしては、よくできました。"
+    ],
+    "formation": "N + にしては / V・A(thể thông thường) + にしては",
+    "locked_fields": [],
+    "meaning_vi": "Cho dù là/ Dù là/ thế mà lại",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜外国人にしては",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi muốn nói đến một sự việc khác biệt với lẽ thường. Dùng khi muốn nói lên cảm giác ngạc nhiên, bất ngờ, ngoài dự tính"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c2f6c383ee"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女は先生として、この町で働いている。",
+       "ja_furigana": "彼女(かのじょ)は先生(せんせい)として、この町(まち)で働(はたら)いている。",
+       "vi": "Cô ấy làm việc ở thị trấn này với tư cách giáo viên.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "田中さんはチームのキャプテンとして、よくがんばった。",
+       "ja_furigana": "田中(たなか)さんはチームのキャプテンとして、よくがんばった。",
+       "vi": "Với tư cách là đội trưởng, anh Tanaka đã rất cố gắng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は外国人だが、日本代表として試合に出る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy là người nước ngoài nhưng tham dự trận đấu với tư cách là đại biểu Nhật Bản"
+     },
+     {
+      "ja": "彼女は女性としても女優としても最高だが、妻としてはどうだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô ấy cho dù là phụ nữ cho dù là diễn viên thì cũng đều tuyệt vời nhưng với tư cách là người vợ thì sao nhỉ?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は外国人だが、日本代表として試合に出る。",
+     "FURIGANA_MISSING: 彼女は女性としても女優としても最高だが、妻としてはどうだろう。"
+    ],
+    "formation": "N + として",
+    "locked_fields": [],
+    "meaning_vi": "Với tư cách/vị trí là/ Với tư cách/vị trí là…thì/ Cho dù là với tư cách/vị trí là…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜日本代表として",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp nói đến một sự vật, con người là đại biểu hoặc là một cá thể thuộc một nhóm chung nào đó"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d038b619e3"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-048"
+}

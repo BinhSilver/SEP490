@@ -1,3 +1,4 @@
+@import url("../controls.css");
 /*
  * JLAS Shadowing page layer.
  * The feature keeps its existing JS/API contract; this file only composes
@@ -68,6 +69,8 @@
   color: var(--color-primary, #4f378a);
 }
 
+#jlabBasePage.page-shadowing-editor #prepare-exercises-link { text-decoration: none; }
+
 #jlabBasePage.page-shadowing-processing #processingWorkspace {
   position: relative;
   display: block;
@@ -91,6 +94,24 @@
   margin: 0 auto;
 }
 
+#jlabBasePage.page-shadowing-processing #processing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+#jlabBasePage.page-shadowing-processing #processing-actions [hidden] {
+  display: none !important;
+}
+
+#jlabBasePage.page-shadowing-processing #processing-actions .button-primary,
+#jlabBasePage.page-shadowing-processing #processing-actions .button-secondary {
+  min-width: 148px;
+  justify-content: center;
+  white-space: nowrap;
+}
+
 #jlabBasePage.page-shadowing-processing #processingKitsuGuide {
   position: absolute;
   top: 10px;
@@ -106,6 +127,14 @@
 
 #jlabBasePage.page-shadowing-processing #processingKitsuGuide .kitsu-guide__mascot {
   width: 76px;
+}
+
+#jlabBasePage.page-shadowing-processing #processing-kitsu-animation {
+  display: block;
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+  filter: saturate(1.95) contrast(1.24) brightness(.88) drop-shadow(0 5px 6px rgba(31, 20, 54, .28));
 }
 
 #jlabBasePage.page-shadowing-processing #processingKitsuGuide .kitsu-guide__bubble {
@@ -173,7 +202,6 @@
 #jlabBasePage.page-shadowing-library .library-tabs {
   gap: 10px;
   margin-bottom: 0;
-  border-bottom: 1px solid rgba(203, 196, 210, .55);
 }
 
 #jlabBasePage.page-shadowing-library .library-navigation {
@@ -207,6 +235,8 @@
 #jlabBasePage.page-shadowing-library .library-tabs__actions .button-icon-circular {
   width: 42px;
   height: 42px;
+  background: transparent;
+  box-shadow: none;
 }
 
 #jlabBasePage.page-shadowing-library .library-tabs-scope .tab-btn {
@@ -223,7 +253,8 @@
   background: transparent;
 }
 
-#jlabBasePage.page-shadowing-library .library-tabs-scope .tab-btn.active::after {
+#jlabBasePage.page-shadowing-library .library-tabs-scope .tab-btn.active::after,
+#jlabBasePage.page-shadowing-library .library-tabs-status .tab-btn.active::after {
   content: "";
   position: absolute;
   right: 0;
@@ -246,15 +277,17 @@
 }
 
 #jlabBasePage.page-shadowing-library .library-tabs-status .tab-btn {
-  padding: 7px 14px;
+  padding: 7px 2px;
   border: 0;
-  border-radius: var(--radius-full, 9999px);
-  background: var(--color-surface-container, #e8eff1);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-on-surface-variant, #494551);
 }
 
 #jlabBasePage.page-shadowing-library .library-tabs-status .tab-btn.active {
-  color: var(--color-on-primary, #fff);
-  background: var(--color-primary, #4f378a);
+  position: relative;
+  color: var(--color-primary, #4f378a);
+  background: transparent;
 }
 
 #jlabBasePage.page-shadowing-library .video-grid {
@@ -285,13 +318,67 @@
 .series-video-option { display: grid; grid-template-columns: 20px 1fr auto; gap: 8px; align-items: center; padding: 9px; border-radius: 8px; }
 .series-video-option:hover { background: #f8fafc; }
 .series-video-option small { color: #64748b; }
-.series-card-icon { color: #4f46e5; font-size: 34px; margin-bottom: 10px; }
-.series-description { min-height: 38px; }
+/* .video-grid sets display:grid, which beats the [hidden] attribute: without this the video grid stayed
+   on top of the "Danh sách" tab and series only showed once the video list was empty (e.g. Yêu thích). */
+#jlabBasePage.page-shadowing-library :is(#video-grid, #series-grid, #video-empty-state, #series-empty-state)[hidden] {
+  display: none !important;
+}
+
+/* Series card styled as a playlist: stacked cover + video count, then title and rating. */
+#jlabBasePage.page-shadowing-library .series-card { overflow: visible; }
+#jlabBasePage.page-shadowing-library .series-card-cover {
+  position: relative;
+  display: block;
+  margin: 0 0 14px;
+  color: inherit;
+  text-decoration: none;
+}
+#jlabBasePage.page-shadowing-library .series-card .video-card-thumb {
+  margin: 0;
+  border-radius: var(--radius-lg, 1rem) var(--radius-lg, 1rem) 0 0;
+}
+#jlabBasePage.page-shadowing-library .series-card .video-card-thumb > i { font-size: 34px; }
+#jlabBasePage.page-shadowing-library .series-card-count {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, .72);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+#jlabBasePage.page-shadowing-library .series-card-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  min-height: 0;
+  margin-bottom: 4px;
+  overflow: hidden;
+  color: var(--color-on-surface, #1d1b20);
+  font-weight: 600;
+  text-decoration: none;
+}
+#jlabBasePage.page-shadowing-library .series-card-kind {
+  margin: 0 16px 4px;
+  color: var(--color-on-surface-variant, #49454f);
+}
+#jlabBasePage.page-shadowing-library .series-card-rating { color: var(--color-star, #f5a400); }
+#jlabBasePage.page-shadowing-library .series-card-title:hover { text-decoration: underline; }
 .series-detail-header { margin: 28px 0 22px; }
-.series-video-list { display: grid; gap: 10px; max-width: 900px; }
-.series-video-row { display: flex; gap: 14px; align-items: center; }
-.series-position { width: 32px; color: #64748b; font-weight: 700; text-align: center; }
-.series-video-main { flex: 1; }
+.series-video-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 20px; }
+.series-video-row { display: flex; gap: 14px; align-items: center; padding: 0 20px 0 0; overflow: hidden; }
+.series-video-thumb { position: relative; flex: 0 0 200px; width: 200px; height: 113px; overflow: hidden; border-radius: var(--radius-lg, 12px) 0 0 var(--radius-lg, 12px); background: var(--color-surface-container, #e7e0ec); display: grid; place-items: center; color: var(--color-on-surface-variant, #49454f); }
+.series-video-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.series-video-thumb > i { font-size: 28px; }
+.series-position { position: absolute; top: 6px; left: 6px; min-width: 20px; padding: 1px 6px; border-radius: 4px; background: rgba(0, 0, 0, .65); color: #fff; font-weight: 700; font-size: 12px; text-align: center; line-height: 16px; }
+.series-video-duration { position: absolute; right: 6px; bottom: 6px; padding: 2px 8px; border-radius: 4px; background: rgba(0, 0, 0, .75); color: #fff; font-size: 13px; font-weight: 600; line-height: 18px; font-variant-numeric: tabular-nums; }
+.series-video-main { flex: 1; min-width: 0; }
 .series-video-main h3 { margin: 0 0 7px; }
 
 #jlabBasePage.page-shadowing-library .video-card {
@@ -312,14 +399,57 @@
 }
 
 #jlabBasePage.page-shadowing-library .video-card-thumb {
+  position: relative;
   width: 100%;
   margin: 0 0 14px;
   border-radius: 0;
   box-shadow: none;
 }
 
+/*
+ * JLPT level as a solid tab flush with the thumbnail's top-left corner. Sized in % of the thumbnail
+ * so it fully covers whatever the video's own artwork has there (e.g. a flag) at any card width.
+ */
+#jlabBasePage.page-shadowing-library .card-level-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-width: 15%;
+  height: 20%;
+  padding: 0 12px;
+  border-radius: 0 0 14px 0;
+  background: #4f378a;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, .22);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: .03em;
+  pointer-events: none;
+}
+
+/* Age rating (13+ / 16+ / 18+) on the thumbnail, so it stays visible where mobile hides the meta row. */
+#jlabBasePage.page-shadowing-library .card-age-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  z-index: 1;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #b91c1c;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+}
+
 #jlabBasePage.page-shadowing-library .video-card-title,
 #jlabBasePage.page-shadowing-library .video-card-meta,
+#jlabBasePage.page-shadowing-library .video-card-genres,
 #jlabBasePage.page-shadowing-library .video-card-stats,
 #jlabBasePage.page-shadowing-library .card-rating-row,
 #jlabBasePage.page-shadowing-library .card-progress,
@@ -333,6 +463,33 @@
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 18px;
   line-height: 1.3;
+}
+
+#jlabBasePage.page-shadowing-library .video-card-meta {
+  flex-wrap: nowrap;
+  gap: 12px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+#jlabBasePage.page-shadowing-library .video-card-meta .badge {
+  flex: 0 1 auto;
+  min-width: 0;
+  padding-inline: 8px;
+  white-space: nowrap;
+}
+
+#jlabBasePage.page-shadowing-library .video-card-meta .badge-category {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Plain text facts; only the owner's status badges keep a colored background. */
+#jlabBasePage.page-shadowing-library .video-card-meta :is(.badge-category, .badge-lesson) {
+  padding-inline: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
 }
 
 #jlabBasePage.page-shadowing-library .card-actions {
@@ -512,13 +669,29 @@
 
 /* Editor */
 #jlabBasePage.page-shadowing-editor {
+  --editor-gutter: 20px;
+  --jlab-base-page-background: #fff;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
   overflow: hidden;
+  background: #fff;
+}
+
+#jlabBasePage.page-shadowing-editor #jlabBaseShellMount,
+#jlabBasePage.page-shadowing-editor #jlabBaseContent {
+  background: #fff;
 }
 
 #jlabBasePage.page-shadowing-editor #jlabBaseContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
   width: 100%;
+  max-width: none;
   margin-block: 0;
-  padding: 0 24px 24px;
+  padding: 0;
 }
 
 #jlabBasePage.page-shadowing-editor .editor-toolbar {
@@ -526,29 +699,60 @@
   position: relative;
   top: auto;
   z-index: 15;
-  margin: 0 -24px !important;
-  padding: 12px 24px;
-  background: rgba(232, 239, 241, .96);
-  backdrop-filter: blur(14px);
+  flex: none;
+  gap: 16px;
+  margin: 0 !important;
+  padding: 12px var(--editor-gutter);
+  border-bottom: 0;
+  background: #fff;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 #jlabBasePage.page-shadowing-editor .editor-layout {
-  min-height: calc(100dvh - 160px);
-  gap: 0;
-  padding-top: 0;
+  /* Use the space left by the shell, toolbar and optional metadata. */
+  flex: 1;
+  min-height: 0;
+  gap: var(--editor-gutter);
+  padding: 8px var(--editor-gutter) 16px;
+  background: #fff;
+}
+
+#jlabBasePage.page-shadowing-editor .editor-toolbar > div:first-child {
+  /* The title gives way first, so the actions (Xuất bản included) stay on one row. */
+  flex: 1 1 0;
+  min-width: 160px;
+  max-width: 100%;
+}
+
+#jlabBasePage.page-shadowing-editor .editor-toolbar-actions .editor-icon-btn {
+  flex: none;
+  width: 36px;
+  padding: 0 !important; /* .btn-sm sets its padding with !important */
+  display: inline-grid;
+  place-items: center;
 }
 
 #jlabBasePage.page-shadowing-editor .editor-video-col {
+  display: flex;
+  flex-direction: column;
+  flex: 58 1 0;
+  min-width: 0;
+  min-height: 0;
   width: 58%;
-  padding: 24px;
-  background: var(--color-surface-container-low, #eef5f7);
-  border-right: 1px solid var(--color-outline-variant, #cbc4d2);
+  padding: 0;
+  background: #fff;
+  border-right: 0;
 }
 
 #jlabBasePage.page-shadowing-editor .editor-list-col {
+  flex: 42 1 0;
+  min-width: 0;
+  min-height: 0;
+  max-height: none;
   width: 42%;
-  padding: 24px;
-  background: var(--color-surface, #f4fafd);
+  padding: 0;
+  background: #fff;
   scroll-padding-top: 16px;
 }
 
@@ -556,6 +760,24 @@
   border: 0;
   border-radius: 16px;
   box-shadow: var(--shadow-2, 0 10px 40px rgba(22, 29, 31, .14));
+}
+
+#jlabBasePage.page-shadowing-editor .editor-layout:not(.audio-mode) .video-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+#jlabBasePage.page-shadowing-editor .video-surface {
+  flex: 1;
+  min-height: 0;
+}
+
+#jlabBasePage.page-shadowing-editor .player-controls,
+#jlabBasePage.page-shadowing-editor .timeline-card,
+#jlabBasePage.page-shadowing-editor .metadata-panel {
+  flex: none;
 }
 
 #jlabBasePage.page-shadowing-editor #editor-play-btn {
@@ -577,6 +799,58 @@
 #jlabBasePage.page-shadowing-editor .editor-sub-item.focused {
   border-width: 2px;
   background: var(--color-primary-fixed, #e9ddff);
+}
+
+#jlabBasePage.page-shadowing-editor #subtitle-editor-list .subtitle-quality-review {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid #e6b75c;
+  border-radius: 10px;
+  background: #fff8e8;
+}
+
+#jlabBasePage.page-shadowing-editor #subtitle-editor-list .subtitle-quality-review__title {
+  margin: 0;
+  color: #8a4d00;
+  font-weight: 700;
+}
+
+#jlabBasePage.page-shadowing-editor #subtitle-editor-list .subtitle-quality-review__copy {
+  margin: 6px 0 10px;
+  color: #5f4b2b;
+  font-size: 13px;
+}
+
+#jlabBasePage.page-shadowing-editor #subtitle-editor-list .subtitle-quality-review__source {
+  display: grid;
+  gap: 3px;
+  padding: 8px 0;
+  border-top: 1px solid rgba(138, 77, 0, .14);
+  font-size: 13px;
+}
+
+#jlabBasePage.page-shadowing-editor #subtitle-editor-list .subtitle-quality-review__source strong {
+  color: #704300;
+  font-size: 12px;
+}
+
+#jlabBasePage.page-shadowing-editor #subtitle-editor-list .subtitle-quality-review__source span {
+  color: #26232b;
+  overflow-wrap: anywhere;
+}
+
+#jlabBasePage.page-shadowing-editor #subtitle-editor-list .subtitle-quality-review__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+#jlabBasePage.page-shadowing-editor #subtitle-editor-list .subtitle-quality-status {
+  margin: 10px 0;
+  color: #147a43;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 #jlabBasePage.page-shadowing-editor .timeline-card {
@@ -606,12 +880,12 @@
 }
 
 #jlabBasePage.page-shadowing-player .player-rating-summary .avg-star-icons .fa-solid {
-  color: #ffc107;
+  color: var(--color-star, #f5a400);
 }
 
 #jlabBasePage.page-shadowing-player .comment-rating-field .star-rating .star-btn.filled,
 #jlabBasePage.page-shadowing-player .comment-rating-field .star-rating.interactive .star-btn:hover {
-  color: #ffc107;
+  color: var(--color-star, #f5a400);
 }
 
 #jlabBasePage.page-shadowing-player .comment-rating-field .star-rating .star-btn.filled i {
@@ -959,6 +1233,12 @@
 
 #jlabBasePage.page-shadowing-player .sub-pronunciation-result strong { font-size: 18px; }
 
+/* display:flex/grid above would otherwise override [hidden] and keep the previous score visible after re-recording. */
+#jlabBasePage.page-shadowing-player .sub-pronunciation-panel[hidden],
+#jlabBasePage.page-shadowing-player .sub-pronunciation-panel [hidden] {
+  display: none !important;
+}
+
 #jlabBasePage.page-shadowing-player .sub-pronunciation-details-btn {
   margin-left: auto;
   padding: 5px 9px;
@@ -1249,24 +1529,40 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  #jlabBasePage.page-shadowing-editor #jlabBaseContent,
   #jlabBasePage.page-shadowing-player #jlabBaseContent {
     width: calc(100% - 32px);
   }
 
-  #jlabBasePage.page-shadowing-editor #jlabBaseContent {
-    padding: 0 16px 16px;
+  #jlabBasePage.page-shadowing-editor {
+    --editor-gutter: 16px;
+    height: auto;
+    overflow-y: auto;
   }
 
-  #jlabBasePage.page-shadowing-editor .editor-toolbar {
-    margin: 0 -16px;
-    padding: 12px 16px;
+  #jlabBasePage.page-shadowing-editor #jlabBaseContent {
+    flex: none;
+    width: 100%;
+  }
+
+  #jlabBasePage.page-shadowing-editor .editor-layout {
+    flex: none;
+    gap: 20px;
   }
 
   #jlabBasePage.page-shadowing-editor .editor-video-col,
   #jlabBasePage.page-shadowing-editor .editor-list-col {
+    flex: none;
     width: 100%;
     border-right: 0;
+  }
+
+  #jlabBasePage.page-shadowing-editor .editor-list-col {
+    overflow-y: visible;
+  }
+
+  #jlabBasePage.page-shadowing-editor .editor-layout:not(.audio-mode) .video-container,
+  #jlabBasePage.page-shadowing-editor .video-surface {
+    flex: none;
   }
 }
 
@@ -1274,6 +1570,10 @@
   #jlabBasePage.page-shadowing #jlabBaseContent,
   #jlabBasePage.page-shadowing-player #jlabBaseContent {
     width: calc(100% - 32px);
+  }
+
+  #jlabBasePage.page-shadowing-editor #jlabBaseContent {
+    width: 100%;
   }
 
   #jlabBasePage.page-shadowing .section-header {
@@ -1314,17 +1614,17 @@
     flex-direction: column;
   }
 
+  #jlabBasePage.page-shadowing-editor .editor-toolbar > div:first-child {
+    flex: none;
+  }
+
   #jlabBasePage.page-shadowing-editor .editor-toolbar-actions {
     width: 100%;
   }
 
-  #jlabBasePage.page-shadowing-editor .editor-toolbar-actions button {
+  #jlabBasePage.page-shadowing-editor .editor-toolbar-actions button,
+  #jlabBasePage.page-shadowing-editor .editor-toolbar-actions a {
     flex: 1;
-  }
-
-  #jlabBasePage.page-shadowing-editor .editor-video-col,
-  #jlabBasePage.page-shadowing-editor .editor-list-col {
-    padding: 16px;
   }
 
   #jlabBasePage.page-shadowing-player #pronunciation-result-heading {
@@ -1336,10 +1636,284 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  #jlabBasePage.page-shadowing * {
-    scroll-behavior: auto !important;
-    transition-duration: .01ms !important;
-    animation-duration: .01ms !important;
-  }
+
+/* Page-owned dark mode: css/pages/shadowing.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-shadowing-bg: var(--dark-bg);
+  --dm-shadowing-surface: var(--dark-surface);
+  --dm-shadowing-raised: var(--dark-raised);
+  --dm-shadowing-ink: var(--dark-ink);
+  --dm-shadowing-muted: var(--dark-muted);
+  --dm-shadowing-line: var(--dark-line);
+  --dm-shadowing-accent: var(--dark-accent);
+  --dm-shadowing-action: var(--dark-button);
+  --dm-shadowing-accent-soft: var(--dark-soft);
+  --dm-shadowing-on-accent: var(--dark-on-button);
+  --dm-shadowing-success: var(--dark-success);
+  --dm-shadowing-success-bg: var(--dark-success-bg);
+  --dm-shadowing-success-line: var(--dark-success-line);
+  --dm-shadowing-danger: var(--dark-danger);
+  --dm-shadowing-danger-bg: var(--dark-danger-bg);
+  --dm-shadowing-danger-line: var(--dark-danger-line);
+  --dm-shadowing-warning: var(--dark-warning);
+  --dm-shadowing-warning-bg: var(--dark-warning-bg);
+  --dm-shadowing-warning-line: var(--dark-warning-line);
+  --dm-shadowing-pink: var(--dark-pink);
+  --dm-shadowing-pink-bg: var(--dark-pink-bg);
+  --dm-shadowing-pink-line: var(--dark-pink-line);
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-library #video-empty-action,
+html[data-theme="dark"] #jlabBasePage.page-shadowing-library #video-empty-action:hover,
+html[data-theme="dark"] #jlabBasePage.page-shadowing-library #video-empty-action:focus-visible {
+    color: var(--dm-shadowing-on-accent)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-library .search-bar {
+    background: rgba(11, 16, 23, .94)
+}
+html[data-theme="dark"] .series-video-picker {
+    border: 1px solid var(--dm-shadowing-line)
+}
+html[data-theme="dark"] .series-video-option:hover {
+    background: var(--dm-shadowing-accent-soft)
+}
+html[data-theme="dark"] .series-video-option small {
+    color: var(--dm-shadowing-muted)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-library .card-level-badge {
+    background: var(--dm-shadowing-raised);
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.34);
+    color: var(--dm-shadowing-ink)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-create .create-mode-tabs {
+    border: 1px solid var(--dm-shadowing-line)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-create #dropzone.has-video-preview .tagline,
+html[data-theme="dark"] #jlabBasePage.page-shadowing-create #dropzone.has-video-preview .caption {
+    color: var(--dm-shadowing-ink);
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-create #dropzone.has-video-preview > i {
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-create .form-actions {
+    border-top: 1px solid var(--dm-shadowing-line)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-editor {
+    --jlab-base-page-background: var(--dm-shadowing-surface);
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-editor .editor-toolbar,
+html[data-theme="dark"] #jlabBasePage.page-shadowing-editor .editor-layout {
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-editor .editor-video-col {
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-editor .editor-list-col {
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-editor #subtitle-editor-list .subtitle-quality-review {
+    border: 1px solid var(--dm-shadowing-warning-line);
+    background: var(--dm-shadowing-warning-bg)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-editor #subtitle-editor-list .subtitle-quality-review__title {
+    color: var(--dm-shadowing-warning)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-editor #subtitle-editor-list .subtitle-quality-review__copy {
+    color: var(--dm-shadowing-warning)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-editor #subtitle-editor-list .subtitle-quality-review__source {
+    border-top: 1px solid var(--dm-shadowing-warning-line)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-editor #subtitle-editor-list .subtitle-quality-review__source strong {
+    color: var(--dm-shadowing-warning)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-editor #subtitle-editor-list .subtitle-quality-review__source span {
+    color: var(--dm-shadowing-ink)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-editor #subtitle-editor-list .subtitle-quality-status {
+    color: var(--dm-shadowing-success)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .player-rating-summary .avg-star-icons .fa-solid {
+    color: var(--color-star, #f5a400)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .comment-rating-field .star-rating .star-btn.filled,
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .comment-rating-field .star-rating.interactive .star-btn:hover {
+    color: var(--color-star, #f5a400)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .record-panel {
+    border: 1px solid var(--dm-shadowing-success-line);
+    background: linear-gradient(135deg, var(--color-surface-lowest, #fff), var(--dm-shadowing-success-bg))
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .record-target {
+    border: 1px solid var(--dm-shadowing-line)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player #pronunciation-result {
+    border: 1px solid var(--dm-shadowing-line)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player [data-grade="good"] {
+    color: var(--dm-shadowing-success)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player [data-grade="fair"] {
+    color: var(--dm-shadowing-warning)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player [data-grade="weak"] {
+    color: var(--dm-shadowing-danger)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player #pronunciation-kitsu-bubble {
+    border: 1px solid var(--dm-shadowing-line)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player #pronunciation-kitsu-bubble::before {
+    border-left: 1px solid var(--dm-shadowing-line);
+    border-bottom: 1px solid var(--dm-shadowing-line)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .sub-pron-record-btn.recording {
+    color: var(--dm-shadowing-ink);
+    border-color: var(--dm-shadowing-danger-line);
+    background: var(--dm-shadowing-danger-bg)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .sub-pron-score-badge[data-grade="good"] {
+    color: var(--dm-shadowing-success)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .sub-pron-score-badge[data-grade="fair"] {
+    color: var(--dm-shadowing-warning)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .sub-pron-score-badge[data-grade="weak"] {
+    color: var(--dm-shadowing-danger)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .sub-pronunciation-panel {
+    border: 1px solid var(--dm-shadowing-line);
+    background: var(--dm-shadowing-accent-soft)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .sub-pronunciation-play-btn {
+    color: var(--dm-shadowing-on-accent)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .sub-pronunciation-details-btn {
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player #subtitle-list .sub-pronunciation-metrics > span {
+    border: 1px solid var(--dm-shadowing-line);
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .sub-pronunciation-word-scores .pronunciation-word {
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player #subtitle-list .pronunciation-word[data-grade="good"] {
+    border-color: var(--dm-shadowing-success-line);
+    color: var(--dm-shadowing-success)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player #subtitle-list .pronunciation-word[data-grade="fair"] {
+    border-color: var(--dm-shadowing-warning-line);
+    background: var(--dm-shadowing-warning-bg);
+    color: var(--dm-shadowing-warning)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player #subtitle-list .pronunciation-word[data-grade="weak"] {
+    border-color: var(--dm-shadowing-danger-line);
+    background: var(--dm-shadowing-danger-bg);
+    color: var(--dm-shadowing-danger)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player #subtitle-list .pronunciation-word[aria-pressed="true"] {
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.32)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player #subtitle-list .sub-pronunciation-focus {
+    border: 1px solid var(--dm-shadowing-line);
+    background: linear-gradient(145deg, var(--dm-shadowing-accent-soft), var(--dm-shadowing-surface))
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player #subtitle-list .sub-pronunciation-mora {
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player #subtitle-list .sub-pronunciation-tip {
+    background: var(--dm-shadowing-raised)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player #subtitle-list .sub-pronunciation-compare-actions button {
+    border: 1px solid var(--dm-shadowing-line);
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .sub-pronunciation-history-item {
+    border: 1px solid var(--dm-shadowing-line);
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .sub-pronunciation-history-meta span[data-grade="good"] {
+    color: var(--dm-shadowing-success)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .sub-pronunciation-history-meta span[data-grade="fair"] {
+    color: var(--dm-shadowing-warning)
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .sub-pronunciation-history-meta span[data-grade="weak"] {
+    color: var(--dm-shadowing-danger)
+}
+
+/* Dark interaction and state pairs for this page. */
+html[data-theme="dark"]{--color-background:var(--dm-shadowing-bg);--color-surface:var(--dm-shadowing-bg);--color-surface-lowest:var(--dm-shadowing-surface);--color-surface-low:var(--dm-shadowing-raised);--color-surface-mid:var(--dm-shadowing-raised);--color-surface-high:var(--dm-shadowing-raised);--color-surface-container:var(--dm-shadowing-raised);--color-surface-container-high:var(--dm-shadowing-raised);--color-on-surface:var(--dm-shadowing-ink);--color-on-surface-variant:var(--dm-shadowing-muted);--color-secondary:var(--dm-shadowing-muted);--color-outline:var(--dm-shadowing-muted);--color-outline-variant:var(--dm-shadowing-line);--color-primary:var(--dm-shadowing-accent);--color-primary-container:var(--dm-shadowing-action);--color-on-primary:var(--dm-shadowing-on-accent);--color-on-primary-container:var(--dark-on-button);--color-primary-fixed:var(--dm-shadowing-accent-soft);--color-on-primary-fixed:var(--dm-shadowing-accent);--color-secondary-container:var(--dm-shadowing-accent-soft);--color-secondary-fixed:var(--dm-shadowing-accent-soft);--color-success:var(--dm-shadowing-success);--color-success-bg:var(--dm-shadowing-success-bg);--color-error:var(--dm-shadowing-danger);--color-error-container:var(--dm-shadowing-danger-bg);--color-on-error-container:var(--dm-shadowing-danger);--color-tertiary:var(--dm-shadowing-warning);--color-tertiary-container:var(--dm-shadowing-warning-bg);--color-on-tertiary-container:var(--dm-shadowing-warning);--color-focus:var(--dm-shadowing-accent);--jlab-base-page-background:var(--dm-shadowing-bg);--color-bg:var(--dm-shadowing-bg);--color-card:var(--dm-shadowing-surface);--color-text:var(--dm-shadowing-ink);--color-text-secondary:var(--dm-shadowing-muted);--color-text-muted:var(--dm-shadowing-muted);--color-border:var(--dm-shadowing-line);--color-primary-soft:var(--dm-shadowing-accent-soft);--color-primary-hover:var(--dm-shadowing-action);--color-warning-soft:var(--dm-shadowing-warning-bg);--color-danger-soft:var(--dm-shadowing-danger-bg);--color-danger:var(--dm-shadowing-danger);--color-divider:var(--dm-shadowing-line);}
+html[data-theme="dark"] #jlabBasePage.page-shadowing{background:var(--dm-shadowing-bg)!important;}
+html[data-theme="dark"] #jlabBasePage.page-shadowing :is(.button-primary,.btn.btn--primary){background:var(--dm-shadowing-action)!important;color:var(--dark-on-button)!important;}
+html[data-theme="dark"] #jlabBasePage.page-shadowing :is(.button-primary,.btn.btn--primary):hover{background:var(--dark-button-hover)!important;}
+html[data-theme="dark"] .page-shadowing-editor{--timeline-bg:#14232e;--timeline-segment:#354d61;--timeline-active:#b4c6ff;--timeline-text:#eaf3f7;--timeline-active-text:#172238;--timeline-playhead:#ffaebd;}
+html[data-theme="dark"] .page-shadowing .confirm-modal{background:var(--dm-shadowing-surface);color:var(--dm-shadowing-ink);}
+html[data-theme="dark"] .page-shadowing {
+  --color-surface-container-low: var(--dm-shadowing-raised);
+  --color-success-soft: var(--dm-shadowing-success-bg);
+}
+html[data-theme="dark"] .page-shadowing :is(#lesson-views-badge, #lesson-category-badge, #transcript-count, .sub-time) {
+  background: var(--dm-shadowing-raised);
+  color: var(--dm-shadowing-muted);
+}
+html[data-theme="dark"] .page-shadowing :is(input, textarea)::placeholder {
+  color: var(--dm-shadowing-muted);
+  opacity: 1;
+}
+
+/* Native video controls and an accessible draggable seek bar on every device. */
+#jlabBasePage.page-shadowing-player #timeline-track {
+  appearance: none; -webkit-appearance: none; flex: 1; min-width: 0; width: 100%; height: 44px;
+  margin: 0; padding: 0; border: 0; border-radius: 0; overflow: visible;
+  background: transparent; cursor: pointer; touch-action: pan-y;
+}
+#jlabBasePage.page-shadowing-player #timeline-track::-webkit-slider-runnable-track {
+  height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, var(--color-primary) var(--seek-progress, 0%), var(--color-outline-variant) var(--seek-progress, 0%));
+}
+#jlabBasePage.page-shadowing-player #timeline-track::-webkit-slider-thumb {
+  appearance: none; -webkit-appearance: none; width: 18px; height: 18px; margin-top: -6px;
+  border: 0; border-radius: 50%; background: var(--color-primary);
+}
+#jlabBasePage.page-shadowing-player #timeline-track::-moz-range-track { height: 6px; background: var(--color-outline-variant); border-radius: 3px; }
+#jlabBasePage.page-shadowing-player #timeline-track::-moz-range-progress { height: 6px; background: var(--color-primary); }
+#jlabBasePage.page-shadowing-player #timeline-track::-moz-range-thumb { width: 18px; height: 18px; border: 0; border-radius: 50%; background: var(--color-primary); }
+#jlabBasePage.page-shadowing-player #timeline-track:disabled { opacity: .5; cursor: default; }
+#jlabBasePage.page-shadowing-player #timeline-track:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+@media (max-width: 900px) {
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player #jlabBaseContent { width: calc(100% - 24px); }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player #player-container { width: 100%; max-width: none; padding: 0; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player .player-page-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 12px 0; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player .player-header-top { display: contents; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player #jlabBaseContent .player-title { grid-column: 1 / -1; grid-row: 1; width: 100%; min-width: 0; margin: 0; font-size: 18px !important; line-height: 1.5 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-wrap: nowrap; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player :is(.player-title-prefix, .player-rating-meta) { display: none; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player .player-rating-row { grid-column: 1; grid-row: 2; align-self: center; margin: 0; min-width: 0; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player .player-header-actions { grid-column: 2; grid-row: 2; display: flex; gap: 8px; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player .player-header-actions button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; font-size: 16px; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player .player-rating-summary .avg-star-icons { font-size: 16px; gap: 2px; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player .player-layout { display: flex; flex-direction: column; gap: 12px; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player .main-column { display: block; width: 100%; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player .player-stage-layout { display: block; height: auto; min-height: 0; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player #player-controls-slot { display: none; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player #player-shell { width: 100%; height: auto; min-height: 0; max-height: none; padding: 0; border: 0; box-shadow: none; background: transparent; overflow: visible; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player #player-shell > .video-column { height: auto; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player .video-surface { aspect-ratio: 16 / 9; border-radius: 12px; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player #large-subtitle-viewer { flex: none; min-height: 0; height: auto; max-height: none; padding: 12px; gap: 10px; border: 0; border-radius: 12px; box-shadow: none; overflow: visible; background: var(--color-surface-lowest); }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player #large-subtitle-viewer .viewer-japanese { font-size: 18px !important; line-height: 1.7; overflow-wrap: anywhere; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player #large-subtitle-viewer .viewer-translation { font-size: 14px !important; line-height: 1.5; margin: 0; overflow-wrap: anywhere; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player #large-subtitle-viewer .toolbar-nav { display: flex; flex-flow: row wrap; justify-content: center; gap: 8px; padding: 0; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player #large-subtitle-viewer .toolbar-label { display: none; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player :is(.transcript-column, #subtitle-list) { display: contents; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player :is(.transcript-header, .subtitle-item) { display: none; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player .subtitle-item.active { display: block; height: auto; margin: 0; padding: 0; border: 0; background: transparent; box-shadow: none; transform: none; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player .subtitle-item.active::before { content: none; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player .subtitle-item.active .sub-card-actions { margin: 0; padding: 0; border: 0; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player .subtitle-item.active .sub-action-btn:is([data-action="replay"], [data-action="favorite"]) { display: none; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player .subtitle-item.active :is(.sub-card-header, .sub-jp, .sub-tr) { display: none; }
+  #jlabBasePage[data-mobile-adapt="owned"].page-shadowing-player .sub-card-actions { justify-content: center; flex-wrap: wrap; gap: 8px; }
 }

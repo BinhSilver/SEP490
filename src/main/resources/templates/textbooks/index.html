@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: standard('Thư viện giáo trình - JLAS', 'textbooks')}"></head>
+
+<body id="jlabBasePage" class="app-body page-textbooks">
+
+    <div id="jlabBaseShellMount"></div>
+
+    <main id="jlabBaseContent" class="app-main textbooks-main">
+        <header class="textbooks-hero">
+            <p class="textbooks-hero__eyebrow">Chương trình học</p>
+            <h1 class="textbooks-hero__title">Thư viện giáo trình</h1>
+            <p class="textbooks-hero__subtitle">
+                Chọn cấp độ, mở giáo trình rồi học từng bài với từ vựng, câu ví dụ, ngữ pháp và hội thoại có giọng đọc.
+            </p>
+            <!-- Chỉ CONTENT_CREATOR: js/pages/textbooks.js bỏ `hidden` theo role, giống cách nav shell làm. -->
+            <a class="manage-btn" id="manageEntryLink" th:href="@{/textbooks/manage}" hidden>
+                <i class="fa-solid fa-pen-ruler" aria-hidden="true"></i> Quản lý nội dung
+            </a>
+        </header>
+
+        <!-- Hai cách duyệt: theo cấp độ JLPT (dữ liệu) và theo chủ đề (khung, làm sau) -->
+        <div class="lesson-tabs" role="tablist" aria-label="Cách duyệt giáo trình">
+            <button type="button" class="lesson-tab is-active" role="tab" data-tab="level" aria-selected="true">
+                <i class="fa-solid fa-signal" aria-hidden="true"></i> Theo cấp độ
+            </button>
+            <button type="button" class="lesson-tab" role="tab" data-tab="topic" aria-selected="false">
+                <i class="fa-solid fa-compass" aria-hidden="true"></i> Theo chủ đề
+            </button>
+        </div>
+
+        <!-- Tab 1: Theo cấp độ — nhóm theo textbook.jlptLevel, render bằng js/pages/textbooks.js -->
+        <section id="panelLevel" class="lesson-panel" role="tabpanel" data-panel="level">
+            <div id="textbooksLoading" class="textbooks-loading">
+                <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+                <span>Đang tải danh sách giáo trình…</span>
+            </div>
+
+            <div id="textbooksError" class="alert alert--error" role="alert"></div>
+
+            <div id="textbooksEmpty" class="textbooks-empty" hidden>
+                <div th:replace="~{fragments/components/fox-mascot :: foxMascot}"></div>
+                <strong>Chưa có giáo trình nào được công bố</strong>
+                <p>Nội dung đang được biên soạn. Vui lòng quay lại sau.</p>
+            </div>
+
+            <div id="textbooksLevels" class="textbooks-levels" hidden></div>
+        </section>
+
+        <!-- Tab 2: Theo chủ đề — chủ đề lấy từ bảng tag (tag_type = SITUATION), tải 1 lần khi mở tab; render bằng js/pages/textbooks.js -->
+        <section id="panelTopic" class="lesson-panel" role="tabpanel" data-panel="topic" hidden>
+            <div id="topicsLoading" class="textbooks-loading" hidden>
+                <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+                <span>Đang tải danh sách chủ đề…</span>
+            </div>
+
+            <div id="topicsError" class="alert alert--error" role="alert"></div>
+
+            <div id="topicsEmpty" class="textbooks-empty" hidden>
+                <div th:replace="~{fragments/components/fox-mascot :: foxMascot}"></div>
+                <strong>Chưa có chủ đề nào</strong>
+                <p>Danh sách chủ đề đang được biên soạn. Vui lòng quay lại sau.</p>
+            </div>
+
+            <!-- Chip chủ đề; chủ đề 0 bài vẫn hiện, ghi rõ chưa có nội dung -->
+            <div id="topicsList" class="topics-list" hidden></div>
+
+            <!-- Bài của chủ đề đang chọn, nhóm theo giáo trình -->
+            <div id="topicLessonsLoading" class="textbooks-loading" hidden>
+                <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+                <span>Đang tải bài học của chủ đề…</span>
+            </div>
+            <div id="topicLessons" class="topic-lessons" hidden></div>
+        </section>
+    </main>
+
+    <script th:src="@{/js/jlab-base-shell.js}"></script>
+    <script th:src="@{/js/pages/textbooks.js}"></script>
+
+</body>
+
+</html>

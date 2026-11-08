@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] A4 writing sheet of the JLPT path. No base shell: the toolbar shows on screen only, each
+     .jp-print-page breaks to a new sheet. Data comes from JpathSidePageController (model "sheet" or "printError"). -->
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title th:text="${sheet != null ? sheet.title() : 'Bảng luyện viết'} + ' - JLAS'">Bảng luyện viết - JLAS</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&amp;display=swap" />
+    <link rel="stylesheet" th:href="@{/css/pages/jpath-print.css(v=${jpathAssetVersion})}" />
+</head>
+<body class="jp-print" data-inline-dictionary>
+<div class="jp-print-toolbar" role="toolbar" aria-label="Công cụ in">
+    <button type="button" class="jp-print-toolbar__btn jp-print-toolbar__btn--primary" data-jpath-print-now
+            th:disabled="${sheet == null or #lists.isEmpty(sheet.pages())}">In bảng này</button>
+    <button type="button" class="jp-print-toolbar__btn" data-jpath-print-close>Đóng</button>
+    <nav class="jp-print-toolbar__tabs" aria-label="Chọn bảng" th:if="${param.scope != null and param.scope[0] != 'KANA'}">
+        <a th:each="t : ${ {'VOCAB','KANJI'} }"
+           th:href="@{/learning/jlpt/print(scope=${param.scope[0]},tab=${t},day=${param.day},level=${param.level},q=${param.q},topic=${param.topic},state=${param.state},radical=${param.radical},sort=${param.sort})}"
+           th:classappend="${param.tab != null and param.tab[0] == t} ? ' is-on'"
+           th:text="${t == 'VOCAB'} ? 'Từ vựng' : 'Kanji'">Từ vựng</a>
+    </nav>
+    <span class="jp-print-toolbar__hint">Khổ A4 dọc · chữ mờ để tô, ô trống để tự viết</span>
+</div>
+
+<p class="jp-print-notice" th:if="${printError != null}" th:text="${printError}" role="alert">Lỗi</p>
+
+<th:block th:if="${sheet != null}">
+    <p class="jp-print-notice" th:if="${sheet.notice() != null and !#lists.isEmpty(sheet.pages())}"
+       th:text="${sheet.notice()}">Chỉ in 120 mục đầu của danh sách</p>
+    <section class="jp-print-page jp-print-page--empty" th:if="${#lists.isEmpty(sheet.pages())}">
+        <header class="jp-print-head">
+            <h1 class="jp-print-title" th:text="${sheet.title()}">Bảng luyện viết</h1>
+            <p class="jp-print-meta" th:text="${sheet.dateVi()}">03/11/2026</p>
+        </header>
+        <p class="jp-print-empty" th:text="${sheet.notice()}">Chưa có mục nào để in.</p>
+    </section>
+
+    <section class="jp-print-page" th:each="page, pageStat : ${sheet.pages()}">
+        <header class="jp-print-head">
+            <h1 class="jp-print-title" th:text="${sheet.title()}">Bảng luyện viết</h1>
+            <p class="jp-print-meta">
+                <span th:text="${sheet.dateVi()}">03/11/2026</span>
+                <span th:text="'Trang ' + ${pageStat.count} + '/' + ${pageStat.size}">Trang 1/1</span>
+            </p>
+        </header>
+        <div class="jp-print-who" th:if="${pageStat.first}"><span>Họ tên:</span><span>Ngày viết:</span><span>Tự chấm: ☐ ☐ ☐</span></div>
+        <div class="jp-print-row" th:each="row : ${page}" th:classappend="'jp-print-row--' + ${#strings.toLowerCase(row.kind())}">
+            <div class="jp-print-info">
+                <div class="jp-print-word jp-print-kanji" lang="ja" th:text="${row.text()}">休</div>
+                <div class="jp-print-reading" lang="ja" th:if="${row.reading() != null}" th:text="${row.reading()}">やす</div>
+                <div class="jp-print-hanviet" th:if="${row.hanViet() != null}" th:text="${row.hanViet()}">HƯU</div>
+                <div class="jp-print-meaning" th:if="${row.meaning() != null}" th:text="${row.meaning()}">nghỉ</div>
+                <div class="jp-print-order" th:if="${row.strokeSvgUrl() != null}">
+                    <img th:src="${row.strokeSvgUrl()}" alt="" />
+                    <span th:if="${row.strokeCount() != null}" th:text="${row.strokeCount()} + ' nét'">6 nét</span>
+                </div>
+            </div>
+            <div class="jp-print-cells" aria-hidden="true">
+                <th:block th:each="copy : ${#numbers.sequence(1, row.cells().faded())}">
+                    <span class="jp-print-cell jp-print-cell--faded" th:each="ch : ${row.chars()}">
+                        <span class="jp-print-kanji" th:text="${ch}">休</span>
+                    </span>
+                </th:block>
+                <th:block th:if="${row.cells().blank() > 0}">
+                    <th:block th:each="copy : ${#numbers.sequence(1, row.cells().blank() * row.cells().units())}">
+                        <span class="jp-print-cell"></span>
+                    </th:block>
+                </th:block>
+                <th:block th:with="rest=${10 - (row.cells().faded() + row.cells().blank()) * row.cells().units()}">
+                    <th:block th:if="${rest > 0}">
+                        <span class="jp-print-cell" th:each="i : ${#numbers.sequence(1, rest)}"></span>
+                    </th:block>
+                </th:block>
+            </div>
+        </div>
+    </section>
+</th:block>
+
+<script th:src="@{/js/jlptpath/jpath-print.js(v=${jpathAssetVersion})}"></script>
+</body>
+</html>

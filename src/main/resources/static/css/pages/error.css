@@ -1,0 +1,58 @@
+@import url("../controls.css");
+.error-page {
+            display: grid;
+            min-height: 100vh;
+            place-items: center;
+            padding: var(--sp-5);
+            background:
+                radial-gradient(circle at 25% 20%, var(--sakura-glow), transparent 24rem),
+                radial-gradient(circle at 80% 70%, var(--cyan-glow), transparent 26rem),
+                var(--bg-base);
+        }
+        .error-card {
+            width: min(560px, 100%);
+            padding: clamp(28px, 6vw, 52px);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--r-xl);
+            background: var(--surface-glass);
+            color: var(--text-hi);
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(18px);
+        }
+        .error-card__code {
+            display: block;
+            margin-bottom: var(--sp-3);
+            color: var(--color-primary);
+            font: 800 var(--fs-sm)/1 var(--font-mono);
+            letter-spacing: .16em;
+        }
+        #errorKitsuGuide { margin: 0 0 var(--sp-5); text-align: left; }
+        #errorKitsuGuide .kitsu-guide__bubble { background: rgba(255, 255, 255, .94); }
+        #errorKitsuGuide .kitsu-guide__message { margin: 4px 0 0; }
+        /* The shared headline font (Instrument Serif, then Georgia) has no Vietnamese glyphs. */
+        .error-card h1 { margin: 0 0 var(--sp-3); font: 800 clamp(1.8rem, 5vw, 2.6rem)/1.2 "Hanken Grotesk", system-ui, "Segoe UI", sans-serif; }
+        .error-card p { margin: 0 auto var(--sp-5); color: var(--text-mid); line-height: 1.65; }
+        .error-card__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-3); }
+
+/* Error/forbidden pages own their dark surface and guide bubble. */
+html[data-theme="dark"] .error-page {
+  --error-bg: var(--dark-bg);
+  --error-surface: var(--dark-surface);
+  --error-raised: var(--dark-raised);
+  --error-ink: var(--dark-ink);
+  --error-muted: var(--dark-muted);
+  --error-line: var(--dark-line);
+  --error-accent: var(--dark-accent);
+  --error-action: var(--dark-button);
+  --jlab-base-page-background: var(--error-bg);
+  background: var(--error-bg);
+  color: var(--error-ink);
+}
+html[data-theme="dark"] .error-card { background:var(--error-surface); color:var(--error-ink); border-color:var(--error-line); box-shadow:0 16px 40px #0005; }
+html[data-theme="dark"] .error-card__code { color:var(--error-accent); }
+html[data-theme="dark"] #errorKitsuGuide .kitsu-guide__bubble { background:var(--error-raised); color:var(--error-ink); border-color:var(--error-line); }
+html[data-theme="dark"] #errorKitsuGuide .kitsu-guide__title { color:var(--error-accent); }
+html[data-theme="dark"] .error-card p { color:var(--error-muted); }
+html[data-theme="dark"] .error-card .btn--primary { color:var(--dark-on-button)!important; background:var(--error-action)!important; }
+html[data-theme="dark"] .error-card .btn--ghost { color:var(--error-muted)!important; }

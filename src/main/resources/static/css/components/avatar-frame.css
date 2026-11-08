@@ -1,0 +1,174 @@
+/*
+ * Khung avatar động + màu tên (xem js/components/avatar-frame.js).
+ * Ảnh khung = 1,5 × đường kính avatar → lớp .af tràn ra 25% mỗi phía quanh phần tử bọc avatar.
+ * Luôn chạy đầy đủ hiệu ứng, không theo prefers-reduced-motion (quyết định sản phẩm).
+ */
+@property --af-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+
+/* grid: phần tử bọc co đúng bằng avatar (block thường cao hơn vài px vì dòng chữ) → khung không bị lệch. */
+.af-host { position: relative; display: grid; place-items: center; }
+/* Có khung thì bỏ viền riêng của avatar (trắng/tím) để không lộ vòng hở giữa ảnh và khung. */
+.af-host.has-frame > .user-avatar,
+.af-host.has-frame > #jlabBaseAvatarButton,
+.af-host.has-frame > #jlabBaseAccountAvatar { border: 0; box-shadow: none; }
+
+.af {
+  --af-period: 4s;
+  --af-tint: 160, 210, 255;
+  --af-tint2: 200, 170, 255;
+  --af-aura1: rgba(90, 140, 255, .55);
+  --af-aura2: rgba(140, 90, 255, .25);
+  --af-glit: 150, 200, 255;
+  --af-core: #fff;
+  position: absolute;
+  inset: -25%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  container-type: size;
+  isolation: isolate;
+}
+.af > * { grid-area: 1 / 1; }
+
+.af--seraph  { --af-tint: 255, 226, 150; --af-tint2: 255, 250, 225; --af-glit: 255, 230, 160;
+               --af-aura1: rgba(255, 215, 120, .55); --af-aura2: rgba(255, 255, 255, .3); }
+/* Khung đỏ: lõi dải sáng ngả màu chủ đề để cánh đỏ không bị "bạc" khi sáng chạy qua. */
+.af--inferno { --af-tint: 255, 140, 50;  --af-tint2: 255, 70, 30;   --af-glit: 255, 170, 70;  --af-core: rgba(255, 214, 140, .85);
+               --af-aura1: rgba(255, 90, 20, .55);   --af-aura2: rgba(200, 20, 0, .3); }
+.af--vampire { --af-tint: 255, 70, 100;  --af-tint2: 255, 200, 130; --af-glit: 255, 110, 130; --af-core: rgba(255, 170, 185, .8);
+               --af-aura1: rgba(210, 0, 45, .5);     --af-aura2: rgba(120, 0, 30, .3); }
+
+.af-frame { width: 100%; height: 100%; animation: af-glow 3s ease-in-out infinite; user-select: none; }
+
+/* Vầng sáng quanh vành (sau ảnh khung). closest-side: 100% = nửa cạnh khung, mép avatar ở 66,7%. */
+.af-aura {
+  width: 100%; height: 100%; z-index: -1; border-radius: 50%;
+  background: radial-gradient(circle closest-side, transparent 66%, var(--af-aura1) 72%, var(--af-aura2) 82%, transparent 96%);
+  animation: af-breathe 3s ease-in-out infinite;
+}
+
+/* Dải sáng chạy vòng quanh vành, chỉ phủ lên phần có ảnh khung. */
+.af-chase, .af-sweep {
+  width: 100%; height: 100%; mix-blend-mode: screen;
+  -webkit-mask: var(--af-img) center / 100% no-repeat; mask: var(--af-img) center / 100% no-repeat;
+}
+.af-chase {
+  background: conic-gradient(from calc(var(--af-a) - 30deg),
+    transparent 0deg, rgba(var(--af-tint), .35) 18deg, var(--af-core) 30deg, rgba(var(--af-tint), .35) 42deg, transparent 60deg,
+    transparent 180deg, rgba(var(--af-tint2), .25) 200deg, rgba(255, 255, 255, .5) 210deg, rgba(var(--af-tint2), .25) 220deg, transparent 240deg);
+  animation: af-chase var(--af-period) linear infinite;
+}
+.af-sweep {
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, .8) 50%, transparent 58%) no-repeat;
+  background-size: 260% 100%;
+  animation: af-sweep 5s ease-in-out 1s infinite;
+}
+
+.af-fx { position: relative; width: 100%; height: 100%; }
+
+/* Tia sao 4 cánh trên đá, bùng lên khi dải sáng chạy qua. */
+.af-flare {
+  position: absolute; width: 22%; height: 22%; translate: -50% -50%; opacity: 0; mix-blend-mode: screen;
+  animation: af-flare var(--af-period) ease-out infinite;
+}
+.af-flare--big { width: 34%; height: 34%; }
+.af-flare::before, .af-flare::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 3% 50% at 50% 50%, #fff 0, rgba(var(--af-tint), .9) 35%, transparent 100%),
+    radial-gradient(ellipse 50% 3% at 50% 50%, #fff 0, rgba(var(--af-tint), .9) 35%, transparent 100%),
+    radial-gradient(circle at 50% 50%, #fff 0 4%, rgba(var(--af-tint), .7) 9%, transparent 20%);
+}
+.af-flare::after { rotate: 45deg; scale: .5; }
+
+/* Quả cầu thiên hà (Tinh Vân): vòng sáng xoáy. */
+.af-orb {
+  position: absolute; width: 10%; height: 10%; translate: -50% -50%; border-radius: 50%; mix-blend-mode: screen;
+  background: conic-gradient(rgba(255, 255, 255, .95), rgba(170, 120, 255, .6) 15%, transparent 35%, rgba(120, 200, 255, .8) 55%, transparent 75%);
+  -webkit-mask: radial-gradient(circle, transparent 25%, #000 45%, transparent 70%);
+  mask: radial-gradient(circle, transparent 25%, #000 45%, transparent 70%);
+  animation: af-spin 2.5s linear infinite;
+}
+
+/* Kim tuyến trên vành + hạt sáng bay ra ngoài: mỗi hạt nằm trên một "cánh tay" xoay quanh tâm. */
+.af-arm { position: absolute; inset: 0; }
+.af-glit {
+  position: absolute; left: 50%; top: 14.5%; width: 4%; height: 4%; translate: -50% -50%; opacity: 0; mix-blend-mode: screen;
+  background:
+    radial-gradient(ellipse 8% 50% at 50% 50%, #fff, transparent),
+    radial-gradient(ellipse 50% 8% at 50% 50%, #fff, transparent),
+    radial-gradient(circle, #fff 0 10%, rgba(var(--af-glit), .6) 25%, transparent 55%);
+  animation: af-glit 2s ease-in-out infinite;
+}
+.af-mote {
+  position: absolute; left: 50%; top: 12%; width: 1.6%; height: 1.6%; translate: -50% -50%; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, #fff 0 30%, rgba(var(--af-glit), .85) 50%, transparent 75%);
+  animation: af-mote 3.2s ease-out infinite;
+}
+/* Hỏa Ngục: tàn lửa bay thẳng lên (xoay ngược góc cánh tay để hướng bay luôn là phía trên). */
+.af--inferno .af-mote {
+  width: 1.4%; height: 2%;
+  background: radial-gradient(ellipse, #fff3c4 0 20%, rgba(255, 140, 40, .95) 45%, rgba(255, 50, 0, 0) 75%);
+  animation-name: af-ember;
+}
+
+/* Huyết Tộc: giọt hồng ngọc nhỏ xuống từ hai chuỗi đá treo. */
+.af-drip {
+  position: absolute; width: 1.6%; height: 2.4%; translate: -50% 0; opacity: 0;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: radial-gradient(circle at 40% 35%, #ffb3c1 0 15%, #e0103a 45%, #7a0019 100%);
+  animation: af-drip 3.4s ease-in infinite;
+}
+
+@keyframes af-chase   { to { --af-a: 360deg; } }
+@keyframes af-spin    { to { rotate: 360deg; } }
+@keyframes af-breathe { 0%, 100% { opacity: .55; scale: .985; } 50% { opacity: 1; scale: 1.015; } }
+@keyframes af-glow    { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.12) saturate(1.1); } }
+@keyframes af-sweep   { 0% { background-position: 150% 0; } 45%, 100% { background-position: -50% 0; } }
+@keyframes af-flare   { 0% { opacity: 0; scale: .3; rotate: 0deg; } 6% { opacity: 1; scale: 1; }
+                        22% { opacity: 0; scale: .6; rotate: 60deg; } 100% { opacity: 0; } }
+@keyframes af-glit    { 0%, 100% { opacity: 0; scale: .2; } 50% { opacity: 1; scale: 1; } }
+@keyframes af-mote    { 0% { opacity: 0; transform: translateY(0) scale(.6); } 15% { opacity: 1; }
+                        100% { opacity: 0; transform: translateY(-9cqh) scale(.2); } }
+@keyframes af-ember   { 0% { opacity: 0; transform: rotate(calc(var(--r, 0deg) * -1)) translateY(0) scale(.8); }
+                        15% { opacity: 1; }
+                        100% { opacity: 0; transform: rotate(calc(var(--r, 0deg) * -1)) translate(1.5cqw, -14cqh) scale(.3); } }
+@keyframes af-drip    { 0%, 30% { opacity: 0; transform: translateY(0) scale(.4); } 40% { opacity: 1; transform: translateY(0) scale(1); }
+                        85% { opacity: 1; } 100% { opacity: 0; transform: translateY(9cqh) scale(.8, 1.1); } }
+
+/* ================= Màu tên (mở kèm khung) ================= */
+[data-name-style] {
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: ns-flow 4s linear infinite;
+}
+[data-name-style="cosmic"]  { background-image: linear-gradient(90deg, #3b82f6, #8b5cf6, #22d3ee, #8b5cf6, #3b82f6);
+                              filter: drop-shadow(0 0 5px rgba(99, 102, 241, .45)); }
+[data-name-style="seraph"]  { background-image: linear-gradient(90deg, #a16207, #eab308, #fde68a, #eab308, #a16207);
+                              filter: drop-shadow(0 0 5px rgba(234, 179, 8, .45)); }
+[data-name-style="inferno"] { background-image: linear-gradient(90deg, #dc2626, #f97316, #fbbf24, #f97316, #dc2626);
+                              filter: drop-shadow(0 0 5px rgba(249, 115, 22, .5)); }
+[data-name-style="vampire"] { background-image: linear-gradient(90deg, #9f1239, #e11d48, #fb7185, #e11d48, #9f1239);
+                              filter: drop-shadow(0 0 5px rgba(225, 29, 72, .45)); }
+@keyframes ns-flow { to { background-position: 200% center; } }
+
+/* ================= Avatar người bình luận (Flashcard, Shadowing) ================= */
+.comment-avatar-host { flex: 0 0 auto; }
+/* Khung tràn 25% quanh avatar 36px → chừa 9px. */
+.comment-avatar-host.has-frame { margin: 9px; }
+.comment-avatar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #ede9fe;
+  color: #5b21b6;
+  font: 700 .85rem/1 system-ui, sans-serif;
+}
+.comment-avatar img { width: 100%; height: 100%; object-fit: cover; }

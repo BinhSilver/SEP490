@@ -1,5 +1,9 @@
-/* JLAS design tokens - Komorebi light palette. */
+@import url("dark-palette.css");
+/* JLAS design tokens - Komorebi light palette (tím + xanh lá). */
 :root {
+  color-scheme: light;
+  /* Sao đánh giá / yêu thích: một màu chung cho mọi trang. */
+  --color-star: #f5a400;
   /* Surfaces */
   --color-surface-lowest: #ffffff;
   --color-surface: #f4fafd;
@@ -47,11 +51,14 @@
   --color-success-bg: #d6f5e7;
   --color-focus: #4f378a;
 
-  /* Typography */
-  --font-headline: "Instrument Serif", "Hanken Grotesk", Georgia, serif;
-  --font-display: "Instrument Serif", serif;
+  /* Typography — single project-wide font, matching the nav bar (--font-body); the site
+     previously mixed in a serif headline face and a monospace face, which is why headings
+     and labels looked different from the nav. --font-headline/--font-display/--font-mono now
+     just alias --font-body so every page renders with one typeface. */
   --font-body: -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-headline: var(--font-body);
+  --font-display: var(--font-body);
+  --font-mono: var(--font-body);
   --font-size-base: 14px;
   --font-weight-base: 400;
   --line-height-base: 20px;
@@ -109,4 +116,127 @@
 @keyframes jlas-bg-pan {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
+}
+
+/* Stitch learning journey. Scoped so existing non-learning screens keep their palette. */
+html:has(body.journey-ui) {
+  --color-primary: #7c3aed;
+  --color-primary-container: #6d28d9;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #ffffff;
+  --color-primary-fixed: #f3eaff;
+  --color-secondary-container: #f3eaff;
+  --color-secondary-fixed-dim: #d8b4fe;
+  --color-background: #f8fafc;
+  --color-surface: #f8fafc;
+  --color-surface-lowest: #ffffff;
+  --color-surface-low: #f8fafc;
+  --color-surface-mid: #f1f5f9;
+  --color-surface-high: #e2e8f0;
+  --color-surface-container: #f1f5f9;
+  --color-surface-container-high: #e2e8f0;
+  --color-on-surface: #172033;
+  --color-on-surface-variant: #64748b;
+  --color-secondary: #64748b;
+  --color-outline: #718096;
+  --color-outline-variant: #e2e8f0;
+  --color-success: #4d7c0f;
+  --color-success-bg: #f2fce3;
+  --color-journey-action: #a3e635;
+  --color-on-journey-action: #172400;
+  --color-journey-grid: #7c3aed08;
+  --color-journey-glow: #a3e63526;
+  /* [font unification] journey-ui pages used to swap in Hanken Grotesk/Inter here, which is
+     why they didn't match the nav either; -apple-system-body etc. is the nav's literal stack
+     (can't reference --font-body via var() here since this block also redefines that property). */
+  --font-headline: -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-body: -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+}
+html[data-theme="dark"]:has(body.journey-ui) {
+  --color-primary: #c084fc;
+  --color-primary-container: #a855f7;
+  --color-on-primary: #20102e;
+  --color-on-primary-container: #160724;
+  --color-primary-fixed: #292239;
+  --color-secondary-container: #292239;
+  --color-secondary-fixed-dim: #66418a;
+  --color-background: #0b0d13;
+  --color-surface: #10131d;
+  --color-surface-lowest: #171b26;
+  --color-surface-low: #10131d;
+  --color-surface-mid: #202534;
+  --color-surface-high: #2a3041;
+  --color-surface-container: #202534;
+  --color-surface-container-high: #2a3041;
+  --color-on-surface: #f5f6fa;
+  --color-on-surface-variant: #a0aec0;
+  --color-secondary: #a0aec0;
+  --color-outline: #8693a8;
+  --color-outline-variant: #2b3040;
+  --color-success: #a3e635;
+  --color-success-bg: #222e1a;
+  --color-journey-grid: #a855f709;
+}
+
+/* ── Dark theme (tím + xanh lá) — toggled via data-theme on <html> ── */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --color-star: #ffc94a;
+
+  /* Surfaces */
+  --color-surface-lowest: #141218;
+  --color-surface: #1d1b20;
+  --color-surface-low: #211f26;
+  --color-surface-mid: #2a2631;
+  --color-surface-high: #2a2631;
+  --color-background: #141218;
+  --color-surface-container: #211f26;
+  --color-surface-container-high: #2a2631;
+  --color-surface-variant: #48434f;
+  --color-inverse-surface: #e8e3ec;
+
+  /* Text */
+  --color-on-surface: #e6e1ea;
+  --color-on-surface-variant: #cbc6d2;
+
+  /* Brand (tím) */
+  --color-primary: #d3bcff;
+  --color-primary-container: #4f378a;
+  --color-on-primary: #33106d;
+  --color-on-primary-container: #ecdfff;
+  --color-primary-fixed: #30263f;
+  --color-on-primary-fixed: #ecdfff;
+  --color-inverse-primary: #4f378a;
+  --color-secondary: #cec2dc;
+  --color-secondary-container: #4c4559;
+  --color-secondary-fixed: #30263f;
+  --color-secondary-fixed-dim: #cdc0e9;
+
+  /* Komorebi accent */
+  --color-tertiary: #e2bc6b;
+  --color-tertiary-container: #4a3d00;
+  --color-on-tertiary: #3d3200;
+  --color-on-tertiary-container: #f0db9a;
+  --color-tertiary-fixed-dim: #e7c365;
+
+  /* Borders and status (xanh lá = success) */
+  --color-outline: #948f9b;
+  --color-outline-variant: #48434f;
+  --color-error: #ffb4ab;
+  --color-error-container: #8c1d18;
+  --color-on-error-container: #ffdad6;
+  --color-on-error: #690005;
+  --color-success: #7ad5a0;
+  --color-success-bg: #103a24;
+  --color-focus: #d3bcff;
+
+  /* Quiet elevation for dark surfaces */
+  --shadow-1: 0 4px 20px rgba(0, 0, 0, 0.42);
+  --shadow-2: 0 10px 40px rgba(0, 0, 0, 0.58);
+  --shadow-action: 0 4px 14px rgba(211, 188, 255, 0.16);
+  --shadow-action-hover: 0 6px 20px rgba(211, 188, 255, 0.22);
+  --focus-ring: 0 0 0 3px rgba(211, 188, 255, 0.28);
+
+  --bg-gradient-static: linear-gradient(135deg, #141218 0%, #1d1b20 64%, #241a3a 100%);
+  --bg-gradient-animated: linear-gradient(135deg, #141218 0%, #1d1b20 64%, #241a3a 100%);
 }

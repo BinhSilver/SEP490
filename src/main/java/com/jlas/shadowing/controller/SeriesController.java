@@ -1,5 +1,7 @@
 package com.jlas.shadowing.controller;
 
+import com.jlas.auth.dto.ApiResponse;
+import com.jlas.shadowing.dto.LibraryPageDto;
 import com.jlas.shadowing.dto.SeriesCreateRequest;
 import com.jlas.shadowing.dto.SeriesDetailDto;
 import com.jlas.shadowing.dto.SeriesSummaryDto;
@@ -20,8 +22,23 @@ public class SeriesController {
 
     @GetMapping("/public")
     public List<SeriesSummaryDto> publicSeries(@RequestParam(required = false) String q,
-                                               @RequestParam(required = false, defaultValue = "newest") String sort) {
-        return seriesService.listPublic(q, sort);
+                                               @RequestParam(required = false, defaultValue = "newest") String sort,
+                                               @RequestParam(required = false) String category,
+                                               @RequestParam(required = false) String level) {
+        return seriesService.listPublic(q, sort, category, level);
+    }
+
+    @GetMapping("/public/page")
+    public ResponseEntity<ApiResponse<LibraryPageDto<SeriesSummaryDto>>> publicPage(
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "popular") String sort,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String genre,
+            @RequestParam(required = false) String level,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        return ResponseEntity.ok(ApiResponse.ok("Danh sách Shadowing",
+                seriesService.listPublicPage(q, sort, category, genre, level, page, size)));
     }
 
     @GetMapping("/{id}")

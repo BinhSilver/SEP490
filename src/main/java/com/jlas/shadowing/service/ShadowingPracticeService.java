@@ -9,6 +9,7 @@ import com.jlas.shadowing.model.VideoStatus;
 import com.jlas.shadowing.model.VideoVisibility;
 import com.jlas.shadowing.model.practice.*;
 import com.jlas.shadowing.repository.ShadowingPracticeRepository;
+import com.jlas.shadowing.repository.ShadowingQuestionBankRepository;
 import com.jlas.shadowing.repository.SubtitleRepository;
 import com.jlas.shadowing.repository.VideoRepository;
 import org.springframework.stereotype.Service;
@@ -18,13 +19,16 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -35,30 +39,108 @@ public class ShadowingPracticeService {
     private final SubtitleRepository subtitleRepository;
     private final ShadowingExerciseAnalysisService analysisService;
     private final ShadowingPracticeRepository practiceRepository;
+    private final SubtitleQualityReviewService subtitleQualityReviewService;
+    private final ShadowingQuestionBankRepository questionBank;
+    private final ShadowingQuestionPreparationService preparationService;
+    private final ShadowingAgeGate ageGate;
     private final Map<Long, Deque<Instant>> createRequests = new ConcurrentHashMap<>();
 
     public ShadowingPracticeService(VideoRepository videoRepository,
                                     SubtitleRepository subtitleRepository,
                                     ShadowingExerciseAnalysisService analysisService,
-                                    ShadowingPracticeRepository practiceRepository) {
+                                    ShadowingPracticeRepository practiceRepository,
+                                    SubtitleQualityReviewService subtitleQualityReviewService,
+                                    ShadowingQuestionBankRepository questionBank,
+                                    ShadowingQuestionPreparationService preparationService,
+                                    ShadowingAgeGate ageGate) {
         this.videoRepository = videoRepository;
         this.subtitleRepository = subtitleRepository;
         this.analysisService = analysisService;
         this.practiceRepository = practiceRepository;
+        this.subtitleQualityReviewService = subtitleQualityReviewService;
+        this.questionBank = questionBank;
+        this.preparationService = preparationService;
+        this.ageGate = ageGate;
     }
 
     public CreatePracticeSessionResponse create(long userId, CreatePracticeSessionRequest request) {
         rateLimit(userId);
         Video video = accessibleVideo(userId, request.videoId());
+        Set<Long> blockedSubtitleIds = subtitleQualityReviewService.blockedSubtitleIds(video.getId());
         List<Subtitle> subtitles = subtitleRepository.findByVideoIdOrderBySortOrderAscStartTimeAsc(video.getId())
-                .stream().filter(subtitle -> subtitle.getText() != null && !subtitle.getText().isBlank()).toList();
+                .stream().filter(subtitle -> subtitle.getText() != null && !subtitle.getText().isBlank())
+                .filter(subtitle -> !blockedSubtitleIds.contains(subtitle.getId())).toList();
         if (subtitles.isEmpty()) throw new ApiException(ErrorCode.BAD_REQUEST, "Bài học chưa có phụ đề hợp lệ");
         int requested = request.allQuestions() ? subtitles.size()
                 : Math.min(subtitles.size(), request.questionCount() == null
                 ? DEFAULT_QUESTION_COUNT : request.questionCount());
-        Map<Long, ShadowingExerciseAnalysis> analyses = analysisService.ensureAnalyses(
-                subtitles, requested, request.allQuestions());
-        List<QuestionSeed> available = buildSeeds(subtitles, analyses, request.mode());
+        List<QuestionSeed> available;
+        Map<String, Integer> selectionCounts = null;
+        if (request.mode() == PracticeMode.LISTENING) {
+            boolean pairSelection = request.selections() != null;
+            if (pairSelection ? request.selections().isEmpty() || request.selections().stream().anyMatch(pair -> {
+                    String[] parts = pair == null ? new String[0] : pair.split(":", -1);
+                    return parts.length != 2
+                            || !ShadowingQuestionPreparationService.LEVELS.contains(parts[0])
+                            || !ShadowingQuestionPreparationService.KINDS.contains(parts[1]);
+                }) : request.levels() == null || request.levels().isEmpty()
+                    || !ShadowingQuestionPreparationService.LEVELS.containsAll(request.levels())
+                    || request.kinds() == null || request.kinds().isEmpty()
+                    || !ShadowingQuestionPreparationService.KINDS.containsAll(request.kinds())) {
+                throw new ApiException(ErrorCode.BAD_REQUEST, "Hãy chọn mức và dạng bài tập");
+            }
+            selectionCounts = selectionCounts(request);
+            requested = request.questionCount() == null ? DEFAULT_QUESTION_COUNT : request.questionCount();
+            if (!request.allQuestions() && (requested < 1 || requested > 500)) {
+                throw new ApiException(ErrorCode.BAD_REQUEST, "Số câu phải từ 1 đến 500");
+            }
+            Map<Long, Subtitle> byId = new HashMap<>();
+            subtitles.forEach(subtitle -> byId.put(subtitle.getId(), subtitle));
+            List<PreparedQuestion> preparedPool = new ArrayList<>(preparationService
+                    .validQuestions(video.getId(), subtitles).stream()
+                    .filter(question -> pairSelection
+                            ? request.selections().contains(question.level() + ":" + question.kind())
+                            : request.levels().contains(question.level())
+                                    && request.kinds().contains(question.kind()))
+                    .toList());
+            java.util.Collections.shuffle(preparedPool);
+            List<QuestionSeed> byEnd = new ArrayList<>();
+            for (PreparedQuestion question : preparedPool) {
+                Subtitle subtitle = byId.get(question.subtitleId());
+                if (subtitle == null) continue;
+                byEnd.add(new QuestionSeed(subtitle, null,
+                        question, switch (question.level()) {
+                            case "EASY" -> 25; case "MEDIUM" -> 55; default -> 85;
+                        }));
+            }
+            byEnd.sort(Comparator.comparingDouble(seedItem -> seedItem.prepared().endTime()));
+            if (selectionCounts != null) {
+                // Mỗi "MỨC:DẠNG" có tối đa riêng như màn chọn hiển thị; câu khác dạng trùng đoạn không lấy mất suất của nhau.
+                Map<String, List<QuestionSeed>> byPair = new LinkedHashMap<>();
+                byEnd.forEach(seedItem -> byPair.computeIfAbsent(pairOf(seedItem), ignored -> new ArrayList<>()).add(seedItem));
+                available = new ArrayList<>();
+                for (List<QuestionSeed> group : byPair.values()) available.addAll(nonOverlapping(group));
+            } else {
+                available = nonOverlapping(byEnd);
+            }
+            if (selectionCounts != null) {
+                for (Map.Entry<String, Integer> entry : selectionCounts.entrySet()) {
+                    long ofPair = available.stream().filter(seedItem -> entry.getKey().equals(pairOf(seedItem))).count();
+                    if (entry.getValue() > ofPair) {
+                        throw new ApiException(ErrorCode.BAD_REQUEST, "Mức này chỉ còn " + ofPair
+                                + " câu phù hợp; hãy chọn ít câu hơn");
+                    }
+                }
+                requested = selectionCounts.values().stream().mapToInt(Integer::intValue).sum();
+            }
+            if (!request.allQuestions() && available.size() < requested) {
+                throw new ApiException(ErrorCode.BAD_REQUEST,
+                        "Bộ câu hỏi đã chuẩn bị chỉ có " + available.size() + " câu phù hợp; hãy chọn ít câu hơn hoặc mức khác");
+            }
+        } else {
+            Map<Long, ShadowingExerciseAnalysis> analyses = analysisService.cachedAnalyses(subtitles);
+            available = buildSeeds(subtitles, analyses, request.mode());
+        }
         if (available.isEmpty()) {
             throw new ApiException(ErrorCode.BAD_REQUEST,
                     request.mode() == PracticeMode.CLOZE
@@ -67,13 +149,18 @@ public class ShadowingPracticeService {
         }
         requested = request.allQuestions() ? available.size() : Math.min(requested, available.size());
         long seed = java.util.concurrent.ThreadLocalRandom.current().nextLong();
-        List<QuestionSeed> selected = selectQuestions(available, requested, request.order(), seed);
+        PracticeOrder order = request.mode() == PracticeMode.LISTENING ? PracticeOrder.RANDOM
+                : request.order() == null ? PracticeOrder.PROGRESSIVE : request.order();
+        List<QuestionSeed> selected = request.mode() != PracticeMode.LISTENING
+                ? selectQuestions(available, requested, order, seed)
+                : selectionCounts != null ? stopsPerSelection(available, selectionCounts, seed)
+                : balancedStops(available, requested, seed);
 
         ShadowingPracticeSession session = new ShadowingPracticeSession();
         session.setUserId(userId);
         session.setVideoId(video.getId());
         session.setMode(request.mode());
-        session.setOrder(request.order());
+        session.setOrder(order);
         session.setRequestedCount(requested);
         session.setTotalQuestions(selected.size());
         session.setRandomSeed(seed);
@@ -83,6 +170,7 @@ public class ShadowingPracticeService {
             ShadowingPracticeItem item = new ShadowingPracticeItem();
             item.setSubtitleId(seedItem.subtitle().getId());
             item.setClozeCandidateId(seedItem.candidate() == null ? null : seedItem.candidate().getId());
+            item.setPreparedQuestionId(seedItem.prepared() == null ? null : seedItem.prepared().id());
             item.setPosition(index);
             item.setDifficultyScore(seedItem.difficulty());
             items.add(item);
@@ -96,6 +184,8 @@ public class ShadowingPracticeService {
         ShadowingPracticeSession session = ownedSession(userId, sessionId);
         Video video = videoRepository.findById(session.getVideoId())
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy video"));
+        // A session started before the video got an age rating must not keep serving it.
+        ageGate.requireAllowed(video, userId);
         List<PracticeStopView> stops = practiceRepository.findStops(sessionId);
         if (session.getStatus() == PracticeSessionStatus.COMPLETED
                 || session.getCurrentPosition() >= session.getTotalQuestions()) {
@@ -107,22 +197,40 @@ public class ShadowingPracticeService {
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy phụ đề"));
         ShadowingClozeCandidate candidate = item.getClozeCandidateId() == null
                 ? null : practiceRepository.findCandidate(item.getClozeCandidateId());
+        PreparedQuestion prepared = item.getPreparedQuestionId() == null
+                ? null : questionBank.findById(item.getPreparedQuestionId());
+        requirePreparedQuestion(session, prepared);
         ShadowingPracticeAnswer previous = practiceRepository.findAnswer(item.getId());
         PracticeAnswerResponse previousResponse = previous == null ? null
-                : answerResponse(session.getMode(), subtitle, candidate, previous);
-        String prompt = session.getMode() == PracticeMode.CLOZE && candidate != null
+                : answerResponse(session.getMode(), subtitle, candidate, prepared, previous);
+        String prompt = prepared != null ? prepared.prompt()
+                : session.getMode() == PracticeMode.CLOZE && candidate != null
                 ? mask(subtitle.getText(), candidate) : "";
+        boolean settled = previous != null && previous.getResult() != AnswerResult.INCORRECT;
         PracticeQuestionView question = new PracticeQuestionView(
                 item.getId(), subtitle.getId(), item.getPosition() + 1, session.getTotalQuestions(),
-                item.getDifficultyScore(), difficultyLabel(item.getDifficultyScore()),
-                subtitle.getStartTime(), subtitle.getEndTime(), prompt,
-                previous == null ? null : subtitle.getTranslation(), previous != null, previousResponse);
+                item.getDifficultyScore(), prepared == null ? difficultyLabel(item.getDifficultyScore())
+                        : levelLabel(prepared.level()),
+                prepared == null ? subtitle.getStartTime() : prepared.startTime(),
+                prepared == null ? subtitle.getEndTime() : prepared.endTime(), prompt,
+                settled ? subtitle.getTranslation() : null, settled, previousResponse,
+                prepared == null ? null : prepared.kind(), prepared == null ? null : prepared.level(),
+                prepared == null ? List.of() : shuffledChoices(prepared.choices(), sessionId, item.getId()),
+                settled && prepared != null ? prepared.explanation() : null);
         return sessionView(session, video, stops, question);
+    }
+
+    static List<String> shuffledChoices(List<String> choices, long sessionId, long itemId) {
+        if (choices.size() < 2) return choices;
+        List<String> shuffled = new ArrayList<>(choices);
+        long seed = Long.rotateLeft(sessionId, 21) ^ Long.rotateLeft(itemId, 7);
+        Collections.shuffle(shuffled, new Random(seed));
+        return shuffled;
     }
 
     @Transactional
     public PracticeAnswerResponse submit(long userId, long sessionId, SubmitPracticeAnswerRequest request) {
-        ShadowingPracticeSession session = ownedSession(userId, sessionId);
+        ShadowingPracticeSession session = lockedSession(userId, sessionId);
         if (session.getStatus() == PracticeSessionStatus.COMPLETED) {
             throw new ApiException(ErrorCode.CONFLICT, "Phiên học đã hoàn thành");
         }
@@ -131,55 +239,142 @@ public class ShadowingPracticeService {
             throw new ApiException(ErrorCode.CONFLICT, "Câu trả lời không thuộc câu đang học");
         }
         ShadowingPracticeAnswer existing = practiceRepository.findAnswer(item.getId());
-        if (existing != null) throw new ApiException(ErrorCode.CONFLICT, "Câu này đã được chấm");
+        if (existing != null && existing.getResult() != AnswerResult.INCORRECT) {
+            throw new ApiException(ErrorCode.CONFLICT, "Câu này đã hoàn thành");
+        }
         Subtitle subtitle = subtitleRepository.findById(item.getSubtitleId())
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy phụ đề"));
         ShadowingClozeCandidate candidate = item.getClozeCandidateId() == null
                 ? null : practiceRepository.findCandidate(item.getClozeCandidateId());
-        String expected = session.getMode() == PracticeMode.CLOZE && candidate != null
+        PreparedQuestion prepared = item.getPreparedQuestionId() == null
+                ? null : questionBank.findById(item.getPreparedQuestionId());
+        requirePreparedQuestion(session, prepared);
+        String expected = prepared != null ? prepared.answer()
+                : session.getMode() == PracticeMode.CLOZE && candidate != null
                 ? candidate.getAnswerText() : subtitle.getText();
-        JapaneseAnswerMatcher.MatchResult match = session.getMode() == PracticeMode.CLOZE && candidate != null
-                ? JapaneseAnswerMatcher.matchCloze(subtitle.getText(), subtitle.getFurigana(), expected,
-                candidate.getReadingText(), candidate.getOccurrenceIndex(), request.answer())
-                : JapaneseAnswerMatcher.matchSentence(expected, subtitle.getFurigana(), request.answer());
-        String expectedNormalized = match.normalizedExpected();
-        String userNormalized = match.normalizedActual();
+        if (prepared != null && !"GAP".equals(prepared.kind())
+                && !prepared.choices().contains(request.answer().strip())) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Hãy chọn một đáp án trong các lựa chọn");
+        }
+        JapaneseAnswerMatcher.MatchResult match = matchAnswer(session.getMode(), subtitle, candidate,
+                prepared, request.answer());
+        String expectedNormalized = match == null ? normalizeAnswer(expected) : match.normalizedExpected();
+        String userNormalized = match == null ? normalizeAnswer(request.answer()) : match.normalizedActual();
+        boolean correct = match == null ? expected.equals(request.answer().strip()) : match.isCorrect();
 
         AnswerResult result;
         int score;
         String feedback;
-        if (match.isCorrect()) {
+        if (correct) {
             result = AnswerResult.CORRECT;
             score = 100;
-            feedback = match.usesEquivalentWriting()
-                    ? "Chính xác. Cách viết Kanji/kana của bạn khác câu mẫu nhưng có cùng cách đọc."
+            feedback = prepared != null && !"GAP".equals(prepared.kind())
+                    ? "Chính xác. Bạn đã hiểu đúng nội dung đoạn nghe."
+                    : match != null && match.usesEquivalentWriting()
+                    ? "Chính xác. Đáp án của bạn có cùng cách đọc với câu mẫu."
                     : "Chính xác. Bạn đã nghe và viết đúng nội dung câu.";
         } else {
             result = AnswerResult.INCORRECT;
-            score = match.score();
-            feedback = firstDifferenceFeedback(expectedNormalized, userNormalized);
+            score = match == null ? 0 : match.score();
+            feedback = prepared != null && !"GAP".equals(prepared.kind())
+                    ? "Lựa chọn này chưa đúng. Nghe lại đoạn hội thoại rồi thử tiếp."
+                    : "Bạn đã nghe đúng một phần. Xem chữ xanh, nghe lại phần chữ đỏ rồi thử tiếp.";
         }
         ShadowingPracticeAnswer answer = new ShadowingPracticeAnswer();
         answer.setPracticeItemId(item.getId());
-        answer.setAttemptNumber(1);
+        answer.setAttemptNumber(existing == null ? 1 : existing.getAttemptNumber() + 1);
         answer.setUserAnswer(request.answer().strip());
         answer.setNormalizedAnswer(userNormalized);
         answer.setResult(result);
         answer.setScore(score);
         answer.setFeedback(feedback);
         practiceRepository.insertAnswer(answer);
-        practiceRepository.addSessionScore(sessionId, score, result == AnswerResult.CORRECT);
-        return new PracticeAnswerResponse(result, score, feedback, expected, request.answer().strip(),
-                subtitle.getTranslation(), answerDifferences(result, expectedNormalized, userNormalized));
+        if (result == AnswerResult.CORRECT) practiceRepository.addSessionScore(sessionId, score, true);
+        return new PracticeAnswerResponse(result, score, feedback,
+                result == AnswerResult.CORRECT ? expected : null, request.answer().strip(),
+                result == AnswerResult.CORRECT ? subtitle.getTranslation() : null,
+                result == AnswerResult.CORRECT
+                        ? answerDifferences(result, expectedNormalized, userNormalized)
+                        : concealedDifferences(match),
+                result == AnswerResult.CORRECT && prepared != null ? prepared.explanation() : null);
+    }
+
+    private static JapaneseAnswerMatcher.MatchResult matchAnswer(PracticeMode mode, Subtitle subtitle,
+            ShadowingClozeCandidate candidate, PreparedQuestion prepared, String actual) {
+        if (prepared != null) {
+            return "GAP".equals(prepared.kind()) ? matchPreparedGap(prepared, subtitle, actual) : null;
+        }
+        return mode == PracticeMode.CLOZE && candidate != null
+                ? JapaneseAnswerMatcher.matchCloze(subtitle.getText(), subtitle.getFurigana(), candidate.getAnswerText(),
+                candidate.getReadingText(), candidate.getOccurrenceIndex(), actual)
+                : JapaneseAnswerMatcher.matchSentence(subtitle.getText(), subtitle.getFurigana(), actual);
+    }
+
+    static JapaneseAnswerMatcher.MatchResult matchPreparedGap(PreparedQuestion question, Subtitle subtitle,
+                                                               String actual) {
+        String spoken = QuestionTranscript.spoken(subtitle.getText());
+        String reading = QuestionTranscript.spoken(subtitle.getFurigana());
+        if ("HARD".equals(question.level()) || QuestionTranscript.sentenceKey(question.answer())
+                .equals(QuestionTranscript.sentenceKey(spoken))) {
+            return JapaneseAnswerMatcher.matchSentence(question.answer(), reading, actual);
+        }
+        return JapaneseAnswerMatcher.matchCloze(spoken, reading, question.answer(), "", question.occurrence(), actual);
+    }
+
+    /** What a learner may type in kana for this GAP question; null when its kanji could only be typed as kanji. */
+    static String preparedGapReading(String level, String answer, int occurrence, Subtitle subtitle) {
+        String spoken = QuestionTranscript.spoken(subtitle.getText());
+        String reading = QuestionTranscript.spoken(subtitle.getFurigana());
+        if ("HARD".equals(level) || QuestionTranscript.sentenceKey(answer)
+                .equals(QuestionTranscript.sentenceKey(spoken))) {
+            return JapaneseAnswerMatcher.sentenceReading(answer, reading);
+        }
+        return JapaneseAnswerMatcher.clozeReading(spoken, reading, answer, occurrence);
+    }
+
+    @Transactional
+    public PracticeAnswerResponse reveal(long userId, long sessionId) {
+        ShadowingPracticeSession session = lockedSession(userId, sessionId);
+        if (session.getStatus() == PracticeSessionStatus.COMPLETED) {
+            throw new ApiException(ErrorCode.CONFLICT, "Phiên học đã hoàn thành");
+        }
+        ShadowingPracticeItem item = practiceRepository.findItem(sessionId, session.getCurrentPosition());
+        if (item == null) throw new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy câu hiện tại");
+        ShadowingPracticeAnswer previous = practiceRepository.findAnswer(item.getId());
+        if (previous == null || previous.getResult() != AnswerResult.INCORRECT) {
+            throw new ApiException(ErrorCode.CONFLICT, "Hãy thử trả lời trước khi hiện đáp án");
+        }
+        Subtitle subtitle = subtitleRepository.findById(item.getSubtitleId())
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy phụ đề"));
+        ShadowingClozeCandidate candidate = item.getClozeCandidateId() == null
+                ? null : practiceRepository.findCandidate(item.getClozeCandidateId());
+        PreparedQuestion prepared = item.getPreparedQuestionId() == null
+                ? null : questionBank.findById(item.getPreparedQuestionId());
+        requirePreparedQuestion(session, prepared);
+        String expected = prepared != null ? prepared.answer()
+                : session.getMode() == PracticeMode.CLOZE && candidate != null
+                ? candidate.getAnswerText() : subtitle.getText();
+        ShadowingPracticeAnswer revealed = new ShadowingPracticeAnswer();
+        revealed.setPracticeItemId(item.getId());
+        revealed.setAttemptNumber(previous.getAttemptNumber() + 1);
+        revealed.setUserAnswer(previous.getUserAnswer());
+        revealed.setNormalizedAnswer(previous.getNormalizedAnswer());
+        revealed.setResult(AnswerResult.REVEALED);
+        revealed.setScore(previous.getScore());
+        revealed.setFeedback("Đã hiện đáp án. Hãy nghe lại câu trước khi tiếp tục.");
+        practiceRepository.insertAnswer(revealed);
+        practiceRepository.addSessionScore(sessionId, previous.getScore(), false);
+        return answerResponse(session.getMode(), subtitle, candidate, prepared, revealed);
     }
 
     @Transactional
     public PracticeSessionView next(long userId, long sessionId) {
-        ShadowingPracticeSession session = ownedSession(userId, sessionId);
+        ShadowingPracticeSession session = lockedSession(userId, sessionId);
         if (session.getStatus() == PracticeSessionStatus.COMPLETED) return get(userId, sessionId);
         ShadowingPracticeItem current = practiceRepository.findItem(sessionId, session.getCurrentPosition());
-        if (current == null || practiceRepository.findAnswer(current.getId()) == null) {
-            throw new ApiException(ErrorCode.CONFLICT, "Hãy kiểm tra đáp án trước khi sang câu tiếp theo");
+        ShadowingPracticeAnswer answer = current == null ? null : practiceRepository.findAnswer(current.getId());
+        if (answer == null || answer.getResult() == AnswerResult.INCORRECT) {
+            throw new ApiException(ErrorCode.CONFLICT, "Hãy trả lời đúng hoặc chọn hiện đáp án trước khi tiếp tục");
         }
         int nextPosition = session.getCurrentPosition() + 1;
         practiceRepository.moveTo(sessionId, nextPosition, nextPosition >= session.getTotalQuestions());
@@ -193,7 +388,14 @@ public class ShadowingPracticeService {
         boolean publicReady = video.getStatus() == VideoStatus.READY
                 && (video.getVisibility() == null || video.getVisibility() == VideoVisibility.PUBLIC);
         if (!owner && !publicReady) throw new ApiException(ErrorCode.FORBIDDEN, "Bạn không có quyền học video này");
+        ageGate.requireAllowed(video, userId);
         return video;
+    }
+
+    /** Video of one of the learner's sessions, so the exercise page can run the age-rating check. */
+    public Optional<Long> ownedSessionVideoId(long userId, long sessionId) {
+        return Optional.ofNullable(practiceRepository.findOwnedSession(sessionId, userId))
+                .map(ShadowingPracticeSession::getVideoId);
     }
 
     private ShadowingPracticeSession ownedSession(long userId, long sessionId) {
@@ -216,7 +418,7 @@ public class ShadowingPracticeService {
                 if (candidate == null || candidate.getId() == null) continue;
                 difficulty = clampScore((analysis.getSentenceDifficulty() + candidate.getDifficultyScore()) / 2);
             }
-            result.add(new QuestionSeed(subtitle, candidate, difficulty));
+            result.add(new QuestionSeed(subtitle, candidate, null, difficulty));
         }
         return result;
     }
@@ -391,18 +593,127 @@ public class ShadowingPracticeService {
         return differences(expected, actual);
     }
 
+    /**
+     * Số câu theo từng mức của từng dạng ("MỨC:DẠNG" → số câu; bỏ lựa chọn 0 câu); null khi không gửi để giữ
+     * cách chọn trải đều cũ.
+     */
+    private static Map<String, Integer> selectionCounts(CreatePracticeSessionRequest request) {
+        if (request.selectionCounts() == null || request.selectionCounts().isEmpty()) return null;
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        request.selectionCounts().forEach((pair, count) -> {
+            String[] parts = pair == null ? new String[0] : pair.split(":", -1);
+            if (parts.length != 2 || !ShadowingQuestionPreparationService.LEVELS.contains(parts[0])
+                    || !ShadowingQuestionPreparationService.KINDS.contains(parts[1])
+                    || count == null || count < 0 || count > 500) {
+                throw new ApiException(ErrorCode.BAD_REQUEST, "Số câu của từng mức không hợp lệ");
+            }
+            if (count > 0) counts.put(pair, count);
+        });
+        int total = counts.values().stream().mapToInt(Integer::intValue).sum();
+        if (total < 1 || total > 500) throw new ApiException(ErrorCode.BAD_REQUEST, "Tổng số câu phải từ 1 đến 500");
+        return counts;
+    }
+
+    private static String pairOf(QuestionSeed question) {
+        return question.prepared().level() + ":" + question.prepared().kind();
+    }
+
+    /** Giữ các câu không chồng thời gian, ưu tiên câu kết thúc sớm (đầu vào đã xếp theo endTime). */
+    private static List<QuestionSeed> nonOverlapping(List<QuestionSeed> byEnd) {
+        List<QuestionSeed> result = new ArrayList<>();
+        double lastEnd = Double.NEGATIVE_INFINITY;
+        for (QuestionSeed seedItem : byEnd) {
+            if (seedItem.prepared().startTime() >= lastEnd) {
+                result.add(seedItem);
+                lastEnd = seedItem.prepared().endTime();
+            }
+        }
+        return result;
+    }
+
+    private static boolean overlaps(QuestionSeed left, QuestionSeed right) {
+        return left.prepared().startTime() < right.prepared().endTime()
+                && right.prepared().startTime() < left.prepared().endTime();
+    }
+
+    /**
+     * Lấy ngẫu nhiên đúng số câu của từng mức trong từng dạng, ưu tiên câu không trùng đoạn với dạng khác đã lấy
+     * (vẫn đủ số câu khi buộc phải trùng), rồi xếp theo thời gian trong video.
+     */
+    private static List<QuestionSeed> stopsPerSelection(List<QuestionSeed> available, Map<String, Integer> counts, long seed) {
+        Random random = new Random(seed);
+        List<QuestionSeed> selected = new ArrayList<>();
+        counts.forEach((pair, count) -> {
+            List<QuestionSeed> pool = new ArrayList<>(available.stream()
+                    .filter(question -> pair.equals(pairOf(question))).toList());
+            java.util.Collections.shuffle(pool, random);
+            pool.sort(Comparator.comparing(question -> selected.stream().anyMatch(taken -> overlaps(taken, question))));
+            selected.addAll(pool.subList(0, Math.min(count, pool.size())));
+        });
+        selected.sort(Comparator.comparingDouble(question -> question.subtitle().getStartTime()));
+        return selected;
+    }
+
+    private static List<QuestionSeed> balancedStops(List<QuestionSeed> available, int count, long seed) {
+        Map<String, List<QuestionSeed>> buckets = new LinkedHashMap<>();
+        for (QuestionSeed question : available) {
+            String key = question.prepared().level() + ":"
+                    + ("GAP".equals(question.prepared().kind()) ? "GAP" : "COMPREHENSION");
+            buckets.computeIfAbsent(key, ignored -> new ArrayList<>()).add(question);
+        }
+        Random random = new Random(seed);
+        buckets.values().forEach(bucket -> java.util.Collections.shuffle(bucket, random));
+        List<QuestionSeed> selected = new ArrayList<>();
+        while (selected.size() < count) {
+            boolean added = false;
+            for (List<QuestionSeed> bucket : buckets.values()) {
+                if (bucket.isEmpty() || selected.size() >= count) continue;
+                selected.add(bucket.remove(bucket.size() - 1));
+                added = true;
+            }
+            if (!added) break;
+        }
+        selected.sort(Comparator.comparingDouble(question -> question.subtitle().getStartTime()));
+        return selected;
+    }
+
+    private ShadowingPracticeSession lockedSession(long userId, long sessionId) {
+        ShadowingPracticeSession session = practiceRepository.lockOwnedSession(sessionId, userId);
+        if (session == null) throw new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy phiên học");
+        return session;
+    }
+
+    private static void requirePreparedQuestion(ShadowingPracticeSession session,
+                                                PreparedQuestion prepared) {
+        if (session.getMode() == PracticeMode.LISTENING && prepared == null) {
+            throw new ApiException(ErrorCode.NOT_FOUND,
+                    "Câu hỏi đã chuẩn bị không còn tồn tại. Vui lòng tạo phiên học mới.");
+        }
+    }
+
+    private static List<PracticeDiffPart> concealedDifferences(JapaneseAnswerMatcher.MatchResult match) {
+        if (match == null) return List.of();
+        return match.feedback().stream().map(part ->
+                new PracticeDiffPart(part.matched() ? "MATCH" : "MASK", "", part.text())).toList();
+    }
+
     private static String codePoint(int value) {
         return new String(Character.toChars(value));
     }
 
     private PracticeAnswerResponse answerResponse(PracticeMode mode, Subtitle subtitle,
-            ShadowingClozeCandidate candidate, ShadowingPracticeAnswer answer) {
-        String expected = mode == PracticeMode.CLOZE && candidate != null
+            ShadowingClozeCandidate candidate, PreparedQuestion prepared, ShadowingPracticeAnswer answer) {
+        String expected = prepared != null ? prepared.answer()
+                : mode == PracticeMode.CLOZE && candidate != null
                 ? candidate.getAnswerText() : subtitle.getText();
         String expectedNormalized = normalizeAnswer(expected);
+        boolean settled = answer.getResult() != AnswerResult.INCORRECT;
         return new PracticeAnswerResponse(answer.getResult(), answer.getScore(), answer.getFeedback(),
-                expected, answer.getUserAnswer(), subtitle.getTranslation(),
-                answerDifferences(answer.getResult(), expectedNormalized, answer.getNormalizedAnswer()));
+                settled ? expected : null, answer.getUserAnswer(),
+                settled ? subtitle.getTranslation() : null,
+                settled ? answerDifferences(answer.getResult(), expectedNormalized, answer.getNormalizedAnswer())
+                        : concealedDifferences(matchAnswer(mode, subtitle, candidate, prepared, answer.getUserAnswer())),
+                settled && prepared != null ? prepared.explanation() : null);
     }
 
     private static PracticeSessionView sessionView(
@@ -440,10 +751,19 @@ public class ShadowingPracticeService {
         return "Rất khó";
     }
 
+    private static String levelLabel(String level) {
+        return switch (level) {
+            case "EASY" -> "Dễ";
+            case "MEDIUM" -> "Vừa";
+            default -> "Khó";
+        };
+    }
+
     private static int clampScore(int value) {
         return Math.max(0, Math.min(100, value));
     }
 
-    private record QuestionSeed(Subtitle subtitle, ShadowingClozeCandidate candidate, int difficulty) {
+    private record QuestionSeed(Subtitle subtitle, ShadowingClozeCandidate candidate,
+                                PreparedQuestion prepared, int difficulty) {
     }
 }

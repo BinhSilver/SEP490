@@ -1,0 +1,93 @@
+/* Hallmark · pre-emit critique: P4 H5 E5 S4 R5 V4
+ * A compact subject directory; names lead, counts stay secondary.
+ */
+/* Use the website palette for the scenario directory in both themes. */
+.aicall-topic-list,
+html[data-theme="dark"] .aicall-topic-list {
+  --tree-paper: var(--color-surface-low);
+  --tree-grid: var(--color-outline-variant);
+  --tree-node: var(--color-surface-lowest);
+  --tree-ink: var(--color-on-surface);
+  --tree-muted: var(--color-secondary);
+  --tree-accent: var(--color-primary);
+  --tree-line: var(--color-secondary-fixed-dim);
+  --tree-border: var(--color-outline-variant);
+  --tree-tint: var(--color-secondary-container);
+  --tree-shadow: var(--shadow-1);
+  color: var(--tree-ink);
+}
+.aicall-topic-list .page-header { padding: 20px 0 24px; }
+.aicall-topic-list .page-header h1 { margin: 10px 0 0; color: var(--tree-ink); font-family: var(--font-body); font-size: clamp(1.75rem, 3vw, 2.25rem); line-height: 1.35; overflow-wrap: anywhere; }
+.aicall-topic-list .topics-back { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-size: .875rem; font-weight: 600; color: var(--tree-accent); }
+.aicall-topic-list .topics-back:hover { text-decoration: underline; text-underline-offset: 4px; }
+.aicall-topic-list .topics-section { padding-bottom: 48px; }
+.aicall-topic-list .topics-list { list-style: none; margin: 0; padding: 0; background: var(--tree-node); border: 1px solid var(--tree-border); border-radius: 16px; }
+.aicall-topic-list .topics-list > li + li { border-top: 1px solid var(--tree-border); }
+.aicall-topic-list .topic-row { display: grid; grid-template-columns: 46px minmax(0, 1fr) 100px 12px; align-items: center; gap: 20px; padding: 14px 20px; min-height: 78px; color: var(--tree-ink); text-decoration: none; transition: background-color 160ms ease; }
+.aicall-topic-list .topics-list > li:first-child .topic-row { border-radius: 15px 15px 0 0; }
+.aicall-topic-list .topics-list > li:last-child .topic-row { border-radius: 0 0 15px 15px; }
+.aicall-topic-list .topic-row:hover, .aicall-topic-list .topic-row:active { background: var(--tree-tint); }
+.aicall-topic-list :is(.topic-row, .topics-back):focus-visible { outline: 3px solid var(--tree-accent); outline-offset: 3px; }
+.aicall-topic-list .topic-icon { display: grid; place-items: center; width: 46px; height: 46px; background: var(--tree-tint); color: var(--tree-accent); border-radius: 12px; font-size: 1.2rem; }
+.aicall-topic-list .topic-labels { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 200px); align-items: center; gap: 20px; min-width: 0; }
+.aicall-topic-list .topic-labels h2 { margin: 0; font-family: var(--font-body); font-size: 1.0625rem; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+.aicall-topic-list .topic-japanese { color: var(--tree-muted); font-family: var(--font-jp); font-size: .9375rem; line-height: 1.6; }
+.aicall-topic-list .topic-count { font-size: .8125rem; color: var(--tree-muted); text-align: right; white-space: nowrap; }
+.aicall-topic-list .topic-arrow { color: var(--tree-accent); font-size: .75rem; }
+.aicall-topic-list .topics-empty { padding: 24px; border: 1px solid var(--tree-border); border-radius: 12px; background: var(--tree-node); line-height: 1.6; }
+.topic-accordion > summary { cursor: pointer; list-style: none; }
+.topic-accordion > summary::-webkit-details-marker { display: none; }
+.topic-accordion > summary::marker { content: ''; }
+.topic-accordion[open] .topic-arrow { transform: rotate(90deg); }
+.aicall-topic-list .topic-scenarios { margin: 0; padding: 4px 20px 16px 86px; list-style: none; }
+.aicall-topic-list .topic-scenarios > li + li { border-top: 1px solid var(--tree-border); }
+.aicall-topic-list .topic-scenario-link { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 56px; padding: 12px; border-radius: 8px; text-decoration: none; color: var(--tree-ink); font-size: .9375rem; line-height: 1.5; }
+.aicall-topic-list .topic-scenario-link:hover { background: var(--tree-tint); }
+.aicall-topic-list .topic-scenario-link > i { color: var(--tree-accent); }
+.aicall-topic-list .topic-scenario-title { font-weight: 600; overflow-wrap: anywhere; }
+.aicall-topic-list .topic-scenario-level { font-size: .8125rem; color: var(--tree-muted); }
+.aicall-topic-list :is(summary, .topic-scenario-link):focus-visible { outline: 3px solid var(--tree-accent); outline-offset: -3px; }
+.aicall-topic-list .scenario-directory .topic-scenario-link { padding: 20px; min-height: 76px; }
+@media(max-width:480px) { .aicall-topic-list .topic-scenarios { padding: 4px 10px 12px; } .aicall-topic-list .topic-scenario-link { gap: 10px; } }
+@media (max-width: 768px) {
+  .aicall-topic-list .topic-labels { grid-template-columns: minmax(0, 1fr); gap: 3px; }
+}
+@media (max-width: 480px) {
+  .aicall-topic-list .page-header { padding-top: 8px; }
+  .aicall-topic-list .topic-row { grid-template-columns: 40px minmax(0, 1fr) 12px; gap: 3px 12px; padding: 14px; }
+  .aicall-topic-list .topic-icon { width: 40px; height: 40px; font-size: 1.1rem; grid-column: 1; grid-row: 1 / 3; }
+  .aicall-topic-list .topic-labels { grid-column: 2; grid-row: 1; }
+  .aicall-topic-list .topic-labels h2 { font-size: 1rem; }
+  .aicall-topic-list .topic-japanese { font-size: .875rem; }
+  .aicall-topic-list .topic-count { grid-column: 2; grid-row: 2; text-align: left; }
+  .aicall-topic-list .topic-arrow { grid-column: 3; grid-row: 1 / 3; }
+}
+
+/* Page-owned dark mode: css/aicall-catalog.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-ai-bg: var(--dark-bg);
+  --dm-ai-surface: var(--dark-surface);
+  --dm-ai-raised: var(--dark-raised);
+  --dm-ai-ink: var(--dark-ink);
+  --dm-ai-muted: var(--dark-muted);
+  --dm-ai-line: var(--dark-line);
+  --dm-ai-accent: var(--dark-accent);
+  --dm-ai-action: var(--dark-button);
+  --dm-ai-accent-soft: var(--dark-soft);
+  --dm-ai-on-accent: var(--dark-on-button);
+  --dm-ai-success: var(--dark-success);
+  --dm-ai-success-bg: var(--dark-success-bg);
+  --dm-ai-success-line: var(--dark-success-line);
+  --dm-ai-danger: var(--dark-danger);
+  --dm-ai-danger-bg: var(--dark-danger-bg);
+  --dm-ai-danger-line: var(--dark-danger-line);
+  --dm-ai-warning: var(--dark-warning);
+  --dm-ai-warning-bg: var(--dark-warning-bg);
+  --dm-ai-warning-line: var(--dark-warning-line);
+  --dm-ai-pink: var(--dark-pink);
+  --dm-ai-pink-bg: var(--dark-pink-bg);
+  --dm-ai-pink-line: var(--dark-pink-line);
+}
+

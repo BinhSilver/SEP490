@@ -1,0 +1,581 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "三十歳にして初めて外国へ行った。",
+       "ja_furigana": "三十歳(さんじゅっさい)にして初(はじ)めて外国(がいこく)へ行(い)った。",
+       "vi": "Mãi đến 30 tuổi tôi mới lần đầu ra nước ngoài."
+      },
+      {
+       "ja": "二度目にしてようやく試験に合格した。",
+       "ja_furigana": "二度目(にどめ)にしてようやく試験(しけん)に合格(ごうかく)した。",
+       "vi": "Chỉ đến lần thứ hai tôi mới đỗ kỳ thi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "五十歳にして初めて海を見た。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mãi đến 50 tuổi tôi mới lần đầu thấy biển."
+     },
+     {
+      "ja": "三度目にしてようやく合格した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ đến lần thứ ba tôi mới đỗ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 五十歳にして初めて海を見た。",
+     "FURIGANA_MISSING: 三度目にしてようやく合格した。"
+    ],
+    "formation": "N + にして初めて; 数量 + にして",
+    "locked_fields": [],
+    "meaning_vi": "Thời điểm/tuổi: nhấn muộn, hiếm, bất ngờ (五十歳にして, 三度目にして). Giới hạn năng lực: nhấn “chỉ ở mức/địa vị đó mới có thể” (専門家にして初めて～). Đồng thời hai thân phận: văn viết trang trọng để mô tả người/cơ quan có hai vai trò (医師にして作家). Dạng にしてなお thêm nghĩa nhượng bộ ＝ “ngay cả đến nay vẫn…”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Ở... mới...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng/văn viết; tạo ấn tượng nhấn mạnh, kịch tính nhẹ. Với “tuổi/lần”: diễn sự muộn/mất nhiều lần mới đạt; hay đi cùng ようやく/初めて. Với “giới hạn”: thường có 初めて để nhấn “chỉ khi… mới…”. Với “AにしてB”: hai danh từ nên có vị thế tương đương/đáng nể. [6. Ghi chú mở rộng] “AにしてB” thường dùng trong tiêu đề/giới thiệu: 世界的ピアニストにして作曲家のX氏. “Nにして初めて” là công thức gần như cố định trong sách học thuật/bài luận. “今日にしてなお/今にしてなお” dùng trong báo chí để nhấn “đến nay vẫn…”. Tránh lạm dụng trong nói chuyện đời thường vì nghe kiểu cách. [7. Biến thể & cụm cố định] N + にして初めて V（分かる・見える・成り立つ） N1 + にして + N2（医師にして研究者／教師にして作家） 今日にしてなお／今にしてなお／今さらにして 三度目にして／N回目にして／七年目にして [8. Lỗi thường gặp & bẫy JLPT] Nhầm với になって: にして mang sắc thái trang trọng và bất ngờ; になって trung tính. Dùng “AにしてB” cho hai danh từ không tương xứng → nghe gượng: × 学生にして社長 (trừ trường hợp đặc biệt). Bỏ “初めて” ở mẫu giới hạn làm nghĩa yếu: 専門家にして理解できる → vẫn đúng nhưng thường thi thích “初めて”. Dùng với động từ trực tiếp: にして đi với danh từ; cần danh hóa khi cần."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8e7f4287fc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "赤ちゃんが泣きやんだかと思いきや、すぐまた泣き出した。",
+       "ja_furigana": "赤(あか)ちゃんが泣(な)きやんだかと思(おも)いきや、すぐまた泣(な)き出(だ)した。",
+       "vi": "Tưởng em bé đã nín khóc, ai ngờ lại khóc tiếp ngay."
+      },
+      {
+       "ja": "今日は晴れるかと思いきや、昼から雨になった。",
+       "ja_furigana": "今日(きょう)は晴(は)れるかと思(おも)いきや、昼(ひる)から雨(あめ)になった。",
+       "vi": "Tưởng hôm nay nắng, ai dè từ trưa lại đổ mưa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "雨がやんだかと思いきや、すぐまた降り出した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tưởng mưa đã tạnh, ai ngờ lại đổ xuống ngay."
+     },
+     {
+      "ja": "今日は楽かと思いきや、むしろ忙しかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tưởng hôm nay thảnh thơi, ai dè còn bận hơn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 雨がやんだかと思いきや、すぐまた降り出した。",
+     "FURIGANA_MISSING: 今日は楽かと思いきや、むしろ忙しかった。"
+    ],
+    "formation": "普通形 + かと思いきや",
+    "locked_fields": [],
+    "meaning_vi": "～かと思いきや diễn tả “tưởng là/ ngỡ là … nhưng (thực tế) lại …”, nhấn mạnh sự trái ngược với dự đoán hoặc dấu hiệu ban đầu. Sắc thái văn viết, tiêu đề báo chí, kể chuyện. X thường là căn cứ để dự đoán; Y là kết quả trái ngược, gây bất ngờ. Không dùng cho hành vi có chủ ý của người nói theo kiểu ra lệnh/ý định. Thường đi cùng trạng ngữ thời gian/bối cảnh: ところが・しかし.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tưởng là... ai ngờ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Văn phong trang trọng/hài hước nhẹ trong tường thuật; hợp tiêu đề: 順調かと思いきや…. Không dùng khi Y không trái ngược mà chỉ là kế tiếp bình thường. X có thể là cảm nhận chủ quan hoặc dấu hiệu khách quan; Y phủ định kỳ vọng đó. [6. Ghi chú mở rộng] “きや” trong 思いきや là dạng cố định; không chia 思う ở đây. Thường dùng với Vた để gợi cảm giác “vừa mới tưởng là…”. Hiệu quả tu từ: tạo cú “bẻ lái” trong câu chuyện, phù hợp viết luận, dẫn dắt bài báo. [7. Biến thể & cụm cố định] Cụm báo chí: 順調かと思いきや一転…／安心かと思いきや…. Biến thể gần nghĩa: ～と思いきや (ít dùng hơn; có “か” là chuẩn). Đi kèm trạng ngữ đối lập: しかし／ところが／一方で. [8. Lỗi thường gặp & bẫy JLPT] Dùng cho quan hệ thời gian thông thường → sai; mẫu này cần “kết quả trái ngược”. Bỏ である trước danh từ/na-tính từ: phải nói N/na + である + かと思いきや. Gắn yêu cầu/mệnh lệnh sau ～かと思いきや là không tự nhiên trong thi JLPT."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cb8b0ebf58"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は部屋を行きつ戻りつしながら、考え事をしていた。",
+       "ja_furigana": "彼(かれ)は部屋(へや)を行(い)きつ戻(もど)りつしながら、考(かんが)え事(ごと)をしていた。",
+       "vi": "Anh ấy đi đi lại lại trong phòng và suy nghĩ."
+      },
+      {
+       "ja": "湖に浮きつ沈みつする落ち葉が見えた。",
+       "ja_furigana": "湖(みずうみ)に浮(う)きつ沈(しず)みつする落(お)ち葉(ば)が見(み)えた。",
+       "vi": "Thấp thoáng thấy chiếc lá rụng lúc nổi lúc chìm trên mặt hồ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "係員が会場を行きつ戻りつして、準備を確認している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân viên đi tới đi lui trong hội trường để kiểm tra khâu chuẩn bị."
+     },
+     {
+      "ja": "波に浮きつ沈みつする小舟が見えた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thấp thoáng thấy chiếc thuyền con lúc nổi lúc chìm theo sóng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 係員が会場を行きつ戻りつして、準備を確認している。",
+     "FURIGANA_MISSING: 波に浮きつ沈みつする小舟が見えた。"
+    ],
+    "formation": "Vます + つ + Vます + つ",
+    "locked_fields": [],
+    "meaning_vi": "Mẫu ～つ～つ diễn tả hai hành động/trạng thái luân phiên, qua lại nhiều lần, tạo cảm giác nhịp nhàng như sóng. Thường dùng trong văn viết, phong vị văn học/cổ điển. Tập trung vào sự luân phiên cân bằng giữa hai vế (đẩy-kéo, đi-về, nổi-chìm...). Thường dùng với cặp động từ trái nghĩa hoặc đối ứng tự nhiên. Có thể diễn tả cả hành động chủ ý lẫn hiện tượng tự nhiên. Nhiều trường hợp là cụm cố định, không thể thay động từ tùy thích.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vừa... vừa... (lặp)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng, văn viết; giao tiếp thường ngày hiếm trừ cụm cố định. Nhấn vào sự lặp đi lặp lại có tính cân xứng và kéo dài. Thường đứng trước する hoặc làm bổ nghĩa danh từ (～のN). Nếu tự đặt cặp động từ, nên chọn cặp nghĩa đối hoặc hai mặt của cùng hoạt động. [6. Ghi chú mở rộng] Các cụm như 持ちつ持たれつ, 抜きつ抜かれつ rất thường gặp trong báo chí/thể thao. Có thể theo sau bằng している／していた để chỉ tình trạng kéo dài. Tránh gắn với tính từ; mẫu này dành cho động từ. Hiệu quả phong cách: tạo nhịp điệu, giàu hình ảnh. Dùng hợp trong văn thuyết minh, miêu tả. [7. Biến thể & cụm cố định] 行きつ戻りつ／押しつ引きつ／浮きつ沈みつ／読みつ書きつ 抜きつ抜かれつ（のN） 持ちつ持たれつ（の関係） 上げつ下げつ（相場の上下を表す） [8. Lỗi thường gặp & bẫy JLPT] Dùng nguyên dạng từ điển thay vì liên dụng hình (sai: 行くつ戻るつ → đúng: 行きつ戻りつ). Tự ý ghép những động từ không tạo cặp đối ứng tự nhiên → nghe gượng gạo. Dùng trong khẩu ngữ bình dân → không tự nhiên (trừ cụm cố định). Nhầm với VてはV: tuy đều là lặp lại, nhưng sắc thái và hình thức khác."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f37f4da735"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "現場の状況に即して、対応を決めてください。",
+       "ja_furigana": "現場(げんば)の状況(じょうきょう)に即(そく)して、対応(たいおう)を決(き)めてください。",
+       "vi": "Hãy quyết định cách xử lý dựa theo tình hình thực tế tại hiện trường."
+      },
+      {
+       "ja": "予算に即して、計画を見直すべきだ。",
+       "ja_furigana": "予算(よさん)に即(そく)して、計画(けいかく)を見直(みなお)すべきだ。",
+       "vi": "Nên xem lại kế hoạch dựa theo ngân sách."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "実情に即して判断してください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hãy phán đoán theo thực trạng."
+     },
+     {
+      "ja": "現実に即して議論を進めるべきだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nên tiến hành thảo luận dựa theo thực tế."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 実情に即して判断してください。",
+     "FURIGANA_MISSING: 現実に即して議論を進めるべきだ。"
+    ],
+    "formation": "N + に即して",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “Xét theo/chiếu theo/ứng với N mà thực hiện/đánh giá/giải thích”. Nhấn mạnh tính phù hợp, linh hoạt theo tình hình thực tế (即) hoặc theo quy tắc (則). Thường dùng trong thảo luận chính sách, hướng dẫn thực thi, báo cáo nghiệp vụ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dựa theo...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đi với các danh từ bối cảnh/căn cứ: 実情・現実・状況・ニーズ・データ・基準・規定・法令（則）… Văn phong trang trọng, phù hợp văn bản nghiệp vụ, họp hành, thông báo. Chọn “則” khi nhấn tuân thủ quy định; chọn “即” khi nhấn tính phù hợp tình huống. [6. Ghi chú mở rộng] Cặp “即/則” đồng âm khác nghĩa: nhớ mẹo “即＝tức thời, hợp tình” và “則＝quy tắc, phép tắc”. Với văn bản chính sách, thường gặp cặp song hành: 「実情に即して、かつ、関係法令に則して」. [7. Biến thể & cụm cố định] N + に即してV／N + に則してV／N + に即し、～／N + に即しまして、～ Cố định: 実情に即して判断／法令に則して運用／状況に即し柔軟に対応 [8. Lỗi thường gặp & bẫy JLPT] Nhầm “に即して” với “に沿って”: “現実に沿って” nghe không tự nhiên; nên dùng “現実に即して”. Dùng “即” khi ngữ cảnh rõ ràng là tuân luật/quy định → phải dùng “則”. JLPT: phân biệt chức năng trạng ngữ “に即して” và định ngữ “に即した”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-44b9e30478"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "犬を飼い始めてからというもの、毎日散歩するようになった。",
+       "ja_furigana": "犬(いぬ)を飼(か)い始(はじ)めてからというもの、毎日(まいにち)散歩(さんぽ)するようになった。",
+       "vi": "Kể từ khi bắt đầu nuôi chó, ngày nào tôi cũng đi dạo."
+      },
+      {
+       "ja": "駅の近くに引っ越してからというもの、歩くことが増えた。",
+       "ja_furigana": "駅(えき)の近(ちか)くに引(ひ)っ越(こ)してからというもの、歩(ある)くことが増(ふ)えた。",
+       "vi": "Kể từ khi chuyển đến gần ga, tôi đi bộ nhiều hơn hẳn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "子どもが生まれてからというもの、外で飲むことがほとんどなくなった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kể từ khi con chào đời, tôi hầu như không còn đi nhậu bên ngoài."
+     },
+     {
+      "ja": "この町に引っ越してからというもの、車を使う頻度がぐっと増えた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kể từ khi chuyển tới thị trấn này, tần suất dùng ô tô tăng hẳn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 子どもが生まれてからというもの、外で飲むことがほとんどなくなった。",
+     "FURIGANA_MISSING: この町に引っ越してからというもの、車を使う頻度がぐっと増えた。"
+    ],
+    "formation": "V-て + からというもの",
+    "locked_fields": [],
+    "meaning_vi": "～てからというもの nhấn mạnh: kể từ một thời điểm/hành động làm mốc, tình trạng ở mệnh đề sau thay đổi rõ rệt và tiếp diễn đến hiện tại. Thường đi kèm các từ chỉ độ kéo dài: ずっと／めっきり／とんと～ない／まったく～ない. Mệnh đề sau thường là thói quen/tình trạng, ít khi là hành động đơn lẻ kết thúc ngay. Sắc thái cảm xúc/chủ quan mạnh hơn ～て以来, gợi “từ đó trở đi là khác hẳn”. Không dùng cho mốc thời gian quá ngắn hoặc sự việc vụn vặt thường ngày.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Kể từ khi...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn nhấn mạnh sự thay đổi kéo dài sau mốc. Chủ ngữ thường là người nói/nhóm gần gũi, do liên quan cảm nhận chủ quan. Ít dùng với mệnh lệnh/ý định trực tiếp ở vế sau. Thường đi với phủ định để nhấn sự “không còn làm X nữa”: ～なくなった／とんと～ない. [6. Ghi chú mở rộng] Vế sau thường đi với thì hiện tại/hiện tại hoàn thành theo nghĩa tiếng Nhật (～ている／～なくなる). Dùng tốt trong văn viết, tường thuật đời sống, bài luận nêu bước ngoặt. Có thể đứng sau các biến cố xã hội: 震災／コロナ禍／不況からというもの、～ [7. Biến thể & cụm cố định] N（事件）+ 以降（いこう）: Sau mốc trở đi (trung tính hơn) ～てからというものの（に）: Biến thể hiếm, mang sắc thái văn viết mạnh それ以来: “Kể từ đó” (đại từ chỉ mốc đã nêu) [8. Lỗi thường gặp & bẫy JLPT] Dùng cho sự việc diễn ra một lần ngắn ngủi ở vế sau → sai sắc thái (phải là tình trạng kéo dài). Lẫn với ～てから: thiếu ý “đổi hẳn và kéo dài”. Dùng với mốc vụn vặt (ví dụ: 昨日～) → không tự nhiên. Gắn với mệnh lệnh/ý chí trực tiếp ở vế sau → không phù hợp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b1b6d8590c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "広告と相まって、商品の人気が高まった。",
+       "ja_furigana": "広告(こうこく)と相(あい)まって、商品(しょうひん)の人気(にんき)が高(たか)まった。",
+       "vi": "Kết hợp với quảng cáo, sản phẩm càng được ưa chuộng."
+      },
+      {
+       "ja": "景気回復と相まって、消費が伸びている。",
+       "ja_furigana": "景気回復(けいきかいふく)と相(あい)まって、消費(しょうひ)が伸(の)びている。",
+       "vi": "Cộng với kinh tế hồi phục, tiêu dùng đang tăng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "好天と相まって、売り上げが大きく伸びた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kết hợp với thời tiết đẹp, doanh số tăng mạnh."
+     },
+     {
+      "ja": "円安と相まって、海外からの観光客が増加している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cộng với đồng yên yếu, khách du lịch nước ngoài đang tăng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 好天と相まって、売り上げが大きく伸びた。",
+     "FURIGANA_MISSING: 円安と相まって、海外からの観光客が増加している。"
+    ],
+    "formation": "N + と相まって",
+    "locked_fields": [],
+    "meaning_vi": "X kết hợp cùng Y, hai yếu tố “cộng hưởng” tạo ra kết quả Z. Nghĩa: “cùng với”, “kết hợp với”, “cộng hưởng với”. Sắc thái trang trọng, văn viết, báo cáo, tin tức. Diễn tả mối quan hệ đồng thời và cộng lực. Thường dùng mô tả xu hướng thị trường, xã hội, tự nhiên: 景気悪化と相まって／円安と相まって／少子化と相まって.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Kết hợp với...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mối quan hệ “cộng lực” hơn là chỉ đơn thuần “và/ cùng với”. Nếu chỉ liệt kê, dùng と/や. Đối tượng thường là hiện tượng/điều kiện khách quan; ít dùng với hành động ý chí cụ thể. Phù hợp tiêu đề/báo cáo: ～と相まって、～が／を… Không đi với mệnh đề phủ định ở trước để chỉ “thiếu vắng” cộng lực; khi đó dùng ～ないことも手伝って (mang nghĩa khác). [6. Ghi chú mở rộng] Động từ 相まつ (あいまつ) cổ; hiện đại dùng 相まって cố định ở dạng て. Thường đứng đầu câu làm trạng ngữ, sau bởi dấu phẩy trong văn viết. Dễ kết hợp với danh từ trừu tượng: 相乗効果, 影響, 要因, 需要, 供給, 政策. [7. Biến thể & cụm cố định] N＋と相まって＋結果表現（増える・高まる・伸びる・悪化する） 要因Aと相まって要因Bが作用する 社会背景／政策変更／天候／技術革新＋と相まって [8. Lỗi thường gặp & bẫy JLPT] Dùng để nối hai hành động ý chí cá nhân → không tự nhiên. Hãy dùng cho điều kiện/hiện tượng. Nhầm với đơn thuần “và”: ～と相まって hàm ý “cộng hưởng” gây ra kết quả. Sai danh hóa khi dùng mệnh đề: cần ～のと相まって hoặc ～ことと相まって."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a7b4e1b3a3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この計画は雨天を前提にして立てられている。",
+       "ja_furigana": "この計画(けいかく)は雨天(うてん)を前提(ぜんてい)にして立(た)てられている。",
+       "vi": "Kế hoạch này được lập với tiền đề là trời mưa."
+      },
+      {
+       "ja": "大人数を前提に会場を準備した。",
+       "ja_furigana": "大人数(おおにんずう)を前提(ぜんてい)に会場(かいじょう)を準備(じゅんび)した。",
+       "vi": "Chúng tôi chuẩn bị hội trường với tiền đề số người đông."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "このサービスは高トラフィックを前提にしてインフラを構築している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dịch vụ này xây dựng hạ tầng với tiền đề lưu lượng cao."
+     },
+     {
+      "ja": "少人数を前提にカリキュラムを組み直した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chúng tôi sắp xếp lại chương trình với tiền đề sĩ số ít."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Lấy... làm điều kiện",
+     "FURIGANA_MISSING: このサービスは高トラフィックを前提にしてインフラを構築している。",
+     "FURIGANA_MISSING: 少人数を前提にカリキュラムを組み直した。"
+    ],
+    "formation": "N + を前提にして",
+    "locked_fields": [],
+    "meaning_vi": "Thiết lập tiền đề thực hành/triển khai cụ thể và tiến hành hành động/thiết kế/điều chỉnh dựa trên đó. Sắc thái thực dụng, gần hiện trường hơn so với ～を前提として (mang tính quy phạm/văn bản). Phổ biến trong IT, vận hành, thiết kế dịch vụ, hoạch định thực thi.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Lấy... làm điều kiện",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Kết hợp với danh từ mang tính điều kiện vận hành: 利用・需要・前提人数・連携・拡張性・予算・安全基準. Thường đi cùng hành động cụ thể: 設計する・見直す・構築する・実施する・運用する. Sắc thái “thực thi/operation-oriented”; câu văn tự nhiên trong báo cáo thực địa. [6. Ghi chú mở rộng] Dùng “当面/仮に/想定上” để nhấn mạnh tính tạm thời của tiền đề: 当面Xを前提に運用する。 Trong thiết kế, có cặp “前提” vs “制約”: 前提 (assumption) và 制約 (constraint) nên được tách bạch trong mô tả. Khi tiền đề thay đổi, nên kèm hành động: 前提変更に伴い、設計を見直す。 [7. Biến thể & cụm cố định] N + を前提にして／を前提に／を前提にした N Cụm hay gặp: オンライン利用を前提に／連携を前提に／拡張を前提に／予算確保を前提に [8. Lỗi thường gặp & bẫy JLPT] Nhầm sắc thái với ～を前提として: đề thi hỏi chọn dạng phù hợp ngữ cảnh (quy phạm vs vận hành). Nhét mệnh đề dài trực tiếp vào ～を前提にして gây nặng; nên dùng という前提で. Tiền đề mơ hồ: cần danh từ cụ thể; tránh N quá chung chung không đo được."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-52c6352be3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私から言わせれば、そのやり方は危険だ。",
+       "ja_furigana": "私(わたし)から言(い)わせれば、そのやり方(かた)は危険(きけん)だ。",
+       "vi": "Theo tôi thì cách làm đó rất nguy hiểm."
+      },
+      {
+       "ja": "親から言わせれば、子どもはいつまでたっても心配なものだ。",
+       "ja_furigana": "親(おや)から言(い)わせれば、子(こ)どもはいつまでたっても心配(しんぱい)なものだ。",
+       "vi": "Từ phía cha mẹ, con cái lúc nào cũng là nỗi lo."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "私から言わせれば、その説明は不十分だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu hỏi tôi, lời giải thích đó chưa đủ."
+     },
+     {
+      "ja": "被害者から言わせれば、判決は軽すぎる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Từ phía nạn nhân, bản án quá nhẹ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 私から言わせれば、その説明は不十分だ。",
+     "FURIGANA_MISSING: 被害者から言わせれば、判決は軽すぎる。"
+    ],
+    "formation": "N + から言わせれば",
+    "locked_fields": [],
+    "meaning_vi": "Nêu quan điểm chủ quan của chủ thể N, thường để mở lời phản biện hoặc “nói thẳng”. Nêu quan điểm chủ quan của N, thường để nói thẳng, phản biện hoặc đánh giá mạnh. Không nhất thiết mang nghĩa đen “bị ép phải nói”. Thường dùng với chủ thể là người/nhóm: 私／親／教師／専門家／被害者.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu hỏi... thì...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt đầu câu, sau có thể dùng dấu phẩy để ngắt nhịp: 〜から言わせれば、… Dùng để báo trước quan điểm riêng, chuẩn bị cho phát biểu trái chiều. Trong văn nói thân mật: 〜から言わせりゃ (khẩu ngữ, nam tính). [6. Ghi chú mở rộng] Có thể kết hợp với trạng từ nhấn: 正直に／率直に／あくまで個人的には + から言わせれば. Tránh lạm dụng trong văn viết học thuật vì sắc thái chủ quan mạnh. [7. Biến thể & cụm cố định] N + から言わせれば／から言わせると／から言えば／から言うと Khẩu ngữ: 〜から言わせりゃ〜 Mở đầu lập luận: 個人的に言わせれば／正直に言わせれば [8. Lỗi thường gặp & bẫy JLPT] Dùng với danh từ vô tri: ×結果から言わせれば → dùng から言えば/から見ると. Nhầm sắc thái với から言えば: đề bài muốn “phê phán” → chọn から言わせれば. Bỏ chủ thể N làm câu mơ hồ: nên nêu rõ ai là người phát biểu nếu ngữ cảnh chưa rõ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fa0d654d75"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "社員あっての会社です。",
+       "ja_furigana": "社員(しゃいん)あっての会社(かいしゃ)です。",
+       "vi": "Công ty có được là nhờ nhân viên."
+      },
+      {
+       "ja": "健康あっての仕事だと、病気になって初めて気づいた。",
+       "ja_furigana": "健康(けんこう)あっての仕事(しごと)だと、病気(びょうき)になって初(はじ)めて気(き)づいた。",
+       "vi": "Mãi đến khi ốm tôi mới nhận ra công việc có được là nhờ sức khỏe."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "お客様あっての私たちの会社です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công ty chúng tôi có được là nhờ khách hàng."
+     },
+     {
+      "ja": "家族あっての幸せだと実感している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi thực sự cảm nhận hạnh phúc là nhờ có gia đình."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: お客様あっての私たちの会社です。",
+     "FURIGANA_MISSING: 家族あっての幸せだと実感している。"
+    ],
+    "formation": "N + あっての + N",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả mối quan hệ “có N1 thì mới có N2”; N1 là điều kiện tiên quyết, nền tảng của N2. Sắc thái biết ơn, tôn trọng, thừa nhận vai trò không thể thiếu. Phạm vi: chỉ kết hợp với danh từ; dùng nhiều trong diễn văn, lời cảm ơn, khẩu hiệu doanh nghiệp. Cấu trúc tu từ: đặt N1 trước để nhấn mạnh “nhờ có…”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nhờ có... mới...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng, tích cực; thường xuất hiện trong phát biểu, thông báo, lời tri ân. Hay đi cùng các danh từ: お客様, 皆様, 家族, 仲間, 支援, 努力, 信頼, 健康, 命. Mang sắc thái khẳng định mối quan hệ nhân-quả mạnh, nhấn mạnh nền tảng. [6. Ghi chú mở rộng] Mẫu này hiệu quả trong khẩu hiệu: 「安全あっての生産」「健康あっての挑戦」. Có thể lặp song song: 「家族あっての私、仲間あってのチーム」。 Khi muốn giảm trang trọng, có thể thay bằng 「〜のおかげで」; khi muốn nhấn mạnh điều kiện tất yếu, dùng 「〜なくして」. [7. Biến thể & cụm cố định] 命あっての物種（ものだね／もの）: Còn sống là còn tất cả. お客様あっての商売: Kinh doanh nhờ có khách hàng. 信頼あっての関係: Mối quan hệ dựa trên lòng tin. 健康あっての人生: Sức khỏe là nền tảng của cuộc sống. [8. Lỗi thường gặp & bẫy JLPT] Dùng với động từ trực tiếp: sai. Phải là N + あっての + N. Hiểu như “có lẽ nhờ”: sai. 「あっての」 là khẳng định mạnh về điều kiện tất yếu. Nhầm với 「おかげで」: 「あっての」 sửa danh từ, mang sắc thái trang trọng và cấu trúc cố định. Quên đặt đúng trật tự N1 nền tảng → N2 kết quả: đảo ngược làm sai nghĩa."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f63b4067dc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女に言わせれば、成功は運のおかげだ。",
+       "ja_furigana": "彼女(かのじょ)に言(い)わせれば、成功(せいこう)は運(うん)のおかげだ。",
+       "vi": "Theo cô ấy thì thành công là nhờ may mắn."
+      },
+      {
+       "ja": "医者に言わせれば、もっと休むべきだという。",
+       "ja_furigana": "医者(いしゃ)に言(い)わせれば、もっと休(やす)むべきだという。",
+       "vi": "Theo bác sĩ thì tôi nên nghỉ ngơi nhiều hơn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼に言わせれば、これは単なる偶然だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Theo anh ấy thì đây chỉ là sự trùng hợp."
+     },
+     {
+      "ja": "専門家に言わせれば、原因は別にあるという。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Theo các chuyên gia thì nguyên nhân nằm ở chỗ khác."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼に言わせれば、これは単なる偶然だ。",
+     "FURIGANA_MISSING: 専門家に言わせれば、原因は別にあるという。"
+    ],
+    "formation": "N + に言わせれば",
+    "locked_fields": [],
+    "meaning_vi": "Đưa ra đánh giá/nhận xét “theo quan điểm của N”. Có thể hàm ý “đó chỉ là cách N nhìn nhận”. Thường mang sắc thái tạo khoảng cách, đôi khi có ý phản biện/hoài nghi/giễu nhẹ. Có thể dùng với “私”: 私に言わせれば～ để nhấn mạnh ý kiến cá nhân mạnh mẽ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Theo quan điểm của...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi trích/giới thiệu quan điểm; hay đi kèm đánh giá chủ quan (tốt/xấu/phi thực tế…). Sắc thái có thể hơi “cà khịa/giữ khoảng cách”: “theo họ nói thì… (nhưng chưa chắc đúng)”. Trong văn nói thường ngày: “～に言わせると” tự nhiên hơn; “～に言わせれば” trang trọng/nhấn mạnh hơn. [6. Ghi chú mở rộng] Dịch linh hoạt: “theo lời N”, “nếu để N nói”, “với N mà nói”. Tùy văn cảnh để giữ sắc thái xa cách hay trung tính. Dễ đi với các danh từ tác nhân đánh giá: 専門家・医者・教師・親・世間・当事者・本人… Khi chủ ngữ là “tôi”, dùng “私に言わせれば” để tăng tính chủ quan, nhấn mạnh lập trường cá nhân. [7. Biến thể & cụm cố định] N + に言わせれば／N + に言わせると／N + から言わせれば Cụm hay gặp: 世間に言わせれば／親に言わせれば／専門家に言わせると [8. Lỗi thường gặp & bẫy JLPT] Nhầm với “にとって”: “彼に言わせれば大切だ” ≠ “彼にとって大切だ”. Một bên là “ý kiến”, một bên là “giá trị đối với”. Không nắm sắc thái khoảng cách: đề thi có thể cài cảm giác hoài nghi → chọn “に言わせれば/に言わせると” thay vì “によると”. Dùng với sự vật vô tri (×会社に言わせれば) → nếu là tổ chức, ngầm hiểu “đại diện/phía công ty” thì được: 会社側に言わせれば…"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2058d871b2"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-026"
+}

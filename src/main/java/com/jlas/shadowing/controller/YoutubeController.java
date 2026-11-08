@@ -45,7 +45,9 @@ public class YoutubeController {
                     request.getUrl().trim(),
                     request.getCategory(),
                     request.getTargetLanguage(),
-                    request.getGenerateFurigana());
+                    request.getGenerateFurigana(),
+                    request.getGenres(),
+                    request.getMinAge());
             return ResponseEntity.accepted().body(result);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

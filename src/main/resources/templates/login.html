@@ -1,73 +1,8 @@
 <!DOCTYPE html>
 <html class="dark" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('Đăng nhập - JLAS', 'login')}"></head>
-<body class="app-body app-body--auth page-login"
+<body data-mobile-adapt="owned" class="app-body app-body--auth page-login"
       th:attr="data-google-client-id=${googleClientId != null ? googleClientId : ''}">
-
-<style>
-    #jlabBaseContent,
-    #jlabBaseContent input,
-    #jlabBaseContent button,
-    #jlabBaseContent select,
-    #jlabBaseContent textarea,
-    #jlabBaseContent h1,
-    #jlabBaseContent h2,
-    #jlabBaseContent h3,
-    #jlabBaseContent h4,
-    #jlabBaseContent h5,
-    #jlabBaseContent h6 {
-        font-family: -apple-system-body, ui-sans-serif, -apple-system, system-ui,
-            "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif,
-            "Segoe UI Emoji", "Segoe UI Symbol" !important;
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 20px;
-    }
-
-    #jlabBaseContent input::placeholder {
-        color: #000000 !important;
-        opacity: 1;
-    }
-
-    #jlabBaseContent .input-wrap__icon {
-        color: #000000 !important;
-    }
-
-    #jlabBaseContent .field__link,
-    #jlabBaseContent .field__link:hover,
-    #jlabBaseContent .form-footer,
-    #jlabBaseContent .form-footer a,
-    #jlabBaseContent .form-footer a:hover {
-        color: #000000 !important;
-    }
-
-    #jlabBaseContent .card__title,
-    #jlabBaseContent .btn--primary {
-        color: #000000 !important;
-    }
-
-    #jlabBaseContent .card__title {
-        font-size: clamp(1.8rem, 4vw, 2.25rem) !important;
-        font-weight: 700 !important;
-        line-height: 1.2 !important;
-    }
-
-    #jlabBaseContent .btn--primary .btn__label {
-        color: #ffffff !important;
-    }
-
-    #jlabBaseContent .card__title,
-    #jlabBaseContent .field__label,
-    #jlabBaseContent .field__error,
-    #jlabBaseContent .field__link,
-    #jlabBaseContent .form-divider,
-    #jlabBaseContent .form-footer,
-    #jlabBaseContent .form-footer a,
-    #jlabBaseContent .login-home-link,
-    #jlabBaseContent .input-wrap__action {
-        color: #000000 !important;
-    }
-</style>
 
 <div class="login-background" aria-hidden="true"></div>
 
@@ -76,7 +11,6 @@
         <section class="login-mascot-panel" aria-label="Mascot JLAS">
             <div class="login-mascot-copy">
                 <h2>Học tiếng Nhật<br>vui hơn mỗi ngày</h2>
-                <p>Đăng nhập để tiếp tục hành trình của bạn.</p>
             </div>
             <div th:replace="~{fragments/components/fox-mascot :: foxMascot}"></div>
         </section>
@@ -96,7 +30,8 @@
                             <input id="email" name="email" type="email"
                                    class="input input--with-icon"
                                    placeholder="jlas@gmail.com" required maxlength="255"
-                                   autocomplete="email" aria-describedby="emailError"/>
+                                   autocomplete="email" inputmode="email" autocapitalize="none"
+                                   spellcheck="false" aria-describedby="emailError"/>
                         </div>
                         <p id="emailError" class="field__error" aria-live="polite"></p>
                     </div>
@@ -104,14 +39,14 @@
                     <div class="field">
                         <div class="field__label-row">
                             <label for="password" class="field__label">Mật khẩu</label>
-                            <a th:href="@{/forgot-password}" class="field__link">Quên mật khẩu?</a>
+                            <a th:href="@{/forgot-password}" class="field__link login-forgot-desktop">Quên mật khẩu?</a>
                         </div>
                         <div class="input-wrap">
                             <i class="fa-solid fa-lock input-wrap__icon" aria-hidden="true"></i>
                             <input id="password" name="password" type="password"
                                    class="input input--with-icon input--with-action"
                                    placeholder="Nhập mật khẩu" required maxlength="100"
-                                   autocomplete="current-password" aria-describedby="passwordError"/>
+                                   autocomplete="current-password" aria-describedby="passwordError capsLockWarning"/>
                             <button type="button" class="input-wrap__action password-toggle"
                                     data-password-toggle="password"
                                     aria-label="Hiện mật khẩu" aria-pressed="false">
@@ -128,10 +63,11 @@
                         <span class="btn__label">Đăng nhập</span>
                     </button>
                 </form>
+                <a th:href="@{/forgot-password}" class="field__link login-forgot-mobile">Quên mật khẩu?</a>
 
                 <div id="googleSection"
                      th:if="${googleClientId != null and !#strings.isEmpty(googleClientId) and !#strings.contains(googleClientId, 'your-google-client-id')}">
-                    <div class="form-divider"><span>Hoặc tiếp tục với</span></div>
+                    <div class="form-divider"><span class="login-divider-desktop">Hoặc tiếp tục với</span><span class="login-divider-mobile">Hoặc đăng nhập bằng</span></div>
                     <div id="googleBtnContainer"></div>
                 </div>
             </div>
@@ -150,6 +86,6 @@
 <script th:src="@{/js/pages/auth-common.js}"></script>
 <script th:if="${googleClientId != null and !#strings.isEmpty(googleClientId) and !#strings.contains(googleClientId, 'your-google-client-id')}"
         src="https://accounts.google.com/gsi/client" async defer></script>
-<script th:src="@{/js/pages/login.js}"></script>
+<script th:src="@{/js/pages/login.js(v='20261012-google-white')}"></script>
 </body>
 </html>

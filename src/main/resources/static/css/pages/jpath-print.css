@@ -1,0 +1,136 @@
+/* [JLAS-W0108] A4 writing sheet (templates/jlptpath/print.html). Paper is always black on white, so this page uses
+   fixed print colours instead of the theme tokens; the toolbar shows on screen only. */
+@page { size: A4 portrait; margin: 12mm; }
+
+* { box-sizing: border-box; }
+
+body.jp-print {
+  margin: 0;
+  padding: 16px;
+  background: #e9e9ee;
+  color: #111;
+  font-family: 'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif;
+}
+
+.jp-print-kanji,
+.jp-print-word { font-family: 'Klee One', 'Noto Serif JP', serif; }
+
+.jp-print-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: 186mm;
+  margin: 0 auto 12px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 15%);
+}
+.jp-print-toolbar__btn {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid #c9c9d3;
+  border-radius: 10px;
+  background: #fff;
+  color: #111;
+  font: inherit;
+  cursor: pointer;
+}
+.jp-print-toolbar__btn--primary { border-color: #5b3fd1; background: #5b3fd1; color: #fff; }
+.jp-print-toolbar__btn[disabled] { opacity: .5; cursor: not-allowed; }
+.jp-print-toolbar__btn:focus-visible { outline: 3px solid #5b3fd1; outline-offset: 2px; }
+.jp-print-toolbar__hint { color: #555; font-size: .9rem; }
+
+.jp-print-notice {
+  max-width: 186mm;
+  margin: 0 auto 12px;
+  padding: 8px 12px;
+  border-left: 4px solid #b26b00;
+  background: #fff7e6;
+}
+
+/* One sheet: on screen a white A4-wide card, on paper one page each. */
+.jp-print-page {
+  width: 100%;
+  max-width: 186mm;
+  margin: 0 auto 16px;
+  padding: 8mm;
+  background: #fff;
+  break-after: page;
+  page-break-after: always;
+}
+.jp-print-page:last-of-type { break-after: auto; page-break-after: auto; }
+
+.jp-print-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 4mm;
+  padding-bottom: 2mm;
+  border-bottom: 1px solid #111;
+}
+.jp-print-title { margin: 0; font-size: 14pt; font-weight: 600; }
+.jp-print-meta { display: flex; gap: 12px; margin: 0; color: #444; font-size: 10pt; white-space: nowrap; }
+.jp-print-empty { margin: 12mm 0; text-align: center; color: #444; }
+
+/* A row: info column + 10 practice squares. Six rows fill an A4 page. */
+.jp-print-row {
+  display: grid;
+  grid-template-columns: 34mm 1fr;
+  gap: 3mm;
+  align-items: start;
+  padding: 2mm 0;
+  border-bottom: 1px dashed #bbb;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.jp-print-info { min-width: 0; font-size: 8.5pt; line-height: 1.3; overflow-wrap: anywhere; }
+.jp-print-word { font-size: 16pt; line-height: 1.2; }
+.jp-print-reading { color: #333; }
+.jp-print-hanviet { font-weight: 600; letter-spacing: .02em; }
+.jp-print-meaning { color: #444; }
+.jp-print-order { display: flex; align-items: center; gap: 2mm; margin-top: 1mm; color: #444; }
+.jp-print-order img { width: 16mm; height: 16mm; }
+
+.jp-print-cells { display: grid; grid-template-columns: repeat(10, 1fr); }
+.jp-print-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border: 1px solid #777;
+  margin: 0 -1px -1px 0;
+  /* 米-grid guide lines */
+  background:
+    linear-gradient(to right, transparent calc(50% - .5px), #d0d0d0 calc(50% - .5px), #d0d0d0 calc(50% + .5px), transparent calc(50% + .5px)),
+    linear-gradient(to bottom, transparent calc(50% - .5px), #d0d0d0 calc(50% - .5px), #d0d0d0 calc(50% + .5px), transparent calc(50% + .5px));
+}
+.jp-print-cell--faded .jp-print-kanji { color: #111; opacity: .18; font-size: 10.5mm; line-height: 1; }
+
+@media print {
+  body.jp-print { padding: 0; background: #fff; }
+  .jp-print-toolbar { display: none !important; }
+  .jp-print-notice { margin: 0 0 3mm; }
+  .jp-print-page { max-width: none; margin: 0; padding: 0; }
+  .jp-print-cell { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+@media (max-width: 640px) {
+  body.jp-print { padding: 8px; }
+  .jp-print-page { padding: 12px; }
+  .jp-print-row { grid-template-columns: 1fr; }
+  .jp-print-head { flex-wrap: wrap; }
+}
+
+/* 05/11 toolbar tab switch and the name line on the first sheet */
+.jp-print-toolbar__tabs { display: inline-flex; border: 1px solid #c9c9d3; border-radius: 10px; overflow: hidden; }
+.jp-print-toolbar__tabs a { display: inline-flex; align-items: center; min-height: 42px; padding: 0 14px; color: #111; text-decoration: none; }
+.jp-print-toolbar__tabs a.is-on { background: #ece8fb; color: #3d2a9c; font-weight: 600; }
+.jp-print-who { display: flex; gap: 8mm; margin: 0 0 4mm; font-size: 10pt; color: #444; }
+.jp-print-who span { flex: 1; padding-bottom: 1mm; border-bottom: .25mm dotted #999; }

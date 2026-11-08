@@ -1,0 +1,2314 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"."
+ },
+ "items": [
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu trả lời là thứ trong tuần (かようび) nên câu hỏi là なんようび.",
+      "options": [
+       "なんじ",
+       "いくら",
+       "だれ",
+       "なんようび"
+      ],
+      "prompt_ja": "「テストは （　　） ですか。」「かようびです。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu trả lời là giờ (十二時) nên hỏi なんじ.",
+      "options": [
+       "なんようび",
+       "なんじ",
+       "どこ",
+       "なに"
+      ],
+      "prompt_ja": "「ひるやすみは （　　） からですか。」「十二時からです。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 「かいぎ は なんじ からですか。」. N は なんじから ですか = N bắt đầu từ mấy giờ?",
+      "options": [
+       "かいぎ",
+       "は",
+       "からですか",
+       "なんじ"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Thứ tự đúng: 「やすみは なんようび です か。」. N は なんようび ですか = N vào thứ mấy?",
+      "options": [
+       "なんようび",
+       "か",
+       "です",
+       "やすみは"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "なんじまで = đến mấy giờ.",
+      "options": [
+       "Ngân hàng mở từ mấy giờ?",
+       "Ngân hàng mở đến mấy giờ?",
+       "Ngân hàng nghỉ vào thứ mấy?",
+       "Ngân hàng ở đâu?"
+      ],
+      "prompt_ja": "ぎんこうは なんじまでですか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "なんようび hỏi thứ trong tuần, khác なんにち (ngày mấy).",
+      "options": [
+       "Bài kiểm tra vào thứ mấy?",
+       "Bài kiểm tra lúc mấy giờ?",
+       "Bài kiểm tra vào ngày mấy?",
+       "Bài kiểm tra ở đâu?"
+      ],
+      "prompt_ja": "テストは なんようびですか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Hỏi giờ là なんじ, không nói なにじ.",
+      "options": [
+       "じゅぎょうは なんじですか。",
+       "やすみは なんようびですか。",
+       "じゅぎょうは なにじですか。",
+       "かいぎは なんじからですか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "なんじから đi liền, không chèn に vào giữa.",
+      "options": [
+       "しごとは なんじからですか。",
+       "じゅぎょうは なんようびですか。",
+       "ひるやすみは なんじまでですか。",
+       "しごとは なんじに からですか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay đọc 何時 thành なにじ; đúng là なんじ. Khi trả lời thứ trong tuần nhớ đuôi ようび: げつようび, かようび.",
+    "examples": [
+     {
+      "ja": "ひるやすみは なんじ ですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giờ nghỉ trưa là mấy giờ?"
+     },
+     {
+      "ja": "テストは何曜日ですか。",
+      "ja_furigana": "テストは何曜日(なんようび)ですか。",
+      "source": "CLAUDE",
+      "vi": "Bài kiểm tra vào thứ mấy?"
+     },
+     {
+      "ja": "映画は何時に始まりますか。",
+      "ja_furigana": "映画(えいが)は何時(なんじ)に始(はじ)まりますか。",
+      "source": "CLAUDE",
+      "vi": "Phim bắt đầu lúc mấy giờ?"
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Trả lời 三時 (3 giờ) nên câu hỏi là なんじ.",
+      "options": [
+       "なんようび",
+       "なんにん",
+       "なんじ",
+       "なんさい"
+      ],
+      "prompt_ja": "「いま （　　） ですか。」「三時です。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "なんようびの なんじから = thứ mấy, từ mấy giờ.",
+      "options": [
+       "Bữa tiệc kết thúc lúc mấy giờ?",
+       "Bữa tiệc tổ chức ở đâu?",
+       "Bữa tiệc có bao nhiêu người?",
+       "Bữa tiệc bắt đầu từ mấy giờ, vào thứ mấy?"
+      ],
+      "prompt_ja": "パーティーは なんようびの なんじからですか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Hỏi cả phút phải là なんじ なんぷんですか.",
+      "options": [
+       "いま なんじですか。",
+       "いま、なんじ ふんですか。",
+       "しごとは なんじまでですか。",
+       "やすみは なんようびですか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "なんじ",
+      "sentence_ja": "「デパートは ＿＿ までですか。」「八時までです。」",
+      "translation_vi": "Cửa hàng bách hóa mở đến mấy giờ? - Đến 8 giờ."
+     },
+     {
+      "answer": "なんようび",
+      "sentence_ja": "「びょういんの やすみは ＿＿ ですか。」「日ようびです。」",
+      "translation_vi": "Bệnh viện nghỉ vào thứ mấy? - Chủ nhật."
+     }
+    ],
+    "findings": [],
+    "formation": "N + は + なんじ・なんようび + ですか",
+    "locked_fields": [],
+    "meaning_vi": "Hỏi mấy giờ\nHỏi giờ của một việc: cuộc họp, buổi học, giờ nghỉ trưa.",
+    "nuance_vi": "Trung tính; hỏi giờ hiện tại thì nói 今、何時ですか.",
+    "order_items": [
+     {
+      "answer_order": [
+       0,
+       2,
+       1
+      ],
+      "pieces": [
+       "ばんごはんは",
+       "ですか",
+       "なんじ"
+      ],
+      "translation_vi": "Bữa tối lúc mấy giờ?"
+     },
+     {
+      "answer_order": [
+       3,
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "なんようび",
+       "ですか",
+       "やすみは",
+       "あなたの"
+      ],
+      "translation_vi": "Ngày nghỉ của bạn là thứ mấy?"
+     }
+    ],
+    "pattern": "N は なんじ ですか / なんようび ですか",
+    "pattern_variants": [],
+    "unit_no": 4,
+    "unit_title_vi": "Giờ giấc và động từ ます",
+    "usage_vi": "Hỏi khoảng thời gian thì thêm から／まで: なんじから なんじまでですか."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fc410c25b4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "không … lắm; ít khi …",
+     "fill_items": [
+      {
+       "answer": "あつくないです",
+       "accept": [
+        "あつくありません"
+       ],
+       "sentence_ja": "この コーヒーは あまり ＿＿。（あつい・phủ định）",
+       "translation_vi": "Cà phê này không nóng lắm."
+      },
+      {
+       "answer": "ゆうめいじゃ",
+       "accept": [
+        "ゆうめいでは"
+       ],
+       "sentence_ja": "あの みせは あまり ＿＿ ありません。（ゆうめい）",
+       "translation_vi": "Quán kia không nổi tiếng lắm."
+      }
+     ]
+    },
+    "note": "meaning cũ \"Trạng thái chỉ mức độ hạn định\" dịch sai 副詞 và không nói nghĩa; bài điền thêm đáp án tương đương (くありません, では)."
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "あまり luôn đi với phủ định: からくないです.",
+      "options": [
+       "からいです",
+       "からくないです",
+       "からかったです",
+       "からくて"
+      ],
+      "prompt_ja": "この りょうりは あまり （　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "あまり + phủ định: すきじゃ ありません.",
+      "options": [
+       "すきじゃ ありません",
+       "すきです",
+       "すきでした",
+       "すきな"
+      ],
+      "prompt_ja": "わたしは スポーツが あまり （　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Thứ tự đúng: 「この 町は あまり にぎやか じゃ ありません。」. Tính từ な phủ định: あまり にぎやかじゃ ありません.",
+      "options": [
+       "じゃ",
+       "にぎやか",
+       "あまり",
+       "ありません"
+      ],
+      "prompt_ja": "この 町は ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 「きのうの テストは あまり むずかしく なかった です。」. Quá khứ phủ định của tính từ い: むずかしくなかったです.",
+      "options": [
+       "です",
+       "あまり",
+       "なかった",
+       "むずかしく"
+      ],
+      "prompt_ja": "きのうの テストは ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "あまり〜ない = không ... lắm.",
+      "options": [
+       "Quán này rất đắt.",
+       "Quán này không đắt lắm.",
+       "Quán này hoàn toàn không đắt.",
+       "Quán này đắt hơn quán kia."
+      ],
+      "prompt_ja": "この みせは あまり 高くないです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "あまり すきじゃ ありません = không thích lắm.",
+      "options": [
+       "Tôi rất thích thịt.",
+       "Tôi không thích thịt lắm.",
+       "Tôi hoàn toàn không ăn thịt.",
+       "Tôi thích thịt hơn cá."
+      ],
+      "prompt_ja": "わたしは にくが あまり すきじゃ ありません。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "あまり phải đi với phủ định: ひろくないです.",
+      "options": [
+       "この へやは あまり ひろくないです。",
+       "この 本は あまり おもしろくないです。",
+       "この へやは あまり ひろいです。",
+       "きょうは あまり さむくないです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "あまり + tính từ な phủ định: きれいじゃ ありません.",
+      "options": [
+       "あの こうえんは あまり きれいじゃ ありません。",
+       "わたしは うたが あまり じょうずじゃ ありません。",
+       "この 町は あまり しずかじゃ ありません。",
+       "あの こうえんは あまり きれいです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay dùng あまり với câu khẳng định (sai: あまり好きです). Đừng nhầm với ぜんぜん〜ない là hoàn toàn không.",
+    "examples": [
+     {
+      "ja": "あまいものはあまりすきではありません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi không thích ăn đồ ăn ngọt cho lắm."
+     },
+     {
+      "ja": "かのじょはあまりまじめではありません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô ấy không chăm chỉ cho lắm."
+     },
+     {
+      "ja": "日曜日はあまり料理をしません。",
+      "ja_furigana": "日曜日(にちようび)はあまり料理(りょうり)をしません。",
+      "source": "CLAUDE",
+      "vi": "Chủ nhật tôi ít khi nấu ăn."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "あまり + Aくない + です.",
+      "options": [
+       "いそがしくない",
+       "いそがしい",
+       "いそがしかった",
+       "いそがしくて"
+      ],
+      "prompt_ja": "きょうは あまり （　　） です。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "あまり〜くなかった = (đã) không ... lắm.",
+      "options": [
+       "Bộ phim này rất hay.",
+       "Bộ phim này hoàn toàn không hay.",
+       "Bộ phim này hay hơn tôi nghĩ.",
+       "Bộ phim này không hay lắm."
+      ],
+      "prompt_ja": "この えいがは あまり おもしろくなかったです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "あまり không đi với câu khẳng định như きらいです; nói あまり すきじゃ ありません.",
+      "options": [
+       "わたしは あまり さかなが きらいです。",
+       "わたしは あまり さかなが すきじゃ ありません。",
+       "この くつは あまり 高くないです。",
+       "あの 人は あまり げんきじゃ ありません。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "あつくないです",
+      "sentence_ja": "この コーヒーは あまり ＿＿。（あつい・phủ định）",
+      "translation_vi": "Cà phê này không nóng lắm."
+     },
+     {
+      "answer": "ゆうめいじゃ",
+      "sentence_ja": "あの みせは あまり ＿＿ ありません。（ゆうめい）",
+      "translation_vi": "Quán kia không nổi tiếng lắm."
+     }
+    ],
+    "findings": [],
+    "formation": "あまり + Vない / Aくない / Aな じゃない",
+    "locked_fields": [],
+    "meaning_vi": "Trạng thái chỉ mức độ hạn định.",
+    "nuance_vi": "Nhẹ nhàng, tế nhị hơn phủ định thẳng; hay dùng khi từ chối hoặc chê khéo.",
+    "order_items": [
+     {
+      "answer_order": [
+       3,
+       0,
+       1,
+       2
+      ],
+      "pieces": [
+       "カメラは",
+       "あまり",
+       "高くないです",
+       "この"
+      ],
+      "translation_vi": "Cái máy ảnh này không đắt lắm."
+     },
+     {
+      "answer_order": [
+       3,
+       2,
+       1,
+       0
+      ],
+      "pieces": [
+       "ありません",
+       "げんきじゃ",
+       "あまり",
+       "わたしは"
+      ],
+      "translation_vi": "Tôi không khỏe lắm."
+     }
+    ],
+    "pattern": "〜あまり〜ない",
+    "pattern_variants": [],
+    "unit_no": 8,
+    "unit_title_vi": "Tính từ",
+    "usage_vi": "Dùng để nói mức độ hay tần suất không cao; luôn đi với dạng phủ định."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2642696f51"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "ví dụ; chẳng hạn như",
+     "examples": [
+      {
+       "ja": "私は果物が好きです。たとえば、りんごです。",
+       "ja_furigana": "私(わたし)は果物(くだもの)が好(す)きです。たとえば、りんごです。",
+       "vi": "Tôi thích hoa quả, ví dụ như táo."
+      },
+      {
+       "ja": "日本料理、たとえばすしやてんぷらが好きです。",
+       "ja_furigana": "日本料理(にほんりょうり)、たとえばすしやてんぷらが好(す)きです。",
+       "vi": "Tôi thích món Nhật, ví dụ như sushi, tempura."
+      },
+      {
+       "ja": "スポーツ、たとえばテニスをよくします。",
+       "ja_furigana": null,
+       "vi": "Tôi hay chơi thể thao, ví dụ như quần vợt."
+      }
+     ]
+    },
+    "note": "meaning cũ \"Trạng thái…\" không nói nghĩa; câu たとえば、本やノートをつかいます không có phần chung để minh họa, thay câu khác; bỏ chú thích lạc."
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Nêu ví dụ cụ thể cho \"hoa quả\": たとえば.",
+      "options": [
+       "でも",
+       "それから",
+       "たとえば",
+       "だから"
+      ],
+      "prompt_ja": "わたしは くだものが すきです。（　　）、りんごや みかんです。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Trả lời bằng ví dụ cụ thể: たとえば.",
+      "options": [
+       "ですから",
+       "たとえば",
+       "それでは",
+       "どうして"
+      ],
+      "prompt_ja": "「どんな ところへ 行きたいですか。」「（　　）、京都や おおさかです。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Thứ tự đúng: 「日本の 食べものが すきです。たとえば すし や てんぷらです。」. たとえば đứng đầu, sau đó là các ví dụ N や N.",
+      "options": [
+       "てんぷらです",
+       "たとえば",
+       "すし",
+       "や"
+      ],
+      "prompt_ja": "日本の 食べものが すきです。★ ＿＿ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 「わたしは まいにち スポーツを します。たとえば テニス や サッカーです。」. たとえば + N や N: nêu ví dụ về môn thể thao.",
+      "options": [
+       "サッカーです",
+       "たとえば",
+       "テニス",
+       "や"
+      ],
+      "prompt_ja": "わたしは まいにち スポーツを します。＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "たとえば = ví dụ như; Kyoto là một ví dụ.",
+      "options": [
+       "Tôi thích Nhật nhưng không thích Kyoto.",
+       "Tôi thích Kyoto vì nó ở Nhật.",
+       "Tôi chỉ thích mỗi Kyoto.",
+       "Tôi thích các thành phố của Nhật, ví dụ như Kyoto."
+      ],
+      "prompt_ja": "日本の 町が すきです。たとえば、京都です。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "たとえば + N は どうですか = ví dụ như N thì sao (gợi ý).",
+      "options": [
+       "Cuốn sách này hay nhất.",
+       "Ví dụ như cuốn sách này thì sao?",
+       "Tại sao lại là cuốn sách này?",
+       "Cuốn sách này của ai?"
+      ],
+      "prompt_ja": "たとえば、この 本は どうですか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "たとえば đứng trước ví dụ cụ thể, sau phần nói chung; ở đây bị đảo ngược.",
+      "options": [
+       "くだものが すきです。たとえば、りんごです。",
+       "スポーツを します。たとえば、テニスです。",
+       "りんごや みかん、たとえば くだものが すきです。",
+       "たとえば、この かばんは どうですか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "たとえば dùng để nêu ví dụ, không dùng để nối kết quả như \"vì vậy\".",
+      "options": [
+       "のみものは、たとえば コーヒーや こうちゃです。",
+       "あついですから、たとえば まどを あけます。",
+       "日本語の 本、たとえば この 本が いいです。",
+       "たとえば、あしたは どうですか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay đặt たとえば ở cuối câu như “chẳng hạn” trong tiếng Việt; たとえば luôn đứng trước phần ví dụ. Sau たとえば nên dùng や, など chứ không dùng と để kể hết.",
+    "examples": [
+     {
+      "ja": "たとえば、本やノートをつかいます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ví dụ, tôi dùng sách và vở. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "ja": "私は果物が好きです。たとえば、りんごです。",
+      "ja_furigana": "私(わたし)は果物(くだもの)が好(す)きです。たとえば、りんごです。",
+      "source": "CLAUDE",
+      "vi": "Tôi thích hoa quả, ví dụ như táo."
+     },
+     {
+      "ja": "日本料理、たとえばすしやてんぷらが好きです。",
+      "ja_furigana": "日本料理(にほんりょうり)、たとえばすしやてんぷらが好(す)きです。",
+      "source": "CLAUDE",
+      "vi": "Tôi thích món Nhật, ví dụ như sushi, tempura."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Nêu một ví dụ về đồ uống: たとえば.",
+      "options": [
+       "たとえば",
+       "だから",
+       "でも",
+       "それから"
+      ],
+      "prompt_ja": "わたしは のみものは、（　　） コーヒーが すきです。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "たとえば nêu cà chua làm ví dụ cho rau.",
+      "options": [
+       "Tôi không thích rau nhưng thích cà chua.",
+       "Tôi chỉ thích cà chua.",
+       "Tôi thích rau, ví dụ như cà chua.",
+       "Tôi thích cà chua hơn rau."
+      ],
+      "prompt_ja": "やさい、たとえば トマトが すきです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "たとえば không dùng để nêu kết quả; câu này không có ví dụ nào.",
+      "options": [
+       "日本の 町は、たとえば 東京や おおさかです。",
+       "たとえば、この くつは どうですか。",
+       "雨ですから、たとえば うちに います。",
+       "あまい ものが すきです。たとえば、ケーキです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "たとえば",
+      "sentence_ja": "くだものが すきです。＿＿、バナナです。",
+      "translation_vi": "Tôi thích hoa quả, ví dụ như chuối."
+     },
+     {
+      "answer": "たとえば",
+      "sentence_ja": "「どこが いいですか。」「＿＿、こうえんは どうですか。」",
+      "translation_vi": "Chỗ nào thì được? - Ví dụ như công viên thì sao?"
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: たとえば、本やノートをつかいます。"
+    ],
+    "formation": "たとえば、N1 や N2 (など)…",
+    "locked_fields": [],
+    "meaning_vi": "Trạng thái được sử dụng để nêu ra ví dụ cụ thể.",
+    "nuance_vi": "Trung tính; thường đi cùng や, など.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "みかんです",
+       "たとえば、",
+       "りんごや"
+      ],
+      "translation_vi": "Ví dụ như táo, quýt."
+     },
+     {
+      "answer_order": [
+       1,
+       0,
+       3,
+       2
+      ],
+      "pieces": [
+       "この",
+       "たとえば、",
+       "どうですか",
+       "シャツは"
+      ],
+      "translation_vi": "Ví dụ như cái áo sơ mi này thì sao?"
+     }
+    ],
+    "pattern": "〜たとえば",
+    "pattern_variants": [],
+    "unit_no": 10,
+    "unit_title_vi": "Có gì, ở đâu",
+    "usage_vi": "Đặt trước phần ví dụ để nêu vài trường hợp cụ thể minh họa cho điều vừa nói."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1455934d05"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "銀行は駅の前にあります。",
+       "ja_furigana": "銀行(ぎんこう)は駅(えき)の前(まえ)にあります。",
+       "vi": "Ngân hàng ở trước nhà ga."
+      },
+      {
+       "ja": "母は台所にいます。",
+       "ja_furigana": "母(はは)は台所(だいどころ)にいます。",
+       "vi": "Mẹ tôi đang ở trong bếp."
+      },
+      {
+       "ja": "ねこはいすの下にいます。",
+       "ja_furigana": "ねこはいすの下(した)にいます。",
+       "vi": "Con mèo ở dưới ghế."
+      }
+     ]
+    },
+    "note": "Câu きちじょうじにあります là cụm cụt với tên riêng lạ, thay bằng câu いる cho con vật; viết えき前 thành 駅の前, thêm furigana."
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Nơi tồn tại của vật dùng に + あります.",
+      "options": [
+       "で",
+       "に",
+       "を",
+       "へ"
+      ],
+      "prompt_ja": "ぎんこうは えきの 前 （　　） あります。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Con vật (có sống, cử động) dùng います.",
+      "options": [
+       "あります",
+       "しています",
+       "います",
+       "です"
+      ],
+      "prompt_ja": "わたしの ねこは いま にわに （　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Thứ tự đúng: 「山田さんは いま 二かいに います。」. Nơi chốn + に + います đứng cuối câu.",
+      "options": [
+       "山田さんは",
+       "二かいに",
+       "います",
+       "いま"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 「わたしの かばんは つくえの 上に あります。」. N は nơi chốn に あります.",
+      "options": [
+       "かばんは",
+       "わたしの",
+       "つくえの 上に",
+       "あります"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "二かいに あります = ở tầng 2.",
+      "options": [
+       "Nhà vệ sinh ở tầng 2.",
+       "Ở tầng 2 không có nhà vệ sinh.",
+       "Nhà vệ sinh ở tầng 1.",
+       "Nhà vệ sinh ở tầng 3."
+      ],
+      "prompt_ja": "トイレは 二かいに あります。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "きょうしつに います = đang ở trong lớp.",
+      "options": [
+       "Thầy giáo bây giờ đang ở trong lớp.",
+       "Thầy giáo bây giờ đang đi đến lớp.",
+       "Thầy giáo bây giờ không ở trong lớp.",
+       "Thầy giáo đã rời khỏi lớp."
+      ],
+      "prompt_ja": "先生は いま きょうしつに います。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Con mèo là động vật nên dùng います, không dùng あります.",
+      "options": [
+       "ねこは いすの 下に あります。",
+       "ねこは いすの 下に います。",
+       "本は かばんの 中に あります。",
+       "母は だいどころに います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Nơi tồn tại dùng に, không dùng で.",
+      "options": [
+       "ゆうびんきょくは ぎんこうの となりに あります。",
+       "ゆうびんきょくは ぎんこうの となりで あります。",
+       "子どもたちは こうえんに います。",
+       "わたしの うちは えきの 近くに あります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay dùng で thay cho に (sai: 銀行は駅の前であります); chỉ chỗ tồn tại phải dùng に.",
+    "examples": [
+     {
+      "ja": "きちじょうじにあります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nằm ở Kichijoji."
+     },
+     {
+      "ja": "ぎんこうはえき前にあります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngân hàng nằm ở trước nhà ga."
+     },
+     {
+      "ja": "母は台所にいます。",
+      "ja_furigana": "母(はは)は台所(だいどころ)にいます。",
+      "source": "CLAUDE",
+      "vi": "Mẹ tôi đang ở trong bếp."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Hỏi nơi tồn tại: どこに ありますか.",
+      "options": [
+       "で",
+       "を",
+       "が",
+       "に"
+      ],
+      "prompt_ja": "わたしの 本は どこ （　　） ありますか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "こうえんに います = đang ở công viên.",
+      "options": [
+       "Bọn trẻ đang ở công viên.",
+       "Bọn trẻ đang đi đến công viên.",
+       "Ở công viên không có trẻ con.",
+       "Bọn trẻ thích công viên."
+      ],
+      "prompt_ja": "子どもたちは こうえんに います。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đồ vật (ti vi) dùng あります.",
+      "options": [
+       "テレビは へやの 中に あります。",
+       "犬は 木の 下に います。",
+       "テレビは へやの 中に います。",
+       "えきは あそこに あります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "あります",
+      "sentence_ja": "ぎんこうは えきの 前に ＿＿。",
+      "translation_vi": "Ngân hàng ở trước nhà ga."
+     },
+     {
+      "answer": "います",
+      "sentence_ja": "田中さんは いま へやに ＿＿。",
+      "translation_vi": "Anh Tanaka bây giờ đang ở trong phòng."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: ぎんこうはえき前にあります。"
+    ],
+    "formation": "N + は + N(nơi chốn) + に + ある・いる",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ nơi chốn tồn tại.",
+    "nuance_vi": "Trung tính; đồ vật dùng ある, người và con vật dùng いる.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       2,
+       0,
+       3
+      ],
+      "pieces": [
+       "うしろに",
+       "えきは",
+       "あの ビルの",
+       "あります"
+      ],
+      "translation_vi": "Nhà ga ở phía sau tòa nhà kia."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       3,
+       0
+      ],
+      "pieces": [
+       "います",
+       "わたしの",
+       "犬は",
+       "にわに"
+      ],
+      "translation_vi": "Con chó của tôi ở ngoài vườn."
+     }
+    ],
+    "pattern": "〜にある・いる",
+    "pattern_variants": [],
+    "unit_no": 10,
+    "unit_title_vi": "Có gì, ở đâu",
+    "usage_vi": "Dùng để nói một người, vật đã biết đang ở đâu; nơi chốn đứng trước に."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f8a97297c8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "わたしが書いた本です。",
+       "ja_furigana": "わたしが書(か)いた本(ほん)です。",
+       "vi": "Đây là quyển sách tôi đã viết."
+      },
+      {
+       "ja": "これは父がとった写真です。",
+       "ja_furigana": "これは父(ちち)がとった写真(しゃしん)です。",
+       "vi": "Đây là bức ảnh bố tôi chụp."
+      },
+      {
+       "ja": "兄の書いた手紙はおもしろい。",
+       "ja_furigana": "兄(あに)の書(か)いた手紙(てがみ)はおもしろい。",
+       "vi": "Lá thư anh tôi viết rất thú vị."
+      }
+     ]
+    },
+    "note": "撮 trên cấp N5 → viết とった; thêm furigana, bỏ chú thích lạc."
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Chủ thể của hành động trong cụm bổ nghĩa dùng が (hoặc の).",
+      "options": [
+       "を",
+       "が",
+       "で",
+       "へ"
+      ],
+      "prompt_ja": "これは 母 （　　） つくった ケーキです。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Trong cụm bổ nghĩa cho danh từ, が có thể đổi thành の: 田中さんの かいた え.",
+      "options": [
+       "を",
+       "に",
+       "の",
+       "で"
+      ],
+      "prompt_ja": "田中さん （　　） かいた えは どれですか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Thứ tự đúng: 「これは わたし が とった しゃしん です。」. N が + động từ thể thường + danh từ: わたしが とった しゃしん.",
+      "options": [
+       "しゃしん",
+       "とった",
+       "が",
+       "わたし"
+      ],
+      "prompt_ja": "これは ＿＿ ＿＿ ★ ＿＿ です。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Thứ tự đúng: 「先生 の 書いた 本 を 読みました。」. N の + động từ + danh từ: 先生の 書いた 本.",
+      "options": [
+       "の",
+       "本",
+       "書いた",
+       "先生"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿ を 読みました。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "父が とった = bố đã chụp; bố là người chụp chứ không phải người được chụp.",
+      "options": [
+       "Đây là bức ảnh chụp bố tôi.",
+       "Đây là bức ảnh bố tôi đã chụp.",
+       "Đây là máy ảnh của bố tôi.",
+       "Bố tôi thích bức ảnh này."
+      ],
+      "prompt_ja": "これは 父が とった しゃしんです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "わたしの すきな = mà tôi thích; の chỉ người thích.",
+      "options": [
+       "Món ăn bạn tôi thích là sushi.",
+       "Món ăn tôi thích là sushi.",
+       "Tôi không thích sushi.",
+       "Tôi muốn ăn sushi."
+      ],
+      "prompt_ja": "わたしの すきな 食べものは すしです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Người làm hành động dùng が hoặc の, không dùng を.",
+      "options": [
+       "これは 母が つくった ケーキです。",
+       "これは 母の つくった ケーキです。",
+       "これは 母を つくった ケーキです。",
+       "わたしが 書いた 手紙です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Trong cụm bổ nghĩa cho danh từ không dùng は; dùng が hoặc の.",
+      "options": [
+       "これは わたしが 書いた 本です。",
+       "あれは 兄が 買った 車です。",
+       "これは わたしは 書いた 本です。",
+       "友だちの すきな うたです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay dùng は trong cụm bổ nghĩa (sai: 母は作った料理); chủ ngữ trong cụm bổ nghĩa không dùng は.",
+    "examples": [
+     {
+      "ja": "わたしが書いた本です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đây là quyển sách tôi đã viết. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "ja": "これは父が撮った写真です。",
+      "ja_furigana": "これは父(ちち)が撮(と)った写真(しゃしん)です。",
+      "source": "CLAUDE",
+      "vi": "Đây là ảnh bố tôi chụp."
+     },
+     {
+      "ja": "兄の書いた手紙はおもしろい。",
+      "ja_furigana": "兄(あに)の書(か)いた手紙(てがみ)はおもしろい。",
+      "source": "CLAUDE",
+      "vi": "Lá thư anh tôi viết rất thú vị."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Người thực hiện hành động trong cụm bổ nghĩa dùng が.",
+      "options": [
+       "が",
+       "を",
+       "に",
+       "へ"
+      ],
+      "prompt_ja": "あの 人 （　　） うたった うたは とても よかったです。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "あねの つくった = do chị làm; の chỉ người làm.",
+      "options": [
+       "Tôi đã ăn chiếc bánh chị tôi làm.",
+       "Chị tôi đã ăn chiếc bánh tôi làm.",
+       "Tôi đã làm bánh cho chị tôi.",
+       "Tôi muốn ăn bánh chị tôi làm."
+      ],
+      "prompt_ja": "あねの つくった ケーキを 食べました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Người thực hiện hành động dùng が/の, không dùng で.",
+      "options": [
+       "これは 山田さんで とった しゃしんです。",
+       "これは 山田さんが とった しゃしんです。",
+       "これは 山田さんの とった しゃしんです。",
+       "わたしが すんで いる 町です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "買った",
+      "sentence_ja": "これは 兄が きのう ＿＿ 車です。（mua）",
+      "translation_vi": "Đây là chiếc xe anh trai tôi mua hôm qua."
+     },
+     {
+      "answer": "すきな",
+      "sentence_ja": "わたしの ＿＿ 食べものは ラーメンです。（thích）",
+      "translation_vi": "Món ăn tôi thích là mì ramen."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: わたしが書いた本です。",
+     "EXAMPLE_ABOVE_LEVEL: これは父が撮った写真です。 → 撮"
+    ],
+    "formation": "N + が・の + V + N (母が作った料理, 母の作った料理)",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ chủ thể của cụm từ bổ nghĩa",
+    "nuance_vi": "の nghe mềm và hơi trang trọng; が phổ biến hơn trong hội thoại.",
+    "order_items": [
+     {
+      "answer_order": [
+       0,
+       2,
+       3,
+       1
+      ],
+      "pieces": [
+       "母が",
+       "おいしいです",
+       "つくった",
+       "りょうりは"
+      ],
+      "translation_vi": "Món ăn mẹ tôi nấu rất ngon."
+     },
+     {
+      "answer_order": [
+       0,
+       3,
+       2,
+       1
+      ],
+      "pieces": [
+       "これは",
+       "本です",
+       "書いた",
+       "先生の"
+      ],
+      "translation_vi": "Đây là cuốn sách thầy giáo đã viết."
+     }
+    ],
+    "pattern": "〜の・〜が",
+    "pattern_variants": [],
+    "unit_no": 22,
+    "unit_title_vi": "Bổ nghĩa cho danh từ",
+    "usage_vi": "Trong cụm bổ nghĩa đứng trước danh từ, chủ ngữ của cụm đó được đánh dấu bằng が hoặc の."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-06ffc763fd"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điểm xuất phát dùng から.",
+      "options": [
+       "まで",
+       "へ",
+       "で",
+       "から"
+      ],
+      "prompt_ja": "うち （　　） 学校まで あるいて 十分です。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điểm đến trong khung から〜まで dùng まで.",
+      "options": [
+       "から",
+       "を",
+       "が",
+       "まで"
+      ],
+      "prompt_ja": "えきから こうえん （　　） バスで 行きます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 「うち から えき まで あるいて 行きます。」. Nơi bắt đầu + から, nơi kết thúc + まで.",
+      "options": [
+       "から",
+       "うち",
+       "えき",
+       "まで"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿ あるいて 行きます。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 「ここ から 学校 まで ちかいです。」. ここから 学校まで = từ đây đến trường.",
+      "options": [
+       "から",
+       "ここ",
+       "学校",
+       "まで"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★ ちかいです。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "うちから = từ nhà, かいしゃまで = đến công ty.",
+      "options": [
+       "Tôi đi tàu điện từ nhà đến công ty.",
+       "Tôi đi tàu điện từ công ty về nhà.",
+       "Tôi đi bộ từ nhà đến công ty.",
+       "Nhà tôi gần công ty."
+      ],
+      "prompt_ja": "うちから かいしゃまで でんしゃで 行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "えきから ホテルまで = từ nhà ga đến khách sạn; 行きました là quá khứ.",
+      "options": [
+       "Tôi đã đi taxi từ khách sạn đến nhà ga.",
+       "Tôi sẽ đi taxi từ nhà ga đến khách sạn.",
+       "Tôi đã đi taxi từ nhà ga đến khách sạn.",
+       "Tôi đã đi bộ từ nhà ga đến khách sạn."
+      ],
+      "prompt_ja": "えきから ホテルまで タクシーで 行きました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điểm xuất phát dùng から, không dùng で.",
+      "options": [
+       "えきから くうこうまで バスで 行きます。",
+       "えきで くうこうまで バスで 行きます。",
+       "うちから 学校まで あるきます。",
+       "ここから あそこまで はしります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điểm cuối dùng まで, không lặp lại から.",
+      "options": [
+       "東京から おおさかまで 行きます。",
+       "こうえんから えきまで 五分です。",
+       "東京から おおさかから 行きます。",
+       "日本から ベトナムまで ひこうきで 行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay dùng へ thay cho まで khi nói phạm vi (sai: 家から駅へ何分ですか); nói khoảng cách dùng まで. Hỏi mất bao lâu thì thêm どのくらいかかりますか.",
+    "examples": [
+     {
+      "ja": "えきから くうこうまで バスが でます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có xe buýt chạy từ ga ra sân bay."
+     },
+     {
+      "ja": "家から駅まで10分です。",
+      "ja_furigana": "家(いえ)から駅(えき)まで10分(じゅっぷん)です。",
+      "source": "CLAUDE",
+      "vi": "Từ nhà đến ga mất 10 phút."
+     },
+     {
+      "ja": "駅から学校までバスで15分です。",
+      "ja_furigana": "駅(えき)から学校(がっこう)までバスで15分(じゅうごふん)です。",
+      "source": "CLAUDE",
+      "vi": "Từ ga đến trường đi xe buýt mất 15 phút."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điểm xuất phát dùng から.",
+      "options": [
+       "まで",
+       "から",
+       "に",
+       "で"
+      ],
+      "prompt_ja": "ここ （　　） えきまで どのくらいですか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "あるいて 五分 = đi bộ 5 phút.",
+      "options": [
+       "Từ công viên đến thư viện đi bộ mất 5 phút.",
+       "Từ công viên đến thư viện đi bộ mất 15 phút.",
+       "Từ công viên đến thư viện đi xe buýt mất 5 phút.",
+       "Thư viện ở trong công viên."
+      ],
+      "prompt_ja": "こうえんから としょかんまで あるいて 五分です。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điểm xuất phát dùng から, không dùng に.",
+      "options": [
+       "えきから こうえんまで あるきます。",
+       "うちから 会社まで 一時間です。",
+       "えきに こうえんまで あるきます。",
+       "ここから えきまで 近いです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "から",
+      "sentence_ja": "ハノイ ＿＿ ホーチミンまで ひこうきで 行きます。",
+      "translation_vi": "Tôi đi máy bay từ Hà Nội đến TP. Hồ Chí Minh."
+     },
+     {
+      "answer": "まで",
+      "sentence_ja": "えきから うち ＿＿ 十分です。",
+      "translation_vi": "Từ ga về nhà mất 10 phút."
+     }
+    ],
+    "findings": [],
+    "formation": "N(nơi chốn) + から + N(nơi chốn) + まで",
+    "locked_fields": [],
+    "meaning_vi": "Nói đi từ đâu đến đâu\nGiống mốc giờ bài trước, nhưng lần này là mốc nơi chốn.",
+    "nuance_vi": "Trung tính; hay dùng khi nói đường đi và thời gian di chuyển.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       0,
+       2
+      ],
+      "pieces": [
+       "えきまで",
+       "うちから",
+       "あるきます"
+      ],
+      "translation_vi": "Tôi đi bộ từ nhà đến ga."
+     },
+     {
+      "answer_order": [
+       0,
+       2,
+       1
+      ],
+      "pieces": [
+       "ここから",
+       "とおいですか",
+       "こうえんまで"
+      ],
+      "translation_vi": "Từ đây đến công viên có xa không?"
+     }
+    ],
+    "pattern": "<nơi> から <nơi> まで",
+    "pattern_variants": [],
+    "unit_no": 5,
+    "unit_title_vi": "Đi, đến, về",
+    "usage_vi": "Hai mốc hay đi cùng câu chỉ phương tiện: うちから えきまで あるいて いきます."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ae13357418"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日、自転車で学校へ行きます。",
+       "ja_furigana": "毎日(まいにち)、自転車(じてんしゃ)で学校(がっこう)へ行(い)きます。",
+       "vi": "Ngày nào tôi cũng đi học bằng xe đạp."
+      },
+      {
+       "ja": "今日、タクシーで帰ります。",
+       "ja_furigana": "今日(きょう)、タクシーで帰(かえ)ります。",
+       "vi": "Hôm nay tôi về bằng taxi."
+      },
+      {
+       "ja": "駅までバスで行きます。",
+       "ja_furigana": "駅(えき)までバスで行(い)きます。",
+       "vi": "Tôi đi xe buýt đến ga."
+      }
+     ]
+    },
+    "note": "Câu えきで でんしゃに のります dùng で chỉ nơi chốn, không phải phương tiện; dễ làm người học hiểu sai mẫu, thay câu khác."
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Phương tiện đi lại dùng で: じてんしゃで.",
+      "options": [
+       "に",
+       "を",
+       "と",
+       "で"
+      ],
+      "prompt_ja": "まいにち じてんしゃ （　　） 学校へ 行きます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đi bộ nói là あるいて (dạng て), không dùng で.",
+      "options": [
+       "あるきで",
+       "あるきて",
+       "あるいて",
+       "あるくで"
+      ],
+      "prompt_ja": "えきまで （　　） 行きます。（đi bộ）",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 「わたしは まいにち あにの あたらしい じてんしゃ で 学校へ 行きます。」. Phương tiện (あにの あたらしい じてんしゃ) + で.",
+      "options": [
+       "あにの",
+       "じてんしゃ",
+       "あたらしい",
+       "で"
+      ],
+      "prompt_ja": "わたしは まいにち ＿＿ ＿＿ ＿＿ ★ 学校へ 行きます。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Thứ tự đúng: 「学校へは なに で 行きます か。」. Hỏi phương tiện: なにで 行きますか.",
+      "options": [
+       "か",
+       "で",
+       "行きます",
+       "なに"
+      ],
+      "prompt_ja": "学校へは ＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "バスで = bằng xe buýt.",
+      "options": [
+       "Hằng ngày tôi đi bộ đến công ty.",
+       "Hằng ngày tôi đi xe buýt về nhà.",
+       "Hằng ngày tôi đi làm bằng xe buýt.",
+       "Hôm qua tôi đi làm bằng xe buýt."
+      ],
+      "prompt_ja": "わたしは まいにち バスで かいしゃへ 行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "あるいて 行きました = đã đi bộ.",
+      "options": [
+       "Tôi đã chạy đến nhà ga.",
+       "Tôi đã đi xe đạp đến nhà ga.",
+       "Tôi đã đi bộ đến nhà ga.",
+       "Tôi sẽ đi bộ đến nhà ga."
+      ],
+      "prompt_ja": "えきまで あるいて 行きました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Phương tiện dùng で, không dùng に.",
+      "options": [
+       "くうこうへ バスで 行きます。",
+       "学校へ じてんしゃで 行きます。",
+       "くうこうへ バスに 行きます。",
+       "うちへ タクシーで かえります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Đi bộ là あるいて, không có cách nói あるきで.",
+      "options": [
+       "えきへ あるきで 行きます。",
+       "えきへ あるいて 行きます。",
+       "おおさかへ しんかんせんで 行きます。",
+       "日本へ ひこうきで 来ました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay nói 足で行きます cho đi bộ; đúng là 歩いて行きます. Lên xe thì dùng に乗ります, không dùng で乗ります.",
+    "examples": [
+     {
+      "ja": "えきで でんしゃに のります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi lên tàu ở nhà ga."
+     },
+     {
+      "ja": "毎日、自転車で学校へ行きます。",
+      "ja_furigana": "毎日(まいにち)、自転車(じてんしゃ)で学校(がっこう)へ行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Ngày nào tôi cũng đi học bằng xe đạp."
+     },
+     {
+      "ja": "今日、タクシーで帰ります。",
+      "ja_furigana": "今日(きょう)、タクシーで帰(かえ)ります。",
+      "source": "CLAUDE",
+      "vi": "Hôm nay tôi về bằng taxi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Phương tiện dùng で: ひこうきで.",
+      "options": [
+       "で",
+       "に",
+       "を",
+       "が"
+      ],
+      "prompt_ja": "ベトナムから 日本まで ひこうき （　　） 来ました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "じてんしゃで = bằng xe đạp; こうえんへ = đến công viên.",
+      "options": [
+       "Anh Yamada đã đi bộ đến công viên.",
+       "Anh Yamada đã đạp xe trong công viên.",
+       "Anh Yamada đã đi xe đạp đến công viên.",
+       "Anh Yamada sẽ đi xe đạp đến công viên."
+      ],
+      "prompt_ja": "山田さんは じてんしゃで こうえんへ 行きました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Phương tiện dùng で, không dùng を.",
+      "options": [
+       "わたしは タクシーで 行きます。",
+       "母は バスで デパートへ 行きます。",
+       "ちかてつで かいしゃへ 行きます。",
+       "わたしは タクシーを 行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "で",
+      "sentence_ja": "まいあさ でんしゃ ＿＿ 会社へ 行きます。",
+      "translation_vi": "Mỗi sáng tôi đi tàu điện đến công ty."
+     },
+     {
+      "answer": "あるいて",
+      "sentence_ja": "えきまで ＿＿ 十分です。（đi bộ）",
+      "translation_vi": "Đi bộ đến ga mất 10 phút."
+     }
+    ],
+    "findings": [],
+    "formation": "N(phương tiện) + で + 行きます・来ます・帰ります",
+    "locked_fields": [],
+    "meaning_vi": "Nói đi bằng phương tiện gì\nPhương tiện đứng trước で: でんしゃで、バスで、じてんしゃで.",
+    "nuance_vi": "Trung tính; phương tiện đi lại đứng trước で.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "くるまで",
+       "行きます",
+       "あにの"
+      ],
+      "translation_vi": "Tôi đi bằng xe ô tô của anh trai."
+     },
+     {
+      "answer_order": [
+       1,
+       0,
+       2
+      ],
+      "pieces": [
+       "なにで",
+       "学校へは",
+       "行きますか"
+      ],
+      "translation_vi": "Bạn đến trường bằng gì?"
+     }
+    ],
+    "pattern": "N で いきます",
+    "pattern_variants": [],
+    "unit_no": 5,
+    "unit_title_vi": "Đi, đến, về",
+    "usage_vi": "Đi bộ là ngoại lệ, nói あるいて chứ không nói あしで."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bdf7557863"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Người cùng đi dùng と.",
+      "options": [
+       "を",
+       "と",
+       "へ",
+       "に"
+      ],
+      "prompt_ja": "きのう 友だち （　　） えいがを 見に 行きました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đi một mình nói ひとりで, không dùng と.",
+      "options": [
+       "ひとりと",
+       "ひとりに",
+       "ひとりで",
+       "ひとりを"
+      ],
+      "prompt_ja": "「だれと 行きますか。」「（　　） 行きます。」（một mình）",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 「あしたは クラスの 友だち と いっしょに 行きます。」. Người đi cùng + と いっしょに.",
+      "options": [
+       "いっしょに",
+       "友だち",
+       "と",
+       "クラスの"
+      ],
+      "prompt_ja": "あしたは ＿＿ ＿＿ ★ ＿＿ 行きます。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 「えいがは だれ と 見に 行きますか。」. Hỏi người đi cùng: だれと.",
+      "options": [
+       "見に",
+       "だれ",
+       "と",
+       "行きますか"
+      ],
+      "prompt_ja": "えいがは ＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "かぞくと = cùng với gia đình.",
+      "options": [
+       "Tôi đi du lịch để gặp gia đình.",
+       "Gia đình tôi đi du lịch, còn tôi ở nhà.",
+       "Tôi đi du lịch một mình.",
+       "Tôi đi du lịch cùng gia đình."
+      ],
+      "prompt_ja": "かぞくと りょこうに 行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "ひとりで = một mình.",
+      "options": [
+       "Hôm qua tôi đã đi công viên với một người bạn.",
+       "Hôm qua tôi đã đi công viên với gia đình.",
+       "Hôm qua tôi đã đi công viên một mình.",
+       "Hôm qua tôi không đi công viên."
+      ],
+      "prompt_ja": "きのう ひとりで こうえんへ 行きました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Người đi cùng dùng と, không dùng を.",
+      "options": [
+       "友だちと デパートへ 行きます。",
+       "先生と 東京へ 行きます。",
+       "母と スーパーへ 行きました。",
+       "友だちを デパートへ 行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "\"Một mình\" là ひとりで; と chỉ dùng với người đi cùng.",
+      "options": [
+       "あしたは ひとりで 行きます。",
+       "あしたは ひとりと 行きます。",
+       "あには 友だちと 行きます。",
+       "きのう かぞくと 行きました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Đi một mình hay nói nhầm 一人と; đúng là 一人で. Hỏi “đi với ai” là だれと行きますか.",
+    "examples": [
+     {
+      "ja": "だれと とうきょうへ いきますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn đi Tokyo với ai?"
+     },
+     {
+      "ja": "土曜日に家族と海へ行きます。",
+      "ja_furigana": "土曜日(どようび)に家族(かぞく)と海(うみ)へ行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Thứ bảy tôi đi biển với gia đình."
+     },
+     {
+      "ja": "友だちとデパートへ行きます。",
+      "ja_furigana": "友(とも)だちとデパートへ行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Tôi đi cửa hàng bách hóa với bạn."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Người cùng về dùng と: かぞくと.",
+      "options": [
+       "を",
+       "に",
+       "で",
+       "と"
+      ],
+      "prompt_ja": "なつやすみに かぞく （　　） 国へ かえります。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "いもうとと いっしょに = cùng với em gái.",
+      "options": [
+       "Em gái tôi đã đi công viên một mình.",
+       "Tôi đã đến công viên để gặp em gái.",
+       "Tôi đã đi công viên cùng em gái.",
+       "Tôi sẽ đi công viên cùng em gái."
+      ],
+      "prompt_ja": "いもうとと いっしょに こうえんへ 行きました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "いっしょに đi với と: 先生と いっしょに.",
+      "options": [
+       "わたしは 先生と いっしょに 行きます。",
+       "友だちと うみへ 行きます。",
+       "ひとりで 山へ 行きます。",
+       "わたしは 先生に いっしょに 行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "と",
+      "sentence_ja": "あした 母 ＿＿ かいものに 行きます。",
+      "translation_vi": "Ngày mai tôi đi mua sắm cùng mẹ."
+     },
+     {
+      "answer": "ひとりで",
+      "sentence_ja": "きのう ＿＿ えいがを 見に 行きました。（một mình）",
+      "translation_vi": "Hôm qua tôi đã đi xem phim một mình."
+     }
+    ],
+    "findings": [],
+    "formation": "N(người) + と + 行きます / 一人で + 行きます",
+    "locked_fields": [],
+    "meaning_vi": "Nói đi với ai\nNgười đi cùng đứng trước と; đi một mình thì nói ひとりで, không dùng と.",
+    "nuance_vi": "Trung tính; と chỉ người cùng đi.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       0,
+       2
+      ],
+      "pieces": [
+       "友だちと",
+       "クラスの",
+       "行きます"
+      ],
+      "translation_vi": "Tôi đi cùng bạn trong lớp."
+     },
+     {
+      "answer_order": [
+       2,
+       1,
+       0
+      ],
+      "pieces": [
+       "行きますか",
+       "いっしょに",
+       "だれと"
+      ],
+      "translation_vi": "Bạn đi cùng với ai?"
+     }
+    ],
+    "pattern": "N と いきます",
+    "pattern_variants": [],
+    "unit_no": 5,
+    "unit_title_vi": "Đi, đến, về",
+    "usage_vi": "Hỏi ai đi cùng thì だれと いきますか."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-30023f2c1d"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mời người khác đến nhà mình: 来ませんか.",
+      "options": [
+       "かえりません",
+       "来ません",
+       "ありません",
+       "いません"
+      ],
+      "prompt_ja": "「あした わたしの うちへ （　　） か。」「はい、行きます。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Nơi về dùng へ.",
+      "options": [
+       "を",
+       "へ",
+       "で",
+       "が"
+      ],
+      "prompt_ja": "しごとが おわりました。うち （　　） かえります。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 「わたしは まいにち 学校へ 行きます。」. Nơi đến + へ đứng ngay trước 行きます.",
+      "options": [
+       "わたしは",
+       "まいにち",
+       "行きます",
+       "学校へ"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Thứ tự đúng: 「先生は もう うちへ かえりました。」. N へ かえりました: động từ đứng cuối.",
+      "options": [
+       "かえりました",
+       "先生は",
+       "うちへ",
+       "もう"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "来ます = đến (chỗ người nói); chủ ngữ là 友だち.",
+      "options": [
+       "Ngày mai bạn tôi sẽ đến nhà tôi.",
+       "Ngày mai tôi sẽ đến nhà bạn.",
+       "Ngày mai bạn tôi sẽ về nhà.",
+       "Hôm qua bạn tôi đã đến nhà tôi."
+      ],
+      "prompt_ja": "あした 友だちが うちへ 来ます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "国へ かえります = về nước.",
+      "options": [
+       "Tháng sau tôi sẽ sang Nhật.",
+       "Tháng trước tôi đã về nước.",
+       "Tháng sau tôi sẽ về nước.",
+       "Tháng sau tôi sẽ đi du lịch nước ngoài."
+      ],
+      "prompt_ja": "らいげつ 国へ かえります。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Nơi đến dùng へ, không dùng を.",
+      "options": [
+       "あした 東京へ 行きます。",
+       "あした 東京を 行きます。",
+       "友だちが 日本へ 来ます。",
+       "九時に うちへ かえります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Nơi đến của 行きます dùng へ, không dùng で.",
+      "options": [
+       "あした こうえんで 行きます。",
+       "あした こうえんへ 行きます。",
+       "友だちが うちへ 来ます。",
+       "あには 国へ かえりました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay đọc へ là “he”; đọc đúng là “e”. Về nhà thì nói うちへ帰ります, không dùng 行きます.",
+    "examples": [
+     {
+      "ja": "としょかんへ いきます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đi đến thư viện."
+     },
+     {
+      "ja": "明日、病院へ行きます。",
+      "ja_furigana": "明日(あした)、病院(びょういん)へ行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Ngày mai tôi đi bệnh viện."
+     },
+     {
+      "ja": "先生は来月日本へ帰ります。",
+      "ja_furigana": "先生(せんせい)は来月(らいげつ)日本(にほん)へ帰(かえ)ります。",
+      "source": "CLAUDE",
+      "vi": "Tháng sau thầy giáo về Nhật."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Nơi đến dùng へ.",
+      "options": [
+       "を",
+       "が",
+       "へ",
+       "で"
+      ],
+      "prompt_ja": "まいあさ 八時に 学校 （　　） 行きます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "先週 = tuần trước; かえりました = đã về.",
+      "options": [
+       "Em gái tôi sẽ về nước tuần sau.",
+       "Em gái tôi đã sang Nhật tuần trước.",
+       "Em gái tôi đã đi Mỹ tuần trước.",
+       "Em gái tôi đã về nước tuần trước."
+      ],
+      "prompt_ja": "いもうとは 先週 国へ かえりました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Nơi đến của 来ます dùng へ, không dùng で.",
+      "options": [
+       "らいねん 日本へ 来ます。",
+       "らいねん 日本で 来ます。",
+       "こんばん うちへ かえります。",
+       "あした デパートへ 行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "かえります",
+      "sentence_ja": "らいねん 国へ ＿＿。（về）",
+      "translation_vi": "Năm sau tôi sẽ về nước."
+     },
+     {
+      "answer": "来ました",
+      "sentence_ja": "きのう 田中さんが うちへ ＿＿。（đến）",
+      "translation_vi": "Hôm qua anh Tanaka đã đến nhà tôi."
+     }
+    ],
+    "findings": [],
+    "formation": "N(nơi chốn) + へ + 行きます・来ます・帰ります",
+    "locked_fields": [],
+    "meaning_vi": "Nói đi đâu, đến đâu, về đâu\nNơi đến đứng trước, へ nối vào rồi mới tới động từ.",
+    "nuance_vi": "Trung tính; へ chỉ hướng di chuyển.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "来ますか",
+       "あしたの",
+       "パーティーへ"
+      ],
+      "translation_vi": "Bạn có đến bữa tiệc ngày mai không?"
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "うちへ",
+       "来て ください",
+       "わたしの"
+      ],
+      "translation_vi": "Hãy đến nhà tôi nhé."
+     }
+    ],
+    "pattern": "N へ いきます/きます/かえります",
+    "pattern_variants": [],
+    "unit_no": 5,
+    "unit_title_vi": "Đi, đến, về",
+    "usage_vi": "Chữ へ ở đây đọc là え, không đọc là へ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a63f4456fb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "usage_vi": "Hỏi nơi đến dùng どこへ, hỏi thời điểm dùng いつ (không thêm に). Không đi đâu cả thì đáp どこ(へ)も 行きません."
+    },
+    "note": "usage cũ viết \"Không biết đi đâu\" là sai ý (đúng: không đi đâu cả); thống nhất với common_mistakes."
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Hỏi nơi đến: どこへ 行きますか.",
+      "options": [
+       "いつ",
+       "だれ",
+       "どこ",
+       "なに"
+      ],
+      "prompt_ja": "「なつやすみに （　　） へ 行きますか。」「京都へ 行きます。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu trả lời là thời điểm nên hỏi いつ.",
+      "options": [
+       "どこ",
+       "だれ",
+       "なん",
+       "いつ"
+      ],
+      "prompt_ja": "「（　　） 日本へ 来ましたか。」「きょねんの 四月です。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 「あした どこ へ 行きます か。」. どこへ 行きますか: へ đứng sau どこ.",
+      "options": [
+       "か",
+       "どこ",
+       "へ",
+       "行きます"
+      ],
+      "prompt_ja": "あした ＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Thứ tự đúng: 「いつ 国へ かえります か。」. Hỏi thời điểm: いつ + 国へ かえりますか.",
+      "options": [
+       "いつ",
+       "かえります",
+       "国へ",
+       "か"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "どこへ 行きましたか = đã đi đâu.",
+      "options": [
+       "Chủ nhật bạn đã đi đâu?",
+       "Chủ nhật bạn sẽ đi đâu?",
+       "Chủ nhật bạn đã đi với ai?",
+       "Chủ nhật bạn đã ở nhà ai?"
+      ],
+      "prompt_ja": "日よう日 どこへ 行きましたか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "いつ + かえりますか (tương lai) = khi nào sẽ về.",
+      "options": [
+       "Bạn về Việt Nam bằng gì?",
+       "Khi nào bạn về Việt Nam?",
+       "Bạn đã về Việt Nam khi nào?",
+       "Bạn về Việt Nam với ai?"
+      ],
+      "prompt_ja": "いつ ベトナムへ かえりますか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Hỏi nơi đến dùng どこへ, không dùng どこを.",
+      "options": [
+       "あした どこへ 行きますか。",
+       "いつ 日本へ 来ましたか。",
+       "あした どこを 行きますか。",
+       "だれと 行きますか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "いつ không đi với に; なんじ thì đi với に.",
+      "options": [
+       "いつ 東京へ 行きますか。",
+       "どこへ 行きましたか。",
+       "なんじに うちへ かえりますか。",
+       "いつに 東京へ 行きますか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay thêm に sau いつ (sai: いつに行きますか). Không đi đâu thì đáp どこへも行きません.",
+    "examples": [
+     {
+      "ja": "こんしゅう どこへ いきますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tuần này bạn đi đâu?"
+     },
+     {
+      "ja": "夏休みはいつ国へ帰りますか。",
+      "ja_furigana": "夏休(なつやす)みはいつ国(くに)へ帰(かえ)りますか。",
+      "source": "CLAUDE",
+      "vi": "Nghỉ hè khi nào bạn về nước?"
+     },
+     {
+      "ja": "明日どこへ行きますか。",
+      "ja_furigana": "明日(あした)どこへ行(い)きますか。",
+      "source": "CLAUDE",
+      "vi": "Ngày mai bạn đi đâu?"
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Hỏi nơi đến: どこへ.",
+      "options": [
+       "を",
+       "へ",
+       "で",
+       "が"
+      ],
+      "prompt_ja": "「きのう どこ （　　） 行きましたか。」「どこへも 行きませんでした。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "いつ hỏi thời điểm; 来ますか là tương lai.",
+      "options": [
+       "Lần tới khi nào bạn lại đến chơi?",
+       "Lần tới bạn đến chơi ở đâu?",
+       "Lần trước bạn đến chơi khi nào?",
+       "Lần tới bạn đến chơi với ai?"
+      ],
+      "prompt_ja": "こんど いつ あそびに 来ますか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "きのう là quá khứ nên phải hỏi 行きましたか.",
+      "options": [
+       "きのう どこへ 行きましたか。",
+       "あした どこへ 行きますか。",
+       "きのう どこへ 行きますか。",
+       "いつ うちへ かえりますか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "どこ",
+      "sentence_ja": "「あした ＿＿ へ 行きますか。」「としょかんへ 行きます。」",
+      "translation_vi": "Ngày mai bạn đi đâu? - Tôi đi thư viện."
+     },
+     {
+      "answer": "いつ",
+      "sentence_ja": "「＿＿ 京都へ 行きますか。」「らいしゅうです。」",
+      "translation_vi": "Khi nào bạn đi Kyoto? - Tuần sau."
+     }
+    ],
+    "findings": [],
+    "formation": "どこへ + 行きますか / いつ + 行きますか",
+    "locked_fields": [],
+    "meaning_vi": "Hỏi đi đâu\nHỏi nơi đến thì đổi chỗ nơi đến thành どこ, phần còn lại giữ nguyên.",
+    "nuance_vi": "Trung tính; いつ không cần thêm trợ từ に.",
+    "order_items": [
+     {
+      "answer_order": [
+       0,
+       2,
+       1
+      ],
+      "pieces": [
+       "なつやすみに",
+       "行きますか",
+       "どこへ"
+      ],
+      "translation_vi": "Kỳ nghỉ hè bạn đi đâu?"
+     },
+     {
+      "answer_order": [
+       0,
+       2,
+       1
+      ],
+      "pieces": [
+       "どこへ",
+       "ですか",
+       "行きたい"
+      ],
+      "translation_vi": "Bạn muốn đi đâu?"
+     }
+    ],
+    "pattern": "どこへ いきますか / いつ いきますか",
+    "pattern_variants": [],
+    "unit_no": 5,
+    "unit_title_vi": "Đi, đến, về",
+    "usage_vi": "Không biết đi đâu thì đáp どこも いきません — không đi đâu cả."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-701e98a1b5"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N5",
+ "packet_id": "REVIEW_GRAMMAR-017"
+}

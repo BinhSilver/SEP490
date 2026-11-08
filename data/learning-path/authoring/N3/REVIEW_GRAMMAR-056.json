@@ -1,0 +1,587 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町を知るには、歩いてみるといい。",
+       "ja_furigana": "この町(まち)を知(し)るには、歩(ある)いてみるといい。",
+       "vi": "Muốn hiểu thị trấn này, thử đi bộ xem.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "駅へ行くには、この道がいちばん近い。",
+       "ja_furigana": "駅(えき)へ行(い)くには、この道(みち)がいちばん近(ちか)い。",
+       "vi": "Để đi đến ga thì đường này là gần nhất.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "上手になるには",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Để trở nên giỏi"
+     },
+     {
+      "ja": "日本語が上手になるには、どうしたらいいですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Để tiếng Nhật giỏi lên thì nên làm thê nào?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 上手になるには",
+     "FURIGANA_MISSING: 日本語が上手になるには、どうしたらいいですか。"
+    ],
+    "formation": "V-る + には (chỉ mục đích)",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả mục đích và điều cần thiết để đạt được mục tiêu.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜には(目的)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4402cf1ed8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大雨によって、川の水が増えた。",
+       "ja_furigana": "大雨(おおあめ)によって、川(かわ)の水(みず)が増(ふ)えた。",
+       "vi": "Do mưa lớn, nước sông dâng lên.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "インターネットによって、世界の人と簡単に話せるようになった。",
+       "ja_furigana": "インターネットによって、世界(せかい)の人(ひと)と簡単(かんたん)に話(はな)せるようになった。",
+       "vi": "Nhờ internet mà ta có thể dễ dàng nói chuyện với người khắp thế giới.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "新しい研究によって",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhờ các nghiên cứu mới"
+     },
+     {
+      "ja": "新しい研究によって、病気の原因が明らかになった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhờ các nghiên cứu mới mà nguyên nhân của căn bệnh đã được làm sáng tỏ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 新しい研究によって",
+     "FURIGANA_MISSING: 新しい研究によって、病気の原因が明らかになった。"
+    ],
+    "formation": "N + によって / N + による + N",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị nguyên nhân hay phương tiện.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜によって(原因・手段)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b3c3afd372"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "小さな子どもに対して、優しく話してください。",
+       "ja_furigana": "小(ちい)さな子(こ)どもに対(たい)して、優(やさ)しく話(はな)してください。",
+       "vi": "Hãy nói dịu dàng với trẻ nhỏ.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "先生に対して、丁寧な言葉を使います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi dùng lời lẽ lịch sự với giáo viên. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 先生に対して、丁寧な言葉を使います。"
+    ],
+    "formation": "N + に対して / N + に対する + N",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ ra đối phương hoặc đối tượng mà hành động hướng đến",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜に対して(対象)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9a93aa2eb3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この部屋は本を読むのに静かでいい。",
+       "ja_furigana": "この部屋(へや)は本(ほん)を読(よ)むのに静(しず)かでいい。",
+       "vi": "Phòng này yên tĩnh, hợp để đọc sách.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "このはさみは紙を切るのに便利だ。",
+       "ja_furigana": "このはさみは紙(かみ)を切(き)るのに便利(べんり)だ。",
+       "vi": "Cái kéo này tiện để cắt giấy.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "調べるのに使う",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dùng để tra cứu"
+     },
+     {
+      "ja": "ことばの意味を調べるのに、インタネットを使っている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sử dụng internet để tra nghĩa của từ vựng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 調べるのに使う",
+     "FURIGANA_MISSING: ことばの意味を調べるのに、インタネットを使っている。"
+    ],
+    "formation": "V-る + のに + 使う / 便利だ / 必要だ / かかる",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả mục đích và điều cần thiết để đạt được mục tiêu.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜のに(目的)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-179e2c4da3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "鍵をなくしたなら、困るのも当然だ。",
+       "ja_furigana": "鍵(かぎ)をなくしたなら、困(こま)るのも当然(とうぜん)だ。",
+       "vi": "Mất chìa khóa thì lo lắng là phải.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "毎日練習したのだから、合格したのも当然だ。",
+       "ja_furigana": "毎日(まいにち)練習(れんしゅう)したのだから、合格(ごうかく)したのも当然(とうぜん)だ。",
+       "vi": "Ngày nào cũng luyện tập nên đỗ là điều đương nhiên.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "怒るのも当然だ",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tức giận là điều đương nhiên."
+     },
+     {
+      "ja": "そんなひどいことをしたなら、かれが怒るのも当然だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu như đã làm điều tồi tệ như vậy thì việc anh ấy tức giận là điều đương nhiên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 怒るのも当然だ",
+     "FURIGANA_MISSING: そんなひどいことをしたなら、かれが怒るのも当然だ。"
+    ],
+    "formation": "V / Aい / Aな(な) + のも当然だ / のも無理はない",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị sự thừa thận điều đó cũng là đương nhiên.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜のも当然だ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-75bb41e5ae"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟は歌が上手なばかりか、絵も上手だ。",
+       "ja_furigana": "弟(おとうと)は歌(うた)が上手(じょうず)なばかりか、絵(え)も上手(じょうず)だ。",
+       "vi": "Em trai không chỉ hát hay mà còn vẽ giỏi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "昨日は雨ばかりか、雪も降った。",
+       "ja_furigana": "昨日(きのう)は雨(あめ)ばかりか、雪(ゆき)も降(ふ)った。",
+       "vi": "Hôm qua không chỉ mưa mà còn có cả tuyết.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "時間がかかるばかりか内容も",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không chỉ tốn thời gian mà nội dung cũng..."
+     },
+     {
+      "ja": "あの人の話は、時間がかかるばかりか、内容もわかりにくくて困る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Câu chuyện của người kia không chỉ tốn thời gian mà nội dung cũng khó hiểu nên thật là khó xử."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 時間がかかるばかりか内容も",
+     "FURIGANA_MISSING: あの人の話は、時間がかかるばかりか、内容もわかりにくくて困る。"
+    ],
+    "formation": "V / Aい / Aな(な) / N + ばかりか + N + も",
+    "locked_fields": [],
+    "meaning_vi": "Không chỉ ~ mà còn …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ばかりか...も",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Không chỉ A mà B cũng ~"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0cd3066948"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "朝の集まりは九時からです。",
+       "ja_furigana": "朝(あさ)の集(あつ)まりは九(きゅう)時(じ)からです。",
+       "vi": "Buổi tụ họp sáng bắt đầu lúc chín giờ.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "帰りが遅くなるときは、電話してね。",
+       "ja_furigana": "帰(かえ)りが遅(おそ)くなるときは、電話(でんわ)してね。",
+       "vi": "Khi về muộn thì gọi điện nhé.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "指の動き",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chuyển động của ngón tay"
+     },
+     {
+      "ja": "ピアニストの指の動きを見てください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hãy nhìn chuyển động ngón tay của nghệ sĩ dương cầm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 指の動き",
+     "FURIGANA_MISSING: ピアニストの指の動きを見てください。"
+    ],
+    "formation": "V(bỏ ます) (dùng như danh từ: 動き・働き・休み)",
+    "locked_fields": [],
+    "meaning_vi": "Danh từ được tạo thành từ động từ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜動詞の名詞化",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "復習4 正しいほうを選びなさい。 １．（a.寝た b.ねて）ばかりいたら、背中が痛くなった。 ２．申し込む（a.際 b.の際）には、写真が必要です。 ３．申し込み（a.際 b.の際）には、写真が必要です。 ４．日当たりの（a.よい b.よさ）によって家賃が違います。 ５．練習しなかったんだから、（a.負けて b.負けても）仕方がない。 ６．ギターが弾けるようになったので、（a．楽しくて b.楽しくても）しょうがない。 ７．漢字を覚えるには、読む(a.ばかりで b.ばかりに）なく、書くことも大切です。 ８．このマンガは、子供だけでなく大人(a.でも b.にも）人気がある。 ９．ちょっと手伝って（a.もらえない b.もらわない）かな？ １０．ゲームばかり（a.しては b.いては）いけません。 １１．あの子は、毎日遊んでばかり(a.する b.いる）。 １２．彼は、柔道（a.ばかりで b.ばかりか）剣道やボクシングも強いそうだ。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8f271f7e12"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟はテレビを見てばかりだ。",
+       "ja_furigana": "弟(おとうと)はテレビを見(み)てばかりだ。",
+       "vi": "Em trai chỉ xem ti vi suốt.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "妹は最近、スマホで遊んでばかりだ。",
+       "ja_furigana": "妹(いもうと)は最近(さいきん)、スマホで遊(あそ)んでばかりだ。",
+       "vi": "Dạo này em gái tôi chỉ toàn chơi điện thoại.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "寝てばかりだ",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Toàn ngủ"
+     },
+     {
+      "ja": "弟は毎日寝てばかりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Em trai tôi mỗi ngày toàn ngủ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 寝てばかりだ",
+     "FURIGANA_MISSING: 弟は毎日寝てばかりだ。"
+    ],
+    "formation": "V-て + ばかりだ / V-て + ばかりいる",
+    "locked_fields": [],
+    "meaning_vi": "Tiếp tục trạng thái, động tác giống nhau mà không thay đổi. Mang ý nghĩa phê phán.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜寝てばかりだ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b84a698bcb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "そのくらいであやまることはないよ。",
+       "ja_furigana": "そのくらいであやまることはないよ。",
+       "vi": "Chuyện cỡ đó không cần xin lỗi đâu.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "時間は十分あるから、急ぐことはないよ。",
+       "ja_furigana": "時間(じかん)は十分(じゅうぶん)あるから、急(いそ)ぐことはないよ。",
+       "vi": "Còn đủ thời gian nên không cần phải vội đâu.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "君があやまることはないよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cậu không cần phải xin lỗi đâu"
+     },
+     {
+      "ja": "来ることはありません。郵送でいいですよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không cần đến đâu. Gửi bưu điện là được rồi"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 君があやまることはないよ。",
+     "FURIGANA_MISSING: 来ることはありません。郵送でいいですよ。"
+    ],
+    "formation": "V-る + ことはない",
+    "locked_fields": [],
+    "meaning_vi": "Không cần phải….",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜あやまりことはない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp muốn nói với đối phương không nhất thiết phải thực hiện một hành động nào đó. Dù không thực hiện hành động đó vẫn chấp nhận được."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6727f0d167"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟のことを何度心配したことか。",
+       "ja_furigana": "弟(おとうと)のことを何(なん)度(ど)心配(しんぱい)したことか。",
+       "vi": "Tôi đã lo cho em trai biết bao lần.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "この歌を何回聞いたことか。",
+       "ja_furigana": "この歌(うた)を何回(なんかい)聞(き)いたことか。",
+       "vi": "Không biết tôi đã nghe bài hát này bao nhiêu lần rồi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "合格できたら、どんなにうれしいことか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu đậu thì tôi sẽ vui sướng biết bao"
+     },
+     {
+      "ja": "何度注意したことか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã nhắc nhở biết bao nhiêu lần rồi"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 合格できたら、どんなにうれしいことか。",
+     "FURIGANA_MISSING: 何度注意したことか。"
+    ],
+    "formation": "どんなに + Aい / Aな(な) / V + ことか",
+    "locked_fields": [],
+    "meaning_vi": "Rất, biết bao lần, biết bao thời gian…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜どんなにうれしことか",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để thể hiện mức độ cao, tần suất nhiều của sự việc, đặc điểm Mang ý cảm thán"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6b3ff40842"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-056"
+}

@@ -1,0 +1,593 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜とは限らない",
+     "examples": [
+      {
+       "ja": "値段が高いからといって、品質がいいとは限らない。",
+       "ja_furigana": "値段(ねだん)が高(たか)いからといって、品質(ひんしつ)がいいとは限(かぎ)らない。",
+       "vi": "Không thể nói cứ đắt là chất lượng tốt."
+      },
+      {
+       "ja": "毎日練習すれば、必ず上達するとは限らない。",
+       "ja_furigana": "毎日(まいにち)練習(れんしゅう)すれば、必(かなら)ず上達(じょうたつ)するとは限(かぎ)らない。",
+       "vi": "Không hẳn cứ luyện tập mỗi ngày là sẽ tiến bộ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "相手が弱いチームであっても、必ず勝つとは限らない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho dẫu đối thủ là đội yếu thì cũng không thể thắng dễ được."
+     },
+     {
+      "ja": "あまり使わない表現だが、必ずしもテストに出ないとは限らない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Từ ngữ ít sử dụng chưa hắn là không thể ra trong đề thi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 相手が弱いチームであっても、必ず勝つとは限らない。",
+     "FURIGANA_MISSING: あまり使わない表現だが、必ずしもテストに出ないとは限らない。"
+    ],
+    "formation": "普通形 + とは限らない",
+    "locked_fields": [],
+    "meaning_vi": "không hẳn là ～, không chắc là ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜勝つとはない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để phủ định một phần sự vật sự việc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3732659b12"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜に決まっている",
+     "examples": [
+      {
+       "ja": "こんなに雲が多いから、午後は雨になるに決まっている。",
+       "ja_furigana": "こんなに雲(くも)が多(おお)いから、午後(ごご)は雨(あめ)になるに決(き)まっている。",
+       "vi": "Mây nhiều thế này thì chiều chắc chắn sẽ mưa."
+      },
+      {
+       "ja": "準備をしないで試験を受ければ、落ちるに決まっている。",
+       "ja_furigana": "準備(じゅんび)をしないで試験(しけん)を受(う)ければ、落(お)ちるに決(き)まっている。",
+       "vi": "Thi mà không ôn thì chắc chắn trượt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あのチームが勝つに決まっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đội kia nhất định sẽ thắng."
+     },
+     {
+      "ja": "彼がやったに違いない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đúng là anh ấy đã làm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あのチームが勝つに決まっている。",
+     "FURIGANA_MISSING: 彼がやったに違いない。"
+    ],
+    "formation": "普通形 + に決まっている",
+    "locked_fields": [],
+    "meaning_vi": "nhất định, chắc chắn ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜勝つにている",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* A（な）だに * Nだに Suy luận hay kết luận về một sự việc không xác thực. 「～に決まっている」：dùng trong văn nói 「～に相違ない」: cách nói trang trọng, dùng trong văn viết."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-028fdb49dc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "できることは全部やった。あとは結果を待つ（より）ほかない。",
+       "ja_furigana": "できることは全部(ぜんぶ)やった。あとは結果(けっか)を待(ま)つ（より）ほかない。",
+       "vi": "Việc có thể làm tôi đã làm hết. Giờ chỉ còn chờ kết quả thôi."
+      },
+      {
+       "ja": "終電を逃したので、タクシーで帰る（より）ほかない。",
+       "ja_furigana": "終電(しゅうでん)を逃(のが)したので、タクシーで帰(かえ)る（より）ほかない。",
+       "vi": "Vì lỡ chuyến tàu cuối nên chỉ còn cách đi taxi về."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "全力をつくした。あとは祈る（より）ほかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dốc toàn lực. Sau đó chỉ còn cách cầu nguyện."
+     },
+     {
+      "ja": "もう後には戻れない。前進する（より）ほかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không thể quay lại được rồi. Chỉ còn cách là tiến lên phía trước."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 全力をつくした。あとは祈る（より）ほかない。",
+     "FURIGANA_MISSING: もう後には戻れない。前進する（より）ほかない。"
+    ],
+    "formation": "Vる + (より)ほかない",
+    "locked_fields": [],
+    "meaning_vi": "chỉ còn cách là ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜祈るよりほかない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp muốn nói là không còn cách nào khác là phải ～. Câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5db54a1df5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜につき",
+     "examples": [
+      {
+       "ja": "本日は定休日につき、営業いたしておりません。",
+       "ja_furigana": "本日(ほんじつ)は定休日(ていきゅうび)につき、営業(えいぎょう)いたしておりません。",
+       "vi": "Hôm nay là ngày nghỉ định kỳ nên cửa hàng không mở cửa."
+      },
+      {
+       "ja": "故障につき、このエレベーターは使用できません。",
+       "ja_furigana": "故障(こしょう)につき、このエレベーターは使用(しよう)できません。",
+       "vi": "Do hỏng nên không thể sử dụng thang máy này."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "工事につき、こちらの入口はご利用いただけません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Do thi công, không thể sử dụng lối vào này."
+     },
+     {
+      "ja": "台風につき、本日の便は欠航いたします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Do bão, các chuyến bay hôm nay hủy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 工事につき、こちらの入口はご利用いただけません。",
+     "FURIGANA_MISSING: 台風につき、本日の便は欠航いたします。"
+    ],
+    "formation": "N + につき",
+    "locked_fields": [],
+    "meaning_vi": "Lý do trang trọng: Dùng trong văn bản chính thức, biển báo, thông cáo. Sắc thái khách quan, cứng hơn ので/から. Chỉ suất/tỷ lệ: “Mỗi, cho mỗi” để quy định định mức, phí, giới hạn. Hạn chế loại từ: Chỉ gắn với danh từ. Với động/tính từ phải chuyển thành danh từ (例: 悪天候、工事、故障、都合).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Do..., vì... (thông báo trang trọng)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Văn phong bảng hiệu/thông báo: Có thể rút gọn chủ vị (例: 雨天につき中止). Trang trọng, lịch sự; hạn chế dùng trong hội thoại đời thường cho nghĩa “vì”. Nghĩa “mỗi/cho mỗi” trung lập, dùng được trong nhiều ngữ cảnh quy định/giá. Ưu tiên danh từ Hán ngữ: 悪天候／故障／点検／工事／事情／都合. [6. Ghi chú mở rộng] Dạng kính ngữ につきましては là của について（về…）, không phải につき (do/mỗi). Có thể kết hợp với 表記 rút gọn: “休業につき” + danh từ/cụm danh từ tiếp sau. Trong thông báo, “誠に勝手ながら～につき～” là khung câu xin lỗi + lý do. [7. Biến thể & cụm cố định] 悪天候につき／台風につき／故障につき／点検につき（do thời tiết xấu/bão/hỏng/kiểm tra） 会議中につき／授業中につき（đang họp/đang học） お一人につき／一回につき／一日につき（mỗi người/mỗi lần/mỗi ngày） 都合により臨時休業につき（khung thông báo cửa hàng） [8. Lỗi thường gặp & bẫy JLPT] Nhầm につき với について: について = “về”, につき = “do/mỗi”. Gắn につき trực tiếp sau động/tính từ → sai; phải danh từ hóa: 故障、悪天候、混雑、中. Dùng につき (lý do) trong hội thoại thường ngày → nghe cứng; nên dùng から/ので. Nghĩa “mỗi” quên đơn vị đi kèm (人／回／日), làm câu mơ hồ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cad460321d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜気味",
+     "examples": [
+      {
+       "ja": "最近は食べ過ぎで、少し太り気味だ。",
+       "ja_furigana": "最近(さいきん)は食(た)べ過(す)ぎで、少(すこ)し太(ふと)り気味(ぎみ)だ。",
+       "vi": "Dạo này ăn nhiều quá nên hơi có xu hướng tăng cân."
+      },
+      {
+       "ja": "風邪で声がかすれ気味だ。",
+       "ja_furigana": "風邪(かぜ)で声(こえ)がかすれ気味(ぎみ)だ。",
+       "vi": "Vì cảm nên giọng tôi hơi khàn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "最近、仕事が忙し気味で、睡眠不足だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dạo này công việc hơi bận, tôi thiếu ngủ."
+     },
+     {
+      "ja": "雨で試合の開始が遅れ気味だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Do mưa nên giờ bắt đầu trận đấu đang hơi trễ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 最近、仕事が忙し気味で、睡眠不足だ。",
+     "FURIGANA_MISSING: 雨で試合の開始が遅れ気味だ。"
+    ],
+    "formation": "Vます語幹 / N + 気味",
+    "locked_fields": [],
+    "meaning_vi": "“Hơi, có cảm giác”: diễn đạt mức độ nhẹ, chưa rõ ràng nhưng có khuynh hướng xuất hiện. Phạm vi nghĩa: thường dùng cho trạng thái cơ thể (疲れ気味, 太り気味), tâm lý (緊張気味, 焦り気味), tình huống (遅れ気味, 下降気味). Độ khách quan cao: nói như quan sát bản thân/người khác mà không phán xét mạnh. Khác với っぽい: 気味 nhấn “xu hướng nhẹ hiện tại”, っぽい nhấn “tính chất giống/thiên về, đôi khi chủ quan, khẩu ngữ”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hơi..., có vẻ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Kết hợp: N/ Vます-stem trực tiếp + 気味, không đi với tính từ đuôi い/な. Mức độ: “một chút/khá là” chứ không phải nặng; khi mức mạnh dùng ～気がする, ～っぽい, ～過ぎ, ～ぎみでもない. Ngữ cảnh: trung tính đến lịch sự; dùng được trong công việc khi mô tả tình trạng. Thường đi với từ vựng mang hơi hướng tiêu cực: 疲れ, 太り, 不足, 下降, 遅れ; tích cực ít hơn (上向き気味 có nhưng hiếm). [6. Ghi chú mở rộng] Hình thức viết dính/đứt: 忙し気味／忙しぎみ đều gặp; dạng hiragana ぎみ phổ biến trong tài liệu học. Với từ Hán cố định: 目つきが悪い vs 目つき気味(hiếm) → ưu tiên các danh từ trạng thái quen thuộc. Trong khẩu ngữ, có thể dùng hơi phóng đại với adverb: ちょっと疲れ気味, 少し太り気味. [7. Biến thể & cụm cố định] 風邪気味／疲れ気味／寝不足気味／便秘気味／上がり気味（giá lên nhẹ）／下降気味 太り気味／痩せ気味／遅れ気味／混み気味／焦り気味／不安気味 [8. Lỗi thường gặp & bẫy JLPT] Kết hợp sai loại từ: × 寒い気味 → Đúng: 寒気味 không tự nhiên; dùng 寒気がする／寒がりだ. Nhầm mức độ: 気味 chỉ “hơi”; nếu nói mạnh “rất mệt” dùng すごく疲れている, 疲れすぎだ, ぐったりだ. Nhầm với ～がち: 遅れ気味 (hơi trễ) ≠ 遅れがち (thường xuyên trễ). JLPT: câu bẫy chọn giữa 気味/っぽい/がち dựa vào sắc thái “nhẹ – thường xuyên – giống”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-71f54791a7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜にあたり／〜にあたって",
+     "examples": [
+      {
+       "ja": "卒業にあたり、先生方にお礼の言葉を述べます。",
+       "ja_furigana": "卒業(そつぎょう)にあたり、先生方(せんせいがた)にお礼(れい)の言葉(ことば)を述(の)べます。",
+       "vi": "Nhân dịp tốt nghiệp, tôi xin gửi lời cảm ơn đến các thầy cô."
+      },
+      {
+       "ja": "大会に参加するにあたって、いくつか注意があります。",
+       "ja_furigana": "大会(たいかい)に参加(さんか)するにあたって、いくつか注意(ちゅうい)があります。",
+       "vi": "Khi tham gia giải đấu, có vài điều cần lưu ý."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "入学にあたり、必要な書類をご提出ください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân dịp nhập học, xin vui lòng nộp các giấy tờ cần thiết."
+     },
+     {
+      "ja": "新規事業の開始にあたって、関係各位のご理解とご協力をお願い申し上げます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân dịp bắt đầu dự án mới, kính mong quý vị thông cảm và hợp tác."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 入学にあたり、必要な書類をご提出ください。",
+     "FURIGANA_MISSING: 新規事業の開始にあたって、関係各位のご理解とご協力をお願い申し上げます。"
+    ],
+    "formation": "N / Vる + にあたり / にあたって",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “nhân dịp/khi tiến hành/ trước thềm (một việc quan trọng) …” → thông báo, chỉ dẫn, phát biểu, bày tỏ. Ngữ cảnh: nghi thức, trang trọng, các mốc/sự kiện lớn (入学, 卒業, 開業, 着工, 受賞, ご利用, 申請…). Thường kéo theo nội dung: lời chào, lời cảm ơn, lưu ý, yêu cầu hợp tác, quy định sử dụng… Hạn chế: ít dùng với sự kiện tiêu cực (災害/事故) so với ～に際して (cái này trung tính hơn).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Khi..., nhân dịp...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Rất trang trọng, phù hợp văn bản, diễn văn, thông báo; trong hội thoại đời thường ít dùng (thay bằng とき/際に). Đi sau là mệnh đề nêu hành động phải làm/điều cần lưu ý/lời cảm ơn/đề nghị. Thường kèm kính ngữ: 申し上げる／お願いいたします／ご～ください／ご協力。 Nhấn mạnh tính quan trọng/khởi đầu/chuyển giai đoạn của sự kiện. [6. Ghi chú mở rộng] Dịch tự nhiên: “nhân dịp/khi/để chuẩn bị cho…”. Đặt trong tiêu đề thông báo rất thường gặp: ご利用にあたって／応募にあたって／受験にあたっての注意。 Biến đổi lịch sự: ～にあたりまして（ます形 lịch sự cao trong thông báo). [7. Biến thể & cụm cố định] ～にあたりまして（rất lịch sự, doanh nghiệp/hành chính） ～に当たり／～に当たって（chính tả Hán tự） ご利用にあたり／応募にあたって／受験にあたっての注意／開始にあたりご挨拶 [8. Lỗi thường gặp & bẫy JLPT] Dùng cho sự kiện tiêu cực rõ rệt (災害にあたり…) → không tự nhiên; thay bằng ～に際して/～にあたっても文脈調整. Nhầm sắc thái với ～に先立ち: đề hay hỏi “chuẩn bị trước” vs “nhân dịp”. Quên dùng kính ngữ/biểu thức lịch sự trong văn bản trang trọng → mất tự nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d6c8173501"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜に際して",
+     "examples": [
+      {
+       "ja": "面接に際して、いくつか質問をさせていただきます。",
+       "ja_furigana": "面接(めんせつ)に際(さい)して、いくつか質問(しつもん)をさせていただきます。",
+       "vi": "Khi phỏng vấn, tôi xin phép hỏi vài câu."
+      },
+      {
+       "ja": "開店に際して、近所の人にあいさつにうかがった。",
+       "ja_furigana": "開店(かいてん)に際(さい)して、近所(きんじょ)の人(ひと)にあいさつにうかがった。",
+       "vi": "Nhân dịp khai trương, chúng tôi đã đến chào hỏi bà con hàng xóm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ご利用に際して、身分証の提示が必要です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi sử dụng, cần xuất trình giấy tờ tùy thân."
+     },
+     {
+      "ja": "契約を締結するに際して、内容を十分にご確認ください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi ký hợp đồng, vui lòng kiểm tra kỹ nội dung."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ご利用に際して、身分証の提示が必要です。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: ご利用に際して、身分証の提示が必要です。 → 提示",
+     "FURIGANA_MISSING: 契約を締結するに際して、内容を十分にご確認ください。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 契約を締結するに際して、内容を十分にご確認ください。 → 締"
+    ],
+    "formation": "N / Vる + に際して / に際し",
+    "locked_fields": [],
+    "meaning_vi": "Xác lập thời điểm bắt đầu/diễn ra sự kiện quan trọng để kèm theo lưu ý, lời cảm ơn, hoặc yêu cầu. Sắc thái trang trọng hơn ～とき, gần với ～にあたって nhưng thiên về “thời điểm diễn ra”/nghi thức. Thường đi với: 入学／卒業／ご利用／ご登録／契約／開業／赴任／受賞など. Ít dùng cho sự cố tiêu cực bất ngờ; nếu tiêu cực hãy cân nhắc ～際に (さいに) trung tính hơn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Khi..., vào dịp...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng trong văn bản chính thức, bài phát biểu, hướng dẫn sử dụng, hợp đồng. Đi sau danh từ Hán-Nhật tạo sắc thái nghi thức: ご利用に際して／開館に際して. Đi kèm yêu cầu, quy định, bày tỏ cảm ơn/xin lỗi mang tính lễ nghi. [6. Ghi chú mở rộng] Trong diễn văn: “この場をお借りして” thường đi kèm “就任に際し”. Biến thể lịch sự “～に際しまして” hay gặp ở thông báo dịch vụ/IT khi hiển thị điều khoản. Với tiêu cực bất ngờ (事故・災害), ưu tiên “際に/とき”, “に際して” nghe khô và không tự nhiên. [7. Biến thể & cụm cố định] ご利用に際して／ご登録に際して／契約締結に際して 入学に際し／赴任に際し／受賞に際し ～に際しまして、～（mở đầu thông báo trang trọng） [8. Lỗi thường gặp & bẫy JLPT] Dùng cho hành vi thường nhật nhỏ (毎朝起きるに際して…) → không tự nhiên; dùng とき. Nhầm với にあたって: đề thi hay yêu cầu chọn sắc thái phù hợp (chuẩn bị vs nghi thức). Quên biến thể lịch sự trong văn bản trang trọng: nên dùng に際し／に際しまして."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e1765791b8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜てはならない",
+     "examples": [
+      {
+       "ja": "個人の情報を勝手に使ってはならない。",
+       "ja_furigana": "個人(こじん)の情報(じょうほう)を勝手(かって)に使(つか)ってはならない。",
+       "vi": "Không được tự tiện sử dụng thông tin cá nhân."
+      },
+      {
+       "ja": "会社の大切な資料を外部に出してはならない。",
+       "ja_furigana": "会社(かいしゃ)の大切(たいせつ)な資料(しりょう)を外部(がいぶ)に出(だ)してはならない。",
+       "vi": "Không được đưa tài liệu quan trọng của công ty ra ngoài."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "法律を守らねばならない。差別してはならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phải tuân thủ pháp luật. Không được phân biệt đối xử."
+     },
+     {
+      "ja": "試験中、携帯電話を使用してはならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong giờ thi không được sử dụng điện thoại."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 法律を守らねばならない。差別してはならない。",
+     "FURIGANA_MISSING: 試験中、携帯電話を使用してはならない。"
+    ],
+    "formation": "V-て + はならない",
+    "locked_fields": [],
+    "meaning_vi": "Cấm đoán tuyệt đối: “không được…”, tiêu chuẩn pháp lý/đạo đức/quy tắc. Thường diễn tả quy định chung, không nhắm cá nhân cụ thể; chủ ngữ ngầm là “mọi người”. Mạnh hơn ～てはいけない (mang tính luật lệ, hiến chương, nội quy, bài diễn văn).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không được..., cấm...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng/ghi văn bản: nội quy, luật, nguyên tắc đạo đức, phát biểu chính thức. Ít dùng trong hội thoại thân mật; khi nói thường ngày dùng ～てはいけない／ちゃいけない. Đi kèm trạng ngữ nhấn mạnh mức tuyệt đối: いかなる場合でも, たとえ～でも, 決して. [6. Ghi chú mở rộng] Cặp đối ứng tích cực: ～ねばならない／～なければならない (phải). Bài đọc luật thường xuất hiện cả hai hướng khẳng/phi. Với biển báo, văn bản ngắn gọn có thể lược chủ ngữ và bối cảnh, chỉ còn mệnh đề cấm. Dạng 尊敬/謙譲 ít dùng; tính chất quy phạm khiến câu mang sắc thái phi cá nhân. [7. Biến thể & cụm cố định] ～てはなりません: lịch sự. ～てはならぬ: văn ngữ/khẩu hiệu. 決して～てはならない／いかなる場合でも～てはならない: nhấn mạnh tuyệt đối. 未然形＋ねばならない (liên quan nghĩa “phải”): 行かねばならない. [8. Lỗi thường gặp & bẫy JLPT] Dùng cho lời nhắc cá nhân thân mật → nghe cứng/ngạo: nên dùng てはいけない. Nhầm với べきではない: べきではない là lời khuyên; てはならない là cấm. Thêm chủ ngữ “私は～してはならない” nghe gượng trong văn bản quy định; thường lược chủ ngữ. JLPT bẫy sắc thái: chọn てはならない khi đề cập “法律/規則/条約/倫理”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ad0fc20620"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜次第",
+     "examples": [
+      {
+       "ja": "準備ができしだい、すぐに出発します。",
+       "ja_furigana": "準備(じゅんび)ができしだい、すぐに出発(しゅっぱつ)します。",
+       "vi": "Ngay khi chuẩn bị xong, chúng tôi sẽ xuất phát ngay."
+      },
+      {
+       "ja": "社長が戻りしだい、お電話を差し上げます。",
+       "ja_furigana": "社長(しゃちょう)が戻(もど)りしだい、お電話(でんわ)を差(さ)し上(あ)げます。",
+       "vi": "Ngay khi giám đốc về, tôi sẽ gọi điện cho ngài."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "詳細が分かり次第、ご連絡いたします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi biết chi tiết, tôi sẽ liên lạc ngay."
+     },
+     {
+      "ja": "面接の結果が出次第、応募者に通知します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngay khi có kết quả phỏng vấn, chúng tôi sẽ thông báo cho ứng viên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 詳細が分かり次第、ご連絡いたします。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 詳細が分かり次第、ご連絡いたします。 → 詳細",
+     "FURIGANA_MISSING: 面接の結果が出次第、応募者に通知します。"
+    ],
+    "formation": "Vます語幹 / N + 次第",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “Ngay sau khi… thì…”, “hễ … xong là …”. Nhấn mạnh sự liền kề thời điểm giữa hai hành động. Phạm vi dùng: tình huống cần thông báo kế hoạch/hành động sẽ thực hiện ngay khi điều kiện ở vế trước hoàn tất. Sắc thái: trang trọng, thường gặp trong email công việc, thông báo dịch vụ, lời hứa hành động. Khung nghĩa: [Hoàn tất A] → (ngay lập tức) [thực hiện B]. Vế sau ít khi thể hiện trạng thái kéo dài mơ hồ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Ngay khi..., tùy vào...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Cú pháp: Vます + 次第、～ Vế sau thường là mệnh đề thể hiện ý định/động thái của người nói (liên lạc, thông báo, bắt đầu…). Ngữ cảnh: văn viết/kinh doanh, thông báo lịch sự; ít dùng trong hội thoại thân mật (thay bằng ～たらすぐ/～たらすぐに). Không dùng khi vế sau là thói quen chung chung hoặc sự thật hiển nhiên không có tính “ngay lập tức”. [6. Ghi chú mở rộng] Thường đi với động từ báo hiệu hoàn tất: 分かる・判明する・届く・到着する・準備ができる・確認する・決まり次第… Trong email: “～が分かり次第、ご連絡申し上げます。” là công thức rất thường gặp. Về nhịp điệu câu: đặt dấu phẩy sau 次第 để tách rõ hai vế. [7. Biến thể & cụm cố định] 確認次第／判明次第／到着次第／準備ができ次第／整い次第… ～でき次第、～／～が分かり次第、～：mẫu thông báo tiêu chuẩn. [8. Lỗi thường gặp & bẫy JLPT] Sai thì: dùng Vている + 次第 → ✗; phải là Vます-bỏます + 次第. Sai nghĩa: dùng ～次第 để nói “tùy thuộc” → nhầm với ～次第で. Ngữ cảnh: dùng trong hội thoại thân mật nghe cứng; JLPT hay kiểm tra phân biệt với ～たらすぐ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2652005f19"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜上で",
+     "examples": [
+      {
+       "ja": "家族と相談した上で、お返事します。",
+       "ja_furigana": "家族(かぞく)と相談(そうだん)した上(うえ)で、お返事(へんじ)します。",
+       "vi": "Sau khi bàn với gia đình, tôi sẽ trả lời."
+      },
+      {
+       "ja": "資料をよく読んだ上で、意見を書いてください。",
+       "ja_furigana": "資料(しりょう)をよく読(よ)んだ上(うえ)で、意見(いけん)を書(か)いてください。",
+       "vi": "Sau khi đọc kỹ tài liệu, hãy ghi ý kiến của bạn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "現地を視察した上で、最終判断を下します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi thị sát thực địa, chúng tôi sẽ đưa ra phán quyết cuối cùng."
+     },
+     {
+      "ja": "契約内容をよく確認した上で、署名してください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vui lòng ký sau khi đã kiểm tra kỹ nội dung hợp đồng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 現地を視察した上で、最終判断を下します。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 現地を視察した上で、最終判断を下します。 → 視察",
+     "FURIGANA_MISSING: 契約内容をよく確認した上で、署名してください。"
+    ],
+    "formation": "Vた / N の + 上で",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa 1 (V-た上で): “Sau khi … thì …” nhấn mạnh tính hoàn tất, có chủ ý chuẩn bị trước khi hành động tiếp theo. Nghĩa 2 (V-る上で/Nの上で): “Khi/Trong quá trình …” hoặc “Về mặt …” nêu điều kiện, điểm cần lưu ý/khó khăn/quan trọng khi thực hiện hành động. Khác với “上に/上は”: “上で” nói về trình tự (Nghĩa 1) hoặc phương diện/điều kiện (Nghĩa 2), không phải tăng cường/khẳng định quyết tâm.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Sau khi..., khi...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng, phổ biến trong hướng dẫn/biểu mẫu/hợp đồng. Nghĩa “sau khi”: mệnh đề trước phải hoàn tất thật sự; không dùng cho hành động vô ý/không rõ ranh giới hoàn tất. Nghĩa “khi/về mặt”: thường đi cùng từ chỉ khó khăn/điều kiện như 注意, 工夫, 問題, 課題, 重要, 必要. [6. Ghi chú mở rộng] Cụm “～上でのN” rất thường gặp trong tiêu đề hướng dẫn: 利用上の注意, 契約上の義務. Với nghĩa “sau khi”, thường đi cùng động từ đánh giá/xem xét: 検討する, 相談する, 確認する, 準備する. Nghĩa “về mặt”: có thể thay bằng “面で/観点で” trong nhiều ngữ cảnh, nhưng “上で” trang trọng hơn. [7. Biến thể & cụm cố định] ～の上で重要／必要／不可欠 ～上での注意／課題／問題 確認した上で／検討した上で／相談した上で [8. Lỗi thường gặp & bẫy JLPT] Dùng V-た上で cho hành động không có ranh giới hoàn tất rõ ràng → thiếu tự nhiên. Nhầm “上で” với “上に” (không những…mà còn). Chức năng hoàn toàn khác. Bỏ “の” trong “上でのN”: viết “上でN” là sai; phải “上でのN”. Dùng “Nの上で” cho địa điểm vật lý “trên bề mặt” → nghĩa thành “trên phương diện”, dễ gây hiểu nhầm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-24a03e234d"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-063"
+}

@@ -5,8 +5,11 @@ import lombok.ToString;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 
 /**
  * Request body cho API đăng ký tài khoản mới.
@@ -40,6 +43,11 @@ public class RegisterRequest {
 
     @Size(max = 10)
     private String japaneseLevel;
+
+    @NotNull(message = "Vui lòng nhập ngày sinh.")
+    @Past(message = "Ngày sinh chưa hợp lệ.")
+    @ToString.Exclude
+    private LocalDate dateOfBirth;
 
     @AssertTrue(message = "Password confirmation does not match")
     public boolean isPasswordConfirmed() {

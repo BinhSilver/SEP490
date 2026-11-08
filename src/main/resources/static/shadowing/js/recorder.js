@@ -3,11 +3,14 @@
   'use strict';
 
   const MAX_RECORDING_SECONDS = 30;
+  /** Thời gian đọc thêm sau khi câu mẫu kết thúc. */
+  const EXTRA_SECONDS = 3;
   const GOOD_SCORE = 85;
   const FAIR_SCORE = 70;
   const SMALL_KANA = new Set(['ゃ', 'ゅ', 'ょ', 'ぁ', 'ぃ', 'ぅ', 'ぇ', 'ぉ', 'ゎ', 'ゕ', 'ゖ']);
   const states = new Map();
   let active = null;
+  let pending = null;
   let referencePlaybackListener = null;
   window.isShadowingPronunciationRecording = function () { return Boolean(active); };
 
@@ -124,115 +127,140 @@
     if (icon) icon.className = recording ? 'fa-solid fa-stop' : 'fa-solid fa-microphone';
   }
 
-  async function startRecording(card, index) {
-    if (active) {
-      if (active.card === card) {
-        stopRecording(false);
-        return;
-      }
-      setStatus(card, 'Đang xử lý bản thu trước');
-      return;
+  async function startRecording(card, index, options = {}) {
+    const fail = message => { setPanelVisible(card, true); setStatus(card, message); return { status: 'error', message }; };
+    if (pending || active) {
+      if (active && active.card === card && !options.autoAssess) stopRecording(false);
+      return { status: 'error', message: 'Đang xử lý bản thu trước' };
     }
+    if (stateFor(card).assessing) return fail('Đang chấm bản thu trước · hãy chờ kết quả');
     if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
-      setStatus(card, 'Trình duyệt không hỗ trợ thu âm');
-      return;
+      return fail(window.isSecureContext === false
+        ? 'Micro cần HTTPS. Hãy mở trang bằng HTTPS rồi thử lại.'
+        : 'Trình duyệt không hỗ trợ thu âm');
     }
-    if (typeof window.selectShadowingPronunciationSubtitle === 'function') {
-      window.selectShadowingPronunciationSubtitle(index, 'recording');
-    }
-    const context = typeof window.getShadowingPronunciationContext === 'function'
-      ? window.getShadowingPronunciationContext(index) : null;
-    if (!context || !context.subtitleId) {
-      setStatus(card, 'Chưa có câu phụ đề để thu');
-      return;
-    }
-    resetCurrentAttempt(card);
+    window.selectShadowingPronunciationSubtitle?.(index, 'recording');
+    const context = window.getShadowingPronunciationContext?.(index);
+    if (!context?.subtitleId) return fail('Chưa có câu phụ đề để thu');
+    const timed = options.playReference === false;
+    const duration = timed ? Number(options.durationSeconds) : MAX_RECORDING_SECONDS;
+    if (!Number.isFinite(duration) || duration <= 0 || duration > MAX_RECORDING_SECONDS) return fail('Thời lượng bản thu không hợp lệ');
+    const ticket = {};
+    pending = ticket;
     let stream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({
         audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true }
       });
     } catch (error) {
-      setStatus(card, 'Không có quyền dùng micro');
-      return;
+      if (pending !== ticket) return { status: 'cancelled' };
+      pending = null;
+      return fail(error.name === 'NotAllowedError' ? 'Không có quyền dùng micro · hãy cho phép trong cài đặt trình duyệt'
+        : 'Không mở được micro · kiểm tra thiết bị rồi thử lại');
     }
-    const latest = typeof window.getShadowingPronunciationContext === 'function'
-      ? window.getShadowingPronunciationContext(index) : null;
-    if (!latest || String(latest.subtitleId) !== String(context.subtitleId)) {
+    const latest = window.getShadowingPronunciationContext?.();
+    if (pending !== ticket || !latest || String(latest.subtitleId) !== String(context.subtitleId)) {
       stream.getTracks().forEach(track => track.stop());
-      setStatus(card, 'Bạn vừa đổi câu · hãy bấm thu lại');
-      return;
+      if (pending === ticket) pending = null;
+      return { status: 'cancelled', message: 'Bạn vừa đổi câu · hãy bấm thu lại' };
     }
+    pending = null;
     const mimeType = getMimeType();
     let recorder;
     try {
       recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
-    } catch (error) {
+    } catch (_) {
       stream.getTracks().forEach(track => track.stop());
-      setStatus(card, 'Không thể khởi tạo bộ thu âm');
-      return;
+      return fail('Không thể khởi tạo bộ thu âm');
     }
+    resetCurrentAttempt(card);
     const startedAt = Date.now();
-    active = { card, context, recorder, stream, chunks: [], discard: false, timer: null };
-    recorder.ondataavailable = event => {
-      if (event.data?.size) active?.chunks.push(event.data);
+    let resolve;
+    const completion = new Promise(done => { resolve = done; });
+    const session = { card, context, recorder, stream, options, resolve, chunks: [], discard: false, timer: null, deadline: null, stopping: false };
+    active = session;
+    recorder.ondataavailable = event => { if (event.data?.size) session.chunks.push(event.data); };
+    recorder.onerror = () => {
+      session.error = 'Có lỗi khi thu âm · hãy thử lại';
+      stopRecording(true);
     };
-    recorder.onerror = () => setStatus(card, 'Có lỗi khi thu âm · hãy thử lại');
-    recorder.onstop = finishRecording;
+    recorder.onstop = () => finishRecording(session);
     const video = sourceVideo();
     const sentenceStart = Number(context.startTime);
     const sentenceEnd = Number(context.endTime);
-    if (video && Number.isFinite(sentenceStart)) {
-      try {
-        video.currentTime = Math.max(0, sentenceStart);
-      } catch (_) {
-        // The player may still be loading; playback below will report a useful status.
-      }
+    // Bấm mic trên từng câu: phát câu mẫu để đọc theo, rồi thu thêm EXTRA_SECONDS sau khi hết câu
+    // (câu 4 giây → thu đến giây thứ 7). Chế độ "nghe rồi thu" đã tự cộng 3 giây vào durationSeconds.
+    const rate = video && Number(video.playbackRate) > 0 ? Number(video.playbackRate) : 1;
+    const sentenceSeconds = sentenceEnd > sentenceStart ? (sentenceEnd - sentenceStart) / rate : NaN;
+    const limit = timed ? duration
+      : Math.min(MAX_RECORDING_SECONDS, Number.isFinite(sentenceSeconds) ? sentenceSeconds + EXTRA_SECONDS : MAX_RECORDING_SECONDS);
+    pauseSourceVideo();
+    if (!timed && video && Number.isFinite(sentenceStart)) {
+      try { video.currentTime = Math.max(0, sentenceStart); } catch (_) { /* Media is still loading. */ }
     }
-    recorder.start(250);
-    if (video) {
-      const playRequest = video.play();
-      if (playRequest && typeof playRequest.catch === 'function') {
-        playRequest.catch(() => setStatus(card, 'Không thể tự phát câu mẫu · hãy bấm Phát'));
-      }
+    try { recorder.start(250); } catch (_) {
+      active = null;
+      stream.getTracks().forEach(track => track.stop());
+      return fail('Không bắt đầu được bản thu · hãy thử lại');
     }
+    if (!timed && video) video.play()?.catch(() => setStatus(card, 'Không thể tự phát câu mẫu · hãy bấm Phát'));
     setRecordingUi(card, true);
-    setStatus(card, 'Đang thu câu #' + context.sentenceNumber + ' · 00:00');
-    active.timer = setInterval(function () {
+    setPanelVisible(card, true);
+    function tick() {
+      if (active !== session || session.stopping) return;
+      const elapsed = (Date.now() - startedAt) / 1000;
       const videoTime = video && Number.isFinite(video.currentTime) ? video.currentTime : NaN;
-      if (Number.isFinite(sentenceEnd) && Number.isFinite(videoTime) && videoTime >= sentenceEnd) {
-        stopRecording(false);
-        return;
+      if (!timed && !session.referenceDone && Number.isFinite(sentenceEnd) && Number.isFinite(videoTime)) {
+        // Hết câu mẫu chỉ dừng video, vẫn thu tiếp tới hết giờ. Chỉ tính là hết câu sau khi video đã tua
+        // về trong câu (lúc bắt đầu video có thể còn đứng ở vị trí cũ, sau cuối câu).
+        if (videoTime < sentenceEnd - 0.05) session.referenceStarted = true;
+        else if (session.referenceStarted) {
+          session.referenceDone = true;
+          pauseSourceVideo();
+        }
       }
-      const seconds = Number.isFinite(sentenceStart) && Number.isFinite(videoTime)
-        ? Math.max(0, videoTime - sentenceStart)
-        : Math.min(MAX_RECORDING_SECONDS, (Date.now() - startedAt) / 1000);
-      setStatus(card, 'Đang thu câu #' + context.sentenceNumber + ' · ' + formatTime(seconds));
-    }, 100);
-    setTimeout(function () {
-      if (active && active.recorder === recorder && recorder.state !== 'inactive') stopRecording(false);
-    }, MAX_RECORDING_SECONDS * 1000);
+      // Ghi rõ cách tính để khỏi nhầm với giờ bắt đầu câu (số ở góc thẻ): độ dài câu + 3 giây đọc thêm.
+      setStatus(card, 'Đang thu câu #' + context.sentenceNumber + ' · ' + formatTime(elapsed) + ' / ' + formatTime(limit)
+        + (Number.isFinite(sentenceSeconds) ? ' · câu dài ' + sentenceSeconds.toFixed(1).replace('.', ',')
+          + ' giây + ' + EXTRA_SECONDS + ' giây' : ''));
+      options.onState?.('recording', Math.max(0, limit - elapsed));
+    }
+    tick();
+    session.timer = setInterval(tick, 100);
+    session.deadline = setTimeout(() => { if (active === session) stopRecording(false); }, limit * 1000);
+    return completion;
   }
 
   function stopRecording(discard) {
-    if (!active) return;
-    active.discard = !!discard;
-    if (active.timer) clearInterval(active.timer);
+    if (!active || active.stopping) return;
+    const session = active;
+    session.stopping = true;
+    session.discard = !!discard;
+    clearInterval(session.timer);
+    clearTimeout(session.deadline);
     pauseSourceVideo();
-    active.stream.getTracks().forEach(track => track.stop());
-    setRecordingUi(active.card, false);
-    if (active.recorder.state !== 'inactive') active.recorder.stop();
+    setRecordingUi(session.card, false);
+    if (session.recorder.state !== 'inactive') session.recorder.stop();
+    else finishRecording(session);
+    session.stream.getTracks().forEach(track => track.stop());
   }
 
-  function finishRecording() {
-    const finished = active;
-    if (!finished) return;
-    active = null;
-    if (finished.discard) return;
-    const mimeType = finished.recorder.mimeType || (finished.chunks[0] && finished.chunks[0].type) || 'audio/webm';
+  async function finishRecording(finished) {
+    if (finished.finished) return;
+    finished.finished = true;
+    if (active === finished) active = null;
+    clearInterval(finished.timer);
+    clearTimeout(finished.deadline);
+    if (finished.discard) {
+      finished.resolve({ status: 'cancelled', message: finished.error || 'Đã dừng bản thu' });
+      return;
+    }
+    const mimeType = finished.recorder.mimeType || finished.chunks[0]?.type || 'audio/webm';
     const blob = new Blob(finished.chunks, { type: mimeType });
     if (!blob.size) {
-      setStatus(finished.card, 'Bản thu trống · hãy thử lại');
+      const message = 'Bản thu trống · hãy thử lại';
+      setStatus(finished.card, message);
+      finished.resolve({ status: 'error', message });
       return;
     }
     const state = stateFor(finished.card);
@@ -241,20 +269,44 @@
     state.context = finished.context;
     state.attempt = null;
     const audio = audioFor(finished.card);
-    if (audio) {
-      audio.src = state.objectUrl;
-      audio.load();
-    }
+    if (audio) { audio.src = state.objectUrl; audio.load(); }
     setPanelVisible(finished.card, true);
     const playback = finished.card.querySelector('[data-pronunciation-playback]');
     if (playback) playback.hidden = false;
     const scoreButton = finished.card.querySelector('[data-action="score"]');
-    if (scoreButton) {
-      scoreButton.disabled = false;
-      scoreButton.textContent = 'Chấm';
+    if (scoreButton) { scoreButton.disabled = false; scoreButton.textContent = 'Chấm'; }
+    if (finished.options.autoAssess) {
+      finished.options.onState?.('assessing');
+      finished.resolve(await assess(finished.card));
+    } else {
+      setStatus(finished.card, 'Đã ghi xong câu #' + finished.context.sentenceNumber + ' · bấm Chấm');
+      finished.resolve({ status: 'recorded' });
     }
-    setStatus(finished.card, 'Đã ghi xong câu #' + finished.context.sentenceNumber + ' · bấm Chấm');
   }
+
+  function cancelRecording() {
+    pending = null;
+    if (active) {
+      const card = active.card;
+      stopRecording(true);
+      setStatus(card, 'Đã dừng bản thu · bấm mic để thu lại');
+    }
+  }
+  window.ShadowingRecorder = {
+    record(index, options) {
+      const context = window.getShadowingPronunciationContext?.(index);
+      const card = context && cardFor(context.subtitleId);
+      return card ? startRecording(card, index, options) : Promise.resolve({ status: 'error', message: 'Chưa có câu phụ đề để thu' });
+    },
+    cancel: cancelRecording
+  };
+  window.addEventListener('pagehide', cancelRecording);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      cancelRecording();
+      window.shadowingListenRecord?.cancel();
+    }
+  });
 
   function updateAudioUi(card) {
     const audio = audioFor(card);
@@ -668,23 +720,59 @@
     setDetailsVisible(card, addToHistory !== false);
   }
 
+  // "Không hỏi lại hôm nay" on the CP popup (js/components/cp-auto-pay.js).
+  const AUTO_PAY = 'pronunciation';
+  function autoPayCovers() {
+    return !!window.JlasCpAutoPay && window.JlasCpAutoPay.covers(AUTO_PAY);
+  }
+
+  async function confirmCreditCheck() {
+    let quota = {};
+    try {
+      const response = await fetch('/api/pronunciation/quota', { headers: authHeaders() });
+      if (response.ok) quota = await response.json();
+    } catch (ignored) { /* the popup still shows the price */ }
+    const price = quota.creditPrice || 5;
+    if (!window.JlasCpConfirm) return { confirmed: false, option: false, price: price };
+    const auto = window.JlasCpAutoPay;
+    const choice = await window.JlasCpConfirm.open({
+      title: 'Hết lượt chấm miễn phí hôm nay',
+      message: (auto && auto.capReached(AUTO_PAY) ? 'Đã tự dùng đủ ' + auto.DAILY_CAP + ' CP hôm nay nên cần xác nhận lại. ' : '')
+        + 'Bạn đã dùng ' + (quota.usedToday != null ? quota.usedToday : '') + '/' + (quota.dailyLimit || '')
+        + ' lượt chấm hôm nay. Chấm câu này bằng CP?',
+      cost: price,
+      balance: quota.creditBalance,
+      confirmLabel: 'Chấm bằng ' + price + ' CP',
+      option: auto ? 'Không hỏi lại hôm nay (tự dùng CP, tối đa ' + auto.DAILY_CAP + ' CP/ngày)' : ''
+    });
+    return Object.assign(choice, { price: price });
+  }
+
   async function assess(card) {
     const state = stateFor(card);
+    if (state.assessing) return state.assessing;
+    state.assessing = performAssessment(card, state);
+    try { return await state.assessing; } finally { state.assessing = null; }
+  }
+
+  async function performAssessment(card, state) {
     if (state.attempt) {
       const details = card.querySelector('[data-pronunciation-details]');
       if (details) setDetailsVisible(card, details.hidden);
-      return;
+      return { status: 'completed', attempt: state.attempt };
     }
     if (!state.blob || !state.context) {
-      setStatus(card, 'Hãy thu câu này trước khi chấm');
-      return;
+      const message = 'Hãy thu câu này trước khi chấm';
+      setStatus(card, message);
+      return { status: 'error', message };
     }
     const live = typeof window.getShadowingPronunciationContext === 'function'
       ? window.getShadowingPronunciationContext(Number(card.dataset.subtitleIndex)) : null;
     if (!live || String(live.subtitleId) !== String(state.context.subtitleId)) {
       resetCurrentAttempt(card);
-      setStatus(card, 'Bạn đã đổi câu · hãy thu lại câu đang chọn');
-      return;
+      const message = 'Bạn đã đổi câu · hãy thu lại câu đang chọn';
+      setStatus(card, message);
+      return { status: 'error', message };
     }
     const scoreButton = card.querySelector('[data-action="score"]');
     if (scoreButton) {
@@ -696,17 +784,43 @@
     const controller = new AbortController();
     const requestTimeout = setTimeout(() => controller.abort(), 60000);
     try {
-      const form = new FormData();
-      const extension = state.blob.type.includes('ogg') ? 'ogg' : state.blob.type.includes('mp4') ? 'm4a' : 'webm';
-      form.append('subtitleId', String(state.context.subtitleId));
-      form.append('audio', state.blob, 'shadowing-recording.' + extension);
-      const response = await fetch('/api/pronunciation/assess', {
-        method: 'POST',
-        headers: authHeaders(),
-        body: form,
-        signal: controller.signal
-      });
-      const result = await response.json().catch(() => ({}));
+      const send = function (useCredit) {
+        const form = new FormData();
+        const extension = state.blob.type.includes('ogg') ? 'ogg' : state.blob.type.includes('mp4') ? 'm4a' : 'webm';
+        form.append('subtitleId', String(state.context.subtitleId));
+        form.append('audio', state.blob, 'shadowing-recording.' + extension);
+        if (useCredit) form.append('useCredit', 'true');
+        return fetch('/api/pronunciation/assess', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: form,
+          signal: controller.signal
+        });
+      };
+      let response = await send(autoPayCovers());
+      let result = await response.json().catch(() => ({}));
+      // Hết lượt chấm miễn phí hôm nay: báo trước số CP rồi mới chấm bằng CP.
+      if (response.status === 402 && result.code === 'PRONUNCIATION_QUOTA_EXCEEDED') {
+        const choice = await confirmCreditCheck();
+        if (!choice.confirmed) {
+          if (scoreButton) {
+            scoreButton.disabled = false;
+            scoreButton.textContent = 'Chấm';
+          }
+          const message = result.message || 'Bạn đã hết lượt chấm phát âm miễn phí hôm nay';
+          setStatus(card, message);
+          return { status: 'error', message };
+        }
+        if (window.JlasCpAutoPay) {
+          if (choice.option) window.JlasCpAutoPay.enable(AUTO_PAY, choice.price);
+          else window.JlasCpAutoPay.disable(AUTO_PAY);
+        }
+        response = await send(true);
+        result = await response.json().catch(() => ({}));
+      }
+      if (response.status === 402 && result.code === 'INSUFFICIENT_CREDIT' && window.JlasCpAutoPay) {
+        window.JlasCpAutoPay.disable(AUTO_PAY);
+      }
       if (!response.ok) {
         console.error('[Pronunciation] assessment request failed', {
           subtitleId: state.context.subtitleId,
@@ -716,7 +830,10 @@
         throw new Error(result.message || result.error || ('Chấm phát âm thất bại (HTTP ' + response.status + ')'));
       }
       renderAttempt(card, result);
-      setStatus(card, 'Đã chấm xong câu #' + state.context.sentenceNumber);
+      if (result.creditCharged > 0 && window.JlasCpAutoPay) window.JlasCpAutoPay.add(AUTO_PAY, result.creditCharged);
+      setStatus(card, 'Đã chấm xong câu #' + state.context.sentenceNumber
+        + (result.creditCharged > 0 ? ' · −' + result.creditCharged + ' CP' : ''));
+      return { status: 'completed', attempt: result };
     } catch (error) {
       console.error('[Pronunciation] assessment failed', {
         subtitleId: state.context && state.context.subtitleId,
@@ -727,9 +844,11 @@
         scoreButton.disabled = false;
         scoreButton.textContent = 'Chấm';
       }
-      setStatus(card, error.name === 'AbortError'
+      const message = error.name === 'AbortError'
         ? 'Chấm quá thời gian 60 giây · hãy thử lại'
-        : (error.message || 'Không thể chấm phát âm lúc này'));
+        : (error.message || 'Không thể chấm phát âm lúc này');
+      setStatus(card, message);
+      return { status: 'error', message };
     } finally {
       clearTimeout(requestTimeout);
       if (scoreButton) scoreButton.removeAttribute('aria-busy');
@@ -781,7 +900,10 @@
       if (!action || !card) return;
       event.stopPropagation();
       const index = Number(card.dataset.subtitleIndex);
-      if (action.dataset.action === 'record') startRecording(card, index);
+      if (action.dataset.action === 'record') {
+        if (window.shadowingListenRecord?.isEnabled()) window.shadowingListenRecord.record();
+        else startRecording(card, index);
+      }
       else if (action.dataset.action === 'score') assess(card);
       else if (action.dataset.action === 'score-details') {
         const details = card.querySelector('[data-pronunciation-details]');
@@ -799,6 +921,7 @@
       }
     });
     window.addEventListener('shadowing:pronunciation-context-change', function (event) {
+      if (pending && event.detail?.source !== 'recording' && event.detail?.source !== 'playback') pending = null;
       if (!active || !event.detail || String(active.context.subtitleId) === String(event.detail.subtitleId)) return;
       if (event.detail.source === 'playback') return;
       const oldCard = active.card;

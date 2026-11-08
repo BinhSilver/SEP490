@@ -1,0 +1,2324 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅の近くのホテルに泊まりました。",
+       "ja_furigana": "駅(えき)の近(ちか)くのホテルに泊(と)まりました。",
+       "vi": "Tôi đã nghỉ tại khách sạn gần nhà ga.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "khách sạn",
+    "examples": [
+     {
+      "ja": "ホテルは どこですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khách sạn ở đâu?"
+     }
+    ],
+    "expression": "ホテル",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "khách sạn",
+    "mnemonic_vi": "ホテル = hotel, khách sạn; đọc \"hô-tê-ru\", chữ l thành ル. Ở khách sạn là ホテルに とまる.",
+    "reading": "ほてる",
+    "romaji": "hoteru",
+    "topic_vi": "Chơi",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7e821a905e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ロビーで友達を待とう。",
+       "ja_furigana": "ロビーで友達(ともだち)を待(ま)とう。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Hãy đợi bạn ở sảnh."
+      },
+      {
+       "ja": "一階のロビーで新聞を読みます。",
+       "ja_furigana": "一階(いっかい)のロビーで新聞(しんぶん)を読(よ)みます。",
+       "vi": "Tôi đọc báo ở sảnh tầng 1.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sảnh chờ",
+    "examples": [
+     {
+      "ja": "ロビーで友達を待とう。",
+      "ja_furigana": "ロビーで友達(ともだち)を待(ま)とう。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Hãy đợi bạn ở sảnh."
+     },
+     {
+      "ja": "ホテルのロビーに団体客が入ってきた。",
+      "ja_furigana": "ホテルのロビーに団体(だんたい)客(きゃく)が入(はい)ってきた。",
+      "source": "VNJPCLUB",
+      "vi": "Đoàn khách đã vào đến sảnh khách sạn."
+     }
+    ],
+    "expression": "ロビー",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: ホテルのロビーに団体客が入ってきた。 → 団体"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "sảnh chờ; sảnh",
+    "mnemonic_vi": "ロビー = lobby, sảnh khách sạn; đọc \"rô-bī\". Hẹn nhau ở sảnh: ロビーで まちます.",
+    "reading": "ろびー",
+    "romaji": "robii",
+    "topic_vi": "Chơi",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4546262951"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "京都の家で一週間ホームステイしました。",
+       "ja_furigana": "京都(きょうと)の家(いえ)で一週間(いっしゅうかん)ホームステイしました。",
+       "vi": "Tôi đã ở homestay một tuần tại một gia đình ở Kyoto.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "ホームステイの家族はとても親切でした。",
+       "ja_furigana": "ホームステイの家族(かぞく)はとても親切(しんせつ)でした。",
+       "vi": "Gia đình chủ nhà homestay đã rất tốt bụng.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "夏に日本でホームステイします。",
+       "ja_furigana": "夏(なつ)に日本(にほん)でホームステイします。",
+       "source": "AI",
+       "vi": "Mùa hè tôi sẽ ở homestay tại Nhật."
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "homestay",
+    "examples": [
+     {
+      "ja": "外国でホームステイをしました。",
+      "ja_furigana": "外国(がいこく)でホームステイをしました。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã homestay ở nước ngoài."
+     },
+     {
+      "ja": "アメリカで1か月ホームステイをした。",
+      "ja_furigana": "アメリカで1か月(げつ)ホームステイをした。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã ở homestay 1 tháng ở Mỹ."
+     },
+     {
+      "ja": "夏に日本でホームステイします。",
+      "ja_furigana": "夏(なつ)に日本(にほん)でホームステイします。",
+      "source": "AI",
+      "vi": "Mùa hè tôi sẽ ở homestay tại Nhật."
+     }
+    ],
+    "expression": "ホームステイ＜する＞",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "homestay; ở cùng nhà người bản xứ",
+    "mnemonic_vi": "ホーム (home) + ステイ (stay) = ở cùng nhà người bản xứ.",
+    "reading": "ホームステイ＜する＞",
+    "romaji": "hoomusutei<suru>",
+    "topic_vi": "Chơi",
+    "twins": [],
+    "variants": [
+     "ホームステイ"
+    ],
+    "word_type_label": "động từ nhóm III"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-fb871c6f37"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この県には有名な山と海があります。",
+       "ja_furigana": "この県(けん)には有名(ゆうめい)な山(やま)と海(うみ)があります。",
+       "vi": "Ở tỉnh này có núi và biển nổi tiếng.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "私のうちはひろしま県にあります。",
+       "ja_furigana": "私(わたし)のうちはひろしま県(けん)にあります。",
+       "source": "AI",
+       "vi": "Nhà tôi ở tỉnh Hiroshima."
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tỉnh (đơn vị hành chính Nhật)",
+    "examples": [
+     {
+      "ja": "時々、隣の県まで買い物に行きます。",
+      "ja_furigana": "時々(ときどき)、隣(となり)の県(けん)まで買(か)い物(もの)に行(い)きます。",
+      "source": "VNJPCLUB",
+      "vi": "Thỉnh thoảng tôi đi mua sắm ở tỉnh bên cạnh."
+     },
+     {
+      "ja": "私のうちはひろしま県にあります。",
+      "ja_furigana": "私(わたし)のうちはひろしま県(けん)にあります。",
+      "source": "AI",
+      "vi": "Nhà tôi ở tỉnh Hiroshima."
+     }
+    ],
+    "expression": "県",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tỉnh (của Nhật)",
+    "mnemonic_vi": "県 Hán Việt \"huyện\", nhưng ở Nhật けん là tỉnh: 47 tỉnh của Nhật đều có chữ 県.",
+    "reading": "けん",
+    "romaji": "ken",
+    "topic_vi": "Phố xá, thị trấn",
+    "twins": [],
+    "variants": [
+     "けん"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-688231b82c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "かがみで髪を直す。",
+       "ja_furigana": "かがみで髪(かみ)を直(なお)す。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi chỉnh tóc trước gương."
+      },
+      {
+       "ja": "部屋の壁にきれいな鏡があります。",
+       "ja_furigana": "部屋(へや)の壁(かべ)にきれいな鏡(かがみ)があります。",
+       "vi": "Trên tường phòng có chiếc gương đẹp.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "新しい鏡をデパートで買いました。",
+       "ja_furigana": "新(あたら)しい鏡(かがみ)をデパートで買(か)いました。",
+       "vi": "Tôi đã mua một chiếc gương mới ở trung tâm thương mại.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "gương",
+    "examples": [
+     {
+      "ja": "かがみで髪を直す。",
+      "ja_furigana": "かがみで髪(かみ)を直(なお)す。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi chỉnh tóc trước gương."
+     },
+     {
+      "ja": "出掛ける前に、必ず鏡を見る。",
+      "ja_furigana": "出掛(でか)ける前(まえ)に、必(かなら)ず鏡(かがみ)を見(み)る。",
+      "source": "VNJPCLUB",
+      "vi": "Trước khi đi ra ngoài tôi luôn soi gương."
+     },
+     {
+      "ja": "部屋に大きな鏡があります。",
+      "ja_furigana": "部屋(へや)に大(おお)きな鏡(かがみ)があります。",
+      "source": "VNJPCLUB",
+      "vi": "Ở trong phòng có một tấm gương lớn."
+     }
+    ],
+    "expression": "鏡",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 出掛ける前に、必ず鏡を見る。 → 必ず"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "gương; cái gương",
+    "mnemonic_vi": "鏡 Hán Việt \"kính\" (gương): かがみ = cái gương soi.",
+    "reading": "かがみ",
+    "romaji": "kagami",
+    "topic_vi": "Sáng, tối",
+    "twins": [],
+    "variants": [
+     "かがみ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8bd98b72de"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "寝る前に温かいミルクを飲みます。",
+       "ja_furigana": "寝(ね)る前(まえ)に温(あたた)かいミルクを飲(の)みます。",
+       "vi": "Trước khi ngủ tôi uống sữa ấm.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sữa",
+    "examples": [
+     {
+      "ja": "いつも紅茶にミルクを入れます。",
+      "ja_furigana": "いつも紅茶(こうちゃ)にミルクを入(い)れます。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi thường cho thêm sữa vào hồng trà."
+     }
+    ],
+    "expression": "ミルク",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "sữa",
+    "mnemonic_vi": "ミルク = milk, sữa (thường là sữa cho vào cà phê, trà); sữa bò tươi để uống hay gọi là ぎゅうにゅう.",
+    "reading": "みるく",
+    "romaji": "miruku",
+    "topic_vi": "Ăn, uống",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c13e8ea4f0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "角に自動販売機がある。",
+       "ja_furigana": "角(かど)に自動販売機(じどうはんばいき)がある。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Có máy bán hàng tự động ở góc đường."
+      },
+      {
+       "ja": "病院の前に自動販売機が二台あります。",
+       "ja_furigana": "病院(びょういん)の前(まえ)に自動販売機(じどうはんばいき)が二台(にだい)あります。",
+       "vi": "Trước bệnh viện có hai máy bán hàng tự động.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "駅のじどうはんばいきでジュースを買いました。",
+       "ja_furigana": "駅(えき)のじどうはんばいきでジュースを買(か)いました。",
+       "source": "AI",
+       "vi": "Tôi đã mua nước ép ở máy bán hàng tự động tại nhà ga."
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Máy bán hàng tự động",
+    "examples": [
+     {
+      "ja": "角に自動販売機がある。",
+      "ja_furigana": "角(かど)に自動販売機(じどうはんばいき)がある。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Có máy bán hàng tự động ở góc đường."
+     },
+     {
+      "ja": "自動販売機で飲み物をかった。",
+      "ja_furigana": "自動(じどう)販売機(はんばいき)で飲(の)み物(もの)をかった。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã mua đồ uống ở máy bán hàng tự động."
+     },
+     {
+      "ja": "駅のじどうはんばいきでジュースを買いました。",
+      "ja_furigana": "駅(えき)のじどうはんばいきでジュースを買(か)いました。",
+      "source": "AI",
+      "vi": "Tôi đã mua nước ép ở máy bán hàng tự động tại nhà ga."
+     }
+    ],
+    "expression": "自動販売機",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "máy bán hàng tự động",
+    "mnemonic_vi": "自動 \"tự động\" + 販売 \"phiến mại\" (bán) + 機 \"cơ\" (máy) = máy bán hàng tự động.",
+    "reading": "じどうはんばいき",
+    "romaji": "jidouhanbaiki",
+    "topic_vi": "Ăn, uống",
+    "twins": [],
+    "variants": [
+     "じどうはんばいき"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-adc1c6f9f9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "朝ごはんにサンドイッチと牛乳を食べました。",
+       "ja_furigana": "朝(あさ)ごはんにサンドイッチと牛乳(ぎゅうにゅう)を食(た)べました。",
+       "vi": "Bữa sáng tôi đã dùng bánh mì kẹp và sữa bò.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bánh xăng-uých",
+    "examples": [
+     {
+      "ja": "卵のサンドイッチを作りました。",
+      "ja_furigana": "卵(たまご)のサンドイッチを作(つく)りました。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã làm một chiếc bánh sandwich trứng."
+     }
+    ],
+    "expression": "サンドイッチ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "bánh mì kẹp; bánh xăng-uých",
+    "mnemonic_vi": "サンドイッチ = sandwich, bánh mì kẹp.",
+    "reading": "さんどいっち",
+    "romaji": "sandoitchi",
+    "topic_vi": "Món ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-76747a9c09"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "昨日の晩ごはんは野菜のパスタでした。",
+       "ja_furigana": "昨日(きのう)の晩(ばん)ごはんは野菜(やさい)のパスタでした。",
+       "vi": "Bữa tối hôm qua là món mì Ý rau củ.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Mì Ý (Pasta)",
+    "examples": [
+     {
+      "ja": "ピザとパスタ、どっちにする？",
+      "ja_furigana": "ピザとパスタ、どっちにする？",
+      "source": "VNJPCLUB",
+      "vi": "Bạn chọn pizza hay pasta?"
+     }
+    ],
+    "expression": "パスタ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mì Ý; món pasta",
+    "mnemonic_vi": "パスタ = pasta, mì Ý; đọc y như \"pas-ta\", dễ nhớ nhất trong các loại mì.",
+    "reading": "ぱすた",
+    "romaji": "pasuta",
+    "topic_vi": "Món ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-933e5fa621"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "コーヒーに砂糖を入れた。",
+       "ja_furigana": "コーヒーに砂糖(さとう)を入(い)れた。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi cho đường vào cà phê."
+      },
+      {
+       "ja": "紅茶に砂糖を少し入れました。",
+       "ja_furigana": "紅茶(こうちゃ)に砂糖(さとう)を少(すこ)し入(い)れました。",
+       "vi": "Tôi đã cho một chút đường vào hồng trà.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đường",
+    "examples": [
+     {
+      "ja": "コーヒーに砂糖を入れた。",
+      "ja_furigana": "コーヒーに砂糖(さとう)を入(い)れた。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi cho đường vào cà phê."
+     },
+     {
+      "ja": "さとうは どう しますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đường thì làm thế nào?"
+     }
+    ],
+    "expression": "砂糖",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đường ăn; đường",
+    "mnemonic_vi": "砂糖 Hán Việt \"sa đường\": đường dạng hạt cát (砂) = đường ăn.",
+    "reading": "さとう",
+    "romaji": "satou",
+    "topic_vi": "Món ăn",
+    "twins": [],
+    "variants": [
+     "さとう"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9aa42c3de1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "昼は魚の定食にした。",
+       "ja_furigana": "昼(ひる)は魚(さかな)の定食(ていしょく)にした。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Bữa trưa tôi chọn suất cơm cá."
+      },
+      {
+       "ja": "この食堂の肉の定食は安いです。",
+       "ja_furigana": "この食堂(しょくどう)の肉(にく)の定食(ていしょく)は安(やす)いです。",
+       "vi": "Suất cơm thịt của nhà ăn này rẻ.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "ひるはいつもていしょくを食べます。",
+       "ja_furigana": "ひるはいつもていしょくを食(た)べます。",
+       "source": "AI",
+       "vi": "Buổi trưa tôi luôn ăn suất cơm phần."
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "suất cơm phần",
+    "examples": [
+     {
+      "ja": "昼は魚の定食にした。",
+      "ja_furigana": "昼(ひる)は魚(さかな)の定食(ていしょく)にした。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Bữa trưa tôi chọn suất cơm cá."
+     },
+     {
+      "ja": "昼食は魚の定食を食べた。",
+      "ja_furigana": "昼食(ちゅうしょく)は魚(さかな)の定食(ていしょく)を食(た)べた。",
+      "source": "VNJPCLUB",
+      "vi": "Buổi trưa, tôi đã ăn suất cơm cá."
+     },
+     {
+      "ja": "ひるはいつもていしょくを食べます。",
+      "ja_furigana": "ひるはいつもていしょくを食(た)べます。",
+      "source": "AI",
+      "vi": "Buổi trưa tôi luôn ăn suất cơm phần."
+     }
+    ],
+    "expression": "定食",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "suất cơm phần; cơm suất",
+    "mnemonic_vi": "定食 Hán Việt \"định thực\": suất ăn (食) đã định sẵn (定) = cơm phần, cơm suất.",
+    "reading": "ていしょく",
+    "romaji": "teishoku",
+    "topic_vi": "Nhà hàng",
+    "twins": [],
+    "variants": [
+     "ていしょく"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2848258250"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "二人は別々に帰った。",
+       "ja_furigana": "二人(ふたり)は別々(べつべつ)に帰(かえ)った。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Hai người về riêng rẽ."
+      },
+      {
+       "ja": "お金は別々に払いましょう。",
+       "ja_furigana": "お金(かね)は別々(べつべつ)に払(はら)いましょう。",
+       "vi": "Chúng ta hãy trả tiền riêng từng người nhé.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "姉と私は別々に出かけました。",
+       "ja_furigana": "姉(あね)と私(わたし)は別々(べつべつ)に出(で)かけました。",
+       "vi": "Chị gái và tôi đã đi ra ngoài riêng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "riêng biệt",
+    "examples": [
+     {
+      "ja": "二人は別々に帰った。",
+      "ja_furigana": "二人(ふたり)は別々(べつべつ)に帰(かえ)った。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Hai người về riêng rẽ."
+     },
+     {
+      "ja": "「チョコレートとクッキーは別々に包んでください」",
+      "ja_furigana": "「チョコレートとクッキーは別々(べつべつ)に包(つつ)んでください」",
+      "source": "VNJPCLUB",
+      "vi": "\"Hãy gói riêng sô cô la với bánh Cookie cho tôi\""
+     },
+     {
+      "ja": "今までは二人でやってきたが、これからは別々の道を行くことにした",
+      "ja_furigana": "今(いま)までは二人(ふたり)でやってきたが、これからは別々(べつべつ)の道(みち)を行(い)くことにした",
+      "source": "VNJPCLUB",
+      "vi": "Từ trước đến giờ việc gì cũng 2 người cùng nhau, nhưng mà từ bây giờ đã quyết định rằng mỗi người sẽ đi một con đường riêng của mình."
+     }
+    ],
+    "expression": "別々に",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 「チョコレートとクッキーは別々に包んでください」 → 包",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 今までは二人でやってきたが、これからは別々の道を行くことにした → 別,々"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "riêng ra; riêng biệt",
+    "mnemonic_vi": "別々 Hán Việt \"biệt biệt\" (riêng rẽ): べつべつに = trả riêng từng người.",
+    "reading": "べつべつに",
+    "romaji": "betsubetsuni",
+    "topic_vi": "Nhà hàng",
+    "twins": [],
+    "variants": [
+     "べつべつに"
+    ],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3382086eda"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "みんなで乾杯した。",
+       "ja_furigana": "みんなで乾杯(かんぱい)した。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Mọi người cùng nâng cốc."
+      },
+      {
+       "ja": "冷たいビールで乾杯しました。",
+       "ja_furigana": "冷(つめ)たいビールで乾杯(かんぱい)しました。",
+       "vi": "Chúng tôi đã cụng ly bằng bia lạnh.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "みなさん、かんぱいしましょう。",
+       "ja_furigana": "みなさん、かんぱいしましょう。",
+       "source": "AI",
+       "vi": "Mọi người, chúng ta cùng cạn ly nào."
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cụng ly, nâng cốc",
+    "examples": [
+     {
+      "ja": "みんなで乾杯した。",
+      "ja_furigana": "みんなで乾杯(かんぱい)した。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Mọi người cùng nâng cốc."
+     },
+     {
+      "ja": "友人の結婚を祝って、みんなで乾杯した。",
+      "ja_furigana": "友人(ゆうじん)の結婚(けっこん)を祝(いわ)って、みんなで乾杯(かんぱい)した。",
+      "source": "VNJPCLUB",
+      "vi": "Mọi người đã nâng ly để chúc mừng đám cưới của người bạn thân."
+     },
+     {
+      "ja": "みなさん、かんぱいしましょう。",
+      "ja_furigana": "みなさん、かんぱいしましょう。",
+      "source": "AI",
+      "vi": "Mọi người, chúng ta cùng cạn ly nào."
+     }
+    ],
+    "expression": "乾杯＜する＞",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 友人の結婚を祝って、みんなで乾杯した。 → 祝"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "cụng ly; nâng cốc; cạn chén",
+    "mnemonic_vi": "乾杯 Hán Việt \"can bôi\" = cạn chén; かんぱい là câu hô \"dô!\" khi nâng ly.",
+    "reading": "かんぱい＜する＞",
+    "romaji": "kanpai<suru>",
+    "topic_vi": "Như thế nào?",
+    "twins": [],
+    "variants": [
+     "かんぱい",
+     "かんぱい＜する＞",
+     "乾杯"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a7fc945970"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "公園の隣に新しい美術館があります。",
+       "ja_furigana": "公園(こうえん)の隣(となり)に新(あたら)しい美術館(びじゅつかん)があります。",
+       "vi": "Bên cạnh công viên có viện bảo tàng mỹ thuật mới.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "日曜日に美術館へ行きました。",
+       "ja_furigana": "日曜日(にちようび)に美術館(びじゅつかん)へ行(い)きました。",
+       "source": "AI",
+       "vi": "Chủ nhật tôi đã đi bảo tàng mỹ thuật."
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bảo tàng mỹ thuật",
+    "examples": [
+     {
+      "ja": "美術館で絵を見ます。",
+      "ja_furigana": "美術館(びじゅつかん)で絵(え)を見(み)ます。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi ngắm tranh ở bảo tàng mỹ thuật."
+     },
+     {
+      "ja": "日曜日に美術館へ行きました。",
+      "ja_furigana": "日曜日(にちようび)に美術館(びじゅつかん)へ行(い)きました。",
+      "source": "AI",
+      "vi": "Chủ nhật tôi đã đi bảo tàng mỹ thuật."
+     }
+    ],
+    "expression": "美術館",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "viện bảo tàng mỹ thuật; phòng tranh",
+    "mnemonic_vi": "美術館 Hán Việt \"mỹ thuật quán\" = bảo tàng mỹ thuật.",
+    "reading": "びじゅつかん",
+    "romaji": "bijutsukan",
+    "topic_vi": "Sở thích",
+    "twins": [],
+    "variants": [
+     "びじゅつかん"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4124d7d037"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "土曜日の夜、友だちとコンサートへ行きます。",
+       "ja_furigana": "土曜日(どようび)の夜(よる)、友(とも)だちとコンサートへ行(い)きます。",
+       "vi": "Tối thứ bảy tôi đi xem hòa nhạc cùng bạn.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "昨日のコンサートはとても楽しかったです。",
+       "ja_furigana": "昨日(きのう)のコンサートはとても楽(たの)しかったです。",
+       "vi": "Buổi hòa nhạc hôm qua đã rất vui.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hòa nhạc",
+    "examples": [
+     {
+      "ja": "クラシックのコンサートに行きます。",
+      "ja_furigana": "クラシックのコンサートに行(い)きます。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đi tham gia buổi hòa nhạc cổ điển."
+     },
+     {
+      "ja": "ロックのコンサートに行った。",
+      "ja_furigana": "ロックのコンサートに行(い)った。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã đi xem buổi hòa nhạc rock.."
+     }
+    ],
+    "expression": "コンサート",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "buổi hòa nhạc; hòa nhạc",
+    "mnemonic_vi": "コンサート = concert, buổi hòa nhạc.",
+    "reading": "こんさーと",
+    "romaji": "konsaato",
+    "topic_vi": "Âm nhạc",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c8c2f46bfa"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母は夜、静かにクラシックを聞きます。",
+       "ja_furigana": "母(はは)は夜(よる)、静(しず)かにクラシックを聞(き)きます。",
+       "vi": "Buổi tối mẹ tôi yên tĩnh nghe nhạc cổ điển.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cổ điển",
+    "examples": [
+     {
+      "ja": "クラシック音楽ではモーツァルトが好きです。",
+      "ja_furigana": "クラシック音楽(おんがく)ではモーツァルトが好(す)きです。",
+      "source": "VNJPCLUB",
+      "vi": "Trong âm nhạc cổ điển, tôi thích Mozart."
+     }
+    ],
+    "expression": "クラシック",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cổ điển; nhạc cổ điển",
+    "mnemonic_vi": "クラシック = classic, nhạc cổ điển.",
+    "reading": "くらしっく",
+    "romaji": "kurashikku",
+    "topic_vi": "Âm nhạc",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-034f17062b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "兄はロックが好きだ。",
+       "ja_furigana": "兄(あに)はロックが好(す)きだ。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Anh tôi thích nhạc rock."
+      },
+      {
+       "ja": "弟は部屋でいつもロックを聞いています。",
+       "ja_furigana": "弟(おとうと)は部屋(へや)でいつもロックを聞(き)いています。",
+       "vi": "Em trai tôi lúc nào cũng nghe nhạc rock trong phòng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Nhạc rock",
+    "examples": [
+     {
+      "ja": "兄はロックが好きだ。",
+      "ja_furigana": "兄(あに)はロックが好(す)きだ。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Anh tôi thích nhạc rock."
+     },
+     {
+      "ja": "私はジャズもロックも好きです。",
+      "ja_furigana": "私(わたし)はジャズもロックも好(す)きです。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi thích cả nhạc jazz và rock."
+     }
+    ],
+    "expression": "ロック",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nhạc rock",
+    "mnemonic_vi": "ロック = rock, nhạc rock; âm \"ck\" thành ック, ngắt gọn như tiếng trống.",
+    "reading": "ろっく",
+    "romaji": "rokku",
+    "topic_vi": "Âm nhạc",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-700bdc9492"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "休みの日に弟とゲームをしました。",
+       "ja_furigana": "休(やす)みの日(ひ)に弟(おとうと)とゲームをしました。",
+       "vi": "Vào ngày nghỉ tôi đã chơi trò chơi điện tử với em trai.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "trò chơi",
+    "examples": [
+     {
+      "ja": "夜、時々、ゲームをします。",
+      "ja_furigana": "夜(よる)、時々(ときどき)、ゲームをします。",
+      "source": "VNJPCLUB",
+      "vi": "Vào buổi tối, thỉnh thoảng tôi chơi trò chơi điện tử."
+     }
+    ],
+    "expression": "ゲーム",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "trò chơi; trò chơi điện tử",
+    "mnemonic_vi": "ゲーム = game, trò chơi; \"game\" kéo dài thành \"gē-mu\". Chơi game là ゲームを する.",
+    "reading": "げーむ",
+    "romaji": "geemu",
+    "topic_vi": "Âm nhạc",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8fcfb3aae7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この布はソフトな手ざわりだ。",
+       "ja_furigana": "この布(ぬの)はソフトな手(て)ざわりだ。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tấm vải này sờ vào mềm mại."
+      },
+      {
+       "ja": "誕生日に新しいゲームのソフトを買いました。",
+       "ja_furigana": "誕生日(たんじょうび)に新(あたら)しいゲームのソフトを買(か)いました。",
+       "vi": "Vào sinh nhật tôi đã mua đĩa game mới.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "パソコンに英語の勉強のソフトを入れます。",
+       "ja_furigana": "パソコンに英語(えいご)の勉強(べんきょう)のソフトを入(い)れます。",
+       "vi": "Tôi cài phần mềm học tiếng Anh vào máy tính.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Mềm, mềm mại",
+    "examples": [
+     {
+      "ja": "この布はソフトな手ざわりだ。",
+      "ja_furigana": "この布(ぬの)はソフトな手(て)ざわりだ。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Tấm vải này sờ vào mềm mại."
+     },
+     {
+      "ja": "彼女の話し方はソフトで感じがいい。",
+      "ja_furigana": "彼女(かのじょ)の話(はな)し方(かた)はソフトで感(かん)じがいい。",
+      "source": "VNJPCLUB",
+      "vi": "Cách nói chuyện của cô ấy mềm mại và dễ chịu."
+     },
+     {
+      "ja": "写真に字を入れるなら、このソフトがいい。",
+      "ja_furigana": "写真(しゃしん)に字(じ)を入(い)れるなら、このソフトがいい。",
+      "source": "VNJPCLUB",
+      "vi": "Nếu muốn chèn chữ vào ảnh, thì phần mềm này thích hợp."
+     }
+    ],
+    "expression": "ソフト",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 彼女の話し方はソフトで感じがいい。 → 感"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "phần mềm; đĩa game; mềm mại",
+    "mnemonic_vi": "ソフト là ソフトウェア (software) nói tắt = phần mềm, đĩa game (ゲームの ソフト); gốc là chữ soft nên còn có nghĩa mềm mại.",
+    "reading": "ソフト",
+    "romaji": "sofuto",
+    "topic_vi": "Âm nhạc",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-43ff906b24"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "朝のジョギングを始めた。",
+       "ja_furigana": "朝(あさ)のジョギングを始(はじ)めた。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi bắt đầu chạy bộ buổi sáng."
+      },
+      {
+       "ja": "夕方は涼しい公園でジョギングをします。",
+       "ja_furigana": "夕方(ゆうがた)は涼(すず)しい公園(こうえん)でジョギングをします。",
+       "vi": "Chiều tối tôi chạy bộ ở công viên mát mẻ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đi bộ thể thao",
+    "examples": [
+     {
+      "ja": "朝のジョギングを始めた。",
+      "ja_furigana": "朝(あさ)のジョギングを始(はじ)めた。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi bắt đầu chạy bộ buổi sáng."
+     },
+     {
+      "ja": "毎朝ジョギングをしてから仕事に行きます。",
+      "ja_furigana": "毎朝(まいあさ)ジョギングをしてから仕事(しごと)に行(い)きます。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi chạy bộ mỗi sáng rồi mới đi làm."
+     }
+    ],
+    "expression": "ジョギング",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "chạy bộ (thể dục)",
+    "mnemonic_vi": "ジョギング = jogging, chạy bộ thể dục.",
+    "reading": "じょぎんぐ",
+    "romaji": "jogingu",
+    "topic_vi": "Thể thao",
+    "twins": [],
+    "variants": [
+     "ジョギング＜する＞"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1b743b9550"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "冬休みに家族と山へスキーに行きます。",
+       "ja_furigana": "冬休(ふゆやす)みに家族(かぞく)と山(やま)へスキーに行(い)きます。",
+       "vi": "Kỳ nghỉ đông tôi đi trượt tuyết ở núi cùng gia đình.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "trượt tuyết",
+    "examples": [
+     {
+      "ja": "北海道でスキーをします。",
+      "ja_furigana": "北海道(ほっかいどう)でスキーをします。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi trượt tuyết ở Hokkaido."
+     }
+    ],
+    "expression": "スキー",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "trượt tuyết",
+    "mnemonic_vi": "スキー = ski, trượt tuyết; âm \"ki\" kéo dài thành キー. Đi trượt tuyết là スキーに 行く.",
+    "reading": "すきー",
+    "romaji": "sukii",
+    "topic_vi": "Thể thao",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-16cb9c4541"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "妹はダンスがとても上手です。",
+       "ja_furigana": "妹(いもうと)はダンスがとても上手(じょうず)です。",
+       "vi": "Em gái tôi nhảy rất giỏi.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "khiêu vũ",
+    "examples": [
+     {
+      "ja": "友達とダンスをします。",
+      "ja_furigana": "友達(ともだち)とダンスをします。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi khiêu vũ với bạn bè."
+     }
+    ],
+    "expression": "ダンス",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "khiêu vũ; nhảy; nhảy múa",
+    "mnemonic_vi": "ダンス = dance, nhảy múa; đọc \"đan-su\", thêm う vào âm s cuối. Nhảy là ダンスを する.",
+    "reading": "だんす",
+    "romaji": "dansu",
+    "topic_vi": "Thể thao",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-aeb8e37284"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎晩八時に料理の番組を見ます。",
+       "ja_furigana": "毎晩(まいばん)八時(はちじ)に料理(りょうり)の番組(ばんぐみ)を見(み)ます。",
+       "vi": "Tối nào lúc 8 giờ tôi cũng xem chương trình nấu ăn.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "好きなテレビ番組は何ですか。",
+       "ja_furigana": "好(す)きなテレビ番組(ばんぐみ)は何(なん)ですか。",
+       "source": "AI",
+       "vi": "Chương trình tivi bạn thích là gì?"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Phim／chương trình",
+    "examples": [
+     {
+      "ja": "きのう、おもしろい番組を見ました。",
+      "ja_furigana": "きのう、おもしろい番組(ばんぐみ)を見(み)ました。",
+      "source": "VNJPCLUB",
+      "vi": "Hôm qua tôi đã xem một chương trình thú vị."
+     },
+     {
+      "ja": "好きなテレビ番組は何ですか。",
+      "ja_furigana": "好(す)きなテレビ番組(ばんぐみ)は何(なん)ですか。",
+      "source": "AI",
+      "vi": "Chương trình tivi bạn thích là gì?"
+     }
+    ],
+    "expression": "番組",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "chương trình tivi; chương trình radio",
+    "mnemonic_vi": "番組 Hán Việt \"phiên tổ\": các tiết mục xếp theo lượt = chương trình (TV, radio).",
+    "reading": "ばんぐみ",
+    "romaji": "bangumi",
+    "topic_vi": "Thời tiết",
+    "twins": [],
+    "variants": [
+     "ばんぐみ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2f8917642e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "春は花がきれいな季節です。",
+       "ja_furigana": "春(はる)は花(はな)がきれいな季節(きせつ)です。",
+       "vi": "Mùa xuân là mùa hoa nở đẹp.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "どの季節が一番好きですか。",
+       "ja_furigana": "どの季節(きせつ)が一番(いちばん)好(す)きですか。",
+       "source": "AI",
+       "vi": "Bạn thích mùa nào nhất?"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "mùa trong năm",
+    "examples": [
+     {
+      "ja": "日本には、四つの季節があります。",
+      "ja_furigana": "日本(にほん)には、四(よっ)つの季節(きせつ)があります。",
+      "source": "VNJPCLUB",
+      "vi": "Ở Nhật Bản có bốn mùa."
+     },
+     {
+      "ja": "どの季節が一番好きですか。",
+      "ja_furigana": "どの季節(きせつ)が一番(いちばん)好(す)きですか。",
+      "source": "AI",
+      "vi": "Bạn thích mùa nào nhất?"
+     }
+    ],
+    "expression": "季節",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mùa; mùa trong năm",
+    "mnemonic_vi": "季節 Hán Việt \"quý tiết\": き \"quý\" + せつ \"tiết\" = mùa trong năm.",
+    "reading": "きせつ",
+    "romaji": "kisetsu",
+    "topic_vi": "Mùa",
+    "twins": [],
+    "variants": [
+     "きせつ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-52dac9aef3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今夜は空の月がとても明るいです。",
+       "ja_furigana": "今夜(こんや)は空(そら)の月(つき)がとても明(あか)るいです。",
+       "vi": "Đêm nay mặt trăng trên bầu trời rất sáng.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "mặt trăng",
+    "examples": [
+     {
+      "ja": "山の上に月が出ていました。",
+      "ja_furigana": "山(やま)の上(うえ)に月(つき)が出(で)ていました。",
+      "source": "VNJPCLUB",
+      "vi": "Mặt trăng xuất hiện trên ngọn núi."
+     }
+    ],
+    "expression": "月",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mặt trăng; tháng",
+    "mnemonic_vi": "月 \"nguyệt\": hình vầng trăng khuyết, đọc つき = mặt trăng, tháng.",
+    "reading": "つき",
+    "romaji": "tsuki",
+    "topic_vi": "Mùa",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-5aac156c7e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "すみません、もう一度言ってください。",
+       "ja_furigana": "すみません、もう一度(いちど)言(い)ってください。",
+       "vi": "Xin lỗi, xin hãy nói lại một lần nữa.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "一度、私のうちへ来てください。",
+       "ja_furigana": "一度(いちど)、私(わたし)のうちへ来(き)てください。",
+       "source": "AI",
+       "vi": "Hãy đến nhà tôi chơi một lần nhé."
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "một lần",
+    "examples": [
+     {
+      "ja": "京都へ一度行ったことがあります。",
+      "ja_furigana": "京都(きょうと)へ一度(いちど)行(い)ったことがあります。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã từng đến Kyoto một lần."
+     },
+     {
+      "ja": "一度、私のうちへ来てください。",
+      "ja_furigana": "一度(いちど)、私(わたし)のうちへ来(き)てください。",
+      "source": "AI",
+      "vi": "Hãy đến nhà tôi chơi một lần nhé."
+     }
+    ],
+    "expression": "一度",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "một lần",
+    "mnemonic_vi": "一度 Hán Việt \"nhất độ\" = một lần.",
+    "reading": "いちど",
+    "romaji": "ichido",
+    "topic_vi": "Mùa",
+    "twins": [],
+    "variants": [
+     "いちど"
+    ],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1c50d09c66"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "晩ごはんの後で川の近くを散歩します。",
+       "ja_furigana": "晩(ばん)ごはんの後(あと)で川(かわ)の近(ちか)くを散歩(さんぽ)します。",
+       "vi": "Sau bữa tối tôi đi dạo gần bờ sông.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "天気のいい日に公園を散歩しました。",
+       "ja_furigana": "天気(てんき)のいい日(ひ)に公園(こうえん)を散歩(さんぽ)しました。",
+       "vi": "Vào ngày đẹp trời tôi đã đi dạo ở công viên.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "毎朝、犬と散歩します。",
+       "ja_furigana": "毎朝(まいあさ)、犬(いぬ)と散歩(さんぽ)します。",
+       "source": "AI",
+       "vi": "Mỗi sáng tôi đi dạo cùng con chó."
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "dạo phố",
+    "examples": [
+     {
+      "ja": "こうえんで さんぽしたり あそんだり します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ở công viên lúc thì đi dạo, lúc thì chơi."
+     },
+     {
+      "ja": "まいあさ さんぽして います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sáng nào tôi cũng đi dạo."
+     },
+     {
+      "ja": "毎朝、犬と散歩します。",
+      "ja_furigana": "毎朝(まいあさ)、犬(いぬ)と散歩(さんぽ)します。",
+      "source": "AI",
+      "vi": "Mỗi sáng tôi đi dạo cùng con chó."
+     }
+    ],
+    "expression": "散歩＜する＞",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đi dạo; tản bộ",
+    "mnemonic_vi": "散歩 Hán Việt \"tán bộ\": bước (歩) thong thả tản mạn (散) = đi dạo.",
+    "reading": "さんぽ＜する＞",
+    "romaji": "sanpo<suru>",
+    "topic_vi": "Mùa",
+    "twins": [],
+    "variants": [
+     "さんぽ",
+     "散歩",
+     "散歩（します）"
+    ],
+    "word_type_label": "động từ nhóm III"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3227c007ff"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "是非、一度遊びに来て。",
+       "ja_furigana": "是非(ぜひ)、一度(いちど)遊(あそ)びに来(き)て。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Nhất định hãy đến chơi một lần."
+      },
+      {
+       "ja": "この映画はおもしろいですから、ぜひ見てください。",
+       "ja_furigana": "この映画(えいが)はおもしろいですから、ぜひ見(み)てください。",
+       "vi": "Bộ phim này thú vị lắm nên nhất định bạn hãy xem nhé.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "ぜひ一度、日本へ来てください。",
+       "ja_furigana": "ぜひ一度(いちど)、日本(にほん)へ来(き)てください。",
+       "source": "AI",
+       "vi": "Nhất định hãy đến Nhật một lần nhé."
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đúng sai, phải trái",
+    "examples": [
+     {
+      "ja": "是非、一度遊びに来て。",
+      "ja_furigana": "是非(ぜひ)、一度(いちど)遊(あそ)びに来(き)て。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Nhất định hãy đến chơi một lần."
+     },
+     {
+      "ja": "ぜひうちへ遊びに来てください。",
+      "ja_furigana": "ぜひうちへ遊(あそ)びに来(き)てください。",
+      "source": "VNJPCLUB",
+      "vi": "Nhất định hãy đến nhà tôi chơi nhé."
+     },
+     {
+      "ja": "ぜひ一度、日本へ来てください。",
+      "ja_furigana": "ぜひ一度(いちど)、日本(にほん)へ来(き)てください。",
+      "source": "AI",
+      "vi": "Nhất định hãy đến Nhật một lần nhé."
+     }
+    ],
+    "expression": "ぜひ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nhất định (hãy); rất mong",
+    "mnemonic_vi": "是非 Hán Việt \"thị phi\" (đúng sai): dù đúng hay sai cũng làm = nhất định.",
+    "reading": "ぜひ",
+    "romaji": "zehi",
+    "topic_vi": "Mùa",
+    "twins": [],
+    "variants": [
+     "ぜひ"
+    ],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d03f9edc2a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "勿論、私も行きます。",
+       "ja_furigana": "勿論(もちろん)、私(わたし)も行(い)きます。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tất nhiên tôi cũng đi."
+      },
+      {
+       "ja": "果物は好きですか。— もちろん大好きです。",
+       "ja_furigana": "果物(くだもの)は好(す)きですか。— もちろん大好(だいす)きです。",
+       "vi": "Bạn có thích trái cây không? — Tất nhiên là rất thích rồi.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "明日のパーティーにはもちろん行きますよ。",
+       "ja_furigana": "明日(あした)のパーティーにはもちろん行(い)きますよ。",
+       "vi": "Bữa tiệc ngày mai đương nhiên là tôi sẽ đi rồi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tất nhiên",
+    "examples": [
+     {
+      "ja": "勿論、私も行きます。",
+      "ja_furigana": "勿論(もちろん)、私(わたし)も行(い)きます。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Tất nhiên tôi cũng đi."
+     },
+     {
+      "ja": "オウさんは中国人ですから、もちろん、中国語が話せます。",
+      "ja_furigana": "オウさんは中国人(ちゅうごくじん)ですから、もちろん、中国(ちゅうごく)語が話(はな)せます。",
+      "source": "VNJPCLUB",
+      "vi": "Vì anh Vương là người Trung Quốc nên đương nhiên anh ấy có thể nói được tiếng Trung."
+     },
+     {
+      "ja": "マンションを買った。もちろん、ローンでだ",
+      "ja_furigana": "マンションを買(か)った。もちろん、ローンでだ",
+      "source": "VNJPCLUB",
+      "vi": "Đã mua căn chung cư, tất nhiên là trả góp."
+     }
+    ],
+    "expression": "もちろん",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đương nhiên; tất nhiên",
+    "mnemonic_vi": "勿論 Hán Việt \"vật luận\": khỏi phải bàn = tất nhiên.",
+    "reading": "もちろん",
+    "romaji": "mochiron",
+    "topic_vi": "Mùa",
+    "twins": [],
+    "variants": [
+     "もちろん"
+    ],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-57a7fa77ff"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "仕事の後で駅の近くで買い物しました。",
+       "ja_furigana": "仕事(しごと)の後(あと)で駅(えき)の近(ちか)くで買(か)い物(もの)しました。",
+       "vi": "Sau giờ làm tôi đã mua sắm ở gần nhà ga.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "日曜日にデパートで買い物をします。",
+       "ja_furigana": "日曜日(にちようび)にデパートで買(か)い物(もの)をします。",
+       "source": "AI",
+       "vi": "Chủ nhật tôi đi mua sắm ở trung tâm thương mại."
+      },
+      {
+       "ja": "母とスーパーで買い物をします。",
+       "ja_furigana": "母(はは)とスーパーで買(か)い物(もの)をします。",
+       "source": "AI",
+       "vi": "Tôi đi mua sắm ở siêu thị cùng mẹ."
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "việc mua sắm",
+    "examples": [
+     {
+      "ja": "よく かいものを します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi thường đi mua sắm."
+     },
+     {
+      "ja": "日曜日にデパートで買い物をします。",
+      "ja_furigana": "日曜日(にちようび)にデパートで買(か)い物(もの)をします。",
+      "source": "AI",
+      "vi": "Chủ nhật tôi đi mua sắm ở trung tâm thương mại."
+     },
+     {
+      "ja": "母とスーパーで買い物をします。",
+      "ja_furigana": "母(はは)とスーパーで買(か)い物(もの)をします。",
+      "source": "AI",
+      "vi": "Tôi đi mua sắm ở siêu thị cùng mẹ."
+     }
+    ],
+    "expression": "買い物＜する＞",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mua sắm; việc mua sắm; việc đi chợ",
+    "mnemonic_vi": "買い (mua) + 物 (もの: đồ) = việc mua đồ, đi mua sắm.",
+    "reading": "かいもの＜する＞",
+    "romaji": "kaimono<suru>",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [
+     "買い物",
+     "買い物（します）"
+    ],
+    "word_type_label": "động từ nhóm III"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3b196bd668"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "では、次の問題に進みましょう。",
+       "ja_furigana": "では、次(つぎ)の問題(もんだい)に進(すす)みましょう。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Vậy thì chúng ta sang câu tiếp theo."
+      },
+      {
+       "ja": "もう時間ですね。では、帰りましょう。",
+       "ja_furigana": "もう時間(じかん)ですね。では、帰(かえ)りましょう。",
+       "vi": "Đã đến giờ rồi nhỉ. Vậy thì chúng ta về thôi.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "では、また明日学校で会いましょう。",
+       "ja_furigana": "では、また明日(あした)学校(がっこう)で会(あ)いましょう。",
+       "vi": "Vậy thì hẹn gặp lại ngày mai ở trường nhé.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "vậy thì",
+    "examples": [
+     {
+      "ja": "では、次の問題に進みましょう。",
+      "ja_furigana": "では、次(つぎ)の問題(もんだい)に進(すす)みましょう。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Vậy thì chúng ta sang câu tiếp theo."
+     },
+     {
+      "ja": "「皆さん、お集まりですね。では出発しましょう！」",
+      "ja_furigana": "「皆(みな)さん、お集(あつ)まりですね。では出発(しゅっぱつ)しましょう！」",
+      "source": "VNJPCLUB",
+      "vi": "Mọi người tập hợp đủ rồi nhỉ. Vậy xuất phát thôi!"
+     },
+     {
+      "ja": "「今日のテーマは江戸時代の文化についてです。では、佐藤先生、お願いします」",
+      "ja_furigana": "「今日(きょう)のテーマは江戸(えど)時代(じだい)の文化(ぶんか)についてです。では、佐藤(さとう)先生(せんせい)、お願(ねが)いします」",
+      "source": "VNJPCLUB",
+      "vi": "Chủ đề hôm nay: văn hóa thời Edo. Xin mời thầy/cô Sato."
+     }
+    ],
+    "expression": "では",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: では、次の問題に進みましょう。 → 進",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 「皆さん、お集まりですね。では出発しましょう！」 → 集,出発",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 「今日のテーマは江戸時代の文化についてです。では、佐藤先生、お願いします」 → 江戸時代,文化"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "vậy thì; thế thì; trong trường hợp đó",
+    "mnemonic_vi": "では = vậy thì (trang trọng); dạng thân mật là じゃ.",
+    "reading": "では",
+    "romaji": "deha",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "liên từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-bcf8caca10"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "千円を出して、百円のお釣りをもらいました。",
+       "ja_furigana": "千円(せんえん)を出(だ)して、百円(ひゃくえん)のお釣(つ)りをもらいました。",
+       "vi": "Tôi đưa 1000 yên và nhận lại 100 yên tiền thừa.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tiền thối",
+    "examples": [
+     {
+      "ja": "お釣りをもらいます。",
+      "ja_furigana": "お釣(つ)りをもらいます。",
+      "source": "VNJPCLUB",
+      "vi": "Nhận lại tiền thừa."
+     }
+    ],
+    "expression": "お釣り",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tiền thối",
+    "mnemonic_vi": "おつり = tiền thối lại; viết お釣り có 釣 (câu cá): tiền được \"câu\" về tay mình.",
+    "reading": "おつり",
+    "romaji": "otsuri",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [
+     "おつり"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d7f6764282"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ここでの生活に慣れた。",
+       "ja_furigana": "ここでの生活(せいかつ)に慣(な)れた。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi đã quen với cuộc sống ở đây."
+      },
+      {
+       "ja": "新しい町の生活はとても楽しいです。",
+       "ja_furigana": "新(あたら)しい町(まち)の生活(せいかつ)はとても楽(たの)しいです。",
+       "vi": "Cuộc sống ở thị trấn mới rất vui.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "兄は東京で一人で生活しています。",
+       "ja_furigana": "兄(あに)は東京(とうきょう)で一人(ひとり)で生活(せいかつ)しています。",
+       "vi": "Anh trai tôi đang sống tự lập một mình ở Tokyo.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cuộc sống",
+    "examples": [
+     {
+      "ja": "ここでの生活に慣れた。",
+      "ja_furigana": "ここでの生活(せいかつ)に慣(な)れた。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đã quen với cuộc sống ở đây."
+     },
+     {
+      "ja": "日本で生活しています。",
+      "ja_furigana": "日本(にほん)で生活(せいかつ)しています。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đang sinh sống ở Nhật Bản."
+     },
+     {
+      "ja": "健康的な生活を送る",
+      "ja_furigana": "健康的(けんこうてき)な生活(せいかつ)を送(おく)る",
+      "source": "VNJPCLUB",
+      "vi": "Sống cuộc sống khỏe mạnh."
+     }
+    ],
+    "expression": "生活＜する＞",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: ここでの生活に慣れた。 → 慣",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 健康的な生活を送る → 的な"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "sinh hoạt; sinh sống; cuộc sống",
+    "mnemonic_vi": "生活 Hán Việt \"sinh hoạt\" = cuộc sống hằng ngày.",
+    "reading": "せいかつ＜する＞",
+    "romaji": "seikatsu<suru>",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [
+     "せいかつ",
+     "生活",
+     "生活（する）"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8944f62a98"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "最近、物価が上がっている。",
+       "ja_furigana": "最近(さいきん)、物価(ぶっか)が上(あ)がっている。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Gần đây giá cả đang tăng."
+      },
+      {
+       "ja": "この国は物価が安くて住みやすいです。",
+       "ja_furigana": "この国(くに)は物価(ぶっか)が安(やす)くて住(す)みやすいです。",
+       "vi": "Đất nước này vật giá rẻ nên dễ sống.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "大きい町は田舎より物価が高いです。",
+       "ja_furigana": "大(おお)きい町(まち)は田舎(いなか)より物価(ぶっか)が高(たか)いです。",
+       "vi": "Thành phố lớn có vật giá đắt đỏ hơn vùng quê.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "vật giá",
+    "examples": [
+     {
+      "ja": "最近、物価が上がっている。",
+      "ja_furigana": "最近(さいきん)、物価(ぶっか)が上(あ)がっている。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Gần đây giá cả đang tăng."
+     },
+     {
+      "ja": "東京は物価が高い",
+      "ja_furigana": "東京(とうきょう)は物価(ぶっか)が高(たか)い",
+      "source": "VNJPCLUB",
+      "vi": "Tokyo giá cả đắt đỏ."
+     },
+     {
+      "ja": "物価が高くて、生活が大変だ。",
+      "ja_furigana": "物価(ぶっか)が高(たか)くて、生活(せいかつ)が大変(たいへん)だ。",
+      "source": "VNJPCLUB",
+      "vi": "Vì vật giá tăng cao nên đời sống khó khăn."
+     }
+    ],
+    "expression": "物価",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "vật giá; giá cả; mức giá chung",
+    "mnemonic_vi": "物価 Hán Việt \"vật giá\" = giá cả hàng hóa.",
+    "reading": "ぶっか",
+    "romaji": "bukka",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [
+     "ぶっか"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-757a90974b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "野菜は店の奥のコーナーにある。",
+       "ja_furigana": "野菜(やさい)は店(みせ)の奥(おく)のコーナーにある。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Rau ở gian hàng phía trong cửa hàng."
+      },
+      {
+       "ja": "二階に外国の本のコーナーがあります。",
+       "ja_furigana": "二階(にかい)に外国(がいこく)の本(ほん)のコーナーがあります。",
+       "vi": "Ở tầng 2 có quầy sách nước ngoài.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "お菓子のコーナーでチョコレートを買いました。",
+       "ja_furigana": "お菓子(かし)のコーナーでチョコレートを買(か)いました。",
+       "vi": "Tôi đã mua sô-cô-la ở gian hàng bánh kẹo.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "góc; gian hàng; khúc cua",
+    "examples": [
+     {
+      "ja": "野菜は店の奥のコーナーにある。",
+      "ja_furigana": "野菜(やさい)は店(みせ)の奥(おく)のコーナーにある。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Rau ở gian hàng phía trong cửa hàng."
+     },
+     {
+      "ja": "学校には進学相談をするコーナーがある。",
+      "ja_furigana": "学校(がっこう)には進学(しんがく)相談(そうだん)をするコーナーがある。",
+      "source": "VNJPCLUB",
+      "vi": "Ở trường có góc tư vấn học chuyển cấp."
+     },
+     {
+      "ja": "無料の相談コーナーもあるから、行ってみたら？",
+      "ja_furigana": "無料(むりょう)の相談(そうだん)コーナーもあるから、行(い)ってみたら？",
+      "source": "VNJPCLUB",
+      "vi": "Vì cũng có quầy tư vấn miễn phí, bạn thử đến đó xem sao?"
+     }
+    ],
+    "expression": "コーナー",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 野菜は店の奥のコーナーにある。 → 奥",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 学校には進学相談をするコーナーがある。 → 進,相談",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 無料の相談コーナーもあるから、行ってみたら？ → 相談"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "góc; gian hàng; khúc cua",
+    "mnemonic_vi": "コーナー = corner, góc, gian hàng; như \"góc sách\" (ほんの コーナー) trong cửa hàng.",
+    "reading": "こーなー",
+    "romaji": "koonaa",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2b42fbc50c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "友だちにコンサートのチケットを二枚もらいました。",
+       "ja_furigana": "友(とも)だちにコンサートのチケットを二枚(にまい)もらいました。",
+       "vi": "Tôi được bạn tặng hai tấm vé xem hòa nhạc.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "vé",
+    "examples": [
+     {
+      "ja": "試合のチケットをインターネットで買った。",
+      "ja_furigana": "試合(しあい)のチケットをインターネットで買(か)った。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã mua vé xem trận đấu ở trên mạng."
+     }
+    ],
+    "expression": "チケット",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "vé",
+    "mnemonic_vi": "チケット = ticket, vé xem phim, hòa nhạc.",
+    "reading": "ちけっと",
+    "romaji": "chiketto",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e0ef6feb53"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "来週の会議の時間を変えました。",
+       "ja_furigana": "来週(らいしゅう)の会議(かいぎ)の時間(じかん)を変(か)えました。",
+       "vi": "Tôi đã thay đổi thời gian cuộc họp tuần sau.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "部屋の机の場所を変えましょう。",
+       "ja_furigana": "部屋(へや)の机(つくえ)の場所(ばしょ)を変(か)えましょう。",
+       "vi": "Chúng ta hãy đổi chỗ kê bàn trong phòng nhé.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "雨が降ったから、旅行の日を変えます。",
+       "ja_furigana": "雨(あめ)が降(ふ)ったから、旅行(りょこう)の日(ひ)を変(か)えます。",
+       "vi": "Vì trời mưa nên tôi đổi ngày đi du lịch.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 3 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đổi",
+    "examples": [
+     {
+      "ja": "｛髪型／時間／場所／法律 …｝を変える",
+      "ja_furigana": "｛髪型(かみがた)／時間(じかん)／場所(ばしょ)／法律(ほうりつ) …｝を変(か)える",
+      "source": "VNJPCLUB",
+      "vi": "Thay đổi {kiểu tóc/ thời gian/ địa điểm/ luật pháp…}."
+     },
+     {
+      "ja": "今の人生を変えたい",
+      "ja_furigana": "今(いま)の人生(じんせい)を変(か)えたい",
+      "source": "VNJPCLUB",
+      "vi": "Muốn thay đổi cuộc sống bây giờ."
+     },
+     {
+      "ja": "彼女は最近髪の色を茶色から金色に変えた",
+      "ja_furigana": "彼女(かのじょ)は最近(さいきん)髪(かみ)の色(いろ)を茶色(ちゃいろ)から金色(きんいろ)に変(か)えた",
+      "source": "VNJPCLUB",
+      "vi": "Gần đây cô ấy đã đổi kiểu tóc từ nâu sang vàng."
+     }
+    ],
+    "expression": "変える",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: ｛髪型／時間／場所／法律 …｝を変える → 髪型,法律"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "thay đổi; đổi; đổi vật này lấy vật khác",
+    "mnemonic_vi": "変える có 変 \"biến\" (biến đổi): かえる = thay đổi, đổi (tiền, chỗ ngồi, kế hoạch).",
+    "reading": "かえる",
+    "romaji": "kaeru",
+    "topic_vi": "Máy rút tiền tự động",
+    "twins": [],
+    "variants": [
+     "かえる"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3d4c1c2e76"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "祖母に年賀状を送った。",
+       "ja_furigana": "祖母(そぼ)に年賀状(ねんがじょう)を送(おく)った。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi gửi thiệp năm mới cho bà."
+      },
+      {
+       "ja": "お正月に先生から年賀状が来ました。",
+       "ja_furigana": "お正月(しょうがつ)に先生(せんせい)から年賀状(ねんがじょう)が来(き)ました。",
+       "vi": "Vào dịp Tết tôi nhận được thiệp chúc mừng năm mới từ thầy giáo.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "12月に年賀状を書きます。",
+       "ja_furigana": "12月(じゅうにがつ)に年賀状(ねんがじょう)を書(か)きます。",
+       "source": "AI",
+       "vi": "Tháng 12 tôi viết thiệp chúc mừng năm mới."
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thiệp mừng năm mới",
+    "examples": [
+     {
+      "ja": "祖母に年賀状を送った。",
+      "ja_furigana": "祖母(そぼ)に年賀状(ねんがじょう)を送(おく)った。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi gửi thiệp năm mới cho bà."
+     },
+     {
+      "ja": "毎年、年賀状を100枚だす。",
+      "ja_furigana": "毎年(まいとし)、年賀状(ねんがじょう)を100枚(まい)だす。",
+      "source": "VNJPCLUB",
+      "vi": "Hằng năm tôi đã gửi 100 thiệp chúc tết."
+     },
+     {
+      "ja": "12月に年賀状を書きます。",
+      "ja_furigana": "12月(じゅうにがつ)に年賀状(ねんがじょう)を書(か)きます。",
+      "source": "AI",
+      "vi": "Tháng 12 tôi viết thiệp chúc mừng năm mới."
+     }
+    ],
+    "expression": "年賀状",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 祖母に年賀状を送った。 → 祖母"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "thiệp chúc mừng năm mới; thiệp mừng năm mới",
+    "mnemonic_vi": "年賀状 Hán Việt \"niên hạ trạng\": thiếp (状) mừng (賀) năm mới (年).",
+    "reading": "ねんがじょう",
+    "romaji": "nengajou",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [
+     "ねんがじょう"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9362e28737"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "郵便局から母にエアメールを送りました。",
+       "ja_furigana": "郵便局(ゆうびんきょく)から母(はは)にエアメールを送(おく)りました。",
+       "vi": "Tôi đã gửi thư đường hàng không cho mẹ từ bưu điện.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thư gửi bằng đường hàng không",
+    "examples": [
+     {
+      "ja": "エアメールなら、3日ぐらいで届きます。",
+      "ja_furigana": "エアメールなら、3日(みっか)ぐらいで届(とど)きます。",
+      "source": "VNJPCLUB",
+      "vi": "Nếu gửi bằng đường hàng không, thì khoảng 3 ngày sẽ đến nơi."
+     }
+    ],
+    "expression": "エアメール",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: エアメールなら、3日ぐらいで届きます。 → 届きます"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "thư gửi đường hàng không; thư máy bay",
+    "mnemonic_vi": "エア (air: hàng không) + メール (mail: thư) = thư gửi máy bay.",
+    "reading": "えあめーる",
+    "romaji": "eameeru",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-514866aaa8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟は春に生まれる予定だ。",
+       "ja_furigana": "弟(おとうと)は春(はる)に生(う)まれる予定(よてい)だ。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Em trai tôi dự kiến ra đời vào mùa xuân."
+      },
+      {
+       "ja": "私は南の小さな町で生まれました。",
+       "ja_furigana": "私(わたし)は南(みなみ)の小(ちい)さな町(まち)で生(う)まれました。",
+       "vi": "Tôi được sinh ra ở một thị trấn nhỏ phía nam.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "あなたの生まれた日はいつですか。",
+       "ja_furigana": "あなたの生(う)まれた日(ひ)はいつですか。",
+       "vi": "Ngày bạn sinh ra là khi nào?",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "được sinh ra, được tạo ra",
+    "examples": [
+     {
+      "ja": "弟は春に生まれる予定だ。",
+      "ja_furigana": "弟(おとうと)は春(はる)に生(う)まれる予定(よてい)だ。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Em trai tôi dự kiến ra đời vào mùa xuân."
+     },
+     {
+      "ja": "先月子どもが生まれた",
+      "ja_furigana": "先月(せんげつ)子(こ)どもが生(う)まれた",
+      "source": "VNJPCLUB",
+      "vi": "Đứa trẻ được sinh ra vào tháng trước."
+     },
+     {
+      "ja": "1990年代に、多くのアニメの名作が生まれた",
+      "ja_furigana": "1990年代(ねんだい)に、多(おお)くのアニメの名作(めいさく)が生(う)まれた",
+      "source": "VNJPCLUB",
+      "vi": "Nhiều phim hoạt hình nổi tiếng ra đời vào những năm 1990."
+     }
+    ],
+    "expression": "生まれる",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 弟は春に生まれる予定だ。 → 予定",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 1990年代に、多くのアニメの名作が生まれた → 代"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "được sinh ra; được tạo ra",
+    "mnemonic_vi": "生 \"sinh\" (sinh ra): うまれる = được sinh ra.",
+    "reading": "うまれる",
+    "romaji": "umareru",
+    "topic_vi": "Quà tặng",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8d4417a2ee"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N5",
+ "packet_id": "REVIEW_VOCAB-061"
+}

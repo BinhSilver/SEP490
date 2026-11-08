@@ -1,0 +1,91 @@
+package com.jlas.learning.service.impl.engine;
+
+import com.jlas.learning.enums.LearningActivityType;
+import com.jlas.learning.enums.LearningMemberType;
+import com.jlas.learning.entity.LearningActivityMember;
+
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+
+/** [JLAS-W0193] The minimal seam a content type must supply to reuse {@link InteractiveStudyEngine}. Everything
+ * state-machine related (session/card lifecycle, flip/remember, attempt cycles, cooldown, review, idempotent
+ * submit, grading) lives in the engine; only "what is a canonical target" and "how do I ask about it" vary. */
+public interface InteractiveContentAdapter<T> {
+    /** The {@link com.jlas.learning.entity.UserLearningPathItem} activity type this content studies under. */
+    LearningActivityType activityType();
+
+    /** The {@link com.jlas.learning.entity.LearningActivityMember} member type that scopes this content's
+     * membership rows — never trust a client-supplied id list, always re-derive from membership. */
+    LearningMemberType memberType();
+
+    /** Discriminator stored on {@link com.jlas.learning.entity.LearningQuizSession#getQuizType()} so
+     * Vocabulary and Kanji micro-check sessions never collide. */
+    String microCheckType();
+
+    /** Bulk-loads canonical entities for the given membership ids, keyed by id. Missing ids are simply
+     * absent from the map (never fabricated). */
+    Map<Long, T> loadByIds(List<Long> canonicalIds);
+
+    /** The membership can carry a frozen, lesson-specific display. Existing adapters use canonical content. */
+    default Map<Long, T> loadForMembers(List<LearningActivityMember> membership) {
+        return loadByIds(membership.stream().map(LearningActivityMember::getCanonicalId).distinct().toList());
+    }
+
+    /** Builds the deterministic, no-AI question set for one micro-check batch. Distractors must come only
+     * from {@code batch} (canonical/approved data), never generated at runtime.
+     *
+     * <p>[JLAS-W0193] Task 10 audit finding — {@code variationSeed} (the batch's {@code attemptsUsed} count
+     * at issue time, server-derived, never client-supplied) must shift the option rotation/type assignment
+     * between successive issues of the *same* batch. Before this parameter existed, generation depended only
+     * on {@code (batch, batchIndex)}, which never changes across retries of an unpassed batch — so a failed
+     * attempt's required feedback (design spec §4.5, which reveals the correct answer per question in
+     * {@code MicroCheckResult.review}) could be replayed verbatim on the very next issue, letting a learner
+     * pass without engaging with the content at all. Implementations must fold {@code variationSeed} into
+     * their rotation math (see {@code InteractiveVocabularyServiceImpl}/{@code InteractiveKanjiServiceImpl}/
+     * {@code InteractiveGrammarServiceImpl} for the pattern) rather than ignoring it. */
+    List<QuestionSpec> buildQuestions(List<T> batch, int batchIndex, int variationSeed);
+
+    /** Splits ordered canonical content into score batches. Existing card-based skills keep the historical
+     * fixed chunks of ten; comprehension overrides this so one canonical source is exactly one batch.
+     * Choice options come from the batch itself, so a trailing 10+1 is rebalanced to 6+5: a one-item batch
+     * could never be quizzed. Batch count and every earlier boundary stay as before. */
+    default List<List<T>> partition(List<T> orderedContent) {
+        int size = orderedContent.size();
+        // Start of the last two batches when the tail would otherwise be a single item.
+        int rebalanceFrom = size > 10 && size % 10 == 1 ? size - 11 : size;
+        List<List<T>> batches = new ArrayList<>();
+        for (int i = 0; i < rebalanceFrom; i += 10) {
+            batches.add(List.copyOf(orderedContent.subList(i, Math.min(i + 10, rebalanceFrom))));
+        }
+        if (rebalanceFrom < size) {
+            batches.add(List.copyOf(orderedContent.subList(rebalanceFrom, rebalanceFrom + 6)));
+            batches.add(List.copyOf(orderedContent.subList(rebalanceFrom + 6, size)));
+        }
+        return batches;
+    }
+
+    default boolean requiresCanonicalPartitioning() { return false; }
+
+    /** [JLAS-W0108] Frozen source of one batch (Reading passage / Listening audio) stored on every session the engine
+     * issues for it, so review and replay never re-read canonical content. Null for content with no source. */
+    default String sourceSnapshotJson(List<T> batch, int batchIndex, String sourceRevision) { return null; }
+
+    /** Validates that current canonical content still matches the immutable activity snapshot. */
+    default void validateSourceRevision(String persistedRevision, List<T> orderedContent) { }
+
+    /** Comprehension review is a server-recorded source event after the third failure. */
+    default boolean requiresServerReviewEvidence() { return false; }
+
+    /** Whether this activity has a required learning exercise before its quiz. Flashcard-based activities
+     * are deliberately quiz-accessible before all cards are viewed; the UI asks the learner to confirm first.
+     * Grammar overrides this because sentence ordering and fill-in practice are real prerequisites. */
+    default boolean requiresPracticeGate() {
+        return false;
+    }
+
+    /** Only consulted when {@link #requiresPracticeGate()} is true. Must throw
+     * {@code ApiException(ErrorCode.PREREQUISITE_NOT_MET)} until the activity's own practice gate is satisfied. */
+    default void assertPracticeGateSatisfied(Long activityId, List<com.jlas.learning.entity.LearningActivityMember> membership) {
+    }
+}

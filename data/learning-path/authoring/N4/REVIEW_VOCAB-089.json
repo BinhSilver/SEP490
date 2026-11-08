@@ -1,0 +1,90 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chán, vô vị",
+    "examples": [
+     {
+      "ja": "この映画は長くて、つまらなかった。",
+      "ja_furigana": "この映画(えいが)は長(なが)くて、つまらなかった。",
+      "source": "AI",
+      "vi": "Bộ phim này dài và chán quá."
+     }
+    ],
+    "expression": "つまらない",
+    "findings": [
+     "MULTI_LEVEL"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "vụn vặt; không đáng; chán",
+    "mnemonic_vi": "つまらない là phủ định của つまる (đầy, chặt): bên trong chẳng có gì \"đầy\" → nhạt nhẽo, chán.",
+    "reading": "つまらない",
+    "romaji": "tsumaranai",
+    "topic_vi": "Cảm giác",
+    "twins": [],
+    "variants": [
+     "詰らない"
+    ],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d4d8b8a1ff"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ねこが寝ているので、さわらないでください。",
+       "ja_furigana": "ねこが寝(ね)ているので、さわらないでください。",
+       "vi": "Con mèo đang ngủ nên xin đừng chạm vào nó.",
+       "source": "AI"
+      }
+     ]
+    },
+    "note": "Câu cũ quá giống câu sách (MIRAI_SIMILAR); viết câu mới."
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "xin đừng chạm vào",
+    "examples": [
+     {
+      "ja": "この絵にはさわらないでください。",
+      "ja_furigana": "この絵(え)にはさわらないでください。",
+      "source": "AI",
+      "vi": "Xin đừng chạm vào bức tranh này."
+     }
+    ],
+    "expression": "さわらないで ください",
+    "findings": [
+     "MIRAI_SIMILAR: example #1"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "xin đừng chạm vào",
+    "mnemonic_vi": "さわらないで (đừng chạm) + ください (xin): lời nhắc lịch sự — xin đừng chạm vào.",
+    "reading": "さわらないで ください",
+    "romaji": "sawaranaide kudasai",
+    "topic_vi": "Từ thông dụng khác",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f1157221bd"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N4",
+ "packet_id": "REVIEW_VOCAB-089"
+}

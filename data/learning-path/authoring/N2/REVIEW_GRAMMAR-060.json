@@ -1,0 +1,569 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は最後まで考えぬいて、自分の答えを出した。",
+       "ja_furigana": "彼(かれ)は最後(さいご)まで考(かんが)えぬいて、自分(じぶん)の答(こた)えを出(だ)した。",
+       "vi": "Anh ấy suy nghĩ đến cùng rồi đưa ra câu trả lời của mình."
+      },
+      {
+       "ja": "きびしい練習を一年間続けぬいた。",
+       "ja_furigana": "きびしい練習(れんしゅう)を一年間(いちねんかん)続(つづ)けぬいた。",
+       "vi": "Tôi đã kiên trì luyện tập khắc nghiệt suốt một năm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "決めたことは最後までやりぬきなさい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Việc gì đã quyết thì phải hoàn tất đến cùng."
+     },
+     {
+      "ja": "彼は初マラソンで42.195キロを走り抜いた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lần đầu tham gia marathon anh ấy đã chạy hết cả 42.195km của cuộc thi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 決めたことは最後までやりぬきなさい。",
+     "FURIGANA_MISSING: 彼は初マラソンで42.195キロを走り抜いた。"
+    ],
+    "formation": "Vます語幹 + ぬく",
+    "locked_fields": [],
+    "meaning_vi": "Làm đến cùng, hoàn thành",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ぬく",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 動詞のマス形 Ý nghĩa: 最後まで～する、完全に～する Làm đến cùng, hoàn thành Ví dụ: 1. 決めたことは最後までやりぬきなさい。 Việc gì đã quyết thì phải hoàn tất đến cùng. 2. 彼は初マラソンで42.195キロを走り抜いた。 Lần đầu tham gia marathon anh ấy đã chạy hết cả 42.195km của cuộc thi. 3. 考え抜いた末に、会社を辞めて独立することにした。 Sau khi suy nghĩ đủ đường, tôi đã quyết định nghỉ việc ở công ty để làm việc độc lập. 4. A氏は戦時下を生き抜き、戦後は祖国は復興に尽くした。 Sống sót qua thời chiến, sau chiến tranh anh A đã cống hiến cho công cuộc phục hưng đất nước. 5. 悩み/耐え/がんばり/困り＋ぬく Lo lắng hết sức/Chịu đựng hết mình/Cố gắng hết mình/Khó khăn tột cùng"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5e4be5b0bf"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "入院したのを契機に、たばこをやめた。",
+       "ja_furigana": "入院(にゅういん)したのを契機(けいき)に、たばこをやめた。",
+       "vi": "Nhân lần phải nhập viện, tôi đã bỏ thuốc lá."
+      },
+      {
+       "ja": "この本との出会いを契機にして、日本史の研究を始めた。",
+       "ja_furigana": "この本(ほん)との出会(であ)いを契機(けいき)にして、日本史(にほんし)の研究(けんきゅう)を始(はじ)めた。",
+       "vi": "Nhân duyên gặp được cuốn sách này, tôi bắt đầu nghiên cứu lịch sử Nhật Bản."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "サッカーの親善試合を契機に、二国間の交流が進んだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân cơ hội trận bóng đá giao lưu, giao lưu giữa 2 nước cũng tiến triển."
+     },
+     {
+      "ja": "パズル崩壊を契機にして自己破産が急増した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Rất nhiều doanh nghiệp tư nhân đã phá sản khi xảy ra hiện tượng vỡ \"bong bóng kinh tế\"."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: サッカーの親善試合を契機に、二国間の交流が進んだ。",
+     "FURIGANA_MISSING: パズル崩壊を契機にして自己破産が急増した。"
+    ],
+    "formation": "N + を契機に（して）/ を契機として",
+    "locked_fields": [],
+    "meaning_vi": "Nhân cơ hội",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜を契機に(して)/として",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞 Ý nghĩa: 具体的なできごとを機会として→変化、発展する（書き言葉）＝～をきっかけに/にして/として（N3) Nhân cơ hội Ví dụ: 1. サッカーの親善試合を契機に、二国間の交流が進んだ。 Nhân cơ hội trận bóng đá giao lưu, giao lưu giữa 2 nước cũng tiến triển. 2. パズル崩壊を契機にして自己破産が急増した。 Rất nhiều doanh nghiệp tư nhân đã phá sản khi xảy ra hiện tượng vỡ \"bong bóng kinh tế\". 3. 我が社では海外進出を契機に、留学生の採用を始めた。 Công ty tôi đã bắt đầu tuyển du học sinh nhân lúc mở rộng thị trường ra nước ngoài. 4. 友人が仕事を辞め、留学したのを契機として、私もあきらめていて教師を目指し、もう一度がんばろうと思った。 Nhân lúc bạn tôi bỏ việc công ty để du học, tôi cũng một lần nữa theo đuổi nghề giáo viên mình đã từng từ bỏ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-23469501a2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "六月から八月にかけて、この町は雨が多い。",
+       "ja_furigana": "六月(ろくがつ)から八月(はちがつ)にかけて、この町(まち)は雨(あめ)が多(おお)い。",
+       "vi": "Từ tháng sáu đến tháng tám, thị trấn này mưa nhiều."
+      },
+      {
+       "ja": "朝から夕方にかけて、観光客が絶えない。",
+       "ja_furigana": "朝(あさ)から夕方(ゆうがた)にかけて、観光客(かんこうきゃく)が絶(た)えない。",
+       "vi": "Từ sáng đến chiều tối, khách du lịch không ngớt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "私は、２００７年から２００９年にかけて、ロンドンに住んでいました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Từ năm 2007 đến năm 2009 tôi đã sống ở London."
+     },
+     {
+      "ja": "この駅から、あそこの通りにかけて、再開発されるそうです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Từ ga này đến con đường đằng kia nghe nói là sẽ làm lại."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 私は、２００７年から２００９年にかけて、ロンドンに住んでいました。",
+     "FURIGANA_MISSING: この駅から、あそこの通りにかけて、再開発されるそうです。"
+    ],
+    "formation": "N + から + N + にかけて",
+    "locked_fields": [],
+    "meaning_vi": "Từ khoảng ～ đến ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜2007年から2009年にかけて",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng chung cho cả phạm vi và thời gian."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3808f7dcb2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "安いからといって、たくさん買いすぎるのはよくない。",
+       "ja_furigana": "安(やす)いからといって、たくさん買(か)いすぎるのはよくない。",
+       "vi": "Chỉ vì rẻ mà mua quá nhiều là không tốt."
+      },
+      {
+       "ja": "有名だからといって、必ずしもいいとは限らない。",
+       "ja_furigana": "有名(ゆうめい)だからといって、必(かなら)ずしもいいとは限(かぎ)らない。",
+       "vi": "Chỉ vì nổi tiếng thì cũng không hẳn là tốt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "好きだからといって、同じ食品ばかり食べるのはよくない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ vì lý do thích mà chỉ ăn một loại thực phẩm là không tốt."
+     },
+     {
+      "ja": "日本に住んでいるからといって、日本語がしゃべれるようにはならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ vì đang sống ở Nhật không có nghĩa là bạn có thể nói được tiếng Nhật."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 好きだからといって、同じ食品ばかり食べるのはよくない。",
+     "FURIGANA_MISSING: 日本に住んでいるからといって、日本語がしゃべれるようにはならない。"
+    ],
+    "formation": "普通形 + からといって",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ vì lí do ～ mà ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜好きだからといって",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Chỉ vì lí do, tuy nhiên, tuy thế mà, không nhất thiết (không thể chỉ vì một lí do đó mà kết luận hay khẳng định một việc) 「～からって」 sử dụng trong văn nói"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2a2c365e84"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お金を払ってからでないと、商品は受け取れません。",
+       "ja_furigana": "お金(かね)を払(はら)ってからでないと、商品(しょうひん)は受(う)け取(と)れません。",
+       "vi": "Nếu chưa thanh toán thì không thể nhận hàng."
+      },
+      {
+       "ja": "部屋を予約してからでなければ、宿泊できない。",
+       "ja_furigana": "部屋(へや)を予約(よやく)してからでなければ、宿泊(しゅくはく)できない。",
+       "vi": "Nếu chưa đặt phòng thì không thể lưu trú."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "手続きしてからでないと、図書館の本は借りられない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu không làm thủ tục thì không thể mượn sách của thư viện."
+     },
+     {
+      "ja": "親の許可をもらってからでなければ、申し込めない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu không có sự cho phép của bố mẹ thì không thể đăng ký."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 手続きしてからでないと、図書館の本は借りられない。",
+     "FURIGANA_MISSING: 親の許可をもらってからでなければ、申し込めない。"
+    ],
+    "formation": "V-て + からでないと / からでなければ + 〜ない",
+    "locked_fields": [],
+    "meaning_vi": "Nếu không … thì cũng không…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜手続きしてからでないと",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Nếu không thực hiện cái nói đằng trước thì cái đằng sau cũng không thực hiện được. Câu sau luôn mang ý phủ định."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-09663b1336"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "料理の味にかけては、この店が一番だ。",
+       "ja_furigana": "料理(りょうり)の味(あじ)にかけては、この店(みせ)が一番(いちばん)だ。",
+       "vi": "Nếu nói về hương vị món ăn thì quán này là số một."
+      },
+      {
+       "ja": "パソコンの知識にかけては、彼の右に出る者はいない。",
+       "ja_furigana": "パソコンの知識(ちしき)にかけては、彼(かれ)の右(みぎ)に出(で)る者(もの)はいない。",
+       "vi": "Nếu nói về kiến thức máy tính thì không ai hơn được anh ấy."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "足の速さにかけては、彼は町で一番だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu nói về tốc độ đôi chân thì anh ấy nhất thành phố."
+     },
+     {
+      "ja": "歌のうまさにかけては、彼に勝てる人はいない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nói về hát hay thì không ai vượt qua được anh ấy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 足の速さにかけては、彼は町で一番だ。",
+     "FURIGANA_MISSING: 歌のうまさにかけては、彼に勝てる人はいない。"
+    ],
+    "formation": "N + にかけては",
+    "locked_fields": [],
+    "meaning_vi": "Nếu nói về…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜足の速さにかけては",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sau ［～にかけては］thì có câu thể hiện đánh giá tích cực."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-21fc4b5215"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "そこまでして、その仕事を続けたいとは思わない。",
+       "ja_furigana": "そこまでして、その仕事(しごと)を続(つづ)けたいとは思(おも)わない。",
+       "vi": "Tôi không muốn đến mức phải làm thế mà vẫn tiếp tục công việc đó."
+      },
+      {
+       "ja": "高いお金を払ってまで、そのコンサートに行きたくない。",
+       "ja_furigana": "高(たか)いお金(かね)を払(はら)ってまで、そのコンサートに行(い)きたくない。",
+       "vi": "Tôi không muốn đến mức phải bỏ tiền đắt để đi xem concert đó."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "確かにあそこのラーメンはおいしいけど、並んでまで食べようとは思わない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chắc chắn là ramen ở chỗ đó ngon, nhưng tôi không đến mức xếp hàng để ăn."
+     },
+     {
+      "ja": "ひろし、旅行に来てまで、ゲームをしなくてもいいでしょ！",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hiroshi, đã đi du lịch tới đây rồi thì không cần phải chơi game đâu!"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 確かにあそこのラーメンはおいしいけど、並んでまで食べようとは思わない。",
+     "FURIGANA_MISSING: ひろし、旅行に来てまで、ゲームをしなくてもいいでしょ！"
+    ],
+    "formation": "V-て + まで / N + までして",
+    "locked_fields": [],
+    "meaning_vi": "Đến mức phải làm cả việc ～ (để làm điều gì đó).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜てまで",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a767097b61"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この会社では、英語をはじめ、五つ以上の言語が使われている。",
+       "ja_furigana": "この会社(かいしゃ)では、英語(えいご)をはじめ、五(いつ)つ以上(いじょう)の言語(げんご)が使(つか)われている。",
+       "vi": "Công ty này sử dụng hơn năm ngôn ngữ, tiêu biểu là tiếng Anh."
+      },
+      {
+       "ja": "彼はサッカーをはじめ、いろいろなスポーツが好きだ。",
+       "ja_furigana": "彼(かれ)はサッカーをはじめ、いろいろなスポーツが好(す)きだ。",
+       "vi": "Anh ấy thích nhiều môn thể thao, tiêu biểu là bóng đá."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "うちの会社は、中国人をはじめとして、多くの外国人スタッフがいる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công ty chúng tôi có nhiều nhân viên nước ngoài, trong đó có cả người Trung Quốc。"
+     },
+     {
+      "ja": "歌舞伎をはじめとして、多くの日本の伝統文化が、江戸時代に生まれ、発展した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tiêu biểu như kịch kabuki, nhiều nền văn hóa truyền thống Nhật Bản đã ra đời và phát triển vào thời Edo。"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: うちの会社は、中国人をはじめとして、多くの外国人スタッフがいる。",
+     "FURIGANA_MISSING: 歌舞伎をはじめとして、多くの日本の伝統文化が、江戸時代に生まれ、発展した。"
+    ],
+    "formation": "N + をはじめ（として）/ をはじめとする + N",
+    "locked_fields": [],
+    "meaning_vi": "Lấy ～ làm ví dụ tiêu biểu, ～ và nhiều thứ khác.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜をはじめとして",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d21f8eda96"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "天気次第で、明日の予定が大きく変わる。",
+       "ja_furigana": "天気(てんき)次第(しだい)で、明日(あした)の予定(よてい)が大(おお)きく変(か)わる。",
+       "vi": "Tùy vào thời tiết mà kế hoạch ngày mai sẽ thay đổi nhiều."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "物事は、考え方次第でよく見えたり悪く見えたりするもんだよ。いい方向に考えよう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công việc này cũng có thể làm nhanh hơn một chút tùy cách làm。"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 物事は、考え方次第でよく見えたり悪く見えたりするもんだよ。いい方向に考えよう。"
+    ],
+    "formation": "N + 次第で",
+    "locked_fields": [],
+    "meaning_vi": "Tùy thuộc vào ～ mà kết quả thay đổi.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜次第で",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "N: 気分 ＋ 次第で Mọi chuyện, tùy cách nghĩ mà có thể trông tốt hoặc xấu. Hãy nghĩ theo hướng tích cực。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e207a1c71c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜にきまっている",
+     "examples": [
+      {
+       "ja": "こんなに説明が足りないなんて、みんな怒るにきまっている。",
+       "ja_furigana": "こんなに説明(せつめい)が足(た)りないなんて、みんな怒(おこ)るにきまっている。",
+       "vi": "Giải thích thiếu như vậy thì chắc chắn mọi người sẽ tức giận."
+      },
+      {
+       "ja": "毎日水をやらないと、この花は枯れるにきまっている。",
+       "ja_furigana": "毎日(まいにち)水(みず)をやらないと、この花(はな)は枯(か)れるにきまっている。",
+       "vi": "Không tưới nước mỗi ngày thì chắc chắn hoa này sẽ héo."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "毎日あれほど練習しているのだから、前より上手になっているにきまっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngày nào cũng luyện tập nhiều như thế thì chắc chắn đã giỏi hơn trước."
+     },
+     {
+      "ja": "値段だけで品質が決まるなんて、おかしいにきまっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho rằng chất lượng chỉ được quyết định bởi giá cả thì chắc chắn là vô lý."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 毎日あれほど練習しているのだから、前より上手になっているにきまっている。",
+     "FURIGANA_MISSING: 値段だけで品質が決まるなんて、おかしいにきまっている。"
+    ],
+    "formation": "普通形 + にきまっている",
+    "locked_fields": [],
+    "meaning_vi": "Chắc chắn là, đương nhiên là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chắc chắn là, đương nhiên là",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Khẳng định mạnh một kết luận mà người nói xem là hiển nhiên. Cách dùng: 〜にきまっている diễn tả niềm tin rất mạnh rằng một điều chắc chắn đúng hoặc một kết quả chắc chắn xảy ra. Người nói thường dựa vào lẽ thường, kinh nghiệm hoặc cảm xúc cá nhân và xem kết luận là quá rõ để nghi ngờ. Mẫu xuất hiện nhiều trong hội thoại, tranh luận và lời phản bác. Nó cũng có thể dùng cho kết quả tiêu cực khi người nói muốn cảnh báo bằng giọng quả quyết. Sắc thái: Khẩu ngữ và giàu cảm xúc hơn 〜に違いない. Nếu dùng với người không thân hoặc trong vấn đề chưa rõ, câu có thể nghe áp đặt hay võ đoán. Lưu ý: Sau danh từ và tính từ đuôi な không dùng だ trước にきまっている. Tránh dùng trong báo cáo khách quan khi bằng chứng chưa đủ để khẳng định tuyệt đối."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5107bc2bee"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-060"
+}

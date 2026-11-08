@@ -1,0 +1,2289 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "未来の仕事について考える。",
+       "ja_furigana": "未来(みらい)の仕事(しごと)について考(かんが)える。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi suy nghĩ về công việc tương lai."
+      },
+      {
+       "ja": "子どもたちの未来のために、きれいな海を守りたい。",
+       "ja_furigana": "子(こ)どもたちの未来(みらい)のために、きれいな海(うみ)を守(まも)りたい。",
+       "source": "AI",
+       "vi": "Vì tương lai của trẻ em, tôi muốn bảo vệ biển sạch."
+      },
+      {
+       "ja": "未来の自分に手紙を書いてみた。",
+       "ja_furigana": "未来(みらい)の自分(じぶん)に手紙(てがみ)を書(か)いてみた。",
+       "source": "AI",
+       "vi": "Tôi thử viết một lá thư gửi chính mình trong tương lai."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tương lai",
+    "examples": [
+     {
+      "ja": "未来の仕事について考える。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi suy nghĩ về công việc tương lai."
+     },
+     {
+      "ja": "子どもたちの未来のために、きれいな海を守りたい。",
+      "ja_furigana": "子(こ)どもたちの未来(みらい)のために、きれいな海(うみ)を守(まも)りたい。",
+      "source": "AI",
+      "vi": "Vì tương lai của trẻ em, tôi muốn bảo vệ biển sạch."
+     },
+     {
+      "ja": "未来の自分に手紙を書いてみた。",
+      "ja_furigana": "未来(みらい)の自分(じぶん)に手紙(てがみ)を書(か)いてみた。",
+      "source": "AI",
+      "vi": "Tôi thử viết một lá thư gửi chính mình trong tương lai."
+     }
+    ],
+    "expression": "未来",
+    "findings": [
+     "FURIGANA_MISSING: 未来の仕事について考える。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tương lai; hiện đại",
+    "mnemonic_vi": "未来: 未 chưa + 来 đến → điều chưa đến, tương lai.",
+    "reading": "みらい",
+    "romaji": "mirai",
+    "topic_vi": "Cách nói về thời gian",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-495010f137"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "昼食にうどんを食べた。",
+       "ja_furigana": "昼食(ちゅうしょく)にうどんを食(た)べた。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi đã ăn udon vào bữa trưa."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bữa trưa",
+    "examples": [
+     {
+      "ja": "昼食にうどんを食べた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đã ăn udon vào bữa trưa."
+     }
+    ],
+    "expression": "昼食",
+    "findings": [
+     "FURIGANA_MISSING: 昼食にうどんを食べた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bữa trưa",
+    "mnemonic_vi": "昼食: 昼 ban ngày + 食 ăn → bữa trưa.",
+    "reading": "ちゅうしょく",
+    "romaji": "chuushoku",
+    "topic_vi": "Đời sống ẩm thực",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7faf6b4749"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "食後にデザートを頼む。",
+       "ja_furigana": "食後(しょくご)にデザートを頼(たの)む。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi gọi món tráng miệng sau bữa ăn."
+      },
+      {
+       "ja": "このレストランはデザートの種類が多い。",
+       "ja_furigana": "このレストランはデザートの種類(しゅるい)が多(おお)い。",
+       "source": "AI",
+       "vi": "Nhà hàng này có nhiều loại món tráng miệng."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "món tráng miệng",
+    "examples": [
+     {
+      "ja": "食後にデザートを頼む。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi gọi món tráng miệng sau bữa ăn."
+     },
+     {
+      "ja": "このレストランはデザートの種類が多い。",
+      "ja_furigana": "このレストランはデザートの種類(しゅるい)が多(おお)い。",
+      "source": "AI",
+      "vi": "Nhà hàng này có nhiều loại món tráng miệng."
+     }
+    ],
+    "expression": "デザート",
+    "findings": [
+     "FURIGANA_MISSING: 食後にデザートを頼む。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "món tráng miệng; tráng miệng",
+    "mnemonic_vi": "デザート: デザート là món ngọt ăn sau bữa chính → món tráng miệng.",
+    "reading": "でざーと",
+    "romaji": "dezaato",
+    "topic_vi": "Đời sống ẩm thực",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c46f338029"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "三時におやつを食べた。",
+       "ja_furigana": "三時(さんじ)におやつを食(た)べた。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi ăn bữa nhẹ lúc ba giờ."
+      },
+      {
+       "ja": "子どものおやつに、果物を用意した。",
+       "ja_furigana": "子(こ)どものおやつに、果物(くだもの)を用意(ようい)した。",
+       "source": "AI",
+       "vi": "Tôi chuẩn bị trái cây làm quà chiều cho con."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bữa ăn nhẹ, quà chiều",
+    "examples": [
+     {
+      "ja": "三時におやつを食べた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi ăn bữa nhẹ lúc ba giờ."
+     },
+     {
+      "ja": "子どものおやつに、果物を用意した。",
+      "ja_furigana": "子(こ)どものおやつに、果物(くだもの)を用意(ようい)した。",
+      "source": "AI",
+      "vi": "Tôi chuẩn bị trái cây làm quà chiều cho con."
+     }
+    ],
+    "expression": "お八",
+    "findings": [
+     "FURIGANA_MISSING: 三時におやつを食べた。"
+    ],
+    "locked_fields": [
+     "word_type_label"
+    ],
+    "meaning_vi": "bữa ăn nhẹ; quà chiều; ăn vặt",
+    "mnemonic_vi": "Nhớ おやつ là món ăn nhẹ giữa các bữa, thường dùng vào buổi chiều.",
+    "reading": "おやつ",
+    "romaji": "oyatsu",
+    "topic_vi": "Đời sống ẩm thực",
+    "twins": [],
+    "variants": [
+     "おやつ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e141ff153d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今日は疲れたので外食にした。",
+       "ja_furigana": "今日(きょう)は疲(つか)れたので外食(がいしょく)にした。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Hôm nay mệt nên tôi ăn ngoài."
+      },
+      {
+       "ja": "外食ばかりしていると、お金がかかる。",
+       "ja_furigana": "外食(がいしょく)ばかりしていると、お金(かね)がかかる。",
+       "source": "AI",
+       "vi": "Cứ ăn ngoài suốt thì tốn tiền."
+      },
+      {
+       "ja": "今夜は雨なので、外食をやめて家で作ろう。",
+       "ja_furigana": "今夜(こんや)は雨(あめ)なので、外食(がいしょく)をやめて家(いえ)で作(つく)ろう。",
+       "source": "AI",
+       "vi": "Tối nay trời mưa nên thôi không ăn ngoài, nấu ở nhà vậy."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Đi ăn ngoài",
+    "examples": [
+     {
+      "ja": "今日は疲れたので外食にした。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hôm nay mệt nên tôi ăn ngoài."
+     },
+     {
+      "ja": "外食ばかりしていると、お金がかかる。",
+      "ja_furigana": "外食(がいしょく)ばかりしていると、お金(かね)がかかる。",
+      "source": "AI",
+      "vi": "Cứ ăn ngoài suốt thì tốn tiền."
+     },
+     {
+      "ja": "今夜は雨なので、外食をやめて家で作ろう。",
+      "ja_furigana": "今夜(こんや)は雨(あめ)なので、外食(がいしょく)をやめて家(いえ)で作(つく)ろう。",
+      "source": "AI",
+      "vi": "Tối nay trời mưa nên thôi không ăn ngoài, nấu ở nhà vậy."
+     }
+    ],
+    "expression": "外食＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 今日は疲れたので外食にした。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "ăn ngoài; ăn tiệm; đi ăn ngoài",
+    "mnemonic_vi": "外食する: 外 ở ngoài + 食 ăn → ăn ngoài.",
+    "reading": "がいしょく＜する＞",
+    "romaji": "gaishoku<suru>",
+    "topic_vi": "Đời sống ẩm thực",
+    "twins": [],
+    "variants": [
+     "外食"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-73da817dd1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今日は私がおごるよ。",
+       "ja_furigana": "今日(きょう)は私(わたし)がおごるよ。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Hôm nay tôi mời nhé."
+      },
+      {
+       "ja": "試験に合格した弟に、ラーメンをおごった。",
+       "ja_furigana": "試験(しけん)に合格(ごうかく)した弟(おとうと)に、ラーメンをおごった。",
+       "source": "AI",
+       "vi": "Tôi khao em trai thi đỗ một bát mì ramen."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "khao, chiêu đãi",
+    "examples": [
+     {
+      "ja": "今日は私がおごるよ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hôm nay tôi mời nhé."
+     },
+     {
+      "ja": "試験に合格した弟に、ラーメンをおごった。",
+      "ja_furigana": "試験(しけん)に合格(ごうかく)した弟(おとうと)に、ラーメンをおごった。",
+      "source": "AI",
+      "vi": "Tôi khao em trai thi đỗ một bát mì ramen."
+     }
+    ],
+    "expression": "おごる",
+    "findings": [
+     "FURIGANA_MISSING: 今日は私がおごるよ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "khao; chiêu đãi; bao",
+    "mnemonic_vi": "おごる: Khi “bao” bữa ăn, bạn おごる và trả tiền thay mọi người.",
+    "reading": "おごる",
+    "romaji": "ogoru",
+    "topic_vi": "Đời sống ẩm thực",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-76d8e7d5e9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "熱があるので食欲がない。",
+       "ja_furigana": "熱(ねつ)があるので食欲(しょくよく)がない。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi sốt nên không muốn ăn."
+      },
+      {
+       "ja": "暑い日が続いて、食欲が落ちた。",
+       "ja_furigana": "暑(あつ)い日(ひ)が続(つづ)いて、食欲(しょくよく)が落(お)ちた。",
+       "source": "AI",
+       "vi": "Những ngày nóng kéo dài khiến tôi ăn không ngon miệng."
+      },
+      {
+       "ja": "秋は食欲の季節だと言われる。",
+       "ja_furigana": "秋(あき)は食欲(しょくよく)の季節(きせつ)だと言(い)われる。",
+       "source": "AI",
+       "vi": "Người ta nói mùa thu là mùa ăn ngon miệng."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sự thèm ăn",
+    "examples": [
+     {
+      "ja": "熱があるので食欲がない。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi sốt nên không muốn ăn."
+     },
+     {
+      "ja": "暑い日が続いて、食欲が落ちた。",
+      "ja_furigana": "暑(あつ)い日(ひ)が続(つづ)いて、食欲(しょくよく)が落(お)ちた。",
+      "source": "AI",
+      "vi": "Những ngày nóng kéo dài khiến tôi ăn không ngon miệng."
+     },
+     {
+      "ja": "秋は食欲の季節だと言われる。",
+      "ja_furigana": "秋(あき)は食欲(しょくよく)の季節(きせつ)だと言(い)われる。",
+      "source": "AI",
+      "vi": "Người ta nói mùa thu là mùa ăn ngon miệng."
+     }
+    ],
+    "expression": "食欲",
+    "findings": [
+     "FURIGANA_MISSING: 熱があるので食欲がない。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "sự thèm ăn; thèm ăn; cảm giác thèm ăn",
+    "mnemonic_vi": "食欲: 食 ăn + 欲 ham muốn → cảm giác thèm ăn.",
+    "reading": "しょくよく",
+    "romaji": "shokuyoku",
+    "topic_vi": "Đời sống ẩm thực",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-66045e89d8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅先の料理をゆっくり味わう。",
+       "ja_furigana": "旅先(たびさき)の料理(りょうり)をゆっくり味(あじ)わう。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi thong thả thưởng thức món ăn nơi du lịch."
+      },
+      {
+       "ja": "山の上で、すずしい空気を味わった。",
+       "ja_furigana": "山(やま)の上(うえ)で、すずしい空気(くうき)を味(あじ)わった。",
+       "source": "AI",
+       "vi": "Trên đỉnh núi, tôi tận hưởng bầu không khí mát lành."
+      },
+      {
+       "ja": "留学して、初めて一人のさびしさを味わった。",
+       "ja_furigana": "留学(りゅうがく)して、初(はじ)めて一人(ひとり)のさびしさを味(あじ)わった。",
+       "source": "AI",
+       "vi": "Đi du học, lần đầu tiên tôi nếm trải nỗi cô đơn."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nếm, thưởng thức; nếm trải",
+    "examples": [
+     {
+      "ja": "旅先の料理をゆっくり味わう。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi thong thả thưởng thức món ăn nơi du lịch."
+     },
+     {
+      "ja": "山の上で、すずしい空気を味わった。",
+      "ja_furigana": "山(やま)の上(うえ)で、すずしい空気(くうき)を味(あじ)わった。",
+      "source": "AI",
+      "vi": "Trên đỉnh núi, tôi tận hưởng bầu không khí mát lành."
+     },
+     {
+      "ja": "留学して、初めて一人のさびしさを味わった。",
+      "ja_furigana": "留学(りゅうがく)して、初(はじ)めて一人(ひとり)のさびしさを味(あじ)わった。",
+      "source": "AI",
+      "vi": "Đi du học, lần đầu tiên tôi nếm trải nỗi cô đơn."
+     }
+    ],
+    "expression": "味わう",
+    "findings": [
+     "FURIGANA_MISSING: 旅先の料理をゆっくり味わう。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "nếm; thưởng thức; nếm trải",
+    "mnemonic_vi": "味わう: 味 vị được nếm chậm để cảm nhận → 味わう là thưởng thức.",
+    "reading": "あじわう",
+    "romaji": "ajiwau",
+    "topic_vi": "Đời sống ẩm thực",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d8d7989d66"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "おいしくておかわりをした。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Ngon quá nên tôi ăn thêm bát nữa."
+      },
+      {
+       "ja": "ご飯のお代わりをください。",
+       "ja_furigana": "ご飯(はん)のお代(か)わりをください。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Cho tôi thêm một bát cơm."
+      },
+      {
+       "ja": "このお店は、コーヒーのお代わりが無料だ。",
+       "ja_furigana": "このお店(みせ)は、コーヒーのお代(か)わりが無料(むりょう)だ。",
+       "source": "AI",
+       "vi": "Quán này cho thêm cà phê miễn phí."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thêm một phần nữa",
+    "examples": [
+     {
+      "ja": "おいしくておかわりをした。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Ngon quá nên tôi ăn thêm bát nữa."
+     },
+     {
+      "ja": "ご飯のお代わりをください。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Cho tôi thêm một bát cơm."
+     },
+     {
+      "ja": "このお店は、コーヒーのお代わりが無料だ。",
+      "ja_furigana": "このお店(みせ)は、コーヒーのお代(か)わりが無料(むりょう)だ。",
+      "source": "AI",
+      "vi": "Quán này cho thêm cà phê miễn phí."
+     }
+    ],
+    "expression": "お代わり＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: ご飯のお代わりをください。"
+    ],
+    "locked_fields": [
+     "word_type_label"
+    ],
+    "meaning_vi": "thêm một phần nữa; thêm thức ăn; ăn thêm bát nữa",
+    "mnemonic_vi": "お代わりする: 代わり là phần thay thêm; gọi お代わり để xin thêm một phần.",
+    "reading": "おかわり＜する＞",
+    "romaji": "okawari<suru>",
+    "topic_vi": "Đời sống ẩm thực",
+    "twins": [],
+    "variants": [
+     "おかわり",
+     "お代わり"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a7a2b7ed0e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "残り物で昼ご飯を作った。",
+       "ja_furigana": "残(のこ)り物(もの)で昼(ひる)ご飯(はん)を作(つく)った。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi nấu bữa trưa bằng đồ ăn còn lại."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đồ còn lại",
+    "examples": [
+     {
+      "ja": "残り物で昼ご飯を作った。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi nấu bữa trưa bằng đồ ăn còn lại."
+     }
+    ],
+    "expression": "残り物",
+    "findings": [
+     "FURIGANA_MISSING: 残り物で昼ご飯を作った。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đồ còn lại",
+    "mnemonic_vi": "残り物: 残り phần còn lại + 物 đồ vật → đồ ăn còn lại.",
+    "reading": "のこりもの",
+    "romaji": "nokorimono",
+    "topic_vi": "Đời sống ẩm thực",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7bf51c8434"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "宿題を先に済ませる。",
+       "ja_furigana": "宿題(しゅくだい)を先(さき)に済(す)ませる。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi làm xong bài tập trước."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "làm cho xong",
+    "examples": [
+     {
+      "ja": "宿題を先に済ませる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi làm xong bài tập trước."
+     }
+    ],
+    "expression": "済ませる",
+    "findings": [
+     "FURIGANA_MISSING: 宿題を先に済ませる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "làm cho xong; kết thúc; cũng xong",
+    "mnemonic_vi": "済ませる: 済 đã xong; 済ませる là làm cho xong việc/bữa ăn.",
+    "reading": "すませる",
+    "romaji": "sumaseru",
+    "topic_vi": "Đời sống ẩm thực",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-fe500b4232"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "食事のバランスに気をつける。",
+       "ja_furigana": "食事(しょくじ)のバランスに気(き)をつける。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi chú ý sự cân bằng trong bữa ăn."
+      },
+      {
+       "ja": "自転車に乗るときは、バランスが大切だ。",
+       "ja_furigana": "自転車(じてんしゃ)に乗(の)るときは、バランスが大切(たいせつ)だ。",
+       "source": "AI",
+       "vi": "Khi đi xe đạp, giữ thăng bằng là điều quan trọng."
+      },
+      {
+       "ja": "仕事と生活のバランスを考えたい。",
+       "ja_furigana": "仕事(しごと)と生活(せいかつ)のバランスを考(かんが)えたい。",
+       "source": "AI",
+       "vi": "Tôi muốn cân nhắc sự cân bằng giữa công việc và cuộc sống."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sự cân bằng",
+    "examples": [
+     {
+      "ja": "食事のバランスに気をつける。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi chú ý sự cân bằng trong bữa ăn."
+     },
+     {
+      "ja": "自転車に乗るときは、バランスが大切だ。",
+      "ja_furigana": "自転車(じてんしゃ)に乗(の)るときは、バランスが大切(たいせつ)だ。",
+      "source": "AI",
+      "vi": "Khi đi xe đạp, giữ thăng bằng là điều quan trọng."
+     },
+     {
+      "ja": "仕事と生活のバランスを考えたい。",
+      "ja_furigana": "仕事(しごと)と生活(せいかつ)のバランスを考(かんが)えたい。",
+      "source": "AI",
+      "vi": "Tôi muốn cân nhắc sự cân bằng giữa công việc và cuộc sống."
+     }
+    ],
+    "expression": "バランス",
+    "findings": [
+     "FURIGANA_MISSING: 食事のバランスに気をつける。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "sự cân bằng; cân bằng",
+    "mnemonic_vi": "バランス: Hai bên cân ngang nhau trên chiếc cân; バランス là sự cân bằng.",
+    "reading": "ばらんす",
+    "romaji": "baransu",
+    "topic_vi": "Đời sống ẩm thực",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b857c83205"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "フライパンで魚を焼いた。",
+       "ja_furigana": "フライパンで魚(さかな)を焼(や)いた。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi nướng cá bằng chảo."
+      },
+      {
+       "ja": "新しいフライパンはかるくて使いやすい。",
+       "ja_furigana": "新(あたら)しいフライパンはかるくて使(つか)いやすい。",
+       "source": "AI",
+       "vi": "Cái chảo mới nhẹ và dễ dùng."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chảo rán",
+    "examples": [
+     {
+      "ja": "フライパンで魚を焼いた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi nướng cá bằng chảo."
+     },
+     {
+      "ja": "新しいフライパンはかるくて使いやすい。",
+      "ja_furigana": "新(あたら)しいフライパンはかるくて使(つか)いやすい。",
+      "source": "AI",
+      "vi": "Cái chảo mới nhẹ và dễ dùng."
+     }
+    ],
+    "expression": "フライパン",
+    "findings": [
+     "FURIGANA_MISSING: フライパンで魚を焼いた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chảo rán; chảo",
+    "mnemonic_vi": "フライパン: フライパン là chiếc chảo đặt lên lửa để rán thức ăn.",
+    "reading": "ふらいぱん",
+    "romaji": "furaipan",
+    "topic_vi": "Dụng cụ và nguyên liệu nấu ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8dce8c6b33"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "包丁で野菜を切った。",
+       "ja_furigana": "包丁(ほうちょう)で野菜(やさい)を切(き)った。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi cắt rau bằng dao."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "dao bếp",
+    "examples": [
+     {
+      "ja": "包丁で野菜を切った。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi cắt rau bằng dao."
+     }
+    ],
+    "expression": "包丁",
+    "findings": [
+     "FURIGANA_MISSING: 包丁で野菜を切った。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "dao; dao thái thịt; dao bếp",
+    "mnemonic_vi": "包丁: 包 bọc + 丁 dụng cụ sắc; 包丁 là dao bếp.",
+    "reading": "ほうちょう",
+    "romaji": "houchou",
+    "topic_vi": "Dụng cụ và nguyên liệu nấu ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d2f0c68214"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "まな板の上で野菜を切る。",
+       "ja_furigana": "まな板(いた)の上(うえ)で野菜(やさい)を切(き)る。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi cắt rau trên thớt."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thớt",
+    "examples": [
+     {
+      "ja": "まな板の上で野菜を切る。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi cắt rau trên thớt."
+     }
+    ],
+    "expression": "まな板",
+    "findings": [
+     "FURIGANA_MISSING: まな板の上で野菜を切る。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "cái thớt; thớt",
+    "mnemonic_vi": "まな板: まな板 là tấm ván kê bên dưới khi thái rau.",
+    "reading": "まないた",
+    "romaji": "manaita",
+    "topic_vi": "Dụng cụ và nguyên liệu nấu ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-696158b731"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "しゃもじでご飯をよそった。",
+       "ja_furigana": "しゃもじでご飯(はん)をよそった。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi xới cơm bằng muôi cơm."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cái giá múc cơm",
+    "examples": [
+     {
+      "ja": "しゃもじでご飯をよそった。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi xới cơm bằng muôi cơm."
+     }
+    ],
+    "expression": "しゃもじ",
+    "findings": [
+     "FURIGANA_MISSING: しゃもじでご飯をよそった。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "cái giá múc cơm",
+    "mnemonic_vi": "しゃもじ: しゃもじ là chiếc muôi dẹt dùng xới cơm.",
+    "reading": "しゃもじ",
+    "romaji": "shamoji",
+    "topic_vi": "Dụng cụ và nguyên liệu nấu ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a80c8041d8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大さじ二杯の油を使う。",
+       "ja_furigana": "大(おお)さじ二杯(にはい)の油(あぶら)を使(つか)う。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi dùng hai thìa canh dầu."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "muỗng canh",
+    "examples": [
+     {
+      "ja": "大さじ二杯の油を使う。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi dùng hai thìa canh dầu."
+     }
+    ],
+    "expression": "大さじ",
+    "findings": [
+     "FURIGANA_MISSING: 大さじ二杯の油を使う。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "muỗng canh",
+    "mnemonic_vi": "大 là lớn, さじ là thìa; 大さじ là muỗng canh.",
+    "reading": "おおさじ",
+    "romaji": "oosaji",
+    "topic_vi": "Dụng cụ và nguyên liệu nấu ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-efd7f3e0bf"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "炊飯器でご飯を炊いた。",
+       "ja_furigana": "炊飯器(すいはんき)でご飯(はん)を炊(た)いた。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi nấu cơm bằng nồi cơm điện."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nồi cơm điện",
+    "examples": [
+     {
+      "ja": "炊飯器でご飯を炊いた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi nấu cơm bằng nồi cơm điện."
+     }
+    ],
+    "expression": "炊飯器",
+    "findings": [
+     "FURIGANA_MISSING: 炊飯器でご飯を炊いた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "nồi cơm điện",
+    "mnemonic_vi": "炊 là nấu, 飯 là cơm, 器 là dụng cụ; ghép lại thành nồi cơm điện.",
+    "reading": "すいはんき",
+    "romaji": "suihanki",
+    "topic_vi": "Dụng cụ và nguyên liệu nấu ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ae59b3ae95"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "電子レンジで牛乳を温める。",
+       "ja_furigana": "電子(でんし)レンジで牛乳(ぎゅうにゅう)を温(あたた)める。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi hâm sữa bằng lò vi sóng."
+      },
+      {
+       "ja": "このおさらは電子レンジに入れないでください。",
+       "ja_furigana": "このおさらは電子(でんし)レンジに入(い)れないでください。",
+       "source": "AI",
+       "vi": "Xin đừng cho cái đĩa này vào lò vi sóng."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lò vi sóng",
+    "examples": [
+     {
+      "ja": "電子レンジで牛乳を温める。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi hâm sữa bằng lò vi sóng."
+     },
+     {
+      "ja": "このおさらは電子レンジに入れないでください。",
+      "ja_furigana": "このおさらは電子(でんし)レンジに入(い)れないでください。",
+      "source": "AI",
+      "vi": "Xin đừng cho cái đĩa này vào lò vi sóng."
+     }
+    ],
+    "expression": "電子レンジ",
+    "findings": [
+     "FURIGANA_MISSING: 電子レンジで牛乳を温める。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "lò vi sóng",
+    "mnemonic_vi": "電子 là điện tử, レンジ là lò; đó là lò vi sóng.",
+    "reading": "でんしれんじ",
+    "romaji": "denshirenji",
+    "topic_vi": "Dụng cụ và nguyên liệu nấu ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a3fa8e305e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ガスレンジでスープを温めた。",
+       "ja_furigana": "ガスレンジでスープを温(あたた)めた。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi hâm súp bằng bếp ga."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bếp ga",
+    "examples": [
+     {
+      "ja": "ガスレンジでスープを温めた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi hâm súp bằng bếp ga."
+     }
+    ],
+    "expression": "ガスレンジ",
+    "findings": [
+     "FURIGANA_MISSING: ガスレンジでスープを温めた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bếp ga",
+    "mnemonic_vi": "ガス là ga, レンジ là bếp nấu: bếp ga.",
+    "reading": "がすれんじ",
+    "romaji": "gasurenji",
+    "topic_vi": "Dụng cụ và nguyên liệu nấu ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-35c26155e2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "調味料を入れすぎた。",
+       "ja_furigana": "調味料(ちょうみりょう)を入(い)れすぎた。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi cho quá nhiều gia vị."
+      },
+      {
+       "ja": "台所の調味料がもうすぐなくなる。",
+       "ja_furigana": "台所(だいどころ)の調味料(ちょうみりょう)がもうすぐなくなる。",
+       "source": "AI",
+       "vi": "Gia vị trong bếp sắp hết rồi."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "gia vị",
+    "examples": [
+     {
+      "ja": "調味料を入れすぎた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi cho quá nhiều gia vị."
+     },
+     {
+      "ja": "台所の調味料がもうすぐなくなる。",
+      "ja_furigana": "台所(だいどころ)の調味料(ちょうみりょう)がもうすぐなくなる。",
+      "source": "AI",
+      "vi": "Gia vị trong bếp sắp hết rồi."
+     }
+    ],
+    "expression": "調味料",
+    "findings": [
+     "FURIGANA_MISSING: 調味料を入れすぎた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "gia vị",
+    "mnemonic_vi": "調 là điều chỉnh, 味 là vị, 料 là nguyên liệu: thứ dùng nêm nếm gia vị.",
+    "reading": "ちょうみりょう",
+    "romaji": "choumiryou",
+    "topic_vi": "Dụng cụ và nguyên liệu nấu ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6ed270a898"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "食品は冷蔵庫に入れた。",
+       "ja_furigana": "食品(しょくひん)は冷蔵庫(れいぞうこ)に入(い)れた。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi cất thực phẩm vào tủ lạnh."
+      },
+      {
+       "ja": "食品を買うときは、日付を必ず見る。",
+       "ja_furigana": "食品(しょくひん)を買(か)うときは、日付(ひづけ)を必(かなら)ず見(み)る。",
+       "source": "AI",
+       "vi": "Khi mua thực phẩm, tôi luôn xem ngày hạn."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thực phẩm",
+    "examples": [
+     {
+      "ja": "食品は冷蔵庫に入れた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi cất thực phẩm vào tủ lạnh."
+     },
+     {
+      "ja": "食品を買うときは、日付を必ず見る。",
+      "ja_furigana": "食品(しょくひん)を買(か)うときは、日付(ひづけ)を必(かなら)ず見(み)る。",
+      "source": "AI",
+      "vi": "Khi mua thực phẩm, tôi luôn xem ngày hạn."
+     }
+    ],
+    "expression": "食品",
+    "findings": [
+     "FURIGANA_MISSING: 食品は冷蔵庫に入れた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "thực phẩm; đồ ăn",
+    "mnemonic_vi": "食 là ăn, 品 là sản phẩm; 食品 là thực phẩm.",
+    "reading": "しょくひん",
+    "romaji": "shokuhin",
+    "topic_vi": "Dụng cụ và nguyên liệu nấu ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2e05a95b3a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "残り物にラップをかけた。",
+       "ja_furigana": "残(のこ)り物(もの)にラップをかけた。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi bọc màng bọc lên đồ ăn thừa."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "màng bọc thực phẩm",
+    "examples": [
+     {
+      "ja": "残り物にラップをかけた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi bọc màng bọc lên đồ ăn thừa."
+     }
+    ],
+    "expression": "ラップ＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 残り物にラップをかけた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "màng bọc thực phẩm",
+    "mnemonic_vi": "ラップ từ “wrap”, tấm màng quấn quanh đĩa thức ăn.",
+    "reading": "らっぷ＜する＞",
+    "romaji": "rappu<suru>",
+    "topic_vi": "Dụng cụ và nguyên liệu nấu ăn",
+    "twins": [],
+    "variants": [
+     "ラップ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f2d3515920"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "食べる前にミカンを剥く。",
+       "ja_furigana": "食(た)べる前(まえ)にミカンを剥(む)く。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi bóc vỏ quýt trước khi ăn."
+      },
+      {
+       "ja": "りんごの皮をむく。",
+       "ja_furigana": "りんごの皮(かわ)をむく。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi gọt vỏ táo."
+      },
+      {
+       "ja": "バナナのかわをむいて、子どもに渡した。",
+       "ja_furigana": "バナナのかわをむいて、子(こ)どもに渡(わた)した。",
+       "source": "AI",
+       "vi": "Tôi bóc vỏ chuối rồi đưa cho con."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "gọt vỏ, bóc",
+    "examples": [
+     {
+      "ja": "食べる前にミカンを剥く。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi bóc vỏ quýt trước khi ăn."
+     },
+     {
+      "ja": "りんごの皮をむく。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi gọt vỏ táo."
+     },
+     {
+      "ja": "バナナのかわをむいて、子どもに渡した。",
+      "ja_furigana": "バナナのかわをむいて、子(こ)どもに渡(わた)した。",
+      "source": "AI",
+      "vi": "Tôi bóc vỏ chuối rồi đưa cho con."
+     }
+    ],
+    "expression": "剥く",
+    "findings": [
+     "FURIGANA_MISSING: 食べる前にミカンを剥く。",
+     "FURIGANA_MISSING: りんごの皮をむく。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "gọt vỏ; bóc; gọt",
+    "mnemonic_vi": "剥 là bóc lớp ngoài; kéo vỏ trái cây ra để gọt vỏ.",
+    "reading": "むく",
+    "romaji": "muku",
+    "topic_vi": "Cách làm món ăn",
+    "twins": [],
+    "variants": [
+     "むく"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e6b59ae109"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "スープに塩を少し加える。",
+       "ja_furigana": "スープに塩(しお)を少(すこ)し加(くわ)える。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Thêm một chút muối vào súp."
+      },
+      {
+       "ja": "カレーに少しチョコレートを加えると、おいしくなる。",
+       "ja_furigana": "カレーに少(すこ)しチョコレートを加(くわ)えると、おいしくなる。",
+       "source": "AI",
+       "vi": "Thêm một chút sô-cô-la vào cà ri sẽ ngon hơn."
+      },
+      {
+       "ja": "新しいメンバーを一人チームに加えた。",
+       "ja_furigana": "新(あたら)しいメンバーを一人(ひとり)チームに加(くわ)えた。",
+       "source": "AI",
+       "vi": "Chúng tôi đã thêm một thành viên mới vào đội."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thêm vào",
+    "examples": [
+     {
+      "ja": "スープに塩を少し加える。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Thêm một chút muối vào súp."
+     },
+     {
+      "ja": "カレーに少しチョコレートを加えると、おいしくなる。",
+      "ja_furigana": "カレーに少(すこ)しチョコレートを加(くわ)えると、おいしくなる。",
+      "source": "AI",
+      "vi": "Thêm một chút sô-cô-la vào cà ri sẽ ngon hơn."
+     },
+     {
+      "ja": "新しいメンバーを一人チームに加えた。",
+      "ja_furigana": "新(あたら)しいメンバーを一人(ひとり)チームに加(くわ)えた。",
+      "source": "AI",
+      "vi": "Chúng tôi đã thêm một thành viên mới vào đội."
+     }
+    ],
+    "expression": "加える",
+    "findings": [
+     "FURIGANA_MISSING: スープに塩を少し加える。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "thêm vào; tham gia; cộng vào",
+    "mnemonic_vi": "加 là gia thêm; cho một thìa muối vào nồi.",
+    "reading": "くわえる",
+    "romaji": "kuwaeru",
+    "topic_vi": "Cách làm món ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3a298af837"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "魚を油で揚げる。",
+       "ja_furigana": "魚(さかな)を油(あぶら)で揚(あ)げる。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi chiên cá ngập dầu."
+      },
+      {
+       "ja": "母が揚げたコロッケは、外がさくさくだ。",
+       "ja_furigana": "母(はは)が揚(あ)げたコロッケは、外(そと)がさくさくだ。",
+       "source": "AI",
+       "vi": "Món croquette mẹ chiên có lớp vỏ ngoài giòn rụm."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chiên ngập dầu; kéo lên (cờ)",
+    "examples": [
+     {
+      "ja": "魚を油で揚げる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi chiên cá ngập dầu."
+     },
+     {
+      "ja": "母が揚げたコロッケは、外がさくさくだ。",
+      "ja_furigana": "母(はは)が揚(あ)げたコロッケは、外(そと)がさくさくだ。",
+      "source": "AI",
+      "vi": "Món croquette mẹ chiên có lớp vỏ ngoài giòn rụm."
+     }
+    ],
+    "expression": "揚げる",
+    "findings": [
+     "FURIGANA_MISSING: 魚を油で揚げる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chiên ngập dầu; kéo lên (cờ); chiên",
+    "mnemonic_vi": "Dầu nóng bao quanh miếng thức ăn rồi nhấc lên: 揚げる là chiên ngập dầu.",
+    "reading": "あげる",
+    "romaji": "ageru",
+    "topic_vi": "Cách làm món ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ed02d75f17"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "豆をやわらかく煮る。",
+       "ja_furigana": "豆(まめ)をやわらかく煮(に)る。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi hầm đậu cho mềm."
+      },
+      {
+       "ja": "だいこんを一時間ゆっくり煮た。",
+       "ja_furigana": "だいこんを一時間(いちじかん)ゆっくり煮(に)た。",
+       "source": "AI",
+       "vi": "Tôi ninh củ cải trắng trong một tiếng."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ninh, kho",
+    "examples": [
+     {
+      "ja": "豆をやわらかく煮る。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi hầm đậu cho mềm."
+     },
+     {
+      "ja": "だいこんを一時間ゆっくり煮た。",
+      "ja_furigana": "だいこんを一時間(いちじかん)ゆっくり煮(に)た。",
+      "source": "AI",
+      "vi": "Tôi ninh củ cải trắng trong một tiếng."
+     }
+    ],
+    "expression": "煮る",
+    "findings": [
+     "FURIGANA_MISSING: 豆をやわらかく煮る。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "ninh; kho; nấu",
+    "mnemonic_vi": "Dưới 煮 có bốn chấm lửa 灬, nồi thức ăn sôi lâu thành món ninh.",
+    "reading": "にる",
+    "romaji": "niru",
+    "topic_vi": "Cách làm món ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-15a1afd37a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "卵を十分ゆでる。",
+       "ja_furigana": "卵(たまご)を十分(じゅうぶん)ゆでる。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi luộc trứng cho chín kỹ."
+      },
+      {
+       "ja": "パスタは塩を入れたおゆでゆでる。",
+       "ja_furigana": "パスタは塩(しお)を入(い)れたおゆでゆでる。",
+       "source": "AI",
+       "vi": "Mì pasta được luộc trong nước có cho muối."
+      },
+      {
+       "ja": "ゆでたじゃがいもに、バターをのせて食べた。",
+       "ja_furigana": "ゆでたじゃがいもに、バターをのせて食(た)べた。",
+       "source": "AI",
+       "vi": "Tôi ăn khoai tây luộc với bơ."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "luộc",
+    "examples": [
+     {
+      "ja": "卵を十分ゆでる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi luộc trứng cho chín kỹ."
+     },
+     {
+      "ja": "パスタは塩を入れたおゆでゆでる。",
+      "ja_furigana": "パスタは塩(しお)を入(い)れたおゆでゆでる。",
+      "source": "AI",
+      "vi": "Mì pasta được luộc trong nước có cho muối."
+     },
+     {
+      "ja": "ゆでたじゃがいもに、バターをのせて食べた。",
+      "ja_furigana": "ゆでたじゃがいもに、バターをのせて食(た)べた。",
+      "source": "AI",
+      "vi": "Tôi ăn khoai tây luộc với bơ."
+     }
+    ],
+    "expression": "茹でる",
+    "findings": [
+     "FURIGANA_MISSING: 卵を十分ゆでる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "luộc",
+    "mnemonic_vi": "Cỏ 艹 trong 茹 gợi rau thả vào nước sôi để luộc.",
+    "reading": "ゆでる",
+    "romaji": "yuderu",
+    "topic_vi": "Cách làm món ăn",
+    "twins": [],
+    "variants": [
+     "ゆでる"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-95f79c3673"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "野菜を蒸すと甘くなる。",
+       "ja_furigana": "野菜(やさい)を蒸(む)すと甘(あま)くなる。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Hấp rau thì rau ngọt hơn."
+      },
+      {
+       "ja": "朝ご飯にさつまいもを蒸して食べた。",
+       "ja_furigana": "朝(あさ)ご飯(はん)にさつまいもを蒸(む)して食(た)べた。",
+       "source": "AI",
+       "vi": "Bữa sáng tôi hấp khoai lang ăn."
+      },
+      {
+       "ja": "魚を蒸すと油を使わないので、体にいい。",
+       "ja_furigana": "魚(さかな)を蒸(む)すと油(あぶら)を使(つか)わないので、体(からだ)にいい。",
+       "source": "AI",
+       "vi": "Hấp cá thì không dùng dầu nên tốt cho sức khỏe."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hấp",
+    "examples": [
+     {
+      "ja": "野菜を蒸すと甘くなる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hấp rau thì rau ngọt hơn."
+     },
+     {
+      "ja": "朝ご飯にさつまいもを蒸して食べた。",
+      "ja_furigana": "朝(あさ)ご飯(はん)にさつまいもを蒸(む)して食(た)べた。",
+      "source": "AI",
+      "vi": "Bữa sáng tôi hấp khoai lang ăn."
+     },
+     {
+      "ja": "魚を蒸すと油を使わないので、体にいい。",
+      "ja_furigana": "魚(さかな)を蒸(む)すと油(あぶら)を使(つか)わないので、体(からだ)にいい。",
+      "source": "AI",
+      "vi": "Hấp cá thì không dùng dầu nên tốt cho sức khỏe."
+     }
+    ],
+    "expression": "蒸す",
+    "findings": [
+     "FURIGANA_MISSING: 野菜を蒸すと甘くなる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "hấp",
+    "mnemonic_vi": "Lửa 灬 bên dưới làm hơi bốc lên, hấp chín thức ăn trong 蒸す.",
+    "reading": "むす",
+    "romaji": "musu",
+    "topic_vi": "Cách làm món ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8e8cf58d14"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟の手を強く握る。",
+       "ja_furigana": "弟(おとうと)の手(て)を強(つよ)く握(にぎ)る。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi nắm chặt tay em trai."
+      },
+      {
+       "ja": "自転車のハンドルをしっかり握って、さかを下った。",
+       "ja_furigana": "自転車(じてんしゃ)のハンドルをしっかり握(にぎ)って、さかを下(くだ)った。",
+       "source": "AI",
+       "vi": "Tôi nắm chặt tay lái xe đạp rồi đổ dốc."
+      },
+      {
+       "ja": "おにぎりを握るときは、手に塩をつける。",
+       "ja_furigana": "おにぎりを握(にぎ)るときは、手(て)に塩(しお)をつける。",
+       "source": "AI",
+       "vi": "Khi nắm cơm nắm, tôi xoa muối lên tay."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nắm, cầm chặt",
+    "examples": [
+     {
+      "ja": "弟の手を強く握る。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi nắm chặt tay em trai."
+     },
+     {
+      "ja": "自転車のハンドルをしっかり握って、さかを下った。",
+      "ja_furigana": "自転車(じてんしゃ)のハンドルをしっかり握(にぎ)って、さかを下(くだ)った。",
+      "source": "AI",
+      "vi": "Tôi nắm chặt tay lái xe đạp rồi đổ dốc."
+     },
+     {
+      "ja": "おにぎりを握るときは、手に塩をつける。",
+      "ja_furigana": "おにぎりを握(にぎ)るときは、手(て)に塩(しお)をつける。",
+      "source": "AI",
+      "vi": "Khi nắm cơm nắm, tôi xoa muối lên tay."
+     }
+    ],
+    "expression": "握る",
+    "findings": [
+     "FURIGANA_MISSING: 弟の手を強く握る。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "nắm; cầm chặt; cầm",
+    "mnemonic_vi": "Bộ tay 扌 khép lại như nắm cơm trong lòng bàn tay.",
+    "reading": "にぎる",
+    "romaji": "nigiru",
+    "topic_vi": "Cách làm món ăn",
+    "twins": [],
+    "variants": [
+     "にぎる"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b6f14eea03"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "火が強いとパンがこげる。",
+       "ja_furigana": "火(ひ)が強(つよ)いとパンがこげる。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Lửa lớn thì bánh mì bị cháy."
+      },
+      {
+       "ja": "パンの端が焦げる。",
+       "ja_furigana": "パンの端(はし)が焦(こ)げる。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Mé bánh mì bị cháy khét."
+      },
+      {
+       "ja": "魚をやいていたら、かわが少し焦げた。",
+       "ja_furigana": "魚(さかな)をやいていたら、かわが少(すこ)し焦(こ)げた。",
+       "source": "AI",
+       "vi": "Đang nướng cá thì phần da hơi bị cháy."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bị cháy khét",
+    "examples": [
+     {
+      "ja": "火が強いとパンがこげる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Lửa lớn thì bánh mì bị cháy."
+     },
+     {
+      "ja": "パンの端が焦げる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Mé bánh mì bị cháy khét."
+     },
+     {
+      "ja": "魚をやいていたら、かわが少し焦げた。",
+      "ja_furigana": "魚(さかな)をやいていたら、かわが少(すこ)し焦(こ)げた。",
+      "source": "AI",
+      "vi": "Đang nướng cá thì phần da hơi bị cháy."
+     }
+    ],
+    "expression": "焦げる",
+    "findings": [
+     "FURIGANA_MISSING: 火が強いとパンがこげる。",
+     "FURIGANA_MISSING: パンの端が焦げる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bị cháy; khê; bị cháy khét",
+    "mnemonic_vi": "焦 có lửa 灬 bên dưới; thức ăn để quá lâu sẽ cháy khét.",
+    "reading": "こげる",
+    "romaji": "kogeru",
+    "topic_vi": "Cách làm món ăn",
+    "twins": [],
+    "variants": [
+     "こげる"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8fe0eedbc5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "かばんから本を取り出す。",
+       "ja_furigana": "かばんから本(ほん)を取(と)り出(だ)す。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi lấy sách ra khỏi cặp."
+      },
+      {
+       "ja": "冷蔵庫から冷たいジュースを取り出した。",
+       "ja_furigana": "冷蔵庫(れいぞうこ)から冷(つめ)たいジュースを取(と)り出(だ)した。",
+       "source": "AI",
+       "vi": "Tôi lấy chai nước trái cây lạnh từ tủ lạnh ra."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lấy ra",
+    "examples": [
+     {
+      "ja": "かばんから本を取り出す。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi lấy sách ra khỏi cặp."
+     },
+     {
+      "ja": "冷蔵庫から冷たいジュースを取り出した。",
+      "ja_furigana": "冷蔵庫(れいぞうこ)から冷(つめ)たいジュースを取(と)り出(だ)した。",
+      "source": "AI",
+      "vi": "Tôi lấy chai nước trái cây lạnh từ tủ lạnh ra."
+     }
+    ],
+    "expression": "取り出す",
+    "findings": [
+     "FURIGANA_MISSING: かばんから本を取り出す。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "lấy ra",
+    "mnemonic_vi": "取 là lấy, 出 là ra; thò tay lấy đồ ra khỏi hộp.",
+    "reading": "とりだす",
+    "romaji": "toridasu",
+    "topic_vi": "Cách làm món ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-333aa15a82"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お茶がぬるいので入れ直した。",
+       "ja_furigana": "お茶(ちゃ)がぬるいので入(い)れ直(なお)した。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Trà hơi nguội nên tôi pha lại."
+      },
+      {
+       "ja": "おふろのおゆがぬるくて、なかなか体が温まらない。",
+       "ja_furigana": "おふろのおゆがぬるくて、なかなか体(からだ)が温(あたた)まらない。",
+       "source": "AI",
+       "vi": "Nước bồn tắm âm ấm nên mãi người không ấm lên được."
+      },
+      {
+       "ja": "冷蔵庫に入れ忘れたビールが、ぬるくなっていた。",
+       "ja_furigana": "冷蔵庫(れいぞうこ)に入(い)れ忘(わす)れたビールが、ぬるくなっていた。",
+       "source": "AI",
+       "vi": "Lon bia quên cho vào tủ lạnh đã bị ấm."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "âm ấm",
+    "examples": [
+     {
+      "ja": "お茶がぬるいので入れ直した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Trà hơi nguội nên tôi pha lại."
+     },
+     {
+      "ja": "おふろのおゆがぬるくて、なかなか体が温まらない。",
+      "ja_furigana": "おふろのおゆがぬるくて、なかなか体(からだ)が温(あたた)まらない。",
+      "source": "AI",
+      "vi": "Nước bồn tắm âm ấm nên mãi người không ấm lên được."
+     },
+     {
+      "ja": "冷蔵庫に入れ忘れたビールが、ぬるくなっていた。",
+      "ja_furigana": "冷蔵庫(れいぞうこ)に入(い)れ忘(わす)れたビールが、ぬるくなっていた。",
+      "source": "AI",
+      "vi": "Lon bia quên cho vào tủ lạnh đã bị ấm."
+     }
+    ],
+    "expression": "ぬるい",
+    "findings": [
+     "FURIGANA_MISSING: お茶がぬるいので入れ直した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "nguội; âm ấm",
+    "mnemonic_vi": "Cốc nước ぬるい chỉ âm ấm, đặt tay vào không thấy nóng.",
+    "reading": "ぬるい",
+    "romaji": "nurui",
+    "topic_vi": "Cách làm món ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-54c5e00bd8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "暑い日は水分を十分に取る。",
+       "ja_furigana": "暑(あつ)い日(ひ)は水分(すいぶん)を十分(じゅうぶん)に取(と)る。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Ngày nóng cần uống đủ nước."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lượng nước, độ ẩm",
+    "examples": [
+     {
+      "ja": "暑い日は水分を十分に取る。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Ngày nóng cần uống đủ nước."
+     }
+    ],
+    "expression": "水分",
+    "findings": [
+     "FURIGANA_MISSING: 暑い日は水分を十分に取る。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "lượng nước; độ ẩm; thành phần nước",
+    "mnemonic_vi": "水 là nước, 分 là phần; 水分 là phần nước trong thực phẩm.",
+    "reading": "すいぶん",
+    "romaji": "suibun",
+    "topic_vi": "Cách làm món ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-342c46e2a5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "コップに水を注ぐ。",
+       "ja_furigana": "コップに水(みず)を注(そそ)ぐ。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi rót nước vào cốc."
+      },
+      {
+       "ja": "この川の水は、最後に海に注ぐ。",
+       "ja_furigana": "この川(かわ)の水(みず)は、最後(さいご)に海(うみ)に注(そそ)ぐ。",
+       "source": "AI",
+       "vi": "Nước của con sông này cuối cùng đổ ra biển."
+      },
+      {
+       "ja": "熱いお茶を、お客さんのちゃわんに注いだ。",
+       "ja_furigana": "熱(あつ)いお茶(ちゃ)を、お客(きゃく)さんのちゃわんに注(そそ)いだ。",
+       "source": "AI",
+       "vi": "Tôi rót trà nóng vào chén cho khách."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "rót",
+    "examples": [
+     {
+      "ja": "コップに水を注ぐ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi rót nước vào cốc."
+     },
+     {
+      "ja": "この川の水は、最後に海に注ぐ。",
+      "ja_furigana": "この川(かわ)の水(みず)は、最後(さいご)に海(うみ)に注(そそ)ぐ。",
+      "source": "AI",
+      "vi": "Nước của con sông này cuối cùng đổ ra biển."
+     },
+     {
+      "ja": "熱いお茶を、お客さんのちゃわんに注いだ。",
+      "ja_furigana": "熱(あつ)いお茶(ちゃ)を、お客(きゃく)さんのちゃわんに注(そそ)いだ。",
+      "source": "AI",
+      "vi": "Tôi rót trà nóng vào chén cho khách."
+     }
+    ],
+    "expression": "注ぐ",
+    "findings": [
+     "FURIGANA_MISSING: コップに水を注ぐ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "rót; đổ; chảy vào",
+    "mnemonic_vi": "Nước 氵 đi vào bình qua dòng rót: 注ぐ là rót.",
+    "reading": "そそぐ",
+    "romaji": "sosogu",
+    "topic_vi": "Cách làm món ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-bfa8cf83ef"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この料理は手間がかかる。",
+       "ja_furigana": "この料理(りょうり)は手間(てま)がかかる。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Món ăn này tốn công."
+      },
+      {
+       "ja": "手紙を書くのは手間がかかるが、気持ちが伝わる。",
+       "ja_furigana": "手紙(てがみ)を書(か)くのは手間(てま)がかかるが、気持(きも)ちが伝(つた)わる。",
+       "source": "AI",
+       "vi": "Viết thư thì tốn công nhưng truyền được tình cảm."
+      },
+      {
+       "ja": "お手間をとらせて、すみませんでした。",
+       "ja_furigana": "お手間(てま)をとらせて、すみませんでした。",
+       "source": "AI",
+       "vi": "Xin lỗi vì đã làm mất thời gian của anh."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "công sức, thời gian bỏ ra",
+    "examples": [
+     {
+      "ja": "この料理は手間がかかる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Món ăn này tốn công."
+     },
+     {
+      "ja": "手紙を書くのは手間がかかるが、気持ちが伝わる。",
+      "ja_furigana": "手紙(てがみ)を書(か)くのは手間(てま)がかかるが、気持(きも)ちが伝(つた)わる。",
+      "source": "AI",
+      "vi": "Viết thư thì tốn công nhưng truyền được tình cảm."
+     },
+     {
+      "ja": "お手間をとらせて、すみませんでした。",
+      "ja_furigana": "お手間(てま)をとらせて、すみませんでした。",
+      "source": "AI",
+      "vi": "Xin lỗi vì đã làm mất thời gian của anh."
+     }
+    ],
+    "expression": "手間",
+    "findings": [
+     "FURIGANA_MISSING: この料理は手間がかかる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "công sức; thời gian bỏ ra; thời gian",
+    "mnemonic_vi": "手 là tay, 間 là khoảng thời gian; công sức và thời gian bỏ ra để làm việc.",
+    "reading": "てま",
+    "romaji": "tema",
+    "topic_vi": "Cách làm món ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-51bfb21b30"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "料理のできあがりが楽しみだ。",
+       "ja_furigana": "料理(りょうり)のできあがりが楽(たの)しみだ。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi mong chờ món ăn hoàn thành."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "xong xuôi",
+    "examples": [
+     {
+      "ja": "料理のできあがりが楽しみだ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi mong chờ món ăn hoàn thành."
+     }
+    ],
+    "expression": "でき上がり",
+    "findings": [
+     "FURIGANA_MISSING: 料理のできあがりが楽しみだ。"
+    ],
+    "locked_fields": [
+     "word_type_label"
+    ],
+    "meaning_vi": "xong xuôi",
+    "mnemonic_vi": "出来 là làm được, 上がり là hoàn tất; món ăn đã làm xong.",
+    "reading": "できあがり",
+    "romaji": "dekiagari",
+    "topic_vi": "Cách làm món ăn",
+    "twins": [],
+    "variants": [
+     "できあがり"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ed95e5f7bd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この魚は少し塩辛い。",
+       "ja_furigana": "この魚(さかな)は少(すこ)し塩辛(しおから)い。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Con cá này hơi mặn."
+      },
+      {
+       "ja": "このスープは塩辛すぎて、全部は飲めなかった。",
+       "ja_furigana": "このスープは塩辛(しおから)すぎて、全部(ぜんぶ)は飲(の)めなかった。",
+       "source": "AI",
+       "vi": "Món súp này mặn quá nên tôi không ăn hết được."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "mặn",
+    "examples": [
+     {
+      "ja": "この魚は少し塩辛い。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Con cá này hơi mặn."
+     },
+     {
+      "ja": "このスープは塩辛すぎて、全部は飲めなかった。",
+      "ja_furigana": "このスープは塩辛(しおから)すぎて、全部(ぜんぶ)は飲(の)めなかった。",
+      "source": "AI",
+      "vi": "Món súp này mặn quá nên tôi không ăn hết được."
+     }
+    ],
+    "expression": "塩辛い",
+    "findings": [
+     "FURIGANA_MISSING: この魚は少し塩辛い。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "mặn",
+    "mnemonic_vi": "塩 là muối, 辛 là vị gắt; nếm miếng cá ướp nhiều muối thấy mặn chát.",
+    "reading": "しおからい",
+    "romaji": "shiokarai",
+    "topic_vi": "Cách làm món ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ab2006a09b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "魚を冷凍して保存する。",
+       "ja_furigana": "魚(さかな)を冷凍(れいとう)して保存(ほぞん)する。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi đông lạnh cá để bảo quản."
+      },
+      {
+       "ja": "冷凍したご飯は、電子レンジで温めると便利だ。",
+       "ja_furigana": "冷凍(れいとう)したご飯(はん)は、電子(でんし)レンジで温(あたた)めると便利(べんり)だ。",
+       "source": "AI",
+       "vi": "Cơm để đông lạnh thì hâm bằng lò vi sóng rất tiện."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đông lạnh",
+    "examples": [
+     {
+      "ja": "魚を冷凍して保存する。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đông lạnh cá để bảo quản."
+     },
+     {
+      "ja": "冷凍したご飯は、電子レンジで温めると便利だ。",
+      "ja_furigana": "冷凍(れいとう)したご飯(はん)は、電子(でんし)レンジで温(あたた)めると便利(べんり)だ。",
+      "source": "AI",
+      "vi": "Cơm để đông lạnh thì hâm bằng lò vi sóng rất tiện."
+     }
+    ],
+    "expression": "冷凍＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 魚を冷凍して保存する。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đông lạnh",
+    "mnemonic_vi": "冷 là lạnh, 凍 là đóng băng; cho thức ăn vào ngăn đá để đông lạnh.",
+    "reading": "れいとう＜する＞",
+    "romaji": "reitou<suru>",
+    "topic_vi": "Cách làm món ăn",
+    "twins": [],
+    "variants": [
+     "冷凍"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2c561bfc69"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "物が増えると部屋が散らかる。",
+       "ja_furigana": "物(もの)が増(ふ)えると部屋(へや)が散(ち)らかる。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Đồ nhiều lên thì phòng bừa bộn."
+      },
+      {
+       "ja": "子どもが遊んだあと、部屋におもちゃが散らかっていた。",
+       "ja_furigana": "子(こ)どもが遊(あそ)んだあと、部屋(へや)におもちゃが散(ち)らかっていた。",
+       "source": "AI",
+       "vi": "Sau khi bọn trẻ chơi xong, đồ chơi vương vãi khắp phòng."
+      },
+      {
+       "ja": "机の上が散らかっていて、書類が見つからない。",
+       "ja_furigana": "机(つくえ)の上(うえ)が散(ち)らかっていて、書類(しょるい)が見(み)つからない。",
+       "source": "AI",
+       "vi": "Mặt bàn bừa bộn nên tôi không tìm thấy giấy tờ."
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bừa bộn",
+    "examples": [
+     {
+      "ja": "物が増えると部屋が散らかる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Đồ nhiều lên thì phòng bừa bộn."
+     },
+     {
+      "ja": "子どもが遊んだあと、部屋におもちゃが散らかっていた。",
+      "ja_furigana": "子(こ)どもが遊(あそ)んだあと、部屋(へや)におもちゃが散(ち)らかっていた。",
+      "source": "AI",
+      "vi": "Sau khi bọn trẻ chơi xong, đồ chơi vương vãi khắp phòng."
+     },
+     {
+      "ja": "机の上が散らかっていて、書類が見つからない。",
+      "ja_furigana": "机(つくえ)の上(うえ)が散(ち)らかっていて、書類(しょるい)が見(み)つからない。",
+      "source": "AI",
+      "vi": "Mặt bàn bừa bộn nên tôi không tìm thấy giấy tờ."
+     }
+    ],
+    "expression": "散らかる",
+    "findings": [
+     "FURIGANA_MISSING: 物が増えると部屋が散らかる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bừa bộn; bừa bãi; lung tung",
+    "mnemonic_vi": "散 nghĩa là tản ra; đồ chơi văng khắp sàn thành bừa bộn.",
+    "reading": "ちらかる",
+    "romaji": "chirakaru",
+    "topic_vi": "Việc nhà",
+    "twins": [],
+    "variants": [
+     "ちらかる"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3cff975bae"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N3",
+ "packet_id": "REVIEW_VOCAB-039"
+}

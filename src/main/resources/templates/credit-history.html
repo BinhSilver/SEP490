@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Lịch sử Credit - Mirai Japanese Analytics Hub', 'credit-history')}"></head>
+<body data-mobile-adapt="owned" id="jlabBasePage" class="credit-history-page">
+<div id="jlabBaseShellMount"></div>
+
+<main id="jlabBaseContent" class="credit-history-page__content">
+    <div class="credit-history-page__container">
+        <header class="credit-history-page__heading">
+            <div>
+                <a class="credit-history-page__back-link" href="/goals"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Mục tiêu &amp; chuỗi ngày</a>
+                <h1>Lịch sử Credit</h1>
+                </div>
+            <span class="credit-history-page__badge"><i class="fa-solid fa-gem" aria-hidden="true"></i> Ví gamification</span>
+        </header>
+
+        <section class="credit-history-page__summary" aria-label="Tóm tắt Credit">
+            <article class="credit-history-page__summary-card credit-history-page__summary-card--balance">
+                <div><span>Credit hiện có</span><i class="fa-solid fa-gem" aria-hidden="true"></i></div>
+                <strong id="creditHistoryBalance">0</strong><small>CR trong ví</small>
+            </article>
+            <article class="credit-history-page__summary-card">
+                <div><span>Tổng đã nhận</span><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i></div>
+                <strong id="creditHistoryEarned">+0</strong><small>CR từ hoạt động học</small>
+            </article>
+            <article class="credit-history-page__summary-card">
+                <div><span>Tổng đã dùng</span><i class="fa-solid fa-arrow-trend-down" aria-hidden="true"></i></div>
+                <strong id="creditHistorySpent">-0</strong><small>CR đã chi tiêu</small>
+            </article>
+            <article class="credit-history-page__summary-card">
+                <div><span>Số giao dịch</span><i class="fa-solid fa-receipt" aria-hidden="true"></i></div>
+                <strong id="creditHistoryCount">0</strong><small>lần biến động</small>
+            </article>
+        </section>
+
+        <section class="credit-history-page__card" aria-labelledby="creditHistoryTitle">
+            <div class="credit-history-page__card-head">
+                <div>
+                    <h2 id="creditHistoryTitle">Biến động Credit</h2>
+                    <p id="creditHistoryDescription" hidden>Nhật ký giao dịch mới nhất của bạn</p>
+                </div>
+                <div class="credit-history-page__filters" role="group" aria-label="Lọc lịch sử Credit">
+                    <button class="is-active" type="button" data-credit-filter="all">Tất cả</button>
+                    <button type="button" data-credit-filter="earned">Đã nhận</button>
+                    <button type="button" data-credit-filter="spent">Đã dùng</button>
+                </div>
+            </div>
+
+            <div id="creditHistoryList" class="credit-history-page__list"></div>
+            <div id="creditHistoryEmpty" class="credit-history-page__empty" hidden>
+                <i class="fa-regular fa-folder-open" aria-hidden="true"></i>
+                <strong>Chưa có giao dịch phù hợp</strong>
+                <span>Hoàn thành bài học hoặc mục tiêu để bắt đầu nhận Credit.</span>
+            </div>
+            <div id="creditHistoryError" class="credit-history-page__error" hidden>Không thể tải lịch sử Credit lúc này.</div>
+        </section>
+    </div>
+</main>
+
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/pages/credit-history.js?v=1}"></script>
+</body>
+</html>

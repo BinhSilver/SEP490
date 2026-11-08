@@ -1,0 +1,582 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "努力と運も相まって、優勝することができた。",
+       "ja_furigana": "努力(どりょく)と運(うん)も相(あい)まって、優勝(ゆうしょう)することができた。",
+       "vi": "Nỗ lực cùng may mắn cộng hưởng, tôi đã giành chức vô địch."
+      },
+      {
+       "ja": "人気と実力も相まって、彼は一躍有名になった。",
+       "ja_furigana": "人気(にんき)と実力(じつりょく)も相(あい)まって、彼(かれ)は一躍(いちやく)有名(ゆうめい)になった。",
+       "vi": "Được yêu thích cộng với thực lực, anh ấy bỗng trở nên nổi tiếng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "好天も相まって、来場者数は過去最多となった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhờ thời tiết đẹp cộng hưởng, số khách đến đạt kỷ lục."
+     },
+     {
+      "ja": "彼の努力も相まって、プロジェクトは成功した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cộng với nỗ lực của anh ấy, dự án đã thành công."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 好天も相まって、来場者数は過去最多となった。",
+     "FURIGANA_MISSING: 彼の努力も相まって、プロジェクトは成功した。"
+    ],
+    "formation": "N + も相まって",
+    "locked_fields": [],
+    "meaning_vi": "“Cộng hưởng, kết hợp với” – nhiều yếu tố đồng thời tác động tạo ra kết quả mạnh hơn. Giọng văn khách quan, giải thích nguyên nhân tổng hợp; hay gặp trong báo cáo, tin tức. Vị trí: đứng giữa phần nguyên nhân và kết quả; chủ yếu nói về kết quả tốt/xấu do nhiều yếu tố. Yếu tố trước ～も相まって thường là yếu tố bổ sung, không phải nguyên nhân duy nhất.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cộng thêm...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn nhấn mạnh tính “tổng hợp nguyên nhân” thay vì quy về một yếu tố duy nhất. Thường dùng trong tường thuật, báo cáo, văn phong trang trọng hơn hội thoại thường ngày. Phù hợp cho cả kết quả tích cực và tiêu cực: 人手不足も相まって納期が遅れた。 [6. Ghi chú mở rộng] Thường dùng cho hiện tượng xã hội/kinh tế/thị trường: 物価高、円安、好景気、不況… Tránh lặp nhiều lần ～も相まって trong một câu; nên liệt kê Aに、Bも相まって… Chủ ngữ thường là kết quả/tình hình, không phải chủ thể hành vi. [7. Biến thể & cụm cố định] ～と相まって: biến thể tương đương. 要因Aに、要因Bも相まって: khung câu hay dùng trong báo cáo. 好天も相まって／追い風も相まって／円安傾向も相まって: cụm thường gặp. [8. Lỗi thường gặp & bẫy JLPT] Dùng cho một nguyên nhân duy nhất → không phù hợp; nên dùng ～だけに hay ～ので. Dùng trong văn khẩu ngữ thân mật quá mức → nghe cứng; cân nhắc ～もあって. Nhầm với ～に加えて: JLPT kiểm tra sắc thái “cộng hưởng” vs “cộng thêm”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-af2922cfb3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今年は去年にもまして忙しい。",
+       "ja_furigana": "今年(ことし)は去年(きょねん)にもまして忙(いそが)しい。",
+       "vi": "Năm nay bận hơn cả năm ngoái."
+      },
+      {
+       "ja": "彼女は以前にもまして美しくなった。",
+       "ja_furigana": "彼女(かのじょ)は以前(いぜん)にもまして美(うつく)しくなった。",
+       "vi": "Cô ấy đẹp hơn cả trước đây."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今年は例年にもまして台風が多い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Năm nay bão nhiều hơn mọi năm."
+     },
+     {
+      "ja": "今日はいつにもまして落ち着いている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay bình tĩnh hơn mọi khi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今年は例年にもまして台風が多い。",
+     "FURIGANA_MISSING: 今日はいつにもまして落ち着いている。"
+    ],
+    "formation": "N + にもまして",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị mức độ hiện tại cao hơn so với một mốc đối chiếu (quá khứ, người khác, tiêu chuẩn). Mang màu sắc nhấn mạnh/tu từ, thường xuất hiện trong diễn văn, bình luận, tiêu đề tin tức. Phù hợp: mức độ cảm xúc/đặc tính (重要/深刻/厳しい/高い/強い/多い). Gợi “tăng lên đáng kể”, không chỉ chênh lệch nhỏ mang tính đo đếm. Có thể kết hợp với phó từ tăng cường: さらに/一層/ますます (tránh trùng ý quá mức).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hơn cả...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng/tu từ; diễn đạt cảm giác tăng mạnh, lời kêu gọi, nhấn đề tài. Làm trạng ngữ trước tính từ/động từ; ít dùng trực tiếp trước danh từ (cần の để định ngữ). Chọn mốc đối chiếu tự nhiên: 去年/以前/例年/従来/他人/いつも. [6. Ghi chú mở rộng] Dùng với nghi vấn từ tạo nhấn rất mạnh: 何/誰/いつにもまして. Trong diễn văn doanh nghiệp: 「安心・安全を何にもまして最優先します」。 Định ngữ hiếm: 例年にもましての猛暑（văn viết/tiêu đề). [7. Biến thể & cụm cố định] これまでにもまして／従来にもまして／例年にもまして. 誰にもまして～したい／～だ: hơn bất cứ ai. いつにもまして～: hơn mọi khi (chuẩn thường nhật). [8. Lỗi thường gặp & bẫy JLPT] Dùng cho chênh lệch số liệu thuần túy → nên dùng “より/以上に”. Thiếu mốc rõ (khi không dùng nghi vấn từ) → câu mơ hồ. Nhầm với “にも劣らず” (không thua kém) → nghĩa trái hướng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6d4fddbead"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このイベントを皮切りにして、各地で説明会を開く。",
+       "ja_furigana": "このイベントを皮(かわ)切(き)りにして、各地(かくち)で説明会(せつめいかい)を開(ひら)く。",
+       "vi": "Lấy sự kiện này làm mở đầu, chúng tôi mở các buổi giải thích ở nhiều nơi."
+      },
+      {
+       "ja": "新作を皮切りにして、毎月新商品を発売する。",
+       "ja_furigana": "新作(しんさく)を皮(かわ)切(き)りにして、毎月(まいつき)新商品(しんしょうひん)を発売(はつばい)する。",
+       "vi": "Lấy tác phẩm mới làm khởi đầu, mỗi tháng ra mắt một sản phẩm mới."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "札幌を皮切りにして、全国で巡回展が行われる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bắt đầu từ Sapporo, triển lãm lưu động sẽ được tổ chức trên toàn quốc."
+     },
+     {
+      "ja": "この講演を皮切りにして、連続セミナーを月一回のペースで実施する。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bắt đầu bằng buổi nói chuyện này, chuỗi hội thảo sẽ được tổ chức mỗi tháng một lần."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 札幌を皮切りにして、全国で巡回展が行われる。",
+     "FURIGANA_MISSING: この講演を皮切りにして、連続セミナーを月一回のペースで実施する。"
+    ],
+    "formation": "N + を皮切りにして",
+    "locked_fields": [],
+    "meaning_vi": "Tương đương ～を皮切りに: “bắt đầu với N làm mở màn”, sau đó là chuỗi hoạt động cùng loại. “して” làm rõ vai trò trạng ngữ cho vị ngữ chính, thường dùng trong văn bản chính thức, kế hoạch, thông cáo. Thích hợp khi sau đó là động từ triển khai theo từng bước: 開始する・展開する・導入する・実施する...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Lấy... làm mở đầu",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng; ưa dùng trong văn bản kế hoạch, đề án, thông cáo. Đặt cuối mệnh đề trạng ngữ, nối mạch vào vị ngữ chính một cách mạch lạc. Nội dung tiếp sau phải thể hiện sự tiếp diễn/mở rộng, tránh dừng đột ngột. [6. Ghi chú mở rộng] Dạng “して” giúp câu dài, nhiều mệnh đề vẫn giữ nhịp mạch lạc trong văn hành chính. Kết hợp tốt với biểu thức tần suất/lộ trình: 順次・段階的に・第一弾・第1期など. [7. Biến thể & cụm cố định] N を皮切りにして、～（biến thể của ～を皮切りに）. このイベントを皮切りにして、～／東京を皮切りにして、～：cụm thường gặp. Dạng danh hóa hiếm gặp: ～を皮切りとして（rất trang trọng, văn viết cũ hơn). [8. Lỗi thường gặp & bẫy JLPT] Dùng khi không có chuỗi tiếp theo: thiếu tự nhiên. Nhầm sắc thái với ～を機に: đề thi hay hỏi điểm “chuỗi” vs “bước ngoặt”. Đầu vào không phải danh từ sự kiện/địa điểm rõ ràng: dễ sai phạm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-26d355efc7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "転職を機に、早起きの習慣を身につけた。",
+       "ja_furigana": "転職(てんしょく)を機(き)に、早起(はやお)きの習慣(しゅうかん)を身(み)につけた。",
+       "vi": "Nhân dịp đổi việc, tôi rèn thói quen dậy sớm."
+      },
+      {
+       "ja": "引っ越しを機に、物を減らした。",
+       "ja_furigana": "引(ひ)っ越(こ)しを機(き)に、物(もの)を減(へ)らした。",
+       "vi": "Nhân dịp chuyển nhà, tôi bỏ bớt đồ đạc."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "結婚を機にして、貯金を本格的に始めた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân dịp kết hôn, tôi bắt đầu tiết kiệm một cách nghiêm túc."
+     },
+     {
+      "ja": "不具合発生を機に、品質管理体制を強化した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân sự cố phát sinh lỗi, chúng tôi đã tăng cường hệ thống quản lý chất lượng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Nhân dịp...",
+     "FURIGANA_MISSING: 結婚を機にして、貯金を本格的に始めた。",
+     "FURIGANA_MISSING: 不具合発生を機に、品質管理体制を強化した。"
+    ],
+    "formation": "N + を機にして; N + を機に",
+    "locked_fields": [],
+    "meaning_vi": "Lấy dịp/bước ngoặt N để bắt đầu điều mới hoặc thay đổi chính sách, lối sống. Diễn ý chủ động, có chủ đích; thường mang tính tích cực/cải thiện. Có thể dùng với sự kiện tiêu cực nếu sau đó là động thái khắc phục/cải tổ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nhân dịp...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Vị trí thường ở đầu câu để dẫn dắt lý do đổi mới. Kết hợp tốt với các động từ: 見直す・切り替える・導入する・開始する・改定する. Văn phong trung-trang trọng; hợp văn bản công ty, thông cáo, nhưng dùng trong đời thường cũng được. [6. Ghi chú mở rộng] Đặt “これを機に” trong email công việc khéo léo gợi ý thay đổi mà không quá áp đặt. Không nên lạm dụng với việc vặt vãnh; sắc thái “機” nên dành cho đổi mới đáng kể. [7. Biến thể & cụm cố định] これを機に／これを機にして：cố định, dùng rất nhiều. N を機に：dạng rút gọn, tự nhiên nhất. N を機会に：gần nghĩa nhưng yếu tố “bước ngoặt” mờ hơn. [8. Lỗi thường gặp & bẫy JLPT] Dùng trước mệnh đề động từ: sai; cần danh từ sự kiện. Biểu đạt hệ quả tự nhiên không có chủ ý: nên cân nhắc ～ため／～結果 thay thế. Nhầm với ～をきっかけに: đề thi hay kiểm tra sắc thái trang trọng và quy mô."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1a2cc85656"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "社交的な姉にひきかえ、妹はおとなしい。",
+       "ja_furigana": "社交的(しゃこうてき)な姉(あね)にひきかえ、妹(いもうと)はおとなしい。",
+       "vi": "Trái với chị gái hòa đồng, cô em gái lại trầm tính."
+      },
+      {
+       "ja": "去年の好調にひきかえ、今年は苦戦している。",
+       "ja_furigana": "去年(きょねん)の好調(こうちょう)にひきかえ、今年(ことし)は苦戦(くせん)している。",
+       "vi": "Trái với năm ngoái thuận lợi, năm nay đang gặp nhiều khó khăn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "無口な父にひきかえ、母はよくしゃべる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trái với bố ít nói, mẹ lại rất hay chuyện."
+     },
+     {
+      "ja": "落ち着いた前半のにひきかえ、後半は波乱続きだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trái với hiệp một điềm tĩnh, hiệp hai liên tiếp biến động."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 無口な父にひきかえ、母はよくしゃべる。",
+     "FURIGANA_MISSING: 落ち着いた前半のにひきかえ、後半は波乱続きだった。"
+    ],
+    "formation": "N + にひきかえ",
+    "locked_fields": [],
+    "meaning_vi": "“～にひきかえ” nêu sự tương phản/đối lập rõ ràng giữa A và B, kèm theo đánh giá của người nói. Thường dùng để nhấn mạnh sự trái ngược về tính chất/tính cách/tình trạng giữa hai bên có thể đặt lên cùng một trục so sánh. Hai vế nên có tính so sánh tự nhiên: thời tiết ngày này-ngày khác, người này-người kia, phần trước-phần này. Sử dụng tốt khi muốn nêu cảm nhận chủ quan, không chỉ thông tin số liệu. Dễ phối hợp với cụm tương phản đánh giá: ～のに対し／一方で (khi cần trung tính hơn).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Trái lại...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đậm sắc thái bình giá; dùng trong phê bình/nhận xét. Không dùng để so sánh số liệu khách quan; khi cần trung lập, chuyển “に比べて/に対して”. Vế sau thường nêu đối lập rõ và là trọng tâm phát ngôn. [6. Ghi chú mở rộng] Hiệu quả tu từ khi A tích cực, B tiêu cực (hoặc ngược lại) để tạo đối lập sắc nét. Đảo trật tự A/B để thay đổi tiêu điểm nhấn mạnh. Trong bài viết, đặt dấu phẩy sau “にひきかえ” giúp tách lập luận: ～にひきかえ、～。 [7. Biến thể & cụm cố định] 過去のにひきかえ／前回のにひきかえ: so hiện tại với quá khứ/lần trước. 理想にひきかえ現実は～: trái với lý tưởng, hiện thực thì… 都会にひきかえ田舎は～: cặp tương phản điển hình. [8. Lỗi thường gặp & bẫy JLPT] Thiếu “の” khi vế A là mệnh đề/tính từ: × 暑かったにひきかえ → 〇 暑かったのにひきかえ. Dùng cho so sánh số liệu → không hợp; nên dùng “に比べて”. Hai vế không cùng trục so sánh → câu gượng/khó hiểu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a2aa0183fb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "長い準備期間を経て、店を開いた。",
+       "ja_furigana": "長(なが)い準備期間(じゅんびきかん)を経(へ)て、店(みせ)を開(ひら)いた。",
+       "vi": "Sau thời gian dài chuẩn bị, tôi đã mở cửa hàng."
+      },
+      {
+       "ja": "厳しい練習を経て、選手は強くなった。",
+       "ja_furigana": "厳(きび)しい練習(れんしゅう)を経(へ)て、選手(せんしゅ)は強(つよ)くなった。",
+       "vi": "Qua những buổi tập khắc nghiệt, vận động viên đã mạnh hơn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "度重なる試作を経て、ついに製品化にこぎ着けた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi trải qua nhiều lần chế thử, cuối cùng đã đưa vào sản xuất."
+     },
+     {
+      "ja": "厳格な審査を経て、認証を取得した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi trải qua thẩm định nghiêm ngặt, đã đạt được chứng nhận."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 度重なる試作を経て、ついに製品化にこぎ着けた。",
+     "FURIGANA_MISSING: 厳格な審査を経て、認証を取得した。"
+    ],
+    "formation": "N + を経て",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả việc “trải qua” một khoảng thời gian/quy trình/giai đoạn/kênh trung gian rồi dẫn tới kết quả sau đó. Sắc thái chính thức, dùng trong báo cáo, thông cáo, lịch sử phát triển, mô tả thủ tục. Nhấn sự tích lũy/tuần tự qua nhiều bước trước khi đạt kết quả.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Trải qua...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường gắn với danh từ chỉ thời gian/giai đoạn (年月、期間、準備、交渉、審査、試験運用...). Văn phong trang trọng, khách quan; phù hợp với văn bản hành chính/kỹ thuật. Khi nhấn “trong suốt một khoảng thời gian”, cân nhắc dùng ～を通じて/～を通して; khi nhấn “qua kênh”, có thể dùng ～を経由して, nhưng ～を経て trang trọng hơn. [6. Ghi chú mở rộng] “経る(へる)” gợi tiến trình có kiểm chứng/bước đệm: 試験運用→本格運用, パイロット→ローンチ. Kết hợp tốt với 至る・実現する・承認される・完成する để nhấn kết quả đạt được. Trong lịch sử/tóm tắt sự kiện, chuỗi “創業→拡大→再編→上場” thường tả bằng ～を経て. [7. Biến thể & cụm cố định] 年月日＋を経て：三十年を経て／百年を経て. 手続きを経て：申請→審査→許可の手続きを経て. 仲介を経て／媒体を経て：代理店を経て販売、SNSを経て拡散. [8. Lỗi thường gặp & bẫy JLPT] Nhầm đọc “へて” thành “えて”: sai. Kanji 経 là へ(る). Dùng cho sự kiện tức thời không có quá trình: không hợp. Hãy chọn ～を通じて／経由して tùy ngữ cảnh. Nhầm với ～の末（に）: “の末” có màu sắc cảm xúc kết cục, còn “を経て” trung tính, thủ tục."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-57c454ac2a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "非常時にあっては、冷静さが何より大切だ。",
+       "ja_furigana": "非常時(ひじょうじ)にあっては、冷静(れいせい)さが何(なに)より大切(たいせつ)だ。",
+       "vi": "Trong tình huống khẩn cấp, sự bình tĩnh là quan trọng hơn cả."
+      },
+      {
+       "ja": "不況にあっては、無駄な出費を減らすべきだ。",
+       "ja_furigana": "不況(ふきょう)にあっては、無駄(むだ)な出費(しゅっぴ)を減(へ)らすべきだ。",
+       "vi": "Trong thời kỳ suy thoái, nên cắt giảm chi tiêu lãng phí."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "非常時にあっては、デマに惑わされないこと。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong tình huống khẩn cấp, không để tin đồn gây hoang mang."
+     },
+     {
+      "ja": "不況下にあっては、資金繰りの確保が最優先だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong thời kỳ suy thoái, đảm bảo dòng tiền là ưu tiên hàng đầu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 非常時にあっては、デマに惑わされないこと。",
+     "FURIGANA_MISSING: 不況下にあっては、資金繰りの確保が最優先だ。"
+    ],
+    "formation": "N + にあっては",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ thời đại, hoàn cảnh, vị trí; dùng để nêu điều nên làm/đặc trưng trong khuôn khổ đó. Sắc thái nghiêm túc, phù hợp văn bản quy định, báo cáo, bài nghiên cứu. Dạng ～にあっても thêm mệnh đề đối lập nhằm nhấn ý chí/duy trì.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Trong hoàn cảnh...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt đầu câu để tạo khung bối cảnh cho lập luận/khuyến cáo. Kết hợp danh từ như: 非常時／緊急時／不況下／戦時／現場／立場／制度下. Tránh dùng trong hội thoại thân mật vì nghe quá trang trọng. [6. Ghi chú mở rộng] Trong văn pháp lý/hành chính, ～にあっては thường đi cùng mệnh lệnh/điều kiện: ～しなければならない／～こと. “不況下にあっては” là cụm mẫu mực trong phần bình luận kinh tế. Dạng quá khứ ít dùng; chủ yếu hiện tại mô tả quy phạm tổng quát. [7. Biến thể & cụm cố định] 非常時にあっては／緊急時にあっては 不況下にあっては／戦時にあっては ～の立場にあっては／医療現場にあっては ～にあっても（nhượng bộ） [8. Lỗi thường gặp & bẫy JLPT] Với địa điểm thông thường, ～では tự nhiên hơn: 公園では. Tuy nhiên 公園にあっては vẫn có thể xuất hiện khi cố ý tạo văn phong trang trọng và xem công viên là một hoàn cảnh đặc thù; không nên đánh dấu sai tuyệt đối. Nhầm trợ từ: にあっては ≠ においては; đề thi hay kiểm tra chọn đúng sắc thái. Dùng trong hội thoại thông thường làm câu nặng nề, mất tự nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5df574da51"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "天気いかんで、試合が中止になるかもしれない。",
+       "ja_furigana": "天気(てんき)いかんで、試合(しあい)が中止(ちゅうし)になるかもしれない。",
+       "vi": "Tùy thời tiết mà trận đấu có thể bị hủy."
+      },
+      {
+       "ja": "結果いかんで、次の方針を決める。",
+       "ja_furigana": "結果(けっか)いかんで、次(つぎ)の方針(ほうしん)を決(き)める。",
+       "vi": "Tùy kết quả mà quyết định phương châm tiếp theo."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今度の試験の成績いかんで新しいクラスが決まる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lớp mới sẽ được quyết định tùy theo thành tích kỳ thi lần này."
+     },
+     {
+      "ja": "宣伝の仕方いかんで売れ行きに差が出る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Doanh số sẽ khác nhau tùy vào cách quảng cáo."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今度の試験の成績いかんで新しいクラスが決まる。",
+     "FURIGANA_MISSING: 宣伝の仕方いかんで売れ行きに差が出る。"
+    ],
+    "formation": "N + いかんで; N + いかんでは; N + いかんによっては; N + いかんだ",
+    "locked_fields": [],
+    "meaning_vi": "Tùy vào ～; tùy trường hợp của ～; được quyết định bởi ～.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜いかんで/では/によっては/だ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách nói trang trọng cho biết kết quả sẽ thay đổi tùy theo nội dung, mức độ hoặc kết quả của danh từ đứng trước. Các dạng có 「は」 thường dẫn đến một khả năng đặc biệt có thể xảy ra. 1) Dễ nhầm với ～によって／～次第で. → ～いかんで là cách văn viết trang trọng để nói kết quả phụ thuộc vào nội dung, mức độ hoặc kết quả của danh từ phía trước. 2) Trước いかん thường không có の. → Dùng 結果いかんで, 成績いかんで, 方法いかんで chứ không phải 結果のいかんで trong nghĩa này. 3) Chú ý các dạng có は. → ～いかんでは／～いかんによっては thường mở ra một khả năng đặc biệt có thể xảy ra tùy tình hình."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1abf55e297"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "年齢のいかんを問わず、誰でも参加できる。",
+       "ja_furigana": "年齢(ねんれい)のいかんを問(と)わず、誰(だれ)でも参加(さんか)できる。",
+       "vi": "Bất kể độ tuổi, ai cũng có thể tham gia."
+      },
+      {
+       "ja": "経験のいかんによらず、応募を歓迎する。",
+       "ja_furigana": "経験(けいけん)のいかんによらず、応募(おうぼ)を歓迎(かんげい)する。",
+       "vi": "Bất kể kinh nghiệm ra sao, chúng tôi đều hoan nghênh hồ sơ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "理由のいかんを問わず、納入された入学金は返金しない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bất kể lý do là gì, khoản phí nhập học đã nộp sẽ không được hoàn lại."
+     },
+     {
+      "ja": "我が社は学歴のいかんによらず、優秀な人材を採用する方針だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công ty chúng tôi chủ trương tuyển dụng nhân tài ưu tú bất kể trình độ học vấn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 理由のいかんを問わず、納入された入学金は返金しない。",
+     "FURIGANA_MISSING: 我が社は学歴のいかんによらず、優秀な人材を採用する方針だ。"
+    ],
+    "formation": "N + のいかんによらず; N + のいかんにかかわらず; N + のいかんを問わず",
+    "locked_fields": [],
+    "meaning_vi": "Bất kể nội dung, tình trạng hay kết quả của ～.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜のいかんによらず/にかかわらず/を問わず",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Mẫu văn viết trang trọng, gắn với danh từ để nói rằng quyết định ở vế sau không bị ảnh hưởng bởi lý do, học vấn hay kết quả ở vế trước. 「～のいかんを問わず」「～のいかんによらず」「～のいかんにかかわらず」 gần như đồng nghĩa. 1) Dễ nhầm với ～いかんで. → ～のいかんを問わず／によらず／にかかわらず mang nghĩa ngược lại: kết quả không phụ thuộc vào nội dung phía trước. 2) Chú ý có の trước いかん. → Cấu trúc là Nのいかん＋を問わず／によらず／にかかわらず. 3) Mẫu rất trang trọng và thiên về văn viết. → Thường gặp trong quy định, thông báo, tuyển dụng hoặc điều khoản nhằm khẳng định không có ngoại lệ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f24fabc5bd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の演奏は、聞く人を感動させるばかりだ。",
+       "ja_furigana": "彼(かれ)の演奏(えんそう)は、聞(き)く人(ひと)を感動(かんどう)させるばかりだ。",
+       "vi": "Phần trình diễn của anh ấy khiến người nghe vô cùng xúc động."
+      },
+      {
+       "ja": "会場は立ち見が出るばかりのにぎわいだった。",
+       "ja_furigana": "会場(かいじょう)は立(た)ち見(み)が出(で)るばかりのにぎわいだった。",
+       "vi": "Hội trường đông đến mức có người phải đứng xem."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "花嫁は輝くばかりの美しさだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô dâu đẹp rực rỡ đến chói sáng."
+     },
+     {
+      "ja": "高木さんの上達ぶりは目を見張るばかりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sự tiến bộ của anh Takagi đáng kinh ngạc đến mức phải tròn mắt."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: 〜ばかりだ/に/の",
+     "FURIGANA_MISSING: 花嫁は輝くばかりの美しさだった。",
+     "FURIGANA_MISSING: 高木さんの上達ぶりは目を見張るばかりだ。"
+    ],
+    "formation": "Vる + ばかりだ; Vる + ばかりの + N; Vる + ばかりに",
+    "locked_fields": [],
+    "meaning_vi": "Đến mức tưởng chừng như ～; phép ví von nhấn mạnh mức độ rất cao.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ばかりだ/に/の",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng một hành động có vẻ sắp xảy ra để hình dung và nhấn mạnh mức độ nổi bật của trạng thái. 「ばかりの」 bổ nghĩa cho danh từ, 「ばかりに」 bổ nghĩa cho động từ. 1) Dễ nhầm với ～んばかりだ／～そうだ. → Vるばかりだ／に／の ở nghĩa này dùng phép ví von để nhấn mạnh mức độ cao, như thể hành động ấy sắp xảy ra. 2) Chú ý chức năng của từng dạng. → ～ばかりだ kết câu, ～ばかりに bổ nghĩa cho động từ, còn ～ばかりの đứng trước danh từ. 3) Không nhầm với Vるばかりだ mang nghĩa “chỉ còn việc…”. → Cần dựa vào ngữ cảnh để xác định đang nhấn mạnh mức độ hay nói mọi chuẩn bị đã hoàn tất. Diễn tả trạng thái tất cả công đoạn khác đã hoàn thành và chỉ chờ một hành động cuối cùng. Thường đi với 「あとは」. 1) Dễ nhầm với Vるばかりだ mang nghĩa mức độ hoặc xu hướng. → Ở nghĩa này, mọi công đoạn khác đã hoàn tất và chỉ còn thực hiện một hành động cuối cùng. 2) Thường có あとは ở trước. → Cụm あとはVるばかりだ là dấu hiệu rõ của nghĩa “chỉ còn việc V”. 3) Hành động cuối vẫn chưa xảy ra. → Nếu sự việc đã hoàn tất hoặc đang tiếp tục xấu đi, không dùng nghĩa này."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3343f5c2ae"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-029"
+}
