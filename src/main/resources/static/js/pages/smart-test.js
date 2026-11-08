@@ -642,12 +642,24 @@
     var noText = no.textContent;
     box.innerHTML = '';
     options.forEach(function (option) {
+      var itemWrap = document.createElement('div');
+      itemWrap.style.display = 'grid';
+      itemWrap.style.gap = '4px';
+
       var button = document.createElement('button');
       button.type = 'button';
       button.className = option.primary ? 'smart-confirm__yes' : 'smart-confirm__no';
       button.textContent = option.label;
       button.addEventListener('click', function () { closeConfirmation(option.value); });
-      box.appendChild(button);
+      itemWrap.appendChild(button);
+
+      if (option.warning) {
+        var warnP = document.createElement('p');
+        warnP.className = 'smart-confirm__warning';
+        warnP.textContent = option.warning;
+        itemWrap.appendChild(warnP);
+      }
+      box.appendChild(itemWrap);
     });
     box.style.display = 'grid'; yes.style.display = 'none'; actions.style.gridTemplateColumns = '1fr';
     var answer = askConfirmation(title, message);
@@ -683,6 +695,85 @@
     window.location.assign('/smart-test');
   }
 
+  // The notice is shown through textContent (askChoice / askConfirmation), which never parses HTML, so its text is
+  // passed as is — escaping it here would show "&lt;" to the learner.
+  function plain(val) { return String(val == null ? '' : val); }
+
+  function formatWeakLevelNotice(notice) {
+    var weakLevel = plain(notice.weakLevel);
+    var title = 'Bạn nên học lại ' + weakLevel + ' trước';
+
+    var para1 = '';
+    var skills = Array.isArray(notice.weakSkills) ? notice.weakSkills : [];
+    if (!skills.length) {
+      para1 = 'Kết quả Smart Test cho thấy bạn chưa vững ' + weakLevel + '.';
+    } else {
+      var skillParts = skills.map(function (s) {
+        return plain(s.label || s.skill) + ' ' + Number(s.correct || 0) + '/' + Number(s.total || 0);
+      });
+      para1 = 'Kết quả Smart Test cho thấy bạn chưa vững ' + weakLevel + ': ' + skillParts.join(', ') + '.';
+    }
+
+    var stages = Array.isArray(notice.stages) ? notice.stages.map(plain) : [];
+    var weakIndex = stages.indexOf(weakLevel);
+    var afterStages = weakIndex >= 0 ? stages.slice(weakIndex + 1) : stages.filter(function (st) { return st !== weakLevel; });
+    var afterText = afterStages.join(' → ');
+
+    var timeNote = '';
+    if (notice.estimating) {
+      timeNote = ' (đang tính số ngày…)';
+    } else if (notice.estimatedDays != null && notice.minutesPerDay != null) {
+      timeNote = ' (khoảng ' + Number(notice.estimatedDays) + ' ngày với ' + Number(notice.minutesPerDay) + ' phút/ngày)';
+    }
+
+    var para2 = 'J-LAS khuyến khích học lại ' + weakLevel + ' cho vững' + timeNote + (afterText ? ', sau đó mới tới ' + afterText + '.' : '.');
+    return { title: title, message: para1 + ' ' + para2 };
+  }
+
+  function fetchEstimate(attemptId, kanaKnown, notice, messageEl) {
+    if (!notice || notice._estimatePromise) return notice ? notice._estimatePromise : Promise.resolve(null);
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    // A long chain (N5 → N3, ~380 packages) builds the whole path to count its days: ~12 s warm, more on a cold app.
+    // The learner can choose while it runs, so wait long enough for the number to arrive.
+    var timeoutId = setTimeout(function () {
+      if (controller) controller.abort();
+    }, 45000);
+
+    var url = '/api/learning/paths/estimate?assessmentAttemptId=' + encodeURIComponent(attemptId) +
+      '&entryChoice=STUDY_WEAK_LEVEL' +
+      (kanaKnown !== null && kanaKnown !== undefined ? '&kanaKnown=' + encodeURIComponent(kanaKnown) : '');
+
+    var fetchOpts = controller ? { signal: controller.signal } : {};
+    notice._estimatePromise = api(url, fetchOpts)
+      .then(function (data) {
+        clearTimeout(timeoutId);
+        notice.estimating = false;
+        notice._estimateDone = true;
+        if (data && data.estimatedDays != null && data.minutesPerDay != null) {
+          notice.estimatedDays = data.estimatedDays;
+          notice.minutesPerDay = data.minutesPerDay;
+        }
+        var confirmCard = document.getElementById('smartConfirm');
+        if (messageEl && confirmCard && !confirmCard.hidden) {
+          var updated = formatWeakLevelNotice(notice);
+          messageEl.textContent = updated.message;
+        }
+        return data;
+      })
+      .catch(function () {
+        clearTimeout(timeoutId);
+        notice.estimating = false;
+        notice._estimateDone = true;
+        var confirmCard = document.getElementById('smartConfirm');
+        if (messageEl && confirmCard && !confirmCard.hidden) {
+          var updated = formatWeakLevelNotice(notice);
+          messageEl.textContent = updated.message;
+        }
+        return null;
+      });
+    return notice._estimatePromise;
+  }
+
   /** Asks the server's entry questions in order; null when the learner went back or started a new Smart Test. */
   async function askEntryQuestions(questions) {
     var answers = { kanaKnown: null, entryChoice: null };
@@ -696,6 +787,47 @@
       answers.kanaKnown = kana === 'YES';
       if (!answers.kanaKnown) return answers;
     }
+
+    // Owner 2026-10-27 (R1 / Việc 2 & 4): WEAK_LEVEL notice modal with estimate
+    if (questions.notice && questions.choiceKind === 'WEAK_LEVEL') {
+      var attemptId = (questions && questions.assessmentAttemptId) || (typeof state !== 'undefined' && state ? state.attemptId : null);
+      var weakLvl = plain(questions.notice.weakLevel);
+      var skipLvl = plain(questions.notice.skipLevel);
+      var noticeOptions = [
+        { value: 'STUDY_WEAK_LEVEL', label: 'Bắt đầu học ' + weakLvl, primary: true }
+      ];
+      if (questions.notice.allowSkip && skipLvl) {
+        noticeOptions.push({
+          value: 'SKIP_WEAK_LEVEL',
+          label: 'Vẫn học thẳng ' + skipLvl,
+          warning: 'Bạn có thể gặp khó vì chưa vững ' + weakLvl
+        });
+      }
+
+      var hasEstimate = questions.notice.estimatedDays != null && questions.notice.minutesPerDay != null;
+      var estimateDone = Boolean(questions.notice._estimateDone);
+
+      if (!hasEstimate && !estimateDone && attemptId) {
+        questions.notice.estimating = true;
+      }
+
+      var formatted = formatWeakLevelNotice(questions.notice);
+
+      var messageEl = document.getElementById('smartConfirmMessage');
+      if (messageEl && questions.notice.estimating) {
+        messageEl.setAttribute('aria-live', 'polite');
+      }
+
+      if (questions.notice.estimating && attemptId && !questions.notice._estimatePromise) {
+        fetchEstimate(attemptId, answers.kanaKnown, questions.notice, messageEl);
+      }
+
+      var weakChoice = await askChoice(formatted.title, formatted.message, noticeOptions);
+      if (weakChoice === null) return null;
+      answers.entryChoice = weakChoice;
+      return answers;
+    }
+
     var level = questions.level;
     var target = questions.targetLevel;
     var next = nextLevel(level);
@@ -705,10 +837,6 @@
         options: [{ value: 'SOLID', label: 'Vững rồi — không cần học lại ' + level },
           { value: 'NOT_SOLID', label: 'Chưa vững — học thêm ' + level + ' trong lộ trình', primary: true },
           { value: 'RETAKE', label: 'Làm lại Smart Test' }] },
-      INTRO_LEVEL: { title: 'Học lại ' + level + ' trước?',
-        text: 'Kết quả ở mức Nhập môn: nền tảng ' + level + ' còn mỏng. Học lại ' + level + ' giúp bạn theo kịp ' + target + '.',
-        options: [{ value: 'STUDY_LEVEL', label: 'Học lại ' + level + ' rồi lên ' + target + ' (khuyến nghị)', primary: true },
-          { value: 'SKIP_LEVEL', label: next === target ? 'Vào thẳng ' + target : 'Bỏ qua ' + level + ', học từ ' + next }] },
       MISTAKE_REVIEW: { title: 'Ôn lỗi ' + level + ' trước?',
         text: mistakeSummary(level) + ' Bạn muốn ôn các lỗi này trước khi học tiếp?',
         options: [{ value: 'REVIEW_MISTAKES', label: 'Ôn các lỗi này trước (khởi động)', primary: true },
@@ -729,74 +857,13 @@
   if (createPathButton) {
     createPathButton.addEventListener('click', async function (event) {
       event.preventDefault();
-      if (!state.attemptId) return;
-      var targetLevel = state.result && String(state.result.targetLevel || '').toUpperCase();
-      var assessedLevel = state.result && String(state.result.estimatedOverallLevel || '').toUpperCase();
-      var entryQuestions = null;
-      if (state.goal !== 'BA') {
-        try {
-          entryQuestions = await api('/api/learning/paths/entry-questions?assessmentAttemptId=' + encodeURIComponent(state.attemptId));
-        } catch (error) { showError(error.message); return; }
-      }
-      // An unfinished test has its own questions; the result-based choices below need a finished test.
-      var unfinished = Boolean(entryQuestions && entryQuestions.partial);
-      var needsReviewChoice = !unfinished && Boolean(state.result && state.result.requiresTargetConfirmation &&
-        levelValue[assessedLevel] && levelValue[targetLevel] && levelValue[assessedLevel] > levelValue[targetLevel]);
-      var reviewStartLevel = null;
-      var discrepancyChoice = null;
-      var route = window.SmartTestResultRoute && !unfinished ? window.SmartTestResultRoute.notice(state.result) : { kind: null };
-      if (route.blockCreate) return;
-      if (route.kind === 'UNKNOWN_FAR') {
-        // Owner 2026-10-21 (OD-35): no self-declared level to fall back to — accept the chain or pick another target.
-        var agreed = await askConfirmation('Học từ ' + route.stages[0] + ' lên ' + targetLevel + '?',
-          'Smart Test ước lượng bạn ở ' + assessedLevel + '. Lộ trình sẽ đi lần lượt ' + route.stages.join(' → ') +
-          '; mục tiêu ' + targetLevel + ' giữ nguyên. Nếu muốn mục tiêu gần hơn, hãy chọn "Thực hiện khảo sát mới".',
-          'Tạo lộ trình');
-        if (!agreed) return;
-        discrepancyChoice = 'ACCEPT_RECOMMENDATION';
-      }
-      if (!unfinished && !discrepancyChoice && !needsReviewChoice && isLowerThanSelfReport(state.result)) {
-        var selfLevel = String(state.result.selfReportedLevel || '').toUpperCase();
-        var choicePicker = document.getElementById('discrepancyPicker');
-        choicePicker.querySelector('[data-discrepancy-accept]').textContent =
-          'Củng cố nền từ ' + assessedLevel + ' rồi đi tiếp tới ' + targetLevel + ' (khuyến nghị)';
-        choicePicker.querySelector('[data-discrepancy-decline]').textContent =
-          'Giữ theo khảo sát: ' + selfLevel + ' → ' + targetLevel + ' (có thể hụt nền tảng)';
-        choicePicker.querySelector('input[value="ACCEPT_RECOMMENDATION"]').checked = true;
-        choicePicker.hidden = false;
-        var confirmed = await askConfirmation('Kết quả thấp hơn mức tự khai',
-          'Smart Test ước lượng bạn ở ' + assessedLevel + ', thấp hơn mức tự khai ' + selfLevel + '. Mục tiêu ' + targetLevel +
-          ' được giữ nguyên; hãy chọn cách bắt đầu. Bạn có thể học mọi phần theo nhịp của mình.', 'Tạo lộ trình');
-        choicePicker.hidden = true;
-        if (!confirmed) return;
-        discrepancyChoice = choicePicker.querySelector('input[name="discrepancyChoice"]:checked').value;
-      }
-      if (needsReviewChoice) {
-        var picker = document.getElementById('reviewStartPicker');
-        var select = document.getElementById('reviewStartLevel');
-        Array.from(select.options).forEach(function (option) {
-          option.hidden = option.disabled = levelValue[option.value] > levelValue[targetLevel];
-        });
-        select.value = 'N5';
-        picker.hidden = false;
-        var accepted = await askConfirmation('Chọn cấp bắt đầu ôn',
-          'Smart Test ước lượng bạn ở ' + assessedLevel + ', còn target bạn chọn là ' + targetLevel +
-          '. Hãy chọn cấp bắt đầu. Lộ trình sẽ đi lần lượt đến target; kết quả Smart Test không thay đổi.', 'Tạo lộ trình');
-        picker.hidden = true;
-        if (!accepted) return;
-        reviewStartLevel = select.value;
-      }
-      // Owner 2026-10-25: the server's entry questions (kana known? solid at a level? review mistakes? study again?).
-      var entry; try { entry = await askEntryQuestions(entryQuestions); } catch (error) { showError(error.message); return; }
-      if (entry === null) return;
-      var destination = state.goal === 'BA'
-        ? '/learning/goals/BA/survey?assessmentAttemptId=' + state.attemptId
-        : '/learning/path?assessmentAttemptId=' + state.attemptId +
-          (entry.kanaKnown !== null ? '&kanaKnown=' + entry.kanaKnown : '') +
-          (entry.entryChoice ? '&entryChoice=' + encodeURIComponent(entry.entryChoice) : '') +
-          (reviewStartLevel ? '&reviewStartLevel=' + encodeURIComponent(reviewStartLevel) : '') +
-          (discrepancyChoice ? '&discrepancyChoice=' + encodeURIComponent(discrepancyChoice) : '');
-      window.location.assign(destination);
+      // [JLAS-W0108] Decision 34: a JLPT learner with the path on goes straight to the confirmation page, never
+      // through the old entry questions below.
+      var jpathUrl = window.JpathSurveyFlow && window.JpathSurveyFlow.smartTestHandoffUrl(jpathConfig, state.goal, state.attemptId);
+      if (jpathUrl) return window.location.assign(jpathUrl);
+      // [JLAS-W0108] Owner 07/11: only the new paths remain; /learning/path hands a Smart Test to the JLPT confirmation.
+      if (state.attemptId) return window.location.assign('/learning/path?assessmentAttemptId=' + encodeURIComponent(state.attemptId));
+      return window.location.assign('/learning');
     });
   }
 
@@ -804,10 +871,25 @@
     state = { attemptId: null, currentQuestion: null, goal: null, result: null }; localStorage.removeItem(ACTIVE_ATTEMPT_KEY); window.location.assign('/survey');
   });
 
+  // [JLAS-W0108] JLPT path flag for the "Tạo lộ trình" hand-off; any failure keeps the old flow.
+  var jpathConfig = { enabled: false };
+  if (window.JpathSurveyFlow) {
+    api('/api/learning/jlpt/config').then(function (c) { if (c) jpathConfig = c; }).catch(function () {});
+  }
+
   var activeAttempt = localStorage.getItem(ACTIVE_ATTEMPT_KEY);
   if (activeAttempt) {
     api('/api/assessment/smart-tests/' + activeAttempt)
       .then(render)
       .catch(function () { localStorage.removeItem(ACTIVE_ATTEMPT_KEY); show(emptyView); });
   } else show(emptyView);
+
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = {
+      formatWeakLevelNotice: formatWeakLevelNotice,
+      askEntryQuestions: askEntryQuestions,
+      askChoice: askChoice,
+      fetchEstimate: fetchEstimate
+    };
+  }
 })();

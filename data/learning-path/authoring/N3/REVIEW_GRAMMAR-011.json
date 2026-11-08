@@ -1,0 +1,709 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "いくら呼んでも返事がない。",
+       "ja_furigana": "いくら呼(よ)んでも返事(へんじ)がない。",
+       "vi": "Dù có gọi bao nhiêu lần đi nữa cũng không có tiếng trả lời."
+      },
+      {
+       "ja": "いくら安くても必要ない物は買いません。",
+       "ja_furigana": "いくら安(やす)くても必要(ひつよう)ない物(もの)は買(か)いません。",
+       "vi": "Dù có rẻ đến mấy thì tôi cũng không mua những thứ không cần thiết."
+      },
+      {
+       "ja": "どんなに忙しくても朝ご飯は必ず食べます。",
+       "ja_furigana": "どんなに忙(いそが)しくても朝(あさ)ご飯(はん)は必(かなら)ず食(た)べます。",
+       "vi": "Dù bận rộn thế nào đi nữa tôi cũng nhất định ăn bữa sáng."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng のに thay cho ても khi sự việc ở vế trước chỉ là giả định chưa xảy ra (giả định phải dùng ても).",
+    "examples": [
+     {
+      "ja": "いくら呼んでも返事がない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "いくら安くても必要ない物は買いません。",
+      "ja_furigana": "いくら安(やす)くても必要(ひつよう)ない物(もの)は買(か)いません。",
+      "source": "AI",
+      "vi": "Dù có rẻ đến mấy thì tôi cũng không mua những thứ không cần thiết."
+     },
+     {
+      "ja": "どんなに忙しくても朝ご飯は必ず食べます。",
+      "ja_furigana": "どんなに忙(いそが)しくても朝(あさ)ご飯(はん)は必(かなら)ず食(た)べます。",
+      "source": "AI",
+      "vi": "Dù bận rộn thế nào đi nữa tôi cũng nhất định ăn bữa sáng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: いくら呼んでも返事がない。",
+     "FURIGANA_MISSING: いくら呼んでも返事がない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-ても / Aい-くても / Aな・N + でも",
+    "locked_fields": [],
+    "meaning_vi": "Dù cho, cho dù — Dù điều kiện thế nào thì kết quả vẫn không đổi.",
+    "nuance_vi": "Biểu thị điều kiện nhượng bộ ('dù cho... thì vẫn...'); thường kết hợp với いくら hoặc どんなに ở đầu câu để nhấn mạnh.",
+    "order_items": [],
+    "pattern": "V-て / A-くて / N で + も",
+    "pattern_variants": [],
+    "unit_no": 8,
+    "unit_title_vi": "Giả định, nhượng bộ và điều kiện",
+    "usage_vi": "Hay đi với いくら, どんなに để nhấn mạnh: いくら説明しても分からない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e47638f660"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "考え方は人によって違う。",
+       "ja_furigana": "考(かんが)え方(かた)は人(ひと)によって違(ちが)う。",
+       "vi": "Cách suy nghĩ khác nhau tùy theo mỗi người."
+      },
+      {
+       "ja": "言葉の意味は使う場面によって違います。",
+       "ja_furigana": "言葉(ことば)の意味(いみ)は使(つか)う場面(ばめん)によって違(ちが)います。",
+       "vi": "Ý nghĩa của từ ngữ sẽ khác nhau tùy theo ngữ cảnh sử dụng."
+      },
+      {
+       "ja": "店の閉まる時間は曜日によって違います。",
+       "ja_furigana": "店(みせ)の閉(し)まる時間(じかん)は曜日(ようび)によって違(ちが)います。",
+       "vi": "Giờ đóng cửa của tiệm khác nhau tùy theo từng ngày trong tuần."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng にとって違う thay vì によって違う.",
+    "examples": [
+     {
+      "ja": "考え方は人によって違う。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "言葉の意味は使う場面によって違います。",
+      "ja_furigana": "言葉(ことば)の意味(いみ)は使(つか)う場面(ばめん)によって違(ちが)います。",
+      "source": "AI",
+      "vi": "Ý nghĩa của từ ngữ sẽ khác nhau tùy theo ngữ cảnh sử dụng."
+     },
+     {
+      "ja": "店の閉まる時間は曜日によって違います。",
+      "ja_furigana": "店(みせ)の閉(し)まる時間(じかん)は曜日(ようび)によって違(ちが)います。",
+      "source": "AI",
+      "vi": "Giờ đóng cửa của tiệm khác nhau tùy theo từng ngày trong tuần."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 考え方は人によって違う。",
+     "FURIGANA_MISSING: 考え方は人によって違う。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + によって違う / によって異なる",
+    "locked_fields": [],
+    "meaning_vi": "Khác nhau tuỳ theo — Nhấn mạnh sự khác biệt giữa các trường hợp.",
+    "nuance_vi": "Nhấn mạnh tính đa dạng, không đồng nhất tùy thuộc vào từng cá nhân, địa phương, thời điểm.",
+    "order_items": [],
+    "pattern": "N + によって違う",
+    "pattern_variants": [
+     "〜によって違う"
+    ],
+    "unit_no": 19,
+    "unit_title_vi": "Quan hệ, lập trường và phạm vi",
+    "usage_vi": "Là một cách dùng cụ thể của によって. Vế sau thường là 違う, 異なる, さまざまだ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0489f59aca"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今年の冬は去年ほど寒くない。",
+       "ja_furigana": "今年(ことし)の冬(ふゆ)は去年(きょねん)ほど寒(さむ)くない。",
+       "vi": "Mùa đông năm nay không lạnh bằng năm ngoái."
+      },
+      {
+       "ja": "今回の試験は思っていたほど難しくなかった。",
+       "ja_furigana": "今回(こんかい)の試験(しけん)は思(おも)っていたほど難(むずか)しくなかった。",
+       "vi": "Kỳ thi lần này không khó đến mức như tôi đã nghĩ."
+      },
+      {
+       "ja": "バスは電車ほど速くありませんが便利です。",
+       "ja_furigana": "バスは電車(でんしゃ)ほど速(はや)くありませんが便利(べんり)です。",
+       "vi": "Xe buýt tuy không nhanh bằng tàu điện nhưng rất tiện lợi."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Đặt vị ngữ khẳng định ở cuối câu khi muốn so sánh kém.",
+    "examples": [
+     {
+      "ja": "今年の冬は去年ほど寒くない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "今回の試験は思っていたほど難しくなかった。",
+      "ja_furigana": "今回(こんかい)の試験(しけん)は思(おも)っていたほど難(むずか)しくなかった。",
+      "source": "AI",
+      "vi": "Kỳ thi lần này không khó đến mức như tôi đã nghĩ."
+     },
+     {
+      "ja": "バスは電車ほど速くありませんが便利です。",
+      "ja_furigana": "バスは電車(でんしゃ)ほど速(はや)くありませんが便利(べんり)です。",
+      "source": "AI",
+      "vi": "Xe buýt tuy không nhanh bằng tàu điện nhưng rất tiện lợi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 今年の冬は去年ほど寒くない。",
+     "FURIGANA_MISSING: 今年の冬は去年ほど寒くない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N / V-る + ほど + A-くない / V-ない",
+    "locked_fields": [],
+    "meaning_vi": "Không đến mức bằng — Phủ định ở mức so sánh: cái này không bằng cái kia.",
+    "nuance_vi": "So sánh kém bằng cách lấy một đối tượng có mức độ cao làm chuẩn rồi phủ định ('không đến mức như N').",
+    "order_items": [],
+    "pattern": "N ほど + phủ định",
+    "pattern_variants": [],
+    "unit_no": 21,
+    "unit_title_vi": "Mức độ, so sánh và nhấn mạnh",
+    "usage_vi": "Vế sau bắt buộc phải là phủ định. Khác với より ở chỗ ほど〜ない nhẹ nhàng hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b3c6c2ab39"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は英語だけでなく、中国語も話せる。",
+       "ja_furigana": "彼(かれ)は英語(えいご)だけでなく、中国語(ちゅうごくご)も話(はな)せる。",
+       "vi": "Anh ấy không chỉ nói được tiếng Anh mà còn nói được cả tiếng Trung."
+      },
+      {
+       "ja": "この映画は子供だけでなく大人も楽しめます。",
+       "ja_furigana": "この映画(えいが)は子供(こども)だけでなく大人(おとな)も楽(たの)しめます。",
+       "vi": "Bộ phim này không chỉ trẻ em mà cả người lớn cũng có thể thưởng thức."
+      },
+      {
+       "ja": "彼女は歌が上手なだけでなくダンスも得意だ。",
+       "ja_furigana": "彼女(かのじょ)は歌(うた)が上手(じょうず)なだけでなくダンスも得意(とくい)だ。",
+       "vi": "Cô ấy không chỉ hát hay mà nhảy cũng rất giỏi."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Quên thêm な sau tính từ đuôi な trước だけでなく.",
+    "examples": [
+     {
+      "ja": "彼は英語だけでなく、中国語も話せる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "この映画は子供だけでなく大人も楽しめます。",
+      "ja_furigana": "この映画(えいが)は子供(こども)だけでなく大人(おとな)も楽(たの)しめます。",
+      "source": "AI",
+      "vi": "Bộ phim này không chỉ trẻ em mà cả người lớn cũng có thể thưởng thức."
+     },
+     {
+      "ja": "彼女は歌が上手なだけでなくダンスも得意だ。",
+      "ja_furigana": "彼女(かのじょ)は歌(うた)が上手(じょうず)なだけでなくダンスも得意(とくい)だ。",
+      "source": "AI",
+      "vi": "Cô ấy không chỉ hát hay mà nhảy cũng rất giỏi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 彼は英語だけでなく、中国語も話せる。",
+     "FURIGANA_MISSING: 彼は英語だけでなく、中国語も話せる。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V / Aい / Aな + な / N + だけでなく、〜(も)",
+    "locked_fields": [],
+    "meaning_vi": "Không chỉ mà còn — Bổ sung thêm một điều nữa ngoài điều đã nêu.",
+    "nuance_vi": "Mở rộng thông tin từ phạm vi đã biết sang phạm vi rộng hơn; dùng tự nhiên trong cả hội thoại và văn viết.",
+    "order_items": [],
+    "pattern": "Thể thường / N + だけでなく〜も",
+    "pattern_variants": [],
+    "unit_no": 21,
+    "unit_title_vi": "Mức độ, so sánh và nhấn mạnh",
+    "usage_vi": "Trang trọng hơn thì dùng のみならず. Vế sau thường có も hoặc まで."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-87522147c1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "どうしたらいいか分かりません。",
+       "ja_furigana": "どうしたらいいか分(わ)かりません。",
+       "vi": "Tôi không biết nên làm thế nào cho phải."
+      },
+      {
+       "ja": "分からないときは遠慮なく先生に聞けばいいよ。",
+       "ja_furigana": "分(わ)からないときは遠慮(えんりょ)なく先生(せんせい)に聞(き)けばいいよ。",
+       "vi": "Khi không hiểu thì bạn cứ hỏi thầy giáo đừng ngại nhé."
+      },
+      {
+       "ja": "駅へ行くにはどのバスに乗ったらいいですか。",
+       "ja_furigana": "駅(えき)へ行(い)くにはどのバスに乗(の)ったらいいですか。",
+       "vi": "Để đi ra nhà ga thì tôi nên lên chuyến xe buýt nào ạ?"
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng 〜ばいい với giọng điệu lạnh lùng có thể nghe như thờ ơ ('muốn làm sao thì tùy').",
+    "examples": [
+     {
+      "ja": "どうしたらいいか分かりません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "分からないときは遠慮なく先生に聞けばいいよ。",
+      "ja_furigana": "分(わ)からないときは遠慮(えんりょ)なく先生(せんせい)に聞(き)けばいいよ。",
+      "source": "AI",
+      "vi": "Khi không hiểu thì bạn cứ hỏi thầy giáo đừng ngại nhé."
+     },
+     {
+      "ja": "駅へ行くにはどのバスに乗ったらいいですか。",
+      "ja_furigana": "駅(えき)へ行(い)くにはどのバスに乗(の)ったらいいですか。",
+      "source": "AI",
+      "vi": "Để đi ra nhà ga thì tôi nên lên chuyến xe buýt nào ạ?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: どうしたらいいか分かりません。",
+     "FURIGANA_MISSING: どうしたらいいか分かりません。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-たらいい / V-ばいい",
+    "locked_fields": [],
+    "meaning_vi": "Nên làm gì thì tốt — Đưa ra lời khuyên hoặc nêu mong muốn.",
+    "nuance_vi": "Dùng để đưa ra lời khuyên nhẹ nhàng ('cứ làm thế này là được') hoặc đi với từ nghi vấn (どうしたらいいか) để hỏi xin lời khuyên.",
+    "order_items": [],
+    "pattern": "V-たら / V-ば + いい",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": "Lời khuyên, nghĩa vụ và đề xuất",
+    "usage_vi": "Câu hỏi どうしたらいいですか = tôi nên làm thế nào. Dạng たらよかった = giá mà đã."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-26564d5eed"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "台所からいいにおいがする。",
+       "ja_furigana": "台所(だいどころ)からいいにおいがする。",
+       "vi": "Từ trong bếp tỏa ra mùi thơm phức."
+      },
+      {
+       "ja": "隣の部屋からピアノの美しい音がします。",
+       "ja_furigana": "隣(となり)の部屋(へや)からピアノの美(うつく)しい音(おと)がします。",
+       "vi": "Từ phòng bên cạnh vang lên tiếng đàn piano tuyệt đẹp."
+      },
+      {
+       "ja": "このお茶は少し苦い味がしますね。",
+       "ja_furigana": "このお茶(ちゃ)は少(すこ)し苦(にが)い味(あじ)がしますね。",
+       "vi": "Trà này có vị hơi đắng một chút nhỉ."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng trợ từ を thay vì が (sai: いい匂いをする — mang nghĩa chủ động tỏa mùi; ngửi thấy mùi phải dùng いい匂いがする).",
+    "examples": [
+     {
+      "ja": "台所からいいにおいがする。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "隣の部屋からピアノの美しい音がします。",
+      "ja_furigana": "隣(となり)の部屋(へや)からピアノの美(うつく)しい音(おと)がします。",
+      "source": "AI",
+      "vi": "Từ phòng bên cạnh vang lên tiếng đàn piano tuyệt đẹp."
+     },
+     {
+      "ja": "このお茶は少し苦い味がしますね。",
+      "ja_furigana": "このお茶(ちゃ)は少(すこ)し苦(にが)い味(あじ)がしますね。",
+      "source": "AI",
+      "vi": "Trà này có vị hơi đắng một chút nhỉ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 台所からいいにおいがする。",
+     "FURIGANA_MISSING: 台所からいいにおいがする。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N(âm thanh / mùi / vị / cảm giác) + がする",
+    "locked_fields": [],
+    "meaning_vi": "Có cảm giác, nghe thấy — Cảm nhận qua giác quan: mùi, tiếng, vị, cảm giác.",
+    "nuance_vi": "Diễn tả hiện tượng tác động tự nhiên vào các giác quan (nghe thấy tiếng, ngửi thấy mùi, nếm thấy vị, có cảm giác).",
+    "order_items": [],
+    "pattern": "N + がする",
+    "pattern_variants": [],
+    "unit_no": 2,
+    "unit_title_vi": "Cảm xúc, giác quan và trạng thái",
+    "usage_vi": "Chỉ dùng với 音, におい, 味, 感じ, 気. Không dùng với thị giác."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7c711a0a6e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は文句ばかり言っている。",
+       "ja_furigana": "彼(かれ)は文句(もんく)ばかり言(い)っている。",
+       "vi": "Anh ấy suốt ngày chỉ toàn phàn nàn."
+      },
+      {
+       "ja": "肉ばかり食べないで野菜も食べてください。",
+       "ja_furigana": "肉(にく)ばかり食(た)べないで野菜(やさい)も食(た)べてください。",
+       "vi": "Đừng chỉ ăn toàn thịt như thế, hãy ăn cả rau nữa."
+      },
+      {
+       "ja": "この店のお客さんは若い女性ばかりです。",
+       "ja_furigana": "この店(みせ)のお客(きゃく)さんは若(わか)い女性(じょせい)ばかりです。",
+       "vi": "Khách hàng của tiệm này toàn là phụ nữ trẻ."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Giữ lại trợ từ を hoặc が sau ばかり (thường lược bỏ を, が khi thêm ばかり).",
+    "examples": [
+     {
+      "ja": "彼は文句ばかり言っている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "肉ばかり食べないで野菜も食べてください。",
+      "ja_furigana": "肉(にく)ばかり食(た)べないで野菜(やさい)も食(た)べてください。",
+      "source": "AI",
+      "vi": "Đừng chỉ ăn toàn thịt như thế, hãy ăn cả rau nữa."
+     },
+     {
+      "ja": "この店のお客さんは若い女性ばかりです。",
+      "ja_furigana": "この店(みせ)のお客(きゃく)さんは若(わか)い女性(じょせい)ばかりです。",
+      "source": "AI",
+      "vi": "Khách hàng của tiệm này toàn là phụ nữ trẻ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 彼は文句ばかり言っている。",
+     "FURIGANA_MISSING: 彼は文句ばかり言っている。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N (+ trợ từ) + ばかり + V",
+    "locked_fields": [],
+    "meaning_vi": "Toàn là, chỉ mỗi — Chỉ có mỗi thứ đó, thường kèm ý chê.",
+    "nuance_vi": "Nhấn mạnh việc chỉ chọn hoặc lặp đi lặp lại một thứ duy nhất đến mức mất cân bằng, thường hàm ý phê bình.",
+    "order_items": [],
+    "pattern": "N + ばかり",
+    "pattern_variants": [
+     "〜ばかり...",
+     "〜ばかりだ (A)",
+     "〜ばかりだ (B)"
+    ],
+    "unit_no": 21,
+    "unit_title_vi": "Mức độ, so sánh và nhấn mạnh",
+    "usage_vi": "Khác với た+ばかり (vừa mới). V-てばかりいる = cứ làm mãi một việc: 遊んでばかりいる."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-08c4faf605"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店はラーメンはもちろん、餃子もおいしい。",
+       "ja_furigana": "この店(みせ)はラーメンはもちろん、餃子(ぎょうざ)もおいしい。",
+       "vi": "Quán này mì ramen thì khỏi phải nói, đến sủi cảo cũng rất ngon."
+      },
+      {
+       "ja": "彼は平日はもちろん日曜日も働いています。",
+       "ja_furigana": "彼(かれ)は平日(へいじつ)はもちろん日曜日(にちようび)も働(はたら)いています。",
+       "vi": "Anh ấy ngày thường thì khỏi phải nói, ngay cả Chủ nhật cũng làm việc."
+      },
+      {
+       "ja": "兄は料理はもちろん掃除も洗濯も上手です。",
+       "ja_furigana": "兄(あに)は料理(りょうり)はもちろん掃除(そうじ)も洗濯(せんたく)も上手(じょうず)です。",
+       "vi": "Anh trai tôi nấu ăn thì đương nhiên rồi, cả dọn dẹp lẫn giặt giũ cũng đều khéo."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Quên trợ từ も hoặc さえ ở vế thứ hai để hô ứng với はもちろん.",
+    "examples": [
+     {
+      "ja": "この店はラーメンはもちろん、餃子もおいしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "彼は平日はもちろん日曜日も働いています。",
+      "ja_furigana": "彼(かれ)は平日(へいじつ)はもちろん日曜日(にちようび)も働(はたら)いています。",
+      "source": "AI",
+      "vi": "Anh ấy ngày thường thì khỏi phải nói, ngay cả Chủ nhật cũng làm việc."
+     },
+     {
+      "ja": "兄は料理はもちろん掃除も洗濯も上手です。",
+      "ja_furigana": "兄(あに)は料理(りょうり)はもちろん掃除(そうじ)も洗濯(せんたく)も上手(じょうず)です。",
+      "source": "AI",
+      "vi": "Anh trai tôi nấu ăn thì đương nhiên rồi, cả dọn dẹp lẫn giặt giũ cũng đều khéo."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: この店はラーメンはもちろん、餃子もおいしい。",
+     "FURIGANA_MISSING: この店はラーメンはもちろん、餃子もおいしい。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: この店はラーメンはもちろん、餃子もおいしい。 → 餃",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N1 + はもちろん、+ N2 + も",
+    "locked_fields": [],
+    "meaning_vi": "Đương nhiên là, khỏi phải nói — Điều trước là hiển nhiên, nhấn mạnh điều sau mới đáng nói.",
+    "nuance_vi": "Khẳng định N1 là điều đương nhiên không cần bàn cãi, từ đó nhấn mạnh thêm cả N2 cũng đạt tính chất tương tự.",
+    "order_items": [],
+    "pattern": "N + はもちろん",
+    "pattern_variants": [
+     "はもちろん/もとより"
+    ],
+    "unit_no": 21,
+    "unit_title_vi": "Mức độ, so sánh và nhấn mạnh",
+    "usage_vi": "Sắc thái nhẹ nhàng hơn だけでなく, thường dùng khi khen."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2e53b29a11"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ちょっと手伝ってもらえませんか。",
+       "ja_furigana": "ちょっと手伝(てつだ)ってもらえませんか。",
+       "vi": "Bạn giúp đỡ tôi một chút có được không?"
+      },
+      {
+       "ja": "荷物が重いので少し持ってもらえませんか。",
+       "ja_furigana": "荷物(にもつ)が重(おも)いので少(すこ)し持(も)ってもらえませんか。",
+       "vi": "Hành lý nặng quá nên bạn cầm đỡ giúp tôi một chút được không?"
+      },
+      {
+       "ja": "来週の会議の資料を送ってもらえませんか。",
+       "ja_furigana": "来週(らいしゅう)の会議(かいぎ)の資料(しりょう)を送(おく)ってもらえませんか。",
+       "vi": "Bạn gửi giúp tôi tài liệu của cuộc họp tuần sau được không?"
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng 〜てもらえませんか với lãnh đạo cấp cao hoặc khách hàng quan trọng (khi đó nên dùng 〜ていただけませんか).",
+    "examples": [
+     {
+      "ja": "ちょっと手伝ってもらえませんか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "荷物が重いので少し持ってもらえませんか。",
+      "ja_furigana": "荷物(にもつ)が重(おも)いので少(すこ)し持(も)ってもらえませんか。",
+      "source": "AI",
+      "vi": "Hành lý nặng quá nên bạn cầm đỡ giúp tôi một chút được không?"
+     },
+     {
+      "ja": "来週の会議の資料を送ってもらえませんか。",
+      "ja_furigana": "来週(らいしゅう)の会議(かいぎ)の資料(しりょう)を送(おく)ってもらえませんか。",
+      "source": "AI",
+      "vi": "Bạn gửi giúp tôi tài liệu của cuộc họp tuần sau được không?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: ちょっと手伝ってもらえませんか。",
+     "FURIGANA_MISSING: ちょっと手伝ってもらえませんか。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て + もらえませんか",
+    "locked_fields": [],
+    "meaning_vi": "Anh làm giúp được không — Nhờ vả lịch sự vừa phải.",
+    "nuance_vi": "Cách nhờ vả lịch sự trong giao tiếp hằng ngày với đồng nghiệp, người quen (mức độ lịch sự đứng giữa 〜てくれませんか và 〜ていただけませんか).",
+    "order_items": [],
+    "pattern": "V-て + もらえませんか",
+    "pattern_variants": [],
+    "unit_no": 23,
+    "unit_title_vi": "Liên kết câu và biểu hiện hội thoại",
+    "usage_vi": "Thang lịch sự: てくれない < てくれませんか < てもらえませんか < ていただけませんか."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-13d0b88345"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "その仕事は私にやらせてください。",
+       "ja_furigana": "その仕事(しごと)は私(わたし)にやらせてください。",
+       "vi": "Công việc đó xin hãy để cho tôi làm."
+      },
+      {
+       "ja": "今日の食事代はぜひ私に払わせてください。",
+       "ja_furigana": "今日(きょう)の食事代(しょくじだい)はぜひ私(わたし)に払(はら)わせてください。",
+       "vi": "Tiền bữa ăn hôm nay xin nhất định hãy để tôi trả."
+      },
+      {
+       "ja": "少し考えたいので明日まで待たせてください。",
+       "ja_furigana": "少(すこ)し考(かんが)えたいので明日(あした)まで待(ま)たせてください。",
+       "vi": "Tôi muốn suy nghĩ một chút nên xin hãy cho tôi thời gian đến ngày mai."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Nhầm với V-てください (yêu cầu người nghe làm, còn V-させてください là xin phép để chính người nói làm).",
+    "examples": [
+     {
+      "ja": "その仕事は私にやらせてください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "今日の食事代はぜひ私に払わせてください。",
+      "ja_furigana": "今日(きょう)の食事代(しょくじだい)はぜひ私(わたし)に払(はら)わせてください。",
+      "source": "AI",
+      "vi": "Tiền bữa ăn hôm nay xin nhất định hãy để tôi trả."
+     },
+     {
+      "ja": "少し考えたいので明日まで待たせてください。",
+      "ja_furigana": "少(すこ)し考(かんが)えたいので明日(あした)まで待(ま)たせてください。",
+      "source": "AI",
+      "vi": "Tôi muốn suy nghĩ một chút nên xin hãy cho tôi thời gian đến ngày mai."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: その仕事は私にやらせてください。",
+     "FURIGANA_MISSING: その仕事は私にやらせてください。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V(thể sai khiến)-て + ください",
+    "locked_fields": [],
+    "meaning_vi": "Xin cho phép tôi — Xin phép được tự mình làm việc gì.",
+    "nuance_vi": "Người nói chủ động xin phép người nghe cho mình được làm việc gì đó ('xin hãy để tôi làm').",
+    "order_items": [],
+    "pattern": "V thể sai khiến + てください",
+    "pattern_variants": [],
+    "unit_no": 23,
+    "unit_title_vi": "Liên kết câu và biểu hiện hội thoại",
+    "usage_vi": "Lịch sự hơn: させていただけませんか. Dùng khi mình chủ động xin làm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-650822be8b"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-011"
+}

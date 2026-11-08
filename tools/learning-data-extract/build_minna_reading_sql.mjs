@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { learningDataFile, levelMarker, replaceDataBlock } from './learning_data_files.mjs';
 
 const MARKER = 'data/learning-owned/learning-content.json#sections.jlpt_minna_n5_n4_reading';
 const hex = (value) => `CONVERT(X'${Buffer.from(String(value), 'utf8').toString('hex')}' USING utf8mb4)`;
@@ -40,10 +41,11 @@ function validate(section, sectionHash) {
   }
 }
 
-export function renderMinnaReadingSql(section, sectionHash) {
+// Owner 2026-11-01: one block per JLPT level (in learning_data_N5.sql / learning_data_N4.sql); no level renders both.
+export function renderMinnaReadingSql(section, sectionHash, onlyLevel = null) {
   validate(section, sectionHash);
   const lines = [
-    `-- BEGIN ${MARKER} SHA256 ${sectionHash}`,
+    `-- BEGIN ${levelMarker(MARKER, onlyLevel)} SHA256 ${sectionHash}`,
     '-- [JLAS-W0108] Source-bound Minna reading checks, available only in the Learning path.',
     '-- Owner-authorized team seed; Learning-path reading only, never scored quiz or Smart Test material.',
     '-- Additive and idempotent by source_code; does not delete or touch learner/path progress tables.',
@@ -51,7 +53,7 @@ export function renderMinnaReadingSql(section, sectionHash) {
     `INSERT INTO tag (code,name,tag_type) VALUES (${hex('LP-OWNED-MINNA-READING')},${hex('Learning-owned Minna reading checks')},'KNOWLEDGE') ON DUPLICATE KEY UPDATE name=VALUES(name);`,
     "SET @owned_minna_read_tag=(SELECT id FROM tag WHERE code='LP-OWNED-MINNA-READING' LIMIT 1);",
   ];
-  for (const row of section.exercises) {
+  for (const row of section.exercises.filter((r) => !onlyLevel || r.level === onlyLevel)) {
     const context = JSON.stringify({
       learning_owned: true,
       learning_path_only: true,
@@ -75,17 +77,18 @@ export function renderMinnaReadingSql(section, sectionHash) {
     lines.push(`INSERT INTO assessment_question (source_code,knowledge_tag_id,skill,jlpt_level,difficulty,question_type,title,passage_html,audio_url,question_text,answer_text,option_1,option_2,option_3,option_4,correct_option,explanation,context_json,is_active) VALUES (${hex(row.source_code)},@owned_minna_read_tag,'READING','${row.level}','EASY','MULTIPLE_CHOICE',${hex(row.passage_title)},${hex(row.passage_html)},NULL,${hex(row.question_prompt)},${hex(row.answer_text)},${options.join(',')},${row.correct_option},${nullableHex(row.explanation)},${hex(context)},1) ON DUPLICATE KEY UPDATE knowledge_tag_id=VALUES(knowledge_tag_id),skill=VALUES(skill),jlpt_level=VALUES(jlpt_level),difficulty=VALUES(difficulty),question_type=VALUES(question_type),title=VALUES(title),passage_html=VALUES(passage_html),audio_url=NULL,question_text=VALUES(question_text),answer_text=VALUES(answer_text),option_1=VALUES(option_1),option_2=VALUES(option_2),option_3=VALUES(option_3),option_4=VALUES(option_4),correct_option=VALUES(correct_option),explanation=VALUES(explanation),context_json=VALUES(context_json),is_active=1;`);
   }
   // Owner 2026-10-21 (OD-09): held checks (e.g. a missing picture) are switched off; rows and attempts stay.
-  const held = section.held_checks ?? [];
+  const held = (section.held_checks ?? []).filter((row) => !onlyLevel || row.source_code.startsWith(`LP-OWNED-MINNA-${onlyLevel}-`));
   if (held.length) {
     lines.push(`-- HELD ${held.map((row) => `${row.source_code}:${row.reason}`).join(' ')}`);
     lines.push(`UPDATE assessment_question SET is_active=0 WHERE is_active=1 AND source_code IN (${held
       .map((row) => `'${row.source_code}'`).join(',')});`);
   }
-  lines.push('COMMIT;', `-- END ${MARKER}`, '');
+  lines.push('COMMIT;', `-- END ${levelMarker(MARKER, onlyLevel)}`, '');
   return lines.join('\n');
 }
 
-export function replaceMinnaReadingBlock(sql, block) {
+export function replaceMinnaReadingBlock(sql, block, level = null) {
+  if (level) return replaceDataBlock(sql, levelMarker(MARKER, level), block);
   const newline = sql.includes('\r\n') ? '\r\n' : '\n';
   const formattedBlock = block.replace(/\r?\n/g, newline);
   const begin = `-- BEGIN ${MARKER} SHA256 `;
@@ -103,14 +106,16 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const data = JSON.parse(await readFile(path.join(root, 'data/learning-owned/learning-content.json'), 'utf8'));
   const section = data.sections?.jlpt_minna_n5_n4_reading;
   const sectionHash = data.section_sha256?.jlpt_minna_n5_n4_reading;
-  const block = renderMinnaReadingSql(section, sectionHash);
-  const sqlPath = path.join(root, 'sql/seeds/learning_owned.sql');
-  const current = await readFile(sqlPath, 'utf8');
-  const updated = replaceMinnaReadingBlock(current, block);
-  if (process.argv.includes('--check')) {
-    if (current !== updated) throw new Error('Canonical Minna reading SQL block is stale.');
-  } else {
-    await writeFile(sqlPath, updated, 'utf8');
+  for (const level of ['N5', 'N4']) {
+    const block = renderMinnaReadingSql(section, sectionHash, level);
+    const sqlPath = learningDataFile(root, level);
+    const current = await readFile(sqlPath, 'utf8');
+    const updated = replaceMinnaReadingBlock(current, block, level);
+    if (process.argv.includes('--check')) {
+      if (current !== updated) throw new Error(`Canonical Minna reading ${level} SQL block is stale.`);
+    } else {
+      await writeFile(sqlPath, updated, 'utf8');
+    }
   }
   console.log(`Rendered ${section.exercises.length} source-bound Minna reading checks for the Learning path`
     + ` (${(section.held_checks ?? []).length} held).`);

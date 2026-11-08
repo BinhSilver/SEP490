@@ -1,0 +1,46 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この仕事は楽しい。だけど、朝が早い。",
+       "ja_furigana": "この仕事(しごと)は楽(たの)しい。だけど、朝(あさ)が早(はや)い。",
+       "role": "MAIN",
+       "source": "AI",
+       "vi": "Công việc này vui, nhưng phải dậy sớm."
+      },
+      {
+       "ja": "安いレストランを見つけた。だけど、味はふつうだった。",
+       "ja_furigana": "安(やす)いレストランを見(み)つけた。だけど、味(あじ)はふつうだった。",
+       "role": "EXTRA",
+       "source": "AI",
+       "vi": "Tôi tìm được một nhà hàng rẻ. Nhưng mà vị thì bình thường."
+      },
+      {
+       "ja": "この店の料理はおいしい。だけど、値段が少し高い。",
+       "ja_furigana": "この店(みせ)の料理(りょうり)はおいしい。だけど、値段(ねだん)が少(すこ)し高(たか)い。",
+       "vi": "Đồ ăn quán này ngon. Nhưng mà giá hơi đắt.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "viết lại 1 câu quá giống nguồn ngoài"
+   },
+   "context": {
+    "expression": "Nhưng mà, tuy nhiên"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e78893acbd"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-075"
+}

@@ -1,0 +1,4387 @@
+{
+ "roles": [
+  {
+   "code": "cpath-nhan-vien-bat-dong-san",
+   "name": "Nhân viên bất động sản",
+   "role_kind": "AI",
+   "description": "Tư vấn phòng thuê cho khách nước ngoài tại văn phòng bất động sản.",
+   "personality": "Nhiệt tình, rõ ràng và chủ động nêu từng khoản chi phí.",
+   "speech_style": "Dùng です・ます, nêu số liệu rõ ràng, không dùng kính ngữ quá khó."
+  },
+  {
+   "code": "cpath-hang-xom",
+   "name": "Hàng xóm",
+   "role_kind": "AI",
+   "description": "Người hàng xóm thân thiện sống lâu năm trong khu phố.",
+   "personality": "Ấm áp, kiên nhẫn và sẵn lòng chỉ bảo người mới.",
+   "speech_style": "Dùng cách nói gần gũi, đôi khi có đuôi 〜のよ、〜ね, câu ngắn dễ hiểu."
+  },
+  {
+   "code": "cpath-nhan-vien-sieu-thi",
+   "name": "Nhân viên siêu thị",
+   "role_kind": "AI",
+   "description": "Nhân viên siêu thị hỗ trợ khách tìm hàng và giải đáp.",
+   "personality": "Lịch sự, nhanh nhẹn và chủ động đề nghị giúp.",
+   "speech_style": "Dùng です・ます và một ít khiêm nhường ngữ (〜でございます)."
+  },
+  {
+   "code": "cpath-nguoi-ban-hang-cho",
+   "name": "Người bán hàng ở chợ",
+   "role_kind": "AI",
+   "description": "Tiểu thương bán rau, cá tươi ở chợ truyền thống.",
+   "personality": "Thân thiện, vui vẻ và sẵn sàng mặc cả.",
+   "speech_style": "Nói thân mật nhưng lịch sự, hay dùng 〜ですよ để nhấn mạnh."
+  },
+  {
+   "code": "cpath-nhan-vien-van-phong-truong",
+   "name": "Nhân viên văn phòng trường",
+   "role_kind": "AI",
+   "description": "Nhân viên văn phòng tiếp nhận cuộc gọi báo nghỉ của học sinh.",
+   "personality": "Ân cần, chu đáo và nhắc nhở thủ tục cần thiết.",
+   "speech_style": "Dùng です・ます, câu hỏi ngắn gọn để xác nhận."
+  },
+  {
+   "code": "cpath-giao-vien",
+   "name": "Giáo viên",
+   "role_kind": "AI",
+   "description": "Giáo viên giải đáp thắc mắc về bài tập cho học sinh.",
+   "personality": "Nhẹ nhàng, rõ ràng và khích lệ học sinh.",
+   "speech_style": "Dùng です・ます, hướng dẫn cụ thể từng bước."
+  },
+  {
+   "code": "cpath-nhan-vien-thu-vien",
+   "name": "Nhân viên thư viện",
+   "role_kind": "AI",
+   "description": "Nhân viên thư viện hướng dẫn thủ tục mượn và trả sách.",
+   "personality": "Cẩn thận, lịch sự và rành quy trình.",
+   "speech_style": "Dùng です・ます, xác nhận thẻ và hạn mượn rõ ràng."
+  },
+  {
+   "code": "cpath-nhan-vien-ngan-hang",
+   "name": "Nhân viên ngân hàng",
+   "role_kind": "AI",
+   "description": "Giao dịch viên ngân hàng hỗ trợ chuyển khoản.",
+   "personality": "Chuyên nghiệp, tỉ mỉ và giải thích phí rõ ràng.",
+   "speech_style": "Dùng です・ます và kính ngữ, nêu phí và điều kiện cụ thể."
+  },
+  {
+   "code": "cpath-nhan-vien-chuyen-phat",
+   "name": "Nhân viên chuyển phát",
+   "role_kind": "AI",
+   "description": "Nhân viên tổng đài chuyển phát nhận yêu cầu giao lại hàng.",
+   "personality": "Lịch sự, chính xác và xác nhận từng thông tin.",
+   "speech_style": "Dùng khiêm nhường ngữ (〜いたします), hỏi mã vận đơn và khung giờ."
+  },
+  {
+   "code": "cpath-nhan-vien-buu-dien",
+   "name": "Nhân viên bưu điện",
+   "role_kind": "AI",
+   "description": "Nhân viên bưu điện hỗ trợ gửi bưu phẩm và giải đáp giờ giấc.",
+   "personality": "Nhiệt tình, rõ ràng và tư vấn các phương án.",
+   "speech_style": "Dùng です・ます, đưa ra lựa chọn cho khách."
+  },
+  {
+   "code": "cpath-bac-si",
+   "name": "Bác sĩ",
+   "role_kind": "AI",
+   "description": "Bác sĩ phòng khám hỏi bệnh và kê thuốc.",
+   "personality": "Bình tĩnh, chu đáo và hỏi kỹ triệu chứng.",
+   "speech_style": "Dùng です・ます, câu hỏi ngắn gọn và dặn dò rõ ràng."
+  },
+  {
+   "code": "cpath-nhan-vien-nha-thuoc",
+   "name": "Nhân viên nhà thuốc",
+   "role_kind": "AI",
+   "description": "Nhân viên nhà thuốc kiểm tra đơn và hướng dẫn cách uống.",
+   "personality": "Cẩn thận, tận tâm và kiểm tra đủ giấy tờ.",
+   "speech_style": "Dùng です・ます, hướng dẫn liều dùng cụ thể."
+  },
+  {
+   "code": "cpath-ban-than",
+   "name": "Bạn thân",
+   "role_kind": "AI",
+   "description": "Người bạn thân nói chuyện thân mật với người học.",
+   "personality": "Thoải mái, vui vẻ và dễ đồng ý.",
+   "speech_style": "Dùng thể thân mật (〜？, 〜ない？, 〜よ), câu ngắn gọn."
+  },
+  {
+   "code": "cpath-nguoi-quen",
+   "name": "Người quen",
+   "role_kind": "AI",
+   "description": "Người quen ở nơi làm việc được rủ đi uống trà.",
+   "personality": "Lịch sự, thân thiện và dễ sắp xếp thời gian.",
+   "speech_style": "Dùng です・ます, xác nhận giờ hẹn rõ ràng."
+  },
+  {
+   "code": "cpath-nguoi-qua-duong",
+   "name": "Người qua đường",
+   "role_kind": "AI",
+   "description": "Người dân địa phương được hỏi đường, chỉ lối và thời gian đi lại.",
+   "personality": "Thân thiện, kiên nhẫn, chỉ đường ngắn gọn kèm dấu mốc dễ nhận.",
+   "speech_style": "Dùng です・ます, nói ước lượng thời gian và khoảng cách (〜ぐらい)."
+  },
+  {
+   "code": "cpath-nguoi-doi-thoai",
+   "name": "Người đối thoại",
+   "role_kind": "AI",
+   "description": "Người đối thoại đóng nhiều vai khác nhau mà người học gặp trong một ngày.",
+   "personality": "Linh hoạt, lịch sự và dẫn dắt từng tình huống.",
+   "speech_style": "Thay đổi theo vai: dùng です・ます hoặc thể thân mật tùy tình huống."
+  },
+  {
+   "code": "cpath-nguoi-thue-nha",
+   "name": "Người thuê nhà",
+   "role_kind": "LEARNER",
+   "description": "Người học đi xem phòng và hỏi chi phí, điều kiện trước khi thuê."
+  },
+  {
+   "code": "cpath-nguoi-moi-den",
+   "name": "Người mới chuyển đến",
+   "role_kind": "LEARNER",
+   "description": "Người học vừa chuyển đến khu phố, hỏi hàng xóm về nếp sống."
+  },
+  {
+   "code": "cpath-khach-mua-hang",
+   "name": "Khách mua hàng",
+   "role_kind": "LEARNER",
+   "description": "Người học đi chợ, siêu thị hỏi giá và mua thực phẩm."
+  },
+  {
+   "code": "cpath-hoc-sinh",
+   "name": "Học sinh",
+   "role_kind": "LEARNER",
+   "description": "Người học liên hệ với trường về việc nghỉ học và bài tập."
+  },
+  {
+   "code": "cpath-nguoi-muon-sach",
+   "name": "Người mượn sách",
+   "role_kind": "LEARNER",
+   "description": "Người học làm thủ tục mượn và trả sách ở thư viện."
+  },
+  {
+   "code": "cpath-khach-ngan-hang",
+   "name": "Khách ngân hàng",
+   "role_kind": "LEARNER",
+   "description": "Người học giao dịch chuyển khoản tại ngân hàng."
+  },
+  {
+   "code": "cpath-nguoi-nhan-buu-kien",
+   "name": "Người nhận bưu kiện",
+   "role_kind": "LEARNER",
+   "description": "Người học gọi tổng đài xin giao lại bưu kiện."
+  },
+  {
+   "code": "cpath-nguoi-gui-buu-pham",
+   "name": "Người gửi bưu phẩm",
+   "role_kind": "LEARNER",
+   "description": "Người học gửi bưu phẩm quốc tế tại bưu điện."
+  },
+  {
+   "code": "cpath-benh-nhan",
+   "name": "Bệnh nhân",
+   "role_kind": "LEARNER",
+   "description": "Người học khám bệnh, kể triệu chứng và xin thuốc."
+  },
+  {
+   "code": "cpath-khach-mua-thuoc",
+   "name": "Khách mua thuốc",
+   "role_kind": "LEARNER",
+   "description": "Người học cầm đơn thuốc ra hiệu thuốc hỏi cách uống."
+  },
+  {
+   "code": "cpath-ban-be",
+   "name": "Bạn bè",
+   "role_kind": "LEARNER",
+   "description": "Người học trò chuyện, rủ bạn đi chơi."
+  },
+  {
+   "code": "cpath-nguoi-moi",
+   "name": "Người mời",
+   "role_kind": "LEARNER",
+   "description": "Người học mời người quen đi uống trà sau giờ làm."
+  },
+  {
+   "code": "cpath-nguoi-hoi-thong-tin",
+   "name": "Người hỏi thông tin",
+   "role_kind": "LEARNER",
+   "description": "Người học hỏi giờ giấc, đường đi và thời gian di chuyển."
+  },
+  {
+   "code": "cpath-nguoi-hoc",
+   "name": "Người học",
+   "role_kind": "LEARNER",
+   "description": "Người học trải qua một ngày sinh hoạt ở Nhật qua nhiều tình huống."
+  }
+ ],
+ "scenarios": [
+  {
+   "situation_id": "DLY-01",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-nhan-vien-bat-dong-san",
+   "learner_role_code": "cpath-nguoi-thue-nha",
+   "scenario": {
+    "slug": "cpath-dly-01",
+    "title": "Thuê phòng",
+    "location": "Văn phòng bất động sản gần ga",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "COST",
+       "type": "MISSION",
+       "title": "Hỏi tổng chi phí ban đầu",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "初期費用|いくら|家賃|敷金"
+        }
+       ],
+       "description": "Hỏi tổng chi phí ban đầu để thuê phòng.",
+       "displayOrder": 1
+      },
+      {
+       "code": "FEE",
+       "type": "MISSION",
+       "title": "Hỏi phí quản lý riêng",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "共益費|別|別途|礼金"
+        }
+       ],
+       "description": "Xác nhận phí quản lý có tính riêng không.",
+       "displayOrder": 2
+      },
+      {
+       "code": "SUN",
+       "type": "MISSION",
+       "title": "Hỏi phòng có nắng không",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "日当たり|南向き|昼間|明るい"
+        }
+       ],
+       "description": "Hỏi về độ chiếu nắng của phòng.",
+       "displayOrder": 3
+      },
+      {
+       "code": "NOISE",
+       "type": "MISSION",
+       "title": "Hỏi về tiếng ồn",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "騒音|静か|大通り|気になりませんか"
+        }
+       ],
+       "description": "Hỏi phòng có ồn không.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Chào và hỏi chi phí",
+       "next": "S2",
+       "prompt": "Chào khách, mời xem phòng và sẵn sàng báo chi phí ban đầu.",
+       "allowedGoalCodes": [
+        "COST"
+       ],
+       "suggestedReplies": [
+        "初期費用は全部でいくらになりますか。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Báo phí và xác nhận phí riêng",
+       "next": "S3",
+       "prompt": "Nêu từng khoản (tiền thuê, cọc, tiền lễ) và phí quản lý tính riêng.",
+       "allowedGoalCodes": [
+        "FEE"
+       ],
+       "suggestedReplies": [
+        "礼金がないのは助かります。共益費は別ですか。"
+       ],
+       "transitionText": "Sau khi biết tổng chi phí…"
+      },
+      {
+       "code": "S3",
+       "name": "Hỏi độ nắng",
+       "next": "S4",
+       "prompt": "Mô tả hướng phòng và ánh sáng ban ngày.",
+       "allowedGoalCodes": [
+        "SUN"
+       ],
+       "suggestedReplies": [
+        "日当たりはどうですか。"
+       ]
+      },
+      {
+       "code": "S4",
+       "name": "Hỏi tiếng ồn",
+       "next": "END",
+       "prompt": "Cho biết phòng xa hay gần đường lớn, có yên tĩnh không.",
+       "allowedGoalCodes": [
+        "NOISE"
+       ],
+       "suggestedReplies": [
+        "騒音は気になりませんか。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Hoàn thành xem phòng",
+       "message": "ご来店ありがとうございます。ご検討ください。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn đang tìm phòng trọ gần trường và muốn hỏi kỹ các khoản chi phí ban đầu trước khi quyết định.",
+    "difficulty": "EASY",
+    "jlpt_level": "N4",
+    "description": "Bạn xem phòng và hỏi nhân viên bất động sản về chi phí ban đầu, phí quản lý, độ nắng và tiếng ồn.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "共益費は別ですか。",
+       "pattern": "〜は別ですか",
+       "explanation": "Cách hỏi một khoản có tính riêng ngoài khoản chính không."
+      },
+      {
+       "example": "静かなほうです。",
+       "pattern": "〜ほうです",
+       "explanation": "Cách nói dè dặt, tránh khẳng định tuyệt đối."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N4",
+       "term": "家賃",
+       "example": "家賃はいくらですか。",
+       "meaning": "tiền thuê nhà",
+       "reading": "やちん"
+      },
+      {
+       "jlpt": "N4",
+       "term": "敷金",
+       "example": "敷金は一か月分です。",
+       "meaning": "tiền đặt cọc",
+       "reading": "しききん"
+      },
+      {
+       "jlpt": "N4",
+       "term": "礼金",
+       "example": "礼金はありません。",
+       "meaning": "tiền lễ cho chủ nhà",
+       "reading": "れいきん"
+      },
+      {
+       "jlpt": "N4",
+       "term": "日当たり",
+       "example": "日当たりがいいです。",
+       "meaning": "độ chiếu nắng",
+       "reading": "ひあたり"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "初期費用は全部でいくらになりますか。",
+       "speaker": "learner",
+       "translation": "Chi phí ban đầu tổng cộng là bao nhiêu ạ?"
+      },
+      {
+       "text": "家賃、敷金一か月、礼金なしで、合計十四万円ほどです。",
+       "speaker": "ai",
+       "translation": "Tiền thuê, cọc một tháng, không tiền lễ, tổng khoảng mười bốn vạn ạ."
+      },
+      {
+       "text": "日当たりはどうですか。",
+       "speaker": "learner",
+       "translation": "Phòng có nắng không ạ?"
+      },
+      {
+       "text": "南向きですので、昼間は明るいですよ。",
+       "speaker": "ai",
+       "translation": "Hướng nam nên ban ngày sáng lắm ạ."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-02",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-hang-xom",
+   "learner_role_code": "cpath-nguoi-moi-den",
+   "scenario": {
+    "slug": "cpath-dly-02",
+    "title": "Phân loại rác",
+    "location": "Trước cổng nhà trong khu phố",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "KIND",
+       "type": "MISSION",
+       "title": "Hỏi loại rác của lon rỗng",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "空き缶|どのごみ|何ごみ|資源"
+        }
+       ],
+       "description": "Hỏi lon rỗng thuộc loại rác nào.",
+       "displayOrder": 1
+      },
+      {
+       "code": "WASH",
+       "type": "MISSION",
+       "title": "Xác nhận cách xử lý lon",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "洗って|ゆすいで|つぶさず|出し方"
+        }
+       ],
+       "description": "Xác nhận có phải rửa và không bóp bẹp không.",
+       "displayOrder": 2
+      },
+      {
+       "code": "BULKY",
+       "type": "MISSION",
+       "title": "Hỏi cách xử lý đồ cồng kềnh",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "古い椅子|粗大ごみ|どうすれば|市役所"
+        }
+       ],
+       "description": "Hỏi cách xử lý cái ghế cũ.",
+       "displayOrder": 3
+      },
+      {
+       "code": "THANKS",
+       "type": "MISSION",
+       "title": "Cảm ơn hàng xóm",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "手続き|ありがとうございます|分かりました"
+        }
+       ],
+       "description": "Xác nhận cần thủ tục và cảm ơn.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Hỏi loại rác",
+       "next": "S2",
+       "prompt": "Chỉ cho người mới biết lon rỗng là rác tái chế và ngày đem ra.",
+       "allowedGoalCodes": [
+        "KIND"
+       ],
+       "suggestedReplies": [
+        "この空き缶はどのごみですか。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Xác nhận cách xử lý",
+       "next": "S3",
+       "prompt": "Dặn tráng bên trong và đừng bóp bẹp lon.",
+       "allowedGoalCodes": [
+        "WASH"
+       ],
+       "suggestedReplies": [
+        "洗ってから出すんですか。"
+       ],
+       "transitionText": "Sau khi biết loại rác…"
+      },
+      {
+       "code": "S3",
+       "name": "Hỏi đồ cồng kềnh",
+       "next": "S4",
+       "prompt": "Giải thích ghế cũ là rác cồng kềnh, cần đăng ký và mua tem.",
+       "allowedGoalCodes": [
+        "BULKY"
+       ],
+       "suggestedReplies": [
+        "古い椅子はどうすればいいですか。"
+       ]
+      },
+      {
+       "code": "S4",
+       "name": "Cảm ơn",
+       "next": "END",
+       "prompt": "Vui vẻ chấp nhận lời cảm ơn và dặn thêm.",
+       "allowedGoalCodes": [
+        "THANKS"
+       ],
+       "suggestedReplies": [
+        "手続きが要るんですね。教えてくださってありがとうございます。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã nắm cách phân loại rác",
+       "message": "何かあったら、またいつでも聞いてね。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn mới chuyển đến và được hàng xóm chỉ cách phân loại rác trong khu phố.",
+    "difficulty": "EASY",
+    "jlpt_level": "N4",
+    "description": "Bạn hỏi hàng xóm cách phân loại rác, cách xử lý lon rỗng và đồ cồng kềnh.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "洗ってから出すんですか。",
+       "pattern": "〜てから",
+       "explanation": "Nhấn mạnh thứ tự trước sau của hai việc."
+      },
+      {
+       "example": "つぶさずにね。",
+       "pattern": "〜ずに",
+       "explanation": "Dạng văn viết của ないで, nghĩa là \"mà không ~\"."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N4",
+       "term": "分別",
+       "example": "ごみの分別を教えてください。",
+       "meaning": "phân loại (rác)",
+       "reading": "ぶんべつ"
+      },
+      {
+       "jlpt": "N4",
+       "term": "資源ごみ",
+       "example": "これは資源ごみです。",
+       "meaning": "rác tái chế",
+       "reading": "しげんごみ"
+      },
+      {
+       "jlpt": "N4",
+       "term": "粗大ごみ",
+       "example": "椅子は粗大ごみです。",
+       "meaning": "rác cồng kềnh",
+       "reading": "そだいごみ"
+      },
+      {
+       "jlpt": "N4",
+       "term": "手続き",
+       "example": "手続きが要ります。",
+       "meaning": "thủ tục",
+       "reading": "てつづき"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "この空き缶はどのごみですか。",
+       "speaker": "learner",
+       "translation": "Cái lon rỗng này thuộc loại rác nào ạ?"
+      },
+      {
+       "text": "それは資源ごみ。水曜の朝に出すのよ。",
+       "speaker": "ai",
+       "translation": "Cái đó là rác tái chế. Đem ra sáng thứ tư nhé."
+      },
+      {
+       "text": "洗ってから出すんですか。",
+       "speaker": "learner",
+       "translation": "Phải rửa rồi mới đem ra ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-09",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-hang-xom",
+   "learner_role_code": "cpath-nguoi-moi-den",
+   "scenario": {
+    "slug": "cpath-dly-09",
+    "title": "Hỏi cách phân loại rác",
+    "location": "Trước nhà hàng xóm",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "HOW",
+       "type": "MISSION",
+       "title": "Nhờ chỉ cách đổ rác",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "出し方|教えてもらえますか|燃える|火曜日"
+        }
+       ],
+       "description": "Nhờ hàng xóm chỉ cách đổ rác.",
+       "displayOrder": 1
+      },
+      {
+       "code": "BOTTLE",
+       "type": "MISSION",
+       "title": "Hỏi cách xử lý chai nhựa",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "ペットボトル|資源|ラベル|どうすれば"
+        }
+       ],
+       "description": "Hỏi cách bỏ chai nhựa.",
+       "displayOrder": 2
+      },
+      {
+       "code": "TIME",
+       "type": "MISSION",
+       "title": "Hỏi giờ đổ rác",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "何時まで|八時|朝|まで"
+        }
+       ],
+       "description": "Hỏi phải đổ rác trước mấy giờ.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Nhờ chỉ cách đổ rác",
+       "next": "S2",
+       "prompt": "Chỉ ngày đổ rác cháy được trong tuần.",
+       "allowedGoalCodes": [
+        "HOW"
+       ],
+       "suggestedReplies": [
+        "すみません、ゴミの出し方を教えてもらえますか。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Hỏi chai nhựa",
+       "next": "S3",
+       "prompt": "Cho biết chai nhựa là rác tái chế và cần gỡ nhãn.",
+       "allowedGoalCodes": [
+        "BOTTLE"
+       ],
+       "suggestedReplies": [
+        "ペットボトルはどうすればいいですか。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Hỏi giờ đổ rác",
+       "next": "END",
+       "prompt": "Cho biết giờ cuối phải đem rác ra.",
+       "allowedGoalCodes": [
+        "TIME"
+       ],
+       "suggestedReplies": [
+        "何時までに出せばいいですか。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã biết lịch đổ rác",
+       "message": "ありがとうございます。気をつけてくださいね。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn cần nắm rõ ngày và giờ đổ rác của khu phố nên sang hỏi hàng xóm.",
+    "difficulty": "EASY",
+    "jlpt_level": "N4",
+    "description": "Bạn hỏi hàng xóm về cách đổ rác, cách xử lý chai nhựa và giờ đổ rác.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "ゴミの出し方を教えてもらえますか。",
+       "pattern": "〜方を教えてもらえますか",
+       "explanation": "Cách lịch sự nhờ người khác hướng dẫn cách làm."
+      },
+      {
+       "example": "ペットボトルはどうすればいいですか。",
+       "pattern": "〜はどうすればいいですか",
+       "explanation": "Hỏi cách xử lý một việc."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N4",
+       "term": "燃えるゴミ",
+       "example": "燃えるゴミは火曜日です。",
+       "meaning": "rác cháy được",
+       "reading": "もえるゴミ"
+      },
+      {
+       "jlpt": "N4",
+       "term": "資源ゴミ",
+       "example": "資源ゴミは金曜日です。",
+       "meaning": "rác tái chế",
+       "reading": "しげんゴミ"
+      },
+      {
+       "jlpt": "N4",
+       "term": "ラベル",
+       "example": "ラベルをはがしてください。",
+       "meaning": "nhãn dán",
+       "reading": "ラベル"
+      },
+      {
+       "jlpt": "N4",
+       "term": "回収日",
+       "example": "回収日を教えてください。",
+       "meaning": "ngày thu gom",
+       "reading": "かいしゅうび"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "すみません、ゴミの出し方を教えてもらえますか。",
+       "speaker": "learner",
+       "translation": "Xin lỗi, anh chỉ tôi cách đổ rác được không ạ?"
+      },
+      {
+       "text": "燃えるゴミは火曜日と金曜日です。",
+       "speaker": "ai",
+       "translation": "Rác cháy được là thứ Ba và thứ Sáu ạ."
+      },
+      {
+       "text": "何時までに出せばいいですか。",
+       "speaker": "learner",
+       "translation": "Phải đổ trước mấy giờ ạ?"
+      },
+      {
+       "text": "朝八時までです。",
+       "speaker": "ai",
+       "translation": "Trước tám giờ sáng ạ."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-03",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-nhan-vien-sieu-thi",
+   "learner_role_code": "cpath-khach-mua-hang",
+   "scenario": {
+    "slug": "cpath-dly-03",
+    "title": "Đi siêu thị",
+    "location": "Siêu thị gần nhà",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "DATE",
+       "type": "MISSION",
+       "title": "Hỏi hạn dùng",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "消費期限|いつまで|本日|半額"
+        }
+       ],
+       "description": "Hỏi hạn dùng của món ăn sẵn.",
+       "displayOrder": 1
+      },
+      {
+       "code": "HOUR",
+       "type": "MISSION",
+       "title": "Hỏi giờ giảm giá",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "何時ごろ|七時|値引き|半額"
+        }
+       ],
+       "description": "Hỏi từ mấy giờ bắt đầu giảm giá.",
+       "displayOrder": 2
+      },
+      {
+       "code": "FIND",
+       "type": "MISSION",
+       "title": "Hỏi vị trí sữa",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "牛乳|どこ|冷蔵|案内"
+        }
+       ],
+       "description": "Hỏi sữa ở khu vực nào.",
+       "displayOrder": 3
+      },
+      {
+       "code": "POLITE",
+       "type": "MISSION",
+       "title": "Từ chối lịch sự",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "大丈夫|ありがとうございます|結構です"
+        }
+       ],
+       "description": "Lịch sự từ chối lời dẫn đường và cảm ơn.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Hỏi hạn dùng",
+       "next": "S2",
+       "prompt": "Cho biết hạn dùng trong hôm nay và giờ giảm nửa giá.",
+       "allowedGoalCodes": [
+        "DATE"
+       ],
+       "suggestedReplies": [
+        "すみません、この惣菜の消費期限はいつまでですか。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Hỏi giờ giảm giá",
+       "next": "S3",
+       "prompt": "Cho biết thời điểm dán tem giảm giá.",
+       "allowedGoalCodes": [
+        "HOUR"
+       ],
+       "suggestedReplies": [
+        "何時ごろからですか。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Hỏi vị trí sữa",
+       "next": "S4",
+       "prompt": "Chỉ khu vực để sữa và đề nghị dẫn đi.",
+       "allowedGoalCodes": [
+        "FIND"
+       ],
+       "suggestedReplies": [
+        "分かりました。牛乳はどこにありますか。"
+       ]
+      },
+      {
+       "code": "S4",
+       "name": "Từ chối lịch sự",
+       "next": "END",
+       "prompt": "Vui vẻ chấp nhận lời từ chối của khách.",
+       "allowedGoalCodes": [
+        "POLITE"
+       ],
+       "suggestedReplies": [
+        "大丈夫です。ありがとうございます。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Mua sắm xong",
+       "message": "ありがとうございました。またどうぞ。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn vào siêu thị mua món ăn sẵn và sữa, muốn hỏi hạn dùng và giờ giảm giá.",
+    "difficulty": "EASY",
+    "jlpt_level": "N4",
+    "description": "Bạn hỏi nhân viên siêu thị về hạn dùng, giờ giảm giá và vị trí để sữa.",
+    "time_of_day": "Buổi chiều",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "七時過ぎには値引きシールを貼ります。",
+       "pattern": "〜過ぎ",
+       "explanation": "Cách nói thời điểm \"sau ~ giờ\"."
+      },
+      {
+       "example": "ご案内しましょうか。",
+       "pattern": "ご案内しましょうか",
+       "explanation": "Khiêm nhường ngữ dùng khi đề nghị giúp."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N4",
+       "term": "消費期限",
+       "example": "消費期限はいつまでですか。",
+       "meaning": "hạn dùng an toàn",
+       "reading": "しょうひきげん"
+      },
+      {
+       "jlpt": "N4",
+       "term": "半額",
+       "example": "夕方から半額になります。",
+       "meaning": "giảm nửa giá",
+       "reading": "はんがく"
+      },
+      {
+       "jlpt": "N4",
+       "term": "惣菜",
+       "example": "惣菜を買います。",
+       "meaning": "đồ ăn làm sẵn",
+       "reading": "そうざい"
+      },
+      {
+       "jlpt": "N4",
+       "term": "牛乳",
+       "example": "牛乳はどこですか。",
+       "meaning": "sữa",
+       "reading": "ぎゅうにゅう"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "この惣菜の消費期限はいつまでですか。",
+       "speaker": "learner",
+       "translation": "Món ăn sẵn này hạn dùng đến bao giờ ạ?"
+      },
+      {
+       "text": "本日中でございます。夕方から半額になります。",
+       "speaker": "ai",
+       "translation": "Trong hôm nay ạ. Từ chiều sẽ giảm nửa giá."
+      },
+      {
+       "text": "牛乳はどこにありますか。",
+       "speaker": "learner",
+       "translation": "Sữa ở đâu ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-10",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-nguoi-ban-hang-cho",
+   "learner_role_code": "cpath-khach-mua-hang",
+   "scenario": {
+    "slug": "cpath-dly-10",
+    "title": "Mua rau",
+    "location": "Sạp rau trong chợ",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "PRICE",
+       "type": "MISSION",
+       "title": "Hỏi giá rau",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "いくら|野菜|値段|二百円"
+        }
+       ],
+       "description": "Hỏi giá rau.",
+       "displayOrder": 1
+      },
+      {
+       "code": "FRESH",
+       "type": "MISSION",
+       "title": "Hỏi rau có tươi không",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "新鮮|今朝|取れた"
+        }
+       ],
+       "description": "Hỏi rau có tươi không.",
+       "displayOrder": 2
+      },
+      {
+       "code": "BUY",
+       "type": "MISSION",
+       "title": "Mua và xin bớt",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "ください|安く|二袋|三百五十円|お願いします"
+        }
+       ],
+       "description": "Mua hai túi và xin bớt giá.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Hỏi giá",
+       "next": "S2",
+       "prompt": "Báo giá một túi rau.",
+       "allowedGoalCodes": [
+        "PRICE"
+       ],
+       "suggestedReplies": [
+        "すみません、この野菜はいくらですか。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Hỏi độ tươi",
+       "next": "S3",
+       "prompt": "Xác nhận rau mới hái sáng nay.",
+       "allowedGoalCodes": [
+        "FRESH"
+       ],
+       "suggestedReplies": [
+        "新鮮ですか。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Mua và xin bớt",
+       "next": "END",
+       "prompt": "Đề xuất mức giá tốt hơn cho hai túi.",
+       "allowedGoalCodes": [
+        "BUY"
+       ],
+       "suggestedReplies": [
+        "じゃ、二袋ください。安くしてもらえますか。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã mua được rau",
+       "message": "ありがとうございます。またどうぞ。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn ra chợ mua rau tươi cho bữa tối và muốn hỏi giá rồi mặc cả.",
+    "difficulty": "EASY",
+    "jlpt_level": "N4",
+    "description": "Bạn hỏi giá, hỏi độ tươi rồi mua rau và xin bớt giá.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "この野菜はいくらですか。",
+       "pattern": "〜はいくらですか",
+       "explanation": "Cách hỏi giá một sản phẩm."
+      },
+      {
+       "example": "三百五十円でどうですか。",
+       "pattern": "〜でどうですか",
+       "explanation": "Cách đề nghị một mức giá."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N4",
+       "term": "野菜",
+       "example": "野菜を買います。",
+       "meaning": "rau",
+       "reading": "やさい"
+      },
+      {
+       "jlpt": "N4",
+       "term": "新鮮",
+       "example": "新鮮な野菜です。",
+       "meaning": "tươi",
+       "reading": "しんせん"
+      },
+      {
+       "jlpt": "N4",
+       "term": "安い",
+       "example": "安くしてください。",
+       "meaning": "rẻ",
+       "reading": "やすい"
+      },
+      {
+       "jlpt": "N4",
+       "term": "一袋",
+       "example": "一袋ください。",
+       "meaning": "một túi",
+       "reading": "ひとふくろ"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "この野菜はいくらですか。",
+       "speaker": "learner",
+       "translation": "Rau này bao nhiêu tiền ạ?"
+      },
+      {
+       "text": "一袋二百円です。",
+       "speaker": "ai",
+       "translation": "Một túi hai trăm yên ạ."
+      },
+      {
+       "text": "安くしてもらえますか。",
+       "speaker": "learner",
+       "translation": "Bớt chút được không ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-11",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-nguoi-ban-hang-cho",
+   "learner_role_code": "cpath-khach-mua-hang",
+   "scenario": {
+    "slug": "cpath-dly-11",
+    "title": "Chọn cá",
+    "location": "Quầy cá trong chợ",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "FRESH",
+       "type": "MISSION",
+       "title": "Hỏi cá tươi",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "新鮮|魚|さば|どれ"
+        }
+       ],
+       "description": "Hỏi cá nào tươi nhất.",
+       "displayOrder": 1
+      },
+      {
+       "code": "ORDER",
+       "type": "MISSION",
+       "title": "Chọn cá và nhờ lọc",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "一匹|お願いします|三枚おろし|できますか"
+        }
+       ],
+       "description": "Mua một con và nhờ lọc thành ba miếng.",
+       "displayOrder": 2
+      },
+      {
+       "code": "THANKS",
+       "type": "MISSION",
+       "title": "Cảm ơn",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "ありがとうございます|分かりました"
+        }
+       ],
+       "description": "Cảm ơn người bán.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Hỏi cá tươi",
+       "next": "S2",
+       "prompt": "Giới thiệu loại cá tươi nhất trong ngày.",
+       "allowedGoalCodes": [
+        "FRESH"
+       ],
+       "suggestedReplies": [
+        "すみません、新鮮な魚はどれですか。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Chọn và nhờ lọc",
+       "next": "S3",
+       "prompt": "Nhận đơn và lọc cá ngay.",
+       "allowedGoalCodes": [
+        "ORDER"
+       ],
+       "suggestedReplies": [
+        "一匹でお願いします。三枚おろしにできますか。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Cảm ơn",
+       "next": "END",
+       "prompt": "Trao cá đã lọc và đáp lại lời cảm ơn.",
+       "allowedGoalCodes": [
+        "THANKS"
+       ],
+       "suggestedReplies": [
+        "ありがとうございます。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã mua được cá",
+       "message": "ありがとうございました。またどうぞ。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn muốn nấu cá tươi nên nhờ người bán chỉ loại ngon và lọc sẵn.",
+    "difficulty": "EASY",
+    "jlpt_level": "N4",
+    "description": "Bạn hỏi cá tươi, chọn một con và nhờ người bán lọc thành ba miếng.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "新鮮な魚はどれですか。",
+       "pattern": "〜はどれですか",
+       "explanation": "Cách hỏi chọn một món cụ thể."
+      },
+      {
+       "example": "三枚おろしにできますか。",
+       "pattern": "〜にできますか",
+       "explanation": "Yêu cầu cách chế biến."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N4",
+       "term": "魚",
+       "example": "魚を買います。",
+       "meaning": "cá",
+       "reading": "さかな"
+      },
+      {
+       "jlpt": "N4",
+       "term": "新鮮",
+       "example": "新鮮な魚です。",
+       "meaning": "tươi",
+       "reading": "しんせん"
+      },
+      {
+       "jlpt": "N4",
+       "term": "一匹",
+       "example": "一匹ください。",
+       "meaning": "một con",
+       "reading": "いっぴき"
+      },
+      {
+       "jlpt": "N4",
+       "term": "おろす",
+       "example": "魚をおろします。",
+       "meaning": "lọc (cá)",
+       "reading": "おろす"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "新鮮な魚はどれですか。",
+       "speaker": "learner",
+       "translation": "Cá nào tươi ạ?"
+      },
+      {
+       "text": "こちらのさばが今日一番です。",
+       "speaker": "ai",
+       "translation": "Cá thu bên này tươi nhất hôm nay ạ."
+      },
+      {
+       "text": "三枚おろしにできますか。",
+       "speaker": "learner",
+       "translation": "Lọc thành ba miếng được không ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-07",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-nhan-vien-van-phong-truong",
+   "learner_role_code": "cpath-hoc-sinh",
+   "scenario": {
+    "slug": "cpath-dly-07",
+    "title": "Báo nghỉ học",
+    "location": "Văn phòng trường học (qua điện thoại)",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "INTRO",
+       "type": "MISSION",
+       "title": "Xưng tên và lớp",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "おはようございます|二年|グエン|です"
+        }
+       ],
+       "description": "Chào và xưng tên, lớp của mình.",
+       "displayOrder": 1
+      },
+      {
+       "code": "REASON",
+       "type": "MISSION",
+       "title": "Nói lý do nghỉ",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "熱|休ませていただきたい|病院"
+        }
+       ],
+       "description": "Nói lý do xin nghỉ học.",
+       "displayOrder": 2
+      },
+      {
+       "code": "HOSPITAL",
+       "type": "MISSION",
+       "title": "Nói dự định đi khám",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "午後|病院|予定|診断書"
+        }
+       ],
+       "description": "Nói dự định đi bệnh viện.",
+       "displayOrder": 3
+      },
+      {
+       "code": "HOMEWORK",
+       "type": "MISSION",
+       "title": "Hỏi bài tập hôm nay",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "課題|どうすれば|掲示板|確認"
+        }
+       ],
+       "description": "Hỏi cách nhận bài tập hôm nay.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Chào và xưng danh",
+       "next": "S2",
+       "prompt": "Hỏi học sinh có chuyện gì.",
+       "allowedGoalCodes": [
+        "INTRO"
+       ],
+       "suggestedReplies": [
+        "おはようございます。二年のグエンです。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Báo lý do nghỉ",
+       "next": "S3",
+       "prompt": "Hỏi đã đi bệnh viện chưa.",
+       "allowedGoalCodes": [
+        "REASON"
+       ],
+       "suggestedReplies": [
+        "熱があるので、今日は休ませていただきたいです。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Nói dự định đi khám",
+       "next": "S4",
+       "prompt": "Dặn mang giấy khám khi có.",
+       "allowedGoalCodes": [
+        "HOSPITAL"
+       ],
+       "suggestedReplies": [
+        "午後に行く予定です。"
+       ]
+      },
+      {
+       "code": "S4",
+       "name": "Hỏi bài tập",
+       "next": "END",
+       "prompt": "Cho biết bài tập đăng trên bảng tin lớp.",
+       "allowedGoalCodes": [
+        "HOMEWORK"
+       ],
+       "suggestedReplies": [
+        "今日の課題はどうすればいいですか。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã báo nghỉ xong",
+       "message": "お大事にしてください。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn bị sốt, không thể đến trường nên gọi điện báo nghỉ và hỏi bài tập.",
+    "difficulty": "EASY",
+    "jlpt_level": "N4",
+    "description": "Bạn gọi văn phòng trường báo nghỉ vì sốt, nói dự định đi khám và hỏi bài tập hôm nay.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "休ませていただきたいです。",
+       "pattern": "〜させていただきたい",
+       "explanation": "Khiêm nhường ngữ, rất lịch sự khi xin phép."
+      },
+      {
+       "example": "午後に行く予定です。",
+       "pattern": "〜予定です",
+       "explanation": "Nói kế hoạch đã sắp xếp."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N4",
+       "term": "欠席",
+       "example": "今日は欠席します。",
+       "meaning": "vắng mặt",
+       "reading": "けっせき"
+      },
+      {
+       "jlpt": "N4",
+       "term": "熱",
+       "example": "熱があります。",
+       "meaning": "sốt",
+       "reading": "ねつ"
+      },
+      {
+       "jlpt": "N4",
+       "term": "診断書",
+       "example": "診断書を出します。",
+       "meaning": "giấy khám",
+       "reading": "しんだんしょ"
+      },
+      {
+       "jlpt": "N4",
+       "term": "課題",
+       "example": "課題を確認してください。",
+       "meaning": "bài tập lớn",
+       "reading": "かだい"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "熱があるので、今日は休ませていただきたいです。",
+       "speaker": "learner",
+       "translation": "Em bị sốt nên hôm nay xin phép nghỉ ạ."
+      },
+      {
+       "text": "分かりました。病院には行きましたか。",
+       "speaker": "ai",
+       "translation": "Cô hiểu rồi. Em đi bệnh viện chưa?"
+      },
+      {
+       "text": "今日の課題はどうすればいいですか。",
+       "speaker": "learner",
+       "translation": "Bài tập hôm nay em làm thế nào ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-15",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-giao-vien",
+   "learner_role_code": "cpath-hoc-sinh",
+   "scenario": {
+    "slug": "cpath-dly-15",
+    "title": "Hỏi về bài tập",
+    "location": "Trong lớp học",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "DEADLINE",
+       "type": "MISSION",
+       "title": "Hỏi hạn nộp",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "締め切り|いつ|月曜日|まで"
+        }
+       ],
+       "description": "Hỏi hạn nộp bài tập.",
+       "displayOrder": 1
+      },
+      {
+       "code": "HOW",
+       "type": "MISSION",
+       "title": "Xác nhận cách nộp",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "ノート|提出|箱|ばいい"
+        }
+       ],
+       "description": "Xác nhận cách nộp bài.",
+       "displayOrder": 2
+      },
+      {
+       "code": "THANKS",
+       "type": "MISSION",
+       "title": "Cảm ơn cô",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "分かりました|ありがとうございます"
+        }
+       ],
+       "description": "Cảm ơn cô giáo.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Hỏi hạn nộp",
+       "next": "S2",
+       "prompt": "Cho biết hạn nộp bài tập.",
+       "allowedGoalCodes": [
+        "DEADLINE"
+       ],
+       "suggestedReplies": [
+        "先生、宿題の締め切りはいつですか。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Xác nhận cách nộp",
+       "next": "S3",
+       "prompt": "Hướng dẫn nơi nộp bài.",
+       "allowedGoalCodes": [
+        "HOW"
+       ],
+       "suggestedReplies": [
+        "ノートに書いて提出すればいいですか。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Cảm ơn",
+       "next": "END",
+       "prompt": "Đáp lại lời cảm ơn của học sinh.",
+       "allowedGoalCodes": [
+        "THANKS"
+       ],
+       "suggestedReplies": [
+        "分かりました。ありがとうございます。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã nắm cách nộp bài",
+       "message": "はい、頑張ってください。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn muốn hỏi cô giáo về hạn nộp và cách nộp bài tập.",
+    "difficulty": "EASY",
+    "jlpt_level": "N4",
+    "description": "Bạn hỏi cô giáo hạn nộp bài tập và xác nhận cách nộp bài.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "宿題の締め切りはいつですか。",
+       "pattern": "〜はいつですか",
+       "explanation": "Cách hỏi thời hạn / thời điểm."
+      },
+      {
+       "example": "ノートに書いて提出すればいいですか。",
+       "pattern": "〜ばいいですか",
+       "explanation": "Xác nhận cách làm đúng."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N4",
+       "term": "宿題",
+       "example": "宿題を出します。",
+       "meaning": "bài tập về nhà",
+       "reading": "しゅくだい"
+      },
+      {
+       "jlpt": "N4",
+       "term": "締め切り",
+       "example": "締め切りは月曜日です。",
+       "meaning": "hạn chót",
+       "reading": "しめきり"
+      },
+      {
+       "jlpt": "N4",
+       "term": "提出",
+       "example": "ノートを提出します。",
+       "meaning": "nộp",
+       "reading": "ていしゅつ"
+      },
+      {
+       "jlpt": "N4",
+       "term": "教室",
+       "example": "教室の前の箱です。",
+       "meaning": "lớp học",
+       "reading": "きょうしつ"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "宿題の締め切りはいつですか。",
+       "speaker": "learner",
+       "translation": "Hạn nộp bài tập là khi nào ạ?"
+      },
+      {
+       "text": "来週の月曜日までです。",
+       "speaker": "ai",
+       "translation": "Đến thứ Hai tuần sau ạ."
+      },
+      {
+       "text": "ノートに書いて提出すればいいですか。",
+       "speaker": "learner",
+       "translation": "Viết vào vở rồi nộp là được ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-16",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-nhan-vien-thu-vien",
+   "learner_role_code": "cpath-nguoi-muon-sach",
+   "scenario": {
+    "slug": "cpath-dly-16",
+    "title": "Mượn sách ở thư viện",
+    "location": "Quầy thủ thư trong thư viện",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "BORROW",
+       "type": "MISSION",
+       "title": "Xin mượn sách",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "借りたい|本|お願いします"
+        }
+       ],
+       "description": "Nói muốn mượn sách.",
+       "displayOrder": 1
+      },
+      {
+       "code": "CARD",
+       "type": "MISSION",
+       "title": "Đưa thẻ mượn sách",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "はい|カード|ここにあります|お持ち"
+        }
+       ],
+       "description": "Đưa thẻ mượn sách.",
+       "displayOrder": 2
+      },
+      {
+       "code": "RETURN",
+       "type": "MISSION",
+       "title": "Hỏi nơi trả sách",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "返却|どこ|カウンター"
+        }
+       ],
+       "description": "Hỏi nơi trả sách.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Xin mượn sách",
+       "next": "S2",
+       "prompt": "Hỏi khách có thẻ mượn sách không.",
+       "allowedGoalCodes": [
+        "BORROW"
+       ],
+       "suggestedReplies": [
+        "すみません、この本を借りたいです。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Đưa thẻ",
+       "next": "S3",
+       "prompt": "Cho biết hạn mượn là hai tuần.",
+       "allowedGoalCodes": [
+        "CARD"
+       ],
+       "suggestedReplies": [
+        "はい、ここにあります。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Hỏi nơi trả",
+       "next": "END",
+       "prompt": "Chỉ quầy trả sách.",
+       "allowedGoalCodes": [
+        "RETURN"
+       ],
+       "suggestedReplies": [
+        "返却はどこでしますか。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã mượn được sách",
+       "message": "ありがとうございました。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn cần mượn một quyển sách và muốn nắm thủ tục mượn, trả.",
+    "difficulty": "EASY",
+    "jlpt_level": "N4",
+    "description": "Bạn xin mượn sách, đưa thẻ mượn và hỏi nơi trả sách.",
+    "time_of_day": "Buổi chiều",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "この本を借りたいです。",
+       "pattern": "〜を借りたいです",
+       "explanation": "Bày tỏ nhu cầu mượn."
+      },
+      {
+       "example": "返却はどこでしますか。",
+       "pattern": "〜はどこでしますか",
+       "explanation": "Hỏi địa điểm làm một việc."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N4",
+       "term": "借りる",
+       "example": "本を借ります。",
+       "meaning": "mượn",
+       "reading": "かりる"
+      },
+      {
+       "jlpt": "N4",
+       "term": "返却",
+       "example": "返却はカウンターです。",
+       "meaning": "trả lại (sách)",
+       "reading": "へんきゃく"
+      },
+      {
+       "jlpt": "N4",
+       "term": "図書館",
+       "example": "図書館で借ります。",
+       "meaning": "thư viện",
+       "reading": "としょかん"
+      },
+      {
+       "jlpt": "N4",
+       "term": "貸出カード",
+       "example": "貸出カードを持っています。",
+       "meaning": "thẻ mượn sách",
+       "reading": "かしだしカード"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "この本を借りたいです。",
+       "speaker": "learner",
+       "translation": "Tôi muốn mượn quyển sách này ạ."
+      },
+      {
+       "text": "貸出カードはお持ちですか。",
+       "speaker": "ai",
+       "translation": "Anh có thẻ mượn sách không ạ?"
+      },
+      {
+       "text": "返却はどこでしますか。",
+       "speaker": "learner",
+       "translation": "Trả sách ở đâu ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-04",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-nhan-vien-ngan-hang",
+   "learner_role_code": "cpath-khach-ngan-hang",
+   "scenario": {
+    "slug": "cpath-dly-04",
+    "title": "Làm thủ tục ngân hàng",
+    "location": "Quầy giao dịch ngân hàng",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "WANT",
+       "type": "MISSION",
+       "title": "Nói muốn chuyển khoản",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "振込|したい|他行|口座"
+        }
+       ],
+       "description": "Nói nhu cầu chuyển khoản.",
+       "displayOrder": 1
+      },
+      {
+       "code": "FEE",
+       "type": "MISSION",
+       "title": "Hỏi phí chuyển khoản",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "手数料|いくら|窓口|ATM"
+        }
+       ],
+       "description": "Hỏi phí chuyển khoản.",
+       "displayOrder": 2
+      },
+      {
+       "code": "ATM",
+       "type": "MISSION",
+       "title": "Hỏi dùng máy ATM",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "ATM|できますか|思ったより|違う"
+        }
+       ],
+       "description": "Hỏi có làm được ở ATM không.",
+       "displayOrder": 3
+      },
+      {
+       "code": "GUIDE",
+       "type": "MISSION",
+       "title": "Nhờ hướng dẫn thao tác",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "通帳|キャッシュカード|教えていただけますか|操作"
+        }
+       ],
+       "description": "Nhờ nhân viên hướng dẫn thao tác.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Nói nhu cầu",
+       "next": "S2",
+       "prompt": "Hỏi có phải chuyển sang ngân hàng khác không.",
+       "allowedGoalCodes": [
+        "WANT"
+       ],
+       "suggestedReplies": [
+        "振込をしたいのですが。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Hỏi phí",
+       "next": "S3",
+       "prompt": "Báo phí ở quầy và ở ATM.",
+       "allowedGoalCodes": [
+        "FEE"
+       ],
+       "suggestedReplies": [
+        "手数料はいくらかかりますか。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Hỏi dùng ATM",
+       "next": "S4",
+       "prompt": "Cho biết ATM cần sổ và thẻ.",
+       "allowedGoalCodes": [
+        "ATM"
+       ],
+       "suggestedReplies": [
+        "ATMでもできますか。"
+       ]
+      },
+      {
+       "code": "S4",
+       "name": "Nhờ hướng dẫn",
+       "next": "END",
+       "prompt": "Đồng ý hướng dẫn thao tác.",
+       "allowedGoalCodes": [
+        "GUIDE"
+       ],
+       "suggestedReplies": [
+        "操作を教えていただけますか。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã xong thủ tục",
+       "message": "ありがとうございました。ご案内いたします。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn đến ngân hàng chuyển khoản sang ngân hàng khác và muốn so sánh phí để chọn cách rẻ nhất.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N3",
+    "description": "Bạn nói nhu cầu chuyển khoản, hỏi phí, so sánh ATM và nhờ hướng dẫn thao tác.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 7,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "思ったより違うんですね。",
+       "pattern": "〜より",
+       "explanation": "Cách so sánh \"hơn so với ~\"."
+      },
+      {
+       "example": "操作を教えていただけますか。",
+       "pattern": "〜ていただけますか",
+       "explanation": "Cách nhờ vả rất lịch sự."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N3",
+       "term": "振込",
+       "example": "振込をしたいです。",
+       "meaning": "chuyển khoản",
+       "reading": "ふりこみ"
+      },
+      {
+       "jlpt": "N3",
+       "term": "手数料",
+       "example": "手数料はいくらですか。",
+       "meaning": "phí giao dịch",
+       "reading": "てすうりょう"
+      },
+      {
+       "jlpt": "N3",
+       "term": "通帳",
+       "example": "通帳が必要です。",
+       "meaning": "sổ ngân hàng",
+       "reading": "つうちょう"
+      },
+      {
+       "jlpt": "N3",
+       "term": "窓口",
+       "example": "窓口でお願いします。",
+       "meaning": "quầy giao dịch",
+       "reading": "まどぐち"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "振込をしたいのですが。",
+       "speaker": "learner",
+       "translation": "Tôi muốn chuyển khoản ạ."
+      },
+      {
+       "text": "他行宛てでしょうか。",
+       "speaker": "ai",
+       "translation": "Là chuyển sang ngân hàng khác phải không ạ?"
+      },
+      {
+       "text": "手数料はいくらかかりますか。",
+       "speaker": "learner",
+       "translation": "Phí là bao nhiêu ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-06",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-nhan-vien-chuyen-phat",
+   "learner_role_code": "cpath-nguoi-nhan-buu-kien",
+   "scenario": {
+    "slug": "cpath-dly-06",
+    "title": "Nhận lại bưu kiện",
+    "location": "Tổng đài chuyển phát (qua điện thoại)",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "REQUEST",
+       "type": "MISSION",
+       "title": "Xin giao lại hàng",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "不在票|再配達|お願いしたい|届け"
+        }
+       ],
+       "description": "Nói nhu cầu xin giao lại hàng.",
+       "displayOrder": 1
+      },
+      {
+       "code": "NUMBER",
+       "type": "MISSION",
+       "title": "Đọc mã vận đơn",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "伝票番号|一二三四|五六七八"
+        }
+       ],
+       "description": "Đọc mã vận đơn.",
+       "displayOrder": 2
+      },
+      {
+       "code": "TIME",
+       "type": "MISSION",
+       "title": "Hỏi khung giờ giao",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "何時から|七時|九時|夜間"
+        }
+       ],
+       "description": "Hỏi khung giờ giao hàng.",
+       "displayOrder": 3
+      },
+      {
+       "code": "OK",
+       "type": "MISSION",
+       "title": "Xác nhận và nhờ bấm chuông",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "大丈夫|呼び鈴|鳴らしてください|その時間"
+        }
+       ],
+       "description": "Đồng ý khung giờ và nhờ bấm chuông.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Xin giao lại",
+       "next": "S2",
+       "prompt": "Xin mã vận đơn.",
+       "allowedGoalCodes": [
+        "REQUEST"
+       ],
+       "suggestedReplies": [
+        "不在票が入っていたので、再配達をお願いしたいのですが。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Đọc mã vận đơn",
+       "next": "S3",
+       "prompt": "Cho biết giao được vào tối nay.",
+       "allowedGoalCodes": [
+        "NUMBER"
+       ],
+       "suggestedReplies": [
+        "はい、一二三四の五六七八です。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Hỏi khung giờ",
+       "next": "S4",
+       "prompt": "Cho biết khung giờ từ bảy đến chín giờ.",
+       "allowedGoalCodes": [
+        "TIME"
+       ],
+       "suggestedReplies": [
+        "何時から何時までですか。"
+       ]
+      },
+      {
+       "code": "S4",
+       "name": "Xác nhận và nhờ bấm chuông",
+       "next": "END",
+       "prompt": "Xác nhận yêu cầu của khách.",
+       "allowedGoalCodes": [
+        "OK"
+       ],
+       "suggestedReplies": [
+        "その時間で大丈夫です。呼び鈴を鳴らしてください。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã đặt lịch giao lại",
+       "message": "承知いたしました。よろしくお願いいたします。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn nhận được phiếu báo vắng nhà nên gọi tổng đài xin giao lại hàng.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N3",
+    "description": "Bạn gọi tổng đài xin giao lại hàng, đọc mã vận đơn và chốt khung giờ giao.",
+    "time_of_day": "Buổi tối",
+    "estimated_minutes": 7,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "七時から九時の間でございます。",
+       "pattern": "〜の間",
+       "explanation": "Dùng cho khoảng thời gian có đầu có cuối."
+      },
+      {
+       "example": "承知いたしました。",
+       "pattern": "承知いたしました",
+       "explanation": "Khiêm nhường ngữ, chuẩn khi tiếp khách."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N3",
+       "term": "再配達",
+       "example": "再配達をお願いします。",
+       "meaning": "giao lại",
+       "reading": "さいはいたつ"
+      },
+      {
+       "jlpt": "N3",
+       "term": "不在票",
+       "example": "不在票が入っていました。",
+       "meaning": "phiếu báo vắng",
+       "reading": "ふざいひょう"
+      },
+      {
+       "jlpt": "N3",
+       "term": "伝票番号",
+       "example": "伝票番号を教えてください。",
+       "meaning": "mã vận đơn",
+       "reading": "でんぴょうばんごう"
+      },
+      {
+       "jlpt": "N3",
+       "term": "宅配便",
+       "example": "宅配便で届きます。",
+       "meaning": "chuyển phát tận nhà",
+       "reading": "たくはいびん"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "再配達をお願いしたいのですが。",
+       "speaker": "learner",
+       "translation": "Tôi muốn xin giao lại ạ."
+      },
+      {
+       "text": "伝票番号をお願いいたします。",
+       "speaker": "ai",
+       "translation": "Xin cho tôi mã vận đơn ạ."
+      },
+      {
+       "text": "何時から何時までですか。",
+       "speaker": "learner",
+       "translation": "Từ mấy giờ đến mấy giờ ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-12",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-nhan-vien-buu-dien",
+   "learner_role_code": "cpath-nguoi-gui-buu-pham",
+   "scenario": {
+    "slug": "cpath-dly-12",
+    "title": "Gửi bưu phẩm quốc tế",
+    "location": "Quầy giao dịch bưu điện",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "SEND",
+       "type": "MISSION",
+       "title": "Nói muốn gửi bưu phẩm",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "小包|ベトナム|送りたい|国際"
+        }
+       ],
+       "description": "Nói muốn gửi bưu phẩm về Việt Nam.",
+       "displayOrder": 1
+      },
+      {
+       "code": "CHOOSE",
+       "type": "MISSION",
+       "title": "Chọn cách gửi và hỏi thời gian",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "航空便|船便|何日|一週間"
+        }
+       ],
+       "description": "Chọn đường gửi và hỏi thời gian.",
+       "displayOrder": 2
+      },
+      {
+       "code": "DECLARE",
+       "type": "MISSION",
+       "title": "Khai nội dung và hỏi tờ khai",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "中身|服|税関申告書|要りますか"
+        }
+       ],
+       "description": "Khai nội dung và hỏi có cần tờ khai hải quan không.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Nói muốn gửi",
+       "next": "S2",
+       "prompt": "Đưa ra lựa chọn đường biển hay đường hàng không.",
+       "allowedGoalCodes": [
+        "SEND"
+       ],
+       "suggestedReplies": [
+        "この小包をベトナムに送りたいです。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Chọn cách gửi",
+       "next": "S3",
+       "prompt": "Cho biết thời gian vận chuyển.",
+       "allowedGoalCodes": [
+        "CHOOSE"
+       ],
+       "suggestedReplies": [
+        "航空便でお願いします。何日かかりますか。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Khai nội dung",
+       "next": "END",
+       "prompt": "Yêu cầu ghi địa chỉ người nhận vào tờ khai.",
+       "allowedGoalCodes": [
+        "DECLARE"
+       ],
+       "suggestedReplies": [
+        "中身は服です。税関申告書は要りますか。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã gửi bưu phẩm",
+       "message": "ありがとうございました。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn muốn gửi một bưu phẩm quần áo về Việt Nam và hỏi cách gửi nhanh, an toàn.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N3",
+    "description": "Bạn gửi bưu phẩm quốc tế, chọn đường hàng không và khai tờ khai hải quan.",
+    "time_of_day": "Buổi chiều",
+    "estimated_minutes": 7,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "船便と航空便がありますが、どちらにしますか。",
+       "pattern": "〜がありますが、どちらにしますか",
+       "explanation": "Đưa ra lựa chọn cho khách."
+      },
+      {
+       "example": "税関申告書は要りますか。",
+       "pattern": "〜は要りますか",
+       "explanation": "Hỏi về giấy tờ/vật cần thiết."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N3",
+       "term": "小包",
+       "example": "小包を送ります。",
+       "meaning": "bưu kiện",
+       "reading": "こづつみ"
+      },
+      {
+       "jlpt": "N3",
+       "term": "国際郵便",
+       "example": "国際郵便で送ります。",
+       "meaning": "bưu phẩm quốc tế",
+       "reading": "こくさいゆうびん"
+      },
+      {
+       "jlpt": "N3",
+       "term": "航空便",
+       "example": "航空便でお願いします。",
+       "meaning": "đường hàng không",
+       "reading": "こうくうびん"
+      },
+      {
+       "jlpt": "N3",
+       "term": "宛先",
+       "example": "宛先を書いてください。",
+       "meaning": "địa chỉ người nhận",
+       "reading": "あてさき"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "この小包をベトナムに送りたいです。",
+       "speaker": "learner",
+       "translation": "Tôi muốn gửi bưu kiện này về Việt Nam ạ."
+      },
+      {
+       "text": "船便と航空便がありますが、どちらにしますか。",
+       "speaker": "ai",
+       "translation": "Có gửi đường biển và đường hàng không, anh chọn loại nào ạ?"
+      },
+      {
+       "text": "税関申告書は要りますか。",
+       "speaker": "learner",
+       "translation": "Có cần tờ khai hải quan không ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-05",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-bac-si",
+   "learner_role_code": "cpath-benh-nhan",
+   "scenario": {
+    "slug": "cpath-dly-05",
+    "title": "Khám bệnh",
+    "location": "Phòng khám bác sĩ",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "SYMPTOM",
+       "type": "MISSION",
+       "title": "Kể triệu chứng",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "咳|止まらない|眠れない|三日|症状"
+        }
+       ],
+       "description": "Kể triệu chứng ho kéo dài.",
+       "displayOrder": 1
+      },
+      {
+       "code": "TEMP",
+       "type": "MISSION",
+       "title": "Báo nhiệt độ",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "熱|測り|三十七度五分|朝"
+        }
+       ],
+       "description": "Báo nhiệt độ đã đo.",
+       "displayOrder": 2
+      },
+      {
+       "code": "MEDICINE",
+       "type": "MISSION",
+       "title": "Xin thuốc",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "薬|もらえますか|治したい|仕事"
+        }
+       ],
+       "description": "Xin thuốc để mau khỏi.",
+       "displayOrder": 3
+      },
+      {
+       "code": "CARE",
+       "type": "MISSION",
+       "title": "Hứa tránh lái xe",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "運転|避けます|眠くなる|分かりました"
+        }
+       ],
+       "description": "Hứa tránh lái xe khi uống thuốc.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Kể triệu chứng",
+       "next": "S2",
+       "prompt": "Hỏi bệnh nhân đã đo nhiệt độ chưa.",
+       "allowedGoalCodes": [
+        "SYMPTOM"
+       ],
+       "suggestedReplies": [
+        "三日前から咳が止まらなくて、夜眠れないんです。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Báo nhiệt độ",
+       "next": "S3",
+       "prompt": "Xem họng và nhận xét họng hơi đỏ.",
+       "allowedGoalCodes": [
+        "TEMP"
+       ],
+       "suggestedReplies": [
+        "朝は三十七度五分でした。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Xin thuốc",
+       "next": "S4",
+       "prompt": "Kê thuốc ho và dặn thuốc có thành phần gây buồn ngủ.",
+       "allowedGoalCodes": [
+        "MEDICINE"
+       ],
+       "suggestedReplies": [
+        "薬をもらえますか。仕事があるので早く治したいです。"
+       ]
+      },
+      {
+       "code": "S4",
+       "name": "Hứa tránh lái xe",
+       "next": "END",
+       "prompt": "Dặn dò và chúc bệnh nhân mau khỏi.",
+       "allowedGoalCodes": [
+        "CARE"
+       ],
+       "suggestedReplies": [
+        "分かりました。運転は避けます。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã khám xong",
+       "message": "お大事にしてください。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn bị ho mấy ngày không khỏi nên đến phòng khám để được kê thuốc.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N3",
+    "description": "Bạn kể triệu chứng ho, báo nhiệt độ, xin thuốc và hứa tránh lái xe.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 7,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "咳が止まらなくて、夜眠れないんです。",
+       "pattern": "〜が止まらない",
+       "explanation": "Mô tả triệu chứng kéo dài không dứt."
+      },
+      {
+       "example": "咳止めを五日分出します。",
+       "pattern": "〜分",
+       "explanation": "Chỉ phần dùng cho số ngày."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N3",
+       "term": "咳",
+       "example": "咳が止まりません。",
+       "meaning": "ho",
+       "reading": "せき"
+      },
+      {
+       "jlpt": "N3",
+       "term": "熱",
+       "example": "熱を測りました。",
+       "meaning": "sốt",
+       "reading": "ねつ"
+      },
+      {
+       "jlpt": "N3",
+       "term": "薬",
+       "example": "薬をください。",
+       "meaning": "thuốc",
+       "reading": "くすり"
+      },
+      {
+       "jlpt": "N3",
+       "term": "症状",
+       "example": "症状を話してください。",
+       "meaning": "triệu chứng",
+       "reading": "しょうじょう"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "今日はどうされましたか。",
+       "speaker": "ai",
+       "translation": "Hôm nay chị thấy sao?"
+      },
+      {
+       "text": "咳が止まらなくて、夜眠れないんです。",
+       "speaker": "learner",
+       "translation": "Tôi ho không dứt, đêm không ngủ được ạ."
+      },
+      {
+       "text": "運転は避けます。",
+       "speaker": "learner",
+       "translation": "Tôi sẽ tránh lái xe."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-13",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-bac-si",
+   "learner_role_code": "cpath-benh-nhan",
+   "scenario": {
+    "slug": "cpath-dly-13",
+    "title": "Khám bệnh (đau đầu)",
+    "location": "Phòng khám bác sĩ",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "SYMPTOM",
+       "type": "MISSION",
+       "title": "Kể triệu chứng đau đầu",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "頭|痛い|昨日から|おはよう"
+        }
+       ],
+       "description": "Kể triệu chứng đau đầu từ hôm qua.",
+       "displayOrder": 1
+      },
+      {
+       "code": "FEVER",
+       "type": "MISSION",
+       "title": "Báo sốt nhẹ",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "熱|少し|三十七度五分"
+        }
+       ],
+       "description": "Báo có sốt nhẹ.",
+       "displayOrder": 2
+      },
+      {
+       "code": "THROAT",
+       "type": "MISSION",
+       "title": "Kể tình trạng họng và ho",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "のど|咳|大丈夫|出ます"
+        }
+       ],
+       "description": "Kể họng ổn nhưng hơi ho.",
+       "displayOrder": 3
+      },
+      {
+       "code": "THANKS",
+       "type": "MISSION",
+       "title": "Cảm ơn bác sĩ",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "ありがとうございます|分かりました"
+        }
+       ],
+       "description": "Cảm ơn bác sĩ.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Kể triệu chứng",
+       "next": "S2",
+       "prompt": "Hỏi bệnh nhân có sốt không.",
+       "allowedGoalCodes": [
+        "SYMPTOM"
+       ],
+       "suggestedReplies": [
+        "おはようございます。昨日から頭が痛いです。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Báo sốt nhẹ",
+       "next": "S3",
+       "prompt": "Hỏi thêm về họng và ho.",
+       "allowedGoalCodes": [
+        "FEVER"
+       ],
+       "suggestedReplies": [
+        "少しあります。三十七度五分です。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Kể họng và ho",
+       "next": "S4",
+       "prompt": "Kết luận bị cảm và kê thuốc, dặn nghỉ ngơi.",
+       "allowedGoalCodes": [
+        "THROAT"
+       ],
+       "suggestedReplies": [
+        "のどは大丈夫ですが、咳が少し出ます。"
+       ]
+      },
+      {
+       "code": "S4",
+       "name": "Cảm ơn",
+       "next": "END",
+       "prompt": "Đáp lại lời cảm ơn của bệnh nhân.",
+       "allowedGoalCodes": [
+        "THANKS"
+       ],
+       "suggestedReplies": [
+        "ありがとうございます。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã khám xong",
+       "message": "お大事にしてください。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn bị đau đầu từ hôm qua nên đến phòng khám kể triệu chứng cho bác sĩ.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N3",
+    "description": "Bạn kể triệu chứng đau đầu, báo sốt nhẹ và tình trạng họng, ho cho bác sĩ.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 7,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "昨日から頭が痛いです。",
+       "pattern": "〜から〜が痛いです",
+       "explanation": "Kể triệu chứng đau bắt đầu từ khi nào."
+      },
+      {
+       "example": "のどや咳はどうですか。",
+       "pattern": "〜はどうですか",
+       "explanation": "Hỏi thăm tình trạng."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N3",
+       "term": "頭痛",
+       "example": "頭痛がします。",
+       "meaning": "đau đầu",
+       "reading": "ずつう"
+      },
+      {
+       "jlpt": "N3",
+       "term": "のど",
+       "example": "のどが痛いです。",
+       "meaning": "họng",
+       "reading": "のど"
+      },
+      {
+       "jlpt": "N3",
+       "term": "風邪",
+       "example": "風邪ですね。",
+       "meaning": "cảm",
+       "reading": "かぜ"
+      },
+      {
+       "jlpt": "N3",
+       "term": "診察",
+       "example": "診察を受ける。",
+       "meaning": "khám bệnh",
+       "reading": "しんさつ"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "昨日から頭が痛いです。",
+       "speaker": "learner",
+       "translation": "Từ hôm qua tôi bị đau đầu ạ."
+      },
+      {
+       "text": "熱はありますか。",
+       "speaker": "ai",
+       "translation": "Anh có bị sốt không ạ?"
+      },
+      {
+       "text": "のどは大丈夫ですが、咳が少し出ます。",
+       "speaker": "learner",
+       "translation": "Họng thì không sao nhưng hơi ho ạ."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-14",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-nhan-vien-nha-thuoc",
+   "learner_role_code": "cpath-khach-mua-thuoc",
+   "scenario": {
+    "slug": "cpath-dly-14",
+    "title": "Mua thuốc ở hiệu thuốc",
+    "location": "Quầy thuốc trong hiệu thuốc",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "RX",
+       "type": "MISSION",
+       "title": "Đưa đơn thuốc",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "処方箋|薬|お願いします"
+        }
+       ],
+       "description": "Đưa đơn thuốc để lấy thuốc.",
+       "displayOrder": 1
+      },
+      {
+       "code": "INSURANCE",
+       "type": "MISSION",
+       "title": "Đưa thẻ bảo hiểm",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "保険証|はい|これです|お持ち"
+        }
+       ],
+       "description": "Đưa thẻ bảo hiểm.",
+       "displayOrder": 2
+      },
+      {
+       "code": "DOSE",
+       "type": "MISSION",
+       "title": "Hỏi số ngày uống",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "何日分|一日三回|食後|三日分"
+        }
+       ],
+       "description": "Hỏi thuốc uống trong mấy ngày.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Đưa đơn thuốc",
+       "next": "S2",
+       "prompt": "Hỏi khách có mang thẻ bảo hiểm không.",
+       "allowedGoalCodes": [
+        "RX"
+       ],
+       "suggestedReplies": [
+        "この処方箋の薬をお願いします。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Đưa thẻ bảo hiểm",
+       "next": "S3",
+       "prompt": "Hướng dẫn cách uống thuốc.",
+       "allowedGoalCodes": [
+        "INSURANCE"
+       ],
+       "suggestedReplies": [
+        "はい、これです。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Hỏi số ngày uống",
+       "next": "END",
+       "prompt": "Cho biết thuốc dùng trong ba ngày.",
+       "allowedGoalCodes": [
+        "DOSE"
+       ],
+       "suggestedReplies": [
+        "何日分ですか。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã nhận thuốc",
+       "message": "お大事にしてください。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn cầm đơn thuốc ra hiệu thuốc để lấy thuốc và hỏi cách uống.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N3",
+    "description": "Bạn đưa đơn thuốc, đưa thẻ bảo hiểm và hỏi số ngày uống thuốc.",
+    "time_of_day": "Buổi chiều",
+    "estimated_minutes": 7,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "この処方箋の薬をお願いします。",
+       "pattern": "〜の薬をお願いします",
+       "explanation": "Yêu cầu lấy thuốc theo đơn."
+      },
+      {
+       "example": "保険証はお持ちですか。",
+       "pattern": "〜をお持ちですか",
+       "explanation": "Nhân viên hỏi khách có mang theo gì."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N3",
+       "term": "処方箋",
+       "example": "処方箋を出します。",
+       "meaning": "đơn thuốc",
+       "reading": "しょほうせん"
+      },
+      {
+       "jlpt": "N3",
+       "term": "保険証",
+       "example": "保険証を持っています。",
+       "meaning": "thẻ bảo hiểm y tế",
+       "reading": "ほけんしょう"
+      },
+      {
+       "jlpt": "N3",
+       "term": "薬局",
+       "example": "薬局で薬をもらいます。",
+       "meaning": "nhà thuốc",
+       "reading": "やっきょく"
+      },
+      {
+       "jlpt": "N3",
+       "term": "食後",
+       "example": "食後に飲みます。",
+       "meaning": "sau bữa ăn",
+       "reading": "しょくご"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "この処方箋の薬をお願いします。",
+       "speaker": "learner",
+       "translation": "Cho tôi lấy thuốc theo đơn này ạ."
+      },
+      {
+       "text": "保険証はお持ちですか。",
+       "speaker": "ai",
+       "translation": "Anh có mang thẻ bảo hiểm không ạ?"
+      },
+      {
+       "text": "この薬は一日三回、食後に飲んでください。",
+       "speaker": "ai",
+       "translation": "Thuốc này uống ba lần một ngày, sau bữa ăn ạ."
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-08",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-hang-xom",
+   "learner_role_code": "cpath-nguoi-moi-den",
+   "scenario": {
+    "slug": "cpath-dly-08",
+    "title": "Chuyện hàng xóm",
+    "location": "Trước nhà hàng xóm",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "APOLOGY",
+       "type": "MISSION",
+       "title": "Xin lỗi vì tiếng ồn",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "引っ越し|騒がしく|すみません|お互い様"
+        }
+       ],
+       "description": "Xin lỗi hàng xóm vì tiếng ồn khi chuyển nhà.",
+       "displayOrder": 1
+      },
+      {
+       "code": "GIFT",
+       "type": "MISSION",
+       "title": "Tặng quà nhỏ",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "これ|少しですが|どうぞ|気を使う"
+        }
+       ],
+       "description": "Tặng món quà nhỏ.",
+       "displayOrder": 2
+      },
+      {
+       "code": "ASK",
+       "type": "MISSION",
+       "title": "Nhờ chỉ thêm chuyện đổ rác",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "ごみ出し|教えてください|また"
+        }
+       ],
+       "description": "Nhờ hàng xóm chỉ thêm chuyện đổ rác.",
+       "displayOrder": 3
+      },
+      {
+       "code": "JOIN",
+       "type": "MISSION",
+       "title": "Hỏi về tham gia tổ dân phố",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "参加|町内会|ほうがいい|集まり"
+        }
+       ],
+       "description": "Hỏi có nên tham gia tổ dân phố không.",
+       "displayOrder": 4
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Xin lỗi vì tiếng ồn",
+       "next": "S2",
+       "prompt": "Xua tay cho qua chuyện, nói ai cũng có lúc thế.",
+       "allowedGoalCodes": [
+        "APOLOGY"
+       ],
+       "suggestedReplies": [
+        "昨日は引っ越しで騒がしくて、すみませんでした。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Tặng quà nhỏ",
+       "next": "S3",
+       "prompt": "Vui vẻ nhận quà và cảm ơn.",
+       "allowedGoalCodes": [
+        "GIFT"
+       ],
+       "suggestedReplies": [
+        "これ、少しですがどうぞ。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Nhờ chỉ chuyện đổ rác",
+       "next": "S4",
+       "prompt": "Nhận lời và nhắc tổ dân phố họp mỗi tháng một lần.",
+       "allowedGoalCodes": [
+        "ASK"
+       ],
+       "suggestedReplies": [
+        "ごみ出しのことなど、また教えてください。"
+       ]
+      },
+      {
+       "code": "S4",
+       "name": "Hỏi tham gia tổ dân phố",
+       "next": "END",
+       "prompt": "Khuyên nên đến một lần để mọi người nhớ mặt.",
+       "allowedGoalCodes": [
+        "JOIN"
+       ],
+       "suggestedReplies": [
+        "参加したほうがいいでしょうか。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã chào hỏi hàng xóm",
+       "message": "また何かあったら声をかけてね。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn vừa chuyển đến và sang chào, xin lỗi hàng xóm vì tiếng ồn hôm qua.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N3",
+    "description": "Bạn xin lỗi hàng xóm, tặng quà nhỏ và hỏi về nếp sống, tổ dân phố.",
+    "time_of_day": "Buổi chiều",
+    "estimated_minutes": 7,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "お互い様ですよ。",
+       "pattern": "お互い様",
+       "explanation": "Cụm xã giao dùng khi được xin lỗi hoặc cảm ơn."
+      },
+      {
+       "example": "気を使わせてしまって。",
+       "pattern": "気を使う",
+       "explanation": "Nói về sự quan tâm ý tứ với người khác."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N3",
+       "term": "引っ越し",
+       "example": "引っ越しで騒がしかったです。",
+       "meaning": "chuyển nhà",
+       "reading": "ひっこし"
+      },
+      {
+       "jlpt": "N3",
+       "term": "近所",
+       "example": "近所の人に挨拶します。",
+       "meaning": "hàng xóm",
+       "reading": "きんじょ"
+      },
+      {
+       "jlpt": "N3",
+       "term": "挨拶",
+       "example": "挨拶に行きます。",
+       "meaning": "chào hỏi",
+       "reading": "あいさつ"
+      },
+      {
+       "jlpt": "N3",
+       "term": "町内会",
+       "example": "町内会に参加します。",
+       "meaning": "tổ dân phố",
+       "reading": "ちょうないかい"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "昨日は引っ越しで騒がしくて、すみませんでした。",
+       "speaker": "learner",
+       "translation": "Hôm qua chuyển nhà ồn ào, cháu xin lỗi ạ."
+      },
+      {
+       "text": "いえいえ、お互い様ですよ。",
+       "speaker": "ai",
+       "translation": "Không sao đâu, ai cũng có lúc thế mà."
+      },
+      {
+       "text": "参加したほうがいいでしょうか。",
+       "speaker": "learner",
+       "translation": "Cháu có nên tham gia không ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-17",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-ban-than",
+   "learner_role_code": "cpath-ban-be",
+   "scenario": {
+    "slug": "cpath-dly-17",
+    "title": "Rủ đi xem phim",
+    "location": "Nhắn tin với bạn",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "ASK",
+       "type": "MISSION",
+       "title": "Hỏi bạn có rảnh không",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "予定|週末|ある|どうした"
+        }
+       ],
+       "description": "Hỏi bạn cuối tuần có bận không.",
+       "displayOrder": 1
+      },
+      {
+       "code": "INVITE",
+       "type": "MISSION",
+       "title": "Rủ đi xem phim",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "映画|行かない|一緒に|見に"
+        }
+       ],
+       "description": "Rủ bạn đi xem phim.",
+       "displayOrder": 2
+      },
+      {
+       "code": "TIME",
+       "type": "MISSION",
+       "title": "Chốt giờ hẹn",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "三時|土曜日|どう|待ち合わせ|駅"
+        }
+       ],
+       "description": "Đề xuất giờ và địa điểm gặp.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Hỏi bạn có rảnh",
+       "next": "S2",
+       "prompt": "Đáp là không có kế hoạch đặc biệt.",
+       "allowedGoalCodes": [
+        "ASK"
+       ],
+       "suggestedReplies": [
+        "週末、何か予定がある？"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Rủ đi xem phim",
+       "next": "S3",
+       "prompt": "Đồng ý và hỏi giờ.",
+       "allowedGoalCodes": [
+        "INVITE"
+       ],
+       "suggestedReplies": [
+        "一緒に映画を見に行かない？"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Chốt giờ và địa điểm",
+       "next": "END",
+       "prompt": "Đồng ý giờ và hẹn gặp ở ga.",
+       "allowedGoalCodes": [
+        "TIME"
+       ],
+       "suggestedReplies": [
+        "土曜日の三時からどう？"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã hẹn xong",
+       "message": "うん、また土曜日にね。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn muốn rủ bạn thân đi xem phim vào cuối tuần.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N3",
+    "description": "Bạn hỏi bạn có rảnh không, rủ đi xem phim và chốt giờ, địa điểm.",
+    "time_of_day": "Buổi tối",
+    "estimated_minutes": 7,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "一緒に映画を見に行かない？",
+       "pattern": "〜に行かない？",
+       "explanation": "Cách rủ bạn bè thân mật."
+      },
+      {
+       "example": "土曜日の三時からどう？",
+       "pattern": "〜からどう？",
+       "explanation": "Đề xuất thời gian với bạn."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N3",
+       "term": "映画",
+       "example": "映画を見ます。",
+       "meaning": "phim",
+       "reading": "えいが"
+      },
+      {
+       "jlpt": "N3",
+       "term": "週末",
+       "example": "週末に会いましょう。",
+       "meaning": "cuối tuần",
+       "reading": "しゅうまつ"
+      },
+      {
+       "jlpt": "N3",
+       "term": "待ち合わせ",
+       "example": "駅で待ち合わせよう。",
+       "meaning": "hẹn gặp",
+       "reading": "まちあわせ"
+      },
+      {
+       "jlpt": "N3",
+       "term": "誘う",
+       "example": "友達を誘います。",
+       "meaning": "rủ",
+       "reading": "さそう"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "週末、何か予定がある？",
+       "speaker": "learner",
+       "translation": "Cuối tuần cậu có kế hoạch gì không?"
+      },
+      {
+       "text": "特にないよ。どうしたの？",
+       "speaker": "ai",
+       "translation": "Không có gì đặc biệt. Sao vậy?"
+      },
+      {
+       "text": "一緒に映画を見に行かない？",
+       "speaker": "learner",
+       "translation": "Đi xem phim cùng mình không?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-18",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-nguoi-quen",
+   "learner_role_code": "cpath-nguoi-moi",
+   "scenario": {
+    "slug": "cpath-dly-18",
+    "title": "Rủ đi uống cà phê",
+    "location": "Nơi làm việc",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "ASK",
+       "type": "MISSION",
+       "title": "Hỏi có thời gian không",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "仕事の後|時間|ありますか|大丈夫"
+        }
+       ],
+       "description": "Hỏi người quen có rảnh sau giờ làm không.",
+       "displayOrder": 1
+      },
+      {
+       "code": "INVITE",
+       "type": "MISSION",
+       "title": "Mời đi uống trà",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "喫茶店|お茶しませんか|近く|お茶"
+        }
+       ],
+       "description": "Mời đi uống trà ở quán gần đây.",
+       "displayOrder": 2
+      },
+      {
+       "code": "MEET",
+       "type": "MISSION",
+       "title": "Chốt giờ và địa điểm",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "六時|駅前|どうですか|連絡|楽しみ"
+        }
+       ],
+       "description": "Chốt giờ và địa điểm gặp.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Hỏi có thời gian",
+       "next": "S2",
+       "prompt": "Đáp là rảnh.",
+       "allowedGoalCodes": [
+        "ASK"
+       ],
+       "suggestedReplies": [
+        "今日は仕事の後、時間がありますか。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Mời đi uống trà",
+       "next": "S3",
+       "prompt": "Đồng ý và hỏi giờ gặp.",
+       "allowedGoalCodes": [
+        "INVITE"
+       ],
+       "suggestedReplies": [
+        "近くの喫茶店でお茶しませんか。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Chốt giờ và địa điểm",
+       "next": "END",
+       "prompt": "Đồng ý giờ và nói sẽ liên lạc lại.",
+       "allowedGoalCodes": [
+        "MEET"
+       ],
+       "suggestedReplies": [
+        "六時に駅前でどうですか。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã hẹn xong",
+       "message": "こちらこそ、楽しみにしています。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn muốn mời một người quen đi uống trà sau giờ làm để trò chuyện.",
+    "difficulty": "MEDIUM",
+    "jlpt_level": "N3",
+    "description": "Bạn hỏi người quen có rảnh không, mời đi uống trà và chốt giờ, địa điểm.",
+    "time_of_day": "Buổi tối",
+    "estimated_minutes": 7,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "近くの喫茶店でお茶しませんか。",
+       "pattern": "〜ませんか",
+       "explanation": "Cách mời lịch sự."
+      },
+      {
+       "example": "何時ごろにしますか。",
+       "pattern": "〜ごろにしますか",
+       "explanation": "Hỏi giờ hẹn."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N3",
+       "term": "喫茶店",
+       "example": "喫茶店で会いましょう。",
+       "meaning": "quán cà phê",
+       "reading": "きっさてん"
+      },
+      {
+       "jlpt": "N3",
+       "term": "連絡",
+       "example": "後で連絡します。",
+       "meaning": "liên lạc",
+       "reading": "れんらく"
+      },
+      {
+       "jlpt": "N3",
+       "term": "楽しみ",
+       "example": "楽しみにしています。",
+       "meaning": "mong chờ",
+       "reading": "たのしみ"
+      },
+      {
+       "jlpt": "N3",
+       "term": "約束",
+       "example": "約束をしました。",
+       "meaning": "hẹn, lời hứa",
+       "reading": "やくそく"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "今日は仕事の後、時間がありますか。",
+       "speaker": "learner",
+       "translation": "Hôm nay sau giờ làm, anh có thời gian không ạ?"
+      },
+      {
+       "text": "はい、大丈夫ですよ。",
+       "speaker": "ai",
+       "translation": "Vâng, tôi rảnh ạ."
+      },
+      {
+       "text": "六時に駅前でどうですか。",
+       "speaker": "learner",
+       "translation": "Sáu giờ ở trước ga được không ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-19",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-nhan-vien-buu-dien",
+   "learner_role_code": "cpath-nguoi-hoi-thong-tin",
+   "scenario": {
+    "slug": "cpath-dly-19",
+    "title": "Hỏi giờ mở cửa",
+    "location": "Trước cửa bưu điện",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "OPEN",
+       "type": "MISSION",
+       "title": "Hỏi giờ mở cửa",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "何時|開きますか|郵便局|九時"
+        }
+       ],
+       "description": "Hỏi bưu điện mở cửa lúc mấy giờ.",
+       "displayOrder": 1
+      },
+      {
+       "code": "CLOSE",
+       "type": "MISSION",
+       "title": "Hỏi giờ đóng cửa",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "閉まりますか|五時|まで"
+        }
+       ],
+       "description": "Hỏi bưu điện đóng cửa lúc mấy giờ.",
+       "displayOrder": 2
+      },
+      {
+       "code": "NOW",
+       "type": "MISSION",
+       "title": "Hỏi giờ hiện tại",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "今|何時|八時五十分|十分"
+        }
+       ],
+       "description": "Hỏi giờ hiện tại để ước lượng thời gian chờ.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Hỏi giờ mở cửa",
+       "next": "S2",
+       "prompt": "Cho biết mở cửa từ chín giờ.",
+       "allowedGoalCodes": [
+        "OPEN"
+       ],
+       "suggestedReplies": [
+        "郵便局は何時に開きますか。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Hỏi giờ đóng cửa",
+       "next": "S3",
+       "prompt": "Cho biết đóng cửa lúc năm giờ.",
+       "allowedGoalCodes": [
+        "CLOSE"
+       ],
+       "suggestedReplies": [
+        "何時に閉まりますか。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Hỏi giờ hiện tại",
+       "next": "END",
+       "prompt": "Cho biết giờ hiện tại.",
+       "allowedGoalCodes": [
+        "NOW"
+       ],
+       "suggestedReplies": [
+        "今、何時ですか。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã biết giờ giấc",
+       "message": "ありがとうございました。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn đến bưu điện hơi sớm nên hỏi giờ mở cửa để chờ.",
+    "difficulty": "EASY",
+    "jlpt_level": "N5",
+    "description": "Bạn hỏi nhân viên bưu điện về giờ mở cửa, giờ đóng cửa và giờ hiện tại.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "郵便局は何時に開きますか。",
+       "pattern": "〜は何時に開きますか",
+       "explanation": "Hỏi giờ mở cửa."
+      },
+      {
+       "example": "九時からです。五時までです。",
+       "pattern": "〜からです / 〜までです",
+       "explanation": "Nói khoảng thời gian."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N5",
+       "term": "開く",
+       "example": "店が開きます。",
+       "meaning": "mở cửa",
+       "reading": "あく"
+      },
+      {
+       "jlpt": "N5",
+       "term": "閉まる",
+       "example": "店が閉まります。",
+       "meaning": "đóng cửa",
+       "reading": "しまる"
+      },
+      {
+       "jlpt": "N5",
+       "term": "何時",
+       "example": "今、何時ですか。",
+       "meaning": "mấy giờ",
+       "reading": "なんじ"
+      },
+      {
+       "jlpt": "N5",
+       "term": "郵便局",
+       "example": "郵便局に行きます。",
+       "meaning": "bưu điện",
+       "reading": "ゆうびんきょく"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "郵便局は何時に開きますか。",
+       "speaker": "learner",
+       "translation": "Bưu điện mở cửa lúc mấy giờ ạ?"
+      },
+      {
+       "text": "九時からです。",
+       "speaker": "ai",
+       "translation": "Từ chín giờ ạ."
+      },
+      {
+       "text": "今、何時ですか。",
+       "speaker": "learner",
+       "translation": "Bây giờ là mấy giờ ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-20",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-ban-than",
+   "learner_role_code": "cpath-ban-be",
+   "scenario": {
+    "slug": "cpath-dly-20",
+    "title": "Giờ hẹn gặp",
+    "location": "Nhắn tin với bạn",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "ASK",
+       "type": "MISSION",
+       "title": "Hỏi giờ gặp",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "何時|会う|明日|どう"
+        }
+       ],
+       "description": "Hỏi bạn mai gặp lúc mấy giờ.",
+       "displayOrder": 1
+      },
+      {
+       "code": "SUGGEST",
+       "type": "MISSION",
+       "title": "Đề xuất giờ",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "十一時|早い|十時|どう"
+        }
+       ],
+       "description": "Đề xuất giờ phù hợp.",
+       "displayOrder": 2
+      },
+      {
+       "code": "PLACE",
+       "type": "MISSION",
+       "title": "Chốt địa điểm",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "改札前|どこ|待ち合わせ|また明日"
+        }
+       ],
+       "description": "Chốt địa điểm gặp.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Hỏi giờ gặp",
+       "next": "S2",
+       "prompt": "Đề xuất mười giờ.",
+       "allowedGoalCodes": [
+        "ASK"
+       ],
+       "suggestedReplies": [
+        "明日、何時に会う？"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Đề xuất giờ",
+       "next": "S3",
+       "prompt": "Đồng ý và hỏi địa điểm.",
+       "allowedGoalCodes": [
+        "SUGGEST"
+       ],
+       "suggestedReplies": [
+        "ちょっと早いな。十一時はどう？"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Chốt địa điểm",
+       "next": "END",
+       "prompt": "Xác nhận giờ và địa điểm trước cổng soát vé.",
+       "allowedGoalCodes": [
+        "PLACE"
+       ],
+       "suggestedReplies": [
+        "駅の改札前はどう？"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã hẹn xong",
+       "message": "うん、また明日。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn nhắn tin với bạn để hẹn giờ và địa điểm đi chơi ngày mai.",
+    "difficulty": "EASY",
+    "jlpt_level": "N5",
+    "description": "Bạn hỏi giờ gặp, đề xuất giờ và chốt địa điểm gặp với bạn.",
+    "time_of_day": "Buổi tối",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "十一時はどう？",
+       "pattern": "〜はどう？",
+       "explanation": "Cách đề xuất với bạn bè."
+      },
+      {
+       "example": "明日、何時に会う？",
+       "pattern": "〜に会う？",
+       "explanation": "Hỏi giờ gặp bạn."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N5",
+       "term": "明日",
+       "example": "明日、会おう。",
+       "meaning": "ngày mai",
+       "reading": "あした"
+      },
+      {
+       "jlpt": "N5",
+       "term": "何時",
+       "example": "何時に会う？",
+       "meaning": "mấy giờ",
+       "reading": "なんじ"
+      },
+      {
+       "jlpt": "N5",
+       "term": "改札",
+       "example": "改札前で待ちます。",
+       "meaning": "cổng soát vé",
+       "reading": "かいさつ"
+      },
+      {
+       "jlpt": "N5",
+       "term": "待ち合わせ",
+       "example": "待ち合わせる。",
+       "meaning": "hẹn gặp",
+       "reading": "まちあわせ"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "明日、何時に会う？",
+       "speaker": "learner",
+       "translation": "Ngày mai, mấy giờ mình gặp nhau?"
+      },
+      {
+       "text": "十時はどう？",
+       "speaker": "ai",
+       "translation": "Mười giờ được không?"
+      },
+      {
+       "text": "駅の改札前はどう？",
+       "speaker": "learner",
+       "translation": "Trước cổng soát vé ở ga được không?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": "DLY-21",
+   "goal_test": false,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-nguoi-qua-duong",
+   "learner_role_code": "cpath-nguoi-hoi-thong-tin",
+   "scenario": {
+    "slug": "cpath-dly-21",
+    "title": "Hỏi thời gian đi lại",
+    "location": "Trên đường gần ga",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "WALK",
+       "type": "MISSION",
+       "title": "Hỏi thời gian đi bộ",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "歩いて|どのくらい|かかりますか|駅|十五分"
+        }
+       ],
+       "description": "Hỏi đi bộ ra ga mất bao lâu.",
+       "displayOrder": 1
+      },
+      {
+       "code": "BUS",
+       "type": "MISSION",
+       "title": "Hỏi xe buýt",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "バス|ありますか|五分|着きます"
+        }
+       ],
+       "description": "Hỏi có xe buýt không.",
+       "displayOrder": 2
+      },
+      {
+       "code": "FREQ",
+       "type": "MISSION",
+       "title": "Hỏi tần suất xe buýt",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "何分おき|十分|来ますか"
+        }
+       ],
+       "description": "Hỏi xe buýt bao lâu một chuyến.",
+       "displayOrder": 3
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Hỏi thời gian đi bộ",
+       "next": "S2",
+       "prompt": "Cho biết đi bộ mất khoảng mười lăm phút.",
+       "allowedGoalCodes": [
+        "WALK"
+       ],
+       "suggestedReplies": [
+        "駅まで歩いてどのくらいかかりますか。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Hỏi xe buýt",
+       "next": "S3",
+       "prompt": "Cho biết có xe buýt, năm phút tới nơi.",
+       "allowedGoalCodes": [
+        "BUS"
+       ],
+       "suggestedReplies": [
+        "バスはありますか。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Hỏi tần suất",
+       "next": "END",
+       "prompt": "Cho biết mười phút một chuyến.",
+       "allowedGoalCodes": [
+        "FREQ"
+       ],
+       "suggestedReplies": [
+        "バスは何分おきに来ますか。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã nắm đường đi",
+       "message": "気をつけて行ってください。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn muốn ra ga và hỏi người qua đường về thời gian đi bộ cũng như xe buýt.",
+    "difficulty": "EASY",
+    "jlpt_level": "N5",
+    "description": "Bạn hỏi thời gian đi bộ ra ga, hỏi xe buýt và tần suất chuyến.",
+    "time_of_day": "Buổi sáng",
+    "estimated_minutes": 6,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "駅まで歩いてどのくらいかかりますか。",
+       "pattern": "〜までどのくらいかかりますか",
+       "explanation": "Hỏi thời gian di chuyển."
+      },
+      {
+       "example": "バスは何分おきに来ますか。",
+       "pattern": "〜おきに来ますか",
+       "explanation": "Hỏi tần suất phương tiện."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N5",
+       "term": "歩いて",
+       "example": "歩いて行きます。",
+       "meaning": "đi bộ",
+       "reading": "あるいて"
+      },
+      {
+       "jlpt": "N5",
+       "term": "バス",
+       "example": "バスで行きます。",
+       "meaning": "xe buýt",
+       "reading": "バス"
+      },
+      {
+       "jlpt": "N5",
+       "term": "かかる",
+       "example": "五分かかります。",
+       "meaning": "mất (thời gian)",
+       "reading": "かかる"
+      },
+      {
+       "jlpt": "N5",
+       "term": "駅",
+       "example": "駅まで歩きます。",
+       "meaning": "nhà ga",
+       "reading": "えき"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "駅まで歩いてどのくらいかかりますか。",
+       "speaker": "learner",
+       "translation": "Đi bộ ra ga mất khoảng bao lâu ạ?"
+      },
+      {
+       "text": "十五分ぐらいです。",
+       "speaker": "ai",
+       "translation": "Khoảng mười lăm phút ạ."
+      },
+      {
+       "text": "バスは何分おきに来ますか。",
+       "speaker": "learner",
+       "translation": "Xe buýt bao nhiêu phút một chuyến ạ?"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "situation_id": null,
+   "goal_test": true,
+   "category_code": "daily-life",
+   "ai_role_code": "cpath-nguoi-doi-thoai",
+   "learner_role_code": "cpath-nguoi-hoc",
+   "scenario": {
+    "slug": "cpath-test-daily-life",
+    "title": "Một ngày sinh hoạt ở Nhật",
+    "location": "Nhiều địa điểm trong ngày",
+    "flow_json": {
+     "goals": [
+      {
+       "code": "RENT",
+       "type": "MISSION",
+       "title": "Hỏi chi phí thuê phòng",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "初期費用|家賃|敷金|いくら|礼金"
+        }
+       ],
+       "description": "Hỏi tổng chi phí thuê phòng.",
+       "displayOrder": 1
+      },
+      {
+       "code": "MARKET",
+       "type": "MISSION",
+       "title": "Hỏi hạn dùng ở siêu thị",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "消費期限|半額|いつまで|値引き"
+        }
+       ],
+       "description": "Hỏi hạn dùng và giờ giảm giá ở siêu thị.",
+       "displayOrder": 2
+      },
+      {
+       "code": "BANK",
+       "type": "MISSION",
+       "title": "Chuyển khoản và hỏi phí",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "振込|手数料|ATM|いくら"
+        }
+       ],
+       "description": "Chuyển khoản và hỏi phí ở ngân hàng.",
+       "displayOrder": 3
+      },
+      {
+       "code": "HEALTH",
+       "type": "MISSION",
+       "title": "Kể triệu chứng bệnh",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "咳|熱|頭|薬|痛い"
+        }
+       ],
+       "description": "Kể triệu chứng và xin thuốc ở phòng khám.",
+       "displayOrder": 4
+      },
+      {
+       "code": "SOCIAL",
+       "type": "MISSION",
+       "title": "Rủ bạn đi chơi",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "映画|喫茶店|行かない|ませんか|一緒に"
+        }
+       ],
+       "description": "Rủ bạn hoặc người quen đi chơi.",
+       "displayOrder": 5
+      },
+      {
+       "code": "TIME",
+       "type": "MISSION",
+       "title": "Hỏi giờ mở cửa",
+       "required": true,
+       "conditions": [
+        {
+         "type": "KEYWORD",
+         "value": "何時|開きますか|閉まりますか|まで"
+        }
+       ],
+       "description": "Hỏi giờ mở cửa một địa điểm.",
+       "displayOrder": 6
+      }
+     ],
+     "states": [
+      {
+       "code": "S1",
+       "name": "Thuê phòng",
+       "next": "S2",
+       "prompt": "Đóng vai nhân viên bất động sản, báo chi phí thuê phòng.",
+       "allowedGoalCodes": [
+        "RENT"
+       ],
+       "suggestedReplies": [
+        "初期費用は全部でいくらになりますか。"
+       ]
+      },
+      {
+       "code": "S2",
+       "name": "Đi siêu thị",
+       "next": "S3",
+       "prompt": "Đóng vai nhân viên siêu thị, cho biết hạn dùng và giờ giảm giá.",
+       "allowedGoalCodes": [
+        "MARKET"
+       ],
+       "suggestedReplies": [
+        "この惣菜の消費期限はいつまでですか。"
+       ]
+      },
+      {
+       "code": "S3",
+       "name": "Làm thủ tục ngân hàng",
+       "next": "S4",
+       "prompt": "Đóng vai giao dịch viên, báo phí chuyển khoản.",
+       "allowedGoalCodes": [
+        "BANK"
+       ],
+       "suggestedReplies": [
+        "振込をしたいのですが。手数料はいくらかかりますか。"
+       ]
+      },
+      {
+       "code": "S4",
+       "name": "Khám bệnh",
+       "next": "S5",
+       "prompt": "Đóng vai bác sĩ, hỏi triệu chứng và kê thuốc.",
+       "allowedGoalCodes": [
+        "HEALTH"
+       ],
+       "suggestedReplies": [
+        "咳が止まらなくて、夜眠れないんです。"
+       ]
+      },
+      {
+       "code": "S5",
+       "name": "Rủ bạn đi chơi",
+       "next": "S6",
+       "prompt": "Đóng vai bạn, đồng ý đi chơi.",
+       "allowedGoalCodes": [
+        "SOCIAL"
+       ],
+       "suggestedReplies": [
+        "一緒に映画を見に行かない？"
+       ]
+      },
+      {
+       "code": "S6",
+       "name": "Hỏi giờ mở cửa",
+       "next": "END",
+       "prompt": "Đóng vai nhân viên, cho biết giờ mở cửa.",
+       "allowedGoalCodes": [
+        "TIME"
+       ],
+       "suggestedReplies": [
+        "郵便局は何時に開きますか。"
+       ]
+      }
+     ],
+     "endings": {
+      "success": {
+       "code": "SUCCESS",
+       "title": "Đã hoàn thành một ngày sinh hoạt",
+       "message": "今日はいろいろありましたね。お疲れさまでした。",
+       "condition": "all_objectives",
+       "nextAction": "SHOW_RESULT"
+      }
+     },
+     "version": 1,
+     "initialState": "S1"
+    },
+    "background": "Bạn trải qua một ngày sinh hoạt bận rộn ở Nhật: thuê phòng, đi siêu thị, làm thủ tục ngân hàng, khám bệnh, rủ bạn đi chơi và hỏi giờ mở cửa bưu điện.",
+    "difficulty": "HARD",
+    "jlpt_level": "N3",
+    "description": "Một cuộc gọi tổng hợp đi qua các chủ đề nhà cửa, đi chợ, ngân hàng, sức khoẻ, quan hệ xã hội và thời gian.",
+    "time_of_day": "Cả ngày",
+    "estimated_minutes": 14,
+    "learning_content_json": {
+     "grammar": [
+      {
+       "example": "共益費は別ですか。",
+       "pattern": "〜は別ですか",
+       "explanation": "Hỏi một khoản có tính riêng không."
+      },
+      {
+       "example": "操作を教えていただけますか。",
+       "pattern": "〜ていただけますか",
+       "explanation": "Nhờ vả rất lịch sự."
+      },
+      {
+       "example": "一緒に映画を見に行かない？",
+       "pattern": "〜に行かない？",
+       "explanation": "Rủ bạn bè thân mật."
+      }
+     ],
+     "vocabulary": [
+      {
+       "jlpt": "N3",
+       "term": "家賃",
+       "example": "家賃はいくらですか。",
+       "meaning": "tiền thuê nhà",
+       "reading": "やちん"
+      },
+      {
+       "jlpt": "N3",
+       "term": "消費期限",
+       "example": "消費期限はいつまでですか。",
+       "meaning": "hạn dùng",
+       "reading": "しょうひきげん"
+      },
+      {
+       "jlpt": "N3",
+       "term": "手数料",
+       "example": "手数料はいくらですか。",
+       "meaning": "phí giao dịch",
+       "reading": "てすうりょう"
+      },
+      {
+       "jlpt": "N3",
+       "term": "薬",
+       "example": "薬をください。",
+       "meaning": "thuốc",
+       "reading": "くすり"
+      },
+      {
+       "jlpt": "N5",
+       "term": "何時",
+       "example": "何時に開きますか。",
+       "meaning": "mấy giờ",
+       "reading": "なんじ"
+      }
+     ],
+     "exampleDialogue": [
+      {
+       "text": "初期費用は全部でいくらになりますか。",
+       "speaker": "learner",
+       "translation": "Chi phí ban đầu tổng cộng là bao nhiêu ạ?"
+      },
+      {
+       "text": "家賃、敷金一か月、礼金なしで、合計十四万円ほどです。",
+       "speaker": "ai",
+       "translation": "Tiền thuê, cọc một tháng, không tiền lễ, tổng khoảng mười bốn vạn ạ."
+      },
+      {
+       "text": "手数料はいくらかかりますか。",
+       "speaker": "learner",
+       "translation": "Phí là bao nhiêu ạ?"
+      },
+      {
+       "text": "咳止めを五日分出します。",
+       "speaker": "ai",
+       "translation": "Tôi kê thuốc ho năm ngày."
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

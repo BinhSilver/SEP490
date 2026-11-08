@@ -1,0 +1,527 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "注意されても、遅刻する社員は後を絶たない。",
+       "ja_furigana": "注意(ちゅうい)されても、遅刻(ちこく)する社員(しゃいん)は後(あと)を絶(た)たない。",
+       "vi": "Dù bị nhắc nhở, nhân viên đi trễ vẫn không ngừng."
+      },
+      {
+       "ja": "対策を取っても、ネット上の詐欺被害は後を絶たない。",
+       "ja_furigana": "対策(たいさく)を取(と)っても、ネット上(じょう)の詐欺被害(さぎひがい)は後(あと)を絶(た)たない。",
+       "vi": "Dù có biện pháp, nạn lừa đảo trên mạng vẫn không chấm dứt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "罰則が強化されたにもかかわらず、飲酒運転は後を絶たない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mặc dù hình phạt đã được tăng nặng, tình trạng lái xe sau khi uống rượu vẫn không ngừng xảy ra."
+     },
+     {
+      "ja": "どんなにパトロールをしても、粗大ごみの不法投棄が後を絶たない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù tuần tra đến mức nào, các vụ đổ trộm rác cồng kềnh vẫn nối tiếp không dứt."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: 〜後を絶たない",
+     "FURIGANA_MISSING: 罰則が強化されたにもかかわらず、飲酒運転は後を絶たない。",
+     "FURIGANA_MISSING: どんなにパトロールをしても、粗大ごみの不法投棄が後を絶たない。"
+    ],
+    "formation": "N + が + 後を絶たない",
+    "locked_fields": [],
+    "meaning_vi": "Những việc tiêu cực cứ liên tiếp xảy ra, mãi không chấm dứt.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜後を絶たない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi cùng một loại sự việc không mong muốn tiếp tục xuất hiện hết vụ này đến vụ khác. Thường gặp trong tin tức và văn viết về vấn đề xã hội. 1) Dễ nhầm với ～続いている. → ～後を絶たない nói những vụ việc mới cùng loại cứ nối tiếp xuất hiện, thường là hiện tượng tiêu cực trong xã hội. 2) Không dùng cho một sự việc duy nhất kéo dài liên tục. → Chủ thể thường là loại vụ việc như 事故・犯罪・被害・応募者など xuất hiện hết trường hợp này đến trường hợp khác. 3) Mẫu thiên về tin tức và văn viết. → Nếu chỉ nói một hoạt động vẫn đang tiếp tục, ～続いている thường tự nhiên hơn. ～もってのほかだ Thể hiện sự phản đối hoặc lên án rất mạnh, cho rằng hành vi được nêu hoàn toàn vượt ngoài giới hạn có thể chấp nhận. Trong hội thoại có thể mang nghĩa “đừng hòng”. 1) Dễ nhầm với ～とんでもない. → ～もってのほかだ thể hiện sự phản đối hoặc lên án rất mạnh rằng hành vi ấy hoàn toàn vượt ngoài mức chấp nhận. 2) Thường đi sau ～とは／～なんて. → Cấu trúc như 約束を破るとはもってのほかだ nêu trực tiếp điều bị người nói lên án. 3) Đây là cách nói giàu cảm xúc, thường dùng trong hội thoại. → Tùy ngữ cảnh có thể mang nghĩa “đừng hòng”, không chỉ đơn thuần là “ngoài dự đoán”. ～ことこの上ない Nhấn mạnh cảm xúc hoặc cảm giác đã đạt đến mức cao nhất. Có thể dùng ở quá khứ dưới dạng ことこの上なかった. 1) Dễ nhầm với ～限りだ／～極まりない. → ～ことこの上ない nhấn mạnh cảm xúc hoặc trạng thái đã đạt mức cao nhất: không gì hơn được nữa. 2) Chú ý cách nối với tính từ な. → Dùng ナAな＋ことこの上ない; với động từ hoặc tính từ い dùng dạng từ điển phù hợp. 3) Mẫu mang sắc thái trang trọng. → Có thể dùng quá khứ ～ことこの上なかった; không nhầm この上 với nghĩa vị trí “phía trên này”. ～は否めない Thừa nhận một sự thật hoặc khả năng dù người nói có thể không muốn hoàn toàn đồng tình với nó. Dạng 否めず nối sang kết quả hay nhận định tiếp theo trong văn viết. 1) Dễ nhầm với ～とは限らない. → ～は否めない không nói “không hẳn” mà thừa nhận rằng một sự thật, ảnh hưởng hoặc khả năng khó có thể phủ nhận. 2) Chú ý hai cấu trúc thường gặp. → Dùng Nは否めない hoặc mệnh đề dạng thông thường＋ことは否めない. 3) Mẫu thường xuất hiện trong lập luận dè dặt. → Người nói có thể không muốn đồng ý hoàn toàn, nhưng vẫn công nhận một phần bất lợi hoặc thực tế có căn cứ. ～べくもない Khẳng định mạnh rằng một việc không có khả năng xảy ra hoặc vượt ngoài tầm có thể thực hiện/nhận biết. Là cách nói trang trọng, thiên về văn viết. 1) Dễ nhầm với ～ことができない. → ～べくもない khẳng định mạnh một việc hoàn toàn nằm ngoài khả năng thực hiện, hiểu biết hoặc dự đoán. 2) Trước mẫu dùng động từ thể từ điển. → Các cách nói như 知るべくもない, 比べるべくもない mang sắc thái tuyệt đối hơn phủ định khả năng thông thường. 3) Mẫu trang trọng và thiên về văn viết. → Không dùng để nói người nói đơn giản không muốn làm; trọng tâm là khách quan không có cách hoặc không thể đạt tới. ～ではあるまいか Cách đặt câu hỏi tu từ hoặc nêu phỏng đoán trang trọng, gần nghĩa ～ではないだろうか／～ではなかろうか. Có thể dùng để nhẹ nhàng đưa ra ý kiến, hoặc bộc lộ lo ngại. 1) Dễ nhầm với câu hỏi thật ～ではないか. → ～ではあるまいか／～のではあるまいか là câu hỏi tu từ hoặc phỏng đoán trang trọng, gần nghĩa “chẳng phải là… sao”. 2) Chú ý cách nối. → Danh từ và tính từ な dùng ～ではあるまいか; mệnh đề thường dùng ～のではあるまいか. 3) Mẫu thường nhằm đưa ý kiến một cách dè dặt. → Người nói thường không chờ câu trả lời có/không, mà tìm sự đồng tình hoặc bộc lộ lo ngại. ～でなくてなんだろう Dùng câu hỏi tu từ để khẳng định mạnh cách đánh giá của người nói: sự việc ấy không thể gọi bằng tên nào khác ngoài danh từ được nêu. Sắc thái giàu cảm xúc và chủ quan. 1) Dễ nhầm với ～以外のなにものでもない. → Nでなくてなんだろう dùng câu hỏi tu từ để khẳng định giàu cảm xúc rằng sự việc chính là N chứ không thể gọi khác. 2) Trước mẫu là danh từ đánh giá. → 愛・奇跡・怠慢・差別など thường được dùng để thể hiện lời khen hoặc lên án mạnh. 3) Sắc thái chủ quan rất rõ. → So với ～以外のなにものでもない, mẫu này có tính cảm thán và lời nói trực tiếp hơn. ～以外のなにものでもない Loại bỏ mọi cách giải thích khác để quả quyết rằng bản chất sự việc chính là danh từ được nêu. Mang sắc thái kết luận mạnh, thường dùng trong văn nghị luận. 1) Dễ nhầm với ～でなくてなんだろう. → N以外のなにものでもない loại bỏ mọi cách giải thích khác và kết luận một cách mạnh mẽ rằng bản chất chính là N. 2) Mẫu mang sắc thái logic, văn nghị luận. → Thường dùng khi người nói muốn định nghĩa hoặc quy kết bản chất của hành vi, hiện tượng hay kết quả. 3) Không phải câu phủ định thông thường. → Toàn cụm có nghĩa khẳng định “không là gì khác ngoài N”, dù hình thức chứa でもない. ～しかるべき（だ） Nêu một trạng thái hoặc cách xử lý được coi là hợp lý, đúng chuẩn mực và đương nhiên phải như vậy. しかるべき đứng trực tiếp trước danh từ còn có nghĩa “thích hợp, có thẩm quyền”. 1) Dễ nhầm với ～べきだ. → ～て／～であってしかるべきだ nói một trạng thái hay cách xử lý là hợp lý, đúng chuẩn mực và đương nhiên phải như vậy. 2) Chú ý nghĩa khi đứng trực tiếp trước danh từ. → しかるべき人・しかるべき機関 có nghĩa người hoặc cơ quan thích hợp, có thẩm quyền. 3) Mẫu mang tính chuẩn mực, trang trọng. → Không dùng để dự đoán điều chắc sẽ xảy ra; người nói đang đánh giá điều gì là đúng đắn hoặc phù hợp. ～と言っても過言ではない Dùng để đưa ra một nhận định mạnh rồi khẳng định mức diễn đạt ấy vẫn hợp lý, không phải phóng đại. Thường gặp trong văn viết, thuyết trình và lời đánh giá. 1) Dễ hiểu sai là người nói thừa nhận mình đang nói quá. → ～と言っても過言ではない thực ra khẳng định nhận định mạnh phía trước vẫn hợp lý và không phải phóng đại. 2) Chú ý cách nối với danh từ và tính từ な. → Ở hiện tại, だ có thể được lược trước と言っても過言ではない tùy cấu trúc. 3) Mẫu thường dùng trong văn nghị luận và thuyết trình. → Chỉ nên dùng khi ngữ cảnh có đủ căn cứ cho nhận định mạnh; trong hội thoại nhẹ nhàng có thể nghe khoa trương."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c75be10fc9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の言わんとすることは、だいたい分かる。",
+       "ja_furigana": "彼(かれ)の言(い)わんとすることは、だいたい分(わ)かる。",
+       "vi": "Điều anh ấy định nói thì tôi đại khái hiểu được."
+      },
+      {
+       "ja": "夜が明けんとして、空が白み始めた。",
+       "ja_furigana": "夜(よ)が明(あ)けんとして、空(そら)が白(しら)み始(はじ)めた。",
+       "vi": "Trời sắp sáng, bầu trời bắt đầu ửng lên."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この論文は、筆者の言わんとする（＝言おうとする）ことはわかるが、表現が難解すぎる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đối với luận văn này, tôi hiểu điều tác giả muốn nói, nhưng cách diễn đạt quá khó hiểu."
+     },
+     {
+      "ja": "ロケットは今まさに火星に向けて旅立たんと（＝旅立とうと）している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tên lửa hiện đang chuẩn bị rời bệ để hướng tới Sao Hỏa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: 「〜ん」を使った表現",
+     "FURIGANA_MISSING: この論文は、筆者の言わんとする（＝言おうとする）ことはわかるが、表現が難解すぎる。",
+     "FURIGANA_MISSING: ロケットは今まさに火星に向けて旅立たんと（＝旅立とうと）している。"
+    ],
+    "formation": "Vない(ない→ん) + んとする; Vない(ない→ん) + んとして",
+    "locked_fields": [],
+    "meaning_vi": "～んとする tương đương ～ようとする, dùng để nói điều chủ thể định làm hoặc một sự việc đang ở ngay trước thời điểm xảy ra. Đây là lối diễn đạt mang màu sắc cổ và thường gặp trong văn viết.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "「〜ん」を使った表現",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "～んとする tương đương ～ようとする, dùng để nói điều chủ thể định làm hoặc một sự việc đang ở ngay trước thời điểm xảy ra. Đây là lối diễn đạt mang màu sắc cổ và thường gặp trong văn viết. 1) Dễ nhầm với ～ようとする. → ～んとする tương đương về ý nghĩa nhưng mang màu sắc cổ, trang trọng và thường xuất hiện trong văn viết. 2) Chú ý cách tạo dạng. → Bỏ ない của thể ない rồi thêm んとする; riêng する trở thành せんとする. 3) Có hai hướng nghĩa cần phân biệt. → Với chủ thể có ý chí là “định làm”; với hiện tượng hay thời điểm là “sắp xảy ra”. Không nhầm ん với の giải thích. 連語 Ba ví dụ thuộc khối “連語” riêng: ～んばかり biểu thị “như sắp/chỉ chực”, ～んがため là “để mà”, còn あらん限り là “tất cả những gì có thể có”. Không gộp chúng vào hai ví dụ chính của ～んとする. 1) Không gộp mọi biểu hiện có ～ん thành một quy tắc duy nhất. → ～んばかり, ～んがため và あらん限り là các cụm cố định có cấu trúc và ý nghĩa riêng. 2) Cần ghi nhớ từng cụm. → ～んばかり là “như sắp”, ～んがため là “để mà”, còn あらん限り là “tất cả những gì có thể”. 3) Các biểu hiện này mang sắc thái cổ hoặc văn viết. → Không nên tự tạo dạng mới theo suy luận từ ～んとする nếu chưa có cách dùng cố định trong tiếng Nhật."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-37aa545d9b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あの映画は、観客の心を動かさずにはおかない。",
+       "ja_furigana": "あの映画(えいが)は、観客(かんきゃく)の心(こころ)を動(うご)かさずにはおかない。",
+       "vi": "Bộ phim đó ắt làm rung động lòng khán giả."
+      },
+      {
+       "ja": "あの失言は、人々の怒りを招かずにはおかない。",
+       "ja_furigana": "あの失言(しつげん)は、人々(ひとびと)の怒(いか)りを招(まね)かずにはおかない。",
+       "vi": "Phát ngôn sai ấy ắt chuốc lấy sự giận dữ của mọi người."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あの記録映画は、見る者の良心を揺さぶらずにはおかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bộ phim tư liệu ấy ắt lay động lương tâm người xem."
+     },
+     {
+      "ja": "度重なる遅延は、利用者の不信を招かないではおかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trì hoãn lặp lại ắt chuốc lấy sự bất tín của người dùng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あの記録映画は、見る者の良心を揺さぶらずにはおかない。",
+     "FURIGANA_MISSING: 度重なる遅延は、利用者の不信を招かないではおかない。"
+    ],
+    "formation": "Vない + ずにはおかない; Vない + ないではおかない",
+    "locked_fields": [],
+    "meaning_vi": "Ắt sẽ khiến / không để yên",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Ắt sẽ khiến / không để yên",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Sự việc, tác phẩm hoặc thái độ ắt gây ra một hệ quả, không thể để nguyên không xảy ra. Cách dùng: Mẫu 〜ないではおかない / 〜ずにはおかない nhấn mạnh tính tất yếu của hệ quả: nhìn thì ắt bị lay chuyển, trì hoãn ắt gây mất tin, truy hỏi ắt không cho câu mập mờ tồn tại. おく là để yên; おかない là không để yên. Chủ thể thường là tác phẩm, tính cách, tình thế, không nhất thiết là nghĩa vụ đạo đức của người nói. Khác すまない ở chỗ đây là vận động tất yếu, kia là trách nhiệm phải làm cho xong. Hay đi với 感動させる、揺さぶる、引き起こす, hoặc hành động truy bức. Giọng mạnh, văn viết, bình luận. Không dùng cho việc vặt. ずにはおかない hơi cứng hơn ないではおかない. Sắc thái: Tất yếu, có sức ép từ bản chất sự việc. Có thể khen (tác phẩm lay động) hoặc cảnh báo (sẽ chuốc lấy bất tín). Không phải lời thề của chủ thể muốn làm. Lưu ý: Không nhầm với すまない (trách nhiệm khép việc). Chủ thể hay là sự việc/tác phẩm gây hệ quả, không phải nghĩa vụ xin lỗi. Không dùng thể lịch sự おかません trong mẫu cố định này."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8a2ae1eb28"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大雪のため、列車は運休を余儀なくされた。",
+       "ja_furigana": "大雪(おおゆき)のため、列車(れっしゃ)は運休(うんきゅう)を余儀(よぎ)なくされた。",
+       "vi": "Vì tuyết lớn, tàu buộc phải ngừng chạy."
+      },
+      {
+       "ja": "病気が、彼に長期休養を余儀なくさせた。",
+       "ja_furigana": "病気(びょうき)が、彼(かれ)に長期休養(ちょうききゅうよう)を余儀(よぎ)なくさせた。",
+       "vi": "Bệnh tật đã buộc anh ấy phải nghỉ dưỡng dài ngày."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "海況の悪化で、定期便は欠航を余儀なくされた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì biển động, chuyến tuyến phải đình, không còn cách khác."
+     },
+     {
+      "ja": "予算削減が、研究室に共同機器の返却を余儀なくさせた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cắt ngân sách đã buộc phòng thí nghiệm phải trả thiết bị dùng chung."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 海況の悪化で、定期便は欠航を余儀なくされた。",
+     "FURIGANA_MISSING: 予算削減が、研究室に共同機器の返却を余儀なくさせた。"
+    ],
+    "formation": "N + を余儀なくされる; N + を余儀なくさせる",
+    "locked_fields": [],
+    "meaning_vi": "Buộc phải / bắt phải",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Buộc phải / bắt phải",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Hoàn cảnh không cho lựa chọn khác: bị buộc phải, hoặc khiến đối phương phải. Cách dùng: Mẫu 〜を余儀なくされる nói chủ thể bị hoàn cảnh đẩy tới một việc không muốn: đình chuyến, dời phòng, trả thiết bị, đóng cửa. 余儀ない là không còn đường khác. される là bị động: bản thân/tổ chức phải chịu. 〜を余儀なくさせる là khiến động: ngân sách, quy định, sự cố buộc người khác phải làm. Đi với danh từ sự vụ, không với động từ nguyên dạng. Giọng tin tức, công văn, báo cáo. Không diễn tả nguyện vọng, không phải trách nhiệm đạo lý như すまない. Nguyên nhân thường khách quan: thời tiết, ngân sách, an toàn. Tránh nhầm ngôi: ai bị buộc dùng される, ai gây sức ép dùng させる. Không dùng cho việc nhỏ như pha trà. Sắc thái: Khách quan, hơi nặng, không đổ lỗi cảm tính. Người bị される thường không mong muốn. させる có thể chỉ chính sách hoặc sự cố, không nhất thiết ác ý. Lưu ý: Nối danh từ (欠航・変更・閉鎖・退職…), không nối する trực tiếp sau 余儀なく. される ≠ させる: đừng đảo ngôi. Không dùng cho lựa chọn tự nguyện."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ddf07c6810"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "被災地の写真を見ると、涙を禁じ得ない。",
+       "ja_furigana": "被災地(ひさいち)の写真(しゃしん)を見(み)ると、涙(なみだ)を禁(きん)じ得(え)ない。",
+       "vi": "Nhìn ảnh vùng bị nạn, tôi không cầm được nước mắt."
+      },
+      {
+       "ja": "彼の無責任な態度には、怒りを禁じ得ない。",
+       "ja_furigana": "彼(かれ)の無責任(むせきにん)な態度(たいど)には、怒(いか)りを禁(きん)じ得(え)ない。",
+       "vi": "Trước thái độ vô trách nhiệm của anh ta, tôi không kìm được cơn giận."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "閉館が決まった町の図書室の棚を見るたびに、寂しさを禁じ得ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mỗi lần nhìn kệ phòng sách thị trấn đã quyết đóng cửa, tôi không cầm được nỗi trống trải."
+     },
+     {
+      "ja": "同じミスが三度続く報告に、苛立ちを禁じ得なかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trước báo cáo cùng một lỗi lặp ba lần, tôi đã không cầm được sự bực."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 閉館が決まった町の図書室の棚を見るたびに、寂しさを禁じ得ない。",
+     "FURIGANA_MISSING: 同じミスが三度続く報告に、苛立ちを禁じ得なかった。"
+    ],
+    "formation": "N + を禁じ得ない",
+    "locked_fields": [],
+    "meaning_vi": "Không cầm được",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không cầm được",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Không thể ngăn cảm xúc dâng lên; giọng văn viết, quan phương. Cách dùng: Mẫu 〜を禁じ得ない nói người nói không thể cấm, không thể ngăn một cảm xúc: buồn, tức, kính trọng, hoài nghi. 禁じる là cấm, 得ない là không thể. Chỉ đi với danh từ cảm xúc, không đi với hành động. Giọng bài báo, bình luận, hồi ức. Gần を禁じえない. Khác に堪えない（感情） ở chỗ 禁じ得ない như nhìn cảm xúc nổi lên mà không giữ được, に堪えない nghi thức hơn với 感謝・遺憾. Khác てやまない vì không phải nguyện vọng kéo dài có chủ đích. Thường ngôi thứ nhất. Quá khứ 禁じ得なかった. Không nói 禁じられない trong mẫu này; 得ない là thành tố cố định. Không dùng cho cảm xúc vui nhộn quá suồng. Sắc thái: Văn viết, hơi khách quan dù là cảm xúc. Có thể tích cực (kính trọng) hoặc tiêu cực (bực). Không thô, không nói năng miệng. Lưu ý: Danh từ cảm xúc + を; không dùng động từ trước を禁じ得ない. Dùng 得ない, không thay bằng られない. Không dùng trong hội thoại thân mật."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-44e91e2443"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "多くの支援の手に、感謝の念に堪えない。",
+       "ja_furigana": "多(おお)くの支援(しえん)の手(て)に、感謝(かんしゃ)の念(ねん)に堪(た)えない。",
+       "vi": "Trước nhiều bàn tay giúp đỡ, tôi không kìm được lòng biết ơn."
+      },
+      {
+       "ja": "このたびの不手際には、遺憾の意に堪えない。",
+       "ja_furigana": "このたびの不手際(ふてぎわ)には、遺憾(いかん)の意(い)に堪(た)えない。",
+       "vi": "Về sự sơ suất lần này, chúng tôi lấy làm tiếc không nguôi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "深夜に届けられた差し入れの数々に、感謝の念に堪えない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trước những phần quà tiếp tế chuyển đến đêm khuya, tôi không kìm được lòng biết ơn."
+     },
+     {
+      "ja": "今回の誤送付については、遺憾の意に堪えない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Về việc gửi nhầm lần này, chúng tôi lấy làm tiếc không nguôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 深夜に届けられた差し入れの数々に、感謝の念に堪えない。",
+     "FURIGANA_MISSING: 今回の誤送付については、遺憾の意に堪えない。"
+    ],
+    "formation": "N + に堪えない",
+    "locked_fields": [],
+    "meaning_vi": "Không kìm được (cảm xúc)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không kìm được (cảm xúc)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Bộc lộ cảm xúc mạnh đến mức không chịu nổi: cảm kích, lấy làm tiếc, thương cảm. Cách dùng: Nhánh cảm xúc của 〜に堪えない đi với danh từ tình cảm: 感謝、遺憾、感激、同情、悲しみ. Nghĩa là cảm xúc ấy dâng lên không chịu nổi, người nói muốn bày tỏ mạnh. Giọng nghi thức, hay trong lời cảm ơn công, xin lỗi tổ chức, điếu văn. Đây không phải chê chất lượng đọc không nổi; nhánh ấy đi với 読む・聞く. Cũng không phải 耐える chịu đau. Thường ngôi thứ nhất hoặc đại diện tập thể. 感謝に堪えない gần nghĩa cảm ơn sâu sắc. Quá khứ に堪えなかった khi kể cảm xúc lúc ấy. Không dùng tính từ い trực tiếp. Tránh trộn với を禁じ得ない dù gần nghĩa: 禁じ得ない hơi khách quan hơn một nhịp. Sắc thái: Trang trọng, nghi lễ, cảm xúc đọng. Mạnh hơn とても感謝している. Không suồng sã, không mỉa mai trừ khi cố ý châm biếm. Lưu ý: Phải là danh từ cảm xúc, không phải 読むに堪えない (nhánh đánh giá). Không dùng cho cảm xúc vui nhộn suồng sã. Ít dùng ngôi thứ hai để ra lệnh cảm xúc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c49cc1adeb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "窓ガラスを割ってしまった以上、弁償しないではすまない。",
+       "ja_furigana": "窓(まど)ガラスを割(わ)ってしまった以上(いじょう)、弁償(べんしょう)しないではすまない。",
+       "vi": "Đã làm vỡ kính cửa sổ thì không xong nếu không bồi thường."
+      },
+      {
+       "ja": "約束の時間に遅れたのだから、謝らずにはすまない。",
+       "ja_furigana": "約束(やくそく)の時間(じかん)に遅(おく)れたのだから、謝(あやま)らずにはすまない。",
+       "vi": "Đã đến trễ giờ hẹn thì không xong nếu không xin lỗi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "数値を誤って議会資料に載せた以上、訂正を出さないではすまない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã đưa số sai vào tài liệu hội đồng thì không thể xong nếu không phát đính chính."
+     },
+     {
+      "ja": "借用した機材を破損したのだから、弁償せずにはすまないだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã làm hỏng thiết bị mượn thì hẳn không xong nếu không bồi thường."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 数値を誤って議会資料に載せた以上、訂正を出さないではすまない。",
+     "FURIGANA_MISSING: 借用した機材を破損したのだから、弁償せずにはすまないだろう。"
+    ],
+    "formation": "Vない + ずにはすまない; Vない + ないではすまない",
+    "locked_fields": [],
+    "meaning_vi": "Không xong nếu không…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không xong nếu không...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Về mặt xã hội hay đạo lý, không thể coi như xong nếu không làm việc ấy. Cách dùng: Mẫu 〜ないではすまない và 〜ずにはすまない nói rằng nếu không làm A thì chuyện không thể khép lại: dư luận, quy chế, lương tâm không cho phép bỏ qua. すむ là xong chuyện, すまない là không xong. Hay dùng khi đã gây thiệt hại, sai sót, vi phạm: phải xin lỗi, bồi thường, giải trình. ずにはすまない văn viết hơn. Đây là bắt buộc xã hội, khác なければならない nghiêng quy tắc chung, cũng khác ないではおかない nghiêng hệ quả tất yếu do bản chất sự việc gây ra. Người nói thừa nhận áp lực trách nhiệm, không phải đang ước nguyện. Không dùng cho thói quen cá nhân vô hại. Chủ thể thường là người phải chịu trách nhiệm. Sắc thái: Nặng, có áp lực. Không phải xin lỗi suông すまない. Giọng kết luận trách nhiệm, đôi khi cảnh báo. Lưu ý: Không nhầm với すまない nghĩa xin lỗi. Cần hành động cần thiết để dẹp việc; không dùng cho cảm xúc suông. ずにはすまない và ないではすまない gần nghĩa; ず trang trọng hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-aaaf4e4006"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "皆さんのご健康を願ってやまない。",
+       "ja_furigana": "皆(みな)さんのご健康(けんこう)を願(ねが)ってやまない。",
+       "vi": "Tôi không ngừng cầu chúc mọi người sức khỏe."
+      },
+      {
+       "ja": "長年この町のために尽くしてきた先生を、私たちは敬してやまない。",
+       "ja_furigana": "長年(ながねん)この町(まち)のために尽(つ)くしてきた先生(せんせい)を、私(わたし)たちは敬(けい)してやまない。",
+       "vi": "Chúng tôi mãi kính trọng người thầy đã cống hiến nhiều năm cho thị trấn này."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "被災した同僚の一日も早い回復を願ってやまない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi không ngừng cầu mong đồng nghiệp bị nạn sớm bình phục."
+     },
+     {
+      "ja": "地域医療を支えてきた院長の功績を、私たちは敬してやまない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chúng tôi mãi kính trọng công lao vị viện trưởng đã chống đỡ y tế địa phương."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 被災した同僚の一日も早い回復を願ってやまない。",
+     "FURIGANA_MISSING: 地域医療を支えてきた院長の功績を、私たちは敬してやまない。"
+    ],
+    "formation": "V-て + やまない",
+    "locked_fields": [],
+    "meaning_vi": "Mãi không nguôi",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Mãi không nguôi",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nói tình cảm, nguyện vọng kéo dài không dứt, giọng văn viết trang trọng. Cách dùng: Mẫu 〜てやまない diễn tả tình cảm hoặc ước nguyện tiếp diễn không ngừng: cầu, mong, kính, yêu mến, kỳ vọng. やむ nghĩa là dừng; phủ định thành không dừng. Chỉ đi với động từ tâm trạng, không đi với hành động cụ thể như ăn, viết, đi. Hay gặp 願ってやまない、祈ってやまない、愛してやまない、期待してやまない. Giọng nghi lễ, thư chúc, cáo phó, phát biểu. Không dùng trong trò chuyện quán ăn. Thời hiện tại là mặc định vì nhấn mạnh sự kéo dài; quá khứ hiếm, chỉ khi kể một giai đoạn đã khép. Người nói bày tỏ chân thành, không phải bị hoàn cảnh bắt buộc như 余儀なくされる. Sắc thái: Trang trọng, ấm, hơi cổ. Không cường điệu thô như といったらない. Không phải nghĩa không chịu dừng hành động vật lý. Lưu ý: Chỉ với động từ tình cảm/nguyện vọng (願う・祈る・愛する・期待する・尊敬する…). Không dùng 食べてやまない、書いてやまない. Ít dùng mệnh lệnh hay thể bị động."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-90510a07bd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "時間がある限り、勉強を続けたいです。",
+       "ja_furigana": "時間(じかん)がある限(かぎ)り、勉強(べんきょう)を続(つづ)けたいです。",
+       "vi": "Chừng nào còn thời gian, tôi muốn tiếp tục học."
+      },
+      {
+       "ja": "練習なくして上達はありません。",
+       "ja_furigana": "練習(れんしゅう)なくして上達(じょうたつ)はありません。",
+       "vi": "Không có luyện tập thì không có tiến bộ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "元気である限り、働き続けたいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chừng nào còn khỏe, tôi vẫn muốn tiếp tục làm việc."
+     },
+     {
+      "ja": "努力なくして成功はありません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không có nỗ lực thì không có thành công."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "GRAMMAR_CORE_MISSING: N1 dễ nhầm",
+     "PARENT_MISSING: N1 dễ nhầm",
+     "FURIGANA_MISSING: 元気である限り、働き続けたいです。",
+     "FURIGANA_MISSING: 努力なくして成功はありません。"
+    ],
+    "formation": null,
+    "locked_fields": [],
+    "meaning_vi": "Tổng hợp ngữ pháp N1 dễ nhầm: Phân biệt theo từng nhóm",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "N1 dễ nhầm",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "JLPT N1 Tổng hợp ngữ pháp N1 dễ nhầm: Phân biệt theo từng nhóm Ở trình độ N1, nhiều mẫu ngữ pháp không còn khác nhau rõ ràng về nghĩa tiếng Việt. Hai cấu trúc đều có thể được dịch là “dựa trên”, “trong trường hợp”, “đến tận”, “nếu không” hoặc “bắt đầu từ”, nhưng lại khác về logic câu, mức độ nhấn mạnh, văn phong và sắc thái. Những mẫu như ～限り・～ない限り・～ないことには, ～をもって・～を限りに, ～に至って・～にあって, ～に基づいて・～に則って・～に即して hay ～を皮切りに・～をきっかけに đặc biệt dễ gây nhầm trong phần ngữ pháp và đọc hiểu JLPT N1. Hub này tổng hợp các mẫu N1 dễ nhầm theo từng chức năng. Mỗi mục tập trung vào điểm khác biệt quan trọng nhất; hãy mở bài chuyên sâu nếu bạn muốn xem cấu trúc, ví dụ, sắc thái và trường hợp không thể thay thế cho nhau. Nội dung bài học Điều kiện, giới hạn và tính duy nhất Phạm vi, mốc kết thúc và điểm cuối Căn cứ, tiêu chuẩn và nguyên tắc Hoàn cảnh, giai đoạn và mức độ cực điểm Khởi đầu, cơ duyên và bước ngoặt Bảng tra nhanh ngữ pháp N1 Cách học ngữ pháp N1 dễ nhầm 01 Điều kiện, giới hạn và tính duy nhất Đây là nhóm rất quan trọng ở N1: cùng nói về “giới hạn” hoặc “nếu không” nhưng quan hệ logic giữa hai vế hoàn toàn khác nhau. Học theo cụm: 限り・ない限り・ないことには・なくして・なしに 1 ～限り và ～限りでは ～限り Chừng nào A còn tồn tại thì B vẫn đúng, hoặc giới hạn phạm vi của một điều kiện. ～限りでは Giới hạn kết luận trong phạm vi những gì người nói biết, thấy hoặc kiểm tra được. 元気である限り、働き続けたいです。 Chừng nào còn khỏe, tôi vẫn muốn tiếp tục làm việc. Nhớ nhanh: điều kiện còn tồn tại → 限り ／ trong phạm vi thông tin biết được → 限りでは Xem chi tiết: Phân biệt ～限り và ～限りでは → 2 ～ない限り và ～ないことには ～ない限り Nếu A không xảy ra thì B không thay đổi; nhấn mạnh ranh giới điều kiện. ～ないことには Nếu chưa có A thì chưa thể làm, biết hoặc kết luận B. Nhớ nhanh: điều kiện giới hạn → ない限り ／ điều kiện tiên quyết → ないことには Xem chi tiết: ～ない限り và ～ないことには → 3 ～ないことには và ～なければ ～ないことには A phải được thỏa mãn trước thì mới có thể thực hiện hoặc đánh giá B. ～なければ Điều kiện phủ định thông thường: “nếu không A thì B”. Nhớ nhanh: tiên quyết → ないことには ／ điều kiện chung → なければ Xem chi tiết: ～ないことには và ～なければ → 4 ～なくして・～なくしては・～なしに・～なしには ～なくして / ～なくしては “Không có A thì không thể có B”. Mang sắc thái mạnh và thường trang trọng. ～なしに / ～なしには “Không có / không làm A mà…”. Có thể mô tả việc B xảy ra trong tình trạng thiếu A. 努力なくして成功はありません。 Không có nỗ lực thì không có thành công. Xem chi tiết 4 mẫu ～なくして・～なしに → 5 ～をおいて và ～以外に ～をおいて Nhấn mạnh A là lựa chọn duy nhất hoặc phù hợp nhất. ～以外に Chỉ đơn giản mang nghĩa “ngoài A ra”. Nhớ nhanh: “không ai/cái gì hơn A” → をおいて ／ loại trừ đơn thuần → 以外に Xem chi tiết: ～をおいて và ～以外に → 02 Phạm vi, mốc kết thúc và điểm cuối Các cấu trúc trong nhóm này thường xuất hiện trong thông báo, tin tức và văn viết trang trọng. 6 ～に至るまで và ～にわたって ～に至るまで Nhấn mạnh phạm vi kéo dài “đến tận / đến cả A”. ～にわたって Nhấn mạnh sự kéo dài hoặc bao phủ trên toàn bộ một phạm vi. Nhớ nhanh: điểm cuối đáng chú ý → に至るまで ／ toàn phạm vi → にわたって Xem chi tiết: ～に至るまで và ～にわたって → 7 ～を限りに và ～を最後に ～を限りに Lấy A làm mốc cuối và từ đó chủ động chấm dứt một việc. ～を最後に A là lần cuối thực tế trước khi sự việc không xảy ra nữa. 今日を限りに、タバコをやめます。 Kể từ hôm nay tôi sẽ bỏ thuốc. Nhớ nhanh: quyết định chấm dứt → を限りに ／ lần cuối trong thực tế → を最後に Xem chi tiết: ～を限りに và ～を最後に → 8 ～をもって và ～で ～をもって Có thể chỉ phương tiện theo văn phong trang trọng, hoặc đánh dấu một mốc thời gian chính thức. ～で Trợ từ cơ bản chỉ phương tiện, cách thức hoặc mốc kết thúc. Nhớ nhanh: をもって trang trọng và thường gặp trong thông báo chính thức. Xem chi tiết: ～をもって và ～で → 9 ～をもって và ～を限りに ～をもって Đánh dấu mốc kết thúc chính thức, thường dùng trong thông báo. ～を限りに Nhấn mạnh A là mốc hoặc lần cuối, thường thể hiện ý chí chấm dứt. 本日をもって、営業を終了いたします。 Kể từ hết hôm nay, chúng tôi sẽ ngừng hoạt động. Xem chi tiết: ～をもって và ～を限りに → 03 Căn cứ, tiêu chuẩn và nguyên tắc Nhóm rất thường gặp trong văn nghị luận, pháp luật, báo cáo, hành chính và đọc hiểu N1. 10 ～に基づいて và ～に則って ～に基づいて Dựa vào A như dữ liệu, bằng chứng hoặc căn cứ khách quan. ～に則って Tuân theo A như quy tắc, chuẩn mực, luật lệ hoặc nguyên tắc. Nhớ nhanh: căn cứ → に基づいて ／ quy tắc phải tuân theo → に則って Xem chi tiết: ～に基づいて và ～に則って → 11 ～に即して và ～に沿って ～に即して Làm sao cho sát với thực tế, tình hình hoặc hoàn cảnh cụ thể. ～に沿って Làm theo đường lối, kế hoạch, phương châm hoặc mong muốn. Nhớ nhanh: sát thực tế → に即して ／ theo đường hướng → に沿って Xem chi tiết: ～に即して và ～に沿って → 12 ～を踏まえて và ～に基づいて ～を踏まえて Xét đến, tiếp thu hoặc cân nhắc A rồi mới thực hiện B. ～に基づいて B được thực hiện trực tiếp dựa trên A như một căn cứ. Nhớ nhanh: cân nhắc A làm tiền đề → 踏まえて ／ lấy A làm căn cứ → 基づいて Xem chi tiết: ～を踏まえて và ～に基づいて → 04 Hoàn cảnh, giai đoạn và mức độ cực điểm Các mẫu にあって và に至る thường không chỉ đơn giản mang nghĩa “ở” hoặc “đến”, mà còn nhấn mạnh một tình thế hoặc giai đoạn đặc biệt. 13 ～にあって và ～において ～にあって Chủ thể đang ở trong một hoàn cảnh hoặc tình thế đặc biệt. ～において Chỉ địa điểm, lĩnh vực, thời đại hoặc bối cảnh một cách trang trọng. Nhớ nhanh: hoàn cảnh đặc biệt → にあって ／ bối cảnh trung tính → において Xem chi tiết: ～にあって và ～において → 14 ～にあっては và ～の場合は ～にあっては “Trong hoàn cảnh A”, đặc biệt nhấn mạnh một tình thế khác thường. ～の場合は “Trong trường hợp A”, phân loại điều kiện một cách trung tính. 非常時にあっては、冷静な判断が必要です。 Trong tình huống khẩn cấp, cần có phán đoán bình tĩnh. Xem chi tiết: ～にあっては và ～の場合は → 15 ～に至って và ～になって ～に至って Quá trình đã đi đến một giai đoạn đáng chú ý; thường mang sắc thái “mãi đến lúc…”. ～になって Đơn giản diễn tả việc chuyển sang một trạng thái. Nhớ nhanh: đến tận giai đoạn đáng chú ý → に至って ／ thay đổi trạng thái → になって Xem chi tiết: ～に至って và ～になって → 16 ～に至っては và ～となると ～に至っては Nêu A như trường hợp đặc biệt, nghiêm trọng hoặc cực đoan nhất trong một nhóm. ～となると “Nếu / khi nói đến A thì…”, chuyển trọng tâm sang trường hợp A. Nhớ nhanh: riêng đến trường hợp cực đoan A → に至っては Xem chi tiết: ～に至っては và ～となると → 17 ～に至っても và ～ても ～に至っても Dù tình hình đã phát triển đến tận một mức hoặc giai đoạn đáng chú ý, kết quả vẫn không thay đổi. ～ても Mẫu nhượng bộ chung: “dù A thì B”. Nhớ nhanh: に至っても chứa cả ý “đến tận mức đó rồi mà vẫn…”. Xem chi tiết: ～に至っても và ～ても → 05 Khởi đầu, cơ duyên và bước ngoặt Các mẫu đều có thể được dịch là “bắt đầu từ” hoặc “nhân A mà…”, nhưng quan hệ giữa A và những gì xảy ra sau đó khác nhau. 18 ～を皮切りに và ～をはじめとして ～を皮切りに A là sự kiện mở màn, sau đó một chuỗi sự kiện tương tự tiếp diễn. ～をはじめとして Lấy A làm đại diện tiêu biểu để liệt kê một nhóm rộng hơn. Nhớ nhanh: mở màn chuỗi → 皮切りに ／ đại diện cho nhóm → はじめとして Xem chi tiết: ～を皮切りに và ～をはじめとして → 19 ～を皮切りに và ～をきっかけに ～を皮切りに A mở đầu cho một loạt hoạt động hoặc sự kiện tiếp theo. ～をきっかけに A là cơ duyên hoặc tác nhân khiến một sự việc mới bắt đầu. Nhớ nhanh: chuỗi cùng loại bắt đầu → 皮切りに ／ A gây ra bước bắt đầu mới → きっかけに Xem chi tiết: ～を皮切りに và ～をきっかけに → 20 ～を機に・～を契機に・～をきっかけに ～をきっかけに / ～を機に きっかけに = lấy A làm cơ duyên. を機に = nhân dịp A mà thay đổi hoặc bắt đầu. ～を契機に A trở thành bước ngoặt quan trọng; trang trọng và thiên về văn viết hơn. Trục nhớ: cơ duyên → きっかけに ／ nhân dịp → を機に ／ bước ngoặt trang trọng → を契機に Xem chi tiết: ～を機に・～を契機に・～をきっかけに → 06 Bảng tra nhanh ngữ pháp N1 dễ nhầm Nếu đang phân vân giữa hai mẫu, hãy xác định điểm khác biệt chính trước. Cặp / nhóm ngữ pháp Nhớ nhanh ～限り / ～限りでは Điều kiện, phạm vi / trong phạm vi thông tin biết được ～ない限り / ～ないことには Điều kiện giới hạn / điều kiện tiên quyết ～ないことには / ～なければ Tiên quyết / điều kiện phủ định chung ～なくして / ～なしに Không có A thì không B / không có A mà B ～をおいて / ～以外に Duy nhất, tốt nhất / ngoài A ra ～に至るまで / ～にわたって Đến tận điểm A / toàn bộ phạm vi ～を限りに / ～を最後に Chủ động lấy làm mốc cuối / lần cuối thực tế ～をもって / ～で Trang trọng / thông dụng ～をもって / ～を限りに Mốc kết thúc chính thức / mốc cuối có chủ ý ～に基づいて / ～に則って Dựa trên căn cứ / tuân theo quy tắc ～に即して / ～に沿って Sát thực tế / theo đường lối ～を踏まえて / ～に基づいて Cân nhắc làm tiền đề / lấy làm căn cứ ～にあって / ～において Hoàn cảnh đặc biệt / bối cảnh ～にあっては / ～の場合は Tình thế đặc thù / trường hợp chung ～に至って / ～になって Đi đến giai đoạn đáng chú ý / trở thành ～に至っては / ～となると Riêng trường hợp cực đoan / khi nói đến A ～に至っても / ～ても Đến tận mức đó mà vẫn / dù ～を皮切りに / ～をはじめとして Mở màn chuỗi / đại diện cho nhóm ～を皮切りに / ～をきっかけに Mở đầu chuỗi / cơ duyên ～を機に / ～を契機に / ～をきっかけに Nhân dịp / bước ngoặt / cơ duyên 07 Cách học ngữ pháp N1 dễ nhầm Với N1, dịch nghĩa từng mẫu sang tiếng Việt thường không đủ để chọn được đáp án đúng. 1 Xác định quan hệ logic A là điều kiện, căn cứ, bước ngoặt, hoàn cảnh hay điểm cuối của B? 2 Kiểm tra mức độ nhấn mạnh N1 có nhiều mẫu cùng nghĩa cơ bản nhưng một mẫu nhấn mạnh mạnh hơn hẳn mẫu còn lại. 3 Nhận diện văn phong Chú ý mẫu dùng trong hội thoại, văn nghị luận, báo chí, hành chính hay thông báo chính thức. 4 Đọc cả đoạn văn Nhiều mẫu N1 chỉ có thể phân biệt chính xác khi nhìn câu trước và câu sau. Ví dụ, nếu chỉ học: に基づいて = dựa trên を踏まえて = dựa trên thì rất dễ chọn sai. Hãy nhớ thêm: に基づいて → A là căn cứ trực tiếp để thực hiện hoặc phán đoán B. を踏まえて → người nói cân nhắc, tiếp thu A rồi mới đưa ra B. Nên học ngữ pháp N1 theo thứ tự nào? 01 Điều kiện và giới hạn 限り・限りでは・ない限り・ないことには・なくして… 02 Mốc kết thúc và phạm vi をもって・を限りに・を最後に・に至るまで… 03 Căn cứ và tiêu chuẩn に基づいて・に則って・に即して・に沿って・を踏まえて… 04 Hoàn cảnh đặc biệt にあって・にあっては・において… 05 Giai đoạn và cực điểm に至って・に至っては・に至っても… 06 Khởi đầu và bước ngoặt を皮切りに・をきっかけに・を機に・を契機に… Tổng kết Ngữ pháp N1 khó không phải vì mỗi cấu trúc riêng lẻ quá phức tạp, mà vì nhiều mẫu có nghĩa dịch gần như giống nhau nhưng được sử dụng trong những quan hệ logic khác nhau. Ví dụ, ～ない限り và ～ないことには đều có thể dịch thành “nếu không A thì không B”, nhưng một mẫu nhấn mạnh ranh giới điều kiện, còn mẫu kia nhấn mạnh A là điều kiện tiên quyết. Tương tự, ～を皮切りに và ～をきっかけに đều nói về một điểm bắt đầu, nhưng một bên là sự kiện mở màn cho một chuỗi, còn một bên là cơ duyên khiến một thay đổi bắt đầu. Khi học N1, hãy ưu tiên: xác định chức năng → quan hệ logic → sắc thái → văn phong → mẫu gần nghĩa → trường hợp không thể thay thế . Đây là cách hiệu quả nhất để xử lý các câu phân biệt ngữ pháp và những cấu trúc khó trong phần đọc hiểu JLPT N1."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-30359f632b"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-043"
+}

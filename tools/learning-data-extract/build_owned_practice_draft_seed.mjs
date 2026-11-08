@@ -34,7 +34,7 @@ export function buildDraftSeed(items, { lessonSources = {} } = {}) {
   if (errors.length) throw new Error(errors.join('\n'));
   if (!ordered.length) throw new Error('No AI draft questions supplied');
   let sql = '-- Generated task-owned AI draft questions. UNSCORED PRACTICE ONLY.\n';
-  sql += '-- Apply sql/migrations/022_learning_owned_consolidated.sql first. Do not use --force.\n';
+  sql += '-- Apply sql/learning/learning_schema.sql first. Do not use --force.\n';
   sql += 'SET NAMES utf8mb4;\n';
   sql += 'CREATE TEMPORARY TABLE owned_practice_draft_guard (ok INT NOT NULL CHECK (ok=1));\n';
   for (const item of ordered) {

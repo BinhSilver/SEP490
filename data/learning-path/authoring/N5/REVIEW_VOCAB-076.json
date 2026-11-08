@@ -1,0 +1,54 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この古いかばんは父のです。",
+       "ja_furigana": "この古(ふる)いかばんは父(ちち)のです。",
+       "vi": "Cái cặp cũ này là của bố tôi.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "viết lại 1 câu quá giống nguồn ngoài"
+   },
+   "context": {
+    "expression": "古い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e921357d7e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あついので、エアコンをつけてください。",
+       "ja_furigana": "あついので、エアコンをつけてください。",
+       "vi": "Trời nóng nên hãy bật điều hòa lên.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "viết lại 1 câu quá giống nguồn ngoài"
+   },
+   "context": {
+    "expression": "エアコン"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-dcb913c69f"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N5",
+ "packet_id": "REVIEW_VOCAB-076"
+}

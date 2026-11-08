@@ -1,0 +1,150 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "expression": "九人"
+    },
+    "note": "九人 viết Kanji (きゅうにん)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "パーティーに九人来ます。",
+      "ja_furigana": "パーティーに九人(きゅうにん)来(き)ます。",
+      "source": "AI",
+      "vi": "Sẽ có chín người đến bữa tiệc."
+     }
+    ],
+    "expression": "く/きゅうにん",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "chín người (đếm số người)",
+    "mnemonic_vi": "九人 thường đọc きゅうにん; きゅう nghe gần \"cửu\" Hán Việt.",
+    "reading": "きゅうにん",
+    "romaji": "kyuunin",
+    "second_pass": true,
+    "topic_vi": "Bao nhiêu người",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a00a2c325e"
+  },
+  {
+   "answer": {
+    "drop_example": "先生が厳しい判断を下す。",
+    "note": "câu đã duyệt dùng 下す (くだす: đưa ra phán quyết), không phải 下ろす (おろす)",
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Hạ xuống, lấy xuống (từ trên cao)",
+    "examples": [
+     {
+      "ja": "先生が厳しい判断を下す。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Thầy đưa ra nhận định nghiêm khắc."
+     },
+     {
+      "ja": "銀行でお金を下ろします。",
+      "ja_furigana": "銀行(ぎんこう)でお金(かね)を下(お)ろします。",
+      "source": "AI",
+      "vi": "Tôi rút tiền ở ngân hàng."
+     },
+     {
+      "ja": "ATMで一万円下ろしました。",
+      "ja_furigana": "ATMで一万円(いちまんえん)下(お)ろしました。",
+      "source": "AI",
+      "vi": "Tôi đã rút 10.000 yên ở ATM."
+     }
+    ],
+    "expression": "下ろす",
+    "findings": [
+     "FURIGANA_MISSING: 先生が厳しい判断を下す。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 先生が厳しい判断を下す。 → 厳しい,判断"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "rút (tiền); hạ xuống",
+    "mnemonic_vi": "下ろす có 下 \"hạ\": おろす = rút tiền, như \"hạ\" tiền từ tài khoản xuống tay.",
+    "reading": "おろす",
+    "romaji": "orosu",
+    "second_pass": true,
+    "topic_vi": "Máy rút tiền tự động",
+    "twins": [],
+    "variants": [
+     "おろす",
+     "下す"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2c7601de64"
+  },
+  {
+   "answer": {
+    "drop_example": "料理の余りを冷蔵庫に入れた。",
+    "note": "câu đã duyệt dùng 余り (danh từ: phần thừa), không phải phó từ あまり〜ない của thẻ",
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "phần thừa; không mấy (với phủ định)",
+    "examples": [
+     {
+      "ja": "料理の余りを冷蔵庫に入れた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi cất phần thức ăn thừa vào tủ lạnh."
+     },
+     {
+      "ja": "テレビはあまり見ません。",
+      "ja_furigana": "テレビはあまり見(み)ません。",
+      "source": "AI",
+      "vi": "Tôi không xem tivi mấy."
+     },
+     {
+      "ja": "魚はあまり好きじゃありません。",
+      "ja_furigana": "魚(さかな)はあまり好(す)きじゃありません。",
+      "source": "AI",
+      "vi": "Tôi không thích cá lắm."
+     }
+    ],
+    "expression": "あまり",
+    "findings": [
+     "FURIGANA_MISSING: 料理の余りを冷蔵庫に入れた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "không ... lắm (với phủ định); không mấy",
+    "mnemonic_vi": "あまり + phủ định = không ~ lắm: あまり すきじゃない = không thích lắm.",
+    "reading": "あまり",
+    "romaji": "amari",
+    "second_pass": true,
+    "topic_vi": "Sở thích",
+    "twins": [],
+    "variants": [
+     "あまり"
+    ],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8267998f77"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N5",
+ "packet_id": "REVIEW_VOCAB-053"
+}

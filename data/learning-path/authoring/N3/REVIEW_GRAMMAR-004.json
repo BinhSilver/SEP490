@@ -1,0 +1,707 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "五分ごとにバスが来ます。",
+       "ja_furigana": "五分(ごふん)ごとにバスが来(き)ます。",
+       "vi": "Cứ mỗi 5 phút lại có một chuyến xe buýt đến."
+      },
+      {
+       "ja": "オリンピックは四年ごとに開かれます。",
+       "ja_furigana": "オリンピックは四年(よねん)ごとに開(ひら)かれます。",
+       "vi": "Thế vận hội được tổ chức cứ 4 năm một lần."
+      },
+      {
+       "ja": "一雨ごとに暖かくなって春が近づいてくる。",
+       "ja_furigana": "一雨(ひとあめ)ごとに暖(あたた)かくなって春(はる)が近(ちか)づいてくる。",
+       "vi": "Cứ sau mỗi cơn mưa trời lại ấm dần lên và mùa xuân tới gần."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Nhầm 一日ごとに (mỗi ngày đều xảy ra) với 一日おきに (cách một ngày xảy ra một lần).",
+    "examples": [
+     {
+      "ja": "五分ごとにバスが来ます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "オリンピックは四年ごとに開かれます。",
+      "ja_furigana": "オリンピックは四年(よねん)ごとに開(ひら)かれます。",
+      "source": "AI",
+      "vi": "Thế vận hội được tổ chức cứ 4 năm một lần."
+     },
+     {
+      "ja": "一雨ごとに暖かくなって春が近づいてくる。",
+      "ja_furigana": "一雨(ひとあめ)ごとに暖(あたた)かくなって春(はる)が近(ちか)づいてくる。",
+      "source": "AI",
+      "vi": "Cứ sau mỗi cơn mưa trời lại ấm dần lên và mùa xuân tới gần."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 五分ごとにバスが来ます。",
+     "FURIGANA_MISSING: 五分ごとにバスが来ます。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + ごとに / V-る + ごとに",
+    "locked_fields": [],
+    "meaning_vi": "Mỗi, cứ mỗi — Lặp lại đều đặn theo từng đơn vị, không bỏ qua.",
+    "nuance_vi": "Nhấn mạnh tính đều đặn không bỏ sót bất kỳ đơn vị nào trong chuỗi lặp lại, hoặc sự tiến triển theo từng chu kỳ.",
+    "order_items": [],
+    "pattern": "N / V từ điển + ごとに",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "三日ごとに = ba ngày một lần. So với おきに thì ごとに tính cả mốc đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-51abcd623a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "子供のころ、毎日ピアノを練習させられた。",
+       "ja_furigana": "子供(こども)のころ、毎日(まいにち)ピアノを練習(れんしゅう)させられた。",
+       "vi": "Hồi nhỏ, ngày nào tôi cũng bị bắt tập đàn piano."
+      },
+      {
+       "ja": "昨日は遅くまで残業させられて疲れました。",
+       "ja_furigana": "昨日(きのう)は遅(おそ)くまで残業(ざんぎょう)させられて疲(つか)れました。",
+       "vi": "Hôm qua tôi bị bắt làm thêm giờ đến khuya nên rất mệt."
+      },
+      {
+       "ja": "この映画を見て家族の大切さを考えさせられた。",
+       "ja_furigana": "この映画(えいが)を見(み)て家族(かぞく)の大切(たいせつ)さを考(かんが)えさせられた。",
+       "vi": "Xem bộ phim này khiến tôi phải suy ngẫm về sự quý giá của gia đình."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Rút gọn sai động từ nhóm I có đuôi す thành さされる (nhóm đuôi す bắt buộc giữ nguyên là 話させられる).",
+    "examples": [
+     {
+      "ja": "子供のころ、毎日ピアノを練習させられた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "昨日は遅くまで残業させられて疲れました。",
+      "ja_furigana": "昨日(きのう)は遅(おそ)くまで残業(ざんぎょう)させられて疲(つか)れました。",
+      "source": "AI",
+      "vi": "Hôm qua tôi bị bắt làm thêm giờ đến khuya nên rất mệt."
+     },
+     {
+      "ja": "この映画を見て家族の大切さを考えさせられた。",
+      "ja_furigana": "この映画(えいが)を見(み)て家族(かぞく)の大切(たいせつ)さを考(かんが)えさせられた。",
+      "source": "AI",
+      "vi": "Xem bộ phim này khiến tôi phải suy ngẫm về sự quý giá của gia đình."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 子供のころ、毎日ピアノを練習させられた。",
+     "FURIGANA_MISSING: 子供のころ、毎日ピアノを練習させられた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V nhóm I: cột う → cột あ + せられる (rút gọn: される, trừ す) / V nhóm II: る → させられる / する → させられる / 来る → こさせられる",
+    "locked_fields": [],
+    "meaning_vi": "Bị bắt phải — Bị người khác bắt làm việc mình không muốn.",
+    "nuance_vi": "Diễn tả việc bị ép buộc làm điều mình không muốn, hoặc một cảm xúc tự nhiên trào lên không cưỡng lại được (như 考えさせられる).",
+    "order_items": [],
+    "pattern": "V thể sai khiến bị động (〜させられる)",
+    "pattern_variants": [
+     "〜(さ)せられる/〜される"
+    ],
+    "unit_no": 6,
+    "unit_title_vi": "Lời khuyên, nghĩa vụ và đề xuất",
+    "usage_vi": "Nhóm 1 rút gọn thành 〜される (書かされる), trừ động từ kết thúc bằng す. Luôn mang sắc thái miễn cưỡng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b0e8cebf21"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "練習して、泳げるようになりました。",
+       "ja_furigana": "練習(れんしゅう)して、泳(およ)げるようになりました。",
+       "vi": "Nhờ luyện tập mà tôi đã có thể bơi được."
+      },
+      {
+       "ja": "日本の新聞が少し読めるようになりました。",
+       "ja_furigana": "日本(にほん)の新聞(しんぶん)が少(すこ)し読(よ)めるようになりました。",
+       "vi": "Tôi đã có thể đọc được báo tiếng Nhật một chút rồi."
+      },
+      {
+       "ja": "最近は朝早く起きられるようになった。",
+       "ja_furigana": "最近(さいきん)は朝早(あさはや)く起(お)きられるようになった。",
+       "vi": "Gần đây tôi đã có thể dậy sớm vào buổi sáng."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Ghép ようになる với các động từ đã tự mang nghĩa biến đổi như 太る, 増える, 慣れる (những từ này không dùng với ようになる).",
+    "examples": [
+     {
+      "ja": "練習して、泳げるようになりました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "日本の新聞が少し読めるようになりました。",
+      "ja_furigana": "日本(にほん)の新聞(しんぶん)が少(すこ)し読(よ)めるようになりました。",
+      "source": "AI",
+      "vi": "Tôi đã có thể đọc được báo tiếng Nhật một chút rồi."
+     },
+     {
+      "ja": "最近は朝早く起きられるようになった。",
+      "ja_furigana": "最近(さいきん)は朝早(あさはや)く起(お)きられるようになった。",
+      "source": "AI",
+      "vi": "Gần đây tôi đã có thể dậy sớm vào buổi sáng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 練習して、泳げるようになりました。",
+     "FURIGANA_MISSING: 練習して、泳げるようになりました。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V(thể khả năng) / V-る / V-ない + ようになる",
+    "locked_fields": [],
+    "meaning_vi": "Trở nên, đã có thể — Diễn tả sự thay đổi trạng thái hoặc năng lực theo thời gian.",
+    "nuance_vi": "Nhấn mạnh quá trình biến đổi từ trạng thái chưa thể làm sang làm được, hoặc từ chưa có thói quen sang hình thành thói quen mới.",
+    "order_items": [],
+    "pattern": "V từ điển / V-ない + ようになる",
+    "pattern_variants": [],
+    "unit_no": 3,
+    "unit_title_vi": "Điều kiện, quyết tâm và thói quen",
+    "usage_vi": "Hay đi với thể khả năng: 話せるようになる (đã nói được). Phủ định thường dùng なくなる hơn: 食べなくなった."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8d5d9735bf"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "出かけようとしたところに、客が来た。",
+       "ja_furigana": "出(で)かけようとしたところに、客(きゃく)が来(き)た。",
+       "vi": "Đúng lúc tôi vừa định ra ngoài thì có khách đến."
+      },
+      {
+       "ja": "昼ご飯を食べているところに友達が来ました。",
+       "ja_furigana": "昼(ひる)ご飯(はん)を食(た)べているところに友達(ともだち)が来(き)ました。",
+       "vi": "Đúng lúc tôi đang ăn cơm trưa thì bạn đến."
+      },
+      {
+       "ja": "お忙しいところを来ていただきありがとうございます。",
+       "ja_furigana": "お忙(いそが)しいところを来(き)ていただきありがとうございます。",
+       "vi": "Xin cảm ơn anh đã cất công đến dù đang lúc bận rộn."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng sai trợ từ: khi đi với động từ 見る, 見つける, 助ける, 邪魔する thì thường dùng ところを chứ không dùng ところへ.",
+    "examples": [
+     {
+      "ja": "出かけようとしたところに、客が来た。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "昼ご飯を食べているところに友達が来ました。",
+      "ja_furigana": "昼(ひる)ご飯(はん)を食(た)べているところに友達(ともだち)が来(き)ました。",
+      "source": "AI",
+      "vi": "Đúng lúc tôi đang ăn cơm trưa thì bạn đến."
+     },
+     {
+      "ja": "お忙しいところを来ていただきありがとうございます。",
+      "ja_furigana": "お忙(いそが)しいところを来(き)ていただきありがとうございます。",
+      "source": "AI",
+      "vi": "Xin cảm ơn anh đã cất công đến dù đang lúc bận rộn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 出かけようとしたところに、客が来た。",
+     "FURIGANA_MISSING: 出かけようとしたところに、客が来た。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-る / V-ている / V-た + ところに / ところへ / ところを",
+    "locked_fields": [],
+    "meaning_vi": "Đúng lúc đang thì — Đúng thời điểm đó thì có việc khác xảy ra.",
+    "nuance_vi": "ところに / ところへ nhấn mạnh một sự việc ập đến đúng thời điểm nhạy cảm; ところを thường dùng khi bị bắt gặp đang làm gì (見られた) hoặc khi cảm ơn/xin lỗi vì làm phiền (お忙しいところを).",
+    "order_items": [],
+    "pattern": "V-ている / V-た + ところに / ところへ",
+    "pattern_variants": [
+     "〜ところに/へ/を/で",
+     "〜ところ + に/を/で"
+    ],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "Vế sau thường là sự xuất hiện của người hoặc việc bất ngờ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-365ede7788"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "十年ぶりに故郷に帰った。",
+       "ja_furigana": "十年(じゅうねん)ぶりに故郷(こきょう)に帰(かえ)った。",
+       "vi": "Sau 10 năm tôi mới trở về quê hương."
+      },
+      {
+       "ja": "高校の友達に五年ぶりに会って話しました。",
+       "ja_furigana": "高校(こうこう)の友達(ともだち)に五年(ごねん)ぶりに会(あ)って話(はな)しました。",
+       "vi": "Sau 5 năm tôi mới lại gặp và trò chuyện với người bạn cấp ba."
+      },
+      {
+       "ja": "今日は三日ぶりのいい天気で気持ちがいい。",
+       "ja_furigana": "今日(きょう)は三日(みっか)ぶりのいい天気(てんき)で気持(きも)ちがいい。",
+       "vi": "Hôm nay trời mới lại đẹp sau 3 ngày nên thật dễ chịu."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Ghép ぶりに với mốc thời gian cụ thể như 三月ぶりに (sai; phải ghép với khoảng thời gian đếm được như 三ヶ月ぶりに).",
+    "examples": [
+     {
+      "ja": "十年ぶりに故郷に帰った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "高校の友達に五年ぶりに会って話しました。",
+      "ja_furigana": "高校(こうこう)の友達(ともだち)に五年(ごねん)ぶりに会(あ)って話(はな)しました。",
+      "source": "AI",
+      "vi": "Sau 5 năm tôi mới lại gặp và trò chuyện với người bạn cấp ba."
+     },
+     {
+      "ja": "今日は三日ぶりのいい天気で気持ちがいい。",
+      "ja_furigana": "今日(きょう)は三日(みっか)ぶりのいい天気(てんき)で気持(きも)ちがいい。",
+      "source": "AI",
+      "vi": "Hôm nay trời mới lại đẹp sau 3 ngày nên thật dễ chịu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 十年ぶりに故郷に帰った。",
+     "FURIGANA_MISSING: 十年ぶりに故郷に帰った。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Khoảng thời gian + ぶりに / ぶりの + N",
+    "locked_fields": [],
+    "meaning_vi": "Sau bấy lâu — Sau một khoảng thời gian dài mới lại xảy ra.",
+    "nuance_vi": "Thể hiện cảm xúc vui mừng hoặc ấn tượng khi làm lại một việc sau một quãng thời gian dài gián đoạn.",
+    "order_items": [],
+    "pattern": "Khoảng thời gian + ぶりに",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "Chỉ dùng với khoảng thời gian tương đối dài. 久しぶり là cách nói quen thuộc nhất."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-27b2628177"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "財布に千円しかない。",
+       "ja_furigana": "財布(さいふ)に千円(せんえん)しかない。",
+       "vi": "Trong ví chỉ có đúng một nghìn yên."
+      },
+      {
+       "ja": "試験まであと三日しか残っていません。",
+       "ja_furigana": "試験(しけん)まであと三日(みっか)しか残(のこ)っていません。",
+       "vi": "Chỉ còn lại đúng 3 ngày nữa là đến kỳ thi."
+      },
+      {
+       "ja": "バスがないから駅まで歩いて行くしかない。",
+       "ja_furigana": "バスがないから駅(えき)まで歩(ある)いて行(い)くしかない。",
+       "vi": "Vì không có xe buýt nên đành phải đi bộ ra ga thôi."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Đặt động từ khẳng định ở cuối câu có しか (sai: 千円しかあります; đúng: 千円しかありません).",
+    "examples": [
+     {
+      "ja": "財布に千円しかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "試験まであと三日しか残っていません。",
+      "ja_furigana": "試験(しけん)まであと三日(みっか)しか残(のこ)っていません。",
+      "source": "AI",
+      "vi": "Chỉ còn lại đúng 3 ngày nữa là đến kỳ thi."
+     },
+     {
+      "ja": "バスがないから駅まで歩いて行くしかない。",
+      "ja_furigana": "バスがないから駅(えき)まで歩(ある)いて行(い)くしかない。",
+      "source": "AI",
+      "vi": "Vì không có xe buýt nên đành phải đi bộ ra ga thôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 財布に千円しかない。",
+     "FURIGANA_MISSING: 財布に千円しかない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N (+ trợ từ) + しか + V-ない / V-る + しかない",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ có mỗi — Nhấn mạnh sự ít ỏi, kèm cảm giác không đủ.",
+    "nuance_vi": "Nhấn mạnh rằng ngoài đối tượng được nêu ra thì không còn gì khác, thường hàm ý ít hơn kỳ vọng (khác với だけ chỉ nêu số lượng khách quan).",
+    "order_items": [],
+    "pattern": "N + しか + phủ định",
+    "pattern_variants": [],
+    "unit_no": 21,
+    "unit_title_vi": "Mức độ, so sánh và nhấn mạnh",
+    "usage_vi": "Vế sau bắt buộc phủ định. Khác だけ (trung tính) ở chỗ しか mang ý tiếc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2c669647e1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "外は寒いようです。みんなコートを着ています。",
+       "ja_furigana": "外(そと)は寒(さむ)いようです。みんなコートを着(き)ています。",
+       "vi": "Bên ngoài có vẻ lạnh. Mọi người đều đang mặc áo khoác."
+      },
+      {
+       "ja": "家の電気が消えているから留守のようです。",
+       "ja_furigana": "家(いえ)の電気(でんき)が消(き)えているから留守(るす)のようです。",
+       "vi": "Đèn trong nhà tắt rồi nên có vẻ như không có ai ở nhà."
+      },
+      {
+       "ja": "彼は風邪をひいて熱があるみたいです。",
+       "ja_furigana": "彼(かれ)は風邪(かぜ)をひいて熱(ねつ)があるみたいです。",
+       "vi": "Hình như anh ấy bị cảm và đang sốt."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Thêm の hoặc な trước みたいだ (sai: 雨のみたいだ; đúng: 雨みたいだ, trong khi với ようだ phải là 雨のようだ).",
+    "examples": [
+     {
+      "ja": "外は寒いようです。みんなコートを着ています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "家の電気が消えているから留守のようです。",
+      "ja_furigana": "家(いえ)の電気(でんき)が消(き)えているから留守(るす)のようです。",
+      "source": "AI",
+      "vi": "Đèn trong nhà tắt rồi nên có vẻ như không có ai ở nhà."
+     },
+     {
+      "ja": "彼は風邪をひいて熱があるみたいです。",
+      "ja_furigana": "彼(かれ)は風邪(かぜ)をひいて熱(ねつ)があるみたいです。",
+      "source": "AI",
+      "vi": "Hình như anh ấy bị cảm và đang sốt."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 外は寒いようです。みんなコートを着ています。",
+     "FURIGANA_MISSING: 外は寒いようです。みんなコートを着ています。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V / Aい / Aな + な / N + の + ようだ / V / Aい / Aな(bỏ だ) / N(bỏ だ) + みたいだ",
+    "locked_fields": [],
+    "meaning_vi": "Có vẻ như, dường như — Suy đoán dựa trên điều bản thân trực tiếp cảm nhận được.",
+    "nuance_vi": "Suy đoán dựa trên cảm nhận trực tiếp hoặc tình huống quan sát được; ようだ dùng cho cả văn viết và nói lịch sự, còn みたいだ dùng trong hội thoại thân mật.",
+    "order_items": [],
+    "pattern": "Thể thường + ようだ / みたいだ",
+    "pattern_variants": [
+     "〜ようだ/〜みたいだ(推量)"
+    ],
+    "unit_no": 2,
+    "unit_title_vi": "Cảm xúc, giác quan và trạng thái",
+    "usage_vi": "みたいだ là dạng thân mật của ようだ, nối trực tiếp sau danh từ (子供みたい) còn ようだ cần の (子供のようだ)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a42bfdb12f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "留学するために、お金をためています。",
+       "ja_furigana": "留学(りゅうがく)するために、お金(かね)をためています。",
+       "vi": "Tôi đang tiết kiệm tiền để đi du học."
+      },
+      {
+       "ja": "家族のために新しい料理を習っています。",
+       "ja_furigana": "家族(かぞく)のために新(あたら)しい料理(りょうり)を習(なら)っています。",
+       "vi": "Tôi đang học nấu món ăn mới vì gia đình."
+      },
+      {
+       "ja": "大雨のために電車が三十分遅れました。",
+       "ja_furigana": "大雨(おおあめ)のために電車(でんしゃ)が三十分(さんじっぷん)遅(おく)れました。",
+       "vi": "Do mưa lớn nên tàu điện đã bị trễ 30 phút."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng ために cho động từ khả năng hoặc trạng thái không có ý chí (như 見えるために — khi đó phải dùng ように).",
+    "examples": [
+     {
+      "ja": "留学するために、お金をためています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "家族のために新しい料理を習っています。",
+      "ja_furigana": "家族(かぞく)のために新(あたら)しい料理(りょうり)を習(なら)っています。",
+      "source": "AI",
+      "vi": "Tôi đang học nấu món ăn mới vì gia đình."
+     },
+     {
+      "ja": "大雨のために電車が三十分遅れました。",
+      "ja_furigana": "大雨(おおあめ)のために電車(でんしゃ)が三十分(さんじっぷん)遅(おく)れました。",
+      "source": "AI",
+      "vi": "Do mưa lớn nên tàu điện đã bị trễ 30 phút."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 留学するために、お金をためています。",
+     "FURIGANA_MISSING: 留学するために、お金をためています。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-る / N + の + ため(に) (mục đích) / V・Aい・Aな + な・N + の + ため(に) (nguyên nhân)",
+    "locked_fields": [],
+    "meaning_vi": "Để, vì (mục đích hoặc nguyên nhân) — Nêu mục đích khi đi với động từ ý chí, nêu nguyên nhân khi đi với sự việc đã xảy ra.",
+    "nuance_vi": "Với nghĩa mục đích, vế trước và vế sau phải cùng một chủ ngữ và động từ vế trước có ý chí; với nghĩa nguyên nhân, sắc thái trang trọng và hay dùng trong thông báo.",
+    "order_items": [],
+    "pattern": "V từ điển / N の + ために",
+    "pattern_variants": [],
+    "unit_no": 10,
+    "unit_title_vi": "Nguyên nhân, mục đích và kết quả",
+    "usage_vi": "Phân biệt với ように: ために dùng khi chủ ngữ tự làm được (động từ ý chí), ように dùng với động từ không ý chí hoặc thể khả năng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c86c74d669"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お荷物をお持ちします。",
+       "ja_furigana": "お荷物(にもつ)をお持(も)ちします。",
+       "vi": "Để tôi xách hành lý giúp quý khách ạ."
+      },
+      {
+       "ja": "明日の予定についてご説明いたします。",
+       "ja_furigana": "明日(あした)の予定(よてい)についてご説明(せつめい)いたします。",
+       "vi": "Tôi xin phép giải thích về lịch trình ngày mai ạ."
+      },
+      {
+       "ja": "タクシーをすぐにお呼びしましょうか。",
+       "ja_furigana": "タクシーをすぐにお呼(よ)びしましょうか。",
+       "vi": "Để tôi gọi taxi ngay cho ngài nhé ạ?"
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng お〜する cho hành động của cấp trên (với cấp trên phải dùng tôn kính ngữ お〜になる) hoặc dùng cho việc không liên quan đến đối phương.",
+    "examples": [
+     {
+      "ja": "お荷物をお持ちします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "明日の予定についてご説明いたします。",
+      "ja_furigana": "明日(あした)の予定(よてい)についてご説明(せつめい)いたします。",
+      "source": "AI",
+      "vi": "Tôi xin phép giải thích về lịch trình ngày mai ạ."
+     },
+     {
+      "ja": "タクシーをすぐにお呼びしましょうか。",
+      "ja_furigana": "タクシーをすぐにお呼(よ)びしましょうか。",
+      "source": "AI",
+      "vi": "Để tôi gọi taxi ngay cho ngài nhé ạ?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: お荷物をお持ちします。",
+     "FURIGANA_MISSING: お荷物をお持ちします。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "お + V(nhóm I, II bỏ ます) + する (いたす) / ご + Danh động từ Hán tự + する (いたす)",
+    "locked_fields": [],
+    "meaning_vi": "Khiêm nhường ngữ — Hạ thấp hành động của mình để tỏ kính trọng với đối phương.",
+    "nuance_vi": "Khiêm nhường ngữ chỉ dùng cho hành động của bản thân người nói hướng tới hoặc làm giúp người bề trên/khách hàng.",
+    "order_items": [],
+    "pattern": "お + V thể ます (bỏ ます) + する",
+    "pattern_variants": [],
+    "unit_no": 23,
+    "unit_title_vi": "Liên kết câu và biểu hiện hội thoại",
+    "usage_vi": "Tôn kính ngữ là お〜になる (dùng cho hành động của người trên). Đừng dùng lẫn: nói お書きになります về mình là sai."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-54b375afcc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "金曜までに提出してください。",
+       "ja_furigana": "金曜(きんよう)までに提出(ていしゅつ)してください。",
+       "vi": "Xin hãy nộp trước hạn thứ Sáu."
+      },
+      {
+       "ja": "夜十時までに必ず家へ帰ってください。",
+       "ja_furigana": "夜十時(よるじゅうじ)までに必(かなら)ず家(いえ)へ帰(かえ)ってください。",
+       "vi": "Hãy nhất định về nhà trước 10 giờ tối."
+      },
+      {
+       "ja": "来週の月曜日までに本を返さなければならない。",
+       "ja_furigana": "来週(らいしゅう)の月曜日(げつようび)までに本(ほん)を返(かえ)さなければならない。",
+       "vi": "Tôi phải trả sách chậm nhất là vào thứ Hai tuần sau."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Nhầm までに (hạn chót cho hành động hoàn tất 1 lần như 出す, 帰る) với まで (hành động kéo dài liên tục suốt đến mốc đó như 働く, 待つ).",
+    "examples": [
+     {
+      "ja": "金曜までに提出してください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "夜十時までに必ず家へ帰ってください。",
+      "ja_furigana": "夜十時(よるじゅうじ)までに必(かなら)ず家(いえ)へ帰(かえ)ってください。",
+      "source": "AI",
+      "vi": "Hãy nhất định về nhà trước 10 giờ tối."
+     },
+     {
+      "ja": "来週の月曜日までに本を返さなければならない。",
+      "ja_furigana": "来週(らいしゅう)の月曜日(げつようび)までに本(ほん)を返(かえ)さなければならない。",
+      "source": "AI",
+      "vi": "Tôi phải trả sách chậm nhất là vào thứ Hai tuần sau."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 金曜までに提出してください。",
+     "FURIGANA_MISSING: 金曜までに提出してください。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N(mốc thời gian) / V-る + までに",
+    "locked_fields": [],
+    "meaning_vi": "Trước khi, chậm nhất là — Hạn chót để hoàn thành một việc.",
+    "nuance_vi": "Chỉ thời hạn chót (deadline) mà trước thời điểm đó một hành động phải được hoàn thành xong xuôi.",
+    "order_items": [],
+    "pattern": "Mốc thời gian + までに",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "Khác với まで (kéo dài cho đến). 五時まで働く (làm đến năm giờ) khác 五時までに終わる (xong trước năm giờ)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-beccc1047f"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-004"
+}

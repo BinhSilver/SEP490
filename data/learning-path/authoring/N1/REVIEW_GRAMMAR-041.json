@@ -1,0 +1,581 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "久しぶりに友達に会えて、うれしいかぎりだ。",
+       "ja_furigana": "久(ひさ)しぶりに友達(ともだち)に会(あ)えて、うれしいかぎりだ。",
+       "vi": "Gặp lại bạn sau bao lâu, tôi vui không tả xiết."
+      },
+      {
+       "ja": "約束を守れなくて、申し訳ないかぎりだ。",
+       "ja_furigana": "約束(やくそく)を守(まも)れなくて、申(もう)し訳(わけ)ないかぎりだ。",
+       "vi": "Không giữ được lời hứa, tôi vô cùng áy náy."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "長年の共同研究が実を結び、喜ばしいかぎりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghiên cứu chung nhiều năm đã có quả, tôi hết sức vui."
+     },
+     {
+      "ja": "説明会の日程が直前に変わると、参加者には申し訳ないかぎりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lịch họp giải thích đổi sát giờ thì tôi chỉ biết thấy áy náy với người tham dự."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 長年の共同研究が実を結び、喜ばしいかぎりだ。",
+     "FURIGANA_MISSING: 説明会の日程が直前に変わると、参加者には申し訳ないかぎりだ。"
+    ],
+    "formation": "Aい + かぎりだ; Aな + なかぎりだ",
+    "locked_fields": [],
+    "meaning_vi": "Hết sức (cảm xúc)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hết sức (cảm xúc)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Bộc lộ cảm xúc hiện tại của người nói ở mức rất cao, thường trang trọng. Cách dùng: Mẫu 〜かぎりだ (cũng viết 限りだ) diễn tả cảm xúc của người nói đang dâng đến mức tột cùng tại thời điểm nói: vui, áy náy, bất an, cảm kích. Đi với tính từ cảm xúc, không phải với điều kiện thời gian. Đây khác hẳn 〜限り（は） nghĩa là chừng nào còn, hay 〜ないかぎり nghĩa là trừ khi. Giọng lịch sự, hơi văn viết, hay gặp trong thư, phát biểu, lời cảm ơn công. Người nói tự nhận cảm xúc của mình, không chấm điểm người khác như 極まる. Không dùng với động từ hành động. 心強い限りだ、申し訳ないかぎりだ là tổ hợp điển hình. Tránh nhầm với 〜のかぎりだ không tồn tại. Sắc thái: Chân thành, vừa phải phóng đại, không thô. Phù hợp quan hệ công và học thuật. Ít dùng khi chê đối phương là vô lễ; ý đó thuộc 極まりない. Lưu ý: Chỉ đi với tính từ cảm xúc; không đi với động từ. Không nhầm với 〜限り（は）/〜ないかぎり chỉ điều kiện phạm vi. Là cảm xúc người nói, không dùng để mô tả tính chất khách quan của sự vật."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-920e084109"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "説明するまでもなく、誰もが知っていることだ。",
+       "ja_furigana": "説明(せつめい)するまでもなく、誰(だれ)もが知(し)っていることだ。",
+       "vi": "Không cần giải thích, ai cũng biết chuyện này."
+      },
+      {
+       "ja": "電話で確認するまでもない。直接会って話そう。",
+       "ja_furigana": "電話(でんわ)で確認(かくにん)するまでもない。直接(ちょくせつ)会(あ)って話(はな)そう。",
+       "vi": "Không cần gọi điện xác nhận. Cứ gặp trực tiếp mà nói chuyện."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "議事録は共有フォルダに上がっているので、各課へ個別に問い合わせるまでもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Biên bản đã nằm trong thư mục dùng chung, nên không cần hỏi từng phòng ban."
+     },
+     {
+      "ja": "実験手順はマニュアルの三ページに図示してある。口頭で繰り返すまでもないだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quy trình thí nghiệm đã được vẽ ở trang ba của sổ tay. Chắc không cần nhắc lại bằng miệng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 議事録は共有フォルダに上がっているので、各課へ個別に問い合わせるまでもない。",
+     "FURIGANA_MISSING: 実験手順はマニュアルの三ページに図示してある。口頭で繰り返すまでもないだろう。"
+    ],
+    "formation": "Vる + までもない",
+    "locked_fields": [],
+    "meaning_vi": "Không cần phải… đến thế",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không cần phải... đến thế",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Dùng khi việc đã quá rõ hoặc quá đơn giản, không đáng mất công làm thêm bước ấy. Cách dùng: Mẫu 〜までもない dùng khi người nói đánh giá rằng không cần thực hiện một hành động vì sự việc đã hiển nhiên, thông tin đã công khai, hoặc bước ấy chỉ làm mất thì giờ. Cấu trúc gắn với động từ dạng từ điển, đặc biệt hay đi với nói, giải thích, xác nhận, kiểm tra. Thái độ không phải ra lệnh cấm mà là nhận định: làm thêm cũng chẳng thêm gì. Trong biên bản họp, công văn và lập luận học thuật, mẫu này giúp cắt thủ tục miệng mà vẫn giữ lịch sự. Không dùng khi việc ấy vẫn còn cần thiết. Sắc thái: Văn phong điềm tĩnh, hơi cứng, thiên về đánh giá lý trí. 言うまでもない đã thành cụm cố định với nghĩa khỏi phải nói. Không diễn tả nuối tiếc hay bất lực. Lưu ý: Đi với động từ dạng từ điển; không dùng Vた形. Không dùng khi hành động vẫn thực sự cần thiết. Hay gặp với 言う・説明する・確認する・調べる; ít dùng với hành động cụ thể mang tính vật lý nếu không có ngữ cảnh thừa thãi rõ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-17eee31ff6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "一度の失敗は、落ち込むには当たらない。",
+       "ja_furigana": "一度(いちど)の失敗(しっぱい)は、落(お)ち込(こ)むには当(あ)たらない。",
+       "vi": "Một lần thất bại thì không đáng phải buồn."
+      },
+      {
+       "ja": "彼の言動は、怒るには当たらない。",
+       "ja_furigana": "彼(かれ)の言動(げんどう)は、怒(おこ)るには当(あ)たらない。",
+       "vi": "Lời nói hành động của anh ấy không đáng để giận."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "新人の計算ミスは指導で足りる。処分するには当たらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lỗi tính của người mới chỉ cần kèm cặp. Không đáng đến mức xử phạt."
+     },
+     {
+      "ja": "予想の範囲内の変動であり、慌てて方針を変えるには当たらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Biến động nằm trong dự kiến, không thích đáng nếu vội đổi chủ trương."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 新人の計算ミスは指導で足りる。処分するには当たらない。",
+     "FURIGANA_MISSING: 予想の範囲内の変動であり、慌てて方針を変えるには当たらない。"
+    ],
+    "formation": "N/Vる + には当たらない",
+    "locked_fields": [],
+    "meaning_vi": "Không đáng / không thích hợp để…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không đáng / không thích hợp để...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Cho rằng không thích đáng khi trách, khen, ngạc nhiên hay xử lý quá mức. Cách dùng: Mẫu 〜には当たらない dùng khi người nói bác bỏ một phản ứng thái quá: không đáng bị lên án, không đáng ngạc nhiên, không đáng khen như anh hùng, không đáng xử phạt. 当たる ở đây là khớp với việc, thích đáng. Phủ định nghĩa là phản ứng ấy không khớp với sự thật. Hay đi với 非難する、驚く、処罰する、評価する. Giọng công bằng, hơi quan phương, thường xuất hiện khi phân xử hay bình luận. Người nói không phủ nhận sự việc đã xảy ra, chỉ nói mức phản ứng nên dừng lại. Không dùng để nói không cần làm việc hiển nhiên như までもない. Sắc thái: Thái độ trọng tài: cân đo mức độ. Trang trọng, phù hợp bình luận xã hội, kỷ luật nội bộ, phản biện dư luận. Không phải xin lỗi, không phải an ủi sáo rỗng. Lưu ý: Thường đi với động từ đánh giá, xử lý, cảm xúc phản ứng; ít đi với hành động cụ thể trung tính. Không nhầm cực dương 当たる (trúng, tương đương) với nghĩa mẫu này. Người nói thường đứng vai phân tích, không phải vai nạn nhân đang than."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a6554c1992"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "合格を知ったときの喜びといったらない。",
+       "ja_furigana": "合格(ごうかく)を知(し)ったときの喜(よろこ)びといったらない。",
+       "vi": "Niềm vui khi biết tin đỗ thì không gì sánh được."
+      },
+      {
+       "ja": "夏の体育館の暑さといったらない。",
+       "ja_furigana": "夏(なつ)の体育館(たいいくかん)の暑(あつ)さといったらない。",
+       "vi": "Cái nóng của nhà thể chất mùa hè thì chẳng gì tả nổi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "締切前日に原稿が白紙に戻ったときの焦りといったらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái bồn chồn lúc bản thảo về trắng trước hạn một ngày thì không còn lời nào tả."
+     },
+     {
+      "ja": "真冬の屋外書庫で目録を照合する寒さといったらなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái lạnh khi đối chiếu mục lục ở kho ngoài trời giữa đông thật chẳng gì sánh được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 締切前日に原稿が白紙に戻ったときの焦りといったらない。",
+     "FURIGANA_MISSING: 真冬の屋外書庫で目録を照合する寒さといったらなかった。"
+    ],
+    "formation": "Aい + といったらない; N + といったらない",
+    "locked_fields": [],
+    "meaning_vi": "Không gì sánh được / cực kỳ",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không gì sánh được / cực kỳ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Cực tả mức độ cảm giác hoặc tình trạng, đến mức không còn lời nào so được. Cách dùng: Mẫu 〜といったらない dùng để nói mức độ cao đến mức không thể so sánh, không còn cách nào diễn tả hết. Đi sau danh từ chỉ trạng thái cảm giác như 焦り、寒さ、安堵, hoặc tính từ. 〜といったらありゃしない là biến thể suồng sã. Thường nói cảm giác chủ quan của người nói tại một thời điểm cụ thể, không phải thẩm định tư cách khách quan như に足る. Có thể dùng quá khứ といったらなかった khi kể lại. Giọng giàu cảm xúc, hơi phóng đại có chủ đích, phù hợp kể chuyện và bình luận, kém phù hợp công văn lạnh. Không gắn trực tiếp vào động từ; cần danh từ hóa hoặc tính từ. Sắc thái: Cường điệu cảm xúc, không phải lập luận lạnh. Tích cực hay tiêu cực tùy từ đi kèm. Văn nói giáo dục và văn viết giàu hình ảnh đều dùng được. Lưu ý: Không nối trực tiếp sau động từ; cần danh từ hoặc tính từ. ナ形容詞 thường không thêm だ trước といったらない. Không dùng khi muốn đánh giá điềm tĩnh, công bằng như には当たらない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1f93de8148"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の献身的な働き、これが愛でなくてなんだろう。",
+       "ja_furigana": "彼(かれ)の献身的(けんしんてき)な働(はたら)き、これが愛(あい)でなくてなんだろう。",
+       "vi": "Sự tận tụy của anh ấy, nếu không phải tình yêu thì còn là gì."
+      },
+      {
+       "ja": "あの勇気、これが本当の強さでなくてなんだろう。",
+       "ja_furigana": "あの勇気(ゆうき)、これが本当(ほんとう)の強(つよ)さでなくてなんだろう。",
+       "vi": "Lòng dũng cảm ấy, nếu không phải sức mạnh thật sự thì còn là gì."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "深夜まで患者の家族に説明を続ける姿勢、これが責任感でなくてなんだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thái độ giải thích với gia đình bệnh nhân đến đêm khuya, nếu không phải tinh thần trách nhiệm thì còn là gì."
+     },
+     {
+      "ja": "数値を合わせて資料を改ざんする行為は、不正でなくてなんだろうか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hành vi sửa số cho khớp hồ sơ, nếu không phải gian dối thì còn gọi là gì."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 深夜まで患者の家族に説明を続ける姿勢、これが責任感でなくてなんだろう。",
+     "FURIGANA_MISSING: 数値を合わせて資料を改ざんする行為は、不正でなくてなんだろうか。"
+    ],
+    "formation": "N + でなくてなんだろう(か)",
+    "locked_fields": [],
+    "meaning_vi": "Nếu không phải… thì còn là gì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu không phải... thì còn là gì",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Câu hỏi tu từ để khẳng định mạnh: đây chính là X, không thể gọi khác. Cách dùng: Mẫu 〜でなくてなんだろう（か） là câu hỏi tu từ nhằm khẳng định tuyệt đối: nếu việc này không phải là X thì không biết còn gọi là gì. X thường là danh từ đánh giá như 責任、不正、偽善、勇気、怠慢、奇跡. Người nói không thực sự đang hỏi, mà đang đóng đinh nhãn. Giọng mạnh, giàu cảm xúc công luận, hay gặp ở bình luận, diễn văn, bài xã luận. か ở cuối làm dịu một nhịp nhưng vẫn khẳng định. Không dùng với động từ hay tính từ trực tiếp, không dùng khi còn đang do dự thật sự. Tránh lạm dụng trong văn bản kỹ thuật lạnh; sức nặng nằm ở chỗ dùng thưa, đúng lúc. Sắc thái: Khẳng định cảm tính có lập luận. Mạnh hơn にちがいない vì có sắc thái buộc người nghe phải thừa nhận. Có thể khen hoặc kết tội tùy danh từ đi kèm. Lưu ý: Chỉ nối sau danh từ (hoặc cụm danh từ hóa); không nối でなくてなんだろう sau động từ. Không dùng khi người nói thực sự chưa chắc. Không phù hợp văn phong hướng dẫn kỹ thuật, biên bản trung tính."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fdbf7bad2a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "チャンスを逃せばそれまでだ。",
+       "ja_furigana": "チャンスを逃(のが)せばそれまでだ。",
+       "vi": "Bỏ lỡ cơ hội thì coi như hết."
+      },
+      {
+       "ja": "秘密が漏れればそれまでだ。計画は台無しになる。",
+       "ja_furigana": "秘密(ひみつ)が漏(も)れればそれまでだ。計画(けいかく)は台無(だいな)しになる。",
+       "vi": "Bí mật bị lộ thì coi như xong. Kế hoạch sẽ đổ bể."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "一次審査で書類不備が見つかればそれまでだ。中身の良さは評価されない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ cần hồ sơ thiếu ở vòng sơ loại là coi như hết. Chất lượng nội dung sẽ không được chấm."
+     },
+     {
+      "ja": "合言葉を紙に書いて机に置けばそれまでだ。どれほど複雑な文字列でも意味がない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Viết mật khẩu ra giấy rồi để trên bàn là coi như xong. Chuỗi ký tự dù phức tạp cũng vô nghĩa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 一次審査で書類不備が見つかればそれまでだ。中身の良さは評価されない。",
+     "FURIGANA_MISSING: 合言葉を紙に書いて机に置けばそれまでだ。どれほど複雑な文字列でも意味がない。"
+    ],
+    "formation": "Vば + それまでだ; Vたら + それまでだ",
+    "locked_fields": [],
+    "meaning_vi": "Nếu… thì coi như hết",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu... thì coi như hết",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Cảnh báo rằng một điều kiện xấu xảy ra thì mọi nỗ lực trước đó đều trở nên vô nghĩa. Cách dùng: Mẫu 〜ばそれまでだ dùng khi người nói muốn nhấn mạnh điểm yếu chí mạng: chỉ cần điều kiện ấy xảy ra thì câu chuyện kết thúc, thành quả trước đó không còn ý nghĩa. Thường gắn với sơ hở bảo mật, mất lòng tin, hồ sơ thiếu, sức khỏe sụp, bị phát hiện. Giọng cảnh báo hoặc tỉnh táo, đôi khi hơi lạnh. Có thể dùng たらそれまでだ với nghĩa tương đương. Đây không phải lời an ủi kiểu chỉ thế thôi, cũng không phải quyết tâm làm lại. Trong lập luận chính sách và quản lý rủi ro, mẫu này nêu rõ ngưỡng không thể cứu. Sắc thái: Cảm giác dứt khoát, hơi khắc nghiệt. Người nói nhìn thấy giới hạn hệ thống hơn là ý chí cá nhân. Không dùng khi vẫn còn đường lui rõ ràng. Lưu ý: Cần mệnh đề điều kiện ば hoặc たら; không gắn trực tiếp vào danh từ. Ý nghĩa là chấm dứt / mất trắng, không phải chỉ thế thôi. Không dùng để nêu phương án thay thế tích cực."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-10e61bc073"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼がそんなことをするとは、信じがたい。",
+       "ja_furigana": "彼(かれ)がそんなことをするとは、信(しん)じがたい。",
+       "vi": "Anh ấy mà làm chuyện như vậy thì thật khó tin."
+      },
+      {
+       "ja": "本当の友情とは、困ったときに助け合うことだ。",
+       "ja_furigana": "本当(ほんとう)の友情(ゆうじょう)とは、困(こま)ったときに助(たす)け合(あ)うことだ。",
+       "vi": "Tình bạn đích thực là giúp đỡ nhau lúc khó khăn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あの慎重な会計主任が数字を丸めるとは、にわかには信じがたい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trưởng kế toán vốn thận trọng mà lại làm tròn số thì thật khó tin ngay."
+     },
+     {
+      "ja": "公共事業における説明責任とは、結果だけでなく過程を開くことだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trách nhiệm giải trình trong công trình công nghĩa là mở cả quá trình, không chỉ kết quả."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あの慎重な会計主任が数字を丸めるとは、にわかには信じがたい。",
+     "FURIGANA_MISSING: 公共事業における説明責任とは、結果だけでなく過程を開くことだ。"
+    ],
+    "formation": "N + とは + 〜",
+    "locked_fields": [],
+    "meaning_vi": "Thì ra là… / cái gọi là…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Thì ra là... / cái gọi là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Đưa ra định nghĩa, hoặc bộc lộ ngạc nhiên, đánh giá trước một sự thật vừa nắm được. Cách dùng: Mẫu 〜とは ở bậc N1 thường có hai nhánh bổ sung cho lập luận. Một là định nghĩa: Xとは…だ, người nói khẳng định bản chất khái niệm. Hai là ngạc nhiên đánh giá: việc ấy xảy raとは…, theo sau 思わなかった、信じがたい、驚きだ. Cả hai đều đưa sự việc ra ánh sáng rồi gắn nhận định. Giọng có thể lạnh khi định nghĩa, hoặc sắc khi trách. とは khác というのは ở chỗ gọn và mạnh hơn, hay dùng văn viết. Không phải trợ từ nhấn は thông thường. Khi ngạc nhiên, mệnh đề trước とは giữ dạng thường. Tránh nhồi cả hai nhánh trong một câu làm tối nghĩa. Sắc thái: Định nghĩa thì điềm tĩnh, rành mạch. Ngạc nhiên thì có thể trách, thất vọng hoặc thán phục. Đều là đánh giá, không phải hỏi nghĩa từ điển suông. Lưu ý: Nhánh ngạc nhiên cần mệnh đề thường + とは, không cần こと luôn luôn. Không nhầm với とは限らない (không hẳn). Không dùng とは như は nhấn mạnh chủ đề thông thường."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2a3dee5855"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "誰も来なければ、一人で始めるまでだ。",
+       "ja_furigana": "誰(だれ)も来(こ)なければ、一人(ひとり)で始(はじ)めるまでだ。",
+       "vi": "Không ai đến thì tôi đành bắt đầu một mình."
+      },
+      {
+       "ja": "失敗したら、もう一度やり直すまでのことだ。",
+       "ja_furigana": "失敗(しっぱい)したら、もう一度(いちど)やり直(なお)すまでのことだ。",
+       "vi": "Thất bại thì chỉ còn cách làm lại một lần nữa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "誰も手伝ってくれないなら、自分でやるまでだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu không ai giúp, tôi đành tự làm."
+     },
+     {
+      "ja": "落ちたら、また受け直すまでのことだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu trượt thì chỉ còn cách thi lại thôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 誰も手伝ってくれないなら、自分でやるまでだ。",
+     "FURIGANA_MISSING: 落ちたら、また受け直すまでのことだ。"
+    ],
+    "formation": "Vる + までだ; Vる + までのことだ",
+    "locked_fields": [],
+    "meaning_vi": "Vる + までだ: nói khi không còn lựa chọn tốt hơn, mang sắc thái “đành vậy”. Cũng có thể là quyết ý, tự trấn an. Vた + までだ: hạ nhẹ công lao/ý nghĩa hành động của mình, “tôi chỉ làm điều đương nhiên thôi”. Thường dùng khi được khen hay bị hiểu lầm. “～までのことだ” tương đương, lịch sự/nhẹ hơn “～までだ”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chỉ là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng, hay thấy trong văn viết/phát biểu nghiêm túc; khẩu ngữ vẫn dùng nhưng mang cảm giác điềm tĩnh, dứt khoát. Vた + までだ thể hiện khiêm nhường, hạ thấp công lao để lịch sự. Vる + までだ thường đi kèm bối cảnh “hết cách/không ai giúp/không còn lựa chọn”. [6. Ghi chú mở rộng] “まで” vốn nghĩa “đến mức/đến tận”, trong mẫu này chuyển hóa thành “tới mức chỉ còn cách …”. Thường đi cùng cấu trúc điều kiện/giả định: もし～なら／万一～なら … ～までだ. Vた + までだ hay dùng khi bị khen, để tránh phô trương: お役に立てて何よりです。したまでです。 [7. Biến thể & cụm cố định] それまでのことだ（đến thế là hết chuyện/đành vậy） やるだけやってダメなら、それまでだ（làm hết sức, không được thì đành vậy） ～するまでです／～するまででございます（kính ngữ hóa nhẹ） [8. Lỗi thường gặp & bẫy JLPT] Nhầm Vた + までだ (chỉ là … thôi) với Vる + までだ (đành …): chức năng khác nhau. Dùng với chủ ngữ người khác trong nghĩa khiêm nhường “したまでだ” dễ sai ngữ dụng; thường là người nói về mình. Lẫn với ～しかない: về ngữ pháp đều đúng, nhưng JLPT kiểm tra sắc thái trang trọng/quyết ý của ～までだ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1cde84695a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は約束を守らないきらいがある。",
+       "ja_furigana": "彼(かれ)は約束(やくそく)を守(まも)らないきらいがある。",
+       "vi": "Anh ấy có tật hay không giữ lời hứa."
+      },
+      {
+       "ja": "彼女は物事を悪い方に考えるきらいがある。",
+       "ja_furigana": "彼女(かのじょ)は物事(ものごと)を悪(わる)い方(ほう)に考(かんが)えるきらいがある。",
+       "vi": "Cô ấy có xu hướng nghĩ mọi chuyện theo hướng tiêu cực."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は物事を先延ばしにするきらいがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy có xu hướng trì hoãn mọi việc."
+     },
+     {
+      "ja": "この会社は短期的な利益を重視するきらいがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công ty này có xu hướng coi trọng lợi nhuận ngắn hạn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は物事を先延ばしにするきらいがある。",
+     "FURIGANA_MISSING: この会社は短期的な利益を重視するきらいがある。"
+    ],
+    "formation": "Vる/N の + きらいがある",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “có xu hướng (xấu) …”, “hơi bị …”, “có tật …”. Sắc thái phê bình nhẹ, trang trọng hơn so với ～がちだ／～気味だ. Thường dùng với hành vi không mong muốn: 先延ばしにする／形式にこだわる／短絡的に考える… Không dùng cho xu hướng tích cực (khen), vì “嫌い” vốn nghĩa “điều không hay/đáng ghét”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có xu hướng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thích hợp trong bài viết/nhận xét trang trọng, báo cáo, phân tích. Sắc thái phê bình nhẹ, tránh dùng trực diện gây khó chịu; thêm 総じて／やや để giảm mạnh. Chủ ngữ có thể là cá nhân/tổ chức/xu hướng xã hội. [6. Ghi chú mở rộng] “嫌い” ở đây là danh từ “điểm xấu/điều đáng chê”, không phải “ghét”. Phù hợp khi cần lời phê nhẹ nhàng nhưng có trọng lượng (báo cáo nhân sự, đánh giá hiệu suất…). Có thể kết hợp với 副詞: どうも／やや／少々／しばしば + V + きらいがある để điều chỉnh mức độ. [7. Biến thể & cụm cố định] 形式に流れるきらいがある／独断に陥るきらいがある／短絡的に考えるきらいがある N + の + きらいがある：保守性のきらいがある／独善のきらいがある [8. Lỗi thường gặp & bẫy JLPT] Dùng để khen → không hợp ngữ nghĩa (vì “嫌い” mang sắc thái tiêu cực). Nhầm với ～がちだ: “がち” không nhất thiết mang phê bình, còn “きらいがある” thiên phê bình. Thiếu chủ ngữ phù hợp (dùng cho đồ vật cụ thể vô tri) → không tự nhiên; nên dùng cho người/tổ chức/xu hướng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e1a40d8a87"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今の話は、聞かなかったことにしてください。",
+       "ja_furigana": "今(いま)の話(はなし)は、聞(き)かなかったことにしてください。",
+       "vi": "Xin hãy coi như chưa nghe chuyện vừa rồi."
+      },
+      {
+       "ja": "昨日の約束は、なかったことにしてください。",
+       "ja_furigana": "昨日(きのう)の約束(やくそく)は、なかったことにしてください。",
+       "vi": "Xin hãy coi như lời hẹn hôm qua chưa từng có."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "先ほどの失言は聞かなかったことにしてください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xin hãy coi như chưa nghe lời lỡ miệng khi nãy."
+     },
+     {
+      "ja": "本日の出席はあったことにしてください。後で欠席理由を説明します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xin hãy xem như hôm nay tôi có mặt. Tôi sẽ giải thích lý do vắng sau."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Cứ xem như...",
+     "FURIGANA_MISSING: 先ほどの失言は聞かなかったことにしてください。",
+     "FURIGANA_MISSING: 本日の出席はあったことにしてください。後で欠席理由を説明します。"
+    ],
+    "formation": "Vた/Vない + ことにしてください",
+    "locked_fields": [],
+    "meaning_vi": "Mẫu ～たことにしてください thể hiện yêu cầu/đề nghị lịch sự: “Xin hãy coi như (điều X) đã xảy ra/không xảy ra”. Đây là biến thể mệnh lệnh lịch sự của ～たことにする (tự quyết xem như), dùng để đề nghị người nghe cùng “đồng thuận giả định”. Chức năng xã giao: xoa dịu, tránh xung đột, bảo toàn thể diện. Dùng nhiều ở nơi làm việc, email lịch sự, thông báo nội bộ. Hai hướng chính: bỏ qua lỗi (～なかったことにしてください) và ghi nhận tạm thời (～たことにしてください). Khác với “～てください”: không yêu cầu hành động thực tế, mà yêu cầu cách “xem/ghi nhận”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cứ xem như...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Lịch sự, mềm hóa yêu cầu; hàm ý mong người nghe thông cảm/che chở. Thường đi với động từ tri nhận: 聞く, 見る, 受け取る, 連絡する, 報告する. Trong văn bản chính thức, có thể thay bằng ～ということにお願いいたします (kính ngữ). Tránh lạm dụng trong tình huống cần minh bạch; có thể gây ấn tượng “đánh tráo”. [6. Ghi chú mở rộng] Trong email công sở: 〜いただけますと幸いです/〜お願いできますでしょうか để tăng lịch sự. Với nội dung nhạy cảm (コンプラ), nên tránh lộ ý “che giấu”; thay bằng diễn đạt quy trình. Ngữ dụng: thể hiện chiến lược lịch sự “negative politeness” (giảm áp lực đối phương). Khi nhấn mạnh “đã có sự đồng thuận”, thêm: ご承知おきください/ご了承のほど. [7. Biến thể & cụm cố định] ～なかったことにしてください (cụm xuất hiện rất thường xuyên) ～ということにしてください (gán mệnh đề) 恐れ入りますが、～ことにしてください (mở đầu lịch sự) 社内ルールでは、遅刻は欠席だったことにしてください (quy ước nội bộ) [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～てください: cái này yêu cầu “hành vi”, còn ～たことにしてください yêu cầu “cách xem/ghi nhận”. Dùng cho việc không thể giả định (sự kiện pháp lý, số liệu bắt buộc) → sai ngữ dụng. Thiếu chủ thể/đối tượng: cần ngữ cảnh rõ ai là người “xem như”. JLPT bẫy: đáp án đúng thường đi với 聞く/見る/連絡する/報告する và phủ định なかったことにしてください."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bbc418a588"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-041"
+}

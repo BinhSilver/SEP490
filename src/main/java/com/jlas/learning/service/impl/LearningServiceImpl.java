@@ -36,6 +36,8 @@ import com.jlas.learning.entity.UserLearningPathItem;
 import com.jlas.learning.entity.UserLearningStage;
 import com.jlas.learning.entity.LessonProgress;
 import com.jlas.learning.entity.QuizAttempt;
+import com.jlas.learning.enums.LearningActivityState;
+import com.jlas.learning.enums.LearningMemberType;
 import com.jlas.learning.enums.LearningPhase;
 import com.jlas.learning.mapper.LearningMapper;
 import com.jlas.learning.repository.LessonProgressRepository;
@@ -87,6 +89,8 @@ public class LearningServiceImpl implements LearningService {
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private LearningPathPlanGenerator planGenerator;
     @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private org.springframework.transaction.PlatformTransactionManager transactionManager;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
     private com.jlas.dictionary.repository.GrammarPointRepository grammarPoints;
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private com.jlas.dictionary.repository.ContentVocabularyRepository contentVocabularies;
@@ -94,6 +98,9 @@ public class LearningServiceImpl implements LearningService {
     private com.jlas.dictionary.repository.VocabularyEntryRepository vocabularyEntries;
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private InteractivePackageComposer interactivePackageComposer;
+    // F1-4: optional so slice tests without the V2 tables keep working; without it no unit counts as known.
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.learning.repository.LearningActivityMemberRepository activityMembers;
     // [JLAS-W0193] Task 9 — composes WARM_UP packages from weakness evidence; optional so slice tests that
     // never enable V2 don't need to wire it, same pattern as interactivePackageComposer above.
     @org.springframework.beans.factory.annotation.Autowired(required = false)
@@ -302,6 +309,16 @@ public class LearningServiceImpl implements LearningService {
         }
         // Owner 2026-10-25: each set of entry answers is its own path (policy_version is VARCHAR(100); codes are short).
         pathPolicyVersion += LearningEntryPolicy.policySuffix(profile);
+        // F1-3: a different exam deadline is a different path (the CORE squeeze depends on it).
+        Integer studyDays = availableStudyDays(profile);
+        if (studyDays != null) pathPolicyVersion += ":X" + studyDays;
+        // F1-4 (owner 2026-10-28): words/Kanji the learner already proved are not required again.
+        var known = knownUnits(user.getId(), profile);
+        if (!known.isEmpty()) pathPolicyVersion += ":KN";
+        // F1-5 (owner 2026-10-28): focus skills (":F" + V/R/L) change what an exam date may trim and what is offered.
+        List<String> focus = "JLPT".equals(profile.goalCode()) ? profileSource().focusSkills(user.getId()) : List.of();
+        if (!focus.isEmpty()) pathPolicyVersion += ":F" + focus.stream().map(skill -> skill.substring(0, 1))
+                .collect(Collectors.joining());
 
         // The user-row lock above already serializes concurrent creation for this user.
         // [JLAS-W0122] Chỉ xét path ACTIVE: replan giữ nguyên generation identity qua các version,
@@ -335,6 +352,7 @@ public class LearningServiceImpl implements LearningService {
                 .goal(profile.goalCode())
                 .targetLevel(profile.targetLevel())
                 .currentLevel(profile.reviewStartLevel() != null ? profile.reviewStartLevel()
+                        : skipsWeakLevel(profile) ? profile.entryStartLevel()
                         : "DECLINE_RECOMMENDATION".equals(profile.discrepancyChoice()) ? profile.surveyLevel()
                         : profile.assessedLevel())
                 .surveyId(profile.surveyId())
@@ -411,7 +429,7 @@ public class LearningServiceImpl implements LearningService {
             if (interactivePackageComposer == null) {
                 throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "Interactive package composer is unavailable.");
             }
-            var composition = interactivePackageComposer.compose(path, schedule);
+            var composition = interactivePackageComposer.compose(path, schedule, availableStudyDays(profile), known, focus);
             if (!composition.published()) {
                 var allGaps = new ArrayList<>(selection.coverageGaps());
                 allGaps.addAll(warmUpGaps);
@@ -1215,9 +1233,82 @@ public class LearningServiceImpl implements LearningService {
      * [JLAS-W0108] Sinh (best-effort) narrative lộ trình cá nhân hoá và ghi vào {@code ai_plan_json}.
      * Chỉ chạy khi {@code planGenerator} có sẵn (production); null/lỗi thì UI vẫn chạy bình thường.
      */
+    /**
+     * F1-3 / R1 (owner 2026-10-27): builds the very path {@code create} would build for these answers, reads its last
+     * day and package count, and rolls everything back (row lock, weakness notebook, superseded path included). The AI
+     * narrative only runs after a commit, so it never runs here. Takes as long as creating the path (~3–7 s).
+     */
+    @Override
+    public com.jlas.learning.dto.LearningPathEstimate estimate(Long userId, Long assessmentAttemptId, Boolean kanaKnown,
+            String entryChoice) {
+        if (transactionManager == null) {
+            throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "Chưa ước tính được lộ trình.");
+        }
+        return new org.springframework.transaction.support.TransactionTemplate(transactionManager).execute(status -> {
+            status.setRollbackOnly();
+            var result = create(userId, assessmentAttemptId, null, null, kanaKnown, entryChoice);
+            Long pathId = result.path().id();
+            Integer lastDay = em.createQuery("select max(p.dayNumber) from LearningPathPackage p where p.learningPath.id = :id",
+                    Integer.class).setParameter("id", pathId).getSingleResult();
+            Long packages = em.createQuery("select count(p) from LearningPathPackage p where p.learningPath.id = :id",
+                    Long.class).setParameter("id", pathId).getSingleResult();
+            return new com.jlas.learning.dto.LearningPathEstimate(lastDay, packages.intValue(), result.path().minutesPerDay());
+        });
+    }
+
+    /**
+     * F1-4 (owner 2026-10-28): words and Kanji of activities the learner passed in any earlier path, plus words answered
+     * right in a full Smart Test batch. JLPT V2 paths only; none without the member repository (slice tests).
+     */
+    private com.jlas.learning.dto.KnownLearningUnits knownUnits(Long userId, LearningProfileSnapshot profile) {
+        if (!interactiveV2Enabled() || !"JLPT".equals(profile.goalCode()) || activityMembers == null) {
+            return com.jlas.learning.dto.KnownLearningUnits.NONE;
+        }
+        java.util.Set<Long> words = new java.util.TreeSet<>(profileSource().knownVocabularyIds(profile.assessmentAttemptId()));
+        java.util.Set<Long> kanji = new java.util.TreeSet<>();
+        for (Object[] row : activityMembers.findPassedMemberIdsOfUser(userId,
+                List.of(LearningActivityState.PASSED, LearningActivityState.COMPLETED),
+                List.of(LearningMemberType.VOCABULARY_ENTRY, LearningMemberType.KANJI))) {
+            (row[0] == LearningMemberType.KANJI ? kanji : words).add(((Number) row[1]).longValue());
+        }
+        return new com.jlas.learning.dto.KnownLearningUnits(words, kanji);
+    }
+
+    /** F1-3: study days left before a JLPT exam date (the exam day itself is not one); null without a date. */
+    private Integer availableStudyDays(LearningProfileSnapshot profile) {
+        if (profile.examDate() == null || !"JLPT".equals(profile.goalCode())) return null;
+        long days = java.time.temporal.ChronoUnit.DAYS.between(clock.today(), profile.examDate());
+        return (int) Math.max(0, Math.min(days, 3 * 366));
+    }
+
     private void generateAiPlan(UserLearningPath path, LearningProfileSnapshot profile,
             List<WeaknessEvidence> weaknesses, List<ScheduledLearningResource> schedule) {
         if (planGenerator == null) return;
+        // E4 (2026-10-27): the provider call took ~25% of a path's creation while holding the transaction and the
+        // user-row lock. Once a transaction manager is available it runs after commit, off the request thread, and
+        // stores the narrative with its own one-column update (the V2 roadmap does not show it; the V1 page reads it
+        // on its next load). Without one (slice tests) it stays inline as before.
+        if (transactionManager != null && org.springframework.transaction.support.TransactionSynchronizationManager
+                .isSynchronizationActive()) {
+            Long pathId = path.getId();
+            var template = new org.springframework.transaction.support.TransactionTemplate(transactionManager);
+            org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+                    new org.springframework.transaction.support.TransactionSynchronization() {
+                        @Override public void afterCommit() {
+                            java.util.concurrent.CompletableFuture.runAsync(() -> {
+                                try {
+                                    var plan = planGenerator.generate(profile, weaknesses, schedule);
+                                    if (plan != null) {
+                                        template.executeWithoutResult(status -> paths.updateAiPlanJson(pathId, plan.toString()));
+                                    }
+                                } catch (Exception ignored) {
+                                    // best-effort: narrative lỗi không làm hỏng lộ trình đã tạo.
+                                }
+                            });
+                        }
+                    });
+            return;
+        }
         try {
             var plan = planGenerator.generate(profile, weaknesses, schedule);
             if (plan != null) {
@@ -1675,6 +1766,12 @@ public class LearningServiceImpl implements LearningService {
             return "JLPT " + profile.reviewStartLevel() + " đến " + profile.targetLevel()
                     + " · Ôn theo lựa chọn (Smart Test: " + levelLabel(profile.assessedLevel()) + ")";
         }
+        // Owner 2026-10-28: "Vẫn học thẳng" starts where the learner chose, not at the level the result shows as weak.
+        if (skipsWeakLevel(profile)) {
+            String start = profile.entryStartLevel();
+            return "JLPT " + (start.equals(profile.targetLevel()) ? start : start + " đến " + profile.targetLevel())
+                    + " · Học thẳng (Smart Test: " + levelLabel(profile.assessedLevel()) + ")";
+        }
         // [JLAS-W0108] From-zero: tiêu đề thân thiện thay vì "JLPT BELOW_N5 to N5".
         if ("BELOW_N5".equals(profile.assessedLevel())) {
             return "JLPT " + profile.targetLevel() + " (từ con số 0)";
@@ -1683,6 +1780,10 @@ public class LearningServiceImpl implements LearningService {
             return "JLPT " + profile.assessedLevel();
         }
         return "JLPT " + profile.assessedLevel() + " to " + profile.targetLevel();
+    }
+
+    private static boolean skipsWeakLevel(LearningProfileSnapshot profile) {
+        return LearningEntryPolicy.SKIP_WEAK_LEVEL.equals(profile.entryChoice()) && profile.entryStartLevel() != null;
     }
 
     private static void requirePositiveUserId(Long userId) {

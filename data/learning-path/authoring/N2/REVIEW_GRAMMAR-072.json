@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日練習した。それなのに試合に負けた。",
+       "ja_furigana": "毎日(まいにち)練習(れんしゅう)した。それなのに試合(しあい)に負(ま)けた。",
+       "vi": "Ngày nào cũng luyện tập. Thế mà vẫn thua trận."
+      },
+      {
+       "ja": "薬を飲んだ。それなのに熱が下がらない。",
+       "ja_furigana": "薬(くすり)を飲(の)んだ。それなのに熱(ねつ)が下(さ)がらない。",
+       "vi": "Tôi đã uống thuốc. Thế mà sốt vẫn không hạ."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この時計は高かった。それなのにすぐに壊れた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái đồng hồ này đắt tiền. Thế nhưng lại nhanh hỏng."
+     },
+     {
+      "ja": "一生懸命勉強している。それなのに成績はよくならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đang học hành chăm chỉ. Thế nhưng thành tích không tiến bộ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この時計は高かった。それなのにすぐに壊れた。",
+     "FURIGANA_MISSING: 一生懸命勉強している。それなのに成績はよくならない。"
+    ],
+    "formation": "câu 1。それなのに + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Thế nhưng, thế mà ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜高かった。それなのにすぐ壊れた。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu thị kết quả ngoài dự đoán."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-951bcac695"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "「そういえば、来週の会議は何時からでしたっけ？」",
+       "ja_furigana": "「そういえば、来週(らいしゅう)の会議(かいぎ)は何時(なんじ)からでしたっけ？」",
+       "vi": "\"À nhân đây, cuộc họp tuần sau bắt đầu mấy giờ nhỉ?\""
+      },
+      {
+       "ja": "「そういえば、あの店の名前を覚えていますか。」",
+       "ja_furigana": "「そういえば、あの店(みせ)の名前(なまえ)を覚(おぼ)えていますか。」",
+       "vi": "\"À nhân đây, bạn có nhớ tên quán đó không?\""
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「そういえば、田中君、元気かな？」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nói vậy thì bé Tanaka khỏe nhỉ."
+     },
+     {
+      "ja": "「いい家ですね。そういえば、お父様は設計士さんでしたよね。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thật là một gia đình tốt. À, bố bạn là nhà thiết kế nhỉ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「そういえば、田中君、元気かな？」",
+     "FURIGANA_MISSING: 「いい家ですね。そういえば、お父様は設計士さんでしたよね。」"
+    ],
+    "formation": "câu 1。そういえば + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Nói vậy thì; À có phải ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜そういえば田中君、元気?",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng để bắt đầu câu có đề tài liên quan đến điều mình nhớ ra."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1b9634b82c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼に連絡した。それが、まだ返事が来ない。",
+       "ja_furigana": "彼(かれ)に連絡(れんらく)した。それが、まだ返事(へんじ)が来(こ)ない。",
+       "vi": "Tôi đã liên lạc với anh ấy. Thế mà vẫn chưa có hồi âm."
+      },
+      {
+       "ja": "「試験はどうだった？」「それが、全然できなかったんだ。」",
+       "ja_furigana": "「試験(しけん)はどうだった？」「それが、全然(ぜんぜん)できなかったんだ。」",
+       "vi": "\"Bài thi thế nào?\" \"Thế mà tôi chẳng làm được gì cả.\""
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「お嬢さん、もう大学をご卒業されましたでしょう？」 「それが、まだなんですよ。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hình như con gái chị tốt nghiệp đại học rồi nhỉ. Cái đó vẫn chưa mà."
+     },
+     {
+      "ja": "たばこをやめると誓った。それが、たった三日でまた吸ってしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã thề sẽ bỏ thuốc. Thế nhưng, chỉ 3 ngày đã hút lại mất rồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「お嬢さん、もう大学をご卒業されましたでしょう？」 「それが、まだなんですよ。」",
+     "FURIGANA_MISSING: たばこをやめると誓った。それが、たった三日でまた吸ってしまった。"
+    ],
+    "formation": "câu 1。それが + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "(1)(Chuyện) đó thì ～, nhưng mà ～ (2) Thế nhưng ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜それがまだなんです。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "(1)Sử dụng khi nói đến kết quả ngoài dự đoán. (2) Biểu thị kết quả khác với dự định, dự đoán ở câu trước."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4dcd0baecb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "「ずいぶん寒くなりましたね。」「それはそうと、旅行の準備は進んでいますか。」",
+       "ja_furigana": "「ずいぶん寒(さむ)くなりましたね。」「それはそうと、旅行(りょこう)の準備(じゅんび)は進(すす)んでいますか。」",
+       "vi": "\"Trời lạnh hẳn nhỉ.\" \"À mà này, việc chuẩn bị du lịch đến đâu rồi?\""
+      },
+      {
+       "ja": "「この本、とてもおもしろいです。」「それはそうと、宿題は終わりましたか。」",
+       "ja_furigana": "「この本(ほん)、とてもおもしろいです。」「それはそうと、宿題(しゅくだい)は終(お)わりましたか。」",
+       "vi": "\"Cuốn sách này hay thật.\" \"À mà này, bài tập đã xong chưa?\""
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「今日の授業、おもしろかったね。」 「うん、すごくためになった。それはそうと、今度の試験いつだっけ？」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Buổi học hôm nay thú vị nhỉ. Ừ, học được khá nhiều. À mà kì thi lần tới là khi nào vậy nhỉ?"
+     },
+     {
+      "ja": "「春になりましたね。それはそうと、田中さんの息子さん、大学受かったでしょうか。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã là mùa xuân rồi nhỉ. À mà hình như con trai của anh Tanaka đậu đại học rồi nhỉ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「今日の授業、おもしろかったね。」 「うん、すごくためになった。それはそうと、今度の試験いつだっけ？」",
+     "FURIGANA_MISSING: 「春になりましたね。それはそうと、田中さんの息子さん、大学受かったでしょうか。」"
+    ],
+    "formation": "câu 1。それはそうと + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "À, thế còn ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜それはそうと試験はいつだっけ?",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Được sử dụng khi đổi đề tài."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fd407d27d0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "道に迷ってしまった。そこで、交番で道を聞いた。",
+       "ja_furigana": "道(みち)に迷(まよ)ってしまった。そこで、交番(こうばん)で道(みち)を聞(き)いた。",
+       "vi": "Tôi bị lạc đường. Vì vậy tôi đã hỏi đường ở đồn cảnh sát."
+      },
+      {
+       "ja": "お金が足りない。そこで、友達に少し借りることにした。",
+       "ja_furigana": "お金(かね)が足(た)りない。そこで、友達(ともだち)に少(すこ)し借(か)りることにした。",
+       "vi": "Tôi không đủ tiền. Vì vậy tôi quyết định vay bạn một ít."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "明日は車が混むらしい。そこで我々は朝早く出発するつもりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe nói ngày mai xe sẽ đông đấy. Do đó, chúng tôi dự định sẽ xuất phát vào sáng sớm."
+     },
+     {
+      "ja": "「今度アメリカに旅行します。そこでお願いがあるのですが．．．。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lần này tôi sẽ đi du lịch Mỹ. Do đó, tôi có chút việc nhờ vả…"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 明日は車が混むらしい。そこで我々は朝早く出発するつもりだ。",
+     "FURIGANA_MISSING: 「今度アメリカに旅行します。そこでお願いがあるのですが．．．。」"
+    ],
+    "formation": "câu 1。そこで + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Vì vậy, do đó ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜渋滞するらしい。そこで早く出発したい。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng khi triển khai câu chuyện. Từ nối câu biểu thị cách thức giải quyết, đề xuất, yêu cầu ở câu sau."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a317d7befe"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "電話あるいはメールでご連絡ください。",
+       "ja_furigana": "電話(でんわ)あるいはメールでご連絡(れんらく)ください。",
+       "vi": "Xin liên lạc với chúng tôi qua điện thoại hoặc email."
+      },
+      {
+       "ja": "明日、あるいは明後日にお会いしましょう。",
+       "ja_furigana": "明日(あした)、あるいは明後日(みょうごにち)にお会(あ)いしましょう。",
+       "vi": "Hãy gặp nhau vào ngày mai hoặc ngày kia."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ファックス、あるいはメールでお知らせください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hãy thông báo qua fax hoặc mail."
+     },
+     {
+      "ja": "来週の火曜日の午後はどうですか。あるいは水曜日の午前でもかまいませんが・・・。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chiều thứ ba tuần tới thế nào? Hoặc là sáng thứ tư cũng được không vấn đề gì…"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ファックス、あるいはメールでお知らせください。",
+     "FURIGANA_MISSING: 来週の火曜日の午後はどうですか。あるいは水曜日の午前でもかまいませんが・・・。"
+    ],
+    "formation": "N1 + あるいは + N2; câu 1。あるいは + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Hoặc là ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ファックスあるいはメールで",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Lựa chọn giữa hai cái, hai phía. Cách nói cứng của 「または」"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f54ae00e79"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "「どうして行かないの？」「だって、お金がないんだもん。」",
+       "ja_furigana": "「どうして行(い)かないの？」「だって、お金(かね)がないんだもん。」",
+       "vi": "\"Sao không đi?\" \"Tại vì không có tiền mà.\""
+      },
+      {
+       "ja": "「早く寝なさい。」「だって、宿題がまだ終わっていないんだもん。」",
+       "ja_furigana": "「早(はや)く寝(ね)なさい。」「だって、宿題(しゅくだい)がまだ終(お)わっていないんだもん。」",
+       "vi": "\"Ngủ sớm đi.\" \"Tại vì bài tập vẫn chưa xong mà.\""
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「何を怒ってるの？」「だって、約束を破ったじゃないか。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh giận gì vậy? Chẳng phải là bởi vì thất hứa hay sao."
+     },
+     {
+      "ja": "「テストの点、よかったんだって？」 「うん。だってやさしかったんだもん。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe nói điểm thi tốt lắm hả. Vâng, đó là bởi vì dễ thôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「何を怒ってるの？」「だって、約束を破ったじゃないか。」",
+     "FURIGANA_MISSING: 「テストの点、よかったんだって？」 「うん。だってやさしかったんだもん。」"
+    ],
+    "formation": "câu 1。だって + lý do（だもん）",
+    "locked_fields": [],
+    "meaning_vi": "Bởi vì, là vì～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜怒ってる。だって約束を破ったから。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách diễn đạt trong văn nói của 「なぜなら」「なぜかというと」「どうしてかというと」"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7bcfe67809"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅の近く、すなわち私の家の前で待っていてください。",
+       "ja_furigana": "駅(えき)の近(ちか)く、すなわち私(わたし)の家(いえ)の前(まえ)で待(ま)っていてください。",
+       "vi": "Hãy đợi ở gần ga, tức là trước nhà tôi."
+      },
+      {
+       "ja": "兄の子、すなわち私のおいは来年学校に入る。",
+       "ja_furigana": "兄(あに)の子(こ)、すなわち私(わたし)のおいは来年(らいねん)学校(がっこう)に入(はい)る。",
+       "vi": "Con của anh trai tôi, tức là cháu trai tôi, sang năm sẽ vào lớp một."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「母の兄、すなわち僕のおじですが・・・・・・」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh trai của mẹ, hay nói cách khác là chú tôi…"
+     },
+     {
+      "ja": "このペットボトルには１０００ミリリットル、すなわち１リットルの水が入っています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái chai này chứa được 1000 ml hay là 1 lít nước."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「母の兄、すなわち僕のおじですが・・・・・・」",
+     "FURIGANA_MISSING: このペットボトルには１０００ミリリットル、すなわち１リットルの水が入っています。"
+    ],
+    "formation": "N1、すなわち + N2",
+    "locked_fields": [],
+    "meaning_vi": "Nói cách khác, tức là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜母の兄、すなわちおじさん",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng khi diễn đạt bằng cách khác. Giống với 「つまり」 nhưng không thể sử dụng khi nói về kết quả. 財布をなくした。すなわちお金がない。（X) →財布をなくした。つまりお金がない。（O) Câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b13fbb7d0f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この仕事は大変だ。だが、やりがいがある。",
+       "ja_furigana": "この仕事(しごと)は大変(たいへん)だ。だが、やりがいがある。",
+       "vi": "Công việc này vất vả. Thế nhưng rất đáng làm."
+      },
+      {
+       "ja": "彼は若い。だが、経験は十分だ。",
+       "ja_furigana": "彼(かれ)は若(わか)い。だが、経験(けいけん)は十分(じゅうぶん)だ。",
+       "vi": "Anh ấy còn trẻ. Thế nhưng kinh nghiệm thì đầy đủ."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "これは難しい挑戦だ。だが失敗を恐れてはいけない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đây là một thách thức khó khăn. Thế nhưng sợ thất bại là không được."
+     },
+     {
+      "ja": "生活は貧しい。だが幸せだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuộc sống nghèo. Thế nhưng hạnh phúc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: これは難しい挑戦だ。だが失敗を恐れてはいけない。",
+     "FURIGANA_MISSING: 生活は貧しい。だが幸せだ。"
+    ],
+    "formation": "câu 1。だが + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Thế nhưng ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜貧しい。だが幸せだ。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách nói cứng nhắc của 「しかし」「けれども」."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2dfb439e10"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私にしたところで、答えはわかりません。",
+       "ja_furigana": "私(わたし)にしたところで、答(こた)えはわかりません。",
+       "vi": "Ngay cả tôi cũng không biết câu trả lời."
+      },
+      {
+       "ja": "社長にしたところで、この問題は解決できないだろう。",
+       "ja_furigana": "社長(しゃちょう)にしたところで、この問題(もんだい)は解決(かいけつ)できないだろう。",
+       "vi": "Dù là giám đốc thì cũng không giải quyết được vấn đề này chăng."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この商品がどれだけ売れるのか、社長にしたところで実際のところは分からない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho dù hỏi giám đốc, thực tế vẫn không biết được sản phẩm này sẽ bán được bao nhiêu。"
+     },
+     {
+      "ja": "携帯の使用を禁止にしたところで、どのくらいの生徒が従うかわらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù cấm sử dụng điện thoại di động, cũng không biết có bao nhiêu học sinh sẽ chấp hành。"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この商品がどれだけ売れるのか、社長にしたところで実際のところは分からない。",
+     "FURIGANA_MISSING: 携帯の使用を禁止にしたところで、どのくらいの生徒が従うかわらない。"
+    ],
+    "formation": "N + にしたところで; thể thường + にしたところで",
+    "locked_fields": [],
+    "meaning_vi": "Dù là…thì cũng vậy; ngay cả đứng từ lập trường của…thì cũng không.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜にしたところで",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-31814fc7c1"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-072"
+}

@@ -559,6 +559,74 @@ public class InteractiveStudyEngine<T> {
         return practiceResult(stored, activity);
     }
 
+    // ---- Extra practice (§2.32, owner 2026-10-26) ----
+
+    /** Quiz type of a store passage practised beside a chapter's required activity. Like {@link #PRACTICE_REPLAY} it never
+     * matches a micro-check type, so it is invisible to completion, score, unlock, reward, history and replay counts. */
+    public static final String EXTRA_PRACTICE = "EXTRA_PRACTICE";
+
+    /** Issues (or reopens, while unsubmitted) an extra-practice snapshot of {@code batch}: questions, key and source are
+     * frozen on the session row, anchored to the owned, unlocked activity. The caller chose and validated the batch. */
+    public PracticeIssue issueExtraPractice(Long userId, Long activityId, List<T> batch, String batchRevision) {
+        UserLearningPathItem activity = loadOwnedActivity(userId, activityId);
+        InteractiveActivityStatePolicy.requireUnlocked(activity);
+        assertQuizAllowed(activity);
+        List<QuestionSpec> specs = adapter.buildQuestions(batch, 0, 0);
+        if (specs == null || specs.isEmpty() || specs.stream().anyMatch(spec -> spec.options() == null
+                || spec.options().size() < 2)) {
+            throw new ApiException(ErrorCode.BLOCKED_CONTENT, "Bài luyện thêm chưa đủ câu hỏi hợp lệ.");
+        }
+        Set<Long> ids = specs.stream().map(QuestionSpec::questionId).collect(Collectors.toSet());
+        for (LearningQuizSession open : quizSessions.findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
+                activityId, EXTRA_PRACTICE, "ISSUED")) {
+            if (!userId.equals(open.getUser().getId()) || open.getQuestionsJson() == null) continue;
+            List<LessonQuizResponse.LessonQuizQuestion> asked = mapper.readQuizQuestions(open.getQuestionsJson());
+            if (asked.stream().map(LessonQuizResponse.LessonQuizQuestion::questionId).collect(Collectors.toSet()).equals(ids)) {
+                return new PracticeIssue(new MicroCheckResponse(open.getId(), activityId, 0, 1, asked.size(),
+                        asked.stream().map(q -> new MicroCheckResponse.MicroCheckQuestion(
+                                q.questionId(), q.questionType(), q.questionText(), q.options())).toList()),
+                        open.getSourceSnapshotJson());
+            }
+        }
+        LearningQuizSession snapshot = LearningQuizSession.builder()
+                .user(activity.getLearningPath().getUser())
+                .quizType(EXTRA_PRACTICE)
+                .activityId(activity.getId())
+                .batchIndex(0)
+                .questionCount(specs.size())
+                .build();
+        snapshot.setQuestionsJson(mapper.writeQuizQuestions(toLessonQuizQuestions(specs)));
+        snapshot.setAnswerKeyJson(mapper.writeQuizAnswerKey(toAnswerKey(specs)));
+        snapshot.setSourceSnapshotJson(adapter.sourceSnapshotJson(batch, 0, batchRevision));
+        snapshot = quizSessions.save(snapshot);
+        return new PracticeIssue(new MicroCheckResponse(snapshot.getId(), activity.getId(), 0, 1, specs.size(),
+                toMicroCheckQuestions(specs)), snapshot.getSourceSnapshotJson());
+    }
+
+    /** Grades an extra-practice snapshot. Stored on its own row only: no completion, reward, unlock, attempt or score. */
+    public MicroCheckResult submitExtraPractice(Long userId, Long activityId, MicroCheckSubmitRequest request) {
+        UserLearningPathItem activity = loadOwnedActivity(userId, activityId);
+        assertQuizAllowed(activity);
+        LearningQuizSession session = quizSessions.findOwnedByActivity(
+                        request.attemptId(), userId, EXTRA_PRACTICE, activityId)
+                .orElseThrow(() -> new ApiException(ErrorCode.FORBIDDEN, "Phiên luyện thêm không hợp lệ."));
+        if ("SUBMITTED".equals(session.getStatus())) {
+            return practiceResult(mapper.readQuizResult(session.getResultJson()), activity);
+        }
+        Grade grade = grade(session, request);
+        session.setStatus("SUBMITTED");
+        session.setSubmittedAt(LocalDateTime.now());
+        session.setQuestionCount(grade.total());
+        session.setCorrectCount(grade.correct());
+        session.setScorePercent(grade.score());
+        session.setPassed(grade.passed());
+        LessonQuizResult stored = new LessonQuizResult(grade.total(), grade.correct(), grade.score(),
+                grade.passed(), PASS_THRESHOLD, false, grade.review(), List.of());
+        session.setResultJson(mapper.writeQuizResult(stored));
+        quizSessions.save(session);
+        return practiceResult(stored, activity);
+    }
+
     private MicroCheckResult practiceResult(LessonQuizResult stored, UserLearningPathItem activity) {
         return new MicroCheckResult(stored.totalQuestions(), stored.correctAnswers(), stored.scorePercent(),
                 stored.passed(), stored.passThresholdPercent(), 0, MAX_ATTEMPTS, null, false,

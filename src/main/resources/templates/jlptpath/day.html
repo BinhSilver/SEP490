@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] One study day in full (owner 05/11): /learning/jlpt/day?d=YYYY-MM-DD (today when absent).
+     jpath-day.js fills it from GET /api/learning/jlpt/history/{day}; opened from the week strip, the history list and
+     the "Xong hôm nay" page. -->
+<head th:replace="~{fragments/head :: standard('Chi tiết ngày học - JLAS', null)}"></head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-side')}"></th:block>
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page jp-side" data-inline-dictionary data-jpath-day>
+<div class="jp-ws jp-ws--norail">
+    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Chi tiết ngày')}"></th:block>
+    <aside class="jp-ws__side" aria-label="Điều hướng lộ trình">
+        <th:block th:replace="~{jlptpath/fragments/jpath :: sidenav('/learning/jlpt/history')}"></th:block>
+    </aside>
+    <div class="jp-ws__main">
+        <div id="jpathDayRoot" aria-live="polite"><p class="jp-status" role="status">Đang tải…</p></div>
+    </div>
+</div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlptpath/jpath-day.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

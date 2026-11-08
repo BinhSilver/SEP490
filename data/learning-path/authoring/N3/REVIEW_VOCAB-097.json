@@ -1,0 +1,69 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "variants": [
+      "手軽"
+     ]
+    },
+    "note": "thêm dạng gốc 手軽 (câu dùng 手軽に)"
+   },
+   "context": {
+    "expression": "手軽な",
+    "reading": "てがるな"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-af27f7f030"
+  },
+  {
+   "answer": {
+    "fix": {
+     "variants": [
+      "乱暴"
+     ],
+     "examples": [
+      {
+       "ja": "乱暴な言葉を使わないで。",
+       "ja_furigana": "乱暴(らんぼう)な言葉(ことば)を使(つか)わないで。",
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Đừng dùng lời lẽ thô lỗ."
+      },
+      {
+       "ja": "お酒を飲むと乱暴になる人とは、出かけたくない。",
+       "ja_furigana": "お酒(さけ)を飲(の)むと乱暴(らんぼう)になる人(ひと)とは、出(で)かけたくない。",
+       "role": "EXTRA",
+       "source": "AI",
+       "vi": "Tôi không muốn đi chơi với người hễ uống rượu là thô bạo."
+      },
+      {
+       "ja": "荷物を乱暴に投げないでください。",
+       "ja_furigana": "荷物(にもつ)を乱暴(らんぼう)に投(な)げないでください。",
+       "role": "EXTRA",
+       "source": "AI",
+       "vi": "Xin đừng ném hành lý một cách thô bạo."
+      }
+     ]
+    },
+    "note": "thêm dạng gốc 乱暴 (câu dùng 乱暴に/乱暴になる); thêm furigana câu 1"
+   },
+   "context": {
+    "expression": "乱暴な",
+    "reading": "らんぼうな"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-cb5b93eaad"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N3",
+ "packet_id": "REVIEW_VOCAB-097"
+}

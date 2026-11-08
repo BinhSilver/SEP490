@@ -1,0 +1,388 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "合格の知らせが嬉しい。",
+       "ja_furigana": "合格(ごうかく)の知(し)らせが嬉(うれ)しい。",
+       "vi": "Tôi vui mừng khi nghe tin đỗ."
+      },
+      {
+       "ja": "友だちが来て、うれしいです。",
+       "ja_furigana": "友(とも)だちが来(き)て、うれしいです。",
+       "vi": "Bạn đến chơi, tôi rất vui."
+      },
+      {
+       "ja": "プレゼントをもらって、とてもうれしかったです。",
+       "ja_furigana": null,
+       "vi": "Được nhận quà, tôi đã rất vui."
+      }
+     ]
+    },
+    "note": "lượt phát hành N5: thêm ja_furigana cho câu đã duyệt (chép nguyên câu)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "vui mừng",
+    "examples": [
+     {
+      "ja": "合格の知らせが嬉しい。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi vui mừng khi nghe tin đỗ."
+     },
+     {
+      "ja": "友だちが来て、うれしいです。",
+      "ja_furigana": "友(とも)だちが来(き)て、うれしいです。",
+      "source": "AI",
+      "vi": "Bạn đến chơi, tôi rất vui."
+     },
+     {
+      "ja": "プレゼントをもらって、とてもうれしかったです。",
+      "ja_furigana": null,
+      "source": "AI",
+      "vi": "Được nhận quà, tôi đã rất vui."
+     }
+    ],
+    "expression": "うれしい",
+    "findings": [
+     "FURIGANA_MISSING: 合格の知らせが嬉しい。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 合格の知らせが嬉しい。 → 合格"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "vui; vui mừng",
+    "mnemonic_vi": "うれしい: nhớ tiếng reo \"u-rê!\" khi nhận được tin vui, tức vui mừng.",
+    "reading": "うれしい",
+    "romaji": "ureshii",
+    "second_pass": true,
+    "topic_vi": "Cảm giác",
+    "twins": [],
+    "variants": [
+     "うれしい"
+    ],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-dd43f4a39f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "明日は曇りらしい。",
+       "ja_furigana": "明日(あした)は曇(くも)りらしい。",
+       "vi": "Ngày mai có vẻ trời nhiều mây."
+      },
+      {
+       "ja": "午後は曇りでしょう。",
+       "ja_furigana": "午後(ごご)は曇(くも)りでしょう。",
+       "vi": "Buổi chiều chắc trời nhiều mây."
+      },
+      {
+       "ja": "今日は朝から曇りです。",
+       "ja_furigana": "今日(きょう)は朝(あさ)から曇(くも)りです。",
+       "vi": "Hôm nay trời nhiều mây từ sáng."
+      }
+     ]
+    },
+    "note": "lượt phát hành N5: thêm ja_furigana cho câu đã duyệt (chép nguyên câu)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Thời tiết mây âm u",
+    "examples": [
+     {
+      "ja": "明日は曇りらしい。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Ngày mai có vẻ trời nhiều mây."
+     },
+     {
+      "ja": "午後は曇りでしょう。",
+      "ja_furigana": "午後(ごご)は曇(くも)りでしょう。",
+      "source": "AI",
+      "vi": "Buổi chiều chắc trời nhiều mây."
+     },
+     {
+      "ja": "今日は朝から曇りです。",
+      "ja_furigana": "今日(きょう)は朝(あさ)から曇(くも)りです。",
+      "source": "AI",
+      "vi": "Hôm nay trời nhiều mây từ sáng."
+     }
+    ],
+    "expression": "曇り",
+    "findings": [
+     "FURIGANA_MISSING: 明日は曇りらしい。"
+    ],
+    "locked_fields": [
+     "word_type_label"
+    ],
+    "meaning_vi": "trời nhiều mây",
+    "mnemonic_vi": "くもり (曇り) đến từ くも (雲, mây): trời nhiều mây, âm u.",
+    "reading": "くもり",
+    "romaji": "kumori",
+    "second_pass": true,
+    "topic_vi": "Thời tiết",
+    "twins": [],
+    "variants": [
+     "くもり",
+     "曇"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-de69279cc2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "遠くへ行っても、お元気で。",
+       "ja_furigana": "遠(とお)くへ行(い)っても、お元気(げんき)で。",
+       "vi": "Dù đi xa, xin hãy giữ gìn sức khỏe."
+      },
+      {
+       "ja": "国へ帰りますか。お元気で。",
+       "ja_furigana": "国(くに)へ帰(かえ)りますか。お元気(げんき)で。",
+       "vi": "Anh về nước à? Giữ gìn sức khỏe nhé."
+      },
+      {
+       "ja": "では、また。お元気で。",
+       "ja_furigana": "では、また。お元気(げんき)で。",
+       "vi": "Vậy hẹn gặp lại nhé. Giữ gìn sức khỏe nhé."
+      }
+     ]
+    },
+    "note": "lượt phát hành N5: thêm ja_furigana cho câu đã duyệt (chép nguyên câu)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Xin hãy giữ gìn sức khỏe",
+    "examples": [
+     {
+      "ja": "遠くへ行っても、お元気で。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Dù đi xa, xin hãy giữ gìn sức khỏe."
+     },
+     {
+      "ja": "国へ帰りますか。お元気で。",
+      "ja_furigana": "国(くに)へ帰(かえ)りますか。お元気(げんき)で。",
+      "source": "AI",
+      "vi": "Anh về nước à? Giữ gìn sức khỏe nhé."
+     },
+     {
+      "ja": "では、また。お元気で。",
+      "ja_furigana": "では、また。お元気(げんき)で。",
+      "source": "AI",
+      "vi": "Vậy hẹn gặp lại nhé. Giữ gìn sức khỏe nhé."
+     }
+    ],
+    "expression": "お元気で",
+    "findings": [
+     "FURIGANA_MISSING: 遠くへ行っても、お元気で。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "giữ gìn sức khỏe nhé (lời chào khi chia tay)",
+    "mnemonic_vi": "お + 元気 (NGUYÊN KHÍ) + で: \"giữ sức khỏe nhé\", lời chào khi chia tay lâu ngày.",
+    "reading": "おげんきで",
+    "romaji": "ogenkide",
+    "second_pass": true,
+    "topic_vi": "(Bạn) khỏe không?",
+    "twins": [],
+    "variants": [
+     "おげんきで"
+    ],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-909dc3ef4d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夕べは早く寝た。",
+       "ja_furigana": "夕(ゆう)べは早(はや)く寝(ね)た。",
+       "vi": "Tối qua tôi ngủ sớm."
+      },
+      {
+       "ja": "ゆうべ、おそくまでテレビを見ました。",
+       "ja_furigana": "ゆうべ、おそくまでテレビを見(み)ました。",
+       "vi": "Tối qua tôi xem ti vi đến khuya."
+      }
+     ]
+    },
+    "note": "lượt phát hành N5: thêm ja_furigana cho câu đã duyệt (chép nguyên câu)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tối qua; buổi tối",
+    "examples": [
+     {
+      "ja": "夕べは早く寝た。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tối qua tôi ngủ sớm."
+     },
+     {
+      "ja": "ゆうべ、おそくまでテレビを見ました。",
+      "ja_furigana": "ゆうべ、おそくまでテレビを見(み)ました。",
+      "source": "AI",
+      "vi": "Tối qua tôi xem ti vi đến khuya."
+     }
+    ],
+    "expression": "夕べ",
+    "findings": [
+     "FURIGANA_MISSING: 夕べは早く寝た。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tối hôm qua; tối qua; buổi tối",
+    "mnemonic_vi": "ゆうべ (夕べ, 夕 TỊCH = chiều tối): buổi tối vừa qua, tức tối hôm qua.",
+    "reading": "ゆうべ",
+    "romaji": "yuube",
+    "second_pass": true,
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [
+     "ゆうべ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b7d66a78d4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母が作ったお弁当を食べる。",
+       "ja_furigana": "母(はは)が作(つく)ったお弁当(べんとう)を食(た)べる。",
+       "vi": "Tôi ăn cơm hộp mẹ làm."
+      }
+     ]
+    },
+    "note": "lượt phát hành N5: thêm ja_furigana cho câu đã duyệt (chép nguyên câu)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cơm hộp",
+    "examples": [
+     {
+      "ja": "母が作ったお弁当を食べる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi ăn cơm hộp mẹ làm."
+     }
+    ],
+    "expression": "（お）弁当",
+    "findings": [
+     "FURIGANA_MISSING: 母が作ったお弁当を食べる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "cơm hộp",
+    "mnemonic_vi": "弁当 Hán Việt là BIỆN ĐƯƠNG: suất cơm \"biện\" sẵn mang theo, tức cơm hộp.",
+    "reading": "（お）べんとう",
+    "romaji": "(o)bentou",
+    "second_pass": true,
+    "topic_vi": "Món ăn",
+    "twins": [],
+    "variants": [
+     "（お）べんとう"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-493bc7fdd0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅行の話題で盛り上がった。",
+       "ja_furigana": "旅行(りょこう)の話題(わだい)で盛(も)り上(あ)がった。",
+       "vi": "Mọi người hào hứng nói về chuyến du lịch."
+      },
+      {
+       "ja": "今日のわだいは何ですか。",
+       "ja_furigana": "今日(きょう)のわだいは何(なん)ですか。",
+       "vi": "Chủ đề hôm nay là gì vậy?"
+      },
+      {
+       "ja": "友だちとテレビのわだいで話します。",
+       "ja_furigana": "友(とも)だちとテレビのわだいで話(はな)します。",
+       "vi": "Tôi nói chuyện với bạn về chủ đề trên ti vi."
+      }
+     ]
+    },
+    "note": "lượt phát hành N5: thêm ja_furigana cho câu đã duyệt (chép nguyên câu)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chủ đề câu chuyện",
+    "examples": [
+     {
+      "ja": "旅行の話題で盛り上がった。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Mọi người hào hứng nói về chuyến du lịch."
+     },
+     {
+      "ja": "今日のわだいは何ですか。",
+      "ja_furigana": "今日(きょう)のわだいは何(なん)ですか。",
+      "source": "AI",
+      "vi": "Chủ đề hôm nay là gì vậy?"
+     },
+     {
+      "ja": "友だちとテレビのわだいで話します。",
+      "ja_furigana": "友(とも)だちとテレビのわだいで話(はな)します。",
+      "source": "AI",
+      "vi": "Tôi nói chuyện với bạn về chủ đề trên ti vi."
+     }
+    ],
+    "expression": "話題",
+    "findings": [
+     "FURIGANA_MISSING: 旅行の話題で盛り上がった。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 旅行の話題で盛り上がった。 → 盛り"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chủ đề câu chuyện; đề tài",
+    "mnemonic_vi": "話題 = 話 THOẠI (nói chuyện) + 題 ĐỀ (đề tài): đề tài để nói chuyện, tức chủ đề câu chuyện.",
+    "reading": "わだい",
+    "romaji": "wadai",
+    "second_pass": true,
+    "topic_vi": "Giao tiếp",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-089f270e04"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N5",
+ "packet_id": "REVIEW_VOCAB-057"
+}

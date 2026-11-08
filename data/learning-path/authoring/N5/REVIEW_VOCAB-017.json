@@ -1,0 +1,1799 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "パンと牛乳を買いました。",
+       "ja_furigana": "パンと牛乳(ぎゅうにゅう)を買(か)いました。",
+       "vi": "Tôi đã mua bánh mì và sữa."
+      },
+      {
+       "ja": "友だちと東京へ行きます。",
+       "ja_furigana": "友(とも)だちと東京(とうきょう)へ行(い)きます。",
+       "vi": "Tôi đi Tokyo với bạn."
+      }
+     ]
+    },
+    "note": "viết 牛乳 bằng Kanji; thêm câu nghĩa \"với ~\""
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "パンとぎゅうにゅうを買いました。",
+      "ja_furigana": "パンとぎゅうにゅうを買(か)いました。",
+      "source": "CLAUDE",
+      "vi": "Tôi đã mua bánh mì và sữa."
+     }
+    ],
+    "expression": "〜と",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "và ~; với ~",
+    "mnemonic_vi": "と = và, nối các danh từ khi kể đủ: パンと ミルク = bánh mì và sữa.",
+    "reading": "〜と",
+    "romaji": "〜to",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "trợ từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6d110345eb"
+  },
+  {
+   "answer": {
+    "fix": {},
+    "note": "[đề xuất chữ hiển thị: 〜や〜など, đọc 〜や〜など — không ghi vào fix vì id mục sinh từ chữ, đổi chữ sẽ làm mất nội dung đã soạn] chữ/cách đọc nguồn chứa ngoặc \"[など]\" (romaji 〜ya〜[nado]) → 〜や〜など"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "店でりんごやみかんなどを買いました。",
+      "ja_furigana": "店(みせ)でりんごやみかんなどを買(か)いました。",
+      "source": "CLAUDE",
+      "vi": "Tôi đã mua táo, quýt và những thứ khác ở cửa hàng."
+     }
+    ],
+    "expression": "〜や〜[など]",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "~ và ~ (liệt kê không hết)",
+    "mnemonic_vi": "や = và (kể vài thứ tiêu biểu), など = vân vân: パンや ミルクなど = bánh mì, sữa, v.v.",
+    "reading": "〜や〜[など]",
+    "romaji": "〜ya〜[nado]",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "trợ từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0816c41cc2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "expression": "いくら",
+     "meaning_vi": "giá bao nhiêu; bao nhiêu",
+     "examples": [
+      {
+       "ja": "この財布はいくらですか。",
+       "ja_furigana": "この財布(さいふ)はいくらですか。",
+       "vi": "Cái ví này bao nhiêu tiền?"
+      },
+      {
+       "ja": "このりんごは一ついくらですか。",
+       "ja_furigana": "このりんごは一(ひと)ついくらですか。",
+       "vi": "Táo này bao nhiêu tiền một quả?"
+      }
+     ]
+    },
+    "note": "いくら thường viết kana (幾ら hiếm); gộp nghĩa trùng; bỏ câu sách"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bao nhiêu (tiền)",
+    "examples": [
+     {
+      "ja": "この さいふは いくらですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái ví này bao nhiêu tiền ạ?"
+     },
+     {
+      "ja": "この本は幾らですか。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Cuốn sách này giá bao nhiêu?"
+     }
+    ],
+    "expression": "幾ら",
+    "findings": [
+     "FURIGANA_MISSING: この本は幾らですか。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bao nhiêu tiền; bao nhiêu (tiền)",
+    "mnemonic_vi": "いくら = bao nhiêu tiền; hỏi giá: これは いくらですか.",
+    "reading": "いくら",
+    "romaji": "ikura",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [
+     "いくら"
+    ],
+    "word_type_label": "đại từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-90bcfecbb5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "yên (tiền Nhật)",
+     "examples": [
+      {
+       "ja": "この財布は五千円です。",
+       "ja_furigana": "この財布(さいふ)は五千円(ごせんえん)です。",
+       "vi": "Cái ví này giá 5.000 yên."
+      },
+      {
+       "ja": "コーヒーは三百円です。",
+       "ja_furigana": "コーヒーは三百円(さんびゃくえん)です。",
+       "vi": "Cà phê giá 300 yên."
+      }
+     ]
+    },
+    "note": "chủ đề Mua sắm: bỏ nghĩa \"vòng tròn\"; thay câu sách (kana tách chữ, quá đơn) bằng câu tự viết, Kanji N5 thông dụng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "yên (tiền Nhật)",
+    "examples": [
+     {
+      "ja": "この さいふは ごせんえんですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái ví này 5000 yên phải không ạ?"
+     }
+    ],
+    "expression": "円",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "yên (tiền Nhật); vòng tròn",
+    "mnemonic_vi": "円 \"viên\" (tròn): えん = đồng yên, cũng là hình tròn như đồng xu.",
+    "reading": "えん",
+    "romaji": "en",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d85ee3985a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店の野菜は安いです。",
+       "ja_furigana": "この店(みせ)の野菜(やさい)は安(やす)いです。",
+       "vi": "Rau ở cửa hàng này rẻ."
+      },
+      {
+       "ja": "安いかばんを買いました。",
+       "ja_furigana": "安(やす)いかばんを買(か)いました。",
+       "vi": "Tôi đã mua một cái cặp rẻ."
+      }
+     ]
+    },
+    "note": "thay câu sách (kana tách chữ, quá đơn) bằng câu tự viết, Kanji N5 thông dụng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "rẻ",
+    "examples": [
+     {
+      "ja": "この やすい おかしは いくらですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Món bánh kẹo rẻ này giá bao nhiêu?"
+     }
+    ],
+    "expression": "安い",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "rẻ",
+    "mnemonic_vi": "安 \"an\": người phụ nữ 女 dưới mái nhà 宀 là yên ổn; giá \"yên lòng\" = rẻ. やすい = rẻ.",
+    "reading": "やすい",
+    "romaji": "yasui",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6d7e795b7c"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "trăm",
+    "examples": [
+     {
+      "ja": "このペンは百円です。",
+      "ja_furigana": "このペンは百円(ひゃくえん)です。",
+      "source": "CLAUDE",
+      "vi": "Chiếc bút này giá một trăm yên."
+     }
+    ],
+    "expression": "百",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "trăm",
+    "mnemonic_vi": "百 \"bách\" như \"bách khoa\": ひゃく = một trăm.",
+    "reading": "ひゃく",
+    "romaji": "hyaku",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b2c4973c02"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nghìn",
+    "examples": [
+     {
+      "ja": "このシャツは千円です。",
+      "ja_furigana": "このシャツは千円(せんえん)です。",
+      "source": "CLAUDE",
+      "vi": "Chiếc áo này giá một nghìn yên."
+     }
+    ],
+    "expression": "千",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nghìn",
+    "mnemonic_vi": "千 \"thiên\" như \"thiên niên kỷ\": せん = một nghìn.",
+    "reading": "せん",
+    "romaji": "sen",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f25f413484"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "mười nghìn, vạn",
+    "examples": [
+     {
+      "ja": "このカメラは5万円です。",
+      "ja_furigana": "このカメラは5万円(まんえん)です。",
+      "source": "CLAUDE",
+      "vi": "Chiếc máy ảnh này giá 50.000 yên."
+     }
+    ],
+    "expression": "万",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mười nghìn; vạn",
+    "mnemonic_vi": "万 \"vạn\": まん = mười nghìn. Nhớ 1万 = 10.000, chứ không phải 1 triệu.",
+    "reading": "まん",
+    "romaji": "man",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-684ac74818"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この家は一億円です。",
+       "ja_furigana": "この家(いえ)は一億円(いちおくえん)です。",
+       "vi": "Căn nhà này giá một trăm triệu yên."
+      },
+      {
+       "ja": "日本の人口は一億人ぐらいです。",
+       "ja_furigana": "日本(にほん)の人口(じんこう)は一億人(いちおくにん)ぐらいです。",
+       "vi": "Dân số Nhật Bản khoảng hơn một trăm triệu người."
+      }
+     ]
+    },
+    "note": "câu cũ viết \"1おく円\" nửa kana và furigana 億円(おくえん) thiếu いち"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "100 triệu",
+    "examples": [
+     {
+      "ja": "この家は１億円です。",
+      "ja_furigana": "この家(いえ)は１億円(おくえん)です。",
+      "source": "VNJPCLUB",
+      "vi": "Căn nhà này có giá là một trăm triệu yên."
+     },
+     {
+      "ja": "1おく円はたくさんのお金です。",
+      "ja_furigana": "1おく円(えん)はたくさんのお金(かね)です。",
+      "source": "CLAUDE",
+      "vi": "Một trăm triệu yên là rất nhiều tiền."
+     }
+    ],
+    "expression": "億",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "trăm triệu; 100 triệu",
+    "mnemonic_vi": "億 Hán Việt \"ức\" = trăm triệu: いちおく = 100.000.000.",
+    "reading": "おく",
+    "romaji": "oku",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [
+     "おく"
+    ],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-5a963750e6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "expression": "ちょっと",
+     "examples": [
+      {
+       "ja": "ちょっと待ってください。",
+       "ja_furigana": "ちょっと待(ま)ってください。",
+       "vi": "Chờ một chút nhé."
+      },
+      {
+       "ja": "このかばんはちょっと高いです。",
+       "ja_furigana": "このかばんはちょっと高(たか)いです。",
+       "vi": "Cái cặp này hơi đắt."
+      }
+     ]
+    },
+    "note": "ちょっと gần như luôn viết kana (一寸 hiếm); thay câu sách (kana tách chữ, quá đơn) bằng câu tự viết, Kanji N5 thông dụng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "một chút",
+    "examples": [
+     {
+      "ja": "あ、ちょっと。これは わたしの じゃ ありません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "À khoan. Cái này không phải của tôi."
+     }
+    ],
+    "expression": "一寸",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "một chút; hơi; hơi khó (từ chối nhẹ)",
+    "mnemonic_vi": "ちょっと = một chút; nói \"ちょっと...\" rồi bỏ lửng là cách từ chối khéo.",
+    "reading": "ちょっと",
+    "romaji": "chotto",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [
+     "ちょっと"
+    ],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-980cb0b358"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "vậy thì",
+    "examples": [
+     {
+      "ja": "では、次の問題に進みましょう。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Vậy thì chúng ta sang câu tiếp theo."
+     },
+     {
+      "ja": "「皆さん、お集まりですね。では出発しましょう！」",
+      "ja_furigana": "「皆(みな)さん、お集(あつ)まりですね。では出発(しゅっぱつ)しましょう！」",
+      "source": "VNJPCLUB",
+      "vi": "Mọi người tập hợp đủ rồi nhỉ. Vậy xuất phát thôi!"
+     },
+     {
+      "ja": "「今日のテーマは江戸時代の文化についてです。では、佐藤先生、お願いします」",
+      "ja_furigana": "「今日(きょう)のテーマは江戸(えど)時代(じだい)の文化(ぶんか)についてです。では、佐藤(さとう)先生(せんせい)、お願(ねが)いします」",
+      "source": "VNJPCLUB",
+      "vi": "Chủ đề hôm nay: văn hóa thời Edo. Xin mời thầy/cô Sato."
+     }
+    ],
+    "expression": "では",
+    "findings": [
+     "FURIGANA_MISSING: では、次の問題に進みましょう。"
+    ],
+    "locked_fields": [
+     "examples"
+    ],
+    "meaning_vi": "vậy thì; thế thì; trong trường hợp đó",
+    "mnemonic_vi": "では = vậy thì (trang trọng); dạng thân mật là じゃ.",
+    "reading": "では",
+    "romaji": "deha",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "liên từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-bcf8caca10"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "vậy",
+    "examples": [
+     {
+      "ja": "じゃ、このあおいのにします。",
+      "ja_furigana": "じゃ、このあおいのにします。",
+      "source": "CLAUDE",
+      "vi": "Vậy tôi lấy cái màu xanh này."
+     }
+    ],
+    "expression": "じゃ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "vậy",
+    "mnemonic_vi": "じゃ = vậy thì (thân mật), rút gọn từ では.",
+    "reading": "じゃ",
+    "romaji": "ja",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "liên từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1fb31cc609"
+  },
+  {
+   "answer": {
+    "fix": {},
+    "note": "[đề xuất chữ hiển thị: お金, đọc おかね — không ghi vào fix vì id mục sinh từ chữ, đổi chữ sẽ làm mất nội dung đã soạn] chữ/cách đọc nguồn chứa ngoặc \"[お]\" → お金 / おかね (trùng từ với お金 JV-27a07a36f6)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "さいふにお金が少しあります。",
+      "ja_furigana": "さいふにお金(かね)が少(すこ)しあります。",
+      "source": "CLAUDE",
+      "vi": "Trong ví có một ít tiền."
+     }
+    ],
+    "expression": "[お]金",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tiền",
+    "mnemonic_vi": "金 \"kim\" (vàng, tiền): おかね = tiền.",
+    "reading": "[お]かね",
+    "romaji": "[o]kane",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6647c114ca"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "おはらいはカードでおねがいします。",
+      "ja_furigana": "おはらいはカードでおねがいします。",
+      "source": "CLAUDE",
+      "vi": "Tôi xin thanh toán bằng thẻ."
+     }
+    ],
+    "expression": "はらい",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "việc trả tiền; thanh toán",
+    "mnemonic_vi": "払う (はらう: trả tiền) thành danh từ はらい = việc thanh toán.",
+    "reading": "はらい",
+    "romaji": "harai",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ff2a338142"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tiền thối",
+    "examples": [
+     {
+      "ja": "お釣りをもらいます。",
+      "ja_furigana": "お釣(つ)りをもらいます。",
+      "source": "VNJPCLUB",
+      "vi": "Nhận lại tiền thừa."
+     }
+    ],
+    "expression": "お釣り",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tiền thối",
+    "mnemonic_vi": "おつり = tiền thối lại; viết お釣り có 釣 (câu cá): tiền được \"câu\" về tay mình.",
+    "reading": "おつり",
+    "romaji": "otsuri",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [
+     "おつり"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d7f6764282"
+  },
+  {
+   "answer": {
+    "fix": {},
+    "note": "[đề xuất chữ hiển thị: 細かいお金, đọc こまかいおかね — không ghi vào fix vì id mục sinh từ chữ, đổi chữ sẽ làm mất nội dung đã soạn] chữ/cách đọc nguồn chứa ngoặc \"[お]\"; viết 細かい như ví dụ"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "すみません、細かいお金がありません。",
+      "ja_furigana": "すみません、細(こま)かいお金(かね)がありません。",
+      "source": "CLAUDE",
+      "vi": "Xin lỗi, tôi không có tiền lẻ."
+     }
+    ],
+    "expression": "こまかい[お]金",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tiền lẻ (tiền xu và tờ nhỏ)",
+    "mnemonic_vi": "細かい có 細 \"tế\" (nhỏ, chi tiết) + お金 = tiền lẻ.",
+    "reading": "こまかい[お]かね",
+    "romaji": "komakai[o]kane",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8c2f84847c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お金が足りません。",
+       "ja_furigana": "お金(かね)が足(た)りません。",
+       "vi": "Tôi không đủ tiền."
+      },
+      {
+       "ja": "昨日のテストは時間が足りませんでした。",
+       "ja_furigana": "昨日(きのう)のテストは時間(じかん)が足(た)りませんでした。",
+       "vi": "Bài kiểm tra hôm qua tôi không đủ thời gian."
+      }
+     ]
+    },
+    "note": "3 câu nguồn nhiều từ trên N5 (収入, 経験, 試験) → câu tự viết"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đủ",
+    "examples": [
+     {
+      "ja": "この収入では生活するのに全然足りない",
+      "ja_furigana": "この収入(しゅうにゅう)では生活(せいかつ)するのに全然(ぜんぜん)足(た)りない",
+      "source": "VNJPCLUB",
+      "vi": "Với thu nhập này thì hoàn toàn không đủ sống."
+     },
+     {
+      "ja": "きょうの試験は難しくて、時間が足りなかった",
+      "ja_furigana": "きょうの試験(しけん)は難(むずか)しくて、時間(じかん)が足(た)りなかった",
+      "source": "VNJPCLUB",
+      "vi": "Bài kiểm tra hôm nay khó nên không đủ thời gian hoàn thành phần thi."
+     },
+     {
+      "ja": "この仕事をするには、彼女は経験が足りない",
+      "ja_furigana": "この仕事(しごと)をするには、彼女(かのじょ)は経験(けいけん)が足(た)りない",
+      "source": "VNJPCLUB",
+      "vi": "Cô ấy chưa đủ kinh nghiệm để làm công việc này."
+     }
+    ],
+    "expression": "足りる",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đủ; có đủ",
+    "mnemonic_vi": "足りる có 足 \"túc\" như \"sung túc\": たりる = đủ.",
+    "reading": "たりる",
+    "romaji": "tariru",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [
+     "たりる"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-57b4cf2bfe"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cuộc sống",
+    "examples": [
+     {
+      "ja": "ここでの生活に慣れた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đã quen với cuộc sống ở đây."
+     },
+     {
+      "ja": "健康的な生活を送る",
+      "ja_furigana": "健康的(けんこうてき)な生活(せいかつ)を送(おく)る",
+      "source": "VNJPCLUB",
+      "vi": "Sống cuộc sống khỏe mạnh."
+     },
+     {
+      "ja": "「もう日本の生活に慣れましたか」",
+      "ja_furigana": "「もう日本(にほん)の生活(せいかつ)に慣(な)れましたか」",
+      "source": "VNJPCLUB",
+      "vi": "\"Bạn đã quen với cuộc sống ở Nhật chưa?\""
+     }
+    ],
+    "expression": "生活",
+    "findings": [
+     "FURIGANA_MISSING: ここでの生活に慣れた。"
+    ],
+    "locked_fields": [
+     "examples"
+    ],
+    "meaning_vi": "cuộc sống; sinh hoạt",
+    "mnemonic_vi": "生活 Hán Việt \"sinh hoạt\" = cuộc sống hằng ngày.",
+    "reading": "せいかつ",
+    "romaji": "seikatsu",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [
+     "せいかつ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f1b9db096d"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "vật giá",
+    "examples": [
+     {
+      "ja": "最近、物価が上がっている。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Gần đây giá cả đang tăng."
+     },
+     {
+      "ja": "東京は物価が高い",
+      "ja_furigana": "東京(とうきょう)は物価(ぶっか)が高(たか)い",
+      "source": "VNJPCLUB",
+      "vi": "Tokyo giá cả đắt đỏ."
+     },
+     {
+      "ja": "物価が高くて、生活が大変だ。",
+      "ja_furigana": "物価(ぶっか)が高(たか)くて、生活(せいかつ)が大変(たいへん)だ。",
+      "source": "VNJPCLUB",
+      "vi": "Vì vật giá tăng cao nên đời sống khó khăn."
+     }
+    ],
+    "expression": "物価",
+    "findings": [
+     "FURIGANA_MISSING: 最近、物価が上がっている。"
+    ],
+    "locked_fields": [
+     "examples"
+    ],
+    "meaning_vi": "vật giá; giá cả; mức giá chung",
+    "mnemonic_vi": "物価 Hán Việt \"vật giá\" = giá cả hàng hóa.",
+    "reading": "ぶっか",
+    "romaji": "bukka",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [
+     "ぶっか"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-757a90974b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "expression": "いくつ",
+     "examples": [
+      {
+       "ja": "りんごはいくつありますか。",
+       "ja_furigana": null,
+       "vi": "Có mấy quả táo?"
+      },
+      {
+       "ja": "お子さんはおいくつですか。",
+       "ja_furigana": "お子(こ)さんはおいくつですか。",
+       "vi": "Con của anh mấy tuổi rồi?"
+      }
+     ]
+    },
+    "note": "いくつ thường viết kana (幾つ hiếm); thêm câu nghĩa \"mấy tuổi\""
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "mấy cái; mấy tuổi",
+    "examples": [
+     {
+      "ja": "りんごは いくつ ですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Táo có mấy quả?"
+     },
+     {
+      "ja": "りんごはいくつありますか。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Có mấy quả táo?"
+     }
+    ],
+    "expression": "幾つ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mấy cái; mấy tuổi",
+    "mnemonic_vi": "いくつ = mấy cái, cũng dùng hỏi tuổi (おいくつ là lịch sự).",
+    "reading": "いくつ",
+    "romaji": "ikutsu",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [
+     "いくつ"
+    ],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-36fc271a5c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "全部でいくらですか。",
+       "ja_furigana": "全部(ぜんぶ)でいくらですか。",
+       "vi": "Tất cả hết bao nhiêu tiền?"
+      },
+      {
+       "ja": "りんごとみかん、全部で千円です。",
+       "ja_furigana": "りんごとみかん、全部(ぜんぶ)で千円(せんえん)です。",
+       "vi": "Táo và quýt, tất cả là 1.000 yên."
+      }
+     ]
+    },
+    "note": "câu viết đúng chữ của mục (全部で); bỏ câu sách trùng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tất cả là",
+    "examples": [
+     {
+      "ja": "ぜんぶで いくら ですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tất cả hết bao nhiêu tiền ạ?"
+     },
+     {
+      "ja": "ぜんぶでいくらですか。",
+      "ja_furigana": "ぜんぶでいくらですか。",
+      "source": "CLAUDE",
+      "vi": "Tất cả bao nhiêu tiền?"
+     }
+    ],
+    "expression": "全部で",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tất cả là",
+    "mnemonic_vi": "全部 \"toàn bộ\" + で = tính tất cả là: ぜんぶで 500えん.",
+    "reading": "ぜんぶで",
+    "romaji": "zenbude",
+    "topic_vi": "Mua sắm",
+    "twins": [],
+    "variants": [
+     "ぜんぶで"
+    ],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-dce60fedd1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅の近くに新しい店があります。",
+       "ja_furigana": "駅(えき)の近(ちか)くに新(あたら)しい店(みせ)があります。",
+       "vi": "Gần nhà ga có một cửa hàng mới."
+      },
+      {
+       "ja": "この店は何時までですか。",
+       "ja_furigana": "この店(みせ)は何時(なんじ)までですか。",
+       "vi": "Cửa hàng này mở đến mấy giờ?"
+      }
+     ]
+    },
+    "note": "câu viết đúng chữ của mục (店); thay câu sách (kana tách chữ, quá đơn) bằng câu tự viết, Kanji N5 thông dụng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cửa hàng",
+    "examples": [
+     {
+      "ja": "みせは どこですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cửa hàng ở đâu?"
+     },
+     {
+      "ja": "駅の近くに新しいみせがあります。",
+      "ja_furigana": "駅(えき)の近(ちか)くに新(あたら)しいみせがあります。",
+      "source": "CLAUDE",
+      "vi": "Gần nhà ga có một cửa hàng mới."
+     }
+    ],
+    "expression": "店",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cửa hàng; quán",
+    "mnemonic_vi": "店 \"điếm\" như \"tửu điếm\": みせ = cửa hàng. Nhớ 見せる (cho xem): cửa hàng bày đồ cho khách xem.",
+    "reading": "みせ",
+    "romaji": "mise",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [
+     "みせ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-58139b5f6e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "近くに果物屋があります。",
+       "ja_furigana": "近(ちか)くに果物屋(くだものや)があります。",
+       "vi": "Ở gần đây có một cửa hàng hoa quả."
+      },
+      {
+       "ja": "駅の前のパン屋はおいしいです。",
+       "ja_furigana": "駅(えき)の前(まえ)のパン屋(や)はおいしいです。",
+       "vi": "Tiệm bánh mì trước ga rất ngon."
+      }
+     ]
+    },
+    "note": "viết 屋 bằng Kanji (như mẹo nhớ); thêm câu"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "近くにくだものやがあります。",
+      "ja_furigana": "近(ちか)くにくだものやがあります。",
+      "source": "CLAUDE",
+      "vi": "Ở gần đây có một cửa hàng hoa quả."
+     }
+    ],
+    "expression": "〜や",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cửa hàng ~; tiệm ~",
+    "mnemonic_vi": "屋 \"ốc\" (nhà) đọc や = tiệm ~: ほんや (hiệu sách), パンや (tiệm bánh mì).",
+    "reading": "〜や",
+    "romaji": "〜ya",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a871674004"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "trung tâm bách hóa; cửa hàng lớn nhiều tầng",
+     "examples": [
+      {
+       "ja": "来週、デパートへ買い物に行きます。",
+       "ja_furigana": "来週(らいしゅう)、デパートへ買(か)い物(もの)に行(い)きます。",
+       "vi": "Tuần sau tôi đi trung tâm thương mại mua sắm."
+      },
+      {
+       "ja": "このデパートは十時からです。",
+       "ja_furigana": "このデパートは十時(じゅうじ)からです。",
+       "vi": "Cửa hàng bách hóa này mở từ 10 giờ."
+      }
+     ]
+    },
+    "note": "gộp nghĩa trùng; thay câu sách (kana tách chữ, quá đơn) bằng câu tự viết, Kanji N5 thông dụng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "trung tâm mua sắm",
+    "examples": [
+     {
+      "ja": "らいしゅう デパートへ かいものに いきます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tuần sau tôi đi trung tâm thương mại để mua sắm."
+     }
+    ],
+    "expression": "デパート",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "trung tâm mua sắm; cửa hàng bách hóa; cửa hàng bách hóa tổng hợp",
+    "mnemonic_vi": "デパート là department store nói tắt = trung tâm thương mại, bách hóa.",
+    "reading": "でぱーと",
+    "romaji": "depaato",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ea32ec1047"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "コンビニでお弁当を買いました。",
+       "ja_furigana": "コンビニでお弁当(べんとう)を買(か)いました。",
+       "vi": "Tôi đã mua cơm hộp ở cửa hàng tiện lợi."
+      },
+      {
+       "ja": "コンビニは夜もあいています。",
+       "ja_furigana": "コンビニは夜(よる)もあいています。",
+       "vi": "Cửa hàng tiện lợi mở cả buổi tối."
+      }
+     ]
+    },
+    "note": "bỏ câu sách và câu có 〜てもらう (trên N5)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cửa hàng tiện lợi",
+    "examples": [
+     {
+      "ja": "コンビニは どこですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cửa hàng tiện lợi ở đâu ạ?"
+     },
+     {
+      "ja": "コンビニでお弁当を買って、温めてもらった。",
+      "ja_furigana": "コンビニでお弁当(べんとう)を買(か)って、温(あたた)めてもらった。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã mua cơm hộp ở cửa hàng tiện lợi và nhờ hâm nóng."
+     }
+    ],
+    "expression": "コンビニ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cửa hàng tiện lợi",
+    "mnemonic_vi": "コンビニ là convenience store nói tắt = cửa hàng tiện lợi.",
+    "reading": "こんびに",
+    "romaji": "konbini",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1cd2808738"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あの店では野菜を売っています。",
+       "ja_furigana": "あの店(みせ)では野菜(やさい)を売(う)っています。",
+       "vi": "Cửa hàng kia bán rau."
+      }
+     ]
+    },
+    "note": "câu viết đúng chữ của mục (売る, 野菜)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bán",
+    "examples": [
+     {
+      "ja": "あの店ではやさいをうっています。",
+      "ja_furigana": "あの店(みせ)ではやさいをうっています。",
+      "source": "CLAUDE",
+      "vi": "Cửa hàng kia bán rau."
+     }
+    ],
+    "expression": "売る",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "bán",
+    "mnemonic_vi": "売る có 売 \"mại\" (mua bán): うる = bán, đối lập かう (mua).",
+    "reading": "うる",
+    "romaji": "uru",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [
+     "うる"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-27e134b5f7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "くつの売り場は二階です。",
+       "ja_furigana": "くつの売(う)り場(ば)は二階(にかい)です。",
+       "vi": "Quầy bán giày ở tầng 2."
+      },
+      {
+       "ja": "食べ物の売り場は地下です。",
+       "ja_furigana": "食(た)べ物(もの)の売(う)り場(ば)は地下(ちか)です。",
+       "vi": "Quầy đồ ăn ở tầng hầm."
+      }
+     ]
+    },
+    "note": "bỏ câu viết toàn kana trùng câu khác; thêm câu"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "quầy hàng",
+    "examples": [
+     {
+      "ja": "靴の売り場は２階です。",
+      "ja_furigana": "靴(くつ)の売(う)り場(ば)は２階(かい)です。",
+      "source": "VNJPCLUB",
+      "vi": "Quầy bán giày thì ở tầng 2."
+     },
+     {
+      "ja": "くつのうりばは2かいです。",
+      "ja_furigana": "くつのうりばは2かいです。",
+      "source": "CLAUDE",
+      "vi": "Quầy bán giày ở tầng 2."
+     }
+    ],
+    "expression": "売り場",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "quầy hàng; quầy bán",
+    "mnemonic_vi": "売り (bán) + 場 (ば: chỗ) = quầy bán, khu bán hàng.",
+    "reading": "うりば",
+    "romaji": "uriba",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [
+     "うりば"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b9dcdd81c0"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "góc; gian hàng; khúc cua",
+    "examples": [
+     {
+      "ja": "野菜は店の奥のコーナーにある。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Rau ở gian hàng phía trong cửa hàng."
+     },
+     {
+      "ja": "学校には進学相談をするコーナーがある。",
+      "ja_furigana": "学校(がっこう)には進学(しんがく)相談(そうだん)をするコーナーがある。",
+      "source": "VNJPCLUB",
+      "vi": "Ở trường có góc tư vấn học chuyển cấp."
+     },
+     {
+      "ja": "無料の相談コーナーもあるから、行ってみたら？",
+      "ja_furigana": "無料(むりょう)の相談(そうだん)コーナーもあるから、行(い)ってみたら？",
+      "source": "VNJPCLUB",
+      "vi": "Vì cũng có quầy tư vấn miễn phí, bạn thử đến đó xem sao?"
+     }
+    ],
+    "expression": "コーナー",
+    "findings": [
+     "FURIGANA_MISSING: 野菜は店の奥のコーナーにある。"
+    ],
+    "locked_fields": [
+     "examples"
+    ],
+    "meaning_vi": "góc; gian hàng; khúc cua",
+    "mnemonic_vi": "コーナー = corner, góc, gian hàng; như \"góc sách\" (ほんの コーナー) trong cửa hàng.",
+    "reading": "こーなー",
+    "romaji": "koonaa",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2b42fbc50c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "コップは棚の上にあります。",
+       "ja_furigana": "コップは棚(たな)の上(うえ)にあります。",
+       "vi": "Cái cốc ở trên kệ."
+      },
+      {
+       "ja": "棚に本がたくさんあります。",
+       "ja_furigana": "棚(たな)に本(ほん)がたくさんあります。",
+       "vi": "Trên kệ có nhiều sách."
+      }
+     ]
+    },
+    "note": "bỏ câu sách dùng 〜てあります (trên N5); câu viết đúng chữ 棚"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "giá, kệ",
+    "examples": [
+     {
+      "ja": "たなに おちゃが おいて あります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trà đã được đặt sẵn trên giá kệ."
+     },
+     {
+      "ja": "棚に本を置きます。",
+      "ja_furigana": "棚(たな)に本(ほん)を置(お)きます。",
+      "source": "VNJPCLUB",
+      "vi": "Đặt cuốn sách lên cái kệ."
+     },
+     {
+      "ja": "コップはたなの上にあります。",
+      "ja_furigana": "コップはたなの上(うえ)にあります。",
+      "source": "CLAUDE",
+      "vi": "Cái cốc ở trên kệ."
+     }
+    ],
+    "expression": "棚",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "giá; kệ; cái kệ",
+    "mnemonic_vi": "棚 Hán Việt \"bằng\": たな = cái kệ, giá để đồ.",
+    "reading": "たな",
+    "romaji": "tana",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [
+     "たな"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6855899482"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この紙を十枚コピーしてください。",
+       "ja_furigana": "この紙(かみ)を十枚(じゅうまい)コピーしてください。",
+       "vi": "Hãy photo tờ giấy này 10 bản."
+      }
+     ]
+    },
+    "note": "viết số đếm 十枚 thông dụng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "この紙を10まいコピーしてください。",
+      "ja_furigana": "この紙(かみ)を10まいコピーしてください。",
+      "source": "CLAUDE",
+      "vi": "Hãy photo tờ giấy này 10 bản."
+     }
+    ],
+    "expression": "コピー＜する＞",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "sao chép; phô tô",
+    "mnemonic_vi": "コピー = copy, sao chụp, photo; photo tài liệu là コピーを する.",
+    "reading": "こぴー＜する＞",
+    "romaji": "kopii<suru>",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm III"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-32e629bbef"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "vé",
+    "examples": [
+     {
+      "ja": "試合のチケットをインターネットで買った。",
+      "ja_furigana": "試合(しあい)のチケットをインターネットで買(か)った。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã mua vé xem trận đấu ở trên mạng."
+     }
+    ],
+    "expression": "チケット",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "vé",
+    "mnemonic_vi": "チケット = ticket, vé xem phim, hòa nhạc.",
+    "reading": "ちけっと",
+    "romaji": "chiketto",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e0ef6feb53"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "quyển giới thiệu sản phẩm; ca-ta-lô",
+     "examples": [
+      {
+       "ja": "デパートのカタログを見ます。",
+       "ja_furigana": "デパートのカタログを見(み)ます。",
+       "vi": "Tôi xem quyển giới thiệu của cửa hàng bách hóa."
+      },
+      {
+       "ja": "カタログを一つください。",
+       "ja_furigana": "カタログを一(ひと)つください。",
+       "vi": "Cho tôi một quyển giới thiệu sản phẩm."
+      }
+     ]
+    },
+    "note": "gộp nghĩa trùng; 2 câu nguồn nhiều từ trên N5 (歳暮, 百貨店, 注文)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Catalog",
+    "examples": [
+     {
+      "ja": "服のカタログを見て、ネットで注文した。",
+      "ja_furigana": "服(ふく)のカタログを見(み)て、ネットで注文(ちゅうもん)した。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã xem quyển giới thiệu về quần áo và đặt hàng qua mạng."
+     },
+     {
+      "ja": "お歳暮と、百貨店のカタログか選んで相手に送った。",
+      "ja_furigana": "お歳暮(せいぼ)と、百貨店(ひゃっかてん)のカタログか選(えら)んで相手(あいて)に送(おく)った。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã chọn giỏ quà từ tờ catalog của cửa hàng bách hóa và gửi cho đối tác."
+     }
+    ],
+    "expression": "カタログ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "catalog; catalogue; quyển giới thiệu",
+    "mnemonic_vi": "カタログ = catalog, quyển giới thiệu sản phẩm.",
+    "reading": "かたろぐ",
+    "romaji": "katarogu",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2c5caecf53"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "tạp chí",
+     "examples": [
+      {
+       "ja": "電車の中で雑誌を読みます。",
+       "ja_furigana": "電車(でんしゃ)の中(なか)で雑誌(ざっし)を読(よ)みます。",
+       "vi": "Tôi đọc tạp chí trên tàu điện."
+      },
+      {
+       "ja": "これは日本語の雑誌です。",
+       "ja_furigana": "これは日本語(にほんご)の雑誌(ざっし)です。",
+       "vi": "Đây là tạp chí tiếng Nhật."
+      }
+     ]
+    },
+    "note": "bỏ nghĩa lệch \"báo／tạp chí\"; câu viết đúng chữ 雑誌"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tạp chí",
+    "examples": [
+     {
+      "ja": "これは にほんご の ざっし です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái này là tạp chí tiếng Nhật."
+     },
+     {
+      "ja": "電車の中でざっしを読みます。",
+      "ja_furigana": "電車(でんしゃ)の中(なか)でざっしを読(よ)みます。",
+      "source": "CLAUDE",
+      "vi": "Tôi đọc tạp chí trên tàu điện."
+     }
+    ],
+    "expression": "雑誌",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tạp chí; báo／tạp chí",
+    "mnemonic_vi": "雑誌 Hán Việt \"tạp chí\": ざっ \"tạp\" + し \"chí\".",
+    "reading": "ざっし",
+    "romaji": "zasshi",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [
+     "ざっし"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d740b3513f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "báo; tờ báo",
+     "examples": [
+      {
+       "ja": "父は毎朝新聞を読みます。",
+       "ja_furigana": "父(ちち)は毎朝(まいあさ)新聞(しんぶん)を読(よ)みます。",
+       "vi": "Sáng nào bố tôi cũng đọc báo."
+      },
+      {
+       "ja": "これは今日の新聞です。",
+       "ja_furigana": "これは今日(きょう)の新聞(しんぶん)です。",
+       "vi": "Đây là báo hôm nay."
+      }
+     ]
+    },
+    "note": "bỏ nghĩa lệch \"báo／tạp chí\"; câu viết đúng chữ 新聞"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "báo",
+    "examples": [
+     {
+      "ja": "これは きょう の しんぶん です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái này là báo hôm nay."
+     },
+     {
+      "ja": "父は毎朝しんぶんを読みます。",
+      "ja_furigana": "父(ちち)は毎朝(まいあさ)しんぶんを読(よ)みます。",
+      "source": "CLAUDE",
+      "vi": "Sáng nào bố tôi cũng đọc báo."
+     }
+    ],
+    "expression": "新聞",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "báo; báo giấy; báo／tạp chí",
+    "mnemonic_vi": "新聞 Hán Việt \"tân văn\": tin mới (新) nghe được (聞) = tờ báo.",
+    "reading": "しんぶん",
+    "romaji": "shinbun",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [
+     "しんぶん"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c899c96bbf"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "何がほしいですか。",
+       "ja_furigana": "何(なに)がほしいですか。",
+       "vi": "Bạn muốn có cái gì?"
+      },
+      {
+       "ja": "新しいカメラがほしいです。",
+       "ja_furigana": "新(あたら)しいカメラがほしいです。",
+       "vi": "Tôi muốn có một cái máy ảnh mới."
+      }
+     ]
+    },
+    "note": "thay câu sách (kana tách chữ, quá đơn) bằng câu tự viết, Kanji N5 thông dụng"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "muốn có",
+    "examples": [
+     {
+      "ja": "なにが ほしいですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn muốn có cái gì?"
+     }
+    ],
+    "expression": "ほしい",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "muốn có",
+    "mnemonic_vi": "欲しい có 欲 \"dục\" (mong muốn): ほしい = muốn có (đồ vật).",
+    "reading": "ほしい",
+    "romaji": "hoshii",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4c8dd34fb1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "expression": "できる",
+     "examples": [
+      {
+       "ja": "私は日本語ができます。",
+       "ja_furigana": "私(わたし)は日本語(にほんご)ができます。",
+       "vi": "Tôi biết tiếng Nhật."
+      },
+      {
+       "ja": "駅の前に新しいスーパーができました。",
+       "ja_furigana": "駅(えき)の前(まえ)に新(あたら)しいスーパーができました。",
+       "vi": "Trước ga vừa mở một siêu thị mới."
+      }
+     ]
+    },
+    "note": "できる thường viết kana ở N5; bỏ câu nguồn trên N5 (〜か どうか, 待とう)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hoàn thành, xong, có thể",
+    "examples": [
+     {
+      "ja": "アプリが できるか どうか、わかりません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ứng dụng có làm được hay không thì tôi không rõ."
+     },
+     {
+      "ja": "準備が出来るまで待とう。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hãy chờ đến khi chuẩn bị xong."
+     },
+     {
+      "ja": "駅前に新しいスーパーができた",
+      "ja_furigana": "駅前(えきまえ)に新(あたら)しいスーパーができた",
+      "source": "VNJPCLUB",
+      "vi": "Trước ga vừa có/mới mở một siêu thị mới."
+     }
+    ],
+    "expression": "出来る",
+    "findings": [
+     "FURIGANA_MISSING: 準備が出来るまで待とう。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "làm được; có thể; hoàn thành",
+    "mnemonic_vi": "できる = có thể, làm được; \"đê-ki-ru\" như \"để kịp\": làm kịp, làm được.",
+    "reading": "できる",
+    "romaji": "dekiru",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [
+     "できる"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b423eeb012"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "トイレはあちらでございます。",
+      "ja_furigana": "トイレはあちらでございます。",
+      "source": "CLAUDE",
+      "vi": "Nhà vệ sinh ở phía kia ạ."
+     }
+    ],
+    "expression": "〜でございます",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "là ~ (rất lịch sự)",
+    "mnemonic_vi": "でございます = cách nói rất lịch sự của です, nhân viên cửa hàng hay dùng.",
+    "reading": "〜でございます",
+    "romaji": "〜degozaimasu",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-bae5d838fd"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "いらっしゃいませ。何かおさがしですか。",
+      "ja_furigana": "いらっしゃいませ。何(なに)かおさがしですか。",
+      "source": "CLAUDE",
+      "vi": "Xin chào quý khách. Quý khách đang tìm gì ạ?"
+     }
+    ],
+    "expression": "おさがしですか。",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "quý khách đang tìm gì ạ",
+    "mnemonic_vi": "探す (さがす: tìm) → おさがしですか = quý khách đang tìm gì ạ?",
+    "reading": "おさがしですか。",
+    "romaji": "osagashidesuka。",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-074cab14d9"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-f284ac068e"
+    ],
+    "dictionary_meaning": "đưa cho xem",
+    "examples": [
+     {
+      "ja": "パスポートを見せてください。",
+      "ja_furigana": "パスポートを見(み)せてください。",
+      "source": "CLAUDE",
+      "vi": "Xin cho xem hộ chiếu."
+     }
+    ],
+    "expression": "見せる",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đưa cho xem",
+    "mnemonic_vi": "見 (xem) + せる: みせる = cho người khác xem. Khác みる (tự mình xem).",
+    "reading": "みせる",
+    "romaji": "miseru",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-cad40c02f0"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "はい、かしこまりました。",
+      "ja_furigana": "はい、かしこまりました。",
+      "source": "CLAUDE",
+      "vi": "Vâng, tôi hiểu rồi ạ."
+     }
+    ],
+    "expression": "かしこまりました。",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tôi hiểu rồi ạ; vâng ạ",
+    "mnemonic_vi": "かしこまりました = vâng, tôi hiểu rồi ạ (rất lịch sự), nhân viên dùng để đáp lời khách.",
+    "reading": "かしこまりました。",
+    "romaji": "kashikomarimashita。",
+    "topic_vi": "Cửa hàng, của tiệm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d6de810917"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N5",
+ "packet_id": "REVIEW_VOCAB-017"
+}

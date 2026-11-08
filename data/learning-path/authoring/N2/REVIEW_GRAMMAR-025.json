@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "少しなら、食べられないこともない。",
+       "ja_furigana": "少(すこ)しなら、食(た)べられないこともない。",
+       "vi": "Nếu chỉ một chút thì cũng không phải là không ăn được."
+      },
+      {
+       "ja": "計画に賛成しないこともないが、もう少し説明がほしい。",
+       "ja_furigana": "計画(けいかく)に賛成(さんせい)しないこともないが、もう少(すこ)し説明(せつめい)がほしい。",
+       "vi": "Không phải tôi không tán thành kế hoạch, nhưng muốn được giải thích thêm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "毎日、漢字を４つか５つなら、覚えられないこともない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu như 4-5 chữ kanji mỗi ngày thì cũng không phải là không nhớ nổi."
+     },
+     {
+      "ja": "この会社を辞める人の気持ちがわからないこともない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cũng không phải là tôi không hiểu cảm giác của người nghỉ việc ở công ty này."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 毎日、漢字を４つか５つなら、覚えられないこともない。",
+     "FURIGANA_MISSING: この会社を辞める人の気持ちがわからないこともない。"
+    ],
+    "formation": "Vない + こともない",
+    "locked_fields": [],
+    "meaning_vi": "～の可能性もある Cũng có khả năng là, không phải là không thể…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜覚えられないこともない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cff1d021b0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あの歌を聞くと、一緒に歌わないではいられない。",
+       "ja_furigana": "あの歌(うた)を聞(き)くと、一緒(いっしょ)に歌(うた)わないではいられない。",
+       "vi": "Hễ nghe bài hát đó, tôi lại không thể không hát theo."
+      },
+      {
+       "ja": "おかしくて、笑わないではいられなかった。",
+       "ja_furigana": "おかしくて、笑(わら)わないではいられなかった。",
+       "vi": "Buồn cười đến mức tôi không thể không bật cười."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "態度の悪い店員に、一言文句を言わないではいられなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi không thể không nói một lời than phiền về người bán hàng có thái độ không tốt."
+     },
+     {
+      "ja": "工事の音がうるさくて、耳をふさがないではいられない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì tiếng sửa chữa ồn ào, nên tôi không thể nào không bịt tai lại."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 態度の悪い店員に、一言文句を言わないではいられなかった。",
+     "FURIGANA_MISSING: 工事の音がうるさくて、耳をふさがないではいられない。"
+    ],
+    "formation": "Vない + ではいられない",
+    "locked_fields": [],
+    "meaning_vi": "どうしても～してしまう （どうしても我慢できず、自然にそうなってしまうと言いたい時の表現） Dù thế nào cũng đã làm… ( Dù thế nào cũng không thể chịu đựng, Dùng khi muốn nói tự nhiên mà thành như thế)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜言わないではいられない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Chú ý: Chủ ngữ giới hạn là ngôi thứ nhất. Nếu là ngôi thứ 3 thì cuối câu thường thêm"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9f9bd9c5f7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この写真を見ると、ふるさとを思い出さずにはいられない。",
+       "ja_furigana": "この写真(しゃしん)を見(み)ると、ふるさとを思(おも)い出(だ)さずにはいられない。",
+       "vi": "Hễ xem tấm ảnh này, tôi lại không thể không nhớ về quê nhà."
+      },
+      {
+       "ja": "美しい景色に、立ち止まらずにはいられない。",
+       "ja_furigana": "美(うつく)しい景色(けしき)に、立(た)ち止(と)まらずにはいられない。",
+       "vi": "Trước cảnh đẹp, tôi không thể không dừng lại."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "職場でいやなことがあると、酒を飲まずにはいられない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mỗi khi có chuyện không vừa ý ở chỗ làm, tôi không thể không uống rượu"
+     },
+     {
+      "ja": "あの映画を見たら、だれでも感動せずにはいられないだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "bộ phim đó, chắc không ai mà không cảm động."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 職場でいやなことがあると、酒を飲まずにはいられない。",
+     "FURIGANA_MISSING: あの映画を見たら、だれでも感動せずにはいられないだろう。"
+    ],
+    "formation": "Vない(ない→ず) + にはいられない (する→せず)",
+    "locked_fields": [],
+    "meaning_vi": "どうしても～してしまう （どうしても我慢できず、自然にそうなってしまうと言いたい時の表現） Dù thế nào cũng đã làm… ( Dù thế nào cũng không thể chịu đựng, Dùng khi muốn nói tự nhiên mà thành như thế)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜飲まずにはいられない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Chú ý: Chủ ngữ giới hạn là ngôi thứ nhất. Nếu là ngôi thứ 3 thì cuối câu thường thêm"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d13fa74559"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このボタンを押しさえすれば、機械が動き出す。",
+       "ja_furigana": "このボタンを押(お)しさえすれば、機械(きかい)が動(うご)き出(だ)す。",
+       "vi": "Chỉ cần bấm nút này là máy sẽ chạy."
+      },
+      {
+       "ja": "住所さえ分かれば、地図で探せる。",
+       "ja_furigana": "住所(じゅうしょ)さえ分(わ)かれば、地図(ちず)で探(さが)せる。",
+       "vi": "Chỉ cần biết địa chỉ là có thể tìm trên bản đồ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "時間さえあれば、手伝います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ cần có thời gian, tôi sẽ giúp."
+     },
+     {
+      "ja": "君さえいれば、怖くない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ cần có em, anh không sợ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 時間さえあれば、手伝います。",
+     "FURIGANA_MISSING: 君さえいれば、怖くない。"
+    ],
+    "formation": "N / V-ます(語幹) + さえ + 〜ば",
+    "locked_fields": [],
+    "meaning_vi": "“Chỉ cần … thì …”; nhấn mạnh điều kiện tối thiểu, khi thoả mãn thì kết quả mong muốn sẽ xảy ra. “さえ” mang nghĩa “ngay cả/chỉ cần”, kết hợp với “～ば” tạo điều kiện đủ tối thiểu. V-てさえいれば nhấn mạnh trạng thái đã được đảm bảo từ trước hoặc trong suốt khoảng thời gian. Dùng trong suy luận, khuyên nhủ, nêu nguyên tắc; B thường không mâu thuẫn với A.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chỉ cần... thì...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mạnh điều kiện tối thiểu, có chút cảm giác “thế là đủ”. Thường lược bỏ trợ từ gốc của N (が/を/は) trước さえ: お金さえあれば (không nói お金がさえ…). B có thể là mệnh lệnh/ý chí/khuyên nhủ: 早く連絡しさえすれば、間に合うよ。 Tránh dùng khi A và B mâu thuẫn logic (A đủ tối thiểu mà B lại phủ định hoàn toàn). [6. Ghi chú mở rộng] Động từ bất quy tắc: する→しさえすれば；来る→来さえすれば（きさえすれば）. V-てさえいれば phù hợp khi điều kiện cần duy trì trong thời gian: 連絡してさえいれば安心だ。 Nếu muốn nhấn mạnh “rất khó xảy ra nếu thiếu A”, có thể thêm さえ: これさえあれば十分だ。 [7. Biến thể & cụm cố định] これさえあれば／それさえあれば（mẫu cửa miệng） 名前さえ書けば提出完了（mẫu hướng dẫn đơn giản） 愛さえあれば／金さえあれば（thành ngữ phổ biến） V-てさえいれば：登録してさえいれば特典が受けられる [8. Lỗi thường gặp & bẫy JLPT] Giữ trợ từ gốc: お金がさえあれば × → お金さえあれば ✓ Nhầm với “さえ” nghĩa “ngay cả” không đi với “ば”: 彼さえ来た（ngay cả anh ấy cũng đến）≠ điều kiện. Dùng với tính từ mà không có “ある/状態”: 高いさえあれば × → 安くさえあれば（đi kèm ある）. B mâu thuẫn A: お金さえあれば、買わない × (vô lý) → お金さえあれば、買える ✓"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0f3782c0cd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "子どもにしたら、この決まりはきびしすぎる。",
+       "ja_furigana": "子(こ)どもにしたら、この決(き)まりはきびしすぎる。",
+       "vi": "Đứng từ phía đứa trẻ thì quy định này quá nghiêm khắc."
+      },
+      {
+       "ja": "新人にすれば、先輩の言葉は少し冷たく感じるだろう。",
+       "ja_furigana": "新人(しんじん)にすれば、先輩(せんぱい)の言葉(ことば)は少(すこ)し冷(つめ)たく感(かん)じるだろう。",
+       "vi": "Với người mới, lời của đàn anh nghe có lẽ hơi lạnh lùng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "親にしたら、子どもの安全が一番心配だろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đối với cha mẹ, có lẽ an toàn của con là điều lo nhất."
+     },
+     {
+      "ja": "店側にすれば、返品は負担が大きい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhìn từ phía cửa hàng, việc trả hàng là gánh nặng lớn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 親にしたら、子どもの安全が一番心配だろう。",
+     "FURIGANA_MISSING: 店側にすれば、返品は負担が大きい。"
+    ],
+    "formation": "N + にしたら / にすれば / にしてみれば",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “đối với/đặt vào vị trí của N thì (có lẽ)…”. Diễn tả đánh giá/suy đoán từ góc nhìn của N. Thường dùng để bày tỏ sự thấu hiểu/đồng cảm; vế sau hay là điều lợi/hại/khó khăn với N. Chỉ dùng với danh từ chỉ người/tập thể con người (親・学生・会社側・医者…).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đối với..., đứng từ góc nhìn...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Biểu thị “góc nhìn giả định” → thường kèm phó từ suy đoán: だろう・はずだ・かもしれない・に違いない. Thường đi với nội dung mang tính lợi/hại/cảm xúc của đối tượng. Không thích hợp với danh từ vô tri: × 天気にしたら／会社にしたら（khi nói về bản thân công ty như thực thể có ý chí thì “会社側にしたら” được). “私にしたら” dùng được khi tự đặt mình trong tương quan đối lập, mang sắc thái biện minh/cảm thán. [6. Ghi chú mở rộng] にすれば hơi khách quan, lịch sự; にしてみれば nhấn mạnh “thử đặt mình vào” nên giàu sắc thái cảm thông. Hay dùng trong tranh luận cân nhắc lợi/hại đa bên: 企業側にしたら／消費者にしたら… Có thể nối vế đối lập để chỉ khác biệt cảm nhận: Aにすれば〜が、Bにしたら〜。 [7. Biến thể & cụm cố định] 親/子ども/先生/患者/店側/会社側/行政/利用者 + にしたら・にすれば・にしてみれば 私にしたら〜だが、彼にしてみれば〜かもしれない。 相手にしたら迷惑だ・不快だ・ありがたいなど [8. Lỗi thường gặp & bẫy JLPT] Dùng với vật vô tri: × 天気にしたら → ○ 人にしたら/人々にしたら. Nhầm với にしては (nhượng bộ): × 子どもにしたら背が高い → ○ 子どもにしては背が高い. Dùng để phát biểu sự thật khách quan không gắn “lập trường”: × 彼にしたら日本人だ → ○ 彼は日本人だ. JLPT: Phân biệt 〜にとって (không nhất thiết là suy đoán) và 〜にしたら (góc nhìn giả định, thường kèm だろう/はずだ)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-888e4a5dba"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "引き受けたからには、途中であきらめない。",
+       "ja_furigana": "引(ひ)き受(う)けたからには、途中(とちゅう)であきらめない。",
+       "vi": "Đã nhận lời thì tôi sẽ không bỏ dở giữa chừng."
+      },
+      {
+       "ja": "この店で働くからには、お客様のことを一番に考えたい。",
+       "ja_furigana": "この店(みせ)で働(はたら)くからには、お客様(きゃくさま)のことを一番(いちばん)に考(かんが)えたい。",
+       "vi": "Đã làm việc ở quán này thì tôi muốn đặt khách hàng lên hàng đầu."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "約束したからには、必ず守るべきだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một khi đã hứa thì nhất định phải giữ lời."
+     },
+     {
+      "ja": "試合に出るからには、全力を尽くすつもりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã ra sân thì tôi định sẽ dốc hết sức."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 約束したからには、必ず守るべきだ。",
+     "FURIGANA_MISSING: 試合に出るからには、全力を尽くすつもりだ。"
+    ],
+    "formation": "普通形(Aな:〜な・Nである) + からには",
+    "locked_fields": [],
+    "meaning_vi": "“Một khi đã… thì…”: nêu tiền đề mạnh, kéo theo nghĩa vụ/quyết tâm/kết quả logic. Hai sắc thái chính: Nghĩa vụ/quyết tâm (chủ thể nói/đề xuất chuẩn mực): やるからには最後までやり抜く。 Suy đoán tất yếu: 日本に来たからには、日本語はできるはずだ。 Vế sau thường chứa ý chí/quy tắc/kỳ vọng mạnh, không chỉ đơn thuần nêu sự thật.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Một khi đã... thì...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn “cam kết” hoặc “chuẩn mực” sau khi điều kiện tiên quyết đã hoặc sẽ xảy ra. Vế sau hay đi với: ～べきだ／～つもりだ／～てみせる／～ないわけにはいかない／～はずだ／～に違いない。 Trang trọng hơn so với ～以上(は), ～上(は) ở một số văn cảnh, nhưng cả ba đều biểu thị “một khi đã…”. V-たからには nhấn sự đã rồi; V-るからには có thể là quyết tâm trước khi làm. [6. Ghi chú mở rộng] Chủ thể vế sau thường là người nói hoặc đối tượng được kỳ vọng; tránh câu nêu thực tế thuần túy. Trong phát biểu truyền cảm hứng/khẩu hiệu, からには tạo sức nặng cam kết. Với danh/na: dùng であるからには để giữ trang trọng và rõ ràng tư cách. [7. Biến thể & cụm cố định] やるからにはやる／言ったからにはやる：cụm nhấn quyết tâm. 来たからには：“đã đến rồi thì…”. V-たからには／V-るからには＋～べきだ／～てみせる／～ないわけにはいかない：cặp kết hợp thường dùng. [8. Lỗi thường gặp & bẫy JLPT] Vế sau chỉ nêu sự thật → Mất sắc thái bắt buộc/quyết tâm (sai ý mẫu). Nhầm với からといって trong câu phủ định định kiến → Khác chức năng. Thiếu phương án phù hợp ở vế sau (chọn đáp án không mang ý chí/chuẩn mực) → Bẫy phổ biến N2. Dùng với tính/ danh từ mà bỏ である trong văn trang trọng → Thiếu tự nhiên/thiếu chuẩn mực."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c92e8afb6a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この雨が続くとすると、旅行は中止だ。",
+       "ja_furigana": "この雨(あめ)が続(つづ)くとすると、旅行(りょこう)は中止(ちゅうし)だ。",
+       "vi": "Nếu mưa cứ tiếp tục thế này thì chuyến du lịch phải hủy."
+      },
+      {
+       "ja": "彼が本当のことを知っていたとしたら、なぜ教えてくれなかったのか。",
+       "ja_furigana": "彼(かれ)が本当(ほんとう)のことを知(し)っていたとしたら、なぜ教(おし)えてくれなかったのか。",
+       "vi": "Nếu anh ấy đã biết sự thật thì tại sao không nói cho tôi?"
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "Aさんが欠席だとすると、人数は9人だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu A vắng thì sĩ số là 9 người."
+     },
+     {
+      "ja": "出発が1時間遅れるとすると、到着は19時ごろになる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu khởi hành trễ 1 giờ thì đến nơi khoảng 19 giờ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: Aさんが欠席だとすると、人数は9人だ。",
+     "FURIGANA_MISSING: 出発が1時間遅れるとすると、到着は19時ごろになる。"
+    ],
+    "formation": "普通形 + とすると / としたら",
+    "locked_fields": [],
+    "meaning_vi": "Đặt một giả định làm tiền đề để suy luận, tính toán hoặc quyết định: “nếu mà/giả sử … thì …”. Thường dùng khi thông tin chưa chắc chắn; người nói tạm thời coi là đúng để rút ra hệ quả logic. Thích hợp cho tính toán nhanh, kịch bản “what-if”, kiểm tra điều kiện. Sắc thái trung tính, có thể dùng trong văn nói và viết; hơi mang tính lý luận.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu giả sử..., nếu cho rằng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dẫn dắt phân tích: đưa giả định rồi ngay lập tức kết luận/hệ quả. Tránh dùng cho mệnh lệnh/ý chí mạnh ở vế sau; phù hợp hơn với phán đoán, kế hoạch, tính toán. Trong hội thoại, dạng rút gọn だとすると/とすると đứng đầu câu để tiếp nối suy luận nghe tự nhiên. [6. Ghi chú mở rộng] Trong logic/giáo trình, 〜とすると hay đi với 証明・仮定・結論. Ví dụ: 「仮にAとすると、Bが導かれる。」 Dùng trong ước lượng nhanh: 「一人500円とすると、合計は…」 Đặt ở đầu đoạn để chuyển hướng lập luận: 「だとすると、次に問題となるのは…」 [7. Biến thể & cụm cố định] もし／仮に + 〜とすると／〜とすれば／〜としたら だとすると、〜／そうだとすると、〜（tiếp nối suy luận) 数式・見積もり文脈: 1個あたりX円とすると… [8. Lỗi thường gặp & bẫy JLPT] Nhầm với 〜としたところで (nhượng bộ). 〜とすると là điều kiện suy luận, không hàm “dẫu cho … cũng …”. Vế sau dùng mệnh lệnh/ý chí mạnh → không tự nhiên. Nên dùng phán đoán/kế hoạch, không phải “〜しろ”. Bẫy lựa chọn: とすると vs なら. Khi thông tin đến từ người nghe/ngoài ngữ cảnh → なら; khi tự đặt giả định để suy ra → とすると."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-87f2a6cea7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "家を買うとなったら、銀行からお金を借りることになる。",
+       "ja_furigana": "家(いえ)を買(か)うとなったら、銀行(ぎんこう)からお金(かね)を借(か)りることになる。",
+       "vi": "Nếu đã quyết mua nhà thì sẽ phải vay tiền ngân hàng."
+      },
+      {
+       "ja": "いよいよ本番となったら、力が出せるだろう。",
+       "ja_furigana": "いよいよ本番(ほんばん)となったら、力(ちから)が出(だ)せるだろう。",
+       "vi": "Đến lúc vào trận thật thì chắc sẽ phát huy được sức mạnh."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "留学するとなったら、早めに準備を始めるべきだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu đã quyết đi du học thì nên bắt đầu chuẩn bị sớm."
+     },
+     {
+      "ja": "いざ出発となったら、急に不安になってきた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đến lúc xuất phát rồi thì bỗng thấy lo."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 留学するとなったら、早めに準備を始めるべきだ。",
+     "FURIGANA_MISSING: いざ出発となったら、急に不安になってきた。"
+    ],
+    "formation": "N / 普通形 + となったら",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa chính: “Nếu/khi mà (sự việc) trở thành/được quyết là A thì B”. Nhấn vào thời điểm chuyển trạng thái hoặc quyết định được thiết lập. Sắc thái: thiên về lập trường người nói, hay kéo theo ý chí/đề xuất/hành động dự định của người nói ở vế sau. Cảm giác “đến lúc rồi thì phải…”. Phạm vi dùng: cả tình huống giả định (もし～) lẫn tình huống gần như chắc/đã quyết (いざ/いよいよ～). Vế sau thường là kế hoạch, chuẩn bị, hệ quả dự đoán. Khác với ～となると/～となれば: となったら thân mật, thực dụng, hay đi với chuẩn bị cá nhân; となると thiên về “nếu nói đến chuyện đó thì…” kèm đánh giá/khó khăn; となれば thiên về giả định khái quát, văn viết hơn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu mà..., trong trường hợp...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi: nhắc đến thời điểm quyết định/biến cố bắt đầu (本番、締め切り、出発、中止...), hoặc khi hành động đã được định hướng (V-辞書形). Vế sau hay đi với: 準備する、手配する、覚悟する、～べきだ、～つもりだ、～ないと（いけない）. Sắc thái quyết đoán/cá nhân mạnh hơn となると; gần gũi, khẩu ngữ hơn となれば. Không tự nhiên nếu vế sau là mệnh lệnh trực tiếp với người nghe trong ngữ cảnh trang trọng; nên dùng đề xuất/ý chí nhẹ. [6. Ghi chú mở rộng] “いざ～となったら/となると” là cụm rất tự nhiên để nhấn mạnh “đến lúc thực sự”. Với mốc thời gian: 今日・明日・来週・年度末 + となったら diễn đạt “hễ sang đến… thì”. Ngữ điệu: となった「ら」 làm câu mềm hơn となると; cảm giác hậu quyết định. Khi nội dung A là thông báo chính thức (会社の方針、中止等)、となったら thể hiện phía người nói “ứng xử thế nào”. [7. Biến thể & cụm cố định] いざ～となったら：Đến lúc thực sự ~ thì... もし～となったら：Nếu lỡ ~ thì... 本番となったら／締め切りとなったら：Đến giờ diễn/đến hạn thì... ～することになったら：Nếu được quyết là sẽ ~ thì...（kết hợp với ことになる） [8. Lỗi thường gặp & bẫy JLPT] Lẫn với となると: Câu nhấn vấn đề khách quan nên dùng となると hơn (例: お金がかかる“となると”が自然). Dùng với tính từ: Aい/na + となったら ít tự nhiên; ưu tiên N/V mang tính sự kiện. Mệnh lệnh trực diện: 避ける với となったら trong văn trang trọng; thay bằng ～べきだ／～ほうがいい. JLPT: Nhận diện sắc thái cá nhân (となったら) vs khách quan (となると) vs giả định bao quát (となれば)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-dd690f689f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この問題が本当だとすれば、対応を変えなければならない。",
+       "ja_furigana": "この問題(もんだい)が本当(ほんとう)だとすれば、対応(たいおう)を変(か)えなければならない。",
+       "vi": "Nếu vấn đề này là thật thì phải thay đổi cách ứng phó."
+      },
+      {
+       "ja": "彼の話が正しいとすれば、計画をやり直す必要がある。",
+       "ja_furigana": "彼(かれ)の話(はなし)が正(ただ)しいとすれば、計画(けいかく)をやり直(なお)す必要(ひつよう)がある。",
+       "vi": "Nếu lời anh ấy đúng thì cần làm lại kế hoạch."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "計画が現実的だとすれば、来期の投資は増やせる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu kế hoạch là khả thi, có thể tăng đầu tư cho kỳ tới."
+     },
+     {
+      "ja": "その情報が正確だとすれば、対応を急がねばならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu thông tin đó chính xác, phải khẩn trương ứng phó."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 計画が現実的だとすれば、来期の投資は増やせる。",
+     "FURIGANA_MISSING: その情報が正確だとすれば、対応を急がねばならない。"
+    ],
+    "formation": "普通形 + とすれば",
+    "locked_fields": [],
+    "meaning_vi": "Đặt một giả định tương đối nghiêm túc/làm tiền đề chính thức để đưa ra đánh giá, quyết định, chính sách. Sắc thái trang trọng hơn としたら; chắc chắn/định chế hơn とすると trong ngữ cảnh quyết sách. Hay dùng khi cân nhắc rủi ro, hoạch định phương án, thông cáo.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu như..., giả sử...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng trong lập luận mang tính quy chuẩn/quyết sách: báo cáo, họp, thông cáo. Vế sau thường là đánh giá/động thái đề xuất (〜べきだ／必要がある／検討する). Không thiên về mệnh lệnh trực tiếp. Có thể đứng đầu đoạn như dấu hiệu chuyển ý: 「〜とすれば、次に…」 [6. Ghi chú mở rộng] Trong văn bản chính sách, 〜とすれば thường đi với モデルケース／前提／想定. Kết hợp với 指標・データ để nâng độ tin cậy: 「データが示すとすれば…」 Khi muốn mềm hơn, chuyển sang とすると; khi muốn gần gũi/hình dung cá nhân, dùng としたら. [7. Biến thể & cụm cố định] もし／仮に + 〜とすれば 法律上／理論上／統計的に + 〜とすれば 〜が事実だとすれば、〜すべきだ／〜が必要だ [8. Lỗi thường gặp & bẫy JLPT] Nhầm sắc thái với とすると: đề bài thiên về chính sách/đề xuất → ưu tiên とすれば. Dùng với mệnh lệnh trực tiếp “しろ/してください” → thô. Nên dùng đề xuất trung tính “〜べきだ／〜が望ましい”. Đổi だ trước とすれば trong định ngữ: trong định ngữ thường không dùng だ + とすれば; hãy chuyển về mệnh đề chính."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2dcb5e6fdc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "車を買うとなると、駐車場のことも考えないといけない。",
+       "ja_furigana": "車(くるま)を買(か)うとなると、駐車場(ちゅうしゃじょう)のことも考(かんが)えないといけない。",
+       "vi": "Hễ nói đến chuyện mua xe thì cũng phải tính đến chỗ đỗ."
+      },
+      {
+       "ja": "一人で暮らすとなると、食事の用意が大変だ。",
+       "ja_furigana": "一人(ひとり)で暮(く)らすとなると、食事(しょくじ)の用意(ようい)が大変(たいへん)だ。",
+       "vi": "Hễ sống một mình thì việc chuẩn bị bữa ăn vất vả thật."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "引っ越すとなると、かなりお金がかかりますね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu nói đến chuyện chuyển nhà thì khá tốn tiền nhỉ."
+     },
+     {
+      "ja": "海外勤務となると、家族のことも考えないといけない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu là làm việc ở nước ngoài thì cũng phải tính đến gia đình."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 引っ越すとなると、かなりお金がかかりますね。",
+     "FURIGANA_MISSING: 海外勤務となると、家族のことも考えないといけない。"
+    ],
+    "formation": "N / 普通形 + となると",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa chính: “Hễ nói đến/đến chuyện A thì (sẽ) phát sinh B”. Nhấn vào việc nhận diện tình huống và bàn đến hệ quả, vấn đề cần cân nhắc. Sắc thái: khách quan hơn となったら; thường dùng để nêu khó khăn, chi phí, ràng buộc, yêu cầu... ở vế sau. Thường xuất hiện trong hội thoại/đàm phán khi chuyển từ tiền đề sang phân tích hệ quả. Vế sau ít khi là mong muốn cá nhân trực diện; thường là đánh giá, phỏng đoán, nghĩa vụ, tất yếu.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu thành ra..., nếu như vậy...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi: nêu một điều kiện, rồi lập tức bàn đến hệ quả/điều phải lo. Vế sau thường chứa: 費用がかかる、時間が必要だ、手続きが増える、難しい、無理だ、見直しだ. Sắc thái chuyển chủ đề: “A となると、(話は)～” như một khung lập luận. Độ khách quan cao hơn となったら; ít mang ý chí cá nhân, thường là phán đoán/hệ quả chung. [6. Ghi chú mở rộng] Cách nói nhấn mạnh: ～となると、話は別だ／大問題だ／厄介だ. Diễn tả “cứ hễ ... thì ...” với thói quen/đặc tính: N となると～ (試合となると燃えるタイプだ). Phù hợp trong trao đổi công việc khi liệt kê yêu cầu phát sinh từ một tiền đề. Không nên lạm dụng cho mệnh lệnh trực tiếp với người nghe; dùng dạng nghĩa vụ/khuyến nghị sẽ tự nhiên hơn. [7. Biến thể & cụm cố định] ～となると、話は別だ：Nếu thế thì lại là chuyện khác. いざ～となると：Đến lúc thực sự ~ thì... N + となると ～を避けられない：Nếu là N thì ~ là không tránh khỏi. ～となると、～せざるを得ない：Nếu đến mức ~ thì đành phải... [8. Lỗi thường gặp & bẫy JLPT] Nhầm với というと/といえば (liên tưởng) – となると nói về hệ quả cần xử lý, không chỉ gợi liên tưởng. Dùng となると để bày tỏ ý muốn cá nhân mạnh (～したい) nghe khiên cưỡng; nên biến thành nghĩa vụ/đề xuất (～しないと/～すべきだ). JLPT bẫy ngữ cảnh: khi vế sau là “費用・手続き・見直し・困る”, đáp án thường là となると."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-378a6276ff"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-025"
+}

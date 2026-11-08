@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "値段が安いだけに、品質が心配だ。",
+       "ja_furigana": "値段(ねだん)が安(やす)いだけに、品質(ひんしつ)が心配(しんぱい)だ。",
+       "vi": "Chính vì giá rẻ nên tôi lo về chất lượng."
+      },
+      {
+       "ja": "人気があるだけに、この店はいつも混んでいる。",
+       "ja_furigana": "人気(にんき)があるだけに、この店(みせ)はいつも混(こ)んでいる。",
+       "vi": "Chính vì nổi tiếng nên quán này lúc nào cũng đông."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "キーパーがいいだけに、このチームから点を取るのは大変そうだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì thủ môn quá giỏi, nên có vẻ rất khó để ghi bàn vào lưới đội này."
+     },
+     {
+      "ja": "北欧の国々は、社会福祉が進んでいるだけに、自分が幸福だと感じている人の割合が高い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ở các nước Bắc Âu, do phúc lợi xã hội phát triển, tỷ lệ người cảm thấy hạnh phúc cao."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: キーパーがいいだけに、このチームから点を取るのは大変そうだ。",
+     "FURIGANA_MISSING: 北欧の国々は、社会福祉が進んでいるだけに、自分が幸福だと感じている人の割合が高い。"
+    ],
+    "formation": "N + が + thể thường + だけに",
+    "locked_fields": [],
+    "meaning_vi": "Chính vì N có đặc điểm đó nên kết quả cũng tương ứng.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜が〜だけに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8b6248a8f6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "兄はスポーツが得意だ。弟はというと、家で本ばかり読んでいる。",
+       "ja_furigana": "兄(あに)はスポーツが得意(とくい)だ。弟(おとうと)はというと、家(いえ)で本(ほん)ばかり読(よ)んでいる。",
+       "vi": "Anh trai tôi giỏi thể thao. Còn em trai thì chỉ ở nhà đọc sách suốt."
+      },
+      {
+       "ja": "他の店は安い。この店はというと、値段が倍以上する。",
+       "ja_furigana": "他(ほか)の店(みせ)は安(やす)い。この店(みせ)はというと、値段(ねだん)が倍(ばい)以上(いじょう)する。",
+       "vi": "Các quán khác thì rẻ. Còn quán này thì giá gấp đôi trở lên."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "昨日の夜、地震があったそうですね。私はというと、ぐっすり眠っていて、全然気がつきませんでしたけど。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe nói tối qua có động đất nhỉ. Còn tôi thì ngủ say nên hoàn toàn không nhận ra."
+     },
+     {
+      "ja": "その頃、日本はというと、仏教が人々の間に広がりつつあった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Còn về Nhật Bản lúc đó thì Phật giáo đang dần lan rộng trong dân chúng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 昨日の夜、地震があったそうですね。私はというと、ぐっすり眠っていて、全然気がつきませんでしたけど。",
+     "FURIGANA_MISSING: その頃、日本はというと、仏教が人々の間に広がりつつあった。"
+    ],
+    "formation": "N + はというと",
+    "locked_fields": [],
+    "meaning_vi": "Còn về N thì, nói riêng về N thì.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜はというと",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1cf1a58989"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私にとって、家族は何よりも大切だ。",
+       "ja_furigana": "私(わたし)にとって、家族(かぞく)は何(なに)よりも大切(たいせつ)だ。",
+       "vi": "Đối với tôi, gia đình là điều quý giá hơn cả."
+      },
+      {
+       "ja": "外国語を学ぶことは、若い人にとって大きな力になる。",
+       "ja_furigana": "外国語(がいこくご)を学(まな)ぶことは、若(わか)い人(ひと)にとって大(おお)きな力(ちから)になる。",
+       "vi": "Việc học ngoại ngữ sẽ trở thành sức mạnh lớn đối với người trẻ."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "小さな会社にとって、この手続きの複雑さは大きな負担だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đối với công ty nhỏ, độ phức tạp của thủ tục này là một gánh nặng lớn."
+     },
+     {
+      "ja": "私にとって、朝の静かな時間は一日で最も貴重だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đối với tôi, khoảng thời gian yên tĩnh buổi sáng là quý giá nhất trong ngày."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 小さな会社にとって、この手続きの複雑さは大きな負担だ。",
+     "FURIGANA_MISSING: 私にとって、朝の静かな時間は一日で最も貴重だ。"
+    ],
+    "formation": "N + にとって",
+    "locked_fields": [],
+    "meaning_vi": "Đối với, xét từ góc nhìn",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đối với, xét từ góc nhìn",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu người hoặc nhóm mà từ góc nhìn của họ một sự việc có giá trị, ý nghĩa hay ảnh hưởng nhất định. Cách dùng: Mẫu này xác định lập trường của người, tổ chức hoặc nhóm chịu ảnh hưởng rồi đưa ra đánh giá về độ quan trọng, thuận lợi, khó khăn, ý nghĩa hay giá trị. Vế sau thường là biểu hiện đánh giá như 大切だ, 難しい, 必要だ, 問題だ hoặc danh từ được bổ nghĩa bằng にとっての. Người đứng trước にとって không nhất thiết trực tiếp hành động; họ là mốc để hiểu nhận xét. Vì vậy, mẫu này thường được dịch là “đối với…” hoặc “xét từ góc nhìn của…”. Sắc thái: Trung tính và khách quan hơn các cách giả định cảm xúc như にしたら; dùng rộng rãi trong phát biểu và văn viết. Lưu ý: Vế sau thường là nhận xét, giá trị hoặc tác động, không phải hành động được thực hiện trong một chức vụ. Khi bổ nghĩa cho danh từ phải dùng にとっての, chẳng hạn 私にとっての目標."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-333901e5fe"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "人の話は、最後まで静かに聞くものだ。",
+       "ja_furigana": "人(ひと)の話(はなし)は、最後(さいご)まで静(しず)かに聞(き)くものだ。",
+       "vi": "Nghe người khác nói thì nên nghe cho hết một cách lặng lẽ."
+      },
+      {
+       "ja": "時間は、いくらあっても足りないものだ。",
+       "ja_furigana": "時間(じかん)は、いくらあっても足(た)りないものだ。",
+       "vi": "Thời gian thì có bao nhiêu cũng không đủ."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "慣れない作業は、初めのうちは時間がかかるものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công việc chưa quen thì ban đầu thường tốn thời gian."
+     },
+     {
+      "ja": "助けてもらったら、きちんと感謝を伝えるものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi được giúp đỡ thì nên bày tỏ lòng cảm ơn cho đàng hoàng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 慣れない作業は、初めのうちは時間がかかるものだ。",
+     "FURIGANA_MISSING: 助けてもらったら、きちんと感謝を伝えるものだ。"
+    ],
+    "formation": "Vる / Vない / thể thường + ものだ",
+    "locked_fields": [],
+    "meaning_vi": "Lẽ thường; điều nên làm",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Lẽ thường; điều nên làm",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả một xu hướng phổ biến, chân lý đời sống hoặc chuẩn mực được xem là nên tuân theo. Cách dùng: 〜ものだ khái quát điều thường xảy ra theo bản chất hoặc kinh nghiệm chung, hay nêu một chuẩn mực ứng xử mà người nói cho là đương nhiên. Cách dùng này không kể một sự kiện riêng lẻ và cũng không tập trung vào ký ức cá nhân. Với nghĩa chuẩn mực, câu có thể nghe như lời nhắc nhở, vì vậy cần chú ý quan hệ giữa người nói và người nghe. Sắc thái: Mang tính khái quát hoặc quy phạm; khác với 〜ものだ dùng để hồi tưởng hay cảm thán. Lưu ý: Không dùng để kể trung tính một sự việc chỉ xảy ra một lần. Khi nói về chuẩn mực, tránh dùng trực tiếp với người cần được đối xử lịch sự."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5cd5aac489"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "子どもにしたら、毎日の宿題は大きな負担だ。",
+       "ja_furigana": "子(こ)どもにしたら、毎日(まいにち)の宿題(しゅくだい)は大(おお)きな負担(ふたん)だ。",
+       "vi": "Đối với trẻ con, bài tập về nhà mỗi ngày là gánh nặng lớn."
+      },
+      {
+       "ja": "社員にしてみれば、突然の決定はなっとくできないだろう。",
+       "ja_furigana": "社員(しゃいん)にしてみれば、突然(とつぜん)の決定(けってい)はなっとくできないだろう。",
+       "vi": "Đứng trên góc nhìn nhân viên thì quyết định đột ngột này khó chấp nhận được."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "親にしたら、子どもが夜遅く一人で帰るのは心配だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu đứng ở vị trí cha mẹ thì việc con về một mình lúc khuya thật đáng lo."
+     },
+     {
+      "ja": "長年この店を守ってきた店主にしてみれば、移転は簡単に決められることではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu thử nhìn từ phía chủ quán đã gìn giữ nơi này nhiều năm, chuyển địa điểm không phải chuyện có thể quyết định dễ dàng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 親にしたら、子どもが夜遅く一人で帰るのは心配だ。",
+     "FURIGANA_MISSING: 長年この店を守ってきた店主にしてみれば、移転は簡単に決められることではない。"
+    ],
+    "formation": "N + にしたら / にしてみれば / にすれば",
+    "locked_fields": [],
+    "meaning_vi": "Nếu đứng vào lập trường của",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu đứng vào lập trường của",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Suy đoán cảm xúc hoặc đánh giá một tình huống từ phía người hay tổ chức được nêu. Cách dùng: Bốn dạng này đặt người nói vào vị trí của một người hoặc tổ chức để suy đoán họ sẽ nhìn nhận tình huống ra sao. にしたら và にすれば gần nghĩa “nếu là…”, còn にしてみれば nhấn mạnh việc thử hình dung trải nghiệm thực tế từ phía ấy. にしても thường thừa nhận rằng ngay cả phía được nêu cũng có lý do, khó khăn hoặc lợi ích riêng, đôi khi dẫn sang ý đối lập. Chúng thường xuất hiện khi bàn về tâm trạng, hoàn cảnh hay phản ứng có thể hiểu được của người khác. Sắc thái: Có sắc thái đồng cảm hoặc suy xét lập trường hơn にとって; mức độ chủ quan của người nói tương đối rõ. Lưu ý: Danh từ trước mẫu thường là người, nhóm hoặc tổ chức có thể có lập trường; đồ vật vô tri thường không thích hợp. 〜にしても còn có cách dùng nhượng bộ khác; cần dựa vào ngữ cảnh để nhận ra nghĩa “xét từ phía”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-23822664c8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "さすがプロだけのことはあって、仕事が速い。",
+       "ja_furigana": "さすがプロだけのことはあって、仕事(しごと)が速(はや)い。",
+       "vi": "Đúng là dân chuyên nghiệp có khác, làm việc rất nhanh."
+      },
+      {
+       "ja": "このレストランは予約が取れないだけのことはある。味もサービスも最高だ。",
+       "ja_furigana": "このレストランは予約(よやく)が取(と)れないだけのことはある。味(あじ)もサービスも最高(さいこう)だ。",
+       "vi": "Quán này đúng là khó đặt chỗ thật, món ăn và dịch vụ đều tuyệt vời."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "十年間研究を続けてきただけのことはある。彼女の分析には説得力がある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quả không hổ là đã nghiên cứu suốt mười năm; phân tích của cô ấy rất thuyết phục."
+     },
+     {
+      "ja": "この包丁は値段が高いだけのことはあって、硬いかぼちゃも楽に切れる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Con dao này quả xứng với giá cao, đến bí đỏ cứng cũng cắt dễ dàng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 十年間研究を続けてきただけのことはある。彼女の分析には説得力がある。",
+     "FURIGANA_MISSING: この包丁は値段が高いだけのことはあって、硬いかぼちゃも楽に切れる。"
+    ],
+    "formation": "thể thường (N + の) + だけのことはある",
+    "locked_fields": [],
+    "meaning_vi": "Quả không hổ là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Quả không hổ là",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Công nhận rằng kết quả tốt là xứng đáng với công sức, kinh nghiệm, giá trị hoặc danh tiếng. Cách dùng: Mẫu này dùng khi người nói thấy một kết quả đáng ghi nhận và cho rằng kết quả ấy phù hợp với công sức, kinh nghiệm, giá tiền, danh tiếng hay năng lực đã nêu. Nó tương đương ý “quả đúng là đã… nên có khác” hoặc “quả không hổ là…”. Dạng だけのことはある thường đứng cuối để kết luận; khi nối tiếp nhận xét, だけのことはあって hoặc だけあって rất tự nhiên. Đánh giá thường mang chiều hướng tích cực và có căn cứ rõ ràng. Sắc thái: Thể hiện sự thừa nhận, khâm phục hoặc hài lòng; đôi khi đi cùng さすが để tăng sắc thái khen ngợi. Lưu ý: Không nên dùng khi kết quả hoàn toàn không liên quan đến căn cứ ở vế trước. Mẫu này chủ yếu công nhận giá trị xứng đáng, nên không tự nhiên với một kết quả xấu tầm thường không có ý mỉa mai rõ ràng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-eab720a210"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このカメラは値段が安いわりに、よく写る。",
+       "ja_furigana": "このカメラは値段(ねだん)が安(やす)いわりに、よく写(うつ)る。",
+       "vi": "Chiếc máy ảnh này so với giá rẻ của nó thì chụp rất đẹp."
+      },
+      {
+       "ja": "彼は若いわりには、考え方がしっかりしている。",
+       "ja_furigana": "彼(かれ)は若(わか)いわりには、考(かんが)え方(かた)がしっかりしている。",
+       "vi": "Anh ấy so với tuổi trẻ của mình thì suy nghĩ rất chững chạc."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この店は駅から遠いわりに、昼休みにはいつも混んでいる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quán này tuy xa ga nhưng trái với dự đoán, giờ nghỉ trưa lúc nào cũng đông."
+     },
+     {
+      "ja": "弟は初めて木箱を作ったわりには、きれいに仕上げた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "So với việc đây là lần đầu làm hộp gỗ, em trai tôi đã hoàn thiện khá đẹp."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この店は駅から遠いわりに、昼休みにはいつも混んでいる。",
+     "FURIGANA_MISSING: 弟は初めて木箱を作ったわりには、きれいに仕上げた。"
+    ],
+    "formation": "thể thường (Aな + な・N + の) + わりに(は)",
+    "locked_fields": [],
+    "meaning_vi": "So với mức dự kiến thì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "So với mức dự kiến thì",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả kết quả hoặc đặc điểm không tương xứng với điều thường được dự đoán. Cách dùng: Mẫu này đặt một sự việc, tính chất hoặc tiêu chuẩn ở vế trước làm căn cứ, rồi nêu ở vế sau một kết quả khác với mức người nói thường dự đoán từ căn cứ ấy. Quan hệ thường mang ý so sánh về mức độ, tỷ lệ hoặc sự tương xứng: tuổi như vậy mà khỏe, giá như vậy mà tốt, đã luyện nhiều mà chưa tiến bộ. Có thể dùng は để nhấn mạnh sự đối lập. Cả nhận xét tích cực lẫn tiêu cực đều dùng được. Sắc thái: Sắc thái nhận xét khá tự nhiên trong hội thoại lẫn văn viết; người nói ngầm có một chuẩn thông thường để so sánh. Lưu ý: Với tính từ đuôi な phải dùng dạng なわりに; với danh từ dùng のわりに. Không phù hợp khi hai vế không có căn cứ so sánh hợp lý về mức độ hoặc kỳ vọng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c743222988"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女は留学生として、日本に来た。",
+       "ja_furigana": "彼女(かのじょ)は留学生(りゅうがくせい)として、日本(にほん)に来(き)た。",
+       "vi": "Cô ấy đến Nhật với tư cách là du học sinh."
+      },
+      {
+       "ja": "この部屋は会議室として使われている。",
+       "ja_furigana": "この部屋(へや)は会議室(かいぎしつ)として使(つか)われている。",
+       "vi": "Căn phòng này được dùng làm phòng họp."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "私は地域の代表として、防災会議に出席した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã tham dự cuộc họp phòng chống thiên tai với tư cách đại diện khu vực."
+     },
+     {
+      "ja": "この古い倉庫は、現在コンサート会場としても利用されている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhà kho cũ này hiện còn được sử dụng như một địa điểm hòa nhạc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 私は地域の代表として、防災会議に出席した。",
+     "FURIGANA_MISSING: この古い倉庫は、現在コンサート会場としても利用されている。"
+    ],
+    "formation": "N + として",
+    "locked_fields": [],
+    "meaning_vi": "Với tư cách là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Với tư cách là",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Chỉ vai trò, tư cách, danh nghĩa hoặc công dụng mà người hay vật đảm nhận. Cách dùng: 〜として gắn sau danh từ để xác định người hoặc vật hành động, được đối xử hay được sử dụng trong vai trò nào. Danh từ có thể là nghề nghiệp, chức vụ, đại diện, thành viên, mục đích sử dụng hoặc danh nghĩa pháp lý. Khi bổ nghĩa trực tiếp cho danh từ khác, dùng としての. Dạng としては có thể nêu chủ đề trong phạm vi vai trò ấy, còn としても thêm ý “cũng với tư cách”. Mẫu này mô tả vị trí thực tế, không đơn thuần nêu cảm nhận cá nhân. Sắc thái: Trung tính, phổ biến trong cả hội thoại, công việc và văn bản chính thức. Lưu ý: Dùng としての trước danh từ, nhưng dùng として trước động từ hoặc cả mệnh đề. Không dùng để diễn tả đối tượng đánh giá kiểu “đối với tôi”; trường hợp đó thường cần にとって."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1984f6d7d8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この子は五歳にしては、字がとても上手だ。",
+       "ja_furigana": "この子(こ)は五歳(ごさい)にしては、字(じ)がとても上手(じょうず)だ。",
+       "vi": "Đứa bé này so với độ tuổi năm tuổi thì viết chữ rất đẹp."
+      },
+      {
+       "ja": "この店は駅から近いにしては、客が少ない。",
+       "ja_furigana": "この店(みせ)は駅(えき)から近(ちか)いにしては、客(きゃく)が少(すく)ない。",
+       "vi": "Quán này so với việc gần ga thì lại ít khách."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "初参加にしては、佐藤さんは落ち着いて発表していた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xét là lần đầu tham gia thì anh Sato đã thuyết trình rất bình tĩnh."
+     },
+     {
+      "ja": "今年の四月は春にしては寒い日が多かった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tháng Tư năm nay có nhiều ngày lạnh so với mức thường thấy của mùa xuân."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 初参加にしては、佐藤さんは落ち着いて発表していた。",
+     "FURIGANA_MISSING: 今年の四月は春にしては寒い日が多かった。"
+    ],
+    "formation": "N / thể thường + にしては",
+    "locked_fields": [],
+    "meaning_vi": "Xét là… thì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Xét là... thì",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu một nhận xét khác với điều thường được mong đợi từ tư cách hoặc tiền đề đã cho. Cách dùng: Người nói lấy danh tính, độ tuổi, mùa, kinh nghiệm hoặc một tiền đề cụ thể làm chuẩn rồi đánh giá kết quả thực tế là bất ngờ so với chuẩn đó. Vế trước thường có thể hiểu là “nếu xét đây là…” hoặc “dù nói rằng…”. Mẫu này hay dùng với các trường hợp như người mới mà làm giỏi, mùa hè mà mát, đã luyện đều mà kết quả chưa cao. Trọng tâm nằm ở phán đoán chủ quan của người nói về trường hợp đang được nhắc đến. Sắc thái: Thường thể hiện sự ngạc nhiên nhẹ hoặc đánh giá trái kỳ vọng; dùng tự nhiên trong cả hội thoại và văn viết. Lưu ý: Không dùng thay cho 〜にとって khi chỉ muốn nói lợi ích, khó khăn hoặc giá trị nhìn từ lập trường của ai đó. Tiền đề trước にしては phải tạo ra một kỳ vọng thông thường để vế sau có thể trái với kỳ vọng ấy."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0c2973e437"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "値段はともかく、この服はデザインがいい。",
+       "ja_furigana": "値段(ねだん)はともかく、この服(ふく)はデザインがいい。",
+       "vi": "Giá cả thì không bàn, bộ quần áo này có thiết kế đẹp."
+      },
+      {
+       "ja": "場所はともかく、この家は広くて明るい。",
+       "ja_furigana": "場所(ばしょ)はともかく、この家(いえ)は広(ひろ)くて明(あか)るい。",
+       "vi": "Vị trí thì không bàn, ngôi nhà này rộng và sáng sủa."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "このバックは色はともかくデザインがしゃれている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái cặp này không tính đến màu sắc thì thiết kế khá thời trang."
+     },
+     {
+      "ja": "あのタレントは歌はともかく顔がかわいい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ca sĩ đó nếu không nói về ca hát thì gương mặt rất dễ thương."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: このバックは色はともかくデザインがしゃれている。",
+     "FURIGANA_MISSING: あのタレントは歌はともかく顔がかわいい。"
+    ],
+    "formation": "N + はともかく(として)",
+    "locked_fields": [],
+    "meaning_vi": "Không tính đến, gác sang một bên",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜は/ならともかく(として)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞 Ý nghĩa: ～は別にして Không tính đến, gác sang một bên Ví dụ: 1. このバックは色はともかくデザインがしゃれている。 Cái cặp này không tính đến màu sắc thì thiết kế khá thời trang. 2. あのタレントは歌はともかく顔がかわいい。 Ca sĩ đó nếu không nói về ca hát thì gương mặt rất dễ thương. 3. 実際にできるかどうかはともかくとして、その計画は面白い。 Không tính đến tính khả thi vội, thì kế hoạch khá thú vị. 4. 今日のテストは内容はともかく、量が多くて時間が足りなかった。 Chưa cần nói đến nội dung, bài thi hôm qua quá dài nên tôi đã không đủ thời gian làm bài. 5. 「小学生ならともかく、高校生のあなたがこんな漢字も読めないのですか」 “Khoan hãy nói đến học sinh tiểu học, một học sinh trung học như cậu mà cũng không đọc được chữ kanji như này sao?” *結果はともあれ、最後までがんばれることが大切だ。 Không bàn đến kết quả, việc cố gắng đến cùng mới là quan trọng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3a126339b1"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-054"
+}

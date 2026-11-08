@@ -1,0 +1,584 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女は人目もかまわず、大きな声で歌い出した。",
+       "ja_furigana": "彼女(かのじょ)は人目(ひとめ)もかまわず、大(おお)きな声(こえ)で歌(うた)い出(だ)した。",
+       "vi": "Cô ấy chẳng màng ánh mắt mọi người, cất to giọng hát."
+      },
+      {
+       "ja": "弟は服がぬれるのもかまわず、水たまりで遊んでいる。",
+       "ja_furigana": "弟(おとうと)は服(ふく)がぬれるのもかまわず、水(みず)たまりで遊(あそ)んでいる。",
+       "vi": "Em trai tôi mặc cho quần áo ướt, cứ chơi ở vũng nước."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼女は人目もかまわず子どものように泣いた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô ấy đã khóc như một đứa trẻ mà không bận tâm gì đến công chúng."
+     },
+     {
+      "ja": "彼は靴が脱げるのもかまわず走り続けた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy tiếp tục chạy mà không bận tâm đến việc giày bị tuột ra."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼女は人目もかまわず子どものように泣いた。",
+     "FURIGANA_MISSING: 彼は靴が脱げるのもかまわず走り続けた。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 彼は靴が脱げるのもかまわず走り続けた。 → 脱"
+    ],
+    "formation": "N + もかまわず / Vる + のもかまわず",
+    "locked_fields": [],
+    "meaning_vi": "Không bận tâm đến ~ / dửng dưng không đếm xỉa đến ~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜人目もかまわず",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả tình trạng thực hiện một hành động mà không để ý, dửng dưng không đếm xỉa đến sự vật sự việc xung quanh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0d528245e6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "経験の有無を問わず、だれでも応募できます。",
+       "ja_furigana": "経験(けいけん)の有無(うむ)を問(と)わず、だれでも応募(おうぼ)できます。",
+       "vi": "Không phân biệt có kinh nghiệm hay không, ai cũng có thể ứng tuyển."
+      },
+      {
+       "ja": "曜日を問わず、この店は夜十時まで開いている。",
+       "ja_furigana": "曜日(ようび)を問(と)わず、この店(みせ)は夜(よる)十時(じゅうじ)まで開(あ)いている。",
+       "vi": "Không kể ngày nào trong tuần, cửa hàng này mở đến mười giờ đêm."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "年齢を問わず多くの人々が集まった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhiều người đã tập trung không kể tuổi tác."
+     },
+     {
+      "ja": "経験の有無を問わず、募集。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tuyển mộ không kể là có kinh nghiệm hay không."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 年齢を問わず多くの人々が集まった。",
+     "FURIGANA_MISSING: 経験の有無を問わず、募集。"
+    ],
+    "formation": "N + を問わず",
+    "locked_fields": [],
+    "meaning_vi": "Không liên quan đến ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜年齢を問わず",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu thị ý nghĩa danh từ đề cập đến không liên quan đến, không có ảnh hưởng, không là vấn đề cho hành động sau đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7ba29bd527"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "天候にかかわらず、試合は予定通り行います。",
+       "ja_furigana": "天候(てんこう)にかかわらず、試合(しあい)は予定(よてい)通(どお)り行(おこな)います。",
+       "vi": "Bất kể thời tiết thế nào, trận đấu vẫn diễn ra đúng như dự định."
+      },
+      {
+       "ja": "参加するかしないかにかかわらず、返事をください。",
+       "ja_furigana": "参加(さんか)するかしないかにかかわらず、返事(へんじ)をください。",
+       "vi": "Dù có tham gia hay không, xin hãy trả lời cho tôi."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "来る来ないにかかわらず、連絡をください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bất chấp việc đến hay không đến, hãy liên lạc."
+     },
+     {
+      "ja": "国籍にかかわらず、歓迎します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chào đón mọi người không phân biệt quốc tịch."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 来る来ないにかかわらず、連絡をください。",
+     "FURIGANA_MISSING: 国籍にかかわらず、歓迎します。"
+    ],
+    "formation": "N / Vる + Vない + にかかわらず",
+    "locked_fields": [],
+    "meaning_vi": "Bất chấp, không liên quan đến ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜来る来ないにかかわらず",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để biểu thị không có, không liên quan đến vấn đề đó, danh từ hình thành như thời tiết, giới tính, tuổi tác, chủng loại, và thái độ… Phần lớn là những từ có mối liên hệ đối lập."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1559f7ceef"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大雨にもかかわらず、川で遊ぶ人がいる。",
+       "ja_furigana": "大雨(おおあめ)にもかかわらず、川(かわ)で遊(あそ)ぶ人(ひと)がいる。",
+       "vi": "Dù trời mưa to, vẫn có người chơi ở sông."
+      },
+      {
+       "ja": "約束したにもかかわらず、彼は来なかった。",
+       "ja_furigana": "約束(やくそく)したにもかかわらず、彼(かれ)は来(こ)なかった。",
+       "vi": "Dù đã hứa, anh ấy vẫn không đến."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "雨にもかかわらず、大勢の人々が集まった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhiều người đã tập trung bất chấp trời mưa."
+     },
+     {
+      "ja": "見たにもかかわらず、彼は見なかったと言った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho dù đã xem, anh ấy lại nói rằng chưa xem."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 雨にもかかわらず、大勢の人々が集まった。",
+     "FURIGANA_MISSING: 見たにもかかわらず、彼は見なかったと言った。"
+    ],
+    "formation": "N / 普通形 + にもかかわらず",
+    "locked_fields": [],
+    "meaning_vi": "Dù ～ thế mà ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜雨にもかかわらず",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* A（な）だにも * Nだにも Sử dụng khi muốn nói rằng đã trở thành kết quả khác với dự đoán từ thực tế của ～"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cbaee56d29"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女は頭もよければ心もやさしい。",
+       "ja_furigana": "彼女(かのじょ)は頭(あたま)もよければ心(こころ)もやさしい。",
+       "vi": "Cô ấy vừa thông minh lại vừa tốt bụng."
+      },
+      {
+       "ja": "この町は空気もきれいなら景色もすばらしい。",
+       "ja_furigana": "この町(まち)は空気(くうき)もきれいなら景色(けしき)もすばらしい。",
+       "vi": "Thị trấn này không khí trong lành, phong cảnh cũng tuyệt đẹp."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は勉強もできればスポーツもできる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta học cũng được mà chơi thể thao cũng được."
+     },
+     {
+      "ja": "私は歌も下手ならダンスも下手だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi hát cũng dở mà khiêu vũ cũng dở."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は勉強もできればスポーツもできる。",
+     "FURIGANA_MISSING: 私は歌も下手ならダンスも下手だ。"
+    ],
+    "formation": "N + も + V-ば / Aければ / N なら + N + も 〜",
+    "locked_fields": [],
+    "meaning_vi": "không những ～mà còn～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜勉強もできればスポーツもできる",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Thêm vào sự việc có chiều hướng giống với sự việc phía trước. (tốt – tốt, xấu – xấu)"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2d4afc105f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "机の上にはペンやら消しゴムやらが散らばっている。",
+       "ja_furigana": "机(つくえ)の上(うえ)にはペンやら消(け)しゴムやらが散(ち)らばっている。",
+       "vi": "Trên bàn ngổn ngang nào bút nào tẩy."
+      },
+      {
+       "ja": "旅行の準備やら仕事のひきつぎやらで、とても忙しい。",
+       "ja_furigana": "旅行(りょこう)の準備(じゅんび)やら仕事(しごと)のひきつぎやらで、とても忙(いそが)しい。",
+       "vi": "Nào là chuẩn bị du lịch, nào là bàn giao công việc, bận vô cùng."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "机の上は本やらノートやらでいっぱいだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trên bàn có đầy nào là sách nào là vở."
+     },
+     {
+      "ja": "この季節は、目がかゆいやら鼻水が出るやら、大変です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vào mùa này, nào là ngứa mắt nào là chảy mũi thiệt là khổ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 机の上は本やらノートやらでいっぱいだ。",
+     "FURIGANA_MISSING: この季節は、目がかゆいやら鼻水が出るやら、大変です。"
+    ],
+    "formation": "N / 普通形 + やら + N / 普通形 + やら",
+    "locked_fields": [],
+    "meaning_vi": "Nào là～, nào là～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜本やらノートやら",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để liệt kê."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5f4e936124"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "行くにしろ行かないにしろ、今日中に決めてください。",
+       "ja_furigana": "行(い)くにしろ行(い)かないにしろ、今日中(きょうじゅう)に決(き)めてください。",
+       "vi": "Dù đi hay không đi, xin hãy quyết định trong hôm nay."
+      },
+      {
+       "ja": "買うにしろ買わないにしろ、まず値段を調べよう。",
+       "ja_furigana": "買(か)うにしろ買(か)わないにしろ、まず値段(ねだん)を調(しら)べよう。",
+       "vi": "Dù mua hay không mua, trước hết hãy tìm hiểu giá đã."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "行くにしろ行かないにしろ、連絡してください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dẫu cho đi hay không đi hãy liên lạc."
+     },
+     {
+      "ja": "受験はしないにしろ、勉強はしなさい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho dẫu không dự thi, hãy học đi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 行くにしろ行かないにしろ、連絡してください。",
+     "FURIGANA_MISSING: 受験はしないにしろ、勉強はしなさい。"
+    ],
+    "formation": "普通形 + にしろ + 普通形 + にしろ",
+    "locked_fields": [],
+    "meaning_vi": "Cho dù ～ thì cũng ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜行くにしろないにしろ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* A（な）だに/Nだに Sử dụng khi muốn giả sử rằng cho dù bây giờ không phải như vậy nhưng dẫu trở nên như vậy thì cũng không liên quan. Cách nói trang trọng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d2d21f61ed"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜につけ、〜につけ",
+     "examples": [
+      {
+       "ja": "写真を見るにつけ、子どものころを思い出す。",
+       "ja_furigana": "写真(しゃしん)を見(み)るにつけ、子(こ)どものころを思(おも)い出(だ)す。",
+       "vi": "Mỗi lần xem ảnh, tôi lại nhớ về thời thơ ấu."
+      },
+      {
+       "ja": "うれしいにつけ悲しいにつけ、私はこの歌を思い出す。",
+       "ja_furigana": "うれしいにつけ悲(かな)しいにつけ、私(わたし)はこの歌(うた)を思(おも)い出(だ)す。",
+       "vi": "Dù vui hay buồn, tôi đều nhớ đến bài hát này."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn và sửa mẫu bị lỗi"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "写真を見るにつけ（、歌を聞くにつけ）、国を思い出す。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "hình hay nghe bài hát sẽ nhớ về đất nước."
+     },
+     {
+      "ja": "いいにつけ悪いにつけ、子は親に似る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Con học được tính tốt hay xấu là từ bố mẹ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 写真を見るにつけ（、歌を聞くにつけ）、国を思い出す。",
+     "FURIGANA_MISSING: いいにつけ悪いにつけ、子は親に似る。"
+    ],
+    "formation": "Vる / Aい + につけ（、Vる / Aい + につけ）",
+    "locked_fields": [],
+    "meaning_vi": "Mỗi lần …； Cả (lúc) ～lẫn (lúc) ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜見るにつけにつけ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi muốn nói rằng khi ở vào tình huống giống nhau thì sẽ làm hành động giống mọi khi trong một tâm tư nào đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fec8709a49"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "台風により、多くの便が欠航になった。",
+       "ja_furigana": "台風(たいふう)により、多(おお)くの便(びん)が欠航(けっこう)になった。",
+       "vi": "Do bão, nhiều chuyến bay bị hủy."
+      },
+      {
+       "ja": "学年により、授業の時間が違います。",
+       "ja_furigana": "学年(がくねん)により、授業(じゅぎょう)の時間(じかん)が違(ちが)います。",
+       "vi": "Tùy theo khối lớp mà giờ học khác nhau."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "台風により多数の便が欠航となった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Do bão, nhiều chuyến bay bị hủy."
+     },
+     {
+      "ja": "年齢により料金が異なります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giá vé khác nhau tùy theo độ tuổi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 台風により多数の便が欠航となった。",
+     "FURIGANA_MISSING: 年齢により料金が異なります。"
+    ],
+    "formation": "N + により / によって / による + N",
+    "locked_fields": [],
+    "meaning_vi": "Nguyên nhân/Do: 表示原因 “do/bởi vì” (thiên về văn viết, khách quan). Phương pháp/Phương tiện: “bằng, thông qua”. Chủ thể trong câu bị động: “bởi (ai/cái gì)”. Phụ thuộc/Tùy theo: “tùy theo A mà B khác”. “により” trang trọng hơn “によって”, thường thấy trong thông báo, quy định, báo chí. Khi nói thường nhật, “によって” phổ biến hơn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Bằng..., do..., theo...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng “により” khi cần giọng điệu chính thức; trong hội thoại dùng “によって”. Với nghĩa “tùy theo”, thường đi kèm 異なる・違う・変わる・様々だ. Với nghĩa nguyên nhân, không mang cảm xúc cá nhân; nếu muốn chủ quan dùng ～ために/~ので. Trong bị động trang trọng, ưu tiên “N により V受身”. [6. Ghi chú mở rộng] “人による” là rút gọn tự nhiên của “人によって違う/異なる”. Trong tiêu đề/biển báo, “～により休業” rất thường gặp. “によりましては” dùng trong thông báo lịch sự: “お時間によりましてはご案内できない場合がございます。” [7. Biến thể & cụm cố định] N によりまして(は)：cực lịch sự. N による N：AIによる翻訳、法律による制限. N により中止／休業／変更：mẫu thông báo cố định. [8. Lỗi thường gặp & bẫy JLPT] Nhầm “により” (trang trọng) với “で”: đề thi hay yêu cầu chọn sắc thái văn viết. Sai khi gán chủ quan cho “により”: nếu muốn cảm xúc/ý định cá nhân, chọn ～ために/ので. Thiếu tính khách quan trong câu bị động: “委員会により実施した” → cần bị động “実施された”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7f198e542a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大雪で電車が遅れる恐れがある。",
+       "ja_furigana": "大雪(おおゆき)で電車(でんしゃ)が遅(おく)れる恐(おそ)れがある。",
+       "vi": "Có nguy cơ tàu điện bị chậm do tuyết dày."
+      },
+      {
+       "ja": "台風のえいきょうで、明日の便が欠航する恐れがある。",
+       "ja_furigana": "台風(たいふう)のえいきょうで、明日(あした)の便(びん)が欠航(けっこう)する恐(おそ)れがある。",
+       "vi": "Do ảnh hưởng của bão, có nguy cơ chuyến bay ngày mai bị hủy."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "大雨の影響で、川が氾濫する恐れがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Do mưa lớn, có nguy cơ sông bị tràn."
+     },
+     {
+      "ja": "この薬は眠気を催す恐れがあるため、運転は控えてください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thuốc này có thể gây buồn ngủ, nên tránh lái xe."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 大雨の影響で、川が氾濫する恐れがある。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 大雨の影響で、川が氾濫する恐れがある。 → 氾濫",
+     "FURIGANA_MISSING: この薬は眠気を催す恐れがあるため、運転は控えてください。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: この薬は眠気を催す恐れがあるため、運転は控えてください。 → 催す"
+    ],
+    "formation": "Vる / Vない / N の + おそれがある",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả: “Có nguy cơ/lo ngại rằng…”, “Có khả năng (tiêu cực) …”. Thường dùng trong thông báo, báo cáo, tin tức, văn bản trang trọng để cảnh báo hoặc dự báo rủi ro. Sắc thái: Khách quan, cẩn trọng. Mức độ chắc chắn ở mức “có khả năng”, thường đi với nội dung xấu, bất lợi, nguy hiểm. Cấu trúc theo sau nêu sự việc tiêu cực: 事故、被害、遅延、中止、悪化、流出、感染、倒産など。 Không dùng với tính từ trực tiếp; dùng với động từ nguyên mẫu (Vる) hoặc danh từ (Nの).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có khả năng..., e rằng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Văn phong trang trọng, dùng nhiều trong thông báo cơ quan, báo chí, biển cảnh báo, hướng dẫn an toàn. Vế sau thường là nội dung cảnh báo, yêu cầu, khuyến cáo: ～ので注意してください／～を控えてください／～が見込まれますなど. Không dùng để nói chuyện phiếm đời thường; thay vào đó dùng ～かもしれない khi nói khả năng trung tính, thân mật. Có thể kết hợp với phó từ mức độ: 十分に/強く/大いに + 恐れがある (nhấn mạnh cao). Phủ định rủi ro: ～恐れはない (khẳng định yên tâm). [6. Ghi chú mở rộng] Kanji/kana: 恐れ（おそれ）. Tránh nhầm với 恐れる（おそれる, động từ “sợ”). Điển hình trong tiêu đề: ～の恐れ（Nの恐れ） + が/も + ある/高い/指摘されている. Thường đi với động từ gây hại: 失う・悪化する・混乱する・停止する・漏れる・倒産する・感染する. Văn bản pháp quy/khuyến cáo an toàn rất chuộng mẫu này để giảm sắc thái khẳng định mạnh. [7. Biến thể & cụm cố định] Nの恐れ（例：土砂災害の恐れ、停電の恐れ） ～恐れはない／～恐れもある／～恐れが高い ～が懸念される／～の危険がある（từ đồng nghĩa gần nghĩa, sắc thái khác nhẹ) [8. Lỗi thường gặp & bẫy JLPT] Dùng cho kết quả tích cực → Sai sắc thái. Nên dùng 可能性がある cho trung tính/tích cực. Kết hợp với tính từ trực tiếp → Sai. Phải là Vる hoặc Nの. Dùng trong văn nói thân mật → Tạo cảm giác quá cứng. Nên đổi sang ～かもしれない khi phù hợp. Nhầm với ～かねない: ～恐れがある trang trọng/khách quan hơn; ～かねない mang cảm xúc đánh giá chủ quan."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bc63d718c3"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-066"
+}

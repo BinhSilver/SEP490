@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] Level summary (/learning/jlpt/levels/{level}/summary); jpath-level-summary.js fills it from
+     GET /api/learning/jlpt/levels/{level}/summary. -->
+<head th:replace="~{fragments/head :: standard('Tổng kết cấp - JLAS', null)}"></head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-side')}"></th:block>
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page jp-side" data-inline-dictionary th:attr="data-level=${level}"
+      data-jpath-level-summary>
+<div class="jp-ws jp-ws--norail">
+    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Tổng kết cấp')}"></th:block>
+    <aside class="jp-ws__side" aria-label="Điều hướng lộ trình">
+        <th:block th:replace="~{jlptpath/fragments/jpath :: sidenav('/learning')}"></th:block>
+    </aside>
+    <div class="jp-ws__main">
+        <header class="jp-page-head"><h1 class="jp-page-head__title jp-side__title" data-role="title">Tổng kết cấp</h1></header>
+        <p class="jp-side__status" role="status" data-role="status">Đang tải…</p>
+        <div data-role="body"></div>
+        <div data-jpath-extra-links></div>
+    </div>
+</div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlptpath/jpath-level-summary.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

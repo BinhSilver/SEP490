@@ -1,0 +1,581 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "机の上に、ペンやノートといった学用品が置いてある。",
+       "ja_furigana": "机(つくえ)の上(うえ)に、ペンやノートといった学用品(がくようひん)が置(お)いてある。",
+       "vi": "Trên bàn có những dụng cụ học tập như bút và vở."
+      },
+      {
+       "ja": "この公園には、竹や草花といった植物がたくさんある。",
+       "ja_furigana": "この公園(こうえん)には、竹(たけ)や草花(くさばな)といった植物(しょくぶつ)がたくさんある。",
+       "vi": "Công viên này có nhiều loại cây như tre và hoa cỏ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この講座では、発音や語彙といった会話の基礎を学ぶ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong khóa học này, người học sẽ học những nền tảng hội thoại như phát âm và từ vựng."
+     },
+     {
+      "ja": "冬の旅行には、手袋や厚手の靴下といった防寒用品が欠かせない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong chuyến đi mùa đông, những đồ chống lạnh như găng tay và tất dày là không thể thiếu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この講座では、発音や語彙といった会話の基礎を学ぶ。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: この講座では、発音や語彙といった会話の基礎を学ぶ。 → 語彙",
+     "FURIGANA_MISSING: 冬の旅行には、手袋や厚手の靴下といった防寒用品が欠かせない。"
+    ],
+    "formation": "N1 + や + N2 + といった + N",
+    "locked_fields": [],
+    "meaning_vi": "Những... như là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Những... như là",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu một vài ví dụ tiêu biểu rồi dùng chúng để bổ nghĩa cho một nhóm khái quát. Cách dùng: 〜といった đứng sau một hoặc nhiều ví dụ và trước danh từ chỉ loại chung, mang nghĩa “những... như”. Các ví dụ chỉ đại diện chứ không tạo thành danh sách đầy đủ. Khi có nhiều mục, や thường nối các mục trước といった. Mẫu này giúp người nói chuyển từ trường hợp cụ thể sang một phạm trù khái quát, nên thường gặp trong giải thích, giới thiệu sản phẩm, báo cáo hoặc hướng dẫn. Sắc thái: Có sắc thái minh họa và phân loại rõ hơn cách liệt kê đơn thuần bằng や. Danh từ sau といった phải bao quát hợp lý các ví dụ phía trước. Lưu ý: Không dùng đồng thời といった và などの cho cùng một cụm vì chức năng nêu ví dụ bị lặp. Các mục nêu trước phải thực sự thuộc nhóm danh từ đứng sau といった."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fe64aee069"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この料理は、からいというか、しょっぱいというか、変な味だ。",
+       "ja_furigana": "この料理(りょうり)は、からいというか、しょっぱいというか、変(へん)な味(あじ)だ。",
+       "vi": "Món này, nói là cay cũng được, nói là mặn cũng được, vị rất lạ."
+      },
+      {
+       "ja": "あの人は、親切というか、おせっかいというか、よく人の世話をする。",
+       "ja_furigana": "あの人(ひと)は、親切(しんせつ)というか、おせっかいというか、よく人(ひと)の世話(せわ)をする。",
+       "vi": "Người đó, nói là tốt bụng hay nói là hay xen vào chuyện người khác thì cũng đúng, rất hay giúp đỡ mọi người."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あの店は落ち着いているというか、時間がゆっくり流れているというか、不思議な居心地のよさがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quán đó, nói là yên bình hay nói là thời gian trôi chậm, có một cảm giác dễ chịu rất lạ."
+     },
+     {
+      "ja": "彼の返事は慎重というか、決断を避けているというか、少し曖昧だった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Câu trả lời của anh ấy, nói là thận trọng hay nói là né tránh quyết định, có phần mơ hồ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あの店は落ち着いているというか、時間がゆっくり流れているというか、不思議な居心地のよさがある。",
+     "FURIGANA_MISSING: 彼の返事は慎重というか、決断を避けているというか、少し曖昧だった。"
+    ],
+    "formation": "thể thường + というか、thể thường + というか",
+    "locked_fields": [],
+    "meaning_vi": "Nói là... hay nói là...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nói là... hay nói là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Đặt hai cách diễn đạt cạnh nhau khi người nói đang tìm từ mô tả chính xác. Cách dùng: Mẫu này được dùng khi một cách nói chưa đủ chính xác và người nói đưa thêm cách nói khác để điều chỉnh hoặc bổ sung cảm nhận. Hai phần có thể gần nghĩa, khác góc nhìn hoặc thậm chí hơi trái nhau; kết hợp lại mới thể hiện đúng ấn tượng. Sau cặp diễn đạt thường là một nhận xét tổng quát. Đây không phải phép chọn một trong hai theo nghĩa logic, mà phản ánh quá trình tìm lời thích hợp. Sắc thái: Rất tự nhiên trong hội thoại và văn phong gần gũi. Mẫu thể hiện sự do dự, tự sửa lời hoặc tránh khẳng định quá cứng. Lưu ý: Danh từ và tính từ đuôi な thường nối trực tiếp với というか, không dùng dạng なというか. Hai cách diễn đạt cần cùng hướng tới một đối tượng hoặc một cảm nhận chung."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7ecade38aa"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "うれしさのあまり、彼女は大声で笑い出した。",
+       "ja_furigana": "うれしさのあまり、彼女(かのじょ)は大声(おおごえ)で笑(わら)い出(だ)した。",
+       "vi": "Vì quá vui nên cô ấy đã bật cười thành tiếng."
+      },
+      {
+       "ja": "あわてたあまり、手に持っていたコップを落としてしまった。",
+       "ja_furigana": "あわてたあまり、手(て)に持(も)っていたコップを落(お)としてしまった。",
+       "vi": "Vì quá cuống nên tôi đánh rơi chiếc cốc đang cầm."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "緊張のあまり、体が震えた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì căng thẳng nên cả người run lên."
+     },
+     {
+      "ja": "心配するあまり、母は寝込んでしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì lo lắng mẹ đã ngủ say."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 緊張のあまり、体が震えた。",
+     "FURIGANA_MISSING: 心配するあまり、母は寝込んでしまった。"
+    ],
+    "formation": "N / Vる + あまり",
+    "locked_fields": [],
+    "meaning_vi": "Vì quá …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜緊張のあまり",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu đạt khi nói rằng do quá…mà thành kết quả không tốt hay tình trạng bất thường."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5090cfc2e8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先生が教えたとおりにやってみた。",
+       "ja_furigana": "先生(せんせい)が教(おし)えたとおりにやってみた。",
+       "vi": "Tôi đã làm thử đúng như những gì giáo viên hướng dẫn."
+      },
+      {
+       "ja": "予想したとおり、今年の夏はとても暑かった。",
+       "ja_furigana": "予想(よそう)したとおり、今年(ことし)の夏(なつ)はとても暑(あつ)かった。",
+       "vi": "Đúng như dự đoán, mùa hè năm nay rất nóng."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "友達が言ったとおり、日本の物価は高い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đúng như bạn đã nói, vật giá ở Nhật cao."
+     },
+     {
+      "ja": "自分の思うとおりに生きることは難しい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đúng như chính mình suy nghĩ, việc sống thiệt là khó."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 友達が言ったとおり、日本の物価は高い。",
+     "FURIGANA_MISSING: 自分の思うとおりに生きることは難しい。"
+    ],
+    "formation": "Vた / Vる / N の + とおり(に)",
+    "locked_fields": [],
+    "meaning_vi": "Theo như, giống như",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜言ったとおり",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để biểu thị một sự vật sự việc nào đó được diễn tiến theo đúng nội dung đã được trình bày phía trước."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-59d12c13a3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "店員にすすめられるままに、高いかばんを買ってしまった。",
+       "ja_furigana": "店員(てんいん)にすすめられるままに、高(たか)いかばんを買(か)ってしまった。",
+       "vi": "Tôi đã mua chiếc cặp đắt tiền theo đúng lời nhân viên giới thiệu."
+      },
+      {
+       "ja": "気の向くままに、旅を続けた。",
+       "ja_furigana": "気(き)の向(む)くままに、旅(たび)を続(つづ)けた。",
+       "vi": "Tôi cứ tiếp tục chuyến đi tùy theo hứng thú."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "セールスマンに言われるまま、契約書にサインをしてしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bị người bán hàng nói hoài, ký vào hợp đồng mất tiêu rồi."
+     },
+     {
+      "ja": "足の向くままに歩く",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đi theo hướng bước chân."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: セールスマンに言われるまま、契約書にサインをしてしまった。",
+     "FURIGANA_MISSING: 足の向くままに歩く"
+    ],
+    "formation": "V(受身形 / Vる) + まま(に)",
+    "locked_fields": [],
+    "meaning_vi": "(làm) theo như (ý) của~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜言われるままに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu thị ý nghĩa làm theo y như lời khuyến khích, rủ rê, mệnh lệnh…của người khác, không phải ý muốn của bản thân."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4db085706e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "残念なことに、その店は先月閉店した。",
+       "ja_furigana": "残念(ざんねん)なことに、その店(みせ)は先月(せんげつ)閉店(へいてん)した。",
+       "vi": "Thật đáng tiếc, quán đó đã đóng cửa từ tháng trước."
+      },
+      {
+       "ja": "うれしいことに、弟が大学に合格した。",
+       "ja_furigana": "うれしいことに、弟(おとうと)が大学(だいがく)に合格(ごうかく)した。",
+       "vi": "Thật vui, em trai tôi đã đỗ đại học."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "驚いたことに、彼女は同じ相手と２回も離婚して再婚しているんです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thật là bất ngờ, cô ấy ly hôn rồi tái hon cả hai lần với cùng một người."
+     },
+     {
+      "ja": "おもしろいことに、隣の家も、その隣の家も、うちと同じ名字なのです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thật là thú vị, nhà bên cạnh và cả nhà bên cạnh nhà đó nữa có cùng tên họ với nhà tôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 驚いたことに、彼女は同じ相手と２回も離婚して再婚しているんです。",
+     "FURIGANA_MISSING: おもしろいことに、隣の家も、その隣の家も、うちと同じ名字なのです。"
+    ],
+    "formation": "Vた / Aい / Aな + ことに",
+    "locked_fields": [],
+    "meaning_vi": "Thật là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜驚いたことに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Nhấn mạnh ở đầu câu dùng để diễn tả tình cảm, cảm xúc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4f33dba7c8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "朝早くから公園を走っているのは、彼ぐらいのものだ。",
+       "ja_furigana": "朝(あさ)早(はや)くから公園(こうえん)を走(はし)っているのは、彼(かれ)ぐらいのものだ。",
+       "vi": "Chạy bộ ở công viên từ sáng sớm thì chỉ có anh ấy thôi."
+      },
+      {
+       "ja": "この難しい問題を解けるのは、彼女ぐらいのものだ。",
+       "ja_furigana": "この難(むずか)しい問題(もんだい)を解(と)けるのは、彼女(かのじょ)ぐらいのものだ。",
+       "vi": "Chỉ có cô ấy mới giải được bài toán khó này."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "こんな無茶なお願いを聞いてくれるのは彼女ぐらいのものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ có cô ấy mới chịu nghe một yêu cầu vô lý như thế này."
+     },
+     {
+      "ja": "夜中に呼び出されて文句も言わないのは彼ぐらいのものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bị gọi lúc nửa đêm mà không kêu ca thì chỉ có anh ấy thôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: こんな無茶なお願いを聞いてくれるのは彼女ぐらいのものだ。",
+     "FURIGANA_MISSING: 夜中に呼び出されて文句も言わないのは彼ぐらいのものだ。"
+    ],
+    "formation": "N + ぐらいのものだ",
+    "locked_fields": [],
+    "meaning_vi": "Nhấn mạnh phạm vi cực hẹp: “chỉ có … mới có thể/đúng là …”. Sắc thái cường điệu/nhấn mạnh cảm xúc người nói (có thể phóng đại một chút). Thường dùng để khen/chê, hoặc nhấn mạnh tính đặc thù, ngoại lệ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chỉ có... mới...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Cấu trúc nhấn mạnh: [mệnh đề] + のは + [đối tượng duy nhất] + ぐらいのものだ。 “ぐらいのものだ” làm tăng sắc thái “chỉ riêng… mà thôi”, có chút cường điệu. Thường dùng trong hội thoại/kể chuyện, cũng gặp trong bài viết miêu tả. [6. Ghi chú mở rộng] “ぐらいのものだ” > “くらいだ” về mức độ nhấn mạnh; cả hai đều tự nhiên. Có thể dùng với thời gian/địa điểm: こんな景色が見られるのはここぐらいのものだ。 Thường đi với chủ đề mang tính đặc thù/ngoại lệ để tạo hiệu quả tu từ. [7. Biến thể & cụm cố định] V-普通形 + のは + 人名/組織 + くらいのものだ 数量 từ: こんなに集まるのは年末ぐらいのものだ Địa điểm: 本音が言えるのは家族ぐらいのものだ [8. Lỗi thường gặp & bẫy JLPT] Nhầm vị trí のは: ×彼くらいのものだ助けてくれる → phải: 助けてくれるのは彼ぐらいのものだ。 Lạm dụng trong văn trang trọng; với báo cáo, nên dùng だけだ để trung tính hơn. Hiểu là sự thật tuyệt đối → thực ra có sắc thái cường điệu/nhấn mạnh cá nhân. JLPT N2–N1: Phân biệt với ～しかない (thiếu lựa chọn) và ～だけだ (trung tính)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0fb26d8e8a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "部屋が暑いのはまだしも、クーラーが壊れているのは困る。",
+       "ja_furigana": "部屋(へや)が暑(あつ)いのはまだしも、クーラーが壊(こわ)れているのは困(こま)る。",
+       "vi": "Phòng nóng thì còn chịu được, chứ điều hòa hỏng thì thật rắc rối."
+      },
+      {
+       "ja": "雨の日はまだしも、雪の日は外に出たくない。",
+       "ja_furigana": "雨(あめ)の日(ひ)はまだしも、雪(ゆき)の日(ひ)は外(そと)に出(で)たくない。",
+       "vi": "Ngày mưa thì còn được, chứ ngày tuyết thì tôi không muốn ra ngoài."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "冗談はまだしも、人を傷つける発言は許されない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đùa thì còn tạm, chứ lời nói gây tổn thương thì không thể chấp nhận."
+     },
+     {
+      "ja": "立っているのはまだしも、長時間歩くのは無理だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đứng thì còn được, chứ đi bộ lâu thì không."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 冗談はまだしも、人を傷つける発言は許されない。",
+     "FURIGANA_MISSING: 立っているのはまだしも、長時間歩くのは無理だ。"
+    ],
+    "formation": "N / Vる(の) + はまだしも",
+    "locked_fields": [],
+    "meaning_vi": "“A thì còn tạm, chứ B thì không”: Đặt ra một mức sàn chấp nhận (A). B vượt ngưỡng nên bị bác bỏ/khó chấp nhận. Sắc thái đánh giá: Thường kèm phủ định/khó khăn ở vế sau (～ない／無理だ／困る／許せない). Phạm vi dùng: Tự nhiên với danh từ; khi dùng động từ/tính từ, hãy danh từ hóa bằng の.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Còn tạm được..., còn đỡ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Vế sau đa số mang phủ định/khó khăn để làm nổi bật ranh giới chấp nhận. Sắc thái phê bình nhẹ, đặt tiêu chuẩn xã hội/cá nhân. Trong tranh luận, dùng để giảm xung đột: công nhận một phần (A) rồi mới bác bỏ (B). [6. Ghi chú mở rộng] Cặp danh từ hay đi cùng: 冗談／嘘、雨／雪、初心者／プロ、遅刻／無断欠勤、立つ／走る、挨拶／説教. Với động từ, cấu trúc đối xứng bằng のは…のは… giúp câu mạch lạc: V₁のはまだしも、V₂のは… Tránh dùng khi A và B không cùng mặt bằng tiêu chí (khó so sánh). [7. Biến thể & cụm cố định] Nならまだしも: Biến thể rất phổ biến trong hội thoại. Cụm mẫu: 「Aはまだしも、Bは無理だ／困る／許されない／受け入れられない」。 [8. Lỗi thường gặp & bẫy JLPT] Bỏ trợ từ “は” sau vế B: cần “Aはまだしも、Bは…”. Vế sau không mang phủ định/khó chịu: làm yếu nghĩa. Nên có 無理だ／問題だ／ダメだ… Nhầm với “はともかく”: đề bẫy chuyển trọng tâm vs. đặt mức chấp nhận."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b0868f06e3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "家族を捨ててまで、仕事を続けたくない。",
+       "ja_furigana": "家族(かぞく)を捨(す)ててまで、仕事(しごと)を続(つづ)けたくない。",
+       "vi": "Tôi không muốn đến mức bỏ cả gia đình để tiếp tục công việc."
+      },
+      {
+       "ja": "健康をこわしてまで、そんなに働く必要はない。",
+       "ja_furigana": "健康(けんこう)をこわしてまで、そんなに働(はたら)く必要(ひつよう)はない。",
+       "vi": "Không cần làm việc đến mức hỏng cả sức khỏe như thế."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "整形してまで有名になりたいとは思わない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi không đến mức muốn phẫu thuật thẩm mỹ chỉ để nổi tiếng."
+     },
+     {
+      "ja": "借金してまで旅行に行くものではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không nên đến mức đi vay nợ để đi du lịch."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 整形してまで有名になりたいとは思わない。",
+     "FURIGANA_MISSING: 借金してまで旅行に行くものではない。"
+    ],
+    "formation": "V-て + まで / N + までして",
+    "locked_fields": [],
+    "meaning_vi": "Nói mức độ cực đoan: “đến mức phải … (thường là cách làm không mong muốn/quá đáng)”. Hàm ý phê phán/không tán thành là mặc định. Nếu khen/ý chí mạnh, cần ngữ cảnh rõ. Chủ thể thường là cùng một người cho cả hành vi A và mục tiêu B.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đến mức..., thậm chí phải...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường đi với phán đoán phủ định/khuyên can: ～てまで…ない／～てまでするな. Trong khen/ngợi ý chí, thêm ngữ cảnh tích cực để tránh hiểu là phê phán. N + までして làm nổi bật phương tiện cực đoan (徹夜、借金、嘘、中傷…). [6. Ghi chú mở rộng] Từ đi kèm thường mang sắc thái tiêu cực: 嘘、借金、徹夜、犠牲、中傷、違法、裏切り. Một số văn cảnh cảm xúc có thể đảo sắc thái thành khâm phục, nhưng cần tránh mơ hồ trong bài viết học thuật. Vị trí: Aてまで + V chính. Không dùng “BてまでA” khi A là mục tiêu, dễ sai trọng tâm. [7. Biến thể & cụm cố định] Nまでして + V: công thức cố định rất phổ biến. ～てまでして + V: nhấn mạnh cực độ (hơi nặng). ～てまで…ない／～までして…ない: mẫu phủ định quen thuộc. [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～てでも: đề bài khen ý chí → chọn てでも; chê quá đáng → chọn てまで. Dùng cho việc bình thường (không cực đoan) → không tự nhiên. Khác chủ ngữ giữa A và B → câu mờ nghĩa/không chuẩn. Thi hay gài Nまでして vs Vてまで: nhìn sau まで là して hay まで để quyết định."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ab8dc2a600"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "外はまるで冬に戻ったかのように寒い。",
+       "ja_furigana": "外(そと)はまるで冬(ふゆ)に戻(もど)ったかのように寒(さむ)い。",
+       "vi": "Ngoài trời lạnh như thể mùa đông quay trở lại."
+      },
+      {
+       "ja": "彼女はその話を知っていたかのように、何も聞かなかった。",
+       "ja_furigana": "彼女(かのじょ)はその話(はなし)を知(し)っていたかのように、何(なに)も聞(き)かなかった。",
+       "vi": "Cô ấy như thể đã biết câu chuyện nên không hỏi gì."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は何も知らないかのようだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta trông như thể chẳng biết gì."
+     },
+     {
+      "ja": "まるで夢の中にいるかのようだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cứ như đang ở trong mơ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は何も知らないかのようだ。",
+     "FURIGANA_MISSING: まるで夢の中にいるかのようだ。"
+    ],
+    "formation": "thể thường + かのようだ",
+    "locked_fields": [],
+    "meaning_vi": "“Như thể …” (thực tế không hẳn vậy). So sánh ví von, ẩn dụ, ấn tượng chủ quan. Nhấn mạnh “trông có vẻ như”, “cứ như là”, thường đi với まるで để tăng sắc thái. Thường dùng khi thực tế trái ngược hoặc chưa được xác nhận; người nói giữ khoảng cách với mệnh đề. Trang trọng hơn みたいだ; khi viết báo, văn học, miêu tả giàu hình ảnh.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Giống như..., dường như...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Kết hợp với まるで／あたかも để tăng sắc thái so sánh giả định. Đứng sau mệnh đề ở dạng thường; với danh/tính-na dùng である để văn viết hơn. Diễn tả bề ngoài/ấn tượng; không khẳng định sự thật. Dùng trong miêu tả văn chương, phóng sự, bình luận nghệ thuật, văn bản mô tả. [6. Ghi chú mở rộng] Với danh từ/tính-na, dùng であるかのようだ tạo văn phong cứng: 静かであるかのようだ。 Thường đứng cùng かと思うほど để tăng mức độ ấn tượng: 泣いているかのように見えた。 Trong văn trang trọng hơn nữa có かのごとく (như thể…): 風が吠えるかのごとく。 [7. Biến thể & cụm cố định] まるで～かのように／かのような～ ～であるかのようだ（danh/tính-na ở văn viết） ～かのごとく（rất văn chương） [8. Lỗi thường gặp & bẫy JLPT] Dùng khẳng định thực tế với ～かのようだ là sai sắc thái; mẫu này ám chỉ “có vẻ như, nhưng chưa chắc”. Quên chuyển だ→である trong văn viết trang trọng. Lẫn với みたいだ trong văn nói: chọn みたいだ nếu ngữ cảnh thân mật, chọn かのようだ khi viết/nhấn mạnh sự ví von. Nhầm với 比喩 mức độ ～かと思うほど: hai mẫu khác chức năng (so sánh ví von vs mức độ)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-db61ca1bbc"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-034"
+}

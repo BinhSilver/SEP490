@@ -1,0 +1,581 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この計画には無理があるのではないか。",
+       "ja_furigana": "この計画(けいかく)には無理(むり)があるのではないか。",
+       "vi": "E rằng kế hoạch này có chỗ không ổn chăng."
+      },
+      {
+       "ja": "自分たちの言葉で伝えるべきではないか。",
+       "ja_furigana": "自分(じぶん)たちの言葉(ことば)で伝(つた)えるべきではないか。",
+       "vi": "Chẳng phải chúng ta nên truyền đạt bằng chính lời của mình hay sao."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "それは少し危険ではないか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chẳng phải cái đó hơi nguy hiểm sao."
+     },
+     {
+      "ja": "彼はもう帰ったのではないか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chẳng phải anh ấy về rồi sao."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: それは少し危険ではないか。",
+     "FURIGANA_MISSING: 彼はもう帰ったのではないか。"
+    ],
+    "formation": "thể thường + (の)ではないか",
+    "locked_fields": [],
+    "meaning_vi": "Nghi vấn tu từ/khẳng định tìm sự đồng tình: “Chẳng phải là… sao?”, “Có phải… không nhỉ?”. Mức độ chắc cao, mong người nghe đồng ý. Nhấn mạnh cảm xúc (khen/chê/trách): rơi giọng cuối câu thành cảm thán: “Tốt đấy chứ!”, “Muộn rồi còn gì!”. Đề nghị/kêu gọi (V-ようではないか): “Hãy … nào!”. Văn phong diễn văn, khẩu hiệu. Độ trang trọng: ではないか (trang trọng/viết) > じゃないか (khẩu ngữ). Dạng のではないか dùng khi mệnh đề dài làm chủ ngữ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chẳng phải... sao?",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Ngữ điệu lên cuối câu → hỏi/khơi gợi đồng tình; ngữ điệu xuống → cảm thán, trách móc, khen. のではないか khách quan/nhẹ hơn ではないか trực tiếp. V-ようではないか dùng trong phát biểu, hô hào; trong đời thường thay bằng ～よう（よ）/ ～ようか. じゃないか đa năng: tán đồng, trách móc, bất mãn, khen ngợi tùy văn cảnh. [6. Ghi chú mở rộng] Trong báo chí/chính luận, ではないか thường dùng để dẫn dắt lập luận, kêu gọi người đọc đồng tình. んじゃないか (＝のではないか rút gọn) phổ biến sau động từ/tính từ: 難しいんじゃないか. Tránh lặp では: với N/なA + のではないか cần “なの”: 静かなのではないか. Dễ gây cảm giác công kích nếu dùng じゃないか trong phàn nàn; cân nhắc quan hệ và ngữ điệu. [7. Biến thể & cụm cố định] …じゃないか／…んじゃないか: biến thể khẩu ngữ. V-ようではないか: công thức hô hào trong diễn văn/kêu gọi. いいじゃないか／すばらしいじゃないか: cụm khen ngợi cảm thán. 何々ではないか！: khuôn trách móc mạnh. [8. Lỗi thường gặp & bẫy JLPT] Nhầm với だろう: ではないか tìm sự đồng tình hoặc cảm thán; だろう chỉ phỏng đoán. Bỏ “の/ん” sai: với V/いA cần のではないか (không phải Vではないか). Ngữ điệu sai làm lệch nghĩa: lên giọng → hỏi; xuống giọng → trách/khen. Dùng じゃないか trong văn viết trang trọng: nên chọn ではないか / のではないか."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-114a9bd8d7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "年を取ると、時間がたつのが早く感じるものだ。",
+       "ja_furigana": "年(とし)を取(と)ると、時間(じかん)がたつのが早(はや)く感(かん)じるものだ。",
+       "vi": "Khi có tuổi, người ta thường thấy thời gian trôi nhanh."
+      },
+      {
+       "ja": "人の話は最後まで聞くものだ。",
+       "ja_furigana": "人(ひと)の話(はなし)は最後(さいご)まで聞(き)くものだ。",
+       "vi": "Người ta nên nghe hết câu chuyện của người khác."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "人間は忘れるものだ。だからメモしておくべきだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Con người là hay quên. Vì thế nên ghi chú lại."
+     },
+     {
+      "ja": "約束は守るものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lời hứa là điều phải giữ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 人間は忘れるものだ。だからメモしておくべきだ。",
+     "FURIGANA_MISSING: 約束は守るものだ。"
+    ],
+    "formation": "Vる / Aい / Aな + な + ものだ",
+    "locked_fields": [],
+    "meaning_vi": "Khái quát/quy luật xã hội-tự nhiên: “là chuyện thường/điều hiển nhiên”. Chuẩn mực đạo đức: “nên/đương nhiên phải” (mang tính răn dạy). Hồi ức quá khứ: “đã từng/thường hay” nhấn cảm xúc hoài niệm. Cảm thán: bộc lộ ấn tượng mạnh mẽ trước thực tế (nhanh thật đấy, trôi nhanh quá…).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đã từng..., thường..., đúng là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Với quy luật/chân lý: không gắn thời điểm cụ thể; mang tính tổng quát. Với hồi ức: dùng V-たものだ; thường đi cùng trạng ngữ thời quá khứ (昔/子どものころ…). Với cảm thán: mang sắc thái xúc cảm mạnh; thường đứng cuối câu. “〜ものではない” nhấn cấm đoán/khuyên không nên, trang trọng hơn “〜ないほうがいい”. [6. Ghi chú mở rộng] “たいものだ/てほしいものだ” tăng sắc thái ước muốn cảm thán: 休みたいものだ. “ものだ” khi phát âm kéo dài “も〜のだ” tạo cảm giác trầm tư/hồi tưởng. Trong văn viết trang trọng, “ものだ” cho chân lý thường đi kèm lý do/diễn giải phía sau. [7. Biến thể & cụm cố định] V-たものだ（đã từng） 〜たいものだ／〜てほしいものだ（ước muốn nhấn mạnh） 〜ものではない（không nên） たいしたものだ（thật đáng nể） [8. Lỗi thường gặp & bẫy JLPT] Nhầm “V-たものだ” với “V-たことがある”: cái đầu nhấn thói quen hồi ức, cái sau chỉ trải nghiệm một lần cũng được. Dùng “ものだ” cảm thán trong văn bản quá trang trọng → không phù hợp phong cách. Nhầm “ものだ” (quy luật) với “はずだ/べきだ”: べきだ là bổn phận mạnh; ものだ thiên về nhận định chung/đạo lý."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0d4fa96b48"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日残業で、疲れてしょうがない。",
+       "ja_furigana": "毎日(まいにち)残業(ざんぎょう)で、疲(つか)れてしょうがない。",
+       "vi": "Ngày nào cũng tăng ca nên mệt không chịu nổi."
+      },
+      {
+       "ja": "好きな歌手が引退すると聞いて、残念でしょうがない。",
+       "ja_furigana": "好(す)きな歌手(かしゅ)が引退(いんたい)すると聞(き)いて、残念(ざんねん)でしょうがない。",
+       "vi": "Nghe tin ca sĩ mình thích giải nghệ, tôi tiếc không chịu nổi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "明日の結果が気になってしょうがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lo kết quả ngày mai đến phát sốt."
+     },
+     {
+      "ja": "彼のことが羨ましくてしょうがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ghen tị với anh ta không chịu nổi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 明日の結果が気になってしょうがない。",
+     "FURIGANA_MISSING: 彼のことが羨ましくてしょうがない。"
+    ],
+    "formation": "V-て / Aい(〜くて) / Aな(で) + しょうがない",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả mức độ cảm xúc/cảm giác rất mạnh “không chịu nổi/khó chịu nổi”, gần như ngoài kiểm soát. Thường dùng cho cảm xúc tự phát: うれしい、悔しい、心配だ、恥ずかしい、退屈だ… Chủ ngữ thường là người nói (hoặc người mà người nói có thể đồng cảm/cảm nhận). Sắc thái khẩu ngữ. “～でしょうがない” nghe đậm tính nói thường, “～しょうがありません” trang trọng. Phủ định: ～なくてしょうがない (会えなくてしょうがない: Không gặp được nên bứt rứt vô cùng).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không chịu được..., quá...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nghiêng về khẩu ngữ, dùng trong hội thoại hằng ngày để nhấn mạnh mức độ mạnh. Thường mang cảm xúc tiêu cực; cảm xúc tích cực cũng dùng được nhưng ít hơn. “で(は)” sau な/N giúp nhấn mạnh: 退屈ではしょうがない (nhấn mạnh hơn 退屈でしょうがない). Tránh dùng để mô tả trạng thái khách quan/không phải cảm xúc (×忙しくてしょうがない với nghĩa khách quan công việc nhiều; chỉ dùng khi người nói cảm thấy “khổ sở vì bận”). [6. Ghi chú mở rộng] “しょうがない” = “仕方がない” (khẩu ngữ). Trong văn viết trang trọng, ưu tiên “仕方がない/しょうがありません”. Dễ đi với cụm cố định: 気になってしょうがない／心配で(は)しょうがない／退屈で(は)しょうがない。 Khi chủ ngữ là người khác, thường cần ngữ cảnh cho phép suy đoán cảm xúc của họ. [7. Biến thể & cụm cố định] 退屈で(は)しょうがない / 暇で(は)しょうがない 悔しくてしょうがない / 恥ずかしくてしょうがない 会いたくてしょうがない / 気になってしょうがない 不安で(は)しょうがない / 心配で(は)しょうがない [8. Lỗi thường gặp & bẫy JLPT] Sai kết hợp hình thái: ×嬉しいでしょうがない → 嬉しくてしょうがない; ×静かでしょうがない → 静かで(は)しょうがない. Mô tả sự thật khách quan thay vì cảm xúc người nói → không tự nhiên. Nhầm sắc thái với ～でならない (trang trọng hơn) và ～でたまらない (mạnh hơn). JLPT N2: hay hỏi biến đổi hình thái (くて/で/て) và phân biệt ba mẫu ～しょうがない／～たまらない／～ならない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-670ee65e39"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "一日中歩いて、足が痛くてたまらない。",
+       "ja_furigana": "一日中(いちにちじゅう)歩(ある)いて、足(あし)が痛(いた)くてたまらない。",
+       "vi": "Đi bộ cả ngày nên chân đau không chịu nổi."
+      },
+      {
+       "ja": "エアコンが壊れて、部屋が暑くてたまらない。",
+       "ja_furigana": "エアコンが壊(こわ)れて、部屋(へや)が暑(あつ)くてたまらない。",
+       "vi": "Điều hòa hỏng nên phòng nóng không chịu nổi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼に会いたくてたまらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi muốn gặp anh ấy đến không chịu nổi."
+     },
+     {
+      "ja": "虫に刺されて、かゆくてたまらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bị côn trùng đốt, ngứa không chịu nổi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼に会いたくてたまらない。",
+     "FURIGANA_MISSING: 虫に刺されて、かゆくてたまらない。"
+    ],
+    "formation": "V-て / Aい(〜くて) / Aな(で) + たまらない",
+    "locked_fields": [],
+    "meaning_vi": "Diễn đạt cảm xúc/cảm giác quá mạnh đến mức “không chịu nổi”, thường mạnh hơn ～しょうがない, mang tính bộc phát và cá nhân rõ rệt. Hay dùng với cảm giác cơ thể: 痛い、かゆい、眠い… và cảm xúc mạnh: 会いたい、悔しい、恥ずかしい。 Chủ ngữ ưu tiên là người nói; dùng cho người khác cần căn cứ rõ (dấu hiệu khách quan). Nội dung thường là điều khó kiểm soát về mặt cảm xúc/cảm giác.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không chịu nổi..., vô cùng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái mạnh, cảm xúc bùng nổ; rất tự nhiên với cảm giác cơ thể. Khẩu ngữ/viết đều dùng được; trong văn viết trang trọng vẫn chấp nhận. Tránh dùng với việc hoàn toàn có thể kiểm soát được (×勉強してたまらない nếu muốn nói “rất thích học”; nên dùng 大好きだ). [6. Ghi chú mở rộng] Đi kèm trạng thái thể chất rất tự nhiên: 痛くてたまらない／寒くてたまらない／喉が渇いてたまらない。 Với cảm xúc tích cực mạnh vẫn dùng được: 嬉しくてたまらない／誇らしくてたまらない。 Khi nói về người khác, thêm căn cứ: 彼は会いたくてたまらない様子だ。 [7. Biến thể & cụm cố định] 気になってたまらない / 会いたくてたまらない 心配でたまらない / 悔しくてたまらない 眠くてたまらない / かゆくてたまらない / 痛くてたまらない [8. Lỗi thường gặp & bẫy JLPT] Sai hình thái: ×嬉しいでたまらない → 嬉しくてたまらない; ×静かなたまらない → 静かでたまらない. Dùng cho sự thật khách quan thay vì cảm xúc/sensation của chủ thể → không tự nhiên. Nhầm nghĩa tích cực “rất thích” có thể dùng たまらない không đúng chỗ; cân nhắc 大好きだ/とても～. JLPT N2: bẫy phân biệt với ～でしょうがない và ～でならない về sắc thái mạnh/yếu và phong cách."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e90a915428"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "時間もかまわず、彼は夜遅くまで仕事を続けた。",
+       "ja_furigana": "時間(じかん)もかまわず、彼(かれ)は夜遅(よるおそ)くまで仕事(しごと)を続(つづ)けた。",
+       "vi": "Chẳng màng đến giờ giấc, anh ấy làm việc tới tận khuya."
+      },
+      {
+       "ja": "親の反対もかまわず、二人は結婚した。",
+       "ja_furigana": "親(おや)の反対(はんたい)もかまわず、二人(ふたり)は結婚(けっこん)した。",
+       "vi": "Bất chấp sự phản đối của gia đình, hai người đã kết hôn."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "人目もかまわず泣き出した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô ấy bật khóc bất chấp ánh nhìn của mọi người."
+     },
+     {
+      "ja": "雨に濡れるのもかまわず、彼は駅まで走った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy chạy đến ga mặc kệ bị ướt mưa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 人目もかまわず泣き出した。",
+     "FURIGANA_MISSING: 雨に濡れるのもかまわず、彼は駅まで走った。"
+    ],
+    "formation": "N + もかまわず / Vる + のもかまわず",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả hành vi “không màng, không đếm xỉa” đến điều lẽ ra cần quan tâm (quy tắc, ánh nhìn, thời tiết, hoàn cảnh…). Thường kèm sắc thái đánh giá (ngạc nhiên, phê phán) của người nói; ít dùng cho mệnh lệnh/ý chí người nghe. Khác “にもかかわらず”: “もかまわず” nhấn mạnh chủ thể chủ động bỏ qua/không quan tâm; “にもかかわらず” chỉ thực tế trái ngược kỳ vọng, trung lập hơn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không màng..., bất chấp...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt ngay sau yếu tố bị bỏ qua: 人目もかまわず, ルールもかまわず. Sắc thái thường tiêu cực hoặc ngạc nhiên; cẩn trọng khi dùng với chủ ngữ là “tôi/chúng tôi” để tránh tự hạ thấp. Ít dùng trong câu mệnh lệnh/nhờ vả trực tiếp. [6. Ghi chú mở rộng] Thường đi với danh từ mang tính xã hội: 人目, 迷惑, マナー, ルール, 時間, 年齢, 体裁. Trong văn nói, có thể rút gọn “の” khi danh hóa là cụm ngắn, nhưng trong văn viết nên giữ “〜のもかまわず”. Dễ đi kèm hành động đột ngột/bản năng: 泣き出す, 叫ぶ, 走る, 電話する. [7. Biến thể & cụm cố định] 人目もかまわず／周りの迷惑もかまわず 時間もかまわず／年齢もかまわず／身なりもかまわず 雨に濡れるのもかまわず／痛みもかまわず 〜もおかまいなしに（biến thể gần nghĩa） [8. Lỗi thường gặp & bẫy JLPT] Dùng cho câu yêu cầu/mệnh lệnh: × 人目もかまわず歌ってください → không tự nhiên. Nhầm với “にもかかわらず”: đề thi bẫy bằng cách thay đổi chủ thể để xem có sắc thái “cố tình bỏ qua” hay không. Quên “の” khi danh hóa động từ: × 濡れるもかまわず → ✓ 濡れるのもかまわず."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-45fe3b754d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "手がかりが何もないので、調べようがない。",
+       "ja_furigana": "手(て)がかりが何(なに)もないので、調(しら)べようがない。",
+       "vi": "Không có chút manh mối nào nên không thể nào điều tra được."
+      },
+      {
+       "ja": "この状況では、こちらから助けようがない。",
+       "ja_furigana": "この状況(じょうきょう)では、こちらから助(たす)けようがない。",
+       "vi": "Trong tình cảnh này, phía chúng tôi không có cách nào giúp được."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "住所も電話も知らないから、彼に連絡しようがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không biết địa chỉ hay điện thoại nên không có cách liên lạc với anh ấy."
+     },
+     {
+      "ja": "証拠がなければ、真偽は確かめようがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu không có chứng cứ thì không có cách xác minh thật giả."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 住所も電話も知らないから、彼に連絡しようがない。",
+     "FURIGANA_MISSING: 証拠がなければ、真偽は確かめようがない。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 証拠がなければ、真偽は確かめようがない。 → 証拠"
+    ],
+    "formation": "Vます + ようがない",
+    "locked_fields": [],
+    "meaning_vi": "Không có phương tiện/cách thức để thực hiện hành động V: “không thể (vì không có cách)”. Dùng cho cả nghĩa “không thể xảy ra sai sót” theo hướng nghịch: 間違えようがない = không thể nào sai. Tập trung vào “thiếu điều kiện/đầu mối” chứ không phải “không muốn/không dám”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không thể..., không còn cách",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường đi kèm các từ chỉ thiếu thông tin: 手がかりがない, 情報がない, 手段がない. Không dùng cho “không muốn/không dám vì chuẩn mực xã hội” (khi đó dùng ～わけにはいかない hoặc ～かねる). Có thể dùng ở hiện tại hoặc quá khứ, văn nói và viết đều tự nhiên. Dạng phủ định nhấn mạnh “tuyệt đối không có khả năng về mặt cách thức”, mạnh hơn 単なる「できない」. [6. Ghi chú mở rộng] Dấu hiệu nhận biết trong bài đọc: đi kèm 手の出しようがない, どうしようもない, 打つ手がない. “間違えようがない/忘れようがない” thường mang sắc thái khẳng định chắc chắn (khó mà sai/quên). Trong phản biện: 「データが公開されていない以上、評価しようがない」 là cách nói khách quan. [7. Biến thể & cụm cố định] どうしようもない: không còn cách nào (thành ngữ tương đương, chung chung hơn). 手の出しようがない／打つ手がない: không có cách can thiệp/giải pháp. Vます + ようがなくて…: mệnh đề nguyên nhân “vì không có cách nên…”. [8. Lỗi thường gặp & bẫy JLPT] Dùng với V辞書形: × 連絡するようがない → ✔ 連絡しようがない. Nhầm với わけにはいかない: nếu lý do là “không có phương tiện”, chọn ～ようがない. Diễn đạt khả năng về mặt năng lực riêng: dùng 可能形/えない; ～ようがない nhấn “không có cách”. JLPT: khi thấy “手がかりがない/情報がない/方法がない”, đáp án thường là ～ようがない/～ようもない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2f5d0d2f24"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "明日が期限なんて、信じるものか。",
+       "ja_furigana": "明日(あした)が期限(きげん)なんて、信(しん)じるものか。",
+       "vi": "Hạn là ngày mai à, ai mà tin được chứ."
+      },
+      {
+       "ja": "努力もしないで合格できるものか。",
+       "ja_furigana": "努力(どりょく)もしないで合格(ごうかく)できるものか。",
+       "vi": "Không chịu cố gắng thì làm gì có chuyện đỗ được."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あんな店、二度と行くものか！",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cửa hàng như thế, không đời nào tôi đến lần nữa!"
+     },
+     {
+      "ja": "彼が遅刻するものか。とても真面目な人だよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Làm gì có chuyện anh ấy đi trễ. Anh ấy rất nghiêm túc mà."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あんな店、二度と行くものか！",
+     "FURIGANA_MISSING: 彼が遅刻するものか。とても真面目な人だよ。"
+    ],
+    "formation": "thể thường + ものか",
+    "locked_fields": [],
+    "meaning_vi": "Phủ định mạnh mẽ, cảm tính: “Làm gì có chuyện/Không đời nào/Chẳng bao giờ…”. Dùng để bác bỏ lời mời, đánh giá, hoặc khẳng định của đối phương; có thể thốt lên một mình. Sắc thái thô cứng nếu nói trực diện; 〜もんですか/〜ものですか giảm nhẹ hơn một chút nhưng vẫn mạnh.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Làm gì có chuyện..., tuyệt đối không...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường dùng trong văn nói, biểu cảm mạnh; cẩn thận lịch sự khi nói với người trên. Dùng khẳng định ngược để nhấn phủ định (phản vấn): “〜ものか” tương đương “Làm gì có chuyện ~”. Trong hội thoại, có thể lược bỏ chủ ngữ và phần trước, chỉ bật ra “〜ものか”. [6. Ghi chú mở rộng] Ngữ điệu lên cao ở “か” nếu là câu phản vấn, xuống thấp nếu là lẩm bẩm tự nhủ. “〜もんですか” vẫn phủ định mạnh nhưng lịch sự hơn “〜もんか”. Không dùng trong văn bản trang trọng học thuật; thay bằng わけがない/はずがない. [7. Biến thể & cụm cố định] 行くものか／できるものか／あるものか 簡単なものか／うれしいものか 〜もんか／〜もんですか（khẩu ngữ） [8. Lỗi thường gặp & bẫy JLPT] Sai kết hợp tính từ đuôi な: × 静かなものか → ✓ 静かなものか. Dùng trong văn viết trang trọng → không phù hợp phong cách; chọn わけがない/はずがない. Nhầm nghĩa với câu hỏi thật: “〜ものか” là phủ định mạnh, không phải câu hỏi thông tin."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bedaf4ade4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "自分の失敗が恥ずかしくてならない。",
+       "ja_furigana": "自分(じぶん)の失敗(しっぱい)が恥(は)ずかしくてならない。",
+       "vi": "Tôi xấu hổ về thất bại của mình không để đâu cho hết."
+      },
+      {
+       "ja": "ふるさとの景色が思い出されてならない。",
+       "ja_furigana": "ふるさとの景色(けしき)が思(おも)い出(だ)されてならない。",
+       "vi": "Tôi cứ nhớ mãi cảnh sắc quê nhà."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "明日の試験が心配でならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi lo cho kỳ thi ngày mai không thể nguôi."
+     },
+     {
+      "ja": "彼が何か隠しているように思えてならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không hiểu sao tôi cứ thấy như anh ấy đang giấu điều gì đó."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 明日の試験が心配でならない。",
+     "FURIGANA_MISSING: 彼が何か隠しているように思えてならない。"
+    ],
+    "formation": "V-て / Aい(〜くて) / Aな(で) + ならない",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả cảm xúc/nhận thức “không sao tránh khỏi, cứ… mãi”, mang sắc thái trang trọng, văn viết. Thường dùng cho tâm lý nội tại: lo lắng, tiếc nuối, kỳ lạ, vương vấn suy nghĩ. Tính “khó cưỡng” nhưng dịu hơn たまらない; thiên về dòng suy nghĩ/ấn tượng dai dẳng. Phổ biến với cụm: 気になってならない, 心配でならない, 残念でならない, 不思議でならない, 悔やまれてならない, ～ように思えてならない. Chủ ngữ thường là người nói; có thể dùng cho người khác trong văn viết mô tả tâm lý.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Rất..., cực kỳ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái trang trọng, dùng trong bài luận, phỏng vấn học thuật, tường thuật. Thường biểu đạt cảm xúc dai dẳng, suy nghĩ cứ ám ảnh. Ít dùng cho cảm giác cơ thể trực tiếp (đau, ngứa) — khi đó たまらない tự nhiên hơn. [6. Ghi chú mở rộng] V bị động tự phát + てならない diễn tả cảm xúc tự nhiên trào dâng: 悔やまれてならない, 思われてならない. Cụm khuôn: ～気がしてならない／～ように思えてならない tạo sắc thái phỏng đoán dai dẳng. Trong văn nói thường ngày, người bản ngữ hay chọn しょうがない/たまらない hơn cho tự nhiên. [7. Biến thể & cụm cố định] 気になってならない / 心配でならない 残念でならない / 不思議でならない 悔やまれてならない / 恐ろしくてならない ～ように思えてならない / ～気がしてならない [8. Lỗi thường gặp & bẫy JLPT] Sai hình thái: Aい→くてならない; Aな/N→でならない; V→てならない. Dùng cho sensation cơ thể cấp tính (ngứa, đau) → không tự nhiên bằng ～たまらない. Nhầm cấp độ trang trọng: ～でならない trang trọng hơn ～でしょうがない. JLPT N2: bẫy collocation như 気になってならない／悔やまれてならない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-03c53dd824"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "これが本当の友情というのか、私には分からない。",
+       "ja_furigana": "これが本当(ほんとう)の友情(ゆうじょう)というのか、私(わたし)には分(わ)からない。",
+       "vi": "Đây có gọi là tình bạn thật sự không, tôi không rõ nữa."
+      },
+      {
+       "ja": "これは親切というのか、それともおせっかいというのか。",
+       "ja_furigana": "これは親切(しんせつ)というのか、それともおせっかいというのか。",
+       "vi": "Đây là tốt bụng hay là xen vào chuyện người khác đây."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "これが愛というのか、ただの憧れなのか、まだわからない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không biết đây là tình yêu hay chỉ là ngưỡng mộ nữa."
+     },
+     {
+      "ja": "彼の態度は失礼というのか、無神経というのか、とにかく腹が立つ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thái độ của hắn phải gọi là vô lễ hay vô ý thức đây, nói chung là bực mình."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: これが愛というのか、ただの憧れなのか、まだわからない。",
+     "FURIGANA_MISSING: 彼の態度は失礼というのか、無神経というのか、とにかく腹が立つ。"
+    ],
+    "formation": "thể thường + というのか、thể thường + というのか",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả sự do dự khi muốn gọi tên, đánh giá hay diễn đạt điều gì đó: “Có thể nói là… không?”, “Nên gọi như thế nào đây?”. Thường chứa cảm xúc như ngạc nhiên, mỉa mai, không tin được, khó diễn đạt. Có thể dùng để đưa ra phán xét nhẹ nhàng hoặc hoài nghi: “Gọi là… thì đúng không nhỉ?”. Thường dùng trong hội thoại hoặc văn miêu tả nội tâm nhân vật.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Ý là..., có thể gọi là...?",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường ở cuối câu hoặc giữa câu, biểu lộ suy nghĩ nội tâm hoặc cảm xúc do dự, khó diễn đạt. Dùng trong văn nói hoặc văn viết mang tính miêu tả cảm xúc, không dùng trong văn viết trang trọng như báo cáo, luận văn. Ngữ điệu thường là nghi vấn nhẹ, cảm thán, nhưng không phải là câu hỏi yêu cầu câu trả lời. [6. Ghi chú mở rộng] Mẫu này thường dùng để miêu tả tâm trạng lưỡng lự trong văn học, anime, phim. Có thể lặp lại hai lần để đưa ra hai lựa chọn: ～というのか、～というのか. Khác với câu hỏi thông thường, đây là câu hỏi mang tính tu từ, không cần người nghe trả lời. [7. Biến thể & cụm cố định] ～というのかどうか：Không biết có nên gọi là… hay không. ～というのかしら：Không biết có phải nên gọi là… không (nhẹ nhàng, phụ nữ hay dùng). ～というのかね：Không biết nên nói là… (giọng đàn ông, suy tư). [8. Lỗi thường gặp & bẫy JLPT] Nhầm với というのに/ということだ → cần xem sắc thái: nghi vấn cảm thán hay nghịch lý. Dùng sai ngữ cảnh trang trọng: Mẫu này mang tính cảm xúc, không dùng trong văn bản học thuật. Thiếu mệnh đề trước/sau: Cần có thông tin để đối chiếu, nếu không câu sẽ mơ hồ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-40b8f76b23"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "さんざん迷ったあげく、結局何も買わなかった。",
+       "ja_furigana": "さんざん迷(まよ)ったあげく、結局(けっきょく)何(なに)も買(か)わなかった。",
+       "vi": "Sau một hồi phân vân, cuối cùng tôi chẳng mua gì."
+      },
+      {
+       "ja": "何時間も話し合ったあげく、話はまとまらなかった。",
+       "ja_furigana": "何時間(なんじかん)も話(はな)し合(あ)ったあげく、話(はなし)はまとまらなかった。",
+       "vi": "Thảo luận mấy tiếng đồng hồ mà cuối cùng câu chuyện chẳng đi đến đâu."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "いろいろ悩んだあげく、大学院に進むことにしました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi đắn đo nhiều, tôi quyết định học lên cao học."
+     },
+     {
+      "ja": "2時間も待たされたあげく、結局、試合は延期になった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi bị bắt đợi tận 2 tiếng, cuối cùng trận đấu đã bị hoãn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: いろいろ悩んだあげく、大学院に進むことにしました。",
+     "FURIGANA_MISSING: 2時間も待たされたあげく、結局、試合は延期になった。"
+    ],
+    "formation": "Vた / N の + あげく(に)",
+    "locked_fields": [],
+    "meaning_vi": "Sau một hồi ～, rốt cuộc dẫn đến kết quả không tốt.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜あげく(に)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4e01cd272a"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-039"
+}

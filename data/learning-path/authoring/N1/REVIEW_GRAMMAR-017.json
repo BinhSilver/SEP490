@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この条件なら、努力すれば合格できないものでもない。",
+       "ja_furigana": "この条件(じょうけん)なら、努力(どりょく)すれば合格(ごうかく)できないものでもない。",
+       "vi": "Với điều kiện này, nếu cố gắng thì không phải là không thể đỗ."
+      },
+      {
+       "ja": "直せば使えないものでもないが、直すより買い替えた方が安いだろう。",
+       "ja_furigana": "直(なお)せば使(つか)えないものでもないが、直(なお)すより買(か)い替(か)えた方(ほう)が安(やす)いだろう。",
+       "vi": "Sửa thì không phải là không dùng được, nhưng có lẽ thay mới còn rẻ hơn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この値段なら、少し無理をすれば買えないものでもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Với giá này, nếu cố thêm một chút thì không phải là không mua được."
+     },
+     {
+      "ja": "修理すれば使えないものでもないが、修理代が高くつくだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu sửa thì không phải là không dùng được, nhưng có lẽ tiền sửa sẽ rất đắt."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この値段なら、少し無理をすれば買えないものでもない。",
+     "FURIGANA_MISSING: 修理すれば使えないものでもないが、修理代が高くつくだろう。"
+    ],
+    "formation": "Vない + ものでもない",
+    "locked_fields": [],
+    "meaning_vi": "Phủ định hai lần để thừa nhận rằng một việc vẫn có thể thực hiện trong điều kiện nhất định, dù không dễ hoặc người nói không thật sự muốn. Sắc thái dè dặt hơn cách khẳng định trực tiếp là “có thể”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ないものでもない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Phủ định hai lần để thừa nhận rằng một việc vẫn có thể thực hiện trong điều kiện nhất định, dù không dễ hoặc người nói không thật sự muốn. Sắc thái dè dặt hơn cách khẳng định trực tiếp là “có thể”. 1) Dễ nhầm với ～ないことはない. → Hai mẫu đều là phủ định hai lần, nhưng ～ないものでもない trang trọng và thể hiện sự dè dặt rõ hơn. 2) Không nên hiểu thành một lời khẳng định hoàn toàn tích cực. → Mẫu chỉ thừa nhận rằng việc đó vẫn có thể xảy ra nếu có điều kiện, dù khó hoặc người nói không thật sự muốn. 3) Thường đi với điều kiện ở phía trước. → Các dạng như ～ば／～なら…ないものでもない cho thấy khả năng chỉ được chấp nhận trong một phạm vi hạn chế."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e3e0c38c26"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟は食べたい放題食べて、全然太らない。",
+       "ja_furigana": "弟(おとうと)は食(た)べたい放題(ほうだい)食(た)べて、全然(ぜんぜん)太(ふと)らない。",
+       "vi": "Em trai ăn thoải mái bao nhiêu cũng chẳng béo lên chút nào."
+      },
+      {
+       "ja": "会議で言いたい放題言ったら、ようやく気が済んだ。",
+       "ja_furigana": "会議(かいぎ)で言(い)いたい放題(ほうだい)言(い)ったら、ようやく気(き)が済(す)んだ。",
+       "vi": "Nói thoải mái mọi điều muốn nói trong cuộc họp xong, cuối cùng tôi cũng hả dạ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "娘は身なりには気を使うが、部屋は散らかし放題だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Con gái tôi chú ý đến vẻ ngoài nhưng lại để phòng bừa bộn mặc kệ."
+     },
+     {
+      "ja": "日ごろの不満を言いたい放題言ったら、気分がすっきりした。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi nói hết mọi điều bất mãn muốn nói, tôi cảm thấy nhẹ nhõm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 娘は身なりには気を使うが、部屋は散らかし放題だ。",
+     "FURIGANA_MISSING: 日ごろの不満を言いたい放題言ったら、気分がすっきりした。"
+    ],
+    "formation": "Vます + 放題／N + 放題",
+    "locked_fields": [],
+    "meaning_vi": "Làm tùy thích, bao nhiêu tùy ý; để một trạng thái tiêu cực mặc sức tiếp diễn",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜放題",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả làm một việc bao nhiêu tùy thích hoặc để mặc một trạng thái tiếp tục không kiểm soát. Khi nói về tình trạng bỏ mặc, mẫu thường mang đánh giá tiêu cực. 1) Dễ nhầm với ～だけ／好きなだけ. → ～放題 có thể chỉ làm bao nhiêu tùy thích, nhưng cũng có thể chỉ trạng thái bị bỏ mặc, tiếp diễn không kiểm soát. 2) Chú ý cách tạo mẫu. → Thông thường dùng thân ます＋放題; một số cách nói dùng ～たい放題 như 言いたい放題. 3) Sắc thái phụ thuộc vào ngữ cảnh. → 食べ放題・飲み放題 có thể trung tính hoặc tích cực, còn 散らかし放題・伸び放題 thường mang đánh giá tiêu cực."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-44454d42ca"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "昼は会社で働くかたわら、夜は学校で学んでいる。",
+       "ja_furigana": "昼(ひる)は会社(かいしゃ)で働(はたら)くかたわら、夜(よる)は学校(がっこう)で学(まな)んでいる。",
+       "vi": "Ban ngày làm ở công ty, bên cạnh đó buổi tối còn học ở trường."
+      },
+      {
+       "ja": "店を経営するかたわら、料理教室も開いている。",
+       "ja_furigana": "店(みせ)を経営(けいえい)するかたわら、料理教室(りょうりきょうしつ)も開(ひら)いている。",
+       "vi": "Bên cạnh việc kinh doanh quán, anh ấy còn mở lớp dạy nấu ăn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "史料整理を本務とするかたわら、市民講座のテキストも執筆している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lấy việc chỉnh lý sử liệu làm nhiệm vụ chính, đồng thời vẫn soạn giáo trình lớp dành cho người dân."
+     },
+     {
+      "ja": "臨床検査の仕事のかたわら、精度管理の勉強会を主宰している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bên cạnh công việc xét nghiệm lâm sàng, còn chủ trì nhóm học về kiểm soát độ chính xác."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 史料整理を本務とするかたわら、市民講座のテキストも執筆している。",
+     "FURIGANA_MISSING: 臨床検査の仕事のかたわら、精度管理の勉強会を主宰している。"
+    ],
+    "formation": "Vる／N の + かたわら、〜",
+    "locked_fields": [],
+    "meaning_vi": "Bên cạnh việc chính",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Bên cạnh việc chính",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Song song dài hạn: A là việc chính, B là việc làm thêm bên cạnh. Cách dùng: かたわら nói hai việc song song trong thời gian dài: A là công việc hoặc vai trò chính, B là việc làm thêm, giảng dạy, nghiên cứu bên cạnh. Gắn sau động từ thể từ điển hoặc danh từ plus の. Không dùng cho hai hành động trong vài phút hay trên cùng một chuyến đi. Khác ながら (cùng lúc ngắn) và がてら (nhân tiện một dịp). Văn viết, trung tính đến trang trọng, phù hợp giới thiệu nghề nghiệp, hoạt động song song. Sắc thái: Nhấn cấu trúc đời sống nghề nghiệp, không phải mẹo kết hợp việc vặt. Giọng khách quan, hồ sơ, bài giới thiệu. Việc B không át việc A; A vẫn là trục chính. Lưu ý: Không dùng cho hành động song song ngắn hay một chuyến đi. A phải là việc chính dài hạn. Không thay がてら／かたがた khi chỉ nhân tiện một dịp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-66d0fcbb1f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は決断を先延ばしにするきらいがある。",
+       "ja_furigana": "彼(かれ)は決断(けつだん)を先延(さきの)ばしにするきらいがある。",
+       "vi": "Anh ấy có khuynh hướng trì hoãn việc đưa ra quyết định."
+      },
+      {
+       "ja": "彼の説明は結論をあいまいにするきらいがある。",
+       "ja_furigana": "彼(かれ)の説明(せつめい)は結論(けつろん)をあいまいにするきらいがある。",
+       "vi": "Lời giải thích của anh ấy có khuynh hướng làm mơ hồ kết luận."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "その部署は数値だけを見て現場の負荷を軽視するきらいがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bộ phận ấy có khuynh hướng chỉ nhìn số liệu mà coi nhẹ tải việc hiện trường."
+     },
+     {
+      "ja": "原稿が事例の羅列に終始するきらいがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bản thảo có khuynh hướng chỉ dừng ở việc liệt kê ví dụ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: その部署は数値だけを見て現場の負荷を軽視するきらいがある。",
+     "FURIGANA_MISSING: 原稿が事例の羅列に終始するきらいがある。"
+    ],
+    "formation": "Vる／N の + きらいがある",
+    "locked_fields": [],
+    "meaning_vi": "Có khuynh hướng đáng chê",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có khuynh hướng đáng chê",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu khuynh hướng tiêu cực theo nhận xét người nói: dễ sa vào thói ấy. Cách dùng: きらいがある nêu khuynh hướng xấu hoặc lệch, theo đánh giá của người nói, không phải sự kiện một lần. Gắn sau động từ thể từ điển hoặc danh từ plus の. Văn viết, giọng phê bình, nhận xét chuyên môn. Không phải 嫌い nghĩa ghét. Khác がち, mẫu kia nhấn việc dễ xảy ra về tần suất, còn きらいがある nhấn thói đáng chê trong cách làm. Không dùng cho thói quen dễ thương hay xu hướng trung tính. Sắc thái: Lịch sự nhưng chê nhẹ, phù hợp góp ý báo cáo, biên tập, họp chuyên môn. Người nói đứng ở vị trí quan sát. Không gay gắt như kết tội, nhưng cũng không khen. Lưu ý: Chỉ khuynh hướng tiêu cực; không dùng cho xu hướng tốt. Không viết 嫌いがある với nghĩa này. Thiên văn viết; ít dùng khi khen hoặc tả thói quen dễ chịu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ba4eb4a68e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "聞くともなくラジオを聞いているうちに、眠ってしまった。",
+       "ja_furigana": "聞(き)くともなくラジオを聞(き)いているうちに、眠(ねむ)ってしまった。",
+       "vi": "Nghe đài một cách vô thức rồi ngủ thiếp đi lúc nào không hay."
+      },
+      {
+       "ja": "どこからともなく花の香りがして、足を止めた。",
+       "ja_furigana": "どこからともなく花(はな)の香(かお)りがして、足(あし)を止(と)めた。",
+       "vi": "Mùi hương hoa thoảng đâu đó khiến tôi dừng bước."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "見るともなくモニタのログを追っているうちに、周期的な欠測に気づいた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong lúc thoáng nhìn dòng nhật ký trên màn hình, tôi nhận ra chỗ thiếu số liệu theo chu kỳ."
+     },
+     {
+      "ja": "どこからともなく溶剤の匂いがしたので、換気扇のフィルターを確認した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mùi dung môi thoảng đâu đó, nên tôi kiểm tra lưới quạt thông gió."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 見るともなくモニタのログを追っているうちに、周期的な欠測に気づいた。",
+     "FURIGANA_MISSING: どこからともなく溶剤の匂いがしたので、換気扇のフィルターを確認した。"
+    ],
+    "formation": "Vる + ともなく／疑問詞 + から + ともなく、〜",
+    "locked_fields": [],
+    "meaning_vi": "Không chủ đích / thoáng làm",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không chủ đích / thoáng làm",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Hành động không nhằm đích cụ thể, làm thoáng, hoặc không rõ nguồn; hay lặp cùng một động từ. Cách dùng: ともなく hoặc ともなしに nói hành động không chủ đích, không nhắm một đối tượng rõ. Hay lặp cùng động từ: 見るともなく見る. Với từ nghi vấn: どこからともなく, không rõ từ đâu. ともなしに gần nghĩa, hơi văn viết hơn. Không dùng khi có mục đích, kế hoạch hay đối tượng xác định. Phù hợp khoảnh khắc tình cờ nhận ra điều gì trong lúc mắt hay tai không cố ý. Sắc thái: Nhẹ, phân tán chú ý, không căng. Khác hẳn các mẫu tức thì. Có thể đi với chuyển động không phương hướng. Ngữ vực trung tính đến văn kể. Không mang sắc than phiền như そばから. Lưu ý: Động từ trước ở thể từ điển, không dùng thể て hay た. Không dùng khi hành động có mục đích rõ. どこへともなく, 誰からともなく là cụm với nghi vấn từ, không cần lặp động từ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5f5734c50e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お礼かたがた、先日の資料をお返しします。",
+       "ja_furigana": "お礼(れい)かたがた、先日(せんじつ)の資料(しりょう)をお返(かえ)しします。",
+       "vi": "Nhân dịp tạ ơn, tôi xin trả lại tài liệu hôm trước."
+      },
+      {
+       "ja": "ご報告かたがた、完成した写真をお届けします。",
+       "ja_furigana": "ご報告(ほうこく)かたがた、完成(かんせい)した写真(しゃしん)をお届(とど)けします。",
+       "vi": "Nhân dịp báo cáo, tôi xin gửi những bức ảnh đã hoàn thành."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "着任の挨拶かたがた、各課の鍵の管理状況を拝見しました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân dịp chào nhận chức, tôi đã xem tình hình quản lý chìa khóa các phòng."
+     },
+     {
+      "ja": "御礼かたがた、修正版の製本をお届けします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân dịp tạ ơn, xin gửi bản đóng sửa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 着任の挨拶かたがた、各課の鍵の管理状況を拝見しました。",
+     "FURIGANA_MISSING: 御礼かたがた、修正版の製本をお届けします。"
+    ],
+    "formation": "N + かたがた、〜",
+    "locked_fields": [],
+    "meaning_vi": "Nhân dịp (trang trọng)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nhân dịp (trang trọng)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nhân dịp việc nghi thức A thì đồng thời làm B, thường là đến gặp hoặc gửi kèm. Cách dùng: かたがた trang trọng: nhân dịp A thì đồng thời B. A thường là danh từ xã giao như chào nhận chức, tạ ơn, thăm hỏi, báo cáo. B hay là việc đến gặp, gửi vật, hỏi lịch. Dùng trong thư từ, lời nói lịch sự nơi công sở. Không dùng khi nói suồng sã hay việc vặt tùy hứng. Việc A mang tính nghi thức, không phải nghề phụ dài hạn (かたわら) cũng không phải chuyến đi dạo kiêm việc (がてら đời thường). Sắc thái: Lịch sự, hơi cũ, đúng chất hành chính và xã giao. Nghe nặng nếu dùng cho việc quá nhỏ. Phù hợp câu trong thư, lời nói khi đến văn phòng khác. Không mỉa mai, không than phiền. Lưu ý: Không dùng trong hội thoại suồng sã. A nên là việc nghi thức; hạn chế danh từ vụn. Không thay かたわら cho công việc chính và việc làm thêm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6b510af723"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "散歩がてら、近くの店で買い物をしてきた。",
+       "ja_furigana": "散歩(さんぽ)がてら、近(ちか)くの店(みせ)で買(か)い物(もの)をしてきた。",
+       "vi": "Nhân lúc đi dạo, tôi tiện ghé cửa hàng gần nhà mua đồ."
+      },
+      {
+       "ja": "運動がてら、駅まで歩いて行った。",
+       "ja_furigana": "運動(うんどう)がてら、駅(えき)まで歩(ある)いて行(い)った。",
+       "vi": "Nhân tiện tập thể dục, tôi đi bộ ra tận ga."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "届出がてら、掲示板の更新日も撮影してきた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân lúc nộp tờ khai, tôi cũng chụp ngày cập nhật trên bảng tin."
+     },
+     {
+      "ja": "昼食の散歩がてら、搬入経路の段差を確認した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân lúc đi dạo giờ cơm trưa, tôi kiểm luôn độ chênh trên đường chuyển hàng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 届出がてら、掲示板の更新日も撮影してきた。",
+     "FURIGANA_MISSING: 昼食の散歩がてら、搬入経路の段差を確認した。"
+    ],
+    "formation": "Vます／N + がてら、〜",
+    "locked_fields": [],
+    "meaning_vi": "Nhân lúc … kiêm luôn",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nhân lúc ... kiêm luôn",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nhân lúc làm A thì kiêm luôn B, thường trên cùng một chuyến đi hoặc cùng một dịp. Cách dùng: がてら gắn sau thể ます bỏ ます hoặc sau danh từ: nhân lúc làm A thì kiêm B, thường cùng một chuyến, cùng lúc ra ngoài. A hay liên quan di chuyển hoặc việc có thể kết hợp trên đường. Kém trang trọng hơn かたがた, chặt và rõ mục đích kép hơn ついでに. Không dùng thể từ điển trước がてら. Việc B không phải nghề phụ dài hạn; nghĩa đó thuộc かたわら. Sắc thái: Thực dụng, trung tính, hơi lịch sự. Phù hợp việc vặt công sở, gửi giấy tờ, đi bộ giờ nghỉ. Không dùng trong văn xã giao rất trang trọng như thư thăm hỏi. Cũng không dùng khi hai việc chỉ tình cờ, không cùng dịp. Lưu ý: Không dùng V辞書形 + がてら; phải Vます hoặc danh từ. Không thay かたわら cho nghề chính và việc làm thêm dài hạn. Kém trang trọng, không thay かたがた trong thư từ nghi thức."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ac3b1fca14"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "話は終わったとばかりに、彼は立ち上がった。",
+       "ja_furigana": "話(はなし)は終(お)わったとばかりに、彼(かれ)は立(た)ち上(あ)がった。",
+       "vi": "Như muốn nói câu chuyện đã xong, anh ấy đứng dậy."
+      },
+      {
+       "ja": "今が好機とばかりに、選手は一気に攻めに出た。",
+       "ja_furigana": "今(いま)が好機(こうき)とばかりに、選手(せんしゅ)は一気(いっき)に攻(せ)めに出(で)た。",
+       "vi": "Như muốn nói đây chính là cơ hội, vận động viên lập tức chuyển sang tấn công."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "説明は十分とばかりに、設計者は模型のカバーを閉じた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Như muốn nói phần giải thích đã đủ, người thiết kế đóng nắp mô hình."
+     },
+     {
+      "ja": "今が差し替えの時機とばかりに、照明係は色温度を切り替えた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Như muốn nói đây là lúc đổi, nhân viên ánh sáng chuyển nhiệt độ màu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 説明は十分とばかりに、設計者は模型のカバーを閉じた。",
+     "FURIGANA_MISSING: 今が差し替えの時機とばかりに、照明係は色温度を切り替えた。"
+    ],
+    "formation": "Thể thường + とばかりに、〜",
+    "locked_fields": [],
+    "meaning_vi": "Như muốn nói rằng",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Như muốn nói rằng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Cử chỉ hoặc thái độ như muốn tuyên bố một câu, dù không nói thành lời. Cách dùng: とばかりに diễn tả cách làm, thái độ như muốn nói một nội dung nào đó, dù miệng không nói. Đi sau câu, cụm từ hoặc danh từ đóng vai trò lời nói ngầm. Hình thức cố định, không chia thì. Khác んばかり (vẻ như sắp làm một động tác) và khác ばかりに nghĩa chỉ vì. Thường tả hành động dứt khoát: đóng nắp mô hình, chuyển trang, đưa phiếu, như ra hiệu đã đủ. Sắc thái: Tinh tế, hơi văn viết, giàu ẩn ý. Người nói đọc được thông điệp từ cử chỉ. Phù hợp họp, điều hành sân khấu, giao việc. Không dùng khi có lời nói thật rõ; lúc ấy nên dẫn trực tiếp. Lưu ý: Không chia thì; giữ とばかりに. Không nhầm với ばかりに (chỉ vì). Cần nội dung như một câu nói ngầm, không phải động tác thuần túy không thông điệp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4ae4e44316"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女は今にも泣き出さんばかりの顔でこちらを見た。",
+       "ja_furigana": "彼女(かのじょ)は今(いま)にも泣(な)き出(だ)さんばかりの顔(かお)でこちらを見(み)た。",
+       "vi": "Cô ấy nhìn tôi với vẻ mặt như sắp bật khóc."
+      },
+      {
+       "ja": "会場は今にも割れんばかりの拍手に包まれた。",
+       "ja_furigana": "会場(かいじょう)は今(いま)にも割(わ)れんばかりの拍手(はくしゅ)に包(つつ)まれた。",
+       "vi": "Hội trường ngập trong tiếng vỗ tay như sắp vỡ tung."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "書庫の棚は今にも倒れんばかりに資料が積まれていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kệ kho tư liệu chất đầy đến mức như sắp đổ."
+     },
+     {
+      "ja": "配管は今にも破裂せんばかりの音を立てて振動していた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ống dẫn rung và kêu như sắp vỡ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 書庫の棚は今にも倒れんばかりに資料が積まれていた。",
+     "FURIGANA_MISSING: 配管は今にも破裂せんばかりの音を立てて振動していた。"
+    ],
+    "formation": "Vない + んばかりに／んばかりの + N（する → せんばかり）",
+    "locked_fields": [],
+    "meaning_vi": "Như sắp / như muốn",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Như sắp / như muốn",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Miêu tả vẻ ngoài như sắp làm hoặc sắp xảy ra việc ấy, dù chưa xảy ra thật. Cách dùng: んばかりだ miêu tả hình ảnh như sắp xảy ra hoặc như muốn làm việc ấy, căn cứ vẻ ngoài chứ không phải ý chí đã thực hiện. Gắn vào thể mizen, tức bỏ ない của thể phủ định: 倒れる thành 倒れんばかり, 泣く thành 泣かんばかり. Động từ する thành せんばかり, không phải しないばかり. んばかりに làm trạng ngữ, んばかりの làm định ngữ, んばかりだ làm vị ngữ. Là ẩn dụ thị giác, không kể việc đã xảy ra. Sắc thái: Giàu hình ảnh, hơi văn chương, phù hợp tả hiện trường căng, kệ sắp sập, thái độ như muốn phản bác. Không dùng khi việc đã xảy ra thật. Khác とばかりに, mẫu kia là thái độ như muốn nói một câu. Lưu ý: Không dùng ないばかり; phải là 未然形 + ん. する → せんばかり, không phải すんばかり hay しないばかり. Chỉ vẻ như sắp, không phải hành động đã hoàn tất."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-63cf83224d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母は涙ながらに、その日のことを話してくれた。",
+       "ja_furigana": "母(はは)は涙(なみだ)ながらに、その日(ひ)のことを話(はな)してくれた。",
+       "vi": "Mẹ vừa khóc vừa kể cho tôi chuyện ngày hôm đó."
+      },
+      {
+       "ja": "家にいながらにして、世界中の情報を集められる。",
+       "ja_furigana": "家(いえ)にいながらにして、世界中(せかいじゅう)の情報(じょうほう)を集(あつ)められる。",
+       "vi": "Không cần ra khỏi nhà vẫn thu thập được thông tin khắp thế giới."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "証人は涙ながらに、当時の点検手順を再現した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân chứng vừa khóc vừa tái hiện quy trình kiểm lúc ấy."
+     },
+     {
+      "ja": "居ながらにして他市の条例文を比較できるようになった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không cần đi đâu vẫn so sánh được văn bản điều lệ của thành phố khác."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 証人は涙ながらに、当時の点検手順を再現した。",
+     "FURIGANA_MISSING: 居ながらにして他市の条例文を比較できるようになった。"
+    ],
+    "formation": "N／Vます + ながらに(して)、〜",
+    "locked_fields": [],
+    "meaning_vi": "Trong tư thế / vốn vẫn thế",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Trong tư thế / vốn vẫn thế",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Hành động diễn ra khi vẫn ở một trạng thái hay tư cách; nhiều cụm tương đối cố định. Cách dùng: ながらに hoặc ながらにして diễn tả vẫn ở trong một trạng thái, tư cách hay điều kiện mà việc kia xảy ra, hoặc nêu đặc trưng vốn có. Nhiều kết hợp gần như cố định: 涙ながらに, 生まれながら, 居ながらにして. Không thay cho ながら của hai việc làm cùng lúc như nghe nhạc vừa làm việc. ながらにして nhấn dù vẫn ở trạng thái ấy. Số cụm tự do ít hơn ながら thông thường, nên ưu tiên các kết hợp đã quen dùng. Sắc thái: Hơi văn viết, trang trọng hoặc giàu cảm xúc (nói trong nước mắt). 居ながらにして mang nghĩa hiện đại: không cần đi vẫn làm được. 生まれながら chỉ đặc điểm từ khi sinh. Không dùng để kể hai thao tác song song ngắn. Lưu ý: Không thay ながら của hành động song song thông thường. Ưu tiên cụm quen: 涙ながらに, 生まれながら, 居ながらにして, 生きながらにして. ながらにして nhấn trạng thái vẫn giữ, không phải ながら đơn thuần."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d788062df9"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-017"
+}

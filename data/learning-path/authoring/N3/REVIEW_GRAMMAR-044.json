@@ -1,0 +1,561 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "同じ町に住んでいたことから、すぐになかよくなった。",
+       "ja_furigana": "同(おな)じ町(まち)に住(す)んでいたことから、すぐになかよくなった。",
+       "vi": "Vì từng sống cùng thị trấn, chúng tôi nhanh chóng thân nhau.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "顔がよく似ていることから、二人は兄弟だと分かった。",
+       "ja_furigana": "顔(かお)がよく似(に)ていることから、二人(ふたり)は兄弟(きょうだい)だと分(わ)かった。",
+       "vi": "Từ việc khuôn mặt rất giống nhau mà biết được hai người là anh em.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "わずかな誤解から友達との関係が悪くなってしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ vì một chút hiểu lầm mà mối quan hệ với bạn bè đã xấu đi."
+     },
+     {
+      "ja": "日本語の授業でとなりの席になったことから、わたしたちは親しくなった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Do ngồi cạnh nhau trong tiết học tiếng Nhật, chúng tôi trở nên thân thiết."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: わずかな誤解から友達との関係が悪くなってしまった。",
+     "FURIGANA_MISSING: 日本語の授業でとなりの席になったことから、わたしたちは親しくなった。"
+    ],
+    "formation": "N + から / V・A(thể thông thường) + ことから",
+    "locked_fields": [],
+    "meaning_vi": "Sự thực ~ là nguyên nhân để phát triển thành kết quả… /để phán đoán rằng …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜から...・〜ことから...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［名］ ＋から 普通形（な形だ-な/-である・ ［名］だ-である） ＋ことから Sự thực ~ là nguyên nhân để phát triển thành kết quả… /để phán đoán rằng … … không dùng câu thể hiện mong muốn, ý định, hay kêu gọi đối phương làm điều gì đó. Ví dụ: 1. わずかな誤解から友達との関係が悪くなってしまった。 Chỉ vì một chút hiểu lầm mà mối quan hệ với bạn bè đã xấu đi. 2. 日本語の授業でとなりの席になったことから、わたしたちは親しくなった。 Do ngồi cạnh nhau trong tiết học tiếng Nhật, chúng tôi trở nên thân thiết. 3. 顔がよく似ていることから、二人は親子だとすぐに分かった。 Vì gương mặt rất giống nhau, nên người ta ngay lập tức nhận ra họ là cha con."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cf78c3995d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "そんなに急いでは、忘れ物をしますよ。",
+       "ja_furigana": "そんなに急(いそ)いでは、忘(わす)れ物(もの)をしますよ。",
+       "vi": "Vội vàng thế thì sẽ quên đồ đấy.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "こんなに暑くては、外で遊べない。",
+       "ja_furigana": "こんなに暑(あつ)くては、外(そと)で遊(あそ)べない。",
+       "vi": "Nóng thế này thì không thể chơi ngoài trời được.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "山田さんは手術したばかりだから、お見舞いに行ってはかえって迷惑だろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh Yamada vừa mới phẫu thuật, nên đến thăm có khi lại phiền lắm."
+     },
+     {
+      "ja": "そんな無責任な態度ではみんなにきらわれますよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Với thái độ vô trách nhiệm như vậy, bạn sẽ bị mọi người ghét đấy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 山田さんは手術したばかりだから、お見舞いに行ってはかえって迷惑だろう。",
+     "FURIGANA_MISSING: そんな無責任な態度ではみんなにきらわれますよ。"
+    ],
+    "formation": "V-ては / Aい(くては) / Aな・N + では / V・A(thể thông thường) + のでは",
+    "locked_fields": [],
+    "meaning_vi": "Nếu sự thật là( hoặc tình huống giả định) ~ thì sẽ đem lại kết quả không hay là…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ては...・〜(の)では...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［動］て形・い形→いくて・な形だ－で／［名］－で ＋は 普通形（な形だ－な・ ［名］だ－な） ＋のでは Nếu sự thật là( hoặc tình huống giả định) ~ thì sẽ đem lại kết quả không hay là… … là câu văn mang ý nghĩa tiêu cực, không phải là câu văn thể hiện mong muốn, ý định của người nói hoặc kêu gọi đối phương làm điều gì đó. Ví dụ: 1. 山田さんは手術したばかりだから、お見舞いに行ってはかえって迷惑だろう。 Anh Yamada vừa mới phẫu thuật, nên đến thăm có khi lại phiền lắm. 2. そんな無責任な態度ではみんなにきらわれますよ。 Với thái độ vô trách nhiệm như vậy, bạn sẽ bị mọi người ghét đấy. 3. 今から家を建て始めるのでは年内にはでき上がらない。 Nếu bắt đầu xây nhà từ bây giờ thì trong năm nay sẽ không kịp hoàn thành."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a6f0d3c1fb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "もう約束したんだから、時間を守って。",
+       "ja_furigana": "もう約束(やくそく)したんだから、時間(じかん)を守(まも)って。",
+       "vi": "Đã hứa rồi thì hãy đúng giờ.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "子どもじゃないんだから、自分で起きなさい。",
+       "ja_furigana": "子(こ)どもじゃないんだから、自分(じぶん)で起(お)きなさい。",
+       "vi": "Con có phải trẻ con nữa đâu, tự dậy đi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "世界は広いのだから、いろいろな習慣があるのは当然だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thế giới vốn rộng lớn nên có nhiều tập quán khác nhau là điều đương nhiên."
+     },
+     {
+      "ja": "あなたはけがをしているんだから、無理をしてはいけませんよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn đang bị thương nên đừng cố gắng quá nhé。"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 世界は広いのだから、いろいろな習慣があるのは当然だ。",
+     "FURIGANA_MISSING: あなたはけがをしているんだから、無理をしてはいけませんよ。"
+    ],
+    "formation": "V / Aい / Aな(な)・N(な) + のだから",
+    "locked_fields": [],
+    "meaning_vi": "Vì ~ là sự thực nên đương nhiên là…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜のだから",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "普通形（な形だ-な・［名］だ－な） ＋のだから Vì ~ là sự thực nên đương nhiên là… ~ là câu văn thể hiện sự thực mà chắc chắn đối phương cũng biết. … là câu văn thể hiện phán đoán, mong muốn, ý định của người nói hoặc kêu gọi đối phương làm điều gì đó. Ví dụ: 1. 世界は広いのだから、いろいろな習慣があるのは当然だ。 Thế giới vốn rộng lớn nên có nhiều tập quán khác nhau là điều đương nhiên. 2. あなたはけがをしているんだから、無理をしてはいけませんよ。 Bạn đang bị thương nên đừng cố gắng quá nhé。 3. 笑わないでください。真剣にやっているんですから。 Xin đừng cười. Vì tôi đang làm việc nghiêm túc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6d68b800db"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "早く出れば、朝の電車に乗れます。",
+       "ja_furigana": "早(はや)く出(で)れば、朝(あさ)の電車(でんしゃ)に乗(の)れます。",
+       "vi": "Nếu đi sớm, ta sẽ kịp tàu buổi sáng.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "もし寝坊していたらこの飛行機には乗れなかった。間に合ってよかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu ngủ nướng thì đã không thể lên chuyến bay này. May mà kịp."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: もし寝坊していたらこの飛行機には乗れなかった。間に合ってよかった。"
+    ],
+    "formation": "もし + V-ていたら / V-ば / V-たら / N + なら",
+    "locked_fields": [],
+    "meaning_vi": "Trong trường hợp nếu ~ thì chắc chắn sẽ dẫn đến kết quả là … nhưng trên thực tế lại không phải như vậy.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ば...・〜たら...・〜なら...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［動］ば形・い形い－くなければ・な形なら・［名］なら ［動］ない－なければ・い形い－くなければ・な形な－でなければ・［名］でなければ 普通形（過去形だけ）＋ら *動詞は「～ていたら」の形が多い。 「もし～の場合、…という結果になるはずだが、実際にはそうではない。」～も…も実際とは違うことを言う。…は「～た・～のだが・～のに」などの文が多い。 Trong trường hợp nếu ~ thì chắc chắn sẽ dẫn đến kết quả là … nhưng trên thực tế lại không phải như vậy. ~ … là những điều kiện khác với sự thực. … đa phần ở dạng ～た／～のだが／～のに／v.v. Ví dụ: 1. お金とひまがあればわたしも海外旅行するんだけど…。 Nếu có tiền và thời gian rảnh thì tôi cũng đi du lịch nước ngoài…. 2. もし寝坊していたらこの飛行機には乗れなかった。間に合ってよかった。 Nếu ngủ nướng thì đã không thể lên chuyến bay này. May mà kịp. 3. ああ、残念だ。学生なら学生割引でチケットが買えたのに…。 Á, thật tiếc. Giá mà tôi là sinh viên thì đã có thể mua vé theo giá sinh viên…."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a9d82b51de"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "だって、このケーキが好きなんだもん。",
+       "ja_furigana": "だって、このケーキが好(す)きなんだもん。",
+       "vi": "Tại vì tôi thích chiếc bánh này mà.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今日は早く帰りたいもん。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì hôm nay tôi muốn về sớm mà. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今日は早く帰りたいもん。"
+    ],
+    "formation": "V / Aい / Aな(な)・N(だ) + もの / もん (cuối câu)",
+    "locked_fields": [],
+    "meaning_vi": "Dùng để trình bày lý do hoặc lời giải thích mang tính cảm xúc, chủ quan của người nói. 「もん」 là dạng thân mật.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜もの(もん)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để trình bày lý do hoặc lời giải thích mang tính cảm xúc, chủ quan của người nói. 「もん」 là dạng thân mật. 1) Dễ nhầm với ～から／～ので (lý do khách quan). → ～もの（もん） thường là lý do chủ quan, cảm xúc, kiểu phân trần/than phiền. 2) Sắc thái khẩu ngữ. → 「もん」 là dạng thân mật, không dùng trong văn viết trang trọng. 3) Không hợp với lý do mang tính chính thức. → Nếu là thông báo, báo cáo… thường dùng ～ため／～ので."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6ac6bfe385"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "たとえ一人でも、その町へ行くつもりだ。",
+       "ja_furigana": "たとえ一(いち)人(にん)でも、その町(まち)へ行(い)くつもりだ。",
+       "vi": "Dù một mình tôi vẫn định đến thị trấn đó.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "たとえ周りに反対されても、自分で決めます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù bị mọi người xung quanh phản đối, tôi vẫn tự quyết định. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: たとえ周りに反対されても、自分で決めます。"
+    ],
+    "formation": "たとえ + V-ても / Aい(くても) / Aな・N + でも",
+    "locked_fields": [],
+    "meaning_vi": "Ngay cả trong trường hợp giả định ~ là sự thật đi nữa thì … cũng không liên quan gì.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "「〜が事実だと仮定した場合でも、それに関係なく...。」",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "たとえ ＋［動］て形／い形い→くて／な形な－で／［名］で ＋も Ngay cả trong trường hợp giả định ~ là sự thật đi nữa thì … cũng không liên quan gì. Ví dụ: 1. たとえ周りの人たちにどんなに反対されても、ぼくはプロの歌手になりたい。 Dù bị mọi người xung quanh phản đối đến mức nào đi nữa, tôi vẫn muốn trở thành ca sĩ chuyên nghiệp. 2. たとえ高くても、仕事に必要なものは買わなければならない。 Dù có đắt thì những thứ cần cho công việc vẫn phải mua. 3. たとえ面倒でも、健康診断は毎年受けたほうがいいですよ。 Dù phiền đến đâu thì cũng nên đi khám sức khỏe hàng năm nhé."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-69d19d9a2b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先生に名前を書いてくださいと言われた。",
+       "ja_furigana": "先生(せんせい)に名前(なまえ)を書(か)いてくださいと言(い)われた。",
+       "vi": "Thầy bảo tôi viết tên.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "駅員さんに、ここで待ってくださいと言われた。",
+       "ja_furigana": "駅員(えきいん)さんに、ここで待(ま)ってくださいと言(い)われた。",
+       "vi": "Tôi được nhân viên nhà ga bảo hãy đợi ở đây.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は私にもう一度説明してくれと頼んだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy nhờ tôi giải thích lại cho anh ấy."
+     },
+     {
+      "ja": "上司に明日までに報告書を出してくれと言われた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi được sếp bảo nộp báo cáo trước ngày mai."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は私にもう一度説明してくれと頼んだ。",
+     "FURIGANA_MISSING: 上司に明日までに報告書を出してくれと言われた。"
+    ],
+    "formation": "V-てくれ / V-ないでくれ + と + 頼む / 言われる",
+    "locked_fields": [],
+    "meaning_vi": "Trích dẫn nội dung yêu cầu “hãy V cho tôi/chúng tôi” bằng cách dùng ～てくれと + 言う/頼む/頼まれる. “くれ” thể hiện lợi ích hướng về người nói/nhóm người nói; mang sắc thái xin/ra lệnh hơi thô khi dùng trực tiếp. Dạng phủ định “～ないでくれと” = “bảo đừng …”. Thường đi với động từ phát ngôn/yêu cầu: 言う・頼む・注意する・命じる（mạnh, ít dùng với くれ）.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Bị bảo, được yêu cầu",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái trực diện, có thể thô nếu dùng làm lời yêu cầu trực tiếp; thường dùng để tường thuật lại yêu cầu. “くれ” hàm ý lợi ích nghiêng về phía người yêu cầu. Với yêu cầu trung tính/lich sự, dùng “～てくださいと” hoặc “～ように言う”. Chủ thể/đối tượng: AはBにVてくれと頼む → B là người thực hiện V cho lợi ích A. Dạng khẩu ngữ rút gọn “～てくれって” phổ biến trong hội thoại, không dùng trong văn trang trọng. [6. Ghi chú mở rộng] Trong lời tường thuật công sở/email, nên ưu tiên “～てくださいと（依頼されました）／～ように言われました” để giữ lịch sự. Với bậc trên/khách hàng, tuyệt đối tránh dùng trực tiếp “～てくれ” vì thô lỗ. “～てくれと言われた” có thể hiểu là mệnh lệnh/nhờ vả tùy quan hệ quyền lực. [7. Biến thể & cụm cố định] Vてくれと頼む／頼まれる／言う／言われる Vないでくれと言う（cấm/nhắc nhở） Vてくれって（khẩu ngữ） ～てくれるように言う（mềm hơn, gián tiếp） [8. Lỗi thường gặp & bẫy JLPT] Quên trợ từ trích dẫn “と”: phải là “Vてくれと言う”. Nhầm hướng lợi ích: “くれ” là làm cho tôi/chúng tôi. Nếu nói trung tính, dùng “ください”. Dùng với đối tượng bề trên: bất lịch sự. Hãy chuyển sang “～ていただけますか／～てください”. Nhầm lẫn với “Vてくる”: “～てくれと” là yêu cầu, không phải động từ phức."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1fb7d5d1eb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "家族こそ、困ったときの力になる。",
+       "ja_furigana": "家族(かぞく)こそ、困(こま)ったときの力(ちから)になる。",
+       "vi": "Chính gia đình là chỗ dựa lúc khó khăn.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "次こそ、遅れないで駅に着きたい。",
+       "ja_furigana": "次(つぎ)こそ、遅(おく)れないで駅(えき)に着(つ)きたい。",
+       "vi": "Lần sau nhất định tôi muốn đến ga mà không bị muộn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "努力こそ成功への近道だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chính nỗ lực mới là con đường gần nhất đến thành công."
+     },
+     {
+      "ja": "今日はこそ早く寝るぞ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay nhất định sẽ ngủ sớm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 努力こそ成功への近道だ。",
+     "FURIGANA_MISSING: 今日はこそ早く寝るぞ。"
+    ],
+    "formation": "N + こそ",
+    "locked_fields": [],
+    "meaning_vi": "Hạt nhấn mạnh “chính là/đích thị là”: đưa yếu tố đứng trước thành tiêu điểm. Nhấn lý do với ～からこそ: khẳng định mạnh mối quan hệ nhân quả (“chính vì… nên…”). Nhấn thời điểm quyết định: 今日こそ／今度こそ biểu thị quyết tâm/kỳ vọng cao. Dùng trong phép lịch sự đối ứng: こちらこそ（xin đáp lại: chính tôi mới phải cảm ơn/xin lỗi）.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chính..., nhấn mạnh",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Gắn trực tiếp sau danh từ/từ chỉ thời gian để nhấn mạnh tiêu điểm. Trong ～からこそ, vế sau thường là kết quả tích cực/mong muốn; sắc thái khẳng định mạnh. Không gắn trực tiếp sau động/tính từ (trừ các cụm cố định như からこそ); cần danh từ hóa nếu muốn. Sử dụng trong lời đáp lịch sự: こちらこそ／いえいえ、こちらこそ… [6. Ghi chú mở rộng] Trong diễn thuyết/quảng cáo, こそ giúp định vị thông điệp: “今こそ変革を（Ngay lúc này chính là lúc đổi thay）”. “N にこそ” ít dùng hơn, để nhấn đối tượng chịu tác động: 今の君にこそ必要だ。 Tránh lạm dụng こそ trong văn bản trung tính vì tạo cảm giác cường điệu. [7. Biến thể & cụm cố định] 今日/今年/今度 + こそ あなた/君/こちら + こそ ～から/だから/ゆえに + こそ それこそ（đúng là/chính là…） [8. Lỗi thường gặp & bẫy JLPT] Dùng こそ sau động từ/tính từ trực tiếp: sai; cần dùng cụm cố định (からこそ) hoặc danh từ hóa. Nhầm こそ với は: đề thi hay kiểm tra sắc thái nhấn mạnh tiêu điểm của こそ so với は. ～からこそ thường đi với kết quả tích cực; chọn đáp án có sắc thái phù hợp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5a190c4e88"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この料理の甘さが好きです。",
+       "ja_furigana": "この料理(りょうり)の甘(あま)さが好(す)きです。",
+       "vi": "Tôi thích độ ngọt của món này.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "山の上の寒さにおどろいた。",
+       "ja_furigana": "山(やま)の上(うえ)の寒(さむ)さにおどろいた。",
+       "vi": "Tôi ngạc nhiên vì cái lạnh trên đỉnh núi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この山の高さは想像以上だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Độ cao của ngọn núi này vượt quá tưởng tượng."
+     },
+     {
+      "ja": "日本語の難しさを感じている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đang cảm nhận sự khó của tiếng Nhật."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この山の高さは想像以上だ。",
+     "FURIGANA_MISSING: 日本語の難しさを感じている。"
+    ],
+    "formation": "Aい(bỏ い) + さ / Aな + さ",
+    "locked_fields": [],
+    "meaning_vi": "Biến tính từ thành danh từ trừu tượng chỉ mức độ, tính chất, thuộc tính: “độ…/sự…”. Sắc thái khách quan, đo đếm được hoặc có thể so sánh: 高さ（độ cao）, 速さ（tốc độ）, 大きさ（kích cỡ）. Với な形容詞: nêu “tính …/độ …”: 静かさ, 便利さ, 真面目さ. Phân biệt với ～み: ～さ thiên về khách quan/đo đếm; ～み thiên về cảm nhận/chủ quan (詳しく ở mục 5). Thường kết hợp với các danh từ đo lường, chuẩn mực: 強さ, 弱さ, 深さ, 重さ, 明るさ, 厳しさ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Danh từ hóa tính từ (mức độ)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng như danh từ: đi với trợ từ が・は・を・の…, làm chủ ngữ/tu bổ nghĩa. Thường đi kèm số đo hoặc tiêu chuẩn so sánh: 高さ3メートル, 速さを競う. Với cảm xúc: 嬉しさ/悲しさ có, nhưng khi nhấn mạnh “cảm nhận”, nhiều khi dùng ～み tự nhiên hơn. Văn phong trung tính; có thể dùng trong học thuật/kỹ thuật (重さ, 長さ) lẫn đời thường (大切さ, ありがたさ). [6. Ghi chú mở rộng] Nhiều từ 4 chữ Hán thành danh từ đo đạc dùng ～さ: 深さ, 厚さ, 硬さ, 明るさ… rất phổ biến trong đề thi JLPT. 一番＋～さ: dùng khi so sánh nhất kèm danh từ hóa, ví dụ: この川は深さが一番だ。 Không phải mọi い形容詞 đều tự nhiên với ～さ; nếu gượng, cân nhắc chuyển cách diễn đạt khác (～み/～性/抽象名詞). [7. Biến thể & cụm cố định] ありがたさ（sự biết ơn/quý giá）, 大切さ, 重要さ 子どもらしさ, 人間らしさ（mở rộng với ～らしさ） 速さ・長さ・重さ・厚さ・深さ（nhóm đo lường） 暑さに負ける（chịu thua cái nóng）／寒さが厳しい [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～み: “khách quan vs. chủ quan”. Ví dụ: 誤）その店の安み → Tự nhiên hơn: 安さ. Dùng ～さ với tính từ không hợp: 可能さ（thường dùng 可能性 hơn）. Quên bất quy tắc: いい→よさ, ない→なさ. Dịch máy “sự …” cứng nhắc. Hãy linh hoạt: 高さ=độ cao, 大きさ=kích cỡ, 便利さ=độ tiện."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-88ddef918b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "出かけようとしたが、かばんが見つからない。",
+       "ja_furigana": "出(で)かけようとしたが、かばんが見(み)つからない。",
+       "vi": "Tôi định ra ngoài nhưng không tìm thấy túi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "寝ようとしたが、外がうるさくて寝られなかった。",
+       "ja_furigana": "寝(ね)ようとしたが、外(そと)がうるさくて寝(ね)られなかった。",
+       "vi": "Tôi định ngủ nhưng bên ngoài ồn quá nên không ngủ được.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "家を出ようとしたところ、上司から電話がかかってきた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vừa định ra khỏi nhà thì sếp gọi tới."
+     },
+     {
+      "ja": "ドアを開けようとしたが、鍵が壊れていて開かなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã cố mở cửa nhưng khóa hỏng nên không mở được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 家を出ようとしたところ、上司から電話がかかってきた。",
+     "FURIGANA_MISSING: ドアを開けようとしたが、鍵が壊れていて開かなかった。"
+    ],
+    "formation": "V(thể ý chí: 〜う / 〜よう) + としたところ",
+    "locked_fields": [],
+    "meaning_vi": "Ý nghĩa 1: “Định/sắp làm … thì …” — nhấn mạnh khoảnh khắc ngay trước khi thực hiện hành động và có sự kiện khác chen vào. Ý nghĩa 2: “Đã cố gắng làm … (nhưng không thành)” — kết nối bằng が／ものの để thể hiện kết quả trái kỳ vọng. Ý nghĩa 3: Sắc thái “cận biên” (on the verge) — hành động gần xảy ra nhưng rốt cuộc chưa diễn ra hoặc bị ngăn lại. Phân tích: とした là quá khứ của とする, mô tả ý đồ tại một thời điểm đã qua; thường kèm mệnh đề sau biểu thị cản trở, kết quả ngược, hay sự kiện bất ngờ. Chủ ngữ thường là người nói hoặc chủ thể có ý chí; ít dùng với chủ thể vô tri.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Định làm... nhưng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để tả ý định tức thời tại thời điểm quá khứ, thường kèm sự kiện chen ngang hoặc kết quả bất thành. V-ようとしたら／ところ／途端(に): nhấn mạnh tính bất ngờ, ngay sát thời điểm hành động dự định. V-ようとしたが／ものの: nhấn mạnh nỗ lực nhưng thất bại. Dạng V-ようとしていた: cung cấp bối cảnh “đang định” kéo dài trong một khoảng ngắn. Không dùng để diễn tả kế hoạch dài hạn; dùng ～つもりだった cho kế hoạch. [6. Ghi chú mở rộng] Với động từ không bộc lộ ý chí (mưa, xảy ra), tránh dùng ～ようとした; thay bằng ～ところ／～直前など. Gắn としたら mang sắc thái bất ngờ mạnh hơn としたところ. Trong văn kể chuyện, ～ようとした瞬間／矢先(に) thường xuất hiện để tạo cao trào. [7. Biến thể & cụm cố định] V-ようとしたら／ところ／途端(に) V-ようとしたが／ものの V-ようとしていた／V-ようとしている V-ようとしない（không hề có ý định…） V-ようとした矢先(に)／V-ようとした瞬間 [8. Lỗi thường gặp & bẫy JLPT] Dùng với động từ vô ý chí: ×雨が降ろうとした → 〇雨が降り出した／降りそうだった。 Nhầm với ～つもりだった: ～ようとした là “định ngay lúc đó”, không phải kế hoạch từ trước. Bỏ mệnh đề sau: nhiều câu cần vế kết quả/cản trở sau ～とした để trọn nghĩa. Nhầm thì: muốn nói “đang định” dùng ～ようとしている, không phải ～ようとした. JLPT: hay kiểm tra phân biệt としたら (bất ngờ) vs としたが (kết quả trái kỳ vọng)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7b9abd464e"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-044"
+}

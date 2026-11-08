@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "値段が高いにもかかわらず、この店はいつも満員だ。",
+       "ja_furigana": "値段(ねだん)が高(たか)いにもかかわらず、この店(みせ)はいつも満員(まんいん)だ。",
+       "vi": "Mặc dù giá cao nhưng quán này lúc nào cũng chật kín."
+      },
+      {
+       "ja": "何度も注意したにもかかわらず、彼はまた同じ失敗をした。",
+       "ja_furigana": "何度(なんど)も注意(ちゅうい)したにもかかわらず、彼(かれ)はまた同(おな)じ失敗(しっぱい)をした。",
+       "vi": "Mặc dù đã nhắc nhở nhiều lần nhưng anh ta vẫn lặp lại cùng một lỗi."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "雨が降っているにもかかわらず、試合は続行された。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù trời đang mưa, trận đấu vẫn được tiếp tục."
+     },
+     {
+      "ja": "彼は新人であるにもかかわらず、落ち着いて対応した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mặc dù là người mới, anh ấy đã xử lý rất bình tĩnh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 雨が降っているにもかかわらず、試合は続行された。",
+     "FURIGANA_MISSING: 彼は新人であるにもかかわらず、落ち着いて対応した。"
+    ],
+    "formation": "N / 普通形 + にもかかわらず（Aな・N は 〜である）",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả “mặc dù/bất chấp A nhưng B (kết quả trái với lẽ thường/ngoài dự đoán)”. Tính chất: trang trọng, khách quan hơn so với ～のに. Nhấn mạnh sự tương phản mạnh giữa thực tế A và kết quả B. Hàm ý “trái với lẽ thường, kỳ vọng, điều kiện hiển nhiên”. Thường xuất hiện trong văn viết, tin tức, báo cáo, diễn văn. Không (hoặc rất ít) dùng để nêu mong muốn/ra lệnh trực tiếp; phù hợp cho miêu tả sự thật, đánh giá.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Mặc dù..., bất kể...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái trang trọng/khách quan: phù hợp bài viết, thuyết trình, thông báo. Nhấn mạnh kết quả “ngược đời” hơn là cảm xúc người nói (khác ～のに thường mang sắc thái bực bội/tiếc nuối). Vế trước là “sự thật/điều kiện hiển nhiên” hoặc “kỳ vọng chung”, không nên dùng thông tin còn suy đoán. Có thể tách câu bằng “。それにもかかわらず、～。” để tăng nhấn mạnh. [6. Ghi chú mở rộng] Với Aな/N, “である” giúp câu tự nhiên, nhất quán phong cách văn viết. Có thể kết hợp với dữ kiện thống kê, tiêu đề tin tức để tăng độ trang trọng. Nếu muốn bộc lộ cảm xúc cá nhân, cân nhắc dùng ～のに thay vì ～にもかかわらず. [7. Biến thể & cụm cố định] それにもかかわらず: Liên từ “Tuy vậy/Thế nhưng”. N/Aな + である + にもかかわらず: Biến thể văn viết chuẩn. 事実にもかかわらず／予想にもかかわらず: “Bất chấp sự thật/kỳ vọng”. [8. Lỗi thường gặp & bẫy JLPT] Dùng với mệnh lệnh/đề nghị trực tiếp khiến câu gượng: nên tránh “にもかかわらず、来てください” trong văn trang trọng. Bỏ “である” sau N/Aな trong văn viết làm giảm tự nhiên: “学生にもかかわらず” → nên là “学生であるにもかかわらず”. Nhầm với “のに”: đề thi hay yêu cầu chọn mẫu phù hợp sắc thái; văn bản chính thức ưu tiên “にもかかわらず”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-28f2b94868"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "健康である限り、働き続けたい。",
+       "ja_furigana": "健康(けんこう)である限(かぎ)り、働(はたら)き続(つづ)けたい。",
+       "vi": "Chừng nào còn khỏe thì tôi vẫn muốn tiếp tục làm việc."
+      },
+      {
+       "ja": "この道が使える限り、遠回りしなくてすむ。",
+       "ja_furigana": "この道(みち)が使(つか)える限(かぎ)り、遠回(とおまわ)りしなくてすむ。",
+       "vi": "Chừng nào còn đi được con đường này thì không phải đi đường vòng."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "力が続く限り、走り続けたい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi muốn chạy chừng nào còn sức."
+     },
+     {
+      "ja": "私の知る限り、彼は遅刻したことがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong phạm vi tôi biết, anh ấy chưa từng đi muộn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 力が続く限り、走り続けたい。",
+     "FURIGANA_MISSING: 私の知る限り、彼は遅刻したことがない。"
+    ],
+    "formation": "Vる / Vている / Vない + 限り（は）",
+    "locked_fields": [],
+    "meaning_vi": "Chừng nào/bao lâu còn … (điều kiện kéo dài): Vる/ている + 限り. Trong phạm vi … có được (thông tin/điều tra): Vた + 限りでは, N の限り. Giới hạn thời điểm “chỉ đến …”: N（thời gian）+ 限り／を限りに. Cảm xúc tột độ (ít dùng trong hội thoại thường): Adj + 限りだ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Trong phạm vi..., chừng nào...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] “Vる/ている + 限り”: gắn điều kiện kéo dài → thường đi với 〜限り（は） để nhấn mạnh quan hệ nhân-quả ổn định. “Vた + 限りでは / N の限り”: hạn định nguồn thông tin → hay dùng trong báo cáo/nhận xét thận trọng. “N（thời gian）+ 限り/を限りに”: sắc thái thông báo (gần với 110). “Adj + 限りだ”: văn viết/cảm thán trang trọng, diễn đạt cảm xúc mạnh. [6. Ghi chú mở rộng] Động từ đi kèm “N の限り”: 知る/見る/聞く/覚えている/調べた… để nhấn mạnh nguồn thông tin hạn định. “限りは” thường nhấn quan hệ nhân-quả bền: “雨が降る限りは、中止だ”. “Adj + 限りだ” chủ yếu với tính từ cảm xúc: 嬉しい/残念/心細い/恥ずかしい + 限りだ. [7. Biến thể & cụm cố định] Vる/ている + 限り（は） Vた + 限りでは N の限り／N に限り（chỉ dành cho N, dạng khác）／N に限って（đặc biệt là N） Adj + 限りだ 私の知る限り／見た限りでは／聞くところによると（gần nghĩa, nhưng khác cấu trúc） [8. Lỗi thường gặp & bẫy JLPT] Nhầm “Vた + 限りでは” (phạm vi điều tra) với “Vる + 限り” (điều kiện kéo dài). Dùng “N に限り” (chỉ dành cho) thay cho “N の限り” (trong phạm vi N) → sai sắc thái. Nhầm với “きり” (chỉ còn, duy nhất) trong khẩu ngữ; JLPT hay bẫy 限り vs きり. “N（thời gian）+ 限り/を限りに” dễ nhầm với “までに”: cái trước là “lần cuối/kết thúc”, cái sau là “hạn chót”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-acc32f5acb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "試合に出られるかどうかは、先生の判断のいかんだ。",
+       "ja_furigana": "試合(しあい)に出(で)られるかどうかは、先生(せんせい)の判断(はんだん)のいかんだ。",
+       "vi": "Có được ra sân thi đấu hay không là tùy vào phán đoán của huấn luyện viên."
+      },
+      {
+       "ja": "計画が進むかどうかは、みんなの協力のいかんだ。",
+       "ja_furigana": "計画(けいかく)が進(すす)むかどうかは、みんなの協力(きょうりょく)のいかんだ。",
+       "vi": "Kế hoạch có tiến triển hay không là tùy vào sự hợp tác của mọi người."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "このプロジェクトの成否は、資金調達のいかんだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thành bại của dự án này tùy thuộc vào việc huy động vốn."
+     },
+     {
+      "ja": "進学できるかどうかは、期末試験の結果のいかんだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có lên lớp được hay không là tùy vào kết quả kỳ thi cuối kỳ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: このプロジェクトの成否は、資金調達のいかんだ。",
+     "FURIGANA_MISSING: 進学できるかどうかは、期末試験の結果のいかんだ。"
+    ],
+    "formation": "N + のいかんだ",
+    "locked_fields": [],
+    "meaning_vi": "“~のいかんだ” = “phụ thuộc vào ~ / là do ~ quyết định”. Nhấn mạnh N là yếu tố quyết định kết quả X. Tính trang trọng cao, thường thấy trong văn bản chính thức. “いかん” là danh từ Hán Nhật (如何) nghĩa là “mức độ/điều kiện/tình trạng (tốt xấu ra sao)”. Chỉ kết hợp với danh từ (努力・資金・成否・態度・結果・審査等). Không gắn trực tiếp với tính từ/động từ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tùy thuộc vào..., tùy theo...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường dùng trong câu khẳng định mang tính quy định, đánh giá tổng thể. Không dùng trong hội thoại thân mật hằng ngày; thay bằng “〜による/〜次第だ”. Thích hợp khi muốn tách bạch “yếu tố quyết định” một cách khách quan. [6. Ghi chú mở rộng] “いかん” thường đi với danh từ trừu tượng: 成否・可否・結果・状況・態度・出来（でき）など. Vì độ trang trọng cao, phù hợp văn bản thông báo, quy chế, hợp đồng. Trong diễn ngôn pháp lý/hành chính: “〜のいかんにかかわらず／問わず” xuất hiện rất thường xuyên. [7. Biến thể & cụm cố định] N + のいかんでは N + のいかんによっては N + のいかんにかかわらず／N + のいかんを問わず 成否のいかん・結果のいかん・可否のいかん [8. Lỗi thường gặp & bẫy JLPT] Dùng với tính từ/động từ trực tiếp: ×速いのいかんだ → 速さのいかんだ (chuyển về danh từ). Dùng trong hội thoại suồng sã nghe cứng và không tự nhiên; nên dùng による/次第だ. Nhầm lẫn chức năng với “では/によっては” (biến thể điều kiện) → “のいかんだ” chỉ nêu quan hệ phụ thuộc tổng quát."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-08e00293a3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "やり方しだいで、結果は大きく変わる。",
+       "ja_furigana": "やり方(かた)しだいで、結果(けっか)は大(おお)きく変(か)わる。",
+       "vi": "Tùy cách làm mà kết quả sẽ thay đổi rất nhiều."
+      },
+      {
+       "ja": "あなたの返事しだいでは、計画を変えなければならない。",
+       "ja_furigana": "あなたの返事(へんじ)しだいでは、計画(けいかく)を変(か)えなければならない。",
+       "vi": "Tùy vào câu trả lời của bạn mà chúng tôi có thể phải thay đổi kế hoạch."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "努力次第で、人生は大きく変わる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tùy vào nỗ lực mà cuộc đời thay đổi lớn."
+     },
+     {
+      "ja": "説明の仕方次第では、相手の反応も良くなる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tùy cách giải thích mà phản ứng đối phương cũng tốt hơn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 努力次第で、人生は大きく変わる。",
+     "FURIGANA_MISSING: 説明の仕方次第では、相手の反応も良くなる。"
+    ],
+    "formation": "N + 次第だ / 次第で（は）",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: Kết quả/diễn biến phụ thuộc vào yếu tố N (điều kiện, hoàn cảnh, cách làm, quan điểm, v.v.). Trọng tâm: mối quan hệ nhân-quả có điều kiện; thay đổi theo N. Sắc thái: trung tính–logic, dùng được trong cả văn nói và văn viết.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tùy thuộc vào..., tùy vào...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Cú pháp: N + 次第で／次第では／次第に “次第で” nêu mối quan hệ phụ thuộc; “次第では” nêu khả năng trong một trường hợp nhất định. Vế sau thường là động từ mang tính biến đổi (変わる・左右される・決まる・調整する…). Thường dùng với các N khái quát: 努力・考え方・状況・予算・天気・使い方・対応・方針… [6. Ghi chú mở rộng] N + 次第で nhấn mạnh “đòn bẩy” quyết định: yếu tố N là biến số chi phối kết quả. 次第では thường đi với mệnh đề nêu khả năng lựa chọn/phương án: 中止する／延期する／見送る… Cặp đối lập tự nhiên: 「能力・努力・工夫」⇄「結果・成果・評価」. [7. Biến thể & cụm cố định] N + 次第で（は）～（もある／変わる／決まる／左右される） N + 次第では～（中止する／延期する／不可能だ／可能だ） 対応次第で、クレームになることもある。 [8. Lỗi thường gặp & bẫy JLPT] Nhầm nghĩa: coi ～次第で là “ngay sau khi” → nhầm với ～次第 (Vます+次第). Sai loại từ: đặt động từ trước 次第で → phải là Danh từ + 次第で. Thi JLPT: hay kiểm tra phân biệt ～によって／～いかんで（は）／～次第で về sắc thái trang trọng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-168d39149d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "経験に応じて、仕事の内容が決まる。",
+       "ja_furigana": "経験(けいけん)に応(おう)じて、仕事(しごと)の内容(ないよう)が決(き)まる。",
+       "vi": "Tùy theo kinh nghiệm mà nội dung công việc được quyết định."
+      },
+      {
+       "ja": "お客さんの希望に応じて、メニューを作ることができる。",
+       "ja_furigana": "お客(きゃく)さんの希望(きぼう)に応(おう)じて、メニューを作(つく)ることができる。",
+       "vi": "Tùy theo mong muốn của khách mà có thể làm thực đơn phù hợp."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ソフトは、必要に応じてダウンロードしてください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hãy tải phần mềm tùy vào sự cần thiết."
+     },
+     {
+      "ja": "テスト結果に基づき、能力に応じたクラスに分けられます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dựa vào kết quả thi sẽ được phân lớp tùy theo năng lực."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ソフトは、必要に応じてダウンロードしてください。",
+     "FURIGANA_MISSING: テスト結果に基づき、能力に応じたクラスに分けられます。"
+    ],
+    "formation": "N + に応じて",
+    "locked_fields": [],
+    "meaning_vi": "Phụ thuộc vào, ứng với",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜必要に応じて",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn đạt ý rằng nếu sự việc phía trước thay đổi thì sự việc phía sau cũng thay đổi ứng với điều đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5bf7ccc736"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会議室を利用するに際しては、事前に申し込んでください。",
+       "ja_furigana": "会議室(かいぎしつ)を利用(りよう)するに際(さい)しては、事前(じぜん)に申(もう)し込(こ)んでください。",
+       "vi": "Khi sử dụng phòng họp, xin hãy đăng ký trước."
+      },
+      {
+       "ja": "留学するに際し、必要な書類を全部そろえた。",
+       "ja_furigana": "留学(りゅうがく)するに際(さい)し、必要(ひつよう)な書類(しょるい)を全部(ぜんぶ)そろえた。",
+       "vi": "Khi đi du học, tôi đã chuẩn bị đủ mọi giấy tờ cần thiết."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "お申し込みに際しては、写真が必要となります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi đăng ký cần có ảnh."
+     },
+     {
+      "ja": "A氏は日本を訪問するに際し、喜びを語った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngài A kể lại niềm vui nhân dịp thăm Nhật Bản."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: お申し込みに際しては、写真が必要となります。",
+     "FURIGANA_MISSING: A氏は日本を訪問するに際し、喜びを語った。"
+    ],
+    "formation": "N / Vる + に際して（は）",
+    "locked_fields": [],
+    "meaning_vi": "Khi bắt đầu…, Khi đang…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜申し込みに際して",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Có nghĩa vào thời điểm bắt đầu việc đặc biệt nào đó hoặc vào thời điểm đang tiến hành sự việc đó. Là lối văn trịnh trọng. Văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9553592555"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "調査の結果に基づいて、報告書を書いた。",
+       "ja_furigana": "調査(ちょうさ)の結果(けっか)に基(もと)づいて、報告書(ほうこくしょ)を書(か)いた。",
+       "vi": "Tôi đã viết báo cáo dựa trên kết quả điều tra."
+      },
+      {
+       "ja": "古い記録に基づき、この町の歴史をまとめた。",
+       "ja_furigana": "古(ふる)い記録(きろく)に基(もと)づき、この町(まち)の歴史(れきし)をまとめた。",
+       "vi": "Dựa trên những ghi chép cũ, tôi đã tổng hợp lại lịch sử của thị trấn này."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この工事は市の計画に基づいて進められます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công trình này được xúc tiến dựa trên kế hoạch của thành phố."
+     },
+     {
+      "ja": "長年の経験に基づき新入社員を教育する。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đào tạo nhân viên mới dựa trên kinh nghiệm nhiều năm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この工事は市の計画に基づいて進められます。",
+     "FURIGANA_MISSING: 長年の経験に基づき新入社員を教育する。"
+    ],
+    "formation": "N + に基づいて / に基づき / に基づく + N",
+    "locked_fields": [],
+    "meaning_vi": "Lấy ～ làm cơ sở, căn cứ",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜計画に基づいて",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng trong văn viết."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a6fe744a94"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "親の見守る下で、子どもは少しずつ育っていく。",
+       "ja_furigana": "親(おや)の見守(みまも)る下(もと)で、子(こ)どもは少(すこ)しずつ育(そだ)っていく。",
+       "vi": "Dưới sự trông nom của bố mẹ, đứa trẻ lớn lên từng chút một."
+      },
+      {
+       "ja": "先輩の助けの下で、私はこの仕事を覚えた。",
+       "ja_furigana": "先輩(せんぱい)の助(たす)けの下(もと)で、私(わたし)はこの仕事(しごと)を覚(おぼ)えた。",
+       "vi": "Dưới sự giúp đỡ của đàn anh, tôi đã học được công việc này."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "子どもたちが青空の下で元気に遊んでいる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đám trẻ đang vui chơi khỏe khoắn dưới bấu trời xanh."
+     },
+     {
+      "ja": "田中先生のご指導の下、研究論文を書いています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đang viết luận văn nghiên cứu dưới sự chỉ dẫn của thầy Tanaka."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 子どもたちが青空の下で元気に遊んでいる。",
+     "FURIGANA_MISSING: 田中先生のご指導の下、研究論文を書いています。"
+    ],
+    "formation": "N + の下で / の下に",
+    "locked_fields": [],
+    "meaning_vi": "Dưới sự…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜青空の下で",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách nói trang trọng mang tính văn viết."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3aa9d8209d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は先生というより、学者のようだ。",
+       "ja_furigana": "彼(かれ)は先生(せんせい)というより、学者(がくしゃ)のようだ。",
+       "vi": "Anh ấy không hẳn là thầy giáo mà đúng hơn là một học giả."
+      },
+      {
+       "ja": "この料理は辛いというより、苦い感じがする。",
+       "ja_furigana": "この料理(りょうり)は辛(から)いというより、苦(にが)い感(かん)じがする。",
+       "vi": "Món này không hẳn là cay mà đúng hơn là có vị đắng."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "担任の山田先生はとても若くて、先生というより友だちみたいだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giáo viên Yamada vừa trẻ, giống bạn hơn là giáo viên."
+     },
+     {
+      "ja": "社内は冷房が効きすぎていて、涼しいというより寒いくらいだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong công ty điều hòa hoạt động mạnh quá, lạnh luôn rồi chứ không còn là mát nữa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 担任の山田先生はとても若くて、先生というより友だちみたいだ。",
+     "FURIGANA_MISSING: 社内は冷房が効きすぎていて、涼しいというより寒いくらいだった。"
+    ],
+    "formation": "N / 普通形 + というより",
+    "locked_fields": [],
+    "meaning_vi": "Cái sau mới là thích đáng hơn/ Hơn cả việc đó",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜というより",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞／【動詞・イ形容詞・ナ形容詞】の普通形ただし、ナ形容詞の「だ」は省略可 Ý nghĩa: A よりBといったほうがより適切だ（比較） Cái sau mới là thích đáng hơn/ Hơn cả việc đó Ví dụ: 担任の山田先生はとても若くて、先生というより友だちみたいだ。 Giáo viên Yamada vừa trẻ, giống bạn hơn là giáo viên. 社内は冷房が効きすぎていて、涼しいというより寒いくらいだった。 Trong công ty điều hòa hoạt động mạnh quá, lạnh luôn rồi chứ không còn là mát nữa. 試合に負けたことは、残念と言うよりただ悔しい。 Thua trận đấu đó là điều đáng hổ thẹn hơn là đáng tiếc. 私にとって留学は、外界で学ぶというより家を出る手段であった。 Du học đối với tôi mà nói thì là đó là cách để tôi có thể được rời khỏi nhà hơn là đi học ở nước ngoài."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-80af31a136"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "人の悪口を人前で言うべきではない。",
+       "ja_furigana": "人(ひと)の悪口(わるぐち)を人前(ひとまえ)で言(い)うべきではない。",
+       "vi": "Không nên nói xấu người khác trước mặt mọi người."
+      },
+      {
+       "ja": "約束したことは、最後まで守るべきだ。",
+       "ja_furigana": "約束(やくそく)したことは、最後(さいご)まで守(まも)るべきだ。",
+       "vi": "Điều đã hứa thì nên giữ đến cùng."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "*部屋に入るときはノックすべし。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nên gõ cửa trước khi vào phòng."
+     },
+     {
+      "ja": "彼女は愛すべき人柄で、がれからも好きかれている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dáng người hay hay, cô ấy được nhiều người thích."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: *部屋に入るときはノックすべし。",
+     "FURIGANA_MISSING: 彼女は愛すべき人柄で、がれからも好きかれている。"
+    ],
+    "formation": "Vる + べきだ / べきではない（する → するべき・すべき）",
+    "locked_fields": [],
+    "meaning_vi": "Không nên nói những điều gây tổn thương người khác. (mang ý nghĩa không nên làm ~)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "人を傷つけるようなことは言うべきではない。(=〜してはならない)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* 部屋に入るときはノックすべし。 giật gân ・Tội ác tày trời ・Sự việc đầy thương tâm"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d17c6a78fb"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-056"
+}

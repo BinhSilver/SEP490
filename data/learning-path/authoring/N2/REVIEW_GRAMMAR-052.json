@@ -1,0 +1,582 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "じょうだんぬきで、本当のことを話してください。",
+       "ja_furigana": "じょうだんぬきで、本当(ほんとう)のことを話(はな)してください。",
+       "vi": "Đừng đùa nữa, hãy nói điều thật lòng."
+      },
+      {
+       "ja": "あいさつぬきにして、すぐ会議を始めましょう。",
+       "ja_furigana": "あいさつぬきにして、すぐ会議(かいぎ)を始(はじ)めましょう。",
+       "vi": "Bỏ qua phần chào hỏi, chúng ta bắt đầu cuộc họp luôn nhé."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "朝食ぬきは体に悪い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không ăn sáng là xấu cho cơ thể."
+     },
+     {
+      "ja": "あの映画は理屈ぬきに面白い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bộ phim đó thú vị hết chỗ nói."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 朝食ぬきは体に悪い。",
+     "FURIGANA_MISSING: あの映画は理屈ぬきに面白い。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: あの映画は理屈ぬきに面白い。 → 理屈"
+    ],
+    "formation": "N + ぬき(で / に) / N + をぬきにして",
+    "locked_fields": [],
+    "meaning_vi": "Loại trừ,không",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ぬき(で/に等)/(を)ぬきにして",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞 Ý nghĩa: ～を除いて/入れないで Loại trừ,không Ví dụ: 1. 朝食ぬきは体に悪い。 Không ăn sáng là xấu cho cơ thể. 2. あの映画は理屈ぬきに面白い。 Bộ phim đó thú vị hết chỗ nói. 3. お世辞ぬきの批評が聞きたい Tôi muốn nghe những lời góp ý thật lòng không nịnh bợ. 4. このビルが地震で壊れたのは、手抜き工事のせいだ。 Lý do khiến tòa nhà này bị đổ do động đất là vì việc thi công cẩu thả. 5. 「冗談はぬきにして、本当のことを教えてください」 Đừng có đùa nữa, hãy nói sự thật đi. 6. 「忘年会では仕事の話はぬきにしましょう」 “Ở tiệc tất niên thì chúng ta không nói về công việc nhé.” 7. 夏目漱石を抜きにして近代文学を語ることはできない。 Nói đến văn học cận đại không thể không nói đến Natsu Soseki. 8. 財政問題を抜きにした議論など無意味だ。 Những tranh luận bỏ qua vấn đề tài chính là hết sức vô nghĩa. 抜く Ví dụ: 1. ・歯（毛/草)を抜く。・ワインの栓を抜く。 ・Nhổ răng(lông/cỏ) ・Bật bắp rượu vang 2. ・袋の中の空気を抜く。・力を抜く。 Rút không khí bên trong bì. ・Giảm sức lực(Giảm áp lực) 3. 朝食を抜く Không ăn sáng. 4. 仕事の手を抜く Nghỉ công việc( một chút để làm gì đó)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fe737084b7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼が来るのやら来ないのやら、まだわからない。",
+       "ja_furigana": "彼(かれ)が来(く)るのやら来(こ)ないのやら、まだわからない。",
+       "vi": "Chẳng biết anh ấy có đến hay không, vẫn chưa rõ."
+      },
+      {
+       "ja": "雨がやむのやら、このまま降り続くのやら、先が思いやられる。",
+       "ja_furigana": "雨(あめ)がやむのやら、このまま降(ふ)り続(つづ)くのやら、先(さき)が思(おも)いやられる。",
+       "vi": "Không biết mưa sẽ tạnh hay cứ tiếp tục rơi thế này, nghĩ tới đã thấy lo."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "リさんは授業がわかっているのやらいないのやら、無表情なのでわからない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì không có biểu lộ gì nên không hiểu Li có hiểu bài hay không."
+     },
+     {
+      "ja": "最近は、男なのやら女なやらわからないかっこうの若者がいる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gần đây có những thanh niên bộ dạng trai chẳng ra trai, gái chẳng ra gái"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: リさんは授業がわかっているのやらいないのやら、無表情なのでわからない。",
+     "FURIGANA_MISSING: 最近は、男なのやら女なやらわからないかっこうの若者がいる。"
+    ],
+    "formation": "thể thường + のやら / ものやら",
+    "locked_fields": [],
+    "meaning_vi": "Không hiểu là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜の/ものやら",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 【動詞・イ形容詞】の普通形／【名詞・ナ形容詞】＋な Ý nghĩa: ～か（どうか）わからない Không hiểu là Ví dụ: 1. リさんは授業がわかっているのやらいないのやら、無表情なのでわからない。 Vì không có biểu lộ gì nên không hiểu Li có hiểu bài hay không. 2. 最近は、男なのやら女なやらわからないかっこうの若者がいる。 Gần đây có những thanh niên bộ dạng trai chẳng ra trai, gái chẳng ra gái 3. コートに洗濯物の札がついている。本人に言っていいものやら悪いものやら。 Thẻ giặt là được gắn lên áo khoác. Không biết khách có thấy phiền hay không. 4. 子どもが帰ってこない・どこで何をしているのやら。 Trẻ con chưa về, không hiểu là đang làm gì, ở đâu. 5. 「あれ、めがねがない。どこに置いたものやら」 Kính không thấy không hiểu là đặt ở đâu. * ・いつのことやら・何のことやら ・Ai mà biết khi nào chứ. ・Ai mà biết cái gì chứ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a5a5c5a2c6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "少しでも点が取れただけましだ。",
+       "ja_furigana": "少(すこ)しでも点(てん)が取(と)れただけましだ。",
+       "vi": "Được chút điểm nào thì vẫn còn đỡ hơn."
+      },
+      {
+       "ja": "雨がやんだだけましだ。昨日は一日中降っていたから。",
+       "ja_furigana": "雨(あめ)がやんだだけましだ。昨日(きのう)は一日中(いちにちじゅう)降(ふ)っていたから。",
+       "vi": "Mưa tạnh được chút nào thì còn đỡ, vì hôm qua mưa cả ngày."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "君は仕事があるだけましだよ。俺は首になってしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mầy có công việc kể cũng còn may đấy. Tao thì bị đuổi việc mất rồi."
+     },
+     {
+      "ja": "給料が減ったけれど、首にならないだけましだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lương bị cắt giảm nhưng không bị sa thải kể cũng còn may."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 君は仕事があるだけましだよ。俺は首になってしまった。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 君は仕事があるだけましだよ。俺は首になってしまった。 → 俺",
+     "FURIGANA_MISSING: 給料が減ったけれど、首にならないだけましだ。"
+    ],
+    "formation": "thể thường + だけましだ",
+    "locked_fields": [],
+    "meaning_vi": "thà ～ cũng còn được",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜あるだけましだ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* A(な）だな Biểu thị ý nghĩa rằng tình trạng của sự vật sự việc tuy không được tốt cho lắm nhưng được ở mức như thế, không bị tệ hơn là vẫn còn tốt lắm rồi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c6233d1b34"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "こんなに努力したのだから、合格して当然だ。",
+       "ja_furigana": "こんなに努力(どりょく)したのだから、合格(ごうかく)して当然(とうぜん)だ。",
+       "vi": "Đã nỗ lực đến thế thì việc đỗ là điều đương nhiên."
+      },
+      {
+       "ja": "子どもが熱を出したら、親が心配するのは当たり前だ。",
+       "ja_furigana": "子(こ)どもが熱(ねつ)を出(だ)したら、親(おや)が心配(しんぱい)するのは当(あ)たり前(まえ)だ。",
+       "vi": "Nếu con bị sốt thì việc bố mẹ lo lắng là lẽ đương nhiên."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ひどいことばかり言ったので、彼女に嫌われて当然だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì toàn nói những điều kinh khủng nên bị cô ấy ghét là việc đương nhiên."
+     },
+     {
+      "ja": "相手のチームは弱い。勝って当たり前だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đội bạn yếu. Thắng là việc đương nhiên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ひどいことばかり言ったので、彼女に嫌われて当然だ。",
+     "FURIGANA_MISSING: 相手のチームは弱い。勝って当たり前だ。"
+    ],
+    "formation": "thể thường + 当然だ / 当たり前だ",
+    "locked_fields": [],
+    "meaning_vi": "～ là đương nhiên",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜嫌われて当然だ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu thị ý sự việc nào đó là đương nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8b9c44825c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "急に休んだのだから、店長が困るのももっともだ。",
+       "ja_furigana": "急(きゅう)に休(やす)んだのだから、店長(てんちょう)が困(こま)るのももっともだ。",
+       "vi": "Tự dưng nghỉ nên việc cửa hàng trưởng thấy khó xử cũng là dễ hiểu."
+      },
+      {
+       "ja": "何の連絡もなかったら、みんなが怒るのももっともだ。",
+       "ja_furigana": "何(なん)の連絡(れんらく)もなかったら、みんなが怒(おこ)るのももっともだ。",
+       "vi": "Nếu không có một tin liên lạc nào thì việc mọi người tức giận cũng dễ hiểu."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "君が裏切ったのだから、彼女が怒るのももっともだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì cậu phản bội nên đương nhiên là cô ấy sẽ nổi giận."
+     },
+     {
+      "ja": "あなたがそう言うのはもっともだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn đương nhiên là sẽ nói điều đó."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 君が裏切ったのだから、彼女が怒るのももっともだ。",
+     "FURIGANA_MISSING: あなたがそう言うのはもっともだ。"
+    ],
+    "formation": "thể thường + のももっともだ",
+    "locked_fields": [],
+    "meaning_vi": "～ là đương nhiên, là chuyện thường",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜怒るのももっともだ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "＊ もっとも＝当たり前／当然"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c171dc2939"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "二人は毎日一緒にいて、家族も同然だ。",
+       "ja_furigana": "二人(ふたり)は毎日(まいにち)一緒(いっしょ)にいて、家族(かぞく)も同然(どうぜん)だ。",
+       "vi": "Hai người ngày nào cũng ở bên nhau, chẳng khác gì người trong nhà."
+      },
+      {
+       "ja": "あの部屋は物置と同じで、人が住めないも同然だ。",
+       "ja_furigana": "あの部屋(へや)は物置(ものおき)と同(おな)じで、人(ひと)が住(す)めないも同然(どうぜん)だ。",
+       "vi": "Căn phòng đó chẳng khác gì nhà kho, không thể ở được."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この車は中古車といっても新品（も）同然だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xe này nói là hàng cũ đấy nhưng y như hàng mới vậy."
+     },
+     {
+      "ja": "彼の財産はないも同然だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tài sản của anh ấy gần như là không có."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この車は中古車といっても新品（も）同然だ。",
+     "FURIGANA_MISSING: 彼の財産はないも同然だ。"
+    ],
+    "formation": "N / thể thường + も同然だ",
+    "locked_fields": [],
+    "meaning_vi": "Gần như là ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜新品も同然だ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Nghĩa là dù sự thật không phải, nhưng trạng thái gần như thế. Mang tính diễn cảm, chủ quan."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-da1950d3b7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先着十名に限り、参加できます。",
+       "ja_furigana": "先着(せんちゃく)十名(じゅうめい)に限(かぎ)り、参加(さんか)できます。",
+       "vi": "Chỉ mười người đến trước mới có thể tham gia."
+      },
+      {
+       "ja": "この席は招待された方に限り、ご利用いただけます。",
+       "ja_furigana": "この席(せき)は招待(しょうたい)された方(かた)に限(かぎ)り、ご利用(りよう)いただけます。",
+       "vi": "Chỗ ngồi này chỉ dành cho khách được mời mới có thể sử dụng."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この通路は関係者に限り、通行できます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lối đi này chỉ những người liên quan mới được đi qua."
+     },
+     {
+      "ja": "本日に限り、全品20％オフ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ riêng hôm nay, toàn bộ hàng giảm 20%."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この通路は関係者に限り、通行できます。",
+     "FURIGANA_MISSING: 本日に限り、全品20％オフ。"
+    ],
+    "formation": "N + に限り",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ định phạm vi áp dụng đặc biệt: “chỉ … mới …”. Giọng thông báo, quy định, ưu đãi nhất thời hoặc vĩnh viễn. Thường đi với từ chỉ thời gian/đối tượng: 本日／女性／会員／学生／初回など. Không diễn tả ý “tốt nhất” như ～に限る, và khác ～に限って.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chỉ dành cho..., giới hạn trong...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Văn phong công khai: biển báo, tờ rơi, quy định, thông báo sự kiện. Không dùng với động từ/miêu tả hành động tự do; chủ yếu gắn danh từ chỉ đối tượng/khung thời gian. Thường đứng gần đầu câu để xác lập điều kiện ưu đãi/giới hạn. [6. Ghi chú mở rộng] Trong văn bản chính sách: “Aに限り、Bとする” là công thức chuẩn quy định. Có thể lược bỏ vị ngữ trong biển báo: “関係者に限り”。 Kết hợp “一部店舗に限り” để nêu ngoại lệ vùng áp dụng. [7. Biến thể & cụm cố định] 本日（当日）に限り／期間中に限り 会員に限り／女性に限り／学生に限り／初回に限り 一部地域に限り／数量限定に限り [8. Lỗi thường gặp & bẫy JLPT] Dùng với động từ: “行くに限り” là sai; phải gắn danh từ. Nhầm với ～に限る (đánh giá “tốt nhất”): khác mục đích diễn đạt. Thêm は sau に限り thành “に限りは” (không tự nhiên); nếu cần nhấn, dùng “Nに限っては”. Thi JLPT hay gài cặp đối lập に限り／に限らず; chú ý nghĩa trái ngược."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-dc7c7bdcf1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼が言ったことは、ただのうわさにすぎない。",
+       "ja_furigana": "彼(かれ)が言(い)ったことは、ただのうわさにすぎない。",
+       "vi": "Điều anh ấy nói chỉ là một câu đùa mà thôi."
+      },
+      {
+       "ja": "この町の人口は、五万人にすぎない。",
+       "ja_furigana": "この町(まち)の人口(じんこう)は、五万人(ごまんにん)にすぎない。",
+       "vi": "Dân số của thị trấn này chỉ vỏn vẹn năm mươi nghìn người."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "それは噂に過ぎない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đó chỉ là tin đồn mà thôi."
+     },
+     {
+      "ja": "彼の成功は運が良かったに過ぎない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thành công của anh ta chẳng qua chỉ là do may mắn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: それは噂に過ぎない。",
+     "FURIGANA_MISSING: 彼の成功は運が良かったに過ぎない。"
+    ],
+    "formation": "thể thường (Aな・N + である) + にすぎない",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa cốt lõi: khẳng định mức độ/thực chất nhỏ, hạn chế “chỉ là… mà thôi; không vượt quá …”. Hàm ý diễn ngôn: hạ thấp tầm quan trọng, phủ định sự thổi phồng/kỳ vọng. Với số liệu: nhấn mạnh tính tham khảo/không tuyệt đối (この数字は目安に過ぎない). Sắc thái trang trọng, khách quan hơn so với だけだ; thường dùng trong viết, báo cáo, thuyết trình. Không dùng để diễn đạt bắt buộc/quy tắc; thuần túy đánh giá mức độ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chỉ là..., chẳng qua là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường đứng cuối mệnh đề để kết luận hạ thấp: …に過ぎない。 Sử dụng trong văn mang tính khách quan/phản biện, tránh cảm giác công kích trực diện hơn so với ただの…だ. Đi kèm từ nhấn: ただ/単なる/所詮 + N + に過ぎない → tăng sắc thái đánh giá thấp. Phù hợp báo cáo, bài viết học thuật, tin tức; hội thoại vẫn dùng được nhưng nghe nghiêm trang. [6. Ghi chú mở rộng] Khi đứng sau mệnh đề dài, dùng であるに過ぎない làm câu nghe trang trọng, nhấn tính lý tính. Trong tranh luận, có thể đi kèm たかが/所詮 để giảm giá trị đối tượng: たかが噂に過ぎない。 Cẩn trọng sắc thái nếu đối phương: dễ bị hiểu là coi nhẹ công sức/giá trị của người khác. [7. Biến thể & cụm cố định] 単なるNに過ぎない／ただのNに過ぎない 数量語 + に過ぎない（例: 一例に過ぎない／数％に過ぎない） …に過ぎず、…（dạng nối) [8. Lỗi thường gặp & bẫy JLPT] Nhầm với しかない: しかない = “đành phải”, còn に過ぎない = “chỉ là”. Bỏ である khi cần trang trọng với Na/N: viết 重要だに過ぎない là không tự nhiên → 重要であるに過ぎない. Lạm dụng trong hội thoại thân mật làm câu nghe xa cách; thay bằng だけだ khi cần tự nhiên. Đặt sai vị trí nhấn: この結果は仮説に過ぎない（đúng）; 仮説過ぎない（sai)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-159d40563d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "パスワードを忘れたばかりに、大事なデータを取り出せなくなった。",
+       "ja_furigana": "パスワードを忘(わす)れたばかりに、大事(だいじ)なデータを取(と)り出(だ)せなくなった。",
+       "vi": "Chỉ vì quên mật khẩu mà tôi không thể lấy được dữ liệu quan trọng."
+      },
+      {
+       "ja": "眠いまま運転したばかりに、事故を起こしてしまった。",
+       "ja_furigana": "眠(ねむ)いまま運転(うんてん)したばかりに、事故(じこ)を起(お)こしてしまった。",
+       "vi": "Chỉ vì lái xe trong lúc buồn ngủ mà tôi đã gây ra tai nạn."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "道を一本間違えたばかりに、予定に大幅な遅れが出た。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ vì nhầm một con đường mà lịch trình bị trễ lớn."
+     },
+     {
+      "ja": "彼が有名であるばかりに、周りの目が厳しい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ vì anh ấy nổi tiếng nên ánh mắt xung quanh khắt khe."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 道を一本間違えたばかりに、予定に大幅な遅れが出た。",
+     "FURIGANA_MISSING: 彼が有名であるばかりに、周りの目が厳しい。"
+    ],
+    "formation": "thể thường (Aな + な・N + である) + ばかりに",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ vì… mà…: Một nguyên nhân đơn độc dẫn đến kết quả (thường tiêu cực/đáng tiếc). Hàm oán trách, tiếc nuối. Chỉ để… mà…: Vì ham muốn/động cơ duy nhất nên làm hành động (đôi khi bất chấp/không đáng). Tính đánh giá: Người nói đánh giá nguyên nhân là nhỏ nhặt hoặc đơn thuần, nhưng gây hệ quả lớn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chỉ vì... nên...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Hợp với bối cảnh hối tiếc, biện minh, than phiền. Với “V-たい＋ばかりに”: nhấn động cơ quá mức; có thể hàm trách bản thân. Không dùng cho nguyên nhân khách quan trung lập (khi đó dùng ～ために/ので tự nhiên hơn). [6. Ghi chú mở rộng] Văn viết thích dùng “N/Aである＋ばかりに” tăng độ trang trọng. Khi chủ ngữ chịu thiệt hại: hay đi với ～てしまう／～ことになった để nhấn bất đắc dĩ. Cụm nguyên nhân mang tính “dáng vẻ” cũng dùng được: 見た目が地味なばかりに… [7. Biến thể & cụm cố định] ～たいばかりに: 会いたいばかりに、無理をした。 ～ばかりにして…: 強調形 trong văn viết. Ví dụ: 嫌われるばかりにして本音を隠した。 [8. Lỗi thường gặp & bẫy JLPT] Dùng cho kết quả tốt: không tự nhiên. “努力したばかりに合格した” nên dùng “おかげで/だけに”. Nhầm với ～せいで: JLPT kiểm tra sắc thái “đơn nhất” của ～ばかりに. Hình thái: với Aな/N trang trọng cần “であるばかりに”, tránh “だばかりに”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8cbcb8c498"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "有名な選手の下で、彼は技術を学んだ。",
+       "ja_furigana": "有名(ゆうめい)な選手(せんしゅ)の下(もと)で、彼(かれ)は技術(ぎじゅつ)を学(まな)んだ。",
+       "vi": "Dưới sự dẫn dắt của một tuyển thủ nổi tiếng, anh ấy đã học được kỹ thuật."
+      },
+      {
+       "ja": "この法律の下では、誰もが平等だと考えられている。",
+       "ja_furigana": "この法律(ほうりつ)の下(もと)では、誰(だれ)もが平等(びょうどう)だと考(かんが)えられている。",
+       "vi": "Dưới đạo luật này, ai cũng được coi là bình đẳng."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "有名な教授の下で研究ができて幸せだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi thật may mắn được nghiên cứu dưới sự hướng dẫn của một giáo sư nổi tiếng."
+     },
+     {
+      "ja": "両親の下で、愛情いっぱいに育てられた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi được nuôi dưỡng trong sự chăm sóc đầy yêu thương của bố mẹ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 有名な教授の下で研究ができて幸せだ。",
+     "FURIGANA_MISSING: 両親の下で、愛情いっぱいに育てられた。"
+    ],
+    "formation": "N + の下で / のもとで",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị môi trường, điều kiện, sự ảnh hưởng mà trong đó một hành động/sự việc diễn ra. Mang nghĩa “dưới”, “trong sự quản lý/tác động của…” – thường đi với các danh từ chỉ người, tổ chức, luật pháp, sự bảo hộ. の下で (のもとで): Nhấn mạnh sự chỉ đạo, hướng dẫn, tác động trực tiếp của con người (giáo viên, bác sĩ, huấn luyện viên…). のもとで (のもとで): Trang trọng hơn, nhấn mạnh phạm vi, điều kiện, nguyên tắc (luật pháp, hòa bình, chính quyền…).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dưới..., nhờ... (sự hướng dẫn/điều kiện)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] の下で dùng nhiều cho người cụ thể hoặc sự chỉ đạo trực tiếp: “dưới sự dạy dỗ của…”, “dưới sự lãnh đạo của…”. のもとで dùng khi nói về luật lệ, chính sách, điều kiện mang tính trừu tượng, rộng lớn: “dưới pháp luật”, “dưới bầu trời hòa bình…”. Phong cách: Trang trọng, thường gặp trong văn viết, phát biểu, báo chí, JLPT N2~N1. Không dùng trong hội thoại thân mật khi chỉ đơn thuần nói “ở dưới cái cây” → lúc đó dùng ～の下に (物理). [6. Ghi chú mở rộng] Nên nhớ: の下で＝ảnh hưởng trực tiếp, のもとで＝môi trường/quy tắc rộng. Trong pháp luật, thể hiện tính “mọi người bình đẳng dưới…”, nên rất hay gặp trong bài thi JLPT. Trong nói chuyện đời thường với nghĩa vật lý “dưới cây, dưới gầm bàn”, không dùng mẫu này. [7. Biến thể & cụm cố định] ～の指導の下で：Dưới sự chỉ đạo/hướng dẫn của… ～の保護のもとで：Dưới sự bảo vệ của… ～の監督の下で：Dưới sự giám sát của… 憲法のもとで：Dưới hiến pháp… [8. Lỗi thường gặp & bẫy JLPT] Nhầm với nghĩa vật lý (dưới cái bàn, dưới cây…) → mẫu này không dùng cho ý đó. Dùng trong văn nói thông thường nghe không tự nhiên, nên dùng trong văn viết, báo chí, bài luận. Bỏ の khi danh từ đứng trước → sai ngữ pháp (phải có の)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e96c8481ed"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-052"
+}

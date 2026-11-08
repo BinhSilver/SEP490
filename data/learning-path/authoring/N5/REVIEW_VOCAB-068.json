@@ -1,0 +1,1730 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "かばんの中に何がありますか。",
+       "ja_furigana": "かばんの中(なか)に何(なに)がありますか。",
+       "vi": "Trong cặp có cái gì vậy?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "có cái gì",
+    "examples": [
+     {
+      "ja": "つくえの うえに なにが ありますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trên bàn có cái gì?"
+     }
+    ],
+    "expression": "何が",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cái gì (làm chủ ngữ); có cái gì",
+    "mnemonic_vi": "何 (gì) + が: cái gì (làm chủ ngữ)? 何がありますか là \"có cái gì?\".",
+    "reading": "なにが",
+    "romaji": "naniga",
+    "topic_vi": "Ở đâu",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-11853f3028"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大きい本だなに辞書がたくさんあります。",
+       "ja_furigana": "大(おお)きい本(ほん)だなに辞書(じしょ)がたくさんあります。",
+       "vi": "Trên giá sách lớn có rất nhiều từ điển.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "giá sách",
+    "examples": [
+     {
+      "ja": "ほんだなは へやの なかに あります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giá sách ở trong phòng."
+     }
+    ],
+    "expression": "本だな",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "giá sách",
+    "mnemonic_vi": "本 (sách) + だな (棚, cái kệ): cái kệ để sách, tức giá sách.",
+    "reading": "ほんだな",
+    "romaji": "hondana",
+    "topic_vi": "Nhà",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-388b0b501c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この本をレジへ持って行きます。",
+       "ja_furigana": "この本(ほん)をレジへ持(も)って行(い)きます。",
+       "vi": "Tôi mang quyển sách này ra quầy thu ngân.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "quầy thu ngân",
+    "examples": [
+     {
+      "ja": "レジでお金を払います。",
+      "ja_furigana": "レジでお金(かね)を払(はら)います。",
+      "source": "VNJPCLUB",
+      "vi": "Trả tiền tại quầy thanh toán."
+     }
+    ],
+    "expression": "レジ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "quầy thu ngân; chỗ trả tiền",
+    "mnemonic_vi": "レジ rút gọn từ \"register\" (máy tính tiền): quầy thu ngân trả tiền.",
+    "reading": "レジ",
+    "romaji": "reji",
+    "topic_vi": "Đi chợ, mua sắm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-55cdb46530"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このかばんの値段はいくらですか。",
+       "ja_furigana": "このかばんの値段(ねだん)はいくらですか。",
+       "source": "AI",
+       "vi": "Giá của chiếc cặp này là bao nhiêu?"
+      },
+      {
+       "ja": "この店は服の値段が安いです。",
+       "ja_furigana": "この店(みせ)は服(ふく)の値段(ねだん)が安(やす)いです。",
+       "vi": "Cửa hàng này giá quần áo rẻ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "giá cả",
+    "examples": [
+     {
+      "ja": "このかばんの値段はいくらですか。",
+      "ja_furigana": "このかばんの値段(ねだん)はいくらですか。",
+      "source": "AI",
+      "vi": "Giá của chiếc cặp này là bao nhiêu?"
+     },
+     {
+      "ja": "日本は果物の値段が高いです。",
+      "ja_furigana": "日本(にほん)は果物(くだもの)の値段(ねだん)が高(たか)いです。",
+      "source": "VNJPCLUB",
+      "vi": "Ở Nhật, giá trái cây đắt."
+     }
+    ],
+    "expression": "値段",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "giá cả; giá tiền",
+    "mnemonic_vi": "ねだん (値段) = 値 TRỊ (giá trị) + 段 ĐOẠN (mức): mức giá của món hàng.",
+    "reading": "ねだん",
+    "romaji": "nedan",
+    "topic_vi": "Đi chợ, mua sắm",
+    "twins": [],
+    "variants": [
+     "ねだん"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b707f32321"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "教室に学生が十人います。",
+       "ja_furigana": "教室(きょうしつ)に学生(がくせい)が十人(じゅうにん)います。",
+       "vi": "Trong lớp học có 10 học sinh.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "người",
+    "examples": [
+     {
+      "ja": "こどもが よんにん います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có bốn đứa trẻ."
+     }
+    ],
+    "expression": "～人",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "người",
+    "mnemonic_vi": "人 NHÂN (người): 3人 (さんにん) là 3 người; riêng 1 người là ひとり, 2 người là ふたり.",
+    "reading": "～にん",
+    "romaji": "~nin",
+    "topic_vi": "Bao nhiêu người",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ec07790ed9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "本屋でノートを五冊買いました。",
+       "ja_furigana": "本屋(ほんや)でノートを五冊(ごさつ)買(か)いました。",
+       "vi": "Tôi đã mua 5 quyển vở ở hiệu sách.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "quyển (sách vở)",
+    "examples": [
+     {
+      "ja": "ほんを いっさつ よみます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đọc một quyển sách."
+     }
+    ],
+    "expression": "～冊",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "quyển (sách vở)",
+    "mnemonic_vi": "冊 âm SÁCH, hình các thẻ tre buộc lại thành quyển: ～冊 dùng đếm sách vở.",
+    "reading": "～さつ",
+    "romaji": "~satsu",
+    "topic_vi": "Có bao nhiêu cái?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9c2235d26a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "事務所にパソコンが三台あります。",
+       "ja_furigana": "事務所(じむしょ)にパソコンが三台(さんだい)あります。",
+       "vi": "Trong văn phòng có 3 chiếc máy tính.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chiếc (máy móc, xe)",
+    "examples": [
+     {
+      "ja": "くるまを いちだい かいます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi mua một chiếc ô tô."
+     }
+    ],
+    "expression": "～台",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "chiếc (máy móc; xe)",
+    "mnemonic_vi": "台 ĐÀI (cái bệ): ～台 dùng đếm máy móc, xe cộ, những thứ được đặt trên bệ.",
+    "reading": "～だい",
+    "romaji": "~dai",
+    "topic_vi": "Có bao nhiêu cái?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c38ec2d46b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "一日に三回薬を飲みます。",
+       "ja_furigana": "一日(いちにち)に三回(さんかい)薬(くすり)を飲(の)みます。",
+       "vi": "Một ngày tôi uống thuốc ba lần.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-f7fab38a78"
+    ],
+    "dictionary_meaning": "lần",
+    "examples": [
+     {
+      "ja": "いっしゅうかんに いっかい およぎます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi bơi một lần một tuần."
+     }
+    ],
+    "expression": "～回",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "lần",
+    "mnemonic_vi": "回 âm HỒI, như \"hồi\" trong truyện (một vòng, một lượt): ～回 đếm số lần. Đừng nhầm với ～階 (tầng) cùng đọc かい.",
+    "reading": "～かい",
+    "romaji": "~kai",
+    "topic_vi": "Thứ (trong tuần)",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b24ae51ec4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "鉛筆を二本とペンを一本買いました。",
+       "ja_furigana": "鉛筆(えんぴつ)を二本(にほん)とペンを一本(いっぽん)買(か)いました。",
+       "vi": "Tôi đã mua hai cây bút chì và một cây bút mực.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chai, cây (vật dài)",
+    "examples": [
+     {
+      "ja": "ビールを さんぼん かいます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi mua ba chai bia."
+     }
+    ],
+    "expression": "～本",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "chai; cây (vật dài)",
+    "mnemonic_vi": "本 vốn là thân cây 木 có vạch ở gốc: ～本 đếm vật dài như cây bút, chai nước; đọc ほん/ぽん/ぼん.",
+    "reading": "～ほん",
+    "romaji": "~hon",
+    "topic_vi": "Có bao nhiêu cái?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1100343507"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "朝起きて、水を一杯飲みます。",
+       "ja_furigana": "朝(あさ)起(お)きて、水(みず)を一杯(いっぱい)飲(の)みます。",
+       "vi": "Sáng thức dậy tôi uống một cốc nước.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cốc, bát",
+    "examples": [
+     {
+      "ja": "コーヒーを にはい のみました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã uống hai cốc cà phê."
+     }
+    ],
+    "expression": "～杯",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cốc; bát",
+    "mnemonic_vi": "杯 âm BÔI (chén, như \"nâng bôi\" mời rượu): ～杯 đếm cốc, chén, bát đồ uống; đọc はい/ぱい/ばい.",
+    "reading": "～はい",
+    "romaji": "~hai",
+    "topic_vi": "Có bao nhiêu cái?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f7db9b3209"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夏休みは一か月あります。",
+       "ja_furigana": "夏休(なつやす)みは一(いっ)か月(げつ)あります。",
+       "vi": "Kỳ nghỉ hè kéo dài một tháng.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "một tháng",
+    "examples": [
+     {
+      "ja": "いっかげつに いっかい かえります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một tháng tôi về nhà một lần."
+     }
+    ],
+    "expression": "一か月",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "một tháng",
+    "mnemonic_vi": "一 (một) + か月 (月 NGUYỆT, tháng): khoảng thời gian một tháng.",
+    "reading": "いっかげつ",
+    "romaji": "ikkagetsu",
+    "topic_vi": "Thứ (trong tuần)",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-56e30174a4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "机の上に小さい箱が一つあります。",
+       "ja_furigana": "机(つくえ)の上(うえ)に小(ちい)さい箱(はこ)が一(ひと)つあります。",
+       "vi": "Trên bàn có một chiếc hộp nhỏ.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "một cái",
+    "examples": [
+     {
+      "ja": "ケーキを ひとつ ください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho tôi một cái bánh."
+     }
+    ],
+    "expression": "一つ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "một cái",
+    "mnemonic_vi": "ひと = một, như 一人 (ひとり, một người): 一つ là một cái.",
+    "reading": "ひとつ",
+    "romaji": "hitotsu",
+    "topic_vi": "Có bao nhiêu cái?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-fa42c777e1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "一週間、京都へ旅行に行きます。",
+       "ja_furigana": "一週間(いっしゅうかん)、京都(きょうと)へ旅行(りょこう)に行(い)きます。",
+       "vi": "Tôi đi du lịch Kyoto trong một tuần.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "một tuần",
+    "examples": [
+     {
+      "ja": "いっしゅうかんに にかい ほんを よみます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đọc sách hai lần một tuần."
+     }
+    ],
+    "expression": "一週間",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "một tuần",
+    "mnemonic_vi": "一 (một) + 週 CHU (tuần) + 間 GIAN (khoảng): khoảng thời gian một tuần.",
+    "reading": "いっしゅうかん",
+    "romaji": "isshuukan",
+    "topic_vi": "Thứ (trong tuần)",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-cd78c6e04a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "赤いりんごを三つ買いました。",
+       "ja_furigana": "赤(あか)いりんごを三(みっ)つ買(か)いました。",
+       "vi": "Tôi đã mua ba quả táo đỏ.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ba cái",
+    "examples": [
+     {
+      "ja": "みかんを みっつ ください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho tôi ba quả quýt."
+     }
+    ],
+    "expression": "三つ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "ba cái",
+    "mnemonic_vi": "み = ba, như 三日 (みっか, ngày mùng 3): 三つ là ba cái.",
+    "reading": "みっつ",
+    "romaji": "mittsu",
+    "topic_vi": "Có bao nhiêu cái?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-073b031697"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "かばんの中にみかんが五つあります。",
+       "ja_furigana": "かばんの中(なか)にみかんが五(いつ)つあります。",
+       "vi": "Trong cặp có năm quả quýt.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "năm cái",
+    "examples": [
+     {
+      "ja": "たまごを いつつ ください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho tôi năm quả trứng."
+     }
+    ],
+    "expression": "五つ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "năm cái",
+    "mnemonic_vi": "いつ = năm, như 五日 (いつか, ngày mùng 5): 五つ là năm cái.",
+    "reading": "いつつ",
+    "romaji": "itsutsu",
+    "topic_vi": "Có bao nhiêu cái?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-fd1665a992"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "学校にパソコンが何台ありますか。",
+       "ja_furigana": "学校(がっこう)にパソコンが何台(なんだい)ありますか。",
+       "vi": "Ở trường có bao nhiêu chiếc máy tính?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "mấy chiếc",
+    "examples": [
+     {
+      "ja": "くるまは なんだい ありますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có mấy chiếc ô tô ạ?"
+     }
+    ],
+    "expression": "何台",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mấy chiếc",
+    "mnemonic_vi": "何 (mấy) + 台 ĐÀI (đếm máy, xe): mấy chiếc?",
+    "reading": "なんだい",
+    "romaji": "nandai",
+    "topic_vi": "Có bao nhiêu cái?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-439b2f9cae"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "一日に何回手を洗いますか。",
+       "ja_furigana": "一日(いちにち)に何回(なんかい)手(て)を洗(あら)いますか。",
+       "vi": "Một ngày bạn rửa tay mấy lần?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "mấy lần",
+    "examples": [
+     {
+      "ja": "いっしゅうかんに なんかい きますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một tuần anh tới mấy lần?"
+     }
+    ],
+    "expression": "何回",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mấy lần",
+    "mnemonic_vi": "何 (mấy) + 回 HỒI (lần): mấy lần?",
+    "reading": "なんかい",
+    "romaji": "nankai",
+    "topic_vi": "Thứ (trong tuần)",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-58ccc369bd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "机の上にペンが何本ありますか。",
+       "ja_furigana": "机(つくえ)の上(うえ)にペンが何本(なんぼん)ありますか。",
+       "vi": "Trên bàn có mấy cây bút?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "mấy chai, mấy cây",
+    "examples": [
+     {
+      "ja": "ビールは なんぼん ありますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có mấy chai bia ạ?"
+     }
+    ],
+    "expression": "何本",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mấy chai; mấy cây",
+    "mnemonic_vi": "何 (mấy) + 本 (vật dài): mấy chai, mấy cây? Đọc là なんぼん.",
+    "reading": "なんぼん",
+    "romaji": "nanbon",
+    "topic_vi": "Có bao nhiêu cái?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-5ffadce467"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅行で写真を何枚とりましたか。",
+       "ja_furigana": "旅行(りょこう)で写真(しゃしん)を何枚(なんまい)とりましたか。",
+       "vi": "Bạn đã chụp mấy tấm ảnh trong chuyến du lịch?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "mấy tờ, mấy tấm",
+    "examples": [
+     {
+      "ja": "きっては なんまい ですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tem thư có mấy tấm?"
+     }
+    ],
+    "expression": "何枚",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mấy tờ; mấy tấm",
+    "mnemonic_vi": "何 (mấy) + 枚 (vật mỏng): mấy tờ, mấy tấm?",
+    "reading": "なんまい",
+    "romaji": "nanmai",
+    "topic_vi": "Có bao nhiêu cái?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-fe87b7a04e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "テーブルの上にみかんが八つあります。",
+       "ja_furigana": "テーブルの上(うえ)にみかんが八(やっ)つあります。",
+       "vi": "Trên bàn có tám quả quýt.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tám cái",
+    "examples": [
+     {
+      "ja": "りんごを やっつ ください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho tôi tám quả táo."
+     }
+    ],
+    "expression": "八つ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tám cái",
+    "mnemonic_vi": "や = tám, như 八百屋 (やおや, tiệm rau): 八つ là tám cái.",
+    "reading": "やっつ",
+    "romaji": "yattsu",
+    "topic_vi": "Có bao nhiêu cái?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b042f6ace5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母は卵を六つ買いました。",
+       "ja_furigana": "母(はは)は卵(たまご)を六(むっ)つ買(か)いました。",
+       "vi": "Mẹ tôi đã mua sáu quả trứng.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sáu cái",
+    "examples": [
+     {
+      "ja": "みかんを むっつ ください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho tôi sáu quả quýt."
+     }
+    ],
+    "expression": "六つ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "sáu cái",
+    "mnemonic_vi": "む = sáu, như 六日 (むいか, ngày mùng 6): 六つ là sáu cái.",
+    "reading": "むっつ",
+    "romaji": "muttsu",
+    "topic_vi": "Có bao nhiêu cái?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2532437d0f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "箱の中にお菓子が十あります。",
+       "ja_furigana": "箱(はこ)の中(なか)にお菓子(かし)が十(とお)あります。",
+       "vi": "Trong hộp có mười cái bánh.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "mười cái",
+    "examples": [
+     {
+      "ja": "たまごを とお ください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho tôi mười quả trứng."
+     }
+    ],
+    "expression": "十",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mười cái",
+    "mnemonic_vi": "十 đọc とお khi đếm ひとつ, ふたつ... đến mười; riêng số mười không có đuôi つ.",
+    "reading": "とお",
+    "romaji": "too",
+    "topic_vi": "Có bao nhiêu cái?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-bc871ab0cc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "部屋に椅子が四つあります。",
+       "ja_furigana": "部屋(へや)に椅子(いす)が四(よっ)つあります。",
+       "vi": "Trong phòng có bốn cái ghế.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bốn cái",
+    "examples": [
+     {
+      "ja": "パンを よっつ ください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho tôi bốn cái bánh mì."
+     }
+    ],
+    "expression": "四つ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "bốn cái",
+    "mnemonic_vi": "よ = bốn, như 四日 (よっか, ngày mùng 4): 四つ là bốn cái.",
+    "reading": "よっつ",
+    "romaji": "yottsu",
+    "topic_vi": "Có bao nhiêu cái?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-5a2e7b3030"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夏休みに家族と海で泳ぎます。",
+       "ja_furigana": "夏休(なつやす)みに家族(かぞく)と海(うみ)で泳(およ)ぎます。",
+       "vi": "Nghỉ hè tôi bơi ở biển cùng gia đình.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bơi",
+    "examples": [
+     {
+      "ja": "いっしゅうかんに にかい ジムで およぎます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi bơi ở phòng tập hai lần một tuần."
+     }
+    ],
+    "expression": "泳ぎます",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "bơi",
+    "mnemonic_vi": "泳 âm VỊNH (bơi) = nước 氵 + 永 (lâu dài): ở lâu dưới nước là đang bơi.",
+    "reading": "およぎます",
+    "romaji": "oyogimasu",
+    "topic_vi": "Thể thao",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4fd6edbd2f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "山の近くの静かな村に住んでいます。",
+       "ja_furigana": "山(やま)の近(ちか)くの静(しず)かな村(むら)に住(す)んでいます。",
+       "vi": "Tôi đang sống ở một ngôi làng yên tĩnh gần núi.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "làng",
+    "examples": [
+     {
+      "ja": "この村に古いお寺があります。",
+      "ja_furigana": "この村(むら)に古(ふる)いお寺(てら)があります。",
+      "source": "VNJPCLUB",
+      "vi": "Ở làng này có một ngôi chùa cổ."
+     }
+    ],
+    "expression": "村",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "làng",
+    "mnemonic_vi": "村 âm THÔN, như \"thôn xóm\", có bộ MỘC 木: làng nhỏ giữa rặng cây, tức ngôi làng.",
+    "reading": "むら",
+    "romaji": "mura",
+    "topic_vi": "Phố xá, thị trấn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-de2d9b236f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅の前に警察の建物があります。",
+       "ja_furigana": "駅(えき)の前(まえ)に警察(けいさつ)の建物(たてもの)があります。",
+       "vi": "Trước nhà ga có tòa nhà của cảnh sát.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "すぐ警察に電話をかけました。",
+       "ja_furigana": "すぐ警察(けいさつ)に電話(でんわ)をかけました。",
+       "source": "AI",
+       "vi": "Tôi đã gọi điện ngay cho cảnh sát."
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cảnh sát",
+    "examples": [
+     {
+      "ja": "きのう、警察に行きました。",
+      "ja_furigana": "きのう、警察(けいさつ)に行(い)きました。",
+      "source": "VNJPCLUB",
+      "vi": "Hôm qua tôi đã đến đồn cảnh sát."
+     },
+     {
+      "ja": "すぐ警察に電話をかけました。",
+      "ja_furigana": "すぐ警察(けいさつ)に電話(でんわ)をかけました。",
+      "source": "AI",
+      "vi": "Tôi đã gọi điện ngay cho cảnh sát."
+     }
+    ],
+    "expression": "警察",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cảnh sát; đồn cảnh sát",
+    "mnemonic_vi": "警察 đọc Hán Việt là CẢNH SÁT, y như tiếng Việt.",
+    "reading": "けいさつ",
+    "romaji": "keisatsu",
+    "topic_vi": "Công việc ②",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-61afeb19d6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先週の京都の旅行はどうでしたか。",
+       "ja_furigana": "先週(せんしゅう)の京都(きょうと)の旅行(りょこう)はどうでしたか。",
+       "vi": "Chuyến du lịch Kyoto tuần trước thế nào?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hồi đó thế nào",
+    "examples": [
+     {
+      "ja": "きのうの パーティーは どうでしたか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bữa tiệc hôm qua thế nào?"
+     }
+    ],
+    "expression": "どうでしたか",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "(đã) thế nào; thấy thế nào",
+    "mnemonic_vi": "どう (thế nào) + でしたか (quá khứ): việc đã qua thế nào rồi? 旅行はどうでしたか.",
+    "reading": "どうでしたか",
+    "romaji": "doudeshitaka",
+    "topic_vi": "Như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e6499a9da2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "コーヒーとお茶と、どちらが好きですか。",
+       "ja_furigana": "コーヒーとお茶(ちゃ)と、どちらが好(す)きですか。",
+       "vi": "Cà phê và trà, bạn thích thứ nào hơn?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cái nào hơn (trong hai)",
+    "examples": [
+     {
+      "ja": "バスと でんしゃと どちらが はやいですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xe buýt và tàu điện cái nào nhanh hơn?"
+     }
+    ],
+    "expression": "どちらが",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cái nào hơn (trong hai thứ); bên nào",
+    "mnemonic_vi": "どちら (bên nào trong hai) + が: bên nào hơn? Dùng khi so sánh hai thứ.",
+    "reading": "どちらが",
+    "romaji": "dochiraga",
+    "topic_vi": "Sở thích",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1bfa611b30"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "日本の料理でどれがいちばん好きですか。",
+       "ja_furigana": "日本(にほん)の料理(りょうり)でどれがいちばん好(す)きですか。",
+       "vi": "Trong các món ăn Nhật bạn thích món nào nhất?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cái nào nhất (trong nhiều)",
+    "examples": [
+     {
+      "ja": "この みっつの なかで どれが いちばん たかいですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong ba cái này, cái nào đắt nhất ạ?"
+     }
+    ],
+    "expression": "どれが",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cái nào nhất (trong nhiều)",
+    "mnemonic_vi": "どれ (cái nào, từ ba thứ trở lên) + が: cái nào (nhất)?",
+    "reading": "どれが",
+    "romaji": "dorega",
+    "topic_vi": "Sở thích",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2722f589b8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ハノイにはにぎやかな町があります。",
+       "ja_furigana": "ハノイにはにぎやかな町(まち)があります。",
+       "vi": "Ở Hà Nội có những khu phố nhộn nhịp.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Hà Nội",
+    "examples": [
+     {
+      "ja": "きのう ハノイは あつかったです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm qua Hà Nội đã nóng."
+     }
+    ],
+    "expression": "ハノイ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "Hà Nội",
+    "mnemonic_vi": "ハノイ là Hà Nội viết bằng katakana: ハ (Hà) + ノイ (Nội).",
+    "reading": "ハノイ",
+    "romaji": "hanoi",
+    "topic_vi": "Phố xá, thị trấn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-91c23380ac"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "バスより電車のほうが速いです。",
+       "ja_furigana": "バスより電車(でんしゃ)のほうが速(はや)いです。",
+       "vi": "Tàu điện thì nhanh hơn xe buýt.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "phía, bên",
+    "examples": [
+     {
+      "ja": "にほんごの ほうが えいごより たのしいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tiếng Nhật thì vui hơn tiếng Anh."
+     }
+    ],
+    "expression": "ほう",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "phía; bên",
+    "mnemonic_vi": "ほう (方, PHƯƠNG = phía): Nのほうが～ dùng khi so sánh, \"phía N thì ... hơn\".",
+    "reading": "ほう",
+    "romaji": "hou",
+    "topic_vi": "Sở thích",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8e132dd643"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "日曜日は天気がよかったです。",
+       "ja_furigana": "日曜日(にちようび)は天気(てんき)がよかったです。",
+       "vi": "Chủ nhật thời tiết đã rất đẹp.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đã tốt, đã hay",
+    "examples": [
+     {
+      "ja": "きのうの パーティーは よかったです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bữa tiệc hôm qua đã rất tốt."
+     }
+    ],
+    "expression": "よかった",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đã tốt; đã hay; may quá",
+    "mnemonic_vi": "よかった là quá khứ của いい (よい): đã tốt; buột miệng \"may quá!\" khi mọi chuyện ổn.",
+    "reading": "よかった",
+    "romaji": "yokatta",
+    "topic_vi": "Như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-bf380daca1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "昨日はとても暑かったから泳ぎました。",
+       "ja_furigana": "昨日(きのう)はとても暑(あつ)かったから泳(およ)ぎました。",
+       "vi": "Vì hôm qua rất nóng nên tôi đã đi bơi.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đã nóng",
+    "examples": [
+     {
+      "ja": "きょねんの なつは あつかったです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mùa hè năm ngoái đã nóng."
+     }
+    ],
+    "expression": "暑かった",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đã nóng",
+    "mnemonic_vi": "暑 âm THỬ, như \"nóng nực mùa hè, tránh thử\": 暑かった là quá khứ của 暑い, tức đã nóng.",
+    "reading": "あつかった",
+    "romaji": "atsukatta",
+    "topic_vi": "Thời tiết",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0950319a46"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "父は毎日オートバイで会社へ行きます。",
+       "ja_furigana": "父(ちち)は毎日(まいにち)オートバイで会社(かいしゃ)へ行(い)きます。",
+       "vi": "Bố tôi hằng ngày đi làm bằng xe máy.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "xe máy",
+    "examples": [
+     {
+      "ja": "オートバイに乗るのが好きです。",
+      "ja_furigana": "オートバイに乗(の)るのが好(す)きです。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi thích đi xe moto."
+     }
+    ],
+    "expression": "オートバイ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "xe máy",
+    "mnemonic_vi": "オートバイ ghép từ \"auto\" + \"bicycle\": chiếc xe đạp tự chạy, tức xe máy.",
+    "reading": "オートバイ",
+    "romaji": "ootobai",
+    "topic_vi": "Phương tiện giao thông",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c4fd283cf5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "休みの日は家でゆっくり休みたいです。",
+       "ja_furigana": "休(やす)みの日(ひ)は家(いえ)でゆっくり休(やす)みたいです。",
+       "vi": "Ngày nghỉ tôi muốn nghỉ ngơi thong thả ở nhà.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "muốn làm",
+    "examples": [
+     {
+      "ja": "なにを したいですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn muốn làm gì?"
+     }
+    ],
+    "expression": "～たい",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "muốn làm",
+    "mnemonic_vi": "～たい gắn vào gốc động từ bỏ ます để nói mong muốn: 行きたい là muốn đi; chia như tính từ い.",
+    "reading": "～たい",
+    "romaji": "~tai",
+    "topic_vi": "Từ thông dụng khác",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4e89e8177d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "家から学校までバスで十五分ぐらいです。",
+       "ja_furigana": "家(いえ)から学校(がっこう)までバスで十五分(じゅうごふん)ぐらいです。",
+       "vi": "Từ nhà đến trường đi xe buýt mất khoảng 15 phút.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "khoảng chừng",
+    "examples": [
+     {
+      "ja": "としょかんで いちじかんぐらい べんきょうします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi học ở thư viện khoảng một tiếng."
+     }
+    ],
+    "expression": "ぐらい",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "khoảng chừng",
+    "mnemonic_vi": "ぐらい (くらい) đứng sau con số để ước lượng: 1時間ぐらい là khoảng chừng 1 tiếng.",
+    "reading": "ぐらい",
+    "romaji": "gurai",
+    "topic_vi": "Khoảng bao lâu?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "trợ từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e958924079"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "誕生日に家族とおいしいすしを食べました。",
+       "ja_furigana": "誕生日(たんじょうび)に家族(かぞく)とおいしいすしを食(た)べました。",
+       "vi": "Vào ngày sinh nhật tôi đã ăn sushi ngon cùng gia đình.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sushi",
+    "examples": [
+     {
+      "ja": "すしが たべたいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi muốn ăn sushi."
+     }
+    ],
+    "expression": "すし",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "sushi",
+    "mnemonic_vi": "すし là sushi: cơm trộn giấm đặt cá sống lên trên hoặc cuộn rong biển.",
+    "reading": "すし",
+    "romaji": "sushi",
+    "topic_vi": "Món ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d7807fcfd9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "十二時ですから、そろそろ昼ごはんにします。",
+       "ja_furigana": "十二時(じゅうにじ)ですから、そろそろ昼(ひる)ごはんにします。",
+       "vi": "12 giờ rồi nên tôi chuẩn bị ăn trưa đây.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "もう十時です。そろそろ寝ます。",
+       "ja_furigana": "もう十時(じゅうじ)です。そろそろ寝(ね)ます。",
+       "source": "AI",
+       "vi": "Đã mười giờ rồi. Tôi sắp đi ngủ đây."
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sắp tới lúc",
+    "examples": [
+     {
+      "ja": "そろそろ帰りましょう。",
+      "ja_furigana": "そろそろ帰(かえ)りましょう。",
+      "source": "VNJPCLUB",
+      "vi": "Sắp đến lúc rồi, chúng ta về thôi."
+     },
+     {
+      "ja": "もう十時です。そろそろ寝ます。",
+      "ja_furigana": "もう十時(じゅうじ)です。そろそろ寝(ね)ます。",
+      "source": "AI",
+      "vi": "Đã mười giờ rồi. Tôi sắp đi ngủ đây."
+     }
+    ],
+    "expression": "そろそろ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "sắp đến lúc; sắp sửa",
+    "mnemonic_vi": "そろそろ: \"sô-rô sô-rô\" như bước chân rón rén chuẩn bị đứng dậy, ý là đã sắp tới lúc rồi.",
+    "reading": "そろそろ",
+    "romaji": "sorosoro",
+    "topic_vi": "Hãy ghi nhớ cả phó từ ②",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-74838e0528"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夜遅いから、甘い物は食べたくないです。",
+       "ja_furigana": "夜(よる)遅(おそ)いから、甘(あま)い物(もの)は食(た)べたくないです。",
+       "vi": "Vì tối muộn rồi nên tôi không muốn ăn đồ ngọt.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "không muốn làm",
+    "examples": [
+     {
+      "ja": "つかれましたから どこへも いきたくないです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì mệt rồi nên tôi không muốn đi đâu cả."
+     }
+    ],
+    "expression": "たくない",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "không muốn làm",
+    "mnemonic_vi": "たい (muốn) đổi い thành くない: 行きたくない là không muốn đi.",
+    "reading": "たくない",
+    "romaji": "takunai",
+    "topic_vi": "Từ thông dụng khác",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7aeab3f82d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "きれいな花の前で写真をとります。",
+       "ja_furigana": "きれいな花(はな)の前(まえ)で写真(しゃしん)をとります。",
+       "vi": "Tôi chụp ảnh trước những bông hoa đẹp.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chụp (ảnh)",
+    "examples": [
+     {
+      "ja": "しゃしんを とりたいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi muốn chụp ảnh."
+     }
+    ],
+    "expression": "とります",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "chụp (ảnh)",
+    "mnemonic_vi": "とります (撮る) khi chụp ảnh: 写真をとります; bấm máy \"tách\" một cái là lấy được khoảnh khắc.",
+    "reading": "とります",
+    "romaji": "torimasu",
+    "topic_vi": "Sở thích",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-fa28a4145b"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N5",
+ "packet_id": "REVIEW_VOCAB-068"
+}

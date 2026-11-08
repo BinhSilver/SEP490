@@ -1,0 +1,584 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "砂場で遊んだ子どもたちは、服が砂まみれになった。",
+       "ja_furigana": "砂場(すなば)で遊(あそ)んだ子(こ)どもたちは、服(ふく)が砂(すな)まみれになった。",
+       "vi": "Đám trẻ chơi ở hố cát nên quần áo dính đầy cát."
+      },
+      {
+       "ja": "油まみれの手で、大事な書類に触らないで。",
+       "ja_furigana": "油(あぶら)まみれの手(て)で、大事(だいじ)な書類(しょるい)に触(さわ)らないで。",
+       "vi": "Đừng chạm vào tài liệu quan trọng bằng bàn tay dính đầy dầu."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "泥まみれになっても、最後まで走り抜いた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù lấm bùn, tôi vẫn chạy đến cuối."
+     },
+     {
+      "ja": "彼は汗まみれのシャツを着替えた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy thay chiếc áo sơ mi đẫm mồ hôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 泥まみれになっても、最後まで走り抜いた。",
+     "FURIGANA_MISSING: 彼は汗まみれのシャツを着替えた。"
+    ],
+    "formation": "N + まみれ",
+    "locked_fields": [],
+    "meaning_vi": "“Đầy/loang lổ/bám đầy N”, thường là chất bẩn hoặc thứ khó chịu (泥, 砂, 血, 汗, 油, ほこり...). Có thể dùng ẩn dụ cho trạng thái ngập chìm trong điều tiêu cực: 嘘まみれ, 噂まみれ, 借金まみれ. Khác với だらけ: まみれ nhấn “bị phủ bề mặt/toàn thân”; だらけ nhấn “nhiều lỗi/vết sai rải rác”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đầy... / toàn...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Ưu tiên dùng với vật chất có tính “bám/loang/chảy”; trong ẩn dụ, hàm ý tiêu cực mạnh. Trong lối nói lịch sự/miêu tả báo chí, まみれ tạo ấn tượng sống động, đôi khi nặng nề. Không dùng với sự vật tích cực/đáng yêu (× 花まみれ → dùng 花だらけ/花いっぱい). [6. Ghi chú mở rộng] Hình ảnh “まみれる” gợi sự khó chịu/bẩn thỉu → dùng ẩn dụ tạo sắc thái phê phán mạnh. Với vật thấm/hút (紙, 布), miêu tả tẩm ướt: 血まみれ/汗まみれ nghe mạnh hơn so với 濡れた. Có thể phối hợp tính từ: 汗まみれで臭う (đầy mồ hôi và bốc mùi). [7. Biến thể & cụm cố định] Nにまみれる (động từ): 泥にまみれた顔 Nまみれになる: 油まみれになった手 Cụm phổ biến: 泥まみれ, 血まみれ, 汗まみれ, 借金まみれ, 嘘まみれ [8. Lỗi thường gặp & bẫy JLPT] Dùng với danh từ tích cực → không tự nhiên: × 褒め言葉まみれ → nên dùng 褒め言葉だらけ. 間違いまみれ có thể dùng khi muốn nhấn một nội dung bị ‘phủ/ngập’ trong sai sót; tuy nhiên 間違いだらけ thông dụng hơn khi nói có nhiều lỗi rời rạc. Không nên đánh dấu 間違いまみれ là sai tuyệt đối. Quên sắc thái tiêu cực → câu nghe quá nặng nề trong ngữ cảnh nhẹ nhàng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9995dbc5ec"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "借金をしたが最後、なかなか抜け出せない。",
+       "ja_furigana": "借金(しゃっきん)をしたが最後(さいご)、なかなか抜(ぬ)け出(だ)せない。",
+       "vi": "Một khi đã vay nợ thì khó mà thoát ra được."
+      },
+      {
+       "ja": "賭け事に手を出したが最後、止められなくなる。",
+       "ja_furigana": "賭(か)け事(ごと)に手(て)を出(だ)したが最後(さいご)、止(や)められなくなる。",
+       "vi": "Một khi đã nhúng tay vào cờ bạc thì không dừng lại được."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼にお金を貸したが最後、二度と戻ってこない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một khi đã cho anh ta vay tiền thì chẳng bao giờ lấy lại được."
+     },
+     {
+      "ja": "ギャンブルに手を出したが最後、人生が転落してしまう人もいる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một khi đã nhúng tay vào cờ bạc, có người cuộc đời tụt dốc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼にお金を貸したが最後、二度と戻ってこない。",
+     "FURIGANA_MISSING: ギャンブルに手を出したが最後、人生が転落してしまう人もいる。"
+    ],
+    "formation": "Vた + が最後",
+    "locked_fields": [],
+    "meaning_vi": "Mẫu ～たが最後 diễn tả: “Một khi đã V thì (hậu quả) là kết cục không thể tránh/không thể quay lại, kéo dài dai dẳng”. Sắc thái mạnh, văn viết/diễn thuyết, thường dùng để cảnh báo hoặc nhấn mạnh tính không thể đảo ngược. Khung nghĩa: Điểm bùng -> đường một chiều -> hệ quả cố định (thường xấu). Vế sau hay đi với biểu thức khép lại khả năng đảo ngược: 二度と～ない, ～っぱなし, ～きり, もはや～ない. Thường dùng với hành vi có tính nghiện/nguy cơ: 手を出す, 足を踏み入れる, 口を出す, 付き合う, 借りる. So với ～たら最後: ～たが最後 trang trọng, văn ngôn hơn; mức nhấn mạnh thường mạnh hơn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Một khi đã... là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái mạnh, trang trọng; dùng để cảnh báo/hệ quả nghiêm trọng. Vế sau thường là thực tại tất yếu, ngoài kiểm soát; tránh dùng với ý chí/ra lệnh trực tiếp. Hay đi kèm trạng từ nhấn mạnh: いったん, 一度, ひとたび. Ít dùng trong hội thoại thân mật hàng ngày; thay bằng ～たら最後 trong khẩu ngữ. Không kết hợp tốt với nội dung tích cực rõ rệt (nghe gượng). [6. Ghi chú mở rộng] Thường dùng trong bài viết nghị luận, tin tức, mô tả rủi ro: 依存・中毒・借金・噂・暴力など. Lựa chọn động từ gợi tính “sa chân”: 足を踏み入れる, 手を出す, 首を突っ込む, 甘える. Vế sau hay có dạng trạng thái kéo dài: ～続ける, ～っぱなし, ～きり, ～まま. Khi viết báo chí/tiêu đề, có thể lược chủ ngữ để tăng tính khái quát. [7. Biến thể & cụm cố định] 一度V-たが最後, ～ / いったんV-たが最後, ～ / ひとたびV-たが最後, ～ V-たが最後、二度とV-ない / 元に戻れない / 抜け出せない Danh động từ hay đi kèm: 依存になったが最後, うわさを信じたが最後 Biến thể đồng nghĩa khẩu ngữ: ～たら最後 (xem mục 129) [8. Lỗi thường gặp & bẫy JLPT] Dùng cho kết quả tích cực rõ ràng → không tự nhiên. Nên dùng với hệ quả tiêu cực/khó đảo ngược. Vế sau dùng ý chí/ra lệnh trực tiếp (～なさい/～してください) → sai sắc thái. Nhãn thời gian nhầm với ～たとたん: ～たが最後 không nói “ngay sau”, mà “không thể quay lại”. Nhầm với ～以上(は)/～からには: hai mẫu kia là nghĩa vụ/quy luật, không hàm “điểm không thể quay lại”. JLPT bẫy: chọn đáp án có từ khóa 二度と/～っぱなし/～きり đi kèm ～たが最後 là dấu hiệu đúng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b36b4d68e0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店のケーキを一口食べたら最後、もう他の店では満足できないよ。",
+       "ja_furigana": "この店(みせ)のケーキを一口(ひとくち)食(た)べたら最後(さいご)、もう他(ほか)の店(みせ)では満足(まんぞく)できないよ。",
+       "vi": "Ăn một miếng bánh ở tiệm này là hết, không thể hài lòng với tiệm khác nữa."
+      },
+      {
+       "ja": "彼女に弱みを見せたら最後、ずっとからかわれる。",
+       "ja_furigana": "彼女(かのじょ)に弱(よわ)みを見(み)せたら最後(さいご)、ずっとからかわれる。",
+       "vi": "Một khi để cô ấy thấy điểm yếu là sẽ bị trêu mãi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "スマホゲームを始めたら最後、課金が止まらなくなるよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một khi bắt đầu game điện thoại là nạp tiền không dừng đâu."
+     },
+     {
+      "ja": "彼に秘密を話したら最後、すぐ広まってしまう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu mà nói bí mật với anh ta là sẽ lan nhanh ngay."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: スマホゲームを始めたら最後、課金が止まらなくなるよ。",
+     "FURIGANA_MISSING: 彼に秘密を話したら最後、すぐ広まってしまう。"
+    ],
+    "formation": "Vたら + 最後",
+    "locked_fields": [],
+    "meaning_vi": "～たら最後 diễn tả “một khi đã làm… thì coi như hết, hệ quả xấu là tất yếu và khó đảo ngược”. Đây là biến thể khẩu ngữ của ～たが最後. Dùng nhiều trong hội thoại để cảnh báo hoặc than thở. Nhấn mạnh “điểm không thể quay lại”: point of no return. Thường đi với thói quen xấu/nghiện/nguy hiểm: 飲みだす, 手を出す, さぼる, 嘘をつく. Vế sau mang sắc thái bất lực/định mệnh: もう～ない, もはや～ない, ずっと～まま.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu... là... tiêu",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Khẩu ngữ, tự nhiên trong hội thoại; mức nhấn mạnh vẫn mạnh. Vế sau nên là hệ quả tiêu cực, kéo dài, khó sửa chữa. Kết hợp tốt với bổ ngữ nhấn: いったん/一度/ひとたび. Tránh dùng với nội dung tích cực rõ ràng (nghe mâu thuẫn). [6. Ghi chú mở rộng] Dùng hiệu quả trong lời khuyên răn: ～したら最後だよ (cảnh báo thân mật). Trong quảng bá sức khỏe/giáo dục: 依存の怖さを強調するフレーズとして有効. Đồng hiện với もう/二度と/もはや/ずっと để củng cố “không quay lại”. [7. Biến thể & cụm cố định] 一度V-たら最後、～ / いったんV-たら最後、～ / ひとたびV-たら最後、～ V-たら最後、二度とV-ない / 抜け出せない / 元に戻らない ～したら最後 (dạng nói nhanh với サ変 động từ) [8. Lỗi thường gặp & bẫy JLPT] Dùng với kết quả tích cực → không tự nhiên. Hãy gắn với kết cục xấu/khó đảo ngược. Vế sau là mệnh lệnh/trực tiếp ý chí → sai sắc thái (nên tả thực tế tất yếu). Nhầm với ～たとたん (chỉ tức thì, không mang nghĩa “điểm không thể quay lại”). JLPT bẫy: tìm dấu hiệu như 二度と/もう～ない/～っぱなし/～きり đi cùng ～たら最後."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fcb3f599ce"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟の手前、泣くわけにはいかない。",
+       "ja_furigana": "弟(おとうと)の手前(てまえ)、泣(な)くわけにはいかない。",
+       "vi": "Trước mặt em trai, tôi không thể khóc."
+      },
+      {
+       "ja": "自分から誘った手前、今さら行かないとは言えない。",
+       "ja_furigana": "自分(じぶん)から誘(さそ)った手前(てまえ)、今(いま)さら行(い)かないとは言(い)えない。",
+       "vi": "Vì chính mình đã rủ nên giờ không thể nói là không đi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "子どもの手前、弱音は吐けない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì trước mặt con, tôi không thể than thở yếu đuối."
+     },
+     {
+      "ja": "約束した手前、断るわけにはいかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì đã hứa rồi nên không thể từ chối."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 子どもの手前、弱音は吐けない。",
+     "FURIGANA_MISSING: 約束した手前、断るわけにはいかない。"
+    ],
+    "formation": "N + の + 手前; Vる/Vた + 手前",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: Vì ở trước mặt ai/vì thể diện/vì đã lỡ nói/làm gì đó nên khó làm điều trái ngược, buộc phải giữ kẽ/giữ lời. Sắc thái: Tự ràng buộc, chịu áp lực xã hội/thể diện; thường gắn với người nói hoặc người trong phe người nói. N + の手前 nhấn “trước mặt … nên khó xử”; V + 手前 nhấn “đã lỡ … nên không thể rút lại”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vì thể diện...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nêu lý do “khó làm X” vì rào cản thể diện/xã hội; hay đi với ～わけにはいかない／にくい／しかない／ざるを得ない. Giọng điệu mang tính nội tâm, tự bắt buộc; thường dùng ở ngôi nhất hoặc người gần gũi. Trung tính đến hơi trang trọng; dùng được trong cả văn nói và viết. [6. Ghi chú mở rộng] Xuất phát từ nghĩa gốc “phía trước/mặt trước”; từ đó phát triển nghĩa “trước mặt người khác → giữ thể diện”. Thường kết hợp với cấu trúc bất khả: ～わけにはいかない／にくい／づらい／しかない／ざるを得ない để nhấn sự bắt buộc. Có thể dùng gián tiếp để từ chối/lý giải lịch sự: “上司の手前、今回は見送ります”. [7. Biến thể & cụm cố định] Nの手前、～わけにはいかない／～しにくい Vた手前、～せざるを得ない／～しかない 人前（ひとまえ）の手前（tương tự sắc thái “trước mặt mọi người”） [8. Lỗi thường gặp & bẫy JLPT] Nhầm “手前” nghĩa không gian với ngữ pháp “thể diện” → sai ngữ cảnh. Vế sau không thể hiện ràng buộc (ví dụ câu tả cảnh) → thiếu tự nhiên. Dùng để biện minh bừa bãi cho hành vi tiêu cực → sắc thái ngụy biện, không lịch sự."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-17673bd491"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "飲酒運転は、運転手にあるまじき行為だ。",
+       "ja_furigana": "飲酒運転(いんしゅうんてん)は、運転手(うんてんしゅ)にあるまじき行為(こうい)だ。",
+       "vi": "Lái xe khi say rượu là hành vi không thể có ở người cầm lái."
+      },
+      {
+       "ja": "生徒に暴力をふるうとは、教師にあるまじき行為だ。",
+       "ja_furigana": "生徒(せいと)に暴力(ぼうりょく)をふるうとは、教師(きょうし)にあるまじき行為(こうい)だ。",
+       "vi": "Đánh đập học sinh là hành vi không thể có ở một giáo viên."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "カンニングするなど、学生にあるまじき行為だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gian lận thi cử là hành vi không thể có ở một học sinh."
+     },
+     {
+      "ja": "子どもを虐待して殺すとは、まったく親にあるまじきことだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngược đãi rồi giết con là chuyện hoàn toàn không thể chấp nhận ở một bậc cha mẹ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: カンニングするなど、学生にあるまじき行為だ。",
+     "FURIGANA_MISSING: 子どもを虐待して殺すとは、まったく親にあるまじきことだ。"
+    ],
+    "formation": "N + にあるまじき + N",
+    "locked_fields": [],
+    "meaning_vi": "Không thể chấp nhận/không được phép có ở một người mang cương vị...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜あるまじき",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Phê phán mạnh một hành vi là hoàn toàn trái với đạo đức hoặc chuẩn mực của người ở cương vị được nêu. Là cách nói trang trọng, cứng và luôn mang đánh giá tiêu cực. 1) Dễ nhầm với ～べきではない. → ～あるまじき phê phán mạnh một hành vi hoàn toàn không thể chấp nhận ở người mang cương vị hoặc tư cách được nêu. 2) Chú ý cấu trúc bổ nghĩa danh từ. → Thường dùng Nに／としてあるまじき＋行為・発言・態度など. 3) Mẫu luôn mang đánh giá tiêu cực và rất trang trọng. → Không dùng để đưa ra lời khuyên nhẹ; sắc thái gần với lên án hành vi trái nghiêm trọng với chuẩn mực."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0905a75d71"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は才能こそあれ、人に頼るのが苦手だ。",
+       "ja_furigana": "彼(かれ)は才能(さいのう)こそあれ、人(ひと)に頼(たよ)るのが苦手(にがて)だ。",
+       "vi": "Anh ấy có tài thì có, nhưng lại không giỏi nhờ vả người khác."
+      },
+      {
+       "ja": "見方は人によって違うとはいえ、程度の差こそあれ、みな彼の実力を認めている。",
+       "ja_furigana": "見方(みかた)は人(ひと)によって違(ちが)うとはいえ、程度(ていど)の差(さ)こそあれ、みな彼(かれ)の実力(じつりょく)を認(みと)めている。",
+       "vi": "Cách nhìn tuy mỗi người một khác, nhưng dù mức độ khác nhau, ai cũng công nhận thực lực của anh ấy."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は財産こそあれ、身寄りのない寂しい身の上だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy có tài sản thì có, nhưng lại sống cô quạnh, không họ hàng thân thích."
+     },
+     {
+      "ja": "程度の差こそあれ、だれしも嫌いな人の一人や二人はいるのではないか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù mức độ có khác nhau, có lẽ ai cũng có một hai người mình không ưa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は財産こそあれ、身寄りのない寂しい身の上だ。",
+     "FURIGANA_MISSING: 程度の差こそあれ、だれしも嫌いな人の一人や二人はいるのではないか。"
+    ],
+    "formation": "N + こそあれ; Vます + こそすれ; N + こそなれ",
+    "locked_fields": [],
+    "meaning_vi": "Có/làm/trở thành... thì có, nhưng tuyệt nhiên không...; chỉ... chứ không...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜こそあれ/〜こそすれ/〜こそなれ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Thừa nhận mạnh mẽ khả năng hoặc thực tế ở vế trước rồi phủ định hay đối lập với vế sau. こそ làm nổi bật rằng chỉ trường hợp trước là đúng, còn kết quả trái ngược phía sau thì không. 1) Phân biệt ～こそあれ／～こそすれ／～こそなれ. → Danh từ dùng こそあれ, thân ます của động từ dùng こそすれ, còn danh từ hoặc tính từ な thường dùng にこそなれ. 2) Vế sau thường là phủ định hoặc đối lập mạnh. → Cấu trúc có nghĩa “A thì có, nhưng tuyệt nhiên không B”, trong đó こそ nhấn mạnh chỉ A mới đúng. 3) Mẫu mang sắc thái văn viết, cứng. → Không nhầm với ～ても／～とはいえ là nhượng bộ thông thường; ở đây người nói loại bỏ mạnh khả năng trái ngược."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-45028f4160"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は出張にかこつけて、よく観光を楽しんでいる。",
+       "ja_furigana": "彼(かれ)は出張(しゅっちょう)にかこつけて、よく観光(かんこう)を楽(たの)しんでいる。",
+       "vi": "Anh ta lấy cớ đi công tác để thường xuyên thưởng ngoạn."
+      },
+      {
+       "ja": "彼は会議にかこつけて、苦手な集まりをいつも断る。",
+       "ja_furigana": "彼(かれ)は会議(かいぎ)にかこつけて、苦手(にがて)な集(あつ)まりをいつも断(ことわ)る。",
+       "vi": "Anh ấy vin cớ họp để lúc nào cũng từ chối buổi tụ tập mình không thích."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "父は毎週仕事にかこつけてゴルフに行っている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tuần nào cha tôi cũng lấy cớ công việc để đi chơi golf."
+     },
+     {
+      "ja": "学校に行きたくないので、母の病気にかこつけて休んでしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì không muốn đến trường, tôi vin vào việc mẹ bị bệnh để nghỉ học."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: 〜にかこつけて",
+     "FURIGANA_MISSING: 父は毎週仕事にかこつけてゴルフに行っている。",
+     "FURIGANA_MISSING: 学校に行きたくないので、母の病気にかこつけて休んでしまった。"
+    ],
+    "formation": "N + にかこつけて",
+    "locked_fields": [],
+    "meaning_vi": "Vin/lấy một việc vốn không liên quan làm cớ để làm điều mình muốn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜にかこつけて",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Người nói cho rằng lý do được nêu chỉ là cái cớ, còn mục đích thật sự nằm ở hành động phía sau. Thường mang sắc thái phê phán hoặc tự thú nhận một ý đồ riêng. 1) Dễ nhầm với ～を理由に／～を口実に. → ～にかこつけて cho rằng lý do A chỉ là cái cớ, còn mục đích thật sự là hành động B phía sau. 2) A và mục đích thật không hoàn toàn trùng nhau. → Nếu A thực sự là nguyên nhân trực tiếp, ～にかこつけて không phù hợp. 3) Mẫu thường mang sắc thái phê phán hoặc tự thú nhận. → Hay dùng khi ai đó vin vào công việc, lễ hội, chuyến đi hoặc bệnh tật để làm điều mình vốn muốn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-85f1cfef4f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は先輩ぶって、何でも命令したがる。",
+       "ja_furigana": "彼(かれ)は先輩(せんぱい)ぶって、何(なん)でも命令(めいれい)したがる。",
+       "vi": "Anh ta làm ra vẻ đàn anh, cái gì cũng muốn ra lệnh."
+      },
+      {
+       "ja": "あいつは文化人ぶっているが、実は何も知らない。",
+       "ja_furigana": "あいつは文化人(ぶんかじん)ぶっているが、実(じつ)は何(なに)も知(し)らない。",
+       "vi": "Gã đó ra vẻ trí thức, chứ thực ra chẳng biết gì."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "歳しか違わないのに、大学生になった彼女は急に大人ぶって私に説教した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ hơn tôi hai tuổi, vậy mà từ khi trở thành sinh viên đại học, cô ấy đột nhiên ra vẻ người lớn rồi lên lớp tôi."
+     },
+     {
+      "ja": "彼女は恋人といるときには妙に上品ぶっているのがおかしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thật buồn cười là khi ở bên người yêu, cô ấy lại làm ra vẻ đoan trang một cách kỳ lạ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: 〜ぶる",
+     "FURIGANA_MISSING: 歳しか違わないのに、大学生になった彼女は急に大人ぶって私に説教した。",
+     "FURIGANA_MISSING: 彼女は恋人といるときには妙に上品ぶっているのがおかしい。"
+    ],
+    "formation": "N + ぶる; N + ぶって",
+    "locked_fields": [],
+    "meaning_vi": "Làm ra vẻ/ra dáng như... (thường mang sắc thái chê trách).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ぶる",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Chỉ việc cố ý cư xử như thể mình có một phẩm chất, địa vị hay trạng thái nào đó, thường không đúng với thực chất. Người nói thường nhìn hành vi ấy với thái độ mỉa mai hoặc khó chịu. 1) Dễ nhầm với ～ふりをする／～らしい. → ～ぶる diễn tả cố ý làm ra vẻ có phẩm chất, địa vị hoặc trạng thái nào đó, thường không đúng với thực chất. 2) Mẫu thường mang sắc thái mỉa mai hoặc chê trách. → Nếu đặc điểm là thật và chỉ muốn nói “ra dáng”, ～らしい có thể phù hợp hơn. 3) Khả năng tạo từ có giới hạn. → Nên ghi nhớ các dạng quen dùng như 偉ぶる, 大人ぶる, 学者ぶる, 知ったかぶる."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-069b77dfee"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "準備不足なら、失敗は起こるべくして起こったのだ。",
+       "ja_furigana": "準備不足(じゅんびぶそく)なら、失敗(しっぱい)は起(お)こるべくして起(お)こったのだ。",
+       "vi": "Nếu chuẩn bị không đủ thì thất bại xảy ra là điều tất yếu."
+      },
+      {
+       "ja": "二人は再会するべくして再会した。",
+       "ja_furigana": "二人(ふたり)は再会(さいかい)するべくして再会(さいかい)した。",
+       "vi": "Hai người gặp lại nhau vì vốn dĩ định mệnh phải gặp lại."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "その事故の原因が飲酒運転なら、事故は起こるべくして起こったと言えるだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu nguyên nhân là lái xe khi say rượu thì có thể nói tai nạn ấy xảy ra là điều tất yếu."
+     },
+     {
+      "ja": "「二人は出会うべくして出会ったんだね。お互いに、運命の人だったんだね」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "“Hai người gặp nhau vì số phận vốn đã định phải gặp. Hai người đúng là người định mệnh của nhau.”"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: 〜べくして",
+     "FURIGANA_MISSING: その事故の原因が飲酒運転なら、事故は起こるべくして起こったと言えるだろう。",
+     "FURIGANA_MISSING: 「二人は出会うべくして出会ったんだね。お互いに、運命の人だったんだね」"
+    ],
+    "formation": "Vる + べくして + Vた",
+    "locked_fields": [],
+    "meaning_vi": "Xảy ra đúng như điều tất yếu; vốn dĩ phải... nên đã...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜べくして",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Lặp lại cùng một động từ để đánh giá rằng kết quả ấy không phải ngẫu nhiên mà là hệ quả tất yếu của nguyên nhân hoặc hoàn cảnh. Có thể dùng cho cả kết quả tốt lẫn xấu. 1) Dễ nhầm với ～べく chỉ mục đích. → VるべくしてVた lặp cùng một động từ để đánh giá kết quả đã xảy ra là tất yếu, không phải ngẫu nhiên. 2) Cùng một động từ xuất hiện ở hai vị trí. → 起こるべくして起こった, 勝つべくして勝った là những khung điển hình. 3) Mẫu thường nhìn lại kết quả sau khi đã xảy ra. → Không diễn tả chủ thể làm B nhằm mục đích A; nghĩa mục đích thuộc mẫu Vるべく＋hành động khác."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-dbdce29ad7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "問い詰められて、彼は苦しまぎれにうそをついた。",
+       "ja_furigana": "問(と)い詰(つ)められて、彼(かれ)は苦(くる)しまぎれにうそをついた。",
+       "vi": "Bị hỏi dồn, anh ấy trong cơn bối rối đã nói dối."
+      },
+      {
+       "ja": "負けて悔しまぎれに、彼はラケットを床にたたきつけた。",
+       "ja_furigana": "負(ま)けて悔(くや)しまぎれに、彼(かれ)はラケットを床(ゆか)にたたきつけた。",
+       "vi": "Thua trận, trong cơn cay cú anh ấy đập vợt xuống sàn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "首を絞められた彼女は、苦しまぎれに彼の髪をつかんだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bị bóp cổ, trong cơn vùng vẫy vì đau đớn cô ấy đã túm lấy tóc hắn."
+     },
+     {
+      "ja": "親に叱られ、悔しまぎれにドアを蹴飛ばした。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bị cha mẹ mắng, trong cơn cay cú tôi đã đá mạnh vào cửa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: 〜まぎれに",
+     "FURIGANA_MISSING: 首を絞められた彼女は、苦しまぎれに彼の髪をつかんだ。",
+     "FURIGANA_MISSING: 親に叱られ、悔しまぎれにドアを蹴飛ばした。"
+    ],
+    "formation": "N/Aい語幹 + まぎれに; Vます + まぎれに",
+    "locked_fields": [],
+    "meaning_vi": "Vì quá.../trong cơn... mà làm một việc bột phát.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜まぎれに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả hành động thiếu suy nghĩ được thực hiện trong lúc bị một cảm xúc hoặc tình trạng mạnh chi phối, như đau đớn, cay cú hay tức giận. Các kết hợp thường mang tính cố định. 1) Dễ nhầm với ～に任せて. → ～まぎれに diễn tả trong lúc bị cảm xúc hoặc tình trạng mạnh chi phối, chủ thể bột phát làm một hành động thiếu suy nghĩ. 2) Khả năng kết hợp khá cố định. → 苦しまぎれに, 悔しまぎれに, 腹立ちまぎれに, どさくさ紛れに thường cần học theo cụm. 3) Hành động phía sau thường đáng tiếc hoặc không kiểm soát. → Mẫu không dùng cho quyết định bình tĩnh, có kế hoạch dù nguyên nhân là cảm xúc mạnh. 紛れる Phần này minh họa các cách dùng của động từ 紛れる và danh từ 紛れ: một người hay vật hòa vào đám đông, sự hỗn loạn, hoặc tâm trí tạm quên nỗi buồn. 1) Không nhầm động từ 紛れる với mẫu ～まぎれに. → 紛れる có thể chỉ hòa lẫn nên khó nhận ra, lợi dụng sự hỗn loạn, hoặc tâm trí tạm quên nỗi buồn. 2) Chú ý trợ từ và chủ thể. → 人込みに紛れる là lẫn vào đám đông; 混乱に紛れて là nhân lúc hỗn loạn; 悲しみが紛れる là nỗi buồn nguôi đi. 3) Nghĩa thay đổi theo cụm đi kèm. → Không phải mọi trường hợp 紛れる đều mang ý hành động bột phát do cảm xúc như ～まぎれに."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-407692f4e5"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-042"
+}

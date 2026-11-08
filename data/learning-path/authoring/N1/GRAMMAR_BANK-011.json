@@ -1,0 +1,2054 @@
+{
+ "header": {
+  "instructions": "check_bank ≥ 8 câu, mỗi dạng FILL/ORDER_STAR/MEANING/ERROR ≥ 2: {type, prompt_ja, options[4], answer_index, explanation_vi}; order_items 2 {pieces[], answer_order[]}; fill_items 2 {sentence_ja với ＿＿, answer}; extra_practice 3 (cùng dạng check_bank). Đáp án nhiễu không được cũng đúng."
+ },
+ "items": [
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "部長（　　）、多くの社員が反対した。",
+      "options": [
+       "をはじめ",
+       "をもって",
+       "にあって",
+       "がてら"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Nêu trưởng phòng là đại diện tiêu biểu, ngoài ra còn nhiều nhân viên khác cũng phản đối."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "この町には古いお寺（　　）、見どころがたくさんある。",
+      "options": [
+       "をおいて",
+       "いかんで",
+       "をはじめ",
+       "なくして"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Chùa cổ là ví dụ tiêu biểu trong số nhiều điểm tham quan của thị trấn."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "会場には ＿＿ ＿＿ ★ ＿＿ 集まった。",
+      "options": [
+       "人たち",
+       "多くの客が",
+       "地元の",
+       "をはじめ、"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 会場には地元の人たちをはじめ、多くの客が集まった。 Ô ★ là をはじめ、. Nhiều khách, tiêu biểu là người địa phương, đã tụ họp ở hội trường."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "この店は ＿＿ ＿＿ ★ ＿＿ 楽しめる。",
+      "options": [
+       "をはじめ、",
+       "すし",
+       "日本料理が",
+       "いろいろな"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: この店はすしをはじめ、いろいろな日本料理が楽しめる。 Ô ★ là いろいろな. Ở quán này có thể thưởng thức nhiều món Nhật, tiêu biểu là sushi."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "母をはじめ、家族みんながよろこんでくれた。",
+      "options": [
+       "Chỉ có mẹ là vui mừng.",
+       "Cả nhà, đứng đầu là mẹ, đều vui mừng cho tôi.",
+       "Mẹ bắt đầu vui trước khi cả nhà biết.",
+       "Ngoài mẹ ra, không ai vui cả."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "をはじめ nêu mẹ là người tiêu biểu, hàm ý cả gia đình cũng vậy."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この大学には、韓国をはじめ、いろいろな国から学生が来ている。",
+      "options": [
+       "Trường này chỉ có sinh viên Hàn Quốc.",
+       "Trường bắt đầu nhận sinh viên từ năm nay.",
+       "Trường không nhận sinh viên Hàn Quốc.",
+       "Sinh viên đến trường này từ nhiều nước, tiêu biểu là Hàn Quốc."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Hàn Quốc là ví dụ đại diện cho nhiều nước khác."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai をはじめ?",
+      "options": [
+       "校長をはじめ、先生方が集まった。",
+       "東京をはじめ、大きな町で雨が続いた。",
+       "社長にはじめ、社員が集まった。",
+       "父をはじめ、家族全員が元気だ。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Mẫu đúng là N + をはじめ, không dùng trợ từ に."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai をはじめ?",
+      "options": [
+       "兄をはじめ、友達もみんな来た。",
+       "部長だけをはじめ、社員が集まった。",
+       "すしをはじめ、日本料理が人気だ。",
+       "駅前には銀行をはじめ、いろいろな店がある。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "をはじめ hàm ý còn nhiều người khác, nên mâu thuẫn với だけ (chỉ)."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "出席した。",
+       "会議に",
+       "全員が",
+       "社長をはじめ、"
+      ],
+      "answer_order": [
+       3,
+       2,
+       1,
+       0
+      ],
+      "translation_vi": "Toàn bộ mọi người, đứng đầu là giám đốc, đã dự họp."
+     },
+     {
+      "pieces": [
+       "友人や",
+       "家族をはじめ、",
+       "お礼を言いたい。",
+       "先生にも"
+      ],
+      "answer_order": [
+       1,
+       0,
+       3,
+       2
+      ],
+      "translation_vi": "Tôi muốn cảm ơn gia đình, bạn bè và cả thầy cô."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "社長＿＿、社員全員が反対した。",
+      "answer": "をはじめ",
+      "translation_vi": "Toàn bộ nhân viên, đứng đầu là giám đốc, đều phản đối."
+     },
+     {
+      "sentence_ja": "この地方は魚＿＿、野菜もおいしい。",
+      "answer": "をはじめ",
+      "translation_vi": "Vùng này cá là tiêu biểu, rau cũng ngon."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "日本（　　）、アジアの国々で人気がある。",
+      "options": [
+       "にひきかえ",
+       "とあって",
+       "ともなると",
+       "をはじめ"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Nhật Bản là đại diện tiêu biểu trong các nước châu Á được nhắc đến."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "社長をはじめとする役員が出席した。",
+      "options": [
+       "Ban lãnh đạo, đứng đầu là giám đốc, đã tham dự.",
+       "Chỉ có giám đốc tham dự.",
+       "Giám đốc bắt đầu cuộc họp một mình.",
+       "Ban lãnh đạo vắng mặt trừ giám đốc."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "をはじめとする + N bổ nghĩa danh từ: nhóm người với giám đốc đứng đầu."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai をはじめ?",
+      "options": [
+       "犬をはじめ、ねこやうさぎもいる。",
+       "バスをはじめ、電車も止まった。",
+       "会長をはじめ、多くの人が来た。",
+       "犬をはじめる、ねこやうさぎもいる。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Phải dùng をはじめ (thể liên dụng), không dùng thể từ điển はじめる."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "社長をはじめ、全社員が参加した。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Trước hết là, đứng đầu là — Nêu đại diện tiêu biểu rồi hàm ý còn nhiều nữa.",
+    "pattern": "N + をはじめ",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-c72e625510"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "長い話し合い（　　）、ようやく計画が決まった。",
+      "options": [
+       "をよそに",
+       "を経て",
+       "にひきかえ",
+       "ともなく"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Trải qua cuộc thảo luận dài, kế hoạch mới được quyết định."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "大学を卒業し、会社員（　　）作家になった。",
+      "options": [
+       "をおして",
+       "ながらに",
+       "ずくめで",
+       "を経て"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Trải qua giai đoạn làm nhân viên công ty rồi mới thành nhà văn."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "この薬は ＿＿ ＿＿ ★ ＿＿ ものだ。",
+      "options": [
+       "を経て",
+       "何年もの",
+       "完成した",
+       "研究"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: この薬は何年もの研究を経て完成したものだ。 Ô ★ là を経て. Thuốc này được hoàn thành sau nhiều năm nghiên cứu."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "彼は ＿＿ ＿＿ ★ ＿＿ 変わった。",
+      "options": [
+       "大きく",
+       "海外での",
+       "経て",
+       "経験を"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 彼は海外での経験を経て大きく変わった。 Ô ★ là 経て. Trải qua kinh nghiệm ở nước ngoài, anh ấy đã thay đổi nhiều."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "多くの失敗を経て、彼はやっと目標にたどりついた。",
+      "options": [
+       "Anh ấy chưa từng thất bại.",
+       "Anh ấy bỏ cuộc sau nhiều thất bại.",
+       "Trải qua nhiều thất bại, cuối cùng anh ấy đã đạt mục tiêu.",
+       "Anh ấy đạt mục tiêu rồi mới thất bại."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "を経て: đi qua quá trình (nhiều thất bại) rồi mới đến kết quả."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この橋は、十年の工事を経て、やっと通れるようになった。",
+      "options": [
+       "Cây cầu này trải qua mười năm thi công mới đi qua được.",
+       "Cây cầu được xây trong mười ngày.",
+       "Cây cầu bị hỏng sau mười năm.",
+       "Việc thi công cầu chưa bắt đầu."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Mười năm thi công là giai đoạn phải trải qua."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai を経て?",
+      "options": [
+       "話し合いを経て、方針が決まった。",
+       "長い旅を経て、家に帰った。",
+       "手術を経て、元気になった。",
+       "話し合いが経て、方針が決まった。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Phải dùng trợ từ を: N + を経て."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai を経て?",
+      "options": [
+       "試験を経て、社員になった。",
+       "三か月の練習を経て、試合に出た。",
+       "明日を経て、旅行に行く。",
+       "東京を経て、大阪へ行った。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "を経て cần một quá trình hoặc nơi đi qua, không dùng với mốc thời gian như 明日."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "しんさを経て、",
+       "書類の",
+       "すすみます。",
+       "次の段階に"
+      ],
+      "answer_order": [
+       1,
+       0,
+       3,
+       2
+      ],
+      "translation_vi": "Qua vòng xét hồ sơ sẽ chuyển sang giai đoạn tiếp theo."
+     },
+     {
+      "pieces": [
+       "開いた。",
+       "二年の",
+       "新しい店が",
+       "準備を経て、"
+      ],
+      "answer_order": [
+       1,
+       3,
+       2,
+       0
+      ],
+      "translation_vi": "Sau hai năm chuẩn bị, cửa hàng mới đã khai trương."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "きびしい練習＿＿、彼は選手になった。",
+      "answer": "を経て",
+      "translation_vi": "Trải qua luyện tập khắc nghiệt, anh ấy trở thành tuyển thủ."
+     },
+     {
+      "sentence_ja": "名古屋＿＿京都へ向かう。",
+      "answer": "を経て",
+      "translation_vi": "Đi qua Nagoya rồi hướng về Kyoto."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "東京（　　）大阪へ向かう。",
+      "options": [
+       "を経て",
+       "をもって",
+       "にあって",
+       "とあって"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "を経て chỉ nơi đi ngang qua trên đường đi."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "選考を経て、代表が決まった。",
+      "options": [
+       "Người đại diện được chọn ngẫu nhiên.",
+       "Qua vòng tuyển chọn, người đại diện đã được quyết định.",
+       "Vòng tuyển chọn bị hủy.",
+       "Người đại diện tự rút lui."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Quá trình tuyển chọn dẫn đến kết quả."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai を経て?",
+      "options": [
+       "長い研究に経て、薬ができた。",
+       "いくつかの会社を経て、今の仕事についた。",
+       "長い話し合いを経て、案がまとまった。",
+       "冬を経て、春がきた。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Không dùng に; mẫu đúng là を経て."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "三年の準備期間を経て開店した。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Trải qua rồi mới — Đi qua một quá trình hoặc giai đoạn rồi mới đến kết quả.",
+    "pattern": "N + を経て",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-76f74074ab"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この写真を見る（　　）、学生時代がなつかしくなる。",
+      "options": [
+       "までもなく",
+       "べからず",
+       "につけても",
+       "にあらず"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Mỗi khi nhìn ảnh, cảm xúc hoài niệm lại dâng lên."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "それ（　　）、あの時もっと話しておけばよかった。",
+      "options": [
+       "につけても",
+       "をもって",
+       "なくして",
+       "ずくめ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "それにつけても: nghĩ đến chuyện đó lại thấy tiếc."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "古い手紙を ＿＿ ＿＿ ★ ＿＿ 。",
+      "options": [
+       "思い出される",
+       "父のことが",
+       "につけても、",
+       "読む"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 古い手紙を読むにつけても、父のことが思い出される。 Ô ★ là 父のことが. Mỗi khi đọc thư cũ, tôi lại nhớ về cha."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "ニュースを ＿＿ ＿＿ ★ ＿＿ 感じる。",
+      "options": [
+       "見る",
+       "大切さを",
+       "につけても",
+       "家族の"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: ニュースを見るにつけても家族の大切さを感じる。 Ô ★ là 家族の. Mỗi khi xem tin tức, tôi lại thấy gia đình quý giá."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この町を歩くにつけても、子どものころを思い出す。",
+      "options": [
+       "Tôi chưa từng đến thị trấn này.",
+       "Tôi đi dạo để quên tuổi thơ.",
+       "Dù đi dạo, tôi không nhớ gì cả.",
+       "Mỗi khi đi dạo thị trấn này, tôi lại nhớ thời thơ ấu."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "につけても: hễ làm việc đó là cảm xúc lại trỗi dậy."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "その話を聞くにつけても、心が痛む。",
+      "options": [
+       "Nghe chuyện đó tôi thấy vui.",
+       "Mỗi lần nghe chuyện đó, lòng tôi lại đau.",
+       "Tôi không muốn nghe chuyện đó.",
+       "Chuyện đó không làm tôi bận tâm."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Cảm xúc đau lòng lặp lại mỗi khi nghe."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai につけても?",
+      "options": [
+       "写真を見たにつけても、昔を思い出す。",
+       "写真を見るにつけても、昔を思い出す。",
+       "それにつけても、彼の言葉が忘れられない。",
+       "この歌を聞くにつけても、友達を思い出す。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "につけても đi với danh từ hoặc động từ thể từ điển, không dùng thể た."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai につけても?",
+      "options": [
+       "その知らせを聞くにつけても、心が重くなる。",
+       "古い家を見るにつけても、父を思い出す。",
+       "それにつけても、あの日は楽しかった。",
+       "明日の会議につけても、資料を作ります。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "につけても diễn tả cảm xúc dâng lên, không dùng cho hành động có kế hoạch."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "思い出される。",
+       "それにつけても、",
+       "親切が",
+       "あの人の"
+      ],
+      "answer_order": [
+       1,
+       3,
+       2,
+       0
+      ],
+      "translation_vi": "Nghĩ đến chuyện đó lại nhớ lòng tốt của người ấy."
+     },
+     {
+      "pieces": [
+       "この歌を",
+       "思い出す。",
+       "聞くにつけても、",
+       "わかいころを"
+      ],
+      "answer_order": [
+       0,
+       2,
+       3,
+       1
+      ],
+      "translation_vi": "Mỗi khi nghe bài hát này, tôi lại nhớ thời trẻ."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "母の手料理を思い出す＿＿、家に帰りたくなる。",
+      "answer": "につけても",
+      "translation_vi": "Mỗi khi nhớ món mẹ nấu, tôi lại muốn về nhà."
+     },
+     {
+      "sentence_ja": "それ＿＿、彼は今どうしているだろう。",
+      "answer": "につけても",
+      "translation_vi": "Nghĩ đến chuyện đó, không biết giờ anh ấy ra sao."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "雨の音を聞く（　　）、ふるさとの母を思い出す。",
+      "options": [
+       "までだ",
+       "につけても",
+       "とあって",
+       "にあらず"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Mỗi lần nghe tiếng mưa lại nhớ mẹ ở quê."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "雪を見るにつけても、北国の冬を思い出す。",
+      "options": [
+       "Tôi ghét tuyết ở xứ bắc.",
+       "Tôi chưa từng thấy tuyết.",
+       "Mỗi khi thấy tuyết, tôi lại nhớ mùa đông xứ bắc.",
+       "Tôi chỉ nhớ xứ bắc khi trời nóng."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Hễ thấy tuyết là ký ức lại hiện về."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai につけても?",
+      "options": [
+       "写真を見るにつけても、昔を思い出す。",
+       "写真が見るにつけても、昔を思い出す。",
+       "手紙を読むにつけても、なみだが出る。",
+       "それにつけても、あの人はやさしかった。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Tân ngữ của 見る phải dùng を, không dùng が."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "それにつけても彼のことが思い出される。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Mỗi khi nghĩ đến lại — Cứ nhớ đến việc đó là cảm xúc lại dâng lên.",
+    "pattern": "N / V từ điển + につけても",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-a7f865cc2d"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "小さなミスが、大きな事故（　　）。",
+      "options": [
+       "に越したことはない",
+       "にあらず",
+       "までもない",
+       "に至った"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Lỗi nhỏ cuối cùng dẫn tới tai nạn lớn."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "子どもから大人（　　）、だれでも楽しめる。",
+      "options": [
+       "をよそに",
+       "に至るまで",
+       "ならでは",
+       "にひきかえ"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "に至るまで: từ trẻ em cho tới tận người lớn."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "彼は上司との対立で、 ＿＿ ＿＿ ★ ＿＿ 。",
+      "options": [
+       "会社を",
+       "ついに",
+       "に至った",
+       "やめる"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 彼は上司との対立で、ついに会社をやめるに至った。 Ô ★ là やめる. Vì mâu thuẫn với cấp trên, cuối cùng anh ấy đi đến chỗ nghỉ việc."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "この店は ＿＿ ＿＿ ★ ＿＿ 至っている。",
+      "options": [
+       "屋台から",
+       "今日に",
+       "小さな",
+       "始まり"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: この店は小さな屋台から始まり今日に至っている。 Ô ★ là 始まり. Quán này bắt đầu từ một quầy nhỏ và phát triển đến ngày nay."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "そのあらそいは、ついにさいばんに至った。",
+      "options": [
+       "Cuộc tranh chấp đó cuối cùng đã dẫn đến kiện tụng.",
+       "Cuộc tranh chấp đã được hòa giải.",
+       "Cuộc tranh chấp chưa bắt đầu.",
+       "Hai bên tránh ra tòa."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "に至る: đi đến kết quả nghiêm trọng."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "北の町から南のしまに至るまで、雨が降った。",
+      "options": [
+       "Chỉ có đảo phía nam mưa.",
+       "Thị trấn phía bắc không mưa.",
+       "Từ thị trấn phía bắc đến tận đảo phía nam đều có mưa.",
+       "Mưa đi từ nam lên bắc rồi tạnh."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "に至るまで nhấn mạnh phạm vi trải tới tận cùng."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai に至る?",
+      "options": [
+       "長い対立は、ついに別れに至った。",
+       "会社は、店を全部閉めたに至った。",
+       "小さな点に至るまで確認した。",
+       "会社は、店を全部閉めるに至った。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "に至る đi sau danh từ hoặc động từ thể từ điển, không dùng thể た."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai に至る?",
+      "options": [
+       "明日は雨が降るに至る。",
+       "小さなかんちがいが、大きなけんかに至った。",
+       "子どもからお年よりに至るまで参加した。",
+       "今日に至るまで、返事はない。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "に至る chỉ kết quả cuối cùng sau một quá trình, không dùng cho dự báo bình thường."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "話し合いの",
+       "合ぺいするに至った。",
+       "結果、",
+       "二つの会社は"
+      ],
+      "answer_order": [
+       0,
+       2,
+       3,
+       1
+      ],
+      "translation_vi": "Kết quả đàm phán là hai công ty đi đến sáp nhập."
+     },
+     {
+      "pieces": [
+       "家具に",
+       "すべて手作りだ。",
+       "服から",
+       "至るまで、"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Từ quần áo cho đến đồ nội thất, tất cả đều làm thủ công."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "彼は長く考えたすえ、会社をやめる＿＿。",
+      "answer": "に至った",
+      "translation_vi": "Sau khi suy nghĩ lâu, anh ấy đi đến quyết định nghỉ việc."
+     },
+     {
+      "sentence_ja": "下の棚から上の棚＿＿、本が並んでいる。",
+      "answer": "に至るまで",
+      "translation_vi": "Sách xếp từ kệ dưới cho tới tận kệ trên."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "二人は、ついに結婚する（　　）。",
+      "options": [
+       "べからず",
+       "ずくめだ",
+       "に至った",
+       "にあらず"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Cuối cùng hai người đi đến hôn nhân."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "事故に至らなくて、本当によかった。",
+      "options": [
+       "Thật đáng tiếc vì đã xảy ra tai nạn.",
+       "Tai nạn rất nghiêm trọng.",
+       "Tôi mong có tai nạn xảy ra.",
+       "Thật may là chưa đến mức gây ra tai nạn."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "に至らない: chưa đi tới mức đó."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai に至る?",
+      "options": [
+       "けんかは、ついに別れに至った。",
+       "細部に至るまで調べた。",
+       "事故を至った。",
+       "今に至るまで連絡がない。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Phải dùng に: 〜に至る."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "交渉は決裂するに至った。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Đi đến mức, dẫn tới — Cuối cùng đạt tới một trạng thái hoặc kết quả nghiêm trọng.",
+    "pattern": "N / V từ điển + に至る",
+    "pattern_variants": [
+     "〜に至る/至るまで/至って"
+    ],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-226fa5b12e"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "店の前を行き（　　）していた。",
+      "options": [
+       "つ戻りつ",
+       "て戻って",
+       "ながら帰る",
+       "まま戻る"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "行きつ戻りつ: đi tới đi lui."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "二台の車はぬき（　　）、ゴールへ向かった。",
+      "options": [
+       "たりぬかれ",
+       "ながらぬいて",
+       "つぬかれつ",
+       "ずにぬかず"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "ぬきつぬかれつ: lúc vượt lúc bị vượt."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "彼は ＿＿ ＿＿ ★ ＿＿ 考えていた。",
+      "options": [
+       "しながら",
+       "部屋の中を",
+       "戻りつ",
+       "行きつ"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 彼は部屋の中を行きつ戻りつしながら考えていた。 Ô ★ là 戻りつ. Anh ấy vừa đi tới đi lui trong phòng vừa suy nghĩ."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "雲の間から ＿＿ ＿＿ ★ ＿＿ 見ていた。",
+      "options": [
+       "する",
+       "見えつ",
+       "月を",
+       "かくれつ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 雲の間から見えつかくれつする月を見ていた。 Ô ★ là する. Tôi ngắm vầng trăng lúc ẩn lúc hiện giữa mây."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼女は店の前で行きつ戻りつ、入るかどうかまよっていた。",
+      "options": [
+       "Cô ấy đi thẳng vào cửa hàng.",
+       "Cô ấy cứ đi tới đi lui trước cửa hàng, phân vân có vào hay không.",
+       "Cô ấy đứng yên chờ bạn.",
+       "Cô ấy chạy về nhà ngay."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Hai động tác ngược nhau lặp đi lặp lại thể hiện sự do dự."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "近所の人とは、持ちつ持たれつの関係だ。",
+      "options": [
+       "Tôi không quen hàng xóm.",
+       "Hàng xóm luôn làm phiền tôi.",
+       "Tôi chỉ nhận giúp đỡ mà không giúp lại.",
+       "Với hàng xóm, chúng tôi có quan hệ tương trợ qua lại."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "持ちつ持たれつ: giúp nhau qua lại."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai つ〜つ?",
+      "options": [
+       "ろうかを行きつ戻りつした。",
+       "持ちつ持たれつで生きている。",
+       "ろうかを行きつ来るつした。",
+       "ぬきつぬかれつの試合だった。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "つ gắn vào thể ます bỏ ます, không dùng thể từ điển 来る."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai つ〜つ?",
+      "options": [
+       "見えつかくれつするふねがあった。",
+       "彼は食べつ食べつ、話を続けた。",
+       "さしつさされつ話をした。",
+       "店の前を行きつ戻りつまよった。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "つ〜つ cần hai động tác đối lập hoặc chủ động/bị động, không lặp cùng một động từ."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "さしつさされつ、",
+       "さけを飲んだ。",
+       "二人は",
+       "夜おそくまで"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Hai người rót mời nhau uống rượu đến khuya."
+     },
+     {
+      "pieces": [
+       "はげしい",
+       "二つのチームは",
+       "試合をした。",
+       "ぬきつぬかれつの"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Hai đội đã có trận đấu giằng co quyết liệt."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "ふたりは＿＿、夜おそくまで話しこんだ。",
+      "answer": "さしつさされつ",
+      "translation_vi": "Hai người rót mời nhau và trò chuyện đến khuya."
+     },
+     {
+      "sentence_ja": "家の前を＿＿しながら、帰りを待った。",
+      "answer": "行きつ戻りつ",
+      "translation_vi": "Tôi đi tới đi lui trước nhà chờ người về."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "持ち（　　）の関係で助け合う。",
+      "options": [
+       "ながら持たれ",
+       "て持たれて",
+       "たり持て",
+       "つ持たれつ"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "持ちつ持たれつ: quan hệ tương trợ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "二人はぬきつぬかれつのレースをした。",
+      "options": [
+       "Hai người đua giằng co, lúc vượt lúc bị vượt.",
+       "Một người dẫn đầu suốt cuộc đua.",
+       "Hai người không tham gia cuộc đua.",
+       "Hai người chạy cạnh nhau rất chậm."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Hai trạng thái luân phiên nhau."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai つ〜つ?",
+      "options": [
+       "持ちつ持たれつの関係だ。",
+       "行きつ戻りつ考えた。",
+       "見えつかくれつしていた。",
+       "持ちつ持つつの関係だ。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Vế sau phải là thể bị động: 持ちつ持たれつ."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "駅の前を行きつ戻りつしていた。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Lúc thì lúc thì — Hai động tác trái nghiều lặp đi lặp lại.",
+    "pattern": "V thể ます (bỏ ます) + つ + V thể ます (bỏ ます) + つ",
+    "pattern_variants": [
+     "〜つ〜つ"
+    ],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-f3e4754c1c"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "支払いがおくれた場合、この約束は無効になる（　　）。",
+      "options": [
+       "ものか",
+       "ものとする",
+       "ものだから",
+       "ものの"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Văn quy định: được quy định là vô hiệu."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "会員は、年に一度会費を払う（　　）。",
+      "options": [
+       "までもない",
+       "しまつだ",
+       "かいがある",
+       "ものとする"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Điều khoản: hội viên mỗi năm đóng phí một lần."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "借りた部屋は、 ＿＿ ＿＿ ★ ＿＿ ものとする。",
+      "options": [
+       "出る",
+       "もどす",
+       "ときに",
+       "元どおりに"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 借りた部屋は、出るときに元どおりにもどすものとする。 Ô ★ là 元どおりに. Phòng thuê được quy định là khi trả phải trả lại như cũ."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "会議に ＿＿ ＿＿ ★ ＿＿ ものとする。",
+      "options": [
+       "出席する",
+       "代理の者が",
+       "場合は",
+       "出られない"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 会議に出られない場合は代理の者が出席するものとする。 Ô ★ là 代理の者が. Nếu không dự họp được thì người đại diện sẽ tham dự."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "送料は買い手がふたんするものとする。",
+      "options": [
+       "Người mua có lẽ sẽ trả phí.",
+       "Phí vận chuyển được miễn.",
+       "Phí vận chuyển được quy định là do người mua chịu.",
+       "Người bán phải trả phí vận chuyển."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "ものとする là cách viết quy định trong hợp đồng."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "会場で起きた事故について、店はせきにんをおわないものとする。",
+      "options": [
+       "Quy định cửa hàng không chịu trách nhiệm về tai nạn xảy ra tại hội trường.",
+       "Cửa hàng chịu mọi trách nhiệm.",
+       "Cửa hàng nghĩ có lẽ không có tai nạn.",
+       "Cửa hàng không biết gì về tai nạn."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Điều khoản miễn trách nhiệm."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai ものとする?",
+      "options": [
+       "料金は前もって払うものとする。",
+       "かぎは使った人が返すものとする。",
+       "部屋は元どおりにもどすものとする。",
+       "あした、いっしょに映画を見るものとする？"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "ものとする là văn quy định trang trọng, không dùng để rủ rê trong hội thoại."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai ものとする?",
+      "options": [
+       "費用は会社が出すものとする。",
+       "会議は月に一度開くものとする。",
+       "わたしはケーキが好きなものとする。",
+       "この決まりは四月から有効なものとする。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Không dùng ものとする để nói sở thích cá nhân."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "払う",
+       "料金は",
+       "ものとする。",
+       "前もって"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Phí được quy định là trả trước."
+     },
+     {
+      "pieces": [
+       "ものとする。",
+       "あてはまる",
+       "会員全員に",
+       "この決まりは"
+      ],
+      "answer_order": [
+       3,
+       2,
+       1,
+       0
+      ],
+      "translation_vi": "Quy định này được áp dụng cho toàn bộ hội viên."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "違反した者は、会員のしかくを失う＿＿。",
+      "answer": "ものとする",
+      "translation_vi": "Người vi phạm sẽ mất tư cách hội viên."
+     },
+     {
+      "sentence_ja": "使ったものは、元の場所にもどす＿＿。",
+      "answer": "ものとする",
+      "translation_vi": "Đồ đã dùng phải trả về chỗ cũ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この決まりは、四月一日から有効な（　　）。",
+      "options": [
+       "ものとする",
+       "ずくめだ",
+       "までだ",
+       "がてら"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Quy định có hiệu lực từ ngày 1 tháng 4."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "会員は年に一度、会費を払うものとする。",
+      "options": [
+       "Hội viên có thể không đóng phí.",
+       "Quy định hội viên mỗi năm đóng hội phí một lần.",
+       "Hội viên đã đóng phí năm ngoái.",
+       "Hội viên muốn đóng phí mỗi tháng."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Văn bản quy định nghĩa vụ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai ものとする?",
+      "options": [
+       "おなかがすいたものとするから、食べよう。",
+       "かぎは受付に返すものとする。",
+       "料金は現金で払うものとする。",
+       "会議の記録は部長が持つものとする。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "ものとする không dùng để nói cảm giác của bản thân trong hội thoại."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "費用は甲が負担するものとする。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Được quy định là — Quy định trong văn bản pháp lý hoặc hợp đồng.",
+    "pattern": "Thể thường + ものとする",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-ae0bab0fb7"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "事故は、運転手の不注意による（　　）。",
+      "options": [
+       "ものか",
+       "ものなら",
+       "ものと思われる",
+       "ものを"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Phán đoán khách quan về nguyên nhân."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "はんにんは、まだ近くにいる（　　）。",
+      "options": [
+       "ものと思われる",
+       "までもない",
+       "ものだから",
+       "ものの"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Được cho là hung thủ vẫn còn ở gần."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "今回の火事は、 ＿＿ ＿＿ ★ ＿＿ 。",
+      "options": [
+       "出火した",
+       "思われる",
+       "台所から",
+       "ものと"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 今回の火事は、台所から出火したものと思われる。 Ô ★ là ものと. Vụ hỏa hoạn lần này được cho là phát lửa từ nhà bếp."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "電車の ＿＿ ＿＿ ★ ＿＿ 。",
+      "options": [
+       "強い風に",
+       "おくれは",
+       "ものと思われる",
+       "よる"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 電車のおくれは強い風によるものと思われる。 Ô ★ là よる. Việc tàu trễ được cho là do gió mạnh."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "今回の地しんによるひがいは、少ないものと思われる。",
+      "options": [
+       "Thiệt hại chắc chắn rất lớn.",
+       "Người viết không biết gì về động đất.",
+       "Không có động đất xảy ra.",
+       "Thiệt hại do trận động đất lần này được cho là ít."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "ものと思われる: suy đoán khách quan, giọng văn báo chí."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "はんにんは窓から入ったものと思われる。",
+      "options": [
+       "Hung thủ chắc chắn vào bằng cửa chính.",
+       "Hung thủ được cho là đã vào từ cửa sổ.",
+       "Hung thủ đã bị bắt.",
+       "Không ai vào nhà cả."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Phán đoán dựa trên chứng cứ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai ものと思われる?",
+      "options": [
+       "私はこのケーキがおいしいものと思われる。",
+       "電車のおくれは雪によるものと思われる。",
+       "その絵は古い時代のものと思われる。",
+       "彼はすでに帰国したものと思われる。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "ものと思われる là phán đoán khách quan, không dùng cho cảm nhận của bản thân với 私は."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai ものと思われる?",
+      "options": [
+       "原因は雪によるものと思われる。",
+       "会議は長引くものと思われる。",
+       "その手紙は昔のものと思われる。",
+       "原因は雪によるものに思われる。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Phải là ものと思われる, không dùng に."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "ものと思われる。",
+       "書かれた",
+       "かなり昔に",
+       "その手紙は"
+      ],
+      "answer_order": [
+       3,
+       2,
+       1,
+       0
+      ],
+      "translation_vi": "Bức thư đó được cho là viết từ khá lâu."
+     },
+     {
+      "pieces": [
+       "今後も",
+       "けいきは",
+       "ものと思われる。",
+       "回復に向かう"
+      ],
+      "answer_order": [
+       1,
+       0,
+       3,
+       2
+      ],
+      "translation_vi": "Kinh tế được cho là sẽ tiếp tục phục hồi."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "けが人のけがは、いずれも軽い＿＿。",
+      "answer": "ものと思われる",
+      "translation_vi": "Vết thương của những người bị thương được cho là đều nhẹ."
+     },
+     {
+      "sentence_ja": "この建物は、百年以上前に建てられた＿＿。",
+      "answer": "ものと思われる",
+      "translation_vi": "Tòa nhà này được cho là xây hơn trăm năm trước."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この古い土器は、千年以上前に作られた（　　）。",
+      "options": [
+       "ばかりだ",
+       "ものと思われる",
+       "ものか",
+       "ずくめだ"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Suy đoán niên đại của đồ gốm."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "会議は予定より長引くものと思われる。",
+      "options": [
+       "Cuộc họp chắc chắn kết thúc sớm.",
+       "Cuộc họp đã bị hủy.",
+       "Cuộc họp được dự đoán sẽ kéo dài hơn dự định.",
+       "Tôi muốn cuộc họp kéo dài."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Dự đoán khách quan."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai ものと思われる?",
+      "options": [
+       "火事は台所から出たものと思われる。",
+       "その本は昔に書いたものと思われるです。",
+       "彼は道にまよったものと思われる。",
+       "この字は子どもが書いたものと思われる。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "ものと思われる đã là thể kết câu, không thêm です."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "原因は配線の不具合によるものと思われる。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Được cho là — Phán đoán khách quan, tránh nói thẳng ý kiến cá nhân.",
+    "pattern": "Thể thường + ものと思われる",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-480dabd39d"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "彼のゆうきある行動は、ほめる（　　）。",
+      "options": [
+       "がてら",
+       "にあらず",
+       "ずくめだ",
+       "に値する"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Hành động đó xứng đáng được khen."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "この映画は一見（　　）。",
+      "options": [
+       "をはじめ",
+       "に値する",
+       "につけても",
+       "なりとも"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "一見に値する: đáng xem một lần."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "この本は ＿＿ ＿＿ ★ ＿＿ 。",
+      "options": [
+       "に値する",
+       "何度も",
+       "名作だ",
+       "読む"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: この本は何度も読むに値する名作だ。 Ô ★ là に値する. Cuốn sách này là kiệt tác đáng đọc nhiều lần."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "彼の ＿＿ ＿＿ ★ ＿＿ 。",
+      "options": [
+       "に値する",
+       "研究は",
+       "注目される",
+       "世界から"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 彼の研究は世界から注目されるに値する。 Ô ★ là 注目される. Nghiên cứu của anh ấy xứng đáng được thế giới chú ý."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この問題は、話し合うに値しない。",
+      "options": [
+       "Vấn đề này không đáng để thảo luận.",
+       "Vấn đề này rất cần thảo luận ngay.",
+       "Vấn đề này đã được thảo luận xong.",
+       "Vấn đề này quá khó để hiểu."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "に値しない: không có giá trị để làm."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "あの店の料理は、遠くから行くに値する。",
+      "options": [
+       "Quán đó ở quá xa nên không nên đi.",
+       "Món ăn quán đó rất đắt.",
+       "Món ăn quán đó đáng để đi từ xa đến.",
+       "Quán đó chỉ dành cho người gần đó."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "に値する: đáng để làm việc đó."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai に値する?",
+      "options": [
+       "この絵は見るに値する。",
+       "この絵は見たに値する。",
+       "彼の行動はそんけいに値する。",
+       "その案は試すに値する。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "に値する đi với danh từ hoặc động từ thể từ điển."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai に値する?",
+      "options": [
+       "この料理は値段が高いに値する。",
+       "この映画は、見に行くに値する。",
+       "彼の意見は、聞くに値する。",
+       "この本は、一読に値する。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "に値する không gắn trực tiếp sau tính từ như 高い."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "一度",
+       "この町は",
+       "値する。",
+       "おとずれるに"
+      ],
+      "answer_order": [
+       1,
+       0,
+       3,
+       2
+      ],
+      "translation_vi": "Thị trấn này đáng ghé thăm một lần."
+     },
+     {
+      "pieces": [
+       "値する。",
+       "彼女の",
+       "そんけいに",
+       "どりょくは"
+      ],
+      "answer_order": [
+       1,
+       3,
+       2,
+       0
+      ],
+      "translation_vi": "Nỗ lực của cô ấy đáng được kính trọng."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "この作品は、何度でも見る＿＿。",
+      "answer": "に値する",
+      "translation_vi": "Tác phẩm này đáng xem bao nhiêu lần cũng được."
+     },
+     {
+      "sentence_ja": "彼のがんばりは、ほめる＿＿。",
+      "answer": "に値する",
+      "translation_vi": "Sự cố gắng của anh ấy đáng được khen."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "その意見は、けんとう（　　）ものだ。",
+      "options": [
+       "ずくめの",
+       "めいた",
+       "に値する",
+       "まみれの"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Ý kiến đáng được xem xét."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼の発言は、しんじるに値しない。",
+      "options": [
+       "Lời anh ta nói rất đáng tin.",
+       "Anh ta không nói gì cả.",
+       "Anh ta tin lời người khác.",
+       "Lời anh ta nói không đáng tin."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "に値しない: không đáng."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai に値する?",
+      "options": [
+       "この寺は一見に値する。",
+       "彼の考えは聞くに値する。",
+       "その話は聞くを値する。",
+       "その作品は高い評価に値する。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Phải dùng に: 〜に値する."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "彼の努力は賞賛に値する。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Xứng đáng với — Có đủ giá trị để nhận được điều đó.",
+    "pattern": "N / V từ điển + に値する",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-e8e246d5a8"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "天気（　　）、試合は行われる。",
+      "options": [
+       "にかかわらず",
+       "ならでは",
+       "に値して",
+       "をもって"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Bất kể thời tiết, trận đấu vẫn diễn ra."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "けいけんのある・なし（　　）、だれでも申しこめます。",
+      "options": [
+       "にもまして",
+       "を経て",
+       "にかかわらず",
+       "と相まって"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Không phân biệt có kinh nghiệm hay không."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "この店は ＿＿ ＿＿ ★ ＿＿ こんでいる。",
+      "options": [
+       "いつも",
+       "かかわらず",
+       "に",
+       "曜日"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: この店は曜日にかかわらずいつもこんでいる。 Ô ★ là かかわらず. Quán này bất kể thứ mấy cũng luôn đông."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "結果の ＿＿ ＿＿ ★ ＿＿ ください。",
+      "options": [
+       "よしあし",
+       "知らせて",
+       "にかかわらず",
+       "かならず"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 結果のよしあしにかかわらずかならず知らせてください。 Ô ★ là かならず. Bất kể kết quả tốt xấu, nhất định hãy báo cho tôi."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "金額の大小にかかわらず、きふはありがたい。",
+      "options": [
+       "Chỉ khoản quyên góp lớn mới được nhận.",
+       "Bất kể số tiền lớn hay nhỏ, khoản quyên góp đều đáng quý.",
+       "Số tiền càng lớn càng đáng quý.",
+       "Không nhận quyên góp nhỏ."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "にかかわらず: không phụ thuộc vào lớn hay nhỏ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "けいけんにかかわらず、だれでもおうぼできる。",
+      "options": [
+       "Chỉ người có kinh nghiệm mới ứng tuyển được.",
+       "Người có kinh nghiệm bị từ chối.",
+       "Kinh nghiệm quyết định kết quả.",
+       "Bất kể kinh nghiệm, ai cũng có thể ứng tuyển."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Không phân biệt kinh nghiệm."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai にかかわらず?",
+      "options": [
+       "出身国にかかわらず、だれでも入会できる。",
+       "天気にかかわらず、出発する。",
+       "彼は病気にかかわらず、会社に来た。",
+       "好き嫌いにかかわらず、全部食べなさい。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Muốn nói \"mặc dù bị bệnh\" phải dùng にもかかわらず; にかかわらず là \"bất kể\"."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai にかかわらず?",
+      "options": [
+       "結果にかかわらず、全力をつくす。",
+       "雨が降ったにかかわらず、試合は続いた。",
+       "大きさにかかわらず、料金は同じだ。",
+       "男女にかかわらず、参加できる。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Diễn tả \"mặc dù\" sự việc đã xảy ra phải dùng にもかかわらず."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "参加できる。",
+       "男女",
+       "だれでも",
+       "にかかわらず、"
+      ],
+      "answer_order": [
+       1,
+       3,
+       2,
+       0
+      ],
+      "translation_vi": "Không phân biệt nam nữ, ai cũng tham gia được."
+     },
+     {
+      "pieces": [
+       "天気に",
+       "出発する。",
+       "かかわらず、",
+       "明日は"
+      ],
+      "answer_order": [
+       0,
+       2,
+       3,
+       1
+      ],
+      "translation_vi": "Bất kể thời tiết, ngày mai sẽ xuất phát."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "季節＿＿、この花はさいている。",
+      "answer": "にかかわらず",
+      "translation_vi": "Bất kể mùa nào, hoa này vẫn nở."
+     },
+     {
+      "sentence_ja": "かちまけ＿＿、最後までがんばろう。",
+      "answer": "にかかわらず",
+      "translation_vi": "Bất kể thắng thua, hãy cố gắng đến cùng."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "参加する・しない（　　）、連絡してください。",
+      "options": [
+       "にあたって",
+       "とあれば",
+       "ならでは",
+       "にかかわらず"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Dù tham gia hay không cũng hãy liên lạc."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "雨が降る降らないにかかわらず、イベントは行う。",
+      "options": [
+       "Dù mưa hay không, sự kiện vẫn tổ chức.",
+       "Nếu mưa sự kiện sẽ hủy.",
+       "Sự kiện chỉ tổ chức khi mưa.",
+       "Chưa quyết định có tổ chức hay không."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Hai khả năng đối lập đều không ảnh hưởng."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai にかかわらず?",
+      "options": [
+       "年れいにかかわらず、だれでも使える。",
+       "時間にかかわらず、電話してください。",
+       "国にかかわらず、ルールは同じだ。",
+       "がんばったにかかわらず、試験に落ちた。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Nghĩa \"mặc dù đã cố gắng\" phải dùng にもかかわらず."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "年齢にかかわらず応募できます。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Bất kể — Không phân biệt, không phụ thuộc vào yếu tố đó.",
+    "pattern": "N / Thể thường + にかかわらず",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-2a6543aff7"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この町でいちばんの料理人だと言っても（　　）ではない。",
+      "options": [
+       "発言",
+       "過言",
+       "伝言",
+       "失言"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Cụm cố định: と言っても過言ではない."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "この発明が世界を変えた（　　）。",
+      "options": [
+       "と言っても過言がない",
+       "と言っては過言ではある",
+       "と言うにも過言ではない",
+       "と言っても過言ではない"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Chỉ có dạng と言っても過言ではない là đúng."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "彼女の ＿＿ ＿＿ ★ ＿＿ ない。",
+      "options": [
+       "世界一だと",
+       "歌声は",
+       "過言では",
+       "言っても"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 彼女の歌声は世界一だと言っても過言ではない。 Ô ★ là 言っても. Không ngoa khi nói giọng hát của cô ấy là số một thế giới."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "この ＿＿ ＿＿ ★ ＿＿ 過言ではない。",
+      "options": [
+       "人生で",
+       "言っても",
+       "一年が",
+       "いちばん大事だったと"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: この一年が人生でいちばん大事だったと言っても過言ではない。 Ô ★ là いちばん大事だったと. Có thể nói không quá lời rằng năm nay là quan trọng nhất đời tôi."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この発見はれきしを変えたと言っても過言ではない。",
+      "options": [
+       "Nói vậy là phóng đại quá mức.",
+       "Phát hiện này không có ý nghĩa gì.",
+       "Không ngoa khi nói phát hiện này đã thay đổi lịch sử.",
+       "Không được phép nói về phát hiện này."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Khẳng định mạnh rằng cách nói đó không phóng đại."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼は家族の中心だと言っても過言ではない。",
+      "options": [
+       "Có thể nói không quá lời rằng anh ấy là trung tâm của gia đình.",
+       "Anh ấy không quan trọng trong gia đình.",
+       "Anh ấy sống xa gia đình.",
+       "Anh ấy tự nhận mình là trung tâm một cách khoe khoang."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Đánh giá mạnh nhưng hợp lý."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai と言っても過言ではない?",
+      "options": [
+       "この店は町一番だと言っても過言ではない。",
+       "彼女は名人だと言っても過言ではない。",
+       "水はいのちだと言っても過言ではない。",
+       "この店は町一番だと言っても過言がない。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Dạng cố định là 過言ではない, không nói 過言がない."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai と言っても過言ではない?",
+      "options": [
+       "彼は天才的だと言っても過言ではない。",
+       "この本は名作だと言っても過言ではない。",
+       "この店は町一番に言っても過言ではない。",
+       "彼の力で勝ったと言っても過言ではない。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Phải trích dẫn bằng と: と言っても."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "この町の",
+       "過言ではない。",
+       "みりょくは",
+       "食べ物だと言っても"
+      ],
+      "answer_order": [
+       0,
+       2,
+       3,
+       1
+      ],
+      "translation_vi": "Không ngoa khi nói sức hút của thị trấn này là đồ ăn."
+     },
+     {
+      "pieces": [
+       "あるのは",
+       "過言ではない。",
+       "今の会社が",
+       "彼のおかげだと言っても"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Có thể nói công ty có ngày nay là nhờ anh ấy."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "彼の努力が今の結果を生んだと言っても＿＿。",
+      "answer": "過言ではない",
+      "translation_vi": "Không ngoa khi nói nỗ lực của anh ấy đã tạo nên kết quả hiện nay."
+     },
+     {
+      "sentence_ja": "この料理は母の味そのものだと言っても＿＿。",
+      "answer": "過言ではない",
+      "translation_vi": "Có thể nói món này chính là hương vị của mẹ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "あの試合が人生を変えた、と言っても（　　）ではない。",
+      "options": [
+       "過言",
+       "伝言",
+       "言い方",
+       "発言"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Cụm cố định 過言ではない."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "よく寝ることは、けんこうのきほんだと言っても過言ではない。",
+      "options": [
+       "Ngủ nhiều có hại cho sức khỏe.",
+       "Không ngoa khi nói ngủ đủ là nền tảng của sức khỏe.",
+       "Ngủ không liên quan đến sức khỏe.",
+       "Nói vậy là quá lời."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Khẳng định mạnh một nhận định."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai と言っても過言ではない?",
+      "options": [
+       "私は昨日、買い物に行ったと言っても過言ではない。",
+       "彼は町の顔だと言っても過言ではない。",
+       "あの日が転機だったと言っても過言ではない。",
+       "この歌は名曲だと言っても過言ではない。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Mẫu này dùng để khẳng định một đánh giá mạnh, không dùng cho việc bình thường như đi mua sắm."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "彼は天才だと言っても過言ではない。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Nói là cũng không ngoa — Khẳng định mạnh rằng cách nói đó không hề phóng đại.",
+    "pattern": "Thể thường + と言っても過言ではない",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-14fde66764"
+  }
+ ],
+ "kind": "GRAMMAR_BANK",
+ "level": "N1",
+ "packet_id": "GRAMMAR_BANK-011"
+}

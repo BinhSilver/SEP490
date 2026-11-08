@@ -1,0 +1,601 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店で食べて以来、家でも作るようになった。",
+       "ja_furigana": "この店(みせ)で食(た)べて以来(いらい)、家(いえ)でも作(つく)るようになった。",
+       "vi": "Từ khi ăn ở quán này, tôi cũng bắt đầu nấu ở nhà.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "先月かぜをひいて以来、毎朝走るようにしている。",
+       "ja_furigana": "先月(せんげつ)かぜをひいて以来(いらい)、毎朝(まいあさ)走(はし)るようにしている。",
+       "vi": "Từ khi bị cảm tháng trước, sáng nào tôi cũng cố gắng chạy bộ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "引っ越し以来",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trừ khi chuyển nhà"
+     },
+     {
+      "ja": "この服は買って以来、まだ一度も着ていない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bộ đồ này kể từ lúc mua tôi vẫn chưa mang lần nào cả."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 引っ越し以来",
+     "FURIGANA_MISSING: この服は買って以来、まだ一度も着ていない。"
+    ],
+    "formation": "V-て + 以来 / N + 以来",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị ý nghĩa: Suốt từ một thời điểm trong quá khứ cho đến hiện tại.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜以来",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a46dac0a68"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟は最近、風邪気味で外へ出ない。",
+       "ja_furigana": "弟(おとうと)は最近(さいきん)、風邪(かぜ)気味(ぎみ)で外(そと)へ出(で)ない。",
+       "vi": "Dạo này em trai hơi cảm nên không ra ngoài.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "最近、仕事が遅れ気味で心配だ。",
+       "ja_furigana": "最近(さいきん)、仕事(しごと)が遅(おく)れ気味(ぎみ)で心配(しんぱい)だ。",
+       "vi": "Dạo này công việc hơi bị chậm nên tôi lo.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "疲れ気味だ",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi cảm thấy mệt mỏi"
+     },
+     {
+      "ja": "最近忙しくてあまり寝ていないから、疲れ気味だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dạo này bận quá không ngủ được nhiều nên cảm thấy mệt mỏi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 疲れ気味だ",
+     "FURIGANA_MISSING: 最近忙しくてあまり寝ていないから、疲れ気味だ。"
+    ],
+    "formation": "V(bỏ ます) + 気味(ぎみ)だ / N + 気味だ",
+    "locked_fields": [],
+    "meaning_vi": "Mang ý nghĩa",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜気味だ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6cba3f59fb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "古い本はほこりだらけになっていた。",
+       "ja_furigana": "古(ふる)い本(ほん)はほこりだらけになっていた。",
+       "vi": "Cuốn sách cũ phủ đầy bụi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "公園で遊んだ子どもの手は、すなだらけだった。",
+       "ja_furigana": "公園(こうえん)で遊(あそ)んだ子(こ)どもの手(て)は、すなだらけだった。",
+       "vi": "Tay bọn trẻ chơi ở công viên dính đầy cát.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "返ってきたテストは間違いだらけだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bài kiểm tra trả về đầy lỗi."
+     },
+     {
+      "ja": "毎日サッカーをしていたら、傷だらけになった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì đá bóng mỗi ngày nên tôi đầy thương tích."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 返ってきたテストは間違いだらけだった。",
+     "FURIGANA_MISSING: 毎日サッカーをしていたら、傷だらけになった。"
+    ],
+    "formation": "N + だらけ",
+    "locked_fields": [],
+    "meaning_vi": "Có nhiều ~ (những thứ không ưa)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜(いやなもの)がたくさんある",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［名］ ＋だらけだ Có nhiều ~ (những thứ không ưa) Ví dụ: 1. 返ってきたテストは間違いだらけだった。 Bài kiểm tra trả về đầy lỗi. 2. 毎日サッカーをしていたら、傷だらけになった。 Vì đá bóng mỗi ngày nên tôi đầy thương tích."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c3a56da7e2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅の前は人が多くて通りづらい。",
+       "ja_furigana": "駅(えき)の前(まえ)は人(ひと)が多(おお)くて通(とお)りづらい。",
+       "vi": "Trước ga đông người nên khó đi qua.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "このくつは重くて、歩きづらい。",
+       "ja_furigana": "このくつは重(おも)くて、歩(ある)きづらい。",
+       "vi": "Đôi giày này nặng nên khó đi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "個人的なことなので職場の人には頼みづらい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì là chuyện cá nhân nên khó nhờ đồng nghiệp."
+     },
+     {
+      "ja": "ここは黒板の字が見づらい位置です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ở đây là vị trí mà khó nhìn thấy chữ trên bảng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 個人的なことなので職場の人には頼みづらい。",
+     "FURIGANA_MISSING: ここは黒板の字が見づらい位置です。"
+    ],
+    "formation": "V(bỏ ます) + づらい",
+    "locked_fields": [],
+    "meaning_vi": "Làm việc ~ là khó khăn, vất vả",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜するのが難しくてこまる",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［動］ます ＋ づらい Làm việc ~ là khó khăn, vất vả Ví dụ: 1. 個人的なことなので職場の人には頼みづらい。 Vì là chuyện cá nhân nên khó nhờ đồng nghiệp. 2. ここは黒板の字が見づらい位置です。 Ở đây là vị trí mà khó nhìn thấy chữ trên bảng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7b749e4b8c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このかばんは私には大きすぎる。",
+       "ja_furigana": "このかばんは私(わたし)には大(おお)きすぎる。",
+       "vi": "Chiếc túi này quá to với tôi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "テレビを見すぎて、目が痛い。",
+       "ja_furigana": "テレビを見(み)すぎて、目(め)が痛(いた)い。",
+       "vi": "Xem tivi nhiều quá nên đau mắt.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この靴は私には小さすぎる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đôi giày này quá nhỏ đối với tôi."
+     },
+     {
+      "ja": "美味しかったので、食べすぎてしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì ngon quá nên tôi đã ăn quá nhiều."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この靴は私には小さすぎる。",
+     "FURIGANA_MISSING: 美味しかったので、食べすぎてしまった。"
+    ],
+    "formation": "V(bỏ ます) + すぎる / Aい(bỏ い) + すぎる / Aな + すぎる",
+    "locked_fields": [],
+    "meaning_vi": "Một trạng thái ~ hay làm một việc ~ gì đó vượt quá mức độ phù hợp",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜だ・〜する",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［動］ます・い形い・な形 ＋過ぎる・すぎだ 適切な程度を超えて Một trạng thái ~ hay làm một việc ~ gì đó vượt quá mức độ phù hợp Ví dụ: 1. この靴は私には小さすぎる。 Đôi giày này quá nhỏ đối với tôi. 2. 美味しかったので、食べすぎてしまった。 Vì ngon quá nên tôi đã ăn quá nhiều. 3. 君、それは言い過ぎだよ。 Cậu nói quá rồi đấy."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3f71ddda44"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母の作ったパンは、お店のみたいに柔らかい。",
+       "ja_furigana": "母(はは)の作(つく)ったパンは、お店(みせ)のみたいに柔(やわ)らかい。",
+       "vi": "Bánh mẹ làm mềm như bánh ngoài tiệm.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "弟は父みたいに、毎朝新聞を読む。",
+       "ja_furigana": "弟(おとうと)は父(ちち)みたいに、毎朝(まいあさ)新聞(しんぶん)を読(よ)む。",
+       "vi": "Em trai tôi giống bố, sáng nào cũng đọc báo.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ここから見える景色は絵のようだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cảnh từ đây nhìn trông như một bức tranh."
+     },
+     {
+      "ja": "このパンはケーキみたいに甘くて軟らかい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bánh mì này ngọt và mềm như bánh kem."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ここから見える景色は絵のようだ。",
+     "FURIGANA_MISSING: このパンはケーキみたいに甘くて軟らかい。"
+    ],
+    "formation": "N + のようだ / V・A(thể thông thường) + ようだ",
+    "locked_fields": [],
+    "meaning_vi": "Rất giống với ~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜によくにている",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［名］ ＋のようだ・みたいだ ［名］ ＋のような・みたいな ＋［名］ Rất giống với ~ Ví dụ: 1. ここから見える景色は絵のようだ。 Cảnh từ đây nhìn trông như một bức tranh. 2. このパンはケーキみたいに甘くて軟らかい。 Bánh mì này ngọt và mềm như bánh kem. 3. ガラスみたいな氷を靴で踏んで遊んで。 Hãy dẫm bằng giày lên lớp băng trông như thủy tinh rồi chơi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-97fa9e2598"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "兄らしい静かな返事だった。",
+       "ja_furigana": "兄(あに)らしい静(しず)かな返事(へんじ)だった。",
+       "vi": "Đó là câu trả lời điềm tĩnh đúng kiểu anh trai.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "今日は春らしいあたたかい日だ。",
+       "ja_furigana": "今日(きょう)は春(はる)らしいあたたかい日(ひ)だ。",
+       "vi": "Hôm nay là một ngày ấm áp đúng chất mùa xuân.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今日は暖かくて春らしい一日だった",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay ấm áp, đúng là một ngày mang không khí mùa xuân."
+     },
+     {
+      "ja": "いつもの元気なリーさんらしくないですね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không giống Lee thường ngày đầy năng lượng nhỉ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今日は暖かくて春らしい一日だった",
+     "FURIGANA_MISSING: いつもの元気なリーさんらしくないですね。"
+    ],
+    "formation": "N + らしい + N / N + らしい",
+    "locked_fields": [],
+    "meaning_vi": "Giống với những hình dung về ~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜のイメージと同じだ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［名］ ＋ らしい Giống với những hình dung về ~ Ví dụ: 1. 今日は暖かくて春らしい一日だった Hôm nay ấm áp, đúng là một ngày mang không khí mùa xuân. 2. いつもの元気なリーさんらしくないですね。 Không giống Lee thường ngày đầy năng lượng nhỉ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cfac1cbb23"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このスープは水っぽくて味がよわい。",
+       "ja_furigana": "このスープは水(みず)っぽくて味(あじ)がよわい。",
+       "vi": "Món súp này loãng nên vị nhạt.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "弟は忘れっぽくて、よくかさをなくす。",
+       "ja_furigana": "弟(おとうと)は忘(わす)れっぽくて、よくかさをなくす。",
+       "vi": "Em trai tôi hay quên nên thường làm mất ô.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼女はわがままばかり言って、子どもっぽい人だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô ấy chỉ toàn ích kỷ và rất trẻ con."
+     },
+     {
+      "ja": "弟はあきっぽくて、何でも途中で辞めてしまう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Em trai tôi chóng chán, cái gì cũng bỏ dở giữa chừng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼女はわがままばかり言って、子どもっぽい人だ。",
+     "FURIGANA_MISSING: 弟はあきっぽくて、何でも途中で辞めてしまう。"
+    ],
+    "formation": "N + っぽい / V(bỏ ます) + っぽい / Aい(bỏ い) + っぽい",
+    "locked_fields": [],
+    "meaning_vi": "Có đặc điểm, tính cách giống như ~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜のような要素・性質がある",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［名］・［動］ます ＋ っぽい Có đặc điểm, tính cách giống như ~ Ví dụ: 1. 彼女はわがままばかり言って、子どもっぽい人だ。 Cô ấy chỉ toàn ích kỷ và rất trẻ con. 2. 弟はあきっぽくて、何でも途中で辞めてしまう。 Em trai tôi chóng chán, cái gì cũng bỏ dở giữa chừng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d06adf095f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "雨の日はこの道が混みがちです。",
+       "ja_furigana": "雨(あめ)の日(ひ)はこの道(みち)が混(こ)みがちです。",
+       "vi": "Ngày mưa, con đường này thường đông.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "母は最近、体がよわく、病気がちだ。",
+       "ja_furigana": "母(はは)は最近(さいきん)、体(からだ)がよわく、病気(びょうき)がちだ。",
+       "vi": "Dạo này mẹ tôi yếu, hay bị ốm.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "雨のため工事は遅れがちだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công trình thường bị trễ do mưa."
+     },
+     {
+      "ja": "遠慮がちに由香さんに年齢を聞いてみた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi e dè hỏi Yuka bao nhiêu tuổi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 雨のため工事は遅れがちだ。",
+     "FURIGANA_MISSING: 遠慮がちに由香さんに年齢を聞いてみた。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 遠慮がちに由香さんに年齢を聞いてみた。 → 香"
+    ],
+    "formation": "V(bỏ ます) + がちだ / N + がちだ",
+    "locked_fields": [],
+    "meaning_vi": "Có khuynh hướng trở thành trạng thái ~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜の状態になる傾向がある",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［名］・［動］ます ＋がちだ Có khuynh hướng trở thành trạng thái ~ Ví dụ: 1. 雨のため工事は遅れがちだ。 Công trình thường bị trễ do mưa. 2. 遠慮がちに由香さんに年齢を聞いてみた。 Tôi e dè hỏi Yuka bao nhiêu tuổi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-213515159f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母は写真を見て笑い出した。",
+       "ja_furigana": "母(はは)は写真(しゃしん)を見(み)て笑(わら)い出(だ)した。",
+       "vi": "Mẹ nhìn ảnh rồi bật cười.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "赤ちゃんが急になき出した。",
+       "ja_furigana": "赤(あか)ちゃんが急(きゅう)になき出(だ)した。",
+       "vi": "Em bé đột nhiên òa khóc.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼はわたしの顔を見ると、突然笑い出した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy nhìn thấy mặt tôi rồi đột nhiên phá lên cười."
+     },
+     {
+      "ja": "電池を入れ替えたら、おもちゃの車が急に動き出した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi thay pin, chiếc xe đồ chơi bỗng nhiên bắt đầu chạy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼はわたしの顔を見ると、突然笑い出した。",
+     "FURIGANA_MISSING: 電池を入れ替えたら、おもちゃの車が急に動き出した。"
+    ],
+    "formation": "V(bỏ ます) + 出す",
+    "locked_fields": [],
+    "meaning_vi": "Bắt đầu ~ (một cách đột ngột/ gấp)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜出す",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［動］ます ＋ 出す Bắt đầu ~ (một cách đột ngột/ gấp) Ví dụ: 1. 彼はわたしの顔を見ると、突然笑い出した。 Anh ấy nhìn thấy mặt tôi rồi đột nhiên phá lên cười. 2. 電池を入れ替えたら、おもちゃの車が急に動き出した。 Sau khi thay pin, chiếc xe đồ chơi bỗng nhiên bắt đầu chạy."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d593929bac"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-072"
+}

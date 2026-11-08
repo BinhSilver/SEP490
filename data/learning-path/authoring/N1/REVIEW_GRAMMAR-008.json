@@ -1,0 +1,724 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "規則に照らして、今回の違反を処理する。",
+       "ja_furigana": "規則(きそく)に照(て)らして、今回(こんかい)の違反(いはん)を処理(しょり)する。",
+       "vi": "Đối chiếu với quy tắc để xử lý vi phạm lần này."
+      },
+      {
+       "ja": "過去の判例に照らして、今回の事件の刑が決められた。",
+       "ja_furigana": "過去(かこ)の判例(はんれい)に照(て)らして、今回(こんかい)の事件(じけん)の刑(けい)が決(き)められた。",
+       "source": "AI",
+       "vi": "Hình phạt của vụ án lần này được quyết định bằng cách đối chiếu với các án lệ trước đây."
+      },
+      {
+       "ja": "自分の経験に照らして考えると、その計画は少し無理があると思う。",
+       "ja_furigana": "自分(じぶん)の経験(けいけん)に照(て)らして考(かんが)えると、その計画(けいかく)は少(すこ)し無理(むり)があると思(おも)う。",
+       "source": "AI",
+       "vi": "Đối chiếu với kinh nghiệm của bản thân, tôi nghĩ kế hoạch đó hơi khó khả thi."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Danh từ phía trước phải là chuẩn mực, luật lệ, tiền lệ hay kinh nghiệm, không dùng với danh từ tùy ý. Khác に基づいて (lấy làm căn cứ): に照らして nhấn mạnh hành động so sánh, đối chiếu.",
+    "examples": [
+     {
+      "ja": "規定に照らして判断する。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "過去の判例に照らして、今回の事件の刑が決められた。",
+      "ja_furigana": "過去(かこ)の判例(はんれい)に照(て)らして、今回(こんかい)の事件(じけん)の刑(けい)が決(き)められた。",
+      "source": "AI",
+      "vi": "Hình phạt của vụ án lần này được quyết định bằng cách đối chiếu với các án lệ trước đây."
+     },
+     {
+      "ja": "自分の経験に照らして考えると、その計画は少し無理があると思う。",
+      "ja_furigana": "自分(じぶん)の経験(けいけん)に照(て)らして考(かんが)えると、その計画(けいかく)は少(すこ)し無理(むり)があると思(おも)う。",
+      "source": "AI",
+      "vi": "Đối chiếu với kinh nghiệm của bản thân, tôi nghĩ kế hoạch đó hơi khó khả thi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 規定に照らして判断する。",
+     "FURIGANA_MISSING: 規定に照らして判断する。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + に照らして; N + に照らし合わせて",
+    "locked_fields": [],
+    "meaning_vi": "Đối chiếu với — So với chuẩn mực hoặc tiền lệ để phán xét.",
+    "nuance_vi": "Văn viết, trang trọng, hay dùng trong pháp luật và hành chính; đối chiếu với luật, tiền lệ hay chuẩn mực để phán đoán.",
+    "order_items": [],
+    "pattern": "N + に照らして",
+    "pattern_variants": [],
+    "unit_no": 2,
+    "unit_title_vi": "Dựa trên, căn cứ vào",
+    "usage_vi": "Hay đi với 法律, 基準, 経験. Trang trọng, dùng trong văn bản."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-518201f8b0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "部長をはじめ、部署の全員が研修に参加した。",
+       "ja_furigana": "部長(ぶちょう)をはじめ、部署(ぶしょ)の全員(ぜんいん)が研修(けんしゅう)に参加(さんか)した。",
+       "vi": "Đứng đầu là trưởng phòng, toàn bộ thành viên của phòng ban đã tham gia khóa đào tạo."
+      },
+      {
+       "ja": "京都には、金閣寺をはじめ、世界的に有名な寺が数多くある。",
+       "ja_furigana": "京都(きょうと)には、金閣寺(きんかくじ)をはじめ、世界的(せかいてき)に有名(ゆうめい)な寺(てら)が数多(かずおお)くある。",
+       "source": "AI",
+       "vi": "Ở Kyoto có rất nhiều ngôi chùa nổi tiếng thế giới, tiêu biểu là Kinkakuji."
+      },
+      {
+       "ja": "首相をはじめとする閣僚たちが、慰霊式に出席した。",
+       "ja_furigana": "首相(しゅしょう)をはじめとする閣僚(かくりょう)たちが、慰霊式(いれいしき)に出席(しゅっせき)した。",
+       "source": "AI",
+       "vi": "Các bộ trưởng, đứng đầu là thủ tướng, đã tham dự lễ tưởng niệm."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Phần sau phải là nhóm bao gồm cả đại diện đã nêu, không dùng để liệt kê hai thứ độc lập. Đại diện nên là đối tượng quan trọng hay lớn nhất. Đừng nhầm với はじめ nghĩa 'đầu tiên'.",
+    "examples": [
+     {
+      "ja": "社長をはじめ、全社員が参加した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "京都には、金閣寺をはじめ、世界的に有名な寺が数多くある。",
+      "ja_furigana": "京都(きょうと)には、金閣寺(きんかくじ)をはじめ、世界的(せかいてき)に有名(ゆうめい)な寺(てら)が数多(かずおお)くある。",
+      "source": "AI",
+      "vi": "Ở Kyoto có rất nhiều ngôi chùa nổi tiếng thế giới, tiêu biểu là Kinkakuji."
+     },
+     {
+      "ja": "首相をはじめとする閣僚たちが、慰霊式に出席した。",
+      "ja_furigana": "首相(しゅしょう)をはじめとする閣僚(かくりょう)たちが、慰霊式(いれいしき)に出席(しゅっせき)した。",
+      "source": "AI",
+      "vi": "Các bộ trưởng, đứng đầu là thủ tướng, đã tham dự lễ tưởng niệm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 社長をはじめ、全社員が参加した。",
+     "FURIGANA_MISSING: 社長をはじめ、全社員が参加した。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + をはじめ(として / とする) + N",
+    "locked_fields": [],
+    "meaning_vi": "Trước hết là, đứng đầu là — Nêu đại diện tiêu biểu rồi hàm ý còn nhiều nữa.",
+    "nuance_vi": "Văn viết, trang trọng; nêu đại diện tiêu biểu nhất rồi hàm ý còn nhiều đối tượng cùng loại khác.",
+    "order_items": [],
+    "pattern": "N + をはじめ",
+    "pattern_variants": [],
+    "unit_no": 1,
+    "unit_title_vi": "Nêu tiêu biểu, trải qua",
+    "usage_vi": "Dạng khác をはじめとする. Cái nêu ra phải là tiêu biểu nhất."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c72e625510"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "長い交渉を経て、ようやく契約が成立した。",
+       "ja_furigana": "長(なが)い交渉(こうしょう)を経(へ)て、ようやく契約(けいやく)が成立(せいりつ)した。",
+       "vi": "Trải qua đàm phán dài, hợp đồng cuối cùng đã được ký kết."
+      },
+      {
+       "ja": "何度もの審査を経て、新しい薬がようやく承認された。",
+       "ja_furigana": "何度(なんど)もの審査(しんさ)を経(へ)て、新(あたら)しい薬(くすり)がようやく承認(しょうにん)された。",
+       "source": "AI",
+       "vi": "Trải qua nhiều lần thẩm định, loại thuốc mới cuối cùng đã được phê duyệt."
+      },
+      {
+       "ja": "この法案は、国会での長い議論を経て成立した。",
+       "ja_furigana": "この法案(ほうあん)は、国会(こっかい)での長(なが)い議論(ぎろん)を経(へ)て成立(せいりつ)した。",
+       "source": "AI",
+       "vi": "Dự luật này được thông qua sau cuộc thảo luận dài ở quốc hội."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Danh từ phải là quá trình, giai đoạn hay địa điểm trung gian (審査, 議論, 三年), không dùng với thời điểm đơn giản. Khác を通じて (suốt, qua phương tiện) và によって.",
+    "examples": [
+     {
+      "ja": "三年の準備期間を経て開店した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "何度もの審査を経て、新しい薬がようやく承認された。",
+      "ja_furigana": "何度(なんど)もの審査(しんさ)を経(へ)て、新(あたら)しい薬(くすり)がようやく承認(しょうにん)された。",
+      "source": "AI",
+      "vi": "Trải qua nhiều lần thẩm định, loại thuốc mới cuối cùng đã được phê duyệt."
+     },
+     {
+      "ja": "この法案は、国会での長い議論を経て成立した。",
+      "ja_furigana": "この法案(ほうあん)は、国会(こっかい)での長(なが)い議論(ぎろん)を経(へ)て成立(せいりつ)した。",
+      "source": "AI",
+      "vi": "Dự luật này được thông qua sau cuộc thảo luận dài ở quốc hội."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 三年の準備期間を経て開店した。",
+     "FURIGANA_MISSING: 三年の準備期間を経て開店した。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + を経て; N + を経て + V",
+    "locked_fields": [],
+    "meaning_vi": "Trải qua rồi mới — Đi qua một quá trình hoặc giai đoạn rồi mới đến kết quả.",
+    "nuance_vi": "Văn viết, báo chí; trải qua một quá trình, giai đoạn hay địa điểm trung gian rồi mới đến kết quả hay điểm cuối.",
+    "order_items": [],
+    "pattern": "N + を経て",
+    "pattern_variants": [],
+    "unit_no": 1,
+    "unit_title_vi": "Nêu tiêu biểu, trải qua",
+    "usage_vi": "Trang trọng, hay gặp trong tiểu sử và thủ tục."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-76f74074ab"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "故郷の写真を見るにつけても、母のことが思い出される。",
+       "ja_furigana": "故郷(こきょう)の写真(しゃしん)を見(み)るにつけても、母(はは)のことが思(おも)い出(だ)される。",
+       "vi": "Mỗi khi xem ảnh quê nhà, tôi lại nhớ về mẹ."
+      },
+      {
+       "ja": "子どもの写真を見るにつけても、遠く離れた家族のことが思い出される。",
+       "ja_furigana": "子(こ)どもの写真(しゃしん)を見(み)るにつけても、遠(とお)く離(はな)れた家族(かぞく)のことが思(おも)い出(だ)される。",
+       "source": "AI",
+       "vi": "Mỗi khi nhìn ảnh của lũ trẻ, tôi lại nhớ đến gia đình ở xa."
+      },
+      {
+       "ja": "世の中の不公平なニュースを聞くにつけても、怒りがこみ上げてくる。",
+       "ja_furigana": "世(よ)の中(なか)の不公平(ふこうへい)なニュースを聞(き)くにつけても、怒(いか)りがこみ上(あ)げてくる。",
+       "source": "AI",
+       "vi": "Mỗi khi nghe tin tức bất công trên đời, cơn giận lại trào lên."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau là cảm xúc hay suy nghĩ tự phát, không dùng cho hành động có chủ ý. Thường đi với 見る, 聞く, 思う, 考える. Đừng nhầm với につけ〜につけ (dù… hay…).",
+    "examples": [
+     {
+      "ja": "それにつけても彼のことが思い出される。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "子どもの写真を見るにつけても、遠く離れた家族のことが思い出される。",
+      "ja_furigana": "子(こ)どもの写真(しゃしん)を見(み)るにつけても、遠(とお)く離(はな)れた家族(かぞく)のことが思(おも)い出(だ)される。",
+      "source": "AI",
+      "vi": "Mỗi khi nhìn ảnh của lũ trẻ, tôi lại nhớ đến gia đình ở xa."
+     },
+     {
+      "ja": "世の中の不公平なニュースを聞くにつけても、怒りがこみ上げてくる。",
+      "ja_furigana": "世(よ)の中(なか)の不公平(ふこうへい)なニュースを聞(き)くにつけても、怒(いか)りがこみ上(あ)げてくる。",
+      "source": "AI",
+      "vi": "Mỗi khi nghe tin tức bất công trên đời, cơn giận lại trào lên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: それにつけても彼のことが思い出される。",
+     "FURIGANA_MISSING: それにつけても彼のことが思い出される。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + につけ(ても); N + につけ(ても)",
+    "locked_fields": [],
+    "meaning_vi": "Mỗi khi nghĩ đến lại — Cứ nhớ đến việc đó là cảm xúc lại dâng lên.",
+    "nuance_vi": "Văn viết; mỗi khi nhìn, nghe hay nghĩ đến việc gì thì cảm xúc hoặc suy nghĩ lại dâng lên một cách tự nhiên.",
+    "order_items": [],
+    "pattern": "N / V từ điển + につけても",
+    "pattern_variants": [],
+    "unit_no": 11,
+    "unit_title_vi": "Dẫn đến, mỗi khi, lặp lại",
+    "usage_vi": "Hay gặp: それにつけても. Vế sau là cảm xúc tự nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a7f865cc2d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "両者の対立は、法廷で争うに至った。",
+       "ja_furigana": "両者(りょうしゃ)の対立(たいりつ)は、法廷(ほうてい)で争(あらそ)うに至(いた)った。",
+       "vi": "Mâu thuẫn giữa hai bên đã dẫn đến việc kiện nhau ra tòa."
+      },
+      {
+       "ja": "度重なる失敗が、ついに会社の倒産に至った。",
+       "ja_furigana": "度重(たびかさ)なる失敗(しっぱい)が、ついに会社(かいしゃ)の倒産(とうさん)に至(いた)った。",
+       "source": "AI",
+       "vi": "Những thất bại liên tiếp cuối cùng đã dẫn đến việc công ty phá sản."
+      },
+      {
+       "ja": "長い話し合いの末、両国は条約を結ぶに至った。",
+       "ja_furigana": "長(なが)い話(はな)し合(あ)いの末(すえ)、両国(りょうこく)は条約(じょうやく)を結(むす)ぶに至(いた)った。",
+       "source": "AI",
+       "vi": "Sau cuộc thảo luận dài, hai nước đã đi đến việc ký hiệp ước."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế trước là quá trình, vế sau là kết quả cuối cùng; không dùng cho việc di chuyển thông thường. に至るまで nghĩa là 'cho đến tận', khác với に至る.",
+    "examples": [
+     {
+      "ja": "交渉は決裂するに至った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "度重なる失敗が、ついに会社の倒産に至った。",
+      "ja_furigana": "度重(たびかさ)なる失敗(しっぱい)が、ついに会社(かいしゃ)の倒産(とうさん)に至(いた)った。",
+      "source": "AI",
+      "vi": "Những thất bại liên tiếp cuối cùng đã dẫn đến việc công ty phá sản."
+     },
+     {
+      "ja": "長い話し合いの末、両国は条約を結ぶに至った。",
+      "ja_furigana": "長(なが)い話(はな)し合(あ)いの末(すえ)、両国(りょうこく)は条約(じょうやく)を結(むす)ぶに至(いた)った。",
+      "source": "AI",
+      "vi": "Sau cuộc thảo luận dài, hai nước đã đi đến việc ký hiệp ước."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 交渉は決裂するに至った。",
+     "FURIGANA_MISSING: 交渉は決裂するに至った。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N / Vる + に至る; N + に至るまで",
+    "locked_fields": [],
+    "meaning_vi": "Đi đến mức, dẫn tới — Cuối cùng đạt tới một trạng thái hoặc kết quả nghiêm trọng.",
+    "nuance_vi": "Văn viết, báo chí; sau một quá trình thì cuối cùng đạt tới một trạng thái hay kết quả, thường là nghiêm trọng.",
+    "order_items": [],
+    "pattern": "N / V từ điển + に至る",
+    "pattern_variants": [
+     "〜に至る/至るまで/至って"
+    ],
+    "unit_no": 11,
+    "unit_title_vi": "Dẫn đến, mỗi khi, lặp lại",
+    "usage_vi": "に至るまで = cho đến tận. に至っては = đến như thì. に至って = mãi đến khi mới."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-226fa5b12e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は部屋の中を、行きつ戻りつしながら考え込んでいた。",
+       "ja_furigana": "彼(かれ)は部屋(へや)の中(なか)を、行(い)きつ戻(もど)りつしながら考(かんが)え込(こ)んでいた。",
+       "vi": "Anh ấy đi đi lại lại trong phòng và trầm tư suy nghĩ."
+      },
+      {
+       "ja": "二人の選手は抜きつ抜かれつの接戦を繰り広げた。",
+       "ja_furigana": "二人(ふたり)の選手(せんしゅ)は抜(ぬ)きつ抜(ぬ)かれつの接戦(せっせん)を繰(く)り広(ひろ)げた。",
+       "source": "AI",
+       "vi": "Hai vận động viên đã tranh đua sít sao, vượt lên rồi lại bị vượt."
+      },
+      {
+       "ja": "波は寄せつ返しつしながら、ゆっくりと砂浜を濡らしていた。",
+       "ja_furigana": "波(なみ)は寄(よ)せつ返(かえ)しつしながら、ゆっくりと砂浜(すなはま)を濡(ぬ)らしていた。",
+       "source": "AI",
+       "vi": "Sóng khi vỗ vào khi rút ra, chầm chậm làm ướt bãi cát."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không ghép được với động từ tùy ý; chỉ dùng với một số cặp cố định như 行きつ戻りつ, 抜きつ抜かれつ, 寄せつ返しつ. Hai động từ phải trái nghĩa hay đối ứng, đều ở dạng bỏ ます.",
+    "examples": [
+     {
+      "ja": "駅の前を行きつ戻りつしていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "二人の選手は抜きつ抜かれつの接戦を繰り広げた。",
+      "ja_furigana": "二人(ふたり)の選手(せんしゅ)は抜(ぬ)きつ抜(ぬ)かれつの接戦(せっせん)を繰(く)り広(ひろ)げた。",
+      "source": "AI",
+      "vi": "Hai vận động viên đã tranh đua sít sao, vượt lên rồi lại bị vượt."
+     },
+     {
+      "ja": "波は寄せつ返しつしながら、ゆっくりと砂浜を濡らしていた。",
+      "ja_furigana": "波(なみ)は寄(よ)せつ返(かえ)しつしながら、ゆっくりと砂浜(すなはま)を濡(ぬ)らしていた。",
+      "source": "AI",
+      "vi": "Sóng khi vỗ vào khi rút ra, chầm chậm làm ướt bãi cát."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 駅の前を行きつ戻りつしていた。",
+     "FURIGANA_MISSING: 駅の前を行きつ戻りつしていた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vます (bỏ ます) + つ + Vます (bỏ ます) + つ",
+    "locked_fields": [],
+    "meaning_vi": "Lúc thì lúc thì — Hai động tác trái nghiều lặp đi lặp lại.",
+    "nuance_vi": "Văn viết, thành ngữ cố định; miêu tả hai động tác đối lập lặp đi lặp lại luân phiên.",
+    "order_items": [],
+    "pattern": "V thể ます (bỏ ます) + つ + V thể ます (bỏ ます) + つ",
+    "pattern_variants": [
+     "〜つ〜つ"
+    ],
+    "unit_no": 11,
+    "unit_title_vi": "Dẫn đến, mỗi khi, lặp lại",
+    "usage_vi": "Cụm cố định: 行きつ戻りつ, 抜きつ抜かれつ, 持ちつ持たれつ. Không tự ghép tuỳ tiện."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f3e4754c1c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会場の使用料は、主催者が支払うものとする。",
+       "ja_furigana": "会場(かいじょう)の使用料(しようりょう)は、主催者(しゅさいしゃ)が支払(しはら)うものとする。",
+       "vi": "Phí sử dụng hội trường do ban tổ chức chi trả, đó là quy định."
+      },
+      {
+       "ja": "欠席の場合は、事前に届け出るものとする。",
+       "ja_furigana": "欠席(けっせき)の場合(ばあい)は、事前(じぜん)に届(とど)け出(で)るものとする。",
+       "source": "AI",
+       "vi": "Trường hợp vắng mặt thì phải đăng ký trước, đó là quy định."
+      },
+      {
+       "ja": "本規約に定めのない事項については、別途協議して決めるものとする。",
+       "ja_furigana": "本規約(ほんきやく)に定(さだ)めのない事項(じこう)については、別途(べっと)協議(きょうぎ)して決(き)めるものとする。",
+       "source": "AI",
+       "vi": "Những điều không được quy định trong điều lệ này sẽ được bàn bạc riêng rồi quyết định."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Đừng nhầm với ものだ (khuynh hướng, lẽ thường) hay ものと思う. Mẫu này là quy ước hoặc giả định trong văn bản, gần như không dùng trong hội thoại.",
+    "examples": [
+     {
+      "ja": "費用は甲が負担するものとする。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "欠席の場合は、事前に届け出るものとする。",
+      "ja_furigana": "欠席(けっせき)の場合(ばあい)は、事前(じぜん)に届(とど)け出(で)るものとする。",
+      "source": "AI",
+      "vi": "Trường hợp vắng mặt thì phải đăng ký trước, đó là quy định."
+     },
+     {
+      "ja": "本規約に定めのない事項については、別途協議して決めるものとする。",
+      "ja_furigana": "本規約(ほんきやく)に定(さだ)めのない事項(じこう)については、別途(べっと)協議(きょうぎ)して決(き)めるものとする。",
+      "source": "AI",
+      "vi": "Những điều không được quy định trong điều lệ này sẽ được bàn bạc riêng rồi quyết định."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 費用は甲が負担するものとする。",
+     "FURIGANA_MISSING: 費用は甲が負担するものとする。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường (Vる / Vない) + ものとする",
+    "locked_fields": [],
+    "meaning_vi": "Được quy định là — Quy định trong văn bản pháp lý hoặc hợp đồng.",
+    "nuance_vi": "Dùng trong văn bản pháp lý, hợp đồng và quy định; mang nghĩa 'được quy định là… / được coi là…', giọng rất cứng.",
+    "order_items": [],
+    "pattern": "Thể thường + ものとする",
+    "pattern_variants": [],
+    "unit_no": 12,
+    "unit_title_vi": "Văn viết, quy định, phán đoán",
+    "usage_vi": "Chỉ dùng trong văn bản chính thức, không dùng trong hội thoại."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ae0bab0fb7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "事故の原因は、運転手の居眠りによるものと思われる。",
+       "ja_furigana": "事故(じこ)の原因(げんいん)は、運転手(うんてんしゅ)の居眠(いねむ)りによるものと思(おも)われる。",
+       "vi": "Nguyên nhân vụ tai nạn được cho là do tài xế ngủ gật."
+      },
+      {
+       "ja": "火災の原因は、電気ストーブの消し忘れによるものと思われる。",
+       "ja_furigana": "火災(かさい)の原因(げんいん)は、電気(でんき)ストーブの消(け)し忘(わす)れによるものと思(おも)われる。",
+       "source": "AI",
+       "vi": "Nguyên nhân vụ hỏa hoạn được cho là do quên tắt lò sưởi điện."
+      },
+      {
+       "ja": "今回の売上減少は、天候不順が影響したものと思われる。",
+       "ja_furigana": "今回(こんかい)の売上減少(うりあげげんしょう)は、天候不順(てんこうふじゅん)が影響(えいきょう)したものと思(おも)われる。",
+       "source": "AI",
+       "vi": "Việc doanh thu giảm lần này được cho là chịu ảnh hưởng của thời tiết thất thường."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không dùng như ý kiến cá nhân mạnh mẽ kiểu 'tôi nghĩ' trong hội thoại, và không dùng với điều đã chắc chắn. Khác ものと考える ở chỗ 思われる làm mờ chủ thể.",
+    "examples": [
+     {
+      "ja": "原因は配線の不具合によるものと思われる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "火災の原因は、電気ストーブの消し忘れによるものと思われる。",
+      "ja_furigana": "火災(かさい)の原因(げんいん)は、電気(でんき)ストーブの消(け)し忘(わす)れによるものと思(おも)われる。",
+      "source": "AI",
+      "vi": "Nguyên nhân vụ hỏa hoạn được cho là do quên tắt lò sưởi điện."
+     },
+     {
+      "ja": "今回の売上減少は、天候不順が影響したものと思われる。",
+      "ja_furigana": "今回(こんかい)の売上減少(うりあげげんしょう)は、天候不順(てんこうふじゅん)が影響(えいきょう)したものと思(おも)われる。",
+      "source": "AI",
+      "vi": "Việc doanh thu giảm lần này được cho là chịu ảnh hưởng của thời tiết thất thường."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 原因は配線の不具合によるものと思われる。",
+     "FURIGANA_MISSING: 原因は配線の不具合によるものと思われる。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + ものと思われる",
+    "locked_fields": [],
+    "meaning_vi": "Được cho là — Phán đoán khách quan, tránh nói thẳng ý kiến cá nhân.",
+    "nuance_vi": "Văn viết, báo cáo, tin tức; đưa ra phán đoán một cách khách quan, giảm sắc thái chủ quan nhờ dạng 思われる.",
+    "order_items": [],
+    "pattern": "Thể thường + ものと思われる",
+    "pattern_variants": [],
+    "unit_no": 12,
+    "unit_title_vi": "Văn viết, quy định, phán đoán",
+    "usage_vi": "Văn viết báo chí và báo cáo. Dạng khác ものとみられる."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-480dabd39d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女の提案は、検討に値する内容だ。",
+       "ja_furigana": "彼女(かのじょ)の提案(ていあん)は、検討(けんとう)に値(あたい)する内容(ないよう)だ。",
+       "vi": "Đề xuất của cô ấy có nội dung đáng để xem xét."
+      },
+      {
+       "ja": "この研究は、国際的に高く評価するに値する成果だ。",
+       "ja_furigana": "この研究(けんきゅう)は、国際的(こくさいてき)に高(たか)く評価(ひょうか)するに値(あたい)する成果(せいか)だ。",
+       "source": "AI",
+       "vi": "Nghiên cứu này là thành quả xứng đáng được đánh giá cao trên bình diện quốc tế."
+      },
+      {
+       "ja": "彼女の勇気ある行動は、尊敬に値すると思う。",
+       "ja_furigana": "彼女(かのじょ)の勇気(ゆうき)ある行動(こうどう)は、尊敬(そんけい)に値(あたい)すると思(おも)う。",
+       "source": "AI",
+       "vi": "Tôi nghĩ hành động dũng cảm của cô ấy xứng đáng được kính trọng."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ đi với danh từ hay động từ mang tính đánh giá (注目する, 評価する). Khác に足る (đủ để, dùng với 信頼); phủ định là に値しない (không xứng đáng).",
+    "examples": [
+     {
+      "ja": "彼の努力は賞賛に値する。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "この研究は、国際的に高く評価するに値する成果だ。",
+      "ja_furigana": "この研究(けんきゅう)は、国際的(こくさいてき)に高(たか)く評価(ひょうか)するに値(あたい)する成果(せいか)だ。",
+      "source": "AI",
+      "vi": "Nghiên cứu này là thành quả xứng đáng được đánh giá cao trên bình diện quốc tế."
+     },
+     {
+      "ja": "彼女の勇気ある行動は、尊敬に値すると思う。",
+      "ja_furigana": "彼女(かのじょ)の勇気(ゆうき)ある行動(こうどう)は、尊敬(そんけい)に値(あたい)すると思(おも)う。",
+      "source": "AI",
+      "vi": "Tôi nghĩ hành động dũng cảm của cô ấy xứng đáng được kính trọng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 彼の努力は賞賛に値する。",
+     "FURIGANA_MISSING: 彼の努力は賞賛に値する。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N / Vる + に値する",
+    "locked_fields": [],
+    "meaning_vi": "Xứng đáng với — Có đủ giá trị để nhận được điều đó.",
+    "nuance_vi": "Văn viết, trang trọng; xứng đáng nhận được sự đánh giá hay đối xử tích cực, thường đi với 賞賛, 尊敬, 注目, 検討.",
+    "order_items": [],
+    "pattern": "N / V từ điển + に値する",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": "Đánh giá, giá trị",
+    "usage_vi": "Phủ định に値しない. Hay gặp: 賞賛に値する, 信頼に値する."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e8e246d5a8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "性別にかかわらず、誰でもこの講座に参加できる。",
+       "ja_furigana": "性別(せいべつ)にかかわらず、誰(だれ)でもこの講座(こうざ)に参加(さんか)できる。",
+       "vi": "Bất kể giới tính, ai cũng có thể tham gia khóa học này."
+      },
+      {
+       "ja": "経験の有無にかかわらず、やる気のある方を歓迎します。",
+       "ja_furigana": "経験(けいけん)の有無(うむ)にかかわらず、やる気(き)のある方(かた)を歓迎(かんげい)します。",
+       "source": "AI",
+       "vi": "Chúng tôi hoan nghênh những người có động lực, bất kể có kinh nghiệm hay không."
+      },
+      {
+       "ja": "好き嫌いにかかわらず、出された料理は残さず食べなさい。",
+       "ja_furigana": "好(す)き嫌(きら)いにかかわらず、出(だ)された料理(りょうり)は残(のこ)さず食(た)べなさい。",
+       "source": "AI",
+       "vi": "Bất kể thích hay không, món được dọn ra thì hãy ăn hết."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Danh từ phía trước thường có hai mặt đối lập (有無, 晴雨). Đừng nhầm với にもかかわらず (mặc dù… nhưng vẫn), vốn nêu kết quả trái với mong đợi.",
+    "examples": [
+     {
+      "ja": "年齢にかかわらず応募できます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "経験の有無にかかわらず、やる気のある方を歓迎します。",
+      "ja_furigana": "経験(けいけん)の有無(うむ)にかかわらず、やる気(き)のある方(かた)を歓迎(かんげい)します。",
+      "source": "AI",
+      "vi": "Chúng tôi hoan nghênh những người có động lực, bất kể có kinh nghiệm hay không."
+     },
+     {
+      "ja": "好き嫌いにかかわらず、出された料理は残さず食べなさい。",
+      "ja_furigana": "好(す)き嫌(きら)いにかかわらず、出(だ)された料理(りょうり)は残(のこ)さず食(た)べなさい。",
+      "source": "AI",
+      "vi": "Bất kể thích hay không, món được dọn ra thì hãy ăn hết."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 年齢にかかわらず応募できます。",
+     "FURIGANA_MISSING: 年齢にかかわらず応募できます。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N / Thể thường (Vる・Vない) + にかかわらず",
+    "locked_fields": [],
+    "meaning_vi": "Bất kể — Không phân biệt, không phụ thuộc vào yếu tố đó.",
+    "nuance_vi": "Văn viết, thông báo; bất kể điều kiện đó thế nào, kết quả không đổi, thường đi với cặp đối lập như 有無, 好き嫌い, 年齢, 天候.",
+    "order_items": [],
+    "pattern": "N / Thể thường + にかかわらず",
+    "pattern_variants": [],
+    "unit_no": 3,
+    "unit_title_vi": "Bất kể, dù là",
+    "usage_vi": "Đừng nhầm với にもかかわらず (mặc dù vậy mà). Khác nhau một chữ も."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2a6543aff7"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-008"
+}

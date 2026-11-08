@@ -51,6 +51,15 @@ public class LearningController {
         return ResponseEntity.ok(ApiResponse.ok("OK", learningService.entryQuestions(user.userId(), assessmentAttemptId)));
     }
 
+    /** F1-3 / R1 (owner 2026-10-27): days and packages the path for these answers would have; saves nothing. */
+    @GetMapping("/paths/estimate")
+    public ResponseEntity<ApiResponse<com.jlas.learning.dto.LearningPathEstimate>> estimate(
+            @RequestParam Long assessmentAttemptId, @RequestParam(required = false) Boolean kanaKnown,
+            @RequestParam(required = false) String entryChoice, @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK",
+                learningService.estimate(user.userId(), assessmentAttemptId, kanaKnown, entryChoice)));
+    }
+
     /** [JLAS-W0108] Tạo lộ trình from-zero từ survey đã hoàn thành (không cần Smart Test). */
     @PostMapping("/paths/from-zero")
     public ResponseEntity<ApiResponse<LearningPathResponse>> createFromZero(

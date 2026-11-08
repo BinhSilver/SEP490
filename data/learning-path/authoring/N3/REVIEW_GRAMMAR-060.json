@@ -1,0 +1,587 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母にかわって、私が店に立った。",
+       "ja_furigana": "母(はは)にかわって、私(わたし)が店(みせ)に立(た)った。",
+       "vi": "Tôi trông cửa hàng thay mẹ.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "部長にかわって、会議で説明しました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã giải thích trong cuộc họp thay trưởng phòng. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 部長にかわって、会議で説明しました。"
+    ],
+    "formation": "N + にかわって / にかわり",
+    "locked_fields": [],
+    "meaning_vi": "Đại diện/thay mặt: Người/vật B thực hiện hành động thay cho A. Ví dụ: 上司にかわって説明する。 Thay thế (xu hướng/đổi mới): B đang/đã thay thế A về chức năng/sử dụng. Ví dụ: ガソリンにかわって電気自動車が普及。 Sắc thái: trang trọng, hay dùng trong thông báo, phát biểu, văn viết công việc. Chủ thể thực hiện thường là bên thay thế (đứng sau にかわって), còn A là đối tượng bị thay.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Thay cho, thay mặt",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đại diện trang trọng trong công sở: \"Nにかわってご連絡いたします\" rất tự nhiên. Dạng danh từ \"NにかわりのN\": 電子契約にかわりの仕組み. Với xu hướng thay thế, câu thường ở bị động/tổng quát: ～が使われる／注目される／普及している. Không dùng cho việc \"đổi lượt tạm thời\" đơn thuần (thay phiên). Trường hợp đó dùng 代わりばんこ／交代で. Trang trọng hơn のかわりに; phù hợp văn bản hành chính, báo cáo. [6. Ghi chú mở rộng] Ở nghĩa \"đại diện\", thường đi cùng kính ngữ: ご説明申し上げます／ご連絡いたします. Trong cụm thay thế công nghệ, dùng chữ Hán 代 để trang trọng: ～に代わって. Chủ đề bị thay thế (Nにかわって) không phải là chủ ngữ của hành động; chủ thể thay thế đứng sau và thực hiện. [7. Biến thể & cụm cố định] ～にかわって（ひらがな＋かな）: thường ngày. ～に代わって／～に代わり: chữ Hán, trang trọng/viết. NにかわりのN: danh từ bổ nghĩa. Ví dụ: 紙にかわりの素材。 Cụm thường gặp: 不在のAにかわって／Aに代わってご案内します。 [8. Lỗi thường gặp & bẫy JLPT] Dùng với động từ trực tiếp trước にかわって → sai. Trước にかわって phải là danh từ. Nhầm với \"đổi lại\": ～のかわりに mang thêm nghĩa trao đổi/đền bù; ～にかわって không có sắc thái này. Diễn đạt thay phiên tạm thời bằng にかわって → thiếu tự nhiên; nên dùng 交代で／代わりばんこで. Đảo chiều chủ thể thay thế sai: 人間にかわってロボットが… (đúng) chứ không phải ロボットにかわって人間が… nếu ý là robot thay con người."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a572700f94"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "新聞によれば、明日は雪が降るそうだ。",
+       "ja_furigana": "新聞(しんぶん)によれば、明日(あした)は雪(ゆき)が降(ふ)るそうだ。",
+       "vi": "Theo báo, ngày mai có thể có tuyết.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "田中さんの話によれば、あの店は来月閉まるそうだ。",
+       "ja_furigana": "田中(たなか)さんの話(はなし)によれば、あの店(みせ)は来月(らいげつ)閉(し)まるそうだ。",
+       "vi": "Theo lời anh Tanaka thì quán đó tháng sau sẽ đóng cửa.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "天気予報によれば、明日は雪だそうだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Theo dự báo thời tiết, nghe nói mai sẽ có tuyết."
+     },
+     {
+      "ja": "先生の話によれば、試験は来週とのことだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Theo lời thầy, kỳ thi sẽ vào tuần sau."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 天気予報によれば、明日は雪だそうだ。",
+     "FURIGANA_MISSING: 先生の話によれば、試験は来週とのことだ。"
+    ],
+    "formation": "N + によれば / によると",
+    "locked_fields": [],
+    "meaning_vi": "Dẫn nguồn thông tin gián tiếp: “theo N thì …”. Độ tin cậy phụ thuộc nguồn; người nói không chịu trách nhiệm hoàn toàn (hàm ý truyền đạt). “によれば” mang sắc thái điều kiện “nếu căn cứ vào …”; “によると” trung tính, dùng rộng rãi hơn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Theo như",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] によれば／によると dẫn nguồn. Vế sau có thể là câu trần thuật trực tiếp hoặc thêm そうだ／らしい／という để nhấn tính truyền đạt; không bắt buộc luôn có một đuôi truyền văn riêng. “によると” là lựa chọn an toàn trong hội thoại thường ngày; “によれば” mang chút sắc thái điều kiện/giả định. Không kết hợp tự nhiên với mệnh lệnh, ý chí, nguyện vọng của người nói. Nguồn tin thường là: ニュース／報告書／研究／噂／友人／統計／関係者など. [6. Ghi chú mở rộng] Sau “によれば/によると” có thể đặt cả câu dài nhưng cần chứa dấu hiệu truyền đạt lại để tránh hiểu là phát ngôn trực tiếp của người nói. “とのことだ” trang trọng hơn “そうだ/らしい”, hay dùng trong văn viết, thông báo. Khi nguồn tin mơ hồ, có thể dùng “～とか” để giảm trách nhiệm phát ngôn. [7. Biến thể & cụm cố định] N + によれば / によると ～そうだ／～らしい／～という／～とのことだ／～とか 報道によれば / 研究によると / 噂によれば / 統計によると [8. Lỗi thường gặp & bẫy JLPT] 天気予報によれば、明日は雨です là câu tự nhiên. Đuôi そうだ／らしい hữu ích khi muốn thể hiện rõ “nghe nói”, nhưng không phải điều kiện bắt buộc sau によれば. Dùng với mệnh lệnh/ý chí của người nói (không tự nhiên): × 予報によれば、出かけよう. Nhầm với “によって” (nguyên nhân/phương tiện): “によれば/によると” chỉ nguồn tin. Nhầm với “では”: “調査では” nêu kết quả trong phạm vi khảo sát; “調査によると” là theo nguồn tin của khảo sát."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1ac70b2e94"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この絵は妹によってえがかれました。",
+       "ja_furigana": "この絵(え)は妹(いもうと)によってえがかれました。",
+       "vi": "Bức tranh này do em gái vẽ.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "この寺は、昔の人によって建てられた。",
+       "ja_furigana": "この寺(てら)は、昔(むかし)の人(ひと)によって建(た)てられた。",
+       "vi": "Ngôi chùa này được người xưa xây dựng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この作品は有名な画家によって描かれた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tác phẩm này được vẽ bởi một họa sĩ nổi tiếng."
+     },
+     {
+      "ja": "地震によって多くの建物が倒壊した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhiều tòa nhà đổ sập do động đất."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この作品は有名な画家によって描かれた。",
+     "FURIGANA_MISSING: 地震によって多くの建物が倒壊した。"
+    ],
+    "formation": "N + によって / による + N",
+    "locked_fields": [],
+    "meaning_vi": "Tác nhân của câu bị động: “bởi …”. Nguyên nhân/động lực: “do/bởi vì …” (thường trang trọng, sự kiện lớn, khách quan). Phương pháp/phương tiện/căn cứ: “bằng/nhờ …”. Phụ thuộc/khác nhau: “tùy theo … thì … khác nhau”. “によっては”: nêu một nhánh trong số nhiều khả năng có thể xảy ra.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tùy, do, bằng cách",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng hơn so với で (phương tiện) và から/ために (nguyên nhân). NによってV-られる dùng tự nhiên nhất khi tác nhân là người/tổ chức tạo ra, phát hiện, phát minh hoặc quyết định điều gì trong văn viết. Với hành động cá nhân thông thường như “được thầy khen”, dùng 先生に褒められた. “によっては” thường đi với mệnh đề đưa ra ví dụ tiêu biểu/ngoại lệ. “により”/“による” thường xuất hiện trong thông báo, văn bản chính thức. [6. Ghi chú mở rộng] Nguyên nhân thiên tai/sự cố lớn ưu tiên “によって/により”; nguyên nhân thông thường/ý chí dùng “で/ために”. Văn phong thông báo: “台風により全便欠航のお知らせ”. “人によっては” là mẫu rất tự nhiên để nêu khác biệt cá nhân. [7. Biến thể & cụm cố định] N + によって／により／による + N N + によっては + Mệnh đề 人によって / 場合によって / 国によって / 時期によって 原因・手段・差異・被動 tác nhân [8. Lỗi thường gặp & bẫy JLPT] Dùng “によって” làm tác nhân trong câu chủ động (không tự nhiên): tác nhân + が/は cho câu chủ động. Nguyên nhân đời thường dùng “で/から/ために” tự nhiên hơn: 風邪で会社を休む (không nên: 風邪によって). Nhầm “によっては” với “によって”: “によっては” phải theo sau bằng một ví dụ/nhánh cụ thể. Quên biến thể hình thức trong văn bản: “により/による” thích hợp cho thông báo/chính sách."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9fcc0c111f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この病気について、医者に聞いてみた。",
+       "ja_furigana": "この病気(びょうき)について、医者(いしゃ)に聞(き)いてみた。",
+       "vi": "Tôi đã hỏi bác sĩ về bệnh này.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "日本のお祭りについて、レポートを書いた。",
+       "ja_furigana": "日本(にほん)のお祭(まつ)りについて、レポートを書(か)いた。",
+       "vi": "Tôi đã viết báo cáo về lễ hội của Nhật.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "新制度についてご説明いたします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xin trình bày về chế độ mới."
+     },
+     {
+      "ja": "事件の原因について警察が調べている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cảnh sát đang điều tra về nguyên nhân vụ việc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 新制度についてご説明いたします。",
+     "FURIGANA_MISSING: 事件の原因について警察が調べている。"
+    ],
+    "formation": "N + について / についての + N",
+    "locked_fields": [],
+    "meaning_vi": "Xác lập chủ đề thảo luận, nghiên cứu, giải thích: “về/chung quanh N”. Phù hợp văn nói và viết; trung tính, dễ dùng. Phạm vi thường cụ thể hơn に関して (mang tính tổng quát, trang trọng).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Về, liên quan đến",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đi kèm với 動詞/名詞 như 説明・議論・報告・質問・情報・意見・調査. “については” để tách đề mục nhấn mạnh/đối chiếu; “についても” để bổ sung phạm vi. Trong văn bản chính thức, tiêu đề hay dùng “Nについての研究/報告/方針”. [6. Ghi chú mở rộng] Khi chủ đề đã rõ, có thể thay bằng それ/この件 để tránh lặp. Không dùng “について” để dẫn nguồn tin (hãy dùng “によると/によれば”). Trong email, “件名：Nについて” là cách đặt tiêu đề tự nhiên. [7. Biến thể & cụm cố định] N + について / についてのN / については / についても この件について / 詳細について / 使用方法について ～に関するN (biến thể trang trọng) [8. Lỗi thường gặp & bẫy JLPT] Quên “の” trong định ngữ: phải là “NについてのN2”. Nhầm “に対して” (hướng tác động) với “について” (đề mục). Dùng “について” với nguồn tin là sai chức năng; nên dùng “によれば/によると”. Dịch máy dễ nhầm “about” thành “で”: cần đúng là “について”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-80d507de2b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "安い靴を買ったら、かえってお金がかかった。",
+       "ja_furigana": "安(やす)い靴(くつ)を買(か)ったら、かえってお金(かね)がかかった。",
+       "vi": "Mua giày rẻ mà cuối cùng lại tốn tiền hơn.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "薬を飲んだら、かえって気分が悪くなった。",
+       "ja_furigana": "薬(くすり)を飲(の)んだら、かえって気分(きぶん)が悪(わる)くなった。",
+       "vi": "Uống thuốc vào thì ngược lại lại thấy mệt hơn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "乗ったら、かえって",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã đi xe, nhưng lại..."
+     },
+     {
+      "ja": "急いでいたのでタクシーに乗ったら、かえって時間がかかってしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì đang vội nên tôi đi xe taxi nhưng lại mất nhiều thời gian hơn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 乗ったら、かえって",
+     "FURIGANA_MISSING: 急いでいたのでタクシーに乗ったら、かえって時間がかかってしまった。"
+    ],
+    "formation": "V-たら、かえって〜",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị kết quả ngược lại với dự đoán chung.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜たら、かえって",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f1166b7334"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あの店、来週から休みだって。",
+       "ja_furigana": "あの店(みせ)、来週(らいしゅう)から休(やす)みだって。",
+       "vi": "Nghe nói quán kia nghỉ từ tuần sau.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "田中さん、明日は来られないって。",
+       "ja_furigana": "田中(たなか)さん、明日(あした)は来(こ)られないって。",
+       "vi": "Anh Tanaka bảo là ngày mai không đến được.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "参加しないって",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "\"Nghe nói sẽ không tham gia bữa tiệc\""
+     },
+     {
+      "ja": "木村さんはパーティーに参加しないって。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "\"Kimura nói là sẽ không tham gia bữa tiệc\""
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 参加しないって",
+     "FURIGANA_MISSING: 木村さんはパーティーに参加しないって。"
+    ],
+    "formation": "V / Aい / Aな・N(thể thông thường) + って (nghe nói)",
+    "locked_fields": [],
+    "meaning_vi": "Văn nói truyền đạt cho người khác những gì đã nghe thấy từ ai đó.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜って(伝聞)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "復習1 正しいほうを選びなさい。 １．試合の前にもっと（a.演習しよう b.練習すれば）よかった。 ２．この川の水がもっと（きれいかったら b.きれいだったら）、魚が住めるのに。 ３．この時計、色もデザインもいい。もっと安ければ（a.買う b.買わない）のに。 ４．先週（a.買って b.買った）ばかりのスーツを着て、パーティーに行きました。 ５．シャツにコーヒーをこぼしたのでふいたら、かえって（a.きれいになった b.汚れてしまった）。 ６．「図書館は今日、(a.休み b.休みな）んじゃない？」「えっ、休みじゃないよ」 ７．「佐藤さん、今日、（a.誕生日だ b.誕生日な）って」「そうなんだ」 ８．さっき、部屋を（a.掃除して b.掃除した）ばかりだから、きれいだ。 ９．誰かに聞く前に、自分で（a.調べてみたらどうでしょう b.調べてみたらどうしよう）。 １０．中村さん、先週、（a.入院するって b.入院したって）。 １１．よく説明を（a.聞くなら b.聞けば）よかったのに。 １２．（a.ひまだったら b.ひまだったって）、友達と遊びに行けるのに。 プラス２"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-dcf357d0ea"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "道が分からないなら、駅の人に聞いてみたら。",
+       "ja_furigana": "道(みち)が分(わ)からないなら、駅(えき)の人(ひと)に聞(き)いてみたら。",
+       "vi": "Nếu không biết đường thì thử hỏi nhân viên ga xem.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "かぜなら、温かいスープを飲んでみたらどうですか。",
+       "ja_furigana": "かぜなら、温(あたた)かいスープを飲(の)んでみたらどうですか。",
+       "vi": "Nếu bị cảm thì thử uống súp nóng xem sao?",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "運動をしてみたらどうですか",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thử vận động xem sao."
+     },
+     {
+      "ja": "「毎晩、寝られなくて困っています」「昼間、運動をしてみたらどうですか」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "\"Mỗi tối, tôi thật khổ sở vì không ngủ được\" \" Thử tập thể dục vào ban ngày xem sao\""
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 運動をしてみたらどうですか",
+     "FURIGANA_MISSING: 「毎晩、寝られなくて困っています」「昼間、運動をしてみたらどうですか」"
+    ],
+    "formation": "V-てみたらどうですか / V-たらどうですか",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị lời khuyên nên làm ~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜てみたらどうですか",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-06eb368f14"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "父というと、いつも早く起きるすがたが浮かぶ。",
+       "ja_furigana": "父(ちち)というと、いつも早(はや)く起(お)きるすがたが浮(う)かぶ。",
+       "vi": "Nhắc đến bố, tôi nhớ hình ảnh ông luôn dậy sớm.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "日本というと、ふじ山を思い出す人が多い。",
+       "ja_furigana": "日本(にほん)というと、ふじ山(さん)を思(おも)い出(だ)す人(ひと)が多(おお)い。",
+       "vi": "Nhắc đến Nhật Bản thì nhiều người nghĩ ngay đến núi Phú Sĩ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "学生時代というと",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhắc về thời học sinh"
+     },
+     {
+      "ja": "学生時代というと、サッカーに試合で優勝したことを思い出す。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhắc về thời học sinh thì tôi nhớ đến việc vô địch ở trận đấu bóng đá."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 学生時代というと",
+     "FURIGANA_MISSING: 学生時代というと、サッカーに試合で優勝したことを思い出す。"
+    ],
+    "formation": "N + というと",
+    "locked_fields": [],
+    "meaning_vi": "Đưa ra một chủ đề rồi liên tưởng, giải thích từ chủ đề đó.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜というと",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c49fe9d847"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夕飯を作るというのに、野菜が一つもない。",
+       "ja_furigana": "夕飯(ゆうはん)を作(つく)るというのに、野菜(やさい)が一(ひと)つもない。",
+       "vi": "Định nấu tối rồi mà không còn chút rau nào.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "もう十二時だというのに、弟はまだ起きない。",
+       "ja_furigana": "もう十二時(じゅうにじ)だというのに、弟(おとうと)はまだ起(お)きない。",
+       "vi": "Đã mười hai giờ rồi mà em trai vẫn chưa dậy.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "旅行に行くというとのに",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho dù từ ngày sẽ đi du lịch..."
+     },
+     {
+      "ja": "明日から旅行に行くというとのに、まだ準備が終わっていない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho dù từ ngày sẽ đi du lịch, nhưng vẫn chưa chuẩn bị xong."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 旅行に行くというとのに",
+     "FURIGANA_MISSING: 明日から旅行に行くというとのに、まだ準備が終わっていない。"
+    ],
+    "formation": "V / Aい / Aな(だ)・N(だ) + というのに",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị ý nghĩa tương tự cấu trúc 「～のに」, nhưng thể hiện cảm xúc bất ngờ nhiều hơn 「～のに」",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜というとのに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "復習4 正しいほうを選びなさい。 １．私はお酒が好きじゃない。飲むと（a.して b.しても）、パーティーのときだけだ。 ２．私は彼の友達と(a.して b.したら）、彼に本当のことを話した。 ３．山に登ると（a.する b.したら）、富士山がいい。 ４．もしあなたが（a.社長で b.社長だ）としたら、この計画に賛成しますか。 ５．ひま (a.なら b.としたら）、ちょっと手伝ってよ。 ６．オーストラリアと（a.いえば b.すれば）、コアラやカンガルーをイメージする。 ７．もし、飛行機のチケットがとれなかったと（a.したら b.いうのに）、国に帰れません。 ８．昨夜は３時間しか寝なかったのだから、（a.元気だ b.元気な）わけがない。 ９．彼は少し疲れている（a.ような b.ように）感じた。 １０．ここに赤いイチゴと白いイチゴがある（a.と b.に）します。あなたはどちらを選びますか。 １１．リーさんが車を運転する（a.わけがない b.ように見える）。免許を持っていないのだから。 １２．昨日、ピアノ(a.の b.のが）かいた絵を見に行った。 ８．昨夜は３時間しか寝なかったのだから、.元気なわけがない。 ９．彼は少し疲れているように）感じた。 １２．昨日、ピアノのかいた絵を見に行った。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0919bb7d23"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "自分で作るとしたら、魚の料理がいい。",
+       "ja_furigana": "自分(じぶん)で作(つく)るとしたら、魚(さかな)の料理(りょうり)がいい。",
+       "vi": "Nếu tự nấu, tôi muốn làm món cá.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "外国に住むとしたら、どの国がいいですか。",
+       "ja_furigana": "外国(がいこく)に住(す)むとしたら、どの国(くに)がいいですか。",
+       "vi": "Giả sử sống ở nước ngoài thì bạn muốn nước nào?",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "（もし）引っ越すとしたら",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu mà chuyển nhà"
+     },
+     {
+      "ja": "（もし）引っ越すとしたら、新しくて広いところがいい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu mà chuyển nhà thì tôi muốn một nơi mới và rộng rãi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: （もし）引っ越すとしたら",
+     "FURIGANA_MISSING: （もし）引っ越すとしたら、新しくて広いところがいい。"
+    ],
+    "formation": "(もし) + V / Aい / Aな(だ)・N(だ) + としたら",
+    "locked_fields": [],
+    "meaning_vi": "Mang ý nghĩa “giả định ~, giả sử ~ ”",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜としたら",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-be83c8a738"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-060"
+}

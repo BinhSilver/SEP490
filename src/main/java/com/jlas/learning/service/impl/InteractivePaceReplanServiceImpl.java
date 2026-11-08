@@ -82,6 +82,16 @@ public class InteractivePaceReplanServiceImpl implements InteractivePaceReplanSe
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public com.jlas.learning.dto.LearningPaceMeasurement measure(Long userId) {
+        UserLearningPath path = paths.findByUserIdAndStatusAndExperienceVersion(
+                        userId, "ACTIVE", LearningExperienceVersion.INTERACTIVE_V2)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Bạn chưa có lộ trình đang hoạt động."));
+        return LearningPaceMeasurementPolicy.measure(packages.findByLearningPathIdOrderByOrderIndex(path.getId()),
+                currentMinutes(path));
+    }
+
+    @Override
     @Transactional
     public LearningPacePreviewResponse apply(Long userId, LearningPaceRequest request) {
         if (request == null || request.direction() == null || request.newMinutesPerDay() == null

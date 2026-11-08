@@ -15,4 +15,17 @@ public interface LearningProfileSource {
     default LearningProfileSnapshot loadFromSurvey(Long userId) {
         throw new UnsupportedOperationException("From-zero survey profiles are not supported by this source.");
     }
+
+    /**
+     * F1-4 (owner 2026-10-28): the words (vocabulary entry ids) answered right in a full Smart Test batch of this attempt.
+     * Empty by default (adapters without Smart Test answers).
+     */
+    default java.util.Set<Long> knownVocabularyIds(Long assessmentAttemptId) {
+        return java.util.Set.of();
+    }
+
+    /** F1-5 (owner 2026-10-28): the survey's focus skills (VOCABULARY, READING, LISTENING); empty by default. */
+    default java.util.List<String> focusSkills(Long userId) {
+        return java.util.List.of();
+    }
 }

@@ -1,0 +1,576 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今日は歩いて帰ります。なぜなら、天気がいいからです。",
+       "ja_furigana": "今日(きょう)は歩(ある)いて帰(かえ)ります。なぜなら、天気(てんき)がいいからです。",
+       "vi": "Hôm nay tôi đi bộ về vì thời tiết đẹp.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今日は休みます。なぜなら、少し疲れているからです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay tôi nghỉ. Bởi vì tôi hơi mệt. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今日は休みます。なぜなら、少し疲れているからです。"
+    ],
+    "formation": "Câu 1。+ なぜなら(ば)、+ Câu 2 + からだ",
+    "locked_fields": [],
+    "meaning_vi": "Dùng để nêu lý do/giải thích cho phát ngôn ở câu ngay trước đó. Dịch: \"vì, bởi vì; nếu nói vì sao thì...\". Cấu trúc điển hình: câu kết luận trước → なぜなら＋mệnh đề nêu lý do＋からだ／ためだ ở cuối. Sắc thái: mạch lạc, luận giải; thường thấy trong văn viết, thuyết trình, báo cáo. Trong hội thoại cũng dùng để chuyển mạch giải thích. Khác với から／ので: なぜなら là từ nối giữa hai câu độc lập; から／ので nối trong một câu phức. Thường đi với danh từ chỉ nguyên nhân, căn cứ, lý do: 事情／理由／都合／ため, hoặc mệnh đề kết bằng からだ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Bởi vì, vì rằng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Vị trí: gần như luôn đứng ở đầu câu nêu lý do, ngay sau câu kết luận. Cuối câu lý do thường chốt bằng からだ／ためだ／からである để hoàn chỉnh nhịp lý luận. Trang trọng hơn だって; trung hòa hơn so với というのは; logic hơn trong bài viết học thuật. Dùng tốt khi trả lời câu hỏi \"Tại sao?\" ngầm định sau một phát biểu gây thắc mắc. Hạn chế lạm dụng liên tiếp nhiều lần; nên dùng một lần để mở lý do chính. [6. Ghi chú mở rộng] Thường thấy trong văn nghị luận, email công việc, báo cáo: \"結論。なぜなら根拠…\". Trong văn trang trọng, kết thúc bằng ためである cho sắc thái nghiêm chỉnh hơn からだ. Nếu lý do kéo dài nhiều mệnh đề, chia thành vài câu ngắn, mỗi câu vẫn duy trì mạch giải thích sau なぜなら. Không dùng なぜなら để nêu kết quả; chỉ để nêu lý do cho câu trước. [7. Biến thể & cụm cố định] なぜならば～からだ／ためだ: biến thể trang trọng. なぜかというと～からだ: đồng nghĩa, hơi giải thích dài dòng. というのは～からだ: mềm hơn, đa dụng. Kết thúc lý do: ～からです／～ためです／～からである／～ためである. [8. Lỗi thường gặp & bẫy JLPT] Bỏ quên đuôi kết lý do: viết \"なぜなら時間がない。\" là thiếu; đúng: \"なぜなら時間がないからだ。\" Đưa なぜなら vào giữa câu phức nối bằng から/ので → không tự nhiên; nên tách thành hai câu. Dùng なぜなら cho thông tin hiển nhiên không gây thắc mắc → dư thừa. Nhầm với だって ở JLPT: だって quá khẩu ngữ, không thay thế được trong văn viết."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ddede10c16"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夜に一人で歩いてはじめて、道の暗さに気づいた。",
+       "ja_furigana": "夜(よる)に一(いち)人(にん)で歩(ある)いてはじめて、道(みち)の暗(くら)さに気(き)づいた。",
+       "vi": "Đi một mình ban đêm tôi mới nhận ra đường tối thế nào.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "一人で旅行してはじめて、地図の読み方を覚えた。",
+       "ja_furigana": "一人(ひとり)で旅行(りょこう)してはじめて、地図(ちず)の読(よ)み方(かた)を覚(おぼ)えた。",
+       "vi": "Chỉ khi đi du lịch một mình tôi mới học được cách đọc bản đồ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "一人暮らしをしてはじめて、家事の大変さを知った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ khi sống một mình tôi mới biết việc nhà vất vả thế nào."
+     },
+     {
+      "ja": "海外出張に行ってはじめて、英語の必要性を痛感した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đi công tác nước ngoài rồi tôi mới thấm nhu cầu tiếng Anh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 一人暮らしをしてはじめて、家事の大変さを知った。",
+     "FURIGANA_MISSING: 海外出張に行ってはじめて、英語の必要性を痛感した。"
+    ],
+    "formation": "V-て + はじめて",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “Chỉ sau khi/đến khi làm X thì lần đầu tiên mới…”, nhấn mạnh trước đó chưa xảy ra/chưa nhận ra. Phạm vi: Thường đi với mệnh đề kết quả là khám phá/nhận thức/cảm nhận lần đầu, hoặc trạng thái bắt đầu có hiệu lực. Hàm ý phủ định trước đó: Ngầm hiểu “trước đó thì không” (まだ/全然/分からなかった…). Thời điểm bản lề: X là mốc kích hoạt Y. Không dùng cho việc thường nhật hiển nhiên.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chỉ khi... mới",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sau ～てはじめて là mệnh đề kết quả/nhận thức lần đầu: 分かった／気づいた／実感した／始まる… Không dùng cho kết quả thông thường, lặp lại; nhấn “lần đầu tiên (初めて)”. Thường đi kèm từ chỉ lần đầu: 初めて, はじめて bản thân đã bao hàm “first time”. Sắc thái tự sự/chiêm nghiệm; hay thấy trong văn viết, bài luận, phỏng vấn. [6. Ghi chú mở rộng] Sau ～てはじめて, động từ thường là tri nhận: 分かる／気づく／感じる／実感する／認識する／始める. Khéo léo nêu bài học kinh nghiệm trong luận phản tỉnh: 「失敗してはじめて、改めるべき点が見えた。」 Không gắn trợ từ thời điểm cụ thể trước はじめて (×昨日してはじめて); dùng mệnh đề Vて để biểu thị mốc. [7. Biến thể & cụm cố định] Vてみてはじめて: Chỉ khi thử làm mới… Nになってはじめて: Chỉ khi trở thành/đạt trạng thái N mới… 実際にVてはじめて: Thêm “thực tế” để nhấn mạnh trải nghiệm. VてはじめてのN: Danh hóa “lần đầu sau khi V”. Ví dụ: 海外に行ってはじめての一人旅。 [8. Lỗi thường gặp & bẫy JLPT] Dùng với kết quả không phải “lần đầu/nhận ra” → sai sắc thái. Hãy thay bằng ～てから. Đặt sự kiện hiển nhiên/không có mối quan hệ mốc-kết quả → thiếu tự nhiên. Nhầm với ～て以来 (kéo dài) trong câu hỏi JLPT: để ý dấu hiệu “đến nay/ずっと”. Sai thì: dùng Vた + はじめて (×) → phải là Vてはじめて."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cc31fc6387"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "買い物の最中に、昔の友達に会った。",
+       "ja_furigana": "買(か)い物(もの)の最中(さいちゅう)に、昔(むかし)の友達(ともだち)に会(あ)った。",
+       "vi": "Đang mua sắm tôi gặp bạn cũ.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "発表の最中に、急に声が出なくなった。",
+       "ja_furigana": "発表(はっぴょう)の最中(さいちゅう)に、急(きゅう)に声(こえ)が出(で)なくなった。",
+       "vi": "Đang giữa lúc thuyết trình thì tôi bỗng không nói ra tiếng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "会議の最中に電話が鳴った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đúng lúc đang họp thì điện thoại reo."
+     },
+     {
+      "ja": "試験を受けている最中に、停電になった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đang thi thì mất điện."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 会議の最中に電話が鳴った。",
+     "FURIGANA_MISSING: 試験を受けている最中に、停電になった。"
+    ],
+    "formation": "N + の + 最中に / V-ている + 最中に",
+    "locked_fields": [],
+    "meaning_vi": "“Đúng vào lúc đang… thì … (thường là việc chen ngang/không mong muốn)” Nhấn mạnh thời điểm cao trào của hành động/hoạt động, mạnh hơn ～間に. Thường dùng với hành động ngắn/hữu hạn (会議・試験・食事), ít dùng cho trạng thái kéo dài tĩnh. Vế sau hay là sự cố, cản trở, thông báo bất ngờ; nhưng cũng có thể là sự kiện trung tính.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đang lúc, giữa lúc",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sử dụng trong cả văn nói và viết; hơi trang trọng hơn ～間に. Vế trước xác lập thời điểm “đang tiến hành”, vế sau thường là sự việc chen ngang. Không tự nhiên với động từ trạng thái như 知っている・分かっている; ưu tiên động tác/hoạt động. Thường đi cùng những danh từ hoạt động: 会議・授業・試合・手術・面接・作業. [6. Ghi chú mở rộng] Dạng “最中だ/です” thường dùng để thiết lập bối cảnh: 会議の最中です。 Trong văn lịch sự: ～最中にございます ít dùng, nên giữ ～最中に/～最中です. Để nhấn mạnh không nên làm: ～最中に…しないでください／～最中はご遠慮ください。 [7. Biến thể & cụm cố định] Nの最中だ・Nの最中です: “đang trong lúc …”. Vている最中だ: “đang làm … (ngay lúc này)”. ～最中は…しない: “trong lúc … thì không …”. [8. Lỗi thường gặp & bẫy JLPT] Quên “の” với danh từ: sai “会議最中に” → đúng “会議の最中に”. Dùng với V nguyên dạng: sai “食事する最中に” → đúng “食事している最中に”. Áp với trạng thái tĩnh (知っている最中に) không tự nhiên. Nhầm với ～間に: đề thi hay hỏi phân biệt sắc thái “đúng lúc” vs “trong khoảng”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8c3ee77b4a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "兄は今、車を洗っているところだ。",
+       "ja_furigana": "兄(あに)は今(いま)、車(くるま)を洗(あら)っているところだ。",
+       "vi": "Anh trai lúc này đang rửa xe.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "今、おふろに入っているところなので、後で電話します。",
+       "ja_furigana": "今(いま)、おふろに入(はい)っているところなので、後(あと)で電話(でんわ)します。",
+       "vi": "Bây giờ tôi đang tắm nên lát nữa sẽ gọi lại.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今から会議に入るところです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giờ tôi sắp vào họp."
+     },
+     {
+      "ja": "ちょうど説明しているところなので、少し待ってください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đang đúng lúc giải thích, xin chờ một chút."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今から会議に入るところです。",
+     "FURIGANA_MISSING: ちょうど説明しているところなので、少し待ってください。"
+    ],
+    "formation": "V-る / V-ている / V-た + ところだ",
+    "locked_fields": [],
+    "meaning_vi": "- “ところ” đánh dấu điểm/đoạn (time point) của hành động: trước khi bắt đầu (V-る), trong khi diễn ra (V-ている), vừa kết thúc (V-た). - V-たところ nhấn “vừa mới” hơn たばかり (mang cảm giác tức thì hơn). V-ているところ nhấn tính tức thời “đúng lúc đang”. - Với trợ từ: - ところに/へ: đúng lúc (một sự việc đến/đi xảy ra) “đến vào lúc đang…”. - ところを: dù đang (trạng thái), hành động khác tác động; cũng dùng trong kính ngữ “お忙しいところを…” (xin lỗi/vừa cảm ơn). - ところで: có nghĩa liên từ “nhân tiện” (không phải khía cạnh thời điểm của V), chú ý phân biệt.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đúng lúc, đang lúc",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thêm chỉ thời: これから/ちょうど/たった今 để rõ nghĩa sắp/đang/vừa. Trong email/công việc: câu mở “お忙しいところ恐縮ですが…” rất lịch sự. V-たところ: thường nêu phát hiện/kết quả ngay sau trải nghiệm: 調べたところ、～が分かった。 V-るところ ít dùng với hành động kéo dài; phù hợp khoảnh khắc bắt đầu. [6. Ghi chú mở rộng] - Mẫu “V-たところ、～” thường dùng trong báo cáo/kết luận: “Sau khi làm V thì biết/nhận ra…”. Đây là cấu trúc nêu kết quả điều tra/thử nghiệm ngắn. - “ところを” đi với động từ xin lỗi/cảm ơn: お忙しいところを申し訳ありません／ありがとうございます。 - Lưu ý nhập nhằng V-るところ: thêm trạng từ thời “今から/これから/ちょうど” để rõ là “sắp”. [7. Biến thể & cụm cố định] ちょうど～ところだ: đúng lúc たった今V-たところだ: vừa đúng bây giờ お忙しいところ恐縮ですが: xin phép/lịch sự trong email V-たところ、～: nêu phát hiện/kết quả ngay sau khi làm [8. Lỗi thường gặp & bẫy JLPT] Nhầm V-たところ với たばかり: JLPT hay hỏi sắc thái “ngay tức thì” của たところ. Dùng ところで (liên từ) lẫn với ところ＋trợ từ: khác chức năng hoàn toàn. V-るところ dùng cho hành động kéo dài (×明日旅行に行くところだ) → nên dùng 前/直前/行くところ “ngay lúc chuẩn bị đi” kèm ngữ cảnh “今/これから”. Quên trợ từ đúng: 来たところに電話が… / 邪魔しているところをすみません。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a6b15353da"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母に聞いてからでないと、決められません。",
+       "ja_furigana": "母(はは)に聞(き)いてからでないと、決(き)められません。",
+       "vi": "Chưa hỏi mẹ thì tôi không quyết được.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "よく考えてからでないと、返事はできません。",
+       "ja_furigana": "よく考(かんが)えてからでないと、返事(へんじ)はできません。",
+       "vi": "Nếu chưa suy nghĩ kỹ thì tôi không thể trả lời được.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "身分証を確認してからでないと入れません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu chưa xác minh giấy tờ thì không được vào."
+     },
+     {
+      "ja": "工事が終わってからでないと通行できません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chưa xong công trình thì không thể lưu thông."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 身分証を確認してからでないと入れません。",
+     "FURIGANA_MISSING: 工事が終わってからでないと通行できません。"
+    ],
+    "formation": "V-て + からでないと / からでなければ + V-ない",
+    "locked_fields": [],
+    "meaning_vi": "Nêu điều kiện cần trước khi thực hiện hành động/chấp nhận trạng thái phía sau: “Phải sau khi V thì mới…”. Câu chính thường mang ý “không thể/không được/khó”, hiếm khi khẳng định tích cực trực tiếp. Diễn đạt trình tự bắt buộc, quy định, thủ tục, logic an toàn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu không... thì không",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng trong quy định, hướng dẫn, cảnh báo: ～ません／～できません đi sau. Có thể đảo mệnh đề để nhấn mạnh quy trình: 予約してからでないと、受付できません。 Sắc thái cứng/chuẩn mực hơn so với ないと/なければ thông thường vì nhấn mạnh “sau khi đã…”. [6. Ghi chú mở rộng] Câu chính hầu như luôn mang tính phủ định/khó khăn: ～ない／できない／困る／無理だ. Hữu dụng trong bối cảnh pháp lý/quy trình: 入場、登録、承認、確認、支払いなど. “じゃないと” là biến thể khẩu ngữ; tránh dùng trong văn bản chính thức. [7. Biến thể & cụm cố định] Vてからでないと～ない／できない／だめだ／無理だ Vてからでなければ～ない（trang trọng） Vてからじゃないと～ない（khẩu ngữ） [8. Lỗi thường gặp & bẫy JLPT] Dùng câu chính khẳng định tích cực: ×登録してからでないと利用できます → nên là 利用できません. Nhầm trình tự thời gian: Vế Vて là điều kiện phải xong trước; tránh mô tả đồng thời. Thiếu logic điều kiện: Vế trước phải là hành động khả thi/kiểm soát được. Nhầm với て初めて: てからでないと là điều kiện cần bắt buộc; て初めて là nhận thức/kết quả lần đầu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3dd193a229"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅へ父を迎えに行くついでに、切符を買った。",
+       "ja_furigana": "駅(えき)へ父(ちち)を迎(むか)えに行(い)くついでに、切符(きっぷ)を買(か)った。",
+       "vi": "Nhân ra ga đón bố tôi mua vé luôn.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "銀行へ行くついでに、手紙を出してきます。",
+       "ja_furigana": "銀行(ぎんこう)へ行(い)くついでに、手紙(てがみ)を出(だ)してきます。",
+       "vi": "Nhân tiện đi ngân hàng, tôi sẽ gửi thư luôn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "郵便局に行くついでに、はがきを買ってきて。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân tiện đi bưu điện, mua giúp tôi vài tấm bưu thiếp nhé."
+     },
+     {
+      "ja": "図書館へ本を返すついでに、新刊をチェックした。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân tiện trả sách ở thư viện, tôi kiểm tra luôn sách mới."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 郵便局に行くついでに、はがきを買ってきて。",
+     "FURIGANA_MISSING: 図書館へ本を返すついでに、新刊をチェックした。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 図書館へ本を返すついでに、新刊をチェックした。 → 刊"
+    ],
+    "formation": "V-る / V-た / N(の) + ついでに",
+    "locked_fields": [],
+    "meaning_vi": "Ý nghĩa: “Nhân tiện/khi tiện làm A thì làm luôn B”; B là hành động bổ sung, tranh thủ. Đặc điểm: A là mục đích chính; B tận dụng cơ hội A (thường cùng người thực hiện). Thời điểm gần kề: trong lúc đi/đến/làm A hoặc ngay trước/sau A. A và B thường do cùng một người thực hiện vì B là việc tranh thủ khi làm A. Hai chủ ngữ khác nhau vẫn có thể xuất hiện nếu quan hệ “nhân dịp A, B” rõ và ngữ cảnh không mơ hồ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nhân tiện, tiện thể",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái “tranh thủ/tiện thể”, giảm cảm giác cố gắng riêng cho B. Phù hợp cả văn nói và văn viết; lịch sự không bị ảnh hưởng. Thường dùng trong yêu cầu nhờ vả nhẹ nhàng: ～ついでに、～てくれる？／～ていただけますか。 [6. Ghi chú mở rộng] V辞書形＋ついでに nhấn “trước khi làm A thì tiện thể…”; Vた形＋ついでに nhấn “nhân đã làm A xong thì…”. Khi nhờ vả, thêm ついでで悪いけど… để lịch sự hơn: “Tiện thể thì ngại quá nhưng…”. Trong hành trình: ～に行くついでに hay đi với điểm đến/quãng đường. [7. Biến thể & cụm cố định] ～ついでだから（vì tiện thể rồi nên…） ～のついで（danh từ hóa: “nhân tiện của …”） ついでに言うと（nhân tiện nói thêm… trong hội thoại/viết） [8. Lỗi thường gặp & bẫy JLPT] Đảo chính/phụ: × 買い物のついでに旅行に行く → du lịch không thể là “tiện thể” của mua sắm. Khác chủ ngữ không tự động sai, nhưng dễ làm quan hệ chính–phụ khó hiểu. Nên nêu chủ thể rõ hoặc viết lại khi người thực hiện A và B khác nhau. Nhầm với ながら: ～ついでに không biểu thị đồng thời, mà là tranh thủ khi có dịp. JLPT: bẫy chọn ところで/ながら/ついでに; kiểm tra hiểu quan hệ A (chính) – B (phụ)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-275f7968ea"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "熱いお茶をこぼすところだった。",
+       "ja_furigana": "熱(あつ)いお茶(ちゃ)をこぼすところだった。",
+       "vi": "Tôi suýt làm đổ trà nóng.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "かいだんで、もう少しで転ぶところだった。",
+       "ja_furigana": "かいだんで、もう少(すこ)しで転(ころ)ぶところだった。",
+       "vi": "Ở cầu thang, tôi suýt nữa thì ngã.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "もう少しで電車に乗り遅れるところだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Suýt nữa thì lỡ tàu."
+     },
+     {
+      "ja": "危うく事故に遭うところだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Suýt gặp tai nạn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: もう少しで電車に乗り遅れるところだった。",
+     "FURIGANA_MISSING: 危うく事故に遭うところだった。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 危うく事故に遭うところだった。 → 遭う"
+    ],
+    "formation": "もう少しで + V-る + ところだった",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả một việc “suýt xảy ra” ngay sát thời điểm đó, nhưng rốt cuộc KHÔNG xảy ra. Hai hướng: Vるところだった：xém làm X (nhưng đã tránh được). Vないところだった：xém KHÔNG làm X (nhưng cuối cùng đã làm). Thường đi với もう少しで, 危うく, 今にも để nhấn mức “suýt”. Khác với ～そうになった: ～ところだった nhấn thời điểm sát sườn; ～そうになった nhấn trạng thái “gần như” chuyển sang.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Suýt, chút nữa thì",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi nhìn lại tình huống sát sườn; kèm cảm xúc nhẹ nhõm/tiếc nuối. Thường theo sau bằng が／のに để nêu kết quả trái ngược mong muốn: ～ところだったが／のに… Phù hợp tường thuật sự cố, tai nạn, lỡ hẹn, bỏ sót… [6. Ghi chú mở rộng] Trợ từ thời gian đi kèm nhấn mức độ: もう少しで／危うく／今にも。 Để diễn tả tiếc nuối: ～ところだったのに…; để diễn tả nhẹ nhõm: ～ところだったが、助かった。 Không dùng khi việc đã xảy ra thật: nếu đã lỡ tàu rồi, không nói 乗り遅れるところだった mà nói 乗り遅れてしまった。 [7. Biến thể & cụm cố định] もう少しで＋Vるところだった 危うく＋Vるところだった Vるところだった＋のに／が 今にも＋Vるところだった（văn cảnh miêu tả mạnh） [8. Lỗi thường gặp & bẫy JLPT] Dùng khi sự việc đã xảy ra: sai nghĩa “suýt”. Nhầm với Vるところだ (sắp làm) và Vたところだ (vừa mới làm): khác thời và khác ý. Nhầm với ～そうになった: đề bài hỏi “suýt” nhấn thời điểm sát sườn → ưu tiên ～ところだった. Quên phủ định trong “suýt không”: ×間に合うところだった（suýt không kịp）→ đúng: 間に合わないところだった。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-21db47419a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この道は工事中です。ですから、向こうへ回りましょう。",
+       "ja_furigana": "この道(みち)は工事(こうじ)中(ちゅう)です。ですから、向(む)こうへ回(まわ)りましょう。",
+       "vi": "Đường này đang sửa, nên hãy đi vòng phía kia.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "外は雪です。ですから、あたたかい服を着てください。",
+       "ja_furigana": "外(そと)は雪(ゆき)です。ですから、あたたかい服(ふく)を着(き)てください。",
+       "vi": "Bên ngoài có tuyết. Vì thế hãy mặc quần áo ấm vào.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "天気が悪いです。ですから、今日は出かけません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thời tiết xấu. Vì vậy hôm nay tôi không ra ngoài."
+     },
+     {
+      "ja": "私は新人ですから、まだ分からないことが多いです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì tôi là người mới nên còn nhiều điều chưa biết."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 天気が悪いです。ですから、今日は出かけません。",
+     "FURIGANA_MISSING: 私は新人ですから、まだ分からないことが多いです。"
+    ],
+    "formation": "Câu 1。+ ですから / だから、+ Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa chính: Nêu kết luận/kết quả dựa trên thông tin/điều kiện vừa nêu: “vì vậy/cho nên/do đó”. Độ lịch sự: Lịch sự hơn だから; thường dùng trong bài thuyết trình, tin tức, văn viết nhã. Vị trí: Thường đứng đầu mệnh đề kết quả, tách khỏi mệnh đề lý do (câu trước). Phân biệt 2 cách: Liên từ độc lập: 「A。ですから、B。」 Liên kết nội câu: 「Aですから、B。」 (A là danh từ/na-adj + です) ですから thường trình bày lý lẽ theo cách lịch sự. Trong hội thoại, nó cũng có thể nghe nhấn mạnh, sốt ruột hoặc bực bội, nhất là trong câu như 「ですから、先ほど説明しました」.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vì thế, do đó",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi trình bày logic, thuyết trình, email công việc: “A (thông tin). ですから、B (kết luận/khuyến nghị)”. Trong hội thoại, ですから có thể mở đầu phản hồi: “ですから、先ほど申し上げたとおり…”. So với だから: lịch sự hơn, ít trực diện; hợp bối cảnh trang trọng. Không dùng khi biểu cảm cảm xúc mạnh; khi cần nhấn mạnh lý lẽ cứng, dùng したがって. Nội câu “Aですから、B” thường khi A là danh từ/na-adj; với động từ/い-adj dùng ～から/～ので: 「雨が降るから、…」. [6. Ghi chú mở rộng] Khi cần mềm hóa yêu cầu: 「危険ですから、こちらへお願いします。」 nghe lịch sự hơn 「危ないから…」. Trong tranh luận, mở câu bằng ですから để dẫn kết luận giúp mạch lạc, tránh “bẻ lái” đột ngột. Thay vì lặp ですから liên tiếp, xen kẽ それで/したがって để văn bản tự nhiên. [7. Biến thể & cụm cố định] それですから、…: Nhấn mạnh “chính vì thế”. ですからね／ですからさ: Khẩu ngữ mềm/nhấn, xác nhận người nghe. Aですから、B: Mẫu nội câu với danh từ/na-adj. まさにですから hiếm, thay bằng まさに、それゆえ(に) trong văn hùng biện. [8. Lỗi thường gặp & bẫy JLPT] Dùng ですから trong văn cảnh thân mật giữa bạn bè → nghe xa cách; nên dùng だから/それで. Nhầm “Aです。ですから、B。” với “Aだから、B。” Khi A là danh từ/na-adj, cả hai được, nhưng sắc thái khác. ですから vẫn có thể dùng khi người nói nhấn mạnh hoặc đang khó chịu; chỉ cần chú ý nó có thể nghe cứng. だって／だもん là các cách biểu cảm thân mật khác, không phải sự thay thế bắt buộc. JLPT: bẫy phân biệt それで vs ですから (cả hai dịch “vì vậy”): それで thiên trình tự sự kiện; ですから nhấn kết luận logic."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-607c2e2d50"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母はやきたての魚をさらにのせた。",
+       "ja_furigana": "母(はは)はやきたての魚(さかな)をさらにのせた。",
+       "vi": "Mẹ đặt cá vừa nướng lên đĩa.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "焼きたてのパンを食べました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi vừa ăn bánh mì mới nướng. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 焼きたてのパンを食べました。"
+    ],
+    "formation": "V(bỏ ます) + たて(の + N)",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị trạng thái “vừa mới được thực hiện xong” và vẫn còn “độ tươi/mới nóng” của kết quả. Không đơn thuần là “mới xảy ra” theo thời gian như 〜たばかり; 〜たて nhấn mạnh chất lượng “tươi mới”. Hạn chế về từ vựng: thường đi với động từ tạo ra sản phẩm/kết quả hữu hình hoặc trạng thái mới.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vừa mới",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng nhiều trong ẩm thực, sản phẩm “fresh”: 焼きたて／揚げたて／炊きたて／茹でたて／搾りたて。 Dùng cho trạng thái mới đạt được: できたて／なりたて／入社したて／結婚したて。 Sắc thái tích cực: ngon, tươi, mới tinh; đôi khi cảnh báo “còn nóng”. 食べたて có thể dùng với nghĩa “vừa ăn xong”, chẳng hạn 食べたてでまだお腹がいっぱいだ. Tuy nhiên khi nói món ăn “vừa làm xong/còn nóng”, dùng 焼きたて・作りたて hoặc 食べたばかり theo ý định. [6. Ghi chú mở rộng] Các kết hợp cố định phổ biến: 焼きたて・揚げたて・炊きたて・茹でたて・搾りたて・採れたて／とれたて・できたて・入れたて・なりたて・入社したて・結婚したて。 Phủ định/khẳng định đi vào だ/です hơn là trực tiếp vào たて: できたてではない（không phải mới làm xong）。 “覚えたて／習いたて” dùng được khi nhấn trạng thái “mới học xong (còn non)”. [7. Biến thể & cụm cố định] 焼きたてのパン／できたてホヤホヤ（khẩu ngữ nhấn “mới toanh”） 入れたてコーヒー／揚げたてポテト 新入社員になりたて／入社したて 結婚したての二人 [8. Lỗi thường gặp & bẫy JLPT] 食べたて không phải luôn sai; nó chỉ không mang nghĩa “thức ăn vừa được làm xong”. Cần xét chủ thể và kết quả còn mới của hành động. Nhầm たて = gần đây: たて không dùng cho “mới xảy ra” chung chung (× 昨日起きたて). Dùng 起きたばかり. Viết sai hình thái する-verbs: × 勉強したて? → có thể dùng 勉強したて nhưng tự nhiên hơn là 勉強し始めたばかり tùy ngữ cảnh. Gắn trực tiếp tính từ: × 新しいたて → dùng できたて／作りたて để diễn đạt “mới làm”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f8705784db"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟は靴をはいたまま、部屋に入った。",
+       "ja_furigana": "弟(おとうと)は靴(くつ)をはいたまま、部屋(へや)に入(はい)った。",
+       "vi": "Em trai vào phòng khi vẫn mang giày.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "テレビをつけたまま寝てしまった。",
+       "ja_furigana": "テレビをつけたまま寝(ね)てしまった。",
+       "vi": "Tôi đã ngủ quên trong khi vẫn để tivi bật.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "昨夜、テレビをつけたまま寝てしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tối qua, đã để tivi mà đi ngủ mất"
+     },
+     {
+      "ja": "この野菜は、生のままで食べてもおいしいですよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Loại rau này để sống ăn vẫn ngon đấy"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 昨夜、テレビをつけたまま寝てしまった。",
+     "FURIGANA_MISSING: この野菜は、生のままで食べてもおいしいですよ。"
+    ],
+    "formation": "V-た / V-ない / N(の) + まま",
+    "locked_fields": [],
+    "meaning_vi": "Để nguyên, giữ nguyên",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜テレビをつけたまま",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng thể hiện tình trạng của sự vật sự việc được duy trì liên tục trong khi một hành động, sự việc khác diễn ra. Hoặc chỉ đơn giản nói về việc giữ nguyên một tình trạng nào đó"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-11e6af373b"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-051"
+}

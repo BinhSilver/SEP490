@@ -1,0 +1,702 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "子供が新しいゲームをほしがっている。",
+       "ja_furigana": "子供(こども)が新(あたら)しいゲームをほしがっている。",
+       "vi": "Đứa trẻ đang đòi có trò chơi điện tử mới."
+      },
+      {
+       "ja": "妹は誕生日プレゼントに時計をほしがっている。",
+       "ja_furigana": "妹(いもうと)は誕生日(たんじょうび)プレゼントに時計(とけい)をほしがっている。",
+       "vi": "Em gái tôi đang muốn có một chiếc đồng hồ làm quà sinh nhật."
+      },
+      {
+       "ja": "若い人がほしがるような服を売っています。",
+       "ja_furigana": "若(わか)い人(ひと)がほしがるような服(ふく)を売(う)っています。",
+       "vi": "Cửa hàng bán những bộ quần áo mà giới trẻ muốn sở hữu."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng trợ từ が trước ほしがる (sai: 時計がほしがっている; đúng: 時計をほしがっている).",
+    "examples": [
+     {
+      "ja": "子供が新しいゲームをほしがっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "妹は誕生日プレゼントに時計をほしがっている。",
+      "ja_furigana": "妹(いもうと)は誕生日(たんじょうび)プレゼントに時計(とけい)をほしがっている。",
+      "source": "AI",
+      "vi": "Em gái tôi đang muốn có một chiếc đồng hồ làm quà sinh nhật."
+     },
+     {
+      "ja": "若い人がほしがるような服を売っています。",
+      "ja_furigana": "若(わか)い人(ひと)がほしがるような服(ふく)を売(う)っています。",
+      "source": "AI",
+      "vi": "Cửa hàng bán những bộ quần áo mà giới trẻ muốn sở hữu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 子供が新しいゲームをほしがっている。",
+     "FURIGANA_MISSING: 子供が新しいゲームをほしがっている。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + を + ほしがる (thường chia: ほしがっている)",
+    "locked_fields": [],
+    "meaning_vi": "Người khác muốn có — Diễn tả mong muốn sở hữu của người thứ ba.",
+    "nuance_vi": "Biểu thị mong muốn sở hữu đồ vật của ngôi thứ ba; khác với ほしい đi với trợ từ が, ほしがる là ngoại động từ nên đi với trợ từ を.",
+    "order_items": [],
+    "pattern": "N を + ほしがる",
+    "pattern_variants": [],
+    "unit_no": 2,
+    "unit_title_vi": "Cảm xúc, giác quan và trạng thái",
+    "usage_vi": "ほしい chỉ dùng cho mình; nói về người khác phải dùng ほしがる hoặc ほしいようだ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-21fb233578"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "朝ご飯を食べずに出かけた。",
+       "ja_furigana": "朝(あさ)ご飯(はん)を食(た)べずに出(で)かけた。",
+       "vi": "Tôi đã đi ra ngoài mà không ăn bữa sáng."
+      },
+      {
+       "ja": "昨日は夜遅くまで寝ずに仕事をしました。",
+       "ja_furigana": "昨日(きのう)は夜遅(よるおそ)くまで寝(ね)ずに仕事(しごと)をしました。",
+       "vi": "Hôm qua tôi đã thức làm việc đến tận khuya mà không ngủ."
+      },
+      {
+       "ja": "誰にも相談せずに一人で決めてしまった。",
+       "ja_furigana": "誰(だれ)にも相談(そうだん)せずに一人(ひとり)で決(き)めてしまった。",
+       "vi": "Tôi đã tự quyết định một mình mà không bàn bạc với ai cả."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chia động từ する thành しずに (bắt buộc phải chia bất quy tắc thành せずに).",
+    "examples": [
+     {
+      "ja": "朝ご飯を食べずに出かけた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "昨日は夜遅くまで寝ずに仕事をしました。",
+      "ja_furigana": "昨日(きのう)は夜遅(よるおそ)くまで寝(ね)ずに仕事(しごと)をしました。",
+      "source": "AI",
+      "vi": "Hôm qua tôi đã thức làm việc đến tận khuya mà không ngủ."
+     },
+     {
+      "ja": "誰にも相談せずに一人で決めてしまった。",
+      "ja_furigana": "誰(だれ)にも相談(そうだん)せずに一人(ひとり)で決(き)めてしまった。",
+      "source": "AI",
+      "vi": "Tôi đã tự quyết định một mình mà không bàn bạc với ai cả."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 朝ご飯を食べずに出かけた。",
+     "FURIGANA_MISSING: 朝ご飯を食べずに出かけた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V1(bỏ ない) + ずに + V2 (する → せずに)",
+    "locked_fields": [],
+    "meaning_vi": "Mà không — Làm việc gì mà không làm việc kia, dùng trong văn viết.",
+    "nuance_vi": "Dạng trang trọng trong văn viết của 〜ないで, diễn tả việc thực hiện V2 mà không làm V1.",
+    "order_items": [],
+    "pattern": "V-ない bỏ ない + ずに",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "する → せずに (ngoại lệ). Dạng văn nói tương đương là ないで."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0b0c1d3c00"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ニュースによると、地震があったそうです。",
+       "ja_furigana": "ニュースによると、地震(じしん)があったそうです。",
+       "vi": "Theo bản tin thời sự thì nghe nói đã xảy ra động đất."
+      },
+      {
+       "ja": "先生の調査によるとこの鳥は数が減っているそうだ。",
+       "ja_furigana": "先生(せんせい)の調査(ちょうさ)によるとこの鳥(とり)は数(かず)が減(へ)っているそうだ。",
+       "vi": "Theo khảo sát của thầy giáo thì nghe nói loài chim này đang giảm số lượng."
+      },
+      {
+       "ja": "今朝の新聞によると新しい駅ができるらしい。",
+       "ja_furigana": "今朝(けさ)の新聞(しんぶん)によると新(あたら)しい駅(えき)ができるらしい。",
+       "vi": "Theo báo sáng nay thì hình như sắp có một nhà ga mới được xây."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Kết thúc câu bằng sự thật khẳng định trực tiếp mà không có 〜そうだ / 〜らしい khi mở đầu bằng によると.",
+    "examples": [
+     {
+      "ja": "ニュースによると、地震があったそうです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "先生の調査によるとこの鳥は数が減っているそうだ。",
+      "ja_furigana": "先生(せんせい)の調査(ちょうさ)によるとこの鳥(とり)は数(かず)が減(へ)っているそうだ。",
+      "source": "AI",
+      "vi": "Theo khảo sát của thầy giáo thì nghe nói loài chim này đang giảm số lượng."
+     },
+     {
+      "ja": "今朝の新聞によると新しい駅ができるらしい。",
+      "ja_furigana": "今朝(けさ)の新聞(しんぶん)によると新(あたら)しい駅(えき)ができるらしい。",
+      "source": "AI",
+      "vi": "Theo báo sáng nay thì hình như sắp có một nhà ga mới được xây."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: ニュースによると、地震があったそうです。",
+     "FURIGANA_MISSING: ニュースによると、地震があったそうです。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + によると / N + によれば",
+    "locked_fields": [],
+    "meaning_vi": "Theo như — Nêu nguồn của thông tin được truyền đạt lại.",
+    "nuance_vi": "Dẫn nguồn thông tin khách quan và luôn đi cặp với các mẫu truyền đạt hoặc suy đoán như 〜そうだ, 〜ということだ, 〜らしい ở cuối câu.",
+    "order_items": [],
+    "pattern": "N + によると",
+    "pattern_variants": [],
+    "unit_no": 15,
+    "unit_title_vi": "Truyền đạt, trích dẫn và định nghĩa",
+    "usage_vi": "Vế sau hầu như luôn kết thúc bằng そうだ, らしい hoặc ということだ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-28f5ce3beb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は安いし、近いし、よく行きます。",
+       "ja_furigana": "この店(みせ)は安(やす)いし、近(ちか)いし、よく行(い)きます。",
+       "vi": "Quán này vừa rẻ lại vừa gần nên tôi rất hay lui tới."
+      },
+      {
+       "ja": "もう時間も遅いし今日はそろそろ帰りましょう。",
+       "ja_furigana": "もう時間(じかん)も遅(おそ)いし今日(きょう)はそろそろ帰(かえ)りましょう。",
+       "vi": "Giờ cũng đã muộn rồi nên hôm nay chúng ta về thôi nhỉ."
+      },
+      {
+       "ja": "彼女は頭もいいし性格もとても優しいです。",
+       "ja_furigana": "彼女(かのじょ)は頭(あたま)もいいし性格(せいかく)もとても優(やさ)しいです。",
+       "vi": "Cô ấy vừa thông minh lại vừa có tính cách rất dịu dàng."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Bỏ だ sau danh từ hoặc tính từ đuôi な trước し (sai: 静かし; đúng: 静かだし).",
+    "examples": [
+     {
+      "ja": "この店は安いし、近いし、よく行きます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "もう時間も遅いし今日はそろそろ帰りましょう。",
+      "ja_furigana": "もう時間(じかん)も遅(おそ)いし今日(きょう)はそろそろ帰(かえ)りましょう。",
+      "source": "AI",
+      "vi": "Giờ cũng đã muộn rồi nên hôm nay chúng ta về thôi nhỉ."
+     },
+     {
+      "ja": "彼女は頭もいいし性格もとても優しいです。",
+      "ja_furigana": "彼女(かのじょ)は頭(あたま)もいいし性格(せいかく)もとても優(やさ)しいです。",
+      "source": "AI",
+      "vi": "Cô ấy vừa thông minh lại vừa có tính cách rất dịu dàng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: この店は安いし、近いし、よく行きます。",
+     "FURIGANA_MISSING: この店は安いし、近いし、よく行きます。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V / Aい / Aな + だ / N + だ + し、〜",
+    "locked_fields": [],
+    "meaning_vi": "Vừa vừa, vả lại — Liệt kê nhiều lý do hoặc nhiều đặc điểm cùng chiều.",
+    "nuance_vi": "Liệt kê các lý do hoặc đặc điểm bổ sung cùng chiều; cũng thường dùng một lần 〜し để nêu lý do một cách nhẹ nhàng, hàm ý còn những lý do khác nữa.",
+    "order_items": [],
+    "pattern": "Thể thường + し",
+    "pattern_variants": [],
+    "unit_no": 10,
+    "unit_title_vi": "Nguyên nhân, mục đích và kết quả",
+    "usage_vi": "Hàm ý còn lý do khác nữa chưa kể hết. Khác với から (chỉ một lý do dứt khoát)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b51c993c25"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "引っ越してからずっとここに住んでいる。",
+       "ja_furigana": "引(ひ)っ越(こ)してからずっとここに住(す)んでいる。",
+       "vi": "Từ sau khi chuyển nhà tôi vẫn luôn sống ở đây suốt."
+      },
+      {
+       "ja": "朝起きてからずっと頭が痛くて困っています。",
+       "ja_furigana": "朝起(あさお)きてからずっと頭(あたま)が痛(いた)くて困(こま)っています。",
+       "vi": "Từ lúc thức dậy buổi sáng đến giờ tôi cứ bị đau đầu suốt."
+      },
+      {
+       "ja": "先週からずっと雨が降らない日が続いている。",
+       "ja_furigana": "先週(せんしゅう)からずっと雨(あめ)が降(ふ)らない日(ひ)が続(つづ)いている。",
+       "vi": "Từ tuần trước đến giờ những ngày không mưa cứ kéo dài suốt."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Đặt động từ khoảnh khắc đơn lẻ ở vế sau ずっと.",
+    "examples": [
+     {
+      "ja": "引っ越してからずっとここに住んでいる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "朝起きてからずっと頭が痛くて困っています。",
+      "ja_furigana": "朝起(あさお)きてからずっと頭(あたま)が痛(いた)くて困(こま)っています。",
+      "source": "AI",
+      "vi": "Từ lúc thức dậy buổi sáng đến giờ tôi cứ bị đau đầu suốt."
+     },
+     {
+      "ja": "先週からずっと雨が降らない日が続いている。",
+      "ja_furigana": "先週(せんしゅう)からずっと雨(あめ)が降(ふ)らない日(ひ)が続(つづ)いている。",
+      "source": "AI",
+      "vi": "Từ tuần trước đến giờ những ngày không mưa cứ kéo dài suốt."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 引っ越してからずっとここに住んでいる。",
+     "FURIGANA_MISSING: 引っ越してからずっとここに住んでいる。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て + からずっと",
+    "locked_fields": [],
+    "meaning_vi": "Từ khi đến giờ vẫn — Trạng thái kéo dài liên tục kể từ một mốc.",
+    "nuance_vi": "Nhấn mạnh tính liên tục không gián đoạn của một hành động hoặc trạng thái từ mốc V-て trong quá khứ đến nay.",
+    "order_items": [],
+    "pattern": "V-て + からずっと",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "Nhấn mạnh tính liên tục, khác với てから đơn thuần chỉ trình tự."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fb8a22331e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "薬を飲んだのに、まだ熱が下がらない。",
+       "ja_furigana": "薬(くすり)を飲(の)んだのに、まだ熱(ねつ)が下(さ)がらない。",
+       "vi": "Mặc dù đã uống thuốc rồi thế mà vẫn chưa hạ sốt."
+      },
+      {
+       "ja": "せっかく作ったのに誰も食べてくれなかった。",
+       "ja_furigana": "せっかく作(つく)ったのに誰(だれ)も食(た)べてくれなかった。",
+       "vi": "Mặc dù tôi đã cất công nấu thế mà chẳng ai ăn cho."
+      },
+      {
+       "ja": "今日は日曜日なのに朝から仕事へ行きます。",
+       "ja_furigana": "今日(きょう)は日曜日(にちようび)なのに朝(あさ)から仕事(しごと)へ行(い)きます。",
+       "vi": "Mặc dù hôm nay là Chủ nhật thế mà tôi vẫn phải đi làm từ sáng."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Quên thêm な sau danh từ và tính từ đuôi な trước のに.",
+    "examples": [
+     {
+      "ja": "薬を飲んだのに、まだ熱が下がらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "せっかく作ったのに誰も食べてくれなかった。",
+      "ja_furigana": "せっかく作(つく)ったのに誰(だれ)も食(た)べてくれなかった。",
+      "source": "AI",
+      "vi": "Mặc dù tôi đã cất công nấu thế mà chẳng ai ăn cho."
+     },
+     {
+      "ja": "今日は日曜日なのに朝から仕事へ行きます。",
+      "ja_furigana": "今日(きょう)は日曜日(にちようび)なのに朝(あさ)から仕事(しごと)へ行(い)きます。",
+      "source": "AI",
+      "vi": "Mặc dù hôm nay là Chủ nhật thế mà tôi vẫn phải đi làm từ sáng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 薬を飲んだのに、まだ熱が下がらない。",
+     "FURIGANA_MISSING: 薬を飲んだのに、まだ熱が下がらない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V / Aい / Aな + な / N + な + のに",
+    "locked_fields": [],
+    "meaning_vi": "Vậy mà, mặc dù — Kết quả trái với mong đợi, kèm cảm giác bất mãn hoặc tiếc nuối.",
+    "nuance_vi": "Diễn tả sự việc trái với kỳ vọng tự nhiên, mang sắc thái tiếc nuối, bất ngờ hoặc trách móc; không dùng câu ý chí/mệnh lệnh ở vế sau.",
+    "order_items": [],
+    "pattern": "Thể thường + のに",
+    "pattern_variants": [],
+    "unit_no": 14,
+    "unit_title_vi": "Lý do, đối lập và giải thích",
+    "usage_vi": "Trung tính hơn くせに (chê trách) và mạnh hơn が. Danh từ và tính từ đuôi な nối bằng な: 便利なのに."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ad9ebe9f88"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "買ったばかりなのに、もう壊れた。",
+       "ja_furigana": "買(か)ったばかりなのに、もう壊(こわ)れた。",
+       "vi": "Vừa mới mua xong thế mà đã hỏng mất rồi."
+      },
+      {
+       "ja": "掃除したばかりなのにすぐ部屋が汚れた。",
+       "ja_furigana": "掃除(そうじ)したばかりなのにすぐ部屋(へや)が汚(よご)れた。",
+       "vi": "Vừa mới dọn dẹp xong thế mà căn phòng đã bẩn ngay rồi."
+      },
+      {
+       "ja": "今聞いたばかりなのにもう名前を忘れてしまった。",
+       "ja_furigana": "今聞(いまき)いたばかりなのにもう名前(なまえ)を忘(わす)れてしまった。",
+       "vi": "Vừa mới nghe lúc nãy thôi thế mà tôi đã quên mất tên rồi."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Quên thêm な giữa ばかり và のに (sai: ばかりのに; đúng: ばかりなのに).",
+    "examples": [
+     {
+      "ja": "買ったばかりなのに、もう壊れた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "掃除したばかりなのにすぐ部屋が汚れた。",
+      "ja_furigana": "掃除(そうじ)したばかりなのにすぐ部屋(へや)が汚(よご)れた。",
+      "source": "AI",
+      "vi": "Vừa mới dọn dẹp xong thế mà căn phòng đã bẩn ngay rồi."
+     },
+     {
+      "ja": "今聞いたばかりなのにもう名前を忘れてしまった。",
+      "ja_furigana": "今聞(いまき)いたばかりなのにもう名前(なまえ)を忘(わす)れてしまった。",
+      "source": "AI",
+      "vi": "Vừa mới nghe lúc nãy thôi thế mà tôi đã quên mất tên rồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 買ったばかりなのに、もう壊れた。",
+     "FURIGANA_MISSING: 買ったばかりなのに、もう壊れた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-た + ばかりなのに",
+    "locked_fields": [],
+    "meaning_vi": "Vừa mới thế mà — Nhấn mạnh sự trái khoáy: vừa xong đã xảy ra chuyện.",
+    "nuance_vi": "Kết hợp ばかり (vừa mới xong) và のに (thế mà lại) để nhấn mạnh sự trớ trêu khi kết quả bị hỏng hoặc thay đổi quá nhanh.",
+    "order_items": [],
+    "pattern": "V-た + ばかりなのに",
+    "pattern_variants": [],
+    "unit_no": 14,
+    "unit_title_vi": "Lý do, đối lập và giải thích",
+    "usage_vi": "Kết hợp たばかり và のに. Mang cảm giác bực hoặc ngạc nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-eaddd1ee86"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "休みの日は本を読んだり、散歩したりします。",
+       "ja_furigana": "休(やす)みの日(ひ)は本(ほん)を読(よ)んだり、散歩(さんぽ)したりします。",
+       "vi": "Ngày nghỉ tôi thường làm những việc như đọc sách hay đi dạo."
+      },
+      {
+       "ja": "飛行機の中で映画を見たり寝たりしました。",
+       "ja_furigana": "飛行機(ひこうき)の中(なか)で映画(えいが)を見(み)たり寝(ね)たりしました。",
+       "vi": "Ở trên máy bay tôi lúc thì xem phim, lúc thì ngủ."
+      },
+      {
+       "ja": "最近の天気は暖かかったり寒かったりする。",
+       "ja_furigana": "最近(さいきん)の天気(てんき)は暖(あたた)かかったり寒(さむ)かったりする。",
+       "vi": "Thời tiết dạo này lúc thì ấm, lúc lại lạnh."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Quên động từ する ở cuối cấu trúc 〜たり〜たりする.",
+    "examples": [
+     {
+      "ja": "休みの日は本を読んだり、散歩したりします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "飛行機の中で映画を見たり寝たりしました。",
+      "ja_furigana": "飛行機(ひこうき)の中(なか)で映画(えいが)を見(み)たり寝(ね)たりしました。",
+      "source": "AI",
+      "vi": "Ở trên máy bay tôi lúc thì xem phim, lúc thì ngủ."
+     },
+     {
+      "ja": "最近の天気は暖かかったり寒かったりする。",
+      "ja_furigana": "最近(さいきん)の天気(てんき)は暖(あたた)かかったり寒(さむ)かったりする。",
+      "source": "AI",
+      "vi": "Thời tiết dạo này lúc thì ấm, lúc lại lạnh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 休みの日は本を読んだり、散歩したりします。",
+     "FURIGANA_MISSING: 休みの日は本を読んだり、散歩したりします。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V1-たり + V2-たり + する / A1-かったり + A2-かったり + する",
+    "locked_fields": [],
+    "meaning_vi": "Nào là nào là — Liệt kê vài hành động tiêu biểu trong nhiều hành động.",
+    "nuance_vi": "Liệt kê 2–3 hành động đại diện trong nhiều việc làm hoặc diễn tả hai trạng thái trái ngược lặp đi lặp lại.",
+    "order_items": [],
+    "pattern": "V-たり、V-たり + する",
+    "pattern_variants": [],
+    "unit_no": 23,
+    "unit_title_vi": "Liên kết câu và biểu hiện hội thoại",
+    "usage_vi": "Không phải liệt kê theo thứ tự thời gian. Hai việc trái nghĩa thì diễn tả sự lặp lại: 降ったりやんだり."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-12c58fa59f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "電車よりバスのほうが安いです。",
+       "ja_furigana": "電車(でんしゃ)よりバスのほうが安(やす)いです。",
+       "vi": "Đi xe buýt thì rẻ hơn đi tàu điện."
+      },
+      {
+       "ja": "一人で食べるより家族と食べるほうが美味しい。",
+       "ja_furigana": "一人(ひとり)で食(た)べるより家族(かぞく)と食(た)べるほうが美味(おい)しい。",
+       "vi": "Ăn cùng gia đình thì ngon hơn là ăn một mình."
+      },
+      {
+       "ja": "昨日は今日よりずっと風が冷たかったです。",
+       "ja_furigana": "昨日(きのう)は今日(きょう)よりずっと風(かぜ)が冷(つめ)たかったです。",
+       "vi": "Hôm qua gió lạnh hơn hôm nay rất nhiều."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Quên trợ từ の trước ほうが khi ghép với danh từ (sai: バスほうが; đúng: バスのほうが).",
+    "examples": [
+     {
+      "ja": "電車よりバスのほうが安いです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "一人で食べるより家族と食べるほうが美味しい。",
+      "ja_furigana": "一人(ひとり)で食(た)べるより家族(かぞく)と食(た)べるほうが美味(おい)しい。",
+      "source": "AI",
+      "vi": "Ăn cùng gia đình thì ngon hơn là ăn một mình."
+     },
+     {
+      "ja": "昨日は今日よりずっと風が冷たかったです。",
+      "ja_furigana": "昨日(きのう)は今日(きょう)よりずっと風(かぜ)が冷(つめ)たかったです。",
+      "source": "AI",
+      "vi": "Hôm qua gió lạnh hơn hôm nay rất nhiều."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 電車よりバスのほうが安いです。",
+     "FURIGANA_MISSING: 電車よりバスのほうが安いです。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N1 + より + N2 + のほうが + A / V",
+    "locked_fields": [],
+    "meaning_vi": "So với thì hơn — So sánh hai đối tượng và chọn ra bên nào hơn.",
+    "nuance_vi": "Đặt hai đối tượng lên bàn cân so sánh trực tiếp để khẳng định N2 có mức độ nổi trội hơn N1.",
+    "order_items": [],
+    "pattern": "N より N の + ほうが",
+    "pattern_variants": [],
+    "unit_no": 21,
+    "unit_title_vi": "Mức độ, so sánh và nhấn mạnh",
+    "usage_vi": "Trật tự có thể đảo: AのほうがBより〜. Câu hỏi lựa chọn dùng どちらのほうが."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c19d3e388b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "医者に酒をやめるように言われた。",
+       "ja_furigana": "医者(いしゃ)に酒(さけ)をやめるように言(い)われた。",
+       "vi": "Tôi được bác sĩ khuyên là phải bỏ rượu."
+      },
+      {
+       "ja": "母は私に夜遅く出歩かないように言いました。",
+       "ja_furigana": "母(はは)は私(わたし)に夜遅(よるおそ)く出歩(である)かないように言(い)いました。",
+       "vi": "Mẹ đã dặn tôi không được đi chơi bên ngoài vào lúc đêm muộn."
+      },
+      {
+       "ja": "先生から明日までに宿題を出すように言われた。",
+       "ja_furigana": "先生(せんせい)から明日(あした)までに宿題(しゅくだい)を出(だ)すように言(い)われた。",
+       "vi": "Tôi được thầy giáo nhắc phải nộp bài tập về nhà trước ngày mai."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chia động từ sang thể mệnh lệnh trước ように言う (trước ように言う chỉ dùng V-る hoặc V-ない).",
+    "examples": [
+     {
+      "ja": "医者に酒をやめるように言われた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "母は私に夜遅く出歩かないように言いました。",
+      "ja_furigana": "母(はは)は私(わたし)に夜遅(よるおそ)く出歩(である)かないように言(い)いました。",
+      "source": "AI",
+      "vi": "Mẹ đã dặn tôi không được đi chơi bên ngoài vào lúc đêm muộn."
+     },
+     {
+      "ja": "先生から明日までに宿題を出すように言われた。",
+      "ja_furigana": "先生(せんせい)から明日(あした)までに宿題(しゅくだい)を出(だ)すように言(い)われた。",
+      "source": "AI",
+      "vi": "Tôi được thầy giáo nhắc phải nộp bài tập về nhà trước ngày mai."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 医者に酒をやめるように言われた。",
+     "FURIGANA_MISSING: 医者に酒をやめるように言われた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-る / V-ない + ように言う / 注意する / 頼む / 伝える",
+    "locked_fields": [],
+    "meaning_vi": "Bảo ai làm gì — Truyền đạt lại lời nhờ vả, mệnh lệnh hoặc lời khuyên.",
+    "nuance_vi": "Cách trích dẫn gián tiếp lời yêu cầu, nhắc nhở hoặc mệnh lệnh một cách lịch sự và khách quan.",
+    "order_items": [],
+    "pattern": "V từ điển / V-ない + ように言う",
+    "pattern_variants": [
+     "〜ように言う"
+    ],
+    "unit_no": 15,
+    "unit_title_vi": "Truyền đạt, trích dẫn và định nghĩa",
+    "usage_vi": "Hay đi với 言う, 頼む, 注意する. Là cách trích dẫn gián tiếp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-415dde2bc3"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-010"
+}

@@ -1,0 +1,582 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あなたの幸せを願ってやまない。",
+       "ja_furigana": "あなたの幸(しあわ)せを願(ねが)ってやまない。",
+       "vi": "Tôi luôn cầu chúc cho bạn được hạnh phúc."
+      },
+      {
+       "ja": "彼の成功を期待してやまない。",
+       "ja_furigana": "彼(かれ)の成功(せいこう)を期待(きたい)してやまない。",
+       "vi": "Tôi không ngừng kỳ vọng vào thành công của anh ấy."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "皆様のご健康とご多幸を願ってやまない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi luôn cầu chúc sức khỏe và hạnh phúc cho mọi người."
+     },
+     {
+      "ja": "被災地の一日も早い復興を祈ってやまない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi không ngừng cầu mong vùng thiên tai sớm được phục hồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 皆様のご健康とご多幸を願ってやまない。",
+     "FURIGANA_MISSING: 被災地の一日も早い復興を祈ってやまない。"
+    ],
+    "formation": "V-て + やまない",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả tình cảm, nguyện vọng, thái độ nội tâm “không dứt, không nguôi” và kéo dài bền bỉ. Thường đi với các động từ tâm lý/tình cảm: 願う, 期待する, 愛する, 慕う, 祈る, 尊敬する. Sắc thái trang trọng, hay dùng trong văn viết, phát biểu, điếu văn, lời chúc. Chủ ngữ thường là người nói hoặc người phát ngôn đại diện; ít dùng cho cảm xúc tiêu cực mạnh kiểu bộc phát.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Luôn... / mãi...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thích hợp trong lời chúc, phát biểu trang trọng, bài viết cảm tưởng. Ít dùng với động từ hành động cụ thể; chủ yếu là động từ chỉ tâm trạng. Có thể dùng làm định ngữ: 私の愛してやまない家族. Không dùng cho cảm xúc nhất thời như 驚く, 怒る theo nghĩa bộc phát. [6. Ghi chú mở rộng] Mẫu thường đứng cùng danh từ mang tính trang trọng: ご健康, ご多幸, 平和, 復興. Với 愛してやまない có thể làm định ngữ để nhấn mức độ yêu quý đặc biệt. Biến thể lịch sự ～てやみません phù hợp thư từ kinh doanh, điếu văn. [7. Biến thể & cụm cố định] 願ってやまない／祈ってやまない／期待してやまない：cụm thường gặp. 愛してやまない＋N：N mà “yêu khôn nguôi”. ご健勝とご発展をお祈りしてやみません：công thức chúc trang trọng. [8. Lỗi thường gặp & bẫy JLPT] Dùng với động từ hành động cụ thể (行く, 食べる): không tự nhiên. Dùng cho xúc cảm bộc phát: sai sắc thái, nên dùng ～てたまらない/～てならない. Bỏ を trước động từ tâm lý: cần Nを願ってやまない/期待してやまない. Nhầm thì: ～てやまない thường ở hiện tại để nói cảm xúc kéo dài; quá khứ ít gặp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a63110538f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "来年こそ、必ず優勝してみせる。",
+       "ja_furigana": "来年(らいねん)こそ、必(かなら)ず優勝(ゆうしょう)してみせる。",
+       "vi": "Năm sau, tôi nhất định sẽ vô địch cho xem."
+      },
+      {
+       "ja": "この曲を一週間で弾けるようになってみせる。",
+       "ja_furigana": "この曲(きょく)を一週間(いっしゅうかん)で弾(ひ)けるようになってみせる。",
+       "vi": "Tôi nhất định sẽ đàn được bài này trong một tuần cho xem."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "難しくても、必ず合格してみせる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù khó đến mấy, tôi nhất định sẽ đỗ cho xem."
+     },
+     {
+      "ja": "このマジック、もう一度やってみせます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi sẽ làm lại màn ảo thuật này cho mọi người xem."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Sẽ làm cho xem",
+     "FURIGANA_MISSING: 難しくても、必ず合格してみせる。",
+     "FURIGANA_MISSING: このマジック、もう一度やってみせます。"
+    ],
+    "formation": "V-て + みせる",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa 1 (biểu diễn/chứng minh): “làm và cho xem”, hành vi xảy ra ngay trước mắt để chứng minh năng lực. Nghĩa 2 (quyết tâm/cam kết): “nhất định sẽ … cho mà xem”, mang tính lời hứa, thề, thách thức. Chủ ngữ thường là người nói; mang sắc thái mạnh, đôi khi hơi khoe khoang/kiêu hãnh. Khác với ～てみる (thử làm): ～てみせる không phải “thử” mà là “làm chắc chắn, để chứng minh”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Sẽ làm cho xem",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn khẳng định năng lực/ý chí, hoặc khi thực sự “làm mẫu cho xem”. Sắc thái mạnh; trong tình huống trang trọng có thể chuyển thành みせます để lịch sự. Thường hướng tới người nghe như lời tuyên bố/thách thức/khích lệ. Không dùng để xin phép/đề nghị. Với nghĩa “thử”, dùng ～てみる. [6. Ghi chú mở rộng] Trong quảng cáo/trình diễn: プロの技を見せてみせます có tính biểu diễn. Trong văn nói mạnh, đôi khi là lời hứa tự khích lệ bản thân. Có thể đi với thể bị động-khiến: 笑わせてみせる (làm cho cười và chứng minh). [7. Biến thể & cụm cố định] ～てみせます／～てみせましょう：lịch sự. ～てみせるぞ／さ：khẩu ngữ nhấn mạnh. どうだと言わんばかりに～てみせる：làm như muốn nói “thấy chưa”. 見せてやる（マンガ口語）：thô, khoe khoang. [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～てみる: chọn ～てみせる khi muốn “chắc chắn/cho xem”, không phải “thử”. Dùng để yêu cầu người khác làm: không tự nhiên. ～てみせてください mới là yêu cầu lịch sự. Dùng cho hành vi bất khả thi trước mắt (ví dụ chuyện tương lai xa) với sắc thái “cho xem” cụ thể: nên dùng nghĩa quyết tâm, không phải biểu diễn. Trong đề JLPT, câu đi kèm trạng từ quyết tâm như 必ず、絶対に, hoặc ngữ cảnh thách thức."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f3cf2a3086"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "成績のいかんによっては、クラスが変わる場合がある。",
+       "ja_furigana": "成績(せいせき)のいかんによっては、クラスが変(か)わる場合(ばあい)がある。",
+       "vi": "Tùy thành tích, có trường hợp phải đổi lớp."
+      },
+      {
+       "ja": "結果のいかんによっては、計画を見直すことになる。",
+       "ja_furigana": "結果(けっか)のいかんによっては、計画(けいかく)を見直(みなお)すことになる。",
+       "vi": "Tùy kết quả, có thể phải xem lại kế hoạch."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "天候のいかんによっては、イベントを中止することがあります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tùy thời tiết, có thể hủy sự kiện."
+     },
+     {
+      "ja": "面談の評価のいかんによっては、配属先が変更される場合があります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tùy đánh giá phỏng vấn, nơi phân công có thể thay đổi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 天候のいかんによっては、イベントを中止することがあります。",
+     "FURIGANA_MISSING: 面談の評価のいかんによっては、配属先が変更される場合があります。"
+    ],
+    "formation": "N + のいかんによっては; N + いかんによっては",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả kết quả/biện pháp có thể thay đổi tùy theo tình trạng/mức độ của N; đặc biệt hàm ý “có khả năng xuất hiện ngoại lệ/biện pháp đặc biệt”. Vế sau hay dùng: 〜場合がある／〜こともある／〜可能性がある／〜となりうる／〜も検討する. Phổ biến trong thông báo dịch vụ, quy định nhà trường, hướng dẫn nghiệp vụ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tùy thuộc vào...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường đi kèm thông báo mở: giữ cửa cho các trường hợp đặc biệt phát sinh. Sắc thái hơi “cảnh báo/điều kiện kèm”: người nghe nên chuẩn bị cho khả năng thay đổi. Trong hội thoại, có thể dùng thay “によっては” đơn thuần để tăng tính trang trọng và ràng buộc. [6. Ghi chú mở rộng] Dùng nhiều trong email nghiệp vụ: “ご回答のいかんによっては、日程を再調整いたします”。 Danh từ trước “のいかん” nên là yếu tố có thể đo lường/đánh giá: 結果・状況・内容・評価・回答等. “〜のいかんで” là rút gọn; “〜のいかんによっては” giữ sắc thái “một số trường hợp” mạnh hơn. [7. Biến thể & cụm cố định] 結果／成績／状況／内容／天候／回答 + のいかんによっては 審査結果のいかんによっては、不採用となることがあります。 今後の推移のいかんによっては、対応を見直します。 [8. Lỗi thường gặp & bẫy JLPT] Dùng với N quá cụ thể cá nhân → nghe gượng: ×太郎のいかんによっては → 太郎の状況によっては. Nhầm với “にかかわらず”: một bên là “tùy theo”, bên kia là “bất kể”. Bỏ sót sắc thái “có trường hợp/khả năng” ở vế sau; JLPT thường yêu cầu chọn mệnh đề phù hợp (〜場合がある／〜可能性がある)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c63bb012db"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夢を叶えんがために、彼は危険を顧みなかった。",
+       "ja_furigana": "夢(ゆめ)を叶(かな)えんがために、彼(かれ)は危険(きけん)を顧(かえり)みなかった。",
+       "vi": "Để đạt được ước mơ, anh ấy không màng nguy hiểm."
+      },
+      {
+       "ja": "家族を守らんがために、どんな苦労もいとわない。",
+       "ja_furigana": "家族(かぞく)を守(まも)らんがために、どんな苦労(くろう)もいとわない。",
+       "vi": "Để bảo vệ gia đình, tôi không ngại bất cứ gian khổ nào."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は名声を得んがために、無謀な挑戦を繰り返した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta để đạt được danh tiếng đã liên tục liều lĩnh thách thức."
+     },
+     {
+      "ja": "会社は生き残らんがために、大規模なリストラを断行した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công ty đã thực hiện tái cơ cấu quy mô lớn để sống còn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は名声を得んがために、無謀な挑戦を繰り返した。",
+     "FURIGANA_MISSING: 会社は生き残らんがために、大規模なリストラを断行した。"
+    ],
+    "formation": "Vない(ない→ん) + んがために; Vない(ない→ん) + んがための + N",
+    "locked_fields": [],
+    "meaning_vi": "- Nghĩa: “để/nhằm (đạt cho bằng được) …”, biểu thị mục đích với ý chí cực mạnh, đôi khi mang sắc thái “bất chấp”. Nhấn mạnh động cơ mãnh liệt, quyết liệt hơn hẳn ～ために, ～ように. Thường đi với những mục đích có giá trị lớn (thắng lợi, danh tiếng, sống còn…), đôi khi kéo theo hành vi quá đà. Chủ ngữ ở mệnh đề mục đích và mệnh đề chính thường là cùng một chủ thể có chủ ý. Phong cách: trang trọng, văn viết, diễn văn, lịch sử; không dùng cho sinh hoạt hằng ngày, mục đích nhỏ. Không dùng với câu mệnh lệnh/nhờ vả trực tiếp.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Với mục đích...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái quyết liệt, “bằng mọi giá”. Dùng khi muốn nhấn mạnh động cơ mạnh mẽ hoặc tính chính đáng (hoặc đáng chê) của hành vi. Thường xuất hiện cùng từ vựng nặng: 無謀, 極端, 決行, 犠牲, 断行… Không gắn với mục đích tự nhiên/khách quan (ví dụ: “để không bị muộn giờ tàu” thường dùng ～ように/ために). Đặt trước danh từ bằng ～んがための + N để làm nổi bật tính “vì mục đích X”. [6. Ghi chú mở rộng] ～んがため dùng 未然形＋ん; ん bắt nguồn từ trợ động từ ý hướng cổ む. する có dạng đặc biệt せんがため; đây không phải phủ định. Với 来る, dạng cổ “こんがため” tồn tại nhưng hiếm; nên tránh trong luyện thi, dùng động từ thay thế (来訪す, 訪れる…). Trong văn học/diễn văn, mẫu này thường đặt đầu câu để nhấn mạnh mục đích. [7. Biến thể & cụm cố định] ～んがため(に)／～んがため：biến thể có/không có に. ～んがための + N：勝たんがための策／生き残らんがための選択. コロケーション hay gặp: 名声を得んがために／生き残りんがために／勝たんがために／注目を浴びんがために. [8. Lỗi thường gặp & bẫy JLPT] Sai chủ ngữ: mệnh đề mục đích và mệnh đề chính phải cùng chủ thể chủ ý. Dùng cho việc vặt: × 時間を節約せんがために早起きする → nên dùng ～ために/～ように. Không lấy Vます語幹: × 勝ちんがため／生き残りんがため → ○ 勝たんがため／生き残らんがため. せんがため là dạng riêng của する, không phải phủ định. Gắn với câu yêu cầu: × 合格せんがために手伝ってください → mâu thuẫn sắc thái. Nhầm với “～がために” (nguyên nhân): cần phân biệt nghĩa “mục đích” vs “vì (tiêu cực)”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d65ce35d69"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "休養と観光を兼ねて、温泉に行った。",
+       "ja_furigana": "休養(きゅうよう)と観光(かんこう)を兼(か)ねて、温泉(おんせん)に行(い)った。",
+       "vi": "Vừa nghỉ dưỡng vừa tham quan, tôi đến suối nước nóng."
+      },
+      {
+       "ja": "勉強と交流を兼ねて、留学することにした。",
+       "ja_furigana": "勉強(べんきょう)と交流(こうりゅう)を兼(か)ねて、留学(りゅうがく)することにした。",
+       "vi": "Vừa để học vừa để giao lưu, tôi quyết định đi du học."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "出張と観光を兼ねてロンドンへ行く。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đi London vừa công tác vừa du lịch."
+     },
+     {
+      "ja": "挨拶とお礼を兼ねてご連絡いたしました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi liên hệ để vừa chào hỏi vừa bày tỏ lời cảm ơn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 出張と観光を兼ねてロンドンへ行く。",
+     "FURIGANA_MISSING: 挨拶とお礼を兼ねてご連絡いたしました。"
+    ],
+    "formation": "N + を兼ねて; N1 と N2 + を兼ねて",
+    "locked_fields": [],
+    "meaning_vi": "- Nghĩa: “Kết hợp cả N1 và N2”, “vừa … vừa …”, “nhân tiện (kiêm)”. Diễn đạt một hành động nhằm đồng thời đáp ứng hai mục đích/chức năng. - Sắc thái: Khách quan, trung tính, hay dùng trong văn viết, thương mại. So với ～ついでに, 兼ねて nhấn mạnh “kiêm nhiệm hai mục đích rõ ràng”. - Cấu trúc đi sau thường là động từ di chuyển/thực hiện: 行く・訪ねる・参加する・書く・贈る・使う…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vừa là... vừa là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] N1 và N2 đều là mục đích/chức năng chính đáng; không có quan hệ phụ - chính rõ rệt như “nhân tiện”. Thường gắn với hành động mang tính mục đích (đi, đến, tham dự, gửi, tặng…). Trong văn trang trọng, hay dùng cùng kính ngữ: 伺う・差し上げる・いたす… Không dùng trực tiếp với mệnh đề/động từ làm danh từ nếu không danh từ hóa (N + の). [6. Ghi chú mở rộng] N đi với 兼ねる nên giữ を trước 兼ねて. Khi liệt kê bằng と, chỉ có danh từ sau と mang を. Nên chọn danh từ mang tính “mục đích/chức năng”, tránh danh từ trừu tượng khó “kiêm” (ví dụ: 幸せ・愛… không tự nhiên). Trong tiêu đề/brochure hay thấy kiểu định ngữ: 「観光を兼ねた出張プラン」. [7. Biến thể & cụm cố định] N を兼ねて + 行く/訪れる/伺う/参加する/贈る/書く… N を兼ねた + N: 仕事を兼ねた旅行, 挨拶を兼ねたメール N も兼ねて: 強調 thêm “kiêm cả …” [8. Lỗi thường gặp & bẫy JLPT] Viết “N1とN2に兼ねて”: Sai. Phải là “N1とN2を兼ねて”. Dùng với động từ chưa danh từ hóa: Sai. Cần N + の nếu muốn danh từ hóa. Nhầm với ついでに: 兼ねて không hàm ý “tiện thể phụ”, mà là “kiêm hai mục đích”. Thi JLPT: bẫy chọn “Nかたがた” cho ngữ cảnh bình thường (quá trang trọng)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-098b3f90fa"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は謝りもしないで、その場を去った。",
+       "ja_furigana": "彼(かれ)は謝(あやま)りもしないで、その場(ば)を去(さ)った。",
+       "vi": "Anh ta chẳng thèm xin lỗi đã bỏ đi."
+      },
+      {
+       "ja": "彼女は顔も洗わないで、朝食を食べ始めた。",
+       "ja_furigana": "彼女(かのじょ)は顔(かお)も洗(あら)わないで、朝食(ちょうしょく)を食(た)べ始(はじ)めた。",
+       "vi": "Cô ấy chẳng thèm rửa mặt đã bắt đầu ăn sáng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は人の話を聞きもしないで結論を出す。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta chẳng thèm nghe người ta nói đã vội đưa ra kết luận."
+     },
+     {
+      "ja": "彼女は資料を読みもしないで批判した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô ấy phê bình mà không thèm đọc tài liệu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は人の話を聞きもしないで結論を出す。",
+     "FURIGANA_MISSING: 彼女は資料を読みもしないで批判した。"
+    ],
+    "formation": "Vます + もしない(で); Vます + もせずに",
+    "locked_fields": [],
+    "meaning_vi": "- Diễn tả việc “không hề/không thèm làm V (đến cả một chút cũng không)” rồi thực hiện hành động tiếp theo. Hàm ý trách móc, chê trách, khó chịu. - “も” mang nghĩa “đến cả… cũng” → kết hợp với phủ định “しない” tạo nhấn mạnh mạnh mẽ. - Dùng nhiều khi nói về người khác, hành vi bị xem là thiếu tối thiểu/lẽ thường: “挨拶もしないで…”. - Khác với ～ないで/～ずに (trung tính), ～もしないで có sắc thái cảm xúc và nhấn mạnh.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không thèm...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi người nói bực bội, đánh giá tiêu cực hành vi thiếu tối thiểu. Thường đặt trước mệnh đề chính gây hệ quả xấu: ～もしないで＋(phản ứng/hậu quả). Có thể dùng tự phê bình: 私は説明書を読みもしないで壊してしまった。 Văn nói tự nhiên; văn viết có thể thay bằng ～もせずに để bớt gắt. [6. Ghi chú mở rộng] “も” đặt ngay trước “しない/せずに” hoặc ngay sau danh từ của động từ する: 挨拶もしないで; 聞きもせずに. Đặt “も” sai chỗ dễ làm mờ nghĩa nhấn mạnh: ×「も聞かないで」 (nên: 聞きもしないで). Trong văn lịch sự, có thể chuyển cả câu sang です／ます, nhưng phần “～もしないで” vẫn giữ nguyên hình thái. [7. Biến thể & cụm cố định] Vます＋もせずに… (biến thể trang trọng) Vます＋もしない (kết câu nhấn mạnh) N＋も＋しないで… (với danh động từ する) ろくに～もしないで… (chẳng làm cho ra hồn mà…) [8. Lỗi thường gặp & bẫy JLPT] Sai chỗ “も”: ×「聞くもしないで」 → đúng: 「聞きもしないで」. Nhầm với ～ないで/～ずに (không có sắc thái chỉ trích). JLPT thường yêu cầu chọn mẫu thể hiện “không thèm…”. Dùng trong văn cảnh lịch sự với cấp trên dễ thành bất lịch sự do sắc thái chê trách. Quên rút về Vます: ×「行くもしないで」 → đúng: 「行きもしないで」."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-72d80c6ff7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は「助けて」と言わんばかりの顔をした。",
+       "ja_furigana": "彼(かれ)は「助(たす)けて」と言(い)わんばかりの顔(かお)をした。",
+       "vi": "Anh ấy làm vẻ mặt như muốn nói “cứu tôi với”."
+      },
+      {
+       "ja": "彼女は「もう許して」と言わんばかりの目で見た。",
+       "ja_furigana": "彼女(かのじょ)は「もう許(ゆる)して」と言(い)わんばかりの目(め)で見(み)た。",
+       "vi": "Cô ấy nhìn tôi với ánh mắt như muốn nói “tha cho em đi”."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は「もう帰れ」と言わんばかりの顔をした。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta làm vẻ mặt như muốn nói “về ngay đi”."
+     },
+     {
+      "ja": "子どもは助けてほしいと言わんばかりの目でこちらを見上げた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đứa trẻ ngước nhìn tôi với đôi mắt như muốn cầu cứu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は「もう帰れ」と言わんばかりの顔をした。",
+     "FURIGANA_MISSING: 子どもは助けてほしいと言わんばかりの目でこちらを見上げた。"
+    ],
+    "formation": "〜と + 言わんばかりの + N",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “như thể nói rằng…”, “cứ như muốn nói…”. Diễn tả dáng vẻ, thái độ, cử chỉ gợi ra một lời nói/ý nghĩa nào đó, dù người đó không nói ra. Phạm vi: thường đi với các từ về khuôn mặt, ánh mắt, cử chỉ (顔、目、態度、仕草、笑み、沈黙…). Sắc thái: văn viết/miêu tả, mang tính quan sát, gợi ẩn ý; người nói suy đoán từ dấu hiệu bên ngoài. Mẫu có の là định ngữ bổ nghĩa danh từ; mẫu với に làm trạng ngữ bổ nghĩa cho vị ngữ sau. Không dùng khi nội dung đã được nói trực tiếp rõ ràng; nhấn mạnh “không nói ra nhưng toát lên như vậy”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Như để nói...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi miêu tả biểu cảm/cử chỉ gợi ý nghĩa lời nói; thích hợp văn bản miêu tả, tường thuật. Thường kết hợp: 顔/目/態度/様子/沈黙/仕草/笑み + と言わんばかりの + N. So với “〜ように/〜かのように”: と言わんばかり nhấn mạnh khía cạnh “như đang nói”. Không dùng cho tình huống khách quan không liên quan đến “nói” hay biểu đạt (ví dụ: thời tiết, máy móc) trừ khi nhân hoá. [6. Ghi chú mở rộng] 「言わん」 dùng ん từ trợ động từ ý hướng cổ む, mang nghĩa ‘như muốn/sắp nói’. Đây không phải dạng phủ định của 言う. Thường đi kèm các phó từ mức độ: まるで/あたかも + 〜と言わんばかりに/の để tăng sắc thái. Trong văn sáng tác, có thể nhân hóa: 波は「逃げろ」と言わんばかりに荒れ狂った。 [7. Biến thể & cụm cố định] と言わんばかりの + 顔／目／態度／沈黙／笑み／仕草 と言わんばかりに + 指さす／うなずく／手を振る／笑う／睨む まるで／あたかも + 〜と言わんばかりに [8. Lỗi thường gặp & bẫy JLPT] Dùng với phát ngôn trực tiếp: nếu đã nói thẳng, không dùng と言わんばかり. Sai: 「帰れ」と言ってと言わんばかりに… → Thừa. Dùng cho sự vật vô tri không nhân hóa → gượng gạo. Nhầm với 〜とばかりに: cái sau không nhấn mạnh “nói”, phạm vi rộng hơn. Nhầm “言わない” là phủ định: trong mẫu này không phải phủ định."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-59281be09b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は「早くしろ」と言わんばかりに、こちらを見た。",
+       "ja_furigana": "彼(かれ)は「早(はや)くしろ」と言(い)わんばかりに、こちらを見(み)た。",
+       "vi": "Anh ấy nhìn tôi như muốn nói “nhanh lên”."
+      },
+      {
+       "ja": "犬は散歩に行きたいと言わんばかりに、尻尾を振った。",
+       "ja_furigana": "犬(いぬ)は散歩(さんぽ)に行(い)きたいと言(い)わんばかりに、尻尾(しっぽ)を振(ふ)った。",
+       "vi": "Con chó vẫy đuôi như muốn nói nó muốn đi dạo."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は「早くしろ」と言わんばかりに、腕時計を何度も見た。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta nhìn đồng hồ liên tục như muốn nói “Nhanh lên”."
+     },
+     {
+      "ja": "子どもは待ってましたと言わんばかりに、お菓子に飛びついた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đứa trẻ lao vào bánh kẹo như thể đã chờ sẵn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は「早くしろ」と言わんばかりに、腕時計を何度も見た。",
+     "FURIGANA_MISSING: 子どもは待ってましたと言わんばかりに、お菓子に飛びついた。"
+    ],
+    "formation": "〜と + 言わんばかりに + V",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả thái độ/hành động như thể đang “nói” câu X, dù không phát ngôn trực tiếp. Nhấn mạnh hàm ý rõ rệt qua cử chỉ, nét mặt. Thường dùng khi người nói suy đoán thông điệp ẩn từ người khác/vật (thậm chí động vật). Phong cách miêu tả, văn viết/hội thoại trang trọng nhẹ; mang tính tu từ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Như muốn nói rằng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi tín hiệu phi ngôn từ đủ mạnh để suy ra thông điệp lời nói. Thích hợp trong miêu tả văn chương/bản tin sinh động; tạo sắc thái ẩn dụ “nhân hoá”. Thường đi với động từ chỉ cử chỉ: 見る・にらむ・手で制す・肩をすくめる・うなずく… [6. Ghi chú mở rộng] 「言わん」 tương ứng với lối văn ngữ biểu thị ý hướng ‘như muốn/sắp nói’; ん bắt nguồn từ trợ động từ cổ む, không phải 「言おう＋ない」 và cũng không phải phủ định. Phần trích dẫn có thể là cụm ngắn/onomatopoeia: ふんと言わんばかりに肩をすくめた。 Khi bổ nghĩa danh từ, dùng の: ～と言わんばかりの態度／目つき。 [7. Biến thể & cụm cố định] 待ってましたと言わんばかりに… どうだと言わんばかりのドヤ顔 やってみろと言わんばかりに挑発する 無言の圧力と言わんばかりの沈黙 [8. Lỗi thường gặp & bẫy JLPT] Dùng khi không có dấu hiệu phi ngôn từ rõ ràng → thiếu tự nhiên. Cần cử chỉ/hoàn cảnh cụ thể. Nhầm là phủ định của 言う → sai. Đây là lối cổ chỉ ý “sắp nói/như muốn nói”. Bỏ の khi bổ nghĩa danh từ: × と言わんばかり態度 → đúng: と言わんばかりの態度。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6781753da5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女は泣き出さんばかりに、話を聞いていた。",
+       "ja_furigana": "彼女(かのじょ)は泣(な)き出(だ)さんばかりに、話(はなし)を聞(き)いていた。",
+       "vi": "Cô ấy nghe chuyện với vẻ như sắp òa khóc."
+      },
+      {
+       "ja": "空は今にも雨が降らんばかりに暗くなった。",
+       "ja_furigana": "空(そら)は今(いま)にも雨(あめ)が降(ふ)らんばかりに暗(くら)くなった。",
+       "vi": "Bầu trời tối sầm như thể sắp đổ mưa đến nơi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は涙を流さんばかりに喜んだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy vui đến mức như sắp rơi nước mắt."
+     },
+     {
+      "ja": "頭を床に擦りつけんばかりに謝った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta xin lỗi đến mức như muốn cọ đầu xuống sàn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は涙を流さんばかりに喜んだ。",
+     "FURIGANA_MISSING: 頭を床に擦りつけんばかりに謝った。"
+    ],
+    "formation": "Vない(ない→ん) + んばかりに/んばかりの + N",
+    "locked_fields": [],
+    "meaning_vi": "- Nghĩa: “đến mức như sắp …”, “như muốn … đến nơi”, nhấn mạnh mức độ cực cao nhưng thường là chưa xảy ra thật. Miêu tả trạng thái/hình ảnh bên ngoài khiến người nói “cảm thấy như” sắp xảy ra. Thường dùng với cảm xúc, cử chỉ mạnh: 泣く, 叫ぶ, 壊れる, 溢れる, 飛び出す… Văn phong hơi văn chương/trang trọng hơn ～ほど/～くらい.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Như thể sắp...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi người nói nhận định “sắp” nhưng thực tế thường chưa xảy ra; thiên về phóng đại ấn tượng. Hợp với mô tả văn học, bài báo, kể chuyện; ít dùng trong hội thoại bình thường. Không dùng cho các việc khách quan bình thường (× 早起きんばかりに起きた). [6. Ghi chú mở rộng] Cụm cố định rất hay: 割れんばかりの拍手, 溢れんばかりの笑顔／花, 飛び出さんばかりの勢い. ～んばかり dùng 未然形＋ん: 泣く→泣かん、飛び出す→飛び出さん、壊れる→壊れん. する có dạng せんばかり; ん không phải phủ định. Thường đi với danh từ + の để bổ nghĩa: ～んばかりのN giúp câu tự nhiên hơn. [7. Biến thể & cụm cố định] ～んばかりに／～んばかりだ：dùng giữa câu/kết câu. ～んばかりの + N：割れんばかりの歓声／壊れんばかりの音. Cụm văn chương: 胸が張り裂けんばかり, 飛び上がらんばかり, 土下座せんばかり. [8. Lỗi thường gặp & bẫy JLPT] Diễn tả sự việc đã thực sự xảy ra: × 泣いんばかりに泣いた → trùng lặp; nên dùng ほど/くらい. Gắn với hành vi thường nhật khách quan → không hợp sắc thái. Nhầm với ばかりだ (xu hướng) trong câu hỏi JLPT; chú ý khác trường nghĩa. Chú ý phép chia: × 泣きんばかり／飛び出しんばかり → ○ 泣かんばかり／飛び出さんばかり. Sau đó mới chọn động từ/cụm gợi hình phù hợp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-525ceb5019"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は思うがままに、好きな道を進んだ。",
+       "ja_furigana": "彼(かれ)は思(おも)うがままに、好(す)きな道(みち)を進(すす)んだ。",
+       "vi": "Anh ấy bước theo con đường mình thích, đúng như ý muốn."
+      },
+      {
+       "ja": "風の吹くがままに、帆を張った。",
+       "ja_furigana": "風(かぜ)の吹(ふ)くがままに、帆(ほ)を張(は)った。",
+       "vi": "Căng buồm theo đúng chiều gió thổi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は営業マンの言われるがままに高い契約を結んでしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy đã ký hợp đồng đắt tiền theo đúng lời người bán nói."
+     },
+     {
+      "ja": "週末は心の赴くがままに旅に出た。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuối tuần tôi lên đường du lịch theo tiếng gọi con tim."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Theo đúng...",
+     "FURIGANA_MISSING: 彼は営業マンの言われるがままに高い契約を結んでしまった。",
+     "FURIGANA_MISSING: 週末は心の赴くがままに旅に出た。"
+    ],
+    "formation": "Vる/Vられる + がままに; Vる/Vられる + がまま",
+    "locked_fields": [],
+    "meaning_vi": "～るがままに diễn đạt “để mặc cho…; cứ theo như…; đúng như trạng thái/ý muốn đó”. Có hai hướng: Chủ động tự do: làm theo ý/ cảm xúc của mình (思うがままに＝tùy ý). Thụ động phó mặc: bị dẫn dắt/ép theo điều người khác nói/việc xảy ra (言われるがままに＝nghe sao làm vậy).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Theo đúng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Với bị động: dễ mang sắc thái bị động, thiếu chủ động, đôi khi chê trách “nghe sao làm vậy”. Với chủ động: mang sắc thái tự do, thơ mộng/văn học (心の赴くがままに／思うがままに). Trang trọng/ văn chương hơn “〜ままに”. [6. Ghi chú mở rộng] Thường đi với các cụm cố định: 言われるがままに／流されるがままに／心の赴くがままに／思うがままに. “が” trong “がままに” tăng cảm giác nhấn mạnh “đúng như…/mặc cho…”. Phù hợp văn thuyết minh, văn học, phóng sự; trong hội thoại, “ままに/とおりに” tự nhiên hơn. [7. Biến thể & cụm cố định] 言われるがままに: nghe sao làm vậy. 勧められるがままに: bị dụ/được khuyên sao làm vậy. 心の赴くがままに／思うがままに: tùy ý, theo con tim/ý nghĩ. 流されるがままに: để dòng đời cuốn đi. [8. Lỗi thường gặp & bẫy JLPT] Nhầm dạng bị động: “言うがままに” → thiếu sắc thái “bị khiến”; tự nhiên hơn là “言われるがままに”. Nhầm nghĩa với “〜のとおりに”: “がままに” có sắc thái phó mặc/đúng như trạng thái, không đơn thuần là “đúng theo hướng dẫn”. Bỏ “に” khi cần tân ngữ theo sau: 思うがまま意見を… → nên dùng 思うがままに意見を… Dùng trong ngữ cảnh trang trọng; trong hội thoại thân mật có thể nghe văn vẻ quá."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-63f857781b"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-036"
+}

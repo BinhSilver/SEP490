@@ -1,0 +1,2361 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"."
+ },
+ "items": [
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Người cho mượn/cho mình đánh dấu bằng に: 友だちに かりました.",
+      "options": [
+       "に",
+       "を",
+       "で",
+       "が"
+      ],
+      "prompt_ja": "わたしは 友だち （　　） 本を かりました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "N1 に N2 を もらいました = nhận được N2 từ N1.",
+      "options": [
+       "ありました",
+       "なりました",
+       "もらいました",
+       "いました"
+      ],
+      "prompt_ja": "たんじょうびに 父に とけいを （　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Thứ tự đúng: 「わたしは 先生に 日本の うた を ならいました。」. N1 に N2 を ならいました.",
+      "options": [
+       "を",
+       "ならいました",
+       "うた",
+       "日本の"
+      ],
+      "prompt_ja": "わたしは 先生に ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Thứ tự đúng: 「わたしは 山田さんに くろい かさ を かりました。」. N1 に N2 を かりました: động từ đứng cuối.",
+      "options": [
+       "かりました",
+       "かさ",
+       "を",
+       "くろい"
+      ],
+      "prompt_ja": "わたしは 山田さんに ＿＿ ＿＿ ＿＿ ★。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "かります = mượn; 田中さんに là người cho mượn.",
+      "options": [
+       "Tôi đã cho anh Tanaka mượn đĩa CD.",
+       "Anh Tanaka đã mượn đĩa CD của tôi.",
+       "Tôi đã tặng đĩa CD cho anh Tanaka.",
+       "Tôi đã mượn đĩa CD của anh Tanaka."
+      ],
+      "prompt_ja": "わたしは 田中さんに CDを かりました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "母に もらいました = nhận từ mẹ.",
+      "options": [
+       "Tôi đã được mẹ cho áo len.",
+       "Tôi đã tặng mẹ áo len.",
+       "Mẹ đã nhận được áo len từ tôi.",
+       "Tôi đã mua áo len cho mẹ."
+      ],
+      "prompt_ja": "母に セーターを もらいました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Người dạy dùng に, môn học dùng を.",
+      "options": [
+       "わたしは 先生に 日本語を ならいます。",
+       "わたしは 先生を 日本語に ならいます。",
+       "わたしは 友だちに 本を かりました。",
+       "あねに かばんを もらいました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Người cho mượn dùng に, không dùng で.",
+      "options": [
+       "わたしは 友だちに じしょを かりました。",
+       "母に お金を もらいました。",
+       "わたしは 友だちで じしょを かりました。",
+       "山田さんに ピアノを ならいます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay đặt người nhận trước に; đứng trước に là người cho, người cho mượn hoặc người dạy.",
+    "examples": [
+     {
+      "ja": "ともだちに プレゼントを もらいます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi nhận quà từ bạn."
+     },
+     {
+      "ja": "友だちに辞書を借ります。",
+      "ja_furigana": "友(とも)だちに辞書(じしょ)を借(か)ります。",
+      "source": "CLAUDE",
+      "vi": "Tôi mượn từ điển của bạn."
+     },
+     {
+      "ja": "母に料理を習います。",
+      "ja_furigana": "母(はは)に料理(りょうり)を習(なら)います。",
+      "source": "CLAUDE",
+      "vi": "Tôi học nấu ăn từ mẹ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mượn sách ở thư viện: 本を かりました.",
+      "options": [
+       "なりました",
+       "ありました",
+       "かりました",
+       "いました"
+      ],
+      "prompt_ja": "としょかんで 本を （　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "あにに かりました = mượn của anh trai.",
+      "options": [
+       "Anh trai đã mượn xe đạp của tôi.",
+       "Tôi đã mượn xe đạp của anh trai.",
+       "Tôi đã cho anh trai mượn xe đạp.",
+       "Tôi đã mua xe đạp cho anh trai."
+      ],
+      "prompt_ja": "わたしは あにに じてんしゃを かりました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Người cho dùng に, không dùng が.",
+      "options": [
+       "わたしは 母に てがみを もらいました。",
+       "友だちに CDを かりました。",
+       "先生に えいごを ならいます。",
+       "わたしは 母が てがみを もらいました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ならいました",
+      "sentence_ja": "わたしは 先生に ギターを ＿＿。（học）",
+      "translation_vi": "Tôi đã học ghi-ta với thầy giáo."
+     },
+     {
+      "answer": "もらいました",
+      "sentence_ja": "クリスマスに 母に プレゼントを ＿＿。（nhận）",
+      "translation_vi": "Giáng sinh tôi được mẹ tặng quà."
+     }
+    ],
+    "findings": [],
+    "formation": "N1(người cho) + に・から + N2 + を + もらいます・かります・ならいます",
+    "locked_fields": [],
+    "meaning_vi": "Nhận của ai cái gì\nCũng dùng に nhưng chiều ngược lại: người cho đứng trước に, còn mình là người nhận.",
+    "nuance_vi": "Trung tính; nhìn sự việc từ phía người nhận.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       0,
+       3,
+       2
+      ],
+      "pieces": [
+       "友だちに",
+       "わたしは",
+       "かりました",
+       "本を"
+      ],
+      "translation_vi": "Tôi đã mượn sách của bạn."
+     },
+     {
+      "answer_order": [
+       0,
+       3,
+       1,
+       2
+      ],
+      "pieces": [
+       "父に",
+       "とけいを",
+       "もらいました",
+       "あたらしい"
+      ],
+      "translation_vi": "Tôi đã được bố cho chiếc đồng hồ mới."
+     }
+    ],
+    "pattern": "N1 に N2 を もらいます/かります/ならいます",
+    "pattern_variants": [],
+    "unit_no": 7,
+    "unit_title_vi": "Cho, nhận và rủ rê",
+    "usage_vi": "かります (mượn) và ならいます (học của ai) đi cùng kiểu câu này."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cf2d62eca8"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Hỏi người nhận: だれに.",
+      "options": [
+       "なに",
+       "どこ",
+       "だれ",
+       "いつ"
+      ],
+      "prompt_ja": "「（　　） に てがみを 書きますか。」「母に 書きます。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Hỏi vật tặng: なにを.",
+      "options": [
+       "だれ",
+       "どこ",
+       "いつ",
+       "なに"
+      ],
+      "prompt_ja": "「たんじょうびに 友だちに （　　） を あげますか。」「花を あげます。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 「この 本は だれに かりましたか。」. Hỏi người cho mượn: だれに かりましたか.",
+      "options": [
+       "この",
+       "本は",
+       "かりました",
+       "だれに"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿か。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 「おかあさんに なに を あげます か。」. なにを あげますか = tặng gì?",
+      "options": [
+       "あげます",
+       "か",
+       "なに",
+       "を"
+      ],
+      "prompt_ja": "おかあさんに ★ ＿＿ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "だれに ならいましたか = đã học với ai.",
+      "options": [
+       "Bạn đã dạy tiếng Nhật cho ai?",
+       "Bạn đã học tiếng Nhật với ai?",
+       "Bạn đã học tiếng Nhật ở đâu?",
+       "Bạn học tiếng Nhật khi nào?"
+      ],
+      "prompt_ja": "だれに 日本語を ならいましたか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "なにを もらいましたか = đã nhận được gì.",
+      "options": [
+       "Bạn đã tặng gì cho anh Yamada?",
+       "Bạn đã nhận quà từ ai?",
+       "Anh Yamada đã nhận được gì?",
+       "Bạn đã nhận được gì từ anh Yamada?"
+      ],
+      "prompt_ja": "山田さんに なにを もらいましたか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Người được gọi điện dùng に: だれに.",
+      "options": [
+       "だれに でんわを かけますか。",
+       "だれに 会いますか。",
+       "だれを でんわを かけますか。",
+       "なにを 食べますか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đối tượng của 買います dùng を: なにを.",
+      "options": [
+       "なにを 買いますか。",
+       "だれに あげますか。",
+       "なにに 買いますか。",
+       "だれに ならいますか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay quên trợ từ に sau だれ (sai: だれあげますか).",
+    "examples": [
+     {
+      "ja": "なにを つかいますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn sử dụng cái gì?"
+     },
+     {
+      "ja": "だれにプレゼントをあげますか。",
+      "ja_furigana": "だれにプレゼントをあげますか。",
+      "source": "CLAUDE",
+      "vi": "Bạn tặng quà cho ai?"
+     },
+     {
+      "ja": "誕生日に何をもらいましたか。",
+      "ja_furigana": "誕生日(たんじょうび)に何(なに)をもらいましたか。",
+      "source": "CLAUDE",
+      "vi": "Sinh nhật bạn được tặng gì?"
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Hỏi người cho: だれに もらいましたか.",
+      "options": [
+       "を",
+       "へ",
+       "で",
+       "に"
+      ],
+      "prompt_ja": "「だれ （　　） その とけいを もらいましたか。」「父に もらいました。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "だれに ききましたか = nghe từ ai.",
+      "options": [
+       "Bạn kể chuyện đó cho ai?",
+       "Bạn nghe chuyện đó từ ai?",
+       "Ai đã nghe chuyện đó?",
+       "Bạn nghe chuyện đó ở đâu?"
+      ],
+      "prompt_ja": "だれに その はなしを ききましたか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Người dạy dùng だれに, không dùng だれで.",
+      "options": [
+       "だれで ピアノを ならいますか。",
+       "だれに ピアノを ならいますか。",
+       "なにを おくりますか。",
+       "だれに てがみを 書きますか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "だれ",
+      "sentence_ja": "「＿＿ に 会いましたか。」「先生に 会いました。」",
+      "translation_vi": "Bạn đã gặp ai? - Tôi đã gặp thầy giáo."
+     },
+     {
+      "answer": "なに",
+      "sentence_ja": "「＿＿ を 書きましたか。」「てがみを 書きました。」",
+      "translation_vi": "Bạn đã viết gì? - Tôi đã viết thư."
+     }
+    ],
+    "findings": [],
+    "formation": "だれに + V-ますか / なにを + V-ますか",
+    "locked_fields": [],
+    "meaning_vi": "Hỏi cho ai, hỏi nhận gì\nHỏi người thì thay chỗ người bằng だれ, hỏi vật thì thay bằng なに, phần còn lại giữ nguyên.",
+    "nuance_vi": "Trung tính; giữ nguyên trợ từ như câu khẳng định, chỉ thay chỗ bằng từ để hỏi.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       0,
+       1
+      ],
+      "pieces": [
+       "だれに",
+       "かりましたか",
+       "この",
+       "かさは"
+      ],
+      "translation_vi": "Cái ô này bạn mượn của ai?"
+     },
+     {
+      "answer_order": [
+       0,
+       3,
+       2,
+       1
+      ],
+      "pieces": [
+       "だれに",
+       "ですか",
+       "プレゼント",
+       "もらった"
+      ],
+      "translation_vi": "Đây là món quà bạn nhận từ ai vậy?"
+     }
+    ],
+    "pattern": "だれに 〜ますか / なにを 〜ますか",
+    "pattern_variants": [],
+    "unit_no": 7,
+    "unit_title_vi": "Cho, nhận và rủ rê",
+    "usage_vi": "Hỏi người nhận là だれに, hỏi người sở hữu là だれの — đừng lẫn hai cái."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4547ba63f0"
+  },
+  {
+   "answer": {
+    "ok": true
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Chưa làm thì trả lời いいえ、まだです.",
+      "options": [
+       "もう",
+       "まだ",
+       "いつも",
+       "よく"
+      ],
+      "prompt_ja": "「もう ひるごはんを 食べましたか。」「いいえ、（　　） です。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Đã xong rồi: もう おわりました.",
+      "options": [
+       "もう",
+       "まだ",
+       "いつ",
+       "どう"
+      ],
+      "prompt_ja": "「しゅくだいは？」「（　　） おわりました。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Thứ tự đúng: 「いいえ、 まだ 読んで いません。」. Chưa làm: まだ + 〜て いません.",
+      "options": [
+       "まだ",
+       "いいえ、",
+       "読んで",
+       "いません"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 「あたらしい 本は もう 読みましたか。」. Hỏi đã làm chưa: もう 〜ましたか.",
+      "options": [
+       "読みました",
+       "本は",
+       "もう",
+       "あたらしい"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿か。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "もう 〜ましたか = đã ... chưa?",
+      "options": [
+       "Bạn đã làm bài tập chưa?",
+       "Bạn sẽ làm bài tập chứ?",
+       "Bạn có hay làm bài tập không?",
+       "Bạn vẫn đang làm bài tập à?"
+      ],
+      "prompt_ja": "もう しゅくだいを しましたか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "まだです = vẫn chưa (làm).",
+      "options": [
+       "Bạn ăn trưa chưa? - Rồi, tôi vừa ăn xong.",
+       "Bạn ăn trưa chưa? - Chưa, tôi vẫn chưa ăn.",
+       "Bạn ăn trưa chưa? - Không, tôi không thích ăn trưa.",
+       "Bạn có ăn trưa không? - Có, tôi sẽ ăn."
+      ],
+      "prompt_ja": "「もう ひるごはんを 食べましたか。」「いいえ、まだです。」",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Trả lời \"chưa\" dùng まだです (hoặc まだ 〜て いません), không dùng 〜ませんでした.",
+      "options": [
+       "いいえ、まだ 食べませんでした。",
+       "はい、もう 食べました。",
+       "いいえ、まだです。",
+       "もう しゅくだいを しました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "まだ không đi với quá khứ khẳng định; \"đã uống rồi\" là もう のみました.",
+      "options": [
+       "もう くすりを のみました。",
+       "バスは まだ 来ません。",
+       "もう 九時に なりました。",
+       "まだ くすりを のみました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Chưa làm thì hay đáp いいえ、〜ませんでした; đúng là いいえ、まだです.",
+    "examples": [
+     {
+      "ja": "もう カードを おくりましたか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã gửi thiệp chưa?"
+     },
+     {
+      "ja": "もう手紙を書きましたか。",
+      "ja_furigana": "もう手紙(てがみ)を書(か)きましたか。",
+      "source": "CLAUDE",
+      "vi": "Bạn viết thư chưa?"
+     },
+     {
+      "ja": "いいえ、まだ食べていません。",
+      "ja_furigana": "いいえ、まだ食(た)べていません。",
+      "source": "CLAUDE",
+      "vi": "Chưa, tôi vẫn chưa ăn."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đã làm rồi: はい、もう 〜ました.",
+      "options": [
+       "まだ",
+       "よく",
+       "もう",
+       "あまり"
+      ],
+      "prompt_ja": "「もう その えいがを 見ましたか。」「はい、（　　） 見ました。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "もう 出ました = đã chạy rồi.",
+      "options": [
+       "Xe buýt vẫn chưa chạy.",
+       "Xe buýt đã chạy mất rồi.",
+       "Xe buýt sắp đến rồi.",
+       "Xe buýt không chạy."
+      ],
+      "prompt_ja": "バスは もう 出ました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Trả lời \"chưa\" là いいえ、まだです; không có cách nói もうです.",
+      "options": [
+       "いいえ、まだです。",
+       "はい、もう 買いました。",
+       "もう ごはんを 食べました。",
+       "いいえ、もうです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "まだ",
+      "sentence_ja": "「もう てがみを 書きましたか。」「いいえ、＿＿ です。」",
+      "translation_vi": "Bạn viết thư chưa? - Chưa."
+     },
+     {
+      "answer": "もう",
+      "sentence_ja": "「田中さんは？」「＿＿ かえりました。」（đã về rồi）",
+      "translation_vi": "Anh Tanaka đâu? - Anh ấy về rồi."
+     }
+    ],
+    "findings": [],
+    "formation": "もう + V-ました / まだです / まだ + V-ていません",
+    "locked_fields": [],
+    "meaning_vi": "Đã xong rồi hay vẫn chưa\nXong rồi thì もう + đuôi ました; chưa thì đáp gọn まだです.",
+    "nuance_vi": "Trung tính; まだです là câu trả lời ngắn, tự nhiên.",
+    "order_items": [
+     {
+      "answer_order": [
+       0,
+       2,
+       1
+      ],
+      "pieces": [
+       "もう",
+       "かえりましたか",
+       "うちへ"
+      ],
+      "translation_vi": "Bạn đã về nhà chưa?"
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "です",
+       "いいえ、",
+       "まだ"
+      ],
+      "translation_vi": "Chưa ạ."
+     }
+    ],
+    "pattern": "もう 〜ました / まだです",
+    "pattern_variants": [],
+    "unit_no": 7,
+    "unit_title_vi": "Cho, nhận và rủ rê",
+    "usage_vi": "Đáp まだです là chưa nhưng sẽ làm. Nói ません là không làm — hai ý khác hẳn nhau."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-13a8dada5f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "… không?; lời mời lịch sự rủ người nghe cùng làm",
+     "usage_vi": "Vます bỏ ます + ませんか để mời: 映画を見ませんか (đi xem phim không?). Thường thêm いっしょに. Nhận lời: ええ、いいですね / 〜ましょう; từ chối khéo: すみません、ちょっと…. Muốn đề nghị làm giúp người kia thì dùng 〜ましょうか, không dùng ませんか.",
+     "examples": [
+      {
+       "ja": "お茶を飲みませんか。",
+       "ja_furigana": "お茶(ちゃ)を飲(の)みませんか。",
+       "vi": "Uống trà không?"
+      },
+      {
+       "ja": "いっしょに歌を歌いませんか。",
+       "ja_furigana": "いっしょに歌(うた)を歌(うた)いませんか。",
+       "vi": "Cùng hát không?"
+      },
+      {
+       "ja": "日曜日、いっしょに公園へ行きませんか。",
+       "ja_furigana": "日曜日(にちようび)、いっしょに公園(こうえん)へ行(い)きませんか。",
+       "vi": "Chủ nhật cùng đi công viên không?"
+      }
+     ]
+    },
+    "note": "meaning/usage cũ dài với mẫu ngoài N5 (よかったら, いかがですか); viết gọn; viết 行きませんか, thêm furigana, bỏ chú thích lạc."
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Mời rủ: 〜ませんか.",
+      "options": [
+       "ませんでしたか",
+       "ましたか",
+       "ましょうでしたか",
+       "ませんか"
+      ],
+      "prompt_ja": "こんど うちで パーティーを し （　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Nhận lời mời: いいですね。〜ましょう.",
+      "options": [
+       "行きません",
+       "行きましょう",
+       "行きました",
+       "行きませんでした"
+      ],
+      "prompt_ja": "「あした いっしょに 山へ 行きませんか。」「いいですね。（　　）。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Thứ tự đúng: 「えきの 前の きっさてんで 会いませんか。」. Lời mời đặt 〜ませんか ở cuối câu.",
+      "options": [
+       "きっさてんで",
+       "会いませんか",
+       "前の",
+       "えきの"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 「日よう日に わたしと テニスを し ませんか。」. し (bỏ ます của します) + ませんか.",
+      "options": [
+       "ませんか",
+       "テニスを",
+       "わたしと",
+       "し"
+      ],
+      "prompt_ja": "日よう日に ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "〜ませんか ở đây là lời mời.",
+      "options": [
+       "Cùng ăn trưa nhé?",
+       "Tôi đã ăn trưa rồi.",
+       "Tôi không muốn ăn trưa.",
+       "Bạn hãy ăn trưa một mình."
+      ],
+      "prompt_ja": "いっしょに おひるを 食べませんか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "ちょっと… là cách từ chối nhẹ nhàng.",
+      "options": [
+       "Hôm nay xem phim không? - Xin lỗi, hôm nay thì hơi khó.",
+       "Hôm nay xem phim không? - Vâng, đi thôi.",
+       "Hôm nay xem phim không? - Tôi xem rồi.",
+       "Hôm nay xem phim không? - Tôi rất thích phim."
+      ],
+      "prompt_ja": "「きょう えいがを 見ませんか。」「すみません、きょうは ちょっと…。」",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Lời mời dùng 〜ませんか, không dùng quá khứ.",
+      "options": [
+       "あした いっしょに 行きませんか。",
+       "こんど うちへ 来ませんか。",
+       "あした いっしょに 行きませんでしたか。",
+       "ちょっと やすみませんか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Rủ người khác cùng làm thì không dùng ひとりで (một mình).",
+      "options": [
+       "わたしは いっしょに ひとりで 行きませんか。",
+       "いっしょに こうえんを あるきませんか。",
+       "いっしょに しゃしんを とりませんか。",
+       "日よう日に いっしょに 出かけませんか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay hiểu là câu phủ định rồi trả lời いいえ khi muốn đồng ý.",
+    "examples": [
+     {
+      "ja": "おちゃを飲みませんか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn có muốn uống trà không? · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "ja": "いっしょに歌を歌いませんか。",
+      "ja_furigana": "いっしょに歌(うた)を歌(うた)いませんか。",
+      "source": "CLAUDE",
+      "vi": "Cùng hát không?"
+     },
+     {
+      "ja": "日曜日、いっしょに公園へいきませんか。",
+      "ja_furigana": "日曜日(にちようび)、いっしょに公園(こうえん)へいきませんか。",
+      "source": "CLAUDE",
+      "vi": "Chủ nhật cùng đi công viên không?"
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sau すみません là lời từ chối: ちょっと….",
+      "options": [
+       "いいですね",
+       "行きましょう",
+       "はい、行きます",
+       "ちょっと…"
+      ],
+      "prompt_ja": "「日よう日に いっしょに うみへ 行きませんか。」「すみません、日よう日は （　　）。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "やすみませんか = rủ cùng nghỉ.",
+      "options": [
+       "Mình nghỉ một chút nhé?",
+       "Tôi đã nghỉ một chút.",
+       "Đừng nghỉ.",
+       "Tôi muốn làm tiếp."
+      ],
+      "prompt_ja": "ちょっと やすみませんか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "こんど (lần tới) là tương lai; lời mời dùng 〜ませんか.",
+      "options": [
+       "こんど いっしょに 山へ 行きませんか。",
+       "あした いっしょに およぎませんか。",
+       "いっしょに ひるごはんを 食べませんか。",
+       "こんど いっしょに 山へ 行きましたか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ませんか",
+      "sentence_ja": "あした ひまですか。いっしょに えいがを 見 ＿＿。",
+      "translation_vi": "Ngày mai rảnh không? Cùng xem phim nhé?"
+     },
+     {
+      "answer": "いいです",
+      "sentence_ja": "「いっしょに かえりませんか。」「ええ、＿＿ね。」",
+      "translation_vi": "Về cùng không? - Ừ, được đấy."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: おちゃを飲みませんか。"
+    ],
+    "formation": "V-ます bỏ ます + ませんか",
+    "locked_fields": [],
+    "meaning_vi": "Ý nghĩa: “Bạn/anh/chị có muốn… không?” dùng để mời, rủ rê một cách lịch sự. Trọng tâm vào người nghe: hỏi ý kiến, tôn trọng quyết định của họ. Dùng được trong hầu hết bối cảnh thân mật đến lịch sự; an toàn trong giao tiếp.",
+    "nuance_vi": "Lịch sự, trọng ý kiến của người nghe.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       1,
+       0
+      ],
+      "pieces": [
+       "のみませんか",
+       "コーヒーを",
+       "ちょっと"
+      ],
+      "translation_vi": "Uống chút cà phê không?"
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "わたしの うちへ",
+       "来ませんか",
+       "こんど"
+      ],
+      "translation_vi": "Lần tới đến nhà tôi chơi nhé?"
+     }
+    ],
+    "pattern": "Cùng làm nhé?",
+    "pattern_variants": [],
+    "unit_no": 7,
+    "unit_title_vi": "Cho, nhận và rủ rê",
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn rủ người nghe cùng tham gia hành động. Âm điệu nhẹ nhàng, dễ chấp nhận/khước từ; thích hợp lần đầu mời. Có thể thêm 一緒に để rõ ý “cùng nhau”. Không dùng để đề nghị “tôi làm cho bạn”; khi đó dùng ～ましょうか. [6. Ghi chú mở rộng] Mời lịch sự hơn nữa có thể thêm いかがですか ở danh từ: コーヒーはいかがですか。 Phản hồi lịch sự: はい、いいですね／すみません、今日はちょっと…。 Không kết hợp trực tiếp với tính từ/noun; phải dùng động từ hành động. [7. Biến thể & cụm cố định] 一緒にどうですか。(tương đương ý mời, văn nói) よかったら、～ませんか。(Nếu được thì…) 時間があれば、～ませんか。(Nếu có thời gian thì…) [8. Lỗi thường gặp & bẫy JLPT] Sai chia: × 行くませんか → ✓ 行きませんか. Dùng để đề nghị giúp (sai chức năng): mở cửa giúp nên dùng 開けましょうか, không phải 開けませんか. Thiếu 一緒に khiến câu mời mơ hồ trong một số ngữ cảnh; thêm 一緒に để rõ nghĩa cùng làm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9b6cb8d29e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "đang …; thói quen (thường làm)",
+     "usage_vi": "V-て + います nói việc đang diễn ra lúc nói (今、手紙を書いています) hoặc việc làm đều đặn trong một thời gian (毎朝、新聞を読んでいます). Câu hỏi \"đang làm gì?\" là 何をしていますか. Câu chỉ có 〜ます thì là thói quen hoặc việc sẽ làm, không phải \"đang\".",
+     "examples": [
+      {
+       "ja": "今、手紙を書いています。",
+       "ja_furigana": "今(いま)、手紙(てがみ)を書(か)いています。",
+       "vi": "Bây giờ tôi đang viết thư."
+      },
+      {
+       "ja": "兄は今、シャワーを浴びています。",
+       "ja_furigana": "兄(あに)は今(いま)、シャワーを浴(あ)びています。",
+       "vi": "Anh tôi đang tắm."
+      },
+      {
+       "ja": "毎晩、日記を書いています。",
+       "ja_furigana": "毎晩(まいばん)、日記(にっき)を書(か)いています。",
+       "vi": "Tối nào tôi cũng viết nhật ký."
+      }
+     ]
+    },
+    "note": "meaning/usage cũ dài, trộn てある, ているうちに, 壊れている (N4–N3); viết gọn theo hai nghĩa đang diễn ra / thói quen. Viết 書いています, thêm furigana, bỏ chú thích lạc."
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Đang làm: V-て います.",
+      "options": [
+       "して ありません",
+       "しに います",
+       "するて います",
+       "して います"
+      ],
+      "prompt_ja": "いま、母は だいどころで りょうりを （　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Thói quen: V-て います; はしる → はしって.",
+      "options": [
+       "はしり",
+       "はしって",
+       "はしる",
+       "はしった"
+      ],
+      "prompt_ja": "あには まいにち こうえんを （　　） います。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Thứ tự đúng: 「いもうとは へやで てがみを 書いて います。」. V-て + います: 書いて います.",
+      "options": [
+       "書いて",
+       "へやで",
+       "てがみを",
+       "います"
+      ],
+      "prompt_ja": "いもうとは ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 「父は まいあさ しんぶんを 読んで います。」. Thói quen hằng ngày: 読んで います.",
+      "options": [
+       "しんぶんを",
+       "まいあさ",
+       "父は",
+       "読んで"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★ います。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "ふって います = đang mưa.",
+      "options": [
+       "Bây giờ trời đang mưa.",
+       "Bây giờ trời sắp mưa.",
+       "Hôm qua trời đã mưa.",
+       "Bây giờ trời hết mưa rồi."
+      ],
+      "prompt_ja": "いま 雨が ふって います。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "まいあさ + 〜て います là thói quen.",
+      "options": [
+       "Bây giờ chị tôi đang đi bộ trong công viên.",
+       "Sáng nào chị tôi cũng đi bộ trong công viên.",
+       "Sáng mai chị tôi sẽ đi bộ trong công viên.",
+       "Chị tôi không thích đi bộ."
+      ],
+      "prompt_ja": "あねは まいあさ こうえんを あるいて います。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "見る → 見て います.",
+      "options": [
+       "いま テレビを 見て います。",
+       "いま おふろに 入って います。",
+       "母は いま ねて います。",
+       "いま テレビを 見るて います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "読む → 読んで います.",
+      "options": [
+       "あには いま 本を 読んで います。",
+       "あには いま 本を 読みて います。",
+       "父は いま でんわを かけて います。",
+       "いもうとは いま うたを うたって います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay dùng 〜ます cho việc đang diễn ra (sai: 今テレビを見ます với nghĩa đang xem).",
+    "examples": [
+     {
+      "ja": "今、手紙をかいています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bây giờ tôi đang viết thư. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "ja": "兄は今、シャワーを浴びています。",
+      "ja_furigana": "兄(あに)は今(いま)、シャワーを浴(あ)びています。",
+      "source": "CLAUDE",
+      "vi": "Anh tôi đang tắm."
+     },
+     {
+      "ja": "毎晩、日記を書いています。",
+      "ja_furigana": "毎晩(まいばん)、日記(にっき)を書(か)いています。",
+      "source": "CLAUDE",
+      "vi": "Tối nào tôi cũng viết nhật ký."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đang làm: 書いて います.",
+      "options": [
+       "書き",
+       "書く",
+       "書いて",
+       "書いた"
+      ],
+      "prompt_ja": "「いま なにを して いますか。」「てがみを （　　） います。」",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "はなして います = đang nói chuyện.",
+      "options": [
+       "Anh Tanaka đã gọi điện xong.",
+       "Anh Tanaka đang nói chuyện điện thoại.",
+       "Anh Tanaka sắp gọi điện.",
+       "Anh Tanaka không có điện thoại."
+      ],
+      "prompt_ja": "田中さんは いま でんわで はなして います。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "ひく → ひいて (không phải ひいで).",
+      "options": [
+       "あねは いま ピアノを ひいて います。",
+       "いもうとは いま およいで います。",
+       "あねは いま ピアノを ひいで います。",
+       "母は いま かいものを して います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "あそんで",
+      "sentence_ja": "いま、子どもたちは こうえんで ＿＿ います。（あそぶ）",
+      "translation_vi": "Bây giờ bọn trẻ đang chơi ở công viên."
+     },
+     {
+      "answer": "読んで",
+      "sentence_ja": "父は まいあさ しんぶんを ＿＿ います。（読む）",
+      "translation_vi": "Sáng nào bố tôi cũng đọc báo."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 今、手紙をかいています。"
+    ],
+    "formation": "V-て + います",
+    "locked_fields": [],
+    "meaning_vi": "Đang diễn ra: hành động tại thời điểm nói (今勉強しています). Thói quen/lặp lại: mô tả hoạt động thường kỳ (毎日日本語を勉強しています). Trạng thái hiện hữu do hành động trước đó tạo ra: ドアが開いています (cửa đang mở), 結婚しています (đã kết hôn và hiện tại trong trạng thái đó). Động từ tri nhận/tri thức: 知っています（biết）、知りません（không biết) → dùng ている để chỉ trạng thái biết/không biết. Với 行く, 行っています thường diễn tả đi thường xuyên hoặc đã đi và hiện đang ở nơi khác. Khi muốn nói “đang trên đường đi”, 向かっています／行くところです thường rõ hơn; これから行っています là không tự nhiên.",
+    "nuance_vi": "Trung tính; vừa chỉ việc đang diễn ra, vừa chỉ thói quen lặp lại.",
+    "order_items": [
+     {
+      "answer_order": [
+       0,
+       2,
+       1
+      ],
+      "pieces": [
+       "いま",
+       "して いますか",
+       "なにを"
+      ],
+      "translation_vi": "Bây giờ bạn đang làm gì?"
+     },
+     {
+      "answer_order": [
+       2,
+       1,
+       0
+      ],
+      "pieces": [
+       "はたらいて います",
+       "ぎんこうで",
+       "あには"
+      ],
+      "translation_vi": "Anh trai tôi đang làm việc ở ngân hàng."
+     }
+    ],
+    "pattern": "Đang, thói quen",
+    "pattern_variants": [],
+    "unit_no": 14,
+    "unit_title_vi": "Thể て: nhờ vả, đang làm",
+    "usage_vi": "[4. Cách dùng & sắc thái] Phân biệt 知る (biết lần đầu) vs 知っている (đang biết); 結婚する (kết hôn) vs 結婚している (đã kết hôn, trạng thái). Vてある vs Vている: てある nhấn mạnh kết quả có chủ ý với động từ tha động từ; ている trung tính/trạng thái tự nhiên hoặc dùng với tự động từ. Với 着る/はく/かぶる... + ている diễn tả “đang mặc/đội/đeo”. Văn nói rút gọn ～てる/～でる phổ biến, nhưng không dùng trong văn viết trang trọng. [6. Ghi chú mở rộng] Chọn tự động từ/tha động từ đúng: 窓が開いている（tự động từ）vs 窓を開けている（đang hành động mở, khác nghĩa). 持っている có thể là đang cầm/sở hữu; phân biệt bằng ngữ cảnh: 今チケットを持っている（đang có trong tay）. Với động từ biến đổi tức thời như 壊れる, Vている thường chỉ trạng thái sau biến đổi: パソコンが壊れている。 [7. Biến thể & cụm cố định] ～ているところだ（đúng lúc đang）・～ている最中だ（đang giữa chừng） ～ているうちに（trong lúc đang… thì） Khẩu ngữ: ～てる／～でる（食べている→食べてる、読んでいる→読んでる）. まだVていない（vẫn chưa）・もうVている（đã） [8. Lỗi thường gặp & bẫy JLPT] Dùng sai tha/tự động từ: × 窓を開いています → ◯ 窓が開いています / 窓を開けています (nghĩa khác). Lẫn lộn 知る và 知っている: × 彼を知ります → ◯ 彼を知っています. Hiểu sai 行っている: có thể là “đang đi/đi thường xuyên/đã đi và đang ở đó” tùy văn cảnh. JLPT: nhận diện ba giá trị (tiếp diễn, thói quen, trạng thái) qua ngữ cảnh; phân biệt ている và てある."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3ebc789296"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "tuy … nhưng …; nối hai vế trái ngược (が)",
+     "usage_vi": "Câu 1 (thường kết thúc bằng です, ます) + が、câu 2 trái ý với câu 1: 雨ですが、出かけます (trời mưa nhưng vẫn đi). Cũng dùng để mở lời trước khi hỏi, nhờ: すみませんが、…. Khi hai vế là nguyên nhân – kết quả thì dùng から, không dùng が.",
+     "examples": [
+      {
+       "ja": "雨ですが、出かけます。",
+       "ja_furigana": "雨(あめ)ですが、出(で)かけます。",
+       "vi": "Trời mưa nhưng tôi vẫn ra ngoài."
+      },
+      {
+       "ja": "時間はありますが、お金がありません。",
+       "ja_furigana": "時間(じかん)はありますが、お金(かね)がありません。",
+       "vi": "Thời gian thì có nhưng tiền thì không."
+      },
+      {
+       "ja": "すみませんが、ちょっと待ってください。",
+       "ja_furigana": "すみませんが、ちょっと待(ま)ってください。",
+       "vi": "Xin lỗi, xin đợi một chút."
+      }
+     ]
+    },
+    "note": "meaning/usage cũ mô tả けど/けれども (so sánh \"が thân mật hơn\", ものの, とはいえ) chứ không phải mẫu が; viết lại cho が. Thêm furigana, bỏ chú thích lạc."
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Hai vế trái ngược: 〜ですが、〜.",
+      "options": [
+       "に",
+       "を",
+       "で",
+       "が"
+      ],
+      "prompt_ja": "雨です （　　）、さんぽに 行きます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Nối hai ý trái ngược bằng が.",
+      "options": [
+       "を",
+       "に",
+       "が",
+       "や"
+      ],
+      "prompt_ja": "この くつは 高いです （　　）、とても いいです。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Thứ tự đúng: 「あたまが いたいですが しごとに 行きます。」. 〜ですが nối với vế trái ngược phía sau.",
+      "options": [
+       "いたいですが",
+       "あたまが",
+       "しごとに",
+       "行きます"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 「日本語は むずかしいですが おもしろい です。」. むずかしいですが、おもしろいです = khó nhưng hay.",
+      "options": [
+       "おもしろい",
+       "です",
+       "日本語は",
+       "むずかしいですが"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "〜が = nhưng; hai vế trái ngược nhau.",
+      "options": [
+       "Trời lạnh nên tôi đóng cửa sổ.",
+       "Trời lạnh nên tôi mở cửa sổ.",
+       "Trời nóng nên tôi mở cửa sổ.",
+       "Trời lạnh nhưng tôi vẫn mở cửa sổ."
+      ],
+      "prompt_ja": "さむいですが、まどを あけます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "ふるいですが、きれいです = cũ nhưng sạch.",
+      "options": [
+       "Căn hộ này cũ và bẩn.",
+       "Căn hộ này mới và sạch.",
+       "Căn hộ này cũ nhưng sạch sẽ.",
+       "Căn hộ này cũ nên rẻ."
+      ],
+      "prompt_ja": "この アパートは ふるいですが、きれいです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Mưa nên mang ô là quan hệ nguyên nhân, phải dùng から, không dùng が.",
+      "options": [
+       "雨ですが、サッカーを します。",
+       "この みせは 安いですが、おいしいです。",
+       "日本語は むずかしいですが、たのしいです。",
+       "雨ですが、かさを もって 行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đói rồi ăn là chuyện thuận, không trái ngược nên không dùng が.",
+      "options": [
+       "おなかが すきましたが、ごはんが ありません。",
+       "おなかが すきましたが、ごはんを 食べます。",
+       "じかんが ありませんが、行きます。",
+       "へやは せまいですが、べんりです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay nhầm が nối câu với が chỉ chủ ngữ; が nối câu đứng sau cả một câu hoàn chỉnh, thường sau です, ます.",
+    "examples": [
+     {
+      "ja": "雨ですが、出かけます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trời mưa nhưng tôi vẫn ra ngoài. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "ja": "時間はありますが、お金がありません。",
+      "ja_furigana": "時間(じかん)はありますが、お金(かね)がありません。",
+      "source": "CLAUDE",
+      "vi": "Thời gian thì có nhưng tiền thì không."
+     },
+     {
+      "ja": "すみませんが、ちょっと待ってください。",
+      "ja_furigana": "すみませんが、ちょっと待(ま)ってください。",
+      "source": "CLAUDE",
+      "vi": "Xin lỗi, xin đợi một chút."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Khó nhưng thích: 〜ですが.",
+      "options": [
+       "を",
+       "に",
+       "が",
+       "で"
+      ],
+      "prompt_ja": "かんじは むずかしいです （　　）、すきです。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "〜ですが = tuy ... nhưng.",
+      "options": [
+       "Trời lạnh nhưng tôi vẫn chơi ở công viên.",
+       "Trời lạnh nên tôi không chơi ở công viên.",
+       "Trời lạnh nên tôi chơi ở công viên.",
+       "Trời ấm nên tôi chơi ở công viên."
+      ],
+      "prompt_ja": "さむいですが、こうえんで あそびます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Nóng thì mở cửa sổ là chuyện thuận, không dùng が.",
+      "options": [
+       "あついですが、まどを あけません。",
+       "あついですが、まどを あけます。",
+       "さむいですが、外で あそびます。",
+       "この カメラは 小さいですが、べんりです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "が",
+      "sentence_ja": "あの レストランは 高いです ＿＿、おいしいです。",
+      "translation_vi": "Nhà hàng kia đắt nhưng ngon."
+     },
+     {
+      "answer": "が",
+      "sentence_ja": "日よう日です ＿＿、はたらきます。",
+      "translation_vi": "Hôm nay là chủ nhật nhưng tôi vẫn làm việc."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 雨ですが、出かけます。"
+    ],
+    "formation": "Câu 1 + が、Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Đối lập/nhượng bộ: “mặc dù… nhưng…”. Mềm hóa phát ngôn, mở đầu một đề nghị/xin phép/giải thích. So với が: thân mật hơn; so với しかし: ít trang trọng, nối mệnh đề trong cùng câu.",
+    "nuance_vi": "Lịch sự hơn けど; cũng dùng để mở lời trước khi hỏi, nhờ (すみませんが…).",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "高いですが",
+       "おもしろいです",
+       "この 本は"
+      ],
+      "translation_vi": "Cuốn sách này đắt nhưng hay."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "行きます",
+       "雨ですが",
+       "学校へ"
+      ],
+      "translation_vi": "Trời mưa nhưng tôi vẫn đi học."
+     }
+    ],
+    "pattern": "Dù... nhưng...",
+    "pattern_variants": [],
+    "unit_no": 8,
+    "unit_title_vi": "Tính từ",
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng trong hội thoại hàng ngày; trong văn viết trang trọng thiên về ～が／しかし. Dùng cuối câu để chờ phản hồi/đưa ra ngụ ý, làm mềm lời từ chối/đề nghị. Đặt mệnh đề quan trọng ở sau, đảm bảo mạch luận hợp lý. [6. Ghi chú mở rộng] Mẫu mở lời lịch sự: 恐れ入りますが／申し訳ありませんが＋…けれども. Kết hợp んです: 事情説明＋んですけれど để nhấn lý do nền. [7. Biến thể & cụm cố định] けど／けれど／けれども／ですけれども ～んだけど／～んですけれども（mềm hóa, mở lời） とはいえ（mẫu gần nghĩa, trang trọng hơn） [8. Lỗi thường gặp & bẫy JLPT] Bỏ だ với な形容詞/N: ×静かけれど → 静かだけれど. Dùng けど trong văn bản trang trọng dài → nên thay bằng が/しかし/ものの. Nhầm vị trí: でも không thể thay trực tiếp けど ở giữa câu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6b9a7c8a3d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "hãy cùng …; chúng ta … nào",
+     "usage_vi": "Vます bỏ ます + ましょう để hô hào, rủ mọi người cùng làm, nhất là khi đã thống nhất: さあ、始めましょう. Hay đi với いっしょに, みんなで. Hỏi ý người nghe trước thì dùng 〜ませんか; đề nghị làm giúp thì dùng 〜ましょうか.",
+     "examples": [
+      {
+       "ja": "みなさん、日本語を読みましょう。",
+       "ja_furigana": "みなさん、日本語(にほんご)を読(よ)みましょう。",
+       "vi": "Mọi người cùng đọc tiếng Nhật nhé."
+      },
+      {
+       "ja": "さあ、始めましょう。",
+       "ja_furigana": "さあ、始(はじ)めましょう。",
+       "vi": "Nào, bắt đầu thôi."
+      },
+      {
+       "ja": "みなさん、いっしょに歌いましょう。",
+       "ja_furigana": "みなさん、いっしょに歌(うた)いましょう。",
+       "vi": "Mọi người cùng hát nào."
+      }
+     ]
+    },
+    "note": "meaning/usage cũ dài với mẫu ngoài N5 (Vよう, ないでおきましょう); viết gọn; thêm furigana, bỏ chú thích lạc."
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Rủ cả nhóm: Vます bỏ ます + ましょう.",
+      "options": [
+       "読むましょう",
+       "読みましょう",
+       "読みしょう",
+       "読んでましょう"
+      ],
+      "prompt_ja": "みなさん、いっしょに 日本語を （　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "はじめます → はじめましょう.",
+      "options": [
+       "ましょう",
+       "るましょう",
+       "ましょうて",
+       "ましょうた"
+      ],
+      "prompt_ja": "じゃ、じゅぎょうを はじめ （　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Thứ tự đúng: 「みなさん、 大きな こえで いっしょに いいましょう。」. 〜ましょう đứng cuối câu.",
+      "options": [
+       "大きな こえで",
+       "いいましょう",
+       "いっしょに",
+       "みなさん、"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Thứ tự đúng: 「みなさん、 つぎの ページを 見ましょう。」. つぎの ページ = trang tiếp theo.",
+      "options": [
+       "みなさん、",
+       "つぎの",
+       "見ましょう",
+       "ページを"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "〜ましょう = chúng ta hãy cùng ...",
+      "options": [
+       "Mọi người đã hát cùng nhau.",
+       "Mọi người, chúng ta cùng hát nào.",
+       "Mọi người không hát.",
+       "Mọi người có hát không?"
+      ],
+      "prompt_ja": "みなさん、いっしょに うたいましょう。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "しましょう = hãy cùng làm.",
+      "options": [
+       "Bài tập đã làm xong rồi.",
+       "Hôm nay không có bài tập.",
+       "Bạn đã làm bài tập chưa?",
+       "Nào, chúng ta làm bài tập thôi."
+      ],
+      "prompt_ja": "さあ、しゅくだいを しましょう。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "〜ましょう dùng cho việc sắp làm, không dùng với きのう.",
+      "options": [
+       "みなさん、いっしょに うたいましょう。",
+       "みなさん、きのう いっしょに うたいましょう。",
+       "さあ、はじめましょう。",
+       "大きな こえで 読みましょう。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "はしります → はしりましょう.",
+      "options": [
+       "いっしょに こうえんを はしるましょう。",
+       "いっしょに こうえんを はしりましょう。",
+       "ここで しゃしんを とりましょう。",
+       "みんなで 食べましょう。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay dùng ましょう để mời người trên ngay từ đầu, nghe hơi ép; lúc đó nên dùng ませんか.",
+    "examples": [
+     {
+      "ja": "みなさん、日本語を読みましょう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mọi người cùng đọc tiếng Nhật nhé. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "ja": "さあ、始めましょう。",
+      "ja_furigana": "さあ、始(はじ)めましょう。",
+      "source": "CLAUDE",
+      "vi": "Nào, bắt đầu thôi."
+     },
+     {
+      "ja": "みなさん、いっしょに歌いましょう。",
+      "ja_furigana": "みなさん、いっしょに歌(うた)いましょう。",
+      "source": "CLAUDE",
+      "vi": "Mọi người cùng hát nào."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "とります → とりましょう.",
+      "options": [
+       "とるましょう",
+       "とってましょう",
+       "とりましょう",
+       "とりしょう"
+      ],
+      "prompt_ja": "みなさん、ここで しゃしんを （　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "みんなで 〜ましょう = mọi người cùng ...",
+      "options": [
+       "Mọi người đã dọn phòng rồi.",
+       "Tôi sẽ dọn phòng một mình.",
+       "Mọi người cùng dọn phòng nào.",
+       "Đừng dọn phòng."
+      ],
+      "prompt_ja": "みんなで へやを そうじしましょう。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "〜ましょう không thêm です.",
+      "options": [
+       "みなさん、いっしょに おどりましょう。",
+       "もう いちど 聞きましょう。",
+       "みなさん、いっしょに おどりましょうです。",
+       "みんなで あそびましょう。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "読みましょう",
+      "sentence_ja": "みなさん、つぎの ページを ＿＿。（読む）",
+      "translation_vi": "Mọi người, chúng ta đọc trang tiếp theo nào."
+     },
+     {
+      "answer": "しましょう",
+      "sentence_ja": "もう 十二時です。ひるごはんに ＿＿。（する）",
+      "translation_vi": "12 giờ rồi. Chúng ta ăn trưa thôi."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: みなさん、日本語を読みましょう。"
+    ],
+    "formation": "V-ます bỏ ます + ましょう",
+    "locked_fields": [],
+    "meaning_vi": "① Đề nghị / rủ rê người nghe cùng làm gì đó: Diễn tả ý muốn mời gọi, gợi ý cùng hành động. → “Hãy cùng…”, “Chúng ta hãy…”. ② Thể hiện ý chí, quyết tâm của người nói: Khi dùng một mình (không có người nghe tham gia), nó mang nghĩa “Tôi sẽ…”, “Hãy làm thôi!”. ③ Trang trọng hơn, lịch sự hơn thể mệnh lệnh: Là cách rủ rê, đề nghị mềm mại, dùng được trong hội thoại lịch sự hoặc thông báo.",
+    "nuance_vi": "Hô hào, rủ rê cả nhóm; hay dùng trong lớp học.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       1,
+       0
+      ],
+      "pieces": [
+       "読みましょう",
+       "こえで",
+       "大きな"
+      ],
+      "translation_vi": "Chúng ta hãy đọc to lên."
+     },
+     {
+      "answer_order": [
+       2,
+       1,
+       0
+      ],
+      "pieces": [
+       "しましょう",
+       "しゅくだいを",
+       "さあ、"
+      ],
+      "translation_vi": "Nào, làm bài tập thôi."
+     }
+    ],
+    "pattern": "Hãy cùng làm",
+    "pattern_variants": [],
+    "unit_no": 7,
+    "unit_title_vi": "Cho, nhận và rủ rê",
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường dùng khi muốn rủ rê, khích lệ, hoặc đề nghị người khác cùng làm. Có thể đi với “一緒に” để nhấn mạnh hành động chung: 一緒に行きましょう。 Khi nói với bản thân (không bao gồm người khác), mang nghĩa quyết tâm: もう泣くのをやめましょう。 → Hãy thôi khóc đi nào (tự nhủ). Khác với 「～てください」 (yêu cầu người khác), 「～ましょう」 thể hiện lời mời / gợi ý nhẹ nhàng. [6. Ghi chú mở rộng] Thể ～ましょう là dạng lịch sự của thể ý chí (Vよう). Trong hội thoại, “～ましょうか？” dùng để đề nghị giúp đỡ hoặc hỏi ý kiến người khác: 例：手伝いましょうか？→ Tôi giúp nhé? Dạng phủ định “～ないでおきましょう” hoặc “～やめましょう” diễn tả đề nghị không làm. [7. Biến thể & cụm thường gặp] ～ましょうか： Tôi giúp nhé? / Chúng ta làm nhé?（例：写真を撮りましょうか。） ～にしましょう： Quyết định chọn (cái gì).（例：昼ご飯はラーメンにしましょう。） ～やめましょう： Thôi không làm nữa nhé.（例：もうその話はやめましょう。） [8. Lỗi thường gặp & bẫy JLPT] Dùng sai động từ: phải chia thể ます → ましょう (✕ 行くましょう → ○ 行きましょう). Nhầm với 「Vませんか」: “Vましょう” = đề nghị chủ động cùng làm, “Vませんか” = lời mời hỏi ý kiến người nghe. Quên sắc thái lịch sự: “Vよう” thân mật, “Vましょう” lịch sự. JLPT N5 thường kiểm tra phân biệt “Vましょう”, “Vませんか”, “Vてください”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9757baa776"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "hãy …; xin vui lòng … (nhờ người nghe làm)",
+     "usage_vi": "V-て + ください để nhờ, yêu cầu lịch sự: ここに名前を書いてください. Thêm すみませんが ở đầu cho mềm hơn. Không muốn người kia làm thì dùng Vないでください. Với danh từ: N を ください (cho tôi N).",
+     "examples": [
+      {
+       "ja": "ここで少し待ってください。",
+       "ja_furigana": "ここで少(すこ)し待(ま)ってください。",
+       "vi": "Xin hãy chờ một chút ở đây."
+      },
+      {
+       "ja": "大きい声で読んでください。",
+       "ja_furigana": "大(おお)きい声(こえ)で読(よ)んでください。",
+       "vi": "Hãy đọc to lên."
+      },
+      {
+       "ja": "明日また来てください。",
+       "ja_furigana": "明日(あした)また来(き)てください。",
+       "vi": "Ngày mai hãy đến nữa nhé."
+      }
+     ]
+    },
+    "note": "meaning/usage cũ dài với kính ngữ N3–N2 (ていただけますか, ご確認ください); viết gọn; thêm Kanji thông dụng, bỏ chú thích lạc."
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Nhờ ai làm: V-て ください; まつ → まって.",
+      "options": [
+       "まち",
+       "まつ",
+       "まった",
+       "まって"
+      ],
+      "prompt_ja": "すみません、ちょっと （　　） ください。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "書く → 書いて ください.",
+      "options": [
+       "書いて",
+       "書きて",
+       "書くて",
+       "書いで"
+      ],
+      "prompt_ja": "ここに 名前を （　　） ください。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Thứ tự đúng: 「もう すこし ゆっくり はなして ください。」. Trạng từ đứng trước, V-て ở ngay trước ください.",
+      "options": [
+       "はなして",
+       "もう",
+       "すこし",
+       "ゆっくり"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★ ください。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Thứ tự đúng: 「どうぞ、 この へやに 入って ください。」. 入る → 入って ください.",
+      "options": [
+       "どうぞ、",
+       "入って",
+       "この",
+       "へやに"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★ ください。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "あけて ください = hãy mở.",
+      "options": [
+       "Hãy mở cửa sổ ra.",
+       "Hãy đóng cửa sổ lại.",
+       "Cửa sổ đang mở.",
+       "Đừng mở cửa sổ."
+      ],
+      "prompt_ja": "まどを あけて ください。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "来て ください = hãy đến.",
+      "options": [
+       "Ngày mai tôi sẽ đến lúc 9 giờ.",
+       "Ngày mai hãy đến lúc 9 giờ.",
+       "Hôm qua anh đã đến lúc 9 giờ.",
+       "Ngày mai đừng đến lúc 9 giờ."
+      ],
+      "prompt_ja": "あした 九時に 来て ください。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "まつ → まって ください.",
+      "options": [
+       "ここで まって ください。",
+       "しおを とって ください。",
+       "ドアを しめて ください。",
+       "ここで まちて ください。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "読む → 読んで ください.",
+      "options": [
+       "この 本を 読んで ください。",
+       "日本語で はなして ください。",
+       "もう いちど いって ください。",
+       "この 本を 読みて ください。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay gắn ください vào thể ます hay thể từ điển (sai: 読みますください); phải dùng thể て: 読んでください.",
+    "examples": [
+     {
+      "ja": "ここですこしまってください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xin hãy chờ một chút ở đây. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "ja": "大きい声で読んでください。",
+      "ja_furigana": "大(おお)きい声(こえ)で読(よ)んでください。",
+      "source": "CLAUDE",
+      "vi": "Hãy đọc to lên."
+     },
+     {
+      "ja": "明日また来てください。",
+      "ja_furigana": "明日(あした)また来(き)てください。",
+      "source": "CLAUDE",
+      "vi": "Ngày mai hãy đến nữa nhé."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "とる → とって ください.",
+      "options": [
+       "とりて",
+       "とるて",
+       "とて",
+       "とって"
+      ],
+      "prompt_ja": "すみません、しおを （　　） ください。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "して ください = hãy làm.",
+      "options": [
+       "Hãy giữ yên lặng.",
+       "Ở đây yên tĩnh quá.",
+       "Hãy nói to lên.",
+       "Tôi đã giữ yên lặng."
+      ],
+      "prompt_ja": "しずかに して ください。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "つかう → つかって ください.",
+      "options": [
+       "この ペンを つかって ください。",
+       "こちらへ 来て ください。",
+       "この ペンを つかいて ください。",
+       "あした でんわして ください。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "けして",
+      "sentence_ja": "でんきを ＿＿ ください。（けす）",
+      "translation_vi": "Hãy tắt đèn."
+     },
+     {
+      "answer": "いって",
+      "sentence_ja": "もう いちど ＿＿ ください。（いう）",
+      "translation_vi": "Hãy nói lại một lần nữa."
+     }
+    ],
+    "findings": [],
+    "formation": "V-て + ください",
+    "locked_fields": [],
+    "meaning_vi": "Đưa ra lời yêu cầu, đề nghị lịch sự để người nghe thực hiện hành động V. Phủ định “～ないでください” để cấm/đề nghị không làm với mức độ lịch sự vừa phải. Độ lịch sự tăng dần: ～て → ～てください → ～てくださいませんか／～ていただけますか. Trong ngôn ngữ dịch vụ/biển báo, dạng お／ご～ください ngắn gọn, lịch sự cao, trang trọng.",
+    "nuance_vi": "Lịch sự, nhưng vẫn là lời yêu cầu.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "まって",
+       "ください",
+       "ちょっと"
+      ],
+      "translation_vi": "Xin hãy đợi một chút."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "はなして ください",
+       "もっと",
+       "大きい こえで"
+      ],
+      "translation_vi": "Hãy nói to hơn nữa."
+     }
+    ],
+    "pattern": "Hãy làm...",
+    "pattern_variants": [],
+    "unit_no": 14,
+    "unit_title_vi": "Thể て: nhờ vả, đang làm",
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng trực tiếp với người nghe; với cấp trên/khách hàng, ưu tiên ～ていただけますか／～てくださいませんか để lịch sự hơn. Thêm tiền từ mềm hóa: すみませんが／恐れ入りますが／よろしければ + ～てください。 Phủ định dùng ないでください (không dùng なくてください). Trong hướng dẫn/quy trình, ～てください dùng tuần tự: カードを入れてください。次に、暗証番号を押してください。 [6. Ghi chú mở rộng] Trong email công việc, dạng お／ご～ください rất phổ biến: ご返信ください／ご確認ください. “ください” cũng có nghĩa “hãy cho tôi” với danh từ: 水をください (ngoài phạm vi Vてください nhưng thường gặp). Kết hợp chuỗi yêu cầu: ～て、～てください để mạch lạc; tránh quá nhiều mệnh lệnh liên tiếp gây cứng. [7. Biến thể & cụm cố định] どうぞVてください（xin mời…） 少々お待ちください（xin vui lòng đợi một chút） ご遠慮ください（xin vui lòng kiêng/đừng） お手元の資料をご確認ください（xin vui lòng kiểm tra tài liệu trên tay） [8. Lỗi thường gặp & bẫy JLPT] Nhầm phủ định: × 来なくてください → ◯ 来ないでください. Dùng với người bề trên quá trực diện: thay bằng ～ていただけますか／～てくださいませんか. Bỏ て: × 窓を開けください → ◯ 窓を開けてください. JLPT: phân biệt mức lịch sự giữa ください／くれますか／いただけますか; nhận diện お／ご～ください chuẩn kính ngữ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9a0666f2d9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "nhưng …; nối hai ý trái ngược",
+     "usage_vi": "Có hai cách: nối trong một câu bằng が (高いですが、おいしいです) hoặc tách hai câu rồi mở câu sau bằng でも (高いです。でも、おいしいです). Hay dùng để so sánh hai thứ đối lập: にくは好きですが、さかなはきらいです.",
+     "examples": [
+      {
+       "ja": "この店は古いですが、きれいです。",
+       "ja_furigana": "この店(みせ)は古(ふる)いですが、きれいです。",
+       "vi": "Cửa hàng này cũ nhưng sạch đẹp."
+      },
+      {
+       "ja": "漢字を毎日書いていますが、よく忘れます。",
+       "ja_furigana": "漢字(かんじ)を毎日(まいにち)書(か)いていますが、よく忘(わす)れます。",
+       "vi": "Ngày nào tôi cũng viết chữ Hán nhưng hay quên."
+      },
+      {
+       "ja": "雨でした。でも、楽しかったです。",
+       "ja_furigana": "雨(あめ)でした。でも、楽(たの)しかったです。",
+       "vi": "Trời mưa. Nhưng vẫn vui."
+      }
+     ]
+    },
+    "note": "meaning/usage cũ dài với mẫu N2 (恐れ入りますが, とは思いますが); viết gọn; thêm furigana, bỏ chú thích lạc."
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Hai ý đối lập: 〜ですが、〜.",
+      "options": [
+       "を",
+       "に",
+       "や",
+       "が"
+      ],
+      "prompt_ja": "にくは すきです （　　）、さかなは きらいです。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "So sánh đối lập: 〜ですが.",
+      "options": [
+       "を",
+       "が",
+       "に",
+       "や"
+      ],
+      "prompt_ja": "あには せが 高いです （　　）、わたしは ひくいです。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thứ tự đúng: 「この みせは 安いですが あまり おいしくないです。」. Vế 1 + が, vế 2 nói ý trái ngược.",
+      "options": [
+       "この みせは",
+       "あまり",
+       "安いですが",
+       "おいしくないです"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Thứ tự đúng: 「ひらがなは わかりますが かんじは わかりません。」. N1 は 〜ますが、N2 は 〜ません: đối lập hai thứ.",
+      "options": [
+       "かんじは",
+       "ひらがなは",
+       "わかりません",
+       "わかりますが"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "〜ですが = nhưng.",
+      "options": [
+       "Tôi thích món Nhật nên ăn sushi.",
+       "Tôi không thích món Nhật cũng không ăn sushi.",
+       "Tôi thích món Nhật nhưng không ăn sushi.",
+       "Tôi thích sushi hơn món Nhật."
+      ],
+      "prompt_ja": "日本の りょうりは すきですが、すしは 食べません。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Hai vế đối lập: hôm qua bận / hôm nay rảnh.",
+      "options": [
+       "Hôm qua và hôm nay đều bận.",
+       "Hôm qua rảnh nhưng hôm nay bận.",
+       "Hôm qua bận nhưng hôm nay rảnh.",
+       "Hôm nay bận nên hôm qua rảnh."
+      ],
+      "prompt_ja": "きのうは いそがしかったですが、きょうは ひまです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "が cần hai ý trái ngược; câu này lặp cùng một ý.",
+      "options": [
+       "この 本は おもしろいですが、とても おもしろいです。",
+       "この 本は おもしろいですが、ちょっと 高いです。",
+       "わたしは テニスは しますが、ゴルフは しません。",
+       "山は きれいですが、とおいです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "ひろい và 大きい cùng chiều, không đối lập nên không dùng が.",
+      "options": [
+       "この へやは ひろいですが、くらいです。",
+       "えいごは できますが、日本語は できません。",
+       "この へやは ひろいですが、大きいです。",
+       "あの みせは 高いですが、いい みせです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay dùng でも ở cuối vế trước như が; でも luôn đứng đầu câu sau.",
+    "examples": [
+     {
+      "ja": "この店は古いですが、きれいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cửa hàng này cũ nhưng sạch đẹp. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "ja": "漢字を毎日書いていますが、よく忘れます。",
+      "ja_furigana": "漢字(かんじ)を毎日(まいにち)書(か)いていますが、よく忘(わす)れます。",
+      "source": "CLAUDE",
+      "vi": "Ngày nào tôi cũng viết chữ Hán nhưng hay quên."
+     },
+     {
+      "ja": "雨でした。でも、楽しかったです。",
+      "ja_furigana": "雨(あめ)でした。でも、楽(たの)しかったです。",
+      "source": "CLAUDE",
+      "vi": "Trời mưa. Nhưng vẫn vui."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Buổi sáng lạnh nhưng buổi trưa ấm: 〜ですが.",
+      "options": [
+       "に",
+       "で",
+       "を",
+       "が"
+      ],
+      "prompt_ja": "あさは さむいです （　　）、ひるは あたたかいです。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "せまいですが、べんりです = chật nhưng tiện.",
+      "options": [
+       "Căn phòng này chật và bất tiện.",
+       "Căn phòng này chật nhưng tiện lợi.",
+       "Căn phòng này rộng và tiện lợi.",
+       "Căn phòng này chật nên bất tiện."
+      ],
+      "prompt_ja": "この へやは せまいですが、べんりです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Vế sau không trái ngược với vế trước nên không dùng が.",
+      "options": [
+       "この ケーキは おいしいですが、あまくて おいしいです。",
+       "この ケーキは おいしいですが、高いです。",
+       "わたしは にくは 食べますが、さかなは 食べません。",
+       "きのうは さむかったですが、きょうは あたたかいです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "が",
+      "sentence_ja": "この アパートは えきから とおいです ＿＿、やすいです。",
+      "translation_vi": "Căn hộ này xa ga nhưng rẻ."
+     },
+     {
+      "answer": "が",
+      "sentence_ja": "わたしは コーヒーは のみます ＿＿、おさけは のみません。",
+      "translation_vi": "Tôi uống cà phê nhưng không uống rượu."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: この店は古いですが、きれいです。"
+    ],
+    "formation": "Câu 1 + が、Câu 2 / Câu 1。でも、Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa chính: nối hai mệnh đề tương phản/mâu thuẫn nhẹ: X nhưng Y. Sắc thái chuyển ý mềm; でも là liên từ khẩu ngữ đầu câu, còn しかし trang trọng và đối lập rõ hơn; phù hợp văn nói lịch sự và văn viết. Có thể dùng để mở lời trước yêu cầu/nhờ vả: すみませんが、お願いします。",
+    "nuance_vi": "が lịch sự, gắn cuối vế trước; でも thân mật hơn và đứng đầu câu sau.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "サッカーは しません",
+       "あには",
+       "テニスは しますが"
+      ],
+      "translation_vi": "Anh trai tôi chơi tennis nhưng không chơi bóng đá."
+     },
+     {
+      "answer_order": [
+       0,
+       2,
+       1
+      ],
+      "pieces": [
+       "日本語は",
+       "たのしいです",
+       "むずかしいですが"
+      ],
+      "translation_vi": "Tiếng Nhật khó nhưng vui."
+     }
+    ],
+    "pattern": "Nhưng mà...",
+    "pattern_variants": [],
+    "unit_no": 8,
+    "unit_title_vi": "Tính từ",
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt “が” giữa hai mệnh đề hoàn chỉnh; thường có dấu phẩy: ～が、～. Giọng lịch sự/trung tính; khi nói mạnh đối lập, dùng でも/しかし. Trong email/nghị luận, ～が tạo chuyển ý nhẹ nhàng. [6. Ghi chú mở rộng] Mẫu mở lời lịch sự: 恐れ入りますが／失礼ですが／申し訳ありませんが. Trong câu phức dài, có thể lược mệnh đề sau khi bối cảnh rõ: すみませんが、明日… (ngụ ý “khó/không được”). [7. Biến thể & cụm cố định] すみませんが、～／恐れ入りますが、～／失礼ですが、～ ～とは思いますが、～ (tôi nghĩ là… nhưng…) Không nên chồng が và しかし trong cùng một điểm nối. Chọn một trong hai: ～が、～ hoặc ～。しかし、～。 [8. Lỗi thường gặp & bẫy JLPT] Nhầm “が” nối mệnh đề với “が” chủ ngữ: kiểm tra có hai mệnh đề trước-sau hay không. Đặt “でも” giữa mệnh đề như “XでもY” dễ sai sắc thái; nếu nối trực tiếp mệnh đề, dùng “が/けど”. Quá lạm dụng “が” có thể làm câu vòng vo; với đối lập mạnh, chuyển “しかし/でも”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-af495d8f5e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "… rồi …; nối các hành động theo thứ tự",
+     "usage_vi": "V1-て、V2: làm V1 xong rồi làm V2. Có thể nối nhiều hành động: 起きて、顔を洗って、学校へ行きます. Thì của cả câu do động từ cuối quyết định (〜ます hay 〜ました). Muốn nhấn \"sau khi\" thì dùng 〜てから.",
+     "examples": [
+      {
+       "ja": "うちへ帰って、手を洗います。",
+       "ja_furigana": "うちへ帰(かえ)って、手(て)を洗(あら)います。",
+       "vi": "Tôi về nhà rồi rửa tay."
+      },
+      {
+       "ja": "本屋で本を買って、家で読みます。",
+       "ja_furigana": "本屋(ほんや)で本(ほん)を買(か)って、家(いえ)で読(よ)みます。",
+       "vi": "Tôi mua sách ở hiệu sách rồi về nhà đọc."
+      },
+      {
+       "ja": "電車を降りて、バスに乗ります。",
+       "ja_furigana": "電車(でんしゃ)を降(お)りて、バスに乗(の)ります。",
+       "vi": "Tôi xuống tàu rồi lên xe buýt."
+      }
+     ]
+    },
+    "note": "meaning cũ liệt kê 4 nghĩa (cả cách thức, đồng thời) và usage cũ dài; viết gọn theo nghĩa nối hành động. 戻って trên cấp, đổi 帰って; thêm furigana, bỏ chú thích lạc."
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Nối hành động theo thứ tự: V-て; あらう → あらって.",
+      "options": [
+       "あらって",
+       "あらいて",
+       "あらう",
+       "あらった"
+      ],
+      "prompt_ja": "あさ おきて、かおを （　　）、ごはんを 食べます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "かえる (nhóm I) → かえって.",
+      "options": [
+       "かえって",
+       "かえりて",
+       "かえるて",
+       "かえいて"
+      ],
+      "prompt_ja": "うちへ （　　）、しゅくだいを します。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 「ばんごはんを 食べて シャワーを あびて ねます。」. V-て nối các hành động theo thứ tự xảy ra.",
+      "options": [
+       "シャワーを",
+       "ばんごはんを 食べて",
+       "ねます",
+       "あびて"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thứ tự đúng: 「えきで でんしゃを おりて あるいて 行きました。」. おりる → おりて; rồi あるいて 行きました.",
+      "options": [
+       "えきで",
+       "あるいて",
+       "でんしゃを",
+       "おりて"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿ 行きました。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "V-て、V: làm việc trước rồi mới làm việc sau.",
+      "options": [
+       "Tôi ăn cơm rồi rửa tay.",
+       "Tôi rửa tay nhưng không ăn cơm.",
+       "Tôi vừa rửa tay vừa ăn cơm.",
+       "Tôi rửa tay rồi ăn cơm."
+      ],
+      "prompt_ja": "手を あらって、ごはんを 食べます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "行って、買いました: đi trước, mua sau.",
+      "options": [
+       "Hôm qua tôi mua giày rồi mới đến cửa hàng bách hóa.",
+       "Hôm qua tôi đến cửa hàng bách hóa nhưng không mua giày.",
+       "Hôm qua tôi đến cửa hàng bách hóa và mua giày.",
+       "Ngày mai tôi sẽ đến cửa hàng bách hóa mua giày."
+      ],
+      "prompt_ja": "きのうは デパートへ 行って、くつを 買いました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "おきる (nhóm II) → おきて.",
+      "options": [
+       "あさ おきて、シャワーを あびます。",
+       "うちへ かえって、ねます。",
+       "本を 読んで、ねます。",
+       "あさ おきるて、シャワーを あびます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "行く là ngoại lệ: 行って.",
+      "options": [
+       "こうえんへ 行って、あそびました。",
+       "こうえんへ 行きて、あそびました。",
+       "ごはんを 食べて、テレビを 見ました。",
+       "友だちに 会って、はなしました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay chia thì ở vế trước; vế trước chỉ cần thể て.",
+    "examples": [
+     {
+      "ja": "うちへ戻って、手を洗います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi về nhà rồi rửa tay. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "ja": "本屋で本を買って、家で読みます。",
+      "ja_furigana": "本屋(ほんや)で本(ほん)を買(か)って、家(いえ)で読(よ)みます。",
+      "source": "CLAUDE",
+      "vi": "Tôi mua sách ở hiệu sách rồi về nhà đọc."
+     },
+     {
+      "ja": "電車を降りて、バスに乗ります。",
+      "ja_furigana": "電車(でんしゃ)を降(お)りて、バスに乗(の)ります。",
+      "source": "CLAUDE",
+      "vi": "Tôi xuống tàu rồi lên xe buýt."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "食べる → 食べて.",
+      "options": [
+       "食べて",
+       "食べって",
+       "食べりて",
+       "食べるて"
+      ],
+      "prompt_ja": "あさごはんを （　　）、学校へ 行きます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "して、見ます: làm bài trước, xem ti vi sau.",
+      "options": [
+       "Tôi xem ti vi rồi làm bài tập.",
+       "Tôi vừa làm bài tập vừa xem ti vi.",
+       "Tôi không làm bài tập mà xem ti vi.",
+       "Tôi làm bài tập rồi xem ti vi."
+      ],
+      "prompt_ja": "しゅくだいを して、テレビを 見ます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "のる → のって.",
+      "options": [
+       "でんしゃに のって、会社へ 行きます。",
+       "ふくを きて、出かけます。",
+       "でんしゃに のりて、会社へ 行きます。",
+       "まどを あけて、そうじします。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "行って",
+      "sentence_ja": "きのう こうえんへ ＿＿、さんぽしました。（行く）",
+      "translation_vi": "Hôm qua tôi đến công viên rồi đi dạo."
+     },
+     {
+      "answer": "読んで",
+      "sentence_ja": "本を ＿＿、ねました。（読む）",
+      "translation_vi": "Tôi đọc sách rồi đi ngủ."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: うちへ戻って、手を洗います。"
+    ],
+    "formation": "V1-て、V2",
+    "locked_fields": [],
+    "meaning_vi": "① Liệt kê hành động: Dùng để nối các hành động xảy ra liên tiếp theo thứ tự thời gian. → “rồi…”, “và sau đó…” ② Đồng thời / song song: Diễn tả hai hành động diễn ra cùng lúc. → “vừa… vừa…” ③ Nguyên nhân / lý do: Dùng để diễn tả lý do nhẹ cho cảm xúc hoặc kết quả. → “vì… nên…” ④ Cách thức / phương tiện: Mô tả phương tiện hoặc cách làm. → “bằng…”, “trong tình trạng…”",
+    "nuance_vi": "Trung tính; thì của câu do động từ cuối quyết định.",
+    "order_items": [
+     {
+      "answer_order": [
+       0,
+       3,
+       2,
+       1
+      ],
+      "pieces": [
+       "かおを",
+       "みがきます",
+       "はを",
+       "あらって"
+      ],
+      "translation_vi": "Tôi rửa mặt rồi đánh răng."
+     },
+     {
+      "answer_order": [
+       2,
+       1,
+       3,
+       0
+      ],
+      "pieces": [
+       "見ました",
+       "会って",
+       "友だちに",
+       "えいがを"
+      ],
+      "translation_vi": "Tôi gặp bạn rồi xem phim."
+     }
+    ],
+    "pattern": "Nối hai hành động",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Nối câu và trình tự",
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng rất thường xuyên trong hội thoại và bài viết ở cấp N5. Động từ chia về thể て để nối với hành động khác. Động từ cuối cùng mang ý chính và chia theo thì của câu. Khi kể nhiều hành động nối tiếp, chỉ động từ cuối cùng được chia thì: 起きて、顔を洗って、学校へ行きました。 Vて có thể nêu nguyên nhân tự nhiên dẫn đến cảm xúc hoặc kết quả; đây không phải quan hệ “lịch sự hơn/mềm hơn” so với から／ので, và không dùng tự do trước mệnh lệnh hay ý chí. [6. Ghi chú mở rộng] Thể て là một trong những dạng cơ bản nhất của động từ, nền tảng cho hàng chục mẫu ngữ pháp khác (～てください, ～てもいい, ～てはいけない, ～ている...). Học tốt thể て giúp dễ dàng ghép nhiều hành động và tạo câu tự nhiên trong giao tiếp. Ở trình độ N5, người học nên nắm vững 3 cách dùng chính: nối hành động, chỉ nguyên nhân nhẹ và cách thức/đồng thời. [7. Biến thể & cụm thường gặp (JLPT N5)] ～てください：Làm ơn hãy…（例：見てください） ～てもいいです：Được phép làm…（例：入ってもいいです） ～てはいけません：Không được làm…（例：ここでたばこを吸ってはいけません） ～てから：Sau khi…（例：勉強してから寝ます） ～ている：Đang…（例：食べています） [8. Lỗi thường gặp & bẫy JLPT] Chia sai thể て: 行きて (sai) → 行って (đúng)。 Nhầm Vて với Vてから — て chỉ nối, てから nhấn mạnh “sau khi”. Quên chia thì ở động từ cuối cùng: ✕ 食べて行くました → ○ 食べて行きました。 JLPT N5 thường hỏi: cách chia thể て, chọn đúng giữa て・てから・それから."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f5ba577956"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N5",
+ "packet_id": "REVIEW_GRAMMAR-020"
+}

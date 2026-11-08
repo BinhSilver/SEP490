@@ -1,0 +1,582 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この薬はよく効く反面、副作用も強い。",
+       "ja_furigana": "この薬(くすり)はよく効(き)く反面(はんめん)、副作用(ふくさよう)も強(つよ)い。",
+       "vi": "Thuốc này hiệu quả nhanh nhưng mặt khác tác dụng phụ cũng mạnh."
+      },
+      {
+       "ja": "都会の生活は便利な反面、ストレスも多い。",
+       "ja_furigana": "都会(とかい)の生活(せいかつ)は便利(べんり)な反面(はんめん)、ストレスも多(おお)い。",
+       "vi": "Cuộc sống thành thị tiện lợi nhưng mặt khác cũng nhiều căng thẳng."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "パソコンは便利な反面、トラブルも多い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Máy tính thì tiện lợi nhưng mặt khác cũng nhiều phiền toái."
+     },
+     {
+      "ja": "彼は優れた学者である反面、精神的に弱い人間だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta là một học giả xuất sắc nhưng trái lại về tinh thần là một người yếu đuối."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: パソコンは便利な反面、トラブルも多い。",
+     "FURIGANA_MISSING: 彼は優れた学者である反面、精神的に弱い人間だ。"
+    ],
+    "formation": "thể thường(Aな → Aな / N → Nである) + 反面",
+    "locked_fields": [],
+    "meaning_vi": "Mặt khác, mặt trái",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜便利な反面",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu thị tính chất hai mặt trái ngược của một sự việc nào đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1c13884e24"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この車は速い一方で、ガソリンをよく使う。",
+       "ja_furigana": "この車(くるま)は速(はや)い一方(いっぽう)で、ガソリンをよく使(つか)う。",
+       "vi": "Xe này chạy nhanh nhưng mặt khác lại tốn xăng."
+      },
+      {
+       "ja": "兄はよく働く一方で、遊ぶときも全力だ。",
+       "ja_furigana": "兄(あに)はよく働(はたら)く一方(いっぽう)で、遊(あそ)ぶときも全力(ぜんりょく)だ。",
+       "vi": "Anh tôi làm việc chăm chỉ, mà lúc chơi cũng hết mình."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この布は水に強い一方、熱に弱い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vải này thì mạnh với nước nhưng yếu với nhiệt."
+     },
+     {
+      "ja": "このあたりは、静かな一方、不便である。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vùng này yên tĩnh nhưng bất tiện."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この布は水に強い一方、熱に弱い。",
+     "FURIGANA_MISSING: このあたりは、静かな一方、不便である。"
+    ],
+    "formation": "thể thường(Aな → Aな / N → Nである) + 一方(で)",
+    "locked_fields": [],
+    "meaning_vi": "Mặt khác, trái lại…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜水に強い一方",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để diễn tả sự so sánh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-aa7acfacc6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "値段はこれからも上がる一方だ。",
+       "ja_furigana": "値段(ねだん)はこれからも上(あ)がる一方(いっぽう)だ。",
+       "vi": "Giá cả từ nay sẽ còn tăng mãi."
+      },
+      {
+       "ja": "少子化で、子どもの数は減る一方だ。",
+       "ja_furigana": "少子化(しょうしか)で、子(こ)どもの数(かず)は減(へ)る一方(いっぽう)だ。",
+       "vi": "Do tỉ lệ sinh thấp, số trẻ em ngày càng giảm."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "大気中のCO2 濃度の上昇とともに、地球の温暖化は進む一方だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cùng với việc nồng độ CO2 trong bầu khí quyển tăng cao thì việc trái đất nóng dần lên có xu hướng tiến tới."
+     },
+     {
+      "ja": "天候のせいで、野菜の値段は上がる一方だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Do thời tiết mà giá rau có xu hướng lên cao."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 大気中のCO2 濃度の上昇とともに、地球の温暖化は進む一方だ。",
+     "FURIGANA_MISSING: 天候のせいで、野菜の値段は上がる一方だ。"
+    ],
+    "formation": "Vる + 一方だ",
+    "locked_fields": [],
+    "meaning_vi": "Trở nên …, ngày càng…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜進む一方だ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả việc xu hướng đó ngày càng tiếp diễn. Sử dụng cùng với động từ chỉ sự thay đổi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c8d428cc4e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は安い上に、味もいい。",
+       "ja_furigana": "この店(みせ)は安(やす)い上(うえ)に、味(あじ)もいい。",
+       "vi": "Quán này vừa rẻ lại vừa ngon."
+      },
+      {
+       "ja": "彼女は頭がいい上に、性格も明るい。",
+       "ja_furigana": "彼女(かのじょ)は頭(あたま)がいい上(うえ)に、性格(せいかく)も明(あか)るい。",
+       "vi": "Cô ấy vừa thông minh lại vừa có tính cách vui vẻ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は仕事ができる上に優しい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy không chỉ làm được việc mà còn dễ tính nữa."
+     },
+     {
+      "ja": "昨日は寒かった上に、風が強かった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm qua không chỉ lạnh mà gió mạnh nữa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は仕事ができる上に優しい。",
+     "FURIGANA_MISSING: 昨日は寒かった上に、風が強かった。"
+    ],
+    "formation": "thể thường(Aな → Aな / N → Nの) + 上に",
+    "locked_fields": [],
+    "meaning_vi": "Không những…hơn nữa",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜できる上に",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* A（な）だな／である * Nだの／である Thêm vào với ý rằng sự việc có khuynh hướng giống với sự việc phía trước (ngoài điểm tốt này còn điểm tốt nữa hoặc điểm xấu thêm vào sự việc xấu). Ở câu sau thì những câu tác động đến đối phương như mệnh lệnh, cấm đoán, yêu cầu, rủ rê… không được sử dụng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f2e53367b8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "書類の上では手続きは完了しているが、実際はまだだ。",
+       "ja_furigana": "書類(しょるい)の上(うえ)では手続(てつづ)きは完了(かんりょう)しているが、実際(じっさい)はまだだ。",
+       "vi": "Trên giấy tờ thì thủ tục đã xong, nhưng thực tế thì chưa."
+      },
+      {
+       "ja": "計算の上ではもうかるはずだが、実際は赤字だ。",
+       "ja_furigana": "計算(けいさん)の上(うえ)ではもうかるはずだが、実際(じっさい)は赤字(あかじ)だ。",
+       "vi": "Tính toán thì phải có lãi, nhưng thực tế lại lỗ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "天気図の上では春なのに、実際はまだ寒い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trên phương diện bản đồ khí tượng mặc dù là mùa xuân nhưng thực tế vẫn còn lạnh."
+     },
+     {
+      "ja": "理論上はできるはずだったが、実験では失敗した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trên phương diện logic đã chắc có thể làm được nhưng thực nghiệm thì thất bại."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 天気図の上では春なのに、実際はまだ寒い。",
+     "FURIGANA_MISSING: 理論上はできるはずだったが、実験では失敗した。"
+    ],
+    "formation": "N + 上では / N + 上",
+    "locked_fields": [],
+    "meaning_vi": "Nhìn trên…, xét về…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜天気図の上では",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng khi muốn nói xét trên mặt nào đó thì ～"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2c2ca4cd0e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "両親と相談した上で、留学を決めた。",
+       "ja_furigana": "両親(りょうしん)と相談(そうだん)した上(うえ)で、留学(りゅうがく)を決(き)めた。",
+       "vi": "Sau khi bàn bạc với bố mẹ, tôi đã quyết định du học."
+      },
+      {
+       "ja": "資料をよく読んだ上で、質問してください。",
+       "ja_furigana": "資料(しりょう)をよく読(よ)んだ上(うえ)で、質問(しつもん)してください。",
+       "vi": "Hãy đọc kỹ tài liệu rồi hẵng đặt câu hỏi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "よく考えた上で決めます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi đã suy nghĩ kĩ mới quyết định."
+     },
+     {
+      "ja": "家族と相談の上、お返事します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi thảo luận với gia đình, sẽ trả lời."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: よく考えた上で決めます。",
+     "FURIGANA_MISSING: 家族と相談の上、お返事します。"
+    ],
+    "formation": "Vた / N の + 上で",
+    "locked_fields": [],
+    "meaning_vi": "Sau khi…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜考えた上で",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Xong…rồi…Cách thể hiện khi muốn diễn đạt một việc gì đó trước và kết quả của việc đó dẫn đến việc tiếp theo. Chủ thể của vế trước và vế sau của câu là một người. Vế sau thể hiện hành động ý chí."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-de19611be0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "戻れないと決めた上は、前に進むしかない。",
+       "ja_furigana": "戻(もど)れないと決(き)めた上(うえ)は、前(まえ)に進(すす)むしかない。",
+       "vi": "Đã quyết là không quay lại thì chỉ còn cách tiến về phía trước."
+      },
+      {
+       "ja": "約束した上は、必ず守らねばならない。",
+       "ja_furigana": "約束(やくそく)した上(うえ)は、必(かなら)ず守(まも)らねばならない。",
+       "vi": "Đã hứa rồi thì nhất định phải giữ lời."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "キャプテンに選ばれた上は、がんばるしかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi mà đã được chọn làm đội trưởng, chỉ còn cách phải cố gắng."
+     },
+     {
+      "ja": "入学する上は卒業したい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi nhập học tôi muốn tốt nghiệp."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: キャプテンに選ばれた上は、がんばるしかない。",
+     "FURIGANA_MISSING: 入学する上は卒業したい。"
+    ],
+    "formation": "Vる / Vた + 上は",
+    "locked_fields": [],
+    "meaning_vi": "Một khi…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜選ばれた上は",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu đạt lý do vì ～ nên đương nhiên là ～. Vế sau là những từ biểu thị sự quyết ý, lời khuyên hoặc cấm đoán… Câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-dc376a6c34"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の話し方からは、強い決意が感じられる。",
+       "ja_furigana": "彼(かれ)の話(はな)し方(かた)からは、強(つよ)い決意(けつい)が感(かん)じられる。",
+       "vi": "Từ cách nói của anh ấy có thể cảm nhận được quyết tâm mạnh mẽ."
+      },
+      {
+       "ja": "この写真からは、家族の温かい気持ちがうかがわれる。",
+       "ja_furigana": "この写真(しゃしん)からは、家族(かぞく)の温(あたた)かい気持(きも)ちがうかがわれる。",
+       "vi": "Từ bức ảnh này có thể thấy được tình cảm ấm áp của gia đình."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼の発言には誠意が感じられる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong lời nói của anh ấy có thể cảm nhận được sự chân thành."
+     },
+     {
+      "ja": "この作品から作者の葛藤がうかがわれる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Từ tác phẩm này có thể thấy những dằn vặt của tác giả."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼の発言には誠意が感じられる。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 彼の発言には誠意が感じられる。 → 誠意",
+     "FURIGANA_MISSING: この作品から作者の葛藤がうかがわれる。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: この作品から作者の葛藤がうかがわれる。 → 葛藤"
+    ],
+    "formation": "Vない → Vれる / Vられる(自発: 感じる・思う・うかがう...)",
+    "locked_fields": [],
+    "meaning_vi": "Thụ động tự phát: cảm xúc/ý nghĩ tự nhiên khởi lên, không nhắc đến tác nhân. Ví dụ các động từ: 思われる・感じられる・思い出される・偲ばれる・うかがわれる・懸念される. Quan sát/ghi nhận: diễn tả hiện tượng được thấy/nhận thấy một cách khách quan: 見られる・見受けられる・観察される・確認される. Sắc thái: khách quan, trung tính, văn viết, báo cáo, học thuật, tin tức.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có thể... / Bị... (khó tránh cảm xúc)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường bỏ chủ thể người nói; nhấn mạnh tính “tự nhiên/khách quan”. Có thể thêm chủ ngữ cảm nhận bằng に/には: 彼には誠意が感じられた (ít dùng hơn dạng vô nhân xưng). Hợp với văn phong báo cáo: ～が観察される／～が指摘される／～が確認される. [6. Ghi chú mở rộng] Các động từ điển hình của tự phát: 思われる・考えられる・感じられる・思い出される・偲ばれる・うかがわれる・期待される・懸念される. 見られる có hai nghĩa: “có thể nhìn thấy” (khả năng) và “được quan sát thấy” (bị động khách quan); phân biệt bằng ngữ cảnh. Tránh “ら抜き言葉” trong bài thi/viết: dùng đúng 考えられる, không phải 考えれる. [7. Biến thể & cụm cố định] Cụm thường dùng: 傾向が見られる／可能性が考えられる／意図がうかがわれる／課題が指摘される／事例が観察される／誤解が生じうると懸念される. Biến thể trang trọng: 見受けられる／認められる／把握される. [8. Lỗi thường gặp & bẫy JLPT] Nhầm với thể khả năng: 見られる không phải lúc nào cũng là “có thể nhìn thấy”; có thể là “được quan sát thấy”. Thêm tác nhân に vào tự phát là sai ý: 誠意が彼に感じられる không tự nhiên; nên nói 彼の発言には誠意が感じられる. Nhầm với chủ quan ～ように感じる/思う; đề thi hay yêu cầu chọn dạng khách quan hơn là dạng chủ quan."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ff4abd89be"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "校長をはじめとする先生方が、式に出席した。",
+       "ja_furigana": "校長(こうちょう)をはじめとする先生方(せんせいがた)が、式(しき)に出席(しゅっせき)した。",
+       "vi": "Các thầy cô, đứng đầu là hiệu trưởng, đã tham dự lễ."
+      },
+      {
+       "ja": "英語をはじめとする外国語を学びたい。",
+       "ja_furigana": "英語(えいご)をはじめとする外国語(がいこくご)を学(まな)びたい。",
+       "vi": "Tôi muốn học các ngoại ngữ, tiêu biểu là tiếng Anh."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "日本をはじめとするアジアの国々が参加した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Các nước châu Á, đứng đầu là Nhật Bản, đã tham gia."
+     },
+     {
+      "ja": "社長をはじめとする役員の出席が決まった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã xác định sự tham dự của ban lãnh đạo, đứng đầu là giám đốc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 日本をはじめとするアジアの国々が参加した。",
+     "FURIGANA_MISSING: 社長をはじめとする役員の出席が決まった。"
+    ],
+    "formation": "N + をはじめとする + N",
+    "locked_fields": [],
+    "meaning_vi": "Dùng như tính từ định ngữ để mô tả tập hợp N2 mà trong đó N1 là đại diện/đầu mối. Sắc thái trang trọng; thường xuất hiện trong bài viết, thuyết trình, báo cáo. N1 và N2 phải cùng trường ngữ nghĩa (cùng loại): quốc gia-quốc gia, người-nhóm người, sản phẩm-sản phẩm...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đại diện là..., tiêu biểu là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt ngay trước danh từ trung tâm N2 để bổ nghĩa trực tiếp. Giọng điệu trang trọng; phù hợp văn bản thông tin, học thuật, báo chí. Đảm bảo quan hệ tập hợp: N1 là phần tử thuộc tập N2. Không dùng khi N2 chỉ có một phần tử; phải là nhóm/tập hợp. [6. Ghi chú mở rộng] Mẫu tiêu đề báo chí: 「N1をはじめとするN2、〜」 rất phổ biến. Thường kết hợp với từ chỉ tập hợp: 国々／関係者／製品群／都市／機関／科目. Có thể chèn bổ ngữ dài sau N2 mà câu vẫn trang trọng, mạch lạc. [7. Biến thể & cụm cố định] N1をはじめとするN2 N1を筆頭とするN2 (văn viết mạnh hơn, “đứng đầu là”) N1を中心とするN2 (nhấn trung tâm) [8. Lỗi thường gặp & bẫy JLPT] Quan hệ loại sai: × 日本をはじめとするヨーロッパ → Nhật không thuộc châu Âu. N2 không phải tập hợp: × 日本をはじめとする文化 → N2 nên là tập hợp đếm được: 文化圏／文化行事. Nhầm với “〜をはじめに(して)”: mẫu về thứ tự hành động, khác hẳn nghĩa."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9b3778e563"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "アンケートの結果をもとにして、新しい商品を考えた。",
+       "ja_furigana": "アンケートの結果(けっか)をもとにして、新(あたら)しい商品(しょうひん)を考(かんが)えた。",
+       "vi": "Dựa trên kết quả khảo sát, chúng tôi đã nghĩ ra sản phẩm mới."
+      },
+      {
+       "ja": "この映画は本当の話をもとにして作られた。",
+       "ja_furigana": "この映画(えいが)は本当(ほんとう)の話(はなし)をもとにして作(つく)られた。",
+       "vi": "Bộ phim này được làm dựa trên một câu chuyện có thật."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "衛星画像をもとにして被害範囲を推定した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ước tính phạm vi thiệt hại dựa trên ảnh vệ tinh."
+     },
+     {
+      "ja": "顧客の声をもとにしてサービスを改善する。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cải thiện dịch vụ dựa vào tiếng nói khách hàng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 衛星画像をもとにして被害範囲を推定した。",
+     "FURIGANA_MISSING: 顧客の声をもとにしてサービスを改善する。"
+    ],
+    "formation": "N + をもとにして / をもとに",
+    "locked_fields": [],
+    "meaning_vi": "“Dựa trên/lấy làm cơ sở” với sắc thái tường minh hơn về quá trình, phương pháp thực hiện. Tự nhiên trong văn bản kỹ thuật, quy trình, báo cáo: mô tả cách thức tiến hành dựa vào dữ liệu/tiêu chuẩn/nguồn liệu. Ý nghĩa nền tảng tương đương ～をもとに; “して” khiến câu mạch lạc, có cảm giác thao tác.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dựa vào..., dựa trên...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn nhấn mạnh phương pháp: “lấy N làm cơ sở rồi tiến hành…”. Trang trọng hơn ～をもとに một chút; hay thấy trong kỹ thuật, học thuật, pháp chế. Dạng bổ nghĩa 「NをもとにしたN」 rất thông dụng trong tiêu đề, mô tả sản phẩm, phương pháp. Không dùng cho nghĩa “dưới sự/điều kiện” (phân biệt với ～のもとで/～のもとに). [6. Ghi chú mở rộng] Trong hợp đồng/hướng dẫn kỹ thuật, dạng liên dụng “Nをもとにして、…” giúp diễn đạt quy trình minh bạch. “NをもとにしたN” tương đương “Nに基づくN” nhưng mềm mại, ít tính pháp quy hơn. Với sáng tạo nghệ thuật, cả hai dạng ～をもとに/～をもとにして đều tự nhiên; lựa chọn theo nhịp văn. [7. Biến thể & cụm cố định] ～をもとに／～をもとにして（hoán đổi đa số trường hợp） ～をもとにしたＮ（実話をもとにした映画／データをもとにした提案） Collocation: 作成する／設計する／策定する／改善する／検証する／推定する／再構築する + ～をもとにして [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～のもとで (under). Khi có người/ tổ chức làm “ô dù/giám sát” → phải dùng ～のもとで/～のもとに. Chọn ～に基づいて khi đề có các từ khóa: 規則/法律/基準/指針; nếu là dữ liệu/ý kiến/素材 → ưu tiên ～をもとに(して). Bỏ “して” trong văn phong yêu cầu thủ tục rõ ràng có thể bị xem là thiếu chuẩn mực (tùy ngữ cảnh hành chính)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-523b3fc7c9"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-041"
+}

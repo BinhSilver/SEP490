@@ -165,7 +165,7 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         return new InteractiveLearningPathResponse(path.getId(), path.getTitle(), path.getGoal(),
                 path.getCurrentLevel(), path.getTargetLevel(), path.getMinutesPerDay(), completed,
                 packageViews.size(), percent(completed, packageViews.size()), currentId, packageViews,
-                smartTestReviewOnlyTargets(path), communicationGuide(path, packageEntities));
+                smartTestReviewOnlyTargets(path), communicationGuide(path, packageEntities), focusSkills(path));
     }
 
     /**
@@ -221,7 +221,7 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         return new InteractiveLearningPathResponse(path.getId(), path.getTitle(), path.getGoal(),
                 path.getCurrentLevel(), path.getTargetLevel(), path.getMinutesPerDay(), completed,
                 views.size(), percent(completed, views.size()), null, views, smartTestReviewOnlyTargets(path),
-                communicationGuide(path, entities));
+                communicationGuide(path, entities), focusSkills(path));
     }
 
     private List<SmartTestReviewTarget> smartTestReviewOnlyTargets(UserLearningPath path) {
@@ -743,7 +743,9 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
 
     private static int chapterNumber(LearningPathPackage pkg, List<LearningPathPackage> siblings) {
         var keys = new java.util.LinkedHashSet<String>();
-        siblings.stream().sorted(Comparator.comparingInt(LearningPathPackage::getOrderIndex))
+        siblings.stream()
+                .filter(sibling -> java.util.Objects.equals(pkg.getPhase(), sibling.getPhase()))
+                .sorted(Comparator.comparingInt(LearningPathPackage::getOrderIndex))
                 .forEach(sibling -> keys.add(chapterKey(sibling)));
         int number = 1;
         for (String key : keys) {
@@ -772,5 +774,20 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
 
     private int percent(int completed, int total) {
         return total == 0 ? 0 : Math.round(completed * 100f / total);
+    }
+
+    /**
+     * F1-5 (owner 2026-10-28): the focus skills a path was made with, read back from its policy code (":F" + V/R/L), so
+     * a later survey change does not relabel an existing path.
+     */
+    public static List<String> focusSkills(UserLearningPath path) {
+        String policy = path == null || path.getPolicyVersion() == null ? "" : path.getPolicyVersion();
+        java.util.regex.Matcher code = java.util.regex.Pattern.compile(":F([VRL]{1,2})(?::|$)").matcher(policy);
+        if (!code.find()) return List.of();
+        List<String> skills = new java.util.ArrayList<>();
+        for (char letter : code.group(1).toCharArray()) {
+            skills.add(letter == 'V' ? "VOCABULARY" : letter == 'R' ? "READING" : "LISTENING");
+        }
+        return List.copyOf(skills);
     }
 }

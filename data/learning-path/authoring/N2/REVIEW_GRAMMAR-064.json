@@ -1,0 +1,582 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜にて",
+     "examples": [
+      {
+       "ja": "説明会は明日、本社にて行います。",
+       "ja_furigana": "説明会(せつめいかい)は明日(あした)、本社(ほんしゃ)にて行(おこな)います。",
+       "vi": "Buổi giới thiệu sẽ được tổ chức tại trụ sở chính vào ngày mai."
+      },
+      {
+       "ja": "ご注文はお電話にて承っております。",
+       "ja_furigana": "ご注文(ちゅうもん)はお電話(でんわ)にて承(うけたまわ)っております。",
+       "vi": "Chúng tôi nhận đơn đặt hàng qua điện thoại."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "会議は大阪にて行います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuộc họp được tổ chức tại Osaka."
+     },
+     {
+      "ja": "応募はウェブフォームにて受け付けております。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tiếp nhận đăng ký qua biểu mẫu web."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 会議は大阪にて行います。",
+     "FURIGANA_MISSING: 応募はウェブフォームにて受け付けております。"
+    ],
+    "formation": "N + にて",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ địa điểm diễn ra sự việc: tương đương で trong khẩu ngữ. Ví dụ: 東京にて開催する。 Chỉ thời điểm kết thúc/bắt đầu (thông báo): 10時にて終了。 Chỉ phương tiện/cách thức: 電話にてお問い合わせください。 (tương đương で/により) Sắc thái trang trọng, dùng nhiều trong thông báo, thư tín, văn bản doanh nghiệp/nhà nước. Không dùng để chỉ đích đến chuyển động (× 東京にて行く), mà là nơi diễn ra sự kiện/hành vi. So với において: において mang tính học thuật/khái quát cao hơn; にて thiên về thông báo thực tế (event, bán hàng, tiếp nhận...)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tại..., ở... (trang trọng)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Mức độ trang trọng: cao; dùng trong thông báo, giấy mời, poster sự kiện, văn bản nội bộ. Thay thế khẩu ngữ: で/に (địa điểm/thời điểm) và で/により (phương tiện). Thường đi với: 開催・実施・受け付ける・行う・終了・販売・配布・連絡・案内. Vị trí: giữa câu (NにてV), đầu câu với các cụm cố định (これにて、以上にて...). Tránh dùng trong hội thoại đời thường; ưu tiên で/に cho tự nhiên. [6. Ghi chú mở rộng] Tần suất cao trong tài liệu: poster sự kiện, email doanh nghiệp, thông báo cửa hàng. “NにてのN” chủ yếu thấy trong văn bản; trong nói thường chuyển “NでのN”. Không kết hợp với động từ chuyển động chỉ đích đến (行く・来る) theo nghĩa đích. Biểu thức lịch sự hay đi kèm: 〜いたします、〜しております、〜させていただきます。 [7. Biến thể & cụm cố định] これにて／以上にて／ここにて／当店にて／現地にて／会場にて NにてのN (当会場にての販売、弊社にての対応) Nにては (本件にては、今回にては) — rất trang trọng [8. Lỗi thường gặp & bẫy JLPT] Nhầm dùng cho đích đến: × 東京にて行く → ◯ 東京にて開催する／東京へ行く。 Lạm dụng trong hội thoại thường ngày khiến câu cứng; nên đổi thành で/に. Nhầm với において về phạm vi trừu tượng: 教育にて × → 教育において。 Thời điểm: 10時にて終了 (thông báo) tự nhiên; trong nói thường dùng 10時で終了。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-52b077d3c9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜ままに",
+     "examples": [
+      {
+       "ja": "思い出のままに、旅のことを書いてみた。",
+       "ja_furigana": "思(おも)い出(で)のままに、旅(たび)のことを書(か)いてみた。",
+       "vi": "Tôi viết về chuyến đi theo đúng những gì mình nhớ."
+      },
+      {
+       "ja": "風の吹くままに、舟を進めた。",
+       "ja_furigana": "風(かぜ)の吹(ふ)くままに、舟(ふね)を進(すす)めた。",
+       "vi": "Tôi để con thuyền trôi theo chiều gió."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "感情のままに人を傷つけてはいけない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không nên làm tổn thương người khác chỉ vì buông theo cảm xúc."
+     },
+     {
+      "ja": "足の向くままに、町をぶらぶら歩いた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi thả bước lang thang để đôi chân đưa lối."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 感情のままに人を傷つけてはいけない。",
+     "FURIGANA_MISSING: 足の向くままに、町をぶらぶら歩いた。"
+    ],
+    "formation": "N の / Vる + ままに",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa 1: “Theo đúng như…, mặc cho…, để cho… dẫn dắt” → nhấn mạnh hành động diễn ra theo cảm xúc, ý muốn, hoàn cảnh mà không cưỡng lại. Ví dụ: 感情のままに話す. Nghĩa 2: “Giữ nguyên trạng thái” khi đi với V-た + ままにする/しておく hoặc そのままに（しておく）. Ví dụ: ドアを開けたままにしておく. Khác biệt sắc thái: V-るままに/Nのままに: tính buông theo, để mặc (ít nhiều có sắc thái bị động theo cảm xúc/hoàn cảnh). V-たままに（しておく）: duy trì trạng thái đã xảy ra → trung lập hoặc tiêu cực tùy ngữ cảnh. “〜がままに” là biến thể mang sắc thái “đúng như bị/được nói, được dẫn dắt”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Theo đúng..., như...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] N/ V-る + ままに: “theo/để mặc”, có thể hàm ý thiếu kiểm soát hoặc cố ý thả lỏng. V-た + ままに（しておく）/ そのままに: nhấn mạnh duy trì trạng thái; thường dùng trong chỉ dẫn, thao tác. Trong văn viết/diễn đạt trang trọng, “言われるがままに/成り行きのままに” tạo sắc thái bị cuốn theo. Tránh lạm dụng “ままに” khi nghĩa thuần túy là “đúng như/giống hệt” → khi đó “とおり（に）/どおり（に）” tự nhiên hơn. [6. Ghi chú mở rộng] “ありのままに” là cụm cố định nghĩa “một cách nguyên bản, đúng như vốn có”. “V-るがままに” hơi văn vẻ: 風の吹くがままに, 波の赴くがままに. Với thao tác máy móc/quy trình, “そのままにしておく” an toàn, trung tính; khi mô tả thái độ/ứng xử, dùng “Nのままに/V-るままに”. [7. Biến thể & cụm cố định] 言われるがまに／言われるがままに 思うままに／心のままに／感情のままに そのままにしておく／ありのままに 足の向くままに／成り行きのままに [8. Lỗi thường gặp & bẫy JLPT] Nhầm “〜ままに” với “〜とおりに”: khi muốn nói “đúng theo hướng dẫn/tiêu chuẩn” → dùng とおりに/どおりに tự nhiên hơn. Thiếu “に” trong cấu trúc giữ trạng thái với động từ thao tác: nên dùng “V-たままにしておく/にする”. Dùng “V-るままに” cho nghĩa trung lập “đúng như” → không tự nhiên; chuyển sang “とおりに”. Khả năng xuất hiện trong JLPT N2-N1 với sắc thái “bị cuốn theo”: 言われるがままに＝bị động, cần nhận diện."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0681cfca9b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この大学には、アジアをはじめ、世界中から学生が集まる。",
+       "ja_furigana": "この大学(だいがく)には、アジアをはじめ、世界中(せかいじゅう)から学生(がくせい)が集(あつ)まる。",
+       "vi": "Trường đại học này có sinh viên từ khắp thế giới, tiêu biểu là châu Á."
+      },
+      {
+       "ja": "会場には、絵をはじめ、さまざまな作品が集められている。",
+       "ja_furigana": "会場(かいじょう)には、絵(え)をはじめ、さまざまな作品(さくひん)が集(あつ)められている。",
+       "vi": "Triển lãm trưng bày nhiều tác phẩm khác nhau, tiêu biểu là tranh."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "会議には中国をはじめ、アジアの国々が参加した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã tham gia hội nghị, đầu tiên là ở Trung Quốc sau đó là các quốc gia Châu Á khác."
+     },
+     {
+      "ja": "わが国では、野球をはじめとして、サッカーやテニスなど、様々なスポーツがさかんである。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ở nước tôi, nhiều môn thể thao thịnh hành đầu tiên phải nói đến là bóng chày, sau đó mới là bóng đá hay tenis."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 会議には中国をはじめ、アジアの国々が参加した。",
+     "FURIGANA_MISSING: わが国では、野球をはじめとして、サッカーやテニスなど、様々なスポーツがさかんである。"
+    ],
+    "formation": "N + をはじめ（として）/ をはじめとする + N",
+    "locked_fields": [],
+    "meaning_vi": "Trước hết phải kể tới ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜中国語をはじめアジアの国々が",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Đưa ra một ví dụ chính, sau đó liệt kê tiếp những ví dụ tương tự."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2762feb3ad"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会議は来週、東京において開かれる。",
+       "ja_furigana": "会議(かいぎ)は来週(らいしゅう)、東京(とうきょう)において開(ひら)かれる。",
+       "vi": "Cuộc họp sẽ được tổ chức tại Tokyo vào tuần sau."
+      },
+      {
+       "ja": "教育における情報技術の役割について話し合った。",
+       "ja_furigana": "教育(きょういく)における情報(じょうほう)技術(ぎじゅつ)の役割(やくわり)について話(はな)し合(あ)った。",
+       "vi": "Chúng tôi đã thảo luận về vai trò của công nghệ thông tin trong giáo dục."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "京都において、シンポジウムが行われた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hội nghị chuyên đề được tổ chức tại Kyoto."
+     },
+     {
+      "ja": "国際社会におけるわが国の役割を考える。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Suy nghĩ về vai trò của nước mình trong xã hội quốc tế."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 京都において、シンポジウムが行われた。",
+     "FURIGANA_MISSING: 国際社会におけるわが国の役割を考える。"
+    ],
+    "formation": "N + において / における + N",
+    "locked_fields": [],
+    "meaning_vi": "Ở; tại; trong; về việc; đối với",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜京都において",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Chỉ địa điểm, thời gian. Câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d623da3de9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "新しい制度をめぐって、意見が分かれている。",
+       "ja_furigana": "新(あたら)しい制度(せいど)をめぐって、意見(いけん)が分(わ)かれている。",
+       "vi": "Xoay quanh chế độ mới, các ý kiến đang chia rẽ."
+      },
+      {
+       "ja": "土地の使い方をめぐる争いが続いている。",
+       "ja_furigana": "土地(とち)の使(つか)い方(かた)をめぐる争(あらそ)いが続(つづ)いている。",
+       "vi": "Tranh chấp xoay quanh việc sử dụng đất vẫn đang tiếp diễn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "憲法改正をめぐって、長い間、論争が続いている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xoay quanh việc sửa đổi hiến pháp, trong một thời gian dài tranh luận vẫn tiếp tục."
+     },
+     {
+      "ja": "教育制度をめぐる諸問題について、話し合う。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bàn bạc các vấn đề xoay quanh chế độ giáo dục."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 憲法改正をめぐって、長い間、論争が続いている。",
+     "FURIGANA_MISSING: 教育制度をめぐる諸問題について、話し合う。"
+    ],
+    "formation": "N + をめぐって / をめぐる + N",
+    "locked_fields": [],
+    "meaning_vi": "Xoay quanh ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜憲法改正をめぐって",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Nói về quan hệ liên quan đến trung tâm là ～, quanh ～"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3609c5a71a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "式は十時にて終了いたします。",
+       "ja_furigana": "式(しき)は十時(じゅうじ)にて終了(しゅうりょう)いたします。",
+       "vi": "Buổi lễ sẽ kết thúc vào lúc mười giờ."
+      },
+      {
+       "ja": "お申し込みはメールにてお願いいたします。",
+       "ja_furigana": "お申(もう)し込(こ)みはメールにてお願(ねが)いいたします。",
+       "vi": "Vui lòng đăng ký qua email."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "現地にて解散となります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giải tán tại chỗ."
+     },
+     {
+      "ja": "電話カメールにてご連絡ください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xin hãy liên lạc với tôi bằng mail hoặc điện thoại."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 現地にて解散となります。",
+     "FURIGANA_MISSING: 電話カメールにてご連絡ください。"
+    ],
+    "formation": "N + にて",
+    "locked_fields": [],
+    "meaning_vi": "Ở, tại, bằng ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜現地にて",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Thường được sử dụng trong các bảng thông báo hoặc thư tín… Câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4c5a658adc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "妹は笑ったかと思うと、すぐに怒り出した。",
+       "ja_furigana": "妹(いもうと)は笑(わら)ったかと思(おも)うと、すぐに怒(おこ)り出(だ)した。",
+       "vi": "Em gái tôi vừa cười xong đã giận ngay."
+      },
+      {
+       "ja": "空が暗くなったかと思ったら、急に大雨が降ってきた。",
+       "ja_furigana": "空(そら)が暗(くら)くなったかと思(おも)ったら、急(きゅう)に大雨(おおあめ)が降(ふ)ってきた。",
+       "vi": "Trời vừa tối sầm lại thì mưa lớn đột ngột đổ xuống."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ラッシュ時には、前の電車が行ったかと思うと、もう次の電車が来る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vào lúc cao điểm, xe trước vừa đi, ngay lập tức xe sau lại tới."
+     },
+     {
+      "ja": "やっと試験が終わったかと思ったら、来週また試験があるそうだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vừa mới vất vả hoàn thành bài kiểm tra lại nghe nói tuần sau lại kiểm tra."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ラッシュ時には、前の電車が行ったかと思うと、もう次の電車が来る。",
+     "FURIGANA_MISSING: やっと試験が終わったかと思ったら、来週また試験があるそうだ。"
+    ],
+    "formation": "Vた + かと思うと / かと思ったら",
+    "locked_fields": [],
+    "meaning_vi": "Ngay lập tức, gần như đồng thời",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜(か)と思ったら/思うと",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 動詞のタ形 Ý nghĩa: すぐに、ほとんど同時に Ngay lập tức, gần như đồng thời Ví dụ: 1. ラッシュ時には、前の電車が行ったかと思うと、もう次の電車が来る。 Vào lúc cao điểm, xe trước vừa đi, ngay lập tức xe sau lại tới. 2. やっと試験が終わったかと思ったら、来週また試験があるそうだ。 Vừa mới vất vả hoàn thành bài kiểm tra lại nghe nói tuần sau lại kiểm tra. 3. 富士山頂は雪が消えたと思うとすぐに初雪の季節になる。 Núi Phú Sĩ vừa hết tuyết là sang đầu mùa tuyết rơi ngay. 4. 非常ベルが鳴ったかと思うと電気が一斉に消えた。 Chuông báo động vừa kêu thì đèn điện đồng loạt tắt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fc4a8ac424"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "バスが時間どおりに来たので、タクシーに乗らずにすんだ。",
+       "ja_furigana": "バスが時間(じかん)どおりに来(き)たので、タクシーに乗(の)らずにすんだ。",
+       "vi": "Vì xe buýt đến đúng giờ nên tôi không phải đi taxi."
+      },
+      {
+       "ja": "早めに家を出たので、雨に降られずにすんだ。",
+       "ja_furigana": "早(はや)めに家(いえ)を出(で)たので、雨(あめ)に降(ふ)られずにすんだ。",
+       "vi": "Vì ra khỏi nhà sớm nên tôi không bị mắc mưa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn (câu 1 là mảnh rời)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "済む",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cách kết hợp:"
+     },
+     {
+      "ja": "自転車で転んでけがをしたが、幸い手術はせずにすんだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bị thương do ngã ô tô nhưng may mắn thay tôi không cần phẫu thuật cũng khỏi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 済む",
+     "FURIGANA_MISSING: 自転車で転んでけがをしたが、幸い手術はせずにすんだ。"
+    ],
+    "formation": "Vない + ずにすむ / ないですむ（する → せずにすむ）",
+    "locked_fields": [],
+    "meaning_vi": "Không cần làm... cũng tốt",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ずにすむ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "済む Cách kết hợp: 動詞のナイ形ただし、する＋ず→せず Ý nghĩa: する必要がなくてよかった Không cần làm... cũng tốt Ý nghĩa: ～だけで終わって、それ以上のことにならなかった Chỉ có thể là kết thúc Ví dụ: 1. 自転車で転んでけがをしたが、幸い手術はせずにすんだ。 Bị thương do ngã ô tô nhưng may mắn thay tôi không cần phẫu thuật cũng khỏi. 2. カメラが壊れたが修理できた。新しいのを買わずにすんでよかった。 Cái máy ảnh hỏng sửa lại được. Không cần phải mua cái kính mới tốt quá. 3. 車で送ってもらったので、雨の中を歩かずにすんだ。 Vì được tiễn bằng ô tô nên tôi không phải đi bộ dưới trời mưa. 4. 奨学金がもらえるなら、両親から仕送りをしてもらわずにすみそうだ。 Nếu được nhận học bổng thì chắc tôi không cần bố mẹ chu cấp nữa. 1. 車とぶつかったが、幸い軽いけがですんだ。 Đâm phải xe ô tô, may chỉ là bị thương nhẹ. 2. 修理の費用が思ったより安くすんでよかった。 Thật tốt, phí sửa chữa rẻ hơn tôi đã nghĩ. 3. おわびの手紙だけでは済まないだろう。弁償しなければ。 Chắc chỉ thư xin lỗi thì không xong rồi. Chắc phải bồi thường. 4. 大声でどんなったら気がすんだ。 Sau khi hét to lên tôi thấy thoải mái hẳn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4fd7473e2a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あの曲を聞くと、いつも歌わずにはいられない。",
+       "ja_furigana": "あの曲(きょく)を聞(き)くと、いつも歌(うた)わずにはいられない。",
+       "vi": "Hễ nghe bài hát đó là tôi không thể không hát theo."
+      },
+      {
+       "ja": "あまりにおかしくて、声を出して笑わずにはいられなかった。",
+       "ja_furigana": "あまりにおかしくて、声(こえ)を出(だ)して笑(わら)わずにはいられなかった。",
+       "vi": "Buồn cười quá nên tôi không thể không bật cười thành tiếng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "もう真夜中だったが、心配で電話をしないではいらなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tối khuya rồi lo lắng không gọi điện thoại được."
+     },
+     {
+      "ja": "驚いた彼の顔があまりにおかしかったので、失礼だとは思ったが、笑わないではいられなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bị giật mình, nét mặt anh ấy kỳ cục nên dù có phần thất lễ nhưng tôi không thể không cười."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: もう真夜中だったが、心配で電話をしないではいらなかった。",
+     "FURIGANA_MISSING: 驚いた彼の顔があまりにおかしかったので、失礼だとは思ったが、笑わないではいられなかった。"
+    ],
+    "formation": "Vない + ないではいられない / ずにはいられない（する → せずにはいられない）",
+    "locked_fields": [],
+    "meaning_vi": "Không làm không được",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ないでいられない/ずにはいられない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 動詞のナイ形（ではいられない）ただし、する＋ず→せず Ý nghĩa: どうしても～しないでいることができない/自然に～してしまう主語は基本的には一人称 Không làm không được Ví dụ: 1. もう真夜中だったが、心配で電話をしないではいらなかった。 Tối khuya rồi lo lắng không gọi điện thoại được. 2. 驚いた彼の顔があまりにおかしかったので、失礼だとは思ったが、笑わないではいられなかった。 Bị giật mình, nét mặt anh ấy kỳ cục nên dù có phần thất lễ nhưng tôi không thể không cười. 3. 隣の家の騒音のひどさに、一言苦情を言わずにはいられないらしい。 Tôi không thể không than phiền về độ kinh khủng của tiếng ồn phát ra từ nhà hàng xóm 4. 兄は最近酒を飲みすぎている。ストレスから飲まずにはいられないらしい。 Anh trai dạo này uống quá nhiều rượu. Hình như stress, không uống không được. 5. 人間は「見てはいけない」と言われると、かえって見てみずにはいられなくなるものらしい。 Con người mà, hễ bị nhắc “Không được nhìn” là dường như sẽ làm ngược lại, phải nhìn bằng được."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9a0e75b3dc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "健康上の理由で、夜の仕事をやめた。",
+       "ja_furigana": "健康(けんこう)上(じょう)の理由(りゆう)で、夜(よる)の仕事(しごと)をやめた。",
+       "vi": "Vì lý do sức khỏe, tôi đã bỏ công việc ban đêm."
+      },
+      {
+       "ja": "書類上は問題ないが、実際には確認が必要だ。",
+       "ja_furigana": "書類(しょるい)上(じょう)は問題(もんだい)ないが、実際(じっさい)には確認(かくにん)が必要(ひつよう)だ。",
+       "vi": "Xét trên giấy tờ thì không có vấn đề, nhưng thực tế vẫn cần kiểm tra."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn (câu 1 là mảnh rời)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "・宗教上理由・金銭上のトラブル・形式上・立場上",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lý do về mặt tôn giáo/Vấn đề phát sinh từ khía cạnh tiền nong/Xét về hình thức/Đứng từ lập trường"
+     },
+     {
+      "ja": "法律上は男女平等だが、実際にはまだいろいろな差別がある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đứng trên quan điểm pháp luật nam nữ bình đẳng, thực sự vẫn có phân biệt đối xử."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ・宗教上理由・金銭上のトラブル・形式上・立場上",
+     "FURIGANA_MISSING: 法律上は男女平等だが、実際にはまだいろいろな差別がある。"
+    ],
+    "formation": "N + 上（は・の）",
+    "locked_fields": [],
+    "meaning_vi": "Xét từ quan điểm",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜上",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞 Ý nghĩa: ～の面で、～の見地から Xét từ quan điểm Ví dụ: 1. ・宗教上理由・金銭上のトラブル・形式上・立場上 Lý do về mặt tôn giáo/Vấn đề phát sinh từ khía cạnh tiền nong/Xét về hình thức/Đứng từ lập trường 2. 法律上は男女平等だが、実際にはまだいろいろな差別がある。 Đứng trên quan điểm pháp luật nam nữ bình đẳng, thực sự vẫn có phân biệt đối xử. 3. 実健は理論上は成功するはずだったのに失敗した。なぜだろ。 Theo lý thuyết thì thí nghiệm này chắc chắn phải thành công chứ. Tại sao lại như vậy nhỉ? 4. 犯人が子どもの場合は、警察にもマスコミにも教育上の配慮が求められる。 Trường hợp phạm nhân là trẻ em, cả cảnh sát và báo giới đều cho rằng cần có sự quan tâm về mặt giáo dục. 5. あの夫婦は表面上は（=見かけの上では）仲が良さそうだが、実はそうでもないらしい。 Cặp vợ chồng kia nhìn bề ngoài có vẻ hòa thuận, thực tế thì hình như không phải vậy."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-db5ba671d2"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-064"
+}

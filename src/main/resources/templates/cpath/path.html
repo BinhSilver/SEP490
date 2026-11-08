@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Lộ trình Giao tiếp - JLAS', null)}">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lộ trình Giao tiếp - JLAS</title>
+    <link rel="stylesheet" href="../../static/css/tokens.css" />
+    <link rel="stylesheet" href="../../static/css/base.css" />
+    <link rel="stylesheet" href="../../static/css/layout.css" />
+    <link rel="stylesheet" href="../../static/css/learning-v2-tokens.css" />
+    <link rel="stylesheet" href="../../static/css/pages/jpath-base.css" />
+    <link rel="stylesheet" href="../../static/css/pages/jpath-extras.css" />
+    <link rel="stylesheet" href="../../static/css/pages/jpath-nav.css" />
+    <link rel="stylesheet" href="../../static/css/pages/jpath-path.css" />
+    <link rel="stylesheet" href="../../static/css/pages/cpath.css" />
+</head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-path')}"></th:block>
+<link rel="stylesheet" href="../../static/css/pages/cpath.css" th:href="@{/css/pages/cpath.css(v=${jpathAssetVersion})}" />
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page jp-path cp-page" data-inline-dictionary>
+    <div id="cpathPathRoot" class="jp-ws jp-ws--norail jp-path__grid" aria-busy="true">
+        <aside class="jp-ws__side jp-path__side" aria-label="Điều hướng lộ trình giao tiếp">
+            <div class="jp-path__levels" data-region="levels"></div>
+            <nav class="jp-sidenav" aria-label="Trang của lộ trình">
+                <p class="jp-sidenav__title">Lộ trình Giao tiếp</p>
+                <a class="jp-sidenav__link" href="/learning/comm/path" th:href="@{/learning/comm/path}" aria-current="page">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-route"/></svg> Bản đồ tuần
+                </a>
+                <a class="jp-sidenav__link" href="/learning/comm/day" th:href="@{/learning/comm/day}">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-history"/></svg> Chi tiết ngày
+                </a>
+                <a class="jp-sidenav__link" href="/learning/comm/survey" th:href="@{/learning/comm/survey}">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-settings"/></svg> Thêm mục tiêu phụ
+                </a>
+                <a class="jp-sidenav__link" href="/learning/comm/notebook">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-notebook"/></svg> Sổ tay
+                </a>
+                <button type="button" class="jp-sidenav__link" data-cp-to-jlpt aria-haspopup="dialog">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-check"/></svg> Lộ trình JLPT
+                </button>
+            </nav>
+            <div data-jpath-extra-links class="jp-path__extra"></div>
+        </aside>
+        <div class="jp-ws__main jp-path__main">
+            <section class="jp-path__today" data-slot="today">
+                <p class="jp-path__loading" role="status">Đang tải lộ trình giao tiếp…</p>
+            </section>
+            <div class="jp-path__tabpart">
+                <section class="jp-path__parts" data-slot="parts" aria-live="polite"></section>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}">
+    <script src="../../static/js/jlptpath/jpath-api.js"></script>
+</th:block>
+<script src="../../static/js/jlptpath/jpath-display.js" th:src="@{/js/jlptpath/jpath-display.js(v=${jpathAssetVersion})}"></script>
+<script src="../../static/js/jlptpath/jpath-furigana.js" th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>
+<script src="../../static/js/cpath/cpath-path.js" th:src="@{/js/cpath/cpath-path.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>
