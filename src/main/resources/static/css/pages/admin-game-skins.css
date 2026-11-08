@@ -3,6 +3,7 @@
  * Hàng thống kê, tab lọc có đếm số, thẻ có sân khấu theo chủ đề game, ngăn chỉnh sửa trượt từ phải.
  * Hiệu ứng luôn chạy (quy ước của dự án, không theo prefers-reduced-motion).
  */
+@import url("../dark-page.css");
 .page-admin #jlabBaseContent .adm-main { min-width: 0; }
 .page-admin #jlabBaseContent #admContent { min-width: 0; }
 .skin-admin { min-width: 0; max-width: 100%; }
@@ -188,3 +189,40 @@ body.ga-drawer-open { overflow: hidden; }
   .ga-drawer-body { padding: 16px; }
   .skin-editor__grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Plum dark mode */
+html[data-theme="dark"] .page-admin .adm-toast.adm-toast--success { background: var(--dark-success-bg); color: var(--dark-success); }
+html[data-theme="dark"] .ga-stage--NEKO_CATCH { background: linear-gradient(180deg, var(--dark-soft), var(--dark-raised)); }
+html[data-theme="dark"] .ga-stage--NEKO_CATCH::before { background: radial-gradient(38% 16% at 22% 26%, var(--dark-faint) 60%, transparent 62%), radial-gradient(30% 13% at 34% 20%, var(--dark-faint) 60%, transparent 62%); }
+html[data-theme="dark"] .ga-stage--NEKO_CATCH::after { background: radial-gradient(130% 38% at 50% 112%, var(--dark-line) 0 62%, transparent 63%), radial-gradient(150% 46% at 50% 118%, var(--dark-soft) 0 62%, transparent 63%); }
+html[data-theme="dark"] .ga-stage--AIR_DEFENSE { background: radial-gradient(circle at 50% 55%, var(--dark-raised), var(--dark-bg) 75%); }
+html[data-theme="dark"] .ga-stage--AIR_DEFENSE::before { background-image: radial-gradient(1.5px 1.5px at 20px 30px, var(--dark-faint), transparent), radial-gradient(1px 1px at 90px 70px, var(--dark-muted), transparent), radial-gradient(1px 1px at 140px 20px, var(--dark-faint), transparent); }
+html[data-theme="dark"] .ga-stage--frame { background: radial-gradient(circle at 50% 48%, var(--dark-soft) 0, transparent 58%), linear-gradient(160deg, var(--dark-bg), var(--dark-raised)); }
+html[data-theme="dark"] .ga-stage--frame::before { background-image: radial-gradient(var(--dark-faint) .8px, transparent 1.4px); }
+html[data-theme="dark"] .ga-badge { color: var(--dark-ink); background: var(--dark-soft); }
+html[data-theme="dark"] .ga-badge--default { color: var(--dark-warning); background: var(--dark-warning-bg); box-shadow: 0 4px 12px var(--dark-shadow); }
+html[data-theme="dark"] .ga-badge--pack { color: var(--dark-on-button); background: var(--dark-button); }
+html[data-theme="dark"] .ga-status,
+html[data-theme="dark"] .ga-play { color: var(--dark-ink); background: var(--dark-raised); }
+html[data-theme="dark"] .ga-status::before { background: var(--dark-success); box-shadow: 0 0 8px var(--dark-success); }
+html[data-theme="dark"] .ga-status[data-state=hidden]::before { background: var(--dark-warning); box-shadow: 0 0 8px var(--dark-warning); }
+html[data-theme="dark"] .ga-status[data-state=deleted]::before { background: var(--dark-danger); }
+html[data-theme="dark"] .ga-chip--price i,
+html[data-theme="dark"] .ga-icon-btn--star:hover:not(:disabled) { color: var(--dark-warning); }
+html[data-theme="dark"] .ga-chip--free { color: var(--dark-success); background: var(--dark-success-bg); }
+html[data-theme="dark"] .ga-chip--tier-common { color: var(--dark-ink); background: var(--dark-soft); }
+html[data-theme="dark"] .ga-chip--tier-rare { color: var(--dark-ink); background: var(--dark-raised); }
+html[data-theme="dark"] .ga-chip--tier-legendary { color: var(--dark-warning); background: var(--dark-warning-bg); }
+html[data-theme="dark"] .ga-icon-btn--edit,
+html[data-theme="dark"] .ga-icon-btn--edit:hover:not(:disabled) { color: var(--dark-on-button); background: var(--dark-button); }
+html[data-theme="dark"] .ga-icon-btn--edit:hover:not(:disabled) { background: var(--dark-button-hover); }
+html[data-theme="dark"] .ga-icon-btn--star:hover:not(:disabled) { border-color: var(--dark-warning); }
+html[data-theme="dark"] .ga-icon-btn--danger:hover:not(:disabled) { color: var(--dark-danger); }
+html[data-theme="dark"] .ga-backdrop { background: var(--dark-shadow); }
+html[data-theme="dark"] .ga-drawer,
+html[data-theme="dark"] .ga-modal { box-shadow: 0 30px 80px var(--dark-shadow); }
+html[data-theme="dark"] .ga-stage-empty { color: var(--dark-muted); }
+html[data-theme="dark"] .ga-stage--NEKO_CATCH .ga-stage-empty { color: var(--dark-ink); }
+html[data-theme="dark"] .skin-editor :is(input, select, textarea) { background: var(--dark-input); border-color: var(--dark-input-line); color: var(--dark-ink); caret-color: var(--dark-accent); }
+html[data-theme="dark"] .skin-editor :is(input, select, textarea):-webkit-autofill { -webkit-text-fill-color: var(--dark-ink); box-shadow: 0 0 0 1000px var(--dark-input) inset; }
+html[data-theme="dark"] ::selection { background: var(--dark-selection); color: var(--dark-ink); }
