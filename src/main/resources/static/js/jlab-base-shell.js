@@ -779,7 +779,7 @@
     if (!document.querySelector('link[href*="font-awesome"]')) {
       addStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css');
     }
-    if (!document.querySelector('link[href*="reward-fx.css"]')) {
+    if (!document.querySelector('link[href*="/reward-fx"]')) {
       addStylesheet('/css/components/reward-fx.css?v=20260926y');
     }
     if (window.RewardFX) {
@@ -800,7 +800,7 @@
    */
   function ensureAvatarFrameStyles() {
     // Luôn nạp CSS (nhẹ): tên có màu của người khác (bình luận…) chỉ cần CSS, kể cả khi người xem không có khung.
-    if (!document.querySelector('link[href*="avatar-frame.css"]')) {
+    if (!document.querySelector('link[href*="/avatar-frame"]')) {
       addStylesheet('/css/components/avatar-frame.css?v=20261021-catalog');
     }
   }

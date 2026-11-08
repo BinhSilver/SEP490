@@ -11,6 +11,8 @@
       (function () { try { var t = localStorage.getItem('jlas-theme'); if (t !== 'dark' && t !== 'light') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; document.documentElement.setAttribute('data-theme', t); document.documentElement.classList.remove('light', 'dark'); document.documentElement.classList.add(t); } catch (e) {} })();
     </script>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
         href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&amp;family=Instrument+Serif:ital@0;1&amp;family=Noto+Sans+JP:wght@400;500;600;700&amp;family=Noto+Serif:wght@400;500;600;700&amp;family=Noto+Serif+JP:wght@400;500;600;700&amp;family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap"
         rel="stylesheet" />
@@ -62,7 +64,7 @@
     <script th:src="@{/js/components/avatar-frame.js?v=20261021-catalog}"></script>
     <script th:src="@{/js/auth-session.js}"></script>
     <script th:src="@{/js/components.js}"></script>
-    <script th:src="@{/js/sakura-background.js}"></script>
+    <script defer th:src="@{/js/sakura-background.js}"></script>
     <script th:src="@{/js/components/cp-auto-pay.js(v=20261103-auto)}"></script>
     <script defer th:src="@{/js/inline-dictionary.js(v=20261103-auto)}"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
@@ -80,6 +82,8 @@
       (function () { try { var t = localStorage.getItem('jlas-theme'); if (t !== 'dark' && t !== 'light') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; document.documentElement.setAttribute('data-theme', t); document.documentElement.classList.remove('light', 'dark'); document.documentElement.classList.add(t); } catch (e) {} })();
     </script>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
         href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap"
         rel="stylesheet" />
@@ -99,7 +103,7 @@
     <link rel="stylesheet" th:href="@{/css/components/kitsu-guide.css}" />
     <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261103-auto)}" />
     <link th:if="${extraCss != null and !#strings.isEmpty(extraCss)}" rel="stylesheet" th:href="@{${extraCss}}" />
-    <script th:src="@{/js/sakura-background.js}"></script>
+    <script defer th:src="@{/js/sakura-background.js}"></script>
     <script th:src="@{/js/components/cp-auto-pay.js(v=20261103-auto)}"></script>
     <script defer th:src="@{/js/inline-dictionary.js(v=20261103-auto)}"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
