@@ -1,0 +1,2400 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "không … (dạng phủ định thân mật của động từ nhóm II)",
+     "unit_title_vi": "Giờ giấc và động từ ます"
+    },
+    "note": "nghĩa theo khuôn (chữ thường, không dấu chấm)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Nhóm II: bỏ る rồi thêm ない → 食べない.",
+      "options": [
+       "食べなない",
+       "食べるない",
+       "食べない",
+       "食べらない"
+      ],
+      "prompt_ja": "私は肉を（　　）。魚だけ食べる。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "見る bỏ る thêm ない → 見ない.",
+      "options": [
+       "見らない",
+       "見ない",
+       "見かない",
+       "見るない"
+      ],
+      "prompt_ja": "A：テレビ、見る？B：ううん、（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: あしたは朝早く起きないよ。 Nghĩa: Ngày mai tôi không dậy sớm đâu. 起き + ない = 起きない.",
+      "options": [
+       "朝",
+       "ない",
+       "起き",
+       "早く"
+      ],
+      "prompt_ja": "あしたは ＿＿ ＿＿ ＿＿ ★ よ。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 今晩はテレビを見ないよ。 Nghĩa: Tối nay tôi không xem tivi đâu. 見 + ない = 見ない.",
+      "options": [
+       "を",
+       "ない",
+       "見",
+       "テレビ"
+      ],
+      "prompt_ja": "今晩は ＿＿ ＿＿ ★ ＿＿ よ。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "いない = không ở (phủ định của いる).",
+      "options": [
+       "Hôm nay tôi ở nhà.",
+       "Hôm qua tôi không ở nhà.",
+       "Hôm nay tôi muốn ở nhà.",
+       "Hôm nay tôi không ở nhà."
+      ],
+      "prompt_ja": "きょうは家にいない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "食べない = không ăn (phủ định hiện tại).",
+      "options": [
+       "Tôi không ăn sáng.",
+       "Tôi muốn ăn sáng.",
+       "Tôi đã không ăn sáng.",
+       "Tôi ăn sáng."
+      ],
+      "prompt_ja": "私は朝ごはんを食べない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Nhóm II chỉ bỏ る thêm ない, không thêm ら. Đúng: 起きない。",
+      "options": [
+       "今晩はテレビを見ない。",
+       "肉は食べない。",
+       "日曜日は早く起きらない。",
+       "あの映画は見ない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Phải bỏ る trước khi thêm ない. Đúng: 電気をつけない。",
+      "options": [
+       "電気をつけるない。",
+       "きょうは出かけない。",
+       "窓を開けない。",
+       "コートを着ない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay áp quy tắc nhóm I thành 食べらない; nhóm II chỉ bỏ る rồi thêm ない. Ngược lại, động từ nhóm I đuôi る như 帰る phải thành 帰らない.",
+    "examples": [
+     {
+      "ja": "私は肉を食べない。",
+      "ja_furigana": "私(わたし)は肉(にく)を食(た)べない。",
+      "source": "CLAUDE",
+      "vi": "Tôi không ăn thịt."
+     },
+     {
+      "ja": "夜はテレビを見ない。",
+      "ja_furigana": "夜(よる)はテレビを見(み)ない。",
+      "source": "CLAUDE",
+      "vi": "Buổi tối tôi không xem ti vi."
+     },
+     {
+      "ja": "日曜日は早く起きない。",
+      "ja_furigana": "日曜日(にちようび)は早(はや)く起(お)きない。",
+      "source": "CLAUDE",
+      "vi": "Chủ nhật tôi không dậy sớm."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "出かける là nhóm II: bỏ る thêm ない.",
+      "options": [
+       "出かけらない",
+       "出かかない",
+       "出かけない",
+       "出かけるない"
+      ],
+      "prompt_ja": "A：あした、出かける？B：ううん、（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "開けない = không mở (thói quen, hiện tại).",
+      "options": [
+       "Buổi tối hãy mở cửa sổ.",
+       "Buổi tối tôi không mở cửa sổ.",
+       "Tối qua tôi đã không mở cửa sổ.",
+       "Buổi tối tôi mở cửa sổ."
+      ],
+      "prompt_ja": "夜は窓を開けない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "着る là nhóm II nên phủ định là 着ない.",
+      "options": [
+       "黒いシャツは着ない。",
+       "この服は着らない。",
+       "この本は借りない。",
+       "あしたは家にいない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ない",
+      "sentence_ja": "私はテレビをあまり見＿＿。",
+      "translation_vi": "Tôi không xem tivi mấy. (dạng thường)"
+     },
+     {
+      "answer": "ない",
+      "sentence_ja": "日曜日は早く起き＿＿。",
+      "translation_vi": "Chủ nhật tôi không dậy sớm. (dạng thường)"
+     }
+    ],
+    "findings": [],
+    "formation": "Vる bỏ る + ない (食べる → 食べない)",
+    "locked_fields": [],
+    "meaning_vi": "Dạng phủ định thân mật của động từ nhóm II: không làm.",
+    "nuance_vi": "Thân mật; với người lạ hay người trên nên dùng ません.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       4,
+       2,
+       0
+      ],
+      "pieces": [
+       "食べない",
+       "私",
+       "を",
+       "は",
+       "肉"
+      ],
+      "translation_vi": "Tôi không ăn thịt."
+     },
+     {
+      "answer_order": [
+       0,
+       2,
+       3,
+       1
+      ],
+      "pieces": [
+       "きょう",
+       "あびない",
+       "は",
+       "シャワーを"
+      ],
+      "translation_vi": "Hôm nay tôi không tắm vòi sen."
+     }
+    ],
+    "pattern": "る-Verb (Negative)",
+    "pattern_variants": [],
+    "unit_no": 4,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nói mình không làm việc gì khi nói chuyện thân mật; nói lịch sự thì dùng 〜ません."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-18049507fb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "đã không … (dạng phủ định quá khứ thân mật của động từ nhóm II)",
+     "unit_title_vi": "Giờ giấc và động từ ます"
+    },
+    "note": "nghĩa theo khuôn (chữ thường, không dấu chấm)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Phủ định quá khứ: 食べない → 食べなかった (ない → なかった).",
+      "options": [
+       "食べらなかった",
+       "食べなくた",
+       "食べないだった",
+       "食べなかった"
+      ],
+      "prompt_ja": "きのうは朝ごはんを（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Trả lời \"không xem\" ở quá khứ: 見なかった.",
+      "options": [
+       "見らなかった",
+       "見ないだった",
+       "見なかった",
+       "見なくった"
+      ],
+      "prompt_ja": "A：きのう、テレビ見た？B：ううん、（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: けさはシャワーをあびなかった。 Nghĩa: Sáng nay tôi đã không tắm vòi sen. あび + なかった.",
+      "options": [
+       "を",
+       "なかった",
+       "シャワー",
+       "あび"
+      ],
+      "prompt_ja": "けさは ＿＿ ＿＿ ＿＿ ★。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: きのうは寒かったから、窓を開けなかった。 Nghĩa: Hôm qua lạnh nên tôi không mở cửa sổ. 開け + なかった.",
+      "options": [
+       "開け",
+       "を",
+       "窓",
+       "なかった"
+      ],
+      "prompt_ja": "きのうは寒かったから、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "いなかった = đã không ở (phủ định quá khứ của いる).",
+      "options": [
+       "Hôm qua tôi đã không ở nhà.",
+       "Ngày mai tôi không ở nhà.",
+       "Hôm qua tôi ở nhà.",
+       "Hôm nay tôi không ở nhà."
+      ],
+      "prompt_ja": "きのうは家にいなかった。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "見なかった = đã không xem.",
+      "options": [
+       "Tuần trước tôi muốn xem phim.",
+       "Tuần sau tôi sẽ không xem phim.",
+       "Tuần trước tôi đã không xem phim.",
+       "Tuần trước tôi đã xem phim."
+      ],
+      "prompt_ja": "先週、映画を見なかった。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Dạng thường là 起きなかった; lịch sự là 起きませんでした, không có 起きないでした.",
+      "options": [
+       "けさは早く起きなかった。",
+       "けさは七時に起きないでした。",
+       "きのうは何も食べなかった。",
+       "先週は本を借りなかった。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "ない đổi thành なかった. Đúng: 出かけなかった。",
+      "options": [
+       "きのうはテレビを見なかった。",
+       "日曜日は出かけなかった。",
+       "きのうは窓を閉めなかった。",
+       "きのうは出かけなくた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay nói 食べないでした hoặc 食べなかったでした; thân mật là 食べなかった, lịch sự là 食べませんでした.",
+    "examples": [
+     {
+      "ja": "昨日は朝ごはんを食べなかった。",
+      "ja_furigana": "昨日(きのう)は朝(あさ)ごはんを食(た)べなかった。",
+      "source": "CLAUDE",
+      "vi": "Hôm qua tôi đã không ăn sáng."
+     },
+     {
+      "ja": "昨日の夜はテレビを見なかった。",
+      "ja_furigana": "昨日(きのう)の夜(よる)はテレビを見(み)なかった。",
+      "source": "CLAUDE",
+      "vi": "Tối qua tôi không xem ti vi."
+     },
+     {
+      "ja": "今朝は6時に起きなかった。",
+      "ja_furigana": "今朝(けさ)は6時(ろくじ)に起(お)きなかった。",
+      "source": "CLAUDE",
+      "vi": "Sáng nay tôi không dậy lúc 6 giờ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Phủ định quá khứ của いる là いなかった.",
+      "options": [
+       "いらなかった",
+       "いなくた",
+       "いないだった",
+       "いなかった"
+      ],
+      "prompt_ja": "A：きのう、田中さんは学校にいた？B：ううん、（　　）よ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "開けなかった = đã không mở.",
+      "options": [
+       "Sáng mai tôi sẽ không mở cửa sổ.",
+       "Sáng nay hãy mở cửa sổ.",
+       "Sáng nay tôi đã mở cửa sổ.",
+       "Sáng nay tôi đã không mở cửa sổ."
+      ],
+      "prompt_ja": "けさは窓を開けなかった。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Bỏ い của ない rồi thêm かった: 忘れなかった.",
+      "options": [
+       "先週は映画を見なかった。",
+       "きのうは宿題を忘れないかった。",
+       "けさは何も食べなかった。",
+       "きのうは電気をつけなかった。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "なかった",
+      "sentence_ja": "きのうは早く寝＿＿。",
+      "translation_vi": "Hôm qua tôi đã không ngủ sớm. (dạng thường)"
+     },
+     {
+      "answer": "なかった",
+      "sentence_ja": "先週はテレビを見＿＿。",
+      "translation_vi": "Tuần trước tôi đã không xem tivi. (dạng thường)"
+     }
+    ],
+    "findings": [],
+    "formation": "Vる bỏ る + なかった (食べる → 食べなかった)",
+    "locked_fields": [],
+    "meaning_vi": "Dạng phủ định quá khứ thân mật của động từ nhóm II: đã không làm.",
+    "nuance_vi": "Thân mật; nghĩa giống ませんでした.",
+    "order_items": [
+     {
+      "answer_order": [
+       3,
+       0,
+       1,
+       2
+      ],
+      "pieces": [
+       "は",
+       "何も",
+       "食べなかった",
+       "きのう"
+      ],
+      "translation_vi": "Hôm qua tôi đã không ăn gì cả."
+     },
+     {
+      "answer_order": [
+       1,
+       0,
+       3,
+       2
+      ],
+      "pieces": [
+       "は",
+       "けさ",
+       "あびなかった",
+       "シャワーを"
+      ],
+      "translation_vi": "Sáng nay tôi đã không tắm vòi sen."
+     }
+    ],
+    "pattern": "る-Verb (Negative-Past)",
+    "pattern_variants": [],
+    "unit_no": 4,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi kể việc đã không làm trong quá khứ với người thân quen; nói lịch sự thì dùng 〜ませんでした."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5febe6d4d1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "thể từ điển (dạng gốc) của động từ nhóm I",
+     "unit_title_vi": "Giờ giấc và động từ ます"
+    },
+    "note": "nghĩa theo khuôn (chữ thường, không dấu chấm)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Động từ nhóm I: thể từ điển kết thúc bằng âm cột う: 行く.",
+      "options": [
+       "行かる",
+       "行きる",
+       "行く",
+       "行けく"
+      ],
+      "prompt_ja": "A：あした、どこへ行く？B：図書館へ（　　）よ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thể từ điển của 飲みます là 飲む.",
+      "options": [
+       "飲みる",
+       "飲まる",
+       "飲むる",
+       "飲む"
+      ],
+      "prompt_ja": "A：毎日、何を飲む？B：コーヒーを（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 毎晩日本語の本を読むよ。 Nghĩa: Mỗi tối tôi đọc sách tiếng Nhật đấy. 読む là thể từ điển.",
+      "options": [
+       "読む",
+       "を",
+       "よ",
+       "本"
+      ],
+      "prompt_ja": "毎晩日本語の ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 日曜日は友だちと公園で遊ぶよ。 Nghĩa: Chủ nhật tôi chơi ở công viên với bạn đấy. 遊ぶ là thể từ điển.",
+      "options": [
+       "遊ぶ",
+       "公園",
+       "よ",
+       "で"
+      ],
+      "prompt_ja": "日曜日は友だちと ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "飲む (thể từ điển) nói thói quen.",
+      "options": [
+       "Tôi muốn uống cà phê.",
+       "Mỗi sáng tôi không uống cà phê.",
+       "Sáng nay tôi đã uống cà phê.",
+       "Mỗi sáng tôi uống cà phê."
+      ],
+      "prompt_ja": "毎朝コーヒーを飲む。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "会う = gặp; thể từ điển nói việc sắp làm.",
+      "options": [
+       "Ngày mai tôi gặp bạn.",
+       "Ngày mai bạn tôi đến.",
+       "Ngày mai tôi không gặp bạn.",
+       "Hôm qua tôi đã gặp bạn."
+      ],
+      "prompt_ja": "あした友だちに会う。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thể từ điển của 聞きます là 聞く.",
+      "options": [
+       "毎日手紙を書く。",
+       "あした海へ行く。",
+       "駅まで歩く。",
+       "毎晩音楽を聞きる。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Thể từ điển của 待ちます là 待つ.",
+      "options": [
+       "部屋で休む。",
+       "駅でバスを待ちる。",
+       "毎朝新聞を読む。",
+       "友だちと話す。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay quên đổi âm, nói 書きる thay vì 書く. Nhớ các cặp: 行きます → 行く, 待ちます → 待つ, 話します → 話す.",
+    "examples": [
+     {
+      "ja": "毎日、日本語の本を読む。",
+      "ja_furigana": "毎日(まいにち)、日本語(にほんご)の本(ほん)を読(よ)む。",
+      "source": "CLAUDE",
+      "vi": "Ngày nào tôi cũng đọc sách tiếng Nhật."
+     },
+     {
+      "ja": "明日、学校へ行く。",
+      "ja_furigana": "明日(あした)、学校(がっこう)へ行(い)く。",
+      "source": "CLAUDE",
+      "vi": "Ngày mai tôi đến trường."
+     },
+     {
+      "ja": "夜はいつも音楽を聞く。",
+      "ja_furigana": "夜(よる)はいつも音楽(おんがく)を聞(き)く。",
+      "source": "CLAUDE",
+      "vi": "Buổi tối tôi luôn nghe nhạc."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "帰る là nhóm I dù có đuôi る; thể từ điển vẫn là 帰る.",
+      "options": [
+       "帰える",
+       "帰りる",
+       "帰るる",
+       "帰る"
+      ],
+      "prompt_ja": "A：きょう、何時に帰る？B：六時に（　　）よ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "聞く (thể từ điển) nói thói quen.",
+      "options": [
+       "Tối nay hãy nghe nhạc.",
+       "Tối qua tôi đã nghe nhạc.",
+       "Mỗi tối tôi không nghe nhạc.",
+       "Mỗi tối tôi nghe nhạc."
+      ],
+      "prompt_ja": "毎晩音楽を聞く。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Thể từ điển của 書きます là 書く.",
+      "options": [
+       "あした手紙を書きる。",
+       "あした海で泳ぐ。",
+       "夜は部屋で休む。",
+       "毎日駅まで歩く。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "む",
+      "sentence_ja": "毎晩本を読＿＿。",
+      "translation_vi": "Mỗi tối tôi đọc sách. (dạng thường)"
+     },
+     {
+      "answer": "う",
+      "sentence_ja": "あした友だちに会＿＿。",
+      "translation_vi": "Ngày mai tôi gặp bạn. (dạng thường)"
+     }
+    ],
+    "findings": [],
+    "formation": "V-ます: âm hàng い trước ます → âm hàng う (書きます → 書く, 飲みます → 飲む)",
+    "locked_fields": [],
+    "meaning_vi": "Thể từ điển (dạng gốc) của động từ nhóm I.",
+    "nuance_vi": "Thân mật; với người trên dùng dạng ます.",
+    "order_items": [
+     {
+      "answer_order": [
+       0,
+       2,
+       1
+      ],
+      "pieces": [
+       "駅",
+       "歩く",
+       "まで"
+      ],
+      "translation_vi": "Tôi đi bộ đến nhà ga."
+     },
+     {
+      "answer_order": [
+       4,
+       1,
+       0,
+       2,
+       3
+      ],
+      "pieces": [
+       "前",
+       "の",
+       "で",
+       "待つ",
+       "駅"
+      ],
+      "translation_vi": "Tôi đợi ở trước nhà ga."
+     }
+    ],
+    "pattern": "う-Verb (Dictionary)",
+    "pattern_variants": [],
+    "unit_no": 4,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong lối nói thân mật ở hiện tại hoặc tương lai, và để ghép với các mẫu như ことができる, まえに."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6da47b0eeb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "đã … (dạng quá khứ thân mật của động từ nhóm I)",
+     "unit_title_vi": "Giờ giấc và động từ ます"
+    },
+    "note": "nghĩa theo khuôn (chữ thường, không dấu chấm)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "行く là ngoại lệ: quá khứ là 行った.",
+      "options": [
+       "行んだ",
+       "行いた",
+       "行った",
+       "行きた"
+      ],
+      "prompt_ja": "きのう、友だちとデパートへ（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Động từ đuôi む → んだ: 飲んだ.",
+      "options": [
+       "飲いた",
+       "飲った",
+       "飲みた",
+       "飲んだ"
+      ],
+      "prompt_ja": "けさ、牛乳を（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: きのう友だちに長い手紙を書いた。 Nghĩa: Hôm qua tôi đã viết một lá thư dài cho bạn. Đuôi く → いた.",
+      "options": [
+       "手紙",
+       "書いた",
+       "長い",
+       "を"
+      ],
+      "prompt_ja": "きのう友だちに ＿＿ ＿＿ ＿＿ ★。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 先週、新しいかばんを買ったよ。 Nghĩa: Tuần trước tôi đã mua cặp mới đấy. Đuôi う → った.",
+      "options": [
+       "買った",
+       "新しい",
+       "を",
+       "かばん"
+      ],
+      "prompt_ja": "先週、 ＿＿ ＿＿ ＿＿ ★ よ。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "話した = đã nói chuyện (đuôi す → した).",
+      "options": [
+       "Hôm qua tôi đã nói chuyện với bạn.",
+       "Hôm qua bạn tôi đã đến.",
+       "Hôm qua tôi không nói chuyện với bạn.",
+       "Ngày mai tôi sẽ nói chuyện với bạn."
+      ],
+      "prompt_ja": "きのう友だちと話した。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "泳いだ = đã bơi (đuôi ぐ → いだ).",
+      "options": [
+       "Tuần sau tôi sẽ bơi ở biển.",
+       "Tuần trước tôi đã bơi ở biển.",
+       "Tuần trước tôi đã không bơi ở biển.",
+       "Tôi muốn bơi ở biển."
+      ],
+      "prompt_ja": "先週、海で泳いだ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Đuôi つ → った. Đúng: 待った。",
+      "options": [
+       "きのう駅でバスを待ちた。",
+       "けさ新聞を読んだ。",
+       "先週友だちに会った。",
+       "きのう手紙を書いた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Đuôi ぶ → んだ. Đúng: 遊んだ。",
+      "options": [
+       "きのうは公園で遊った。",
+       "きのうは雨が降った。",
+       "日曜日は家で休んだ。",
+       "夜は音楽を聞いた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay quên ngoại lệ 行く → 行った (không phải 行いた), và chia nhầm 飲む thành 飲った; đúng là 飲んだ.",
+    "examples": [
+     {
+      "ja": "昨日、友だちに会った。",
+      "ja_furigana": "昨日(きのう)、友(とも)だちに会(あ)った。",
+      "source": "CLAUDE",
+      "vi": "Hôm qua tôi đã gặp bạn."
+     },
+     {
+      "ja": "先週、新しいくつを買った。",
+      "ja_furigana": "先週(せんしゅう)、新(あたら)しいくつを買(か)った。",
+      "source": "CLAUDE",
+      "vi": "Tuần trước tôi đã mua đôi giày mới."
+     },
+     {
+      "ja": "昨日の夜、ビールを飲んだ。",
+      "ja_furigana": "昨日(きのう)の夜(よる)、ビールを飲(の)んだ。",
+      "source": "CLAUDE",
+      "vi": "Tối qua tôi đã uống bia."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đuôi う → った: 買った.",
+      "options": [
+       "買んだ",
+       "買った",
+       "買うた",
+       "買いた"
+      ],
+      "prompt_ja": "A：きのう、何を買った？B：くつを（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "降った = đã rơi (mưa), đuôi る nhóm I → った.",
+      "options": [
+       "Sáng mai trời sẽ mưa.",
+       "Sáng nay trời đã mưa.",
+       "Bây giờ trời đang mưa.",
+       "Sáng nay trời không mưa."
+      ],
+      "prompt_ja": "けさ、雨が降った。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "帰る là nhóm I: quá khứ là 帰った.",
+      "options": [
+       "先週海で泳いだ。",
+       "けさコーヒーを飲んだ。",
+       "きのうは早く帰りた。",
+       "きのうは六時に帰った。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "んだ",
+      "sentence_ja": "きのう本を読＿＿。",
+      "translation_vi": "Hôm qua tôi đã đọc sách. (dạng thường)"
+     },
+     {
+      "answer": "いた",
+      "sentence_ja": "先週、友だちに手紙を書＿＿。",
+      "translation_vi": "Tuần trước tôi đã viết thư cho bạn. (dạng thường)"
+     }
+    ],
+    "findings": [],
+    "formation": "く → いた, ぐ → いだ, う・つ・る → った, む・ぶ・ぬ → んだ, す → した (書く → 書いた)",
+    "locked_fields": [],
+    "meaning_vi": "Dạng quá khứ thân mật của động từ nhóm I: đã làm.",
+    "nuance_vi": "Thân mật; nghĩa giống dạng ました.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2,
+       4
+      ],
+      "pieces": [
+       "九時",
+       "きのう",
+       "に",
+       "は",
+       "帰った"
+      ],
+      "translation_vi": "Hôm qua tôi về lúc 9 giờ."
+     },
+     {
+      "answer_order": [
+       2,
+       1,
+       0
+      ],
+      "pieces": [
+       "歩いた",
+       "まで",
+       "駅"
+      ],
+      "translation_vi": "Tôi đã đi bộ đến nhà ga."
+     }
+    ],
+    "pattern": "う-Verb (Past)",
+    "pattern_variants": [],
+    "unit_no": 4,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi kể việc đã xảy ra trong lối nói thân mật; nói lịch sự thì dùng 〜ました."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c022d2e5f6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "không … (dạng phủ định thân mật của động từ nhóm I)",
+     "examples": [
+      {
+       "ja": "私はたばこをすわない。",
+       "ja_furigana": "私(わたし)はたばこをすわない。",
+       "vi": "Tôi không hút thuốc."
+      },
+      {
+       "ja": "明日は学校へ行かない。",
+       "ja_furigana": "明日(あした)は学校(がっこう)へ行(い)かない。",
+       "vi": "Ngày mai tôi không đến trường."
+      },
+      {
+       "ja": "あまりコーヒーを飲まない。",
+       "ja_furigana": "あまりコーヒーを飲(の)まない。",
+       "vi": "Tôi không uống cà phê mấy."
+      }
+     ],
+     "unit_title_vi": "Giờ giấc và động từ ます"
+    },
+    "note": "nghĩa theo khuôn; 吸 trên N5 → viết すわない; いかない → 行かない"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Nhóm I: đổi âm cuối sang cột あ rồi thêm ない: 飲む → 飲まない.",
+      "options": [
+       "飲ない",
+       "飲みない",
+       "飲むない",
+       "飲まない"
+      ],
+      "prompt_ja": "私はお酒を（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "行く → 行かない.",
+      "options": [
+       "行ない",
+       "行きない",
+       "行くない",
+       "行かない"
+      ],
+      "prompt_ja": "A：きょう、学校へ行く？B：ううん、（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 日曜日はどこへも行かないよ。 Nghĩa: Chủ nhật tôi không đi đâu cả. どこへも + phủ định.",
+      "options": [
+       "どこ",
+       "へ",
+       "も",
+       "行かない"
+      ],
+      "prompt_ja": "日曜日は ＿＿ ＿＿ ＿＿ ★ よ。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 私はたばこをすわない。 Nghĩa: Tôi không hút thuốc. すう → すわない.",
+      "options": [
+       "ない",
+       "を",
+       "すわ",
+       "たばこ"
+      ],
+      "prompt_ja": "私は ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "行かない = không đi.",
+      "options": [
+       "Ngày mai tôi muốn đến công ty.",
+       "Ngày mai tôi không đến công ty.",
+       "Hôm qua tôi không đến công ty.",
+       "Ngày mai tôi đến công ty."
+      ],
+      "prompt_ja": "あしたは会社へ行かない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "買う → 買わない = không mua.",
+      "options": [
+       "Tôi mua thịt.",
+       "Tôi đã không mua thịt.",
+       "Tôi không mua thịt.",
+       "Tôi không ăn thịt."
+      ],
+      "prompt_ja": "私は肉を買わない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Nhóm I đổi sang âm あ: 飲まない.",
+      "options": [
+       "私はお酒を飲まない。",
+       "日曜日は働かない。",
+       "私はコーヒーを飲みない。",
+       "きょうは本を読まない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đuôi う đổi thành わ: 会わない.",
+      "options": [
+       "ここでは写真をとらない。",
+       "あしたは友だちに会あない。",
+       "夜は泳がない。",
+       "その歌は歌わない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Động từ tận cùng う phải đổi thành わ chứ không phải あ (買う → 買わない, không phải 買あない). Ngoại lệ: ある → ない.",
+    "examples": [
+     {
+      "ja": "私はたばこを吸わない。",
+      "ja_furigana": "私(わたし)はたばこを吸(す)わない。",
+      "source": "CLAUDE",
+      "vi": "Tôi không hút thuốc."
+     },
+     {
+      "ja": "明日は学校へいかない。",
+      "ja_furigana": "明日(あした)は学校(がっこう)へいかない。",
+      "source": "CLAUDE",
+      "vi": "Ngày mai tôi không đến trường."
+     },
+     {
+      "ja": "あまりコーヒーを飲まない。",
+      "ja_furigana": "あまりコーヒーを飲(の)まない。",
+      "source": "CLAUDE",
+      "vi": "Tôi không uống cà phê mấy."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "会う đuôi う → わない, không phải あない.",
+      "options": [
+       "会うない",
+       "会あない",
+       "会いない",
+       "会わない"
+      ],
+      "prompt_ja": "A：あした、山田さんに会う？B：ううん、（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "働かない = không làm việc.",
+      "options": [
+       "Chủ nhật tôi làm việc.",
+       "Chủ nhật tôi muốn làm việc.",
+       "Chủ nhật tôi không làm việc.",
+       "Chủ nhật tuần trước tôi không làm việc."
+      ],
+      "prompt_ja": "日曜日は働かない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "書く → 書かない.",
+      "options": [
+       "電車に乗らない。",
+       "友だちを待たない。",
+       "あしたは手紙を書きない。",
+       "きょうは話さない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ない",
+      "sentence_ja": "私はたばこをすわ＿＿。",
+      "translation_vi": "Tôi không hút thuốc. (dạng thường)"
+     },
+     {
+      "answer": "ない",
+      "sentence_ja": "あしたは学校へ行か＿＿。",
+      "translation_vi": "Ngày mai tôi không đi học. (dạng thường)"
+     }
+    ],
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL: 私はたばこを吸わない。 → 吸"
+    ],
+    "formation": "Vう: âm hàng う → âm hàng あ + ない (書く → 書かない, 買う → 買わない)",
+    "locked_fields": [],
+    "meaning_vi": "Dạng phủ định thân mật của động từ nhóm I: không làm.",
+    "nuance_vi": "Thân mật, dùng với bạn bè, người nhà.",
+    "order_items": [
+     {
+      "answer_order": [
+       4,
+       1,
+       2,
+       3,
+       0
+      ],
+      "pieces": [
+       "飲まない",
+       "は",
+       "お酒",
+       "を",
+       "私"
+      ],
+      "translation_vi": "Tôi không uống rượu."
+     },
+     {
+      "answer_order": [
+       4,
+       0,
+       1,
+       2,
+       3
+      ],
+      "pieces": [
+       "は",
+       "どこ",
+       "へも",
+       "行かない",
+       "きょう"
+      ],
+      "translation_vi": "Hôm nay tôi không đi đâu cả."
+     }
+    ],
+    "pattern": "う-Verb (Negative)",
+    "pattern_variants": [],
+    "unit_no": 4,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nói không làm việc gì trong lối nói thân mật; nói lịch sự thì dùng 〜ません."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-918af04099"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "đã không … (dạng phủ định quá khứ thân mật của động từ nhóm I)",
+     "examples": [
+      {
+       "ja": "昨日は会社へ行かなかった。",
+       "ja_furigana": "昨日(きのう)は会社(かいしゃ)へ行(い)かなかった。",
+       "vi": "Hôm qua tôi đã không đi làm."
+      },
+      {
+       "ja": "先週は本を読まなかった。",
+       "ja_furigana": "先週(せんしゅう)は本(ほん)を読(よ)まなかった。",
+       "vi": "Tuần trước tôi không đọc sách."
+      },
+      {
+       "ja": "昨日はお金を使わなかった。",
+       "ja_furigana": "昨日(きのう)はお金(かね)を使(つか)わなかった。",
+       "vi": "Hôm qua tôi không tiêu đồng nào."
+      }
+     ],
+     "unit_title_vi": "Giờ giấc và động từ ます"
+    },
+    "note": "nghĩa theo khuôn; いかなかった → 行かなかった"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Phủ định quá khứ: 行かない → 行かなかった.",
+      "options": [
+       "行くなかった",
+       "行かなかった",
+       "行きなかった",
+       "行かないだった"
+      ],
+      "prompt_ja": "きのうは雨だったから、どこへも（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "読む → 読まない → 読まなかった.",
+      "options": [
+       "読みなかった",
+       "読むなかった",
+       "読まなかった",
+       "読まないだった"
+      ],
+      "prompt_ja": "A：けさ、新聞を読んだ？B：ううん、（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: きのうはお酒を飲まなかった。 Nghĩa: Hôm qua tôi đã không uống rượu. 飲ま + なかった.",
+      "options": [
+       "お酒",
+       "なかった",
+       "飲ま",
+       "を"
+      ],
+      "prompt_ja": "きのうは ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: きのうはかさを持って行かなかった。 Nghĩa: Hôm qua tôi đã không mang ô theo. 行かなかった đứng cuối.",
+      "options": [
+       "かさ",
+       "行かなかった",
+       "を",
+       "持って"
+      ],
+      "prompt_ja": "きのうは ＿＿ ＿＿ ＿＿ ★。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "何も + phủ định = không ... gì cả; 買わなかった = đã không mua.",
+      "options": [
+       "Ngày mai tôi sẽ không mua gì.",
+       "Hôm qua tôi đã không mua gì cả.",
+       "Hôm qua tôi đã mua nhiều thứ.",
+       "Hôm qua tôi không ăn gì cả."
+      ],
+      "prompt_ja": "きのうは何も買わなかった。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "降らなかった = đã không mưa.",
+      "options": [
+       "Tuần trước trời mưa.",
+       "Tuần trước trời không mưa.",
+       "Tuần này trời không mưa.",
+       "Tuần sau trời sẽ không mưa."
+      ],
+      "prompt_ja": "先週は雨が降らなかった。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Dạng thường là 読まなかった; lịch sự là 読みませんでした.",
+      "options": [
+       "きのうは手紙を書かなかった。",
+       "先週は泳がなかった。",
+       "けさはコーヒーを飲まなかった。",
+       "きのうは本を読まないでした。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "待つ → 待たない → 待たなかった.",
+      "options": [
+       "きのうは話さなかった。",
+       "きのうは友だちに会わなかった。",
+       "きのうは友だちを待ちなかった。",
+       "日曜日は働かなかった。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay nói 行かないでした; đúng là 行かなかった (thân mật) hoặc 行きませんでした (lịch sự).",
+    "examples": [
+     {
+      "ja": "昨日は会社へいかなかった。",
+      "ja_furigana": "昨日(きのう)は会社(かいしゃ)へいかなかった。",
+      "source": "CLAUDE",
+      "vi": "Hôm qua tôi đã không đi làm."
+     },
+     {
+      "ja": "先週は本を読まなかった。",
+      "ja_furigana": "先週(せんしゅう)は本(ほん)を読(よ)まなかった。",
+      "source": "CLAUDE",
+      "vi": "Tuần trước tôi không đọc sách."
+     },
+     {
+      "ja": "昨日はお金を使わなかった。",
+      "ja_furigana": "昨日(きのう)はお金(かね)を使(つか)わなかった。",
+      "source": "CLAUDE",
+      "vi": "Hôm qua tôi không tiêu đồng nào."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "会う → 会わない → 会わなかった.",
+      "options": [
+       "会あなかった",
+       "会いなかった",
+       "会わなかった",
+       "会うなかった"
+      ],
+      "prompt_ja": "A：きのう、田中さんに会った？B：ううん、（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "乗らなかった = đã không lên (xe).",
+      "options": [
+       "Sáng mai tôi sẽ không đi xe buýt.",
+       "Sáng nay tôi đã đi xe buýt.",
+       "Sáng nay tôi đã đợi xe buýt.",
+       "Sáng nay tôi đã không đi xe buýt."
+      ],
+      "prompt_ja": "けさはバスに乗らなかった。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "帰る là nhóm I: 帰らなかった.",
+      "options": [
+       "けさは新聞を読まなかった。",
+       "きのうは家へ帰りなかった。",
+       "先週は雨が降らなかった。",
+       "きのうは歌わなかった。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "なかった",
+      "sentence_ja": "きのうはお風呂に入ら＿＿。",
+      "translation_vi": "Hôm qua tôi đã không tắm bồn. (dạng thường)"
+     },
+     {
+      "answer": "なかった",
+      "sentence_ja": "先週は手紙を書か＿＿。",
+      "translation_vi": "Tuần trước tôi đã không viết thư. (dạng thường)"
+     }
+    ],
+    "findings": [],
+    "formation": "Vう: âm hàng う → âm hàng あ + なかった (書く → 書かなかった)",
+    "locked_fields": [],
+    "meaning_vi": "Dạng phủ định quá khứ thân mật của động từ nhóm I: đã không làm.",
+    "nuance_vi": "Thân mật; nghĩa giống ませんでした.",
+    "order_items": [
+     {
+      "answer_order": [
+       3,
+       1,
+       0,
+       4,
+       2
+      ],
+      "pieces": [
+       "学校",
+       "は",
+       "行かなかった",
+       "きのう",
+       "へ"
+      ],
+      "translation_vi": "Hôm qua tôi đã không đi học."
+     },
+     {
+      "answer_order": [
+       0,
+       3,
+       1,
+       2
+      ],
+      "pieces": [
+       "けさ",
+       "何も",
+       "飲まなかった",
+       "は"
+      ],
+      "translation_vi": "Sáng nay tôi đã không uống gì cả."
+     }
+    ],
+    "pattern": "う-Verb (Negative-Past)",
+    "pattern_variants": [],
+    "unit_no": 4,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi kể việc đã không làm trong quá khứ với người thân quen; nói lịch sự thì dùng 〜ませんでした."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-19c95ea4c6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "đến … (điểm kết thúc về thời gian hoặc nơi chốn)",
+     "unit_title_vi": "Giờ giấc và động từ ます"
+    },
+    "note": "nghĩa theo khuôn (chữ thường, không dấu chấm)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điểm kết thúc về thời gian: から〜まで = từ ... đến ....",
+      "options": [
+       "まで",
+       "が",
+       "へ",
+       "を"
+      ],
+      "prompt_ja": "会社は九時から五時（　　）です。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điểm cuối quãng đường: 駅まで = đến nhà ga.",
+      "options": [
+       "か",
+       "の",
+       "まで",
+       "が"
+      ],
+      "prompt_ja": "家から駅（　　）歩きます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 夏休みは八月までです。 Nghĩa: Kỳ nghỉ hè kéo dài đến tháng tám. まで đứng sau mốc kết thúc.",
+      "options": [
+       "夏休み",
+       "は",
+       "まで",
+       "八月"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★ です。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 毎日九時から五時まで働きます。 Nghĩa: Mỗi ngày tôi làm việc từ 9 giờ đến 5 giờ. Mốc cuối 五時 đứng trước まで.",
+      "options": [
+       "五時",
+       "九時",
+       "から",
+       "まで"
+      ],
+      "prompt_ja": "毎日 ＿＿ ＿＿ ★ ＿＿ 働きます。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "三時まで = đến 3 giờ.",
+      "options": [
+       "Ngân hàng mở từ 3 giờ.",
+       "Ngân hàng mở cả ngày.",
+       "Ngân hàng nghỉ ba ngày.",
+       "Ngân hàng mở đến 3 giờ."
+      ],
+      "prompt_ja": "銀行は三時までです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "駅まで = đến nhà ga.",
+      "options": [
+       "Chúng ta đi tàu đến nhà ga đi.",
+       "Chúng ta đi bộ từ nhà ga đi.",
+       "Chúng ta đi bộ đến nhà ga đi.",
+       "Chúng ta đợi ở nhà ga đi."
+      ],
+      "prompt_ja": "駅まで歩きましょう。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "まで gắn thẳng sau danh từ, không thêm を. Đúng: 五時まで勉強します。",
+      "options": [
+       "夜まで働きます。",
+       "五時をまで勉強します。",
+       "金曜日まで休みです。",
+       "駅まで行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "から (từ) và まで (đến) không đi liền nhau sau một danh từ. Đúng: あしたまで休みです。",
+      "options": [
+       "あしたまでから休みです。",
+       "家まで歩きました。",
+       "月曜日まで休みです。",
+       "十二時まで寝ました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay nhầm まで với までに: まで là làm liên tục cho đến lúc đó, までに là hạn chót phải xong trước lúc đó.",
+    "examples": [
+     {
+      "ja": "駅までバスで行きます。",
+      "ja_furigana": "駅(えき)までバスで行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Tôi đi xe buýt đến ga."
+     },
+     {
+      "ja": "毎晩11時まで勉強します。",
+      "ja_furigana": "毎晩(まいばん)11時(じゅういちじ)まで勉強(べんきょう)します。",
+      "source": "CLAUDE",
+      "vi": "Tối nào tôi cũng học đến 11 giờ."
+     },
+     {
+      "ja": "銀行は3時までです。",
+      "ja_furigana": "銀行(ぎんこう)は3時(さんじ)までです。",
+      "source": "CLAUDE",
+      "vi": "Ngân hàng làm việc đến 3 giờ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Học đến mốc 11 giờ đêm → まで.",
+      "options": [
+       "が",
+       "を",
+       "まで",
+       "へ"
+      ],
+      "prompt_ja": "きのうは夜十一時（　　）勉強しました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "AからBまで = từ A đến B.",
+      "options": [
+       "Cửa hàng này mở cả ngày.",
+       "Cửa hàng này mở từ 10 giờ sáng đến 8 giờ tối.",
+       "Cửa hàng này mở từ 8 giờ sáng đến 10 giờ tối.",
+       "Cửa hàng này đóng cửa lúc 10 giờ sáng."
+      ],
+      "prompt_ja": "この店は朝十時から夜八時までです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "まで đứng sau danh từ chỉ điểm cuối. Đúng: 駅まで歩きます。",
+      "options": [
+       "まで駅歩きます。",
+       "夜まで勉強します。",
+       "海まで車で行きます。",
+       "三時まで待ちます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "まで",
+      "sentence_ja": "休みは日曜日＿＿です。",
+      "translation_vi": "Kỳ nghỉ kéo dài đến chủ nhật."
+     },
+     {
+      "answer": "まで",
+      "sentence_ja": "家から学校＿＿二十分かかります。",
+      "translation_vi": "Từ nhà đến trường mất 20 phút."
+     }
+    ],
+    "findings": [],
+    "formation": "N + まで",
+    "locked_fields": [],
+    "meaning_vi": "Đến … – chỉ điểm kết thúc về thời gian hoặc nơi chốn.",
+    "nuance_vi": "Trung tính; chỉ giới hạn cuối, hành động kéo dài liên tục đến mốc đó.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       4,
+       0,
+       1,
+       3
+      ],
+      "pieces": [
+       "四時",
+       "まで",
+       "学校",
+       "です",
+       "は"
+      ],
+      "translation_vi": "Trường học kéo dài đến 4 giờ."
+     },
+     {
+      "answer_order": [
+       0,
+       1,
+       4,
+       3,
+       2
+      ],
+      "pieces": [
+       "ここ",
+       "から",
+       "歩きます",
+       "まで",
+       "駅"
+      ],
+      "translation_vi": "Tôi đi bộ từ đây đến nhà ga."
+     }
+    ],
+    "pattern": "Noun + まで",
+    "pattern_variants": [],
+    "unit_no": 4,
+    "unit_title_vi": null,
+    "usage_vi": "Đặt sau danh từ chỉ giờ giấc hay nơi chốn để nói mốc kết thúc; thường đi cặp với から."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-15e5fd833e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "và (nối danh từ với danh từ)",
+     "usage_vi": "Đặt と giữa các danh từ để liệt kê đầy đủ: パンと牛乳 (bánh mì và sữa). Trợ từ của cả cụm đứng sau danh từ cuối: 本とノートがあります. と chỉ nối danh từ, không nối động từ hay tính từ.",
+     "examples": [
+      {
+       "ja": "休みは土曜日と日曜日です。",
+       "ja_furigana": "休(やす)みは土曜日(どようび)と日曜日(にちようび)です。",
+       "vi": "Ngày nghỉ là thứ bảy và chủ nhật."
+      },
+      {
+       "ja": "かばんの中に本とノートがあります。",
+       "ja_furigana": "かばんの中(なか)に本(ほん)とノートがあります。",
+       "vi": "Trong cặp có sách và vở."
+      },
+      {
+       "ja": "朝はパンとたまごを食べます。",
+       "ja_furigana": "朝(あさ)はパンとたまごを食(た)べます。",
+       "vi": "Buổi sáng tôi ăn bánh mì và trứng."
+      }
+     ],
+     "unit_title_vi": "Giờ giấc và động từ ます"
+    },
+    "note": "nghĩa cũ sai chính tả \"Trợi từ\"; usage_vi cũ chép phần của と điều kiện (vế sau không có ý chí), không phải と nối danh từ; thay câu cụt マンガとアニメ và câu viết 土よう日"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Liệt kê đủ hai danh từ: パンと牛乳 = bánh mì và sữa.",
+      "options": [
+       "へ",
+       "を",
+       "が",
+       "と"
+      ],
+      "prompt_ja": "パン（　　）牛乳を買いました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "本とノート = sách và vở.",
+      "options": [
+       "を",
+       "と",
+       "で",
+       "へ"
+      ],
+      "prompt_ja": "机の上に本（　　）ノートがあります。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: りんごとみかんを買いました。 Nghĩa: Tôi đã mua táo và quýt. と nối hai danh từ.",
+      "options": [
+       "みかん",
+       "りんご",
+       "を",
+       "と"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿ 買いました。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 教室に先生と学生がいます。 Nghĩa: Trong lớp có thầy giáo và học sinh. が đứng sau cả cụm \"AとB\".",
+      "options": [
+       "学生",
+       "と",
+       "先生",
+       "が"
+      ],
+      "prompt_ja": "教室に ＿＿ ＿＿ ＿＿ ★ います。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "AとB = A và B (liệt kê đủ).",
+      "options": [
+       "Chỉ có chó.",
+       "Có chó hoặc mèo.",
+       "Không có chó và mèo.",
+       "Có chó và mèo."
+      ],
+      "prompt_ja": "犬と猫がいます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "日曜日と月曜日 = chủ nhật và thứ hai.",
+      "options": [
+       "Chỉ chủ nhật là ngày nghỉ.",
+       "Chủ nhật và thứ hai là ngày nghỉ.",
+       "Chủ nhật và thứ hai không phải ngày nghỉ.",
+       "Chủ nhật hoặc thứ hai là ngày nghỉ."
+      ],
+      "prompt_ja": "日曜日と月曜日は休みです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "と nối thẳng hai danh từ, không chen を. Đúng: パンと牛乳を買いました。",
+      "options": [
+       "ペンとノートがあります。",
+       "パンとを牛乳を買いました。",
+       "父と母は元気です。",
+       "肉と野菜を食べます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "と chỉ nối danh từ, không nối tính từ. Đúng: 大きくて新しいです。",
+      "options": [
+       "すしとてんぷらが好きです。",
+       "兄と姉がいます。",
+       "机といすがあります。",
+       "大きいと新しいです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Không dùng と để nối hai động từ hay hai câu như chữ “và” trong tiếng Việt (sai: 食べますと飲みます); と chỉ nối danh từ với danh từ.",
+    "examples": [
+     {
+      "ja": "マンガとアニメ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Truyện tranh và hoạt hình."
+     },
+     {
+      "ja": "休みは土よう日と日よう日です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngày nghỉ là thứ bảy và chủ nhật."
+     },
+     {
+      "ja": "かばんの中に本とノートがあります。",
+      "ja_furigana": "かばんの中(なか)に本(ほん)とノートがあります。",
+      "source": "CLAUDE",
+      "vi": "Trong cặp có sách và vở."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "コップとお皿 = cái cốc và cái đĩa.",
+      "options": [
+       "で",
+       "を",
+       "と",
+       "へ"
+      ],
+      "prompt_ja": "テーブルの上にコップ（　　）お皿があります。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "と = và; 買いました = đã mua.",
+      "options": [
+       "Tôi đã mua bút bi và bút chì.",
+       "Tôi đã mua bút chì, không mua bút bi.",
+       "Tôi đã mua bút bi hoặc bút chì.",
+       "Tôi sẽ mua bút bi và bút chì."
+      ],
+      "prompt_ja": "ペンとえんぴつを買いました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "と chỉ nối danh từ; nối tính từ な dùng で: 静かできれいな部屋.",
+      "options": [
+       "ベッドと机があります。",
+       "静かときれいな部屋です。",
+       "お茶とケーキをください。",
+       "月曜日と木曜日に行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "と",
+      "sentence_ja": "かばんの中に本＿＿辞書があります。",
+      "translation_vi": "Trong cặp có sách và từ điển."
+     },
+     {
+      "answer": "と",
+      "sentence_ja": "朝ごはんはパン＿＿コーヒーです。",
+      "translation_vi": "Bữa sáng là bánh mì và cà phê."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 休みは土よう日と日よう日です。"
+    ],
+    "formation": "N1 + と + N2",
+    "locked_fields": [],
+    "meaning_vi": "Trợi từ nối danh từ với danh từ",
+    "nuance_vi": "Trung tính; liệt kê đầy đủ, ngầm hiểu chỉ có đúng những thứ được nêu.",
+    "order_items": [
+     {
+      "answer_order": [
+       4,
+       2,
+       1,
+       3,
+       0
+      ],
+      "pieces": [
+       "買いました",
+       "バナナ",
+       "と",
+       "を",
+       "りんご"
+      ],
+      "translation_vi": "Tôi đã mua táo và chuối."
+     },
+     {
+      "answer_order": [
+       3,
+       1,
+       4,
+       2,
+       0
+      ],
+      "pieces": [
+       "います",
+       "と",
+       "が",
+       "兄",
+       "姉"
+      ],
+      "translation_vi": "Tôi có anh trai và chị gái."
+     }
+    ],
+    "pattern": "〜と",
+    "pattern_variants": [
+     "と"
+    ],
+    "unit_no": 4,
+    "unit_title_vi": null,
+    "usage_vi": "後ろに意志、希望、命令、依頼などの表現は続かない theo sau thì không được dùng biểu hiện như là ý chí, kì vọng, nguyện vọng, nhờ vả."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4275662606"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "đi đến … (へ chỉ hướng hoặc nơi đến)",
+     "examples": [
+      {
+       "ja": "明日、図書館へ行きます。",
+       "ja_furigana": "明日(あした)、図書館(としょかん)へ行(い)きます。",
+       "vi": "Ngày mai tôi đi thư viện."
+      },
+      {
+       "ja": "日曜日に海へ行きました。",
+       "ja_furigana": "日曜日(にちようび)に海(うみ)へ行(い)きました。",
+       "vi": "Chủ nhật tôi đã đi biển."
+      },
+      {
+       "ja": "来年、日本へ行きたいです。",
+       "ja_furigana": "来年(らいねん)、日本(にほん)へ行(い)きたいです。",
+       "vi": "Năm sau tôi muốn đi Nhật."
+      }
+     ],
+     "unit_title_vi": "Đi, đến, về"
+    },
+    "note": "nghĩa theo khuôn; いきました/いきたい → 行きました/行きたい"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Chỉ hướng/đích đến của động từ di chuyển 行く → へ.",
+      "options": [
+       "が",
+       "で",
+       "を",
+       "へ"
+      ],
+      "prompt_ja": "あした、デパート（　　）行きます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Hỏi nơi đến: どこへ行きますか.",
+      "options": [
+       "を",
+       "で",
+       "が",
+       "へ"
+      ],
+      "prompt_ja": "A：週末、どこ（　　）行きますか。B：海へ行きます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: あした友だちと図書館へ行きます。 Nghĩa: Ngày mai tôi đi thư viện với bạn. へ đứng sau nơi đến.",
+      "options": [
+       "へ",
+       "図書館",
+       "行き",
+       "ます"
+      ],
+      "prompt_ja": "あした友だちと ＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 何で学校へ行きますか。 Nghĩa: Bạn đi đến trường bằng gì? 学校へ行きます.",
+      "options": [
+       "学校",
+       "へ",
+       "か",
+       "行きます"
+      ],
+      "prompt_ja": "何で ＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "銀行へ行きます = đi đến ngân hàng.",
+      "options": [
+       "Ngày mai tôi đi đến ngân hàng.",
+       "Ngày mai tôi không đi ngân hàng.",
+       "Ngày mai tôi làm việc ở ngân hàng.",
+       "Hôm qua tôi đã đi ngân hàng."
+      ],
+      "prompt_ja": "あした、銀行へ行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "どこへも + phủ định = không đi đâu cả.",
+      "options": [
+       "Hôm qua bạn đã đi đâu?",
+       "Hôm qua tôi đã đi nhiều nơi.",
+       "Hôm qua tôi đã không đi đâu cả.",
+       "Ngày mai tôi không đi đâu cả."
+      ],
+      "prompt_ja": "きのう、どこへも行きませんでした。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "行く chia lịch sự là 行きます. Đúng: 学校へ行きます。",
+      "options": [
+       "来週、山へ行きます。",
+       "あした学校へ行きます。",
+       "日曜日にデパートへ行きました。",
+       "学校へ行くます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đích đến của 行く dùng へ, không dùng で. Đúng: 友だちの家へ行きます。",
+      "options": [
+       "きのう病院へ行きました。",
+       "友だちの家で行きます。",
+       "どこへ行きますか。",
+       "毎日会社へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay đọc へ là “he”; khi làm trợ từ phải đọc là “e”. Người Việt cũng hay dùng nhầm を (sai: 学校を行きます).",
+    "examples": [
+     {
+      "ja": "明日、図書館へ行きます。",
+      "ja_furigana": "明日(あした)、図書館(としょかん)へ行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Ngày mai tôi đi thư viện."
+     },
+     {
+      "ja": "日曜日に海へいきました。",
+      "ja_furigana": "日曜日(にちようび)に海(うみ)へいきました。",
+      "source": "CLAUDE",
+      "vi": "Chủ nhật tôi đã đi biển."
+     },
+     {
+      "ja": "来年、日本へいきたいです。",
+      "ja_furigana": "来年(らいねん)、日本(にほん)へいきたいです。",
+      "source": "CLAUDE",
+      "vi": "Năm sau tôi muốn đi Nhật."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "どこへも luôn đi với phủ định; nói về ngày mai nên dùng 行きません.",
+      "options": [
+       "行きます",
+       "行きました",
+       "行きません",
+       "行きましょう"
+      ],
+      "prompt_ja": "A：あした、どこへ行きますか。B：どこへも（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "どこへ行きますか = bạn đi đâu; ちょっと〜へ = đi ... một chút.",
+      "options": [
+       "A: Bưu điện ở đâu? B: Ở kia.",
+       "A: Bạn ở đâu? B: Ở bưu điện.",
+       "A: Bạn làm gì? B: Tôi gửi thư.",
+       "A: Bạn đi đâu đấy? B: Tôi ra bưu điện một chút."
+      ],
+      "prompt_ja": "A：どこへ行きますか。B：ちょっと郵便局へ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đích đến đi với へ, không dùng が. Đúng: 学校へ行きます。",
+      "options": [
+       "いっしょに公園へ行きませんか。",
+       "バスで駅へ行きます。",
+       "学校が行きます。",
+       "一人で病院へ行きました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "行きます",
+      "sentence_ja": "来週、日本へ＿＿。",
+      "translation_vi": "Tuần sau tôi đi Nhật Bản."
+     },
+     {
+      "answer": "行きました",
+      "sentence_ja": "きのう、デパートへ＿＿。",
+      "translation_vi": "Hôm qua tôi đã đi cửa hàng bách hóa."
+     }
+    ],
+    "findings": [],
+    "formation": "N(nơi chốn) + へ + 行く",
+    "locked_fields": [],
+    "meaning_vi": "Đi đến … – へ chỉ hướng hoặc nơi đến của việc di chuyển.",
+    "nuance_vi": "Trung tính; へ nhấn vào hướng đi, có thể thay bằng に mà nghĩa gần như không đổi.",
+    "order_items": [
+     {
+      "answer_order": [
+       0,
+       2,
+       1,
+       3
+      ],
+      "pieces": [
+       "あした",
+       "へ",
+       "銀行",
+       "行きます"
+      ],
+      "translation_vi": "Ngày mai tôi đi ngân hàng."
+     },
+     {
+      "answer_order": [
+       3,
+       4,
+       0,
+       1,
+       2
+      ],
+      "pieces": [
+       "家",
+       "へ",
+       "行きました",
+       "友だち",
+       "の"
+      ],
+      "translation_vi": "Tôi đã đi đến nhà bạn."
+     }
+    ],
+    "pattern": "へ行(い)く",
+    "pattern_variants": [],
+    "unit_no": 5,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nói đi đến một nơi nào đó; へ đánh dấu hướng đi hoặc điểm đến."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-73a902e219"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "đến; tới (di chuyển về phía người nói)",
+     "examples": [
+      {
+       "ja": "友だちが家へ来ました。",
+       "ja_furigana": "友(とも)だちが家(いえ)へ来(き)ました。",
+       "vi": "Bạn tôi đã đến nhà."
+      },
+      {
+       "ja": "先生は明日来ますか。",
+       "ja_furigana": "先生(せんせい)は明日(あした)来(き)ますか。",
+       "vi": "Ngày mai thầy giáo có đến không?"
+      },
+      {
+       "ja": "明日は先生が来ない。",
+       "ja_furigana": "明日(あした)は先生(せんせい)が来(こ)ない。",
+       "vi": "Ngày mai thầy giáo không đến."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "田中さん、あした私の家に＿＿ませんか。",
+       "answer": "来",
+       "accept": [
+        "き"
+       ],
+       "translation_vi": "Anh Tanaka, ngày mai anh đến nhà tôi chơi không?"
+      },
+      {
+       "sentence_ja": "A：あした、来る？B：ううん、＿＿ない。",
+       "answer": "こ",
+       "accept": [
+        "来"
+       ],
+       "translation_vi": "A: Mai cậu đến không? B: Không, tớ không đến."
+      }
+     ],
+     "unit_title_vi": "Đi, đến, về"
+    },
+    "note": "nghĩa theo khuôn; きました/こない → 来ました/来ない; bài điền nhận cả chữ Kanji và kana"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Phủ định dạng thường của 来る là 来ない, đọc こない.",
+      "options": [
+       "くない",
+       "きない",
+       "こない",
+       "くらない"
+      ],
+      "prompt_ja": "A：あした、パーティーに来る？B：ううん、（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Quá khứ dạng thường của 来る là 来た, đọc きた.",
+      "options": [
+       "きた",
+       "くった",
+       "くた",
+       "こた"
+      ],
+      "prompt_ja": "きのう、友だちが家に（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 来週、母がベトナムから来ます。 Nghĩa: Tuần sau mẹ tôi đến từ Việt Nam. 来ます đọc là きます.",
+      "options": [
+       "から",
+       "ます",
+       "ベトナム",
+       "来"
+      ],
+      "prompt_ja": "来週、母が ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: あしたはだれが来るの？ Nghĩa: Ngày mai ai đến vậy? 来る (くる) là thể từ điển.",
+      "options": [
+       "の",
+       "が",
+       "だれ",
+       "来る"
+      ],
+      "prompt_ja": "あしたは ＿＿ ＿＿ ★ ＿＿？",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "来ませんでした = đã không đến.",
+      "options": [
+       "Hôm qua anh Yamada đã đi về.",
+       "Hôm qua anh Yamada đã đến.",
+       "Hôm qua anh Yamada đã không đến.",
+       "Ngày mai anh Yamada sẽ không đến."
+      ],
+      "prompt_ja": "山田さんはきのう来ませんでした。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "来ました = đã đến.",
+      "options": [
+       "Xe buýt chưa đến.",
+       "Xe buýt sắp đi rồi.",
+       "Xe buýt đến rồi đấy.",
+       "Tôi đến bằng xe buýt."
+      ],
+      "prompt_ja": "バスが来ましたよ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "来る là động từ bất quy tắc: lịch sự là 来ます (きます).",
+      "options": [
+       "毎日ここへ来ます。",
+       "あした友だちが来りますよ。",
+       "田中さんはまだ来ません。",
+       "先生はもう来ました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Không thêm でした sau なかった. Đúng: 来なかった hoặc 来ませんでした.",
+      "options": [
+       "友だちはもう来た。",
+       "友だちはきのう来なかった。",
+       "友だちはきのう来なかったでした。",
+       "友だちは来週来る。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người Việt hay nói “tôi đến chỗ bạn” bằng 来る; tiếng Nhật lúc đó dùng 行く. 来る chia bất quy tắc: 来ない đọc là こない, 来た đọc là きた.",
+    "examples": [
+     {
+      "ja": "友だちが家へきました。",
+      "ja_furigana": "友(とも)だちが家(いえ)へきました。",
+      "source": "CLAUDE",
+      "vi": "Bạn tôi đã đến nhà."
+     },
+     {
+      "ja": "先生は明日来ますか。",
+      "ja_furigana": "先生(せんせい)は明日(あした)来(き)ますか。",
+      "source": "CLAUDE",
+      "vi": "Ngày mai thầy giáo có đến không?"
+     },
+     {
+      "ja": "明日は先生がこない。",
+      "ja_furigana": "明日(あした)は先生(せんせい)がこない。",
+      "source": "CLAUDE",
+      "vi": "Ngày mai thầy giáo không đến."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Thể từ điển của 来ます là 来る, đọc くる.",
+      "options": [
+       "きる",
+       "くりる",
+       "くる",
+       "こる"
+      ],
+      "prompt_ja": "A：あした、来る？B：うん、（　　）よ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "来た = đã đến; から = từ.",
+      "options": [
+       "Bạn tôi chưa đến từ Việt Nam.",
+       "Bạn tôi sẽ đến từ Việt Nam.",
+       "Bạn tôi đã đến từ Việt Nam.",
+       "Bạn tôi đã đi Việt Nam."
+      ],
+      "prompt_ja": "友だちがベトナムから来た。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "来ます đọc là きます, không phải こます.",
+      "options": [
+       "先生がきました。",
+       "田中さんはこない。",
+       "あしたは学校へこます。",
+       "バスがくる。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "来",
+      "sentence_ja": "田中さん、あした私の家に＿＿ませんか。",
+      "translation_vi": "Anh Tanaka, ngày mai anh đến nhà tôi chơi không?"
+     },
+     {
+      "answer": "こ",
+      "sentence_ja": "A：あした、来る？B：ううん、＿＿ない。",
+      "translation_vi": "A: Mai cậu đến không? B: Không, tớ không đến. (viết bằng hiragana)"
+     }
+    ],
+    "findings": [],
+    "formation": "N(nơi chốn) + へ・に + 来る (来ます・来ない・来た)",
+    "locked_fields": [],
+    "meaning_vi": "Đến, tới – di chuyển về phía người nói.",
+    "nuance_vi": "Trung tính; hướng về phía người nói, ngược với 行く là đi ra xa.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2,
+       4
+      ],
+      "pieces": [
+       "ベトナム",
+       "母",
+       "から",
+       "は",
+       "来ました"
+      ],
+      "translation_vi": "Mẹ tôi đã đến từ Việt Nam."
+     },
+     {
+      "answer_order": [
+       3,
+       0,
+       1,
+       2
+      ],
+      "pieces": [
+       "は",
+       "まだ",
+       "来ません",
+       "バス"
+      ],
+      "translation_vi": "Xe buýt vẫn chưa đến."
+     }
+    ],
+    "pattern": "来(く)る",
+    "pattern_variants": [],
+    "unit_no": 5,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi ai đó di chuyển về phía chỗ người nói đang ở, ví dụ bạn đến nhà mình."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-41b9467416"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N5",
+ "packet_id": "REVIEW_GRAMMAR-003"
+}

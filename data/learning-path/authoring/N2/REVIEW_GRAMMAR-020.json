@@ -1,0 +1,579 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大雨で川の水が増えた。したがって、今日の船は運休する。",
+       "ja_furigana": "大雨(おおあめ)で川(かわ)の水(みず)が増(ふ)えた。したがって、今日(きょう)の船(ふね)は運休(うんきゅう)する。",
+       "vi": "Mưa lớn làm nước sông dâng cao. Vì vậy, hôm nay tàu sẽ tạm nghỉ chạy."
+      },
+      {
+       "ja": "会議で方針が決まった。したがって、来月から新しい方法で進める。",
+       "ja_furigana": "会議(かいぎ)で方針(ほうしん)が決(き)まった。したがって、来月(らいげつ)から新(あたら)しい方法(ほうほう)で進(すす)める。",
+       "vi": "Cuộc họp đã quyết định phương châm. Theo đó, từ tháng sau chúng tôi sẽ tiến hành theo cách mới."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "台風が接近中だ。したがって、本日のイベントは中止とする。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bão đang tiến gần. Vì vậy, sự kiện hôm nay sẽ hủy."
+     },
+     {
+      "ja": "コストが上昇した。したがって、価格改定が必要だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chi phí tăng. Theo đó, cần điều chỉnh giá."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 台風が接近中だ。したがって、本日のイベントは中止とする。",
+     "FURIGANA_MISSING: コストが上昇した。したがって、価格改定が必要だ。"
+    ],
+    "formation": "文1。したがって、文2",
+    "locked_fields": [],
+    "meaning_vi": "したがって: “vì vậy/cho nên/theo đó”. Nêu kết luận hoặc hệ quả tất yếu dựa trên tiền đề vừa nêu. Thường dùng trong văn bản học thuật, báo cáo, thông báo chính thức. Tính logic cao, ít sắc thái cảm xúc. S2 thường là phán đoán, kết luận, chính sách, hoặc tình trạng kết quả khách quan. Không tự nhiên khi theo sau là yêu cầu cá nhân, mệnh lệnh trực tiếp.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Do đó, vì thế",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Phong cách trang trọng; phù hợp báo cáo, thông báo, trình bày học thuật. Vị trí: đầu câu kết luận; thường có dấu phẩy. Không nên dùng trước mệnh lệnh/nhờ vả mang tính cá nhân trực tiếp. Hay đi cùng các cặp lập luận: まず/第一に → 次に → したがって/結論. [6. Ghi chú mở rộng] Phân biệt “従って” (liên từ: do đó) và “規則に従って” (nghĩa “tuân theo”). Hình thức giống nhưng chức năng khác. Trong diễn văn trang trọng có biến thể kính ngữ “したがいまして” (ít dùng trong viết chuẩn, nhưng nghe trong lời nói lễ nghi). Mẹo: nếu câu mang tính kết luận chính sách/quy định, したがって thường là lựa chọn tốt. [7. Biến thể & cụm cố định] したがって、～とする／～ものとする：công bố quyết định trong thông báo. したがって、結論として～：định dạng kết luận trong báo cáo. 従って／したがって：kanji/kana đều chấp nhận trong văn viết chính thức. [8. Lỗi thường gặp & bẫy JLPT] Dùng trước yêu cầu cá nhân: ×「したがって、来てください」→ nên dùng ですので/それで. Nhầm với そのため/それで: câu có tính suy luận logic hàn lâm → したがって; câu đời thường kết quả tự nhiên → それで. Lẫn với nghĩa “tuân theo”: nhìn xem sau có tân ngữ + に không (規則に従って = khác mẫu liên từ)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7dff3e956c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "受付は九時からです。なお、昼休みは十二時から一時までです。",
+       "ja_furigana": "受付(うけつけ)は九時(くじ)からです。なお、昼休(ひるやす)みは十二時(じゅうにじ)から一時(いちじ)までです。",
+       "vi": "Quầy tiếp nhận mở từ 9 giờ. Ngoài ra, giờ nghỉ trưa là từ 12 giờ đến 1 giờ."
+      },
+      {
+       "ja": "申し込みの受付は金曜日までです。なお、人数が集まりしだい終わります。",
+       "ja_furigana": "申(もう)し込(こ)みの受付(うけつけ)は金曜日(きんようび)までです。なお、人数(にんずう)が集(あつ)まりしだい終(お)わります。",
+       "vi": "Đăng ký được nhận đến thứ Sáu. Lưu ý, sẽ kết thúc ngay khi đủ số người."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "本日は臨時休館です。なお、明日は通常どおり開館します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay tạm đóng cửa. Ngoài ra, ngày mai mở cửa như thường."
+     },
+     {
+      "ja": "応募はオンラインのみ受け付けます。なお、郵送での応募はできません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ nhận ứng tuyển online. Lưu ý, không nhận qua bưu điện."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 本日は臨時休館です。なお、明日は通常どおり開館します。",
+     "FURIGANA_MISSING: 応募はオンラインのみ受け付けます。なお、郵送での応募はできません。"
+    ],
+    "formation": "文1。なお、文2",
+    "locked_fields": [],
+    "meaning_vi": "Bổ sung thông tin: Thêm chi tiết liên quan, thường quan trọng đối với người đọc. Lưu ý/nhắc nhở: Chuyển sang giọng hướng dẫn, cảnh báo, hoặc quy định thêm. Đính chính/ngoại lệ: Nêu trường hợp đặc biệt nhưng không phủ định nội dung trước. Sắc thái: Trang trọng, điển hình trong thông báo, văn bản hành chính, tài liệu hướng dẫn, email công việc.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Ngoài ra, thêm nữa",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt đầu câu B; luôn có dấu phẩy để tách nội dung. Giọng trung lập-trang trọng; phù hợp văn bản chính thức, ít dùng trong hội thoại thân mật (thay bằng それで/それから/あと). Khi mang nghĩa “ngoại lệ nhẹ”, mức độ yếu hơn ただし, không mang sắc thái phản biện mạnh như しかし. Thường đi với các động từ chỉ dẫn: ご確認ください／ご注意ください／お問い合わせください. [6. Ghi chú mở rộng] Trong tiêu đề/biển báo có thể lược bỏ chủ ngữ và trợ từ: なお、入場は一方通行. Chữ Hán 尚 thường dùng trong văn trang trọng; trong máy tính/biểu mẫu có thể thấy dạng toàn chữ Hán. Trong email, “なお” thường đứng ngay trước câu chứa động từ kính ngữ yêu cầu hành động. [7. Biến thể & cụm cố định] なお、ご了承ください／ご注意ください／ご確認ください。 なお、以下のとおり（như dưới đây） なお、～に関しては別紙をご参照ください。 なお、～につき（kết hợp mẫu khác, nhưng “なお” vẫn giữ chức năng bổ sung) [8. Lỗi thường gặp & bẫy JLPT] Dùng なお trong hội thoại thân mật → nghe cứng; nên dùng それで/それから/あと. Nhầm なお với ただし: なお không đủ mạnh để đặt điều kiện ràng buộc. Nhầm với なおさら (càng hơn) → khác loại từ và nghĩa. Bỏ dấu phẩy sau なお khiến câu khó đọc; trong đề đọc hiểu JLPT dấu phẩy giúp nhận diện cấu trúc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a19d0f0382"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店のケーキはおいしい。ちなみに、一番安いのは三百円だ。",
+       "ja_furigana": "この店(みせ)のケーキはおいしい。ちなみに、一番(いちばん)安(やす)いのは三百円(さんびゃくえん)だ。",
+       "vi": "Bánh của quán này ngon. Nhân tiện, loại rẻ nhất là 300 yên."
+      },
+      {
+       "ja": "来月、新しい図書館が開く。ちなみに、子ども用の部屋もあるそうだ。",
+       "ja_furigana": "来月(らいげつ)、新(あたら)しい図書館(としょかん)が開(ひら)く。ちなみに、子(こ)ども用(よう)の部屋(へや)もあるそうだ。",
+       "vi": "Tháng sau một thư viện mới sẽ mở. Nhân tiện, nghe nói cũng có phòng dành cho trẻ em."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "会議は10時からです。ちなみに、場所は第3会議室です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuộc họp từ 10 giờ. Nhân tiện, địa điểm là phòng họp số 3."
+     },
+     {
+      "ja": "この店は評判がいい。ちなみに、オーナーは元プロ選手だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quán này được đánh giá cao. Nhân tiện, chủ quán là cựu tuyển thủ chuyên nghiệp."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 会議は10時からです。ちなみに、場所は第3会議室です。",
+     "FURIGANA_MISSING: この店は評判がいい。ちなみに、オーナーは元プロ選手だ。"
+    ],
+    "formation": "文1。ちなみに、文2",
+    "locked_fields": [],
+    "meaning_vi": "“Nhân tiện/tiện thể nói thêm”: cung cấp thông tin phụ hữu ích nhưng không quyết định mạch chính. Giữ liên hệ chủ đề; không nên đổi chủ đề đột ngột như ところで. Thường dùng trong thuyết trình, email, hội thoại để chèn dữ kiện thú vị/liên quan.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nhân tiện thì...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt đầu câu mới, sau đó là dấu phẩy: “ちなみに、…”. Thông tin bổ sung không phải “điều kiện/ngoại lệ” và không phải “kết luận”. Trong formal writing, なお thay cho ちなみに khi muốn văn phong cứng hơn. [6. Ghi chú mở rộng] Dùng ちなみに để cắm “fun fact” giúp bài nói sinh động nhưng đừng lạm dụng làm loãng mạch chính. Trong email lịch sự: “ちなみにですが、〜をご存じでしょうか。” mở đề tài nhẹ nhàng. Nếu thông tin bổ sung mang tính điều kiện/ngoại lệ, chuyển sang ただし/なお cho đúng sắc thái. [7. Biến thể & cụm cố định] ちなみに、～ ちなみに言うと、～ ちなみにですが、～ (lịch sự) [8. Lỗi thường gặp & bẫy JLPT] Dùng ちなみに để đưa điều kiện ràng buộc → sai chức năng; phải dùng ただし. Nhầm với ところで: câu hỏi kiểm tra chủ đề thường yêu cầu ところで khi chuyển mạch mạnh. Chèn ちなみに quá dày làm rối mạch; trong bài viết, đôi khi đáp án là なお (trang trọng hơn)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-faa55c23e3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "説明が長すぎて分かりにくかった。要するに、予算が足りないということだ。",
+       "ja_furigana": "説明(せつめい)が長(なが)すぎて分(わ)かりにくかった。要(よう)するに、予算(よさん)が足(た)りないということだ。",
+       "vi": "Lời giải thích quá dài nên khó hiểu. Tóm lại là ngân sách không đủ."
+      },
+      {
+       "ja": "彼は毎日遅刻する。要するに、やるきがないのだ。",
+       "ja_furigana": "彼(かれ)は毎日(まいにち)遅刻(ちこく)する。要(よう)するに、やるきがないのだ。",
+       "vi": "Anh ấy ngày nào cũng đi muộn. Tóm lại là không có chí làm việc."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "いろいろ考えた。要するに、やってみるしかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã suy nghĩ đủ thứ. Tóm lại thì chỉ còn cách làm thử thôi."
+     },
+     {
+      "ja": "彼は忙しいし、興味もないらしい。要するに、来ないってことだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy bận và cũng không hứng thú. Nói ngắn gọn là sẽ không đến."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: いろいろ考えた。要するに、やってみるしかない。",
+     "FURIGANA_MISSING: 彼は忙しいし、興味もないらしい。要するに、来ないってことだ。"
+    ],
+    "formation": "文1。要するに、文2",
+    "locked_fields": [],
+    "meaning_vi": "Tóm tắt, kết luận nội dung trước đó một cách ngắn gọn, súc tích. Diễn đạt trọng tâm, bản chất của vấn đề sau khi đã trình bày dài dòng hoặc nhiều chi tiết. Dịch tự nhiên: “Tóm lại…”, “Nói cách khác…”, “Nói chung…”, “Cuối cùng thì…”. Thường dùng trong giải thích, thuyết trình, hội thoại logic, hoặc nhấn mạnh quan điểm cá nhân.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tóm lại, nói chung",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt đầu mệnh đề B để rút ra bản chất/cốt lõi của mệnh đề A. Sắc thái: Khách quan/trung tính hoặc đôi khi mang cảm giác hơi lạnh lùng, rõ ràng. Thường dùng khi người nói muốn kết luận nhanh, hoặc khi cảm thấy người nghe đang lan man. Xuất hiện nhiều trong văn nói, bài thuyết trình, báo cáo, và bài thi đọc hiểu JLPT. [6. Ghi chú mở rộng] Thường đặt sau dấu chấm hoặc dấu phẩy: 「～。要するに、～。」 Dễ xuất hiện trong văn bản giải thích, khi tác giả muốn nhấn mạnh kết quả hoặc cốt lõi. Có thể mang sắc thái hơi mỉa nếu dùng trong hội thoại: “要するにさ、君はやりたくないんでしょ？” [7. Biến thể & cụm cố định] 要するに言えば：Nói cho ngắn gọn thì… 要するに～ということだ：Tóm lại là… 要するにね：Khẩu ngữ, dùng trong hội thoại. [8. Lỗi thường gặp & bẫy JLPT] Nhầm với つまり: つまり = diễn đạt lại thông tin theo cách khác; 要するに = rút ra kết luận. Dùng khi chưa có nội dung để tổng kết → không tự nhiên. Sử dụng trong văn quá trang trọng như luận án → nên dùng “結論としては…, 要するに…” hoặc từ học thuật khác. Bỏ dấu phẩy/、 sau 要するに trong văn viết là sai chuẩn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-95062209bb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店の名物、すなわち手作りのみそは毎朝作られている。",
+       "ja_furigana": "この店(みせ)の名物(めいぶつ)、すなわち手作(てづく)りのみそは毎朝(まいあさ)作(つく)られている。",
+       "vi": "Món đặc sản của quán, tức là loại tương làm bằng tay, được làm mỗi sáng."
+      },
+      {
+       "ja": "この会社の目標、すなわちお客様の満足を一番に考えることだ。",
+       "ja_furigana": "この会社(かいしゃ)の目標(もくひょう)、すなわちお客様(きゃくさま)の満足(まんぞく)を一番(いちばん)に考(かんが)えることだ。",
+       "vi": "Mục tiêu của công ty này, tức là đặt sự hài lòng của khách hàng lên hàng đầu."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "円周率とは、すなわちπのことである。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Số pi, tức là π."
+     },
+     {
+      "ja": "この薬の主成分、すなわちビタミンCが不足している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thành phần chính của thuốc này, tức là vitamin C, đang thiếu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 円周率とは、すなわちπのことである。",
+     "FURIGANA_MISSING: この薬の主成分、すなわちビタミンCが不足している。"
+    ],
+    "formation": "N1、すなわちN2 / 文1。すなわち、文2",
+    "locked_fields": [],
+    "meaning_vi": "すなわち: “tức là/như vậy là/nói cách khác (theo nghĩa đồng nhất)”. Dùng để nêu định nghĩa, diễn giải chính xác, hoặc quy chiếu lại bằng biểu thức tương đương. Nhấn quan hệ đồng nhất/đẳng thức: S2 ≒ sự diễn đạt khác của S1. Độ trang trọng cao hơn つまり; thiên về chính xác, khách quan. Không dùng cho suy luận kết quả hay tóm tắt cảm tính.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tức là, nói cách khác",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng trong định nghĩa, giải thích thuật ngữ, nêu mối quan hệ đồng nhất. Phong cách trang trọng/học thuật; つまり mang tính tóm lược phổ thông hơn. Thường kèm dấu phẩy trước/sau để tách mệnh đề diễn giải. Không dùng để nêu hệ quả, mệnh lệnh, hay cảm thán. [6. Ghi chú mở rộng] Mẹo: nếu có thể thay bằng “= (bằng)” giữa S1 và S2, すなわち là lựa chọn đúng. Trong văn khoa học, hay xuất hiện trong định nghĩa: Xとは、すなわちYである。 Kanji 即ち ít dùng trong hiện đại; ưu tiên kana すなわち để dễ đọc. [7. Biến thể & cụm cố định] ～、すなわち～（である／ということだ）：mẫu định nghĩa/đính chính. 名詞、すなわち～：đặt giữa danh từ và thuyết minh. ～は、すなわち～に他ならない：nhấn mạnh “chính là”. [8. Lỗi thường gặp & bẫy JLPT] Nhầm với つまり: câu hỏi yêu cầu “định nghĩa đồng nhất” → すなわち; yêu cầu “tóm tắt/suy ra” → つまり. Dùng cho kết quả/nhân quả là sai: ×「雨だ。すなわち、行かない」→ nên dùng それで/だから. Đặt S2 không tương đương với S1 làm câu thiếu chính xác; cần đảm bảo quan hệ đồng nhất."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-817f1f69bf"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この機械は誰でも使えます。ただし、使った後は必ず掃除してください。",
+       "ja_furigana": "この機械(きかい)は誰(だれ)でも使(つか)えます。ただし、使(つか)った後(あと)は必(かなら)ず掃除(そうじ)してください。",
+       "vi": "Máy này ai cũng dùng được. Tuy nhiên, sau khi dùng nhất định phải dọn dẹp."
+      },
+      {
+       "ja": "申し込みは電話でも受け付けます。ただし、受付は平日に限ります。",
+       "ja_furigana": "申(もう)し込(こ)みは電話(でんわ)でも受(う)け付(つ)けます。ただし、受付(うけつけ)は平日(へいじつ)に限(かぎ)ります。",
+       "vi": "Có thể đăng ký qua điện thoại. Tuy nhiên, chỉ tiếp nhận vào ngày thường."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "参加は無料。ただし、事前登録が必要だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tham gia miễn phí. Tuy nhiên, cần đăng ký trước."
+     },
+     {
+      "ja": "喫煙可。ただし、指定の場所に限る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Được hút thuốc. Tuy nhiên, chỉ giới hạn ở khu vực quy định."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 参加は無料。ただし、事前登録が必要だ。",
+     "FURIGANA_MISSING: 喫煙可。ただし、指定の場所に限る。"
+    ],
+    "formation": "文1。ただし、文2",
+    "locked_fields": [],
+    "meaning_vi": "Xác lập một ngoại lệ/điều kiện bổ sung ràng buộc câu trước. Tính quy phạm cao, sắc thái cứng và chính thức hơn ただ, でも. S2 thường chứa từ ngữ điều kiện: ～に限る／～を除く／～場合は／要～／原則として…など.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tuy nhiên (giới hạn điều kiện)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Luôn đứng đầu câu sau, theo sau bằng dấu phẩy: “ただし、…”. Thích hợp khi đặt ra phạm vi/điều kiện áp dụng, không phải để tranh luận cảm xúc. Trong văn bản công ty, なお bổ sung thông tin, ただし đặt điều kiện/ngoại lệ. [6. Ghi chú mở rộng] “ただし書き” là đoạn “rào” trong quy định; thường theo sau mệnh đề chính mang tính tuyên bố. Trong email lịch sự, có thể dùng: ただし、〜となります／〜が必要となります。 Khi nội dung S2 là cảnh báo an toàn, ただし giúp người đọc nhận ra tầm quan trọng ngay. [7. Biến thể & cụm cố định] ただし、～を除く／～の場合を除く／～に限る ただし、～が必要となる／要～ 原則～。ただし、～。 (Nguyên tắc là …, tuy nhiên …) [8. Lỗi thường gặp & bẫy JLPT] Dùng ただし cho đối lập ý kiến cá nhân → không tự nhiên; nên dùng しかし/でも/ただ. Thiếu tính quy phạm trong S2 (không có điều kiện/giới hạn) → chọn sai khi làm bài đọc. Nhầm なお với ただし: なお chỉ thêm thông tin, không ràng buộc. Đề JLPT hay gài “無料。なお、事前登録が必要だ。” → chưa chính xác về sắc thái; đáp án hay là ただし."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-79f352ec2f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "新しい店を出す計画に賛成だ。もっとも、場所はもう一度考えたほうがいい。",
+       "ja_furigana": "新(あたら)しい店(みせ)を出(だ)す計画(けいかく)に賛成(さんせい)だ。もっとも、場所(ばしょ)はもう一度(いちど)考(かんが)えたほうがいい。",
+       "vi": "Tôi tán thành kế hoạch mở cửa hàng mới. Tuy nhiên, nên cân nhắc lại địa điểm một lần nữa."
+      },
+      {
+       "ja": "この方法は便利だ。もっとも、慣れるまでは時間がかかる。",
+       "ja_furigana": "この方法(ほうほう)は便利(べんり)だ。もっとも、慣(な)れるまでは時間(じかん)がかかる。",
+       "vi": "Cách này tiện. Tuy vậy, phải mất thời gian mới quen được."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼の提案には賛成だ。もっとも、予算内でできるならだが。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đồng ý với đề xuất của anh ấy. Tuy nhiên, nếu thực hiện trong phạm vi ngân sách thì mới được."
+     },
+     {
+      "ja": "日本に留学したい。もっとも、親が許せばだけど。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi muốn du học Nhật. Mặc dù, còn phải xem bố mẹ có cho không."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼の提案には賛成だ。もっとも、予算内でできるならだが。",
+     "FURIGANA_MISSING: 日本に留学したい。もっとも、親が許せばだけど。"
+    ],
+    "formation": "文1。もっとも、文2",
+    "locked_fields": [],
+    "meaning_vi": "Dùng để thêm thông tin bổ sung, ngoại lệ, hoặc điều chỉnh phát ngôn ở mệnh đề trước. Gần nghĩa với “Tuy nhiên / Dẫu vậy / Mặc dù nói thế nhưng…”. Mệnh đề B không phủ định hoàn toàn mệnh đề A, mà chỉ giới hạn, chỉnh lại cho chính xác hơn. Thường dùng trong văn viết, văn nói trang trọng nhẹ, trình bày logic.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tuy nhiên, dù vậy",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt đầu mệnh đề B để chỉnh lại hoặc bổ sung cho mệnh đề A. Không phủ định hoàn toàn, mà làm mềm phát ngôn hoặc thêm điều kiện. Sắc thái: Lịch sự – lý luận, hơi văn viết, giống như đang “chính xác hóa” câu nói. Không cảm xúc mạnh như それなのに hay それでも; thiên về lý trí, bổ sung. [6. Ghi chú mở rộng] Rất hay xuất hiện trong bài đọc hiểu JLPT khi tác giả viết ý chính rồi điều chỉnh bằng もっとも để chính xác hoặc thêm ngoại lệ. Có thể dịch linh hoạt: “Tuy nhiên”, “Dù nói thế nhưng…”, “Tất nhiên là…”, “Có điều…”. Thường đứng sau dấu chấm, dấu phẩy hoặc có thể viết: 「～。もっとも～。」. [7. Biến thể & cụm cố định] もっとも～が：Tuy nhiên… もっともだ：“Có lý”, “Đúng là như thế” (dùng như tính từ-na): 君の言うことはもっともだ。 ごもっともです：Thưa, rất đúng ạ (cách nói kính trọng). [8. Lỗi thường gặp & bẫy JLPT] Nhầm với それでも: それでも = vẫn làm B dù A là trở ngại; もっとも = chỉ thêm ngoại lệ hoặc điều kiện. Dùng trong ngữ cảnh cảm xúc mạnh như phàn nàn → không tự nhiên, nên dùng それなのに・でも. Bỏ mệnh đề A: もっとも luôn dựa trên thông tin trước đó. Bỏ dấu phẩy: Trong văn viết nên viết “もっとも、～”。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7b6aa91792"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "昨夜は早く寝た。それなのに、今朝も眠い。",
+       "ja_furigana": "昨夜(さくや)は早(はや)く寝(ね)た。それなのに、今朝(けさ)も眠(ねむ)い。",
+       "vi": "Đêm qua tôi đã ngủ sớm. Ấy vậy mà sáng nay vẫn buồn ngủ."
+      },
+      {
+       "ja": "彼は毎日練習している。それなのに、試合に一度も勝てない。",
+       "ja_furigana": "彼(かれ)は毎日(まいにち)練習(れんしゅう)している。それなのに、試合(しあい)に一度(いちど)も勝(か)てない。",
+       "vi": "Anh ấy ngày nào cũng luyện tập. Vậy mà chưa thắng trận nào."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "一生懸命勉強した。それなのに、試験に落ちてしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã học rất chăm chỉ. Ấy vậy mà lại trượt kỳ thi."
+     },
+     {
+      "ja": "雨が降っていた。それなのに、彼は傘を持っていなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trời đang mưa. Thế mà anh ấy không mang ô."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 一生懸命勉強した。それなのに、試験に落ちてしまった。",
+     "FURIGANA_MISSING: 雨が降っていた。それなのに、彼は傘を持っていなかった。"
+    ],
+    "formation": "文1。それなのに、文2",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả sự đối lập mạnh với kỳ vọng: Mệnh đề B đi ngược hoàn toàn với điều đáng lẽ phải xảy ra từ mệnh đề A. Sắc thái cảm xúc rõ: Thường mang cảm xúc trách móc, ngạc nhiên, thất vọng, hoặc bất bình. Dịch tự nhiên: “Ấy vậy mà…”, “Thế nhưng…”, “Mặc dù như vậy…”. Khác với それでも: それなのに nhấn mạnh cảm xúc mạnh hơn và sự trái ngược rõ ràng hơn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vậy mà, thế nhưng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Vị trí: Luôn đứng đầu mệnh đề thứ hai sau dấu chấm hoặc phẩy. Sử dụng khi muốn nhấn mạnh cảm xúc – thất vọng, phẫn nộ, trách móc, ngạc nhiên. Không đơn thuần là kết quả như それで, cũng không chỉ là “dù vậy” như それでも, mà là “đáng lẽ phải khác nhưng lại…”. Thường dùng trong văn nói, hội thoại, hoặc văn kể chuyện mang tính cảm xúc. [6. Ghi chú mở rộng] Phổ biến trong hội thoại đời thường, anime, manga khi nhân vật bộc lộ cảm xúc. Dùng tốt trong văn tường thuật khi muốn nhấn mạnh sự mâu thuẫn giữa kỳ vọng và hiện thực. Thường dịch sang tiếng Việt bằng “Ấy vậy mà…”, “Thế nhưng…”, “Vậy mà…”. [7. Biến thể & cụm cố định] それなのにどうして？：Ấy vậy mà tại sao? それなのにまだ～：Vậy mà vẫn còn… それなのにね：Vậy mà nhỉ… (dùng khi tâm sự) [8. Lỗi thường gặp & bẫy JLPT] Nhầm với それでも: それでも = “mặc dù vậy vẫn…”, còn それなのに = “ấy vậy mà lại…” (nhấn mạnh thất vọng). Dùng khi hai câu không có quan hệ trái ngược là sai. Sử dụng trong văn quá trang trọng không thích hợp; nên thay bằng しかしながら, とはいえ. Bỏ dấu phẩy trong văn viết → nên viết “それなのに、…”。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8794360bb8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "時間が戻るものなら、あの日に戻ってあやまりたい。",
+       "ja_furigana": "時間(じかん)が戻(もど)るものなら、あの日(ひ)に戻(もど)ってあやまりたい。",
+       "vi": "Nếu thời gian có thể quay lại, tôi muốn trở về ngày đó để xin lỗi."
+      },
+      {
+       "ja": "一人で行けるものなら、今すぐ出発するつもりだ。",
+       "ja_furigana": "一人(ひとり)で行(い)けるものなら、今(いま)すぐ出発(しゅっぱつ)するつもりだ。",
+       "vi": "Nếu có thể đi một mình thì tôi định xuất phát ngay bây giờ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "帰れるものなら、今すぐ、国へ帰りたい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu như có thể về được thì tôi muốn về nước ngay lúc này."
+     },
+     {
+      "ja": "やれるもんなら、やってみろ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu như làm được, thì hãy làm thử xem."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 帰れるものなら、今すぐ、国へ帰りたい。"
+    ],
+    "formation": "V(可能形)・Vる + ものなら",
+    "locked_fields": [],
+    "meaning_vi": "Nếu~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜帰れるものなら",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "～ものなら: Nếu ~ (dùng khi hi vọng vào một điều khó thực hiện hoặc là ít khả năng thực hiện – cách nói lạnh lùng) Hay dùng với các động từ mang ý chỉ khả năng. Trong hội thoại có khi dùng ［もんなら］"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2520c5b80a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "新しい靴を買ったものの、まだ一度もはいていない。",
+       "ja_furigana": "新(あたら)しい靴(くつ)を買(か)ったものの、まだ一度(いちど)もはいていない。",
+       "vi": "Tôi đã mua đôi giày mới, nhưng vẫn chưa đi lần nào."
+      },
+      {
+       "ja": "日本語を三年勉強したものの、話すのはまだ苦手だ。",
+       "ja_furigana": "日本語(にほんご)を三年(さんねん)勉強(べんきょう)したものの、話(はな)すのはまだ苦手(にがて)だ。",
+       "vi": "Tôi đã học tiếng Nhật ba năm, nhưng vẫn còn kém khoản nói."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "車の免許は持っているものの、ほとんど運転したことがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã có bằng lái xe hơi, nhưng mà hầu như chưa lái bao giờ."
+     },
+     {
+      "ja": "申し込みはしたものの、試験を受けるかどうか未定だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đơn thì đã đăng ký rồi nhưng vẫn chưa quyết định là có dự thi hay không."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 車の免許は持っているものの、ほとんど運転したことがない。",
+     "FURIGANA_MISSING: 申し込みはしたものの、試験を受けるかどうか未定だ。"
+    ],
+    "formation": "V・Aい・Aな(〜である) の普通形 + ものの",
+    "locked_fields": [],
+    "meaning_vi": "Mặc dù…nhưng mà",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜持っているものの",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "⚠ naだな ⚠ Nだである Dùng để diễn tả cho sự việc bất ngờ, sự việc ngoại lệ thường xảy ra. Chú ý: ☞ Mẫu câu này tương tự như にもかかわらずnhưng người nói nêu ra sự thật vấn đề, nói rõ ý kiến hơn. ☞ Mẫu câu này khác với thể くせにbởi vì khi dùng もののthì bạn không chỉ trích hay phàn nàn về mọi thứ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-762d3bbcf5"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-020"
+}

@@ -1,0 +1,2778 @@
+{
+ "header": {
+  "instructions": "check_bank ≥ 8 câu, mỗi dạng FILL/ORDER_STAR/MEANING/ERROR ≥ 2: {type, prompt_ja, options[4], answer_index, explanation_vi}; order_items 2 {pieces[], answer_order[]}; fill_items 2 {sentence_ja với ＿＿, answer}; extra_practice 3 (cùng dạng check_bank). Đáp án nhiễu không được cũng đúng."
+ },
+ "items": [
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "健康のために毎日歩く（　　）。",
+      "options": [
+       "ようにしている",
+       "ようにしてある",
+       "ように聞く",
+       "ようでしている"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "V辞書形＋ようにしている = cố gắng duy trì thói quen (đi bộ mỗi ngày). Các lựa chọn còn lại nối sai."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "風邪をひかないように、外から帰ったら手を洗う（　　）。",
+      "options": [
+       "ようにある",
+       "ようでいる",
+       "ようにしている",
+       "ようをしている"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "手を洗うようにしている = chủ động tạo thói quen rửa tay. ようにある/ようでいる/ようをしている sai dạng."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "健康のため、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "体が",
+       "ようにしているので、",
+       "元気だ",
+       "毎日野菜を食べる"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Vì cố gắng ăn rau mỗi ngày nên cơ thể khỏe. Thứ tự đúng: 毎日野菜を食べるようにしているので、体が元気だ。 ★ = 体が。"
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "最近、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "ようにしているから、",
+       "体調がいい",
+       "朝の",
+       "夜遅く食べない"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "V-ない＋ようにしている = cố gắng tránh (ăn khuya). Thứ tự đúng: 夜遅く食べないようにしているから、朝の体調がいい。 ★ = 朝の。"
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "健康のために毎日歩くようにしている。",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi ghi lịch để khỏi quên.",
+       "Giữa giờ học, bên ngoài có tiếng động lớn."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "毎日歩くようにしている = cố gắng duy trì thói quen đi bộ mỗi ngày."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "夜遅く食べないようにしている。",
+      "options": [
+       "Tôi đã không còn ăn khuya nữa (tự nhiên thay đổi).",
+       "Tôi bị cấm ăn khuya.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi định từ mai sẽ không ăn khuya."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "V-ない＋ようにしている = chủ động cố gắng tránh. \"Không còn ăn nữa\" là 食べなくなった; \"định\" là つもりだ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "明日は雨が降らないようにしている。",
+       "健康のために毎日歩くようにしている。",
+       "夜遅く食べないようにしている。",
+       "毎日野菜を食べるようにしている。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "ようにする dùng cho việc người làm chủ động kiểm soát được; thời tiết (雨が降る) không kiểm soát được."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "甘い物を食べすぎないようにしている。",
+       "毎日日本語で日記を書くようにしている。",
+       "授業に遅れなくようにしている。",
+       "夜遅く食べないようにしている。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Thể ない nối trực tiếp: 遅れないようにしている, không phải 「遅れなく」."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "夜遅く食べないように",
+       "している。",
+       "私は"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Tôi cố gắng không ăn khuya."
+     },
+     {
+      "pieces": [
+       "ようにしている。",
+       "毎日",
+       "日本語で日記を書く"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Tôi cố gắng mỗi ngày viết nhật ký bằng tiếng Nhật."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "健康のために毎日歩く＿＿。",
+      "answer": "ようにしている",
+      "translation_vi": "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+      "accept": [
+       "ようにしています"
+      ]
+     },
+     {
+      "sentence_ja": "夜遅く食べない＿＿。",
+      "answer": "ようにしている",
+      "translation_vi": "Tôi cố gắng không ăn khuya.",
+      "accept": [
+       "ようにしています"
+      ]
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "健康のため、 毎日野菜を食べる（　　）体が元気だ。",
+      "options": [
+       "ように見える",
+       "ようにしているので、",
+       "ように聞く",
+       "ようになっている"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "食べるようにしているので = vì cố gắng ăn (rau) mỗi ngày."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "最近、夜遅く食べない（　　）朝の体調がいい。",
+      "options": [
+       "ように見える",
+       "ように聞く",
+       "ようになっている",
+       "ようにしているから、"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "食べないようにしているから = vì cố gắng không ăn khuya."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "夜遅く食べないようにしている。",
+       "毎日一時間歩きようにしている。",
+       "甘い物を食べすぎないようにしている。",
+       "健康のために毎日歩くようにしている。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Dùng thể từ điển trước ようにする: 歩くようにしている, không dùng dạng bỏ ます (歩き)."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "毎日野菜を食べるようにしています。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Cố gắng để, chú ý để — Chủ động nỗ lực duy trì một thói quen hoặc tránh một việc gì.",
+    "pattern": "V từ điển / V-ない + ようにする",
+    "pattern_variants": [
+     "〜ようにする A"
+    ],
+    "source_questions": [
+     {
+      "answer_ja": "健康のために毎日歩くようにしている。",
+      "answer_vi": "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+      "chapter": 5,
+      "context_vi": "Trong tình huống: Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+      "correct_index": 3,
+      "correct_order": null,
+      "explanation_vi": "ようにしている diễn đạt Cố gắng để, chú ý để. ようになっている và ように見える không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-af5fd290f6",
+      "id": "LP-GRAMC-N3-C05-af5fd290f6-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "ように見える",
+       "ように聞く",
+       "ようにしている",
+       "ようになっている"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V từ điển / V-ない + ようにする",
+      "prompt_ja": "健康のために毎日歩く[ ]。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "私は夜遅く食べないようにしている。",
+      "answer_vi": "Tôi cố gắng không ăn khuya.",
+      "chapter": 5,
+      "context_vi": "Sắp xếp câu để diễn đạt: Tôi cố gắng không ăn khuya.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 私は夜遅く食べないようにしている。; mẫu V từ điển / V-ない + ようにする diễn đạt Cố gắng để, chú ý để.",
+      "goal": "JLPT",
+      "grammar_id": "JG-af5fd290f6",
+      "id": "LP-GRAMC-N3-C05-af5fd290f6-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "夜遅く食べないように",
+       "している。",
+       "私は"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V từ điển / V-ない + ようにする",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "聞きやすいように、ゆっくり話す。",
+      "answer_vi": "Tôi nói chậm để dễ nghe.",
+      "chapter": 25,
+      "context_vi": "Hoàn thành câu: Tôi nói chậm để dễ nghe.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "「ように」 diễn đạt Tạo ra một thay đổi nào đó nhằm mục đích nhất định Các lựa chọn 「せいで」 và 「かわりに」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-2328162011",
+      "id": "LP-GRAMC-N3-C25-2328162011-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "せいで",
+       "ように",
+       "かわりに",
+       "おかげで"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～ようにする A",
+      "prompt_ja": "聞きやすい[ ]、ゆっくり話す。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "忘れないように予定を書いた。",
+      "answer_vi": "Tôi ghi lịch để khỏi quên.",
+      "chapter": 25,
+      "context_vi": "Sắp xếp thành câu: Tôi ghi lịch để khỏi quên.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～ようにする A」 với nghĩa Tạo ra một thay đổi nào đó nhằm mục đích nhất định",
+      "goal": "JLPT",
+      "grammar_id": "JG-2328162011",
+      "id": "LP-GRAMC-N3-C25-2328162011-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "予定を",
+       "書いた。",
+       "忘れないように"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～ようにする A",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-af5fd290f6"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "授業の（　　）、外で大きな音がした。",
+      "options": [
+       "かわりに",
+       "おかげで",
+       "ついでに",
+       "さいちゅうに"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "N の＋最中に = đúng lúc đang học thì có việc xen vào. おかげで/ついでに/かわりに không hợp nghĩa."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "食事の（　　）、友だちから電話が来た。",
+      "options": [
+       "ついでに",
+       "さいちゅうに",
+       "おかげで",
+       "かわりに"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "食事の最中に = đang giữa bữa ăn thì điện thoại đến."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "教室で、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "外で音がした",
+       "窓の",
+       "最中に、",
+       "授業の"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Đang giữa giờ học thì bên ngoài cửa sổ có tiếng động. Thứ tự đúng: 授業の最中に、窓の外で音がした。 ★ = 窓の。"
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "昨日の夜、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "最中に、",
+       "夕食を食べている",
+       "ベルが鳴った",
+       "玄関の"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "V-ている＋最中に = đang ăn thì chuông cửa reo. Thứ tự đúng: 夕食を食べている最中に、玄関のベルが鳴った。 ★ = 玄関の。"
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "授業のさいちゅうに、外で大きな音がした。",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Giữa giờ học, bên ngoài có tiếng động lớn.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "さいちゅうに chỉ lúc hoạt động đang tiếp diễn."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "食事のさいちゅうに、友だちから電話が来た。",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi nói chậm để dễ nghe.",
+       "Tôi cố gắng không ăn khuya.",
+       "Giữa bữa ăn, bạn tôi gọi điện."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "さいちゅうに chỉ việc xảy ra giữa bữa ăn."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "授業のさいちゅうに、外で大きな音がした。",
+       "話している最中に、先生が部屋に入った。",
+       "会議の最中に、電気が消えた。",
+       "ご飯を食べる最中に、電話が鳴った。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Động từ phải ở dạng V-ている: 食べている最中に."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "試合の最中に、雨が降り出した。",
+       "会議の最中に、電気が消えた。",
+       "食事のさいちゅうに、友だちから電話が来た。",
+       "電話しているの最中に、ドアのベルが鳴った。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "V-ている nối trực tiếp với 最中に; chỉ danh từ mới cần の (会議の最中に)."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "友だちが来た。",
+       "さいちゅうに、",
+       "食べている"
+      ],
+      "answer_order": [
+       2,
+       1,
+       0
+      ],
+      "translation_vi": "Đang ăn thì bạn tôi đến."
+     },
+     {
+      "pieces": [
+       "先生が部屋に入った。",
+       "さいちゅうに、",
+       "話している"
+      ],
+      "answer_order": [
+       2,
+       1,
+       0
+      ],
+      "translation_vi": "Đang nói chuyện thì giáo viên vào phòng."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "授業の＿＿、外で大きな音がした。",
+      "answer": "さいちゅうに",
+      "translation_vi": "Giữa giờ học, bên ngoài có tiếng động lớn.",
+      "accept": [
+       "最中に"
+      ]
+     },
+     {
+      "sentence_ja": "食事の＿＿、友だちから電話が来た。",
+      "answer": "さいちゅうに",
+      "translation_vi": "Giữa bữa ăn, bạn tôi gọi điện.",
+      "accept": [
+       "最中に"
+      ]
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "教室で、授業の（　　）窓の外で音がした。",
+      "options": [
+       "おかげで",
+       "ついでに",
+       "最中に、",
+       "かわりに"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "授業の最中に = đang giữa giờ học."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "昨日の夜、夕食を食べている（　　）玄関のベルが鳴った。",
+      "options": [
+       "最中に、",
+       "ついでに",
+       "おかげで",
+       "かわりに"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "食べている最中に = đang ăn thì chuông reo."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "会議の最中に、電気が消えた。",
+       "勉強している最中に、いつも音楽を聞いている。",
+       "試合の最中に、雨が降り出した。",
+       "話している最中に、先生が部屋に入った。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "最中に dùng khi có việc bất ngờ xen vào giữa lúc đang làm; hành động song song thường ngày dùng ながら (勉強しながら)."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "会議の最中に携帯が鳴ってしまった。",
+      "vi": null
+     }
+    ],
+    "meaning_vi": "Đang giữa lúc — Đúng lúc việc gì đang diễn ra sôi nổi nhất thì việc khác xen vào.",
+    "pattern": "V-ている / N の + 最中に",
+    "pattern_variants": [
+     "〜最中(に)"
+    ],
+    "source_questions": [
+     {
+      "answer_ja": "授業のさいちゅうに、外で大きな音がした。",
+      "answer_vi": "Giữa giờ học, bên ngoài có tiếng động lớn.",
+      "chapter": 5,
+      "context_vi": "Điền vào chỗ trống: Giữa giờ học, bên ngoài có tiếng động lớn.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "さいちゅうに chỉ lúc hoạt động đang tiếp diễn.",
+      "goal": "JLPT",
+      "grammar_id": "JG-c2f03a71b6",
+      "id": "LP-GRAMC-N3-C05-c2f03a71b6-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "おかげで",
+       "さいちゅうに",
+       "前まで",
+       "かわりに"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V-ている / N の + 最中に",
+      "prompt_ja": "授業の[ ]、外で大きな音がした。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "食べているさいちゅうに、友だちが来た。",
+      "answer_vi": "Đang ăn thì bạn tôi đến.",
+      "chapter": 5,
+      "context_vi": "Sắp xếp câu để diễn đạt: Đang ăn thì bạn tôi đến.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       2,
+       1
+      ],
+      "explanation_vi": "さいちゅうに chỉ việc xảy ra khi đang ăn.",
+      "goal": "JLPT",
+      "grammar_id": "JG-c2f03a71b6",
+      "id": "LP-GRAMC-N3-C05-c2f03a71b6-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "友だちが来た。",
+       "さいちゅうに、",
+       "食べている"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "V-ている / N の + 最中に",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "食事のさいちゅうに、友だちから電話が来た。",
+      "answer_vi": "Giữa bữa ăn, bạn tôi gọi điện.",
+      "chapter": 6,
+      "context_vi": "Điền vào chỗ trống: Giữa bữa ăn, bạn tôi gọi điện.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "さいちゅうに chỉ việc xảy ra giữa bữa ăn.",
+      "goal": "JLPT",
+      "grammar_id": "JG-ac74b696e0",
+      "id": "LP-GRAMC-N3-C06-ac74b696e0-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "たびに",
+       "さいちゅうに",
+       "おかげで",
+       "かわりに"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～最中（に）",
+      "prompt_ja": "食事の[ ]、友だちから電話が来た。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "話しているさいちゅうに、先生が部屋に入った。",
+      "answer_vi": "Đang nói chuyện thì giáo viên vào phòng.",
+      "chapter": 6,
+      "context_vi": "Sắp xếp câu để diễn đạt: Đang nói chuyện thì giáo viên vào phòng.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       2,
+       1
+      ],
+      "explanation_vi": "さいちゅうに chỉ việc xảy ra lúc đang nói chuyện.",
+      "goal": "JLPT",
+      "grammar_id": "JG-ac74b696e0",
+      "id": "LP-GRAMC-N3-C06-ac74b696e0-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "先生が部屋に入った。",
+       "さいちゅうに、",
+       "話している"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～最中（に）",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-c2f03a71b6"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "来月の試験は、この教室（　　）行われます。",
+      "options": [
+       "にとって",
+       "において",
+       "に比べて",
+       "に加えて"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "において chỉ địa điểm theo cách trang trọng."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "会議は（　　）開かれる。",
+      "options": [
+       "にとって",
+       "に加えて",
+       "に比べて",
+       "二階の部屋において"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "において = tại (trang trọng), chỉ nơi diễn ra cuộc họp."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "学校からの案内では、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "試験が行われる",
+       "において、",
+       "この教室",
+       "来週の"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Theo thông báo, kỳ thi tuần sau tổ chức tại lớp này. Thứ tự đúng: この教室において、来週の試験が行われる。 ★ = 来週の。"
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "来週、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "会議が開かれる",
+       "社員の",
+       "において、",
+       "二階の会議室"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "において = tại (trang trọng), đi với sự kiện được tổ chức (会議が開かれる). Thứ tự đúng: 二階の会議室において、社員の会議が開かれる。 ★ = 社員の。"
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "来月の試験は、この教室において行われます。",
+      "options": [
+       "Tôi nói chậm để dễ nghe.",
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi cố gắng không ăn khuya.",
+       "Kỳ thi tháng tới được tổ chức tại lớp học này."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "において chỉ địa điểm theo cách trang trọng."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "会議は二階の部屋において開かれる。",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Cuộc họp được tổ chức tại phòng tầng hai.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "二階の部屋において = tại phòng tầng hai (văn trang trọng của で)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "来月の試験は、この教室において行われます。",
+       "会議は二階の部屋において開かれる。",
+       "私は毎朝、近くの公園において犬と散歩する。",
+       "入学式は体育館において行われた。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "において mang tính trang trọng, dùng cho nơi diễn ra sự kiện; việc thường ngày như dắt chó đi dạo dùng で."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "卒業式はホールをおいて行われた。",
+       "入学式は体育館において行われた。",
+       "会議は二階の部屋において開かれる。",
+       "日本における外国人の生活について調べた。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Trợ từ đúng là に: ホールにおいて."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "二階の部屋において",
+       "開かれる。",
+       "会議は"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Cuộc họp được tổ chức tại phòng tầng hai."
+     },
+     {
+      "pieces": [
+       "行われます。",
+       "来月の試験は、この教室",
+       "において"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Kỳ thi tháng tới được tổ chức tại lớp học này."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "来月の試験は、この教室＿＿行われます。",
+      "answer": "において",
+      "translation_vi": "Kỳ thi tháng tới được tổ chức tại lớp học này.",
+      "accept": [
+       "で"
+      ]
+     },
+     {
+      "sentence_ja": "会議は＿＿開かれる。",
+      "answer": "二階の部屋において",
+      "translation_vi": "Cuộc họp được tổ chức tại phòng tầng hai.",
+      "accept": [
+       "二階の部屋で"
+      ]
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "学校からの案内では、 この教室（　　）来週の試験が行われる。",
+      "options": [
+       "において、",
+       "にとって",
+       "に比べて",
+       "に加えて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "この教室において = tại lớp học này (trang trọng)."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "来週、二階の会議室（　　）社員の会議が開かれる。",
+      "options": [
+       "にとって",
+       "に比べて",
+       "において、",
+       "に加えて"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "会議室において = tại phòng họp."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "会議は二階の部屋において開かれる。",
+       "私は今、駅において友達を待っている。",
+       "入学式は体育館において行われた。",
+       "来月の試験は、この教室において行われます。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Việc cá nhân thường ngày (đợi bạn) dùng で: 駅で友達を待っている; において dùng cho sự kiện trang trọng."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "近代工業はヨーロッパにおいて誕生した。",
+      "vi": "Nền công nghiệp cận đại ra đời ở Châu Âu."
+     },
+     {
+      "ja": "災害時においては、冷静になることが何よりも大切だ。",
+      "vi": "Trong thảm họa, điều quan trọng nhất là phải giữ bình tĩnh."
+     }
+    ],
+    "meaning_vi": "Tại…; ở…",
+    "pattern": "〜において",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "来月の試験は、この教室において行われます。",
+      "answer_vi": "Kỳ thi tháng tới được tổ chức tại lớp học này.",
+      "chapter": 6,
+      "context_vi": "Điền vào chỗ trống: Kỳ thi tháng tới được tổ chức tại lớp học này.",
+      "correct_index": 4,
+      "correct_order": null,
+      "explanation_vi": "において chỉ địa điểm theo cách trang trọng.",
+      "goal": "JLPT",
+      "grammar_id": "JG-ee9a313bc0",
+      "id": "LP-GRAMC-N3-C06-ee9a313bc0-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "にとって",
+       "に比べて",
+       "に加えて",
+       "において"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～において",
+      "prompt_ja": "来月の試験は、この教室[ ]行われます。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "会議は二階の部屋において開かれる。",
+      "answer_vi": "Cuộc họp được tổ chức tại phòng tầng hai.",
+      "chapter": 6,
+      "context_vi": "Sắp xếp câu để diễn đạt: Cuộc họp được tổ chức tại phòng tầng hai.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 会議は二階の部屋において開かれる。; mẫu ～において diễn đạt Tại…; ở….",
+      "goal": "JLPT",
+      "grammar_id": "JG-ee9a313bc0",
+      "id": "LP-GRAMC-N3-C06-ee9a313bc0-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "二階の部屋において",
+       "開かれる。",
+       "会議は"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～において",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-ee9a313bc0"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この仕事は私（　　）難しい。",
+      "options": [
+       "に関して",
+       "に比べて",
+       "にとって",
+       "に加えて"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "にとって diễn đạt Đối với… thì…. に加えて và に比べて không phù hợp với cấu trúc hoặc ý câu này."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "（　　）遊ぶ時間は大切だ。",
+      "options": [
+       "子どもにとって",
+       "に比べて",
+       "に関して",
+       "に加えて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "子どもにとって = đối với trẻ em (lập trường đánh giá \"quan trọng\")."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "働き始めて、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "仕事は難しい",
+       "にとって、",
+       "初めての",
+       "私"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Đối với tôi, công việc đầu tiên thật khó. Thứ tự đúng: 私にとって、初めての仕事は難しい。 ★ = 初めての。"
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "学校の考えでは、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "外で遊ぶ",
+       "子ども",
+       "にとって、",
+       "時間が大切だ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Đối với trẻ em, thời gian chơi ngoài trời là quan trọng. Thứ tự đúng: 子どもにとって、外で遊ぶ時間が大切だ。 ★ = 外で遊ぶ。"
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この仕事は私にとって難しい。",
+      "options": [
+       "Tôi cố gắng không ăn khuya.",
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Đối với tôi, công việc này khó.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "にとって diễn đạt Đối với… thì…. Câu này nghĩa là: \"Đối với tôi, công việc này khó.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "子どもにとって遊ぶ時間は大切だ。",
+      "options": [
+       "Đối với trẻ em, thời gian vui chơi quan trọng.",
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "にとって + đánh giá (大切だ): đứng ở lập trường của trẻ em."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この仕事は私にとって難しい。",
+       "私にとって、家族は一番大切だ。",
+       "子どもにとって遊ぶ時間は大切だ。",
+       "先生は学生にとってとても親切だ。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "にとって nêu lập trường đánh giá; thái độ hướng tới ai dùng に対して: 学生に対して親切だ."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "私をとって、この仕事は難しい。",
+       "この写真は私にとって宝物だ。",
+       "子どもにとって遊ぶ時間は大切だ。",
+       "留学生にとって、漢字は難しい。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Trợ từ đúng là に: 私にとって."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "遊ぶ時間は",
+       "大切だ。",
+       "子どもにとって"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Đối với trẻ em, thời gian vui chơi quan trọng."
+     },
+     {
+      "pieces": [
+       "難しい。",
+       "この仕事は私",
+       "にとって"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Đối với tôi, công việc này khó."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "この仕事は私＿＿難しい。",
+      "answer": "にとって",
+      "translation_vi": "Đối với tôi, công việc này khó."
+     },
+     {
+      "sentence_ja": "＿＿遊ぶ時間は大切だ。",
+      "answer": "子どもにとって",
+      "translation_vi": "Đối với trẻ em, thời gian vui chơi quan trọng."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "働き始めて、 私（　　）初めての仕事は難しい。",
+      "options": [
+       "に比べて",
+       "に加えて",
+       "に関して",
+       "にとって、"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "私にとって = đối với tôi."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "学校の考えでは、 子ども（　　）外で遊ぶ時間が大切だ。",
+      "options": [
+       "に比べて",
+       "にとって、",
+       "に関して",
+       "に加えて"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "子どもにとって = đối với trẻ em."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "留学生にとって、漢字は難しい。",
+       "私にとって、家族は一番大切だ。",
+       "私にとって、その意見に賛成です。",
+       "この仕事は私にとって難しい。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "にとって đi với vị ngữ đánh giá (khó, quan trọng...), không đi với hành động/ý kiến của chính người đó; nói 私はその意見に賛成です."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "この本はしょしんしゃにとってよみやすいです。",
+      "vi": "Quyển sách này dễ đọc đối với người mới bắt đầu. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "meaning_vi": "Đối với… thì…",
+    "pattern": "〜にとって",
+    "pattern_variants": [
+     "にとって"
+    ],
+    "source_questions": [
+     {
+      "answer_ja": "この仕事は私にとって難しい。",
+      "answer_vi": "Đối với tôi, công việc này khó.",
+      "chapter": 5,
+      "context_vi": "Trong tình huống: Đối với tôi, công việc này khó.",
+      "correct_index": 3,
+      "correct_order": null,
+      "explanation_vi": "にとって diễn đạt Đối với… thì…. に加えて và に比べて không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-8433f18c7d",
+      "id": "LP-GRAMC-N3-C05-8433f18c7d-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "に比べて",
+       "に関して",
+       "にとって",
+       "に加えて"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～にとって",
+      "prompt_ja": "この仕事は私[ ]難しい。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "子どもにとって遊ぶ時間は大切だ。",
+      "answer_vi": "Đối với trẻ em, thời gian vui chơi quan trọng.",
+      "chapter": 5,
+      "context_vi": "Sắp xếp câu để diễn đạt: Đối với trẻ em, thời gian vui chơi quan trọng.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 子どもにとって遊ぶ時間は大切だ。; mẫu ～にとって diễn đạt Đối với… thì….",
+      "goal": "JLPT",
+      "grammar_id": "JG-8433f18c7d",
+      "id": "LP-GRAMC-N3-C05-8433f18c7d-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "遊ぶ時間は",
+       "大切だ。",
+       "子どもにとって"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～にとって",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 19
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-8433f18c7d"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "祭りは三日間（　　）開かれた。",
+      "options": [
+       "にわたって",
+       "に関して",
+       "にとって",
+       "に比べて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "にわたって diễn đạt Trải qua…; trên toàn phạm vi…. にとって và に比べて không phù hợp với cấu trúc hoặc ý câu này."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "会議は三日間（　　）行われた。",
+      "options": [
+       "に反して",
+       "にかわって",
+       "にわたって",
+       "にとって"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "「にわたって」 diễn đạt Biểu thị thời gian dài, phạm vi rộng. Các lựa chọn 「に反して」 và 「にかわって」 không diễn đạt đúng ý hoặc không nối đúng trong câu này."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "今年は、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "祭りが続いた",
+       "町の",
+       "にわたって、",
+       "三日間"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Năm nay lễ hội của thị trấn kéo dài suốt ba ngày. Thứ tự đúng: 三日間にわたって、町の祭りが続いた。 ★ = 町の。"
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "先週は、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "雨が降った",
+       "二日間",
+       "にわたって、",
+       "強い"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Tuần trước mưa to suốt hai ngày. Thứ tự đúng: 二日間にわたって、強い雨が降った。 ★ = 強い。"
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "祭りは三日間にわたって開かれた。",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Lễ hội diễn ra suốt ba ngày.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "にわたって diễn đạt Trải qua…; trên toàn phạm vi…. Câu này nghĩa là: \"Lễ hội diễn ra suốt ba ngày.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "会議は三日間にわたって行われた。",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi nói chậm để dễ nghe.",
+       "Tôi cố gắng không ăn khuya.",
+       "Cuộc họp được tổ chức trong ba ngày."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "「にわたって」 diễn đạt Biểu thị thời gian dài, phạm vi rộng. Câu này nghĩa là: \"Cuộc họp được tổ chức trong ba ngày.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "祭りは三日間にわたって開かれた。",
+       "工事は半年にわたって続いた。",
+       "電車が一分にわたって止まった。",
+       "会議は三日間にわたって行われた。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "にわたって dùng cho khoảng thời gian/phạm vi lớn; \"một phút\" quá ngắn."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "会議は三日間をわたって行われた。",
+       "工事は半年にわたって続いた。",
+       "雨は二日間にわたって降り続いた。",
+       "台風は広い地域にわたって被害を出した。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Trợ từ đúng là に: 三日間にわたって."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "二日間にわたって",
+       "降り続いた。",
+       "雨は"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Mưa kéo dài suốt hai ngày."
+     },
+     {
+      "pieces": [
+       "広い地域にわたって",
+       "降った。",
+       "この雨は"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Trận mưa này đã rơi trên vùng rộng."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "祭りは三日間＿＿開かれた。",
+      "answer": "にわたって",
+      "translation_vi": "Lễ hội diễn ra suốt ba ngày."
+     },
+     {
+      "sentence_ja": "会議は三日間＿＿行われた。",
+      "answer": "にわたって",
+      "translation_vi": "Cuộc họp được tổ chức trong ba ngày."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "今年は、 三日間（　　）町の祭りが続いた。",
+      "options": [
+       "に関して",
+       "にわたって、",
+       "にとって",
+       "に比べて"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "三日間にわたって = suốt ba ngày."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "先週は、 二日間（　　）強い雨が降った。",
+      "options": [
+       "に関して",
+       "にとって",
+       "に比べて",
+       "にわたって、"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "二日間にわたって = suốt hai ngày."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "雨は二日間にわたって降り続いた。",
+       "祭りは三日間にわたって開かれた。",
+       "工事は半年にわたって続いた。",
+       "雨は広い地域でわたって降った。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Trợ từ đúng là に: 広い地域にわたって."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "祭りは三日間にわたって行われます。",
+      "vi": "Lễ hội được tổ chức trong suốt ba ngày. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "meaning_vi": "Trải qua…; trên toàn phạm vi…",
+    "pattern": "〜にわたって/わたり",
+    "pattern_variants": [
+     "〜にわたって"
+    ],
+    "source_questions": [
+     {
+      "answer_ja": "祭りは三日間にわたって開かれた。",
+      "answer_vi": "Lễ hội diễn ra suốt ba ngày.",
+      "chapter": 5,
+      "context_vi": "Trong tình huống: Lễ hội diễn ra suốt ba ngày.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "にわたって diễn đạt Trải qua…; trên toàn phạm vi…. にとって và に比べて không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-b9676d34b4",
+      "id": "LP-GRAMC-N3-C05-b9676d34b4-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "に関して",
+       "にわたって",
+       "にとって",
+       "に比べて"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～にわたって／わたり",
+      "prompt_ja": "祭りは三日間[ ]開かれた。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "雨は二日間にわたって降り続いた。",
+      "answer_vi": "Mưa kéo dài suốt hai ngày.",
+      "chapter": 5,
+      "context_vi": "Sắp xếp câu để diễn đạt: Mưa kéo dài suốt hai ngày.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 雨は二日間にわたって降り続いた。; mẫu ～にわたって／わたり diễn đạt Trải qua…; trên toàn phạm vi….",
+      "goal": "JLPT",
+      "grammar_id": "JG-b9676d34b4",
+      "id": "LP-GRAMC-N3-C05-b9676d34b4-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "二日間にわたって",
+       "降り続いた。",
+       "雨は"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～にわたって／わたり",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "会議は三日間にわたって行われた。",
+      "answer_vi": "Cuộc họp được tổ chức trong ba ngày.",
+      "chapter": 17,
+      "context_vi": "Hoàn thành câu: Cuộc họp được tổ chức trong ba ngày.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "「にわたって」 diễn đạt Biểu thị thời gian dài, phạm vi rộng. Các lựa chọn 「に反して」 và 「にかわって」 không diễn đạt đúng ý hoặc không nối đúng trong câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-86dfc78006",
+      "id": "LP-GRAMC-N3-C17-86dfc78006-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "に反して",
+       "にわたって",
+       "にかわって",
+       "にとって"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～にわたって",
+      "prompt_ja": "会議は三日間[ ]行われた。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "この雨は広い地域にわたって降った。",
+      "answer_vi": "Trận mưa này đã rơi trên vùng rộng.",
+      "chapter": 17,
+      "context_vi": "Sắp xếp thành câu: Trận mưa này đã rơi trên vùng rộng.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Ghép các mảnh theo trật tự 3→1→2 để tạo câu dùng mẫu 「～にわたって」 với nghĩa Biểu thị thời gian dài, phạm vi rộng.",
+      "goal": "JLPT",
+      "grammar_id": "JG-86dfc78006",
+      "id": "LP-GRAMC-N3-C17-86dfc78006-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "広い地域にわたって",
+       "降った。",
+       "この雨は"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～にわたって",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-b9676d34b4"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "電気が消えている。もう誰もいない（　　）。",
+      "options": [
+       "ようにする",
+       "つもりだ",
+       "ことにする",
+       "に違いない"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Căn cứ \"đèn đã tắt\" → suy đoán chắc chắn: いないに違いない. つもりだ/ことにする/ようにする chỉ ý chí."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "彼はこの町に長く住んでいる。道をよく知っている（　　）。",
+      "options": [
+       "ことにする",
+       "に違いない",
+       "つもりだ",
+       "ようにする"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sống lâu ở đây (căn cứ) → chắc chắn biết đường: 知っているに違いない."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "彼は毎日練習している。 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "応援の",
+       "に違いないので、",
+       "旗を用意した",
+       "彼は試合に勝つ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "に違いない = chắc chắn (thắng), ので nêu lý do chuẩn bị cờ cổ vũ. Thứ tự đúng: 彼は試合に勝つに違いないので、応援の旗を用意した。 ★ = 応援の。"
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "雲が黒い。 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "もうすぐ雨が降る",
+       "持って出かけた",
+       "傘を",
+       "に違いないから、"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "降るに違いない = chắc chắn sắp mưa → mang ô. Thứ tự đúng: もうすぐ雨が降るに違いないから、傘を持って出かけた。 ★ = 傘を。"
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "電気が消えている。もう誰もいないに違いない。",
+      "options": [
+       "Đèn đã tắt. Chắc chắn không còn ai ở đó.",
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "に違いない diễn đạt Nhất định là…, Chắc chắn là…. Câu này nghĩa là: \"Đèn đã tắt. Chắc chắn không còn ai ở đó.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "彼はこの町に長く住んでいる。道をよく知っているに違いない。",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi cố gắng không ăn khuya.",
+       "Anh ấy sống ở thị trấn này lâu rồi; chắc chắn biết đường rất rõ.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "に違いない thể hiện suy đoán có căn cứ mạnh."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "電気が消えている。もう誰もいないに違いない。",
+       "あの人は先生だに違いない。",
+       "机に本がない。彼が持っていったに違いない。",
+       "彼はこの町に長く住んでいる。道をよく知っているに違いない。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Danh từ nối trực tiếp, bỏ だ: 先生に違いない."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この部屋は静かなに違いない。",
+       "これは母の字に違いない。",
+       "彼は試合に勝つに違いない。",
+       "あの店はいつも人が多い。おいしいに違いない。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Tính từ な bỏ な: 静かに違いない."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "毎日練習したから、",
+       "上手になったに違いない。",
+       "彼は"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Anh ấy luyện tập mỗi ngày nên chắc chắn đã tiến bộ."
+     },
+     {
+      "pieces": [
+       "彼が",
+       "持っていったに違いない。",
+       "机に本がない。"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Trên bàn không có sách. Chắc chắn anh ấy đã mang đi."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "電気が消えている。もう誰もいない＿＿。",
+      "answer": "に違いない",
+      "translation_vi": "Đèn đã tắt. Chắc chắn không còn ai ở đó."
+     },
+     {
+      "sentence_ja": "彼はこの町に長く住んでいる。道をよく知っている＿＿。",
+      "answer": "に違いない",
+      "translation_vi": "Anh ấy sống ở thị trấn này lâu rồi; chắc chắn biết đường rất rõ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "彼は毎日練習している。彼は試合に勝つ（　　）応援の旗を用意した。",
+      "options": [
+       "はずがない",
+       "ことはない",
+       "に違いないので、",
+       "かもしれない"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "勝つに違いないので = vì chắc chắn sẽ thắng."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "雲が黒い。もうすぐ雨が降る（　　）傘を持って出かけた。",
+      "options": [
+       "に違いないから、",
+       "ことはない",
+       "はずがない",
+       "かもしれない"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "降るに違いないから = vì chắc chắn sắp mưa."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "これは母の字に違いない。",
+       "あの店はいつも人が多い。おいしいに違いない。",
+       "もうすぐ雨が降りに違いない。",
+       "机に本がない。彼が持っていったに違いない。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Động từ dùng thể thường: 降るに違いない, không dùng dạng bỏ ます."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "夜になっても電気がつかない。きっと出かけているに違いない。",
+      "vi": "Trời tối rồi mà điện không bật. Chắc chắn họ ra ngoài rồi."
+     },
+     {
+      "ja": "犯人はAに違いない。強い動機があって、しかもアリバイがないのだから。",
+      "vi": "Thủ phạm chỉ có thể là A. Hắn có động cơ lớn và thêm vào đó không có chứng cớ ngoại phạm."
+     }
+    ],
+    "meaning_vi": "Nhất định là…, Chắc chắn là…",
+    "pattern": "〜に違いない",
+    "pattern_variants": [
+     "Thể thường + に違いない"
+    ],
+    "source_questions": [
+     {
+      "answer_ja": "電気が消えている。もう誰もいないに違いない。",
+      "answer_vi": "Đèn đã tắt. Chắc chắn không còn ai ở đó.",
+      "chapter": 5,
+      "context_vi": "Trong tình huống: Đèn đã tắt. Chắc chắn không còn ai ở đó.",
+      "correct_index": 3,
+      "correct_order": null,
+      "explanation_vi": "に違いない diễn đạt Nhất định là…, Chắc chắn là…. かもしれない và はずがない không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-e6683f641c",
+      "id": "LP-GRAMC-N3-C05-e6683f641c-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "はずがない",
+       "ことはない",
+       "に違いない",
+       "かもしれない"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～に違いない",
+      "prompt_ja": "電気が消えている。もう誰もいない[ ]。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "彼は毎日練習したから、上手になったに違いない。",
+      "answer_vi": "Anh ấy luyện tập mỗi ngày nên chắc chắn đã tiến bộ.",
+      "chapter": 5,
+      "context_vi": "Sắp xếp câu để diễn đạt: Anh ấy luyện tập mỗi ngày nên chắc chắn đã tiến bộ.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 彼は毎日練習したから、上手になったに違いない。; mẫu ～に違いない diễn đạt Nhất định là…, Chắc chắn là….",
+      "goal": "JLPT",
+      "grammar_id": "JG-e6683f641c",
+      "id": "LP-GRAMC-N3-C05-e6683f641c-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "毎日練習したから、",
+       "上手になったに違いない。",
+       "彼は"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～に違いない",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     },
+     {
+      "answer_ja": "彼はこの町に長く住んでいる。道をよく知っているに違いない。",
+      "answer_vi": "Anh ấy sống ở thị trấn này lâu rồi; chắc chắn biết đường rất rõ.",
+      "chapter": 6,
+      "context_vi": "Điền vào chỗ trống: Anh ấy sống ở thị trấn này lâu rồi; chắc chắn biết đường rất rõ.",
+      "correct_index": 3,
+      "correct_order": null,
+      "explanation_vi": "に違いない thể hiện suy đoán có căn cứ mạnh.",
+      "goal": "JLPT",
+      "grammar_id": "JG-346bdbb49e",
+      "id": "LP-GRAMC-N3-C06-346bdbb49e-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "ことはない",
+       "つもりだ",
+       "に違いない",
+       "はずがない"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "Thể thường + に違いない",
+      "prompt_ja": "彼はこの町に長く住んでいる。道をよく知っている[ ]。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "机に本がない。彼が持っていったに違いない。",
+      "answer_vi": "Trên bàn không có sách. Chắc chắn anh ấy đã mang đi.",
+      "chapter": 6,
+      "context_vi": "Sắp xếp câu để diễn đạt: Trên bàn không có sách. Chắc chắn anh ấy đã mang đi.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 机に本がない。彼が持っていったに違いない。; mẫu Thể thường + に違いない diễn đạt Chắc chắn là.",
+      "goal": "JLPT",
+      "grammar_id": "JG-346bdbb49e",
+      "id": "LP-GRAMC-N3-C06-346bdbb49e-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "彼が",
+       "持っていったに違いない。",
+       "机に本がない。"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "Thể thường + に違いない",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-e6683f641c"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この祭りには子ども（　　）、多くの人が参加する。",
+      "options": [
+       "をこめて",
+       "をはじめ",
+       "にとって",
+       "に比べて"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "をはじめ nêu đại diện tiêu biểu (trẻ em) trong nhóm nhiều người. をこめて/にとって/に比べて không hợp."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "（　　）多くの人が式に出席した。",
+      "options": [
+       "を中心に",
+       "に比べて",
+       "にとって",
+       "町長をはじめ、"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "町長をはじめ = đứng đầu là thị trưởng, cùng nhiều người khác."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "今年の夏は、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "をはじめ、",
+       "町で祭りが開かれる",
+       "多くの",
+       "東京"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "をはじめ nêu ví dụ tiêu biểu (Tokyo), vế sau là nhóm lớn (nhiều thành phố). Thứ tự đúng: 東京をはじめ、多くの町で祭りが開かれる。 ★ = 多くの。"
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "会議には、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "学校の",
+       "職員が集まった",
+       "をはじめ、",
+       "校長先生"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "校長先生をはじめ = đứng đầu là thầy hiệu trưởng, cùng các nhân viên. Thứ tự đúng: 校長先生をはじめ、学校の職員が集まった。 ★ = 学校の。"
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この祭りには子どもをはじめ、多くの人が参加する。",
+      "options": [
+       "Tôi cố gắng không ăn khuya.",
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Lễ hội có nhiều người tham gia, trước hết là trẻ em.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "をはじめ diễn đạt Trước tiên phải kể đến…, trước tiên là…. Câu này nghĩa là: \"Lễ hội có nhiều người tham gia, trước hết là trẻ em.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "町長をはじめ、多くの人が式に出席した。",
+      "options": [
+       "Nhiều người, đứng đầu là thị trưởng, đã dự lễ.",
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "をはじめ: nêu người tiêu biểu (thị trưởng) rồi đến nhóm lớn (nhiều người)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "町長をはじめ、多くの人が式に出席した。",
+       "町長をはじめて、多くの人が式に出席した。",
+       "日本には富士山をはじめ、有名な山がたくさんある。",
+       "この祭りには子どもをはじめ、多くの人が参加する。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Mẫu là をはじめ (として); 「はじめて」 nghĩa là \"lần đầu\" nên sai."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "東京をはじめ、多くの町で祭りが開かれる。",
+       "会議には、校長先生をはじめ、学校の職員が集まった。",
+       "日本には富士山をはじめ、有名な山がたくさんある。",
+       "校長先生がはじめ、多くの先生が来た。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Trợ từ đúng là を: 校長先生をはじめ."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "多くの人が",
+       "式に出席した。",
+       "町長をはじめ、"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Nhiều người, đứng đầu là thị trưởng, đã dự lễ."
+     },
+     {
+      "pieces": [
+       "多くの人が参加する。",
+       "この祭りには子ども",
+       "をはじめ、"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Lễ hội có nhiều người tham gia, trước hết là trẻ em."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "この祭りには子ども＿＿、多くの人が参加する。",
+      "answer": "をはじめ",
+      "translation_vi": "Lễ hội có nhiều người tham gia, trước hết là trẻ em."
+     },
+     {
+      "sentence_ja": "＿＿多くの人が式に出席した。",
+      "answer": "町長をはじめ、",
+      "translation_vi": "Nhiều người, đứng đầu là thị trưởng, đã dự lễ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "今年の夏は、東京（　　）多くの町で祭りが開かれる。",
+      "options": [
+       "をはじめ、",
+       "をこめて",
+       "にとって",
+       "に比べて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "東京をはじめ = tiêu biểu là Tokyo, cùng nhiều thành phố."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "会議には、校長先生（　　）学校の職員が集まった。",
+      "options": [
+       "をこめて",
+       "にとって",
+       "をはじめ、",
+       "に比べて"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "校長先生をはじめ = đứng đầu là thầy hiệu trưởng."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この祭りには子どもをはじめ、多くの人が参加する。",
+       "町長をはじめ、多くの人が式に出席した。",
+       "東京をはじめ、多くの町で祭りが開かれる。",
+       "この町には、スーパーをはじめ、店が一軒しかない。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "をはじめ nêu ví dụ tiêu biểu trong một nhóm nhiều thứ; vế sau \"chỉ có một cửa hàng\" mâu thuẫn."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "りんごをはじめ、果物をいくつか買いました。",
+      "vi": "Tôi mua một số loại quả, bắt đầu với táo. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "meaning_vi": "Trước tiên phải kể đến…, trước tiên là…",
+    "pattern": "〜をはじめ",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "この祭りには子どもをはじめ、多くの人が参加する。",
+      "answer_vi": "Lễ hội có nhiều người tham gia, trước hết là trẻ em.",
+      "chapter": 6,
+      "context_vi": "Trong tình huống: Lễ hội có nhiều người tham gia, trước hết là trẻ em.",
+      "correct_index": 1,
+      "correct_order": null,
+      "explanation_vi": "をはじめ diễn đạt Trước tiên phải kể đến…, trước tiên là…. を中心に và にとって không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-ea6e89c331",
+      "id": "LP-GRAMC-N3-C06-ea6e89c331-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "をはじめ",
+       "を中心に",
+       "にとって",
+       "に比べて"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～をはじめ",
+      "prompt_ja": "この祭りには子ども[ ]、多くの人が参加する。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "町長をはじめ、多くの人が式に出席した。",
+      "answer_vi": "Nhiều người, đứng đầu là thị trưởng, đã dự lễ.",
+      "chapter": 6,
+      "context_vi": "Sắp xếp câu để diễn đạt: Nhiều người, đứng đầu là thị trưởng, đã dự lễ.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 町長をはじめ、多くの人が式に出席した。; mẫu ～をはじめ diễn đạt Trước tiên phải kể đến…, trước tiên là….",
+      "goal": "JLPT",
+      "grammar_id": "JG-ea6e89c331",
+      "id": "LP-GRAMC-N3-C06-ea6e89c331-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "多くの人が",
+       "式に出席した。",
+       "町長をはじめ、"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～をはじめ",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-ea6e89c331"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "引き出しを開け（　　）、手紙が見つかった。",
+      "options": [
+       "たまま",
+       "たびに",
+       "たところ",
+       "たり"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Vた＋ところ = làm xong (mở ngăn kéo) thì phát hiện kết quả. たびに/たまま/たり không hợp."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "（　　）今日は休みだと言われた。",
+      "options": [
+       "店に電話したところ、",
+       "たびに",
+       "たまま",
+       "たために"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "電話したところ = gọi điện thì được trả lời (kết quả bất ngờ/thông tin mới)."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "電車が来ないので、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "遅れていると分かった",
+       "みたところ、",
+       "駅員に聞いて",
+       "事故で"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "聞いてみたところ = hỏi thử thì biết được kết quả. Thứ tự đúng: 駅員に聞いてみたところ、事故で遅れていると分かった。 ★ = 事故で。"
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "家に帰って、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "手紙があった",
+       "机の上に",
+       "ところ、",
+       "部屋に入った"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Về nhà, vào phòng thì thấy trên bàn có thư. Thứ tự đúng: 部屋に入ったところ、机の上に手紙があった。 ★ = 机の上に。"
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "引き出しを開けたところ、手紙が見つかった。",
+      "options": [
+       "Tôi đang mở ngăn kéo thì bức thư rơi ra.",
+       "Tôi định mở ngăn kéo để tìm thư.",
+       "Mỗi lần mở ngăn kéo lại thấy thư.",
+       "Mở ngăn kéo ra thì tìm thấy bức thư."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "たところ = làm xong việc (mở ngăn kéo) thì phát hiện ra kết quả."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "店に電話したところ、今日は休みだと言われた。",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Sau khi gọi cửa hàng, tôi được báo hôm nay nghỉ.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "電話したところ = gọi điện thì được báo (kết quả sau hành động)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "引き出しを開けたところ、手紙が見つかった。",
+       "駅に着いたところ、電話してください。",
+       "店に電話したところ、今日は休みだと言われた。",
+       "先生に聞いてみたところ、すぐに教えてくれた。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "たところ + kết quả đã xảy ra/phát hiện; vế sau không dùng câu yêu cầu (dùng 着いたら)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "部屋に入ったところ、机の上に手紙があった。",
+       "駅員に聞いてみたところ、事故で遅れていると分かった。",
+       "引き出しを開けるところ、手紙が見つかった。",
+       "新しい薬を飲んだところ、熱が下がった。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Phải dùng thể た: 開けたところ (làm xong rồi mới phát hiện)."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "今日は",
+       "休みだと言われた。",
+       "店に電話したところ、"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Sau khi gọi cửa hàng, tôi được báo hôm nay nghỉ."
+     },
+     {
+      "pieces": [
+       "手紙が見つかった。",
+       "引き出しを開け",
+       "たところ、"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Mở ngăn kéo ra thì tìm thấy bức thư."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "引き出しを開け＿＿、手紙が見つかった。",
+      "answer": "たところ",
+      "translation_vi": "Mở ngăn kéo ra thì tìm thấy bức thư."
+     },
+     {
+      "sentence_ja": "＿＿今日は休みだと言われた。",
+      "answer": "店に電話したところ、",
+      "translation_vi": "Sau khi gọi cửa hàng, tôi được báo hôm nay nghỉ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "電車が来ないので、駅員に聞いてみた（　　）事故で遅れていると分かった。",
+      "options": [
+       "ながら",
+       "たびに",
+       "まま",
+       "ところ、"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "聞いてみたところ = hỏi thử thì biết được."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "家に帰って、 部屋に入った（　　）机の上に手紙があった。",
+      "options": [
+       "たびに",
+       "ところ、",
+       "たまま",
+       "たために"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "入ったところ = vào phòng thì thấy (phát hiện)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "明日先生に聞いたところ、答えを教えてもらおう。",
+       "新しい薬を飲んだところ、熱が下がった。",
+       "店に電話したところ、今日は休みだと言われた。",
+       "部屋に入ったところ、机の上に手紙があった。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "たところ kể kết quả đã xảy ra sau hành động; không dùng cho dự định tương lai và câu ý chí (〜よう)."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "駅に着いたところ、友達が待っていました。",
+      "vi": "Vừa đến ga thì bạn tôi đang đợi. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "meaning_vi": "Sau khi làm … thì thấy…",
+    "pattern": "〜たところ",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "引き出しを開けたところ、手紙が見つかった。",
+      "answer_vi": "Ngăn kéo vừa mở thì tìm thấy bức thư.",
+      "chapter": 7,
+      "context_vi": "Trong tình huống: Ngăn kéo vừa mở thì tìm thấy bức thư.",
+      "correct_index": 1,
+      "correct_order": null,
+      "explanation_vi": "たところ diễn đạt Sau khi làm … thì thấy…. たびに và たまま không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-c4538fd14b",
+      "id": "LP-GRAMC-N3-C07-c4538fd14b-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "たところ",
+       "たびに",
+       "たまま",
+       "たために"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～たところ",
+      "prompt_ja": "引き出しを開け[ ]、手紙が見つかった。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "店に電話したところ、今日は休みだと言われた。",
+      "answer_vi": "Sau khi gọi cửa hàng, tôi được báo hôm nay nghỉ.",
+      "chapter": 7,
+      "context_vi": "Sắp xếp câu để diễn đạt: Sau khi gọi cửa hàng, tôi được báo hôm nay nghỉ.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 店に電話したところ、今日は休みだと言われた。; mẫu ～たところ diễn đạt Sau khi làm … thì thấy….",
+      "goal": "JLPT",
+      "grammar_id": "JG-c4538fd14b",
+      "id": "LP-GRAMC-N3-C07-c4538fd14b-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "今日は",
+       "休みだと言われた。",
+       "店に電話したところ、"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～たところ",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-c4538fd14b"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "暑くて（　　）。",
+      "options": [
+       "たまらない",
+       "たまっている",
+       "ためておく",
+       "たまるつもりだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Aくて＋たまらない = nóng không chịu nổi. Các lựa chọn khác là động từ たまる/ためる thường, sai nghĩa."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "歯が痛くて（　　）",
+      "options": [
+       "たまっている。",
+       "ためておく。",
+       "たまらない。",
+       "たまるつもりだ。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "痛くてたまらない = đau không chịu nổi."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "発表の前の夜は、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "何度も",
+       "結果が気になって",
+       "時計を見た",
+       "たまらないので、"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "気になってたまらない = lo không chịu nổi → nhìn đồng hồ nhiều lần. Thứ tự đúng: 結果が気になってたまらないので、何度も時計を見た。 ★ = 何度も。"
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "犬が見つからず、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "たまらなかったので、",
+       "町中を探した",
+       "夜遅くまで",
+       "心配で"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Aな/N＋で＋たまらない: 心配でたまらない. Thứ tự đúng: 心配でたまらなかったので、夜遅くまで町中を探した。 ★ = 夜遅くまで。"
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "暑くてたまらない。",
+      "options": [
+       "Trời nóng không chịu nổi.",
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "たまらない diễn đạt Không chịu được, cảm xúc rất mạnh. Câu này nghĩa là: \"Trời nóng không chịu nổi.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "歯が痛くてたまらない。",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi đau răng không chịu nổi.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "痛くてたまらない = đau không chịu nổi (cảm giác của người nói)."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "暑くてたまらない。",
+       "この部屋は暑いてたまらない。",
+       "歯が痛くてたまらない。",
+       "試験の結果が気になってたまらない。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Tính từ い phải chuyển sang くて: 暑くてたまらない."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "国の家族に会いたくてたまらない。",
+       "心配でたまらない。",
+       "のどがかわいてたまらない。",
+       "犬が見つからず、心配てたまらない。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Tính từ な/danh từ dùng で: 心配でたまらない."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "痛くて",
+       "たまらない。",
+       "歯が"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Tôi đau răng không chịu nổi."
+     },
+     {
+      "pieces": [
+       "たまらない。",
+       "一人で",
+       "寂しくて"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Ở một mình, tôi buồn không chịu nổi."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "暑くて＿＿。",
+      "answer": "たまらない",
+      "translation_vi": "Trời nóng không chịu nổi."
+     },
+     {
+      "sentence_ja": "歯が痛くて＿＿",
+      "answer": "たまらない。",
+      "translation_vi": "Tôi đau răng không chịu nổi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "発表の前の夜は、結果が気になって（　　）何度も時計を見た。",
+      "options": [
+       "たまっていて、",
+       "たまらないので、",
+       "ためておいて、",
+       "たまるつもりで、"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "気になってたまらないので = vì lo không chịu nổi."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "犬が見つからず、心配で（　　）夜遅くまで町中を探した。",
+      "options": [
+       "たまっていて、",
+       "ためておいて、",
+       "たまるつもりで、",
+       "たまらなかったので、"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "心配でたまらなかったので = vì lo quá."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "田中さんは国へ帰りたくてたまらない。",
+       "暑くてたまらない。",
+       "国の家族に会いたくてたまらない。",
+       "歯が痛くてたまらない。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "てたまらない diễn tả cảm xúc của chính người nói; với người thứ ba phải thêm ようだ/らしい (帰りたくてたまらないようだ)."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "壊れてしまい、暑くてたまらない。",
+      "vi": "Máy điều hòa bị hỏng và tôi thấy nóng không thể chịu nổi."
+     },
+     {
+      "ja": "会いたくてたまらないのに会えないのはつらい。",
+      "vi": "Thật đau khổ vì không thể gặp được anh ấy dù tôi rất muốn gặp."
+     }
+    ],
+    "meaning_vi": "Không chịu được, cảm xúc rất mạnh",
+    "pattern": "〜てたまらない",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "暑くてたまらない。",
+      "answer_vi": "Trời nóng không chịu nổi.",
+      "chapter": 6,
+      "context_vi": "Trong tình huống: Trời nóng không chịu nổi.",
+      "correct_index": 2,
+      "correct_order": null,
+      "explanation_vi": "たまらない diễn đạt Không chịu được, cảm xúc rất mạnh. ならないはずだ và たまるべきだ không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-9139fdc132",
+      "id": "LP-GRAMC-N3-C06-9139fdc132-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "なるつもりだ",
+       "たまらない",
+       "ならないはずだ",
+       "たまるべきだ"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～てたまらない",
+      "prompt_ja": "暑くて[ ]。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "歯が痛くてたまらない。",
+      "answer_vi": "Tôi đau răng không chịu nổi.",
+      "chapter": 6,
+      "context_vi": "Sắp xếp câu để diễn đạt: Tôi đau răng không chịu nổi.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 歯が痛くてたまらない。; mẫu ～てたまらない diễn đạt Không chịu được, cảm xúc rất mạnh.",
+      "goal": "JLPT",
+      "grammar_id": "JG-9139fdc132",
+      "id": "LP-GRAMC-N3-C06-9139fdc132-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "痛くて",
+       "たまらない。",
+       "歯が"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～てたまらない",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-9139fdc132"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "母の体が心配で（　　）。",
+      "options": [
+       "するべきだ",
+       "なるつもりだ",
+       "してしまう",
+       "ならない"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "ならない diễn đạt Không chịu được, cảm xúc mạnh (trang trọng). するべきだ và なるつもりだ không phù hợp với cấu trúc hoặc ý câu này."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "古い友達のことが懐かしくて（　　）",
+      "options": [
+       "なるつもりだ",
+       "ならない。",
+       "してしまう",
+       "するべきだ"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "懐かしくてならない = nhớ (hoài niệm) da diết, cảm xúc tự trào lên."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "母が入院してから、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "病院へ電話している",
+       "毎日",
+       "体が心配で",
+       "ならないので、"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "心配でならない = lo không chịu được → ngày nào cũng gọi điện. Thứ tự đúng: 体が心配でならないので、毎日病院へ電話している。 ★ = 毎日。"
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "友達の合格を聞いて、 ＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "手紙を書いた",
+       "うれしくて",
+       "ならないので、",
+       "お祝いの"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Nghe bạn đỗ, vui không kìm được nên viết thư chúc mừng. Thứ tự đúng: うれしくてならないので、お祝いの手紙を書いた。 ★ = お祝いの。"
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "母の体が心配でならない。",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi lo cho sức khỏe của mẹ vô cùng.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi nói chậm để dễ nghe."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "ならない diễn đạt Không chịu được, cảm xúc mạnh (trang trọng). Câu này nghĩa là: \"Tôi lo cho sức khỏe của mẹ vô cùng.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "古い友達のことが懐かしくてならない。",
+      "options": [
+       "Vì sức khỏe, tôi cố gắng đi bộ mỗi ngày.",
+       "Tôi nói chậm để dễ nghe.",
+       "Tôi cố gắng không ăn khuya.",
+       "Tôi nhớ người bạn cũ vô cùng."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "懐かしくてならない = nhớ người bạn cũ vô cùng."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "母の体が心配でならない。",
+       "古い友達のことが懐かしくてならない。",
+       "毎日、駅まで走ってならない。",
+       "試験の結果が気になってならない。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "てならない đi với từ chỉ cảm xúc/cảm giác tự phát (心配, 気になる…), không đi với hành động có chủ ý như 走る."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "その話を聞いて、残念でならない。",
+       "試験の結果が気になってならない。",
+       "合格の知らせを聞いて、うれしいてならない。",
+       "古い友達のことが懐かしくてならない。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Tính từ い → くて: うれしくてならない."
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "懐かしくて",
+       "ならない。",
+       "古い友達のことが"
+      ],
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "translation_vi": "Tôi nhớ người bạn cũ vô cùng."
+     },
+     {
+      "pieces": [
+       "ならない。",
+       "母の体が",
+       "心配で"
+      ],
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "translation_vi": "Tôi lo cho sức khỏe của mẹ vô cùng."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "母の体が心配で＿＿。",
+      "answer": "ならない",
+      "translation_vi": "Tôi lo cho sức khỏe của mẹ vô cùng."
+     },
+     {
+      "sentence_ja": "古い友達のことが懐かしくて＿＿",
+      "answer": "ならない。",
+      "translation_vi": "Tôi nhớ người bạn cũ vô cùng."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "母が入院してから、体が心配で（　　）毎日病院へ電話している。",
+      "options": [
+       "なるつもりで、",
+       "してしまって、",
+       "ならないので、",
+       "するべきで、"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "心配でならないので = vì lo không chịu được."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "友達の合格を聞いて、 うれしくて（　　）お祝いの手紙を書いた。",
+      "options": [
+       "ならないので、",
+       "してしまう",
+       "なるつもりだ",
+       "するべきだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "うれしくてならないので = vì vui không kìm được."
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "母のことが心配なならない。",
+       "その話を聞いて、残念でならない。",
+       "試験の結果が気になってならない。",
+       "古い友達のことが懐かしくてならない。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Tính từ な dùng で: 心配でならない."
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "希望どおりの会社に就職でき、うれしくてならない。",
+      "vi": "Được làm việc ở công ty mà mình thích tôi thấy rất vui."
+     },
+     {
+      "ja": "田舎に住んでいる一人暮らしの母のことが心配でならない。",
+      "vi": "Tôi rất lo cho mẹ đang sống một mình ở quê."
+     }
+    ],
+    "meaning_vi": "Không chịu được, cảm xúc mạnh (trang trọng)",
+    "pattern": "〜てならない",
+    "pattern_variants": [],
+    "source_questions": [
+     {
+      "answer_ja": "母の体が心配でならない。",
+      "answer_vi": "Tôi lo cho sức khỏe của mẹ vô cùng.",
+      "chapter": 6,
+      "context_vi": "Trong tình huống: Tôi lo cho sức khỏe của mẹ vô cùng.",
+      "correct_index": 3,
+      "correct_order": null,
+      "explanation_vi": "ならない diễn đạt Không chịu được, cảm xúc mạnh (trang trọng). するべきだ và なるつもりだ không phù hợp với cấu trúc hoặc ý câu này.",
+      "goal": "JLPT",
+      "grammar_id": "JG-a9c8e27737",
+      "id": "LP-GRAMC-N3-C06-a9c8e27737-01",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "なるつもりだ",
+       "してしまう",
+       "ならない",
+       "するべきだ"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～てならない",
+      "prompt_ja": "母の体が心配で[ ]。",
+      "type": "FILL"
+     },
+     {
+      "answer_ja": "古い友達のことが懐かしくてならない。",
+      "answer_vi": "Tôi nhớ người bạn cũ vô cùng.",
+      "chapter": 6,
+      "context_vi": "Sắp xếp câu để diễn đạt: Tôi nhớ người bạn cũ vô cùng.",
+      "correct_index": null,
+      "correct_order": [
+       3,
+       1,
+       2
+      ],
+      "explanation_vi": "Trật tự đúng là 古い友達のことが懐かしくてならない。; mẫu ～てならない diễn đạt Không chịu được, cảm xúc mạnh (trang trọng).",
+      "goal": "JLPT",
+      "grammar_id": "JG-a9c8e27737",
+      "id": "LP-GRAMC-N3-C06-a9c8e27737-02",
+      "label": "J-LAS soạn bổ sung",
+      "level": "N3",
+      "options": [
+       "懐かしくて",
+       "ならない。",
+       "古い友達のことが"
+      ],
+      "origin": "JLAS_SUPPLEMENT",
+      "pattern": "～てならない",
+      "prompt_ja": "語句を並べ替えて、文を完成させてください。",
+      "type": "ORDER"
+     }
+    ],
+    "unit_no": 2
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-a9c8e27737"
+  }
+ ],
+ "kind": "GRAMMAR_BANK",
+ "level": "N3",
+ "packet_id": "GRAMMAR_BANK-008"
+}

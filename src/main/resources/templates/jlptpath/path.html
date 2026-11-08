@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] JLPT path page (/learning): jpath-path.js draws the overview; later scripts fill the data-slot areas. -->
+<head th:replace="~{fragments/head :: standard('Lộ trình JLPT - JLAS', null)}"></head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-path')}"></th:block>
+<link rel="stylesheet" th:href="@{/css/pages/jpath-skills.css(v=${jpathAssetVersion})}" />
+<!-- Inline grammar practice (Luyện ngay) draws a check with jpath-check.js. -->
+<link rel="stylesheet" th:href="@{/css/pages/jpath-check.css(v=${jpathAssetVersion})}" />
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page jp-path" data-inline-dictionary
+      th:attr="data-jpath-tab=${jpathTab},data-jpath-topic=${jpathTopic}">
+    <div id="jpathPathRoot" class="jp-ws jp-ws--norail jp-path__grid" aria-busy="true"
+         th:attr="data-jpath-tab=${jpathTab}">
+        <aside class="jp-ws__side jp-path__side" aria-label="Điều hướng lộ trình">
+            <div class="jp-path__levels" data-region="levels"></div>
+            <nav class="jp-sidenav" aria-label="Trang của lộ trình">
+                <p class="jp-sidenav__title">Theo dõi việc học</p>
+                <a class="jp-sidenav__link" href="/learning" aria-current="page"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-route"/></svg> Lộ trình</a>
+                <a class="jp-sidenav__link" href="/learning/jlpt/history"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-history"/></svg> Lịch sử học</a>
+                <a class="jp-sidenav__link" href="/learning/jlpt/stats"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-chart-no-axes-combined"/></svg> Thống kê</a>
+                <a class="jp-sidenav__link" href="/learning/jlpt/known"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-check"/></svg> Kho đã biết</a>
+                <a class="jp-sidenav__link" href="/learning/jlpt/notebook"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-notebook"/></svg> Sổ tay</a>
+                <a class="jp-sidenav__link" href="/learning/jlpt/confusables"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-git-compare-arrows"/></svg> Phân biệt chữ dễ nhầm</a>
+                <a class="jp-sidenav__link" href="/learning/jlpt/settings"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-settings"/></svg> Cài đặt lộ trình</a>
+            </nav>
+            <div data-jpath-extra-links class="jp-path__extra"></div>
+        </aside>
+        <div class="jp-ws__main jp-path__main">
+            <div class="jp-path__hero" data-region="hero">
+                <p class="jp-path__loading" role="status">Đang tải lộ trình…</p>
+            </div>
+            <section class="jp-path__today" data-slot="today"></section>
+            <section class="jp-path__warmup" data-slot="warmup" hidden></section>
+            <section class="jp-path__warmup" data-slot="week-skip" hidden></section>
+            <div class="jp-path__stage" data-region="stage"></div>
+            <details class="jp-path__pace" data-part="pace">
+                <summary class="jp-path__pace-head">Điều chỉnh nhịp học</summary>
+                <div class="jp-path__slider" data-slot="slider"></div>
+            </details>
+            <div class="jp-path__tabpart">
+                <div class="jp-path__tabs" data-region="tabs"></div>
+                <div class="jp-path__numbers" id="jp-tab-panel" role="tabpanel" data-region="numbers"></div>
+                <section class="jp-path__parts" data-slot="parts" aria-live="polite"></section>
+                <section class="jp-path__list" data-slot="list"></section>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlptpath/jpath-display.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-path-controls.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-dialog.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-check.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-item-drawer.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-grammar-lesson.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-lists.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-parts.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-warmup.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-week-skip.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-tour.js(v=${jpathAssetVersion})}"></script>
+<!-- Plan 3: the Đọc · Nghe tab (loaded before jpath-path.js, which calls it). -->
+<script th:src="@{/js/jlptpath/jpath-mock-card.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-skills-tab.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-path.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

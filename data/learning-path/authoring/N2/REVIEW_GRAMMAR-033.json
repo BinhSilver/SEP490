@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先生の指示にしたがって、作業を進めた。",
+       "ja_furigana": "先生(せんせい)の指示(しじ)にしたがって、作業(さぎょう)を進(すす)めた。",
+       "vi": "Tôi đã tiến hành công việc theo chỉ dẫn của giáo viên."
+      },
+      {
+       "ja": "時間がたつにしたがって、痛みは消えていった。",
+       "ja_furigana": "時間(じかん)がたつにしたがって、痛(いた)みは消(き)えていった。",
+       "vi": "Thời gian trôi qua, cơn đau dần biến mất."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "北へ行くにしたがって、紅葉は早くなる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Theo hướng ra Bắc thì lá đỏ nở sớm."
+     },
+     {
+      "ja": "予定表にしたがい、学習を進める。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Theo thời gian biểu, cứ tiến tới học tập."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 北へ行くにしたがって、紅葉は早くなる。",
+     "FURIGANA_MISSING: 予定表にしたがい、学習を進める。"
+    ],
+    "formation": "N / Vる + にしたがって / にしたがい",
+    "locked_fields": [],
+    "meaning_vi": "Cùng với, theo …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜北へ行くにしたがって",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cùng với một sự thay đổi, một sự thay đổi khác cũng diễn ra. Hán tự : 《～に従って》《～に従い》"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-aef93bd16b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "円高にともなって、輸入品の値段が下がった。",
+       "ja_furigana": "円高(えんだか)にともなって、輸入品(ゆにゅうひん)の値段(ねだん)が下(さ)がった。",
+       "vi": "Cùng với việc đồng yên lên giá, giá hàng nhập khẩu đã giảm."
+      },
+      {
+       "ja": "会議の延期にともない、予定を組み直す必要がある。",
+       "ja_furigana": "会議(かいぎ)の延期(えんき)にともない、予定(よてい)を組(く)み直(なお)す必要(ひつよう)がある。",
+       "vi": "Do cuộc họp bị hoãn, cần phải sắp xếp lại lịch."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "人口の増加にともない、資源の消費量も増える。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cùng với việc gia tăng dân số thì lượng tiêu tài nguyên cũng tăng lên."
+     },
+     {
+      "ja": "マラソン大会が行われるのにともなって、この道路は通行止めになります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cùng với việc diễn ra đại hội marathon thì con đường này trở nên cấm lưu thông."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 人口の増加にともない、資源の消費量も増える。",
+     "FURIGANA_MISSING: マラソン大会が行われるのにともなって、この道路は通行止めになります。"
+    ],
+    "formation": "N / Vる(の) + にともなって / にともない",
+    "locked_fields": [],
+    "meaning_vi": "Cùng với …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜増加にともなって",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cùng với một sự thay đổi, một sự thay đổi khác cũng diễn ra. Hoặc các sự việc xảy ra đồng thời với nhau. Hán tự: 《～に伴う》"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ae5db67975"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "部長とともに、取引先を訪問した。",
+       "ja_furigana": "部長(ぶちょう)とともに、取引先(とりひきさき)を訪問(ほうもん)した。",
+       "vi": "Tôi cùng trưởng phòng đến thăm đối tác."
+      },
+      {
+       "ja": "時代の変化とともに、人の考え方も変わってきた。",
+       "ja_furigana": "時代(じだい)の変化(へんか)とともに、人(ひと)の考(かんが)え方(かた)も変(か)わってきた。",
+       "vi": "Cùng với sự thay đổi của thời đại, cách nghĩ của con người cũng đổi thay."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "家族とともに来日した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đến Nhật cùng với gia đình."
+     },
+     {
+      "ja": "自動車が普及するとともに、事故も増加した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cùng với việc phổ biến xe ô tô thì tai nạn cũng tăng lên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 家族とともに来日した。",
+     "FURIGANA_MISSING: 自動車が普及するとともに、事故も増加した。"
+    ],
+    "formation": "N / Vる + とともに",
+    "locked_fields": [],
+    "meaning_vi": "Cùng với …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜家族とともに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng khi muốn nói sự việc sự vật diễn tiến đồng thời với nhau. Cùng với một sự thay đổi, một sự thay đổi khác cũng diễn ra."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6876456889"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "日がたつにつれて、悲しみは薄れていった。",
+       "ja_furigana": "日(ひ)がたつにつれて、悲(かな)しみは薄(うす)れていった。",
+       "vi": "Ngày tháng trôi qua, nỗi buồn dần nhạt đi."
+      },
+      {
+       "ja": "練習を重ねるにつれて、上手になった。",
+       "ja_furigana": "練習(れんしゅう)を重(かさ)ねるにつれて、上手(じょうず)になった。",
+       "vi": "Càng luyện tập nhiều, tôi càng trở nên giỏi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "年を取るにつれて、体のいろいろな機能が低下する。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cùng với việc lớn tuổi, nhiều chức năng cơ thể sẽ giảm sút."
+     },
+     {
+      "ja": "町の発展につれて、自然が少なくなった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cùng với sự phát triển của thành phố, thiên nhiên trở nên ít đi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 年を取るにつれて、体のいろいろな機能が低下する。",
+     "FURIGANA_MISSING: 町の発展につれて、自然が少なくなった。"
+    ],
+    "formation": "N / Vる + につれて",
+    "locked_fields": [],
+    "meaning_vi": "Cùng với … thì càng …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜年を取るにつれて",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Nếu mức độ của một phía thay đổi thì đó sẽ trở thành lý do làm phía còn lại cũng thay đổi. Không được sử dụng các câu biểu thị ý muốn của người nói, hoặc các câu khuyến dụ sau 「～につれて」"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3ab3955b7e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼はお金のこととなると、急に細かくなる。",
+       "ja_furigana": "彼(かれ)はお金(かね)のこととなると、急(きゅう)に細(こま)かくなる。",
+       "vi": "Hễ nói đến chuyện tiền nong là anh ấy đột nhiên kỹ tính."
+      },
+      {
+       "ja": "好きな食べ物のこととなると、この子はよく話す。",
+       "ja_furigana": "好(す)きな食(た)べ物(もの)のこととなると、この子(こ)はよく話(はな)す。",
+       "vi": "Hễ nói đến món mình thích là đứa trẻ này nói rất nhiều."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は普段は無口だけど、山登りのこととなると、急におしゃべりになる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy bình thường ít nói, nhưng cứ nhắc đến leo núi thì lại đột nhiên nói nhiều."
+     },
+     {
+      "ja": "お弁当を作るほうが経済的だし、体にもいいけど、毎日のこととなると、大変かもしれない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tự làm cơm hộp tiết kiệm và tốt cho sức khỏe, nhưng nếu là chuyện hàng ngày thì có thể sẽ vất vả."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は普段は無口だけど、山登りのこととなると、急におしゃべりになる。",
+     "FURIGANA_MISSING: お弁当を作るほうが経済的だし、体にもいいけど、毎日のこととなると、大変かもしれない。"
+    ],
+    "formation": "N + のこととなると",
+    "locked_fields": [],
+    "meaning_vi": "Hễ nói đến chuyện ～ thì (thái độ hay tình hình khác hẳn bình thường).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜こととなると",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c8934558c8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "休みの日は、寝ては食べての生活だ。",
+       "ja_furigana": "休(やす)みの日(ひ)は、寝(ね)ては食(た)べての生活(せいかつ)だ。",
+       "vi": "Ngày nghỉ thì cứ nằm rồi lại ăn, cuộc sống chỉ có vậy."
+      },
+      {
+       "ja": "弟は、笑ってはしゃべり、しゃべっては笑う。",
+       "ja_furigana": "弟(おとうと)は、笑(わら)ってはしゃべり、しゃべっては笑(わら)う。",
+       "vi": "Em trai tôi cứ cười rồi nói, nói rồi lại cười."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "東京は、降ってはやみの毎日で、はっきりしない天気が続く。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ở Tokyo, trời lúc mưa lúc tạnh hằng ngày, thời tiết mập mờ kéo dài."
+     },
+     {
+      "ja": "ABC 出版は、新しい本を出してはベストセラーになっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhà xuất bản ABC cứ ra sách mới là trở thành sách bán chạy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 東京は、降ってはやみの毎日で、はっきりしない天気が続く。",
+     "FURIGANA_MISSING: ABC 出版は、新しい本を出してはベストセラーになっている。"
+    ],
+    "formation": "V-ては + V-ては〜",
+    "locked_fields": [],
+    "meaning_vi": "Làm việc này rồi lại làm việc khác, lặp đi lặp lại.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ては",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-684ef8d058"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は味はもとより、接客もすばらしい。",
+       "ja_furigana": "この店(みせ)は味(あじ)はもとより、接客(せっきゃく)もすばらしい。",
+       "vi": "Quán này không chỉ món ăn ngon mà cách phục vụ cũng tuyệt."
+      },
+      {
+       "ja": "彼は英語はもとより、中国語も話せる。",
+       "ja_furigana": "彼(かれ)は英語(えいご)はもとより、中国語(ちゅうごくご)も話(はな)せる。",
+       "vi": "Anh ấy không chỉ tiếng Anh mà tiếng Trung cũng nói được."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この美術館は作品はもとより、建物そのものも見応えがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bảo tàng này không chỉ có tác phẩm đáng xem mà ngay bản thân tòa nhà cũng rất ấn tượng."
+     },
+     {
+      "ja": "災害時には水はもとより、携帯電話を充電する手段も必要だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi xảy ra thiên tai, nước đương nhiên là cần, ngoài ra còn cần cả phương tiện sạc điện thoại."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この美術館は作品はもとより、建物そのものも見応えがある。",
+     "FURIGANA_MISSING: 災害時には水はもとより、携帯電話を充電する手段も必要だ。"
+    ],
+    "formation": "N + はもとより",
+    "locked_fields": [],
+    "meaning_vi": "Đương nhiên là, chưa kể đến",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đương nhiên là, chưa kể đến",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Xem nội dung đầu là hiển nhiên rồi bổ sung một đối tượng hoặc phương diện khác. Cách dùng: 〜はもとより đặt sau danh từ để coi điều thứ nhất là đã rõ hoặc đương nhiên, sau đó tập trung bổ sung điều thứ hai. Có thể hiểu là “X thì khỏi phải nói, Y cũng…”. Mẫu thường được dùng khi giới thiệu phạm vi rộng, liệt kê ưu điểm hoặc nêu những thứ cần thiết. Vế sau hay có も hoặc まで và phải là thông tin mở rộng đáng được người nghe chú ý. Sắc thái: Mang sắc thái trang trọng, thường gặp trong văn viết, quảng bá, thông báo và bài phát biểu. Người nói ngầm cho rằng vế trước không cần chứng minh thêm. Lưu ý: Chủ yếu gắn với danh từ; は nằm trong chính mẫu nên không thêm trợ từ cách chen giữa danh từ và はもとより. Không nên đặt một nội dung còn gây tranh cãi ở vế trước như thể đó là điều hiển nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6cc4ac3320"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この薬は大人に限らず、子どもも飲むことができる。",
+       "ja_furigana": "この薬(くすり)は大人(おとな)に限(かぎ)らず、子(こ)どもも飲(の)むことができる。",
+       "vi": "Thuốc này không chỉ người lớn mà trẻ con cũng uống được."
+      },
+      {
+       "ja": "彼は仕事に限らず、趣味のこともよく話してくれる。",
+       "ja_furigana": "彼(かれ)は仕事(しごと)に限(かぎ)らず、趣味(しゅみ)のこともよく話(はな)してくれる。",
+       "vi": "Anh ấy không chỉ chuyện công việc mà cả sở thích cũng hay kể."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この図書館は学生に限らず、地域の住民も無料で利用できる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thư viện này không chỉ dành cho sinh viên; người dân trong khu vực cũng có thể sử dụng miễn phí."
+     },
+     {
+      "ja": "事故は夜間に限らず、見通しの悪い昼間にも起きている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tai nạn không chỉ xảy ra ban đêm mà còn xảy ra cả ban ngày khi tầm nhìn kém."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この図書館は学生に限らず、地域の住民も無料で利用できる。",
+     "FURIGANA_MISSING: 事故は夜間に限らず、見通しの悪い昼間にも起きている。"
+    ],
+    "formation": "N + に限らず",
+    "locked_fields": [],
+    "meaning_vi": "Không chỉ, không giới hạn ở",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không chỉ, không giới hạn ở",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu một phạm vi rồi mở rộng nhận định sang những đối tượng khác ngoài phạm vi đó. Cách dùng: Mẫu này đặt sau một danh từ để nói rằng nhận định không chỉ đúng với đối tượng được nêu mà còn đúng với một phạm vi rộng hơn. Phần sau thường có も, まで hoặc một từ chỉ nhóm khác để làm rõ sự mở rộng. Đối tượng đứng trước に限らず thường là trường hợp dễ được nghĩ tới trước tiên, còn trọng tâm thông tin nằm ở phần được bổ sung phía sau. Sắc thái: Mang sắc thái khách quan, dùng được trong cả văn nói lịch sự lẫn văn viết. Mẫu này phù hợp khi muốn bác bỏ một giới hạn ngầm định và nhấn mạnh tính phổ quát. Lưu ý: Thường gắn trực tiếp với danh từ; không chèn の giữa danh từ và に限らず. Phần sau phải thật sự mở rộng ra ngoài phạm vi đã nêu, không chỉ lặp lại cùng một nhóm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-897919c8f7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この地域は夏のみならず、冬も観光客が多い。",
+       "ja_furigana": "この地域(ちいき)は夏(なつ)のみならず、冬(ふゆ)も観光客(かんこうきゃく)が多(おお)い。",
+       "vi": "Vùng này không chỉ mùa hè mà mùa đông cũng đông khách du lịch."
+      },
+      {
+       "ja": "彼女は歌が上手なのみならず、ダンスも得意だ。",
+       "ja_furigana": "彼女(かのじょ)は歌(うた)が上手(じょうず)なのみならず、ダンスも得意(とくい)だ。",
+       "vi": "Cô ấy không chỉ hát hay mà nhảy cũng giỏi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "新しい橋は交通渋滞を緩和したのみならず、地域間の交流も活発にした。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cây cầu mới không những làm giảm ùn tắc giao thông mà còn thúc đẩy giao lưu giữa các khu vực."
+     },
+     {
+      "ja": "彼女は研究能力が高いのみならず、後輩の指導にも熱心だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô ấy không chỉ có năng lực nghiên cứu cao mà còn rất tận tâm hướng dẫn đàn em."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 新しい橋は交通渋滞を緩和したのみならず、地域間の交流も活発にした。",
+     "FURIGANA_MISSING: 彼女は研究能力が高いのみならず、後輩の指導にも熱心だ。"
+    ],
+    "formation": "thể thường + のみならず / N + のみならず",
+    "locked_fields": [],
+    "meaning_vi": "Không những mà còn",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không những mà còn",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Bổ sung một sự việc hoặc đặc điểm thứ hai bên cạnh nội dung đã nêu trước. Cách dùng: 〜のみならず nối hai nội dung cùng đúng và cho biết phạm vi, tác dụng hoặc đặc điểm không dừng ở vế trước. Vế sau thường đi với も, まで, さえ để đánh dấu phần bổ sung. Mẫu này hay xuất hiện trong bài viết, bài phát biểu và lời giải thích có tính chính thức. Hai vế nên có quan hệ song song rõ ràng, chẳng hạn cùng nói về ưu điểm, ảnh hưởng hoặc nhóm đối tượng. Sắc thái: Trang trọng hơn 〜だけでなく và tạo cảm giác lập luận chặt chẽ. Vế sau thường chứa thông tin quan trọng hơn hoặc đáng chú ý hơn. Lưu ý: Với danh từ và tính từ đuôi な trong lối viết chuẩn, thường dùng dạng であるのみならず. Không dùng mẫu này nếu vế sau chỉ là kết quả tự nhiên, không phải một nội dung bổ sung song song."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-31870dbaf7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は時間を守らないばかりか、注意しても聞かない。",
+       "ja_furigana": "彼(かれ)は時間(じかん)を守(まも)らないばかりか、注意(ちゅうい)しても聞(き)かない。",
+       "vi": "Anh ta không những không đúng giờ mà bị nhắc cũng không nghe."
+      },
+      {
+       "ja": "この店は安いばかりか、味もいい。",
+       "ja_furigana": "この店(みせ)は安(やす)いばかりか、味(あじ)もいい。",
+       "vi": "Quán này không những rẻ mà món ăn cũng ngon."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は謝らないばかりか、責任を同僚に押しつけようとした。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta không những không xin lỗi mà còn định đẩy trách nhiệm cho đồng nghiệp."
+     },
+     {
+      "ja": "昨夜は風が弱まらなかったばかりか、雨まで激しくなった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đêm qua gió không những không yếu đi mà mưa còn nặng hạt hơn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は謝らないばかりか、責任を同僚に押しつけようとした。",
+     "FURIGANA_MISSING: 昨夜は風が弱まらなかったばかりか、雨まで激しくなった。"
+    ],
+    "formation": "thể thường + ばかりか / N + ばかりか",
+    "locked_fields": [],
+    "meaning_vi": "Không những mà thậm chí còn",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không những mà thậm chí còn",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu thêm một nội dung vượt mức dự đoán, thường mạnh hoặc đáng ngạc nhiên hơn vế trước. Cách dùng: Mẫu này cho biết sự việc không dừng ở mức nêu trong vế trước mà còn tiến tới một mức đáng chú ý hơn ở vế sau. Những từ như も, まで, さえ thường xuất hiện ở phần sau để thể hiện sự tăng cấp. Mẫu dùng được với cả nội dung tích cực và tiêu cực, nhưng đặc biệt phổ biến khi người nói muốn bộc lộ bất ngờ, phê phán hoặc nhấn mạnh hậu quả ngoài dự kiến. Sắc thái: Có lực nhấn mạnh mạnh hơn 〜だけでなく. Trật tự hai vế quan trọng: vế sau thường là điều khó ngờ, nghiêm trọng hoặc có phạm vi lớn hơn. Lưu ý: Hai vế phải tạo được quan hệ bổ sung hoặc tăng cấp; không dùng khi vế sau chỉ là hành động tiếp nối thông thường. Khi đi với danh từ hoặc tính từ đuôi な trong văn phong chuẩn, có thể dùng であるばかりか."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-011d1d55ea"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-033"
+}

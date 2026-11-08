@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] Timed section practice (/learning/jlpt/skills/section/{token}); jpath-skill-section.js draws it from
+     GET /api/learning/jlpt/checks/{token}. Look up works on the whole page (owner 04/11). -->
+<head th:replace="~{fragments/head :: standard('Luyện thi theo phần - JLAS', null)}"></head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-skills')}"></th:block>
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page jp-skill-section" data-inline-dictionary th:attr="data-token=${token}"
+      data-jpath-skill-section data-jpath-auto-furigana>
+    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbsIn('Đọc · Nghe', '/learning?tab=skills', 'Luyện thi theo phần')}"></th:block>
+    <header class="jp-page-head"><h1 class="jp-page-head__title jp-side__title" data-role="title">Luyện thi theo phần</h1></header>
+    <div class="jp-section-timer" data-role="timer" role="timer" aria-live="off" hidden></div>
+    <p class="jp-muted" role="status" data-role="status">Đang tải bài…</p>
+    <div data-role="body"></div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<!-- Furigana toggle: generated readings for passages, questions, options and lines (POST /api/learning/jlpt/furigana). -->
+<script th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-auto-furigana.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-skill-player.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-skill-section.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

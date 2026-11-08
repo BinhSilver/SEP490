@@ -1,0 +1,2382 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "trong số … (giới hạn phạm vi khi so sánh)",
+     "examples": [
+      {
+       "ja": "果物の中でりんごがいちばん好きです。",
+       "ja_furigana": "果物(くだもの)の中(なか)でりんごがいちばん好(す)きです。",
+       "vi": "Trong các loại hoa quả, tôi thích táo nhất."
+      },
+      {
+       "ja": "スポーツの中でテニスがいちばん好きです。",
+       "ja_furigana": "スポーツの中(なか)でテニスがいちばん好(す)きです。",
+       "vi": "Trong các môn thể thao, tôi thích tennis nhất."
+      },
+      {
+       "ja": "クラスの中で、だれが一番若いですか。",
+       "ja_furigana": "クラスの中(なか)で、だれが一番(いちばん)若(わか)いですか。",
+       "vi": "Trong lớp, ai trẻ nhất?"
+      }
+     ],
+     "unit_title_vi": "So sánh và quá khứ của tính từ"
+    },
+    "note": "nghĩa theo khuôn; câu \"の中で…が好きです\" thiếu いちばん nghe lửng, thêm いちばん cho tự nhiên"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Phạm vi so sánh: Nの中で = trong số N.",
+      "options": [
+       "中に",
+       "中が",
+       "中を",
+       "中で"
+      ],
+      "prompt_ja": "くだものの（　　）、何がいちばん好きですか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mẫu: Nの中で → 家族の中で = trong gia đình.",
+      "options": [
+       "を",
+       "の",
+       "が",
+       "に"
+      ],
+      "prompt_ja": "家族（　　）中で、だれがいちばん早く起きますか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: スポーツの中で何がいちばん好きですか。 Nghĩa: Trong các môn thể thao, bạn thích môn nào nhất? の中で.",
+      "options": [
+       "中",
+       "で",
+       "の",
+       "何"
+      ],
+      "prompt_ja": "スポーツ ＿＿ ＿＿ ★ ＿＿ がいちばん好きですか。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 日本の料理の中ですしがいちばん好きです。 Nghĩa: Trong các món Nhật, tôi thích sushi nhất. の + 中 + で.",
+      "options": [
+       "の",
+       "で",
+       "すし",
+       "中"
+      ],
+      "prompt_ja": "日本の料理 ＿＿ ★ ＿＿ ＿＿ がいちばん好きです。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Nの中で〜がいちばん = trong N, ... nhất.",
+      "options": [
+       "Trong lớp, anh Tanaka lớn tuổi nhất.",
+       "Anh Tanaka trẻ hơn lớp trưởng.",
+       "Trong lớp, anh Tanaka trẻ nhất.",
+       "Anh Tanaka đang ở trong lớp."
+      ],
+      "prompt_ja": "クラスの中で、田中さんがいちばん若いです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "一年の中で = trong một năm.",
+      "options": [
+       "Năm nay có lạnh không?",
+       "Trong một năm, khi nào lạnh nhất?",
+       "Trong một năm, khi nào nóng nhất?",
+       "Một năm có mấy mùa?"
+      ],
+      "prompt_ja": "一年の中で、いつがいちばん寒いですか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Phạm vi so sánh dùng の中で, không dùng の中に.",
+      "options": [
+       "家族の中で、父がいちばん早く起きます。",
+       "この中で、どれがいちばん高いですか。",
+       "日本の町の中で、どこがいちばん好きですか。",
+       "果物の中に、りんごがいちばん好きです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Thiếu の: phải là スポーツの中で.",
+      "options": [
+       "三つの中で、これがいちばん安いです。",
+       "友だちの中で、だれがいちばん上手ですか。",
+       "スポーツの中で、何がいちばんおもしろいですか。",
+       "スポーツ中で、テニスがいちばん好きです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay dùng の中に (chỉ vị trí bên trong) khi so sánh; so sánh trong một nhóm phải dùng の中で.",
+    "examples": [
+     {
+      "ja": "果物の中でりんごが好きです。",
+      "ja_furigana": "果物(くだもの)の中(なか)でりんごが好(す)きです。",
+      "source": "CLAUDE",
+      "vi": "Trong các loại hoa quả, tôi thích táo."
+     },
+     {
+      "ja": "スポーツの中でテニスが好きです。",
+      "ja_furigana": "スポーツの中(なか)でテニスが好(す)きです。",
+      "source": "CLAUDE",
+      "vi": "Trong các môn thể thao, tôi thích tennis."
+     },
+     {
+      "ja": "クラスの中で、だれが一番若いですか。",
+      "ja_furigana": "クラスの中(なか)で、だれが一番(いちばん)若(わか)いですか。",
+      "source": "CLAUDE",
+      "vi": "Trong lớp, ai trẻ nhất?"
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Trong số ba cái: 三つの中で.",
+      "options": [
+       "中",
+       "上",
+       "前",
+       "外"
+      ],
+      "prompt_ja": "A：この三つの（　　）で、どれがいちばん安いですか。B：これです。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "の中で〜がいちばん = trong ..., ... nhất.",
+      "options": [
+       "Trong các món ăn Nhật, món nào ngon nhất?",
+       "Món ăn Nhật nào rẻ nhất?",
+       "Bạn đã ăn món Nhật nào?",
+       "Món ăn Nhật có ngon không?"
+      ],
+      "prompt_ja": "日本の食べ物の中で、何がいちばんおいしいですか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Phạm vi so sánh dùng で: この中で.",
+      "options": [
+       "動物の中で、犬がいちばん好きです。",
+       "この町の中で、どこがいちばん静かですか。",
+       "この中を、どれがいちばんいいですか。",
+       "一週間の中で、何曜日がいちばんひまですか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "で",
+      "sentence_ja": "飲み物の中＿＿、何がいちばん好きですか。",
+      "translation_vi": "Trong các loại đồ uống, bạn thích gì nhất?"
+     },
+     {
+      "answer": "中",
+      "sentence_ja": "クラスの＿＿で、山田さんがいちばん上手です。",
+      "translation_vi": "Trong lớp, anh Yamada giỏi nhất."
+     }
+    ],
+    "findings": [],
+    "formation": "N(nhóm) + の中で",
+    "locked_fields": [],
+    "meaning_vi": "Trong số … – giới hạn phạm vi khi so sánh.",
+    "nuance_vi": "Trung tính; thường đi với いちばん.",
+    "order_items": [
+     {
+      "answer_order": [
+       0,
+       1,
+       3,
+       2,
+       4
+      ],
+      "pieces": [
+       "家族",
+       "の",
+       "で",
+       "中",
+       "だれがいちばん若いですか"
+      ],
+      "translation_vi": "Trong gia đình bạn, ai trẻ nhất?"
+     },
+     {
+      "answer_order": [
+       0,
+       2,
+       1,
+       3
+      ],
+      "pieces": [
+       "この",
+       "で",
+       "中",
+       "どれがいちばん好きですか"
+      ],
+      "translation_vi": "Trong số này, bạn thích cái nào nhất?"
+     }
+    ],
+    "pattern": "の中(なか)で",
+    "pattern_variants": [],
+    "unit_no": 12,
+    "unit_title_vi": null,
+    "usage_vi": "Đặt sau danh từ chỉ một nhóm (môn thể thao, mùa, đồ ăn…) để nêu phạm vi khi chọn ra cái nhất."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c9a23c6309"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "trong số … thì … là nhất",
+     "unit_title_vi": "So sánh và quá khứ của tính từ"
+    },
+    "note": "nghĩa theo khuôn (chữ thường, không dấu chấm)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "So sánh trong một nhóm: 〜がいちばん = ... nhất.",
+      "options": [
+       "どちら",
+       "いちばん",
+       "より",
+       "ほう"
+      ],
+      "prompt_ja": "スポーツの中で、サッカーが（　　）好きです。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Hỏi người trong nhóm → だれがいちばん.",
+      "options": [
+       "いつ",
+       "どこ",
+       "どれ",
+       "だれ"
+      ],
+      "prompt_ja": "A：家族の中で、（　　）がいちばん料理が上手ですか。B：母です。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 一年の中で、八月がいちばん暑いです。 Nghĩa: Trong một năm, tháng tám nóng nhất. いちばん đứng trước tính từ.",
+      "options": [
+       "いちばん",
+       "八月",
+       "暑い",
+       "が"
+      ],
+      "prompt_ja": "一年の中で、 ＿＿ ＿＿ ★ ＿＿ です。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: クラスの中で、だれがいちばん日本語が上手ですか。 Nghĩa: Trong lớp, ai giỏi tiếng Nhật nhất? だれが + いちばん.",
+      "options": [
+       "いちばん",
+       "が",
+       "日本語",
+       "だれ"
+      ],
+      "prompt_ja": "クラスの中で、 ★ ＿＿ ＿＿ ＿＿ が上手ですか。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "いちばん上手 = giỏi nhất.",
+      "options": [
+       "Trong lớp này, anh Yamada hát hay nhất.",
+       "Anh Yamada thích hát nhất.",
+       "Anh Yamada hát hay hơn tôi.",
+       "Trong lớp này, anh Yamada hát dở nhất."
+      ],
+      "prompt_ja": "このクラスの中で、山田さんがいちばん歌が上手です。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "何がいちばん好き = thích gì nhất.",
+      "options": [
+       "Trái cây nào đắt nhất?",
+       "Trong các loại trái cây, bạn thích loại nào nhất?",
+       "Bạn thích táo hay chuối hơn?",
+       "Bạn có thích trái cây không?"
+      ],
+      "prompt_ja": "くだものの中で、何がいちばん好きですか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Không dùng chồng いちばん và より. Đúng: いちばん若いです。",
+      "options": [
+       "一週間の中で、金曜日がいちばん忙しいです。",
+       "家族の中で、母がいちばん早く起きます。",
+       "三人の中で、田中さんがいちばんより若いです。",
+       "この中で、これがいちばん安いです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Chủ ngữ được so sánh dùng が: だれがいちばん.",
+      "options": [
+       "友だちの中で、だれがいちばん親切ですか。",
+       "この中で、どれがいちばんおいしいですか。",
+       "日本の山の中で、どれがいちばん高いですか。",
+       "家族の中で、だれをいちばん料理が上手ですか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay dùng は sau thứ đứng nhất (sai: りんごは一番好きです); đúng là りんごが一番好きです. Hỏi trong nhóm từ ba thứ trở lên thì không dùng どちら.",
+    "examples": [
+     {
+      "ja": "家族の中で父が一番背が高いです。",
+      "ja_furigana": "家族(かぞく)の中(なか)で父(ちち)が一番(いちばん)背(せ)が高(たか)いです。",
+      "source": "CLAUDE",
+      "vi": "Trong nhà, bố tôi cao nhất."
+     },
+     {
+      "ja": "一週間の中で何曜日が一番忙しいですか。",
+      "ja_furigana": "一週間(いっしゅうかん)の中(なか)で何曜日(なんようび)が一番(いちばん)忙(いそが)しいですか。",
+      "source": "CLAUDE",
+      "vi": "Trong một tuần, thứ mấy bạn bận nhất?"
+     },
+     {
+      "ja": "日本料理の中ですしが一番好きです。",
+      "ja_furigana": "日本料理(にほんりょうり)の中(なか)ですしが一番(いちばん)好(す)きです。",
+      "source": "CLAUDE",
+      "vi": "Trong các món Nhật, tôi thích sushi nhất."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Hỏi ngày trong tuần → 何曜日がいちばん.",
+      "options": [
+       "何曜日",
+       "どこ",
+       "だれ",
+       "どれ"
+      ],
+      "prompt_ja": "A：一週間の中で、（　　）がいちばんひまですか。B：日曜日です。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "の中で〜がいちばん好き = thích ... nhất trong ....",
+      "options": [
+       "Tôi thích Kyoto hơn Tokyo.",
+       "Tôi muốn đi Kyoto.",
+       "Trong các thành phố Nhật, tôi thích Kyoto nhất.",
+       "Kyoto là thành phố lớn nhất Nhật Bản."
+      ],
+      "prompt_ja": "日本の町の中で、京都がいちばん好きです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Từ ba thứ trở lên dùng どれ; どちら dùng khi so sánh hai thứ.",
+      "options": [
+       "一年の中で、いつがいちばん好きですか。",
+       "三人の中で、だれがいちばん若いですか。",
+       "この中で、どちらがいちばん好きですか。",
+       "この中で、どれがいちばん好きですか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "いちばん",
+      "sentence_ja": "果物の中で、りんごが＿＿好きです。",
+      "translation_vi": "Trong các loại trái cây, tôi thích táo nhất."
+     },
+     {
+      "answer": "どれ",
+      "sentence_ja": "この三つの中で、＿＿がいちばん高いですか。",
+      "translation_vi": "Trong ba cái này, cái nào đắt nhất?"
+     }
+    ],
+    "findings": [],
+    "formation": "N(nhóm) + の中で + N + が + 一番 + A",
+    "locked_fields": [],
+    "meaning_vi": "Trong số …, … là nhất.",
+    "nuance_vi": "Trung tính; câu hỏi dùng 何, どれ, だれ, いつ, どこ + が一番.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       4,
+       2,
+       3,
+       0
+      ],
+      "pieces": [
+       "いちばん暑いです",
+       "一年",
+       "八月",
+       "が",
+       "の中で"
+      ],
+      "translation_vi": "Trong một năm, tháng tám nóng nhất."
+     },
+     {
+      "answer_order": [
+       4,
+       1,
+       0,
+       3,
+       2
+      ],
+      "pieces": [
+       "これ",
+       "中で",
+       "いちばん安いです",
+       "が",
+       "この"
+      ],
+      "translation_vi": "Trong số này, cái này rẻ nhất."
+     }
+    ],
+    "pattern": "の中(なか)で〜が一番(いちばん)",
+    "pattern_variants": [],
+    "unit_no": 12,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nói hoặc hỏi trong một nhóm thì người, vật nào đứng đầu về một mặt nào đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-25b6c4e2da"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "… rồi mới … (sau khi làm xong việc trước)",
+     "examples": [
+      {
+       "ja": "宿題をしてから、テレビを見ます。",
+       "ja_furigana": "宿題(しゅくだい)をしてから、テレビを見(み)ます。",
+       "vi": "Tôi làm bài tập xong rồi mới xem ti vi."
+      },
+      {
+       "ja": "手を洗ってから、ごはんを食べます。",
+       "ja_furigana": "手(て)を洗(あら)ってから、ごはんを食(た)べます。",
+       "vi": "Tôi rửa tay rồi mới ăn cơm."
+      },
+      {
+       "ja": "仕事が終わってから、買い物をします。",
+       "ja_furigana": "仕事(しごと)が終(お)わってから、買(か)い物(もの)をします。",
+       "vi": "Làm xong việc rồi tôi mới đi mua sắm."
+      }
+     ],
+     "unit_title_vi": "Mong muốn và mục đích"
+    },
+    "note": "nghĩa theo khuôn; câu さがしてから行きます quá cụt, câu 引き出す trên N5 và thiếu furigana"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Vてから: làm xong việc trước rồi mới làm việc sau; động từ ở thể て.",
+      "options": [
+       "洗う",
+       "洗った",
+       "洗って",
+       "洗い"
+      ],
+      "prompt_ja": "手を（　　）から、ごはんを食べます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Vて + から = sau khi ... rồi mới ....",
+      "options": [
+       "を",
+       "まで",
+       "より",
+       "から"
+      ],
+      "prompt_ja": "宿題をして（　　）、テレビを見ます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 毎朝、シャワーをあびてから会社へ行きます。 Nghĩa: Mỗi sáng tôi tắm xong rồi mới đi làm. あびて + から.",
+      "options": [
+       "会社へ",
+       "シャワーを",
+       "から",
+       "あびて"
+      ],
+      "prompt_ja": "毎朝、 ＿＿ ＿＿ ★ ＿＿ 行きます。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 日本へ来てから日本語を勉強しました。 Nghĩa: Sau khi đến Nhật tôi đã học tiếng Nhật. 来て + から.",
+      "options": [
+       "来て",
+       "日本語を",
+       "から",
+       "勉強"
+      ],
+      "prompt_ja": "日本へ ★ ＿＿ ＿＿ ＿＿ しました。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "AてからB = làm A xong rồi mới B.",
+      "options": [
+       "Tôi không gọi điện.",
+       "Tôi vừa đi vừa gọi điện.",
+       "Tôi đi rồi mới gọi điện.",
+       "Tôi gọi điện xong rồi mới đi."
+      ],
+      "prompt_ja": "電話をかけてから、行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "大学を出てから = sau khi ra trường.",
+      "options": [
+       "Tôi vừa học đại học vừa làm ở ngân hàng.",
+       "Tôi muốn làm việc ở ngân hàng.",
+       "Sau khi tốt nghiệp đại học, tôi làm việc ở ngân hàng.",
+       "Trước khi vào đại học, tôi làm ở ngân hàng."
+      ],
+      "prompt_ja": "大学を出てから、銀行で働いています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "から đi sau thể て. Đúng: 食べてからテレビを見ます。",
+      "options": [
+       "手を洗ってから食べます。",
+       "仕事が終わってから、買い物をします。",
+       "食べからテレビを見ます。",
+       "お茶を飲んでから寝ます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Không thêm を sau てから. Đúng: 宿題をしてから遊びます。",
+      "options": [
+       "本を読んでから寝ます。",
+       "宿題をしてからを遊びます。",
+       "駅に着いてから電話します。",
+       "シャワーをあびてから寝ます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay dùng thể từ điển trước から (sai: 食べるから) – lúc đó から lại thành nghĩa “vì”. Phải dùng thể て: 食べてから.",
+    "examples": [
+     {
+      "ja": "さがしてから行きます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tìm kiếm rồi đi."
+     },
+     {
+      "ja": "銀行でお金を引き出してから行きます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Rút tiền ở ngân hàng rồi đi."
+     },
+     {
+      "ja": "宿題をしてから、テレビを見ます。",
+      "ja_furigana": "宿題(しゅくだい)をしてから、テレビを見(み)ます。",
+      "source": "CLAUDE",
+      "vi": "Tôi làm bài tập xong rồi mới xem ti vi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Về nhà xong rồi ngủ ngay: 帰ってから.",
+      "options": [
+       "帰る",
+       "帰った",
+       "帰って",
+       "帰り"
+      ],
+      "prompt_ja": "きのうは家へ（　　）から、すぐ寝ました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "AてからB: A trước, B sau.",
+      "options": [
+       "Hãy cho tiền vào rồi mới bấm nút.",
+       "Đừng cho tiền vào.",
+       "Hãy bấm nút ngay.",
+       "Hãy bấm nút rồi mới cho tiền vào."
+      ],
+      "prompt_ja": "お金を入れてから、ボタンを押してください。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 朝ごはんを食べてから学校へ行きます。 Nghĩa: Tôi ăn sáng xong rồi mới đến trường. 食べて + から.",
+      "options": [
+       "から",
+       "食べて",
+       "朝ごはんを",
+       "学校へ"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿ 行きます。",
+      "type": "ORDER_STAR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "から",
+      "sentence_ja": "仕事が終わって＿＿、飲みに行きませんか。",
+      "translation_vi": "Làm xong việc rồi đi uống nhé?"
+     },
+     {
+      "answer": "んで",
+      "sentence_ja": "毎朝、コーヒーを飲＿＿から、会社へ行きます。",
+      "translation_vi": "Mỗi sáng tôi uống cà phê xong rồi mới đi làm."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: さがしてから行きます。",
+     "FURIGANA_MISSING: 銀行でお金を引き出してから行きます。"
+    ],
+    "formation": "V1-て + から + V2",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị rằng sau hành động này có hành động khác tiếp diễn.",
+    "nuance_vi": "Trung tính; nhấn rằng việc trước phải xong rồi mới bắt đầu việc sau, rõ hơn khi chỉ nối bằng て.",
+    "order_items": [
+     {
+      "answer_order": [
+       0,
+       3,
+       2,
+       1
+      ],
+      "pieces": [
+       "手",
+       "食べます",
+       "洗ってから",
+       "を"
+      ],
+      "translation_vi": "Tôi rửa tay rồi mới ăn."
+     },
+     {
+      "answer_order": [
+       0,
+       2,
+       3,
+       1
+      ],
+      "pieces": [
+       "宿題",
+       "遊びます",
+       "を",
+       "してから"
+      ],
+      "translation_vi": "Tôi làm bài tập xong rồi mới đi chơi."
+     }
+    ],
+    "pattern": "〜てから",
+    "pattern_variants": [],
+    "unit_no": 13,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nói làm xong việc thứ nhất rồi mới làm việc thứ hai, nhấn vào thứ tự trước sau."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f730cc8935"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "muốn có (thứ gì)",
+     "unit_title_vi": "Mong muốn và mục đích"
+    },
+    "note": "nghĩa theo khuôn (chữ thường, không dấu chấm)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Vật muốn có đi với が: Nがほしいです.",
+      "options": [
+       "へ",
+       "が",
+       "に",
+       "を"
+      ],
+      "prompt_ja": "私は新しいくつ（　　）ほしいです。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Hỏi muốn có gì: 何がほしいですか.",
+      "options": [
+       "ほしく",
+       "ほしいな",
+       "ほしい",
+       "たい"
+      ],
+      "prompt_ja": "A：誕生日に何が（　　）ですか。B：時計がほしいです。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 私は大きい冷蔵庫がほしいです。 Nghĩa: Tôi muốn có cái tủ lạnh lớn. ほしい + です.",
+      "options": [
+       "ほしい",
+       "大きい",
+       "が",
+       "冷蔵庫"
+      ],
+      "prompt_ja": "私は ＿＿ ＿＿ ＿＿ ★ です。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 今、何がいちばんほしいですか。 Nghĩa: Bây giờ bạn muốn có gì nhất? 何が + ほしい.",
+      "options": [
+       "ほしい",
+       "何",
+       "が",
+       "いちばん"
+      ],
+      "prompt_ja": "今、 ＿＿ ★ ＿＿ ＿＿ ですか。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Nがほしい = muốn có N.",
+      "options": [
+       "Tôi muốn có thêm thời gian.",
+       "Tôi không cần thời gian.",
+       "Bây giờ là mấy giờ?",
+       "Tôi có nhiều thời gian."
+      ],
+      "prompt_ja": "もっと時間がほしいです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "ほしくない = không muốn có.",
+      "options": [
+       "Tôi không muốn có xe ô tô.",
+       "Tôi không có xe ô tô.",
+       "Tôi không lái xe ô tô.",
+       "Tôi muốn có xe ô tô."
+      ],
+      "prompt_ja": "私は車がほしくないです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Muốn làm gì dùng たい (水が飲みたい); ほしい đi sau danh từ.",
+      "options": [
+       "私は水が飲みほしいです。",
+       "私は友だちがほしいです。",
+       "私はお金がほしいです。",
+       "私はカメラがほしいです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "ほしい là tính từ い: quá khứ là ほしかったです.",
+      "options": [
+       "新しいテレビがほしかったです。",
+       "新しいかばんがほしいです。",
+       "新しいテレビがほしいでした。",
+       "新しい辞書はほしくないです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay dùng を (sai: 車をほしい) hoặc dùng ほしい cho hành động; muốn làm việc gì thì dùng 〜たい. Không dùng ほしい để nói mong muốn của người thứ ba.",
+    "examples": [
+     {
+      "ja": "新しいパソコンがほしいです。",
+      "ja_furigana": "新(あたら)しいパソコンがほしいです。",
+      "source": "CLAUDE",
+      "vi": "Tôi muốn có máy tính mới."
+     },
+     {
+      "ja": "誕生日に何がほしいですか。",
+      "ja_furigana": "誕生日(たんじょうび)に何(なに)がほしいですか。",
+      "source": "CLAUDE",
+      "vi": "Sinh nhật bạn muốn có quà gì?"
+     },
+     {
+      "ja": "今は時間がほしい。",
+      "ja_furigana": "今(いま)は時間(じかん)がほしい。",
+      "source": "CLAUDE",
+      "vi": "Bây giờ tôi muốn có thời gian."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Quá khứ của ほしい: ほしかったです.",
+      "options": [
+       "ほしいでした",
+       "ほしだった",
+       "ほしくでした",
+       "ほしかった"
+      ],
+      "prompt_ja": "子どもの時、犬が（　　）です。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "どんな + N + がほしい = muốn có N như thế nào.",
+      "options": [
+       "Bạn đã mua cặp gì?",
+       "Cặp của bạn ở đâu?",
+       "Bạn có mấy cái cặp?",
+       "Bạn muốn có cái cặp như thế nào?"
+      ],
+      "prompt_ja": "どんなかばんがほしいですか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Vật muốn có đi với が. Đúng: 時計がほしいです。",
+      "options": [
+       "私は休みがほしいです。",
+       "私は時計をほしいです。",
+       "私は新しい服がほしいです。",
+       "私は何もほしくないです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "が",
+      "sentence_ja": "私は日本の辞書＿＿ほしいです。",
+      "translation_vi": "Tôi muốn có từ điển tiếng Nhật."
+     },
+     {
+      "answer": "ほしい",
+      "sentence_ja": "A：何がほしいですか。B：自転車が＿＿です。",
+      "translation_vi": "A: Bạn muốn có gì? B: Tôi muốn có xe đạp."
+     }
+    ],
+    "findings": [],
+    "formation": "N + が + ほしい(です)",
+    "locked_fields": [],
+    "meaning_vi": "Muốn có (thứ gì).",
+    "nuance_vi": "Nói thẳng mong muốn của mình; nói với người trên dễ nghe như đòi hỏi nên cần chú ý.",
+    "order_items": [
+     {
+      "answer_order": [
+       0,
+       2,
+       1,
+       3,
+       4
+      ],
+      "pieces": [
+       "私",
+       "新しい",
+       "は",
+       "かばんが",
+       "ほしいです"
+      ],
+      "translation_vi": "Tôi muốn có cái cặp mới."
+     },
+     {
+      "answer_order": [
+       3,
+       0,
+       1,
+       2,
+       4
+      ],
+      "pieces": [
+       "何",
+       "が",
+       "ほしい",
+       "今",
+       "ですか"
+      ],
+      "translation_vi": "Bây giờ bạn muốn có gì?"
+     }
+    ],
+    "pattern": "が欲(ほ)しい",
+    "pattern_variants": [],
+    "unit_no": 13,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nói người nói muốn có một đồ vật hay một điều gì; hỏi người nghe thì dùng 何がほしいですか."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1cb080df09"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "muốn … (mong muốn làm việc gì của người nói)",
+     "examples": [
+      {
+       "ja": "夏休みに海で泳ぎたいです。",
+       "ja_furigana": "夏休(なつやす)みに海(うみ)で泳(およ)ぎたいです。",
+       "vi": "Nghỉ hè tôi muốn bơi ở biển."
+      },
+      {
+       "ja": "母の料理を食べたいです。",
+       "ja_furigana": "母(はは)の料理(りょうり)を食(た)べたいです。",
+       "vi": "Tôi muốn ăn món mẹ nấu."
+      },
+      {
+       "ja": "新しいくつを買いたいです。",
+       "ja_furigana": "新(あたら)しいくつを買(か)いたいです。",
+       "vi": "Tôi muốn mua đôi giày mới."
+      }
+     ],
+     "unit_title_vi": "Mong muốn và mục đích"
+    },
+    "note": "nghĩa theo khuôn; りょうり → 料理, thêm furigana, thay câu マンガ"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Muốn làm gì: Vます bỏ ます + たい → 行きたい.",
+      "options": [
+       "行きたい",
+       "行きほしい",
+       "行くたい",
+       "行ったい"
+      ],
+      "prompt_ja": "夏休みに日本へ（　　）です。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Muốn uống: 飲み + たい.",
+      "options": [
+       "ほしいたい",
+       "飲んだい",
+       "飲むたい",
+       "飲みたい"
+      ],
+      "prompt_ja": "暑いですね。冷たい水が（　　）です。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 私は日本で働きたいです。 Nghĩa: Tôi muốn làm việc ở Nhật. 働き + たい.",
+      "options": [
+       "働き",
+       "で",
+       "日本",
+       "たい"
+      ],
+      "prompt_ja": "私は ＿＿ ＿＿ ＿＿ ★ です。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 今晩は何を食べたいですか。 Nghĩa: Tối nay bạn muốn ăn gì? 食べ + たい.",
+      "options": [
+       "たい",
+       "何",
+       "食べ",
+       "を"
+      ],
+      "prompt_ja": "今晩は ＿＿ ＿＿ ★ ＿＿ ですか。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Vたい = muốn làm V.",
+      "options": [
+       "Ngày mai tôi muốn nghỉ ở nhà.",
+       "Ngày mai tôi không muốn nghỉ.",
+       "Ngày mai tôi sẽ nghỉ ở nhà.",
+       "Hôm qua tôi nghỉ ở nhà."
+      ],
+      "prompt_ja": "あしたは家で休みたいです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "たくない = không muốn.",
+      "options": [
+       "Tôi muốn ăn gì đó.",
+       "Không có gì để ăn.",
+       "Tôi đã không ăn gì.",
+       "Tôi không muốn ăn gì cả."
+      ],
+      "prompt_ja": "何も食べたくないです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "たい gắn vào gốc ます: 見たいです.",
+      "options": [
+       "私は少し休みたいです。",
+       "私はすしを食べたいです。",
+       "私は映画を見るたいです。",
+       "私は日本へ行きたいです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "たい chia như tính từ い: quá khứ là たかったです.",
+      "options": [
+       "きのう、本を読みたかったです。",
+       "本を読みたいです。",
+       "本を読みたくないです。",
+       "きのう、本を読みたいでした。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay dùng 〜たい cho người thứ ba (sai: 母は日本へ行きたいです). Phủ định là 〜たくない, không phải 〜たいない.",
+    "examples": [
+     {
+      "ja": "マンガを買いたいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi muốn mua truyện tranh."
+     },
+     {
+      "ja": "母のりょうりを食べたいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi muốn ăn đồ ăn mẹ nấu."
+     },
+     {
+      "ja": "夏休みに海で泳ぎたいです。",
+      "ja_furigana": "夏休(なつやす)みに海(うみ)で泳(およ)ぎたいです。",
+      "source": "CLAUDE",
+      "vi": "Nghỉ hè tôi muốn bơi ở biển."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Trả lời: コーヒーが飲みたいです.",
+      "options": [
+       "飲むたい",
+       "ほしいたい",
+       "飲みたい",
+       "飲みたく"
+      ],
+      "prompt_ja": "A：何が飲みたいですか。B：コーヒーが（　　）です。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "たかった = đã muốn (quá khứ).",
+      "options": [
+       "Bây giờ tôi muốn trở thành giáo viên.",
+       "Hồi nhỏ tôi không thích giáo viên.",
+       "Hồi nhỏ tôi là giáo viên.",
+       "Hồi nhỏ, tôi đã muốn trở thành giáo viên."
+      ],
+      "prompt_ja": "子どもの時、先生になりたかったです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "たい gắn vào động từ; với danh từ dùng ほしい.",
+      "options": [
+       "私は車に乗りたいです。",
+       "私は新しい車がほしいです。",
+       "私は新しい車を買いたいです。",
+       "私は新しい車がたいです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "たい",
+      "sentence_ja": "週末は海で泳ぎ＿＿です。",
+      "translation_vi": "Cuối tuần tôi muốn bơi ở biển."
+     },
+     {
+      "answer": "たい",
+      "sentence_ja": "疲れました。早く寝＿＿です。",
+      "translation_vi": "Mệt quá. Tôi muốn ngủ sớm."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: マンガを買いたいです。",
+     "FURIGANA_MISSING: 母のりょうりを食べたいです。"
+    ],
+    "formation": "V-ます bỏ ます + たい(です)",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị mong muốn của người nói.",
+    "nuance_vi": "Nói thẳng mong muốn của bản thân; không dùng để mời người trên (sai: 先生、コーヒーを飲みたいですか).",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       0,
+       4,
+       2,
+       3
+      ],
+      "pieces": [
+       "は",
+       "私",
+       "を",
+       "勉強したいです",
+       "日本語"
+      ],
+      "translation_vi": "Tôi muốn học tiếng Nhật."
+     },
+     {
+      "answer_order": [
+       0,
+       2,
+       1,
+       3
+      ],
+      "pieces": [
+       "どこ",
+       "行き",
+       "へ",
+       "たいですか"
+      ],
+      "translation_vi": "Bạn muốn đi đâu?"
+     }
+    ],
+    "pattern": "〜たい",
+    "pattern_variants": [
+     "たい"
+    ],
+    "unit_no": 13,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nói người nói muốn làm việc gì, hoặc hỏi người nghe muốn làm gì."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-819bac9f6d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "đi để làm … (chỉ mục đích của việc di chuyển)",
+     "examples": [
+      {
+       "ja": "公園へ写真をとりに行きます。",
+       "ja_furigana": "公園(こうえん)へ写真(しゃしん)をとりに行(い)きます。",
+       "vi": "Tôi đi công viên để chụp ảnh."
+      },
+      {
+       "ja": "図書館へ本を返しに行きます。",
+       "ja_furigana": "図書館(としょかん)へ本(ほん)を返(かえ)しに行(い)きます。",
+       "vi": "Tôi đến thư viện để trả sách."
+      },
+      {
+       "ja": "友だちが家へ遊びに来ます。",
+       "ja_furigana": "友(とも)だちが家(いえ)へ遊(あそ)びに来(き)ます。",
+       "vi": "Bạn tôi đến nhà chơi."
+      }
+     ],
+     "unit_title_vi": "Mong muốn và mục đích"
+    },
+    "note": "nghĩa theo khuôn; 撮 trên N5 → とり; あそび → 遊び"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mục đích di chuyển: Vます bỏ ます + に行く → 買いに行きます.",
+      "options": [
+       "買う",
+       "買い",
+       "買った",
+       "買って"
+      ],
+      "prompt_ja": "デパートへくつを（　　）に行きます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đi để xem phim: 見に行きます.",
+      "options": [
+       "へ",
+       "に",
+       "を",
+       "で"
+      ],
+      "prompt_ja": "あした、友だちと映画を見（　　）行きます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 日曜日、海へ泳ぎに行きます。 Nghĩa: Chủ nhật tôi đi biển để bơi. 泳ぎ + に + 行きます.",
+      "options": [
+       "へ",
+       "に",
+       "海",
+       "泳ぎ"
+      ],
+      "prompt_ja": "日曜日、 ＿＿ ＿＿ ＿＿ ★ 行きます。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: きのう、図書館へ本を借りに行きました。 Nghĩa: Hôm qua tôi đến thư viện để mượn sách. 借り + に.",
+      "options": [
+       "借り",
+       "本",
+       "を",
+       "に"
+      ],
+      "prompt_ja": "きのう、図書館へ ＿＿ ＿＿ ★ ＿＿ 行きました。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Vに来る = đến để V.",
+      "options": [
+       "Tôi muốn đến Nhật.",
+       "Tôi học tiếng Nhật ở Việt Nam.",
+       "Tôi học tiếng Nhật xong rồi đến Nhật.",
+       "Tôi đến Nhật để học tiếng Nhật."
+      ],
+      "prompt_ja": "日本へ日本語を勉強しに来ました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "食べに行く = đi ăn.",
+      "options": [
+       "Ăn trưa xong rồi đi nhé?",
+       "Bạn đã ăn trưa chưa?",
+       "Đi ăn trưa nhé?",
+       "Bạn ăn trưa ở đâu?"
+      ],
+      "prompt_ja": "昼ごはんを食べに行きませんか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Trước に dùng gốc ます: 出しに行きます.",
+      "options": [
+       "郵便局へ手紙を出すに行きます。",
+       "デパートへ買い物に行きます。",
+       "海へ泳ぎに行きます。",
+       "公園へ遊びに行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Không dùng thể て trước に. Đúng: 食べに行きます.",
+      "options": [
+       "図書館へ勉強しに行きます。",
+       "レストランへ食べてに行きます。",
+       "日本へ旅行に行きます。",
+       "友だちの家へ遊びに行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay dùng thể từ điển trước に (sai: 買うに行きます); đúng là 買いに行きます. Nơi đến và mục đích có thể cùng xuất hiện: デパートへ買い物に行きます.",
+    "examples": [
+     {
+      "ja": "公園へ写真を撮りに行きます。",
+      "ja_furigana": "公園(こうえん)へ写真(しゃしん)を撮(と)りに行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Tôi đi công viên để chụp ảnh."
+     },
+     {
+      "ja": "図書館へ本を返しに行きます。",
+      "ja_furigana": "図書館(としょかん)へ本(ほん)を返(かえ)しに行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Tôi đến thư viện để trả sách."
+     },
+     {
+      "ja": "友だちが家へあそびに来ます。",
+      "ja_furigana": "友(とも)だちが家(いえ)へあそびに来(き)ます。",
+      "source": "CLAUDE",
+      "vi": "Bạn tôi đến nhà chơi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Hỏi mục đích: 何をしに来ましたか.",
+      "options": [
+       "に",
+       "を",
+       "で",
+       "へ"
+      ],
+      "prompt_ja": "日本へ何をし（　　）来ましたか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "遊びに来る = đến chơi.",
+      "options": [
+       "Tôi đã đến nhà bạn chơi.",
+       "Bạn tôi đã đi chơi xa.",
+       "Bạn tôi muốn đến nhà tôi.",
+       "Bạn tôi đã đến nhà chơi."
+      ],
+      "prompt_ja": "友だちが家へ遊びに来ました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Vに phải đi với động từ di chuyển (行く, 来る, 帰る).",
+      "options": [
+       "図書館へ本を返しに行きます。",
+       "図書館へ本を読みにします。",
+       "図書館へ本を読みに行きます。",
+       "図書館へ宿題をしに来ました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "に",
+      "sentence_ja": "あした、山へ写真をとり＿＿行きます。",
+      "translation_vi": "Ngày mai tôi lên núi để chụp ảnh."
+     },
+     {
+      "answer": "に",
+      "sentence_ja": "今晩、すしを食べ＿＿行きませんか。",
+      "translation_vi": "Tối nay đi ăn sushi nhé?"
+     }
+    ],
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL: 公園へ写真を撮りに行きます。 → 写真を撮"
+    ],
+    "formation": "V-ます bỏ ます / N(hoạt động) + に + 行く・来る・帰る",
+    "locked_fields": [],
+    "meaning_vi": "Đi để làm … – chỉ mục đích của việc di chuyển.",
+    "nuance_vi": "Trung tính; nơi đến đi với へ hoặc に, mục đích đi với に.",
+    "order_items": [
+     {
+      "answer_order": [
+       3,
+       1,
+       4,
+       2,
+       0
+      ],
+      "pieces": [
+       "行きます",
+       "へ",
+       "に",
+       "公園",
+       "遊び"
+      ],
+      "translation_vi": "Tôi đi công viên chơi."
+     },
+     {
+      "answer_order": [
+       2,
+       1,
+       4,
+       3,
+       0
+      ],
+      "pieces": [
+       "行きました",
+       "へ",
+       "デパート",
+       "に",
+       "買い物"
+      ],
+      "translation_vi": "Tôi đã đi cửa hàng bách hóa mua sắm."
+     }
+    ],
+    "pattern": "〜に行(い)く",
+    "pattern_variants": [],
+    "unit_no": 13,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nói đi đâu với mục đích gì, ví dụ đi mua đồ, đi ăn, đi chụp ảnh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-10eece2be0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "cái gì đó (một thứ không xác định)",
+     "unit_title_vi": "Mong muốn và mục đích"
+    },
+    "note": "nghĩa theo khuôn (chữ thường, không dấu chấm)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "\"Uống gì đó không?\" → 何か (cái gì đó).",
+      "options": [
+       "何に",
+       "何の",
+       "何が",
+       "何か"
+      ],
+      "prompt_ja": "暑いですね。（　　）飲みませんか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "B trả lời はい nên A hỏi \"có ăn gì không\" → 何か.",
+      "options": [
+       "何の",
+       "何か",
+       "何も",
+       "何が"
+      ],
+      "prompt_ja": "A：（　　）食べましたか。B：はい、パンを食べました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: A：何か食べませんか。 Nghĩa: Ăn gì đó nhé? 何 + か = cái gì đó.",
+      "options": [
+       "ません",
+       "か",
+       "何",
+       "食べ"
+      ],
+      "prompt_ja": "A： ＿＿ ★ ＿＿ ＿＿ か。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: A：箱の中に何か入っていますか。 Nghĩa: Trong hộp có gì không? 何か đứng trước động từ.",
+      "options": [
+       "か",
+       "います",
+       "入って",
+       "何"
+      ],
+      "prompt_ja": "A：箱の中に ★ ＿＿ ＿＿ ＿＿ か。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "何か = cái gì đó; có ... gì không.",
+      "options": [
+       "Không có câu hỏi nào.",
+       "Các bạn có câu hỏi gì không?",
+       "Câu hỏi là gì?",
+       "Ai có câu hỏi?"
+      ],
+      "prompt_ja": "何か質問がありますか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Hỏi 何か, trả lời phủ định bằng 何も〜ません.",
+      "options": [
+       "A: Bạn có mua gì không? B: Không, tôi không mua gì cả.",
+       "A: Bạn muốn mua gì? B: Không có gì.",
+       "A: Bạn mua ở đâu? B: Không mua.",
+       "A: Bạn đã mua gì? B: Tôi mua sách."
+      ],
+      "prompt_ja": "A：何か買いましたか。B：いいえ、何も買いませんでした。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Phủ định \"không ... gì cả\" dùng 何も, không dùng 何か.",
+      "options": [
+       "何か食べたいです。",
+       "何かありましたか。",
+       "A：何か飲みますか。B：いいえ、何か飲みません。",
+       "A：何か飲みますか。B：いいえ、何も飲みません。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Không thêm は sau 何か. Đúng: 何か食べましたか。",
+      "options": [
+       "何か書いてください。",
+       "何か読みたいです。",
+       "冷蔵庫に何かありますか。",
+       "何かは食べましたか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay nhầm 何か với 何: 何を食べますか là hỏi ăn gì, còn 何か食べますか là hỏi có ăn gì không. Sau 何か thường bỏ を và が.",
+    "examples": [
+     {
+      "ja": "何か飲みますか。",
+      "ja_furigana": "何(なに)か飲(の)みますか。",
+      "source": "CLAUDE",
+      "vi": "Bạn có uống gì không?"
+     },
+     {
+      "ja": "何か冷たいものを飲みたい。",
+      "ja_furigana": "何(なに)か冷(つめ)たいものを飲(の)みたい。",
+      "source": "CLAUDE",
+      "vi": "Tôi muốn uống thứ gì đó lạnh."
+     },
+     {
+      "ja": "かばんの中に何かあります。",
+      "ja_furigana": "かばんの中(なか)に何(なに)かあります。",
+      "source": "CLAUDE",
+      "vi": "Trong cặp có cái gì đó."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Hỏi \"có gì không\" → 何かありますか.",
+      "options": [
+       "何の",
+       "何か",
+       "何も",
+       "何で"
+      ],
+      "prompt_ja": "冷蔵庫に（　　）ありますか。おなかがすきました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "何かしましたか = có làm gì không (trả lời はい/いいえ).",
+      "options": [
+       "Chủ nhật bạn đi đâu?",
+       "Chủ nhật bạn không làm gì à?",
+       "Chủ nhật bạn có làm gì không?",
+       "Chủ nhật bạn làm việc à?"
+      ],
+      "prompt_ja": "日曜日に何かしましたか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Không thêm が sau 何か ở đây. Đúng: 何か食べませんか。",
+      "options": [
+       "何かが食べませんか。",
+       "何か聞きましたか。",
+       "何か飲みましょう。",
+       "何か買いたいです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "何か",
+      "sentence_ja": "A：＿＿食べたいですか。B：はい、すしが食べたいです。",
+      "translation_vi": "A: Bạn có muốn ăn gì không? B: Có, tôi muốn ăn sushi."
+     },
+     {
+      "answer": "も",
+      "sentence_ja": "A：何か飲みますか。B：いいえ、何＿＿飲みません。",
+      "translation_vi": "A: Bạn uống gì không? B: Không, tôi không uống gì cả."
+     }
+    ],
+    "findings": [],
+    "formation": "何か + V / 何か + N…",
+    "locked_fields": [],
+    "meaning_vi": "Cái gì đó – một thứ không xác định.",
+    "nuance_vi": "Nhẹ nhàng; câu hỏi 何か〜ますか chỉ cần trả lời はい hoặc いいえ.",
+    "order_items": [
+     {
+      "answer_order": [
+       0,
+       2,
+       1
+      ],
+      "pieces": [
+       "何",
+       "飲みませんか",
+       "か"
+      ],
+      "translation_vi": "Uống gì đó nhé?"
+     },
+     {
+      "answer_order": [
+       1,
+       0,
+       3,
+       2
+      ],
+      "pieces": [
+       "に",
+       "かばん",
+       "入っていますか",
+       "何か"
+      ],
+      "translation_vi": "Trong cặp có gì không?"
+     }
+    ],
+    "pattern": "何(なに) + か",
+    "pattern_variants": [],
+    "unit_no": 13,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi nói đến một thứ không xác định, thường để hỏi “có … gì không” hoặc nói “muốn … gì đó”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-773b73376f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "… rồi … (dạng て nối các hành động)",
+     "formation": "V1-て、V2",
+     "usage_vi": "Dùng thể て của động từ đứng trước để nối các hành động liền nhau: 朝起きて、シャワーを浴びます (dậy rồi tắm). Cách đổi sang thể て: く → いて, ぐ → いで, う・つ・る → って, む・ぶ・ぬ → んで, す → して; riêng 行く → 行って.",
+     "common_mistakes_vi": "Hay chia thì ở cả hai vế (sai: 起きました、シャワーを浴びました) khi muốn nối; vế trước chỉ cần thể て. Hay chia sai thể て: 書きて → 書いて, 待ちて → 待って, 行いて → 行って.",
+     "examples": [
+      {
+       "ja": "朝起きて、シャワーを浴びます。",
+       "ja_furigana": "朝(あさ)起(お)きて、シャワーを浴(あ)びます。",
+       "vi": "Buổi sáng tôi dậy rồi tắm vòi sen."
+      },
+      {
+       "ja": "駅まで歩いて、電車に乗ります。",
+       "ja_furigana": "駅(えき)まで歩(ある)いて、電車(でんしゃ)に乗(の)ります。",
+       "vi": "Tôi đi bộ ra ga rồi lên tàu điện."
+      },
+      {
+       "ja": "家へ帰って、晩ごはんを食べました。",
+       "ja_furigana": "家(いえ)へ帰(かえ)って、晩(ばん)ごはんを食(た)べました。",
+       "vi": "Tôi về nhà rồi ăn tối."
+      }
+     ],
+     "unit_title_vi": "Thể て: nhờ vả, đang làm"
+    },
+    "note": "thống nhất nhãn 〜て = nối hành động (ngân hàng câu chỉ có động từ; nối tính từ/danh từ là mục 〜て (Adjectives and Nouns) riêng): bỏ phần tính từ khỏi lõi và câu 広くて明るい"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Nối hai hành động bằng thể て: 食べて.",
+      "options": [
+       "食べいて",
+       "食べで",
+       "食べって",
+       "食べて"
+      ],
+      "prompt_ja": "朝ごはんを（　　）、学校へ行きます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đuôi む → んで: 読んで.",
+      "options": [
+       "読みて",
+       "読んで",
+       "読って",
+       "読いて"
+      ],
+      "prompt_ja": "きのうは本を（　　）、寝ました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: デパートへ行ってくつを買いました。 Nghĩa: Tôi đến cửa hàng bách hóa rồi mua giày. 行く → 行って (ngoại lệ).",
+      "options": [
+       "行って",
+       "買い",
+       "ました",
+       "くつを"
+      ],
+      "prompt_ja": "デパートへ ★ ＿＿ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 友だちに会っていっしょに映画を見ました。 Nghĩa: Tôi gặp bạn rồi cùng xem phim. 会う → 会って.",
+      "options": [
+       "会って",
+       "見ました",
+       "いっしょに",
+       "映画を"
+      ],
+      "prompt_ja": "友だちに ★ ＿＿ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "V1て、V2 = làm V1 rồi V2.",
+      "options": [
+       "Anh Tanaka gọi điện rồi đi ra ngoài.",
+       "Anh Tanaka đang gọi điện.",
+       "Anh Tanaka không gọi điện.",
+       "Anh Tanaka ra ngoài rồi gọi điện."
+      ],
+      "prompt_ja": "田中さんは電話をかけて、出かけました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "歩く → 歩いて; 歩いて行く = đi bộ.",
+      "options": [
+       "Tôi đi xe đến nhà ga.",
+       "Tôi đi bộ đến nhà ga.",
+       "Tôi chạy đến nhà ga.",
+       "Tôi đợi ở nhà ga."
+      ],
+      "prompt_ja": "駅まで歩いて行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Đuôi く → いて: 書いて.",
+      "options": [
+       "服を着て、出かけました。",
+       "手紙を書きて、出しました。",
+       "バスに乗って、帰りました。",
+       "お茶を飲んで、休みました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "行く là ngoại lệ: 行って.",
+      "options": [
+       "電気を消して、寝ました。",
+       "海で泳いで、休みました。",
+       "公園へ行いて、遊びました。",
+       "ドアを開けて、入りました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay chia thì ở cả hai vế; vế trước chỉ cần thể て. Tính từ い không gắn て trực tiếp (sai: 安いて), phải là 安くて.",
+    "examples": [
+     {
+      "ja": "朝起きて、シャワーを浴びます。",
+      "ja_furigana": "朝(あさ)起(お)きて、シャワーを浴(あ)びます。",
+      "source": "CLAUDE",
+      "vi": "Buổi sáng tôi dậy rồi tắm vòi sen."
+     },
+     {
+      "ja": "この部屋は広くて明るいです。",
+      "ja_furigana": "この部屋(へや)は広(ひろ)くて明(あか)るいです。",
+      "source": "CLAUDE",
+      "vi": "Căn phòng này rộng và sáng."
+     },
+     {
+      "ja": "駅まで歩いて、電車に乗ります。",
+      "ja_furigana": "駅(えき)まで歩(ある)いて、電車(でんしゃ)に乗(の)ります。",
+      "source": "CLAUDE",
+      "vi": "Tôi đi bộ ra ga rồi lên tàu điện."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Đuôi ぐ → いで: 泳いで.",
+      "options": [
+       "泳いて",
+       "泳んで",
+       "泳いで",
+       "泳って"
+      ],
+      "prompt_ja": "きのうは海で（　　）、魚を食べました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "開けて = mở rồi ....",
+      "options": [
+       "Tôi đóng cửa rồi vào phòng.",
+       "Tôi không vào phòng.",
+       "Tôi vào phòng rồi mở cửa.",
+       "Tôi mở cửa rồi vào phòng."
+      ],
+      "prompt_ja": "ドアを開けて、部屋に入りました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Đuôi つ → って: 待って.",
+      "options": [
+       "友だちに会って、話しました。",
+       "友だちに電話して、聞きました。",
+       "友だちと遊んで、帰りました。",
+       "友だちを待ちて、話しました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "いて",
+      "sentence_ja": "手紙を書＿＿、出しました。",
+      "translation_vi": "Tôi viết thư rồi gửi đi."
+     },
+     {
+      "answer": "って",
+      "sentence_ja": "電車に乗＿＿、会社へ行きます。",
+      "translation_vi": "Tôi lên tàu điện rồi đến công ty."
+     }
+    ],
+    "findings": [],
+    "formation": "V-て、… / Aい bỏ い + くて、… / Aな・N + で、…",
+    "locked_fields": [],
+    "meaning_vi": "Rồi, và – dạng て dùng để nối các vế câu.",
+    "nuance_vi": "Trung tính; thì của cả câu do động từ ở cuối câu quyết định.",
+    "order_items": [
+     {
+      "answer_order": [
+       0,
+       1,
+       3,
+       2
+      ],
+      "pieces": [
+       "家",
+       "へ",
+       "寝ました",
+       "帰って"
+      ],
+      "translation_vi": "Tôi về nhà rồi ngủ."
+     },
+     {
+      "answer_order": [
+       2,
+       1,
+       0
+      ],
+      "pieces": [
+       "出かけました",
+       "あびて",
+       "シャワーを"
+      ],
+      "translation_vi": "Tôi tắm rồi đi ra ngoài."
+     }
+    ],
+    "pattern": "〜て (Conjunction)",
+    "pattern_variants": [],
+    "unit_no": 14,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nối hai hành động theo thứ tự, hoặc nối hai tính chất của cùng một người, vật."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0bfff36769"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "hãy …; xin hãy … (nhờ hoặc yêu cầu lịch sự)",
+     "unit_title_vi": "Thể て: nhờ vả, đang làm"
+    },
+    "note": "nghĩa theo khuôn (chữ thường, không dấu chấm)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Nhờ ai làm gì: Vて + ください.",
+      "options": [
+       "待つ",
+       "待ち",
+       "待った",
+       "待って"
+      ],
+      "prompt_ja": "すみません、ちょっと（　　）ください。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "書く → 書いて + ください.",
+      "options": [
+       "書きて",
+       "書いて",
+       "書く",
+       "書き"
+      ],
+      "prompt_ja": "ここに名前を（　　）ください。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: この漢字を読んでください。 Nghĩa: Hãy đọc chữ Hán này. 読んで + ください.",
+      "options": [
+       "を",
+       "この",
+       "読んで",
+       "漢字"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ＿＿ ★ ください。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: ここでちょっと待ってくださいね。 Nghĩa: Đợi ở đây một chút nhé. 待って + ください.",
+      "options": [
+       "待って",
+       "ください",
+       "ね",
+       "ちょっと"
+      ],
+      "prompt_ja": "ここで ＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Vてください = xin hãy V.",
+      "options": [
+       "Bạn đã nói rồi.",
+       "Xin hãy nói lại một lần nữa.",
+       "Tôi sẽ nói lại một lần nữa.",
+       "Đừng nói nữa."
+      ],
+      "prompt_ja": "もう一度言ってください。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "消して = tắt.",
+      "options": [
+       "Xin hãy tắt đèn.",
+       "Xin hãy bật đèn.",
+       "Đừng tắt đèn.",
+       "Đèn đã tắt rồi."
+      ],
+      "prompt_ja": "電気を消してください。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "待つ → 待って: 待ってください.",
+      "options": [
+       "ここに書いてください。",
+       "これを見てください。",
+       "ちょっと待ちてください。",
+       "ゆっくり話してください。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "ください đi sau thể て: 起きてください.",
+      "options": [
+       "窓を閉めてください。",
+       "もっと食べてください。",
+       "ここで待ってください。",
+       "早く起きるください。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay gắn ください vào thể ます (sai: 書きますください) hoặc thể từ điển (sai: 書くください); phải dùng thể て: 書いてください.",
+    "examples": [
+     {
+      "ja": "もう一度言ってください。",
+      "ja_furigana": "もう一度(いちど)言(い)ってください。",
+      "source": "CLAUDE",
+      "vi": "Xin hãy nói lại một lần nữa."
+     },
+     {
+      "ja": "ちょっと待ってください。",
+      "ja_furigana": "ちょっと待(ま)ってください。",
+      "source": "CLAUDE",
+      "vi": "Xin đợi một chút."
+     },
+     {
+      "ja": "窓を閉めてください。",
+      "ja_furigana": "窓(まど)を閉(し)めてください。",
+      "source": "CLAUDE",
+      "vi": "Hãy đóng cửa sổ lại."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Nhờ chụp ảnh: とってください.",
+      "options": [
+       "とった",
+       "とり",
+       "とって",
+       "とる"
+      ],
+      "prompt_ja": "A：すみません、写真を（　　）ください。B：いいですよ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Vてください còn dùng để mời mọc.",
+      "options": [
+       "Mời trà. Bạn cứ uống nhiều vào nhé.",
+       "Trà này ngon quá.",
+       "Tôi đã uống nhiều trà.",
+       "Đừng uống nhiều trà."
+      ],
+      "prompt_ja": "お茶をどうぞ。たくさん飲んでください。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "話す → 話して: 話してください.",
+      "options": [
+       "もう少し大きい声で読んでください。",
+       "名前を言ってください。",
+       "手を上げてください。",
+       "大きい声で話すてください。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "って",
+      "sentence_ja": "すみません、塩を取＿＿ください。",
+      "translation_vi": "Xin lỗi, lấy giúp tôi lọ muối."
+     },
+     {
+      "answer": "て",
+      "sentence_ja": "あした、八時に来＿＿ください。",
+      "translation_vi": "Ngày mai hãy đến lúc 8 giờ."
+     }
+    ],
+    "findings": [],
+    "formation": "V-て + ください",
+    "locked_fields": [],
+    "meaning_vi": "Hãy …, xin hãy … – nhờ hoặc yêu cầu một cách lịch sự.",
+    "nuance_vi": "Lịch sự nhưng vẫn là yêu cầu; với người trên muốn nhẹ hơn thì dùng 〜てくださいませんか.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       0,
+       2
+      ],
+      "pieces": [
+       "待って",
+       "ちょっと",
+       "ください"
+      ],
+      "translation_vi": "Xin hãy đợi một chút."
+     },
+     {
+      "answer_order": [
+       3,
+       0,
+       1,
+       4,
+       2
+      ],
+      "pieces": [
+       "本",
+       "を",
+       "ください",
+       "この",
+       "読んで"
+      ],
+      "translation_vi": "Hãy đọc quyển sách này."
+     }
+    ],
+    "pattern": "〜て下(くだ)さい",
+    "pattern_variants": [],
+    "unit_no": 14,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nhờ người khác làm gì, chỉ dẫn hoặc mời mọc lịch sự."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a26325168e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "đang … (hành động đang diễn ra)",
+     "unit_title_vi": "Thể て: nhờ vả, đang làm"
+    },
+    "note": "nghĩa theo khuôn (chữ thường, không dấu chấm)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Hành động đang diễn ra: Vて + います.",
+      "options": [
+       "見て",
+       "見た",
+       "見に",
+       "見る"
+      ],
+      "prompt_ja": "A：田中さんは今、何をしていますか。B：テレビを（　　）います。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Trời đang mưa: 降っています.",
+      "options": [
+       "降った",
+       "降って",
+       "降る",
+       "降り"
+      ],
+      "prompt_ja": "今、雨が（　　）います。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 子どもたちは公園で遊んでいます。 Nghĩa: Bọn trẻ đang chơi ở công viên. 遊んで + います.",
+      "options": [
+       "公園",
+       "います",
+       "遊んで",
+       "で"
+      ],
+      "prompt_ja": "子どもたちは ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 母は今、台所で料理をしています。 Nghĩa: Bây giờ mẹ đang nấu ăn trong bếp. して + います.",
+      "options": [
+       "料理を",
+       "で",
+       "して",
+       "台所"
+      ],
+      "prompt_ja": "母は今、 ＿＿ ＿＿ ＿＿ ★ います。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Vています = đang V.",
+      "options": [
+       "Anh Yamada đang gọi điện thoại.",
+       "Anh Yamada muốn gọi điện.",
+       "Anh Yamada sẽ gọi điện.",
+       "Anh Yamada đã gọi điện xong."
+      ],
+      "prompt_ja": "山田さんは今、電話をかけています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "寝ています = đang ngủ.",
+      "options": [
+       "Em trai tôi đã dậy rồi.",
+       "Em trai tôi không ở trong phòng.",
+       "Em trai tôi đang ngủ trong phòng.",
+       "Em trai tôi muốn ngủ trong phòng."
+      ],
+      "prompt_ja": "弟は部屋で寝ています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "います đi sau thể て: 食べています.",
+      "options": [
+       "今、手紙を書いています。",
+       "今、音楽を聞いています。",
+       "今、ごはんを食べるています。",
+       "今、シャワーをあびています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Nói về hôm qua phải dùng quá khứ: 見ていました hoặc 見ました.",
+      "options": [
+       "今、友だちと話しています。",
+       "今、雨が降っています。",
+       "きのう、テレビを見ています。",
+       "今、テレビを見ています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người Việt hay quên ている và nói 今食べます với nghĩa “đang ăn”; 食べます là sẽ ăn hoặc thường ăn, đang ăn phải là 食べています.",
+    "examples": [
+     {
+      "ja": "今、雨が降っています。",
+      "ja_furigana": "今(いま)、雨(あめ)が降(ふ)っています。",
+      "source": "CLAUDE",
+      "vi": "Bây giờ trời đang mưa."
+     },
+     {
+      "ja": "弟は部屋で寝ています。",
+      "ja_furigana": "弟(おとうと)は部屋(へや)で寝(ね)ています。",
+      "source": "CLAUDE",
+      "vi": "Em trai tôi đang ngủ trong phòng."
+     },
+     {
+      "ja": "母は台所で料理をしています。",
+      "ja_furigana": "母(はは)は台所(だいどころ)で料理(りょうり)をしています。",
+      "source": "CLAUDE",
+      "vi": "Mẹ tôi đang nấu ăn trong bếp."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Đang làm: 食べて + います.",
+      "options": [
+       "食べています",
+       "食べてです",
+       "食べいます",
+       "食べるています"
+      ],
+      "prompt_ja": "A：もしもし、今、何をしていますか。B：今、ごはんを（　　）よ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "待っています = đang đợi.",
+      "options": [
+       "Hãy đợi anh Tanaka ở đằng kia.",
+       "Anh Tanaka đang đợi ở đằng kia.",
+       "Anh Tanaka sẽ đợi ở đằng kia.",
+       "Anh Tanaka đã đợi ở đằng kia hôm qua."
+      ],
+      "prompt_ja": "あそこで田中さんが待っています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Phải dùng thể て: かけています.",
+      "options": [
+       "今、父は新聞を読んでいます。",
+       "今、母は買い物をしています。",
+       "今、田中さんは電話をかけるいます。",
+       "今、妹はピアノをひいています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ています",
+      "sentence_ja": "A：何をしていますか。B：手紙を書い＿＿。",
+      "translation_vi": "A: Bạn đang làm gì vậy? B: Tôi đang viết thư."
+     },
+     {
+      "answer": "で",
+      "sentence_ja": "今、子どもたちは公園で遊ん＿＿います。",
+      "translation_vi": "Bây giờ bọn trẻ đang chơi ở công viên."
+     }
+    ],
+    "findings": [],
+    "formation": "V-て + いる (います)",
+    "locked_fields": [],
+    "meaning_vi": "Đang … – hành động đang diễn ra.",
+    "nuance_vi": "Trung tính; khi nói chuyện thân mật âm い thường bị nuốt: 食べてる.",
+    "order_items": [
+     {
+      "answer_order": [
+       3,
+       0,
+       2,
+       1
+      ],
+      "pieces": [
+       "雨",
+       "降っています",
+       "が",
+       "今"
+      ],
+      "translation_vi": "Bây giờ trời đang mưa."
+     },
+     {
+      "answer_order": [
+       0,
+       2,
+       4,
+       3,
+       1
+      ],
+      "pieces": [
+       "田中さん",
+       "勉強しています",
+       "は",
+       "で",
+       "図書館"
+      ],
+      "translation_vi": "Anh Tanaka đang học ở thư viện."
+     }
+    ],
+    "pattern": "〜ている 1",
+    "pattern_variants": [],
+    "unit_no": 14,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nói một hành động đang diễn ra ngay lúc nói."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b2976be48a"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N5",
+ "packet_id": "REVIEW_GRAMMAR-008"
+}

@@ -1,0 +1,2109 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "đền bù thiệt hại đã gây ra cho người khác"
+    },
+    "note": "viết lại nghĩa tránh trùng nguồn"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "会社は、顧客に与えた損害を賠償することで合意した。",
+      "ja_furigana": "会社(かいしゃ)は、顧客(こきゃく)に与(あた)えた損害(そんがい)を賠償(ばいしょう)することで合意(ごうい)した。",
+      "source": "AI",
+      "vi": "Công ty đã thoả thuận bồi thường thiệt hại gây ra cho khách hàng."
+     }
+    ],
+    "expression": "賠償＜る＞",
+    "findings": [
+     "MIRAI_SIMILAR: meaning"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bồi thường",
+    "mnemonic_vi": "BỒI (賠) + THƯỜNG (償): bộ BỐI (貝) là tiền, trả tiền để đền bù thiệt hại đã gây ra.",
+    "reading": "ばいしょう＜る＞",
+    "romaji": "baishou<ru>",
+    "topic_vi": "Sự cố",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-fabe842bd2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "犯人は巧妙な手口で、銀行のシステムを破った。",
+       "ja_furigana": "犯人(はんにん)は巧妙(こうみょう)な手口(てぐち)で、銀行(ぎんこう)のシステムを破(やぶ)った。",
+       "vi": "Tên tội phạm dùng thủ đoạn tinh vi để phá hệ thống ngân hàng."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tinh vi",
+    "examples": [
+     {
+      "ja": "犯人は巧妙な手口で多くの人をだました。",
+      "ja_furigana": "犯人(はんにん)は巧妙(こうみょう)な手口(てぐち)で多(おお)くの人(ひと)をだました。",
+      "source": "VNJPCLUB",
+      "vi": "Tên tội phạm đã lừa nhiều người với thủ đoạn tinh vi."
+     }
+    ],
+    "expression": "巧妙な",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "khéo léo; tinh vi; xảo quyệt",
+    "mnemonic_vi": "XẢO (巧) + DIỆU (妙): khéo và kỳ diệu, tinh xảo đến mức người khác khó nhận ra, nên là tinh vi.",
+    "reading": "こうみょうな",
+    "romaji": "koumyouna",
+    "topic_vi": "Sự kiện, sự cố",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8e092678b9"
+  },
+  {
+   "answer": {
+    "same_word_as": "JV-c236e44d3f",
+    "note": "cùng một từ với mục JV-c236e44d3f"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "あくどい商法でお年寄りに高額な商品を買わせた業者が摘発された。",
+      "ja_furigana": "あくどい商法(しょうほう)でお年寄(としよ)りに高額(こうがく)な商品(しょうひん)を買(か)わせた業者(ぎょうしゃ)が摘発(てきはつ)された。",
+      "source": "AI",
+      "vi": "Một doanh nghiệp ép người già mua hàng giá cao bằng cách kinh doanh thủ đoạn đã bị phanh phui."
+     }
+    ],
+    "expression": "あくどい",
+    "findings": [
+     "SAME_SPELLING: JV-c236e44d3f (N1)"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "thâm độc; gian xảo",
+    "mnemonic_vi": "あくどい bắt đầu bằng あく (ác): thủ đoạn ác, trơ trẽn và quá đáng, như việc làm ăn bất lương.",
+    "reading": "あくどい",
+    "romaji": "akudoi",
+    "topic_vi": "Sự kiện, sự cố",
+    "twins": [
+     {
+      "expression": "あくどい",
+      "id": "JV-c236e44d3f",
+      "level": "N1",
+      "meaning_vi": "lòe loẹt quá mức; độc ác",
+      "topic_vi": "Từ thông dụng khác"
+     }
+    ],
+    "variants": [],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e8bdfca451"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "警察は、事件の手がかりをまだ見つけられていない。",
+       "ja_furigana": "警察(けいさつ)は、事件(じけん)の手(て)がかりをまだ見(み)つけられていない。",
+       "vi": "Cảnh sát vẫn chưa tìm được manh mối của vụ án."
+      },
+      {
+       "ja": "現場に残された指紋を手がかりに、捜査が進められた。",
+       "ja_furigana": "現場(げんば)に残(のこ)された指紋(しもん)を手(て)がかりに、捜査(そうさ)が進(すす)められた。",
+       "vi": "Cuộc điều tra được tiến hành dựa trên dấu vân tay còn lại tại hiện trường."
+      },
+      {
+       "ja": "何の手がかりもないまま、登山者たちは道に迷ってしまった。",
+       "ja_furigana": "何(なに)の手(て)がかりもないまま、登山者(とざんしゃ)たちは道(みち)に迷(まよ)ってしまった。",
+       "vi": "Không có bất cứ dấu vết định hướng nào, những người leo núi đã bị lạc đường."
+      }
+     ]
+    },
+    "note": "viết lại 3 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Gợi ý, đầu mối",
+    "examples": [
+     {
+      "ja": "新聞によると、犯人の手がかりはまだつかめないそうだ。",
+      "ja_furigana": "新聞(しんぶん)によると、犯人(はんにん)の手(て)がかりはまだつかめないそうだ。",
+      "source": "VNJPCLUB",
+      "vi": "Theo báo, cảnh sát vẫn chưa tìm được manh mối nào về hung thủ."
+     },
+     {
+      "ja": "警察は残された足元を手がかりに、捜査を進めている。",
+      "ja_furigana": "警察(けいさつ)は残(のこ)された足元(あしもと)を手(て)がかりに、捜査(そうさ)を進(すす)めている。",
+      "source": "VNJPCLUB",
+      "vi": "Cảnh sát đang lần theo dấu chân còn sót lại để điều tra."
+     },
+     {
+      "ja": "何の手がかりもない絶壁を登るのは、素人には無理だ。",
+      "ja_furigana": "何(なに)の手(て)がかりもない絶壁(ぜっぺき)を登(のぼ)るのは、素人(しろうと)には無理(むり)だ。",
+      "source": "VNJPCLUB",
+      "vi": "Leo lên vách đá không có chỗ bám là điều bất khả thi với người chưa có kinh nghiệm."
+     }
+    ],
+    "expression": "手がかり",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "gợi ý; đầu mối",
+    "mnemonic_vi": "手 (tay) + がかり (chỗ bám): chỗ để bám tay mà lần ra, tức manh mối giúp giải quyết vụ việc.",
+    "reading": "てがかり",
+    "romaji": "tegakari",
+    "topic_vi": "Sự kiện, sự cố",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4979817455"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ご質問は、事務所もしくはメールで受け付けています。",
+       "ja_furigana": "ご質問(しつもん)は、事務所(じむしょ)もしくはメールで受(う)け付(つ)けています。",
+       "vi": "Chúng tôi tiếp nhận câu hỏi tại văn phòng hoặc qua email."
+      },
+      {
+       "ja": "応募は、卒業生もしくはそれと同等の資格を持つ人が対象です。",
+       "ja_furigana": "応募(おうぼ)は、卒業生(そつぎょうせい)もしくはそれと同等(どうとう)の資格(しかく)を持(も)つ人(ひと)が対象(たいしょう)です。",
+       "vi": "Đối tượng ứng tuyển là người đã tốt nghiệp hoặc người có bằng cấp tương đương."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hoặc là",
+    "examples": [
+     {
+      "ja": "「勤務先、もしくは私の携帯に電話してください。」",
+      "ja_furigana": "「勤務先(きんむさき)、もしくは私(わたし)の携帯(けいたい)に電話(でんわ)してください。」",
+      "source": "VNJPCLUB",
+      "vi": "\"Hãy liên lạc với địa chỉ làm việc hoặc qua điện thoại của tôi.\""
+     },
+     {
+      "ja": "＜出願条件＞ 四年制大学卒、もしくは同等の学力があると認められる者。",
+      "ja_furigana": "＜出願条件(しゅつがんじょうけん)＞ 四年制大学(しねんせいだいがく)卒(そつ)、もしくは同等(どうとう)の学力(がくりょく)があると認(みと)められる者(しゃ)。",
+      "source": "VNJPCLUB",
+      "vi": "(Điều kiện đăng ký) Những sinh viên tốt nghiệp đại học hệ 4 năm hoặc những người được công nhận có trình độ tương đương."
+     }
+    ],
+    "expression": "若しくは",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "hoặc là",
+    "mnemonic_vi": "もし (nếu) + くは: nếu không phải A thì B, chọn một trong hai. Kiểu \"hoặc\" trang trọng trong văn bản.",
+    "reading": "もしくは",
+    "romaji": "moshikuha",
+    "topic_vi": "Sự kiện, sự cố",
+    "twins": [],
+    "variants": [
+     "もしくは"
+    ],
+    "word_type_label": "liên từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-282dc83256"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "都市と地方の間には、収入の格差が残っている。",
+       "ja_furigana": "都市(とし)と地方(ちほう)の間(あいだ)には、収入(しゅうにゅう)の格差(かくさ)が残(のこ)っている。",
+       "vi": "Giữa thành thị và nông thôn vẫn còn chênh lệch thu nhập."
+      },
+      {
+       "ja": "教育の格差をなくすために、支援が必要だ。",
+       "ja_furigana": "教育(きょういく)の格差(かくさ)をなくすために、支援(しえん)が必要(ひつよう)だ。",
+       "vi": "Để xóa bỏ chênh lệch giáo dục, cần có sự hỗ trợ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chênh lệch",
+    "examples": [
+     {
+      "ja": "ここ数年、賃金の格差が広がりつつあるようだ。",
+      "ja_furigana": "ここ数年(すうねん)、賃金(ちんぎん)の格差(かくさ)が広(ひろ)がりつつあるようだ。",
+      "source": "VNJPCLUB",
+      "vi": "Mấy năm nay, khoảng cách thu nhập dường như đang dần rộng ra."
+     },
+     {
+      "ja": "選挙のたびに一票の格差が問題になる。",
+      "ja_furigana": "選挙(せんきょ)のたびに一票(いっぴょう)の格差(かくさ)が問題(もんだい)になる。",
+      "source": "VNJPCLUB",
+      "vi": "Khi bầu cử, cách biệt một phiếu cũng là vấn đề."
+     }
+    ],
+    "expression": "格差",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "chênh lệch; khoảng cách; sự khác biệt",
+    "mnemonic_vi": "CÁCH (格) + SAI (差): khoảng cách sai khác về cấp bậc, thu nhập, tức chênh lệch, như chênh lệch giàu nghèo.",
+    "reading": "かくさ",
+    "romaji": "kakusa",
+    "topic_vi": "Xã hội",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1ef7038acd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母は、海外で暮らす私の健康をいつも案じている。",
+       "ja_furigana": "母(はは)は、海外(かいがい)で暮(く)らす私(わたし)の健康(けんこう)をいつも案(あん)じている。",
+       "vi": "Mẹ luôn lo lắng cho sức khỏe của tôi đang sống ở nước ngoài."
+      },
+      {
+       "ja": "試験の結果を案じて、夜もよく眠れなかった。",
+       "ja_furigana": "試験(しけん)の結果(けっか)を案(あん)じて、夜(よる)もよく眠(ねむ)れなかった。",
+       "vi": "Lo lắng cho kết quả kỳ thi, tôi ngủ không ngon giấc."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lo lắng cho",
+    "examples": [
+     {
+      "ja": "母はいつも単身赴任中の父のことを案じている。",
+      "ja_furigana": "母(はは)はいつも単身赴任中(たんしんふにんちゅう)の父(ちち)のことを案(あん)じている。",
+      "source": "VNJPCLUB",
+      "vi": "Mẹ tôi luôn lo lắng cho bố đang đi công tác xa nhà."
+     },
+     {
+      "ja": "ことの成り行きを案じる。",
+      "ja_furigana": "ことの成(な)り行(ゆ)きを案(あん)じる。",
+      "source": "VNJPCLUB",
+      "vi": "Lo lắng cho diễn biến của sự việc."
+     }
+    ],
+    "expression": "案じる",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "lo lắng cho; cân nhắc; lo lắng",
+    "mnemonic_vi": "ÁN (案) trong ĐỀ ÁN, phương ÁN: cứ nghĩ đi nghĩ lại về ai đó mà không yên, nên là lo lắng cho người ấy.",
+    "reading": "あんじる",
+    "romaji": "anjiru",
+    "topic_vi": "Xã hội",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-dbc8ae044e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "映画のラストの場面は、主人公の死を暗示している。",
+       "ja_furigana": "映画(えいが)のラストの場面(ばめん)は、主人公(しゅじんこう)の死(し)を暗示(あんじ)している。",
+       "vi": "Cảnh cuối của bộ phim ngầm gợi ý về cái chết của nhân vật chính."
+      },
+      {
+       "ja": "催眠術では、言葉の暗示によって深い眠りに導く。",
+       "ja_furigana": "催眠術(さいみんじゅつ)では、言葉(ことば)の暗示(あんじ)によって深(ふか)い眠(ねむ)りに導(みちび)く。",
+       "vi": "Trong thôi miên, người ta dùng ám thị bằng lời nói để đưa vào giấc ngủ sâu."
+      },
+      {
+       "ja": "試合の前、「絶対に勝てる」と自分に暗示をかけた。",
+       "ja_furigana": "試合(しあい)の前(まえ)、「絶対(ぜったい)に勝(か)てる」と自分(じぶん)に暗示(あんじ)をかけた。",
+       "vi": "Trước trận đấu, tôi tự ám thị rằng \"nhất định sẽ thắng\"."
+      }
+     ]
+    },
+    "note": "viết lại 3 câu chép nguồn VNJPCLUB (câu 1 gốc dùng nhầm động từ 案じる)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ám thị, gợi ngầm",
+    "examples": [
+     {
+      "ja": "映画の最後の場面の音楽が、主人公の運命を案じている。",
+      "ja_furigana": "映画(えいが)の最後(さいご)の場面(ばめん)の音楽(おんがく)が、主人(しゅじん)公(こう)の運命(うんめい)を案(あん)じている。",
+      "source": "VNJPCLUB",
+      "vi": "Phần âm nhạc ở cảnh cuối phim gợi lên số phận của nhân vật chính."
+     },
+     {
+      "ja": "催眠術というのは、暗示によって人を眠った状態にさせるものである。",
+      "ja_furigana": "催眠術(さいみんじゅつ)というのは、暗示(あんじ)によって人(ひと)を眠(ねむ)った状態(じょうたい)にさせるものである。",
+      "source": "VNJPCLUB",
+      "vi": "Thôi miên là kỹ thuật dùng ám thị khiến con người rơi vào trạng thái buồn ngủ."
+     },
+     {
+      "ja": "不安なときは、「絶対大丈夫」と自分に暗示をかけることにしている。",
+      "ja_furigana": "不安(ふあん)なときは、「絶対大丈夫(ぜったいだいじょうぶ)」と自分(じぶん)に暗示(あんじ)をかけることにしている。",
+      "source": "VNJPCLUB",
+      "vi": "Khi bất an, tôi thường tự ám thị bản thân rằng \"mọi chuyện sẽ ổn thôi\"."
+     }
+    ],
+    "expression": "暗示＜する＞",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "ám thị; gợi ngầm; ám hiệu",
+    "mnemonic_vi": "ÁM (暗) = tối, thầm + THỊ (示) = chỉ cho thấy: không nói rõ ra mà chỉ gợi ngầm, tức ám thị, ám chỉ.",
+    "reading": "あんじ＜する＞",
+    "romaji": "anji<suru>",
+    "topic_vi": "Xã hội",
+    "twins": [],
+    "variants": [
+     "暗示"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a3370fb509"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "sự vật mới bắt đầu hiện ra, xuất hiện"
+    },
+    "note": "viết lại nghĩa tránh trùng nguồn"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "市街地にクマが出現し、小学校は臨時休校になった。",
+      "ja_furigana": "市街地(しがいち)にクマが出現(しゅつげん)し、小学校(しょうがっこう)は臨時休校(りんじきゅうこう)になった。",
+      "source": "AI",
+      "vi": "Gấu xuất hiện trong khu dân cư nên trường tiểu học phải nghỉ học đột xuất."
+     }
+    ],
+    "expression": "出現＜する＞",
+    "findings": [
+     "MIRAI_SIMILAR: meaning"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "xuất hiện",
+    "mnemonic_vi": "XUẤT (出) + HIỆN (現): đi ra và lộ diện, tức xuất hiện, như một loại sản phẩm hay nhân vật mới.",
+    "reading": "しゅつげん＜する＞",
+    "romaji": "shutsugen<suru>",
+    "topic_vi": "Xã hội",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-207bc4b0ae"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会社は、欠陥商品について公式声明を発表した。",
+       "ja_furigana": "会社(かいしゃ)は、欠陥商品(けっかんしょうひん)について公式声明(こうしきせいめい)を発表(はっぴょう)した。",
+       "vi": "Công ty công bố tuyên bố chính thức về sản phẩm lỗi."
+      },
+      {
+       "ja": "労働組合は、賃上げを求める声明を出した。",
+       "ja_furigana": "労働組合(ろうどうくみあい)は、賃上(ちんあ)げを求(もと)める声明(せいめい)を出(だ)した。",
+       "vi": "Công đoàn ra tuyên bố đòi tăng lương."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tuyên bố chính thức",
+    "examples": [
+     {
+      "ja": "政府は事故について公式声明を出した。",
+      "ja_furigana": "政府(せいふ)は事故(じこ)について公式声明(こうしきせいめい)を出(だ)した。",
+      "source": "VNJPCLUB",
+      "vi": "Chính phủ đã ban hành công bố chính thức về vụ tai nạn."
+     },
+     {
+      "ja": "住民は市長に抗議声明を手渡した。",
+      "ja_furigana": "住民(じゅうみん)は市長(しちょう)に抗議声明(こうぎせいめい)を手渡(てわた)した。",
+      "source": "VNJPCLUB",
+      "vi": "Người dân đã đưa ra tuyên bố phản đối thị trưởng."
+     }
+    ],
+    "expression": "声明＜する＞",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tuyên bố chính thức; tuyên bố; công bố",
+    "mnemonic_vi": "THANH (声) = tiếng nói, MINH (明) = làm sáng tỏ: lên tiếng làm rõ lập trường, tức ra tuyên bố chính thức.",
+    "reading": "せいめい＜する＞",
+    "romaji": "seimei<suru>",
+    "topic_vi": "Chính trị",
+    "twins": [],
+    "variants": [
+     "声明"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-231dc3c1fe"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は、来年の選挙に立候補する意向を固めた。",
+       "ja_furigana": "彼(かれ)は、来年(らいねん)の選挙(せんきょ)に立候補(りっこうほ)する意向(いこう)を固(かた)めた。",
+       "vi": "Anh ấy đã quyết định ý định ra tranh cử trong cuộc bầu cử năm sau."
+      },
+      {
+       "ja": "工事を始める前に、住民の意向を聞く必要がある。",
+       "ja_furigana": "工事(こうじ)を始(はじ)める前(まえ)に、住民(じゅうみん)の意向(いこう)を聞(き)く必要(ひつよう)がある。",
+       "vi": "Trước khi bắt đầu thi công, cần lắng nghe ý kiến của người dân."
+      },
+      {
+       "ja": "会社は従業員の意向を無視して、計画を進めた。",
+       "ja_furigana": "会社(かいしゃ)は従業員(じゅうぎょういん)の意向(いこう)を無視(むし)して、計画(けいかく)を進(すす)めた。",
+       "vi": "Công ty phớt lờ ý kiến của nhân viên và triển khai kế hoạch."
+      }
+     ]
+    },
+    "note": "viết lại 3 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ý hướng",
+    "examples": [
+     {
+      "ja": "佐藤氏は市長選挙に立候補する意向を固めたようだ。",
+      "ja_furigana": "佐藤(さとう)氏(し)は市長選挙(しちょうせんきょ)に立候補(りっこうほ)する意向(いこう)を固(かた)めたようだ。",
+      "source": "VNJPCLUB",
+      "vi": "Có vẻ ông Sato đã quyết định ứng cử thị trưởng."
+     },
+     {
+      "ja": "「マンションの立て直しに関し、住人の皆様のご意向をお聞かせください。」",
+      "ja_furigana": "「マンションの立(た)て直(なお)しに関(かん)し、住人(じゅうにん)の皆様(みなさま)のご意向(いこう)をお聞(き)かせください。」",
+      "source": "VNJPCLUB",
+      "vi": "Cho tôi xin ý kiến của quý cư dân về việc tái thiết chung cư."
+     },
+     {
+      "ja": "会社は組合側の意向を無視して大規模なリストアを行った。",
+      "ja_furigana": "会社(かいしゃ)は組合側(くみあいがわ)の意向(いこう)を無視(むし)して大規模(だいきぼ)なリストアを行(おこな)った。",
+      "source": "VNJPCLUB",
+      "vi": "Công ty đã bỏ qua ý kiến nghiệp đoàn và thực hiện cải tổ quy mô lớn."
+     }
+    ],
+    "expression": "意向",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "ý hướng; ý định; ý muốn",
+    "mnemonic_vi": "Ý (意) + HƯỚNG (向): ý nghĩ đang hướng về đâu, tức ý định, ý muốn của người đó.",
+    "reading": "いこう",
+    "romaji": "ikou",
+    "topic_vi": "Chính trị",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-07813e1c2e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "thiên về giữ gìn cái cũ, ít chấp nhận thay đổi"
+    },
+    "note": "viết lại nghĩa tránh trùng nguồn"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "保守的な考えを持つ人が多い地域で、改革は容易ではない。",
+      "ja_furigana": "保守的(ほしゅてき)な考(かんが)えを持(も)つ人(ひと)が多(おお)い地域(ちいき)で、改革(かいかく)は容易(ようい)ではない。",
+      "source": "AI",
+      "vi": "Ở vùng có nhiều người mang tư tưởng bảo thủ, cải cách không phải là chuyện dễ."
+     }
+    ],
+    "expression": "保守的な",
+    "findings": [
+     "MIRAI_SIMILAR: meaning"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bảo thủ",
+    "mnemonic_vi": "BẢO (保) = giữ, THỦ (守) = gìn: giữ nguyên nếp cũ, ngại thay đổi. 保守的 là thiên về bảo thủ.",
+    "reading": "ほしゅてきな",
+    "romaji": "hoshutekina",
+    "topic_vi": "Chính trị",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ed44fe5069"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "危険な場所には近づかないのが賢明だ。",
+       "ja_furigana": "危険(きけん)な場所(ばしょ)には近(ちか)づかないのが賢明(けんめい)だ。",
+       "vi": "Không đến gần nơi nguy hiểm là lựa chọn khôn ngoan."
+      },
+      {
+       "ja": "彼は、状況を冷静に見て賢明な判断を下した。",
+       "ja_furigana": "彼(かれ)は、状況(じょうきょう)を冷静(れいせい)に見(み)て賢明(けんめい)な判断(はんだん)を下(くだ)した。",
+       "vi": "Anh ấy nhìn nhận tình hình một cách bình tĩnh và đưa ra phán đoán sáng suốt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn VNJPCLUB (1 câu dạng khung mẫu)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Khôn ngoan",
+    "examples": [
+     {
+      "ja": "社長には逆らわない方が賢明だ。",
+      "ja_furigana": "社長(しゃちょう)には逆(さか)らわない方(ほう)が賢明(けんめい)だ。",
+      "source": "VNJPCLUB",
+      "vi": "Không chống đối giám đốc là lựa chọn khôn ngoan."
+     },
+     {
+      "ja": "賢明な｛判断／やり方／人．．．｝",
+      "ja_furigana": "賢明(けんめい)な｛判断(はんだん)／やり方(かた)／人(ひと)．．．｝",
+      "source": "VNJPCLUB",
+      "vi": "(Phán đoán / cách làm / con người...) sáng suốt"
+     }
+    ],
+    "expression": "賢明な",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "khôn ngoan",
+    "mnemonic_vi": "HIỀN (賢) = hiền, thông thái + MINH (明) = sáng suốt: người sáng suốt biết chọn đúng, nên là khôn ngoan.",
+    "reading": "けんめいな",
+    "romaji": "kenmeina",
+    "topic_vi": "Chính trị",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-60b43be07c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "mập mờ, không làm rõ ràng, không giải quyết dứt khoát"
+    },
+    "note": "viết lại nghĩa tránh trùng nguồn"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "不祥事の責任の所在がうやむやなまま、幕引きとなった。",
+      "ja_furigana": "不祥事(ふしょうじ)の責任(せきにん)の所在(しょざい)がうやむやなまま、幕引(まくび)きとなった。",
+      "source": "AI",
+      "vi": "Vụ bê bối khép lại trong khi trách nhiệm thuộc về ai vẫn mập mờ."
+     }
+    ],
+    "expression": "うやむやな",
+    "findings": [
+     "MIRAI_SIMILAR: meaning"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "mập mờ; không rõ ràng",
+    "mnemonic_vi": "うやむや nghe như \"ù ù mơ mơ\": mọi thứ mờ mịt, không rõ ràng, để lửng lơ không có kết luận.",
+    "reading": "うやむやな",
+    "romaji": "uyamuyana",
+    "topic_vi": "Chính trị",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2591572f28"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女は周囲の反対を押し切って、留学を決めた。",
+       "ja_furigana": "彼女(かのじょ)は周囲(しゅうい)の反対(はんたい)を押(お)し切(き)って、留学(りゅうがく)を決(き)めた。",
+       "vi": "Cô ấy bất chấp sự phản đối xung quanh mà quyết định đi du học."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Quyết tâm đến cùng, bất chấp phản đối",
+    "examples": [
+     {
+      "ja": "兄は家族の反対を押し切って転職した。",
+      "ja_furigana": "兄(あに)は家族(かぞく)の反対(はんたい)を押(お)し切(き)って転職(てんしょく)した。",
+      "source": "VNJPCLUB",
+      "vi": "Bất chấp sự phản đối của gia đình, anh tôi vẫn quyết định đổi việc."
+     }
+    ],
+    "expression": "押し切る",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "quyết tâm đến cùng; bất chấp phản đối",
+    "mnemonic_vi": "押し (đẩy) + 切る (cắt đứt): đẩy cho qua hết mọi sức cản, kiên quyết làm bằng được dù người khác phản đối.",
+    "reading": "おしきる",
+    "romaji": "oshikiru",
+    "topic_vi": "Chính trị",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0017b57fc2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この判断は、経験豊富な専門家にゆだねることにした。",
+       "ja_furigana": "この判断(はんだん)は、経験(けいけん)豊富(ほうふ)な専門家(せんもんか)にゆだねることにした。",
+       "vi": "Tôi quyết định giao phó phán đoán này cho chuyên gia giàu kinh nghiệm."
+      },
+      {
+       "ja": "彼は会社の将来を、信頼できる後継者にゆだねた。",
+       "ja_furigana": "彼(かれ)は会社(かいしゃ)の将来(しょうらい)を、信頼(しんらい)できる後継者(こうけいしゃ)にゆだねた。",
+       "vi": "Ông ấy giao phó tương lai công ty cho người kế nhiệm đáng tin cậy."
+      },
+      {
+       "ja": "彼女はソファに身をゆだねて、音楽を楽しんだ。",
+       "ja_furigana": "彼女(かのじょ)はソファに身(み)をゆだねて、音楽(おんがく)を楽(たの)しんだ。",
+       "vi": "Cô ấy ngả người trên ghế sô pha và thưởng thức âm nhạc."
+      }
+     ]
+    },
+    "note": "viết lại 3 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "phó thác",
+    "examples": [
+     {
+      "ja": "調査結果の詳しい分析は、専門家にゆだねられた。",
+      "ja_furigana": "調査(ちょうさ)結果(けっか)の詳(くわ)しい分析(ぶんせき)は、専門家(せんもんか)にゆだねられた。",
+      "source": "VNJPCLUB",
+      "vi": "Những phân tích cụ thể về kết quả điều tra được giao phó lại cho các chuyên gia."
+     },
+     {
+      "ja": "大統領は、副大統領に全権をゆだねて相手国に派遣した。",
+      "ja_furigana": "大統領(だいとうりょう)は、副大統領(ふくだいとうりょう)に全権(ぜんけん)をゆだねて相手(あいて)国(こく)に派遣(はけん)した。",
+      "source": "VNJPCLUB",
+      "vi": "Tổng thống đã giao toàn quyền cho phó tổng thống và cử đi nước đối phương."
+     },
+     {
+      "ja": "椅子に身をゆだねてゆったりと座る。",
+      "ja_furigana": "椅子(いす)に身(み)をゆだねてゆったりと座(すわ)る。",
+      "source": "VNJPCLUB",
+      "vi": "Ngả người ra ghế và ngồi thoải mái."
+     }
+    ],
+    "expression": "委ねる",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "phó thác; giao phó; ủy thác",
+    "mnemonic_vi": "ゆだねる gần \"giữ đàn nè\": đưa hẳn việc của mình cho người khác lo, tức giao phó, phó thác toàn quyền.",
+    "reading": "ゆだねる",
+    "romaji": "yudaneru",
+    "topic_vi": "Chính trị",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3fcfd00ef1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "内部の関係者が、会社の不正を報道機関に暴露した。",
+       "ja_furigana": "内部(ないぶ)の関係者(かんけいしゃ)が、会社(かいしゃ)の不正(ふせい)を報道機関(ほうどうきかん)に暴露(ばくろ)した。",
+       "vi": "Người trong cuộc đã vạch trần gian lận của công ty cho báo chí."
+      },
+      {
+       "ja": "彼は長年隠してきた秘密を、ついに暴露した。",
+       "ja_furigana": "彼(かれ)は長年(ながねん)隠(かく)してきた秘密(ひみつ)を、ついに暴露(ばくろ)した。",
+       "vi": "Anh ấy cuối cùng đã phơi bày bí mật giấu kín nhiều năm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn VNJPCLUB (1 câu dạng khung mẫu)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "phơi bày, vạch trần",
+    "examples": [
+     {
+      "ja": "社員の一人が、社長の不祥事をマスコミに暴露した。",
+      "ja_furigana": "社員(しゃいん)の一人(ひとり)が、社長(しゃちょう)の不祥事(ふしょうじ)をマスコミに暴露(ばくろ)した。",
+      "source": "VNJPCLUB",
+      "vi": "Một trong những nhân viên đã tiết lộ vụ bê bối của giám đốc với truyền thông."
+     },
+     {
+      "ja": "｛秘密／スキャンダル／悪事．．．｝を暴露する。",
+      "ja_furigana": "｛秘密(ひみつ)／スキャンダル／悪事(あくじ)．．．｝を暴露(ばくろ)する。",
+      "source": "VNJPCLUB",
+      "vi": "Tiết lộ/ Vạch trần (bí mật/ xì căng đan/ tội ác)."
+     }
+    ],
+    "expression": "暴露＜する＞",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "phơi bày; vạch trần; bộc lộ",
+    "mnemonic_vi": "BỘC (暴) = phơi ra + LỘ (露) = lộ ra: phơi bày bí mật hay chuyện xấu của người khác cho thiên hạ biết.",
+    "reading": "ばくろ＜する＞",
+    "romaji": "bakuro<suru>",
+    "topic_vi": "Chính trị",
+    "twins": [],
+    "variants": [
+     "暴露"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c10139669b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "人を欺いて利益を得ようとする商法は、許されない。",
+       "ja_furigana": "人(ひと)を欺(あざむ)いて利益(りえき)を得(え)ようとする商法(しょうほう)は、許(ゆる)されない。",
+       "vi": "Cách kinh doanh lừa dối người khác để kiếm lời là không thể chấp nhận."
+      },
+      {
+       "ja": "彼は、巧みな言葉で多くの人を欺いてきた。",
+       "ja_furigana": "彼(かれ)は、巧(たく)みな言葉(ことば)で多(おお)くの人(ひと)を欺(あざむ)いてきた。",
+       "vi": "Anh ta đã lừa gạt nhiều người bằng những lời lẽ khéo léo."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lừa dối",
+    "examples": [
+     {
+      "ja": "人を欺いてでも利益を得ようという考え方には同意できない。",
+      "ja_furigana": "人(ひと)を欺(あざむ)いてでも利益(りえき)を得(え)ようという考(かんが)え方(かた)には同意(どうい)できない。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi không đồng ý với cách nghĩ kiếm lời ngay cả khi lừa dối mọi người."
+     },
+     {
+      "ja": "「敵を欺くにはまず味方から」というのは、中国の古い本に出てくる言葉だ。",
+      "ja_furigana": "「敵(てき)を欺(あざむ)くにはまず味方(みかた)から」というのは、中国(ちゅうごく)の古(ふる)い本(ほん)に出(で)てくる言葉(ことば)だ。",
+      "source": "VNJPCLUB",
+      "vi": "\"Để đánh lừa kẻ thù, trước hết phải là đánh lừa được chính đồng minh của mình\" là câu nói xuất phát từ sách cổ của Trung Quốc."
+     }
+    ],
+    "expression": "欺く",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "lừa dối; lừa đảo; lừa gạt",
+    "mnemonic_vi": "Chữ 欺 có bộ KHIẾM (欠) = ngáp, há miệng: giả vờ ngây thơ để người khác tin rồi lừa gạt. Âm あざむく nghe như \"a, dám mưu\".",
+    "reading": "あざむく",
+    "romaji": "azamuku",
+    "topic_vi": "Chính trị",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-fc241bbaee"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は親の忠告に背いて、危険な投資に手を出した。",
+       "ja_furigana": "彼(かれ)は親(おや)の忠告(ちゅうこく)に背(そむ)いて、危険(きけん)な投資(とうし)に手(て)を出(だ)した。",
+       "vi": "Anh ấy làm trái lời khuyên của cha mẹ và dính vào đầu tư mạo hiểm."
+      },
+      {
+       "ja": "部下は上司の命令に背いて、独自の方法で進めた。",
+       "ja_furigana": "部下(ぶか)は上司(じょうし)の命令(めいれい)に背(そむ)いて、独自(どくじ)の方法(ほうほう)で進(すす)めた。",
+       "vi": "Cấp dưới trái lệnh cấp trên và tiến hành theo cách riêng."
+      },
+      {
+       "ja": "彼はファンの期待に背く行為をして、信頼を失った。",
+       "ja_furigana": "彼(かれ)はファンの期待(きたい)に背(そむ)く行為(こうい)をして、信頼(しんらい)を失(うしな)った。",
+       "vi": "Anh ấy có hành vi phản bội kỳ vọng của người hâm mộ nên đánh mất niềm tin."
+      }
+     ]
+    },
+    "note": "viết lại 3 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "làm trái, phản bội",
+    "examples": [
+     {
+      "ja": "彼は親の言いつけに背いてギャンブルに手を出した。",
+      "ja_furigana": "彼(かれ)は親(おや)の言(い)いつけに背(そむ)いてギャンブルに手(て)を出(だ)した。",
+      "source": "VNJPCLUB",
+      "vi": "Anh ta phụ những lời dạy của bố mẹ và sa vào cờ bạc."
+     },
+     {
+      "ja": "主君に背く。",
+      "ja_furigana": "主君(しゅくん)に背(そむ)く。",
+      "source": "VNJPCLUB",
+      "vi": "Phản lại chủ nhân"
+     },
+     {
+      "ja": "あのタレントは、ファンの期待に背いて、また薬物使用で逮捕された。",
+      "ja_furigana": "あのタレントは、ファンの期待(きたい)に背(そむ)いて、また薬物使用(やくぶつしよう)で逮捕(たいほ)された。",
+      "source": "VNJPCLUB",
+      "vi": "Ngôi sao đó đã phụ lại kỳ vọng của người hâm mộ và đã bị bắt do sử dụng chất kích thích."
+     }
+    ],
+    "expression": "背く",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "làm trái; phản bội; phản kháng",
+    "mnemonic_vi": "BỐI (背) = lưng: quay lưng lại với lời dặn, quy tắc hay người khác, nên là làm trái, phản lại.",
+    "reading": "そむく",
+    "romaji": "somuku",
+    "topic_vi": "Chính trị",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2827842aec"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は自分の過ちを素直に認めて、謝罪した。",
+       "ja_furigana": "彼(かれ)は自分(じぶん)の過(あやま)ちを素直(すなお)に認(みと)めて、謝罪(しゃざい)した。",
+       "vi": "Anh ấy thành thật thừa nhận lỗi lầm của mình và xin lỗi."
+      },
+      {
+       "ja": "書類の確認を怠ったのは、私の過ちだった。",
+       "ja_furigana": "書類(しょるい)の確認(かくにん)を怠(おこた)ったのは、私(わたし)の過(あやま)ちだった。",
+       "vi": "Việc lơ là kiểm tra giấy tờ là lỗi lầm của tôi."
+      },
+      {
+       "ja": "過去の過ちから学び、同じことを繰り返さないようにする。",
+       "ja_furigana": "過去(かこ)の過(あやま)ちから学(まな)び、同(おな)じことを繰(く)り返(かえ)さないようにする。",
+       "vi": "Rút bài học từ lỗi lầm quá khứ để không lặp lại điều tương tự."
+      }
+     ]
+    },
+    "note": "viết lại 3 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lỗi lầm",
+    "examples": [
+     {
+      "ja": "彼は自分の過ちをなかなか認めようとしない。",
+      "ja_furigana": "彼(かれ)は自分(じぶん)の過(あやま)ちをなかなか認(みと)めようとしない。",
+      "source": "VNJPCLUB",
+      "vi": "Anh ta mãi không chịu thừa nhận sai lầm của mình."
+     },
+     {
+      "ja": "会社に損害を与えたのは、契約書をよく確認しなかった私の過ちによるものだ。",
+      "ja_furigana": "会社(かいしゃ)に損害(そんがい)を与(あた)えたのは、契約書(けいやくしょ)をよく確認(かくにん)しなかった私(わたし)の過(あやま)ちによるものだ。",
+      "source": "VNJPCLUB",
+      "vi": "Thiệt hại gây ra cho công ty là do lỗi của tôi vì đã không kiểm tra kỹ hợp đồng."
+     },
+     {
+      "ja": "無実の人を逮捕するという過ちは、決してあってはならない。",
+      "ja_furigana": "無実(むじつ)の人(ひと)を逮捕(たいほ)するという過(あやま)ちは、決(けっ)してあってはならない。",
+      "source": "VNJPCLUB",
+      "vi": "Việc bắt nhầm người vô tội là một sai lầm không thể chấp nhận được."
+     }
+    ],
+    "expression": "過ち",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "lỗi lầm",
+    "mnemonic_vi": "QUÁ (過) trong QUÁ khứ, sai QUÁ: đi quá giới hạn đúng mực, nên là lỗi lầm, sai sót đã phạm.",
+    "reading": "あやまち",
+    "romaji": "ayamachi",
+    "topic_vi": "Chính trị",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-49b1b3bb96"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "道路が新しくなり、朝の渋滞がかなり緩和された。",
+       "ja_furigana": "道路(どうろ)が新(あたら)しくなり、朝(あさ)の渋滞(じゅうたい)がかなり緩和(かんわ)された。",
+       "vi": "Đường mới được làm khiến tình trạng tắc đường buổi sáng giảm đáng kể."
+      },
+      {
+       "ja": "この薬は、関節の痛みを緩和する効果がある。",
+       "ja_furigana": "この薬(くすり)は、関節(かんせつ)の痛(いた)みを緩和(かんわ)する効果(こうか)がある。",
+       "vi": "Thuốc này có tác dụng làm dịu cơn đau khớp."
+      },
+      {
+       "ja": "輸入の規制が緩和され、海外製品が手に入りやすくなった。",
+       "ja_furigana": "輸入(ゆにゅう)の規制(きせい)が緩和(かんわ)され、海外製品(かいがいせいひん)が手(て)に入(はい)りやすくなった。",
+       "vi": "Quy định nhập khẩu được nới lỏng nên hàng nước ngoài dễ mua hơn."
+      }
+     ]
+    },
+    "note": "viết lại 3 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nới lỏng",
+    "examples": [
+     {
+      "ja": "電車の本数が増えたので、多少混雑が緩和した。",
+      "ja_furigana": "電車(でんしゃ)の本数(ほんすう)が増(ふ)えたので、多少(たしょう)混雑(こんざつ)が緩和(かんわ)した。",
+      "source": "VNJPCLUB",
+      "vi": "Vì số lượng tàu tăng lên nên tình trạng tắc nghẽn đã giảm bớt phần nào."
+     },
+     {
+      "ja": "この薬は痛みを緩和する。",
+      "ja_furigana": "この薬(くすり)は痛(いた)みを緩和(かんわ)する。",
+      "source": "VNJPCLUB",
+      "vi": "Thuốc này làm giảm đau."
+     },
+     {
+      "ja": "規制が緩和され、他業種への参入が容易になった。",
+      "ja_furigana": "規制(きせい)が緩和(かんわ)され、他業種(たぎょうしゅ)への参入(さんにゅう)が容易(ようい)になった。",
+      "source": "VNJPCLUB",
+      "vi": "Các quy định đã được nới lỏng, giúp việc thâm nhập vào các ngành khác dễ dàng hơn."
+     }
+    ],
+    "expression": "緩和＜する＞",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nới lỏng; hòa hoãn; nói nhẹ",
+    "mnemonic_vi": "HOÃN (緩) = chậm, nới + HÒA (和) = dịu: làm cho dịu bớt, nới lỏng căng thẳng hay quy định.",
+    "reading": "かんわ＜する＞",
+    "romaji": "kanwa<suru>",
+    "topic_vi": "Kinh tế",
+    "twins": [],
+    "variants": [
+     "緩和"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f9fc0d0701"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "売り上げの減少で、会社は資金難に陥った。",
+       "ja_furigana": "売(う)り上(あ)げの減少(げんしょう)で、会社(かいしゃ)は資金難(しきんなん)に陥(おちい)った。",
+       "vi": "Do doanh thu giảm, công ty rơi vào tình trạng thiếu vốn."
+      },
+      {
+       "ja": "彼は、自分は何をやってもだめだという錯覚に陥っていた。",
+       "ja_furigana": "彼(かれ)は、自分(じぶん)は何(なに)をやってもだめだという錯覚(さっかく)に陥(おちい)っていた。",
+       "vi": "Anh ấy rơi vào ảo tưởng rằng mình làm gì cũng hỏng."
+      },
+      {
+       "ja": "厳しい競争の中で、多くの企業が経営不振に陥った。",
+       "ja_furigana": "厳(きび)しい競争(きょうそう)の中(なか)で、多(おお)くの企業(きぎょう)が経営不振(けいえいふしん)に陥(おちい)った。",
+       "vi": "Trong cạnh tranh gay gắt, nhiều doanh nghiệp rơi vào khủng hoảng kinh doanh."
+      }
+     ]
+    },
+    "note": "viết lại 3 câu chép nguồn VNJPCLUB (1 câu dạng khung mẫu, 1 câu dùng sai ngữ cảnh)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "to fall into (a state)",
+    "examples": [
+     {
+      "ja": "円高により、A社は経営不振に陥った。",
+      "ja_furigana": "円高(えんだか)により、A社(しゃ)は経営不振(けいえいふしん)に陥(おちい)った。",
+      "source": "VNJPCLUB",
+      "vi": "Do đồng yên tăng giá, công ty A rơi vào khủng hoảng kinh doanh."
+     },
+     {
+      "ja": "｛錯覚／スランプ／ジレンマ．．．｝に陥る。",
+      "ja_furigana": "｛錯覚(さっかく)／スランプ／ジレンマ．．．｝に陥(おちい)る。",
+      "source": "VNJPCLUB",
+      "vi": "Rơi vào (ảo giác/ suy thoái/ sợ hãi/ tình thế tiến thoái lưỡng nan…)"
+     },
+     {
+      "ja": "川の深みに陥る。",
+      "ja_furigana": "川(かわ)の深(ふか)みに陥(おちい)る。",
+      "source": "VNJPCLUB",
+      "vi": "Rơi vào dòng chảy của dòng sông."
+     }
+    ],
+    "expression": "陥る",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "rơi vào",
+    "mnemonic_vi": "Bộ PHỤ (阝) là gò đất + 臽 là cái hố: bước hụt xuống hố, nên là rơi vào tình trạng xấu như khủng hoảng, nợ nần.",
+    "reading": "おちいる",
+    "romaji": "ochiiru",
+    "topic_vi": "Kinh tế",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-cd8911a0f5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "giai đoạn giá tài sản tăng quá mức rồi đột ngột sụp đổ"
+    },
+    "note": "viết lại nghĩa tránh trùng nguồn"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "バブルが崩壊してから、日本経済は長い低迷期に入った。",
+      "ja_furigana": "バブルが崩壊(ほうかい)してから、日本経済(にほんけいざい)は長(なが)い低迷期(ていめいき)に入(はい)った。",
+      "source": "AI",
+      "vi": "Sau khi bong bóng kinh tế vỡ, kinh tế Nhật Bản bước vào một thời kỳ trì trệ kéo dài."
+     }
+    ],
+    "expression": "バブル",
+    "findings": [
+     "MIRAI_SIMILAR: meaning"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bong bóng kinh tế; bong bóng",
+    "mnemonic_vi": "バブル là bubble, đọc \"ba-bù-rư\": bong bóng xà phòng phồng to rồi vỡ, chỉ giá cả đội lên quá mức rồi sụp đổ.",
+    "reading": "ばぶる",
+    "romaji": "baburu",
+    "topic_vi": "Kinh tế",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3966e7bdd3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この交差点は見通しが悪いので、事故が多い。",
+       "ja_furigana": "この交差点(こうさてん)は見通(みとお)しが悪(わる)いので、事故(じこ)が多(おお)い。",
+       "vi": "Ngã tư này tầm nhìn kém nên hay xảy ra tai nạn."
+      },
+      {
+       "ja": "景気が不安定で、来年の見通しが立たない。",
+       "ja_furigana": "景気(けいき)が不安定(ふあんてい)で、来年(らいねん)の見通(みとお)しが立(た)たない。",
+       "vi": "Kinh tế bất ổn nên chưa thể dự đoán được năm tới."
+      },
+      {
+       "ja": "手術は成功し、一週間後には退院できる見通しだ。",
+       "ja_furigana": "手術(しゅじゅつ)は成功(せいこう)し、一週間(いっしゅうかん)後(ご)には退院(たいいん)できる見通(みとお)しだ。",
+       "vi": "Ca mổ thành công và dự kiến sau một tuần có thể xuất viện."
+      }
+     ]
+    },
+    "note": "viết lại 3 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "dự kiến, tầm nhìn",
+    "examples": [
+     {
+      "ja": "まっすぐで見通しのいい道路は運転しやすい。",
+      "ja_furigana": "まっすぐで見通(みとお)しのいい道路(どうろ)は運転(うんてん)しやすい。",
+      "source": "VNJPCLUB",
+      "vi": "Con đường thẳng, có tầm nhìn tốt thì dễ lái xe."
+     },
+     {
+      "ja": "経済状態が不安定なので、まだ将来の見通しが立たない。",
+      "ja_furigana": "経済(けいざい)状態(じょうたい)が不安定(ふあんてい)なので、まだ将来(しょうらい)の見通(みとお)しが立(た)たない。",
+      "source": "VNJPCLUB",
+      "vi": "Tình hình kinh tế bất ổn, vì thế vẫn chưa thể đưa ra triển vọng trong tương lai."
+     },
+     {
+      "ja": "術後の経過は順調で、１週間後には退院できる見通しだ。",
+      "ja_furigana": "術後(じゅつご)の経過(けいか)は順調(じゅんちょう)で、１週間(しゅうかん)後(ご)には退院(たいいん)できる見通(みとお)しだ。",
+      "source": "VNJPCLUB",
+      "vi": "Quá trình sau ca phẫu thuật đang thuận lợi, khả năng sau một tuần là có thể xuất viện."
+     }
+    ],
+    "expression": "見通し",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "dự kiến; tầm nhìn; triển vọng",
+    "mnemonic_vi": "見 (nhìn) + 通し (xuyên suốt): nhìn xuyên qua phía trước để đoán, tức triển vọng, dự đoán tương lai.",
+    "reading": "みとおし",
+    "romaji": "mitooshi",
+    "topic_vi": "Kinh tế",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-64f392aed6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "経済は、ようやく回復の兆しを見せ始めた。",
+       "ja_furigana": "経済(けいざい)は、ようやく回復(かいふく)の兆(きざ)しを見(み)せ始(はじ)めた。",
+       "vi": "Nền kinh tế cuối cùng đã bắt đầu có dấu hiệu phục hồi."
+      },
+      {
+       "ja": "三月に入ると、ようやく春の兆しが感じられるようになった。",
+       "ja_furigana": "三月(さんがつ)に入(はい)ると、ようやく春(はる)の兆(きざ)しが感(かん)じられるようになった。",
+       "vi": "Sang tháng ba, cuối cùng cũng cảm nhận được dấu hiệu của mùa xuân."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "dấu hiệu",
+    "examples": [
+     {
+      "ja": "先月から、景気は回復の兆しを見せている。",
+      "ja_furigana": "先月(せんげつ)から、景気(けいき)は回復(かいふく)の兆(きざ)しを見(み)せている。",
+      "source": "VNJPCLUB",
+      "vi": "Tình hình kinh tế cho thấy dấu hiệu phục hồi từ tháng trước."
+     },
+     {
+      "ja": "2月も半ばを過ぎると、春の兆しが感じられる。",
+      "ja_furigana": "2月(がつ)も半(なか)ばを過(す)ぎると、春(はる)の兆(きざ)しが感(かん)じられる。",
+      "source": "VNJPCLUB",
+      "vi": "Sau giữa tháng 2, có thể cảm nhận được dấu hiệu của mùa xuân."
+     }
+    ],
+    "expression": "兆し",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "dấu hiệu; điềm báo",
+    "mnemonic_vi": "Chữ 兆 giống vết nứt trên mai rùa dùng để bói: vết nứt báo điều sắp đến, tức dấu hiệu hay điềm báo trước.",
+    "reading": "きざし",
+    "romaji": "kizashi",
+    "topic_vi": "Kinh tế",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-35adc4c43d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "人形使いは、糸を使って人形を巧みに操った。",
+       "ja_furigana": "人形使(にんぎょうつか)いは、糸(いと)を使(つか)って人形(にんぎょう)を巧(たく)みに操(あやつ)った。",
+       "vi": "Người điều khiển rối khéo léo dùng dây để điều khiển con rối."
+      },
+      {
+       "ja": "彼は、巧みな話術で相手の心を操る。",
+       "ja_furigana": "彼(かれ)は、巧(たく)みな話術(わじゅつ)で相手(あいて)の心(こころ)を操(あやつ)る。",
+       "vi": "Anh ta điều khiển lòng người bằng tài ăn nói khéo léo."
+      },
+      {
+       "ja": "この機械は、コンピューターで操られている。",
+       "ja_furigana": "この機械(きかい)は、コンピューターで操(あやつ)られている。",
+       "vi": "Chiếc máy này được điều khiển bằng máy tính."
+      }
+     ]
+    },
+    "note": "viết lại 3 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "điều khiển; giật dây",
+    "examples": [
+     {
+      "ja": "この人形は上から糸で操って動かす。",
+      "ja_furigana": "この人形(にんぎょう)は上(うえ)から糸(いと)で操(あやつ)って動(うご)かす。",
+      "source": "VNJPCLUB",
+      "vi": "Con búp bê này chuyển động bằng cách điều khiển nó với một sợi dây từ phía trên."
+     },
+     {
+      "ja": "言葉で人の心を操る。",
+      "ja_furigana": "言葉(ことば)で人(ひと)の心(こころ)を操(あやつ)る。",
+      "source": "VNJPCLUB",
+      "vi": "Kiểm soát cảm xúc bằng lời nói."
+     },
+     {
+      "ja": "運命に操られる。",
+      "ja_furigana": "運命(うんめい)に操(あやつ)られる。",
+      "source": "VNJPCLUB",
+      "vi": "Bị số mệnh chi phối."
+     }
+    ],
+    "expression": "操る",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "điều khiển; giật dây; khéo vận dụng",
+    "mnemonic_vi": "THAO (操) như trong \"thao túng\", \"thao tác\": tay giật dây con rối thì nó múa theo ý mình, nên 操る là điều khiển, giật dây.",
+    "reading": "あやつる",
+    "romaji": "ayatsuru",
+    "topic_vi": "Kinh tế",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4a838d3223"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "山梨県は、日本有数のワインの産地として知られている。",
+       "ja_furigana": "山梨県(やまなしけん)は、日本有数(にほんゆうすう)のワインの産地(さんち)として知(し)られている。",
+       "vi": "Tỉnh Yamanashi được biết đến là vùng sản xuất rượu vang hàng đầu Nhật Bản."
+      },
+      {
+       "ja": "彼は、世界有数の生物学者として名高い。",
+       "ja_furigana": "彼(かれ)は、世界有数(せかいゆうすう)の生物学者(せいぶつがくしゃ)として名高(なだか)い。",
+       "vi": "Ông ấy nổi tiếng là nhà sinh vật học hàng đầu thế giới."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn VNJPCLUB (bỏ chú thích (で))"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Dẫn đầu, nổi bật",
+    "examples": [
+     {
+      "ja": "山梨県は日本（で）有数のワインの産地だ。",
+      "ja_furigana": "山梨県(やまなしけん)は日本(にほん)（で）有数(ゆうすう)のワインの産地(さんち)だ。",
+      "source": "VNJPCLUB",
+      "vi": "Tỉnh Yamanashi là vùng rượu vang hàng đầu của Nhật Bản."
+     },
+     {
+      "ja": "彼は世界（で）有数の生物学者だ。",
+      "ja_furigana": "彼(かれ)は世界(せかい)（で）有数(ゆうすう)の生物学者(せいぶつがくしゃ)だ。",
+      "source": "VNJPCLUB",
+      "vi": "Anh ấy là nhà sinh vật học hàng đầu trên thế giới."
+     }
+    ],
+    "expression": "有数＜な＞",
+    "findings": [
+     "FURIGANA_MISMATCH: 山梨県は日本（で）有数のワインの産地だ。",
+     "FURIGANA_MISMATCH: 彼は世界（で）有数の生物学者だ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "dẫn đầu; nổi bật",
+    "mnemonic_vi": "HỮU (有) + SỐ (数): có tên trong số ít người đếm được trên đầu ngón tay, nên là hàng đầu, nổi bật nhất.",
+    "reading": "ゆうすう＜な＞",
+    "romaji": "yuusuu<na>",
+    "topic_vi": "Kinh tế",
+    "twins": [],
+    "variants": [
+     "有数"
+    ],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c3548b4b8f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "災害の影響で、生活物資の流通が滞った。",
+       "ja_furigana": "災害(さいがい)の影響(えいきょう)で、生活物資(せいかつぶっし)の流通(りゅうつう)が滞(とどこお)った。",
+       "vi": "Do thiên tai, việc lưu thông hàng hóa thiết yếu bị đình trệ."
+      },
+      {
+       "ja": "窓を開けて、部屋の空気の流通をよくした。",
+       "ja_furigana": "窓(まど)を開(あ)けて、部屋(へや)の空気(くうき)の流通(りゅうつう)をよくした。",
+       "vi": "Tôi mở cửa sổ để không khí trong phòng lưu thông tốt hơn."
+      },
+      {
+       "ja": "新しい紙幣が、各地で流通し始めている。",
+       "ja_furigana": "新(あたら)しい紙幣(しへい)が、各地(かくち)で流通(りゅうつう)し始(はじ)めている。",
+       "vi": "Tiền giấy mới bắt đầu được lưu thông ở khắp nơi."
+      }
+     ]
+    },
+    "note": "viết lại 3 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lưu thông",
+    "examples": [
+     {
+      "ja": "地震のため物資の流通が滞った。",
+      "ja_furigana": "地震(じしん)のため物資(ぶっし)の流通(りゅうつう)が滞(とどこお)った。",
+      "source": "VNJPCLUB",
+      "vi": "Do trận động đất lưu thông hàng hóa bị đình trệ."
+     },
+     {
+      "ja": "窓を開けて空気の流通をよくした。",
+      "ja_furigana": "窓(まど)を開(あ)けて空気(くうき)の流通(りゅうつう)をよくした。",
+      "source": "VNJPCLUB",
+      "vi": "Mở cửa sổ và cho lưu thông không khí về."
+     },
+     {
+      "ja": "新しい紙幣が流通し始めている。",
+      "ja_furigana": "新(あたら)しい紙幣(しへい)が流通(りゅうつう)し始(はじ)めている。",
+      "source": "VNJPCLUB",
+      "vi": "Loại giấy tiền mới đang bắt đầu lưu thông."
+     }
+    ],
+    "expression": "流通＜する＞",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "lưu thông; phân phối",
+    "mnemonic_vi": "LƯU (流) chảy + THÔNG (通) suốt: hàng hóa, tiền bạc chảy thông suốt như dòng nước, tức là lưu thông, phân phối.",
+    "reading": "りゅうつう＜する＞",
+    "romaji": "ryuutsuu<suru>",
+    "topic_vi": "Kinh tế",
+    "twins": [],
+    "variants": [
+     "流通"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4f1500acc7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "犯人はバスを乗っ取り、人質を取って立てこもった。",
+       "ja_furigana": "犯人(はんにん)はバスを乗(の)っ取(と)り、人質(ひとじち)を取(と)って立(た)てこもった。",
+       "vi": "Tên tội phạm chiếm xe buýt, bắt con tin và cố thủ."
+      },
+      {
+       "ja": "ハッカーが、会社のホームページを乗っ取った。",
+       "ja_furigana": "ハッカーが、会社(かいしゃ)のホームページを乗(の)っ取(と)った。",
+       "vi": "Tin tặc đã chiếm quyền trang web của công ty."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chiếm đoạt, cướp quyền",
+    "examples": [
+     {
+      "ja": "犯人は飛行機を乗っ取って目的地に向かわせた。",
+      "ja_furigana": "犯人(はんにん)は飛行機(ひこうき)を乗(の)っ取(と)って目的地(もくてきち)に向(む)かわせた。",
+      "source": "VNJPCLUB",
+      "vi": "Tên tội phạm chiếm máy bay và buộc nó bay đến điểm đến mong muốn."
+     },
+     {
+      "ja": "株を買い占めて会社を乗っ取る。",
+      "ja_furigana": "株(かぶ)を買(か)い占(し)めて会(かい)社(しゃ)を乗(の)っ取(と)る。",
+      "source": "VNJPCLUB",
+      "vi": "Thâu tóm cổ phiếu để chiếm quyền công ty."
+     }
+    ],
+    "expression": "乗っ取る",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "chiếm đoạt; cướp quyền; đoạt được",
+    "mnemonic_vi": "乗る (leo lên) + 取る (lấy): leo lên ghế rồi lấy luôn quyền, như kẻ chiếm công ty hay cướp quyền điều hành.",
+    "reading": "のっとる",
+    "romaji": "nottoru",
+    "topic_vi": "Kinh tế",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-5baf4d6f0e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "証拠がそろっているので、犯人が誰かは明白だ。",
+       "ja_furigana": "証拠(しょうこ)がそろっているので、犯人(はんにん)が誰(だれ)かは明白(めいはく)だ。",
+       "vi": "Bằng chứng đầy đủ nên rõ ràng ai là thủ phạm."
+      },
+      {
+       "ja": "彼が無実であることは、明白な事実だ。",
+       "ja_furigana": "彼(かれ)が無実(むじつ)であることは、明白(めいはく)な事実(じじつ)だ。",
+       "vi": "Việc anh ấy vô tội là sự thật hiển nhiên."
+      },
+      {
+       "ja": "裁判で、事件の真相が明白になった。",
+       "ja_furigana": "裁判(さいばん)で、事件(じけん)の真相(しんそう)が明白(めいはく)になった。",
+       "vi": "Qua phiên tòa, sự thật của vụ án đã trở nên sáng tỏ."
+      }
+     ]
+    },
+    "note": "viết lại 3 câu chép nguồn VNJPCLUB (1 câu dạng khung mẫu)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Minh bạch, rõ ràng",
+    "examples": [
+     {
+      "ja": "監視カメラの映像を見れば、この交通事故の原因がどちらにあるかは明白だ。",
+      "ja_furigana": "監視(かんし)カメラの映像(えいぞう)を見(み)れば、この交通事故(こうつうじこ)の原因(げんいん)がどちらにあるかは明白(めいはく)だ。",
+      "source": "VNJPCLUB",
+      "vi": "Nhìn vào hình ảnh từ camera giám sát, nguyên nhân của vụ tai nạn đã quá rõ ràng."
+     },
+     {
+      "ja": "明白な ｛事実／証拠．．．｝",
+      "ja_furigana": "明白(めいはく)な ｛事実(じじつ)／証拠(しょうこ)．．．｝",
+      "source": "VNJPCLUB",
+      "vi": "(Sự thật / chứng cứ) rõ ràng"
+     },
+     {
+      "ja": "裁判を通して、事件の全体が明白になった。",
+      "ja_furigana": "裁判(さいばん)を通(つう)して、事件(じけん)の全体(ぜんたい)が明白(めいはく)になった。",
+      "source": "VNJPCLUB",
+      "vi": "Thông qua phiên tòa, toàn bộ sự việc đã sáng tỏ."
+     }
+    ],
+    "expression": "明白な",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "minh bạch; rõ ràng",
+    "mnemonic_vi": "MINH (明) sáng + BẠCH (白) trắng: sáng và trắng thì nhìn một cái là thấy, nên rõ ràng, minh bạch.",
+    "reading": "めいはくな",
+    "romaji": "meihakuna",
+    "topic_vi": "Kinh tế",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e99214a189"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "忙しくて日記を書けず、三日分が空白になってしまった。",
+       "ja_furigana": "忙(いそが)しくて日記(にっき)を書(か)けず、三日分(みっかぶん)が空白(くうはく)になってしまった。",
+       "vi": "Bận rộn không viết nhật ký được, ba ngày đã bị bỏ trống."
+      },
+      {
+       "ja": "彼が去った後、組織には大きな空白が生まれた。",
+       "ja_furigana": "彼(かれ)が去(さ)った後(あと)、組織(そしき)には大(おお)きな空白(くうはく)が生(う)まれた。",
+       "vi": "Sau khi anh ấy rời đi, tổ chức xuất hiện một khoảng trống lớn."
+      },
+      {
+       "ja": "事故の前後の記憶が、空白になっている。",
+       "ja_furigana": "事故(じこ)の前後(ぜんご)の記憶(きおく)が、空白(くうはく)になっている。",
+       "vi": "Ký ức trước và sau vụ tai nạn bị gián đoạn."
+      }
+     ]
+    },
+    "note": "viết lại 3 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Trống không, chỗ trống, khoảng trống",
+    "examples": [
+     {
+      "ja": "日記を書く時間がなかったので、3日分が空白になっている。",
+      "ja_furigana": "日記(にっき)を書(か)く時間(じかん)がなかったので、3日(みっか)分(ぶん)が空白(くうはく)になっている。",
+      "source": "VNJPCLUB",
+      "vi": "Do không có thời gian viết nhật ký nên tôi để trống ba ngày."
+     },
+     {
+      "ja": "政治に空白は許されない。",
+      "ja_furigana": "政治(せいじ)に空白(くうはく)は許(ゆる)されない。",
+      "source": "VNJPCLUB",
+      "vi": "Trong chính trị, khoảng trống không được phép tồn tại."
+     },
+     {
+      "ja": "記憶の空白",
+      "ja_furigana": "記憶(きおく)の空白(くうはく)",
+      "source": "VNJPCLUB",
+      "vi": "Lỗ hổng ký ức / Ký ức bị gián đoạn"
+     }
+    ],
+    "expression": "空白＜な＞",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "trống không; chỗ trống; khoảng trống",
+    "mnemonic_vi": "KHÔNG (空) + BẠCH (白): trang giấy trắng không có gì cả, tức là chỗ trống, khoảng trống.",
+    "reading": "くうはく＜な＞",
+    "romaji": "kuuhaku<na>",
+    "topic_vi": "Kinh tế",
+    "twins": [],
+    "variants": [
+     "空白"
+    ],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9012221517"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "小さな節約が、ひいては家計の安定につながる。",
+       "ja_furigana": "小(ちい)さな節約(せつやく)が、ひいては家計(かけい)の安定(あんてい)につながる。",
+       "vi": "Tiết kiệm nhỏ rồi sẽ dẫn đến sự ổn định tài chính gia đình."
+      },
+      {
+       "ja": "環境への配慮は、ひいては私たちの健康を守ることになる。",
+       "ja_furigana": "環境(かんきょう)への配慮(はいりょ)は、ひいては私(わたし)たちの健康(けんこう)を守(まも)ることになる。",
+       "vi": "Quan tâm đến môi trường, rốt cuộc cũng là bảo vệ sức khỏe của chính chúng ta."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "và hơn nữa, kéo theo đó",
+    "examples": [
+     {
+      "ja": "我が社の利益がひいては社会の利益につながる、そんな仕事がしたい。",
+      "ja_furigana": "我(わ)が社(しゃ)の利益(りえき)がひいては社会(しゃかい)の利益(りえき)につながる、そんな仕事(しごと)がしたい。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi muốn làm công việc mà lợi ích của công ty tôi gắn liền với lợi ích của xã hội."
+     },
+     {
+      "ja": "アメリカの不況は日本に、ひいては我が家の家計にも大きな影響を及ぼす。",
+      "ja_furigana": "アメリカの不況(ふきょう)は日本(にほん)に、ひいては我(わ)が家(や)の家計(かけい)にも大(おお)きな影響(えいきょう)を及(およ)ぼす。",
+      "source": "VNJPCLUB",
+      "vi": "Khủng hoảng kinh tế tại Hoa Kỳ gây ảnh hưởng lớn không những đến Nhật Bản mà còn đến cả gia đình tôi."
+     }
+    ],
+    "expression": "延いては",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "do đó; vì vậy cho nên; bởi thế",
+    "mnemonic_vi": "Nghe gần \"hi-i-te\" với 引く (kéo): việc nhỏ kéo theo cả việc lớn hơn, nên dịch là \"rộng ra thì\", \"kéo theo đó\" (câu sau thường là điều quan trọng hơn).",
+    "reading": "ひいては",
+    "romaji": "hiiteha",
+    "topic_vi": "Kinh tế",
+    "twins": [],
+    "variants": [
+     "ひいては"
+    ],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2b30b7a31c"
+  },
+  {
+   "answer": {
+    "same_word_as": "JV-220b3495a4",
+    "note": "cùng một từ với mục JV-220b3495a4"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "山田さんはまめな人で、取引先への連絡を欠かさない。",
+      "ja_furigana": "山田(やまだ)さんはまめな人(ひと)で、取引先(とりひきさき)への連絡(れんらく)を欠(か)かさない。",
+      "source": "AI",
+      "vi": "Anh Yamada là người siêng năng, không bao giờ quên liên lạc với đối tác."
+     }
+    ],
+    "expression": "まめな",
+    "findings": [
+     "SAME_SPELLING: JV-220b3495a4 (N1)"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chăm chỉ; siêng năng",
+    "mnemonic_vi": "まめ nghe gần \"ma-mê\": mê việc nên tay chân lúc nào cũng làm, siêng năng, chăm chỉ và chu đáo.",
+    "reading": "まめな",
+    "romaji": "mamena",
+    "topic_vi": "Tính cách",
+    "twins": [
+     {
+      "expression": "まめな",
+      "id": "JV-220b3495a4",
+      "level": "N1",
+      "meaning_vi": "chăm chỉ",
+      "topic_vi": "Từ thông dụng khác"
+     }
+    ],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a9bdcd7562"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "bản tính, tính nết vốn có của con người"
+    },
+    "note": "viết lại nghĩa tránh trùng nguồn"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "気立てのよい先生は、どの生徒からも慕われている。",
+      "ja_furigana": "気立(きだ)てのよい先生(せんせい)は、どの生徒(せいと)からも慕(した)われている。",
+      "source": "AI",
+      "vi": "Cô giáo có tấm lòng tốt được học sinh nào cũng quý mến."
+     }
+    ],
+    "expression": "気立て",
+    "findings": [
+     "MIRAI_SIMILAR: meaning"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bản tính; tính nết",
+    "mnemonic_vi": "KHÍ (気) + 立て (dựng nên): cái khí chất dựng nên con người từ bên trong, tức là bản tính, tấm lòng (thường nói là tốt bụng).",
+    "reading": "きたて",
+    "romaji": "kitate",
+    "topic_vi": "Tính cách",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1fc9958590"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この先生は、成績の評価がとてもシビアだ。",
+       "ja_furigana": "この先生(せんせい)は、成績(せいせき)の評価(ひょうか)がとてもシビアだ。",
+       "vi": "Thầy giáo này đánh giá thành tích rất nghiêm khắc."
+      },
+      {
+       "ja": "景気の状況はかなりシビアで、先行きが心配だ。",
+       "ja_furigana": "景気(けいき)の状況(じょうきょう)はかなりシビアで、先行(さきゆ)きが心配(しんぱい)だ。",
+       "vi": "Tình hình kinh tế khá khó khăn khiến tương lai đáng lo."
+      },
+      {
+       "ja": "この計画は、シビアな予算の中で進めなければならない。",
+       "ja_furigana": "この計画(けいかく)は、シビアな予算(よさん)の中(なか)で進(すす)めなければならない。",
+       "vi": "Kế hoạch này phải được triển khai trong ngân sách eo hẹp."
+      }
+     ]
+    },
+    "note": "viết lại 3 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Nghiêm trọng, nghiêm túc",
+    "examples": [
+     {
+      "ja": "あの先生は評価がとてもシビアらしい。",
+      "ja_furigana": "あの先生(せんせい)は評価(ひょうか)がとてもシビアらしい。",
+      "source": "VNJPCLUB",
+      "vi": "Giáo viên đó dường như có những nhận xét rất nghiêm khắc."
+     },
+     {
+      "ja": "景気の状況はかなりシビアだ。",
+      "ja_furigana": "景気(けいき)の状況(じょうきょう)はかなりシビアだ。",
+      "source": "VNJPCLUB",
+      "vi": "Tình hình kinh tế khá là khó khăn."
+     },
+     {
+      "ja": "この計画は、シビアな予算で行わなければならない。",
+      "ja_furigana": "この計画(けいかく)は、シビアな予算(よさん)で行(おこな)わなければならない。",
+      "source": "VNJPCLUB",
+      "vi": "Kế hoạch này phải được thực hiện bằng một ngân sách khủng."
+     }
+    ],
+    "expression": "シビアな",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nghiêm trọng; nghiêm túc",
+    "mnemonic_vi": "Severe đọc gần \"xi-bi-a\": hình dung ông thầy chấm điểm khắt khe, không nể nang ai, tức là nghiêm khắc, gay gắt.",
+    "reading": "しびあな",
+    "romaji": "shibiana",
+    "topic_vi": "Tính cách",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-163ecd9934"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "cách làm thô bạo, thiếu cẩn thận, nhẹ nhàng"
+    },
+    "note": "viết lại nghĩa tránh trùng nguồn"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "荷物を荒っぽく扱われて、中の皿が割れてしまった。",
+      "ja_furigana": "荷物(にもつ)を荒(あら)っぽく扱(あつか)われて、中(なか)の皿(さら)が割(わ)れてしまった。",
+      "source": "AI",
+      "vi": "Hành lý bị xử lý thô bạo nên đĩa bên trong bị vỡ mất."
+     }
+    ],
+    "expression": "荒っぽく",
+    "findings": [
+     "MIRAI_SIMILAR: meaning"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "thô bạo; cục cằn",
+    "mnemonic_vi": "HOANG (荒) như \"hoang dã\", \"hoang dại\": làm việc, nói năng như thú hoang, không nhẹ nhàng nên là thô bạo, thô lỗ.",
+    "reading": "あらっぽく",
+    "romaji": "arappoku",
+    "topic_vi": "Tính cách",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ce588928b5"
+  },
+  {
+   "answer": {
+    "same_word_as": "JV-f480785d25",
+    "note": "cùng một từ với mục JV-f480785d25"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "客に何度も文句を言われ、ついにキレて大声を出してしまった。",
+      "ja_furigana": "客(きゃく)に何度(なんど)も文句(もんく)を言(い)われ、ついにキレて大声(おおごえ)を出(だ)してしまった。",
+      "source": "AI",
+      "vi": "Bị khách phàn nàn nhiều lần, cuối cùng tôi nổi điên và quát lớn lên mất."
+     }
+    ],
+    "expression": "キレる",
+    "findings": [
+     "SAME_SPELLING: JV-f480785d25 (N2)"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "nổi điên; mất kiểm soát",
+    "mnemonic_vi": "Nghe gần 切れる (đứt): sợi dây kiên nhẫn bị đứt \"phựt\" một cái là nổi điên, mất kiểm soát, nổi khùng.",
+    "reading": "きれる",
+    "romaji": "kireru",
+    "topic_vi": "Tính cách",
+    "twins": [
+     {
+      "expression": "キレる",
+      "id": "JV-f480785d25",
+      "level": "N2",
+      "meaning_vi": "quá đáng (vượt quá sức chịu đựng)",
+      "topic_vi": "Từ thông dụng khác"
+     }
+    ],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-89ceaa7dcf"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大事な書類をなくしたのは、私の軽率な行動が原因だ。",
+       "ja_furigana": "大事(だいじ)な書類(しょるい)をなくしたのは、私(わたし)の軽率(けいそつ)な行動(こうどう)が原因(げんいん)だ。",
+       "vi": "Nguyên nhân làm mất tài liệu quan trọng là hành động khinh suất của tôi."
+      },
+      {
+       "ja": "彼は軽率な発言で、周囲を怒らせてしまった。",
+       "ja_furigana": "彼(かれ)は軽率(けいそつ)な発言(はつげん)で、周囲(しゅうい)を怒(おこ)らせてしまった。",
+       "vi": "Anh ấy khiến mọi người tức giận vì lời nói thiếu suy nghĩ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Khinh suất, vội vã",
+    "examples": [
+     {
+      "ja": "先生とけんかして高校をやめたのは、軽率だったと思う。",
+      "ja_furigana": "先生(せんせい)とけんかして高校(こうこう)をやめたのは、軽率(けいそつ)だったと思(おも)う。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi nghĩ việc nghỉ học do cãi nhau với giáo viên của tôi thật là thiếu suy nghĩ."
+     },
+     {
+      "ja": "軽率な行為",
+      "ja_furigana": "軽率(けいそつ)な行為(こうい)",
+      "source": "VNJPCLUB",
+      "vi": "Hành vi thiếu suy nghĩ"
+     }
+    ],
+    "expression": "軽率な",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "khinh suất; vội vã",
+    "mnemonic_vi": "KHINH (軽) nhẹ + SUẤT (率) tỉ lệ, làm bừa: hành động nhẹ dạ, không cân nhắc kỹ, chính là \"khinh suất\".",
+    "reading": "けいそつな",
+    "romaji": "keisotsuna",
+    "topic_vi": "Tính cách",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9212b5e882"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "cảm giác sảng khoái, khoan khoái, trong lành"
+    },
+    "note": "viết lại nghĩa tránh trùng nguồn"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "朝のジョギングを終えると、爽快な気分になる。",
+      "ja_furigana": "朝(あさ)のジョギングを終(お)えると、爽快(そうかい)な気分(きぶん)になる。",
+      "source": "AI",
+      "vi": "Sau khi chạy bộ buổi sáng xong, tôi cảm thấy sảng khoái."
+     }
+    ],
+    "expression": "爽快な",
+    "findings": [
+     "MIRAI_SIMILAR: meaning"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "sảng khoái",
+    "mnemonic_vi": "SẢNG (爽) + KHOÁI (快): \"sảng khoái\", tinh thần thoáng đãng, tươi mát như vừa tắm xong.",
+    "reading": "そうかいな",
+    "romaji": "soukaina",
+    "topic_vi": "Tâm trạng tốt",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2521055056"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女は、軽快な足取りで階段を駆け上がった。",
+       "ja_furigana": "彼女(かのじょ)は、軽快(けいかい)な足取(あしど)りで階段(かいだん)を駆(か)け上(あ)がった。",
+       "vi": "Cô ấy bước lên cầu thang với dáng đi nhanh nhẹn."
+      },
+      {
+       "ja": "軽快な音楽に合わせて、みんなが踊り始めた。",
+       "ja_furigana": "軽快(けいかい)な音楽(おんがく)に合(あ)わせて、みんなが踊(おど)り始(はじ)めた。",
+       "vi": "Mọi người bắt đầu nhảy theo điệu nhạc sôi nổi."
+      },
+      {
+       "ja": "入院していた祖父の病気は、ようやく軽快した。",
+       "ja_furigana": "入院(にゅういん)していた祖父(そふ)の病気(びょうき)は、ようやく軽快(けいかい)した。",
+       "vi": "Bệnh của ông tôi nằm viện cuối cùng cũng thuyên giảm."
+      }
+     ]
+    },
+    "note": "viết lại 3 câu chép nguồn VNJPCLUB (1 câu dạng khung mẫu, 1 câu lẫn chú thích ngữ pháp)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Nhịp nhàng",
+    "examples": [
+     {
+      "ja": "前夜到着した選手たちは、移動の疲れをものともせずに、軽快な動きを見せた。",
+      "ja_furigana": "前夜(ぜんや)到着(とうちゃく)した選手(せんしゅ)たちは、移動(いどう)の疲(つか)れをものともせずに、軽快(けいかい)な動(うご)きを見(み)せた。",
+      "source": "VNJPCLUB",
+      "vi": "Các cầu thủ đến từ đêm hôm trước dù di chuyển vất vả nhưng vẫn thể hiện những động tác vô cùng linh hoạt."
+     },
+     {
+      "ja": "軽快な｛足取り／身のこなし／音楽．．．｝",
+      "ja_furigana": "軽快(けいかい)な｛足取(あしど)り／身(み)のこなし／音楽(おんがく)．．．｝",
+      "source": "VNJPCLUB",
+      "vi": "(Bước chân/ cử chỉ/ âm nhạc) nhẹ nhàng, linh hoạt"
+     },
+     {
+      "ja": "[（動）ガ軽快する］ 入院して1カ月、病気はようやく軽快した。",
+      "ja_furigana": "[（動(どう)）ガ軽快(けいかい)する］ 入院(にゅういん)して1カ月(げつ)、病気(びょうき)はようやく軽快(けいかい)した。",
+      "source": "VNJPCLUB",
+      "vi": "Sau một tháng nằm viện, bệnh tình của tôi cuối cùng cũng thuyên giảm."
+     }
+    ],
+    "expression": "軽快な",
+    "findings": [
+     "FURIGANA_MISMATCH: [（動）ガ軽快する］ 入院して1カ月、病気はようやく軽快した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "nhịp nhàng",
+    "mnemonic_vi": "KHINH (軽) nhẹ + KHOÁI (快): bước chân nhẹ nhàng thoải mái, nhịp điệu trôi chảy, không nặng nề (khác 爽快 là cảm giác sảng khoái trong lòng).",
+    "reading": "けいかいな",
+    "romaji": "keikaina",
+    "topic_vi": "Tâm trạng tốt",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b73bfab13d"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N1",
+ "packet_id": "REVIEW_VOCAB-009"
+}

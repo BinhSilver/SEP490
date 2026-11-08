@@ -1,0 +1,4261 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "熱があるなら病院へ行った方がいいです。",
+       "ja_furigana": "熱(ねつ)があるなら病院(びょういん)へ行(い)った方(ほう)がいいです。",
+       "vi": "Nếu bị sốt thì bạn nên đi bệnh viện."
+      },
+      {
+       "ja": "毎日野菜を食べた方がいいですよ。",
+       "ja_furigana": "毎日(まいにち)野菜(やさい)を食(た)べた方(ほう)がいいですよ。",
+       "vi": "Mỗi ngày bạn nên ăn rau đấy."
+      },
+      {
+       "ja": "暗いから電気をつけた方がいい。",
+       "ja_furigana": "暗(くら)いから電気(でんき)をつけた方(ほう)がいい。",
+       "vi": "Tối rồi, nên bật đèn lên."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "風邪の時は早く寝た（　　）いいです。",
+       "options": [
+        "方が",
+        "ながら",
+        "たら",
+        "ても"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「方が」: V-た + 方がいい dùng để khuyên nên làm. Nghĩa: Khi bị cảm thì nên ngủ sớm."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "大事なことはメモした（　　）いいですよ。",
+       "options": [
+        "方が",
+        "ても",
+        "たら",
+        "ながら"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「方が」: V-た + 方がいい dùng để khuyên nên làm. Nghĩa: Việc quan trọng thì nên ghi chú lại đấy."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "食べた",
+        "方がいいですよ",
+        "毎日",
+        "野菜を"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: 毎日野菜を食べた方がいいですよ。 (Mỗi ngày bạn nên ăn rau đấy.). Mảnh ở ô ★ là 「食べた」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "傘を持って行った方が",
+        "いいです",
+        "雨だから",
+        "あしたは"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: あしたは雨だから傘を持って行った方がいいです。 (Mai trời mưa nên bạn nên mang ô theo.). Mảnh ở ô ★ là 「傘を持って行った方が」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "熱があるなら病院へ行った方がいいです。",
+       "options": [
+        "Nếu bị sốt thì bạn nên đi bệnh viện.",
+        "Tôi vẫn chưa dọn phòng.",
+        "Bạn có ăn sáng thường xuyên không?",
+        "Anh Kim đọc được báo tiếng Nhật."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu dùng mẫu 〜た方(ほう)がいい (nên làm... (lời khuyên khẳng định)): \"Nếu bị sốt thì bạn nên đi bệnh viện.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "暗いから電気をつけた方がいい。",
+       "options": [
+        "Em trai tôi nghịch ngợm nên bị bố mắng.",
+        "Máy tính của tôi bị hỏng, xem giúp tôi được không ạ?",
+        "Tối rồi, nên bật đèn lên.",
+        "Mẹ ơi, bữa tối xong chưa ạ?"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu dùng mẫu 〜た方(ほう)がいい (nên làm... (lời khuyên khẳng định)): \"Tối rồi, nên bật đèn lên.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "熱があるなら病院へ行った方がいいです。",
+        "風邪の時は早く寝た方がいいです。",
+        "あしたは雨だから傘を持って行った方がいいです。",
+        "熱があるなら病院へ行きた方がいいです。"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "「熱があるなら病院へ行きた方がいいです。」 sai: thể た của 行く là 行った. Câu đúng: 熱があるなら病院へ行った方がいいです。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "毎日野菜を食べますの方がいいですよ。",
+        "毎日野菜を食べた方がいいですよ。",
+        "暗いから電気をつけた方がいい。",
+        "大事なことはメモした方がいいですよ。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "「毎日野菜を食べますの方がいいですよ。」 sai: trước 方がいい dùng thể た (食べた), không dùng thể ます + の. Câu đúng: 毎日野菜を食べた方がいいですよ。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "熱があるなら",
+        "行った",
+        "病院へ",
+        "方がいいです。"
+       ],
+       "answer_order": [
+        0,
+        2,
+        1,
+        3
+       ],
+       "translation_vi": "Nếu bị sốt thì bạn nên đi bệnh viện."
+      },
+      {
+       "pieces": [
+        "つけた",
+        "方がいい。",
+        "電気を",
+        "暗いから"
+       ],
+       "answer_order": [
+        3,
+        2,
+        0,
+        1
+       ],
+       "translation_vi": "Tối rồi, nên bật đèn lên."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "毎日野菜を食べた＿＿よ。",
+       "answer": "方がいいです",
+       "translation_vi": "Mỗi ngày bạn nên ăn rau đấy.",
+       "accept": [
+        "ほうがいいです"
+       ]
+      },
+      {
+       "sentence_ja": "暗いから電気をつけた＿＿。",
+       "answer": "方がいい",
+       "translation_vi": "Tối rồi, nên bật đèn lên.",
+       "accept": [
+        "ほうがいい"
+       ]
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "あしたは雨だから傘を持って行った（　　）いいです。",
+       "options": [
+        "ても",
+        "たら",
+        "方が",
+        "ながら"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「方が」: V-た + 方がいい dùng để khuyên nên làm. Nghĩa: Mai trời mưa nên bạn nên mang ô theo."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "風邪の時は早く寝た方がいいです。",
+       "options": [
+        "Hôm qua tôi ở nhà cả ngày.",
+        "Đã sang xuân rồi mà trời vẫn rất lạnh.",
+        "Khi bị cảm thì nên ngủ sớm.",
+        "Bạn đến ga lúc 6 giờ sáng được không?"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu dùng mẫu 〜た方(ほう)がいい (nên làm... (lời khuyên khẳng định)): \"Khi bị cảm thì nên ngủ sớm.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "大事なことはメモした方がいいですよ。",
+        "熱があるなら病院へ行った方がいいです。",
+        "あしたは雨だから傘を持って行ったの方がいいです。",
+        "毎日野菜を食べた方がいいですよ。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "「あしたは雨だから傘を持って行ったの方がいいです。」 sai: động từ nối thẳng với 方, không chèn の. Câu đúng: あしたは雨だから傘を持って行った方がいいです。"
+      }
+     ]
+    },
+    "note": "viết lại ví dụ và toàn bộ ngân hàng câu (bản cũ có câu sai vô nghĩa kiểu ますだ/をが, mảnh xếp cắt giữa từ)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「た方がいい」 theo mẫu 〜た方(ほう)がいい (Nên làm... (lời khuyên khẳng định).). Nghĩa cả câu: Nếu bị sốt thì bạn nên đi bệnh viện.",
+      "options": [
+       "ばかり",
+       "とおり",
+       "てみる",
+       "た方がいい"
+      ],
+      "prompt_ja": "熱があるなら病院へ行っ（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc 〜た方(ほう)がいい (Nên làm... (lời khuyên khẳng định).), chỗ trống cần điền 「た方がいい」. Nghĩa: Mỗi ngày bạn nên ăn rau đấy.",
+      "options": [
+       "た方がいい",
+       "ところ",
+       "ついでに",
+       "ている"
+      ],
+      "prompt_ja": "毎日野菜を食べ（　　）ですよ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 熱があるなら病院へ行った方がいい。 (Nếu bị sốt thì bạn nên đi bệnh viện.). Theo cấu trúc 〜た方(ほう)がいい, mảnh đứng ở vị trí ★ là 「病院へ行った」.",
+      "options": [
+       "熱が",
+       "病院へ行った",
+       "あるなら",
+       "方がいい"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 毎日野菜を食べた方がいいですよ。 (Mỗi ngày bạn nên ăn rau đấy.). Theo cấu trúc 〜た方(ほう)がいい, mảnh đứng ở vị trí ★ là 「食べた」.",
+      "options": [
+       "方がいい",
+       "毎日野菜を",
+       "ですよ",
+       "食べた"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mẫu 〜た方(ほう)がいい có nghĩa là \"Nên làm... (lời khuyên khẳng định).\". Câu này dịch là: \"Nếu bị sốt thì bạn nên đi bệnh viện.\"",
+      "options": [
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Nếu bị sốt thì bạn nên đi bệnh viện.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua."
+      ],
+      "prompt_ja": "熱があるなら病院へ行った方がいい。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu 〜た方(ほう)がいい (Nên làm... (lời khuyên khẳng định).), câu trên có nghĩa là: \"Mỗi ngày bạn nên ăn rau đấy.\"",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Mỗi ngày bạn nên ăn rau đấy.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày."
+      ],
+      "prompt_ja": "毎日野菜を食べた方がいいですよ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu 〜た方(ほう)がいい). Câu đúng: 熱があるなら病院へ行った方がいい。",
+      "options": [
+       "毎日野菜を食べた方がいいですよ。",
+       "暗いから電気をつけた方がいい。",
+       "毎日まじめに日本語を勉強しています。",
+       "熱があるなら病院へ行った方がいいますだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc 〜た方(ほう)がいい. Câu đúng: 毎日野菜を食べた方がいいですよ。",
+      "options": [
+       "熱があるなら病院へ行った方がいい。",
+       "毎日野菜をが食べた方がいいですよ。",
+       "暗いから電気をつけた方がいい。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Chia động từ ở thể る thay vì thể た khi đưa lời khuyên cụ thể (chuẩn N4 khuyên làm gì là V-た方がいい).",
+    "examples": [
+     {
+      "ja": "熱があるなら病院へ行った方がいい。",
+      "ja_furigana": "熱(ねつ)があるなら病院(びょういん)へ行(い)った方(ほう)がいい。",
+      "source": "CLAUDE",
+      "vi": "Nếu bị sốt thì bạn nên đi bệnh viện."
+     },
+     {
+      "ja": "毎日野菜を食べた方がいいですよ。",
+      "ja_furigana": "毎日(まいにち)野菜(やさい)を食(た)べた方(ほう)がいいですよ。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày bạn nên ăn rau đấy."
+     },
+     {
+      "ja": "暗いから電気をつけた方がいい。",
+      "ja_furigana": "暗(くら)いから電気(でんき)をつけた方(ほう)がいい。",
+      "source": "CLAUDE",
+      "vi": "Vì tối nên bật đèn lên thì hơn."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「た方がいい」 theo cấu trúc 〜た方(ほう)がいい (Nên làm... (lời khuyên khẳng định).). Nghĩa: Vì tối nên bật đèn lên thì hơn.",
+      "options": [
+       "まま",
+       "た方がいい",
+       "てある",
+       "やすい"
+      ],
+      "prompt_ja": "暗いから電気をつけ（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu 〜た方(ほう)がいい (Nên làm... (lời khuyên khẳng định).), câu này nghĩa là: \"Vì tối nên bật đèn lên thì hơn.\"",
+      "options": [
+       "Vì tối nên bật đèn lên thì hơn.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "prompt_ja": "暗いから電気をつけた方がいい。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 暗いから電気をつけた方がいい。",
+      "options": [
+       "熱があるなら病院へ行った方がいい。",
+       "毎日野菜を食べた方がいいですよ。",
+       "暗いから電気をつけた方がいいだます。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "た方がいい",
+      "sentence_ja": "熱があるなら病院へ行っ＿＿。",
+      "translation_vi": "Nếu bị sốt thì bạn nên đi bệnh viện."
+     },
+     {
+      "answer": "た方がいい",
+      "sentence_ja": "毎日野菜を食べ＿＿ですよ。",
+      "translation_vi": "Mỗi ngày bạn nên ăn rau đấy."
+     }
+    ],
+    "findings": [],
+    "formation": "V-た + 方がいい / ほうがいいです",
+    "locked_fields": [],
+    "meaning_vi": "Nên làm... (lời khuyên khẳng định).",
+    "nuance_vi": "Lời khuyên khá rõ ràng và trực tiếp; với cấp trên không nên dùng vì nghe như dạy bảo.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "病院へ行った",
+       "熱が",
+       "方がいい",
+       "あるなら"
+      ],
+      "translation_vi": "Nếu bị sốt thì bạn nên đi bệnh viện."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "食べた",
+       "ですよ",
+       "毎日野菜を",
+       "方がいい"
+      ],
+      "translation_vi": "Mỗi ngày bạn nên ăn rau đấy."
+     }
+    ],
+    "pattern": "〜た方(ほう)がいい",
+    "pattern_variants": [],
+    "unit_no": 32,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để khuyên người nghe nên thực hiện một hành động nào đó vì làm vậy sẽ tốt hơn trong tình huống hiện tại."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a662ef3c0a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夜はコーヒーを飲まない方がいいです。",
+       "ja_furigana": "夜(よる)はコーヒーを飲(の)まない方(ほう)がいいです。",
+       "vi": "Buổi tối không nên uống cà phê."
+      },
+      {
+       "ja": "疲れた時は無理をしない方がいいです。",
+       "ja_furigana": "疲(つか)れた時(とき)は無理(むり)をしない方(ほう)がいいです。",
+       "vi": "Khi mệt thì không nên cố quá sức."
+      },
+      {
+       "ja": "危ないからそこへは行かない方がいい。",
+       "ja_furigana": "危(あぶ)ないからそこへは行(い)かない方(ほう)がいい。",
+       "vi": "Nguy hiểm đấy, không nên đến chỗ đó."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "熱があるのでお風呂に入らない（　　）いいです。",
+       "options": [
+        "方が",
+        "たら",
+        "ても",
+        "ながら"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「方が」: V-ない + 方がいい dùng để khuyên không nên làm. Nghĩa: Đang sốt nên không nên tắm bồn."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "寝る前にゲームをしない（　　）いいですよ。",
+       "options": [
+        "方が",
+        "ながら",
+        "たら",
+        "ても"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「方が」: V-ない + 方がいい dùng để khuyên không nên làm. Nghĩa: Trước khi ngủ không nên chơi game đâu."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "しない",
+        "無理を",
+        "疲れた時は",
+        "方がいいです"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: 疲れた時は無理をしない方がいいです。 (Khi mệt thì không nên cố quá sức.). Mảnh ở ô ★ là 「しない」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "水は",
+        "飲まない方が",
+        "いいです",
+        "この"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: この水は飲まない方がいいです。 (Nước này không nên uống.). Mảnh ở ô ★ là 「飲まない方が」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "夜はコーヒーを飲まない方がいいです。",
+       "options": [
+        "Từ đâu đó vọng đến một bài hát hay.",
+        "Từ cửa sổ nhìn thấy một ngọn núi lớn.",
+        "Buổi tối không nên uống cà phê.",
+        "Bây giờ tôi chuẩn bị nấu bữa tối."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu dùng mẫu ない方(ほう)がいい (không nên làm... (lời khuyên phủ định)): \"Buổi tối không nên uống cà phê.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "危ないからそこへは行かない方がいい。",
+       "options": [
+        "Nguy hiểm đấy, không nên đến chỗ đó.",
+        "Dạo này con tôi đã tự dậy một mình.",
+        "Bông hoa này có mùi rất ngọt.",
+        "Tôi xin mang trà lên ngay ạ."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu dùng mẫu ない方(ほう)がいい (không nên làm... (lời khuyên phủ định)): \"Nguy hiểm đấy, không nên đến chỗ đó.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "夜はコーヒーを飲まない方がいいです。",
+        "熱があるのでお風呂に入らない方がいいです。",
+        "この水は飲まない方がいいです。",
+        "夜はコーヒーを飲まなかった方がいいです。"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "「夜はコーヒーを飲まなかった方がいいです。」 sai: khuyên không nên làm dùng V-ない + 方がいい, không dùng 〜なかった. Câu đúng: 夜はコーヒーを飲まない方がいいです。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "寝る前にゲームをしない方がいいですよ。",
+        "疲れた時は無理をしない方がいいです。",
+        "危ないからそこへは行かない方がいい。",
+        "疲れた時は無理をしません方がいいです。"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "「疲れた時は無理をしません方がいいです。」 sai: trước 方がいい dùng thể ない (しない), không dùng しません. Câu đúng: 疲れた時は無理をしない方がいいです。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "コーヒーを",
+        "夜は",
+        "方がいいです。",
+        "飲まない"
+       ],
+       "answer_order": [
+        1,
+        0,
+        3,
+        2
+       ],
+       "translation_vi": "Buổi tối không nên uống cà phê."
+      },
+      {
+       "pieces": [
+        "方がいい。",
+        "そこへは",
+        "行かない",
+        "危ないから"
+       ],
+       "answer_order": [
+        3,
+        1,
+        2,
+        0
+       ],
+       "translation_vi": "Nguy hiểm đấy, không nên đến chỗ đó."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "疲れた時は無理をしない＿＿。",
+       "answer": "方がいいです",
+       "translation_vi": "Khi mệt thì không nên cố quá sức.",
+       "accept": [
+        "ほうがいいです"
+       ]
+      },
+      {
+       "sentence_ja": "危ないからそこへは行かない＿＿。",
+       "answer": "方がいい",
+       "translation_vi": "Nguy hiểm đấy, không nên đến chỗ đó.",
+       "accept": [
+        "ほうがいい"
+       ]
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "この水は飲まない（　　）いいです。",
+       "options": [
+        "ながら",
+        "たら",
+        "方が",
+        "ても"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「方が」: V-ない + 方がいい dùng để khuyên không nên làm. Nghĩa: Nước này không nên uống."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "熱があるのでお風呂に入らない方がいいです。",
+       "options": [
+        "Đang sốt nên không nên tắm bồn.",
+        "Càng gần ga càng tiện lợi.",
+        "Năm sau tôi định thi N4.",
+        "Bài này khó quá nên tôi không hiểu."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu dùng mẫu ない方(ほう)がいい (không nên làm... (lời khuyên phủ định)): \"Đang sốt nên không nên tắm bồn.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "寝る前にゲームをしない方がいいですよ。",
+        "疲れた時は無理をしない方がいいです。",
+        "この水は飲みない方がいいです。",
+        "夜はコーヒーを飲まない方がいいです。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "「この水は飲みない方がいいです。」 sai: thể ない của 飲む là 飲まない. Câu đúng: この水は飲まない方がいいです。"
+      }
+     ]
+    },
+    "note": "viết lại ví dụ và toàn bộ ngân hàng câu (bản cũ có câu sai vô nghĩa kiểu ますだ/をが, mảnh xếp cắt giữa từ)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「ない方がいい」 theo mẫu ない方(ほう)がいい (Không nên làm... (lời khuyên phủ định).). Nghĩa cả câu: Buổi tối thì không nên uống cà phê.",
+      "options": [
+       "てしまう",
+       "てくる",
+       "ない方がいい",
+       "そうだ"
+      ],
+      "prompt_ja": "夜はコーヒーを飲ま（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc ない方(ほう)がいい (Không nên làm... (lời khuyên phủ định).), chỗ trống cần điền 「ない方がいい」. Nghĩa: Khi mệt mỏi thì không nên làm quá sức.",
+      "options": [
+       "ておく",
+       "ていく",
+       "ようだ",
+       "ない方がいい"
+      ],
+      "prompt_ja": "疲れた時は無理をし（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 夜はコーヒーを飲まない方がいい。 (Buổi tối thì không nên uống cà phê.). Theo cấu trúc ない方(ほう)がいい, mảnh đứng ở vị trí ★ là 「飲まない」.",
+      "options": [
+       "方がいい",
+       "コーヒーを",
+       "飲まない",
+       "夜は"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 疲れた時は無理をしない方がいい。 (Khi mệt mỏi thì không nên làm quá sức.). Theo cấu trúc ない方(ほう)がいい, mảnh đứng ở vị trí ★ là 「時は無理を」.",
+      "options": [
+       "疲れた",
+       "しない",
+       "時は無理を",
+       "方がいい"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Mẫu ない方(ほう)がいい có nghĩa là \"Không nên làm... (lời khuyên phủ định).\". Câu này dịch là: \"Buổi tối thì không nên uống cà phê.\"",
+      "options": [
+       "Buổi tối thì không nên uống cà phê.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng."
+      ],
+      "prompt_ja": "夜はコーヒーを飲まない方がいい。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu ない方(ほう)がいい (Không nên làm... (lời khuyên phủ định).), câu trên có nghĩa là: \"Khi mệt mỏi thì không nên làm quá sức.\"",
+      "options": [
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Khi mệt mỏi thì không nên làm quá sức.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "prompt_ja": "疲れた時は無理をしない方がいい。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu ない方(ほう)がいい). Câu đúng: 夜はコーヒーを飲まない方がいい。",
+      "options": [
+       "疲れた時は無理をしない方がいい。",
+       "あぶないからそこへ行かない方がいい。",
+       "夜はコーヒーを飲まない方がいいますだ。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc ない方(ほう)がいい. Câu đúng: 疲れた時は無理をしない方がいい。",
+      "options": [
+       "疲れた時は無理をがしない方がいい。",
+       "夜はコーヒーを飲まない方がいい。",
+       "あぶないからそこへ行かない方がいい。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Chia thành 〜なかった方がいい (sai thì; khuyên ở hiện tại/tương lai luôn dùng V-ない方がいい).",
+    "examples": [
+     {
+      "ja": "夜はコーヒーを飲まない方がいい。",
+      "ja_furigana": "夜(よる)はコーヒーを飲(の)まない方(ほう)がいい。",
+      "source": "CLAUDE",
+      "vi": "Buổi tối thì không nên uống cà phê."
+     },
+     {
+      "ja": "疲れた時は無理をしない方がいい。",
+      "ja_furigana": "疲(つか)れた時(とき)は無理(むり)をしない方(ほう)がいい。",
+      "source": "CLAUDE",
+      "vi": "Khi mệt mỏi thì không nên làm quá sức."
+     },
+     {
+      "ja": "あぶないからそこへ行かない方がいい。",
+      "ja_furigana": "あぶないからそこへ行(い)かない方(ほう)がいい。",
+      "source": "CLAUDE",
+      "vi": "Vì nguy hiểm nên bạn không nên đi đến đó."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「ない方がいい」 theo cấu trúc ない方(ほう)がいい (Không nên làm... (lời khuyên phủ định).). Nghĩa: Vì nguy hiểm nên bạn không nên đi đến đó.",
+      "options": [
+       "ない方がいい",
+       "ている",
+       "すぎる",
+       "のに"
+      ],
+      "prompt_ja": "あぶないからそこへ行か（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu ない方(ほう)がいい (Không nên làm... (lời khuyên phủ định).), câu này nghĩa là: \"Vì nguy hiểm nên bạn không nên đi đến đó.\"",
+      "options": [
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Vì nguy hiểm nên bạn không nên đi đến đó."
+      ],
+      "prompt_ja": "あぶないからそこへ行かない方がいい。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: あぶないからそこへ行かない方がいい。",
+      "options": [
+       "夜はコーヒーを飲まない方がいい。",
+       "あぶないからそこへ行かない方がいいだます。",
+       "疲れた時は無理をしない方がいい。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ない方がいい",
+      "sentence_ja": "夜はコーヒーを飲ま＿＿。",
+      "translation_vi": "Buổi tối thì không nên uống cà phê."
+     },
+     {
+      "answer": "ない方がいい",
+      "sentence_ja": "疲れた時は無理をし＿＿。",
+      "translation_vi": "Khi mệt mỏi thì không nên làm quá sức."
+     }
+    ],
+    "findings": [],
+    "formation": "V-ない + 方がいい / ほうがいいです",
+    "locked_fields": [],
+    "meaning_vi": "Không nên làm... (lời khuyên phủ định).",
+    "nuance_vi": "Nhẹ nhàng hơn câu cấm đoán 〜てはいけません; thể hiện sự quan tâm, khuyên bảo.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "コーヒーを",
+       "方がいい",
+       "夜は",
+       "飲まない"
+      ],
+      "translation_vi": "Buổi tối thì không nên uống cà phê."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "方がいい",
+       "しない",
+       "疲れた",
+       "時は無理を"
+      ],
+      "translation_vi": "Khi mệt mỏi thì không nên làm quá sức."
+     }
+    ],
+    "pattern": "ない方(ほう)がいい",
+    "pattern_variants": [],
+    "unit_no": 32,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để khuyên nhủ hoặc can ngăn người nghe không nên làm một việc gì đó để tránh kết quả không tốt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5384f1392a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "もしかしたらあしたは雨が降るかもしれません。",
+       "ja_furigana": "もしかしたらあしたは雨(あめ)が降(ふ)るかもしれません。",
+       "vi": "Biết đâu ngày mai trời sẽ mưa."
+      },
+      {
+       "ja": "もしかしたら彼は来ないかもしれません。",
+       "ja_furigana": "もしかしたら彼(かれ)は来(こ)ないかもしれません。",
+       "vi": "Biết đâu anh ấy sẽ không đến."
+      },
+      {
+       "ja": "もしかしたら道を間違えたかもしれない。",
+       "ja_furigana": "もしかしたら道(みち)を間違(まちが)えたかもしれない。",
+       "vi": "Không chừng tôi đã đi nhầm đường."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "もしかしたら試験は来週（　　）。",
+       "options": [
+        "かもしれません",
+        "たら",
+        "ても",
+        "ながら"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「かもしれません」: もしかしたら đứng đầu câu và cuối câu thường là 〜かもしれません. Nghĩa: Biết đâu kỳ thi là vào tuần sau."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "もしかしたらあの人は先生の奥さん（　　）。",
+       "options": [
+        "かもしれません",
+        "ながら",
+        "ても",
+        "たら"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「かもしれません」: もしかしたら đứng đầu câu và cuối câu thường là 〜かもしれません. Nghĩa: Biết đâu người kia là vợ của thầy."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "彼は",
+        "もしかしたら",
+        "来ない",
+        "かもしれません"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: もしかしたら彼は来ないかもしれません。 (Biết đâu anh ấy sẽ không đến.). Mảnh ở ô ★ là 「来ない」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "財布を",
+        "かもしれません",
+        "もしかしたら",
+        "落とした"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: もしかしたら財布を落としたかもしれません。 (Không chừng tôi đã đánh rơi ví.). Mảnh ở ô ★ là 「落とした」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "もしかしたらあしたは雨が降るかもしれません。",
+       "options": [
+        "Nhà cổ của Nhật làm bằng gỗ và giấy.",
+        "Biết đâu ngày mai trời sẽ mưa.",
+        "Mong là ngày mai trời đẹp nhỉ.",
+        "Ở đây không được hút thuốc."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu もしかしたら (biết đâu chừng, có lẽ là..): \"Biết đâu ngày mai trời sẽ mưa.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "もしかしたら道を間違えたかもしれない。",
+       "options": [
+        "Không chừng tôi đã đi nhầm đường.",
+        "Tôi ăn sáng rồi đi học.",
+        "Mỗi sáng tôi cố gắng đi bộ 30 phút.",
+        "Tôi đọc được báo tiếng Nhật."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu dùng mẫu もしかしたら (biết đâu chừng, có lẽ là..): \"Không chừng tôi đã đi nhầm đường.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "もしかしたら試験は来週かもしれません。",
+        "もしかしたらあしたは雨が降るかもしれません。",
+        "もしかしたらあしたは雨が降ります。",
+        "もしかしたら財布を落としたかもしれません。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "「もしかしたらあしたは雨が降ります。」 sai: もしかしたら mở đầu câu phỏng đoán nên cuối câu dùng 〜かもしれません, không khẳng định chắc chắn. Câu đúng: もしかしたらあしたは雨が降るかもしれません。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "もしかしたら彼は来ないかもしれません。",
+        "もしかしたら道を間違えたかもしれない。",
+        "もしかしたら彼は来ないだかもしれません。",
+        "もしかしたらあの人は先生の奥さんかもしれません。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "「もしかしたら彼は来ないだかもしれません。」 sai: trước かもしれません không thêm だ. Câu đúng: もしかしたら彼は来ないかもしれません。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "あしたは",
+        "もしかしたら",
+        "降るかもしれません。",
+        "雨が"
+       ],
+       "answer_order": [
+        1,
+        0,
+        3,
+        2
+       ],
+       "translation_vi": "Biết đâu ngày mai trời sẽ mưa."
+      },
+      {
+       "pieces": [
+        "かもしれない。",
+        "間違えた",
+        "もしかしたら",
+        "道を"
+       ],
+       "answer_order": [
+        2,
+        3,
+        1,
+        0
+       ],
+       "translation_vi": "Không chừng tôi đã đi nhầm đường."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "もしかしたら彼は来ない＿＿。",
+       "answer": "かもしれません",
+       "translation_vi": "Biết đâu anh ấy sẽ không đến.",
+       "accept": [
+        "かもしれない"
+       ]
+      },
+      {
+       "sentence_ja": "もしかしたら道を間違えた＿＿。",
+       "answer": "かもしれない",
+       "translation_vi": "Không chừng tôi đã đi nhầm đường.",
+       "accept": [
+        "かもしれません"
+       ]
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "もしかしたら財布を落とした（　　）。",
+       "options": [
+        "ても",
+        "かもしれません",
+        "たら",
+        "ながら"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Điền 「かもしれません」: もしかしたら đứng đầu câu và cuối câu thường là 〜かもしれません. Nghĩa: Không chừng tôi đã đánh rơi ví."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "もしかしたら試験は来週かもしれません。",
+       "options": [
+        "Xin lỗi, bây giờ tôi đang lái xe.",
+        "Bộ phim đó không hay lắm.",
+        "Biết đâu kỳ thi là vào tuần sau.",
+        "Ngày nghỉ tôi đi xem phim, đi mua sắm chẳng hạn."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu dùng mẫu もしかしたら (biết đâu chừng, có lẽ là..): \"Biết đâu kỳ thi là vào tuần sau.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "もしかしたら彼は来ないかもしれません。",
+        "もしかしたらあしたは雨が降るかもしれません。",
+        "もしかしたら財布を落としますかもしれません。",
+        "もしかしたらあの人は先生の奥さんかもしれません。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "「もしかしたら財布を落としますかもしれません。」 sai: trước かもしれません dùng thể thường, không dùng thể ます. Câu đúng: もしかしたら財布を落としたかもしれません。"
+      }
+     ]
+    },
+    "note": "viết lại ví dụ và toàn bộ ngân hàng câu (bản cũ có câu sai vô nghĩa kiểu ますだ/をが, mảnh xếp cắt giữa từ)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「もしかしたら」 theo mẫu もしかしたら (Biết đâu chừng, có lẽ là...). Nghĩa cả câu: Biết đâu chừng ngày mai trời sẽ mưa.",
+      "options": [
+       "やすい",
+       "もしかしたら",
+       "らしい",
+       "ても"
+      ],
+      "prompt_ja": "（　　）あしたは雨が降るかも。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc もしかしたら (Biết đâu chừng, có lẽ là...), chỗ trống cần điền 「もしかしたら」. Nghĩa: Biết đâu chừng anh ấy sẽ không đến.",
+      "options": [
+       "にくい",
+       "かもしれない",
+       "もしかしたら",
+       "たら"
+      ],
+      "prompt_ja": "（　　）彼は来ないかもしれない。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: もしかしたらあしたは雨が降るかも。 (Biết đâu chừng ngày mai trời sẽ mưa.). Theo cấu trúc もしかしたら, mảnh đứng ở vị trí ★ là 「雨が」.",
+      "options": [
+       "は",
+       "降るかも",
+       "もしかしたらあした",
+       "雨が"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: もしかしたら彼は来ないかもしれない。 (Biết đâu chừng anh ấy sẽ không đến.). Theo cấu trúc もしかしたら, mảnh đứng ở vị trí ★ là 「彼は」.",
+      "options": [
+       "しれない",
+       "彼は",
+       "来ないかも",
+       "もしかしたら"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Mẫu もしかしたら có nghĩa là \"Biết đâu chừng, có lẽ là...\". Câu này dịch là: \"Biết đâu chừng ngày mai trời sẽ mưa.\"",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Biết đâu chừng ngày mai trời sẽ mưa."
+      ],
+      "prompt_ja": "もしかしたらあしたは雨が降るかも。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu もしかしたら (Biết đâu chừng, có lẽ là...), câu trên có nghĩa là: \"Biết đâu chừng anh ấy sẽ không đến.\"",
+      "options": [
+       "Biết đâu chừng anh ấy sẽ không đến.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh."
+      ],
+      "prompt_ja": "もしかしたら彼は来ないかもしれない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu もしかしたら). Câu đúng: もしかしたらあしたは雨が降るかも。",
+      "options": [
+       "もしかしたら彼は来ないかもしれない。",
+       "もしかしたらあしたは雨が降るかもますだ。",
+       "もしかしたら道を間違えたかもしれない。",
+       "雨が降ったら試合は中止です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: もしかしたら彼は来ないかもしれない。",
+      "options": [
+       "もしかしたらあしたは雨が降るかも。",
+       "もしかしたら道を間違えたかもしれない。",
+       "雨が降ったら試合は中止です。",
+       "もしかしたら彼はを来ないかもしれない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Đặt もしかしたら ở đầu câu nhưng cuối câu lại khẳng định chắc chắn bằng です/ます thay vì かもしれません.",
+    "examples": [
+     {
+      "ja": "もしかしたらあしたは雨が降るかも。",
+      "ja_furigana": "もしかしたらあしたは雨(あめ)が降(ふ)るかも。",
+      "source": "CLAUDE",
+      "vi": "Biết đâu chừng ngày mai trời sẽ mưa."
+     },
+     {
+      "ja": "もしかしたら彼は来ないかもしれない。",
+      "ja_furigana": "もしかしたら彼(かれ)は来(こ)ないかもしれない。",
+      "source": "CLAUDE",
+      "vi": "Biết đâu chừng anh ấy sẽ không đến."
+     },
+     {
+      "ja": "もしかしたら道を間違えたかもしれない。",
+      "ja_furigana": "もしかしたら道(みち)を間違(まちが)えたかもしれない。",
+      "source": "CLAUDE",
+      "vi": "Không chừng là tôi đã đi nhầm đường rồi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「もしかしたら」 theo cấu trúc もしかしたら (Biết đâu chừng, có lẽ là...). Nghĩa: Không chừng là tôi đã đi nhầm đường rồi.",
+      "options": [
+       "ようだ",
+       "から",
+       "と",
+       "もしかしたら"
+      ],
+      "prompt_ja": "（　　）道を間違えたかもしれない。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu もしかしたら (Biết đâu chừng, có lẽ là...), câu này nghĩa là: \"Không chừng là tôi đã đi nhầm đường rồi.\"",
+      "options": [
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Không chừng là tôi đã đi nhầm đường rồi.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng."
+      ],
+      "prompt_ja": "もしかしたら道を間違えたかもしれない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: もしかしたら道を間違えたかもしれない。",
+      "options": [
+       "もしかしたら道を間違えたかもしれないだます。",
+       "もしかしたらあしたは雨が降るかも。",
+       "もしかしたら彼は来ないかもしれない。",
+       "安ければこのパソコンを買います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "もしかしたら",
+      "sentence_ja": "＿＿あしたは雨が降るかも。",
+      "translation_vi": "Biết đâu chừng ngày mai trời sẽ mưa."
+     },
+     {
+      "answer": "もしかしたら",
+      "sentence_ja": "＿＿彼は来ないかもしれない。",
+      "translation_vi": "Biết đâu chừng anh ấy sẽ không đến."
+     }
+    ],
+    "findings": [],
+    "formation": "もしかしたら + 〜かもしれない / 〜かもしれません",
+    "locked_fields": [],
+    "meaning_vi": "Biết đâu chừng, có lẽ là...",
+    "nuance_vi": "Mức độ chắc chắn thấp (khoảng 30–50%), nhấn mạnh sự dè dặt \"biết đâu là...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "降るかも",
+       "雨が",
+       "もしかしたらあした",
+       "は"
+      ],
+      "translation_vi": "Biết đâu chừng ngày mai trời sẽ mưa."
+     },
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "来ないかも",
+       "もしかしたら",
+       "しれない",
+       "彼は"
+      ],
+      "translation_vi": "Biết đâu chừng anh ấy sẽ không đến."
+     }
+    ],
+    "pattern": "もしかしたら",
+    "pattern_variants": [],
+    "unit_no": 32,
+    "unit_title_vi": null,
+    "usage_vi": "Đặt ở đầu câu và đi kèm với 〜かもしれない ở cuối câu để đưa ra phỏng đoán về một khả năng có thể xảy ra."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8381d35ba8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ここに車をとめるな。",
+       "ja_furigana": "ここに車(くるま)をとめるな。",
+       "vi": "Cấm đỗ xe ở đây!"
+      },
+      {
+       "ja": "危ないからこの川で泳ぐな。",
+       "ja_furigana": "危(あぶ)ないからこの川(かわ)で泳(およ)ぐな。",
+       "vi": "Nguy hiểm, cấm bơi ở con sông này!"
+      },
+      {
+       "ja": "図書館で大きな声で話すな。",
+       "ja_furigana": "図書館(としょかん)で大(おお)きな声(こえ)で話(はな)すな。",
+       "vi": "Không được nói to trong thư viện!"
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "授業中は電話を使う（　　）。",
+       "options": [
+        "ろ",
+        "な",
+        "て",
+        "たら"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Điền 「な」: V-る (thể từ điển) + な là mệnh lệnh cấm mạnh. Nghĩa: Trong giờ học cấm dùng điện thoại!"
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "あの部屋に入る（　　）。",
+       "options": [
+        "て",
+        "たら",
+        "な",
+        "ろ"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「な」: V-る (thể từ điển) + な là mệnh lệnh cấm mạnh. Nghĩa: Cấm vào căn phòng đó!"
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "な",
+        "危ないから",
+        "泳ぐ",
+        "この川で"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 危ないからこの川で泳ぐな。 (Nguy hiểm, cấm bơi ở con sông này!). Mảnh ở ô ★ là 「泳ぐ」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "大切な",
+        "約束を",
+        "忘れる",
+        "な"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 大切な約束を忘れるな。 (Đừng có quên lời hứa quan trọng!). Mảnh ở ô ★ là 「忘れる」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "ここに車をとめるな。",
+       "options": [
+        "Chữ của thầy nhỏ nên khó đọc.",
+        "Tôi lái được ô tô.",
+        "Hôm nay tôi bận nên không có thời gian.",
+        "Cấm đỗ xe ở đây!"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu dùng mẫu な (Prohibitive) (không được làm...! (thể cấm đoán)): \"Cấm đỗ xe ở đây!\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "図書館で大きな声で話すな。",
+       "options": [
+        "Vì mưa nên trận đấu bị hủy.",
+        "Không được nói to trong thư viện!",
+        "Người cao nhất lớp là anh Tanaka.",
+        "Tôi vừa sốt, lại đau đầu, nên hôm nay nghỉ."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu な (Prohibitive) (không được làm...! (thể cấm đoán)): \"Không được nói to trong thư viện!\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "ここに車をとめないな。",
+        "ここに車をとめるな。",
+        "大切な約束を忘れるな。",
+        "授業中は電話を使うな。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "「ここに車をとめないな。」 sai: thể cấm là V-る + な; không gắn な vào thể ない. Câu đúng: ここに車をとめるな。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "図書館で大きな声で話しな。",
+        "あの部屋に入るな。",
+        "危ないからこの川で泳ぐな。",
+        "図書館で大きな声で話すな。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "「図書館で大きな声で話しな。」 sai: な cấm đoán gắn sau thể từ điển (話す); 話しな là mệnh lệnh nhẹ (rút gọn 〜なさい), nghĩa ngược lại. Câu đúng: 図書館で大きな声で話すな。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "車を",
+        "とめる",
+        "ここに",
+        "な。"
+       ],
+       "answer_order": [
+        2,
+        0,
+        1,
+        3
+       ],
+       "translation_vi": "Cấm đỗ xe ở đây!"
+      },
+      {
+       "pieces": [
+        "図書館で",
+        "大きな声で",
+        "な。",
+        "話す"
+       ],
+       "answer_order": [
+        0,
+        1,
+        3,
+        2
+       ],
+       "translation_vi": "Không được nói to trong thư viện!"
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "危ないからこの川で泳ぐ＿＿。",
+       "answer": "な",
+       "translation_vi": "Nguy hiểm, cấm bơi ở con sông này!"
+      },
+      {
+       "sentence_ja": "図書館で大きな声で話す＿＿。",
+       "answer": "な",
+       "translation_vi": "Không được nói to trong thư viện!"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "大切な約束を忘れる（　　）。",
+       "options": [
+        "たら",
+        "ろ",
+        "な",
+        "て"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「な」: V-る (thể từ điển) + な là mệnh lệnh cấm mạnh. Nghĩa: Đừng có quên lời hứa quan trọng!"
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "授業中は電話を使うな。",
+       "options": [
+        "Trong lớp có người Trung Quốc, người Thái chẳng hạn.",
+        "Trong giờ học cấm dùng điện thoại!",
+        "Cuộc họp tới hãy chọn ngày thứ Hai nhé.",
+        "Bây giờ tôi đang họp."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu な (Prohibitive) (không được làm...! (thể cấm đoán)): \"Trong giờ học cấm dùng điện thoại!\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "大切な約束を忘れますな。",
+        "あの部屋に入るな。",
+        "ここに車をとめるな。",
+        "危ないからこの川で泳ぐな。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "「大切な約束を忘れますな。」 sai: な cấm đoán gắn sau thể từ điển, không gắn sau thể ます. Câu đúng: 大切な約束を忘れるな。"
+      }
+     ]
+    },
+    "note": "viết lại ví dụ và toàn bộ ngân hàng câu (bản cũ có câu sai vô nghĩa kiểu ますだ/をが, mảnh xếp cắt giữa từ)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「な」 theo mẫu な (Prohibitive) (Không được làm...! (thể cấm đoán).). Nghĩa cả câu: Nguy hiểm đấy, cấm đỗ xe ở đây!",
+      "options": [
+       "な",
+       "のに",
+       "なら",
+       "ほど"
+      ],
+      "prompt_ja": "あぶないからここに車をとめる（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc な (Prohibitive) (Không được làm...! (thể cấm đoán).), chỗ trống cần điền 「な」. Nghĩa: Không được nói to trong thư viện!",
+      "options": [
+       "ので",
+       "な",
+       "ば",
+       "くらい"
+      ],
+      "prompt_ja": "図書館の中で大きな声で話す（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: あぶないからここに車をとめるな。 (Nguy hiểm đấy, cấm đỗ xe ở đây!). Theo cấu trúc な (Prohibitive), mảnh đứng ở vị trí ★ là 「車をと」.",
+      "options": [
+       "車をと",
+       "あぶないから",
+       "めるな",
+       "ここに"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 図書館の中で大きな声で話すな。 (Không được nói to trong thư viện!). Theo cấu trúc な (Prohibitive), mảnh đứng ở vị trí ★ là 「中で」.",
+      "options": [
+       "中で",
+       "声で話すな",
+       "図書館の",
+       "大きな"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mẫu な (Prohibitive) có nghĩa là \"Không được làm...! (thể cấm đoán).\". Câu này dịch là: \"Nguy hiểm đấy, cấm đỗ xe ở đây!\"",
+      "options": [
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Nguy hiểm đấy, cấm đỗ xe ở đây!",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "prompt_ja": "あぶないからここに車をとめるな。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu な (Prohibitive) (Không được làm...! (thể cấm đoán).), câu trên có nghĩa là: \"Không được nói to trong thư viện!\"",
+      "options": [
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Không được nói to trong thư viện!"
+      ],
+      "prompt_ja": "図書館の中で大きな声で話すな。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu な (Prohibitive)). Câu đúng: あぶないからここに車をとめるな。",
+      "options": [
+       "あぶないからここに車をとめるなますだ。",
+       "図書館の中で大きな声で話すな。",
+       "大切な約束を決して忘れるな。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu な (Prohibitive)). Câu đúng: 図書館の中で大きな声で話すな。",
+      "options": [
+       "あぶないからここに車をとめるな。",
+       "大切な約束を決して忘れるな。",
+       "図書館の中で大きな声で話すなですます。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Nhầm với V-ます + なさい (mệnh lệnh khẳng định) hoặc な cảm thán ở cuối câu.",
+    "examples": [
+     {
+      "ja": "あぶないからここに車をとめるな。",
+      "ja_furigana": "あぶないからここに車(くるま)をとめるな。",
+      "source": "CLAUDE",
+      "vi": "Nguy hiểm đấy, cấm đỗ xe ở đây!"
+     },
+     {
+      "ja": "図書館の中で大きな声で話すな。",
+      "ja_furigana": "図書館(としょかん)の中(なか)で大(おお)きな声(こえ)で話(はな)すな。",
+      "source": "CLAUDE",
+      "vi": "Không được nói to trong thư viện!"
+     },
+     {
+      "ja": "大切な約束を決して忘れるな。",
+      "ja_furigana": "大切(たいせつ)な約束(やくそく)を決(けっ)して忘(わす)れるな。",
+      "source": "CLAUDE",
+      "vi": "Tuyệt đối không được quên lời hứa quan trọng!"
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「な」 theo cấu trúc な (Prohibitive) (Không được làm...! (thể cấm đoán).). Nghĩa: Tuyệt đối không được quên lời hứa quan trọng!",
+      "options": [
+       "たら",
+       "だけ",
+       "な",
+       "し"
+      ],
+      "prompt_ja": "大切な約束を決して忘れる（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu な (Prohibitive) (Không được làm...! (thể cấm đoán).), câu này nghĩa là: \"Tuyệt đối không được quên lời hứa quan trọng!\"",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Tuyệt đối không được quên lời hứa quan trọng!",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày."
+      ],
+      "prompt_ja": "大切な約束を決して忘れるな。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 大切な約束を決して忘れるな。",
+      "options": [
+       "あぶないからここに車をとめるな。",
+       "図書館の中で大きな声で話すな。",
+       "週末は家族と一緒に公園へ行きます。",
+       "大切な約束を決して忘れるなだます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "な",
+      "sentence_ja": "あぶないからここに車をとめる＿＿。",
+      "translation_vi": "Nguy hiểm đấy, cấm đỗ xe ở đây!"
+     },
+     {
+      "answer": "な",
+      "sentence_ja": "図書館の中で大きな声で話す＿＿。",
+      "translation_vi": "Không được nói to trong thư viện!"
+     }
+    ],
+    "findings": [],
+    "formation": "V-る (thể từ điển) + な",
+    "locked_fields": [],
+    "meaning_vi": "Không được làm...! (thể cấm đoán).",
+    "nuance_vi": "Rất mạnh và cộc lốc, thường do nam giới hoặc cấp trên nói, hoặc dùng trong khẩu hiệu, biển báo; giao tiếp thường ngày nên dùng 〜ないでください.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "車をと",
+       "あぶないから",
+       "めるな",
+       "ここに"
+      ],
+      "translation_vi": "Nguy hiểm đấy, cấm đỗ xe ở đây!"
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "中で",
+       "声で話すな",
+       "図書館の",
+       "大きな"
+      ],
+      "translation_vi": "Không được nói to trong thư viện!"
+     }
+    ],
+    "pattern": "な (Prohibitive)",
+    "pattern_variants": [],
+    "unit_no": 33,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để ra lệnh cấm đoán mạnh mẽ ai đó không được làm một việc gì, thường gặp trên biển báo hoặc lời nói khẩn cấp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ded12acd82"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "後の仕事は私がやっておきます。",
+       "ja_furigana": "後(あと)の仕事(しごと)は私(わたし)がやっておきます。",
+       "vi": "Phần việc còn lại để tôi làm cho."
+      },
+      {
+       "ja": "後の予定はまだ決まっていません。",
+       "ja_furigana": "後(あと)の予定(よてい)はまだ決(き)まっていません。",
+       "vi": "Lịch trình tiếp theo vẫn chưa quyết định."
+      },
+      {
+       "ja": "後のことは心配しないでください。",
+       "ja_furigana": "後(あと)のことは心配(しんぱい)しないでください。",
+       "vi": "Những việc sau đó xin đừng lo."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "後（　　）二人はあした来ます。",
+       "options": [
+        "が",
+        "へ",
+        "の",
+        "を"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「の」: 後 + の + N nghĩa là \"(cái) tiếp theo, còn lại\". Nghĩa: Hai người còn lại sẽ đến vào ngày mai."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "ケーキは半分食べて、後（　　）半分はあした食べます。",
+       "options": [
+        "を",
+        "が",
+        "の",
+        "へ"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「の」: 後 + の + N nghĩa là \"(cái) tiếp theo, còn lại\". Nghĩa: Bánh tôi ăn một nửa, nửa còn lại để mai ăn."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "予定は",
+        "まだ決まって",
+        "いません",
+        "後の"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 後の予定はまだ決まっていません。 (Lịch trình tiếp theo vẫn chưa quyết định.). Mảnh ở ô ★ là 「まだ決まって」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "します",
+        "ページは",
+        "後の",
+        "宿題に"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: 後のページは宿題にします。 (Các trang còn lại sẽ làm bài tập về nhà.). Mảnh ở ô ★ là 「宿題に」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "後の仕事は私がやっておきます。",
+       "options": [
+        "Hãy thử làm đúng như thầy đã làm.",
+        "Thầy thường dậy lúc mấy giờ mỗi sáng ạ?",
+        "Phần việc còn lại để tôi làm cho.",
+        "Nói chuyện với bạn bè thì vui."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu dùng mẫu 後(あと)の + (Noun) (sau..., phần còn lại): \"Phần việc còn lại để tôi làm cho.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "後のことは心配しないでください。",
+       "options": [
+        "Mẹ bắt con dọn phòng.",
+        "Tôi đã luyện tập mỗi ngày đúng như thầy nói.",
+        "Những việc sau đó xin đừng lo.",
+        "Tôi chưa từng ăn sushi lần nào."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu dùng mẫu 後(あと)の + (Noun) (sau..., phần còn lại): \"Những việc sau đó xin đừng lo.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "後の二人はあした来ます。",
+        "後のページは宿題にします。",
+        "後の仕事は私がやっておきます。",
+        "後仕事は私がやっておきます。"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "「後仕事は私がやっておきます。」 sai: 後 bổ nghĩa cho danh từ phải có の (後の仕事). Câu đúng: 後の仕事は私がやっておきます。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "ケーキは半分食べて、後の半分はあした食べます。",
+        "後のことは心配しないでください。",
+        "後が予定はまだ決まっていません。",
+        "後の予定はまだ決まっていません。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "「後が予定はまだ決まっていません。」 sai: nối 後 với danh từ dùng の, không dùng が. Câu đúng: 後の予定はまだ決まっていません。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "私が",
+        "やっておきます。",
+        "仕事は",
+        "後の"
+       ],
+       "answer_order": [
+        3,
+        2,
+        0,
+        1
+       ],
+       "translation_vi": "Phần việc còn lại để tôi làm cho."
+      },
+      {
+       "pieces": [
+        "心配しないで",
+        "後の",
+        "ことは",
+        "ください。"
+       ],
+       "answer_order": [
+        1,
+        2,
+        0,
+        3
+       ],
+       "translation_vi": "Những việc sau đó xin đừng lo."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "後＿＿予定はまだ決まっていません。",
+       "answer": "の",
+       "translation_vi": "Lịch trình tiếp theo vẫn chưa quyết định."
+      },
+      {
+       "sentence_ja": "後＿＿ことは心配しないでください。",
+       "answer": "の",
+       "translation_vi": "Những việc sau đó xin đừng lo."
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "後（　　）ページは宿題にします。",
+       "options": [
+        "へ",
+        "が",
+        "を",
+        "の"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Điền 「の」: 後 + の + N nghĩa là \"(cái) tiếp theo, còn lại\". Nghĩa: Các trang còn lại sẽ làm bài tập về nhà."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "後の二人はあした来ます。",
+       "options": [
+        "Điều quan trọng nhất là sức khỏe của gia đình.",
+        "Chị gái tôi làm việc ở ngân hàng.",
+        "Theo tin tức, nghe nói hôm qua có động đất lớn.",
+        "Hai người còn lại sẽ đến vào ngày mai."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu dùng mẫu 後(あと)の + (Noun) (sau..., phần còn lại): \"Hai người còn lại sẽ đến vào ngày mai.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "後の仕事は私がやっておきます。",
+        "ケーキは半分食べて、後の半分はあした食べます。",
+        "後の予定はまだ決まっていません。",
+        "後をページは宿題にします。"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "「後をページは宿題にします。」 sai: 後 + の + N; không dùng を. Câu đúng: 後のページは宿題にします。"
+      }
+     ]
+    },
+    "note": "viết lại ví dụ và toàn bộ ngân hàng câu (bản cũ có câu sai vô nghĩa kiểu ますだ/をが, mảnh xếp cắt giữa từ)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「後の」 theo mẫu 後(あと)の + (Noun) (Sau..., phần còn lại.). Nghĩa cả câu: Công việc còn lại để tôi làm sẵn cho.",
+      "options": [
+       "と",
+       "ずつ",
+       "ばかり",
+       "後の"
+      ],
+      "prompt_ja": "（　　）仕事は私がやっておきます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc 後(あと)の + (Noun) (Sau..., phần còn lại.), chỗ trống cần điền 「後の」. Nghĩa: Lịch trình tiếp theo vẫn chưa được quyết định.",
+      "options": [
+       "後の",
+       "しか",
+       "とか",
+       "ところ"
+      ],
+      "prompt_ja": "（　　）予定はまだ決まっていません。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 後の仕事は私がやっておきます。 (Công việc còn lại để tôi làm sẵn cho.). Theo cấu trúc 後(あと)の + (Noun), mảnh đứng ở vị trí ★ là 「私がやって」.",
+      "options": [
+       "後の",
+       "私がやって",
+       "仕事は",
+       "おきます"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 後の予定はまだ決まっていません。 (Lịch trình tiếp theo vẫn chưa được quyết định.). Theo cấu trúc 後(あと)の + (Noun), mảnh đứng ở vị trí ★ là 「予定はまだ」.",
+      "options": [
+       "決まって",
+       "後の",
+       "いません",
+       "予定はまだ"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mẫu 後(あと)の + (Noun) có nghĩa là \"Sau..., phần còn lại.\". Câu này dịch là: \"Công việc còn lại để tôi làm sẵn cho.\"",
+      "options": [
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Công việc còn lại để tôi làm sẵn cho.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh."
+      ],
+      "prompt_ja": "後の仕事は私がやっておきます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu 後(あと)の + (Noun) (Sau..., phần còn lại.), câu trên có nghĩa là: \"Lịch trình tiếp theo vẫn chưa được quyết định.\"",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Lịch trình tiếp theo vẫn chưa được quyết định.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé."
+      ],
+      "prompt_ja": "後の予定はまだ決まっていません。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu 後(あと)の + (Noun)). Câu đúng: 後の仕事は私がやっておきます。",
+      "options": [
+       "後の予定はまだ決まっていません。",
+       "後のことは心配しないでください。",
+       "雨が降ったら試合は中止です。",
+       "後の仕事は私がやっておきますますだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: 後の予定はまだ決まっていません。",
+      "options": [
+       "後の仕事は私がやっておきます。",
+       "後の予定はをまだ決まっていません。",
+       "後のことは心配しないでください。",
+       "雨が降ったら試合は中止です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Quên trợ từ の khi bổ nghĩa trực tiếp cho danh từ phía sau.",
+    "examples": [
+     {
+      "ja": "後の仕事は私がやっておきます。",
+      "ja_furigana": "後(あと)の仕事(しごと)は私(わたし)がやっておきます。",
+      "source": "CLAUDE",
+      "vi": "Công việc còn lại để tôi làm sẵn cho."
+     },
+     {
+      "ja": "後の予定はまだ決まっていません。",
+      "ja_furigana": "後(あと)の予定(よてい)はまだ決(き)まっていません。",
+      "source": "CLAUDE",
+      "vi": "Lịch trình tiếp theo vẫn chưa được quyết định."
+     },
+     {
+      "ja": "後のことは心配しないでください。",
+      "ja_furigana": "後(あと)のことは心配(しんぱい)しないでください。",
+      "source": "CLAUDE",
+      "vi": "Những việc về sau xin đừng lo lắng."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「後の」 theo cấu trúc 後(あと)の + (Noun) (Sau..., phần còn lại.). Nghĩa: Những việc về sau xin đừng lo lắng.",
+      "options": [
+       "くらい",
+       "後の",
+       "ながら",
+       "まま"
+      ],
+      "prompt_ja": "（　　）ことは心配しないでください。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu 後(あと)の + (Noun) (Sau..., phần còn lại.), câu này nghĩa là: \"Những việc về sau xin đừng lo lắng.\"",
+      "options": [
+       "Những việc về sau xin đừng lo lắng.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "prompt_ja": "後のことは心配しないでください。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 後のことは心配しないでください。",
+      "options": [
+       "後の仕事は私がやっておきます。",
+       "後の予定はまだ決まっていません。",
+       "後のことは心配しないでくださいだます。",
+       "安ければこのパソコンを買います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "後の",
+      "sentence_ja": "＿＿仕事は私がやっておきます。",
+      "translation_vi": "Công việc còn lại để tôi làm sẵn cho."
+     },
+     {
+      "answer": "後の",
+      "sentence_ja": "＿＿予定はまだ決まっていません。",
+      "translation_vi": "Lịch trình tiếp theo vẫn chưa được quyết định."
+     }
+    ],
+    "findings": [],
+    "formation": "後の + N",
+    "locked_fields": [],
+    "meaning_vi": "Sau..., phần còn lại.",
+    "nuance_vi": "Trung tính, dùng phổ biến trong cả hội thoại và văn viết.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "仕事は",
+       "おきます",
+       "後の",
+       "私がやって"
+      ],
+      "translation_vi": "Công việc còn lại để tôi làm sẵn cho."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "いません",
+       "決まって",
+       "後の",
+       "予定はまだ"
+      ],
+      "translation_vi": "Lịch trình tiếp theo vẫn chưa được quyết định."
+     }
+    ],
+    "pattern": "後(あと)の + (Noun)",
+    "pattern_variants": [],
+    "unit_no": 33,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để bổ nghĩa cho danh từ phía sau, chỉ sự việc/thời gian diễn ra tiếp theo hoặc phần công việc còn lại."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f47de927f1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私が言った通りに書いてください。",
+       "ja_furigana": "私(わたし)が言(い)った通(とお)りに書(か)いてください。",
+       "vi": "Hãy viết đúng như tôi đã nói."
+      },
+      {
+       "ja": "先生がやった通りにやってみてください。",
+       "ja_furigana": "先生(せんせい)がやった通(とお)りにやってみてください。",
+       "vi": "Hãy thử làm đúng như thầy đã làm."
+      },
+      {
+       "ja": "地図の通りに行ったら駅に着きました。",
+       "ja_furigana": "地図(ちず)の通(とお)りに行(い)ったら駅(えき)に着(つ)きました。",
+       "vi": "Đi đúng theo bản đồ thì tôi đã đến ga."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "先生の言った（　　）毎日練習しました。",
+       "options": [
+        "たら",
+        "ても",
+        "通りに",
+        "ながら"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「通りに」: V-る/V-た/Nの + 通りに: làm theo đúng như... Nghĩa: Tôi đã luyện tập mỗi ngày đúng như thầy nói."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "本に書いてある（　　）料理を作りました。",
+       "options": [
+        "たら",
+        "通りに",
+        "ながら",
+        "ても"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Điền 「通りに」: V-る/V-た/Nの + 通りに: làm theo đúng như... Nghĩa: Tôi đã nấu ăn đúng như sách viết."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "先生が",
+        "通りに",
+        "やってみてください",
+        "やった"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 先生がやった通りにやってみてください。 (Hãy thử làm đúng như thầy đã làm.). Mảnh ở ô ★ là 「通りに」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "雨が降って",
+        "天気予報の",
+        "通りに",
+        "きました"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: 天気予報の通りに雨が降ってきました。 (Trời đã mưa đúng như dự báo thời tiết.). Mảnh ở ô ★ là 「雨が降って」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "私が言った通りに書いてください。",
+       "options": [
+        "Hãy viết đúng như tôi đã nói.",
+        "Nếu thêm 10 phút nữa thì tôi đợi ở đây được.",
+        "Bên ngoài có tiếng động lớn.",
+        "Giữa chừng bộ phim thì có điện thoại gọi đến."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu dùng mẫu 通(とお)り (theo đúng như..., giống hệt như..): \"Hãy viết đúng như tôi đã nói.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "地図の通りに行ったら駅に着きました。",
+       "options": [
+        "Tôi đã từng xem phim Nhật.",
+        "Tôi uống thuốc. Thế là hết đau.",
+        "Đi đúng theo bản đồ thì tôi đã đến ga.",
+        "Chìa khóa chắc chắn là có trong túi."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu dùng mẫu 通(とお)り (theo đúng như..., giống hệt như..): \"Đi đúng theo bản đồ thì tôi đã đến ga.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "先生の言った通りに毎日練習しました。",
+        "天気予報の通りに雨が降ってきました。",
+        "私が言った通りを書いてください。",
+        "私が言った通りに書いてください。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "「私が言った通りを書いてください。」 sai: \"làm theo đúng như...\" dùng 通りに, không dùng を. Câu đúng: 私が言った通りに書いてください。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "本に書いてある通りに料理を作りました。",
+        "先生がやったの通りにやってみてください。",
+        "地図の通りに行ったら駅に着きました。",
+        "先生がやった通りにやってみてください。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "「先生がやったの通りにやってみてください。」 sai: động từ nối thẳng với 通り, không chèn の. Câu đúng: 先生がやった通りにやってみてください。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "通りに",
+        "書いてください。",
+        "私が",
+        "言った"
+       ],
+       "answer_order": [
+        2,
+        3,
+        0,
+        1
+       ],
+       "translation_vi": "Hãy viết đúng như tôi đã nói."
+      },
+      {
+       "pieces": [
+        "駅に着きました。",
+        "行ったら",
+        "地図の",
+        "通りに"
+       ],
+       "answer_order": [
+        2,
+        3,
+        1,
+        0
+       ],
+       "translation_vi": "Đi đúng theo bản đồ thì tôi đã đến ga."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "先生がやった＿＿やってみてください。",
+       "answer": "通りに",
+       "translation_vi": "Hãy thử làm đúng như thầy đã làm.",
+       "accept": [
+        "とおりに"
+       ]
+      },
+      {
+       "sentence_ja": "地図の＿＿行ったら駅に着きました。",
+       "answer": "通りに",
+       "translation_vi": "Đi đúng theo bản đồ thì tôi đã đến ga.",
+       "accept": [
+        "とおりに"
+       ]
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "天気予報の（　　）雨が降ってきました。",
+       "options": [
+        "通りに",
+        "ながら",
+        "たら",
+        "ても"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「通りに」: V-る/V-た/Nの + 通りに: làm theo đúng như... Nghĩa: Trời đã mưa đúng như dự báo thời tiết."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "先生の言った通りに毎日練習しました。",
+       "options": [
+        "Tôi đã luyện tập mỗi ngày đúng như thầy nói.",
+        "Vào ngày nắng có thể nhìn thấy núi ở xa.",
+        "Từ đâu đó vọng đến một bài hát hay.",
+        "Cái máy này dùng được dễ dàng."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu dùng mẫu 通(とお)り (theo đúng như..., giống hệt như..): \"Tôi đã luyện tập mỗi ngày đúng như thầy nói.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "本に書いてある通りに料理を作りました。",
+        "天気予報が通りに雨が降ってきました。",
+        "先生がやった通りにやってみてください。",
+        "私が言った通りに書いてください。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "「天気予報が通りに雨が降ってきました。」 sai: danh từ nối với 通り dùng の, không dùng が. Câu đúng: 天気予報の通りに雨が降ってきました。"
+      }
+     ]
+    },
+    "note": "viết lại ví dụ và toàn bộ ngân hàng câu (bản cũ có câu sai vô nghĩa kiểu ますだ/をが, mảnh xếp cắt giữa từ)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「通り」 theo mẫu 通(とお)り (Theo đúng như..., giống hệt như...). Nghĩa cả câu: Xin hãy viết theo đúng như những gì tôi đã nói.",
+      "options": [
+       "し",
+       "つもり",
+       "通り",
+       "てしまう"
+      ],
+      "prompt_ja": "私が言った（　　）に書いてください。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc 通(とお)り (Theo đúng như..., giống hệt như...), chỗ trống cần điền 「通り」. Nghĩa: Cứ đi theo đúng bản đồ thì sẽ tới nhà ga.",
+      "options": [
+       "てもいい",
+       "はず",
+       "ておく",
+       "通り"
+      ],
+      "prompt_ja": "地図の（　　）に行けば駅に着きます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 私が言った通りに書いてください。 (Xin hãy viết theo đúng như những gì tôi đã nói.). Theo cấu trúc 通(とお)り, mảnh đứng ở vị trí ★ là 「通りに」.",
+      "options": [
+       "書いてください",
+       "言った",
+       "通りに",
+       "私が"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 地図の通りに行けば駅に着きます。 (Cứ đi theo đúng bản đồ thì sẽ tới nhà ga.). Theo cấu trúc 通(とお)り, mảnh đứng ở vị trí ★ là 「通りに」.",
+      "options": [
+       "地図の",
+       "行けば駅に",
+       "通りに",
+       "着きます"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Mẫu 通(とお)り có nghĩa là \"Theo đúng như..., giống hệt như...\". Câu này dịch là: \"Xin hãy viết theo đúng như những gì tôi đã nói.\"",
+      "options": [
+       "Xin hãy viết theo đúng như những gì tôi đã nói.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng."
+      ],
+      "prompt_ja": "私が言った通りに書いてください。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu 通(とお)り (Theo đúng như..., giống hệt như...), câu trên có nghĩa là: \"Cứ đi theo đúng bản đồ thì sẽ tới nhà ga.\"",
+      "options": [
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Cứ đi theo đúng bản đồ thì sẽ tới nhà ga.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại."
+      ],
+      "prompt_ja": "地図の通りに行けば駅に着きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu 通(とお)り). Câu đúng: 私が言った通りに書いてください。",
+      "options": [
+       "地図の通りに行けば駅に着きます。",
+       "先生の言葉の通りになりました。",
+       "私が言った通りに書いてくださいますだ。",
+       "雨が降ったら試合は中止です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu 通(とお)り). Câu đúng: 地図の通りに行けば駅に着きます。",
+      "options": [
+       "地図の通りに行けば駅に着きますですます。",
+       "私が言った通りに書いてください。",
+       "先生の言葉の通りになりました。",
+       "雨が降ったら試合は中止です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Quên の sau danh từ (đúng: 説明の通りに) hoặc nhầm cách đọc 通り (とお-り sau の/động từ, どお-り khi gắn trực tiếp sau danh từ).",
+    "examples": [
+     {
+      "ja": "私が言った通りに書いてください。",
+      "ja_furigana": "私(わたし)が言(い)った通(とお)りに書(か)いてください。",
+      "source": "CLAUDE",
+      "vi": "Xin hãy viết theo đúng như những gì tôi đã nói."
+     },
+     {
+      "ja": "地図の通りに行けば駅に着きます。",
+      "ja_furigana": "地図(ちず)の通(とお)りに行(い)けば駅(えき)に着(つ)きます。",
+      "source": "CLAUDE",
+      "vi": "Cứ đi theo đúng bản đồ thì sẽ tới nhà ga."
+     },
+     {
+      "ja": "先生の言葉の通りになりました。",
+      "ja_furigana": "先生(せんせい)の言葉(ことば)の通(とお)りになりました。",
+      "source": "CLAUDE",
+      "vi": "Mọi chuyện đã diễn ra đúng như lời thầy giáo."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「通り」 theo cấu trúc 通(とお)り (Theo đúng như..., giống hệt như...). Nghĩa: Mọi chuyện đã diễn ra đúng như lời thầy giáo.",
+      "options": [
+       "通り",
+       "ところ",
+       "ついでに",
+       "ている"
+      ],
+      "prompt_ja": "先生の言葉の（　　）になりました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu 通(とお)り (Theo đúng như..., giống hệt như...), câu này nghĩa là: \"Mọi chuyện đã diễn ra đúng như lời thầy giáo.\"",
+      "options": [
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Mọi chuyện đã diễn ra đúng như lời thầy giáo."
+      ],
+      "prompt_ja": "先生の言葉の通りになりました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 先生の言葉の通りになりました。",
+      "options": [
+       "私が言った通りに書いてください。",
+       "先生の言葉の通りにをなりました。",
+       "地図の通りに行けば駅に着きます。",
+       "安ければこのパソコンを買います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "通り",
+      "sentence_ja": "私が言った＿＿に書いてください。",
+      "translation_vi": "Xin hãy viết theo đúng như những gì tôi đã nói."
+     },
+     {
+      "answer": "通り",
+      "sentence_ja": "地図の＿＿に行けば駅に着きます。",
+      "translation_vi": "Cứ đi theo đúng bản đồ thì sẽ tới nhà ga."
+     }
+    ],
+    "findings": [],
+    "formation": "V-る / V-た / N + の + 通り(に)",
+    "locked_fields": [],
+    "meaning_vi": "Theo đúng như..., giống hệt như...",
+    "nuance_vi": "Nhấn mạnh sự chính xác, trùng khớp hoàn toàn với chuẩn mực hoặc thông tin ban đầu.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "書いてください",
+       "通りに",
+       "私が",
+       "言った"
+      ],
+      "translation_vi": "Xin hãy viết theo đúng như những gì tôi đã nói."
+     },
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "行けば駅に",
+       "地図の",
+       "着きます",
+       "通りに"
+      ],
+      "translation_vi": "Cứ đi theo đúng bản đồ thì sẽ tới nhà ga."
+     }
+    ],
+    "pattern": "通(とお)り",
+    "pattern_variants": [],
+    "unit_no": 34,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả việc thực hiện hành động theo đúng khuôn mẫu, lời chỉ dẫn, hoặc sự việc diễn ra đúng như những gì đã nghe, đã nghĩ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d75bbefd83"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "仕事が終わった後で食事に行きます。",
+       "ja_furigana": "仕事(しごと)が終(お)わった後(あと)で食事(しょくじ)に行(い)きます。",
+       "vi": "Sau khi xong việc tôi sẽ đi ăn."
+      },
+      {
+       "ja": "晩ご飯を食べた後で散歩します。",
+       "ja_furigana": "晩(ばん)ご飯(はん)を食(た)べた後(あと)で散歩(さんぽ)します。",
+       "vi": "Sau khi ăn tối tôi đi dạo."
+      },
+      {
+       "ja": "映画の後でコーヒーを飲みました。",
+       "ja_furigana": "映画(えいが)の後(あと)でコーヒーを飲(の)みました。",
+       "vi": "Sau buổi xem phim tôi đã uống cà phê."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "宿題をした（　　）テレビを見ます。",
+       "options": [
+        "ながら",
+        "ても",
+        "後で",
+        "たら"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「後で」: V-た / Nの + 後で: làm xong việc trước rồi mới làm việc sau. Nghĩa: Sau khi làm bài tập tôi xem ti vi."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "授業の（　　）先生に質問しました。",
+       "options": [
+        "たら",
+        "後で",
+        "ながら",
+        "ても"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Điền 「後で」: V-た / Nの + 後で: làm xong việc trước rồi mới làm việc sau. Nghĩa: Sau giờ học tôi đã hỏi thầy."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "晩ご飯を",
+        "食べた",
+        "後で",
+        "散歩します"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 晩ご飯を食べた後で散歩します。 (Sau khi ăn tối tôi đi dạo.). Mảnh ở ô ★ là 「後で」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "後で",
+        "ご飯を食べます",
+        "洗った",
+        "手を"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: 手を洗った後でご飯を食べます。 (Sau khi rửa tay tôi ăn cơm.). Mảnh ở ô ★ là 「後で」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "仕事が終わった後で食事に行きます。",
+       "options": [
+        "Sau khi xong việc tôi sẽ đi ăn.",
+        "Mong là bạn đỗ kỳ thi tháng sau nhỉ.",
+        "Khi không hiểu thì nên làm thế nào ạ?",
+        "Tôi viết to để người phía sau cũng nhìn thấy."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu dùng mẫu 後(あと)で (sau khi làm..., lát nữa): \"Sau khi xong việc tôi sẽ đi ăn.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "映画の後でコーヒーを飲みました。",
+       "options": [
+        "Sau buổi xem phim tôi đã uống cà phê.",
+        "Tớ ấy mà, cực thích anime Nhật.",
+        "Do tai nạn nên đường đang đông.",
+        "Tôi vừa đi làm vừa theo học đại học."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu dùng mẫu 後(あと)で (sau khi làm..., lát nữa): \"Sau buổi xem phim tôi đã uống cà phê.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "仕事が終わる後で食事に行きます。",
+        "手を洗った後でご飯を食べます。",
+        "仕事が終わった後で食事に行きます。",
+        "宿題をした後でテレビを見ます。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "「仕事が終わる後で食事に行きます。」 sai: trước 後で dùng thể た (終わった), không dùng thể từ điển. Câu đúng: 仕事が終わった後で食事に行きます。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "授業の後で先生に質問しました。",
+        "映画後でコーヒーを飲みました。",
+        "晩ご飯を食べた後で散歩します。",
+        "映画の後でコーヒーを飲みました。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "「映画後でコーヒーを飲みました。」 sai: danh từ nối với 後で cần の. Câu đúng: 映画の後でコーヒーを飲みました。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "仕事が",
+        "終わった",
+        "食事に行きます。",
+        "後で"
+       ],
+       "answer_order": [
+        0,
+        1,
+        3,
+        2
+       ],
+       "translation_vi": "Sau khi xong việc tôi sẽ đi ăn."
+      },
+      {
+       "pieces": [
+        "映画の",
+        "後で",
+        "コーヒーを",
+        "飲みました。"
+       ],
+       "answer_order": [
+        0,
+        1,
+        2,
+        3
+       ],
+       "translation_vi": "Sau buổi xem phim tôi đã uống cà phê."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "晩ご飯を食べた＿＿散歩します。",
+       "answer": "後で",
+       "translation_vi": "Sau khi ăn tối tôi đi dạo.",
+       "accept": [
+        "あとで"
+       ]
+      },
+      {
+       "sentence_ja": "映画の＿＿コーヒーを飲みました。",
+       "answer": "後で",
+       "translation_vi": "Sau buổi xem phim tôi đã uống cà phê.",
+       "accept": [
+        "あとで"
+       ]
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "手を洗った（　　）ご飯を食べます。",
+       "options": [
+        "後で",
+        "ながら",
+        "ても",
+        "たら"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「後で」: V-た / Nの + 後で: làm xong việc trước rồi mới làm việc sau. Nghĩa: Sau khi rửa tay tôi ăn cơm."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "宿題をした後でテレビを見ます。",
+       "options": [
+        "Hôm nay cũng không có việc nên tôi nghỉ ngơi thong thả.",
+        "Vậy tôi xin phép về trước.",
+        "Sau khi làm bài tập tôi xem ti vi.",
+        "Nói chuyện với bạn bè thì vui."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu dùng mẫu 後(あと)で (sau khi làm..., lát nữa): \"Sau khi làm bài tập tôi xem ti vi.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "晩ご飯を食べた後で散歩します。",
+        "仕事が終わった後で食事に行きます。",
+        "授業の後で先生に質問しました。",
+        "手を洗います後でご飯を食べます。"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "「手を洗います後でご飯を食べます。」 sai: trước 後で dùng thể た. Câu đúng: 手を洗った後でご飯を食べます。"
+      }
+     ]
+    },
+    "note": "viết lại ví dụ và toàn bộ ngân hàng câu (bản cũ có câu sai vô nghĩa kiểu ますだ/をが, mảnh xếp cắt giữa từ)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「後で」 theo mẫu 後(あと)で (Sau khi làm..., lát nữa.). Nghĩa cả câu: Sau khi xong việc tôi sẽ đi ăn.",
+      "options": [
+       "まま",
+       "後で",
+       "てある",
+       "やすい"
+      ],
+      "prompt_ja": "仕事が終わった（　　）食事に行く。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc 後(あと)で (Sau khi làm..., lát nữa.), chỗ trống cần điền 「後で」. Nghĩa: Sau buổi xem phim tôi đã uống cà phê.",
+      "options": [
+       "とおり",
+       "てみる",
+       "後で",
+       "にくい"
+      ],
+      "prompt_ja": "映画の（　　）コーヒーを飲みました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 仕事が終わった後で食事に行く。 (Sau khi xong việc tôi sẽ đi ăn.). Theo cấu trúc 後(あと)で, mảnh đứng ở vị trí ★ là 「後で」.",
+      "options": [
+       "終わった",
+       "食事に行く",
+       "仕事が",
+       "後で"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 映画の後でコーヒーを飲みました。 (Sau buổi xem phim tôi đã uống cà phê.). Theo cấu trúc 後(あと)で, mảnh đứng ở vị trí ★ là 「後で」.",
+      "options": [
+       "飲みました",
+       "後で",
+       "コーヒーを",
+       "映画の"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Mẫu 後(あと)で có nghĩa là \"Sau khi làm..., lát nữa.\". Câu này dịch là: \"Sau khi xong việc tôi sẽ đi ăn.\"",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Sau khi xong việc tôi sẽ đi ăn."
+      ],
+      "prompt_ja": "仕事が終わった後で食事に行く。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu 後(あと)で (Sau khi làm..., lát nữa.), câu trên có nghĩa là: \"Sau buổi xem phim tôi đã uống cà phê.\"",
+      "options": [
+       "Sau buổi xem phim tôi đã uống cà phê.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà."
+      ],
+      "prompt_ja": "映画の後でコーヒーを飲みました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu 後(あと)で). Câu đúng: 仕事が終わった後で食事に行く。",
+      "options": [
+       "映画の後でコーヒーを飲みました。",
+       "仕事が終わった後で食事に行くますだ。",
+       "今忙しいので後で電話します。",
+       "雨が降ったら試合は中止です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc 後(あと)で. Câu đúng: 映画の後でコーヒーを飲みました。",
+      "options": [
+       "仕事が終わった後で食事に行く。",
+       "今忙しいので後で電話します。",
+       "雨が降ったら試合は中止です。",
+       "映画の後でコーヒーをが飲みました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Chia động từ ở thể る thay vì thể た trước 後で (sai: 食べる後で; đúng: 食べた後で) hoặc quên の sau danh từ.",
+    "examples": [
+     {
+      "ja": "仕事が終わった後で食事に行く。",
+      "ja_furigana": "仕事(しごと)が終(お)わった後(あと)で食事(しょくじ)に行(い)く。",
+      "source": "CLAUDE",
+      "vi": "Sau khi xong việc tôi sẽ đi ăn."
+     },
+     {
+      "ja": "映画の後でコーヒーを飲みました。",
+      "ja_furigana": "映画(えいが)の後(あと)でコーヒーを飲(の)みました。",
+      "source": "CLAUDE",
+      "vi": "Sau buổi xem phim tôi đã uống cà phê."
+     },
+     {
+      "ja": "今忙しいので後で電話します。",
+      "ja_furigana": "今(いま)忙(いそが)しいので後(あと)で電話(でんわ)します。",
+      "source": "CLAUDE",
+      "vi": "Bây giờ tôi đang bận nên lát nữa sẽ gọi điện."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「後で」 theo cấu trúc 後(あと)で (Sau khi làm..., lát nữa.). Nghĩa: Bây giờ tôi đang bận nên lát nữa sẽ gọi điện.",
+      "options": [
+       "ておく",
+       "ていく",
+       "ようだ",
+       "後で"
+      ],
+      "prompt_ja": "今忙しいので（　　）電話します。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu 後(あと)で (Sau khi làm..., lát nữa.), câu này nghĩa là: \"Bây giờ tôi đang bận nên lát nữa sẽ gọi điện.\"",
+      "options": [
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Bây giờ tôi đang bận nên lát nữa sẽ gọi điện.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng."
+      ],
+      "prompt_ja": "今忙しいので後で電話します。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 今忙しいので後で電話します。",
+      "options": [
+       "今忙しいので後で電話しますだます。",
+       "仕事が終わった後で食事に行く。",
+       "映画の後でコーヒーを飲みました。",
+       "安ければこのパソコンを買います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "後で",
+      "sentence_ja": "仕事が終わった＿＿食事に行く。",
+      "translation_vi": "Sau khi xong việc tôi sẽ đi ăn."
+     },
+     {
+      "answer": "後で",
+      "sentence_ja": "映画の＿＿コーヒーを飲みました。",
+      "translation_vi": "Sau buổi xem phim tôi đã uống cà phê."
+     }
+    ],
+    "findings": [],
+    "formation": "V-た / N + の + 後(あと)で、〜",
+    "locked_fields": [],
+    "meaning_vi": "Sau khi làm..., lát nữa.",
+    "nuance_vi": "Trung tính, tương ứng với 前に (trước khi); 後で đứng độc lập còn có nghĩa là \"lát nữa\".",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "後で",
+       "仕事が",
+       "食事に行く",
+       "終わった"
+      ],
+      "translation_vi": "Sau khi xong việc tôi sẽ đi ăn."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "後で",
+       "飲みました",
+       "映画の",
+       "コーヒーを"
+      ],
+      "translation_vi": "Sau buổi xem phim tôi đã uống cà phê."
+     }
+    ],
+    "pattern": "後(あと)で",
+    "pattern_variants": [],
+    "unit_no": 34,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả trình tự thời gian: sau khi hoàn tất hành động hoặc sự kiện ở vế trước thì mới thực hiện hành động ở vế sau."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f34a0876a4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "common_mistakes_vi": "Chia sai thể ば trước いい (sai: するばいい, 来るばいい; đúng: すればいい, 来ればいい).",
+     "examples": [
+      {
+       "ja": "わからない時は先生に聞けばいいですよ。",
+       "ja_furigana": "わからない時(とき)は先生(せんせい)に聞(き)けばいいですよ。",
+       "vi": "Khi không hiểu thì chỉ cần hỏi thầy là được."
+      },
+      {
+       "ja": "この紙はどこに出せばいいですか。",
+       "ja_furigana": "この紙(かみ)はどこに出(だ)せばいいですか。",
+       "vi": "Tờ giấy này tôi nộp ở đâu thì được ạ?"
+      },
+      {
+       "ja": "あしたは何時に来ればいいですか。",
+       "ja_furigana": "あしたは何時(なんじ)に来(く)ればいいですか。",
+       "vi": "Ngày mai tôi đến lúc mấy giờ thì được ạ?"
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "このボタンを（　　）いいです。",
+       "options": [
+        "押せば",
+        "押すば",
+        "押さば",
+        "押しば"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「押せば」: V-ば + いい: chỉ cần làm thế là được / nên làm thế nào. Nghĩa: Chỉ cần nhấn nút này là được."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "駅までどうやって（　　）いいですか。",
+       "options": [
+        "行きば",
+        "行くば",
+        "行けば",
+        "行かば"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「行けば」: V-ば + いい: chỉ cần làm thế là được / nên làm thế nào. Nghĩa: Đến ga thì đi bằng cách nào ạ?"
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "紙は",
+        "どこに出せば",
+        "いいですか",
+        "この"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: この紙はどこに出せばいいですか。 (Tờ giấy này tôi nộp ở đâu thì được ạ?). Mảnh ở ô ★ là 「どこに出せば」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "いいです",
+        "漢字は",
+        "覚えれば",
+        "毎日少しずつ"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 漢字は毎日少しずつ覚えればいいです。 (Chữ Hán chỉ cần mỗi ngày nhớ từng chút một là được.). Mảnh ở ô ★ là 「覚えれば」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "わからない時は先生に聞けばいいですよ。",
+       "options": [
+        "Uống thuốc này thì sẽ hạ sốt.",
+        "Quán này vừa rẻ, vị cũng ngon.",
+        "Trưởng phòng đã ra ngoài lúc 10 giờ sáng nay ạ.",
+        "Khi không hiểu thì chỉ cần hỏi thầy là được."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu dùng mẫu ばいい (chỉ cần... là được; nên làm sao?): \"Khi không hiểu thì chỉ cần hỏi thầy là được.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "あしたは何時に来ればいいですか。",
+       "options": [
+        "Ngày mai tôi đến lúc mấy giờ thì được ạ?",
+        "Hiện tôi đang đúng lúc tìm tài liệu quan trọng.",
+        "Đêm qua tôi chỉ ngủ được ba tiếng.",
+        "Thầy đang làm gì vậy ạ?"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu dùng mẫu ばいい (chỉ cần... là được; nên làm sao?): \"Ngày mai tôi đến lúc mấy giờ thì được ạ?\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "漢字は毎日少しずつ覚えればいいです。",
+        "わからない時は先生に聞けばいいですよ。",
+        "このボタンを押せばいいです。",
+        "わからない時は先生に聞くばいいですよ。"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "「わからない時は先生に聞くばいいですよ。」 sai: thể ば của 聞く là 聞けば. Câu đúng: わからない時は先生に聞けばいいですよ。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "駅までどうやって行けばいいですか。",
+        "あしたは何時に来ればいいですか。",
+        "この紙はどこに出せばいいですか。",
+        "あしたは何時に来るばいいですか。"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "「あしたは何時に来るばいいですか。」 sai: thể ば của 来る là 来れば (くれば). Câu đúng: あしたは何時に来ればいいですか。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "先生に",
+        "いいですよ。",
+        "聞けば",
+        "わからない時は"
+       ],
+       "answer_order": [
+        3,
+        0,
+        2,
+        1
+       ],
+       "translation_vi": "Khi không hiểu thì chỉ cần hỏi thầy là được."
+      },
+      {
+       "pieces": [
+        "いいですか。",
+        "来れば",
+        "何時に",
+        "あしたは"
+       ],
+       "answer_order": [
+        3,
+        2,
+        1,
+        0
+       ],
+       "translation_vi": "Ngày mai tôi đến lúc mấy giờ thì được ạ?"
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "この紙はどこに出せば＿＿。",
+       "answer": "いいですか",
+       "translation_vi": "Tờ giấy này tôi nộp ở đâu thì được ạ?"
+      },
+      {
+       "sentence_ja": "あしたは何時に来れば＿＿。",
+       "answer": "いいですか",
+       "translation_vi": "Ngày mai tôi đến lúc mấy giờ thì được ạ?"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "漢字は毎日少しずつ（　　）いいです。",
+       "options": [
+        "覚えらば",
+        "覚えるば",
+        "覚えれば",
+        "覚えば"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「覚えれば」: V-ば + いい: chỉ cần làm thế là được / nên làm thế nào. Nghĩa: Chữ Hán chỉ cần mỗi ngày nhớ từng chút một là được."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "このボタンを押せばいいです。",
+       "options": [
+        "Tôi vừa đọc báo vừa ăn sáng.",
+        "Chỉ cần nhấn nút này là được.",
+        "Người cao nhất lớp là anh Tanaka.",
+        "Phòng của mình thì tự dọn đi."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu ばいい (chỉ cần... là được; nên làm sao?): \"Chỉ cần nhấn nút này là được.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "この紙はどこに出せばいいですか。",
+        "わからない時は先生に聞けばいいですよ。",
+        "このボタンを押すればいいです。",
+        "駅までどうやって行けばいいですか。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "「このボタンを押すればいいです。」 sai: 押す nhóm I: 押す → 押せば. Câu đúng: このボタンを押せばいいです。"
+      }
+     ]
+    },
+    "note": "viết lại ví dụ và toàn bộ ngân hàng câu (bản cũ có câu sai vô nghĩa kiểu ますだ/をが, mảnh xếp cắt giữa từ)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「ばいい」 theo mẫu ばいい (Chỉ cần... là được; nên làm sao?). Nghĩa cả câu: Khi không hiểu thì chỉ cần hỏi là được đấy.",
+      "options": [
+       "ばいい",
+       "ている",
+       "すぎる",
+       "のに"
+      ],
+      "prompt_ja": "わからない時は聞け（　　）ですよ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc ばいい (Chỉ cần... là được; nên làm sao?), chỗ trống cần điền 「ばいい」. Nghĩa: Tài liệu này tôi nộp ở đâu thì được ạ?",
+      "options": [
+       "てくる",
+       "ばいい",
+       "そうだ",
+       "ので"
+      ],
+      "prompt_ja": "この書類はどこに出せ（　　）ですか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: わからない時は聞けばいいですよ。 (Khi không hiểu thì chỉ cần hỏi là được đấy.). Theo cấu trúc ばいい, mảnh đứng ở vị trí ★ là 「聞けばいい」.",
+      "options": [
+       "聞けばいい",
+       "わから",
+       "ですよ",
+       "ない時は"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: この書類はどこに出せばいいですか。 (Tài liệu này tôi nộp ở đâu thì được ạ?). Theo cấu trúc ばいい, mảnh đứng ở vị trí ★ là 「どこに」.",
+      "options": [
+       "どこに",
+       "ですか",
+       "この書類は",
+       "出せばいい"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mẫu ばいい có nghĩa là \"Chỉ cần... là được; nên làm sao?\". Câu này dịch là: \"Khi không hiểu thì chỉ cần hỏi là được đấy.\"",
+      "options": [
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Khi không hiểu thì chỉ cần hỏi là được đấy.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại."
+      ],
+      "prompt_ja": "わからない時は聞けばいいですよ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu ばいい (Chỉ cần... là được; nên làm sao?), câu trên có nghĩa là: \"Tài liệu này tôi nộp ở đâu thì được ạ?\"",
+      "options": [
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Tài liệu này tôi nộp ở đâu thì được ạ?"
+      ],
+      "prompt_ja": "この書類はどこに出せばいいですか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu ばいい). Câu đúng: わからない時は聞けばいいですよ。",
+      "options": [
+       "わからない時は聞けばいいですよますだ。",
+       "この書類はどこに出せばいいですか。",
+       "あしたは何時に来ればいいですか。",
+       "雨が降ったら試合は中止です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: この書類はどこに出せばいいですか。",
+      "options": [
+       "わからない時は聞けばいいですよ。",
+       "あしたは何時に来ればいいですか。",
+       "この書類はをどこに出せばいいですか。",
+       "雨が降ったら試合は中止です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Chia sai thể điều kiện ば trước いい (ví dụ する → すればいい, 来る → 来ればいい).",
+    "examples": [
+     {
+      "ja": "わからない時は聞けばいいですよ。",
+      "ja_furigana": "わからない時(とき)は聞(き)けばいいですよ。",
+      "source": "CLAUDE",
+      "vi": "Khi không hiểu thì chỉ cần hỏi là được đấy."
+     },
+     {
+      "ja": "この書類はどこに出せばいいですか。",
+      "ja_furigana": "この書類(しょるい)はどこに出(だ)せばいいですか。",
+      "source": "CLAUDE",
+      "vi": "Tài liệu này tôi nộp ở đâu thì được ạ?"
+     },
+     {
+      "ja": "あしたは何時に来ればいいですか。",
+      "ja_furigana": "あしたは何時(なんじ)に来(く)ればいいですか。",
+      "source": "CLAUDE",
+      "vi": "Ngày mai tôi đến lúc mấy giờ là được ạ?"
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「ばいい」 theo cấu trúc ばいい (Chỉ cần... là được; nên làm sao?). Nghĩa: Ngày mai tôi đến lúc mấy giờ là được ạ?",
+      "options": [
+       "にくい",
+       "かもしれない",
+       "ばいい",
+       "たら"
+      ],
+      "prompt_ja": "あしたは何時に来れ（　　）ですか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu ばいい (Chỉ cần... là được; nên làm sao?), câu này nghĩa là: \"Ngày mai tôi đến lúc mấy giờ là được ạ?\"",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Ngày mai tôi đến lúc mấy giờ là được ạ?",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé."
+      ],
+      "prompt_ja": "あしたは何時に来ればいいですか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: あしたは何時に来ればいいですか。",
+      "options": [
+       "わからない時は聞けばいいですよ。",
+       "この書類はどこに出せばいいですか。",
+       "安ければこのパソコンを買います。",
+       "あしたは何時にを来ればいいですか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ばいい",
+      "sentence_ja": "わからない時は聞け＿＿ですよ。",
+      "translation_vi": "Khi không hiểu thì chỉ cần hỏi là được đấy."
+     },
+     {
+      "answer": "ばいい",
+      "sentence_ja": "この書類はどこに出せ＿＿ですか。",
+      "translation_vi": "Tài liệu này tôi nộp ở đâu thì được ạ?"
+     }
+    ],
+    "findings": [],
+    "formation": "V-えば / A-ければ + いい",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ cần... là được; nên làm sao?",
+    "nuance_vi": "Nhẹ nhàng, thực tế; tập trung vào giải pháp đủ để giải quyết vấn đề.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "ない時は",
+       "ですよ",
+       "わから",
+       "聞けばいい"
+      ],
+      "translation_vi": "Khi không hiểu thì chỉ cần hỏi là được đấy."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "ですか",
+       "出せばいい",
+       "この書類は",
+       "どこに"
+      ],
+      "translation_vi": "Tài liệu này tôi nộp ở đâu thì được ạ?"
+     }
+    ],
+    "pattern": "ばいい",
+    "pattern_variants": [],
+    "unit_no": 35,
+    "unit_title_vi": null,
+    "usage_vi": "Đưa ra lời khuyên về điều kiện cần thực hiện (\"chỉ cần làm thế là ổn\") hoặc đi với từ để hỏi (どうすればいいですか) để xin chỉ dẫn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ffadd8dc58"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "Nếu là... thì...; nếu (bạn) định... thì...",
+     "formation": "N / V (thể thường) / A-い / A-な + なら",
+     "usage_vi": "Tiếp nhận một chủ đề hoặc dự định người nghe vừa nói, rồi đưa ra lời khuyên, ý kiến hay thông tin về chủ đề đó (日本へ旅行に行くなら春がいいですよ).",
+     "nuance_vi": "Hay dùng trong hội thoại để đáp lại lời người khác: vế trước là chuyện của người nghe, vế sau là đề xuất của người nói.",
+     "common_mistakes_vi": "Thêm だ trước なら (sai: 学生だなら; đúng: 学生なら) hoặc dùng なら cho chuỗi việc nối tiếp (sai: 駅に着くなら電話してください khi muốn nói \"đến ga rồi thì gọi\"; đúng: 駅に着いたら).",
+     "examples": [
+      {
+       "ja": "カメラを買うならあの店が安いですよ。",
+       "ja_furigana": "カメラを買(か)うならあの店(みせ)が安(やす)いですよ。",
+       "vi": "Nếu định mua máy ảnh thì cửa hàng kia rẻ đấy."
+      },
+      {
+       "ja": "日本へ旅行に行くなら春がいいですよ。",
+       "ja_furigana": "日本(にほん)へ旅行(りょこう)に行(い)くなら春(はる)がいいですよ。",
+       "vi": "Nếu đi du lịch Nhật thì nên đi mùa xuân đấy."
+      },
+      {
+       "ja": "漢字の辞書なら私のを貸しますよ。",
+       "ja_furigana": "漢字(かんじ)の辞書(じしょ)なら私(わたし)のを貸(か)しますよ。",
+       "vi": "Nếu là từ điển chữ Hán thì tôi cho bạn mượn cái của tôi."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "時間がない（　　）タクシーで行きましょう。",
+       "options": [
+        "なら",
+        "ながら",
+        "ても",
+        "たら"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「なら」: なら tiếp nhận chủ đề người nghe nói tới rồi đưa ra lời khuyên. Nghĩa: Nếu không có thời gian thì đi taxi thôi."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "寒い（　　）窓を閉めてください。",
+       "options": [
+        "たら",
+        "なら",
+        "ても",
+        "ながら"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Điền 「なら」: なら tiếp nhận chủ đề người nghe nói tới rồi đưa ra lời khuyên. Nghĩa: Nếu lạnh thì bạn đóng cửa sổ lại nhé."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "日本へ",
+        "いいですよ",
+        "春が",
+        "旅行に行くなら"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 日本へ旅行に行くなら春がいいですよ。 (Nếu đi du lịch Nhật thì nên đi mùa xuân đấy.). Mảnh ở ô ★ là 「春が」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "聞いてください",
+        "ことなら",
+        "パソコンの",
+        "山田さんに"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: パソコンのことなら山田さんに聞いてください。 (Nếu là chuyện máy tính thì hãy hỏi anh Yamada.). Mảnh ở ô ★ là 「山田さんに」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "カメラを買うならあの店が安いですよ。",
+       "options": [
+        "Tôi vẫn chưa quyết định chọn chiếc túi nào.",
+        "Nếu định mua máy ảnh thì cửa hàng kia rẻ đấy.",
+        "Khi không hiểu thì chỉ cần hỏi thầy là được.",
+        "Uống thuốc rồi mà cảm mãi chưa khỏi."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu 〜なら (nếu là... thì...; nếu (bạn) định... thì..): \"Nếu định mua máy ảnh thì cửa hàng kia rẻ đấy.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "漢字の辞書なら私のを貸しますよ。",
+       "options": [
+        "Em trai tôi mới chỉ viết được chữ hiragana.",
+        "Chuyến du lịch tôi đã chọn ngày mùng 10 tháng sau.",
+        "Bạn đã từng mặc kimono lần nào chưa?",
+        "Nếu là từ điển chữ Hán thì tôi cho bạn mượn cái của tôi."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu dùng mẫu 〜なら (nếu là... thì...; nếu (bạn) định... thì..): \"Nếu là từ điển chữ Hán thì tôi cho bạn mượn cái của tôi.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "時間がないならタクシーで行きましょう。",
+        "カメラを買うだならあの店が安いですよ。",
+        "カメラを買うならあの店が安いですよ。",
+        "パソコンのことなら山田さんに聞いてください。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "「カメラを買うだならあの店が安いですよ。」 sai: trước なら không thêm だ. Câu đúng: カメラを買うならあの店が安いですよ。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "寒いなら窓を閉めてください。",
+        "漢字の辞書だなら私のを貸しますよ。",
+        "日本へ旅行に行くなら春がいいですよ。",
+        "漢字の辞書なら私のを貸しますよ。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "「漢字の辞書だなら私のを貸しますよ。」 sai: danh từ nối thẳng với なら, không thêm だ. Câu đúng: 漢字の辞書なら私のを貸しますよ。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "買うなら",
+        "カメラを",
+        "安いですよ。",
+        "あの店が"
+       ],
+       "answer_order": [
+        1,
+        0,
+        3,
+        2
+       ],
+       "translation_vi": "Nếu định mua máy ảnh thì cửa hàng kia rẻ đấy."
+      },
+      {
+       "pieces": [
+        "私のを",
+        "辞書なら",
+        "貸しますよ。",
+        "漢字の"
+       ],
+       "answer_order": [
+        3,
+        1,
+        0,
+        2
+       ],
+       "translation_vi": "Nếu là từ điển chữ Hán thì tôi cho bạn mượn cái của tôi."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "日本へ旅行に行く＿＿春がいいですよ。",
+       "answer": "なら",
+       "translation_vi": "Nếu đi du lịch Nhật thì nên đi mùa xuân đấy."
+      },
+      {
+       "sentence_ja": "漢字の辞書＿＿私のを貸しますよ。",
+       "answer": "なら",
+       "translation_vi": "Nếu là từ điển chữ Hán thì tôi cho bạn mượn cái của tôi."
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "パソコンのこと（　　）山田さんに聞いてください。",
+       "options": [
+        "ながら",
+        "たら",
+        "なら",
+        "ても"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Điền 「なら」: なら tiếp nhận chủ đề người nghe nói tới rồi đưa ra lời khuyên. Nghĩa: Nếu là chuyện máy tính thì hãy hỏi anh Yamada."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "時間がないならタクシーで行きましょう。",
+       "options": [
+        "Học một năm, tôi đã đọc được báo Nhật.",
+        "Nếu không có thời gian thì đi taxi thôi.",
+        "Chìa khóa chắc chắn là có trong túi.",
+        "Quyển sách đó tôi vẫn chưa đọc."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu 〜なら (nếu là... thì...; nếu (bạn) định... thì..): \"Nếu không có thời gian thì đi taxi thôi.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "カメラを買うならあの店が安いですよ。",
+        "駅に着くなら電話してください。",
+        "日本へ旅行に行くなら春がいいですよ。",
+        "寒いなら窓を閉めてください。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "「駅に着くなら電話してください。」 sai: \"đến ga rồi thì...\" (việc trước xong mới làm việc sau) dùng 〜たら, không dùng なら. Câu đúng: 駅に着いたら電話してください。"
+      }
+     ]
+    },
+    "note": "viết lại phần lõi (cũ chép nguyên bảng ghi chú sách, có ký tự lỗi), ví dụ và toàn bộ ngân hàng câu"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「なら」 theo mẫu 〜なら (Cách nêu một giả thiết nào đó. Vế sau thường là phán đoán, đánh giá, chỉ dẫn hoặc hi vọng của người nói.). Nghĩa cả câu: Nếu vậy thì hãy đến phòng công tác sinh viên nhé.",
+      "options": [
+       "ようだ",
+       "から",
+       "と",
+       "なら"
+      ],
+      "prompt_ja": "それ（　　）学生課に行ってください。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc 〜なら (Cách nêu một giả thiết nào đó. Vế sau thường là phán đoán, đánh giá, chỉ dẫn hoặc hi vọng của người nói.), chỗ trống cần điền 「なら」. Nghĩa: Đằng nào cũng mua thì tôi muốn mua cái đắt tiền.",
+      "options": [
+       "なら",
+       "らしい",
+       "ても",
+       "しか"
+      ],
+      "prompt_ja": "どうせ買う（　　）高いのがほしい。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: それなら学生課に行ってください。 (Nếu vậy thì hãy đến phòng công tác sinh viên nhé.). Theo cấu trúc 〜なら, mảnh đứng ở vị trí ★ là 「に行って」.",
+      "options": [
+       "それな",
+       "に行って",
+       "ら学生課",
+       "ください"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: どうせ買うなら高いのがほしい。 (Đằng nào cũng mua thì tôi muốn mua cái đắt tiền.). Theo cấu trúc 〜なら, mảnh đứng ở vị trí ★ là 「買うなら」.",
+      "options": [
+       "高いの",
+       "どうせ",
+       "がほしい",
+       "買うなら"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mẫu 〜なら có nghĩa là \"Cách nêu một giả thiết nào đó. Vế sau thường là phán đoán, đánh giá, chỉ dẫn hoặc hi vọng của người nói.\". Câu này dịch là: \"Nếu vậy thì hãy đến phòng công tác sinh viên nhé.\"",
+      "options": [
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Nếu vậy thì hãy đến phòng công tác sinh viên nhé.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà."
+      ],
+      "prompt_ja": "それなら学生課に行ってください。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu 〜なら (Cách nêu một giả thiết nào đó. Vế sau thường là phán đoán, đánh giá, chỉ dẫn hoặc hi vọng của người nói.), câu trên có nghĩa là: \"Đằng nào cũng mua thì tôi muốn mua cái đắt tiền.\"",
+      "options": [
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Đằng nào cũng mua thì tôi muốn mua cái đắt tiền.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển."
+      ],
+      "prompt_ja": "どうせ買うなら高いのがほしい。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu 〜なら). Câu đúng: それなら学生課に行ってください。",
+      "options": [
+       "どうせ買うなら高いのがほしい。",
+       "雨が降ったら試合は中止です。",
+       "安ければこのパソコンを買います。",
+       "それなら学生課に行ってくださいますだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu 〜なら). Câu đúng: どうせ買うなら高いのがほしい。",
+      "options": [
+       "それなら学生課に行ってください。",
+       "どうせ買うなら高いのがほしいですます。",
+       "雨が降ったら試合は中止です。",
+       "安ければこのパソコンを買います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"〜なら\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "それなら学生課に行ってください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu vậy thì hãy đến phòng công tác sinh viên nhé."
+     },
+     {
+      "ja": "どうせ買うなら高いのがほしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đằng nào cũng mua thì tôi muốn mua cái đắt tiền."
+     },
+     {
+      "ja": "雨が降ったら試合は中止です。",
+      "ja_furigana": "雨(あめ)が降(ふ)ったら試合(しあい)は中止(ちゅうし)です。",
+      "source": "CLAUDE",
+      "vi": "Nếu trời mưa thì trận đấu sẽ bị hủy."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「です」 theo cấu trúc 〜なら (Cách nêu một giả thiết nào đó. Vế sau thường là phán đoán, đánh giá, chỉ dẫn hoặc hi vọng của người nói.). Nghĩa: Nếu trời mưa thì trận đấu sẽ bị hủy.",
+      "options": [
+       "ので",
+       "です",
+       "ば",
+       "くらい"
+      ],
+      "prompt_ja": "雨が降ったら試合は中止（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu 〜なら (Cách nêu một giả thiết nào đó. Vế sau thường là phán đoán, đánh giá, chỉ dẫn hoặc hi vọng của người nói.), câu này nghĩa là: \"Nếu trời mưa thì trận đấu sẽ bị hủy.\"",
+      "options": [
+       "Nếu trời mưa thì trận đấu sẽ bị hủy.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại."
+      ],
+      "prompt_ja": "雨が降ったら試合は中止です。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 雨が降ったら試合は中止です。",
+      "options": [
+       "それなら学生課に行ってください。",
+       "どうせ買うなら高いのがほしい。",
+       "雨が降ったら試合は中止ですだます。",
+       "春になれば暖かくなります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "なら",
+      "sentence_ja": "それ＿＿学生課に行ってください。",
+      "translation_vi": "Nếu vậy thì hãy đến phòng công tác sinh viên nhé."
+     },
+     {
+      "answer": "なら",
+      "sentence_ja": "どうせ買う＿＿高いのがほしい。",
+      "translation_vi": "Đằng nào cũng mua thì tôi muốn mua cái đắt tiền."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: それなら学生課に行ってください。",
+     "FURIGANA_MISSING: どうせ買うなら高いのがほしい。"
+    ],
+    "formation": "V / A / N + なら",
+    "locked_fields": [],
+    "meaning_vi": "Cách nêu một giả thiết nào đó. Vế sau thường là phán đoán, đánh giá, chỉ dẫn hoặc hi vọng của người nói.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"〜なら\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "ください",
+       "に行って",
+       "それな",
+       "ら学生課"
+      ],
+      "translation_vi": "Nếu vậy thì hãy đến phòng công tác sinh viên nhé."
+     },
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "高いの",
+       "どうせ",
+       "がほしい",
+       "買うなら"
+      ],
+      "translation_vi": "Đằng nào cũng mua thì tôi muốn mua cái đắt tiền."
+     }
+    ],
+    "pattern": "〜なら",
+    "pattern_variants": [
+     "なら"
+    ],
+    "unit_no": 35,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞/【動詞・イ形容詞・ナ形容詞】のふつう体ただし、ナ形容詞現在形に「だ」はつかない Ý nghĩa 1 : 相手が言ったことを受けて、それについてしっていることを言う・意見、希望などを言う・依頼する sau khi nghe điều đối phương nói,sau đó nói những gì mình biết về việc đó. Nói như là ý kiến, kỳ vọng hoặc nhờ vả. Ví dụ: 1. 「すみません、キムさん、いますか」「キムさんならさっき帰りましたよ」 「Xin lỗi, chị Kimu có ở đây không」「Nếu là Kimu thì vừa mới ra về rồi.」 2. 「さっき貸したはさみは？」「はさみなら、引き出しに戻しておいたよ」 「Cái kéo cho mượn lúc nãy thì ?」「Nếu là kéo thì đã để lại sẵn trong ngăn kéo rồi.」 3. 「来月の連休に温泉へでも行こうかと思っているんですよ」 「Kỳ nghỉ dài ngày tháng sau tôi định đi đến suối nước nóng.」 「温泉ならｘｘ温泉が一番ですよ。ぜひ行ってみてください」 「 nếu là suối nước nóng thì suối nước nóng XX la nhất đấy. Nhất định hãy đi thử đi nhé.」 4. 「ジュースを買いに、コンビニに行ってくるね」 「Tôi đi cửa hàng tiện lợi mua nước cam nhé.」 「あ、それならバンも買ってきて」 「à , nếu vậy thì cũng mua bánh mỳ nhé.」 Ý nghĩa 2 : （多くは相手が言ったことを受けて、）それについて意見を言う・申し出をする時間的な順番は、あとから述べることが先になる (nghe nhiều thông tin từ đối phương ), sau đó nói lên ý kiến về việc đó. Theo thứ tự thời gian đề xuất thì cái việc từ sau cùng sẽ là trước tiên. Ví dụ: 1. 「来月、京都に旅行しようと思っているんです」 「Tháng sau tôi định đi du lịch Kyoto.」 「京都へ行くなら、いい旅館を紹介しますよ」 「Nếu đi Kyoto thì tôi sẽ giới thiệu một ryokan/nhà trọ tốt.」 2. 「将来は外国で働きたいと思っています」 「Tương lại tôi có suy nghĩ muốn làm việc ở nước ngoài」 「外国で働きたいなら、今から外国語の勉強をしておいたほうがいいですよ」 「Nếu muốn làm việc ở nước ngoài thì từ bây giờ nên học sẵn tiếng nước ngoài thì tốt hơn đấy.」 3. 車を運転して帰るのなら、お酒を飲んではいけません。 Nếu lái xe trở về thì không được phép uống rượu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6bde744332"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "日本語は勉強すればするほどおもしろいです。",
+       "ja_furigana": "日本語(にほんご)は勉強(べんきょう)すればするほどおもしろいです。",
+       "vi": "Tiếng Nhật càng học càng thấy thú vị."
+      },
+      {
+       "ja": "この歌は聞けば聞くほど好きになります。",
+       "ja_furigana": "この歌(うた)は聞(き)けば聞(き)くほど好(す)きになります。",
+       "vi": "Bài hát này càng nghe càng thấy thích."
+      },
+      {
+       "ja": "駅から近ければ近いほど便利です。",
+       "ja_furigana": "駅(えき)から近(ちか)ければ近(ちか)いほど便利(べんり)です。",
+       "vi": "Càng gần ga càng tiện lợi."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "練習すればする（　　）上手になります。",
+       "options": [
+        "ほど",
+        "たら",
+        "ながら",
+        "ても"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「ほど」: V-ば + V-る + ほど: càng... càng... Nghĩa: Càng luyện tập càng giỏi lên."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "野菜は新しければ新しい（　　）おいしいです。",
+       "options": [
+        "ほど",
+        "たら",
+        "ても",
+        "ながら"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Điền 「ほど」: V-ば + V-る + ほど: càng... càng... Nghĩa: Rau càng tươi càng ngon."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "聞くほど",
+        "好きになります",
+        "この歌は",
+        "聞けば"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: この歌は聞けば聞くほど好きになります。 (Bài hát này càng nghe càng thấy thích.). Mảnh ở ô ★ là 「聞くほど」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "読めば",
+        "わからなくなります",
+        "この本は",
+        "読むほど"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: この本は読めば読むほどわからなくなります。 (Quyển sách này càng đọc càng thấy khó hiểu.). Mảnh ở ô ★ là 「読むほど」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "日本語は勉強すればするほどおもしろいです。",
+       "options": [
+        "Tiếng Nhật càng học càng thấy thú vị.",
+        "Anh ấy vẫn chưa ra khỏi phòng.",
+        "Tôi sẽ hỏi thử xem bạn ấy muốn gì vào sinh nhật.",
+        "Vào ngày nắng có thể nhìn thấy núi Phú Sĩ từ căn phòng này."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu dùng mẫu ば〜程(ほど) (càng... thì càng..): \"Tiếng Nhật càng học càng thấy thú vị.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "駅から近ければ近いほど便利です。",
+       "options": [
+        "Chiếc máy tính này tôi vừa mua tuần trước.",
+        "Uống thuốc này thì sẽ hạ sốt.",
+        "Càng gần ga càng tiện lợi.",
+        "Tôi quên ví nên không có tiền."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu dùng mẫu ば〜程(ほど) (càng... thì càng..): \"Càng gần ga càng tiện lợi.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "この本は読めば読むほどわからなくなります。",
+        "日本語は勉強すればほどおもしろいです。",
+        "練習すればするほど上手になります。",
+        "日本語は勉強すればするほどおもしろいです。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "「日本語は勉強すればほどおもしろいです。」 sai: phải lặp lại động từ ở thể từ điển trước ほど (すればするほど). Câu đúng: 日本語は勉強すればするほどおもしろいです。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "この歌は聞けば聞いたほど好きになります。",
+        "野菜は新しければ新しいほどおいしいです。",
+        "この歌は聞けば聞くほど好きになります。",
+        "駅から近ければ近いほど便利です。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "「この歌は聞けば聞いたほど好きになります。」 sai: trước ほど dùng thể từ điển (聞く). Câu đúng: この歌は聞けば聞くほど好きになります。"
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "勉強すれば",
+        "するほど",
+        "おもしろいです。",
+        "日本語は"
+       ],
+       "answer_order": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "translation_vi": "Tiếng Nhật càng học càng thấy thú vị."
+      },
+      {
+       "pieces": [
+        "駅から",
+        "便利です。",
+        "近いほど",
+        "近ければ"
+       ],
+       "answer_order": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "translation_vi": "Càng gần ga càng tiện lợi."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "この歌は聞けば聞く＿＿好きになります。",
+       "answer": "ほど",
+       "translation_vi": "Bài hát này càng nghe càng thấy thích."
+      },
+      {
+       "sentence_ja": "駅から近ければ近い＿＿便利です。",
+       "answer": "ほど",
+       "translation_vi": "Càng gần ga càng tiện lợi."
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "この本は読めば読む（　　）わからなくなります。",
+       "options": [
+        "ても",
+        "ほど",
+        "たら",
+        "ながら"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Điền 「ほど」: V-ば + V-る + ほど: càng... càng... Nghĩa: Quyển sách này càng đọc càng thấy khó hiểu."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "練習すればするほど上手になります。",
+       "options": [
+        "Trường hợp không hiểu thì hãy hỏi thầy.",
+        "Càng luyện tập càng giỏi lên.",
+        "Từ giờ tôi định mỗi ngày viết nhật ký.",
+        "Đường đông. Vì thế tôi đã muộn cuộc họp."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu dùng mẫu ば〜程(ほど) (càng... thì càng..): \"Càng luyện tập càng giỏi lên.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "駅から近いければ近いほど便利です。",
+        "野菜は新しければ新しいほどおいしいです。",
+        "この歌は聞けば聞くほど好きになります。",
+        "日本語は勉強すればするほどおもしろいです。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "「駅から近いければ近いほど便利です。」 sai: thể ば của 近い là 近ければ. Câu đúng: 駅から近ければ近いほど便利です。"
+      }
+     ]
+    },
+    "note": "viết lại ví dụ và toàn bộ ngân hàng câu (bản cũ có câu sai vô nghĩa kiểu ますだ/をが, mảnh xếp cắt giữa từ)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「ほど」 theo mẫu ば〜程(ほど) (Càng... thì càng...). Nghĩa cả câu: Tiếng Nhật càng học càng thấy thú vị.",
+      "options": [
+       "たら",
+       "だけ",
+       "ほど",
+       "し"
+      ],
+      "prompt_ja": "日本語は勉強すればする（　　）面白い。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc ば〜程(ほど) (Càng... thì càng...), chỗ trống cần điền 「から」. Nghĩa: Càng gần nhà ga thì càng tiện lợi.",
+      "options": [
+       "なら",
+       "ほど",
+       "てもいい",
+       "から"
+      ],
+      "prompt_ja": "駅（　　）近ければ近いほど便利です。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 日本語は勉強すればするほど面白い。 (Tiếng Nhật càng học càng thấy thú vị.). Theo cấu trúc ば〜程(ほど), mảnh đứng ở vị trí ★ là 「ばするほ」.",
+      "options": [
+       "ど面白い",
+       "勉強すれ",
+       "ばするほ",
+       "日本語は"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 駅から近ければ近いほど便利です。 (Càng gần nhà ga thì càng tiện lợi.). Theo cấu trúc ば〜程(ほど), mảnh đứng ở vị trí ★ là 「近ければ」.",
+      "options": [
+       "駅から",
+       "近いほど",
+       "近ければ",
+       "便利です"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Mẫu ば〜程(ほど) có nghĩa là \"Càng... thì càng...\". Câu này dịch là: \"Tiếng Nhật càng học càng thấy thú vị.\"",
+      "options": [
+       "Tiếng Nhật càng học càng thấy thú vị.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà."
+      ],
+      "prompt_ja": "日本語は勉強すればするほど面白い。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu ば〜程(ほど) (Càng... thì càng...), câu trên có nghĩa là: \"Càng gần nhà ga thì càng tiện lợi.\"",
+      "options": [
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Càng gần nhà ga thì càng tiện lợi.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "prompt_ja": "駅から近ければ近いほど便利です。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu ば〜程(ほど)). Câu đúng: 日本語は勉強すればするほど面白い。",
+      "options": [
+       "駅から近ければ近いほど便利です。",
+       "この歌は聞けば聞くほど好きになる。",
+       "日本語は勉強すればするほど面白いますだ。",
+       "雨が降ったら試合は中止です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu ば〜程(ほど)). Câu đúng: 駅から近ければ近いほど便利です。",
+      "options": [
+       "駅から近ければ近いほど便利ですですます。",
+       "日本語は勉強すればするほど面白い。",
+       "この歌は聞けば聞くほど好きになる。",
+       "雨が降ったら試合は中止です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Quên lặp lại nguyên thể của động từ/tính từ trước ほど (sai: 読めばほど; đúng: 読めば読むほど).",
+    "examples": [
+     {
+      "ja": "日本語は勉強すればするほど面白い。",
+      "ja_furigana": "日本語(にほんご)は勉強(べんきょう)すればするほど面白(おもしろ)い。",
+      "source": "CLAUDE",
+      "vi": "Tiếng Nhật càng học càng thấy thú vị."
+     },
+     {
+      "ja": "駅から近ければ近いほど便利です。",
+      "ja_furigana": "駅(えき)から近(ちか)ければ近(ちか)いほど便利(べんり)です。",
+      "source": "CLAUDE",
+      "vi": "Càng gần nhà ga thì càng tiện lợi."
+     },
+     {
+      "ja": "この歌は聞けば聞くほど好きになる。",
+      "ja_furigana": "この歌(うた)は聞(き)けば聞(き)くほど好(す)きになる。",
+      "source": "CLAUDE",
+      "vi": "Bài hát này càng nghe càng thấy thích."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「ほど」 theo cấu trúc ば〜程(ほど) (Càng... thì càng...). Nghĩa: Bài hát này càng nghe càng thấy thích.",
+      "options": [
+       "ほど",
+       "しか",
+       "とか",
+       "ところ"
+      ],
+      "prompt_ja": "この歌は聞けば聞く（　　）好きになる。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu ば〜程(ほど) (Càng... thì càng...), câu này nghĩa là: \"Bài hát này càng nghe càng thấy thích.\"",
+      "options": [
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Bài hát này càng nghe càng thấy thích."
+      ],
+      "prompt_ja": "この歌は聞けば聞くほど好きになる。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: この歌は聞けば聞くほど好きになる。",
+      "options": [
+       "日本語は勉強すればするほど面白い。",
+       "この歌は聞けば聞くほど好きにをなる。",
+       "駅から近ければ近いほど便利です。",
+       "安ければこのパソコンを買います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ほど",
+      "sentence_ja": "日本語は勉強すればする＿＿面白い。",
+      "translation_vi": "Tiếng Nhật càng học càng thấy thú vị."
+     },
+     {
+      "answer": "から",
+      "sentence_ja": "駅＿＿近ければ近いほど便利です。",
+      "translation_vi": "Càng gần nhà ga thì càng tiện lợi."
+     }
+    ],
+    "findings": [],
+    "formation": "V-ば + V-るほど / A-ければ + A-いほど / A-な + なら + A-なほど",
+    "locked_fields": [],
+    "meaning_vi": "Càng... thì càng...",
+    "nuance_vi": "Nhấn mạnh quy luật tăng tiến song hành; cùng một động từ hoặc tính từ được lặp lại ở hai dạng thức.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "ばするほ",
+       "日本語は",
+       "ど面白い",
+       "勉強すれ"
+      ],
+      "translation_vi": "Tiếng Nhật càng học càng thấy thú vị."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "近ければ",
+       "便利です",
+       "駅から",
+       "近いほど"
+      ],
+      "translation_vi": "Càng gần nhà ga thì càng tiện lợi."
+     }
+    ],
+    "pattern": "ば〜程(ほど)",
+    "pattern_variants": [],
+    "unit_no": 35,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả sự biến đổi tỷ lệ thuận: mức độ của vế trước càng tăng thì tính chất hay kết quả ở vế sau cũng càng tăng theo."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d8cf15f805"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N4",
+ "packet_id": "REVIEW_GRAMMAR-004"
+}

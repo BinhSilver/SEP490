@@ -1,0 +1,589 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟のけがが早く治りますように。",
+       "ja_furigana": "弟(おとうと)のけがが早(はや)く治(なお)りますように。",
+       "vi": "Mong vết thương của em trai mau khỏi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "明日の面接がうまくいきますように。",
+       "ja_furigana": "明日(あした)の面接(めんせつ)がうまくいきますように。",
+       "vi": "Mong buổi phỏng vấn ngày mai diễn ra suôn sẻ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "合格しますように。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cầu cho đậu"
+     },
+     {
+      "ja": "母の病気が治りますように。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mong cho bệnh của mẹ mau khỏi"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 合格しますように。",
+     "FURIGANA_MISSING: 母の病気が治りますように。"
+    ],
+    "formation": "V-ます / V-ません + ように (cầu chúc)",
+    "locked_fields": [],
+    "meaning_vi": "Để, mong, cầu cho",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜合格しますように",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Thường dùng để thể hiện hi vọng, cầu mong về một việc gì đó"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0b9aed4a02"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お客さんが来る前に、部屋を片付けるようにしてください。",
+       "ja_furigana": "お客(きゃく)さんが来(く)る前(まえ)に、部屋(へや)を片付(かたづ)けるようにしてください。",
+       "vi": "Hãy dọn phòng trước khi khách tới.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "明日はいつもより早く着くようにしてください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngày mai xin hãy đến sớm hơn thường lệ. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 明日はいつもより早く着くようにしてください。"
+    ],
+    "formation": "V-る / V-ない + ようにしてください",
+    "locked_fields": [],
+    "meaning_vi": "Hãy…làm gì/ Không được làm gì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜早くように",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để yêu cầu, chỉ định người khác (bậc dưới) làm gì"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b8c34c9c77"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今年から毎朝走ろうと思っています。",
+       "ja_furigana": "今年(ことし)から毎朝(まいあさ)走(はし)ろうと思(おも)っています。",
+       "vi": "Từ năm nay tôi định chạy bộ mỗi sáng.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "来年、日本の大学を受けようと思う。",
+       "ja_furigana": "来年(らいねん)、日本(にほん)の大学(だいがく)を受(う)けようと思(おも)う。",
+       "vi": "Năm sau tôi định thi vào đại học ở Nhật.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "会社をやめようと思っている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi định bỏ việc"
+     },
+     {
+      "ja": "来年、国に帰ろうと思っています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Năm sau tôi định sẽ về nước."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 会社をやめようと思っている。",
+     "FURIGANA_MISSING: 来年、国に帰ろうと思っています。"
+    ],
+    "formation": "V(thể ý chí: 〜う / 〜よう) + と思う / と思っている",
+    "locked_fields": [],
+    "meaning_vi": "Dự định làm gì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜やめようと思う",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để thể hiện ý chí, dự định của chủ thể"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0e4fe69bff"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "猫が魚を食べようとしたので、さらを上に置いた。",
+       "ja_furigana": "猫(ねこ)が魚(さかな)を食(た)べようとしたので、さらを上(うえ)に置(お)いた。",
+       "vi": "Thấy con mèo định ăn cá, tôi đặt đĩa lên cao.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "電話をかけようとしたら、相手からかかってきた。",
+       "ja_furigana": "電話(でんわ)をかけようとしたら、相手(あいて)からかかってきた。",
+       "vi": "Vừa định gọi điện thì người kia gọi đến.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "電車に乗ろうとしたときに、ドアが閉まって乗れなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi tôi vừa định lên xe điện thì cửa đóng nên không thể lên được"
+     },
+     {
+      "ja": "あ、ポチが、あなたの靴をかもうとしているよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A, con Pochi sắp cắn đôi giày của bạn kìa"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 電車に乗ろうとしたときに、ドアが閉まって乗れなかった。",
+     "FURIGANA_MISSING: あ、ポチが、あなたの靴をかもうとしているよ。"
+    ],
+    "formation": "V(thể ý chí: 〜う / 〜よう) + としたとき(に)",
+    "locked_fields": [],
+    "meaning_vi": "(vừa ) Định làm gì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜電車に乗ろうとしたときに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để diễn tả ý định của chủ thể trong khoảnh khắc, khoảng thời gian ngắn. Dùng với những hành động mang tính ngắn hạn, thường ngày."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ccd4ad8908"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "兄は理由を話そうとしなかった。",
+       "ja_furigana": "兄(あに)は理由(りゆう)を話(はな)そうとしなかった。",
+       "vi": "Anh trai không chịu nói lý do.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "父は医者へ行こうとしない。",
+       "ja_furigana": "父(ちち)は医者(いしゃ)へ行(い)こうとしない。",
+       "vi": "Bố tôi không chịu đi khám bác sĩ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「ポチ、どうしたんだろう。ご飯を食べようとしないんだよ。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Pochi sao vậy nhỉ. Nó không chịu ăn cơm kìa"
+     },
+     {
+      "ja": "彼は自分のことは何も言おうとしない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta thì không định nói cái gì về mình cả"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「ポチ、どうしたんだろう。ご飯を食べようとしないんだよ。」",
+     "FURIGANA_MISSING: 彼は自分のことは何も言おうとしない。"
+    ],
+    "formation": "V(thể ý chí: 〜う / 〜よう) + としない",
+    "locked_fields": [],
+    "meaning_vi": "Không định làm gì, không tính làm gì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜食べようとしない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để thể hiện việc không cảm nhận được ý chí thực hiện hành động hay động tác"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-66d72bd6e2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町ほど静かな所はないと思う。",
+       "ja_furigana": "この町(まち)ほど静(しず)かな所(ところ)はないと思(おも)う。",
+       "vi": "Tôi nghĩ không có nơi nào yên tĩnh bằng thị trấn này.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "家族と食べるご飯ぐらいおいしいものはない。",
+       "ja_furigana": "家族(かぞく)と食(た)べるご飯(はん)ぐらいおいしいものはない。",
+       "vi": "Không có gì ngon bằng bữa cơm ăn cùng gia đình.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "リーさんぐらい動物好きな人はいない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không có ai yêu động vật như anh Lee."
+     },
+     {
+      "ja": "わたしは料理を作ることぐらい楽しいことはないと思っています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi nghĩ chẳng có điều gì thú vị bằng việc nấu ăn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: リーさんぐらい動物好きな人はいない。",
+     "FURIGANA_MISSING: わたしは料理を作ることぐらい楽しいことはないと思っています。"
+    ],
+    "formation": "N + くらい / ぐらい / ほど + 〜は(い)ない",
+    "locked_fields": [],
+    "meaning_vi": "Được sử dụng khi người nói muốn đưa ra cảm nhận chủ quan của họ chứ không phải là một sự thật khách quan.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜くらい...はない・〜ぐらい...はない・〜ほど...はない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［名］ ＋くらい…はない・ぐらい…はない ［名］ ＋ほど…ない Được sử dụng khi người nói muốn đưa ra cảm nhận chủ quan của họ chứ không phải là một sự thật khách quan. Ví dụ: 1. リーさんぐらい動物好きな人はいない。 Không có ai yêu động vật như anh Lee. 2. わたしは料理を作ることぐらい楽しいことはないと思っています。 Tôi nghĩ chẳng có điều gì thú vị bằng việc nấu ăn. 3. ああ、あしたも漢字のテストがある。テストほどいやなものはない。 Ôi, ngày mai lại có kiểm tra chữ Hán. Không có gì khó chịu bằng các bài kiểm tra. 4. 2年前に病気だと分かったときほど不安になったことはない。 Chẳng khi nào tôi lo lắng bằng lúc biết mình bị bệnh hai năm trước."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3c31dba033"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "けがをしたため、今日は泳げません。",
+       "ja_furigana": "けがをしたため、今日(きょう)は泳(およ)げません。",
+       "vi": "Vì bị thương nên hôm nay tôi không bơi được.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "大雪のため、電車が止まっている。",
+       "ja_furigana": "大雪(おおゆき)のため、電車(でんしゃ)が止(と)まっている。",
+       "vi": "Vì tuyết rơi dày nên tàu đang ngừng chạy.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "報告書にミスが多かったのは、よく見直しをしなかったためだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Báo cáo có nhiều lỗi có lẽ là do không xem lại kỹ."
+     },
+     {
+      "ja": "この村には医者がいないために、病気のときはとなりの町まで行かなければならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì trong làng này không có bác sĩ, nên khi bị ốm phải đi đến thị trấn bên cạnh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 報告書にミスが多かったのは、よく見直しをしなかったためだろう。",
+     "FURIGANA_MISSING: この村には医者がいないために、病気のときはとなりの町まで行かなければならない。"
+    ],
+    "formation": "V / Aい / Aな(な) / N(の) + ため(に) / ためだ",
+    "locked_fields": [],
+    "meaning_vi": "~ là nguyên nhân./ ~ là nguyên nhân dẫn tới kết quả là …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ためだ・〜ため(に)...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［名］の ＋ためだ・ため（に） 普通形（な形だ-な/-である・ ［名］ -の/ -である） ＋ためだ・ため（に） ~ là nguyên nhân./ ~ là nguyên nhân dẫn tới kết quả là … … không dùng câu thể hiện mong muốn, ý định, kêu gọi đối phương làm điều gì đó. Là cách nói hơi trang trọng. Ví dụ: 1. 報告書にミスが多かったのは、よく見直しをしなかったためだろう。 Báo cáo có nhiều lỗi có lẽ là do không xem lại kỹ. 2. この村には医者がいないために、病気のときはとなりの町まで行かなければならない。 Vì trong làng này không có bác sĩ, nên khi bị ốm phải đi đến thị trấn bên cạnh. 3. 出張のため、明日の会議は欠席させていただきます。 Vì đi công tác, tôi xin phép được vắng mặt trong cuộc họp ngày mai."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6ea3c4fa1a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "安心というのは、心配しなくていい気持ちです。",
+       "ja_furigana": "安心(あんしん)というのは、心配(しんぱい)しなくていい気持(きも)ちです。",
+       "vi": "An tâm là cảm giác không phải lo lắng.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "「花見」というのは、さくらを見て楽しむことです。",
+       "ja_furigana": "「花見(はなみ)」というのは、さくらを見(み)て楽(たの)しむことです。",
+       "vi": "\"Hanami\" là việc ngắm và thưởng thức hoa anh đào.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "著者というのはその本を書いた人のことです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tác giả là người viết cuốn sách."
+     },
+     {
+      "ja": "あなたにとって仕事とは何でしょうか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đối với bạn công việc là gì?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 著者というのはその本を書いた人のことです。",
+     "FURIGANA_MISSING: あなたにとって仕事とは何でしょうか。"
+    ],
+    "formation": "N + とは / というのは + N / V-る + ことだ",
+    "locked_fields": [],
+    "meaning_vi": "Cái gọi là… là cái",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜とは/というのは",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để đưa ra định nghĩa hoặc giải thích khái niệm: “cái gọi là… tức là…”. Thường dùng khi giải nghĩa từ/ngữ hoặc làm rõ ý. 1) Dễ nhầm với ～という (định ngữ). → ～とは／というのは dùng để nêu định nghĩa/giải thích khái niệm. 2) Vế sau thường là giải thích trực tiếp. → Dạng “AとはBのことだ” rất hay ra đề. 3) Không phải mẫu trích dẫn lời nói. → Trích dẫn “nói rằng” thì dùng ～と言う／～って, không dùng ～とは để kể lại tin."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4ee9c9f846"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅を中心に、新しい店が増えてきた。",
+       "ja_furigana": "駅(えき)を中心(ちゅうしん)に、新(あたら)しい店(みせ)が増(ふ)えてきた。",
+       "vi": "Quanh ga, các cửa hàng mới ngày càng nhiều.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "このクラスは、会話を中心に勉強します。",
+       "ja_furigana": "このクラスは、会話(かいわ)を中心(ちゅうしん)に勉強(べんきょう)します。",
+       "vi": "Lớp này học lấy hội thoại làm trọng tâm.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "駅前を中心に再開発が進められ、新しいビルが次々と建てられている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Việc tái phát triển đã được tiến hành lấy khu vực trước nhà ga làm trung tâm, và các tòa nhà mới được xây dựng liên tiếp."
+     },
+     {
+      "ja": "今度の日本代表チームは主将の中村選手を中心によくまとまっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đội đại diện cho Nhật Bản lần này đã tập trung đầy đủ với đầu tàu là tuyển thủ Nakamura."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 駅前を中心に再開発が進められ、新しいビルが次々と建てられている。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 駅前を中心に再開発が進められ、新しいビルが次々と建てられている。 → 再",
+     "FURIGANA_MISSING: 今度の日本代表チームは主将の中村選手を中心によくまとまっている。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 今度の日本代表チームは主将の中村選手を中心によくまとまっている。 → 将"
+    ],
+    "formation": "N + を中心に / を中心として / を中心にして",
+    "locked_fields": [],
+    "meaning_vi": "Lấy … làm trung tâm",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜を中心に/を中心として/を中心にして",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả lấy N làm trung tâm để triển khai hoạt động hoặc phạm vi lan tỏa xung quanh N. 1) Dễ nhầm với ～をはじめ. → ～を中心に nhấn “lấy N làm trung tâm để triển khai/lan rộng”, không chỉ là liệt kê ví dụ. 2) Hay đi với các từ chỉ tổ chức/hoạt động. → Ví dụ kiểu “東京を中心に”, “若者を中心に” (xoay quanh N). 3) Không dùng khi chỉ muốn nói “chủ yếu là…”. → Nếu chỉ nói “phần lớn là…” mà không có ý “trung tâm” thì cân nhắc mẫu khác."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-db5f494f03"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "小さな子どもでさえ、この歌を知っている。",
+       "ja_furigana": "小(ちい)さな子(こ)どもでさえ、この歌(うた)を知(し)っている。",
+       "vi": "Đến trẻ nhỏ cũng biết bài hát này.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "寒くて、指さえ動かない。",
+       "ja_furigana": "寒(さむ)くて、指(ゆび)さえ動(うご)かない。",
+       "vi": "Lạnh đến mức ngay cả ngón tay cũng không cử động được.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ひらがなさえ書けないんですから、漢字なんて書けません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì dến cả hiragana còn không thể viết được thì cỡ như chữ Kanji là không thể viết được rồi"
+     },
+     {
+      "ja": "そんなこと、子どもでさえ知っている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Điều như thế đến trẻ con còn biết"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ひらがなさえ書けないんですから、漢字なんて書けません。",
+     "FURIGANA_MISSING: そんなこと、子どもでさえ知っている。"
+    ],
+    "formation": "N + さえ + V(thể khả năng phủ định)",
+    "locked_fields": [],
+    "meaning_vi": "Thậm chí là, đến cả",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ひらがなさえ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để thể hiện một việc ở mức độ đặc biệt cao/thấp mà chắc chắn có thể / không thể làm được."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1f7bad3119"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-039"
+}

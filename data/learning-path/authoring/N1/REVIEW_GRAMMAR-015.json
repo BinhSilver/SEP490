@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "表紙から最後のページに至るまで、誤字がないか確認する。",
+       "ja_furigana": "表紙(ひょうし)から最後(さいご)のページに至(いた)るまで、誤字(ごじ)がないか確認(かくにん)する。",
+       "vi": "Từ bìa cho đến tận trang cuối, tôi kiểm tra xem có lỗi chính tả không."
+      },
+      {
+       "ja": "窓から天井に至るまで、ほこりが積もっている。",
+       "ja_furigana": "窓(まど)から天井(てんじょう)に至(いた)るまで、ほこりが積(つ)もっている。",
+       "vi": "Từ cửa sổ cho đến tận trần nhà, bụi bám đầy."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "議事要旨から余白の注記に至るまで、公開前の点検が入る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Từ tóm tắt biên bản cho đến tận chú thích ngoài lề, đều được kiểm trước khi công bố."
+     },
+     {
+      "ja": "主要機器から予備のヒューズに至るまで、ロット番号が記録されている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Từ thiết bị chính đến tận cầu chì dự phòng, số lô đều được ghi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 議事要旨から余白の注記に至るまで、公開前の点検が入る。",
+     "FURIGANA_MISSING: 主要機器から予備のヒューズに至るまで、ロット番号が記録されている。"
+    ],
+    "formation": "N + から + N + に至るまで、〜",
+    "locked_fields": [],
+    "meaning_vi": "Cho đến tận cả …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cho đến tận cả ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nhấn phạm vi trải đến cả điểm xa, nhỏ hoặc bất ngờ, thường trong kết cấu từ A đến cả B. Cách dùng: に至るまで nhấn mạnh phạm vi bao phủ đến cả điểm cuối xa, chi tiết nhỏ hoặc đối tượng người ta không ngờ. Hay đi trong から…に至るまで. Không phải hạn chót để hoàn thành việc; nghĩa đó thuộc までに. Văn viết, giàu nhấn mạnh, dùng khi muốn nói thậm chí cả đến mức ấy cũng nằm trong phạm vi kiểm soát, quy định hoặc ảnh hưởng. Sắc thái: Tô đậm tính toàn diện hoặc mức cực đại của phạm vi. Phù hợp quy trình, kiểm tra, đối tượng áp dụng. Sắc thái trang trọng, không dùng khi chỉ nêu mốc giờ thông thường. Lưu ý: Không dùng thay までに khi nói hạn chót phải xong. Cần điểm cuối đáng nhấn; không dùng cho mốc tầm thường không có ý cực xa. Thiên văn viết và văn hành chính."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d13a8444d7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この作業で短縮できるのは、せいぜい二日といったところだ。",
+       "ja_furigana": "この作業(さぎょう)で短縮(たんしゅく)できるのは、せいぜい二日(ふつか)といったところだ。",
+       "vi": "Công việc này rút ngắn được chừng hai ngày là cùng."
+      },
+      {
+       "ja": "今月の売り上げは、先月の八割といったところだろう。",
+       "ja_furigana": "今月(こんげつ)の売(う)り上(あ)げは、先月(せんげつ)の八割(はちわり)といったところだろう。",
+       "vi": "Doanh thu tháng này chắc chỉ khoảng tám phần mười so với tháng trước."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "工期の短縮は、せいぜい三日といったところだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Rút ngắn tiến độ chừng ba ngày là cùng."
+     },
+     {
+      "ja": "今回の改訂で読みやすくなるのは、導入部と図表の注釈といったところだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bản sửa lần này dễ đọc hơn chủ yếu ở phần mở và chú thích hình mà thôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 工期の短縮は、せいぜい三日といったところだ。",
+     "FURIGANA_MISSING: 今回の改訂で読みやすくなるのは、導入部と図表の注釈といったところだろう。"
+    ],
+    "formation": "N／数量／Thể thường + といったところだ",
+    "locked_fields": [],
+    "meaning_vi": "Chừng ấy là mức",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chừng ấy là mức",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Ước lượng mức độ, số lượng hoặc vai trò: cỡ ấy, chừng ấy là cùng, thường khiêm hoặc hạ kỳ vọng. Cách dùng: といったところだ dùng để ước lượng mức độ, số lượng hoặc phạm vi vai trò: chừng ấy, cỡ ấy là cùng. Thường khiêm tốn hoặc hạ thấp kỳ vọng, không tuyên bố con số tuyệt đối. Hay đi sau danh từ, lượng từ, hoặc động từ thể từ điển. Có thể thêm せいぜい để nhấn mức tối đa. Không dùng với nghĩa nơi gọi là, cũng không dùng khi cần khẳng định chính xác chặt. Sắc thái: Giọng nhận xét, hơi lạnh hoặc khách quan, đôi khi giảm nhẹ thành tựu. Phù hợp đánh giá tiến độ, thẩm quyền, sức chứa. Ngữ vực trung tính đến hơi văn viết. Không mang sắc tức thì hay mốc cắt sự kiện. Lưu ý: Không dùng như というところ với nghĩa địa điểm. Không phù hợp khi cần số liệu chính xác, không ước lượng. Thường ước lượng khiêm; ít dùng để phóng đại."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cf9b572971"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "運動を始めてからというもの、体の調子が良くなった。",
+       "ja_furigana": "運動(うんどう)を始(はじ)めてからというもの、体(からだ)の調子(ちょうし)が良(よ)くなった。",
+       "vi": "Kể từ khi bắt đầu tập thể dục, sức khỏe tôi đã tốt hơn."
+      },
+      {
+       "ja": "引っ越してからというもの、通勤がずいぶん楽になった。",
+       "ja_furigana": "引(ひ)っ越(こ)してからというもの、通勤(つうきん)がずいぶん楽(らく)になった。",
+       "vi": "Kể từ khi chuyển nhà, việc đi làm trở nên nhẹ nhõm hơn hẳn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "紙の台帳を廃止してからというもの、照会はすべて件名検索で処理されている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kể từ khi bỏ sổ giấy, mọi yêu cầu tra cứu đều được xử lý bằng tìm theo tiêu đề."
+     },
+     {
+      "ja": "夜勤シフトを外れてからというものは、彼の判断ミスが目に見えて減った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kể từ khi thôi ca đêm, lỗi phán đoán của anh ấy giảm rõ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 紙の台帳を廃止してからというもの、照会はすべて件名検索で処理されている。",
+     "FURIGANA_MISSING: 夜勤シフトを外れてからというものは、彼の判断ミスが目に見えて減った。"
+    ],
+    "formation": "V-て + からというもの(は)、〜",
+    "locked_fields": [],
+    "meaning_vi": "Kể từ lúc ấy trở đi",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Kể từ lúc ấy trở đi",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Lấy một hành động làm mốc, từ đó trạng thái hoặc thói quen mới kéo dài đến hiện tại. Cách dùng: てからというもの đánh dấu một mốc: kể từ khi làm A, trạng thái hoặc thói quen B kéo dài. Khác với việc kể hành động kế tiếp ngay sau đó. Vế sau thường là thay đổi đáng kể so với trước mốc, hay mang ý suốt từ đó, không còn, hoặc trở thành. Không dùng cho sự kiện chớp nhoáng đã kết thúc ngay. は sau もの có thể có hoặc không, sắc thái nhấn mạnh mốc không đổi. Sắc thái: Tô đậm bước ngoặt: trước và sau mốc khác hẳn. Có thể tích cực hoặc tiêu cực, nhưng phải là tình trạng bền. Ngữ vực trung tính đến hơi trang trọng, phù hợp nhận xét về vận hành, sức khỏe làm việc, thói quen sau một quyết định. Lưu ý: Không dùng cho việc xảy ra tức thì một lần rồi kết thúc. Vế sau cần là trạng thái hoặc thói quen còn kéo tới hiện tại. Không thay thế てから khi chỉ nêu thứ tự hai hành động ngắn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fb4b540752"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今月末を限りに、この切符の販売は終了する。",
+       "ja_furigana": "今月末(こんげつまつ)を限(かぎ)りに、この切符(きっぷ)の販売(はんばい)は終了(しゅうりょう)する。",
+       "vi": "Lấy cuối tháng này làm mốc, việc bán loại vé này sẽ kết thúc."
+      },
+      {
+       "ja": "今日を限りに、この店は閉店することになった。",
+       "ja_furigana": "今日(きょう)を限(かぎ)りに、この店(みせ)は閉店(へいてん)することになった。",
+       "vi": "Lấy ngày hôm nay làm mốc cuối, quán này sẽ đóng cửa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今年度の定期点検を限りに、旧棟の利用は停止される。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lấy đợt kiểm định năm nay làm lần cuối, việc sử dụng dãy nhà cũ sẽ dừng."
+     },
+     {
+      "ja": "今月末を限りに、学内便の午後便は廃止する。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lấy cuối tháng này làm mốc, chuyến thư nội bộ buổi chiều sẽ bãi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今年度の定期点検を限りに、旧棟の利用は停止される。",
+     "FURIGANA_MISSING: 今月末を限りに、学内便の午後便は廃止する。"
+    ],
+    "formation": "N + を限りに、〜",
+    "locked_fields": [],
+    "meaning_vi": "Lấy … làm mốc kết thúc",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Lấy ... làm mốc kết thúc",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Lấy một mốc thời gian hoặc sự kiện làm lần cuối, từ đó chấm dứt hoạt động; còn nghĩa thành ngữ hét hết cỡ giọng. Cách dùng: Danh từ thời điểm hoặc sự kiện + を限りに nghĩa là lấy mốc ấy làm lần cuối, sau đó ngừng việc đã nêu. Dùng khi tuyên bố bãi bỏ, nghỉ hoạt động, cắt dịch vụ. Cần phân biệt thành ngữ 声を限りに, nghĩa hết cỡ giọng, không phải mốc dừng. Không nhầm với 限りだ diễn cảm xúc. Mẫu này hướng về cắt, không phải mở chuỗi. Sắc thái: Trang trọng, dứt khoát, hay gặp thông báo nội bộ, lịch diễn, quyết định vận hành. 声を限りに mang sắc mạnh về âm lượng, dùng khi gọi to trong không gian rộng. Hai nghĩa không trộn trong cùng một khung giải thích thời điểm. Lưu ý: Nghĩa chấm dứt cần danh từ mốc thời gian hoặc sự kiện, không phải danh từ tùy ý. Không nhầm với 限りだ (cảm thán) hay 限りで. 声を限りに là thành ngữ riêng, không phải mốc kết thúc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1c36d8a3c1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この映画の上映を皮切りに、各地で催しが開かれる。",
+       "ja_furigana": "この映画(えいが)の上映(じょうえい)を皮切(かわき)りに、各地(かくち)で催(もよお)しが開(ひら)かれる。",
+       "vi": "Lấy buổi chiếu phim này làm mở đầu, các sự kiện sẽ được tổ chức ở nhiều nơi."
+      },
+      {
+       "ja": "新曲の発表を皮切りに、全国ツアーが始まった。",
+       "ja_furigana": "新曲(しんきょく)の発表(はっぴょう)を皮切(かわき)りに、全国(ぜんこく)ツアーが始(はじ)まった。",
+       "vi": "Lấy việc ra mắt bài hát mới làm mở đầu, chuyến lưu diễn toàn quốc đã bắt đầu."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "港湾倉庫の公開を皮切りに、市内の産業遺産が順に見学対象となった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lấy việc mở cửa kho cảng làm mốc đầu, các di sản công nghiệp trong thành phố lần lượt thành điểm tham quan."
+     },
+     {
+      "ja": "試作機の社内展示を皮切りとして、各工場でも説明会が開かれた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lấy buổi trưng bày máy thử trong công ty làm mở đầu, các nhà máy cũng tổ chức họp giải thích."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 港湾倉庫の公開を皮切りに、市内の産業遺産が順に見学対象となった。",
+     "FURIGANA_MISSING: 試作機の社内展示を皮切りとして、各工場でも説明会が開かれた。"
+    ],
+    "formation": "N + を皮切りに(して／として)、〜",
+    "locked_fields": [],
+    "meaning_vi": "Lấy … làm mốc mở đầu",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Lấy ... làm mốc mở đầu",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Lấy một sự kiện làm phát súng đầu, sau đó hàng loạt việc cùng loại tiếp nối và lan rộng. Cách dùng: を皮切りに hoặc を皮切りとして lấy một sự kiện làm mốc mở đầu, rồi các việc cùng loại nối tiếp, lan ra nơi khác hoặc giai đoạn sau. Thường dùng cho chuỗi hoạt động công, chương trình, triển khai. を皮切りとして hơi trang trọng hơn. Việc sau phải là chuỗi liên quan, không phải kết thúc hay một việc lẻ không cùng loại. Trợ từ を bắt buộc; không nói から皮切りに. Sắc thái: Hình ảnh phát súng khai màn: nhấn sự kiện đầu tiên của một loạt. Tích cực hoặc trung tính, hay gặp tin tức, báo cáo dự án, lịch diễn, chuỗi hội thảo. Không dùng cho sinh hoạt vụn một lần, cũng không phải mốc dừng. Lưu ý: Vế sau phải là chuỗi sự kiện cùng hướng, không phải chấm dứt. Thường là sự kiện công hoặc chương trình, không phải việc vặt cá nhân vụn. Cần を; không dùng から皮切りに."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fe245d783b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は家に帰るなり、ベッドに倒れ込んだ。",
+       "ja_furigana": "彼(かれ)は家(いえ)に帰(かえ)るなり、ベッドに倒(たお)れ込(こ)んだ。",
+       "vi": "Anh ấy vừa về đến nhà là ngã vật xuống giường."
+      },
+      {
+       "ja": "子どもはおやつをもらうなり、庭へ飛び出していった。",
+       "ja_furigana": "子(こ)どもはおやつをもらうなり、庭(にわ)へ飛(と)び出(だ)していった。",
+       "vi": "Đứa trẻ vừa nhận bánh kẹo là chạy vụt ra vườn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "技師は制御室に入るなり、圧力計の数値を読み上げた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kỹ sư vừa vào phòng điều khiển thì lập tức đọc to số trên đồng hồ áp suất."
+     },
+     {
+      "ja": "彼女は受話器を置くなり、ホワイトボードへ走って手順を書き直した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô ấy vừa đặt ống nghe xuống đã chạy tới bảng trắng viết lại quy trình."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 技師は制御室に入るなり、圧力計の数値を読み上げた。",
+     "FURIGANA_MISSING: 彼女は受話器を置くなり、ホワイトボードへ走って手順を書き直した。"
+    ],
+    "formation": "Vる + なり、〜",
+    "locked_fields": [],
+    "meaning_vi": "Vừa … thì liền",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vừa ... thì liền",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Cùng một chủ ngữ vừa làm xong việc trước thì lập tức chuyển sang việc sau, thường hơi đột ngột. Cách dùng: なり sau động từ thể từ điển diễn tả chủ ngữ vừa hoàn tất việc A thì liền làm việc B, thường cùng một người. Việc sau hay mang tính dứt khoát, vội hoặc hơi đột ngột, như vừa bước vào đã bắt tay xử lý. Hay gặp trong văn kể và tường thuật; hội thoại thân mật ít dùng. Không dùng thể た với nghĩa này. Cần tách khỏi なり của lựa chọn và khỏi なりに nghĩa theo cách của ai đó. Sắc thái: Nhấn hành động kế tiếp của chính chủ ngữ, hơi gấp. Không phải phản ứng đám đông như や否や, cũng không phải chuỗi lặp. Ngữ vực trung tính đến văn viết, phù hợp kể lại thao tác tại hiện trường. Lưu ý: Chỉ V辞書形; không dùng Vたなり với nghĩa vừa … thì liền. Chủ ngữ hai vế thường trùng nhau. Không nhầm với AなりBなり hay Nなりに."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-63d4f26c50"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先生が教室を出るが早いか、皆がしゃべり始めた。",
+       "ja_furigana": "先生(せんせい)が教室(きょうしつ)を出(で)るが早(はや)いか、皆(みな)がしゃべり始(はじ)めた。",
+       "vi": "Thầy giáo vừa rời lớp thì mọi người đã bắt đầu nói chuyện."
+      },
+      {
+       "ja": "合図が鳴るが早いか、選手たちは一斉に走り出した。",
+       "ja_furigana": "合図(あいず)が鳴(な)るが早(はや)いか、選手(せんしゅ)たちは一斉(いっせい)に走(はし)り出(だ)した。",
+       "vi": "Hiệu lệnh vừa vang lên thì các vận động viên đã đồng loạt lao đi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "館長が閉会を宣するが早いか、書記は録画ランプを切った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chủ tịch hội vừa tuyên bố bế mạc thì thư ký đã tắt đèn ghi hình."
+     },
+     {
+      "ja": "配電盤のランプが消えたが早いか、点検班は懐中電灯を点けた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đèn tủ điện vừa tắt thì tổ kiểm tra đã bật đèn pin."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 館長が閉会を宣するが早いか、書記は録画ランプを切った。",
+     "FURIGANA_MISSING: 配電盤のランプが消えたが早いか、点検班は懐中電灯を点けた。"
+    ],
+    "formation": "Vる／Vた + が早いか、〜",
+    "locked_fields": [],
+    "meaning_vi": "Vừa … thì ngay lập tức",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vừa ... thì ngay lập tức",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Việc sau xảy ra sát ngay khi việc trước vừa diễn ra, gần như không còn khoảng hở thời gian. Cách dùng: Mẫu gắn sau động từ thể từ điển hoặc thể た để nói rằng việc ở vế sau xảy ra sát lúc việc trước vừa xong, gần như không còn khoảng hở. Người nói muốn tô đậm tốc độ phản ứng chứ không chỉ kể thứ tự thời gian. Vế sau thường là sự việc đã xảy ra nên hay dùng quá khứ, và là hành động cụ thể, quan sát được. Cách nói nghiêng về văn viết, phù hợp tường thuật sự kiện, biên bản hay bài báo hơn hội thoại thân mật. Không dùng khi hai việc nối tiếp thong thả. Sắc thái: Sắc thái tường thuật, hơi cứng, nhấn mạnh tính tức thì và đôi khi bất ngờ. Hay gặp khi kể chuỗi sự việc diễn ra rất nhanh tại hiện trường, cuộc họp hoặc phòng làm việc. Không mang nghĩa lặp lại bất lực như そばから, cũng không đánh dấu một giai đoạn kéo dài. Lưu ý: Không gắn sau thể ない. Vế sau ít khi là ý chí, mệnh lệnh, cấm đoán hay khuyên nhủ. Không dùng khi giữa hai việc có khoảng trống rõ hoặc nhịp điệu chậm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-790fa9b3f4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "映画が終わるや否や、観客は席を立ち始めた。",
+       "ja_furigana": "映画(えいが)が終(お)わるや否(いな)や、観客(かんきゃく)は席(せき)を立(た)ち始(はじ)めた。",
+       "vi": "Phim vừa kết thúc thì khán giả đã bắt đầu đứng dậy rời ghế."
+      },
+      {
+       "ja": "ベルが鳴るや、生徒たちは一斉に校門へ向かった。",
+       "ja_furigana": "ベルが鳴(な)るや、生徒(せいと)たちは一斉(いっせい)に校門(こうもん)へ向(む)かった。",
+       "vi": "Chuông vừa reo là học sinh đồng loạt hướng ra cổng trường."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "開札が終わるや否や、入札室は低い会話で埋まった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vừa dứt mở thầu thì phòng đấu thầu đã đầy những câu nói nhỏ."
+     },
+     {
+      "ja": "非常放送が流れるや、各階の誘導係は所定の位置へ散った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Loa khẩn cấp vừa vang là nhân viên hướng dẫn mỗi tầng đã tỏa về vị trí quy định."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 開札が終わるや否や、入札室は低い会話で埋まった。",
+     "FURIGANA_MISSING: 非常放送が流れるや、各階の誘導係は所定の位置へ散った。"
+    ],
+    "formation": "Vる + や否や／Vる + や、〜",
+    "locked_fields": [],
+    "meaning_vi": "Vừa mới … thì đã ngay",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vừa mới ... thì đã ngay",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Việc sau xảy ra ngay khi việc trước vừa hoàn tất; sắc thái văn viết, trang trọng. Cách dùng: や hoặc や否や gắn sau động từ thể từ điển, nghĩa là việc sau xảy ra ngay khi việc trước vừa xong. Sắc thái trang trọng, thiên tường thuật và văn viết, ít gặp trong nói năng hàng ngày. や là dạng rút, や否や đầy đủ hơn nhưng nghĩa không đổi. Vế sau thường kể sự việc đã xảy ra, nhấn phản ứng nhanh của người hoặc tập thể. Không dùng thể た trước mẫu, cũng không dùng khi khoảng cách thời gian rõ rệt. Sắc thái: Nghe trang trọng, hơi cổ, phù hợp biên niên sự kiện, báo cáo nội bộ, văn kể. や否や tô đậm hơn ý vừa xong đã chuyển pha. Không diễn tả sự lặp lại mệt mỏi, cũng không phải mốc mở đầu một chuỗi dài. Lưu ý: Chỉ nhận động từ thể từ điển, không dùng Vた + や否や. Thiên văn viết; hội thoại thân mật thường chọn cách khác. Vế sau thường không phải mệnh lệnh, ý chí hay lời khuyên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-745af29912"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "覚えるそばから、単語を忘れてしまう。",
+       "ja_furigana": "覚(おぼ)えるそばから、単語(たんご)を忘(わす)れてしまう。",
+       "vi": "Vừa học xong từ mới đã lại quên ngay."
+      },
+      {
+       "ja": "掃除するそばから、子どもが部屋を散らかす。",
+       "ja_furigana": "掃除(そうじ)するそばから、子(こ)どもが部屋(へや)を散(ち)らかす。",
+       "vi": "Vừa dọn xong thì con đã lại làm bừa bộn phòng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "用語を統一するそばから、現場メモには別呼びが戻ってくる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vừa thống nhất thuật ngữ thì trong ghi chép hiện trường lại xuất hiện tên gọi khác."
+     },
+     {
+      "ja": "床の砂を掃いたそばから、搬入口の風がまた砂を吹き込む。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vừa quét cát trên sàn thì gió cửa chuyển hàng lại thổi cát vào."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 用語を統一するそばから、現場メモには別呼びが戻ってくる。",
+     "FURIGANA_MISSING: 床の砂を掃いたそばから、搬入口の風がまた砂を吹き込む。"
+    ],
+    "formation": "Vた + そばから、〜",
+    "locked_fields": [],
+    "meaning_vi": "Vừa xong đã lại",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vừa xong đã lại",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Cứ vừa làm xong A thì B lại xảy ra ngay, và sự nối tiếp ấy lặp đi lặp lại, thường khiến người nói đuổi không kịp. Cách dùng: そばから nói rằng cứ vừa hoàn tất việc A thì việc B lại đến ngay, và vòng đó tái diễn. Người nói thường cảm thấy công sức bị vô hiệu hoặc tình trạng khó kiểm soát. Cả thể từ điển lẫn thể た đều dùng được. Không dùng cho một lần duy nhất. Việc sau thường ngoài ý muốn khống chế hoàn toàn, như vừa dọn đã bẩn lại, vừa thống nhất thuật ngữ đã xuất hiện tên gọi khác. Sắc thái: Sắc thái mệt mỏi, than phiền nhẹ hoặc nhận xét thực tế bám riết. Khác hẳn chuỗi một lần của が早いか. Phù hợp mô tả công việc vận hành, tiếp nhận yêu cầu, bảo trì — những chỗ việc mới phủ lên việc cũ. Lưu ý: Mang tính lặp; không dùng cho sự nối tiếp một lần. Vế sau thường trái ý hoặc khiến người nói cảm thấy không theo kịp. Không diễn tả quyết định chấm dứt hay mở đầu một chiến dịch."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-09c788f5f5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "平日といわず休日といわず、この道は車で混んでいる。",
+       "ja_furigana": "平日(へいじつ)といわず休日(きゅうじつ)といわず、この道(みち)は車(くるま)で混(こ)んでいる。",
+       "vi": "Cả ngày thường lẫn ngày nghỉ, con đường này lúc nào cũng đông xe."
+      },
+      {
+       "ja": "机といわず本棚といわず、書類が積まれている。",
+       "ja_furigana": "机(つくえ)といわず本棚(ほんだな)といわず、書類(しょるい)が積(つ)まれている。",
+       "vi": "Cả bàn lẫn giá sách đều chất đầy giấy tờ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "昼といわず夜といわず、救急車のサイレンが鳴りやまない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cả ngày lẫn đêm, tiếng còi cấp cứu không dứt."
+     },
+     {
+      "ja": "教室は床といわず机といわず、埃だらけだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong lớp từ sàn đến bàn, bụi bặm khắp nơi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 昼といわず夜といわず、救急車のサイレンが鳴りやまない。",
+     "FURIGANA_MISSING: 教室は床といわず机といわず、埃だらけだ。"
+    ],
+    "formation": "N + といわず + N + といわず、〜",
+    "locked_fields": [],
+    "meaning_vi": "Nhấn mạnh phạm vi rộng “không trừ/không phân biệt … hay …, tất cả đều …”. Thường đi với các cặp tự nhiên: 昼／夜, 老人／子供, 左／右, 内／外, 表／裏… Sắc thái mạnh, hơi văn viết; vế sau thường là trạng thái kéo dài, tính phổ quát, hoặc mức độ tràn lan (～だらけ、～まみれ、～が続く…).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Bất kể... hay...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn nhấn mạnh “không loại trừ” trong phạm vi rộng, tính lặp lại hoặc đồng loạt. Vế sau không phải là ý chí/cầu khiến trực tiếp. Tránh: ×子どもといわず大人といわず、集まりなさい。 Tự nhiên nhất với danh từ cụ thể/cặp đối lập; với danh từ trừu tượng nên cân nhắc. [6. Ghi chú mở rộng] Hiệu quả tu từ khi mô tả “khắp nơi/đồng loạt”: dễ tạo nhịp điệu, nhấn mạnh. Kết hợp tốt với từ chỉ mức “だらけ／まみれ／いっぱい／あふれる／鳴りやまない／絶えない”. Có thể dùng ba mục để tăng cường (ít gặp): 昼といわず夜といわず朝といわず… nhưng tránh dài dòng. [7. Biến thể & cụm cố định] 昼といわず夜といわず（cả ngày lẫn đêm） 大人といわず子どもといわず（mọi lứa tuổi） 内といわず外といわず／表といわず裏といわず（trong ngoài/ mặt trước mặt sau） [8. Lỗi thường gặp & bẫy JLPT] Dùng với mệnh lệnh/ý chí → không tự nhiên. Nhầm với ～を問わず trong ngữ cảnh biển báo/quy định: JLPT thường yêu cầu chọn mẫu trang trọng → dùng ～を問わず. Liệt kê danh từ không đối xứng/không cùng trường nghĩa khiến câu gượng gạo."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-76f5baf731"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-015"
+}

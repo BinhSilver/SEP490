@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-head :: head('Báo sai lộ trình - JLAS', 'jpath-admin')}"></head>
+<body id="jlabBasePage" class="admin-portal jpa-body">
+<div id="adminShellMount"></div>
+<main id="jlabBaseContent" class="jpa" hidden>
+    <header class="jpa-hero">
+        <div>
+            <span class="jpa-eyebrow">NGƯỜI BIÊN SOẠN</span>
+            <h1>Báo sai lộ trình</h1>
+            <p>Xem báo lỗi của người học, sửa nội dung tại chỗ và xuất các bản sửa cho seed.</p>
+        </div>
+        <form id="jpaExportForm" class="jpa-export" aria-label="Xuất sửa cho seed">
+            <label for="jpaExportLevel">Cấp</label>
+            <select id="jpaExportLevel">
+                <option value="N5">N5</option><option value="N4">N4</option><option value="N3">N3</option>
+                <option value="N2">N2</option><option value="N1">N1</option>
+            </select>
+            <button id="jpaExportButton" class="jpa-btn is-secondary" type="submit">Xuất sửa cho seed</button>
+        </form>
+    </header>
+    <form id="jpaFilters" class="jpa-filters" aria-label="Lọc báo lỗi">
+        <label><span>Trạng thái</span>
+            <select id="jpaStatus">
+                <option value="OPEN">Đang mở</option><option value="RESOLVED">Đã xử lý</option>
+                <option value="REJECTED">Từ chối</option>
+            </select>
+        </label>
+        <label><span>Cấp</span>
+            <select id="jpaLevel">
+                <option value="">Tất cả</option><option value="N5">N5</option><option value="N4">N4</option>
+                <option value="N3">N3</option><option value="N2">N2</option><option value="N1">N1</option>
+            </select>
+        </label>
+    </form>
+    <div class="jpa-layout">
+        <section class="jpa-list" aria-label="Danh sách mục bị báo">
+            <p id="jpaListStatus" class="jpa-muted" role="status" aria-live="polite"></p>
+            <ul id="jpaGroups" class="jpa-groups"></ul>
+            <nav class="jpa-pager" aria-label="Trang">
+                <button id="jpaPrev" class="jpa-btn is-secondary" type="button">Trước</button>
+                <span id="jpaPageInfo" class="jpa-muted"></span>
+                <button id="jpaNext" class="jpa-btn is-secondary" type="button">Sau</button>
+            </nav>
+        </section>
+        <section id="jpaDetail" class="jpa-detail" aria-label="Chi tiết mục" aria-live="polite">
+            <p class="jpa-muted">Chọn một mục ở danh sách để xem và sửa.</p>
+        </section>
+    </div>
+</main>
+<script th:src="@{/js/pages/admin-core.js(v=20261103-jpath)}"></script>
+<script th:src="@{/js/admin-shell.js(v=20261024-navscroll)}"></script>
+<script th:src="@{/js/jlptpath/jpath-admin-reports.js(v=20261103)}"></script>
+</body></html>

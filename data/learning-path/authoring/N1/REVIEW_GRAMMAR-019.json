@@ -1,0 +1,583 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町ならではの祭りが、今も続いている。",
+       "ja_furigana": "この町(まち)ならではの祭(まつ)りが、今(いま)も続(つづ)いている。",
+       "vi": "Lễ hội chỉ riêng thị trấn này mới có, vẫn còn được duy trì đến nay."
+      },
+      {
+       "ja": "この地域ならではの食材を使った料理を出します。",
+       "ja_furigana": "この地域(ちいき)ならではの食材(しょくざい)を使(つか)った料理(りょうり)を出(だ)します。",
+       "vi": "Chúng tôi phục vụ món ăn dùng nguyên liệu chỉ riêng vùng này mới có."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "京都ならではの風情がある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nơi đây có phong vị chỉ riêng Kyoto mới có."
+     },
+     {
+      "ja": "当店ならではのサービスをご提供します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chúng tôi cung cấp dịch vụ chỉ cửa hàng chúng tôi mới có."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 京都ならではの風情がある。",
+     "FURIGANA_MISSING: 当店ならではのサービスをご提供します。"
+    ],
+    "formation": "N + ならではの + N／N + ならでは",
+    "locked_fields": [],
+    "meaning_vi": "“～ならでは” nhấn mạnh tính độc đáo/đặc trưng riêng chỉ có ở chủ thể N; khen ngợi, đề cao. Thường đi với văn cảnh tích cực: điểm mạnh, bản sắc, thế mạnh cạnh tranh. Đối tượng N thường là địa danh, tổ chức, cửa hàng, cá nhân có phong cách riêng, văn hóa vùng miền, chất liệu đặc thù. Sắc thái quảng cáo/giới thiệu mạnh, nhưng cũng dùng trong hội thoại đời thường để khen.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chỉ... mới có",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để khen ngợi, nhấn mạnh “tính chỉ có tại/chỉ có của” N. Trành dùng với nội dung tiêu cực mạnh; nếu dùng sẽ mang mỉa mai, cần ngữ cảnh rõ ràng. Phù hợp trong tiêu đề, brochure, review, bài viết PR. Hình thức “N ならではだ” ngắn gọn, nhấn mạnh mạnh mẽ. [6. Ghi chú mở rộng] Có thể dùng hàm ý so sánh ngầm với nơi/đối tượng khác mà không nêu trực tiếp đối chứng. Trong PR, thường đi kèm từ vựng tích cực: 体験・魅力・景観・味・香り・強み・こだわり・サービス. Dùng mỉa mai: 文句ならではの多さ (lượng phàn nàn “đặc trưng” của ~) nhưng cần ngữ cảnh để người nghe hiểu là châm biếm. [7. Biến thể & cụm cố định] ここ／当社／当店／本校 ＋ ならではの ＋ N 彼／彼女 ＋ ならではの ＋ 発想・視点・表現 地域名 ＋ ならではの ＋ 文化・味・景観 N ＋ ならではだ [8. Lỗi thường gặp & bẫy JLPT] Dùng cho ý nghĩa tiêu cực trực diện → lệch sắc thái; nếu bắt buộc, nên có ngữ cảnh mỉa/ẩn dụ rõ. Nhầm với “だけの”: “ならでは” mạnh về “tính độc nhất/đặc trưng”; “だけの” chỉ định lượng/giới hạn. Bỏ “の” khi bổ nghĩa danh từ: cần “ならではの N”. Đổi vị trí: “N のならでは” là sai; đúng là “N ならでは（の）”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ace7d752fd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女は残業してまでも、資料を仕上げようとした。",
+       "ja_furigana": "彼女(かのじょ)は残業(ざんぎょう)してまでも、資料(しりょう)を仕上(しあ)げようとした。",
+       "vi": "Cô ấy cố làm thêm giờ đến mức ấy để hoàn thành tài liệu."
+      },
+      {
+       "ja": "友達を裏切ってまでも、勝ちたいと思った。",
+       "ja_furigana": "友達(ともだち)を裏切(うらぎ)ってまでも、勝(か)ちたいと思(おも)った。",
+       "vi": "Anh ta muốn thắng đến mức sẵn sàng phản bội cả bạn bè."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は借金してまでも店を続けた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy tiếp tục cửa hàng dù phải vay nợ."
+     },
+     {
+      "ja": "親に嘘をついてまでも彼女に会いに行った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta đã đi gặp cô ấy dù phải nói dối bố mẹ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は借金してまでも店を続けた。",
+     "FURIGANA_MISSING: 親に嘘をついてまでも彼女に会いに行った。"
+    ],
+    "formation": "V-て + まで(も)、〜",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả mức độ quyết liệt: “dù phải làm V (thường là việc quá mức, không mong muốn, trái lẽ) thì cũng …”, “đến cả mức V cũng …”. Sắc thái đánh giá: thường bao hàm nhận định đó là biện pháp cực đoan, không bình thường; có thể là phê phán (tiêu cực) hoặc ca ngợi ý chí (tích cực) tùy ngữ cảnh. Trọng tâm là “mốc giới hạn” まで: người nói đặt V như ranh giới tối đa mà vẫn chấp nhận vượt qua để đạt mục tiêu. ～てまでも nhấn mạnh “ngay cả … cũng”, mang tính văn viết hơn ～てまで. Trong khẩu ngữ, ～てまで phổ biến hơn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù phải... vẫn...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường dùng khi nêu mục tiêu mạnh mẽ hoặc phê phán hành động quá đà. V đứng trước là hành vi “cực hạn” (nặng nề, hi sinh, trái đạo lý): 嘘をつく, 徹夜する, 借金する, 犯罪に手を染める… Câu sau thể hiện kết quả/ý chí/đánh giá: ～やる/～続ける/～行く/～価値はない. Ít dùng với hành vi vặt vãnh bình thường; tránh dùng với tính từ. Trong câu hỏi tu từ: そこまでするてまで？ mang ý “đến mức vậy sao?”. [6. Ghi chú mở rộng] Mẫu thường xuất hiện trong văn nghị luận để phê phán sự đánh đổi quá mức: 名誉を汚してまで… Nếu muốn tán dương tinh thần hi sinh tích cực, chọn động từ mang giá trị cao: 命をかけてまでも守る. Phủ định định hướng: ～してまで…する価値はない nêu quan điểm “không đáng”. [7. Biến thể & cụm cố định] Vてまで（も）：biến thể phổ biến trong khẩu ngữ. Nまでして：借金までして, 無理までして. 何をしてまでも／どんな手を使ってまでも：bằng mọi cách (hàm ý có thể cực đoan). 命をかけてまで／命を賭してまで：hi sinh cả tính mạng. [8. Lỗi thường gặp & bẫy JLPT] Dùng với tính từ: sai. Phải là động từ ở dạng て. Dùng cho việc thường nhật nhỏ: thiếu tự nhiên. Nên dành cho tình huống “vượt giới hạn”. Nhầm với ～ても: ～てまでも bao hàm sắc thái cực đoan và đánh giá; ～ても thì không. Nhầm chiều nghĩa: Vてまでも là “chấp nhận làm V để …”, không phải “vì đã làm V nên …”. Trong đề JLPT, đáp án đúng thường đi với động từ nặng sắc thái như 嘘をつく, 犯罪に手を染める, 無理をする."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e3aa8653d4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この問題は若者に限ったことではない。",
+       "ja_furigana": "この問題(もんだい)は若者(わかもの)に限(かぎ)ったことではない。",
+       "vi": "Vấn đề này không phải chỉ riêng giới trẻ."
+      },
+      {
+       "ja": "睡眠不足は学生に限ったことではない。",
+       "ja_furigana": "睡眠不足(すいみんぶそく)は学生(がくせい)に限(かぎ)ったことではない。",
+       "vi": "Thiếu ngủ không phải chuyện chỉ xảy ra với học sinh."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この病気は高齢者に限ったことではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Căn bệnh này không phải chỉ xảy ra ở người cao tuổi."
+     },
+     {
+      "ja": "SNSでの誹謗中傷は芸能人に限ったことではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bôi nhọ trên mạng không phải chuyện chỉ xảy ra với nghệ sĩ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この病気は高齢者に限ったことではない。",
+     "FURIGANA_MISSING: SNSでの誹謗中傷は芸能人に限ったことではない。"
+    ],
+    "formation": "N + に限ったことではない",
+    "locked_fields": [],
+    "meaning_vi": "“Không phải là chuyện chỉ riêng N” → hiện tượng/sự việc không chỉ xảy ra với N, mà mang tính phổ biến hơn. Cấu trúc: 限る (giới hạn) → 限った (đã giới hạn) + ことではない (không phải là chuyện) → “không phải chuyện bị giới hạn vào N”. Thường dùng để phản biện quan niệm “chỉ N mới…”, mở rộng phạm vi ra những đối tượng khác. Sắc thái trung lập, dùng được trong văn nói và viết. Dễ thấy trong tin tức/xã luận.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không chỉ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt sau danh từ để phủ định tính “độc quyền/xuất hiện duy nhất ở N”. Thường đi kèm từ chỉ giới hạn như だけ, ばかり để nhấn mạnh rồi phủ định: Nだけに限ったことではない. Sắc thái khách quan, dùng khi nêu nhận định tổng quát hoặc mở rộng phạm vi thảo luận. Không dùng với tính từ/động từ trực tiếp; nếu cần, danh từ hóa chủ thể: 〜する人/〜な傾向/〜という現象 + に限ったことではない. [6. Ghi chú mở rộng] Khi chủ ngữ là người/nhóm người, nên dùng danh ngữ: 都市に住む人に限ったことではない. Hay đi với các chủ đề xã hội: 少子化、物価高、ハラスメント、気候変動など. Biểu thức đối ứng tích cực: Nに限った話ではない (không phải câu chuyện chỉ của N). [7. Biến thể & cụm cố định] Nに限ったことでもない (biến thể mềm; xem mục #70) 何もNに限ったことではない／別にNに限ったことではない (nhấn mạnh “đâu phải chỉ N”) 日本だけに限ったことではない／若者だけに限ったことではない (mẫu “だけ” + phủ định) [8. Lỗi thường gặp & bẫy JLPT] Dùng với động/tính từ trực tiếp: × 忙しいに限ったことではない → ✔ 忙しい人に限ったことではない. Nhầm với Nに限る (tốt nhất là N/giới hạn N). Nghĩa hoàn toàn khác. Bỏ “こと”: × Nに限ったではない → ✔ Nに限ったことではない. Nhầm sắc thái với だけではない: đề thi có thể yêu cầu chọn mẫu trang trọng hơn → ưu tiên に限ったことではない trong văn viết nghiêm túc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b55cf9968f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "連絡が足りないので、行き違いが起きた。",
+       "ja_furigana": "連絡(れんらく)が足(た)りないので、行(い)き違(ちが)いが起(お)きた。",
+       "vi": "Do liên lạc chưa đầy đủ nên đã xảy ra nhầm lẫn."
+      },
+      {
+       "ja": "合格するには、まだ努力が足りない。",
+       "ja_furigana": "合格(ごうかく)するには、まだ努力(どりょく)が足(た)りない。",
+       "vi": "Để thi đỗ thì sự nỗ lực vẫn chưa đủ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "説明が足りないので、誤解が生じた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Do giải thích chưa đủ nên đã xảy ra hiểu lầm."
+     },
+     {
+      "ja": "成功するには、まだ練習が足りない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Để thành công thì luyện tập vẫn chưa đủ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Không đủ...",
+     "FURIGANA_MISSING: 説明が足りないので、誤解が生じた。",
+     "FURIGANA_MISSING: 成功するには、まだ練習が足りない。"
+    ],
+    "formation": "N + が足りない／Vる + に足りない",
+    "locked_fields": [],
+    "meaning_vi": "- Nghĩa cơ bản: thiếu, không đủ (về thời gian, tiền, người, năng lực...). - Cấu trúc “～に足りない”: đánh giá không đáng để thực hiện một hành vi (検討・信頼・議論...). - Sắc thái: “Nが足りない” trung tính; “Nに足りない” trang trọng và phê phán.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không đủ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng が để chỉ đối tượng bị thiếu; dùng は để đối lập/chủ đề. ～にはNが足りない nêu rõ tiêu chí/mục tiêu; diễn đạt chuẩn trong báo cáo/đánh giá. ～に足りない mang tính phán xét; thường đi với danh từ Hán Nhật. [6. Ghi chú mở rộng] “頭が足りない” mang nghĩa chê bai năng lực trí tuệ; thận trọng ngữ cảnh. “足りない” vs “足らない”: khác biệt phong cách; nghĩa như nhau. “取るに足りない” là thành ngữ thường gặp, tương đương 些細だ/大したことはない. [7. Biến thể & cụm cố định] ～には～が足りない（khung tiêu chuẩn） 取るに足りない／語るに足りない（không đáng kể/đáng nói） 信用するに足りない／注目に足りない（không đáng tin/chú ý） 足らない（biến thể) [8. Lỗi thường gặp & bẫy JLPT] Nhầm “Nが足りない” (thiếu lượng) với “Nに足りない” (không đáng giá trị). Dùng động từ tùy tiện với “～に足りない”: nên ưu tiên collocation chuẩn (検討・信頼・注目...). Sai trợ từ: (x) 合格するに点数が足りない → (o) 合格するには点数が足りない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6c0a2d09ed"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "有名な店が必ずしも美味しいとは限らない。",
+       "ja_furigana": "有名(ゆうめい)な店(みせ)が必(かなら)ずしも美味(おい)しいとは限(かぎ)らない。",
+       "vi": "Quán nổi tiếng chưa chắc đã ngon."
+      },
+      {
+       "ja": "経験者がみんな上手とは限らない。",
+       "ja_furigana": "経験者(けいけんしゃ)がみんな上手(じょうず)とは限(かぎ)らない。",
+       "vi": "Người có kinh nghiệm chưa chắc ai cũng giỏi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "高い物が必ずしも良いとは限らない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đồ đắt không hẳn là tốt."
+     },
+     {
+      "ja": "日本人がみんな寿司好きとは限らない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không phải người Nhật nào cũng thích sushi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Không hẳn là...",
+     "FURIGANA_MISSING: 高い物が必ずしも良いとは限らない。",
+     "FURIGANA_MISSING: 日本人がみんな寿司好きとは限らない。"
+    ],
+    "formation": "(必ずしも +) Thể thường + とは限らない",
+    "locked_fields": [],
+    "meaning_vi": "Không hẳn/không phải lúc nào cũng ~; phủ định tính tất yếu/bao quát. Hay đi với 必ずしも để nhấn mạnh: 必ずしも～とは限らない. Dùng để phản biện định kiến/khái quát hóa: “A thì B” không phải lúc nào cũng đúng.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không hẳn là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái khách quan, lịch sự; thường dùng trong tranh luận, viết học thuật, tin tức. Đặt sau mệnh đề được xem như nhận định phổ biến/định kiến để phủ định tính tuyệt đối. Thêm 必ずしも để nhấn mạnh “không nhất thiết”. Kết hợp “Aからといって、Bとは限らない” là khung rất tự nhiên. [6. Ghi chú mở rộng] Hay xuất hiện trong câu phản biện: AからといってBとは限らない. Để làm nhẹ sắc thái phủ định, có thể thêm いつも/必ずしも/必然的に + ～とは限らない. Phù hợp khi muốn mở ra ngoại lệ, tránh khẳng định tuyệt đối. [7. Biến thể & cụm cố định] 必ずしも～とは限らない（rất thường gặp） Aからといって、Bとは限らない（kết cấu mẫu mực） 一概に～とは言えない（gần nghĩa, văn viết） [8. Lỗi thường gặp & bẫy JLPT] Bỏ は trong とは限らない: × という限らない → 〇 とは限らない. Nhầm với phủ định tuyệt đối: ～とは限らない chỉ mở ngoại lệ, không phủ định hoàn toàn. Quên だ với N/na trong văn viết: 学生だとは限らない. Bẫy JLPT: chọn đúng cặp “必ずしも～とは限らない” thay vì “必ず～ない”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-670324b1e4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "人手不足はこの業界に限ったことでもない。",
+       "ja_furigana": "人手不足(ひとでぶそく)はこの業界(ぎょうかい)に限(かぎ)ったことでもない。",
+       "vi": "Thiếu nhân lực đâu phải chuyện chỉ riêng ngành này."
+      },
+      {
+       "ja": "高齢化は都市に限ったことでもない。",
+       "ja_furigana": "高齢化(こうれいか)は都市(とし)に限(かぎ)ったことでもない。",
+       "vi": "Già hóa dân số đâu phải chỉ xảy ra ở thành phố."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "物価高は日本に限ったことでもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giá cả leo thang đâu phải chỉ riêng Nhật."
+     },
+     {
+      "ja": "少子化は先進国に限ったことでもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giảm tỷ lệ sinh đâu phải chỉ ở các nước phát triển."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 物価高は日本に限ったことでもない。",
+     "FURIGANA_MISSING: 少子化は先進国に限ったことでもない。"
+    ],
+    "formation": "N + に限ったことでもない",
+    "locked_fields": [],
+    "meaning_vi": "Tương đương “không phải chuyện chỉ riêng N đâu”. “でもない” làm câu bớt sắc bén hơn “ではない”, mang sắc thái nhún nhường/đính chính nhẹ. Thường dùng khi xoa dịu, tránh khẳng định quá mạnh, hoặc khi nêu ví dụ phản biện.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không phải chỉ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng “でも” để hạ nhẹ tính phản bác, phù hợp hội thoại, truyền thông đại chúng. Dễ kết hợp với 何も/別に để nhấn mạnh “không hẳn/đâu có chỉ…”. Có thể đứng cuối câu như phát ngôn độc lập trong trao đổi: それ、彼に限ったことでもないよ。 [6. Ghi chú mở rộng] “でも” ở đây không phải liệt kê mà là tiểu từ phụ trợ mang sắc thái giảm nhẹ/nhún nhường. Trong lập luận, có thể dùng Nは/が + に限ったことでもない để đặt đề tài: 若者の孤独は若者に限ったことでもない。 Phù hợp khi chia sẻ kinh nghiệm: “Không chỉ bạn đâu” → 共感を示す表現. [7. Biến thể & cụm cố định] 何もNに限ったことでもない／別にNに限ったことでもない (công thức hội thoại) Nだけに限ったことでもない (kết hợp “だけ” vẫn tự nhiên) — đối ứng: Nに限ったことではない (biến thể cứng hơn) [8. Lỗi thường gặp & bẫy JLPT] Nhầm “でも” thành liệt kê: không dùng “AやBに限ったことでもない” theo nghĩa liệt kê; “でも” gắn ngay sau こと. Bỏ “こと”: × Nに限ったでもない → ✔ Nに限ったことでもない. Chọn sai độ trang trọng: đề thi có thể yêu cầu sắc thái mạnh → chọn ではない thay vì でもない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0475bf12bd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "規則を破った以上、反省だけではすまない。",
+       "ja_furigana": "規則(きそく)を破(やぶ)った以上(いじょう)、反省(はんせい)だけではすまない。",
+       "vi": "Đã phá luật thì không thể chỉ hối lỗi là xong."
+      },
+      {
+       "ja": "今回の失敗は、叱られるだけではすまない。",
+       "ja_furigana": "今回(こんかい)の失敗(しっぱい)は、叱(しか)られるだけではすまない。",
+       "vi": "Thất bại lần này không thể chỉ bị mắng là xong."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "機密を漏らしたとなれば、謝罪ではすまない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu để lộ bí mật thì không thể chỉ xin lỗi mà xong."
+     },
+     {
+      "ja": "この事故は注意だけではすまない重大な問題だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vụ tai nạn này nghiêm trọng, không thể chỉ cảnh cáo là xong."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Không thể bỏ qua...",
+     "FURIGANA_MISSING: 機密を漏らしたとなれば、謝罪ではすまない。",
+     "FURIGANA_MISSING: この事故は注意だけではすまない重大な問題だ。"
+    ],
+    "formation": "N + (だけ)ではすまない／Vる + だけではすまない",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả mức độ nghiêm trọng: không thể giải quyết/chấm dứt chỉ bằng biện pháp N (xin lỗi, cảnh cáo, tiền phạt ít…). Đánh giá khách quan/hơi trang trọng; thường dùng trong tin tức, văn viết, phê bình nghiêm túc. Thường đi với các danh từ: 謝罪, 弁償, 注意, 罰金, 処分, 数量表現, この程度.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không thể bỏ qua...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sau N chỉ biện pháp/hình thức xử lý nhẹ, để nói “không đủ”. Giọng phê phán, nghiêm khắc; phù hợp văn viết hoặc phát ngôn cứng rắn. Biến thể bị động ～では済まされない nhấn mạnh tính không thể bỏ qua. [6. Ghi chú mở rộng] N1–N2. Thi JLPT hay gài bẫy với “Vないではすまない/ずにはすまない”. Biến thể chữ Hán: 済む/済まない thường dùng trong văn viết. Đi kèm lượng từ để phóng đại mức độ thiệt hại/chi phí. [7. Biến thể & cụm cố định] ～では済まない／～ではすまない (đồng nghĩa) ～では済まされない (bị động nhấn mạnh) ただ～だけではすまない (không chỉ … là xong) 数Nではすまない (không chỉ bấy nhiêu…) [8. Lỗi thường gặp & bẫy JLPT] Dùng với động từ trực tiếp: “謝ってではすまない” × → “謝罪ではすまない” ○ (danh từ hóa). Nhầm với “Vないではすまない” (nghĩa buộc phải làm), khác hoàn toàn về cấu trúc và nghĩa. Thiếu ngữ cảnh mức độ nghiêm trọng khiến câu nghe quá đà; cần nêu hệ quả/thước đo. Lẫn 済む/住む (chữ Hán khác nghĩa)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4dee5e1610"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この話は聞く人を感動させないではおかない。",
+       "ja_furigana": "この話(はなし)は聞(き)く人(ひと)を感動(かんどう)させないではおかない。",
+       "vi": "Câu chuyện này chắc chắn sẽ làm người nghe xúc động."
+      },
+      {
+       "ja": "その決定は、多くの反対を招かないではおかない。",
+       "ja_furigana": "その決定(けってい)は、多(おお)くの反対(はんたい)を招(まね)かないではおかない。",
+       "vi": "Quyết định đó ắt sẽ chuốc lấy nhiều sự phản đối."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この映画は観る者を涙させないではおかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bộ phim này ắt sẽ làm người xem rơi lệ."
+     },
+     {
+      "ja": "彼の無責任な発言は批判を招かないではおかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phát ngôn vô trách nhiệm của anh ta chắc chắn sẽ chuốc lấy chỉ trích."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この映画は観る者を涙させないではおかない。",
+     "FURIGANA_MISSING: 彼の無責任な発言は批判を招かないではおかない。"
+    ],
+    "formation": "Vない + ではおかない（= Vずにはおかない）",
+    "locked_fields": [],
+    "meaning_vi": "Khẳng định tính tất yếu: “chắc chắn sẽ dẫn đến/không thể không xảy ra hành động/biến đổi đó”. Thường dùng khi sự vật/sự kiện có sức tác động mạnh khiến người khác “không thể không” phản ứng. Sắc thái văn viết, khách quan/nhận định mạnh của người nói; không phải nghĩa “tôi buộc phải làm”. Hay đi với động từ chỉ phản ứng tâm lý-hành vi: 驚かせる, 考えさせる, 批判を招く, 物議を醸す.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nhất định sẽ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để dự đoán/quy nạp chắc chắn về hệ quả gây tác động. Không dùng để nói nghĩa vụ cá nhân của người nói (dùng ～ないではすまない cho nghĩa vụ). Thường có chủ ngữ là sự kiện/sản phẩm/hành vi, không phải người nói. Phong cách trang trọng/báo chí/phê bình văn học. [6. Ghi chú mở rộng] Mẫu hay đi cùng cấu trúc gây khiến ～をV-させる để làm nổi bật “bắt người ta phải …”. Trong văn phân tích, kết hợp với danh từ trừu tượng: 波紋、影響、議論、批判、共感. Hình thức ずにはおかない thường tăng tính trang trọng hàn lâm. [7. Biến thể & cụm cố định] Vずにはおかない：biến thể trang trọng. 物議を醸さないではおかない：chắc chắn gây tranh cãi. 考えさせないではおかない作品：tác phẩm buộc người đọc phải suy nghĩ. [8. Lỗi thường gặp & bẫy JLPT] Dùng để nói “tôi buộc phải …”: sai chức năng. Nên dùng ～ないではすまない/～なければならない. Kết hợp với động từ không có tính tác động: kém tự nhiên. Nên chọn 招く, 促す, 驚かせる, 影響を与える. Nhầm chủ thể: chủ thể thường là sự kiện/sản phẩm, không phải “tôi”. Đề JLPT hay gài cặp biến thể ～ずにはおかない ⇄ ～ないではおかない: tương đương nghĩa."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8ae7980f88"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は頼んだことなんて、やりゃしない。",
+       "ja_furigana": "彼(かれ)は頼(たの)んだことなんて、やりゃしない。",
+       "vi": "Anh ta chẳng bao giờ làm những gì tôi nhờ đâu."
+      },
+      {
+       "ja": "何度言っても、あの子は聞きゃしない。",
+       "ja_furigana": "何度(なんど)言(い)っても、あの子(こ)は聞(き)きゃしない。",
+       "vi": "Nói bao nhiêu lần thì đứa trẻ đó cũng chẳng nghe đâu."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あいつは約束の時間に来やしない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thằng đó chẳng thèm đến đúng giờ hẹn đâu."
+     },
+     {
+      "ja": "何度説明しても、彼は分かりゃしない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có giải thích mấy lần thì anh ta cũng chẳng hiểu đâu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あいつは約束の時間に来やしない。",
+     "FURIGANA_MISSING: 何度説明しても、彼は分かりゃしない。"
+    ],
+    "formation": "Vます（語幹）+ やしない／Vりゃしない",
+    "locked_fields": [],
+    "meaning_vi": "- Nhấn mạnh phủ định: “nhất quyết không/đời nào/đến chết cũng không…”. Thể hiện khó chịu, mỉa mai, phê phán. - Thường dùng trong văn nói, mang cảm xúc mạnh. Chủ thể thường là người/đối tượng bị chê trách. - Khác với ～もしないで: ～やしない không có ý “không làm rồi…” để nối mệnh đề; nó chỉ phủ định mạnh mẽ hành vi.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tuyệt đối không... (mỉa mai)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Mạnh, thô, thiên về khẩu ngữ; tránh dùng với người trên/lễ nghi. Hay đi kèm các từ đánh giá: どうせ／全然／まったく…＋Vやしない. Dùng để phản bác kỳ vọng: 「頼んでも来やしないよ」. Cuối câu thường không cần thêm gì sau ～やしない. [6. Ghi chú mở rộng] “やしない” bắt nguồn từ “はしない” (biến âm khẩu ngữ). “りゃしない” là co rút của “りはしない”. Khả năng kết hợp rộng với các dạng khả năng/khả năng hoàn thành: 分かりゃしない／できやしない／終わりゃしない. Trong văn viết nghiêm túc, ưu tiên ～はしない hoặc chuyển sang cấu trúc khác lịch sự hơn. [7. Biến thể & cụm cố định] Vます＋はしない (ít khẩu ngữ, lịch sự hơn) Vます＋やしない／…りゃしない (rất khẩu ngữ) どうせ～Vやしない (dù sao cũng chẳng…) [8. Lỗi thường gặp & bẫy JLPT] Nhầm chức năng nối mệnh đề: ～やしない không dùng như ～ないで để nối “không làm A mà làm B”. Dùng với người trên trong bài viết danh chính → sắc thái thất lễ. Quên đưa về Vます: ×「行くやしない」 → đúng: 「行きやしない」. Nhầm với ～っこない (khả năng) trong câu hỏi JLPT về sắc thái."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5728e6c02c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女は疲れをものともせずに、最後まで走り続けた。",
+       "ja_furigana": "彼女(かのじょ)は疲(つか)れをものともせずに、最後(さいご)まで走(はし)り続(つづ)けた。",
+       "vi": "Cô ấy bất chấp mệt mỏi, chạy đến cùng."
+      },
+      {
+       "ja": "消防士は危険をものともせずに、火の中へ飛び込んでいった。",
+       "ja_furigana": "消防士(しょうぼうし)は危険(きけん)をものともせずに、火(ひ)の中(なか)へ飛(と)び込(こ)んでいった。",
+       "vi": "Người lính cứu hỏa bất chấp nguy hiểm, lao vào đám cháy."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "田村選手は右手のけがをものともせずに戦った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vận động viên Tamura đã thi đấu bất chấp chấn thương ở tay phải."
+     },
+     {
+      "ja": "父親は炎をものともせずに、燃え盛る火の中から子どもを助け出した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người cha không hề nao núng trước ngọn lửa, cứu con mình ra khỏi đám cháy đang bùng dữ dội."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 田村選手は右手のけがをものともせずに戦った。",
+     "FURIGANA_MISSING: 父親は炎をものともせずに、燃え盛る火の中から子どもを助け出した。"
+    ],
+    "formation": "N + をものともせずに、〜",
+    "locked_fields": [],
+    "meaning_vi": "Không hề coi… là trở ngại; bất chấp…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜をものともせずに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả một người mạnh mẽ hành động mà không hề nao núng trước khó khăn, nguy hiểm hay sự phản đối. Mẫu thường hàm ý ngợi khen lòng dũng cảm, ý chí hoặc quyết tâm. 1) Dễ nhầm với ～にもかかわらず. → ～をものともせず nhấn mạnh chủ thể chủ động không coi khó khăn là trở ngại và tiếp tục hành động. 2) Danh từ phía trước thường là trở lực lớn. → Hay gặp với 反対・危険・困難・寒さ・病気など. 3) Mẫu thường hàm ý khen ngợi. → Không dùng tự nhiên cho kết quả tình cờ; vế sau thường là hành động thể hiện dũng khí, nghị lực hoặc quyết tâm của con người."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-564457c283"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-019"
+}

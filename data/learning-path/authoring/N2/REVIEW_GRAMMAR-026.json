@@ -1,0 +1,583 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "自分で決めた以上は、結果に責任を持つべきだ。",
+       "ja_furigana": "自分(じぶん)で決(き)めた以上(いじょう)は、結果(けっか)に責任(せきにん)を持(も)つべきだ。",
+       "vi": "Đã tự mình quyết định thì phải chịu trách nhiệm về kết quả."
+      },
+      {
+       "ja": "この仕事を選んだ以上は、最後までやりたい。",
+       "ja_furigana": "この仕事(しごと)を選(えら)んだ以上(いじょう)は、最後(さいご)までやりたい。",
+       "vi": "Đã chọn công việc này thì tôi muốn làm đến cùng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn (tránh chữ quá cấp) + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "一度引き受けた以上（は）、最後までやり遂げるべきだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một khi đã nhận lời thì phải làm đến cùng."
+     },
+     {
+      "ja": "学生である以上（は）、学業をおろそかにしてはいけない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã là học sinh thì không được lơ là việc học."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 一度引き受けた以上（は）、最後までやり遂げるべきだ。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 一度引き受けた以上（は）、最後までやり遂げるべきだ。 → 遂",
+     "FURIGANA_MISSING: 学生である以上（は）、学業をおろそかにしてはいけない。"
+    ],
+    "formation": "普通形(Aな:〜な・N:〜である) + 以上(は)",
+    "locked_fields": [],
+    "meaning_vi": "“Một khi/ đã … thì …”: Đã chấp nhận tiền đề A thì B là điều đương nhiên, phải xảy ra, nên làm, hoặc không tránh khỏi. Sắc thái: nhấn mạnh logic trách nhiệm, bổn phận, hệ quả tất yếu; hay đi với kết thúc mang tính quy tắc/đánh giá mạnh như ～べきだ、～なければならない、～はずだ、～に違いない、～のは当然だ. Thời điểm: tiền đề A thường là sự thật đã xác lập (quá khứ/hiện tại). Không dùng để suy đoán mơ hồ. Khác với “vì/ので”: ～以上（は） cứng hơn, mang tính nguyên tắc; không đơn thuần là nguyên nhân khách quan.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vì... nên..., một khi đã...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường dùng trong văn viết/diễn thuyết, quy định, lời khuyên mang tính chuẩn mực. Vế sau thường không dùng mệnh lệnh trực tiếp với đối phương ngẫu nhiên; nhưng có thể là khuyến cáo mạnh. Hay đi kèm: ～べきだ／～なければならない／～のは当然だ／～に違いない／～までだ（chỉ còn cách）. Tránh dùng cho sự kiện nhỏ, đời thường nếu không cần nhấn mạnh nghĩa “đã… thì…”. [6. Ghi chú mở rộng] Dạng lược は: ～以上、… phổ biến trong văn viết trang trọng, tiêu đề quy định. Nếu muốn giảm độ cứng, có thể dùng ～からといって/～としても tùy ngữ cảnh, nhưng sắc thái khác. Vế trước thường không là mệnh đề giả định chưa chắc xảy ra; cần là điều kiện đã xác lập/hiển nhiên. [7. Biến thể & cụm cố định] ～以上（は）: dạng tiêu chuẩn. ～以上、…: dạng lược は. これ以上／それ以上／あれ以上（số lượng/ mức độ）: “hơn nữa/ không … thêm”. Ví dụ: これ以上待てない。 N以上の＋N / N以上に＋A/V: “hơn …/ vượt quá …”. [8. Lỗi thường gặp & bẫy JLPT] Nhầm với nghĩa số lượng: 18歳以上 không phải “đã 18 thì…”, mà là “từ 18 trở lên”. Dùng cho dự định chưa chắc: X Sai: 雨が降る以上は、出かけないつもりだ → điều kiện chưa xác lập. Nên: 雨が降っている以上は、出かけないほうがいい。 Vế sau dùng yêu cầu trực tiếp quá mạnh với người nghe lạ: nên tránh mệnh lệnh thô. Nhầm với ～からには trong khẩu ngữ: đề thi hay hỏi sắc thái trang trọng của ～以上（は）."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-87cb04071a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "明日までにこの書類を出さねばならない。",
+       "ja_furigana": "明日(あした)までにこの書類(しょるい)を出(だ)さねばならない。",
+       "vi": "Tôi phải nộp giấy tờ này trước ngày mai."
+      },
+      {
+       "ja": "約束を守らねばならないと、父はいつも言っていた。",
+       "ja_furigana": "約束(やくそく)を守(まも)らねばならないと、父(ちち)はいつも言(い)っていた。",
+       "vi": "Bố tôi vẫn thường nói rằng phải giữ lời hứa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ビザが切れたので、国に帰らねばならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì visa đã hết hạn nên tôi phải trở về nước."
+     },
+     {
+      "ja": "それが真実であることを確かめねばならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi phải xác nhận xem cái đó có đúng sự thật hay không."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ビザが切れたので、国に帰らねばならない。",
+     "FURIGANA_MISSING: それが真実であることを確かめねばならない。"
+    ],
+    "formation": "Vない(ない→ね) + ばならない (する→せね)",
+    "locked_fields": [],
+    "meaning_vi": "Phải làm~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜帰らねばならない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a185ebc604"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "試験が近いので、のんびりしてはいられない。",
+       "ja_furigana": "試験(しけん)が近(ちか)いので、のんびりしてはいられない。",
+       "vi": "Kỳ thi đã gần nên không thể cứ thong thả được."
+      },
+      {
+       "ja": "このまま だまって見てはいられない。",
+       "ja_furigana": "このまま だまって見(み)てはいられない。",
+       "vi": "Không thể cứ im lặng nhìn mãi như thế này."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "田中君、遅いなあ。もう待ってられないから先に行こう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cậu Tanaka chậm trễ quá. Không còn chờ thêm được nữa, vậy nên chúng ta hãy đi trước đi."
+     },
+     {
+      "ja": "忙しくてテレビなんか見てらんない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì bận bịu nên không thể tiếp tục xem ti vi được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 田中君、遅いなあ。もう待ってられないから先に行こう。",
+     "FURIGANA_MISSING: 忙しくてテレビなんか見てらんない。"
+    ],
+    "formation": "V-て + いられない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể tiếp tục …, Không thể cứ …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜待っていられない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b110a4cd26"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この書類は大切だから、なくしてはならない。",
+       "ja_furigana": "この書類(しょるい)は大切(たいせつ)だから、なくしてはならない。",
+       "vi": "Giấy tờ này quan trọng nên không được làm mất."
+      },
+      {
+       "ja": "人の悪口を言ってはならないと、先生に教わった。",
+       "ja_furigana": "人(ひと)の悪口(わるぐち)を言(い)ってはならないと、先生(せんせい)に教(おそ)わった。",
+       "vi": "Tôi được thầy cô dạy rằng không được nói xấu người khác."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn (tránh chữ quá cấp) + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この悲惨な体験を決して忘れてはならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhất định tôi sẽ không bao giờ quên trải nghiệm bi thảm này."
+     },
+     {
+      "ja": "失敗を人のせいにしてはなりません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không được đổ thừa thất bại là do người khác."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この悲惨な体験を決して忘れてはならない。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: この悲惨な体験を決して忘れてはならない。 → 悲惨な",
+     "FURIGANA_MISSING: 失敗を人のせいにしてはなりません。"
+    ],
+    "formation": "V-て + はならない",
+    "locked_fields": [],
+    "meaning_vi": "Không được, cấm …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜忘れてはならない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-699fe6f84c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夏休みも終わりだから、遊んでばかりはいられない。",
+       "ja_furigana": "夏休(なつやす)みも終(お)わりだから、遊(あそ)んでばかりはいられない。",
+       "vi": "Kỳ nghỉ hè sắp hết nên không thể chỉ mải chơi được."
+      },
+      {
+       "ja": "親の金で生活してばかりはいられない。",
+       "ja_furigana": "親(おや)の金(かね)で生活(せいかつ)してばかりはいられない。",
+       "vi": "Không thể cứ sống dựa vào tiền của bố mẹ mãi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "連休だけれど、もうすぐ試験があるから、遊んでばかりはいられない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đang là kì nghỉ dài ngày, nhưng vì sắp có kì thi nên không thể chỉ mải chơi."
+     },
+     {
+      "ja": "もう親に頼ってばかりはいられない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không thể cứ mãi nhờ cậy cha mẹ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 連休だけれど、もうすぐ試験があるから、遊んでばかりはいられない。",
+     "FURIGANA_MISSING: もう親に頼ってばかりはいられない。"
+    ],
+    "formation": "V-て + ばかりはいられない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể cứ mãi …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜遊んでばかりはいられない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-27b2bbfe9f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この仕事は大変だが、やりがいがある。",
+       "ja_furigana": "この仕事(しごと)は大変(たいへん)だが、やりがいがある。",
+       "vi": "Công việc này vất vả nhưng rất đáng làm."
+      },
+      {
+       "ja": "子どもたちが成長するのを見るのは、教えがいのある仕事だ。",
+       "ja_furigana": "子(こ)どもたちが成長(せいちょう)するのを見(み)るのは、教(おし)えがいのある仕事(しごと)だ。",
+       "vi": "Được nhìn bọn trẻ trưởng thành là công việc đáng để dạy."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "やりがいのある仕事",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công việc đáng làm"
+     },
+     {
+      "ja": "教えがいのある生徒",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Học trò đáng dạy"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: やりがいのある仕事",
+     "FURIGANA_MISSING: 教えがいのある生徒"
+    ],
+    "formation": "V-ます(語幹) + がい(がある)",
+    "locked_fields": [],
+    "meaning_vi": "Đáng để …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜やりがい",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b01eb8886b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "時間までけずって、そんなことをする必要はない。",
+       "ja_furigana": "時間(じかん)までけずって、そんなことをする必要(ひつよう)はない。",
+       "vi": "Không cần phải cắt cả thời gian ra để làm chuyện đó."
+      },
+      {
+       "ja": "彼は借金までして、あの車を買ったらしい。",
+       "ja_furigana": "彼(かれ)は借金(しゃっきん)までして、あの車(くるま)を買(か)ったらしい。",
+       "vi": "Nghe nói anh ấy đã vay nợ để mua chiếc xe đó."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "借金してまで／借金までして海外旅行に行くなんて、私には信じられない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi không thể nào tin chuyện phải mượn nợ để đi du lịch nước ngoài."
+     },
+     {
+      "ja": "いやな思いまでして／いやな思いをしてまで、彼女と付き合うことないよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không có chuyện tôi quen với cô ấy đến mức phải cảm thấy khó chịu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 借金してまで／借金までして海外旅行に行くなんて、私には信じられない。",
+     "FURIGANA_MISSING: いやな思いまでして／いやな思いをしてまで、彼女と付き合うことないよ。"
+    ],
+    "formation": "N + までして / V-て + まで",
+    "locked_fields": [],
+    "meaning_vi": "Tới mức … / Đến việc …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜借金してまで/借金までして",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả sự ngạc nhiên về một sự việc quá mức xãy ra"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3a400023cb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日走ったかいがあって、足が速くなった。",
+       "ja_furigana": "毎日(まいにち)走(はし)ったかいがあって、足(あし)が速(はや)くなった。",
+       "vi": "Công chạy bộ mỗi ngày đã được đền đáp, chân tôi đã nhanh hơn."
+      },
+      {
+       "ja": "長く準備したかいがあって、発表はうまくいった。",
+       "ja_furigana": "長(なが)く準備(じゅんび)したかいがあって、発表(はっぴょう)はうまくいった。",
+       "vi": "Nhờ chuẩn bị lâu nên buổi thuyết trình đã diễn ra tốt đẹp."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana; mẫu trùng JG-fc3bc2454c",
+    "same_pattern_as": "JG-fc3bc2454c"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "努力のかいあって、希望の大学に合格した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thật đáng công nỗ lực, tôi đã đậu vào trường đại học mà mình kì vọng."
+     },
+     {
+      "ja": "すてきな人と結婚できた。この年まで待ったかいがあった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã kết hôn được với người trong mộng. Quả là đáng công tôi chờ đợi đến năm nay."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 努力のかいあって、希望の大学に合格した。",
+     "FURIGANA_MISSING: すてきな人と結婚できた。この年まで待ったかいがあった。"
+    ],
+    "formation": "Vた / Nの + かいがあって / かいあって",
+    "locked_fields": [],
+    "meaning_vi": "Thật đáng để …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜努力のかいがあって",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-edc011b724"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "必死に探したかいもなく、なくした指輪は見つからなかった。",
+       "ja_furigana": "必死(ひっし)に探(さが)したかいもなく、なくした指輪(ゆびわ)は見(み)つからなかった。",
+       "vi": "Dù đã cố gắng tìm, chiếc nhẫn bị mất vẫn không thấy đâu."
+      },
+      {
+       "ja": "最後までおうえんしたかいもなく、チームは負けてしまった。",
+       "ja_furigana": "最後(さいご)までおうえんしたかいもなく、チームは負(ま)けてしまった。",
+       "vi": "Dù đã cổ vũ đến cuối, đội vẫn thua."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "手術のかいもなく、愛犬が死んでしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Uổng công làm phẫu thuật, con chó yêu quý đã chết rồi."
+     },
+     {
+      "ja": "予選で落ちてしまい、一生懸命練習したかいがなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Rớt ở vòng dự tuyển, thật là uổng công tập luyện chăm chỉ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 手術のかいもなく、愛犬が死んでしまった。",
+     "FURIGANA_MISSING: 予選で落ちてしまい、一生懸命練習したかいがなかった。"
+    ],
+    "formation": "Vた / Nの + かいもなく / かいがなく",
+    "locked_fields": [],
+    "meaning_vi": "Dù đã cố gắng nhưng kết quả lại đáng tiếc",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜手術のかいもなく",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Thể hiện ý nghĩa cho dù có cố gắng, nổ lực thì cũng không có kết quả như đã kỳ vọng, mong đợi…"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-af3f8b772f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅で会った折に、彼の近況を聞いた。",
+       "ja_furigana": "駅(えき)で会(あ)った折(おり)に、彼(かれ)の近況(きんきょう)を聞(き)いた。",
+       "vi": "Nhân lúc gặp ở ga, tôi đã hỏi thăm tình hình của anh ấy."
+      },
+      {
+       "ja": "来日の折には、ぜひ家に寄ってください。",
+       "ja_furigana": "来日(らいにち)の折(おり)には、ぜひ家(いえ)に寄(よ)ってください。",
+       "vi": "Khi có dịp đến Nhật, nhất định hãy ghé nhà tôi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "森先生とは、先日のパーティーの折に少し話をしました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã nói chuyện đôi chút với thầy Mori vào dịp bữa tiệc hôm trước。"
+     },
+     {
+      "ja": "A: では、傘をお借りします。すぐお返しに参ります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A: Vậy xin mượn chiếc ô. Tôi sẽ trả ngay。"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 森先生とは、先日のパーティーの折に少し話をしました。",
+     "FURIGANA_MISSING: A: では、傘をお借りします。すぐお返しに参ります。"
+    ],
+    "formation": "Vる・Vた / Nの + 折に(は)",
+    "locked_fields": [],
+    "meaning_vi": "Nhân dịp, vào lúc.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜折に",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2e2854eeb5"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-026"
+}

@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今年は去年にもまして、健康に気をつけたい。",
+       "ja_furigana": "今年(ことし)は去年(きょねん)にもまして、健康(けんこう)に気(き)をつけたい。",
+       "vi": "Năm nay tôi muốn chú ý sức khỏe hơn cả năm ngoái."
+      },
+      {
+       "ja": "彼は以前にもまして、仕事に打ち込んでいる。",
+       "ja_furigana": "彼(かれ)は以前(いぜん)にもまして、仕事(しごと)に打(う)ち込(こ)んでいる。",
+       "vi": "Anh ấy chuyên tâm vào công việc hơn cả trước đây."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今夏は気温の高さにもまして、書庫の湿度管理に人手を取られている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mùa hè này, hơn cả nền nhiệt cao, việc kiểm soát độ ẩm kho sách mới chiếm nhân lực."
+     },
+     {
+      "ja": "以前にもまして、住民説明会では試算の前提を細かく問われるようになった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hơn trước nữa, họp giải thích với dân giờ bị hỏi rất kỹ tiền đề của phép tính."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今夏は気温の高さにもまして、書庫の湿度管理に人手を取られている。",
+     "FURIGANA_MISSING: 以前にもまして、住民説明会では試算の前提を細かく問われるようになった。"
+    ],
+    "formation": "N + にもまして",
+    "locked_fields": [],
+    "meaning_vi": "Hơn cả … / hơn trước nữa",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hơn cả ... / hơn trước nữa",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: So sánh mức độ: điều đang nói còn vượt quá một chuẩn vốn đã cao, hoặc hơn hẳn trước đây. Cách dùng: 〜にもまして gắn sau danh từ chỉ chuẩn so sánh, với nghĩa ‘hơn cả A thì B’ hoặc ‘B còn đáng kể hơn A’. A thường là điều vốn đã mạnh; người nói muốn đẩy mức độ lên một bậc. Dạng cố định 以前にもまして nghĩa là ‘hơn trước nữa’, rất hay gặp. Văn phong hơi trang trọng, dùng trong nói và viết. Thước đo phải cùng loại: mức độ nóng, mức độ nghiêm, mức độ quan trọng. Không dùng để đối lập tính chất trái chiều như にひきかえ. Sắc thái: まして bắt nguồn từ 増す (tăng). Sắc thái là tăng cấp, không phải đổi chiều. 以前にもまして mang cảm giác tình hình đã căng từ trước, nay còn rõ hơn. Khác より ở chỗ より là so sánh trung tính; にもまして nhấn ‘vượt cả một mốc vốn đã đáng kể’. Lưu ý: Không chồng より với にもまして (tránh 以前よりにもまして). Chuẩn so sánh và điều được nhấn phải cùng thước đo mức độ. Không dùng để nêu tương phản trái ngược (một tốt một xấu) như にひきかえ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c65ea9a6be"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "医者ともあろう人が、そんな無責任なことを言うとは。",
+       "ja_furigana": "医者(いしゃ)ともあろう人(ひと)が、そんな無責任(むせきにん)なことを言(い)うとは。",
+       "vi": "Người làm bác sĩ mà lại nói điều vô trách nhiệm như thế."
+      },
+      {
+       "ja": "社長ともあろう者が、約束を破るとは信じられない。",
+       "ja_furigana": "社長(しゃちょう)ともあろう者(もの)が、約束(やくそく)を破(やぶ)るとは信(しん)じられない。",
+       "vi": "Người làm giám đốc mà thất hứa thì thật khó tin."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "病院の理事ともあろう人が、患者名簿の入った端末をカフェの席に置きっぱなしにするとは。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người ở cương vị ủy viên hội đồng bệnh viện mà để máy có danh sách bệnh nhân trên bàn quán cà phê thì thật không thể chấp nhận."
+     },
+     {
+      "ja": "市議ともあろう者が、委員会で出典のない統計を読み上げて議論をリードしようとした。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một người đáng lẽ là nghị sĩ thành phố lại đọc số liệu không nguồn trong ủy ban để dẫn dắt thảo luận."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 病院の理事ともあろう人が、患者名簿の入った端末をカフェの席に置きっぱなしにするとは。",
+     "FURIGANA_MISSING: 市議ともあろう者が、委員会で出典のない統計を読み上げて議論をリードしようとした。"
+    ],
+    "formation": "N + ともあろう + N",
+    "locked_fields": [],
+    "meaning_vi": "Người ở cương vị ấy mà lại…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Người ở cương vị ấy mà lại...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nhấn mạnh tư cách, địa vị đáng lẽ phải có của một người, thường để trách hành vi không xứng với cương vị đó. Cách dùng: 〜ともあろう đi trong khung N1ともあろうN2, trong đó N1 là địa vị, nghề nghiệp hoặc tư cách đáng kính, N2 là danh từ chỉ người (者、人、もの). Người nói muốn nói rằng kẻ mang danh vị ấy đáng lẽ phải ứng xử tương xứng, vậy mà lại làm điều thất thố. Câu thường kết bằng とは、とは信じがたい、とは非常識だ. Văn phong trang trọng, giọng trách móc hoặc kinh ngạc. Cũng dùng khi nói rằng nhờ vả, yêu cầu một người ở cương vị ấy làm việc không xứng là vô lý. Sắc thái: Trọng tâm không phải mô tả nghề nghiệp mà là khoảng cách giữa danh vị và hành vi. Người nói lấy chuẩn mực xã hội của cương vị đó làm thước đo, rồi chỉ ra sự lệch chuẩn. Giọng nặng hơn として và khác たるもの: たるもの nêu bổn phận phải làm; ともあろう thường xuất hiện khi bổn phận ấy đã bị phá vỡ. Lưu ý: Sau ともあろう gần như bắt buộc có danh từ chỉ người (者／人／もの). N1 phải là địa vị, nghề hoặc tư cách có chuẩn mực xã hội; không dùng với đồ vật thuần túy. Thiên về trách móc, kinh ngạc; không dùng để khen ngợi trung lập."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fd5891b090"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "うちの弟ときたら、朝になっても起きてこない。",
+       "ja_furigana": "うちの弟(おとうと)ときたら、朝(あさ)になっても起(お)きてこない。",
+       "vi": "Nói đến thằng em tôi thì đến sáng cũng chẳng dậy."
+      },
+      {
+       "ja": "最近の天気ときたら、雨ばかりで困る。",
+       "ja_furigana": "最近(さいきん)の天気(てんき)ときたら、雨(あめ)ばかりで困(こま)る。",
+       "vi": "Nói đến thời tiết dạo này thì mưa suốt, thật bực mình."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "うちの会計担当ときたら、領収書の日付を毎月のように間違えるので、経理締めがいつも遅れる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nói đến nhân viên kế toán của chúng tôi thì tháng nào cũng ghi sai ngày trên hóa đơn, nên việc khóa sổ luôn bị chậm."
+     },
+     {
+      "ja": "最近の課内チャットときたら、要件が絵文字の間に埋もれて、誰が何を決めたのか後から辿れない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nói đến chat nội bộ gần đây thì nội dung công việc bị lẫn trong biểu tượng, sau này không lần ra ai đã quyết gì."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: うちの会計担当ときたら、領収書の日付を毎月のように間違えるので、経理締めがいつも遅れる。",
+     "FURIGANA_MISSING: 最近の課内チャットときたら、要件が絵文字の間に埋もれて、誰が何を決めたのか後から辿れない。"
+    ],
+    "formation": "N + ときたら",
+    "locked_fields": [],
+    "meaning_vi": "Nói đến … thì (đánh giá mạnh, thường phàn nàn)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nói đến ... thì (đánh giá mạnh, thường phàn nàn)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Đưa một người hoặc sự việc lên làm đề tài rồi bày tỏ nhận xét chủ quan, phần lớn là phàn nàn hoặc thất vọng. Cách dùng: 〜ときたら dùng để nêu một người, đồ vật hoặc tình trạng lên làm đề tài, rồi ngay sau đó đưa ra đánh giá chủ quan, thường là phàn nàn, thất vọng hay khó chịu. Mẫu đứng sau danh từ và báo hiệu người nói sắp nhận xét về chính đối tượng ấy, chứ không kể một chuỗi sự kiện trung lập. Phần sau thường mô tả thói quen xấu, cách làm việc gây bức xúc, hoặc tình hình vượt quá sức chịu đựng. Ngữ khí gần lời nói hàng ngày, cảm xúc rõ. Không dùng khi chỉ muốn chuyển chủ đề một cách khách quan như khi giới thiệu vấn đề thảo luận. Sắc thái: Sắc thái thiên về than phiền, trách móc hoặc ngán ngẩm; người nghe hiểu rằng người nói đang ‘điểm danh’ một đối tượng cụ thể. Ít gặp trong văn viết trang trọng trung lập. Có thể dùng cho đánh giá mạnh theo hướng khen, nhưng trường hợp đó hiếm và vẫn mang giọng cảm thán chứ không phải nhận xét lạnh lùng. Lưu ý: Đi sau danh từ hoặc cụm danh từ; không nối trực tiếp sau động từ như たら giả định. Không dùng với nghĩa ‘khi/nếu’ của たら thông thường. Thiên về khẩu ngữ; tránh trong biên bản, công văn trung lập."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c74cc77a66"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "学生は学生なりに、将来のことを考えている。",
+       "ja_furigana": "学生(がくせい)は学生(がくせい)なりに、将来(しょうらい)のことを考(かんが)えている。",
+       "vi": "Sinh viên cũng suy nghĩ về tương lai theo cách riêng của họ."
+      },
+      {
+       "ja": "小さな会社なりに、工夫を重ねている。",
+       "ja_furigana": "小(ちい)さな会社(かいしゃ)なりに、工夫(くふう)を重(かさ)ねている。",
+       "vi": "Công ty nhỏ cũng có cách sáng tạo riêng của mình."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "実習生なりに、受付トラブルの流れを図にして共有した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù chỉ là thực tập sinh, tôi vẫn vẽ sơ đồ quy trình sự cố quầy lễ tân để chia sẻ."
+     },
+     {
+      "ja": "町工場なりの検査基準があって、大企業の監査表をそのまま使うと現場が止まる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xưởng nhỏ có tiêu chuẩn kiểm tra riêng; đưa nguyên bảng kiểm của tập đoàn vào thì hiện trường sẽ tắc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 実習生なりに、受付トラブルの流れを図にして共有した。",
+     "FURIGANA_MISSING: 町工場なりの検査基準があって、大企業の監査表をそのまま使うと現場が止まる。"
+    ],
+    "formation": "N + なりに; N + なりの + N; Vる + なりに",
+    "locked_fields": [],
+    "meaning_vi": "Theo cách / tầm của …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Theo cách / tầm của ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Thừa nhận giới hạn của một vị thế nhưng khẳng định vẫn có cách làm, giá trị hoặc mức độ tương xứng với vị thế ấy. Cách dùng: 〜なりに gắn sau danh từ chỉ người, nhóm, hoàn cảnh hoặc quy mô, với nghĩa ‘theo cách của đối tượng ấy, trong tầm của đối tượng ấy’. Người nói vừa thừa nhận giới hạn vừa ghi nhận nỗ lực, phương pháp hoặc giá trị riêng, không lấy chuẩn của cấp cao hơn để phủ nhận. Trước danh từ phải đổi thành なりの. Dạng それなりに nghĩa là ‘ở mức tương xứng, không phải không có’. Văn phong trung tính đến tích cực, dùng được trong nói và viết. Cần thận trọng kẻo nghe như giọng bề trên khi nhận xét người khác. Sắc thái: Không phải khen hết lời, cũng không phải chê. Sắc thái là ‘dù chỉ ở tầm ấy thì vẫn có logic riêng’. なりに bổ nghĩa động từ hoặc cả câu; なりの bổ nghĩa danh từ. Khác として vì không nhấn tư cách chính thức mà nhấn cách làm tương xứng với điều kiện thực tế. Lưu ý: Trước danh từ dùng なりの, không dùng なりに方法. Không đồng nghĩa với ‘rất’ hay ‘hoàn toàn’; それなりに là mức vừa phải, tương xứng. Khi nói về người khác, tránh giọng ban ơn, xem thường."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-189a6f1858"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "兄が社交的なのにひきかえ、弟は無口だ。",
+       "ja_furigana": "兄(あに)が社交的(しゃこうてき)なのにひきかえ、弟(おとうと)は無口(むくち)だ。",
+       "vi": "Trái hẳn với anh trai hòa đồng, cậu em lại ít nói."
+      },
+      {
+       "ja": "去年が好調だったのにひきかえ、今年は苦しい。",
+       "ja_furigana": "去年(きょねん)が好調(こうちょう)だったのにひきかえ、今年(ことし)は苦(くる)しい。",
+       "vi": "Trái hẳn với năm ngoái thuận lợi, năm nay thật vất vả."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "同僚が期限内に査読コメントを返し終えたのにひきかえ、私はまだ二本目に手をつけていない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đồng nghiệp đã gửi xong nhận xét phản biện đúng hạn, trái hẳn với tôi vẫn chưa động đến bài thứ hai."
+     },
+     {
+      "ja": "本社が週三日の在宅を認めているのにひきかえ、工場側は交代勤務の見直しすら進まない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trụ sở chính cho làm tại nhà ba ngày mỗi tuần, trái hẳn phía nhà máy còn chưa xem lại ca kíp."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 同僚が期限内に査読コメントを返し終えたのにひきかえ、私はまだ二本目に手をつけていない。",
+     "FURIGANA_MISSING: 本社が週三日の在宅を認めているのにひきかえ、工場側は交代勤務の見直しすら進まない。"
+    ],
+    "formation": "N + にひきかえ; 普通形 + のにひきかえ",
+    "locked_fields": [],
+    "meaning_vi": "Trái hẳn với …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Trái hẳn với ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Đặt hai đối tượng cạnh nhau để làm nổi sự đối lập mạnh, thường kèm đánh giá hơn kém. Cách dùng: 〜にひきかえ dùng để đối chiếu hai người, hai việc hoặc hai tình trạng, với nghĩa ‘trái hẳn với A thì B’. Vế trước là chuẩn so sánh, vế sau là đối tượng bị (hoặc được) nhìn ngược lại. Sự khác biệt thường rõ, thậm chí đối cực: một bên tiến độ tốt, bên kia trì trệ; một bên đông, bên kia vắng. Văn phong hơi cứng, gặp trong viết và nói trang trọng. Không dùng để nêu nguyên nhân hay trao đổi ngang giá theo nghĩa đen của động từ 引き換える. Sắc thái: Mạnh hơn に対して vì mang sắc ‘đổi chiều hoàn toàn’, thường kèm khen một bên, chê một bên. Người nói không chỉ liệt kê khác biệt mà còn đánh giá. Nếu hai vế chỉ hơi khác nhau thì mẫu này quá nặng. Khác にくらべて ở chỗ không nhất thiết đo bằng số liệu mà nhấn tương phản tính chất. Lưu ý: Cần hai vế đối lập rõ; không dùng khi chỉ có một sự việc. Không biểu thị nguyên nhân, điều kiện hay trao đổi hàng hóa. Đi sau danh từ hoặc mệnh đề đã danh từ hóa (の); không nối てからにひきかえ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d33dcf144c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "医者たるもの、患者の命を最優先にすべきだ。",
+       "ja_furigana": "医者(いしゃ)たるもの、患者(かんじゃ)の命(いのち)を最優先(さいゆうせん)にすべきだ。",
+       "vi": "Là bác sĩ thì phải đặt tính mạng bệnh nhân lên hàng đầu."
+      },
+      {
+       "ja": "親たるもの、子どもの手本になるべきだ。",
+       "ja_furigana": "親(おや)たるもの、子(こ)どもの手本(てほん)になるべきだ。",
+       "vi": "Là cha mẹ thì phải làm gương cho con cái."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "公務員たるものは、申請の先後を私情で入れ替えてはならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Là công chức thì không được đảo thứ tự hồ sơ vì tình cảm riêng."
+     },
+     {
+      "ja": "研究室の主宰たるもの、実験の失敗を大学院生一人に負わせるわけにはいかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người chủ trì phòng thí nghiệm không thể đẩy thất bại thí nghiệm lên một nghiên cứu sinh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 公務員たるものは、申請の先後を私情で入れ替えてはならない。",
+     "FURIGANA_MISSING: 研究室の主宰たるもの、実験の失敗を大学院生一人に負わせるわけにはいかない。"
+    ],
+    "formation": "N + たるもの(は)",
+    "locked_fields": [],
+    "meaning_vi": "Với tư cách là … thì phải…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Với tư cách là ... thì phải...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu tư cách, bổn phận gắn với một vai trò: người mang danh vị ấy phải ứng xử cho xứng. Cách dùng: 〜たるもの（は） xuất phát từ たる cổ điển với nghĩa ‘là, mang tư cách’. Gắn sau danh từ chỉ nghề nghiệp, chức vụ hoặc vai trò có chuẩn mực, rồi nêu điều phải làm, không được làm, hoặc thái độ cần có. Đây là câu quy phạm: người nói lấy tư cách nghề nghiệp làm chuẩn, không phải kể trải nghiệm cá nhân. Văn phong rất trang trọng, gặp trong diễn từ, văn bản, lời nhắc nhở chính thức. は có thể lược khi nhịp câu cho phép, nhưng たるものは là dạng đầy đủ phổ biến. Sắc thái: Giọng dạy bảo, khẳng định bổn phận chứ không than phiền. Khác として ở chỗ として trung tính hơn, còn たるもの nhấn ‘đáng mặt là… thì phải’. Khác ともあろう ở chỗ mẫu này nêu lý tưởng còn hiệu lực, không nhất thiết đã có hành vi thất thố. Không hợp với giọng suồng sã hay tự trào nhẹ. Lưu ý: Đi sau danh từ chỉ vai trò, tư cách; không gắn だ ngay sau たるものは. Phần sau thường là nghĩa vụ, cấm đoán, hoặc chuẩn mực; ít dùng để kể sự việc vụn. Văn phong trang trọng; tránh lời nói thân mật giữa bạn bè."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-96462ce669"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "合格すべく、毎日勉強に励んでいる。",
+       "ja_furigana": "合格(ごうかく)すべく、毎日(まいにち)勉強(べんきょう)に励(はげ)んでいる。",
+       "vi": "Để thi đỗ, ngày nào tôi cũng chăm chỉ học."
+      },
+      {
+       "ja": "事故を減らすべく、交通ルールを徹底する。",
+       "ja_furigana": "事故(じこ)を減(へ)らすべく、交通(こうつう)ルールを徹底(てってい)する。",
+       "vi": "Để giảm tai nạn, chúng tôi triệt để thực hiện luật giao thông."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "生産性を高めるべく、新しいシステムを導入した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Để nâng cao năng suất, đã đưa vào hệ thống mới."
+     },
+     {
+      "ja": "顧客満足度を向上させるべく、アンケート調査を実施する。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhằm nâng cao mức độ hài lòng khách hàng, tiến hành khảo sát."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 生産性を高めるべく、新しいシステムを導入した。",
+     "FURIGANA_MISSING: 顧客満足度を向上させるべく、アンケート調査を実施する。"
+    ],
+    "formation": "Vる + べく",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “Để/nhằm V; với mục đích V”. Dùng trước mệnh đề chính thể hiện hành động nhằm đạt mục tiêu V. Sắc thái trang trọng, thường gặp trong báo cáo, tin tức, văn bản kế hoạch: 〜すべく、〜を目指す/実施する/開始する/取り組む. Ràng buộc chủ ngữ: nguyên tắc cùng chủ thể thực hiện mục đích và hành động chính (giống ために; khác ように khi nói mục tiêu năng lực/kết quả ngoài kiểm soát).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Để...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt “Mục đích” ở đầu câu: [Mục đích] + べく、[Hành động]. Tạo văn phong trang trọng, mạch lạc. Không dùng với mệnh lệnh/nhờ vả trực tiếp: × 時間を守るべく、早く来てください → nên dùng ために/ように. Không dùng khi chủ ngữ khác nhau giữa hai vế; với chủ ngữ khác, dùng ために hoặc ように. Kết hợp tự nhiên với: 実施する, 取り組む, 図る, 導入する, 開始する, 強化する, 設置する, 改善する. [6. Ghi chú mở rộng] Với サ変 danh từ, “N + するべく/すべく” rất tự nhiên: 改善すべく, 検討すべく, 強化すべく. Trong tiêu đề/kế hoạch, べく đứng ngay sau mục tiêu: コスト削減すべく新体制へ. Chuỗi mục đích: より良い社会を実現すべく、〜に取り組む/〜を推進する: thường gặp trong văn chính sách. [7. Biến thể & cụm cố định] 〜べくして〜: nghĩa “điều tất yếu”, ví dụ: 事故は起こるべくして起こった。 Cụm cố định hay gặp: 問題解決すべく, 品質向上すべく, 生産性向上すべく, 費用削減すべく, 合格すべく. “するべく” và “すべく”: cả hai đều đúng; “すべく” trang trọng, cô đọng hơn trong văn viết. [8. Lỗi thường gặp & bẫy JLPT] Dùng khi chủ ngữ khác nhau: × 学生を増やすべく、大学は奨学金が設けられた → nên dùng ために; hoặc chỉnh chủ ngữ cho thống nhất. Dùng cho mệnh lệnh/nhờ vả trực tiếp: không phù hợp ngữ dụng (hãy dùng ために/ように/てもらう). Nhầm với べくもない (không thể nào…): đây là mẫu khác, không phải “mục đích”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fa773433ab"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の影響は会社にとどまらず、業界全体に及んだ。",
+       "ja_furigana": "彼(かれ)の影響(えいきょう)は会社(かいしゃ)にとどまらず、業界(ぎょうかい)全体(ぜんたい)に及(およ)んだ。",
+       "vi": "Ảnh hưởng của anh ấy không dừng ở công ty mà lan ra cả ngành."
+      },
+      {
+       "ja": "この問題は一つの国にとどまらず、世界の課題だ。",
+       "ja_furigana": "この問題(もんだい)は一(ひと)つの国(くに)にとどまらず、世界(せかい)の課題(かだい)だ。",
+       "vi": "Vấn đề này không chỉ ở riêng một nước mà là thách thức của cả thế giới."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この問題は個人にとどまらず、社会全体に関わる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vấn đề này không chỉ dừng ở cá nhân mà còn liên quan tới toàn xã hội."
+     },
+     {
+      "ja": "彼の研究は学界にとどまらず、産業界にも影響を与えた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghiên cứu của anh ấy không chỉ trong giới học thuật mà còn ảnh hưởng tới giới công nghiệp."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この問題は個人にとどまらず、社会全体に関わる。",
+     "FURIGANA_MISSING: 彼の研究は学界にとどまらず、産業界にも影響を与えた。"
+    ],
+    "formation": "N + にとどまらず; Vる + にとどまらず",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “không chỉ dừng lại ở… mà còn vượt ra ngoài…”. Nhấn mạnh phạm vi/ảnh hưởng mở rộng. Sắc thái: nghiêm túc, khách quan; hay dùng trong bài báo, báo cáo, luận. Ngữ dụng: Thành phần sau thường có も／まで／さえ để nhấn mạnh “còn… nữa”. Khác với “だけでなく”: mang cảm giác “vượt qua giới hạn vốn nghĩ là giới hạn”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không dừng ở...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn nhấn mạnh phạm vi, ảnh hưởng lan rộng, không bó hẹp ở A. Thích hợp văn phong trang trọng; trong hội thoại có thể dùng “だけでなく／ばかりでなく”. Thành phần sau nên là phạm vi rộng hơn, bao trùm A về logic. [6. Ghi chú mở rộng] Hình thức phủ định: ～にとどまらない（khẳng định mở rộng). Ví dụ: 影響は一国にとどまらない。 Thường đi kèm も／まで／さえ ở vế sau để nhấn mạnh bề rộng. Với Vる, A thường là “tác dụng/chức năng 1” và B là “tác dụng/chức năng 2,3…”. [7. Biến thể & cụm cố định] N／Vる＋にとどまらず、～も／～まで／～さえ 被害／影響／効果＋が＋一地域／一部門＋にとどまらず、～ ～にとどまらない問題／議論 (dùng như định ngữ) [8. Lỗi thường gặp & bẫy JLPT] Vế sau không rộng hơn vế trước: × 影響は世界にとどまらず、日本にも (thứ tự logic sai; nên: 日本にとどまらず、世界に…) Chỉ dùng với N: sai. Mẫu này dùng được cả với Vる. Nhầm với ～だけでなく: tuy gần nghĩa, nhưng ～にとどまらず trang trọng hơn và nhấn “vượt giới hạn”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3a0a86b009"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この仕事を任せられるのは、彼をおいて他にいない。",
+       "ja_furigana": "この仕事(しごと)を任(まか)せられるのは、彼(かれ)をおいて他(ほか)にいない。",
+       "vi": "Người có thể giao công việc này thì ngoài anh ấy ra không còn ai."
+      },
+      {
+       "ja": "この曲を歌えるのは、彼女をおいて他に考えられない。",
+       "ja_furigana": "この曲(きょく)を歌(うた)えるのは、彼女(かのじょ)をおいて他(ほか)に考(かんが)えられない。",
+       "vi": "Người hát được bài này thì ngoài cô ấy ra không thể nghĩ ai khác."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この件を任せられるのは、彼をおいて他にない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người có thể giao việc này thì ngoài anh ấy ra không còn ai."
+     },
+     {
+      "ja": "次の主将は、山田をおいて他に考えられない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đội trưởng tiếp theo ngoài Yamada ra không thể nghĩ ai khác."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この件を任せられるのは、彼をおいて他にない。",
+     "FURIGANA_MISSING: 次の主将は、山田をおいて他に考えられない。"
+    ],
+    "formation": "N + をおいて(他に)ない",
+    "locked_fields": [],
+    "meaning_vi": "Khẳng định độc nhất/duy nhất: “ngoài N ra thì không có lựa chọn nào khác”. Sắc thái đánh giá cao/praise, tin tưởng tuyệt đối; dùng trong phát biểu trang trọng, quảng bá. Thường đi với danh từ chỉ người, tổ chức, địa điểm, phương tiện, phương án tối ưu/duy nhất. Mệnh đề sau luôn mang phủ định: ～ない／いない／考えられない／見当たらない.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không gì khác ngoài...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng, thường dùng trong diễn văn, đề cử, quảng cáo, nhận định chuyên môn. Thích hợp khi muốn nhấn mạnh tính duy nhất/tốt nhất; tránh dùng tùy tiện để không gây quá lời. Có thể thêm 他に/ほかに để nhấn mạnh; “～ない” là bắt buộc về nghĩa. [6. Ghi chú mở rộng] Khi khen ngợi cá nhân/tổ chức, mẫu này tạo uy tín mạnh trong CV, PR, bài phát biểu. Không dùng cho sự thật hiển nhiên tầm thường; nên dùng khi có tiêu chí so sánh rõ ràng. Đi kèm các động từ phủ định giàu sắc thái: 見当たらない／思い当たらない／他に類を見ない. [7. Biến thể & cụm cố định] ～をおいて右に出るものはない: không ai vượt trội. ～をおいて他に考えられない／見当たらない／いない: đuôi phổ biến. ～をおいて（ほかに）: dùng ほかに thay 他に không đổi nghĩa. [8. Lỗi thường gặp & bẫy JLPT] Bỏ “ない” ở mệnh đề sau → sai nghĩa. Luôn cần phủ định. Dùng cho vật tầm thường → không hợp sắc thái “độc nhất/ưu tú”. Nhầm với ～しかない: JLPT kiểm tra sự khác nhau giữa “duy nhất mang tính đánh giá” và “không còn cách”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-519729c1da"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "十年前のことなど、今さら知るべくもない。",
+       "ja_furigana": "十年前(じゅうねんまえ)のことなど、今(いま)さら知(し)るべくもない。",
+       "vi": "Chuyện mười năm trước thì giờ chẳng thể nào biết được."
+      },
+      {
+       "ja": "彼の才能には、私など及ぶべくもない。",
+       "ja_furigana": "彼(かれ)の才能(さいのう)には、私(わたし)など及(およ)ぶべくもない。",
+       "vi": "Với tài năng của anh ấy, người như tôi chẳng thể nào sánh kịp."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "当時の記録は失われ、真相は今となっては知るべくもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì tư liệu thời đó đã mất, đến giờ thì không cách nào biết được sự thật."
+     },
+     {
+      "ja": "この資金力では大企業に太刀打ちするべくもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Với tiềm lực này thì không thể nào đấu lại các tập đoàn lớn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 当時の記録は失われ、真相は今となっては知るべくもない。",
+     "FURIGANA_MISSING: この資金力では大企業に太刀打ちするべくもない。"
+    ],
+    "formation": "Vる + べくもない",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả sự bất khả: “không thể nào…”, “không còn cách nào để…”. Người nói nhận định là không có khả năng thực hiện/đạt được do hoàn cảnh, thông tin, năng lực. Thường đi với những động từ nhận thức/đánh giá như 知る・理解する・想像する・望む・期待する, hoặc với 比べるべくもない khi so sánh chênh lệch lớn. Sắc thái trang trọng, lý tính; phù hợp văn viết, luận giải. Gần với “どうしようもない/不可能だ” nhưng khách quan, điềm tĩnh hơn. Phủ định mạnh tính khả thi chứ không đơn thuần là “không nên” (khác với ～べきではない).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không thể nào...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Chủ yếu trong văn viết, bài luận, báo chí. Trong hội thoại thường thay bằng とても〜ない／どうにもならない. Hay đi kèm những cụm nhấn mạnh tính tuyệt vọng: 今となっては, この状況では, そもそも, 元より. Vế trước thường nêu bối cảnh khiến hành vi trở nên bất khả; vế sau là ～るべくもない. Không dùng để khuyên nhủ hay mệnh lệnh; là phán đoán khách quan của người nói. [6. Ghi chú mở rộng] “べく” bắt nguồn từ dạng liên dụng của “べし” (khả năng/đáng), trong mẫu này hóa thành phủ định khả thi “～べくもない”. Xuất hiện nhiều trong bình luận báo chí, tiểu thuyết, văn bản học thuật. “想像するべくもない” có dùng nhưng “想像に難くない” là mẫu khác, nghĩa “không khó để tưởng tượng”. Tránh nhầm. [7. Biến thể & cụm cố định] 知るべくもない／望むべくもない／理解するべくもない: các cụm quen thuộc. N + と(は) + 比べるべくもない: “không thể so với …”. 今となっては～べくもない／そもそも～べくもない: tăng sắc thái bất khả. [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～べきではない (không nên). Mẹo: ～べくもない = bất khả; ～べきではない = đạo lý/khuyến cáo. Dùng trong văn nói tự nhiên quá mức sẽ gượng. Thay bằng ～ようがない/無理だ trong hội thoại. Thi JLPT hay gài “AはBと比べるべくもない” vs “AはBに比べるべくもない”. Dùng と hoặc は～と… là tự nhiên; に là sai. Sau ～べくもない không dùng mệnh lệnh/ý chí."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-08879f8e96"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-035"
+}

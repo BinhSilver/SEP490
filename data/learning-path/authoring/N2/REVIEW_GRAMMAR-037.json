@@ -1,0 +1,581 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "パソコンの操作にかけては、彼が一番速い。",
+       "ja_furigana": "パソコンの操作(そうさ)にかけては、彼(かれ)が一番(いちばん)速(はや)い。",
+       "vi": "Riêng về thao tác máy tính thì anh ấy nhanh nhất."
+      },
+      {
+       "ja": "料理の味にかけては、母の右に出る人はいない。",
+       "ja_furigana": "料理(りょうり)の味(あじ)にかけては、母(はは)の右(みぎ)に出(で)る人(ひと)はいない。",
+       "vi": "Riêng về hương vị món ăn thì không ai vượt được mẹ tôi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "暗算の速さにかけては、彼に勝てる人は部署にいない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Riêng về tốc độ tính nhẩm thì trong phòng ban không có ai thắng được anh ấy."
+     },
+     {
+      "ja": "古いカメラの修理にかけては、あの職人ほど頼りになる人はいない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Riêng về sửa máy ảnh cũ thì không ai đáng tin cậy bằng người thợ đó."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 暗算の速さにかけては、彼に勝てる人は部署にいない。",
+     "FURIGANA_MISSING: 古いカメラの修理にかけては、あの職人ほど頼りになる人はいない。"
+    ],
+    "formation": "N + にかけては",
+    "locked_fields": [],
+    "meaning_vi": "Riêng về lĩnh vực… thì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Riêng về lĩnh vực... thì",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu một lĩnh vực mà ai đó đặc biệt giỏi, nổi trội hoặc được đánh giá cao. Cách dùng: Gắn sau danh từ chỉ kỹ năng, năng lực hoặc lĩnh vực để giới hạn phạm vi đánh giá: “riêng về mặt… thì”. Phần sau thường khẳng định sự tự tin, ưu thế hoặc mức độ nổi trội của một người hay sự vật, chẳng hạn không ai sánh bằng hoặc có thể hoàn toàn tin cậy. は mang sắc thái đối chiếu với những phương diện khác, vì vậy câu không nhất thiết khẳng định chủ thể giỏi toàn diện. Mẫu thường đi cùng các cách nói như 自信がある, 誰にも負けない hoặc 右に出る者はいない. Sắc thái: Có sắc thái đánh giá và nhấn mạnh sở trường; thường dùng khi người nói tin rằng chủ thể vượt trội trong phạm vi đã nêu. Lưu ý: Danh từ đứng trước phải biểu thị lĩnh vực hay phương diện có thể đánh giá. Không nhầm với 〜から〜にかけて, mẫu chỉ phạm vi thời gian hoặc không gian."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e4a1b3fc78"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "新しい法律をめぐって、国会で話し合いが続いている。",
+       "ja_furigana": "新(あたら)しい法律(ほうりつ)をめぐって、国会(こっかい)で話(はな)し合(あ)いが続(つづ)いている。",
+       "vi": "Xoay quanh luật mới, cuộc thảo luận ở quốc hội vẫn tiếp diễn."
+      },
+      {
+       "ja": "公園の使い方をめぐる意見が、住民の間で分かれている。",
+       "ja_furigana": "公園(こうえん)の使(つか)い方(かた)をめぐる意見(いけん)が、住民(じゅうみん)の間(あいだ)で分(わ)かれている。",
+       "vi": "Ý kiến xoay quanh cách sử dụng công viên đang chia rẽ giữa các cư dân."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "駅前広場の再開発をめぐって、市民と市が意見を交わしている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người dân và chính quyền thành phố đang trao đổi ý kiến xoay quanh việc tái phát triển quảng trường trước ga."
+     },
+     {
+      "ja": "新薬の承認をめぐる議論は、専門家の間でも続いている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuộc tranh luận xoay quanh việc phê duyệt thuốc mới vẫn tiếp diễn ngay cả giữa các chuyên gia."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 駅前広場の再開発をめぐって、市民と市が意見を交わしている。",
+     "FURIGANA_MISSING: 新薬の承認をめぐる議論は、専門家の間でも続いている。"
+    ],
+    "formation": "N + をめぐって / をめぐる + N",
+    "locked_fields": [],
+    "meaning_vi": "Xoay quanh",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Xoay quanh",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả nhiều ý kiến, hành động hoặc xung đột cùng tập trung quanh một vấn đề. Cách dùng: Mẫu này cho biết một vấn đề trở thành tâm điểm mà nhiều người, tổ chức hoặc quan điểm cùng tham gia bàn bạc, tranh luận, cạnh tranh hay đối lập. Dùng をめぐって trước một mệnh đề và をめぐる khi bổ nghĩa cho danh từ. Nội dung thường là kế hoạch, quyền lợi, quyết định, sự kiện hoặc vấn đề chưa ngã ngũ. Vì gợi ra nhiều phía vận động quanh cùng một tâm điểm, mẫu này không chỉ đơn thuần đánh dấu đề tài được nhắc đến. Sắc thái: Thường hàm ý diễn biến phức tạp, có nhiều bên hoặc có bất đồng; hay gặp trong văn viết và tin tức. Lưu ý: Không dùng để chỉ khoảng thời gian gần một mốc; khi đó dùng 〜ごろ hoặc 〜前後. Vấn đề đứng trước thường đủ quan trọng để làm phát sinh thảo luận, cạnh tranh hoặc xung đột."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6d83523ce0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "こんなに忙しいと、体をこわしかねない。",
+       "ja_furigana": "こんなに忙(いそが)しいと、体(からだ)をこわしかねない。",
+       "vi": "Bận thế này thì có thể hỏng sức khỏe đấy."
+      },
+      {
+       "ja": "このままでは、会社が大きな損をしかねない。",
+       "ja_furigana": "このままでは、会社(かいしゃ)が大(おお)きな損(そん)をしかねない。",
+       "vi": "Cứ thế này thì công ty có thể chịu tổn thất lớn."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "その言い方では誤解を招きかねない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cách nói đó có thể gây hiểu lầm."
+     },
+     {
+      "ja": "個人情報が漏れかねないので、取り扱いには十分注意してください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì có nguy cơ rò rỉ thông tin cá nhân, xin hãy hết sức cẩn trọng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: その言い方では誤解を招きかねない。",
+     "FURIGANA_MISSING: 個人情報が漏れかねないので、取り扱いには十分注意してください。"
+    ],
+    "formation": "Vます + かねない",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị nguy cơ, khả năng cao xảy ra (thường là kết quả xấu, không mong muốn) dựa trên phán đoán của người nói. Sắc thái cảnh báo/nhắc nhở: “Có thể dẫn đến… đấy”. Không phải “không thể” như ～かねる. Mức độ chủ quan cao hơn おそれがある; mang tính đánh giá, suy xét tình huống. Thường dùng trong phân tích, tin tức, báo cáo: “～しかねない”, “～になりかねない”. Không dùng để nói năng lực tự thân (không phải “có thể làm được/không”).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có thể..., e rằng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt sau Vます để dự đoán hệ quả xấu: ～Vます＋かねない. Phong cách trang trọng, thiên về văn viết/diễn văn/báo cáo. Thường đi kèm từ vựng mang sắc thái rủi ro: 誤解を招く, 問題になる, 批判される, 破綻する, 失う, 危険だ. Không dùng cho ý chí người nói hay kế hoạch tương lai của bản thân. Không dùng cho kết quả tích cực (tránh: 成功しかねない), trừ khi câu mang ý mỉa mai. [6. Ghi chú mở rộng] Cụm hay dùng: ～になりかねない, ～を招きかねない, ～を失いかねない, ～に見られかねない (dễ bị xem là…). Thường kết hợp với つい, このままでは, 安易に, 軽率な, 不適切な để nhấn mạnh nguy cơ. Quá khứ hiếm gặp (～かねなかった) và nghe cứng; ưu tiên hiện tại ～かねない cho phát ngôn chung. [7. Biến thể & cụm cố định] 命取りになりかねない（có thể chí mạng） 信用を失いかねない（có thể đánh mất uy tín） 誤解されかねない表現（cách diễn đạt dễ bị hiểu lầm） [8. Lỗi thường gặp & bẫy JLPT] Lẫn với ～かねる (không thể làm) — hai mẫu trái nghĩa, ngữ dụng khác hẳn. Dùng cho kết quả tích cực: sai sắc thái. Tránh “この案は成功しかねない”. Dùng như khả năng khách quan thuần túy: nên chọn おそれがある hoặc うる. Chủ ngữ là “tôi” với ý chí/hành động của chính mình: không phù hợp (mẫu là đánh giá hậu quả)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-677eee9903"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "部長に言われたので、残業せざるを得なかった。",
+       "ja_furigana": "部長(ぶちょう)に言(い)われたので、残業(ざんぎょう)せざるを得(え)なかった。",
+       "vi": "Vì trưởng phòng đã nói thế nên tôi đành phải làm thêm giờ."
+      },
+      {
+       "ja": "エアコンが壊れて、窓を開けざるを得ない。",
+       "ja_furigana": "エアコンが壊(こわ)れて、窓(まど)を開(あ)けざるを得(え)ない。",
+       "vi": "Điều hòa hỏng nên đành phải mở cửa sổ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "赤字が続き、店舗を閉鎖せざるを得ない状況だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thua lỗ kéo dài nên buộc phải đóng cửa hàng."
+     },
+     {
+      "ja": "台風のため、イベントを延期せざるを得ません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Do bão nên chúng tôi đành phải hoãn sự kiện."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 赤字が続き、店舗を閉鎖せざるを得ない状況だ。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 赤字が続き、店舗を閉鎖せざるを得ない状況だ。 → 舗",
+     "FURIGANA_MISSING: 台風のため、イベントを延期せざるを得ません。"
+    ],
+    "formation": "Vない + ざるを得ない",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả sự miễn cưỡng: “đành phải/không thể không…”, do hoàn cảnh, quy định, áp lực bên ngoài. Sắc thái trang trọng, văn viết; mạnh hơn ～ないわけにはいかない về tính “bất đắc dĩ”. Khác với ～ずにはいられない (thúc đẩy nội tâm), ～ざるを得ない nhấn mạnh áp lực ngoại cảnh. Thường đi với từ ngữ như 事情で／状況的に／法律上／やむを得ず／どうしても.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đành phải..., buộc phải...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng, dùng trong báo cáo, tin tức, công văn, phát ngôn chính thức. Thường mang cảm giác tiếc nuối/miễn cưỡng của người nói. Không dùng cho những hành động do cảm xúc bộc phát; khi ấy dùng ～ずにはいられない. Không kết hợp trực tiếp với tính từ; hãy chuyển đổi thành động từ phù hợp (認める、変更する…). [6. Ghi chú mở rộng] Dạng thân mật có thể dùng ～しかない thay thế trong hội thoại, nhưng sắc thái nhẹ hơn. Trong văn bản pháp lý/thông báo, cụm “やむを得ず” thường đi kèm để giải thích lý do. 来る→来ざるを得ない ít dùng trong hội thoại, thường thấy trong văn viết. [7. Biến thể & cụm cố định] やむを得ず～せざるを得ない（cấu trúc cố định, nhấn mạnh bất khả kháng） 中止せざるを得ません／変更せざるを得ません（thông báo lịch sự） 認めざるを得ない事実／結果／現実 [8. Lỗi thường gặp & bẫy JLPT] Dùng để diễn tả cảm xúc bộc phát: sai. Phải dùng ～ずにはいられない. Kết hợp sai hình thái: 食べないざるを得ない × → 食べざるを得ない ✓ Nhầm sắc thái: ～ないわけにはいかない (nghĩa vụ xã giao) ≠ ～ざるを得ない (áp lực ngoại cảnh mạnh). Dùng với tính từ: sai. Chuyển về động từ (変更する、認める…)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7f92d0c209"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は会社を辞めてまで、その仕事を続けたがっている。",
+       "ja_furigana": "彼(かれ)は会社(かいしゃ)を辞(や)めてまで、その仕事(しごと)を続(つづ)けたがっている。",
+       "vi": "Anh ấy muốn tiếp tục công việc đó đến mức nghỉ việc ở công ty."
+      },
+      {
+       "ja": "アルバイトまでして、留学のためのお金をためている。",
+       "ja_furigana": "アルバイトまでして、留学(りゅうがく)のためのお金(かね)をためている。",
+       "vi": "Tôi thậm chí đi làm thêm để dành tiền du học."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は借金までしてギャンブルを続けた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta thậm chí đi vay nợ để tiếp tục cờ bạc."
+     },
+     {
+      "ja": "彼女は徹夜してまでこのゲームをやった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô ấy chơi trò này đến mức thức trắng đêm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は借金までしてギャンブルを続けた。",
+     "FURIGANA_MISSING: 彼女は徹夜してまでこのゲームをやった。"
+    ],
+    "formation": "N + までして / V-て + まで",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả mức độ cực đoan: “đến mức thậm chí … cũng làm để …”. Thường hàm ý đánh giá tiêu cực hoặc quá mức. Hai hình thức tương đương về nghĩa: Nまでして (thậm chí dùng đến N) và Vてまで (đi xa đến mức thực hiện hành động V). Thường đi kèm đánh giá “không cần thiết/không đáng”: ～までして／～てまで…する必要はない／そこまでして…？",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đến mức..., tận...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mạnh “mức độ quá đà/đi xa” của phương tiện/hành động để đạt mục tiêu. Thường kèm thái độ phê phán, ngạc nhiên, hoặc khuyên ngăn “không cần làm quá thế”. Nên dùng với nội dung có tính tiêu cực/khó khăn/hi sinh; nếu tích cực, cần ngữ cảnh phù hợp để không nghe mỉa mai. [6. Ghi chú mở rộng] Nまでして nhấn mạnh “phương tiện cực đoan” (vay nợ, nói dối…); Vてまで nhấn mạnh “hành động cực đoan” (thức đêm, phẫu thuật…). Thường xuất hiện trong câu hỏi phê phán: そこまでして～たいの？／Vてまで～たいの？ Khi dùng với mục tiêu tích cực, thêm lý do để tránh hiểu phê phán: 家族のために徹夜してまで働いた。 [7. Biến thể & cụm cố định] Nまでして + V（する） Vてまで + V（する／行く／やる） ～までして／～てまで + する必要はない／するものではない Cụm hay gặp: 「借金までして」「嘘までついて」「徹夜してまで」「命を懸けてまで」 [8. Lỗi thường gặp & bẫy JLPT] Lẫn với “までに” (thời hạn): × 明日までして提出 → ○ 明日までに提出. Nhầm hướng liên kết: “Nまでして” đi với danh từ; “Vてまで” đi với động từ thể て. Dùng trong ngữ cảnh tích cực thuần túy khiến câu nghe mỉa mai; JLPT hay kiểm tra sắc thái tiêu cực. Viết dư “してまでして”: chỉ dùng một lần “して”: × 借金してまでして → ○ 借金までして."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6ec79161b8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "説明しようにも、うまく言葉が出てこない。",
+       "ja_furigana": "説明(せつめい)しようにも、うまく言葉(ことば)が出(で)てこない。",
+       "vi": "Dù muốn giải thích cũng không thốt được thành lời."
+      },
+      {
+       "ja": "あやまりようにも、彼はもう家にいない。",
+       "ja_furigana": "あやまりようにも、彼(かれ)はもう家(いえ)にいない。",
+       "vi": "Dù muốn xin lỗi thì anh ấy đã không còn ở nhà nữa."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "連絡しようにも、電話番号がわからない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù muốn liên lạc cũng không biết số điện thoại."
+     },
+     {
+      "ja": "会場に行こうにも、交通機関が止まっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù muốn đến hội trường, phương tiện giao thông đang dừng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 連絡しようにも、電話番号がわからない。",
+     "FURIGANA_MISSING: 会場に行こうにも、交通機関が止まっている。"
+    ],
+    "formation": "V意向形 + にも + 〜ない",
+    "locked_fields": [],
+    "meaning_vi": "～ようにも diễn đạt tình thế “dù muốn/định làm V cũng không thể hoặc rất khó” do thiếu điều kiện, phương tiện, hay có trở ngại khách quan. “にも” nhấn mạnh nỗ lực giả định nhưng bất khả thi. Thường đi kèm mệnh đề sau mang phủ định hoặc nội dung cản trở. Tạo cảm giác “bất lực” trước hoàn cảnh hơn là không muốn chủ quan.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù muốn... cũng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi thiếu công cụ/thông tin: 連絡先がない／手段がない／時間がない. Mức trang trọng trung bình; dùng được trong văn viết và nói. Vế sau thường là: 〜ない／難しい／無理だ／困難だ. [6. Ghi chú mở rộng] Có thể lược bỏ vế sau nếu ngữ cảnh rõ: 金がなくて、行こうにも…。 (văn nói) Hay đi với các động từ tri giác/tình cảm: 忘れる／笑う／泣く. Trong văn trang trọng, vế sau dùng danh từ trừu tượng: 〜に障害がある／〜に支障を来す. [7. Biến thể & cụm cố định] Vようにも〜ない／Vようにも〜できない: dạng thường gặp nhất. 言いようにも言えない: không biết nói sao cho phải. 動きようにも動けない: bị kẹt, không nhúc nhích được. [8. Lỗi thường gặp & bẫy JLPT] Dùng “ようにも” với vế sau khẳng định → sai logic (行こうにも時間がある → mâu thuẫn). Nhầm với “ようと”: “ようにも” là “dù muốn…”, còn “ようと〜まいと” là “dù có/không”. Bỏ “にも”: 連絡しように… → sai; phải là 連絡しようにも…"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e14cce0e05"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "その件については、私では判断しかねます。",
+       "ja_furigana": "その件(けん)については、私(わたし)では判断(はんだん)しかねます。",
+       "vi": "Về việc đó, tôi khó có thể tự quyết định."
+      },
+      {
+       "ja": "申しわけありませんが、その日はうかがいかねます。",
+       "ja_furigana": "申(もう)しわけありませんが、その日(ひ)はうかがいかねます。",
+       "vi": "Tôi xin lỗi, nhưng hôm đó tôi khó có thể đến được."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "個人情報につきましては、お答えしかねます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Về thông tin cá nhân, chúng tôi không thể trả lời."
+     },
+     {
+      "ja": "そのご提案には賛成しかねます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi khó mà tán thành đề xuất đó."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 個人情報につきましては、お答えしかねます。",
+     "FURIGANA_MISSING: そのご提案には賛成しかねます。"
+    ],
+    "formation": "Vます + かねる",
+    "locked_fields": [],
+    "meaning_vi": "Diễn đạt “không thể/khó có thể làm” vì lý do hoàn cảnh, quy định, đạo đức, thẩm quyền, hoặc chưa đủ thông tin. Sắc thái mềm, tránh nói thẳng “できない”, lịch sự hơn, đặc biệt trong từ chối. Không phải phủ định năng lực. Thay vì “không biết làm”, là “không tiện/không nên/không được phép làm”. Dạng しかねます là kính ngữ khi giao tiếp với khách hàng/đối tác.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Khó có thể..., không thể (lịch sự)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn từ chối/khước từ một cách lịch sự, giữ thể diện. Thường đi với động từ tri nhận/quyết định: 判断する, 了承する, 承認する, 受け入れる, 対応する, 許可する. Dạng kính ngữ: ～いたしかねます (rất lịch sự); trung tính: ～しかねる. Khi nêu lý do, hay kết hợp ため, 都合上, 規定により, 個人情報につきましては… Nếu muốn thẳng thắn/khách quan: dùng できない; nếu chỉ khó làm: ～にくい／づらい. [6. Ghi chú mở rộng] Cụm lịch sự thường gặp: お受けしかねます／ご対応いたしかねます／ご希望に添いかねます。 Dạng tiếp diễn diễn tả do dự: 決めかねている, 断りかねて（ngần ngại từ chối）. Nội bộ công ty/đơn vị hay dùng để tránh chịu trách nhiệm trực tiếp: 「弊社といたしましては…いたしかねます」。 [7. Biến thể & cụm cố định] 恐れ入りますが、～は致しかねます（kính ngữ cực lịch sự） 申し訳ございませんが、～はお受けしかねます 判断しかねる問題／対応しかねる要望 [8. Lỗi thường gặp & bẫy JLPT] Dùng ～かねる để chỉ “không có khả năng”: sai. Đây là từ chối mang tính lập trường, không phải năng lực. Nhầm với ～かねない (nguy cơ): khác hoàn toàn nghĩa và hướng. Dùng ～しかねます trong văn nói thân mật nghe cứng; nên dùng できない/むずかしいです trong hội thoại thường. Quên lý do/hoàn cảnh đi kèm khiến câu nghe cụt: nên nêu lý do sau ので／ため／都合上…"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5519e55153"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "電池が切れていて、時計を見ようもない。",
+       "ja_furigana": "電池(でんち)が切(き)れていて、時計(とけい)を見(み)ようもない。",
+       "vi": "Hết pin nên chẳng có cách nào xem đồng hồ."
+      },
+      {
+       "ja": "この暗さでは、写真をとろうもない。",
+       "ja_furigana": "この暗(くら)さでは、写真(しゃしん)をとろうもない。",
+       "vi": "Tối thế này thì chẳng có cách nào chụp ảnh."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "住所も電話番号も知らないから、彼に連絡しようもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không biết địa chỉ hay số điện thoại, nên chẳng có cách nào liên lạc với anh ấy."
+     },
+     {
+      "ja": "手がかりがなくて、事件を調べようもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì không có manh mối nên không có cách điều tra."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 住所も電話番号も知らないから、彼に連絡しようもない。",
+     "FURIGANA_MISSING: 手がかりがなくて、事件を調べようもない。"
+    ],
+    "formation": "Vます + ようもない",
+    "locked_fields": [],
+    "meaning_vi": "～ようもない diễn đạt “không có cách nào/không thể nào mà làm V”, do thiếu thông tin, công cụ, điều kiện. Mức độ bất khả mạnh hơn “〜にくい/づらい”. Trọng tâm ở “không có phương pháp”. Thường đi với danh từ lý do: 連絡先／手がかり／手段／方法／証拠.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không có cách..., không thể...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi khách quan không thể, không phải do người nói không muốn. Sắc thái dứt khoát, mạnh; phù hợp văn viết, báo cáo. Với cảm xúc: 「言いようもない」= không biết nói sao cho phải (hào quang văn học). [6. Ghi chú mở rộng] “どうしようもない” là thành ngữ phổ biến: bó tay/không còn cách. Thường dùng trong báo cáo điều tra, QA, IT: 再現しようもない／検証しようもない. Tránh lẫn với “〜しかない” (chỉ còn cách) — ý nghĩa trái ngược. [7. Biến thể & cụm cố định] 言いようもない: không biết nói sao. しようもない: không có cách làm. どうしようもない: bó tay, hết cách. [8. Lỗi thường gặp & bẫy JLPT] Sai dạng động từ: dùng V辞書形 + ようもない → sai; phải V-ます bỏ ます. Dùng cho trường hợp vẫn còn phương án khác → mâu thuẫn ngữ nghĩa. Nhầm với “〜にくい”: “ようもない” là bất khả do thiếu phương pháp, không chỉ “khó”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4e51725603"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の話は、少しなら信じなくもない。",
+       "ja_furigana": "彼(かれ)の話(はなし)は、少(すこ)しなら信(しん)じなくもない。",
+       "vi": "Chuyện anh ấy nói, nếu chỉ một chút thì tôi cũng có tin."
+      },
+      {
+       "ja": "時間があれば、手伝わなくもない。",
+       "ja_furigana": "時間(じかん)があれば、手伝(てつだ)わなくもない。",
+       "vi": "Nếu có thời gian thì tôi cũng không phải là không giúp."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "辛い料理は食べなくもないが、得意ではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù nói không ăn được cũng không hẳn, nhưng tôi không giỏi đồ cay."
+     },
+     {
+      "ja": "彼の気持ちもわからなくもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi cũng không phải là không hiểu cảm xúc của anh ấy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 辛い料理は食べなくもないが、得意ではない。",
+     "FURIGANA_MISSING: 彼の気持ちもわからなくもない。"
+    ],
+    "formation": "Vない → Vなく + もない / Aくない → Aくなく + もない",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa chính: Phủ định kép mang tính khẳng định nhẹ: “không hẳn là không…”, “cũng có thể…”, “cũng không đến nỗi…”. Sắc thái do dự/nhượng bộ: Người nói không khẳng định mạnh, chỉ thừa nhận ở mức độ nhất định, thường để mở khả năng hoặc tránh nói thẳng. Hàm ý điều kiện/ngữ cảnh: Thường đi kèm “が／けど／なら” để nêu điều kiện hoặc ngoại lệ: ～なくもないが… Cường độ: Mức khẳng định yếu hơn “できる/ある/いい”, mạnh hơn “わけではない”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không hẳn không..., cũng có...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Mức độ lịch sự: Trung tính; dùng được cả hội thoại và văn viết nhẹ. Dựng lập luận mềm: Thường dùng để nhượng bộ một phần trước khi nêu điều kiện/ý chính đối lập. Kết hợp thường gặp: ～なくもないが／けど, ～なくもないと思う, ～なくもないかな. Ngữ dụng: Tránh tạo ấn tượng khẳng định dứt khoát; phù hợp khi không muốn hứa chắc hoặc muốn giữ thể diện. [6. Ghi chú mở rộng] Với tính từ -な và danh từ, dùng ではなくもない lịch sự hơn じゃなくもない. Thường đi cùng trạng từ mức độ: 少し/まあ/わりと/条件次第で + ～なくもない. Ngữ điệu tăng ở “ない” giúp nhấn mạnh “vẫn có thể/không phải là không”. [7. Biến thể & cụm cố định] ～ないこともない / ～なくはない (biến thể nghĩa tương đương, khác về sắc thái). ～なくもないが／けど (mở hướng đảo đề). わからなくもない／なくもない話だ (cụm hay gặp). [8. Lỗi thường gặp & bẫy JLPT] Lẫn lộn với ～わけではない: câu với ～なくもない mang khẳng định nhẹ, không chỉ phủ định ngoại lệ. Bỏ sót điều kiện sau đó: ～なくもない thường cần mệnh đề tiếp theo để làm rõ giới hạn. Dùng ở nơi cần cam kết rõ ràng có thể gây hiểu lầm “nửa vời”. Hình thái sai với i-adj: 高くない→高くなくもない (không phải 高いなくもない)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e92c7b6ebd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "忙しすぎて、休もうにも休めない。",
+       "ja_furigana": "忙(いそが)しすぎて、休(やす)もうにも休(やす)めない。",
+       "vi": "Bận quá nên dù muốn nghỉ cũng không nghỉ được."
+      },
+      {
+       "ja": "お金がなくて、買おうにも買えない。",
+       "ja_furigana": "お金(かね)がなくて、買(か)おうにも買(か)えない。",
+       "vi": "Không có tiền nên dù muốn mua cũng không mua được."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "忘れようにも忘れられない思い出がある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có những kỷ niệm dù muốn quên cũng không thể quên."
+     },
+     {
+      "ja": "会場が満員で、入ろうにも入れない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hội trường chật kín, dù muốn vào cũng không vào được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 忘れようにも忘れられない思い出がある。",
+     "FURIGANA_MISSING: 会場が満員で、入ろうにも入れない。"
+    ],
+    "formation": "V意向形 + にも + V可能形(ない)",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị “dù muốn/định làm V cũng không thể làm được V”. Lý do là hạn chế khách quan (thiếu điều kiện, bị cấm, sức khỏe, khoảng cách, v.v.). Nhấn mạnh sự bất lực trước hoàn cảnh. Hình thức lặp lại cùng một động từ: Vようにも V-可能形-ない. Vế sau luôn là khả năng phủ định của chính động từ đó.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Muốn... cũng không thể...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng cho khó khăn mang tính khách quan hơn chủ quan. Trang trọng hơn so với “VたくてもVない”. Phù hợp văn viết, báo chí, luận văn khi cần nhấn mạnh tính bất khả. [6. Ghi chú mở rộng] Tránh “ら抜き言葉” trong văn chuẩn: 見れない → nên dùng 見られない. Hay dùng với động từ tri giác/cảm xúc: 忘れる／笑う／泣く／動く. Vế sau cũng có thể dùng cấu trúc bị động khả năng: 〜られない. [7. Biến thể & cụm cố định] 言いようにも言えない: không biết/khó mà diễn đạt. 動きようにも動けない: bị kẹt cứng. 使いようにも使えない: có cũng không dùng được. [8. Lỗi thường gặp & bẫy JLPT] Không lặp đúng động từ: 忘れようにも考えられない → sai; phải 忘れようにも忘れられない. Dùng khẳng định ở vế sau → sai: 会おうにも会える. Dùng sai khả năng của する/来る: しようにもしれない → sai; phải しようにもできない. 来ようにも来れない (khẩu ngữ) → nên dùng 来られない trong văn chuẩn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-321f3c7c76"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-037"
+}

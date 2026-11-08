@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "拍手をもって会議を終了します。",
+       "ja_furigana": "拍手(はくしゅ)をもって会議(かいぎ)を終了(しゅうりょう)します。",
+       "vi": "Chúng tôi kết thúc cuộc họp bằng một tràng vỗ tay."
+      },
+      {
+       "ja": "彼は努力をもって、信頼を得た。",
+       "ja_furigana": "彼(かれ)は努力(どりょく)をもって、信頼(しんらい)を得(え)た。",
+       "vi": "Anh ấy lấy nỗ lực để giành được lòng tin."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "本協議会は挙手をもって議案の採否を決する。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hội nghị này quyết định thông qua hay bác dự thảo bằng hình thức giơ tay."
+     },
+     {
+      "ja": "彼女は二十年の現場経験をもって、若手技術者の指導に当たっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bà ấy đảm nhận hướng dẫn kỹ sư trẻ bằng hai mươi năm kinh nghiệm hiện trường."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 本協議会は挙手をもって議案の採否を決する。",
+     "FURIGANA_MISSING: 彼女は二十年の現場経験をもって、若手技術者の指導に当たっている。"
+    ],
+    "formation": "N + をもって",
+    "locked_fields": [],
+    "meaning_vi": "Bằng / lấy… làm phương tiện",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Bằng / lấy... làm phương tiện",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu phương tiện, căn cứ trang trọng: làm việc gì bằng N. Cách dùng: Ở nghĩa phương tiện, 〜をもって đánh dấu công cụ, tư cách hoặc căn cứ dùng để thực hiện hành động: bỏ phiếu bằng giơ tay, trả lời bằng công văn, chỉ đạo bằng kinh nghiệm. Đây là lối hành chính, lễ nghi, khác で thông thường. Cùng hình thức còn có nghĩa thời điểm ‘kể từ / lấy mốc’, nhưng mục này chỉ bàn nghĩa phương tiện. Không dùng cho dụng cụ cụ thể đời thường như bút, dao; những thứ đó giữ で. Hay gặp trong điều lệ, thông báo, diễn từ. Sắc thái: Trang trọng, nghi thức. Người nói muốn tôn cái được nêu thành ‘phương tiện chính thức’. これをもって閉じる mang sắc bế mạc, kết thúc văn bản. Lưu ý: Không thay で với dụng cụ cụ thể (鉛筆をもって書く là gượng; nói 鉛筆で). Phân biệt nghĩa thời điểm (三月三十一日をもって任期満了) với nghĩa phương tiện ở đây. Không nhầm với を持って ‘cầm, mang’ nghĩa từ vựng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e9d8c31fb2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "健康であればこそ、働くことができる。",
+       "ja_furigana": "健康(けんこう)であればこそ、働(はたら)くことができる。",
+       "vi": "Chính vì khỏe mạnh mới có thể làm việc."
+      },
+      {
+       "ja": "家族を愛していればこそ、注意もする。",
+       "ja_furigana": "家族(かぞく)を愛(あい)していればこそ、注意(ちゅうい)もする。",
+       "vi": "Chính vì yêu gia đình mới nhắc nhở."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "現場を知っていればこそ、机上の数値だけでは判断できないと言い切れる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chính vì hiểu hiện trường, người ta mới dám khẳng định không thể chỉ dựa con số trên giấy."
+     },
+     {
+      "ja": "君を信頼していればこそ、不都合な報告も隠さず上げてほしい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chính vì tin cậu, tôi mới muốn cậu trình cả những báo cáo bất lợi, đừng giấu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 現場を知っていればこそ、机上の数値だけでは判断できないと言い切れる。",
+     "FURIGANA_MISSING: 君を信頼していればこそ、不都合な報告も隠さず上げてほしい。"
+    ],
+    "formation": "N + であればこそ; 普通形 + ればこそ",
+    "locked_fields": [],
+    "meaning_vi": "Chính vì… mới…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chính vì... mới...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nhấn mạnh đây mới là lý do then chốt khiến hành động/đánh giá ở mệnh đề sau thành hiện thực. Cách dùng: 〜ばこそ khẳng định rằng chính điều kiện vừa nêu, chứ không phải lý do khác, mới dẫn tới kết quả. Kết quả thường là hành động, thái độ người nói cho là chính đáng: lo nên mới nhắc, tin nên mới góp ý thẳng, thiếu ngân sách nên mới phải công khai thứ tự ưu tiên. Hình thức là điều kiện ば, không phải たから. Giọng văn viết và nói trịnh trọng; からこそ gần nghĩa nhưng thông dụng hơn, kém ‘lý luận’ hơn. Không dùng khi nguyên nhân chỉ là sự việc tiêu cực muốn đổ lỗi. Sắc thái: Nhấn mạnh, biện minh tích cực cho lý do. Người nói muốn người nghe thấy mối liên hệ ‘nhờ/ chính vì A nên mới B’, đôi khi để giải tỏa hiểu lầm (không phải ghét mà vì lo). Lưu ý: Dùng ば/ければ/であれば, không dùng た形 + ばこそ (×知ったばこそ). Khó kết với kết quả thuần túy xấu kiểu đổ lỗi; muốn trách thường dùng せいで, ばかりに. Không đảo thành giả định tương lai đơn thuần; đây là lý do thực, được tô đậm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-97460e1888"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "子どもではあるまいし、そんなことで泣くな。",
+       "ja_furigana": "子(こ)どもではあるまいし、そんなことで泣(な)くな。",
+       "vi": "Đâu còn là trẻ con nữa, đừng khóc vì chuyện đó."
+      },
+      {
+       "ja": "学生ではあるまいし、遅刻してくるなんて。",
+       "ja_furigana": "学生(がくせい)ではあるまいし、遅刻(ちこく)してくるなんて。",
+       "vi": "Đâu còn là học sinh, mà lại đến muộn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "新入社員ではあるまいし、議事録の誤字を上司のせいにするのはやめなさい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đâu còn phải nhân viên mới, đừng đổ lỗi chính tả biên bản cho cấp trên."
+     },
+     {
+      "ja": "小学校の遠足ではあるまいし、弁当の中身まで同僚に指図しなくてもいいだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đâu phải chuyến dã ngoại tiểu học, không cần chỉ tận món trong hộp cơm của đồng nghiệp đâu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 新入社員ではあるまいし、議事録の誤字を上司のせいにするのはやめなさい。",
+     "FURIGANA_MISSING: 小学校の遠足ではあるまいし、弁当の中身まで同僚に指図しなくてもいいだろう。"
+    ],
+    "formation": "N + ではあるまいし; Vる + まいし",
+    "locked_fields": [],
+    "meaning_vi": "Đâu phải là… đâu (nên đừng…)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đâu phải là... đâu (nên đừng...)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Phủ nhận đồng nhất với một thân phận/tình huống cực đoan, rồi trách hoặc khuyên đừng hành xử như thế. Cách dùng: 〜ではあるまいし nói: người nghe đâu phải trẻ con, tội phạm, người ngoài cuộc… nên đừng làm việc không tương xứng. Lý do nằm ở chỗ phủ nhận thân phận giả định; mệnh đề sau là khuyên, trách, hoặc yêu cầu. Giọng nói chuyện, hơi cứng, có thể nghe bề trên. じゃあるまいし suồng sã hơn. Không nhầm với ではあるまいか (‘phải chăng, chẳng phải là… sao’) vốn là suy đoán. Danh từ trước thường là loại người hoặc tình huống rõ rệt, dễ hình dung. Sắc thái: Trách móc, răn nhẹ, đôi khi mỉa. Người nói lấy một hình ảnh quá đáng làm đối trọng để buộc đối phương cư xử ‘cho đúng tuổi, đúng vai’. Cần cân nhắc quan hệ trên dưới kẻo mất lịch sự. Lưu ý: Khác hẳn ではあるまいか (suy đoán ‘chẳng phải là… sao’). Danh từ phải là loại người/tình huống có thể dùng làm đối trọng; N mơ hồ sẽ tối nghĩa. Mệnh đề sau thường là khuyên-trách, không phải miêu tả khách quan thuần túy."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bff460a406"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夢をかなえんがために、彼は毎日努力している。",
+       "ja_furigana": "夢(ゆめ)をかなえんがために、彼(かれ)は毎日(まいにち)努力(どりょく)している。",
+       "vi": "Để đạt được ước mơ, anh ấy nỗ lực mỗi ngày."
+      },
+      {
+       "ja": "家族を守らんがために、危険な仕事を引き受けた。",
+       "ja_furigana": "家族(かぞく)を守(まも)らんがために、危険(きけん)な仕事(しごと)を引(ひ)き受(う)けた。",
+       "vi": "Để bảo vệ gia đình, anh ấy nhận công việc nguy hiểm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "過疎集落の診療所を存続せんがため、医師は週三日、峠を越えて通い続けている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Để duy trì phòng khám ở thôn thưa dân, bác sĩ vẫn vượt đèo đến khám ba ngày mỗi tuần."
+     },
+     {
+      "ja": "実験データの改ざんを防がんがために、研究室は生データを学外サーバーへ即時複製している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhằm ngăn làm giả số liệu thí nghiệm, phòng lab sao chép ngay dữ liệu thô lên máy chủ ngoài trường."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 過疎集落の診療所を存続せんがため、医師は週三日、峠を越えて通い続けている。",
+     "FURIGANA_MISSING: 実験データの改ざんを防がんがために、研究室は生データを学外サーバーへ即時複製している。"
+    ],
+    "formation": "Vない(語幹) + んがため(に); Vない + んがための + N",
+    "locked_fields": [],
+    "meaning_vi": "Để mà / nhằm (cổ văn, quyết tâm mạnh)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Để mà / nhằm (cổ văn, quyết tâm mạnh)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu mục đích hệ trọng bằng dạng văn ngôn: thể mizen + んがため（に）. Cách dùng: Mẫu 〜んがため（に） diễn đạt mục đích với sắc thái cổ, trang nghiêm, thường gắn việc bảo vệ, ngăn chặn, cứu vãn. ん vốn là ぬ văn ngôn sau thể mizen, không phải thể phủ định hiện đại. する thành せんがため, 来る thành こんがため. Mệnh đề sau là hành động người ta chấp nhận khó nhọc để đạt mục tiêu. Dùng trong văn nghị luận, tưởng niệm, báo chí khi muốn nhấn quyết tâm; đưa vào hội thoại đời thường sẽ sượng và khoa trương. Sắc thái: Quyết liệt, trịnh trọng, đôi khi hơi bi tráng. Người viết muốn nói mục tiêu đáng theo đuổi đến mức chịu gian khổ. Không phải công cụ lập kế hoạch trung tính như べく. Lưu ý: Không nhầm ん với thể ない hiện đại (không viết しないがため, 守らないがため). する → せんがため, không phải するんがため hay しんがため. Quá trịnh trọng cho email nội bộ hay nói chuyện quán ăn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e943e10b85"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "経験不足のゆえに、失敗した。",
+       "ja_furigana": "経験不足(けいけんぶそく)のゆえに、失敗(しっぱい)した。",
+       "vi": "Vì thiếu kinh nghiệm nên đã thất bại."
+      },
+      {
+       "ja": "若いゆえに、判断を誤った。",
+       "ja_furigana": "若(わか)いゆえに、判断(はんだん)を誤(あやま)った。",
+       "vi": "Vì còn trẻ nên đã phán đoán sai."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "資料室が手狭なゆえに、古い図面は別館の湿度管理庫へ移された。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì phòng tư liệu chật, các bản vẽ cũ được chuyển sang kho kiểm soát độ ẩm ở nhà phụ."
+     },
+     {
+      "ja": "交通の便が悪いゆえ、通学者の確保に町は苦慮している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Do giao thông bất tiện, thị trấn đang khó khăn trong việc giữ người đi học."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 資料室が手狭なゆえに、古い図面は別館の湿度管理庫へ移された。",
+     "FURIGANA_MISSING: 交通の便が悪いゆえ、通学者の確保に町は苦慮している。"
+    ],
+    "formation": "N + ゆえに; 普通形 + ゆえ(に)",
+    "locked_fields": [],
+    "meaning_vi": "Do / bởi (văn viết)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Do / bởi (văn viết)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu nguyên nhân, lý do theo lối văn viết, học thuật, đôi khi hơi cổ. Cách dùng: 〜ゆえ（に） nối nguyên nhân với kết quả trong văn viết: chật nên phải dời kho, bất tiện giao thông nên khó giữ học sinh, thuật ngữ dày nên phải thêm hình. のゆえに sau danh từ là cách an toàn; な-tính từ dùng なゆえに. それゆえ nối ý giữa hai câu. Sắc thái khách quan, hơi cổ, gặp trong luận văn, phán quyết, nghị luận. Không gay như せいで, cũng không thông tục như から. に có thể lược trong văn gọn. Không hợp tin nhắn, nói chuyện quán cà phê. Sắc thái: Trang trọng, lý trí. Có thể dùng cho lý do không mong muốn mà không đổ lỗi thô. ゆえのN (不便さゆえの遅れ) đóng gói nguyên nhân thành cụm danh từ. Lưu ý: Văn viết; thay bằng ため・から khi nói thường. Tính từ な cần なゆえに (×不便ゆえに vẫn gặp văn cổ nhưng 不便なゆえに rõ hơn). Không dùng như giới từ phương tiện (không thay で, をもって)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c95780a90b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "締め切りに間に合わせるべく、夜遅くまで作業した。",
+       "ja_furigana": "締(し)め切(き)りに間(ま)に合(あ)わせるべく、夜遅(よるおそ)くまで作業(さぎょう)した。",
+       "vi": "Để kịp hạn chót, tôi làm việc đến tận khuya."
+      },
+      {
+       "ja": "事故を防ぐべく、注意を呼びかけた。",
+       "ja_furigana": "事故(じこ)を防(ふせ)ぐべく、注意(ちゅうい)を呼(よ)びかけた。",
+       "vi": "Để ngăn ngừa tai nạn, chúng tôi kêu gọi mọi người cẩn thận."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "洪水後の街区を正確に復元すべく、測量課は夜間も基準点を逐一照合した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhằm khôi phục chính xác các khu phố sau lũ, phòng đo đạc đối chiếu từng điểm chuẩn cả ban đêm."
+     },
+     {
+      "ja": "研修医の過労を抑えるべく、病院は当直表を二週間単位で組み直すことにした。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Để kìm tình trạng kiệt sức của bác sĩ thực tập, bệnh viện quyết định lập lại lịch trực theo đơn vị hai tuần."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 洪水後の街区を正確に復元すべく、測量課は夜間も基準点を逐一照合した。",
+     "FURIGANA_MISSING: 研修医の過労を抑えるべく、病院は当直表を二週間単位で組み直すことにした。"
+    ],
+    "formation": "Vる + べく",
+    "locked_fields": [],
+    "meaning_vi": "Nhằm / để (văn viết trang trọng)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nhằm / để (văn viết trang trọng)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu mục đích hành động bằng lối trang trọng, chủ yếu trong văn viết và diễn ngôn công vụ. Cách dùng: Mẫu 〜べく diễn đạt mục đích một cách trang trọng: làm việc A nhằm đạt việc B. Động từ trước べく ở thể từ điển; riêng する thường thành すべく theo thói quen văn ngôn. Mệnh đề sau phải là hành động cụ thể đang hoặc sẽ triển khai, không phải cảm thán. Sắc thái quyết tâm rõ hơn ために thông thường, nhưng vẫn khách quan hơn んがため. Hay gặp trong nghị quyết, bản tin, báo cáo kỹ thuật; gần như không dùng khi trò chuyện thân mật giữa đồng nghiệp. Sắc thái: Văn viết, công vụ, học thuật. Người nói/viết trình bày mục tiêu như một chủ trương đã định, ít màu cảm xúc cá nhân. Nghe cứng nếu đưa vào tin nhắn hay họp nội bộ suồng sã. Lưu ý: Không dùng trong hội thoại thân mật; thay bằng ために, ように. する thường thành すべく; するべく có gặp nhưng kém chuẩn văn ngôn. Mệnh đề sau phải là hành động hướng tới mục đích, không kết với nhận xét cảm tính suông."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5be4159031"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "人気歌手の公演とあって、会場は大勢のファンで埋まった。",
+       "ja_furigana": "人気歌手(にんきかしゅ)の公演(こうえん)とあって、会場(かいじょう)は大勢(おおぜい)のファンで埋(う)まった。",
+       "vi": "Vì là buổi diễn của ca sĩ nổi tiếng, hội trường chật kín người hâm mộ."
+      },
+      {
+       "ja": "連休最終日とあって、駅は帰省客で混雑していた。",
+       "ja_furigana": "連休最終日(れんきゅうさいしゅうび)とあって、駅(えき)は帰省客(きせいきゃく)で混雑(こんざつ)していた。",
+       "vi": "Vì là ngày cuối kỳ nghỉ dài, nhà ga đông nghịt người về quê."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "市議会の中継が初めて夜間に組まれたとあって、傍聴席は開場前から埋まっていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì lần đầu phiên họp hội đồng thành phố được truyền hình ban đêm, ghế dự thính đã kín từ trước giờ mở cửa."
+     },
+     {
+      "ja": "紀要の投稿締切とあって、院生室の照明は明け方まで消えない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì đúng hạn nộp kỷ yếu, đèn phòng nghiên cứu sinh không tắt đến tận sáng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 市議会の中継が初めて夜間に組まれたとあって、傍聴席は開場前から埋まっていた。",
+     "FURIGANA_MISSING: 紀要の投稿締切とあって、院生室の照明は明け方まで消えない。"
+    ],
+    "formation": "普通形 + とあって",
+    "locked_fields": [],
+    "meaning_vi": "Vì là hoàn cảnh đặc biệt nên…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vì là hoàn cảnh đặc biệt nên...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Lấy một tình huống khác thường làm lý do cho phản ứng, khung cảnh ở mệnh đề sau. Cách dùng: 〜とあって nêu sự tình đặc biệt, hiếm, đáng chú ý, rồi kéo theo hệ quả tự nhiên: chỗ ngồi đầy, đèn không tắt, cửa hàng đặt hàng sớm. Người viết như đang giải thích ‘vì đúng dịp/đúng tình thế ấy nên mới xảy ra B’. Không dùng cho lý do nhạt, lặp lại hàng ngày. Giọng tường thuật, báo chí, miêu tả; ít dùng để ra lệnh. Khác とあれば ở chỗ とあって nói việc đã/ đang là thực tế, còn とあれば là giả định ‘nếu là vì việc ấy thì…’. Sắc thái: Khách quan, có chút ‘đúng lúc đặc biệt’. Mệnh đề sau thường là cảnh tượng tập thể, phản ứng xã hội, chứ không phải tâm sự thầm kín quá riêng. Lưu ý: Hoàn cảnh phải đặc biệt; việc ngày nào cũng thế thì gượng. Không dùng とあって cho giả định (cần とあれば). Ít kết với mệnh đề cầu khiến, cấm đoán trực tiếp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ae7b6c3534"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "皆の前で大丈夫と言った手前、今さら弱音は吐けない。",
+       "ja_furigana": "皆(みな)の前(まえ)で大丈夫(だいじょうぶ)と言(い)った手前(てまえ)、今(いま)さら弱音(よわね)は吐(は)けない。",
+       "vi": "Vì đã nói với mọi người là không sao, giờ không thể kêu ca nữa."
+      },
+      {
+       "ja": "先輩の手前、いいかげんな仕事はできない。",
+       "ja_furigana": "先輩(せんぱい)の手前(てまえ)、いいかげんな仕事(しごと)はできない。",
+       "vi": "Trước mặt đàn anh, không thể làm việc qua loa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "改善を議会で約束した手前、今さら予算不足では通せない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã hứa cải thiện trước hội đồng, giờ không thể thoái thác vì thiếu ngân sách."
+     },
+     {
+      "ja": "指導教員の手前、実験の失敗を運のせいにするわけにはいかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trước mặt giáo viên hướng dẫn, không thể đổ thất bại thí nghiệm cho may rủi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 改善を議会で約束した手前、今さら予算不足では通せない。",
+     "FURIGANA_MISSING: 指導教員の手前、実験の失敗を運のせいにするわけにはいかない。"
+    ],
+    "formation": "N + の手前; 普通形 + 手前",
+    "locked_fields": [],
+    "meaning_vi": "Vì thể diện / đã nói ra thì khó thoái thác",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vì thể diện / đã nói ra thì khó thoái thác",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Vì đã làm/nói điều gì, hoặc vì có người chứng kiến, nên bị ràng buộc, không thể xử sự ngược lại. Cách dùng: 〜手前 ở nghĩa ngữ pháp N1 chỉ sức ép sĩ diện: đã hứa công khai, đã chủ trương cứng, có thầy cô hay đoàn thể đang nhìn, nên không thể nuốt lời hay làm ngơ. た手前 lấy hành vi đã thực hiện làm cái ‘cớ’ ràng buộc. Nの手前 lấy người hoặc tổ chức làm chỗ phải giữ thể diện. Mệnh đề sau thường là phủ định khả năng, phủ định nghĩa vụ ngược: 断れない, 済ませられない. Khác nghĩa từ vựng ‘phía trước, trước khi đến’. Không phải lý do logic thuần như 以上, mà là lý do xã hội, mặt mũi. Sắc thái: Bị kẹt vì lời đã nói, vai đã đóng, mắt người khác. Người nói thừa nhận ràng buộc xã hội hơn là nguyên tắc trừu tượng. Có thể hơi tiêu cực: làm vì không muốn mất mặt chứ không hẳn vì muốn. Lưu ý: Động từ thường ở た形; する手前 kém tự nhiên so với した手前 khi nói việc đã công bố. Đừng nhầm với 駅の手前 (vị trí ‘trước ga’). Mệnh đề sau thường là điều bị cản (không thể làm khác), ít khi là hành động hoàn toàn tự do."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9df559c5aa"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この映画は何度も見るに堪える作品だ。",
+       "ja_furigana": "この映画(えいが)は何度(なんど)も見(み)るに堪(た)える作品(さくひん)だ。",
+       "vi": "Bộ phim này là tác phẩm đáng xem đi xem lại."
+      },
+      {
+       "ja": "この小説は読むに堪える内容だ。",
+       "ja_furigana": "この小説(しょうせつ)は読(よ)むに堪(た)える内容(ないよう)だ。",
+       "vi": "Cuốn tiểu thuyết này có nội dung đáng đọc."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この映画は十分に見るに堪える出来だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bộ phim này có chất lượng đủ đáng xem."
+     },
+     {
+      "ja": "新人の論文だが、読むに堪える内容になっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tuy là luận văn của người mới, nội dung vẫn đáng đọc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この映画は十分に見るに堪える出来だ。",
+     "FURIGANA_MISSING: 新人の論文だが、読むに堪える内容になっている。"
+    ],
+    "formation": "Vる + に堪える; N + に堪える",
+    "locked_fields": [],
+    "meaning_vi": "Đáng/đủ chuẩn để V: Tác phẩm/sản phẩm có chất lượng đủ để xem/đọc/nghe/đánh giá. Chịu được/đáp ứng được: Có thể chịu được sử dụng liên tục, kiểm chứng, phê bình… Phong cách: Văn viết, trang trọng, mang tính đánh giá chuyên môn/kỹ thuật nhiều.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đáng để...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng nhiều trong nhận xét chuyên môn: nghệ thuật, học thuật, kỹ thuật. Điểm nhấn là “đủ chuẩn/giá trị”, không phải khen quá mức. Khác với “いい/素晴らしい”, mẫu này đánh giá tính đáp ứng tiêu chí khách quan. [6. Ghi chú mở rộng] Khi đứng sau động từ, dùng V辞書形＋に堪える: 読むに堪える、見るに堪える、聞くに堪える. Với danh từ, dùng N＋に堪える như 実用に堪える、批判に堪える. Trong tiêu chuẩn kỹ thuật, kết hợp hay gặp: 実用・耐久・検証・批判 + に堪える. Trong phê bình nghệ thuật: 鑑賞に堪える作品／名品. [7. Biến thể & cụm cố định] 鑑賞に堪える作品／美術品. 実用に堪える性能／設計. 批判に堪える議論／理論, 検証に堪えるデータ. [8. Lỗi thường gặp & bẫy JLPT] Dùng động từ thể từ điển: ○ 読むに堪える／読むに堪えない. Không lấy 読みに堪える làm công thức chuẩn của mẫu này. Nhầm sắc thái “đủ chuẩn khách quan” với lời khen tình cảm; JLPT hay kiểm tra khác biệt này. Nhầm “堪える” với “耐える”: cả hai đúng nhiều trường hợp, nhưng “堪える” thiên về đánh giá/giá trị, “耐える” thiên về chịu đựng vật lý."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-057f5f471e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "準備なしには、成功はありえない。",
+       "ja_furigana": "準備(じゅんび)なしには、成功(せいこう)はありえない。",
+       "vi": "Không có sự chuẩn bị thì không thể thành công."
+      },
+      {
+       "ja": "練習なしには、上達しない。",
+       "ja_furigana": "練習(れんしゅう)なしには、上達(じょうたつ)しない。",
+       "vi": "Không luyện tập thì không tiến bộ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "努力なしには、夢は叶わない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu không nỗ lực thì ước mơ sẽ không thành."
+     },
+     {
+      "ja": "許可なしには、入室できません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không có phép thì không được vào phòng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 努力なしには、夢は叶わない。",
+     "FURIGANA_MISSING: 許可なしには、入室できません。"
+    ],
+    "formation": "N + なしには + 〜ない",
+    "locked_fields": [],
+    "meaning_vi": "“～なしには～ない” = “trừ khi có N / nếu không có N thì không thể/không xảy ra”. Sắc thái mạnh và trang trọng hơn “～なしでは”, thường dùng khi N là hành động/quy trình cần thiết (努力・説明・合意・準備・許可). Vế sau là dạng phủ định khả năng/tiến triển: できない・ありえない・進まない・始まらない・成立しない. Thường xuất hiện trong văn bản quy định, luận văn, hướng dẫn nghiệp vụ để nhấn mạnh điều kiện bắt buộc.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không thể... nếu thiếu...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Chọn N là điều kiện/quy trình phải có, mang tính “thủ tục” hoặc “nền tảng” (許可・同意・説明・検証・準備). Sắc thái quy phạm, dứt khoát; phù hợp thông báo, quy trình, nghiệp vụ. Dùng được với “～ことなしには” để tăng trang trọng trong văn viết. Không dùng nếu chỉ muốn nói “đã làm mà không có N” (dùng “N なしで”). [6. Ghi chú mở rộng] Dạng “Vることなしには” nhấn mạnh tính thủ tục: 確認することなしには出荷しない. Trong quảng cáo/PR, có thể thấy để nhấn mạnh quy chuẩn: 身分証なしには購入できません. Khi muốn mềm hơn trong hội thoại, có thể thay bằng “N がないと～ない”. [7. Biến thể & cụm cố định] Vること ＋ なしには ～ない（検証することなしには） N ＋ なしには語れない／語れません N ＋ なしには始まらない／進まない N ＋ なしにはできない／ありえない [8. Lỗi thường gặp & bẫy JLPT] Lẫn với “なしで”: JLPT hay gài cặp 許可なしで/許可なしには. Chọn “なしには” khi vế sau là “không thể/không được”. Dùng vế sau khẳng định: cần có phủ định (ない・できない・進まない…). Chọn N không phù hợp (không phải điều kiện/quy trình), câu nghe gượng. Ví dụ: “花なしには勉強できない” thường không tự nhiên. Nhầm sắc thái với “なしでは”: cả hai đúng nghĩa, nhưng đề thi hỏi sắc thái trang trọng/quy phạm ưu tiên “なしには”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-002df14ad4"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-030"
+}

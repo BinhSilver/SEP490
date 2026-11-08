@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] Confirmation screen before the JLPT path is created; jpath-confirm.js fills it from the API. -->
+<head th:replace="~{fragments/head :: standard('Xác nhận lộ trình JLPT - JLAS', null)}"></head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-confirm')}"></th:block>
+<link rel="stylesheet" th:href="@{/css/pages/jpath-day-picker.css(v=${jpathAssetVersion})}" />
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page jp-confirm" data-inline-dictionary data-jpath-confirm
+      th:attr="data-source=${source},data-attempt-id=${assessmentAttemptId}">
+    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Tạo lộ trình')}"></th:block>
+    <header class="jp-confirm__header">
+        <div class="jp-confirm__head-text">
+            <h1 class="jp-confirm__title">Xác nhận lộ trình JLPT</h1>
+            <p class="jp-confirm__lead">Kiểm tra và chỉnh lại trước khi tạo. Chỉnh ở đây không tính vào số lần chỉnh.</p>
+        </div>
+        <div class="jp-confirm__mascot" aria-hidden="true">
+            <img class="jp-confirm__fox jp-confirm__fox--step1" src="/images/mascots/kitsu/kitsu-announcing.webp" alt="" width="60" height="60">
+            <img class="jp-confirm__fox jp-confirm__fox--step2" src="/images/mascots/kitsu/kitsu-thinking-30.webp" alt="" width="60" height="60">
+            <img class="jp-confirm__fox jp-confirm__fox--step3" src="/images/mascots/kitsu/kitsu-cheer-30.webp" alt="" width="60" height="60">
+        </div>
+    </header>
+
+    <p class="jp-confirm__alert" role="alert" data-role="error" hidden></p>
+    <p class="jp-confirm__loading" role="status" data-role="loading">Đang tải thông tin…</p>
+
+    <div class="jp-confirm__content" data-role="content" data-jp-wizard hidden>
+        <div class="jp-wizard__step" data-jp-wizard-step="Lộ trình" data-jp-wizard-sub="Cấp và lịch học">
+        <section class="jp-confirm-card" data-role="smart" aria-labelledby="jp-confirm-smart-title" hidden>
+            <h2 class="jp-confirm-card__title" id="jp-confirm-smart-title">Kết quả Smart Test</h2>
+            <p class="jp-confirm-smart__level">
+                Cấp: <strong data-role="smart-level"></strong>
+                <span class="jp-confirm-smart__partial" data-role="smart-partial" hidden>(kết quả tạm tính)</span>
+            </p>
+            <ul class="jp-confirm-scores" data-role="smart-scores"></ul>
+            <p class="jp-confirm-smart__notebook" data-role="smart-notebook"></p>
+        </section>
+
+        <section class="jp-confirm-card jp-confirm-card--notice" data-role="unfinished"
+                 aria-labelledby="jp-confirm-unfinished-title" hidden>
+            <h2 class="jp-confirm-card__title" id="jp-confirm-unfinished-title">Bài Smart Test chưa xong</h2>
+            <p>Làm tiếp để lộ trình mở đúng cấp của bạn, hoặc kết thúc để bắt đầu từ N5.</p>
+            <div class="jp-confirm-actions">
+                <button type="button" class="jp-confirm-btn jp-confirm-btn--primary" data-role="resume-test">Làm tiếp</button>
+                <button type="button" class="jp-confirm-btn" data-role="end-test">Kết thúc</button>
+            </div>
+        </section>
+
+        <section class="jp-confirm-card" aria-labelledby="jp-confirm-plan-title">
+            <h2 class="jp-confirm-card__title" id="jp-confirm-plan-title">Lộ trình sẽ tạo</h2>
+            <p class="jp-confirm-plan__level">Cấp bắt đầu: <strong data-role="open-level"></strong></p>
+            <p class="jp-confirm-plan__note" data-role="level-note" hidden></p>
+            <p class="jp-confirm-plan__note" data-role="kana-note" hidden>Có tab Chữ cái: học bảng chữ cái trước.</p>
+            <!-- [JLAS-W0108] Owner 07/11: the survey answers are not asked again; one summary line, "Đổi" opens the fields -->
+            <div class="jp-confirm-field__row">
+                <p class="jp-confirm-plan__summary" data-role="plan-summary" aria-live="polite"></p>
+                <button type="button" class="jp-confirm-btn jp-confirm-btn--small" data-role="plan-edit" aria-expanded="false">Đổi</button>
+            </div>
+            <div data-role="plan-fields" hidden>
+            <div class="jp-confirm-fields">
+                <label class="jp-confirm-field">
+                    <span class="jp-confirm-field__label">Cấp mục tiêu</span>
+                    <select class="jp-confirm-input" data-role="target"></select>
+                </label>
+                <div class="jp-confirm-field">
+                    <label class="jp-confirm-field__label" for="jp-confirm-exam">Ngày thi (để trống nếu chưa có)</label>
+                    <div class="jp-confirm-field__row">
+                        <input class="jp-confirm-input" id="jp-confirm-exam" type="date" data-role="exam" />
+                        <button type="button" class="jp-confirm-btn jp-confirm-btn--small" data-role="exam-clear" hidden>Bỏ ngày thi</button>
+                    </div>
+                </div>
+                <label class="jp-confirm-field">
+                    <span class="jp-confirm-field__label">Thời gian rảnh mỗi ngày</span>
+                    <select class="jp-confirm-input" data-role="minutes"></select>
+                </label>
+            </div>
+            <div class="jp-confirm-days" data-role="days"></div>
+            </div>
+        </section>
+
+        </div>
+        <div class="jp-wizard__step" data-jp-wizard-step="Nhịp học" data-jp-wizard-sub="Mỗi ngày học bao nhiêu">
+        <section class="jp-confirm-card" aria-labelledby="jp-confirm-sliders-title">
+            <h2 class="jp-confirm-card__title" id="jp-confirm-sliders-title">Mỗi ngày học</h2>
+            <div class="jp-confirm-sliders" data-role="slider-list"></div>
+            <p class="jp-confirm-minutes" data-role="minutes-line" aria-live="polite"></p>
+        </section>
+
+        <section class="jp-confirm-card jp-confirm-pace" data-role="pace" aria-labelledby="jp-confirm-pace-title">
+            <h2 class="jp-confirm-card__title" id="jp-confirm-pace-title">Ngày xong dự kiến</h2>
+            <p class="jp-confirm-pace__text" data-role="pace-text" aria-live="polite" tabindex="-1"></p>
+            <ul class="jp-confirm-warnings" data-role="warnings" hidden></ul>
+            <div class="jp-confirm-suggestions" data-role="suggestions-box" hidden>
+                <p class="jp-confirm-suggestions__title">Gợi ý để kịp:</p>
+                <div class="jp-confirm-suggestions__list" data-role="suggestions"></div>
+            </div>
+        </section>
+
+        </div>
+        <div class="jp-wizard__step" data-jp-wizard-step="Cách học" data-jp-wizard-sub="Rồi tạo lộ trình">
+        <section class="jp-confirm-card" aria-labelledby="jp-confirm-mode-title">
+            <h2 class="jp-confirm-card__title" id="jp-confirm-mode-title">Cách học mỗi ngày</h2>
+            <div class="jp-confirm-modes" role="radiogroup" aria-labelledby="jp-confirm-mode-title" data-role="modes"></div>
+            <p class="jp-confirm-plan__note">Đổi lúc nào cũng được trong trang lộ trình.</p>
+        </section>
+
+        <div class="jp-confirm-submit">
+            <button type="button" class="jp-confirm-btn jp-confirm-btn--primary jp-confirm-btn--wide" data-role="create"
+                    disabled aria-disabled="true">Tạo lộ trình</button>
+            <p class="jp-confirm-submit__hint" data-role="create-hint" aria-live="polite" hidden></p>
+        </div>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlptpath/jpath-day-picker.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-confirm.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

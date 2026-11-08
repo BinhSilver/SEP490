@@ -22,6 +22,7 @@ public final class CompiledBookPolicy {
             Pattern.compile("^(LP-OWNED-JLAS-(N[1-5])-(?:C\\d{2}|POOL)-(READ|LISTEN)-P\\d+)-.+$");
     /** §2.32: only these store reviews may enter the required part of a path; DRAFT goes to extra practice, HOLD nowhere. */
     public static final java.util.Set<String> REQUIRED_REVIEWS = java.util.Set.of("ACCEPTED", "REVIEWED");
+    private static final Pattern QUESTION_CHAPTER = Pattern.compile("^LP-OWNED-JLAS-N[1-5]-C(\\d{2})-(?:READ|LISTEN)-P\\d+-");
 
     private CompiledBookPolicy() {
     }
@@ -54,6 +55,21 @@ public final class CompiledBookPolicy {
         Matcher matcher = QUESTION_GROUP.matcher(questionSourceCode);
         if (!matcher.matches() || !matcher.group(2).equals(level)) return null;
         return matcher.group(3).equals("READING".equals(skill) ? "READ" : "LISTEN") ? matcher.group(1) : null;
+    }
+
+    /** §2.32: the chapter a copied question was placed in ({@code …-C06-READ-…} → 6); empty for a store pool row or any
+     * other code. */
+    public static Optional<Integer> chapterOfQuestion(String questionSourceCode) {
+        if (questionSourceCode == null) return Optional.empty();
+        Matcher matcher = QUESTION_CHAPTER.matcher(questionSourceCode);
+        return matcher.find() ? Optional.of(Integer.parseInt(matcher.group(1))) : Optional.empty();
+    }
+
+    /** §2.32: level of a copied question or store row ({@code LP-OWNED-JLAS-N4-…} → N4); null for any other code. */
+    public static String levelOfQuestion(String questionSourceCode) {
+        if (questionSourceCode == null) return null;
+        Matcher matcher = QUESTION_GROUP.matcher(questionSourceCode);
+        return matcher.matches() ? matcher.group(2) : null;
     }
 
     /**

@@ -1,0 +1,583 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町では、東の店が減る一方だ。",
+       "ja_furigana": "この町(まち)では、東(ひがし)の店(みせ)が減(へ)る一方(いっぽう)だ。",
+       "vi": "Ở thị trấn này, các cửa hàng phía đông cứ giảm dần."
+      },
+      {
+       "ja": "雪のせいで、道はすべりやすくなる一方だ。",
+       "ja_furigana": "雪(ゆき)のせいで、道(みち)はすべりやすくなる一方(いっぽう)だ。",
+       "vi": "Vì tuyết nên đường càng ngày càng dễ trượt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "手入れをする人が減り、山道は荒れるばかりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người chăm sóc giảm đi nên đường núi cứ ngày một xuống cấp."
+     },
+     {
+      "ja": "この地域では、小型の共同図書館が増える一方だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ở khu vực này, các thư viện cộng đồng quy mô nhỏ đang tiếp tục tăng lên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 手入れをする人が減り、山道は荒れるばかりだ。",
+     "FURIGANA_MISSING: この地域では、小型の共同図書館が増える一方だ。"
+    ],
+    "formation": "Vる + 一方だ / ばかりだ",
+    "locked_fields": [],
+    "meaning_vi": "Cứ tiếp tục theo một chiều hướng",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cứ tiếp tục theo một chiều hướng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả một trạng thái biến đổi liên tục theo một hướng, thường khó đảo ngược. Cách dùng: Hai mẫu cho biết sự thay đổi cứ tiến theo một hướng mà không thấy dấu hiệu dừng hay quay lại. 〜ばかりだ thường chứa đánh giá lo ngại, cho rằng tình hình ngày càng xấu hoặc lệch khỏi mong muốn. 〜一方だ khách quan và trang trọng hơn, dùng được cho cả xu hướng tiêu cực lẫn trung tính, đôi khi tích cực. Động từ trước mẫu phải diễn tả sự biến đổi có thể tiếp tục, như tăng, giảm, lan rộng hoặc suy yếu. Sắc thái: ばかりだ dễ bộc lộ tâm trạng bất lực của người nói; 一方だ thiên về mô tả xu thế một chiều. Lưu ý: Dùng dạng từ điển, không dùng dạng た với nghĩa xu hướng tiếp diễn. Không phù hợp với hành động chỉ xảy ra một lần hoặc không có khả năng phát triển theo mức độ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4a6039b047"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "年を取るにつれて、時間がたつのが早く感じる。",
+       "ja_furigana": "年(とし)を取(と)るにつれて、時間(じかん)がたつのが早(はや)く感(かん)じる。",
+       "vi": "Càng lớn tuổi, tôi càng thấy thời gian trôi nhanh."
+      },
+      {
+       "ja": "日本語が上手になるにしたがって、話すのが楽しくなった。",
+       "ja_furigana": "日本語(にほんご)が上手(じょうず)になるにしたがって、話(はな)すのが楽(たの)しくなった。",
+       "vi": "Cùng với việc tiếng Nhật khá lên, tôi thấy nói chuyện thú vị hơn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "標高が高くなるにつれて、風の音が鋭くなってきた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Càng lên cao, tiếng gió càng trở nên sắc hơn."
+     },
+     {
+      "ja": "利用者が増えるにしたがって、問い合わせの内容も多様になった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cùng với số người sử dụng tăng lên, nội dung câu hỏi cũng trở nên đa dạng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 標高が高くなるにつれて、風の音が鋭くなってきた。",
+     "FURIGANA_MISSING: 利用者が増えるにしたがって、問い合わせの内容も多様になった。"
+    ],
+    "formation": "Vる + につれて / にしたがって / Nの + 変化に従って",
+    "locked_fields": [],
+    "meaning_vi": "Cùng với sự thay đổi của",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cùng với sự thay đổi của",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả B biến đổi dần tương ứng với quá trình thay đổi của A. Cách dùng: Hai mẫu biểu thị quan hệ biến đổi song hành: khi A thay đổi từng bước theo một hướng, B cũng thay đổi theo. A thường là quá trình như thời gian trôi, số lượng tăng, kỹ năng phát triển hoặc mùa chuyển. 〜につれて tự nhiên trong cả nói và viết; 〜にしたがって trang trọng, có tính phân tích hơn. Ở nghĩa này, vế B thường là biến đổi tự nhiên hay kết quả khách quan, không phải mệnh lệnh hoặc hành động tùy ý chỉ xảy ra một lần. Sắc thái: Nhấn sự tương quan dần dần giữa hai biến đổi; にしたがって thường cho cảm giác quy luật và khách quan hơn. Lưu ý: A phải là yếu tố có khả năng biến đổi theo quá trình, không chỉ là một sự kiện chớp nhoáng. Vế B thường tránh mệnh lệnh, ý chí hay lời rủ rê trực tiếp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ac29b8c565"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この村では、若者が減りつつある。",
+       "ja_furigana": "この村(むら)では、若者(わかもの)が減(へ)りつつある。",
+       "vi": "Ở ngôi làng này, số người trẻ đang dần giảm."
+      },
+      {
+       "ja": "空が明るくなり、雨が止みつつある。",
+       "ja_furigana": "空(そら)が明(あか)るくなり、雨(あめ)が止(や)みつつある。",
+       "vi": "Trời sáng dần, mưa đang ngớt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn (tránh chữ quá cấp) + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "長年途絶えていた染色技術が、若い職人の手で復活しつつある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kỹ thuật nhuộm từng mai một suốt nhiều năm đang dần được hồi sinh bởi các thợ trẻ."
+     },
+     {
+      "ja": "川沿いの湿地では、生態系が少しずつ回復しつつある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ở vùng đất ngập nước ven sông, hệ sinh thái đang dần phục hồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 長年途絶えていた染色技術が、若い職人の手で復活しつつある。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 長年途絶えていた染色技術が、若い職人の手で復活しつつある。 → 染",
+     "FURIGANA_MISSING: 川沿いの湿地では、生態系が少しずつ回復しつつある。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 川沿いの湿地では、生態系が少しずつ回復しつつある。 → 生態系"
+    ],
+    "formation": "V-ます(語幹) + つつある",
+    "locked_fields": [],
+    "meaning_vi": "Đang dần",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đang dần",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Mô tả một biến đổi đang tiến triển từng bước và chưa hoàn tất. Cách dùng: Mẫu này diễn tả một trạng thái đang thay đổi theo thời gian và đã có dấu hiệu tiến triển rõ, nhưng chưa đạt điểm cuối. Động từ thường mang nghĩa biến đổi như phục hồi, giảm, mở rộng, mất đi hoặc được thay thế. Cấu trúc xuất hiện nhiều trong báo cáo, phân tích, tin tức và văn viết trang trọng. Nó không đơn thuần nói hành động đang diễn ra, mà nhìn cả quá trình như một xu hướng đang hình thành từng bước. Sắc thái: Khách quan, trang trọng và có tính phân tích; thường dùng để mô tả biến đổi xã hội, môi trường, kỹ thuật hoặc nhận thức. Lưu ý: Nối với gốc ます, không nối bằng dạng て. Thường cần động từ có thể biểu thị một quá trình biến đổi, không hợp với động tác chớp nhoáng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1b66fda16a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "太陽が沈もうとしている。",
+       "ja_furigana": "太陽(たいよう)が沈(しず)もうとしている。",
+       "vi": "Mặt trời đang dần lặn."
+      },
+      {
+       "ja": "少女は重い荷物を持ち上げようとしている。",
+       "ja_furigana": "少女(しょうじょ)は重(おも)い荷物(にもつ)を持(も)ち上(あ)げようとしている。",
+       "vi": "Cô bé đang cố nhấc bưu kiện nặng lên."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "作業員たちは倒れた標識を起こそうとしている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Các công nhân đang cố dựng tấm biển báo bị đổ lên."
+     },
+     {
+      "ja": "東の空が白み、長い夜が明けようとしていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bầu trời phía đông dần sáng và đêm dài sắp kết thúc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 作業員たちは倒れた標識を起こそうとしている。",
+     "FURIGANA_MISSING: 東の空が白み、長い夜が明けようとしていた。"
+    ],
+    "formation": "V-よう(意向形) + としている",
+    "locked_fields": [],
+    "meaning_vi": "Đang định; sắp sửa",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đang định; sắp sửa",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả một chủ thể đang cố thực hiện hành động hoặc một sự việc sắp bắt đầu. Cách dùng: Với động từ có ý chí, mẫu cho thấy chủ thể đang thử, đang định hoặc đang ở ngay giai đoạn bắt đầu thực hiện hành động. Với hiện tượng tự nhiên hay sự việc không có ý chí, nó diễn tả dấu hiệu cho thấy biến cố sắp xảy ra. Dạng ý hướng thay đổi theo nhóm động từ, như 書こう, 食べよう, しよう, 来よう. Ngữ cảnh quyết định nghĩa là đang cố làm hay sắp sửa xảy ra. Sắc thái: Tập trung vào thời điểm ngay trước hoặc nỗ lực ở giai đoạn khởi đầu, chưa khẳng định hành động sẽ hoàn thành. Lưu ý: Phải dùng dạng ý hướng trước としている. Không dùng để khẳng định kết quả đã đạt được; mẫu chỉ nêu ý định, nỗ lực hoặc dấu hiệu sắp xảy ra."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f2af22785f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "食事の最中に、電話が鳴った。",
+       "ja_furigana": "食事(しょくじ)の最中(さいちゅう)に、電話(でんわ)が鳴(な)った。",
+       "vi": "Đang ăn thì điện thoại reo."
+      },
+      {
+       "ja": "大切な話の最中だから、静かにしてください。",
+       "ja_furigana": "大切(たいせつ)な話(はなし)の最中(さいちゅう)だから、静(しず)かにしてください。",
+       "vi": "Đang giữa lúc nói chuyện quan trọng nên xin hãy giữ im lặng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "録音の最中に、隣の部屋で工事が始まってしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đúng lúc đang thu âm thì phòng bên cạnh lại bắt đầu thi công."
+     },
+     {
+      "ja": "今は標本を分類している最中だから、机に触らないでください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bây giờ tôi đang đúng giữa lúc phân loại mẫu vật nên xin đừng chạm vào bàn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 録音の最中に、隣の部屋で工事が始まってしまった。",
+     "FURIGANA_MISSING: 今は標本を分類している最中だから、机に触らないでください。"
+    ],
+    "formation": "Vている / Nの + 最中(に)",
+    "locked_fields": [],
+    "meaning_vi": "Đang đúng giữa lúc",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đang đúng giữa lúc",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nhấn mạnh một hành động hoặc trạng thái đang ở ngay giữa quá trình diễn ra. Cách dùng: Mẫu này chỉ đúng khoảng thời gian một hoạt động đang diễn ra mạnh hoặc đang ở giữa tiến trình, chưa kết thúc. Dạng 最中に thường đưa vào một sự việc chen ngang; 最中だ dùng để mô tả trạng thái hiện tại; 最中の bổ nghĩa cho danh từ. Sự gián đoạn không bắt buộc, nhưng rất thường gặp vì mẫu làm nổi bật sự trùng thời điểm không thuận tiện. So với 〜ている, 最中 thu hẹp tiêu điểm vào chính lúc đang bận thực hiện. Sắc thái: Nhấn mạnh ngay giữa quá trình, đôi khi hàm ý bị làm phiền hoặc thời điểm xảy ra không thích hợp. Lưu ý: Động từ thường ở dạng ている, còn danh từ cần の. Không hợp với trạng thái kéo dài mà không thể nhìn như một hoạt động có khoảng bắt đầu và kết thúc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a115717691"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "人口が増えるとともに、町のごみも増えた。",
+       "ja_furigana": "人口(じんこう)が増(ふ)えるとともに、町(まち)のごみも増(ふ)えた。",
+       "vi": "Cùng với việc dân số tăng, rác của thị trấn cũng tăng."
+      },
+      {
+       "ja": "夜になるとともに、気温が下がってきた。",
+       "ja_furigana": "夜(よる)になるとともに、気温(きおん)が下(さ)がってきた。",
+       "vi": "Cùng với việc trời chuyển đêm, nhiệt độ cũng hạ xuống."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn (tránh chữ quá cấp) + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "工房の移転に伴って、予約の受付方法も変更された。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kèm theo việc di dời xưởng, cách tiếp nhận đặt chỗ cũng đã được thay đổi."
+     },
+     {
+      "ja": "通信速度が向上するとともに、扱える映像の種類が増えた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cùng với tốc độ truyền thông được cải thiện, loại hình ảnh có thể xử lý cũng tăng lên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 工房の移転に伴って、予約の受付方法も変更された。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 工房の移転に伴って、予約の受付方法も変更された。 → 房",
+     "FURIGANA_MISSING: 通信速度が向上するとともに、扱える映像の種類が増えた。"
+    ],
+    "formation": "N / Vる + に伴って / とともに",
+    "locked_fields": [],
+    "meaning_vi": "Kéo theo; cùng với",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Kéo theo; cùng với",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu một thay đổi hoặc sự kiện đi kèm và phát sinh cùng với một thay đổi khác. Cách dùng: Hai mẫu cho biết khi A xảy ra hoặc thay đổi thì B cũng xuất hiện như một hiện tượng đi kèm. 〜に伴って nhấn mối liên hệ kéo theo, thường dùng với thay đổi quy mô lớn, chính sách, hoạt động tổ chức hoặc hệ quả thực tế. 〜とともに có thể chỉ hai thay đổi cùng tiến triển, đồng thời còn có nghĩa cùng với một người hoặc vật trong ngữ cảnh khác. Trong nghĩa biến đổi, cả hai mang sắc thái văn viết và khách quan. Sắc thái: に伴って làm nổi bật hệ quả gắn liền với A; とともに nhấn tính đồng thời hoặc song hành và có phạm vi nghĩa rộng hơn. Lưu ý: Không phải lúc nào B cũng tăng giảm theo cùng tỷ lệ với A; quan hệ đi kèm là đủ. Cần phân biệt とともに chỉ biến đổi với とともに mang nghĩa cùng ai đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-980ff55981"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先輩に教わりつつ、少しずつ仕事を覚えた。",
+       "ja_furigana": "先輩(せんぱい)に教(おそ)わりつつ、少(すこ)しずつ仕事(しごと)を覚(おぼ)えた。",
+       "vi": "Vừa được đàn anh chỉ dẫn, tôi vừa dần nắm được công việc."
+      },
+      {
+       "ja": "体に良くないと知りつつも、甘い物を食べてしまう。",
+       "ja_furigana": "体(からだ)に良(よ)くないと知(し)りつつも、甘(あま)い物(もの)を食(た)べてしまう。",
+       "vi": "Dù biết không tốt cho sức khỏe, tôi vẫn ăn đồ ngọt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "担当者と相談しつつ、展示の配置を少しずつ変えた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vừa trao đổi với người phụ trách, tôi vừa thay đổi dần cách bố trí trưng bày."
+     },
+     {
+      "ja": "危険だと知りつつも、彼は古い階段を一人で上った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù biết nguy hiểm, anh ấy vẫn một mình leo cầu thang cũ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 担当者と相談しつつ、展示の配置を少しずつ変えた。",
+     "FURIGANA_MISSING: 危険だと知りつつも、彼は古い階段を一人で上った。"
+    ],
+    "formation": "V-ます(語幹) + つつ(も)",
+    "locked_fields": [],
+    "meaning_vi": "Trong khi; dù biết vẫn",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Trong khi; dù biết vẫn",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nối hai hành động đồng thời của cùng chủ thể, hoặc diễn tả hành động trái với điều chủ thể nhận thức. Cách dùng: Ở nghĩa đồng thời, 〜つつ cho biết cùng một chủ thể thực hiện A trong lúc tiến hành B; B thường là hoạt động chính. Ở nghĩa nhượng bộ, mẫu hay đi với も hoặc xuất hiện trong ngữ cảnh như 知りつつ, 思いつつ, cho thấy chủ thể vẫn làm B dù biết A hay dù trong lòng có ý khác. Cả hai cách dùng thiên về văn viết và lời nói trang trọng hơn 〜ながら. Động từ nối bằng gốc ます. Sắc thái: Trang trọng, cô đọng; cách dùng nhượng bộ thường hàm ý tự mâu thuẫn, do dự hoặc tự phê bình. Lưu ý: Ở nghĩa hai hành động đồng thời, chủ thể của hai vế phải giống nhau. Không nối bằng dạng て; phải dùng gốc ます."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f3a9943fc9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "スープが熱いうちに飲んでください。",
+       "ja_furigana": "スープが熱(あつ)いうちに飲(の)んでください。",
+       "vi": "Hãy uống súp khi còn nóng."
+      },
+      {
+       "ja": "毎日聞いているうちに、この歌を覚えてしまった。",
+       "ja_furigana": "毎日(まいにち)聞(き)いているうちに、この歌(うた)を覚(おぼ)えてしまった。",
+       "vi": "Nghe hằng ngày, tôi đã thuộc bài hát này lúc nào không hay."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "朝の涼しいうちに、温室の窓を全部開けておこう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hãy mở hết cửa sổ nhà kính khi buổi sáng còn mát."
+     },
+     {
+      "ja": "何度も地図を描いているうちに、町の細い道まで覚えた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong lúc vẽ bản đồ nhiều lần, tôi dần nhớ cả những con đường nhỏ trong thị trấn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 朝の涼しいうちに、温室の窓を全部開けておこう。",
+     "FURIGANA_MISSING: 何度も地図を描いているうちに、町の細い道まで覚えた。"
+    ],
+    "formation": "Vる・Vている・Vない・Aい・Aな(〜な) + うちに",
+    "locked_fields": [],
+    "meaning_vi": "Trong khi; trước khi trạng thái đổi",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Trong khi; trước khi trạng thái đổi",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu việc nên làm khi một trạng thái còn duy trì, hoặc một thay đổi nảy sinh trong quá trình ấy. Cách dùng: Mẫu có hai cách dùng chính. Thứ nhất, người nói tranh thủ làm B khi trạng thái A vẫn còn, trước khi cơ hội hoặc điều kiện thay đổi. Thứ hai, trong lúc A tiếp diễn, B dần hình thành một cách tự nhiên, thường không phải kết quả được chủ ý rõ ràng từ đầu. Với cách thứ nhất, A xác định một khoảng thời gian hữu hạn; với cách thứ hai, các dạng 〜ているうちに và 〜ないうちに rất thường gặp. Sắc thái: Gợi một cửa sổ thời gian có thể khép lại, hoặc một sự biến đổi âm thầm diễn ra trong quá trình. Lưu ý: Tính từ đuôi な cần な, danh từ cần の trước うちに. Khi muốn nói một việc chen ngang đúng khoảnh khắc, không dùng うちに thay cho 最中に."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-264eb81040"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "客の希望に応じて、メニューを作り変える。",
+       "ja_furigana": "客(きゃく)の希望(きぼう)に応(おう)じて、メニューを作(つく)り変(か)える。",
+       "vi": "Tùy theo yêu cầu của khách, chúng tôi thay đổi thực đơn."
+      },
+      {
+       "ja": "経験に応じて、仕事の中身を決めている。",
+       "ja_furigana": "経験(けいけん)に応(おう)じて、仕事(しごと)の中身(なかみ)を決(き)めている。",
+       "vi": "Tùy theo kinh nghiệm mà quyết định nội dung công việc."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "参加者の経験に応じて、三つの練習コースを用意した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chúng tôi đã chuẩn bị ba khóa luyện tập tùy theo kinh nghiệm của người tham gia."
+     },
+     {
+      "ja": "荷物の重さに応じて、使用する容器を変えてください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hãy thay đổi loại thùng sử dụng tùy theo trọng lượng hành lý."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 参加者の経験に応じて、三つの練習コースを用意した。",
+     "FURIGANA_MISSING: 荷物の重さに応じて、使用する容器を変えてください。"
+    ],
+    "formation": "N + に応じて / に応じた + N",
+    "locked_fields": [],
+    "meaning_vi": "Tùy theo, ứng với",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tùy theo, ứng với",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả hành động hoặc mức độ được điều chỉnh sao cho phù hợp với điều kiện hay nhu cầu. Cách dùng: Mẫu này cho biết cách xử lý, lựa chọn hoặc mức độ B thay đổi để đáp lại và phù hợp với A. A thường là nhu cầu, năng lực, số lượng, tình hình, mục đích hoặc yêu cầu. Dạng に応じた đứng trước danh từ; に応じ là dạng văn viết cô đọng. Khác với việc chỉ nêu hai xu hướng cùng thay đổi, mẫu còn hàm ý có sự điều chỉnh thích hợp hoặc phản ứng tương xứng với điều kiện được đưa ra. Sắc thái: Mang sắc thái linh hoạt, tương xứng và có tính quy chuẩn; thường gặp trong dịch vụ, hướng dẫn, phân loại và chính sách. Lưu ý: Thông thường nối trực tiếp với danh từ. Vế sau phải thể hiện sự đáp ứng hoặc điều chỉnh có liên hệ hợp lý với điều kiện ở vế trước."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-55f63485ae"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この計画がうまくいくかどうかは、天気しだいだ。",
+       "ja_furigana": "この計画(けいかく)がうまくいくかどうかは、天気(てんき)しだいだ。",
+       "vi": "Kế hoạch này thành công hay không là tùy vào thời tiết."
+      },
+      {
+       "ja": "考え方しだいで、同じ一日が楽しくもなる。",
+       "ja_furigana": "考(かんが)え方(かた)しだいで、同(おな)じ一日(いちにち)が楽(たの)しくもなる。",
+       "vi": "Tùy cách suy nghĩ, cùng một ngày cũng có thể trở nên vui vẻ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "限られた空間を生かせるかどうかは、家具の配置次第だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có tận dụng được không gian hạn chế hay không tùy vào cách bố trí đồ đạc."
+     },
+     {
+      "ja": "工夫次第で、捨てる材料から丈夫な箱を作ることもできる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tùy vào sự sáng tạo, ta cũng có thể làm hộp chắc chắn từ vật liệu định bỏ đi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 限られた空間を生かせるかどうかは、家具の配置次第だ。",
+     "FURIGANA_MISSING: 工夫次第で、捨てる材料から丈夫な箱を作ることもできる。"
+    ],
+    "formation": "N + 次第(だ) / 次第で",
+    "locked_fields": [],
+    "meaning_vi": "Tùy thuộc vào",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tùy thuộc vào",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Cho biết kết quả hoặc hướng phát triển được quyết định bởi một điều kiện, cách làm hay người nào đó. Cách dùng: Mẫu này nêu yếu tố A quyết định kết quả B sẽ ra sao. Dạng 〜次第だ thường đứng cuối câu để kết luận là tùy A; 〜次第で nối sang kết quả; 〜次第では đưa ra một khả năng đặc biệt tùy điều kiện. Danh từ trước 次第 có thể là nỗ lực, phương pháp, thời tiết, kết quả thương lượng hoặc quyết định của một người. Mẫu nhấn rằng kết quả chưa cố định và có thể đổi khi yếu tố A đổi. Sắc thái: Khách quan nhưng có thể mang ý khuyến khích trách nhiệm cá nhân khi A là 努力, 工夫 hoặc 考え方. Lưu ý: Ở nghĩa tùy thuộc, trước 次第 là danh từ, không phải gốc ます của động từ. Cần phân biệt với Vます bỏ ます + 次第 mang nghĩa ngay sau khi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fe5ce0eb27"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-024"
+}

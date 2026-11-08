@@ -1,0 +1,123 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "机の上にりんごが七つある。",
+       "ja_furigana": "机(つくえ)の上(うえ)にりんごが七(なな)つある。",
+       "vi": "Có bảy quả táo trên bàn."
+      },
+      {
+       "ja": "七時に朝ごはんを食べます。",
+       "ja_furigana": "七時(しちじ)に朝(あさ)ごはんを食(た)べます。",
+       "vi": "Tôi ăn sáng lúc bảy giờ."
+      }
+     ]
+    },
+    "note": "lượt phát hành N5: thêm ja_furigana cho câu đã duyệt (chép nguyên câu)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "số bảy",
+    "examples": [
+     {
+      "ja": "机の上にりんごが七つある。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Có bảy quả táo trên bàn."
+     },
+     {
+      "ja": "七時に朝ごはんを食べます。",
+      "ja_furigana": "七時(しちじ)に朝(あさ)ごはんを食(た)べます。",
+      "source": "AI",
+      "vi": "Tôi ăn sáng lúc bảy giờ."
+     }
+    ],
+    "expression": "七",
+    "findings": [
+     "FURIGANA_MISSING: 机の上にりんごが七つある。",
+     "MULTI_LEVEL"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bảy; số bảy",
+    "mnemonic_vi": "Số 7 七 \"thất\" đọc しち (gần \"thất\") hoặc なな. Nói なな cho rõ, khỏi lẫn với いち (1) và し (4).",
+    "reading": "しち",
+    "romaji": "shichi",
+    "second_pass": true,
+    "topic_vi": "Số đếm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2afc2802cc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "九を三で割ると三になる。",
+       "ja_furigana": "九(きゅう)を三(さん)で割(わ)ると三(さん)になる。",
+       "vi": "Chín chia ba bằng ba."
+      },
+      {
+       "ja": "弟はまだ九さいです。",
+       "ja_furigana": "弟(おとうと)はまだ九(きゅう)さいです。",
+       "vi": "Em trai tôi mới chín tuổi."
+      }
+     ]
+    },
+    "note": "lượt phát hành N5: thêm ja_furigana cho câu đã duyệt (chép nguyên câu)"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "số chín",
+    "examples": [
+     {
+      "ja": "九を三で割ると三になる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Chín chia ba bằng ba."
+     },
+     {
+      "ja": "弟はまだ九さいです。",
+      "ja_furigana": "弟(おとうと)はまだ九(きゅう)さいです。",
+      "source": "AI",
+      "vi": "Em trai tôi mới chín tuổi."
+     }
+    ],
+    "expression": "九",
+    "findings": [
+     "FURIGANA_MISSING: 九を三で割ると三になる。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 九を三で割ると三になる。 → 割",
+     "MULTI_LEVEL"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chín; số chín",
+    "mnemonic_vi": "九 \"cửu\" đọc きゅう (gần \"cửu\"); cách đọc ngắn く dùng trong 九時 (くじ) và 九月 (くがつ).",
+    "reading": "きゅう",
+    "romaji": "kyuu",
+    "second_pass": true,
+    "topic_vi": "Số đếm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "số từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-231b74b8f3"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N5",
+ "packet_id": "REVIEW_VOCAB-058"
+}

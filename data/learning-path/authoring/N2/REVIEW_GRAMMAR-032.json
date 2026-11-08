@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼を中心として、新しいチームを作った。",
+       "ja_furigana": "彼(かれ)を中心(ちゅうしん)として、新(あたら)しいチームを作(つく)った。",
+       "vi": "Chúng tôi lấy anh ấy làm trung tâm để lập một đội mới."
+      },
+      {
+       "ja": "会社は彼女を責任者として迎えた。",
+       "ja_furigana": "会社(かいしゃ)は彼女(かのじょ)を責任者(せきにんしゃ)として迎(むか)えた。",
+       "vi": "Công ty đã mời cô ấy về làm người phụ trách."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この祭りは、住民の社会参加を目的として始められた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lễ hội này được bắt đầu hướng đến mục tiêu tham gia xã hội của cư dân."
+     },
+     {
+      "ja": "山田さんをリーダーとするサークルを作る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lập câu lạc bộ thể thao chọn anh Yamada làm thủ lĩnh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この祭りは、住民の社会参加を目的として始められた。",
+     "FURIGANA_MISSING: 山田さんをリーダーとするサークルを作る。"
+    ],
+    "formation": "N1 + を + N2 + として / とする",
+    "locked_fields": [],
+    "meaning_vi": "Lấｙ ～ làm ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜社会参加を目的として",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng khi muốn lấy một danh từ làm mục đích, vai trò…cho một hành động nào đó. Trước [として] là các từ ngữ chỉ mục đích, lập trường, vai trò, chủng loại…"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0334df3da9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今から出かけるとしても、間に合わないだろう。",
+       "ja_furigana": "今(いま)から出(で)かけるとしても、間(ま)に合(あ)わないだろう。",
+       "vi": "Dù bây giờ có đi thì chắc cũng không kịp."
+      },
+      {
+       "ja": "半分にしても、このケーキは私には大きすぎる。",
+       "ja_furigana": "半分(はんぶん)にしても、このケーキは私(わたし)には大(おお)きすぎる。",
+       "vi": "Dù chia đôi thì chiếc bánh này với tôi vẫn quá to."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "行くとしても、旅行者としてしか行けない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho dẫu có đi, thì chỉ có thể đi với tư cách người du lịch."
+     },
+     {
+      "ja": "負けてくやしいのは、選手だけでなく監督にしても同じだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ân hận vì thất bại, không chỉ riêng các tuyển thủ mà ngay cả huấn luyện viên cũng giống vậy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 行くとしても、旅行者としてしか行けない。",
+     "FURIGANA_MISSING: 負けてくやしいのは、選手だけでなく監督にしても同じだ。"
+    ],
+    "formation": "thể thường + としても / N + にしても",
+    "locked_fields": [],
+    "meaning_vi": "Dù cho…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜行くとしても",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* Aなだ/ Nだ Biểu hiện điều kiện giả định nghịch tiếp: Dù cho thì vẫn… * としたって và にしたって sử dụng trong văn nói."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5ba03484fd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "国の経済が成長するとともに、生活も豊かになった。",
+       "ja_furigana": "国(くに)の経済(けいざい)が成長(せいちょう)するとともに、生活(せいかつ)も豊(ゆたか)かになった。",
+       "vi": "Cùng với sự tăng trưởng kinh tế của đất nước, đời sống cũng trở nên sung túc hơn."
+      },
+      {
+       "ja": "兄は会社の社長であるとともに、大学で教えている。",
+       "ja_furigana": "兄(あに)は会社(かいしゃ)の社長(しゃちょう)であるとともに、大学(だいがく)で教(おし)えている。",
+       "vi": "Anh trai tôi vừa là giám đốc công ty vừa giảng dạy ở trường đại học."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "年を取るとともに、記憶力が弱くなる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cùng với tuổi tác tăng lên, trí nhớ cũng yếu đi."
+     },
+     {
+      "ja": "春の訪れとともに、花が咲き始めた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cùng với mùa xuân đến, hoa bắt đầu nở."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 年を取るとともに、記憶力が弱くなる。",
+     "FURIGANA_MISSING: 春の訪れとともに、花が咲き始めた。"
+    ],
+    "formation": "N / Vる + とともに",
+    "locked_fields": [],
+    "meaning_vi": "① Cùng với, đồng thời với: Hai hành động/sự việc xảy ra đồng thời. ② Cùng với sự thay đổi của A thì B cũng thay đổi: Biểu thị sự biến đổi theo xu hướng song song. ③ Đồng thời kiêm nhiệm nhiều vai trò/tính chất: “Vừa là…, đồng thời cũng là…”. Ngữ cảnh thường mang tính trang trọng, văn viết hoặc diễn đạt mang tính luận lý.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cùng với..., đồng thời...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng trong văn viết, phát biểu, báo cáo, luận văn → mang tính trang trọng. Không dùng nhiều trong hội thoại thân mật (thay bằng いっしょに, ～につれて, ～ながら). Nếu mang nghĩa “thay đổi kéo theo”, gần giống ～につれて/～にしたがって nhưng trang trọng hơn. Nếu mang nghĩa “đồng thời”, gần giống ～だけでなく / ～そして, nhưng hành văn chặt chẽ hơn. [6. Ghi chú mở rộng] とともに mang sắc thái lịch sự và “gắn kết”, phù hợp văn phong bài luận, phát biểu, đề thi JLPT. Cần phân biệt với 友達とともに (cùng với bạn) và 年齢とともに (cùng với tuổi tác), vì cách dịch phụ thuộc ngữ cảnh. Nếu mệnh đề trước nói về “thời gian, giai đoạn, sự thay đổi”, thì mệnh đề sau thường là “kết quả biến đổi”. [7. Biến thể & cụm cố định] ～とともに、～：Cùng với… AであるとともにB：Vừa A, đồng thời cũng B 時代とともに：Cùng với thời đại… 成長とともに：Cùng với sự trưởng thành… [8. Lỗi thường gặp & bẫy JLPT] Nhầm với につれて → につれて chỉ thiên về sự thay đổi, không dùng để nói “cùng với ai đó”. Bỏ “である” khi đi với danh từ/tính từ đuôi な → Sai ngữ pháp trong văn viết. Dùng trong hội thoại quá thân mật khiến câu trở nên cứng, không tự nhiên. Không đặt dấu phẩy “、” sau とともに trong văn viết → nên có để rõ mạch."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3d048d5620"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "工場の建設にともなって、この辺りもにぎやかになった。",
+       "ja_furigana": "工場(こうじょう)の建設(けんせつ)にともなって、この辺(あた)りもにぎやかになった。",
+       "vi": "Cùng với việc xây dựng nhà máy, vùng này cũng trở nên nhộn nhịp."
+      },
+      {
+       "ja": "台風の接近にともない、学校は休みになった。",
+       "ja_furigana": "台風(たいふう)の接近(せっきん)にともない、学校(がっこう)は休(やす)みになった。",
+       "vi": "Do bão đến gần, trường học được nghỉ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "経済の回復にともなって、消費が増加している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cùng với phục hồi kinh tế, tiêu dùng đang tăng."
+     },
+     {
+      "ja": "人口が増えるのにともなって、交通渋滞が深刻化した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cùng với dân số tăng, tắc nghẽn giao thông trở nên nghiêm trọng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 経済の回復にともなって、消費が増加している。",
+     "FURIGANA_MISSING: 人口が増えるのにともなって、交通渋滞が深刻化した。"
+    ],
+    "formation": "N / Vる(の) + にともなって / にともない",
+    "locked_fields": [],
+    "meaning_vi": "- Nghĩa 1 (biến đổi đồng thời): “Cùng với/đồng thời với A, B cũng thay đổi/tiếp diễn.” - Nghĩa 2 (đi kèm/hệ quả): “Do A kéo theo, phát sinh B (hệ quả/ảnh hưởng/biện pháp).” - Trang trọng hơn ～につれて; dùng được trong văn nói trang trọng, văn viết, thông báo hành chính.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cùng với..., kéo theo...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mối liên hệ mang tính hệ thống/chính sách/hiện tượng xã hội; phù hợp văn phong nghiêm túc. Vế sau là kết quả, ảnh hưởng, biện pháp ứng phó; hạn chế mệnh lệnh trực diện trừ thông báo. Thường xuất hiện cùng từ vựng học thuật: 変化, 影響, 増加, 減少, 実施, 見直し,… [6. Ghi chú mở rộng] “伴う” là từ Hán Nhật trang trọng; trong tiêu đề/thông báo thường dùng “に伴い/に伴う”. Nếu nhấn mạnh nguyên nhân – kết quả rõ ràng, có thể cân nhắc ため/ので; còn “にともなって” trung tính, mô tả quan hệ đi kèm. Hay dùng bị động danh hóa: N + に伴う + N (ảnh hưởng/biện pháp/chi phí…). [7. Biến thể & cụm cố định] ～に伴い: Dạng liên dụng trong văn bản/thông báo. ～に伴う + N: Bổ nghĩa danh từ phía sau (に伴う変更/影響/対策). 口語: ～にともなって/書面: ～に伴い (khác biệt phong cách). [8. Lỗi thường gặp & bẫy JLPT] Dùng cho sự kiện đơn lẻ, tức thời → không phù hợp sắc thái “quá trình/đi kèm”. Nhầm chức năng bổ nghĩa: “に伴う + N” bắt buộc đứng trước danh từ. JLPT bẫy chọn giữa につれて và にともなって khi vế sau là “biện pháp/ảnh hưởng” → ưu tiên にともなって."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0ee731d7d3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ほめられるどころか、ひどく怒られてしまった。",
+       "ja_furigana": "ほめられるどころか、ひどく怒(おこ)られてしまった。",
+       "vi": "Không những không được khen mà tôi còn bị mắng dữ dội."
+      },
+      {
+       "ja": "漢字が読めるどころか、ひらがなも書けない。",
+       "ja_furigana": "漢字(かんじ)が読(よ)めるどころか、ひらがなも書(か)けない。",
+       "vi": "Chữ Hán thì chưa đọc được, đến hiragana cũng không viết nổi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "忙しくて、休みどころか、昼ご飯を食べる時間もない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bận đến mức, nghỉ ngơi còn chẳng có, đến ăn trưa cũng không có thời gian."
+     },
+     {
+      "ja": "この部屋は静かどころか、夜になるとうるさい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phòng này yên tĩnh đâu, tối đến còn ồn nữa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 忙しくて、休みどころか、昼ご飯を食べる時間もない。",
+     "FURIGANA_MISSING: この部屋は静かどころか、夜になるとうるさい。"
+    ],
+    "formation": "N / Aい / Aな / V thể thường + どころか",
+    "locked_fields": [],
+    "meaning_vi": "- Diễn đạt sự thật trái ngược hoàn toàn với mong đợi/giả định A: “A đâu mà/ chứ đừng nói A, (thực ra) B…”. - Hai cách dùng cơ bản: 1) “Chứ nói gì đến A, ngay cả B (mức thấp hơn/cơ bản hơn) còn không/đã …”. 2) “Không những không A, mà còn ngược lại là B (đối lập).” - Thường đi với các cặp từ trái nghĩa hoặc thang mức độ để nhấn mạnh khoảng cách.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không những không... mà còn...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mạnh sự chênh lệch lớn giữa kỳ vọng (A) và thực tế (B). Thường mang sắc thái bất mãn, chê bai; nhưng cũng có thể dùng theo hướng “tốt hơn nhiều”. Không đi với mệnh lệnh/ý chí trực tiếp. Thường là miêu tả/đánh giá. Sau N/Aな cần giữ đúng hình thức: Aな＋な＋どころか. [6. Ghi chú mở rộng] - Khi A là kỳ vọng tích cực, dùng どころか để đảo mạnh về tiêu cực (hoặc ngược lại). Ví dụ: 安いどころか高い（đảo hướng). - Thường kết hợp với まで/さえ/も để tăng độ tương phản: AどころかBまで～. - Trong diễn văn viết, có thể thấy dạng Aどころか、むしろBだ để làm rõ sự đối lập. [7. Biến thể & cụm cố định] AどころかB: B trái với A/ vượt xa A NどころかNも（Nさえ）: “đến N còn …” Aどころか、むしろB: không phải A, mà đúng hơn là B ～はおろか (mẫu tương tự, trang trọng hơn, với danh từ) [8. Lỗi thường gặp & bẫy JLPT] Nhầm với どころではない (không phải lúc làm A) → khác ý nghĩa. Đọc kỹ ngữ cảnh: “không phải lúc” vs “trái hẳn/chứ nói gì”. Thiếu “な” trước どころか với Aな: ×便利どころか → ◯便利などころか. Sai logic mức độ: A phải là mức mong đợi/nhẹ hơn B. Ví dụ: ×難しいどころか簡単だ (có thể dùng nhưng cân nhắc văn cảnh đảo mạnh). Dùng cho mệnh lệnh/đề nghị → không tự nhiên. Tránh: ×勉強するどころか早くしろ。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0f82a479ae"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このまま待ってばかりはいられない。自分で動こう。",
+       "ja_furigana": "このまま待(ま)ってばかりはいられない。自分(じぶん)で動(うご)こう。",
+       "vi": "Không thể cứ ngồi chờ mãi thế này. Tự mình phải hành động thôi."
+      },
+      {
+       "ja": "卒業したら、学生でばかりはいられない。",
+       "ja_furigana": "卒業(そつぎょう)したら、学生(がくせい)でばかりはいられない。",
+       "vi": "Sau khi tốt nghiệp thì không thể cứ mãi là sinh viên được."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "締め切りが近いから、遊んでばかりはいられない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sắp đến hạn nên không thể cứ chơi mãi được."
+     },
+     {
+      "ja": "失敗したけど、いつまでも泣いてばかりはいられない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù thất bại nhưng không thể cứ khóc mãi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 締め切りが近いから、遊んでばかりはいられない。",
+     "FURIGANA_MISSING: 失敗したけど、いつまでも泣いてばかりはいられない。"
+    ],
+    "formation": "V-て + ばかりはいられない",
+    "locked_fields": [],
+    "meaning_vi": "“Không thể cứ mãi chỉ …” → nhấn mạnh cần phải thay đổi hành động/thái độ, không thể duy trì trạng thái/hành vi đơn nhất đó. Hàm ý thúc bách, cấp thiết (do thời gian, trách nhiệm, hoàn cảnh). Với N/な + で: “không thể cứ mãi ở trạng thái N/な”. Ví dụ: 学生でばかりはいられない。 Thường đi cùng phát ngôn ý chí ở câu tiếp theo: ～ので、行動に移す／やらなければならないなど。",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không thể cứ mãi...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái quyết tâm: thừa nhận thực trạng nhưng nhấn mạnh “phải thay đổi”. Thường xuất hiện cùng lý do/hoàn cảnh thúc ép: 時間がない／責任がある／状況が厳しい… Phù hợp cả văn nói và viết; trong diễn văn/hội họp thể hiện tinh thần chuyển biến. [6. Ghi chú mở rộng] “で” trong N/なでばかりはいられない là て-form của だ, dùng đúng với danh từ/tính từ な. Biến thể “～てばかりもいられない” cho sắc thái mềm hơn, tránh quá quyết liệt. Sau câu này thường là hành động kế tiếp/giải pháp cụ thể để thay đổi tình hình. [7. Biến thể & cụm cố định] 遊んでばかりはいられない / 休んでばかりはいられない 甘えてばかりはいられない / 迷ってばかりはいられない 泣いてばかりはいられない / 待ってばかりはいられない 学生でばかりはいられない / 子供でばかりはいられない [8. Lỗi thường gặp & bẫy JLPT] Sai hình thái với N/Aな: ×学生ばかりはいられない → 学生でばかりはいられない. Dùng nguyên dạng: ×遊ぶばかりはいられない → 遊んでばかりはいられない. Nhầm với ～てばかりだ (miêu tả thói quen) → không có sắc thái “phải thay đổi”. JLPT N2: bẫy phân biệt ～てはいられない và ～てばかりはいられない; chú ý hạt nhân nghĩa “không thể chỉ làm một việc”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8728cad77a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "友だちが待っているので、ゆっくり食べてはいられない。",
+       "ja_furigana": "友(とも)だちが待(ま)っているので、ゆっくり食(た)べてはいられない。",
+       "vi": "Vì bạn đang chờ nên không thể thong thả ăn được."
+      },
+      {
+       "ja": "明日は試験だ。こんなところで遊んではいられない。",
+       "ja_furigana": "明日(あした)は試験(しけん)だ。こんなところで遊(あそ)んではいられない。",
+       "vi": "Mai là thi rồi. Không thể chơi ở đây được."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "結果を待っていられないから、直接問い合わせる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không thể cứ đợi kết quả, nên tôi hỏi trực tiếp."
+     },
+     {
+      "ja": "いつまでも落ち込んではいられない。前に進もう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không thể mãi chán nản. Hãy tiến lên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 結果を待っていられないから、直接問い合わせる。",
+     "FURIGANA_MISSING: いつまでも落ち込んではいられない。前に進もう。"
+    ],
+    "formation": "V-て + いられない",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả tình thế không thể tiếp tục một trạng thái/hành động thêm nữa vì áp lực thời gian, trách nhiệm, hoàn cảnh. Ngụ ý người nói nhận thức cần đổi hành động ngay: “không thể cứ … mãi được”. Khác “không thể về năng lực” (できない), mẫu này là “không thể về tình thế/tính cấp thiết”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không thể tiếp tục..., không thể cứ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường đi với các động từ trạng thái: 待つ／落ち込む／のんびりする／迷っている… Sắc thái gấp gáp, quyết liệt tự thúc đẩy bản thân; văn nói nhiều, nhưng dùng trong văn viết bình thường vẫn ổn. Dạng phủ định lịch sự: ～いられません. Dạng rút gọn tạo cảm giác mạnh hơn: ～てられない／～ちゃいられない. [6. Ghi chú mở rộng] Thường đi kèm lý do/hoàn cảnh ngay sau hoặc trước câu: 締め切りがあるから、待っていられない。 Nhấn mạnh chuyển đổi hành động: câu sau thường là phương án thay thế (直接問い合わせる／行動に移す…). Dạng てられない phổ biến trong hội thoại, nhấn nhá tính khẩn trương. [7. Biến thể & cụm cố định] 待っていられない／待ってはいられない／待ってられない のんびりしていられない／ぐずぐずしてられない Vてばかりはいられない（không thể chỉ toàn V） [8. Lỗi thường gặp & bẫy JLPT] Nhầm “không thể về năng lực” với “không thể về tình thế”: ×疲れて走っていられない（có thể đúng nếu nghĩa “không thể tiếp tục chạy” vì mệt; tránh nhầm với 走れない）. Bỏ lý do khiến câu nghe cụt: nên nêu hoàn cảnh/gấp gáp để tự nhiên hơn. Nhầm chủ ngữ: Mẫu thường là cảm nhận người nói; tránh áp đặt cho người thứ ba trừ khi suy đoán rõ ràng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bb10dba18e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "説明書にしたがって、機械を組み立てた。",
+       "ja_furigana": "説明書(せつめいしょ)にしたがって、機械(きかい)を組(く)み立(た)てた。",
+       "vi": "Tôi đã lắp ráp máy móc theo bản hướng dẫn."
+      },
+      {
+       "ja": "秋が深まるにしたがって、朝晩は涼しくなった。",
+       "ja_furigana": "秋(あき)が深(ふか)まるにしたがって、朝晩(あさばん)は涼(すず)しくなった。",
+       "vi": "Càng vào sâu mùa thu, sáng tối càng mát."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "北へ行くにしたがって、日照時間が短くなる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Càng đi về phía bắc, thời gian nắng càng ngắn."
+     },
+     {
+      "ja": "データが増えるにしたがって、計算量も増大する。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dữ liệu tăng thì lượng tính toán cũng tăng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 北へ行くにしたがって、日照時間が短くなる。",
+     "FURIGANA_MISSING: データが増えるにしたがって、計算量も増大する。"
+    ],
+    "formation": "N / Vる + にしたがって",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị quan hệ đồng biến giữa A và B (mang tính dần dần, xu hướng). Biểu thị thực hiện B dựa trên khuôn khổ A (quy tắc/chỉ thị/kế hoạch). Vế B thường là sự thật/quy định, hạn chế dùng mệnh lệnh ở nghĩa “đồng biến”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Theo..., tùy theo...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Phù hợp văn viết, báo cáo, sách giáo khoa. Vế A nên là trục biến đổi liên tục; nếu là hai trạng thái rời rạc, cân nhắc につれて/一方で. Dạng “に従い” hay dùng trong tiêu đề/ghi chú quy trình vì ngắn gọn. [6. Ghi chú mở rộng] Ở nghĩa “tuân theo”, mệnh lệnh/khuyên bảo có thể dùng vì là hướng dẫn: 〜に従って提出してください. Ở nghĩa “biến đổi”, tránh kết hợp với ý chí: × 〜にしたがって、〜しよう. Kanji 従 có sắc thái “đi theo/tuân phục”, phù hợp văn bản pháp lý/quy định. [7. Biến thể & cụm cố định] マニュアル/手順/指示/規則/法律 + に従って／に従い 時間/年齢/温度/高度/負荷 + が上がる + にしたがって〜 変化語: 増える・減る・進む・高まる・低下する + にしたがって [8. Lỗi thường gặp & bẫy JLPT] Nhầm với につれて về mức độ trang trọng và tính tự nhiên trong hội thoại. Dùng cho sự kiện tức thời: × 合図にしたがって走り出した → dùng と同時に/とたんに. Trộn nghĩa “tuân theo” và “biến đổi” trong một câu gây mơ hồ; cần tách rõ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ee20df6072"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "五年ぶりに海で泳いだ。",
+       "ja_furigana": "五年(ごねん)ぶりに海(うみ)で泳(およ)いだ。",
+       "vi": "Lần đầu sau năm năm tôi mới lại bơi ở biển."
+      },
+      {
+       "ja": "店員の説明ぶりは、とても親切だった。",
+       "ja_furigana": "店員(てんいん)の説明(せつめい)ぶりは、とても親切(しんせつ)だった。",
+       "vi": "Cách giải thích của nhân viên rất chu đáo."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼の仕事ぶりには誰もが感心した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mọi người đều ấn tượng với cách làm việc của anh ấy."
+     },
+     {
+      "ja": "彼女の話しぶりは落ち着いていて、説得力がある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cách nói của cô ấy điềm tĩnh và thuyết phục."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼の仕事ぶりには誰もが感心した。",
+     "FURIGANA_MISSING: 彼女の話しぶりは落ち着いていて、説得力がある。"
+    ],
+    "formation": "Vます / N + ぶり",
+    "locked_fields": [],
+    "meaning_vi": "Mang nghĩa “cách thức/phong thái/diện mạo” khi gắn với danh từ chỉ hành vi: 話しぶり（cách nói）、働きぶり（cách làm việc）. Thường hàm ý đánh giá. Diễn đạt “khoảng thời gian đã trôi qua” khi gắn với mốc thời gian: 十年ぶりに（sau 10 năm mới…）、三日ぶりの雨（cơn mưa đầu tiên sau 3 ngày). Với động từ, hình thái tự nhiên hơn là Vます + っぷり: 食べっぷり（cách ăn）, 飲みっぷり（cách uống）. Dạng ～ぶり sau Vます hiện diện nhưng hạn chế và mang sắc thái cũ/ít tự nhiên. Sắc thái: mang tính miêu tả khách quan nhưng thường kèm cảm nhận/đánh giá (tốt/xấu) của người nói.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tình trạng..., dáng vẻ...; sau... (thời gian)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] N + ぶり nhấn mạnh “cách thức/diện mạo” và hàm ý đánh giá (có thể khen/chê). Thời gian + ぶり（に）: dùng để nói “lần đầu sau …”, có thể đứng trước danh từ (～ぶりのN) hoặc làm vị ngữ (～ぶりだ). Vます + っぷり là lựa chọn tự nhiên khi muốn gắn với động từ để nói “cách …”. Trong văn trang trọng, ～ぶり với nghĩa “cách/phong thái” phù hợp trong báo cáo/đánh giá: 仕事ぶりの改善, 指導ぶり, 経営ぶり. [6. Ghi chú mở rộng] “～ぶり” vốn từ chữ 振り (vung/vung vẩy), chuyển nghĩa thành “dáng, vẻ, cách thức”. Trong tiêu đề báo: ～ぶり thường nhấn mạnh ấn tượng mạnh: 迫力の演技ぶり（màn diễn đầy uy lực）. Thời gian + ぶり có thể kết hợp số lượng không chính xác: 久しぶり（lâu rồi）, しばらくぶり（sau một thời gian）. [7. Biến thể & cụm cố định] 久しぶり（だ／に）: Lâu rồi/mãi mới… Vます + っぷり: 食べっぷり／飲みっぷり／働きっぷり N + ぶりのN: 三年ぶりの再会, 久しぶりの休み その～ぶり: その勇敢ぶり, その大胆ぶり [8. Lỗi thường gặp & bẫy JLPT] Lẫn lộn Vます + ぶり với っぷり: với động từ nên dùng っぷり để tự nhiên hơn. Quên に khi làm trạng ngữ thời gian: 十年ぶり会った（sai）→ 十年ぶりに会った（đúng）. Nghĩ ～ぶり chỉ có nghĩa thời gian: thực tế còn nghĩa “cách/diện mạo”. Dùng ～ぶり quá chủ quan để phán xét con người trong văn cảnh trang trọng có thể thiếu lịch sự; nên dùng trung tính: 仕事ぶりを評価する."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-94b0a95116"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "コーヒーを飲みながら、新聞を読む。",
+       "ja_furigana": "コーヒーを飲(の)みながら、新聞(しんぶん)を読(よ)む。",
+       "vi": "Tôi vừa uống cà phê vừa đọc báo."
+      },
+      {
+       "ja": "彼は子どもながら、よく気がつく。",
+       "ja_furigana": "彼(かれ)は子(こ)どもながら、よく気(き)がつく。",
+       "vi": "Tuy còn nhỏ nhưng cậu ấy rất tinh ý."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "スマホをいじりながら歩くのは危ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vừa nghịch điện thoại vừa đi bộ thì nguy hiểm."
+     },
+     {
+      "ja": "彼は歌いながら料理を作る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy vừa hát vừa nấu ăn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: スマホをいじりながら歩くのは危ない。",
+     "FURIGANA_MISSING: 彼は歌いながら料理を作る。"
+    ],
+    "formation": "Vます + ながら / N・Aい・Aな + ながら(も)",
+    "locked_fields": [],
+    "meaning_vi": "Đồng thời: Diễn tả hai hành động diễn ra cùng lúc bởi cùng một chủ thể. Hành động trong mệnh đề chính là trọng tâm, mệnh đề ～ながら là trạng thái nền. Nhượng bộ: “Mặc dù … nhưng …”. Nhấn mạnh mâu thuẫn giữa hai vế, thường là biết nhưng không làm/không thể. Hạn chế: Không dùng cho hai chủ ngữ khác nhau; tránh dùng với hành động khoảnh khắc (一回性) khó song hành như 立つ・着く trong nghĩa đồng thời.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vừa..., vừa... / Mặc dù...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đồng thời: đặt hoạt động phụ (nền) ở mệnh đề ～ながら; hoạt động chính ở mệnh đề chính. Nhượng bộ: sắc thái hơi văn viết; khi muốn nhấn mạnh hơn dùng ～ながらも/～ものの. Trong email/diễn thuyết: mở đầu bằng 残念ながら／恐縮ながら để lịch sự hóa thông báo xấu. Tránh lặp ～ながら nhiều lần trong một câu để khỏi rườm rà; cân nhắc dùng ～て/～つつ. [6. Ghi chú mở rộng] Thứ tự tự nhiên: nền trước – chính sau. Ví dụ: “走りながら考える” tự nhiên hơn “考えながら走る” tùy trọng tâm. Với động từ tri giác (聞く・見る・考える) dùng rất tự nhiên cho nền: 考えながら運転する。 Danh từ + ながらに/ながらの: dạng cổ/định hình (生まれながらに, 昔ながらの味). [7. Biến thể & cụm cố định] ～ながらも（nhấn đối lập） N＋ながらに／N＋ながらの（cách dùng cố định: 生まれながらに, 昔ながらの） 残念ながら／恐縮ながら／失礼ながら（mở đầu lịch sự） [8. Lỗi thường gặp & bẫy JLPT] Dùng cho hai chủ ngữ khác nhau → sai ngữ pháp. Dùng với động từ khoảnh khắc cho nghĩa đồng thời → không tự nhiên (×ドアを開けながら入った → dùng 開けて入った). Nhầm nghĩa đồng thời với nghĩa nhượng bộ trong chọn đáp án đọc hiểu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-37101513ea"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-032"
+}

@@ -1,0 +1,2074 @@
+{
+ "header": {
+  "instructions": "check_bank ≥ 8 câu, mỗi dạng FILL/ORDER_STAR/MEANING/ERROR ≥ 2: {type, prompt_ja, options[4], answer_index, explanation_vi}; order_items 2 {pieces[], answer_order[]}; fill_items 2 {sentence_ja với ＿＿, answer}; extra_practice 3 (cùng dạng check_bank). Đáp án nhiễu không được cũng đúng."
+ },
+ "items": [
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "てんきの よほう（　　） みた ほうが いいですか。",
+      "options": [
+       "とおり",
+       "てみる",
+       "は",
+       "にくい"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「は」 theo mẫu N は V た ほうが いいですか (Hỏi xem có nên làm không). Nghĩa cả câu: Dự báo thời tiết thì có nên xem không?"
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "熱がある時（　　）休んだ方がいいです。",
+      "options": [
+       "ついでに",
+       "ている",
+       "すぎる",
+       "は"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc N は V た ほうが いいですか (Hỏi xem có nên làm không), chỗ trống cần điền 「は」. Nghĩa: Khi bị sốt thì bạn nên nghỉ ngơi."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       " いいですか",
+       " よほうは",
+       " みた ほうが",
+       "てんきの"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: てんきの よほうは みた ほうが いいですか。 (Dự báo thời tiết thì có nên xem không?). Theo cấu trúc N は V た ほうが いいですか, mảnh đứng ở vị trí ★ là 「 みた ほうが」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "熱が",
+       "休んだ方が",
+       "ある時は",
+       "いいです"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 熱がある時は休んだ方がいいです。 (Khi bị sốt thì bạn nên nghỉ ngơi.). Theo cấu trúc N は V た ほうが いいですか, mảnh đứng ở vị trí ★ là 「ある時は」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "てんきの よほうは みた ほうが いいですか。",
+      "options": [
+       "Dự báo thời tiết thì có nên xem không?",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Mẫu N は V た ほうが いいですか có nghĩa là \"Hỏi xem có nên làm không\". Câu này dịch là: \"Dự báo thời tiết thì có nên xem không?\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "熱がある時は休んだ方がいいです。",
+      "options": [
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Khi bị sốt thì bạn nên nghỉ ngơi.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu N は V た ほうが いいですか (Hỏi xem có nên làm không), câu trên có nghĩa là: \"Khi bị sốt thì bạn nên nghỉ ngơi.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "熱がある時は休んだ方がいいです。",
+       "夜はコーヒーを飲まない方がいい。",
+       "てんきの よほうは みた ほうが いいですかますだ。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu N は V た ほうが いいですか). Câu đúng: てんきの よほうは みた ほうが いいですか。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "熱がある時はを休んだ方がいいです。",
+       "てんきの よほうは みた ほうが いいですか。",
+       "夜はコーヒーを飲まない方がいい。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: 熱がある時は休んだ方がいいです。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       " みた ほうが",
+       "てんきの",
+       " いいですか",
+       " よほうは"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Dự báo thời tiết thì có nên xem không?"
+     },
+     {
+      "pieces": [
+       "ある時は",
+       "いいです",
+       "熱が",
+       "休んだ方が"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Khi bị sốt thì bạn nên nghỉ ngơi."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "てんきの よほう＿＿ みた ほうが いいですか。",
+      "answer": "は",
+      "translation_vi": "Dự báo thời tiết thì có nên xem không?"
+     },
+     {
+      "sentence_ja": "熱がある時＿＿休んだ方がいいです。",
+      "answer": "は",
+      "translation_vi": "Khi bị sốt thì bạn nên nghỉ ngơi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "夜（　　）コーヒーを飲まない方がいい。",
+      "options": [
+       "は",
+       "てある",
+       "やすい",
+       "らしい"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Điền 「は」 theo cấu trúc N は V た ほうが いいですか (Hỏi xem có nên làm không). Nghĩa: Buổi tối thì không nên uống cà phê."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "夜はコーヒーを飲まない方がいい。",
+      "options": [
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Buổi tối thì không nên uống cà phê."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu N は V た ほうが いいですか (Hỏi xem có nên làm không), câu này nghĩa là: \"Buổi tối thì không nên uống cà phê.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "てんきの よほうは みた ほうが いいですか。",
+       "夜はコーヒーを飲まない方がいいだます。",
+       "熱がある時は休んだ方がいいです。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 夜はコーヒーを飲まない方がいい。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "てんきの よほうは みた ほうが いいですか。",
+      "vi": "Dự báo thời tiết thì có nên xem không?"
+     }
+    ],
+    "meaning_vi": "Hỏi xem có nên làm không\nHỏi ý người khác trước khi quyết: くすりは のんだ ほうが いいですか.",
+    "pattern": "N は V た ほうが いいですか",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-586cd42bc3"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "ねつが ある ときは やすんだ （　　） いいです。",
+      "options": [
+       "てくる",
+       "ほうが",
+       "そうだ",
+       "ので"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「ほうが」 theo mẫu V た ほうが いいです (Khuyên nên làm). Nghĩa cả câu: Khi bị sốt thì nên nghỉ ngơi."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "熱がある時は休んだ方が（　　）。",
+      "options": [
+       "ていく",
+       "ようだ",
+       "いいです",
+       "から"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc V た ほうが いいです (Khuyên nên làm), chỗ trống cần điền 「いいです」. Nghĩa: Khi bị sốt thì bạn nên nghỉ ngơi."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       " ある ときは",
+       " いいです",
+       "ねつが",
+       " やすんだ ほうが"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: ねつが ある ときは やすんだ ほうが いいです。 (Khi bị sốt thì nên nghỉ ngơi.). Theo cấu trúc V た ほうが いいです, mảnh đứng ở vị trí ★ là 「 やすんだ ほうが」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "いいです",
+       "ある時は",
+       "休んだ方が",
+       "熱が"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 熱がある時は休んだ方がいいです。 (Khi bị sốt thì bạn nên nghỉ ngơi.). Theo cấu trúc V た ほうが いいです, mảnh đứng ở vị trí ★ là 「ある時は」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "ねつが ある ときは やすんだ ほうが いいです。",
+      "options": [
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Khi bị sốt thì nên nghỉ ngơi."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Mẫu V た ほうが いいです có nghĩa là \"Khuyên nên làm\". Câu này dịch là: \"Khi bị sốt thì nên nghỉ ngơi.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "熱がある時は休んだ方がいいです。",
+      "options": [
+       "Khi bị sốt thì bạn nên nghỉ ngơi.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu V た ほうが いいです (Khuyên nên làm), câu trên có nghĩa là: \"Khi bị sốt thì bạn nên nghỉ ngơi.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "熱がある時は休んだ方がいいです。",
+       "ねつが ある ときは やすんだ ほうが いいですますだ。",
+       "夜はコーヒーを飲まない方がいい。",
+       "このペンはとても書きやすいです。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu V た ほうが いいです). Câu đúng: ねつが ある ときは やすんだ ほうが いいです。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "ねつが ある ときは やすんだ ほうが いいです。",
+       "夜はコーヒーを飲まない方がいい。",
+       "このペンはとても書きやすいです。",
+       "熱がある時はを休んだ方がいいです。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: 熱がある時は休んだ方がいいです。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       " ある ときは",
+       " いいです",
+       "ねつが",
+       " やすんだ ほうが"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Khi bị sốt thì nên nghỉ ngơi."
+     },
+     {
+      "pieces": [
+       "いいです",
+       "休んだ方が",
+       "熱が",
+       "ある時は"
+      ],
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "translation_vi": "Khi bị sốt thì bạn nên nghỉ ngơi."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "ねつが ある ときは やすんだ ＿＿ いいです。",
+      "answer": "ほうが",
+      "translation_vi": "Khi bị sốt thì nên nghỉ ngơi."
+     },
+     {
+      "sentence_ja": "熱がある時は休んだ方が＿＿。",
+      "answer": "いいです",
+      "translation_vi": "Khi bị sốt thì bạn nên nghỉ ngơi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "夜はコーヒーを飲まない（　　）。",
+      "options": [
+       "すぎる",
+       "のに",
+       "なら",
+       "方がいい"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Điền 「方がいい」 theo cấu trúc V た ほうが いいです (Khuyên nên làm). Nghĩa: Buổi tối thì không nên uống cà phê."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "夜はコーヒーを飲まない方がいい。",
+      "options": [
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Buổi tối thì không nên uống cà phê.",
+       "Tôi vẫn chưa làm xong bài tập về nhà."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu V た ほうが いいです (Khuyên nên làm), câu này nghĩa là: \"Buổi tối thì không nên uống cà phê.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "夜はコーヒーを飲まない方がいいだます。",
+       "ねつが ある ときは やすんだ ほうが いいです。",
+       "熱がある時は休んだ方がいいです。",
+       "この薬は苦くて飲みにくいです。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 夜はコーヒーを飲まない方がいい。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "ねつが ある ときは やすんだ ほうが いいです。",
+      "vi": "Khi bị sốt thì nên nghỉ ngơi."
+     }
+    ],
+    "meaning_vi": "Khuyên nên làm\nKhuyên người ta làm một việc cho tốt hơn: きょうは やすんだ ほうが いいです.",
+    "pattern": "V た ほうが いいです",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-bf5d10fcc6"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "つかれた ときは むりを し（　　） ほうが いいです。",
+      "options": [
+       "ない",
+       "らしい",
+       "ても",
+       "しか"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「ない」 theo mẫu V ない ほうが いいです (Khuyên không nên làm). Nghĩa cả câu: Khi mệt thì không nên gắng sức."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "熱がある時は休んだ方が（　　）。",
+      "options": [
+       "かもしれない",
+       "いいです",
+       "たら",
+       "だけ"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc V ない ほうが いいです (Khuyên không nên làm), chỗ trống cần điền 「いいです」. Nghĩa: Khi bị sốt thì bạn nên nghỉ ngơi."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       " しない ほうが",
+       "つかれた と",
+       " いいです",
+       "きは むりを"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: つかれた ときは むりを しない ほうが いいです。 (Khi mệt thì không nên gắng sức.). Theo cấu trúc V ない ほうが いいです, mảnh đứng ở vị trí ★ là 「 しない ほうが」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "ある時は",
+       "いいです",
+       "熱が",
+       "休んだ方が"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 熱がある時は休んだ方がいいです。 (Khi bị sốt thì bạn nên nghỉ ngơi.). Theo cấu trúc V ない ほうが いいです, mảnh đứng ở vị trí ★ là 「ある時は」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "つかれた ときは むりを しない ほうが いいです。",
+      "options": [
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Khi mệt thì không nên gắng sức.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Mẫu V ない ほうが いいです có nghĩa là \"Khuyên không nên làm\". Câu này dịch là: \"Khi mệt thì không nên gắng sức.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "熱がある時は休んだ方がいいです。",
+      "options": [
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Khi bị sốt thì bạn nên nghỉ ngơi."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu V ない ほうが いいです (Khuyên không nên làm), câu trên có nghĩa là: \"Khi bị sốt thì bạn nên nghỉ ngơi.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "つかれた ときは むりを しない ほうが いいですますだ。",
+       "熱がある時は休んだ方がいいです。",
+       "夜はコーヒーを飲まない方がいい。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu V ない ほうが いいです). Câu đúng: つかれた ときは むりを しない ほうが いいです。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "つかれた ときは むりを しない ほうが いいです。",
+       "夜はコーヒーを飲まない方がいい。",
+       "熱がある時はを休んだ方がいいです。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: 熱がある時は休んだ方がいいです。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       " いいです",
+       " しない ほうが",
+       "つかれた と",
+       "きは むりを"
+      ],
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "translation_vi": "Khi mệt thì không nên gắng sức."
+     },
+     {
+      "pieces": [
+       "休んだ方が",
+       "熱が",
+       "いいです",
+       "ある時は"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Khi bị sốt thì bạn nên nghỉ ngơi."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "つかれた ときは むりを し＿＿ ほうが いいです。",
+      "answer": "ない",
+      "translation_vi": "Khi mệt thì không nên gắng sức."
+     },
+     {
+      "sentence_ja": "熱がある時は休んだ方が＿＿。",
+      "answer": "いいです",
+      "translation_vi": "Khi bị sốt thì bạn nên nghỉ ngơi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "夜はコーヒーを飲ま（　　）方がいい。",
+      "options": [
+       "から",
+       "と",
+       "ない",
+       "ずつ"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Điền 「ない」 theo cấu trúc V ない ほうが いいです (Khuyên không nên làm). Nghĩa: Buổi tối thì không nên uống cà phê."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "夜はコーヒーを飲まない方がいい。",
+      "options": [
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Buổi tối thì không nên uống cà phê.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu V ない ほうが いいです (Khuyên không nên làm), câu này nghĩa là: \"Buổi tối thì không nên uống cà phê.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "つかれた ときは むりを しない ほうが いいです。",
+       "熱がある時は休んだ方がいいです。",
+       "週末は家族と一緒に公園へ行きます。",
+       "夜はコーヒーを飲まない方がいいだます。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 夜はコーヒーを飲まない方がいい。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "つかれた ときは むりを しない ほうが いいです。",
+      "vi": "Khi mệt thì không nên gắng sức."
+     }
+    ],
+    "meaning_vi": "Khuyên không nên làm\nCan người ta đừng làm: たいふうの ひは でない ほうが いいです.",
+    "pattern": "V ない ほうが いいです",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-18884e02e5"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この言葉のつかいかたを教えてく（　　）さい。",
+      "options": [
+       "なら",
+       "ほど",
+       "てもいい",
+       "だ"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「だ」 theo mẫu Cách... (Biến động từ thành danh từ mang nghĩa “cách/kiểu/ phương pháp để làm V”. Tân ngữ trực tiếp của V (dạng を) khi gắn với ～方 thường chuyển thành cụm danh từ với の: 漢字を書く → 漢字の書き方. Trợ từ chỉ hướng/đích/địa điểm như へ/に/で vẫn giữ nguyên vì thuộc cấu trúc của V gốc: 駅への行き方, 鍋での作り方. ～方 là danh từ, có thể kết hợp với の, は, が, を, に như các danh từ khác.). Nghĩa cả câu: Xin hãy chỉ cho tôi cách dùng từ này. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "この機械の使い方を教えてく（　　）さい。",
+      "options": [
+       "だ",
+       "ば",
+       "くらい",
+       "ながら"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc Cách... (Biến động từ thành danh từ mang nghĩa “cách/kiểu/ phương pháp để làm V”. Tân ngữ trực tiếp của V (dạng を) khi gắn với ～方 thường chuyển thành cụm danh từ với の: 漢字を書く → 漢字の書き方. Trợ từ chỉ hướng/đích/địa điểm như へ/に/で vẫn giữ nguyên vì thuộc cấu trúc của V gốc: 駅への行き方, 鍋での作り方. ～方 là danh từ, có thể kết hợp với の, は, が, を, に như các danh từ khác.), chỗ trống cần điền 「だ」. Nghĩa: Xin hãy chỉ cho tôi cách dùng máy này."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "この",
+       "つかいかたを",
+       "言葉の",
+       "教えてください"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: この言葉のつかいかたを教えてください。 (Xin hãy chỉ cho tôi cách dùng từ này. · Ví dụ J-LAS soạn bổ sung). Theo cấu trúc Cách..., mảnh đứng ở vị trí ★ là 「つかいかたを」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "使い方を",
+       "この",
+       "教えてください",
+       "機械の"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: この機械の使い方を教えてください。 (Xin hãy chỉ cho tôi cách dùng máy này.). Theo cấu trúc Cách..., mảnh đứng ở vị trí ★ là 「機械の」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この言葉のつかいかたを教えてください。",
+      "options": [
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Xin hãy chỉ cho tôi cách dùng từ này. · Ví dụ J-LAS soạn bổ sung",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Mẫu Cách... có nghĩa là \"Biến động từ thành danh từ mang nghĩa “cách/kiểu/ phương pháp để làm V”. Tân ngữ trực tiếp của V (dạng を) khi gắn với ～方 thường chuyển thành cụm danh từ với の: 漢字を書く → 漢字の書き方. Trợ từ chỉ hướng/đích/địa điểm như へ/に/で vẫn giữ nguyên vì thuộc cấu trúc của V gốc: 駅への行き方, 鍋での作り方. ～方 là danh từ, có thể kết hợp với の, は, が, を, に như các danh từ khác.\". Câu này dịch là: \"Xin hãy chỉ cho tôi cách dùng từ này. · Ví dụ J-LAS soạn bổ sung\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この機械の使い方を教えてください。",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Xin hãy chỉ cho tôi cách dùng máy này.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu Cách... (Biến động từ thành danh từ mang nghĩa “cách/kiểu/ phương pháp để làm V”. Tân ngữ trực tiếp của V (dạng を) khi gắn với ～方 thường chuyển thành cụm danh từ với の: 漢字を書く → 漢字の書き方. Trợ từ chỉ hướng/đích/địa điểm như へ/に/で vẫn giữ nguyên vì thuộc cấu trúc của V gốc: 駅への行き方, 鍋での作り方. ～方 là danh từ, có thể kết hợp với の, は, が, を, に như các danh từ khác.), câu trên có nghĩa là: \"Xin hãy chỉ cho tôi cách dùng máy này.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この機械の使い方を教えてください。",
+       "漢字の読み方が分かりません。",
+       "毎日まじめに日本語を勉強しています。",
+       "この言葉のつかいかたを教えてくださいますだ。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Cách...). Câu đúng: この言葉のつかいかたを教えてください。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この言葉のつかいかたを教えてください。",
+       "この機械の使い方をが教えてください。",
+       "漢字の読み方が分かりません。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc Cách.... Câu đúng: この機械の使い方を教えてください。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "つかいかたを",
+       "この",
+       "教えてください",
+       "言葉の"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Xin hãy chỉ cho tôi cách dùng từ này. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "pieces": [
+       "機械の",
+       "教えてください",
+       "この",
+       "使い方を"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Xin hãy chỉ cho tôi cách dùng máy này."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "この言葉のつかいかたを教えてく＿＿さい。",
+      "answer": "だ",
+      "translation_vi": "Xin hãy chỉ cho tôi cách dùng từ này. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "sentence_ja": "この機械の使い方を教えてく＿＿さい。",
+      "answer": "だ",
+      "translation_vi": "Xin hãy chỉ cho tôi cách dùng máy này."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "漢字の読み方が分かり（　　）。",
+      "options": [
+       "だけ",
+       "ません",
+       "し",
+       "つもり"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Điền 「ません」 theo cấu trúc Cách... (Biến động từ thành danh từ mang nghĩa “cách/kiểu/ phương pháp để làm V”. Tân ngữ trực tiếp của V (dạng を) khi gắn với ～方 thường chuyển thành cụm danh từ với の: 漢字を書く → 漢字の書き方. Trợ từ chỉ hướng/đích/địa điểm như へ/に/で vẫn giữ nguyên vì thuộc cấu trúc của V gốc: 駅への行き方, 鍋での作り方. ～方 là danh từ, có thể kết hợp với の, は, が, を, に như các danh từ khác.). Nghĩa: Tôi không biết cách đọc chữ Hán."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "漢字の読み方が分かりません。",
+      "options": [
+       "Tôi không biết cách đọc chữ Hán.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu Cách... (Biến động từ thành danh từ mang nghĩa “cách/kiểu/ phương pháp để làm V”. Tân ngữ trực tiếp của V (dạng を) khi gắn với ～方 thường chuyển thành cụm danh từ với の: 漢字を書く → 漢字の書き方. Trợ từ chỉ hướng/đích/địa điểm như へ/に/で vẫn giữ nguyên vì thuộc cấu trúc của V gốc: 駅への行き方, 鍋での作り方. ～方 là danh từ, có thể kết hợp với の, は, が, を, に như các danh từ khác.), câu này nghĩa là: \"Tôi không biết cách đọc chữ Hán.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この言葉のつかいかたを教えてください。",
+       "この機械の使い方を教えてください。",
+       "漢字の読み方が分かりませんだます。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 漢字の読み方が分かりません。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "この言葉のつかいかたを教えてください。",
+      "vi": "Xin hãy chỉ cho tôi cách dùng từ này. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "meaning_vi": "Biến động từ thành danh từ mang nghĩa “cách/kiểu/ phương pháp để làm V”. Tân ngữ trực tiếp của V (dạng を) khi gắn với ～方 thường chuyển thành cụm danh từ với の: 漢字を書く → 漢字の書き方. Trợ từ chỉ hướng/đích/địa điểm như へ/に/で vẫn giữ nguyên vì thuộc cấu trúc của V gốc: 駅への行き方, 鍋での作り方. ～方 là danh từ, có thể kết hợp với の, は, が, を, に như các danh từ khác.",
+    "pattern": "Cách...",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-971d347370"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "寝る前にスマホを見ない（　　）している。",
+      "options": [
+       "ずつ",
+       "ばかり",
+       "ように",
+       "とおり"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「ように」 theo mẫu Cố gắng... (Diễn tả “cố gắng để…”, “chú ý để…”, nhằm hình thành thói quen hoặc đảm bảo một hành vi xảy ra. Không đảm bảo kết quả; nhấn vào nỗ lực/ý thức của chủ thể. Dạng ～ようにしている nhấn mạnh trạng thái duy trì, đều đặn. Dùng cho hành động có thể kiểm soát bởi ý chí cá nhân.). Nghĩa cả câu: Tôi cố không nhìn điện thoại trước khi ngủ."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "挨拶は自分からするように（　　）、人間関係が良くなる。",
+      "options": [
+       "とか",
+       "ところ",
+       "ついでに",
+       "すると"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc Cố gắng... (Diễn tả “cố gắng để…”, “chú ý để…”, nhằm hình thành thói quen hoặc đảm bảo một hành vi xảy ra. Không đảm bảo kết quả; nhấn vào nỗ lực/ý thức của chủ thể. Dạng ～ようにしている nhấn mạnh trạng thái duy trì, đều đặn. Dùng cho hành động có thể kiểm soát bởi ý chí cá nhân.), chỗ trống cần điền 「すると」. Nghĩa: Nếu cố chủ động chào hỏi thì quan hệ sẽ tốt lên."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "している",
+       "スマホを",
+       "見ないように",
+       "寝る前に"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 寝る前にスマホを見ないようにしている。 (Tôi cố không nhìn điện thoại trước khi ngủ.). Theo cấu trúc Cố gắng..., mảnh đứng ở vị trí ★ là 「見ないように」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "挨拶は自分から",
+       "すると、",
+       "するように",
+       "人間関係が良くなる"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 挨拶は自分からするようにすると、人間関係が良くなる。 (Nếu cố chủ động chào hỏi thì quan hệ sẽ tốt lên.). Theo cấu trúc Cố gắng..., mảnh đứng ở vị trí ★ là 「するように」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "寝る前にスマホを見ないようにしている。",
+      "options": [
+       "Tôi cố không nhìn điện thoại trước khi ngủ.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Mẫu Cố gắng... có nghĩa là \"Diễn tả “cố gắng để…”, “chú ý để…”, nhằm hình thành thói quen hoặc đảm bảo một hành vi xảy ra. Không đảm bảo kết quả; nhấn vào nỗ lực/ý thức của chủ thể. Dạng ～ようにしている nhấn mạnh trạng thái duy trì, đều đặn. Dùng cho hành động có thể kiểm soát bởi ý chí cá nhân.\". Câu này dịch là: \"Tôi cố không nhìn điện thoại trước khi ngủ.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "挨拶は自分からするようにすると、人間関係が良くなる。",
+      "options": [
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Nếu cố chủ động chào hỏi thì quan hệ sẽ tốt lên.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu Cố gắng... (Diễn tả “cố gắng để…”, “chú ý để…”, nhằm hình thành thói quen hoặc đảm bảo một hành vi xảy ra. Không đảm bảo kết quả; nhấn vào nỗ lực/ý thức của chủ thể. Dạng ～ようにしている nhấn mạnh trạng thái duy trì, đều đặn. Dùng cho hành động có thể kiểm soát bởi ý chí cá nhân.), câu trên có nghĩa là: \"Nếu cố chủ động chào hỏi thì quan hệ sẽ tốt lên.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "挨拶は自分からするようにすると、人間関係が良くなる。",
+       "空が暗いので雨が降りそうです。",
+       "寝る前にスマホを見ないようにしているますだ。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Cố gắng...). Câu đúng: 寝る前にスマホを見ないようにしている。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "挨拶はを自分からするようにすると、人間関係が良くなる。",
+       "寝る前にスマホを見ないようにしている。",
+       "空が暗いので雨が降りそうです。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: 挨拶は自分からするようにすると、人間関係が良くなる。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "スマホを",
+       "している",
+       "寝る前に",
+       "見ないように"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Tôi cố không nhìn điện thoại trước khi ngủ."
+     },
+     {
+      "pieces": [
+       "人間関係が良くなる",
+       "すると、",
+       "挨拶は自分から",
+       "するように"
+      ],
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "translation_vi": "Nếu cố chủ động chào hỏi thì quan hệ sẽ tốt lên."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "寝る前にスマホを見ない＿＿している。",
+      "answer": "ように",
+      "translation_vi": "Tôi cố không nhìn điện thoại trước khi ngủ."
+     },
+     {
+      "sentence_ja": "挨拶は自分からするように＿＿、人間関係が良くなる。",
+      "answer": "すると",
+      "translation_vi": "Nếu cố chủ động chào hỏi thì quan hệ sẽ tốt lên."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "空が暗い（　　）雨が降りそうです。",
+      "options": [
+       "ので",
+       "ながら",
+       "まま",
+       "てある"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Điền 「ので」 theo cấu trúc Cố gắng... (Diễn tả “cố gắng để…”, “chú ý để…”, nhằm hình thành thói quen hoặc đảm bảo một hành vi xảy ra. Không đảm bảo kết quả; nhấn vào nỗ lực/ý thức của chủ thể. Dạng ～ようにしている nhấn mạnh trạng thái duy trì, đều đặn. Dùng cho hành động có thể kiểm soát bởi ý chí cá nhân.). Nghĩa: Bầu trời tối sầm nên có vẻ sắp mưa."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "空が暗いので雨が降りそうです。",
+      "options": [
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Bầu trời tối sầm nên có vẻ sắp mưa."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu Cố gắng... (Diễn tả “cố gắng để…”, “chú ý để…”, nhằm hình thành thói quen hoặc đảm bảo một hành vi xảy ra. Không đảm bảo kết quả; nhấn vào nỗ lực/ý thức của chủ thể. Dạng ～ようにしている nhấn mạnh trạng thái duy trì, đều đặn. Dùng cho hành động có thể kiểm soát bởi ý chí cá nhân.), câu này nghĩa là: \"Bầu trời tối sầm nên có vẻ sắp mưa.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "寝る前にスマホを見ないようにしている。",
+       "空が暗いので雨が降りそうですだます。",
+       "挨拶は自分からするようにすると、人間関係が良くなる。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 空が暗いので雨が降りそうです。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "寝る前にスマホを見ないようにしている。",
+      "vi": "Tôi cố không nhìn điện thoại trước khi ngủ."
+     },
+     {
+      "ja": "挨拶は自分からするようにすると、人間関係が良くなる。",
+      "vi": "Nếu cố chủ động chào hỏi thì quan hệ sẽ tốt lên."
+     }
+    ],
+    "meaning_vi": "Diễn tả “cố gắng để…”, “chú ý để…”, nhằm hình thành thói quen hoặc đảm bảo một hành vi xảy ra. Không đảm bảo kết quả; nhấn vào nỗ lực/ý thức của chủ thể. Dạng ～ようにしている nhấn mạnh trạng thái duy trì, đều đặn. Dùng cho hành động có thể kiểm soát bởi ý chí cá nhân.",
+    "pattern": "Cố gắng...",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-cf65efdff7"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "このフォントは読み（　　）。",
+      "options": [
+       "つもり",
+       "やすい",
+       "てしまう",
+       "てくる"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「やすい」 theo mẫu Dễ... (Diễn tả việc “dễ làm V” hoặc “có xu hướng/đặc tính dễ V”. Dùng cả cho hành vi (読みやすい, 使いやすい) và tính chất/vật lý (壊れやすい, 乾きやすい). So với 易しい（やさしい）: khác nghĩa. 易しい = “dễ” về mức độ khó; ～やすい = “dễ V” về xu hướng thực hiện hành động cụ thể. Thường mang tính khách quan/hữu dụng trong miêu tả sản phẩm, thiết kế, UX.). Nghĩa cả câu: Phông chữ này dễ đọc."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "新しいUIは直感的で使い（　　）。",
+      "options": [
+       "はず",
+       "ておく",
+       "やすい",
+       "ていく"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc Dễ... (Diễn tả việc “dễ làm V” hoặc “có xu hướng/đặc tính dễ V”. Dùng cả cho hành vi (読みやすい, 使いやすい) và tính chất/vật lý (壊れやすい, 乾きやすい). So với 易しい（やさしい）: khác nghĩa. 易しい = “dễ” về mức độ khó; ～やすい = “dễ V” về xu hướng thực hiện hành động cụ thể. Thường mang tính khách quan/hữu dụng trong miêu tả sản phẩm, thiết kế, UX.), chỗ trống cần điền 「やすい」. Nghĩa: Giao diện mới trực quan, dễ dùng."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "ォント",
+       "やすい",
+       "このフ",
+       "は読み"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: このフォントは読みやすい。 (Phông chữ này dễ đọc.). Theo cấu trúc Dễ..., mảnh đứng ở vị trí ★ là 「は読み」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "いやすい",
+       "UIは直",
+       "感的で使",
+       "新しい"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 新しいUIは直感的で使いやすい。 (Giao diện mới trực quan, dễ dùng.). Theo cấu trúc Dễ..., mảnh đứng ở vị trí ★ là 「UIは直」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "このフォントは読みやすい。",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Phông chữ này dễ đọc."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Mẫu Dễ... có nghĩa là \"Diễn tả việc “dễ làm V” hoặc “có xu hướng/đặc tính dễ V”. Dùng cả cho hành vi (読みやすい, 使いやすい) và tính chất/vật lý (壊れやすい, 乾きやすい). So với 易しい（やさしい）: khác nghĩa. 易しい = “dễ” về mức độ khó; ～やすい = “dễ V” về xu hướng thực hiện hành động cụ thể. Thường mang tính khách quan/hữu dụng trong miêu tả sản phẩm, thiết kế, UX.\". Câu này dịch là: \"Phông chữ này dễ đọc.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "新しいUIは直感的で使いやすい。",
+      "options": [
+       "Giao diện mới trực quan, dễ dùng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu Dễ... (Diễn tả việc “dễ làm V” hoặc “có xu hướng/đặc tính dễ V”. Dùng cả cho hành vi (読みやすい, 使いやすい) và tính chất/vật lý (壊れやすい, 乾きやすい). So với 易しい（やさしい）: khác nghĩa. 易しい = “dễ” về mức độ khó; ～やすい = “dễ V” về xu hướng thực hiện hành động cụ thể. Thường mang tính khách quan/hữu dụng trong miêu tả sản phẩm, thiết kế, UX.), câu trên có nghĩa là: \"Giao diện mới trực quan, dễ dùng.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "新しいUIは直感的で使いやすい。",
+       "このフォントは読みやすいますだ。",
+       "このペンはとても書きやすいです。",
+       "この薬は苦くて飲みにくいです。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Dễ...). Câu đúng: このフォントは読みやすい。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "このフォントは読みやすい。",
+       "このペンはとても書きやすいです。",
+       "この薬は苦くて飲みにくいです。",
+       "新しいUIはを直感的で使いやすい。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: 新しいUIは直感的で使いやすい。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "やすい",
+       "は読み",
+       "このフ",
+       "ォント"
+      ],
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "translation_vi": "Phông chữ này dễ đọc."
+     },
+     {
+      "pieces": [
+       "感的で使",
+       "新しい",
+       "いやすい",
+       "UIは直"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Giao diện mới trực quan, dễ dùng."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "このフォントは読み＿＿。",
+      "answer": "やすい",
+      "translation_vi": "Phông chữ này dễ đọc."
+     },
+     {
+      "sentence_ja": "新しいUIは直感的で使い＿＿。",
+      "answer": "やすい",
+      "translation_vi": "Giao diện mới trực quan, dễ dùng."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "このペンはとても書き（　　）。",
+      "options": [
+       "ついでに",
+       "ている",
+       "すぎる",
+       "やすいです"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Điền 「やすいです」 theo cấu trúc Dễ... (Diễn tả việc “dễ làm V” hoặc “có xu hướng/đặc tính dễ V”. Dùng cả cho hành vi (読みやすい, 使いやすい) và tính chất/vật lý (壊れやすい, 乾きやすい). So với 易しい（やさしい）: khác nghĩa. 易しい = “dễ” về mức độ khó; ～やすい = “dễ V” về xu hướng thực hiện hành động cụ thể. Thường mang tính khách quan/hữu dụng trong miêu tả sản phẩm, thiết kế, UX.). Nghĩa: Chiếc bút này rất dễ viết."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "このペンはとても書きやすいです。",
+      "options": [
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc bút này rất dễ viết.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu Dễ... (Diễn tả việc “dễ làm V” hoặc “có xu hướng/đặc tính dễ V”. Dùng cả cho hành vi (読みやすい, 使いやすい) và tính chất/vật lý (壊れやすい, 乾きやすい). So với 易しい（やさしい）: khác nghĩa. 易しい = “dễ” về mức độ khó; ～やすい = “dễ V” về xu hướng thực hiện hành động cụ thể. Thường mang tính khách quan/hữu dụng trong miêu tả sản phẩm, thiết kế, UX.), câu này nghĩa là: \"Chiếc bút này rất dễ viết.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "このペンはとても書きやすいですだます。",
+       "このフォントは読みやすい。",
+       "新しいUIは直感的で使いやすい。",
+       "先生のカメラは使いやすいです。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: このペンはとても書きやすいです。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "このフォントは読みやすい。",
+      "vi": "Phông chữ này dễ đọc."
+     },
+     {
+      "ja": "新しいUIは直感的で使いやすい。",
+      "vi": "Giao diện mới trực quan, dễ dùng."
+     }
+    ],
+    "meaning_vi": "Diễn tả việc “dễ làm V” hoặc “có xu hướng/đặc tính dễ V”. Dùng cả cho hành vi (読みやすい, 使いやすい) và tính chất/vật lý (壊れやすい, 乾きやすい). So với 易しい（やさしい）: khác nghĩa. 易しい = “dễ” về mức độ khó; ～やすい = “dễ V” về xu hướng thực hiện hành động cụ thể. Thường mang tính khách quan/hữu dụng trong miêu tả sản phẩm, thiết kế, UX.",
+    "pattern": "Dễ...",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-5c7988e65a"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この字は小さすぎて読み（　　）。",
+      "options": [
+       "にくい",
+       "てある",
+       "やすい",
+       "らしい"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「にくい」 theo mẫu Khó... (Diễn tả việc “khó làm V”, do yếu tố khách quan/chủ quan: kỹ thuật, môi trường, đặc tính đối tượng. Mang tính xu hướng/đặc tính: 見にくいデザイン（thiết kế khó nhìn）, 汚れが取れにくい（khó tẩy bẩn）. Khác “難しい”: ～にくい mô tả khó khăn trong hành vi thực hiện V cụ thể; 難しい là khó nói chung. So với ～づらい: ～にくい trung tính/khách quan hơn; ～づらい thiên về cảm giác người nói (tâm lý/cảm giác).). Nghĩa cả câu: Chữ này quá nhỏ nên khó đọc."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "その靴は滑りにくい（　　）山登りに向いている。",
+      "options": [
+       "てみる",
+       "から",
+       "にくい",
+       "かもしれない"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc Khó... (Diễn tả việc “khó làm V”, do yếu tố khách quan/chủ quan: kỹ thuật, môi trường, đặc tính đối tượng. Mang tính xu hướng/đặc tính: 見にくいデザイン（thiết kế khó nhìn）, 汚れが取れにくい（khó tẩy bẩn）. Khác “難しい”: ～にくい mô tả khó khăn trong hành vi thực hiện V cụ thể; 難しい là khó nói chung. So với ～づらい: ～にくい trung tính/khách quan hơn; ～づらい thiên về cảm giác người nói (tâm lý/cảm giác).), chỗ trống cần điền 「から」. Nghĩa: Đôi giày đó ít trơn trượt nên hợp leo núi."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "読みに",
+       "この字は",
+       "くい",
+       "小さすぎて"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: この字は小さすぎて読みにくい。 (Chữ này quá nhỏ nên khó đọc.). Theo cấu trúc Khó..., mảnh đứng ở vị trí ★ là 「読みに」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "滑りにくいから",
+       "向いている",
+       "その靴は",
+       "山登りに"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: その靴は滑りにくいから山登りに向いている。 (Đôi giày đó ít trơn trượt nên hợp leo núi.). Theo cấu trúc Khó..., mảnh đứng ở vị trí ★ là 「滑りにくいから」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この字は小さすぎて読みにくい。",
+      "options": [
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Chữ này quá nhỏ nên khó đọc.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Mẫu Khó... có nghĩa là \"Diễn tả việc “khó làm V”, do yếu tố khách quan/chủ quan: kỹ thuật, môi trường, đặc tính đối tượng. Mang tính xu hướng/đặc tính: 見にくいデザイン（thiết kế khó nhìn）, 汚れが取れにくい（khó tẩy bẩn）. Khác “難しい”: ～にくい mô tả khó khăn trong hành vi thực hiện V cụ thể; 難しい là khó nói chung. So với ～づらい: ～にくい trung tính/khách quan hơn; ～づらい thiên về cảm giác người nói (tâm lý/cảm giác).\". Câu này dịch là: \"Chữ này quá nhỏ nên khó đọc.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "その靴は滑りにくいから山登りに向いている。",
+      "options": [
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Đôi giày đó ít trơn trượt nên hợp leo núi."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu Khó... (Diễn tả việc “khó làm V”, do yếu tố khách quan/chủ quan: kỹ thuật, môi trường, đặc tính đối tượng. Mang tính xu hướng/đặc tính: 見にくいデザイン（thiết kế khó nhìn）, 汚れが取れにくい（khó tẩy bẩn）. Khác “難しい”: ～にくい mô tả khó khăn trong hành vi thực hiện V cụ thể; 難しい là khó nói chung. So với ～づらい: ～にくい trung tính/khách quan hơn; ～づらい thiên về cảm giác người nói (tâm lý/cảm giác).), câu trên có nghĩa là: \"Đôi giày đó ít trơn trượt nên hợp leo núi.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この字は小さすぎて読みにくいますだ。",
+       "その靴は滑りにくいから山登りに向いている。",
+       "このペンはとても書きやすいです。",
+       "この薬は苦くて飲みにくいです。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Khó...). Câu đúng: この字は小さすぎて読みにくい。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この字は小さすぎて読みにくい。",
+       "このペンはとても書きやすいです。",
+       "その靴はを滑りにくいから山登りに向いている。",
+       "この薬は苦くて飲みにくいです。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: その靴は滑りにくいから山登りに向いている。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "読みに",
+       "この字は",
+       "くい",
+       "小さすぎて"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Chữ này quá nhỏ nên khó đọc."
+     },
+     {
+      "pieces": [
+       "滑りにくいから",
+       "向いている",
+       "その靴は",
+       "山登りに"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Đôi giày đó ít trơn trượt nên hợp leo núi."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "この字は小さすぎて読み＿＿。",
+      "answer": "にくい",
+      "translation_vi": "Chữ này quá nhỏ nên khó đọc."
+     },
+     {
+      "sentence_ja": "その靴は滑りにくい＿＿山登りに向いている。",
+      "answer": "から",
+      "translation_vi": "Đôi giày đó ít trơn trượt nên hợp leo núi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "このペンはとても書き（　　）。",
+      "options": [
+       "ていく",
+       "ようだ",
+       "やすいです",
+       "から"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Điền 「やすいです」 theo cấu trúc Khó... (Diễn tả việc “khó làm V”, do yếu tố khách quan/chủ quan: kỹ thuật, môi trường, đặc tính đối tượng. Mang tính xu hướng/đặc tính: 見にくいデザイン（thiết kế khó nhìn）, 汚れが取れにくい（khó tẩy bẩn）. Khác “難しい”: ～にくい mô tả khó khăn trong hành vi thực hiện V cụ thể; 難しい là khó nói chung. So với ～づらい: ～にくい trung tính/khách quan hơn; ～づらい thiên về cảm giác người nói (tâm lý/cảm giác).). Nghĩa: Chiếc bút này rất dễ viết."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "このペンはとても書きやすいです。",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Chiếc bút này rất dễ viết.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu Khó... (Diễn tả việc “khó làm V”, do yếu tố khách quan/chủ quan: kỹ thuật, môi trường, đặc tính đối tượng. Mang tính xu hướng/đặc tính: 見にくいデザイン（thiết kế khó nhìn）, 汚れが取れにくい（khó tẩy bẩn）. Khác “難しい”: ～にくい mô tả khó khăn trong hành vi thực hiện V cụ thể; 難しい là khó nói chung. So với ～づらい: ～にくい trung tính/khách quan hơn; ～づらい thiên về cảm giác người nói (tâm lý/cảm giác).), câu này nghĩa là: \"Chiếc bút này rất dễ viết.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この字は小さすぎて読みにくい。",
+       "その靴は滑りにくいから山登りに向いている。",
+       "先生のカメラは使いやすいです。",
+       "このペンはとても書きやすいですだます。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: このペンはとても書きやすいです。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "この字は小さすぎて読みにくい。",
+      "vi": "Chữ này quá nhỏ nên khó đọc."
+     },
+     {
+      "ja": "その靴は滑りにくいから山登りに向いている。",
+      "vi": "Đôi giày đó ít trơn trượt nên hợp leo núi."
+     }
+    ],
+    "meaning_vi": "Diễn tả việc “khó làm V”, do yếu tố khách quan/chủ quan: kỹ thuật, môi trường, đặc tính đối tượng. Mang tính xu hướng/đặc tính: 見にくいデザイン（thiết kế khó nhìn）, 汚れが取れにくい（khó tẩy bẩn）. Khác “難しい”: ～にくい mô tả khó khăn trong hành vi thực hiện V cụ thể; 難しい là khó nói chung. So với ～づらい: ～にくい trung tính/khách quan hơn; ～づらい thiên về cảm giác người nói (tâm lý/cảm giác).",
+    "pattern": "Khó...",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-194694b96a"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "私は兄（　　）背が高くありません。",
+      "options": [
+       "すぎる",
+       "のに",
+       "なら",
+       "ほど"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「ほど」 theo mẫu Không... bằng... (“A không … bằng B” (so sánh kém ở dạng phủ định). ほど biểu thị “đến mức/độ như B”; thêm ない/ありません để phủ định mức độ của A so với B. Dùng tự nhiên cho cả tính chất (cao, khó) lẫn hành động (ăn, học, nói).). Nghĩa cả câu: Tôi không cao bằng anh trai."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "日本語は英語（　　）発音が難しくない。",
+      "options": [
+       "ほど",
+       "そうだ",
+       "ので",
+       "ば"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc Không... bằng... (“A không … bằng B” (so sánh kém ở dạng phủ định). ほど biểu thị “đến mức/độ như B”; thêm ない/ありません để phủ định mức độ của A so với B. Dùng tự nhiên cho cả tính chất (cao, khó) lẫn hành động (ăn, học, nói).), chỗ trống cần điền 「ほど」. Nghĩa: Tiếng Nhật phát âm không khó bằng tiếng Anh."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "私は",
+       "高くあり",
+       "兄ほど背が",
+       "ません"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 私は兄ほど背が高くありません。 (Tôi không cao bằng anh trai.). Theo cấu trúc Không... bằng..., mảnh đứng ở vị trí ★ là 「高くあり」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "発音が",
+       "日本語は",
+       "難しくない",
+       "英語ほど"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 日本語は英語ほど発音が難しくない。 (Tiếng Nhật phát âm không khó bằng tiếng Anh.). Theo cấu trúc Không... bằng..., mảnh đứng ở vị trí ★ là 「英語ほど」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "私は兄ほど背が高くありません。",
+      "options": [
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Tôi không cao bằng anh trai.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Mẫu Không... bằng... có nghĩa là \"“A không … bằng B” (so sánh kém ở dạng phủ định). ほど biểu thị “đến mức/độ như B”; thêm ない/ありません để phủ định mức độ của A so với B. Dùng tự nhiên cho cả tính chất (cao, khó) lẫn hành động (ăn, học, nói).\". Câu này dịch là: \"Tôi không cao bằng anh trai.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "日本語は英語ほど発音が難しくない。",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Tiếng Nhật phát âm không khó bằng tiếng Anh.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu Không... bằng... (“A không … bằng B” (so sánh kém ở dạng phủ định). ほど biểu thị “đến mức/độ như B”; thêm ない/ありません để phủ định mức độ của A so với B. Dùng tự nhiên cho cả tính chất (cao, khó) lẫn hành động (ăn, học, nói).), câu trên có nghĩa là: \"Tiếng Nhật phát âm không khó bằng tiếng Anh.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "日本語は英語ほど発音が難しくない。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "私は兄ほど背が高くありませんますだ。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Không... bằng...). Câu đúng: 私は兄ほど背が高くありません。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "私は兄ほど背が高くありません。",
+       "日本語はを英語ほど発音が難しくない。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: 日本語は英語ほど発音が難しくない。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "兄ほど背が",
+       "ません",
+       "私は",
+       "高くあり"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Tôi không cao bằng anh trai."
+     },
+     {
+      "pieces": [
+       "難しくない",
+       "発音が",
+       "日本語は",
+       "英語ほど"
+      ],
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "translation_vi": "Tiếng Nhật phát âm không khó bằng tiếng Anh."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "私は兄＿＿背が高くありません。",
+      "answer": "ほど",
+      "translation_vi": "Tôi không cao bằng anh trai."
+     },
+     {
+      "sentence_ja": "日本語は英語＿＿発音が難しくない。",
+      "answer": "ほど",
+      "translation_vi": "Tiếng Nhật phát âm không khó bằng tiếng Anh."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "options": [
+       "かもしれない",
+       "ています",
+       "たら",
+       "だけ"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Điền 「ています」 theo cấu trúc Không... bằng... (“A không … bằng B” (so sánh kém ở dạng phủ định). ほど biểu thị “đến mức/độ như B”; thêm ない/ありません để phủ định mức độ của A so với B. Dùng tự nhiên cho cả tính chất (cao, khó) lẫn hành động (ăn, học, nói).). Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "options": [
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu Không... bằng... (“A không … bằng B” (so sánh kém ở dạng phủ định). ほど biểu thị “đến mức/độ như B”; thêm ない/ありません để phủ định mức độ của A so với B. Dùng tự nhiên cho cả tính chất (cao, khó) lẫn hành động (ăn, học, nói).), câu này nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "私は兄ほど背が高くありません。",
+       "日本語は英語ほど発音が難しくない。",
+       "毎日まじめにを日本語を勉強しています。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 毎日まじめに日本語を勉強しています。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "私は兄ほど背が高くありません。",
+      "vi": "Tôi không cao bằng anh trai."
+     },
+     {
+      "ja": "日本語は英語ほど発音が難しくない。",
+      "vi": "Tiếng Nhật phát âm không khó bằng tiếng Anh."
+     }
+    ],
+    "meaning_vi": "“A không … bằng B” (so sánh kém ở dạng phủ định). ほど biểu thị “đến mức/độ như B”; thêm ない/ありません để phủ định mức độ của A so với B. Dùng tự nhiên cho cả tính chất (cao, khó) lẫn hành động (ăn, học, nói).",
+    "pattern": "Không... bằng...",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-4754eb66ee"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "子どもたちにキャンディーを二つ（　　）配った。",
+      "options": [
+       "から",
+       "と",
+       "ずつ",
+       "ばかり"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「ずつ」 theo mẫu Mỗi..., từng... (Phân phối đều: “mỗi …”, “mỗi người/mỗi cái …”. Từng chút một: thay đổi/tiến triển dần dần theo thời gian. Vị trí: ずつ đứng ngay sau biểu thức số lượng mà nó bổ nghĩa.). Nghĩa cả câu: Phát cho bọn trẻ mỗi đứa hai viên kẹo."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "順番に一人（　　）面接室に入ってください。",
+      "options": [
+       "ても",
+       "しか",
+       "とか",
+       "ずつ"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc Mỗi..., từng... (Phân phối đều: “mỗi …”, “mỗi người/mỗi cái …”. Từng chút một: thay đổi/tiến triển dần dần theo thời gian. Vị trí: ずつ đứng ngay sau biểu thức số lượng mà nó bổ nghĩa.), chỗ trống cần điền 「ずつ」. Nghĩa: Xin mời vào phòng phỏng vấn mỗi lần một người theo thứ tự."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "配った",
+       "キャンディーを",
+       "二つずつ",
+       "子どもたちに"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 子どもたちにキャンディーを二つずつ配った。 (Phát cho bọn trẻ mỗi đứa hai viên kẹo.). Theo cấu trúc Mỗi..., từng..., mảnh đứng ở vị trí ★ là 「二つずつ」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "順番に",
+       "面接室に",
+       "一人ずつ",
+       "入ってください"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 順番に一人ずつ面接室に入ってください。 (Xin mời vào phòng phỏng vấn mỗi lần một người theo thứ tự.). Theo cấu trúc Mỗi..., từng..., mảnh đứng ở vị trí ★ là 「一人ずつ」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "子どもたちにキャンディーを二つずつ配った。",
+      "options": [
+       "Phát cho bọn trẻ mỗi đứa hai viên kẹo.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Mẫu Mỗi..., từng... có nghĩa là \"Phân phối đều: “mỗi …”, “mỗi người/mỗi cái …”. Từng chút một: thay đổi/tiến triển dần dần theo thời gian. Vị trí: ずつ đứng ngay sau biểu thức số lượng mà nó bổ nghĩa.\". Câu này dịch là: \"Phát cho bọn trẻ mỗi đứa hai viên kẹo.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "順番に一人ずつ面接室に入ってください。",
+      "options": [
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Xin mời vào phòng phỏng vấn mỗi lần một người theo thứ tự.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu Mỗi..., từng... (Phân phối đều: “mỗi …”, “mỗi người/mỗi cái …”. Từng chút một: thay đổi/tiến triển dần dần theo thời gian. Vị trí: ずつ đứng ngay sau biểu thức số lượng mà nó bổ nghĩa.), câu trên có nghĩa là: \"Xin mời vào phòng phỏng vấn mỗi lần một người theo thứ tự.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "順番に一人ずつ面接室に入ってください。",
+       "毎日まじめに日本語を勉強しています。",
+       "子どもたちにキャンディーを二つずつ配ったますだ。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Mỗi..., từng...). Câu đúng: 子どもたちにキャンディーを二つずつ配った。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "順番に一人ずつ面接室に入ってくださいですます。",
+       "子どもたちにキャンディーを二つずつ配った。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu Mỗi..., từng...). Câu đúng: 順番に一人ずつ面接室に入ってください。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "配った",
+       "二つずつ",
+       "子どもたちに",
+       "キャンディーを"
+      ],
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "translation_vi": "Phát cho bọn trẻ mỗi đứa hai viên kẹo."
+     },
+     {
+      "pieces": [
+       "面接室に",
+       "順番に",
+       "入ってください",
+       "一人ずつ"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Xin mời vào phòng phỏng vấn mỗi lần một người theo thứ tự."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "子どもたちにキャンディーを二つ＿＿配った。",
+      "answer": "ずつ",
+      "translation_vi": "Phát cho bọn trẻ mỗi đứa hai viên kẹo."
+     },
+     {
+      "sentence_ja": "順番に一人＿＿面接室に入ってください。",
+      "answer": "ずつ",
+      "translation_vi": "Xin mời vào phòng phỏng vấn mỗi lần một người theo thứ tự."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "options": [
+       "ています",
+       "ば",
+       "くらい",
+       "ながら"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Điền 「ています」 theo cấu trúc Mỗi..., từng... (Phân phối đều: “mỗi …”, “mỗi người/mỗi cái …”. Từng chút một: thay đổi/tiến triển dần dần theo thời gian. Vị trí: ずつ đứng ngay sau biểu thức số lượng mà nó bổ nghĩa.). Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "options": [
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu Mỗi..., từng... (Phân phối đều: “mỗi …”, “mỗi người/mỗi cái …”. Từng chút một: thay đổi/tiến triển dần dần theo thời gian. Vị trí: ずつ đứng ngay sau biểu thức số lượng mà nó bổ nghĩa.), câu này nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "子どもたちにキャンディーを二つずつ配った。",
+       "毎日まじめにを日本語を勉強しています。",
+       "順番に一人ずつ面接室に入ってください。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 毎日まじめに日本語を勉強しています。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "子どもたちにキャンディーを二つずつ配った。",
+      "vi": "Phát cho bọn trẻ mỗi đứa hai viên kẹo."
+     },
+     {
+      "ja": "順番に一人ずつ面接室に入ってください。",
+      "vi": "Xin mời vào phòng phỏng vấn mỗi lần một người theo thứ tự."
+     }
+    ],
+    "meaning_vi": "Phân phối đều: “mỗi …”, “mỗi người/mỗi cái …”. Từng chút một: thay đổi/tiến triển dần dần theo thời gian. Vị trí: ずつ đứng ngay sau biểu thức số lượng mà nó bổ nghĩa.",
+    "pattern": "Mỗi..., từng...",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-79c748da4b"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この部屋は暑（　　）。",
+      "options": [
+       "だけ",
+       "すぎる",
+       "し",
+       "つもり"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「すぎる」 theo mẫu Quá... (Chỉ mức độ vượt chuẩn: “quá…”, thường không mong muốn. Dùng được với V/A; bản thân すぎる là động từ, có thể phủ định/khả năng/thể ý chí ít dùng. Phân biệt “quá nhiều” (多すぎる) với “không đủ” (少なすぎる) đều dùng すぎる.). Nghĩa cả câu: Phòng này nóng quá."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "寝すぎて、頭（　　）。",
+      "options": [
+       "ほど",
+       "てもいい",
+       "が痛い",
+       "はず"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc Quá... (Chỉ mức độ vượt chuẩn: “quá…”, thường không mong muốn. Dùng được với V/A; bản thân すぎる là động từ, có thể phủ định/khả năng/thể ý chí ít dùng. Phân biệt “quá nhiều” (多すぎる) với “không đủ” (少なすぎる) đều dùng すぎる.), chỗ trống cần điền 「が痛い」. Nghĩa: Ngủ quá nên đau đầu."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "部屋",
+       "すぎる",
+       "この",
+       "は暑"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: この部屋は暑すぎる。 (Phòng này nóng quá.). Theo cấu trúc Quá..., mảnh đứng ở vị trí ★ là 「は暑」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "が痛い",
+       "ぎて",
+       "、頭",
+       "寝す"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 寝すぎて、頭が痛い。 (Ngủ quá nên đau đầu.). Theo cấu trúc Quá..., mảnh đứng ở vị trí ★ là 「ぎて」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この部屋は暑すぎる。",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Phòng này nóng quá."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Mẫu Quá... có nghĩa là \"Chỉ mức độ vượt chuẩn: “quá…”, thường không mong muốn. Dùng được với V/A; bản thân すぎる là động từ, có thể phủ định/khả năng/thể ý chí ít dùng. Phân biệt “quá nhiều” (多すぎる) với “không đủ” (少なすぎる) đều dùng すぎる.\". Câu này dịch là: \"Phòng này nóng quá.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "寝すぎて、頭が痛い。",
+      "options": [
+       "Ngủ quá nên đau đầu.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu Quá... (Chỉ mức độ vượt chuẩn: “quá…”, thường không mong muốn. Dùng được với V/A; bản thân すぎる là động từ, có thể phủ định/khả năng/thể ý chí ít dùng. Phân biệt “quá nhiều” (多すぎる) với “không đủ” (少なすぎる) đều dùng すぎる.), câu trên có nghĩa là: \"Ngủ quá nên đau đầu.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "寝すぎて、頭が痛い。",
+       "この部屋は暑すぎるますだ。",
+       "きのうの夜はご飯を食べすぎた。",
+       "この問題は難しすぎて分からない。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Quá...). Câu đúng: この部屋は暑すぎる。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この部屋は暑すぎる。",
+       "きのうの夜はご飯を食べすぎた。",
+       "この問題は難しすぎて分からない。",
+       "寝すぎて、頭が痛いですます。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu Quá...). Câu đúng: 寝すぎて、頭が痛い。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "は暑",
+       "この",
+       "すぎる",
+       "部屋"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Phòng này nóng quá."
+     },
+     {
+      "pieces": [
+       "ぎて",
+       "が痛い",
+       "寝す",
+       "、頭"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Ngủ quá nên đau đầu."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "この部屋は暑＿＿。",
+      "answer": "すぎる",
+      "translation_vi": "Phòng này nóng quá."
+     },
+     {
+      "sentence_ja": "寝すぎて、頭＿＿。",
+      "answer": "が痛い",
+      "translation_vi": "Ngủ quá nên đau đầu."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "きのうの夜はご飯を食べ（　　）。",
+      "options": [
+       "とか",
+       "ところ",
+       "ついでに",
+       "すぎた"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Điền 「すぎた」 theo cấu trúc Quá... (Chỉ mức độ vượt chuẩn: “quá…”, thường không mong muốn. Dùng được với V/A; bản thân すぎる là động từ, có thể phủ định/khả năng/thể ý chí ít dùng. Phân biệt “quá nhiều” (多すぎる) với “không đủ” (少なすぎる) đều dùng すぎる.). Nghĩa: Tối qua tôi đã ăn cơm quá nhiều."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "きのうの夜はご飯を食べすぎた。",
+      "options": [
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Tối qua tôi đã ăn cơm quá nhiều.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu Quá... (Chỉ mức độ vượt chuẩn: “quá…”, thường không mong muốn. Dùng được với V/A; bản thân すぎる là động từ, có thể phủ định/khả năng/thể ý chí ít dùng. Phân biệt “quá nhiều” (多すぎる) với “không đủ” (少なすぎる) đều dùng すぎる.), câu này nghĩa là: \"Tối qua tôi đã ăn cơm quá nhiều.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "きのうの夜はご飯を食べすぎただます。",
+       "この部屋は暑すぎる。",
+       "寝すぎて、頭が痛い。",
+       "お酒を飲みすぎないでください。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: きのうの夜はご飯を食べすぎた。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "この部屋は暑すぎる。",
+      "vi": "Phòng này nóng quá."
+     },
+     {
+      "ja": "寝すぎて、頭が痛い。",
+      "vi": "Ngủ quá nên đau đầu."
+     }
+    ],
+    "meaning_vi": "Chỉ mức độ vượt chuẩn: “quá…”, thường không mong muốn. Dùng được với V/A; bản thân すぎる là động từ, có thể phủ định/khả năng/thể ý chí ít dùng. Phân biệt “quá nhiều” (多すぎる) với “không đủ” (少なすぎる) đều dùng すぎる.",
+    "pattern": "Quá...",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 0
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-4522ce596f"
+  }
+ ],
+ "kind": "GRAMMAR_BANK",
+ "level": "N4",
+ "packet_id": "GRAMMAR_BANK-019"
+}

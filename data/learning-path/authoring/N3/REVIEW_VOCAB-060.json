@@ -1,0 +1,2512 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "父はビジネスの本を読んでいる。",
+       "ja_furigana": "父(ちち)はビジネスの本(ほん)を読(よ)んでいる。",
+       "vi": "Bố đang đọc sách kinh doanh.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "田中さんは、ビジネスのために中国語を習っている。",
+       "ja_furigana": "田中(たなか)さんは、ビジネスのために中国語(ちゅうごくご)を習(なら)っている。",
+       "vi": "Anh Tanaka học tiếng Trung để phục vụ công việc kinh doanh.",
+       "source": "AI"
+      },
+      {
+       "ja": "インターネットを使った新しいビジネスが増えている。",
+       "ja_furigana": "インターネットを使(つか)った新(あたら)しいビジネスが増(ふ)えている。",
+       "vi": "Những mô hình kinh doanh mới dùng Internet đang tăng.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "kinh doanh",
+    "examples": [
+     {
+      "ja": "父はビジネスの本を読んでいる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Bố đang đọc sách kinh doanh."
+     },
+     {
+      "ja": "田中さんは、ビジネスのために中国語を習っている。",
+      "ja_furigana": "田中(たなか)さんは、ビジネスのために中国語(ちゅうごくご)を習(なら)っている。",
+      "source": "AI",
+      "vi": "Anh Tanaka học tiếng Trung để phục vụ công việc kinh doanh."
+     },
+     {
+      "ja": "インターネットを使った新しいビジネスが増えている。",
+      "ja_furigana": "インターネットを使(つか)った新(あたら)しいビジネスが増(ふ)えている。",
+      "source": "AI",
+      "vi": "Những mô hình kinh doanh mới dùng Internet đang tăng."
+     }
+    ],
+    "expression": "ビジネス",
+    "findings": [
+     "FURIGANA_MISSING: 父はビジネスの本を読んでいる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "kinh doanh; thương mại; công việc",
+    "mnemonic_vi": "Cuộc họp bàn cách bán hàng là việc kinh doanh.",
+    "reading": "びじねす",
+    "romaji": "bijinesu",
+    "topic_vi": "Công việc",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b79575783b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "急いだらかえって遅くなった。",
+       "ja_furigana": "急(いそ)いだらかえって遅(おそ)くなった。",
+       "vi": "Càng vội thì hóa ra càng muộn.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "手伝おうとしたら、かえって仕事を増やしてしまった。",
+       "ja_furigana": "手伝(てつだ)おうとしたら、かえって仕事(しごと)を増(ふ)やしてしまった。",
+       "vi": "Định giúp một tay, ai ngờ tôi lại làm việc nhiều thêm.",
+       "source": "AI"
+      },
+      {
+       "ja": "冬なのに、今日はかえってあたたかい。",
+       "ja_furigana": "冬(ふゆ)なのに、今日(きょう)はかえってあたたかい。",
+       "vi": "Đang mùa đông mà hôm nay lại ấm áp.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "trái lại, ngược lại",
+    "examples": [
+     {
+      "ja": "急いだらかえって遅くなった。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Càng vội thì hóa ra càng muộn."
+     },
+     {
+      "ja": "手伝おうとしたら、かえって仕事を増やしてしまった。",
+      "ja_furigana": "手伝(てつだ)おうとしたら、かえって仕事(しごと)を増(ふ)やしてしまった。",
+      "source": "AI",
+      "vi": "Định giúp một tay, ai ngờ tôi lại làm việc nhiều thêm."
+     },
+     {
+      "ja": "冬なのに、今日はかえってあたたかい。",
+      "ja_furigana": "冬(ふゆ)なのに、今日(きょう)はかえってあたたかい。",
+      "source": "AI",
+      "vi": "Đang mùa đông mà hôm nay lại ấm áp."
+     }
+    ],
+    "expression": "却って",
+    "findings": [
+     "FURIGANA_MISSING: 急いだらかえって遅くなった。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "ngược lại; trái lại; hóa ra lại",
+    "mnemonic_vi": "Càng cố chạy nhanh lại càng chậm, hóa ra ngược lại.",
+    "reading": "かえって",
+    "romaji": "kaette",
+    "topic_vi": "Làm đẹp",
+    "twins": [],
+    "variants": [
+     "かえって"
+    ],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-549a5cf416"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "だらしない服では出かけない。",
+       "ja_furigana": "だらしない服(ふく)では出(で)かけない。",
+       "vi": "Tôi không ra ngoài trong bộ đồ luộm thuộm.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "部屋に服が置きっぱなしで、だらしないと母に言われた。",
+       "ja_furigana": "部屋(へや)に服(ふく)が置(お)きっぱなしで、だらしないと母(はは)に言(い)われた。",
+       "vi": "Quần áo vứt bừa trong phòng nên tôi bị mẹ chê là luộm thuộm.",
+       "source": "AI"
+      },
+      {
+       "ja": "お金にだらしない人には、お金を貸したくない。",
+       "ja_furigana": "お金(かね)にだらしない人(ひと)には、お金(かね)を貸(か)したくない。",
+       "vi": "Tôi không muốn cho người cẩu thả về tiền bạc vay tiền.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "luộm thuộm, thiếu nghiêm túc",
+    "examples": [
+     {
+      "ja": "だらしない服では出かけない。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi không ra ngoài trong bộ đồ luộm thuộm."
+     },
+     {
+      "ja": "部屋に服が置きっぱなしで、だらしないと母に言われた。",
+      "ja_furigana": "部屋(へや)に服(ふく)が置(お)きっぱなしで、だらしないと母(はは)に言(い)われた。",
+      "source": "AI",
+      "vi": "Quần áo vứt bừa trong phòng nên tôi bị mẹ chê là luộm thuộm."
+     },
+     {
+      "ja": "お金にだらしない人には、お金を貸したくない。",
+      "ja_furigana": "お金(かね)にだらしない人(ひと)には、お金(かね)を貸(か)したくない。",
+      "source": "AI",
+      "vi": "Tôi không muốn cho người cẩu thả về tiền bạc vay tiền."
+     }
+    ],
+    "expression": "だらしない",
+    "findings": [
+     "FURIGANA_MISSING: だらしない服では出かけない。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "luộm thuộm; thiếu nghiêm túc; bừa bãi",
+    "mnemonic_vi": "Áo quần nhăn và đồ vứt bừa: だらしない.",
+    "reading": "だらしない",
+    "romaji": "darashinai",
+    "topic_vi": "Tính cách",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-645006304e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "さて、勉強を始めましょう。",
+       "ja_furigana": "さて、勉強(べんきょう)を始(はじ)めましょう。",
+       "vi": "Giờ thì bắt đầu học nhé.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "さて、そろそろ出かけましょうか。",
+       "ja_furigana": "さて、そろそろ出(で)かけましょうか。",
+       "vi": "Vậy thì, chúng ta chuẩn bị đi thôi nhỉ.",
+       "source": "AI"
+      },
+      {
+       "ja": "今日の天気は晴れです。さて、次のニュースです。",
+       "ja_furigana": "今日(きょう)の天気(てんき)は晴(は)れです。さて、次(つぎ)のニュースです。",
+       "vi": "Thời tiết hôm nay nắng. Giờ thì đến tin tiếp theo.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "vậy thì",
+    "examples": [
+     {
+      "ja": "さて、勉強を始めましょう。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Giờ thì bắt đầu học nhé."
+     },
+     {
+      "ja": "さて、そろそろ出かけましょうか。",
+      "ja_furigana": "さて、そろそろ出(で)かけましょうか。",
+      "source": "AI",
+      "vi": "Vậy thì, chúng ta chuẩn bị đi thôi nhỉ."
+     },
+     {
+      "ja": "今日の天気は晴れです。さて、次のニュースです。",
+      "ja_furigana": "今日(きょう)の天気(てんき)は晴(は)れです。さて、次(つぎ)のニュースです。",
+      "source": "AI",
+      "vi": "Thời tiết hôm nay nắng. Giờ thì đến tin tiếp theo."
+     }
+    ],
+    "expression": "偖",
+    "findings": [
+     "FURIGANA_MISSING: さて、勉強を始めましょう。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "vậy thì; giờ thì; mà",
+    "mnemonic_vi": "Khép chuyện cũ lại rồi nói: vậy thì bắt đầu.",
+    "reading": "さて",
+    "romaji": "sate",
+    "topic_vi": "Cách nói nối",
+    "twins": [],
+    "variants": [
+     "さて"
+    ],
+    "word_type_label": "liên từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a547e435c9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母の姉です。つまり、私のおばです。",
+       "ja_furigana": "母(はは)の姉(あね)です。つまり、私(わたし)のおばです。",
+       "vi": "Đó là chị của mẹ, tức là dì của tôi.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "来週の月曜日、つまり十日に会議がある。",
+       "ja_furigana": "来週(らいしゅう)の月曜日(げつようび)、つまり十日(とおか)に会議(かいぎ)がある。",
+       "vi": "Thứ Hai tuần sau, tức là ngày mùng 10, có cuộc họp.",
+       "source": "AI"
+      },
+      {
+       "ja": "「その日は少し忙しくて…」「つまり、来られないということ？」",
+       "ja_furigana": "「その日(ひ)は少(すこ)し忙(いそが)しくて…」「つまり、来(こ)られないということ？」",
+       "vi": "\"Hôm đó tôi hơi bận...\" \"Tức là anh không đến được à?\"",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tức là; sự tắc nghẽn",
+    "examples": [
+     {
+      "ja": "母の姉です。つまり、私のおばです。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Đó là chị của mẹ, tức là dì của tôi."
+     },
+     {
+      "ja": "来週の月曜日、つまり十日に会議がある。",
+      "ja_furigana": "来週(らいしゅう)の月曜日(げつようび)、つまり十日(とおか)に会議(かいぎ)がある。",
+      "source": "AI",
+      "vi": "Thứ Hai tuần sau, tức là ngày mùng 10, có cuộc họp."
+     },
+     {
+      "ja": "「その日は少し忙しくて…」「つまり、来られないということ？」",
+      "ja_furigana": "「その日(ひ)は少(すこ)し忙(いそが)しくて…」「つまり、来(こ)られないということ？」",
+      "source": "AI",
+      "vi": "\"Hôm đó tôi hơi bận...\" \"Tức là anh không đến được à?\""
+     }
+    ],
+    "expression": "詰まり",
+    "findings": [
+     "FURIGANA_MISSING: 母の姉です。つまり、私のおばです。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tức là; nói gọn lại; nói các khác",
+    "mnemonic_vi": "Nói dài một hồi, 詰まり là tóm lại một ý.",
+    "reading": "つまり",
+    "romaji": "tsumari",
+    "topic_vi": "Cách nói nối",
+    "twins": [],
+    "variants": [
+     "つまり"
+    ],
+    "word_type_label": "liên từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-14451c2881"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今の状況を説明してください。",
+       "ja_furigana": "今(いま)の状況(じょうきょう)を説明(せつめい)してください。",
+       "vi": "Xin hãy giải thích tình hình hiện tại.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "雪で道路の状況が悪いので、車で行くのはやめた。",
+       "ja_furigana": "雪(ゆき)で道路(どうろ)の状況(じょうきょう)が悪(わる)いので、車(くるま)で行(い)くのはやめた。",
+       "vi": "Tình hình đường sá xấu vì tuyết nên tôi thôi đi xe.",
+       "source": "AI"
+      },
+      {
+       "ja": "電話で、会社に今の状況を知らせた。",
+       "ja_furigana": "電話(でんわ)で、会社(かいしゃ)に今(いま)の状況(じょうきょう)を知(し)らせた。",
+       "vi": "Tôi gọi điện báo cho công ty tình hình hiện tại.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tình hình, tình huống",
+    "examples": [
+     {
+      "ja": "今の状況を説明してください。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Xin hãy giải thích tình hình hiện tại."
+     },
+     {
+      "ja": "雪で道路の状況が悪いので、車で行くのはやめた。",
+      "ja_furigana": "雪(ゆき)で道路(どうろ)の状況(じょうきょう)が悪(わる)いので、車(くるま)で行(い)くのはやめた。",
+      "source": "AI",
+      "vi": "Tình hình đường sá xấu vì tuyết nên tôi thôi đi xe."
+     },
+     {
+      "ja": "電話で、会社に今の状況を知らせた。",
+      "ja_furigana": "電話(でんわ)で、会社(かいしゃ)に今(いま)の状況(じょうきょう)を知(し)らせた。",
+      "source": "AI",
+      "vi": "Tôi gọi điện báo cho công ty tình hình hiện tại."
+     }
+    ],
+    "expression": "状況",
+    "findings": [
+     "FURIGANA_MISSING: 今の状況を説明してください。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tình hình; tình huống; trạng thái",
+    "mnemonic_vi": "状 là trạng, 況 là tình; tình hình hiện giờ.",
+    "reading": "じょうきょう",
+    "romaji": "joukyou",
+    "topic_vi": "Nghỉ việc, chuyển chỗ làm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-bc06af6e95"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "前の車がのろのろ走る。",
+       "ja_furigana": "前(まえ)の車(くるま)がのろのろ走(はし)る。",
+       "vi": "Chiếc xe trước chạy ì ạch.",
+       "source": "JLAS_REVIEWED"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chậm chạp, ì ạch",
+    "examples": [
+     {
+      "ja": "前の車がのろのろ走る。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Chiếc xe trước chạy ì ạch."
+     }
+    ],
+    "expression": "のろのろ＜な/する＞",
+    "findings": [
+     "FURIGANA_MISSING: 前の車がのろのろ走る。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chậm chạp; ì ạch; chầm chậm",
+    "mnemonic_vi": "Rùa lê từng bước chậm chạp: のろのろ.",
+    "reading": "のろのろ＜な/する＞",
+    "romaji": "noronoro<na/suru>",
+    "topic_vi": "Giao thông",
+    "twins": [],
+    "variants": [
+     "のろのろ"
+    ],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-5c30b77fb8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "その話がマスコミに広がった。",
+       "ja_furigana": "その話(はなし)がマスコミに広(ひろ)がった。",
+       "vi": "Câu chuyện đó lan ra truyền thông.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "その歌手は、マスコミに追われて家から出られない。",
+       "ja_furigana": "その歌手(かしゅ)は、マスコミに追(お)われて家(いえ)から出(で)られない。",
+       "vi": "Ca sĩ đó bị truyền thông bám theo nên không ra khỏi nhà được.",
+       "source": "AI"
+      },
+      {
+       "ja": "マスコミの言うことを、全部信じてはいけない。",
+       "ja_furigana": "マスコミの言(い)うことを、全部(ぜんぶ)信(しん)じてはいけない。",
+       "vi": "Không được tin hết những gì truyền thông nói.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "truyền thông đại chúng",
+    "examples": [
+     {
+      "ja": "その話がマスコミに広がった。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Câu chuyện đó lan ra truyền thông."
+     },
+     {
+      "ja": "その歌手は、マスコミに追われて家から出られない。",
+      "ja_furigana": "その歌手(かしゅ)は、マスコミに追(お)われて家(いえ)から出(で)られない。",
+      "source": "AI",
+      "vi": "Ca sĩ đó bị truyền thông bám theo nên không ra khỏi nhà được."
+     },
+     {
+      "ja": "マスコミの言うことを、全部信じてはいけない。",
+      "ja_furigana": "マスコミの言(い)うことを、全部(ぜんぶ)信(しん)じてはいけない。",
+      "source": "AI",
+      "vi": "Không được tin hết những gì truyền thông nói."
+     }
+    ],
+    "expression": "マスコミ",
+    "findings": [
+     "FURIGANA_MISSING: その話がマスコミに広がった。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "truyền thông đại chúng; các phương tiện truyền thông; thông tin đại chúng",
+    "mnemonic_vi": "Báo, đài và truyền hình cùng đưa tin: マスコミ.",
+    "reading": "ますこみ",
+    "romaji": "masukomi",
+    "topic_vi": "Xã hội",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-aaa47ed426"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "新しい組織を作る。",
+       "ja_furigana": "新(あたら)しい組織(そしき)を作(つく)る。",
+       "vi": "Chúng tôi lập một tổ chức mới.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "大きな組織では、何かを決めるのに時間がかかる。",
+       "ja_furigana": "大(おお)きな組織(そしき)では、何(なに)かを決(き)めるのに時間(じかん)がかかる。",
+       "vi": "Ở tổ chức lớn, quyết định việc gì cũng mất thời gian.",
+       "source": "AI"
+      },
+      {
+       "ja": "町の人たちは、お年寄りを助ける組織を作った。",
+       "ja_furigana": "町(まち)の人(ひと)たちは、お年寄(としよ)りを助(たす)ける組織(そしき)を作(つく)った。",
+       "vi": "Người dân thị trấn đã lập ra một tổ chức giúp đỡ người già.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tổ chức",
+    "examples": [
+     {
+      "ja": "新しい組織を作る。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Chúng tôi lập một tổ chức mới."
+     },
+     {
+      "ja": "大きな組織では、何かを決めるのに時間がかかる。",
+      "ja_furigana": "大(おお)きな組織(そしき)では、何(なに)かを決(き)めるのに時間(じかん)がかかる。",
+      "source": "AI",
+      "vi": "Ở tổ chức lớn, quyết định việc gì cũng mất thời gian."
+     },
+     {
+      "ja": "町の人たちは、お年寄りを助ける組織を作った。",
+      "ja_furigana": "町(まち)の人(ひと)たちは、お年寄(としよ)りを助(たす)ける組織(そしき)を作(つく)った。",
+      "source": "AI",
+      "vi": "Người dân thị trấn đã lập ra một tổ chức giúp đỡ người già."
+     }
+    ],
+    "expression": "組織",
+    "findings": [
+     "FURIGANA_MISSING: 新しい組織を作る。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tổ chức; tập thể; cơ quan",
+    "mnemonic_vi": "組 là kết nhóm, 織 là đan; tổ chức có nhiều người.",
+    "reading": "そしき",
+    "romaji": "soshiki",
+    "topic_vi": "Công ty",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-08b6c800a5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ほんの少しだけ食べる。",
+       "ja_furigana": "ほんの少(すこ)しだけ食(た)べる。",
+       "vi": "Tôi chỉ ăn một chút thôi.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "日本に来て、まだほんの一週間だ。",
+       "ja_furigana": "日本(にほん)に来(き)て、まだほんの一週間(いっしゅうかん)だ。",
+       "vi": "Tôi đến Nhật mới chỉ được một tuần.",
+       "source": "AI"
+      },
+      {
+       "ja": "これはほんの気持ちですが、どうぞ。",
+       "ja_furigana": "これはほんの気持(きも)ちですが、どうぞ。",
+       "vi": "Đây chỉ là chút lòng thành, xin anh nhận cho.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chỉ là, vẻn vẹn",
+    "examples": [
+     {
+      "ja": "ほんの少しだけ食べる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi chỉ ăn một chút thôi."
+     },
+     {
+      "ja": "日本に来て、まだほんの一週間だ。",
+      "ja_furigana": "日本(にほん)に来(き)て、まだほんの一週間(いっしゅうかん)だ。",
+      "source": "AI",
+      "vi": "Tôi đến Nhật mới chỉ được một tuần."
+     },
+     {
+      "ja": "これはほんの気持ちですが、どうぞ。",
+      "ja_furigana": "これはほんの気持(きも)ちですが、どうぞ。",
+      "source": "AI",
+      "vi": "Đây chỉ là chút lòng thành, xin anh nhận cho."
+     }
+    ],
+    "expression": "本の",
+    "findings": [
+     "FURIGANA_MISSING: ほんの少しだけ食べる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chỉ; đơn thuần; chỉ một chút",
+    "mnemonic_vi": "本 là gốc nhỏ; chỉ một chút mà thôi.",
+    "reading": "ほんの",
+    "romaji": "honno",
+    "topic_vi": "Đại học, Cao học",
+    "twins": [],
+    "variants": [
+     "ほんの"
+    ],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-bccbd1826a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大学で学問を続ける。",
+       "ja_furigana": "大学(だいがく)で学問(がくもん)を続(つづ)ける。",
+       "vi": "Tôi tiếp tục nghiên cứu học thuật ở đại học.",
+       "source": "JLAS_REVIEWED"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "học vấn; ngành học",
+    "examples": [
+     {
+      "ja": "大学で学問を続ける。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi tiếp tục nghiên cứu học thuật ở đại học."
+     }
+    ],
+    "expression": "学問",
+    "findings": [
+     "FURIGANA_MISSING: 大学で学問を続ける。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "học vấn; ngành học; học thuật",
+    "mnemonic_vi": "学 là học, 問 là hỏi; học vấn tích lũy từ câu hỏi.",
+    "reading": "がくもん",
+    "romaji": "gakumon",
+    "topic_vi": "Đại học, Cao học",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1d84c1f0d5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店の利益が増えた。",
+       "ja_furigana": "この店(みせ)の利益(りえき)が増(ふ)えた。",
+       "vi": "Lợi nhuận cửa hàng này tăng.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "文化祭のお店の利益は、学校に寄付した。",
+       "ja_furigana": "文化祭(ぶんかさい)のお店(みせ)の利益(りえき)は、学校(がっこう)に寄付(きふ)した。",
+       "vi": "Tiền lãi từ gian hàng ở lễ hội trường được quyên góp cho trường.",
+       "source": "AI"
+      },
+      {
+       "ja": "この会社は今年、去年のにばいの利益が出た。",
+       "ja_furigana": "この会社(かいしゃ)は今年(ことし)、去年(きょねん)のにばいの利益(りえき)が出(で)た。",
+       "vi": "Năm nay công ty này lãi gấp đôi năm ngoái.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lợi nhuận",
+    "examples": [
+     {
+      "ja": "この店の利益が増えた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Lợi nhuận cửa hàng này tăng."
+     },
+     {
+      "ja": "文化祭のお店の利益は、学校に寄付した。",
+      "ja_furigana": "文化祭(ぶんかさい)のお店(みせ)の利益(りえき)は、学校(がっこう)に寄付(きふ)した。",
+      "source": "AI",
+      "vi": "Tiền lãi từ gian hàng ở lễ hội trường được quyên góp cho trường."
+     },
+     {
+      "ja": "この会社は今年、去年のにばいの利益が出た。",
+      "ja_furigana": "この会社(かいしゃ)は今年(ことし)、去年(きょねん)のにばいの利益(りえき)が出(で)た。",
+      "source": "AI",
+      "vi": "Năm nay công ty này lãi gấp đôi năm ngoái."
+     }
+    ],
+    "expression": "利益",
+    "findings": [
+     "FURIGANA_MISSING: この店の利益が増えた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "lợi nhuận; tiền lãi của khoản vay; gửi",
+    "mnemonic_vi": "利 là lợi, 益 là tăng; khoản lợi nhuận sau khi trừ vốn.",
+    "reading": "りえき",
+    "romaji": "rieki",
+    "topic_vi": "Công ty",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7d17e42178"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "川の汚染が心配だ。",
+       "ja_furigana": "川(かわ)の汚染(おせん)が心配(しんぱい)だ。",
+       "vi": "Tôi lo về ô nhiễm sông.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "車が増えて、町の空気の汚染がひどくなった。",
+       "ja_furigana": "車(くるま)が増(ふ)えて、町(まち)の空気(くうき)の汚染(おせん)がひどくなった。",
+       "vi": "Xe cộ tăng lên khiến ô nhiễm không khí thành phố trầm trọng hơn.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sự ô nhiễm",
+    "examples": [
+     {
+      "ja": "川の汚染が心配だ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi lo về ô nhiễm sông."
+     },
+     {
+      "ja": "車が増えて、町の空気の汚染がひどくなった。",
+      "ja_furigana": "車(くるま)が増(ふ)えて、町(まち)の空気(くうき)の汚染(おせん)がひどくなった。",
+      "source": "AI",
+      "vi": "Xe cộ tăng lên khiến ô nhiễm không khí thành phố trầm trọng hơn."
+     }
+    ],
+    "expression": "汚染＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 川の汚染が心配だ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "sự ô nhiễm; ô nhiễm",
+    "mnemonic_vi": "汚 là bẩn, 染 là nhiễm; khói làm ô nhiễm sông.",
+    "reading": "おせん＜する＞",
+    "romaji": "osen<suru>",
+    "topic_vi": "Thế giới, môi trường",
+    "twins": [],
+    "variants": [
+     "汚染"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-edc1218d2b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "学校までのアクセスが便利だ。",
+       "ja_furigana": "学校(がっこう)までのアクセスが便利(べんり)だ。",
+       "vi": "Đường tới trường rất thuận tiện.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "山の中のホテルは、インターネットにアクセスしにくい。",
+       "ja_furigana": "山(やま)の中(なか)のホテルは、インターネットにアクセスしにくい。",
+       "vi": "Khách sạn trong núi khó truy cập Internet.",
+       "source": "AI"
+      },
+      {
+       "ja": "このアパートは駅までのアクセスがよくて、家賃も安い。",
+       "ja_furigana": "このアパートは駅(えき)までのアクセスがよくて、家賃(やちん)も安(やす)い。",
+       "vi": "Căn hộ này đi ra ga tiện, tiền thuê cũng rẻ.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Truy cập",
+    "examples": [
+     {
+      "ja": "学校までのアクセスが便利だ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Đường tới trường rất thuận tiện."
+     },
+     {
+      "ja": "山の中のホテルは、インターネットにアクセスしにくい。",
+      "ja_furigana": "山(やま)の中(なか)のホテルは、インターネットにアクセスしにくい。",
+      "source": "AI",
+      "vi": "Khách sạn trong núi khó truy cập Internet."
+     },
+     {
+      "ja": "このアパートは駅までのアクセスがよくて、家賃も安い。",
+      "ja_furigana": "このアパートは駅(えき)までのアクセスがよくて、家賃(やちん)も安(やす)い。",
+      "source": "AI",
+      "vi": "Căn hộ này đi ra ga tiện, tiền thuê cũng rẻ."
+     }
+    ],
+    "expression": "アクセス＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 学校までのアクセスが便利だ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "truy cập; đường đi; tiếp cận",
+    "mnemonic_vi": "Bấm đường dẫn để truy cập trang web.",
+    "reading": "あくせす＜する＞",
+    "romaji": "akusesu<suru>",
+    "topic_vi": "Quê hương",
+    "twins": [],
+    "variants": [
+     "アクセス",
+     "アクセス（する）"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8e3058c6f5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "その写真から夏のイメージが浮かぶ。",
+       "ja_furigana": "その写真(しゃしん)から夏(なつ)のイメージが浮(う)かぶ。",
+       "vi": "Bức ảnh ấy gợi lên hình ảnh mùa hè.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "新しい部屋をどう使うか、まだイメージできない。",
+       "ja_furigana": "新(あたら)しい部屋(へや)をどう使(つか)うか、まだイメージできない。",
+       "vi": "Tôi vẫn chưa hình dung được sẽ dùng căn phòng mới thế nào.",
+       "source": "AI"
+      },
+      {
+       "ja": "あの会社は事故のあと、イメージが悪くなった。",
+       "ja_furigana": "あの会社(かいしゃ)は事故(じこ)のあと、イメージが悪(わる)くなった。",
+       "vi": "Sau vụ tai nạn, hình ảnh của công ty đó xấu đi.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hình ảnh (image)",
+    "examples": [
+     {
+      "ja": "その写真から夏のイメージが浮かぶ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Bức ảnh ấy gợi lên hình ảnh mùa hè."
+     },
+     {
+      "ja": "新しい部屋をどう使うか、まだイメージできない。",
+      "ja_furigana": "新(あたら)しい部屋(へや)をどう使(つか)うか、まだイメージできない。",
+      "source": "AI",
+      "vi": "Tôi vẫn chưa hình dung được sẽ dùng căn phòng mới thế nào."
+     },
+     {
+      "ja": "あの会社は事故のあと、イメージが悪くなった。",
+      "ja_furigana": "あの会社(かいしゃ)は事故(じこ)のあと、イメージが悪(わる)くなった。",
+      "source": "AI",
+      "vi": "Sau vụ tai nạn, hình ảnh của công ty đó xấu đi."
+     }
+    ],
+    "expression": "イメージ",
+    "findings": [
+     "FURIGANA_MISSING: その写真から夏のイメージが浮かぶ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "hình ảnh; hình dung; ấn tượng",
+    "mnemonic_vi": "Hình dung trong đầu dáng của ngôi nhà: イメージ.",
+    "reading": "イメージ",
+    "romaji": "imeeji",
+    "topic_vi": "Thiết kế",
+    "twins": [],
+    "variants": [
+     "イメージ（する）"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9c00bb3466"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "一瞬、部屋が暗くなった。",
+       "ja_furigana": "一瞬(いっしゅん)、部屋(へや)が暗(くら)くなった。",
+       "vi": "Căn phòng tối đi trong một khoảnh khắc.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "ドアを開けたとき、一瞬だれだかわからなかった。",
+       "ja_furigana": "ドアを開(あ)けたとき、一瞬(いっしゅん)だれだかわからなかった。",
+       "vi": "Lúc mở cửa, trong khoảnh khắc tôi không nhận ra là ai.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "một khoảnh khắc",
+    "examples": [
+     {
+      "ja": "一瞬、部屋が暗くなった。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Căn phòng tối đi trong một khoảnh khắc."
+     },
+     {
+      "ja": "ドアを開けたとき、一瞬だれだかわからなかった。",
+      "ja_furigana": "ドアを開(あ)けたとき、一瞬(いっしゅん)だれだかわからなかった。",
+      "source": "AI",
+      "vi": "Lúc mở cửa, trong khoảnh khắc tôi không nhận ra là ai."
+     }
+    ],
+    "expression": "一瞬",
+    "findings": [
+     "FURIGANA_MISSING: 一瞬、部屋が暗くなった。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "một khoảnh khắc; khoảnh khắc; trong nháy mắt",
+    "mnemonic_vi": "一 là một, 瞬 là chớp mắt; khoảnh khắc rất ngắn.",
+    "reading": "いっしゅん",
+    "romaji": "isshun",
+    "topic_vi": "Tai nạn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1274d84123"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "本の一部がぬれてしまった。",
+       "ja_furigana": "本(ほん)の一部(いちぶ)がぬれてしまった。",
+       "vi": "Một phần cuốn sách đã bị ướt.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "雨のため、旅行の予定の一部を変えた。",
+       "ja_furigana": "雨(あめ)のため、旅行(りょこう)の予定(よてい)の一部(いちぶ)を変(か)えた。",
+       "vi": "Vì mưa, chúng tôi đã đổi một phần lịch trình du lịch.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "một phần; một bản",
+    "examples": [
+     {
+      "ja": "本の一部がぬれてしまった。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Một phần cuốn sách đã bị ướt."
+     },
+     {
+      "ja": "雨のため、旅行の予定の一部を変えた。",
+      "ja_furigana": "雨(あめ)のため、旅行(りょこう)の予定(よてい)の一部(いちぶ)を変(か)えた。",
+      "source": "AI",
+      "vi": "Vì mưa, chúng tôi đã đổi một phần lịch trình du lịch."
+     }
+    ],
+    "expression": "一部",
+    "findings": [
+     "FURIGANA_MISSING: 本の一部がぬれてしまった。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "một phần; một bản; một phần trong tổng thể",
+    "mnemonic_vi": "一 là một, 部 là phần; chỉ một phần quyển sách.",
+    "reading": "いちぶ",
+    "romaji": "ichibu",
+    "topic_vi": "Dữ liệu",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-fd55c8127d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "家族への愛は変わらない。",
+       "ja_furigana": "家族(かぞく)への愛(あい)は変(か)わらない。",
+       "vi": "Tình yêu dành cho gia đình không thay đổi.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "この絵からは、画家の自然への愛が感じられる。",
+       "ja_furigana": "この絵(え)からは、画家(がか)の自然(しぜん)への愛(あい)が感(かん)じられる。",
+       "vi": "Từ bức tranh này có thể cảm nhận tình yêu thiên nhiên của họa sĩ.",
+       "source": "AI"
+      },
+      {
+       "ja": "母の料理には、家族への愛が入っている。",
+       "ja_furigana": "母(はは)の料理(りょうり)には、家族(かぞく)への愛(あい)が入(はい)っている。",
+       "vi": "Món ăn của mẹ chứa đựng tình yêu dành cho gia đình.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tình yêu",
+    "examples": [
+     {
+      "ja": "家族への愛は変わらない。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tình yêu dành cho gia đình không thay đổi."
+     },
+     {
+      "ja": "この絵からは、画家の自然への愛が感じられる。",
+      "ja_furigana": "この絵(え)からは、画家(がか)の自然(しぜん)への愛(あい)が感(かん)じられる。",
+      "source": "AI",
+      "vi": "Từ bức tranh này có thể cảm nhận tình yêu thiên nhiên của họa sĩ."
+     },
+     {
+      "ja": "母の料理には、家族への愛が入っている。",
+      "ja_furigana": "母(はは)の料理(りょうり)には、家族(かぞく)への愛(あい)が入(はい)っている。",
+      "source": "AI",
+      "vi": "Món ăn của mẹ chứa đựng tình yêu dành cho gia đình."
+     }
+    ],
+    "expression": "愛",
+    "findings": [
+     "FURIGANA_MISSING: 家族への愛は変わらない。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tình yêu",
+    "mnemonic_vi": "Trái tim 心 nằm trong chữ 愛, gợi tình yêu.",
+    "reading": "あい",
+    "romaji": "ai",
+    "topic_vi": "Người yêu",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a8c4d2c55e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "二人は仲がいい。",
+       "ja_furigana": "二人(ふたり)は仲(なか)がいい。",
+       "vi": "Hai người rất thân nhau.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "けんかをしてから、リンさんと田中さんは仲が悪い。",
+       "ja_furigana": "けんかをしてから、リンさんと田中(たなか)さんは仲(なか)が悪(わる)い。",
+       "vi": "Từ khi cãi nhau, Linh và anh Tanaka không còn hòa thuận.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "mối quan hệ, tình cảm giữa hai bên",
+    "examples": [
+     {
+      "ja": "二人は仲がいい。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hai người rất thân nhau."
+     },
+     {
+      "ja": "けんかをしてから、リンさんと田中さんは仲が悪い。",
+      "ja_furigana": "けんかをしてから、リンさんと田中(たなか)さんは仲(なか)が悪(わる)い。",
+      "source": "AI",
+      "vi": "Từ khi cãi nhau, Linh và anh Tanaka không còn hòa thuận."
+     }
+    ],
+    "expression": "仲",
+    "findings": [
+     "FURIGANA_MISSING: 二人は仲がいい。",
+     "EXAMPLE_KANA_ABOVE_LEVEL: けんかをしてから、リンさんと田中さんは仲が悪い。 → リン"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "mối quan hệ; tình cảm giữa hai bên; quan hệ",
+    "mnemonic_vi": "Người 亻 ở giữa 中 mối quan hệ; 仲 là tình thân giữa hai người.",
+    "reading": "なか",
+    "romaji": "naka",
+    "topic_vi": "Bạn bè",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-76e4ab6ef0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "年寄には席を譲ろう。",
+       "ja_furigana": "年寄(としより)には席(せき)を譲(ゆず)ろう。",
+       "vi": "Hãy nhường ghế cho người cao tuổi.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "このむらには、若い人より年寄のほうが多い。",
+       "ja_furigana": "このむらには、若(わか)い人(ひと)より年寄(としより)のほうが多(おお)い。",
+       "vi": "Ở làng này người già nhiều hơn người trẻ.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "người già",
+    "examples": [
+     {
+      "ja": "年寄には席を譲ろう。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hãy nhường ghế cho người cao tuổi."
+     },
+     {
+      "ja": "このむらには、若い人より年寄のほうが多い。",
+      "ja_furigana": "このむらには、若(わか)い人(ひと)より年寄(としより)のほうが多(おお)い。",
+      "source": "AI",
+      "vi": "Ở làng này người già nhiều hơn người trẻ."
+     }
+    ],
+    "expression": "年寄",
+    "findings": [
+     "FURIGANA_MISSING: 年寄には席を譲ろう。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "người già; người cao tuổi",
+    "mnemonic_vi": "年 là năm tuổi, 寄 là dồn về; người nhiều tuổi.",
+    "reading": "としより",
+    "romaji": "toshiyori",
+    "topic_vi": "Là người như thế nào?",
+    "twins": [],
+    "variants": [
+     "年寄り"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b1ca492215"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "交通規則の改正が決まった。",
+       "ja_furigana": "交通規則(こうつうきそく)の改正(かいせい)が決(き)まった。",
+       "vi": "Việc sửa đổi quy định giao thông đã được quyết định.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "会社のきそくが改正されて、休みが増えた。",
+       "ja_furigana": "会社(かいしゃ)のきそくが改正(かいせい)されて、休(やす)みが増(ふ)えた。",
+       "vi": "Nội quy công ty được sửa đổi nên ngày nghỉ tăng lên.",
+       "source": "AI"
+      },
+      {
+       "ja": "来年、ごみを出すルールが改正される予定だ。",
+       "ja_furigana": "来年(らいねん)、ごみを出(だ)すルールが改正(かいせい)される予定(よてい)だ。",
+       "vi": "Năm sau quy định đổ rác dự kiến sẽ được sửa đổi.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sửa đổi (luật, quy định)",
+    "examples": [
+     {
+      "ja": "交通規則の改正が決まった。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Việc sửa đổi quy định giao thông đã được quyết định."
+     },
+     {
+      "ja": "会社のきそくが改正されて、休みが増えた。",
+      "ja_furigana": "会社(かいしゃ)のきそくが改正(かいせい)されて、休(やす)みが増(ふ)えた。",
+      "source": "AI",
+      "vi": "Nội quy công ty được sửa đổi nên ngày nghỉ tăng lên."
+     },
+     {
+      "ja": "来年、ごみを出すルールが改正される予定だ。",
+      "ja_furigana": "来年(らいねん)、ごみを出(だ)すルールが改正(かいせい)される予定(よてい)だ。",
+      "source": "AI",
+      "vi": "Năm sau quy định đổ rác dự kiến sẽ được sửa đổi."
+     }
+    ],
+    "expression": "改正＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 交通規則の改正が決まった。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "sửa đổi (luật; quy định); sửa chữa",
+    "mnemonic_vi": "改 là sửa, 正 là cho đúng; sửa đổi điều luật.",
+    "reading": "かいせい＜する＞",
+    "romaji": "kaisei<suru>",
+    "topic_vi": "Chính trị",
+    "twins": [],
+    "variants": [
+     "改正"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-bd79b34a0f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅で友達とすれ違う。",
+       "ja_furigana": "駅(えき)で友達(ともだち)とすれ違(ちが)う。",
+       "vi": "Tôi đi lướt qua bạn ở ga.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "朝、犬と散歩する人とよくすれ違う。",
+       "ja_furigana": "朝(あさ)、犬(いぬ)と散歩(さんぽ)する人(ひと)とよくすれ違(ちが)う。",
+       "vi": "Buổi sáng tôi hay đi ngang qua người dắt chó đi dạo.",
+       "source": "AI"
+      },
+      {
+       "ja": "二人は気持ちがすれ違って、けんかが多くなった。",
+       "ja_furigana": "二人(ふたり)は気持(きも)ちがすれ違(ちが)って、けんかが多(おお)くなった。",
+       "vi": "Hai người hiểu lệch ý nhau nên cãi nhau nhiều hơn.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "lướt qua nhau; hiểu lệch nhau",
+    "examples": [
+     {
+      "ja": "駅で友達とすれ違う。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đi lướt qua bạn ở ga."
+     },
+     {
+      "ja": "朝、犬と散歩する人とよくすれ違う。",
+      "ja_furigana": "朝(あさ)、犬(いぬ)と散歩(さんぽ)する人(ひと)とよくすれ違(ちが)う。",
+      "source": "AI",
+      "vi": "Buổi sáng tôi hay đi ngang qua người dắt chó đi dạo."
+     },
+     {
+      "ja": "二人は気持ちがすれ違って、けんかが多くなった。",
+      "ja_furigana": "二人(ふたり)は気持(きも)ちがすれ違(ちが)って、けんかが多(おお)くなった。",
+      "source": "AI",
+      "vi": "Hai người hiểu lệch ý nhau nên cãi nhau nhiều hơn."
+     }
+    ],
+    "expression": "すれ違う",
+    "findings": [
+     "FURIGANA_MISSING: 駅で友達とすれ違う。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "lướt qua nhau; hiểu lệch nhau; đi ngang qua",
+    "mnemonic_vi": "Hai người đi ngược chiều, lướt qua nhau.",
+    "reading": "すれちがう",
+    "romaji": "surechigau",
+    "topic_vi": "Buổi sáng",
+    "twins": [],
+    "variants": [
+     "すれちがう"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-86c1071fe9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "新しいじゅうたんを買った。",
+       "ja_furigana": "新(あたら)しいじゅうたんを買(か)った。",
+       "vi": "Tôi mua tấm thảm mới.",
+       "source": "JLAS_REVIEWED"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thảm trải",
+    "examples": [
+     {
+      "ja": "新しいじゅうたんを買った。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi mua tấm thảm mới."
+     }
+    ],
+    "expression": "絨毯",
+    "findings": [
+     "FURIGANA_MISSING: 新しいじゅうたんを買った。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "thảm trải; thảm trải nền nhà; thảm trải sàn",
+    "mnemonic_vi": "Tấm thảm dày trải kín sàn phòng: 絨毯.",
+    "reading": "じゅうたん",
+    "romaji": "juutan",
+    "topic_vi": "Nhà",
+    "twins": [],
+    "variants": [
+     "じゅうたん"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1af7bd3c70"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅の近くに新しい住宅ができた。",
+       "ja_furigana": "駅(えき)の近(ちか)くに新(あたら)しい住宅(じゅうたく)ができた。",
+       "vi": "Có khu nhà mới gần ga.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "この住宅は古いが、庭が広くて気に入った。",
+       "ja_furigana": "この住宅(じゅうたく)は古(ふる)いが、庭(にわ)が広(ひろ)くて気(き)に入(い)った。",
+       "vi": "Căn nhà này cũ nhưng sân rộng nên tôi rất thích.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nhà ở",
+    "examples": [
+     {
+      "ja": "駅の近くに新しい住宅ができた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Có khu nhà mới gần ga."
+     },
+     {
+      "ja": "この住宅は古いが、庭が広くて気に入った。",
+      "ja_furigana": "この住宅(じゅうたく)は古(ふる)いが、庭(にわ)が広(ひろ)くて気(き)に入(い)った。",
+      "source": "AI",
+      "vi": "Căn nhà này cũ nhưng sân rộng nên tôi rất thích."
+     }
+    ],
+    "expression": "住宅",
+    "findings": [
+     "FURIGANA_MISSING: 駅の近くに新しい住宅ができた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "nhà ở",
+    "mnemonic_vi": "住 là ở, 宅 là nhà; nhà ở.",
+    "reading": "じゅうたく",
+    "romaji": "juutaku",
+    "topic_vi": "Phố xá",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6b17f32b34"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先生の意見を参考にした。",
+       "ja_furigana": "先生(せんせい)の意見(いけん)を参考(さんこう)にした。",
+       "vi": "Tôi tham khảo ý kiến thầy.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "友だちの話を参考にして、住む町を決めた。",
+       "ja_furigana": "友(とも)だちの話(はなし)を参考(さんこう)にして、住(す)む町(まち)を決(き)めた。",
+       "vi": "Tôi tham khảo lời bạn kể để chọn thành phố sống.",
+       "source": "AI"
+      },
+      {
+       "ja": "この本は、日本語の作文を書くときの参考になる。",
+       "ja_furigana": "この本(ほん)は、日本語(にほんご)の作文(さくぶん)を書(か)くときの参考(さんこう)になる。",
+       "vi": "Cuốn sách này là tài liệu tham khảo khi viết văn tiếng Nhật.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tham khảo",
+    "examples": [
+     {
+      "ja": "先生の意見を参考にした。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi tham khảo ý kiến thầy."
+     },
+     {
+      "ja": "友だちの話を参考にして、住む町を決めた。",
+      "ja_furigana": "友(とも)だちの話(はなし)を参考(さんこう)にして、住(す)む町(まち)を決(き)めた。",
+      "source": "AI",
+      "vi": "Tôi tham khảo lời bạn kể để chọn thành phố sống."
+     },
+     {
+      "ja": "この本は、日本語の作文を書くときの参考になる。",
+      "ja_furigana": "この本(ほん)は、日本語(にほんご)の作文(さくぶん)を書(か)くときの参考(さんこう)になる。",
+      "source": "AI",
+      "vi": "Cuốn sách này là tài liệu tham khảo khi viết văn tiếng Nhật."
+     }
+    ],
+    "expression": "参考",
+    "findings": [
+     "FURIGANA_MISSING: 先生の意見を参考にした。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tham khảo; tài liệu tham khảo",
+    "mnemonic_vi": "参 là tham gia xem, 考 là nghĩ; xem tài liệu để tham khảo.",
+    "reading": "さんこう",
+    "romaji": "sankou",
+    "topic_vi": "Các ngành công nghiệp",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-5469693591"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この時計には特別な機能がある。",
+       "ja_furigana": "この時計(とけい)には特別(とくべつ)な機能(きのう)がある。",
+       "vi": "Chiếc đồng hồ này có chức năng đặc biệt.",
+       "source": "JLAS_REVIEWED"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chức năng",
+    "examples": [
+     {
+      "ja": "この時計には特別な機能がある。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Chiếc đồng hồ này có chức năng đặc biệt."
+     }
+    ],
+    "expression": "機能＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: この時計には特別な機能がある。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chức năng; chức năng làm được gì; hoạt động",
+    "mnemonic_vi": "機 là máy, 能 là khả năng; chức năng máy làm được.",
+    "reading": "きのう＜する＞",
+    "romaji": "kinou<suru>",
+    "topic_vi": "Làm đẹp",
+    "twins": [],
+    "variants": [
+     "機能",
+     "機能（する）"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-fa6e93167e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "参加者は百人に達する。",
+       "ja_furigana": "参加者(さんかしゃ)は百人(ひゃくにん)に達(たっ)する。",
+       "vi": "Số người tham gia lên tới một trăm.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "気温が四十度に達した町もあった。",
+       "ja_furigana": "気温(きおん)が四十(よんじゅう)度(ど)に達(たっ)した町(まち)もあった。",
+       "vi": "Có thành phố nhiệt độ chạm tới 40 độ.",
+       "source": "AI"
+      },
+      {
+       "ja": "話し合いを続けて、やっと結論に達した。",
+       "ja_furigana": "話(はな)し合(あ)いを続(つづ)けて、やっと結論(けつろん)に達(たっ)した。",
+       "vi": "Tiếp tục bàn bạc, cuối cùng chúng tôi cũng đi đến kết luận.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đạt tới",
+    "examples": [
+     {
+      "ja": "参加者は百人に達する。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Số người tham gia lên tới một trăm."
+     },
+     {
+      "ja": "気温が四十度に達した町もあった。",
+      "ja_furigana": "気温(きおん)が四十(よんじゅう)度(ど)に達(たっ)した町(まち)もあった。",
+      "source": "AI",
+      "vi": "Có thành phố nhiệt độ chạm tới 40 độ."
+     },
+     {
+      "ja": "話し合いを続けて、やっと結論に達した。",
+      "ja_furigana": "話(はな)し合(あ)いを続(つづ)けて、やっと結論(けつろん)に達(たっ)した。",
+      "source": "AI",
+      "vi": "Tiếp tục bàn bạc, cuối cùng chúng tôi cũng đi đến kết luận."
+     }
+    ],
+    "expression": "達する",
+    "findings": [
+     "FURIGANA_MISSING: 参加者は百人に達する。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đạt tới; đến; chạm tới",
+    "mnemonic_vi": "Đi đến và chạm mốc cuối đường: 達する.",
+    "reading": "たっする",
+    "romaji": "tassuru",
+    "topic_vi": "Bão, động đất",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm III"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b69eb22e53"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "応募用紙に学歴を書いた。",
+       "ja_furigana": "応募用紙(おうぼようし)に学歴(がくれき)を書(か)いた。",
+       "vi": "Tôi ghi học vấn vào mẫu ứng tuyển.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "この会社は学歴より、やる気を大切にしている。",
+       "ja_furigana": "この会社(かいしゃ)は学歴(がくれき)より、やる気(き)を大切(たいせつ)にしている。",
+       "vi": "Công ty này coi trọng nhiệt huyết hơn bằng cấp.",
+       "source": "AI"
+      },
+      {
+       "ja": "面接で学歴について聞かれた。",
+       "ja_furigana": "面接(めんせつ)で学歴(がくれき)について聞(き)かれた。",
+       "vi": "Trong buổi phỏng vấn, tôi được hỏi về học vấn.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "học vấn, bằng cấp",
+    "examples": [
+     {
+      "ja": "応募用紙に学歴を書いた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi ghi học vấn vào mẫu ứng tuyển."
+     },
+     {
+      "ja": "この会社は学歴より、やる気を大切にしている。",
+      "ja_furigana": "この会社(かいしゃ)は学歴(がくれき)より、やる気(き)を大切(たいせつ)にしている。",
+      "source": "AI",
+      "vi": "Công ty này coi trọng nhiệt huyết hơn bằng cấp."
+     },
+     {
+      "ja": "面接で学歴について聞かれた。",
+      "ja_furigana": "面接(めんせつ)で学歴(がくれき)について聞(き)かれた。",
+      "source": "AI",
+      "vi": "Trong buổi phỏng vấn, tôi được hỏi về học vấn."
+     }
+    ],
+    "expression": "学歴",
+    "findings": [
+     "FURIGANA_MISSING: 応募用紙に学歴を書いた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "học vấn; bằng cấp; quá trình học tập",
+    "mnemonic_vi": "学 là học, 歴 là quá trình; quá trình học tập ghi trong hồ sơ.",
+    "reading": "がくれき",
+    "romaji": "gakureki",
+    "topic_vi": "Tìm việc, việc làm",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c1835f3c5c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "まず基本を覚えよう。",
+       "ja_furigana": "まず基本(きほん)を覚(おぼ)えよう。",
+       "vi": "Trước hết hãy nhớ những điều cơ bản.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "料理の基本は、ほうちょうの使い方だ。",
+       "ja_furigana": "料理(りょうり)の基本(きほん)は、ほうちょうの使(つか)い方(かた)だ。",
+       "vi": "Điều cơ bản của nấu ăn là cách dùng dao.",
+       "source": "AI"
+      },
+      {
+       "ja": "あいさつは、人と付き合うときの基本だ。",
+       "ja_furigana": "あいさつは、人(ひと)と付(つ)き合(あ)うときの基本(きほん)だ。",
+       "vi": "Chào hỏi là điều căn bản khi giao tiếp với người khác.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cơ bản",
+    "examples": [
+     {
+      "ja": "まず基本を覚えよう。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Trước hết hãy nhớ những điều cơ bản."
+     },
+     {
+      "ja": "料理の基本は、ほうちょうの使い方だ。",
+      "ja_furigana": "料理(りょうり)の基本(きほん)は、ほうちょうの使(つか)い方(かた)だ。",
+      "source": "AI",
+      "vi": "Điều cơ bản của nấu ăn là cách dùng dao."
+     },
+     {
+      "ja": "あいさつは、人と付き合うときの基本だ。",
+      "ja_furigana": "あいさつは、人(ひと)と付(つ)き合(あ)うときの基本(きほん)だ。",
+      "source": "AI",
+      "vi": "Chào hỏi là điều căn bản khi giao tiếp với người khác."
+     }
+    ],
+    "expression": "基本",
+    "findings": [
+     "FURIGANA_MISSING: まず基本を覚えよう。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "cơ bản; cơ sở; căn bản",
+    "mnemonic_vi": "基 là nền, 本 là gốc; điều cơ bản làm nền.",
+    "reading": "きほん",
+    "romaji": "kihon",
+    "topic_vi": "Học tập",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0fdfce86e8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "仕事が終わってから帰宅した。",
+       "ja_furigana": "仕事(しごと)が終(お)わってから帰宅(きたく)した。",
+       "vi": "Tôi về nhà sau khi xong việc.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "帰宅したら、まず手を洗ってうがいをする。",
+       "ja_furigana": "帰宅(きたく)したら、まず手(て)を洗(あら)ってうがいをする。",
+       "vi": "Về nhà là tôi rửa tay và súc miệng trước tiên.",
+       "source": "AI"
+      },
+      {
+       "ja": "今日は雪なので、会社は早く帰宅するように言った。",
+       "ja_furigana": "今日(きょう)は雪(ゆき)なので、会社(かいしゃ)は早(はや)く帰宅(きたく)するように言(い)った。",
+       "vi": "Hôm nay có tuyết nên công ty bảo nhân viên về nhà sớm.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "về nhà",
+    "examples": [
+     {
+      "ja": "仕事が終わってから帰宅した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi về nhà sau khi xong việc."
+     },
+     {
+      "ja": "帰宅したら、まず手を洗ってうがいをする。",
+      "ja_furigana": "帰宅(きたく)したら、まず手(て)を洗(あら)ってうがいをする。",
+      "source": "AI",
+      "vi": "Về nhà là tôi rửa tay và súc miệng trước tiên."
+     },
+     {
+      "ja": "今日は雪なので、会社は早く帰宅するように言った。",
+      "ja_furigana": "今日(きょう)は雪(ゆき)なので、会社(かいしゃ)は早(はや)く帰宅(きたく)するように言(い)った。",
+      "source": "AI",
+      "vi": "Hôm nay có tuyết nên công ty bảo nhân viên về nhà sớm."
+     }
+    ],
+    "expression": "帰宅＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 仕事が終わってから帰宅した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "về nhà; về nhà đang ở",
+    "mnemonic_vi": "帰 là về, 宅 là nhà; trở về nhà sau giờ làm.",
+    "reading": "きたく＜する＞",
+    "romaji": "kitaku<suru>",
+    "topic_vi": "Ngày nghỉ",
+    "twins": [],
+    "variants": [
+     "帰宅"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c4e94a627b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "二つの事件には関連がある。",
+       "ja_furigana": "二(ふた)つの事件(じけん)には関連(かんれん)がある。",
+       "vi": "Hai sự việc có liên quan với nhau.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "山田さんは、車に関連する仕事をしている。",
+       "ja_furigana": "山田(やまだ)さんは、車(くるま)に関連(かんれん)する仕事(しごと)をしている。",
+       "vi": "Anh Yamada làm công việc liên quan đến ô tô.",
+       "source": "AI"
+      },
+      {
+       "ja": "すいみんと体重には関連があるそうだ。",
+       "ja_furigana": "すいみんと体重(たいじゅう)には関連(かんれん)があるそうだ。",
+       "vi": "Nghe nói giấc ngủ và cân nặng có liên quan với nhau.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sự liên quan",
+    "examples": [
+     {
+      "ja": "二つの事件には関連がある。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hai sự việc có liên quan với nhau."
+     },
+     {
+      "ja": "山田さんは、車に関連する仕事をしている。",
+      "ja_furigana": "山田(やまだ)さんは、車(くるま)に関連(かんれん)する仕事(しごと)をしている。",
+      "source": "AI",
+      "vi": "Anh Yamada làm công việc liên quan đến ô tô."
+     },
+     {
+      "ja": "すいみんと体重には関連があるそうだ。",
+      "ja_furigana": "すいみんと体重(たいじゅう)には関連(かんれん)があるそうだ。",
+      "source": "AI",
+      "vi": "Nghe nói giấc ngủ và cân nặng có liên quan với nhau."
+     }
+    ],
+    "expression": "関連＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 二つの事件には関連がある。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "sự liên quan; liên quan; quan hệ",
+    "mnemonic_vi": "関 là nối, 連 là liền; hai việc có liên quan.",
+    "reading": "かんれん＜する＞",
+    "romaji": "kanren<suru>",
+    "topic_vi": "Chính trị",
+    "twins": [],
+    "variants": [
+     "関連"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ca18e4ac43"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "行けない。なぜなら熱があるからだ。",
+       "ja_furigana": "行(い)けない。なぜなら熱(ねつ)があるからだ。",
+       "vi": "Tôi không đi được vì bị sốt.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "私は夏が好きだ。なぜなら、海で泳げるからだ。",
+       "ja_furigana": "私(わたし)は夏(なつ)が好(す)きだ。なぜなら、海(うみ)で泳(およ)げるからだ。",
+       "vi": "Tôi thích mùa hè. Bởi vì có thể bơi ở biển.",
+       "source": "AI"
+      },
+      {
+       "ja": "今日は早く寝る。なぜなら、明日は朝四時に起きるからだ。",
+       "ja_furigana": "今日(きょう)は早(はや)く寝(ね)る。なぜなら、明日(あした)は朝(あさ)四(よ)時(じ)に起(お)きるからだ。",
+       "vi": "Hôm nay tôi ngủ sớm, vì mai phải dậy lúc 4 giờ sáng.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bởi vì",
+    "examples": [
+     {
+      "ja": "行けない。なぜなら熱があるからだ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi không đi được vì bị sốt."
+     },
+     {
+      "ja": "私は夏が好きだ。なぜなら、海で泳げるからだ。",
+      "ja_furigana": "私(わたし)は夏(なつ)が好(す)きだ。なぜなら、海(うみ)で泳(およ)げるからだ。",
+      "source": "AI",
+      "vi": "Tôi thích mùa hè. Bởi vì có thể bơi ở biển."
+     },
+     {
+      "ja": "今日は早く寝る。なぜなら、明日は朝四時に起きるからだ。",
+      "ja_furigana": "今日(きょう)は早(はや)く寝(ね)る。なぜなら、明日(あした)は朝(あさ)四(よ)時(じ)に起(お)きるからだ。",
+      "source": "AI",
+      "vi": "Hôm nay tôi ngủ sớm, vì mai phải dậy lúc 4 giờ sáng."
+     }
+    ],
+    "expression": "何故なら",
+    "findings": [
+     "FURIGANA_MISSING: 行けない。なぜなら熱があるからだ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bởi vì; vì",
+    "mnemonic_vi": "Nêu lý do sau câu hỏi vì sao: 何故なら, bởi vì.",
+    "reading": "なぜなら",
+    "romaji": "nazenara",
+    "topic_vi": "Cách nói nối",
+    "twins": [],
+    "variants": [
+     "なぜなら"
+    ],
+    "word_type_label": "liên từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-62bf253da6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "姉は鏡の前で化粧をする。",
+       "ja_furigana": "姉(あね)は鏡(かがみ)の前(まえ)で化粧(けしょう)をする。",
+       "vi": "Chị tôi trang điểm trước gương.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "寝る前に、化粧をきれいに落とす。",
+       "ja_furigana": "寝(ね)る前(まえ)に、化粧(けしょう)をきれいに落(お)とす。",
+       "vi": "Trước khi ngủ, tôi tẩy trang thật sạch.",
+       "source": "AI"
+      },
+      {
+       "ja": "リンさんは化粧をしなくても、とてもきれいだ。",
+       "ja_furigana": "リンさんは化粧(けしょう)をしなくても、とてもきれいだ。",
+       "vi": "Linh không trang điểm mà vẫn rất xinh.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "trang điểm",
+    "examples": [
+     {
+      "ja": "姉は鏡の前で化粧をする。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Chị tôi trang điểm trước gương."
+     },
+     {
+      "ja": "寝る前に、化粧をきれいに落とす。",
+      "ja_furigana": "寝(ね)る前(まえ)に、化粧(けしょう)をきれいに落(お)とす。",
+      "source": "AI",
+      "vi": "Trước khi ngủ, tôi tẩy trang thật sạch."
+     },
+     {
+      "ja": "リンさんは化粧をしなくても、とてもきれいだ。",
+      "ja_furigana": "リンさんは化粧(けしょう)をしなくても、とてもきれいだ。",
+      "source": "AI",
+      "vi": "Linh không trang điểm mà vẫn rất xinh."
+     }
+    ],
+    "expression": "化粧",
+    "findings": [
+     "FURIGANA_MISSING: 姉は鏡の前で化粧をする。",
+     "EXAMPLE_KANA_ABOVE_LEVEL: リンさんは化粧をしなくても、とてもきれいだ。 → リン"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "trang điểm",
+    "mnemonic_vi": "化 là đổi, 粧 là tô điểm; trang điểm khuôn mặt.",
+    "reading": "けしょう",
+    "romaji": "keshou",
+    "topic_vi": "Ăn diện",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-519c9559fa"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "二人には共通の趣味がある。",
+       "ja_furigana": "二人(ふたり)には共通(きょうつう)の趣味(しゅみ)がある。",
+       "vi": "Hai người có sở thích chung.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "この二つの国の言葉には、共通する単語が多い。",
+       "ja_furigana": "この二(ふた)つの国(くに)の言葉(ことば)には、共通(きょうつう)する単語(たんご)が多(おお)い。",
+       "vi": "Ngôn ngữ của hai nước này có nhiều từ giống nhau.",
+       "source": "AI"
+      },
+      {
+       "ja": "山田さんと私は、共通の友だちを通して知り合った。",
+       "ja_furigana": "山田(やまだ)さんと私(わたし)は、共通(きょうつう)の友(とも)だちを通(とお)して知(し)り合(あ)った。",
+       "vi": "Tôi và anh Yamada quen nhau qua một người bạn chung.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "điểm chung",
+    "examples": [
+     {
+      "ja": "二人には共通の趣味がある。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hai người có sở thích chung."
+     },
+     {
+      "ja": "この二つの国の言葉には、共通する単語が多い。",
+      "ja_furigana": "この二(ふた)つの国(くに)の言葉(ことば)には、共通(きょうつう)する単語(たんご)が多(おお)い。",
+      "source": "AI",
+      "vi": "Ngôn ngữ của hai nước này có nhiều từ giống nhau."
+     },
+     {
+      "ja": "山田さんと私は、共通の友だちを通して知り合った。",
+      "ja_furigana": "山田(やまだ)さんと私(わたし)は、共通(きょうつう)の友(とも)だちを通(とお)して知(し)り合(あ)った。",
+      "source": "AI",
+      "vi": "Tôi và anh Yamada quen nhau qua một người bạn chung."
+     }
+    ],
+    "expression": "共通＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 二人には共通の趣味がある。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "điểm chung; chung; giống nhau",
+    "mnemonic_vi": "共 là cùng, 通 là thông suốt; hai người có điểm chung.",
+    "reading": "きょうつう＜する＞",
+    "romaji": "kyoutsuu<suru>",
+    "topic_vi": "Sở thích, ý thích",
+    "twins": [],
+    "variants": [
+     "共通"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-df4cb2a994"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町では漁業が盛んだ。",
+       "ja_furigana": "この町(まち)では漁業(ぎょぎょう)が盛(さか)んだ。",
+       "vi": "Ở thị trấn này nghề cá rất phát triển.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "祖父は長い間、漁業で家族を育ててきた。",
+       "ja_furigana": "祖父(そふ)は長(なが)い間(あいだ)、漁業(ぎょぎょう)で家族(かぞく)を育(そだ)ててきた。",
+       "vi": "Ông tôi đã nuôi cả gia đình bằng nghề chài lưới suốt nhiều năm.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ngư nghiệp",
+    "examples": [
+     {
+      "ja": "この町では漁業が盛んだ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Ở thị trấn này nghề cá rất phát triển."
+     },
+     {
+      "ja": "祖父は長い間、漁業で家族を育ててきた。",
+      "ja_furigana": "祖父(そふ)は長(なが)い間(あいだ)、漁業(ぎょぎょう)で家族(かぞく)を育(そだ)ててきた。",
+      "source": "AI",
+      "vi": "Ông tôi đã nuôi cả gia đình bằng nghề chài lưới suốt nhiều năm."
+     }
+    ],
+    "expression": "漁業",
+    "findings": [
+     "FURIGANA_MISSING: この町では漁業が盛んだ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "ngư nghiệp; nghề chài lưới",
+    "mnemonic_vi": "漁 là đánh cá, 業 là nghề; nghề chài lưới.",
+    "reading": "ぎょぎょう",
+    "romaji": "gyogyou",
+    "topic_vi": "Các ngành công nghiệp",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4202745d79"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "学校の行事で歌を歌った。",
+       "ja_furigana": "学校(がっこう)の行事(ぎょうじ)で歌(うた)を歌(うた)った。",
+       "vi": "Tôi hát trong sự kiện của trường.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "運動会は、子どもたちが一番楽しみにしている行事だ。",
+       "ja_furigana": "運動会(うんどうかい)は、子(こ)どもたちが一番(いちばん)楽(たの)しみにしている行事(ぎょうじ)だ。",
+       "vi": "Hội thao là sự kiện bọn trẻ mong chờ nhất.",
+       "source": "AI"
+      },
+      {
+       "ja": "この会社では、毎年春に花見の行事がある。",
+       "ja_furigana": "この会社(かいしゃ)では、毎年(まいとし)春(はる)に花見(はなみ)の行事(ぎょうじ)がある。",
+       "vi": "Công ty này năm nào cũng có sự kiện ngắm hoa vào mùa xuân.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sự kiện thường niên",
+    "examples": [
+     {
+      "ja": "学校の行事で歌を歌った。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi hát trong sự kiện của trường."
+     },
+     {
+      "ja": "運動会は、子どもたちが一番楽しみにしている行事だ。",
+      "ja_furigana": "運動会(うんどうかい)は、子(こ)どもたちが一番(いちばん)楽(たの)しみにしている行事(ぎょうじ)だ。",
+      "source": "AI",
+      "vi": "Hội thao là sự kiện bọn trẻ mong chờ nhất."
+     },
+     {
+      "ja": "この会社では、毎年春に花見の行事がある。",
+      "ja_furigana": "この会社(かいしゃ)では、毎年(まいとし)春(はる)に花見(はなみ)の行事(ぎょうじ)がある。",
+      "source": "AI",
+      "vi": "Công ty này năm nào cũng có sự kiện ngắm hoa vào mùa xuân."
+     }
+    ],
+    "expression": "行事",
+    "findings": [
+     "FURIGANA_MISSING: 学校の行事で歌を歌った。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "sự kiện thường niên; lễ hội; sự kiện",
+    "mnemonic_vi": "行 là tổ chức, 事 là việc; sự kiện theo lịch hằng năm.",
+    "reading": "ぎょうじ",
+    "romaji": "gyouji",
+    "topic_vi": "Quê hương",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-138ceb3440"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日の勉強をノートに記録した。",
+       "ja_furigana": "毎日(まいにち)の勉強(べんきょう)をノートに記録(きろく)した。",
+       "vi": "Tôi ghi lại việc học hằng ngày vào vở.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "その選手は、百メートルで新しい記録を出した。",
+       "ja_furigana": "その選手(せんしゅ)は、百(ひゃく)メートルで新(あたら)しい記録(きろく)を出(だ)した。",
+       "vi": "Vận động viên đó đã lập kỷ lục mới ở cự ly 100 mét.",
+       "source": "AI"
+      },
+      {
+       "ja": "毎日の体重をアプリに記録している。",
+       "ja_furigana": "毎日(まいにち)の体重(たいじゅう)をアプリに記録(きろく)している。",
+       "vi": "Tôi ghi lại cân nặng mỗi ngày vào ứng dụng.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ghi chép; kỷ lục",
+    "examples": [
+     {
+      "ja": "毎日の勉強をノートに記録した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi ghi lại việc học hằng ngày vào vở."
+     },
+     {
+      "ja": "その選手は、百メートルで新しい記録を出した。",
+      "ja_furigana": "その選手(せんしゅ)は、百(ひゃく)メートルで新(あたら)しい記録(きろく)を出(だ)した。",
+      "source": "AI",
+      "vi": "Vận động viên đó đã lập kỷ lục mới ở cự ly 100 mét."
+     },
+     {
+      "ja": "毎日の体重をアプリに記録している。",
+      "ja_furigana": "毎日(まいにち)の体重(たいじゅう)をアプリに記録(きろく)している。",
+      "source": "AI",
+      "vi": "Tôi ghi lại cân nặng mỗi ngày vào ứng dụng."
+     }
+    ],
+    "expression": "記録",
+    "findings": [
+     "FURIGANA_MISSING: 毎日の勉強をノートに記録した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "ghi chép; kỷ lục; kỉ lục",
+    "mnemonic_vi": "記 là ghi, 録 là lưu; ghi lại kết quả thi.",
+    "reading": "きろく",
+    "romaji": "kiroku",
+    "topic_vi": "Thể thao",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c9079fb522"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この箱は金属でできている。",
+       "ja_furigana": "この箱(はこ)は金属(きんぞく)でできている。",
+       "vi": "Chiếc hộp này làm bằng kim loại.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "金属の物は、電子レンジに入れないでください。",
+       "ja_furigana": "金属(きんぞく)の物(もの)は、電子(でんし)レンジに入(い)れないでください。",
+       "vi": "Đừng cho đồ kim loại vào lò vi sóng.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "kim loại",
+    "examples": [
+     {
+      "ja": "この箱は金属でできている。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Chiếc hộp này làm bằng kim loại."
+     },
+     {
+      "ja": "金属の物は、電子レンジに入れないでください。",
+      "ja_furigana": "金属(きんぞく)の物(もの)は、電子(でんし)レンジに入(い)れないでください。",
+      "source": "AI",
+      "vi": "Đừng cho đồ kim loại vào lò vi sóng."
+     }
+    ],
+    "expression": "金属",
+    "findings": [
+     "FURIGANA_MISSING: この箱は金属でできている。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "kim loại",
+    "mnemonic_vi": "金 là kim, 属 là loại; sắt và đồng là kim loại.",
+    "reading": "きんぞく",
+    "romaji": "kinzoku",
+    "topic_vi": "Sản xuất",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-43bcf27cad"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ジャガイモの皮をむいた。",
+       "ja_furigana": "ジャガイモの皮(かわ)をむいた。",
+       "vi": "Tôi gọt vỏ khoai tây.",
+       "source": "JLAS_REVIEWED"
+      },
+      {
+       "ja": "みかんの皮は、手で簡単にむける。",
+       "ja_furigana": "みかんの皮(かわ)は、手(て)で簡単(かんたん)にむける。",
+       "vi": "Vỏ quýt có thể bóc dễ dàng bằng tay.",
+       "source": "AI"
+      },
+      {
+       "ja": "この財布は牛の皮で作られている。",
+       "ja_furigana": "この財布(さいふ)は牛(うし)の皮(かわ)で作(つく)られている。",
+       "vi": "Chiếc ví này được làm bằng da bò.",
+       "source": "AI"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "da, vỏ",
+    "examples": [
+     {
+      "ja": "ジャガイモの皮をむいた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi gọt vỏ khoai tây."
+     },
+     {
+      "ja": "みかんの皮は、手で簡単にむける。",
+      "ja_furigana": "みかんの皮(かわ)は、手(て)で簡単(かんたん)にむける。",
+      "source": "AI",
+      "vi": "Vỏ quýt có thể bóc dễ dàng bằng tay."
+     },
+     {
+      "ja": "この財布は牛の皮で作られている。",
+      "ja_furigana": "この財布(さいふ)は牛(うし)の皮(かわ)で作(つく)られている。",
+      "source": "AI",
+      "vi": "Chiếc ví này được làm bằng da bò."
+     }
+    ],
+    "expression": "皮",
+    "findings": [
+     "FURIGANA_MISSING: ジャガイモの皮をむいた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "da; vỏ",
+    "mnemonic_vi": "Lớp bao ngoài quả táo là 皮, vỏ.",
+    "reading": "かわ",
+    "romaji": "kawa",
+    "topic_vi": "Dụng cụ và nguyên liệu nấu ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-abf4483d11"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "サラダに酢をかけた。",
+       "ja_furigana": "サラダに酢(す)をかけた。",
+       "vi": "Tôi rưới giấm lên salad.",
+       "source": "JLAS_REVIEWED"
+      }
+     ]
+    }
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "giấm",
+    "examples": [
+     {
+      "ja": "サラダに酢をかけた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi rưới giấm lên salad."
+     }
+    ],
+    "expression": "酢",
+    "findings": [
+     "FURIGANA_MISSING: サラダに酢をかけた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "giấm; dấm",
+    "mnemonic_vi": "Chai 酢 có vị chua dùng nêm món ăn: giấm.",
+    "reading": "す",
+    "romaji": "su",
+    "topic_vi": "Dụng cụ và nguyên liệu nấu ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b805251750"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N3",
+ "packet_id": "REVIEW_VOCAB-060"
+}

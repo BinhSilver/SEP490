@@ -1,0 +1,583 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "被害はこの町にとどまらず、広い地域に広がった。",
+       "ja_furigana": "被害(ひがい)はこの町(まち)にとどまらず、広(ひろ)い地域(ちいき)に広(ひろ)がった。",
+       "vi": "Thiệt hại không chỉ ở thị trấn này mà còn lan ra khu vực rộng."
+      },
+      {
+       "ja": "この歌は国内にとどまらず、海外でも人気だ。",
+       "ja_furigana": "この歌(うた)は国(くに)内(ない)にとどまらず、海外(かいがい)でも人気(にんき)だ。",
+       "vi": "Bài hát này không chỉ nổi tiếng trong nước mà cả ở nước ngoài."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "熱帯雨林の減少の影響は周辺地域にとどまらず、地球全体に及んでいる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ảnh hưởng của việc giảm rừng mưa nhiệt đới không chỉ đối với khu vực lân cận mà là còn đối với toàn địa cầu."
+     },
+     {
+      "ja": "そのアニメは子どもや若者にとどまらず、広く大人にも受け入れられた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Truyện tranh đó không chỉ trẻ em và người trẻ, mà rất nhiều người lớn cũng đón nhận."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 熱帯雨林の減少の影響は周辺地域にとどまらず、地球全体に及んでいる。",
+     "FURIGANA_MISSING: そのアニメは子どもや若者にとどまらず、広く大人にも受け入れられた。"
+    ],
+    "formation": "N + にとどまらず",
+    "locked_fields": [],
+    "meaning_vi": "Không chỉ",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜にとどまらず",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞／動詞の辞書形／だけ Ý nghĩa: だけではなく→もっと広い範囲に及ぶ Không chỉ Ví dụ: 1. 熱帯雨林の減少の影響は周辺地域にとどまらず、地球全体に及んでいる。 Ảnh hưởng của việc giảm rừng mưa nhiệt đới không chỉ đối với khu vực lân cận mà là còn đối với toàn địa cầu. 2. そのアニメは子どもや若者にとどまらず、広く大人にも受け入れられた。 Truyện tranh đó không chỉ trẻ em và người trẻ, mà rất nhiều người lớn cũng đón nhận. 3. ゲームは子どもたちから読書や外遊びの時間を奪うだけにとどまらず、コミュニケーション能力の低下を招く恐れもある。 Game không chỉ lấy đi thời gian đọc sách, ra ngoài vui chơi của bọn trẻ mà còn có nguy cơ dẫn đến giảm năng lực giao tiếp 4. 業績悪化のため、ボーナスが厳格されるにとどまらず、相手までカットされた。 Vì tình hình kinh doanh xấu đi nên không những tiền thưởng bị giảm mà đến cả trợ cấp cũng bị cắt. とどまる Ý nghĩa: ～の範囲をこえない Ví dụ: 1. 原油が値上がりしたが、物価全体の上昇は小幅なものにとどまった。 Dầu thô đã tăng giá nhưng vật giá chỉ tăng ít thôi. 2. 彼の野望はとどまるところを知らなかった。 Tham vọng của anh ấy là vô cùng (không biết điểm dừng)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-65520070d3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "試合に勝てるかどうかは、みんなの努力にかかっている。",
+       "ja_furigana": "試合(しあい)に勝(か)てるかどうかは、みんなの努力(どりょく)にかかっている。",
+       "vi": "Thắng được trận hay không là phụ thuộc vào nỗ lực của mọi người."
+      },
+      {
+       "ja": "この計画がうまくいくかどうかは、君の決心にかかっている。",
+       "ja_furigana": "この計画(けいかく)がうまくいくかどうかは、君(きみ)の決心(けっしん)にかかっている。",
+       "vi": "Kế hoạch này có suôn sẻ hay không là phụ thuộc vào quyết tâm của bạn."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "合格できるかどうかは、これから１か月のがんばりにかかっている",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đỗ hay không hụ thuộc vào cố gắng trong vòng 1 tháng tính từ giờ."
+     },
+     {
+      "ja": "契約の成否は、取り引き先がこの条件をどう考えるかにかかっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có ký được hợp đồng hay không phụ thuộc vào việc đối tác nghĩ thế nào về điều kiện này."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 合格できるかどうかは、これから１か月のがんばりにかかっている",
+     "FURIGANA_MISSING: 契約の成否は、取り引き先がこの条件をどう考えるかにかかっている。"
+    ],
+    "formation": "N + は + N + にかかっている",
+    "locked_fields": [],
+    "meaning_vi": "Phụ thuộc, dựa vào",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜は・・・にかかっている",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞／～かどうか（は）名詞／疑問詞・・・か（にかかっている） Ý nghĩa: ～かどうかは…しだいだ Phụ thuộc, dựa vào Ví dụ: 1. 合格できるかどうかは、これから１か月のがんばりにかかっている Đỗ hay không hụ thuộc vào cố gắng trong vòng 1 tháng tính từ giờ. 2. 契約の成否は、取り引き先がこの条件をどう考えるかにかかっている。 Có ký được hợp đồng hay không phụ thuộc vào việc đối tác nghĩ thế nào về điều kiện này. 3. 「ぼくが幸せになれるかどうかは君の返事にかかっているんだ」 Anh có hạnh phúc hay không phụ thuộc vào câu trả lời của em. 4. 目的が達成できるかどうかは、事前準備がどれだけしっかりできたかにかかっている。 Có đạt được mục đích hay không phụ thuộc vào khâu chuẩn bị trước kỹ càng như nào. * 「このプロジェクトが成功するかどうかは、あなたの肩にかかっているんです」 Dự án này có thành công hay không là phụ thuộc vào cậu đấy."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a454643dc9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "以上で説明を終わります。なお、質問があれば受付までお願いします。",
+       "ja_furigana": "以上(いじょう)で説明(せつめい)を終(お)わります。なお、質問(しつもん)があれば受付(うけつけ)までお願いします。",
+       "vi": "Phần giải thích đến đây là hết. Ngoài ra, nếu có câu hỏi xin đến quầy tiếp nhận."
+      },
+      {
+       "ja": "受付は九時からです。なお、日曜日は休みです。",
+       "ja_furigana": "受付(うけつけ)は九時(くじ)からです。なお、日曜日(にちようび)は休(やす)みです。",
+       "vi": "Quầy tiếp nhận mở từ chín giờ. Ngoài ra, Chủ nhật nghỉ."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「この件の説明は以上です。なお、詳細についてはプリントをご覧ください。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giải thích vụ này coi như xong. Ngoài ra, về chi tiết xin hãy xem bản in."
+     },
+     {
+      "ja": "「今日はこれで終わります。なお次回の日時は・・・」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay kết thúc ở đây. Ngoài ra, ngày giờ lần tới là…"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「この件の説明は以上です。なお、詳細についてはプリントをご覧ください。」",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 「この件の説明は以上です。なお、詳細についてはプリントをご覧ください。」 → 詳細",
+     "FURIGANA_MISSING: 「今日はこれで終わります。なお次回の日時は・・・」"
+    ],
+    "formation": "câu 1。なお、 + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Ngoài ra ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜以上です。なお詳細は・・・",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng khi thêm vào cuộc nói chuyện. Không nhất thiết phải có liên quan với câu phía trước."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-988a750c56"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今日の授業はこれで終わります。さて、来週の予定を話します。",
+       "ja_furigana": "今日(きょう)の授業(じゅぎょう)はこれで終(お)わります。さて、来週(らいしゅう)の予定(よてい)を話(はな)します。",
+       "vi": "Buổi học hôm nay kết thúc ở đây. Nào, tôi sẽ nói về kế hoạch tuần sau."
+      },
+      {
+       "ja": "これで今日の会議を終わります。さて、次の議題に移りましょう。",
+       "ja_furigana": "これで今日(きょう)の会議(かいぎ)を終(お)わります。さて、次(つぎ)の議題(ぎだい)に移(うつ)りましょう。",
+       "vi": "Cuộc họp hôm nay kết thúc ở đây. Nào, chuyển sang chủ đề tiếp theo."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「これで授業を終わります。さて来週の予定ですが・・・」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Buổi học kết thúc ở đây. Và bây là về lịch tuần tới …"
+     },
+     {
+      "ja": "「以上、今日のニュースをお伝えしました。さて次に天気予報です。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phần truyền đạt tin tức hôm nay kết thúc. Và bây giờ là dự báo thời tiết."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「これで授業を終わります。さて来週の予定ですが・・・」",
+     "FURIGANA_MISSING: 「以上、今日のニュースをお伝えしました。さて次に天気予報です。」"
+    ],
+    "formation": "câu 1。さて、 + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Và bây giờ là ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜終わります。さて来週は・・・",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng khi đổi đề tài mới."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1626cbf6ba"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜すると",
+     "examples": [
+      {
+       "ja": "ボタンを押した。すると、ドアが開いた。",
+       "ja_furigana": "ボタンを押(お)した。すると、ドアが開(あ)いた。",
+       "vi": "Tôi bấm nút. Ngay sau đó cửa mở ra."
+      },
+      {
+       "ja": "家に帰ってきた。すると、友達から手紙が届いていた。",
+       "ja_furigana": "家(いえ)に帰(かえ)ってきた。すると、友達(ともだち)から手紙(てがみ)が届(とど)いていた。",
+       "vi": "Tôi về đến nhà. Thế là có lá thư của bạn gửi đến."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn và sửa mẫu bị lỗi"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "薬を塗った。すると痛みが治まった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã bôi thuốc. Lập tức hết đau."
+     },
+     {
+      "ja": "窓を開けた。すると、蛾が入ってきた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã ở cửa. Ngay lập tức bướm bay vào."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 薬を塗った。すると痛みが治まった。",
+     "FURIGANA_MISSING: 窓を開けた。すると、蛾が入ってきた。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 窓を開けた。すると、蛾が入ってきた。 → 蛾"
+    ],
+    "formation": "câu 1。すると、 + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Ngay lập tức, thế là ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜薬を塗った。すると痛みがた。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "(1) a là nguyên cớ cho sự việc b xảy ra liền ngay sau đó. (2) từ a đưa ra phán đoán b."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-34d7003451"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は安くておいしい。もっとも、いつも混んでいるが。",
+       "ja_furigana": "この店(みせ)は安(やす)くておいしい。もっとも、いつも混(こ)んでいるが。",
+       "vi": "Quán này vừa rẻ vừa ngon. Có điều lúc nào cũng đông."
+      },
+      {
+       "ja": "明日は晴れるそうだ。もっとも、午後は雨かもしれない。",
+       "ja_furigana": "明日(あした)は晴(は)れるそうだ。もっとも、午後(ごご)は雨(あめ)かもしれない。",
+       "vi": "Nghe nói mai trời nắng. Có điều buổi chiều có thể mưa."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "検査の前夜から飲食禁止です。もっとも水は飲んでもかまいません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đêm trước hôm kiểm tra không được ăn uống. Nói thế nhưng mà uống nước thì không sao."
+     },
+     {
+      "ja": "全員が参加しなければなりません。もっとも病気の場合の別です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tất cả mọi người phải tham gia. Nói thế nhưng mà trường hợp bệnh tật là khác."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 検査の前夜から飲食禁止です。もっとも水は飲んでもかまいません。",
+     "FURIGANA_MISSING: 全員が参加しなければなりません。もっとも病気の場合の別です。"
+    ],
+    "formation": "câu 1。もっとも + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Nhưng mà ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜飲食禁止。もっとも水はかまいません。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng khi bổ sung bằng cách thêm ngoại lệ hay điều kiện vào câu văn trước."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f8694f9d4f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店のパンは有名です。ちなみに、私は毎朝ここで買っています。",
+       "ja_furigana": "この店(みせ)のパンは有名(ゆうめい)です。ちなみに、私(わたし)は毎朝(まいあさ)ここで買(か)っています。",
+       "vi": "Bánh mì của quán này nổi tiếng. Tiện đây, sáng nào tôi cũng mua ở đây."
+      },
+      {
+       "ja": "会議は三時からです。ちなみに、場所は二階の大会議室です。",
+       "ja_furigana": "会議(かいぎ)は三時(さんじ)からです。ちなみに、場所(ばしょ)は二階(にかい)の大会議室(だいかいぎしつ)です。",
+       "vi": "Cuộc họp bắt đầu từ ba giờ. Tiện đây, địa điểm là phòng họp lớn tầng hai."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "最近は、ペットを飼う家が増えているようです。ちなみに、うちにも犬が１ 匹とネコが２ 匹います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gần đây trông có vẻ nhà nuôi động vật cảnh tăng lên. Tiện đây cũng nói luôn nhà tôi nuôi 1 con chó, 2 con mèo."
+     },
+     {
+      "ja": "燃えるゴミは月曜日と木曜日、燃えないゴミは金曜日に出してください。ちなみに資源ごみの収集日は第３水曜日です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Rác cháy được đổ thứ 2 và thứ 5, rác không cháy được đổ thứ 6. Tiện đây cũng nói luôn ngày thu rác tài nguyên là ngày thứ 4 tuần thứ 3 của tháng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 最近は、ペットを飼う家が増えているようです。ちなみに、うちにも犬が１ 匹とネコが２ 匹います。",
+     "FURIGANA_MISSING: 燃えるゴミは月曜日と木曜日、燃えないゴミは金曜日に出してください。ちなみに資源ごみの収集日は第３水曜日です。"
+    ],
+    "formation": "câu 1。ちなみに、 + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Tiện đây",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜一般に・・・。ちなみにうちにも・・・。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Được sử dụng để thêm một thông tin nhỏ vào câu văn trước đó (a)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6f866a8a5a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "説明が長すぎた。要するに、何が言いたいのかわからない。",
+       "ja_furigana": "説明(せつめい)が長(なが)すぎた。要(よう)するに、何(なに)が言(い)いたいのかわからない。",
+       "vi": "Phần giải thích quá dài. Nói tóm lại là không hiểu muốn nói gì."
+      },
+      {
+       "ja": "彼は結局来なかった。要するに、約束を忘れたのだ。",
+       "ja_furigana": "彼(かれ)は結局(けっきょく)来(こ)なかった。要(よう)するに、約束(やくそく)を忘(わす)れたのだ。",
+       "vi": "Cuối cùng anh ấy không đến. Nói tóm lại là đã quên lời hẹn."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "試合に大負けした。要するに、相手のチームと力の差があったということだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thi đấu thất bại nặng. Nói một cách ngắn gọn là có sự chênh lệch thực lực so với đối thủ."
+     },
+     {
+      "ja": "彼は一度も入賞しなかった。要するに、才能がなかったということだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy chưa nhận thưởng một lần nào. Nói tóm lại là không có tài năng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 試合に大負けした。要するに、相手のチームと力の差があったということだ。",
+     "FURIGANA_MISSING: 彼は一度も入賞しなかった。要するに、才能がなかったということだ。"
+    ],
+    "formation": "câu 1。要するに、 + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Nói một cách ngắn gọn, nói tóm lại là ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜大敗した。要するに力の差があった。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Có ý nghĩa giải thích một cách đơn giản câu văn trước."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3624acdff4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は安い。しかも、味もとてもいい。",
+       "ja_furigana": "この店(みせ)は安(やす)い。しかも、味(あじ)もとてもいい。",
+       "vi": "Quán này rẻ. Hơn nữa mùi vị cũng rất ngon."
+      },
+      {
+       "ja": "今日は寒かった。しかも、雨にも降られた。",
+       "ja_furigana": "今日(きょう)は寒(さむ)かった。しかも、雨(あめ)にも降(ふ)られた。",
+       "vi": "Hôm nay trời lạnh. Hơn nữa còn bị dính mưa."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼女は美人で頭がいい。しかも性格もいい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô ấy vừa đẹp vừa thông thông minh. Hơn cả là tính cách tốt."
+     },
+     {
+      "ja": "先日泊まったホテルは、古くて高かった。しかもサービスが悪かったので、もう二度と行かない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khách sạn hôm trước ở lại vừa cũ vừa mắc. Hơn cả là dịch vụ kém quá nên nhất định là không đền lần thứ hai."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼女は美人で頭がいい。しかも性格もいい。",
+     "FURIGANA_MISSING: 先日泊まったホテルは、古くて高かった。しかもサービスが悪かったので、もう二度と行かない。"
+    ],
+    "formation": "câu 1。しかも + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Hơn nữa, hơn cả",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜美人だ。しかも性格もいい。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng khi thêm một sự vật sự việc khác vào một sự vật sự việc nào đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-da70169d13"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今朝は寝坊した。おまけに、電車も遅れていた。",
+       "ja_furigana": "今朝(けさ)は寝坊(ねぼう)した。おまけに、電車(でんしゃ)も遅(おく)れていた。",
+       "vi": "Sáng nay tôi ngủ quên. Thêm vào đó tàu điện cũng bị chậm."
+      },
+      {
+       "ja": "この店はまずいし高い。おまけに、店員も無愛想だ。",
+       "ja_furigana": "この店(みせ)はまずいし高(たか)い。おまけに、店員(てんいん)も無愛想(ぶあいそう)だ。",
+       "vi": "Quán này vừa dở vừa đắt. Thêm vào đó nhân viên còn lạnh nhạt."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "日本の夏は暑いし、おまけに湿気も多いです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mùa hè ở Nhật nóng, thêm vào đó lại còn không khí ẩm thấp nữa."
+     },
+     {
+      "ja": "あのそば屋は高いしまずい。おまけにサービスも悪い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tiệm mì đó vừa mắc vừa dở, thêm vào đó phục vụ kém nữa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 日本の夏は暑いし、おまけに湿気も多いです。",
+     "FURIGANA_MISSING: あのそば屋は高いしまずい。おまけにサービスも悪い。"
+    ],
+    "formation": "câu 1。おまけに + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Thêm vào đó",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜高いし、まずい。おまけにサービスも・・・",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng trong văn nói. Là từ thường dùng để nói hơn 「しかも」"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3f437aafe9"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-075"
+}

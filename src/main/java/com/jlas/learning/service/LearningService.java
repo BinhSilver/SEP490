@@ -25,6 +25,12 @@ public interface LearningService {
     /** Owner 2026-10-25: the questions a finalized Smart Test result asks before its path is created. */
     com.jlas.learning.dto.LearningEntryQuestions entryQuestions(Long userId, Long assessmentAttemptId);
 
+    /** F1-3 / R1: the days and packages the path for these answers would have; nothing is saved (trial, rolled back). */
+    default com.jlas.learning.dto.LearningPathEstimate estimate(Long userId, Long assessmentAttemptId, Boolean kanaKnown,
+            String entryChoice) {
+        throw new UnsupportedOperationException("Path estimate is not available.");
+    }
+
     /**
      * [JLAS-W0108] Creates a from-zero path from a completed survey (no Smart Test needed), or
      * returns the existing one on retry. The path warms up with the kana foundation before the goal.

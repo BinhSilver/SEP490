@@ -1,0 +1,1738 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "山田さんの電話番号をしって いますか。",
+       "ja_furigana": "山田(やまだ)さんの電話番号(でんわばんごう)をしって いますか。",
+       "vi": "Bạn có biết số điện thoại của anh Yamada không?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "có biết không",
+    "examples": [
+     {
+      "ja": "この みせを しって いますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn có biết cửa hàng này không?"
+     }
+    ],
+    "expression": "しって いますか",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "có biết không",
+    "mnemonic_vi": "知って (biết) + いますか: anh có biết không? Nếu không biết thì trả lời 知りません.",
+    "reading": "しって いますか",
+    "romaji": "shitte imasuka",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-5aef26d9f9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "窓の近くの椅子にすわってもいいですか。",
+       "ja_furigana": "窓(まど)の近(ちか)くの椅子(いす)にすわってもいいですか。",
+       "vi": "Tôi ngồi vào chiếc ghế gần cửa sổ được không?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ngồi (xin phép)",
+    "examples": [
+     {
+      "ja": "ここに すわっても いいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có thể ngồi ở đây."
+     }
+    ],
+    "expression": "すわっても",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "ngồi (xin phép)",
+    "mnemonic_vi": "すわって (ngồi) + も いいですか: ngồi có được không? Mẫu V-てもいいですか để xin phép.",
+    "reading": "すわっても",
+    "romaji": "suwattemo",
+    "topic_vi": "Nhà",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-841d7cdac1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "外でたばこを すってもいいですか。",
+       "ja_furigana": "外(そと)でたばこを すってもいいですか。",
+       "vi": "Tôi hút thuốc ở bên ngoài có được không?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hút thuốc (xin phép)",
+    "examples": [
+     {
+      "ja": "びょういんで たばこを すっては いけません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong bệnh viện không được hút thuốc."
+     }
+    ],
+    "expression": "たばこを すっても",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "hút thuốc (xin phép)",
+    "mnemonic_vi": "たばこを すって (hút thuốc) + も いいですか: hút thuốc có được không?",
+    "reading": "たばこを すっても",
+    "romaji": "tabakoo suttemo",
+    "topic_vi": "(Bạn) khỏe không?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0bbc9a13da"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この庭で写真をとってもいいです。",
+       "ja_furigana": "この庭(にわ)で写真(しゃしん)をとってもいいです。",
+       "vi": "Bạn có thể chụp ảnh ở khu vườn này.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chụp ảnh (xin phép)",
+    "examples": [
+     {
+      "ja": "しゃしんを とっても いいですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi chụp ảnh được không ạ?"
+     }
+    ],
+    "expression": "とっても",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "chụp ảnh (xin phép)",
+    "mnemonic_vi": "とって (chụp) + も いいですか: chụp ảnh có được không? Đừng lẫn với とても (rất).",
+    "reading": "とっても",
+    "romaji": "tottemo",
+    "topic_vi": "Sở thích",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f916176e63"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "家の前に自転車をとめてください。",
+       "ja_furigana": "家(いえ)の前(まえ)に自転車(じてんしゃ)をとめてください。",
+       "vi": "Xin hãy đỗ xe đạp ở trước nhà.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đỗ, dừng lại",
+    "examples": [
+     {
+      "ja": "ちゅうしゃじょうに とめても いいですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đỗ xe ở bãi đỗ xe có được không?"
+     }
+    ],
+    "expression": "とめて",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đỗ; dừng lại",
+    "mnemonic_vi": "とめて (止めて, 止 CHỈ như \"đình chỉ\"): làm cho dừng lại, đỗ xe.",
+    "reading": "とめて",
+    "romaji": "tomete",
+    "topic_vi": "Phương tiện giao thông",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-124f78099b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟は今日、大きい荷物をもって いません。",
+       "ja_furigana": "弟(おとうと)は今日(きょう)、大(おお)きい荷物(にもつ)をもって いません。",
+       "vi": "Hôm nay em trai tôi không mang theo hành lý lớn.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "không mang theo",
+    "examples": [
+     {
+      "ja": "かさを もって いません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi không mang theo ô."
+     }
+    ],
+    "expression": "もって いません",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "không mang theo",
+    "mnemonic_vi": "もって (持って, cầm) + いません: không mang theo, かさをもっていません.",
+    "reading": "もって いません",
+    "romaji": "motte imasen",
+    "topic_vi": "Mặc váy",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ff73ee3afe"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅の近くのアパートに住んで います。",
+       "ja_furigana": "駅(えき)の近(ちか)くのアパートに住(す)んで います。",
+       "vi": "Tôi đang sống ở căn hộ gần nhà ga.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đang sống ở",
+    "examples": [
+     {
+      "ja": "とうきょうに すんで います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi sống ở Tokyo."
+     }
+    ],
+    "expression": "住んで います",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đang sống ở",
+    "mnemonic_vi": "住 TRÚ (cư trú) → 住んでいます: đang sống ở đâu đó, dùng に: 東京に住んでいます.",
+    "reading": "すんで います",
+    "romaji": "sunde imasu",
+    "topic_vi": "Nhà",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3a47729d9c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この赤いペンを使ってもいいですか。",
+       "ja_furigana": "この赤(あか)いペンを使(つか)ってもいいですか。",
+       "vi": "Tôi dùng cây bút màu đỏ này được không?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "dùng (xin phép)",
+    "examples": [
+     {
+      "ja": "パソコンを つかっても いいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có thể sử dụng máy tính."
+     }
+    ],
+    "expression": "使っても",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "dùng (xin phép)",
+    "mnemonic_vi": "使って (dùng) + も いいですか: dùng có được không?",
+    "reading": "つかっても",
+    "romaji": "tsukattemo",
+    "topic_vi": "Vật - việc quan trọng",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-18fda5073e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "どうぞ暖かい部屋へ入ってください。",
+       "ja_furigana": "どうぞ暖(あたた)かい部屋(へや)へ入(はい)ってください。",
+       "vi": "Xin mời vào căn phòng ấm áp.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "vào",
+    "examples": [
+     {
+      "ja": "ここに はいっては いけません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không được vào đây."
+     }
+    ],
+    "expression": "入って",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "vào",
+    "mnemonic_vi": "入って (はいって) là thể て của 入ります (入 NHẬP, vào); 入る là động từ nhóm I.",
+    "reading": "はいって",
+    "romaji": "haitte",
+    "topic_vi": "Từ thông dụng khác",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-06a32cbd3f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今から教室に入ってもいいですか。",
+       "ja_furigana": "今(いま)から教室(きょうしつ)に入(はい)ってもいいですか。",
+       "vi": "Bây giờ tôi vào lớp học có được không?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "vào (xin phép)",
+    "examples": [
+     {
+      "ja": "びじゅつかんに はいっても いいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có thể vào bảo tàng mỹ thuật."
+     }
+    ],
+    "expression": "入っても",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "vào (xin phép)",
+    "mnemonic_vi": "入って (vào) + も いいですか: vào có được không?",
+    "reading": "はいっても",
+    "romaji": "haittemo",
+    "topic_vi": "Từ thông dụng khác",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1d4af36067"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "父は大きい病院につとめて います。",
+       "ja_furigana": "父(ちち)は大(おお)きい病院(びょういん)につとめて います。",
+       "vi": "Bố tôi đang làm việc ở một bệnh viện lớn.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "姉は東京の会社につとめて います。",
+       "ja_furigana": "姉(あね)は東京(とうきょう)の会社(かいしゃ)につとめて います。",
+       "vi": "Chị gái tôi đang công tác tại một công ty ở Tokyo.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đang công tác tại",
+    "examples": [
+     {
+      "ja": "ぎんこうに つとめて います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi làm ở ngân hàng."
+     },
+     {
+      "ja": "かれは この みせに つとめて います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy đang công tác tại quán này."
+     }
+    ],
+    "expression": "勤めて います",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đang làm ở (công ty); đang công tác tại",
+    "mnemonic_vi": "つとめて (勤めて, làm việc) + います: đang làm cho công ty nào đó: 銀行につとめています.",
+    "reading": "つとめて います",
+    "romaji": "tsutomete imasu",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [
+     "つとめて います"
+    ],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-21c3b302fe"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "熱は下がりましたから、もう大丈夫です。",
+       "ja_furigana": "熱(ねつ)は下(さ)がりましたから、もう大丈夫(だいじょうぶ)です。",
+       "vi": "Cơn sốt đã hạ rồi nên không sao nữa đâu.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": null,
+    "examples": [
+     {
+      "ja": "だいじょうぶ、 すわっても いいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không sao đâu, bạn có thể ngồi."
+     }
+    ],
+    "expression": "大丈夫",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "không sao đâu; không sao",
+    "mnemonic_vi": "大丈夫 Hán Việt là ĐẠI TRƯỢNG PHU: bậc đại trượng phu thì chẳng sợ gì, nên だいじょうぶ là \"không sao đâu\".",
+    "reading": "だいじょうぶ",
+    "romaji": "daijoubu",
+    "topic_vi": "(Bạn) khỏe không?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0e9a399a3c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎晩、家族と晩ごはんを食べます。",
+       "ja_furigana": "毎晩(まいばん)、家族(かぞく)と晩(ばん)ごはんを食(た)べます。",
+       "vi": "Mỗi tối tôi ăn bữa tối cùng gia đình.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "夏休みに家族と京都へ旅行しました。",
+       "ja_furigana": "夏休(なつやす)みに家族(かぞく)と京都(きょうと)へ旅行(りょこう)しました。",
+       "vi": "Kỳ nghỉ hè tôi đã đi du lịch Kyoto cùng gia đình.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cùng gia đình",
+    "examples": [
+     {
+      "ja": "かぞくと うみへ いきます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đi biển với gia đình."
+     },
+     {
+      "ja": "かぞくと すんで います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi sống cùng gia đình."
+     }
+    ],
+    "expression": "家族と",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cùng gia đình; với gia đình",
+    "mnemonic_vi": "家族 GIA TỘC (gia đình) + と (cùng với): cùng với gia đình.",
+    "reading": "かぞくと",
+    "romaji": "kazokuto",
+    "topic_vi": "Ra ngoài",
+    "twins": [],
+    "variants": [
+     "かぞくと"
+    ],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-335c313066"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "仕事が終わりましたから、帰ってもいいですか。",
+       "ja_furigana": "仕事(しごと)が終(お)わりましたから、帰(かえ)ってもいいですか。",
+       "vi": "Công việc đã xong rồi nên tôi về có được không ạ?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "về (xin phép)",
+    "examples": [
+     {
+      "ja": "とうきょうに かえっても いいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có thể về Tokyo."
+     }
+    ],
+    "expression": "帰っても",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "về (xin phép)",
+    "mnemonic_vi": "帰って (帰 QUY, về) + も いいですか: về có được không?",
+    "reading": "かえっても",
+    "romaji": "kaettemo",
+    "topic_vi": "Trường học",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ce73a7e216"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私は日本語の辞書を二冊持って います。",
+       "ja_furigana": "私(わたし)は日本語(にほんご)の辞書(じしょ)を二冊(にさつ)持(も)って います。",
+       "vi": "Tôi đang có hai quyển từ điển tiếng Nhật.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đang có, mang theo",
+    "examples": [
+     {
+      "ja": "パソコンを もって います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi có máy tính."
+     }
+    ],
+    "expression": "持って います",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đang có; mang theo",
+    "mnemonic_vi": "持って (持 TRÌ, cầm giữ) + います: đang có, đang mang theo; 車を持っています là có ô tô.",
+    "reading": "もって います",
+    "romaji": "motte imasu",
+    "topic_vi": "Mặc váy",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-73a0fcc703"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私はその有名な歌を知って います。",
+       "ja_furigana": "私(わたし)はその有名(ゆうめい)な歌(うた)を知(し)って います。",
+       "vi": "Tôi biết bài hát nổi tiếng đó.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "biết (chuyện đó)",
+    "examples": [
+     {
+      "ja": "この みせを しって います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi biết cửa hàng này."
+     }
+    ],
+    "expression": "知って います",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "biết",
+    "mnemonic_vi": "知 TRI (biết, như \"tri thức\") → 知っています: biết; nhưng phủ định thì nói 知りません.",
+    "reading": "しって います",
+    "romaji": "shitte imasu",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-fa6d6e07fd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "朝起きて、シャワーをあびて出かけます。",
+       "ja_furigana": "朝(あさ)起(お)きて、シャワーをあびて出(で)かけます。",
+       "vi": "Sáng dậy tôi tắm vòi sen rồi đi ra ngoài.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tắm (vòi sen)",
+    "examples": [
+     {
+      "ja": "シャワーを あびてから、ねます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tắm vòi sen xong rồi đi ngủ."
+     }
+    ],
+    "expression": "あびて",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tắm (vòi sen)",
+    "mnemonic_vi": "あびて (浴びて) là thể て của あびます: シャワーをあびて là tắm vòi sen, nước dội \"ào\" lên người.",
+    "reading": "あびて",
+    "romaji": "abite",
+    "topic_vi": "Sáng, tối",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d2eecb0ec2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎朝、冷たい水でかおを あらいます。",
+       "ja_furigana": "毎朝(まいあさ)、冷(つめ)たい水(みず)でかおを あらいます。",
+       "vi": "Mỗi sáng tôi rửa mặt bằng nước mát.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "rửa mặt",
+    "examples": [
+     {
+      "ja": "おきて、かおを あらって、あさごはんを たべます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi thức dậy, rửa mặt rồi ăn sáng."
+     }
+    ],
+    "expression": "かおを あらいます",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "rửa mặt",
+    "mnemonic_vi": "かお (顔, mặt) + を + あらいます (洗います, 洗 TẨY): rửa mặt.",
+    "reading": "かおを あらいます",
+    "romaji": "kaoo araimasu",
+    "topic_vi": "Sáng, tối",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-78a059d701"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日九時から五時までしごとを します。",
+       "ja_furigana": "毎日(まいにち)九時(くじ)から五時(ごじ)までしごとを します。",
+       "vi": "Mỗi ngày tôi làm việc từ 9 giờ đến 5 giờ.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "làm việc",
+    "examples": [
+     {
+      "ja": "しごとを してから、かえります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Làm việc xong rồi về nhà."
+     }
+    ],
+    "expression": "しごとを します",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "làm việc",
+    "mnemonic_vi": "しごと (仕事, SĨ SỰ: công việc) + を します: làm việc.",
+    "reading": "しごとを します",
+    "romaji": "shigotoo shimasu",
+    "topic_vi": "Làm việc, lao động",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0f58b9b938"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ここでバスをじゅっぷん待ちました。",
+       "ja_furigana": "ここでバスをじゅっぷん待(ま)ちました。",
+       "vi": "Tôi đã đợi xe buýt 10 phút ở đây.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "mười phút",
+    "examples": [
+     {
+      "ja": "じゅっぷん あるいて、みぎへ まがります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đi bộ 10 phút rồi rẽ bên phải."
+     }
+    ],
+    "expression": "じゅっぷん",
+    "findings": [],
+    "locked_fields": [
+     "word_type_label"
+    ],
+    "meaning_vi": "mười phút",
+    "mnemonic_vi": "十分 đọc じゅっぷん là 10 phút; cùng chữ nhưng đọc じゅうぶん lại là \"đủ\", nên chú ý cách đọc.",
+    "reading": "じゅっぷん",
+    "romaji": "juppun",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b38b1aad32"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "映画を見て、そのあと買い物に行きます。",
+       "ja_furigana": "映画(えいが)を見(み)て、そのあと買(か)い物(もの)に行(い)きます。",
+       "vi": "Xem phim xong, sau đó tôi đi mua sắm.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sau đó",
+    "examples": [
+     {
+      "ja": "あさごはんを たべて、そのあと てを あらって、でかけます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi ăn sáng, sau đó rửa tay rồi ra ngoài."
+     }
+    ],
+    "expression": "そのあと",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "sau đó",
+    "mnemonic_vi": "その (đó) + あと (後, sau): sau việc đó, sau đó.",
+    "reading": "そのあと",
+    "romaji": "sonoato",
+    "topic_vi": "Hãy nhớ cả những từ này!",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f245b68fce"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "日曜日の朝はなにを してから、遊びに行きますか。",
+       "ja_furigana": "日曜日(にちようび)の朝(あさ)はなにを してから、遊(あそ)びに行(い)きますか。",
+       "vi": "Sáng chủ nhật bạn làm gì xong rồi mới đi chơi?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "làm gì xong rồi",
+    "examples": [
+     {
+      "ja": "なにを してから、でかけますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn làm gì xong rồi mới ra ngoài?"
+     }
+    ],
+    "expression": "なにを してから",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "làm gì xong rồi",
+    "mnemonic_vi": "なにを して (làm gì) + から (sau khi): làm gì xong rồi mới làm việc tiếp theo?",
+    "reading": "なにを してから",
+    "romaji": "nanio shitekara",
+    "topic_vi": "Sáng, tối",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-383212baf6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "東京駅で地下鉄にのりかえて行きます。",
+       "ja_furigana": "東京駅(とうきょうえき)で地下鉄(ちかてつ)にのりかえて行(い)きます。",
+       "vi": "Tôi đổi sang tàu điện ngầm ở ga Tokyo rồi đi tiếp.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đổi tàu, đổi xe",
+    "examples": [
+     {
+      "ja": "でんしゃに のりかえて、かえります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đổi sang tàu điện rồi về."
+     }
+    ],
+    "expression": "のりかえて",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đổi tàu; đổi xe",
+    "mnemonic_vi": "のり (乗り, lên xe) + かえて (換えて, đổi): lên xe khác, tức đổi tàu, đổi xe.",
+    "reading": "のりかえて",
+    "romaji": "norikaete",
+    "topic_vi": "Phương tiện giao thông",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-bf27c6b010"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "晩ごはんの後で、はを みがいて寝ます。",
+       "ja_furigana": "晩(ばん)ごはんの後(あと)で、はを みがいて寝(ね)ます。",
+       "vi": "Sau bữa tối tôi đánh răng rồi đi ngủ.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đánh răng",
+    "examples": [
+     {
+      "ja": "かおを あらって、はを みがいて、でかけます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi rửa mặt, đánh răng rồi ra ngoài."
+     }
+    ],
+    "expression": "はを みがいて",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đánh răng",
+    "mnemonic_vi": "は (歯, răng) + を + みがいて (磨いて, đánh bóng): đánh răng.",
+    "reading": "はを みがいて",
+    "romaji": "hao migaite",
+    "topic_vi": "Sáng, tối",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d7a6736cf4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ふたつめの角に新しい本屋があります。",
+       "ja_furigana": "ふたつめの角(かど)に新(あたら)しい本屋(ほんや)があります。",
+       "vi": "Ở góc phố thứ hai có một hiệu sách mới.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cái thứ hai",
+    "examples": [
+     {
+      "ja": "ふたつめの しんごうを ひだりへ まがって、まっすぐ いきます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Rẽ bên trái ở đèn tín hiệu thứ hai rồi đi thẳng."
+     }
+    ],
+    "expression": "ふたつめ",
+    "findings": [],
+    "locked_fields": [
+     "word_type_label"
+    ],
+    "meaning_vi": "cái thứ hai",
+    "mnemonic_vi": "ふたつ (hai cái) + め (thứ tự): cái thứ hai, ふたつめの角 là góc thứ hai.",
+    "reading": "ふたつめ",
+    "romaji": "futatsume",
+    "topic_vi": "Đường đi",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9cca192041"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "銀行の前を左へまがってください。",
+       "ja_furigana": "銀行(ぎんこう)の前(まえ)を左(ひだり)へまがってください。",
+       "vi": "Hãy rẽ trái ở phía trước ngân hàng.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "rẽ",
+    "examples": [
+     {
+      "ja": "かどを みぎへ まがって、まっすぐ いきます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Rẽ bên phải ở góc phố rồi đi thẳng."
+     }
+    ],
+    "expression": "まがって",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "rẽ",
+    "mnemonic_vi": "まがって (曲がって, 曲 KHÚC như \"khúc khuỷu\"): rẽ, ngoặt: 右へまがってください.",
+    "reading": "まがって",
+    "romaji": "magatte",
+    "topic_vi": "Đường đi",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d990c1e200"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この広いみちを わたって公園へ行きます。",
+       "ja_furigana": "この広(ひろ)いみちを わたって公園(こうえん)へ行(い)きます。",
+       "vi": "Tôi băng qua con đường rộng này để đến công viên.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "băng qua đường",
+    "examples": [
+     {
+      "ja": "みちを わたって、まっすぐ いきます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh băng qua đường rồi đi thẳng."
+     }
+    ],
+    "expression": "みちを わたって",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "băng qua đường",
+    "mnemonic_vi": "みち (道, đường) + を + わたって (渡って, 渡 ĐỘ như \"độ\" qua sông): băng qua đường.",
+    "reading": "みちを わたって",
+    "romaji": "michio watatte",
+    "topic_vi": "Đường đi",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-366c12c686"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "明日の朝は何時に起きますか。",
+       "ja_furigana": "明日(あした)の朝(あさ)は何時(なんじ)に起(お)きますか。",
+       "vi": "Sáng ngày mai bạn thức dậy lúc mấy giờ?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "mấy giờ",
+    "examples": [
+     {
+      "ja": "あさごはんを たべてから、なんじに でかけますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ăn sáng xong thì mấy giờ bạn ra ngoài?"
+     }
+    ],
+    "expression": "何時に",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mấy giờ",
+    "mnemonic_vi": "何時 (なんじ, mấy giờ) + に (vào lúc): vào lúc mấy giờ?",
+    "reading": "なんじに",
+    "romaji": "nanjini",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b69bdfc88e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "図書館で本を借りました。それから帰りました。",
+       "ja_furigana": "図書館(としょかん)で本(ほん)を借(か)りました。それから帰(かえ)りました。",
+       "vi": "Tôi mượn sách ở thư viện. Rồi sau đó tôi về nhà.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sau đó",
+    "examples": [
+     {
+      "ja": "おきて、それから かおを あらって、あさごはんを たべます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi thức dậy, rồi sau đó rửa mặt và ăn sáng."
+     }
+    ],
+    "expression": "それから",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "rồi sau đó; sau đó",
+    "mnemonic_vi": "それ (cái đó) + から (từ): từ đó trở đi, tức rồi sau đó.",
+    "reading": "それから",
+    "romaji": "sorekara",
+    "topic_vi": "Hãy nhớ cả những từ này!",
+    "twins": [],
+    "variants": [
+     "それから"
+    ],
+    "word_type_label": "liên từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-00aa9135d0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "日曜日は友だちと映画に出かけます。",
+       "ja_furigana": "日曜日(にちようび)は友(とも)だちと映画(えいが)に出(で)かけます。",
+       "vi": "Chủ nhật tôi đi ra ngoài xem phim cùng bạn.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "母は買い物に出かけます。",
+       "ja_furigana": "母(はは)は買(か)い物(もの)に出(で)かけます。",
+       "source": "AI",
+       "vi": "Mẹ tôi ra ngoài đi mua sắm."
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đi ra ngoài",
+    "examples": [
+     {
+      "ja": "おきて、あさごはんを たべて、でかけます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi thức dậy, ăn sáng rồi ra ngoài."
+     },
+     {
+      "ja": "母は買い物に出かけます。",
+      "ja_furigana": "母(はは)は買(か)い物(もの)に出(で)かけます。",
+      "source": "AI",
+      "vi": "Mẹ tôi ra ngoài đi mua sắm."
+     }
+    ],
+    "expression": "出かけます",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "ra khỏi nhà; đi ra ngoài",
+    "mnemonic_vi": "でかけます (出かける, 出 XUẤT = ra): ra khỏi nhà để đi đâu đó.",
+    "reading": "でかけます",
+    "romaji": "dekakemasu",
+    "topic_vi": "Ra ngoài",
+    "twins": [],
+    "variants": [
+     "でかけます"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-91ff8adfda"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "八時に家を出て、駅まで歩きます。",
+       "ja_furigana": "八時(はちじ)に家(いえ)を出(で)て、駅(えき)まで歩(ある)きます。",
+       "vi": "Tôi ra khỏi nhà lúc 8 giờ và đi bộ đến ga.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đi ra",
+    "examples": [
+     {
+      "ja": "そとへ でて、あるいて かえります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đi ra ngoài rồi đi bộ về nhà."
+     }
+    ],
+    "expression": "出て",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đi ra",
+    "mnemonic_vi": "出て là thể て của 出ます (出 XUẤT, ra): đi ra.",
+    "reading": "でて",
+    "romaji": "dete",
+    "topic_vi": "Ra ngoài",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-458a12df3f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "寝る前に、部屋の窓を閉めます。",
+       "ja_furigana": "寝(ね)る前(まえ)に、部屋(へや)の窓(まど)を閉(し)めます。",
+       "vi": "Trước khi đi ngủ tôi đóng cửa sổ phòng lại.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "trước khi",
+    "examples": [
+     {
+      "ja": "でかける まえに、くすりを のみます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trước khi ra ngoài tôi uống thuốc."
+     }
+    ],
+    "expression": "前に",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "trước khi",
+    "mnemonic_vi": "前 TIỀN (trước) + に: Vる前に là trước khi làm, ねる前に là trước khi ngủ.",
+    "reading": "まえに",
+    "romaji": "maeni",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4d8959d3ef"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "早く家へ帰って、晩ごはんを作ります。",
+       "ja_furigana": "早(はや)く家(いえ)へ帰(かえ)って、晩(ばん)ごはんを作(つく)ります。",
+       "vi": "Tôi về nhà sớm rồi nấu bữa tối.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "về nhà",
+    "examples": [
+     {
+      "ja": "かえってから、シャワーを あびます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Về nhà xong rồi tắm vòi sen."
+     }
+    ],
+    "expression": "帰って",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "về nhà",
+    "mnemonic_vi": "帰って là thể て của 帰ります (帰 QUY, về); vì là nhóm I nên る đổi thành って.",
+    "reading": "かえって",
+    "romaji": "kaette",
+    "topic_vi": "Sáng, tối",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9412076776"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "授業が終わってから、図書館へ行きます。",
+       "ja_furigana": "授業(じゅぎょう)が終(お)わってから、図書館(としょかん)へ行(い)きます。",
+       "vi": "Sau khi tiết học kết thúc, tôi đi đến thư viện.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "xong việc",
+    "examples": [
+     {
+      "ja": "かいぎが おわってから、ひるごはんを たべます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuộc họp kết thúc xong rồi ăn trưa."
+     }
+    ],
+    "expression": "終わって",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "xong việc",
+    "mnemonic_vi": "終わって là thể て của 終わります (終 CHUNG, kết thúc): xong việc rồi.",
+    "reading": "おわって",
+    "romaji": "owatte",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-17c06ff397"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "朝六時に起きて、公園を散歩します。",
+       "ja_furigana": "朝(あさ)六時(ろくじ)に起(お)きて、公園(こうえん)を散歩(さんぽ)します。",
+       "vi": "Sáng tôi dậy lúc 6 giờ rồi đi dạo ở công viên.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ngủ dậy",
+    "examples": [
+     {
+      "ja": "おきてから、かおを あらいます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thức dậy xong rồi rửa mặt."
+     }
+    ],
+    "expression": "起きて",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "thức dậy",
+    "mnemonic_vi": "起きて là thể て của 起きます (起 KHỞI, dậy); nhóm II chỉ bỏ ます thêm て.",
+    "reading": "おきて",
+    "romaji": "okite",
+    "topic_vi": "Sáng, tối",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-3cb56aa7ce"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "時間がないから、いそいで駅へ行きます。",
+       "ja_furigana": "時間(じかん)がないから、いそいで駅(えき)へ行(い)きます。",
+       "vi": "Vì không có thời gian nên tôi vội vã đi ra ga.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "vội, gấp",
+    "examples": [
+     {
+      "ja": "いそいで いかなければ なりません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi phải đi gấp."
+     }
+    ],
+    "expression": "いそいで",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "vội; gấp",
+    "mnemonic_vi": "いそいで (急いで, 急 CẤP như \"cấp tốc\"): vội, nhanh lên; ぎ đổi thành いで.",
+    "reading": "いそいで",
+    "romaji": "isoide",
+    "topic_vi": "Khoảng bao lâu?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4e80b99422"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "まだ早いですから、いそがないで歩きましょう。",
+       "ja_furigana": "まだ早(はや)いですから、いそがないで歩(ある)きましょう。",
+       "vi": "Vì vẫn còn sớm nên chúng ta cứ đi bộ thong thả đừng vội.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đừng vội",
+    "examples": [
+     {
+      "ja": "じかんが ありますから いそがないで ください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì còn thời gian nên xin đừng vội."
+     }
+    ],
+    "expression": "いそがないで",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đừng vội",
+    "mnemonic_vi": "いそがない (không vội) + で: đừng vội; いそがないでください.",
+    "reading": "いそがないで",
+    "romaji": "isoganaide",
+    "topic_vi": "Khoảng bao lâu?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6bc4bed2b7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この本はいつまでに返しますか。",
+       "ja_furigana": "この本(ほん)はいつまでに返(かえ)しますか。",
+       "vi": "Quyển sách này phải trả trước khi nào ạ?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "trước khi nào",
+    "examples": [
+     {
+      "ja": "コピーは いつまでに だしますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bản sao nộp trước khi nào ạ?"
+     }
+    ],
+    "expression": "いつまでに",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đến khi nào (hạn chót); trước lúc nào",
+    "mnemonic_vi": "いつ (khi nào) + までに (hạn chót, trước lúc): phải xong trước khi nào?",
+    "reading": "いつまでに",
+    "romaji": "itsumadeni",
+    "topic_vi": "Thời gian",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f9c0ea5228"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "外国へ行くとき、ビザがいります。",
+       "ja_furigana": "外国(がいこく)へ行(い)くとき、ビザがいります。",
+       "vi": "Khi đi nước ngoài thì cần có thị thực.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cần",
+    "examples": [
+     {
+      "ja": "うけつけで はんこが いりますから もってこなければ なりません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì ở quầy tiếp nhận cần con dấu nên phải mang đến."
+     }
+    ],
+    "expression": "いります",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cần",
+    "mnemonic_vi": "いります (要る, YẾU như \"cần yếu, thiết yếu\"): cần; dùng が: 何がいりますか.",
+    "reading": "いります",
+    "romaji": "irimasu",
+    "topic_vi": "Vật - việc quan trọng",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c14e0b225c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "雨ですから、傘はいりますか。",
+       "ja_furigana": "雨(あめ)ですから、傘(かさ)はいりますか。",
+       "vi": "Vì trời mưa, bạn có cần ô không?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "có cần không",
+    "examples": [
+     {
+      "ja": "パスポートは いりますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có cần hộ chiếu không ạ?"
+     }
+    ],
+    "expression": "いりますか",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "có cần không",
+    "mnemonic_vi": "いります (要る, cần) + か: có cần không? Trả lời いいえ、いりません là không cần.",
+    "reading": "いりますか",
+    "romaji": "irimasuka",
+    "topic_vi": "Vật - việc quan trọng",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-462864f6f5"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N5",
+ "packet_id": "REVIEW_VOCAB-070"
+}

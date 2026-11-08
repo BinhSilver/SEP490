@@ -1,0 +1,718 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先生が言ったとおりにやってみます。",
+       "ja_furigana": "先生(せんせい)が言(い)ったとおりにやってみます。",
+       "vi": "Tôi sẽ thử làm theo đúng như lời thầy giáo đã nói."
+      },
+      {
+       "ja": "地図のとおりに歩いたらすぐ駅に着きました。",
+       "ja_furigana": "地図(ちず)のとおりに歩(ある)いたらすぐ駅(えき)に着(つ)きました。",
+       "vi": "Tôi đi bộ theo đúng bản đồ thì đã đến nhà ga ngay."
+      },
+      {
+       "ja": "試合は私たちの予想どおりの結果になった。",
+       "ja_furigana": "試合(しあい)は私(わたし)たちの予想(よそう)どおりの結果(けっか)になった。",
+       "vi": "Trận đấu đã có kết quả đúng như dự đoán của chúng tôi."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Nói 先生のどおりに (sai; phải nói 先生の言ったとおりに hoặc 説明書どおりに).",
+    "examples": [
+     {
+      "ja": "先生が言ったとおりにやってみます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "地図のとおりに歩いたらすぐ駅に着きました。",
+      "ja_furigana": "地図(ちず)のとおりに歩(ある)いたらすぐ駅(えき)に着(つ)きました。",
+      "source": "AI",
+      "vi": "Tôi đi bộ theo đúng bản đồ thì đã đến nhà ga ngay."
+     },
+     {
+      "ja": "試合は私たちの予想どおりの結果になった。",
+      "ja_furigana": "試合(しあい)は私(わたし)たちの予想(よそう)どおりの結果(けっか)になった。",
+      "source": "AI",
+      "vi": "Trận đấu đã có kết quả đúng như dự đoán của chúng tôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 先生が言ったとおりにやってみます。",
+     "FURIGANA_MISSING: 先生が言ったとおりにやってみます。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-る / V-た / N + の + とおり(に) / N + どおり(に)",
+    "locked_fields": [],
+    "meaning_vi": "Đúng như, theo như — Làm giống hệt như điều đã nói, đã thấy hoặc đã hướng dẫn.",
+    "nuance_vi": "Làm hoặc diễn ra đúng y hệt như mẫu chuẩn, lời dặn hay dự đoán trước đó; khi ghép trực tiếp với danh từ không có の thì biến âm thành どおり.",
+    "order_items": [],
+    "pattern": "V từ điển / V-た / N の + とおりに",
+    "pattern_variants": [
+     "〜とおりだ・とおり(に)...・〜どおりだ・〜どおり(に)...",
+     "〜とおり(に)/〜どおり(に)",
+     "〜とおり(に)"
+    ],
+    "unit_no": 19,
+    "unit_title_vi": "Quan hệ, lập trường và phạm vi",
+    "usage_vi": "Nối sau danh từ thì đọc là どおり: 予定どおり (đúng như kế hoạch), 説明どおり."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a70f2e3119"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ここに座ってもいいですか。",
+       "ja_furigana": "ここに座(すわ)ってもいいですか。",
+       "vi": "Tôi ngồi ở đây có được không?"
+      },
+      {
+       "ja": "図書館の中で食べ物を食べてはいけません。",
+       "ja_furigana": "図書館(としょかん)の中(なか)で食べ物(たべもの)を食(た)べてはいけません。",
+       "vi": "Không được ăn đồ ăn ở trong thư viện."
+      },
+      {
+       "ja": "この辞書を少し借りてもいいですか。",
+       "ja_furigana": "この辞書(じしょ)を少(すこ)し借(か)りてもいいですか。",
+       "vi": "Tôi mượn cuốn từ điển này một chút có được không?"
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng 〜てはいけません với cấp trên (khi nhắc cấp trên nên dùng お〜にならないでください hoặc 〜はご遠慮ください).",
+    "examples": [
+     {
+      "ja": "ここに座ってもいいですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "図書館の中で食べ物を食べてはいけません。",
+      "ja_furigana": "図書館(としょかん)の中(なか)で食べ物(たべもの)を食(た)べてはいけません。",
+      "source": "AI",
+      "vi": "Không được ăn đồ ăn ở trong thư viện."
+     },
+     {
+      "ja": "この辞書を少し借りてもいいですか。",
+      "ja_furigana": "この辞書(じしょ)を少(すこ)し借(か)りてもいいですか。",
+      "source": "AI",
+      "vi": "Tôi mượn cuốn từ điển này một chút có được không?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: ここに座ってもいいですか。",
+     "FURIGANA_MISSING: ここに座ってもいいですか。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て + もいい(ですか) / V-て + はいけない(いけません)",
+    "locked_fields": [],
+    "meaning_vi": "Được phép, không được phép — Cho phép hoặc cấm đoán.",
+    "nuance_vi": "〜てもいい dùng để cho phép hoặc xin phép; 〜てはいけない dùng để cấm đoán hoặc nhắc nhở quy định (không dùng trực tiếp để cấm cấp trên).",
+    "order_items": [],
+    "pattern": "V-て + もいい / V-て + はいけない",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": "Lời khuyên, nghĩa vụ và đề xuất",
+    "usage_vi": "Hỏi xin phép: 〜てもいいですか. Cấm đoán てはいけない khá mạnh, với người trên nên dùng ご遠慮ください."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-62f5485bf6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "国によって習慣が違います。",
+       "ja_furigana": "国(くに)によって習慣(しゅうかん)が違(ちが)います。",
+       "vi": "Tùy theo mỗi quốc gia mà tập quán khác nhau."
+      },
+      {
+       "ja": "季節によって果物の値段が変わります。",
+       "ja_furigana": "季節(きせつ)によって果物(くだもの)の値段(ねだん)が変(か)わります。",
+       "vi": "Tùy theo mùa mà giá trái cây thay đổi."
+      },
+      {
+       "ja": "場所によっては今夜雪が降るかもしれません。",
+       "ja_furigana": "場所(ばしょ)によっては今夜(こんや)雪(ゆき)が降(ふ)るかもしれません。",
+       "vi": "Tùy từng nơi mà đêm nay có thể tuyết sẽ rơi."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng によって cho dụng cụ thông thường như 箸によって食べる (dụng cụ đời thường dùng で).",
+    "examples": [
+     {
+      "ja": "国によって習慣が違います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "季節によって果物の値段が変わります。",
+      "ja_furigana": "季節(きせつ)によって果物(くだもの)の値段(ねだん)が変(か)わります。",
+      "source": "AI",
+      "vi": "Tùy theo mùa mà giá trái cây thay đổi."
+     },
+     {
+      "ja": "場所によっては今夜雪が降るかもしれません。",
+      "ja_furigana": "場所(ばしょ)によっては今夜(こんや)雪(ゆき)が降(ふ)るかもしれません。",
+      "source": "AI",
+      "vi": "Tùy từng nơi mà đêm nay có thể tuyết sẽ rơi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 国によって習慣が違います。",
+     "FURIGANA_MISSING: 国によって習慣が違います。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + によって / N + によっては / N1 + による + N2",
+    "locked_fields": [],
+    "meaning_vi": "Tuỳ theo, bởi, nhờ vào — Nêu sự khác nhau tuỳ trường hợp, nêu phương tiện, hoặc nêu chủ thể trong câu bị động.",
+    "nuance_vi": "Đa chức năng: chỉ nguyên nhân (do N), phương tiện (bằng N), tác giả (bởi N), hoặc sự khác biệt tùy trường hợp (によっては nêu một trường hợp cá biệt).",
+    "order_items": [],
+    "pattern": "N + によって",
+    "pattern_variants": [
+     "〜によって...・〜によっては...",
+     "〜によって...・〜による (A)",
+     "〜によって...・〜による (B)",
+     "〜によって (A)",
+     "〜によって (B)",
+     "〜によって (C)"
+    ],
+    "unit_no": 10,
+    "unit_title_vi": "Nguyên nhân, mục đích và kết quả",
+    "usage_vi": "Ba nghĩa phân biệt theo ngữ cảnh: 人によって違う (tuỳ người), 話し合いによって解決する (bằng cách), 彼によって作られた (bởi anh ấy)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a7fab6d0f9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "昨日は飲みすぎました。",
+       "ja_furigana": "昨日(きのう)は飲(の)みすぎました。",
+       "vi": "Hôm qua tôi đã uống quá chén."
+      },
+      {
+       "ja": "この問題は難しすぎて誰にも解けません。",
+       "ja_furigana": "この問題(もんだい)は難(むずか)しすぎて誰(だれ)にも解(と)けません。",
+       "vi": "Bài toán này khó quá mức nên không ai giải được."
+      },
+      {
+       "ja": "甘いお菓子を食べすぎると体に悪いですよ。",
+       "ja_furigana": "甘(あま)いお菓子(かし)を食(た)べすぎると体(からだ)に悪(わる)いですよ。",
+       "vi": "Ăn quá nhiều bánh kẹo ngọt sẽ không tốt cho cơ thể đâu."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Giữ nguyên い của tính từ đuôi い trước すぎる (sai: 高いすぎる; đúng: 高すぎる).",
+    "examples": [
+     {
+      "ja": "昨日は飲みすぎました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "この問題は難しすぎて誰にも解けません。",
+      "ja_furigana": "この問題(もんだい)は難(むずか)しすぎて誰(だれ)にも解(と)けません。",
+      "source": "AI",
+      "vi": "Bài toán này khó quá mức nên không ai giải được."
+     },
+     {
+      "ja": "甘いお菓子を食べすぎると体に悪いですよ。",
+      "ja_furigana": "甘(あま)いお菓子(かし)を食(た)べすぎると体(からだ)に悪(わる)いですよ。",
+      "source": "AI",
+      "vi": "Ăn quá nhiều bánh kẹo ngọt sẽ không tốt cho cơ thể đâu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 昨日は飲みすぎました。",
+     "FURIGANA_MISSING: 昨日は飲みすぎました。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V(bỏ ます) + すぎる / Aい(bỏ い) + すぎる / Aな + すぎる (chia như động từ nhóm II)",
+    "locked_fields": [],
+    "meaning_vi": "Quá mức — Vượt quá mức hợp lý, hầu như luôn mang nghĩa không tốt.",
+    "nuance_vi": "Biểu thị mức độ vượt quá giới hạn cho phép hoặc hợp lý, thường mang hàm ý không tốt.",
+    "order_items": [],
+    "pattern": "V thể ます (bỏ ます) / A bỏ い + すぎる",
+    "pattern_variants": [],
+    "unit_no": 2,
+    "unit_title_vi": "Cảm xúc, giác quan và trạng thái",
+    "usage_vi": "いい → よすぎる, ない → なさすぎる. Chia như động từ nhóm 2: 食べすぎました."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2e4cce32a2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "春になると、桜が咲きます。",
+       "ja_furigana": "春(はる)になると、桜(さくら)が咲(さ)きます。",
+       "vi": "Hễ sang xuân là hoa anh đào lại nở."
+      },
+      {
+       "ja": "この橋を渡ると右に郵便局があります。",
+       "ja_furigana": "この橋(はし)を渡(わた)ると右(みぎ)に郵便局(ゆうびんきょく)があります。",
+       "vi": "Hễ đi qua cây cầu này thì có bưu điện ở bên phải."
+      },
+      {
+       "ja": "夜になると急に風が強くなってきました。",
+       "ja_furigana": "夜(よる)になると急(きゅう)に風(かぜ)が強(つよ)くなってきました。",
+       "vi": "Đến tối thì gió bỗng nhiên mạnh dần lên."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Đặt câu mệnh lệnh, ý chí, rủ rê hay xin phép ở vế sau と (sai: 時間があると来てください; phải dùng たら).",
+    "examples": [
+     {
+      "ja": "春になると、桜が咲きます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "この橋を渡ると右に郵便局があります。",
+      "ja_furigana": "この橋(はし)を渡(わた)ると右(みぎ)に郵便局(ゆうびんきょく)があります。",
+      "source": "AI",
+      "vi": "Hễ đi qua cây cầu này thì có bưu điện ở bên phải."
+     },
+     {
+      "ja": "夜になると急に風が強くなってきました。",
+      "ja_furigana": "夜(よる)になると急(きゅう)に風(かぜ)が強(つよ)くなってきました。",
+      "source": "AI",
+      "vi": "Đến tối thì gió bỗng nhiên mạnh dần lên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 春になると、桜が咲きます。",
+     "FURIGANA_MISSING: 春になると、桜が咲きます。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-る / V-ない / Aい / Aな + だ / N + だ + と、〜",
+    "locked_fields": [],
+    "meaning_vi": "Hễ là, cứ là — Điều kiện tất yếu: cứ xảy ra A thì B luôn xảy ra.",
+    "nuance_vi": "Biểu thị quy luật tự nhiên, thao tác máy móc tất yếu, hoặc hai hành động xảy ra nối tiếp ngay trong quá khứ.",
+    "order_items": [],
+    "pattern": "V từ điển / V-ない + と",
+    "pattern_variants": [],
+    "unit_no": 8,
+    "unit_title_vi": "Giả định, nhượng bộ và điều kiện",
+    "usage_vi": "Vế sau KHÔNG được là ý chí, mệnh lệnh hay rủ rê. Dùng cho quy luật tự nhiên, cách vận hành máy móc, chỉ đường."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-18074c7b7e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "友達が車を出してくれたので、歩かずにすんだ。",
+       "ja_furigana": "友達(ともだち)が車(くるま)を出(だ)してくれたので、歩(ある)かずにすんだ。",
+       "vi": "Nhờ bạn lấy xe chở giúp nên tôi đã không phải đi bộ."
+      },
+      {
+       "ja": "薬が効いたので手術をせずにすみました。",
+       "ja_furigana": "薬(くすり)が効(き)いたので手術(しゅじゅつ)をせずにすみました。",
+       "vi": "Nhờ thuốc phát huy tác dụng nên tôi đã không phải phẫu thuật."
+      },
+      {
+       "ja": "早く出たので雨に濡れずにすんだ。",
+       "ja_furigana": "早(はや)く出(で)たので雨(あめ)に濡(ぬ)れずにすんだ。",
+       "vi": "Vì ra ngoài sớm nên tôi đã thoát khỏi cảnh bị ướt mưa."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chia する thành しずにすむ (đúng: せずにすむ hoặc しないですむ).",
+    "examples": [
+     {
+      "ja": "友達が車を出してくれたので、歩かずにすんだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "薬が効いたので手術をせずにすみました。",
+      "ja_furigana": "薬(くすり)が効(き)いたので手術(しゅじゅつ)をせずにすみました。",
+      "source": "AI",
+      "vi": "Nhờ thuốc phát huy tác dụng nên tôi đã không phải phẫu thuật."
+     },
+     {
+      "ja": "早く出たので雨に濡れずにすんだ。",
+      "ja_furigana": "早(はや)く出(で)たので雨(あめ)に濡(ぬ)れずにすんだ。",
+      "source": "AI",
+      "vi": "Vì ra ngoài sớm nên tôi đã thoát khỏi cảnh bị ướt mưa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 友達が車を出してくれたので、歩かずにすんだ。",
+     "FURIGANA_MISSING: 友達が車を出してくれたので、歩かずにすんだ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V(bỏ ない) + ずにすむ / ないですむ (する → せずにすむ)",
+    "locked_fields": [],
+    "meaning_vi": "Không phải, thoát khỏi việc — May mắn không phải làm việc đáng lẽ phải làm.",
+    "nuance_vi": "Thể hiện sự nhẹ nhõm vì giải quyết được vấn đề mà không phải chịu tổn thất hay làm việc phiền phức như lo ngại.",
+    "order_items": [],
+    "pattern": "V-ない bỏ ない + ずにすむ",
+    "pattern_variants": [],
+    "unit_no": 10,
+    "unit_title_vi": "Nguyên nhân, mục đích và kết quả",
+    "usage_vi": "する → せずにすむ. Dạng khác ないですむ. Mang cảm giác nhẹ nhõm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-33d9824746"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私はコーヒーにします。",
+       "ja_furigana": "私(わたし)はコーヒーにします。",
+       "vi": "Tôi chọn cà phê."
+      },
+      {
+       "ja": "次の会議は来週の火曜日にしましょう。",
+       "ja_furigana": "次(つぎ)の会議(かいぎ)は来週(らいしゅう)の火曜日(かようび)にしましょう。",
+       "vi": "Cuộc họp tiếp theo chúng ta thống nhất chọn thứ Ba tuần sau nhé."
+      },
+      {
+       "ja": "テレビの音をもう少し小さくしてください。",
+       "ja_furigana": "テレビの音(おと)をもう少(すこ)し小(ちい)さくしてください。",
+       "vi": "Xin hãy vặn nhỏ tiếng tivi xuống một chút."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng になる khi người nói chủ động lựa chọn món ăn hoặc chủ động thay đổi trạng thái vật.",
+    "examples": [
+     {
+      "ja": "私はコーヒーにします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "次の会議は来週の火曜日にしましょう。",
+      "ja_furigana": "次(つぎ)の会議(かいぎ)は来週(らいしゅう)の火曜日(かようび)にしましょう。",
+      "source": "AI",
+      "vi": "Cuộc họp tiếp theo chúng ta thống nhất chọn thứ Ba tuần sau nhé."
+     },
+     {
+      "ja": "テレビの音をもう少し小さくしてください。",
+      "ja_furigana": "テレビの音(おと)をもう少(すこ)し小(ちい)さくしてください。",
+      "source": "AI",
+      "vi": "Xin hãy vặn nhỏ tiếng tivi xuống một chút."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 私はコーヒーにします。",
+     "FURIGANA_MISSING: 私はコーヒーにします。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + にする / Aい(bỏ い) + くする / Aな + にする",
+    "locked_fields": [],
+    "meaning_vi": "Chọn, quyết định lấy — Chọn một phương án trong nhiều lựa chọn.",
+    "nuance_vi": "N + にする dùng khi gọi món hoặc chọn một phương án; Aく/にする diễn tả việc chủ động làm thay đổi trạng thái của sự vật.",
+    "order_items": [],
+    "pattern": "N + にする",
+    "pattern_variants": [
+     "〜にする・〜くする",
+     "〜にする・〜ことにする"
+    ],
+    "unit_no": 3,
+    "unit_title_vi": "Điều kiện, quyết tâm và thói quen",
+    "usage_vi": "Hay dùng khi gọi món. Khác với になる (tự nhiên trở thành)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7ca767f564"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "日本の文化について発表します。",
+       "ja_furigana": "日本(にほん)の文化(ぶんか)について発表(はっぴょう)します。",
+       "vi": "Tôi sẽ thuyết trình về văn hóa Nhật Bản."
+      },
+      {
+       "ja": "将来の仕事について両親とよく話し合った。",
+       "ja_furigana": "将来(しょうらい)の仕事(しごと)について両親(りょうしん)とよく話(はな)し合(あ)った。",
+       "vi": "Tôi đã bàn bạc kỹ với bố mẹ về công việc tương lai."
+      },
+      {
+       "ja": "日本の歴史についての本を探しています。",
+       "ja_furigana": "日本(にほん)の歴史(れきし)についての本(ほん)を探(さが)しています。",
+       "vi": "Tôi đang tìm một cuốn sách viết về lịch sử Nhật Bản."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Quên thêm の khi bổ nghĩa trực tiếp cho danh từ đứng sau (sai: 歴史について本; đúng: 歴史についての本).",
+    "examples": [
+     {
+      "ja": "日本の文化について発表します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "将来の仕事について両親とよく話し合った。",
+      "ja_furigana": "将来(しょうらい)の仕事(しごと)について両親(りょうしん)とよく話(はな)し合(あ)った。",
+      "source": "AI",
+      "vi": "Tôi đã bàn bạc kỹ với bố mẹ về công việc tương lai."
+     },
+     {
+      "ja": "日本の歴史についての本を探しています。",
+      "ja_furigana": "日本(にほん)の歴史(れきし)についての本(ほん)を探(さが)しています。",
+      "source": "AI",
+      "vi": "Tôi đang tìm một cuốn sách viết về lịch sử Nhật Bản."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 日本の文化について発表します。",
+     "FURIGANA_MISSING: 日本の文化について発表します。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + について / N1 + についての + N2",
+    "locked_fields": [],
+    "meaning_vi": "Về, liên quan đến — Nêu chủ đề của việc nói, nghe, viết, suy nghĩ hay điều tra.",
+    "nuance_vi": "Phổ biến trong cả văn nói và văn viết để giới thiệu đề tài, đối tượng được tìm hiểu, bàn luận hoặc viết báo cáo.",
+    "order_items": [],
+    "pattern": "N + について",
+    "pattern_variants": [
+     "〜について/〜につき",
+     "〜について...",
+     "〜について"
+    ],
+    "unit_no": 19,
+    "unit_title_vi": "Quan hệ, lập trường và phạm vi",
+    "usage_vi": "Khác với に対して (hướng thái độ về phía ai đó). について chỉ nêu đề tài."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-90fc35416c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "何か誤解があるのではないでしょうか。",
+       "ja_furigana": "何(なに)か誤解(ごかい)があるのではないでしょうか。",
+       "vi": "Chẳng phải là đang có sự hiểu lầm nào đó hay sao?"
+      },
+      {
+       "ja": "この計画は少し無理があるのではないでしょうか。",
+       "ja_furigana": "この計画(けいかく)は少(すこ)し無理(むり)があるのではないでしょうか。",
+       "vi": "Chẳng phải là kế hoạch này có phần hơi quá sức hay sao?"
+      },
+      {
+       "ja": "彼は今日の会議の時間を忘れているのではないか。",
+       "ja_furigana": "彼(かれ)は今日(きょう)の会議(かいぎ)の時間(じかん)を忘(わす)れているのではないか。",
+       "vi": "E là anh ấy đang quên mất giờ họp hôm nay chăng?"
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Quên thêm な sau danh từ hoặc tính từ đuôi な trước のではないか.",
+    "examples": [
+     {
+      "ja": "何か誤解があるのではないでしょうか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "この計画は少し無理があるのではないでしょうか。",
+      "ja_furigana": "この計画(けいかく)は少(すこ)し無理(むり)があるのではないでしょうか。",
+      "source": "AI",
+      "vi": "Chẳng phải là kế hoạch này có phần hơi quá sức hay sao?"
+     },
+     {
+      "ja": "彼は今日の会議の時間を忘れているのではないか。",
+      "ja_furigana": "彼(かれ)は今日(きょう)の会議(かいぎ)の時間(じかん)を忘(わす)れているのではないか。",
+      "source": "AI",
+      "vi": "E là anh ấy đang quên mất giờ họp hôm nay chăng?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 何か誤解があるのではないでしょうか。",
+     "FURIGANA_MISSING: 何か誤解があるのではないでしょうか。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V / Aい / Aな + な / N + な + のではないか (khẩu ngữ: んじゃない？)",
+    "locked_fields": [],
+    "meaning_vi": "Chẳng phải là sao — Nêu phán đoán một cách dè dặt, hoặc gợi ý nhẹ.",
+    "nuance_vi": "Cách nêu ý kiến hoặc phỏng đoán khéo léo, lịch sự để không áp đặt quan điểm lên người nghe.",
+    "order_items": [],
+    "pattern": "Thể thường + のではないか",
+    "pattern_variants": [],
+    "unit_no": 12,
+    "unit_title_vi": "Phủ định, suy đoán và khẳng định",
+    "usage_vi": "Văn nói rút gọn んじゃないか. Cách nói vòng để không áp đặt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1e9b63ccf6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この漢字の書き方を教えてください。",
+       "ja_furigana": "この漢字(かんじ)の書(か)き方(かた)を教(おし)えてください。",
+       "vi": "Xin hãy chỉ cho tôi cách viết chữ Hán này."
+      },
+      {
+       "ja": "この新しい機械の使い方が分かりません。",
+       "ja_furigana": "この新(あたら)しい機械(きかい)の使(つか)い方(かた)が分(わ)かりません。",
+       "vi": "Tôi không biết cách sử dụng chiếc máy mới này."
+      },
+      {
+       "ja": "美味しいパンの作り方を母に習いました。",
+       "ja_furigana": "美味(おい)しいパンの作(つく)り方(かた)を母(はは)に習(なら)いました。",
+       "vi": "Tôi đã học cách làm bánh mì ngon từ mẹ."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Giữ nguyên trợ từ を trước động từ khi đã chuyển thành 〜方 (sai: 切符を買い方; đúng: 切符の買い方).",
+    "examples": [
+     {
+      "ja": "この漢字の書き方を教えてください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "この新しい機械の使い方が分かりません。",
+      "ja_furigana": "この新(あたら)しい機械(きかい)の使(つか)い方(かた)が分(わ)かりません。",
+      "source": "AI",
+      "vi": "Tôi không biết cách sử dụng chiếc máy mới này."
+     },
+     {
+      "ja": "美味しいパンの作り方を母に習いました。",
+      "ja_furigana": "美味(おい)しいパンの作(つく)り方(かた)を母(はは)に習(なら)いました。",
+      "source": "AI",
+      "vi": "Tôi đã học cách làm bánh mì ngon từ mẹ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: この漢字の書き方を教えてください。",
+     "FURIGANA_MISSING: この漢字の書き方を教えてください。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V(bỏ ます) + 方(かた)",
+    "locked_fields": [],
+    "meaning_vi": "Cách làm — Chỉ phương pháp hoặc cách thức làm việc gì.",
+    "nuance_vi": "Danh từ hóa động từ để chỉ phương pháp, cách thức thực hiện hành động đó.",
+    "order_items": [],
+    "pattern": "V thể ます (bỏ ます) + 方",
+    "pattern_variants": [],
+    "unit_no": 2,
+    "unit_title_vi": "Cảm xúc, giác quan và trạng thái",
+    "usage_vi": "Trở thành danh từ nên nối bằng の: 漢字の書き方. Trợ từ を đổi thành の: 料理を作る → 料理の作り方."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a5ac5e394e"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-008"
+}

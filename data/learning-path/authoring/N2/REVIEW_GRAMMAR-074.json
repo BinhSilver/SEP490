@@ -1,0 +1,582 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は日曜日も開いています。ただし、午前中だけです。",
+       "ja_furigana": "この店(みせ)は日曜日(にちようび)も開(あ)いています。ただし、午前中(ごぜんちゅう)だけです。",
+       "vi": "Cửa hàng này mở cả Chủ nhật. Tuy nhiên chỉ buổi sáng."
+      },
+      {
+       "ja": "誰でも参加できます。ただし、予約が必要です。",
+       "ja_furigana": "誰(だれ)でも参加(さんか)できます。ただし、予約(よやく)が必要(ひつよう)です。",
+       "vi": "Ai cũng có thể tham gia. Tuy nhiên cần đặt trước."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "全商品３割引です。ただし、この棚の商品は除きます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Toàn bộ sản phẩm giảm giá 30%. Tuy nhiên, ngoại trừ sản phẩm ở kệ này."
+     },
+     {
+      "ja": "明日は９時に集合です。ただし、雨の場合は中止です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngày mai tập trung lúc 9 giờ. Thế nhưng, trường hợp trời mưa sẽ tạm hoãn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 全商品３割引です。ただし、この棚の商品は除きます。",
+     "FURIGANA_MISSING: 明日は９時に集合です。ただし、雨の場合は中止です。"
+    ],
+    "formation": "câu 1。ただし + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Tuy nhiên, thế nhưng",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜3割引。ただしこの棚の商品を除く。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "(1) Sử dụng khi thêm điều kiện hay ngoại lệ vào câu văn phía trước (a). (2) Sử dụng khi thêm vấn đề hay điều kiện vào câu văn phía trước (a). Sử dụng trong các câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0a824181e2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "「電気がついている。ということは、彼は家にいる。」",
+       "ja_furigana": "「電気(でんき)がついている。ということは、彼(かれ)は家(いえ)にいる。」",
+       "vi": "\"Đèn đang sáng. Có nghĩa là anh ấy đang ở nhà.\""
+      },
+      {
+       "ja": "「朝から雨だ。ということは、試合は中止だろう。」",
+       "ja_furigana": "「朝(あさ)から雨(あめ)だ。ということは、試合(しあい)は中止(ちゅうし)だろう。」",
+       "vi": "\"Trời mưa từ sáng. Có nghĩa là trận đấu có lẽ bị hủy.\""
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「彼は、まだ来ませんね。ということは、欠席ということですね。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy vẫn chưa đến nhỉ. Điều đó có nghĩa là không tham gia ấy nhỉ."
+     },
+     {
+      "ja": "「私はもうお酒を飲めます。」 「ということは二十歳を過ぎてるんだね。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã bỏ rượu rồi. Điều đó có nghĩa là quá 20 tuổi rồi nhỉ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「彼は、まだ来ませんね。ということは、欠席ということですね。」",
+     "FURIGANA_MISSING: 「私はもうお酒を飲めます。」 「ということは二十歳を過ぎてるんだね。」"
+    ],
+    "formation": "câu 1。ということは + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Có nghĩa là ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜まだ来ない。ということは欠席だ。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Bắt đầu câu có nội dung phán đoán dựa trên căn cứ từ câu phía trước (a)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b59cfc6d23"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今日は早く帰ります。というのは、子どもが熱を出したからです。",
+       "ja_furigana": "今日(きょう)は早(はや)く帰(かえ)ります。というのは、子(こ)どもが熱(ねつ)を出(だ)したからです。",
+       "vi": "Hôm nay tôi về sớm. Là vì con tôi bị sốt."
+      },
+      {
+       "ja": "この店はよく休みます。というのは、主人が病気だからです。",
+       "ja_furigana": "この店(みせ)はよく休(やす)みます。というのは、主人(しゅじん)が病気(びょうき)だからです。",
+       "vi": "Quán này hay nghỉ. Là vì ông chủ bị ốm."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「今日は家を出られないんです。というのは父の具合が悪くなりまして・・・。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay không thể ra khỏi nhà. Đó là bởi vì tình trạng sức khỏe của cha xấu…"
+     },
+     {
+      "ja": "「ぼくは卵を食べないんです。というのは、アレルギーがあるんですよ。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi không ăn trứng. Đó là bởi vì, tôi bị dị ứng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「今日は家を出られないんです。というのは父の具合が悪くなりまして・・・。」",
+     "FURIGANA_MISSING: 「ぼくは卵を食べないんです。というのは、アレルギーがあるんですよ。」"
+    ],
+    "formation": "câu 1。というのは + lý do",
+    "locked_fields": [],
+    "meaning_vi": "Là vì ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜外出できない。というのは父の具合が悪いんです。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu thị lý do cho hành động, sự việc phía trước."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e0dba38760"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会議は十時からです。したがって、九時半までに来てください。",
+       "ja_furigana": "会議(かいぎ)は十時(じゅうじ)からです。したがって、九時半(くじはん)までに来(き)てください。",
+       "vi": "Cuộc họp bắt đầu từ mười giờ. Do đó xin đến trước chín giờ rưỡi."
+      },
+      {
+       "ja": "この道は工事中です。したがって、通行できません。",
+       "ja_furigana": "この道(みち)は工事中(こうじちゅう)です。したがって、通行(つうこう)できません。",
+       "vi": "Con đường này đang thi công. Do đó không thể đi qua."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼はまじめて誠実な人だ。したがってみんなから信頼されている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy là người nghiêm túc, thành thật. Do vậy, được mọi người tin cậy."
+     },
+     {
+      "ja": "教授は急用で来られません。したがって講義は中止です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì có việc gấp không thể đến dạy. Do vậy, buổi học tạm dừng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼はまじめて誠実な人だ。したがってみんなから信頼されている。",
+     "FURIGANA_MISSING: 教授は急用で来られません。したがって講義は中止です。"
+    ],
+    "formation": "câu 1。したがって + câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Do vậy ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜彼はまじめだ。したがって信頼されている。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu đạt sự việc phía sau xảy ra như là kết quả đương nhiên theo những điều kiện của câu phía trước. Sử dụng trong các câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8e7ebb1f88"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "「わけだ」と「はずだ」の違いを説明できますか。",
+       "ja_furigana": "「わけだ」と「はずだ」の違(ちが)いを説明(せつめい)できますか。",
+       "vi": "Bạn có thể giải thích sự khác nhau giữa \"わけだ\" và \"はずだ\" không?"
+      },
+      {
+       "ja": "「かねない」と「恐れがある」は意味が近いが、使い方が少し違う。",
+       "ja_furigana": "「かねない」と「恐(おそ)れがある」は意味(いみ)が近(ちか)いが、使(つか)い方(かた)が少(すこ)し違(ちが)う。",
+       "vi": "\"かねない\" và \"恐れがある\" gần nghĩa nhau nhưng cách dùng hơi khác."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "Những nhóm như わけ・はず, ざるを得ない・ないわけにはいかない, かねない・恐れがある, にすぎない・にほかならない, ものの・とはいえ・にもかかわらず",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "thường xuất hiện trong phần ngữ pháp và đọc hiểu JLPT N2."
+     },
+     {
+      "ja": "Mức độ gần đúng: はずだ → に違いない → に決まっている",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xem chi tiết 3 mẫu phán đoán →"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "GRAMMAR_CORE_MISSING: N2 dễ nhầm",
+     "PARENT_MISSING: N2 dễ nhầm",
+     "FURIGANA_MISSING: Những nhóm như わけ・はず, ざるを得ない・ないわけにはいかない, かねない・恐れがある, にすぎない・にほかならない, ものの・とはいえ・にもかかわらず",
+     "FURIGANA_MISSING: Mức độ gần đúng: はずだ → に違いない → に決まっている"
+    ],
+    "formation": null,
+    "locked_fields": [],
+    "meaning_vi": "Tổng hợp ngữ pháp N2 dễ nhầm: Phân biệt theo từng nhóm",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "N2 dễ nhầm",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "JLPT N2 Tổng hợp ngữ pháp N2 dễ nhầm: Phân biệt theo từng nhóm Từ trình độ N2, việc học ngữ pháp không còn đơn giản là nhớ nghĩa tiếng Việt. Nhiều mẫu có nghĩa gần giống nhau nhưng khác rõ về mức độ chắc chắn, thái độ người nói, văn phong và điều kiện sử dụng. Những nhóm như わけ・はず, ざるを得ない・ないわけにはいかない, かねない・恐れがある, にすぎない・にほかならない, ものの・とはいえ・にもかかわらず thường xuất hiện trong phần ngữ pháp và đọc hiểu JLPT N2. Hub này giúp bạn xác định nhanh điểm khác biệt cốt lõi giữa các mẫu. Khi cần học sâu hơn về cấu trúc, sắc thái và ví dụ, hãy mở bài phân biệt chi tiết ở từng mục. Nội dung bài học Phán đoán, kết luận và わけ・はず Nghĩa vụ, lời khuyên và tình thế bắt buộc Khả năng, nguy cơ và khuynh hướng Giới hạn, nhấn mạnh và bổ sung Nhượng bộ và tương phản Nguyên nhân và mức độ Thời điểm, phạm vi và tiêu chuẩn Bảng tra nhanh N2 Các hub N2 mở rộng 01 Phán đoán, kết luận và わけ・はず Nhóm cực kỳ quan trọng ở N2: kết luận có căn cứ, phủ định một kết luận và đánh giá mức độ chắc chắn. 1 ～わけだ và ～はずだ ～わけだ “Thảo nào / hóa ra / vì thế nên…”. Dùng khi đi đến kết luận sau khi hiểu nguyên nhân hoặc hoàn cảnh. ～はずだ “Chắc là / theo lẽ thì…”. Phán đoán dựa trên thông tin hoặc logic đã biết. Nhớ nhanh: hiểu ra nguyên nhân → わけだ ／ dự đoán có căn cứ → はずだ Xem chi tiết: Phân biệt ～わけだ và ～はずだ → 2 ～わけではない và ～とは限らない ～わけではない Phủ định một cách hiểu hoặc kết luận: “không hẳn là…”. ～とは限らない Nói rằng điều đó không phải lúc nào cũng đúng: “không nhất thiết…”. Nhớ nhanh: phủ định cách hiểu → わけではない ／ phủ định tính tuyệt đối → とは限らない Xem chi tiết: ～わけではない và ～とは限らない → 3 ～わけがない và ～はずがない ～わけがない Người nói khẳng định mạnh rằng “không thể nào có chuyện…”. ～はずがない Dựa vào căn cứ hoặc logic để kết luận rằng “theo lẽ thì không thể…”. Xem chi tiết: ～わけがない và ～はずがない → 4 ～はずだ・～に違いない・～に決まっている ～はずだ Kết luận dựa vào logic hoặc thông tin đã biết. ～に違いない / ～に決まっている Mức khẳng định mạnh hơn. に決まっている thường chủ quan và khẩu ngữ hơn. Mức độ gần đúng: はずだ → に違いない → に決まっている Xem chi tiết 3 mẫu phán đoán → 02 Nghĩa vụ, lời khuyên và tình thế bắt buộc Cùng được dịch là “phải”, “nên” hoặc “không thể không”, nhưng lý do khiến người nói hành động rất khác nhau. 5 ～わけにはいかない và ～てはいけない ～わけにはいかない Không thể làm vì trách nhiệm, đạo đức, hoàn cảnh hoặc vị trí xã hội. ～てはいけない Không được phép làm vì quy tắc hoặc lệnh cấm. Xem chi tiết: ～わけにはいかない và ～てはいけない → 6 ～ないわけにはいかない và ～なければならない ～ないわけにはいかない Hoàn cảnh khiến người nói “không thể không làm”. ～なければならない Nghĩa vụ hoặc yêu cầu phải thực hiện. Xem chi tiết: ～ないわけにはいかない và ～なければならない → 7 ～ざるを得ない và ～ないわけにはいかない ～ざるを得ない Không còn lựa chọn nào khác ngoài việc phải làm. ～ないわけにはいかない Không thể không làm vì trách nhiệm, quan hệ hoặc hoàn cảnh xã hội. Xem chi tiết: ～ざるを得ない và ～ないわけにはいかない → 8 ～ざるを得ない・～しかない・～ほかない ～ざるを得ない Bị hoàn cảnh ép phải thực hiện hành động. ～しかない / ～ほかない Không còn phương án nào khác. ～ほかない thiên về văn viết hơn. Xem chi tiết 3 mẫu “không còn cách nào khác” → 9 ～ことだ và ～べきだ ～ことだ Đưa ra lời khuyên hoặc giải pháp: “nên…”. ～べきだ Đánh giá một hành động là đúng, hợp lý hoặc có trách nhiệm phải làm. Xem chi tiết: ～ことだ và ～べきだ → 10 ～ものではない và ～べきではない ～ものではない “Không nên…”, thường dựa trên lẽ thường, đạo đức hoặc phép ứng xử. ～べきではない Người nói trực tiếp đánh giá rằng một hành động không nên được thực hiện. Xem chi tiết: ～ものではない và ～べきではない → 11 ～ことはない và ～必要はない ～ことはない “Không cần phải…”, thường dùng khi khuyên hoặc trấn an người khác. ～必要はない Nói khách quan rằng không có sự cần thiết. Xem chi tiết: ～ことはない và ～必要はない → 03 Khả năng, nguy cơ và khuynh hướng N2 có nhiều mẫu diễn tả khả năng xấu, xu hướng và đặc điểm dễ xuất hiện. 12 ～かねない và ～かもしれない ～かねない Có nguy cơ xảy ra một kết quả xấu hoặc không mong muốn. ～かもしれない Chỉ đơn thuần nói rằng một khả năng có thể xảy ra. Nhớ nhanh: nguy cơ tiêu cực → かねない ／ khả năng nói chung → かもしれない Xem chi tiết: ～かねない và ～かもしれない → 13 ～恐れがある và ～かねない ～恐れがある Có nguy cơ…, thường gặp trong báo chí, cảnh báo và văn phong trang trọng. ～かねない Một hành động hoặc tình huống có khả năng dẫn đến kết quả tiêu cực. Xem chi tiết: ～恐れがある và ～かねない → 14 ～かねる và ～できない ～かねる Khó có thể làm / không thể đáp ứng; thường dùng lịch sự khi từ chối. ～できない Đơn giản nói rằng không có khả năng hoặc không thể làm. Xem chi tiết: ～かねる và ～できない → 15 ～っぽい・～がち・～気味 ～っぽい Có vẻ / dễ mang đặc điểm nào đó. ～がち / ～気味 がち = thường có xu hướng, thường tiêu cực. 気味 = hơi có dấu hiệu hoặc trạng thái nhẹ. Xem chi tiết: ～っぽい・～がち・～気味 → 16 ～らしい và ～っぽい ～らしい Có đặc trưng đúng với bản chất: “đúng chất…”. ～っぽい Mang vẻ hoặc đặc điểm giống…, đôi khi có sắc thái không hoàn toàn tích cực. Xem chi tiết: ～らしい và ～っぽい → 04 Giới hạn, nhấn mạnh và bổ sung Các mẫu trong nhóm này thường được dịch là “chỉ”, “không chỉ”, “thậm chí”, nhưng sắc thái rất khác nhau. 17 ～にすぎない và ～だけ ～にすぎない “Chẳng qua chỉ là…”, hạ thấp mức độ hoặc giá trị. ～だけ Đơn thuần giới hạn phạm vi: “chỉ…”. Xem chi tiết: ～にすぎない và ～だけ → 18 ～にすぎない và ～しかない ～にすぎない Chẳng qua chỉ là, không hơn mức đó. ～しかない Chỉ còn một lựa chọn hoặc chỉ có một phạm vi nhất định. Xem chi tiết: ～にすぎない và ～しかない → 19 ～にほかならない và ～にすぎない ～にほかならない “Không gì khác chính là…”, nhấn mạnh bản chất hoặc nguyên nhân. ～にすぎない “Chẳng qua chỉ là…”, hạ thấp hoặc giới hạn mức độ. Gần như đối lập: にほかならない = nhấn mạnh ／ にすぎない = hạ thấp Xem chi tiết: ～にほかならない và ～にすぎない → 20 ～ばかりか và ～だけでなく ～ばかりか “Không những… mà thậm chí còn…”. B thường vượt ngoài mức dự đoán. ～だけでなく “Không chỉ A mà còn B”, cách bổ sung trung tính hơn. Xem chi tiết: ～ばかりか và ～だけでなく → 21 ～どころか và ～ばかりか ～どころか Không những không phải A mà thực tế còn B, thường đảo ngược kỳ vọng. ～ばかりか Không chỉ A mà còn thêm B ở mức mạnh hơn. Xem chi tiết: ～どころか và ～ばかりか → 22 ～どころではない và ～どころか ～どころではない Hoàn cảnh không cho phép làm hoặc nghĩ đến A. ～どころか Thực tế khác xa hoặc trái ngược với A. Xem chi tiết: ～どころではない và ～どころか → 23 ～どころではない và ～場合ではない ～どころではない Hoàn cảnh thực tế khiến A trở nên không thể nghĩ tới. ～場合ではない “Không phải lúc để…”, nhấn mạnh tình huống không phù hợp. Xem chi tiết: ～どころではない và ～場合ではない → 24 ～に限り và ～に限って ～に限り Chỉ giới hạn đối tượng hoặc phạm vi; thường gặp trong thông báo. ～に限って “Riêng đúng lúc / riêng người…” thường mang sắc thái ngoại lệ hoặc bất ngờ. Xem chi tiết: ～に限り và ～に限って → 05 Nhượng bộ và tương phản Đây là một trong những nhóm dễ nhầm nhất của JLPT N2, đặc biệt trong phần đọc hiểu. 25 ～ながら và ～ながらも ～ながら Có thể diễn tả hai hành động đồng thời. ～ながらも “Mặc dù… nhưng”, dùng để nhượng bộ. Xem chi tiết: ～ながら và ～ながらも → 26 ～にもかかわらず và ～のに ～にもかかわらず Mặc dù…, trang trọng và khách quan hơn. ～のに Mặc dù…, thường chứa cảm giác trái kỳ vọng hoặc cảm xúc của người nói. Xem chi tiết: ～にもかかわらず và ～のに → 27 ～にもかかわらず và ～ながらも ～にもかかわらず Nhượng bộ rõ, trang trọng và thường gặp trong văn viết. ～ながらも Hai trạng thái trái nhau cùng tồn tại ở một chủ thể. Xem chi tiết: ～にもかかわらず và ～ながらも → 28 ～ものの và ～のに ～ものの “Tuy… nhưng”, văn viết và tương đối khách quan. ～のに “Mặc dù… nhưng”, thường mang cảm xúc tiếc nuối, bất mãn hoặc bất ngờ. Xem chi tiết: ～ものの và ～のに → 29 ～ものの và ～とはいえ ～ものの A đúng nhưng kết quả hoặc tình trạng B không như dự kiến. ～とはいえ Công nhận A nhưng sau đó đưa ra giới hạn, ngoại lệ hoặc góc nhìn khác. Xem chi tiết: ～ものの và ～とはいえ → 30 ～とはいえ và ～ても ～とはいえ “Tuy nói là… nhưng”, công nhận thông tin A trước. ～ても “Dù A thì B”, đặt một điều kiện nhượng bộ. Xem chi tiết: ～とはいえ và ～ても → 31 ～くせに và ～のに ～くせに “Ấy thế mà / dù…”, thường chứa sắc thái trách móc hoặc coi thường. ～のに Trái kỳ vọng nhưng không nhất thiết mang ý chỉ trích. Xem chi tiết: ～くせに và ～のに → 06 Nguyên nhân và mức độ Các mẫu nguyên nhân N2 bắt đầu thể hiện rõ đánh giá tích cực, tiêu cực và mức độ vượt quá bình thường. 32 ～せいで và ～ために ～せいで Nguyên nhân dẫn đến kết quả xấu, thường có sắc thái đổ lỗi. ～ために Có thể trình bày nguyên nhân tương đối khách quan hơn. Xem chi tiết: ～せいで và ～ために → 33 ～おかげで và ～ために ～おかげで Nhờ một nguyên nhân mà có kết quả tích cực. ～ために Trình bày nguyên nhân mà không nhất thiết đánh giá tích cực hay tiêu cực. Xem chi tiết: ～おかげで và ～ために → 34 ～あまり và ～あまりに ～あまり Vì một trạng thái hoặc cảm xúc quá mức nên dẫn đến kết quả nào đó. ～あまりに Quá…, đến mức vượt khỏi mức bình thường. Xem chi tiết: ～あまり và ～あまりに → 35 ～あまりに và ～すぎて ～あまりに Nhấn mạnh mức độ quá lớn, thường dùng để đánh giá một trạng thái. ～すぎて Quá A nên dẫn đến B; cấu trúc trực tiếp và phổ biến hơn. Xem chi tiết: ～あまりに và ～すぎて → 07 Thời điểm, phạm vi và tiêu chuẩn Đây là nhóm thường xuất hiện trong văn viết, thông báo, bài báo và đọc hiểu N2. Học theo cụm: を通じて・を通して・にわたって・にかけて 36 ～次第 và ～たら ～次第 Ngay sau khi A hoàn thành thì sẽ làm B; thường trang trọng và có tính kế hoạch. ～たら Sau khi / nếu A thì B; thông dụng hơn trong hội thoại. Xem chi tiết: ～次第 và ～たら → 37 ～に際して và ～際に ～に際して Nhân dịp / khi đứng trước một sự kiện quan trọng; trang trọng. ～際に Khi / vào lúc…, cách nói trang trọng hơn とき. Xem chi tiết: ～に際して và ～際に → 38 ～にあたって và ～に際して ～にあたって Khi bắt tay vào hoặc đứng trước một sự kiện quan trọng. ～に際して Nhân dịp / khi một sự kiện quan trọng diễn ra. Xem chi tiết: ～にあたって và ～に際して → 39 ～上で và ～にあたって ～上で Sau khi làm A rồi mới B, hoặc xét trên phương diện A. ～にあたって Khi chuẩn bị bắt đầu một việc hoặc sự kiện quan trọng. Xem chi tiết: ～上で và ～にあたって → 40 ～を通じて và ～を通して ～を通じて Thông qua một phương tiện hoặc trong suốt một khoảng thời gian. ～を通して Ý nghĩa gần giống nhưng thường nhấn mạnh phương tiện hoặc quá trình cụ thể hơn. Xem chi tiết: ～を通じて và ～を通して → 41 ～を通じて và ～にわたって ～を通じて Trong suốt một khoảng thời gian hoặc thông qua một phương tiện. ～にわたって Trải dài trên toàn bộ một phạm vi về thời gian, không gian hoặc số lượng. Xem chi tiết: ～を通じて và ～にわたって → 42 ～にわたって và ～にかけて ～にわたって Bao phủ toàn bộ phạm vi từ đầu đến cuối. ～にかけて Từ khoảng A đến khoảng B, ranh giới có thể không hoàn toàn chính xác. Xem chi tiết: ～にわたって và ～にかけて → 43 ～に従って và ～に応じて ～に従って Theo một quy tắc, hướng dẫn hoặc sự thay đổi của A. ～に応じて Điều chỉnh hoặc đáp ứng tương ứng với A. Xem chi tiết: ～に従って và ～に応じて → 44 ～に沿って và ～に従って ～に沿って Làm theo đường hướng, chính sách, kế hoạch hoặc mong muốn. ～に従って Làm theo quy tắc, chỉ thị hoặc sự thay đổi diễn ra theo A. Xem chi tiết: ～に沿って và ～に従って → 08 Bảng tra nhanh ngữ pháp N2 dễ nhầm Tập trung vào một điểm khác biệt chính trước khi học chi tiết. Cặp / nhóm ngữ pháp Nhớ nhanh わけだ / はずだ Hiểu ra kết luận / dự đoán có căn cứ わけではない / とは限らない Không hẳn / không nhất thiết わけがない / はずがない Không thể nào / theo logic thì không thể わけにはいかない / てはいけない Không thể vì hoàn cảnh / bị cấm ざるを得ない / ないわけにはいかない Bị ép phải / không thể không ことだ / べきだ Lời khuyên / điều được xem là nên làm かねない / かもしれない Nguy cơ xấu / khả năng nói chung 恐れがある / かねない Nguy cơ trang trọng / nguy cơ từ tình huống かねる / できない Từ chối lịch sự / không thể っぽい / がち / 気味 Đặc điểm / xu hướng / hơi có dấu hiệu にすぎない / だけ Chẳng qua chỉ / chỉ にほかならない / にすぎない Chính là / chẳng qua chỉ là ばかりか / だけでなく Không những mà thậm chí / không chỉ mà còn どころか / ばかりか Trái hẳn kỳ vọng / bổ sung mạnh どころではない / 場合ではない Hoàn cảnh không cho phép / không phải lúc にもかかわらず / のに Trang trọng, khách quan / cảm xúc trái kỳ vọng ものの / のに Văn viết / cảm xúc hơn ものの / とはいえ Tuy A nhưng B / công nhận A rồi giới hạn くせに / のに Trách móc / trái kỳ vọng せいで / ために Nguyên nhân xấu / nguyên nhân trung tính hơn おかげで / ために Nhờ / do あまり / あまりに Vì quá… nên / quá mức 次第 / たら Ngay sau khi / sau khi, nếu に際して / 際に Nhân dịp quan trọng / khi を通じて / を通して Thông qua / thông qua, xuyên suốt を通じて / にわたって Xuyên suốt / trải rộng toàn phạm vi にわたって / にかけて Toàn phạm vi / khoảng từ A đến B に従って / に応じて Theo / đáp ứng tương ứng 09 Các hub ngữ pháp N2 mở rộng Sau khi nắm các cặp riêng lẻ, nên học theo cụm chức năng để chuẩn bị chuyển tiếp từ N2 lên N1. 1 Phạm vi và thời gian を通じて・を通して・にわたって・にかけて Xem bài tổng hợp → 2 Căn cứ và tiêu chuẩn に基づいて・をもとに・に沿って・に従って・に即して Xem bài tổng hợp → 3 Bước ngoặt và khởi đầu をきっかけに・を契機に・を機に・を皮切りに Xem bài tổng hợp → 4 Nhượng bộ のに・にもかかわらず・ものの・とはいえ・ながらも Xem bài tổng hợp → 5 Giới hạn và bổ sung だけ・しか・ばかり・にすぎない・ばかりか… Xem bài tổng hợp → 6 Nghĩa vụ và lựa chọn なければならない・べきだ・ざるを得ない・しかない… Xem bài tổng hợp → Nên học ngữ pháp N2 theo thứ tự nào? 01 わけ・はず và phán đoán わけだ・わけではない・わけがない・はずだ・に違いない… 02 Nghĩa vụ và tình thế bắt buộc わけにはいかない・ないわけにはいかない・ざるを得ない… 03 Khả năng và khuynh hướng かねない・恐れがある・かねる・がち・気味・っぽい… 04 Giới hạn và bổ sung にすぎない・にほかならない・ばかりか・どころか… 05 Nhượng bộ ものの・とはいえ・にもかかわらず・ながらも・くせに… 06 Văn viết N2 → N1 に際して・にあたって・にわたって・に従って・に沿って… Tổng kết Ở trình độ N2, nhiều câu hỏi không kiểm tra việc bạn có biết nghĩa của một mẫu hay không, mà kiểm tra liệu bạn có nhận ra sắc thái và điều kiện sử dụng của mẫu đó. Ví dụ, ～わけではない và ～とは限らない đều có thể được dịch thành “không hẳn”, nhưng một mẫu phủ định cách hiểu, còn mẫu kia phủ định tính tuyệt đối của một nhận định. Tương tự, ～ざるを得ない, ～ないわけにはいかない và ～しかない đều có thể dẫn tới bản dịch “phải / không còn cách nào khác”, nhưng nguyên nhân khiến người nói lựa chọn hành động hoàn toàn khác nhau. Khi học N2, nên luôn đi theo thứ tự: chức năng → sắc thái → cấu trúc → mẫu gần nghĩa → trường hợp không thể thay thế . Đây cũng là nền tảng quan trọng trước khi chuyển sang các cấu trúc văn viết và sắc thái mạnh hơn của JLPT N1."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e9a6dc7f88"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このかばんは軽いには軽いが、すぐに壊れそうだ。",
+       "ja_furigana": "このかばんは軽(かる)いには軽(かる)いが、すぐに壊(こわ)れそうだ。",
+       "vi": "Cái cặp này nhẹ thì nhẹ thật nhưng trông dễ hỏng lắm."
+      },
+      {
+       "ja": "映画は見るには見たが、あまりおもしろくなかった。",
+       "ja_furigana": "映画(えいが)は見(み)るには見(み)たが、あまりおもしろくなかった。",
+       "vi": "Phim thì tôi có xem đấy nhưng không hay lắm."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "雨は降るには（/ことは）降ったが、たった３ミリだった。これでは水不足は解消しない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mưa thì cũng có mưa nhưng chỉ 3 mili. Thế này không giải quyết được việc thiếu nước."
+     },
+     {
+      "ja": "「あなたの言いたいこともわかることはわけるけど・・・・・」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "“Những điều bạn muốn nói hiểu thì tôi hiểu nhưng…”"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 雨は降るには（/ことは）降ったが、たった３ミリだった。これでは水不足は解消しない。",
+     "FURIGANA_MISSING: 「あなたの言いたいこともわかることはわけるけど・・・・・」"
+    ],
+    "formation": "Vる + には + Vた + が／けど",
+    "locked_fields": [],
+    "meaning_vi": "Cách kết hợp:",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜(に)は・・・が/けど",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "～ことは・・・が／けど Cách kết hợp: 【動詞・イ形容詞・ナ形容詞】の普通形（は／には）【動詞・イ形容詞・ナ形容詞】の普通形（が／けど）／【動詞・イ形容詞 Ý nghĩa: 実際～だが、問題があることを示す Ví dụ: 雨は降るには（/ことは）降ったが、たった３ミリだった。これでは水不足は解消しない。 Mưa thì cũng có mưa nhưng chỉ 3 mili. Thế này không giải quyết được việc thiếu nước. 1. 「あなたの言いたいこともわかることはわけるけど・・・・・」 “Những điều bạn muốn nói hiểu thì tôi hiểu nhưng…” 2. この道具は便利は便利だが、高すぎて売れないだろう。 Dụng cụ này tiện thì tiện thật nhưng đắt quá chắc chẳng bán được mấy. 3. 「同窓会、行った？」「行ったことは行ったんだけど、風邪気味だったんで、３０分ほどで帰ってきちゃったんだ」 “Đã tổ chức họp hội cựu sinh viên à?” – “Tổ chức thì có đấy nhưng chỉ khoảng 30 phút rồi về thôi, như gió thoảng vậy.”"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-07b94593fa"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "みんなで力を合わせて、この町をきれいにしようではないか。",
+       "ja_furigana": "みんなで力(ちから)を合(あ)わせて、この町(まち)をきれいにしようではないか。",
+       "vi": "Mọi người hãy cùng chung sức làm cho thị trấn này sạch đẹp nào."
+      },
+      {
+       "ja": "まずは自分のできることから始めようではないか。",
+       "ja_furigana": "まずは自分(じぶん)のできることから始(はじ)めようではないか。",
+       "vi": "Trước hết hãy bắt đầu từ việc mình làm được."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「この問題について、みなで考えようではありませんか」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Về vấn đề này, mọi người nghĩ cùng nhau chứ nhỉ."
+     },
+     {
+      "ja": "一人一人がごみを減らす努力をしようではないか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mỗi người hãy cùng nỗ lực để giảm thiểu rác thải."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「この問題について、みなで考えようではありませんか」",
+     "FURIGANA_MISSING: 一人一人がごみを減らす努力をしようではないか。"
+    ],
+    "formation": "V意向形 + ではないか／ではありませんか",
+    "locked_fields": [],
+    "meaning_vi": "Cùng nhau…làm gì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜(よ)うではないか",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 動詞の意志形（ではないか） Ý nghĩa: 一緒に～しよう（他社への呼びかけ） Cùng nhau…làm gì Ví dụ: 1. 「この問題について、みなで考えようではありませんか」 Về vấn đề này, mọi người nghĩ cùng nhau chứ nhỉ. 2. 一人一人がごみを減らす努力をしようではないか。 Mỗi người hãy cùng nỗ lực để giảm thiểu rác thải. 3. 「目標に向かってお互いがんばろうじゃないか！」 Hướng đến mục tiêu, cùng phấn đấu chứ nhỉ!"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-617e156bc7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "空が明るくなって、朝が来ようとしている。",
+       "ja_furigana": "空(そら)が明(あか)るくなって、朝(あさ)が来(こ)ようとしている。",
+       "vi": "Trời đã sáng hơn, buổi sáng sắp đến."
+      },
+      {
+       "ja": "庭の花が今にも咲こうとしている。",
+       "ja_furigana": "庭(にわ)の花(はな)が今(いま)にも咲(さ)こうとしている。",
+       "vi": "Hoa trong vườn như sắp nở."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "私が生まれたのは１９６０年、日本が高度経済成長の時代を迎えようとしている時期だった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi sinh năm 1960, đúng thời điểm nước Nhật đón thời kì kinh tế phát triển cao."
+     },
+     {
+      "ja": "宇宙飛行士である妻が乗るロケットが、今、打ち上げられようとしている。成功を祈るばかりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tên lửa vợ tôi, nhà du hành vũ trụ lái, bây giờ đang được phóng. Tôi chỉ cầu mong là sẽ thành công thôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 私が生まれたのは１９６０年、日本が高度経済成長の時代を迎えようとしている時期だった。",
+     "FURIGANA_MISSING: 宇宙飛行士である妻が乗るロケットが、今、打ち上げられようとしている。成功を祈るばかりだ。"
+    ],
+    "formation": "V意向形 + とする／としている",
+    "locked_fields": [],
+    "meaning_vi": "Cách kết hợp:",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜(よ)うとする/している",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: （無意志）動詞の意志形（とする／している） Ý nghĩa: ～の直前である、今ちょうど～しているところである（文学的な表現） Ví dụ: 1. 私が生まれたのは１９６０年、日本が高度経済成長の時代を迎えようとしている時期だった。 Tôi sinh năm 1960, đúng thời điểm nước Nhật đón thời kì kinh tế phát triển cao. 2. 宇宙飛行士である妻が乗るロケットが、今、打ち上げられようとしている。成功を祈るばかりだ。 Tên lửa vợ tôi, nhà du hành vũ trụ lái, bây giờ đang được phóng. Tôi chỉ cầu mong là sẽ thành công thôi. 3. 新しい年が明けようとしている。今年はどんな年になるだろうか。 Năm mới vừa sang. Năm nay sẽ là một năm như nào nhỉ! 4. 「オリンピックの閉幕を迎え、20日間にわたって燃え続けた聖火が、今、消えようとしています」 “Chào mừng lễ bế mạc Olympic, ngọn lửa đã cháy suốt 20 ngày qua sẽ được dập tắt bây giờ” 5. 病院では、生まれようとする命と消えようとする命の交代が、日々くり返されている。 Ở bệnh viện, việc những sinh linh mới ra đời thay thế cho những sinh mệnh vừa lụi tắt được lặp lại mỗi ngày."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e4c4fd3225"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "風邪で声が出ず、電話をかけようにもかけられない。",
+       "ja_furigana": "風邪(かぜ)で声(こえ)が出(で)ず、電話(でんわ)をかけようにもかけられない。",
+       "vi": "Bị cảm không ra tiếng, muốn gọi điện cũng không gọi được."
+      },
+      {
+       "ja": "お金がなくて、旅行に行こうにも行けない。",
+       "ja_furigana": "お金(かね)がなくて、旅行(りょこう)に行(い)こうにも行(い)けない。",
+       "vi": "Không có tiền, muốn đi du lịch cũng không đi được."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "歯が痛くて食べようにも食べられない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đau răng muốn ăn tí cũng không được."
+     },
+     {
+      "ja": "大雪で電車が止まってしまい、学校に行こうにも行けなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì tuyết dày đặc nên xe điện phải ngừng hoạt động, tôi muốn đến trường lắm nhưng không thể đến được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 歯が痛くて食べようにも食べられない。",
+     "FURIGANA_MISSING: 大雪で電車が止まってしまい、学校に行こうにも行けなかった。"
+    ],
+    "formation": "V意向形 + にも + V可能形ない",
+    "locked_fields": [],
+    "meaning_vi": "Muốn làm tí cũng không được",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜(よ)うにも〜ない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 動詞の意志形（にも）動詞の可能系の否定形／そのほかの否定的表現 Ý nghĩa: ～したくてもできない Muốn làm tí cũng không được Ví dụ: 1. 歯が痛くて食べようにも食べられない。 Đau răng muốn ăn tí cũng không được. 2. 大雪で電車が止まってしまい、学校に行こうにも行けなかった。 Vì tuyết dày đặc nên xe điện phải ngừng hoạt động, tôi muốn đến trường lắm nhưng không thể đến được. 3. 体がだるくて起きようにも起きられず、会社を休んでしまった。 Người uể oải, muốn dậy cũng không dậy nổi, đành phải nghỉ (việc). 4. 最近太りぎみなのだが、運動しようにも場所も時間もない。 Gần đây tôi có vẻ béo lên nhưng muốn vận động mà chẳng có không gian, thời gian gì cả. 5. 働こうにもこの不況では、泣かんか仕事が見つからない。 Tôi muốn đi làm nhưng trong khủng hoảng thế này mãi mà tôi vẫn chưa tìm được việc. 6. 交通が出たのだが、すぐに病気へ行こうにも、日曜でどこも休診だった。 Tôi bị sốt cao nhưng dù muốn đến bệnh viện ngay nhưng vì Chủ Nhật chỗ nào cũng nghỉ khám cả."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-42e0bd21c1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "去年の失敗を踏まえて、今年の計画を立てた。",
+       "ja_furigana": "去年(きょねん)の失敗(しっぱい)を踏(ふ)まえて、今年(ことし)の計画(けいかく)を立(た)てた。",
+       "vi": "Dựa trên thất bại năm ngoái, tôi đã lập kế hoạch cho năm nay."
+      },
+      {
+       "ja": "調査の結果を踏まえて、新しい方針を決めたい。",
+       "ja_furigana": "調査(ちょうさ)の結果(けっか)を踏(ふ)まえて、新(あたら)しい方針(ほうしん)を決(き)めたい。",
+       "vi": "Dựa trên kết quả điều tra, tôi muốn quyết định phương hướng mới."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "踏まえる",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cách kết hợp:"
+     },
+     {
+      "ja": "先行研究を踏まえて論文を書く。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dựa vào nghiên cứu trước đây để viết luận văn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 踏まえる",
+     "FURIGANA_MISSING: 先行研究を踏まえて論文を書く。"
+    ],
+    "formation": "N + を踏まえ（て）／を踏まえた + N",
+    "locked_fields": [],
+    "meaning_vi": "Dựa trên",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜(を)踏まえ(て)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "踏まえる Cách kết hợp: 名詞 Ý nghĩa: ～を前提、根拠として→考える、作成する Dựa trên Ý nghĩa: 力を入れて踏む Ví dụ: 1. 先行研究を踏まえて論文を書く。 Dựa vào nghiên cứu trước đây để viết luận văn. 2. 「今回の失敗を踏まえて、次はどうすべきかを考えてみます」 Dựa trên thất bại lần này, hãy nghĩ xem lần sau nên làm thế nào. 3. 会議では前回までの議論を踏まえて、さらに内容を深めた話し合いが行われた。 Từ thất bại lần này, ta sẽ suy nghĩ nên làm gì tiếp theo. 1. 両足で大地を踏まえて立つ。 Dẫm mạnh lên mặt đất bằng cả hai chân."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9be786a20e"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-074"
+}

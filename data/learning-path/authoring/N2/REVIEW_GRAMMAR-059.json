@@ -1,0 +1,585 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜だけあって",
+     "examples": [
+      {
+       "ja": "彼女は十年も日本に住んでいるだけあって、日本語がとても自然だ。",
+       "ja_furigana": "彼女(かのじょ)は十(じゅう)年(ねん)も日本(にほん)に住(す)んでいるだけあって、日本語(にほんご)がとても自然(しぜん)だ。",
+       "vi": "Cô ấy đúng là sống ở Nhật những mười năm, tiếng Nhật rất tự nhiên."
+      },
+      {
+       "ja": "人気の店だけあって、昼から席が埋まっている。",
+       "ja_furigana": "人気(にんき)の店(みせ)だけあって、昼(ひる)から席(せき)が埋(う)まっている。",
+       "vi": "Đúng là quán nổi tiếng, từ trưa đã kín chỗ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "さすが老舗だけあって、味に深みがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quả đúng là tiệm lâu đời, hương vị có chiều sâu."
+     },
+     {
+      "ja": "このカメラは高いだけあって、性能が抜群だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Máy ảnh này đắt tiền nên đúng là hiệu năng vượt trội."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: さすが老舗だけあって、味に深みがある。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: さすが老舗だけあって、味に深みがある。 → 舗",
+     "FURIGANA_MISSING: このカメラは高いだけあって、性能が抜群だ。"
+    ],
+    "formation": "N / 普通形 + だけあって",
+    "locked_fields": [],
+    "meaning_vi": "Nêu nguyên nhân “đáng mặt/đúng là” dẫn đến kết quả hợp lý, thường khen ngợi, công nhận giá trị. Sắc thái đánh giá: đa phần tích cực; đôi khi trung tính, hiếm khi chê bai trực diện. Hay dùng trong nhận xét chất lượng, năng lực, thương hiệu, bề dày kinh nghiệm, địa vị. Trật tự: [Lý do (đặc điểm)] + だけあって、[kết quả xứng đáng].",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Quả đúng là..., đúng là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để công nhận mối quan hệ nhân quả hợp lý với sắc thái “khen đúng tầm”. Thường đi cùng さすが để nhấn mạnh sự thừa nhận: さすが～だけあって... Văn phong: dùng tự nhiên trong cả nói và viết; phù hợp ngữ cảnh lịch sự. Vế sau là kết quả phù hợp kỳ vọng; hiếm dùng với mệnh lệnh/ý định. [6. Ghi chú mở rộng] Khi danh từ đứng trước danh từ khác: NのN + だけあって: 彼の出した論文の質は、研究者だけあって高い。 Với đánh giá tiêu cực nhẹ vẫn có thể dùng nếu là kết quả “đương nhiên”: 都会だけあって、騒音がひどい。 Không dùng cho mong muốn: 高いだけあって、買いたい× → Nên dùng nhận xét, không phải ý định. [7. Biến thể & cụm cố định] ～だけのことはある: biến thể kết câu mang nghĩa gần như tương đương. さすが～だけあって: công thức khen chuẩn mực. 期待しただけに／苦労しただけに: mẫu gần nghĩa nhấn mạnh mức độ (chú ý khác sắc thái). [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～だけに: đề bài kiểm tra thường yêu cầu phân biệt sắc thái “khen xứng đáng” vs “chính vì... nên càng...”. Gắn sai trợ từ với tính từ な: 有名だだけあって× → 有名なだけあって✓. Vế sau là mệnh lệnh/ý định không tự nhiên: 高いだけあって、買いましょう×."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-082afb3312"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜反面",
+     "examples": [
+      {
+       "ja": "この仕事は自由な反面、収入が不安定だ。",
+       "ja_furigana": "この仕事(しごと)は自由(じゆう)な反面(はんめん)、収入(しゅうにゅう)が不安定(ふあんてい)だ。",
+       "vi": "Công việc này tự do, mặt khác thu nhập lại bấp bênh."
+      },
+      {
+       "ja": "インターネットは便利な反面、間違った情報も多い。",
+       "ja_furigana": "インターネットは便利(べんり)な反面(はんめん)、間違(まちが)った情報(じょうほう)も多(おお)い。",
+       "vi": "Internet tiện lợi nhưng mặt khác cũng có nhiều thông tin sai."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "都会は便利な反面、物価が高い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thành phố tiện lợi nhưng mặt khác giá cả đắt đỏ."
+     },
+     {
+      "ja": "この薬はよく効く反面、副作用が強い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thuốc này hiệu quả nhưng tác dụng phụ mạnh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 都会は便利な反面、物価が高い。",
+     "FURIGANA_MISSING: この薬はよく効く反面、副作用が強い。"
+    ],
+    "formation": "Vる / Aい / Aな・N + である + 反面",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả hai mặt đối lập/đánh đổi của cùng một sự vật/sự việc: “mặt khác/ ngược lại”. Thường nêu một ưu điểm kèm một nhược điểm (hoặc ngược lại), giữ cân bằng trong đánh giá. Chủ thể A của hai vế nên giống nhau để đảm bảo “hai mặt của cùng một đối tượng”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Trái lại..., mặt khác...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái trung tính, mang tính phân tích/đánh giá khách quan. Phù hợp văn viết, báo cáo, thuyết trình; trong hội thoại cũng tự nhiên khi so sánh hai mặt. Không dùng cho mệnh lệnh/ý chí ở vế sau; tập trung mô tả sự thật/đặc điểm. [6. Ghi chú mở rộng] Khi chủ thể khác nhau, ưu tiên ～一方で/～に対して thay vì ～反面. Trong văn trang trọng, Nである反面 giúp câu gọn và chuẩn xác. Dạng thay thế mềm hơn trong hội thoại: その一方で/でも. [7. Biến thể & cụm cố định] その反面、…: dùng để nối câu, nhấn “mặt khác”. 優れている反面、～ / 高い反面、～: cặp tính chất trái chiều thường gặp. [8. Lỗi thường gặp & bẫy JLPT] Dùng cho hai chủ thể khác nhau: X 東京は便利な反面、田舎は不便だ → nên dùng ～に対して/～一方で. Vế sau là yêu cầu/ý chí: X 便利な反面、我慢しましょう → không hợp sắc thái mô tả. Nhầm trình tự với “nhưng” đơn thuần: ～が/けれども không nhất thiết là “hai mặt”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6ab0100db1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜に反して",
+     "examples": [
+      {
+       "ja": "両親の期待に反して、彼は大学を辞めた。",
+       "ja_furigana": "両親(りょうしん)の期待(きたい)に反(はん)して、彼(かれ)は大学(だいがく)を辞(や)めた。",
+       "vi": "Trái với kỳ vọng của bố mẹ, anh ấy đã bỏ đại học."
+      },
+      {
+       "ja": "天気予報に反して、午後から雨が降り出した。",
+       "ja_furigana": "天気予報(てんきよほう)に反(はん)して、午後(ごご)から雨(あめ)が降(ふ)り出(だ)した。",
+       "vi": "Trái với dự báo thời tiết, từ chiều trời bắt đầu mưa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "予想に反して、試合は大差で終わった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trái với dự đoán, trận đấu kết thúc với cách biệt lớn."
+     },
+     {
+      "ja": "規則に反して教室で飲食してはいけない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không được ăn uống trong lớp vì trái với nội quy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 予想に反して、試合は大差で終わった。",
+     "FURIGANA_MISSING: 規則に反して教室で飲食してはいけない。"
+    ],
+    "formation": "N + に反して / に反する + N",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả hành vi/kết quả “trái với, đi ngược lại” quy tắc, chính sách, kỳ vọng, dự báo... Có thể nói về cả hành động chủ ý (vi phạm) lẫn kết quả khách quan trái dự đoán. Khi đi với danh từ có tính quy phạm (規則/法律/方針), nghĩa gần “vi phạm/chống lại”. Khi đi với danh từ kỳ vọng/dự đoán (期待/予想), nghĩa “trái ngược với”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Trái với..., ngược với...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng trung tính; dùng được cho cả văn nói và viết. Nhấn mạnh sự đối lập với chuẩn mực/kỳ vọng chung. Với nghĩa “vi phạm”, mang sắc thái phê phán/quy phạm rõ rệt. [6. Ghi chú mở rộng] “反する” là động từ Hán Nhật, sắc thái trang trọng; biến đổi “に反するN/に反したN/に反してV”. Khi muốn nói trái với “thực tế đã xảy ra”, dùng ～のに/～にもかかわらず; “に反して” không tiếp mệnh đề động từ, mà đi với danh từ. Cặp đối nghĩa: “～に沿って/～に即して” (theo/sát theo) vs “～に反して”. [7. Biến thể & cụm cố định] 期待に反して／予想に反して：trái với kỳ vọng/dự đoán. 規則に反する行為／法律に反する：hành vi trái quy định/trái luật. 意向に反した決定／常識に反した発言：quyết định/phát ngôn trái ý/phi thường thức. [8. Lỗi thường gặp & bẫy JLPT] Dùng sau mệnh đề động từ: “来るに反して” sai; cần danh từ: “予想に反して来た”. Nhầm với “に対して”: đề thi kiểm tra “đối lập quy phạm” (に反して) vs “so sánh đối chiếu” (に対して). Quên biến thể định ngữ: chọn đúng “に反するN/に反したN” khi đứng trước danh từ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-867a62209e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜というのに",
+     "examples": [
+      {
+       "ja": "せっかく作ったというのに、誰も食べてくれない。",
+       "ja_furigana": "せっかく作(つく)ったというのに、誰(だれ)も食(た)べてくれない。",
+       "vi": "Vậy mà món tôi khó khăn lắm mới nấu, chẳng ai ăn."
+      },
+      {
+       "ja": "明日は試験だというのに、弟はゲームばかりしている。",
+       "ja_furigana": "明日(あした)は試験(しけん)だというのに、弟(おとうと)はゲームばかりしている。",
+       "vi": "Mai đã thi rồi vậy mà em trai tôi vẫn chỉ chơi game."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "こんなに寒いというのに、彼はコートも着ていない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mặc dù lạnh như thế này, vậy mà anh ta còn chẳng mặc áo khoác."
+     },
+     {
+      "ja": "早く帰ってきてほしいというのに、まだ連絡もない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi muốn anh ấy về sớm vậy mà vẫn chưa có liên lạc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: こんなに寒いというのに、彼はコートも着ていない。",
+     "FURIGANA_MISSING: 早く帰ってきてほしいというのに、まだ連絡もない。"
+    ],
+    "formation": "普通形 + というのに",
+    "locked_fields": [],
+    "meaning_vi": "Mẫu câu diễn tả sự trái ngược mạnh giữa thực tế và kỳ vọng: Dù A là sự thật nhưng kết quả lại là B – điều đáng ngạc nhiên, bất mãn, trách móc. Sắc thái cảm xúc mạnh: diễn tả tức giận, phàn nàn, thất vọng, thậm chí mỉa mai. Dịch tự nhiên: “Mặc dù… nhưng…”, “Thế mà…”, “Dù là… nhưng lại…”. Khác với 〜のに (thông thường) ở chỗ というのに mạnh hơn về cảm xúc, dùng nhiều trong văn viết, hội thoại diễn cảm.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vậy mà..., thế mà...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Vị trí: Đứng giữa hai mệnh đề A và B. A là sự thật, B là kết quả trái ngược ngoài ý muốn. Thường mang cảm xúc tiêu cực: trách móc, thất vọng, phàn nàn. Có thể dùng trong văn nói, nhưng mang sắc thái mạnh → dùng khi muốn nhấn mạnh sự bất hợp lý. Không phù hợp trong văn viết khoa học hoặc tình huống quá trang trọng như phát biểu chính trị. [6. Ghi chú mở rộng] Thường dùng trong tiểu thuyết, hội thoại có cảm xúc mạnh như phim, anime, bài văn. Dạng lịch sự là 「というのです／というのにです」hiếm dùng; thường dùng dạng thường. Cẩn thận phân biệt phát âm với 「というのに？」 (hỏi lại: “ý bạn là… đúng không?”). [7. Biến thể & cụm cố định] ～だというのに：Mặc dù là… ～というのに、まったく：Mặc dù…, thật là… ～というのにどうして：Mặc dù thế… tại sao lại…? [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～というのに？ (nghi vấn) → Mẫu nghi vấn dùng ngữ điệu, còn mẫu ngữ pháp diễn tả trái ngược. Nhầm với ～のに: cần nhớ というのに mạnh hơn, mang cảm xúc. Dùng sai ngữ cảnh khi câu không chứa cảm xúc hoặc không có sự trái ngược rõ ràng. JLPT N2 thường kiểm tra điểm khác biệt với ～にもかかわらず và ～のに."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3cefa5ce5f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "子どもから見ると、大人の世界は不思議に満ちているらしい。",
+       "ja_furigana": "子(こ)どもから見(み)ると、大人(おとな)の世界(せかい)は不思議(ふしぎ)に満(み)ちているらしい。",
+       "vi": "Nhìn từ góc nhìn của trẻ con, thế giới người lớn có vẻ đầy điều kỳ lạ."
+      },
+      {
+       "ja": "専門家から見ると、この計画には問題が多いらしい。",
+       "ja_furigana": "専門家(せんもんか)から見(み)ると、この計画(けいかく)には問題(もんだい)が多(おお)いらしい。",
+       "vi": "Nhìn từ góc nhìn chuyên gia, kế hoạch này có vẻ có nhiều vấn đề."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "日本の習慣には、外国人から見ると妙なものもあるだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đối với tập quan của Nhật, nhìn tứ quan điểm của người nước ngoài có lẽ có những điều kỳ lạ."
+     },
+     {
+      "ja": "昔の人から見ると、現代人の生活のリズムは速すぎるかもしれない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhìn từ quan điểm của người xưa, có lẽ nhịp độ sống của người thời nay quá nhanh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 日本の習慣には、外国人から見ると妙なものもあるだろう。",
+     "FURIGANA_MISSING: 昔の人から見ると、現代人の生活のリズムは速すぎるかもしれない。"
+    ],
+    "formation": "N + から見ると / から見れば / から見て",
+    "locked_fields": [],
+    "meaning_vi": "nếu nhận xét từ ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜外国人から見ると",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sự đánh giá dựa trên sự quan sát từ lập trường của ～"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-78f29bcb57"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "社員から言うと、給料をもっと上げてほしい。",
+       "ja_furigana": "社員(しゃいん)から言(い)うと、給料(きゅうりょう)をもっと上(あ)げてほしい。",
+       "vi": "Nói từ phía nhân viên thì chúng tôi muốn được tăng lương hơn."
+      },
+      {
+       "ja": "初心者から言えば、この説明は難しすぎる。",
+       "ja_furigana": "初心者(しょしんしゃ)から言(い)えば、この説明(せつめい)は難(むずか)しすぎる。",
+       "vi": "Nói từ góc nhìn người mới bắt đầu thì phần giải thích này quá khó."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "客の立場から言うと、この店は入り口がせまくて入りにくい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhìn từ lập trường của khách hàng thì lối vào của tiệm này hẹp, khó ra vào."
+     },
+     {
+      "ja": "しかし、店の側から言えば管理しやすい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tuy nhiên nếu nhìn từ phía cửa tiệm thì nó dễ quản lý."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 客の立場から言うと、この店は入り口がせまくて入りにくい。",
+     "FURIGANA_MISSING: しかし、店の側から言えば管理しやすい。"
+    ],
+    "formation": "N + から言うと / から言えば",
+    "locked_fields": [],
+    "meaning_vi": "nhìn từ lập trường ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜客の立場から言うと",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu đạt sự đánh giá dựa vào một điểm nào đó, nhìn từ lập trường của một phía nào đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5e1ae4800f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は、看板からして古い。",
+       "ja_furigana": "この店(みせ)は、看板(かんばん)からして古(ふる)い。",
+       "vi": "Quán này, ngay từ tấm biển hiệu đã thấy cũ."
+      },
+      {
+       "ja": "彼は言葉づかいからして、育ちがよさそうだ。",
+       "ja_furigana": "彼(かれ)は言葉(ことば)づかいからして、育(そだ)ちがよさそうだ。",
+       "vi": "Anh ấy, ngay từ cách dùng từ đã thấy có vẻ được giáo dục tốt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は服装からしてだらしない。きっと、ほかの面も同じだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta thì nhìn vào trang phục lôi thôi, nhất định về mặt khác cũng như vậy thôi."
+     },
+     {
+      "ja": "あの映画は、題名からして悲しそうだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bộ phim kia, nhìn từ nhan đề có vẻ bi thảm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は服装からしてだらしない。きっと、ほかの面も同じだろう。",
+     "FURIGANA_MISSING: あの映画は、題名からして悲しそうだ。"
+    ],
+    "formation": "N + からして",
+    "locked_fields": [],
+    "meaning_vi": "nhìn từ ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜服装からして",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu đạt sự phán đoán căn cứ trên một vật tiêu biểu được nêu lên như là một ví dụ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8e41858b16"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この売れ行きからすると、来月には品切れになりそうだ。",
+       "ja_furigana": "この売(う)れ行(ゆ)きからすると、来月(らいげつ)には品切(しなぎ)れになりそうだ。",
+       "vi": "Xét theo mức bán ra thì có vẻ tháng sau sẽ hết hàng."
+      },
+      {
+       "ja": "彼の表情からすると、結果はよくなかったようだ。",
+       "ja_furigana": "彼(かれ)の表情(ひょうじょう)からすると、結果(けっか)はよくなかったようだ。",
+       "vi": "Xét theo vẻ mặt anh ấy thì có vẻ kết quả không tốt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "症状からすると、心配の病気かもしれません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dựa vào triệu chứng thì có lẽ là bệnh hay lo lắng."
+     },
+     {
+      "ja": "周りの態度からすると、あの方が社長ではないでしょうか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhìn từ thái độ của mọi người xung quanh thì vị đó chẳng phải là giám đốc hay sao?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 症状からすると、心配の病気かもしれません。",
+     "FURIGANA_MISSING: 周りの態度からすると、あの方が社長ではないでしょうか。"
+    ],
+    "formation": "N + からすると / からすれば",
+    "locked_fields": [],
+    "meaning_vi": "nếu xét từ ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜症状からすると",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu đạt sự đánh giá khi suy nghĩ từ lập trường của một phía nào đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6ede4e0d0d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今日は本当に温かくて、もう春が来たかのようだ。",
+       "ja_furigana": "今日(きょう)は本当(ほんとう)に温(あたた)かくて、もう春(はる)が来(き)たかのようだ。",
+       "vi": "Hôm nay thật sự ấm áp, cứ như mùa xuân đã đến rồi."
+      },
+      {
+       "ja": "彼は何も知らないかのように、平気な顔をしていた。",
+       "ja_furigana": "彼(かれ)は何(なに)も知(し)らないかのように、平気(へいき)な顔(かお)をしていた。",
+       "vi": "Anh ấy làm vẻ mặt thản nhiên cứ như không biết gì."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "春になると一面に花が咲き、まるで赤いじゅうたんを敷き詰めたかのようだたった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xuân đến hoa đua nở, như thể ai đó cố công trải lớp thảm đỏ vậy."
+     },
+     {
+      "ja": "彼の部屋はまるで泥棒に入られたかのように散らかっていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phòng của anh ta tung tóe cứ như vừa có trộm vào vậy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 春になると一面に花が咲き、まるで赤いじゅうたんを敷き詰めたかのようだたった。",
+     "FURIGANA_MISSING: 彼の部屋はまるで泥棒に入られたかのように散らかっていた。"
+    ],
+    "formation": "普通形 + かのようだ / かのように + V",
+    "locked_fields": [],
+    "meaning_vi": "Có vẻ như là (thực tế không là vậy)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜かのようだ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 動詞の【タ形・ナイ形・ている】／名詞＋である Ý nghĩa: 比喩（本当は違う） Có vẻ như là (thực tế không là vậy) Ví dụ: 1. 春になると一面に花が咲き、まるで赤いじゅうたんを敷き詰めたかのようだたった。 Xuân đến hoa đua nở, như thể ai đó cố công trải lớp thảm đỏ vậy. 2. 彼の部屋はまるで泥棒に入られたかのように散らかっていた。 Phòng của anh ta tung tóe cứ như vừa có trộm vào vậy. 3. 9月の終わりだというのに、夏が戻ってきたかのような夏さだ。 Cuối tháng 9 rồi mà nóng như mùa hè quay trở lại vậy. 4. 母は見てきたかのように事故現場の様子を話した。 Mẹ tôi kể về hiện trường vụ tai nạn như thể đã nhìn thấy vậy. 5. 林君はお金持ちであるように、気前よく友だちにごちそうした。 Hayashi thường chiêu đãi mọi người, hào phóng như thể mình giàu lắm vậy."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6112a4cac3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私から言えば、この計画はまだ早すぎる。",
+       "ja_furigana": "私(わたし)から言(い)えば、この計画(けいかく)はまだ早(はや)すぎる。",
+       "vi": "Nói từ phía tôi thì kế hoạch này vẫn còn quá sớm."
+      },
+      {
+       "ja": "外国人から言えば、日本の店は夜早く閉まりすぎる。",
+       "ja_furigana": "外国人(がいこくじん)から言(い)えば、日本(にほん)の店(みせ)は夜(よる)早(はや)く閉(し)まりすぎる。",
+       "vi": "Nói từ góc nhìn người nước ngoài thì các cửa hàng Nhật đóng cửa quá sớm vào buổi tối."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "親からすれば門限があれば安心だろうが、子どもの立場からいえばそれは不自由だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Theo quan điểm của cha mẹ thì giới nghiêm là an tâm, nhưng theo quan điểm của bọn trẻ là mất tự do."
+     },
+     {
+      "ja": "消費者からすると値段は安ければ安いほどいい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đối với người tiêu dùng thì giá sản phẩm càng rẻ càng tốt."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 親からすれば門限があれば安心だろうが、子どもの立場からいえばそれは不自由だ。",
+     "FURIGANA_MISSING: 消費者からすると値段は安ければ安いほどいい。"
+    ],
+    "formation": "N + からいうと / からいえば / からいって",
+    "locked_fields": [],
+    "meaning_vi": "Theo quan điểm, lập trường",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜からというと/いえば/いって",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "～からすると／すれば／して ～から見ると／見れば／見て Cách kết hợp: 名詞 Ý nghĩa: ①～の立場から考えると Theo quan điểm, lập trường Ví dụ: 1. 親からすれば門限があれば安心だろうが、子どもの立場からいえばそれは不自由だ。 Theo quan điểm của cha mẹ thì giới nghiêm là an tâm, nhưng theo quan điểm của bọn trẻ là mất tự do. 2. 消費者からすると値段は安ければ安いほどいい。 Đối với người tiêu dùng thì giá sản phẩm càng rẻ càng tốt. 3. 私から見ると、社長はまるで独裁者のようだ。 Đối với tôi, giám đốc giống y như một kẻ độc tài vậy. Ý nghĩa: ②～の面から考えると Ví dụ: 1. 収入から言えば今の仕事のほうが良いが、将来性を考えて転職することにした。 Nếu xét về thu nhập thì công việc hiện tại khá ổn, nhưng tôi quyết định chuyển việc khi nghĩ tới triển vọng tương lai. 2. 「どちらのアニメが好きですか」「ストーリーの面白さという点から見るとA、絵の美しさという点から見ればBのほうですね。 [Bạn thích anime nào hơn?] [Nếu xét về cốt truyện hay thì là anime A còn nếu xét về hình ảnh đẹp thì tôi thích anime B.] Ý nghĩa: ③判断の根拠 Ví dụ: 1. この1年間の成績からすると、合格の可能性は十分にある。 Căn cứ vào thành thích trong 1 năm học này là đủ để xét xem đỗ hay không. 2. 現在の景気の状況から見て、これ以上失業率が上がることはないだろう。 Nếu căn cứ vào tình hình nền kinh tế hiện tại, có lẽ từ giờ tỷ lệ thất nghiệp sẽ không tăng đâu. 3. あの人は話し方や表情からして、どうも日本人ではないようだ。 Căn cứ vào cả cách nói và biểu hiện của người đó, tôi không nghĩ đó là người Nhật. 4. 私も経験から言えば、旅先では生水は飲まないほうがいいです。 Từ những kinh nghiệm của tôi thì không nên uống nước sống ở những nơi du lịch."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9eb7e4f640"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-059"
+}

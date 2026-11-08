@@ -1,0 +1,587 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ここまでが昨日の話です。ところで、今日は何をしますか。",
+       "ja_furigana": "ここまでが昨日(きのう)の話(はなし)です。ところで、今日(きょう)は何(なに)をしますか。",
+       "vi": "Chuyện hôm qua đến đây thôi. Mà hôm nay chúng ta làm gì?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今日は試験です。ところで、来週の予定はありますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay có bài kiểm tra. À mà, tuần sau bạn có kế hoạch gì không? · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今日は試験です。ところで、来週の予定はありますか。"
+    ],
+    "formation": "Câu 1。+ ところで、+ Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Nhân tiện thì, nhân dịp này thì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜明日は試験だ。ところで、来週は?",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp muốn đề cập đến một vấn đề khác, đổi chủ đề giữa chừng câu chuyện"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9ef63d16ef"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "兄は料理が好きだ。だけど、さらあらいは嫌いだ。",
+       "ja_furigana": "兄(あに)は料理(りょうり)が好(す)きだ。だけど、さらあらいは嫌(きら)いだ。",
+       "vi": "Anh trai thích nấu ăn nhưng ghét rửa bát.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "このかばんはかわいい。だけど、ちょっと高い。",
+       "ja_furigana": "このかばんはかわいい。だけど、ちょっと高(たか)い。",
+       "vi": "Cái túi này dễ thương. Nhưng mà hơi đắt.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "旅行に行きたい。だけどひまがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Muốn đi du lịch. Nhưng không rảnh"
+     },
+     {
+      "ja": "よくカラオケに行く。だけど歌は下手だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thường đi karaoke. Nhưng hát tệ"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 旅行に行きたい。だけどひまがない。",
+     "FURIGANA_MISSING: よくカラオケに行く。だけど歌は下手だ。"
+    ],
+    "formation": "Câu 1。+ だけど / けれども、+ Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Nhưng mà….",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜行きたい。だけど、行けない。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi muốn thể hiện ý ngược lại với câu trước (thường là mong muốn)"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a1011aa631"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "店は開いているはずだった。ところが、電気が消えていた。",
+       "ja_furigana": "店(みせ)は開(ひら)いているはずだった。ところが、電気(でんき)が消(き)えていた。",
+       "vi": "Đáng ra quán mở, thế mà đèn lại tắt.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "天気予報は晴れだった。ところが、昼から雨が降り出した。",
+       "ja_furigana": "天気予報(てんきよほう)は晴(は)れだった。ところが、昼(ひる)から雨(あめ)が降(ふ)り出(だ)した。",
+       "vi": "Dự báo thời tiết là nắng. Thế nhưng từ trưa trời lại đổ mưa.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "昨夜はコンサートに行くつもりだった。ところが病気で行けなくなった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tối qua đã định đi hòa nhạc. Nhưng mà vì bệnh nên đã không thể đi được"
+     },
+     {
+      "ja": "田中さんは私より若いと思っていた。ところが私より５歳も年上だった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi nghĩ là Tanaka trẻ hơn tôi. Nhưng mà hơn tôi đến 5 tuổi lận"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 昨夜はコンサートに行くつもりだった。ところが病気で行けなくなった。",
+     "FURIGANA_MISSING: 田中さんは私より若いと思っていた。ところが私より５歳も年上だった。"
+    ],
+    "formation": "Câu 1。+ ところが、+ Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Nhưng mà",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜行く予定だった。ところが、行けなくなった",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Thường dùng trong trường hợp phủ định một suy đoán, dự định hoặc suy nghĩ về sự việc, hành động"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-98493db58b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母は熱があります。ですから、今日は家で休みます。",
+       "ja_furigana": "母(はは)は熱(ねつ)があります。ですから、今日(きょう)は家(いえ)で休(やす)みます。",
+       "vi": "Mẹ bị sốt, vì vậy hôm nay nghỉ ở nhà.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "この店は人気があります。ですから、早めに予約してください。",
+       "ja_furigana": "この店(みせ)は人気(にんき)があります。ですから、早(はや)めに予約(よやく)してください。",
+       "vi": "Quán này rất đông khách. Vì vậy hãy đặt chỗ sớm.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「天気予報では午後から雨だそうです。ですから、傘を持っていったほうがいいですよ。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Theo dự báo thời tiết nghe nói là sẽ mưa từ chiều. Vì vậy, nên mang dù đi đấy."
+     },
+     {
+      "ja": "明日から旅行に行きます。ですから、申し訳ありませんが、来週のパーテイーには出席できません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Từ ngày mai sẽ đi du lịch. Vì vậy, xin lỗi nhưng mà tôi không thể tham dự bữa tiệc tuần sau được"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「天気予報では午後から雨だそうです。ですから、傘を持っていったほうがいいですよ。」",
+     "FURIGANA_MISSING: 明日から旅行に行きます。ですから、申し訳ありませんが、来週のパーテイーには出席できません。"
+    ],
+    "formation": "Câu 1。+ ですから / だから、+ Câu 2",
+    "locked_fields": [],
+    "meaning_vi": "Vì vậy nên",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜雨です。ですから、傘がいります。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng cho câu kết quả, hệ quả của câu trước. Câu đi liền trước thường là câu nêu lý do, phán đoán, kết quả đương nhiên"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fc2bab784a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この机を使わせてもらえますか。",
+       "ja_furigana": "この机(つくえ)を使(つか)わせてもらえますか。",
+       "vi": "Cho tôi dùng cái bàn này được không?",
+       "role": "MAIN"
+      },
+      {
+       "ja": "今日は少し早く帰らせてもらえますか。",
+       "ja_furigana": "今日(きょう)は少(すこ)し早(はや)く帰(かえ)らせてもらえますか。",
+       "vi": "Hôm nay cho tôi về sớm một chút được không ạ?",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "使わせてもらえますか",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho phép tôi sử dụng được không?"
+     },
+     {
+      "ja": "すみません、この電話、使わせてもらえますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xin lỗi, cho phép tôi sử dụng điện thoại này được không?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 使わせてもらえますか",
+     "FURIGANA_MISSING: すみません、この電話、使わせてもらえますか。"
+    ],
+    "formation": "V(thể sai khiến)-て + もらえますか / いただけますか",
+    "locked_fields": [],
+    "meaning_vi": "Xin phép được thực hiện hành động của bản thân.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜(さ)せてもらえますか",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "復習4 正しいほうを選びなさい。 １．すみません、よくわからなかったので、もう一度説明して (a.いただけませんか b.いただきませんか）。 ２．すみません、ちょっとトイレを (a.使わされて b.使わせて）いただけませんか。 ３．先輩にジュースを買って（a.来い b.来ろ）と頼まれた。 ４．いつも元気な彼女 (a.らしい b.そうな）、楽しい絵ですね。 ５．母は、健康に気をつけている（a.とともに b.にしては）、よく風邪をひく。 ６．あなたの歌を聞かせて (a.もらいませんか b.もらえませんか）。 ７．林さんの話によると、田中さんは会社を (a.やめる b.やめて）らしい。 復習5 ⬜の中から選んで記号を書きなさい。 a. 食べるらしい b. 食べることはない c. 食べさせてください d. 食べるなと言われた １．もし嫌いなら、無理して（）ですよ。 ２．医者にあまり肉を（）。 ３．それ、おいしそうですね。ちょっと、私にも（）よ。 ４．「彼は毎日ぜったいにハンバーガーを（）ですよ。」"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e6acaa820b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この空の色から言って、もうすぐ雨だ。",
+       "ja_furigana": "この空(そら)の色(いろ)から言(い)って、もうすぐ雨(あめ)だ。",
+       "vi": "Nhìn màu trời thì sắp mưa rồi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "今の力から言って、リンさんが一番だろう。",
+       "ja_furigana": "今(いま)の力(ちから)から言(い)って、リンさんが一番(いちばん)だろう。",
+       "vi": "Xét theo năng lực hiện tại thì có lẽ Linh là nhất.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "健太の性格から言って",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhìn từ tính cách của Kenta, ..."
+     },
+     {
+      "ja": "健太の性格から言って、好きな人にはっきり「好きだ」と言えないだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhìn từ tính cách của Kenta, chắc là anh ấy không thể nói rõ ràng \"Anh yêu em\" với người mà anh ấy thích."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 健太の性格から言って",
+     "FURIGANA_MISSING: 健太の性格から言って、好きな人にはっきり「好きだ」と言えないだろう。"
+    ],
+    "formation": "N + から言って / から言えば / から言うと",
+    "locked_fields": [],
+    "meaning_vi": "Biểu hiện ý nghĩa xem ~ là tiêu chuẩn để đánh giá. Nhìn từ ~, xét về ~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜から言って",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b5127f2174"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "新しい道ができて、町は便利になっていくだろう。",
+       "ja_furigana": "新(あたら)しい道(みち)ができて、町(まち)は便利(べんり)になっていくだろう。",
+       "vi": "Có đường mới, thị trấn sẽ ngày càng tiện hơn.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "これから寒くなっていくので、体に気をつけてください。",
+       "ja_furigana": "これから寒(さむ)くなっていくので、体(からだ)に気(き)をつけてください。",
+       "vi": "Từ giờ trời sẽ lạnh dần, nên hãy giữ gìn sức khỏe.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "高くなっていく",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngày càng tăng"
+     },
+     {
+      "ja": "世界全体で量が減っているので、石油の価格はこれから高くなっていくだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Do khối lượng dầu trên thế giới giảm, nên giá dầu từ nay có thể sẽ dần tăng lên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 高くなっていく",
+     "FURIGANA_MISSING: 世界全体で量が減っているので、石油の価格はこれから高くなっていくだろう。"
+    ],
+    "formation": "V-て + いく",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả sự thay đổi trạng thái xảy ra ở hiện tại hoặc từ một thời điểm nào đó.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ていく",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "V: ＜命令形＞ V-u 読むめ V-ru 見るろ V-irr （不規則） しそ ＜禁止形＞ 読むな 見るな 来るな + と言われる／注意される／怒られる／．．．"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4658a13be9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "鍵を見つけてからでないと、家に入れない。",
+       "ja_furigana": "鍵(かぎ)を見(み)つけてからでないと、家(いえ)に入(い)れない。",
+       "vi": "Chưa tìm ra chìa thì không vào nhà được.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "手を洗ってからでないと、おやつを食べてはいけません。",
+       "ja_furigana": "手(て)を洗(あら)ってからでないと、おやつを食(た)べてはいけません。",
+       "vi": "Nếu chưa rửa tay thì không được ăn quà vặt.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "払ってからでないと受け取れない",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu chưa trả tiền thì không thể nhận"
+     },
+     {
+      "ja": "お金を払ってからでないと、チケットを受け取ることはできません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu chưa trả tiền thì không thể nhận vé được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 払ってからでないと受け取れない",
+     "FURIGANA_MISSING: お金を払ってからでないと、チケットを受け取ることはできません。"
+    ],
+    "formation": "V-て + からでないと + V-ない",
+    "locked_fields": [],
+    "meaning_vi": "Có ý nghĩa “Nếu không phải sau khi ~, thì không thể ~”",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜てからでないと...ない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4631683db2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "自分でご飯を作ってはじめて、母にかんしゃした。",
+       "ja_furigana": "自分(じぶん)でご飯(はん)を作(つく)ってはじめて、母(はは)にかんしゃした。",
+       "vi": "Tự nấu ăn rồi tôi mới biết cảm ơn mẹ.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "外国に住んではじめて、自分の国のよさが分かった。",
+       "ja_furigana": "外国(がいこく)に住(す)んではじめて、自分(じぶん)の国(くに)のよさが分(わ)かった。",
+       "vi": "Phải sống ở nước ngoài tôi mới hiểu được cái hay của đất nước mình.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "病気になってはじめて",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bị bệnh mới ..."
+     },
+     {
+      "ja": "一人暮らしをしてはじめて、家族の大切さがわかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sống một mình tôi mới nhận ra tầm quan trọng của gia đình."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 病気になってはじめて",
+     "FURIGANA_MISSING: 一人暮らしをしてはじめて、家族の大切さがわかった。"
+    ],
+    "formation": "V-て + はじめて",
+    "locked_fields": [],
+    "meaning_vi": "Mang ý nghĩa xảy ra ~ mới (nhận ra) ~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜てはじめて",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "プラス１"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b1df9b10c2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "小さいわりに、この店は品物が多い。",
+       "ja_furigana": "小(ちい)さいわりに、この店(みせ)は品物(しなもの)が多(おお)い。",
+       "vi": "Cửa hàng nhỏ mà nhiều đồ.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "リンさんの弟は、十さいにしてはしっかりしている。",
+       "ja_furigana": "リンさんの弟(おとうと)は、十(じゅっ)さいにしてはしっかりしている。",
+       "vi": "Em trai Linh mới mười tuổi mà rất chững chạc.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "学生にしては",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Là học sinh, thế mà..."
+     },
+     {
+      "ja": "田中君は学生にしてはいいマンションに住んでいる。きっと親が金持ちなんだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tanaka là học sinh thế mà sống trong một căn hộ tốt như vậy. Chắc là bố mẹ cậu ấy giàu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 学生にしては",
+     "FURIGANA_MISSING: 田中君は学生にしてはいいマンションに住んでいる。きっと親が金持ちなんだろう。"
+    ],
+    "formation": "N / V / A + にしては / わりに(は)",
+    "locked_fields": [],
+    "meaning_vi": "Mang ý nghĩa “là ~, thế mà ~”",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜にしては/〜わりに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "復習1 正しいほうを選びなさい。 １．兄が背が高い（a.に対して b.のに対して）、弟はあまり背が高くない。 ２．このメールの書き方（a.から言って b.からでないと）、彼は怒っているに違いない。 ３．私はズボンを買うとき、実際にはいてみて（a.から b.からでないと）買いません。 ４．あの選手は日本人（a.なのに対して ｂ．にしては）、体が大きい。 ５．課長、私も会議に（a.出させてください b.出てください）。 ６．説明をきちんと（a.読むだけすれば b.読みさえすれば）、こんなことにならなかったのに。 ７．あなたは悪くないんですから、そんなに泣く（a.ことはない b.ことがない）ですよ。 ８．あっ、まどは閉めないで、（a.そのまま b.それまま）にしてください。 ９．女優をやめて１０年になるが、彼女は今でも（a.美しい b.美しいの）ままだった。 １０．この国では、南の地域はよく雨が降る（a.ことに対して b.のに対して）、北の地域はあまり降らない。 １１．すみません、このコピー機を（a.使わせて b.使われて）ほしいのですが。 １２．早く帰りたいけど、仕事が終わってからでないと（a.帰れる b.帰れない）。 １３．彼はよく食べる（a.わりに b.のに対して）、あまり太っていない。 プラス２"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9eb0559964"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-064"
+}

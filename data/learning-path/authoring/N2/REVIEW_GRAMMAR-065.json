@@ -1,0 +1,589 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "自分ではできないと言っていたのに、もう終わったではないか。",
+       "ja_furigana": "自分(じぶん)ではできないと言(い)っていたのに、もう終(お)わったではないか。",
+       "vi": "Rõ ràng đã nói là tự mình không làm được, vậy mà đã xong rồi đấy chứ."
+      },
+      {
+       "ja": "約束の時間を三十分も過ぎているではないか。",
+       "ja_furigana": "約束(やくそく)の時間(じかん)を三十分(さんじゅっぷん)も過(す)ぎているではないか。",
+       "vi": "Đã quá giờ hẹn ba mươi phút rồi còn gì nữa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "勉強したいのに、経済的な理由でそれが許されない子供がいるとは、あまりにも不公平ではないか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có những đứa trẻ muốn học nhưng vì lý do kinh tế lại không được phép — chẳng phải quá bất công sao?"
+     },
+     {
+      "ja": "何か聞こえると思ったら、いつの間にか、屋根の下にツバメの巣があるじゃありませんか。びっくりしましたよ。かわいいヒナもいたんです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi nghe như có tiếng gì, thì không biết từ lúc nào dưới mái nhà đã có tổ chim én. Tôi rất ngạc nhiên. Còn có cả những chú chim non dễ thương nữa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 勉強したいのに、経済的な理由でそれが許されない子供がいるとは、あまりにも不公平ではないか。",
+     "FURIGANA_MISSING: 何か聞こえると思ったら、いつの間にか、屋根の下にツバメの巣があるじゃありませんか。びっくりしましたよ。かわいいヒナもいたんです。"
+    ],
+    "formation": "普通形 + ではないか / じゃないか（N・Aな は だ なし）",
+    "locked_fields": [],
+    "meaning_vi": "Chẳng phải là ～ sao, dùng để nhấn mạnh sự ngạc nhiên hoặc bất bình.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ではないか",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f2a4e9bebd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "開会に際して、一言ごあいさつ申し上げます。",
+       "ja_furigana": "開会(かいかい)に際(さい)して、一言(ひとこと)ごあいさつ申(もう)し上(あ)げます。",
+       "vi": "Nhân dịp khai mạc, tôi xin có đôi lời phát biểu."
+      },
+      {
+       "ja": "日本へ留学するに際して、ビザの手続きが必要だ。",
+       "ja_furigana": "日本(にほん)へ留学(りゅうがく)するに際(さい)して、ビザの手続(てつづ)きが必要(ひつよう)だ。",
+       "vi": "Khi du học Nhật Bản, cần làm thủ tục visa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "受験に際しては、必ず受験票を持参してください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi đi dự thi, nhất định phải mang theo phiếu dự thi。"
+     },
+     {
+      "ja": "〈大学の掲示板〉奨学金の申し込みに際して、以下のような条件があります。よく確かめた上で、申し込みをしてください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "〈Bảng thông báo của trường đại học〉 Khi nộp đơn xin học bổng, có các điều kiện sau. Hãy kiểm tra kỹ rồi nộp đơn。」"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 受験に際しては、必ず受験票を持参してください。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 受験に際しては、必ず受験票を持参してください。 → 票",
+     "FURIGANA_MISSING: 〈大学の掲示板〉奨学金の申し込みに際して、以下のような条件があります。よく確かめた上で、申し込みをしてください。"
+    ],
+    "formation": "N / Vる + に際して（は）",
+    "locked_fields": [],
+    "meaning_vi": "Khi (bắt đầu) làm ～, nhân dịp ～.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜に際して(は)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-15d5da51f6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜てならない",
+     "examples": [
+      {
+       "ja": "息子の受験の結果が気になってならない。",
+       "ja_furigana": "息子(むすこ)の受験(じゅけん)の結果(けっか)が気(き)になってならない。",
+       "vi": "Tôi cứ bận tâm mãi về kết quả thi của con trai."
+      },
+      {
+       "ja": "あの日のことを思い出すと、今でも残念でならない。",
+       "ja_furigana": "あの日(ひ)のことを思(おも)い出(だ)すと、今(いま)でも残念(ざんねん)でならない。",
+       "vi": "Mỗi khi nhớ lại chuyện ngày đó, đến giờ tôi vẫn thấy tiếc không nguôi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "海外で暮らす弟の健康が心配でならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi cứ lo mãi không thôi cho sức khỏe của em trai đang sống ở nước ngoài."
+     },
+     {
+      "ja": "あの説明には重要な点が抜けているように思えてならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi cứ có cảm giác rằng phần giải thích ấy thiếu một điểm quan trọng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 海外で暮らす弟の健康が心配でならない。",
+     "FURIGANA_MISSING: あの説明には重要な点が抜けているように思えてならない。"
+    ],
+    "formation": "V-て / Aくて / Aで + ならない",
+    "locked_fields": [],
+    "meaning_vi": "Cứ thấy... không sao ngăn được",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cứ thấy... không sao ngăn được",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả cảm xúc hoặc ý nghĩ tự nhiên dâng lên và kéo dài ngoài ý muốn. Cách dùng: 〜てならない diễn tả cảm xúc, mong muốn hay nhận định cứ tự nhiên xuất hiện, dù người nói không chủ động tạo ra và khó gạt bỏ. Các từ thường đi cùng liên quan đến lo lắng, tiếc nuối, nhớ, muốn gặp, hoặc cảm giác rằng một điều nào đó là như vậy. So với lối nói khẩu ngữ 〜てしょうがない, mẫu này trang trọng và giàu tính nội tâm hơn, nên thường gặp trong văn viết, phát biểu hoặc lời kể chín chắn. Sắc thái: Tập trung vào sự tự phát và dai dẳng của trạng thái bên trong, thường không nhấn mạnh cảm giác thể chất thô trực tiếp. Lưu ý: Không nối với một hành động có chủ ý chỉ để nói rằng hành động ấy diễn ra nhiều lần. Khi mô tả nội tâm của người khác, cần dấu hiệu quan sát, lời dẫn hoặc ngữ cảnh cho phép suy đoán."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-14ee0287bb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜（よ）うではないか",
+     "examples": [
+      {
+       "ja": "みんなで協力して、この問題を解決しようではないか。",
+       "ja_furigana": "みんなで協力(きょうりょく)して、この問題(もんだい)を解決(かいけつ)しようではないか。",
+       "vi": "Chúng ta hãy cùng nhau hợp tác giải quyết vấn đề này."
+      },
+      {
+       "ja": "まずは自分たちの町をきれいにしようではありませんか。",
+       "ja_furigana": "まずは自分(じぶん)たちの町(まち)をきれいにしようではありませんか。",
+       "vi": "Trước hết, chúng ta hãy làm cho thị trấn của mình sạch đẹp."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "地域の川を守るために、私たちにできることから始めようではないか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Để bảo vệ dòng sông của địa phương, chúng ta hãy bắt đầu từ những việc mình có thể làm."
+     },
+     {
+      "ja": "失敗を責め合うのではなく、次の改善に生かそうではありませんか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thay vì đổ lỗi cho nhau về thất bại, chúng ta hãy tận dụng nó để cải thiện lần sau."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 地域の川を守るために、私たちにできることから始めようではないか。",
+     "FURIGANA_MISSING: 失敗を責め合うのではなく、次の改善に生かそうではありませんか。"
+    ],
+    "formation": "V意向形 + ではないか / ではありませんか",
+    "locked_fields": [],
+    "meaning_vi": "Hãy cùng..., chúng ta hãy...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hãy cùng..., chúng ta hãy...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Dùng để tha thiết kêu gọi người nghe cùng thực hiện một hành động. Cách dùng: Mẫu này biến ý hướng của người nói thành lời kêu gọi hướng tới một tập thể: chúng ta hãy cùng làm việc gì đó. Hình thức câu hỏi phủ định chỉ mang tính tu từ, không nhằm xác nhận có hay không. Nó thường xuất hiện trong diễn văn, cuộc họp, bài viết vận động hoặc lúc người nói muốn tạo tinh thần đồng lòng. Dạng ではありませんか lịch sự hơn, còn じゃないか gần gũi và giàu khí thế hơn. Sắc thái: Mang sắc thái hùng biện, chủ động và mạnh hơn lời rủ thông thường; người nói thường tự đặt mình vào nhóm sẽ hành động. Lưu ý: Thường dùng cho hành động có chủ ý và có thể thực hiện chung, không dùng để miêu tả trạng thái ngoài ý muốn. Với lời mời riêng tư, nhẹ nhàng, 〜ましょう hoặc 〜ませんか thường tự nhiên hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ae59fa9634"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜てしかたがない／〜てしょうがない",
+     "examples": [
+      {
+       "ja": "一人で待っていると、時間が長くてしかたがない。",
+       "ja_furigana": "一人(ひとり)で待(ま)っていると、時間(じかん)が長(なが)くてしかたがない。",
+       "vi": "Ngồi chờ một mình thì thời gian dài không chịu nổi."
+      },
+      {
+       "ja": "仕事が終わったばかりで、眠くてしょうがない。",
+       "ja_furigana": "仕事(しごと)が終(お)わったばかりで、眠(ねむ)くてしょうがない。",
+       "vi": "Vừa xong việc nên tôi buồn ngủ không chịu nổi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "最終結果が気になってしかたがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi bận tâm về kết quả cuối cùng đến mức không sao thôi nghĩ được."
+     },
+     {
+      "ja": "隣の工事の音がうるさくてしょうがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tiếng thi công bên cạnh ồn không chịu nổi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 最終結果が気になってしかたがない。",
+     "FURIGANA_MISSING: 隣の工事の音がうるさくてしょうがない。"
+    ],
+    "formation": "V-て / Aくて / Aで + しかたがない / しょうがない",
+    "locked_fields": [],
+    "meaning_vi": "Không chịu nổi; vô cùng; không sao ngăn được",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không chịu nổi; vô cùng; không sao ngăn được",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả cảm xúc, cảm giác hoặc mong muốn mạnh đến mức khó kiểm soát. Cách dùng: Ba mẫu này diễn tả một trạng thái chủ quan mạnh mà người trải nghiệm khó kiềm chế, như lo lắng, tò mò, đau, nóng hoặc rất muốn làm gì. 〜てしかたがない tương đối trung tính; 〜てしょうがない thường mang màu sắc khẩu ngữ; 〜てたまらない nhấn mạnh cường độ đến mức không chịu nổi. Chủ thể thường là người nói, hoặc là người khác khi cảm xúc của họ đã được thể hiện rõ trong lời kể hay qua dấu hiệu quan sát được. Sắc thái: Nhấn vào cường độ và tính không kiểm soát được, chứ không chỉ đơn thuần nói rất bằng 〜とても. Lưu ý: Không dùng cho hành động có chủ ý được thực hiện như thói quen nếu không có cảm xúc hay thôi thúc mạnh. Khi nói chắc chắn về cảm giác bên trong của ngôi thứ ba, cần có căn cứ hoặc dạng tường thuật thích hợp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-83d3c7547a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜ないではいられない／〜ずにはいられない",
+     "examples": [
+      {
+       "ja": "その話を聞いて、涙を流さずにはいられなかった。",
+       "ja_furigana": "その話(はなし)を聞(き)いて、涙(なみだ)を流(なが)さずにはいられなかった。",
+       "vi": "Nghe câu chuyện đó, tôi không thể không rơi nước mắt."
+      },
+      {
+       "ja": "あの景色を見たら、写真を撮らずにはいられない。",
+       "ja_furigana": "あの景色(けしき)を見(み)たら、写真(しゃしん)を撮(と)らずにはいられない。",
+       "vi": "Nhìn thấy cảnh đó thì không thể không chụp ảnh."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "その写真を見ると、故郷のことを思い出さないではいられない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hễ nhìn bức ảnh ấy là tôi không thể không nhớ về quê nhà."
+     },
+     {
+      "ja": "彼の勇気ある行動を知り、尊敬せずにはいられなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Biết được hành động dũng cảm của anh ấy, tôi không thể không kính phục."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: その写真を見ると、故郷のことを思い出さないではいられない。",
+     "FURIGANA_MISSING: 彼の勇気ある行動を知り、尊敬せずにはいられなかった。"
+    ],
+    "formation": "Vない + ないではいられない / ずにはいられない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể không...; không sao nhịn được",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không thể không...; không sao nhịn được",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nói rằng cảm xúc hoặc thôi thúc bên trong khiến một hành động tự nhiên xảy ra. Cách dùng: Hai hình thức này diễn tả người nói không thể tiếp tục ở trạng thái không làm một hành động: một cảm xúc, phản ứng hoặc ham muốn bên trong thúc đẩy đến mức cuối cùng phải làm. 〜ずにはいられない hơi trang trọng và thường gặp trong văn viết; 〜ないではいられない gần với hội thoại hơn. Hành động phía sau thường là cười, khóc, nhớ lại, cảm phục, lên tiếng hoặc mua một thứ hấp dẫn, chứ không phải nghĩa vụ do quy tắc bên ngoài áp đặt. Sắc thái: Nhấn mạnh phản ứng tự phát và khó kiềm chế; người làm vẫn có năng lực hành động nhưng không cưỡng lại được thôi thúc. Lưu ý: Với 〜ずにはいられない, する đổi bất quy tắc thành せず, không phải しず. Không dùng để diễn đạt nghĩa vụ xã hội thuần túy; trường hợp đó hợp với 〜ないわけにはいかない hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b50eb7ffa9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜ことだ",
+     "examples": [
+      {
+       "ja": "外国語を覚えたければ、毎日少しずつ続けることだ。",
+       "ja_furigana": "外国語(がいこくご)を覚(おぼ)えたければ、毎日(まいにち)少(すこ)しずつ続(つづ)けることだ。",
+       "vi": "Nếu muốn học ngoại ngữ thì nên duy trì mỗi ngày một chút."
+      },
+      {
+       "ja": "健康を大切にしたければ、早く寝ることだ。",
+       "ja_furigana": "健康(けんこう)を大切(たいせつ)にしたければ、早(はや)く寝(ね)ることだ。",
+       "vi": "Nếu muốn giữ sức khỏe thì nên đi ngủ sớm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "試験前に生活のリズムを崩したくなければ、毎日同じ時間に寝ることだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu không muốn nhịp sinh hoạt bị xáo trộn trước kỳ thi, nên đi ngủ vào cùng một giờ mỗi ngày."
+     },
+     {
+      "ja": "悩んでいるなら、一人で抱え込まず、信頼できる人に相談することだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu đang phiền muộn thì đừng ôm một mình, tốt nhất là trao đổi với người đáng tin cậy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 試験前に生活のリズムを崩したくなければ、毎日同じ時間に寝ることだ。",
+     "FURIGANA_MISSING: 悩んでいるなら、一人で抱え込まず、信頼できる人に相談することだ。"
+    ],
+    "formation": "Vる / Vない + ことだ",
+    "locked_fields": [],
+    "meaning_vi": "Nên..., tốt nhất là...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nên..., tốt nhất là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu lời khuyên hoặc phương án được xem là quan trọng trong một tình huống. Cách dùng: Gắn ことだ vào động từ dạng từ điển hoặc dạng ない để đưa ra lời khuyên: nên làm hoặc không nên làm điều gì. Mẫu này thường nêu một nguyên tắc thực tế, cách giải quyết hoặc điều cốt yếu để đạt mục tiêu. Vì lời nói ngắn gọn và có tính kết luận, nó dễ nghe như lời chỉ dẫn của người có kinh nghiệm. Trong hội thoại thân mật, cần cân nhắc quan hệ để tránh tạo cảm giác lên lớp. Sắc thái: Dứt khoát hơn 〜たほうがいい và thường tập trung vào một việc mà người nói cho là then chốt. Lưu ý: Ở nghĩa lời khuyên, dùng V辞書形 hoặc Vない形 ngay trước ことだ, không dùng Vた形. Không phù hợp khi người nói chỉ xin phép hoặc đưa ra một lựa chọn rất dè dặt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5b3f299255"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜ものか",
+     "examples": [
+      {
+       "ja": "あんな人の言うことを、どうして信じるものか。",
+       "ja_furigana": "あんな人(ひと)の言(い)うことを、どうして信(しん)じるものか。",
+       "vi": "Lời của người như thế, làm sao tôi tin được chứ."
+      },
+      {
+       "ja": "誰が何と言おうと、この計画をやめるものか。",
+       "ja_furigana": "誰(だれ)が何(なん)と言(い)おうと、この計画(けいかく)をやめるものか。",
+       "vi": "Dù ai nói gì thì tôi cũng nhất quyết không bỏ kế hoạch này."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "一度の失敗だけで、この計画を諦めるものか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi nhất quyết không từ bỏ kế hoạch này chỉ vì một lần thất bại."
+     },
+     {
+      "ja": "どれほど反対されても、自分の信念を曲げるものか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù bị phản đối đến đâu, tôi cũng nhất quyết không thay đổi niềm tin."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 一度の失敗だけで、この計画を諦めるものか。",
+     "FURIGANA_MISSING: どれほど反対されても、自分の信念を曲げるものか。"
+    ],
+    "formation": "普通形 + ものか",
+    "locked_fields": [],
+    "meaning_vi": "Nhất quyết không...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nhất quyết không...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Biểu thị quyết tâm mạnh mẽ rằng người nói sẽ không làm hoặc không từ bỏ một điều. Cách dùng: Ở cách dùng này, 〜ものか là câu hỏi tu từ dùng để tự khẳng định ý chí: người nói nhất quyết không thực hiện hành động nêu trước mẫu hoặc không chấp nhận đầu hàng trước hoàn cảnh. Nó thường xuất hiện trong độc thoại, lời tự nhủ hoặc tuyên bố giàu cảm xúc. Dạng 〜もんか thân mật hơn. Không nên dùng trong giao tiếp trang trọng vì sắc thái rất mạnh. Sắc thái: Tập trung vào quyết tâm của người nói, không đơn thuần bác bỏ một nhận định. Lưu ý: Chủ thể thường là người nói hoặc nhóm mà người nói đồng nhất mình vào. Tránh dùng trực tiếp với cấp trên hoặc trong tình huống cần lời lẽ mềm mỏng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3533b97589"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜まい",
+     "examples": [
+      {
+       "ja": "彼は約束の時間に遅れることはあるまい。",
+       "ja_furigana": "彼(かれ)は約束(やくそく)の時間(じかん)に遅(おく)れることはあるまい。",
+       "vi": "Anh ấy chắc sẽ không đến muộn giờ hẹn đâu."
+      },
+      {
+       "ja": "この雨では、今日の試合は行われまい。",
+       "ja_furigana": "この雨(あめ)では、今日(きょう)の試合(しあい)は行(おこな)われまい。",
+       "vi": "Với trận mưa này thì trận đấu hôm nay có lẽ sẽ không diễn ra."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "同じ失敗は二度と繰り返すまいと、手順をすべて見直した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi rà soát lại toàn bộ quy trình với quyết tâm không bao giờ lặp lại sai lầm ấy."
+     },
+     {
+      "ja": "この激しい雪では、今夜中に荷物は届くまい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Với trận tuyết dữ dội này, có lẽ hành lý sẽ không tới trong đêm nay."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 同じ失敗は二度と繰り返すまいと、手順をすべて見直した。",
+     "FURIGANA_MISSING: この激しい雪では、今夜中に荷物は届くまい。"
+    ],
+    "formation": "Vる + まい（Vない + まい も可）",
+    "locked_fields": [],
+    "meaning_vi": "Quyết không...; có lẽ không...; làm hay không làm",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Quyết không...; có lẽ không...; làm hay không làm",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn đạt ý chí phủ định, phỏng đoán phủ định hoặc sự phân vân giữa hai lựa chọn. Cách dùng: 〜まい có hai cách dùng chính. Với chủ thể là người nói, nó thể hiện quyết tâm sẽ không làm; với sự việc hoặc ngôi thứ ba, nó thường là phỏng đoán chắc rằng điều đó khó xảy ra. Cấu trúc 〜（よ）うか〜まいか đặt thể ý hướng cạnh まい để diễn tả sự phân vân làm hay không làm. Đây là lối nói khá trang trọng hoặc mang tính văn viết; trong hội thoại thường ngày, 〜ないつもりだ hay 〜ないだろう phổ biến hơn. Sắc thái: Ý chí với まい thường cứng rắn và tự nhủ; phỏng đoán mang giọng trang trọng, đôi khi cổ điển. Lưu ý: Phải xác định chủ thể và ngữ cảnh để phân biệt quyết tâm phủ định với phỏng đoán phủ định. Trong mẫu phân vân, động từ đầu ở thể ý hướng, còn động từ trước まい về cơ bản ở dạng từ điển."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9e08820c46"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜ものだ／ものではない",
+     "examples": [
+      {
+       "ja": "目上の人には、敬語を使うものだ。",
+       "ja_furigana": "目上(めうえ)の人(ひと)には、敬語(けいご)を使(つか)うものだ。",
+       "vi": "Với người bề trên thì nên dùng kính ngữ."
+      },
+      {
+       "ja": "人の話を、途中で切るものではない。",
+       "ja_furigana": "人(ひと)の話(はなし)を、途中(とちゅう)で切(き)るものではない。",
+       "vi": "Không nên cắt ngang lời người khác đang nói."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "借りた道具は、使い終わったら元の場所に戻すものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đồ đã mượn thì dùng xong vốn nên trả về chỗ cũ."
+     },
+     {
+      "ja": "事情を知らないまま、人を一方的に責めるものではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không nên đơn phương trách móc người khác khi chưa biết rõ sự tình."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 借りた道具は、使い終わったら元の場所に戻すものだ。",
+     "FURIGANA_MISSING: 事情を知らないまま、人を一方的に責めるものではない。"
+    ],
+    "formation": "Vる / Vない + ものだ / ものではない",
+    "locked_fields": [],
+    "meaning_vi": "Vốn nên... / không nên...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vốn nên... / không nên...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu chuẩn mực chung hoặc răn nhắc về cách cư xử được xã hội xem là đúng. Cách dùng: Mẫu 〜ものだ trình bày hành vi được xem là lẽ thường, bổn phận hoặc cách ứng xử đúng; dạng 〜ものではない răn rằng một hành vi là không phù hợp. Khác với lời khuyên chỉ dành cho một hoàn cảnh trước mắt, nhận định ở đây thường dựa trên đạo đức, phép lịch sự hoặc quan niệm chung của cộng đồng. Chủ thể có thể là con người nói chung, vì vậy câu thường mang giọng của người lớn, người có kinh nghiệm hoặc văn bản giáo dục. Sắc thái: Có sắc thái quy phạm và khái quát; nếu nói trực tiếp với người nghe, câu có thể nghe nghiêm khắc hoặc giáo huấn. Lưu ý: Không dùng nghĩa này chỉ để trình bày sở thích hay kế hoạch cá nhân. Cần dựa vào ngữ cảnh để phân biệt với 〜ものだ mang nghĩa hồi tưởng hoặc cảm thán."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-677dc9206e"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-065"
+}

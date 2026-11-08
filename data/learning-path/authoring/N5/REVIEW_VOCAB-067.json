@@ -1,0 +1,1785 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ベトナムのお米はとてもおいしいです。",
+       "ja_furigana": "ベトナムのお米(こめ)はとてもおいしいです。",
+       "vi": "Gạo của Việt Nam rất ngon.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cơm",
+    "examples": [
+     {
+      "ja": "スーパーでお米を買いました。",
+      "ja_furigana": "スーパーでお米(こめ)を買(か)いました。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã mua gạo ở siêu thị."
+     }
+    ],
+    "expression": "（お）米",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "gạo; cơm",
+    "mnemonic_vi": "米 âm MỄ (gạo): hình bông lúa nở hạt ra bốn phía; こめ là gạo, thêm お cho lịch sự.",
+    "reading": "（お）こめ",
+    "romaji": "(o)kome",
+    "topic_vi": "Ăn, uống",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-03a2d167e5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "朝ごはんに温かい野菜のスープを飲みます。",
+       "ja_furigana": "朝(あさ)ごはんに温(あたた)かい野菜(やさい)のスープを飲(の)みます。",
+       "vi": "Bữa sáng tôi uống súp rau củ ấm.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "món canh",
+    "examples": [
+     {
+      "ja": "この スープは おいしそうです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Món canh này trông có vẻ ngon."
+     }
+    ],
+    "expression": "スープ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "món canh; súp; canh",
+    "mnemonic_vi": "スープ là \"soup\": món súp, món canh.",
+    "reading": "スープ",
+    "romaji": "suupu",
+    "topic_vi": "Món ăn",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-79ca863ee7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "パンにチーズを入れて食べました。",
+       "ja_furigana": "パンにチーズを入(い)れて食(た)べました。",
+       "vi": "Tôi đã kẹp phô mai vào bánh mì để ăn.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "phô mai",
+    "examples": [
+     {
+      "ja": "わたしはチーズが好きです。",
+      "ja_furigana": "わたしはチーズが好(す)きです。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi thích phô mai."
+     }
+    ],
+    "expression": "チーズ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "phô mai",
+    "mnemonic_vi": "チーズ là \"cheese\": phô mai; khi chụp ảnh người ta cũng hô \"cheese\" cho miệng cười.",
+    "reading": "チーズ",
+    "romaji": "chiizu",
+    "topic_vi": "Ăn, uống",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f8d9d59a21"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "妹にきれいなお菓子をあげます。",
+       "ja_furigana": "妹(いもうと)にきれいなお菓子(かし)をあげます。",
+       "vi": "Tôi cho em gái những chiếc bánh kẹo đẹp mắt.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cho, tặng",
+    "examples": [
+     {
+      "ja": "ともだちに プレゼントを あげます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi tặng quà cho bạn."
+     }
+    ],
+    "expression": "あげます",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cho; tặng",
+    "mnemonic_vi": "あげます (上げる, nâng lên): nâng món quà lên trao cho người khác, tức mình cho, tặng ai đó.",
+    "reading": "あげます",
+    "romaji": "agemasu",
+    "topic_vi": "Quà tặng",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-893d04357f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "親切にしてくれて、ありがとうございます。",
+       "ja_furigana": "親切(しんせつ)にしてくれて、ありがとうございます。",
+       "vi": "Cảm ơn bạn đã đối xử tử tế với tôi.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cảm ơn (lịch sự)",
+    "examples": [
+     {
+      "ja": "こどもに 「ありがとう ございます」を おしえます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi dạy trẻ con câu \"Cảm ơn\"."
+     }
+    ],
+    "expression": "ありがとう ございます",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cảm ơn (lịch sự)",
+    "mnemonic_vi": "ありがとう từ 有り難い (khó mà có được): cảm ơn vì điều quý hiếm; thêm ございます cho lịch sự.",
+    "reading": "ありがとう ございます",
+    "romaji": "arigatou gozaimasu",
+    "topic_vi": "Xin chào",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-28eb5d384c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "誕生日にきれいなカードをもらいました。",
+       "ja_furigana": "誕生日(たんじょうび)にきれいなカードをもらいました。",
+       "vi": "Tôi đã nhận được tấm thiệp đẹp vào ngày sinh nhật.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "図書館のカードを財布に入れます。",
+       "ja_furigana": "図書館(としょかん)のカードを財布(さいふ)に入(い)れます。",
+       "vi": "Tôi cất thẻ thư viện vào trong ví.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "この店では銀行のカードが使えます。",
+       "ja_furigana": "この店(みせ)では銀行(ぎんこう)のカードが使(つか)えます。",
+       "vi": "Ở cửa hàng này có thể dùng thẻ ngân hàng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 3 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thiệp, thẻ",
+    "examples": [
+     {
+      "ja": "もう カードを おくりましたか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã gửi thiệp chưa?"
+     },
+     {
+      "ja": "カードで買います。",
+      "ja_furigana": "カードで買(か)います。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi mua hàng bằng thẻ thanh toán."
+     },
+     {
+      "ja": "支払いはカードですることにした。",
+      "ja_furigana": "支払(しはら)いはカードですることにした。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã chọn hình thức thanh toán bằng thẻ."
+     }
+    ],
+    "expression": "カード",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 支払いはカードですることにした。 → 支払"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "thiệp; thẻ; thẻ ngân hàng",
+    "mnemonic_vi": "カード là \"card\": tấm thẻ, tấm thiệp.",
+    "reading": "カード",
+    "romaji": "kaado",
+    "topic_vi": "Quà tặng",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-60272d093b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "その新しい辞書はだれに借りましたか。",
+       "ja_furigana": "その新(あたら)しい辞書(じしょ)はだれに借(か)りましたか。",
+       "vi": "Quyển từ điển mới đó bạn đã mượn của ai vậy?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cho ai, từ ai (hỏi người)",
+    "examples": [
+     {
+      "ja": "だれに てがみを おくりますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn gửi thư cho ai?"
+     }
+    ],
+    "expression": "だれに",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cho ai; từ ai (hỏi người); nhờ ai",
+    "mnemonic_vi": "だれ (ai) + に (người nhận): cho ai? だれにあげますか.",
+    "reading": "だれに",
+    "romaji": "dareni",
+    "topic_vi": "Quà tặng",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c653be087e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この本はベトナム語で書いてあります。",
+       "ja_furigana": "この本(ほん)はベトナム語(ご)で書(か)いてあります。",
+       "vi": "Quyển sách này được viết bằng tiếng Việt.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tiếng Việt",
+    "examples": [
+     {
+      "ja": "ともだちに ベトナムごを おしえます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi dạy tiếng Việt cho bạn."
+     }
+    ],
+    "expression": "ベトナム語",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tiếng Việt",
+    "mnemonic_vi": "ベトナム (Việt Nam) + 語 NGỮ (ngôn ngữ): tiếng Việt.",
+    "reading": "ベトナムご",
+    "romaji": "betonamugo",
+    "topic_vi": "Từ ngữ",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4ad0a3b4dc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "青いペンでノートに字を書きます。",
+       "ja_furigana": "青(あお)いペンでノートに字(じ)を書(か)きます。",
+       "vi": "Tôi viết chữ vào vở bằng cây bút màu xanh.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bút",
+    "examples": [
+     {
+      "ja": "ともだちに ペンを もらいます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi nhận cây bút từ bạn."
+     }
+    ],
+    "expression": "ペン",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cây bút; bút",
+    "mnemonic_vi": "ペン là \"pen\": cây bút.",
+    "reading": "ペン",
+    "romaji": "pen",
+    "topic_vi": "Đây là cái gì?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1e635d6542"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "父に新しい時計をもらいます。",
+       "ja_furigana": "父(ちち)に新(あたら)しい時計(とけい)をもらいます。",
+       "vi": "Tôi được bố cho chiếc đồng hồ mới.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nhận, được cho",
+    "examples": [
+     {
+      "ja": "ともだちに プレゼントを もらいます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi nhận quà từ bạn."
+     }
+    ],
+    "expression": "もらいます",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nhận; được cho",
+    "mnemonic_vi": "もらいます là nhận về phía mình: 友だちにもらいます (nhận từ bạn); nghe như \"mời rồi\" thì nhận lấy.",
+    "reading": "もらいます",
+    "romaji": "moraimasu",
+    "topic_vi": "Quà tặng",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a880d5928f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日の仕事でパソコンを使います。",
+       "ja_furigana": "毎日(まいにち)の仕事(しごと)でパソコンを使(つか)います。",
+       "vi": "Tôi sử dụng máy tính trong công việc hằng ngày.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-91dd989c0c"
+    ],
+    "dictionary_meaning": "dùng, sử dụng",
+    "examples": [
+     {
+      "ja": "なにを つかいますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bạn sử dụng cái gì?"
+     }
+    ],
+    "expression": "使います",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "dùng; sử dụng",
+    "mnemonic_vi": "使 âm SỬ, như \"sử dụng\": 使います là dùng. Chú ý つかいます (dùng) khác つかれます (mệt).",
+    "reading": "つかいます",
+    "romaji": "tsukaimasu",
+    "topic_vi": "Vật - việc quan trọng",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6ecdba6615"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "図書館で日本の本を借ります。",
+       "ja_furigana": "図書館(としょかん)で日本(にほん)の本(ほん)を借(か)ります。",
+       "vi": "Tôi mượn sách Nhật ở thư viện.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-821ebb3736"
+    ],
+    "dictionary_meaning": "mượn",
+    "examples": [
+     {
+      "ja": "ともだちに じしょを かります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi mượn từ điển từ bạn."
+     }
+    ],
+    "expression": "借ります",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "mượn",
+    "mnemonic_vi": "借 âm TÁ (vay mượn): 借ります là mượn VỀ phía mình, còn 貸します là cho mượn ĐI; nhớ \"ka-RI\" = Rinh về.",
+    "reading": "かります",
+    "romaji": "karimasu",
+    "topic_vi": "Vật - việc quan trọng",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-cb5e752281"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "妹に漢字の読み方を教えます。",
+       "ja_furigana": "妹(いもうと)に漢字(かんじ)の読(よ)み方(かた)を教(おし)えます。",
+       "vi": "Tôi dạy cách đọc chữ Hán cho em gái.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "dạy, chỉ cho",
+    "examples": [
+     {
+      "ja": "ともだちに にほんごを おしえます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi dạy tiếng Nhật cho bạn."
+     }
+    ],
+    "expression": "教えます",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "dạy; chỉ cho; dạy cho",
+    "mnemonic_vi": "教 âm GIÁO, như \"giáo viên, giáo dục\": 教えます là dạy, chỉ cho người khác.",
+    "reading": "おしえます",
+    "romaji": "oshiemasu",
+    "topic_vi": "Trường học",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-27a3dec8e3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎週土曜日にピアノを習います。",
+       "ja_furigana": "毎週(まいしゅう)土曜日(どようび)にピアノを習(なら)います。",
+       "vi": "Thứ bảy hằng tuần tôi học đàn piano.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "học (của ai đó)",
+    "examples": [
+     {
+      "ja": "せんせいに にほんごを ならいます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi học tiếng Nhật từ thầy giáo."
+     }
+    ],
+    "expression": "習います",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "học (từ ai đó)",
+    "mnemonic_vi": "習 âm TẬP, như \"học tập\": chim non vỗ đôi cánh 羽 tập bay theo mẹ, tức học từ ai đó: 先生に習います.",
+    "reading": "ならいます",
+    "romaji": "naraimasu",
+    "topic_vi": "Sở thích",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-dc2bdcdedd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "休み時間に友だちと楽しく話します。",
+       "ja_furigana": "休(やす)み時間(じかん)に友(とも)だちと楽(たの)しく話(はな)します。",
+       "vi": "Giờ giải lao tôi nói chuyện vui vẻ với bạn.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nói chuyện",
+    "examples": [
+     {
+      "ja": "にほんごで はなします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi nói chuyện bằng tiếng Nhật."
+     }
+    ],
+    "expression": "話します",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nói chuyện",
+    "mnemonic_vi": "話 âm THOẠI, như \"đối thoại, điện thoại\": 話します là nói chuyện.",
+    "reading": "はなします",
+    "romaji": "hanashimasu",
+    "topic_vi": "Từ ngữ",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c9c6ca7178"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母の誕生日にケーキを作りました。",
+       "ja_furigana": "母(はは)の誕生日(たんじょうび)にケーキを作(つく)りました。",
+       "vi": "Tôi đã làm bánh ngọt vào ngày sinh nhật mẹ.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sinh nhật",
+    "examples": [
+     {
+      "ja": "たんじょうびに ともだちに プレゼントを もらいます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vào sinh nhật, tôi nhận quà từ bạn."
+     }
+    ],
+    "expression": "誕生日",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "sinh nhật",
+    "mnemonic_vi": "誕生 ĐẢN SINH (ra đời, như \"Phật đản\") + 日 (ngày): ngày ra đời, tức sinh nhật.",
+    "reading": "たんじょうび",
+    "romaji": "tanjoubi",
+    "topic_vi": "Quà tặng",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8eb3e2e352"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "雨ですから、弟に傘を貸します。",
+       "ja_furigana": "雨(あめ)ですから、弟(おとうと)に傘(かさ)を貸(か)します。",
+       "vi": "Vì trời mưa nên tôi cho em trai mượn ô.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-cb5e752281"
+    ],
+    "dictionary_meaning": "cho mượn",
+    "examples": [
+     {
+      "ja": "ともだちに じしょを かします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi cho bạn mượn từ điển."
+     }
+    ],
+    "expression": "貸します",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cho mượn",
+    "mnemonic_vi": "貸 âm THẢI (cho vay), bên dưới có vỏ sò 貝 (tiền): đưa tiền đi cho người khác mượn. かします = cho mượn, かります = mượn.",
+    "reading": "かします",
+    "romaji": "kashimasu",
+    "topic_vi": "Vật - việc quan trọng",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-821ebb3736"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "郵便局から国へ荷物を送ります。",
+       "ja_furigana": "郵便局(ゆうびんきょく)から国(くに)へ荷物(にもつ)を送(おく)ります。",
+       "vi": "Tôi gửi hành lý về nước từ bưu điện.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "gửi",
+    "examples": [
+     {
+      "ja": "かぞくに てがみを おくります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi gửi thư cho gia đình."
+     }
+    ],
+    "expression": "送ります",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "gửi; gửi đi",
+    "mnemonic_vi": "送 âm TỐNG, như \"tống tiễn, tống đạt\": 送ります là gửi đi, tiễn đi.",
+    "reading": "おくります",
+    "romaji": "okurimasu",
+    "topic_vi": "Gửi",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e1a4d94e2b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この新しいお茶の味はどうですか。",
+       "ja_furigana": "この新(あたら)しいお茶(ちゃ)の味(あじ)はどうですか。",
+       "vi": "Vị của loại trà mới này thế nào?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thấy sao, thế nào",
+    "examples": [
+     {
+      "ja": "がっこうは どうですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trường học thì thế nào?"
+     }
+    ],
+    "expression": "どうですか",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "thấy sao; thế nào",
+    "mnemonic_vi": "どう (thế nào) + ですか: thấy thế nào? Dùng hỏi cảm tưởng hoặc mời: コーヒーはどうですか.",
+    "reading": "どうですか",
+    "romaji": "doudesuka",
+    "topic_vi": "Như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4c502e142f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "日曜日のデパートはとてもにぎやかです。",
+       "ja_furigana": "日曜日(にちようび)のデパートはとてもにぎやかです。",
+       "vi": "Trung tâm thương mại vào ngày chủ nhật rất đông vui.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nhộn nhịp, đông vui",
+    "examples": [
+     {
+      "ja": "まちは にぎやかです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thành phố thì nhộn nhịp."
+     }
+    ],
+    "expression": "にぎやか",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nhộn nhịp; đông vui",
+    "mnemonic_vi": "にぎやか: đọc nhanh \"ni-ghi-ya-ka\" như tiếng cười nói rộn ràng ở chợ đông người; là tính từ な.",
+    "reading": "にぎやか",
+    "romaji": "nigiyaka",
+    "topic_vi": "Chuyển nhà",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1aee51d973"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅の近くは買い物に便利です。",
+       "ja_furigana": "駅(えき)の近(ちか)くは買(か)い物(もの)に便利(べんり)です。",
+       "vi": "Gần nhà ga rất tiện cho việc mua sắm.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tiện lợi",
+    "examples": [
+     {
+      "ja": "この まちは とても べんりです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thành phố này rất tiện."
+     }
+    ],
+    "expression": "便利",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tiện lợi; tiện",
+    "mnemonic_vi": "便利 đọc Hán Việt là TIỆN LỢI, y hệt tiếng Việt; là tính từ な.",
+    "reading": "べんり",
+    "romaji": "benri",
+    "topic_vi": "Chuyển nhà",
+    "twins": [],
+    "variants": [
+     "便利（な）"
+    ],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7414686d77"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日漢字を覚えるのは大変です。",
+       "ja_furigana": "毎日(まいにち)漢字(かんじ)を覚(おぼ)えるのは大変(たいへん)です。",
+       "vi": "Việc nhớ chữ Hán mỗi ngày rất vất vả.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "雨の日はバスがこんでいて大変です。",
+       "ja_furigana": "雨(あめ)の日(ひ)はバスがこんでいて大変(たいへん)です。",
+       "vi": "Ngày mưa xe buýt đông đúc nên rất vất vả.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "vất vả",
+    "examples": [
+     {
+      "ja": "しごとは たいへんです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công việc vất vả."
+     },
+     {
+      "ja": "きょうはたくさん仕事がありますから、大変です。",
+      "ja_furigana": "きょうはたくさん仕事(しごと)がありますから、大変(たいへん)です。",
+      "source": "VNJPCLUB",
+      "vi": "Vì hôm nay có nhiều việc phải làm nên vất vả."
+     }
+    ],
+    "expression": "大変",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "vất vả; khó khăn; rất",
+    "mnemonic_vi": "大変 Hán Việt là ĐẠI BIẾN (biến cố lớn): gặp chuyện lớn thì vất vả; đứng trước tính từ còn có nghĩa là \"rất\".",
+    "reading": "たいへん",
+    "romaji": "taihen",
+    "topic_vi": "(Bạn) khỏe không?",
+    "twins": [],
+    "variants": [
+     "たいへん",
+     "大変（な）"
+    ],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d9d354870c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "日曜日の午後は暇ですか。",
+       "ja_furigana": "日曜日(にちようび)の午後(ごご)は暇(ひま)ですか。",
+       "vi": "Chiều chủ nhật bạn có rảnh không?",
+       "role": "MAIN"
+      },
+      {
+       "ja": "暇なときに部屋で本を読みます。",
+       "ja_furigana": "暇(ひま)なときに部屋(へや)で本(ほん)を読(よ)みます。",
+       "vi": "Lúc rảnh rỗi tôi đọc sách trong phòng.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "明日はひまですから、あそびましょう。",
+       "ja_furigana": "明日(あした)はひまですから、あそびましょう。",
+       "source": "AI",
+       "vi": "Ngày mai tôi rảnh nên mình đi chơi nhé."
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "rảnh",
+    "examples": [
+     {
+      "ja": "ひまな どようびは べんきょうしますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vào thứ Bảy rảnh rỗi, bạn có học bài không?"
+     },
+     {
+      "ja": "きょうは ひまじゃ ありません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay tôi không rảnh."
+     },
+     {
+      "ja": "明日はひまですから、あそびましょう。",
+      "ja_furigana": "明日(あした)はひまですから、あそびましょう。",
+      "source": "AI",
+      "vi": "Ngày mai tôi rảnh nên mình đi chơi nhé."
+     }
+    ],
+    "expression": "暇",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "rảnh rỗi; rảnh",
+    "mnemonic_vi": "暇 âm HẠ, như \"nhàn hạ\": ひま là rảnh rỗi.",
+    "reading": "ひま",
+    "romaji": "hima",
+    "topic_vi": "Trạng thái, tình trạng ①",
+    "twins": [],
+    "variants": [
+     "ひま",
+     "ひま（な）",
+     "ひま＜な＞"
+    ],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-19571cf997"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "山田さんはいつでも親切な人です。",
+       "ja_furigana": "山田(やまだ)さんはいつでも親切(しんせつ)な人(ひと)です。",
+       "vi": "Anh Yamada lúc nào cũng là người tốt bụng.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tử tế, chu đáo",
+    "examples": [
+     {
+      "ja": "あの ひとは しんせつです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người kia tử tế."
+     }
+    ],
+    "expression": "親切",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "tử tế; chu đáo; tốt bụng",
+    "mnemonic_vi": "親切 Hán Việt là THÂN THIẾT: đối xử thân thiết với người khác là tử tế, tốt bụng.",
+    "reading": "しんせつ",
+    "romaji": "shinsetsu",
+    "topic_vi": "Người như thế nào?",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-38ce510607"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夜の公園はとても静かです。",
+       "ja_furigana": "夜(よる)の公園(こうえん)はとても静(しず)かです。",
+       "vi": "Công viên vào ban đêm rất yên tĩnh.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "yên tĩnh",
+    "examples": [
+     {
+      "ja": "しずかな へやは どうですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Căn phòng yên tĩnh thì thế nào?"
+     }
+    ],
+    "expression": "静か",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "yên tĩnh",
+    "mnemonic_vi": "静 âm TĨNH, như \"yên tĩnh, tĩnh lặng\": しずか là yên tĩnh; là tính từ な.",
+    "reading": "しずか",
+    "romaji": "shizuka",
+    "topic_vi": "Chuyển nhà",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f055b977c7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "どんなスポーツが一番好きですか。",
+       "ja_furigana": "どんなスポーツが一番(いちばん)好(す)きですか。",
+       "vi": "Bạn thích môn thể thao nào nhất?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thể thao",
+    "examples": [
+     {
+      "ja": "スポーツが じょうずです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giỏi thể thao."
+     }
+    ],
+    "expression": "スポーツ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "thể thao",
+    "mnemonic_vi": "スポーツ là \"sports\": thể thao.",
+    "reading": "スポーツ",
+    "romaji": "supootsu",
+    "topic_vi": "Thể thao",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-a3f9b0a4f8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "来週、日本語のテストを受けます。",
+       "ja_furigana": "来週(らいしゅう)、日本語(にほんご)のテストを受(う)けます。",
+       "vi": "Tuần sau tôi sẽ thi bài kiểm tra tiếng Nhật.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bài kiểm tra",
+    "examples": [
+     {
+      "ja": "テストが あります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có bài kiểm tra."
+     }
+    ],
+    "expression": "テスト",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "bài kiểm tra; kiểm tra",
+    "mnemonic_vi": "テスト là \"test\": bài kiểm tra.",
+    "reading": "てすと",
+    "romaji": "tesuto",
+    "topic_vi": "Trường học",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-bc6f2e826a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先生の話がよくわかります。",
+       "ja_furigana": "先生(せんせい)の話(はなし)がよくわかります。",
+       "vi": "Tôi hiểu rõ câu chuyện của thầy giáo.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hiểu, biết",
+    "examples": [
+     {
+      "ja": "かんじが わかりますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh có hiểu chữ Hán không?"
+     }
+    ],
+    "expression": "わかります",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "hiểu; biết",
+    "mnemonic_vi": "わかります (分かる, 分 PHÂN như \"phân biệt\"): phân biệt rõ được là hiểu; dùng が: 日本語がわかります.",
+    "reading": "わかります",
+    "romaji": "wakarimasu",
+    "topic_vi": "Từ ngữ",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8576175607"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "姉は歌がとても上手です。",
+       "ja_furigana": "姉(あね)は歌(うた)がとても上手(じょうず)です。",
+       "vi": "Chị gái tôi hát rất hay.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-e602be035c"
+    ],
+    "dictionary_meaning": "giỏi, khéo",
+    "examples": [
+     {
+      "ja": "スポーツが じょうずですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh chơi thể thao giỏi không?"
+     }
+    ],
+    "expression": "上手",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "giỏi; khéo",
+    "mnemonic_vi": "上手 Hán Việt là THƯỢNG THỦ: tay nghề ở bậc trên, tức giỏi; ngược lại là 下手 (へた, kém).",
+    "reading": "じょうず",
+    "romaji": "jouzu",
+    "topic_vi": "Sở thích",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8e6fdf77c4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私は絵が下手ですからあまりかきません。",
+       "ja_furigana": "私(わたし)は絵(え)が下手(へた)ですからあまりかきません。",
+       "vi": "Vì vẽ kém nên tôi ít khi vẽ tranh.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [
+     "JV-8e6fdf77c4"
+    ],
+    "dictionary_meaning": "kém, vụng",
+    "examples": [
+     {
+      "ja": "うたが へたですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh hát dở lắm à?"
+     }
+    ],
+    "expression": "下手",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "kém; vụng",
+    "mnemonic_vi": "下手 Hán Việt là HẠ THỦ: tay nghề ở bậc dưới, tức kém; đọc đặc biệt là へた, ngược với 上手 (じょうず).",
+    "reading": "へた",
+    "romaji": "heta",
+    "topic_vi": "Sở thích",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e602be035c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "妹は甘い果物が大好きです。",
+       "ja_furigana": "妹(いもうと)は甘(あま)い果物(くだもの)が大好(だいす)きです。",
+       "vi": "Em gái tôi rất thích trái cây ngọt.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "rất thích",
+    "examples": [
+     {
+      "ja": "アニメが だいすきです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi rất thích phim hoạt hình."
+     }
+    ],
+    "expression": "大好き",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "rất thích",
+    "mnemonic_vi": "大 (to, rất) + 好き (thích): thích to, tức rất thích.",
+    "reading": "だいすき",
+    "romaji": "daisuki",
+    "topic_vi": "Sở thích",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b73d3d2f35"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟は病院の薬が大嫌いです。",
+       "ja_furigana": "弟(おとうと)は病院(びょういん)の薬(くすり)が大嫌(だいきら)いです。",
+       "vi": "Em trai tôi rất ghét thuốc của bệnh viện.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "rất ghét",
+    "examples": [
+     {
+      "ja": "テストが だいきらいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi rất ghét bài kiểm tra."
+     }
+    ],
+    "expression": "大嫌い",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "rất ghét",
+    "mnemonic_vi": "大 (to, rất) + 嫌い (ghét): ghét to, tức rất ghét.",
+    "reading": "だいきらい",
+    "romaji": "daikirai",
+    "topic_vi": "Sở thích",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-adb3274cd4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "父に昔の面白い話を聞きました。",
+       "ja_furigana": "父(ちち)に昔(むかし)の面白(おもしろ)い話(はなし)を聞(き)きました。",
+       "vi": "Tôi đã nghe bố kể câu chuyện thú vị ngày xưa.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "câu chuyện",
+    "examples": [
+     {
+      "ja": "はなしが だいたい わかります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đại khái hiểu câu chuyện."
+     }
+    ],
+    "expression": "話",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "câu chuyện",
+    "mnemonic_vi": "話 âm THOẠI (lời nói): はなし là câu chuyện; động từ \"nói chuyện\" là 話します.",
+    "reading": "はなし",
+    "romaji": "hanashi",
+    "topic_vi": "Giao tiếp",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d23c157ee3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "午後から大雨になった。",
+       "ja_furigana": "午後(ごご)から大雨(おおあめ)になった。",
+       "source": "JLAS_REVIEWED",
+       "vi": "Chiều bắt đầu mưa lớn."
+      },
+      {
+       "ja": "大雨で電車がとまりました。",
+       "ja_furigana": "大雨(おおあめ)で電車(でんしゃ)がとまりました。",
+       "vi": "Tàu điện đã dừng chạy vì mưa lớn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "heavy rain",
+    "examples": [
+     {
+      "ja": "午後から大雨になった。",
+      "ja_furigana": "午後(ごご)から大雨(おおあめ)になった。",
+      "source": "JLAS_REVIEWED",
+      "vi": "Chiều bắt đầu mưa lớn."
+     },
+     {
+      "ja": "今日は大雨になるらしいから、外出は危険だ。",
+      "ja_furigana": "今日(きょう)は大雨(おおあめ)になるらしいから、外出(がいしゅつ)は危険(きけん)だ。",
+      "source": "VNJPCLUB",
+      "vi": "Vì trời hôm nay có thể sẽ mưa to nên ra ngoài thì nguy hiểm."
+     }
+    ],
+    "expression": "大雨",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 今日は大雨になるらしいから、外出は危険だ。 → 危険"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "mưa to; mưa lớn",
+    "mnemonic_vi": "大 ĐẠI (lớn) + 雨 VŨ (mưa): mưa lớn; đọc là おおあめ.",
+    "reading": "おおあめ",
+    "romaji": "ooame",
+    "topic_vi": "Thời tiết ngày mai",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-53e311dfc2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今日はお金があまりありません。",
+       "ja_furigana": "今日(きょう)はお金(かね)があまりありません。",
+       "vi": "Hôm nay tôi không có nhiều tiền.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "không có (đồ vật)",
+    "examples": [
+     {
+      "ja": "つくえの うえに とけいは ありません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trên bàn làm việc không có đồng hồ."
+     }
+    ],
+    "expression": "ありません",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "không có (đồ vật)",
+    "mnemonic_vi": "ありません là phủ định của あります: không có (đồ vật).",
+    "reading": "ありません",
+    "romaji": "arimasen",
+    "topic_vi": "Ở đâu",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8e45591f88"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "公園に小さい子どもがいます。",
+       "ja_furigana": "公園(こうえん)に小(ちい)さい子(こ)どもがいます。",
+       "vi": "Ở công viên có những em nhỏ.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "có (người, con vật)",
+    "examples": [
+     {
+      "ja": "きょうしつに おんなのひとが います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong phòng học có người phụ nữ."
+     }
+    ],
+    "expression": "います",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "có (người; con vật)",
+    "mnemonic_vi": "います dùng cho thứ sống, biết tự đi lại (người, con mèo); đồ vật đứng yên thì dùng あります.",
+    "reading": "います",
+    "romaji": "imasu",
+    "topic_vi": "Ở đâu",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-795eadf44a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "日曜日は学校に先生がいません。",
+       "ja_furigana": "日曜日(にちようび)は学校(がっこう)に先生(せんせい)がいません。",
+       "vi": "Chủ nhật ở trường không có giáo viên.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "không có (người)",
+    "examples": [
+     {
+      "ja": "にわに いぬは いません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong vườn không có chó."
+     }
+    ],
+    "expression": "いません",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "không có (người)",
+    "mnemonic_vi": "いません là phủ định của います: không có ai, không có con vật nào.",
+    "reading": "いません",
+    "romaji": "imasen",
+    "topic_vi": "Ở đâu",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c3aea181e0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "明日だれがパーティーへ来ますか。",
+       "ja_furigana": "明日(あした)だれがパーティーへ来(き)ますか。",
+       "vi": "Ngày mai ai sẽ đến bữa tiệc?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "có ai",
+    "examples": [
+     {
+      "ja": "へやに だれが いますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong phòng có ai?"
+     }
+    ],
+    "expression": "だれが",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "ai (làm chủ ngữ); có ai",
+    "mnemonic_vi": "だれ (ai) + が: ai (làm việc đó)? Từ để hỏi làm chủ ngữ luôn đi với が, không đi với は.",
+    "reading": "だれが",
+    "romaji": "darega",
+    "topic_vi": "Ở đâu",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0fef25e007"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夜の教室にはだれもいませんでした。",
+       "ja_furigana": "夜(よる)の教室(きょうしつ)にはだれもいませんでした。",
+       "vi": "Trong lớp học buổi tối không có một ai.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "không ai (đi với phủ định)",
+    "examples": [
+     {
+      "ja": "へやに だれも いません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong phòng không có ai cả."
+     }
+    ],
+    "expression": "だれも",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "không ai (đi với phủ định)",
+    "mnemonic_vi": "だれ (ai) + も + phủ định: không một ai cả, だれもいません là không có ai.",
+    "reading": "だれも",
+    "romaji": "daremo",
+    "topic_vi": "Ở đâu",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d94f9f74c7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "新しい銀行は駅のどこにありますか。",
+       "ja_furigana": "新(あたら)しい銀行(ぎんこう)は駅(えき)のどこにありますか。",
+       "vi": "Ngân hàng mới ở chỗ nào của nhà ga vậy?",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "ở đâu",
+    "examples": [
+     {
+      "ja": "かばんは どこに ありますか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái cặp ở đâu?"
+     }
+    ],
+    "expression": "どこに",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "ở đâu",
+    "mnemonic_vi": "どこ (đâu) + に (nơi tồn tại): ở đâu? Dùng với あります, います, 住んでいます.",
+    "reading": "どこに",
+    "romaji": "dokoni",
+    "topic_vi": "Ở đâu",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b101bcd743"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N5",
+ "packet_id": "REVIEW_VOCAB-067"
+}

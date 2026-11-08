@@ -1,0 +1,624 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "初めてではあるまいし、それくらい自分で決めなさい。",
+       "ja_furigana": "初(はじ)めてではあるまいし、それくらい自分(じぶん)で決(き)めなさい。",
+       "vi": "Đâu phải lần đầu, chuyện đó tự quyết định đi."
+      },
+      {
+       "ja": "初めてのお使いではあるまいし、道ぐらい自分で調べなさい。",
+       "ja_furigana": "初(はじ)めてのお使(つか)いではあるまいし、道(みち)ぐらい自分(じぶん)で調(しら)べなさい。",
+       "source": "AI",
+       "vi": "Đâu phải lần đầu đi việc vặt, đường đi thì tự tra lấy đi."
+      },
+      {
+       "ja": "神様ではあるまいし、何でも予測できるわけがない。",
+       "ja_furigana": "神様(かみさま)ではあるまいし、何(なん)でも予測(よそく)できるわけがない。",
+       "source": "AI",
+       "vi": "Có phải thần thánh đâu mà dự đoán được mọi thứ."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Danh từ đứng trước phải là thứ hiển nhiên không đúng với đối phương (子供, 神様); vế sau thường là lời khuyên hay phê phán, không dùng khi nói trung tính. Khác 〜わけではあるまいし (đâu phải là vì) và 〜ではない (phủ định thông thường).",
+    "examples": [
+     {
+      "ja": "子供ではあるまいし、自分でやりなさい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "初めてのお使いではあるまいし、道ぐらい自分で調べなさい。",
+      "ja_furigana": "初(はじ)めてのお使(つか)いではあるまいし、道(みち)ぐらい自分(じぶん)で調(しら)べなさい。",
+      "source": "AI",
+      "vi": "Đâu phải lần đầu đi việc vặt, đường đi thì tự tra lấy đi."
+     },
+     {
+      "ja": "神様ではあるまいし、何でも予測できるわけがない。",
+      "ja_furigana": "神様(かみさま)ではあるまいし、何(なん)でも予測(よそく)できるわけがない。",
+      "source": "AI",
+      "vi": "Có phải thần thánh đâu mà dự đoán được mọi thứ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 子供ではあるまいし、自分でやりなさい。",
+     "FURIGANA_MISSING: 子供ではあるまいし、自分でやりなさい。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "普通形（Nは N / Aなは Aな）+ ではあるまいし",
+    "locked_fields": [],
+    "meaning_vi": "Đâu phải là mà — Nhắc nhở rằng đối phương không phải như vậy nên đừng hành xử thế.",
+    "nuance_vi": "Văn nói, giọng trách móc, mỉa mai; nhắc đối phương rằng 'đâu phải là N' nên không đáng hành xử hay nói như vậy, vế sau là lời khuyên, mệnh lệnh hay phê phán.",
+    "order_items": [],
+    "pattern": "Thể thường + ではあるまいし",
+    "pattern_variants": [
+     "〜ではあるまいし"
+    ],
+    "unit_no": 10,
+    "unit_title_vi": "Nhấn mạnh nguyên nhân, điều kiện",
+    "usage_vi": "Giọng trách nhẹ, văn nói. Hay gặp: 子供ではあるまいし."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d523018562"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この集まりの参加者は、二十人といったところだろう。",
+       "ja_furigana": "この集(つど)まりの参加者(さんかしゃ)は、二十人(にじゅうにん)といったところだろう。",
+       "vi": "Số người tham gia buổi gặp mặt này chắc cũng chỉ khoảng hai mươi người."
+      },
+      {
+       "ja": "今月の売上は、前年の八割といったところだろう。",
+       "ja_furigana": "今月(こんげつ)の売上(うりあげ)は、前年(ぜんねん)の八割(はちわり)といったところだろう。",
+       "source": "AI",
+       "vi": "Doanh thu tháng này chắc cũng chỉ khoảng tám phần mười so với năm ngoái."
+      },
+      {
+       "ja": "「新しい仕事はどう？」「やっと慣れてきたといったところです。」",
+       "ja_furigana": "「新(あたら)しい仕事(しごと)はどう？」「やっと慣(な)れてきたといったところです。」",
+       "source": "AI",
+       "vi": "\"Công việc mới thế nào?\" \"Tạm gọi là cuối cùng cũng quen dần rồi.\""
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng cho con số chính xác hoặc mức độ cao, trong khi mẫu này chỉ mức vừa phải hoặc thấp (thường đi với せいぜい, まあまあ). Cũng đừng nhầm với 〜というところだ hay 〜ところだ (đang sắp làm/đang làm).",
+    "examples": [
+     {
+      "ja": "参加者はせいぜい十人といったところだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "今月の売上は、前年の八割といったところだろう。",
+      "ja_furigana": "今月(こんげつ)の売上(うりあげ)は、前年(ぜんねん)の八割(はちわり)といったところだろう。",
+      "source": "AI",
+      "vi": "Doanh thu tháng này chắc cũng chỉ khoảng tám phần mười so với năm ngoái."
+     },
+     {
+      "ja": "「新しい仕事はどう？」「やっと慣れてきたといったところです。」",
+      "ja_furigana": "「新(あたら)しい仕事(しごと)はどう？」「やっと慣(な)れてきたといったところです。」",
+      "source": "AI",
+      "vi": "\"Công việc mới thế nào?\" \"Tạm gọi là cuối cùng cũng quen dần rồi.\""
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 参加者はせいぜい十人といったところだ。",
+     "FURIGANA_MISSING: 参加者はせいぜい十人といったところだ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N／数量／Thể thường + といったところだ",
+    "locked_fields": [],
+    "meaning_vi": "Cùng lắm cũng chỉ — Mức độ chỉ vào khoảng đó, không hơn.",
+    "nuance_vi": "Văn nói lẫn văn viết đều dùng được, mang giọng đánh giá khách quan, hơi khiêm tốn; khác với 〜くらいだ ở chỗ không nhấn mạnh mức độ mà chỉ chốt lại 'đại khái là vậy'.",
+    "order_items": [],
+    "pattern": "Thể thường + といったところだ",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": "Đánh giá, giá trị",
+    "usage_vi": "Hay dùng để hạ mức kỳ vọng. Dạng khác というところだ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8192a13504"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "祖父がくれた本なので、処分するに忍びない。",
+       "ja_furigana": "祖父(そふ)がくれた本(ほん)なので、処分(しょぶん)するに忍(しの)びない。",
+       "vi": "Cuốn sách ông nội tặng nên tôi không nỡ bỏ đi."
+      },
+      {
+       "ja": "困っている人を見捨てるに忍びなくて、つい手を貸してしまった。",
+       "ja_furigana": "困(こま)っている人(ひと)を見捨(みす)てるに忍(しの)びなくて、つい手(て)を貸(か)してしまった。",
+       "source": "AI",
+       "vi": "Không nỡ bỏ mặc người đang gặp khó khăn nên tôi lỡ giúp một tay."
+      },
+      {
+       "ja": "長年働いてくれた社員を解雇するに忍びず、社長は給料の一部を削ることにした。",
+       "ja_furigana": "長年(ながねん)働(はたら)いてくれた社員(しゃいん)を解雇(かいこ)するに忍(しの)びず、社長(しゃちょう)は給料(きゅうりょう)の一部(いちぶ)を削(けず)ることにした。",
+       "source": "AI",
+       "vi": "Không nỡ sa thải nhân viên đã làm việc bao năm, giám đốc quyết định cắt một phần lương thay vào đó."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không dùng để nói ý muốn hay khả năng của bản thân kiểu 'không thích làm', cũng không chia thể ない (×忍びなくない). Dễ nhầm với 〜かねる (khó có thể làm vì hoàn cảnh) và 〜わけにはいかない (không thể làm vì lý lẽ), trong khi 〜に忍びない xuất phát từ cảm xúc.",
+    "examples": [
+     {
+      "ja": "思い出の品なので捨てるに忍びない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "困っている人を見捨てるに忍びなくて、つい手を貸してしまった。",
+      "ja_furigana": "困(こま)っている人(ひと)を見捨(みす)てるに忍(しの)びなくて、つい手(て)を貸(か)してしまった。",
+      "source": "AI",
+      "vi": "Không nỡ bỏ mặc người đang gặp khó khăn nên tôi lỡ giúp một tay."
+     },
+     {
+      "ja": "長年働いてくれた社員を解雇するに忍びず、社長は給料の一部を削ることにした。",
+      "ja_furigana": "長年(ながねん)働(はたら)いてくれた社員(しゃいん)を解雇(かいこ)するに忍(しの)びず、社長(しゃちょう)は給料(きゅうりょう)の一部(いちぶ)を削(けず)ることにした。",
+      "source": "AI",
+      "vi": "Không nỡ sa thải nhân viên đã làm việc bao năm, giám đốc quyết định cắt một phần lương thay vào đó."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 思い出の品なので捨てるに忍びない。",
+     "FURIGANA_MISSING: 思い出の品なので捨てるに忍びない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる／N + に忍びない",
+    "locked_fields": [],
+    "meaning_vi": "Không nỡ — Không đành lòng làm việc đó vì thương cảm.",
+    "nuance_vi": "Cách nói trang trọng, hơi văn chương, diễn tả lòng thương cảm hoặc áy náy của người nói nên không đành làm; thường đi với các động từ như 見る, 聞く, 捨てる, 解雇する.",
+    "order_items": [],
+    "pattern": "V từ điển + に忍びない",
+    "pattern_variants": [],
+    "unit_no": 14,
+    "unit_title_vi": "Biểu đạt đặc biệt, văn cổ",
+    "usage_vi": "Hay gặp: 捨てるに忍びない, 見るに忍びない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-582a74a16a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "どんなに反対されようが、自分の考えを変えるつもりはない。",
+       "ja_furigana": "どんなに反対(はんたい)されようが、自分(じぶん)の考(かんが)えを変(か)えるつもりはない。",
+       "vi": "Dù bị phản đối đến mấy, tôi cũng không định thay đổi suy nghĩ của mình."
+      },
+      {
+       "ja": "どんなに疲れていようが、約束は守るつもりだ。",
+       "ja_furigana": "どんなに疲(つか)れていようが、約束(やくそく)は守(まも)るつもりだ。",
+       "vi": "Dù mệt đến đâu tôi cũng giữ lời hứa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "どんなに批判されようが、信念は曲げない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù bị chỉ trích đến mấy, tôi cũng không bẻ cong niềm tin."
+     },
+     {
+      "ja": "どんなに忙しかろうが、家族との時間は大切にする。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù bận đến đâu vẫn trân trọng thời gian cho gia đình."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: どんなに批判されようが、信念は曲げない。",
+     "FURIGANA_MISSING: どんなに忙しかろうが、家族との時間は大切にする。"
+    ],
+    "formation": "どんなに + Vよう／Aかろう／Nだろう + が、〜",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “Cho dù… đến mấy/bao nhiêu đi nữa thì (cũng)…”, nhấn mạnh quyết tâm/khẳng định không thay đổi trước mức độ cao của điều kiện. Mang sắc thái mạnh, thường dùng trong tuyên ngôn, khẩu hiệu, văn viết trang trọng, hoặc lời khẳng định cứng. Thường đi kèm mệnh đề chính biểu thị ý chí/quyết tâm/đánh giá bất biến.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù có... đến đâu",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái cứng, hùng biện; dùng để nhấn mạnh lập trường không đổi. Thường không dùng cho sự tình đã rồi/miêu tả thực tế quá khứ; nếu miêu tả thực tế nên dùng ～ても/～たって. が và とも thay thế được; とも trang trọng hơn, hợp văn viết/diễn văn. [6. Ghi chú mở rộng] Với Aい hiếm gặp trong khẩu ngữ hiện đại; chọn A-くても nếu muốn tự nhiên đời thường. N + であろうが/とも phổ biến với các danh từ như 誰・相手・天候・逆境. Có thể nhấn mạnh bằng たとえ: たとえどんなに～うが/とも、… [7. Biến thể & cụm cố định] どんなに～ようとも… (trang trọng) いかに～であろうとも… N + だろうが／であろうが：誰であろうが許さない。 Aい + かろうが：寒かろうが行く。 [8. Lỗi thường gặp & bẫy JLPT] Sai chia Aい: × 忙しいようが → đúng: 忙しかろうが. Sai với Aな/N: × 不利だようが → đúng: 不利であろうが/だろうが. Dùng cho sự việc đã hoàn thành → nghe gượng: nên dùng ～ても. Ví dụ: × どんなに雨が強かろうが、昨日行った。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2568157eb3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "値段が高いだろうとなかろうと、必要なければ買わない。",
+       "ja_furigana": "値段(ねだん)が高(たか)いだろうとなかろうと、必要(ひつよう)なければ買(か)わない。",
+       "vi": "Dù giá có cao hay không, không cần thiết thì tôi không mua."
+      },
+      {
+       "ja": "簡単だろうとなかろうと、順番どおりに進めるべきだ。",
+       "ja_furigana": "簡単(かんたん)だろうとなかろうと、順番(じゅんばん)どおりに進(すす)めるべきだ。",
+       "vi": "Dù đơn giản hay không, vẫn nên tiến hành theo đúng trình tự."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "それが本物だろうとなかろうと、私は買わない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù đó là đồ thật hay không, tôi cũng không mua."
+     },
+     {
+      "ja": "必要だろうとなかろうと、ルールは守るべきだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù có cần hay không, quy tắc vẫn phải tuân thủ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: それが本物だろうとなかろうと、私は買わない。",
+     "FURIGANA_MISSING: 必要だろうとなかろうと、ルールは守るべきだ。"
+    ],
+    "formation": "N／Aな + だろうと + N／Aな + なかろうと、〜",
+    "locked_fields": [],
+    "meaning_vi": "～だろうとなかろうと diễn tả “dù có phải/cho là … hay không”, “bất kể có … hay không …”. Nhấn mạnh quyết định/quan điểm ở vế sau không thay đổi dù tình trạng ở vế trước thế nào. Sắc thái cứng, hùng biện, dùng để khẳng định lập trường. “なかろう” là dạng phủ định cổ của “ない” với copula だ/である. Thường dùng với cặp đối lập: 必要だろうとなかろうと, 重要だろうとなかろうと, 本物だろうとなかろうと. Với i-tính từ: dạng “かろうとなかろうと” rất văn viết; khẩu ngữ có thể dùng “～くても～なくても”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù có... hay không...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Vế sau diễn đạt lập trường/điều kiện bất biến: 関係ない, 影響されない, 変わらない. Văn phong chắc, trang trọng; trong khẩu ngữ thường thay bằng ～かどうかに関わらず hoặc ～ても～なくても. Với N/ナ: ưu tiên であろうとなかろうと trong văn viết chính luận. Không lặp lại hai lần cùng cụm; chỉ nêu một lần ở vế đầu rồi đưa kết luận. [6. Ghi chú mở rộng] Với i-tính từ, “高かろうとなかろうと/多かろうとなかろうと/難しかろうとなかろうと” là những mẫu đẹp về nhịp điệu. “だろう” ở đây không phải suy đoán thực sự; là hình thức đối ứng với “なかろう”. Trong phát biểu mạnh mẽ, có thể lặp cấu trúc song hành: Aだろうとなかろうと、Bであろうとなかろうと、結論… [7. Biến thể & cụm cố định] N/ナ + であろうとなかろうと: biến thể trang trọng tiêu chuẩn. I形 + かろうとなかろうと: biến thể cổ trang cho i-tính từ. V + うとまいと／V + ようとまいと: dùng với động từ để cùng ý nghĩa. ～だろうが～なかろうが: biến thể khẩu ngữ hiếm, sắc thái mạnh. [8. Lỗi thường gặp & bẫy JLPT] Áp dụng cho động từ trực tiếp: “行くだろうとなかろうと” là không tự nhiên; dùng “行こうが行くまいが/行くかどうかに関わらず”. Sai dạng i-tính từ: phải dùng “高かろうとなかろうと”, không dùng “高いだろうとなかろうと”. Nhầm sắc thái suy đoán của だろう: ở mẫu này là đối ứng hình thức, không phải “có lẽ”. Thi JLPT: bẫy chọn ～ても～なくても; nếu văn phong cứng, chính luận → chọn ～であろうとなかろうと／～だろうとなかろうと."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-db795acd61"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "参加者が来ようと来るまいと、式は定刻に始める。",
+       "ja_furigana": "参加者(さんかしゃ)が来(こ)ようと来(く)るまいと、式(しき)は定刻(ていこく)に始(はじ)める。",
+       "vi": "Dù người tham dự có đến hay không, buổi lễ vẫn bắt đầu đúng giờ."
+      },
+      {
+       "ja": "風が吹こうと吹くまいと、出発は予定どおりだ。",
+       "ja_furigana": "風(かぜ)が吹(ふ)こうと吹(ふ)くまいと、出発(しゅっぱつ)は予定(よてい)どおりだ。",
+       "vi": "Dù gió có thổi hay không, chúng ta vẫn khởi hành như dự định."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼が来ようと来るまいと、会議は予定どおり始める。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù anh ta có đến hay không, cuộc họp vẫn bắt đầu như dự định."
+     },
+     {
+      "ja": "雨が降ろうと降るまいと、試合は続行する。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù trời mưa hay không mưa, trận đấu vẫn tiếp tục."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼が来ようと来るまいと、会議は予定どおり始める。",
+     "FURIGANA_MISSING: 雨が降ろうと降るまいと、試合は続行する。"
+    ],
+    "formation": "Vよう + と + Vるまい + と、〜",
+    "locked_fields": [],
+    "meaning_vi": "Mẫu ～ようと～るまいと diễn tả “dù có làm hay không làm (V), thì kết luận/phán đoán phía sau vẫn không đổi”. Tương đương “dù có … hay không …”. Sắc thái trang trọng, kiểu văn viết/diễn thuyết. Nhấn mạnh tính “bất biến” của mệnh đề sau trước mọi khả năng trái ngược (làm/không làm). Thường nói về quyết tâm, chính sách, xu hướng chung, hoặc tính không liên quan của điều kiện trước với kết quả sau. Vế trước thường là cùng một động từ ở hai dạng: ý chí (Vよう) và ý chí phủ định (Vるまい).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù... cũng không...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sử dụng khi muốn khẳng định lập trường, nguyên tắc: vế sau thường mang ý quả quyết. Trang trọng; xuất hiện trong bài phát biểu, văn viết, bản tin. Hai vế trước nên đối ứng cùng một động từ để tạo nhịp điệu và tính đối xứng. Không dùng cho lời rủ rê hay yêu cầu trực tiếp. [6. Ghi chú mở rộng] “まい” là hình thức phủ định ý chí mang sắc thái cổ/viết; trong hội thoại thường dùng “〜ても〜なくても”. Với 来る: 来るまい（くるまい）；với する: するまい. Tránh “来まい/すまい” trong hiện đại chuẩn (trừ văn phong rất cổ). Có thể chèn chủ ngữ khác nhau giữa hai vế trước, nhưng thường giữ cùng chủ thể để mạch lạc. [7. Biến thể & cụm cố định] VようがVまいが: biến thể phổ dụng. 慣用: 来ようと来るまいと／しようとするまいと (bộ đôi bất quy tắc). V-受身ようと V-受身るまいと: nhấn mạnh bị tác động hay không (言われようと言われるまいと). [8. Lỗi thường gặp & bẫy JLPT] Dùng sai động từ ở hai vế: cần cùng một động từ (行こうと来るまいと → sai). Nhầm “Vないと” với “Vるまいと”: “まい” là phủ định ý chí, không phải “ない”. Sử dụng trong văn nói thường ngày nghe cứng; ở JLPT cần nhận ra sắc thái trang trọng. Nhầm với “〜ようにも〜れない” (biểu thị “muốn làm cũng không thể”), còn mẫu này là “dù làm hay không, kết quả sau không đổi”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f174022397"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "雪が降ろうが降るまいが、作業は続ける。",
+       "ja_furigana": "雪(ゆき)が降(ふ)ろうが降(ふ)るまいが、作業(さぎょう)は続(つづ)ける。",
+       "vi": "Dù tuyết có rơi hay không, công việc vẫn tiếp tục."
+      },
+      {
+       "ja": "皆が賛成しようがするまいが、方針は変えない。",
+       "ja_furigana": "皆(みな)が賛成(さんせい)しようがするまいが、方針(ほうしん)は変(か)えない。",
+       "vi": "Dù mọi người có tán thành hay không, tôi vẫn không đổi phương châm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "雨が降ろうが降るまいが、試合は予定どおり行う。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù có mưa hay không, trận đấu vẫn diễn ra như dự định."
+     },
+     {
+      "ja": "彼が賛成しようがするまいが、計画は進める。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù anh ta có tán thành hay không, kế hoạch vẫn tiến hành."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 雨が降ろうが降るまいが、試合は予定どおり行う。",
+     "FURIGANA_MISSING: 彼が賛成しようがするまいが、計画は進める。"
+    ],
+    "formation": "Vよう + が + Vるまい + が、〜",
+    "locked_fields": [],
+    "meaning_vi": "- Diễn tả lập trường kiên định: “dù có làm hay không làm … thì (vẫn) …”. Vế sau thể hiện hành động/quyết định không bị ảnh hưởng. - Sắc thái trang trọng, dùng trong phát biểu, nghị luận, tuyên bố quyết tâm. - Thường xuất hiện dạng đối ứng song song chặt chẽ giữa hai vế đầu.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù... hay không...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mạnh quyết tâm/chủ trương không thay đổi trước điều kiện đối lập. Vế sau thường là mệnh đề khẳng định lập trường, không dùng để hỏi/nhờ vả. Phong cách trang trọng, dùng trong bài phát biểu, viết luận. [6. Ghi chú mở rộng] Giữ song song hình thái: V-ようが ↔ V-るまいが cùng một động từ. Mở rộng với tính từ/danh từ giúp diễn đạt đa dạng hơn trong văn nghị luận. Văn phong trang trọng; trong hội thoại đời thường có thể thay bằng ～ても～なくても. [7. Biến thể & cụm cố định] 誰が来ようが来るまいが 雨が降ろうが降るまいが 賛成であろうが反対であろうが (biến thể danh/tính) 良かろうが悪かろうが (mẫu với い形容詞) [8. Lỗi thường gặp & bẫy JLPT] Không giữ cùng một động từ ở hai vế: ×「行こうが来るまいが」 → đúng: 「行こうが行くまいが」. Dùng để đặt câu hỏi/nhờ vả → không phù hợp sắc thái tuyên bố. Nhầm với ～ようか～るまいか trong câu hỏi chọn mẫu: nhìn vế sau nếu là “vẫn…/tiếp tục…” thì chọn ～ようが～るまいが."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2d5a2aaf6b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "子どもにせよ大人にせよ、時間を守る姿勢が大切だ。",
+       "ja_furigana": "子(こ)どもにせよ大人(おとな)にせよ、時間(じかん)を守(まも)る姿勢(しせい)が大切(たいせつ)だ。",
+       "vi": "Dù là trẻ em hay người lớn, thái độ đúng giờ đều quan trọng."
+      },
+      {
+       "ja": "来るにせよ来ないにせよ、返事は早めにください。",
+       "ja_furigana": "来(く)るにせよ来(こ)ないにせよ、返事(へんじ)は早(はや)めにください。",
+       "vi": "Dù đến hay không đến, hãy trả lời sớm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "学生にせよ社会人にせよ、学び続ける姿勢が大切だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù là sinh viên hay người đi làm, thái độ học tập liên tục đều quan trọng."
+     },
+     {
+      "ja": "行くにせよ行かないにせよ、早めに連絡してください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù đi hay không đi, hãy báo sớm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 学生にせよ社会人にせよ、学び続ける姿勢が大切だ。",
+     "FURIGANA_MISSING: 行くにせよ行かないにせよ、早めに連絡してください。"
+    ],
+    "formation": "N／Vる／Aい + にせよ + N／Vない／Aくない + にせよ、〜",
+    "locked_fields": [],
+    "meaning_vi": "“Dù A hay B thì kết luận/quan điểm ở mệnh đề sau vẫn không đổi”. Nhấn mạnh tính bất biến của lập trường. Hàm ý đối chiếu hai khả năng tương phản (cao/thấp, đi/không đi, ủng hộ/phản đối...). Có thể dùng như liên từ nhượng bộ đơn lẻ: “dẫu là … (thì cũng) …”. Sắc thái trung tính → hơi cứng; thường dùng trong lập luận, quy định, lời khuyên, phê bình. Với Aな/N trang trọng dùng であるにせよ; khẩu ngữ tương đương thường dùng ～にしろ, trang trọng hơn có ～であれ～であれ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù... hay... (mang sắc thái)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường dùng khi người nói nêu nguyên tắc, yêu cầu, đánh giá nhất quán bất chấp lựa chọn. Hai vế trước ～にせよ thường cân xứng về loại từ/nghĩa; tránh ghép không đồng hạng. Sau mệnh đề ～にせよ thường là mệnh đề tổng quát, mệnh lệnh/khuyên nhủ/quy định hoặc nhận định. Mức độ lịch sự: trung bình → trang trọng. Trong văn nói đời thường, đổi thành ～にしろ cho tự nhiên. [6. Ghi chú mở rộng] Thường đi kèm từ nhấn mạnh: たとえ/仮に + ～にせよ để tăng sắc thái nhượng bộ. Có dạng một vế nhấn mạnh phạm vi bất kể: 何にせよ急がないといけない (Dẫu là việc gì, cũng phải khẩn trương). Trong văn trang trọng, với Aな/N nên ưu tiên であるにせよ để tránh mơ hồ. [7. Biến thể & cụm cố định] Biến thể khẩu ngữ: ～にしろ～にしろ Biến thể trang trọng cùng nghĩa: ～であれ～であれ Cụm thường gặp: 冗談にせよ, 何にせよ, たとえ～にせよ [8. Lỗi thường gặp & bẫy JLPT] Ghép hai vế không đồng loại: sai kiểu “安いにせよ行かないにせよ” (i-tính từ + động từ). Nên đồng hạng: “行くにせよ行かないにせよ”. Dùng mệnh đề sau quá cụ thể cho một trường hợp: mẫu này thích hợp cho nguyên tắc/đánh giá chung. Nhầm lẫn sắc thái: đưa ～であれ vào hội thoại thường ngày nghe quá cứng; hội thoại nên dùng ～にしろ/～にせよ. Quên である với Aな/N trong văn viết trang trọng: “静かにせよ” (mơ hồ) → “静かであるにせよ”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-55b183b5c9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "参加しようかするまいか、昨日まで迷っていた。",
+       "ja_furigana": "参加(さんか)しようかするまいか、昨日(きのう)まで迷(まよ)っていた。",
+       "vi": "Tôi đã lưỡng lự đến tận hôm qua, không biết có nên tham gia hay không."
+      },
+      {
+       "ja": "上司に不満を伝えようか伝えるまいか、一晩中考えた。",
+       "ja_furigana": "上司(じょうし)に不満(ふまん)を伝(つた)えようか伝(つた)えるまいか、一晩中(ひとばんじゅう)考(かんが)えた。",
+       "vi": "Tôi suy nghĩ suốt đêm, có nên nói điều bất mãn với cấp trên hay không."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "行こうか行くまいか、直前まで迷っていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi lưỡng lự đến phút chót, không biết có nên đi hay không."
+     },
+     {
+      "ja": "彼に本当のことを言おうか言うまいか、何度も考えた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã suy đi nghĩ lại, có nên nói sự thật với anh ấy hay không."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 行こうか行くまいか、直前まで迷っていた。",
+     "FURIGANA_MISSING: 彼に本当のことを言おうか言うまいか、何度も考えた。"
+    ],
+    "formation": "Vよう + か + Vるまい + か（迷う・悩む）",
+    "locked_fields": [],
+    "meaning_vi": "- Diễn tả sự do dự: “có nên làm hay không nên làm…”. Thường diễn tả độc thoại nội tâm, đắn đo trước quyết định. - Chủ ngữ thường là người nói (ngôi 1) hoặc tập thể đang cân nhắc; hay đi kèm 迷う／悩む／決めかねる／考える. - Mang sắc thái trang trọng/hơi văn chương; “まい” là hình thái ý chí phủ định cổ điển.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không biết nên... hay không...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi mô tả quá trình cân nhắc; thường không dùng để ra lệnh/nhờ vả. Có thể theo sau bởi danh từ hóa: ～ようか～まいか＋迷い／悩み. Văn phong trang trọng hơn so với ～かどうか (trung tính). [6. Ghi chú mở rộng] Chuẩn mực: Vる＋まい; với 一段 đôi khi thấy Vまい trong văn nói, nhưng đề thi ưu tiên Vるまい. Với する: するまい/すまい đều đúng; すまい tự nhiên hơn. Với 来る: 来るまい／来まい (来まい thiên về văn viết). [7. Biến thể & cụm cố định] ～ようか～まいか (rút る trong văn khẩu đối với 一段) 行こうか行くまいか／やめようかやめるまいか (cặp đối lập điển hình) ～ようか～まいか迷う／悩む／決めかねる [8. Lỗi thường gặp & bẫy JLPT] Chọn nhầm với ～ようが～るまいが (bất kể) khi ngữ cảnh là “đắn đo”. Dùng cho tính từ/danh từ: ×「高いようか高くあるまいか」 (chỉ dùng với động từ). Sai hình thái: ×「食べまいか食べようか」 (thứ tự chuẩn: 食べようか食べるまいか)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9271bd142f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "診断の結果、命にかかわる病気ではないと分かり安心した。",
+       "ja_furigana": "診断(しんだん)の結果(けっか)、命(いのち)にかかわる病気(びょうき)ではないと分(わ)かり安心(あんしん)した。",
+       "vi": "Kết quả chẩn đoán cho thấy không phải bệnh nguy hiểm đến tính mạng nên tôi yên tâm."
+      },
+      {
+       "ja": "「収入や家族構成など、プライバシーにかかわる質問にはお答えできません」",
+       "ja_furigana": "「収入(しゅうにゅう)や家族構成(かぞくこうせい)など、プライバシーにかかわる質問(しつもん)にはお答(こた)えできません」",
+       "vi": "“Tôi không thể trả lời những câu hỏi liên quan đến quyền riêng tư như thu nhập hay thành phần gia đình.”"
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "検査の結果、命にかかわる病気ではないことがわかってほっとした。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kết quả kiểm tra cho thấy đây không phải bệnh nguy hiểm đến tính mạng nên tôi đã thở phào."
+     },
+     {
+      "ja": "「住所や電話番号など、プライバシーにかかわることにはお答えできません」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "“Tôi không thể trả lời những điều liên quan đến quyền riêng tư như địa chỉ hay số điện thoại.”"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 検査の結果、命にかかわる病気ではないことがわかってほっとした。",
+     "FURIGANA_MISSING: 「住所や電話番号など、プライバシーにかかわることにはお答えできません」"
+    ],
+    "formation": "N + にかかわる + N／〜",
+    "locked_fields": [],
+    "meaning_vi": "Liên quan đến…; có ảnh hưởng nghiêm trọng đến…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜にかかわる",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả một vấn đề liên quan trực tiếp và có ảnh hưởng quan trọng đến những điều như tính mạng, danh dự hoặc quyền riêng tư. Cần phân biệt với động từ 関わる ở phần ví dụ bổ trợ, vốn có nghĩa rộng là “liên quan, dính líu”. 1) Dễ nhầm với ～に関する. → ～にかかわる không chỉ có nghĩa “liên quan” mà thường chỉ ảnh hưởng trực tiếp đến một vấn đề hệ trọng. 2) Hay đi với những danh từ có mức độ nghiêm trọng. → Các cụm thường gặp là 命にかかわる, 名誉にかかわる, 信用にかかわる và 存亡にかかわる. 3) Không nhầm với ～にかかわらず. → ～にかかわる là “liên quan, ảnh hưởng đến”, còn ～にかかわらず là “bất kể”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ad9c1dbc76"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-014"
+}

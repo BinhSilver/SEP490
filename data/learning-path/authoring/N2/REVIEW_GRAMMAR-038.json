@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会議の資料は金曜日までに送らねばならない。",
+       "ja_furigana": "会議(かいぎ)の資料(しりょう)は金曜日(きんようび)までに送(おく)らねばならない。",
+       "vi": "Tài liệu cuộc họp phải gửi trước thứ Sáu."
+      },
+      {
+       "ja": "学生は図書館では静かにせねばならない。",
+       "ja_furigana": "学生(がくせい)は図書館(としょかん)では静(しず)かにせねばならない。",
+       "vi": "Học sinh phải giữ yên lặng trong thư viện."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "明日までに報告書を提出せねばならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phải nộp báo cáo trước ngày mai."
+     },
+     {
+      "ja": "我々は約束を守らねばならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chúng ta phải giữ lời hứa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 明日までに報告書を提出せねばならない。",
+     "FURIGANA_MISSING: 我々は約束を守らねばならない。"
+    ],
+    "formation": "Vない + ねばならない",
+    "locked_fields": [],
+    "meaning_vi": "Diễn đạt nghĩa vụ/bắt buộc mạnh: quy tắc, trách nhiệm, tự ràng buộc. Sắc thái trang trọng/điển phạm, nghe cứng hơn ～なければならない; mang chút văn chương/khẩu khí. Trong khẩu ngữ đời thường thường thay bằng ～なきゃ／～なくちゃ／～なければならない.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Phải..., bắt buộc...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi phát biểu trang trọng, cam kết, văn bản quy định, phát ngôn chính trị/diễn văn. Trong hội thoại tự nhiên, cân nhắc dùng ～なきゃ/～なくちゃ/～ないと thay thế. Chủ thể thường là “tôi/chúng ta/tổ chức”; với người nghe, dễ tạo cảm giác mệnh lệnh. [6. Ghi chú mở rộng] Trong tiêu đề/khẩu hiệu: ～せねばならない tạo nhịp điệu mạnh, ngắn gọn. Dạng rút gọn nam tính/khẩu ngữ cũ: ～ねばならん (không trang trọng). “～ねば” có thể lược bỏ “ならない” trong văn phong hô hào: 守らねば！ (sắc thái mạnh, cổ). [7. Biến thể & cụm cố định] せねばならない（từ する）／行かねばならない／守らねばならない ～ねばならぬ（văn viết）／～ねばなりません（kính ngữ lịch sự） ～ねば（dạng rút gọn nhấn mạnh) [8. Lỗi thường gặp & bẫy JLPT] Chia sai với する: “しねばならない” → sai; phải “せねばならない”. Nhầm sắc thái với ざるを得ない: cái sau là “bất đắc dĩ”, không phải nghĩa vụ quy tắc. Áp dụng trong hội thoại thân mật → nghe cứng/diễn; nên dùng なきゃ/ないと. JLPT hay kiểm tra nhận diện 未然形: 書く→書かねばならない; 食べる→食べねばならない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b0854a056c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "こんな難しい問題、私には解けっこない。",
+       "ja_furigana": "こんな難(むずか)しい問題(もんだい)、私(わたし)には解(と)けっこない。",
+       "vi": "Bài khó thế này thì tôi chẳng giải nổi đâu."
+      },
+      {
+       "ja": "あの子にこの説明をしても、わかりっこないよ。",
+       "ja_furigana": "あの子(こ)にこの説明(せつめい)をしても、わかりっこないよ。",
+       "vi": "Giải thích thế này cho đứa bé đó thì nó cũng chẳng hiểu đâu."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今からじゃ、間に合いっこないよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Từ giờ thì làm sao mà kịp được."
+     },
+     {
+      "ja": "あの相手に勝てっこない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đối thủ đó thì làm sao mà thắng nổi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今からじゃ、間に合いっこないよ。",
+     "FURIGANA_MISSING: あの相手に勝てっこない。"
+    ],
+    "formation": "Vます + っこない",
+    "locked_fields": [],
+    "meaning_vi": "Khẳng định phủ định mạnh: “chẳng đời nào, không thể nào, tuyệt đối không”. Thể hiện sự tin chắc chủ quan của người nói (suy đoán chắc nịch, cảm xúc mạnh). Sử dụng trong hội thoại, đôi khi nghe có phần thẳng thừng. Thường đi với động từ khả năng, động từ kết quả, động từ biểu thị khả năng/thời gian.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tuyệt đối không...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Giọng điệu thân mật, dứt khoát; có thể nghe hơi “cứng” hoặc thiếu lịch sự tùy ngữ cảnh. Thích hợp diễn đạt phán đoán cá nhân hơn là sự thật khách quan được chứng minh. Phổ biến với các động từ: 間に合う、できる、起きる/起きられる、覚える、わかる、勝つ、治る. Khi cần lịch sự/viết: chuyển sang ～はずがない・～わけがない・～可能性は低い. [6. Ghi chú mở rộng] “っこ” là tiếp vĩ tố khẩu ngữ tăng sức nhấn, thấy trong các dạng khác như “やりっこない(hiếm)”. Thường xuất hiện trong đối thoại drama/manga thể hiện thái độ thẳng thắn. Trong nhiều trường hợp, dạng khả năng tự nhiên hơn: 覚えられっこない, 起きられっこない. [7. Biến thể & cụm cố định] 間に合いっこない／できっこない／勝てっこない／わかりっこない／覚えられっこない 今さら＋Vます-stem＋っこない: 今さら間に合いっこない 子ども(に)＋Vます-stem＋っこない: 子どもに分かりっこない [8. Lỗi thường gặp & bẫy JLPT] Dùng trong văn trang trọng: × っこありません → Nên dùng: ～はずがありません/～わけがありません. Nối sai gốc động từ: × 覚えるっこない → đúng: 覚えられっこない (dùng khả năng). Nhầm sắc thái với ～ないだけ: っこない là phủ định tuyệt đối, không phải “chỉ là không”. Trắc nghiệm JLPT hay kiểm tra nhận diện “khẩu ngữ, phủ định mạnh” và cấu trúc Vます＋っこない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3b01688684"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お取り込み中のところ、失礼いたします。",
+       "ja_furigana": "お取(と)り込(こ)み中(ちゅう)のところ、失礼(しつれい)いたします。",
+       "vi": "Xin thứ lỗi vì đã làm phiền khi anh đang bận."
+      },
+      {
+       "ja": "お休みのところを、急に呼び出してしまってごめんなさい。",
+       "ja_furigana": "お休(やす)みのところを、急(きゅう)に呼(よ)び出(だ)してしまってごめんなさい。",
+       "vi": "Xin lỗi vì đã đột ngột gọi anh ra ngoài trong lúc anh đang nghỉ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "お忙しいところ（を）すみません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thật xin lỗi đã làm phiền quý vị đang trong lúc bận rộn."
+     },
+     {
+      "ja": "会いたいと思っていたところです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vừa đúng lúc muốn gặp."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: お忙しいところ（を）すみません。",
+     "FURIGANA_MISSING: 会いたいと思っていたところです。"
+    ],
+    "formation": "thể thường(Vる / Vている / Aい) + ところ(を)",
+    "locked_fields": [],
+    "meaning_vi": "Đúng lúc ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜お忙しいところ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng cho trường hợp diễn tả hành động của sự việc đang ở một giai đoạn nào đó. Biểu thị ở thì quá khứ, tiếp diễn, hay tương lai gần tuỳ vào hình thức biến cách của động từ trước 「～ところ」 Trợ từ sau 「～ところ」 thay đổi phụ thuộc vào động từ vế sau đi với trợ từ nào."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-06107ae460"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今は引っ越しの準備で、旅行どころではない。",
+       "ja_furigana": "今(いま)は引(ひ)っ越(こ)しの準備(じゅんび)で、旅行(りょこう)どころではない。",
+       "vi": "Bây giờ đang bận chuẩn bị chuyển nhà nên không phải lúc đi du lịch."
+      },
+      {
+       "ja": "この大雨では、外に出かけるどころではない。",
+       "ja_furigana": "この大雨(おおあめ)では、外(そと)に出(で)かけるどころではない。",
+       "vi": "Mưa to thế này thì chẳng thể nào ra ngoài được."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "工場で火事があり、仕事どころではなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có hỏa hoạn ở nhà máy, chịu không thể làm việc được."
+     },
+     {
+      "ja": "風邪がひどくて、遊びに行くどころじゃない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bị cảm kinh khủng quá, chịu không thể đi chơi được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 工場で火事があり、仕事どころではなかった。",
+     "FURIGANA_MISSING: 風邪がひどくて、遊びに行くどころじゃない。"
+    ],
+    "formation": "N / Vる + どころではない",
+    "locked_fields": [],
+    "meaning_vi": "Không phải lúc để ～, không thể ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜仕事どころではない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả có lý do khác quan trọng hơn nên lúc này không thể"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c56a9303c6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "薬を飲んでも、よくなるどころか、もっと痛くなった。",
+       "ja_furigana": "薬(くすり)を飲(の)んでも、よくなるどころか、もっと痛(いた)くなった。",
+       "vi": "Uống thuốc mà chẳng đỡ chút nào, ngược lại còn đau hơn."
+      },
+      {
+       "ja": "彼は漢字どころか、ひらがなも書けない。",
+       "ja_furigana": "彼(かれ)は漢字(かんじ)どころか、ひらがなも書(か)けない。",
+       "vi": "Đừng nói là chữ Hán, anh ấy đến hiragana cũng không viết được."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「夏休みは取れそう？」 「忙しくて夏休みどころか日曜日も休めないよ。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có thể lấy phép nghỉ hè chứ? Bận quá, nghỉ hè cái gì, chủ nậht còn không thể nghỉ nè."
+     },
+     {
+      "ja": "「そう。うちの会社は忙しいどころか仕事がなくて困っているんだ。」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vậy à, còn công ty tôi bận cái nỗi gì, không có việc gì làm đang khổ đấy nè."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「夏休みは取れそう？」 「忙しくて夏休みどころか日曜日も休めないよ。」",
+     "FURIGANA_MISSING: 「そう。うちの会社は忙しいどころか仕事がなくて困っているんだ。」"
+    ],
+    "formation": "N / Aい / Aな / V thể thường + どころか",
+    "locked_fields": [],
+    "meaning_vi": "Thay vì…ngược lại, nói chi đến, không chỉ mà hơn nữa",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜夏休みどころか",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi muốn nói không phải ở mức độ như thế mà còn hơn nữa hoặc vấn đề đó hoàn toàn khác, ngược lại với…"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1644612575"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "友だちに電話したところ、家族旅行中だと言われた。",
+       "ja_furigana": "友(とも)だちに電話(でんわ)したところ、家族旅行中(かぞくりょこうちゅう)だと言(い)われた。",
+       "vi": "Gọi điện cho bạn thì được báo là bạn đang đi du lịch cùng gia đình."
+      },
+      {
+       "ja": "先生に聞いたところ、この問題は試験に出ないそうだ。",
+       "ja_furigana": "先生(せんせい)に聞(き)いたところ、この問題(もんだい)は試験(しけん)に出(で)ないそうだ。",
+       "vi": "Hỏi thầy giáo thì được biết bài này không có trong đề thi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "病院で検査したところ、異常はなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi kiểm tra ở bệnh viện, không có điều gì bất thường."
+     },
+     {
+      "ja": "駅に問い合わせたところ、忘れ物は届いていた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi hỏi nhà ga, thì đồ bỏ quên đã tới."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 病院で検査したところ、異常はなかった。",
+     "FURIGANA_MISSING: 駅に問い合わせたところ、忘れ物は届いていた。"
+    ],
+    "formation": "Vた + ところ",
+    "locked_fields": [],
+    "meaning_vi": "Sau khi ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜検査したところ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả sau khi làm cái gì đó thì kết quả như thế nào."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-951c160700"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "窓を開けっぱなしにして出かけてしまった。",
+       "ja_furigana": "窓(まど)を開(あ)けっぱなしにして出(で)かけてしまった。",
+       "vi": "Tôi đã để nguyên cửa sổ mở rồi đi ra ngoài."
+      },
+      {
+       "ja": "水を出しっぱなしで、洗面所がびしょびしょだ。",
+       "ja_furigana": "水(みず)を出(だ)しっぱなしで、洗面所(せんめんじょ)がびしょびしょだ。",
+       "vi": "Để nước chảy mãi nên phòng rửa mặt ướt sũng."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "電車が混んでいて、東京まで立ちっぱなしだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trên tàu điện kẹt cứng, đã đứng suốt cho tới Tokyo."
+     },
+     {
+      "ja": "テレビをつけっぱなしで寝てしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cứ mở ti vi rồi ngủ mất tiêu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 電車が混んでいて、東京まで立ちっぱなしだった。",
+     "FURIGANA_MISSING: テレビをつけっぱなしで寝てしまった。"
+    ],
+    "formation": "Vます + っぱなし",
+    "locked_fields": [],
+    "meaning_vi": "Để nguyên, giữ nguyên ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜立ちっぱなし",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp biểu thị một trạng thái của hành động nào đó cứ được giữ nguyên như vậy suốt trong một thời gian mà không làm việc đương nhiên sau đó phải làm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-465a0ead8c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟は部屋を出たきり、何も連絡してこない。",
+       "ja_furigana": "弟(おとうと)は部屋(へや)を出(で)たきり、何(なに)も連絡(れんらく)してこない。",
+       "vi": "Em trai tôi ra khỏi phòng rồi chẳng liên lạc gì nữa."
+      },
+      {
+       "ja": "祖母に手紙を出したきり、返事をもらっていない。",
+       "ja_furigana": "祖母(そぼ)に手紙(てがみ)を出(だ)したきり、返事(へんじ)をもらっていない。",
+       "vi": "Tôi gửi thư cho bà nội rồi mà chưa nhận được hồi âm."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "うちの子は遊びに行ったきり帰ってこない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Con nhà tôi sau khi đi chơi, chả thấy về."
+     },
+     {
+      "ja": "息子は、自分の部屋に入ったきり出てこない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Con trai tôi, sau khi vào phòng của mình, không ra ngoài."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: うちの子は遊びに行ったきり帰ってこない。",
+     "FURIGANA_MISSING: 息子は、自分の部屋に入ったきり出てこない。"
+    ],
+    "formation": "Vた + きり",
+    "locked_fields": [],
+    "meaning_vi": "（1） Sau khi ～ （2）Chỉ",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜行ったきり",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "(1) Diễn tả tình trạng sau khi làm việc gì đó thì vẫn giữ nguyên tình trạng suốt. Vế sau là những câu văn chỉ tình trạng ngoài dự đoán được giữ nguyên suốt, sự việc chắc chắn xảy ra tiếp theo lại không xảy ra. Trong văn nói, きりchuyển thành ［～っきり］ Cách dùng khác: 一人（っ）きり（＝ひとりだけ） Chỉ có một người 二人（っ）きり（＝二人だけ） Chỉ có hai người これ（っ）きり（＝これだけ／今回だけ） Chỉ có cái này, chỉ có lần này"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-85ed18bd56"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "運動会のあと、服は泥だらけになった。",
+       "ja_furigana": "運動会(うんどうかい)のあと、服(ふく)は泥(どろ)だらけになった。",
+       "vi": "Sau hội thi thể thao, quần áo bị dính đầy bùn."
+      },
+      {
+       "ja": "机の上は本だらけで、どこに座ればいいかわからない。",
+       "ja_furigana": "机(つくえ)の上(うえ)は本(ほん)だらけで、どこに座(すわ)ればいいかわからない。",
+       "vi": "Trên bàn đầy sách vở, chẳng biết ngồi vào đâu."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この手紙の日本語は間違いだらけだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tiếng Nhật của bức thư này đầy lỗi."
+     },
+     {
+      "ja": "ちゃんとたたんでおかなかったから、服がしわだらけになってしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì không xếp nghiêm chỉnh nên quần áo đầy vết nhăn mát rồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この手紙の日本語は間違いだらけだ。",
+     "FURIGANA_MISSING: ちゃんとたたんでおかなかったから、服がしわだらけになってしまった。"
+    ],
+    "formation": "N + だらけ",
+    "locked_fields": [],
+    "meaning_vi": "Toàn là, đầy là ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜間違いだらけ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Nói về những thứ bẩn, đáng ghét có đầy hoặc đang dính đầy trên bề mặt. Hoặc diễn tả toàn những chuyện xấu, chuyện không may."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0023f688d6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あんなに練習したんだから、彼が勝つに決まっている。",
+       "ja_furigana": "あんなに練習(れんしゅう)したんだから、彼(かれ)が勝(か)つに決(き)まっている。",
+       "vi": "Đã luyện tập nhiều như thế thì chắc chắn anh ấy sẽ thắng."
+      },
+      {
+       "ja": "電気が消えているから、家族はもう寝たに決まっている。",
+       "ja_furigana": "電気(でんき)が消(き)えているから、家族(かぞく)はもう寝(ね)たに決(き)まっている。",
+       "vi": "Đèn đã tắt nên chắc chắn cả nhà đã ngủ rồi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "そんな話、嘘に決まっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chuyện đó chắc chắn là xạo rồi."
+     },
+     {
+      "ja": "初めてなら、緊張するに決まっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu lần đầu thì chắc chắn sẽ hồi hộp."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: そんな話、嘘に決まっている。",
+     "FURIGANA_MISSING: 初めてなら、緊張するに決まっている。"
+    ],
+    "formation": "N / thể thường + に決まっている",
+    "locked_fields": [],
+    "meaning_vi": "～に決まっている diễn tả phán đoán chủ quan mạnh: “chắc chắn là…, đương nhiên là… (theo suy đoán/ngữ cảnh/kinh nghiệm của người nói)”. Sắc thái quả quyết, đôi khi mang ý phê phán/khẳng định hiển nhiên. Dùng cho cả khẳng định và phủ định: ～ないに決まっている. Khác với ～に違いない: 「に決まっている」 cảm xúc mạnh, khẩu ngữ hơn; 「に違いない」 trang trọng, khách quan hơn. Không dùng khi người nói đã biết chắc bằng chứng xác thực (lúc đó chỉ cần nêu sự thật).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chắc chắn..., nhất định...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường dùng trong hội thoại; muốn lịch sự hơn dùng 「～に決まっています」. Dạng rút gọn khẩu ngữ: 「～に決まってる」, nhấn mạnh với 「じゃん／でしょ」. Có thể gây cảm giác áp đặt; cần cân nhắc khi nói với người trên. Dùng được với quá khứ để suy đoán về quá khứ: ～に決まっていた. [6. Ghi chú mở rộng] Mẹo nhớ: “đã quyết (決) rồi” → chắc chắn như định sẵn. Với danh từ/tính từ な, thông thường không thêm だ trước 「に決まっている」: 学生に決まっている, 静かに決まっている. Muốn giảm độ áp đặt, có thể thêm 「たぶん/きっと」 hoặc dùng mẫu mềm hơn 「～に違いない／～はずだ」. [7. Biến thể & cụm cố định] ～に決まってる／～に決まってます（lịch sự） ～に決まってるじゃん／～に決まってるでしょ（khẩu ngữ nhấn mạnh） ～に決まっていた（suy đoán về quá khứ） [8. Lỗi thường gặp & bẫy JLPT] Thêm だ trước に決まっている với N/な một cách máy móc: 「学生だに決まっている」 thường không tự nhiên → 「学生に決まっている」. Dùng cho sự thật hiển nhiên đã biết thay vì suy đoán → thừa, không phù hợp. Nhầm với 「に違いない」 trong văn viết trang trọng: JLPT thường chọn 「に違いない」 thay vì 「に決まっている」. Ngữ khí quá mạnh gây bất lịch sự trong email công việc; nên dùng 「～に違いありません／～と思われます」."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-92cc7bb17b"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-038"
+}

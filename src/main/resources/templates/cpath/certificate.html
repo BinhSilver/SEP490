@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Chứng nhận lộ trình giao tiếp - JLAS', 'certificate')}"></head>
+<body id="jlabBasePage" class="app-body certificate-body journey-ui">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="certificate-page">
+    <section class="cert-card">
+        <p class="cert-eyebrow">J-LAS · Chứng nhận thành tựu nội bộ</p>
+        <h1 th:text="${earned} ? 'Hoàn thành lộ trình giao tiếp' : 'Tiến độ chứng nhận giao tiếp'">Hoàn thành lộ trình giao tiếp</h1>
+        <p class="cert-level">Mục tiêu: <strong th:text="${targetLevel}">Giao tiếp</strong></p>
+        <p class="cert-date" th:unless="${earned}">Đã đạt <strong th:text="${passedTopics}">0</strong>/<strong th:text="${totalTopics}">0</strong> chủ đề. Hoàn thành bài test cuối để nhận chứng nhận.</p>
+        <p class="cert-date" th:if="${earned}">Ngày hoàn thành:
+            <strong th:text="${#temporals.format(completedAt, 'dd/MM/yyyy')}">01/01/2026</strong>
+        </p>
+        <p class="cert-disclaimer">Đây là chứng nhận thành tựu học tập nội bộ của J-LAS.</p>
+        <button class="cert-print-button" th:if="${earned}" type="button" onclick="window.print()">In / Lưu PDF</button>
+        <p th:unless="${earned}"><a th:href="@{/learning/comm/path}">Về lộ trình giao tiếp</a></p>
+        <nav class="cp-next-steps" th:if="${earned}" aria-label="Bước học tiếp">
+            <h2>Gợi ý bước tiếp</h2>
+            <p><a th:href="@{/learning/comm/survey}">Chọn mục tiêu giao tiếp khác</a></p>
+            <p th:if="${workGoal}"><a th:href="@{/learning/comm/survey(goal='WORK')}">Chọn lĩnh vực Công việc khác</a></p>
+            <p><a th:href="@{/learning/jlpt/start}">Bắt đầu lộ trình JLPT</a></p>
+        </nav>
+    </section>
+</main>
+<style>
+    .certificate-page { display: flex; justify-content: center; padding: 48px 16px; }
+    .cert-card { max-width: 640px; width: 100%; text-align: center; padding: 48px 40px;
+        border: 2px solid var(--color-primary); border-radius: 12px; }
+    .cert-eyebrow { letter-spacing: .08em; text-transform: uppercase; font-size: .8rem; color: var(--color-on-surface-variant); }
+    .cert-disclaimer { margin-top: 24px; font-size: .85rem; color: var(--color-on-surface-variant); }
+    .cert-print-button { margin-top: 24px; padding: 12px 24px; border-radius: 999px; border: none;
+        background: var(--color-primary); color: var(--color-on-primary); font-weight: 600; cursor: pointer; }
+    .cp-next-steps { margin-top: 32px; }
+    @media print { #jlabBaseShellMount, .cert-print-button, .cp-next-steps { display: none !important; } }
+</style>
+</body>
+</html>

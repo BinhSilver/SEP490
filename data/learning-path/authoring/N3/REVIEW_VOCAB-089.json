@@ -1,0 +1,1599 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "速さでは兄に劣る。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Về tốc độ tôi kém anh."
+      },
+      {
+       "ja": "このくつは見た目はいいが、強さは前の物におとる。",
+       "ja_furigana": "このくつは見(み)た目(め)はいいが、強(つよ)さは前(まえ)の物(もの)におとる。",
+       "vi": "Đôi giày này trông đẹp nhưng độ bền kém hơn đôi trước.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "この町の交通はとなりの町におとらない。",
+       "ja_furigana": "この町(まち)の交通(こうつう)はとなりの町(まち)におとらない。",
+       "vi": "Giao thông ở thị trấn này không thua kém thị trấn bên cạnh.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "速さでは兄に劣る。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Về tốc độ tôi kém anh."
+     },
+     {
+      "ja": "ベテランのA 選手は体力ではB選手｛に/より｝劣るが、テクニックで勝てるだろう。",
+      "ja_furigana": "ベテランのA 選手(せんしゅ)は体力(たいりょく)ではB選手(せんしゅ)｛に/より｝劣(おと)るが、テクニックで勝(か)てるだろう。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "VĐV kỳ cựu A thua B về thể lực, nhưng có lẽ sẽ thắng nhờ kỹ thuật."
+     },
+     {
+      "ja": "子供に劣らず大人も、このゲームに夢中になっている。",
+      "ja_furigana": "子供(こども)に劣(おと)らず大人(おとな)も、このゲームに夢中(むちゅう)になっている。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Không chỉ trẻ con mà người lớn cũng mê trò chơi này."
+     }
+    ],
+    "expression": "劣る",
+    "meaning_vi": "thua kém; kém hơn",
+    "mnemonic_vi": null,
+    "reading": "おとる",
+    "romaji": "otoru",
+    "topic_vi": "Triệu chứng bệnh",
+    "variants": [],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-76920f44a9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "英語のアルファベットを覚える。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi học bảng chữ cái tiếng Anh."
+      },
+      {
+       "ja": "子どもはアルファベットを一つずつ読んだ。",
+       "ja_furigana": "子(こ)どもはアルファベットを一(ひと)つずつ読(よ)んだ。",
+       "vi": "Đứa trẻ đọc từng chữ cái La-tinh.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "英語のアルファベットを覚える。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi học bảng chữ cái tiếng Anh."
+     },
+     {
+      "ja": "図書館では英語の本はアルファベットの順に並べている。",
+      "ja_furigana": "図書館(としょかん)では英語(えいご)の本(ほん)はアルファベットの順(じゅん)に並(なら)べている。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Trong thư viện, sách tiếng Anh được xếp theo thứ tự chữ cái."
+     }
+    ],
+    "expression": "アルファベット",
+    "meaning_vi": "chữ cái La-tinh; bảng chữ cái",
+    "mnemonic_vi": null,
+    "reading": "アルファベット",
+    "romaji": "arufabetto",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c5006aeea7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "荷物は二トンある。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Kiện hàng nặng hai tấn."
+      },
+      {
+       "ja": "この船は千トンのにもつを運べる。",
+       "ja_furigana": "この船(ふね)は千(せん)トンのにもつを運(はこ)べる。",
+       "vi": "Con tàu này có thể chở một nghìn tấn hàng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "荷物は二トンある。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Kiện hàng nặng hai tấn."
+     },
+     {
+      "ja": "船の大きさはトンで表します。",
+      "ja_furigana": "船(ふね)の大(おお)きさはトンで表(あらわ)します。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Kích thước của con tàu được biểu thị bằng tấn."
+     }
+    ],
+    "expression": "トン",
+    "meaning_vi": "tấn (đơn vị)",
+    "mnemonic_vi": null,
+    "reading": "トン",
+    "romaji": "ton",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-2f33f84210"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "運動のあと、食事のりょうを少しぞうりょうした。",
+       "ja_furigana": "運動(うんどう)のあと、食事(しょくじ)のりょうを少(すこ)しぞうりょうした。",
+       "vi": "Sau khi tập luyện, tôi tăng khẩu phần ăn lên một chút.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "この店は今月からパンをぞうりょうして売っている。",
+       "ja_furigana": "この店(みせ)は今月(こんげつ)からパンをぞうりょうして売(う)っている。",
+       "vi": "Từ tháng này cửa hàng bán bánh mì với lượng nhiều hơn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "現在、1割増量サービス中です。",
+      "ja_furigana": "現在(げんざい)、1割(わり)増量(ぞうりょう)サービス中(ちゅう)です。",
+      "role": "MAIN",
+      "source": "VNJPCLUB",
+      "vi": "Hiện đang tăng thêm 10%."
+     },
+     {
+      "ja": "病気が悪化し、薬が増量された。",
+      "ja_furigana": "病気(びょうき)が悪化(あっか)し、薬(くすり)が増量(ぞうりょう)された。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Thuốc đã được tăng liều."
+     }
+    ],
+    "expression": "増量",
+    "meaning_vi": "sự tăng số lượng; sự tăng cân",
+    "mnemonic_vi": null,
+    "reading": "ぞうりょう",
+    "romaji": "zouryou",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1a08ff8083"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "けんこうのために夕食をげんりょうしている。",
+       "ja_furigana": "けんこうのために夕食(ゆうしょく)をげんりょうしている。",
+       "vi": "Tôi giảm khẩu phần bữa tối vì sức khỏe.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "試合に出る選手が体重をげんりょうした。",
+       "ja_furigana": "試合(しあい)に出(で)る選手(せんしゅ)が体重(たいじゅう)をげんりょうした。",
+       "vi": "Vận động viên tham gia trận đấu đã giảm cân.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "洗剤の中身が減量された。",
+      "ja_furigana": "洗剤(せんざい)の中身(なかみ)が減量(げんりょう)された。",
+      "role": "MAIN",
+      "source": "VNJPCLUB",
+      "vi": "Giảm dung lượng (giống tăng giá)."
+     },
+     {
+      "ja": "ボクサーの加藤選手は試合前の減量に苦しんでいる。",
+      "ja_furigana": "ボクサーの加藤(かとう)選手(せんしゅ)は試合前(しあいまえ)の減量(げんりょう)に苦(くる)しんでいる。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Khổ vì giảm cân."
+     }
+    ],
+    "expression": "減量＜する＞",
+    "meaning_vi": "giảm trọng lượng; tụt cân",
+    "mnemonic_vi": null,
+    "reading": "げんりょう＜する＞",
+    "romaji": "genryou<suru>",
+    "topic_vi": "Làm đẹp",
+    "variants": [
+     "減量"
+    ],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-816ff76d16"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "庭にテントを張る。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi dựng lều trong vườn."
+      },
+      {
+       "ja": "山の近くにテントを立てて一晩過ごした。",
+       "ja_furigana": "山(やま)の近(ちか)くにテントを立(た)てて一晩(ひとばん)過(す)ごした。",
+       "vi": "Chúng tôi dựng lều gần núi và ở lại một đêm.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "庭にテントを張る。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi dựng lều trong vườn."
+     },
+     {
+      "ja": "自分でテントを用意して登山するなんて、すごいね。",
+      "ja_furigana": "自分(じぶん)でテントを用意(ようい)して登山(とざん)するなんて、すごいね。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Tự mình chuẩn bị lều để leo núi, thật là đáng nể!"
+     }
+    ],
+    "expression": "テント",
+    "meaning_vi": "lều",
+    "mnemonic_vi": null,
+    "reading": "テント",
+    "romaji": "tento",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e659c3c7aa"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店のカレーはわたしの口に合う。",
+       "ja_furigana": "この店(みせ)のカレーはわたしの口(くち)に合(あ)う。",
+       "vi": "Món cà ri ở quán này hợp khẩu vị tôi.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "「お口に合うかどうか、わかりませんが、どうぞ」「あ、おいしいです」",
+      "ja_furigana": "「お口(くち)に合(あ)うかどうか、わかりませんが、どうぞ」「あ、おいしいです」",
+      "role": "MAIN",
+      "source": "VNJPCLUB",
+      "vi": "\"Tôi không biết là có hợp khẩu vị của anh không nhưng mời anh dùng thử\" \"Ồ,ngon lắm ạ\""
+     }
+    ],
+    "expression": "口に合う",
+    "meaning_vi": "miệng",
+    "mnemonic_vi": null,
+    "reading": "くちにあう",
+    "romaji": "kuchiniau",
+    "topic_vi": "Thành ngữ ② Đầu, mặt",
+    "variants": [],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8bd8b2ba48"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "待ち時間が長くていらいらする。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Chờ lâu khiến tôi sốt ruột."
+      },
+      {
+       "ja": "電車が遅れていらいらする。",
+       "ja_furigana": null,
+       "role": "EXTRA",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tàu đến trễ khiến tôi sốt ruột."
+      },
+      {
+       "ja": "電車がなかなか来なくて、いらいらした。",
+       "ja_furigana": "電車(でんしゃ)がなかなか来(こ)なくて、いらいらした。",
+       "vi": "Tàu mãi chưa đến khiến tôi sốt ruột.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "待ち時間が長くていらいらする。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Chờ lâu khiến tôi sốt ruột."
+     },
+     {
+      "ja": "電車が遅れていらいらする。",
+      "ja_furigana": null,
+      "role": "EXTRA",
+      "source": "JLAS_REVIEWED",
+      "vi": "Tàu đến trễ khiến tôi sốt ruột."
+     },
+     {
+      "ja": "急いでいるのにバスがなかなか来なくていらいらした",
+      "ja_furigana": "急(いそ)いでいるのにバスがなかなか来(こ)なくていらいらした",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Đang vội mà xe bus mãi không đến, cảm thấy rất nóng lòng."
+     }
+    ],
+    "expression": "苛々",
+    "meaning_vi": "sốt ruột; nóng ruột; bực bội",
+    "mnemonic_vi": null,
+    "reading": "いらいら",
+    "romaji": "iraira",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [
+     "いらいら",
+     "いらいら（する）"
+    ],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-13c22217db"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夕食は六時にできあがる。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Bữa tối sẽ xong lúc sáu giờ."
+      },
+      {
+       "ja": "夕方には料理が出来上がる。",
+       "ja_furigana": null,
+       "role": "EXTRA",
+       "source": "JLAS_REVIEWED",
+       "vi": "Đến chiều món ăn sẽ hoàn thành."
+      },
+      {
+       "ja": "注文したケーキが夕方に出来上がった。",
+       "ja_furigana": "注文(ちゅうもん)したケーキが夕方(ゆうがた)に出来上(できあ)がった。",
+       "vi": "Chiếc bánh đặt mua đã làm xong vào buổi chiều.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "夕食は六時にできあがる。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Bữa tối sẽ xong lúc sáu giờ."
+     },
+     {
+      "ja": "夕方には料理が出来上がる。",
+      "ja_furigana": null,
+      "role": "EXTRA",
+      "source": "JLAS_REVIEWED",
+      "vi": "Đến chiều món ăn sẽ hoàn thành."
+     },
+     {
+      "ja": "5年間かかって、やっと論文が出来上がった。",
+      "ja_furigana": "5年間(ねんかん)かかって、やっと論文(ろんぶん)が出来上(できあ)がった。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Sau 5 năm thì cuối cùng tôi đã hoàn thành bài luận văn."
+     }
+    ],
+    "expression": "出来上がる",
+    "meaning_vi": "làm xong; hoàn thành; xong",
+    "mnemonic_vi": null,
+    "reading": "できあがる",
+    "romaji": "dekiagaru",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [
+     "できあがる"
+    ],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c9f0d75295"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "片付けて気分もすっきりする。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Dọn dẹp xong tôi cũng thấy thoải mái."
+      },
+      {
+       "ja": "窓を開けたら、部屋の空気がすっきりした。",
+       "ja_furigana": "窓(まど)を開(あ)けたら、部屋(へや)の空気(くうき)がすっきりした。",
+       "vi": "Mở cửa sổ ra, không khí trong phòng trở nên trong lành.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "つくえの上をかたづけて、きぶんもすっきりした。",
+       "ja_furigana": "つくえの上(うえ)をかたづけて、きぶんもすっきりした。",
+       "vi": "Dọn bàn xong tôi cũng thấy nhẹ nhõm.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "片付けて気分もすっきりする。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Dọn dẹp xong tôi cũng thấy thoải mái."
+     },
+     {
+      "ja": "眠かったが、顔を洗うとすっきりした。",
+      "ja_furigana": "眠(ねむ)かったが、顔(かお)を洗(あら)うとすっきりした。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Buồn ngủ nhưng rửa mặt xong thấy tỉnh hẳn."
+     },
+     {
+      "ja": "悩みが解決して、すっきりした気分だ。",
+      "ja_furigana": "悩(なや)みが解決(かいけつ)して、すっきりした気分(きぶん)だ。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Giải quyết xong nỗi lo, thấy nhẹ nhõm."
+     }
+    ],
+    "expression": "すっきり（する）",
+    "meaning_vi": "sảng khoái; gọn gàng; nhẹ nhõm",
+    "mnemonic_vi": null,
+    "reading": "すっきり（する）",
+    "romaji": "sukkiri(suru)",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [
+     "すっきり"
+    ],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e430ecb04f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この子はしっかりしている。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Đứa trẻ này rất chững chạc."
+      },
+      {
+       "ja": "彼女はしっかり約束を守る。",
+       "ja_furigana": null,
+       "role": "EXTRA",
+       "source": "JLAS_REVIEWED",
+       "vi": "Cô ấy giữ lời hứa đáng tin cậy."
+      },
+      {
+       "ja": "あしたの発表にそなえて、話す内容をしっかり覚えた。",
+       "ja_furigana": "あしたの発表(はっぴょう)にそなえて、話(はな)す内容(ないよう)をしっかり覚(おぼ)えた。",
+       "vi": "Để chuẩn bị cho bài thuyết trình ngày mai, tôi đã nhớ kỹ nội dung cần nói.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "この子はしっかりしている。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Đứa trẻ này rất chững chạc."
+     },
+     {
+      "ja": "彼女はしっかり約束を守る。",
+      "ja_furigana": null,
+      "role": "EXTRA",
+      "source": "JLAS_REVIEWED",
+      "vi": "Cô ấy giữ lời hứa đáng tin cậy."
+     },
+     {
+      "ja": "まず基礎をしっかり（と）身につけることが大切だ",
+      "ja_furigana": "まず基礎(きそ)をしっかり（と）身(み)につけることが大切(たいせつ)だ",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Việc nắm những cái cơ bản đầu tiên là việc rất quan trọng."
+     }
+    ],
+    "expression": "確り",
+    "meaning_vi": "chắc chắn; ổn định; đáng tin cậy",
+    "mnemonic_vi": null,
+    "reading": "しっかり",
+    "romaji": "shikkari",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [
+     "しっかり",
+     "しっかり（する）"
+    ],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-173715fcf4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "紙には「なになに」と書いてある。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Trên giấy có viết “gì đó”."
+      },
+      {
+       "ja": "申込書の名前の所になになにと書いてある。",
+       "ja_furigana": "申込書(もうしこみしょ)の名前(なまえ)の所(ところ)になになにと書(か)いてある。",
+       "vi": "Ở chỗ ghi tên trên đơn đăng ký có viết “gì đó”.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "紙には「なになに」と書いてある。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Trên giấy có viết “gì đó”."
+     },
+     {
+      "ja": "名刺に何々課何々担当と書いてある。",
+      "ja_furigana": "名刺(めいし)に何々(なになに)課(か)何々(なになに)担当(たんとう)と書(か)いてある。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Ở danh thiếp có ghi là phụ trách… thuộc phòng…."
+     }
+    ],
+    "expression": "何々",
+    "meaning_vi": "gì đó; cái này cái nọ; gì thế",
+    "mnemonic_vi": null,
+    "reading": "なになに",
+    "romaji": "naninani",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [
+     "なになに"
+    ],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e3d5df9c77"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "いいかげんな仕事は困る。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Làm việc qua loa thì thật phiền."
+      },
+      {
+       "ja": "いいかげんな返事をせず、理由も説明してください。",
+       "ja_furigana": "いいかげんな返事(へんじ)をせず、理由(りゆう)も説明(せつめい)してください。",
+       "vi": "Đừng trả lời qua loa, hãy giải thích cả lý do.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "仕事をいいかげんに終わらせると、あとで困る。",
+       "ja_furigana": "仕事(しごと)をいいかげんに終(お)わらせると、あとで困(こま)る。",
+       "vi": "Làm việc qua loa thì sau này sẽ gặp rắc rối.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "いいかげんな仕事は困る。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Làm việc qua loa thì thật phiền."
+     },
+     {
+      "ja": "あの人は仕事がいい加減で困る。",
+      "ja_furigana": "あの人(ひと)は仕事(しごと)がいい加減(かげん)で困(こま)る。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Người đó gặp rắc rối do bất cẩn trong công việc."
+     },
+     {
+      "ja": "「いい加減なことを言うな」",
+      "ja_furigana": "「いい加減(かげん)なことを言(い)うな」",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "\"Đừng nói vô trách nhiệm thế.\""
+     }
+    ],
+    "expression": "いい加減な",
+    "meaning_vi": "thiếu trách nhiệm; làm cho có; vô trách nhiệm",
+    "mnemonic_vi": null,
+    "reading": "いいかげんな",
+    "romaji": "iikagenna",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [
+     "いいかげんな"
+    ],
+    "word_type_label": "tính từ な",
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b540208253"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先生には長くごぶさたしている。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Đã lâu tôi không liên lạc với thầy."
+      },
+      {
+       "ja": "先生、ごぶさたしています。お元気ですか。",
+       "ja_furigana": "先生(せんせい)、ごぶさたしています。お元気(げんき)ですか。",
+       "vi": "Thưa thầy, lâu rồi em không liên lạc. Thầy vẫn khỏe chứ ạ?",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "先生には長くごぶさたしている。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Đã lâu tôi không liên lạc với thầy."
+     },
+     {
+      "ja": "ごぶさたしておりますが、お元気ですか。",
+      "ja_furigana": "ごぶさたしておりますが、お元気(げんき)ですか。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Lâu lắm mới viết thư cho ngài, ngài có khỏe không?"
+     }
+    ],
+    "expression": "ご無沙汰＜する＞",
+    "meaning_vi": "lâu lắm mới gặp; lâu lắm mới liên lạc; lâu không liên lạc",
+    "mnemonic_vi": null,
+    "reading": "ごぶさた＜する＞",
+    "romaji": "gobusata<suru>",
+    "topic_vi": "Quan hệ trên dưới",
+    "variants": [
+     "ごぶさた",
+     "ご無沙汰"
+    ],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-715eaa057f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "車が来たら道をどく。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Khi xe đến tôi tránh khỏi đường."
+      },
+      {
+       "ja": "自転車が通るので、道のはしへどいた。",
+       "ja_furigana": "自転車(じてんしゃ)が通(とお)るので、道(みち)のはしへどいた。",
+       "vi": "Vì xe đạp đi qua nên tôi tránh sang mép đường.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "入口をふさがないように、少し後ろへどいて。",
+       "ja_furigana": "入口(いりぐち)をふさがないように、少(すこ)し後(うし)ろへどいて。",
+       "vi": "Hãy tránh lùi lại một chút để không chắn lối vào.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "車が来たら道をどく。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Khi xe đến tôi tránh khỏi đường."
+     },
+     {
+      "ja": "ねえ、どいてくれないと、掃除できないよ。",
+      "ja_furigana": "ねえ、どいてくれないと、掃除(そうじ)できないよ。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Này, cậu không tránh ra làm sao tớ dọn dẹp được."
+     },
+     {
+      "ja": "「ちょっとそこをどいてください」",
+      "ja_furigana": "「ちょっとそこをどいてください」",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "“Làm ơn tránh sang một chút.”"
+     }
+    ],
+    "expression": "退く",
+    "meaning_vi": "tránh ra; nhường chỗ; thoái lui",
+    "mnemonic_vi": null,
+    "reading": "どく",
+    "romaji": "doku",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [
+     "どく"
+    ],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-81bc3b9ede"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "花の香りを嗅ぐ。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi ngửi hương hoa."
+      },
+      {
+       "ja": "花をかぐと春の香りがした。",
+       "ja_furigana": null,
+       "role": "EXTRA",
+       "source": "JLAS_REVIEWED",
+       "vi": "Ngửi hoa thì thấy hương mùa xuân."
+      },
+      {
+       "ja": "犬は箱の中の食べ物のにおいをかいだ。",
+       "ja_furigana": "犬(いぬ)は箱(はこ)の中(なか)の食(た)べ物(もの)のにおいをかいだ。",
+       "vi": "Con chó ngửi thức ăn bên trong hộp.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "花の香りを嗅ぐ。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi ngửi hương hoa."
+     },
+     {
+      "ja": "花をかぐと春の香りがした。",
+      "ja_furigana": null,
+      "role": "EXTRA",
+      "source": "JLAS_REVIEWED",
+      "vi": "Ngửi hoa thì thấy hương mùa xuân."
+     },
+     {
+      "ja": "においをかぐ",
+      "ja_furigana": "においをかぐ",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Ngửi thấy mùi."
+     }
+    ],
+    "expression": "嗅ぐ",
+    "meaning_vi": "ngửi; hít",
+    "mnemonic_vi": null,
+    "reading": "かぐ",
+    "romaji": "kagu",
+    "topic_vi": "Công việc hàng ngày",
+    "variants": [
+     "かぐ"
+    ],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4e185050c1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "空き缶を足でつぶす。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi dùng chân làm bẹp lon rỗng."
+      },
+      {
+       "ja": "空き箱を足でつぶして、ごみに出した。",
+       "ja_furigana": "空(あ)き箱(ばこ)を足(あし)でつぶして、ごみに出(だ)した。",
+       "vi": "Tôi dùng chân làm bẹp chiếc hộp rỗng rồi đem bỏ.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "電車を待つ間、読書をして時間をつぶした。",
+       "ja_furigana": "電車(でんしゃ)を待(ま)つ間(あいだ)、読書(どくしょ)をして時間(じかん)をつぶした。",
+       "vi": "Trong lúc chờ tàu, tôi đọc sách để giết thời gian.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "空き缶を足でつぶす。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi dùng chân làm bẹp lon rỗng."
+     },
+     {
+      "ja": "ゆでたジャガイモをつぶしてサラダを作った。",
+      "ja_furigana": "ゆでたジャガイモをつぶしてサラダを作(つく)った。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Nghiền nát khoai tây luộc để làm salad."
+     },
+     {
+      "ja": "空き缶やペットボトルは、つぶしてからごみに出すとよい。",
+      "ja_furigana": "空(あ)き缶(かん)やペットボトルは、つぶしてからごみに出(だ)すとよい。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Nên ép dẹp lon rỗng và chai nhựa rồi mới bỏ rác."
+     }
+    ],
+    "expression": "潰す",
+    "meaning_vi": "nghiền; làm bẹp; giết (thời gian)",
+    "mnemonic_vi": null,
+    "reading": "つぶす",
+    "romaji": "tsubusu",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [
+     "つぶす"
+    ],
+    "word_type_label": "động từ nhóm I",
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-309d0348ea"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅前でまちあわせをした。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Chúng tôi hẹn gặp trước ga."
+      },
+      {
+       "ja": "駅で友達と待ち合わせをする。",
+       "ja_furigana": null,
+       "role": "EXTRA",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi hẹn gặp bạn ở ga."
+      },
+      {
+       "ja": "雨なので、駅の中で待ち合わせをしよう。",
+       "ja_furigana": "雨(あめ)なので、駅(えき)の中(なか)で待(ま)ち合(あ)わせをしよう。",
+       "vi": "Trời mưa nên mình hẹn gặp bên trong nhà ga nhé.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "駅前でまちあわせをした。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Chúng tôi hẹn gặp trước ga."
+     },
+     {
+      "ja": "駅で友達と待ち合わせをする。",
+      "ja_furigana": null,
+      "role": "EXTRA",
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi hẹn gặp bạn ở ga."
+     },
+     {
+      "ja": "6時に友達と待ち合わせをした。",
+      "ja_furigana": "6時(じ)に友達(ともだち)と待(ま)ち合(あ)わせをした。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã hẹn gặp vào lúc 6 giờ."
+     }
+    ],
+    "expression": "待ち合わせ",
+    "meaning_vi": "hẹn gặp; cuộc hẹn gặp",
+    "mnemonic_vi": null,
+    "reading": "まちあわせ",
+    "romaji": "machiawase",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [
+     "まちあわせ"
+    ],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-16fc0ee9c3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "受付のかかりに聞いて。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Hãy hỏi người phụ trách quầy tiếp tân."
+      },
+      {
+       "ja": "受付の係に聞いてください。",
+       "ja_furigana": null,
+       "role": "EXTRA",
+       "source": "JLAS_REVIEWED",
+       "vi": "Xin hỏi người phụ trách quầy tiếp tân."
+      },
+      {
+       "ja": "会場のあんないをする係は入口にいます。",
+       "ja_furigana": "会場(かいじょう)のあんないをする係(かかり)は入口(いりぐち)にいます。",
+       "vi": "Người phụ trách hướng dẫn ở hội trường đang ở lối vào.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "受付のかかりに聞いて。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Hãy hỏi người phụ trách quầy tiếp tân."
+     },
+     {
+      "ja": "受付の係に聞いてください。",
+      "ja_furigana": null,
+      "role": "EXTRA",
+      "source": "JLAS_REVIEWED",
+      "vi": "Xin hỏi người phụ trách quầy tiếp tân."
+     },
+     {
+      "ja": "サークルの会費を集める係になった。",
+      "ja_furigana": "サークルの会費(かいひ)を集(あつ)める係(かかり)になった。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã trở thành người phụ trách thu tiền cho câu lạc bộ."
+     }
+    ],
+    "expression": "係",
+    "meaning_vi": "người phụ trách",
+    "mnemonic_vi": null,
+    "reading": "かかり",
+    "romaji": "kakari",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [
+     "かかり",
+     "係り"
+    ],
+    "word_type_label": "danh từ",
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-12b8c2cf63"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お待ちどおさま、料理です。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Để quý khách đợi lâu, món ăn đây ạ."
+      },
+      {
+       "ja": "おまちどおさま。席の用意ができました。",
+       "ja_furigana": null,
+       "role": "EXTRA",
+       "source": "JLAS_REVIEWED",
+       "vi": "Xin lỗi đã để bạn chờ. Chỗ ngồi đã sẵn sàng."
+      },
+      {
+       "ja": "お待ちどおさま、席はこちらです。",
+       "ja_furigana": "お待(ま)ちどおさま、席(せき)はこちらです。",
+       "vi": "Xin lỗi đã để quý khách chờ, chỗ ngồi ở phía này ạ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "お待ちどおさま、料理です。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Để quý khách đợi lâu, món ăn đây ạ."
+     },
+     {
+      "ja": "おまちどおさま。席の用意ができました。",
+      "ja_furigana": null,
+      "role": "EXTRA",
+      "source": "JLAS_REVIEWED",
+      "vi": "Xin lỗi đã để bạn chờ. Chỗ ngồi đã sẵn sàng."
+     },
+     {
+      "ja": "はい、温かいスープ。お待ちどおさま。",
+      "ja_furigana": "はい、温(あたた)かいスープ。お待(ま)ちどおさま。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Vâng, súp nóng đây ạ. Cám ơn quý khách đã chờ."
+     }
+    ],
+    "expression": "お待ちどおさま",
+    "meaning_vi": "xin lỗi đã bắt quý khách đợi; xin lỗi đã để bạn đợi; cám ơn anh chị đã chờ",
+    "mnemonic_vi": null,
+    "reading": "おまちどおさま",
+    "romaji": "omachidoosama",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [
+     "おまちどおさま"
+    ],
+    "word_type_label": "thán từ",
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-09de504b31"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お手洗いは奥にございます。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Nhà vệ sinh ở phía trong ạ."
+      },
+      {
+       "ja": "受付はこちらにございます。",
+       "ja_furigana": "受付(うけつけ)はこちらにございます。",
+       "vi": "Quầy tiếp tân ở phía này ạ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "お手洗いは奥にございます。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Nhà vệ sinh ở phía trong ạ."
+     },
+     {
+      "ja": "ご注文の本は、こちらにございます。",
+      "ja_furigana": "ご注文(ちゅうもん)の本(ほん)は、こちらにございます。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Cuốn sách anh đặt hàng ở đây ạ."
+     }
+    ],
+    "expression": "ご座います",
+    "meaning_vi": "có; ở; là (kính ngữ)",
+    "mnemonic_vi": null,
+    "reading": "ございます",
+    "romaji": "gozaimasu",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [
+     "ございます"
+    ],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-28768272cf"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅で落とし物を拾った。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi nhặt được đồ đánh rơi ở ga."
+      },
+      {
+       "ja": "店で落とし物を見つけて、店員に渡した。",
+       "ja_furigana": "店(みせ)で落(お)とし物(もの)を見(み)つけて、店員(てんいん)に渡(わた)した。",
+       "vi": "Tôi tìm thấy đồ đánh rơi trong cửa hàng và đưa cho nhân viên.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "駅で落とし物を拾った。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi nhặt được đồ đánh rơi ở ga."
+     },
+     {
+      "ja": "道で落とし物を見つけて、交番に届けた。",
+      "ja_furigana": "道(みち)で落(お)とし物(もの)を見(み)つけて、交番(こうばん)に届(とど)けた。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Tôi thấy vật rơi trên đường nên đã mang đến đồn cảnh sát."
+     }
+    ],
+    "expression": "落とし物",
+    "meaning_vi": "đồ đánh rơi",
+    "mnemonic_vi": null,
+    "reading": "おとしもの",
+    "romaji": "otoshimono",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [
+     "落し物"
+    ],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d25ed61970"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "遅れてごめん。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Xin lỗi vì tôi đến muộn."
+      },
+      {
+       "ja": "遅くなってごめん、バスが来なかったんだ。",
+       "ja_furigana": "遅(おそ)くなってごめん、バスが来(こ)なかったんだ。",
+       "vi": "Xin lỗi vì đến muộn, xe buýt không đến.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "遅れてごめん。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Xin lỗi vì tôi đến muộn."
+     },
+     {
+      "ja": "ごめん、今忙しいから後にした。",
+      "ja_furigana": "ごめん、今(いま)忙(いそが)しいから後(あと)にした。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Xin lỗi, bây giờ đang bận nên hãy để lúc khác nhé."
+     }
+    ],
+    "expression": "御免",
+    "meaning_vi": "xin lỗi; xin phép",
+    "mnemonic_vi": null,
+    "reading": "ごめん",
+    "romaji": "gomen",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [
+     "ごめん"
+    ],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7275cf9cd8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は安い。それに駅から近い。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Cửa hàng này rẻ, hơn nữa còn gần ga."
+      },
+      {
+       "ja": "このかばんはかるい。それに、雨にも強い。",
+       "ja_furigana": "このかばんはかるい。それに、雨(あめ)にも強(つよ)い。",
+       "vi": "Chiếc túi này nhẹ. Hơn nữa, nó còn chống nước tốt.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "この店は安い。それに駅から近い。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Cửa hàng này rẻ, hơn nữa còn gần ga."
+     },
+     {
+      "ja": "午前中に歯医者の予約がある。それに、市役所にも行かなければならないから、忙しい。",
+      "ja_furigana": "午前中(ごぜんちゅう)に歯医者(はいしゃ)の予約(よやく)がある。それに、市役所(しやくしょ)にも行(い)かなければならないから、忙(いそが)しい。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Buổi sáng tôi có hẹn với bác sĩ. Hơn nữa tôi phải đến ủy ban nhân dân thành phố nên rất bận."
+     }
+    ],
+    "expression": "其れに",
+    "meaning_vi": "hơn nữa",
+    "mnemonic_vi": null,
+    "reading": "それに",
+    "romaji": "soreni",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [
+     "それに"
+    ],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-dfe437c52f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "田んぼに水を入れる。",
+       "ja_furigana": null,
+       "role": "MAIN",
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi dẫn nước vào ruộng."
+      },
+      {
+       "ja": "田んぼの近くでカエルの声が聞こえた。",
+       "ja_furigana": "田(た)んぼの近(ちか)くでカエルの声(こえ)が聞(き)こえた。",
+       "vi": "Tôi nghe tiếng ếch gần ruộng lúa.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "田んぼに水を入れる。",
+      "ja_furigana": null,
+      "role": "MAIN",
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi dẫn nước vào ruộng."
+     },
+     {
+      "ja": "この田んぼでできたお米はおいしい。",
+      "ja_furigana": "この田(た)んぼでできたお米(こめ)はおいしい。",
+      "role": "EXTRA",
+      "source": "VNJPCLUB",
+      "vi": "Gạo trồng trên cánh đồng này rất ngon."
+     }
+    ],
+    "expression": "田んぼ",
+    "meaning_vi": "cánh đồng lúa; ruộng lúa",
+    "mnemonic_vi": null,
+    "reading": "たんぼ",
+    "romaji": "tanbo",
+    "topic_vi": "Từ thông dụng khác",
+    "variants": [
+     "田ぼ"
+    ],
+    "word_type_label": null,
+    "locked_fields": [],
+    "twins": [],
+    "findings": []
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4c576a35e9"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N3",
+ "packet_id": "REVIEW_VOCAB-089"
+}

@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { learningDataFile } from './learning_data_files.mjs';
 
 const MARKER = 'data/learning-owned/learning-content.json#sections.sekai_n5_comprehension';
 const hex = (value) => `CONVERT(X'${Buffer.from(String(value), 'utf8').toString('hex')}' USING utf8mb4)`;
@@ -83,7 +84,7 @@ export function replaceSeedSection(sql, block) {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = path.resolve(process.argv[2] ?? '.');
   const dataPath = path.join(root, 'data/learning-owned/learning-content.json');
-  const sqlPath = path.join(root, 'sql/seeds/learning_owned.sql');
+  const sqlPath = learningDataFile(root, 'N5');
   const data = JSON.parse(await readFile(dataPath, 'utf8'));
   const section = data.sections?.sekai_n5_comprehension;
   const sectionHash = data.section_sha256?.sekai_n5_comprehension;

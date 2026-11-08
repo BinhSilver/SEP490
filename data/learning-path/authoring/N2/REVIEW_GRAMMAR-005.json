@@ -1,0 +1,738 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "科学技術の発達とともに、私たちの生活は便利になった。",
+       "ja_furigana": "科学技術(かがくぎじゅつ)の発達(はったつ)とともに、私(わたし)たちの生活(せいかつ)は便利(べんり)になった。",
+       "vi": "Cùng với sự phát triển của khoa học kỹ thuật, cuộc sống của chúng ta trở nên tiện lợi."
+      },
+      {
+       "ja": "春になるとともに、公園は花見の客でにぎわい始めた。",
+       "ja_furigana": "春(はる)になるとともに、公園(こうえん)は花見(はなみ)の客(きゃく)でにぎわい始(はじ)めた。",
+       "source": "AI",
+       "vi": "Cùng với lúc mùa xuân đến, công viên bắt đầu nhộn nhịp khách ngắm hoa."
+      },
+      {
+       "ja": "私は家族とともに、毎年お正月を温泉で過ごしている。",
+       "ja_furigana": "私(わたし)は家族(かぞく)とともに、毎年(まいとし)お正月(しょうがつ)を温泉(おんせん)で過(す)ごしている。",
+       "source": "AI",
+       "vi": "Năm nào tôi cũng cùng gia đình đón Tết ở suối nước nóng."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Nghĩa biến đổi đi với động từ hay danh từ chỉ thay đổi; nghĩa 'cùng với người' trong văn nói thường dùng いっしょに. Khác につれて: とともに chỉ cần hai việc đồng thời, không nhất thiết biến đổi theo tỉ lệ.",
+    "examples": [
+     {
+      "ja": "年をとるとともに、体力が落ちる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "春になるとともに、公園は花見の客でにぎわい始めた。",
+      "ja_furigana": "春(はる)になるとともに、公園(こうえん)は花見(はなみ)の客(きゃく)でにぎわい始(はじ)めた。",
+      "source": "AI",
+      "vi": "Cùng với lúc mùa xuân đến, công viên bắt đầu nhộn nhịp khách ngắm hoa."
+     },
+     {
+      "ja": "私は家族とともに、毎年お正月を温泉で過ごしている。",
+      "ja_furigana": "私(わたし)は家族(かぞく)とともに、毎年(まいとし)お正月(しょうがつ)を温泉(おんせん)で過(す)ごしている。",
+      "source": "AI",
+      "vi": "Năm nào tôi cũng cùng gia đình đón Tết ở suối nước nóng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 年をとるとともに、体力が落ちる。",
+     "FURIGANA_MISSING: 年をとるとともに、体力が落ちる。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + とともに; N + とともに",
+    "locked_fields": [],
+    "meaning_vi": "Cùng với, đồng thời — Hai việc xảy ra song song, hoặc cùng ai đó làm gì.",
+    "nuance_vi": "Có hai nghĩa: hai việc xảy ra đồng thời hoặc thay đổi cùng nhau, và 'cùng với ai' làm gì (N chỉ người).",
+    "order_items": [],
+    "pattern": "と共(とも)に",
+    "pattern_variants": [
+     "V từ điển / N + とともに"
+    ],
+    "unit_no": 9,
+    "unit_title_vi": null,
+    "usage_vi": "Ba nghĩa: cùng lúc, cùng với ai, và thay đổi song song."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-06a468d591"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "季節に応じて、メニューが変わる。",
+       "ja_furigana": "季節(きせつ)に応(おう)じて、メニューが変(か)わる。",
+       "vi": "Thực đơn thay đổi tùy theo mùa."
+      },
+      {
+       "ja": "能力に応じて、仕事を分ける。",
+       "ja_furigana": "能力(のうりょく)に応(おう)じて、仕事(しごと)を分(わ)ける。",
+       "vi": "Chia việc theo năng lực."
+      },
+      {
+       "ja": "収入に応じて、毎月の支払いの金額が決まる。",
+       "ja_furigana": "収入(しゅうにゅう)に応(おう)じて、毎月(まいつき)の支払(しはら)いの金額(きんがく)が決(き)まる。",
+       "source": "AI",
+       "vi": "Số tiền phải trả hằng tháng được quyết định tùy theo thu nhập."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Khác に応えて (đáp lại mong muốn, kỳ vọng): に応じて là 'tương ứng với' một thứ biến đổi. Vế sau là cách xử lý hay kết quả thay đổi theo N.",
+    "examples": [
+     {
+      "ja": "本校では学生のレベルに応じてクラス分けを行います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trường học này, dựa vào trình độ học sinh để tổ chức phân lớp."
+     },
+     {
+      "ja": "学習目的の多様化に応じ、教授法や教材にも工夫が求められる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tương ứng với sự đa dạng hóa mục đích học tập, phương pháp học và giáo trình cũng yêu cầu phải kỳ công hơn."
+     },
+     {
+      "ja": "収入に応じて、毎月の支払いの金額が決まる。",
+      "ja_furigana": "収入(しゅうにゅう)に応(おう)じて、毎月(まいつき)の支払(しはら)いの金額(きんがく)が決(き)まる。",
+      "source": "AI",
+      "vi": "Số tiền phải trả hằng tháng được quyết định tùy theo thu nhập."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 本校では学生のレベルに応じてクラス分けを行います。",
+     "FURIGANA_MISSING: 学習目的の多様化に応じ、教授法や教材にも工夫が求められる。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + に応じて; N + に応じ; N + に応じた + N",
+    "locked_fields": [],
+    "meaning_vi": "Phụ thuộc vào, ứng với",
+    "nuance_vi": "Thay đổi cách làm hay mức độ cho tương ứng với tình hình, nhu cầu; N là thứ có mức độ thay đổi như 年齢, 収入, 必要.",
+    "order_items": [],
+    "pattern": "に応(おう)じて",
+    "pattern_variants": [
+     "〜に応じ(て)",
+     "N + に応じて"
+    ],
+    "unit_no": 9,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞 Ý nghĩa: 変化、耐用性に合わせて Phụ thuộc vào, ứng với Ví dụ: 1. 本校では学生のレベルに応じてクラス分けを行います。 Trường học này, dựa vào trình độ học sinh để tổ chức phân lớp. 2. 学習目的の多様化に応じ、教授法や教材にも工夫が求められる。 Tương ứng với sự đa dạng hóa mục đích học tập, phương pháp học và giáo trình cũng yêu cầu phải kỳ công hơn. 3. 非常時には、状況に応じて柔軟に対処することが必要だ。 Lúc nguy cấp thì cần phải có cách xử lý linh hoạt với tình huống. 4. 最近は電気製品もカラフルになり、好みに応じて色が選べる。 Gần đây các sản phẩm điện cũng rất sặc sỡ nên có thể chọn màu theo sở thích. 5. 当ホテルでは、お客様一人一人のニーズに応じたサービスを提供いたします。 Ở khách sạn chúng tôi đưa ra các dịch vụ đáp ứng nhu cầu của từng khách hàng. 応じる Ý nghĩa: 他からの働きかけに対してこたえる Ví dụ: 1. ボランティアの募集に多くの若者が応じた。 Việc tuyển tình nguyện viên, rất nhiều người đăng kí. 2. 注文が殺到し、応じきれなくなった。 Đơn đặt hàng đến tới tấp nên chúng tôi đã không thể đáp ứng được."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0d2b9dbee5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "試験の前は、不安やら心配やらで、夜も眠れなかった。",
+       "ja_furigana": "試験(しけん)の前(まえ)は、不安(ふあん)やら心配(しんぱい)やらで、夜(よる)も眠(ねむ)れなかった。",
+       "vi": "Trước kỳ thi, nào là lo lắng nào là bất an, đêm đến tôi không ngủ được."
+      },
+      {
+       "ja": "部屋の中は、本やら服やらが散らかっていた。",
+       "ja_furigana": "部屋(へや)の中(なか)は、本(ほん)やら服(ふく)やらが散(ち)らかっていた。",
+       "vi": "Trong phòng, nào sách nào quần áo vương vãi khắp nơi."
+      },
+      {
+       "ja": "引っ越しの日は、荷物を運ぶやら掃除をするやらで、一日中休む時間もなかった。",
+       "ja_furigana": "引(ひ)っ越(こ)しの日(ひ)は、荷物(にもつ)を運(はこ)ぶやら掃除(そうじ)をするやらで、一日中(いちにちじゅう)休(やす)む時間(じかん)もなかった。",
+       "source": "AI",
+       "vi": "Ngày chuyển nhà, nào là chở đồ nào là dọn dẹp nên cả ngày không có lúc nào nghỉ."
+      }
+     ],
+     "meaning_vi": "Nào là… nào là… (liệt kê lộn xộn nhiều thứ)."
+    },
+    "note": "viết lại câu chép nguồn, sửa nghĩa"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau thường nêu tình trạng chung (大変だ, 大騒ぎだ); không dùng để chọn lựa (khác か〜か). Khác たり〜たり: たり〜たり trung tính, còn やら〜やら mang cảm xúc 'nào là… nào là…'.",
+    "examples": [
+     {
+      "ja": "願書を出すときは、証明書を集めるやら書類に書き込むやらで大変だった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi nộp đơn, nào là nộp kèm chứng minh thư nào là điền vào hồ sơ, thật rắc rối."
+     },
+     {
+      "ja": "10年ぶりにうちのチームが優勝した。歌うやら踊るやら、大騒ぎだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã 10 năm rồi đội nhà mới thắng. Nào hát hò, nào nhảy múa, nhộn hết cả."
+     },
+     {
+      "ja": "引っ越しの日は、荷物を運ぶやら掃除をするやらで、一日中休む時間もなかった。",
+      "ja_furigana": "引(ひ)っ越(こ)しの日(ひ)は、荷物(にもつ)を運(はこ)ぶやら掃除(そうじ)をするやらで、一日中(いちにちじゅう)休(やす)む時間(じかん)もなかった。",
+      "source": "AI",
+      "vi": "Ngày chuyển nhà, nào là chở đồ nào là dọn dẹp nên cả ngày không có lúc nào nghỉ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 願書を出すときは、証明書を集めるやら書類に書き込むやらで大変だった。",
+     "FURIGANA_MISSING: 10年ぶりにうちのチームが優勝した。歌うやら踊るやら、大騒ぎだった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる/Aい/N + やら + Vる/Aい/N + やら",
+    "locked_fields": [],
+    "meaning_vi": "Bằng với cách nói tari... tari",
+    "nuance_vi": "Liệt kê vài ví dụ tiêu biểu trong nhiều việc, hàm ý hỗn độn, rối rắm; thường kèm cảm giác vất vả hay bối rối.",
+    "order_items": [],
+    "pattern": "やら〜やら",
+    "pattern_variants": [
+     "〜やら・・・やら"
+    ],
+    "unit_no": 10,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞（やら）名詞（やら）／【動詞・イ形容詞】の辞書形（やら）【動詞・イ形容詞】の辞書形（やら） Ý nghĩa: ￣や…など、～たり・・・たり Bằng với cách nói tari... tari Ví dụ: 1. 願書を出すときは、証明書を集めるやら書類に書き込むやらで大変だった。 Khi nộp đơn, nào là nộp kèm chứng minh thư nào là điền vào hồ sơ, thật rắc rối. 2. 10年ぶりにうちのチームが優勝した。歌うやら踊るやら、大騒ぎだった。 Đã 10 năm rồi đội nhà mới thắng. Nào hát hò, nào nhảy múa, nhộn hết cả. 3. 恋人と別れた。悲しいやら寂しいやらで涙が止まらない。 Chia tay người yêu. Tôi không ngừng khóc vì buồn và cô đơn. 4. からの部屋は汚れた皿やら古新聞やらが散らかっていて、とても汚い。 Phòng anh ấy bừa bãi với nào là đĩa bẩn, nào là báo cũ, thật là bẩn thỉu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3a3cd2583d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "行くにしろ行かないにしろ、今日中に連絡してほしい。",
+       "ja_furigana": "行(い)くにしろ行(い)かないにしろ、今日中(きょうじゅう)に連絡(れんらく)してほしい。",
+       "vi": "Dù đi hay không đi thì cũng mong liên lạc trong hôm nay."
+      },
+      {
+       "ja": "賛成するにしろ反対するにしろ、理由をはっきり言ってください。",
+       "ja_furigana": "賛成(さんせい)するにしろ反対(はんたい)するにしろ、理由(りゆう)をはっきり言(い)ってください。",
+       "vi": "Dù tán thành hay phản đối, xin hãy nói rõ lý do."
+      },
+      {
+       "ja": "引き受けるにしろ断るにしろ、できるだけ早く返事をしたほうがいい。",
+       "ja_furigana": "引(ひ)き受(う)けるにしろ断(ことわ)るにしろ、できるだけ早(はや)く返事(へんじ)をしたほうがいい。",
+       "source": "AI",
+       "vi": "Dù nhận lời hay từ chối thì cũng nên trả lời càng sớm càng tốt."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Hai vế phải cùng phạm trù (行く/行かない, 父親/母親); vế sau là ý kiến, lời khuyên chung chứ không phải sự việc cụ thể đã xảy ra. Khác にせよ〜にせよ chỉ ở mức độ trang trọng.",
+    "examples": [
+     {
+      "ja": "父親にしろ母親にしろ、親には一言言っておいたほうがいいよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù là bố hay mẹ, tốt nhất nên nói trước với họ một lời."
+     },
+     {
+      "ja": "買うにしろ、買わないにしろ、一応値段だけは見ておこうよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù mua hay không mua thì cũng nên xem qua giá trước đã."
+     },
+     {
+      "ja": "引き受けるにしろ断るにしろ、できるだけ早く返事をしたほうがいい。",
+      "ja_furigana": "引(ひ)き受(う)けるにしろ断(ことわ)るにしろ、できるだけ早(はや)く返事(へんじ)をしたほうがいい。",
+      "source": "AI",
+      "vi": "Dù nhận lời hay từ chối thì cũng nên trả lời càng sớm càng tốt."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 父親にしろ母親にしろ、親には一言言っておいたほうがいいよ。",
+     "FURIGANA_MISSING: 買うにしろ、買わないにしろ、一応値段だけは見ておこうよ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N/Vる/Vない + にしろ + N/Vる/Vない + にしろ",
+    "locked_fields": [],
+    "meaning_vi": "Dù là A hay B thì cũng như nhau.",
+    "nuance_vi": "Cứng và có phần quả quyết hơn にしても〜にしても; dùng nhiều trong lời khuyên, ý kiến của người nói.",
+    "order_items": [],
+    "pattern": "〜にしろ〜にしろ",
+    "pattern_variants": [
+     "にしろ〜にしろ"
+    ],
+    "unit_no": 10,
+    "unit_title_vi": null,
+    "usage_vi": "Nêu hai trường hợp đối lập hoặc cùng loại để nhấn mạnh rằng dù trường hợp nào thì nhận định hay yêu cầu ở vế sau vẫn không đổi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-305014dc7a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "机の上にペンやノートといった勉強の道具が置いてある。",
+       "ja_furigana": "机(つくえ)の上(うえ)にペンやノートといった勉強(べんきょう)の道具(どうぐ)が置(お)いてある。",
+       "vi": "Trên bàn có những dụng cụ học tập như bút và vở."
+      },
+      {
+       "ja": "果物や野菜といった体にいい食べ物を多く食べよう。",
+       "ja_furigana": "果物(くだもの)や野菜(やさい)といった体(からだ)にいい食(た)べ物(もの)を多(おお)く食(た)べよう。",
+       "vi": "Hãy ăn nhiều những món tốt cho sức khỏe như trái cây và rau củ."
+      },
+      {
+       "ja": "私は野球やサッカーといったスポーツがあまり得意ではない。",
+       "ja_furigana": "私(わたし)は野球(やきゅう)やサッカーといったスポーツがあまり得意(とくい)ではない。",
+       "source": "AI",
+       "vi": "Tôi không giỏi lắm những môn thể thao như bóng chày hay bóng đá."
+      }
+     ],
+     "meaning_vi": "như là…, ví dụ như… (liệt kê ví dụ tiêu biểu)."
+    },
+    "note": "viết lại câu chép nguồn, sửa nghĩa"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Thường cần hai ví dụ cùng loại trở lên ở trước và một danh từ chỉ nhóm ở sau (スポーツ, 国, 色). Không dùng để liệt kê đầy đủ mọi thứ; khác といえば/という (gọi tên, liên tưởng).",
+    "examples": [
+     {
+      "ja": "今年の夏は青やオレンジといった、鮮やかな色が流行している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hè năm nay, ví dụ như các màu xanh biển, hoặc cam, những màu sặc sỡ đang là trào lưu đó."
+     },
+     {
+      "ja": "この学生寮にはベトナムやインドネシアといった、倒産アジアからの学生大勢住んでいる",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ở ký túc xá sinh viên này có nhiều sinh viên đến từ Đông Nam Á như Việt Nam và Indonesia sống."
+     },
+     {
+      "ja": "私は野球やサッカーといったスポーツがあまり得意ではない。",
+      "ja_furigana": "私(わたし)は野球(やきゅう)やサッカーといったスポーツがあまり得意(とくい)ではない。",
+      "source": "AI",
+      "vi": "Tôi không giỏi lắm những môn thể thao như bóng chày hay bóng đá."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今年の夏は青やオレンジといった、鮮やかな色が流行している。",
+     "FURIGANA_MISSING: この学生寮にはベトナムやインドネシアといった、倒産アジアからの学生大勢住んでいる",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N1 や N2 + といった + N",
+    "locked_fields": [],
+    "meaning_vi": "Cách kết hợp:",
+    "nuance_vi": "Nêu vài ví dụ tiêu biểu để chỉ cả nhóm, theo sau là danh từ tổng quát; trang trọng và gọn hơn など.",
+    "order_items": [],
+    "pattern": "〜といった",
+    "pattern_variants": [
+     "といった"
+    ],
+    "unit_no": 10,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞 Ý nghĩa: たとえば（例） ví dụ Ví dụ: 1. 今年の夏は青やオレンジといった、鮮やかな色が流行している。 Hè năm nay, ví dụ như các màu xanh biển, hoặc cam, những màu sặc sỡ đang là trào lưu đó. 2. この学生寮にはベトナムやインドネシアといった、倒産アジアからの学生大勢住んでいる Ở ký túc xá sinh viên này có nhiều sinh viên đến từ Đông Nam Á như Việt Nam và Indonesia sống. 3. この奨学金を申請するためには、成績証明書や教授の推薦書といった書類が必要だ。 Để xin cấp học bổng này cần có các giấy tờ như là bảng thành tích học tập và giấy giới thiệu của giáo sư. 4. オーストラリアにはコアラやカンガルーといった、珍しい動物がたくさんいる。 Ở Australia có nhiều động vật quý hiếm như là gấu túi và chuột túi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ec9c4a56a1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は季節を問わず、いつも同じ料理が出る。",
+       "ja_furigana": "この店(みせ)は季節(きせつ)を問(と)わず、いつも同(おな)じ料理(りょうり)が出(で)る。",
+       "vi": "Quán này bất kể mùa nào cũng ra cùng một món."
+      },
+      {
+       "ja": "この仕事は男女を問わず、希望者を募集している。",
+       "ja_furigana": "この仕事(しごと)は男女(だんじょ)を問(と)わず、希望者(きぼうしゃ)を募集(ぼしゅう)している。",
+       "vi": "Công việc này bất kể nam nữ, đang tuyển người có nguyện vọng."
+      },
+      {
+       "ja": "このスポーツクラブは、年齢や経験を問わず、誰でも参加できる。",
+       "ja_furigana": "このスポーツクラブは、年齢(ねんれい)や経験(けいけん)を問(と)わず、誰(だれ)でも参加(さんか)できる。",
+       "source": "AI",
+       "vi": "Câu lạc bộ thể thao này ai cũng có thể tham gia, bất kể tuổi tác hay kinh nghiệm."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "N phải là danh từ có thể chia thành các loại (男女, 昼夜, 有無, 経験). Khác にかかわらず (đi được với 2 vế đối lập như 行く行かない); không dùng để nói 'dù thế nào cũng'.",
+    "examples": [
+     {
+      "ja": "A社は学歴（/国籍）を問わず、やる気のある人材を求めている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công ty A không quan tâm tới học lực(quốc tịch), tuyển dụng những người có ý chí muốn làm việc."
+     },
+     {
+      "ja": "この植物園は四季（/季節）を問わずさまざまな花が咲いている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vườn bách thảo này hoa nở suốt bốn mùa (bất kể là mùa nào)."
+     },
+     {
+      "ja": "このスポーツクラブは、年齢や経験を問わず、誰でも参加できる。",
+      "ja_furigana": "このスポーツクラブは、年齢(ねんれい)や経験(けいけん)を問(と)わず、誰(だれ)でも参加(さんか)できる。",
+      "source": "AI",
+      "vi": "Câu lạc bộ thể thao này ai cũng có thể tham gia, bất kể tuổi tác hay kinh nghiệm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: A社は学歴（/国籍）を問わず、やる気のある人材を求めている。",
+     "FURIGANA_MISSING: この植物園は四季（/季節）を問わずさまざまな花が咲いている。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + を問わず",
+    "locked_fields": [],
+    "meaning_vi": "Không liên quan, không quan tâm tới",
+    "nuance_vi": "Trang trọng; N là từ chỉ phạm vi hai cực hoặc sự khác biệt (男女, 年齢, 昼夜, 国籍): bất kể điều đó, vế sau vẫn đúng.",
+    "order_items": [],
+    "pattern": "を問(と)わず",
+    "pattern_variants": [
+     "〜を問わず",
+     "N + を問わず"
+    ],
+    "unit_no": 11,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞 Ý nghĩa: ～に関係なく Không liên quan, không quan tâm tới Ví dụ: 1. A社は学歴（/国籍）を問わず、やる気のある人材を求めている。 Công ty A không quan tâm tới học lực(quốc tịch), tuyển dụng những người có ý chí muốn làm việc. 2. この植物園は四季（/季節）を問わずさまざまな花が咲いている。 Vườn bách thảo này hoa nở suốt bốn mùa (bất kể là mùa nào). 3. 性別年齢を問わず、カラオケが好きという人は多い。 Rất nhiều người thích karaoke, không phân biệt giới tính, tuổi tác. 4. 昼夜を問わず・経験の有無を問わず・洋の東西を問わず ・Không kể ngày đêm. ・Không phân biệt có kinh nghiệm hay không. ・Khắp mọi nơi (không kể Đông hay Tây) *「アルバイト募集。年齢。経験不問。 Tuyển nhân viên làm thêm. Không yêu cầu độ tuổi, kinh nghiệm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6dbab8dc1a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "天気に関わらず、試合は予定通り行われる。",
+       "ja_furigana": "天気(てんき)に関(かか)わらず、試合(しあい)は予定(よてい)通(どお)り行(おこな)われる。",
+       "vi": "Bất kể thời tiết thế nào, trận đấu vẫn được tiến hành theo kế hoạch."
+      },
+      {
+       "ja": "経験の有無に関わらず、やる気があれば応募できます。",
+       "ja_furigana": "経験(けいけん)の有無(うむ)に関(かか)わらず、やる気(き)があれば応募(おうぼ)できます。",
+       "vi": "Bất kể có kinh nghiệm hay không, chỉ cần có nhiệt huyết là có thể ứng tuyển."
+      },
+      {
+       "ja": "参加するかしないかにかかわらず、今週中に返事をください。",
+       "ja_furigana": "参加(さんか)するかしないかにかかわらず、今週中(こんしゅうちゅう)に返事(へんじ)をください。",
+       "source": "AI",
+       "vi": "Dù tham gia hay không, xin hãy trả lời trong tuần này."
+      }
+     ],
+     "meaning_vi": "Bất kể…, không phân biệt…"
+    },
+    "note": "viết lại câu chép nguồn, sửa nghĩa"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Đừng nhầm với にもかかわらず (mặc dù): thêm も thì nghĩa đổi. Khác を問わず: にかかわらず đi được với cả cặp động từ khẳng định và phủ định.",
+    "examples": [
+     {
+      "ja": "我が社は国籍、性別にかかわらず、優秀な人材を求めている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công ty chúng tôi không tính đến quốc tính, giới tính, cử nhân tài ưu tú là mưu cầu."
+     },
+     {
+      "ja": "お買い上げ代金の多少にかかわらず、無料で配達いたします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù mua bao nhiêu (không phân biệt số tiền thanh toán ít hay nhiều), khách hàng vẫn được hưởng dịch vụ chuyển phát miễn phí."
+     },
+     {
+      "ja": "参加するかしないかにかかわらず、今週中に返事をください。",
+      "ja_furigana": "参加(さんか)するかしないかにかかわらず、今週中(こんしゅうちゅう)に返事(へんじ)をください。",
+      "source": "AI",
+      "vi": "Dù tham gia hay không, xin hãy trả lời trong tuần này."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 我が社は国籍、性別にかかわらず、優秀な人材を求めている。",
+     "FURIGANA_MISSING: お買い上げ代金の多少にかかわらず、無料で配達いたします。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + にかかわらず; Vる + か + Vない + か + にかかわらず",
+    "locked_fields": [],
+    "meaning_vi": "Cách kết hợp:",
+    "nuance_vi": "Bất kể điều kiện đó như thế nào, vế sau luôn đúng; hay đi với hai vế đối lập (好き嫌い, 天気の良し悪し, 有無) hoặc danh từ chỉ mức độ. Viết 関わらず hoặc かかわらず.",
+    "order_items": [],
+    "pattern": "に関(かか)わらず",
+    "pattern_variants": [
+     "〜にかかわらず/かかわりなく"
+    ],
+    "unit_no": 11,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞／動詞の普通形＋動詞のナイ形／名詞＋であるか否か Ví dụ: 我が社は国籍、性別にかかわらず、優秀な人材を求めている。 Công ty chúng tôi không tính đến quốc tính, giới tính, cử nhân tài ưu tú là mưu cầu. お買い上げ代金の多少にかかわらず、無料で配達いたします。 Dù mua bao nhiêu (không phân biệt số tiền thanh toán ít hay nhiều), khách hàng vẫn được hưởng dịch vụ chuyển phát miễn phí. この大学の図書館は、学生であるか否かにかかわらず、だれでも利用できる。 Bất cứ ai, cả kể không phải sinh viên của trường đại học này, đều có thể sử dụng thư viện. 参加するしないにかかわらず、出欠の連絡をください。 Dù tham dự hay không, xin hãy liên lạc cho chúng tôi được biết. この通りは昼夜にかかわらりなく交通量が多い。 Bất kể ngày hay đêm, con đường này đều có lượng người tham gia giao thông đông đúc. この映画は、子どもから大人まで、年齢にかかわらなく楽しめる。 Bộ phim này từ trẻ con tới người lớn, bất kỳ độ tuổi nào cũng tận hưởng được."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e2dfa20f95"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は服がぬれるのもかまわず、雨の中を走った。",
+       "ja_furigana": "彼(かれ)は服(ふく)がぬれるのもかまわず、雨(あめ)の中(なか)を走(はし)った。",
+       "vi": "Anh ấy không màng quần áo bị ướt, chạy giữa trời mưa."
+      },
+      {
+       "ja": "母は手が汚れるのもかまわず、庭の草を取っていた。",
+       "ja_furigana": "母(はは)は手(て)が汚(よご)れるのもかまわず、庭(にわ)の草(くさ)を取(と)っていた。",
+       "vi": "Mẹ tôi không ngại tay bẩn, nhổ cỏ trong vườn."
+      },
+      {
+       "ja": "彼は人が見ているのもかまわず、電車の中で大声で歌い始めた。",
+       "ja_furigana": "彼(かれ)は人(ひと)が見(み)ているのもかまわず、電車(でんしゃ)の中(なか)で大声(おおごえ)で歌(うた)い始(はじ)めた。",
+       "source": "AI",
+       "vi": "Anh ta mặc kệ người khác nhìn, bắt đầu hát lớn trong tàu điện."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Thường dùng để miêu tả hành động đã xảy ra của ngôi thứ ba; không dùng như lời khuyên. Khác にかかわらず (bất kể điều kiện): もかまわず nhấn mạnh thái độ phớt lờ.",
+    "examples": [
+     {
+      "ja": "相手の気持ちもかまわず一方的に怒ってしまい、反省している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dựa vào kinh nghiệm bản thân, tôi thấy không nên uống nước lã tại chỗ đấy."
+     },
+     {
+      "ja": "彼女は雨にぬれるのもかまわず、彼の後を追いあかけた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô ấy không bận tâm đến việc bị mưa ướt, đuổi theo sau anh ta."
+     },
+     {
+      "ja": "彼は人が見ているのもかまわず、電車の中で大声で歌い始めた。",
+      "ja_furigana": "彼(かれ)は人(ひと)が見(み)ているのもかまわず、電車(でんしゃ)の中(なか)で大声(おおごえ)で歌(うた)い始(はじ)めた。",
+      "source": "AI",
+      "vi": "Anh ta mặc kệ người khác nhìn, bắt đầu hát lớn trong tàu điện."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 相手の気持ちもかまわず一方的に怒ってしまい、反省している。",
+     "FURIGANA_MISSING: 彼女は雨にぬれるのもかまわず、彼の後を追いあかけた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + もかまわず; Vる + のもかまわず",
+    "locked_fields": [],
+    "meaning_vi": "Không bận tâm đến, không màng đến",
+    "nuance_vi": "Không để ý đến, bỏ mặc điều lẽ ra phải bận tâm (ánh mắt người khác, thể diện, nguy hiểm); thường tả hành động liều lĩnh hoặc thiếu quan tâm của người khác.",
+    "order_items": [],
+    "pattern": "も構(かま)わず",
+    "pattern_variants": [
+     "〜もかまわず"
+    ],
+    "unit_no": 11,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞 Ý nghĩa: ～を気にせずに Không bận tâm đến, không màng đến Ví dụ: 1. 相手の気持ちもかまわず一方的に怒ってしまい、反省している。 Dựa vào kinh nghiệm bản thân, tôi thấy không nên uống nước lã tại chỗ đấy. 2. 彼女は雨にぬれるのもかまわず、彼の後を追いあかけた。 Cô ấy không bận tâm đến việc bị mưa ướt, đuổi theo sau anh ta. 3. 母は息子の無事を聞いて、人目もかまわず声を上げて泣いた。 Khi nghe thấy con trai bình yên vô sự, người mẹ không quan tâm tới những người xung quanh mà òa lên khóc nức nở. *所かまわずごみを捨てる。ありふりかまわず働く。 ・Vứt rác bừa bãi (mặc cho là ở đâu) ・Làm việc hùng hục."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b5f7aacef7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "立地はともかく、この店は店員がとても親切だ。",
+       "ja_furigana": "立地(りっち)はともかく、この店(みせ)は店員(てんいん)がとても親切(しんせつ)だ。",
+       "vi": "Vị trí thì tạm không bàn, quán này nhân viên rất thân thiện."
+      },
+      {
+       "ja": "値段はともかく、このお店の料理は味が最高だ。",
+       "ja_furigana": "値段(ねだん)はともかく、このお店(みせ)の料理(りょうり)は味(あじ)が最高(さいこう)だ。",
+       "source": "AI",
+       "vi": "Giá cả thì tạm khoan nói, món ăn của quán này hương vị tuyệt nhất."
+      },
+      {
+       "ja": "結果はともかく、最後まであきらめずに努力したことが大切だ。",
+       "ja_furigana": "結果(けっか)はともかく、最後(さいご)まであきらめずに努力(どりょく)したことが大切(たいせつ)だ。",
+       "source": "AI",
+       "vi": "Kết quả thì tạm không bàn, điều quan trọng là đã nỗ lực đến cùng mà không bỏ cuộc."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không có nghĩa là N không quan trọng hay phủ định N, chỉ là tạm chưa bàn. Gần nghĩa はさておき nhưng はともかく dùng được trong hội thoại thông thường hơn.",
+    "examples": [
+     {
+      "ja": "味はともかく、量は多い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "値段はともかく、このお店の料理は味が最高だ。",
+      "ja_furigana": "値段(ねだん)はともかく、このお店(みせ)の料理(りょうり)は味(あじ)が最高(さいこう)だ。",
+      "source": "AI",
+      "vi": "Giá cả thì tạm khoan nói, món ăn của quán này hương vị tuyệt nhất."
+     },
+     {
+      "ja": "結果はともかく、最後まであきらめずに努力したことが大切だ。",
+      "ja_furigana": "結果(けっか)はともかく、最後(さいご)まであきらめずに努力(どりょく)したことが大切(たいせつ)だ。",
+      "source": "AI",
+      "vi": "Kết quả thì tạm không bàn, điều quan trọng là đã nỗ lực đến cùng mà không bỏ cuộc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 味はともかく、量は多い。",
+     "FURIGANA_MISSING: 味はともかく、量は多い。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + はともかく(として)",
+    "locked_fields": [],
+    "meaning_vi": "Khoan hãy nói tới — Tạm gác điều đó sang một bên để bàn điều quan trọng hơn.",
+    "nuance_vi": "Tạm gác N sang một bên để nói về điều quan trọng hơn hay đáng nói hơn; vế sau mới là trọng tâm.",
+    "order_items": [],
+    "pattern": "は兎(と)も角(かく)",
+    "pattern_variants": [
+     "N + はともかく",
+     "〜 はともかく"
+    ],
+    "unit_no": 11,
+    "unit_title_vi": null,
+    "usage_vi": "Dạng khác はさておき. Điều được gác lại thường ít quan trọng hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e9ce7dc234"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "話はさておき、本題に入りましょう。",
+       "ja_furigana": "話(はなし)はさておき、本題(ほんだい)に入(はい)りましょう。",
+       "vi": "Gác câu chuyện sang một bên, chúng ta vào vấn đề chính thôi."
+      },
+      {
+       "ja": "細かいことはさておき、まず全体の計画を立てよう。",
+       "ja_furigana": "細(こま)かいことはさておき、まず全体(ぜんたい)の計画(けいかく)を立(た)てよう。",
+       "vi": "Gác chuyện nhỏ sang một bên, trước hết hãy lập kế hoạch tổng thể."
+      },
+      {
+       "ja": "あいさつはさておき、さっそく来月の旅行の計画を話し合おう。",
+       "ja_furigana": "あいさつはさておき、さっそく来月(らいげつ)の旅行(りょこう)の計画(けいかく)を話(はな)し合(あ)おう。",
+       "source": "AI",
+       "vi": "Chào hỏi tạm gác lại, giờ hãy bàn ngay kế hoạch du lịch tháng sau."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "N bị gác lại vẫn có thể cần xét sau, chứ không bị bỏ đi. Gần nghĩa はともかく, nhưng はさておき hay dùng để đổi hướng cuộc nói chuyện, nghe cứng hơn.",
+    "examples": [
+     {
+      "ja": "この本、内容はさておき、タイトルはすごくいいと思う。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quyển sách này, nội dung tạm gác qua một bên, mình thấy tiêu đề rất hay。"
+     },
+     {
+      "ja": "A: 日本も最近、強くなったね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A: Gần đây Nhật Bản cũng mạnh lên nhỉ。"
+     },
+     {
+      "ja": "あいさつはさておき、さっそく来月の旅行の計画を話し合おう。",
+      "ja_furigana": "あいさつはさておき、さっそく来月(らいげつ)の旅行(りょこう)の計画(けいかく)を話(はな)し合(あ)おう。",
+      "source": "AI",
+      "vi": "Chào hỏi tạm gác lại, giờ hãy bàn ngay kế hoạch du lịch tháng sau."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この本、内容はさておき、タイトルはすごくいいと思う。",
+     "FURIGANA_MISSING: A: 日本も最近、強くなったね。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + はさておき",
+    "locked_fields": [],
+    "meaning_vi": "Tạm gác chuyện đó sang một bên.",
+    "nuance_vi": "Hơi văn viết và trang trọng, đôi khi có chút đùa; thường đứng ở đầu câu để chuyển chủ đề.",
+    "order_items": [],
+    "pattern": "〜はさておき",
+    "pattern_variants": [
+     "はさておき"
+    ],
+    "unit_no": 11,
+    "unit_title_vi": null,
+    "usage_vi": "Tạm không bàn đến N để nói về điều quan trọng hơn hoặc cần làm trước trong tình huống đó."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fcc35b2c34"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-005"
+}

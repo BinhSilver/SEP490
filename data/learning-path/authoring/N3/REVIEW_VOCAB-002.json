@@ -1,0 +1,2572 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "長男が家を手伝う。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Con trai cả giúp việc nhà."
+      },
+      {
+       "ja": "うちの長男は今年から東京の大学に通っている。",
+       "ja_furigana": "うちの長男(ちょうなん)は今年(ことし)から東京(とうきょう)の大学(だいがく)に通(かよ)っている。",
+       "vi": "Con trai cả nhà tôi từ năm nay đi học đại học ở Tokyo.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "con trai cả",
+    "examples": [
+     {
+      "ja": "長男が家を手伝う。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Con trai cả giúp việc nhà."
+     },
+     {
+      "ja": "日本では、長男は大事にされる傾向があった。",
+      "ja_furigana": "日本(にほん)では、長男(ちょうなん)は大事(だいじ)にされる傾向(けいこう)があった。",
+      "source": "VNJPCLUB",
+      "vi": "Ở Nhật Bản, trưởng nam có khuynh hướng được coi trọng."
+     }
+    ],
+    "expression": "長男",
+    "findings": [
+     "FURIGANA_MISSING: 長男が家を手伝う。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "con trai cả; trưởng nam; con trai trưởng",
+    "mnemonic_vi": "長男: 長 trưởng đặt trước 男 nam; 長男 là con trai cả.",
+    "reading": "ちょうなん",
+    "romaji": "chounan",
+    "topic_vi": "Gia đình",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-091fa08ee6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "公園で親子が遊んでいる。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Cha mẹ và con đang chơi trong công viên."
+      },
+      {
+       "ja": "親子で同じ本を読んで、感想を話し合った。",
+       "ja_furigana": "親子(おやこ)で同(おな)じ本(ほん)を読(よ)んで、感想(かんそう)を話(はな)し合(あ)った。",
+       "vi": "Cha mẹ và con cùng đọc một cuốn sách rồi trao đổi cảm nghĩ với nhau.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Mẫu tử, phụ tử, cha mẹ và con",
+    "examples": [
+     {
+      "ja": "公園で親子が遊んでいる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Cha mẹ và con đang chơi trong công viên."
+     },
+     {
+      "ja": "親子で参加できる料理教室を探している。",
+      "ja_furigana": "親子(おやこ)で参加(さんか)できる料理(りょうり)教室(きょうしつ)を探(さが)している。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đang tìm lớp nấu ăn cho cả cha mẹ và con cái đều có thể tham gia."
+     }
+    ],
+    "expression": "親子",
+    "findings": [
+     "FURIGANA_MISSING: 公園で親子が遊んでいる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "mẫu tử; phụ tử; cha mẹ và con",
+    "mnemonic_vi": "親子: 親 thân là cha mẹ, 子 tử là con; 親子 là cha mẹ và con.",
+    "reading": "おやこ",
+    "romaji": "oyako",
+    "topic_vi": "Gia đình",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-bbc2e1d8d6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あの夫婦はいつも一緒だ。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Đôi vợ chồng ấy luôn bên nhau."
+      },
+      {
+       "ja": "田中さん夫婦は週末によく山に登る。",
+       "ja_furigana": "田中(たなか)さん夫婦(ふうふ)は週末(しゅうまつ)によく山(やま)に登(のぼ)る。",
+       "vi": "Vợ chồng anh Tanaka cuối tuần hay đi leo núi.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "結婚して十年になる夫婦に話を聞いた。",
+       "ja_furigana": "結婚(けっこん)して十年(じゅうねん)になる夫婦(ふうふ)に話(はなし)を聞(き)いた。",
+       "vi": "Tôi đã hỏi chuyện một cặp vợ chồng đã cưới nhau được mười năm.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "vợ chồng",
+    "examples": [
+     {
+      "ja": "あの夫婦はいつも一緒だ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Đôi vợ chồng ấy luôn bên nhau."
+     },
+     {
+      "ja": "隣の夫婦は、とても仲がいい。",
+      "ja_furigana": "隣(となり)の夫婦(ふうふ)は、とても仲(なか)がいい。",
+      "source": "VNJPCLUB",
+      "vi": "Vợ chồng nhà bên rất hòa thuận."
+     },
+     {
+      "ja": "小林さんは夫婦はいつも仲がいい。",
+      "ja_furigana": "小林(こばやし)さんは夫婦(ふうふ)はいつも仲(なか)がいい。",
+      "source": "VNJPCLUB",
+      "vi": "Vợ chồng anh Kobayashi lúc nào cũng hòa thuận."
+     }
+    ],
+    "expression": "夫婦",
+    "findings": [
+     "FURIGANA_MISSING: あの夫婦はいつも一緒だ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "vợ chồng",
+    "mnemonic_vi": "夫婦: 夫 phu là chồng, 婦 phụ là vợ → một đôi vợ chồng.",
+    "reading": "ふうふ",
+    "romaji": "fuufu",
+    "topic_vi": "Gia đình",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c06d07097c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "祖母をとても尊敬している。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi rất kính trọng bà."
+      },
+      {
+       "ja": "山田さんは仕事がていねいなので、みんなに尊敬されている。",
+       "ja_furigana": "山田(やまだ)さんは仕事(しごと)がていねいなので、みんなに尊敬(そんけい)されている。",
+       "vi": "Anh Yamada làm việc cẩn thận nên được mọi người kính trọng.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "尊敬する人はだれかと面接で聞かれた。",
+       "ja_furigana": "尊敬(そんけい)する人(ひと)はだれかと面接(めんせつ)で聞(き)かれた。",
+       "vi": "Trong buổi phỏng vấn, tôi được hỏi người mình kính trọng là ai.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tôn kính",
+    "examples": [
+     {
+      "ja": "祖母をとても尊敬している。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi rất kính trọng bà."
+     },
+     {
+      "ja": "私は父を尊敬している。",
+      "ja_furigana": "私(わたし)は父(ちち)を尊敬(そんけい)している。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi rất kính trọng bố."
+     },
+     {
+      "ja": "マザー・テレサは世界中の人々に尊敬されている。",
+      "ja_furigana": "マザー・テレサは世界(せかい)中(じゅう)の人々(ひとびと)に尊敬(そんけい)されている。",
+      "source": "VNJPCLUB",
+      "vi": "Mẹ Teresa được tôn kính khắp thế giới."
+     }
+    ],
+    "expression": "尊敬＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 祖母をとても尊敬している。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tôn kính; kính trọng; tôn trọng",
+    "mnemonic_vi": "尊敬する: 尊 tôn và 敬 kính đều mang ý kính trọng; 尊敬 là tôn kính.",
+    "reading": "そんけい＜する＞",
+    "romaji": "sonkei<suru>",
+    "topic_vi": "Gia đình",
+    "twins": [],
+    "variants": [
+     "尊敬"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-45dea0850c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "子どもを公園へ連れる。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi dẫn đứa trẻ đến công viên."
+      },
+      {
+       "ja": "週末、祖母を連れておんせんに行った。",
+       "ja_furigana": "週末(しゅうまつ)、祖母(そぼ)を連(つ)れておんせんに行(い)った。",
+       "vi": "Cuối tuần tôi đưa bà đi tắm suối nước nóng.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "熱が出た子どもを連れて病院へ行った。",
+       "ja_furigana": "熱(ねつ)が出(で)た子(こ)どもを連(つ)れて病院(びょういん)へ行(い)った。",
+       "vi": "Tôi đưa đứa con bị sốt đến bệnh viện.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "dẫn đi",
+    "examples": [
+     {
+      "ja": "子どもを公園へ連れる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi dẫn đứa trẻ đến công viên."
+     },
+     {
+      "ja": "子どもを動物園へ連れて行った",
+      "ja_furigana": "子(こ)どもを動物園(どうぶつえん)へ連(つ)れて行(い)った",
+      "source": "VNJPCLUB",
+      "vi": "Dẫn con đi chơi sở thú."
+     },
+     {
+      "ja": "犬を連れて散歩する",
+      "ja_furigana": "犬(いぬ)を連(つ)れて散歩(さんぽ)する",
+      "source": "VNJPCLUB",
+      "vi": "Dẫn chó đi dạo."
+     }
+    ],
+    "expression": "連れる",
+    "findings": [
+     "FURIGANA_MISSING: 子どもを公園へ連れる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "dẫn đi",
+    "mnemonic_vi": "連 có ý nối liền; nắm tay con đi cùng mình là dẫn con đi.",
+    "reading": "つれる",
+    "romaji": "tsureru",
+    "topic_vi": "Gia đình",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-128973f8a8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "二人はそっくりな顔をしている。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Hai người có khuôn mặt giống y đúc."
+      },
+      {
+       "ja": "リンさんの書く字は先生の字にそっくりだ。",
+       "ja_furigana": "リンさんの書(か)く字(じ)は先生(せんせい)の字(じ)にそっくりだ。",
+       "vi": "Chữ Linh viết giống y hệt chữ của thầy giáo.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "この人形は本物の猫にそっくりだ。",
+       "ja_furigana": "この人形(にんぎょう)は本物(ほんもの)の猫(ねこ)にそっくりだ。",
+       "vi": "Con búp bê này giống y như mèo thật.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "giống y đúc",
+    "examples": [
+     {
+      "ja": "二人はそっくりな顔をしている。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hai người có khuôn mặt giống y đúc."
+     },
+     {
+      "ja": "兄は父に顔も声もそっくりだ",
+      "ja_furigana": "兄(あに)は父(ちち)に顔(かお)も声(こえ)もそっくりだ",
+      "source": "VNJPCLUB",
+      "vi": "Anh với bố có giọng với mặt rất giống nhau."
+     },
+     {
+      "ja": "髪を切ったら、母親とそっくりになった",
+      "ja_furigana": "髪(かみ)を切(き)ったら、母親(ははおや)とそっくりになった",
+      "source": "VNJPCLUB",
+      "vi": "Cắt tóc xong giống hệt mẹ."
+     }
+    ],
+    "expression": "そっくりな",
+    "findings": [
+     "FURIGANA_MISSING: 二人はそっくりな顔をしている。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "giống y đúc",
+    "mnemonic_vi": "Hai gương mặt giống đến mức nhìn lại vẫn ngỡ là một: そっくり là giống y đúc.",
+    "reading": "そっくりな",
+    "romaji": "sokkurina",
+    "topic_vi": "Gia đình",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-fb842775a5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "同じチームの仲間を信じている。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi tin các đồng đội cùng đội."
+      },
+      {
+       "ja": "仕事の仲間と駅前の店で食事をした。",
+       "ja_furigana": "仕事(しごと)の仲間(なかま)と駅前(えきまえ)の店(みせ)で食事(しょくじ)をした。",
+       "vi": "Tôi đã đi ăn ở quán trước nhà ga cùng các bạn đồng nghiệp.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đồng đội, bạn cùng nhóm",
+    "examples": [
+     {
+      "ja": "同じチームの仲間を信じている。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi tin các đồng đội cùng đội."
+     },
+     {
+      "ja": "サークルの仲間と一緒に旅行した。",
+      "ja_furigana": "サークルの仲間(なかま)と一緒(いっしょ)に旅行(りょこう)した。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã đi du lịch cùng các bạn trong câu lạc bộ."
+     }
+    ],
+    "expression": "仲間",
+    "findings": [
+     "FURIGANA_MISSING: 同じチームの仲間を信じている。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đồng đội; bạn cùng nhóm; bạn",
+    "mnemonic_vi": "仲間: 仲 là người cùng nhóm, 間 là ở giữa nhau → đồng đội, bạn cùng nhóm.",
+    "reading": "なかま",
+    "romaji": "nakama",
+    "topic_vi": "Bạn bè và người quen",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-215db62d0a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "二人は昔から仲良しだ。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Hai người thân nhau từ lâu."
+      },
+      {
+       "ja": "うちの犬と猫はとても仲良しだ。",
+       "ja_furigana": "うちの犬(いぬ)と猫(ねこ)はとても仲良(なかよ)しだ。",
+       "vi": "Con chó và con mèo nhà tôi rất thân nhau.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bạn thân, thân nhau",
+    "examples": [
+     {
+      "ja": "二人は昔から仲良しだ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hai người thân nhau từ lâu."
+     },
+     {
+      "ja": "息子は隣の家の子と仲良しだ。",
+      "ja_furigana": "息子(むすこ)は隣(となり)の家(いえ)の子(こ)と仲良(なかよ)しだ。",
+      "source": "VNJPCLUB",
+      "vi": "Con trai tôi chơi rất thân với đứa trẻ nhà bên."
+     }
+    ],
+    "expression": "仲良し",
+    "findings": [
+     "FURIGANA_MISSING: 二人は昔から仲良しだ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bạn thân; thân nhau; thân thiết",
+    "mnemonic_vi": "仲良し: 仲 là bạn bè, 良 là tốt; 仲良し là những người bạn thân thiết.",
+    "reading": "なかよし",
+    "romaji": "nakayoshi",
+    "topic_vi": "Bạn bè và người quen",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-31ebbc2f0d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "長い友情を大切にしたい。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi muốn trân trọng tình bạn lâu dài."
+      },
+      {
+       "ja": "この映画は二人の男の子の友情の話だ。",
+       "ja_furigana": "この映画(えいが)は二人(ふたり)の男(おとこ)の子(こ)の友情(ゆうじょう)の話(はなし)だ。",
+       "vi": "Bộ phim này kể về tình bạn của hai cậu bé.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tình bạn",
+    "examples": [
+     {
+      "ja": "長い友情を大切にしたい。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi muốn trân trọng tình bạn lâu dài."
+     },
+     {
+      "ja": "昔の友だちとの友情を大切にしている。",
+      "ja_furigana": "昔(むかし)の友(とも)だちとの友情(ゆうじょう)を大切(たいせつ)にしている。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi rất trân trọng tình cảm với người bạn cũ."
+     }
+    ],
+    "expression": "友情",
+    "findings": [
+     "FURIGANA_MISSING: 長い友情を大切にしたい。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tình bạn; tìn bạn",
+    "mnemonic_vi": "友情: 友 hữu là bạn, 情 tình là tình cảm → tình bạn.",
+    "reading": "ゆうじょう",
+    "romaji": "yuujou",
+    "topic_vi": "Bạn bè và người quen",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8ea1976cdc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "親しい友達と旅行した。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi đi du lịch cùng bạn thân."
+      },
+      {
+       "ja": "親しい人にだけ結婚のことを話した。",
+       "ja_furigana": "親(した)しい人(ひと)にだけ結婚(けっこん)のことを話(はな)した。",
+       "vi": "Tôi chỉ kể chuyện kết hôn với những người thân thiết.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "同じアパートのリンさんと親しくなった。",
+       "ja_furigana": "同(おな)じアパートのリンさんと親(した)しくなった。",
+       "vi": "Tôi đã trở nên thân với Linh ở cùng chung cư.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thân thiết",
+    "examples": [
+     {
+      "ja": "親しい友達と旅行した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đi du lịch cùng bạn thân."
+     },
+     {
+      "ja": "私は田中さんと親しい",
+      "ja_furigana": "私(わたし)は田中(たなか)さんと親(した)しい",
+      "source": "VNJPCLUB",
+      "vi": "Tôi thân với anh Tanaka."
+     },
+     {
+      "ja": "彼とは留学した大学が同じで親しくなった",
+      "ja_furigana": "彼(かれ)とは留学(りゅうがく)した大学(だいがく)が同(おな)じで親(した)しくなった",
+      "source": "VNJPCLUB",
+      "vi": "Vì tôi và anh ấy du học cùng trường nên trở nên thân thiết."
+     }
+    ],
+    "expression": "親しい",
+    "findings": [
+     "FURIGANA_MISSING: 親しい友達と旅行した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "thân thiết; gần gũi",
+    "mnemonic_vi": "親しい: 親 thân là gần gũi như người nhà; 親しい nghĩa là thân thiết.",
+    "reading": "したしい",
+    "romaji": "shitashii",
+    "topic_vi": "Bạn bè và người quen",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f74835599c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "チームのメンバーが集まった。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Các thành viên đội tập hợp."
+      },
+      {
+       "ja": "会議のメンバーに山田さんも入ることになった。",
+       "ja_furigana": "会議(かいぎ)のメンバーに山田(やまだ)さんも入(はい)ることになった。",
+       "vi": "Anh Yamada cũng sẽ được đưa vào làm thành viên cuộc họp.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "このクラブのメンバーは全部で二十人だ。",
+       "ja_furigana": "このクラブのメンバーは全部(ぜんぶ)で二十人(にじゅうにん)だ。",
+       "vi": "Câu lạc bộ này có tổng cộng hai mươi thành viên.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thành viên",
+    "examples": [
+     {
+      "ja": "チームのメンバーが集まった。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Các thành viên đội tập hợp."
+     },
+     {
+      "ja": "私は試合に出るメンバーに選ばれた。",
+      "ja_furigana": "私(わたし)は試合(しあい)に出(で)るメンバーに選(えら)ばれた。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã được chọn làm thành viên tham gia trận đấu."
+     },
+     {
+      "ja": "バンドのメンバーが足りないから、友達を誘った。",
+      "ja_furigana": "バンドのメンバーが足(た)りないから、友達(ともだち)を誘(さそ)った。",
+      "source": "VNJPCLUB",
+      "vi": "Vì thiếu thành viên trong ban nhạc, tôi đã mời bạn bè tham gia."
+     }
+    ],
+    "expression": "メンバー",
+    "findings": [
+     "FURIGANA_MISSING: チームのメンバーが集まった。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "thành viên",
+    "mnemonic_vi": "メンバー mượn từ “member”: mỗi người trong đội là một thành viên.",
+    "reading": "めんばー",
+    "romaji": "menbaa",
+    "topic_vi": "Bạn bè và người quen",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f94a4a0f4b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "二本のひもを繋ぐ。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi nối hai sợi dây."
+      },
+      {
+       "ja": "二本の線をつなぐ。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi nối hai đường kẻ lại."
+      },
+      {
+       "ja": "パソコンをテレビにつないで、家族の写真を見た。",
+       "ja_furigana": "パソコンをテレビにつないで、家族(かぞく)の写真(しゃしん)を見(み)た。",
+       "vi": "Tôi nối máy tính với tivi để xem ảnh gia đình.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nối, buộc, kết nối",
+    "examples": [
+     {
+      "ja": "二本のひもを繋ぐ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi nối hai sợi dây."
+     },
+     {
+      "ja": "二本の線をつなぐ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi nối hai đường kẻ lại."
+     },
+     {
+      "ja": "この橋は本州と四国をつないでいる",
+      "ja_furigana": "この橋(はし)は本州(ほんしゅう)と四国(しこく)をつないでいる",
+      "source": "VNJPCLUB",
+      "vi": "Cây cầu này nối hai đảo là Honshu và Shinkoku."
+     }
+    ],
+    "expression": "繋ぐ",
+    "findings": [
+     "FURIGANA_MISSING: 二本のひもを繋ぐ。",
+     "FURIGANA_MISSING: 二本の線をつなぐ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "kết nối; nối để duy trì liên kết; nối",
+    "mnemonic_vi": "繋ぐ: 繋 buộc các mối lại với nhau; nhớ nghĩa kết nối.",
+    "reading": "つなぐ",
+    "romaji": "tsunagu",
+    "topic_vi": "Bạn bè và người quen",
+    "twins": [],
+    "variants": [
+     "つなぐ"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-37fc22c06c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "二つの部屋が廊下でつながる。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Hai căn phòng nối với nhau bằng hành lang."
+      },
+      {
+       "ja": "朝から電話がなかなかつながらない。",
+       "ja_furigana": "朝(あさ)から電話(でんわ)がなかなかつながらない。",
+       "vi": "Từ sáng đến giờ điện thoại mãi không gọi được.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "この駅は地下で隣のデパートとつながっている。",
+       "ja_furigana": "この駅(えき)は地下(ちか)で隣(となり)のデパートとつながっている。",
+       "vi": "Nhà ga này thông với cửa hàng bách hóa bên cạnh qua tầng hầm.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "được nối, thông với",
+    "examples": [
+     {
+      "ja": "二つの部屋が廊下でつながる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hai căn phòng nối với nhau bằng hành lang."
+     },
+     {
+      "ja": "本州と四国は橋でつながっている",
+      "ja_furigana": "本州(ほんしゅう)と四国(しこく)は橋(はし)でつながっている",
+      "source": "VNJPCLUB",
+      "vi": "Honshuu và Shikoku được nối với nhau bằng cầu."
+     },
+     {
+      "ja": "この道は駅につながっている",
+      "ja_furigana": "この道(みち)は駅(えき)につながっている",
+      "source": "VNJPCLUB",
+      "vi": "Con đường này dẫn đến nhà ga."
+     }
+    ],
+    "expression": "繋がる",
+    "findings": [
+     "FURIGANA_MISSING: 二つの部屋が廊下でつながる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "được kết nối; dẫn tới; nối nhau",
+    "mnemonic_vi": "繋がる: Các mối được buộc liền thành một chuỗi; 繋がる là được kết nối.",
+    "reading": "つながる",
+    "romaji": "tsunagaru",
+    "topic_vi": "Bạn bè và người quen",
+    "twins": [],
+    "variants": [
+     "つながる"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-badd5aea6e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "当時はまだ学生だった。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Vào thời điểm đó tôi vẫn là sinh viên."
+      },
+      {
+       "ja": "当時はスマホがなかったので、手紙をよく書いた。",
+       "ja_furigana": "当時(とうじ)はスマホがなかったので、手紙(てがみ)をよく書(か)いた。",
+       "vi": "Hồi đó chưa có điện thoại thông minh nên tôi hay viết thư.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "この写真を見ると、当時のことを思い出す。",
+       "ja_furigana": "この写真(しゃしん)を見(み)ると、当時(とうじ)のことを思(おも)い出(だ)す。",
+       "vi": "Cứ nhìn bức ảnh này là tôi lại nhớ chuyện hồi đó.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "thời điểm đó",
+    "examples": [
+     {
+      "ja": "当時はまだ学生だった。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Vào thời điểm đó tôi vẫn là sinh viên."
+     },
+     {
+      "ja": "私は京都出身だが、当時住んでいた家はもうない。",
+      "ja_furigana": "私(わたし)は京都(きょうと)出身(しゅっしん)だが、当時(とうじ)住(す)んでいた家(いえ)はもうない。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi quê Kyoto, nhưng ngôi nhà hồi đó sống giờ không còn."
+     },
+     {
+      "ja": "来日当時は、日本語は全くできなかった。",
+      "ja_furigana": "来日(らいにち)当時(とうじ)は、日本語(にほんご)は全(まった)くできなかった。",
+      "source": "VNJPCLUB",
+      "vi": "Hồi mới sang Nhật, tôi hoàn toàn không nói được tiếng Nhật."
+     }
+    ],
+    "expression": "当時",
+    "findings": [
+     "FURIGANA_MISSING: 当時はまだ学生だった。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "thời điểm đó; thời đó; lúc đó",
+    "mnemonic_vi": "当時: 当 đương là đúng lúc, 時 là thời điểm; 当時 nghĩa là thời điểm đó.",
+    "reading": "とうじ",
+    "romaji": "touji",
+    "topic_vi": "Bạn bè và người quen",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e31257e98f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "山田さんはしょっちゅうかさを忘れる。",
+       "ja_furigana": "山田(やまだ)さんはしょっちゅうかさを忘(わす)れる。",
+       "vi": "Anh Yamada suốt ngày quên ô.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "luôn luôn, suốt",
+    "examples": [
+     {
+      "ja": "この道路のバスはしょっちゅう遅れるから困る。",
+      "ja_furigana": "この道路(どうろ)のバスはしょっちゅう遅(おく)れるから困(こま)る。",
+      "source": "VNJPCLUB",
+      "vi": "Xe buýt tuyến này hay trễ nên phiền."
+     }
+    ],
+    "expression": "しょっちゅう",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "luôn luôn; suốt; thường xuyên",
+    "mnemonic_vi": "Âm しょっちゅう lặp nhanh như việc cứ xảy ra mãi: thường xuyên.",
+    "reading": "しょっちゅう",
+    "romaji": "shotchuu",
+    "topic_vi": "Bạn bè và người quen",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9fdd9c3e93"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼はたびたび家に来る。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Anh ấy thường ghé nhà."
+      },
+      {
+       "ja": "この店にはたびたび来るので、店員と知り合いになった。",
+       "ja_furigana": "この店(みせ)にはたびたび来(く)るので、店員(てんいん)と知(し)り合(あ)いになった。",
+       "vi": "Tôi hay đến quán này nên đã quen với nhân viên.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "冬になると、雪でたびたび電車が止まる。",
+       "ja_furigana": "冬(ふゆ)になると、雪(ゆき)でたびたび電車(でんしゃ)が止(と)まる。",
+       "vi": "Cứ đến mùa đông là tàu điện hay bị dừng vì tuyết.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nhiều lần",
+    "examples": [
+     {
+      "ja": "彼はたびたび家に来る。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Anh ấy thường ghé nhà."
+     },
+     {
+      "ja": "彼がたびたび遅刻するので、先生が注意した。",
+      "ja_furigana": "彼(かれ)がたびたび遅刻(ちこく)するので、先生(せんせい)が注意(ちゅうい)した。",
+      "source": "VNJPCLUB",
+      "vi": "Anh ấy thỉnh thoảng đến muộn nên cô giáo đã nhắc nhở."
+     },
+     {
+      "ja": "田中さんとは仕事以外でもたびたび会うようになった。",
+      "ja_furigana": "田中(たなか)さんとは仕事(しごと)以外(いがい)でもたびたび会(あ)うようになった。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi hay gặp Tanaka cả ngoài công việc."
+     }
+    ],
+    "expression": "度々",
+    "findings": [
+     "FURIGANA_MISSING: 彼はたびたび家に来る。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "nhiều lần; thường xuyên; thỉnh thoảng",
+    "mnemonic_vi": "度々: 度 độ là lần, lặp lại nhiều độ → 度々 là nhiều lần.",
+    "reading": "たびたび",
+    "romaji": "tabitabi",
+    "topic_vi": "Bạn bè và người quen",
+    "twins": [],
+    "variants": [
+     "たびたび"
+    ],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6a6b1d5124"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅で偶々先生に会った。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi tình cờ gặp thầy ở ga."
+      },
+      {
+       "ja": "駅でたまたま友達に会った。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi tình cờ gặp bạn ở nhà ga."
+      },
+      {
+       "ja": "たまたま見たテレビに、昔の友達が出ていた。",
+       "ja_furigana": "たまたま見(み)たテレビに、昔(むかし)の友達(ともだち)が出(で)ていた。",
+       "vi": "Chương trình tivi tôi tình cờ xem có người bạn cũ xuất hiện.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tình cờ",
+    "examples": [
+     {
+      "ja": "駅で偶々先生に会った。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi tình cờ gặp thầy ở ga."
+     },
+     {
+      "ja": "駅でたまたま友達に会った。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi tình cờ gặp bạn ở nhà ga."
+     },
+     {
+      "ja": "たまたま入った喫茶店で、友達に会った。",
+      "ja_furigana": "たまたま入(はい)った喫茶店(きっさてん)で、友達(ともだち)に会(あ)った。",
+      "source": "VNJPCLUB",
+      "vi": "Quán cà phê tôi tình cờ vào lại gặp đúng bạn."
+     }
+    ],
+    "expression": "偶々",
+    "findings": [
+     "FURIGANA_MISSING: 駅で偶々先生に会った。",
+     "FURIGANA_MISSING: 駅でたまたま友達に会った。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tình cờ; thỉnh thoảng; hiếm",
+    "mnemonic_vi": "偶々: 偶 nhiên là ngẫu nhiên; gặp việc bất ngờ thì nhớ 偶々 là tình cờ.",
+    "reading": "たまたま",
+    "romaji": "tamatama",
+    "topic_vi": "Bạn bè và người quen",
+    "twins": [],
+    "variants": [
+     "たまたま"
+    ],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-063474332d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "父は滅多に怒らない。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Bố tôi hiếm khi nổi giận."
+      },
+      {
+       "ja": "父はめったに怒らない。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Bố tôi hiếm khi nổi giận."
+      },
+      {
+       "ja": "兄はめったに電話をくれない。",
+       "ja_furigana": "兄(あに)はめったに電話(でんわ)をくれない。",
+       "vi": "Anh trai tôi hiếm khi gọi điện cho tôi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hiếm khi (đi với phủ định)",
+    "examples": [
+     {
+      "ja": "父は滅多に怒らない。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Bố tôi hiếm khi nổi giận."
+     },
+     {
+      "ja": "父はめったに怒らない。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Bố tôi hiếm khi nổi giận."
+     },
+     {
+      "ja": "この地方では、めったに雪は降らない。",
+      "ja_furigana": "この地方(ちほう)では、めったに雪(ゆき)は降(ふ)らない。",
+      "source": "VNJPCLUB",
+      "vi": "Vùng này hiếm khi tuyết rơi."
+     }
+    ],
+    "expression": "滅多に",
+    "findings": [
+     "FURIGANA_MISSING: 父は滅多に怒らない。",
+     "FURIGANA_MISSING: 父はめったに怒らない。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "hiếm khi; ít khi; hiếm khi (đi với phủ định)",
+    "mnemonic_vi": "滅多に: 滅 diệt + 多 đa: việc ấy hầu như không xảy ra → hiếm khi.",
+    "reading": "めったに",
+    "romaji": "mettani",
+    "topic_vi": "Bạn bè và người quen",
+    "twins": [],
+    "variants": [
+     "めったに"
+    ],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4eb7900232"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "食事代はべつべつに払おう。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Hãy trả tiền ăn riêng."
+      },
+      {
+       "ja": "姉と私は別々の高校に通っている。",
+       "ja_furigana": "姉(あね)と私(わたし)は別々(べつべつ)の高校(こうこう)に通(かよ)っている。",
+       "vi": "Chị gái và tôi học ở hai trường cấp ba khác nhau.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Riêng biệt, riêng",
+    "examples": [
+     {
+      "ja": "食事代はべつべつに払おう。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hãy trả tiền ăn riêng."
+     },
+     {
+      "ja": "小学校から兄とは別々の部屋になった。",
+      "ja_furigana": "小学校(しょうがっこう)から兄(あに)とは別々(べつべつ)の部屋(へや)になった。",
+      "source": "VNJPCLUB",
+      "vi": "Từ tiểu học tôi và anh trai tôi đã ở phòng riêng."
+     }
+    ],
+    "expression": "別々＜な＞",
+    "findings": [
+     "FURIGANA_MISSING: 食事代はべつべつに払おう。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "riêng biệt; riêng; riêng rẽ",
+    "mnemonic_vi": "別々な: 別 biệt là tách riêng, lặp 別々 để nhớ mỗi bên một phần riêng biệt.",
+    "reading": "べつべつ＜な＞",
+    "romaji": "betsubetsu<na>",
+    "topic_vi": "Bạn bè và người quen",
+    "twins": [],
+    "variants": [
+     "べつべつ",
+     "別々"
+    ],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-00665e549e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母の愛情を感じる。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi cảm nhận được tình yêu thương của mẹ."
+      },
+      {
+       "ja": "祖父は愛情をこめて庭の花を育てている。",
+       "ja_furigana": "祖父(そふ)は愛情(あいじょう)をこめて庭(にわ)の花(はな)を育(そだ)てている。",
+       "vi": "Ông tôi chăm sóc hoa trong vườn bằng cả tình yêu thương.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tình cảm yêu thương",
+    "examples": [
+     {
+      "ja": "母の愛情を感じる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi cảm nhận được tình yêu thương của mẹ."
+     },
+     {
+      "ja": "A先生は厳しいが、生徒に愛情を持っている。",
+      "ja_furigana": "A先生(せんせい)は厳(きび)しいが、生徒(せいと)に愛情(あいじょう)を持(も)っている。",
+      "source": "VNJPCLUB",
+      "vi": "Thầy giáo A tuy nghiêm khắc nhưng lại có tình thương với học sinh."
+     }
+    ],
+    "expression": "愛情",
+    "findings": [
+     "FURIGANA_MISSING: 母の愛情を感じる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tình cảm yêu thương; tình yêu thương; tình cảm",
+    "mnemonic_vi": "愛情: 愛 ái là yêu, 情 tình là cảm xúc → tình cảm yêu thương.",
+    "reading": "あいじょう",
+    "romaji": "aijou",
+    "topic_vi": "Người yêu",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-958189aef2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅先で昔の友人に出会う。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi gặp lại bạn cũ khi đi du lịch."
+      },
+      {
+       "ja": "大学のサークルで、今の妻に出会った。",
+       "ja_furigana": "大学(だいがく)のサークルで、今(いま)の妻(つま)に出会(であ)った。",
+       "vi": "Tôi gặp người vợ hiện tại ở câu lạc bộ thời đại học.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "旅行中にいろいろな人と出会えて楽しかった。",
+       "ja_furigana": "旅行中(りょこうちゅう)にいろいろな人(ひと)と出会(であ)えて楽(たの)しかった。",
+       "vi": "Trong chuyến đi được gặp gỡ nhiều người nên rất vui.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "gặp gỡ, chạm mặt",
+    "examples": [
+     {
+      "ja": "旅先で昔の友人に出会う。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi gặp lại bạn cũ khi đi du lịch."
+     },
+     {
+      "ja": "駅で偶然大学時代の友人｛に／と｝出会った",
+      "ja_furigana": "駅(えき)で偶然(ぐうぜん)大学(だいがく)時代(じだい)の友人(ゆうじん)｛に／と｝出会(であ)った",
+      "source": "VNJPCLUB",
+      "vi": "Ở nhà ga, tôi tình cờ gặp người bạn thời đại học."
+     },
+     {
+      "ja": "ここは両親が初めて出会った場所だそうだ",
+      "ja_furigana": "ここは両親(りょうしん)が初(はじ)めて出会(であ)った場所(ばしょ)だそうだ",
+      "source": "VNJPCLUB",
+      "vi": "Nghe nói đây là nơi bố mẹ gặp nhau lần đầu tiên."
+     }
+    ],
+    "expression": "出会う",
+    "findings": [
+     "FURIGANA_MISSING: 旅先で昔の友人に出会う。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "gặp gỡ; chạm mặt; hội ngộ",
+    "mnemonic_vi": "出会う: 出 bước tới để 会 gặp người khác; 出会う nghĩa là gặp gỡ.",
+    "reading": "であう",
+    "romaji": "deau",
+    "topic_vi": "Người yêu",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8ccac09e54"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "二人は長く交際している。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Hai người đã hẹn hò lâu rồi."
+      },
+      {
+       "ja": "田中さんは同じ会社の人と交際しているらしい。",
+       "ja_furigana": "田中(たなか)さんは同(おな)じ会社(かいしゃ)の人(ひと)と交際(こうさい)しているらしい。",
+       "vi": "Nghe nói anh Tanaka đang hẹn hò với một người cùng công ty.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "giao thiệp; hẹn hò",
+    "examples": [
+     {
+      "ja": "二人は長く交際している。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hai người đã hẹn hò lâu rồi."
+     },
+     {
+      "ja": "3年交際して、二人は結婚した。",
+      "ja_furigana": "3年(ねん)交際(こうさい)して、二人(ふたり)は結婚(けっこん)した。",
+      "source": "VNJPCLUB",
+      "vi": "Hai người này đã kết hôn sau 3 năm tìm hiểu."
+     }
+    ],
+    "expression": "交際＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 二人は長く交際している。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "giao thiệp; hẹn hò; tìm hiểu",
+    "mnemonic_vi": "交際する: 交 giao là qua lại, 際 tế là tiếp xúc; 交際 là giao thiệp, hẹn hò.",
+    "reading": "こうさい＜する＞",
+    "romaji": "kousai<suru>",
+    "topic_vi": "Người yêu",
+    "twins": [],
+    "variants": [
+     "交際"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-41e6977ad3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅行の記念に写真を撮った。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi chụp ảnh làm kỷ niệm chuyến đi."
+      },
+      {
+       "ja": "今日は両親の結婚記念日だ。",
+       "ja_furigana": "今日(きょう)は両親(りょうしん)の結婚記念日(けっこんきねんび)だ。",
+       "vi": "Hôm nay là ngày kỷ niệm ngày cưới của bố mẹ tôi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "kỷ niệm",
+    "examples": [
+     {
+      "ja": "旅行の記念に写真を撮った。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi chụp ảnh làm kỷ niệm chuyến đi."
+     },
+     {
+      "ja": "卒業を記念して、クラス全員で写真を撮った。",
+      "ja_furigana": "卒業(そつぎょう)を記念(きねん)して、クラス全員(ぜんいん)で写真(しゃしん)を撮(と)った。",
+      "source": "VNJPCLUB",
+      "vi": "Kỉ niệm tốt nghiệp, cả lớp đã chụp ảnh chung."
+     }
+    ],
+    "expression": "記念＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 旅行の記念に写真を撮った。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "kỷ niệm; kỉ niệm",
+    "mnemonic_vi": "記念する: 記 ký lại một 念 niệm đáng nhớ; 記念 là kỷ niệm.",
+    "reading": "きねん＜する＞",
+    "romaji": "kinen<suru>",
+    "topic_vi": "Người yêu",
+    "twins": [],
+    "variants": [
+     "記念"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ff7090652b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母にしかられたが、弟は何も言い返さなかった。",
+       "ja_furigana": "母(はは)にしかられたが、弟(おとうと)は何(なに)も言(い)い返(かえ)さなかった。",
+       "vi": "Bị mẹ mắng nhưng em trai tôi không cãi lại câu nào.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Cãi lại; đáp trả",
+    "examples": [
+     {
+      "ja": "悪口を言われたので、私も負けずに言い返す。",
+      "ja_furigana": "悪口(わるぐち)を言(い)われたので、私(わたし)も負(ま)けずに言(い)い返(かえ)す。",
+      "source": "VNJPCLUB",
+      "vi": "Bị nói xấu nên tôi cũng không nhường mà đáp trả lại."
+     }
+    ],
+    "expression": "言い返す",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "cãi lại; đáp trả",
+    "mnemonic_vi": "言い返す: 言 nói lại và 返 trả về; 言い返す là đáp trả, cãi lại.",
+    "reading": "いいかえす",
+    "romaji": "iikaesu",
+    "topic_vi": "Người yêu",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-184ae0aed7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "友達と秘密を共有した。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi chia sẻ bí mật với bạn."
+      },
+      {
+       "ja": "誕生日のパーティーのことは、本人には秘密だ。",
+       "ja_furigana": "誕生日(たんじょうび)のパーティーのことは、本人(ほんにん)には秘密(ひみつ)だ。",
+       "vi": "Chuyện bữa tiệc sinh nhật phải giữ bí mật với chính người đó.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "このケーキの作り方は店の秘密だそうだ。",
+       "ja_furigana": "このケーキの作(つく)り方(かた)は店(みせ)の秘密(ひみつ)だそうだ。",
+       "vi": "Nghe nói cách làm chiếc bánh này là bí mật của tiệm.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bí mật",
+    "examples": [
+     {
+      "ja": "友達と秘密を共有した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi chia sẻ bí mật với bạn."
+     },
+     {
+      "ja": "この話は秘密にしてください。",
+      "ja_furigana": "この話(はなし)は秘密(ひみつ)にしてください。",
+      "source": "VNJPCLUB",
+      "vi": "Chuyện này hãy giữ bí mật nhé."
+     },
+     {
+      "ja": "「あなたを信用して私の秘密を打ち明けます」",
+      "ja_furigana": "「あなたを信用(しんよう)して私(わたし)の秘密(ひみつ)を打(う)ち明(あ)けます」",
+      "source": "VNJPCLUB",
+      "vi": "Vì tin tưởng bạn nên tôi sẽ nói bí mật với bạn."
+     }
+    ],
+    "expression": "秘密",
+    "findings": [
+     "FURIGANA_MISSING: 友達と秘密を共有した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bí mật",
+    "mnemonic_vi": "秘密: 秘 bí và 密 mật đều kín đáo; 秘密 là bí mật.",
+    "reading": "ひみつ",
+    "romaji": "himitsu",
+    "topic_vi": "Người yêu",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-825a29d1e9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女は恋愛の小説が好きだ。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Cô ấy thích tiểu thuyết tình yêu."
+      },
+      {
+       "ja": "若いころは、勉強より恋愛に夢中だった。",
+       "ja_furigana": "若(わか)いころは、勉強(べんきょう)より恋愛(れんあい)に夢中(むちゅう)だった。",
+       "vi": "Hồi trẻ tôi mải mê yêu đương hơn là học hành.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tình yêu đôi lứa",
+    "examples": [
+     {
+      "ja": "彼女は恋愛の小説が好きだ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Cô ấy thích tiểu thuyết tình yêu."
+     },
+     {
+      "ja": "恋愛はしても、結婚したいとは思わなかった。",
+      "ja_furigana": "恋愛(れんあい)はしても、結婚(けっこん)したいとは思(おも)わなかった。",
+      "source": "VNJPCLUB",
+      "vi": "Mặc dù yêu nhưng tôi không muốn kết hôn."
+     }
+    ],
+    "expression": "恋愛＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 彼女は恋愛の小説が好きだ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tình yêu đôi lứa; tình yêu; yêu",
+    "mnemonic_vi": "恋 là nhớ thương, 愛 là yêu; hai chữ gợi tình yêu đôi lứa.",
+    "reading": "れんあい＜する＞",
+    "romaji": "renai<suru>",
+    "topic_vi": "Người yêu",
+    "twins": [],
+    "variants": [
+     "恋愛"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-157cb8b7a6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の存在に気付かなかった。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi không nhận ra sự hiện diện của anh ấy."
+      },
+      {
+       "ja": "彼は私にとって兄のような存在だ。",
+       "ja_furigana": "彼(かれ)は私(わたし)にとって兄(あに)のような存在(そんざい)だ。",
+       "vi": "Với tôi, anh ấy như một người anh trai.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "昔、この町には大きなおしろが存在した。",
+       "ja_furigana": "昔(むかし)、この町(まち)には大(おお)きなおしろが存在(そんざい)した。",
+       "vi": "Ngày xưa ở thị trấn này từng có một tòa thành lớn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sự tồn tại",
+    "examples": [
+     {
+      "ja": "彼の存在に気付かなかった。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi không nhận ra sự hiện diện của anh ấy."
+     },
+     {
+      "ja": "世界にはUFOの存在を信じる人が多くいる。",
+      "ja_furigana": "世界(せかい)にはUFOの存在(そんざい)を信(しん)じる人(ひと)が多(おお)くいる。",
+      "source": "VNJPCLUB",
+      "vi": "Trên thế giới có rất nhiều người tin vào sự tồn tại của UFO."
+     },
+     {
+      "ja": "彼女はクラスの中では目立たない存在だ。",
+      "ja_furigana": "彼女(かのじょ)はクラスの中(なか)では目立(めだ)たない存在(そんざい)だ。",
+      "source": "VNJPCLUB",
+      "vi": "Cô ấy là một sự hiện diện khá mờ nhạt trong lớp."
+     }
+    ],
+    "expression": "存在＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 彼の存在に気付かなかった。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "sự tồn tại; tồn tại",
+    "mnemonic_vi": "存在する: 存 tồn + 在 tại diễn tả còn hiện diện; 存在 là sự tồn tại.",
+    "reading": "そんざい＜する＞",
+    "romaji": "sonzai<suru>",
+    "topic_vi": "Người yêu",
+    "twins": [],
+    "variants": [
+     "存在"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-98f0250cf3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "手伝ってくれると助かる。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Bạn giúp thì tôi đỡ vất vả lắm."
+      },
+      {
+       "ja": "山で道に迷った人が、次の日に助かった。",
+       "ja_furigana": "山(やま)で道(みち)に迷(まよ)った人(ひと)が、次(つぎ)の日(ひ)に助(たす)かった。",
+       "vi": "Người bị lạc đường trên núi đã được cứu vào ngày hôm sau.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "荷物を持ってもらえて、本当に助かりました。",
+       "ja_furigana": "荷物(にもつ)を持(も)ってもらえて、本当(ほんとう)に助(たす)かりました。",
+       "vi": "Được anh xách đồ giúp, tôi đỡ vất vả hẳn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "được cứu; đỡ vất vả",
+    "examples": [
+     {
+      "ja": "手伝ってくれると助かる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Bạn giúp thì tôi đỡ vất vả lắm."
+     },
+     {
+      "ja": "飛行機が落ちたが、３人が助かった",
+      "ja_furigana": "飛行機(ひこうき)が落(お)ちたが、３人(にん)が助(たす)かった",
+      "source": "VNJPCLUB",
+      "vi": "Máy bay rơi, có ba người sống sót."
+     },
+     {
+      "ja": "このへんは物価が安くてとても助かる",
+      "ja_furigana": "このへんは物価(ぶっか)が安(やす)くてとても助(たす)かる",
+      "source": "VNJPCLUB",
+      "vi": "Ở vùng này giá cả rẻ nên thật là đỡ quá"
+     }
+    ],
+    "expression": "助かる",
+    "findings": [
+     "FURIGANA_MISSING: 手伝ってくれると助かる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "được cứu; đỡ vất vả; được cứu giúp",
+    "mnemonic_vi": "助かる: 助 trợ là giúp, nên 助かる là được cứu giúp, thoát nạn.",
+    "reading": "たすかる",
+    "romaji": "tasukaru",
+    "topic_vi": "Giao tiếp",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-297ef8c9d2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "家族が私を支える。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Gia đình nâng đỡ tôi."
+      },
+      {
+       "ja": "倒れそうな木をぼうで支えた。",
+       "ja_furigana": "倒(たお)れそうな木(き)をぼうで支(ささ)えた。",
+       "vi": "Tôi dùng cây gậy chống đỡ cái cây sắp đổ.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "試合に負けたとき、チームのみんなが私を支えてくれた。",
+       "ja_furigana": "試合(しあい)に負(ま)けたとき、チームのみんなが私(わたし)を支(ささ)えてくれた。",
+       "vi": "Khi thua trận, đồng đội đã nâng đỡ tôi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chống đỡ, nâng đỡ",
+    "examples": [
+     {
+      "ja": "家族が私を支える。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Gia đình nâng đỡ tôi."
+     },
+     {
+      "ja": "つえで体を支えて歩く。",
+      "ja_furigana": "つえで体(からだ)を支(ささ)えて歩(ある)く。",
+      "source": "VNJPCLUB",
+      "vi": "Chống gậy để đỡ người mà đi."
+     },
+     {
+      "ja": "うちの家計は私が支えている。",
+      "ja_furigana": "うちの家計(かけい)は私(わたし)が支(ささ)えている。",
+      "source": "VNJPCLUB",
+      "vi": "Gia đình tôi do tôi gánh vác (trụ cột kinh tế)."
+     }
+    ],
+    "expression": "支える",
+    "findings": [
+     "FURIGANA_MISSING: 家族が私を支える。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chống đỡ; nâng đỡ; hỗ trợ",
+    "mnemonic_vi": "支える: 支 chi là chống đỡ một vật khỏi ngã; 支える là nâng đỡ.",
+    "reading": "ささえる",
+    "romaji": "sasaeru",
+    "topic_vi": "Giao tiếp",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f04d639762"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅前で友達と待ち合わせる。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi hẹn gặp bạn trước ga."
+      },
+      {
+       "ja": "山田さんとは映画館の前で待ち合わせることにした。",
+       "ja_furigana": "山田(やまだ)さんとは映画館(えいがかん)の前(まえ)で待(ま)ち合(あ)わせることにした。",
+       "vi": "Tôi hẹn gặp anh Yamada ở trước rạp chiếu phim.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hẹn gặp nhau",
+    "examples": [
+     {
+      "ja": "駅前で友達と待ち合わせる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi hẹn gặp bạn trước ga."
+     },
+     {
+      "ja": "6時に駅前で友人と待ち合わせた。",
+      "ja_furigana": "6時(じ)に駅前(えきまえ)で友人(ゆうじん)と待(ま)ち合(あ)わせた。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã hẹn gặp bạn trước nhà ga lúc 6 giờ."
+     }
+    ],
+    "expression": "待ち合わせる",
+    "findings": [
+     "FURIGANA_MISSING: 駅前で友達と待ち合わせる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "hẹn gặp nhau; hẹn gặp",
+    "mnemonic_vi": "待ち合わせる: 待 chờ cho hai bên 合わせる khớp giờ; 待ち合わせる là hẹn gặp.",
+    "reading": "まちあわせる",
+    "romaji": "machiawaseru",
+    "topic_vi": "Giao tiếp",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d54d54a2b2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "友達と本を交換した。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi trao đổi sách với bạn."
+      },
+      {
+       "ja": "このシャツは小さかったので、店で大きいのと交換した。",
+       "ja_furigana": "このシャツは小(ちい)さかったので、店(みせ)で大(おお)きいのと交換(こうかん)した。",
+       "vi": "Chiếc áo này bị nhỏ nên tôi đã ra cửa hàng đổi lấy cái to hơn.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "留学生とお互いの国のお菓子を交換した。",
+       "ja_furigana": "留学生(りゅうがくせい)とお互(たが)いの国(くに)のお菓子(かし)を交換(こうかん)した。",
+       "vi": "Tôi trao đổi bánh kẹo của nước mình với du học sinh.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "trao đổi",
+    "examples": [
+     {
+      "ja": "友達と本を交換した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi trao đổi sách với bạn."
+     },
+     {
+      "ja": "｛プレゼント／名刺／情報／意見 …｝を交換する",
+      "ja_furigana": "｛プレゼント／名刺(めいし)／情報(じょうほう)／意見(いけん) …｝を交換(こうかん)する",
+      "source": "VNJPCLUB",
+      "vi": "Trao đổi quà, danh thiếp, thông tin, ý kiến…"
+     },
+     {
+      "ja": "時計の電池が切れたので交換した",
+      "ja_furigana": "時計(とけい)の電池(でんち)が切(き)れたので交換(こうかん)した",
+      "source": "VNJPCLUB",
+      "vi": "Pin đồng hồ hết nên tôi đã thay pin."
+     }
+    ],
+    "expression": "交換＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 友達と本を交換した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "trao đổi; thay thế; đổi",
+    "mnemonic_vi": "交換する: 交 giao các vật, 換 hoán đổi lại; 交換 là trao đổi.",
+    "reading": "こうかん＜する＞",
+    "romaji": "koukan<suru>",
+    "topic_vi": "Giao tiếp",
+    "twins": [],
+    "variants": [
+     "交換"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8aea89251a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "留学生との交流が楽しい。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Giao lưu với du học sinh rất vui."
+      },
+      {
+       "ja": "隣の町の中学校とサッカーで交流している。",
+       "ja_furigana": "隣(となり)の町(まち)の中学校(ちゅうがっこう)とサッカーで交流(こうりゅう)している。",
+       "vi": "Chúng tôi giao lưu bóng đá với trường cấp hai ở thị trấn bên cạnh.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "giao lưu",
+    "examples": [
+     {
+      "ja": "留学生との交流が楽しい。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Giao lưu với du học sinh rất vui."
+     },
+     {
+      "ja": "いろいろな国の人と交流するのは楽しい。",
+      "ja_furigana": "いろいろな国(くに)の人(ひと)と交流(こうりゅう)するのは楽(たの)しい。",
+      "source": "VNJPCLUB",
+      "vi": "Việc giao lưu với mọi người nước khác rất thú vị."
+     }
+    ],
+    "expression": "交流＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 留学生との交流が楽しい。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "giao lưu; quan hệ giữa người với người／giao lưu",
+    "mnemonic_vi": "交流する: 交 giao + 流 lưu: qua lại như dòng chảy → giao lưu.",
+    "reading": "こうりゅう＜する＞",
+    "romaji": "kouryuu<suru>",
+    "topic_vi": "Giao tiếp",
+    "twins": [],
+    "variants": [
+     "交流"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ba9b26985b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "忙しいので誘いを断るつもりだ。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Vì bận nên tôi định từ chối lời mời."
+      },
+      {
+       "ja": "店員にレジ袋はいるかと聞かれて、断った。",
+       "ja_furigana": "店員(てんいん)にレジ袋(ぶくろ)はいるかと聞(き)かれて、断(ことわ)った。",
+       "vi": "Nhân viên hỏi tôi có cần túi nilon không, tôi đã từ chối.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "写真をとりたいと言ったが、断られてしまった。",
+       "ja_furigana": "写真(しゃしん)をとりたいと言(い)ったが、断(ことわ)られてしまった。",
+       "vi": "Tôi nói muốn chụp ảnh nhưng đã bị từ chối.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "từ chối; báo trước",
+    "examples": [
+     {
+      "ja": "忙しいので誘いを断るつもりだ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Vì bận nên tôi định từ chối lời mời."
+     },
+     {
+      "ja": "頼まれた仕事を断った",
+      "ja_furigana": "頼(たの)まれた仕事(しごと)を断(ことわ)った",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã từ chối công việc được nhờ vả."
+     },
+     {
+      "ja": "借金を申し込んだが断られた",
+      "ja_furigana": "借金(しゃっきん)を申(もう)し込(こ)んだが断(ことわ)られた",
+      "source": "VNJPCLUB",
+      "vi": "Đăng kí vay tiền nhưng đã bị từ chối."
+     }
+    ],
+    "expression": "断る",
+    "findings": [
+     "FURIGANA_MISSING: 忙しいので誘いを断るつもりだ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "từ chối; báo trước; từ chối lời mời",
+    "mnemonic_vi": "断る: 断 đoạn là cắt lời đề nghị; 断る là từ chối.",
+    "reading": "ことわる",
+    "romaji": "kotowaru",
+    "topic_vi": "Giao tiếp",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-430014cd4c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "かばんを駅のロッカーに預ける。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi gửi túi trong tủ khóa ở ga."
+      },
+      {
+       "ja": "ホテルのフロントに荷物を預けて、町を見に行った。",
+       "ja_furigana": "ホテルのフロントに荷物(にもつ)を預(あず)けて、町(まち)を見(み)に行(い)った。",
+       "vi": "Tôi gửi hành lý ở quầy lễ tân khách sạn rồi đi dạo thị trấn.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "給料の半分を毎月銀行に預けている。",
+       "ja_furigana": "給料(きゅうりょう)の半分(はんぶん)を毎月(まいつき)銀行(ぎんこう)に預(あず)けている。",
+       "vi": "Mỗi tháng tôi gửi một nửa tiền lương vào ngân hàng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "gửi giữ hộ",
+    "examples": [
+     {
+      "ja": "かばんを駅のロッカーに預ける。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi gửi túi trong tủ khóa ở ga."
+     },
+     {
+      "ja": "銀行にお金を預けると、利子がつく",
+      "ja_furigana": "銀行(ぎんこう)にお金(かね)を預(あず)けると、利子(りし)がつく",
+      "source": "VNJPCLUB",
+      "vi": "Gởi tiền vào ngân hàng sẽ sinh lãi."
+     },
+     {
+      "ja": "保育園に子どもを預けて働く",
+      "ja_furigana": "保育園(ほいくえん)に子(こ)どもを預(あず)けて働(はたら)く",
+      "source": "VNJPCLUB",
+      "vi": "Tôi gửi con tôi đến trường mẫu giáo rồi đi làm."
+     }
+    ],
+    "expression": "預ける",
+    "findings": [
+     "FURIGANA_MISSING: かばんを駅のロッカーに預ける。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 保育園に子どもを預けて働く → 保育"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "gửi giữ hộ; gửi tiền; giao phó",
+    "mnemonic_vi": "預ける: 預 giao vật cho người khác giữ; 預ける là gửi giữ hộ.",
+    "reading": "あずける",
+    "romaji": "azukeru",
+    "topic_vi": "Giao tiếp",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-d78930b1ef"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅行中は猫を預かるよ。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Trong lúc bạn đi du lịch, tôi sẽ trông mèo."
+      },
+      {
+       "ja": "隣の人が留守の間、荷物を預かった。",
+       "ja_furigana": "隣(となり)の人(ひと)が留守(るす)の間(あいだ)、荷物(にもつ)を預(あず)かった。",
+       "vi": "Trong lúc hàng xóm vắng nhà, tôi đã nhận giữ hộ bưu kiện.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "お客様のコートは、こちらでお預かりします。",
+       "ja_furigana": "お客様(きゃくさま)のコートは、こちらでお預(あず)かりします。",
+       "vi": "Áo khoác của quý khách, chúng tôi xin giữ hộ ở đây.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "giữ hộ, nhận trông",
+    "examples": [
+     {
+      "ja": "旅行中は猫を預かるよ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Trong lúc bạn đi du lịch, tôi sẽ trông mèo."
+     },
+     {
+      "ja": "旅行に行く友だちから犬を預かることになった",
+      "ja_furigana": "旅行(りょこう)に行(い)く友(とも)だちから犬(いぬ)を預(あず)かることになった",
+      "source": "VNJPCLUB",
+      "vi": "Tôi sẽ chăm sóc cho chú chó từ người bạn đi du lịch."
+     },
+     {
+      "ja": "旅行に行く友人から犬を預かった。",
+      "ja_furigana": "旅行(りょこう)に行(い)く友人(ゆうじん)から犬(いぬ)を預(あず)かった。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi trông hộ con chó cho người bạn đi du lịch."
+     }
+    ],
+    "expression": "預かる",
+    "findings": [
+     "FURIGANA_MISSING: 旅行中は猫を預かるよ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "giữ hộ; nhận trông; trong nom",
+    "mnemonic_vi": "預かる: 預 nhận phần được giao để trông coi; 預かる là giữ hộ.",
+    "reading": "あずかる",
+    "romaji": "azukaru",
+    "topic_vi": "Giao tiếp",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-80dfa4bc3d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "祖母は猫をかわいがる。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Bà yêu chiều con mèo."
+      },
+      {
+       "ja": "祖父はまごの私をとてもかわいがってくれた。",
+       "ja_furigana": "祖父(そふ)はまごの私(わたし)をとてもかわいがってくれた。",
+       "vi": "Ông rất cưng chiều tôi, đứa cháu của ông.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "リンさんは近所の子どもたちをかわいがっている。",
+       "ja_furigana": "リンさんは近所(きんじょ)の子(こ)どもたちをかわいがっている。",
+       "vi": "Linh rất yêu quý lũ trẻ trong xóm.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "yêu thương, cưng chiều",
+    "examples": [
+     {
+      "ja": "祖母は猫をかわいがる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Bà yêu chiều con mèo."
+     },
+     {
+      "ja": "母はペットの犬をかわいがっている。",
+      "ja_furigana": "母(はは)はペットの犬(いぬ)をかわいがっている。",
+      "source": "VNJPCLUB",
+      "vi": "Mẹ tôi rất quý con chó cưng."
+     },
+     {
+      "ja": "息子は姉をとてもかわいがっている。",
+      "ja_furigana": "息子(むすこ)は姉(あね)をとてもかわいがっている。",
+      "source": "VNJPCLUB",
+      "vi": "Con trai tôi rất cưng/yêu chiều chị gái."
+     }
+    ],
+    "expression": "可愛がる",
+    "findings": [
+     "FURIGANA_MISSING: 祖母は猫をかわいがる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "yêu thương; cưng chiều; nâng niu",
+    "mnemonic_vi": "可愛がる: 可愛 là đáng yêu, thêm がる để đối xử trìu mến → cưng chiều.",
+    "reading": "かわいがる",
+    "romaji": "kawaigaru",
+    "topic_vi": "Giao tiếp",
+    "twins": [],
+    "variants": [
+     "かわいがる"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f4d0e5e8b8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "隣の人に話しかける。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi bắt chuyện với người bên cạnh."
+      },
+      {
+       "ja": "道で外国人に英語で話しかけられた。",
+       "ja_furigana": "道(みち)で外国人(がいこくじん)に英語(えいご)で話(はな)しかけられた。",
+       "vi": "Trên đường tôi bị một người nước ngoài bắt chuyện bằng tiếng Anh.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "落ち込んでいる友達に、やさしく話しかけた。",
+       "ja_furigana": "落(お)ち込(こ)んでいる友達(ともだち)に、やさしく話(はな)しかけた。",
+       "vi": "Tôi nhẹ nhàng bắt chuyện với người bạn đang buồn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bắt chuyện",
+    "examples": [
+     {
+      "ja": "隣の人に話しかける。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi bắt chuyện với người bên cạnh."
+     },
+     {
+      "ja": "入学式で隣に座った学生に話しかけた。",
+      "ja_furigana": "入学式(にゅうがくしき)で隣(となり)に座(すわ)った学生(がくせい)に話(はな)しかけた。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã bắt chuyện với sinh viên ngồi cạnh trong buổi lễ nhập học."
+     },
+     {
+      "ja": "妹に話しかけたが返事もしない。機嫌が悪いのだろうか。",
+      "ja_furigana": "妹(いもうと)に話(はな)しかけたが返事(へんじ)もしない。機嫌(きげん)が悪(わる)いのだろうか。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi bắt chuyện với em gái nhưng không được hồi đáp. Chắc là nó đang khó chịu."
+     }
+    ],
+    "expression": "話しかける",
+    "findings": [
+     "FURIGANA_MISSING: 隣の人に話しかける。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bắt chuyện; làm quen",
+    "mnemonic_vi": "話しかける: 話 là lời nói, かける là hướng tới người khác; 話しかける là bắt chuyện.",
+    "reading": "はなしかける",
+    "romaji": "hanashikakeru",
+    "topic_vi": "Giao tiếp",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c74cda80c7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "人の話を無視しないで。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Đừng phớt lờ lời người khác."
+      },
+      {
+       "ja": "信号を無視して道を渡るのは危ない。",
+       "ja_furigana": "信号(しんごう)を無視(むし)して道(みち)を渡(わた)るのは危(あぶ)ない。",
+       "vi": "Băng qua đường bất chấp đèn tín hiệu là nguy hiểm.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "山田さんは医者の注意を無視して、お酒を飲んでいる。",
+       "ja_furigana": "山田(やまだ)さんは医者(いしゃ)の注意(ちゅうい)を無視(むし)して、お酒(さけ)を飲(の)んでいる。",
+       "vi": "Anh Yamada phớt lờ lời dặn của bác sĩ mà vẫn uống rượu.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "phớt lờ",
+    "examples": [
+     {
+      "ja": "人の話を無視しないで。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Đừng phớt lờ lời người khác."
+     },
+     {
+      "ja": "話しかけたのに無視された。",
+      "ja_furigana": "話(はな)しかけたのに無視(むし)された。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi bắt chuyện mà bị lờ đi."
+     },
+     {
+      "ja": "彼は私の意見を無視して、一人で何でも決めてしまう。",
+      "ja_furigana": "彼(かれ)は私(わたし)の意見(いけん)を無視(むし)して、一人(ひとり)で何(なん)でも決(き)めてしまう。",
+      "source": "VNJPCLUB",
+      "vi": "Anh ấy phớt lờ ý kiến tôi, tự quyết mọi thứ."
+     }
+    ],
+    "expression": "無視＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 人の話を無視しないで。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "phớt lờ; bỏ qua",
+    "mnemonic_vi": "無視する: 無 là không, 視 là nhìn; làm như không thấy ai → phớt lờ.",
+    "reading": "むし＜する＞",
+    "romaji": "mushi<suru>",
+    "topic_vi": "Giao tiếp",
+    "twins": [],
+    "variants": [
+     "無視"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-85876223c4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "名前を呼ばれて振り向く。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Nghe gọi tên, tôi ngoảnh lại."
+      },
+      {
+       "ja": "店を出るとき、もう一度振り向いて手をふった。",
+       "ja_furigana": "店(みせ)を出(で)るとき、もう一度(いちど)振(ふ)り向(む)いて手(て)をふった。",
+       "vi": "Lúc ra khỏi cửa hàng, tôi ngoảnh lại một lần nữa và vẫy tay.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "きれいな花火の音に、みんなが空を振り向いた。",
+       "ja_furigana": "きれいな花火(はなび)の音(おと)に、みんなが空(そら)を振(ふ)り向(む)いた。",
+       "vi": "Nghe tiếng pháo hoa, mọi người đều ngoảnh lại nhìn lên trời.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "quay mặt lại; nhìn về",
+    "examples": [
+     {
+      "ja": "名前を呼ばれて振り向く。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Nghe gọi tên, tôi ngoảnh lại."
+     },
+     {
+      "ja": "後ろから名前を呼ばれて、振り向いた。",
+      "ja_furigana": "後(うし)ろから名前(なまえ)を呼(よ)ばれて、振(ふ)り向(む)いた。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi bị gọi từ phía sau nên đã ngoảnh lại."
+     },
+     {
+      "ja": "名前を呼ばれて、振り向いた。",
+      "ja_furigana": "名前(なまえ)を呼(よ)ばれて、振(ふ)り向(む)いた。",
+      "source": "VNJPCLUB",
+      "vi": "Bị gọi tên nên tôi ngoảnh lại."
+     }
+    ],
+    "expression": "振り向く",
+    "findings": [
+     "FURIGANA_MISSING: 名前を呼ばれて振り向く。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "ngoảnh lại; ngoảnh mặt; nhìn quanh",
+    "mnemonic_vi": "振り向く: 振 vẫy/chuyển động, 向 hướng lại; 振り向く là ngoảnh lại.",
+    "reading": "ふりむく",
+    "romaji": "furimuku",
+    "topic_vi": "Giao tiếp",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-c5fb8a7f4c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "食事をいただく。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi xin dùng bữa."
+      },
+      {
+       "ja": "お菓子を頂く。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi xin nhận bánh kẹo."
+      },
+      {
+       "ja": "先生から旅行のお土産をいただいた。",
+       "ja_furigana": "先生(せんせい)から旅行(りょこう)のお土産(みやげ)をいただいた。",
+       "vi": "Tôi đã nhận được quà du lịch từ thầy giáo.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nhận, ăn/uống (khiêm nhường)",
+    "examples": [
+     {
+      "ja": "食事をいただく。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi xin dùng bữa."
+     },
+     {
+      "ja": "お菓子を頂く。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi xin nhận bánh kẹo."
+     },
+     {
+      "ja": "おいしいお料理をいただきます。",
+      "ja_furigana": "おいしいお料理(りょうり)をいただきます。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã ăn món ăn ngon."
+     }
+    ],
+    "expression": "頂く",
+    "findings": [
+     "FURIGANA_MISSING: 食事をいただく。",
+     "FURIGANA_MISSING: お菓子を頂く。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "nhận; ăn; uống (khiêm nhường)",
+    "mnemonic_vi": "頂く: 頂 đỉnh là nhận từ phía trên; khiêm nhường nói “nhận” là 頂く.",
+    "reading": "いただく",
+    "romaji": "itadaku",
+    "topic_vi": "Giao tiếp",
+    "twins": [],
+    "variants": [
+     "いただく"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6f03ec00a2"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N3",
+ "packet_id": "REVIEW_VOCAB-002"
+}

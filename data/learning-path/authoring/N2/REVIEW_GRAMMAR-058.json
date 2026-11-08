@@ -1,0 +1,586 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この会社に入って以来、一度も遅刻したことがない。",
+       "ja_furigana": "この会社(かいしゃ)に入(はい)って以来(いらい)、一度(いちど)も遅刻(ちこく)したことがない。",
+       "vi": "Kể từ khi vào công ty này, tôi chưa từng đi muộn một lần nào."
+      },
+      {
+       "ja": "引っ越して以来、あの店には行っていない。",
+       "ja_furigana": "引(ひ)っ越(こ)して以来(いらい)、あの店(みせ)には行(い)っていない。",
+       "vi": "Kể từ khi chuyển nhà, tôi chưa đến cửa hàng đó lần nào."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "日本に来て以来、母の料理を食べていない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kể từ khi đến Nhật chưa được ăn món ăn mẹ nấu."
+     },
+     {
+      "ja": "入学以来、一度も授業を休んでいない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kể từ khi nhập học, chưa nghỉ học lần nào cả."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 日本に来て以来、母の料理を食べていない。",
+     "FURIGANA_MISSING: 入学以来、一度も授業を休んでいない。"
+    ],
+    "formation": "V-て + 以来 / N + 以来",
+    "locked_fields": [],
+    "meaning_vi": "Kể từ, suốt từ ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜日本に来て以来",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Chỉ một việc diễn ra liên tục từ một thời điểm trong quá khứ cho đến tận bây giờ sau một hành động nào đó. Vế sau không sử dụng những câu biểu thị những việc chỉ xảy ra một lần."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-af04fe9659"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お近くにお越しの折には、ぜひお茶でも飲んでいってください。",
+       "ja_furigana": "お近(ちか)くにお越(こ)しの折(おり)には、ぜひお茶(ちゃ)でも飲(の)んでいってください。",
+       "vi": "Khi nào có dịp đến gần đây, nhất định hãy ghé uống trà nhé."
+      },
+      {
+       "ja": "次にお会いした折に、お礼を申し上げます。",
+       "ja_furigana": "次(つぎ)にお会(あ)いした折(おり)に、お礼(れい)を申(もう)し上(あ)げます。",
+       "vi": "Lần tới gặp anh, tôi sẽ gửi lời cảm ơn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "来日の折には、ぜひこちらにお立ち寄りください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi đã đến Nhật thì nhất định phải ghé qua tôi đấy."
+     },
+     {
+      "ja": "次にお目にかかった折に、お借りしていた本をお返しします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi sẽ trả quyển sách đã mượn khi gặp trong lần tới."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 来日の折には、ぜひこちらにお立ち寄りください。",
+     "FURIGANA_MISSING: 次にお目にかかった折に、お借りしていた本をお返しします。"
+    ],
+    "formation": "N の / Vる / Vた + 折（に・には）",
+    "locked_fields": [],
+    "meaning_vi": "Nhân dịp, khi, vào lúc ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜来日の折には",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Vì mang nghĩa “vào dịp tốt nào đó” nên câu sau thường không đề cập những sự việc không tốt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-87b6d4605c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "自分で選んだからには、最後までやるつもりだ。",
+       "ja_furigana": "自分(じぶん)で選(えら)んだからには、最後(さいご)までやるつもりだ。",
+       "vi": "Đã tự mình chọn thì tôi định làm đến cùng."
+      },
+      {
+       "ja": "この大会に出場するからには、全力で戦いたい。",
+       "ja_furigana": "この大会(たいかい)に出場(しゅつじょう)するからには、全力(ぜんりょく)で戦(たたか)いたい。",
+       "vi": "Đã tham gia giải đấu này thì tôi muốn thi đấu hết sức mình."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "約束したからには、守るべきだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì đã hứa thì phải giữ lời."
+     },
+     {
+      "ja": "試合に出るからには、勝ちたい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì tham gia thi đấu thì phải muốn thắng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 約束したからには、守るべきだ。",
+     "FURIGANA_MISSING: 試合に出るからには、勝ちたい。"
+    ],
+    "formation": "普通形 + からには",
+    "locked_fields": [],
+    "meaning_vi": "Vì là ～. Một khi ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜約束したからには",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Vì lý do ～ nên vế sau là điều đương nhiên hoặc là điều hợp lí phải làm. Đằng sau からにはlà một câu về nghĩa vụ, quyết tâm, suy luận, khuyên bảo, mệnh lệnh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9490e46a1c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "留学する以上、現地の言葉を覚えたい。",
+       "ja_furigana": "留学(りゅうがく)する以上(いじょう)、現地(げんち)の言葉(ことば)を覚(おぼ)えたい。",
+       "vi": "Một khi đã du học thì tôi muốn học tiếng bản địa."
+      },
+      {
+       "ja": "プロとして働く以上、手を抜いてはいけない。",
+       "ja_furigana": "プロとして働(はたら)く以上(いじょう)、手(て)を抜(ぬ)いてはいけない。",
+       "vi": "Một khi đã làm việc với tư cách chuyên nghiệp thì không được che giấu sai sót."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "試験を受ける以上、いい点を取りたい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã tham gia thi thì phải muốn lấy điểm cao."
+     },
+     {
+      "ja": "日本に来た以上は、日本語ができるようになりたい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã đến Nhật thì phải muốn trở nên sử dụng được tiếng Nhật."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 試験を受ける以上、いい点を取りたい。",
+     "FURIGANA_MISSING: 日本に来た以上は、日本語ができるようになりたい。"
+    ],
+    "formation": "Vる / Vた / N の + 以上（は）",
+    "locked_fields": [],
+    "meaning_vi": "Một khi ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜試験を受ける以上",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu thị tâm trạng đương nhiên phải ～ Sau [以上] là nghĩa vụ, cấm đoán, yêu cầu, suy luận, phán định mạnh. （＝「上は」）"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fad60662f3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜としても",
+     "examples": [
+      {
+       "ja": "たとえ時間がかかるとしても、この方法で進めたい。",
+       "ja_furigana": "たとえ時間(じかん)がかかるとしても、この方法(ほうほう)で進(すす)めたい。",
+       "vi": "Dù có mất thời gian, tôi vẫn muốn làm theo cách này."
+      },
+      {
+       "ja": "家族に反対されるとしても、この仕事を続ける。",
+       "ja_furigana": "家族(かぞく)に反対(はんたい)されるとしても、この仕事(しごと)を続(つづ)ける。",
+       "vi": "Dù bị gia đình phản đối, tôi vẫn tiếp tục công việc này."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "雨だとしても、試合は予定どおり行います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dẫu có mưa, trận đấu vẫn diễn ra như dự định."
+     },
+     {
+      "ja": "失敗するとしても、挑戦してみたい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dẫu có thất bại, tôi vẫn muốn thử thách."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 雨だとしても、試合は予定どおり行います。",
+     "FURIGANA_MISSING: 失敗するとしても、挑戦してみたい。"
+    ],
+    "formation": "普通形 + としても",
+    "locked_fields": [],
+    "meaning_vi": "Nhượng bộ: dẫu cho giả định X đúng thì kết quả/quan điểm Y vẫn không thay đổi. Sử dụng cả cho giả định ít khả năng hoặc thừa nhận tạm thời một điểm để lập luận. Thường đi với các biểu đạt quyết tâm/quan điểm mạnh: ～買う／～変わらない／～構わない／～挑戦したい.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cho dù..., giả sử...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mạnh tính “không thay đổi kết quả/lập trường”. Thích hợp cho lập luận, phản biện: “Cứ cho là… nhưng…”. Dùng được với cả giả định có thật hoặc xa vời; sắc thái trang trọng hơn ～ても. Thường kết hợp たとえ để nhấn mạnh: たとえ～としても. [6. Ghi chú mở rộng] Với N/na nên giữ だ trong văn viết: N/na + だとしても. Hay đi cùng lập luận phản đề: たとえAとしても、B（Aを認めつつB）. Trong diễn thuyết, dùng để “nhượng bộ chiến lược” trước khi khẳng định quan điểm. [7. Biến thể & cụm cố định] たとえ～としても（nhấn mạnh giả định） 仮に～としても（giả định tạm） 口語近似：～としたって（khẩu ngữ, vùng/giọng nói） [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～としたら: câu cần sắc thái “dẫu cho” thì phải dùng ～としても. Bỏ だ với N/na trong văn viết: × 学生としても (mơ hồ) → 〇 学生だとしても. Dùng khi kết quả thực ra phụ thuộc vào điều kiện: nếu kết quả thay đổi, không nên dùng ～としても. Thi JLPT hay gài cặp たとえ/仮に + ～としても/～ても: chọn cặp tự nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4999261e55"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜だけましだ",
+     "examples": [
+      {
+       "ja": "店は小さいけれど、家から近いだけましだ。",
+       "ja_furigana": "店(みせ)は小(ちい)さいけれど、家(いえ)から近(ちか)いだけましだ。",
+       "vi": "Cửa hàng nhỏ nhưng được cái gần nhà là còn đỡ."
+      },
+      {
+       "ja": "電車が遅れたが、乗り換えなしで行けるだけましだ。",
+       "ja_furigana": "電車(でんしゃ)が遅(おく)れたが、乗(の)り換(か)えなしで行(い)けるだけましだ。",
+       "vi": "Tàu có trễ nhưng được cái đi không phải đổi tuyến là còn may."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "給料は低いけれど、仕事があるだけましだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lương thấp nhưng có việc làm là còn may."
+     },
+     {
+      "ja": "雨に降られたが、雷がなかっただけましだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bị mưa nhưng không có sấm sét là còn đỡ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 給料は低いけれど、仕事があるだけましだ。",
+     "FURIGANA_MISSING: 雨に降られたが、雷がなかっただけましだ。"
+    ],
+    "formation": "N / Vる / Aい / Aな + だけましだ",
+    "locked_fields": [],
+    "meaning_vi": "Đánh giá tương đối: so với tiêu chuẩn mong muốn thì chưa đạt, nhưng vẫn hơn tình huống xấu hơn. Thường hàm ý an ủi, tự an ủi, hoặc nhìn nhận tích cực tối thiểu. Có thể kèm so sánh tường minh bằng ～だけましだ＋ほう／他と比べて..., nhưng thường ngầm định.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Còn may là..., còn đỡ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái tự an ủi/nhìn nhận tích cực tối thiểu; mang tính chủ quan mạnh. Thường dùng trong hội thoại, bình luận đời thường, ít mang tính trang trọng. Vế trước có thể nêu mặt xấu; vế với ～だけましだ nêu điểm cứu vãn. [6. Ghi chú mở rộng] Dạng phủ định hiếm: ～だけましではない（không đến mức “còn may”） nhưng ít dùng; ưu tiên chuyển cấu trúc. Thường kết hợp với まあ/さすがに/せめて để tăng sắc thái: せめて無事だっただけましだ。 Ở khẩu ngữ: だけマシ, だけでもマシ mang sắc thái thân mật. [7. Biến thể & cụm cố định] ～だけのことはある: khen “xứng đáng” (khác sắc thái nhưng hay đi cặp trong bài tập phân biệt). まあ～だけまし: công thức an ủi phổ biến. ～だけでもまし: nhấn “chỉ cần thế cũng còn đỡ”. [8. Lỗi thường gặp & bẫy JLPT] Dùng cho khen tuyệt đối là sai: “最高だ” × → ～だけましだ là khen tương đối, không phải tuyệt đối. Gắn sai với N/Na: Nであるだけましだ／Naなだけましだ. Tránh dùng Nだ/Naだ trước だけましだ trong văn viết. Nhầm với まだまし／～ほうがましだ: đề thi hay yêu cầu chọn mẫu diễn tả so sánh trực tiếp vs đánh giá hiện trạng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f6fdd1ccdf"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜かいがある",
+     "examples": [
+      {
+       "ja": "長年の練習のかいがあって、初めて大会で勝てた。",
+       "ja_furigana": "長年(ながねん)の練習(れんしゅう)のかいがあって、初(はじ)めて大会(たいかい)で勝(か)てた。",
+       "vi": "Công sức luyện tập bao năm đã được đền đáp, lần đầu tôi thắng ở giải đấu."
+      },
+      {
+       "ja": "値段を比べて選んだかいがあって、とても安く買えた。",
+       "ja_furigana": "値段(ねだん)を比(くら)べて選(えら)んだかいがあって、とても安(やす)く買(か)えた。",
+       "vi": "Công so sánh giá đã có kết quả, tôi mua được rất rẻ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "頑張ったかいがあって、第一志望に合格した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhờ cố gắng, cuối cùng tôi đỗ nguyện vọng một."
+     },
+     {
+      "ja": "早起きしたかいがあって、美しい朝焼けが見られた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dậy sớm quả không uổng, tôi đã được ngắm bình minh tuyệt đẹp."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 頑張ったかいがあって、第一志望に合格した。",
+     "FURIGANA_MISSING: 早起きしたかいがあって、美しい朝焼けが見られた。"
+    ],
+    "formation": "Vた / N の + かいがある",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “Đáng công…”, “Công sức đã bỏ ra đã được đền đáp”, “nhờ làm X mà có kết quả tốt”. Thời điểm: Thường dùng khi đã thấy kết quả tích cực ngay sau nỗ lực/hành động. Sắc thái cảm xúc: Vui mừng, mãn nguyện, nhẹ nhõm. Người nói đánh giá kết quả là xứng đáng. Ngữ dụng: Chủ yếu đi kèm kết quả tốt; hiếm khi đi với kết quả xấu (khi đó dùng ～かいもなく). Ngữ pháp: “かい” là danh từ, nên trước đó là Nの hoặc mệnh đề tính từ hóa bằng Vた.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đáng công..., xứng đáng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường đặt ở mệnh đề đầu, sau đó là mệnh đề kết quả tốt. Dùng trong bối cảnh khen thưởng kết quả sau nỗ lực, không dùng với kết quả tiêu cực. Trang trọng hơn khi viết “甲斐があって”; văn nói có thể lược “が”: かいあって. Chủ ngữ thường là người nói/nhóm mình, nhưng cũng có thể chỉ công sức của người khác. Không kết hợp với mệnh lệnh, ý chí ở mệnh đề sau; vì là mệnh đề kết quả khách quan. [6. Ghi chú mở rộng] “かい” xuất phát từ Hán tự 甲斐, mang nghĩa “giá trị, hiệu quả, đáng công”. Trong quảng cáo/diễn văn: hay dùng để nhấn mạnh thành quả chung của tập thể. Văn viết trang trọng ưa dùng 甲斐; văn nói bình thường dùng かい. Có thể đứng giữa câu hoặc đầu câu sau khi ngắt nhịp bằng dấu phẩy. Nên tránh dùng với những hành động không đòi hỏi nỗ lực (ví dụ: 運が良かった) trừ khi muốn tu từ. [7. Biến thể & cụm cố định] Nのかいがあって / Vたかいがあって 甲斐があって (dạng chữ Hán) かいあって (lược “が”, khẩu ngữ) ～かいのあるN（やりがいのある仕事） Vます + がい（＝甲斐）: 例）やりがいがある、食べがいがある [8. Lỗi thường gặp & bẫy JLPT] Dùng với kết quả xấu: Sai. Kết quả sau ～かいがあって phải tích cực. Nhầm với ～おかげで: ～かいがあって nhấn mạnh công sức; ～おかげで nhấn mạnh tác nhân bên ngoài. Chia sai thì của V: phải là Vた hoặc Nの trước “かい”. Viết sai chính tả “甲斐”: nhiều thí sinh viết 貝 hoặc 介. Đảo vị trí mệnh đề: nên đặt ～かいがあって ở mệnh đề nguyên nhân, không đặt sau kết quả."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-122eb3ec7a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜がいがある",
+     "examples": [
+      {
+       "ja": "この本は厚いが、読みがいがある。",
+       "ja_furigana": "この本(ほん)は厚(あつ)いが、読(よ)みがいがある。",
+       "vi": "Cuốn sách này dày nhưng đáng để đọc."
+      },
+      {
+       "ja": "難しい仕事ほど、やりがいがある。",
+       "ja_furigana": "難(むずか)しい仕事(しごと)ほど、やりがいがある。",
+       "vi": "Công việc càng khó thì càng đáng để làm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "このプロジェクトは学びがいがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dự án này đáng để học hỏi."
+     },
+     {
+      "ja": "子どもが成長すると、育てがいを感じる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi con lớn, thấy bõ công nuôi dạy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: このプロジェクトは学びがいがある。",
+     "FURIGANA_MISSING: 子どもが成長すると、育てがいを感じる。"
+    ],
+    "formation": "Vます語幹 + がいがある",
+    "locked_fields": [],
+    "meaning_vi": "- Trọng tâm cảm xúc: người nói “cảm thấy bõ công”. - Phù hợp văn nói, quảng cáo tuyển dụng, chia sẻ trải nghiệm.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đáng..., đáng để...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Có thể kèm bổ ngữ đối tượng: ～をV-ます + がいがある（実習生を教えがいがある）. Không dùng với động từ thuần trạng thái/không có đầu ra rõ. [6. Ghi chú mở rộng] Nhiều từ đi kèm tự nhiên: 教えがい／鍛えがい／挑みがい／撮りがい／見がい／味わいがい. “見がい” tồn tại nhưng “見ごたえ” phổ biến hơn trong diễn đạt “đáng xem”. [7. Biến thể & cụm cố định] やりがいのある仕事／やりがいを感じる 生きがいを見つける／働きがい改革 V-ます + がい + がない（食べがいがない／教えがいがない） [8. Lỗi thường gặp & bẫy JLPT] Bỏ “が” sau がい: “やりがいある” → thiếu tự nhiên; nên “やりがいがある”. Dùng với động từ không tạo ra thành quả: ví dụ “あるがい” là sai. Nhầm với 甲斐があって: đây là mệnh đề hệ quả sau khi đã làm; ～がいがある là đánh giá chung."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e3ed19b972"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜ながら（も）",
+     "examples": [
+      {
+       "ja": "若いながらも、彼は部長として信頼されている。",
+       "ja_furigana": "若(わか)いながらも、彼(かれ)は部長(ぶちょう)として信頼(しんらい)されている。",
+       "vi": "Tuy còn trẻ nhưng anh ấy được tin tưởng với vai trò trưởng phòng."
+      },
+      {
+       "ja": "残念ながらも、今回は参加できない。",
+       "ja_furigana": "残念(ざんねん)ながらも、今回(こんかい)は参加(さんか)できない。",
+       "vi": "Tuy tiếc nhưng lần này tôi không thể tham gia."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "危険だと知りながらも、彼は前に進んだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù biết là nguy hiểm, anh ấy vẫn tiến lên."
+     },
+     {
+      "ja": "小さいながらも、この店は評判がいい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù nhỏ nhưng cửa hàng này rất có tiếng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 危険だと知りながらも、彼は前に進んだ。",
+     "FURIGANA_MISSING: 小さいながらも、この店は評判がいい。"
+    ],
+    "formation": "Vます語幹 / Aい / Aな / N + ながら（も）",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “mặc dù… nhưng…”. Nêu hai sự thật tương phản tồn tại đồng thời. Sắc thái: trang trọng, khách quan hơn 〜のに; ít cảm xúc trách móc hơn 〜くせに. Vế trước thường biểu thị điều kiện/giới hạn/điểm bất lợi; vế sau là sự kiện thực tế vượt qua/đối lập. “でありながら（も）” dùng với N/Na để tránh mơ hồ, tự nhiên hơn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Mặc dù..., dù...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng trong bài luận, báo cáo, mô tả khách quan để thể hiện “nghịch lý” nhẹ. Vế sau không nên là mệnh lệnh/ý chí mạnh với người nghe (tránh ra lệnh). Khi cần khuyên nhủ, dùng 〜ものの/〜とはいえ phù hợp hơn. “も” làm tăng nhấn mạnh tương phản; có thể lược bỏ trong văn trang trọng nếu ngữ cảnh rõ. [6. Ghi chú mở rộng] Với Adj-i: “狭いながらも工夫がある” là mẫu khen ngợi vượt hạn chế. “でありながら” có thể rút gọn trong văn trang trọng học thuật: AでありながらB（である）。 Khi nhấn mạnh nghịch lý rõ, thêm しかし/それでも ở đầu vế sau để tăng lực. [7. Biến thể & cụm cố định] 小さいながらも〜／短いながらも〜／不十分ながらも〜 N/Na + でありながら（も）〜（学生でありながらも、親でありながらも） 知りながらも／分かっていながらも／不安を抱えながらも [8. Lỗi thường gặp & bẫy JLPT] Dùng 〜ながら (đồng thời) thay cho 〜ながらも (nhượng bộ) → sai nghĩa. Na-adj/N gắn trực tiếp với 〜ながらも: “便利ながらも” có thể dùng, nhưng với danh từ nên dùng “Nでありながら（も）”. Vế sau ra lệnh/nhờ vả trực tiếp người nghe → không tự nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-23dd499993"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜ものの",
+     "examples": [
+      {
+       "ja": "薬を飲んだものの、まだ痛みが消えない。",
+       "ja_furigana": "薬(くすり)を飲(の)んだものの、まだ痛(いた)みが消(き)えない。",
+       "vi": "Tuy đã uống thuốc nhưng cơn đau vẫn chưa hết."
+      },
+      {
+       "ja": "部屋を掃除したものの、すぐにまた散らかった。",
+       "ja_furigana": "部屋(へや)を掃除(そうじ)したものの、すぐにまた散(ち)らかった。",
+       "vi": "Tuy đã dọn phòng nhưng chẳng mấy chốc lại bừa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "大学は卒業したものの、就職先が見つからない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tuy đã tốt nghiệp đại học nhưng chưa tìm được chỗ làm."
+     },
+     {
+      "ja": "新モデルを買ったものの、ほとんど使っていない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tuy đã mua mẫu mới nhưng hầu như không dùng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 大学は卒業したものの、就職先が見つからない。",
+     "FURIGANA_MISSING: 新モデルを買ったものの、ほとんど使っていない。"
+    ],
+    "formation": "普通形 + ものの",
+    "locked_fields": [],
+    "meaning_vi": "Nhượng bộ, “mặc dù… nhưng…”, diễn tả kết quả/trạng thái trái với mong đợi từ mệnh đề trước. Sắc thái trang trọng hơn ～が／～けれど(も); hay dùng trong viết, báo chí, báo cáo. Mệnh đề sau thường không là mệnh lệnh/nhờ vả trực tiếp, mà là thực tế/đánh giá.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Mặc dù..., tuy...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường dùng khi thực tế không như kỳ vọng logic từ mệnh đề trước. Có thể bỏ mệnh đề sau trong văn nói để ám chỉ: ～ものの…。 (hàm ý “nhưng mà…”) Hạn chế gắn mệnh lệnh/đề nghị trực tiếp ở mệnh đề sau. [6. Ghi chú mở rộng] Nếu mệnh đề sau là đề xuất, dùng ～が／～けれど thay vì ものの để tự nhiên hơn. Trong văn trang trọng, であるものの/とはいうものの xuất hiện dày đặc. Dịch linh hoạt: “tuy… nhưng…”, “dẫu… song…”. [7. Biến thể & cụm cố định] ～とはいうものの: mặc dù nói là… 認めるものの…／可能ではあるものの…: khung nhượng bộ + đánh giá thực tế. ～ものの…のは事実だ: nhượng bộ + khẳng định một phần. [8. Lỗi thường gặp & bẫy JLPT] Dùng ものの với mệnh lệnh/đề nghị: × 予約はしたものの、来てください。→ không tự nhiên. Nhầm với のに (có sắc thái trách móc): đề thi hay gài cảm xúc. Bỏ 「である」 với danh từ/tính từ な trong văn viết trang trọng → thiếu tự nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fb45fb1f38"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-058"
+}

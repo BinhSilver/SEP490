@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-head :: head('Báo cáo lộ trình JLPT - JLAS', 'jpath-admin')}"></head>
+<body id="jlabBasePage" class="admin-portal jpa-body">
+<div id="adminShellMount"></div>
+<main id="jlabBaseContent" class="jpa" hidden>
+    <header class="jpa-hero">
+        <div>
+            <span class="jpa-eyebrow">QUẢN TRỊ HỆ THỐNG</span>
+            <h1>Báo cáo lộ trình JLPT</h1>
+            <p id="jprGenerated">Số liệu sử dụng lộ trình JLPT của người học.</p>
+        </div>
+        <button id="jprReload" class="jpa-btn is-secondary" type="button">Tải lại</button>
+    </header>
+    <p id="jprStatus" class="jpa-muted" role="status" aria-live="polite"></p>
+    <section class="jpa-card" aria-labelledby="jprLevelsTitle">
+        <h2 id="jprLevelsTitle">Người học đang theo lộ trình, theo cấp</h2>
+        <div id="jprLevels" class="jpa-stats"></div>
+    </section>
+    <section class="jpa-card" aria-labelledby="jprUsageTitle">
+        <h2 id="jprUsageTitle">Mức sử dụng</h2>
+        <div id="jprUsage" class="jpa-stats"></div>
+    </section>
+    <section class="jpa-card" aria-labelledby="jprMockTitle">
+        <h2 id="jprMockTitle">Thi thử và báo lỗi</h2>
+        <div id="jprMock" class="jpa-stats"></div>
+        <p class="jpa-muted">Số Thi thử chỉ tăng khi kết quả Thi thử được ghi về lộ trình.</p>
+    </section>
+</main>
+<script th:src="@{/js/pages/admin-core.js(v=20261103-jpath)}"></script>
+<script th:src="@{/js/admin-shell.js(v=20261024-navscroll)}"></script>
+<script th:src="@{/js/jlptpath/jpath-admin-report.js(v=20261103)}"></script>
+</body></html>

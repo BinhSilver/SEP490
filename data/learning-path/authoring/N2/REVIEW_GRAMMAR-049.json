@@ -1,0 +1,568 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この記録が百年以上前のものだとは、信じがたい。",
+       "ja_furigana": "この記録(きろく)が百年(ひゃくねん)以上(いじょう)前(まえ)のものだとは、信(しん)じがたい。",
+       "vi": "Thật khó tin rằng bản ghi này là từ hơn một trăm năm trước."
+      },
+      {
+       "ja": "大切な友人を失った悲しみは、言葉では表しがたい。",
+       "ja_furigana": "大切(たいせつ)な友人(ゆうじん)を失(うしな)った悲(かな)しみは、言葉(ことば)では表(あらわ)しがたい。",
+       "vi": "Nỗi buồn khi mất đi một người bạn quý thật khó diễn tả bằng lời."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "これは信じがたい話だが、事実である。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cài này là chuyện khó tin nhưng có thật đấy."
+     },
+     {
+      "ja": "人が人の命をうばうなんて、許しがたい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Con người mà tước đoạt mạng sống của người khác thì khó mà tha thứ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: これは信じがたい話だが、事実である。",
+     "FURIGANA_MISSING: 人が人の命をうばうなんて、許しがたい。"
+    ],
+    "formation": "Vます + がたい",
+    "locked_fields": [],
+    "meaning_vi": "Khó ～ ; không thể ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜信じがたい",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Không sử dụng với ý nghĩa không có khả năng về mặt năng lực. Câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6634ffbc8a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "一晩でこの資料を全部読めっこない。",
+       "ja_furigana": "一晩(ひとばん)でこの資料(しりょう)を全部(ぜんぶ)読(よ)めっこない。",
+       "vi": "Không đời nào đọc hết chỗ tài liệu này trong một đêm."
+      },
+      {
+       "ja": "こんな短い時間で、料理が全部そろいっこない。",
+       "ja_furigana": "こんな短(みじか)い時間(じかん)で、料理(りょうり)が全部(ぜんぶ)そろいっこない。",
+       "vi": "Với ít thời gian thế này thì không đời nào có đủ hết các món."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "一日でこの本の文法全部なんて、覚えられっこない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong một ngày mà học hết tất cả ngữ pháp của cuốn sách này, tuyệt đối không thể nhớ được."
+     },
+     {
+      "ja": "今の実力では、試験に受かりっこない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Với thực lực hiện giờ, tuyệt đối không thể đậu kì thi được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 一日でこの本の文法全部なんて、覚えられっこない。",
+     "FURIGANA_MISSING: 今の実力では、試験に受かりっこない。"
+    ],
+    "formation": "Vます + っこない",
+    "locked_fields": [],
+    "meaning_vi": "Nhất định không…, Tuyệt đối không…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜覚えられっこない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Thường dùng trong hội thoại. Để lại ấn tượng không tốt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a53225fe4a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "そんなに働き続けたら、体を壊しかねない。",
+       "ja_furigana": "そんなに働(はたら)き続(つづ)けたら、体(からだ)を壊(こわ)しかねない。",
+       "vi": "Cứ làm việc liên tục như thế thì có thể hỏng sức khỏe đấy."
+      },
+      {
+       "ja": "約束を忘れたら、大切な仕事を失いかねない。",
+       "ja_furigana": "約束(やくそく)を忘(わす)れたら、大切(たいせつ)な仕事(しごと)を失(うしな)いかねない。",
+       "vi": "Nếu quên lời hẹn thì có thể mất đi công việc quan trọng đấy."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "そんなひどいことも、あの人なら言いかねない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cả chuyện kinh khủng như thế nếu là người đó thì e rằng sẽ nói đấy."
+     },
+     {
+      "ja": "この問題を解説せずに放っておいたら、国際問題になりかねない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu bỏ ngang giữa chừng mà không giải quyết vấn đề thì e rằng nó sẽ trở thành vấn đề quốc tế đấy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: そんなひどいことも、あの人なら言いかねない。",
+     "FURIGANA_MISSING: この問題を解説せずに放っておいたら、国際問題になりかねない。"
+    ],
+    "formation": "Vます + かねない",
+    "locked_fields": [],
+    "meaning_vi": "Lo ngại là ~ ; Có lẽ ~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜言いかねない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Thường sử dụng cùng với 「Vたら」「Vなら」 Sử dụng khi nói về những kết quả xấu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-02447a62a2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "少しでも遅刻しようものなら、部長にひどくしかられる。",
+       "ja_furigana": "少(すこ)しでも遅刻(ちこく)しようものなら、部長(ぶちょう)にひどくしかられる。",
+       "vi": "Chỉ cần đến muộn một chút thôi là sẽ bị trưởng phòng mắng thậm tệ."
+      },
+      {
+       "ja": "宿題を忘れようものなら、先生はすぐに電話をかけてくる。",
+       "ja_furigana": "宿題(しゅくだい)を忘(わす)れようものなら、先生(せんせい)はすぐに電話(でんわ)をかけてくる。",
+       "vi": "Chỉ cần quên bài tập là thầy giáo gọi điện ngay."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "うちの犬は、外で少しでも音がしようものなら、すごい勢いで吠える。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chó nhà tôi, chỉ cần có tiếng động ở ngoài là sẽ sủa dữ dội。"
+     },
+     {
+      "ja": "A: レポート、大変だよね。思わず、ネットから誰かの論文を借りたくなる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A: Viết báo cáo vất vả nhỉ. Thật sự muốn mượn bài luận của ai đó trên mạng。"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: うちの犬は、外で少しでも音がしようものなら、すごい勢いで吠える。",
+     "FURIGANA_MISSING: A: レポート、大変だよね。思わず、ネットから誰かの論文を借りたくなる。"
+    ],
+    "formation": "V意向形(よう) + ものなら",
+    "locked_fields": [],
+    "meaning_vi": "Nếu lỡ mà làm thế thì sẽ có kết quả xấu.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜 (よ)うものなら",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9529121605"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "みんなで力を合わせて、この問題を解決しようではないか。",
+       "ja_furigana": "みんなで力(ちから)を合(あ)わせて、この問題(もんだい)を解決(かいけつ)しようではないか。",
+       "vi": "Nào, hãy cùng nhau hợp sức giải quyết vấn đề này đi."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "せっかくここまで来たんだから、思い切り楽しもうじゃありませんか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã đến tận đây rồi, hãy cứ tận hưởng hết mình đi。"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: せっかくここまで来たんだから、思い切り楽しもうじゃありませんか。"
+    ],
+    "formation": "V意向形(よう) + じゃないか / じゃありませんか",
+    "locked_fields": [],
+    "meaning_vi": "Chúng ta hãy cùng làm nhé (lời rủ rê hoặc kêu gọi mạnh mẽ).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜 (よ)ではないか",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "＜文章＞Mỗi người đều có nỗi lo. Nhưng chỉ nghĩ thôi thì lo lắng sẽ không được giải quyết. Dù khó khăn, hãy từng bước tiến về phía trước。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-365194897a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "電気がつかないということは、だれも家にいないということだ。",
+       "ja_furigana": "電気(でんき)がつかないということは、だれも家(いえ)にいないということだ。",
+       "vi": "Điện không bật nghĩa là không có ai ở nhà."
+      },
+      {
+       "ja": "この店が閉まっているということは、今日は休みだということですね。",
+       "ja_furigana": "この店(みせ)が閉(し)まっているということは、今日(きょう)は休(やす)みだということですね。",
+       "vi": "Cửa hàng này đóng cửa nghĩa là hôm nay được nghỉ nhỉ."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "生き物を飼うということは、楽しいことだけでなく、辛いことや面倒なことも含め、すべて引き受けるということです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nuôi một sinh vật có nghĩa là đảm nhận tất cả, không chỉ những điều vui vẻ mà còn cả những điều khó khăn và phiền phức."
+     },
+     {
+      "ja": "B: えっ、ということは、明日は僕一人で準備をするの？まあ、いいけど。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "B: Hả, vậy ngày mai tôi phải chuẩn bị một mình à? Ừ thì được, không sao."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 生き物を飼うということは、楽しいことだけでなく、辛いことや面倒なことも含め、すべて引き受けるということです。",
+     "FURIGANA_MISSING: B: えっ、ということは、明日は僕一人で準備をするの？まあ、いいけど。"
+    ],
+    "formation": "thể thường (N + だ → N) + ということは",
+    "locked_fields": [],
+    "meaning_vi": "Việc… có nghĩa là…; vậy nghĩa là.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ということは",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "A: Xin lỗi. Ngày mai tôi đột nhiên không thể đi được."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8f56789f6b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "準備不足のまま試合に出れば、けがをし得る。",
+       "ja_furigana": "準備(じゅんび)不足(ふそく)のまま試合(しあい)に出(で)れば、けがをし得(え)る。",
+       "vi": "Nếu ra sân thi đấu khi chưa chuẩn bị đầy đủ thì có thể bị thương."
+      },
+      {
+       "ja": "この町の人口は、今後さらに減り得る。",
+       "ja_furigana": "この町(まち)の人口(じんこう)は、今後(こんご)さらに減(へ)り得(え)る。",
+       "vi": "Dân số thị trấn này trong tương lai có thể còn giảm hơn nữa."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "小さな確認不足が、大きな事故につながり得る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một thiếu sót kiểm tra nhỏ cũng có thể dẫn tới tai nạn lớn."
+     },
+     {
+      "ja": "同じ資料でも、読む人によって異なる解釈が生まれ得る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngay cùng một tài liệu, tùy người đọc vẫn có thể nảy sinh cách hiểu khác nhau."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 小さな確認不足が、大きな事故につながり得る。",
+     "FURIGANA_MISSING: 同じ資料でも、読む人によって異なる解釈が生まれ得る。"
+    ],
+    "formation": "Vます + 得る / うる",
+    "locked_fields": [],
+    "meaning_vi": "Có thể, không thể xảy ra",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có thể, không thể xảy ra",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Đánh giá một sự việc là có hoặc không có khả năng xảy ra về mặt lý thuyết. Cách dùng: 〜得る diễn tả một hành động, trạng thái hay biến cố có khả năng xảy ra khi xét điều kiện hoặc logic; 〜得ない phủ định khả năng đó. Mẫu gắn với gốc dạng ます, như 起こります thành 起こり得る. Trong cách dùng ngữ pháp trang trọng, 得る ở khẳng định thường đọc là うる, còn 得ない đọc là えない; một số từ cũng được đọc theo cách đã cố định trong ngữ cảnh. Mẫu hay dùng để bàn về khả năng khách quan hơn là khoe năng lực cá nhân. Sắc thái: Có sắc thái văn viết, phân tích và khách quan; đặc biệt thường gặp trong nhận định rủi ro, học thuật hoặc giải thích khả năng. Lưu ý: Phải nối với gốc dạng ます, không nối trực tiếp với dạng từ điển. Không tự nhiên khi chỉ nói một người có kỹ năng thường ngày, chẳng hạn biết bơi; khi đó dùng 〜ことができる."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0cc1511ae5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女とは三年前に会ったきり、一度も連絡を取っていない。",
+       "ja_furigana": "彼女(かのじょ)とは三年前(さんねんまえ)に会(あ)ったきり、一度(いちど)も連絡(れんらく)を取(と)っていない。",
+       "vi": "Tôi gặp cô ấy lần cuối ba năm trước và từ đó không liên lạc lần nào."
+      },
+      {
+       "ja": "もらった時計は一度はめたきりで、引き出しにしまったままだ。",
+       "ja_furigana": "もらった時計(とけい)は一度(いちど)はめたきりで、引(ひ)き出(だ)しにしまったままだ。",
+       "vi": "Chiếc đồng hồ được tặng tôi chỉ đeo một lần rồi cất luôn trong ngăn kéo."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "兄は朝早く家を出たきり、夜になっても連絡してこない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh tôi ra khỏi nhà từ sáng sớm rồi đến tối vẫn không liên lạc."
+     },
+     {
+      "ja": "その小説は高校時代に一度読んだきりで、細かい内容は覚えていない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuốn tiểu thuyết đó tôi chỉ đọc một lần hồi cấp ba nên không nhớ nội dung chi tiết."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 兄は朝早く家を出たきり、夜になっても連絡してこない。",
+     "FURIGANA_MISSING: その小説は高校時代に一度読んだきりで、細かい内容は覚えていない。"
+    ],
+    "formation": "Vた + きり",
+    "locked_fields": [],
+    "meaning_vi": "Kể từ lần đó; chỉ",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Kể từ lần đó; chỉ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả sau một lần xảy ra thì trạng thái không thay đổi, hoặc giới hạn ở đúng số lượng đã nêu. Cách dùng: Vた + きり cho biết một hành động đã xảy ra lần cuối rồi không có diễn biến tiếp theo như mong đợi. Vế sau thường là phủ định hoặc trạng thái kéo dài: ra khỏi nhà rồi không về, gặp một lần rồi không liên lạc. Khi đi với danh từ hay số lượng, きり có nghĩa “chỉ”, như 二人きり. Dạng っきり thường gặp trong hội thoại. Ở nghĩa kéo dài, người nói chú ý đến điểm bắt đầu và cảm giác sự việc đã dừng lại từ đó. Sắc thái: Vたきり thường gợi lo lắng, tiếc nuối hoặc nhấn mạnh sự gián đoạn; nghĩa giới hạn Nきり tự nó không nhất thiết tiêu cực. Lưu ý: Ở nghĩa “kể từ lần đó”, động từ phải ở dạng た. Vế sau cần thể hiện không có thay đổi hay lặp lại, không chỉ là một hành động tiếp nối bình thường."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3a090008e9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この計画には、私個人としては賛成しかねます。",
+       "ja_furigana": "この計画(けいかく)には、私(わたし)個人(こじん)としては賛成(さんせい)しかねます。",
+       "vi": "Về kế hoạch này, với tư cách cá nhân tôi khó lòng tán thành."
+      },
+      {
+       "ja": "社外の人には、この資料をお見せしかねます。",
+       "ja_furigana": "社外(しゃがい)の人(ひと)には、この資料(しりょう)をお見(み)せしかねます。",
+       "vi": "Với người ngoài công ty, tôi khó lòng cho xem tài liệu này."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "個人情報に関するご質問には、こちらではお答えしかねます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Về câu hỏi liên quan đến thông tin cá nhân, phía chúng tôi khó có thể trả lời tại đây."
+     },
+     {
+      "ja": "安全性が確認できない提案には、現時点では賛成しかねる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hiện tại tôi khó có thể tán thành đề xuất chưa xác nhận được độ an toàn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 個人情報に関するご質問には、こちらではお答えしかねます。",
+     "FURIGANA_MISSING: 安全性が確認できない提案には、現時点では賛成しかねる。"
+    ],
+    "formation": "Vます + かねる",
+    "locked_fields": [],
+    "meaning_vi": "Khó có thể, không tiện",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Khó có thể, không tiện",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Từ chối hoặc nói khó thực hiện một việc theo cách dè dặt và trang trọng. Cách dùng: 〜かねる gắn với gốc động từ dạng ます để cho biết người nói khó thực hiện hoặc khó đồng ý với một việc do lập trường, quy định hay đánh giá của mình. Dạng 〜かねます thường dùng trong dịch vụ, công việc và thư từ để từ chối mà không nói thẳng できません. Nó cũng có thể diễn tả khó phán đoán, như 判断しかねる. Tuy nhiên, câu vẫn là lời từ chối rõ ràng; sự lịch sự không làm cho khả năng đồng ý trở nên cao hơn. Sắc thái: Trang trọng, dè dặt và thường lấy tổ chức hoặc người nói làm chủ thể; đôi khi tạo khoảng cách nếu dùng trong hội thoại thân mật. Lưu ý: Không dùng như cách nói thông thường về năng lực thể chất hoặc kỹ năng đơn giản. Phải nối với gốc dạng ます: する thành し, 答える thành 答え."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-70df2c0809"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の説明には、受け入れがたい点がいくつもある。",
+       "ja_furigana": "彼(かれ)の説明(せつめい)には、受(う)け入(い)れがたい点(てん)がいくつもある。",
+       "vi": "Trong lời giải thích của anh ta có vài điểm khó có thể chấp nhận."
+      },
+      {
+       "ja": "当時の苦労を思うと、涙が止めがたい。",
+       "ja_furigana": "当時(とうじ)の苦労(くろう)を思(おも)うと、涙(なみだ)が止(と)めがたい。",
+       "vi": "Mỗi khi nghĩ về những vất vả thời đó, tôi khó lòng cầm được nước mắt."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "災害時に広まった根拠のない噂は、看過しがたい問題だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tin đồn vô căn cứ lan truyền lúc thiên tai là vấn đề khó có thể làm ngơ."
+     },
+     {
+      "ja": "長年支えてくれた仲間との時間は、忘れがたい思い出になった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khoảng thời gian với những người đồng đội đã hỗ trợ tôi nhiều năm trở thành ký ức khó quên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 災害時に広まった根拠のない噂は、看過しがたい問題だ。",
+     "FURIGANA_MISSING: 長年支えてくれた仲間との時間は、忘れがたい思い出になった。"
+    ],
+    "formation": "Vます + がたい",
+    "locked_fields": [],
+    "meaning_vi": "Khó mà, không thể dễ dàng",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Khó mà, không thể dễ dàng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả điều rất khó chấp nhận, thực hiện hoặc hình dung về mặt tâm lý và nhận thức. Cách dùng: 〜がたい gắn với gốc của động từ dạng ます để nói một việc gần như không thể làm vì lý do tâm lý, đạo đức hoặc nhận thức. Nó thường đi với các động từ như 理解する, 信じる, 許す, 忘れる, 受け入れる và diễn tả đánh giá mạnh của người nói. Đây không phải cách nói chung về thao tác khó thực hiện; trọng tâm là người nói không thể dễ dàng hiểu, tin, tha thứ hay chấp nhận điều gì. Mẫu có sắc thái văn viết và trang trọng. Sắc thái: Thể hiện sự đánh giá nghiêm túc, đôi khi mạnh mẽ; thường gặp trong bình luận, phát biểu chính thức và văn nghị luận. Lưu ý: Không phù hợp với khó khăn thuần túy về thể chất hoặc kỹ thuật như vật nặng khó mang. Chỉ kết hợp tự nhiên với một nhóm động từ biểu thị nhận thức, đánh giá, chấp nhận hoặc trải nghiệm sâu sắc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8d8c87acad"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-049"
+}

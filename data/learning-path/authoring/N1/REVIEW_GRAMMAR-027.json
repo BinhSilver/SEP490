@@ -1,0 +1,586 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "国の現状に即した政策が求められている。",
+       "ja_furigana": "国(くに)の現状(げんじょう)に即(そく)した政策(せいさく)が求(もと)められている。",
+       "vi": "Người ta cần những chính sách phù hợp với thực trạng của đất nước."
+      },
+      {
+       "ja": "現場のニーズに即した研修を行う。",
+       "ja_furigana": "現場(げんば)のニーズに即(そく)した研修(けんしゅう)を行(おこな)う。",
+       "vi": "Tổ chức khóa đào tạo bám sát nhu cầu thực tế của hiện trường."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "実情に即した支援策が求められている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đang cần những biện pháp hỗ trợ phù hợp với thực trạng."
+     },
+     {
+      "ja": "現場に即したマニュアルを作成した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã soạn sổ tay phù hợp với thực tế hiện trường."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 実情に即した支援策が求められている。",
+     "FURIGANA_MISSING: 現場に即したマニュアルを作成した。"
+    ],
+    "formation": "N + に即した + N",
+    "locked_fields": [],
+    "meaning_vi": "“～に即した” mô tả danh từ phía sau là phù hợp với, ăn khớp với bối cảnh/hoàn cảnh/nhu cầu được nêu ở N. Trọng tâm là tính “thực tiễn/thiết thực/đúng thời điểm” hơn là chỉ “theo quy tắc”. “～に則した” nhấn mạnh sự tuân thủ quy tắc, pháp luật, tiêu chuẩn (quy phạm).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Theo...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đi với các danh từ bối cảnh: 実情・現場・実態・事実・ニーズ・状況・要件… Ngữ cảnh công việc/chính sách/tài liệu: nhấn mạnh tính phù hợp thực tế. Chú ý phân biệt hai chữ Hán: 即 (phù hợp tình huống) vs 則 (tuân theo quy tắc). [6. Ghi chú mở rộng] Động từ gốc: 即する（そくする）/ 則する（そくする）. Phát âm giống nhau, dễ gây nhầm lẫn chữ Hán. Trong văn bản pháp lý/chuẩn mực, ưu tiên “則”. Trong bối cảnh thực tiễn/hoàn cảnh, dùng “即”. “即した” là hình thức định ngữ cố định (mặc dù là quá khứ), chức năng như tính từ để bổ nghĩa danh từ sau. [7. Biến thể & cụm cố định] N + に即した + N’／N + に則した + N’ Cố định hay gặp: 実情に即した対策／現場に即した運用／法令に則した手続き [8. Lỗi thường gặp & bẫy JLPT] Nhầm chữ Hán: viết “法令に即した” khi ý là “theo pháp luật” → phải là “法令に則した”. Dùng “に基づく” khi muốn nói “phù hợp tình hình” → nên dùng “に即した”. Nhầm với “に沿った”: “現場に沿った” không tự nhiên; phải “現場に即した”. JLPT: lựa chọn giữa 即/則 dựa vào ngữ cảnh “hoàn cảnh thực tế” vs “quy phạm”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8dd56a6d74"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "売り上げが伸びる前提で新店を出す。",
+       "ja_furigana": "売(う)り上(あ)げが伸(の)びる前提(ぜんてい)で新店(しんてん)を出(だ)す。",
+       "vi": "Mở cửa hàng mới với tiền đề doanh thu sẽ tăng."
+      },
+      {
+       "ja": "晴れる前提で遠足の計画を立てた。",
+       "ja_furigana": "晴(は)れる前提(ぜんてい)で遠足(えんそく)の計画(けいかく)を立(た)てた。",
+       "vi": "Lập kế hoạch đi dã ngoại với tiền đề trời sẽ nắng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "来期に人員を増やす前提で予算を組む。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lập ngân sách với tiền đề sẽ tăng nhân sự kỳ tới."
+     },
+     {
+      "ja": "大会が予定通り開催されるという前提で準備を進める。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chuẩn bị với giả định giải đấu sẽ diễn ra như dự kiến."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Trên cơ sở...",
+     "FURIGANA_MISSING: 来期に人員を増やす前提で予算を組む。",
+     "FURIGANA_MISSING: 大会が予定通り開催されるという前提で準備を進める。"
+    ],
+    "formation": "N + 前提で; Vる + 前提で",
+    "locked_fields": [],
+    "meaning_vi": "“Với tiền đề/giả định rằng …” rồi thực hiện hành động/thiết kế/kế hoạch phía sau. Tiền đề được coi là điều kiện cần; nếu tiền đề thay đổi, nội dung sau có thể không còn hiệu lực. Sắc thái quy hoạch, nghiệp vụ, pháp lý, nghiên cứu; trang trọng hơn so với つもりで (ý định chủ quan).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Trên cơ sở...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi xác lập điều kiện tiên quyết của kế hoạch/thiết kế/quy trình. Phù hợp văn phong công việc, pháp lý, kỹ thuật; trong hội thoại vẫn tự nhiên khi bàn kế hoạch. Thường đi với: 進める, 設計する, 作成する, 組む, 試算する, 想定する, 検討する. [6. Ghi chú mở rộng] “前提” là điều kiện nền tảng; trong tài liệu kỹ thuật thường đi kèm “前提条件”. “～前提での + N” có dùng, nhưng trang trọng/ổn hơn là “～を前提とした + N”. Nếu tiền đề bất định, cân nhắc “想定で/想定のもとで” để giảm ràng buộc. [7. Biến thể & cụm cố định] ～という前提で／～という前提のもとで N + を前提に／を前提として／を前提とした + N 前提条件, 前提知識, 前提違反 [8. Lỗi thường gặp & bẫy JLPT] Sai với danh từ: × 安全を前提で → ◯ 安全を前提に/として. Nhầm với つもりで (ý định) → ～前提で là “điều kiện bắt buộc”, không chỉ là ý định. JLPT hay kiểm tra hoán đổi: ～前提で vs ～としたら vs ～場合は; chú ý tính “mặc định áp dụng” của ～前提で."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5bb3adcae0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "全員が出席することを前提として、会場を予約した。",
+       "ja_furigana": "全員(ぜんいん)が出席(しゅっせき)することを前提(ぜんてい)として、会場(かいじょう)を予約(よやく)した。",
+       "vi": "Đặt hội trường với tiền đề là tất cả mọi người đều có mặt."
+      },
+      {
+       "ja": "景気が回復することを前提として、投資を増やした。",
+       "ja_furigana": "景気(けいき)が回復(かいふく)することを前提(ぜんてい)として、投資(とうし)を増(ふ)やした。",
+       "vi": "Tăng đầu tư với tiền đề kinh tế sẽ hồi phục."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この計画は全員の参加を前提として進められている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kế hoạch này được triển khai với tiền đề là mọi người đều tham gia."
+     },
+     {
+      "ja": "契約は信頼関係の継続を前提として結ばれている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hợp đồng được ký với tiền đề là mối quan hệ tin cậy sẽ tiếp tục."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Với tiền đề...",
+     "FURIGANA_MISSING: この計画は全員の参加を前提として進められている。",
+     "FURIGANA_MISSING: 契約は信頼関係の継続を前提として結ばれている。"
+    ],
+    "formation": "N + を前提として",
+    "locked_fields": [],
+    "meaning_vi": "Xác lập “tiền đề/điều được mặc định là đúng” để tiến hành kế hoạch, thảo luận, thiết kế. Khác với điều kiện “nếu… thì…”, 前提 là giả định nền tảng: việc tiến hành coi như điều đó đã đúng. Thường dùng trong bối cảnh chính sách, kinh doanh, học thuật, kỹ thuật; sắc thái trang trọng. Khi tiền đề sai lệch, kết luận/thiết kế có thể trở nên không hợp lệ; vì vậy hay đi với kiểm chứng/見直し.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Với tiền đề...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường kết hợp: 参加・合意・継続・確保・存在・達成・安定・正常稼働など + を前提として. Dùng để nêu giả định chính sách/thiết kế; ghi rõ để tránh hiểu sai phạm vi áp dụng. So với ～を前提にして, ～を前提として trang trọng hơn, thiên về phát biểu nguyên tắc/định nghĩa. [6. Ghi chú mở rộng] Nếu muốn nhấn mạnh “giả định có thể thay đổi”, thêm tạm thời: 当面/暫定的に + ～を前提として. Trong nghiên cứu, thường kèm điều kiện phạm vi: 本研究はXの環境を前提として評価を行う。 Để tránh nhập nhằng, khi tiền đề là mệnh đề dài, ưu tiên という前提で. [7. Biến thể & cụm cố định] N + を前提として／を前提とした N 普通形 + という前提で（đề xuất khi mệnh đề dài） Cụm thường gặp: 参加を前提として／合意を前提として／継続を前提として／正常稼働を前提として [8. Lỗi thường gặp & bẫy JLPT] Nhầm với điều kiện “nếu… thì…”. 前提 là điều mặc định có sẵn, không phải điều kiện tương lai. Gắn trực tiếp mệnh đề dài vào を前提として gây nặng câu; dùng という前提で tự nhiên hơn. Nhầm lẫn với ～を前提にして trong lựa chọn sắc thái; đề thi hay kiểm tra cảm nhận trang trọng/triển khai."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fc11bcf121"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "雨が降ろうが降るまいが、試合は予定通り行う。",
+       "ja_furigana": "雨(あめ)が降(ふ)ろうが降(ふ)るまいが、試合(しあい)は予定(よてい)通(どお)り行(おこな)う。",
+       "vi": "Dù trời có mưa hay không, trận đấu vẫn diễn ra như dự kiến."
+      },
+      {
+       "ja": "彼が謝ろうが謝るまいが、私は許すつもりはない。",
+       "ja_furigana": "彼(かれ)が謝(あやま)ろうが謝(あやま)るまいが、私(わたし)は許(ゆる)すつもりはない。",
+       "vi": "Dù anh ấy có xin lỗi hay không, tôi cũng không định tha thứ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼に恋人がいようといまいと、私が彼を好きな気持ちに変わりはない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù anh ấy có người yêu hay không, tình cảm tôi dành cho anh ấy vẫn không thay đổi."
+     },
+     {
+      "ja": "「山田さんが来ようが来まいが、10時になったら会議を始めましょう」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "“Anh Yamada có đến hay không thì đúng 10 giờ chúng ta vẫn bắt đầu họp nhé.”"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼に恋人がいようといまいと、私が彼を好きな気持ちに変わりはない。",
+     "FURIGANA_MISSING: 「山田さんが来ようが来まいが、10時になったら会議を始めましょう」"
+    ],
+    "formation": "Vよう + が + Vまい + が; Vよう + と + Vまい + と",
+    "locked_fields": [],
+    "meaning_vi": "Dù là trường hợp nào trong hai khả năng đối lập thì kết quả vẫn như nhau.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜(よ)うが〜まいが/〜(よ)うと〜まいと 〜(よ)うが...(よ)うが/(よ)うと...(よ)うと",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Liệt kê hai khả năng trái ngược bằng 「～ようが～まいが」「～ようと～まいと」 hoặc lặp hai dạng ý chí, rồi khẳng định điều ở vế sau không thay đổi. 1) Dễ nhầm với câu hỏi ～かどうか. → ～ようが～まいが／～ようと～まいと không hỏi có hay không mà khẳng định kết luận vẫn như nhau trong cả hai khả năng. 2) Hai vế thường là hai khả năng đối lập. → Có thể dùng VようがVまいが hoặc đặt hai dạng ý chí khác nhau để bao quát các trường hợp. 3) Chú ý vế sau không thay đổi. → Nếu kết quả phụ thuộc vào việc A có xảy ra hay không thì mẫu này không phù hợp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2fc6e23dd2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "誰に何と言われようと、私は夢をあきらめない。",
+       "ja_furigana": "誰(だれ)に何(なに)と言(い)われようと、私(わたし)は夢(ゆめ)をあきらめない。",
+       "vi": "Dù ai có nói gì, tôi cũng không từ bỏ ước mơ."
+      },
+      {
+       "ja": "結果がどうなろうと、全力を尽くすだけだ。",
+       "ja_furigana": "結果(けっか)がどうなろうと、全力(ぜんりょく)を尽(つ)くすだけだ。",
+       "vi": "Dù kết quả thế nào, tôi chỉ cần nỗ lực hết mình."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "だれがなんと言おうと、私はあの人と結婚する！",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù ai có nói gì đi nữa, tôi vẫn sẽ cưới người ấy!"
+     },
+     {
+      "ja": "「何時に帰ろうが、だれと付き合おうが、私の勝手でしょ」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "“Tôi về lúc mấy giờ hay quen với ai là quyền của tôi chứ.”"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: だれがなんと言おうと、私はあの人と結婚する！",
+     "FURIGANA_MISSING: 「何時に帰ろうが、だれと付き合おうが、私の勝手でしょ」"
+    ],
+    "formation": "Vよう + が/と; N + であろうが/であろうと",
+    "locked_fields": [],
+    "meaning_vi": "Dù ～ đến đâu, dù trong trường hợp nào thì kết quả hay lập trường vẫn không thay đổi.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜(よ)うが/と",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Đưa ra một tình huống giả định cực đoan rồi khẳng định quyết tâm, đánh giá hoặc kết quả ở vế sau không bị ảnh hưởng. 「～ようと」 và 「～ようが」 về cơ bản cùng chức năng. 1) Dễ nhầm với ～ても. → ～（よ）うが／～（よ）うと đưa ra giả định cực đoan và nhấn mạnh rằng quyết tâm, đánh giá hoặc kết quả phía sau tuyệt đối không đổi. 2) Chú ý hình thức trước mẫu. → Động từ dùng thể ý chí, tính từ い dùng ～かろう, còn danh từ và tính từ な thường dùng ～であろう. 3) Vế sau thường là lập trường kiên định. → Mẫu không dùng để kể một điều kiện thực tế bình thường; sắc thái “dù thế nào đi nữa” phải rõ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fc428b3fa5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "雪が降るごとく、桜の花びらが舞い散った。",
+       "ja_furigana": "雪(ゆき)が降(ふ)るごとく、桜(さくら)の花(はな)びらが舞(ま)い散(ち)った。",
+       "vi": "Như tuyết rơi, những cánh hoa anh đào bay lả tả."
+      },
+      {
+       "ja": "予想したごとく、景気はゆっくり回復した。",
+       "ja_furigana": "予想(よそう)したごとく、景気(けいき)はゆっくり回復(かいふく)した。",
+       "vi": "Đúng như dự đoán, kinh tế đã dần hồi phục."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "楽しい時間は夢のごとく過ぎていってしまう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khoảng thời gian vui vẻ trôi qua như một giấc mơ."
+     },
+     {
+      "ja": "少子化、医療の進歩などにより当然予想されたごとく、高齢化社会がやってきた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đúng như đã được dự đoán từ sự suy giảm tỷ lệ sinh, tiến bộ y học và các yếu tố khác, xã hội già hóa đã đến."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: 〜ごとく/ごとき/ごとし",
+     "FURIGANA_MISSING: 楽しい時間は夢のごとく過ぎていってしまう。",
+     "FURIGANA_MISSING: 少子化、医療の進歩などにより当然予想されたごとく、高齢化社会がやってきた。"
+    ],
+    "formation": "N + のごとく; N + のごとき + N; N + のごとし",
+    "locked_fields": [],
+    "meaning_vi": "Như ～, giống như ～ (cách diễn đạt trong văn viết).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ごとく/ごとき/ごとし",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dạng văn viết, cổ điển tương ứng với 「ように／ような／ようだ」. 「ごとく」 bổ nghĩa cho động từ, 「ごとき」 bổ nghĩa cho danh từ, còn 「ごとし」 thường kết câu. 1) Dễ nhầm với ～ように／～ような／～ようだ. → ～ごとく／ごとき／ごとし có cùng chức năng so sánh nhưng mang sắc thái cổ, trang trọng và thiên về văn viết. 2) Phân biệt chức năng ba dạng. → ～ごとく bổ nghĩa cho động từ, ～ごとき đứng trước danh từ, còn ～ごとし thường kết câu. 3) Chú ý cách nối. → Danh từ thường dùng Nのごとく; với mệnh đề động từ có thể gặp V（かの）ごとく. Khi nói về người khác, mẫu này có thể mang ý khinh thường; khi nói 「私ごとき」 về mình, nó là cách tự hạ mình trang trọng. 1) Dễ nhầm với nghĩa so sánh trung tính của ～ごとき. → Nごとき có thể hạ thấp người khác là “hạng như N”, hoặc tự hạ mình khi nói 私ごとき. 2) Cần dựa vào đối tượng để xác định sắc thái. → Dùng với người khác dễ mang ý khinh thường, còn dùng với bản thân thường là khiêm nhường trang trọng. 3) Không dùng tùy tiện với người cần kính trọng. → Trong giao tiếp, cách nói này có thể rất thất lễ nếu người nói không có ý tự khiêm nhường."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d97397085a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "約束を破ったのだから、謝らずにはすまない。",
+       "ja_furigana": "約束(やくそく)を破(やぶ)ったのだから、謝(あやま)らずにはすまない。",
+       "vi": "Vì đã thất hứa nên không thể không xin lỗi."
+      },
+      {
+       "ja": "大事な書類をなくしたので、報告しないではすまないだろう。",
+       "ja_furigana": "大事(だいじ)な書類(しょるい)をなくしたので、報告(ほうこく)しないではすまないだろう。",
+       "vi": "Vì làm mất giấy tờ quan trọng nên chắc chắn phải báo cáo."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "実際に損害を与えたのだから、弁償しないではすまないだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì thực tế đã gây thiệt hại nên chắc chắn phải bồi thường."
+     },
+     {
+      "ja": "マスコミに知られてしまった以上、事実を公表せずにはすまないと思います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một khi giới truyền thông đã biết chuyện, tôi nghĩ chúng ta không thể không công bố sự thật."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 実際に損害を与えたのだから、弁償しないではすまないだろう。",
+     "FURIGANA_MISSING: マスコミに知られてしまった以上、事実を公表せずにはすまないと思います。"
+    ],
+    "formation": "Vない + ではすまない; Vず + にはすまない",
+    "locked_fields": [],
+    "meaning_vi": "Nhất định phải ～; xét theo tình thế, nếu không làm thì sẽ không được chấp nhận.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ずには/ないではすまない",
+    "pattern_variants": [
+     "〜ずには/ないではおかない"
+    ],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả một hành động là không thể tránh khỏi do trách nhiệm, quy tắc xã hội hoặc hoàn cảnh bên ngoài, chứ không đơn thuần do ý muốn cá nhân. 1) Dễ nhầm với ～ずにはいられない／～ずにはおかない. → ～ずにはすまない nói rằng do trách nhiệm, phép tắc hoặc hoàn cảnh bên ngoài, nếu không làm thì không thể chấp nhận được. 2) Không nhấn mạnh cảm xúc tự phát của chủ thể. → Nếu vì bản thân không kìm được mà làm, dùng ～ずにはいられない; nếu quyết không để yên, dùng ～ずにはおかない. 3) Chú ý biến đổi của する. → する trở thành せずにはすまない; dạng ～ないではすまない giữ nguyên thể ない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2370620a36"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この小説は何度も読むにたえる名作だ。",
+       "ja_furigana": "この小説(しょうせつ)は何度(なんど)も読(よ)むにたえる名作(めいさく)だ。",
+       "vi": "Cuốn tiểu thuyết này là kiệt tác đáng đọc đi đọc lại."
+      },
+      {
+       "ja": "この料理は有名店にたえる味だ。",
+       "ja_furigana": "この料理(りょうり)は有名店(ゆうめいてん)にたえる味(あじ)だ。",
+       "vi": "Món ăn này có hương vị xứng tầm nhà hàng nổi tiếng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "最近は大人の鑑賞にたえるドラマが少なくなった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gần đây ngày càng ít phim truyền hình đủ chất lượng để người lớn thưởng thức."
+     },
+     {
+      "ja": "この写真はアマチュアカメラマンが撮ったものだが、十分評価にたえる作品だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bức ảnh này do một nhiếp ảnh gia nghiệp dư chụp, nhưng là tác phẩm hoàn toàn xứng đáng được đánh giá cao."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 最近は大人の鑑賞にたえるドラマが少なくなった。",
+     "FURIGANA_MISSING: この写真はアマチュアカメラマンが撮ったものだが、十分評価にたえる作品だ。"
+    ],
+    "formation": "N + にたえる; Vる + にたえる",
+    "locked_fields": [],
+    "meaning_vi": "Đủ giá trị hoặc chất lượng để ～.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜にたえる",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Đánh giá một tác phẩm, sản phẩm hay đối tượng đạt chuẩn để được xem, sử dụng hoặc công nhận. Thường gặp trong những kết hợp như 「鑑賞にたえる」「評価にたえる」「実用にたえる」. 1) Dễ nhầm với ～に足る／～に値する. → ～にたえる đánh giá đối tượng có đủ chất lượng hoặc giá trị để được xem, nghe, sử dụng hay công nhận. 2) Khả năng kết hợp tương đối cố định. → Hay gặp với 鑑賞・評価・実用 hoặc các động từ như 見る・読む trong ngữ cảnh đánh giá chất lượng. 3) Không nhầm với nghĩa chịu đựng khó khăn của 耐える. → Trong mẫu này, trọng tâm là đối tượng có đạt chuẩn hay không, không phải chủ thể có chịu được đau đớn hay áp lực hay không."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-aa69eb0c7e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "遅刻にもほどがある。もう二時間も待ったよ。",
+       "ja_furigana": "遅刻(ちこく)にもほどがある。もう二時間(にじかん)も待(ま)ったよ。",
+       "vi": "Đi trễ cũng phải có mức độ chứ. Tôi đã đợi tận hai tiếng rồi đấy."
+      },
+      {
+       "ja": "値上げにもほどがある。半分以上も高くなった。",
+       "ja_furigana": "値上(ねあ)げにもほどがある。半分(はんぶん)以上(いじょう)も高(たか)くなった。",
+       "vi": "Tăng giá cũng phải có mức độ chứ. Đắt hơn cả gấp rưỡi rồi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "こんな落書きをするなんて、いたずらにもほどがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vẽ bậy kiểu này thì trò nghịch ngợm cũng phải có mức độ chứ."
+     },
+     {
+      "ja": "こんなに仕事をためるなんて、怠けるにもほどがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Để công việc tồn đọng nhiều thế này thì lười biếng cũng phải có mức độ thôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: 〜にもほどがある",
+     "FURIGANA_MISSING: こんな落書きをするなんて、いたずらにもほどがある。",
+     "FURIGANA_MISSING: こんなに仕事をためるなんて、怠けるにもほどがある。"
+    ],
+    "formation": "N + にもほどがある; Vる + にもほどがある",
+    "locked_fields": [],
+    "meaning_vi": "Quá giới hạn có thể chấp nhận; ～ cũng phải có mức độ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜にもほどがある",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Lời phê phán mạnh rằng hành vi hoặc tính chất nào đó đã đi quá xa. Thường dùng với những từ mang nghĩa tiêu cực. 1) Dễ nhầm với ～すぎる. → ～にもほどがある là lời phê phán mạnh: dù là A thì cũng phải có giới hạn, và thực tế đã vượt quá mức chấp nhận. 2) Thường đi với nội dung tiêu cực. → Các từ như 失礼・無責任・冗談・甘える thường xuất hiện trước mẫu. 3) Không nên hiểu ほど là phép so sánh thông thường. → Toàn bộ ～にもほどがある là một biểu hiện cố định mang sắc thái tức giận, trách móc hoặc lên án."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7e6f8bf5bc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "条件が悪かろうと、この仕事を引き受ける。",
+       "ja_furigana": "条件(じょうけん)が悪(わる)かろうと、この仕事(しごと)を引(ひ)き受(う)ける。",
+       "vi": "Dù điều kiện có tệ đến đâu, tôi vẫn nhận công việc này."
+      },
+      {
+       "ja": "賛成が多かろうが少なかろうが、方針は変えない。",
+       "ja_furigana": "賛成(さんせい)が多(おお)かろうが少(すく)なかろうが、方針(ほうしん)は変(か)えない。",
+       "vi": "Dù người tán thành nhiều hay ít, chúng tôi vẫn không đổi phương châm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "予算が削られようと、公開講座の教材水準は落とさない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù ngân sách có bị cắt, chúng tôi cũng không hạ chuẩn giáo trình lớp giảng công."
+     },
+     {
+      "ja": "反対意見が並ぼうが、測定方法の変更は記録に残す。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù ý kiến phản đối có xếp hàng, việc đổi phương pháp đo vẫn được ghi vào hồ sơ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 予算が削られようと、公開講座の教材水準は落とさない。",
+     "FURIGANA_MISSING: 反対意見が並ぼうが、測定方法の変更は記録に残す。"
+    ],
+    "formation": "Vよう + が; V受身 + ようと",
+    "locked_fields": [],
+    "meaning_vi": "Dù có … đi nữa",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù có ... đi nữa",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Dù chủ thể có làm hay hoàn cảnh có biến, lập trường ở vế sau vẫn không đổi. Cách dùng: Mẫu nhượng bộ giả định: dù chủ thể có ý định làm, dù hoàn cảnh có biến, kết quả ở vế sau vẫn không đổi. Dùng 意向形 cộng と, とも hoặc が. とも nhấn mạnh hơn một chút; が và と gần như thay được nhau. Cũng dùng với tính từ dạng かろう và danh từ であろうと. Văn phong hơi cứng, hay trong tuyên bố nguyên tắc. Có thể lặp hai vế song song. Không đòi hỏi sự việc đã xảy ra như にもかかわらず. Người nói thường khẳng định lập trường, kỷ luật nghề hoặc ranh giới không nhượng. Sắc thái: Sắc kiên định, đôi khi hơi cứng đầu theo nghĩa tích cực. Giả định mang tính 'cứ cho là xảy ra đến thế đi nữa'. Trang trọng hơn ても, phù hợp văn bản nội quy và phát biểu. Lưu ý: Động từ phải ở 意向形, không dùng 辞書形 + と với nghĩa này. Vế sau thường là điều không thay đổi, không phải hệ quả tất yếu của vế trước. い-tính từ dùng かろうと; danh từ dùng であろうと, không phải だと."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-af07fc02a8"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-027"
+}

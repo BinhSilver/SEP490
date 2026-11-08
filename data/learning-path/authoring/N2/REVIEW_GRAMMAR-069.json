@@ -1,0 +1,581 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日残業が続いて、どんなに疲れたことだろう。",
+       "ja_furigana": "毎日(まいにち)残業(ざんぎょう)が続(つづ)いて、どんなに疲(つか)れたことだろう。",
+       "vi": "Ngày nào cũng làm thêm liên tục, hẳn là mệt biết bao."
+      },
+      {
+       "ja": "合格の知らせを聞いて、どれほどうれしかったことか。",
+       "ja_furigana": "合格(ごうかく)の知(し)らせを聞(き)いて、どれほどうれしかったことか。",
+       "vi": "Nghe tin đỗ, tôi đã vui biết nhường nào."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "知らせを待つ間、家族はどれほど不安だったことだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong lúc chờ tin, gia đình hẳn đã lo lắng biết bao."
+     },
+     {
+      "ja": "この研究を完成させるまでに、彼は何度失敗を乗り越えたことか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Để hoàn thành nghiên cứu này, anh ấy đã vượt qua thất bại biết bao nhiêu lần."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 知らせを待つ間、家族はどれほど不安だったことだろう。",
+     "FURIGANA_MISSING: この研究を完成させるまでに、彼は何度失敗を乗り越えたことか。"
+    ],
+    "formation": "どれほど／どんなに + thể thường + ことか／ことだろう",
+    "locked_fields": [],
+    "meaning_vi": "Biết bao; xiết bao",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Biết bao; xiết bao",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nhấn mạnh mức độ rất lớn của cảm xúc, trải nghiệm hoặc tình trạng bằng câu hỏi tu từ. Cách dùng: 〜ことだろう và 〜ことか thường đi cùng どんなに, どれほど, 何度 hoặc いかに để nhấn mạnh mức độ vượt quá lời nói thông thường: biết bao, đến nhường nào. Hình thức giống câu hỏi nhưng mục đích là bộc lộ cảm xúc mạnh như vui mừng, lo lắng, biết ơn, gian khổ hoặc kinh ngạc, không yêu cầu người nghe tính toán hay trả lời. Dạng quá khứ xuất hiện nhiều khi nhìn lại cảm xúc hay nỗ lực đã trải qua. Sắc thái: Mang tính cảm thán và giàu biểu cảm; 〜ことだろう có thể gợi sự tưởng tượng, còn 〜ことか thường là tiếng thốt trực tiếp hơn. Lưu ý: Không dùng làm câu hỏi thông tin thực sự như hỏi giờ, số lượng hoặc địa điểm. Thường cần từ nghi vấn chỉ mức độ hay số lần để làm rõ ý cảm thán."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1345e318cf"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の話し方には、人を引きつけるものがある。",
+       "ja_furigana": "彼(かれ)の話(はな)し方(かた)には、人(ひと)を引(ひ)きつけるものがある。",
+       "vi": "Cách nói chuyện của anh ấy có sức thu hút người khác."
+      },
+      {
+       "ja": "この写真には、見る人を感動させるものがある。",
+       "ja_furigana": "この写真(しゃしん)には、見(み)る人(ひと)を感動(かんどう)させるものがある。",
+       "vi": "Bức ảnh này có điều gì đó khiến người xem xúc động."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼女の静かな語り方には、人の心を引きつけるものがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cách kể chuyện điềm tĩnh của cô ấy có điều gì đó cuốn hút lòng người."
+     },
+     {
+      "ja": "この地域の十年間の発展には、目を見張るものがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sự phát triển trong mười năm của khu vực này có những điểm khiến người ta phải kinh ngạc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼女の静かな語り方には、人の心を引きつけるものがある。",
+     "FURIGANA_MISSING: この地域の十年間の発展には、目を見張るものがある。"
+    ],
+    "formation": "Vる・Aい・Aな + ものがある",
+    "locked_fields": [],
+    "meaning_vi": "Có điều gì đó khiến người ta...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Có điều gì đó khiến người ta...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Đánh giá rằng một sự vật, hành động hoặc thành quả tạo ấn tượng hay cảm xúc đáng kể. Cách dùng: 〜ものがある dùng khi người nói nhận thấy trong một đối tượng có đặc điểm hoặc sức tác động khiến mình phải cảm phục, suy nghĩ, xúc động hay đánh giá theo một cách nhất định. もの ở đây không phải một đồ vật cụ thể mà là yếu tố khó gọi tên nhưng có thể cảm nhận qua lời nói, tác phẩm, thái độ hoặc sự thay đổi. Mẫu thường đi với các biểu đạt như 心を引きつける, 胸を打つ, 考えさせる hay 目を見張る. Sắc thái: Là lời đánh giá có căn cứ từ đặc điểm quan sát được, nhưng vẫn giữ sắc thái cảm nhận chủ quan của người nói. Lưu ý: Không dùng để nói đơn thuần rằng một vật hữu hình đang tồn tại ở đâu đó. Vế trước ものがある phải nêu tính chất hoặc tác động có thể gợi ra một đánh giá."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9902acbf2e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "バスがなくなったので、歩いて帰らざるを得ない。",
+       "ja_furigana": "バスがなくなったので、歩(ある)いて帰(かえ)らざるを得(え)ない。",
+       "vi": "Vì hết xe buýt nên tôi đành phải đi bộ về."
+      },
+      {
+       "ja": "バスが止まったので、タクシーに乗らざるを得ない。",
+       "ja_furigana": "バスが止(と)まったので、タクシーに乗(の)らざるを得(え)ない。",
+       "vi": "Vì xe buýt ngừng chạy nên đành phải đi taxi."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "主要な部品が届かなかったため、発売日を延期せざるを得ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì linh kiện chính chưa tới nên đành phải hoãn ngày phát hành."
+     },
+     {
+      "ja": "証拠がこれだけそろえば、彼の説明を疑わざるを得ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi bằng chứng đã đầy đủ đến mức này, không thể không nghi ngờ lời giải thích của anh ấy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 主要な部品が届かなかったため、発売日を延期せざるを得ない。",
+     "FURIGANA_MISSING: 証拠がこれだけそろえば、彼の説明を疑わざるを得ない。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 証拠がこれだけそろえば、彼の説明を疑わざるを得ない。 → 証拠"
+    ],
+    "formation": "Vない（bỏ ない） + ざるを得ない; する → せざるを得ない",
+    "locked_fields": [],
+    "meaning_vi": "Đành phải...; không còn cách nào khác ngoài...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đành phải...; không còn cách nào khác ngoài...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nói rằng hoàn cảnh khách quan buộc chủ thể chọn một hành động dù không mong muốn. Cách dùng: 〜ざるを得ない diễn tả kết luận rằng không còn lựa chọn thực tế nào ngoài việc làm một hành động. Người nói thường không muốn làm, nhưng sự cố, bằng chứng, thiếu nguồn lực hoặc điều kiện khách quan buộc họ phải chấp nhận. Mẫu có sắc thái trang trọng, thường gặp trong báo cáo, tin tức, phát biểu chính thức và văn viết. Dạng quá khứ 〜ざるを得なかった dùng khi quyết định bất đắc dĩ đã xảy ra. Sắc thái: Nhấn mạnh tính bất khả kháng và sự miễn cưỡng sau khi các phương án khác không còn khả thi. Lưu ý: Động từ する phải đổi thành せざるを得ない; không dùng しざるを得ない trong tiếng Nhật chuẩn hiện đại. Không dùng cho hành động người nói vui vẻ tự chọn hoặc làm vì ham thích."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f88ea860e5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "子どものころ、よく川で泳いだものだ。",
+       "ja_furigana": "子(こ)どものころ、よく川(かわ)で泳(およ)いだものだ。",
+       "vi": "Hồi nhỏ tôi thường hay bơi ở sông."
+      },
+      {
+       "ja": "学生のころは、夜おそくまで本を読んだものだ。",
+       "ja_furigana": "学生(がくせい)のころは、夜(よる)おそくまで本(ほん)を読(よ)んだものだ。",
+       "vi": "Thời sinh viên tôi thường đọc sách đến khuya."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "子どもの頃は、日が暮れるまで近所の空き地で遊んだものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hồi nhỏ tôi thường chơi ở bãi đất trống gần nhà cho tới lúc mặt trời lặn."
+     },
+     {
+      "ja": "学生時代は、試験が終わるたびに友人と夜遅くまで語り合ったものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thời sinh viên, cứ mỗi lần thi xong tôi thường trò chuyện với bạn bè đến khuya."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 子どもの頃は、日が暮れるまで近所の空き地で遊んだものだ。",
+     "FURIGANA_MISSING: 学生時代は、試験が終わるたびに友人と夜遅くまで語り合ったものだ。"
+    ],
+    "formation": "Vた + ものだ",
+    "locked_fields": [],
+    "meaning_vi": "Hồi ấy thường...; thật là...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hồi ấy thường...; thật là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Gợi lại thói quen trong quá khứ hoặc bộc lộ cảm thán trước một sự việc. Cách dùng: Ở cách dùng hồi tưởng, Vた + ものだ gợi lại một hành động từng lặp đi lặp lại hoặc một trạng thái tiêu biểu trong quá khứ, thường đi với 昔, 子どもの頃 hay よく. Ngoài ra, 〜ものだ có thể bộc lộ sự cảm phục, ngạc nhiên hoặc cảm khái trước một thay đổi. Nghĩa cụ thể dựa mạnh vào ngữ cảnh. Mục này không phải cách dùng quy phạm nên làm, mà tập trung vào ký ức và phản ứng cảm xúc. Sắc thái: Hồi tưởng thường có màu sắc hoài niệm; cảm thán cho thấy người nói dừng lại để đánh giá sự việc. Lưu ý: Vた + ものだ ở nghĩa hồi tưởng thường nói việc lặp lại, không dùng cho một sự kiện duy nhất có ngày giờ xác định. Cần có ngữ cảnh đủ rõ để tránh nhầm với 〜ものだ chỉ lẽ thường hoặc bổn phận."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-55442b296e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "明日は大事な試験だから、今夜は勉強しないわけにはいかない。",
+       "ja_furigana": "明日(あした)は大事(だいじ)な試験(しけん)だから、今夜(こんや)は勉強(べんきょう)しないわけにはいかない。",
+       "vi": "Ngày mai có kỳ thi quan trọng nên tối nay tôi không thể không học."
+      },
+      {
+       "ja": "先生に頼まれたので、引き受けないわけにはいかない。",
+       "ja_furigana": "先生(せんせい)に頼(たの)まれたので、引(ひ)き受(う)けないわけにはいかない。",
+       "vi": "Vì được thầy nhờ nên tôi không thể không nhận lời."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "長年世話になった先輩の頼みだから、引き受けないわけにはいかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì là lời nhờ của đàn anh đã giúp đỡ tôi nhiều năm nên tôi không thể không nhận."
+     },
+     {
+      "ja": "事故を目撃した以上、警察に事情を説明しないわけにはいかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một khi đã chứng kiến tai nạn, tôi buộc phải trình bày sự việc với cảnh sát."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 長年世話になった先輩の頼みだから、引き受けないわけにはいかない。",
+     "FURIGANA_MISSING: 事故を目撃した以上、警察に事情を説明しないわけにはいかない。"
+    ],
+    "formation": "Vない + わけにはいかない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể không...; buộc phải...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không thể không...; buộc phải...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả phải hành động vì trách nhiệm, quan hệ xã hội hoặc hoàn cảnh không cho phép bỏ qua. Cách dùng: Mẫu này có cấu trúc phủ định kép: không thể chọn phương án không làm, vì vậy thực tế là phải làm. Lý do thường đến từ trách nhiệm, lời hứa, vị trí của người nói, phép lịch sự hoặc hậu quả xã hội nếu từ chối. 〜わけにもいかない là biến thể nhấn rằng trong số các phương án, không làm cũng không thể chấp nhận. Mẫu không nhất thiết nói có luật bắt buộc; chỉ cần người nói nhận thấy hoàn cảnh đạo lý hoặc quan hệ khiến mình khó thoái thác. Sắc thái: Thể hiện sự miễn cưỡng vừa phải và ý thức bổn phận; trọng tâm là sức ép từ hoàn cảnh bên ngoài. Lưu ý: Do là phủ định kép, phải giữ ない trước わけにはいかない để tạo nghĩa buộc phải làm. Không phù hợp khi hành động chỉ do sở thích hay cảm xúc thôi thúc cá nhân."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-dae102b1f5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町にもっと公園ができないものだろうか。",
+       "ja_furigana": "この町(まち)にもっと公園(こうえん)ができないものだろうか。",
+       "vi": "Không biết ở thị trấn này có thể có thêm công viên không nhỉ."
+      },
+      {
+       "ja": "この問題を早く解決できないものか。",
+       "ja_furigana": "この問題(もんだい)を早(はや)く解決(かいけつ)できないものか。",
+       "vi": "Ước gì có thể sớm giải quyết vấn đề này."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "混雑を減らすために、受付の方法をもっと簡単にできないものだろうか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Liệu không thể đơn giản hóa cách tiếp nhận để giảm tình trạng đông đúc hay sao?"
+     },
+     {
+      "ja": "この古い建物を壊さずに活用できないものか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Liệu không có cách nào tận dụng tòa nhà cũ này mà không phá bỏ nó sao?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 混雑を減らすために、受付の方法をもっと簡単にできないものだろうか。",
+     "FURIGANA_MISSING: この古い建物を壊さずに活用できないものか。"
+    ],
+    "formation": "Vない + ものだろうか／ものか",
+    "locked_fields": [],
+    "meaning_vi": "Liệu không có cách nào... sao?",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Liệu không có cách nào... sao?",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Bộc lộ mong muốn tha thiết rằng một tình trạng khó khăn có thể được cải thiện. Cách dùng: 〜ないものか và 〜ないものだろうか là câu hỏi tu từ về khả năng biến một mong muốn thành hiện thực. Người nói thường đã nhận thấy việc đó không dễ, nhưng vẫn hy vọng có giải pháp, sự thay đổi hoặc sự giúp đỡ. Dạng có だろう mềm và trầm ngâm hơn. Mẫu hay dùng khi đề xuất cải tiến, mong một vấn đề xã hội được giải quyết, hoặc tự hỏi liệu hoàn cảnh cá nhân có thể tốt lên hay không; nó không đơn thuần yêu cầu câu trả lời có hoặc không. Sắc thái: Chứa cả sự bất mãn với hiện trạng và kỳ vọng tha thiết về một khả năng tốt hơn. Lưu ý: Thường dùng dạng phủ định của động từ dù ý nghĩa thực tế là mong sự việc tích cực xảy ra. Không dùng thay cho câu hỏi thông tin trung lập về việc một sự kiện có xảy ra hay không."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-31f6fd3415"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "こんな近くに川があったとは、うれしいことだ。",
+       "ja_furigana": "こんな近(ちか)くに川(かわ)があったとは、うれしいことだ。",
+       "vi": "Ở gần thế này mà có con sông, thật là mừng."
+      },
+      {
+       "ja": "毎日残業で帰れないとは、大変なことだ。",
+       "ja_furigana": "毎日(まいにち)残業(ざんぎょう)で帰(かえ)れないとは、大変(たいへん)なことだ。",
+       "vi": "Ngày nào cũng làm thêm không về được, thật là vất vả."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "こんなに静かな場所で仕事ができるとは、なんと幸せなことだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Được làm việc ở một nơi yên tĩnh đến thế quả là điều hạnh phúc."
+     },
+     {
+      "ja": "困っている人を見ても誰も声をかけないとは、残念なことだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thấy người đang gặp khó mà không ai lên tiếng giúp thì thật đáng tiếc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: こんなに静かな場所で仕事ができるとは、なんと幸せなことだ。",
+     "FURIGANA_MISSING: 困っている人を見ても誰も声をかけないとは、残念なことだ。"
+    ],
+    "formation": "なんと + Aい・Aな + ことだ; thể thường + ことだ",
+    "locked_fields": [],
+    "meaning_vi": "Thật là...; quả là...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Thật là...; quả là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Bộc lộ sự đánh giá hoặc cảm xúc của người nói trước một tình huống. Cách dùng: Ở cách dùng cảm thán, 〜ことだ đứng sau từ đánh giá như ありがたい, 喜ばしい, 残念 hoặc 幸運な để nêu cảm xúc của người nói về toàn bộ sự việc. Vế sự việc thường được đưa ra bằng 〜とは hoặc 〜のは, rồi người nói kết luận rằng đó thật là điều đáng mừng, đáng tiếc, lạ lùng và tương tự. Mẫu này thiên về lời nhận xét trang trọng hoặc văn viết, không phải một mệnh lệnh hay lời khuyên. Sắc thái: Cô đọng cảm xúc thành một đánh giá có phần trang trọng; thường nhìn sự việc như một điều đáng suy ngẫm. Lưu ý: Cần một từ biểu thị đánh giá hoặc cảm xúc trước ことだ để làm rõ nghĩa cảm thán. Nếu V辞書形 hoặc Vない形 đứng trực tiếp trước ことだ, câu thường được hiểu là lời khuyên thay vì cảm thán."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0edff442d2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "いつか南の島でゆっくり休みたいものだ。",
+       "ja_furigana": "いつか南(みなみ)の島(しま)でゆっくり休(やす)みたいものだ。",
+       "vi": "Một ngày nào đó tôi muốn được nghỉ ngơi thong thả trên một hòn đảo phía nam."
+      },
+      {
+       "ja": "若い人には、もっと本を読んでほしいものだ。",
+       "ja_furigana": "若(わか)い人(ひと)には、もっと本(ほん)を読(よ)んでほしいものだ。",
+       "vi": "Tôi mong người trẻ hãy đọc sách nhiều hơn."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "いつか北国の小さな町で、冬の祭りを見てみたいものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một ngày nào đó tôi thật muốn được xem lễ hội mùa đông tại một thị trấn nhỏ phương bắc."
+     },
+     {
+      "ja": "若い世代には、失敗を恐れず新しい分野に挑戦してほしいものだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi mong thế hệ trẻ sẽ không sợ thất bại và dám thử sức ở lĩnh vực mới."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: いつか北国の小さな町で、冬の祭りを見てみたいものだ。",
+     "FURIGANA_MISSING: 若い世代には、失敗を恐れず新しい分野に挑戦してほしいものだ。"
+    ],
+    "formation": "Vたい + ものだ; V-て + ほしいものだ",
+    "locked_fields": [],
+    "meaning_vi": "Thật mong được...; mong ai đó...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Thật mong được...; mong ai đó...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Bộc lộ một mong ước tha thiết, lâu dài hoặc có tính lý tưởng. Cách dùng: 〜たいものだ dùng để nói một mong muốn sâu sắc của người nói, thường là điều chưa dễ thực hiện, ước mơ lâu dài hoặc điều muốn trải nghiệm trong tương lai. 〜てほしいものだ bày tỏ kỳ vọng tha thiết rằng một người, một nhóm hay xã hội sẽ làm điều gì. Hai mẫu không phải lời yêu cầu tức thời; chúng nhìn mong muốn với khoảng cách suy ngẫm và thường xuất hiện trong lời tâm sự, phát biểu hoặc văn viết. Sắc thái: Có sắc thái cảm khái và kỳ vọng chân thành hơn 〜たい hay 〜てほしい thông thường. Lưu ý: Không thích hợp để yêu cầu một thao tác cần làm ngay trước mặt người nghe. 〜たいものだ chủ yếu nói mong muốn của người nói; khi nêu mong muốn của người khác cần hình thức tường thuật."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d1e9259098"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日満員電車で通うのは、本当につらいものがある。",
+       "ja_furigana": "毎日(まいにち)満員電車(まんいんでんしゃ)で通(かよ)うのは、本当(ほんとう)につらいものがある。",
+       "vi": "Ngày nào cũng đi lại bằng tàu điện chật kín, thật sự có cảm giác rất khổ."
+      },
+      {
+       "ja": "彼の話には、人の心を動かすものがある。",
+       "ja_furigana": "彼(かれ)の話(はなし)には、人(ひと)の心(こころ)を動(うご)かすものがある。",
+       "vi": "Câu chuyện của anh ấy có điều gì đó lay động lòng người."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "満員電車で毎日通勤するのはつらいものがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có cảm giác khổ sở mỗi ngày đi làm trên tàu điện đầy ắp người."
+     },
+     {
+      "ja": "彼の歌には心にひびくものがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có cảm giác bài hát của anh ấy cứ vang vọng trong tim."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 満員電車で毎日通勤するのはつらいものがある。",
+     "FURIGANA_MISSING: 彼の歌には心にひびくものがある。"
+    ],
+    "formation": "Vる・Aい + ものがある",
+    "locked_fields": [],
+    "meaning_vi": "Có cảm giác…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜つらいものがある",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu đạt khi người nói nói về cảm giác mình cảm nhận từ một sự thật nào đó. Câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5283b8b9c7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この時計、どうにか直らないものか。",
+       "ja_furigana": "この時計(とけい)、どうにか直(なお)らないものか。",
+       "vi": "Cái đồng hồ này, ước gì sửa được."
+      },
+      {
+       "ja": "部屋が暑くてたまらない。どうにかならないものだろうか。",
+       "ja_furigana": "部屋(へや)が暑(あつ)くてたまらない。どうにかならないものだろうか。",
+       "vi": "Phòng nóng không chịu nổi. Ước gì có cách nào đó."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "最近、変なメールがたくさん来る。どうにかならないものか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gần đây nhiều mail kì lạ cứ đến. Ước gì tôi có thể làm gì đó."
+     },
+     {
+      "ja": "デジカメが壊れた。（なんとか）直らないものだろうか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái máy ảnh kỹ thuật số bị hư. Ước gì tôi có thể sửa được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 最近、変なメールがたくさん来る。どうにかならないものか。",
+     "FURIGANA_MISSING: デジカメが壊れた。（なんとか）直らないものだろうか。"
+    ],
+    "formation": "どうにか／なんとか + Vない + ものか／ものだろうか",
+    "locked_fields": [],
+    "meaning_vi": "chẳng lẽ không thể ～hay sao, ước gì～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜どうにかならないものか",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu thị mong muốn thực hiện được việc gì hay có giải pháp nào đó trong tình huống khó khăn. Câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6c055b260d"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-069"
+}

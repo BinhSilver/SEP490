@@ -22,12 +22,21 @@ import java.util.Set;
  * Paths made before the dedupe require every word, so they get an empty list. Shown on the chapter's first part only.
  */
 final class LessonReviewItems {
-    record Review(Long canonicalId, String learnedIn) { }
+    record Review(Long canonicalId, String learnedIn, boolean known) {
+        Review(Long canonicalId, String learnedIn) { this(canonicalId, learnedIn, false); }
+    }
 
     private LessonReviewItems() { }
 
     static List<Review> forActivity(UserLearningPathItem activity, LearningActivityType type, List<Long> lessonIds,
             UserLearningPathItemRepository items, LearningActivityMemberRepository members) {
+        return forActivity(activity, type, lessonIds, items, members, null);
+    }
+
+    /** {@code extendedWord} (may be null) tells an EXTENDED word apart from a known one on a path that has both. */
+    static List<Review> forActivity(UserLearningPathItem activity, LearningActivityType type, List<Long> lessonIds,
+            UserLearningPathItemRepository items, LearningActivityMemberRepository members,
+            java.util.function.Predicate<Long> extendedWord) {
         if (activity == null || activity.getLesson() == null || activity.getLearningPath() == null || lessonIds.isEmpty()
                 || (activity.getPartIndex() != null && activity.getPartIndex() > 1)) return List.of();
         Long lessonId = activity.getLesson().getId();
@@ -47,12 +56,25 @@ final class LessonReviewItems {
             UserLearningPathItem previous = firstTaught.get(member.getCanonicalId());
             if (previous == null || order(owner) < order(previous)) firstTaught.put(member.getCanonicalId(), owner);
         }
+        // F1-3 (owner 2026-10-27): a path squeezed by its exam date (policy ":X<days>") leaves EXTENDED words out of the
+        // required part; they are listed too, with no "learnt in" (the page shows them as "Mở rộng — không bắt buộc").
+        String policy = String.valueOf(activity.getLearningPath().getPolicyVersion());
+        boolean squeezed = policy.contains(":X");
+        // F1-4 (owner 2026-10-28): a path made with known units (policy ":KN") leaves them out of the required part too;
+        // they are listed as known ("Đã vững"). On a path that is also squeezed, an EXTENDED word stays "Mở rộng".
+        boolean withKnown = policy.contains(":KN");
         List<Review> reviews = new ArrayList<>();
+        List<Review> known = new ArrayList<>();
+        List<Review> extended = new ArrayList<>();
         for (Long id : new LinkedHashSet<>(lessonIds)) {
             UserLearningPathItem taught = firstTaught.get(id);
-            if (requiredHere.contains(id) || taught == null || order(taught) >= order(activity)) continue;
-            reviews.add(new Review(id, title(taught)));
+            if (requiredHere.contains(id)) continue;
+            if (taught != null && order(taught) < order(activity)) reviews.add(new Review(id, title(taught)));
+            else if (squeezed && (!withKnown || extendedWord == null || extendedWord.test(id))) extended.add(new Review(id, null));
+            else if (withKnown) known.add(new Review(id, null, true));
         }
+        reviews.addAll(known);
+        reviews.addAll(extended);
         return List.copyOf(reviews);
     }
 

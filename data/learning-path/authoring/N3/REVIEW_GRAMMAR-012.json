@@ -1,0 +1,288 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "本日、司会を務めさせていただきます。",
+       "ja_furigana": "本日(ほんじつ)、司会(しかい)を務(つと)めさせていただきます。",
+       "vi": "Hôm nay tôi xin phép được đảm nhận vai trò dẫn chương trình ạ."
+      },
+      {
+       "ja": "来週の月曜日は休ませていただきます。",
+       "ja_furigana": "来週(らいしゅう)の月曜日(げつようび)は休(やす)ませていただきます。",
+       "vi": "Thứ Hai tuần sau tôi xin phép được nghỉ làm ạ."
+      },
+      {
+       "ja": "今から新しい商品について説明させていただきます。",
+       "ja_furigana": "今(いま)から新(あたら)しい商品(しょうひん)について説明(せつめい)させていただきます。",
+       "vi": "Bây giờ tôi xin phép được trình bày về sản phẩm mới ạ."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chia dư một lần シ (như やりさせていただきます là sai; với する chia là させていただきます, động từ nhóm I như 休む chia là 休ませていただきます).",
+    "examples": [
+     {
+      "ja": "本日、司会を務めさせていただきます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "来週の月曜日は休ませていただきます。",
+      "ja_furigana": "来週(らいしゅう)の月曜日(げつようび)は休(やす)ませていただきます。",
+      "source": "AI",
+      "vi": "Thứ Hai tuần sau tôi xin phép được nghỉ làm ạ."
+     },
+     {
+      "ja": "今から新しい商品について説明させていただきます。",
+      "ja_furigana": "今(いま)から新(あたら)しい商品(しょうひん)について説明(せつめい)させていただきます。",
+      "source": "AI",
+      "vi": "Bây giờ tôi xin phép được trình bày về sản phẩm mới ạ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 本日、司会を務めさせていただきます。",
+     "FURIGANA_MISSING: 本日、司会を務めさせていただきます。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V(thể sai khiến)-て + いただく (させていただきます)",
+    "locked_fields": [],
+    "meaning_vi": "Xin phép được — Khiêm nhường ngữ: xin phép làm gì với sự cho phép của đối phương.",
+    "nuance_vi": "Cách nói khiêm nhường trang trọng bậc nhất trong công việc và nghi lễ khi người nói thông báo hoặc xin phép thực hiện hành động.",
+    "order_items": [],
+    "pattern": "V thể sai khiến + ていただく",
+    "pattern_variants": [],
+    "unit_no": 23,
+    "unit_title_vi": "Liên kết câu và biểu hiện hội thoại",
+    "usage_vi": "Rất hay dùng trong công việc: 説明させていただきます. Đừng lạm dụng, nghe nặng nề."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-33a56a6761"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "言いかけてやめた。",
+       "ja_furigana": "言(い)いかけてやめた。",
+       "vi": "Tôi định nói ra rồi lại thôi."
+      },
+      {
+       "ja": "机の上に読みかけの雑誌が置いてあります。",
+       "ja_furigana": "机(つくえ)の上(うえ)に読(よ)みかけの雑誌(ざっし)が置(お)いてあります。",
+       "vi": "Trên bàn có để cuốn tạp chí đang đọc dở."
+      },
+      {
+       "ja": "夕ご飯を食べかけたときに電話が鳴った。",
+       "ja_furigana": "夕(ゆう)ご飯(はん)を食(た)べかけたときに電話(でんわ)が鳴(な)った。",
+       "vi": "Khi tôi vừa mới ăn bữa tối được một chút thì chuông điện thoại reo."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Ghép với động từ không kéo dài được hoặc nhầm với V-ているところだ (đang làm tiếp diễn chứ không bị bỏ dở).",
+    "examples": [
+     {
+      "ja": "言いかけてやめた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "机の上に読みかけの雑誌が置いてあります。",
+      "ja_furigana": "机(つくえ)の上(うえ)に読(よ)みかけの雑誌(ざっし)が置(お)いてあります。",
+      "source": "AI",
+      "vi": "Trên bàn có để cuốn tạp chí đang đọc dở."
+     },
+     {
+      "ja": "夕ご飯を食べかけたときに電話が鳴った。",
+      "ja_furigana": "夕(ゆう)ご飯(はん)を食(た)べかけたときに電話(でんわ)が鳴(な)った。",
+      "source": "AI",
+      "vi": "Khi tôi vừa mới ăn bữa tối được một chút thì chuông điện thoại reo."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 言いかけてやめた。",
+     "FURIGANA_MISSING: 言いかけてやめた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V(bỏ ます) + かける / かけの + N / かけだ",
+    "locked_fields": [],
+    "meaning_vi": "Đang dở, suýt — Hành động mới bắt đầu và còn dang dở, chưa hoàn tất.",
+    "nuance_vi": "Diễn tả hành động vừa mới bắt đầu được một phần thì dừng lại nửa chừng (ăn dở, đọc dở, định nói rồi thôi).",
+    "order_items": [],
+    "pattern": "V thể ます (bỏ ます) + かける",
+    "pattern_variants": [
+     "〜かける・〜かけだ"
+    ],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "かけの dùng làm định ngữ: 読みかけの本 (cuốn sách đang đọc dở)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3aacb701b7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夏休みに国へ帰るつもりです。",
+       "ja_furigana": "夏休(なつやす)みに国(くに)へ帰(かえ)るつもりです。",
+       "vi": "Tôi dự định sẽ về nước vào kỳ nghỉ hè."
+      },
+      {
+       "ja": "卒業したら自分の国へ帰って働くつもりです。",
+       "ja_furigana": "卒業(そつぎょう)したら自分(じぶん)の国(くに)へ帰(かえ)って働(はたら)くつもりです。",
+       "vi": "Sau khi tốt nghiệp tôi dự định sẽ về nước mình làm việc."
+      },
+      {
+       "ja": "明日からは甘いお菓子を買わないつもりだ。",
+       "ja_furigana": "明日(あした)からは甘(あま)いお菓子(かし)を買(か)わないつもりだ。",
+       "vi": "Từ ngày mai tôi định sẽ không mua bánh kẹo ngọt nữa."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng つもりだ để hỏi trực tiếp ý định của cấp trên (với cấp trên nên hỏi ご予定ですか).",
+    "examples": [
+     {
+      "ja": "夏休みに国へ帰るつもりです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "卒業したら自分の国へ帰って働くつもりです。",
+      "ja_furigana": "卒業(そつぎょう)したら自分(じぶん)の国(くに)へ帰(かえ)って働(はたら)くつもりです。",
+      "source": "AI",
+      "vi": "Sau khi tốt nghiệp tôi dự định sẽ về nước mình làm việc."
+     },
+     {
+      "ja": "明日からは甘いお菓子を買わないつもりだ。",
+      "ja_furigana": "明日(あした)からは甘(あま)いお菓子(かし)を買(か)わないつもりだ。",
+      "source": "AI",
+      "vi": "Từ ngày mai tôi định sẽ không mua bánh kẹo ngọt nữa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 夏休みに国へ帰るつもりです。",
+     "FURIGANA_MISSING: 夏休みに国へ帰るつもりです。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-る / V-ない + つもりだ",
+    "locked_fields": [],
+    "meaning_vi": "Dự định, có ý định — Ý định chủ quan của người nói, chưa chắc thành hiện thực.",
+    "nuance_vi": "Biểu thị ý định hoặc quyết tâm chủ quan của chính người nói đối với việc sẽ làm (hoặc không làm) trong tương lai.",
+    "order_items": [],
+    "pattern": "V từ điển / V-ない + つもりだ",
+    "pattern_variants": [],
+    "unit_no": 3,
+    "unit_title_vi": "Điều kiện, quyết tâm và thói quen",
+    "usage_vi": "Khác với 予定 (lịch đã sắp, khách quan). つもりはない = hoàn toàn không có ý định."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-738aff38d9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "遅れてすみません。",
+       "ja_furigana": "遅(おく)れてすみません。",
+       "vi": "Xin lỗi vì tôi đã đến muộn."
+      },
+      {
+       "ja": "返事が遅くなってしまってすみません。",
+       "ja_furigana": "返事(へんじ)が遅(おそ)くなってしまってすみません。",
+       "vi": "Xin lỗi vì tôi đã hồi âm muộn."
+      },
+      {
+       "ja": "お忙しいときに電話してすみませんでした。",
+       "ja_furigana": "お忙(いそが)しいときに電話(でんわ)してすみませんでした。",
+       "vi": "Xin lỗi vì đã gọi điện vào lúc anh/chị đang bận rộn."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Quên chia động từ về thể て trước すみません.",
+    "examples": [
+     {
+      "ja": "遅れてすみません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "返事が遅くなってしまってすみません。",
+      "ja_furigana": "返事(へんじ)が遅(おそ)くなってしまってすみません。",
+      "source": "AI",
+      "vi": "Xin lỗi vì tôi đã hồi âm muộn."
+     },
+     {
+      "ja": "お忙しいときに電話してすみませんでした。",
+      "ja_furigana": "お忙(いそが)しいときに電話(でんわ)してすみませんでした。",
+      "source": "AI",
+      "vi": "Xin lỗi vì đã gọi điện vào lúc anh/chị đang bận rộn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 遅れてすみません。",
+     "FURIGANA_MISSING: 遅れてすみません。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て / Aい-くて / Aな-で + すみません (すみませんでした)",
+    "locked_fields": [],
+    "meaning_vi": "Xin lỗi vì đã — Xin lỗi về hành động mình đã làm.",
+    "nuance_vi": "Nêu rõ nguyên nhân khiến mình phải xin lỗi người nghe trong giao tiếp hằng ngày.",
+    "order_items": [],
+    "pattern": "V-て + すみません",
+    "pattern_variants": [],
+    "unit_no": 23,
+    "unit_title_vi": "Liên kết câu và biểu hiện hội thoại",
+    "usage_vi": "Trang trọng hơn: て申し訳ありません. Cảm ơn thì dùng てくれてありがとう."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-95bbaf39d3"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-012"
+}

@@ -15,11 +15,13 @@
   var MODULES = [
     { title: null, items: [
       { key: 'overview', label: 'Tổng quan', icon: 'fa-gauge-high', href: '/admin', roles: ['MODERATOR'] },
-      { key: 'system-dashboard', label: 'Tổng quan', icon: 'fa-gauge-high', href: '/admin/system/dashboard', roles: SYSTEM }
+      { key: 'system-dashboard', label: 'Tổng quan', icon: 'fa-gauge-high', href: '/admin/system/dashboard', roles: SYSTEM },
+      { key: 'system-jpath-report', label: 'Báo cáo lộ trình JLPT', icon: 'fa-chart-line', href: '/admin/system/learning-path-report', roles: SYSTEM }
     ] },
     { title: 'Quản lý nội dung', items: [
       { key: 'content-textbooks', label: 'Giáo trình và bài học', icon: 'fa-book-open', href: '/textbooks/manage', roles: ['CONTENT_CREATOR'] },
       { key: 'content-jlpt', label: 'Đề thi JLPT', icon: 'fa-file-pen', href: '/admin/jlpt', roles: ['CONTENT_CREATOR'] },
+      { key: 'content-jpath-reports', label: 'Báo sai lộ trình', icon: 'fa-flag', href: '/admin/learning-path/reports', roles: ['CONTENT_CREATOR', 'ADMIN'] },
       { key: 'content-verb-practice', label: 'Luyện chia động từ', icon: 'fa-language', href: '/admin/verb-practice', roles: ['CONTENT_CREATOR'] },
       { key: 'content-kanji-map', label: 'Lược đồ Kanji', icon: 'fa-diagram-project', href: '/admin/kanji-map', roles: ['CONTENT_CREATOR'] }
     ] },

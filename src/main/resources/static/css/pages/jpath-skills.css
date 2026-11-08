@@ -1,0 +1,323 @@
+/* [JLAS-W0108] Plan 3 — Đọc · Nghe: the path tab (jpath-skills-tab.js), the skill session, dictation and section
+   screens. Uses the --jp-* tokens only, so the dark theme follows. */
+.jp-skills__banner { margin: 0 0 12px; padding: 10px 12px; border-radius: var(--jp-radius-interactive);
+  background: var(--jp-primary-soft); }
+.jp-skill-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 12px; }
+.jp-skill-card { display: flex; flex-direction: column; gap: 6px; padding: 14px; border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius-panel); background: var(--jp-surface); }
+.jp-skill-card p { margin: 0; }
+.jp-skill-card.is-done { border-color: var(--jp-ok); }
+.jp-skill-card.is-empty { color: var(--jp-muted); }
+.jp-skill-card__title { margin: 0; font-size: 1.05rem; }
+.jp-skill-card__done { color: var(--jp-ok); font-weight: 600; }
+.jp-skills__sub { margin: 12px 0 8px; font-size: 1rem; }
+.jp-skill-types { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.jp-skill-type { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; padding: 8px 10px;
+  border-radius: var(--jp-radius-interactive); background: var(--jp-canvas); }
+.jp-skill-type__state { margin-left: auto; color: var(--jp-muted); }
+.jp-skills__actions { display: grid; gap: 10px; margin-top: 12px; }
+.jp-skills__free,
+.jp-skills__section { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.jp-skills__free select { min-height: 40px; max-width: 100%; }
+.jp-skills__ready { margin-top: 12px; color: var(--jp-ok); font-weight: 600; }
+.jp-skills__readiness ul { margin: 0; padding-left: 18px; }
+.jp-skills__msg { color: var(--jp-danger); }
+
+/* skill session screen (Task 20/21) */
+.jp-skill-steps { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0 0 12px; padding: 0; }
+.jp-skill-steps li { padding: 4px 10px; border-radius: var(--jp-radius-chip); background: var(--jp-canvas); color: var(--jp-muted); }
+.jp-skill-steps li[aria-current="step"] { background: var(--jp-primary-soft); color: var(--jp-ink); font-weight: 600; }
+.jp-skill-steps li.is-done { color: var(--jp-ok); }
+.jp-skill-block { margin-bottom: 16px; padding: 14px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-panel);
+  background: var(--jp-surface); }
+.jp-skill-passage { line-height: 1.9; white-space: pre-wrap; }
+.jp-skill-situation { padding: 10px; border-left: 1px solid var(--jp-primary); background: var(--jp-canvas); }
+.jp-skill-q { margin-top: 12px; }
+.jp-skill-q__options { display: grid; gap: 6px; margin-top: 6px; }
+.jp-skill-q__options button { min-height: 44px; text-align: left; padding: 8px 12px; border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink); font: inherit; cursor: pointer; }
+.jp-skill-q__options button.is-right { border-color: var(--jp-ok); }
+.jp-skill-q__options button.is-wrong { border-color: var(--jp-danger); }
+.jp-skill-q__options button:disabled { cursor: default; }
+.jp-skill-explain { margin-top: 6px; color: var(--jp-muted); }
+.jp-skill-reveal { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--jp-line); }
+.jp-skill-words { display: grid; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.jp-player { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.jp-player button { min-height: 40px; }
+.jp-dict-line { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+.jp-dict-line input { min-width: 6em; min-height: 40px; font-size: 1.05rem; }
+.jp-dict-line .is-exact { color: var(--jp-ok); }
+.jp-dict-line .is-minor { color: var(--jp-warn); }
+.jp-dict-line .is-wrong { color: var(--jp-danger); }
+
+/* section screen (Task 22) */
+.jp-section-timer { position: sticky; top: 0; z-index: 2; padding: 8px 12px; background: var(--jp-surface);
+  border-bottom: 1px solid var(--jp-line); font-variant-numeric: tabular-nums; font-weight: 600; }
+.jp-section-floor { position: relative; height: 10px; border-radius: 5px; background: var(--jp-canvas); overflow: hidden; }
+.jp-section-floor__bar { height: 100%; background: var(--jp-primary); }
+.jp-section-floor__line { position: absolute; top: 0; bottom: 0; left: 32%; width: 2px; background: var(--jp-danger); }
+
+@media (prefers-reduced-motion: reduce) {
+  .jp-section-floor__bar { transition: none !important; }
+}
+
+/* 04/11 redesign: session steps use the shared stepper (jpath-nav.css) */
+.jp-skill-steps { flex-wrap: nowrap; gap: 0; margin: 8px 0 28px; max-width: 560px; }
+.jp-skill-steps li { padding: 0 4px; border-radius: 0; background: none; color: inherit; }
+.jp-skill-steps li[aria-current="step"] { background: none; color: inherit; font-weight: inherit; }
+.jp-skill-steps li.is-done { color: inherit; }
+.jp-skill-session, .jp-skill-section { max-width: 1000px; }
+.jp-skill-session > .jp-crumbs, .jp-skill-section > .jp-crumbs { margin-bottom: 12px; }
+
+/* 04/11 redesign of the Đọc · Nghe tab: the two skill cards are the only panels (they are today's two actions);
+   the type list, free practice, section practice and readiness are flat sections with room to breathe. */
+.jp-skill-cards { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 8px; }
+.jp-skill-card { padding: 22px; gap: 10px; border-color: transparent; background: var(--jp-primary-soft); }
+.jp-skill-card.is-done { border-color: var(--jp-ok); background: var(--jp-surface); }
+.jp-skill-card.is-empty { background: transparent; border: 1px dashed var(--jp-line); }
+.jp-skill-card__title { font-size: 1.25em; }
+.jp-skill-card .jp-btn--primary { justify-self: start; align-self: flex-start; min-height: 48px; padding: 10px 24px; }
+.jp-skills__sub { margin: 28px 0 10px; font-size: 1.12em; }
+.jp-skill-types { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0 28px; }
+.jp-skill-type { padding: 12px 2px; border-radius: 0; background: none; border-bottom: 1px solid var(--jp-line); }
+.jp-skills__actions { gap: 22px; margin-top: 28px; }
+.jp-skills__free, .jp-skills__section { gap: 12px; }
+.jp-skills__free select { min-height: 44px; min-width: 260px; }
+.jp-skills__readiness ul { list-style: none; padding: 0; display: grid; gap: 8px; }
+.jp-skills__readiness li { padding: 8px 0; border-bottom: 1px solid var(--jp-line); }
+.jp-skill-block.jp-mock-card { margin-top: 28px; padding: 22px; border-radius: var(--jp-radius-panel); }
+
+/* 04/11 polish: màn học */
+.jp-skill-session, .jp-skill-section { max-width: 1100px; padding-bottom: 48px; }
+.jp-skill-session > [data-role="body"], .jp-skill-section > [data-role="body"] { display: grid; gap: 28px; }
+.jp-skill-steps { max-width: 780px; margin: 12px 0 30px; }
+.jp-skill-block, .jp-skill-block.jp-mock-card { margin: 0; padding: 0 0 28px; border: 0; border-bottom: 1px solid var(--jp-line); border-radius: 0; background: transparent; }
+.jp-skill-block h2 { margin: 0 0 16px; font-size: 1.5em; line-height: 1.3; }
+.jp-skill-block h3 { margin: 24px 0 10px; font-size: 1.1em; }
+.jp-skill-block p { line-height: 1.65; }
+.jp-skill-block details { margin-top: 12px; border-bottom: 1px solid var(--jp-line); }
+.jp-skill-block summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font-weight: 600; }
+.jp-skill-passage { max-width: 68ch; margin: 18px 0 24px; font-size: 1.2em; line-height: 2; overflow-wrap: anywhere; }
+.jp-skill-situation { margin: 16px 0; padding: 12px 16px; border-left-width: 3px; border-radius: 0; background: var(--jp-primary-soft); }
+.jp-skill-q { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--jp-line); }
+.jp-skill-q > p:first-child { margin: 0 0 12px; font-size: 1.12em; font-weight: 600; }
+.jp-skill-q__options { gap: 10px; }
+.jp-skill-q__options button { min-height: 54px; padding: 12px 16px; font-size: 1em; line-height: 1.5; }
+.jp-skill-q__options button.is-right { border-width: 1px; background: var(--jp-primary-soft); }
+.jp-skill-q__options button.is-wrong { border-width: 1px; background: var(--jp-danger-soft); }
+.jp-skill-reveal { margin-top: 24px; padding-top: 18px; }
+.jp-skill-words li { padding: 10px 0; border-bottom: 1px solid var(--jp-line); }
+.jp-skill-words .jp-btn, .jp-skill-session .jp-btn, .jp-skill-section .jp-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 18px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-weight: 600; text-decoration: none; cursor: pointer; }
+.jp-skill-session .jp-btn--primary, .jp-skill-section .jp-btn--primary { min-height: 52px; padding-inline: 24px; border-color: var(--jp-primary); background: var(--jp-primary); color: var(--jp-surface); }
+.jp-skill-session .jp-btn[disabled], .jp-skill-section .jp-btn[disabled] { opacity: .55; cursor: not-allowed; }
+.jp-skill-session :is(button, a, input, summary):focus-visible, .jp-skill-section :is(button, a, input, summary):focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-dict-line { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px 0; border-bottom: 1px solid var(--jp-line); }
+.jp-dict-line input { box-sizing: border-box; min-height: 48px; flex: 1 1 150px; max-width: 240px; padding: 8px 12px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink); }
+.jp-dict-line [data-follow-panel] { flex-basis: 100%; }
+.jp-player button { min-height: 44px; }
+.jp-section-timer { margin: 0 0 18px; padding: 12px 0; }
+.jp-section-floor { background: var(--jp-primary-soft); border-radius: 6px; }
+.jp-section-floor__bar { border-radius: inherit; }
+@media (max-width: 640px) {
+  .jp-skill-session, .jp-skill-section { padding-bottom: 0; }
+  .jp-skill-steps { margin-bottom: 24px; }
+  .jp-skill-block { padding-bottom: 22px; }
+  .jp-skill-passage { font-size: 1.1em; }
+  .jp-skill-session [data-submit-practice], .jp-skill-session [data-dict-submit], .jp-skill-section [data-section-submit] { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; width: 100%; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: var(--jp-primary); }
+  .jp-dict-line input { max-width: none; }
+}
+@media (prefers-reduced-motion: reduce) { .jp-skill-q__options button, .jp-section-floor__bar { transition: none; } }
+
+/* The skills tab starts with the two sessions; practice tools and readiness stay available on request. */
+.jp-path .jp-skills__banner { padding: 0; background: transparent; color: var(--jp-muted); }
+.jp-path .jp-skill-cards { gap: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--jp-line); border-bottom: 1px solid var(--jp-line); }
+.jp-path .jp-skill-card, .jp-path .jp-skill-card.is-done, .jp-path .jp-skill-card.is-empty { padding: 18px 20px; border: 0; border-radius: 0; background: transparent; }
+.jp-path .jp-skill-card + .jp-skill-card { border-left: 1px solid var(--jp-line); }
+.jp-path .jp-skill-card + .jp-skill-card .jp-btn--primary { border-color: var(--jp-line); background: var(--jp-surface); color: var(--jp-ink); }
+.jp-path .jp-skill-card__title { font-size: 1.12em; }
+.jp-path .jp-skill-type { display: grid; grid-template-columns: auto minmax(4em, auto) minmax(0, 1fr) auto; gap: 10px; align-items: center; min-height: 44px; padding: 5px 0; }
+.jp-path .jp-skill-type__state { margin: 0; white-space: nowrap; }
+.jp-path .jp-skill-types { grid-template-columns: 1fr; }
+.jp-path .jp-skills__sub { margin: 18px 0 6px; font-size: 1em; }
+.jp-skills__more { margin-top: 14px; border-top: 1px solid var(--jp-line); }
+.jp-skills__more > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--jp-primary); }
+.jp-skills__more > summary:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+@media (max-width: 640px) {
+  .jp-path .jp-skill-cards { grid-template-columns: minmax(0, 1fr); }
+  .jp-path .jp-skill-card + .jp-skill-card { border-left: 0; border-top: 1px solid var(--jp-line); }
+  .jp-path .jp-skill-type { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .jp-path .jp-skill-type > span:nth-of-type(2) { grid-column: 2; }
+  .jp-path .jp-skills__free select { min-width: 0; width: 100%; }
+}
+
+/* 04/11: one group per skill (Đọc, Nghe): today's session, then that skill's types, each with Học / Học lại. */
+.jp-skills__how { margin: 4px 0 0; max-width: 72ch; }
+.jp-skill-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 40px; margin-top: 20px; }
+.jp-skill-group { min-width: 0; }
+.jp-skill-group__title { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--jp-primary); font-size: 1.15em; }
+.jp-path .jp-skill-group .jp-skill-card, .jp-path .jp-skill-group .jp-skill-card.is-done,
+.jp-path .jp-skill-group .jp-skill-card.is-empty { padding: 0 0 16px; gap: 6px; border: 0; border-radius: 0; background: transparent; }
+.jp-skill-card__kicker { color: var(--jp-muted); font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.04em; }
+.jp-skill-card__type { font-size: 1.05em; }
+.jp-skill-card .jp-btn, .jp-skill-card .jp-btn--primary { align-self: flex-start; }
+.jp-path .jp-skill-group .jp-btn--primary { min-height: 44px; padding: 8px 22px; }
+.jp-skill-group__sub { margin: 4px 0 4px; color: var(--jp-muted); font-size: 0.9em; font-weight: 600; }
+.jp-path .jp-skill-group .jp-skill-type { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px;
+  align-items: center; min-height: 52px; padding: 6px 0; border-bottom: 1px solid var(--jp-line); }
+.jp-skill-type__name { min-width: 0; }
+.jp-skill-type__name [lang="ja"] { margin-right: 6px; }
+.jp-skill-type__today { margin-left: 6px; padding: 1px 6px; border-radius: 4px; background: var(--jp-primary-soft);
+  color: var(--jp-primary); font-size: 0.8em; font-weight: 600; white-space: nowrap; }
+.jp-skill-type .jp-btn--sm { min-height: 40px; padding: 4px 14px; }
+@media (max-width: 900px) {
+  .jp-skill-groups { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+}
+@media (max-width: 640px) {
+  .jp-path .jp-skill-group .jp-skill-type { grid-template-columns: minmax(0, 1fr) auto; }
+  .jp-path .jp-skill-group .jp-skill-type__state { grid-column: 1; grid-row: 2; font-size: 0.85em; }
+  .jp-path .jp-skill-group .jp-skill-type .jp-btn--sm { grid-column: 2; grid-row: 1 / span 2; min-height: 44px; }
+}
+.jp-skill-group .jp-skill-card__done { display: flex; flex-direction: row; align-items: center; gap: 6px; margin: 4px 0 2px; }
+
+/* 04/11 lesson, livelier: goal in a band, numbered steps, traps/tips as callouts, the worked example tried first */
+.jp-skill-lesson__hero { display: grid; gap: 10px; padding: 24px 24px 20px; border-radius: 12px; background: var(--jp-primary-soft); }
+.jp-skill-lesson__hero h2 { margin: 0; font-size: 1.45em; }
+.jp-skill-lesson__goal { display: flex; gap: 10px; align-items: flex-start; margin: 0; line-height: 1.6; }
+.jp-skill-lesson__goal .jp-i { flex: none; margin-top: 3px; color: var(--jp-primary); width: 1.3em; height: 1.3em; }
+.jp-skill-sub { margin: 26px 0 12px; font-size: 1.1em; }
+.jp-skill-lesson__how { display: grid; gap: 18px 40px; }
+.jp-skill-lesson__aside { display: grid; gap: 18px; align-content: start; padding-top: 4px; }
+.jp-howto { list-style: none; counter-reset: howto; margin: 0; padding: 0; display: grid; gap: 0; }
+.jp-howto > li { counter-increment: howto; position: relative; padding: 0 0 18px 48px; line-height: 1.65; }
+.jp-howto > li::before { content: counter(howto); position: absolute; left: 0; top: -2px; display: grid; place-items: center;
+  width: 32px; height: 32px; border-radius: 50%; background: var(--jp-primary); color: var(--jp-surface); font-weight: 500; }
+.jp-howto > li:not(:last-child)::after { content: ""; position: absolute; left: 15px; top: 32px; bottom: 2px; width: 2px;
+  background: var(--jp-primary-soft); }
+.jp-howto--small > li { padding: 0 0 12px 38px; }
+.jp-howto--small > li::before { width: 26px; height: 26px; font-size: .85em; }
+.jp-howto--small > li:not(:last-child)::after { left: 12px; top: 26px; }
+.jp-skill-example { display: grid; gap: 18px 40px; }
+.jp-skill-example__source .jp-skill-passage { margin: 0; padding: 18px 20px; border-left: 1px solid var(--jp-primary);
+  border-radius: 0 10px 10px 0; background: var(--jp-surface); }
+.jp-skill-try__label { margin: 0 0 6px; color: var(--jp-primary); font-size: .85em; font-weight: 500; letter-spacing: .03em;
+  text-transform: uppercase; }
+.jp-skill-example__try .jp-skill-explain .jp-i { vertical-align: -0.2em; }
+.jp-skill-walk[open] { animation: jp-skill-open .3s ease-out; }
+.jp-skill-check { padding: 22px 24px; border: 1px dashed var(--jp-primary-soft); border-radius: 12px; }
+@media (min-width: 1100px) {
+  .jp-skill-lesson__how { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+  .jp-skill-example { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: start; }
+  .jp-skill-example__source { position: sticky; top: 84px; }
+}
+@media (max-width: 640px) {
+  .jp-skill-lesson__hero, .jp-skill-check { padding: 18px 16px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .jp-skill-q__options button.is-right { animation: jp-skill-pop .35s ease-out; }
+  @keyframes jp-skill-pop { 0% { transform: scale(1); } 45% { transform: scale(1.03); } 100% { transform: scale(1); } }
+  @keyframes jp-skill-open { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+}
+.jp-skill-session .jp-side-ok, .jp-skill-session .jp-side-miss { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; }
+.jp-skill-session .jp-side-ok { color: var(--jp-ok); }
+.jp-skill-session .jp-side-miss { color: var(--jp-danger); }
+.jp-skill-session .jp-skill-explain .jp-i { display: inline-block; width: 1.15em; height: 1.15em; }
+.jp-skill-q__options button.is-right, .jp-skill-q__options button.is-right:disabled { border: 1px solid var(--jp-ok);
+  background: color-mix(in srgb, var(--jp-ok) 14%, var(--jp-surface)); color: var(--jp-ink); opacity: 1; }
+.jp-skill-q__options button.is-wrong, .jp-skill-q__options button.is-wrong:disabled { opacity: 1; }
+.jp-skill-q__options button.is-picked, .jp-skill-q__options button.is-picked:disabled { border: 1px solid var(--jp-primary); background: var(--jp-primary-soft); color: var(--jp-ink); opacity: 1; }
+
+/* Furigana toggle of the Đọc · Nghe pages (jpath-auto-furigana.js) */
+.jp-skill-session .jp-page-head, .jp-skill-section .jp-page-head { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; }
+.jp-furi-toggle { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 6px 14px; border: 1px solid var(--jp-line);
+  border-radius: 8px; background: var(--jp-surface); color: var(--jp-ink); font: inherit; cursor: pointer; }
+.jp-furi-toggle[aria-pressed="true"] { border-color: var(--jp-primary); background: var(--jp-primary-soft); color: var(--jp-primary); }
+.jp-furi-toggle__state { font-weight: 500; }
+.jp-furi-toggle:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-skill-session ruby rt, .jp-skill-section ruby rt { font-size: .5em; }
+.jp-furigana-off ruby rt { visibility: hidden; }
+.jp-furigana-off ruby.jp-rt-flip rt { visibility: visible; }
+.jp-furigana-off ruby { cursor: pointer; }
+@media (max-width: 640px) { .jp-furi-toggle { min-height: 44px; } }
+
+/* 04/11 Luyện nói theo: pronunciation score (jpath-shadow-follow.js scoreHtml) */
+.jp-follow { display: grid; gap: 10px; }
+.jp-follow__score:empty { display: none; }
+.jp-follow__score { display: grid; gap: 8px; padding: 14px 16px; border-radius: 10px; background: var(--jp-primary-soft); }
+.jp-follow__result { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center; }
+.jp-follow__total { display: grid; place-items: center; width: 84px; height: 84px; border-radius: 50%; background: var(--jp-surface);
+  border: 1px solid var(--jp-primary); }
+.jp-follow__total b { font-size: 1.9em; line-height: 1; }
+.jp-follow__total span { color: var(--jp-muted); font-size: .8em; margin-top: -14px; }
+.jp-follow__result.is-good .jp-follow__total { border-color: var(--jp-ok); }
+.jp-follow__result.is-low .jp-follow__total { border-color: var(--jp-danger); }
+.jp-follow__bars { display: grid; gap: 6px; }
+.jp-follow__bar { display: grid; grid-template-columns: 6.5em minmax(0, 1fr) 2.5em; gap: 10px; align-items: center; font-size: .92em; }
+.jp-follow__track { height: 8px; border-radius: 4px; background: var(--jp-surface); overflow: hidden; }
+.jp-follow__track > span { display: block; height: 100%; border-radius: 4px; background: var(--jp-primary); }
+.jp-follow__bar b { text-align: right; }
+.jp-follow__words { margin: 0; font-size: 1.25em; line-height: 1.9; }
+.jp-follow__w { padding: 0 2px; border-radius: 3px; }
+.jp-follow__w.is-bad { color: var(--jp-danger); background: var(--jp-danger-soft); text-decoration: underline wavy; text-underline-offset: 4px; }
+@media (max-width: 640px) { .jp-follow__result { grid-template-columns: minmax(0, 1fr); justify-items: start; } }
+
+/* 05/11 redesign: the Đọc · Nghe practice — one bài at a time, sentence-by-sentence hover translation,
+   exam-style questions (問N) and the Kết quả / Làm lại / Đáp án / Dịch nghĩa bar. */
+.jp-skill-context { margin: 0 0 4px; font-size: .98em; font-weight: 500; color: var(--jp-primary); }
+.jp-skill-bai { padding-bottom: 28px; }
+.jp-sen-list { white-space: normal; }
+.jp-sen { display: block; position: relative; padding: 6px 0; }
+.jp-sen:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; border-radius: 4px; }
+.jp-sen__ja { display: block; }
+.jp-sen__who { display: block; margin-bottom: 2px; font-size: .72em; font-weight: 500; color: var(--jp-muted);
+  text-transform: uppercase; letter-spacing: .05em; }
+.jp-sen__vi { display: none; margin: 4px 0 8px; padding: 6px 12px; border-radius: 8px; background: var(--jp-primary-soft);
+  color: var(--jp-ink); font-size: .86em; line-height: 1.6; box-shadow: 0 1px 3px rgba(0, 0, 0, .08); }
+.jp-sen:hover .jp-sen__vi, .jp-sen:focus .jp-sen__vi, .jp-sen.is-open .jp-sen__vi,
+.jp-sen-list.is-vi .jp-sen__vi { display: block; }
+.jp-skill-bai .jp-skill-q__no { margin: 0 0 8px; font-size: .8em; font-weight: 500; color: var(--jp-primary);
+  letter-spacing: .06em; }
+.jp-skill-bai .jp-skill-q__no + p { margin: 0 0 12px; font-size: 1.12em; font-weight: 600; line-height: 1.65; }
+.jp-skill-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; padding-top: 18px;
+  border-top: 1px solid var(--jp-line); }
+.jp-skill-toolbar .jp-btn { min-height: 44px; }
+.jp-skill-score { margin: 14px 0 0; font-weight: 500; color: var(--jp-ink); }
+.jp-skill-next { margin-top: 18px; }
+.jp-skill-next .jp-btn--primary { min-height: 52px; padding-inline: 28px; }
+@media (max-width: 640px) {
+  .jp-skill-toolbar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .jp-skill-toolbar .jp-btn, .jp-skill-next .jp-btn--primary { width: 100%; }
+}
+/* 06/11 translations of questions and options (Dịch nghĩa) */
+.jp-skill-q__vi { margin: 2px 0 8px; color: var(--jp-muted); font-size: .92rem; }
+.jp-skill-q__options button { display: grid; gap: 2px; text-align: left; }
+.jp-skill-opt-vi { font-size: .85rem; color: var(--jp-muted); }
+
+/* === ROUND 7 UI POLISH === */
+.jp-howto > li::before {
+  width: auto !important;
+  height: auto !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--jp-primary) !important;
+  font-weight: 500 !important;
+}
+
+.jp-skills__section .jp-unlock-tip {
+  display: none !important;
+}
+
+.jp-skill-q__options button,
+.jp-skill-opt {
+  border: 1px solid var(--jp-line) !important;
+  font-weight: 400 !important;
+  box-shadow: none !important;
+}
+
+.jp-skill-q__options button.is-picked,
+.jp-skill-q__options button.is-right,
+.jp-skill-q__options button.is-wrong {
+  border-width: 1px !important;
+  font-weight: 500 !important;
+}

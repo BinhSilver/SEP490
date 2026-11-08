@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] "Xong hôm nay" page (/learning/jlpt/done); jpath-done.js draws it from
+     GET /api/learning/jlpt/today/summary. -->
+<head th:replace="~{fragments/head :: standard('Xong hôm nay - JLAS', null)}"></head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-check')}"></th:block>
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page jp-check-page jp-done-page" data-inline-dictionary>
+    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Tổng kết hôm nay')}"></th:block>
+    <div id="jpathDoneRoot" class="jp-done-root" aria-busy="true">
+        <p class="jp-status" role="status">Đang tải…</p>
+    </div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlptpath/jpath-display.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-dialog.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-done.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>
